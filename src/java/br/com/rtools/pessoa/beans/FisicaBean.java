@@ -2298,7 +2298,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             somaValoresHistorico = "0,00";
             for (Vector linha : result) {
                 listaServicoPessoa.add(new DataObject(linha, null));
-                somaValoresHistorico = Moeda.converteR$Float(Moeda.somaValores(Moeda.converteUS$(somaValoresHistorico), ((Double) linha.get(8)).floatValue()));
+                somaValoresHistorico = Moeda.converteR$Float(Moeda.somaValores(Moeda.converteUS$(somaValoresHistorico), ((Double) linha.get(7)).floatValue()));
             }
         }
         return listaServicoPessoa;

@@ -4,6 +4,7 @@ import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoPagamento;
 import br.com.rtools.principal.DB;
+import br.com.rtools.relatorios.RelatorioGrupo;
 import br.com.rtools.relatorios.RelatorioParametros;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.seguranca.Usuario;
@@ -13,7 +14,7 @@ import javax.persistence.Query;
 
 public class RelatorioFinanceiroDao extends DB {
 
-    public List<Object> listaRelatorioFinanceiro(Integer id_contabil, Integer  id_grupo, Integer id_sub_grupo, Integer id_servicos, String dataEmissao, String dataEmissaoFinal, String dataVencimento, String dataVencimentoFinal, String dataQuitacao, String dataQuitacaoFinal, String dataImportacao, String dataImportacaoFinal, String dataCredito, String dataCreditoFinal, String dataFechamentoCaixa, String dataFechamentoCaixaFinal, Integer id_caixa_banco, Integer id_caixa, Integer id_operador, Integer id_tipo_quitacao, String tipo_departamento, Relatorios relatorio) {
+    public List<Object> listaRelatorioFinanceiro(String ids_contabil, Integer  id_grupo, Integer id_sub_grupo, Integer id_servicos, String dataEmissao, String dataEmissaoFinal, String dataVencimento, String dataVencimentoFinal, String dataQuitacao, String dataQuitacaoFinal, String dataImportacao, String dataImportacaoFinal, String dataCredito, String dataCreditoFinal, String dataFechamentoCaixa, String dataFechamentoCaixaFinal, Integer id_caixa_banco, Integer id_caixa, Integer id_operador, Integer id_tipo_quitacao, String tipo_departamento, String tipo_es, Relatorios relatorio) {
 //        String select
 //                = "SELECT \n "
 //                + "       grupo, \n "
@@ -47,8 +48,8 @@ public class RelatorioFinanceiroDao extends DB {
         // 10/04/2015
         
         // CONTA CONTABIL ---
-        if (id_contabil != null){
-            list_where.add(" id_conta = "+id_contabil+ " \n ");
+        if (!ids_contabil.isEmpty()){
+            list_where.add(" id_conta IN ("+ids_contabil+") \n ");
         }
         
         // GRUPO ---
@@ -156,6 +157,18 @@ public class RelatorioFinanceiroDao extends DB {
             }
         }
         
+        // TIPO E/S ---
+        if (!tipo_es.isEmpty()){
+            switch (tipo_es) {
+                case "E":
+                    list_where.add(" es = 'E' \n ");
+                    break;
+                case "S":
+                    list_where.add(" es = 'S' \n ");
+                    break;
+            }
+        }
+        
         if (list_where.isEmpty()){
             return new ArrayList();
         }
@@ -168,16 +181,26 @@ public class RelatorioFinanceiroDao extends DB {
             }
         }
         
-        String group_order = 
-                  " GROUP BY \n "
-                + "       grupo, \n "
-                + "       subgrupo, \n "
-                + "       servico \n "
-                + " ORDER BY \n "
+        List<RelatorioGrupo> listaRG = new RelatorioDao().listaRelatorioGrupo(relatorio.getId());
+        String group = "";
+        if (!listaRG.isEmpty()){
+            String g = "";
+            for(RelatorioGrupo rg : listaRG){
+                if (g.isEmpty())
+                    g = rg.getGrupo() + " \n ";
+                else
+                    g += ", "+rg.getGrupo()  + " \n ";
+            }
+            group = " GROUP BY \n ";
+            group += g;
+        }       
+        
+        String order = 
+                " ORDER BY \n "
                 + "       grupo,\n "
                 + "       subgrupo, \n "
                 + "       servico ";
-        Query qry = getEntityManager().createNativeQuery(select + where + group_order);
+        Query qry = getEntityManager().createNativeQuery(select + where + group + order);
         
         try {
             return qry.getResultList();
@@ -252,6 +275,10 @@ public class RelatorioFinanceiroDao extends DB {
     }
     
     public List<Plano5> listaPlano5(String ids){
+        if (ids.isEmpty()){
+            return new ArrayList();
+        }
+        
         Query qry = getEntityManager().createNativeQuery(
                 "SELECT p5.* \n" +
                 "  FROM fin_plano5 p5 \n " +

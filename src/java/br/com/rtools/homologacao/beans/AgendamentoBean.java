@@ -1072,7 +1072,11 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 } else if (!listFisica.isEmpty() && pem != null && listao.isEmpty()) {
                     //msgConfirma = "CPF verificado com sucesso";
                     pessoaEmpresa = pem;
+                    // PARA ALTERAR NOME E NASCIMENTO ---
+                    pessoaEmpresa.getFisica().getPessoa().setNome(fisica.getPessoa().getNome());
+                    pessoaEmpresa.getFisica().setNascimento(fisica.getNascimento());
                     fisica = pessoaEmpresa.getFisica();
+                    // ---
                     profissao = (pessoaEmpresa.getFuncao() == null) ? new Profissao() : pessoaEmpresa.getFuncao();
                     GenericaSessao.put("juridicaPesquisa", pessoaEmpresa.getJuridica());
                     enderecoFisica = dbe.pesquisaEndPorPessoaTipo(fisica.getPessoa().getId(), 3);
@@ -1081,6 +1085,10 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                     // COM FISICA, SEM PESSOA EMPRESA E SEM OPOSICAO    
                 } else if (!listFisica.isEmpty() && pem == null && listao.isEmpty()) {
                     //msgConfirma = "CPF verificado com sucesso";
+                    // PARA ALTERAR NOME E NASCIMENTO ---
+                    listFisica.get(0).getPessoa().setNome(fisica.getPessoa().getNome());
+                    listFisica.get(0).setNascimento(fisica.getNascimento());
+                    // ----
                     fisica = listFisica.get(0);
                     fisica.getPessoa().setDocumento(documento);
                     pessoaEmpresa = new PessoaEmpresa();
@@ -1093,6 +1101,10 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
 
                     styleDestaque = "color: red; font-size: 14pt; font-weight:bold";
                     pessoaEmpresa = pem;
+                    // PARA ALTERAR NOME E NASCIMENTO ---
+                    pessoaEmpresa.getFisica().getPessoa().setNome(fisica.getPessoa().getNome());
+                    pessoaEmpresa.getFisica().setNascimento(fisica.getNascimento());
+                    // ----
                     fisica = pessoaEmpresa.getFisica();
                     profissao = (pessoaEmpresa.getFuncao() == null) ? new Profissao() : pessoaEmpresa.getFuncao();
                     enderecoFisica = dbe.pesquisaEndPorPessoaTipo(fisica.getPessoa().getId(), 3);
@@ -1119,7 +1131,10 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 } else if (!listFisica.isEmpty() && pem == null && !listao.isEmpty()) {
                     GenericaMensagem.warn("Atenção", "CPF cadastrado em oposição data: " + listao.get(0).getEmissao());
                     styleDestaque = "color: red; font-size: 14pt; font-weight:bold";
-
+                    // PARA ALTERAR NOME E NASCIMENTO ---
+                    listFisica.get(0).getPessoa().setNome(fisica.getPessoa().getNome());
+                    listFisica.get(0).setNascimento(fisica.getNascimento());
+                    // ----
                     fisica = listFisica.get(0);
                     juridica = listao.get(0).getJuridica();
                     enderecoFisica = dbe.pesquisaEndPorPessoaTipo(fisica.getPessoa().getId(), 3);

@@ -1,6 +1,7 @@
 package br.com.rtools.relatorios.beans;
 
 import br.com.rtools.logSistema.NovoLog;
+import br.com.rtools.relatorios.RelatorioGrupo;
 import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.RelatorioParametros;
 import br.com.rtools.relatorios.Relatorios;
@@ -26,11 +27,13 @@ public class RelatorioBean implements Serializable {
     private Relatorios relatorio;
     private RelatorioOrdem relatorioOrdem;
     private RelatorioParametros relatorioParametros;
+    private RelatorioGrupo relatorioGrupo;
     private List<SelectItem> listRotina;
     private List<Relatorios> listRelatorio;
     private List<RelatorioOrdem> listRelatorioOrdem;
     private Integer rotina_id;
     private List<RelatorioParametros> listaRelatorioParametro;
+    private List<RelatorioGrupo> listaRelatorioGrupo;
 
     @PostConstruct
     public void init() {
@@ -41,7 +44,9 @@ public class RelatorioBean implements Serializable {
         listRelatorioOrdem = new ArrayList<>();
         rotina_id = 0;
         relatorioParametros = new RelatorioParametros();
+        relatorioGrupo = new RelatorioGrupo();
         listaRelatorioParametro = new ArrayList();
+        listaRelatorioGrupo = new ArrayList();
     }
 
     @PreDestroy
@@ -50,6 +55,29 @@ public class RelatorioBean implements Serializable {
         GenericaSessao.remove("rotinaBean");
     }
 
+    public void adicionarRelatorioGrupo() {
+        if (relatorioGrupo.getGrupo().isEmpty()){
+            GenericaMensagem.warn("Atenção", "Grupo não pode ser vazio!");
+            return;
+        }
+        
+        Dao dao = new Dao();
+        
+        dao.openTransaction();
+        
+        relatorioGrupo.setRelatorio(relatorio);
+        
+        if (!dao.save(relatorioGrupo)){
+            GenericaMensagem.error("Erro", "Não foi possível salvar Grupo!");
+            return;
+        }
+        
+        dao.commit();
+        
+        relatorioGrupo = new RelatorioGrupo();
+        loadListaRelatorioGrupo();
+    }
+    
     public void adicionarRelatorioParametro() {
         if (relatorioParametros.getApelido().isEmpty()){
             GenericaMensagem.warn("Atenção", "Apelido do Campo não pode ser vazio!");
@@ -73,6 +101,21 @@ public class RelatorioBean implements Serializable {
         loadListaRelatorioParametro();
     }
     
+    public void excluirRelatorioGrupo(RelatorioGrupo rg) {
+        Dao dao = new Dao();
+        
+        dao.openTransaction();
+        rg = (RelatorioGrupo) dao.find(rg);
+        
+        if (!dao.delete(rg)){
+            GenericaMensagem.error("Erro", "Não foi possível excluir Campo!");
+            return;
+        }
+        
+        dao.commit();
+        loadListaRelatorioGrupo();
+    }
+    
     public void excluirRelatorioParametro(RelatorioParametros rp) {
         Dao dao = new Dao();
         
@@ -86,6 +129,14 @@ public class RelatorioBean implements Serializable {
         
         dao.commit();
         loadListaRelatorioParametro();
+    }
+    
+    public void loadListaRelatorioGrupo(){
+        getListaRelatorioGrupo().clear();
+        
+        RelatorioDao dao = new RelatorioDao();
+        
+        setListaRelatorioGrupo(dao.listaRelatorioGrupo(relatorio.getId()));
     }
     
     public void loadListaRelatorioParametro(){
@@ -256,6 +307,7 @@ public class RelatorioBean implements Serializable {
         relatorioOrdem = new RelatorioOrdem();
         rotina_id = relatorio.getRotina().getId();
         loadListaRelatorioParametro();
+        loadListaRelatorioGrupo();
         return "relatorio";
     }
 
@@ -387,5 +439,21 @@ public class RelatorioBean implements Serializable {
 
     public void setListaRelatorioParametro(List<RelatorioParametros> listaRelatorioParametro) {
         this.listaRelatorioParametro = listaRelatorioParametro;
+    }
+
+    public RelatorioGrupo getRelatorioGrupo() {
+        return relatorioGrupo;
+    }
+
+    public void setRelatorioGrupo(RelatorioGrupo relatorioGrupo) {
+        this.relatorioGrupo = relatorioGrupo;
+    }
+
+    public List<RelatorioGrupo> getListaRelatorioGrupo() {
+        return listaRelatorioGrupo;
+    }
+
+    public void setListaRelatorioGrupo(List<RelatorioGrupo> listaRelatorioGrupo) {
+        this.listaRelatorioGrupo = listaRelatorioGrupo;
     }
 }

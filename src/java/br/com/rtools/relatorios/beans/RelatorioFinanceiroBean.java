@@ -8,7 +8,6 @@ import br.com.rtools.financeiro.SubGrupoFinanceiro;
 import br.com.rtools.financeiro.TipoPagamento;
 import br.com.rtools.financeiro.db.FinanceiroDB;
 import br.com.rtools.financeiro.db.FinanceiroDBToplink;
-import br.com.rtools.impressao.ParametroRelatorioFinanceiro;
 import br.com.rtools.relatorios.RelatorioParametros;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioDao;
@@ -20,7 +19,6 @@ import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Jasper;
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -54,6 +52,7 @@ public class RelatorioFinanceiroBean implements Serializable {
      * <br />7 OPERADOR
      * <br />8 TIPO QUITAÇÃO
      * <br />9 DEPARTAMENTO
+     * <br />10 ESTRADA / SAIDA
      */
     private List<Filtros> listaFiltros = new ArrayList();
     private Integer contaContabil = null;
@@ -75,7 +74,7 @@ public class RelatorioFinanceiroBean implements Serializable {
 
     private Integer idTipoQuitacao = 0;
     private List<SelectItem> listaTipoQuitacao = new ArrayList();
-    
+
     private Integer idCaixaBanco = 0;
     private List<SelectItem> listaCaixaBanco = new ArrayList();
 
@@ -93,13 +92,14 @@ public class RelatorioFinanceiroBean implements Serializable {
     private String dataFechamentoCaixaFinal = "";
 
     private List<ListaPlanos> listaPlanos = new ArrayList();
-    private Integer idPlano5 = 0;
-    private List<SelectItem> listaPlano5 = new ArrayList();
+    private List<ListaPlano5> listaPlano5 = new ArrayList();
     
     private boolean chkTodos = false;
+    private boolean chkTodosPlano5 = false;
     private boolean chkExcel = false;
-    
+
     private String tipoDepartamento = "outros";
+    private String tipoES = "E";
 
     @PostConstruct
     public void init() {
@@ -112,12 +112,11 @@ public class RelatorioFinanceiroBean implements Serializable {
         GenericaSessao.remove("relatorioFinanceiroBean");
     }
 
-    public void loadListaCaixaBanco(){
+    public void loadListaCaixaBanco() {
         listaCaixaBanco.clear();
         idCaixaBanco = 0;
-        
+
         RelatorioFinanceiroDao dao = new RelatorioFinanceiroDao();
-        
 
         List<Plano5> result = dao.listaCaixaBanco();
         if (!result.isEmpty()) {
@@ -130,29 +129,34 @@ public class RelatorioFinanceiroBean implements Serializable {
                         )
                 );
             }
-        }        
+        }
     }
-    
-    public void marcarTodos(){
+
+    public void marcarTodos() {
         for (ListaPlanos listaPlano : listaPlanos) {
             listaPlano.setSelecionado(chkTodos);
         }
-        
+
         loadListaPlano5();
     }
     
-    public void loadListaPlano5(){
+    public void marcarTodosPlano5() {
+        for (ListaPlano5 listaPlano : listaPlano5) {
+            listaPlano.setSelecionado(chkTodosPlano5);
+        }
+    }
+
+    public void loadListaPlano5() {
         listaPlano5.clear();
-        idPlano5 = 0;
-        
+
         RelatorioFinanceiroDao dao = new RelatorioFinanceiroDao();
-        
+
         String ids = "";
-        for (ListaPlanos lp : listaPlanos){
-            if (lp.selecionado){
-                if (ids.isEmpty()){
+        for (ListaPlanos lp : listaPlanos) {
+            if (lp.selecionado) {
+                if (ids.isEmpty()) {
                     ids = "" + lp.idPlano4;
-                }else{
+                } else {
                     ids += ", " + lp.idPlano4;
                 }
             }
@@ -162,16 +166,15 @@ public class RelatorioFinanceiroBean implements Serializable {
         if (!result.isEmpty()) {
             for (int i = 0; i < result.size(); i++) {
                 listaPlano5.add(
-                        new SelectItem(
-                                i,
-                                result.get(i).getConta(),
-                                Integer.toString(result.get(i).getId())
+                        new ListaPlano5(
+                                false, 
+                                result.get(i)
                         )
                 );
             }
         }
     }
-    
+
     public void loadListaPlanos() {
         listaPlanos.clear();
 
@@ -192,7 +195,7 @@ public class RelatorioFinanceiroBean implements Serializable {
                     )
             );
         }
-        
+
         loadListaPlano5();
     }
 
@@ -245,7 +248,7 @@ public class RelatorioFinanceiroBean implements Serializable {
                 listaCaixa.add(
                         new SelectItem(
                                 i,
-                                (result.get(i).getCaixa() != 0) ? result.get(i).getCaixa() + " - " : ""+ result.get(i).getDescricao(),
+                                (result.get(i).getCaixa() != 0) ? result.get(i).getCaixa() + " - " : "" + result.get(i).getDescricao(),
                                 Integer.toString(result.get(i).getId())
                         )
                 );
@@ -318,11 +321,21 @@ public class RelatorioFinanceiroBean implements Serializable {
 
     public void imprimir() {
         Relatorios relatorios = (Relatorios) new Dao().find(new Relatorios(), Integer.parseInt(listaRelatorio.get(idRelatorio).getDescription()));
-        Integer id_contabil = null, id_grupo = null, id_sub_grupo = null, id_servicos = null, id_caixa_banco = null, id_caixa = null, id_operador = null, id_tipo_quitacao = null;
+        Integer id_grupo = null, id_sub_grupo = null, id_servicos = null, id_caixa_banco = null, id_caixa = null, id_operador = null, id_tipo_quitacao = null;
         List<String> ldescricao = new ArrayList();
         // CONTA CONTABIL
+        String ids_planos = "";
         if (listaFiltros.get(0).ativo && !listaPlano5.isEmpty()) {
-            id_contabil = Integer.valueOf(listaPlano5.get(idPlano5).getDescription());
+//            id_contabil = Integer.valueOf(listaPlano5.get(idPlano5).getDescription());
+            for (ListaPlano5 lp5 : listaPlano5) {
+                if (lp5.selecionado) {
+                    if (ids_planos.isEmpty()) {
+                        ids_planos = "" + lp5.getPl5().getId();
+                    } else {
+                        ids_planos += ", " + lp5.getPl5().getId();
+                    }
+                }
+            }
         }
 
         // GRUPO
@@ -349,70 +362,70 @@ public class RelatorioFinanceiroBean implements Serializable {
                 ldescricao.add("Data de Emissão de: " + dataEmissao + " à " + dataEmissaoFinal);
                 dtEmissao = dataEmissao;
                 dtEmissaoFinal = dataEmissaoFinal;
-            }else if (!dataEmissao.isEmpty() && dataEmissaoFinal.isEmpty()) {
+            } else if (!dataEmissao.isEmpty() && dataEmissaoFinal.isEmpty()) {
                 ldescricao.add("Data de Emissão: " + dataEmissao);
                 dtEmissao = dataEmissao;
-            }else if (dataEmissao.isEmpty() && !dataEmissaoFinal.isEmpty()) {
+            } else if (dataEmissao.isEmpty() && !dataEmissaoFinal.isEmpty()) {
                 ldescricao.add("Data de Emissão até: " + dataEmissaoFinal);
                 dtEmissaoFinal = dataEmissaoFinal;
             }
-            
+
             if (!dataVencimento.isEmpty() && !dataVencimentoFinal.isEmpty()) {
                 ldescricao.add("Data de Vencimento de: " + dataVencimento + " à " + dataVencimentoFinal);
                 dtVencimento = dataVencimento;
                 dtVencimentoFinal = dataVencimentoFinal;
-            }else if (!dataVencimento.isEmpty() && dataVencimentoFinal.isEmpty()) {
+            } else if (!dataVencimento.isEmpty() && dataVencimentoFinal.isEmpty()) {
                 ldescricao.add("Data de Vencimento: " + dataVencimento);
                 dtVencimento = dataVencimento;
-            }else if (dataVencimento.isEmpty() && !dataVencimentoFinal.isEmpty()) {
+            } else if (dataVencimento.isEmpty() && !dataVencimentoFinal.isEmpty()) {
                 ldescricao.add("Data de Vencimento até: " + dataVencimentoFinal);
                 dtVencimentoFinal = dataVencimentoFinal;
             }
-            
+
             if (!dataQuitacao.isEmpty() && !dataQuitacaoFinal.isEmpty()) {
-                ldescricao.add("Data de Quitação de: " + dataQuitacao + " à "+ dataQuitacaoFinal);
+                ldescricao.add("Data de Quitação de: " + dataQuitacao + " à " + dataQuitacaoFinal);
                 dtQuitacao = dataQuitacao;
                 dtQuitacaoFinal = dataQuitacaoFinal;
-            }else if (!dataQuitacao.isEmpty() && dataQuitacaoFinal.isEmpty()) {
+            } else if (!dataQuitacao.isEmpty() && dataQuitacaoFinal.isEmpty()) {
                 ldescricao.add("Data de Quitação: " + dataQuitacao);
                 dtQuitacao = dataQuitacao;
-            }else if (dataQuitacao.isEmpty() && !dataQuitacaoFinal.isEmpty()) {
+            } else if (dataQuitacao.isEmpty() && !dataQuitacaoFinal.isEmpty()) {
                 ldescricao.add("Data de Quitação até: " + dataQuitacaoFinal);
                 dtQuitacaoFinal = dataQuitacaoFinal;
             }
-            
+
             if (!dataImportacao.isEmpty() && !dataImportacaoFinal.isEmpty()) {
                 ldescricao.add("Data de Importação de: " + dataImportacao + " à " + dataImportacaoFinal);
                 dtImportacao = dataImportacao;
                 dtImportacaoFinal = dataImportacaoFinal;
-            }else if (!dataImportacao.isEmpty() && dataImportacaoFinal.isEmpty()) {
+            } else if (!dataImportacao.isEmpty() && dataImportacaoFinal.isEmpty()) {
                 ldescricao.add("Data de Importação: " + dataImportacao);
                 dtImportacao = dataImportacao;
-            }else if (dataImportacao.isEmpty() && !dataImportacaoFinal.isEmpty()) {
+            } else if (dataImportacao.isEmpty() && !dataImportacaoFinal.isEmpty()) {
                 ldescricao.add("Data de Importação até: " + dataImportacaoFinal);
                 dtImportacaoFinal = dataImportacaoFinal;
             }
-            
+
             if (!dataCredito.isEmpty() && !dataCreditoFinal.isEmpty()) {
-                ldescricao.add("Data de Crédito de: " + dataCredito + " à " +dataCreditoFinal);
+                ldescricao.add("Data de Crédito de: " + dataCredito + " à " + dataCreditoFinal);
                 dtCredito = dataCredito;
                 dtCreditoFinal = dataCreditoFinal;
-            }else if (!dataCredito.isEmpty() && dataCreditoFinal.isEmpty()) {
+            } else if (!dataCredito.isEmpty() && dataCreditoFinal.isEmpty()) {
                 ldescricao.add("Data de Crédito: " + dataCredito);
                 dtCredito = dataCredito;
-            }else if (dataCredito.isEmpty() && !dataCreditoFinal.isEmpty()) {
+            } else if (dataCredito.isEmpty() && !dataCreditoFinal.isEmpty()) {
                 ldescricao.add("Data de Crédito até: " + dataCreditoFinal);
                 dtCreditoFinal = dataCreditoFinal;
             }
-            
+
             if (!dataFechamentoCaixa.isEmpty() && !dataFechamentoCaixaFinal.isEmpty()) {
                 ldescricao.add("Data do Fechamento Caixa de: " + dataFechamentoCaixa + " à " + dataFechamentoCaixaFinal);
                 dtFechamentoCaixa = dataFechamentoCaixa;
                 dtFechamentoCaixaFinal = dataFechamentoCaixaFinal;
-            }else if (!dataFechamentoCaixa.isEmpty() && dataFechamentoCaixaFinal.isEmpty()) {
+            } else if (!dataFechamentoCaixa.isEmpty() && dataFechamentoCaixaFinal.isEmpty()) {
                 ldescricao.add("Data do Fechamento Caixa: " + dataFechamentoCaixa);
                 dtFechamentoCaixa = dataFechamentoCaixa;
-            }else if (dataFechamentoCaixa.isEmpty() && !dataFechamentoCaixaFinal.isEmpty()) {
+            } else if (dataFechamentoCaixa.isEmpty() && !dataFechamentoCaixaFinal.isEmpty()) {
                 ldescricao.add("Data do Fechamento Caixa até: " + dataFechamentoCaixaFinal);
                 dtFechamentoCaixaFinal = dataFechamentoCaixaFinal;
             }
@@ -437,11 +450,17 @@ public class RelatorioFinanceiroBean implements Serializable {
         if (listaFiltros.get(8).ativo) {
             id_tipo_quitacao = Integer.valueOf(listaTipoQuitacao.get(idTipoQuitacao).getDescription());
         }
-        
+
         // DEPARTAMENTO
         String tipo_departamento = "";
         if (listaFiltros.get(9).ativo) {
             tipo_departamento = tipoDepartamento;
+        }
+
+        // ENTRADA / SAIDA 
+        String tipo_es = "";
+        if (listaFiltros.get(10).ativo) {
+            tipo_es = tipoES;
         }
 
         Map params = new HashMap();
@@ -458,9 +477,9 @@ public class RelatorioFinanceiroBean implements Serializable {
         }
         params.put("descricao_data", descricaoData);
         params.put("logo_sindicato", ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));
-        
-        List<Object> result = new RelatorioFinanceiroDao().listaRelatorioFinanceiro(id_contabil, id_grupo, id_sub_grupo, id_servicos, dtEmissao, dtEmissaoFinal, dtVencimento, dtVencimentoFinal, dtQuitacao, dtQuitacaoFinal, dtImportacao, dtImportacaoFinal, dtCredito, dtCreditoFinal, dtFechamentoCaixa, dtFechamentoCaixaFinal, id_caixa_banco, id_caixa, id_operador, id_tipo_quitacao, tipo_departamento, relatorios);
-        
+
+        List<Object> result = new RelatorioFinanceiroDao().listaRelatorioFinanceiro(ids_planos, id_grupo, id_sub_grupo, id_servicos, dtEmissao, dtEmissaoFinal, dtVencimento, dtVencimentoFinal, dtQuitacao, dtQuitacaoFinal, dtImportacao, dtImportacaoFinal, dtCredito, dtCreditoFinal, dtFechamentoCaixa, dtFechamentoCaixaFinal, id_caixa_banco, id_caixa, id_operador, id_tipo_quitacao, tipo_departamento, tipo_es, relatorios);
+
         if (result.isEmpty()) {
             GenericaMensagem.error("Atenção", "Nenhum resultado encontrado para a pesquisa!");
             return;
@@ -470,19 +489,19 @@ public class RelatorioFinanceiroBean implements Serializable {
 
         List<HashMap> list_hash = new ArrayList();
         HashMap<String, Object> map = new LinkedHashMap();
-        
+
         String[] param_query = new String[listaRL.size()];
-        for (int i = 0; i < listaRL.size(); i++){
+        for (int i = 0; i < listaRL.size(); i++) {
             param_query[i] = listaRL.get(i).getApelido();
         }
-        
+
         for (Object linha : result) {
             List list = (List) linha;
             map = new LinkedHashMap();
-            for (int i = 0; i < param_query.length; i++){
+            for (int i = 0; i < param_query.length; i++) {
                 map.put(param_query[i], list.get(i));
             }
-        
+
             list_hash.add(map);
         }
 
@@ -523,6 +542,8 @@ public class RelatorioFinanceiroBean implements Serializable {
                 break;
             case "departamento":
                 break;
+            case "es":
+                break;
         }
     }
 
@@ -539,7 +560,7 @@ public class RelatorioFinanceiroBean implements Serializable {
         listaFiltros.add(new Filtros("operador", "Operador", false));
         listaFiltros.add(new Filtros("tipoQuitacao", "Tipo de Quitação", false));
         listaFiltros.add(new Filtros("departamento", "Departamento", true));
-
+        listaFiltros.add(new Filtros("es", "Entrada/Saída", false));
     }
 
     public void loadListaRelatorio() {
@@ -591,6 +612,7 @@ public class RelatorioFinanceiroBean implements Serializable {
      * <br />7 OPERADOR
      * <br />8 TIPO QUITAÇÃO
      * <br />9 DEPARTAMENTO
+     * <br />10 ENTRADA / SAÍDA
      *
      * @return Lista de Filtros
      */
@@ -762,19 +784,11 @@ public class RelatorioFinanceiroBean implements Serializable {
         this.listaPlanos = listaPlanos;
     }
 
-    public Integer getIdPlano5() {
-        return idPlano5;
-    }
-
-    public void setIdPlano5(Integer idPlano5) {
-        this.idPlano5 = idPlano5;
-    }
-
-    public List<SelectItem> getListaPlano5() {
+    public List<ListaPlano5> getListaPlano5() {
         return listaPlano5;
     }
 
-    public void setListaPlano5(List<SelectItem> listaPlano5) {
+    public void setListaPlano5(List<ListaPlano5> listaPlano5) {
         this.listaPlano5 = listaPlano5;
     }
 
@@ -864,6 +878,22 @@ public class RelatorioFinanceiroBean implements Serializable {
 
     public void setTipoDepartamento(String tipoDepartamento) {
         this.tipoDepartamento = tipoDepartamento;
+    }
+
+    public String getTipoES() {
+        return tipoES;
+    }
+
+    public void setTipoES(String tipoES) {
+        this.tipoES = tipoES;
+    }
+
+    public boolean isChkTodosPlano5() {
+        return chkTodosPlano5;
+    }
+
+    public void setChkTodosPlano5(boolean chkTodosPlano5) {
+        this.chkTodosPlano5 = chkTodosPlano5;
     }
 
     public class Filtros {
@@ -1000,4 +1030,30 @@ public class RelatorioFinanceiroBean implements Serializable {
         }
 
     }
+    
+    public class ListaPlano5 {
+        private boolean selecionado = false;
+        private Plano5 pl5 = new Plano5();
+
+        public ListaPlano5(boolean selecionado, Plano5 plano5) {
+            this.selecionado = selecionado;
+            this.pl5 = plano5;
+        }
+        
+        public boolean isSelecionado() {
+            return selecionado;
+        }
+
+        public void setSelecionado(boolean selecionado) {
+            this.selecionado = selecionado;
+        }
+
+        public Plano5 getPl5() {
+            return pl5;
+        }
+
+        public void setPl5(Plano5 pl5) {
+            this.pl5 = pl5;
+        }
+    }    
 }

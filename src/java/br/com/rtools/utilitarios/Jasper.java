@@ -47,6 +47,9 @@ import net.sf.jasperreports.engine.export.JRPdfExporter;
 import net.sf.jasperreports.engine.export.JRPdfExporterParameter;
 import net.sf.jasperreports.engine.util.JRLoader;
 import net.sf.jasperreports.engine.xml.JRXmlLoader;
+import net.sf.jasperreports.export.SimpleExporterInput;
+import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
+import net.sf.jasperreports.export.SimplePdfExporterConfiguration;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -588,40 +591,29 @@ public class Jasper implements Serializable {
                                     dtSource = new JRBeanCollectionDataSource(c);
                                     print = JasperFillManager.fillReport(jasper, parameters, dtSource);
                                 }
+                                
                                 if (bytesComparer == BYTES) {
                                     b = JasperExportManager.exportReportToPdf(print);
                                 } else {
                                     b = BYTES;
                                 }
+                                
                                 if (b.length > MEGABYTE) {
                                     bytes = new byte[MEGABYTE * 500];
+                                }
+                                
+                                try (FileOutputStream out = new FileOutputStream(file)) {
+                                    out.write(b);
+                                    out.flush();
                                 }
                             } else {
-                                //  VER COM O CLAUDEMIR
-                                //                        List listExport = new ArrayList();
-                                //                        listExport.add(new File(dirPath + "/" + downloadName));
-                                //                        JRPdfExporter exporter = new JRPdfExporter();
-                                //                        ByteArrayOutputStream retorno = new ByteArrayOutputStream();
-                                //                        exporter.setExporterInput(SimpleExporterInput.getInstance(listExport));
-                                //                        exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(dirPath + "/" + downloadName));
-                                //                        SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
-                                //                        configuration.setCreatingBatchModeBookmarks(true);
-                                //                        exporter.setConfiguration(configuration);
-                                //                        exporter.exportReport();
                                 JRPdfExporter exporter = new JRPdfExporter();
-                                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                                exporter.setParameter(JRExporterParameter.JASPER_PRINT_LIST, jasperListExport);
-                                exporter.setParameter(JRExporterParameter.OUTPUT_STREAM, stream);
-                                exporter.setParameter(JRPdfExporterParameter.IS_CREATING_BATCH_MODE_BOOKMARKS, Boolean.TRUE);
+                                exporter.setExporterInput(SimpleExporterInput.getInstance(jasperListExport));
+                                exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(file.getPath()));  
+                                SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
+                                configuration.setCreatingBatchModeBookmarks(true);
+                                exporter.setConfiguration(configuration);
                                 exporter.exportReport();
-                                b = stream.toByteArray();
-                                if (b.length > MEGABYTE) {
-                                    bytes = new byte[MEGABYTE * 500];
-                                }
-                            }
-                            try (FileOutputStream out = new FileOutputStream(file)) {
-                                out.write(b);
-                                out.flush();
                             }
                         } catch (IOException | JRException e) {
                             System.out.println(e);
@@ -637,6 +629,7 @@ public class Jasper implements Serializable {
                             System.out.println("Memória > Tamanho do arquivo não suporta o formato PDF, tente novamente baixando o mesmo compactado. Memória usada: " + usedMemory + "M/" + maxMemory + "M");
                             GenericaMensagem.info("Servidor > Memória", "Tamanho do arquivo não suporta o formato PDF, tente novamente baixando o mesmo compactado. Memória usada: " + usedMemory + "M/" + maxMemory + "M");
                         }
+                        
                         if (COMPRESS_FILE) {
                             if (COMPRESS_EXTENSION.equals("zip")) {
                                 mimeType = "application/zip, application/octet-stream";
@@ -859,3 +852,21 @@ public class Jasper implements Serializable {
      * </pageHeader>
      */
 }
+//                                if (!EXPORT_TO_EXCEL){
+//                                    JRPdfExporter exporter = new JRPdfExporter();
+//                                    exporter.setExporterInput(SimpleExporterInput.getInstance(jasperListExport));
+//                                    exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(file.getPath()));  
+//                                    SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
+//                                    configuration.setCreatingBatchModeBookmarks(true);
+//                                    exporter.setConfiguration(configuration);
+//                                    exporter.exportReport();
+//                                }else{
+//                                    JRXlsExporter exporter = new JRXlsExporter();
+//                                    exporter.setExporterInput(SimpleExporterInput.getInstance(jasperListExport));
+//                                    exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(file.getPath()));  
+//                                    
+//                                    SimpleXlsExporterConfiguration configuration = new SimpleXlsExporterConfiguration();
+//                                    //configuration.setCreatingBatchModeBookmarks(true);
+//                                    exporter.setConfiguration(configuration);
+//                                    exporter.exportReport();
+//                                }

@@ -121,7 +121,8 @@ public class AcordoBean implements Serializable {
             }
         }
         
-        //enviarEmail();
+        enviarEmail();
+        PF.update("formAcordo");
     }
 
     public void confirmarVerificarEmail() {
@@ -137,18 +138,21 @@ public class AcordoBean implements Serializable {
         if (emailPara.equals("contabilidade")) {
             if (!jur.getContabilidade().getPessoa().getEmail1().equals(pessoaEnvio.getEmail1())){
                 emailAntigo = jur.getContabilidade().getPessoa().getEmail1();
-                PF.openDialog("panel_atualizar_email");
+                PF.openDialog("dlg_atualizar_email");
+                PF.update("formAcordo:panel_atualizar_email");
                 return;
             }
         } else {
             if (!jur.getPessoa().getEmail1().equals(pessoaEnvio.getEmail1())){
                 emailAntigo = jur.getPessoa().getEmail1();
-                PF.openDialog("panel_atualizar_email");
+                PF.openDialog("dlg_atualizar_email");
+                PF.update("formAcordo:panel_atualizar_email");
                 return;
             }
 
         }
-        //enviarEmail();
+        enviarEmail();
+        PF.update("formAcordo");
     }
 
     public void verificaEmail() {
@@ -172,10 +176,9 @@ public class AcordoBean implements Serializable {
             PF.openDialog("dlg_enviar_email");
         } else {
             if (!jur.getPessoa().getEmail1().isEmpty()) {
-                pessoaEnvio = jur.getContabilidade().getPessoa();
+                pessoaEnvio = jur.getPessoa();
             }
 
-            pessoaEnvio = new Pessoa();
             PF.openDialog("dlg_enviar_email");
         }
 
@@ -265,7 +268,7 @@ public class AcordoBean implements Serializable {
             listaValores.add(((Movimento) listaOperado.get(i).getArgumento2()).getValor());
             listaVencimentos.add(((Movimento) listaOperado.get(i).getArgumento2()).getVencimento());
         }
-        verificaEmail();
+        //verificaEmail();
         if (!listaImp.isEmpty() && pessoaEnvio.getId() != -1) {
             for (int i = 0; i < listaImp.size(); i++) {
                 ImprimirBoleto imp = new ImprimirBoleto();
