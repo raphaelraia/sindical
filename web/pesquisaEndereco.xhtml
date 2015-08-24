@@ -1,0 +1,130 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Pesquisa Endereço</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+    </h:head>
+    <h:body>
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>
+        </f:subview>
+        <f:view>
+
+            <p:ajaxStatus id="i_status" onstart="PF('i_dlg_modal').show();" onsuccess="PF('i_dlg_modal').hide();" />
+            <p:dialog modal="true" widgetVar="i_dlg_modal" header="Status" draggable="false" closable="false">  
+                <h:outputLabel value=" ... Aguarde" />
+            </p:dialog>
+            <h:form id="form_pe">
+                <p:dialog widgetVar="dlg_mensagem" header="Mensagem" width="400" modal="true" resizable="false" visible="#{not empty enderecoBean.msgDetalhada}">
+                    <p:outputLabel value="#{enderecoBean.msgDetalhada}" />
+                    <f:facet name="footer">
+                        <p:commandButton value="OK" title="OK" onclick="PF('dlg_mensagem').hide();"/>
+                    </f:facet>
+                </p:dialog>
+                <p:focus for="idCEP" />
+                <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                    <h:outputText value="Pesquisa Endereço" styleClass="fonteHeader" />
+                    <div class="clear"></div>
+                    <p:messages autoUpdate="true" showDetail="true" showSummary="true" closable="true" />
+                    <p:panel id="i_panel_pesquisa" styleClass="fundoCinza margin-top-max">
+                        <h:panelGrid columns="4">
+                            <h:outputText value="CEP: " styleClass="fontePadraoNegrito"/>                            
+                            <p:inputText id="idCEP" value="#{enderecoBean.endereco.cep}" size="10" onkeypress="if (event.keyCode === 13) 
+                                        PF('btnPesquisar').onclick();
+                                    " converter="#{thisNumber}">
+                                <p:ajax event="blur" update="@this" />
+                            </p:inputText>
+                            <p:commandButton widgetVar="btnPesquisar" action="#{enderecoBean.pesquisaCep}" value="Pesquisar" update="i_tbl"/>
+                            <p:commandButton style="margin-left: 20px;" value="Cadastrar" action="#{enderecoBean.chamadaEndereco()}" actionListener="#{enderecoBean.listenerCadastrar}"/>
+                        </h:panelGrid>
+                        <hr />
+
+                        <p:panelGrid>
+                            <f:facet name="header">
+                                <p:row>
+                                    <p:column colspan="6">
+                                        Filtros
+                                    </p:column>
+                                </p:row>
+                                <p:row>
+                                    <p:column>Logradouro</p:column> 
+                                    <p:column>Descrição Endereço</p:column> 
+                                    <p:column>Cidade</p:column> 
+                                    <p:column>Estado</p:column> 
+                                    <p:column></p:column> 
+                                    <p:column></p:column> 
+                                </p:row>
+                            </f:facet>
+                            <p:row>
+                                <p:column>
+                                    <h:selectOneMenu value="#{enderecoBean.index[2]}">
+                                        <f:selectItems value="#{enderecoBean.listLogradouro}" />
+                                    </h:selectOneMenu>
+                                </p:column>
+                                <p:column>
+                                    <p:inputText value="#{enderecoBean.endereco.descricaoEndereco.descricao}" size="25" onkeypress="if (event.keyCode === 13) {
+                                                PF('form_pe:btnInicial').onclick();
+                                            }"/>
+                                </p:column>
+                                <p:column>
+                                    <h:selectOneMenu id="idListaCidades" value="#{enderecoBean.index[1]}">
+                                        <p:ajax event="change" update="idListaCidades"/>
+                                        <f:selectItems value="#{enderecoBean.listCidade}" />
+                                    </h:selectOneMenu>                            
+                                </p:column>
+                                <p:column>
+                                    <h:selectOneMenu id="idUF" value="#{enderecoBean.cidadeBase.uf}" styleClass="ui-corner-all ui-hselectonemenu">
+                                        <p:ajax event="change" update="idUF idListaCidades"/>
+                                        <f:selectItems value="#{enderecoBean.listEstado}" />
+                                    </h:selectOneMenu>
+                                </p:column>
+                                <p:column>
+                                    <p:commandButton id="btnInicial" action="#{enderecoBean.pesquisaInicial}" value="Inicial" update="i_tbl"/>
+                                </p:column>
+                                <p:column>
+                                    <p:commandButton id="btnParcial" action="#{enderecoBean.pesquisaParcial}" value="Parcial" update="i_tbl"/>
+                                </p:column>
+                            </p:row>
+                        </p:panelGrid>   
+                    </p:panel>
+                </p:panel>
+                <p:panel id="i_tbl" styleClass="no-border">
+                    <p:dataTable value="#{enderecoBean.listaEndereco}" var="endereco" scrollable="true" scrollHeight="400" emptyMessage="Nenhum registro encontrado!" styleClass="margin" rows="10" paginator="true">
+                        <p:column width="25">
+                            <p:commandButton icon="ui-icon-link" action="#{enderecoBean.edit(endereco)}" title="Editar: #{endereco.id}" />
+                        </p:column>
+                        <p:column headerText="Cidade">
+                            <h:outputText value="#{endereco.cidade.cidade}"/>
+                        </p:column>
+
+                        <p:column headerText="Bairro">
+                            <h:outputText value="#{endereco.bairro.descricao}"/>
+                        </p:column>
+
+                        <p:column headerText="Logradouro">
+                            <h:outputText value="#{endereco.logradouro.descricao}"/>
+                        </p:column>
+
+                        <p:column headerText="Descricao">
+                            <h:outputText value="#{endereco.descricaoEndereco.descricao}"/>
+                        </p:column>
+
+                        <p:column headerText="CEP">
+                            <h:outputText value="#{endereco.cep}"/>
+                        </p:column>
+
+                        <p:column headerText="Faixa">
+                            <h:outputText value="#{endereco.faixa}"/>
+                        </p:column>
+                    </p:dataTable>
+                </p:panel>
+
+            </h:form>                     
+        </f:view>     
+    </h:body>
+</ui:composition>

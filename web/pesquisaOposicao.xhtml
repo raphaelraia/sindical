@@ -1,0 +1,134 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Pesquisa Oposição</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
+            .ui-button { padding: 3px!important; }
+        </style>             
+    </h:head>
+    <h:body>
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>
+        </f:subview>
+        <f:view>
+            <ui:include src="templates/templateStatus.xhtml"/>
+            <h:form id="form_pesquisa_oposicao">
+                <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                    <h:outputText value="Pesquisa Oposição" styleClass="fonteHeader" />
+                    <div class="clear"></div>
+                    <p:panel id="i_panel_pesquisa" styleClass="fundoCinza">
+                        <h:panelGrid columns="8">
+                            <p:outputLabel value="Pesquisar: "/>
+                            <h:column rendered="#{!oposicaoBean.removeFiltro}">
+                                <p:inputMask mask="#{oposicaoBean.mascara}" value="#{oposicaoBean.descricaoPesquisa}" disabled="#{oposicaoBean.porPesquisa == 'todos'}">
+                                    <p:ajax event="change" update="@this" global="false" />
+                                </p:inputMask>
+                            </h:column>
+                            <h:column rendered="#{oposicaoBean.removeFiltro}">
+                                <p:inputMask mask="#{oposicaoBean.mascara}" value="#{oposicaoBean.descricaoPesquisa}" >
+                                    <p:ajax event="change" update="@this" global="false"/>
+                                </p:inputMask>
+                            </h:column>
+                            <h:outputLabel value="Por: "/>
+                            <h:column rendered="#{!oposicaoBean.removeFiltro}">
+                                <p:selectOneMenu value="#{oposicaoBean.porPesquisa}">
+                                    <p:ajax event="change" update="i_panel_pesquisa, i_tbl" listener="#{oposicaoBean.listaOposicaos.clear()}"/>
+                                    <f:selectItem itemValue="todos"         itemLabel="Todos" />
+                                    <f:selectItem itemValue="nome"          itemLabel="Nome" />
+                                    <f:selectItem itemValue="empresa"       itemLabel="Empresa" />
+                                    <f:selectItem itemValue="data"          itemLabel="Emissão" />
+                                    <f:selectItem itemValue="cnpj"          itemLabel="CNPJ" />
+                                    <f:selectItem itemValue="cpf"           itemLabel="CPF" />
+                                    <f:selectItem itemValue="rgs"           itemLabel="RG" />
+                                    <f:selectItem itemValue="observacao"    itemLabel="Observação"  />
+                                </p:selectOneMenu>
+                            </h:column>
+                            <h:column rendered="#{oposicaoBean.removeFiltro}">
+                                <p:selectOneMenu value="#{oposicaoBean.porPesquisa}">
+                                    <p:ajax event="change" update="i_panel_pesquisa, i_tbl" listener="#{oposicaoBean.listaOposicaos.clear()}"/>
+                                    <f:selectItem itemValue="nome"          itemLabel="Nome" />
+                                    <f:selectItem itemValue="empresa"       itemLabel="Empresa" />
+                                    <f:selectItem itemValue="cnpj"          itemLabel="CNPJ" />
+                                    <f:selectItem itemValue="cpf"           itemLabel="CPF" />
+                                    <f:selectItem itemValue="rgs"           itemLabel="RG" />
+                                </p:selectOneMenu>
+                            </h:column>
+                            <h:column rendered="#{!oposicaoBean.removeFiltro}">
+                                <h:column rendered="#{oposicaoBean.porPesquisa != 'todos'}">
+                                    <p:commandButton value="Inicial">
+                                        <p:ajax listener="#{oposicaoBean.acaoPesquisaInicial}" update="i_panel_pesquisa i_tbl"/>
+                                    </p:commandButton>
+                                    <p:commandButton value="Parcial">
+                                        <p:ajax listener="#{oposicaoBean.acaoPesquisaParcial}" update="i_panel_pesquisa i_tbl"/>
+                                    </p:commandButton>
+                                </h:column> 
+                                <h:column rendered="#{oposicaoBean.porPesquisa == 'todos'}">
+                                    <p:commandButton value="Atualizar">
+                                        <p:ajax listener="#{oposicaoBean.acaoPesquisaParcial}" update="i_panel_pesquisa i_tbl"/>
+                                    </p:commandButton>
+                                </h:column>
+                            </h:column>
+                            <h:column rendered="#{oposicaoBean.removeFiltro}">
+                                <p:commandButton value="Inicial">
+                                    <p:ajax listener="#{oposicaoBean.acaoPesquisaInicial}" update="i_panel_pesquisa i_tbl"/>
+                                </p:commandButton>
+                                <p:commandButton value="Parcial">
+                                    <p:ajax listener="#{oposicaoBean.acaoPesquisaParcial}" update="i_panel_pesquisa i_tbl"/>
+                                </p:commandButton>                                
+                            </h:column>
+                        </h:panelGrid>   
+                    </p:panel>
+                
+                    <p:dataTable id="i_tbl" value="#{oposicaoBean.listaOposicaos}" var="oposicao" scrollable="true" scrollHeight="400" emptyMessage="Nenhum registro encontrado!" styleClass="margin" rows="10" paginator="true">
+                        <p:column headerText="Data" width="60" styleClass="text-center">
+                            <p:commandLink action="#{oposicaoBean.edit(oposicao)}" value="#{oposicao.emissao}" style="font-size: 8pt!important" />
+                        </p:column>                                    
+                        <p:column headerText="CNPJ" width="115" styleClass="text-center">
+                            <h:commandLink action="#{oposicaoBean.edit(oposicao)}" value="#{oposicao.juridica.pessoa.documento}" style="font-size: 8pt!important"  />
+                        </p:column>                                    
+                        <p:column headerText="Empresa" >
+                            <h:commandLink action="#{oposicaoBean.edit(oposicao)}" value="#{oposicao.juridica.pessoa.nome}"  title="Nome fantasia: #{oposicao.juridica.fantasia}" style="font-size: 8pt!important" />
+                        </p:column>
+                        <p:column headerText="CPF" styleClass="text-center" width="90">
+                            <h:commandLink action="#{oposicaoBean.edit(oposicao)}" value="#{oposicao.oposicaoPessoa.cpf}" style="font-size: 8pt!important" />
+                        </p:column>                                    
+                        <p:column headerText="RG" width="80" styleClass="text-center">
+                            <h:outputText value="#{oposicao.oposicaoPessoa.rg}" style="font-size: 8pt!important" />
+                        </p:column>                                    
+                        <p:column headerText="Nome">
+                            <h:outputText value="#{oposicao.oposicaoPessoa.nome}" style="font-size: 8pt!important" />
+                        </p:column>                                    
+                        <p:column headerText="Convençao" styleClass="text-center">
+                            <h:outputText value="#{oposicao.convencaoPeriodo.convencao.descricao}" style="font-size: 8pt!important" />
+                        </p:column>                                    
+                        <p:column headerText="Grupo Cidade" width="80" styleClass="text-center">
+                            <h:outputText value="#{oposicao.convencaoPeriodo.grupoCidade.descricao}" style="font-size: 8pt!important" />
+                        </p:column>                                    
+                        <p:column rendered="#{!oposicaoBean.porPesquisa.equals('observacao')}" headerText="Ref. Inicial" width="50" styleClass="text-center">
+                            <h:outputText value="#{oposicao.convencaoPeriodo.referenciaInicial}" style="font-size: 8pt!important" />
+                        </p:column>                                    
+                        <p:column rendered="#{!oposicaoBean.porPesquisa.equals('observacao')}" headerText="Ref. Final" width="50" styleClass="text-center">
+                            <h:outputText value="#{oposicao.convencaoPeriodo.referenciaFinal}" style="font-size: 8pt!important" />
+                        </p:column>
+                        <p:column rendered="#{oposicaoBean.porPesquisa.equals('observacao')}" headerText="Ref. Inicial / Final" styleClass="text-center">
+                            <h:outputText value="#{oposicao.convencaoPeriodo.referenciaInicial} / #{oposicao.convencaoPeriodo.referenciaFinal}" style="font-size: 8pt!important" />
+                        </p:column>                                    
+                        <p:column rendered="#{oposicaoBean.porPesquisa.equals('observacao')}" headerText="Observação">
+                            <h:outputText value="#{oposicao.observacao}" style="font-size: 8pt!important" />
+                        </p:column>
+                        <p:column headerText="Sócio">
+                            <h:outputText value="#{oposicaoBean.pessoaSocio(oposicao.oposicaoPessoa.cpf)}" style="font-size: 8pt!important" />
+                        </p:column>
+                    </p:dataTable>
+                </p:panel>
+            </h:form>                     
+        </f:view>
+    </h:body>
+</ui:composition>

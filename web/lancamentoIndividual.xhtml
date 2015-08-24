@@ -1,0 +1,228 @@
+    <ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Sindical - Lançamento Individual</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
+            .ui-button { padding: 3px!important; }
+            .ui-selectonemenu {padding-right: 25px!important;}
+        </style>
+
+        <script type="text/javascript">
+
+        </script>
+    </h:head>
+    <h:body>
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                </f:subview>
+                <f:view>
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:outputText value="Lançamento Individual" styleClass="fonteHeader" />
+                        <h:form id="formLancamentoIndividual">
+                            <p:panel id="i_panel_pessoa" styleClass="fundoCinza" style="clear: both">
+                                <h:panelGrid columns="2">
+                                    <p:column>
+                                        <p:commandButton icon="ui-icon-search" action="#{chamadaPaginaBean.pesquisaPessoaFisica()}" title="Pesquisar Pessoa Física"/>
+                                    </p:column>
+                                    
+                                    <p:column>
+                                        <p:outputLabel value="Pesquisar Pessoa Física" rendered="#{lancamentoIndividualBean.fisica.id == -1}"/>
+                                        <p:outputLabel value="#{lancamentoIndividualBean.fisica.pessoa.nome}" rendered="#{lancamentoIndividualBean.fisica.id != -1}"/>
+                                    </p:column>
+                                </h:panelGrid>
+
+                                <h:panelGrid columns="2">
+                                    <p:column>
+                                        <p:commandButton icon="ui-icon-search" action="#{chamadaPaginaBean.pesquisaPessoa()}" title="Alterar Responsável" disabled="#{lancamentoIndividualBean.fisica.pessoa.socios != null and lancamentoIndividualBean.fisica.pessoa.socios .id != -1}" />
+                                    </p:column>
+                                    
+                                    <p:column>
+                                        <p:outputLabel value="Alterar Responsável" title="Pessoa Responsável" rendered="#{lancamentoIndividualBean.responsavel.id == -1}"/>
+                                        <p:outputLabel value="#{lancamentoIndividualBean.responsavel.nome}" title="Pessoa Responsável" />
+                                    </p:column>
+                                </h:panelGrid>
+
+                                <h:panelGrid columns="1">
+                                    <p:outputLabel value="Desconto em Folha" title="Desconto em Folha" style="font-weight: bold"/>
+                                    <p:selectOneRadio value="#{lancamentoIndividualBean.descontoFolha}" >
+                                        <p:ajax event="change" listener="#{lancamentoIndividualBean.pesquisaDescontoFolha()}" update="i_panel_pessoa"/>
+                                        <f:selectItem itemLabel="Sim" itemValue="sim" />
+                                        <f:selectItem itemLabel="Não" itemValue="nao" />
+                                    </p:selectOneRadio>
+                                </h:panelGrid>
+                            </p:panel>
+                            <p:messages autoUpdate="true" showDetail="true" closable="true"/>
+                            <p:growl autoUpdate="true" showDetail="true"/>
+                            <h:panelGrid id="i_panel_servicos" columns="3" style="margin-top: 15px">
+                                <h:column>
+                                    <p:outputLabel value="Serviços" /><br />
+                                    <p:selectOneMenu value="#{lancamentoIndividualBean.idServico}"  style="margin-right: 20px">
+                                        <p:ajax event="change" listener="#{lancamentoIndividualBean.limpaEmpresaConvenio()}" update="i_panel_servicos i_panel_valores"/>
+                                        <f:selectItems value="#{lancamentoIndividualBean.listaServicos}" />
+                                    </p:selectOneMenu>
+                                </h:column>
+                                
+                                <h:column>
+                                    <p:outputLabel value="Tipo Serviço" /><br />
+                                    <p:selectOneMenu value="#{lancamentoIndividualBean.idTipoServico}"  style="margin-right: 20px">
+                                        <p:ajax event="change" update="i_panel_servicos i_panel_valores"/>
+                                        <f:selectItems value="#{lancamentoIndividualBean.listaTipoServico}" />
+                                    </p:selectOneMenu>
+                                </h:column>
+
+                                <h:column>
+                                    <p:outputLabel value="Empresas Conveniadas"/><br />
+                                    <p:selectOneMenu value="#{lancamentoIndividualBean.idJuridica}">
+                                        <f:selectItems value="#{lancamentoIndividualBean.listaJuridica}" />
+                                    </p:selectOneMenu>
+                                </h:column>
+                            </h:panelGrid>
+
+                            <h:panelGrid columns="1" style="width: 100%">
+                                <p:outputLabel value="Histórico" />
+                                <p:inputTextarea value="#{lancamentoIndividualBean.lote.historico}" style="width: 100%" rows="3"/>
+                            </h:panelGrid>
+
+                            <p:panel styleClass="fundoCinza"></p:panel>
+                            <h:panelGrid id="i_panel_valores" columns="6" style="width: 100%; padding: 10px">
+                                <h:column>
+                                    <h:outputLabel value="Total Pagar" style="font-weight: bold"/><br />
+                                    <p:inputText value="#{lancamentoIndividualBean.totalPagar}" size="8" style="text-align: right; #{(!lancamentoIndividualBean.servicos.alterarValor) ? 'opacity: 100!important; color: black' : ''}" disabled="#{!lancamentoIndividualBean.servicos.alterarValor}">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:inputText>
+                                </h:column>
+
+                                <h:column>
+                                    <h:outputLabel value="Parcelas" style="font-weight: bold"/><br />
+                                    <p:selectOneMenu value="#{lancamentoIndividualBean.idParcela}">
+                                        <f:selectItems value="#{lancamentoIndividualBean.listaParcelas}" />
+                                    </p:selectOneMenu>
+                                </h:column>
+
+                                <h:column>
+                                    <p:outputLabel value="Entrada" style="font-weight: bold"/><br />
+                                    <p:selectOneRadio value="#{lancamentoIndividualBean.entrada}">
+                                        <f:selectItem itemLabel="Sim" itemValue="sim" />
+                                        <f:selectItem itemLabel="Não" itemValue="nao" />
+                                    </p:selectOneRadio>
+                                </h:column>
+
+                                <h:column>
+                                    <p:outputLabel value="Cobrança Bancária" style="font-weight: bold" rendered="false"/><br />
+                                    <p:selectOneRadio value="#{lancamentoIndividualBean.cobrancaBancaria}" rendered="false">
+                                        <f:selectItem itemLabel="Sim" itemValue="sim" />
+                                        <f:selectItem itemLabel="Não" itemValue="nao" />
+                                    </p:selectOneRadio>
+                                </h:column>
+
+                                <h:column>
+                                    <p:outputLabel value="Dia de Vencimento" style="font-weight: bold"/><br />
+                                    <p:selectOneMenu value="#{lancamentoIndividualBean.idDia}" disabled="true">
+                                        <f:selectItem itemValue="1" itemLabel="01"/>
+                                        <f:selectItem itemValue="2" itemLabel="02"/>
+                                        <f:selectItem itemValue="3" itemLabel="03"/>
+                                        <f:selectItem itemValue="4" itemLabel="04"/>
+                                        <f:selectItem itemValue="5" itemLabel="05"/>
+                                        <f:selectItem itemValue="6" itemLabel="06"/>
+                                        <f:selectItem itemValue="7" itemLabel="07"/>
+                                        <f:selectItem itemValue="8" itemLabel="08"/>
+                                        <f:selectItem itemValue="9" itemLabel="09"/>
+                                        <f:selectItem itemValue="10" itemLabel="10"/>
+                                        <f:selectItem itemValue="11" itemLabel="11"/>
+                                        <f:selectItem itemValue="12" itemLabel="12"/>
+                                        <f:selectItem itemValue="13" itemLabel="13"/>
+                                        <f:selectItem itemValue="14" itemLabel="14"/>
+                                        <f:selectItem itemValue="15" itemLabel="15"/>
+                                        <f:selectItem itemValue="16" itemLabel="16"/>
+                                        <f:selectItem itemValue="17" itemLabel="17"/>
+                                        <f:selectItem itemValue="18" itemLabel="18"/>
+                                        <f:selectItem itemValue="19" itemLabel="19"/>
+                                        <f:selectItem itemValue="20" itemLabel="20"/>
+                                        <f:selectItem itemValue="21" itemLabel="21"/>
+                                        <f:selectItem itemValue="22" itemLabel="22"/>
+                                        <f:selectItem itemValue="23" itemLabel="23"/>
+                                        <f:selectItem itemValue="24" itemLabel="24"/>
+                                        <f:selectItem itemValue="25" itemLabel="25"/>
+                                        <f:selectItem itemValue="26" itemLabel="26"/>
+                                        <f:selectItem itemValue="27" itemLabel="27"/>
+                                        <f:selectItem itemValue="28" itemLabel="28"/>
+                                        <f:selectItem itemValue="29" itemLabel="29"/>
+                                        <f:selectItem itemValue="30" itemLabel="30"/>
+                                        <f:selectItem itemValue="31" itemLabel="31"/>
+                                    </p:selectOneMenu>  
+                                </h:column>
+
+                                <h:column>
+                                    <p:commandButton value="Gerar Parcelas" action="#{lancamentoIndividualBean.adicionarParcelas}" update="i_panel_grid i_panel_botao i_panel_botao2" title="Gerar parcelas para Pessoa"/>
+                                </h:column>
+                            </h:panelGrid>
+
+                            <h:panelGrid id="i_panel_botao" columns="3">
+                                <p:commandButton onclick="PF('dlg_salvar').show()" value="Salvar" title="Salvar / Atualizar" rendered="#{!lancamentoIndividualBean.listaMovimento.isEmpty()}" disabled="#{lancamentoIndividualBean.lote.id != -1}"/>
+                                <p:commandButton value="Novo" action="#{lancamentoIndividualBean.novo()}" title="Novo" rendered="#{!lancamentoIndividualBean.listaMovimento.isEmpty()}" ajax="false"/>
+                                <p:commandButton onclick="PF('dlg_excluir').show()" value="Excluir" title="Excluir" rendered="false" />
+                            </h:panelGrid>
+                            
+                            <h:panelGrid id="i_panel_grid">
+                                <p:dataTable value="#{lancamentoIndividualBean.listaMovimento}" var="linha" style="width:100%" id="tbl" emptyMessage="" scrollRows="10">
+                                    <p:column headerText="Vencimento" style="text-align: center;">
+                                        <p:inputMask value="#{linha.argumento0.vencimento}" mask="99/99/9999" style="width: 80px; text-align: center">
+                                            <p:ajax event="change" update="@this" />
+                                        </p:inputMask>
+                                    </p:column>
+
+                                    <p:column headerText="Valor" style="text-align: center">
+                                        <p:inputText value="#{linha.argumento1}" style="text-align: right">
+                                            <p:ajax event="change" update="@this" />
+                                        </p:inputText>
+                                    </p:column>
+
+                                    <p:column headerText="Pago" style="text-align: center;">
+                                        <h:outputText value="#{linha.argumento0.valorBaixa}" />
+                                    </p:column>
+                                </p:dataTable>
+                            </h:panelGrid>
+                            
+                            <h:panelGrid id="i_panel_botao2" columns="3">
+                                <p:commandButton onclick="PF('dlg_salvar').show()" value="Salvar" title="Salvar / Atualizar" rendered="#{!lancamentoIndividualBean.listaMovimento.isEmpty()}" disabled="#{lancamentoIndividualBean.lote.id != -1}"/>
+                                <p:commandButton value="Novo" action="#{lancamentoIndividualBean.novo()}" title="Novo" rendered="#{!lancamentoIndividualBean.listaMovimento.isEmpty()}" ajax="false"/>
+                                <p:commandButton onclick="PF('dlg_excluir').show()" value="Excluir" title="Excluir" rendered="false" />
+                            </h:panelGrid>
+                            
+
+                            <p:dialog widgetVar="dlg_salvar" modal="true" header="Salvar Lançamento" width="400" resizable="false">
+                                <h:panelGrid>
+                                    <p:outputLabel value="Deseja salvar esse LANÇAMENTO?" style="font-size: 11pt!important"/>
+                                </h:panelGrid>
+                                <h:panelGrid columns="2">
+                                    <p:commandButton icon="ui-icon-check" value="Sim" title="Salvar" action="#{lancamentoIndividualBean.salvar()}" update="formLancamentoIndividual" />
+                                    <p:commandButton icon="ui-icon-close" value="Não" title="Cancelar" oncomplete="PF('dlg_salvar').hide();"/>
+                                </h:panelGrid>
+                            </p:dialog>                            
+                        </h:form>
+                    </p:panel>
+                </f:view>
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>                
+    </h:body>
+</ui:composition>

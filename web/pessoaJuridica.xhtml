@@ -1,0 +1,666 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Sindical - Pessoa Jurídica</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
+            .ui-button { padding: 3px!important; }
+            .ui-selectonemenu {padding-right: 25px!important;}
+
+            .class_tbl_contabil:hover {
+                background: #9eb4cf!important;
+            }
+        </style>
+
+        <script type="text/javascript">
+            // BLOQUEIA ENTER
+            // DESABILITA ENTER
+            // DISABLED ENTER
+            // VERIFICA SE OQ ESTOU DIGITANDO É STRING
+            function stopRKey(evt) {
+                var evt = (evt) ? evt : ((event) ? event : null);
+                //var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null); 
+                if (evt.keyCode === 13) {
+                    return false;
+                }
+            }
+
+            document.onkeypress = stopRKey;
+        </script>
+    </h:head>
+    <h:body>
+        <h:outputScript name="script_primefaces.js" library="js" />
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                </f:subview>
+                <f:view>
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:outputText value="Pessoa Jurídica" styleClass="fonteHeader" />
+                        <h:form id="formPessoaJuridica">
+                            <p:growl id="i_msg" autoUpdate="true" showDetail="true"/>
+                            <c:set scope="request" var="object" value="${juridicaBean.juridica}"/> 
+                            <h:panelGrid id="i_panel_pessoa_fisica" style="clear: both; width: 100%">
+                                <p:messages id="i_msg_m" autoUpdate="true" showDetail="true" closable="true"/>
+                                <p:tabView id="i_tabview_juridica" style="width: 100%" activeIndex="#{juridicaBean.indicaTab}">
+                                    <p:ajax event="tabChange" listener="#{juridicaBean.accordion}" /> 
+                                    <p:tab title="Dados Gerais">
+                                        <h:panelGrid columns="6" id="i_panel_cnae">
+                                            <p:column>
+                                                <p:commandButton value="Pesquisar CNAE" alt="Pesquisar Cnae" action="#{chamadaPaginaBean.pesquisaCnae}" rendered="#{juridicaBean.juridica.cnae == null or juridicaBean.juridica.cnae.id == -1}" />
+                                            </p:column>
+
+                                            <p:column>
+                                                <p:commandLink value="#{juridicaBean.juridica.cnae.numero}" action="#{chamadaPaginaBean.pesquisaCnae}" title="Alterar CNAE selecionado" style="font-size: 12pt!important"/>
+                                            </p:column>
+
+                                            <p:column>
+                                                <p:commandLink value="#{juridicaBean.juridica.cnae.cnae}" action="#{chamadaPaginaBean.pesquisaCnae}" title="Alterar CNAE selecionado" style="font-size: 11pt!important; font-weight: bold"/>
+                                            </p:column>
+
+                                            <p:column>
+                                                <h:outputText value="#{juridicaBean.cnaeContribuinte}" style="color: #{juridicaBean.colorContri}; margin-left: 20px;" rendered="#{juridicaBean.juridica.cnae != null and juridicaBean.juridica.cnae.id != -1} "/>
+                                            </p:column>
+
+                                            <p:column>
+                                                <p:commandButton icon="ui-icon-close" action="#{juridicaBean.limparCnae()}" title="Limpar CNAE" rendered="#{juridicaBean.juridica.cnae != null and juridicaBean.juridica.cnae.id != -1}" update="i_panel_cnae i_panel_convencao"/>
+                                            </p:column>
+                                        </h:panelGrid>
+
+                                        <h:panelGrid columns="3" id="i_panel_convencao">
+                                            <p:column rendered="#{juridicaBean.strCnaeConvencao != ''}">
+                                                <h:outputLabel value="Convenção" style="font-weight: bold"/><br />
+                                                <h:outputLabel value="#{juridicaBean.strCnaeConvencao}" style="font-size: 12pt!important; margin-right: 20px"/>
+                                            </p:column>
+
+                                            <p:column rendered="#{juridicaBean.strGrupoCidade != ''}">
+                                                <h:outputLabel value="Grupo Cidade"  style="font-weight: bold"/><br />
+                                                <h:outputLabel id="idStrGrupoCidade" value="#{juridicaBean.strGrupoCidade}" style="font-size: 12pt!important"/>
+                                            </p:column>
+
+                                            <p:column rendered="#{juridicaBean.listaOposicao.size() > 0}">
+                                                <br />
+                                                <p:commandLink action="#{chamadaPaginaBean.pesquisa('pesquisaOposicao')}" value="Empresa com #{juridicaBean.listaOposicao.size()} carta de oposição cadastrada" actionListener="#{juridicaBean.listenerPessoaJuridia}" style="margin-left: 60px;" styleClass="font-color-red bold" rendered="#{juridicaBean.listaOposicao.size() == 1}" />
+                                                <p:commandLink action="#{chamadaPaginaBean.pesquisa('pesquisaOposicao')}" value="Empresa com #{juridicaBean.listaOposicao.size()} cartas de oposição cadastrada" actionListener="#{juridicaBean.listenerPessoaJuridia}" style="margin-left: 60px;" styleClass="font-color-red bold" rendered="#{juridicaBean.listaOposicao.size() > 1}" />
+                                            </p:column>
+
+                                            <p:column rendered="#{juridicaBean.strArquivo != ''}">
+                                                <h:commandLink rendered="#{juridicaBean.strArquivo}" action="#{juridicaBean.abrirPDFConvencao}" value="( abrir arquivo com Convenções )" style="text-decoration: underline; margin-left: 10px" target="_blank"/>
+                                            </p:column>
+                                        </h:panelGrid>
+
+                                        <p:panel id="i_panel_dados" styleClass="fundoCinza">
+                                            <h:panelGrid columns="6" style="width: 100%">
+                                                <p:column>
+                                                    <h:outputLabel value="Data" /><br />
+                                                    <p:inputMask size="8" value="#{juridicaBean.juridica.pessoa.criacao}" mask="99/99/9999" readonly="true"/>
+                                                </p:column>
+
+                                                <p:column>
+                                                    <h:outputLabel value="Porte" /><br />
+                                                    <p:selectOneMenu value="#{juridicaBean.idPorte}">
+                                                        <f:selectItems value="#{juridicaBean.listaPorte}"/>
+                                                    </p:selectOneMenu>
+                                                </p:column>
+
+                                                <p:column>
+                                                    <br />
+                                                    <p:selectOneMenu value="#{juridicaBean.idTipoDocumento}">
+                                                        <p:ajax event="change" update="i_documento"/>
+                                                        <f:selectItems value="#{juridicaBean.listaTipoDocumento}"/>
+                                                    </p:selectOneMenu>
+                                                </p:column>
+
+                                                <p:column>
+                                                    <br />
+                                                    <p:inputMask id="i_documento" size="18" value="#{juridicaBean.juridica.pessoa.documento}" mask="#{juridicaBean.colocarMascara}">
+                                                        <p:ajax event="change" listener="#{juridicaBean.pesquisaDocumento}" update=":formPessoaJuridica:i_msg"/>
+                                                    </p:inputMask>
+                                                </p:column>
+
+                                                <p:column>
+                                                    <br />
+                                                    <p:commandButton update=":formPessoaJuridica" value="Pesquisar na Receita Federal" action="#{juridicaBean.pesquisaCnpjXML()}" disabled="#{!juridicaBean.configuracaoCnpj.local}" title="#{juridicaBean.configuracaoCnpj.local == true ? 'Pesquisar CNPJ na Receita Federal' : 'Solicitar a liberação dessa funcionalidade ao administrador do sistema!'}" />
+                                                </p:column>
+
+                                                <p:column>
+                                                    <br />
+                                                    <h:outputLink value="http://www.receita.fazenda.gov.br/PessoaJuridica/CNPJ/cnpjreva/Cnpjreva_Solicitacao.asp" target="_blank"  style="float: right">
+                                                        <f:verbatim> Ir para o site da Receita </f:verbatim>
+                                                    </h:outputLink>
+                                                </p:column>
+                                            </h:panelGrid>                                            
+                                            <h:panelGrid id="i_panel_fantasia" columns="2" style="width: 100%">
+                                                <p:column>
+                                                    <h:outputLabel value="Razão Social" /><br />
+                                                    <p:inputText value="#{juridicaBean.juridica.pessoa.nome}" style="width: 100%" converter="#{toUpperCase}">
+                                                        <p:ajax event="change" update="@this i_fantasia" global="true"/>
+                                                    </p:inputText>
+                                                </p:column>                                                
+                                                <p:column>
+                                                    <h:outputLabel value="Nome Fantasia" /><br />
+                                                    <p:inputText id="i_fantasia" value="#{juridicaBean.juridica.fantasia}" style="width: 100%" converter="#{toUpperCase}">
+                                                        <p:ajax event="change" update="@this" global="true"/>
+                                                    </p:inputText>
+                                                </p:column>
+                                            </h:panelGrid>
+                                        </p:panel>
+
+                                        <h:panelGrid id="i_panel_juridica" columns="1" style="margin-top: 10px; width: 100%">
+                                            <h:outputScript name="script_primefaces.js" library="js" />
+                                            <h:panelGrid columns="4">
+                                                <p:column>
+                                                    <h:outputLabel value="Telefones"/><br />
+                                                    <p:inputText size="15" value="#{juridicaBean.juridica.pessoa.telefone1}" styleClass="ddd_telefone" style="margin-right: 30px">
+
+                                                    </p:inputText>
+                                                </p:column>
+                                                <p:column>
+                                                    <br />
+                                                    <p:inputText size="15" value="#{juridicaBean.juridica.pessoa.telefone2}" styleClass="ddd_telefone" style="margin-right: 30px">
+
+                                                    </p:inputText>
+                                                </p:column>
+
+                                                <p:column>
+                                                    <br />
+                                                    <p:inputText size="15" value="#{juridicaBean.juridica.pessoa.telefone3}" styleClass="ddd_telefone" style="margin-right: 20px">
+
+                                                    </p:inputText>
+                                                </p:column>
+
+                                                <p:column>
+                                                    <h:outputLabel value="E-Mail" />
+                                                    <p:commandLink value="enviar Login e Senha para este email" action="#{juridicaBean.enviarEmail}" rendered="#{juridicaBean.renEnviarEmail}" style="float: right"/><br />
+                                                    <p:inputText maxlength="100" value="#{juridicaBean.juridica.pessoa.email1}" converter="#{toLowerCase}" title="E-mail 1" style="width: 475px">
+                                                        <p:ajax event="blur" update="@this" global="false"/>
+                                                    </p:inputText>
+                                                </p:column>
+                                            </h:panelGrid>
+
+                                            <h:panelGrid columns="2" id="i_contabilidade" style="width: 100%">
+                                                <p:column>
+                                                    <p:commandButton value="Pesquisar Contabilidade" title="Pesquisar Contabilidade para essa empresa" onclick="PF('i_dlg_contabil').show()" rendered="#{(juridicaBean.juridica.contabilidade == null)}"/>
+
+                                                    <h:outputText value="SERVIÇO CONTÁBIL: " rendered="#{(juridicaBean.juridica.contabilidade != null)}"/>
+
+                                                    <p:commandLink value="#{juridicaBean.nomeContabilidade}" action="#{juridicaBean.editarEmpresaContabilidade}" style="font-weight:bold; margin-right: 15px"/>
+                                                    <p:commandButton icon="ui-icon-close" rendered="#{juridicaBean.juridica.contabilidade != null}" title="Excluir Serviço Contábil" action="#{juridicaBean.btnExcluirContabilidadePertencente}" update="i_contabilidade :formPessoaJuridica:i_endereco"/>
+                                                </p:column>
+
+                                                <p:column>
+                                                    <p:selectBooleanCheckbox id="i_chk_contabil" value="#{(juridicaBean.juridica.cobrancaEscritorio)}" rendered="#{(juridicaBean.juridica.contabilidade != null)}" itemLabel="Definir Endereço de Escritório para Cobrança" style="float: right">
+                                                        <p:ajax event="change" update="i_p"/>
+                                                    </p:selectBooleanCheckbox>
+                                                </p:column>
+                                            </h:panelGrid>
+
+                                            <h:panelGrid id="i_p" columns="2" style="width: 100%">
+                                                <p:selectBooleanCheckbox id="i_chk_email" value="#{juridicaBean.juridica.emailEscritorio}" rendered="#{(juridicaBean.juridica.contabilidade != null and juridicaBean.juridica.cobrancaEscritorio)}" itemLabel="Email cobrança Escritório"/>
+                                                <p:commandLink value="Bloqueio de Contribuição" action="#{juridicaBean.bloqueioContribuicao}" rendered="#{juridicaBean.juridica.id != -1}" style="float: right"/>
+                                            </h:panelGrid>
+                                        </h:panelGrid>
+                                        <h:panelGrid columns="2" styleClass="margin-top-max">
+                                            <p:outputLabel value="Ultima atualização: #{juridicaBean.juridica.pessoa.atualizacao}" rendered="#{juridicaBean.juridica.pessoa.id != -1}" />
+                                        </h:panelGrid>                                        
+                                    </p:tab>
+
+                                    <p:tab title="Complemento">
+                                        <p:messages id="id_message_complemento" autoUpdate="true" showSummary="true" showDetail="true" closable="true"/>
+                                        <h:panelGrid columns="2" columnClasses="coluna1, coluna2">
+                                            <p:column>
+                                                <h:outputLabel value="Abertura" /><br />
+                                                <p:inputMask size="10" maxlength="8" value="#{juridicaBean.juridica.abertura}" mask="99/99/9999">
+
+                                                </p:inputMask>
+                                            </p:column>
+
+                                            <p:column>
+                                                <h:outputLabel value="Contato" /><br />
+                                                <p:inputText size="35" maxlength="50" value="#{juridicaBean.juridica.contato}" onblur="upperCase(this);">
+
+                                                </p:inputText>
+                                            </p:column>
+
+                                            <p:column>
+                                                <h:outputLabel value="Inscrição Estadual"/><br />
+                                                <p:inputText size="30" maxlength="30" value="#{juridicaBean.juridica.inscricaoEstadual}" onblur="upperCase(this);">
+
+                                                </p:inputText>
+                                            </p:column>
+
+                                            <p:column>
+                                                <h:outputLabel value="Inscrição Municipal" /><br />
+                                                <p:inputText size="30" maxlength="30" value="#{juridicaBean.juridica.inscricaoMunicipal}" onblur="upperCase(this);">
+
+                                                </p:inputText>
+                                            </p:column>
+
+                                            <p:column>
+                                                <h:outputLabel value="Responsável" /><br />
+                                                <p:inputText size="70" maxlength="50" value="#{juridicaBean.juridica.responsavel}" onblur="upperCase(this);">
+
+                                                </p:inputText>
+                                            </p:column>
+
+                                            <p:column>
+                                                <h:outputLabel value="Site" /><br />
+                                                <p:inputText size="70" maxlength="50" value="#{juridicaBean.juridica.pessoa.site}">
+
+                                                </p:inputText>
+                                            </p:column>
+
+                                            <p:column>
+                                                <h:outputLabel value="Email 2" /><br />
+                                                <p:inputText size="70" maxlength="100" value="#{juridicaBean.juridica.pessoa.email2}" converter="#{toLowerCase}" title="E-mail 2">
+                                                    <p:ajax event="blur" update="@this" global="false"/>
+                                                </p:inputText>
+                                            </p:column>
+
+                                            <p:column>
+                                                <h:outputLabel value="Email 3" /><br />
+                                                <p:inputText size="70" maxlength="100" value="#{juridicaBean.juridica.pessoa.email3}" converter="#{toLowerCase}" title="E-mail 3">
+                                                    <p:ajax event="blur" update="@this" global="false"/>
+                                                </p:inputText>
+                                            </p:column>
+
+                                            <p:column>
+                                                <h:outputLabel value="Observações" styleClass="fontePadrao"/><br />
+                                                <p:inputTextarea cols="72" rows="3" value="#{juridicaBean.juridica.pessoa.obs}" onblur="upperCase(this);">
+
+                                                </p:inputTextarea>
+                                            </p:column>
+
+                                            <h:panelGrid columns="3" cellspacing="5">
+                                                <p:selectBooleanCheckbox value="#{juridicaBean.habilitaMalaDireta}" itemLabel="Habilita Mala Direta" disabled="#{juridicaBean.juridica.id == -1}">
+                                                    <p:ajax event="change" update="@this i_combo_complemento :formPessoaJuridica:i_tabview_juridica:id_message_complemento" listener="#{juridicaBean.saveMalaDireta}"/>
+                                                </p:selectBooleanCheckbox>
+                                                <h:panelGrid id="i_combo_complemento">
+                                                    <p:selectOneMenu value="#{juridicaBean.idMalaDiretaGrupo}" style="margin-right: 30px; padding-right: 20px" rendered="#{juridicaBean.habilitaMalaDireta}" >
+                                                        <p:ajax event="change" update="@this :formPessoaJuridica:i_tabview_juridica:id_message_complemento" listener="#{juridicaBean.saveMalaDireta}"/>
+                                                        <f:selectItems value="#{juridicaBean.listMalaDiretaGrupo}" />
+                                                    </p:selectOneMenu>                                            
+                                                </h:panelGrid>
+                                            </h:panelGrid>
+
+                                        </h:panelGrid>
+                                    </p:tab>
+
+                                    <p:tab title="Serviço Contabil" disabled="#{juridicaBean.listaEmpresasPertencentes.size() == 0}">
+                                        <p:dataTable value="#{juridicaBean.listaEmpresasPertencentes}" var="linha" emptyMessage="Nenhum serviço contábil encontrado." rowStyleClass="class_tbl_contabil">
+                                            <p:column headerText="CNPJ - Nome">
+                                                <h:commandLink value="#{linha.argumento0.pessoa.documento} - #{linha.argumento0.pessoa.nome}" action="#{juridicaBean.editarEmpresaPertencente(linha)}">
+
+                                                </h:commandLink>
+                                            </p:column>
+
+                                            <p:column headerText="Cidade / UF" width="250" style="text-align: center">
+                                                <h:outputText value="#{linha.argumento1.endereco.cidade.cidade} - #{linha.argumento1.endereco.cidade.uf}"/>
+                                            </p:column>
+
+                                            <p:column headerText="" width="100" style="text-align: center">
+                                                <p:commandLink value="Ver Extrato" action="#{juridicaBean.extratoTelaListaContabil(linha.argumento0)}" style="color: red"/>
+                                            </p:column>
+                                        </p:dataTable>
+                                    </p:tab>
+
+                                    <p:tab title="Financeiro">
+                                        <ui:include src="pessoaComplemento_1.xhtml">  
+                                            <ui:param name="idPessoa" value="#{juridicaBean.juridica.pessoa.id}" />
+                                        </ui:include>                                 
+                                    </p:tab>
+
+                                    <p:tab title="Sócios">
+                                        <p:dataTable styleClass="margin-top-max" value="#{juridicaBean.listSocios}" var="listSocios" style="width: 100%" emptyMessage="Nenhum registro encontrado!" scrollable="true" scrollHeight="300">
+                                            <p:column headerText="Matrícula" styleClass="text-center">
+                                                <h:outputText value="#{listSocios.matricula}" />
+                                            </p:column>                                                                                       
+                                            <p:column headerText="Nome" styleClass="text-center">
+                                                <h:outputText value="#{listSocios.nome}" />
+                                            </p:column>                                                
+                                            <p:column headerText="Categoria" styleClass="text-center">
+                                                <h:outputText value="#{listSocios.categoria}" />
+                                            </p:column>                                                
+                                            <p:column headerText="Filiação" styleClass="text-center">
+                                                <h:outputText value="#{listSocios.filiacaoString}" />
+                                            </p:column>
+                                            <p:column headerText="Admissão" styleClass="text-center">
+                                                <h:outputText value="#{listSocios.admissaoString}" />
+                                            </p:column>
+                                            <p:column headerText="Desc. Folha" styleClass="text-center">
+                                                <p:selectBooleanCheckbox value="#{listSocios.desconto_folha}" disabled="true"/>
+                                            </p:column>
+                                        </p:dataTable>
+                                    </p:tab>
+
+                                    <p:tab title="Certidões">
+                                        <p:dataTable styleClass="margin-top-max" value="#{juridicaBean.listRepisMovimento}" var="repisMovimento" id="tbl" style="width: 100%" emptyMessage="Nenhum registro encontrado!">
+                                            <f:facet name="header">
+                                                Lista de Certidões Solicitadas
+                                            </f:facet> 
+                                            <p:column width="15">  
+                                                <p:rowToggler />  
+                                            </p:column>  
+                                            <p:column headerText="" width="20" styleClass="text-center">
+                                                <h:outputText value="#{repisMovimento.id}" style="font-size: 8pt!important"/>
+                                            </p:column>
+                                            <p:column headerText="CNPJ" width="120" styleClass="text-center">
+                                                <h:outputText value="#{repisMovimento.pessoa.documento}" style="font-size: 8pt!important"/>
+                                            </p:column>
+                                            <p:column headerText="Nome" width="300" >
+                                                <h:outputText value="#{repisMovimento.pessoa.nome}" style="font-size: 8pt!important"/>
+                                            </p:column>
+                                            <p:column headerText="STATUS" styleClass="text-center">
+                                                <h:outputText value="#{repisMovimento.repisStatus.descricao}" style="font-size: 8pt!important"/>
+                                            </p:column>
+                                            <p:column headerText="Emissão" styleClass="text-center" width="70">
+                                                <h:outputText value="#{repisMovimento.dataEmissaoString}" style="font-size: 8pt!important"/>
+                                            </p:column>
+                                            <p:column headerText="Solicitante" styleClass="text-center">
+                                                <h:outputText value="#{repisMovimento.contato}" style="font-size: 8pt!important"/>
+                                            </p:column>
+                                            <p:column headerText="Tipo" styleClass="text-center">
+                                                <h:outputText value="#{repisMovimento.certidaoTipo.descricao}" style="font-size: 8pt!important"/>
+                                            </p:column>
+                                            <p:column headerText="..." width="25" styleClass="text-center">
+                                                <p:commandButton icon="ui-icon-print" action="#{webREPISBean.imprimirCertificado(repisMovimento)}" rendered="#{repisMovimento.repisStatus.id == 3}" ajax="false"/>
+                                            </p:column>
+
+                                            <p:rowExpansion>
+                                                <h:panelGrid columns="5" styleClass="sbb">
+                                                    <p:column rendered="false">
+                                                        <h:outputLabel value="Procolo" style="font-weight: bold"/><br />
+                                                        <h:outputText value="#{repisMovimento.id}" style="margin-left: 20px"/>
+                                                    </p:column>
+                                                    <p:column>
+                                                        <h:outputLabel value="Ano" style="font-weight: bold"/><br />
+                                                        <h:outputText value="#{repisMovimento.ano}" style="margin-left: 20px"/>
+                                                    </p:column>
+                                                </h:panelGrid>
+                                            </p:rowExpansion>
+                                        </p:dataTable>
+                                    </p:tab>
+
+                                </p:tabView>
+                            </h:panelGrid>
+
+                            <h:panelGrid style="width: 100%; text-align: left">
+                                <h:outputLabel value="#{juridicaBean.inadimplente}" style="color: red" />
+                            </h:panelGrid>
+
+                            <h:panelGrid id="i_status_contribuinte" columns="3" style="width: 100%; text-align: left">
+                                <p:column>
+                                    <h:outputLabel value="Status: "/>
+                                    <h:outputText value="#{juridicaBean.contribuinte}" style="color: #{juridicaBean.colorContri}; font-size: 11pt!important; font-weight: bold"/>
+                                </p:column>
+
+                                <p:column>
+                                    <p:commandLink value="Clique para INATIVAR Empresa" onclick="PF('i_dlg_inativar').show()" rendered="#{ (juridicaBean.juridica.id != -1) and (juridicaBean.renderAtivoInativo) }" style="margin-left: 20px" disabled="#{controleAcessoBean.verificarPermissao('linkContribuinte', 2)}"/>
+                                    <p:commandLink value="Clique para ATIVAR Empresa"   action="#{juridicaBean.reativarContribuintes}" rendered="#{ (juridicaBean.juridica.id != -1) and (!juridicaBean.renderAtivoInativo) }" style="margin-left: 20px" update="i_msg i_msg_m i_status_contribuinte" disabled="#{controleAcessoBean.verificarPermissao('linkContribuinte', 1)}"/>
+                                </p:column>
+
+                                <p:column>
+                                    <p:commandLink value="Lista de Inativações"  rendered="#{juridicaBean.listaContribuintesInativos.size() > 0}" onclick="PF('i_dlg_inativacoes').show()" style="margin-left: 40px"/>
+                                </p:column>
+                            </h:panelGrid>
+
+                            <h:panelGrid id="i_panel_endereco" columns="2" style="width: 100%; text-align: left">
+                                <p:column>
+                                    <h:outputLabel value="Endereço: " />
+                                    <h:outputLabel value="#{juridicaBean.enderecoCobranca}" style="font-weight: bold">
+                                        <p:ajax event="click" update=""/>
+                                    </h:outputLabel>
+                                </p:column>
+
+                                <p:column>
+                                    <p:commandLink value="Alterar Endereço" action="#{juridicaBean.abreEndereco}" update="i_endereco" rendered="#{juridicaBean.juridica.id != -1}" style="float: right" global="false" />
+                                    <p:commandLink value="Incluir Endereço" action="#{juridicaBean.abreEndereco}" update="i_endereco" rendered="#{juridicaBean.juridica.id == -1}" style="float: right" global="false"/>
+                                </p:column>
+                            </h:panelGrid>
+
+                            <h:panelGrid id="i_endereco" styleClass="fundoCinza">
+                                <h:panelGrid rendered="#{juridicaBean.renNovoEndereco}" style="width: 100%; text-align: left">
+                                    <h:inputHidden value="#{juridicaBean.pessoaEndereco.id}"/>
+                                    <h:panelGrid columns="2">
+                                        <h:column>
+                                            <p:commandButton onclick="PF('dlg_pesquisa_endereco').show()" value="Endereço:" action="#{pesquisaEnderecoBean.put('pessoaJuridica')}" icon="ui-icon-search" title="Pesquisar endereço"/>
+                                        </h:column>
+                                        <h:column>
+                                            <h:outputLabel value="#{juridicaBean.retornarEnderecoAmbos}"  style="font-weight: bold"/>
+                                        </h:column>
+                                    </h:panelGrid>
+
+                                    <h:panelGrid columns="3">
+                                        <p:column>
+                                            <h:outputLabel value="Número"/><br />
+                                            <p:inputText size="10" value="#{juridicaBean.pessoaEndereco.numero}"/>
+                                        </p:column>
+
+                                        <p:column>
+                                            <h:outputLabel value="Complemento" /><br />
+                                            <p:inputText size="35" value="#{juridicaBean.pessoaEndereco.complemento}"/>
+                                        </p:column>
+                                        <p:column>
+                                            <br />
+                                            <p:commandButton title="Adicionar" value="Adicionar" action="#{juridicaBean.adicionarEnderecos}" update="i_endereco"/>
+                                        </p:column>
+                                    </h:panelGrid>
+                                </h:panelGrid>
+
+                                <h:panelGrid id="idPGEndereco" rendered="#{juridicaBean.renEndereco}" style="width:100%; text-align: right">
+                                    <p:dataTable id="i_tbl_endereco" value="#{juridicaBean.listaEnderecos}" var="linha" rowIndexVar="index">
+                                        <p:column headerText="Tipo">
+                                            <p:commandLink action="#{juridicaBean.RetornarObjetoDaGrid(linha, index)}" value="#{linha.tipoEndereco.descricao}" update="" title="Editar registro nº#{linha.id}">
+
+                                            </p:commandLink>
+                                        </p:column>
+
+                                        <p:column headerText="Logradouro">
+                                            <h:outputText value="#{linha.endereco.logradouro.descricao}"/>
+                                        </p:column>
+
+                                        <p:column headerText="Descrição">
+                                            <h:outputText value="#{linha.endereco.descricaoEndereco.descricao}, #{linha.numero}"/>
+                                        </p:column>
+
+                                        <p:column headerText="Complemento">
+                                            <h:outputText value="#{linha.complemento}"/>
+                                        </p:column>
+
+                                        <p:column headerText="Bairro">
+                                            <h:outputText value="#{linha.endereco.bairro.descricao}"/>
+                                        </p:column>
+
+                                        <p:column headerText="Cidade/UF">
+                                            <h:outputText value="#{linha.endereco.cidade.cidade} - #{linha.endereco.cidade.uf}"/>
+                                        </p:column>
+
+                                        <p:column headerText="CEP">
+                                            <h:outputText value="#{linha.endereco.cep}"/>
+                                        </p:column>
+                                    </p:dataTable>
+                                </h:panelGrid>
+                            </h:panelGrid>
+
+
+                            <h:panelGrid columns="6" style="text-align: left; margin-top: 10px; color: ">
+                                <p:commandButton value="Salvar" disabled="#{controleAcessoBean.botaoSalvar}" onclick="PF('dlg_salvar').show()"/>
+                                <p:commandButton value="Novo" action="#{juridicaBean.novo()}" rendered="#{!chamadaPaginaBean.disabled}"/>
+                                <p:commandButton value="Voltar" action="#{chamadaPaginaBean.back}" rendered="#{chamadaPaginaBean.disabled}" />
+                                <p:commandButton value="Excluir" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('dlg_excluir').show()"/>
+                                <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pesquisaPessoaJuridica()}" disabled="#{chamadaPaginaBean.disabled}"/>
+                                <p:commandButton value="Extrato na Tela" action="#{juridicaBean.extratoTela}" disabled="#{juridicaBean.habilitar}" style="width: 150px;" />
+                            </h:panelGrid>
+
+                            <p:dialog widgetVar="dlg_salvar" modal="true" header="Salvar Jurídica" width="400" resizable="false">
+                                <h:outputLabel value="Deseja realmente SALVAR essa Pessoa Jurídica?" />
+                                <br /><br />
+                                <p:commandButton value="Sim" type="submit" styleClass="ui-confirmdialog-yes" action="#{juridicaBean.salvar()}" update=":formPessoaJuridica:" oncomplete="PF('dlg_salvar').hide()" style="clear: both; float: left" icon="ui-icon-check"/>  
+                                <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_salvar').hide()" style="float: left" icon="ui-icon-close"/>    
+                            </p:dialog>
+
+                            <p:dialog widgetVar="dlg_excluir" modal="true" header="Excluir Jurídica" width="400" resizable="false">
+                                <h:outputLabel value="Deseja realmente EXCLUIR essa Pessoa Jurídica?" />
+                                <br /><br />
+                                <p:commandButton value="Sim" type="submit" styleClass="ui-confirmdialog-yes" action="#{juridicaBean.excluir()}" ajax="false" style="clear: both; float: left" icon="ui-icon-check"/>  
+                                <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_excluir').hide()" style="float: left" icon="ui-icon-close"/>    
+                            </p:dialog>
+
+
+                            <p:dialog widgetVar="i_dlg_inativar" header="Inativar Empresa" resizable="false" width="520" modal="true">
+                                <h:panelGrid columns="2">
+                                    <h:outputText value="Empresa: " />
+                                    <h:outputText value="#{juridicaBean.juridica.pessoa.nome}" style="font-weight: bold"/>
+                                </h:panelGrid>
+
+                                <p:panel styleClass="fundoCinza" rendered="#{juridicaBean.listaPessoaEmpresa.size() > 0}">
+                                    <p:outputLabel value="Atenção empresa com sócios vinculados, eles serão demissionados automaticamente!" style="color: red"/>
+                                </p:panel>
+
+                                <h:panelGrid columns="3">
+                                    <p:column>
+                                        <h:outputText value="Data de Ativação" /><br />
+                                        <p:inputText value="#{juridicaBean.juridica.pessoa.criacao}" size="8" style="font-weight: bold; margin-right: 50px;" readonly="true"/>
+                                    </p:column>
+
+                                    <p:column>
+                                        <h:outputText value="Data de Inativação" /><br />
+                                        <p:inputMask value="#{juridicaBean.contribuintesInativos.inativacao}" size="8" mask="99/99/9999" style="font-weight: bold; margin-right: 50px;" />
+                                    </p:column>
+
+                                    <p:column>
+                                        <h:outputText value="Motivo da Inativação"/><br />
+                                        <p:selectOneMenu value="#{juridicaBean.idMotivoInativacao}">
+                                            <p:ajax event="change" update="@this"/>
+                                            <f:selectItems value="#{juridicaBean.listaMotivoInativacao}"/>
+                                        </p:selectOneMenu>
+                                    </p:column>
+                                </h:panelGrid>
+
+                                <h:panelGrid columns="1">
+                                    <p:column>
+                                        <h:outputText value="Solicitante" styleClass="fontePadrao" /><br />
+                                        <p:inputText  value="#{juridicaBean.contribuintesInativos.solicitante}" size="52" />
+                                    </p:column>
+                                </h:panelGrid>
+
+                                <h:panelGrid columns="1" style="width: 100%">
+                                    <p:column>
+                                        <h:outputText value="Observação" /><br />
+                                        <p:inputTextarea value="#{juridicaBean.contribuintesInativos.observacao}"  rows="3" style="width: 100%"/>
+                                    </p:column>
+                                </h:panelGrid>
+
+                                <h:panelGrid >
+                                    <p:commandButton value="Salvar"  action="#{juridicaBean.inativarContribuintes}" oncomplete="PF('i_dlg_inativar').hide()" update="i_msg i_msg_m i_status_contribuinte tbl_inativacoes"/>
+                                </h:panelGrid>
+                            </p:dialog>
+
+                            <p:dialog widgetVar="i_dlg_inativacoes" header="Lista de Inativações" resizable="false" height="300" width="600" modal="true">
+                                <p:messages id="i_msg_inativacoes" showDetail="true" closable="true" />
+                                <p:dataTable var="linha" value="#{juridicaBean.listaContribuintesInativos}" id="tbl_inativacoes">
+                                    <p:column headerText="Data de Ativação">
+                                        <h:outputText value="#{linha.ativacao}"/>
+                                    </p:column>
+
+                                    <p:column headerText="Data de Inativação">
+                                        <h:outputText value="#{linha.inativacao}"/>
+                                    </p:column>
+
+                                    <p:column headerText="Solicitante">
+                                        <h:outputText value="#{linha.solicitante}"/>
+                                    </p:column>
+
+                                    <p:column headerText="Observação">
+                                        <h:outputText value="#{linha.observacao}"/>
+                                    </p:column>
+
+                                    <p:column headerText="Motivo da Inativação">
+                                        <h:outputText value="#{linha.motivoInativacao.descricao}"/>
+                                    </p:column>
+
+                                    <p:column headerText="Excluir" style="text-align:center;">
+                                        <p:commandButton icon="ui-icon-close" action="#{juridicaBean.btnExcluirMotivoInativacao(linha)}" update=":formPessoaJuridica:i_msg :formPessoaJuridica:i_msg_m :formPessoaJuridica:i_msg_inativacoes tbl_inativacoes"/>
+                                    </p:column>
+                                </p:dataTable>
+                            </p:dialog>
+
+                            <p:dialog widgetVar="i_dlg_contabil" header="Pesquisa Contabilidade" resizable="false" height="500" width="800" modal="true">
+                                <h:panelGrid columns="3">
+                                    <p:column>
+                                        <h:outputLabel value="Nome"/><br />
+                                        <p:inputText value="#{juridicaBean.nomePesquisaContabilidade}"/>
+                                    </p:column>
+
+                                    <p:column>
+                                        <br />
+                                        <p:commandButton value="Inicial" action="#{juridicaBean.pesquisaContabilidadeI}" update="tbl_contabil"/>
+                                    </p:column>
+
+                                    <p:column>
+                                        <br />
+                                        <p:commandButton value="Parcial" action="#{juridicaBean.pesquisaContabilidadeP}" update="tbl_contabil"/>
+                                    </p:column>
+                                </h:panelGrid>
+
+                                <h:panelGrid columns="2" style="width: 100%">
+                                    <p:dataTable value="#{juridicaBean.listaContabilidade}" var="linha" id="tbl_contabil" emptyMessage="Nenhuma Contabilidade encontrada!">
+                                        <p:column headerText="ID">
+                                            <p:commandLink action="#{juridicaBean.editarContabilidade(linha)}" value="#{linha.id}" />
+                                        </p:column>
+
+                                        <p:column headerText="Nome">
+                                            <p:commandLink value="#{linha.pessoa.nome}" action="#{juridicaBean.editarContabilidade(linha)}"/>
+                                        </p:column>
+
+                                        <p:column headerText="Email">
+                                            <h:outputText value="#{linha.pessoa.email1}"/>
+                                        </p:column>
+
+                                        <p:column headerText="Documento">
+                                            <h:outputText value="#{linha.pessoa.tipoDocumento.descricao} - #{linha.pessoa.documento}"/>
+                                        </p:column>
+
+                                        <p:column headerText="Telefone">
+                                            <h:outputText value="#{linha.pessoa.telefone1}"/>
+                                        </p:column>
+                                    </p:dataTable>                                
+                                </h:panelGrid>
+                            </p:dialog>
+
+                            <p:dialog widgetVar="dlg_pesquisa_endereco" modal="true" resizable="false" height="600" width="1000" header="Pesquisar Endereço">
+                                <p:ajax event="close" listener="#{pesquisaEnderecoBean.clear()}"/>
+                                <p:panel id="i_pesquisa_endereco" styleClass="no-border">                                    
+                                    <ui:include src="templates/templatePesquisaEndereco.xhtml" />    
+                                </p:panel>
+                            </p:dialog>                             
+
+                            <p:ajaxStatus id="i_status" onstart="PF('i_dlg_modal').show();" onsuccess="PF('i_dlg_modal').hide();" />
+                            <p:dialog modal="true" widgetVar="i_dlg_modal" header="Status" draggable="false" closable="false">  
+                                <h:outputLabel value="Aguarde ..." />
+                            </p:dialog> 
+                        </h:form>
+                    </p:panel>
+                </f:view>
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>                
+    </h:body>
+</ui:composition>

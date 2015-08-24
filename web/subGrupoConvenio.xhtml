@@ -1,0 +1,142 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Sub-Grupo Convênio</title>
+    </h:head>
+    <h:body>
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>
+        </f:subview>
+        <f:view>
+            <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                <h:form id="formTemplate" rendered="#{controleAcessoBean.validacao}"></h:form>
+                <p:outputLabel value="Subgrupo Convênio" styleClass="fonteHeader" />
+                <p:panel style="clear: both;" styleClass="no-border"></p:panel>
+                <h:form id="form_novo_subgrupo_convenio">                    
+                    <p:growl id="growl" showDetail="true"/> 
+                    <c:set scope="request" var="object" value="${subGrupoConvenioBean.subGrupoConvenio}"/>  
+                    <p:panel>
+                        <p:panelGrid id="id_panel_grid_novo" columns="1" styleClass="margin-top sbb">
+                            <h:panelGrid columns="6">
+                                <p:outputLabel value="Grupo: " for="idSGrupo"/>
+                                <h:selectOneMenu id="idSGrupo" value="#{subGrupoConvenioBean.idGrupoConvenio}">
+                                    <p:ajax event="change" update="@this" />
+                                    <f:selectItem itemValue="" itemLabel="Selecionar" itemDisabled="true" />
+                                    <f:selectItems value="#{subGrupoConvenioBean.listGrupoConvenio}" />
+                                </h:selectOneMenu>
+                                <p:outputLabel value="Descrição: " for="idSubgrupo"/>
+                                <p:inputText id="idSubgrupo" value="#{subGrupoConvenioBean.subGrupoConvenio.descricao}" size="50" maxlength="50" placeholder="Descrição"/>
+                                <h:column>
+                                    <p:commandButton value="Salvar" action="#{subGrupoConvenioBean.add()}" update="growl id_subgrupos :form_subgrupo_convenio:id_subgrupos_filtro" disabled="#{controleAcessoBean.botaoSalvar}"/>
+                                    <p:commandButton value="Novo" action="#{subGrupoConvenioBean.novo()}" update="id_panel_grid_novo"  styleClass="margin-left-max"/>                        
+                                </h:column>
+                            </h:panelGrid>
+
+                            <h:panelGrid columns="1" style="width: 100%">
+                                <p:outputLabel value="Observação: " style="clear: both"/>
+                                <p:inputTextarea style="width: 100%" rows="2" value="#{subGrupoConvenioBean.subGrupoConvenio.observacao}">
+                                    <p:ajax event="change" update="@this" />
+                                </p:inputTextarea>
+                            </h:panelGrid>
+                        </p:panelGrid>
+                    </p:panel>
+                    <p:panel id="id_subgrupos" style="margin-top: 15px;">
+                        <f:facet name="header">Filtro serviços</f:facet>
+                        <p:panelGrid columns="7" styleClass="sbb">
+                            <p:outputLabel value="Grupo: " for="idSGrupoFiltro"/>
+                            <h:selectOneMenu id="idSGrupoFiltro" value="#{subGrupoConvenioBean.idGrupoConvenioFiltro}">
+                                <p:ajax event="change" update="@this id_subgrupos :form_subgrupo_convenio:id_subgrupos_filtro" listener="#{subGrupoConvenioBean.clear(3)}"/>
+                                <f:selectItem itemValue="" itemLabel="Selecionar" itemDisabled="true" />
+                                <f:selectItems value="#{subGrupoConvenioBean.listGrupoConvenio}" />
+                            </h:selectOneMenu>                        
+                            <p:outputLabel value="Subgrupos: "/>
+                            <h:selectOneMenu  id="idListaSubGrupos" value="#{subGrupoConvenioBean.idSubGrupoConvenio}" disabled="#{subGrupoConvenioBean.listSubGrupoConvenio.size() == 0}">
+                                <p:ajax event="change" update="@this :form_subgrupo_convenio:id_subgrupos_filtro" listener="#{subGrupoConvenioBean.clear(1)}"/>
+                                <f:selectItem itemValue="" itemLabel="Selecionar" itemDisabled="true" />
+                                <f:selectItems value="#{subGrupoConvenioBean.listSubGrupoConvenio}" />
+                            </h:selectOneMenu>
+                            <p:column>
+                                <p:commandButton icon="ui-icon-pencil" value="Editar" title="Editar" action="#{subGrupoConvenioBean.edit()}" update="id_panel_grid_novo" disabled="#{subGrupoConvenioBean.listSubGrupoConvenio.size() == 0}"/>
+                                <p:commandButton icon="ui-icon-close" value="Remover" action="#{subGrupoConvenioBean.remove()}" styleClass="margin-left-max" update="growl id_panel_grid_novo id_subgrupos :form_subgrupo_convenio:id_subgrupos_filtro" disabled="#{controleAcessoBean.botaoExcluir}"/>
+                            </p:column>
+                            <p:outputLabel value="Filtrar Serviços por:" styleClass="margin-left-max font-color-red" title="Todos / Agrupado"/>
+                            <p:selectBooleanButton value="#{subGrupoConvenioBean.enableGroup}" offLabel="Todos" onLabel="Agrupado">
+                                <p:ajax event="change" update="@this :form_subgrupo_convenio:id_subgrupos_filtro" listener="#{subGrupoConvenioBean.clear(0)}"/>
+                            </p:selectBooleanButton>
+                        </p:panelGrid>
+                    </p:panel>
+                </h:form>
+                <h:form id="form_subgrupo_convenio">
+                    <p:panel id="id_subgrupos_filtro" style="margin-top: 15px;">
+                        <f:facet name="header">Serviços</f:facet>
+                        <h:panelGrid columns="2" id="id_sgrupo_financeiro">
+                            <p:outputLabel value="Grupo Financeiro:" rendered="#{not empty subGrupoConvenioBean.listGrupoFinanceiro}" />
+                            <p:selectOneMenu value="#{subGrupoConvenioBean.idGrupoFinanceiro}" rendered="#{not empty subGrupoConvenioBean.listGrupoFinanceiro}" filter="true" filterMatchMode="startsWith">
+                                <p:ajax event="change" update="@this form_subgrupo_convenio" listener="#{subGrupoConvenioBean.clear(2)}"/>
+                                <f:selectItem itemValue="" itemLabel="Selecionar" />
+                                <f:selectItems value="#{subGrupoConvenioBean.listGrupoFinanceiro}" />
+                            </p:selectOneMenu>                         
+                            <p:outputLabel value="SubGrupo Financeiro:" rendered="#{not empty subGrupoConvenioBean.listGrupoFinanceiro}" />
+                            <p:selectOneMenu value="#{subGrupoConvenioBean.idSubGrupoFinanceiro}" rendered="#{not empty subGrupoConvenioBean.listGrupoFinanceiro}" disabled="#{subGrupoConvenioBean.enableSubGroup}" filter="true" filterMatchMode="startsWith">
+                                <p:ajax event="change" update="@this form_subgrupo_convenio" listener="#{subGrupoConvenioBean.clear(1)}"/>
+                                <f:selectItem itemValue="" itemLabel="Selecionar" />
+                                <f:selectItems value="#{subGrupoConvenioBean.listSubGrupoFinanceiro}" />
+                            </p:selectOneMenu>
+                            <p:selectBooleanCheckbox value="#{subGrupoConvenioBean.enableSubGroup}" itemLabel="Agrupar serviços por subgrupo" rendered="#{subGrupoConvenioBean.enableGroup}">
+                                <p:ajax event="change" update="@this form_subgrupo_convenio" listener="#{subGrupoConvenioBean.clear(2)}"/>
+                            </p:selectBooleanCheckbox>                            
+                        </h:panelGrid>
+                        <p:panelGrid columns="3" styleClass="sbb" id="id_subgrupos_grid">
+                            <p:panel style="width: 370px;">
+                                <p:dataTable value="#{subGrupoConvenioBean.listServicosDisponiveis}" var="list" emptyMessage="Não existem registros" scrollHeight="200" selection="#{subGrupoConvenioBean.servicoSelecionado}" rowKey="#{list.servicos.id}" scrollable="true" >
+                                    <f:facet name="header">Disponíveis</f:facet>
+                                    <p:column selectionMode="multiple" width="20" styleClass="text-center"/>
+                                    <p:column style="width:20px" rendered="#{subGrupoConvenioBean.enableSubGroup}">
+                                        <p:rowToggler />  
+                                    </p:column>                                      
+                                    <p:column headerText="Descrição" filterBy="#{list.descricao}" filterMatchMode="global">
+                                        #{list.descricao}
+                                    </p:column>
+                                    <p:rowExpansion>
+                                        <h:dataTable value="#{list.listServicos}" var="servicos">
+                                            <p:column>
+                                                <h:outputLabel value="- #{servicos.descricao}" />
+                                            </p:column>
+                                        </h:dataTable>
+                                    </p:rowExpansion>                                    
+                                </p:dataTable>
+                            </p:panel>
+                            <p:panel style="width: 140px;" styleClass="no-border">
+                                <p:panelGrid columns="1" styleClass="sbb">
+                                    <p:commandButton icon="ui-icon-carat-1-e" value="Adicionar" action="#{subGrupoConvenioBean.addConvenioServico()}" update="id_subgrupos_filtro :form_novo_subgrupo_convenio:growl" disabled="#{controleAcessoBean.botaoSalvar}"/>
+                                    <p:commandButton icon="ui-icon-carat-1-w" value="Remover" action="#{subGrupoConvenioBean.removeConvenioServico()}" update="form_subgrupo_convenio :form_novo_subgrupo_convenio:growl" disabled="#{controleAcessoBean.botaoExcluir}"/>
+                                </p:panelGrid>
+                            </p:panel>
+                            <p:panel style="width: 370px;">
+                                <p:dataTable value="#{subGrupoConvenioBean.listServicosAdicionados}" var="convenioServico" emptyMessage="Nenhum registro adicionado" scrollHeight="200" selection="#{subGrupoConvenioBean.convenioServicoSelecionado}"  rowKey="#{convenioServico.id}"  scrollable="true">
+                                    <f:facet name="header">Adicionados</f:facet>
+                                    <f:facet name="footer">Obs. E - Encaminhamento</f:facet>
+                                    <p:column selectionMode="multiple" width="20" styleClass="text-center"/>
+                                    <p:column headerText="Descrição" filterBy="#{convenioServico.servicos.descricao}" filterMatchMode="global">
+                                        #{convenioServico.servicos.descricao}
+                                    </p:column>
+                                    <p:column width="20" headerText="E">
+                                        <p:selectBooleanCheckbox value="#{convenioServico.encaminhamento}">
+                                            <p:ajax event="change" update="@this :form_novo_subgrupo_convenio:growl" listener="#{subGrupoConvenioBean.updateConvenioServico(convenioServico)}"/>
+                                        </p:selectBooleanCheckbox>
+                                    </p:column>
+                                </p:dataTable>
+                            </p:panel>
+                        </p:panelGrid>
+                    </p:panel>
+                </h:form>
+            </p:panel>          
+            <!-- FINALIZA div wrap main -->
+        </f:view>       
+    </h:body>
+</ui:composition>

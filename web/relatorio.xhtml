@@ -1,0 +1,193 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Sindical - Relatórios</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important;} 
+            .ui-button { padding: 3px!important; }
+            .ui-selectonemenu-label .ui-inputfield{
+
+            }
+            * {font-family: 'lucida grande',verdana, tahoma, arial, sans-serif; font-size: 9pt!important}
+        </style>        
+    </h:head>
+    <h:body>
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                </f:subview>
+                <f:view>
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:form id="form_relatorio">
+                            <c:set scope="request" var="object" value="${relatorioBean.relatorio}"/>
+                            <h:outputText value="Relatórios" styleClass="fonteHeader" />
+                            <div class="clear"></div>
+                            <p:messages autoUpdate="true" id="i_msg" showDetail="true" closable="true" />  
+                            <p:panel id="i_panel" styleClass="fundoCinza margin-top-med">
+                                <h:panelGrid columns="2">
+                                    <h:outputLabel value="Nome:" />
+                                    <h:column>
+                                        <p:inputText id="i_nome" size="50" maxlength="150" value="#{relatorioBean.relatorio.nome}" />
+                                        <p:watermark for="i_nome" value="Nome do Relatório ex. Relatório de Contribuintes" />
+                                    </h:column>
+                                    <h:outputLabel value="Arquivo:" />
+                                    <h:column>
+                                        <p:inputText id="i_caminho_jasper" size="75" maxlength="150" value="#{relatorioBean.relatorio.jasper}" />
+                                        <p:watermark for="i_caminho_jasper" value="Caminho do Jasper ex. /Relatorios/CONTRIBUINTES.jasper" />
+                                    </h:column>
+                                    <h:outputLabel value="Rotina:" />
+                                    <h:column>
+                                        <h:panelGrid columns="5" id="i_panel_grid_rotinas">
+                                            <p:selectOneMenu value="#{relatorioBean.rotina_id}" filter="true" filterMatchMode="startsWith">
+                                                <p:ajax event="change" update="@form" />
+                                                <f:selectItems value="#{relatorioBean.listRotina}" />
+                                            </p:selectOneMenu>
+                                            <p:commandButton action="#{relatorioBean.loadRotinaCombo(0)}" value="Ultimas usadas" update="i_panel_grid_rotinas" rendered="#{relatorioBean.relatorio.id == -1}"/>
+                                            <p:commandButton action="#{relatorioBean.loadRotinaCombo(1)}" value="Mais usadas" update="i_panel_grid_rotinas" rendered="#{relatorioBean.relatorio.id == -1}"/>
+                                            <p:commandButton action="#{relatorioBean.listRotina.clear()}" value="Restaurar" update="i_panel_grid_rotinas" rendered="#{relatorioBean.relatorio.id == -1}"/>
+                                        </h:panelGrid>
+                                    </h:column>
+                                    <h:column />
+                                    <h:column>
+                                        <p:selectBooleanCheckbox value="#{relatorioBean.relatorio.principal}" itemLabel="Default da rotina" disabled="#{relatorioBean.relatorio.id == -1}">
+                                            <p:ajax event="change" update="@this" listener="#{relatorioBean.listener(1)}"/>
+                                        </p:selectBooleanCheckbox>
+                                    </h:column>
+                                    <h:column />
+                                    <p:selectBooleanCheckbox value="#{relatorioBean.relatorio.porFolha}" itemLabel="Imprime relatório por folha">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:selectBooleanCheckbox>
+                                    <h:outputLabel value="Nome Grupo:" />
+                                    <p:inputText size="30" maxlength="100" value="#{relatorioBean.relatorio.nomeGrupo}" />
+                                    <h:column />
+                                    <p:selectBooleanCheckbox value="#{relatorioBean.relatorio.excel}" itemLabel="Excel">
+                                        <p:ajax event="change" update="@this i_panel" />
+                                    </p:selectBooleanCheckbox>                                    
+                                    <h:outputLabel value="Campos excel:" rendered="#{relatorioBean.relatorio.excel}"/>
+                                    <p:inputTextarea maxlength="255" value="#{relatorioBean.relatorio.camposExcel}" rendered="#{relatorioBean.relatorio.excel}" placeholder="Delimitar com ; (ponto e virgula)" rows="5" cols="100"/>
+                                </h:panelGrid>
+                            </p:panel>
+
+                            <p:panel styleClass="margin-top-max" header="Montagem de Query (Apenas para Relatório Financeiro) ** movimentos_vw **" rendered="#{relatorioBean.relatorio.rotina.id eq 324}">
+                                <h:panelGrid style="width: 100%;" cellpadding="5">
+                                    <h:panelGrid>
+                                        <h:outputLabel value="Parametros da Query:" />
+                                    </h:panelGrid>
+                                        
+                                    <h:panelGrid columns="4">
+                                        <p:inputText value="#{relatorioBean.relatorioParametros.parametro}" style="width: 200px" disabled="#{relatorioBean.relatorio.id == -1}"/>
+                                        <p:outputLabel value="AS" style="font-weight: bold"/>
+                                        <p:inputText value="#{relatorioBean.relatorioParametros.apelido}" style="width: 150px" disabled="#{relatorioBean.relatorio.id == -1}"/>
+                                        <p:commandButton icon="ui-icon-add" value="Adicionar" action="#{relatorioBean.adicionarRelatorioParametro()}" update="@form" disabled="#{relatorioBean.relatorio.id == -1}"/>
+                                    </h:panelGrid>
+                                    
+                                    <h:panelGrid>
+                                        <p:dataTable value="#{relatorioBean.listaRelatorioParametro}" var="linha" emptyMessage="Nenhum Campo Adicionado!" scrollable="true" scrollHeight="100" style="width: 500px">
+                                            <p:column headerText="Campo">
+                                                <p:outputLabel value="#{linha.parametro}" />
+                                            </p:column>
+                                            <p:column headerText="" style="width: 30px; text-align: center">
+                                                <p:outputLabel value="AS" style="font-weight: bold"/>
+                                            </p:column>
+                                            <p:column headerText="Apelido">
+                                                <p:outputLabel value="#{linha.apelido}" />
+                                            </p:column>
+                                            <p:column headerText="" style="width: 30px">
+                                                <p:commandButton icon="ui-icon-close" action="#{relatorioBean.excluirRelatorioParametro(linha)}" update="@form"/>
+                                            </p:column>
+                                        </p:dataTable>
+                                    </h:panelGrid>
+                                </h:panelGrid>
+                            </p:panel>
+                            
+                            <p:panel styleClass="margin-top-max" header="Complementar">
+                                <h:panelGrid style="width: 100%;" cellpadding="5">
+                                    <h:column>
+                                        <p:selectBooleanCheckbox value="#{relatorioBean.relatorio.montaQuery}" itemLabel="Monta query sem objeto">
+                                            <p:ajax event="change" update="@this" />
+                                        </p:selectBooleanCheckbox>
+                                    </h:column>                                    
+                                    <h:outputLabel value="Query String:" />
+                                    <h:column>
+                                        <p:inputTextarea value="#{relatorioBean.relatorio.queryString}" rows="5" cols="100">
+                                            <p:ajax event="change" update="@this" />
+                                        </p:inputTextarea>                                        
+                                    </h:column>
+                                </h:panelGrid>
+                            </p:panel>
+
+                            <p:panel styleClass="margin-top-max" header="Complementar Query">
+                                <h:panelGrid style="width: 100%;" >
+                                    <h:outputLabel value=" Where: " styleClass="bold"/>
+                                    <p:inputTextarea cols="50" rows="5" value="#{relatorioBean.relatorio.qry}" style="width: 100%" />
+                                    <h:column><br /></h:column>
+                                </h:panelGrid>
+                            </p:panel>
+
+                            <p:panel rendered="#{relatorioBean.relatorio.id != -1}" styleClass="margin-top-max" header="Ordenações" id="i_panel_relatorio_ordem">
+                                <h:panelGrid columns="6">
+                                    <p:outputLabel value="Descrição:" />
+                                    <p:inputText value="#{relatorioBean.relatorioOrdem.nome}" size="40"/>
+                                    <p:outputLabel value="Query:" styleClass="margin-left-max"/>
+                                    <p:inputText value="#{relatorioBean.relatorioOrdem.query}" size="70"/>
+                                    <p:selectBooleanCheckbox value="#{relatorioBean.relatorioOrdem.principal}" itemLabel="Default">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:selectBooleanCheckbox>
+                                    <p:commandButton value="Adicionar"  action="#{relatorioBean.addRelatorioOrdem()}" update=":form_relatorio:" styleClass="margin-left-max"/>
+                                </h:panelGrid>
+                                <p:dataTable value="#{relatorioBean.listRelatorioOrdem}" var="relatorioOrdem" styleClass="margin-top-max" emptyMessage="Nenhum registro encontrado!">
+                                    <p:column width="30" styleClass="text-center">
+                                        <p:commandButton icon="ui-icon-link" action="#{relatorioBean.editRelatorioOrdem(relatorioOrdem)}" update=":form_relatorio:" />
+                                    </p:column>
+                                    <p:column headerText="Descrição">#{relatorioOrdem.nome}</p:column>
+                                    <p:column width="50" styleClass="text-center" headerText="Default">
+                                        <p:selectBooleanCheckbox value="#{relatorioOrdem.principal}">
+                                            <p:ajax event="change" update=":form_relatorio:i_panel_relatorio_ordem" listener="#{relatorioBean.defaultOrdem(relatorioOrdem)}" />
+                                        </p:selectBooleanCheckbox>
+                                    </p:column>
+                                    <p:column width="30" styleClass="text-center">
+                                        <p:commandButton icon="ui-icon-trash" action="#{relatorioBean.deleteRelatorioOrdem(relatorioOrdem)}" update=":form_relatorio:" />
+                                    </p:column>
+                                </p:dataTable>
+                            </p:panel>
+
+                            <h:panelGrid columns="4" style="float: left" styleClass="margin-top-max">
+                                <p:commandButton value="Salvar" onclick="PF('i_dlg_s').show()" disabled="#{controleAcessoBean.botaoSalvar}"/>
+                                <p:commandButton value="Novo" action="#{relatorioBean.clear(0)}" update=":form_relatorio:"/>
+                                <p:commandButton value="Excluir" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('i_dlg_e').show()"/>
+                                <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pesquisa('pesquisaRelatorios')}" />
+                            </h:panelGrid>
+
+                            <p:dialog widgetVar="i_dlg_s" header="Salvar este Relatório" resizable="false" width="400" modal="true">
+                                <p:commandButton value="Salvar"   type="submit" styleClass="ui-confirmdialog-yes" action="#{relatorioBean.save()}" onclick="PF('i_dlg_s').hide()" update="form_relatorio" style="clear: both; float: left" icon="ui-icon-check"/>  
+                                <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_s').hide()" style="float: left" icon="ui-icon-close"/>       
+                            </p:dialog>
+
+                            <p:dialog widgetVar="i_dlg_e" header="Excluir este Relatório" resizable="false" width="400" modal="true">
+                                <p:commandButton value="Excluir"   type="submit" styleClass="ui-confirmdialog-yes" action="#{relatorioBean.delete()}" onclick="PF('i_dlg_e').hide()" update="form_relatorio" style="clear: both; float: left" icon="ui-icon-check"/>  
+                                <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_e').hide()" style="float: left" icon="ui-icon-close"/>       
+                            </p:dialog>                        
+                        </h:form>
+                    </p:panel>
+                </f:view>
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>
+    </h:body>
+</ui:composition>

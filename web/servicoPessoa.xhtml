@@ -1,0 +1,155 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui">
+    <h:body>
+        <f:view>
+            <p:tabView>
+                <p:tab id="socios" title="Dados Pessoais" >
+                    <h:panelGrid columns="2" columnClasses="verticalAlignTop verticalAlignTop" style="width: 100%">
+                        <h:column>
+                            <p:commandButton icon="ui-icon-search" title="Pesquisar Sócio" value="Pesquisar Sócio" action="#{chamadaPaginaBean.pesquisa('pesquisaPessoaFisica')}" rendered="false" />
+                            <p:commandButton icon="ui-icon-search" title="Pesquisar Sócio" value="Pesquisar Sócio" action="#{chamadaPaginaBean.pesquisa('pesquisaSocios')}" />
+                            <h:panelGrid columns="2">
+                                <h:outputText value="Documento: " rendered="#{servicoPessoaBean.titular.pessoa.id != -1}"/>
+                                <h:outputText value="#{servicoPessoaBean.titular.pessoa.tipoDocumento.descricao} - #{servicoPessoaBean.titular.pessoa.documento} - " rendered="#{servicoPessoaBean.titular.pessoa.id != -1}"/>
+                                <h:outputText value="Nome: " rendered="#{servicoPessoaBean.titular.pessoa.id != -1}"/>
+                                <h:outputText value="#{servicoPessoaBean.titular.pessoa.nome}" rendered="#{servicoPessoaBean.titular.pessoa.id != -1}"/>
+                                <p:outputLabel value="Endereço: " />
+                                <h:outputText value="#{servicoPessoaBean.strEndereco}" />
+                                <p:outputLabel value="Data de cadastro: " />
+                                <p:outputLabel id="idDtCadastro" value="#{servicoPessoaBean.servicoPessoa.emissao}" />
+                            </h:panelGrid>
+                        </h:column>
+                        <h:column>
+                            <p:panel rendered="#{servicoPessoaBean.servicoPessoa.pessoa.id != -1}" styleClass="text-center">
+                                <p:graphicImage value="#{pessoaUtilitariosBean.getFotoPessoaFisica(servicoPessoaBean.servicoPessoa.pessoa)}" cache="false" width="130"/>
+                            </p:panel>
+                        </h:column>                        
+                    </h:panelGrid>
+                </p:tab>
+
+                <p:tab id="complemento" title="Cobrança" >
+                    <h:panelGrid columns="2">
+                        <p:outputLabel value="Serviços: "  rendered="#{servicoPessoaBean.renderServicos}"/>
+                        <p:selectOneMenu id="idServico" value="#{servicoPessoaBean.idServico}" rendered="#{servicoPessoaBean.renderServicos}" style="width: 600px">
+                            <p:ajax event="change" update="@this idNrDesconto idValorServico" listener="#{servicoPessoaBean.refreshCalculos()}"/>
+                            <f:selectItems value="#{servicoPessoaBean.listaServicos}"/>
+                        </p:selectOneMenu>
+                        <p:outputLabel value="Desconto: "/>
+                        <h:column>
+                            <p:inputText id="idNrDesconto" value="#{servicoPessoaBean.servicoPessoa.nrDescontoString}" size="5" converter="#{toPercent}">
+                                <p:ajax event="blur" update="@this idValorServico" listener="#{servicoPessoaBean.calculoValor()}"/>
+                            </p:inputText>
+                            <p:outputLabel value=" %  " />
+                            <p:selectBooleanCheckbox id="idChkDesFolha" value="#{servicoPessoaBean.servicoPessoa.descontoFolha}" itemLabel="Desconto em folha" styleClass="margin-left-max">
+                                <p:ajax event="change" update="@this"/>
+                            </p:selectBooleanCheckbox>
+                        </h:column>
+                        <p:outputLabel value=" Valor: " />
+                        <p:inputText id="idValorServico" value="#{servicoPessoaBean.valorServicoPessoa}" style="width: 80px; text-align: right">
+                            <p:ajax event="blur" update="@this idNrDesconto" listener="#{servicoPessoaBean.calculoDesconto()}"/>
+                        </p:inputText>
+                        <p:outputLabel value="Ref. Vigoração: " />
+                        <h:column>
+                            <h:panelGrid columns="3">
+                                <p:inputMask id="idRefVigoracao" value="#{servicoPessoaBean.servicoPessoa.referenciaVigoracao}" mask="99/9999" size="6">
+                                    <p:ajax event="change" update="@this"/>
+                                </p:inputMask>
+                                <p:outputLabel value="Ref. Validade: "  rendered="#{servicoPessoaBean.renderServicos}" />
+                                <p:inputMask id="idRefValidade" value="#{servicoPessoaBean.servicoPessoa.referenciaValidade}" mask="99/9999" rendered="#{servicoPessoaBean.renderServicos}" size="6">
+                                    <p:ajax event="change" update="@this"/>
+                                </p:inputMask>
+                            </h:panelGrid>
+                        </h:column>
+                        <h:column>
+                            <h:panelGrid>
+                                <p:outputLabel value="Dia Vencto: " />
+                            </h:panelGrid>
+                        </h:column>
+                        <h:column>
+                            <h:panelGrid columns="2">
+                                <p:selectOneMenu id="idDiaVenct" value="#{servicoPessoaBean.servicoPessoa.nrDiaVencimento}" disabled="true">
+                                    <p:ajax event="change" update="@this"/>
+                                    <f:selectItem itemValue="1" itemLabel="01"/>
+                                    <f:selectItem itemValue="2" itemLabel="02"/>
+                                    <f:selectItem itemValue="3" itemLabel="03"/>
+                                    <f:selectItem itemValue="4" itemLabel="04"/>
+                                    <f:selectItem itemValue="5" itemLabel="05"/>
+                                    <f:selectItem itemValue="6" itemLabel="06"/>
+                                    <f:selectItem itemValue="7" itemLabel="07"/>
+                                    <f:selectItem itemValue="8" itemLabel="08"/>
+                                    <f:selectItem itemValue="9" itemLabel="09"/>
+                                    <f:selectItem itemValue="10" itemLabel="10"/>
+                                    <f:selectItem itemValue="11" itemLabel="11"/>
+                                    <f:selectItem itemValue="12" itemLabel="12"/>
+                                    <f:selectItem itemValue="13" itemLabel="13"/>
+                                    <f:selectItem itemValue="14" itemLabel="14"/>
+                                    <f:selectItem itemValue="15" itemLabel="15"/>
+                                    <f:selectItem itemValue="16" itemLabel="16"/>
+                                    <f:selectItem itemValue="17" itemLabel="17"/>
+                                    <f:selectItem itemValue="18" itemLabel="18"/>
+                                    <f:selectItem itemValue="19" itemLabel="19"/>
+                                    <f:selectItem itemValue="20" itemLabel="20"/>
+                                    <f:selectItem itemValue="21" itemLabel="21"/>
+                                    <f:selectItem itemValue="22" itemLabel="22"/>
+                                    <f:selectItem itemValue="23" itemLabel="23"/>
+                                    <f:selectItem itemValue="24" itemLabel="24"/>
+                                    <f:selectItem itemValue="25" itemLabel="25"/>
+                                    <f:selectItem itemValue="26" itemLabel="26"/>
+                                    <f:selectItem itemValue="27" itemLabel="27"/>
+                                    <f:selectItem itemValue="28" itemLabel="28"/>
+                                    <f:selectItem itemValue="29" itemLabel="29"/>
+                                    <f:selectItem itemValue="30" itemLabel="30"/>
+                                    <f:selectItem itemValue="31" itemLabel="31"/>
+                                </p:selectOneMenu>
+                                <p:commandButton value="Alterar Dia do Vencimento" onclick="PF('dlg_dv').show()"/>                        
+                            </h:panelGrid>
+                        </h:column>
+                    </h:panelGrid>
+                </p:tab>
+            </p:tabView>
+
+            <p:dialog header="Alterar dia do vencimento" widgetVar="dlg_dv" modal="true" closable="true">
+                <h:panelGrid columns="2">
+                    <p:outputLabel value="Dia Vencimento: " />
+                    <p:selectOneMenu value="#{servicoPessoaBean.servicoPessoa.nrDiaVencimento}">
+                        <p:ajax event="change" update="@form"/>
+                        <f:selectItem itemValue="1" itemLabel="01"/>
+                        <f:selectItem itemValue="2" itemLabel="02"/>
+                        <f:selectItem itemValue="3" itemLabel="03"/>
+                        <f:selectItem itemValue="4" itemLabel="04"/>
+                        <f:selectItem itemValue="5" itemLabel="05"/>
+                        <f:selectItem itemValue="6" itemLabel="06"/>
+                        <f:selectItem itemValue="7" itemLabel="07"/>
+                        <f:selectItem itemValue="8" itemLabel="08"/>
+                        <f:selectItem itemValue="9" itemLabel="09"/>
+                        <f:selectItem itemValue="10" itemLabel="10"/>
+                        <f:selectItem itemValue="11" itemLabel="11"/>
+                        <f:selectItem itemValue="12" itemLabel="12"/>
+                        <f:selectItem itemValue="13" itemLabel="13"/>
+                        <f:selectItem itemValue="14" itemLabel="14"/>
+                        <f:selectItem itemValue="15" itemLabel="15"/>
+                        <f:selectItem itemValue="16" itemLabel="16"/>
+                        <f:selectItem itemValue="17" itemLabel="17"/>
+                        <f:selectItem itemValue="18" itemLabel="18"/>
+                        <f:selectItem itemValue="19" itemLabel="19"/>
+                        <f:selectItem itemValue="20" itemLabel="20"/>
+                        <f:selectItem itemValue="21" itemLabel="21"/>
+                        <f:selectItem itemValue="22" itemLabel="22"/>
+                        <f:selectItem itemValue="23" itemLabel="23"/>
+                        <f:selectItem itemValue="24" itemLabel="24"/>
+                        <f:selectItem itemValue="25" itemLabel="25"/>
+                        <f:selectItem itemValue="26" itemLabel="26"/>
+                        <f:selectItem itemValue="27" itemLabel="27"/>
+                        <f:selectItem itemValue="28" itemLabel="28"/>
+                        <f:selectItem itemValue="29" itemLabel="29"/>
+                        <f:selectItem itemValue="30" itemLabel="30"/>
+                        <f:selectItem itemValue="31" itemLabel="31"/>
+                    </p:selectOneMenu>
+                </h:panelGrid> 
+            </p:dialog>
+        </f:view>
+    </h:body>
+</ui:composition>

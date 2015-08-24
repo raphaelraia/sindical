@@ -1,0 +1,141 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Sindical - Categoria</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important;} 
+            .ui-button { padding: 3px!important; }
+            .ui-datatable tr.ui-datatable-even:hover, .ui-datatable tr.ui-datatable-odd:hover {
+                background: #ECF3FE;
+            }            
+        </style>
+    </h:head>
+    <h:body>
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                </f:subview>
+                <f:view>
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:outputText value="Categoria" styleClass="fonteHeader" />
+                        <div class="clear"></div>
+                        <h:form id="form_categoria">
+                            <c:set scope="request" var="object" value="${categoriaBean.categoria}"/>
+                            <p:panel>
+                                <h:panelGrid columns="2" cellpadding="5">
+                                    <h:outputText value="Grupo Categoria: " />
+                                    <p:selectOneMenu value="#{categoriaBean.idGrupoCategoria}" >
+                                        <f:selectItems value="#{categoriaBean.listGrupoCategoria}"/>
+                                    </p:selectOneMenu>
+                                    <p:outputLabel value="Categoria: "/>
+                                    <p:inputText size="50" value="#{categoriaBean.categoria.categoria}" maxlength="100" title="Categoria" id="idCategoria" converter="#{toUpperCase}">
+                                        <p:ajax update="@this" event="change" />
+                                    </p:inputText>
+                                    <h:outputText value="Carência Balcão: "/>
+                                    <h:column>
+                                        <p:inputText size="5" value="#{categoriaBean.categoria.nrCarenciaBalcao}" maxlength="10" title="Carência Balcão" />
+                                        <p:outputLabel value="Carência Desconto em Folha: " styleClass="margin-left-max"/>
+                                        <p:inputText size="5" value="#{categoriaBean.categoria.nrCarenciaDescFolha}" maxlength="10" title="Carência Desconto em Folha" />
+                                    </h:column>
+                                    <h:column />
+                                    <h:column>
+                                        <h:panelGrid columns="2">
+                                            <p:selectBooleanCheckbox value="#{categoriaBean.categoria.empresaObrigatoria}" itemLabel="Empresa Obrigatória" />
+                                            <p:selectBooleanCheckbox value="#{categoriaBean.categoria.votante}"  itemLabel="Votante" style="margin-left: 25px"/>
+                                            <p:selectBooleanCheckbox value="#{categoriaBean.categoria.cartaoTitular}" itemLabel="Cartão Titular">
+                                                <p:ajax event="change" update="@this i_dependente" />
+                                            </p:selectBooleanCheckbox>
+                                            <h:column>
+                                                <p:outputPanel id="i_dependente">
+                                                    <p:selectBooleanCheckbox value="#{categoriaBean.categoria.cartaoDependente}" itemLabel="Cartão Dependente" style="margin-left: 25px"  rendered="#{categoriaBean.categoria.cartaoTitular}">
+                                                        <p:ajax event="change" update="@this" />
+                                                    </p:selectBooleanCheckbox>                                                    
+                                                </p:outputPanel>
+                                            </h:column>
+                                        </h:panelGrid>                                        
+                                    </h:column>
+                                </h:panelGrid>
+                                <h:panelGrid columns="4">
+                                </h:panelGrid>
+                                <p:panel>                                        
+                                    <f:facet name="header">
+                                        <h:panelGrid columns="2">
+                                            <h:outputLabel value="Dias da Semana" />
+                                            <p:commandLink value="Selecionar todos" style="margin-left: 15px; ">
+                                                <p:ajax update="i_semanas" event="click" listener="#{categoriaBean.semanaToda}"/>
+                                            </p:commandLink>
+                                        </h:panelGrid>
+                                    </f:facet>
+                                    <center>
+                                        <h:panelGrid columns="10" id="i_semanas">
+                                            <h:outputLabel />                                        
+                                            <p:selectBooleanButton value="#{categoriaBean.categoria.usaClubeSegunda}" onLabel="Segunda-Feira" offLabel="Segunda-Feira" onIcon="ui-icon-check" offIcon="ui-icon-close" />
+                                            <p:selectBooleanButton value="#{categoriaBean.categoria.usaClubeTerca}" onLabel="Terça-Feira" offLabel="Terça-Feira" onIcon="ui-icon-check" offIcon="ui-icon-close" />
+                                            <p:selectBooleanButton value="#{categoriaBean.categoria.usaClubeQuarta}" onLabel="Quarta-Feira" offLabel="Quarta-Feira" onIcon="ui-icon-check" offIcon="ui-icon-close" />
+                                            <p:selectBooleanButton value="#{categoriaBean.categoria.usaClubeQuinta}" onLabel="Quinta-Feira" offLabel="Quinta-Feira" onIcon="ui-icon-check" offIcon="ui-icon-close"  />
+                                            <p:selectBooleanButton value="#{categoriaBean.categoria.usaClubeSexta}" onLabel="Sexta-Feira" offLabel="Sexta-Feira" onIcon="ui-icon-check" offIcon="ui-icon-close" />
+                                            <p:selectBooleanButton value="#{categoriaBean.categoria.usaClubeSabado}" onLabel="Sábado" offLabel="Sábado" onIcon="ui-icon-check" offIcon="ui-icon-close" />
+                                            <p:selectBooleanButton value="#{categoriaBean.categoria.usaClubeDomingo}" onLabel="Domingo" offLabel="Domingo" onIcon="ui-icon-check" offIcon="ui-icon-close" />
+                                        </h:panelGrid>
+                                    </center>
+                                </p:panel>                                        
+                                <p:panel header="Parentesco / Serviços" styleClass="margin-top-max">
+                                    <p:dataTable value="#{categoriaBean.listParentescos}" var="linha" id="tbl" scrollable="true" scrollHeight="220">
+                                        <p:column headerText="Parentesco">
+                                            <h:outputText value="#{linha.argumento0.parentesco}"/>
+                                        </p:column>
+                                        <p:column headerText="Serviços">
+                                            <p:selectOneMenu id="idServico" value="#{linha.argumento1}" tabindex="#{linha.argumento1}" filter="true">
+                                                <p:ajax event="change" update="idServico, tbl" listener="#{categoriaBean.atualizaServicos(it.index)}" />
+                                                <f:selectItems value="#{categoriaBean.listServicos}" />
+                                            </p:selectOneMenu>
+                                        </p:column>
+                                    </p:dataTable>                                        
+                                </p:panel>  
+                            </p:panel>
+                            <h:panelGrid columns="4" styleClass="margin-top-max">
+                                <p:commandButton onclick="PF('dlg_save').show();" value="Salvar" disabled="#{controleAcessoBean.botaoSalvar}" title="Salvar"/>
+                                <p:commandButton value="Novo" action="#{categoriaBean.clear}" update=":form_categoria:"/>
+                                <p:commandButton onclick="PF('dlg_delete').show();" value="Excluir" disabled="#{controleAcessoBean.botaoExcluir}" title="Excluir"/>
+                                <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pesquisa('pesquisaCategoria')}" title="Pesquisar"/>
+                            </h:panelGrid>
+                            <p:dialog widgetVar="dlg_save" header="Deseja salvar este registro?" resizable="false" width="400" modal="true">
+                                <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{categoriaBean.save()}" oncomplete="PF('dlg_save').hide();PF('dlg_message').show();" style="clear: both; float: left; margin-left: 10px;" update="i_message  :form_categoria:"/> 
+                                <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_save').hide()" style="float: left;" icon="ui-icon-close"/>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_delete" header="Deseja excluir este registro?" resizable="false" width="400" modal="true">
+                                <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{categoriaBean.delete()}" oncomplete="PF('dlg_delete').hide();
+                                                 PF('dlg_message').show();" style="clear: both; float: left; margin-left: 10px;" update="i_message :form_categoria:"/> 
+                                <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_delete').hide()" style="float: left;" icon="ui-icon-close"/>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_message" header="Mensagem" resizable="false" width="400" modal="true" closable="true">
+                                <p:messages autoUpdate="true" showDetail="true" showSummary="true" id="i_message" /> 
+                                <f:facet name="footer">
+                                    <p:commandButton value="OK" type="submit" styleClass="ui-confirmdialog-yes" onclick="PF('dlg_message').hide();"/>
+                                </f:facet>
+                            </p:dialog>                            
+                        </h:form>
+                    </p:panel>
+                </f:view>
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>                
+    </h:body>
+</ui:composition>

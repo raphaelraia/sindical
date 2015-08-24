@@ -1,0 +1,128 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Modelo Contrato</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+    </h:head>
+    <h:body class="divMenu">
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>
+        </f:subview>
+        <f:view>
+            <p:panel styleClass="wrapper no-border">                
+                <h:form id="form_contrato">                    
+                    <c:set scope="request" var="object" value="${modeloContratoBean.matriculaContrato}"/>
+                    <p:dialog  widgetVar="dgl_anexos" modal="true" width="400" height="300" header="Anexos" closable="true" closeOnEscape="true">
+                        <h:panelGrid id="id_grid_uploads" style="width: 350px">
+                            <p:dataTable value="#{uploadFilesBean.listFilesByPath(modeloContratoBean.path)}" var="lista" emptyMessage="Nenhum arquivo encontrado">
+                                <f:facet name="header">Arquivos anexados (#{uploadFilesBean.listFilesByPath(modeloContratoBean.path).size()})</f:facet>
+                                <p:column headerText="Nome arquivo" >
+                                    <h:graphicImage value="/Cliente/#{controleUsuarioBean.clienteString}/Arquivos/contrato/#{modeloContratoBean.matriculaContrato.id}/#{lista.name}" title="#{lista.name}" width="50" />
+                                </p:column>
+                                <p:column width="25">
+                                    <p:commandButton action="#{uploadFilesBean.remove(index)}" icon="ui-icon-trash" update=":form_contrato:id_grid_uploads, :form_contrato:id_btn_anexo"/>
+                                </p:column>
+                            </p:dataTable>
+                        </h:panelGrid>
+                    </p:dialog>
+                    <p:growl id="i_growl" showSummary="true" showDetail="true"/>
+                    <p:panel id="id_form_contrato" styleClass="no-border">
+                        <h:panelGrid columns="2" >
+                            <p:outputLabel value="Título" />
+                            <p:inputText value="#{modeloContratoBean.matriculaContrato.titulo}" size="50"/>
+                        </h:panelGrid>
+                        <p:editor value="#{modeloContratoBean.matriculaContrato.descricao}" styleClass="margin-top-max" height="500"/>
+                        <h:panelGrid columns="4" columnClasses="coluna1, coluna2" styleClass="margin-top-max">
+                            <h:outputLabel value="Cadastro:" />
+                            <h:outputLabel value="#{modeloContratoBean.matriculaContrato.dataCadastro} -" />
+                            <h:outputLabel value="Ultima atualização:" />
+                            <h:outputLabel value="#{modeloContratoBean.matriculaContrato.dataAtualizado}" />                        
+                        </h:panelGrid>                         
+                        <p:panel styleClass="margin-top-max" header="Variáveis">
+                            <h:panelGrid columns="2">
+                                <h:outputLabel value="Filtrar: " for="idFiltroVariavel"/>
+                                <h:inputText value="#{modeloContratoBean.descricaoPesquisa}" id="idFiltroVariavel" >
+                                    <p:ajax event="keyup" update="tbl_variavel" listener="#{modeloContratoBean.getListaMatriculaContratoCampos('this').clear()}"/>
+                                </h:inputText>
+                            </h:panelGrid>
+                            <p:dataTable var="contratoCampo" value="#{modeloContratoBean.getListaMatriculaContratoCampos('this')}" id="tbl_variavel" scrollable="true" scrollHeight="200" styleClass="margin-top-max">
+                                <p:column width="150" headerText="Campo"> 
+                                    <h:outputText value="#{contratoCampo.campo}" />
+                                </p:column>
+                                <p:column width="230" headerText="Variavel">
+                                    <h:inputText value="#{contratoCampo.variavel}" readonly="true" title="Selecione esta variável copie e cole dentro do texto" />
+                                </p:column>
+                                <p:column width="50">
+                                    <p:commandLink value="Obs" title="#{contratoCampo.observacao}" styleClass="underline-hover" rendered="#{linha.observacao != ''}"/>
+                                </p:column>
+                                <p:column width="50" headerText="...">
+                                    <p:commandButton icon="ui-icon-plus" value="#{contratoCampo.variavel}" oncomplete="insereTexto('#{linha.variavel}', 'form_contrato:idContrato1:inp'); return false;" title="Adicionar este campo ao texto" style="width: 10px;" disabled="true"/>
+                                </p:column>
+                            </p:dataTable>
+                        </p:panel>                   
+                        <br /><br />
+                        <p:panel rendered="#{modeloContratoBean.matriculaContrato.id != -1}" header="Vincular serviços a este contrato">
+                            <h:panelGrid columns="2" columnClasses="coluna1, coluna2">
+                                <h:selectOneMenu id="idServicos" value="#{modeloContratoBean.idServicos}">
+                                    <f:selectItems value="#{modeloContratoBean.listServicos}" />
+                                </h:selectOneMenu>
+                                <p:commandButton icon="ui-icon-plus" action="#{modeloContratoBean.addServicos}" disabled="#{controleAcessoBean.botaoSalvar}" update="tbl_servicos"/>
+                            </h:panelGrid>
+                            <h:panelGrid id="tbl_servicos" styleClass="margin-top-max">
+                                <p:dataTable var="linha" value="#{modeloContratoBean.listaMatriculaContratoServico}" emptyMessage="Nenhum registro encontrado!">
+                                    <p:column headerText="Descrição">
+                                        <h:outputText value="#{linha.servicos.descricao}"/>
+                                    </p:column>
+                                    <p:column headerText="...">
+                                        <p:commandButton icon="ui-icon-trash" action="#{modeloContratoBean.removeServicos(linha)}" disabled="#{controleAcessoBean.botaoExcluir}" update=":form_contrato:tbl_servicos :form_contrato:i_growl" />
+                                    </p:column>                                
+                                </p:dataTable>
+                            </h:panelGrid>
+                        </p:panel>
+                        <h:panelGrid columns="6" styleClass="margin-top-max">
+                            <p:commandButton value="Salvar" disabled="#{controleAcessoBean.botaoSalvar}" onclick="PF('dlg_save').show()" type="button"  />
+                            <p:commandButton value="Novo" action="#{modeloContratoBean.clear}" update=":form_contrato:"/>
+                            <p:commandButton value="Excluir" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('dlg_delete').show()" type="button"/>
+                            <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pesquisaModeloContrato}" title="Pesquisar Contrato" />
+                            <p:commandButton value="Anexar arquivos" type="button" onclick="PF('dgl_upload').show();" id="id_btn_uploads" rendered="#{modeloContratoBean.matriculaContrato.id != -1}"/>
+                            <p:commandButton value="Anexos (#{uploadFilesBean.listFilesByPath(modeloContratoBean.path).size()})" type="button" onclick="PF('dgl_anexos').show();" id="id_btn_anexo" rendered="#{modeloContratoBean.matriculaContrato.id != -1}"/>
+                        </h:panelGrid>
+                    </p:panel>
+                    <p:dialog widgetVar="dlg_save" header="Deseja salvar este registro?" resizable="false" width="400" modal="true">
+                        <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{modeloContratoBean.save()}" onclick="PF('dlg_save').hide();
+                                PF('dlg_message').show();" style="clear: both; float: left; margin-left: 10px;" update="id_mensagem  id_form_contrato"/> 
+                        <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_save').hide()" style="float: left;" icon="ui-icon-close"/>
+                    </p:dialog>
+                    <p:dialog widgetVar="dlg_delete" header="Deseja excluir este registro?" resizable="false" width="400" modal="true">
+                        <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{modeloContratoBean.delete()}" onclick="PF('dlg_delete').hide();
+                                PF('dlg_message').show();" style="clear: both; float: left; margin-left: 10px;" update="id_mensagem id_form_contrato"/> 
+                        <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_delete').hide()" style="float: left;" icon="ui-icon-close"/>
+                    </p:dialog>
+                    <p:dialog widgetVar="dlg_message" header="Mensagem" resizable="false" width="400" modal="true" closable="true">
+                        <p:outputLabel value="#{modeloContratoBean.mensagem}" id="id_mensagem" /> 
+                        <div class="clear"></div>
+                        <p:commandButton value="OK" type="submit" styleClass="ui-confirmdialog-yes" onclick="PF('dlg_message').hide();"/>
+                    </p:dialog>                     
+                </h:form>
+                <h:form id="form_modelo_upload" enctype="multipart/form-data" acceptcharset="UTF-8">
+                    <p:dialog id="id_dgl_anexos" widgetVar="dgl_upload" modal="true"  header="Anexar arquivos" closable="true" closeOnEscape="true">
+                        <p:fileUpload label="Procurar"
+                                      cancelLabel="Cancelar"
+                                      uploadLabel="Anexar"
+                                      mode="advanced"                                          
+                                      dragDropSupport="true"
+                                      multiple="false"
+                                      update=":form_contrato:id_form_contrato, :form_contrato:id_grid_uploads, :form_contrato:id_btn_anexo"
+                                      fileUploadListener="#{uploadFilesBean.upload}"
+                                      oncomplete="PF('dgl_upload').hide()" />
+                    </p:dialog>
+                </h:form>                
+            </p:panel>
+        </f:view>
+    </h:body>
+</ui:composition>

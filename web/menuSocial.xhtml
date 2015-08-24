@@ -1,0 +1,237 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Sindical - Menu Social</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" charset="UTF-8"/>
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important;} 
+            .ui-button { padding: 3px!important; }            
+
+
+            .ui-widget-content .ui-menu-list .ui-corner-all .ui-helper-clearfix .ui-menu-child .ui-shadow{
+                margin-top: 20px!important;
+            }
+        </style>
+
+        <script type="text/javascript">
+
+        </script>        
+    </h:head>
+
+    <h:body>
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                </f:subview>
+                <f:view>
+                    <h:form id="formMenuSocial">
+                        <p:panel style="border: 0px; margin: 0 auto;  width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                            <p:menubar>
+                                <p:submenu label="Cadastro" icon="ui-icon-document" style="margin-right: 15px">  
+                                    <p:menuitem value="Associar / Física"  action="#{chamadaPaginaBean.pessoaFisica}"/>
+                                    <p:menuitem value="Suspensão de Socio" action="#{chamadaPaginaBean.pagina('suspencao')}" />
+                                    <p:menuitem value="Convênio Médico"    action="#{chamadaPaginaBean.convenioMedico}" />
+                                    <p:menuitem value="Juridica"           action="#{chamadaPaginaBean.pessoaJuridica}" />
+
+                                    <p:submenu label="Convênio Empresas">
+                                        <p:menuitem value="Convênio"            action="#{chamadaPaginaBean.pagina('convenio')}" />
+                                        <p:menuitem value="Grupo Convênio"      action="#{chamadaPaginaBean.grupoConvenio}" />
+                                        <p:menuitem value="SubGrupo Convênio"   action="#{chamadaPaginaBean.pagina('subGrupoConvenio')}" />
+                                    </p:submenu>
+
+                                    <p:submenu label="Baile">
+                                        <p:menuitem value="Banda"               action="#{chamadaPaginaBean.bandas}" />
+                                        <p:menuitem value="Baile"               action="#{chamadaPaginaBean.baile}" />
+                                    </p:submenu>
+
+                                    <p:submenu label="Viagens">
+                                        <p:menuitem value="Caravanas"           action="#{chamadaPaginaBean.caravana}" />
+                                    </p:submenu>
+
+                                    <p:menuitem value="Desc. Serviço Empresa"   action="#{chamadaPaginaBean.descontoServicoEmpresa}" />
+
+                                    <p:menuitem value="Autorizar Carteirinha"   action="#{chamadaPaginaBean.autorizaCarteirinha()}"/>
+                                    <p:menuitem value="Modelo de Carteirinha"   action="#{chamadaPaginaBean.modeloCarteirinha()}"/>
+                                    <p:menuitem value="Administradora"          action="#{chamadaPaginaBean.pagina('administradora')}" />
+
+                                    <p:submenu label="Suporte">
+                                        <p:menuitem value=" Validade Cartão"     action="#{chamadaPaginaBean.pagina('validadeCartao')}" />
+                                        <p:menuitem value="Descrição Eventos"    action="#{chamadaPaginaBean.descricaoEvento}" />
+                                        <p:menuitem value="Grupo Evento"         action="#{chamadaPaginaBean.grupoEvento}" rendered="false"/>
+                                        <p:menuitem value="Categoria do Sócio"   action="#{chamadaPaginaBean.categoria}" />
+                                        <p:menuitem value="Grupo Categoria"      action="#{chamadaPaginaBean.pagina('grupoCategoria')}" />
+                                        <p:menuitem value="Parentesco"           action="#{chamadaPaginaBean.parentesco}" />
+                                        <p:menuitem value="Registro Empresarial" action="#{chamadaPaginaBean.registroEmpresarial}" />
+                                    </p:submenu>
+                                </p:submenu>
+
+                                <p:submenu label="Movimento" style="margin-right: 15px">
+                                    <p:menuitem value="Movimentos a Receber"   action="#{chamadaPaginaBean.movimentosReceberSocial()}" />
+                                    <p:menuitem value="Geração Mensal"         action="#{chamadaPaginaBean.gerarBoleto()}" />
+                                    <p:menuitem value="Impressão Mensal"       action="#{chamadaPaginaBean.impressaoBoletoSocial()}" />
+                                    <p:menuitem value="Lançamento Individual"  action="#{chamadaPaginaBean.lancamentoIndividual}" />
+                                    <p:menuitem value="Emissão de Guias"       action="#{chamadaPaginaBean.pagina('emissaoGuias')}" />
+                                    <p:menuitem value="Extrato Tela Social"    action="#{chamadaPaginaBean.pagina('extratoTelaSocial')}"/>
+                                    <p:menuitem value="Retorno Banco (Social)" action="#{chamadaPaginaBean.retornoSocial()}" />
+                                    <p:menuitem value="Vendas Caravana"        action="#{chamadaPaginaBean.vendasCaravana}" />
+                                    <p:menuitem value="Vendas Baile"           action="#{chamadaPaginaBean.vendasBaile}" />
+                                    <p:menuitem value="Transf. Entre Caixas" onclick="i_dlg_t.show()"/>
+                                    <p:menuitem value="Fechamento de Caixa"    action="#{chamadaPaginaBean.fechamentoCaixa()}"/>
+                                    <p:menuitem value="Ag. Cobrança Mensal"    action="#{chamadaPaginaBean.cobrancaMensal()}" />
+                                    <p:menuitem value="Pesquisa Boletos"       action="#{chamadaPaginaBean.pagina('pesquisaBoletosSocial')}" />
+                                    <p:menuitem value="Convite Clube"          action="#{chamadaPaginaBean.conviteMovimento}"/>
+                                </p:submenu>    
+
+
+                                <p:submenu label="Relatórios">
+                                    <p:menuitem value="Relatório de Sócios"  action="#{chamadaPaginaBean.relatorioSocios}" />
+                                    <p:menuitem value="Rel. Sócios Inativos" action="#{chamadaPaginaBean.relatorioSociosInativos()}" ajax="false"/>
+                                    <p:menuitem value="Cartão Social"        action="#{chamadaPaginaBean.cartaoSocial}" />
+                                    <p:menuitem value="Ficha Social Branco"  action="#{sociosBean.imprimirFichaSocialVazia()}" ajax="false"/>
+                                    <p:menuitem value="Carnê Mensalidades"   action="#{chamadaPaginaBean.pagina('carneMensalidades')}" ajax="false"/>
+                                    <p:menuitem value="Convênio Médico"      action="#{chamadaPaginaBean.pagina('relatorioConvenioMedico')}" ajax="false"/>
+                                    <p:menuitem value="Fechamento Guias"     action="#{chamadaPaginaBean.pagina('relatorioFechamentoGuias')}" ajax="false"/>
+                                    <p:menuitem value="Fechamento Baile"     action="#{chamadaPaginaBean.pagina('relatorioFechamentoBaile')}" ajax="false"/>
+                                </p:submenu>                            
+                            </p:menubar> 
+                            <p:panel styleClass="margin-top-max">
+                                <h:panelGrid>
+                                    <p:commandButton type="button" onclick="PF('i_dlg_socios_1').show()" rendered="#{socialBean.existPessoasMesmaMatricula}" update="i_panel_grid_socios_1" value="Constam a mesma pessoa mais de uma vez na mesma matrícula!" styleClass="font-color-red" />
+                                    <p:commandButton type="button" onclick="PF('i_dlg_socios_2').show()" rendered="#{socialBean.existatriculaAtivaAtivacaoDesordenada}" update="i_panel_grid_socios_1" value="Matrícula Ativa com id_servico_pessoa menor que último, favor entrar em contato com nosso suporte técnico." styleClass="font-color-red"/>                                
+                                </h:panelGrid>                                
+                            </p:panel>
+                        </p:panel>
+
+                        <!-- TERMINAR MÉTODO DE ENVIO DE IMAGEM DO BOLETO / E VERSO -->
+                        <p:panel id="i_panel_lateral_esq" style="border: 0px; width: 1024px; height: 350px; margin: 0 auto" rendered="false">
+
+                            <p:panel style="float: left; text-align: center; background: #f6f6f6; clear: both;  margin-top: 10px">
+                                <center>
+                                    <h:panelGrid>
+                                        <p:commandLink style="font-weight: bold" value="Alterar imagem Boleto" actionListener="#{impressaoBoletoSocialBean.alterarPathImagem('frente')}" oncomplete="PF('dlg_upload').show();"/>
+                                    </h:panelGrid>
+                                </center>
+                                <h:graphicImage value="/Cliente/#{controleUsuarioBean.clienteString}/Imagens/BannerPromoBoleto.png" width="200" /><br />
+                            </p:panel>
+
+                            <p:panel style="float: left; text-align: center; background: #f6f6f6; clear: both; margin-top: 10px">
+                                <center>
+                                    <h:panelGrid>
+                                        <p:commandLink style="font-weight: bold" value="Alterar imagem VERSO do Boleto" actionListener="#{impressaoBoletoSocialBean.alterarPathImagem('verso')}" oncomplete="PF('dlg_upload').show();"/>
+                                    </h:panelGrid>
+                                </center>
+                                <h:graphicImage value="/Cliente/#{controleUsuarioBean.clienteString}/Imagens/LogoBoletoVersoSocial.png" width="200" /><br />
+                            </p:panel>
+                        </p:panel>
+                        <p:growl id="i_msg_t_g" showDetail="true" />  
+                        <p:dialog widgetVar="i_dlg_socios_1" header="Lista de pessoas" resizable="false" modal="true" >
+                            <h:panelGrid id="i_panel_grid_socios_1">
+                                <p:dataTable value="#{socialBean.listPessoasMesmaMatricula}" var="pessoa" emptyMessage="Nenhum registro encontrado!" scrollable="true" scrollHeight="300" >
+                                    <p:column headerText="Nome">
+                                        #{pessoa.nome}
+                                    </p:column>
+                                    <p:column headerText="Documento">
+                                        #{pessoa.documento}
+                                    </p:column>
+                                    <p:column width="30">
+                                        <p:commandButton icon="ui-icon-contact" update=":formMenuSocial:i_pessoa_fisica_card" onclick="PF('dlg_pessoa_fisica_card').show()" action="#{pessoaCardBean.cardFisica(pessoa.id)}" title="Ver detalhes" />
+                                    </p:column>
+                                </p:dataTable>
+                            </h:panelGrid>
+                        </p:dialog>
+                        <p:dialog widgetVar="i_dlg_socios_2" header="Lista de pessoas" resizable="false" modal="true">
+                            <h:panelGrid id="i_panel_grid_socios_2">
+                                <p:dataTable value="#{socialBean.listatriculaAtivaAtivacaoDesordenada}" var="pessoa"  emptyMessage="Nenhum registro encontrado!" scrollable="true" scrollHeight="300" >
+                                    <p:column headerText="Nome">
+                                        #{pessoa.nome}
+                                    </p:column>
+                                    <p:column headerText="Documento">
+                                        #{pessoa.documento}
+                                    </p:column>
+                                    <p:column width="30">
+                                        <p:commandButton icon="ui-icon-contact" update=":formMenuSocial:i_pessoa_fisica_card" onclick="PF('dlg_pessoa_fisica_card').show()" action="#{pessoaCardBean.cardFisica(pessoa.id)}" title="Ver detalhes" />
+                                    </p:column>                                    
+                                </p:dataTable>                                
+                            </h:panelGrid>
+                        </p:dialog>
+                        <p:dialog widgetVar="dlg_pessoa_fisica_card" modal="true" resizable="false" height="400" width="400" header="Detalhes">
+                            <p:ajax event="close" listener="#{pessoaCardBean.close}"/>  
+                            <p:panel id="i_pessoa_fisica_card">
+                                <ui:include src="templates/templatePessoaFisicaCard.xhtml" />
+                            </p:panel>
+                        </p:dialog>
+                        <p:dialog widgetVar="i_dlg_t" header="Transferência entre Caixas" resizable="false" modal="true">
+                            <p:messages id="i_msg_t" showDetail="true" closable="true" />  
+                            <h:panelGrid style="clear: both; width: 100%; margin-top: 20px" columns="4">
+                                <p:column>
+                                    <h:outputLabel value="Meu Caixa"/><br />
+                                    <p:selectOneMenu id="i_select_c2" value="#{fechamentoCaixaBean.idCaixa}" style="padding-right: 20px; margin-right: 20px">
+                                        <p:ajax event="change" update="i_select_c2" global="false"/>
+                                        <f:selectItems value="#{fechamentoCaixaBean.listaCaixa}"/>
+                                    </p:selectOneMenu>
+                                </p:column>
+
+                                <p:column>
+                                    <h:outputLabel value="Tipo de Transferência"/><br /><br />
+                                    <h:outputLabel value="DINHEIRO" style="font-size: 12pt!important; font-weight: bold;  margin-right: 70px"/><br />
+                                </p:column>
+
+                                <p:column>
+                                    <h:outputLabel value="Valor"/><br />
+                                    <p:inputText id="i_valor_t" value="#{fechamentoCaixaBean.valorTransferencia}" style="margin-right: 15px" dir="rtl">
+                                        <p:ajax event="change" update="i_valor_t" global="false"/>
+                                    </p:inputText>
+                                </p:column>
+
+                                <p:column>
+                                    <h:outputLabel value="Para o Caixa"/><br />
+                                    <p:selectOneMenu id="i_select_cd" value="#{fechamentoCaixaBean.idCaixaDestino}" style="padding-right: 20px; margin-right: 15px">
+                                        <p:ajax event="change" update="i_select_cd" global="false"/>
+                                        <f:selectItems value="#{fechamentoCaixaBean.listaCaixaDestino}"/>
+                                    </p:selectOneMenu>
+                                </p:column>
+                            </h:panelGrid>
+
+                            <h:panelGrid>
+                                <p:column>
+                                    <p:commandButton global="false" value="Transferir" type="submit" styleClass="ui-confirmdialog-yes" action="#{fechamentoCaixaBean.transferir()}" update="i_msg_t i_msg_t_g i_valor_t" style="clear: both; float: left" icon="ui-icon-check" />  
+                                    <p:commandButton value="Fechar"   type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_t').hide()" style="float: left" icon="ui-icon-close"/>
+                                </p:column>
+                            </h:panelGrid>
+                        </p:dialog>
+                    </h:form>
+
+                    <h:form id="imagem_boleto_social" enctype="multipart/form-data" acceptcharset="UTF-8">
+                        <p:dialog id="i_dlg_anexo" widgetVar="dlg_upload" modal="true"  header="Alterar Imagem" >
+                            <p:fileUpload label="Procurar"
+                                          cancelLabel="Cancelar"
+                                          uploadLabel="Anexar"
+                                          mode="advanced"                                          
+                                          sizeLimit="204800"
+                                          update=":formMenuSocial:i_panel_lateral_esq"
+                                          fileUploadListener="#{uploadFilesBean.upload}"
+                                          oncomplete="PF('dlg_upload').hide()" />
+                        </p:dialog>
+                    </h:form>
+                </f:view>
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>
+    </h:body>
+</ui:composition>

@@ -1,0 +1,58 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Vendedores</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+    </h:head>
+    <h:body class="divMenu">
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>
+        </f:subview>
+        <f:view>
+            <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                <h:form id="form_vendedor">
+                    <p:outputLabel value="Cadastro de Vendedor" styleClass="fonteHeader"/>
+                    <c:set scope="request" var="object" value="${vendedorBean.vendedor}"/>
+                    <div class="clear"></div>
+                    <p:panel id="id_panel_turma" styleClass="sbb margin-top-max">
+                        <p:panelGrid columns="4">
+                            <p:commandButton value="Vendedor" icon="ui-icon-search" action="#{chamadaPaginaBean.pesquisaPessoa}" title="Pesquisar pessoa > vendedor" id="id_pessoa_vendedor"/>
+                            <p:column>
+                                <p:outputLabel value="Pesquisar pessoa" style="border-bottom: 1px dotted #888;" rendered="#{vendedorBean.vendedor.pessoa.id == -1}" for="id_pessoa_vendedor"/>
+                                <p:outputLabel id="idNome" value="#{vendedorBean.vendedor.pessoa.nome}" rendered="#{vendedorBean.vendedor.pessoa.id != -1}" for="id_pessoa_vendedor"/>
+                            </p:column>
+                            <p:commandButton value="Adicionar" action="#{vendedorBean.save}" oncomplete="PF('dlg_message').show()" update=":form_vendedor: i_mensagem" rendered="#{vendedorBean.vendedor.pessoa.id != -1}" disabled="#{controleAcessoBean.botaoSalvar}"/>
+                        </p:panelGrid>
+                        <p:panelGrid columns="1" id="tbl" styleClass="sbb margin-top-max">
+                            <p:dataTable value="#{vendedorBean.listVendedores}" var="vendedor">
+                                <p:column>
+                                    <f:facet name="header">
+                                        <h:outputText value="Nome"/>
+                                    </f:facet>
+                                    <h:outputLabel value="#{vendedor.pessoa.nome}" />
+                                </p:column>
+                                <p:column>
+                                    <p:commandButton icon="ui-icon-trash" action="#{vendedorBean.delete(vendedor)}" oncomplete="PF('dlg_message').show()" update=":form_vendedor:tbl, :form_vendedor:i_mensagem" disabled="#{controleAcessoBean.botaoExcluir}" title="Código: #{vendedor.id}"/>
+                                </p:column>
+                                <f:facet name="header">
+                                    Relação de vendedores
+                                </f:facet>
+                            </p:dataTable>
+                        </p:panelGrid>                        
+                        <p:dialog id="i_panel_mensagem" modal="true" width="300" widgetVar="dlg_message" header="Mensagem">
+                            <p:messages showDetail="true" showSummary="true" autoUpdate="true" closable="false" id="i_mensagem"/>
+                            <f:facet name="footer">
+                                <p:commandButton value="Ok" title="Ok" oncomplete="PF('dlg_message').hide()"  />                                
+                            </f:facet>                            
+                        </p:dialog>
+                    </p:panel>
+                </h:form>
+            </p:panel>
+        </f:view>
+    </h:body>
+</ui:composition>

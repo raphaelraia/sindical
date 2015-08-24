@@ -1,0 +1,35 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Pesquisa Categoria</title>
+    </h:head>
+    <f:subview id="header">
+        <ui:include src="templates/templatePrime.xhtml"/>
+    </f:subview>
+    <f:view>
+        <h:form id="form_pesquisa_categoria">
+            <h:body>
+                <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                    <p:outputLabel value="Pesquisa Categoria" styleClass="fonteHEader"/>
+                    <div class="clear"></div>
+                    <p:dataTable value="#{categoriaBean.listCategoria}" var="categoria" scrollHeight="400" scrollable="true" emptyMessage="Nenhum registro encontrado">
+                        <p:column width="30" styleClass="text-center">
+                            <p:commandButton icon="ui-icon-link" title="Editar registro nº #{categoria.id}" action="#{categoriaBean.edit(categoria)}" />
+                        </p:column>
+                        <p:column headerText="Categoria" styleClass="text-center">
+                            #{categoria.categoria}
+                        </p:column>
+                        <p:column headerText="Grupo Categoria" styleClass="text-center">
+                            #{categoria.grupoCategoria.grupoCategoria}
+                        </p:column>
+                    </p:dataTable>
+                </p:panel>
+            </h:body>
+        </h:form>
+    </f:view>
+</ui:composition>

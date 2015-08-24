@@ -1,0 +1,61 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Convênio Médico</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+    </h:head>
+    <h:body class="divMenu">
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>
+        </f:subview>
+        <f:view>
+            <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                <h:form id="form_cm">
+                    <p:outputLabel value="Convênio Médico" styleClass="fonteHeader"/>
+                    <div class="clear"></div>
+                    <p:panel>
+                        <c:set scope="request" var="object" value="${matriculaConvenioMedicoBean.matriculaConvenioMedico}"/>
+                        <p:dialog header="Deseja salvar este Registro?" widgetVar="dlg_save" modal="true" closable="true">
+                            <f:facet name="footer">
+                                <p:commandButton value="Sim" title="Salvar" action="#{matriculaConvenioMedicoBean.save}" oncomplete="PF('dlg_save').hide(); PF('dlg_message').show();" update=":form_cm:, outConfirma"/>
+                                <p:commandButton value="Não" title="Cancelar" onclick="PF('dlg_save').hide();"/>
+                            </f:facet>
+                        </p:dialog>
+                        <p:dialog header="Deseja excluir este Registro?" widgetVar="dlg_delete" modal="true" closable="true">
+                            <f:facet name="footer">
+                                <p:commandButton value="Sim" title="Salvar" action="#{matriculaConvenioMedicoBean.delete}" oncomplete="PF('dlg_delete').hide(); PF('dlg_message').show();" update=":form_cm:, outConfirma"/>
+                                <p:commandButton value="Não" title="Cancelar" onclick="PF('dlg_delete').hide();"/>
+                            </f:facet>
+                        </p:dialog>
+                        <p:dialog header="Mensagem" widgetVar="dlg_message" modal="true" closable="true" width="400">
+                            <h:outputText id="outConfirma" value="#{matriculaConvenioMedicoBean.message}" />
+                            <f:facet name="footer">
+                                <p:commandButton value="OK" action="convenioMedico" title="OK" onclick="PF('dlg_message').hide();"/>
+                            </f:facet>
+                        </p:dialog>
+                        <ui:include src="servicoPessoa.xhtml" />
+                        <h:panelGrid columns="4" styleClass="margin-top-max margin-bottom-max">
+                            <p:outputLabel value="Data Inativo: " rendered="#{matriculaConvenioMedicoBean.matriculaConvenioMedico.dtInativo != null}"/>
+                            <p:inputMask value="#{matriculaConvenioMedicoBean.matriculaConvenioMedico.inativo}" mask="99/99/9999" size="10" converter="#{isDateString}" disabled="true" rendered="#{matriculaConvenioMedicoBean.matriculaConvenioMedico.dtInativo != null}">
+                                <p:ajax event="change" update="@this" />
+                            </p:inputMask>
+                            <p:outputLabel value="Código: " />
+                            <p:inputText value="#{matriculaConvenioMedicoBean.matriculaConvenioMedico.codigo}"/>
+                        </h:panelGrid>
+                    </p:panel>
+                    <h:panelGrid columns="4" styleClass="margin-top-max">
+                        <p:commandButton value="Salvar" disabled="#{controleAcessoBean.botaoSalvar}" onclick="PF('dlg_save').show()"/>
+                        <p:commandButton value="Novo" action="#{matriculaConvenioMedicoBean.clear}" update=":form_cm:"/>
+                        <p:commandButton value="Inativar" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('dlg_delete').show()" rendered="#{matriculaConvenioMedicoBean.matriculaConvenioMedico.dtInativo == null}" />
+                        <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pagina('pesquisaConvenioMedico')}" />
+                    </h:panelGrid>
+                </h:form>
+            </p:panel>           
+        </f:view>
+    </h:body>
+</ui:composition>

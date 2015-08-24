@@ -1,0 +1,80 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>Sindical - Menu Escola</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" charset="UTF-8"/>
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important;} 
+            .ui-button { padding: 3px!important; }
+            .ui-selectonemenu-label .ui-inputfield{}
+        </style>          
+    </h:head>
+
+    <h:body>
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                </f:subview>
+
+                <f:view>
+                    <h:form id="formMenuPrincipal">
+                        <p:panel style="border: 0px; margin: 0 auto;  width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                            <p:menubar>
+                                <p:submenu label="Cadastro" icon="ui-icon-document" style="margin-right: 15px">  
+                                    <p:menuitem value="Vendedor"                action="#{chamadaPaginaBean.pagina('vendedor')}"/>
+                                    <p:menuitem value="Professor"               action="#{chamadaPaginaBean.pagina('professor')}"/>
+                                    <p:menuitem value="Turma"                   action="#{chamadaPaginaBean.pagina('turma')}"/>
+                                    <p:menuitem value="Pessoa Jurídica"         action="#{chamadaPaginaBean.pessoaJuridica}"/>
+                                    <p:menuitem value="Pessoa Física"           action="#{chamadaPaginaBean.pessoaFisica}"/>
+                                    <p:menuitem value="SPC"                     action="#{chamadaPaginaBean.pagina('spc')}"/>
+                                    <p:menuitem value="Conclusão"               action="#{chamadaPaginaBean.conclusaoMatricula}" />
+                                    <p:submenu label="Suporte">
+                                        <p:menuitem value="Componente Curricular" action="#{chamadaPaginaBean.paginaSimples('ComponenteCurricular', 'Componente Curricular')}"/>
+                                        <p:menuitem value="Agrupa Turma"        action="#{chamadaPaginaBean.pagina('agrupaTurma')}"/>
+                                        <p:menuitem value="Modelo Contrato"     action="#{chamadaPaginaBean.pagina('modeloContrato')}"/>
+                                        <p:menuitem value="Contrato Campos"     action="#{chamadaPaginaBean.modeloContratoCampos}" disabled="true" />
+                                        <p:menuitem value="Midia"               action="#{chamadaPaginaBean.paginaSimples('Midia', 'Mídia')}"/>
+                                        <p:menuitem value="Desc. Serv. Empresa" action="#{chamadaPaginaBean.pagina('descontoServicoEmpresa')}" title="Desconto Serviço Empresa"/>
+                                        <p:menuitem value="Serviços"            action="#{chamadaPaginaBean.servicos}"/>
+                                        <p:menuitem value="Serviço Rotina"      action="#{chamadaPaginaBean.servicoRotina}"/>
+                                    </p:submenu>                            
+                                </p:submenu>
+                                <p:submenu label="Movimento" icon="ui-icon-document" style="margin-right: 15px">  
+                                    <p:menuitem value="Movimentos a Receber"    action="#{chamadaPaginaBean.movimentosReceberSocial()}"/>
+                                    <p:menuitem value="Matricula"               action="#{chamadaPaginaBean.pagina('matriculaEscola')}"/>
+                                    <p:menuitem value="Financeiro"              action="#{chamadaPaginaBean.eFinanceiro}"/>
+                                    <p:menuitem value="Emissão de Guias"     action="#{chamadaPaginaBean.pagina('emissaoGuias')}" />
+                                    <p:menuitem value="Lançamento Individual" action="#{chamadaPaginaBean.lancamentoIndividual}" />
+                                    <p:menuitem value="Fechamento de Caixa"   action="#{chamadaPaginaBean.fechamentoCaixa()}"/>
+                                    <p:menuitem value="Rescisão de Contrato"    action="#{chamadaPaginaBean.rescisaoMatricula}" actionListener="#{rescisaoContratoBean.defineTipoRescisaoContrato('matriculaEscola')}" />
+                                </p:submenu>
+                                <p:submenu label="Relatório" icon="ui-icon-document" style="margin-right: 15px">  
+                                    <p:menuitem value="Matrícula Turma"         action="#{chamadaPaginaBean.pagina('relatorioMatriculaEscola')}" actionListener="#{relatorioMatriculaEscolaBean.listener('matriculaTurma')}"/>
+                                    <p:menuitem value="Matrícula Individual"    action="#{chamadaPaginaBean.pagina('relatorioMatriculaEscola')}" actionListener="#{relatorioMatriculaEscolaBean.listener('matriculaIndividual')}"/>
+                                    <p:menuitem value="Fechamento Repasse"   action="#{chamadaPaginaBean.pagina('fechamentoRepasse')}" />
+                                </p:submenu>
+                            </p:menubar> 
+                        </p:panel>
+                    </h:form>
+                </f:view>
+
+
+
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>
+    </h:body>
+</html>

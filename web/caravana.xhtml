@@ -1,0 +1,213 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Sindical - Caravana</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important;} 
+            .ui-button { padding: 3px!important; }
+        </style>
+
+        <script type="text/javascript">
+
+        </script>
+    </h:head>
+    <h:body>
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                </f:subview>
+                <f:view>
+                    <p:panel styleClass="wrapper" style="border: 0px;">
+                        <h:outputText value="Caravana" styleClass="fonteHeader" />
+                        <h:form id="formCaravana">
+                            <c:set scope="request" var="object" value="${caravanaBean.caravana}"/>
+                            <h:panelGrid columns="2" style="clear: both">
+                                <p:column>
+                                    <p:panel styleClass="fundoCinza" style="width: 490px; height: 290px">
+                                        <h:outputLabel value="Viagens" style="font-size: 14pt!important"/>
+                                        <h:panelGrid columns="1">
+                                            <p:column>
+                                                <p:selectOneMenu id="idDescricao" value="#{caravanaBean.idDescricaoEvento}" style="width: 460px">
+                                                    <f:selectItems value="#{caravanaBean.listaDescricaoEvento}"/>
+                                                </p:selectOneMenu>
+                                            </p:column>
+                                        </h:panelGrid>
+
+                                        <h:panelGrid columns="2" style="margin-top: 20px">
+                                            <p:column>
+                                                <h:outputLabel value="Data Saída" style="font-weight: bold"/><br />
+                                                <p:inputMask value="#{caravanaBean.caravana.dataSaida}" size="10" mask="99/99/9999"/>
+                                            </p:column>
+
+                                            <p:column>
+                                                <h:outputLabel value="Horário" /><br />
+                                                <p:inputMask value="#{caravanaBean.caravana.horaSaida}" size="5" mask="99:99"/>
+                                            </p:column>
+                                        </h:panelGrid>
+
+                                        <h:panelGrid columns="2" style="margin-top: 10px">
+                                            <p:column>
+                                                <h:outputLabel value="Data Retorno" style="font-weight: bold"/><br />
+                                                <p:inputMask value="#{caravanaBean.caravana.dataRetorno}" size="10" mask="99/99/9999"/>
+                                            </p:column>
+
+                                            <p:column>
+                                                <h:outputLabel value="Horário"/><br />
+                                                <p:inputMask value="#{caravanaBean.caravana.horaRetorno}" size="5" mask="99:99"/>
+                                            </p:column>
+                                        </h:panelGrid>
+
+                                        <h:panelGrid columns="2" style="margin-top: 10px">
+                                            <p:column>
+                                                <h:outputLabel value="Data Chegada" style="font-weight: bold"/><br />
+                                                <p:inputMask value="#{caravanaBean.caravana.dataChegada}" size="10" mask="99/99/9999"/>
+                                            </p:column>
+
+                                            <p:column>
+                                                <h:outputLabel value="Horário"/><br />
+                                                <p:inputMask value="#{caravanaBean.caravana.horaChegada}" size="5" mask="99:99"/>
+                                            </p:column>
+                                        </h:panelGrid>
+                                    </p:panel>
+                                </p:column>
+
+                                <p:column>
+                                    <p:panel styleClass="fundoCinza" style="width: 490px; height: 290px">
+                                        <h:outputLabel value="..." style="font-size: 14pt!important"/>
+                                        <h:panelGrid columns="3">
+                                            <p:selectBooleanCheckbox id="idChkCafe" value="#{caravanaBean.caravana.isCafe}" itemLabel="Café"/>
+
+                                            <p:selectBooleanCheckbox id="idChkAlmoco" value="#{caravanaBean.caravana.isAlmoco}" style="margin-left: 20px;" itemLabel="Almoço"/>
+
+                                            <p:selectBooleanCheckbox id="idChkJantar" value="#{caravanaBean.caravana.isJantar}" style="margin-left: 20px;" itemLabel="Jantar"/>
+                                        </h:panelGrid>
+
+                                        <h:panelGrid style="margin-top: 20px; width: 100%">
+                                            <h:outputLabel value="Qntd de Poltronas" />
+                                            <p:inputText value="#{caravanaBean.caravana.quantidadePoltronas}" size="20"/>
+
+                                            <h:outputLabel value="Guia de Recolhimento" />
+                                            <p:inputText value="#{caravanaBean.caravana.guiaRecolhimento}" size="20" />
+
+                                            <h:outputLabel value="Observações" />
+                                            <p:inputTextarea value="#{caravanaBean.caravana.observacao}"  rows="3" style="width: 100%"/>
+                                        </h:panelGrid>
+                                    </p:panel>
+                                </p:column>
+                            </h:panelGrid>
+                            <p:messages id="i_msg" showDetail="true" closable="true" /> 
+                            <h:panelGrid columns="2" style="width: 100%">
+                                <p:column>
+                                    <h:outputLabel value="Serviços" style="font-size: 14pt!important"/><br />
+                                    <p:selectOneMenu id="idServicos" value="#{caravanaBean.idServicos}" style="width: 180px">
+                                        <f:selectItems value="#{caravanaBean.listaServicos}"/>
+                                    </p:selectOneMenu>
+                                </p:column>
+
+                                <p:column>
+                                    <p:inputTextarea id="i_area" value="#{caravanaBean.eventoServico.descricao}" cols="155"/>
+                                    <p:watermark value="Digite a descrição para este serviço, nome que aparecerá no momento da venda" for="i_area"/>
+                                </p:column>
+                            </h:panelGrid>
+
+                            <h:panelGrid columns="5" style="margin-top: 10px;">
+                                <p:column>
+                                    <h:outputLabel value="Idade Inicial" /><br />
+                                    <p:inputText value="#{caravanaBean.eventoServicoValor.idadeInicial}" size="7" style="margin-right: 20px"/>
+                                </p:column>
+
+                                <p:column>
+                                    <h:outputLabel value="Idade Final"/><br />
+                                    <p:inputText value="#{caravanaBean.eventoServicoValor.idadeFinal}" size="7" style="margin-right: 20px"/>
+                                </p:column>
+
+
+                                <p:column>
+                                    <h:outputLabel value="Valor"/><br />
+                                    <p:inputText id="idValor" value="#{caravanaBean.valor}" size="10" dir="RTL" >
+                                        <p:ajax event="change" update="idValor"/>
+                                    </p:inputText>
+                                </p:column>
+
+                                <p:column>
+                                    <br />
+                                    <p:selectBooleanCheckbox id="idChkIndividual" value="#{caravanaBean.eventoServico.individual}" style="margin-left: 20px" itemLabel="Individual"/>
+                                </p:column>
+
+                                <p:column>
+                                    <br />
+                                    <p:commandButton value="Adicionar Serviço" action="#{caravanaBean.adicionarServico}" style="margin-left: 20px" update="formCaravana" disabled="#{controleAcessoBean.botaoSalvar}" />   
+                                </p:column>
+                            </h:panelGrid>
+
+                            <p:dataTable value="#{caravanaBean.listaServicosAdd}" var="linha" id="tbl" emptyMessage="Nenhum serviço foi adicionado!">
+                                <p:column headerText="Excluir" style="text-align: center">
+                                    <p:commandButton icon="ui-icon-trash" action="#{caravanaBean.excluirServicos(linha)}" disabled="#{controleAcessoBean.botaoExcluir}" update="tbl :formCaravana:i_msg" />
+                                </p:column>
+
+                                <p:column headerText="Serviços">
+                                    <h:outputLabel value="#{linha.argumento0.descricao}" />
+                                </p:column>
+
+                                <p:column headerText="Descrição">
+                                    <h:outputLabel value="#{linha.argumento1.descricao}" />
+                                </p:column>
+
+                                <p:column headerText="Idade Inicial">
+                                    <h:outputLabel value="#{linha.argumento2.idadeInicial}" />
+                                </p:column>
+
+                                <p:column headerText="Idade Final">
+                                    <h:outputLabel value="#{linha.argumento2.idadeFinal}" />
+                                </p:column>
+
+                                <p:column headerText="Valor">
+                                    <h:outputLabel value="#{linha.argumento4}" />
+                                </p:column>
+
+                                <p:column headerText="Individual" style="text-align: center">
+                                    <h:outputLabel value="#{linha.argumento5}" />
+                                </p:column>
+                            </p:dataTable>
+
+                            <h:panelGrid columns="4">
+                                <p:commandButton value="Salvar" disabled="#{controleAcessoBean.botaoSalvar}" onclick="PF('i_dlg_s').show()"/>
+                                <p:commandButton ajax="false" value="Novo" action="#{caravanaBean.novo}"/>
+                                <p:commandButton value="Excluir" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('i_dlg_e').show()"/>
+                                <p:commandButton ajax="false" value="Pesquisar" action="#{chamadaPaginaBean.pesquisaCaravana}" />                        
+                            </h:panelGrid>   
+
+                            <p:dialog widgetVar="i_dlg_s" header="Deseja Salvar esta Caravana" resizable="false" width="400" modal="true">
+                                <p:commandButton value="Salvar"   type="submit" styleClass="ui-confirmdialog-yes" action="#{caravanaBean.salvar()}" update="formCaravana" onclick="PF('i_dlg_s').hide()" style="clear: both; float: left" icon="ui-icon-check"/>  
+                                <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_s').hide()" style="float: left" icon="ui-icon-close"/>       
+                            </p:dialog>
+
+                            <p:dialog widgetVar="i_dlg_e" header="Deseja Excluir esta Caravana" resizable="false" width="400" modal="true">
+                                <p:commandButton value="Excluir"  type="submit" styleClass="ui-confirmdialog-yes" action="#{caravanaBean.excluir()}" update="formCaravana" onclick="PF('i_dlg_e').hide()" style="clear: both; float: left" icon="ui-icon-check"/>  
+                                <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_e').hide()" style="float: left" icon="ui-icon-close"/>       
+                            </p:dialog>
+                        </h:form>
+                    </p:panel>
+                </f:view>
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>                
+    </h:body>
+</ui:composition>

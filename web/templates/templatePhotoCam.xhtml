@@ -1,0 +1,68 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core">
+    <f:view>
+        <f:metadata>  
+            <f:event type="preRenderView" listener="${photoCamBean.load}"/>  
+        </f:metadata>
+        <h:form id="form_photocam_files">
+            <p:dialog id="i_captura" widgetVar="dlg_photocam" modal="true" header="WebCam" resizable="true"  maximizable="true" minimizable="true" closeOnEscape="true" visible="#{photoCamBean.visible}" width="760">
+                <p:ajax event="close" listener="#{photoCamBean.close}" update="#{photoCamBean.UPDATE}"/>
+                <p:messages showDetail="true" showSummary="true" closable="true" id="i_message_photocam"/>
+                <h:panelGrid id="i_panel_photocam" columns="1">
+                    <h:panelGrid columns="2" columnClasses="verticalAlignTop verticalAlignTop" style="overflow: hidden">
+                        <h:column>
+                            <p:panel header="Câmera" style="width: 350px; height: 300px" styleClass="text-center" >
+                                <p:photoCam widgetVar="pc_photocam" listener="#{photoCamBean.capture}" update=":form_photocam_files:i_photocam_preview :form_photocam_files:i_panel_photocam_actions" rendered="#{photoCamBean.visible}" />
+                            </p:panel>
+                        </h:column>
+                        <h:column>
+                            <p:panel header="Pré-Visualização" style="width: 350px; height: 300px" styleClass="text-center" id="i_photocam_preview" >
+                                <h:column>
+                                    <h:column>
+                                        <p:imageCropper value="#{cropperBean.croppedImage}" image="#{photoCamBean.FILE_PERMANENT}" initialCoords="0,0,100,100" rendered="#{cropperBean.cut}" />                                            
+                                        <h:panelGrid id="i_photocam_preview_image">
+                                            <h:column>
+                                                <div style="position: relative; height: 220px">
+                                                    <p:graphicImage value="#{photoCamBean.streamedContent}" cache="false" rendered="#{!cropperBean.cut}" />
+                                                </div>
+                                            </h:column>
+                                        </h:panelGrid>
+                                    </h:column>
+                                </h:column>
+                            </p:panel>
+                        </h:column>
+                    </h:panelGrid>
+                    <h:column>
+                        <h:panelGrid columns="2" columnClasses="verticalAlignTop verticalAlignTop" id="i_panel_photocam_actions" >
+                            <h:column>
+                                <h:panelGrid columns="6">
+                                    <p:commandButton value="Capturar Foto" onclick="PF('pc_photocam').capture();
+                                            PF('dlg_loading_photo').show();" action="#{photoCamBean.waiting(0)}" global="false" disabled="#{cropperBean.cut}" actionListener="#{photoCamBean.waiting(3000)}" />
+                                    <p:commandButton value="Atualizar" update="i_photocam_preview_image" global="false" disabled="#{cropperBean.cut}"/>
+                                    <p:commandButton value="Concluir" action="#{photoCamBean.closeRefresh(0)}" disabled="#{cropperBean.cut}"/>
+                                    <p:commandButton value="Desfazer" action="#{photoCamBean.closeRefresh(1)}" rendered="false" disabled="#{cropperBean.cut}"/>
+                                </h:panelGrid>
+                            </h:column>
+                            <h:column>
+                                <h:panelGrid columns="3" style="margin-left: 55px">
+                                    <p:commandButton title="Cortar imagem" icon="ui-icon-scissors" update="i_photocam_preview i_panel_photocam_actions" action="#{cropperBean.editCrop}" rendered="#{!cropperBean.cut}" disabled="#{photoCamBean.FILE_PERMANENT eq '/Imagens/user_undefined.png'}"/>
+                                    <p:commandButton title="Desfazer" icon="ui-icon-close" update="i_photocam_preview i_panel_photocam_actions" action="#{cropperBean.editCrop}" rendered="#{cropperBean.cut}"/>
+                                    <p:commandButton value="Cortar" action="#{cropperBean.crop}" update="i_photocam_preview i_panel_photocam_actions i_message_photocam" rendered="#{cropperBean.cut}" actionListener="#{cropperBean.listenerParamsCrop(photoCamBean.FILE_PERMANENT)}" />                            
+                                </h:panelGrid>
+                            </h:column>
+                        </h:panelGrid>
+                    </h:column>
+                </h:panelGrid>                        
+            </p:dialog>
+            <p:dialog widgetVar="dlg_loading_photo" modal="true" header="Carregando Imagem">
+                <p:ajax event="close" />
+                <h:panelGrid style="width: 100%; text-align: center">
+                    <p:outputLabel value="Capturando e Processando Imagem" />
+                </h:panelGrid>
+            </p:dialog>            
+        </h:form>
+    </f:view>
+</ui:composition>

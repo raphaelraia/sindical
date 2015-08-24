@@ -1,0 +1,135 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Sindical - Cadastro - SPC</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important;} 
+            .ui-button { padding: 3px!important; }
+            .ui-datatable tr.ui-datatable-even:hover, .ui-datatable tr.ui-datatable-odd:hover {
+                background: #ECF3FE;
+            }            
+        </style>
+    </h:head>
+    <h:body>
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                </f:subview>
+                <f:view>
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:outputText value="Cadastro SPC" styleClass="fonteHeader" />
+                        <div class="clear"></div>
+                        <h:form id="form_spc">
+                            <c:set scope="request" var="object" value="${spcBean.spc}"/>
+                            <p:panel styleClass="fundoCinza">
+                                <h:panelGrid columns="2" id="id_panel_novo">
+                                    <p:commandButton icon="ui-icon-search" value="Pesquisar pessoa: " title="Pesquisar pessoa" action="#{chamadaPaginaBean.pesquisa('pesquisaPessoa')}" />
+                                    <h:column>
+                                        <p:outputLabel value="Pesquise uma pessoa" rendered="#{spcBean.spc.pessoa.id == -1}" style="border-bottom: 1px dashed gray; color: gray;" />
+                                        <p:outputLabel value="#{spcBean.spc.pessoa.nome} - CNPJ/CPF: #{spcBean.spc.pessoa.documento}" rendered="#{spcBean.spc.pessoa.id != -1}" />
+                                    </h:column>
+                                    <h:outputLabel value="Data entrada:" />
+                                    <h:column>
+                                        <p:inputMask value="#{spcBean.spc.dataEntrada}" mask="99/99/9999" converter="#{isDateString}" size="8">
+                                            <p:ajax event="blur" update="@this" />
+                                        </p:inputMask>
+                                        <h:outputLabel value="Data saída: " styleClass="margin-left-max"/>
+                                        <p:inputMask value="#{spcBean.spc.dataSaida}" mask="99/99/9999" converter="#{isDateString}" size="8">
+                                            <p:ajax event="blur" update="@this" />
+                                        </p:inputMask>
+                                    </h:column>
+                                    <h:outputLabel value="Observações:" title="Observação (es)"/>
+                                    <h:column>
+                                        <br />
+                                        <p:inputTextarea value="#{spcBean.spc.observacao}" style="resize: none;" cols="120" rows="2"></p:inputTextarea>
+                                    </h:column>
+                                </h:panelGrid>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="#{spcBean.botaoSalvar}" onclick="PF('dlg_save').show()" disabled="#{controleAcessoBean.botaoSalvar}"/>
+                                        <p:commandButton value="Novo" action="#{spcBean.clear()}" update=":form_spc:"/>
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:panel>
+                            <p:panel styleClass="margin-top-max" id="i_painel_filtro">
+                                <f:facet name="header">
+                                    <h:panelGrid columns="5">
+                                        <p:outputLabel value="Filtros: " />
+                                        <p:selectBooleanCheckbox id="idFiltro" value="#{spcBean.filtro}" itemLabel="Todos sem data de saída" rendered="#{spcBean.spc.pessoa.id == -1}" disabled="#{!spcBean.descricaoPesquisa.equals('')}">
+                                            <p:ajax event="change" update="@this i_grid_spc" listener="#{spcBean.listaSPC.clear()}"/>
+                                        </p:selectBooleanCheckbox>
+                                        <p:selectBooleanCheckbox value="#{spcBean.filtroPorPessoa}" itemLabel="Pessoa" rendered="#{spcBean.spc.pessoa.id != -1}" disabled="true">
+                                            <p:ajax event="change" update="@this i_grid_spc" listener="#{spcBean.listaSPC.clear()}"/>
+                                        </p:selectBooleanCheckbox>                                        
+                                    </h:panelGrid>
+                                </f:facet>
+                                <h:panelGrid columns="10" >
+                                    <h:outputLabel value="Descrição: "/>
+                                    <p:inputText value="#{spcBean.descricaoPesquisa}" size="50">
+                                        <p:ajax event="blur" update="@this i_grid_spc i_painel_filtro" listener="#{spcBean.listaSPC.clear()}" />
+                                    </p:inputText>
+                                    <p:outputLabel value="Por: " styleClass="margin-left-max"/>
+                                    <p:selectOneMenu value="#{spcBean.porPesquisa}">
+                                        <p:ajax event="change" update="@this i_grid_spc" listener="#{spcBean.listaSPC.clear()}"/>
+                                        <f:selectItem itemValue="nome" itemLabel="Nome" />
+                                        <f:selectItem itemValue="documento" itemLabel="Documento (CPF/CNPJ/CEI)" />
+                                    </p:selectOneMenu>
+                                    <p:commandButton action="#{spcBean.acaoPesquisaInicial}" value="Inicial" actionListener="#{spcBean.listaSPC.clear()}" update="i_grid_spc" styleClass="margin-left-max" disabled="#{spcBean.descricaoPesquisa.equals('')}"/>
+                                    <p:commandButton action="#{spcBean.acaoPesquisaParcial}" value="Parcial" actionListener="#{spcBean.listaSPC.clear()}" update="i_grid_spc" disabled="#{spcBean.descricaoPesquisa.equals('')}"/>
+                                </h:panelGrid>
+                                <h:panelGrid id="i_grid_spc" >
+                                    <p:dataTable value="#{spcBean.listaSPC}" var="spc" styleClass="margin-top-max" emptyMessage="Nenhum registro encontrado!">
+                                        <p:column headerText="Pessoa">
+                                            <p:commandLink styleClass="underline-hover" value="#{spc.pessoa.nome}" actionListener="#{spcBean.edit(spc)}" update=":form_spc:" />
+                                        </p:column>
+                                        <p:column headerText="Documento" width="150">
+                                            #{spc.pessoa.documento}
+                                        </p:column>
+                                        <p:column headerText="Data entrada" width="80">
+                                            #{spc.dataEntrada}
+                                        </p:column>  
+                                        <p:column headerText="Data saída" width="80">
+                                            #{spc.dataSaida}
+                                        </p:column>
+                                    </p:dataTable>
+                                </h:panelGrid>
+                            </p:panel>
+                            <p:dialog widgetVar="dlg_save" header="Deseja salvar este registro?" resizable="false" width="400" modal="true">
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Confirmar" styleClass="ui-confirmdialog-yes" action="#{spcBean.save()}" oncomplete="PF('dlg_save').hide();PF('dlg_message').show();" update="i_message  :form_spc:"/> 
+                                        <p:commandButton value="Cancelar"  styleClass="ui-confirmdialog-no" onclick="PF('dlg_save').hide()" icon="ui-icon-close"/>
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_message" header="Mensagem" resizable="false" width="400" modal="true" closable="true">
+                                <p:messages autoUpdate="true" showDetail="true" showSummary="true" id="i_message" /> 
+                                <f:facet name="footer">
+                                    <p:commandButton value="OK" type="submit" styleClass="ui-confirmdialog-yes" onclick="PF('dlg_message').hide();"/>
+                                </f:facet>
+                            </p:dialog>                            
+                        </h:form>
+                    </p:panel>
+                </f:view>
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>                
+    </h:body>
+</ui:composition>

@@ -1,0 +1,78 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Pesquisar Produtos</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+    </h:head>
+    <h:body>
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>
+        </f:subview>
+        <f:view>
+            <f:metadata>
+                <f:event type="preRenderView" listener="${produtoBean.load}"/>  
+            </f:metadata>
+            <ui:include src="templates/templateAcessoFilial.xhtml"/>
+            <h:form id="form_pesquisa_produto">
+                <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                    <h:outputText value="Pesquisar Produtos" styleClass="fonteHeader" />
+                    <div class="clear"></div>
+                    <p:panel id="i_panel_pesquisa" styleClass="fundoCinza">
+                        <h:panelGrid columns="2">
+                            <p:outputLabel value="Filial Estoque: "  />
+                            <h:column>
+                                <p:selectOneMenu value="#{produtoBean.filial_id}" disabled="#{!produtoBean.liberaAcessaFilial}">
+                                    <p:ajax event="change" update="@this i_tbl" listener="#{produtoBean.listener(1)}" />
+                                    <f:selectItems value="#{produtoBean.listFiliaisPesquisa}" />
+                                </p:selectOneMenu>
+                            </h:column>                            
+                        </h:panelGrid>                        
+                        <h:panelGrid columns="8" styleClass="margin-top-max">
+                            <p:outputLabel value="Pesquisar: "/>
+                            <p:inputText value="#{produtoBean.produtoPesquisa.descricao}">
+                                <p:ajax event="change" update="@this" />
+                            </p:inputText>
+                            <h:outputLabel value="Por: " rendered="false"/>
+                            <p:selectOneMenu id="idTipoClasse" rendered="false">
+                            </p:selectOneMenu>
+                            <p:commandButton id="idInicial" value="Inicial">
+                                <p:ajax listener="#{produtoBean.acaoPesquisaInicial}" update=":form_pesquisa_produto:"/>
+                            </p:commandButton>
+                            <p:commandButton id="idParcial" value="Parcial">
+                                <p:ajax listener="#{produtoBean.acaoPesquisaParcial}" update=":form_pesquisa_produto:"/>
+                            </p:commandButton>
+                        </h:panelGrid>   
+                    </p:panel>
+                </p:panel>
+                <p:panel id="i_tbl" styleClass="wrapper no-border" style="width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                    <p:dataTable value="#{produtoBean.listaProdutos}" var="produto" scrollable="true" scrollHeight="400" emptyMessage="Nenhum registro encontrado!" styleClass="margin" rows="100" paginator="true">
+                        <p:column headerText="Descrição" width="200">
+                            <p:commandLink action="#{produtoBean.edit(produto)}" value="#{produto.descricao}"  />
+                        </p:column>                                    
+                        <p:column headerText="Marca" width="60" styleClass="text-center">
+                            <h:commandLink action="#{produtoBean.edit(produto)}" value="#{produto.marca}"  />
+                        </p:column>                                    
+                        <p:column headerText="Fabricante" rendered="false">
+                            <h:commandLink action="#{produtoBean.edit(produto)}" value="#{produto.fabricante}" />
+                        </p:column>
+                        <p:column headerText="Grupo" styleClass="text-center">
+                            <h:commandLink action="#{produtoBean.edit(produto)}" value="#{produto.produtoGrupo.descricao}"  />
+                        </p:column>                                    
+                        <p:column headerText="SubGrupo" styleClass="text-center">
+                            <h:commandLink action="#{produtoBean.edit(produto)}" value="#{produto.produtoSubGrupo.descricao}"  />
+                        </p:column>
+                        <p:column headerText="Cor" styleClass="text-center">
+                            <h:commandLink action="#{produtoBean.edit(produto)}" value="#{produto.cor.descricao}"  />
+                        </p:column>                        
+                    </p:dataTable>
+                </p:panel>
+
+            </h:form>                     
+        </f:view>
+    </h:body>
+</ui:composition>

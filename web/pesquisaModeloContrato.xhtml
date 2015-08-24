@@ -1,0 +1,41 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Pesquisa Modelo Contrato - #{modeloContratoBean.modulo.descricao}</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+    </h:head>
+    <h:body class="divMenu">
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>
+        </f:subview>
+        <f:view>
+            <p:panel styleClass="wrapper no-border">
+                <h:form id="form_pesquisa_modelo_contrato">
+                    <p:outputLabel value="Pesquisa Modelo Contrato - #{modeloContratoBean.modulo.descricao}" styleClass="fonteHeader"/>
+                    <c:set scope="request" var="object" value="${modeloContratoBean.matriculaContrato}"/>
+                    
+                    <div class="clear"></div>
+                    <p:dataTable value="#{modeloContratoBean.matriculaContratos}" var="linha" scrollHeight="400" scrollable="true" emptyMessage="Nenhum registro encontrado!">
+                        <f:facet name="footer">
+                            Selecione um modelo de contrato
+                        </f:facet>
+                        <p:column headerText="Cadastro" styleClass="text-center" width="80" >
+                            <p:commandLink value="#{linha.dataCadastro}" action="#{modeloContratoBean.edit(linha)}" styleClass="underline-hover"/>
+                        </p:column>
+                        <p:column headerText="Atualizado" styleClass="text-center" width="80" >
+                            <p:commandLink value="#{linha.dataAtualizado}" action="#{modeloContratoBean.edit(linha)}" styleClass="underline-hover"/>
+                        </p:column>
+                        <p:column headerText="Título" >
+                            <p:commandLink value="#{linha.titulo}" title="Código: #{linha.id}"  action="#{modeloContratoBean.edit(linha)}" styleClass="underline-hover" style="text-transform: uppercase"/>
+                        </p:column>
+                    </p:dataTable>                     
+                </h:form>                    
+            </p:panel>                    
+        </f:view>
+    </h:body>
+</ui:composition>

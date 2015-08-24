@@ -1,0 +1,139 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Sindical - #{simplesBean.sessoes[1]}</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" charset="UTF-8"/>
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
+            .ui-button { padding: 3px!important; }
+            .ui-selectonemenu {padding-right: 25px!important;}
+        </style>
+
+        <script type="text/javascript">
+
+        </script>          
+    </h:head>
+    <h:body>
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                </f:subview>
+
+                <f:view>
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:form id="formCadastroSimplesTitle">
+                            <p:column rendered="#{simplesBean.linkRetorno}">
+                                <h:outputText value="Pesquisar #{simplesBean.sessoes[1]}" styleClass="fonteHeader" />
+                            </p:column>
+                            <p:column rendered="#{!simplesBean.linkRetorno}">
+                                <h:outputText value="Cadastro #{simplesBean.sessoes[1]}" styleClass="fonteHeader" />
+                            </p:column>
+                        </h:form>
+                        <div class="clear"></div>
+                        <h:panelGrid columns="2" columnClasses="verticalAlignTop, verticalAlignTop">
+                            <h:column>
+                                <h:form id="formCadastroSimples">
+                                    <p:panel id="i_panel_pesquisa" styleClass="fundoCinza" style="clear: both; height: 50px">
+                                        <h:panelGrid columns="4">
+                                            <p:inputText id="idPesquisar" value="#{simplesBean.pesquisaLista}" size="50" title="Pesquisar">
+                                                <p:ajax event="change"  global="false" update="@this" />
+                                            </p:inputText>
+
+                                            <p:commandButton value="Pesquisar">
+                                                <p:ajax event="click" listener="#{simplesBean.limpaLista}" update="i_panel_simples"/>
+                                            </p:commandButton>
+
+                                            <p:ajaxStatus id="i_status" onstart="PF('i_dlg_modal').show();" onsuccess="PF('i_dlg_modal').hide();" />
+                                        </h:panelGrid>
+                                        <p:focus for="i_panel_pesquisa" />
+                                    </p:panel>
+
+                                    <p:panel id="i_panel_simples" styleClass="margin-top-max" >
+                                        <p:dataTable value="#{simplesBean.lista}" var="linha" emptyMessage="Nenhum registro encontrado" rows="10" paginator="true">
+                                            <p:ajax event="page" global="false"/>
+
+                                            <p:column style="text-align: center;" width="30">
+                                                <p:commandButton icon="ui-icon-link" title="Selecionar este registro nº#{linha.id}" action="#{simplesBean.selecionar(linha)}" global="false" />
+                                            </p:column>
+
+                                            <p:column style="text-align: center;" width="30">
+                                                <p:commandButton icon="ui-icon-search" title="Editar registro nº#{linha.id}" >
+                                                    <p:ajax listener="#{simplesBean.editar(linha)}" update=":formCadastroSimplesNovo:" oncomplete="jQuery('.iDescricaoc').focus()" />
+                                                </p:commandButton>
+                                            </p:column>
+
+                                            <p:column headerText="Descrição">
+                                                <p:outputLabel value="#{linha.descricao}" />
+                                            </p:column>
+
+                                            <p:column style="text-align: center;" width="30">
+                                                <p:commandButton icon="ui-icon-trash" action="#{simplesBean.excluir(linha)}" update=":formCadastroSimples:i_panel_simples"/>
+                                            </p:column>
+                                        </p:dataTable>
+                                    </p:panel> 
+
+                                    <p:dialog modal="true" widgetVar="i_dlg_modal" header="Status" draggable="false" closable="false">  
+                                        <h:outputLabel value="Pesquisando ... Aguarde" />
+                                    </p:dialog>
+
+                                </h:form>
+                            </h:column>
+                            <h:column>
+                                <h:form id="formCadastroSimplesNovo">
+                                    <p:panel id="i_panel" style="margin-left: 15px; width: 350px;" header="Novo" >
+                                        <p:growl autoUpdate="true" id="i_msg" showDetail="true" />  
+                                        <h:panelGrid columns="1" columnClasses="coluna1, coluna2">
+                                            <h:column>
+                                                <h:outputLabel value="Rotina:" />
+                                                <h:outputLabel value=" #{simplesBean.sessoes[1]}" styleClass="bold"/>
+
+                                            </h:column>                                            
+                                            <br />
+                                            <h:outputLabel value="Descrição:"  />
+                                            <p:inputText autocomplete="off" value="#{simplesBean.descricao}" title="Descrição" converter="#{toUpperCase}" style="width: 300px">
+                                                <p:ajax event="blur" update="@this" global="false"/>
+                                            </p:inputText>
+                                            <br />
+                                            <p:selectBooleanCheckbox value="#{simplesBean.ativo}" itemLabel="Ativo">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:selectBooleanCheckbox>
+                                        </h:panelGrid>
+                                        <br />
+                                        <f:facet name="footer">
+                                            <h:panelGrid columns="2">
+                                                <p:commandButton value="Salvar" action="#{simplesBean.salvar}" update=":formCadastroSimples:i_panel_simples">
+                                                    <p:ajax event="click" global="false" /> 
+                                                </p:commandButton>
+                                                <p:commandButton value="Novo" action="#{simplesBean.novo()}" update="i_panel">
+                                                    <p:ajax event="click" global="false" /> 
+                                                </p:commandButton>
+                                            </h:panelGrid>
+                                        </f:facet>
+                                    </p:panel>
+                                </h:form>
+                            </h:column>
+
+                        </h:panelGrid>
+                    </p:panel>
+                </f:view>
+
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>
+    </h:body>
+</ui:composition>

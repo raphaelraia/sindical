@@ -1,0 +1,1774 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<faces-config version="2.2"
+              xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-facesconfig_2_2.xsd">   
+
+    <managed-bean>
+        <managed-bean-name>caixaBancoBean</managed-bean-name>
+        <managed-bean-class>br.com.rtools.financeiro.beans.CaixaBancoJSFBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+    </managed-bean>
+
+    <managed-bean>
+        <managed-bean-name>contribuintesBean</managed-bean-name>
+        <managed-bean-class>br.com.rtools.arrecadacao.beans.ContribuintesJSFBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+    </managed-bean>
+
+    <managed-bean>
+        <managed-bean-name>updateBean</managed-bean-name>
+        <managed-bean-class>br.com.rtools.arrecadacao.beans.UpdateBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+    </managed-bean>
+
+    <managed-bean>
+        <managed-bean-name>tirarFotoBean</managed-bean-name>
+        <managed-bean-class>br.com.rtools.pessoa.beans.TirarFotoJSFBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+    </managed-bean>
+   
+    <managed-bean>
+        <managed-bean-name>retornoPadraoBean</managed-bean-name>
+        <managed-bean-class>br.com.rtools.arrecadacao.beans.RetornoPadraoJSFBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+    </managed-bean>
+   
+    <managed-bean>
+        <managed-bean-name>bloqueioServicosBean</managed-bean-name>
+        <managed-bean-class>br.com.rtools.financeiro.beans.BloqueioServicosJSFBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+    </managed-bean>
+    
+    <navigation-rule>
+        
+        <navigation-case>
+            <from-outcome>contrato</from-outcome>
+            <to-view-id>/contrato.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>menuPrincipal</from-outcome>
+            <to-view-id>/menuPrincipal.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>menuPrincipalSuporteWeb</from-outcome>
+            <to-view-id>/menuPrincipalSuporteWeb.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>cidade</from-outcome>
+            <to-view-id>/cidade.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>endereco</from-outcome>
+            <to-view-id>/endereco.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaEndereco</from-outcome>
+            <to-view-id>/pesquisaEndereco.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>profissao</from-outcome>
+            <to-view-id>/profissao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>filial</from-outcome>
+            <to-view-id>/filial.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>cnae</from-outcome>
+            <to-view-id>/cnae.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaCnae</from-outcome>
+            <to-view-id>/pesquisaCnae.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>usuario</from-outcome>
+            <to-view-id>/usuario.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaUsuario</from-outcome>
+            <to-view-id>/pesquisaUsuario.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pessoaFisica</from-outcome>
+            <to-view-id>/pessoaFisica.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaPessoa</from-outcome>
+            <to-view-id>/pesquisaPessoa.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pessoaFisica</from-outcome>
+            <to-view-id>/pessoaFisica.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pessoaJuridica</from-outcome>
+            <to-view-id>/pessoaJuridica.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaPessoaFisica</from-outcome>
+            <to-view-id>/pesquisaPessoaFisica.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaCepFisica</from-outcome>
+            <to-view-id>/pesquisaCepFisica.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaCepListFisica</from-outcome>
+            <to-view-id>/pesquisaCepListFisica.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaEndDesFisica</from-outcome>
+            <to-view-id>/pesquisaEndDetalhesFisica.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaEndDesListFisica</from-outcome>
+            <to-view-id>/pesquisaEndDesListFisica.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaTipoDocumento</from-outcome>
+            <to-view-id>/pesquisaTipoDocumento.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>tipoDocumento</from-outcome>
+            <to-view-id>/tipoDocumento.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaPessoaJuridica</from-outcome>
+            <to-view-id>/pesquisaPessoaJuridica.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaCepJuridica</from-outcome>
+            <to-view-id>/pesquisaCepJuridica.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaCepListJuridica</from-outcome>
+            <to-view-id>/pesquisaCepListJuridica.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaEndDesJuridica</from-outcome>
+            <to-view-id>/pesquisaEndDetalhesJuridica.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaEndDesListJuridica</from-outcome>
+            <to-view-id>/pesquisaEndDesListJuridica.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaPessoaJuridica</from-outcome>
+            <to-view-id>/pesquisaPessoaJuridica.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaJuridicaFilial</from-outcome>
+            <to-view-id>/pesquisaJuridicaFilial.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>plano</from-outcome>
+            <to-view-id>/plano.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaPlano</from-outcome>
+            <to-view-id>/pesquisaPlano.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaLote</from-outcome>
+            <to-view-id>/pesquisaLote.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>caixaBanco</from-outcome>
+            <to-view-id>/caixaBanco.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaPessoaFisicaMov</from-outcome>
+            <to-view-id>/pesquisaPessoaFisicaMov.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>index</from-outcome>
+            <to-view-id>/index.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>indexSuporte</from-outcome>
+            <to-view-id>/indexSuporte.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>menuFinanceiro</from-outcome>
+            <to-view-id>/menuFinanceiro.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>contribuintes</from-outcome>
+            <to-view-id>/contribuintes.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>agendaTelefone</from-outcome>
+            <to-view-id>/agendaTelefone.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>pesquisaAgendaTelefone</from-outcome>
+            <to-view-id>/pesquisaAgendaTelefone.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>grupoAgenda</from-outcome>
+            <to-view-id>/grupoAgenda.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaGrupoAgenda</from-outcome>
+            <to-view-id>/pesquisaGrupoAgenda.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>motivoInativacao</from-outcome>
+            <to-view-id>/motivoInativacao.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaMotivoInativacao</from-outcome>
+            <to-view-id>/pesquisaMotivoInativacao.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>convencao</from-outcome>
+            <to-view-id>/convencao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaConvencao</from-outcome>
+            <to-view-id>/pesquisaConvencao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>servicos</from-outcome>
+            <to-view-id>/servicos.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaServicos</from-outcome>
+            <to-view-id>/pesquisaServicos.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>tipoServico</from-outcome>
+            <to-view-id>/tipoServico.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaTipoServico</from-outcome>
+            <to-view-id>/pesquisaTipoServico.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>servicoValor</from-outcome>
+            <to-view-id>/servicoValor.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaServicoValor</from-outcome>
+            <to-view-id>/pesquisaServicoValor.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>contaCobranca</from-outcome>
+            <to-view-id>/contaCobranca.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaContaCobranca</from-outcome>
+            <to-view-id>/pesquisaContaCobranca.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaContaBanco</from-outcome>
+            <to-view-id>/pesquisaContaBanco.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>menuArrecadacao</from-outcome>
+            <to-view-id>/menuArrecadacao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>menuSocial</from-outcome>
+            <to-view-id>/menuSocial.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>menuHomologacao</from-outcome>
+            <to-view-id>/menuHomologacao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>menuAcademia</from-outcome>
+            <to-view-id>/menuAcademia.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>menuEscola</from-outcome>
+            <to-view-id>/menuEscola.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>menuClube</from-outcome>
+            <to-view-id>/menuClube.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+    
+        <navigation-case>
+            <from-outcome>menuAtendimento</from-outcome>
+            <to-view-id>/menuAtendimento.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>rotina</from-outcome>
+            <to-view-id>/rotina.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaRotina</from-outcome>
+            <to-view-id>/pesquisaRotina.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>permissao</from-outcome>
+            <to-view-id>/permissao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaPermissao</from-outcome>
+            <to-view-id>/pesquisaPermissao.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>grupoCidade</from-outcome>
+            <to-view-id>/grupoCidade.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaGrupoCidade</from-outcome>
+            <to-view-id>/pesquisaGrupoCidade.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>grupoCidades</from-outcome>
+            <to-view-id>/grupoCidades.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaGrupoCidades</from-outcome>
+            <to-view-id>/pesquisaGrupoCidades.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>mensagem</from-outcome>
+            <to-view-id>/mensagem.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>contribuicao</from-outcome>
+            <to-view-id>/contribuicao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>inativacaoContribuintes</from-outcome>
+            <to-view-id>/inativacaoContribuintes.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>processamentoIndividual</from-outcome>
+            <to-view-id>/processamentoIndividual.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>impressaoBoletos</from-outcome>
+            <to-view-id>/impressaoBoletos.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>baixarMovimento</from-outcome>
+            <to-view-id>/baixarMovimento.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>movimentosReceber</from-outcome>
+            <to-view-id>/movimentosReceber.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>baixaGeral</from-outcome>
+            <to-view-id>/baixaGeral.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>arquivoBanco</from-outcome>
+            <to-view-id>/arquivoBanco.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>extratoTela</from-outcome>
+            <to-view-id>/extratoTela.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>contaBanco</from-outcome>
+            <to-view-id>/contaBanco.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>descontoEmpregado</from-outcome>
+            <to-view-id>/descontoEmpregado.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>acordo</from-outcome>
+            <to-view-id>/acordo.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>acessoNegado</from-outcome>
+            <to-view-id>/acessoNegado.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>sessaoExpirou</from-outcome>
+            <to-view-id>/sessaoExpirou.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>erro</from-outcome>
+            <to-view-id>/erro.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>servicoContaCobranca</from-outcome>
+            <to-view-id>/servicoContaCobranca.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>cnaeConvencao</from-outcome>
+            <to-view-id>/cnaeConvencao.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>indexAcessoWeb</from-outcome>
+            <to-view-id>/indexAcessoWeb.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>menuPrincipalAcessoWeb</from-outcome>
+            <to-view-id>/menuPrincipalAcessoWeb.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>webContribuinte</from-outcome>
+            <to-view-id>/webContribuinte.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>webContabilidade</from-outcome>
+            <to-view-id>/webContabilidade.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>webConfiguracoes</from-outcome>
+            <to-view-id>/webConfiguracoes.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>indiceMensal</from-outcome>
+            <to-view-id>/indiceMensal.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>relatorioContribuintes</from-outcome>
+            <to-view-id>/relatorioContribuintes.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>relatorioContabilidades</from-outcome>
+            <to-view-id>/relatorioContabilidades.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>relatorioMovimentos</from-outcome>
+            <to-view-id>/relatorioMovimentos.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>correcao</from-outcome>
+            <to-view-id>/correcao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+    
+        <navigation-case>
+            <from-outcome>permissaoDepartamento</from-outcome>
+            <to-view-id>/permissaoDepartamento.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>retornoBanco</from-outcome>
+            <to-view-id>/retornoBanco.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>registroEmpresarial</from-outcome>
+            <to-view-id>/registroEmpresarial.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>enviarEmail</from-outcome>
+            <to-view-id>/enviarEmail.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>agendamento</from-outcome>
+            <to-view-id>/agendamento.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>homologacao</from-outcome>
+            <to-view-id>/homologacao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>webAgendamentoContribuinte</from-outcome>
+            <to-view-id>/webAgendamentoContribuinte.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>webAgendamentoContabilidade</from-outcome>
+            <to-view-id>/webAgendamentoContabilidade.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>feriados</from-outcome>
+            <to-view-id>/feriados.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>horarios</from-outcome>
+            <to-view-id>/horarios.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>grupoConvenio</from-outcome>
+            <to-view-id>/grupoConvenio.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaGrupoConvenio</from-outcome>
+            <to-view-id>/pesquisaGrupoConvenio.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>subGrupoConvenio</from-outcome>
+            <to-view-id>/subGrupoConvenio.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaSubGrupoConvenio</from-outcome>
+            <to-view-id>/pesquisaSubGrupoConvenio.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>parentesco</from-outcome>
+            <to-view-id>/parentesco.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>suspencao</from-outcome>
+            <to-view-id>/suspencao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>grupoCategoria</from-outcome>
+            <to-view-id>/grupoCategoria.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaParentesco</from-outcome>
+            <to-view-id>/pesquisaParentesco.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaSuspencao</from-outcome>
+            <to-view-id>/pesquisaSuspencao.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>convenio</from-outcome>
+            <to-view-id>/convenio.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>categoria</from-outcome>
+            <to-view-id>/categoria.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaCategoria</from-outcome>
+            <to-view-id>/pesquisaCategoria.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>servicoPessoa</from-outcome>
+            <to-view-id>/servicoPessoa.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>socios</from-outcome>
+            <to-view-id>/socios.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>pesquisaSocios</from-outcome>
+            <to-view-id>/pesquisaSocios.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>pesquisaSociosAtivos</from-outcome>
+            <to-view-id>/pesquisaSociosAtivos.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>matriculaAcademia</from-outcome>
+            <to-view-id>/matriculaAcademia.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaMatriculaAcademia</from-outcome>
+            <to-view-id>/pesquisaMatriculaAcademia.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>convenioMedico</from-outcome>
+            <to-view-id>/convenioMedico.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaConvenioMedico</from-outcome>
+            <to-view-id>/pesquisaConvenioMedico.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>lancamentoIndividual</from-outcome>
+            <to-view-id>/lancamentoIndividual.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>servicoRotina</from-outcome>
+            <to-view-id>/servicoRotina.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>emissaoGuias</from-outcome>
+            <to-view-id>/emissaoGuias.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaJuridicaConvenio</from-outcome>
+            <to-view-id>/pesquisaJuridicaConvenio.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaGuiasEmitidas</from-outcome>
+            <to-view-id>/pesquisaGuiasEmitidas.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>baixaBoleto</from-outcome>
+            <to-view-id>/baixaBoleto.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>fechamentoComissaoAcordo</from-outcome>
+            <to-view-id>/fechamentoComissaoAcordo.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>caravana</from-outcome>
+            <to-view-id>/caravana.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>vendasCaravana</from-outcome>
+            <to-view-id>/vendasCaravana.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>vendasBaile</from-outcome>
+            <to-view-id>/vendasBaile.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>baile</from-outcome>
+            <to-view-id>/baile.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>bandas</from-outcome>
+            <to-view-id>/bandas.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>descricaoEvento</from-outcome>
+            <to-view-id>/descricaoEvento.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaBanda</from-outcome>
+            <to-view-id>/pesquisaBanda.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaCaravana</from-outcome>
+            <to-view-id>/pesquisaCaravana.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaBaile</from-outcome>
+            <to-view-id>/pesquisaBaile.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaVendasCaravana</from-outcome>
+            <to-view-id>/pesquisaVendasCaravana.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>vendedor</from-outcome>
+            <to-view-id>/vendedor.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>eFinanceiro</from-outcome>
+            <to-view-id>/eFinanceiro.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>professor</from-outcome>
+            <to-view-id>/professor.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>componenteCurricular</from-outcome>
+            <to-view-id>/componenteCurricular.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>turma</from-outcome>
+            <to-view-id>/turma.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaVendedor</from-outcome>
+            <to-view-id>/pesquisaVendedor.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaComponenteCurricular</from-outcome>
+            <to-view-id>/pesquisaComponenteCurricular.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaTurma</from-outcome>
+            <to-view-id>/pesquisaTurma.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>matriculaEscola</from-outcome>
+            <to-view-id>/matriculaEscola.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>relatorioSocios</from-outcome>
+            <to-view-id>/relatorioSocios.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+    
+        <navigation-case>
+            <from-outcome>cartaoSocial</from-outcome>
+            <to-view-id>/cartaoSocial.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaMatriculaEscola</from-outcome>
+            <to-view-id>/pesquisaMatriculaEscola.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>cancelarHorario</from-outcome>
+            <to-view-id>/cancelarHorario.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>genero</from-outcome>
+            <to-view-id>/genero.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>titulo</from-outcome>
+            <to-view-id>/titulo.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaGenero</from-outcome>
+            <to-view-id>/pesquisaGenero.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>pesquisaTitulo</from-outcome>
+            <to-view-id>/pesquisaTitulo.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>macFilial</from-outcome>
+            <to-view-id>/macFilial.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>agendaTarefa</from-outcome>
+            <to-view-id>/agendaTarefa.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>agendaInterrupcao</from-outcome>
+            <to-view-id>/agendaInterrupcao.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>tipoCentroComercial</from-outcome>
+            <to-view-id>/tipoCentroComercial.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>centroComercial</from-outcome>
+            <to-view-id>/centroComercial.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>indexLogin</from-outcome>
+            <to-view-id>/indexLogin.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>indexLoginExpirou</from-outcome>
+            <to-view-id>/indexLoginExpirou.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>simples</from-outcome>
+            <to-view-id>/simples.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>menuLocadora</from-outcome>
+            <to-view-id>/menuLocadora.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>catalogoFilme</from-outcome>
+            <to-view-id>/catalogoFilme.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+    
+        <navigation-case>
+            <from-outcome>enviarArquivosContabilidade</from-outcome>
+            <to-view-id>/enviarArquivosContabilidade.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>enviarArquivosContribuinte</from-outcome>
+            <to-view-id>/enviarArquivosContribuinte.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+    
+        <navigation-case>
+            <from-outcome>acessoLinks</from-outcome>
+            <to-view-id>/acessoLinks.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+    
+        <navigation-case>
+            <from-outcome>oposicao</from-outcome>
+            <to-view-id>/oposicao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+    
+        <navigation-case>
+            <from-outcome>pesquisaOposicao</from-outcome>
+            <to-view-id>/pesquisaOposicao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+    
+        <navigation-case>
+            <from-outcome>pesquisaLog</from-outcome>
+            <to-view-id>/pesquisaLog.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+    
+        <navigation-case>
+            <from-outcome>webSolicitaREPIS</from-outcome>
+            <to-view-id>/webSolicitaREPIS.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+    
+        <navigation-case>
+            <from-outcome>webLiberacaoREPIS</from-outcome>
+            <to-view-id>/webLiberacaoREPIS.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+    
+        <navigation-case>
+            <from-outcome>registroPatronal</from-outcome>
+            <to-view-id>/registroPatronal.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+    
+        <navigation-case>
+            <from-outcome>retornoPadrao</from-outcome>
+            <to-view-id>/retornoPadrao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+    
+        <navigation-case>
+            <from-outcome>pesquisaPatronal</from-outcome>
+            <to-view-id>/pesquisaPatronal.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+    
+        <navigation-case>
+            <from-outcome>pisoSalarial</from-outcome>
+            <to-view-id>/pisoSalarial.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+    
+        <navigation-case>
+            <from-outcome>pesquisaPisoSalarial</from-outcome>
+            <to-view-id>/pesquisaPisoSalarial.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+    
+        <navigation-case>
+            <from-outcome>atendimento</from-outcome>
+            <to-view-id>/atendimento.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+    
+        <navigation-case>
+            <from-outcome>convencaoPeriodo</from-outcome>
+            <to-view-id>/convencaoPeriodo.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+    
+        <navigation-case>
+            <from-outcome>relatorio</from-outcome>
+            <to-view-id>/relatorio.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+    
+        <navigation-case>
+            <from-outcome>pesquisaRelatorios</from-outcome>
+            <to-view-id>/pesquisaRelatorios.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+    
+        <navigation-case>
+            <from-outcome>notificacao</from-outcome>
+            <to-view-id>/notificacao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+    
+        <navigation-case>
+            <from-outcome>recepcao</from-outcome>
+            <to-view-id>/recepcao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+    
+        <navigation-case>
+            <from-outcome>modeloContrato</from-outcome>
+            <to-view-id>/modeloContrato.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+    
+        <navigation-case>
+            <from-outcome>modeloContratoCampos</from-outcome>
+            <to-view-id>/modeloContratoCampos.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>pesquisaModeloContrato</from-outcome>
+            <to-view-id>/pesquisaModeloContrato.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+    
+        <navigation-case>
+            <from-outcome>bloqueioServicos</from-outcome>
+            <to-view-id>/bloqueioServicos.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>relatorioHomologacao</from-outcome>
+            <to-view-id>/relatorioHomologacao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>configuracao</from-outcome>
+            <to-view-id>/configuracao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>pesquisaConfiguracao</from-outcome>
+            <to-view-id>/pesquisaConfiguracao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>pessoaComplemento</from-outcome>
+            <to-view-id>/pessoaComplemento.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>movimentosReceberSocial</from-outcome>
+            <to-view-id>/movimentosReceberSocial.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>descontoServicoEmpresa</from-outcome>
+            <to-view-id>/descontoServicoEmpresa.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>pesquisaDescontoServicoEmpresa</from-outcome>
+            <to-view-id>/pesquisaDescontoServicoEmpresa.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>usuarioPerfil</from-outcome>
+            <to-view-id>/usuarioPerfil.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>alterarMovimento</from-outcome>
+            <to-view-id>/alterarMovimento.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>spc</from-outcome>
+            <to-view-id>/spc.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>academiaGrade</from-outcome>
+            <to-view-id>/academiaGrade.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>academiaServicoValor</from-outcome>
+            <to-view-id>/academiaServicoValor.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>caixa</from-outcome>
+            <to-view-id>/caixa.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>agrupaTurma</from-outcome>
+            <to-view-id>/agrupaTurma.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>        
+        
+        <navigation-case>
+            <from-outcome>cartao</from-outcome>
+            <to-view-id>/cartao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>        
+        
+        <navigation-case>
+            <from-outcome>fechamentoCaixa</from-outcome>
+            <to-view-id>/fechamentoCaixa.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>        
+        
+        <navigation-case>
+            <from-outcome>caixaFechado</from-outcome>
+            <to-view-id>/caixaFechado.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>        
+        
+        <navigation-case>
+            <from-outcome>transferenciaEntreCaixa</from-outcome>
+            <to-view-id>/transferenciaEntreCaixa.jsf</to-view-id>
+            <redirect/>
+        </navigation-case> 
+
+        <navigation-case>
+            <from-outcome>conviteServico</from-outcome>
+            <to-view-id>/conviteServico.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>conviteSuspencao</from-outcome>
+            <to-view-id>/conviteSuspencao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>conviteMovimento</from-outcome>
+            <to-view-id>/conviteMovimento.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>conviteAutorizaCortesia</from-outcome>
+            <to-view-id>/conviteAutorizaCortesia.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>pesquisaSisPessoa</from-outcome>
+            <to-view-id>/pesquisaSisPessoa.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>depositoBancario</from-outcome>
+            <to-view-id>/depositoBancario.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>movimentoBancario</from-outcome>
+            <to-view-id>/movimentoBancario.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>relatorioConviteClube</from-outcome>
+            <to-view-id>/relatorioConviteClube.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>rescisaoMatricula</from-outcome>
+            <to-view-id>/rescisaoMatricula.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>conclusaoMatricula</from-outcome>
+            <to-view-id>/conclusaoMatricula.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>lancamentoFinanceiro</from-outcome>
+            <to-view-id>/lancamentoFinanceiro.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>relatorioEscola</from-outcome>
+            <to-view-id>/relatorioEscola.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>produto</from-outcome>
+            <to-view-id>/produto.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>pesquisaProduto</from-outcome>
+            <to-view-id>/pesquisaProduto.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>relatorioOposicao</from-outcome>
+            <to-view-id>/relatorioOposicao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>baixaProdutoConsumo</from-outcome>
+            <to-view-id>/baixaProdutoConsumo.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>filialDepartamento</from-outcome>
+            <to-view-id>/filialDepartamento.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+   
+        <navigation-case>
+            <from-outcome>previsaoPagamento</from-outcome>
+            <to-view-id>/previsaoPagamento.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>agendaGrupoUsuario</from-outcome>
+            <to-view-id>/agendaGrupoUsuario.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>relatorioChequesRecebidos</from-outcome>
+            <to-view-id>/relatorioChequesRecebidos.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>        
+        
+        <navigation-case>
+            <from-outcome>grupoFinanceiro</from-outcome>
+            <to-view-id>/grupoFinanceiro.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>        
+        
+        <navigation-case>
+            <from-outcome>gerarBoleto</from-outcome>
+            <to-view-id>/gerarBoleto.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>  
+        
+        <navigation-case>
+            <from-outcome>impressaoBoletoSocial</from-outcome>
+            <to-view-id>/impressaoBoletoSocial.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>  
+        
+        <navigation-case>
+            <from-outcome>reciboGerado</from-outcome>
+            <to-view-id>/reciboGerado.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>  
+
+        <navigation-case>
+            <from-outcome>contaOperacao</from-outcome>
+            <to-view-id>/contaOperacao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>  
+
+        <navigation-case>
+            <from-outcome>produtoSubGrupo</from-outcome>
+            <to-view-id>/produtoSubGrupo.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>        
+
+        <navigation-case>
+            <from-outcome>ordemServico</from-outcome>
+            <to-view-id>/ordemServico.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>        
+
+        <navigation-case>
+            <from-outcome>protocolo</from-outcome>
+            <to-view-id>/protocolo.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>        
+        
+        <navigation-case>
+            <from-outcome>autorizaCarteirinha</from-outcome>
+            <to-view-id>/autorizaCarteirinha.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>        
+        
+        <navigation-case>
+            <from-outcome>modeloCarteirinha</from-outcome>
+            <to-view-id>/modeloCarteirinha.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>email</from-outcome>
+            <to-view-id>/email.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>          
+        
+        <navigation-case>
+            <from-outcome>cobrancaMensal</from-outcome>
+            <to-view-id>/cobrancaMensal.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>          
+        
+        <navigation-case>
+            <from-outcome>salarioMinimo</from-outcome>
+            <to-view-id>/salarioMinimo.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>          
+        
+        <navigation-case>
+            <from-outcome>classificacaoEconomica</from-outcome>
+            <to-view-id>/classificacaoEconomica.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>          
+        
+        <navigation-case>
+            <from-outcome>rais</from-outcome>
+            <to-view-id>/rais.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>          
+        
+        <navigation-case>
+            <from-outcome>pesquisaRais</from-outcome>
+            <to-view-id>/pesquisaRais.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>          
+        
+        <navigation-case>
+            <from-outcome>configuracaoHomologacao</from-outcome>
+            <to-view-id>/configuracaoHomologacao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>          
+        
+        <navigation-case>
+            <from-outcome>relatorioSociosInativos</from-outcome>
+            <to-view-id>/relatorioSociosInativos.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>          
+        
+        <navigation-case>
+            <from-outcome>retornoSocial</from-outcome>
+            <to-view-id>/retornoSocial.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>    
+              
+        <navigation-case>
+            <from-outcome>relatorioRais</from-outcome>
+            <to-view-id>/relatorioRais.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>configuracaoCnpj</from-outcome>
+            <to-view-id>/configuracaoCnpj.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>relatorioAcademia</from-outcome>
+            <to-view-id>/relatorioAcademia.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>administradora</from-outcome>
+            <to-view-id>/administradora.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>relatorioComparativoArrecadacao</from-outcome>
+            <to-view-id>/relatorioComparativoArrecadacao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>etiquetas</from-outcome>
+            <to-view-id>/etiquetas.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>relatorioCertificados</from-outcome>
+            <to-view-id>/relatorioCertificados.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>webRelatorioCertificados</from-outcome>
+            <to-view-id>/webRelatorioCertificados.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>relatorioMatriculaEscola</from-outcome>
+            <to-view-id>/relatorioMatriculaEscola.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>configuracaoSocial</from-outcome>
+            <to-view-id>/configuracaoSocial.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>acordoSocial</from-outcome>
+            <to-view-id>/acordoSocial.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>configuracaoFinanceiro</from-outcome>
+            <to-view-id>/configuracaoFinanceiro</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>fechamentoCaixaGeral</from-outcome>
+            <to-view-id>/fechamentoCaixaGeral</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>carneMensalidades</from-outcome>
+            <to-view-id>/carneMensalidades</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>meusLogs</from-outcome>
+            <to-view-id>/meusLogs.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>geracaoDebitosCartao</from-outcome>
+            <to-view-id>/geracaoDebitosCartao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>relatorioConvenioMedico</from-outcome>
+            <to-view-id>/relatorioConvenioMedico.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>relatorioFechamentoGuias</from-outcome>
+            <to-view-id>/relatorioFechamentoGuias.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>javaClassLoader</from-outcome>
+            <to-view-id>/javaClassLoader.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>descontoPromocional</from-outcome>
+            <to-view-id>/descontoPromocional.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>extratoTelaSocial</from-outcome>
+            <to-view-id>/extratoTelaSocial.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>convencaoServico</from-outcome>
+            <to-view-id>/convencaoServico.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>pesquisaBoletosSocial</from-outcome>
+            <to-view-id>/pesquisaBoletosSocial.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>fechamentoRepasse</from-outcome>
+            <to-view-id>/fechamentoRepasse.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>fechamentoRepasse</from-outcome>
+            <to-view-id>/fechamentoRepasse.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>pesquisaVendasBaile</from-outcome>
+            <to-view-id>/pesquisaVendasBaile.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>relatorioFechamentoBaile</from-outcome>
+            <to-view-id>/relatorioFechamentoBaile.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>testes</from-outcome>
+            <to-view-id>/testes.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>filialRotina</from-outcome>
+            <to-view-id>/filialRotina.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>         
+        
+        <navigation-case>
+            <from-outcome>relatorioEstorno</from-outcome>
+            <to-view-id>/relatorioEstorno.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>validadeCartao</from-outcome>
+            <to-view-id>/validadeCartao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>         
+        
+        <navigation-case>
+            <from-outcome>configuracaoArrecadacao</from-outcome>
+            <to-view-id>/configuracaoArrecadacao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>         
+        
+        <navigation-case>
+            <from-outcome>relatorioFinanceiro</from-outcome>
+            <to-view-id>/relatorioFinanceiro.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>         
+        
+        <!-- 
+        <navigation-case>
+            <from-outcome>#{navigationRules.param}</from-outcome>
+            <to-view-id>/#{navigationRules.param}</to-view-id>
+            <redirect/>
+        </navigation-case> -->        
+        
+    </navigation-rule>
+    
+    <lifecycle>
+        <phase-listener>br.com.rtools.filters.AuthorizationListener</phase-listener>
+    </lifecycle>
+    
+</faces-config>

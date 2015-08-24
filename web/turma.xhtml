@@ -1,0 +1,173 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Cadastro de Turma</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+    </h:head>
+    <h:body class="divMenu">
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>
+        </f:subview>
+        <f:view>
+            <ui:include src="templates/templateAcessoFilial.xhtml"/>
+            <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                <h:form id="form_turma">
+                    <h:outputScript name="tradutor_primefaces.js" library="js" /> 
+                    <p:growl id="growl" showDetail="true"/> 
+                    <p:outputLabel value="Cadastro de Turma" styleClass="fonteHeader"/>
+                    <c:set scope="request" var="object" value="${turmaBean.turma}"/>
+                    <div class="clear"></div>
+                    <p:panel id="id_panel_turma">
+                        <h:panelGrid columns="2" columnClasses="coluna1, coluna2" cellpadding="5">
+                            <h:column>
+                                <p:outputLabel value="Filial: "  />
+                            </h:column>
+                            <h:column>
+                                <p:selectOneMenu value="#{turmaBean.filial_id}" disabled="#{!turmaBean.liberaAcessaFilial}">
+                                    <p:ajax event="change" update="@this" listener="#{turmaBean.listTurma.clear()}"/>
+                                    <f:selectItems value="#{turmaBean.listFiliais}" />
+                                </p:selectOneMenu>
+                            </h:column>
+                            <p:column>
+                                <p:outputLabel value="Curso: " />
+                            </p:column>
+                            <p:column>
+                                <p:selectOneMenu id="idServicos" value="#{turmaBean.idServicos}">
+                                    <f:selectItems value="#{turmaBean.listServicos}"/>
+                                </p:selectOneMenu>
+                            </p:column>
+                            <p:column>
+                                <p:outputLabel value="Quantidade de Vagas: "  for="idVagas"/>
+                            </p:column>
+                            <p:column>
+                                <p:spinner id="idVagas" value="#{turmaBean.turma.quantidade}" min="0" max="99" size="2"/>
+                            </p:column>                            
+                            <p:column>
+                                <p:outputLabel value="Sala: "  for="idSala"/>
+                            </p:column>
+                            <p:column>
+                                <p:inputText id="idSala" value="#{turmaBean.turma.sala}" size="2" maxlength="2"/>
+                            </p:column>
+                            <p:column>
+                                <p:outputLabel value="Descrição: "  for="idDDescricao"/>
+                            </p:column>
+                            <p:column>
+                                <p:inputText id="idDDescricao" value="#{turmaBean.turma.descricao}" size="40" maxlength="255" />
+                            </p:column>                            
+                            <p:column>
+                                <p:outputLabel value="Data Início: " />
+                            </p:column>
+                            <p:column>
+                                <p:calendar value="#{turmaBean.turma.dtInicio}" pattern="dd/MM/yyyy" readonlyInput="true" >
+                                    <p:ajax event="dateSelect" listener="#{turmaBean.turma.selecionaDataInicio}" />
+                                </p:calendar>
+                                <p:outputLabel value="Data Término: " for="idDataTermino" styleClass="margin-left-max"/>
+                                <p:calendar id="idDataTermino" value="#{turmaBean.turma.dtTermino}" readonlyInput="true" pattern="dd/MM/yyyy">                                    
+                                    <p:ajax event="dateSelect" listener="#{turmaBean.turma.selecionaDataTermino}" />
+                                </p:calendar>
+                            </p:column>
+                            <p:column>
+                                <p:outputLabel value="Horário: " />
+                            </p:column>
+                            <p:column>
+                                <p:calendar  pattern="HH:mm" value="#{turmaBean.horaInicio}" timeOnly="true" readonlyInput="true">
+                                    <p:ajax event="dateSelect" listener="#{turmaBean.selecionaHoraInicio}" update="id_hora_termino"/>
+                                </p:calendar>
+                                <p:outputLabel value=" às " />
+                                <p:calendar id="id_hora_termino" pattern="HH:mm" value="#{turmaBean.horaTermino}" timeOnly="true" readonlyInput="true">
+                                    <p:ajax event="dateSelect" listener="#{turmaBean.selecionaHoraTermino}" />
+                                </p:calendar>
+                                <p:outputLabel value=" horas " />
+                            </p:column>
+                            <p:column>
+                                <p:outputLabel value="Faixa de idade: " />
+                            </p:column>
+                            <p:column>
+                                <p:spinner value="#{turmaBean.turma.idadeInicial}" min="0" max="120" size="2"/>
+                                <p:outputLabel value=" à " styleClass="margin-left-max"/>
+                                <p:spinner value="#{turmaBean.turma.idadeFim}" min="0" max="120" size="2" styleClass="margin-left-max"/>
+                                <p:outputLabel value=" ano(s) " styleClass="margin-left-max"/>
+                            </p:column>
+                            <p:column>
+                                <p:outputLabel value="Dias da semana: " />
+                            </p:column>
+                            <p:column>                                
+                                <p:selectBooleanCheckbox value="#{turmaBean.turma.domingo}" id="idDomingo" itemLabel="Domingo"/>
+                                <p:selectBooleanCheckbox value="#{turmaBean.turma.segunda}" id="idSegundaFeira" itemLabel="Segunda-Feira" styleClass="margin-left-max"/>
+                                <p:selectBooleanCheckbox value="#{turmaBean.turma.terca}" id="idTercaFeira" itemLabel="Terça-Feira" styleClass="margin-left-max"/>
+                                <p:selectBooleanCheckbox value="#{turmaBean.turma.quarta}" id="idQuartaFeira" itemLabel="Quarta-Feira" styleClass="margin-left-max"/>
+                                <p:selectBooleanCheckbox value="#{turmaBean.turma.quinta}" id="idQuintaFeira" itemLabel="Quinta-Feira" styleClass="margin-left-max"/>
+                                <p:selectBooleanCheckbox value="#{turmaBean.turma.sexta}" id="idSextaFeira" itemLabel="Sexta-Feira" styleClass="margin-left-max"/>
+                                <p:selectBooleanCheckbox value="#{turmaBean.turma.sabado}" id="idSabado" itemLabel="Sábado" styleClass="margin-left-max"/>
+                            </p:column>
+                        </h:panelGrid>
+                        <p:panel styleClass="margin-top-max" rendered="#{turmaBean.turma.id != -1}">
+                            <p:panel id="i_panel_professor_componente" styleClass="no-border no-margin">
+                                <f:facet name="header">
+                                    <p:panelGrid columns="6" rendered="#{turmaBean.turma.id != -1}" styleClass="float-left margin-top-maior sbb">
+                                        <p:outputLabel value="Professor: " />
+                                        <p:selectOneMenu id="idProfessor" value="#{turmaBean.professor}" converter="#{entityConverter}">
+                                            <p:ajax event="change"  update="@this"/>
+                                            <f:selectItem itemDisabled="true" noSelectionOption="true" itemValue="" itemLabel="Selecionar" />
+                                            <f:selectItems value="#{turmaBean.listProfessor}" var="professor" itemValue="#{professor}" itemLabel="#{professor.professor.nome}" />
+                                        </p:selectOneMenu>
+                                        <p:outputLabel value="Componente Curricular: "  style="margin-left: 15px"/>
+                                        <p:selectOneMenu id="idComponente" value="#{turmaBean.componenteCurricular}" converter="#{entityConverter}">
+                                            <p:ajax event="change"  update="@this"/>
+                                            <f:selectItem itemDisabled="true" noSelectionOption="true" itemValue="" itemLabel="Selecionar" />
+                                            <f:selectItems value="#{turmaBean.listComponenteCurricular}" var="componenteCurricular" itemValue="#{componenteCurricular}" itemLabel="#{componenteCurricular.descricao}" />
+                                        </p:selectOneMenu>
+                                        <p:commandButton icon="ui-icon-plus" action="#{turmaBean.addTurmaProfessor}" update="growl i_panel_professor_componente"/>
+                                    </p:panelGrid>
+                                </f:facet>
+                                <p:dataTable value="#{turmaBean.listTurmaProfessor}" var="turmaProfessor" scrollHeight="200" rendered="#{turmaBean.turma.id != -1}" emptyMessage="Não existe(m) registro(s) cadastrado(s)">
+                                    <p:column headerText="Professor">
+                                        <p:outputLabel value="#{turmaProfessor.professor.professor.nome}" />
+                                    </p:column>
+                                    <p:column headerText="Componente Curricular"> 
+                                        <p:outputLabel value="#{turmaProfessor.componenteCurricular.descricao}" />
+                                    </p:column>
+                                    <p:column width="30">
+                                        <p:commandButton icon="ui-icon-trash" action="#{turmaBean.removeTurmaProfessor(turmaProfessor)}" disabled="#{controleAcessoBean.botaoExcluir}"  update=":form_turma:growl :form_turma:i_panel_professor_componente"/>
+                                    </p:column>
+                                </p:dataTable>
+                            </p:panel>
+                        </p:panel>
+                        <h:panelGrid columns="4" style="clear: both;" styleClass="margin-top-max">
+                            <p:commandButton value="Salvar" title="Salvar" onclick="PF('dlg_save').show()" disabled="#{controleAcessoBean.botaoSalvar}" type="button"/>
+                            <p:commandButton value="Novo" title="Novo" action="#{turmaBean.clear()}" update=":form_turma:"/>
+                            <p:commandButton value="Excluir" title="Excluir" onclick="PF('dlg_delete').show()" disabled="#{controleAcessoBean.botaoExcluir}" type="button"/>
+                            <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pesquisaTurma}" title="Pesquisar"/>
+                        </h:panelGrid>
+                    </p:panel>
+                    <p:dialog id="i_panel_salvar" widgetVar="dlg_save" modal="true" closable="true" width="300" header="Deseja salvar este registro?">
+                        <p:panelGrid columns="2" styleClass="sbb">
+                            <p:commandButton value="Sim" title="Salvar" action="#{turmaBean.save()}" update=":form_turma: i_panel_mensagem"  oncomplete="PF('dlg_message').show(); PF('dlg_save').hide();" />
+                            <p:commandButton value="Não" title="Cancelar" onclick="PF('dlg_save').hide()"/>
+                        </p:panelGrid>
+                    </p:dialog>
+                    <p:dialog id="i_panel_excluir" widgetVar="dlg_delete" modal="true" width="300" closable="true" header="Deseja excluir este registro?">
+                        <center>
+                            <p:panelGrid columns="2" styleClass="sbb">
+                                <p:commandButton value="Sim" title="Excluir" action="#{turmaBean.delete()}" update=":form_turma: i_panel_mensagem" oncomplete="PF('dlg_message').show(); PF('dlg_delete').hide();"  />
+                                <p:commandButton value="Não" title="Cancelar" onclick="PF('dlg_delete').hide()"/>
+                            </p:panelGrid>
+                        </center>
+                    </p:dialog>
+                    <p:dialog id="i_panel_mensagem" modal="true" width="300" widgetVar="dlg_message" header="Mensagem">
+                        <center>
+                            <h:outputLabel value="#{turmaBean.message}" id="outConfirma"/>
+                            <br /><br />
+                            <p:commandButton value="Ok" title="Ok" oncomplete="PF('dlg_message').hide()"  />
+                        </center>
+                    </p:dialog>                    
+                </h:form>
+            </p:panel>
+        </f:view>
+    </h:body>
+</ui:composition>

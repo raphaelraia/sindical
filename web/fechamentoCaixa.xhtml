@@ -1,0 +1,200 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Sindical - Fechamento de Caixa</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important;} 
+            .ui-button { padding: 3px!important; }    
+            
+            .ui-datatable tr.ui-datatable-even:hover, .ui-datatable tr.ui-datatable-odd:hover { background: #ECF3FE; }
+        </style>
+        
+        <script type="text/javascript">
+                        // BLOQUEIA ENTER
+            // DESABILITA ENTER
+            // DISABLED ENTER
+            // VERIFICA SE OQ ESTOU DIGITANDO É STRING
+            function stopRKey(evt) {
+                var evt = (evt) ? evt : ((event) ? event : null);
+                //var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null); 
+                if (evt.keyCode === 13) {
+                    return false;
+                }
+            }
+
+            document.onkeypress = stopRKey;
+        </script>
+    </h:head>
+    <h:body>
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                    <ui:include src="templates/templateAcessoFilial.xhtml"/>
+                </f:subview>
+                <f:view>
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:outputText value="Fechamento de Caixa" styleClass="fonteHeader" />
+                        <h:form id="formFechamentoCaixa">
+                            <p:panel id="i_saldo_atual" style="clear: both; background: #ECF3FE;">
+                                <h:panelGrid columns="1">
+                                    <p:column>
+                                        <h:outputLabel value="Saldo Inicial: " style="font-size: 10pt!important; font-weight: bold"/>
+                                        <h:outputLabel value="R$ " style="font-size: 12pt!important"/>
+                                        <h:outputLabel value="#{fechamentoCaixaBean.saldoAtual}" style="font-size: 12pt!important"/>
+                                        <h:outputLabel value=" ( ATENÇÃO ) Este valor não entra na soma do FECHAMENTO CAIXA" style="font-size: 8pt!important; color: red" rendered="false"/>
+                                    </p:column>
+                                </h:panelGrid>
+                            </p:panel>
+                            
+                            <p:panel styleClass="fundoCinza" style="clear: both">
+                                <h:panelGrid columns="5">
+                                    <p:column>
+                                        <h:outputLabel value="Fechar Caixa"/><br />
+                                        <p:selectOneMenu id="i_select_c" value="#{fechamentoCaixaBean.idCaixa}" style="padding-right: 20px; margin-right: 15px;">
+                                            <p:ajax event="change" update="formFechamentoCaixa" listener="#{fechamentoCaixaBean.listaFechamento.clear()}"/>
+                                            <f:selectItems value="#{fechamentoCaixaBean.listaCaixa}"/>
+                                        </p:selectOneMenu>
+                                    </p:column>
+                                    
+                                    <p:column>
+                                        <h:outputLabel value="Fechamento"/><br />
+                                        <p:inputMask value="#{fechamentoCaixaBean.fechamento.data}" style="font-weight: bold; margin-right: 15px; width: 80px" mask="99/99/9999" readonly="true" />
+                                    </p:column>
+                                    
+                                    <p:column rendered="#{fechamentoCaixaBean.cfb.configuracaoFinanceiro.alterarValorFechamento}">
+                                        <h:outputLabel value="Valor do Caixa"/><br />
+                                        <p:inputText value="#{fechamentoCaixaBean.valor}" style="margin-right: 15px; text-align: right">
+                                            <p:ajax event="change" update="@this" global="false"/>
+                                        </p:inputText>
+                                    </p:column>
+                                    
+                                    <p:column>
+                                        <br />
+                                        <p:commandButton value="Concluir Fechamento" onclick="PF('i_dlg_s').show()" />
+                                    </p:column>
+                                    
+                                    <p:column>
+                                        <br />
+                                        <p:commandButton value="Resumo do Fechamento de Todos os Caixas" onclick="PF('dlg_resumo_fechamento').show()"/>
+                                    </p:column>
+                                    
+                                </h:panelGrid>
+                            </p:panel>
+                            
+                            <p:messages autoUpdate="false" showDetail="true" />  
+                            <p:growl autoUpdate="false" showDetail="true" />
+                            
+                            <p:dataTable var="linha" id="tbl" value="#{fechamentoCaixaBean.listaFechamento}" emptyMessage="Nenhum fechamento para este caixa!">
+                                
+                                <p:column headerText="Data / Hora" style="text-align: center">
+                                    <h:outputText value="#{linha.argumento1} - #{linha.argumento2}"/>
+                                </p:column>
+                                
+                                <p:column headerText="Valor Fechamento">
+                                    <h:outputText value="R$ "/>
+                                    <h:outputText value="#{linha.argumento3}" style="float: right"/>
+                                </p:column>
+                                
+                                <p:column headerText="Valor Informado">
+                                    <h:outputText value="R$ "/>
+                                    <h:outputText value="#{linha.argumento4}" style="float: right"/>
+                                </p:column>
+                                
+                                <p:column headerText="Status" style="text-align: center">
+                                    <h:outputText value="OK" rendered="#{linha.argumento5 == 0}" style="font-weight: bold;"/>
+                                    <h:outputText value="EM FALTA R$ #{linha.argumento6}" rendered="#{linha.argumento5 == 1}" style="font-weight: bold; color: #cc0000" title="O valor do fechamento é maior que o valor informado!"/>
+                                    <h:outputText value="EM SOBRA R$ #{linha.argumento6}" rendered="#{linha.argumento5 == 2}" style="font-weight: bold; color: #006600" title="O valor informado é maior que o valor de fechamento!"/>
+                                </p:column>
+                                
+                                <p:column headerText="..." style="text-align: center">
+                                    <h:panelGrid columns="2" styleClass="sbb">
+                                        <h:graphicImage value="Imagens/iconPrint.png" />
+                                        <p:commandLink ajax="false" value="Imprimir Relatório" action="#{fechamentoCaixaBean.imprimir(linha)}" title="Imprimir Relatório de Movimentação" target="_BLANK" style="font-weight: bold"/>
+                                    </h:panelGrid>
+                                </p:column>
+                                
+                                <p:column headerText="" style="text-align: center">
+                                    <p:commandButton icon="ui-icon-print" ajax="false" value="Relatório Analítico" action="#{fechamentoCaixaBean.analitico(linha)}" title="Imprimir Relatório Analítivo" onclick="this.form.target='_blank'" />
+                                </p:column>
+                            </p:dataTable>
+                            
+                            <p:dialog widgetVar="i_dlg_s" header="Deseja concluir este Fechamento" resizable="false" width="400" modal="true">
+                                <p:commandButton value="Concluir" type="submit" styleClass="ui-confirmdialog-yes" action="#{fechamentoCaixaBean.salvar()}" update="formFechamentoCaixa" onclick="PF('i_dlg_s').hide(), PF('i_dlg_modal').show()" style="clear: both; float: left" icon="ui-icon-check" oncomplete="PF('i_dlg_c').show()"/>  
+                                <p:commandButton value="Voltar"   type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_s').hide()" style="float: left" icon="ui-icon-close"/>       
+                            </p:dialog>
+                            
+                            <p:dialog widgetVar="i_dlg_c" header="Fechamento Concluído" resizable="false" modal="true">
+                                <p:messages id="i_msg" showDetail="true" />  
+                                <br />
+                                <h:panelGrid style="clear: both; width: 100%" columns="2">
+                                    <p:commandButton value="OK" onclick="PF('i_dlg_c').hide()" style="float: left" icon="ui-icon-check"/>  
+                                    <h:commandLink value="Imprimir Relatório" action="#{fechamentoCaixaBean.imprimir(null)}" rendered="#{fechamentoCaixaBean.fechamento.id != -1}" style="float: right; font-size: 10pt!important; font-weight: bold"/>
+                                </h:panelGrid>
+                            </p:dialog>
+                            
+                            <p:dialog widgetVar="dlg_resumo_fechamento" header="Resumo do Fechamento dos Caixas" resizable="false" modal="true">
+                                <h:panelGrid style="clear: both; width: 100%" columns="3">
+                                    <h:column>
+                                        <p:outputLabel value="Data para o resumo" /><br />
+                                        <p:inputMask value="#{fechamentoCaixaBean.dataResumoFechamento}" mask="99/99/9999" style="width: 110px">
+                                            <p:ajax event="change" update="@this" />
+                                        </p:inputMask>
+                                    </h:column>
+                                    
+                                    <h:column>
+                                        <br />
+                                        <p:commandButton value="OK" action="#{fechamentoCaixaBean.resumoFechamentoCaixa()}" onclick="PF('dlg_resumo_fechamento').hide()" icon="ui-icon-check" ajax="false"/>  
+                                    </h:column>
+                                    <h:column>
+                                        <br />
+                                        <p:commandButton value="Cancelar" onclick="PF('dlg_resumo_fechamento').hide()" icon="ui-icon-close" />  
+                                    </h:column>
+                                </h:panelGrid>
+                            </p:dialog>
+                            
+                            <p:dialog widgetVar="i_dlg_transferir" header="Transferir valor para Caixa Central" resizable="false" modal="true">
+                                <h:outputLabel value="Concluir fechamento de caixa com transferência para o Caixa Central? " />
+                                <h:panelGrid id="i_panel_transferencia" style="clear: both; margin-top: 20px" columns="2">
+                                    <p:column>
+                                        <h:outputLabel value="Valor" style="font-weight: bold"/><br />
+                                        <p:inputText value="#{fechamentoCaixaBean.valorTransferencia}">
+                                            <p:ajax event="change" update="@this" global="false"/>
+                                        </p:inputText>
+                                    </p:column>
+
+                                    <p:column>
+                                        <br />
+                                        <p:commandButton value="Concluir" oncomplete="PF('i_dlg_transferir').hide()" action="#{fechamentoCaixaBean.transferirParaCentral()}" update="formFechamentoCaixa" style="float: left" icon="ui-icon-check"/>  
+                                    </p:column>
+                                </h:panelGrid>
+                            </p:dialog>
+                        </h:form>
+                        
+                        <p:ajaxStatus id="i_status" onstart="PF('i_dlg_modal').show();" onsuccess="PF('i_dlg_modal').hide();" />
+                        <p:dialog modal="true" widgetVar="i_dlg_modal" header="Status" draggable="false" closable="false">  
+                            <h:outputLabel value="Aguarde ..." />
+                        </p:dialog> 
+                    </p:panel>
+                </f:view>
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>                
+    </h:body>
+</ui:composition>

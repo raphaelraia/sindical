@@ -1,0 +1,316 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Sindical - Baixa Geral</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important;} 
+            .ui-button { padding: 3px!important; }
+
+            .column01{
+                width: 100%;
+            }
+
+            .column02{
+                width: 0%;
+            }
+        </style>
+
+        <script type="text/javascript">
+
+        </script>
+    </h:head>
+    <h:body>
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                    <ui:include src="templates/templateAcessoFilial.xhtml"/>
+                </f:subview>
+                <f:view>
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:outputText value="Baixa Geral" styleClass="fonteHeader" />
+                        <h:form id="formBaixaGeral">
+                            <h:panelGrid style="clear: both" columns="2" columnClasses="column01, column02">
+                                <p:panel styleClass="fundoCinza" style="height: 150px; ">
+                                    <h:panelGrid columns="2" rendered="#{baixaGeralBean.listaMovimentos.size() > 0}">
+                                        <p:column>
+                                            <h:outputLabel value="Valor total para Baixa" style="font-size: 12pt!important;"/><br />
+                                            <p:inputText value="R$ #{baixaGeralBean.total}" readonly="true" styleClass="input-text-med bg-yellow-ligth no-border bold border-dashed font-color-red font-size-12" />
+                                        </p:column>
+
+                                        <p:column>
+                                            <h:outputLabel value="Tipo de Recebimento" rendered="#{baixaGeralBean.tipo == 'banco' or baixaGeralBean.tipo == 'caixa'}" style="font-size: 12pt!important;"/><br />
+                                            <p:selectOneMenu style="margin-right: 20px; padding-right: 10px" value="#{baixaGeralBean.idConta}" disabled="#{baixaGeralBean.desHabilitaConta}" rendered="#{baixaGeralBean.tipo == 'caixa'}">
+                                                <f:selectItems value="#{baixaGeralBean.listaConta}"/>
+                                            </p:selectOneMenu>
+                                            <br />
+                                            <h:outputLabel value="#{baixaGeralBean.banco}" rendered="#{baixaGeralBean.tipo == 'banco'}" style="font-size: 11pt!important; font-weight: bold; margin-right: 20px"/>
+                                        </p:column>
+
+                                    </h:panelGrid>
+
+                                    <h:panelGrid id="i_recebimento" columns="8" style="margin-top: 10px;">
+                                        <p:column>
+                                            <h:outputLabel value="DT. Quitação" /><br />
+                                            <p:inputMask value="#{baixaGeralBean.quitacao}" size="8" disabled="#{baixaGeralBean.desHabilitaQuitacao}" mask="99/99/9999" style="margin-right: 10px; opacity: 80; font-weight: bold">
+                                                <p:ajax event="change" listener="#{baixaGeralBean.alteraVencimento}" />
+                                            </p:inputMask>
+                                        </p:column>
+
+                                        <p:column>
+                                            <h:outputLabel value="Tipo de Pagamento" /><br />
+                                            <p:selectOneMenu value="#{baixaGeralBean.idTipoPagamento}" style="margin-right: 10px; padding-right: 20px">
+                                                <p:ajax event="change" listener="#{baixaGeralBean.atualizaTipo}" update="@this i_recebimento i_cheque i_cartao"/>
+                                                <f:selectItems value="#{baixaGeralBean.listaTipoPagamento}" />
+                                            </p:selectOneMenu>
+                                        </p:column>
+
+                                        <p:column>
+                                            <h:outputLabel value="Valor" /><br />                                        
+                                            <p:inputText value="#{baixaGeralBean.valor}" size="10" style="margin-right: 10px; text-align: right">
+                                                <p:ajax event="blur" update="@this" />
+                                            </p:inputText>
+                                        </p:column>
+
+                                        <p:column>
+                                            <h:outputLabel value="Número" rendered="#{!baixaGeralBean.desHabilitaNumero}"/><br />                                        
+                                            <p:inputText value="#{baixaGeralBean.numero}" rendered="#{!baixaGeralBean.desHabilitaNumero}" style="margin-right: 10px;"/>
+                                        </p:column>
+
+                                        <p:column>
+                                            <h:outputLabel value="Vencimento" rendered="#{!baixaGeralBean.desHabilitadoVencimento}"/><br />                                        
+                                            <p:inputMask value="#{baixaGeralBean.vencimento}" size="8" rendered="#{!baixaGeralBean.desHabilitadoVencimento}" mask="99/99/9999" style="margin-right: 10px;"/>
+                                        </p:column>
+
+                                        <p:column>
+                                            <h:outputText value="Taxa" rendered="#{baixaGeralBean.tipo == 'banco'}"/><br />
+                                            <p:inputText id="i_taxa" value="#{baixaGeralBean.taxa}" size="10" rendered="#{baixaGeralBean.tipo == 'banco'}" style="margin-right: 10px;">
+                                                <p:ajax event="blur" update="i_taxa" />
+                                            </p:inputText>
+                                        </p:column>
+
+                                        <p:column rendered="#{baixaGeralBean.es != 'S'}">
+                                            <br />
+                                            <p:commandButton icon="ui-icon-plus" action="#{baixaGeralBean.inserir}" title="Adicionar Parcela" update="formBaixaGeral"  rendered="#{baixaGeralBean.tipoPagamento.id == 3 or baixaGeralBean.tipoPagamento.id == 11}"/>
+
+                                            <p:commandButton icon="ui-icon-plus" title="Continuar e Inserir dados do Cheque" onclick="PF('i_dlg_cheque').show()" rendered="#{baixaGeralBean.tipoPagamento.id == 4 or baixaGeralBean.tipoPagamento.id == 5}"/>
+
+                                            <p:commandButton icon="ui-icon-plus" title="Continuar e Inserir dados do Cartão" onclick="PF('i_dlg_cartao').show()" rendered="#{baixaGeralBean.tipoPagamento.id == 6 or baixaGeralBean.tipoPagamento.id == 7}"/>
+
+                                            <p:commandButton icon="ui-icon-plus" title="Continuar e Inserir dados do Banco" onclick="PF('i_dlg_banco').show()" rendered="#{baixaGeralBean.tipoPagamento.id == 2 or baixaGeralBean.tipoPagamento.id == 8 or baixaGeralBean.tipoPagamento.id == 9 or baixaGeralBean.tipoPagamento.id == 10 ||  baixaGeralBean.tipoPagamento.id == 13}"/>
+                                        </p:column>
+
+                                        <p:column rendered="#{baixaGeralBean.es == 'S'}">
+                                            <br />
+                                            <p:commandButton icon="ui-icon-plus" action="#{baixaGeralBean.inserir}" title="Adicionar Parcela" update="formBaixaGeral"  rendered="#{baixaGeralBean.tipoPagamento.id == 3}"/>
+
+                                            <p:commandButton icon="ui-icon-plus" title="Continuar e Inserir dados do Cheque" onclick="PF('i_dlg_cheque').show()" rendered="#{baixaGeralBean.tipoPagamento.id == 4 or baixaGeralBean.tipoPagamento.id == 5}"/>
+
+                                            <p:commandButton icon="ui-icon-plus" title="Continuar e Inserir dados do Banco" onclick="PF('i_dlg_banco').show()" rendered="#{baixaGeralBean.tipoPagamento.id == 8 or baixaGeralBean.tipoPagamento.id == 9 or baixaGeralBean.tipoPagamento.id == 10}"/>
+                                        </p:column>
+                                    </h:panelGrid>
+                                </p:panel>
+
+                                <h:panelGrid>
+                                    <p:column id="i_panel_troco">
+                                        <p:panel style="width: 200px; height: 150px" rendered="#{baixaGeralBean.valorTroco != ''}">
+                                            <p:outputLabel value="TROCO" style="font-size: 16pt!important" /><br />
+                                            <p:outputLabel value="R$ #{baixaGeralBean.valorTroco}" style="color: #5361fe; font-size: 18pt!important; font-weight: bold;" />
+                                        </p:panel>
+                                    </p:column>
+                                </h:panelGrid>
+                            </h:panelGrid>
+                            <p:messages id="i_msg" showDetail="true" closable="true" />  
+
+                            <p:dataTable var="linha" id="tbl" value="#{baixaGeralBean.listaValores}" rowIndexVar="index" emptyMessage="Nenhum valor adicionado.">
+                                <p:column headerText="Excluir" style="text-align: center; width: 50px">
+                                    <p:commandButton icon="ui-icon-trash" action="#{baixaGeralBean.remover(index)}" update=":formBaixaGeral:" />
+                                </p:column>
+
+                                <p:column headerText="Valor" style="text-align: right">
+                                    <h:outputText value="#{linha.valor}"/>
+                                </p:column>
+                                <p:column headerText="Valor Digitado" style="text-align: right">
+                                    <h:outputText value="#{linha.valorDigitado}"/>
+                                </p:column>
+
+                                <p:column headerText="Pagamento">
+                                    <h:outputText value="#{linha.tipoPagamento.descricao}"/>
+                                </p:column>
+
+                                <p:column headerText="Número do Documento">
+                                    <h:outputText value="#{linha.numeroCheque}"/>
+                                </p:column>
+
+                                <p:column headerText="Quitação" style="text-align: center">
+                                    <h:outputText value="#{linha.vencimento}"/>
+                                </p:column>
+                            </p:dataTable>
+
+                            <h:panelGrid>
+                                <p:commandButton value="Salvar Baixa" title="Baixar todos os valores da grid" onclick="PF('dlg_confirmar').show()" />
+                            </h:panelGrid>
+
+                            <p:dialog widgetVar="dlg_confirmar" header="Confirmar Baixa!" resizable="false" width="600" modal="true">
+                                <h:panelGrid>
+                                    <p:outputLabel value="Deseja realmente CONCLUIR essa baixa?" style="font-weight: bold; font-size: 12pt!important"/>
+                                </h:panelGrid>
+                                <br />
+                                <p:panel styleClass="fundoCinza">
+                                    <h:outputLabel value="TIPOS DE PAGAMENTO" style="font-size: 12pt!important; font-weight: bold"/>
+                                </p:panel>
+                                
+                                <p:dataTable var="linha" id="tbl_confirmar" value="#{baixaGeralBean.listaValores}" emptyMessage="Nenhum valor adicionado.">
+                                    <p:column headerText="Pagamento">
+                                        <h:outputText value="#{linha.tipoPagamento.descricao}" style="font-size: 11pt!important; color: red; font-weight: bold"/>
+                                    </p:column>
+                                    
+                                    <p:column headerText="Valor R$" style="text-align: right; width: 80px">
+                                        <h:outputText value="#{linha.valor}" style="font-size: 11pt!important"/>
+                                    </p:column>
+                                    
+                                    <p:column headerText="Valor Digitado R$" style="text-align: right; width: 80px">
+                                        <h:outputText value="#{linha.valorDigitado}" style="font-size: 11pt!important"/>
+                                    </p:column>
+
+                                    <p:column headerText="Número do Documento" style="width: 150px">
+                                        <h:outputText value="#{linha.numeroCheque}" style="font-size: 11pt!important"/>
+                                    </p:column>
+                                </p:dataTable>
+                                
+                                <h:panelGrid columns="2">
+                                    <p:commandButton icon="ui-icon-circle-check" value="Sim" action="#{baixaGeralBean.baixar}" title="Concluir Baixa" oncomplete="PF('i_dlg_s').show(); PF('dlg_confirmar').hide(); " update="i_mensagem"/>
+                                    <p:commandButton icon="ui-icon-circle-close" value="Não" title="Cancelar Baixa" onclick="PF('dlg_confirmar').hide()" global="false"/>
+                                </h:panelGrid>
+                            </p:dialog>
+
+                            <p:dialog widgetVar="i_dlg_s" header="Baixa Concluída!" resizable="false" width="400" modal="true" closable="false" visible="#{baixaGeralBean.visibleModal}">
+                                <h:panelGrid id="i_mensagem" style="width: 100%">
+                                    <h:outputLabel value="#{baixaGeralBean.mensagem}" style="font-size: 12pt!important"/>
+                                    <h:panelGrid columns="2" style="width: 100%; margin-top: 20px">
+                                        <p:commandLink action="#{baixaGeralBean.imprimirRecibo()}" style="float: left" target="_blank" ajax="false" onclick="PF('i_dlg_s').show()" rendered="#{baixaGeralBean.visibleModal}">
+                                            <p:button icon="ui-icon-print" value="Imprimir Recibo" />
+                                        </p:commandLink>  
+
+                                        <p:commandLink action="#{baixaGeralBean.retorno}" style="float: right" target="_self" ajax="false" >
+                                            <p:button icon="ui-icon-close" value="Sair" />
+                                        </p:commandLink>
+                                    </h:panelGrid>
+                                </h:panelGrid>
+                            </p:dialog>
+
+                            <p:dialog widgetVar="i_dlg_cheque" header="Dados do Cheque" resizable="false" width="400" modal="true">
+                                <h:panelGrid id="i_cheque" style="width: 100%">
+                                    <h:column rendered="#{baixaGeralBean.es != 'S'}">
+                                        <h:panelGrid columns="4">
+                                            <p:column>
+                                                <h:outputText value="Agência" /><br />
+                                                <p:inputText value="#{baixaGeralBean.chequeRec.agencia}" size="4"/>
+                                            </p:column>
+
+                                            <p:column>
+                                                <h:outputText value="Conta" /><br />
+                                                <p:inputText value="#{baixaGeralBean.chequeRec.conta}" size="8" />
+                                            </p:column>
+
+                                            <p:column>
+                                                <h:outputText value="Banco" /><br />
+                                                <p:inputText value="#{baixaGeralBean.chequeRec.banco}" size="10" />
+                                            </p:column>
+                                        </h:panelGrid>
+                                    </h:column>
+
+                                    <h:column rendered="#{baixaGeralBean.es == 'S'}">
+                                        <h:panelGrid id="i_x">
+                                            <h:outputLabel value="Para a Conta" style="font-weight: bold"/>
+                                            <p:selectOneMenu style="padding-right: 15px; width: 335px" value="#{baixaGeralBean.idBancoSaida}">
+                                                <p:ajax event="change" update="i_x i_cheque" />
+                                                <f:selectItems value="#{baixaGeralBean.listaBancoSaida}"/>
+                                            </p:selectOneMenu>
+                                        </h:panelGrid>
+
+                                        <h:panelGrid id="i_panel_ch_p">
+                                            <h:outputLabel value="Número do Cheque" />
+                                            <p:inputText id="i_numero_ch_p" value="#{baixaGeralBean.numeroChequePag}" style="width: 350px">
+                                                <p:ajax event="change" update="i_panel_ch_p" listener="#{baixaGeralBean.alteraNumeroChequeConta()}" />
+                                            </p:inputText>
+                                            <p:watermark value="Número do Cheque" for="i_numero_ch_p"/>
+
+                                            <p:messages id="i_msg_ch" showDetail="true" closable="true" />
+                                        </h:panelGrid>
+                                    </h:column>
+
+                                    <p:column>
+                                        <br />
+                                        <p:commandButton value="Adicionar" action="#{baixaGeralBean.inserir}" title="Adicionar Parcela" update="formBaixaGeral" onclick="PF('i_dlg_cheque').hide()"/>
+                                        <p:commandButton value="Cancelar" title="Cancelar Parcela" onclick="PF('i_dlg_cheque').hide()" icon="ui-icon-close"/>
+                                    </p:column>
+                                </h:panelGrid>
+                            </p:dialog>
+
+                            <p:dialog widgetVar="i_dlg_cartao" header="Dados do Cartão" resizable="false" width="400" modal="true">
+                                <h:panelGrid id="i_cartao" style="width: 100%">
+                                    <h:panelGrid columns="2">
+                                        <p:column>
+                                            <br />
+                                            <h:column rendered="#{baixaGeralBean.listaCartao.size() > 0}">
+                                                <p:selectOneMenu style="margin-right: 15px; padding-right: 15px" value="#{baixaGeralBean.idCartao}">
+                                                    <f:selectItems value="#{baixaGeralBean.listaCartao}"/>
+                                                </p:selectOneMenu>
+                                            </h:column>
+                                        </p:column>
+
+                                        <p:column>
+                                            <br />
+                                            <p:commandButton value="Adicionar" action="#{baixaGeralBean.inserir}" title="Adicionar Parcela" update="formBaixaGeral" onclick="PF('i_dlg_cartao').hide()"/>
+                                            <p:commandButton value="Cancelar" title="Cancelar Parcela" onclick="PF('i_dlg_cartao').hide()" icon="ui-icon-close"/>
+                                        </p:column>
+                                    </h:panelGrid>
+                                </h:panelGrid>
+                            </p:dialog>
+
+                            <p:dialog widgetVar="i_dlg_banco" header="Dados do Banco" resizable="false" modal="true">
+                                <h:panelGrid id="i_banco" style="width: 100%">
+                                    <h:panelGrid columns="2">
+                                        <p:column>
+                                            <br />
+                                            <!-- <h:column test="# {baixaGeralBean.listaCartao.size() > 0}"> -->
+                                            <p:selectOneMenu style="padding-right: 15px; width: 250px" value="#{baixaGeralBean.idBanco}">
+                                                <f:selectItems value="#{baixaGeralBean.listaBanco}"/>
+                                            </p:selectOneMenu>
+                                            <!-- </h:column> -->
+                                        </p:column>
+
+                                        <p:column>
+                                            <br />
+                                            <p:commandButton value="Adicionar" action="#{baixaGeralBean.inserir}" title="Adicionar Parcela" update="formBaixaGeral" onclick="PF('i_dlg_banco').hide()"/>
+                                            <p:commandButton value="Cancelar" title="Cancelar Parcela" onclick="PF('i_dlg_banco').hide()" icon="ui-icon-close"/>
+                                        </p:column>
+                                    </h:panelGrid>
+                                </h:panelGrid>
+                            </p:dialog>
+
+                        </h:form>
+                    </p:panel>
+                </f:view>
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>                
+    </h:body>
+</ui:composition>

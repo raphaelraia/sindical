@@ -1,0 +1,791 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Sindical - Movimentos a Receber</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important;} 
+            .ui-button { padding: 3px!important; }
+
+            .ui-datatable tr.ui-datatable-even:hover, .ui-datatable tr.ui-datatable-odd:hover {
+                //background: #ECF3FE;
+            }
+            .tblListaBoleto{
+                background-color: #39ff9c!important;
+                //color: #CCFF66!important;
+            }
+        </style>
+
+        <script type="text/javascript">
+            // BLOQUEIA ENTER
+            // DESABILITA ENTER
+            // DISABLED ENTER
+            // VERIFICA SE OQ ESTOU DIGITANDO É STRING
+//            function stopRKey(evt) {
+//                var evt = (evt) ? evt : ((event) ? event : null);
+//                //var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null); 
+//                if (evt.keyCode === 13) {
+//                    return false;
+//                }
+//            }
+//
+//            document.onkeypress = stopRKey;
+        </script>
+    </h:head>
+    <h:body>
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                    <ui:include src="templates/templateAcessoFilial.xhtml"/>
+                </f:subview>
+                <f:view>
+                    <!-- <p:panel style="border: 0px; width: 1200px; margin: 0 auto"> novo tamanho-->
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:outputText value="Movimentos a Receber" styleClass="fonteHeader" />
+                        <h:form id="formMovimentosReceberPesquisa">
+                            <h:panelGrid columns="3" style="clear: both; float: right">
+                                <p:column>
+                                    <p:outputLabel value="Pesquisa por Boleto" style="font-size: 10pt!important; font-weight: bold"/>
+                                </p:column>
+                                <p:column>
+                                    <p:selectOneMenu value="#{movimentosReceberSocialBean.indexConta}" style="width: 300px">
+                                        <p:ajax event="change" global="false" update=":formMovimentosReceber"/>
+                                        <f:selectItems value="#{movimentosReceberSocialBean.listaContas}" />
+                                    </p:selectOneMenu>
+                                </p:column>
+                                <p:column>
+                                    <p:inputText placeholder="Número do Boleto" value="#{movimentosReceberSocialBean.descPesquisaBoleto}" size="20">
+                                        <p:ajax event="blur" update="@this" global="false"/>
+                                    </p:inputText>
+
+                                    <p:commandButton icon="ui-icon-search" action="#{movimentosReceberSocialBean.pesquisaBoleto()}" update=":formMovimentosReceber" title="Pesquisar pelo número do Boleto"/>
+                                </p:column>
+                            </h:panelGrid>
+                        </h:form>
+
+                        <h:form id="formMovimentosReceber">
+                            <p:panel styleClass="fundoCinza" style="clear: both">
+                                <h:panelGrid columns="3" style="width: 100%">
+                                    <p:column>
+                                        <p:commandButton value="Adicionar uma Pessoa" action="#{chamadaPaginaBean.pesquisaPessoa}" rendered="#{movimentosReceberSocialBean.pessoa.id == -1}"/>
+                                        <p:commandButton value="Pesquisar outra Pessoa" action="#{chamadaPaginaBean.pesquisaPessoa}" rendered="#{movimentosReceberSocialBean.pessoa.id != -1}"/>
+                                        <h:column rendered="#{movimentosReceberSocialBean.pessoa.tipoDocumento.id == 1 and false == true}">
+                                            <p:graphicImage value="#{pessoaUtilitariosBean.getFotoPessoaFisica(movimentosReceberSocialBean.pessoa)}" cache="false" width="130" rendered="#{movimentosReceberSocialBean.pessoa.id != -1}"/>
+                                        </h:column>
+                                        <p:commandLink value="#{movimentosReceberSocialBean.pessoa.nome} - #{movimentosReceberSocialBean.pessoa.documento}" 
+                                                       title="#{movimentosReceberSocialBean.pessoa.nome} - #{movimentosReceberSocialBean.pessoa.documento}"
+                                                       action="#{movimentosReceberSocialBean.cadastroPessoa(null, movimentosReceberSocialBean.pessoa)}" ajax="false" style="margin-left: 20px; font-weight: bold"/>
+                                    </p:column>
+                                    <p:column>
+                                        <p:commandButton ajax="false" action="#{chamadaPaginaBean.pesquisaPessoa()}" actionListener="#{movimentosReceberSocialBean.adicionarPesquisa()}" value="Adicionar mais Pessoas" rendered="#{movimentosReceberSocialBean.listaPessoa.size() > 0}" style="margin-left: 10px; cursor: pointer; float: right" /> 
+                                    </p:column>
+                                </h:panelGrid>
+
+                                <h:panelGrid style="clear: both;" rendered="#{movimentosReceberSocialBean.listaPessoa.size() > 1}">
+                                    <p:dataGrid value="#{movimentosReceberSocialBean.listaPessoa}" var="linha" id="tbl_list" rowIndexVar="index">
+                                        <p:column>
+                                            <h:outputLabel value="#{linha.nome}" rendered="#{index != 0}" />                                            
+                                        </p:column>
+                                        <p:column width="30">
+                                            <p:commandButton icon="ui-icon-trash" action="#{movimentosReceberSocialBean.removerPessoaLista(index)}" rendered="#{index != 0}" update=":formMovimentosReceber" title="Clique para remover #{linha.nome} da Lista"/>
+                                        </p:column>
+                                    </p:dataGrid>
+                                </h:panelGrid>
+                            </p:panel>
+
+                            <h:panelGrid columns="4" rendered="#{movimentosReceberSocialBean.socios.id != -1}" style="width: 40%">
+                                <h:column>
+                                    <p:outputLabel value="Matrícula: " style="font-size: 9pt!important; font-weight: bold" />
+                                    <p:outputLabel value="#{movimentosReceberSocialBean.socios.matriculaSocios.nrMatricula}" style="font-size: 9pt!important" />
+                                </h:column>
+
+                                <h:column>
+                                    <p:outputLabel value="Categoria: " style="font-size: 9pt!important; font-weight: bold" />
+                                    <p:outputLabel value="#{movimentosReceberSocialBean.socios.matriculaSocios.categoria.categoria}" style="font-size: 9pt!important" />
+                                </h:column>
+                            </h:panelGrid>
+
+                            <h:panelGrid style="float: left; clear: both; margin-top: 10px; margin-bottom: 10px" columns="12" id="i_panel" rendered="#{movimentosReceberSocialBean.listaMovimento.size() > 0 or movimentosReceberSocialBean.pessoa.id != -1}">
+                                <p:column>
+                                    <h:outputText value="Filtrar por" /><br />
+                                    <p:selectOneMenu value="#{movimentosReceberSocialBean.porPesquisa}" style="padding-right: 10px; margin-right: 20px">
+                                        <p:ajax event="change" update="@this formMovimentosReceber" listener="#{movimentosReceberSocialBean.atualizarStatus}"/>
+                                        <f:selectItem itemValue="todos"    itemLabel="Todos"/>
+                                        <f:selectItem itemValue="abertos"  itemLabel="Abertos"/>
+                                        <f:selectItem itemValue="quitados" itemLabel="Quitados"/>
+                                        <f:selectItem itemValue="atrasados" itemLabel="Atrasados"/>
+                                        <f:selectItem itemValue="vencer" itemLabel="A vencer"/>
+                                    </p:selectOneMenu>
+                                </p:column>
+
+                                <p:column rendered="false">
+                                    <h:outputText value="Ref" /><br />
+                                    <p:inputMask size="6" value="#{movimentosReceberSocialBean.referenciaPesquisa}" style="margin-right: 20px;" mask="99/9999">
+                                        <p:ajax event="change" update="@this i_panel tbl i_msg" listener="#{movimentosReceberSocialBean.atualizarStatus()}"/>
+                                    </p:inputMask>
+                                </p:column>
+
+                                <p:column>
+                                    <h:outputText value="Total em Aberto" /><br />
+                                    <p:inputText readonly="true" size="10" value="#{movimentosReceberSocialBean.total}" style="font-weight: bold; margin-right: 20px; text-align: right"/>
+                                </p:column>
+
+                                <p:column>
+                                    <h:outputText value="Acréscimo" /><br />
+                                    <p:inputText readonly="true" size="6" value="#{movimentosReceberSocialBean.acrescimo}" style="font-weight: bold; margin-right: 20px; text-align: right"/>
+                                </p:column>
+
+                                <p:column>
+                                    <h:outputText value="Desconto"/><br />
+                                    <p:inputText id="i_desconto" size="6" value="#{movimentosReceberSocialBean.desconto}" style="text-align: right">
+                                        <p:ajax event="blur" update="@this i_panel tbl i_msg" listener="#{movimentosReceberSocialBean.permissaoEcalculoDesconto()}" />
+                                    </p:inputText>
+                                </p:column>
+
+                                <p:column>
+                                    <br />
+                                    <p:commandButton icon="ui-icon-locked" title="Autorizar Desconto" action="#{movimentosReceberSocialBean.autorizarDesconto()}" disabled="#{!movimentosReceberSocialBean.cab.verificarPermissao('autorizaDescontos', 3)}" style="margin-right: 20px;"/>
+                                </p:column>
+
+                                <p:column>
+                                    <h:outputText value="Total Calculado em Aberto"/><br />
+                                    <p:inputText readonly="true" value="#{movimentosReceberSocialBean.totalCalculado}" style="font-weight: bold; margin-right: 20px; text-align: right" />
+                                </p:column>
+
+                                <p:column>
+                                    <br />
+                                    <p:commandButton value="Baixar" action="#{movimentosReceberSocialBean.caixaOuBanco}" title="Baixar este Movimento" rendered="#{movimentosReceberSocialBean.porPesquisa != 'quitados'}" />
+                                </p:column>
+
+                                <p:column>
+                                    <br />
+                                    <p:commandButton value="Acordo" title="Fazer um acordo" action="#{movimentosReceberSocialBean.telaAcordo()}" rendered="#{movimentosReceberSocialBean.porPesquisa != 'quitados'}" />
+                                </p:column>
+
+                                <p:column>
+                                    <br />
+                                    <p:commandButton value="Estornar" title="Estornar Movimentos Baixados" onclick="PF('i_dlg_estorno').show()" rendered="#{movimentosReceberSocialBean.porPesquisa != 'abertos' or movimentosReceberSocialBean.porPesquisa != 'atrasados'}" disabled="#{controleAcessoBean.botaoEstornarMensalidades}"/>
+                                </p:column>
+
+                                <p:column>
+                                    <br />
+                                    <p:commandButton value="Deletar" title="Deletar Movimentos Selecionados" onclick="PF('i_dlg_excluir').show()" rendered="#{movimentosReceberSocialBean.porPesquisa != 'quitados'}" disabled="#{controleAcessoBean.botaoExcluir}"/>
+                                </p:column>
+
+                                <p:column>
+                                    <br />
+                                    <p:commandButton value="Refazer" title="Refazer movimentos selecionados" rendered="#{movimentosReceberSocialBean.porPesquisa != 'quitados'}"  onclick="PF('dlg_refazer').show()" />
+                                </p:column>
+                            </h:panelGrid>
+
+                            <h:panelGrid id="panelAnexar" columns="2" rendered="#{movimentosReceberSocialBean.listaMovimento.size() > 0 or movimentosReceberSocialBean.pessoa.id != -1}" style="width: 100%">
+                                <p:column>
+                                    <br />
+                                    <p:commandButton value="Anexar Boletos" action="#{movimentosReceberSocialBean.clickAnexarMovimentos}" title="Anexar Boletos" rendered="#{movimentosReceberSocialBean.porPesquisa != 'quitados'}"  onclick="PF('dlg_anexar_boletos').show()" update="panel_anexar_boletos panel_criar_boleto" disabled="#{movimentosReceberSocialBean.cab.verificarPermissao('anexarBoletos', 3) or movimentosReceberSocialBean.cab.verificarPermissao('anexarBoletos', 1)}"/>
+                                </p:column>
+
+                                <p:column>
+                                    <br />
+                                    <p:commandLink value="Critérios de Busca" onclick="PF('dlg_busca').show()" style="color: blue;float: right; font-size: 10pt!important; font-weight: bold" action="#{movimentosReceberSocialBean.clickCriteriosDeBusca}" update="panelCriterios"/>
+                                </p:column>
+                            </h:panelGrid>
+
+                            <h:panelGrid style="clear: both; width: 100%">
+                                <p:messages id="i_msg" showDetail="true" closable="true" />  
+                            </h:panelGrid>
+
+                            <p:dataTable value="#{movimentosReceberSocialBean.listaMovimento}" var="linha" style="clear: both; font-size: 8pt!important" id="tbl" paginator="true" rows="10" emptyMessage="Nenhuma pendência foi encontrada!" rowStyleClass="#{linha.argumento28}" scrollable="true" scrollWidth="100%">
+                                <f:facet name="header">
+                                    <p:commandButton id="toggler" type="button" value="Colunas" style="float: right" icon="ui-icon-calculator" />
+                                    <p:columnToggler datasource="tbl" trigger="toggler" />
+                                    <p:selectBooleanCheckbox value="#{movimentosReceberSocialBean.chkSeleciona}" style="float: left" itemLabel="SELECIONAR TODOS">
+                                        <p:ajax event="change" update="@this tbl :formMovimentosReceber:i_panel" listener="#{movimentosReceberSocialBean.marcarTodos()}"/>
+                                    </p:selectBooleanCheckbox>
+                                </f:facet>
+
+                                <p:column style="width:15px">  
+                                    <p:rowToggler />  
+                                </p:column>  
+
+                                <p:column style="text-align: center; width: 15px">
+                                    <f:facet name="header">
+
+                                    </f:facet>
+                                    <p:selectBooleanCheckbox value="#{linha.argumento0}" disabled="#{linha.argumento25}">
+                                        <p:ajax event="change" update="tbl :formMovimentosReceber:i_panel" listener="#{movimentosReceberSocialBean.calculoDesconto()}" />
+                                    </p:selectBooleanCheckbox>
+                                </p:column>
+
+                                <p:column headerText="Beneficiário" rendered="#{movimentosReceberSocialBean.listaPessoa.size() eq 1 and !movimentosReceberSocialBean.pessoaJuridicaNaLista}" style="width: 200px">
+                                    <p:commandLink value="#{linha.argumento14}" action="#{movimentosReceberSocialBean.cadastroPessoa(linha, null)}" ajax="false" style="font-size: 8pt!important"/>
+                                </p:column>
+
+                                <p:column headerText="Titular" rendered="#{(movimentosReceberSocialBean.listaPessoa.size() gt 1 and !movimentosReceberSocialBean.pessoaJuridicaNaLista and movimentosReceberSocialBean.porPesquisa ne 'quitados')}"  style="width: 200px">
+                                    <p:commandLink value="#{linha.argumento13}" action="#{movimentosReceberSocialBean.cadastroPessoa(linha, null)}" ajax="false" style="font-size: 8pt!important"/>
+                                </p:column>
+
+                                <p:column headerText="Titular" rendered="#{(movimentosReceberSocialBean.listaPessoa.size() ge 1 and movimentosReceberSocialBean.pessoaJuridicaNaLista and movimentosReceberSocialBean.porPesquisa ne 'quitados')}"  style="width: 200px">
+                                    <p:commandLink value="#{linha.argumento30}" action="#{movimentosReceberSocialBean.cadastroPessoa(linha, null)}" ajax="false" style="font-size: 8pt!important"/>
+                                </p:column>
+
+                                <p:column headerText="Titular" rendered="#{movimentosReceberSocialBean.porPesquisa eq 'quitados'}"  style="width: 200px">
+                                    <p:commandLink value="#{linha.argumento30}" action="#{movimentosReceberSocialBean.cadastroPessoa(linha, null)}" ajax="false" style="font-size: 8pt!important"/>
+                                </p:column>
+
+                                <p:column headerText="Serviços"  style="width: 200px">
+                                    <p:commandLink value="#{linha.argumento2}" action="#{movimentosReceberSocialBean.complementoPessoa(linha)}" onclick="PF('i_dlg_dados').show()" update=":formMovimentosReceber:i_dados" style="font-size: 8pt!important"/>
+                                </p:column>
+
+                                <p:column headerText="Tipo" style="text-align: center; width: 80px" >
+                                    <p:commandLink value="#{linha.argumento3}" action="#{movimentosReceberSocialBean.complementoPessoa(linha)}" onclick="PF('i_dlg_dados').show()" update=":formMovimentosReceber:i_dados" style="font-size: 8pt!important"/>
+                                </p:column>
+
+                                <p:column style="text-align: center; width: 75px" headerText="Vencimento">
+                                    <p:commandLink value="#{linha.argumento5}" action="#{movimentosReceberSocialBean.complementoPessoa(linha)}" onclick="PF('i_dlg_dados').show()" update=":formMovimentosReceber:i_dados" style="font-size: 8pt!important"/>
+                                </p:column>
+
+                                <p:column headerText="Valor Base" style="width: 80px">
+                                    <h:outputText value="R$ " />
+                                    <h:outputText value="#{linha.argumento6}" style="font-size: 8pt!important; float: right"/>
+                                </p:column>
+
+                                <p:column headerText="Acréscimo" style="width: 80px">
+                                    <h:outputText value="R$ " />
+                                    <h:outputText value="#{linha.argumento7}" style="font-size: 8pt!important; float: right"/>
+                                </p:column>
+
+                                <p:column headerText="Desconto" style="width: 70px">
+                                    <h:outputText value="R$ " />
+                                    <h:outputText value="#{linha.argumento8}" style="font-size: 8pt!important; float: right"/>
+                                </p:column>
+
+                                <p:column headerText="Vl. Calculado" style="width: 80px">
+                                    <h:outputText value="R$ " />
+                                    <h:outputText value="#{linha.argumento9}" style="font-size: 8pt!important; float: right"/>
+                                </p:column>
+
+                                <p:column style="text-align: center; width: 70px" headerText="Baixa" rendered="#{movimentosReceberSocialBean.porPesquisa != 'abertos'}">
+                                    <h:outputText value="#{linha.argumento10}" style="font-size: 8pt!important;"/>
+                                </p:column>
+
+                                <p:column headerText="Valor Pago" style="width: 80px" rendered="#{movimentosReceberSocialBean.porPesquisa != 'abertos'}">
+                                    <h:outputText value="R$ "/>
+                                    <h:outputText value="#{linha.argumento11}" style="font-size: 8pt!important; float: right"/>
+                                </p:column>
+
+                                <p:column style="text-align: center; width: 20px" headerText="E/S">
+                                    <h:outputText value="#{linha.argumento12}" style="font-size: 8pt!important"/>
+                                </p:column>
+
+                                <p:column style="text-align: center; width: 50px" headerText="" >
+                                    <p:commandLink ajax="false" value="Alterar" action="#{movimentosReceberSocialBean.telaMovimento(linha.argumento1)}" disabled="#{controleAcessoBean.botaoAlterarMovimento}"/>
+                                </p:column>
+
+                                <p:column style="text-align: center; width: 30px" headerText="Recibo" rendered="#{movimentosReceberSocialBean.porPesquisa != 'abertos'}">
+                                    <h:commandLink target="_blank" action="#{movimentosReceberSocialBean.recibo(linha.argumento1)}" rendered="#{!empty(linha.argumento10)}" title="Imprimir este Recibo">
+                                        <p:commandButton icon="ui-icon-print" title="Imprimir este Recibo"/>
+                                    </h:commandLink>
+                                </p:column>
+
+                                <p:column style="text-align: center; width: 30px" headerText="Enc.">
+                                    <h:commandLink target="_blank" action="#{movimentosReceberSocialBean.encaminhamento(linha.argumento27)}" rendered="#{movimentosReceberSocialBean.pesquisaGuia(linha.argumento27).encaminhamento == true}" title="Imprimir este Encaminhamento">
+                                        <p:commandButton icon="ui-icon-print"  title="Imprimir este Encaminhamento"/>
+                                    </h:commandLink>
+                                </p:column>
+
+                                <p:column headerText="Opções" style="width: 120px; text-align: center" rendered="false">
+                                    <p:splitButton value="Alterar" title="Alterar este Movimento" action="#{movimentosReceberSocialBean.telaMovimento(linha.argumento1)}" icon="ui-icon-arrowrefresh-1-w">
+                                        <p:menuitem value="Imprimir Recibo" action="#{movimentosReceberSocialBean.recibo(linha.argumento1)}" rendered="#{movimentosReceberSocialBean.porPesquisa != 'abertos' and !empty(linha.argumento10)}" ajax="false" target="_blank" icon="ui-icon-print"/>
+                                        <p:menuitem value="Imprimir Encaminhamento" action="#{movimentosReceberSocialBean.encaminhamento(linha.argumento27)}" rendered="#{movimentosReceberSocialBean.pesquisaGuia(linha.argumento27).encaminhamento == true}" ajax="false" target="_blank" icon="ui-icon-print"/>
+                                    </p:splitButton>
+                                </p:column>
+
+                                <p:column style="width: 40px; text-align: center">
+                                    <f:facet name="header">
+                                        <p:commandButton icon="#{(movimentosReceberSocialBean.booAcrescimo == true) ? 'ui-icon-check' : 'ui-icon-close'}" title="Tirar Acréscimo" action="#{movimentosReceberSocialBean.cliqueCalculoAcrescimo(null)}" />                                    
+                                    </f:facet>
+                                    <p:commandButton icon="#{(linha.argumento29 == true) ? 'ui-icon-check' : 'ui-icon-close'}" title="Tirar Acréscimo deste Movimento" action="#{movimentosReceberSocialBean.cliqueCalculoAcrescimo(linha)}" />
+                                </p:column>
+
+                                <p:rowExpansion>
+                                    <h:panelGrid columns="4" style="height: 40px" styleClass="sbb" columnClasses="verticalAlignTop, verticalAlignTop, verticalAlignTop">
+                                        <p:column>
+                                            <p:outputLabel value="Responsável" style="font-weight: bold"/><br />
+                                            <p:outputLabel value="#{linha.argumento13}"/><br /><br />
+                                            <p:outputLabel value="Aviso: #{linha.argumento32.obsAviso}" rendered="#{linha.argumento32.bloqueiaObsAviso}" styleClass="font-color-red"/>
+                                        </p:column>
+
+                                        <p:column>
+                                            <p:outputLabel value="Titular" style="font-weight: bold"/><br />
+                                            <p:outputLabel value="#{linha.argumento30}"/>
+                                        </p:column>
+
+                                        <p:column>
+                                            <p:outputLabel value="Beneficiário" style="font-weight: bold"/><br />
+                                            <p:outputLabel value="#{linha.argumento14}"/><br /><br />
+                                            <p:outputLabel value="Aviso: #{linha.argumento31.obsAviso}" rendered="#{linha.argumento31.bloqueiaObsAviso}" styleClass="font-color-red"/>
+                                        </p:column>
+                                    </h:panelGrid>
+
+                                    <h:panelGrid styleClass="margin-top-max sbb">
+                                        <p:outputLabel value="Rotina" styleClass="bold"/>
+                                        <p:outputLabel value="#{linha.argumento1.lote.rotina.rotina}" />
+                                    </h:panelGrid>
+                                    
+                                    <p:panel header="Dados do Fechamento" rendered="#{linha.argumento1.baixa.fechamentoCaixa != null}">
+                                        <h:panelGrid columns="4" style="height: 40px" styleClass="sbb">
+                                            <p:column style="width: 40px" rendered="false">
+                                                <p:outputLabel value="ID" style="font-weight: bold"/><br />
+                                                <p:outputLabel value="#{linha.argumento1.baixa.fechamentoCaixa.id}"/>
+                                            </p:column>
+
+                                            <p:column>
+                                                <p:outputLabel value="Operador" style="font-weight: bold"/><br />
+                                                <p:outputLabel value="#{linha.argumento1.baixa.fechamentoCaixa.usuario.pessoa.nome}"/>
+                                            </p:column>
+
+                                            <p:column>
+                                                <p:outputLabel value="Caixa" style="font-weight: bold"/><br />
+                                                <p:outputLabel value="#{movimentosReceberSocialBean.transferenciaCaixa(linha.argumento1.baixa.fechamentoCaixa.id).caixaSaida.descricao}"/>
+                                            </p:column>
+
+                                            <p:column>
+                                                <p:outputLabel value="Data Fechamento" style="font-weight: bold"/><br />
+                                                <p:outputLabel value="#{linha.argumento1.baixa.fechamentoCaixa.data}"/>
+                                            </p:column>
+
+                                            <p:column>
+                                                <p:outputLabel value="Operador que Fechou" style="font-weight: bold"/><br />
+                                                <p:outputLabel value="#{movimentosReceberSocialBean.transferenciaCaixa(linha.argumento1.baixa.fechamentoCaixa.id).usuario.pessoa.nome}"/>
+                                            </p:column>
+                                        </h:panelGrid>
+                                    </p:panel>
+                                </p:rowExpansion>
+                            </p:dataTable>      
+
+
+                            <p:dialog widgetVar="dlg_busca" header="Critérios de Pesquisa" resizable="false" width="400" modal="true">
+                                <h:panelGrid>
+                                    <p:outputLabel value="Filtrar lista de movimentos por" style="font-size: 11pt!important; font-weight: bold"/>
+                                </h:panelGrid>
+                                <br />
+                                <h:panelGrid id="panelCriterios" columns="2">
+                                    <p:column>
+                                        <p:outputLabel value="Referência" /><br />
+                                        <p:inputMask value="#{movimentosReceberSocialBean.criterioReferencia}" mask="99/9999" size="6"/>
+                                    </p:column>
+
+                                    <p:column>
+                                        <p:outputLabel value="Lote Baixa" /><br />
+                                        <p:inputText value="#{movimentosReceberSocialBean.criterioLoteBaixa}" style="width: 80px"/>
+                                    </p:column>
+                                </h:panelGrid>
+
+                                <h:panelGrid columns="3">
+                                    <p:commandButton value="Filtrar" type="submit" action="#{movimentosReceberSocialBean.listenerPesquisa()}" update="formMovimentosReceber" onclick="PF('dlg_busca').hide()" style="clear: both; float: left" icon="ui-icon-check"/>  
+                                    <p:commandButton value="Limpar Busca" action="#{movimentosReceberSocialBean.limparCriteriosDeBusca()}" style="float: left" icon="ui-icon-close" update="panelCriterios formMovimentosReceber"/>
+                                    <p:commandButton value="Fechar" type="button" onclick="PF('dlg_busca').hide()" style="float: left" icon="ui-icon-close" update="formMovimentosReceber"/>       
+                                </h:panelGrid>
+                            </p:dialog>
+
+                            <p:dialog widgetVar="dlg_refazer" header="Refazer Movimentos" resizable="false" width="400" modal="true">
+                                <h:panelGrid>
+                                    <p:outputLabel value="Deseja realmente REFAZER esses movimentos?" style="font-size: 11pt!important"/>
+                                </h:panelGrid>
+
+                                <h:panelGrid columns="2">
+                                    <p:commandButton value="Sim" type="submit" action="#{movimentosReceberSocialBean.refazerMovimentos()}" update="formMovimentosReceber" onclick="PF('dlg_refazer').hide()" style="clear: both; float: left" icon="ui-icon-check"/>  
+                                    <p:commandButton value="Não" type="button" onclick="PF('dlg_refazer').hide()" style="float: left" icon="ui-icon-close"/>       
+                                </h:panelGrid>
+                            </p:dialog>
+
+                            <p:dialog widgetVar="dlg_caixa_banco" header="Baixa de Boletos" resizable="false" width="400" modal="true">
+                                <h:panelGrid columns="3" style="margin: 0 auto; ">
+                                    <p:commandButton value="CAIXA" action="#{movimentosReceberSocialBean.telaBaixa('caixa')}" />  
+                                    <p:outputLabel value="ou" />
+                                    <p:commandButton value="BANCO" action="#{movimentosReceberSocialBean.telaBaixa('banco')}" />       
+                                </h:panelGrid>
+                            </p:dialog>
+
+                            <p:dialog widgetVar="i_dlg_estorno" header="Deseja estornar este Movimento" resizable="false" width="400" modal="true">
+                                <h:panelGrid style="width: 100%">
+                                    <p:outputLabel value="Digite um motivo para o Estorno." /><br />
+                                    <p:inputTextarea value="#{movimentosReceberSocialBean.motivoEstorno}" style="width: 100%" rows="2"/>
+                                </h:panelGrid>
+                                <br />
+                                <p:commandButton value="Sim"      type="submit" styleClass="ui-confirmdialog-yes" action="#{movimentosReceberSocialBean.estornarBaixa()}" update="formMovimentosReceber" onclick="PF('i_dlg_estorno').hide()" style="clear: both; float: left" icon="ui-icon-check"/>  
+                                <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_estorno').hide()" style="float: left" icon="ui-icon-close"/>       
+                            </p:dialog>
+
+                            <p:dialog widgetVar="i_dlg_excluir" header="Deseja excluir estes Movimentos" resizable="false" width="400" modal="true">
+                                <h:panelGrid>
+                                    <p:outputLabel value="Deseja realmente EXCLUIR esse movimento?" style="font-size: 11pt!important"/>
+                                </h:panelGrid>
+
+                                <h:panelGrid style="width: 100%">
+                                    <p:outputLabel value="Digite um motivo para exclusão" style="font-size: 10pt!important; font-weight: bold"/>
+                                    <p:inputTextarea value="#{movimentosReceberSocialBean.motivoInativacao}" style="width: 100%"/>
+                                </h:panelGrid>
+
+                                <p:commandButton value="Sim"      type="submit" styleClass="ui-confirmdialog-yes" action="#{movimentosReceberSocialBean.inativarMovimentos()}" update="formMovimentosReceber" onclick="PF('i_dlg_estorno').hide()" style="clear: both; float: left" icon="ui-icon-check"/>  
+                                <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_excluir').hide()" style="float: left" icon="ui-icon-close"/>       
+                            </p:dialog>
+
+                            <p:dialog widgetVar="dlg_anexar_boletos" header="Selecione os Boletos a serem Anexados" resizable="false" width="800" modal="true" position="top">
+
+                                <h:panelGrid id="panel_anexar_boletos">
+                                    <p:messages autoUpdate="false" closable="true" showDetail="true" />
+                                    <p:outputLabel value="Boletos Disponiveis" style="font-size: 13pt!important; font-weight: bold"/>
+                                    <p:selectBooleanCheckbox itemLabel="Boletos Atrasados" value="#{movimentosReceberSocialBean.chkBoletosAtrasados}" style="float: right">
+                                        <p:ajax event="change" update="panel_anexar_boletos" listener="#{movimentosReceberSocialBean.loadBoletosAbertos()}"/>
+                                    </p:selectBooleanCheckbox>
+
+                                    <p:dataTable var="linha" value="#{movimentosReceberSocialBean.listaBoletosAbertos}" selectionMode="multiple" selection="#{movimentosReceberSocialBean.listaBoletosAbertosSelecionados}" rowKey="#{linha.argumento0[0]}" emptyMessage="Nenhum Boleto Encontrado!" scrollable="true" scrollHeight="200">
+
+                                        <p:column style="width:15px">  
+                                            <p:rowToggler />  
+                                        </p:column>  
+
+                                        <p:column headerText="Número"  style="text-align: right; width: 60px;">
+                                            <h:outputText value="#{linha.argumento0[2]}" />
+                                        </p:column>
+
+                                        <p:column headerText="Valor" style="width: 60px; text-align: right">
+                                            <h:outputText value="#{movimentosReceberSocialBean.converteValor(linha.argumento0[3])}" />
+                                        </p:column>
+
+                                        <p:column headerText="Vencimento" style="width: 100px; text-align: center">
+                                            <p:commandButton value="#{movimentosReceberSocialBean.converteData(linha.argumento0[4])}" action="#{movimentosReceberSocialBean.selecionaVencimentoBoleto(linha.argumento0[0])}" oncomplete="PF('dlg_vencimento_boleto').show()" update=":formMovimentosReceber:panelAlterarVencimento" rendered="#{!movimentosReceberSocialBean.cab.verificarPermissao('alterarVencimentoBoletoSocial', 3)}"/>
+                                            <p:outputLabel value="#{movimentosReceberSocialBean.converteData(linha.argumento0[4])}" rendered="#{movimentosReceberSocialBean.cab.verificarPermissao('alterarVencimentoBoletoSocial', 3)}" style="font-size: 11pt!important"/>
+                                        </p:column>
+
+                                        <p:column headerText="Vencimento Original" style="width: 100px; text-align: center">
+                                            <p:outputLabel value="#{movimentosReceberSocialBean.converteData(linha.argumento0[5])}" />
+                                        </p:column>
+
+                                        <p:column headerText="Mensagem">
+                                            <p:commandLink value="#{(linha.argumento0[6] eq '' or linha.argumento0[6] eq null) ? 'ADICIONAR MENSAGEM' : linha.argumento0[6]}" action="#{movimentosReceberSocialBean.selecionaMensagemBoleto(linha.argumento0[0])}" oncomplete="PF('dlg_mensagem_boleto').show()" update=":formMovimentosReceber:panelAlterarMensagem"/>
+                                        </p:column>
+
+                                        <p:rowExpansion>
+                                            <h:outputLabel value="Movimentos do Boleto #{linha.argumento0[2]}" style="font-weight: bold" rendered="false" />
+                                            <p:dataTable value="#{linha.argumento2}" var="linha_movimento" selection="#{movimentosReceberSocialBean.listaMovimentoDoBoletoSelecionado}" rowKey="#{linha_movimento.id}">
+                                                <p:column selectionMode="multiple" style="width:16px;text-align:center"/>
+                                                <p:column headerText="ID" style="width: 80px; text-align: center" rendered="false">
+                                                    <h:outputLabel value="#{linha_movimento.id}" />
+                                                </p:column>
+
+                                                <p:column headerText="Titular">
+                                                    <h:outputLabel value="#{linha_movimento.titular.nome}" />
+                                                </p:column>
+
+                                                <p:column headerText="Beneficiário">
+                                                    <h:outputLabel value="#{linha_movimento.beneficiario.nome}" />
+                                                </p:column>
+
+                                                <p:column headerText="Serviços">
+                                                    <h:outputLabel value="#{linha_movimento.servicos.descricao}" />
+                                                </p:column>
+
+                                                <p:column headerText="Vencimento Original" style="text-align: center; width: 100px">
+                                                    <h:outputLabel value="R$ #{linha_movimento.vencimentoOriginal}" />
+                                                </p:column>
+
+                                                <p:column headerText="Valor" style="text-align: right; width: 80px">
+                                                    <h:outputLabel value="R$ #{linha_movimento.valorString}" />
+                                                </p:column>
+
+                                                <p:column headerText="Anexo" style="text-align: center; width: 40px">
+                                                    <p:commandButton icon="ui-icon-close" actionListener="#{movimentosReceberSocialBean.clickRemoverMovimentos(linha_movimento)}" oncomplete="PF('dlg_confirma_desanexar').show()"/>
+                                                </p:column>
+                                            </p:dataTable>
+                                            <p:commandButton value="Imprimir Boleto" action="#{movimentosReceberSocialBean.imprimirBoletos(linha.argumento0[0])}" ajax="false" onclick="this.form.target = '_blank'"/>
+                                            <p:commandButton value="Remover Movimentos Selecionados" actionListener="#{movimentosReceberSocialBean.clickRemoverMovimentos(null)}" oncomplete="PF('dlg_confirma_desanexar').show()"/>
+                                        </p:rowExpansion>
+                                    </p:dataTable>
+
+                                    <br />
+
+                                    <p:outputLabel value="Movimentos Sem Boleto" style="font-size: 13pt!important; font-weight: bold; color: red"/>
+                                    <p:dataTable var="linha" value="#{movimentosReceberSocialBean.listaMovimentosAnexo}" selection="#{movimentosReceberSocialBean.listaMovimentosAnexoSelecionados}" rowKey="#{linha.id}" emptyMessage="Nenhum Movimento Encontrado para Anexar!" scrollable="true" scrollHeight="200">
+                                        <p:column selectionMode="multiple" style="width:16px;text-align:center"/>
+
+                                        <p:column headerText="Titular">
+                                            <h:outputText value="#{linha.titular.nome}" />
+                                        </p:column>
+
+                                        <p:column headerText="Beneficiário">
+                                            <h:outputText value="#{linha.beneficiario.nome}" />
+                                        </p:column>
+
+                                        <p:column headerText="Serviço">
+                                            <h:outputText value="#{linha.servicos.descricao}" />
+                                        </p:column>
+
+                                        <p:column headerText="Valor" style="width: 80px; text-align: right">
+                                            <h:outputText value="#{movimentosReceberSocialBean.converteValor(linha.valor)}" />
+                                        </p:column>
+
+                                        <p:column headerText="Vencimento" style="width: 80px; text-align: center">
+                                            <h:outputText value="#{movimentosReceberSocialBean.converteData(linha.dtVencimento)}" />
+                                        </p:column>
+                                    </p:dataTable>
+                                </h:panelGrid>
+
+                                <p:commandButton value="Anexar" onclick="PF('dlg_confirma_anexar').show()" style="clear: both; float: left" icon="ui-icon-check" />  
+                                <p:commandButton value="Criar novo Boleto" onclick="PF('dlg_confirma_criar_novo_boleto').show()" style="float: left" icon="ui-icon-document" />
+                                <p:commandButton value="Fechar" type="button"  onclick="PF('dlg_anexar_boletos').hide()" style="float: left" icon="ui-icon-close" />       
+                            </p:dialog>
+
+                            <p:dialog widgetVar="dlg_vencimento_boleto" header="Alterar vencimento deste Boleto" resizable="false" width="400" modal="true">
+                                <h:panelGrid>
+                                    <p:outputLabel value="Deseja realmente ALTERAR o vencimento?" style="font-size: 11pt!important"/>
+                                </h:panelGrid>
+
+                                <h:panelGrid id="panelAlterarVencimento">
+
+                                    <h:panelGrid columns="1">
+                                        <h:outputLabel value="Vencimento Anterior" />
+                                        <p:inputText value="#{movimentosReceberSocialBean.objectVencimento.argumento0.vencimento}" style="width: 80px; text-align: center;" readonly="true"/>
+                                    </h:panelGrid>
+
+                                    <h:panelGrid columns="1">
+                                        <h:outputLabel value="Digite o NOVO VENCIMENTO para esse Boleto" style="color: red"/>
+                                        <p:inputMask value="#{movimentosReceberSocialBean.objectVencimento.argumento1}" mask="99/99/9999" style="width: 80px; text-align: center"/>
+                                    </h:panelGrid>
+                                </h:panelGrid>
+
+                                <h:panelGrid columns="2">
+                                    <p:commandButton value="Alterar Vencimento" action="#{movimentosReceberSocialBean.alterarVencimento()}" oncomplete="PF('dlg_vencimento_boleto').hide()" type="submit" update="formMovimentosReceber:panel_anexar_boletos" style="clear: both; float: left" icon="ui-icon-check" />  
+                                    <p:commandButton value="Voltar" type="button" onclick="PF('dlg_vencimento_boleto').hide()" style="float: left" icon="ui-icon-close"/>       
+                                </h:panelGrid>
+                            </p:dialog>
+
+                            <p:dialog widgetVar="dlg_mensagem_boleto" header="Alterar mensagem deste Boleto" resizable="false" width="400" modal="true">
+                                <h:panelGrid>
+                                    <p:outputLabel value="Deseja realmente ALTERAR a mensagem?" style="font-size: 11pt!important"/>
+                                </h:panelGrid>
+
+                                <h:panelGrid id="panelAlterarMensagem" style="width: 100%;">
+                                    <h:panelGrid columns="1" style="width: 100%;">
+                                        <h:outputLabel value="Mensagem Anterior" />
+                                        <p:inputTextarea value="#{movimentosReceberSocialBean.objectMensagem.argumento0.mensagem}" style="width: 100%; opacity: 0.7" readonly="true"/>
+                                    </h:panelGrid>
+
+                                    <h:panelGrid columns="1" style="width: 100%;">
+                                        <h:outputLabel value="Digite a NOVA MENSAGEM para esse Boleto" style="color: red; font-weight: bold"/>
+                                        <p:inputTextarea value="#{movimentosReceberSocialBean.objectMensagem.argumento1}" style="width: 100%;"/>
+                                    </h:panelGrid>
+                                </h:panelGrid>
+
+                                <h:panelGrid columns="2">
+                                    <p:commandButton value="Alterar Mensagem" action="#{movimentosReceberSocialBean.alterarMensagem()}" oncomplete="PF('dlg_mensagem_boleto').hide()" type="submit" update="formMovimentosReceber:panel_anexar_boletos" style="clear: both; float: left" icon="ui-icon-check" />  
+                                    <p:commandButton value="Voltar" type="button" onclick="PF('dlg_mensagem_boleto').hide()" style="float: left" icon="ui-icon-close"/>       
+                                </h:panelGrid>
+                            </p:dialog>
+
+                            <p:dialog widgetVar="dlg_confirma_anexar" header="Anexar Boletos" resizable="false" width="400" modal="true" >
+                                <h:panelGrid>
+                                    <p:outputLabel value="Deseja realmente ANEXAR esses movimentos?" style="font-size: 11pt!important"/>
+                                </h:panelGrid>
+
+                                <h:panelGrid columns="2">
+                                    <p:commandButton value="Anexar" action="#{movimentosReceberSocialBean.anexarMovimentos()}" oncomplete="PF('dlg_confirma_anexar').hide()" type="submit" update="formMovimentosReceber:panel_anexar_boletos" style="clear: both; float: left" icon="ui-icon-check" />  
+                                    <p:commandButton value="Não" type="button" onclick="PF('dlg_confirma_anexar').hide()" style="float: left" icon="ui-icon-close"/>       
+                                </h:panelGrid>
+                            </p:dialog>
+
+                            <p:dialog widgetVar="dlg_confirma_desanexar" header="Remover Movimento" resizable="false" width="400" modal="true" >
+                                <h:panelGrid>
+                                    <p:outputLabel value="Deseja realmente RETIRAR estes movimentos deste boleto?" style="font-size: 11pt!important"/>
+                                </h:panelGrid>
+
+                                <h:panelGrid columns="2">
+                                    <p:commandButton value="Remover" action="#{movimentosReceberSocialBean.removerMovimento()}" oncomplete="PF('dlg_confirma_desanexar').hide()" type="submit" update="formMovimentosReceber:panel_anexar_boletos" style="clear: both; float: left" icon="ui-icon-check" />  
+                                    <p:commandButton value="Não" type="button" onclick="PF('dlg_confirma_desanexar').hide()" style="float: left" icon="ui-icon-close"/>       
+                                </h:panelGrid>
+                            </p:dialog>
+
+                            <p:dialog widgetVar="dlg_confirma_criar_novo_boleto" header="Novo Boleto" resizable="false" width="400" modal="true">
+                                <h:panelGrid id="panel_criar_boleto" columns="1">
+                                    <h:panelGrid>
+                                        <p:outputLabel value="Deseja realmente CRIAR UM NOVO BOLETO com esses movimentos?" style="font-size: 11pt!important"/>
+                                    </h:panelGrid>
+
+                                    <h:panelGrid columns="1">
+                                        <h:outputLabel value="Digite um Vencimento para esse Boleto" style="color: red"/>
+                                        <p:inputMask value="#{movimentosReceberSocialBean.vencimentoNovoBoleto}" mask="99/99/9999" style="width: 80px; text-align: center"/>
+                                    </h:panelGrid>
+                                </h:panelGrid>
+
+                                <h:panelGrid columns="2">
+                                    <p:commandButton value="Criar" action="#{movimentosReceberSocialBean.criarBoletos()}" oncomplete="PF('dlg_confirma_criar_novo_boleto').hide()" type="submit" update="formMovimentosReceber:panel_anexar_boletos" style="clear: both; float: left" icon="ui-icon-check" />  
+                                    <p:commandButton value="Não" type="button" onclick="PF('dlg_confirma_criar_novo_boleto').hide()" style="float: left" icon="ui-icon-close"/>       
+                                </h:panelGrid>
+                            </p:dialog>
+
+                            <p:dialog widgetVar="i_dlg_dados" header="Ver Mais" resizable="false" modal="true">
+                                <h:panelGrid id="i_dados">
+                                    <h:panelGrid columns="4" style="width: 100%">
+                                        <h:column>
+                                            <h:outputLabel value="Data / Boleto" style="float: left"/><br />
+                                            <h:outputLabel value="#{movimentosReceberSocialBean.data} - #{movimentosReceberSocialBean.boleto}" style="float: left; font-weight: bold"/>
+                                        </h:column>
+
+                                        <h:column>
+                                            <div>
+                                                <h:outputLabel value="Lote Baixa" style="float: right"/><br />
+                                                <h:outputLabel value="#{movimentosReceberSocialBean.id_baixa}" style="float: right; font-weight: bold"/>
+                                            </div>
+                                        </h:column>
+                                    </h:panelGrid>
+
+                                    <br />
+                                    <h:panelGrid>
+                                        <h:outputLabel value="Beneficiário" />
+                                        <h:outputLabel value="#{movimentosReceberSocialBean.beneficiario}" style="font-weight: bold"/>
+                                    </h:panelGrid>
+
+                                    <br />
+                                    <h:panelGrid columns="4" style="background: #e2e2e2; width: 100%">
+                                        <h:column>
+                                            <h:outputLabel value="Dias em Atraso" style="float: left"/><br />
+                                            <h:outputLabel value="#{movimentosReceberSocialBean.diasAtraso}" style="float: left; font-weight: bold"/>
+                                        </h:column>
+
+                                        <h:column>
+                                            <div>
+                                                <h:outputLabel value="Multa / Juros / Correção" style="float: right"/><br />
+                                                <h:outputLabel value="#{movimentosReceberSocialBean.multa} - #{movimentosReceberSocialBean.juros} - #{movimentosReceberSocialBean.correcao}" style="float: right; font-weight: bold"/>
+                                            </div>
+                                        </h:column>
+                                    </h:panelGrid>
+
+                                    <br />
+                                    <h:panelGrid>
+                                        <h:outputLabel value="Caixa"/><br />
+                                        <h:outputLabel value="#{movimentosReceberSocialBean.caixa}" style="font-weight: bold"/>
+                                    </h:panelGrid>
+
+                                    <h:panelGrid columns="2" style="background: #e2e2e2; width: 100%">
+                                        <h:column>
+                                            <h:outputLabel value="Documento" style="float: left"/><br />
+                                            <h:outputLabel value="#{movimentosReceberSocialBean.boleto}" style="float: left; font-weight: bold"/>
+                                        </h:column>
+
+                                        <h:column>
+                                            <div>
+                                                <h:outputLabel value="Tipo / Referência" style="float: right"/><br />
+                                                <h:outputLabel value="#{movimentosReceberSocialBean.tipo} - #{movimentosReceberSocialBean.referencia}" style="float: right; font-weight: bold"/>
+                                            </div>
+                                        </h:column>
+                                    </h:panelGrid>
+
+                                    <br />
+
+                                    <h:panelGrid rendered="#{!empty(movimentosReceberSocialBean.titular)}">
+                                        <h:outputLabel value="-- Dados do Sócio --" style="font-size: 11pt!important" />
+                                        <br />
+                                        <h:panelGrid>
+                                            <h:outputLabel value="Titular" />
+                                            <h:outputLabel value="#{movimentosReceberSocialBean.titular}" style="font-weight: bold"/>
+                                        </h:panelGrid>
+
+                                        <h:panelGrid>
+                                            <h:outputLabel value="Matrícula" />
+                                            <h:outputLabel value="#{movimentosReceberSocialBean.matricula}" style="font-weight: bold"/>
+                                        </h:panelGrid>
+
+                                        <h:panelGrid>
+                                            <h:outputLabel value="Categoria" />
+                                            <h:outputLabel value="#{movimentosReceberSocialBean.categoria}" style="font-weight: bold"/>
+                                        </h:panelGrid>
+
+                                        <h:panelGrid>
+                                            <h:outputLabel value="Grupo" />
+                                            <h:outputLabel value="#{movimentosReceberSocialBean.grupo}" style="font-weight: bold"/>
+                                        </h:panelGrid>
+
+                                        <h:panelGrid>
+                                            <h:outputLabel value="Status" />
+                                            <h:outputLabel value="#{movimentosReceberSocialBean.status}" style="font-weight: bold"/>
+                                        </h:panelGrid>
+
+                                    </h:panelGrid>
+                                </h:panelGrid>
+                            </p:dialog>
+
+                            <p:dialog widgetVar="dlg_desconto" modal="true" header="Inserir Desconto" width="200">  
+                                <h:panelGrid>
+                                    <p:outputLabel value="Digite o valor do Desconto" />
+                                    <p:inputText value="#{movimentosReceberSocialBean.novoDesconto}" style="width: 100px; text-align: right">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:inputText>
+                                </h:panelGrid>
+
+                                <h:panelGrid>
+                                    <p:commandButton value="Adicionar Desconto" title="Adicionar desconto" action="#{movimentosReceberSocialBean.adicionarDesconto}"/>    
+                                </h:panelGrid>
+                            </p:dialog>  
+
+                        </h:form>
+
+                        <h:form id="formAutenticaUsuario">
+                            <p:dialog widgetVar="dlg_autentica_usuario" modal="true" header="Autenticar Usuário" width="380">
+                                <p:ajax event="close" listener="#{autenticaUsuario.clear()}" update="i_autentica_usuario"/>
+                                <h:panelGrid id="i_autentica_usuario">
+                                    <p:messages autoUpdate="false" closable="true" showDetail="true" />
+                                    <h:panelGrid columns="2">
+                                        <h:column>
+                                            <p:outputLabel value="Login" /><br />
+                                            <p:inputText id="i_login" value="#{autenticaUsuario.login}" />    
+                                        </h:column>
+
+                                        <h:column>
+                                            <p:outputLabel value="Senha" /><br />
+                                            <p:password value="#{autenticaUsuario.senha}" />    
+                                        </h:column>
+                                    </h:panelGrid>
+                                </h:panelGrid>
+
+                                <h:panelGrid columns="2">
+                                    <h:column>
+                                        <br />
+                                        <p:commandButton icon="ui-icon-check" value="Validar" action="#{autenticaUsuario.validarUsuario()}" update="i_autentica_usuario"/>
+                                    </h:column>
+
+                                    <h:column>
+                                        <br />
+                                        <p:commandButton icon="ui-icon-close" value="Fechar" onclick="PF('dlg_autentica_usuario').hide()"/>
+                                    </h:column>
+                                </h:panelGrid>
+                            </p:dialog>  
+                        </h:form>
+                    </p:panel>
+
+                    <p:ajaxStatus id="i_status" onstart="PF('i_dlg_modal').show();" onsuccess="PF('i_dlg_modal').hide();" />
+                    <p:dialog modal="true" widgetVar="i_dlg_modal" header="Status" draggable="false" closable="false">  
+                        <h:outputLabel value="Aguarde ..." />
+                    </p:dialog> 
+                </f:view>
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>                
+    </h:body>
+</ui:composition>

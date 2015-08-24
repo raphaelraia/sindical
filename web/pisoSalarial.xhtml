@@ -1,0 +1,129 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Piso Salarial</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/> 
+    </h:head>
+    <h:body>
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                </f:subview>
+                <f:view>
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <p:outputLabel value="Piso Salarial" styleClass="fonteHeader" />
+                        <div class="clear"></div>
+                        <h:form id="form_ps">
+                            <p:messages autoUpdate="true" showDetail="true" showSummary="true" />
+                            <p:panel header="Patronal" styleClass="margin-top-max">
+                                <h:panelGrid columns="2">
+                                    <p:commandButton id="idPesquisaPatronal" icon="ui-icon-search" action="#{chamadaPaginaBean.pesquisaPatronal}" immediate="true" title="Pesquisar Pessoa Jurídica"/>
+                                    <h:column>
+                                        <p:outputLabel  value="Pesquisar Patronal" rendered="#{pisoSalarialBean.pisoSalarialLote.patronal.pessoa.id == -1}" for="idPesquisaPatronal"/>
+                                        <p:outputLabel value="#{pisoSalarialBean.pisoSalarialLote.patronal.pessoa.nome}"  title="Pessoa" style="border-bottom: 2px dashed white; height: 15px; padding-bottom: 5px;" rendered="#{pisoSalarialBean.pisoSalarialLote.patronal.pessoa.id != -1}"/>
+                                    </h:column>
+                                    <p:outputLabel value="Porte: " />
+                                    <p:selectOneMenu value="#{pisoSalarialBean.idPorte}">
+                                        <p:ajax event="change" update="@this"/>
+                                        <f:selectItems value="#{pisoSalarialBean.listComboPorte}"></f:selectItems> 
+                                    </p:selectOneMenu>
+                                    <p:outputLabel value="Ano: "/>
+                                    <h:column>
+                                        <h:panelGrid columns="3">
+                                            <p:inputText value="#{pisoSalarialBean.ano}" size="4" maxlength="4" converter="#{thisNumber}">
+                                                <p:ajax event="blur" update="@this" />
+                                            </p:inputText> 
+                                            <p:outputLabel value="Validade: "/>
+                                            <p:inputMask value="#{pisoSalarialBean.pisoSalarialLote.validade}" size="8" converter="#{isDateString}" mask="99/99/9999">
+                                                <p:ajax event="blur" update="@this" />
+                                            </p:inputMask>
+                                        </h:panelGrid>
+                                    </h:column>
+                                </h:panelGrid>
+                            </p:panel>
+                            <p:panel header="Mensagem" styleClass="margin-top-max">
+                                <p:inputTextarea value="#{pisoSalarialBean.pisoSalarialLote.mensagem}" title="Mensagem" style="width: 100%" rows="2" styleClass="margin-top-med padding">
+                                    <p:ajax event="change" update="@this"/>
+                                </p:inputTextarea>
+                            </p:panel>
+                            <p:panel header="Pisos / Valores" styleClass="margin-top-max">
+                                <h:panelGrid columns="7">
+                                    <p:outputLabel value="Descrição: "/>
+                                    <p:inputTextarea value="#{pisoSalarialBean.descricao}" cols="80" rows="2" converter="#{toUpperCase}" title="Descrição">
+                                        <p:ajax event="blur" update="@this" />
+                                    </p:inputTextarea>
+                                    <p:outputLabel value="Valor (R$): "/>
+                                    <p:inputText value="#{pisoSalarialBean.valor}" size="10" maxlength="10" title="Salário mínimo R$#{pisoSalarialBean.salarioMinimo.valorMensalString}, vigente desde #{pisoSalarialBean.salarioMinimo.vigenciaString}">
+                                        <p:ajax event="blur" update="@this"/>                                    
+                                    </p:inputText>
+                                    <p:commandButton icon="ui-icon-plus" action="#{pisoSalarialBean.addPisoSalariaLote}" value="Salvar Mais" update=":form_ps:" />
+                                </h:panelGrid>
+                            </p:panel>
+                            <h:panelGrid rendered="#{pisoSalarialBean.pisoSalarialLote.id != -1}" styleClass="margin-top-max" id="id_tab">
+                                <p:dataTable value="#{pisoSalarialBean.listPisoSalarial}" var="pisoSalarial" emptyMessage="Nenhum registro encontrado!">
+                                    <p:column styleClass="text-center" width="25">
+                                        <p:commandButton icon="ui-icon-link" title="Editar registro nº #{pisoSalarial.id}" action="#{pisoSalarialBean.editPisoSalarial(pisoSalarial)}" update=":form_ps:"/>
+                                    </p:column>
+                                    <p:column styleClass="text-center" headerText="Valor">
+                                        #{pisoSalarial.valor}
+                                    </p:column>
+                                    <p:column styleClass="text-center" headerText="Descrição">
+                                        #{pisoSalarial.descricao}
+                                    </p:column>
+                                    <p:column styleClass="text-center" width="25">
+                                        <p:commandButton icon="ui-icon-trash" action="#{pisoSalarialBean.delete(pisoSalarial)}" update=":form_ps:"/>
+                                    </p:column>
+                                </p:dataTable>                            
+                            </h:panelGrid>
+                            <h:panelGrid columns="4" styleClass="margin-top-max">
+                                <p:commandButton onclick="PF('dlg_save').show();" value="Salvar" title="Salvar/Atualizar"/>
+                                <p:commandButton value="Novo" title="Novo registro / Limpar" action="#{pisoSalarialBean.clear()}" update=":form_ps:"/>
+                                <p:commandButton onclick="PF('dlg_delete').show();" value="Excluir" title="Excluir"/>
+                                <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pesquisaPisoSalarial}" title="Pesquisar piso salarial"/>
+                            </h:panelGrid>
+                            <p:dialog id="i_panel_salvar" widgetVar="dlg_save" modal="true" closable="true" width="300" header="Deseja salvar este registro?">
+                                <f:facet name="footer">
+                                    <p:panelGrid columns="2" styleClass="sbb">
+                                        <p:commandButton value="Sim" title="Salvar" action="#{pisoSalarialBean.save()}" update=":form_ps:"  oncomplete="PF('dlg_message').show(); PF('dlg_save').hide();" />
+                                        <p:commandButton value="Não" title="Cancelar" onclick="PF('dlg_save').hide()"/>
+                                    </p:panelGrid>
+                                </f:facet>
+                            </p:dialog>
+                            <p:dialog id="i_panel_excluir" widgetVar="dlg_delete" modal="true" width="300" closable="true" header="Deseja excluir este registro?">
+                                <f:facet name="footer">
+                                    <p:panelGrid columns="2" styleClass="sbb">
+                                        <p:commandButton value="Sim" title="Excluir" action="#{pisoSalarialBean.deletePisoSalariaLote}" update=":form_ps: " oncomplete="PF('dlg_message').show(); PF('dlg_delete').hide();"  />
+                                        <p:commandButton value="Não" title="Cancelar" onclick="PF('dlg_delete').hide()"/>
+                                    </p:panelGrid>
+                                </f:facet>
+                            </p:dialog>
+                            <p:dialog id="i_panel_mensagem" modal="true" width="300" widgetVar="dlg_message" header="Mensagem">
+                                <p:outputLabel value="#{pisoSalarialBean.message}" id="outConfirma"/>
+                                <f:facet name="footer">
+                                    <p:commandButton value="Ok" title="Ok" oncomplete="PF('dlg_message').hide()"  />                                    
+                                </f:facet>
+                            </p:dialog>                           
+                        </h:form>
+                    </p:panel>
+                </f:view>
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>                
+    </h:body>
+</ui:composition>

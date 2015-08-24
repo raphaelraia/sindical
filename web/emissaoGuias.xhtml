@@ -1,0 +1,397 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Sindical - Emissão de Guias</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
+            .ui-button { padding: 3px!important; }
+            .ui-selectonemenu {padding-right: 25px!important;}
+            .ui-spinner-button { padding: 0px!important; }
+        </style>
+
+        <script type="text/javascript">
+        
+        </script>        
+    </h:head>
+    <h:body>
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                </f:subview>
+                <f:view>
+                    <ui:include src="templates/templateAcessoFilialComCaixa.xhtml" />
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:outputText value="Emissão de Guias" styleClass="fonteHeader" />
+                        <div class="clear"></div>
+                        <h:outputScript name="script_primefaces.js" library="js" />
+                        <h:form id="form_eg">
+                            <p:messages autoUpdate="true" showDetail="true" showSummary="true" closable="true" id="i_message" />
+                            
+                            <p:panel header="Beneficiário" styleClass="margin-top-max">
+                                <h:panelGrid columns="5">
+                                    <p:outputLabel value="Nome: " />
+                                    <p:inputText id="nomeBene" size="80" value="#{emissaoGuiasBean.pessoa.nome}" readonly="true" />
+                                    <p:commandButton value="Pesquisar" onclick="PF('dlg_tipo_pessoa').show()" icon="ui-icon-search" rendered="#{emissaoGuiasBean.lote.id == -1}" />
+                                    <p:commandButton value="Local" action="#{emissaoGuiasBean.pesquisaPessoaSindicato}" icon="ui-icon-search" rendered="#{emissaoGuiasBean.lote.id == -1}" update="form_eg"/>
+                                    <p:commandButton value="Nova Pessoa - Cadastrar" actionListener="#{emissaoGuiasBean.clear(3)}" oncomplete="PF('dlg_cadastro').show()" rendered="#{emissaoGuiasBean.pessoa.id == -1}" icon="ui-icon-circle-plus" style="margin-left: 70px!important" update=":form_eg:i_panel_sem_cadastro"/>
+                                </h:panelGrid>
+                                
+                                <h:panelGrid columns="1" rendered="#{emissaoGuiasBean.socios.id != -1}">
+                                    <p:outputLabel value="SÓCIO" style="font-size: 11pt!important; font-weight: bold"/>
+                                </h:panelGrid>
+                                
+                                <h:panelGrid columns="4" rendered="#{emissaoGuiasBean.socios.id != -1}" style="width: 40%">
+                                    <h:column>
+                                        <p:outputLabel value="Matrícula: " style="font-size: 9pt!important; font-weight: bold" />
+                                        <p:outputLabel value="#{emissaoGuiasBean.socios.matriculaSocios.id}" style="font-size: 9pt!important" />
+                                    </h:column>
+                                    
+                                    <h:column>
+                                        <p:outputLabel value="Categoria: " style="font-size: 9pt!important; font-weight: bold" />
+                                        <p:outputLabel value="#{emissaoGuiasBean.socios.matriculaSocios.categoria.categoria}" style="font-size: 9pt!important" />
+                                    </h:column>
+                                    
+                                    <h:column>
+                                        <p:outputLabel value="Parentesco: " style="font-size: 9pt!important; font-weight: bold" />
+                                        <p:outputLabel value="#{emissaoGuiasBean.socios.parentesco.parentesco}" style="font-size: 9pt!important" />
+                                    </h:column>
+                                    
+                                    <h:column>
+                                        <p:outputLabel value="Idade: " style="font-size: 9pt!important; font-weight: bold" />
+                                        <p:outputLabel value="#{emissaoGuiasBean.calculoIdade()}" style="font-size: 9pt!important" />
+                                    </h:column>
+                                </h:panelGrid>
+                            </p:panel>
+                            <p:panel id="i_panel_convenio" header="Empresa Convêniada" styleClass="margin-top-max">
+                                <h:panelGrid id="i_panel_grupos" columns="6">
+                                    <p:outputLabel value="Grupo: " />
+                                    <p:selectOneMenu id="idGrupo" value="#{emissaoGuiasBean.index[0]}" disabled="#{emissaoGuiasBean.lote.id != -1}">
+                                        <p:ajax event="change" update="@this i_panel_grupos i_panel_servicos" listener="#{emissaoGuiasBean.clear(1)}"/>
+                                        <f:selectItems value="#{emissaoGuiasBean.listGrupo}"/>
+                                    </p:selectOneMenu>
+                                    <p:outputLabel value="Sub Grupo: " />
+                                    <p:selectOneMenu id="idSubGrupo" value="#{emissaoGuiasBean.index[1]}" disabled="#{emissaoGuiasBean.lote.id != -1}">
+                                        <p:ajax event="change" update="@this i_panel_grupos i_panel_servicos" listener="#{emissaoGuiasBean.clear(2)}"/>
+                                        <f:selectItems value="#{emissaoGuiasBean.listSubGrupo}"/>
+                                    </p:selectOneMenu>
+                                    <p:outputLabel value="Razão: " />
+                                    <p:selectOneMenu id="idEmpresasConv" value="#{emissaoGuiasBean.index[3]}" disabled="#{emissaoGuiasBean.lote.id != -1}">
+                                        <p:ajax event="change"  update="@this"/>
+                                        <f:selectItems value="#{emissaoGuiasBean.listJuridica}" />
+                                    </p:selectOneMenu>
+                                </h:panelGrid>
+                            </p:panel>
+
+                            <p:panel header="Serviços" id="i_panel_servicos" styleClass="margin-top-max">
+                                <h:panelGrid>
+                                    <p:selectOneMenu id="idServicos" value="#{emissaoGuiasBean.index[2]}" disabled="#{emissaoGuiasBean.lote.id != -1}" filter="true" filterMatchMode="startsWith">
+                                        <p:ajax event="change" update="i_panel_servicos" listener="#{emissaoGuiasBean.listenerEnabledItensPedido}"/>
+                                        <f:selectItems value="#{emissaoGuiasBean.listServicos}"/>
+                                    </p:selectOneMenu>
+                                </h:panelGrid>
+                                
+                                <h:panelGrid id="i_panel_add_servicos" columns="4" styleClass="margin-top-max">
+                                    <h:column>
+                                        <p:outputLabel value="Quantidade" rendered="#{!emissaoGuiasBean.servicox.produto}"/><br />
+                                        <p:inputText id="i_qnt" value="#{emissaoGuiasBean.quantidade}" size="5" rendered="#{!emissaoGuiasBean.servicox.produto}" style="margin-right: 10px">
+                                            <p:ajax event="change" update="@this" />
+                                        </p:inputText>
+                                    </h:column>
+                                    
+                                    <h:column>
+                                        <p:outputLabel value="Valor"  /><br />
+                                        <p:commandButton id="i_valor" value="R$ #{emissaoGuiasBean.valor}" action="#{emissaoGuiasBean.openModalPedido}" icon="ui-icon-cart" readonly="true" onclick="PF('dlg_pedido').show()" title="Adicionar itens (produtos) ao serviço" rendered="#{emissaoGuiasBean.servicox.produto}" />
+                                        <p:inputText size="10" dir="RTL" value="#{emissaoGuiasBean.valor}" disabled="#{!emissaoGuiasBean.servicox.alterarValor}" rendered="#{!emissaoGuiasBean.servicox.produto}" style="#{(!emissaoGuiasBean.servicox.alterarValor) ? 'opacity: 100!important; font-weight: bold; color: black' : ''} ">
+                                            <p:ajax event="change" update="i_panel_servicos" />
+                                        </p:inputText>
+                                    </h:column>
+                                    
+                                    <h:column>
+                                        <p:outputLabel value="Desconto (R$)" rendered="#{!emissaoGuiasBean.servicox.produto}"/><br />
+                                        <p:inputText size="10" dir="RTL" value="#{emissaoGuiasBean.desconto}" rendered="#{!emissaoGuiasBean.servicox.produto and !emissaoGuiasBean.cab.verificarPermissao('autorizaDescontos', 3)}" style="opacity: 100!important; font-weight: bold; color: black">
+                                            <p:ajax event="change" update="i_panel_servicos" />
+                                        </p:inputText>
+                                        <p:inputText size="10" dir="RTL" value="#{emissaoGuiasBean.desconto}" rendered="#{!emissaoGuiasBean.servicox.produto and emissaoGuiasBean.cab.verificarPermissao('autorizaDescontos', 3)}" style="opacity: 100!important; font-weight: bold; color: black">
+                                            <p:ajax event="click" listener="#{emissaoGuiasBean.autorizarDesconto}" />
+                                        </p:inputText>
+                                    </h:column>
+                                    
+                                    <h:column>
+                                        <br />
+                                        <p:commandButton icon="ui-icon-plus" action="#{emissaoGuiasBean.addServico()}" update="i_message i_tbl_eg i_panel_add_servicos" disabled="#{emissaoGuiasBean.lote.id != -1}" />
+                                        <p:commandLink value="Ver guias emitidas nesse Periodo" rendered="#{emissaoGuiasBean.listaMovimentosEmitidos.size() > 0}" onclick="PF('dlg_movimentos_emitidos').show()" style="margin-left: 20px; font-size: 10pt!important; color: red" update="i_tbl_movimentos_emitidos"/>
+                                    </h:column>
+                                </h:panelGrid>
+                                
+                                <h:panelGrid columns="1" style="width: 100%">
+                                    <h:outputText value="Observação" />
+                                    <p:inputTextarea value="#{emissaoGuiasBean.lote.historico}" style="width: 100%">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:inputTextarea>
+                                </h:panelGrid>
+                                
+                                <h:panelGrid id="i_tbl_eg" styleClass="margin-top-max">
+                                    <p:dataTable var="listMovimentoEmissaoGuias" value="#{emissaoGuiasBean.listaMovimento}" emptyMessage="Nenhum registro encontrado!" scrollable="true" scrollHeight="150">
+                                        <p:column headerText="Serviços">
+                                            #{listMovimentoEmissaoGuias.movimento.servicos.descricao}
+                                        </p:column>
+
+                                        <p:column headerText="Qtde" width="25" styleClass="text-center">
+                                            #{listMovimentoEmissaoGuias.movimento.quantidade}
+                                        </p:column>
+
+                                        <p:column headerText="Valor (R$)" width="80" styleClass="text-center">
+                                            #{listMovimentoEmissaoGuias.valor}
+                                        </p:column>
+
+                                        <p:column headerText="Desconto (R$)" width="100" styleClass="text-center">
+                                            #{listMovimentoEmissaoGuias.desconto}
+                                        </p:column>
+                                        <p:column headerText="V. Líquido (R$)" width="120" styleClass="text-center">
+                                            #{listMovimentoEmissaoGuias.total}
+                                        </p:column>
+                                        <p:column width="25" styleClass="text-center">
+                                            <p:commandButton icon="ui-icon-close" action="#{emissaoGuiasBean.removeServico(listMovimentoEmissaoGuias)}" rendered="#{emissaoGuiasBean.lote.id == -1}"/>
+                                        </p:column>                                    
+                                        <f:facet name="footer">
+                                            <p:outputLabel value="Total (R$): " />
+                                            <p:inputText value="#{emissaoGuiasBean.total}" styleClass="font-color-red bold input-text-min text-center font-size-12" id="i_panel_total" readonly="true" style="width: 100px!important;" />
+                                        </f:facet>
+                                    </p:dataTable>
+                                </h:panelGrid>
+                            </p:panel>
+                            
+                            <h:panelGrid columns="2" styleClass="margin-top-max">
+                                <p:commandButton onclick="PF('dlg_save').show()" value="Salvar" rendered="#{emissaoGuiasBean.lote.id == -1}"  title="Salvar este Lançamento"/>
+                                <p:commandButton action="#{emissaoGuiasBean.clear()}" value="Novo" update=":form_eg:" title="Novo Lançamento" />
+                                <p:commandButton action="#{emissaoGuiasBean.imprimirEncaminhamento()}" value="Imprimir Encaminhamento" title="Imprimir este Encaminhamento" rendered="#{emissaoGuiasBean.pesquisaGuia(emissaoGuiasBean.lote.id).encaminhamento == true}" ajax="false"/>
+                            </h:panelGrid>                    
+                            
+                            <p:dialog widgetVar="dlg_desconto" modal="true" header="Inserir Desconto" width="200">  
+                                <h:panelGrid>
+                                    <p:outputLabel value="Digite o valor do Desconto" />
+                                    <p:inputText value="#{emissaoGuiasBean.novoDesconto}" style="width: 100px; text-align: right">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:inputText>
+                                </h:panelGrid>
+                                
+                                <h:panelGrid>
+                                    <p:commandButton value="Adicionar Desconto" title="Adicionar desconto" action="#{emissaoGuiasBean.adicionarDesconto}"/>    
+                                </h:panelGrid>
+                            </p:dialog>  
+                            
+                            <p:dialog widgetVar="dlg_movimentos_emitidos" header="Guias Emitidas" modal="true" width="600">
+                                <p:dataTable id="i_tbl_movimentos_emitidos" value="#{emissaoGuiasBean.listaMovimentosEmitidos}" var="linha" emptyMessage="Nenhum Movimento Encontrado!" style="width: 100%">
+                                    <p:column headerText="Emissão" style="width: 70px; text-align: center">
+                                        <p:commandLink value="#{linha.lote.emissao}" action="#{emissaoGuiasBean.verMovimentosEmitidos(linha)}" title="Ver mais guias de #{linha.pessoa.nome}"/>
+                                    </p:column>
+
+                                    <p:column headerText="Serviço">
+                                        <p:commandLink value="#{linha.servicos.descricao}" action="#{emissaoGuiasBean.verMovimentosEmitidos(linha)}" title="Ver mais guias de #{linha.pessoa.nome}"/>
+                                    </p:column>
+
+                                    <p:column headerText="Beneficiário">
+                                        <p:commandLink value="#{linha.pessoa.nome}" action="#{emissaoGuiasBean.verMovimentosEmitidos(linha)}" title="Ver mais guias de #{linha.pessoa.nome}"/>
+                                    </p:column>
+                                </p:dataTable>
+
+                                <h:panelGrid columns="1">
+                                    <p:commandButton icon="ui-icon-check" value="OK" onclick="PF('dlg_movimentos_emitidos').hide()"/>
+                                </h:panelGrid>
+                            </p:dialog>
+                            
+                            <p:dialog id="i_dlg_cadastro" header="Cadastrar Pessoa" widgetVar="dlg_cadastro" modal="true" width="500" closable="true" >
+                                <h:panelGrid id="i_panel_sem_cadastro">
+                                    <h:outputScript name="script_primefaces.js" library="js" />
+                                    <p:messages id="i_msg" showDetail="true" closable="true" autoUpdate="true"/>  
+                                    <h:panelGrid columns="2" >
+                                        <p:outputLabel value="CPF: " />
+                                        <p:inputMask size="12" value="#{emissaoGuiasBean.fisicaNovoCadastro.pessoa.documento}" mask="999.999.999-99" >
+                                            <p:ajax event="change" update="i_panel_sem_cadastro" listener="#{emissaoGuiasBean.pesquisaSemCadastro('cpf')}" />
+                                        </p:inputMask>
+                                        <p:outputLabel value="RG: " />
+                                        <p:inputText size="12" value="#{emissaoGuiasBean.fisicaNovoCadastro.rg}" >
+                                            <p:ajax event="change" update="i_panel_sem_cadastro" listener="#{emissaoGuiasBean.pesquisaSemCadastro('rg')}"/>
+                                        </p:inputText>
+                                        <h:outputLabel value="Nome: " />
+                                        <p:inputText value="#{emissaoGuiasBean.fisicaNovoCadastro.pessoa.nome}" size="50" converter="#{toUpperCase}">
+                                            <p:ajax event="change" update="i_panel_sem_cadastro" listener="#{emissaoGuiasBean.pesquisaSemCadastro('nome')}" />
+                                        </p:inputText>
+                                        <h:outputLabel value="Data de Nascimento: " />
+                                        <p:inputMask size="8" value="#{emissaoGuiasBean.fisicaNovoCadastro.nascimento}" mask="99/99/9999" converter="#{isDateString}">
+                                            <p:ajax event="change" update="i_panel_sem_cadastro" listener="#{emissaoGuiasBean.pesquisaSemCadastro('nascimento')}"/>
+                                        </p:inputMask>
+                                        <p:outputLabel value="Telefone: "/>
+                                        <p:inputText value="#{emissaoGuiasBean.fisicaNovoCadastro.pessoa.telefone1}" styleClass="ddd_telefone" style="width: 120px"/>
+                                    </h:panelGrid>
+                                    <br />
+                                    <f:facet name="footer">
+                                        <h:panelGrid columns="3">
+                                            <p:commandButton value="Salvar" action="#{emissaoGuiasBean.saveSemCadastro()}" title="Salvar Cadastro" update=":form_eg:" oncomplete="PF('dlg_cadastro').hide()" rendered="#{emissaoGuiasBean.fisicaNovoCadastro.id == -1}"/>
+                                            <p:commandButton value="Selecionar" action="#{emissaoGuiasBean.selecionarPessoaCadastro()}" title="Selecionar Pessoa" update=":form_eg:" oncomplete="PF('dlg_cadastro').hide()" rendered="#{emissaoGuiasBean.fisicaNovoCadastro.id != -1}" style="font-weight: bold"/>
+                                            <p:commandButton value="Limpar" action="#{emissaoGuiasBean.clear(3)}" update="i_panel_sem_cadastro" />
+                                            <p:commandButton value="Sair" onclick="PF('dlg_cadastro').hide()"/>
+                                        </h:panelGrid>
+                                    </f:facet>
+                                </h:panelGrid>
+                            </p:dialog>
+                            
+                            <p:dialog widgetVar="dlg_tipo_pessoa"  modal="true" resizable="true" header="Pesquisar por pessoa" width="450">
+                                <h:panelGrid columns="3">
+                                    <!-- <p:commandButton value="Pessoa" action="# {chamadaPaginaBean.pesquisa('pesquisaPessoa')}" icon="ui-icon-search"/> -->
+                                    <p:commandButton value="Física / Sócio" action="#{chamadaPaginaBean.pesquisa('pesquisaPessoaFisica')}" icon="ui-icon-search"/>
+                                    <p:commandButton value="Jurídica / Empresa" action="#{chamadaPaginaBean.pesquisa('pesquisaPessoaJuridica')}" icon="ui-icon-search"/>
+                                </h:panelGrid>
+                            </p:dialog>                    
+
+                            <p:dialog id="dlg_pedido" widgetVar="dlg_pedido" width="800" resizable="false" modal="true" visible="#{emissaoGuiasBean.modalPedido}" header="Produtos do serviço" draggable="false">
+                                <p:ajax event="close" listener="#{emissaoGuiasBean.closeModalPedido()}" update="@this i_valor"/>
+                                <h:panelGrid id="i_grid_pedido">
+                                    <!-- TELA CADASTRO -->
+                                    <p:messages autoUpdate="true" showDetail="true" id="i_message_pedido"/>
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Pesquisar" icon="ui-icon-search" title="Pesquisar Produto" action="#{chamadaPaginaBean.pesquisa('pesquisaProduto', 'produtoBean')}" disabled="#{emissaoGuiasBean.lote.id != -1}"/>
+                                        <p:outputLabel value="#{emissaoGuiasBean.pedido.produto.descricao} -  Marca: #{emissaoGuiasBean.pedido.produto.marca} - #{emissaoGuiasBean.pedido.produto.fabricante}" />
+                                    </h:panelGrid>
+                                    <h:panelGrid columns="2">
+                                        <p:outputLabel value="Estoque Disponível:" />
+                                        <p:outputLabel value="#{emissaoGuiasBean.estoque.estoque} (#{emissaoGuiasBean.estoque.produto.produtoUnidade.descricao} (S))" />
+                                    </h:panelGrid>                                    
+                                    <h:panelGrid columns="4">
+                                        <p:outputLabel value="Qtde" />
+                                        <p:outputLabel value="Valor Unit." />
+                                        <p:outputLabel value="Desconto Unit." />
+                                        <p:column />
+                                        <p:spinner value="#{emissaoGuiasBean.quantidadePedido}" size="5" min="0" max="#{emissaoGuiasBean.estoque.estoque}" disabled="#{emissaoGuiasBean.lote.id != -1}" style="width: 80px">
+                                            <p:ajax event="blur" update="@this" />
+                                        </p:spinner>
+                                        <p:inputText value="#{emissaoGuiasBean.valorUnitarioPedido}" size="8" dir="rtl" readonly="true">
+                                            <p:ajax event="blur" update="@this" />
+                                        </p:inputText>
+                                        <p:inputText value="#{emissaoGuiasBean.pedido.descontoUnitarioString}" size="12" dir="rtl" readonly="true">
+                                            <p:ajax event="blur" update="@this" />
+                                        </p:inputText>
+                                        <p:commandButton value="Adicionar" icon="ui-icon-plus" action="#{emissaoGuiasBean.addItemPedido()}" update="i_grid_pedido i_message_pedido" disabled="#{emissaoGuiasBean.lote.id != -1}"/>
+                                    </h:panelGrid>
+
+                                    <!-- // TELA CADASTRO -->
+
+                                    <!-- TELA LISTA PEDIDOS -->
+
+                                    <p:dataTable value="#{emissaoGuiasBean.listPedidos}" style="width: 770px" var="pedido" scrollable="true" scrollHeight="150" emptyMessage="Nenhum registro encontrado!" rowIndexVar="index" >
+                                        <p:column headerText="Produto" width="100">
+                                            #{pedido.produto.descricao}
+                                        </p:column>
+                                        <p:column headerText="Qnt" styleClass="text-center" width="25">
+                                            #{pedido.quantidade}
+                                        </p:column>
+                                        <p:column headerText="Valor Unitário" style="text-align: right; width: 80px">
+                                            #{pedido.valorUnitarioString}
+                                        </p:column>
+                                        <p:column headerText="Desconto" style="text-align: right; width: 80px">
+                                            #{pedido.descontoUnitarioString}
+                                        </p:column>                                
+                                        <p:column headerText="Valor Total" style="text-align: right; width: 80px">
+                                            <p:outputLabel value="#{emissaoGuiasBean.valorTotalPedido(pedido)}" />
+                                        </p:column>                                
+                                        <p:column styleClass="text-center" style="width: 15px">
+                                            <p:commandButton icon="ui-icon-trash" action="#{emissaoGuiasBean.removeItemPedido(index)}" update=":form_eg" title="Remover registro"/>
+                                        </p:column>
+                                        <f:facet name="footer">                                    
+                                            Valor Total: R$#{emissaoGuiasBean.valorTotal} 
+                                        </f:facet>
+                                    </p:dataTable>
+
+                                    <!-- TELA LISTA PEDIDOS -->
+
+                                    <!-- AÇÕES -->
+                                    <f:facet name="footer">
+                                        <h:panelGrid columns="4">
+                                            <h:column rendered="#{emissaoGuiasBean.lote.id == -1}">
+                                                <p:commandButton value="Novo" action="#{emissaoGuiasBean.novoPedido()}" update="dlg_pedido" />
+                                            </h:column>
+
+                                            <p:commandButton value="Concluir" action="#{emissaoGuiasBean.closeModalPedido()}" onclick="PF('dlg_pedido').hide();"/>
+                                        </h:panelGrid>
+                                    </f:facet>
+
+                                    <!-- // AÇÕES -->
+                                </h:panelGrid>
+
+                            </p:dialog>
+                            
+                            <p:dialog id="i_panel_save" widgetVar="dlg_save"  modal="true" resizable="true" header="Deseja realmente gerar este lançamento?" width="400">
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Sim" title="Salvar" action="#{emissaoGuiasBean.save()}" update=":form_eg:" oncomplete="PF('dlg_save').hide(); PF('dlg_message').show();"/>
+                                        <p:commandButton value="Não" title="Cancelar" onclick="PF('dlg_save').hide();"/>
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>
+                            
+                            <p:dialog id="id_panel_message" widgetVar="dlg_message" modal="true" header="Mensagem" width="400">
+                                <h:panelGrid id="out_message">
+                                    <p:outputLabel value="#{emissaoGuiasBean.message}" />                            
+                                </h:panelGrid> 
+                                <f:facet name="footer">
+                                    <p:commandButton value="Ok" title="Ok" onclick="PF('dlg_message').hide();" />
+                                </f:facet>
+                            </p:dialog>                            
+                        </h:form>
+                        
+                        <h:form id="formAutenticaUsuario">
+                            <p:dialog widgetVar="dlg_autentica_usuario" modal="true" header="Autenticar Usuário" width="380" >
+                                <p:ajax event="close" listener="#{autenticaUsuario.clear()}" update="i_autentica_usuario"/>
+                                <h:panelGrid id="i_autentica_usuario">
+                                    <p:messages autoUpdate="false" closable="true" showDetail="true" />
+                                        
+                                    <h:panelGrid columns="2">
+                                        <h:column>
+                                            <p:outputLabel value="Login" /><br />
+                                            <p:inputText value="#{autenticaUsuario.login}" />    
+                                        </h:column>
+
+                                        <h:column>
+                                            <p:outputLabel value="Senha" /><br />
+                                            <p:password value="#{autenticaUsuario.senha}" />    
+                                        </h:column>
+                                    </h:panelGrid>
+                                </h:panelGrid>
+                                
+                                <h:panelGrid columns="2">
+                                    <h:column>
+                                        <br />
+                                        <p:commandButton icon="ui-icon-check" value="Validar" action="#{autenticaUsuario.validarUsuario()}" update="i_autentica_usuario"/>
+                                    </h:column>
+                                    
+                                    <h:column>
+                                        <br />
+                                        <p:commandButton icon="ui-icon-close" value="Fechar" onclick="PF('dlg_autentica_usuario').hide()"/>
+                                    </h:column>
+                                </h:panelGrid>
+                            </p:dialog>  
+                        </h:form>
+                    </p:panel>
+                </f:view>
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>                
+    </h:body>
+</ui:composition>
