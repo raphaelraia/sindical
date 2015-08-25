@@ -29,7 +29,7 @@
                 </f:subview>
 
                 <f:view>
-                    <p:panel styleClass="wrapper" style="border: 0px;">
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:form id="formMensagem">
                             <h:outputText value="Mensagem Boleto" styleClass="fonteHeader" />
                             <c:set scope="request" var="object" value="${mensagemConvencaoBean.mensagemConvencao}"/>
@@ -38,7 +38,7 @@
                                 <p:messages autoUpdate="true" id="i_msg" showDetail="true" closable="true" />  
                             </h:panelGrid>
                             
-                            <h:panelGrid id="i_panel_mensagem" columns="1" style="float: left; clear: both; width: 640px">
+                            <h:panelGrid id="i_panel_mensagem" columns="1" style="float: left; clear: both; width: #{configuracaoBean.resolucao.tipoResolucao.id > 2 ? '810px' : '640px'} ">
                                 <h:outputLabel value="Mensagem do Contribuinte" />
                                 <p:inputTextarea value="#{mensagemConvencaoBean.mensagemConvencao.mensagemContribuinte}" style="clear: both; width: 100%; margin-top: 10px" rows="4" disabled="#{mensagemConvencaoBean.disAcordo}" />
                                 <br /><br />
@@ -53,25 +53,25 @@
                                 <h:panelGrid columns="2" >
                                     <h:outputText value="Convenções "/>
                                     <p:selectOneMenu value="#{mensagemConvencaoBean.idConvencao}" disabled="#{mensagemConvencaoBean.habilitar}" style="width: 220px">
-                                        <p:ajax event="change" update="i_panel" />
+                                        <p:ajax event="change" update="i_panel i_panel_mensagem tbl" />
                                         <f:selectItems value="#{mensagemConvencaoBean.listaConvencoes}" />
                                     </p:selectOneMenu>
 
                                     <h:outputText value="Grupo de Cidade " />
                                     <p:selectOneMenu value="#{mensagemConvencaoBean.idGrupo}" disabled="#{mensagemConvencaoBean.habilitar}" style="width: 220px">
-                                        <p:ajax event="change" update="i_panel" />
+                                        <p:ajax event="change" update="i_panel i_panel_mensagem tbl" />
                                         <f:selectItems value="#{mensagemConvencaoBean.listaGrupoCidade}" />
                                     </p:selectOneMenu>
 
                                     <h:outputText value="Contribuição " style="color:blue; font-weight: bold"/>
                                     <p:selectOneMenu  value="#{mensagemConvencaoBean.idServico}" disabled="#{mensagemConvencaoBean.habilitar}" style="width: 220px">
-                                        <p:ajax event="change" update="i_panel" />
+                                        <p:ajax event="change" update="i_panel i_panel_mensagem tbl" />
                                         <f:selectItems value="#{mensagemConvencaoBean.listaServico}" />
                                     </p:selectOneMenu>
 
                                     <h:outputText value="Tipo " style="color:blue; font-weight: bold"/>
                                     <p:selectOneMenu value="#{mensagemConvencaoBean.idTipoServico}" disabled="#{mensagemConvencaoBean.habilitar}" style="width: 220px">
-                                        <p:ajax event="change" update="i_panel" />
+                                        <p:ajax event="change" update="i_panel i_panel_mensagem tbl" />
                                         <f:selectItems value="#{mensagemConvencaoBean.listaTipoServico}" />
                                     </p:selectOneMenu>
 

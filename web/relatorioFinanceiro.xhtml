@@ -40,12 +40,20 @@
                         <h:outputText value="Relatório Financeiro" styleClass="fonteHeader" />
                         <h:form id="formRelatorioFinanceiro">
                             <p:panel styleClass="fundoCinza" style="clear: both; width: 100%">
-                                <h:panelGrid columns="1">
+                                <h:panelGrid columns="2">
                                     <h:column>
                                         <p:outputLabel value="Tipo de Relatório" /><br />
                                         <p:selectOneMenu value="#{relatorioFinanceiroBean.idRelatorio}" style="padding-right: 20px">
                                             <p:ajax event="change" update="@this"/>
                                             <f:selectItems value="#{relatorioFinanceiroBean.listaRelatorio}"/>
+                                        </p:selectOneMenu>
+                                    </h:column>
+                                    
+                                    <h:column>
+                                        <p:outputLabel value="Ordem do Relatório" /><br />
+                                        <p:selectOneMenu value="#{relatorioFinanceiroBean.idRelatorioOrdem}" style="padding-right: 20px">
+                                            <p:ajax event="change" update="@this"/>
+                                            <f:selectItems value="#{relatorioFinanceiroBean.listaRelatorioOrdem}"/>
                                         </p:selectOneMenu>
                                     </h:column>
                                 </h:panelGrid>

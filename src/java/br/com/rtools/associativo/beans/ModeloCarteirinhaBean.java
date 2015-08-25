@@ -25,9 +25,9 @@ public class ModeloCarteirinhaBean {
     private int idCategoria = 0;
     private int idRotina = 0;
     private boolean[] disabled = new boolean[]{false};
-    private List<SelectItem> listaCategoria = new ArrayList<SelectItem>();
-    private List<SelectItem> listaRotina = new ArrayList<SelectItem>();
-    private List<ModeloCarteirinhaCategoria> listaModelo = new ArrayList<ModeloCarteirinhaCategoria>();
+    private List<SelectItem> listaCategoria = new ArrayList();
+    private List<SelectItem> listaRotina = new ArrayList();
+    private List<ModeloCarteirinhaCategoria> listaModelo = new ArrayList();
 
     public void salvar() {
         SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();

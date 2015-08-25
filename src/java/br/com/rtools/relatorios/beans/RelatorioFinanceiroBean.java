@@ -8,10 +8,12 @@ import br.com.rtools.financeiro.SubGrupoFinanceiro;
 import br.com.rtools.financeiro.TipoPagamento;
 import br.com.rtools.financeiro.db.FinanceiroDB;
 import br.com.rtools.financeiro.db.FinanceiroDBToplink;
+import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.RelatorioParametros;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.relatorios.dao.RelatorioFinanceiroDao;
+import br.com.rtools.relatorios.dao.RelatorioOrdemDao;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.Dao;
@@ -101,6 +103,9 @@ public class RelatorioFinanceiroBean implements Serializable {
     private String tipoDepartamento = "outros";
     private String tipoES = "E";
 
+    private Integer idRelatorioOrdem = 0;
+    private List<SelectItem> listaRelatorioOrdem = new ArrayList();
+    
     @PostConstruct
     public void init() {
         loadListaRelatorio();
@@ -110,6 +115,23 @@ public class RelatorioFinanceiroBean implements Serializable {
     @PreDestroy
     public void destroy() {
         GenericaSessao.remove("relatorioFinanceiroBean");
+    }
+    
+    public void loadListaRelatorioOrdem(){
+        listaRelatorioOrdem.clear();
+        
+        RelatorioOrdemDao relatorioOrdemDao = new RelatorioOrdemDao();
+        List<RelatorioOrdem> list = relatorioOrdemDao.findAllByRelatorio(Integer.parseInt(listaRelatorio.get(idRelatorio).getDescription()));
+        
+        for (int i = 0; i < list.size(); i++) {
+            listaRelatorioOrdem.add(
+                    new SelectItem(
+                            i, 
+                            list.get(i).getNome(), 
+                            "" + list.get(i).getId()
+                    )
+            );
+        }
     }
 
     public void loadListaCaixaBanco() {
@@ -478,7 +500,12 @@ public class RelatorioFinanceiroBean implements Serializable {
         params.put("descricao_data", descricaoData);
         params.put("logo_sindicato", ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));
 
-        List<Object> result = new RelatorioFinanceiroDao().listaRelatorioFinanceiro(ids_planos, id_grupo, id_sub_grupo, id_servicos, dtEmissao, dtEmissaoFinal, dtVencimento, dtVencimentoFinal, dtQuitacao, dtQuitacaoFinal, dtImportacao, dtImportacaoFinal, dtCredito, dtCreditoFinal, dtFechamentoCaixa, dtFechamentoCaixaFinal, id_caixa_banco, id_caixa, id_operador, id_tipo_quitacao, tipo_departamento, tipo_es, relatorios);
+        String ordem = "";
+        if (!listaRelatorioOrdem.isEmpty()){
+            ordem = ((RelatorioOrdem) new Dao().find(new RelatorioOrdem(), Integer.valueOf(listaRelatorioOrdem.get(idRelatorioOrdem).getDescription()))).getQuery();
+        }
+        
+        List<Object> result = new RelatorioFinanceiroDao().listaRelatorioFinanceiro(ids_planos, id_grupo, id_sub_grupo, id_servicos, dtEmissao, dtEmissaoFinal, dtVencimento, dtVencimentoFinal, dtQuitacao, dtQuitacaoFinal, dtImportacao, dtImportacaoFinal, dtCredito, dtCreditoFinal, dtFechamentoCaixa, dtFechamentoCaixaFinal, id_caixa_banco, id_caixa, id_operador, id_tipo_quitacao, tipo_departamento, tipo_es, ordem, relatorios);
 
         if (result.isEmpty()) {
             GenericaMensagem.error("Atenção", "Nenhum resultado encontrado para a pesquisa!");
@@ -581,6 +608,8 @@ public class RelatorioFinanceiroBean implements Serializable {
                     )
             );
         }
+        
+        loadListaRelatorioOrdem();
     }
 
     public Integer getIdRelatorio() {
@@ -894,6 +923,22 @@ public class RelatorioFinanceiroBean implements Serializable {
 
     public void setChkTodosPlano5(boolean chkTodosPlano5) {
         this.chkTodosPlano5 = chkTodosPlano5;
+    }
+
+    public Integer getIdRelatorioOrdem() {
+        return idRelatorioOrdem;
+    }
+
+    public void setIdRelatorioOrdem(Integer idRelatorioOrdem) {
+        this.idRelatorioOrdem = idRelatorioOrdem;
+    }
+
+    public List<SelectItem> getListaRelatorioOrdem() {
+        return listaRelatorioOrdem;
+    }
+
+    public void setListaRelatorioOrdem(List<SelectItem> listaRelatorioOrdem) {
+        this.listaRelatorioOrdem = listaRelatorioOrdem;
     }
 
     public class Filtros {

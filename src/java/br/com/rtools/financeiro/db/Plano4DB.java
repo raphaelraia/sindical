@@ -19,4 +19,6 @@ public interface Plano4DB {
     public List pesquisaTodos();
 
     public List pesquisaTodasStrings();
+    
+    public List listaPlano4ContaRotina();
 }

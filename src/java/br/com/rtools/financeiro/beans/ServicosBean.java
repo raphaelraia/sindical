@@ -179,7 +179,7 @@ public class ServicosBean implements Serializable {
             return;
         }
 
-        if (servicos.getPlano5().getId() == -1) {
+        if (servicos.getPlano5() == null || servicos.getPlano5().getId() == -1) {
             message = "Pesquise o plano de contas antes de salvar!";
             return;
         }
@@ -213,7 +213,7 @@ public class ServicosBean implements Serializable {
                     novoLog.setTabela("fin_servicos");
                     novoLog.save(
                             "ID: " + servicos.getId()
-                            + " - Plano5: (" + servicos.getPlano5().getId() + ") " + servicos.getPlano5().getConta()
+                            + (servicos.getPlano5() != null ? " - Plano5: (" + servicos.getPlano5().getId() + ") " + servicos.getPlano5().getConta() : "")
                             + " - Descrição: " + servicos.getDescricao()
                             + " - Validade: " + servicos.getValidade()
                             + " - Adm: [" + servicos.isAdm() + "]"
@@ -233,7 +233,7 @@ public class ServicosBean implements Serializable {
                 Servicos s = (Servicos) di.find(servicos);
                 String beforeUpdate
                         = "ID: " + s.getId()
-                        + " - Plano5: (" + s.getPlano5().getId() + ") " + s.getPlano5().getConta()
+                        + (s.getPlano5() != null ? " - Plano5: (" + s.getPlano5().getId() + ") " + s.getPlano5().getConta() : "")
                         + " - Descrição: " + s.getDescricao()
                         + " - Validade: " + s.getValidade()
                         + " - Adm: [" + s.isAdm() + "]"
@@ -248,7 +248,7 @@ public class ServicosBean implements Serializable {
                     novoLog.setTabela("fin_servicos");
                     novoLog.update(beforeUpdate,
                             "ID: " + servicos.getId()
-                            + " - Plano5: (" + servicos.getPlano5().getId() + ") " + servicos.getPlano5().getConta()
+                            + (servicos.getPlano5() != null ? " - Plano5: (" + servicos.getPlano5().getId() + ") " + servicos.getPlano5().getConta() : "")
                             + " - Descrição: " + servicos.getDescricao()
                             + " - Validade: " + servicos.getValidade()
                             + " - Adm: [" + servicos.isAdm() + "]"

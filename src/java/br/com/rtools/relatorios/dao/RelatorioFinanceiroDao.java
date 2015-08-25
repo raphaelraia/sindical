@@ -14,7 +14,7 @@ import javax.persistence.Query;
 
 public class RelatorioFinanceiroDao extends DB {
 
-    public List<Object> listaRelatorioFinanceiro(String ids_contabil, Integer  id_grupo, Integer id_sub_grupo, Integer id_servicos, String dataEmissao, String dataEmissaoFinal, String dataVencimento, String dataVencimentoFinal, String dataQuitacao, String dataQuitacaoFinal, String dataImportacao, String dataImportacaoFinal, String dataCredito, String dataCreditoFinal, String dataFechamentoCaixa, String dataFechamentoCaixaFinal, Integer id_caixa_banco, Integer id_caixa, Integer id_operador, Integer id_tipo_quitacao, String tipo_departamento, String tipo_es, Relatorios relatorio) {
+    public List<Object> listaRelatorioFinanceiro(String ids_contabil, Integer  id_grupo, Integer id_sub_grupo, Integer id_servicos, String dataEmissao, String dataEmissaoFinal, String dataVencimento, String dataVencimentoFinal, String dataQuitacao, String dataQuitacaoFinal, String dataImportacao, String dataImportacaoFinal, String dataCredito, String dataCreditoFinal, String dataFechamentoCaixa, String dataFechamentoCaixaFinal, Integer id_caixa_banco, Integer id_caixa, Integer id_operador, Integer id_tipo_quitacao, String tipo_departamento, String tipo_es, String order, Relatorios relatorio) {
 //        String select
 //                = "SELECT \n "
 //                + "       grupo, \n "
@@ -195,11 +195,12 @@ public class RelatorioFinanceiroDao extends DB {
             group += g;
         }       
         
-        String order = 
-                " ORDER BY \n "
-                + "       grupo,\n "
-                + "       subgrupo, \n "
-                + "       servico ";
+        if (!order.isEmpty()){
+            order = " ORDER BY " + order;
+//                + "       grupo,\n "
+//                + "       subgrupo, \n "
+//                + "       servico "
+        }
         Query qry = getEntityManager().createNativeQuery(select + where + group + order);
         
         try {
@@ -262,8 +263,8 @@ public class RelatorioFinanceiroDao extends DB {
         Query qry = getEntityManager().createNativeQuery(
                 "SELECT id_p1, conta1, id_p2, conta2, id_p3, conta3, id_p4, conta4 \n " +
                 "  FROM plano_vw \n " +
-                " GROUP BY id_p1, conta1, id_p2, conta2, id_p3, conta3, id_p4, conta4 \n " +
-                " ORDER BY conta1, conta2, conta3, conta4 "
+                " GROUP BY id_p1, conta1, id_p2, conta2, id_p3, conta3, id_p4, conta4, classificador \n " +
+                " ORDER BY classificador "
         );
         
         try {
@@ -283,7 +284,7 @@ public class RelatorioFinanceiroDao extends DB {
                 "SELECT p5.* \n" +
                 "  FROM fin_plano5 p5 \n " +
                 " WHERE p5.id_plano4 IN ("+ids+") \n" +
-                " ORDER BY p5.ds_conta ", Plano5.class
+                " ORDER BY p5.ds_classificador", Plano5.class
         );
         
         try {
