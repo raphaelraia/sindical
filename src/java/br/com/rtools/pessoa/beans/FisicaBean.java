@@ -2677,12 +2677,28 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     public void updateDataRecadastro() {
         fisica.setDtRecadastro(dtRecadastro);
         if (fisica.getId() != -1) {
+            Fisica f = (Fisica) new Dao().find(new Fisica(), fisica.getId());
+            String antes = " De: ID - " + fisica.getId()
+                    + " - Nome: " + f.getPessoa().getNome()
+                    + " - Nascimento: " + f.getNascimento()
+                    + " - CPF: " + f.getPessoa().getDocumento()
+                    + " - RG: " + f.getRg()
+                    + " - Recadastro : " + fisica.getRecadastro();
             PessoaDBToplink pessoaDao = new PessoaDBToplink();
             FisicaDBToplink fisicaDao = new FisicaDBToplink();
             Date date = fisica.getPessoa().getDtAtualizacao();
             fisica.getPessoa().setDtAtualizacao(new Date());
             new Dao().rebind(fisica);
             if (fisicaDao.updateRecadastro(fisica)) {
+                NovoLog novoLog = new NovoLog();
+                novoLog.setTabela("pes_fisica");
+                novoLog.setCodigo(fisica.getId());
+                novoLog.update(antes,
+                        " Recadastro > Nome: " + fisica.getPessoa().getNome()
+                        + " - Nascimento: " + f.getNascimento()
+                        + " - CPF: " + fisica.getPessoa().getDocumento()
+                        + " - RG: " + fisica.getRg()
+                        + " - Recadastro : " + fisica.getRecadastro());
                 if (pessoaDao.updateAtualizacao(fisica.getPessoa())) {
                     new Dao().rebind(fisica.getPessoa());
                     GenericaMensagem.info("Sucesso", "Registro atualizado!");
