@@ -76,7 +76,7 @@
                                     <br />
                                     <h:panelGrid columns="2">
                                         <p:commandButton value="Imprimir" action="#{relatorioFinanceiroBean.imprimir}" ajax="false" onclick="form.target = '_blank'"/>
-                                        <p:selectBooleanCheckbox value="#{relatorioFinanceiroBean.chkExcel}" itemLabel="Excel" disabled="true">
+                                        <p:selectBooleanCheckbox value="#{relatorioFinanceiroBean.chkExcel}" itemLabel="Excel">
                                             <p:ajax event="change" update="@this" />
                                         </p:selectBooleanCheckbox>
                                     </h:panelGrid>
@@ -281,14 +281,17 @@
                                         <h:column>
                                             <h:panelGrid columns="2" rendered="#{relatorioFinanceiroBean.listaFiltros.get(6).ativo}" style="float: left; margin: 10px ">
                                                 <h:column>
-                                                    <p:outputLabel value="Caixa" />
-                                                </h:column>
-                                                <h:column></h:column>
-                                                <h:column>
-                                                    <p:selectOneMenu value="#{relatorioFinanceiroBean.idCaixa}" style="padding-right: 20px">
-                                                        <p:ajax event="change" update="@this panel_filtro"/>
-                                                        <f:selectItems value="#{relatorioFinanceiroBean.listaCaixa}"/>
-                                                    </p:selectOneMenu>
+                                                    <p:panel styleClass="fundoCinza">
+                                                        <p:selectOneRadio value="#{relatorioFinanceiroBean.tipoCaixa}">
+                                                            <p:ajax event="change" update="@this panel_filtro"/>
+                                                            <f:selectItem itemValue="com" itemLabel="COM Caixa"/>
+                                                            <f:selectItem itemValue="sem" itemLabel="SEM Caixa"/>
+                                                        </p:selectOneRadio><br />
+                                                        <p:selectOneMenu value="#{relatorioFinanceiroBean.idCaixa}" style="padding-right: 20px" disabled="#{relatorioFinanceiroBean.tipoCaixa eq 'sem'}">
+                                                            <p:ajax event="change" update="@this panel_filtro"/>
+                                                            <f:selectItems value="#{relatorioFinanceiroBean.listaCaixa}"/>
+                                                        </p:selectOneMenu>
+                                                    </p:panel>
                                                 </h:column>
                                             </h:panelGrid>
                                         </h:column> 

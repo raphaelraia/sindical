@@ -102,6 +102,7 @@ public class RelatorioFinanceiroBean implements Serializable {
 
     private String tipoDepartamento = "outros";
     private String tipoES = "E";
+    private String tipoCaixa = "com";
 
     private Integer idRelatorioOrdem = 0;
     private List<SelectItem> listaRelatorioOrdem = new ArrayList();
@@ -459,8 +460,11 @@ public class RelatorioFinanceiroBean implements Serializable {
         }
 
         // CAIXA
+        String tipo_caixa = "";
         if (listaFiltros.get(6).ativo) {
-            id_caixa = Integer.valueOf(listaCaixa.get(idCaixa).getDescription());
+            tipo_caixa = tipoCaixa;
+            if (tipoCaixa.equals("com"))
+                id_caixa = Integer.valueOf(listaCaixa.get(idCaixa).getDescription());
         }
 
         // OPERADOR
@@ -505,7 +509,7 @@ public class RelatorioFinanceiroBean implements Serializable {
             ordem = ((RelatorioOrdem) new Dao().find(new RelatorioOrdem(), Integer.valueOf(listaRelatorioOrdem.get(idRelatorioOrdem).getDescription()))).getQuery();
         }
         
-        List<Object> result = new RelatorioFinanceiroDao().listaRelatorioFinanceiro(ids_planos, id_grupo, id_sub_grupo, id_servicos, dtEmissao, dtEmissaoFinal, dtVencimento, dtVencimentoFinal, dtQuitacao, dtQuitacaoFinal, dtImportacao, dtImportacaoFinal, dtCredito, dtCreditoFinal, dtFechamentoCaixa, dtFechamentoCaixaFinal, id_caixa_banco, id_caixa, id_operador, id_tipo_quitacao, tipo_departamento, tipo_es, ordem, relatorios);
+        List<Object> result = new RelatorioFinanceiroDao().listaRelatorioFinanceiro(ids_planos, id_grupo, id_sub_grupo, id_servicos, dtEmissao, dtEmissaoFinal, dtVencimento, dtVencimentoFinal, dtQuitacao, dtQuitacaoFinal, dtImportacao, dtImportacaoFinal, dtCredito, dtCreditoFinal, dtFechamentoCaixa, dtFechamentoCaixaFinal, id_caixa_banco, tipo_caixa, id_caixa, id_operador, id_tipo_quitacao, tipo_departamento, tipo_es, ordem, relatorios);
 
         if (result.isEmpty()) {
             GenericaMensagem.error("Atenção", "Nenhum resultado encontrado para a pesquisa!");
@@ -533,8 +537,8 @@ public class RelatorioFinanceiroBean implements Serializable {
         }
 
         Jasper.EXPORT_TO_EXCEL = chkExcel;
+        //Jasper.printReportsHashMap(relatorios.getJasper(), relatorios.getNome(), list_hash, params);
         Jasper.printReports(relatorios.getJasper(), relatorios.getNome(), list_hash, params);
-        //Jasper.printReports(relatorios.getJasper(), relatorios.getNome(), list_param, params);
     }
 
     public void acao(Filtros linha) {
@@ -939,6 +943,14 @@ public class RelatorioFinanceiroBean implements Serializable {
 
     public void setListaRelatorioOrdem(List<SelectItem> listaRelatorioOrdem) {
         this.listaRelatorioOrdem = listaRelatorioOrdem;
+    }
+
+    public String getTipoCaixa() {
+        return tipoCaixa;
+    }
+
+    public void setTipoCaixa(String tipoCaixa) {
+        this.tipoCaixa = tipoCaixa;
     }
 
     public class Filtros {

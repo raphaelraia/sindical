@@ -14,7 +14,7 @@ import javax.persistence.Query;
 
 public class RelatorioFinanceiroDao extends DB {
 
-    public List<Object> listaRelatorioFinanceiro(String ids_contabil, Integer  id_grupo, Integer id_sub_grupo, Integer id_servicos, String dataEmissao, String dataEmissaoFinal, String dataVencimento, String dataVencimentoFinal, String dataQuitacao, String dataQuitacaoFinal, String dataImportacao, String dataImportacaoFinal, String dataCredito, String dataCreditoFinal, String dataFechamentoCaixa, String dataFechamentoCaixaFinal, Integer id_caixa_banco, Integer id_caixa, Integer id_operador, Integer id_tipo_quitacao, String tipo_departamento, String tipo_es, String order, Relatorios relatorio) {
+    public List<Object> listaRelatorioFinanceiro(String ids_contabil, Integer  id_grupo, Integer id_sub_grupo, Integer id_servicos, String dataEmissao, String dataEmissaoFinal, String dataVencimento, String dataVencimentoFinal, String dataQuitacao, String dataQuitacaoFinal, String dataImportacao, String dataImportacaoFinal, String dataCredito, String dataCreditoFinal, String dataFechamentoCaixa, String dataFechamentoCaixaFinal, Integer id_caixa_banco, String tipo_caixa, Integer id_caixa, Integer id_operador, Integer id_tipo_quitacao, String tipo_departamento, String tipo_es, String order, Relatorios relatorio) {
 //        String select
 //                = "SELECT \n "
 //                + "       grupo, \n "
@@ -128,8 +128,12 @@ public class RelatorioFinanceiroDao extends DB {
         }
         
         // CAIXA ---
-        if (id_caixa != null){
-            list_where.add(" id_caixa = "+id_caixa+" \n ");
+        if (!tipo_caixa.isEmpty()){
+            if (tipo_caixa.equals("com") && id_caixa != null){
+                list_where.add(" id_caixa = "+id_caixa+" \n ");
+            }else{
+                list_where.add(" id_caixa IS NULL \n ");
+            }
         }
         
         // OPERADOR ---
