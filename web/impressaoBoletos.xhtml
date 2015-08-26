@@ -27,7 +27,7 @@
                     <ui:include src="templates/templatePrime.xhtml"/>
                 </f:subview>
                 <f:view>
-                    <p:panel  styleClass="wrapper" style="border: 0px;">
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:form id="formImpressaoBoletos">
                             <h:outputText value="Impressão de Boletos" styleClass="fonteHeader" />
 
@@ -119,7 +119,7 @@
                                 
                             </p:panel>
                         
-                            <p:panel style="float: left; width: 785px">
+                            <p:panel style="float: left; width: #{configuracaoBean.resolucao.tipoResolucao.id > 2 ? '962px' : '785px'}">
                                 <h:outputText value="Escritório" style="font-weight: bold; margin-left: 20px;"/>
                                 <h:panelGrid columns="3" style="margin-left: 20px;">
                                     <p:commandButton ajax="false" value="Pesquisar Escritório" action="#{chamadaPaginaBean.pesquisaPessoaJuridica}" rendered="#{impressaoBoletosBean.contabilidade.id == -1}"/>
@@ -129,7 +129,7 @@
                             </p:panel>
                             
                             
-                            <p:dataTable value="#{impressaoBoletosBean.listaMovGrid}" selection="#{impressaoBoletosBean.listaMovGridSelecionada}" id="tbMovimento" var="linha" rowKey="#{linha.coluna.valor}" paginator="true" rows="11" style="float: left; width: 792px"  emptyMessage="Nenhum boleto foi encontrado!">
+                            <p:dataTable value="#{impressaoBoletosBean.listaMovGrid}" selection="#{impressaoBoletosBean.listaMovGridSelecionada}" id="tbMovimento" var="linha" rowKey="#{linha.coluna.valor}" paginator="true" rows="11" style="float: left; width: #{configuracaoBean.resolucao.tipoResolucao.id > 2 ? '968px' : '792px'}"  emptyMessage="Nenhum boleto foi encontrado!">
                                 <p:column selectionMode="multiple" style="text-align: center; width: 20px"/>
                                 <p:ajax event="rowSelect" update=":formImpressaoBoletos:i_panel_mais"/>
                                 <p:ajax event="rowSelectCheckbox" update=":formImpressaoBoletos:i_panel_mais"/>
@@ -192,7 +192,7 @@
                                 </h:column>
                             </p:panelGrid>
                             
-                            <p:panel id="i_panel_mais" style="float: left; width: 785px" styleClass="fundoCinza">
+                            <p:panel id="i_panel_mais" style="float: left; width: #{configuracaoBean.resolucao.tipoResolucao.id > 2 ? '962px' : '785px'}" styleClass="fundoCinza">
                                 <h:column>
                                     <p:selectBooleanCheckbox value="#{impressaoBoletosBean.imprimeVerso}" itemLabel="Imprimir Verso"/>
                                 </h:column>

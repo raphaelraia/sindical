@@ -94,6 +94,7 @@ public class RelatorioContabilidadesBean implements Serializable {
         GenericaSessao.remove("jasperBean");
     }
 
+    
     public void print() {
         String cidades = "";
         int inicio = 0;

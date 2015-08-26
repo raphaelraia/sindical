@@ -113,6 +113,7 @@ public class RelatorioComparativoArrecadacaoBean implements Serializable {
         order = "";
     }
 
+    
     @PreDestroy
     public void destroy() {
         GenericaSessao.remove("relatorioComparativoArrecadacaoBean");

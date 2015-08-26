@@ -43,7 +43,6 @@ public class RelatorioContribuintesBean implements Serializable {
     private String radioCentroComercial;
     private String dataCadastroInicial;
     private String dataCadastroFinal;
-//    private String comboCondicao = "contribuintes";
     private String comboCondicao;
     private boolean chkConvencao;
     private boolean chkConvencaoPesquisa;

@@ -388,7 +388,7 @@ public class BaixaGeralBean implements Serializable {
         if (listaConta.isEmpty()) {
             ContaRotinaDB db = new ContaRotinaDBToplink();
             List select;
-            if (verificaBaixaBoleto()) {
+            if (!verificaBaixaBoleto()) {
                 select = db.pesquisaContasPorRotina(1);
             } else {
                 select = db.pesquisaContasPorRotina();
@@ -412,23 +412,28 @@ public class BaixaGeralBean implements Serializable {
         if (listaTipoPagamento.isEmpty()) {
             FTipoDocumentoDB db = new FTipoDocumentoDBToplink();
             List<TipoPagamento> select = new ArrayList();
-            
-            if (Moeda.converteUS$(total) != 0){
-                if (!getEs().isEmpty() && getEs().equals("S")) {
-                    select = db.pesquisaCodigoTipoPagamentoIDS("3,4,5,8,9,10");
-                    idTipoPagamento = 0;
-                } else {
-                    if (tipo.equals("caixa")) {
-                        select = db.pesquisaCodigoTipoPagamentoIDS("2,3,4,5,6,7,8,9,10,11,13");
-                        idTipoPagamento = 1;
-                    } else {
-                        select = db.pesquisaCodigoTipoPagamentoIDS("2,8,9,10,11,13");
+            if (!verificaBaixaBoleto()){
+                if (Moeda.converteUS$(total) != 0){
+                    if (!getEs().isEmpty() && getEs().equals("S")) {
+                        select = db.pesquisaCodigoTipoPagamentoIDS("3,4,5,8,9,10");
                         idTipoPagamento = 0;
-                    }
+                    } else {
+                        if (tipo.equals("caixa")) {
+                            select = db.pesquisaCodigoTipoPagamentoIDS("2,3,4,5,6,7,8,9,10,11,13");
+                            idTipoPagamento = 1;
+                        } else {
+                            select = db.pesquisaCodigoTipoPagamentoIDS("2,8,9,10,11,13");
+                            idTipoPagamento = 0;
+                        }
 
+                    }
+                }else{
+                    select = db.pesquisaCodigoTipoPagamentoIDS("3");
+                    idTipoPagamento = 0;
                 }
             }else{
-                select = db.pesquisaCodigoTipoPagamentoIDS("3");
+                select = db.pesquisaCodigoTipoPagamentoIDS("2");
+                idTipoPagamento = 0;
             }
             
             if (!select.isEmpty()) {
@@ -504,7 +509,7 @@ public class BaixaGeralBean implements Serializable {
 
         Plano5DB plano5DB = new Plano5DBToplink();
 
-        if (verificaBaixaBoleto()) {
+        if (!verificaBaixaBoleto()) {
             if (getListaConta().size() == 1 && getListaConta().get(0).getDescription().isEmpty()) {
                 return mensagem = "Lista de Planos Vazia, verificar Conta Rotina!";
             }
@@ -682,7 +687,7 @@ public class BaixaGeralBean implements Serializable {
 
     public boolean isDesHabilitaConta() {
         //if ((!lista.isEmpty()) || (!verificaBaixaBoleto())) {
-        if ((!listaValores.isEmpty()) || (!verificaBaixaBoleto())) {
+        if ((!listaValores.isEmpty()) || (verificaBaixaBoleto())) {
             desHabilitaConta = true;
         } else {
             desHabilitaConta = false;
@@ -692,12 +697,7 @@ public class BaixaGeralBean implements Serializable {
 
     public boolean verificaBaixaBoleto() {
         String urlRetorno = (String) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("urlRetorno");
-        if ((urlRetorno.equals("baixaBoleto")) && (tipo.equals("banco"))) {
-            return false;
-        } else {
-            return true;
-        }
-
+        return urlRetorno.equals("baixaBoleto") && tipo.equals("banco");
     }
 
     public void setDesHabilitaConta(boolean desHabilitaConta) {
@@ -779,7 +779,7 @@ public class BaixaGeralBean implements Serializable {
                     total = Moeda.converteR$Float(valorTotal);
                     valor = total;
                 }
-                if (!verificaBaixaBoleto()) {
+                if (verificaBaixaBoleto()) {
                     plano5 = listaMovimentos.get(0).getPlano5();
                 }
             }
@@ -832,6 +832,13 @@ public class BaixaGeralBean implements Serializable {
             bol = db.pesquisaBoletos(listaMovimentos.get(0).getNrCtrBoleto());
             if (bol != null) {
                 banco = bol.getContaCobranca().getContaBanco().getConta() + " / " + bol.getContaCobranca().getContaBanco().getBanco().getBanco();
+                if (!getListaBanco().isEmpty()){
+                    for (int i = 0; i < listaBanco.size(); i++){
+                        if (bol.getContaCobranca().getContaBanco().getId() == Integer.valueOf(listaBanco.get(i).getDescription())){
+                            idBanco = i;
+                        }
+                    }
+                }
             } else {
                 banco = "BANCO";
             }
@@ -914,7 +921,13 @@ public class BaixaGeralBean implements Serializable {
 
     public List<SelectItem> getListaBanco() {
         if (listaBanco.isEmpty()) {
-            List<ContaBanco> result = (new ContaBancoDBToplink()).pesquisaTodos();
+            List<ContaBanco> result = new ArrayList();
+            if (verificaBaixaBoleto()){
+                MovimentoDB db = new MovimentoDBToplink();
+                Boleto bol = db.pesquisaBoletos(listaMovimentos.get(0).getNrCtrBoleto());
+                result.add(bol.getContaCobranca().getContaBanco());
+            }else
+                result = (new ContaBancoDBToplink()).pesquisaTodos();
 
             if (!result.isEmpty()) {
                 for (int i = 0; i < result.size(); i++) {

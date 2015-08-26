@@ -109,7 +109,7 @@ public class RelatorioMovimentoBean implements Serializable {
     private List<Cidade> listaCidadesBase = new ArrayList();
     private List<Cidade> listaCidadesBaseSelecionado = new ArrayList();
     private CnaeConvencao[] cnaeConvencaoSelecionado = null;
-    private List<CnaeConvencao> listaCnaeConvencaos = new ArrayList<CnaeConvencao>();
+    private List<CnaeConvencao> listaCnaeConvencaos = new ArrayList();
 
     public void porEmpresa() {
         chkEmpresa = (chkEmpresa != true);
