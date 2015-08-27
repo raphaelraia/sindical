@@ -57,7 +57,52 @@ public final class FechamentoCaixaBean implements Serializable {
     public FechamentoCaixaBean() {
         cfb.init();
         getListaCaixa();
-        
+        loadListaFechamento();
+    }
+
+    public void loadListaFechamento(){
+        listaFechamento.clear();
+        if (!listaCaixa.isEmpty() && Integer.valueOf(listaCaixa.get(idCaixa).getDescription()) != 0) {
+            FinanceiroDB db = new FinanceiroDBToplink();
+            Caixa caixa = (Caixa) (new SalvarAcumuladoDBToplink().pesquisaCodigo(Integer.valueOf(listaCaixa.get(idCaixa).getDescription()), "Caixa"));
+            if (caixa == null)
+                return;
+            
+            List<Vector> lista = db.listaFechamentoCaixa(caixa.getId());
+
+            for (int i = 0; i < lista.size(); i++) {
+                int status = 0;
+                float soma = 0;
+                if (Moeda.converteUS$(lista.get(i).get(2).toString()) > Moeda.converteUS$(lista.get(i).get(3).toString())) {
+                    status = 1;
+                    soma = Moeda.subtracaoValores(Moeda.converteUS$(lista.get(i).get(2).toString()), Moeda.converteUS$(lista.get(i).get(3).toString()));
+                } else if (Moeda.converteUS$(lista.get(i).get(2).toString()) < Moeda.converteUS$(lista.get(i).get(3).toString())) {
+                    status = 2;
+                    soma = Moeda.subtracaoValores(Moeda.converteUS$(lista.get(i).get(3).toString()), Moeda.converteUS$(lista.get(i).get(2).toString()));
+                }
+                listaFechamento.add(new DataObject(lista.get(i),
+                        DataHoje.converteData((Date) lista.get(i).get(4)), // DATA
+                        lista.get(i).get(5).toString(), // HORA
+                        Moeda.converteR$(lista.get(i).get(2).toString()), // VALOR FECHAMENTO
+                        Moeda.converteR$(lista.get(i).get(3).toString()), // VALOR INFORMADO
+                        status,// STATUS
+                        Moeda.converteR$Float(soma),
+                        null,
+                        null,
+                        null
+                ));
+            }
+            loadDataFechamento();
+        }
+    }
+    
+    public void loadDataFechamento(){
+        FinanceiroDB db = new FinanceiroDBToplink();
+        String d = db.dataFechamentoCaixa(Integer.valueOf(listaCaixa.get(idCaixa).getDescription()));
+        if (d.isEmpty())
+            fechamento.setData(DataHoje.data());
+        else
+            fechamento.setData(d);
     }
     
     public void transferirParaCentral(){
@@ -160,7 +205,8 @@ public final class FechamentoCaixaBean implements Serializable {
 //        sv.comitarTransacao();
 //        GenericaMensagem.info("Sucesso", "Transferência entre Caixas concluído!");
         fechamento = new FechamentoCaixa();
-        listaFechamento.clear();
+        //listaFechamento.clear();
+        loadListaFechamento();
     }
     
     public boolean permissaoFechamentoCaixa(){
@@ -303,8 +349,8 @@ public final class FechamentoCaixaBean implements Serializable {
         Caixa caixa_destino = (Caixa) sv.pesquisaCodigo(Integer.valueOf(listaCaixaDestino.get(idCaixaDestino).getDescription()), "Caixa");
 
         FinanceiroDB db = new FinanceiroDBToplink();
-        List<Vector> result_entrada = db.listaMovimentoCaixa(caixa.getId(), "E", null);
-        List<TransferenciaCaixa> lEntrada = db.listaTransferenciaEntrada(caixa.getId(), null);
+        List<Vector> result_entrada = db.listaMovimentoCaixa(caixa.getId(), "E", null, fechamento.getData());
+        List<TransferenciaCaixa> lEntrada = db.listaTransferenciaEntrada(caixa.getId(), null, fechamento.getData());
 
         if (result_entrada.isEmpty() && lEntrada.isEmpty()) {
             GenericaMensagem.warn("Erro", "Não existe movimentos para este Caixa!");
@@ -369,10 +415,10 @@ public final class FechamentoCaixaBean implements Serializable {
         boolean permissao = cab.getBotaoFecharCaixaOutroUsuario();
         
         
-        result_entrada = db.listaMovimentoCaixa(caixa.getId(), "E", null);
-        result_saida = db.listaMovimentoCaixa(caixa.getId(), "S", null);
-        lEntrada = db.listaTransferenciaEntrada(caixa.getId(), null);
-        lSaida = db.listaTransferenciaSaida(caixa.getId(), null);
+        result_entrada = db.listaMovimentoCaixa(caixa.getId(), "E", null, fechamento.getData());
+        result_saida = db.listaMovimentoCaixa(caixa.getId(), "S", null, fechamento.getData());
+        lEntrada = db.listaTransferenciaEntrada(caixa.getId(), null, fechamento.getData());
+        lSaida = db.listaTransferenciaSaida(caixa.getId(), null, fechamento.getData());
         
         if (result_entrada.isEmpty() && result_saida.isEmpty() && lEntrada.isEmpty() && lSaida.isEmpty()){
             GenericaMensagem.warn("Erro", "Não existe movimentos para este Caixa!");
@@ -381,10 +427,10 @@ public final class FechamentoCaixaBean implements Serializable {
         
         // true NÃO TEM PERMISSÃO
         if (permissao){
-            List<Vector> result_entrada_user = db.listaMovimentoCaixa(caixa.getId(), "E", usuario.getId());
-            List<Vector> result_saida_user = db.listaMovimentoCaixa(caixa.getId(), "S", usuario.getId());
-            List<TransferenciaCaixa> lEntrada_user = db.listaTransferenciaEntrada(caixa.getId(), usuario.getId());
-            List<TransferenciaCaixa> lSaida_user = db.listaTransferenciaSaida(caixa.getId(), usuario.getId());
+            List<Vector> result_entrada_user = db.listaMovimentoCaixa(caixa.getId(), "E", usuario.getId(), fechamento.getData());
+            List<Vector> result_saida_user = db.listaMovimentoCaixa(caixa.getId(), "S", usuario.getId(), fechamento.getData());
+            List<TransferenciaCaixa> lEntrada_user = db.listaTransferenciaEntrada(caixa.getId(), usuario.getId(), fechamento.getData());
+            List<TransferenciaCaixa> lSaida_user = db.listaTransferenciaSaida(caixa.getId(), usuario.getId(), fechamento.getData());
             
             if (result_entrada_user.isEmpty() && result_saida_user.isEmpty() && lEntrada_user.isEmpty() && lSaida_user.isEmpty()) {
                 GenericaMensagem.warn("Erro", "Usuário não efetuou recebimento neste Caixa!");
@@ -507,7 +553,8 @@ public final class FechamentoCaixaBean implements Serializable {
         }
         
         //fechamento = new FechamentoCaixa();
-        listaFechamento.clear();
+        //listaFechamento.clear();
+        loadListaFechamento();
         valor = "0,00";
     }
 
@@ -515,13 +562,13 @@ public final class FechamentoCaixaBean implements Serializable {
         if (listaCaixa.isEmpty()) {
             ControleAcessoBean cab = new ControleAcessoBean();
             boolean permissao = cab.getBotaoFecharCaixaOutroUsuario();
-            Caixa cx = null;
+            Caixa cx;
             Usuario usuario = ((Usuario) GenericaSessao.getObject("sessaoUsuario"));
             
             // TRUE é igual NÃO ter permissão
             if (usuario.getId() != 1 && permissao){
+                MacFilial mac = MacFilial.getAcessoFilial();
                 if (!cfb.getConfiguracaoFinanceiro().isCaixaOperador()){
-                    MacFilial mac = MacFilial.getAcessoFilial();
                     if (mac.getId() == -1 || mac.getCaixa() == null || mac.getCaixa().getId() == -1){
                         listaCaixa.add(new SelectItem(0, "Nenhum Caixa Encontrado", "0"));
                         return listaCaixa;
@@ -529,8 +576,13 @@ public final class FechamentoCaixaBean implements Serializable {
 
                     cx = mac.getCaixa();
                 }else{
+                    if (mac == null){
+                        listaCaixa.add(new SelectItem(0, "Nenhum Caixa Encontrado", "0"));
+                        return listaCaixa;
+                    }
+                    
                     FinanceiroDB dbf = new FinanceiroDBToplink();
-                    cx = dbf.pesquisaCaixaUsuario( ((Usuario) GenericaSessao.getObject("sessaoUsuario")).getId() );    
+                    cx = dbf.pesquisaCaixaUsuario( ((Usuario) GenericaSessao.getObject("sessaoUsuario")).getId(), mac.getFilial().getId() );    
 
                     if (cx == null){
                         listaCaixa.add(new SelectItem(0, "Nenhum Caixa Encontrado", "0"));
@@ -671,38 +723,6 @@ public final class FechamentoCaixaBean implements Serializable {
     }
 
     public List<DataObject> getListaFechamento() {
-        if (listaFechamento.isEmpty() && (!listaCaixa.isEmpty() && Integer.valueOf(listaCaixa.get(idCaixa).getDescription()) != 0)) {
-            FinanceiroDB db = new FinanceiroDBToplink();
-            Caixa caixa = (Caixa) (new SalvarAcumuladoDBToplink().pesquisaCodigo(Integer.valueOf(listaCaixa.get(idCaixa).getDescription()), "Caixa"));
-            if (caixa == null)
-                return listaFechamento;
-            
-            List<Vector> lista = db.listaFechamentoCaixa(caixa.getId());
-
-            for (int i = 0; i < lista.size(); i++) {
-                int status = 0;
-                float soma = 0;
-                if (Moeda.converteUS$(lista.get(i).get(2).toString()) > Moeda.converteUS$(lista.get(i).get(3).toString())) {
-                    status = 1;
-                    soma = Moeda.subtracaoValores(Moeda.converteUS$(lista.get(i).get(2).toString()), Moeda.converteUS$(lista.get(i).get(3).toString()));
-                } else if (Moeda.converteUS$(lista.get(i).get(2).toString()) < Moeda.converteUS$(lista.get(i).get(3).toString())) {
-                    status = 2;
-                    soma = Moeda.subtracaoValores(Moeda.converteUS$(lista.get(i).get(3).toString()), Moeda.converteUS$(lista.get(i).get(2).toString()));
-                }
-                listaFechamento.add(new DataObject(lista.get(i),
-                        DataHoje.converteData((Date) lista.get(i).get(4)), // DATA
-                        lista.get(i).get(5).toString(), // HORA
-                        Moeda.converteR$(lista.get(i).get(2).toString()), // VALOR FECHAMENTO
-                        Moeda.converteR$(lista.get(i).get(3).toString()), // VALOR INFORMADO
-                        status,// STATUS
-                        Moeda.converteR$Float(soma),
-                        null,
-                        null,
-                        null
-                ));
-            }
-
-        }
         return listaFechamento;
     }
 

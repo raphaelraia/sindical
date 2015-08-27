@@ -684,7 +684,7 @@ public class VendaBaileBean implements Serializable {
             }
         } else {
             FinanceiroDB dbf = new FinanceiroDBToplink();
-            Caixa caixax = dbf.pesquisaCaixaUsuario(((Usuario) GenericaSessao.getObject("sessaoUsuario")).getId());
+            Caixa caixax = dbf.pesquisaCaixaUsuario(((Usuario) GenericaSessao.getObject("sessaoUsuario")).getId(), macFilial.getFilial().getId());
 
             if (caixax == null) {
                 GenericaMensagem.warn("Erro", "Configurar Caixa para este Operador!");

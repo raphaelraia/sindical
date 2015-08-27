@@ -70,8 +70,9 @@
                                         <p:commandButton value="#{(caixaBean.caixa.id == -1) ? 'SALVAR' : 'ALTERAR'}" action="#{caixaBean.salvar()}" update=":formCaixa"/>
                                     </h:column>
                                 </h:panelGrid>
-                                <p:messages id="i_msg" showDetail="true" />
                             </p:panel>
+                            
+                            <p:messages id="i_msg" showDetail="true" closable="true" autoUpdate="false"/>
                             
                             <p:dataTable id="tbl" value="#{caixaBean.listaCaixa}" var="linha" emptyMessage="Nenhum caixa encontrado">
                                 <p:column headerText="" style="text-align: center; width: 30px">

@@ -3,8 +3,6 @@ package br.com.rtools.arrecadacao.beans;
 import br.com.rtools.arrecadacao.Acordo;
 import br.com.rtools.arrecadacao.db.AcordoDB;
 import br.com.rtools.arrecadacao.db.AcordoDBToplink;
-import br.com.rtools.associativo.db.MovimentosReceberSocialDB;
-import br.com.rtools.associativo.db.MovimentosReceberSocialDBToplink;
 import br.com.rtools.financeiro.*;
 import br.com.rtools.financeiro.db.*;
 import br.com.rtools.movimento.GerarMovimento;
@@ -39,6 +37,7 @@ public class ExtratoTelaBean implements Serializable {
 
     private int idContribuicao = 0;
     private int idTipoServico = 0;
+    private int idTipoServicoAlterar = 0;
     private int idIndex = -1;
     private Pessoa pessoa = new Pessoa();
     private Movimento mov = new Movimento();
@@ -87,10 +86,12 @@ public class ExtratoTelaBean implements Serializable {
 
     private boolean dcBoleto = false;
     private final List<SelectItem> listaTipoServico = new ArrayList();
+    private final List<SelectItem> listaTipoServicoAlterar = new ArrayList();
     private final List<SelectItem> listaServico = new ArrayList();
     private Movimento movimentoVencimento = new Movimento();
-    
+
     private String motivoEstorno = "";
+    private Movimento movimentoAlterar = new Movimento();
 
     public ExtratoTelaBean() {
         ControleAcessoBean controx = new ControleAcessoBean();
@@ -103,6 +104,36 @@ public class ExtratoTelaBean implements Serializable {
         }
     }
 
+    public void alterarMovimento(Integer id) {
+        movimentoAlterar = (Movimento) new Dao().find(new Movimento(), id);
+        
+        for(int i = 0; i < listaTipoServicoAlterar.size(); i++){
+            if (movimentoAlterar.getTipoServico().getId() == Integer.valueOf(listaTipoServicoAlterar.get(i).getDescription()) ){
+                idTipoServicoAlterar = i;
+            }
+        }
+        PF.openDialog("dlg_alterar_movimento");
+        PF.update("formExtratoTela:panel_alterar_movimento");
+    }
+    
+    public void salvarAlterarMovimento(){
+        if (movimentoAlterar.getId() != -1){
+            Dao dao = new Dao();
+            
+            dao.openTransaction();
+            movimentoAlterar.setTipoServico( (TipoServico) dao.find(new TipoServico(), Integer.valueOf(listaTipoServicoAlterar.get(idTipoServicoAlterar).getDescription())) );
+            if (!dao.update(movimentoAlterar)){
+                GenericaMensagem.error("Erro", "Não foi possível alterar Movimento");
+                return;
+            }
+            
+            dao.commit();
+            movimentoAlterar = new Movimento();
+            GenericaMensagem.info("Sucesso", "Movimento Alterado com Sucesso!");
+            loadListBeta();
+        }
+    }
+
     public List<Juridica> loadListaEmpresasPertencentes() {
         listaEmpresasPertencentes.clear();
         JuridicaDB db = new JuridicaDBToplink();
@@ -110,7 +141,7 @@ public class ExtratoTelaBean implements Serializable {
         PessoaEndereco pe;
         if (pessoa.getId() != -1) {
             Juridica j = db.pesquisaJuridicaPorPessoa(pessoa.getId());
-            if (j != null && j.getId() != -1){
+            if (j != null && j.getId() != -1) {
                 List lista_x = db.listaContabilidadePertencente(j.getId());
                 for (Object lista_x1 : lista_x) {
                     // pe = dbPe.pesquisaEndPorPessoaTipo(((Juridica) (listaX.get(i))).getPessoa().getId(), 2); // endereco da empresa pertencente
@@ -590,16 +621,17 @@ public class ExtratoTelaBean implements Serializable {
     }
 
     public boolean getUltimaImpressão(int id_movimento) {
-        MovimentoDB db = new MovimentoDBToplink();
-
-        List<Impressao> lista_result = db.listaImpressao(id_movimento);
-
-        if (!lista_result.isEmpty()) {
-            return true;//lista_result.get(0).getImpressao();
-        } else {
-
-        }
-        return false;
+        // ESTA CAUSANDO LENTIDÃO NA ROTINA
+//        MovimentoDB db = new MovimentoDBToplink();
+//
+//        List<Impressao> lista_result = db.listaImpressao(id_movimento);
+//
+//        if (!lista_result.isEmpty()) {
+//            return true;//lista_result.get(0).getImpressao();
+//        } else {
+//
+//        }
+        return true;
     }
 
     public String verUltimaImpressão(int id_movimento) {
@@ -838,13 +870,11 @@ public class ExtratoTelaBean implements Serializable {
             return null;
         }
 
-        
-        if (motivoEstorno.isEmpty() || motivoEstorno.length() <= 5){
+        if (motivoEstorno.isEmpty() || motivoEstorno.length() <= 5) {
             GenericaMensagem.error("Atenção", "Motivo de Estorno INVÁLIDO!");
             return null;
         }
-        
-        
+
         boolean est = true;
         for (DataObject listaMovimento : listaMovimentos) {
             if ((Boolean) listaMovimento.getArgumento0()) {
@@ -1646,6 +1676,37 @@ public class ExtratoTelaBean implements Serializable {
 
     public void setMotivoEstorno(String motivoEstorno) {
         this.motivoEstorno = motivoEstorno;
+    }
+
+    public Movimento getMovimentoAlterar() {
+        return movimentoAlterar;
+    }
+
+    public void setMovimentoAlterar(Movimento movimentoAlterar) {
+        this.movimentoAlterar = movimentoAlterar;
+    }
+
+    public int getIdTipoServicoAlterar() {
+        return idTipoServicoAlterar;
+    }
+
+    public void setIdTipoServicoAlterar(int idTipoServicoAlterar) {
+        this.idTipoServicoAlterar = idTipoServicoAlterar;
+    }
+
+    public List<SelectItem> getListaTipoServicoAlterar() {
+        if (listaTipoServicoAlterar.isEmpty()) {
+            TipoServicoDB db = new TipoServicoDBToplink();
+            List<TipoServico> select = db.pesquisaTodos();
+
+            for (int i = 0; i < select.size(); i++) {
+                listaTipoServicoAlterar.add(new SelectItem(i,
+                        select.get(i).getDescricao(),
+                        Integer.toString(select.get(i).getId())
+                ));
+            }
+        }
+        return listaTipoServicoAlterar;
     }
 
 }

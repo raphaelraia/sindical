@@ -13,14 +13,14 @@
             .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
             .ui-button { padding: 3px!important; }
             .ui-selectonemenu {padding-right: 25px!important;}
-            
+
             .tblExtratoTelaX{ background-color: #ff9587!important; }
             .tblExtratoTelaX:hover{ background-color: #fe887f!important; }
             //.tblExtratoTelaX:hover {font-weight: normal; font-weight: bold; cursor: pointer}
         </style>
 
         <script type="text/javascript">
-        
+
         </script>
     </h:head>
     <h:body>
@@ -140,7 +140,7 @@
                                             </h:panelGrid>
                                         </p:fieldset>
                                     </h:column>
-                                    
+
                                     <h:column>
                                         <p:fieldset id="i_fieldset_pessoa" legend="Contribuição e Pessoa" toggleable="false" toggleSpeed="500" style="height: 150px">
                                             <p:ajax event="toggle" update="@this" />
@@ -153,7 +153,7 @@
                                                         <f:selectItems value="#{extratoTelaBean.listaServico}"/>
                                                     </p:selectOneMenu>
                                                 </h:column>
-                                                
+
                                                 <h:column>
                                                     <p:outputLabel value="Tipo" style="font-weight: bold"/><br />
                                                     <p:selectOneMenu value="#{extratoTelaBean.idTipoServico}">
@@ -172,7 +172,7 @@
                                                     <p:commandButton icon="ui-icon-close" alt="Excluir Pessoa" action="#{extratoTelaBean.limparPesquisaPessoa}" update="i_fieldset_pessoa" />
                                                 </h:column>
                                             </h:panelGrid>
-                                            
+
                                             <h:panelGrid rendered="#{extratoTelaBean.listaEmpresasPertencentes.size() gt 1}">
                                                 <h:column>
                                                     <p:selectBooleanCheckbox value="#{extratoTelaBean.movimentosDasEmpresas}" itemLabel="Ver os movimentos das empresas vinculadas">
@@ -186,12 +186,12 @@
                                 </h:panelGrid>
                             </p:panel>
                             <p:messages id="i_msg" closable="true" showDetail="true"/>
-                            <p:dataTable value="#{extratoTelaBean.listaMovimentos}" var="movimentos" id="tbl" rows="500" rowStyleClass="#{movimentos.argumento26}" emptyMessage="Nenhum Boleto Pesquisado" scrollable="true" scrollHeight="300" paginator="true">
+                            <p:dataTable value="#{extratoTelaBean.listaMovimentos}" var="movimentos" id="tbl" rows="500" rowStyleClass="#{movimentos.argumento26}" emptyMessage="Nenhum Boleto Pesquisado" scrollable="true" scrollHeight="300" paginator="true" scrollWidth="100%">
                                 <p:column style="width:15px">  
                                     <p:rowToggler />  
                                 </p:column>  
 
-                                <p:column style="width:15px">
+                                <p:column style="width:15px; text-align: center">
                                     <p:selectBooleanCheckbox value="#{movimentos.argumento0}">
                                         <p:ajax event="change" update="@this" global="false"/>
                                     </p:selectBooleanCheckbox>
@@ -244,9 +244,13 @@
                                 <p:column headerText="Taxa" style="width: 30px">
                                     <p:outputLabel value="#{movimentos.argumento12}" style="float: right"/>
                                 </p:column>
-                                
+
                                 <p:column headerText="Ult. Imp" style="width: 30px; text-align: center">
                                     <p:commandButton icon="ui-icon-print" oncomplete="PF('dlg_ultima_impressao').show()" rendered="#{extratoTelaBean.getUltimaImpressão(movimentos.argumento1)}" action="#{extratoTelaBean.verUltimaImpressão(movimentos.argumento1)}" title="Ver Lista de Impressões" update=":formExtratoTela:i_tbl_impressao" />
+                                </p:column>
+
+                                <p:column style="text-align: center; width: 50px" headerText="" >
+                                    <p:commandLink value="Alterar Movimento" action="#{extratoTelaBean.alterarMovimento(movimentos.argumento1)}" rendered="#{movimentos.argumento15 ne ''}" disabled="#{controleAcessoBean.botaoAlterarMovimento}"/>
                                 </p:column>
 
                                 <p:rowExpansion>
@@ -255,32 +259,32 @@
                                             <p:outputLabel value="ID" style="font-weight: bold"/><br />
                                             <p:outputLabel value="#{movimentos.argumento1}"/>
                                         </p:column>
-                                        
+
                                         <p:column>
                                             <p:outputLabel value="Lote" style="font-weight: bold"/><br />
                                             <p:outputLabel value="#{movimentos.argumento22}"/>
                                         </p:column>
-                                        
+
                                         <p:column rendered="#{configuracaoBean.resolucao.tipoResolucao.id == 2}">
                                             <p:outputLabel value="CNPJ" style="font-weight: bold"/><br />
                                             <p:outputLabel value="#{movimentos.argumento4}"/>
                                         </p:column>
-                                        
+
                                         <p:column>
                                             <p:outputLabel value="Beneficiário" style="font-weight: bold"/><br />
                                             <p:outputLabel value="#{movimentos.argumento23}"/>
                                         </p:column>
-                                        
+
                                         <p:column>
                                             <p:outputLabel value="Filial" style="font-weight: bold"/><br />
                                             <p:outputLabel value="#{movimentos.argumento24}"/>
                                         </p:column>
-                                        
+
                                         <p:column>
                                             <p:outputLabel value="Usuário" style="font-weight: bold"/><br />
                                             <p:outputLabel value="#{movimentos.argumento13}"/>
                                         </p:column>
-                                        
+
                                         <p:column>
                                             <p:outputLabel value="Importação" style="font-weight: bold"/><br />
                                             <p:outputLabel value="#{movimentos.argumento10}"/>
@@ -288,7 +292,7 @@
                                     </h:panelGrid>
                                 </p:rowExpansion>                                
                             </p:dataTable>
-                            
+
                             <h:panelGrid id="i_panel_valores" columns="7" style="margin-top: 10px">
                                 <h:column>
                                     <p:outputLabel value="Núm de Boletos" for="idQntBoletos"/><br />
@@ -299,7 +303,7 @@
                                     <p:outputLabel value="Total Recebido " styleClass="fonteExtratoTela" for="idSomarVlRecebido"/> <br />
                                     <h:inputText id="idSomarVlRecebido" size="15" value="#{extratoTelaBean.vlRecebido}" readonly="true" style="font-weight:bold; text-align: right; margin-right: 15px"/>
                                 </h:column>
-                                
+
                                 <h:column rendered="#{controleAcessoBean.totalValorExtratoTela}">
                                     <p:outputLabel value="Total NÃO Recebido" styleClass="fonteExtratoTela" for="idSomarVlNaoRecebido"/> <br />
                                     <h:inputText id="idSomarVlNaoRecebido" size="15" value="#{extratoTelaBean.vlNaoRecebido}" readonly="true" style="font-weight:bold; text-align: right; margin-right: 15px"/>
@@ -325,7 +329,38 @@
                                     <h:inputText id="idSomarVlLiquidoRepasse" size="12" value="#{extratoTelaBean.vlRepasse}" readonly="true" style="font-weight:bold; text-align: right" />
                                 </h:column>
                             </h:panelGrid>
-                            
+
+                            <p:dialog widgetVar="dlg_alterar_movimento" header="Alterar dados do Movimento" resizable="false" modal="true" width="400">
+                                <h:panelGrid id="panel_alterar_movimento">
+                                    <p:outputLabel value="Deseja realmente ALTERAR esse movimento?" style="font-weight: bold; font-size: 12pt!important"/>
+
+                                    <h:panelGrid columns="3">
+                                        <h:column>
+                                            <p:outputLabel value="Tipo" /><br />
+                                            <p:selectOneMenu value="#{extratoTelaBean.idTipoServicoAlterar}">
+                                                <p:ajax event="change" update="@this" global="false"/>
+                                                <f:selectItems value="#{extratoTelaBean.listaTipoServicoAlterar}"/>
+                                            </p:selectOneMenu>
+                                        </h:column>
+
+                                        <h:column>
+                                            <p:outputLabel value="Referência" /><br />
+                                            <p:inputMask value="#{extratoTelaBean.movimentoAlterar.referencia}" mask="99/9999" style="text-align: center; width: 70px"/>
+                                        </h:column>
+
+                                        <h:column>
+                                            <p:outputLabel value="Vencimento" /><br />
+                                            <p:inputMask value="#{extratoTelaBean.movimentoAlterar.vencimento}" mask="99/99/9999" style="text-align: center; width: 100px"/>
+                                        </h:column>
+                                    </h:panelGrid>
+                                </h:panelGrid>
+
+                                <h:panelGrid columns="2">
+                                    <p:commandButton icon="ui-icon-circle-check" value="Alterar" action="#{extratoTelaBean.salvarAlterarMovimento()}" title="Confirma salvar Alteração" update="@form"/>
+                                    <p:commandButton icon="ui-icon-circle-close" value="Cancelar" title="Cancelar Alteração" onclick="PF('dlg_alterar_movimento').hide()" global="false"/>
+                                </h:panelGrid>
+                            </p:dialog>
+
                             <p:dialog widgetVar="dlg_ultima_impressao" header="Últimas Impressões desse movimento" resizable="false" modal="true" width="700">
                                 <h:panelGrid id="i_tbl_impressao" columns="2">
                                     <p:dataTable value="#{extratoTelaBean.listaImpressao}" var="linha" style="width: 100%" emptyMessage="Nenhuma Impressão encontrada!">
@@ -346,14 +381,14 @@
                                         </p:column> 
                                     </p:dataTable>
                                 </h:panelGrid>
-                                
+
                                 <h:panelGrid columns="1">
                                     <p:commandButton icon="ui-icon-circle-check" value="OK" onclick="PF('dlg_ultima_impressao').hide()" global="false"/>
                                 </h:panelGrid>
                             </p:dialog>
-                            
+
                         </h:form>
-                        
+
                         <h:form id="formExtratoTelaOpcoes">
                             <p:panel styleClass="fundoCinza">
                                 <p:outputLabel value="Opções do Boleto" style="font-weight: bold; font-size: 8pt!important"/>
@@ -361,28 +396,28 @@
                                     <h:column>
                                         <p:selectBooleanCheckbox value="#{extratoTelaBean.imprimirVerso}" itemLabel="Imprimir Verso" style="margin-right: 20px"/>
                                     </h:column>
-                                        
+
                                     <h:column>
                                         <p:commandLink action="#{extratoTelaBean.imprimir}" title="Imprimir Boletos Selecionados" ajax="false" target="_BLANK">
                                             <p:commandButton icon="ui-icon-print" value="Imprimir" title="Imprimir Boletos Selecionados" ajax="false" style="margin-right: 20px"/>
                                         </p:commandLink>
                                     </h:column>
-                                    
+
                                     <h:column>
                                         <p:commandButton icon="ui-icon-close" value="Excluir" title="Excluir Boletos Selecionados" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('dlg_excluir').show()" style="margin-right: 20px"/>
                                     </h:column>
-                                
+
                                     <h:column>
                                         <p:commandButton icon="ui-icon-arrowreturnthick-1-w" value="Estornar" title="Estornar Boletos Selecionados (Apenas Pagos)" disabled="#{controleAcessoBean.botaoEstornarBoleto}" onclick="PF('dlg_estornar').show()" style="margin-right: 20px"/>
                                     </h:column>
-                                    
+
                                     <h:column>
                                         <p:commandButton icon="ui-icon-mail-closed" value="Enviar por Email" title="Enviar movimentos por Email (das respectivas empresas)" onclick="PF('dlg_enviar_email').show()"/>
                                     </h:column>
                                     <h:column>
                                         <p:outputLabel value=" para " styleClass="fontePadrao" />
                                     </h:column>
-                                        
+
                                     <h:column>
                                         <p:selectOneMenu value="#{extratoTelaBean.tipoEnvio}">
                                             <p:ajax event="change" update="@this" global="false"/>
@@ -392,29 +427,29 @@
                                     </h:column>
                                 </h:panelGrid>
                             </p:panel>
-                            
+
                             <p:panel styleClass="fundoCinza" style="margin-top: 10px">
                                 <p:outputLabel value="Opções do Acordo" style="font-weight: bold; font-size: 8pt!important"/>
                                 <h:panelGrid columns="3">
                                     <h:column>
                                         <p:commandButton icon="ui-icon-close" value="Excluir Acordo" style="margin-right: 15px" title="Excluir Acordos Selecionados" onclick="PF('dlg_acordo').show()" disabled="#{controleAcessoBean.botaoExcluirAcordo}"/>
                                     </h:column>
-                                    
+
                                     <h:column>
                                         <p:commandLink action="#{extratoTelaBean.imprimirPlanilha}" title="Planilha Acordo" target="_blank" ajax="false">
                                             <p:commandButton icon="ui-icon-print" value="Planilha Acordo" style="margin-right: 15px" title="Planilha Acordo" ajax="false"/>
                                         </p:commandLink>
                                     </h:column>
-                                    
+
                                     <h:column>
                                         <p:commandLink action="#{extratoTelaBean.imprimirPromissoria}" title="Promissória Acordo" target="_blank" ajax="false">
                                             <p:commandButton icon="ui-icon-print" value="Promissória Acordo" title="Promissória Acordo" ajax="false"/>
                                         </p:commandLink>
                                     </h:column>
-                                        
+
                                 </h:panelGrid>
                             </p:panel>
-                            
+
                             <p:dialog widgetVar="dlg_excluir" header="Excluir Movimentos" resizable="false" modal="true" width="400">
                                 <h:panelGrid>
                                     <p:outputLabel value="Deseja realmente excluir esses movimentos?" style="font-weight: bold; font-size: 12pt!important"/>
@@ -426,13 +461,13 @@
 
                                     </p:inputTextarea>
                                 </h:panelGrid>
-                                
+
                                 <h:panelGrid columns="2">
                                     <p:commandButton icon="ui-icon-circle-check" value="Sim" action="#{extratoTelaBean.inativarBoleto}" title="Excluir boletos selecionados" update="i_msg_excluir"/>
                                     <p:commandButton icon="ui-icon-circle-close" value="Não" title="Cancelar exclusão" onclick="PF('dlg_excluir').hide()" global="false"/>
                                 </h:panelGrid>
                             </p:dialog>
-                            
+
                             <p:dialog widgetVar="dlg_estornar" header="Estornar Movimentos" resizable="false" modal="true" width="400">
                                 <h:panelGrid>
                                     <p:outputLabel value="Deseja realmente ESTORNAR esses movimentos?" style="font-weight: bold; font-size: 12pt!important"/>
@@ -448,36 +483,36 @@
                                     <p:commandButton icon="ui-icon-circle-close" value="Não" title="Cancelar Estorno" onclick="PF('dlg_estornar').hide()" global="false"/>
                                 </h:panelGrid>
                             </p:dialog>
-                            
+
                             <p:dialog widgetVar="dlg_enviar_email" header="Enviar Email" resizable="false" modal="true" width="400">
                                 <h:panelGrid>
                                     <p:outputLabel value="Deseja realmente ENVIAR esses movimentos por EMAIL?" style="font-weight: bold; font-size: 12pt!important"/>
                                 </h:panelGrid>
                                 <p:messages id="i_msg_enviar_email" closable="true" showDetail="true"/>
-                                
+
                                 <h:panelGrid columns="2">
                                     <p:commandButton icon="ui-icon-circle-check" value="Sim" action="#{extratoTelaBean.enviarEmail()}" title="Enviar boletos selecionados" update="i_msg_enviar_email"/>
                                     <p:commandButton icon="ui-icon-circle-close" value="Não" title="Cancelar Envio de Email" onclick="PF('dlg_enviar_email').hide()" global="false"/>
                                 </h:panelGrid>
                             </p:dialog>
-                            
+
                             <p:dialog widgetVar="dlg_acordo" header="Excluir Acordos" resizable="false" modal="true" width="400">
                                 <h:panelGrid>
                                     <p:outputLabel value="Deseja realmente EXCLUIR esses acordos?" style="font-weight: bold; font-size: 12pt!important"/>
                                 </h:panelGrid>
-                                
+
                                 <p:messages id="i_msg_acordo" closable="true" showDetail="true"/>
-                                
+
                                 <h:panelGrid columns="2">
                                     <p:commandButton icon="ui-icon-circle-check" value="Sim" action="#{extratoTelaBean.excluirAcordo()}" title="Excluir acordos selecionados" update="i_msg_acordo"/>
                                     <p:commandButton icon="ui-icon-circle-close" value="Não" title="Cancelar exclusão de Acordos" onclick="PF('dlg_acordo').hide()" global="false"/>
                                 </h:panelGrid>
                             </p:dialog>
                         </h:form>
-                        
+
                     </p:panel>
-                    
-                        
+
+
                     <p:dialog widgetVar="dlg_alterar_vencimento" header="Alterar data de Vencimento" resizable="false" modal="true" width="400">
                         <h:form id="formExtratoTelaAlteraVencimento">
                             <h:panelGrid>
@@ -489,7 +524,7 @@
                                     <p:outputLabel value="Vencimento Anterior"/><br />
                                     <p:inputText value="#{extratoTelaBean.dataAntiga}" readonly="true" style="margin-right: 50px; width: 100px; font-weight: bold; text-align: center"/>
                                 </h:column>
-                                
+
                                 <h:column>
                                     <p:outputLabel value="Digite o novo Vencimento" /><br />
                                     <p:inputMask id="i_nova_data" value="#{extratoTelaBean.dataNova}" mask="99/99/9999" style="width: 100px; text-align: center">

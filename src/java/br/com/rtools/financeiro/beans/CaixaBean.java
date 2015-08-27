@@ -57,8 +57,6 @@ public class CaixaBean implements Serializable {
             }
         }
         
-        
-        
         if (caixa.getDescricao().isEmpty()){
             GenericaMensagem.warn("Atenção", "Digite uma descriçao para este caixa!");
             return;
@@ -71,17 +69,18 @@ public class CaixaBean implements Serializable {
             Usuario us = (Usuario) di.find(new Usuario(), Integer.valueOf(listaUsuarios.get(idUsuario).getDescription())) ;
 
             CaixaDao caixadao = new CaixaDao();
-            List<Caixa> listac = caixadao.listaCaixaUsuario(us.getId());
+            List<Caixa> listac = new ArrayList();
 
+            if (caixa.getFilial() != null)
+                listac = caixadao.listaCaixaUsuario(us.getId(), caixa.getFilial().getId());
+            
             if (caixa.getId() == -1){
                 if (!listac.isEmpty()){
                     GenericaMensagem.warn("Atençao", "Este usuário já tem Caixa definido!");
                     return;
                 }
             }else{
-                List<Caixa> lusx = caixadao.listaCaixaUsuario( Integer.valueOf(listaUsuarios.get(idUsuario).getDescription()) );
-
-                if (!lusx.isEmpty() && lusx.get(0).getId() != caixa.getId()){
+                if (!listac.isEmpty() && listac.get(0).getId() != caixa.getId()){
                     GenericaMensagem.warn("Atençao", "Este usuário já tem Caixa definido!");
                     return;
                 }

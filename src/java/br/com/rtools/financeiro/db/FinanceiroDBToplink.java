@@ -14,6 +14,7 @@ import br.com.rtools.financeiro.TransferenciaCaixa;
 import br.com.rtools.principal.DB;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.AnaliseString;
+import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.util.ArrayList;
 import java.util.Date;
@@ -281,7 +282,7 @@ public class FinanceiroDBToplink extends DB implements FinanceiroDB {
     }
     
     @Override
-    public List listaMovimentoCaixa(int id_caixa, String es, Integer id_usuario) {
+    public List listaMovimentoCaixa(int id_caixa, String es, Integer id_usuario, String data) {
         try {
             String and = (id_usuario == null) ? "" : " AND u.id = "+id_usuario;
             Query qry = getEntityManager().createNativeQuery(
@@ -295,13 +296,15 @@ public class FinanceiroDBToplink extends DB implements FinanceiroDB {
                                                         "       cx.id_filial, \n " +
                                                         "       b.id \n " +
                                                         "  FROM fin_forma_pagamento AS f \n " +
-                                                        " INNER JOIN fin_baixa AS b ON b.id=f.id_baixa \n " +
-                                                        " INNER JOIN seg_usuario AS u ON u.id=b.id_usuario \n " +
-                                                        " INNER JOIN pes_pessoa AS p ON p.id=u.id_pessoa \n " +
-                                                        " INNER JOIN fin_movimento AS m ON m.id_baixa=b.id \n " +
+                                                        " INNER JOIN fin_baixa AS b ON b.id = f.id_baixa \n " +
+                                                        " INNER JOIN seg_usuario AS u ON u.id = b.id_usuario \n " +
+                                                        " INNER JOIN pes_pessoa AS p ON p.id = u.id_pessoa \n " +
+                                                        " INNER JOIN fin_movimento AS m ON m.id_baixa = b.id \n " +
                                                         " INNER JOIN fin_tipo_pagamento AS tp ON tp.id = f.id_tipo_pagamento \n " +
                                                         " INNER JOIN fin_caixa AS cx ON cx.id = b.id_caixa \n " +
-                                                        " WHERE b.id_caixa = "+id_caixa+" AND b.id_fechamento_caixa IS NULL \n " +
+                                                        " WHERE b.id_caixa = "+id_caixa+" \n "+
+                                                        "   AND b.id_fechamento_caixa IS NULL \n " +
+                                                        "   AND b.dt_baixa = '"+data+"' \n " +
                                                         "   AND m.ds_es = '"+es+"' \n "+ and);
             return qry.getResultList();
         } catch (Exception e) {
@@ -310,10 +313,10 @@ public class FinanceiroDBToplink extends DB implements FinanceiroDB {
     }
     
     @Override
-    public List<TransferenciaCaixa> listaTransferenciaEntrada(int id_caixa, Integer id_usuario) {
+    public List<TransferenciaCaixa> listaTransferenciaEntrada(int id_caixa, Integer id_usuario, String data) {
         String and = (id_usuario == null) ? "" : " and tc.usuario.id = "+id_usuario;
         try {
-            Query qry = getEntityManager().createQuery("SELECT tc FROM TransferenciaCaixa tc WHERE tc.caixaEntrada.id = "+id_caixa+" AND tc.fechamentoEntrada is null "+and);
+            Query qry = getEntityManager().createQuery("SELECT tc FROM TransferenciaCaixa tc WHERE tc.caixaEntrada.id = "+id_caixa+" AND tc.fechamentoEntrada is null AND tc.dtLancamento = '"+data+"' "+and);
             return qry.getResultList();
         } catch (Exception e) {
             return new ArrayList();
@@ -321,10 +324,10 @@ public class FinanceiroDBToplink extends DB implements FinanceiroDB {
     }
     
     @Override
-    public List<TransferenciaCaixa> listaTransferenciaSaida(int id_caixa, Integer id_usuario) {
+    public List<TransferenciaCaixa> listaTransferenciaSaida(int id_caixa, Integer id_usuario, String data) {
         String and = (id_usuario == null) ? "" : " and tc.usuario.id = "+id_usuario;
         try {
-            Query qry = getEntityManager().createQuery("SELECT tc FROM TransferenciaCaixa tc WHERE tc.caixaSaida.id = "+id_caixa+" AND (tc.caixaEntrada.caixa <> 1) AND tc.fechamentoSaida is null "+ and);
+            Query qry = getEntityManager().createQuery("SELECT tc FROM TransferenciaCaixa tc WHERE tc.caixaSaida.id = "+id_caixa+" AND (tc.caixaEntrada.caixa <> 1) AND tc.fechamentoSaida is null AND tc.dtLancamento = '"+data+"' "+ and);
             return qry.getResultList();
         } catch (Exception e) {
             return new ArrayList();
@@ -1229,10 +1232,11 @@ public class FinanceiroDBToplink extends DB implements FinanceiroDB {
     }
     
     @Override
-    public Caixa pesquisaCaixaUsuario(int id_usuario){
+    public Caixa pesquisaCaixaUsuario(int id_usuario, int id_filial){
         String text = "SELECT c " +
                       "  FROM Caixa c " +
-                      " WHERE c.usuario.id = "+id_usuario;
+                      " WHERE c.usuario.id = "+id_usuario+
+                      "   AND c.filial.id = "+id_filial;
         
         Query qry = getEntityManager().createQuery(text);
         
@@ -1290,5 +1294,19 @@ public class FinanceiroDBToplink extends DB implements FinanceiroDB {
         } catch (Exception e) {
             return new ArrayList();
         }
+    }
+    
+    @Override
+    public String dataFechamentoCaixa(Integer id_caixa){
+        try{
+            Query qry = getEntityManager().createNativeQuery("SELECT MIN(dt_baixa) FROM fin_baixa WHERE id_caixa = "+id_caixa+" AND id_fechamento_caixa IS NULL AND dt_baixa >= '01/04/2015'");
+            List<Object> result = qry.getResultList();
+            if (!result.isEmpty() && ((List) result.get(0)).get(0) != null){
+                return DataHoje.converteData( (Date) ((List) result.get(0)).get(0) );
+            }   
+        }catch(Exception e){
+            e.getMessage();
+        }
+        return "";
     }
 }

@@ -7,9 +7,9 @@ import java.util.List;
 import javax.persistence.Query;
 
 public class CaixaDao extends DB {
-    public List<Caixa> listaCaixaUsuario(Integer id_usuario){
+    public List<Caixa> listaCaixaUsuario(Integer id_usuario, Integer id_filial){
         try{
-            Query qry = getEntityManager().createQuery("SELECT c FROM Caixa c WHERE c.usuario.id = "+id_usuario);
+            Query qry = getEntityManager().createQuery("SELECT c FROM Caixa c WHERE c.usuario.id = "+id_usuario+ " AND c.filial.id = "+id_filial);
             List<Caixa> result = qry.getResultList();
             return result;
         }catch(Exception e){

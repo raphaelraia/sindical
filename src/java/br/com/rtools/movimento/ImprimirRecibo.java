@@ -51,7 +51,7 @@ public class ImprimirRecibo {
 
             // PESQUISA FORMA DE PAGAMENTO
             List<FormaPagamento> fp = db.pesquisaFormaPagamento(movimento.getBaixa().getId());
-            float soma_dinheiro = 0;
+            float soma_dinheiro = 0, soma_outros = 0;
             for (int i = 0; i < fp.size(); i++) {
                 // 4 - CHEQUE    
                 if (fp.get(i).getTipoPagamento().getId() == 4) {
@@ -65,6 +65,10 @@ public class ImprimirRecibo {
                     if (fp.get(i).getTipoPagamento().getId() == 3) {
                         soma_dinheiro = soma_dinheiro + fp.get(i).getValor();
                     }
+                }
+                
+                if (fp.get(i).getTipoPagamento().getId() != 3) {
+                    soma_outros = soma_outros + fp.get(i).getValor();
                 }
             }
             String lblVencimento = "";
@@ -141,7 +145,8 @@ public class ImprimirRecibo {
                                 mensagemConvenio,
                                 lista.get(i).getPessoa().getDocumento(),
                                 Moeda.converteR$Float(soma_dinheiro + lista.get(i).getBaixa().getTroco()),
-                                Moeda.converteR$Float(lista.get(i).getBaixa().getTroco())
+                                Moeda.converteR$Float(lista.get(i).getBaixa().getTroco()),
+                                Moeda.converteR$Float(soma_outros)
                         )
                 );
             }

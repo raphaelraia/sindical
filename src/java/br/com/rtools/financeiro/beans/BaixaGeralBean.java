@@ -491,7 +491,7 @@ public class BaixaGeralBean implements Serializable {
             }
         } else {
             FinanceiroDB db = new FinanceiroDBToplink();
-            caixa = db.pesquisaCaixaUsuario(usuario.getId());
+            caixa = db.pesquisaCaixaUsuario(usuario.getId(), filial.getId());
 
             if (tipo.equals("caixa")) {
                 if (caixa == null) {
