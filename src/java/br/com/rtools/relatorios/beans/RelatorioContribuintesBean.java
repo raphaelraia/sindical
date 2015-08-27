@@ -813,12 +813,12 @@ public class RelatorioContribuintesBean implements Serializable {
     public Relatorios getRelatorios() {
         try {
             if (relatorios.getId() != Integer.parseInt(listaTipoRelatorios.get(idRelatorios).getDescription())) {
-                Jasper.EXPORT_TO_EXCEL = false;
+                Jasper.EXPORT_TO = false;
             }
             relatorios = (Relatorios) new Dao().find(new Relatorios(), Integer.parseInt(listaTipoRelatorios.get(idRelatorios).getDescription()));
         } catch (Exception e) {
             relatorios = new Relatorios();
-            Jasper.EXPORT_TO_EXCEL = false;
+            Jasper.EXPORT_TO = false;
         }
         return relatorios;
     }

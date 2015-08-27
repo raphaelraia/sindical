@@ -377,12 +377,12 @@ public class RelatorioContabilidadesBean implements Serializable {
     public Relatorios getRelatorios() {
         try {
             if (relatorios != null && relatorios.getId() != Integer.parseInt(listRelatorios.get(index[0]).getDescription())) {
-                Jasper.EXPORT_TO_EXCEL = false;
+                Jasper.EXPORT_TO = false;
             }
             relatorios = (Relatorios) new Dao().find(new Relatorios(), Integer.parseInt(listRelatorios.get(index[0]).getDescription()));
         } catch (Exception e) {
             relatorios = new Relatorios();
-            Jasper.EXPORT_TO_EXCEL = false;
+            Jasper.EXPORT_TO = false;
         }
         return relatorios;
     }
