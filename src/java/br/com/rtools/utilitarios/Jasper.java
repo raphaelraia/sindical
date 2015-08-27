@@ -336,14 +336,14 @@ public class Jasper implements Serializable {
                 String jasper_path = "";
                 if (jasperListExport.isEmpty()) {
                     try {
-                        if (new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/relatorios/" + jasperName)).exists()) {
-                            jasper_path = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/relatorios/" + jasperName);
+                        if (new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/" + jasperName)).exists()) {
+                            jasper_path = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/" + jasperName);
                             jasper = (JasperReport) JRLoader.loadObject(new File(jasper_path));
                         } else if (new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "" + jasperName)).exists()) {
                             jasper_path = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "" + jasperName);
                             jasper = (JasperReport) JRLoader.loadObject(new File(jasper_path));
-                        } else if (new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/relatorios/" + jasperName)).exists()) {
-                            jasper_path = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/relatorios/" + jasperName);
+                        } else if (new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/" + jasperName)).exists()) {
+                            jasper_path = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/" + jasperName);
                             jasper = (JasperReport) JRLoader.loadObject(new File(jasper_path));
                         } else {
                             jasper_path = ((ServletContext) faces.getExternalContext().getContext()).getRealPath(jasperName);
@@ -351,12 +351,12 @@ public class Jasper implements Serializable {
                         }
                     } catch (Exception e) {
                         String jasperNameJrxml = jasperName.replace(".jasper", ".jrxml");
-                        if (new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/relatorios/" + jasperNameJrxml)).exists()) {
-                            jasper_path = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/relatorios/" + jasperNameJrxml);
+                        if (new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/" + jasperNameJrxml)).exists()) {
+                            jasper_path = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/" + jasperNameJrxml);
                         } else if (new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "" + jasperNameJrxml)).exists()) {
                             jasper_path = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "" + jasperNameJrxml);
-                        } else if (new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/relatorios/" + jasperNameJrxml)).exists()) {
-                            jasper_path = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/relatorios/" + jasperNameJrxml);
+                        } else if (new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/" + jasperNameJrxml)).exists()) {
+                            jasper_path = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/" + jasperNameJrxml);
                         } else {
                             jasper_path = ((ServletContext) faces.getExternalContext().getContext()).getRealPath(jasperNameJrxml);
                         }
