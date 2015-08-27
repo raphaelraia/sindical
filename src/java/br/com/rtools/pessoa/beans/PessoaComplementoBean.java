@@ -39,13 +39,6 @@ public class PessoaComplementoBean extends PesquisarProfissaoBean implements Ser
                 pessoaComplemento.setResponsavel(null);
             }
 
-            if (pessoaComplemento.getBloqueiaObsAviso()) {
-                if(pessoaComplemento.getObsAviso().isEmpty()) {
-                    GenericaMensagem.warn("Validação", "Informar mensagem do bloqueio!");
-                    return;
-                }
-            }
-
             dao.openTransaction();
             if (pessoaComplemento.getId() == -1) {
                 if (dao.save(pessoaComplemento)) {

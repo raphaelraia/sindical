@@ -849,12 +849,12 @@ public class RelatorioCertificadosBean implements Serializable {
         if(index[0] != null) {
             try {
                 if (relatorios.getId() != Integer.parseInt(getListaTipoRelatorios().get(index[0]).getDescription())) {
-                    Jasper.EXPORT_TO_EXCEL = false;
+                    Jasper.EXPORT_TO = false;
                 }
                 relatorios = (Relatorios) new Dao().find(new Relatorios(), Integer.parseInt(getListaTipoRelatorios().get(index[0]).getDescription()));
             } catch (Exception e) {
                 relatorios = new Relatorios();
-                Jasper.EXPORT_TO_EXCEL = false;
+                Jasper.EXPORT_TO = false;
             }            
         }
         return relatorios;

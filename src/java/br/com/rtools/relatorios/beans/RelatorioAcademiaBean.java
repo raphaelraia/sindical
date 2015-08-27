@@ -101,7 +101,7 @@ public class RelatorioAcademiaBean implements Serializable {
         sexo = "";
         periodo = null;
         tipo = "todos";
-        Jasper.EXPORT_TO_EXCEL = false;
+        Jasper.EXPORT_TO = false;
         selectedGrupoCategoria = null;
         selectedCategoria = null;
         selectedConvenioEmpresa = null;
@@ -625,12 +625,12 @@ public class RelatorioAcademiaBean implements Serializable {
     public Relatorios getRelatorios() {
         try {
             if (relatorios.getId() != index[0]) {
-                Jasper.EXPORT_TO_EXCEL = false;
+                Jasper.EXPORT_TO = false;
             }
             relatorios = (Relatorios) new Dao().find(new Relatorios(), index[0]);
         } catch (Exception e) {
             relatorios = new Relatorios();
-            Jasper.EXPORT_TO_EXCEL = false;
+            Jasper.EXPORT_TO = false;
         }
         return relatorios;
     }

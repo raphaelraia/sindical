@@ -536,7 +536,7 @@ public class RelatorioFinanceiroBean implements Serializable {
             list_hash.add(map);
         }
 
-        Jasper.EXPORT_TO_EXCEL = chkExcel;
+        Jasper.EXPORT_TO = chkExcel;
         //Jasper.printReportsHashMap(relatorios.getJasper(), relatorios.getNome(), list_hash, params);
         Jasper.printReports(relatorios.getJasper(), relatorios.getNome(), list_hash, params);
     }

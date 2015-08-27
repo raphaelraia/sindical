@@ -117,7 +117,7 @@ public class Jasper implements Serializable {
     /**
      * Exporta para excel
      */
-    public static Boolean EXPORT_TO_EXCEL;
+    public static Boolean EXPORT_TO;
     /**
      * Campos Excel
      */
@@ -134,7 +134,7 @@ public class Jasper implements Serializable {
     /**
      * Database
      */
-    private static DBExternal dbe;
+    public static DBExternal dbe;
     /**
      * Query
      */
@@ -143,6 +143,10 @@ public class Jasper implements Serializable {
      * Query Srint
      */
     public static Boolean IS_QUERY_STRING;
+    /**
+     * Relatório Título
+     */
+    public static String TITLE;
 
     static {
         load();
@@ -171,7 +175,7 @@ public class Jasper implements Serializable {
         TYPE = "";
         SUBREPORT_NAME = "";
         IS_REPORT_CONNECTION = false;
-        EXPORT_TO_EXCEL = false;
+        EXPORT_TO = false;
         EXCEL_FIELDS = "";
         NO_COMPACT = false;
         IGNORE_UUID = false;
@@ -209,13 +213,13 @@ public class Jasper implements Serializable {
         byte[] bytesComparer = null;
         byte[] b = null;
         if (jasperListExport.isEmpty()) {
-            if (fileName.isEmpty() || jasperName.isEmpty() || (listCollections.isEmpty())) {
+            if ((fileName.isEmpty() || jasperName.isEmpty() || listCollections.isEmpty()) && !IS_QUERY_STRING) {
                 GenericaMensagem.info("Sistema", "Erro ao criar relatório!");
                 return;
             }
             jasperName = jasperName.trim();
         } else {
-            if (fileName.isEmpty()) {
+            if (fileName.isEmpty() && !IS_QUERY_STRING) {
                 GenericaMensagem.info("Sistema", "Erro ao criar relatório!");
                 return;
             }
@@ -245,6 +249,9 @@ public class Jasper implements Serializable {
         }
         if (parameters == null) {
             parameters = new HashMap();
+        }
+        if (TITLE != null && !TITLE.isEmpty()) {
+            parameters.put("relatorio_titulo", TITLE);
         }
         if (IS_HEADER) {
             parameters.put("sindicato_nome", juridica.getPessoa().getNome());
@@ -328,18 +335,31 @@ public class Jasper implements Serializable {
                 JasperReport jasper = null;
                 String jasper_path = "";
                 if (jasperListExport.isEmpty()) {
-                    if (new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/" + jasperName)).exists()) {
-                        jasper_path = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/" + jasperName);
-                        jasper = (JasperReport) JRLoader.loadObject(new File(jasper_path));
-                    } else if (new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "" + jasperName)).exists()) {
-                        jasper_path = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "" + jasperName);
-                        jasper = (JasperReport) JRLoader.loadObject(new File(jasper_path));
-                    } else if (new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/" + jasperName)).exists()) {
-                        jasper_path = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/" + jasperName);
-                        jasper = (JasperReport) JRLoader.loadObject(new File(jasper_path));
-                    } else {
-                        jasper_path = ((ServletContext) faces.getExternalContext().getContext()).getRealPath(jasperName);
-                        jasper = (JasperReport) JRLoader.loadObject(new File(jasper_path));
+                    try {
+                        if (new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/" + jasperName)).exists()) {
+                            jasper_path = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/" + jasperName);
+                            jasper = (JasperReport) JRLoader.loadObject(new File(jasper_path));
+                        } else if (new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "" + jasperName)).exists()) {
+                            jasper_path = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "" + jasperName);
+                            jasper = (JasperReport) JRLoader.loadObject(new File(jasper_path));
+                        } else if (new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/" + jasperName)).exists()) {
+                            jasper_path = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/" + jasperName);
+                            jasper = (JasperReport) JRLoader.loadObject(new File(jasper_path));
+                        } else {
+                            jasper_path = ((ServletContext) faces.getExternalContext().getContext()).getRealPath(jasperName);
+                            jasper = (JasperReport) JRLoader.loadObject(new File(jasper_path));
+                        }
+                    } catch (Exception e) {
+                        String jasperNameJrxml = jasperName.replace(".jasper", ".jrxml");
+                        if (new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/" + jasperNameJrxml)).exists()) {
+                            jasper_path = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/" + jasperNameJrxml);
+                        } else if (new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "" + jasperNameJrxml)).exists()) {
+                            jasper_path = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "" + jasperNameJrxml);
+                        } else if (new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/" + jasperNameJrxml)).exists()) {
+                            jasper_path = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/" + jasperNameJrxml);
+                        } else {
+                            jasper_path = ((ServletContext) faces.getExternalContext().getContext()).getRealPath(jasperNameJrxml);
+                        }
                     }
                     if (!GROUP_NAME.isEmpty()) {
                         JRGroup[] jRGroups = jasper.getGroups();
@@ -388,19 +408,19 @@ public class Jasper implements Serializable {
                                 }
                             }
                         } else {
-                            dtSource = new JRBeanCollectionDataSource( listCollections );
+                            dtSource = new JRBeanCollectionDataSource(listCollections);
                             print = JasperFillManager.fillReport(jasper, parameters, dtSource);
                             listJasper.add(print);
                         }
-                    }else{
+                    } else {
                         listJasper = jasperListExport;
                     }
-                    
-                    if (!EXPORT_TO_EXCEL) {
+
+                    if (!EXPORT_TO) {
                         downloadName = fileName + PART_NAME + uuid + ".pdf";
                         File file = new File(dirPath + "/" + downloadName);
                         mimeType = "application/pdf";
-                                
+
                         JRPdfExporter exporter = new JRPdfExporter();
                         exporter.setExporterInput(SimpleExporterInput.getInstance(listJasper));
                         exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(file.getPath()));
@@ -412,7 +432,7 @@ public class Jasper implements Serializable {
                         downloadName = fileName + PART_NAME + uuid + ".xls";
                         File file = new File(dirPath + "/" + downloadName);
                         mimeType = "application/xls";
-                        
+
                         JRXlsExporter exporter = new JRXlsExporter();
                         exporter.setExporterInput(SimpleExporterInput.getInstance(listJasper));
                         exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(file.getPath()));
@@ -532,11 +552,11 @@ public class Jasper implements Serializable {
     }
 
     public Boolean getEXPORT_TO_EXCEL() {
-        return EXPORT_TO_EXCEL;
+        return EXPORT_TO;
     }
 
     public void setEXPORT_TO_EXCEL(Boolean aEXPORT_TO_EXCEL) {
-        EXPORT_TO_EXCEL = aEXPORT_TO_EXCEL;
+        EXPORT_TO = aEXPORT_TO_EXCEL;
     }
 
     public String getTYPE() {
@@ -660,7 +680,7 @@ public class Jasper implements Serializable {
      * </pageHeader>
      */
 }
-//                                if (!EXPORT_TO_EXCEL){
+//                                if (!EXPORT_TO){
 //                                    JRPdfExporter exporter = new JRPdfExporter();
 //                                    exporter.setExporterInput(SimpleExporterInput.getInstance(jasperListExport));
 //                                    exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(file.getPath()));  
@@ -679,7 +699,7 @@ public class Jasper implements Serializable {
 //                                    exporter.exportReport();
 //                                }
 
-//        if (EXPORT_TO_EXCEL) {
+//        if (EXPORT_TO) {
 //            List<?> list = (List) listCollections;
 //            Class classx = list.get(0).getClass();
 //            Field fields[] = classx.getDeclaredFields();

@@ -342,21 +342,21 @@ public class AgendaTelefoneDao extends DB {
                 + "       WHERE " + inGrupoPermitido;
         if (porPesquisa.equals("pessoa")) {
             if (comoPesquisa.equals("Inicial")) {
-                queryString += " UPPER(TRANSLATE(P.ds_nome)) LIKE '" + descricaoPesquisa + "%' " + queryGrupoAgenda;
+                queryString += " UPPER(FUNC_TRANSLATE(P.ds_nome)) LIKE '" + descricaoPesquisa + "%' " + queryGrupoAgenda;
             } else {
-                queryString += " UPPER(TRANSLATE(P.ds_nome)) LIKE '%" + descricaoPesquisa + "%' " + queryGrupoAgenda;
+                queryString += " UPPER(FUNC_TRANSLATE(P.ds_nome)) LIKE '%" + descricaoPesquisa + "%' " + queryGrupoAgenda;
             }
         } else if (porPesquisa.equals("nome")) {
             if (comoPesquisa.equals("Inicial")) {
-                queryString += " UPPER(TRANSLATE(AGE.ds_nome)) LIKE '" + descricaoPesquisa + "%' " + queryGrupoAgenda;
+                queryString += " UPPER(FUNC_TRANSLATE(AGE.ds_nome)) LIKE '" + descricaoPesquisa + "%' " + queryGrupoAgenda;
             } else {
-                queryString += " UPPER(TRANSLATE(AGE.ds_nome)) LIKE '%" + descricaoPesquisa + "%' " + queryGrupoAgenda;
+                queryString += " UPPER(FUNC_TRANSLATE(AGE.ds_nome)) LIKE '%" + descricaoPesquisa + "%' " + queryGrupoAgenda;
             }
         } else if (porPesquisa.equals("contato")) {
             if (comoPesquisa.equals("Inicial")) {
-                queryString += " UPPER(TRANSLATE(AGET.ds_contato)) LIKE '" + descricaoPesquisa + "%' " + queryGrupoAgenda;
+                queryString += " UPPER(FUNC_TRANSLATE(AGET.ds_contato)) LIKE '" + descricaoPesquisa + "%' " + queryGrupoAgenda;
             } else {
-                queryString += " UPPER(TRANSLATE(AGET.ds_contato)) LIKE '%" + descricaoPesquisa + "%' " + queryGrupoAgenda;
+                queryString += " UPPER(FUNC_TRANSLATE(AGET.ds_contato)) LIKE '%" + descricaoPesquisa + "%' " + queryGrupoAgenda;
             }
         } else if (porPesquisa.equals("telefone")) {
             String dddString = "";
@@ -371,12 +371,12 @@ public class AgendaTelefoneDao extends DB {
                     + "       FROM age_agenda AS AGE                                                                                                                                                                                "
                     + "  LEFT JOIN age_telefone AS AGET ON AGET.id_agenda = AGE.id                                                                                                                                                  "
                     + " INNER JOIN endereco_vw ende ON ende.id = age.id_endereco                                                                                                                                                    "
-                    + "WHERE UPPER(TRANSLATE(ende.logradouro) || ' ' || TRANSLATE(ende.endereco) || ', ' || TRANSLATE(bairro) || ', ' || TRANSLATE(cidade) || ', ' || TRANSLATE(uf))    LIKE UPPER('%" + descricaoPesquisa + "%')   "
-                    + "   OR UPPER(TRANSLATE(ende.logradouro) || ' ' || TRANSLATE(ende.endereco) || ', ' || TRANSLATE(cidade) || ', ' || TRANSLATE(uf))                      LIKE UPPER('%" + descricaoPesquisa + "%')              "
-                    + "   OR UPPER(TRANSLATE(ende.logradouro) || ' ' || TRANSLATE(ende.endereco) || ', ' || TRANSLATE(cidade))                                   LIKE UPPER('%" + descricaoPesquisa + "%')                          "
-                    + "   OR UPPER(TRANSLATE(ende.logradouro) || ' ' || TRANSLATE(ende.endereco))                                                      LIKE UPPER('%" + descricaoPesquisa + "%')                                    "
-                    + "   OR UPPER(TRANSLATE(ende.endereco))                                                                                LIKE UPPER('%" + descricaoPesquisa + "%')                                               "
-                    + "   OR UPPER(TRANSLATE(ende.cidade))                                                                                  LIKE UPPER('%" + descricaoPesquisa + "%')                                               "
+                    + "WHERE UPPER(FUNC_TRANSLATE(ende.logradouro) || ' ' || FUNC_TRANSLATE(ende.endereco) || ', ' || FUNC_TRANSLATE(bairro) || ', ' || FUNC_TRANSLATE(cidade) || ', ' || FUNC_TRANSLATE(uf))    LIKE UPPER('%" + descricaoPesquisa + "%')   "
+                    + "   OR UPPER(FUNC_TRANSLATE(ende.logradouro) || ' ' || FUNC_TRANSLATE(ende.endereco) || ', ' || FUNC_TRANSLATE(cidade) || ', ' || FUNC_TRANSLATE(uf))                      LIKE UPPER('%" + descricaoPesquisa + "%')              "
+                    + "   OR UPPER(FUNC_TRANSLATE(ende.logradouro) || ' ' || FUNC_TRANSLATE(ende.endereco) || ', ' || FUNC_TRANSLATE(cidade))                                   LIKE UPPER('%" + descricaoPesquisa + "%')                          "
+                    + "   OR UPPER(FUNC_TRANSLATE(ende.logradouro) || ' ' || FUNC_TRANSLATE(ende.endereco))                                                      LIKE UPPER('%" + descricaoPesquisa + "%')                                    "
+                    + "   OR UPPER(FUNC_TRANSLATE(ende.endereco))                                                                                LIKE UPPER('%" + descricaoPesquisa + "%')                                               "
+                    + "   OR UPPER(FUNC_TRANSLATE(ende.cidade))                                                                                  LIKE UPPER('%" + descricaoPesquisa + "%')                                               "
                     + "   OR UPPER(ende.cep)                                                                                     = '" + descricaoPesquisa + "'";
         } else {
             queryString += " AGE.id_grupo_agenda = " + idGrupoAgenda + " GROUP BY AGET.id_agenda ORDER BY AGET.id_agenda DESC ";
@@ -440,15 +440,15 @@ public class AgendaTelefoneDao extends DB {
             }
             if (porPesquisa.equals("pessoa")) {
                 if (comoPesquisa.equals("Inicial")) {
-                    subQueryString += " WHERE " + inGrupoPermitido + " UPPER(TRANSLATE(P.ds_nome)) LIKE '" + descricaoPesquisa + "%' " + subQueryStringGrupoAgenda + " ORDER BY AGE.ds_nome ASC ";
+                    subQueryString += " WHERE " + inGrupoPermitido + " UPPER(FUNC_TRANSLATE(P.ds_nome)) LIKE '" + descricaoPesquisa + "%' " + subQueryStringGrupoAgenda + " ORDER BY AGE.ds_nome ASC ";
                 } else {
-                    subQueryString += " WHERE " + inGrupoPermitido + " UPPER(TRANSLATE(P.ds_nome)) LIKE '%" + descricaoPesquisa + "%' " + subQueryStringGrupoAgenda + " ORDER BY AGE.ds_nome ASC ";
+                    subQueryString += " WHERE " + inGrupoPermitido + " UPPER(FUNC_TRANSLATE(P.ds_nome)) LIKE '%" + descricaoPesquisa + "%' " + subQueryStringGrupoAgenda + " ORDER BY AGE.ds_nome ASC ";
                 }
             } else if (porPesquisa.equals("nome")) {
                 if (comoPesquisa.equals("Inicial")) {
-                    subQueryString += " WHERE  " + inGrupoPermitido + " UPPER(TRANSLATE(AGE.ds_nome)) LIKE '" + descricaoPesquisa + "%' " + subQueryStringGrupoAgenda + " ORDER BY AGE.ds_nome ASC ";
+                    subQueryString += " WHERE  " + inGrupoPermitido + " UPPER(FUNC_TRANSLATE(AGE.ds_nome)) LIKE '" + descricaoPesquisa + "%' " + subQueryStringGrupoAgenda + " ORDER BY AGE.ds_nome ASC ";
                 } else {
-                    subQueryString += " WHERE  " + inGrupoPermitido + " UPPER(TRANSLATE(AGE.ds_nome)) LIKE '%" + descricaoPesquisa + "%' " + subQueryStringGrupoAgenda + " ORDER BY AGE.ds_nome ASC ";
+                    subQueryString += " WHERE  " + inGrupoPermitido + " UPPER(FUNC_TRANSLATE(AGE.ds_nome)) LIKE '%" + descricaoPesquisa + "%' " + subQueryStringGrupoAgenda + " ORDER BY AGE.ds_nome ASC ";
                 }
             }
             try {
