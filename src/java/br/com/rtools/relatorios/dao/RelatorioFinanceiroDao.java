@@ -5,6 +5,7 @@ import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoPagamento;
 import br.com.rtools.principal.DB;
 import br.com.rtools.relatorios.RelatorioGrupo;
+import br.com.rtools.relatorios.RelatorioJoin;
 import br.com.rtools.relatorios.RelatorioParametros;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.seguranca.Usuario;
@@ -14,7 +15,7 @@ import javax.persistence.Query;
 
 public class RelatorioFinanceiroDao extends DB {
 
-    public List<Object> listaRelatorioFinanceiro(String ids_contabil, Integer  id_grupo, Integer id_sub_grupo, Integer id_servicos, String dataEmissao, String dataEmissaoFinal, String dataVencimento, String dataVencimentoFinal, String dataQuitacao, String dataQuitacaoFinal, String dataImportacao, String dataImportacaoFinal, String dataCredito, String dataCreditoFinal, String dataFechamentoCaixa, String dataFechamentoCaixaFinal, Integer id_caixa_banco, String tipo_caixa, Integer id_caixa, Integer id_operador, Integer id_tipo_quitacao, String tipo_departamento, String tipo_es, String order, Relatorios relatorio) {
+    public List<Object> listaRelatorioFinanceiro(String ids_contabil, Integer  id_grupo, Integer id_sub_grupo, Integer id_servicos, String dataEmissao, String dataEmissaoFinal, String dataVencimento, String dataVencimentoFinal, String dataQuitacao, String dataQuitacaoFinal, String dataImportacao, String dataImportacaoFinal, String dataCredito, String dataCreditoFinal, String dataFechamentoCaixa, String dataFechamentoCaixaFinal, Integer id_caixa_banco, String tipo_caixa, Integer id_caixa, Integer id_operador, Integer id_tipo_quitacao, String tipo_departamento, String tipo_es, String tipo_pessoa, String tipo_situacao, String order, Relatorios relatorio) {
 //        String select
 //                = "SELECT \n "
 //                + "       grupo, \n "
@@ -32,131 +33,149 @@ public class RelatorioFinanceiroDao extends DB {
                 if (s.isEmpty())
                     s = rp.getParametro()+" AS "+rp.getApelido();
                 else
-                    s += ", "+rp.getParametro()+" AS "+rp.getApelido();
+                    s += ", "+" \n "+rp.getParametro()+" AS "+rp.getApelido();
             }
             select += s;
         }else{
-            select += " * ";
+            return new ArrayList();
         }
         
-        select += " FROM movimentos_vw \n ";
+        select += " \n "+" FROM movimentos_vw AS m \n ";
         
+        String join = "";
+        if (!tipo_pessoa.isEmpty()){
+            switch (tipo_pessoa) {
+                case "fisica":
+                    join += " INNER JOIN pes_fisica pfx ON pfx.id_pessoa = m.id_pessoa \n ";
+                    break;
+                default:
+                    join += " INNER JOIN pes_juridica pjx ON pjx.id_pessoa = m.id_pessoa \n ";
+                    break;
+            }            
+        }
+        
+        List<RelatorioJoin> listaRJ = new RelatorioDao().listaRelatorioJoin(relatorio.getId());
+        if (!listaRJ.isEmpty()){
+            String j = "";
+            for(RelatorioJoin rj : listaRJ){
+                j += " "+ rj.getJoin()+" \n ";
+            }
+            join += j;
+        }
         
         List<String> list_where = new ArrayList();
         
         String where = "";
-        // 10/04/2015
         
         // CONTA CONTABIL ---
         if (!ids_contabil.isEmpty()){
-            list_where.add(" id_conta IN ("+ids_contabil+") \n ");
+            list_where.add(" m.id_conta IN ("+ids_contabil+") \n ");
         }
         
         // GRUPO ---
         if (id_grupo != null){
-            list_where.add(" id_grupo = "+id_grupo+ " \n ");
+            list_where.add(" m.id_grupo = "+id_grupo+ " \n ");
         }
         
         // SUB GRUPO ---
         if (id_sub_grupo != null){
-            list_where.add(" id_subgrupo = "+id_sub_grupo+ " \n ");
+            list_where.add(" m.id_subgrupo = "+id_sub_grupo+ " \n ");
         }
         
         // SERVICOS ---
         if (id_servicos != null){
-            list_where.add(" id_servico = "+id_servicos+ " \n ");
+            list_where.add(" m.id_servico = "+id_servicos+ " \n ");
         }
         
         // DATA EMISSAO ---
         if (!dataEmissao.isEmpty() && !dataEmissaoFinal.isEmpty()){
-            list_where.add(" emissao between '"+dataEmissao+"' and '"+dataEmissaoFinal+"' \n ");
+            list_where.add(" m.emissao BETWEEN '"+dataEmissao+"' and '"+dataEmissaoFinal+"' \n ");
         }else if (!dataEmissao.isEmpty() && dataEmissaoFinal.isEmpty()){
-            list_where.add(" emissao >= '"+dataEmissao+"' \n ");
+            list_where.add(" m.emissao >= '"+dataEmissao+"' \n ");
         }else if (dataEmissao.isEmpty() && !dataEmissaoFinal.isEmpty()){
-            list_where.add(" emissao <= '"+dataEmissaoFinal+"' \n ");
+            list_where.add(" m.emissao <= '"+dataEmissaoFinal+"' \n ");
         }
         
         // DATA VENCIMENTO ---
         if (!dataVencimento.isEmpty() && !dataVencimentoFinal.isEmpty()){
-            list_where.add(" vencimento between '"+dataVencimento+"' and '"+dataVencimentoFinal+"' \n ");
+            list_where.add(" m.vencimento BETWEEN '"+dataVencimento+"' and '"+dataVencimentoFinal+"' \n ");
         }else if (!dataVencimento.isEmpty() && dataVencimentoFinal.isEmpty()){
-            list_where.add(" vencimento >= '"+dataVencimento+"' \n ");
+            list_where.add(" m.vencimento >= '"+dataVencimento+"' \n ");
         }else if (dataVencimento.isEmpty() && !dataVencimentoFinal.isEmpty()){
-            list_where.add(" vencimento <= '"+dataVencimentoFinal+"' \n ");
+            list_where.add(" m.vencimento <= '"+dataVencimentoFinal+"' \n ");
         }
         
         // DATA QUITAÇÃO ---
         if (!dataQuitacao.isEmpty() && !dataQuitacaoFinal.isEmpty()){
-            list_where.add(" baixa between '"+dataQuitacao+"' and '"+dataQuitacaoFinal+"' \n ");
+            list_where.add(" m.baixa BETWEEN '"+dataQuitacao+"' and '"+dataQuitacaoFinal+"' \n ");
         }else if (!dataQuitacao.isEmpty() && dataQuitacaoFinal.isEmpty()){
-            list_where.add(" baixa >= '"+dataQuitacao+"' \n ");
+            list_where.add(" m.baixa >= '"+dataQuitacao+"' \n ");
         }else if (dataQuitacao.isEmpty() && !dataQuitacaoFinal.isEmpty()){
-            list_where.add(" baixa <= '"+dataQuitacaoFinal+"' \n ");
+            list_where.add(" m.baixa <= '"+dataQuitacaoFinal+"' \n ");
         }
         
         // DATA IMPORTACAO ---
         if (!dataImportacao.isEmpty() && !dataImportacaoFinal.isEmpty()){
-            list_where.add(" importacao between '"+dataImportacao+"' and '"+dataImportacaoFinal+"' \n ");
+            list_where.add(" m.importacao BETWEEN '"+dataImportacao+"' and '"+dataImportacaoFinal+"' \n ");
         }else if (!dataImportacao.isEmpty() && dataImportacaoFinal.isEmpty()){
-            list_where.add(" importacao >= '"+dataImportacao+"' \n ");
+            list_where.add(" m.importacao >= '"+dataImportacao+"' \n ");
         }else if (dataImportacao.isEmpty() && !dataImportacaoFinal.isEmpty()){
-            list_where.add(" importacao <= '"+dataImportacaoFinal+"' \n ");
+            list_where.add(" m.importacao <= '"+dataImportacaoFinal+"' \n ");
         }
         
         // DATA CREDITO ---
         if (!dataCredito.isEmpty() && !dataCreditoFinal.isEmpty() ){
-            list_where.add(" dt_credito between '"+dataCredito+"' and '"+dataCreditoFinal+"' \n ");
+            list_where.add(" m.dt_credito BETWEEN '"+dataCredito+"' and '"+dataCreditoFinal+"' \n ");
         }else if (!dataCredito.isEmpty() && dataCreditoFinal.isEmpty() ){
-            list_where.add(" dt_credito >= '"+dataCredito+"' \n ");
+            list_where.add(" m.dt_credito >= '"+dataCredito+"' \n ");
         }else if (dataCredito.isEmpty() && !dataCreditoFinal.isEmpty() ){
-            list_where.add(" dt_credito <= '"+dataCreditoFinal+"' \n ");
+            list_where.add(" m.dt_credito <= '"+dataCreditoFinal+"' \n ");
         }
             
-        
         // DATA FECHAMENTO CAIXA---
         if (!dataFechamentoCaixa.isEmpty() && !dataFechamentoCaixaFinal.isEmpty()){
-            list_where.add(" fechamento_caixa between '"+dataFechamentoCaixa+"' and '"+dataFechamentoCaixaFinal+"' \n ");
+            list_where.add(" m.fechamento_caixa BETWEEN '"+dataFechamentoCaixa+"' and '"+dataFechamentoCaixaFinal+"' \n ");
         }else if (!dataFechamentoCaixa.isEmpty() && dataFechamentoCaixaFinal.isEmpty()){
-            list_where.add(" fechamento_caixa >= '"+dataFechamentoCaixa+"' \n ");
+            list_where.add(" m.fechamento_caixa >= '"+dataFechamentoCaixa+"' \n ");
         }else if (dataFechamentoCaixa.isEmpty() && !dataFechamentoCaixaFinal.isEmpty()){
-            list_where.add(" fechamento_caixa <= '"+dataFechamentoCaixaFinal+"' \n ");
+            list_where.add(" m.fechamento_caixa <= '"+dataFechamentoCaixaFinal+"' \n ");
         }
         
         // CAIXA / BANCO ---
         if (id_caixa_banco != null){
-            list_where.add(" id_caixa_banco = "+id_caixa_banco+" \n ");
+            list_where.add(" m.id_caixa_banco = "+id_caixa_banco+" \n ");
         }
         
         // CAIXA ---
         if (!tipo_caixa.isEmpty()){
             if (tipo_caixa.equals("com") && id_caixa != null){
-                list_where.add(" id_caixa = "+id_caixa+" \n ");
+                list_where.add(" m.id_caixa = "+id_caixa+" \n ");
             }else{
-                list_where.add(" id_caixa IS NULL \n ");
+                list_where.add(" m.id_caixa IS NULL \n ");
             }
         }
         
         // OPERADOR ---
         if (id_operador != null){
-            list_where.add(" id_usuario_baixa = "+id_operador+" \n ");
+            list_where.add(" m.id_usuario_baixa = "+id_operador+" \n ");
         }
         
         // TIPO QUITAÇÃO ---
         if (id_tipo_quitacao != null){
-            list_where.add(" id_tipo_pagamento = "+id_tipo_quitacao+" \n ");
+            list_where.add(" m.id_tipo_pagamento = "+id_tipo_quitacao+" \n ");
         }
         
         // TIPO DEPARTAMENTO ---
         if (!tipo_departamento.isEmpty()){
             switch (tipo_departamento) {
                 case "outros":
-                    list_where.add(" id_rotina <> 4 \n ");
+                    list_where.add(" m.id_rotina <> 4 \n ");
                     break;
                 case "todos":
                     break;
                 default:
                     // ARRECADAÇÃO
-                    list_where.add(" id_rotina = 4 \n ");
+                    list_where.add(" m.id_rotina = 4 \n ");
                     break;
             }
         }
@@ -165,10 +184,38 @@ public class RelatorioFinanceiroDao extends DB {
         if (!tipo_es.isEmpty()){
             switch (tipo_es) {
                 case "E":
-                    list_where.add(" es = 'E' \n ");
+                    list_where.add(" m.es = 'E' \n ");
                     break;
                 case "S":
-                    list_where.add(" es = 'S' \n ");
+                    list_where.add(" m.es = 'S' \n ");
+                    break;
+            }
+        }
+        
+        // PESSOA
+        if (!tipo_pessoa.isEmpty()){
+            switch (tipo_pessoa) {
+                case "fisica":
+                    break;
+                    
+                // JURIDICA
+                default :
+                    break;
+            }
+        }
+        
+        // SITUACAO
+        if (!tipo_situacao.isEmpty()){
+            switch (tipo_situacao) {
+                case "atrasado":
+                    list_where.add(" m.vencimento < CURRENT_DATE \n ");
+                    break;
+                case "baixado":
+                    list_where.add(" m.baixa IS NOT NULL \n ");
+                    break;
+                // aberto
+                default :
+                    list_where.add(" m.baixa IS NULL \n ");
                     break;
             }
         }
@@ -176,6 +223,8 @@ public class RelatorioFinanceiroDao extends DB {
         if (list_where.isEmpty()){
             return new ArrayList();
         }
+        
+        select += join;
         
         for (String linha : list_where){
             if (where.isEmpty()){

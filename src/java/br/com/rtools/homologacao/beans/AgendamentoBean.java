@@ -1,10 +1,7 @@
 package br.com.rtools.homologacao.beans;
 
-import br.com.rtools.arrecadacao.CnaeConvencao;
 import br.com.rtools.pessoa.beans.PesquisarProfissaoBean;
 import br.com.rtools.arrecadacao.Oposicao;
-import br.com.rtools.arrecadacao.db.CnaeConvencaoDB;
-import br.com.rtools.arrecadacao.db.CnaeConvencaoDBToplink;
 import br.com.rtools.atendimento.db.AtendimentoDB;
 import br.com.rtools.atendimento.db.AtendimentoDBTopLink;
 import br.com.rtools.endereco.Endereco;
@@ -61,10 +58,10 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     private String emailEmpresa = "";
     private String styleDestaque = "";
     private List listaMovimento = new ArrayList();
-    private List<SelectItem> listaStatus = new ArrayList();
-    private List<SelectItem> listaDemissao = new ArrayList();
-    private List<SelectItem> listaHorarioTransferencia = new ArrayList();
-    private List<ListaAgendamento> listaHorarios = new ArrayList();
+    private final List<SelectItem> listaStatus = new ArrayList();
+    private final List<SelectItem> listaDemissao = new ArrayList();
+    private final List<SelectItem> listaHorarioTransferencia = new ArrayList();
+    private final List<ListaAgendamento> listaHorarios = new ArrayList();
     private Juridica juridica = new Juridica();
     private Fisica fisica = new Fisica();
     private Date data = DataHoje.dataHoje();
@@ -93,6 +90,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     private boolean visibleModal = false;
     private String tipoTelefone = "telefone";
     private Cancelamento cancelamento = new Cancelamento();
+    private String documentoFisica = "";
 
     public AgendamentoBean() {
         macFilial = (MacFilial) GenericaSessao.getObject("acessoFilial");
@@ -692,7 +690,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
 
         dao.openTransaction();
         Fisica f = (Fisica) dao.find(new Fisica(), fisica.getId());
-        if(f == null) {
+        if (f == null) {
             fisica.setId(-1);
         }
         if (fisica.getId() == -1) {
@@ -931,6 +929,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         strEndereco = "";
         //tipoAviso = "true";
         fisica = new Fisica();
+        documentoFisica = "";
         cepEndereco = "";
         listaEnderecos.clear();
         agendamento = new Agendamento();
@@ -979,6 +978,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         renderCancelar = true;
         //tipoAviso = "true";
         fisica = new Fisica();
+        documentoFisica = "";
         agendamento = new Agendamento();
         pessoaEmpresa = new PessoaEmpresa();
         profissao = new Profissao();
@@ -996,6 +996,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         strEndereco = "";
         //tipoAviso = "true";
         fisica = new Fisica();
+        documentoFisica = "";
         pessoaEmpresa = new PessoaEmpresa();
         agendamento = new Agendamento();
         profissao = new Profissao();
@@ -1009,6 +1010,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         strEndereco = "";
         //tipoAviso = "true";
         fisica = new Fisica();
+        documentoFisica = "";
         pessoaEmpresa = new PessoaEmpresa();
         agendamento = new Agendamento();
         profissao = new Profissao();
@@ -1019,134 +1021,127 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     public void pesquisarFuncionarioCPF() throws IOException {
         if (agendamento.getId() == -1) {
             styleDestaque = "";
-            if ((!fisica.getPessoa().getDocumento().isEmpty() && !fisica.getPessoa().getDocumento().equals("___.___.___-__"))) {
-                if (!fisica.getPessoa().getDocumento().isEmpty() && !fisica.getPessoa().getDocumento().equals("___.___.___-__")) {
-                    if (!ValidaDocumentos.isValidoCPF(AnaliseString.extrairNumeros(fisica.getPessoa().getDocumento()))) {
-                        GenericaMensagem.warn("Atenção", "Documento Inválido!");
-                        return;
-                    }
-                }
 
-                FisicaDB dbFis = new FisicaDBToplink();
-                HomologacaoDB db = new HomologacaoDBToplink();
-                PessoaEnderecoDB dbe = new PessoaEnderecoDBToplink();
-                List<Fisica> listFisica = new ArrayList();
-                String documento = fisica.getPessoa().getDocumento();
-                if ((!fisica.getPessoa().getDocumento().isEmpty() && !fisica.getPessoa().getDocumento().equals("___.___.___-__"))) {
-                    listFisica = dbFis.pesquisaFisicaPorDocSemLike(documento);
-                }
-                if (listFisica.isEmpty()) {
-                    if (!fisica.getPessoa().getNome().isEmpty() && !fisica.getNascimento().isEmpty()) {
-                        Fisica f = (Fisica) dbFis.pesquisaFisicaPorNomeNascimento(fisica.getPessoa().getNome().trim(), fisica.getDtNascimento());
-                        if (f != null) {
-                            listFisica.add(f);
-                        }
-                    }
-                }
-                List<Oposicao> listao = db.pesquisaFisicaOposicaoSemEmpresa(documento);
-                PessoaEmpresa pem = db.pesquisaPessoaEmpresaPertencente(documento);
-
-                if (!listFisica.isEmpty()) {
-                    // AQUI
-                    //                Agendamento age = db.pesquisaFisicaAgendada(listFisica.get(0).getId());
-                    //                if (age != null) {
-                    //                    msgConfirma = "CPF já foi agendado:" + age.getData() + " às " + age.getHorarios().getHora() + " h(s) ";
-                    //                    return;
-                    //                }
-                }
-
-                // SEM PESSOA FISICA E SEM OPOSICAO
-                if (listFisica.isEmpty() && listao.isEmpty()) {
-                    //FacesContext.getCurrentInstance().getExternalContext().redirect("/Sindical/agendamento.jsf");
-                    //msgConfirma = "CPF verificado com sucesso";
-                    // SEM PESSOA FISICA E COM OPOSICAO    
-                } else if (listFisica.isEmpty() && !listao.isEmpty()) {
-                    GenericaMensagem.warn("Atenção", "CPF cadastrado em oposição data: " + listao.get(0).getEmissao());
-
-                    styleDestaque = "color: red; font-size: 14pt; font-weight:bold";
-                    fisica.getPessoa().setNome(listao.get(0).getOposicaoPessoa().getNome());
-                    fisica.setRg(listao.get(0).getOposicaoPessoa().getRg());
-                    fisica.setSexo(listao.get(0).getOposicaoPessoa().getSexo());
-                    fisica.getPessoa().setDocumento(documento);
-                    juridica = listao.get(0).getJuridica();
-
-                    PF.openDialog("dlg_oposicao");
-                    // COM FISICA, COM PESSOA EMPRESA E SEM OPOSICAO    
-                } else if (!listFisica.isEmpty() && pem != null && listao.isEmpty()) {
-                    //msgConfirma = "CPF verificado com sucesso";
-                    pessoaEmpresa = pem;
-                    // PARA ALTERAR NOME E NASCIMENTO ---
-                    // pessoaEmpresa.getFisica().getPessoa().setNome(fisica.getPessoa().getNome());
-                    // pessoaEmpresa.getFisica().getPessoa().setNome(listFisica.get(0).getPessoa().getNome());
-                    //pessoaEmpresa.getFisica().setNascimento(fisica.getNascimento());
-                    // pessoaEmpresa.getFisica().setNascimento(listFisica.get(0).getNascimento());
-                    fisica = pessoaEmpresa.getFisica();
-                    // ---
-                    profissao = (pessoaEmpresa.getFuncao() == null) ? new Profissao() : pessoaEmpresa.getFuncao();
-                    GenericaSessao.put("juridicaPesquisa", pessoaEmpresa.getJuridica());
-                    enderecoFisica = dbe.pesquisaEndPorPessoaTipo(fisica.getPessoa().getId(), 3);
-                    protocolo = 0;
-                    //FacesContext.getCurrentInstance().getExternalContext().redirect("/Sindical/agendamento.jsf");
-                    // COM FISICA, SEM PESSOA EMPRESA E SEM OPOSICAO    
-                } else if (!listFisica.isEmpty() && pem == null && listao.isEmpty()) {
-                    //msgConfirma = "CPF verificado com sucesso";
-                    // PARA ALTERAR NOME E NASCIMENTO ---
-                    // listFisica.get(0).getPessoa().setNome(fisica.getPessoa().getNome());
-                    // listFisica.get(0).setNascimento(fisica.getNascimento());
-                    // ----
-                    fisica = listFisica.get(0);
-                    fisica.getPessoa().setDocumento(documento);
-                    pessoaEmpresa = new PessoaEmpresa();
-                    juridica = new Juridica();
-                    enderecoFisica = dbe.pesquisaEndPorPessoaTipo(fisica.getPessoa().getId(), 3);
-                    //FacesContext.getCurrentInstance().getExternalContext().redirect("/Sindical/agendamento.jsf");
-                    // COM FISICA, COM PESSOA EMPRESA COM OPOSICAO
-                } else if (!listFisica.isEmpty() && pem != null && !listao.isEmpty()) {
-                    GenericaMensagem.warn("Atenção", "CPF cadastrado em oposição data: " + listao.get(0).getEmissao());
-
-                    styleDestaque = "color: red; font-size: 14pt; font-weight:bold";
-                    pessoaEmpresa = pem;
-                    // PARA ALTERAR NOME E NASCIMENTO ---
-                    pessoaEmpresa.getFisica().getPessoa().setNome(fisica.getPessoa().getNome());
-                    pessoaEmpresa.getFisica().setNascimento(fisica.getNascimento());
-                    // ----
-                    fisica = pessoaEmpresa.getFisica();
-                    profissao = (pessoaEmpresa.getFuncao() == null) ? new Profissao() : pessoaEmpresa.getFuncao();
-                    enderecoFisica = dbe.pesquisaEndPorPessoaTipo(fisica.getPessoa().getId(), 3);
-                    protocolo = 0;
-                    // FUNCIONARIO JA FOI AGENDADO
-                    //                if (db.pesquisaFisicaAgendada(fisica.getId()) != null){
-                    //
-                    //                }
-                    // EMPRESA É A MESMA DA OPOSICAO
-                    if (pessoaEmpresa.getJuridica().getId() == listao.get(0).getJuridica().getId()) {
-                        juridica = pessoaEmpresa.getJuridica();
-                    } else {
-                        juridica = listao.get(0).getJuridica();
-                        // FUNCIONARIO SEM DATA DE DEMISSAO
-                        //                    if (pessoaEmpresa.getDemissao().isEmpty()){
-                        //                        if ((DataHoje.converteDataParaInteger(pessoaEmpresa.getDemissao()) < DataHoje.converteDataParaInteger(listao.get(0).getEmissao()) )){
-                        //
-                        //                        }
-                        //                    }
-                    }
-                    GenericaSessao.put("juridicaPesquisa", juridica);
-                    PF.openDialog("dlg_oposicao");
-                    // COM FISICA, SEM PESSOA EMPRESA COM OPOSICAO
-                } else if (!listFisica.isEmpty() && pem == null && !listao.isEmpty()) {
-                    GenericaMensagem.warn("Atenção", "CPF cadastrado em oposição data: " + listao.get(0).getEmissao());
-                    styleDestaque = "color: red; font-size: 14pt; font-weight:bold";
-                    // PARA ALTERAR NOME E NASCIMENTO ---
-                    listFisica.get(0).getPessoa().setNome(fisica.getPessoa().getNome());
-                    listFisica.get(0).setNascimento(fisica.getNascimento());
-                    // ----
-                    fisica = listFisica.get(0);
-                    juridica = listao.get(0).getJuridica();
-                    enderecoFisica = dbe.pesquisaEndPorPessoaTipo(fisica.getPessoa().getId(), 3);
-                    PF.openDialog("dlg_oposicao");
-                }
-            } else {
+            if (documentoFisica.isEmpty()) {
                 GenericaMensagem.warn("Atenção", "Informar CPF!");
+                return;
+            }
+
+            if (!documentoFisica.isEmpty() && documentoFisica.equals("___.___.___-__")) {
+                GenericaMensagem.warn("Atenção", "Informar CPF!");
+                return;
+            }
+
+            if (!ValidaDocumentos.isValidoCPF(AnaliseString.extrairNumeros(documentoFisica))) {
+                GenericaMensagem.warn("Atenção", "Documento Inválido!");
+                return;
+            }
+                        
+            if (fisica.getId() != -1 && fisica.getPessoa().getDocumento().equals(documentoFisica)){
+                return;
+            }
+            
+            fisica = new Fisica();
+            FisicaDB dbFis = new FisicaDBToplink();
+            HomologacaoDB db = new HomologacaoDBToplink();
+            PessoaEnderecoDB dbe = new PessoaEnderecoDBToplink();
+            
+            String documento = documentoFisica;
+            
+            List<Fisica> listFisica = dbFis.pesquisaFisicaPorDocSemLike(documento);
+            
+            if (listFisica.isEmpty()) {
+                if (!fisica.getPessoa().getNome().isEmpty() && !fisica.getNascimento().isEmpty()) {
+                    Fisica f = (Fisica) dbFis.pesquisaFisicaPorNomeNascimento(fisica.getPessoa().getNome().trim(), fisica.getDtNascimento());
+                    if (f != null) {
+                        listFisica.add(f);
+                    }
+                }
+            }
+            
+            List<Oposicao> listao = db.pesquisaFisicaOposicaoSemEmpresa(documento);
+            PessoaEmpresa pem = db.pesquisaPessoaEmpresaPertencente(documento);
+
+            if (!listFisica.isEmpty()) {
+                // AQUI
+                //                Agendamento age = db.pesquisaFisicaAgendada(listFisica.get(0).getId());
+                //                if (age != null) {
+                //                    msgConfirma = "CPF já foi agendado:" + age.getData() + " às " + age.getHorarios().getHora() + " h(s) ";
+                //                    return;
+                //                }
+            }
+
+            // SEM PESSOA FISICA E SEM OPOSICAO
+            if (listFisica.isEmpty() && listao.isEmpty()) {
+                //FacesContext.getCurrentInstance().getExternalContext().redirect("/Sindical/agendamento.jsf");
+                //msgConfirma = "CPF verificado com sucesso";
+                // SEM PESSOA FISICA E COM OPOSICAO    
+            } else if (listFisica.isEmpty() && !listao.isEmpty()) {
+                GenericaMensagem.warn("Atenção", "CPF cadastrado em oposição data: " + listao.get(0).getEmissao());
+
+                styleDestaque = "color: red; font-size: 14pt; font-weight:bold";
+                fisica.getPessoa().setNome(listao.get(0).getOposicaoPessoa().getNome());
+                fisica.setRg(listao.get(0).getOposicaoPessoa().getRg());
+                fisica.setSexo(listao.get(0).getOposicaoPessoa().getSexo());
+                fisica.getPessoa().setDocumento(documento);
+                juridica = listao.get(0).getJuridica();
+
+                PF.openDialog("dlg_oposicao");
+                // COM FISICA, COM PESSOA EMPRESA E SEM OPOSICAO    
+            } else if (!listFisica.isEmpty() && pem != null && listao.isEmpty()) {
+                //msgConfirma = "CPF verificado com sucesso";
+                pessoaEmpresa = pem;
+                fisica = pessoaEmpresa.getFisica();
+                profissao = (pessoaEmpresa.getFuncao() == null) ? new Profissao() : pessoaEmpresa.getFuncao();
+                GenericaSessao.put("juridicaPesquisa", pessoaEmpresa.getJuridica());
+                enderecoFisica = dbe.pesquisaEndPorPessoaTipo(fisica.getPessoa().getId(), 3);
+                protocolo = 0;
+                //FacesContext.getCurrentInstance().getExternalContext().redirect("/Sindical/agendamento.jsf");
+                // COM FISICA, SEM PESSOA EMPRESA E SEM OPOSICAO    
+            } else if (!listFisica.isEmpty() && pem == null && listao.isEmpty()) {
+                //msgConfirma = "CPF verificado com sucesso";
+                fisica = listFisica.get(0);
+                fisica.getPessoa().setDocumento(documento);
+                pessoaEmpresa = new PessoaEmpresa();
+                juridica = new Juridica();
+                enderecoFisica = dbe.pesquisaEndPorPessoaTipo(fisica.getPessoa().getId(), 3);
+                //FacesContext.getCurrentInstance().getExternalContext().redirect("/Sindical/agendamento.jsf");
+                // COM FISICA, COM PESSOA EMPRESA COM OPOSICAO
+            } else if (!listFisica.isEmpty() && pem != null && !listao.isEmpty()) {
+                GenericaMensagem.warn("Atenção", "CPF cadastrado em oposição data: " + listao.get(0).getEmissao());
+
+                styleDestaque = "color: red; font-size: 14pt; font-weight:bold";
+                pessoaEmpresa = pem;
+                fisica = pessoaEmpresa.getFisica();
+                profissao = (pessoaEmpresa.getFuncao() == null) ? new Profissao() : pessoaEmpresa.getFuncao();
+                enderecoFisica = dbe.pesquisaEndPorPessoaTipo(fisica.getPessoa().getId(), 3);
+                protocolo = 0;
+                // FUNCIONARIO JA FOI AGENDADO
+                //                if (db.pesquisaFisicaAgendada(fisica.getId()) != null){
+                //
+                //                }
+                // EMPRESA É A MESMA DA OPOSICAO
+                if (pessoaEmpresa.getJuridica().getId() == listao.get(0).getJuridica().getId()) {
+                    juridica = pessoaEmpresa.getJuridica();
+                } else {
+                    juridica = listao.get(0).getJuridica();
+                    // FUNCIONARIO SEM DATA DE DEMISSAO
+                    //                    if (pessoaEmpresa.getDemissao().isEmpty()){
+                    //                        if ((DataHoje.converteDataParaInteger(pessoaEmpresa.getDemissao()) < DataHoje.converteDataParaInteger(listao.get(0).getEmissao()) )){
+                    //
+                    //                        }
+                    //                    }
+                }
+                GenericaSessao.put("juridicaPesquisa", juridica);
+                PF.openDialog("dlg_oposicao");
+                // COM FISICA, SEM PESSOA EMPRESA COM OPOSICAO
+            } else if (!listFisica.isEmpty() && pem == null && !listao.isEmpty()) {
+                GenericaMensagem.warn("Atenção", "CPF cadastrado em oposição data: " + listao.get(0).getEmissao());
+                styleDestaque = "color: red; font-size: 14pt; font-weight:bold";
+                fisica = listFisica.get(0);
+                juridica = listao.get(0).getJuridica();
+                enderecoFisica = dbe.pesquisaEndPorPessoaTipo(fisica.getPessoa().getId(), 3);
+                PF.openDialog("dlg_oposicao");
             }
         }
     }
@@ -1565,10 +1560,6 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         return listaHorarios;
     }
 
-    public void setListaHorarios(List<ListaAgendamento> listaHorarios) {
-        this.listaHorarios = listaHorarios;
-    }
-
     public String getEmailEmpresa() {
         return emailEmpresa;
     }
@@ -1630,6 +1621,14 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
 
     public void setCancelamento(Cancelamento cancelamento) {
         this.cancelamento = cancelamento;
+    }
+
+    public String getDocumentoFisica() {
+        return documentoFisica;
+    }
+
+    public void setDocumentoFisica(String documentoFisica) {
+        this.documentoFisica = documentoFisica;
     }
 
 }

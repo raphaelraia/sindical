@@ -2,6 +2,7 @@ package br.com.rtools.relatorios.beans;
 
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.relatorios.RelatorioGrupo;
+import br.com.rtools.relatorios.RelatorioJoin;
 import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.RelatorioParametros;
 import br.com.rtools.relatorios.Relatorios;
@@ -11,6 +12,7 @@ import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.PF;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,12 +30,16 @@ public class RelatorioBean implements Serializable {
     private RelatorioOrdem relatorioOrdem;
     private RelatorioParametros relatorioParametros;
     private RelatorioGrupo relatorioGrupo;
+    private RelatorioJoin relatorioJoin;
     private List<SelectItem> listRotina;
     private List<Relatorios> listRelatorio;
     private List<RelatorioOrdem> listRelatorioOrdem;
     private Integer rotina_id;
     private List<RelatorioParametros> listaRelatorioParametro;
     private List<RelatorioGrupo> listaRelatorioGrupo;
+    private List<RelatorioJoin> listaRelatorioJoin;
+    
+    private String textQuery;
 
     @PostConstruct
     public void init() {
@@ -45,8 +51,11 @@ public class RelatorioBean implements Serializable {
         rotina_id = 0;
         relatorioParametros = new RelatorioParametros();
         relatorioGrupo = new RelatorioGrupo();
+        relatorioJoin = new RelatorioJoin();
         listaRelatorioParametro = new ArrayList();
         listaRelatorioGrupo = new ArrayList();
+        listaRelatorioJoin = new ArrayList();
+        textQuery = "";
     }
 
     @PreDestroy
@@ -54,7 +63,90 @@ public class RelatorioBean implements Serializable {
         clear();
         GenericaSessao.remove("rotinaBean");
     }
+    
+    public void verQuery(){
+        loadListaRelatorioParametro();
+        textQuery = "";
+        if (listaRelatorioParametro.isEmpty()){
+            GenericaMensagem.warn("Atenção", "Nenhuma Query para ser Visualizada!");
+            PF.update("form_relatorio");
+            return;
+        }
+        
+        loadListaRelatorioJoin();
+        loadListaRelatorioGrupo();
+        
+        textQuery = "SELECT \n ";
+        
+        if (!listaRelatorioParametro.isEmpty()){
+            String s = "";
+            for(RelatorioParametros rp : listaRelatorioParametro){
+                if (s.isEmpty())
+                    s = rp.getParametro()+" AS "+rp.getApelido();
+                else
+                    s += ", "+" \n "+rp.getParametro()+" AS "+rp.getApelido();
+            }
+            textQuery += s;
+        }
+        textQuery += " \n ";
+        if (!listaRelatorioJoin.isEmpty()){
+            String j = "";
+            for(RelatorioJoin rj : listaRelatorioJoin){
+                j += " "+ rj.getJoin()+" \n ";
+            }
+            textQuery += j;
+        }
+        
+        textQuery += " FROM movimentos_vw AS m \n";
+        
+        if (!listaRelatorioGrupo.isEmpty()){
+            String g = "";
+            for(RelatorioGrupo rg : listaRelatorioGrupo){
+                if (g.isEmpty())
+                    g = rg.getGrupo();
+                else
+                    g += ", "+ " \n "+rg.getGrupo();
+            }
+            textQuery += " GROUP BY \n ";
+            textQuery += g;
+        }
+        
+        textQuery += " \n ";
+        
+        List<RelatorioOrdem> list = new RelatorioOrdemDao().findAllByRelatorio(relatorio.getId());
+        if (list.size() == 1){
+            textQuery += " ORDER BY \n ";
+            textQuery += list.get(0).getQuery();
+        }
+        
+        PF.openDialog("dlg_ver_query");
+        PF.update("form_relatorio:panel_ver_query");
+    }
 
+    public void adicionarRelatorioJoin() {
+        if (relatorioJoin.getJoin().isEmpty()){
+            GenericaMensagem.warn("Atenção", "Join não pode ser vazio!");
+            return;
+        }
+        
+        Dao dao = new Dao();
+        
+        dao.openTransaction();
+        
+        relatorioJoin.setRelatorio(relatorio);
+        
+        if (!dao.save(relatorioJoin)){
+            GenericaMensagem.error("Erro", "Não foi possível salvar Join!");
+            return;
+        }
+        
+        dao.commit();
+        
+        relatorioJoin = new RelatorioJoin();
+        loadListaRelatorioJoin();
+        GenericaMensagem.info("Sucesso", "Join Adicionado!");
+    }
+    
     public void adicionarRelatorioGrupo() {
         if (relatorioGrupo.getGrupo().isEmpty()){
             GenericaMensagem.warn("Atenção", "Grupo não pode ser vazio!");
@@ -76,6 +168,7 @@ public class RelatorioBean implements Serializable {
         
         relatorioGrupo = new RelatorioGrupo();
         loadListaRelatorioGrupo();
+        GenericaMensagem.info("Sucesso", "Grupo Adicionado!");
     }
     
     public void adicionarRelatorioParametro() {
@@ -99,6 +192,23 @@ public class RelatorioBean implements Serializable {
         
         relatorioParametros = new RelatorioParametros();
         loadListaRelatorioParametro();
+        GenericaMensagem.info("Sucesso", "Campo Adicionado!");
+    }
+    
+    public void excluirRelatorioJoin(RelatorioJoin rj) {
+        Dao dao = new Dao();
+        
+        dao.openTransaction();
+        rj = (RelatorioJoin) dao.find(rj);
+        
+        if (!dao.delete(rj)){
+            GenericaMensagem.error("Erro", "Não foi possível excluir Join!");
+            return;
+        }
+        
+        dao.commit();
+        loadListaRelatorioJoin();
+        GenericaMensagem.info("Sucesso", "Join Excluído!");
     }
     
     public void excluirRelatorioGrupo(RelatorioGrupo rg) {
@@ -114,6 +224,7 @@ public class RelatorioBean implements Serializable {
         
         dao.commit();
         loadListaRelatorioGrupo();
+        GenericaMensagem.info("Sucesso", "Grupo Excluído!");
     }
     
     public void excluirRelatorioParametro(RelatorioParametros rp) {
@@ -129,6 +240,15 @@ public class RelatorioBean implements Serializable {
         
         dao.commit();
         loadListaRelatorioParametro();
+        GenericaMensagem.info("Sucesso", "Campo Excluído!");
+    }
+    
+    public void loadListaRelatorioJoin(){
+        getListaRelatorioJoin().clear();
+        
+        RelatorioDao dao = new RelatorioDao();
+        
+        setListaRelatorioJoin(dao.listaRelatorioJoin(relatorio.getId()));
     }
     
     public void loadListaRelatorioGrupo(){
@@ -308,6 +428,7 @@ public class RelatorioBean implements Serializable {
         rotina_id = relatorio.getRotina().getId();
         loadListaRelatorioParametro();
         loadListaRelatorioGrupo();
+        loadListaRelatorioJoin();
         return "relatorio";
     }
 
@@ -455,5 +576,29 @@ public class RelatorioBean implements Serializable {
 
     public void setListaRelatorioGrupo(List<RelatorioGrupo> listaRelatorioGrupo) {
         this.listaRelatorioGrupo = listaRelatorioGrupo;
+    }
+
+    public RelatorioJoin getRelatorioJoin() {
+        return relatorioJoin;
+    }
+
+    public void setRelatorioJoin(RelatorioJoin relatorioJoin) {
+        this.relatorioJoin = relatorioJoin;
+    }
+
+    public List<RelatorioJoin> getListaRelatorioJoin() {
+        return listaRelatorioJoin;
+    }
+
+    public void setListaRelatorioJoin(List<RelatorioJoin> listaRelatorioJoin) {
+        this.listaRelatorioJoin = listaRelatorioJoin;
+    }
+
+    public String getTextQuery() {
+        return textQuery;
+    }
+
+    public void setTextQuery(String textQuery) {
+        this.textQuery = textQuery;
     }
 }

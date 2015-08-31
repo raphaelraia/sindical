@@ -114,6 +114,9 @@ public class VendaBaileBean implements Serializable {
         PF.closeDialog("dlg_autentica_usuario");
         PF.closeDialog("dlg_desconto");
         novoDesconto = "0,00";
+        
+        calculoDesconto();
+        
         PF.update("formVendasBaile");
         PF.update("formVendasBaileTbl");
     }

@@ -2,6 +2,7 @@ package br.com.rtools.relatorios.dao;
 
 import br.com.rtools.principal.DB;
 import br.com.rtools.relatorios.RelatorioGrupo;
+import br.com.rtools.relatorios.RelatorioJoin;
 import br.com.rtools.relatorios.RelatorioParametros;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.seguranca.Rotina;
@@ -146,6 +147,16 @@ public class RelatorioDao extends DB {
         List<RelatorioGrupo> lista = new ArrayList();
         try {
             Query qry = getEntityManager().createQuery("SELECT r FROM RelatorioGrupo AS r WHERE r.relatorio.id = "+id_relatorio+" ORDER BY r.id");
+            lista = qry.getResultList();
+        } catch (Exception e) {
+        }
+        return lista;
+    }
+    
+    public List<RelatorioJoin> listaRelatorioJoin(Integer id_relatorio) {
+        List<RelatorioJoin> lista = new ArrayList();
+        try {
+            Query qry = getEntityManager().createQuery("SELECT r FROM RelatorioJoin AS r WHERE r.relatorio.id = "+id_relatorio+" ORDER BY r.id");
             lista = qry.getResultList();
         } catch (Exception e) {
         }

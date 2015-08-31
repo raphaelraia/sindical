@@ -202,7 +202,7 @@
                             <h:panelGrid id="i_panel_funcionario" columns="4" style="margin-top: 20px; width: 820px">
                                 <h:column>
                                     <h:outputLabel value="CPF" style="color: red; font-weight: bold"/><br />
-                                    <p:inputMask value="#{agendamentoBean.fisica.pessoa.documento}" mask="999.999.999-99" size="13" readonly="#{agendamentoBean.fisica.id != -1}">
+                                    <p:inputMask value="#{agendamentoBean.documentoFisica}" mask="999.999.999-99" size="13">
                                         <p:ajax event="blur" listener="#{agendamentoBean.pesquisarFuncionarioCPF}" update="@this formConcluirAgendamento" />
                                     </p:inputMask>
                                 </h:column>
