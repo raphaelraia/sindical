@@ -1750,7 +1750,13 @@
             <from-outcome>configuracaoArrecadacao</from-outcome>
             <to-view-id>/configuracaoArrecadacao.jsf</to-view-id>
             <redirect/>
-        </navigation-case>         
+        </navigation-case>  
+        
+        <navigation-case>
+            <from-outcome>relatorioTabelaPrecos</from-outcome>
+            <to-view-id>/relatorioTabelaPrecos.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>                      
         
         <navigation-case>
             <from-outcome>relatorioFinanceiro</from-outcome>

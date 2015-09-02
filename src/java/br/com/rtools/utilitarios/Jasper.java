@@ -349,6 +349,10 @@ public class Jasper implements Serializable {
                             jasper_path = ((ServletContext) faces.getExternalContext().getContext()).getRealPath(jasperName);
                             jasper = (JasperReport) JRLoader.loadObject(new File(jasper_path));
                         }
+                        if (!new File(jasper_path).exists()) {
+                            GenericaMensagem.warn("Sistema", "Arquivo não encontrado:" + jasperName);
+                            return;
+                        }
                     } catch (Exception e) {
                         String jasperNameJrxml = jasperName.replace(".jasper", ".jrxml");
                         if (new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/" + jasperNameJrxml)).exists()) {
@@ -359,6 +363,10 @@ public class Jasper implements Serializable {
                             jasper_path = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/" + jasperNameJrxml);
                         } else {
                             jasper_path = ((ServletContext) faces.getExternalContext().getContext()).getRealPath(jasperNameJrxml);
+                        }
+                        if (!new File(jasper_path).exists()) {
+                            GenericaMensagem.warn("Sistema", "Arquivo não encontrado:" + jasperName);
+                            return;
                         }
                     }
                     if (!GROUP_NAME.isEmpty()) {
