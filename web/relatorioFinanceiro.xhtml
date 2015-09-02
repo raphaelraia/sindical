@@ -44,14 +44,14 @@
                                     <h:column>
                                         <p:outputLabel value="Tipo de Relatório" /><br />
                                         <p:selectOneMenu value="#{relatorioFinanceiroBean.idRelatorio}" style="padding-right: 20px">
-                                            <p:ajax event="change" update="@this"/>
+                                            <p:ajax event="change" update="@this ordemRelatorio" listener="#{relatorioFinanceiroBean.loadListaRelatorioOrdem()}"/>
                                             <f:selectItems value="#{relatorioFinanceiroBean.listaRelatorio}"/>
                                         </p:selectOneMenu>
                                     </h:column>
                                     
                                     <h:column>
                                         <p:outputLabel value="Ordem do Relatório" /><br />
-                                        <p:selectOneMenu value="#{relatorioFinanceiroBean.idRelatorioOrdem}" style="padding-right: 20px">
+                                        <p:selectOneMenu id="ordemRelatorio" value="#{relatorioFinanceiroBean.idRelatorioOrdem}" style="padding-right: 20px">
                                             <p:ajax event="change" update="@this"/>
                                             <f:selectItems value="#{relatorioFinanceiroBean.listaRelatorioOrdem}"/>
                                         </p:selectOneMenu>
@@ -362,6 +362,41 @@
                                                 </h:column>
                                             </h:panelGrid>
                                         </h:column>
+                                        
+                                        <!-- PESSOA -->
+                                        <h:column>
+                                            <h:panelGrid columns="2" rendered="#{relatorioFinanceiroBean.listaFiltros.get(11).ativo}" style="float: left; margin: 10px ">
+                                                <h:column>
+                                                    <p:outputLabel value="Tipo Pessoa" />
+                                                </h:column>
+                                                <h:column></h:column>
+                                                <h:column>
+                                                    <p:selectOneMenu value="#{relatorioFinanceiroBean.tipoPessoa}" style="padding-right: 20px">
+                                                        <p:ajax event="change" update="@this panel_filtro"/>
+                                                        <f:selectItem itemValue="fisica" itemLabel="Física" />
+                                                        <f:selectItem itemValue="juridica" itemLabel="Juridica" />
+                                                    </p:selectOneMenu>
+                                                </h:column>
+                                            </h:panelGrid>
+                                        </h:column>     
+                                        
+                                        <!-- SITUAÇÃO -->
+                                        <h:column>
+                                            <h:panelGrid columns="2" rendered="#{relatorioFinanceiroBean.listaFiltros.get(12).ativo}" style="float: left; margin: 10px ">
+                                                <h:column>
+                                                    <p:outputLabel value="Situação" />
+                                                </h:column>
+                                                <h:column></h:column>
+                                                <h:column>
+                                                    <p:selectOneMenu value="#{relatorioFinanceiroBean.tipoSituacao}" style="padding-right: 20px">
+                                                        <p:ajax event="change" update="@this panel_filtro"/>
+                                                        <f:selectItem itemValue="atrasado" itemLabel="Atrasados" />
+                                                        <f:selectItem itemValue="baixado" itemLabel="Baixados" />
+                                                        <f:selectItem itemValue="aberto" itemLabel="Em Aberto" />
+                                                    </p:selectOneMenu>
+                                                </h:column>
+                                            </h:panelGrid>
+                                        </h:column>                                        
                                     </h:panelGrid>
                                 </h:column>
                             </h:panelGrid>

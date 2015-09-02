@@ -55,6 +55,8 @@ public class RelatorioFinanceiroBean implements Serializable {
      * <br />8 TIPO QUITAÇÃO
      * <br />9 DEPARTAMENTO
      * <br />10 ESTRADA / SAIDA
+     * <br />11 PESSOA
+     * <br />12 SITUAÇÃO
      */
     private List<Filtros> listaFiltros = new ArrayList();
     private Integer contaContabil = null;
@@ -103,6 +105,8 @@ public class RelatorioFinanceiroBean implements Serializable {
     private String tipoDepartamento = "outros";
     private String tipoES = "E";
     private String tipoCaixa = "com";
+    private String tipoPessoa = "pessoa";
+    private String tipoSituacao = "atrasado";
 
     private Integer idRelatorioOrdem = 0;
     private List<SelectItem> listaRelatorioOrdem = new ArrayList();
@@ -488,6 +492,18 @@ public class RelatorioFinanceiroBean implements Serializable {
         if (listaFiltros.get(10).ativo) {
             tipo_es = tipoES;
         }
+        
+        // PESSOA
+        String tipo_pessoa = "";
+        if (listaFiltros.get(11).ativo) {
+            tipo_pessoa = tipoPessoa;
+        }
+        
+        // SITUAÇÃO
+        String tipo_situacao = "";
+        if (listaFiltros.get(12).ativo) {
+            tipo_situacao = tipoSituacao;
+        }
 
         Map params = new HashMap();
         // MOEDA PARA BRASIL VALORES IREPORT PTBR CONVERTE VALOR JASPER PTBR MOEDA
@@ -509,7 +525,7 @@ public class RelatorioFinanceiroBean implements Serializable {
             ordem = ((RelatorioOrdem) new Dao().find(new RelatorioOrdem(), Integer.valueOf(listaRelatorioOrdem.get(idRelatorioOrdem).getDescription()))).getQuery();
         }
         
-        List<Object> result = new RelatorioFinanceiroDao().listaRelatorioFinanceiro(ids_planos, id_grupo, id_sub_grupo, id_servicos, dtEmissao, dtEmissaoFinal, dtVencimento, dtVencimentoFinal, dtQuitacao, dtQuitacaoFinal, dtImportacao, dtImportacaoFinal, dtCredito, dtCreditoFinal, dtFechamentoCaixa, dtFechamentoCaixaFinal, id_caixa_banco, tipo_caixa, id_caixa, id_operador, id_tipo_quitacao, tipo_departamento, tipo_es, ordem, relatorios);
+        List<Object> result = new RelatorioFinanceiroDao().listaRelatorioFinanceiro(ids_planos, id_grupo, id_sub_grupo, id_servicos, dtEmissao, dtEmissaoFinal, dtVencimento, dtVencimentoFinal, dtQuitacao, dtQuitacaoFinal, dtImportacao, dtImportacaoFinal, dtCredito, dtCreditoFinal, dtFechamentoCaixa, dtFechamentoCaixaFinal, id_caixa_banco, tipo_caixa, id_caixa, id_operador, id_tipo_quitacao, tipo_departamento, tipo_es, tipo_pessoa, tipo_situacao, ordem, relatorios);
 
         if (result.isEmpty()) {
             GenericaMensagem.error("Atenção", "Nenhum resultado encontrado para a pesquisa!");
@@ -575,6 +591,10 @@ public class RelatorioFinanceiroBean implements Serializable {
                 break;
             case "es":
                 break;
+            case "pessoa":
+                break;
+            case "situacao":
+                break;
         }
     }
 
@@ -592,6 +612,8 @@ public class RelatorioFinanceiroBean implements Serializable {
         listaFiltros.add(new Filtros("tipoQuitacao", "Tipo de Quitação", false));
         listaFiltros.add(new Filtros("departamento", "Departamento", true));
         listaFiltros.add(new Filtros("es", "Entrada/Saída", false));
+        listaFiltros.add(new Filtros("pessoa", "Pessoa", false));
+        listaFiltros.add(new Filtros("situacao", "Situação", false));
     }
 
     public void loadListaRelatorio() {
@@ -646,6 +668,8 @@ public class RelatorioFinanceiroBean implements Serializable {
      * <br />8 TIPO QUITAÇÃO
      * <br />9 DEPARTAMENTO
      * <br />10 ENTRADA / SAÍDA
+     * <br />11 PESSOA
+     * <br />12 SITUAÇÃO
      *
      * @return Lista de Filtros
      */
@@ -951,6 +975,22 @@ public class RelatorioFinanceiroBean implements Serializable {
 
     public void setTipoCaixa(String tipoCaixa) {
         this.tipoCaixa = tipoCaixa;
+    }
+
+    public String getTipoPessoa() {
+        return tipoPessoa;
+    }
+
+    public void setTipoPessoa(String tipoPessoa) {
+        this.tipoPessoa = tipoPessoa;
+    }
+
+    public String getTipoSituacao() {
+        return tipoSituacao;
+    }
+
+    public void setTipoSituacao(String tipoSituacao) {
+        this.tipoSituacao = tipoSituacao;
     }
 
     public class Filtros {
