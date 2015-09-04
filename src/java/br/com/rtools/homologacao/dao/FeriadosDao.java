@@ -75,24 +75,10 @@ public class FeriadosDao extends DB {
             List list;
             if (!listFilial.isEmpty()) {
                 PessoaEndereco pe = (PessoaEndereco) queryFilial.getSingleResult();
-                Query queryNativa = getEntityManager().createNativeQuery("SELECT id FROM hom_feriados WHERE (dt_data = '" + data + "' AND id_cidade = " + pe.getEndereco().getCidade().getId() + ") AND dt_data = '" + DataHoje.converte(data) + "'");
+                Query queryNativa = getEntityManager().createNativeQuery("SELECT F.* FROM hom_feriados AS F WHERE (F.dt_data = '" + data + "' AND F.id_cidade = " + pe.getEndereco().getCidade().getId() + ") AND F.dt_data = '" + DataHoje.converte(data) + "'", Feriados.class);
                 list = queryNativa.getResultList();
                 if (!list.isEmpty()) {
-                    String listaFeriadosString = "";
-                    for (int i = 0; i < list.size(); i++) {
-                        if (i == 0) {
-                            listaFeriadosString = ((List) list.get(i)).get(0).toString();
-                        } else {
-                            listaFeriadosString = "," + ((List) list.get(i)).get(0).toString();
-                        }
-                    }
-                    Query query = getEntityManager().createQuery("SELECT F FROM Feriados AS F WHERE F.id IN ( :listaFeriadosString )");
-                    query.setParameter(":listaFeriadosString", listaFeriadosString);
-                    list.clear();
-                    list = query.getResultList();
-                    if (!list.isEmpty()) {
-                        return list;
-                    }
+                    return list;
                 }
             }
         } catch (Exception e) {
