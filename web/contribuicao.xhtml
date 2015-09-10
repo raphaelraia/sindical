@@ -30,8 +30,14 @@
                     <p:panel styleClass="wrapper" style="border: 0px;">
                         <h:outputText value="Gerar Contribuição" styleClass="fonteHeader" />
                         <div class="clear"></div>
+                        <h:form id="form_contribuicao_poll">
+                            <h:panelGrid rendered="#{contribuicaoBean.start}" id="i_i_hxxx">
+                            </h:panelGrid>
+                            <p:growl showDetail="true" showSummary="true" id="i_growl" autoUpdate="true"/>
+                            <p:poll autoStart="true" id="i_poll" update="i_poll  i_i_hxxx" interval="60" global="false" listener="#{contribuicaoBean.setStart(true)}" />
+                        </h:form>
                         <h:form id="form_contribuicao">
-                            <p:messages showDetail="true" showSummary="true" autoUpdate="true" />
+                            <p:messages showDetail="true" showSummary="true" id="i_msgxx" />
                             <p:panel styleClass="margin-top-max">
                                 <h:panelGrid columns="5">
                                     <h:outputLabel value="Contribuição: "/>
@@ -42,8 +48,8 @@
                                     <p:inputMask value="#{contribuicaoBean.referencia}" mask="99/9999" size="5"/>
                                     <p:commandButton value="Filtrar" action="#{contribuicaoBean.filter}" update=":form_contribuicao:"/>
                                 </h:panelGrid>
-                                <p:dataTable value="#{contribuicaoBean.listaContribuicoes}" var="listaContribuicoes" rowIndexVar="index" selection="#{contribuicaoBean.selectedListaContribuicoes}" rowKey="#{listaContribuicoes.sequencia}" styleClass="margin-top-max" emptyMessage="Nenhuma contribuição gerada!">
-                                    <p:column selectionMode="multiple" style="width:16px;text-align:center" rendered="#{contribuicaoBean.visibleSelection}"/>
+                                <p:dataTable value="#{contribuicaoBean.listaContribuicoes}" var="listaContribuicoes" rowIndexVar="index" selection="#{contribuicaoBean.selectedListaContribuicoes}" rowKey="#{listaContribuicoes.sequencia}" styleClass="margin-top-max" emptyMessage="Nenhuma contribuição gerada!" disabledSelection="#{empty listaContribuicoes.vencimento}" disabledTextSelection="true">
+                                    <p:column selectionMode="multiple" style="width:16px;text-align:center" rendered="#{contribuicaoBean.visibleSelection}" />
                                     <p:column headerText="Sequência" styleClass="text-center" width="70">
                                         <h:outputLabel value="#{listaContribuicoes.sequencia + 1}"/>
                                     </p:column>
@@ -64,7 +70,7 @@
                                     </p:column>
                                 </p:dataTable>
                                 <f:facet name="footer">
-                                    <p:commandButton value="Gerar contribuições" action="#{contribuicaoBean.proccess()}" />                                        
+                                    <p:commandButton value="Gerar contribuições" actionListener="#{contribuicaoBean.proccess()}" update=":form_contribuicao_poll:i_growl i_msgxx"/>
                                 </f:facet>
                             </p:panel>
                         </h:form>

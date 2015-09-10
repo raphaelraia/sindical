@@ -42,6 +42,7 @@ public class ContribuicaoBean {
     private boolean enabled;
     private Long valorCorrente;
     private boolean visibleSelection;
+    private Boolean start;
 
     @PostConstruct
     public void init() {
@@ -59,6 +60,7 @@ public class ContribuicaoBean {
         valorCorrente = null;
         selectedListaContribuicoes = null;
         visibleSelection = false;
+        start = false;
     }
 
     @PreDestroy
@@ -187,32 +189,38 @@ public class ContribuicaoBean {
         if (selectedListaContribuicoes == null) {
             GenericaMensagem.warn("Validação", "Nenhuma linha foi selecionada!");
         }
+        start = true;
         listMessage.clear();
         NovoLog novoLog = new NovoLog();
         novoLog.startList();
         String logList;
         for (int i = 0; i < selectedListaContribuicoes.size(); i++) {
             Object[] o = new Object[2];
-            GerarMovimento g = new GerarMovimento();
-            o = g.gerarBoletos(String.valueOf(selectedListaContribuicoes.get(i).getReferencia()),
-                    String.valueOf(selectedListaContribuicoes.get(i).getVencimento()),
-                    selectedListaContribuicoes.get(i).getConvencaoCidade().getGrupoCidade().getId(),
-                    selectedListaContribuicoes.get(i).getConvencaoCidade().getConvencao().getId(),
-                    listServicos.get(Integer.valueOf(String.valueOf(selectedListaContribuicoes.get(i).getContribuicao()))).getId(),
-                    1,
-                    4);
-            if (o[0].equals(0)) {
-                logList = " Referência: " + selectedListaContribuicoes.get(i).getReferencia()
-                        + " - Vencimento: " + selectedListaContribuicoes.get(i).getVencimento()
-                        + " - Grupo Cidade: (" + selectedListaContribuicoes.get(i).getConvencaoCidade().getGrupoCidade().getId() + ") " + selectedListaContribuicoes.get(i).getConvencaoCidade().getGrupoCidade().getDescricao()
-                        + " - Convenção: (" + selectedListaContribuicoes.get(i).getConvencaoCidade().getConvencao().getId() + ") " + selectedListaContribuicoes.get(i).getConvencaoCidade().getConvencao().getDescricao()
-                        + " - Serviços: (" + listServicos.get(Integer.valueOf(String.valueOf(selectedListaContribuicoes.get(i).getContribuicao()))).getId() + ") " + listServicos.get(Integer.valueOf(String.valueOf(selectedListaContribuicoes.get(i).getContribuicao()))).getDescricao()
-                        + " - Tipo Serviço: (" + 1 + ")"
-                        + " - Rotina: (" + 4 + ")";
-                novoLog.save(logList);
+            try {
+                GerarMovimento g = new GerarMovimento();
+                o = g.gerarBoletos(String.valueOf(selectedListaContribuicoes.get(i).getReferencia()),
+                        String.valueOf(selectedListaContribuicoes.get(i).getVencimento()),
+                        selectedListaContribuicoes.get(i).getConvencaoCidade().getGrupoCidade().getId(),
+                        selectedListaContribuicoes.get(i).getConvencaoCidade().getConvencao().getId(),
+                        listServicos.get(Integer.valueOf(String.valueOf(selectedListaContribuicoes.get(i).getContribuicao()))).getId(),
+                        1,
+                        4);
+                if (o[0].equals(0)) {
+                    logList = " Referência: " + selectedListaContribuicoes.get(i).getReferencia()
+                            + " - Vencimento: " + selectedListaContribuicoes.get(i).getVencimento()
+                            + " - Grupo Cidade: (" + selectedListaContribuicoes.get(i).getConvencaoCidade().getGrupoCidade().getId() + ") " + selectedListaContribuicoes.get(i).getConvencaoCidade().getGrupoCidade().getDescricao()
+                            + " - Convenção: (" + selectedListaContribuicoes.get(i).getConvencaoCidade().getConvencao().getId() + ") " + selectedListaContribuicoes.get(i).getConvencaoCidade().getConvencao().getDescricao()
+                            + " - Serviços: (" + listServicos.get(Integer.valueOf(String.valueOf(selectedListaContribuicoes.get(i).getContribuicao()))).getId() + ") " + listServicos.get(Integer.valueOf(String.valueOf(selectedListaContribuicoes.get(i).getContribuicao()))).getDescricao()
+                            + " - Tipo Serviço: (" + 1 + ")"
+                            + " - Rotina: (" + 4 + ")";
+                    novoLog.save(logList);
+                }
+                o[1] = o[1].toString() + " - Convenção: " + selectedListaContribuicoes.get(i).getConvencaoCidade().getConvencao().getDescricao() + " - Grupo Cidade: " + selectedListaContribuicoes.get(i).getConvencaoCidade().getGrupoCidade().getDescricao();
+                listMessage.add(o);
+            } catch (Exception e) {
+                o[0] = "Convenção: " + selectedListaContribuicoes.get(i).getConvencaoCidade().getConvencao().getDescricao() + " - Grupo Cidade: " + selectedListaContribuicoes.get(i).getConvencaoCidade().getGrupoCidade().getDescricao();
+                listMessage.add(o);
             }
-            o[1] = o[1].toString() + " - Convenção: " + selectedListaContribuicoes.get(i).getConvencaoCidade().getConvencao().getDescricao() + " - Grupo Cidade: " + selectedListaContribuicoes.get(i).getConvencaoCidade().getGrupoCidade().getDescricao();
-            listMessage.add(o);
         }
         for (int i = 0; i < listMessage.size(); i++) {
             if (((Object[]) listMessage.get(i))[0].equals(0)) {
@@ -224,7 +232,9 @@ public class ContribuicaoBean {
                 GenericaMensagem.warn("Erro" + (i + 1), ((Object[]) listMessage.get(i))[1].toString());
             }
         }
+        start = false;
         listMessage.clear();
+
         selectedListaContribuicoes = null;
         //movimentoDB.gerarContribuicao(lista, listaServicos, 4);
     }
@@ -377,5 +387,13 @@ public class ContribuicaoBean {
 
     public void setVisibleSelection(boolean visibleSelection) {
         this.visibleSelection = visibleSelection;
+    }
+
+    public Boolean getStart() {
+        return start;
+    }
+
+    public void setStart(Boolean start) {
+        this.start = start;
     }
 }

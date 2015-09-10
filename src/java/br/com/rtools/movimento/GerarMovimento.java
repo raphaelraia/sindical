@@ -13,8 +13,10 @@ import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
+import br.com.rtools.utilitarios.PF;
 import br.com.rtools.utilitarios.SalvarAcumuladoDB;
 import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.util.ArrayList;
@@ -31,16 +33,17 @@ public class GerarMovimento extends DB {
         getEntityManager().getTransaction().begin();
         Query qry = null;
         NovoLog log = new NovoLog();
-
+        Integer sizeBoleto = 0;
+        List list = new ArrayList();
         try {
             textQry = "select '" + DataHoje.data() + "' as dt_emissao, 'R' as ds_pag_rec, 0 as nr_valor, '" + DataHoje.data() + "' as dt_lancamento, 1 as id_filial, cv.id_pessoa, 2 as id_tipo_documento, 4 as id_rotina, false as is_avencer_contabil " + "   from arr_contribuintes_vw cv "
                     + "   left join fin_bloqueia_servico_pessoa as sp on sp.id_pessoa = cv.id_pessoa and sp.id_servicos = 3 and '04/11/2014' >= sp.dt_inicio and '04/11/2014' <= sp.dt_fim   "
                     + "  where cv.dt_inativacao is null and cv.id_grupo_cidade = " + id_grupo_cidade + " and cv.id_convencao = " + id_convencao + " and cv.id_pessoa not in "
                     + "       (select id_pessoa from fin_movimento where ds_referencia='" + referencia + "' and id_servicos = " + id_servico + " and id_tipo_servico = " + id_tipo_servico + " and is_ativo = true) "
-                    + " and (sp.is_geracao is true or sp.is_geracao is null) ";
+                    + " and (sp.is_geracao = true or sp.is_geracao is null) ";
             qry = getEntityManager().createNativeQuery(textQry);
             qry.setMaxResults(1);
-            List list = qry.getResultList();
+            list = qry.getResultList();
             if (list.isEmpty()) {
                 getEntityManager().getTransaction().rollback();
                 message[0] = 0;
@@ -48,13 +51,31 @@ public class GerarMovimento extends DB {
                 return message;
             }
             /* INSERÇÃO DE LOTE ***/
-            textQry = "insert into fin_lote (dt_emissao, ds_pag_rec, nr_valor, dt_lancamento, id_filial, id_pessoa, id_tipo_documento, id_rotina, is_avencer_contabil) "
-                    + "(select '" + DataHoje.data() + "' as dt_emissao, 'R' as ds_pag_rec, 0 as nr_valor, '" + DataHoje.data() + "' as dt_lancamento, 1 as id_filial, cv.id_pessoa, 2 as id_tipo_documento, 4 as id_rotina, false as is_avencer_contabil "
-                    + "   from arr_contribuintes_vw cv "
-                    + "   left join fin_bloqueia_servico_pessoa as sp on sp.id_pessoa = cv.id_pessoa and sp.id_servicos = 3 and '04/11/2014' >= sp.dt_inicio and '04/11/2014' <= sp.dt_fim   "
-                    + "  where cv.dt_inativacao is null and cv.id_grupo_cidade = " + id_grupo_cidade + " and cv.id_convencao = " + id_convencao + " and cv.id_pessoa not in "
-                    + "       (select id_pessoa from fin_movimento where ds_referencia='" + referencia + "' and id_servicos = " + id_servico + " and id_tipo_servico = " + id_tipo_servico + " and is_ativo = true) "
-                    + " and (sp.is_geracao is true or sp.is_geracao is null));";
+            textQry = "INSERT INTO fin_lote (dt_emissao, ds_pag_rec, nr_valor, dt_lancamento, id_filial, id_pessoa, id_tipo_documento, id_rotina, is_avencer_contabil) \n"
+                    + " (  SELECT '" + DataHoje.data() + "' AS dt_emissao,      \n"
+                    + "           'R' AS ds_pag_rec,                            \n"
+                    + "           0  AS nr_valor,                               \n"
+                    + "           '" + DataHoje.data() + "' AS dt_lancamento,   \n"
+                    + "           1  AS id_filial,                              \n"
+                    + "           cv.id_pessoa,                                 \n"
+                    + "           2 AS id_tipo_documento,                       \n"
+                    + "           4 AS id_rotina,                               \n"
+                    + "           false AS is_avencer_contabil                  \n"
+                    + "      FROM arr_contribuintes_vw AS cv                    \n"
+                    + " LEFT JOIN fin_bloqueia_servico_pessoa AS sp ON sp.id_pessoa = cv.id_pessoa          \n"
+                    + "       AND sp.id_servicos = 3                            \n"
+                    + "       AND '04/11/2014' >= sp.dt_inicio                  \n"
+                    + "       AND '04/11/2014' <= sp.dt_fim                     \n"
+                    + "     WHERE cv.dt_inativacao IS NULL                      \n"
+                    + "       AND cv.id_grupo_cidade = " + id_grupo_cidade + "  \n"
+                    + "       AND cv.id_convencao = " + id_convencao + "        \n"
+                    + "       AND cv.id_pessoa NOT IN                           \n"
+                    + "         (SELECT id_pessoa FROM fin_movimento WHERE ds_referencia='" + referencia + "' \n"
+                    + "             AND id_servicos = " + id_servico + "        \n"
+                    + "             AND id_tipo_servico = " + id_tipo_servico + "\n"
+                    + "             AND is_ativo = true                         \n"
+                    + "         )                                               \n"
+                    + "       AND (sp.is_geracao IS TRUE OR sp.is_geracao IS NULL));";
             qry = getEntityManager().createNativeQuery(textQry);
             if (qry.executeUpdate() <= 0) {
                 getEntityManager().getTransaction().rollback();
@@ -67,19 +88,47 @@ public class GerarMovimento extends DB {
             /* ---------------- ***/
 
             /* INSERÇÃO DE MOVIMENTO */
-            textQry = "insert into fin_movimento (ds_referencia, ds_es, ds_documento, nr_valor, dt_vencimento_original, dt_vencimento, nr_ctr_boleto, id_pessoa, id_tipo_documento, id_tipo_servico, id_titular, id_servicos, id_beneficiario, id_lote, is_ativo, is_obrigacao,nr_multa,nr_desconto,nr_taxa,nr_quantidade, "
-                    + "nr_valor_baixa, nr_repasse_automatico, nr_correcao, nr_desconto_ate_vencimento, nr_juros, id_plano5)"
-                    + "(select '" + referencia + "' as ds_referencia, 'E' as ds_es, null as ds_documento, 0 as nr_valor, '" + vencimento + "' as dt_vencimento_original, '" + vencimento + "' as dt_vencimento, null as nr_ctr_boleto, c.id_pessoa, 2 as id_tipo_documento, " + id_tipo_servico + " as id_tipo_servico, "
-                    + "c.id_pessoa as id_titular, " + id_servico + " as id_servicos, c.id_pessoa as id_beneficiario, l.id as id_lote, true as is_ativo, true as is_obrigacao, 0 as nr_multa, 0 as nr_desconto, 0 as nr_taxa, 1 as nr_quantidade,"
-                    + "0 as nr_valor_baixa, 0 as nr_repasse_automatico, 0 as nr_correcao, 0 as nr_desconto_ate_vencimento, 0 as nr_juros, se.id_plano5 as id_plano5 "
-                    + "from arr_contribuintes_vw as c "
-                    + "inner join fin_lote as l on l.id_pessoa = c.id_pessoa "
-                    + "left join fin_movimento as m on m.id_lote = l.id "
-                    + "left join fin_bloqueia_servico_pessoa as sp on sp.id_pessoa = c.id_pessoa and sp.id_servicos = " + id_servico + " and '" + vencimento + "' >= sp.dt_inicio and  '" + vencimento + "' <= sp.dt_fim  "
-                    + "inner join fin_servicos as se on se.id = " + id_servico
-                    + " where m.id_lote is null and c.id_grupo_cidade = " + id_grupo_cidade + " and c.id_convencao = " + id_convencao
-                    + "  and (sp.is_geracao is true or sp.is_geracao is null)"
-                    + "  and c.dt_inativacao is null);";
+            textQry = "INSERT INTO fin_movimento (ds_referencia, ds_es, ds_documento, nr_valor, dt_vencimento_original, dt_vencimento, nr_ctr_boleto, id_pessoa, id_tipo_documento, id_tipo_servico, id_titular, id_servicos, id_beneficiario, id_lote, is_ativo, is_obrigacao,nr_multa,nr_desconto,nr_taxa,nr_quantidade, "
+                    + "nr_valor_baixa, nr_repasse_automatico, nr_correcao, nr_desconto_ate_vencimento, nr_juros, id_plano5) \n"
+                    + "(    SELECT '" + referencia + "' AS ds_referencia,           \n"
+                    + "            'E' AS ds_es,                                    \n"
+                    + "            NULL AS ds_documento,                            \n"
+                    + "            0 AS nr_valor,                                   \n"
+                    + "            '" + vencimento + "' AS dt_vencimento_original,  \n"
+                    + "            '" + vencimento + "' AS dt_vencimento,           \n"
+                    + "            NULL AS nr_ctr_boleto,                           \n"
+                    + "            c.id_pessoa,                                     \n"
+                    + "            2 AS id_tipo_documento,                          \n"
+                    + "            " + id_tipo_servico + " AS id_tipo_servico,      \n"
+                    + "            c.id_pessoa as id_titular,                       \n"
+                    + "            " + id_servico + " AS id_servicos,               \n"
+                    + "            c.id_pessoa AS id_beneficiario,                  \n"
+                    + "            l.id AS id_lote,                                 \n"
+                    + "            true AS is_ativo,                                \n"
+                    + "            true AS is_obrigacao,                            \n"
+                    + "            0 AS nr_multa,                                   \n"
+                    + "            0 AS nr_desconto,                                \n"
+                    + "            0 AS nr_taxa,                                    \n"
+                    + "            1 AS nr_quantidade,                              \n"
+                    + "            0 AS nr_valor_baixa,                             \n"
+                    + "            0 AS nr_repasse_automatico,                      \n"
+                    + "            0 AS nr_correcao,                                \n"
+                    + "            0 AS nr_desconto_ate_vencimento,                 \n"
+                    + "            0 AS nr_juros,                                   \n"
+                    + "            se.id_plano5 AS id_plano5                        \n"
+                    + "       FROM arr_contribuintes_vw AS c                        \n"
+                    + " INNER JOIN fin_lote AS l ON l.id_pessoa = c.id_pessoa       \n"
+                    + "  LEFT JOIN fin_movimento AS m on m.id_lote = l.id           \n"
+                    + "  LEFT JOIN fin_bloqueia_servico_pessoa AS sp ON sp.id_pessoa = c.id_pessoa  \n"
+                    + "        AND sp.id_servicos = " + id_servico + "                              \n"
+                    + "        AND '" + vencimento + "' >= sp.dt_inicio                             \n"
+                    + "        AND '" + vencimento + "' <= sp.dt_fim                                \n"
+                    + " INNER JOIN fin_servicos AS se ON se.id = " + id_servico + "                 \n"
+                    + "      WHERE m.id_lote IS NULL                                                \n"
+                    + "        AND c.id_grupo_cidade = " + id_grupo_cidade + "                      \n"
+                    + "        AND c.id_convencao = " + id_convencao + "                            \n"
+                    + "        AND (sp.is_geracao = TRUE OR sp.is_geracao IS NULL )                 \n"
+                    + "        AND c.dt_inativacao IS NULL )";
             qry = getEntityManager().createNativeQuery(textQry);
             if (qry.executeUpdate() <= 0) {
                 getEntityManager().getTransaction().rollback();
@@ -87,59 +136,108 @@ public class GerarMovimento extends DB {
                 message[1] = "Erro ao gravar movimento!";
                 return message;
             }
+            String queryString = ""
+                    + "     SELECT m.id                                                                 \n"
+                    + "       FROM fin_movimento AS m                                                   \n"
+                    + " INNER JOIN fin_lote AS l ON l.id = m.id_lote                                    \n"
+                    + " INNER JOIN fin_servico_conta_cobranca AS scc ON scc.id_servicos = m.id_servicos \n"
+                    + "        AND scc.id_tipo_servico = m.id_tipo_servico                              \n"
+                    + "      WHERE l.id_rotina = 4                                                      \n"
+                    + "        AND m.nr_ctr_boleto IS NULL                                              \n"
+                    + "        AND m.id_servicos > 0                                                    \n"
+                    + "        AND m.id_servicos IS NOT NULL                                            \n"
+                    + "        AND m.is_ativo = true";
+
+            qry = getEntityManager().createNativeQuery(queryString);
+            list = qry.getResultList();
+            if (!list.isEmpty()) {
+                sizeBoleto = list.size();
+            }
             log.save("Geracao geral: FIN_MOVIMENTO - Data: " + DataHoje.data());
             /* ------------------------ ***/
             /* ------------------------ ***/
-
+            Integer count = 0;
             /* INSERÇÃO DE BOLETO */
-            textQry = "INSERT INTO fin_boleto (nr_ctr_boleto, is_ativo, id_conta_cobranca)  \n"
-                    + "(    SELECT m.id AS nr_ctr_boleto,                                   \n"
-                    + "            true AS is_ativo,                                        \n"
-                    + "            scc.id_conta_cobranca                                    \n"
-                    + "       FROM fin_movimento AS m                                       \n"
-                    + " INNER JOIN fin_lote AS l ON l.id = m.id_lote                        \n"
-                    + " INNER JOIN fin_servico_conta_cobranca AS scc ON scc.id_servicos = m.id_servicos AND scc.id_tipo_servico = m.id_tipo_servico \n"
-                    + "      WHERE l.id_rotina = 4                                          \n"
-                    + "        AND m.nr_ctr_boleto is null                                  \n"
-                    + "        AND m.id_servicos > 0                                        \n"
-                    + "        AND m.id_servicos IS NOT NULL                                \n"
-                    + "        AND m.is_ativo = true                                        \n"
-                    + ");";
-            qry = getEntityManager().createNativeQuery(textQry);
-            if (qry.executeUpdate() <= 0) {
-                getEntityManager().getTransaction().rollback();
-                message[0] = 1;
-                message[1] = "Erro ao gravar boleto!";
-                return message;
+            for (int i = 0; i < 500; i++) {
+                queryString = ""
+                        + "     SELECT m.id                                             \n"
+                        + "       FROM fin_movimento AS m                               \n"
+                        + " INNER JOIN fin_lote AS l ON l.id = m.id_lote                \n"
+                        + " INNER JOIN fin_servico_conta_cobranca AS scc ON scc.id_servicos = m.id_servicos \n"
+                        + "        AND scc.id_tipo_servico = m.id_tipo_servico                              \n"
+                        + "      WHERE l.id_rotina = 4                                                      \n"
+                        + "        AND m.nr_ctr_boleto IS NULL                                              \n"
+                        + "        AND m.id_servicos > 0                                                    \n"
+                        + "        AND m.id_servicos IS NOT NULL                                            \n"
+                        + "        AND m.is_ativo = true                                                    \n"
+                        + "      LIMIT 50";
+                qry = getEntityManager().createNativeQuery(queryString);
+                List listResult = qry.getResultList();
+
+                Integer size = listResult.size();
+                count += size;
+                if (size == 0) {
+                    break;
+                }
+
+                textQry = "INSERT INTO fin_boleto (nr_ctr_boleto, is_ativo, id_conta_cobranca)              \n"
+                        + "(    SELECT m.id AS nr_ctr_boleto,                                               \n"
+                        + "            true AS is_ativo,                                                    \n"
+                        + "            scc.id_conta_cobranca                                                \n"
+                        + "       FROM fin_movimento AS m                                                   \n"
+                        + " INNER JOIN fin_lote AS l ON l.id = m.id_lote                                    \n"
+                        + " INNER JOIN fin_servico_conta_cobranca AS scc ON scc.id_servicos = m.id_servicos \n"
+                        + "        AND scc.id_tipo_servico = m.id_tipo_servico                              \n"
+                        + "      WHERE l.id_rotina = 4                                                      \n"
+                        + "        AND m.nr_ctr_boleto IS NULL                                              \n"
+                        + "        AND m.id_servicos > 0                                                    \n"
+                        + "        AND m.id_servicos IS NOT NULL                                            \n"
+                        + "        AND m.is_ativo = true                                                    \n"
+                        + "      LIMIT " + size + "                                                                  \n"
+                        + ");";
+                qry = getEntityManager().createNativeQuery(textQry);
+                if (qry.executeUpdate() <= 0) {
+                    getEntityManager().getTransaction().rollback();
+                    message[0] = 1;
+                    message[1] = "Erro ao gravar boleto!";
+                    return message;
+                }
+                /* ---------------------- ***/
+                /* ---------------------- ***/
+
+                /* ATUALIZAÇÃO DE MOVIMENTO */
+                textQry = "  UPDATE fin_movimento                                                                    \n"
+                        + "     SET nr_ctr_boleto = text(fin_movimento.id), ds_documento = ds_boleto FROM fin_boleto \n"
+                        + "   WHERE text(fin_movimento.id) = fin_boleto.nr_ctr_boleto                                \n"
+                        + "     AND (fin_movimento.nr_ctr_boleto IS NULL OR length(fin_movimento.nr_ctr_boleto) = 0) \n";
+                qry = getEntityManager().createNativeQuery(textQry);
+                if (qry.executeUpdate() <= 0) {
+                    getEntityManager().getTransaction().rollback();
+                    message[0] = 1;
+                    message[1] = "Erro ao atualizar movimentos!";
+                    return message;
+                }
+                GenericaMensagem.info("Gerando...", size + " de " + sizeBoleto);
+                PF.update("form_contribuicao_poll");
             }
             log.save("Geracao geral: FIN_BOLETO - Data: " + DataHoje.data());
-            /* ---------------------- ***/
-            /* ---------------------- ***/
-
-            /* ATUALIZAÇÃO DE MOVIMENTO */
-            textQry = "update fin_movimento set nr_ctr_boleto = text(fin_movimento.id), ds_documento = ds_boleto from fin_boleto "
-                    + "where text(fin_movimento.id) = fin_boleto.nr_ctr_boleto and (fin_movimento.nr_ctr_boleto is null or length(fin_movimento.nr_ctr_boleto) = 0);";
-            qry = getEntityManager().createNativeQuery(textQry);
-            if (qry.executeUpdate() <= 0) {
-                getEntityManager().getTransaction().rollback();
-                message[0] = 1;
-                message[1] = "Erro ao atualizar movimentos!";
-                return message;
-            }
             log.save("Geracao geral: atualiza FIN_MOVIMENTO - Data: " + DataHoje.data());
             /* ---------------------- ***/
             /* ---------------------- ***/
 
             /* INSERÇÃO DE MENSAGEM COBRANÇA */
-            textQry = "insert into fin_mensagem_cobranca (id_mensagem_convencao,id_movimento) "
-                    + "(select mc.id,m.id from fin_movimento as m "
-                    + "inner join arr_contribuintes_vw as c on c.id_pessoa=m.id_pessoa "
-                    + "inner join arr_mensagem_convencao  as mc on mc.ds_referencia = m.ds_referencia "
-                    + "and mc.id_servicos = m.id_servicos "
-                    + "and mc.id_tipo_servico = m.id_tipo_servico "
-                    + "and mc.id_convencao = c.id_convencao and mc.id_grupo_cidade = c.id_grupo_cidade "
-                    + "left join fin_mensagem_cobranca as mco on m.id = mco.id_movimento "
-                    + "where mco.id_movimento is null and m.is_ativo = true and m.id_baixa is null "
+            textQry = "INSERT INTO fin_mensagem_cobranca (id_mensagem_convencao,id_movimento)           \n"
+                    + "     (SELECT mc.id, m.id FROM fin_movimento AS m                                 \n"
+                    + "  INNER JOIN arr_contribuintes_vw AS c ON c.id_pessoa = m.id_pessoa              \n"
+                    + "  INNER JOIN arr_mensagem_convencao AS mc ON mc.ds_referencia = m.ds_referencia  \n"
+                    + "         AND mc.id_servicos = m.id_servicos                                      \n"
+                    + "         AND mc.id_tipo_servico = m.id_tipo_servico                              \n"
+                    + "         AND mc.id_convencao = c.id_convencao                                    \n"
+                    + "         AND mc.id_grupo_cidade = c.id_grupo_cidade                              \n"
+                    + "   LEFT JOIN fin_mensagem_cobranca AS mco ON m.id = mco.id_movimento             \n"
+                    + "       WHERE mco.id_movimento IS NULL                                            \n"
+                    + "         AND m.is_ativo = true                                                   \n"
+                    + "         AND m.id_baixa IS NULL                                                  \n"
                     + ");";
             qry = getEntityManager().createNativeQuery(textQry);
             if (qry.executeUpdate() <= 0) {
@@ -154,12 +252,12 @@ public class GerarMovimento extends DB {
             log.save("Geracao geral: ERRO - Data: " + DataHoje.data() + " " + e.getMessage());
             getEntityManager().getTransaction().rollback();
             message[0] = 1;
-            message[1] = "Erro no processo de criação, verifique os logs!";
+            message[1] = "Erro no processo de criação, verifique os logs! (" + sizeBoleto + " movimentos) ";
             return message;
         }
         getEntityManager().getTransaction().commit();
         message[0] = 0;
-        message[1] = "Gerado com sucesso!";
+        message[1] = "Gerado com sucesso! (" + sizeBoleto + " movimentos) ";
         return message;
     }
 
@@ -864,12 +962,12 @@ public class GerarMovimento extends DB {
         //float calc = Moeda.multiplicarValores(Moeda.divisaoValores(fp.get(i).getValor(), valorTotal), 100);
         //calc = Moeda.converteFloatR$Float(calc);
         MovimentoDB db = new MovimentoDBToplink();
-        
+
         Boleto bol = db.pesquisaBoletos(movimento.getNrCtrBoleto());
-        
+
         Plano5DB plano5DB = new Plano5DBToplink();
         Plano5 plano5 = plano5DB.pesquisaPlano5IDContaBanco(bol.getContaCobranca().getContaBanco().getId());
-        
+
         FormaPagamento fp = new FormaPagamento(
                 -1,
                 baixa,
@@ -964,7 +1062,7 @@ public class GerarMovimento extends DB {
             for (FormaPagamento fp1 : fp) {
                 fp1.setBaixa(baixa);
                 float calc = (fp1.getValor() == 0) ? 100 : Moeda.multiplicarValores(Moeda.divisaoValores(fp1.getValor(), valorTotal), 100);
-                
+
                 calc = Moeda.converteFloatR$Float(calc);
                 fp1.setValorP(calc);
                 ChequeRec ch = new ChequeRec();
@@ -1044,14 +1142,14 @@ public class GerarMovimento extends DB {
             lista_log[2] = "Erro ao inserir Baixa";
             return lista_log;
         }
-        
+
         MovimentoDB db = new MovimentoDBToplink();
-        
+
         Boleto bol = db.pesquisaBoletos(lista_movimento.get(0).getNrCtrBoleto());
-        
+
         Plano5DB plano5DB = new Plano5DBToplink();
         Plano5 plano5 = plano5DB.pesquisaPlano5IDContaBanco(bol.getContaCobranca().getContaBanco().getId());
-        
+
         FormaPagamento fp = new FormaPagamento(
                 -1,
                 baixa,
