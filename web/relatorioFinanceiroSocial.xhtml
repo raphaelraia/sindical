@@ -1,0 +1,437 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Sindical - Relatório Financeiro Social</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
+            .ui-button { padding: 3px!important; }
+            .ui-selectonemenu {padding-right: 25px!important;}
+
+            .column01{
+                width: 300px;
+                vertical-align: top;
+            }
+
+            .column02{
+                vertical-align: top;
+            }                  
+        </style>
+
+        <script type="text/javascript">
+
+        </script>
+    </h:head>
+    <h:body>
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                </f:subview>
+                <f:view>
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:outputText value="Relatório Financeiro Social" styleClass="fonteHeader" />
+                        <h:form id="formRelatorioFinanceiroSocial">
+                            <p:panel styleClass="fundoCinza" style="clear: both; width: 100%">
+                                <h:panelGrid columns="2">
+                                    <h:column>
+                                        <p:outputLabel value="Tipo de Relatório" /><br />
+                                        <p:selectOneMenu value="#{relatorioFinanceiroSocialBean.idRelatorio}" style="padding-right: 20px">
+                                            <p:ajax event="change" update="@this ordemRelatorio" listener="#{relatorioFinanceiroSocialBean.loadListaRelatorioOrdem()}"/>
+                                            <f:selectItems value="#{relatorioFinanceiroSocialBean.listaRelatorio}"/>
+                                        </p:selectOneMenu>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="Ordem do Relatório" /><br />
+                                        <p:selectOneMenu id="ordemRelatorio" value="#{relatorioFinanceiroSocialBean.idRelatorioOrdem}" style="padding-right: 20px">
+                                            <p:ajax event="change" update="@this"/>
+                                            <f:selectItems value="#{relatorioFinanceiroSocialBean.listaRelatorioOrdem}"/>
+                                        </p:selectOneMenu>
+                                    </h:column>
+                                </h:panelGrid>
+                            </p:panel>
+
+                            <h:panelGrid columns="1" style="width: 100%;">
+                                <p:messages autoUpdate="false" closable="true" showDetail="true"/>
+                            </h:panelGrid> 
+                            
+                            <h:panelGrid columns="2" style="width: 100%;" columnClasses="column01, column02">
+                                <h:column>
+                                    <p:panel header="Filtros SÓCIO">
+                                        <br />
+                                        <c:forEach items="#{relatorioFinanceiroSocialBean.listaFiltros}" var="linha" varStatus="loop">
+                                            <p:outputLabel value="#{linha.opcao} - " style="font-weight: bold"/>
+                                            <p:commandLink value="#{(!linha.ativo) ? 'Editar' : 'Remover'}" action="#{relatorioFinanceiroSocialBean.acao(linha)}" style="#{(!linha.ativo) ? 'color: blue' : 'color: red'} " update="@this panel_filtro"/>
+                                            <br /><br />
+                                        </c:forEach>
+                                    </p:panel>
+                                    
+                                    <p:panel header="Filtros FINANCEIRO">
+                                        <br />
+                                        <c:forEach items="#{relatorioFinanceiroSocialBean.listaFiltrosFinanceiro}" var="linha" varStatus="loop">
+                                            <p:outputLabel value="#{linha.opcao} - " style="font-weight: bold"/>
+                                            <p:commandLink value="#{(!linha.ativo) ? 'Editar' : 'Remover'}" action="#{relatorioFinanceiroSocialBean.acaoFinanceiro(linha)}" style="#{(!linha.ativo) ? 'color: blue' : 'color: red'} " update="@this panel_filtro"/>
+                                            <br /><br />
+                                        </c:forEach>
+                                    </p:panel>
+                                    <br />
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Imprimir" action="#{relatorioFinanceiroSocialBean.imprimir}" ajax="false" onclick="form.target = '_blank'"/>
+                                        <p:selectBooleanCheckbox value="#{relatorioFinanceiroSocialBean.chkExcel}" itemLabel="Excel">
+                                            <p:ajax event="change" update="@this" />
+                                        </p:selectBooleanCheckbox>
+                                    </h:panelGrid>
+                                </h:column>
+
+                                <h:column>
+                                    <h:panelGrid id="panel_filtro" columns="2">
+                                        <!-- GRUPO CATEGORIA-->
+                                        <h:column>
+                                            <h:panelGrid columns="2" rendered="#{relatorioFinanceiroSocialBean.listaFiltros.get(0).ativo}" style="float: left; margin: 10px ">
+                                                <h:column>
+                                                    <p:outputLabel value="Grupo Categoria" /><br />
+                                                    <p:selectOneMenu value="#{relatorioFinanceiroSocialBean.idGrupoCategoria}" style="padding-right: 20px">
+                                                        <p:ajax event="change" listener="#{relatorioFinanceiroSocialBean.loadListaCategoria()}" update="@this panel_filtro"/>
+                                                        <f:selectItems value="#{relatorioFinanceiroSocialBean.listaGrupoCategoria}"/>
+                                                    </p:selectOneMenu>
+                                                </h:column>
+                                                
+                                                <h:column>
+                                                    <p:outputLabel value="Categoria" /><br />
+                                                    <p:selectOneMenu value="#{relatorioFinanceiroSocialBean.idCategoria}" style="padding-right: 20px">
+                                                        <p:ajax event="change" update="@this panel_filtro"/>
+                                                        <f:selectItems value="#{relatorioFinanceiroSocialBean.listaCategoria}"/>
+                                                    </p:selectOneMenu>
+                                                </h:column>
+                                            </h:panelGrid>
+                                        </h:column>
+                                        
+                                        <!-- GRAU -->
+                                        <h:column>
+                                            <h:panelGrid columns="2" rendered="#{relatorioFinanceiroSocialBean.listaFiltros.get(1).ativo}" style="float: left; margin: 10px ">
+                                                <h:column>
+                                                    <p:outputLabel value="Parentesco" />
+                                                </h:column>
+                                                <h:column></h:column>
+                                                <h:column>
+                                                    <p:selectOneMenu value="#{relatorioFinanceiroSocialBean.idParentesco}" style="padding-right: 20px">
+                                                        <p:ajax event="change" update="@this panel_filtro"/>
+                                                        <f:selectItems value="#{relatorioFinanceiroSocialBean.listaParentesco}"/>
+                                                    </p:selectOneMenu>
+                                                </h:column>
+                                            </h:panelGrid>
+                                        </h:column>
+                                        
+                                        <!-- CIDADE DO SÓCIO -->
+                                        <h:column>
+                                            <h:panelGrid columns="2" rendered="#{relatorioFinanceiroSocialBean.listaFiltros.get(2).ativo}" style="float: left; margin: 10px ">
+                                                <h:column>
+                                                    <p:outputLabel value="Cidade do Sócio" style="font-weight: bold"/>
+                                                </h:column>
+                                                <h:column></h:column>
+                                                <h:column>
+                                                    <p:commandButton icon="ui-icon-search" action="#{relatorioFinanceiroSocialBean.pesquisaCidadeSocio()}" style="margin-right: 10px;" ajax="false"/>
+                                                    <p:outputLabel value="#{relatorioFinanceiroSocialBean.cidadeSocio.cidadeToString}" style="font-size: 11pt!important" />
+                                                </h:column>
+                                            </h:panelGrid>
+                                        </h:column>
+                                        
+                                        <!-- CIDADE DA EMPRESA -->
+                                        <h:column>
+                                            <h:panelGrid columns="2" rendered="#{relatorioFinanceiroSocialBean.listaFiltros.get(3).ativo}" style="float: left; margin: 10px ">
+                                                <h:column>
+                                                    <p:outputLabel value="Cidade da Empresa" style="font-weight: bold"/>
+                                                </h:column>
+                                                <h:column></h:column>
+                                                <h:column>
+                                                    <p:commandButton icon="ui-icon-search" action="#{relatorioFinanceiroSocialBean.pesquisaCidadeEmpresa()}" style="margin-right: 10px;" ajax="false"/>
+                                                    <p:outputLabel value="#{relatorioFinanceiroSocialBean.cidadeEmpresa.cidadeToString}" style="margin-left: 10px; font-size: 11pt!important" />
+                                                </h:column>
+                                            </h:panelGrid>
+                                        </h:column>
+
+                                        <!-- VOTANTE -->
+                                        <h:column>
+                                            <h:panelGrid columns="2" rendered="#{relatorioFinanceiroSocialBean.listaFiltros.get(4).ativo}" style="float: left; margin: 10px ">
+                                                <h:column>
+                                                    <p:outputLabel value="Votante" />
+                                                </h:column>
+                                                <h:column></h:column>
+                                                <h:column>
+                                                    <p:selectOneMenu value="#{relatorioFinanceiroSocialBean.votante}" style="padding-right: 20px">
+                                                        <p:ajax event="change" update="@this panel_filtro"/>
+                                                        <f:selectItem itemValue="true"  itemLabel="Sim" />
+                                                        <f:selectItem itemValue="false" itemLabel="Não" />
+                                                    </p:selectOneMenu>
+                                                </h:column>
+                                            </h:panelGrid>
+                                        </h:column>
+                                        
+
+                                        <!-- DATAS -->
+                                        <h:column>
+                                            <h:panelGrid columns="10" rendered="#{relatorioFinanceiroSocialBean.listaFiltros.get(5).ativo}" style="float: left; margin: 10px ">
+                                                <h:column>
+                                                    <p:panel styleClass="fundoCinza">
+                                                        <h:panelGrid columns="1">
+                                                            <p:outputLabel value="Cadastro" style="font-weight: bold"/>
+                                                            <p:inputMask value="#{relatorioFinanceiroSocialBean.dataCadastro}" style="text-align: center" size="8" mask="99/99/9999"/>
+                                                            <p:outputLabel value="até" style="font-weight: bold" />
+                                                            <p:inputMask value="#{relatorioFinanceiroSocialBean.dataCadastroFinal}" style="text-align: center" size="8" mask="99/99/9999"/>
+                                                        </h:panelGrid>
+                                                    </p:panel>
+                                                </h:column>
+
+                                                <h:column>
+                                                    <p:panel styleClass="fundoCinza">
+                                                        <h:panelGrid columns="1">
+                                                            <p:outputLabel value="Recadastro" style="font-weight: bold"/>
+                                                            <p:inputMask value="#{relatorioFinanceiroSocialBean.dataRecadastro}" style="text-align: center" size="8" mask="99/99/9999"/>
+                                                            <p:outputLabel value="até" style="font-weight: bold" />
+                                                            <p:inputMask value="#{relatorioFinanceiroSocialBean.dataRecadastroFinal}" style="text-align: center" size="8" mask="99/99/9999"/>
+                                                        </h:panelGrid>
+                                                    </p:panel>
+                                                </h:column>
+
+                                                <h:column>
+                                                    <p:panel styleClass="fundoCinza">
+                                                        <h:panelGrid columns="1">
+                                                            <p:outputLabel value="Admissão" style="font-weight: bold"/>
+                                                            <p:inputMask value="#{relatorioFinanceiroSocialBean.dataAdmissao}" style="text-align: center" size="8" mask="99/99/9999"/>
+                                                            <p:outputLabel value="até" style="font-weight: bold" />
+                                                            <p:inputMask value="#{relatorioFinanceiroSocialBean.dataAdmissaoFinal}" style="text-align: center" size="8" mask="99/99/9999"/>
+                                                        </h:panelGrid>
+                                                    </p:panel>
+                                                </h:column>
+
+                                                <h:column>
+                                                    <p:panel styleClass="fundoCinza">
+                                                        <h:panelGrid columns="1">
+                                                            <p:outputLabel value="Demissão" style="font-weight: bold"/>
+                                                            <p:inputMask value="#{relatorioFinanceiroSocialBean.dataDemissao}" style="text-align: center" size="8" mask="99/99/9999"/>
+                                                            <p:outputLabel value="até" style="font-weight: bold" />
+                                                            <p:inputMask value="#{relatorioFinanceiroSocialBean.dataDemissaoFinal}" style="text-align: center" size="8" mask="99/99/9999"/>
+                                                        </h:panelGrid>
+                                                    </p:panel>
+                                                </h:column>
+
+                                                <h:column>
+                                                    <p:panel styleClass="fundoCinza">
+                                                        <h:panelGrid columns="1">
+                                                            <p:outputLabel value="Filiação" style="font-weight: bold"/>
+                                                            <p:inputMask value="#{relatorioFinanceiroSocialBean.dataFiliacao}" style="text-align: center" size="8" mask="99/99/9999"/>
+                                                            <p:outputLabel value="até" style="font-weight: bold"/>
+                                                            <p:inputMask value="#{relatorioFinanceiroSocialBean.dataFiliacaoFinal}" style="text-align: center" size="8" mask="99/99/9999"/>
+                                                        </h:panelGrid>
+                                                    </p:panel>
+                                                </h:column>
+
+                                                <h:column>
+                                                    <p:panel styleClass="fundoCinza">
+                                                        <h:panelGrid columns="1">
+                                                            <p:outputLabel value="Aposentadoria" style="font-weight: bold"/>
+                                                            <p:inputMask value="#{relatorioFinanceiroSocialBean.dataAposentadoria}" style="text-align: center" size="8" mask="99/99/9999"/>
+                                                            <p:outputLabel value="até" style="font-weight: bold"/>
+                                                            <p:inputMask value="#{relatorioFinanceiroSocialBean.dataAposentadoriaFinal}" style="text-align: center" size="8" mask="99/99/9999"/>
+                                                        </h:panelGrid>
+                                                    </p:panel>
+                                                </h:column>
+                                                
+                                                <h:column>
+                                                    <p:panel styleClass="fundoCinza">
+                                                        <h:panelGrid columns="1">
+                                                            <p:outputLabel value="Atualização" style="font-weight: bold"/>
+                                                            <p:inputMask value="#{relatorioFinanceiroSocialBean.dataAtualizacao}" style="text-align: center" size="8" mask="99/99/9999"/>
+                                                            <p:outputLabel value="até" style="font-weight: bold"/>
+                                                            <p:inputMask value="#{relatorioFinanceiroSocialBean.dataAtualizacaoFinal}" style="text-align: center" size="8" mask="99/99/9999"/>
+                                                        </h:panelGrid>
+                                                    </p:panel>
+                                                </h:column>
+                                            </h:panelGrid>
+                                        </h:column>   
+                                        
+                                        <!-- SITUAÇÃO -->
+                                        <h:column>
+                                            <h:panelGrid columns="2" rendered="#{relatorioFinanceiroSocialBean.listaFiltros.get(6).ativo}" style="float: left; margin: 10px ">
+                                                <h:column>
+                                                    <p:outputLabel value="Situação" />
+                                                </h:column>
+                                                <h:column></h:column>
+                                                <h:column>
+                                                    <p:selectOneMenu value="#{relatorioFinanceiroSocialBean.tipoSituacao}" style="padding-right: 20px">
+                                                        <p:ajax event="change" update="@this panel_filtro"/>
+                                                        <f:selectItem itemValue="ativo"   itemLabel="Ativo" />
+                                                        <f:selectItem itemValue="inativo" itemLabel="Inativo" />
+                                                    </p:selectOneMenu>
+                                                </h:column>
+                                            </h:panelGrid>
+                                        </h:column>
+                                        
+                                        <!-- PESSOA SÓCIO -->
+                                        <h:column>
+                                            <h:panelGrid columns="2" rendered="#{relatorioFinanceiroSocialBean.listaFiltros.get(7).ativo}" style="float: left; margin: 10px ">
+                                                <h:column>
+                                                    <p:outputLabel value="Pessos Física" style="font-weight: bold"/>
+                                                    <p:selectOneRadio value="#{relatorioFinanceiroSocialBean.tipoPessoa}">
+                                                        <f:selectItem itemValue="responsavel"  itemLabel="Responsável" />
+                                                        <f:selectItem itemValue="titular"      itemLabel="Titular" />
+                                                        <f:selectItem itemValue="beneficiario" itemLabel="Beneficiário" />
+                                                    </p:selectOneRadio>
+                                                </h:column>
+                                                <h:column></h:column>
+                                                <h:column>
+                                                    <p:commandButton icon="ui-icon-search" action="#{relatorioFinanceiroSocialBean.pesquisaPessoa()}" style="margin-right: 10px;" ajax="false"/>
+                                                    <p:outputLabel value="#{(relatorioFinanceiroSocialBean.pessoa.documento ne '0') ? relatorioFinanceiroSocialBean.pessoa.documento : ''} - #{relatorioFinanceiroSocialBean.pessoa.nome}" style="margin-left: 10px; font-size: 11pt!important" />
+                                                </h:column>
+                                            </h:panelGrid>
+                                        </h:column>
+                                        
+                                        
+                                        <!-- GRUPO FINANCEIRO -->
+                                        <h:column>
+                                            <h:panelGrid columns="2" rendered="#{relatorioFinanceiroSocialBean.listaFiltrosFinanceiro.get(0).ativo}" style="float: left; margin: 10px ">
+                                                <h:column>
+                                                    <p:outputLabel value="Grupo Financeiro" />
+                                                </h:column>
+                                                <h:column></h:column>
+                                                <h:column>
+                                                    <p:selectOneMenu value="#{relatorioFinanceiroSocialBean.idGrupo}" style="padding-right: 20px">
+                                                        <p:ajax event="change" listener="#{relatorioFinanceiroSocialBean.loadListaSubGrupo()}" update="@this panel_filtro"/>
+                                                        <f:selectItems value="#{relatorioFinanceiroSocialBean.listaGrupo}"/>
+                                                    </p:selectOneMenu>
+                                                </h:column>
+                                            </h:panelGrid>
+                                        </h:column>
+
+                                        <!-- SUB GRUPO FINANCEIRO -->
+                                        <h:column>
+                                            <h:panelGrid columns="2" rendered="#{relatorioFinanceiroSocialBean.listaFiltrosFinanceiro.get(1).ativo}" style="float: left; margin: 10px ">
+                                                <h:column>
+                                                    <p:outputLabel value="Sub Grupo Financeiro" />
+                                                </h:column>
+                                                <h:column></h:column>
+                                                <h:column>
+                                                    <p:selectOneMenu value="#{relatorioFinanceiroSocialBean.idSubGrupo}" style="padding-right: 20px">
+                                                        <p:ajax event="change" listener="#{relatorioFinanceiroSocialBean.loadListaServicos()}" update="@this panel_filtro"/>
+                                                        <f:selectItems value="#{relatorioFinanceiroSocialBean.listaSubGrupo}"/>
+                                                    </p:selectOneMenu>
+                                                </h:column>
+                                            </h:panelGrid>
+                                        </h:column>
+
+                                        <!-- SERVICOS -->
+                                        <h:column>
+                                            <h:panelGrid columns="2" rendered="#{relatorioFinanceiroSocialBean.listaFiltrosFinanceiro.get(2).ativo}" style="float: left; margin: 10px ">
+                                                <h:column>
+                                                    <p:outputLabel value="Serviços" />
+                                                </h:column>
+                                                <h:column></h:column>
+                                                <h:column>
+                                                    <p:selectOneMenu value="#{relatorioFinanceiroSocialBean.idServicos}" style="padding-right: 20px">
+                                                        <p:ajax event="change" update="@this panel_filtro"/>
+                                                        <f:selectItems value="#{relatorioFinanceiroSocialBean.listaServicos}"/>
+                                                    </p:selectOneMenu>
+                                                </h:column>
+                                            </h:panelGrid>
+                                        </h:column> 
+                                        
+                                        <!-- DATAS FINANCEIRO -->
+                                        <h:column>
+                                            <h:panelGrid columns="10" rendered="#{relatorioFinanceiroSocialBean.listaFiltrosFinanceiro.get(3).ativo}" style="float: left; margin: 10px ">
+                                                <h:column>
+                                                    <p:panel styleClass="fundoCinza">
+                                                        <h:panelGrid columns="1">
+                                                            <p:outputLabel value="Emissão" style="font-weight: bold"/>
+                                                            <p:inputMask value="#{relatorioFinanceiroSocialBean.dataEmissao}" style="text-align: center" size="8" mask="99/99/9999"/>
+                                                            <p:outputLabel value="até" style="font-weight: bold" />
+                                                            <p:inputMask value="#{relatorioFinanceiroSocialBean.dataEmissaoFinal}" style="text-align: center" size="8" mask="99/99/9999"/>
+                                                        </h:panelGrid>
+                                                    </p:panel>
+                                                </h:column>
+
+                                                <h:column>
+                                                    <p:panel styleClass="fundoCinza">
+                                                        <h:panelGrid columns="1">
+                                                            <p:outputLabel value="Vencimento" style="font-weight: bold"/>
+                                                            <p:inputMask value="#{relatorioFinanceiroSocialBean.dataVencimento}" style="text-align: center" size="8" mask="99/99/9999"/>
+                                                            <p:outputLabel value="até" style="font-weight: bold" />
+                                                            <p:inputMask value="#{relatorioFinanceiroSocialBean.dataVencimentoFinal}" style="text-align: center" size="8" mask="99/99/9999"/>
+                                                        </h:panelGrid>
+                                                    </p:panel>
+                                                </h:column>
+
+                                                <h:column>
+                                                    <p:panel styleClass="fundoCinza">
+                                                        <h:panelGrid columns="1">
+                                                            <p:outputLabel value="Quitação" style="font-weight: bold"/>
+                                                            <p:inputMask value="#{relatorioFinanceiroSocialBean.dataQuitacao}" style="text-align: center" size="8" mask="99/99/9999"/>
+                                                            <p:outputLabel value="até" style="font-weight: bold" />
+                                                            <p:inputMask value="#{relatorioFinanceiroSocialBean.dataQuitacaoFinal}" style="text-align: center" size="8" mask="99/99/9999"/>
+                                                        </h:panelGrid>
+                                                    </p:panel>
+                                                </h:column>
+                                            </h:panelGrid>
+                                        </h:column>
+                                        
+                                        <!-- E / S -->
+                                        <h:column>
+                                            <h:panelGrid columns="2" rendered="#{relatorioFinanceiroSocialBean.listaFiltrosFinanceiro.get(4).ativo}" style="float: left; margin: 10px ">
+                                                <h:column>
+                                                    <p:outputLabel value="Entrada / Saída" />
+                                                </h:column>
+                                                <h:column></h:column>
+                                                <h:column>
+                                                    <p:selectOneMenu value="#{relatorioFinanceiroSocialBean.tipoES}" style="padding-right: 20px">
+                                                        <p:ajax event="change" update="@this panel_filtro"/>
+                                                        <f:selectItem itemValue="E" itemLabel="Entrada" />
+                                                        <f:selectItem itemValue="S" itemLabel="Saida" />
+                                                    </p:selectOneMenu>
+                                                </h:column>
+                                            </h:panelGrid>
+                                        </h:column>   
+                                        
+                                        
+                                        <!-- SITUAÇÃO FINANCEIRO-->
+                                        <h:column>
+                                            <h:panelGrid columns="2" rendered="#{relatorioFinanceiroSocialBean.listaFiltrosFinanceiro.get(5).ativo}" style="float: left; margin: 10px ">
+                                                <h:column>
+                                                    <p:outputLabel value="Situação Financeiro" />
+                                                </h:column>
+                                                <h:column></h:column>
+                                                <h:column>
+                                                    <p:selectOneMenu value="#{relatorioFinanceiroSocialBean.tipoSituacaoFinanceiro}" style="padding-right: 20px">
+                                                        <p:ajax event="change" update="@this panel_filtro"/>
+                                                        <f:selectItem itemValue="atrasado" itemLabel="Atrasados" />
+                                                        <f:selectItem itemValue="baixado" itemLabel="Baixados" />
+                                                        <f:selectItem itemValue="aberto" itemLabel="Em Aberto" />
+                                                    </p:selectOneMenu>
+                                                </h:column>
+                                            </h:panelGrid>
+                                        </h:column>                                          
+                                    </h:panelGrid>                            
+                                </h:column>
+                            </h:panelGrid>                            
+                        </h:form>
+                    </p:panel>
+                </f:view>
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>                
+    </h:body>
+</ui:composition>

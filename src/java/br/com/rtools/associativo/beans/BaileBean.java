@@ -6,7 +6,6 @@ import br.com.rtools.associativo.db.*;
 import br.com.rtools.endereco.Endereco;
 import br.com.rtools.financeiro.Evt;
 import br.com.rtools.financeiro.Servicos;
-import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -14,27 +13,14 @@ import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.SalvarAcumuladoDB;
 import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
-import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
-import javax.servlet.ServletContext;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import org.primefaces.event.DragDropEvent;
-import org.primefaces.event.FileUploadEvent;
-import org.primefaces.model.UploadedFile;
 
 @ManagedBean
 @SessionScoped
@@ -52,8 +38,8 @@ public class BaileBean implements Serializable {
     private int idDescricaoEvento = 0;
     private int idServicos = 0;
     private int nrMesa = 0;
-    private int idNrMesa = 0;
-    private int idNrConvite = 0;
+    private Integer idNrMesa = 0;
+    private Integer idNrConvite = 0;
     private List<Integer> listaQuantidade = new ArrayList();
     private List<EventoBanda> listaEventoBanda = new ArrayList();
     private List<EventoBaile> listaEventoBaile = new ArrayList();
@@ -344,11 +330,11 @@ public class BaileBean implements Serializable {
             GenericaMensagem.warn("Erro", msgConfirma);
             return false;
         }
-        if (eventoBaile.getQuantidadeMesas() <= 0) {
-            msgConfirma = "Necessário informar a quantidade de mesas!";
-            GenericaMensagem.warn("Erro", msgConfirma);
-            return false;
-        }
+//        if (eventoBaile.getQuantidadeMesas() <= 0) {
+//            msgConfirma = "Necessário informar a quantidade de mesas!";
+//            GenericaMensagem.warn("Erro", msgConfirma);
+//            return false;
+//        }
         if (endereco.getEndereco().getId() == -1) {
             msgConfirma = "Pesquise um endereço!";
             GenericaMensagem.warn("Erro", msgConfirma);
@@ -1001,7 +987,7 @@ public class BaileBean implements Serializable {
 
     public List<SelectItem> getListaMesasDisponiveis() {
         listaMesasDisponiveis.clear();
-        int qm = 1;
+        int qm = 0;
         if (eventoBaile.getQuantidadeMesas() > 0) {
             qm = eventoBaile.getQuantidadeMesas();
         }
@@ -1019,7 +1005,7 @@ public class BaileBean implements Serializable {
 
     public List<SelectItem> getListaConvitesDisponiveis() {
         listaConvitesDisponiveis.clear();
-        int qm = 1;
+        int qm = 0;
         if (eventoBaile.getQuantidadeConvites() > 0) {
             qm = eventoBaile.getQuantidadeConvites();
         }
@@ -1035,19 +1021,19 @@ public class BaileBean implements Serializable {
         this.listaConvitesDisponiveis = listaConvitesDisponiveis;
     }
 
-    public int getIdNrMesa() {
+    public Integer getIdNrMesa() {
         return idNrMesa;
     }
 
-    public void setIdNrMesa(int idNrMesa) {
+    public void setIdNrMesa(Integer idNrMesa) {
         this.idNrMesa = idNrMesa;
     }
 
-    public int getIdNrConvite() {
+    public Integer getIdNrConvite() {
         return idNrConvite;
     }
 
-    public void setIdNrConvite(int idNrConvite) {
+    public void setIdNrConvite(Integer idNrConvite) {
         this.idNrConvite = idNrConvite;
     }
 

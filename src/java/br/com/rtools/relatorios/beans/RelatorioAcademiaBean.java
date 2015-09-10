@@ -66,10 +66,12 @@ public class RelatorioAcademiaBean implements Serializable {
     private List selectedConvenioEmpresa;
     private Map<String, Integer> listCategoria;
     private Map<String, Integer> listGrupoCategoria;
+    private Float desconto;
+    private Float descontoFinal;
 
     @PostConstruct
     public void init() {
-        filtro = new Boolean[12];
+        filtro = new Boolean[13];
         filtro[0] = false; // MODALIDADE
         filtro[1] = false; // PERÍODO EMISSÃO / INATIVAÇÃO
         filtro[2] = false; // RESPONSÁVEL
@@ -82,6 +84,7 @@ public class RelatorioAcademiaBean implements Serializable {
         filtro[9] = false; // GRUPO CATEGORIA
         filtro[10] = null; // NÃO SÓCIO
         filtro[11] = false; // CONVÊNIO EMPRESA
+        filtro[12] = false; // FAIXA DESCONTO
         listSelectItem = new ArrayList[2];
         listSelectItem[0] = new ArrayList<>();
         listSelectItem[1] = new ArrayList<>();
@@ -107,6 +110,9 @@ public class RelatorioAcademiaBean implements Serializable {
         selectedConvenioEmpresa = null;
         listCategoria = null;
         listGrupoCategoria = null;
+        
+        desconto = new Float(0);
+        descontoFinal = new Float(0);
     }
 
     @PreDestroy
@@ -203,7 +209,15 @@ public class RelatorioAcademiaBean implements Serializable {
             }
 
         }
-        List list = new RelatorioAcademiaDao().find(relatorios, pIStringI, pFStringI, idResponsavel, idAluno, inIdModalidades, inIdPeriodos, sexo, periodo, filtro[7], idade, in_grupo_categoria, in_categoria, nao_socio, convenio_empresa, order);
+        
+        Float desconto_inicial = null;
+        Float desconto_final = null;
+        if (filtro[12]) {
+            desconto_inicial = desconto;
+            desconto_final = descontoFinal;
+        }
+        
+        List list = new RelatorioAcademiaDao().find(relatorios, pIStringI, pFStringI, idResponsavel, idAluno, inIdModalidades, inIdPeriodos, sexo, periodo, filtro[7], idade, in_grupo_categoria, in_categoria, nao_socio, convenio_empresa, desconto_inicial, desconto_final, order);
         if (list.isEmpty()) {
             GenericaMensagem.info("Sistema", "Não existem registros para o relatório selecionado");
             return;
@@ -403,6 +417,9 @@ public class RelatorioAcademiaBean implements Serializable {
                 selectedCategoria = null;
                 selectedConvenioEmpresa = null;
                 break;
+            case "faixaDesconto":
+                filtro[12] = false;
+                break;
         }
         PF.update("form_relatorio:id_panel");
     }
@@ -471,6 +488,7 @@ public class RelatorioAcademiaBean implements Serializable {
      * <li>[9] GRUPO / CATEGORIA </li>
      * <li>[10] NÃO SÓCIO </li>
      * <li>[11] CONVÊNIO EMPRESA </li>
+     * <li>[12] FAIXA DESCONTO </li>
      * </ul>
      *
      * @return boolean
@@ -792,6 +810,22 @@ public class RelatorioAcademiaBean implements Serializable {
 
     public void setPeriodo(String periodo) {
         this.periodo = periodo;
+    }
+
+    public Float getDesconto() {
+        return desconto;
+    }
+
+    public void setDesconto(Float desconto) {
+        this.desconto = desconto;
+    }
+
+    public Float getDescontoFinal() {
+        return descontoFinal;
+    }
+
+    public void setDescontoFinal(Float descontoFinal) {
+        this.descontoFinal = descontoFinal;
     }
 
 }

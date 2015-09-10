@@ -34,6 +34,7 @@ public interface JuridicaDB {
     public Juridica pesquisaJuridicaPorPessoa(int id);
 
     public List pesquisaJuridicaPorDoc(String doc);
+    public List pesquisaJuridicaPorDocSubstring(String doc);
 
     public List pesquisaPesEndEmpresaComContabil(int idJurCon);
 

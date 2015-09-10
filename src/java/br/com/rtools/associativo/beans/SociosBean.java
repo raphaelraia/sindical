@@ -1474,6 +1474,7 @@ public class SociosBean implements Serializable {
                             return null;
                         }
                         saveString = "Sócio Dependente - ID: " + socioDependente.getId()
+                                + " - Pessoa - ID: " + socioDependente.getServicoPessoa().getPessoa().getId() + " - Nome: " + socioDependente.getServicoPessoa().getPessoa().getNome()
                                 + " - Titular (ID: " + socioDependente.getMatriculaSocios().getTitular().getId() + " - Nome: " + socioDependente.getMatriculaSocios().getTitular() + ") "
                                 + " - Parentesco : " + socioDependente.getParentesco().getParentesco()
                                 + " - Serviço Pessoa (Ativo: " + socioDependente.getServicoPessoa().isAtivo() + " - Validade: " + socioDependente.getServicoPessoa().getReferenciaValidade() + ") ";
@@ -1481,6 +1482,7 @@ public class SociosBean implements Serializable {
                     } else {
                         Socios sd = (Socios) dao.find(socioDependente);
                         beforeUpdate = "Sócio Dependente - ID: " + sd.getId()
+                                + " - Pessoa - ID: " + sd.getServicoPessoa().getPessoa().getId() + " - Nome: " + sd.getServicoPessoa().getPessoa().getNome()
                                 + " - Titular (ID: " + sd.getMatriculaSocios().getTitular().getId() + " - Nome: " + sd.getMatriculaSocios().getTitular() + ") "
                                 + " - Parentesco : " + sd.getParentesco().getParentesco()
                                 + " - Serviço Pessoa (Ativo: " + sd.getServicoPessoa().isAtivo() + " - Validade: " + sd.getServicoPessoa().getReferenciaValidade() + ") ";
@@ -1514,6 +1516,7 @@ public class SociosBean implements Serializable {
                             return null;
                         }
                         saveString = "Sócio Dependente - ID: " + socioDependente.getId()
+                                + " - Pessoa - ID: " + + socioDependente.getServicoPessoa().getPessoa().getId() + " - Nome: " + socioDependente.getServicoPessoa().getPessoa().getNome()
                                 + " - Titular (ID: " + socioDependente.getMatriculaSocios().getTitular().getId() + " - Nome: " + socioDependente.getMatriculaSocios().getTitular() + ") "
                                 + " - Parentesco : " + socioDependente.getParentesco().getParentesco()
                                 + " - Serviço Pessoa (Ativo: " + socioDependente.getServicoPessoa().isAtivo() + " - Validade: " + socioDependente.getServicoPessoa().getReferenciaValidade() + ") ";
@@ -1546,6 +1549,8 @@ public class SociosBean implements Serializable {
                                 + " - Cartão: " + sc.getCartao()
                                 + " - Emissão: " + sc.getEmissao()
                                 + " - Validade: " + sc.getValidadeCarteirinha();
+                        
+                        novoLog.save(saveString);
                     } else {
                         saveString = "Sócio Carteirinha: " + sc.getId()
                                 + " - Sócio: (ID: " + socios.getId() + ")"

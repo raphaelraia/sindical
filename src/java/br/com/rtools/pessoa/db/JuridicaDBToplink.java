@@ -212,6 +212,23 @@ public class JuridicaDBToplink extends DB implements JuridicaDB {
         }
         return result;
     }
+    
+    @Override
+    public List pesquisaJuridicaPorDocSubstring(String doc) {
+        List result = new ArrayList();
+        try {
+            Query qry = getEntityManager().createNativeQuery(
+                    "SELECT j.* \n " +
+                    "  FROM pes_pessoa p \n " +
+                    " INNER JOIN pes_juridica j ON j.id_pessoa = p.id \n " +
+                    " WHERE '000"+doc+"' = '000'||SUBSTRING(REPLACE(REPLACE(REPLACE(p.ds_documento,'/',''),'-',''),'.',''),1,12)", Juridica.class
+            );
+            qry.setParameter("doc", doc);
+            result = qry.getResultList();
+        } catch (Exception e) {
+        }
+        return result;
+    }
 
     @Override
     public List pesquisaPesEndEmpresaComContabil(int idJurCon) {

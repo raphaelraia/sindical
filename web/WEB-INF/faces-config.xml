@@ -1770,6 +1770,12 @@
             <redirect/>
         </navigation-case>         
         
+        <navigation-case>
+            <from-outcome>relatorioFinanceiroSocial</from-outcome>
+            <to-view-id>/relatorioFinanceiroSocial.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>         
+        
         <!-- 
         <navigation-case>
             <from-outcome>#{navigationRules.param}</from-outcome>

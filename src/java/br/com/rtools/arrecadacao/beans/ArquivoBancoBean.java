@@ -134,14 +134,33 @@ public final class ArquivoBancoBean implements Serializable {
                 if (listaDoc.get(i).getId() == listaDocCadastrado.get(w).getId()) {
                     documento = listaDoc.get(i).getDocumentoInvalido().substring(
                             listaDoc.get(i).getDocumentoInvalido().length() - 12,
-                            listaDoc.get(i).getDocumentoInvalido().length());
-                    digito = ValidaDocumentos.retonarDigitoCNPJ(documento);
-                    dtObject = new DataObject(false,
-                            AnaliseString.mascaraCnpj(documento + digito),// -- DOCUMENTO
+                            listaDoc.get(i).getDocumentoInvalido().length()
+                    );
+                    
+                    List<Juridica> lj = new JuridicaDBToplink().pesquisaJuridicaPorDocSubstring(documento);
+                    String mascaraDocumento = "";
+                    switch (lj.get(0).getPessoa().getTipoDocumento().getId()){
+                        case 1:
+                            mascaraDocumento = AnaliseString.mascaraCPF(documento);
+                            break;
+                        case 2:
+                            digito = ValidaDocumentos.retonarDigitoCNPJ(documento);
+                            mascaraDocumento = AnaliseString.mascaraCnpj(documento + digito);
+                            break;
+                        case 3:
+                            mascaraDocumento = AnaliseString.mascaraCEI(documento);
+                            break;
+                    }
+                    
+                    
+                    dtObject = new DataObject(
+                            false,
+                            mascaraDocumento,// -- DOCUMENTO
                             "** CADASTRADO **",// -- STATUS
                             listaDoc.get(i),
                             false,
-                            listaDoc.get(i).getDtImportacao());
+                            listaDoc.get(i).getDtImportacao()
+                    );
 
                     listaDocumentos.add(dtObject);
 
@@ -151,23 +170,28 @@ public final class ArquivoBancoBean implements Serializable {
             if (!encontrado) {
                 documento = listaDoc.get(i).getDocumentoInvalido().substring(
                         listaDoc.get(i).getDocumentoInvalido().length() - 12,
-                        listaDoc.get(i).getDocumentoInvalido().length());
+                        listaDoc.get(i).getDocumentoInvalido().length()
+                );
                 digito = ValidaDocumentos.retonarDigitoCNPJ(documento);
                 if (ValidaDocumentos.isValidoCNPJ(documento + digito)) {
-                    dtObject = new DataObject(false,
+                    dtObject = new DataObject(
+                            false,
                             AnaliseString.mascaraCnpj(documento + digito),// -- DOCUMENTO
                             "** VERIFICAR **",// -- STATUS
                             listaDoc.get(i),
                             true,
-                            listaDoc.get(i).getDtImportacao());
+                            listaDoc.get(i).getDtImportacao()
+                    );
                     listaDocumentos.add(dtObject);
                 } else {
-                    dtObject = new DataObject(false,
+                    dtObject = new DataObject(
+                            false,
                             documento,// -- DOCUMENTO
                             "** INVALIDO **",// -- STATUS
                             listaDoc.get(i),
                             true,
-                            listaDoc.get(i).getDtImportacao());
+                            listaDoc.get(i).getDtImportacao()
+                    );
                     listaDocumentos.add(dtObject);
                 }
             }

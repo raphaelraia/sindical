@@ -28,9 +28,11 @@ public class RelatorioAcademiaDao extends DB {
      * @param nao_socio
      * @param convenio_empresa
      * @param idade
+     * @param desconto
+     * @param desconto_final
      * @return
      */
-    public List find(Relatorios r, String emissaoInicial, String emissaoFinal, Integer idResponsavel, Integer idAluno, String inModalidade, String inIdPeriodos, String inSexo, String periodo, Boolean ativos, Integer[] idade, String in_grupo_categoria, String in_categoria, Boolean nao_socio, Boolean convenio_empresa, String order) {
+    public List find(Relatorios r, String emissaoInicial, String emissaoFinal, Integer idResponsavel, Integer idAluno, String inModalidade, String inIdPeriodos, String inSexo, String periodo, Boolean ativos, Integer[] idade, String in_grupo_categoria, String in_categoria, Boolean nao_socio, Boolean convenio_empresa, Float desconto, Float desconto_final, String order) {
         List listWhere = new ArrayList();
         String queryString = ""
                 + "     SELECT PA.nome,                                                       \n" // 0 - NOME
@@ -131,6 +133,14 @@ public class RelatorioAcademiaDao extends DB {
             }
         }
 
+        if (desconto != null && desconto_final != null){
+            listWhere.add("SP.nr_desconto BETWEEN "+ desconto+ " AND "+desconto_final);
+        }else if (desconto != null && desconto_final == null){
+            listWhere.add("SP.nr_desconto >= "+ desconto);
+        }else if (desconto == null && desconto_final != null){
+            listWhere.add("SP.nr_desconto <= "+ desconto_final);
+        }
+        
         if (!listWhere.isEmpty()) {
             queryString += " WHERE ";
             for (int i = 0; i < listWhere.size(); i++) {

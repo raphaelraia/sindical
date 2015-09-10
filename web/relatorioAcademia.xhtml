@@ -67,6 +67,9 @@
                                             <p:selectBooleanButton value="#{relatorioAcademiaBean.filtro[6]}" onLabel="Período - Edição" offLabel="Período - Edição" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;">
                                                 <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio :form_relatorio:id_panel_relatorio" listener="#{relatorioAcademiaBean.clear}" />
                                             </p:selectBooleanButton>
+                                            <p:selectBooleanButton value="#{relatorioAcademiaBean.filtro[12]}" onLabel="Faixa de Desconto - Edição" offLabel="Faixa de Desconto - Edição" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;">
+                                                <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio :form_relatorio:id_panel_relatorio" listener="#{relatorioAcademiaBean.clear}" />
+                                            </p:selectBooleanButton>
                                         </h:panelGrid>
                                         <h:panelGrid columns="1" styleClass="text-left">
                                             <f:facet name="header">
@@ -236,6 +239,19 @@
                                         </h:panelGrid>                                        
                                     </h:column>
                                 </p:column>
+                                
+                                <p:column rendered="#{relatorioAcademiaBean.filtro[12]}">
+                                    <h:column>
+                                        <h:panelGrid columns="5" styleClass="margin-top">
+                                            <p:outputLabel value="Faixa de Desconto: " />
+                                            <p:inputText value="#{relatorioAcademiaBean.desconto}" size="3" style="text-align: right"/>
+                                            <p:outputLabel value=" até " />
+                                            <p:inputText value="#{relatorioAcademiaBean.descontoFinal}" size="3" style="text-align: right"/>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioAcademiaBean.close('faixaDesconto')}" title="Remover filtro"/>
+                                        </h:panelGrid>                                        
+                                    </h:column>
+                                </p:column>
+                                
                                 <p:column rendered="#{relatorioAcademiaBean.tipoRelatorio == 'Simples'}">
                                     * Todas matrículas
                                 </p:column>

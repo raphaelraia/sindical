@@ -533,6 +533,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 PessoaEnderecoDB db = new PessoaEnderecoDBToplink();
                 agendamento = a;
                 fisica = a.getPessoaEmpresa().getFisica();
+                documentoFisica = fisica.getPessoa().getDocumento();
                 enderecoFisica = db.pesquisaEndPorPessoaTipo(fisica.getPessoa().getId(), 1);
                 juridica = a.getPessoaEmpresa().getJuridica();
                 profissao = a.getPessoaEmpresa().getFuncao();
@@ -1041,7 +1042,8 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 return;
             }
             
-            fisica = new Fisica();
+            fisica.getPessoa().setDocumento(documentoFisica);
+            //fisica = new Fisica();
             FisicaDB dbFis = new FisicaDBToplink();
             HomologacaoDB db = new HomologacaoDBToplink();
             PessoaEnderecoDB dbe = new PessoaEnderecoDBToplink();

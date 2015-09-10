@@ -535,8 +535,7 @@ public class RelatorioFinanceiroBean implements Serializable {
         List<RelatorioParametros> listaRL = new RelatorioDao().listaRelatorioParametro(relatorios.getId());
 
         List<HashMap> list_hash = new ArrayList();
-        HashMap<String, Object> map = new LinkedHashMap();
-
+         
         String[] param_query = new String[listaRL.size()];
         for (int i = 0; i < listaRL.size(); i++) {
             param_query[i] = listaRL.get(i).getApelido();
@@ -544,7 +543,7 @@ public class RelatorioFinanceiroBean implements Serializable {
 
         for (Object linha : result) {
             List list = (List) linha;
-            map = new LinkedHashMap();
+            HashMap<String, Object> map = new LinkedHashMap();
             for (int i = 0; i < param_query.length; i++) {
                 map.put(param_query[i], list.get(i));
             }

@@ -196,6 +196,32 @@ public class AnaliseString {
             return cnpj;
         }
     }
+    
+    public static String mascaraCEI(final String cei) {
+        String ceiMask = "";
+        try {
+            // "21.435.18498/04"
+            if (!cei.equals("")) {
+                ceiMask = cei.substring(0, 2) + "." + cei.substring(2, 5) + "." + cei.substring(5, 10) + "/" + cei.substring(10, 12);
+            }
+            return ceiMask;
+        } catch (Exception e) {
+            return cei;
+        }
+    }
+    
+    public static String mascaraCPF(final String cpf) {
+        String cpfMask = "";
+        try {
+            // "21.435.18498/04"
+            if (!cpf.equals("")) {
+                cpfMask = cpf.substring(0, 3) + "." + cpf.substring(3, 6) + "." + cpf.substring(6, 9) + "-" + cpf.substring(9, 11);
+            }
+            return cpfMask;
+        } catch (Exception e) {
+            return cpf;
+        }
+    }
 
     public static String extrairNumeros(String docS) {
         String documento = "";
