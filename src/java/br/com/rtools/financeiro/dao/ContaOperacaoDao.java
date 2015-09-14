@@ -14,23 +14,24 @@ public class ContaOperacaoDao extends DB {
         DaoInterface di = new Dao();
         Operacao o = (Operacao) di.find(new Operacao(), idOperacao);        
         String queryString = " "
-                + "     SELECT id_p4,                                           "
-                + "            CONCAT(conta1 ||' - '|| conta3 ||' - '|| conta4) "
-                + "       FROM plano_vw                                         ";
+                + "     SELECT id_p4,                                           \n"
+                + "            CONCAT(conta1 ||' - '|| conta3 ||' - '|| conta4) \n"
+                + "       FROM plano_vw                                         \n";
         if(idOperacao == 1) {
-            queryString += " WHERE replace(upper(ltrim(rtrim(conta1))), ' ','') LIKE '%RECEITA%' ";
+            queryString += " WHERE replace(upper(ltrim(rtrim(conta1))), ' ','') LIKE '%RECEITA%' \n";
         } else if(idOperacao == 2) {
-            queryString += " WHERE replace(upper(ltrim(rtrim(conta1))), ' ','') LIKE '%DESPESA%' ";
+            queryString += " WHERE replace(upper(ltrim(rtrim(conta1))), ' ','') LIKE '%DESPESA%' \n";
         } else {
-            queryString += "WHERE NOT REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%DESPESA%' AND "
-                    + "           NOT REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','')  LIKE '%RECEITA%' ";
+            queryString += "WHERE NOT REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%DESPESA%' \n AND "
+                    + "           NOT REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','')  LIKE '%RECEITA%' \n ";
         }
-        queryString += " GROUP BY conta1,           "
-                + "               conta3,           "
-                + "               conta4,           "
-                + "               classificador,    "
-                + "               id_p4             "
-                + "      ORDER BY classificador     ";
+        queryString += " GROUP BY conta1,           \n"
+                + "               conta3,           \n"
+                + "               conta4,           \n"
+                + "               id_p1,            \n"
+                + "               id_p3,            \n"
+                + "               id_p4             \n"
+                + "      ORDER BY id_p1, id_p3, id_p4      ";
         try {
             Query query = getEntityManager().createNativeQuery(queryString);
             List list = query.getResultList();
