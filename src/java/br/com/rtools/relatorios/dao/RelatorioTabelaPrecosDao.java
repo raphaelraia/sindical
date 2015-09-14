@@ -45,7 +45,7 @@ public class RelatorioTabelaPrecosDao extends DB {
                 + "            CT.ds_categoria AS categoria_descricao, \n" // 5 - CATEGORIA -> DESCRIÇÃO
                 + "            SV.nr_idade_ini || ' / ' || SV.nr_idade_fim AS idade, \n" // 6 - IDADE
                 + "            SV.nr_valor 	AS valor_cheio,        \n" // 7 - VALOR CHEIO
-                + "            cast(                                   \n"    
+                + "            cast(                                   \n"
                 + "            round(                                  \n"
                 + "                  CAST(                             \n"
                 + "                          SV.nr_valor - ((SV.nr_valor * DC.nr_desconto) / 100 ) AS numeric \n"
@@ -60,12 +60,7 @@ public class RelatorioTabelaPrecosDao extends DB {
                 + "  LEFT JOIN soc_categoria_desconto AS DC ON DC.id_servico_valor = SV.id  \n"
                 + "  LEFT JOIN soc_categoria          AS CT ON CT.id = DC.id_categoria      \n"
                 + "      WHERE S.is_tabela          \n"
-                + "        AND S.ds_situacao = 'A'  \n"
-                + "   ORDER BY G.ds_descricao,      \n"
-                + "            SG.ds_descricao,     \n"
-                + "            S.ds_descricao,      \n"
-                + "            CT.ds_categoria,     \n"
-                + "            SV.nr_idade_ini      \n";
+                + "        AND S.ds_situacao = 'A'  \n";
         if (inIdServicos != null && !inIdServicos.isEmpty()) {
             listWhere.add(" S.id IN (" + inIdServicos + ") ");
         }
@@ -73,15 +68,19 @@ public class RelatorioTabelaPrecosDao extends DB {
             listWhere.add(" S.id_subgrupo IN (" + inIdSubGrupoCategoria + ") ");
         }
         if (!listWhere.isEmpty()) {
-            queryString += " WHERE ";
+            queryString += " ";
             for (int i = 0; i < listWhere.size(); i++) {
-                if (i > 0) {
-                    queryString += " AND ";
-                }
+                queryString += " AND ";
                 queryString += listWhere.get(i).toString() + " \n";
 
             }
         }
+        queryString += ""
+                + "   ORDER BY G.ds_descricao,      \n"
+                + "            SG.ds_descricao,     \n"
+                + "            S.ds_descricao,      \n"
+                + "            CT.ds_categoria,     \n"
+                + "            SV.nr_idade_ini      \n";
         try {
             Query query = getEntityManager().createNativeQuery(queryString);
             List list = query.getResultList();

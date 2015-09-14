@@ -26,7 +26,7 @@
                                 <p:ajax event="change" update="@this id_pg_relatorios" global="false" listener="#{relatorioTabelaPrecosBean.loadRelatorioOrdem()}"/>
                                 <f:selectItems value="#{relatorioTabelaPrecosBean.listRelatorios}"/>
                             </p:selectOneMenu>
-                            <p:outputLabel value="Ordenação: " />
+                            <p:outputLabel value="Ordenação: " rendered="#{not empty relatorioTabelaPrecosBean.listRelatorioOrdem}"/>
                             <p:selectOneMenu value="#{relatorioTabelaPrecosBean.idRelatorioOrdem}" rendered="#{not empty relatorioTabelaPrecosBean.listRelatorioOrdem}">
                                 <p:ajax event="change" update="@this"/>
                                 <f:selectItems value="#{relatorioTabelaPrecosBean.listRelatorioOrdem}"/>
@@ -53,26 +53,26 @@
                                 <p:column rendered="#{relatorioTabelaPrecosBean.listFilters[0].active}">
                                     <h:column>
                                         <h:panelGrid columns="4">
-                                            <p:outputLabel value="Profissão: " />
-                                            <p:selectCheckboxMenu label="Selecionar serviço" value="#{relatorioTabelaPrecosBean.selectedServicos}">
+                                            <p:outputLabel value="Serviços: " />
+                                            <p:selectCheckboxMenu label="Selecionar serviço" value="#{relatorioTabelaPrecosBean.selectedServicos}" filter="true" filterMatchMode="startsWith">
                                                 <p:ajax event="toggleSelect" global="false"/>
                                                 <p:ajax event="change" global="false"/>
                                                 <f:selectItems value="#{relatorioTabelaPrecosBean.listServicos}" />
                                             </p:selectCheckboxMenu>
-                                            <p:commandButton icon="ui-icon-close" action="#{relatorioTabelaPrecosBean.clear(relatorioTabelaPrecosBean.listFilters[0])}" title="Remover filtro"/>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioTabelaPrecosBean.clear(relatorioTabelaPrecosBean.listFilters[0])}" title="Remover filtro" update="form_relatorio"/>
                                         </h:panelGrid>                                        
                                     </h:column>
                                 </p:column>
                                 <p:column rendered="#{relatorioTabelaPrecosBean.listFilters[1].active}">
                                     <h:column>
                                         <h:panelGrid columns="4">
-                                            <p:outputLabel value="Profissão: " />
-                                            <p:selectCheckboxMenu label="Selecionar grupo financeiro" value="#{relatorioTabelaPrecosBean.selectedSubGrupoFinanceiro}">
+                                            <p:outputLabel value="Grupos: " />
+                                            <p:selectCheckboxMenu label="Selecionar grupo financeiro" value="#{relatorioTabelaPrecosBean.selectedSubGrupoFinanceiro}" filter="true" filterMatchMode="startsWith">
                                                 <p:ajax event="toggleSelect" global="false"/>
                                                 <p:ajax event="change" global="false"/>
                                                 <f:selectItems value="#{relatorioTabelaPrecosBean.listGrupoFinanceiro}" />
                                             </p:selectCheckboxMenu>
-                                            <p:commandButton icon="ui-icon-close" action="#{relatorioTabelaPrecosBean.clear(relatorioTabelaPrecosBean.listFilters[1])}" title="Remover filtro"/>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioTabelaPrecosBean.clear(relatorioTabelaPrecosBean.listFilters[1])}" title="Remover filtro" update="form_relatorio"/>
                                         </h:panelGrid>                                        
                                     </h:column>
                                 </p:column>

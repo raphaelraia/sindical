@@ -352,7 +352,7 @@ public class RelatorioTabelaPrecosBean implements Serializable {
         listGrupoFinanceiro.clear();
         idGrupoFinanceiro = null;
         List<GrupoFinanceiro> list = new Dao().list(new GrupoFinanceiro(), true);
-        listGrupoFinanceiro.add(new SelectItem(null, "Selecionar"));
+        // listGrupoFinanceiro.add(new SelectItem(null, "Selecionar"));
         for (int i = 0; i < list.size(); i++) {
             if (i == 0) {
                 idGrupoFinanceiro = list.get(i).getId();
@@ -369,7 +369,7 @@ public class RelatorioTabelaPrecosBean implements Serializable {
             listSubGrupoFinanceiro = new HashMap<>();
             FinanceiroDBToplink fd = new FinanceiroDBToplink();
             List<SubGrupoFinanceiro> list = fd.listaSubGrupo(idGrupoFinanceiro);
-            listSubGrupoFinanceiro.put("Selecionar", null);
+            // listSubGrupoFinanceiro.put("Selecionar", null);
             if (list != null) {
                 for (int i = 0; i < list.size(); i++) {
                     listSubGrupoFinanceiro.put(list.get(i).getDescricao(), list.get(i).getId());
@@ -403,7 +403,7 @@ public class RelatorioTabelaPrecosBean implements Serializable {
                 loadServicos();
                 break;
             case "subgrupo":
-                // load);
+                loadGrupoFinanceiro();
                 break;
         }
     }
