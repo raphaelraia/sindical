@@ -36,7 +36,7 @@ public class CEPService {
         EnderecoDao enderecoDB = new EnderecoDao();
         CidadeDao cidadeDB = new CidadeDao();
         List<Endereco> listaEnderecos = (List<Endereco>) enderecoDB.pesquisaEnderecoCep(cep);
-        if (listaEnderecos == null) {
+        if (listaEnderecos == null || listaEnderecos.isEmpty()) {
             if (cepMemoria.equals(cep)) {
                 return;
             }

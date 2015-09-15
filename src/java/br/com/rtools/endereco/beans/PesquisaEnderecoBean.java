@@ -2,6 +2,7 @@ package br.com.rtools.endereco.beans;
 
 import br.com.rtools.endereco.*;
 import br.com.rtools.endereco.dao.EnderecoDao;
+import br.com.rtools.utilitarios.CEPService;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.PF;
 import java.io.Serializable;
@@ -38,6 +39,18 @@ public class PesquisaEnderecoBean implements Serializable {
 
     public void find() {
         listaEndereco.clear();
+        if (cep != null && !cep.isEmpty()) {
+            if (listaEndereco.isEmpty()) {
+                EnderecoDao db = new EnderecoDao();
+                listaEndereco = db.pesquisaEnderecoCep(cep);
+                if (listaEndereco.isEmpty()) {
+                    CEPService cEPService = new CEPService();
+                    cEPService.setCep(cep);
+                    cEPService.procurar();
+                    listaEndereco = db.pesquisaEnderecoCep(cep);
+                }
+            }
+        }
     }
 
     public void put(String t) {
@@ -59,12 +72,6 @@ public class PesquisaEnderecoBean implements Serializable {
     }
 
     public List<Endereco> getListaEndereco() {
-        if (cep != null && !cep.isEmpty()) {
-            if (listaEndereco.isEmpty()) {
-                EnderecoDao db = new EnderecoDao();
-                listaEndereco = db.pesquisaEnderecoCep(cep);
-            }
-        }
         return listaEndereco;
     }
 

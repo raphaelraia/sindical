@@ -39,9 +39,9 @@
                             <p:accordionPanel styleClass="no-border" style="width: 225px;" dynamic="true" id="i_panel_accordion">
                                 <p:tab title="Editar">
                                     <h:panelGrid columns="1" id="i_panel_avancado">
-                                        <c:forEach items="#{relatorioTabelaPrecosBean.listFilters}" var="filter" varStatus="loop">
+                                        <c:forEach items="#{relatorioTabelaPrecosBean.listFilters}" var="filter" varStatus="loop">                                            
                                             <p:selectBooleanButton value="#{filter.active}" onLabel="#{filter.value}" offLabel="#{filter.value}" style="width: 185px; text-align: left">
-                                                <p:ajax event="change" update="@this form_relatorio:i_panel_avancado_2" />
+                                                <p:ajax event="change" update="@this form_relatorio:i_panel_avancado_2" listener="#{relatorioTabelaPrecosBean.close(relatorioTabelaPrecosBean.listFilters[loop.index])}" />
                                             </p:selectBooleanButton>
                                         </c:forEach>
                                     </h:panelGrid>
@@ -64,17 +64,24 @@
                                     </h:column>
                                 </p:column>
                                 <p:column rendered="#{relatorioTabelaPrecosBean.listFilters[1].active}">
-                                    <h:column>
-                                        <h:panelGrid columns="4">
+                                    <p:panel>
+                                        <h:panelGrid columns="1" id="i_pgf">
                                             <p:outputLabel value="Grupos: " />
+                                            <p:selectOneMenu value="#{relatorioTabelaPrecosBean.idGrupoFinanceiro}">
+                                                <p:ajax event="change" global="false" update="@this form_relatorio:i_pgf" listener="#{relatorioTabelaPrecosBean.loadSubGrupoFinanceiro}"/>
+                                                <f:selectItems value="#{relatorioTabelaPrecosBean.listGrupoFinanceiro}" />
+                                            </p:selectOneMenu>
+                                            <p:outputLabel value="Subgrupo: " />
                                             <p:selectCheckboxMenu label="Selecionar grupo financeiro" value="#{relatorioTabelaPrecosBean.selectedSubGrupoFinanceiro}" filter="true" filterMatchMode="startsWith">
                                                 <p:ajax event="toggleSelect" global="false"/>
                                                 <p:ajax event="change" global="false"/>
-                                                <f:selectItems value="#{relatorioTabelaPrecosBean.listGrupoFinanceiro}" />
+                                                <f:selectItems value="#{relatorioTabelaPrecosBean.listSubGrupoFinanceiro}" />
                                             </p:selectCheckboxMenu>
-                                            <p:commandButton icon="ui-icon-close" action="#{relatorioTabelaPrecosBean.clear(relatorioTabelaPrecosBean.listFilters[1])}" title="Remover filtro" update="form_relatorio"/>
                                         </h:panelGrid>                                        
-                                    </h:column>
+                                        <f:facet name="footer" >
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioTabelaPrecosBean.clear(relatorioTabelaPrecosBean.listFilters[1])}" title="Remover filtro" update="form_relatorio"/>                                            
+                                        </f:facet>
+                                    </p:panel>
                                 </p:column>
                             </h:panelGrid>
                         </h:column>

@@ -97,7 +97,7 @@ public class RelatorioTabelaPrecosBean implements Serializable {
         String order = "";
         String detalheRelatorio = "";
         List<TabelaServicosPaisagem> tsps = new ArrayList<>();
-        List list = new RelatorioTabelaPrecosDao().find(inIdServicos(), inIdSubGrupoFinanceiro());
+        List list = new RelatorioTabelaPrecosDao().find(inIdServicos(), idGrupoFinanceiro, inIdSubGrupoFinanceiro());
         if (list.isEmpty()) {
             GenericaMensagem.warn("Mensagem", "Nenhum registro encontrado!");
             return;
@@ -351,11 +351,13 @@ public class RelatorioTabelaPrecosBean implements Serializable {
     public void loadGrupoFinanceiro() {
         listGrupoFinanceiro.clear();
         idGrupoFinanceiro = null;
+        listSubGrupoFinanceiro = null;
+        selectedSubGrupoFinanceiro = new ArrayList();
         List<GrupoFinanceiro> list = new Dao().list(new GrupoFinanceiro(), true);
-        // listGrupoFinanceiro.add(new SelectItem(null, "Selecionar"));
+        listGrupoFinanceiro.add(new SelectItem(null, "Selecionar"));
         for (int i = 0; i < list.size(); i++) {
             if (i == 0) {
-                idGrupoFinanceiro = list.get(i).getId();
+                // idGrupoFinanceiro = list.get(i).getId();
             }
             listGrupoFinanceiro.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
         }
@@ -369,7 +371,7 @@ public class RelatorioTabelaPrecosBean implements Serializable {
             listSubGrupoFinanceiro = new HashMap<>();
             FinanceiroDBToplink fd = new FinanceiroDBToplink();
             List<SubGrupoFinanceiro> list = fd.listaSubGrupo(idGrupoFinanceiro);
-            // listSubGrupoFinanceiro.put("Selecionar", null);
+            listSubGrupoFinanceiro.put("Selecionar", null);
             if (list != null) {
                 for (int i = 0; i < list.size(); i++) {
                     listSubGrupoFinanceiro.put(list.get(i).getDescricao(), list.get(i).getId());
@@ -391,7 +393,7 @@ public class RelatorioTabelaPrecosBean implements Serializable {
     public void loadListaFiltro() {
         listFilters.clear();
         listFilters.add(new Filters("servicos", "Serviços", false));
-        listFilters.add(new Filters("subgrupo_categoria", "Subgrupo Categoria", false));
+        listFilters.add(new Filters("grupo", "Grupo Financeiro", false));
 
     }
 
@@ -402,9 +404,22 @@ public class RelatorioTabelaPrecosBean implements Serializable {
             case "servicos":
                 loadServicos();
                 break;
-            case "subgrupo":
+            case "grupo":
                 loadGrupoFinanceiro();
                 break;
+        }
+    }
+
+    public void close(Filters filter) {
+        if (!filter.getActive()) {
+            switch (filter.getKey()) {
+                case "servicos":
+                    loadServicos();
+                    break;
+                case "grupo":
+                    loadGrupoFinanceiro();
+                    break;
+            }
         }
     }
 
@@ -413,10 +428,12 @@ public class RelatorioTabelaPrecosBean implements Serializable {
         String ids = null;
         if (selectedSubGrupoFinanceiro != null) {
             for (int i = 0; i < selectedSubGrupoFinanceiro.size(); i++) {
-                if (ids == null) {
-                    ids = "" + selectedSubGrupoFinanceiro.get(i);
-                } else {
-                    ids += "," + selectedSubGrupoFinanceiro.get(i);
+                if (selectedSubGrupoFinanceiro.get(i) != null) {
+                    if (ids == null) {
+                        ids = "" + selectedSubGrupoFinanceiro.get(i);
+                    } else {
+                        ids += "," + selectedSubGrupoFinanceiro.get(i);
+                    }
                 }
             }
         }
@@ -427,10 +444,12 @@ public class RelatorioTabelaPrecosBean implements Serializable {
         String ids = null;
         if (selectedServicos != null) {
             for (int i = 0; i < selectedServicos.size(); i++) {
-                if (ids == null) {
-                    ids = "" + selectedServicos.get(i);
-                } else {
-                    ids += "," + selectedServicos.get(i);
+                if (selectedServicos.get(i) != null) {
+                    if (ids == null) {
+                        ids = "" + selectedServicos.get(i);
+                    } else {
+                        ids += "," + selectedServicos.get(i);
+                    }
                 }
             }
         }
@@ -538,9 +557,8 @@ public class RelatorioTabelaPrecosBean implements Serializable {
         return idGrupoFinanceiro;
     }
 
-    public void setIdGrupo(Integer idGrupoFinanceiro) {
+    public void setIdGrupoFinanceiro(Integer idGrupoFinanceiro) {
         this.idGrupoFinanceiro = idGrupoFinanceiro;
-
     }
 
     public class TabelaServicosPaisagem {

@@ -12,6 +12,7 @@ import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.db.PessoaEnderecoDB;
 import br.com.rtools.pessoa.db.PessoaEnderecoDBToplink;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
+import br.com.rtools.utilitarios.CEPService;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -167,6 +168,12 @@ public class EnderecoBean implements Serializable {
 
         if (porPesquisa.equals("cep")) {
             listaEndereco = db.pesquisaEnderecoCep(endereco.getCep());
+            if (listaEndereco.isEmpty()) {
+                CEPService cEPService = new CEPService();
+                cEPService.setCep(endereco.getCep());
+                cEPService.procurar();
+                listaEndereco = db.pesquisaEnderecoCep(endereco.getCep());
+            }
             descricao = "CEP: " + endereco.getCep();
         } else if (porPesquisa.equals("inicial") && pesquisar) {
             listaEndereco = db.pesquisaEnderecoDes(cidadeBase.getUf(),

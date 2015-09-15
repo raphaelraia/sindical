@@ -31,10 +31,11 @@ public class RelatorioTabelaPrecosDao extends DB {
      * </p>
      *
      * @param inIdServicos Um ou mais serviços, SELECT IN (....)
-     * @param inIdSubGrupoCategoria Um ou mais subgrupos, SELECT IN (....)
+     * @param inIdGrupoFinanceiro
+     * @param inIdSubGrupoFinanceiro Um ou mais subgrupos, SELECT IN (....)
      * @return
      */
-    public List find(String inIdServicos, String inIdSubGrupoCategoria) {
+    public List find(String inIdServicos, Integer inIdGrupoFinanceiro, String inIdSubGrupoFinanceiro) {
         List listWhere = new ArrayList();
         String queryString = ""
                 + "     SELECT G.ds_descricao  AS grupo_descricao,     \n" // 0 - GRUPO -> DESCRIÇÃO
@@ -64,8 +65,13 @@ public class RelatorioTabelaPrecosDao extends DB {
         if (inIdServicos != null && !inIdServicos.isEmpty()) {
             listWhere.add(" S.id IN (" + inIdServicos + ") ");
         }
-        if (inIdSubGrupoCategoria != null && !inIdSubGrupoCategoria.isEmpty()) {
-            listWhere.add(" S.id_subgrupo IN (" + inIdSubGrupoCategoria + ") ");
+        if (inIdSubGrupoFinanceiro != null && !inIdSubGrupoFinanceiro.isEmpty()) {
+            listWhere.add(" S.id_subgrupo IN (" + inIdSubGrupoFinanceiro + ") ");
+        } else {
+            if (inIdGrupoFinanceiro != null) {
+                listWhere.add(" G.id = " + inIdGrupoFinanceiro + " ");
+
+            }
         }
         if (!listWhere.isEmpty()) {
             queryString += " ";
