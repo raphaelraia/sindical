@@ -29,9 +29,20 @@
                 </f:subview>
                 <f:view>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:form id="formLancamentoIndividual">                            
                         <h:outputText value="Lançamento Individual" styleClass="fonteHeader" />
-                        <h:form id="formLancamentoIndividual">
-                            <p:panel id="i_panel_pessoa" styleClass="fundoCinza" style="clear: both">
+                            <div class="clear"></div>
+                            <p:panel style="border: 1px solid #ff9999; " rendered="#{not empty lancamentoIndividualBean.fisica.pessoa.pessoaComplemento.obsAviso}" styleClass="margin-top">
+                                <f:facet name="header">
+                                    <h:outputLabel value="! MENSAGEM DE BLOQUEIO" style="font-weight: bold; color: red; "/>                                            
+                                </f:facet>
+                                <h:panelGrid columns="1">
+                                    <h:column>
+                                        <h:outputLabel value="#{lancamentoIndividualBean.fisica.pessoa.pessoaComplemento.obsAviso}" style="color: black; font-weight: bold;"/>                                        
+                                    </h:column>
+                                </h:panelGrid>
+                            </p:panel>                             
+                            <p:panel id="i_panel_pessoa" styleClass="fundoCinza">
                                 <h:panelGrid columns="2">
                                     <p:column>
                                         <p:commandButton icon="ui-icon-search" action="#{chamadaPaginaBean.pesquisaPessoaFisica()}" title="Pesquisar Pessoa Física"/>

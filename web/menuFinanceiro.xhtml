@@ -36,7 +36,7 @@
                     <h:form id="formMenuFinanceiro">
                         <p:panel style="border: 0px; margin: 0 auto;  width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                             <p:menubar >
-                                <p:submenu label="Cadastro" icon="ui-icon-document" style="margin-right: 15px!important">
+                                <p:submenu label="Cadastro" icon="ui-icon-document" styleClass="margin-right-max">
                                     <p:submenu label="Pessoa">
                                         <p:menuitem value="Física"              action="#{chamadaPaginaBean.pessoaFisica}" />
                                         <p:menuitem value="Juridica"            action="#{chamadaPaginaBean.pessoaJuridica}" />
@@ -58,7 +58,7 @@
                                         <p:menuitem value="Grupo Financeiro"    action="#{chamadaPaginaBean.grupoFinanceiro()}" />
                                     </p:submenu>
                                     <p:submenu label="Produtos">
-                                        <p:menuitem value="Produto"             action="#{chamadaPaginaBean.pagina('produto')}" />
+                                        <p:menuitem value="Manutenção"             action="#{chamadaPaginaBean.pagina('produto')}" />
                                         <p:menuitem value="Produto Unidade"     action="#{chamadaPaginaBean.produtoUnidade}"/>
                                         <p:menuitem value="Produto Grupo"       action="#{chamadaPaginaBean.produtoGrupo}"/>
                                         <p:menuitem value="Produto SubGrupo"    action="#{chamadaPaginaBean.pagina('produtoSubGrupo')}"/>
@@ -97,12 +97,12 @@
                                 </p:submenu>
                             </p:menubar>
 
-                            <p:panel style="float: left; text-align: center; background: #f6f6f6; clear: both; position: absolute; margin-top: 50px">
-                                <h:panelGrid>
+                            <p:panel style="text-align: center; background: #f6f6f6;  margin-top: 50px; width: 240px ">
+                                <f:facet name="header">
                                     <h:outputText style="font-weight: bold" value="Transferência entre Caixas" />
-                                </h:panelGrid>
+                                </f:facet>
                                 <p:commandLink onclick="PF('i_dlg_t').show()" title="Abrir Transferência entre Caixas" style="clear: both">
-                                    <h:graphicImage value="/Imagens/transfer-ico.png" width="100" /><br />
+                                    <h:graphicImage value="/Imagens/transfer-ico.png" style="width: 100px" /><br />
                                 </p:commandLink>
                             </p:panel>
                         </p:panel>

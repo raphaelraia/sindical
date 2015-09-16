@@ -17,7 +17,7 @@
         </style>
 
         <script type="text/javascript">
-        
+
         </script>        
     </h:head>
     <h:body>
@@ -35,8 +35,20 @@
                         <div class="clear"></div>
                         <h:outputScript name="script_primefaces.js" library="js" />
                         <h:form id="form_eg">
+
+                            <p:panel style="border: 1px solid #ff9999; " rendered="#{not empty emissaoGuiasBean.pessoa.pessoaComplemento.obsAviso}" styleClass="margin-top">
+                                <f:facet name="header">
+                                    <h:outputLabel value="! MENSAGEM DE BLOQUEIO" style="font-weight: bold; color: red; "/>                                            
+                                </f:facet>
+                                <h:panelGrid columns="1">
+                                    <h:column>
+                                        <h:outputLabel value="#{emissaoGuiasBean.pessoa.pessoaComplemento.obsAviso}" style="color: black; font-weight: bold;"/>                                        
+                                    </h:column>
+                                </h:panelGrid>
+                            </p:panel> 
+
                             <p:messages autoUpdate="true" showDetail="true" showSummary="true" closable="true" id="i_message" />
-                            
+
                             <p:panel header="Beneficiário" styleClass="margin-top-max">
                                 <h:panelGrid columns="5">
                                     <p:outputLabel value="Nome: " />
@@ -45,27 +57,27 @@
                                     <p:commandButton value="Local" action="#{emissaoGuiasBean.pesquisaPessoaSindicato}" icon="ui-icon-search" rendered="#{emissaoGuiasBean.lote.id == -1}" update="form_eg"/>
                                     <p:commandButton value="Nova Pessoa - Cadastrar" actionListener="#{emissaoGuiasBean.clear(3)}" oncomplete="PF('dlg_cadastro').show()" rendered="#{emissaoGuiasBean.pessoa.id == -1}" icon="ui-icon-circle-plus" style="margin-left: 70px!important" update=":form_eg:i_panel_sem_cadastro"/>
                                 </h:panelGrid>
-                                
+
                                 <h:panelGrid columns="1" rendered="#{emissaoGuiasBean.socios.id != -1}">
                                     <p:outputLabel value="SÓCIO" style="font-size: 11pt!important; font-weight: bold"/>
                                 </h:panelGrid>
-                                
+
                                 <h:panelGrid columns="4" rendered="#{emissaoGuiasBean.socios.id != -1}" style="width: 40%">
                                     <h:column>
                                         <p:outputLabel value="Matrícula: " style="font-size: 9pt!important; font-weight: bold" />
                                         <p:outputLabel value="#{emissaoGuiasBean.socios.matriculaSocios.id}" style="font-size: 9pt!important" />
                                     </h:column>
-                                    
+
                                     <h:column>
                                         <p:outputLabel value="Categoria: " style="font-size: 9pt!important; font-weight: bold" />
                                         <p:outputLabel value="#{emissaoGuiasBean.socios.matriculaSocios.categoria.categoria}" style="font-size: 9pt!important" />
                                     </h:column>
-                                    
+
                                     <h:column>
                                         <p:outputLabel value="Parentesco: " style="font-size: 9pt!important; font-weight: bold" />
                                         <p:outputLabel value="#{emissaoGuiasBean.socios.parentesco.parentesco}" style="font-size: 9pt!important" />
                                     </h:column>
-                                    
+
                                     <h:column>
                                         <p:outputLabel value="Idade: " style="font-size: 9pt!important; font-weight: bold" />
                                         <p:outputLabel value="#{emissaoGuiasBean.calculoIdade()}" style="font-size: 9pt!important" />
@@ -99,7 +111,7 @@
                                         <f:selectItems value="#{emissaoGuiasBean.listServicos}"/>
                                     </p:selectOneMenu>
                                 </h:panelGrid>
-                                
+
                                 <h:panelGrid id="i_panel_add_servicos" columns="4" styleClass="margin-top-max">
                                     <h:column>
                                         <p:outputLabel value="Quantidade" rendered="#{!emissaoGuiasBean.servicox.produto}"/><br />
@@ -107,7 +119,7 @@
                                             <p:ajax event="change" update="@this" />
                                         </p:inputText>
                                     </h:column>
-                                    
+
                                     <h:column>
                                         <p:outputLabel value="Valor"  /><br />
                                         <p:commandButton id="i_valor" value="R$ #{emissaoGuiasBean.valor}" action="#{emissaoGuiasBean.openModalPedido}" icon="ui-icon-cart" readonly="true" onclick="PF('dlg_pedido').show()" title="Adicionar itens (produtos) ao serviço" rendered="#{emissaoGuiasBean.servicox.produto}" />
@@ -115,7 +127,7 @@
                                             <p:ajax event="change" update="i_panel_servicos" />
                                         </p:inputText>
                                     </h:column>
-                                    
+
                                     <h:column>
                                         <p:outputLabel value="Desconto (R$)" rendered="#{!emissaoGuiasBean.servicox.produto}"/><br />
                                         <p:inputText size="10" dir="RTL" value="#{emissaoGuiasBean.desconto}" rendered="#{!emissaoGuiasBean.servicox.produto and !emissaoGuiasBean.cab.verificarPermissao('autorizaDescontos', 3)}" style="opacity: 100!important; font-weight: bold; color: black">
@@ -125,21 +137,21 @@
                                             <p:ajax event="click" listener="#{emissaoGuiasBean.autorizarDesconto}" />
                                         </p:inputText>
                                     </h:column>
-                                    
+
                                     <h:column>
                                         <br />
                                         <p:commandButton icon="ui-icon-plus" action="#{emissaoGuiasBean.addServico()}" update="i_message i_tbl_eg i_panel_add_servicos" disabled="#{emissaoGuiasBean.lote.id != -1}" />
                                         <p:commandLink value="Ver guias emitidas nesse Periodo" rendered="#{emissaoGuiasBean.listaMovimentosEmitidos.size() > 0}" onclick="PF('dlg_movimentos_emitidos').show()" style="margin-left: 20px; font-size: 10pt!important; color: red" update="i_tbl_movimentos_emitidos"/>
                                     </h:column>
                                 </h:panelGrid>
-                                
+
                                 <h:panelGrid columns="1" style="width: 100%">
                                     <h:outputText value="Observação" />
                                     <p:inputTextarea value="#{emissaoGuiasBean.lote.historico}" style="width: 100%">
                                         <p:ajax event="change" update="@this" />
                                     </p:inputTextarea>
                                 </h:panelGrid>
-                                
+
                                 <h:panelGrid id="i_tbl_eg" styleClass="margin-top-max">
                                     <p:dataTable var="listMovimentoEmissaoGuias" value="#{emissaoGuiasBean.listaMovimento}" emptyMessage="Nenhum registro encontrado!" scrollable="true" scrollHeight="150">
                                         <p:column headerText="Serviços">
@@ -170,13 +182,13 @@
                                     </p:dataTable>
                                 </h:panelGrid>
                             </p:panel>
-                            
+
                             <h:panelGrid columns="2" styleClass="margin-top-max">
                                 <p:commandButton onclick="PF('dlg_save').show()" value="Salvar" rendered="#{emissaoGuiasBean.lote.id == -1}"  title="Salvar este Lançamento"/>
                                 <p:commandButton action="#{emissaoGuiasBean.clear()}" value="Novo" update=":form_eg:" title="Novo Lançamento" />
                                 <p:commandButton action="#{emissaoGuiasBean.imprimirEncaminhamento()}" value="Imprimir Encaminhamento" title="Imprimir este Encaminhamento" rendered="#{emissaoGuiasBean.pesquisaGuia(emissaoGuiasBean.lote.id).encaminhamento == true}" ajax="false"/>
                             </h:panelGrid>                    
-                            
+
                             <p:dialog widgetVar="dlg_desconto" modal="true" header="Inserir Desconto" width="200">  
                                 <h:panelGrid>
                                     <p:outputLabel value="Digite o valor do Desconto" />
@@ -184,12 +196,12 @@
                                         <p:ajax event="change" update="@this" />
                                     </p:inputText>
                                 </h:panelGrid>
-                                
+
                                 <h:panelGrid>
                                     <p:commandButton value="Adicionar Desconto" title="Adicionar desconto" action="#{emissaoGuiasBean.adicionarDesconto}"/>    
                                 </h:panelGrid>
                             </p:dialog>  
-                            
+
                             <p:dialog widgetVar="dlg_movimentos_emitidos" header="Guias Emitidas" modal="true" width="600">
                                 <p:dataTable id="i_tbl_movimentos_emitidos" value="#{emissaoGuiasBean.listaMovimentosEmitidos}" var="linha" emptyMessage="Nenhum Movimento Encontrado!" style="width: 100%">
                                     <p:column headerText="Emissão" style="width: 70px; text-align: center">
@@ -209,7 +221,7 @@
                                     <p:commandButton icon="ui-icon-check" value="OK" onclick="PF('dlg_movimentos_emitidos').hide()"/>
                                 </h:panelGrid>
                             </p:dialog>
-                            
+
                             <p:dialog id="i_dlg_cadastro" header="Cadastrar Pessoa" widgetVar="dlg_cadastro" modal="true" width="500" closable="true" >
                                 <h:panelGrid id="i_panel_sem_cadastro">
                                     <h:outputScript name="script_primefaces.js" library="js" />
@@ -245,7 +257,7 @@
                                     </f:facet>
                                 </h:panelGrid>
                             </p:dialog>
-                            
+
                             <p:dialog widgetVar="dlg_tipo_pessoa"  modal="true" resizable="true" header="Pesquisar por pessoa" width="450">
                                 <h:panelGrid columns="3">
                                     <!-- <p:commandButton value="Pessoa" action="# {chamadaPaginaBean.pesquisa('pesquisaPessoa')}" icon="ui-icon-search"/> -->
@@ -329,7 +341,7 @@
                                 </h:panelGrid>
 
                             </p:dialog>
-                            
+
                             <p:dialog id="i_panel_save" widgetVar="dlg_save"  modal="true" resizable="true" header="Deseja realmente gerar este lançamento?" width="400">
                                 <f:facet name="footer">
                                     <h:panelGrid columns="2">
@@ -338,7 +350,7 @@
                                     </h:panelGrid>
                                 </f:facet>
                             </p:dialog>
-                            
+
                             <p:dialog id="id_panel_message" widgetVar="dlg_message" modal="true" header="Mensagem" width="400">
                                 <h:panelGrid id="out_message">
                                     <p:outputLabel value="#{emissaoGuiasBean.message}" />                            
@@ -348,13 +360,13 @@
                                 </f:facet>
                             </p:dialog>                            
                         </h:form>
-                        
+
                         <h:form id="formAutenticaUsuario">
                             <p:dialog widgetVar="dlg_autentica_usuario" modal="true" header="Autenticar Usuário" width="380" >
                                 <p:ajax event="close" listener="#{autenticaUsuario.clear()}" update="i_autentica_usuario"/>
                                 <h:panelGrid id="i_autentica_usuario">
                                     <p:messages autoUpdate="false" closable="true" showDetail="true" />
-                                        
+
                                     <h:panelGrid columns="2">
                                         <h:column>
                                             <p:outputLabel value="Login" /><br />
@@ -367,13 +379,13 @@
                                         </h:column>
                                     </h:panelGrid>
                                 </h:panelGrid>
-                                
+
                                 <h:panelGrid columns="2">
                                     <h:column>
                                         <br />
                                         <p:commandButton icon="ui-icon-check" value="Validar" action="#{autenticaUsuario.validarUsuario()}" update="i_autentica_usuario"/>
                                     </h:column>
-                                    
+
                                     <h:column>
                                         <br />
                                         <p:commandButton icon="ui-icon-close" value="Fechar" onclick="PF('dlg_autentica_usuario').hide()"/>

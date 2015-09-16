@@ -57,9 +57,21 @@
                             <p:outputLabel value="Cadastro Física" styleClass="fonteHeader"/>
                             <c:set scope="request" var="object" value="${fisicaBean.fisica}"/>
                             <div class="clear"></div>
-                            <p:panel style="background-color: #f05c5c" rendered="#{fisicaBean.pessoaComplemento.bloqueiaObsAviso}">
-                                <h:outputLabel value="CADASTRO BLOQUEADO" style="font-size: 11pt!important; font-weight: bold; color: white"/>
-                            </p:panel>
+                            <h:panelGrid id="id_msg_aviso_block" style="width: 100%">
+                                <p:panel style="background-color: #f05c5c" rendered="#{fisicaBean.pessoaComplemento.bloqueiaObsAviso}">
+                                    <h:outputLabel value="! CADASTRO BLOQUEADO" style="font-size: 11pt!important; font-weight: bold; color: white" />
+                                </p:panel>
+                                <p:panel style="border: 1px solid #ff9999" rendered="#{not empty fisicaBean.pessoaComplemento.obsAviso}" styleClass="margin-top">
+                                    <f:facet name="header">
+                                            <h:outputLabel value="! MENSAGEM DE BLOQUEIO" style="font-weight: bold; color: red; "/>                                            
+                                    </f:facet>
+                                    <h:panelGrid columns="1">
+                                        <h:column>
+                                            <h:outputLabel value="#{fisicaBean.pessoaComplemento.obsAviso}" style="color: black; font-weight: bold;"/>                                        
+                                        </h:column>
+                                    </h:panelGrid>
+                                </p:panel>                                
+                            </h:panelGrid>
                             <h:panelGrid id="i_panel_pessoa_fisica" style="clear: both; width: 100%">
                                 <p:tabView id="i_tabview_fisica" activeIndex="#{fisicaBean.indexPessoaFisica}" style="width: 100%">
                                     <p:ajax event="tabChange" listener="#{fisicaBean.accordion}" update=":form_pessoa_fisica:i_end_rendered i_tabview_fisica"/> 

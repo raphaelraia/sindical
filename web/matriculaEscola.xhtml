@@ -28,6 +28,16 @@
                             <p:growl id="growl" showDetail="true"/> 
                             <p:outputLabel value="Matrícula Escola" styleClass="fonteHeader"/>
                             <div class="clear"></div>
+                        <p:panel style="border: 1px solid #ff9999; margin-bottom: 15px!important" rendered="#{not empty matriculaEscolaBean.matriculaEscola.servicoPessoa.cobranca.pessoaComplemento.obsAviso}" styleClass="margin-top" >
+                            <f:facet name="header">
+                                <h:outputLabel value="! MENSAGEM DE BLOQUEIO" style="font-weight: bold; color: red; "/>                                            
+                            </f:facet>
+                            <h:panelGrid columns="1">
+                                <h:column>
+                                    <h:outputLabel value="#{matriculaEscolaBean.matriculaEscola.servicoPessoa.cobranca.pessoaComplemento.obsAviso}" style="color: black; font-weight: bold;"/>                                        
+                                </h:column>
+                            </h:panelGrid>
+                        </p:panel>                             
                             <p:panel id="i_panel_matricula_escola">
                                 <p:messages id="message" autoUpdate="false" showDetail="true" closable="true" />
 

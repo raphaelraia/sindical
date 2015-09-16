@@ -51,8 +51,19 @@
                     <!-- <p:panel style="border: 0px; width: 1200px; margin: 0 auto"> novo tamanho-->
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Movimentos a Receber" styleClass="fonteHeader" />
+                        <div class="clear"></div>
                         <h:form id="formMovimentosReceberPesquisa">
-                            <h:panelGrid columns="3" style="clear: both; float: right">
+                            <p:panel style="border: 1px solid #ff9999;" rendered="#{not empty movimentosReceberSocialBean.pessoa.pessoaComplemento.obsAviso}" styleClass="margin-top">
+                                <f:facet name="header">
+                                    <h:outputLabel value="! MENSAGEM DE BLOQUEIO" style="font-weight: bold; color: red; "/>                                            
+                                </f:facet>
+                                <h:panelGrid columns="1">
+                                    <h:column>
+                                        <h:outputLabel value="#{movimentosReceberSocialBean.pessoa.pessoaComplemento.obsAviso}" style="color: black; font-weight: bold;"/>                                        
+                                    </h:column>
+                                </h:panelGrid>
+                            </p:panel>                            
+                            <h:panelGrid columns="3" style="float: right">
                                 <p:column>
                                     <p:outputLabel value="Pesquisa por Boleto" style="font-size: 10pt!important; font-weight: bold"/>
                                 </p:column>

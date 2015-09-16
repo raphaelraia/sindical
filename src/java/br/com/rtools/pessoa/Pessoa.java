@@ -275,7 +275,6 @@ public class Pessoa implements Serializable {
         if (this.id != -1) {
             PessoaDB pessoaDB = new PessoaDBToplink();
             pessoaComplemento = pessoaDB.pesquisaPessoaComplementoPorPessoa(this.id);
-            pessoaComplemento.setPessoa(null);
         }
         return pessoaComplemento;
     }

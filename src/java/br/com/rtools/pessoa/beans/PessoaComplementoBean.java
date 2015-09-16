@@ -4,9 +4,11 @@ import br.com.rtools.pessoa.*;
 import br.com.rtools.pessoa.db.PessoaDB;
 import br.com.rtools.pessoa.db.PessoaDBToplink;
 import br.com.rtools.seguranca.Registro;
+import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.PF;
 import br.com.rtools.utilitarios.SalvarAcumuladoDB;
 import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.io.Serializable;
@@ -27,7 +29,7 @@ public class PessoaComplementoBean extends PesquisarProfissaoBean implements Ser
     private int diaVencimento = 0;
     private List<SelectItem> listaDataVencimento = new ArrayList();
 
-    public void update(Integer pessoa_id) {
+    public String update(Integer pessoa_id) {
         if (pessoa_id != -1) {
             Dao dao = new Dao();
             pessoaComplemento.setPessoa((Pessoa) dao.find(new Pessoa(), (int) pessoa_id));
@@ -58,6 +60,13 @@ public class PessoaComplementoBean extends PesquisarProfissaoBean implements Ser
                 }
             }
         }
+        ((FisicaBean) GenericaSessao.getObject("fisicaBean")).setPessoaComplemento(pessoaComplemento);
+        switch (ChamadaPaginaBean.getUrl()) {
+            case "pessoaFisica":
+                PF.update("form_pessoa_fisica:id_msg_aviso_block");
+                break;
+        }
+        return null;
     }
 
     public List<SelectItem> getListaDataVencimento() {

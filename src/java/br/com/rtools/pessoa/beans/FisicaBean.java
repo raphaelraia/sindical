@@ -2479,18 +2479,18 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             s = sociosDB.pesquisaSocioPorPessoa(p.getId());
             if (s.getId() == -1) {
                 count++;
-                GenericaMensagem.warn("Mensagem " + count, "Pessoa não é sócia!");
+                GenericaMensagem.warn("Mensagem: (" + count + ")", "Pessoa não é sócia!");
                 permite = false;
             }
             if (!s.getServicoPessoa().isAtivo()) {
-                GenericaMensagem.warn("Mensagem " + count, "Sócio está inátivo!");
                 count++;
+                GenericaMensagem.warn("Mensagem: (" + count + ")", "Sócio está inátivo!");
                 permite = false;
             }
             if (validacao.equals("socio_titular_ativo")) {
                 if (s.getMatriculaSocios().getTitular().getId() != p.getId()) {
                     count++;
-                    GenericaMensagem.warn("Mensagem " + count, "Sócio não é titular!");
+                    GenericaMensagem.warn("Mensagem: (" + count + ")", "Sócio não é titular!");
                     permite = false;
                 }
             }
@@ -2505,7 +2505,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                     if (odbt.existPessoaDocumentoPeriodo(p.getDocumento())) {
                         count++;
                         pessoaOposicao = true;
-                        GenericaMensagem.warn("Mensagem " + count, "Contém carta(s) de oposição!");
+                        GenericaMensagem.warn("Mensagem: (" + count + ")", "Contém carta(s) de oposição!");
                         permite = false;
                     }
                 }
@@ -2523,8 +2523,28 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 FunctionsDao functionsDao = new FunctionsDao();
                 if (functionsDao.inadimplente(p.getId())) {
                     count++;
-                    GenericaMensagem.warn("Mensagem " + count, "Existe(m) débito(s)!");
+                    GenericaMensagem.warn("Mensagem: (" + count + ")", "Existe(m) débito(s)!");
                     permite = false;
+                }
+                break;
+        }
+
+        // BLOQUEIO
+        switch (validacao) {
+            case "matriculaAcademia":
+            case "matriculaEscola":
+            case "emissaoGuias":
+            case "lancamentoIndividual":
+            case "geracaoDebitosCartao":
+                PessoaComplemento pc = f.getPessoa().getPessoaComplemento();
+                if (pc.getBloqueiaObsAviso()) {
+                    count++;
+                    GenericaMensagem.fatal("Mensagem: (" + count + ")", "Cadastro bloqueado!");
+                    permite = false;
+                }
+                if (pc.getObsAviso() != null && !pc.getObsAviso().isEmpty()) {
+                    count++;
+                    GenericaMensagem.warn("Mensagem de bloqueio: (" + count + ")", pc.getObsAviso());
                 }
                 break;
         }

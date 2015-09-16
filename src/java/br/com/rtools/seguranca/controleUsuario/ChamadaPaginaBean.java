@@ -2409,6 +2409,16 @@ public class ChamadaPaginaBean implements Serializable {
     }
 
     /**
+     * Botão voltar (returns)
+     *
+     * @return
+     */
+    public static String goBack() {
+        GenericaSessao.put("linkClicado", true);
+        return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).getUrlAtual();
+    }
+
+    /**
      * Botão voltar
      *
      * @param destroyBean (Apaga a sessão do bean)
@@ -2430,5 +2440,18 @@ public class ChamadaPaginaBean implements Serializable {
 
     public void setDisabled(Boolean disabled) {
         this.disabled = disabled;
+    }
+
+    /**
+     * Nome da URL atual
+     *
+     * @return
+     */
+    public static String getUrl() {
+        try {
+            return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).getUrlAtual();
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
