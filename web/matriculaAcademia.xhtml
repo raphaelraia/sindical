@@ -35,19 +35,29 @@
                 <p:outputLabel value="Matrícula Academia" styleClass="fonteHeader"/>
                 <div class="clear"></div>
                 <h:outputScript name="tradutor_primefaces.js" library="js" /> 
+                <p:growl id="id_mensagem_growl" showDetail="true" showSummary="true"/> 
                 <h:form id="form_matricula_academia">                  
                     <c:set scope="request" var="object" value="${matriculaAcademiaBean.matriculaAcademia}"/>
+                    <p:panel style="border: 1px solid #ff9999; margin-bottom: 15px!important" rendered="#{not empty matriculaAcademiaBean.aluno.pessoa.pessoaComplemento.obsAviso}" styleClass="margin-top" >
+                        <f:facet name="header">
+                            <h:outputLabel value="! MENSAGEM DE BLOQUEIO (Aluno)" style="font-weight: bold; color: red; "/>                                            
+                        </f:facet>
+                        <h:panelGrid columns="1">
+                            <h:column>
+                                <h:outputLabel value="#{matriculaAcademiaBean.aluno.pessoa.pessoaComplemento.obsAviso}" style="color: black; font-weight: bold;"/>                                        
+                            </h:column>
+                        </h:panelGrid>
+                    </p:panel>
                     <p:panel style="border: 1px solid #ff9999; margin-bottom: 15px!important" rendered="#{not empty matriculaAcademiaBean.matriculaAcademia.servicoPessoa.cobranca.pessoaComplemento.obsAviso}" styleClass="margin-top" >
                         <f:facet name="header">
-                            <h:outputLabel value="! MENSAGEM DE BLOQUEIO" style="font-weight: bold; color: red; "/>                                            
+                            <h:outputLabel value="! MENSAGEM DE BLOQUEIO (Responsável)" style="font-weight: bold; color: red; "/>                                            
                         </f:facet>
                         <h:panelGrid columns="1">
                             <h:column>
                                 <h:outputLabel value="#{matriculaAcademiaBean.matriculaAcademia.servicoPessoa.cobranca.pessoaComplemento.obsAviso}" style="color: black; font-weight: bold;"/>                                        
                             </h:column>
                         </h:panelGrid>
-                    </p:panel> 
-                    <p:growl id="id_mensagem_growl" showDetail="true" showSummary="true"/> 
+                    </p:panel>                     
                     <h:column rendered="#{!matriculaAcademiaBean.matriculaAcademia.servicoPessoa.ativo}">
                         <div class="ui-widget margin-bottom-max">
                             <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
