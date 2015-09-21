@@ -73,7 +73,7 @@
                                             <br /><br />
                                             <c:forEach items="#{relatorioSociosBean.listaMenuRSocial}" var="linha" varStatus="loop">
                                                 <p:outputLabel value="#{linha.argumento0}" />
-                                                <p:commandLink value="#{linha.argumento1}" action="#{relatorioSociosBean.editarOpcao(loop.index)}" style="#{linha.argumento1 == 'Editar' ? 'color: blue' : 'color: red'} " update="@this :formRelatorioSocios:i_panel_filtro :formRelatorioSocios:i_panel_filtro2 :formRelatorioSocios:i_panel_filtro3 :formRelatorioSocios:i_panel_filtro6"/>
+                                                <p:commandLink value="#{linha.argumento1}" action="#{relatorioSociosBean.editarOpcao(loop.index)}" style="#{linha.argumento1 == 'Editar' ? 'color: blue' : 'color: red'} " update="@this :formRelatorioSocios:i_panel_filtro :formRelatorioSocios:i_panel_filtro2 :formRelatorioSocios:i_panel_filtro3 :formRelatorioSocios:i_panel_filtro6 :formRelatorioSocios:i_panel_filtro12"/>
 
                                                 <br /><br />
                                             </c:forEach>
@@ -376,7 +376,7 @@
                                                 </p:selectOneMenu>
                                             </h:column>
                                         </h:panelGrid>
-                                        
+
                                         <h:panelGrid columns="2" rendered="#{relatorioSociosBean.booDescontoFolha}" style="float: left; margin: 10px">
                                             <h:column>
                                                 <p:outputLabel value="Desconto Folha" /><br />
@@ -386,7 +386,7 @@
                                                 </p:selectOneMenu>
                                             </h:column>
                                         </h:panelGrid>
-                                        
+
                                         <h:panelGrid columns="2" rendered="#{relatorioSociosBean.booTelefone}" style="float: left; margin: 10px">
                                             <h:column>
                                                 <p:outputLabel value="Telefone" /><br />
@@ -525,7 +525,7 @@
                                                     <p:inputMask value="#{relatorioSociosBean.dataAposetandoriaFim}" size="8" mask="99/99/9999"/>
                                                 </h:panelGrid>
                                             </h:column>
-                                            
+
                                             <h:column>
                                                 <h:panelGrid style="margin-right: 20px">
                                                     <h:outputLabel value="Atualização" styleClass="fontePadrao"/>
@@ -535,6 +535,55 @@
                                                 </h:panelGrid>
                                             </h:column>
                                         </h:panelGrid>  
+                                    </h:panelGrid>
+
+                                    <div class="clear"></div>
+                                    <h:panelGrid id="i_panel_filtro12" columns="1" style="width: 100%!important">
+                                        <h:column>
+                                            <p:panel id="i_panel_avancado_2"  rendered="#{relatorioSociosBean.booServicos}" header="Serviços">
+                                                <h:panelGrid columns="3" id="i_pgf" cellpadding="5">
+                                                    <h:column>
+                                                        <p:outputLabel value="Grupos" />
+                                                    </h:column>
+                                                    <h:column>
+                                                        <p:outputLabel value="Subgrupo" rendered="#{not empty relatorioSociosBean.listSubGrupoFinanceiro}"/>
+                                                    </h:column>
+                                                    <h:column>
+                                                        <p:outputLabel value="Serviços" />                                                                
+                                                    </h:column>
+                                                    <h:column>
+                                                        <p:selectCheckboxMenu label="Selecionar grupo financeiro" value="#{relatorioSociosBean.selectedGrupoFinanceiro}" filter="true" filterMatchMode="startsWith">
+                                                            <p:ajax event="toggleSelect" global="false" update="@this i_p_g i_p_s" listener="#{relatorioSociosBean.loadSubGrupoFinanceiro}"/>
+                                                            <p:ajax event="change" global="false" update="@this i_p_g i_p_s" listener="#{relatorioSociosBean.loadSubGrupoFinanceiro}"/>
+                                                            <f:selectItems value="#{relatorioSociosBean.listGrupoFinanceiro}" />
+                                                        </p:selectCheckboxMenu>
+                                                    </h:column>
+                                                    <h:column>
+                                                        <h:panelGrid id="i_p_g">
+                                                            <p:selectCheckboxMenu label="Selecionar subgrupo financeiro" value="#{relatorioSociosBean.selectedSubGrupoFinanceiro}" filter="true" filterMatchMode="startsWith"  rendered="#{not empty relatorioSociosBean.listSubGrupoFinanceiro}">
+                                                                <p:ajax event="toggleSelect" global="false" update="@this i_p_s" listener="#{relatorioSociosBean.loadServicos}"/>
+                                                                <p:ajax event="change" global="false" update="@this i_p_s" listener="#{relatorioSociosBean.loadServicos}"/>
+                                                                <f:selectItems value="#{relatorioSociosBean.listSubGrupoFinanceiro}" />
+                                                            </p:selectCheckboxMenu>
+                                                        </h:panelGrid>
+                                                    </h:column>
+                                                    <h:column>
+                                                        <h:panelGrid id="i_p_s">
+                                                            <p:selectCheckboxMenu label="Selecionar serviço" value="#{relatorioSociosBean.selectedServicos}" filter="true" filterMatchMode="startsWith">
+                                                                <p:ajax event="toggleSelect" global="false"/>
+                                                                <p:ajax event="change" global="false"/>
+                                                                <f:selectItems value="#{relatorioSociosBean.listServicos}" />
+                                                            </p:selectCheckboxMenu>                                                                
+                                                        </h:panelGrid>                                                                
+                                                    </h:column>
+                                                </h:panelGrid>
+                                                <p:selectOneRadio value="#{relatorioSociosBean.contemServicos}">
+                                                    <p:ajax event="change" update="@this" />
+                                                    <f:selectItem itemValue="true" itemLabel="Contém" />
+                                                    <f:selectItem itemValue="false" itemLabel="Não Contém" />
+                                                </p:selectOneRadio>
+                                            </p:panel>
+                                        </h:column>                                      
                                     </h:panelGrid>
 
 

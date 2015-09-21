@@ -59,9 +59,6 @@
                                             <p:inputText id="idMatricula" size="20" value="#{grupoCategoriaBean.grupoCategoria.nrProximaMatricula}"/>
                                         </p:column>
                                         <p:column>
-                                            <p:inputText id="idValidade" size="30" value="#{grupoCategoriaBean.grupoCategoria.nrValidadeMesCartao}" />
-                                        </p:column>
-                                        <p:column>
                                             <p:commandButton value="Salvar" action="#{grupoCategoriaBean.save()}" update=":form_grupo_categoria:" title="Salvar Grupo Categoria" disabled="#{controleAcessoBean.botaoSalvar}" />
                                         </p:column>
                                         <p:column>
@@ -80,9 +77,6 @@
                                     </p:column>
                                     <p:column headerText="Matricula">
                                         <h:outputText value="#{grupoCategoria.nrProximaMatricula}"/>
-                                    </p:column>
-                                    <p:column headerText="Validade Meses">
-                                        <h:outputText value="#{grupoCategoria.nrValidadeMesCartao}"/>
                                     </p:column>
                                 </p:dataTable>
                             </p:panel>

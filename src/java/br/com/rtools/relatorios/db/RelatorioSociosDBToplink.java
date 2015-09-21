@@ -151,7 +151,7 @@ public class RelatorioSociosDBToplink extends DB implements RelatorioSociosDB {
             String dt_recadastro_fim, String dt_demissao, String dt_demissao_fim, String dt_admissao_socio, String dt_admissao_socio_fim, String dt_admissao_empresa, String dt_admissao_empresa_fim, boolean booVotante, String tipo_votante,
             boolean booEmail, String tipo_email, boolean booTelefone, String tipo_telefone, boolean booEstadoCivil, String tipo_estado_civil, boolean booEmpresas, String tipo_empresa, int id_juridica, Integer minQtdeFuncionario, Integer maxQtdeFuncionario,
             String data_aposentadoria, String data_aposentadoria_fim, String ordem, String tipoCarencia, Integer carenciaDias, String situacao, boolean booBiometria, String tipoBiometria, boolean booDescontoFolha, String tipoDescontoFolha,
-            String data_atualizacao, String data_atualizacao_fim) {
+            String data_atualizacao, String data_atualizacao_fim, Boolean contemServicos, String inIdGrupoFinanceiro, String inIdSubGrupoFinanceiro, String inIdServicos) {
 
         String p_demissao = "";
         if (booData && !dt_demissao.isEmpty() && !dt_demissao_fim.isEmpty()) {
@@ -485,13 +485,39 @@ public class RelatorioSociosDBToplink extends DB implements RelatorioSociosDB {
                 filtro += " AND so.desconto_folha = false ";
             }
         }
+        if ((inIdGrupoFinanceiro != null && !inIdGrupoFinanceiro.isEmpty()) || (inIdSubGrupoFinanceiro != null && !inIdSubGrupoFinanceiro.isEmpty()) || (inIdServicos != null && !inIdServicos.isEmpty()) && contemServicos != null) {
+            if (contemServicos != null) {
+                if (contemServicos) {
+                    filtro += " AND p.codigo IN ";
+                } else {
+                    filtro += " AND p.codigo NOT IN ";
+                }
+            }
+            filtro
+                    += " (                                              \n"
+                    + "     SELECT id_pessoa                                            \n"
+                    + "       FROM fin_servico_pessoa   AS SP                           \n"
+                    + " INNER JOIN fin_servicos         AS SE ON SE.id = SP.id_servico  \n"
+                    + "  LEFT JOIN fin_subgrupo         AS SB ON SB.id = SE.id_subgrupo \n"
+                    + "  LEFT JOIN fin_grupo            AS G  ON G.id  = SB.id_grupo    \n"
+                    + "      WHERE SE.ds_situacao = 'A'                                 \n";
+
+            if (inIdServicos != null && !inIdServicos.isEmpty()) {
+                filtro += " AND SE.id IN (" + inIdServicos + ") \n";
+            } else if (inIdSubGrupoFinanceiro != null && !inIdSubGrupoFinanceiro.isEmpty()) {
+                filtro += " AND SB.id IN (" + inIdSubGrupoFinanceiro + ") \n";
+            } else if (inIdGrupoFinanceiro != null && !inIdGrupoFinanceiro.isEmpty()) {
+                filtro += " AND G.id IN (" + inIdGrupoFinanceiro + ") \n";
+            }
+            filtro += " ) \n";
+        }
 
         String tordem = "";
-        
-        if (ordemAniversario){
+
+        if (ordemAniversario) {
             tordem += " extract(day from p.dt_nascimento), extract(month from p.dt_nascimento), extract(year from p.dt_nascimento) ";
         }
-        
+
         if (ordem != null) {
             switch (ordem) {
                 case "nome":

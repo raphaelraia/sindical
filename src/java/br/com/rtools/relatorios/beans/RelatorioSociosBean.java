@@ -9,9 +9,13 @@ import br.com.rtools.associativo.db.ParentescoDB;
 import br.com.rtools.associativo.db.ParentescoDao;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.financeiro.FTipoDocumento;
+import br.com.rtools.financeiro.GrupoFinanceiro;
 import br.com.rtools.financeiro.Servicos;
+import br.com.rtools.financeiro.SubGrupoFinanceiro;
+import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.financeiro.db.FTipoDocumentoDB;
 import br.com.rtools.financeiro.db.FTipoDocumentoDBToplink;
+import br.com.rtools.financeiro.db.FinanceiroDBToplink;
 import br.com.rtools.impressao.ParametroSocios;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.relatorios.RelatorioOrdem;
@@ -35,7 +39,10 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
@@ -126,6 +133,7 @@ public class RelatorioSociosBean implements Serializable {
     private boolean booTelefone = false;
     private boolean booEstadoCivil = false;
     private boolean booEmpresa = false;
+    private boolean booServicos = false;
     private Boolean situacao = false;
     private boolean booBiometria = false;
     private boolean booDescontoFolha = false;
@@ -139,6 +147,16 @@ public class RelatorioSociosBean implements Serializable {
     private Integer minQtdeFuncionario = null;
     private Integer maxQtdeFuncionario = null;
     private boolean ordemAniversario = false;
+    private Boolean contemServicos = null;
+
+    private Map<String, Integer> listServicos;
+    private List selectedServicos;
+
+    private Map<String, Integer> listGrupoFinanceiro;
+    private List selectedGrupoFinanceiro;
+
+    private Map<String, Integer> listSubGrupoFinanceiro;
+    private List selectedSubGrupoFinanceiro;
 
     public void limparFiltro() {
         GenericaSessao.put("relatorioSociosBean", new RelatorioSociosBean());
@@ -164,7 +182,8 @@ public class RelatorioSociosBean implements Serializable {
                 && !booEmpresa
                 && !situacao
                 && !booBiometria
-                && !booDescontoFolha) {
+                && !booDescontoFolha
+                && !booServicos) {
             return false;
         }
         return true;
@@ -234,31 +253,47 @@ public class RelatorioSociosBean implements Serializable {
             booBiometria = !booBiometria;
         } else if (index == 19) {
             booDescontoFolha = !booDescontoFolha;
+        } else if (index == 20) {
+            booServicos = !booServicos;
+            if (booServicos) {
+                loadGrupoFinanceiro();
+                loadSubGrupoFinanceiro();
+                contemServicos = false;
+            } else {
+                listSubGrupoFinanceiro = null;
+                selectedSubGrupoFinanceiro = null;
+                listSubGrupoFinanceiro = null;
+                selectedSubGrupoFinanceiro = new ArrayList();
+                listServicos = new HashMap<>();
+                selectedServicos = new ArrayList<>();
+                contemServicos = null;
+            }
         }
     }
 
     public List<DataObject> getListaMenuRSocial() {
         if (listaMenuRSocial.isEmpty()) {
-            listaMenuRSocial.add(new DataObject("Número da Matricula ", "Editar", null, null, null, null));
-            listaMenuRSocial.add(new DataObject("Idade ", "Editar", null, null, null, null));
-            listaMenuRSocial.add(new DataObject("Grupo / Categoria ", "Editar", null, null, null, null));
-            listaMenuRSocial.add(new DataObject("Sexo ", "Editar", null, null, null, null));
-            listaMenuRSocial.add(new DataObject("Grau ", "Remover", null, null, null, null));
-            listaMenuRSocial.add(new DataObject("Fotos ", "Editar", null, null, null, null));
-            listaMenuRSocial.add(new DataObject("Carteirinha ", "Editar", null, null, null, null));
-            listaMenuRSocial.add(new DataObject("Tipo de Pagamento ", "Editar", null, null, null, null));
-            listaMenuRSocial.add(new DataObject("Cidade do Sócio ", "Editar", null, null, null, null));
-            listaMenuRSocial.add(new DataObject("Cidade do Empresa ", "Editar", null, null, null, null));
-            listaMenuRSocial.add(new DataObject("Aniversário ", "Editar", null, null, null, null));
-            listaMenuRSocial.add(new DataObject("Datas ", "Editar", null, null, null, null));
-            listaMenuRSocial.add(new DataObject("Votante ", "Editar", null, null, null, null));
-            listaMenuRSocial.add(new DataObject("Email ", "Editar", null, null, null, null));
-            listaMenuRSocial.add(new DataObject("Telefone ", "Editar", null, null, null, null));
-            listaMenuRSocial.add(new DataObject("Estado Civil ", "Editar", null, null, null, null));
-            listaMenuRSocial.add(new DataObject("Empresas ", "Editar", null, null, null, null));
-            listaMenuRSocial.add(new DataObject("Situação ", "Editar", null, null, null, null));
-            listaMenuRSocial.add(new DataObject("Biometria ", "Editar", null, null, null, null));
-            listaMenuRSocial.add(new DataObject("Desconto Folha ", "Editar", null, null, null, null));
+            /* 00 */ listaMenuRSocial.add(new DataObject("Número da Matricula ", "Editar", null, null, null, null));
+            /* 01 */ listaMenuRSocial.add(new DataObject("Idade ", "Editar", null, null, null, null));
+            /* 02 */ listaMenuRSocial.add(new DataObject("Grupo / Categoria ", "Editar", null, null, null, null));
+            /* 03 */ listaMenuRSocial.add(new DataObject("Sexo ", "Editar", null, null, null, null));
+            /* 04 */ listaMenuRSocial.add(new DataObject("Grau ", "Remover", null, null, null, null));
+            /* 05 */ listaMenuRSocial.add(new DataObject("Fotos ", "Editar", null, null, null, null));
+            /* 06 */ listaMenuRSocial.add(new DataObject("Carteirinha ", "Editar", null, null, null, null));
+            /* 07 */ listaMenuRSocial.add(new DataObject("Tipo de Pagamento ", "Editar", null, null, null, null));
+            /* 08 */ listaMenuRSocial.add(new DataObject("Cidade do Sócio ", "Editar", null, null, null, null));
+            /* 09 */ listaMenuRSocial.add(new DataObject("Cidade do Empresa ", "Editar", null, null, null, null));
+            /* 10 */ listaMenuRSocial.add(new DataObject("Aniversário ", "Editar", null, null, null, null));
+            /* 11 */ listaMenuRSocial.add(new DataObject("Datas ", "Editar", null, null, null, null));
+            /* 12 */ listaMenuRSocial.add(new DataObject("Votante ", "Editar", null, null, null, null));
+            /* 13 */ listaMenuRSocial.add(new DataObject("Email ", "Editar", null, null, null, null));
+            /* 14 */ listaMenuRSocial.add(new DataObject("Telefone ", "Editar", null, null, null, null));
+            /* 15 */ listaMenuRSocial.add(new DataObject("Estado Civil ", "Editar", null, null, null, null));
+            /* 16 */ listaMenuRSocial.add(new DataObject("Empresas ", "Editar", null, null, null, null));
+            /* 17 */ listaMenuRSocial.add(new DataObject("Situação ", "Editar", null, null, null, null));
+            /* 18 */ listaMenuRSocial.add(new DataObject("Biometria ", "Editar", null, null, null, null));
+            /* 19 */ listaMenuRSocial.add(new DataObject("Desconto Folha ", "Editar", null, null, null, null));
+            /* 20 */ listaMenuRSocial.add(new DataObject("Serviços ", "Editar", null, null, null, null));
         }
         return listaMenuRSocial;
     }
@@ -346,7 +381,7 @@ public class RelatorioSociosBean implements Serializable {
             if (df.length() == 1) {
                 df = "0" + df;
             }
-            
+
             ordema = ordemAniversario;
         }
 
@@ -397,7 +432,7 @@ public class RelatorioSociosBean implements Serializable {
                 booAniversario, meses, di, df, ordema, booData, dataCadastro, dataCadastroFim, dataRecadastro, dataRecadastroFim, dataDemissao, dataDemissaoFim, dataAdmissaoSocio,
                 dataAdmissaoSocioFim, dataAdmissaoEmpresa, dataAdmissaoEmpresaFim, booVotante, tipoEleicao,
                 booEmail, tipoEmail, booTelefone, tipoTelefone, booEstadoCivil, tipoEstadoCivil, booEmpresa, tipoEmpresas, empresa.getId(), minQtdeFuncionario, maxQtdeFuncionario, dataAposetandoria, dataAposetandoriaFim, tipoOrdem, tipoCarencia, carenciaDias, situacaoString,
-                booBiometria, tipoBiometria, booDescontoFolha, tipoDescontoFolha, dataAtualicacao, dataAtualicacaoFim
+                booBiometria, tipoBiometria, booDescontoFolha, tipoDescontoFolha, dataAtualicacao, dataAtualicacaoFim, contemServicos, inIdGrupoFinanceiro(), inIdSubGrupoFinanceiro(), inIdServicos()
         );
 
         Collection lista = new ArrayList();
@@ -1520,5 +1555,177 @@ public class RelatorioSociosBean implements Serializable {
 
     public void setOrdemAniversario(boolean ordemAniversario) {
         this.ordemAniversario = ordemAniversario;
+    }
+
+    public boolean isBooServicos() {
+        return booServicos;
+    }
+
+    public void setBooServicos(boolean booServicos) {
+        this.booServicos = booServicos;
+    }
+
+    public void loadGrupoFinanceiro() {
+        listGrupoFinanceiro = new LinkedHashMap<>();
+        selectedGrupoFinanceiro = new ArrayList<>();
+        listSubGrupoFinanceiro = new HashMap<>();
+        selectedSubGrupoFinanceiro = new ArrayList();
+        listServicos = new HashMap<>();
+        selectedServicos = new ArrayList<>();
+        List<GrupoFinanceiro> list = new Dao().list(new GrupoFinanceiro(), true);
+        if (list != null) {
+            for (int i = 0; i < list.size(); i++) {
+                listGrupoFinanceiro.put(list.get(i).getDescricao(), list.get(i).getId());
+            }
+        }
+    }
+
+    public void loadSubGrupoFinanceiro() {
+        listSubGrupoFinanceiro = new LinkedHashMap<>();
+        selectedSubGrupoFinanceiro = new ArrayList();
+        loadServicos();
+        if (inIdGrupoFinanceiro() != null && !inIdGrupoFinanceiro().isEmpty()) {
+            listSubGrupoFinanceiro = new HashMap<>();
+            FinanceiroDBToplink fd = new FinanceiroDBToplink();
+            List<SubGrupoFinanceiro> list = fd.listaSubGrupo(inIdGrupoFinanceiro());
+            if (list != null) {
+                for (int i = 0; i < list.size(); i++) {
+                    listSubGrupoFinanceiro.put(list.get(i).getDescricao(), list.get(i).getId());
+                }
+            }
+        }
+    }
+
+    public void loadServicos() {
+        listServicos = new LinkedHashMap<>();
+        selectedServicos = new ArrayList<>();
+        List<Servicos> list;
+        ServicosDao servicosDao = new ServicosDao();
+        if (!selectedSubGrupoFinanceiro.isEmpty()) {
+            servicosDao.setSituacao("A");
+            list = new ServicosDao().findBySubGrupoFinanceiro(inIdSubGrupoFinanceiro());
+        } else if (!selectedGrupoFinanceiro.isEmpty()) {
+            servicosDao.setSituacao("A");
+            list = new ServicosDao().findByGrupoFinanceiro(inIdGrupoFinanceiro());
+        } else {
+            list = new Dao().list(new Servicos(), true);
+        }
+        for (int i = 0; i < list.size(); i++) {
+            listServicos.put(list.get(i).getDescricao(), list.get(i).getId());
+        }
+    }
+
+    // TRATAMENTO
+    public String inIdSubGrupoFinanceiro() {
+        String ids = null;
+        if (selectedSubGrupoFinanceiro != null) {
+            for (int i = 0; i < selectedSubGrupoFinanceiro.size(); i++) {
+                if (selectedSubGrupoFinanceiro.get(i) != null) {
+                    if (ids == null) {
+                        ids = "" + selectedSubGrupoFinanceiro.get(i);
+                    } else {
+                        ids += "," + selectedSubGrupoFinanceiro.get(i);
+                    }
+                }
+            }
+        }
+        return ids;
+    }
+
+    public String inIdGrupoFinanceiro() {
+        String ids = null;
+        if (selectedGrupoFinanceiro != null) {
+            for (int i = 0; i < selectedGrupoFinanceiro.size(); i++) {
+                if (selectedGrupoFinanceiro.get(i) != null) {
+                    if (ids == null) {
+                        ids = "" + selectedGrupoFinanceiro.get(i);
+                    } else {
+                        ids += "," + selectedGrupoFinanceiro.get(i);
+                    }
+                }
+            }
+        }
+        return ids;
+    }
+
+    public String inIdServicos() {
+        String ids = null;
+        if (selectedServicos != null) {
+            for (int i = 0; i < selectedServicos.size(); i++) {
+                if (selectedServicos.get(i) != null) {
+                    if (ids == null) {
+                        ids = "" + selectedServicos.get(i);
+                    } else {
+                        ids += "," + selectedServicos.get(i);
+                    }
+                }
+            }
+        }
+        return ids;
+    }
+
+    public Map<String, Integer> getListGrupoFinanceiro() {
+        return listGrupoFinanceiro;
+    }
+
+    public void setListGrupoFinanceiro(Map<String, Integer> listGrupoFinanceiro) {
+        this.listGrupoFinanceiro = listGrupoFinanceiro;
+    }
+
+    public List getSelectedGrupoFinanceiro() {
+        return selectedGrupoFinanceiro;
+    }
+
+    public void setSelectedGrupoFinanceiro(List selectedGrupoFinanceiro) {
+        this.selectedGrupoFinanceiro = selectedGrupoFinanceiro;
+    }
+
+    public Map<String, Integer> getListServicos() {
+        return listServicos;
+    }
+
+    public void setListServicos(Map<String, Integer> listServicos) {
+        this.listServicos = listServicos;
+    }
+
+    public List getSelectedServicos() {
+        return selectedServicos;
+    }
+
+    public void setSelectedServicos(List selectedServicos) {
+        this.selectedServicos = selectedServicos;
+    }
+
+    public Map<String, Integer> getListSubGrupoFinanceiro() {
+        return listSubGrupoFinanceiro;
+    }
+
+    public void setListSubGrupoFinanceiro(Map<String, Integer> listSubGrupoFinanceiro) {
+        this.listSubGrupoFinanceiro = listSubGrupoFinanceiro;
+    }
+
+    public List getSelectedSubGrupoFinanceiro() {
+        return selectedSubGrupoFinanceiro;
+    }
+
+    public void setSelectedSubGrupoFinanceiro(List selectedSubGrupoFinanceiro) {
+        this.selectedSubGrupoFinanceiro = selectedSubGrupoFinanceiro;
+        this.selectedSubGrupoFinanceiro = selectedSubGrupoFinanceiro;
+    }
+
+    public String getContemServicos() {
+        try {
+            return "" + contemServicos;            
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public void setContemServicos(String contemServicos) {
+        if (contemServicos.equals("null")) {
+            this.contemServicos = null;
+        } else {
+            this.contemServicos = Boolean.parseBoolean(contemServicos);
+        }
     }
 }

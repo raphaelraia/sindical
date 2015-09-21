@@ -37,7 +37,7 @@
                     <h:panelGrid columns="3" styleClass="margin-top-max">
                         <p:commandButton value="Salvar" title="Salvar" action="#{sisEtiquetasBean.save}" update=":form_etiquetas:" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
                         <p:commandButton value="Novo" title="Novo" action="#{sisEtiquetasBean.clear}" update=":form_etiquetas:" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
-                        <p:commandButton value="Imprimir" icon="ui-icon-disk" title="Visualizar" action="#{sisEtiquetasBean.print}" ajax="false" update="id_messages_growl" rendered="false"/>
+                        <p:commandButton value="Imprimir" icon="ui-icon-disk" title="Visualizar" action="#{sisEtiquetasBean.print}" ajax="false" update="id_messages_growl" />
                     </h:panelGrid>
                     <p:dataTable value="#{sisEtiquetasBean.listSisEtiquetas}" var="sisEtiquetas" styleClass="margin-top-max">
                         <p:column width="30" styleClass="text-center">
