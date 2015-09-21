@@ -26,28 +26,25 @@
                     <ui:include src="templates/templatePrime.xhtml"/>
                 </f:subview>
                 <f:view>
-                    <p:panel styleClass="wrapper" style="border: 0px;">
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Pesquisa Vendas" styleClass="fonteHeader" />
+                        <div style="clear: both"></div>
                         <h:form id="formPesquisaVendasCaravana">      
                             <p:dataTable id="tbl" value="#{vendasCaravanaBean.listaPesquisaVendas}" var="linha" style="width:100%" emptyMessage="Nenhuma Venda foi encontrada!">
-                                <p:column style="text-align: center">
-                                    <p:commandButton value="Editar" action="#{vendasCaravanaBean.editar(linha)}" />
-                                </p:column>
-                                
-                                <p:column headerText="ID" style="text-align: center">
+                                <p:column headerText="ID" style="text-align: center; width: 50px">
                                     <h:outputLabel value="#{linha.id}" />
                                 </p:column>
 
                                 <p:column headerText="Evento">
-                                    <h:outputText value="#{linha.aEvento.descricaoEvento.grupoEvento.descricao} - #{linha.aEvento.descricaoEvento.descricao}" />
+                                    <p:commandLink value="#{linha.aEvento.descricaoEvento.grupoEvento.descricao} - #{linha.aEvento.descricaoEvento.descricao}" action="#{vendasCaravanaBean.editar(linha)}" />
                                 </p:column>
 
                                 <p:column headerText="Responsável">
-                                    <h:outputText value="#{linha.responsavel.nome}" />
+                                    <p:commandLink value="#{linha.responsavel.nome}" action="#{vendasCaravanaBean.editar(linha)}" />
                                 </p:column>
                                 
-                                <p:column headerText="Quarto">
-                                    <h:outputText value="#{linha.quarto}" />
+                                <p:column headerText="Quarto" style="width: 50px; text-align: center">
+                                    <p:outputLabel value="#{linha.quarto}" />
                                 </p:column>
                             </p:dataTable>
                         </h:form>

@@ -103,6 +103,8 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
     private Pessoa pessoa = new Pessoa();
     private String tipoPessoa = "responsavel";
     private String tipoSituacaoFinanceiro = "atrasado";
+    private String tipoDepartamento = "outros";
+    private String tipoPessoaFinanceiro = "pessoa";
     /**
      * Lista de Filtros (indices)
      * <p>
@@ -125,6 +127,9 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
      * <br />2 SERVIÇOS
      * <br />3 DATAS
      * <br />4 E / S
+     * <br />5 SITUAÇÃO FINANCEIRO
+     * <br />6 DEPARTAMENTO
+     * <br />7 TIPO PESSOA
      */
     private List<Filtros> listaFiltrosFinanceiro = new ArrayList();
 
@@ -202,11 +207,13 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
         listaFiltrosFinanceiro.add(new Filtros("datas", "Datas", false));
         listaFiltrosFinanceiro.add(new Filtros("es", "E / S", false));
         listaFiltrosFinanceiro.add(new Filtros("situacaoFinanceiro", "Situação Financeiro", false));
+        listaFiltrosFinanceiro.add(new Filtros("departamento", "Departamento", true));
+        listaFiltrosFinanceiro.add(new Filtros("tipoPessoa", "Tipo de Pessoa", false));
     }
 
     public void acao(Filtros linha) {
         linha.setAtivo(!linha.ativo);
-
+        // NÃO É NECESSÁRIO ESTAR TODOS OS TIPOS DA LISTA NESSE SWITCH 
         switch (linha.chave) {
             case "grupoCategoria":
                 loadListaGrupoCategoria();
@@ -228,7 +235,7 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
     
     public void acaoFinanceiro(Filtros linha) {
         linha.setAtivo(!linha.ativo);
-
+        // NÃO É NECESSÁRIO ESTAR TODOS OS TIPOS DA LISTA NESSE SWITCH 
         switch (linha.chave) {
             case "grupo":
                 loadListaGrupo();
@@ -238,6 +245,10 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
                 break;
             case "servicos":
                 loadListaServicos();
+                break;
+            case "departamento":
+                break;
+            case "tipoPessoa":
                 break;
         }
     }
@@ -597,6 +608,17 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
             tipo_situacao_financeiro = tipoSituacaoFinanceiro;
         }
 
+        // DEPARTAMENTO
+        String tipo_departamento = "";
+        if (listaFiltrosFinanceiro.get(6).ativo) {
+            tipo_departamento = tipoDepartamento;
+        }
+        
+        // TIPO PESSOA
+        String tipo_pessoa = "";
+        if (listaFiltrosFinanceiro.get(7).ativo) {
+            tipo_pessoa = tipoPessoaFinanceiro;
+        }        
         
         Map params = new HashMap();
         // MOEDA PARA BRASIL VALORES IREPORT PTBR CONVERTE VALOR JASPER PTBR MOEDA
@@ -618,7 +640,7 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
             ordem = ((RelatorioOrdem) new Dao().find(new RelatorioOrdem(), Integer.valueOf(listaRelatorioOrdem.get(idRelatorioOrdem).getDescription()))).getQuery();
         }
         
-        List<Object> result = new RelatorioFinanceiroSocialDao().listaRelatorioFinanceiroSocial(id_grupo_categoria, id_categoria, id_parentesco, id_cidade_socio, id_cidade_empresa, is_votante, dtCadastro, dtCadastroFinal, dtRecadastro, dtRecadastroFinal, dtAdmissao, dtAdmissaoFinal, dtDemissao, dtDemissaoFinal, dtFiliacao, dtFiliacaoFinal, dtAposentadoria, dtAposentadoriaFinal, dtAtualizacao, dtAtualizacaoFinal, tipo_situacao, tipoPessoa, id_pessoa, id_grupo_financeiro, id_sub_grupo, id_servicos, dtEmissao, dtEmissaoFinal, dtVencimento, dtVencimentoFinal, dtQuitacao, dtQuitacaoFinal, tipo_es, tipo_situacao_financeiro, ordem, relatorios);
+        List<Object> result = new RelatorioFinanceiroSocialDao().listaRelatorioFinanceiroSocial(id_grupo_categoria, id_categoria, id_parentesco, id_cidade_socio, id_cidade_empresa, is_votante, dtCadastro, dtCadastroFinal, dtRecadastro, dtRecadastroFinal, dtAdmissao, dtAdmissaoFinal, dtDemissao, dtDemissaoFinal, dtFiliacao, dtFiliacaoFinal, dtAposentadoria, dtAposentadoriaFinal, dtAtualizacao, dtAtualizacaoFinal, tipo_situacao, tipoPessoa, id_pessoa, id_grupo_financeiro, id_sub_grupo, id_servicos, dtEmissao, dtEmissaoFinal, dtVencimento, dtVencimentoFinal, dtQuitacao, dtQuitacaoFinal, tipo_es, tipo_situacao_financeiro, tipo_departamento, tipo_pessoa, ordem, relatorios);
 
         if (result.isEmpty()) {
             GenericaMensagem.error("Atenção", "Nenhum resultado encontrado para a pesquisa!");
@@ -1068,6 +1090,22 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
 
     public void setTipoSituacaoFinanceiro(String tipoSituacaoFinanceiro) {
         this.tipoSituacaoFinanceiro = tipoSituacaoFinanceiro;
+    }
+
+    public String getTipoDepartamento() {
+        return tipoDepartamento;
+    }
+
+    public void setTipoDepartamento(String tipoDepartamento) {
+        this.tipoDepartamento = tipoDepartamento;
+    }
+
+    public String getTipoPessoaFinanceiro() {
+        return tipoPessoaFinanceiro;
+    }
+
+    public void setTipoPessoaFinanceiro(String tipoPessoaFinanceiro) {
+        this.tipoPessoaFinanceiro = tipoPessoaFinanceiro;
     }
 
     public class Filtros {

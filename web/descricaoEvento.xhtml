@@ -57,12 +57,12 @@
                             <p:panel>
                                 <p:dataTable value="#{descricaoEventoBean.listaDescricaoEvento}" var="descricaoEvento" scrollable="true" scrollHeight="300" id="tbl" emptyMessage="Nenhum registro encotrado!">
                                     <p:column headerText="Descrição">
-                                        <h:outputLabel value="#{descricaoEvento.descricao}"/>
+                                        <p:commandLink value="#{descricaoEvento.descricao}" action="#{descricaoEventoBean.editar(descricaoEvento)}" update="@form"/>
                                     </p:column>
                                     <p:column headerText="Grupo Evento">
-                                        <h:outputLabel value="#{descricaoEvento.grupoEvento.descricao}"/>
+                                        <p:commandLink value="#{descricaoEvento.grupoEvento.descricao}" action="#{descricaoEventoBean.editar(descricaoEvento)}" update="@form"/>
                                     </p:column>                          
-                                    <p:column styleClass="text-center">
+                                    <p:column styleClass="text-center" style="width: 30px">
                                         <p:commandButton action="#{descricaoEventoBean.excluir(descricaoEvento)}" disabled="#{controleAcessoBean.botaoExcluir}" icon="ui-icon-trash" />
                                     </p:column>
                                 </p:dataTable>

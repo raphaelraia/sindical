@@ -1,5 +1,7 @@
 package br.com.rtools.pessoa;
 
+import br.com.rtools.pessoa.db.PessoaEmpresaDB;
+import br.com.rtools.pessoa.db.PessoaEmpresaDBToplink;
 import br.com.rtools.utilitarios.DataHoje;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -351,5 +353,14 @@ public class Fisica implements java.io.Serializable {
             s += " - Nascimento: " + this.getNascimento();
         }
         return s;
+    }
+    
+    public PessoaEmpresa getPessoaEmpresa(){
+        PessoaEmpresaDB pessoaEmpresaDB = new PessoaEmpresaDBToplink();
+        PessoaEmpresa pe = (PessoaEmpresa) pessoaEmpresaDB.pesquisaPessoaEmpresaPorFisica(this.id);
+        if (pe != null && pe.getId() != -1) {
+           return pe;
+        }
+        return null;
     }
 }

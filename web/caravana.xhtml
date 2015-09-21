@@ -27,11 +27,11 @@
                     <ui:include src="templates/templatePrime.xhtml"/>
                 </f:subview>
                 <f:view>
-                    <p:panel styleClass="wrapper" style="border: 0px;">
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Caravana" styleClass="fonteHeader" />
                         <h:form id="formCaravana">
                             <c:set scope="request" var="object" value="${caravanaBean.caravana}"/>
-                            <h:panelGrid columns="2" style="clear: both">
+                            <h:panelGrid columns="3" style="clear: both">
                                 <p:column>
                                     <p:panel styleClass="fundoCinza" style="width: 490px; height: 290px">
                                         <h:outputLabel value="Viagens" style="font-size: 14pt!important"/>
@@ -46,43 +46,43 @@
                                         <h:panelGrid columns="2" style="margin-top: 20px">
                                             <p:column>
                                                 <h:outputLabel value="Data Saída" style="font-weight: bold"/><br />
-                                                <p:inputMask value="#{caravanaBean.caravana.dataSaida}" size="10" mask="99/99/9999"/>
+                                                <p:inputMask value="#{caravanaBean.caravana.dataSaida}" style="width: 90px; text-align: center" mask="99/99/9999"/>
                                             </p:column>
 
                                             <p:column>
                                                 <h:outputLabel value="Horário" /><br />
-                                                <p:inputMask value="#{caravanaBean.caravana.horaSaida}" size="5" mask="99:99"/>
+                                                <p:inputMask value="#{caravanaBean.caravana.horaSaida}" size="5" style="text-align: center" mask="99:99"/>
                                             </p:column>
                                         </h:panelGrid>
 
                                         <h:panelGrid columns="2" style="margin-top: 10px">
                                             <p:column>
                                                 <h:outputLabel value="Data Retorno" style="font-weight: bold"/><br />
-                                                <p:inputMask value="#{caravanaBean.caravana.dataRetorno}" size="10" mask="99/99/9999"/>
+                                                <p:inputMask value="#{caravanaBean.caravana.dataRetorno}" style="width: 90px; text-align: center" mask="99/99/9999"/>
                                             </p:column>
 
                                             <p:column>
                                                 <h:outputLabel value="Horário"/><br />
-                                                <p:inputMask value="#{caravanaBean.caravana.horaRetorno}" size="5" mask="99:99"/>
+                                                <p:inputMask value="#{caravanaBean.caravana.horaRetorno}" size="5" style="text-align: center" mask="99:99"/>
                                             </p:column>
                                         </h:panelGrid>
 
                                         <h:panelGrid columns="2" style="margin-top: 10px">
                                             <p:column>
                                                 <h:outputLabel value="Data Chegada" style="font-weight: bold"/><br />
-                                                <p:inputMask value="#{caravanaBean.caravana.dataChegada}" size="10" mask="99/99/9999"/>
+                                                <p:inputMask value="#{caravanaBean.caravana.dataChegada}" style="width: 90px; text-align: center" mask="99/99/9999"/>
                                             </p:column>
 
                                             <p:column>
                                                 <h:outputLabel value="Horário"/><br />
-                                                <p:inputMask value="#{caravanaBean.caravana.horaChegada}" size="5" mask="99:99"/>
+                                                <p:inputMask value="#{caravanaBean.caravana.horaChegada}" size="5" style="text-align: center" mask="99:99"/>
                                             </p:column>
                                         </h:panelGrid>
                                     </p:panel>
                                 </p:column>
 
                                 <p:column>
-                                    <p:panel styleClass="fundoCinza" style="width: 490px; height: 290px">
+                                    <p:panel styleClass="fundoCinza" style="width: 100%; height: 290px;">
                                         <h:outputLabel value="..." style="font-size: 14pt!important"/>
                                         <h:panelGrid columns="3">
                                             <p:selectBooleanCheckbox id="idChkCafe" value="#{caravanaBean.caravana.isCafe}" itemLabel="Café"/>
@@ -104,8 +104,18 @@
                                         </h:panelGrid>
                                     </p:panel>
                                 </p:column>
+                                
+                                <p:column>
+                                    <p:panel styleClass="fundoCinza" style="width: 200px; height: 290px; margin-left: 7px">
+                                        <h:outputLabel value="EVT" style="font-size: 14pt!important"/>
+                                        <br />
+                                        <h:outputLabel value="#{caravanaBean.caravana.evt == null ? 'NENHUM' : caravanaBean.caravana.evt.id}" style="font-size: 14pt!important"/>
+                                        
+                                    </p:panel>
+                                </p:column>
                             </h:panelGrid>
                             <p:messages id="i_msg" showDetail="true" closable="true" /> 
+                            <p:separator />
                             <h:panelGrid columns="2" style="width: 100%">
                                 <p:column>
                                     <h:outputLabel value="Serviços" style="font-size: 14pt!important"/><br />
@@ -116,7 +126,7 @@
 
                                 <p:column>
                                     <p:inputTextarea id="i_area" value="#{caravanaBean.eventoServico.descricao}" cols="155"/>
-                                    <p:watermark value="Digite a descrição para este serviço, nome que aparecerá no momento da venda" for="i_area"/>
+                                    <p:watermark value="DIGITE A DESCRIÇÃO PARA ESTE SERVIÇO ( Nome que aparecerá no momento da venda )" for="i_area"/>
                                 </p:column>
                             </h:panelGrid>
 

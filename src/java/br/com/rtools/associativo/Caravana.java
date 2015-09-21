@@ -1,5 +1,6 @@
 package br.com.rtools.associativo;
 
+import br.com.rtools.financeiro.Evt;
 import br.com.rtools.utilitarios.DataHoje;
 import java.util.Date;
 import javax.persistence.Column;
@@ -16,7 +17,7 @@ import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = "car_caravana")
-@NamedQuery(name = "Caravana.pesquisaID", query = "select c from Caravana c where c.id=:pid")
+@NamedQuery(name = "Caravana.pesquisaID", query = "select c from Caravana c where c.id = :pid")
 public class Caravana implements java.io.Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,10 +53,13 @@ public class Caravana implements java.io.Serializable {
     private int guiaRecolhimento;
     @Column(name = "ds_observacao")
     private String observacao;
+    @JoinColumn(name = "id_evt", referencedColumnName = "id")
+    @ManyToOne
+    private Evt evt;    
 
     public Caravana(int id, AEvento aEvento, String dataSaida, String dataRetorno, String dataChegada, String horaSaida, String horaRetorno,
             String horaChegada, boolean isCafe, boolean isAlmoco, boolean isJantar, int quantidadePoltronas,
-            int guiaRecolhimento, String observacao) {
+            int guiaRecolhimento, String observacao, Evt evt) {
         this.id = id;
         this.aEvento = aEvento;
         setDataSaida(dataSaida);
@@ -70,6 +74,7 @@ public class Caravana implements java.io.Serializable {
         this.quantidadePoltronas = quantidadePoltronas;
         this.guiaRecolhimento = guiaRecolhimento;
         this.observacao = observacao;
+        this.evt = evt;
     }
 
     public Caravana() {
@@ -87,6 +92,7 @@ public class Caravana implements java.io.Serializable {
         this.quantidadePoltronas = 0;
         this.guiaRecolhimento = 0;
         this.observacao = "";
+        this.evt = null;
     }
 
     public int getId() {
@@ -241,5 +247,13 @@ public class Caravana implements java.io.Serializable {
         if (!(dataChegada.isEmpty())) {
             this.dtChegada = DataHoje.converte(dataChegada);
         }
+    }
+
+    public Evt getEvt() {
+        return evt;
+    }
+
+    public void setEvt(Evt evt) {
+        this.evt = evt;
     }
 }

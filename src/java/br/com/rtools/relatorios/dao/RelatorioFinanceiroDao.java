@@ -208,7 +208,7 @@ public class RelatorioFinanceiroDao extends DB {
         if (!tipo_situacao.isEmpty()){
             switch (tipo_situacao) {
                 case "atrasado":
-                    list_where.add(" m.vencimento < CURRENT_DATE \n ");
+                    list_where.add(" m.baixa IS NULL AND m.vencimento < CURRENT_DATE \n ");
                     break;
                 case "baixado":
                     list_where.add(" m.baixa IS NOT NULL \n ");

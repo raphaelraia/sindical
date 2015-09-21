@@ -10,7 +10,7 @@ import java.util.List;
 import javax.persistence.Query;
 
 public class RelatorioFinanceiroSocialDao extends DB {
-    public List<Object> listaRelatorioFinanceiroSocial(Integer id_grupo_categoria, Integer id_categoria, Integer id_parentesco, Integer id_cidade_socio, Integer id_cidade_empresa, Boolean is_votante, String dataCadastro, String dataCadastroFinal, String dataRecadastro, String dataRecadastroFinal, String dataAdmissao, String dataAdmissaoFinal, String dataDemissao, String dataDemissaoFinal, String dataFiliacao, String dataFiliacaoFinal, String dataAposentadoria, String dataAposentadoriaFinal, String dataAtualizacao, String dataAtualizacaoFinal, String tipo_situacao, String tipo_pessoa, Integer id_pessoa, Integer id_grupo_financeiro, Integer id_sub_grupo, Integer id_servicos, String dataEmissao, String dataEmissaoFinal, String dataVencimento, String dataVencimentoFinal, String dataQuitacao, String dataQuitacaoFinal, String tipo_es, String tipo_situacao_financeiro, String order, Relatorios relatorio){
+    public List<Object> listaRelatorioFinanceiroSocial(Integer id_grupo_categoria, Integer id_categoria, Integer id_parentesco, Integer id_cidade_socio, Integer id_cidade_empresa, Boolean is_votante, String dataCadastro, String dataCadastroFinal, String dataRecadastro, String dataRecadastroFinal, String dataAdmissao, String dataAdmissaoFinal, String dataDemissao, String dataDemissaoFinal, String dataFiliacao, String dataFiliacaoFinal, String dataAposentadoria, String dataAposentadoriaFinal, String dataAtualizacao, String dataAtualizacaoFinal, String tipo_situacao, String tipo_pessoa, Integer id_pessoa, Integer id_grupo_financeiro, Integer id_sub_grupo, Integer id_servicos, String dataEmissao, String dataEmissaoFinal, String dataVencimento, String dataVencimentoFinal, String dataQuitacao, String dataQuitacaoFinal, String tipo_es, String tipo_situacao_financeiro, String tipo_departamento, String tipo_pessoa_financeiro, String order, Relatorios relatorio){
         String select = " SELECT ";
         
         List<RelatorioParametros> listaRL = new RelatorioDao().listaRelatorioParametro(relatorio.getId());
@@ -216,7 +216,7 @@ public class RelatorioFinanceiroSocialDao extends DB {
         if (!tipo_situacao_financeiro.isEmpty()){
             switch (tipo_situacao_financeiro) {
                 case "atrasado":
-                    list_where.add(" m.vencimento < CURRENT_DATE \n ");
+                    list_where.add(" m.baixa IS NULL AND m.vencimento < CURRENT_DATE \n ");
                     break;
                 case "baixado":
                     list_where.add(" m.baixa IS NOT NULL \n ");
@@ -227,6 +227,34 @@ public class RelatorioFinanceiroSocialDao extends DB {
                     break;
             }
         }        
+        
+        // TIPO DEPARTAMENTO ---
+        if (!tipo_departamento.isEmpty()){
+            switch (tipo_departamento) {
+                case "outros":
+                    list_where.add(" m.id_rotina <> 4 \n ");
+                    break;
+                case "todos":
+                    break;
+                default:
+                    // ARRECADAÇÃO
+                    list_where.add(" m.id_rotina = 4 \n ");
+                    break;
+            }
+        }
+        
+        if (!tipo_pessoa_financeiro.isEmpty()){
+            switch (tipo_pessoa_financeiro) {
+                case "fisica":
+                    join += " INNER JOIN pes_fisica pfx ON pfx.id_pessoa = m.id_pessoa \n ";
+                    break;
+                default:
+                    join += " INNER JOIN pes_juridica pjx ON pjx.id_pessoa = m.id_pessoa \n ";
+                    break;
+            }            
+        }else{
+            join += " INNER JOIN pes_fisica pfx ON pfx.id_pessoa = m.id_pessoa \n ";
+        }
         
         if (list_where.isEmpty()){
             return new ArrayList();

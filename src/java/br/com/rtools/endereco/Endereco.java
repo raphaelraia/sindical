@@ -131,7 +131,7 @@ public class Endereco implements java.io.Serializable {
                     + this.getCidade().getUf() + "  ";
         }
     }
-
+    
     public String getEnderecoSimplesToString() {
         if ((this.getLogradouro().getDescricao().equals(""))
                 || (this.getDescricaoEndereco().getDescricao().equals(""))) {

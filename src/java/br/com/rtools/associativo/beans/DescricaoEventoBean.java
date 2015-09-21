@@ -23,8 +23,8 @@ public class DescricaoEventoBean implements Serializable {
 
     private DescricaoEvento descricaoEvento = new DescricaoEvento();
     private int idGrupoEvento = 0;
-    private List<DescricaoEvento> listaDescricaoEvento = new ArrayList<DescricaoEvento>();
-    private List<SelectItem> listaGrupoEvento = new ArrayList<SelectItem>();
+    private List<DescricaoEvento> listaDescricaoEvento = new ArrayList();
+    private List<SelectItem> listaGrupoEvento = new ArrayList();
 
     public void salvar() {
         if (descricaoEvento.getDescricao().isEmpty()) {
@@ -32,36 +32,49 @@ public class DescricaoEventoBean implements Serializable {
             PF.update("formDescricaoEvento:i_msg");
             return;
         }
+
         if (getListaGrupoEvento().isEmpty()) {
             GenericaMensagem.warn("Validaçao", "Lista de Grupo Evento vazia!");
             PF.update("formDescricaoEvento:i_msg");
             return;
         }
+        
         DescricaoEventoDB dedb = new DescricaoEventoDBToplink();
         SalvarAcumuladoDB sadb = new SalvarAcumuladoDBToplink();
         GrupoEvento grupoEvento = (GrupoEvento) sadb.find(new GrupoEvento(), Integer.parseInt(getListaGrupoEvento().get(idGrupoEvento).getDescription()));
         descricaoEvento.setGrupoEvento(grupoEvento);
+        
         if (dedb.existeDescricaoEvento(descricaoEvento)) {
             GenericaMensagem.warn("Validaçao", "Descrição já cadastrada para o grupo selecionado!");
             PF.update("formDescricaoEvento:i_msg");
             return;
         }
+
+        sadb.abrirTransacao();
+
         if (descricaoEvento.getId() == -1) {
-            sadb.abrirTransacao();
-            if (sadb.inserirObjeto(descricaoEvento)) {
-                sadb.comitarTransacao();
-                GenericaMensagem.info("Sucesso", "Registro adicionado");
-                listaDescricaoEvento.clear();
-                NovoLog novoLog = new NovoLog();
-                novoLog.save(descricaoEvento.toString());
-                descricaoEvento = new DescricaoEvento();
-                PF.update("formDescricaoEvento");
-            } else {
+            if (!sadb.inserirObjeto(descricaoEvento)) {
                 sadb.desfazerTransacao();
                 GenericaMensagem.warn("Erro", "Ao adicionar registro!");
                 PF.update("formDescricaoEvento:i_msg");
+                GenericaMensagem.info("Sucesso", "Registro adicionado");
+            }
+
+            NovoLog novoLog = new NovoLog();
+            novoLog.save(descricaoEvento.toString());
+        } else {
+            if (!sadb.alterarObjeto(descricaoEvento)) {
+                sadb.desfazerTransacao();
+                GenericaMensagem.warn("Erro", "Ao adicionar registro!");
+                PF.update("formDescricaoEvento:i_msg");
+                return;
             }
         }
+
+        sadb.comitarTransacao();
+        descricaoEvento = new DescricaoEvento();
+        listaDescricaoEvento.clear();
+        PF.update("formDescricaoEvento");
     }
 
     public void excluir(DescricaoEvento de) {
@@ -88,6 +101,16 @@ public class DescricaoEventoBean implements Serializable {
             GenericaMensagem.info("Sucesso", "Registro excluído!");
             listaDescricaoEvento.clear();
             PF.update("formDescricaoEvento");
+        }
+    }
+
+    public void editar(DescricaoEvento de) {
+        descricaoEvento = de;
+        
+        for (int i = 0; i < listaGrupoEvento.size(); i++){
+            if (descricaoEvento.getGrupoEvento().getId() == Integer.valueOf(listaGrupoEvento.get(i).getDescription()) ){
+                idGrupoEvento = i;
+            }
         }
     }
 

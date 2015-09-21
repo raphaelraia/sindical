@@ -106,7 +106,7 @@
 
                             <hr />
 
-                            <h:panelGrid id="i_panel_servicos" columns="8" style="margin-top: 5px">
+                            <h:panelGrid id="i_panel_servicos" columns="9" style="margin-top: 5px">
                                 <p:column>
                                     <h:outputLabel value="Valor" /><br />
                                     <p:inputText value="#{sociosBean.valorServico}" size="7" style="text-align: right" disabled="#{controleAcessoBean.botaoDescontoSocial || sociosBean.descontoSocial.id != 1}">
@@ -149,6 +149,16 @@
                                     <h:outputLabel value="Serviços" rendered="#{sociosBean.renderServicos}" style="margin-left: 18px;"/><br />
                                     <p:selectOneMenu value="#{sociosBean.idServico}" rendered="#{sociosBean.renderServicos}" style="margin-left: 18px; width: 400px">
                                         <f:selectItems value="#{sociosBean.listaServicos}"/>
+                                    </p:selectOneMenu>
+                                </p:column>
+                                
+                                <p:column>
+                                    <p:selectBooleanCheckbox value="#{sociosBean.chkContaCobranca}" style="" itemLabel="Conta Cobrança">
+                                        <p:ajax event="change" update="@this idTipoDocumento" listener="#{sociosBean.loadTipoDocumento()}"/>
+                                    </p:selectBooleanCheckbox><br />
+                                    <p:selectOneMenu id="idTipoDocumento" value="#{sociosBean.idTipoDocumento}" style="width: 150px">
+                                        <p:ajax event="change" update="@this" />
+                                        <f:selectItems value="#{sociosBean.listaTipoDocumento}" />
                                     </p:selectOneMenu>
                                 </p:column>
 

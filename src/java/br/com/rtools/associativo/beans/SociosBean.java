@@ -416,7 +416,14 @@ public class SociosBean implements Serializable {
             }
         }
 
-        for (int i = 0; i < getListaTipoDocumento().size(); i++) {
+        if (servicoPessoa.getTipoDocumento().getId() == 2){
+            chkContaCobranca = true;
+        }else{
+            chkContaCobranca = false;
+        }
+        
+        loadTipoDocumento();
+        for (int i = 0; i < listaTipoDocumento.size(); i++) {
             if (Integer.parseInt((String) listaTipoDocumento.get(i).getDescription()) == servicoPessoa.getTipoDocumento().getId()) {
                 idTipoDocumento = i;
                 break;
@@ -2893,9 +2900,9 @@ public class SociosBean implements Serializable {
     }
 
     public void setChkContaCobranca(boolean chkContaCobranca) {
-        if (this.chkContaCobranca != chkContaCobranca) {
-            listaTipoDocumento.clear();
-        }
+//        if (this.chkContaCobranca != chkContaCobranca) {
+//            listaTipoDocumento.clear();
+//        }
         this.chkContaCobranca = chkContaCobranca;
     }
 

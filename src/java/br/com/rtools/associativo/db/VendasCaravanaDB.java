@@ -23,4 +23,6 @@ public interface VendasCaravanaDB {
     public List<Movimento> listaMovCaravana(int idResponsavel, int idEvt);
 
     public List<Movimento> listaMovCaravanaBaixado(int idLoteBaixa);
+    
+    public List<Object> listaTipoAgrupado(Integer id_venda);
 }

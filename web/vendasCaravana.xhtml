@@ -29,7 +29,7 @@
                     <h:form rendered="#{controleAcessoBean.validacao}"></h:form>
                     <h:form id="formVendasCaravana">
                         <p:growl id="i_msg" showDetail="true" />  
-                        <p:panel styleClass="wrapper" style="border: 0px;">
+                        <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                             <h:outputText value="Vendas Caravana" styleClass="fonteHeader" />
 
                             <p:panel styleClass="fundoCinza" style="clear: both">
@@ -125,26 +125,29 @@
                             </h:panelGrid>
                             <br />
                             <p:dataTable id="i_servicos" var="linha" style="width:100%;" value="#{vendasCaravanaBean.listaReserva}" rowIndexVar="it" emptyMessage="Nenhum serviço foi adicionado!">
-                                <p:column>
+                                <p:column style="width: 30px">
                                     <p:commandButton icon="ui-icon-trash" title="Excluir Serviço" action="#{vendasCaravanaBean.removerReserva(it, linha)}" update="i_servicos :formVendasCaravana:i_valores :formVendasCaravana:i_caravanas" disabled="#{vendasCaravanaBean.vendas.id != -1}"/>
                                 </p:column>
                                 <p:column headerText="Passageiro">
                                     <p:commandButton ajax="false" icon="ui-icon-search" action="#{vendasCaravanaBean.pesquisaPassageiro(it)}" disabled="#{vendasCaravanaBean.vendas.id != -1}"/>
                                     <h:outputLabel value="#{linha.argumento0.pessoa.nome}" style="margin-left: 10px "/>
                                 </p:column>
-                                <p:column headerText="Poltrona" style="text-align: center">
+                                
+                                <p:column headerText="Poltrona" style="text-align: center; width: 60px" >
                                     <p:selectOneMenu value="#{linha.argumento1}" style="padding-right: 20px" rendered="#{vendasCaravanaBean.vendas.id == -1}">
                                         <f:selectItems value="#{vendasCaravanaBean.listaPoltrona}" />
                                     </p:selectOneMenu>                                    
                                     <h:outputLabel value="#{linha.argumento4.poltrona}" style="margin-left: 10px; font-weight: bold; font-size: 12pt!important" rendered="#{vendasCaravanaBean.vendas.id != -1}"/>
                                 </p:column>
-                                <p:column headerText="Valor" style="text-align: center">
+                                
+                                <p:column headerText="Valor" style="text-align: center; width: 100px">
                                     <h:outputLabel value="R$ " />
                                     <h:outputText value="#{linha.argumento2}" style="font-weight: bold"/>
                                 </p:column>
-                                <p:column headerText="Desconto" style="text-align: center">
+                                
+                                <p:column headerText="Desconto" style="text-align: center; width: 100px">
                                     <h:outputLabel value="R$ " />
-                                    <p:inputText value="#{linha.argumento3}" rendered="#{vendasCaravanaBean.vendas.id == -1}">
+                                    <p:inputText value="#{linha.argumento3}" rendered="#{vendasCaravanaBean.vendas.id == -1}" style="width: 70px; text-align: right">
                                         <p:ajax event="blur" listener="#{vendasCaravanaBean.atualizaValoresGrid(it)}" update="@this :formVendasCaravana:i_valores"/>
                                     </p:inputText>
                                     <h:outputText value="#{linha.argumento3}" style="font-weight: bold" rendered="#{vendasCaravanaBean.vendas.id != -1}"/>
@@ -180,12 +183,12 @@
                                     <h:column>
                                         <h:outputLabel value="Valor Entrada" style="margin-left: 30px"/><br />
                                         <p:inputText value="#{vendasCaravanaBean.valorEntrada}" style="margin-left: 30px">
-                                            <p:ajax event="change" update="@this" />
+                                            <p:ajax event="change" update="@this i_parcelas formVendasCaravana:i_panel_concluir_reserva" listener="#{vendasCaravanaBean.listaDataEntrada.clear()}"/>
                                         </p:inputText>
                                     </h:column>
                                     <h:column>
-                                        <h:outputLabel value="" style="margin-left: 30px"/><br />
-                                        <p:commandButton value="Gerar" action="#{vendasCaravanaBean.gerarParcelas}" disabled="#{vendasCaravanaBean.vendas.id != -1}" style="margin-left: 30px" update="i_parcelas"/>
+                                        <br />
+                                        <p:commandButton value="Gerar" action="#{vendasCaravanaBean.gerarParcelas}" disabled="#{vendasCaravanaBean.vendas.id != -1}" style="margin-left: 30px" update="i_parcelas formVendasCaravana:i_panel_concluir_reserva"/>
                                     </h:column>      
                                 </h:panelGrid>
                             </p:panel>
@@ -195,8 +198,8 @@
                                 </p:column>
                                 <p:column headerText="Valor da Parcela" style="text-align: center">
                                     <h:outputLabel value="R$ "/>
-                                    <p:inputText value="#{linha.argumento1}">
-                                        <p:ajax event="blur" listener="#{vendasCaravanaBean.atualizaValoresParcela(it)}" update="@this, i_panel_concluir_reserva"/>
+                                    <p:inputText value="#{linha.argumento1}" style="text-align: right; width: 80px">
+                                        <p:ajax event="blur" listener="#{vendasCaravanaBean.atualizaValoresParcela(it)}" update="@this, formVendasCaravana:i_panel_concluir_reserva"/>
                                     </p:inputText>
                                 </p:column>
                                 <p:column headerText="Status" style="text-align: center">
@@ -204,18 +207,19 @@
                                     <h:outputLabel value="· NÃO PAGO ·" style="color:red; font-weight: bold" rendered="#{!linha.argumento2}"/> 
                                 </p:column>
                             </p:dataTable><br />
-                            <h:panelGrid columns="4">
+                            <h:panelGrid columns="5">
                                 <p:commandButton value="Concluir Reserva" title="Gravar Reserva" onclick="PF('i_dlg_s').show()"/>
                                 <p:commandButton ajax="false" value="Novo" title="Novo" action="#{vendasCaravanaBean.novo()}"/>
                                 <p:commandButton value="Excluir" title="Excluir" onclick="PF('i_dlg_e').show()"/>
                                 <p:commandButton ajax="false" value="Pesquisar" title="Pesquisar" action="#{chamadaPaginaBean.pesquisaVendasCaravana()}"/>
+                                <p:commandButton ajax="false" value="Imprimir Ficha de Reserva" title="Imprimir Ficha de Reserva" action="#{vendasCaravanaBean.imprimirFichaReserva()}" onclick="form.target = '_blank'" icon="ui-icon-print" disabled="#{vendasCaravanaBean.vendas.id == -1}"/>
                             </h:panelGrid>
                         </p:panel>                        
                         <p:dialog widgetVar="i_dlg_s" header="Deseja Salvar esta Venda" resizable="false" width="400" modal="true">
-                            <h:panelGrid columns="2" id="i_panel_concluir_reserva">
-                                <h:outputLabel value="Data da taxa:" rendered="#{vendasCaravanaBean.valorEntrada.equals('0,00')}"/>
-                                <h:selectOneMenu value="#{vendasCaravanaBean.idDataEntrada}" rendered="#{vendasCaravanaBean.valorEntrada.equals('0,00')}">
-                                    <f:selectItems value="#{vendasCaravanaBean.listaEntrada}" />
+                            <h:panelGrid columns="2" id="i_panel_concluir_reserva" rendered="false">
+                                <h:outputLabel value="Data da taxa:" rendered="#{vendasCaravanaBean.listaDataEntrada.size() > 0}"/>
+                                <h:selectOneMenu value="#{vendasCaravanaBean.idDataEntrada}" rendered="#{vendasCaravanaBean.listaDataEntrada.size() > 0}">
+                                    <f:selectItems value="#{vendasCaravanaBean.listaDataEntrada}" />
                                 </h:selectOneMenu>
                                 <h:outputLabel value="Mês da primeira mensalidade:" />
                                 <h:selectOneMenu id="i_m_v" value="#{vendasCaravanaBean.idMesVencimento}">

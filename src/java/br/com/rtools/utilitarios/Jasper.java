@@ -71,6 +71,10 @@ public class Jasper implements Serializable {
      */
     public static Boolean IS_HEADER;
     /**
+     * Passar apenas os parametros do cabeçalho
+     */
+    public static Boolean IS_HEADER_PARAMS;
+    /**
      * Impressão por folha (configurar grupo)
      */
     public static Boolean IS_BY_LEAF;
@@ -164,6 +168,7 @@ public class Jasper implements Serializable {
         IS_REMOVE_FILE = true;
         BYTES = null;
         IS_HEADER = false;
+        IS_HEADER_PARAMS = false;
         IS_BY_LEAF = false;
         GROUP_NAME = "";
         COMPRESS_FILE = false;
@@ -253,7 +258,7 @@ public class Jasper implements Serializable {
         if (TITLE != null && !TITLE.isEmpty()) {
             parameters.put("relatorio_titulo", TITLE);
         }
-        if (IS_HEADER) {
+        if (IS_HEADER || IS_HEADER_PARAMS) {
             parameters.put("sindicato_nome", juridica.getPessoa().getNome());
             parameters.put("sindicato_documento", juridica.getPessoa().getDocumento());
             parameters.put("sindicato_site", juridica.getPessoa().getSite());
@@ -265,6 +270,7 @@ public class Jasper implements Serializable {
             parameters.put("sindicato_cidade", juridica.getPessoa().getPessoaEndereco().getEndereco().getCidade().getCidade());
             parameters.put("sindicato_uf", juridica.getPessoa().getPessoaEndereco().getEndereco().getCidade().getUf());
             parameters.put("sindicato_cep", juridica.getPessoa().getPessoaEndereco().getEndereco().getCep());
+            parameters.put("sindicato_telefone", juridica.getPessoa().getTelefone1());
             parameters.put("sindicato_logo", ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));
             parameters.put("template_dir", subreport);
         }

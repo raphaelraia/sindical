@@ -11,4 +11,6 @@ public interface CaravanaDB {
     public Caravana pesquisaCodigo(int id);
 
     public List pesquisaTodos();
+    
+    public Caravana pesquisaCaravanaPorEvento(Integer id_evento);
 }

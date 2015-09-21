@@ -2,6 +2,8 @@ package br.com.rtools.associativo;
 
 import br.com.rtools.financeiro.Evt;
 import br.com.rtools.pessoa.Pessoa;
+import br.com.rtools.utilitarios.DataHoje;
+import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -12,6 +14,8 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = "car_venda")
@@ -27,30 +31,30 @@ public class CVenda implements java.io.Serializable {
     @JoinColumn(name = "id_aevento", referencedColumnName = "id")
     @ManyToOne
     private AEvento aEvento;
-    @JoinColumn(name = "id_evt", referencedColumnName = "id")
-    @ManyToOne
-    private Evt evt;
     @Column(name = "nr_quarto")
     private int quarto;
     @Column(name = "ds_observacao")
     private String observacao;
+    @Temporal(TemporalType.DATE)
+    @Column(name = "dt_emissao")
+    private Date dtEmissao;        
 
-    public CVenda(int id, Pessoa responsavel, AEvento aEvento, Evt evt, int quarto, String observacao) {
+    public CVenda(int id, Pessoa responsavel, AEvento aEvento, int quarto, String observacao, Date dtEmissao) {
         this.id = id;
         this.responsavel = responsavel;
         this.aEvento = aEvento;
-        this.evt = evt;
         this.quarto = quarto;
         this.observacao = observacao;
+        this.dtEmissao = dtEmissao;
     }
 
     public CVenda() {
         this.id = -1;
         this.responsavel = new Pessoa();
         this.aEvento = new AEvento();
-        this.evt = new Evt();
         this.quarto = 0;
         this.observacao = "";
+        this.dtEmissao = DataHoje.dataHoje();
     }
 
     public int getId() {
@@ -77,14 +81,6 @@ public class CVenda implements java.io.Serializable {
         this.aEvento = aEvento;
     }
 
-    public Evt getEvt() {
-        return evt;
-    }
-
-    public void setEvt(Evt evt) {
-        this.evt = evt;
-    }
-
     public int getQuarto() {
         return quarto;
     }
@@ -99,5 +95,21 @@ public class CVenda implements java.io.Serializable {
 
     public void setObservacao(String observacao) {
         this.observacao = observacao;
+    }
+
+    public Date getDtEmissao() {
+        return dtEmissao;
+    }
+
+    public void setDtEmissao(Date dtEmissao) {
+        this.dtEmissao = dtEmissao;
+    }
+    
+    public String getDataEmissaoString() {
+        return DataHoje.converteData(dtEmissao);
+    }
+
+    public void setDtEmissao(String dataEmissao) {
+        this.dtEmissao = DataHoje.converte(dataEmissao);
     }
 }

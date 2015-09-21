@@ -416,7 +416,43 @@
                                                     </p:selectOneMenu>
                                                 </h:column>
                                             </h:panelGrid>
-                                        </h:column>                                          
+                                        </h:column>    
+                                        
+                                        <!-- DEPARTAMENTO -->
+                                        <h:column>
+                                            <h:panelGrid columns="2" rendered="#{relatorioFinanceiroSocialBean.listaFiltrosFinanceiro.get(6).ativo}" style="float: left; margin: 10px ">
+                                                <h:column>
+                                                    <p:outputLabel value="Departamento" />
+                                                </h:column>
+                                                <h:column></h:column>
+                                                <h:column>
+                                                    <p:selectOneMenu value="#{relatorioFinanceiroSocialBean.tipoDepartamento}" style="padding-right: 20px">
+                                                        <p:ajax event="change" update="@this panel_filtro"/>
+                                                        <f:selectItem itemValue="outros" itemLabel="Outros" />
+                                                        <f:selectItem itemValue="todos" itemLabel="Todos" />
+                                                        <f:selectItem itemValue="arrecadacao" itemLabel="Arrecadação" />
+                                                    </p:selectOneMenu>
+                                                </h:column>
+                                            </h:panelGrid>
+                                        </h:column>
+                                        
+                                        <!-- PESSOA -->
+                                        <h:column>
+                                            <h:panelGrid columns="2" rendered="#{relatorioFinanceiroSocialBean.listaFiltrosFinanceiro.get(7).ativo}" style="float: left; margin: 10px ">
+                                                <h:column>
+                                                    <p:outputLabel value="Tipo Pessoa" />
+                                                </h:column>
+                                                <h:column></h:column>
+                                                <h:column>
+                                                    <p:selectOneMenu value="#{relatorioFinanceiroSocialBean.tipoPessoaFinanceiro}" style="padding-right: 20px">
+                                                        <p:ajax event="change" update="@this panel_filtro"/>
+                                                        <f:selectItem itemValue="fisica" itemLabel="Física" />
+                                                        <f:selectItem itemValue="juridica" itemLabel="Juridica" />
+                                                    </p:selectOneMenu>
+                                                </h:column>
+                                            </h:panelGrid>
+                                        </h:column>     
+                                        
                                     </h:panelGrid>                            
                                 </h:column>
                             </h:panelGrid>                            

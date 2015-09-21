@@ -11,6 +11,7 @@ import br.com.rtools.associativo.db.EventoBaileDB;
 import br.com.rtools.associativo.db.EventoBaileDBToplink;
 import br.com.rtools.financeiro.Caixa;
 import br.com.rtools.financeiro.CondicaoPagamento;
+import br.com.rtools.financeiro.Evt;
 import br.com.rtools.financeiro.FStatus;
 import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.Lote;
@@ -728,8 +729,14 @@ public class VendaBaileBean implements Serializable {
         DataHoje dh = new DataHoje();
         CondicaoPagamento cp = tipoPagamento.equals("avista") ? (CondicaoPagamento) new Dao().find(new CondicaoPagamento(), 1) : (CondicaoPagamento) new Dao().find(new CondicaoPagamento(), 2);
         String vencimento = tipoPagamento.equals("avista") ? DataHoje.data() : (pc.getNrDiaVencimento() < 9) ? "0" + pc.getNrDiaVencimento() : "" + pc.getNrDiaVencimento() + "/" + dh.incrementarMeses(1, DataHoje.data()).substring(3);
-        
         listaMovimento.clear();
+        
+//        Evt evt = new Evt();
+//        if (!dao.save(evt)) {
+//            GenericaMensagem.error("Error", "Nao foi possivel salvar EVT!");
+//            return false;
+//        }
+        EventoBaile eb = (EventoBaile) new Dao().find(new EventoBaile(), Integer.valueOf(listaEventoBaile.get(indexEventoBaile).getDescription()));
         
         Lote l = new Lote(
                 -1,
@@ -743,7 +750,7 @@ public class VendaBaileBean implements Serializable {
                 Moeda.converteUS$(total),
                 (Filial) new Dao().find(new Filial(), 1),
                 venda.getEventoServico().getServicos().getDepartamento(),
-                venda.getEvt(),
+                eb.getEvt(),
                 "",
                 (FTipoDocumento) new Dao().find(new FTipoDocumento(), 13),
                 cp,
@@ -758,7 +765,7 @@ public class VendaBaileBean implements Serializable {
             return false;
         }
 
-        EventoBaile eb = (EventoBaile) new Dao().find(new EventoBaile(), Integer.valueOf(listaEventoBaile.get(indexEventoBaile).getDescription()));
+        
 
         if (mesaConvite.equals("mesa")) {
             for (EventoBaileMapa mb : listaMesasBaileSelecionada) {

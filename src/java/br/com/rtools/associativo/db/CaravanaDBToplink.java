@@ -28,4 +28,14 @@ public class CaravanaDBToplink extends DB implements CaravanaDB {
             return null;
         }
     }
+    
+    public Caravana pesquisaCaravanaPorEvento(Integer id_evento) {
+        try {
+            Query qry = getEntityManager().createQuery("SELECT c FROM Caravana c WHERE c.aEvento.id = "+id_evento);
+            return (Caravana) qry.getSingleResult();
+        } catch (Exception e) {
+            e.getMessage();
+            return null;
+        }
+    }
 }

@@ -11,6 +11,7 @@ import oracle.toplink.essentials.exceptions.EJBQLException;
 
 public class VendasCaravanaDBToplink extends DB implements VendasCaravanaDB {
 
+    @Override
     public CVenda pesquisaCodigo(int id) {
         CVenda result = null;
         try {
@@ -23,6 +24,7 @@ public class VendasCaravanaDBToplink extends DB implements VendasCaravanaDB {
         return result;
     }
 
+    @Override
     public List pesquisaTodos() {
         try {
             Query qry = getEntityManager().createQuery("select c from CVenda c");
@@ -33,6 +35,7 @@ public class VendasCaravanaDBToplink extends DB implements VendasCaravanaDB {
         }
     }
 
+    @Override
     public int qntReservas(int idEvento, int idGrupoEvento) {
         int qnt = -1;
         try {
@@ -48,6 +51,7 @@ public class VendasCaravanaDBToplink extends DB implements VendasCaravanaDB {
         }
     }
 
+    @Override
     public List<Integer> listaPoltronasUsadas(int idEvento) {
         List<Integer> list = new ArrayList();
         try {
@@ -63,6 +67,7 @@ public class VendasCaravanaDBToplink extends DB implements VendasCaravanaDB {
         }
     }
 
+    @Override
     public List<Reservas> listaReservasVenda(int idVenda) {
         List<Reservas> list = new ArrayList();
         try {
@@ -109,6 +114,7 @@ public class VendasCaravanaDBToplink extends DB implements VendasCaravanaDB {
         }
     }
 
+    @Override
     public List<Movimento> listaMovCaravanaBaixado(int idLoteBaixa) {
         List<Movimento> list = new ArrayList();
         try {
@@ -120,6 +126,26 @@ public class VendasCaravanaDBToplink extends DB implements VendasCaravanaDB {
         } catch (EJBQLException e) {
             e.getMessage();
             return list;
+        }
+    }
+    
+    @Override
+    public List<Object> listaTipoAgrupado(Integer id_venda) {
+        try {
+            Query qry = getEntityManager().createNativeQuery(
+                    "SELECT es.ds_descricao descricao, \n" +
+                    "       count(r.id_pessoa) quantidade_pessoas,\n" +
+                    "       0 valor \n" +
+                    "  FROM car_reservas r\n" +
+                    " INNER JOIN eve_evento_servico es ON es.id = r.id_evento_servico\n" +
+                    " WHERE r.id_cvenda = "+id_venda+"\n" +
+                    " GROUP BY es.ds_descricao\n" +
+                    " ORDER BY es.ds_descricao"
+            );
+            return  qry.getResultList();
+        } catch (Exception e) {
+            e.getMessage();
+            return new ArrayList();
         }
     }
 }

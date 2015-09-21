@@ -46,7 +46,8 @@ public class CaixaFederal extends ArquivoRetorno {
                     BufferedReader buffReader = new BufferedReader(reader);
                     List lista = new Vector();
                     while ((linha = buffReader.readLine()) != null) {
-                        lista.add(linha);
+                        if (!linha.isEmpty())
+                            lista.add(linha);
                     }
                     reader.close();
                     buffReader.close();

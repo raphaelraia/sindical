@@ -29,9 +29,6 @@ public class BVenda implements java.io.Serializable {
     @JoinColumn(name = "id_evento", referencedColumnName = "id", nullable = true)
     @OneToOne
     private AEvento evento;
-    @JoinColumn(name = "id_evt", referencedColumnName = "id", nullable = true)
-    @OneToOne
-    private Evt evt;
     @JoinColumn(name = "id_pessoa", referencedColumnName = "id", nullable = false)
     @OneToOne
     private Pessoa pessoa;
@@ -57,7 +54,6 @@ public class BVenda implements java.io.Serializable {
     public BVenda() {
         this.id = -1;
         this.evento = new AEvento();
-        this.evt = null;
         this.pessoa = new Pessoa();
         this.responsavel = new Pessoa();
         this.usuario = new Usuario();
@@ -66,10 +62,9 @@ public class BVenda implements java.io.Serializable {
         this.dtEmissao = DataHoje.dataHoje();
     }
 
-    public BVenda(int id, AEvento evento, Evt evt, Pessoa pessoa, Pessoa responsavel, Usuario usuario, String obs, EventoServico eventoServico, Date dtEmissao) {
+    public BVenda(int id, AEvento evento, Pessoa pessoa, Pessoa responsavel, Usuario usuario, String obs, EventoServico eventoServico, Date dtEmissao) {
         this.id = id;
         this.evento = evento;
-        this.evt = evt;
         this.pessoa = pessoa;
         this.responsavel = responsavel;
         this.usuario = usuario;
@@ -92,14 +87,6 @@ public class BVenda implements java.io.Serializable {
 
     public void setEvento(AEvento evento) {
         this.evento = evento;
-    }
-
-    public Evt getEvt() {
-        return evt;
-    }
-
-    public void setEvt(Evt evt) {
-        this.evt = evt;
     }
 
     public Pessoa getPessoa() {

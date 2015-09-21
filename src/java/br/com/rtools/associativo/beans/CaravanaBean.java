@@ -2,6 +2,7 @@ package br.com.rtools.associativo.beans;
 
 import br.com.rtools.associativo.*;
 import br.com.rtools.associativo.db.*;
+import br.com.rtools.financeiro.Evt;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.db.ServicosDB;
 import br.com.rtools.financeiro.db.ServicosDBToplink;
@@ -14,7 +15,6 @@ import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -30,16 +30,20 @@ public class CaravanaBean implements Serializable {
     private EventoServico eventoServico;
     private EventoServicoValor eventoServicoValor;
     private String msgConfirma;
-    private int idDescricaoEvento;
-    private int idGrupoEvento;
-    private int idServicos;
-    private int idIndex;
-    private int idIndexServicos;
+    private Integer idDescricaoEvento;
+    private Integer idGrupoEvento;
+    private Integer idServicos;
+    private Integer idIndex;
+    private Integer idIndexServicos;
     private String valor;
     private List<DataObject> listaServicosAdd;
     private List<Caravana> listaCaravana;
     private boolean habilitado;
-    
+
+    private final List<SelectItem> listaDescricaoEvento = new ArrayList();
+    private final List<SelectItem> listaGrupoEvento = new ArrayList();
+    private final List<SelectItem> listaServicos = new ArrayList();
+
     @PostConstruct
     public void init() {
         caravana = new Caravana();
@@ -48,31 +52,140 @@ public class CaravanaBean implements Serializable {
         eventoServicoValor = new EventoServicoValor();
         msgConfirma = "";
         idDescricaoEvento = 0;
-        idGrupoEvento = 1;
+        idGrupoEvento = 0;
         idServicos = 0;
         idIndex = -1;
         idIndexServicos = -1;
         valor = "0.0";
-        listaServicosAdd = new ArrayList<DataObject>();
-        listaCaravana = new ArrayList<Caravana>();
+        listaServicosAdd = new ArrayList();
+        listaCaravana = new ArrayList();
         habilitado = true;
+
+        loadListaServicos();
+        loadListaGrupoEvento();
+        loadListaDescricaoEvento();
     }
-    
+
     @PreDestroy
     public void destroy() {
         GenericaSessao.remove("caravanaBean");
     }
+    
+    public void loadListaServicos() {
+        listaServicos.clear();
+        
+        ServicosDB db = new ServicosDBToplink();
+        List<Servicos> select = db.pesquisaTodos(138);
+        for (int i = 0; i < select.size(); i++) {
+            listaServicos.add(
+                    new SelectItem(
+                            i,
+                            select.get(i).getDescricao(),
+                            Integer.toString(select.get(i).getId())
+                    )
+            );
+        }
+    }    
 
+    public void loadListaGrupoEvento() {
+        listaGrupoEvento.clear();
+        SalvarAcumuladoDB sadb = new SalvarAcumuladoDBToplink();
+        List<GrupoEvento> select = (List<GrupoEvento>) sadb.listaObjeto("GrupoEvento");
+        for (int i = 0; i < select.size(); i++) {
+            listaGrupoEvento.add(
+                    new SelectItem(
+                            i,
+                            select.get(i).getDescricao(),
+                            Integer.toString(select.get(i).getId())
+                    )
+            );
+        }
+    }
+
+    public void loadListaDescricaoEvento() {
+        listaDescricaoEvento.clear();
+
+        if (listaGrupoEvento.isEmpty()) {
+            return;
+        }
+
+//        DescricaoEventoDB db = new DescricaoEventoDBToplink();
+//        List<DescricaoEvento> select = db.pesquisaDescricaoPorGrupo(Integer.parseInt(listaGrupoEvento.get(idGrupoEvento).getDescription()));
+        
+        DescricaoEventoDB db = new DescricaoEventoDBToplink();
+        List<DescricaoEvento> select = db.pesquisaDescricaoPorGrupo(2);
+        for (int i = 0; i < select.size(); i++) {
+            listaDescricaoEvento.add(
+                    new SelectItem(
+                            i,
+                            select.get(i).getDescricao(),
+                            Integer.toString(select.get(i).getId())
+                    )
+            );
+        }
+    }
+
+    public Boolean validaSalvar(){
+        if (listaDescricaoEvento.isEmpty()) {
+            msgConfirma = "Cadastrar descrição de eventos!";
+            return false;
+        }
+        
+        if (caravana.getDataSaida().isEmpty()){
+            msgConfirma = "Digite uma Data de Saída!";
+            return false;
+        }
+        
+        if (caravana.getHoraSaida().isEmpty()){
+            msgConfirma = "Digite um Horário de Saída!";
+            return false;
+        }        
+        
+        if (caravana.getDataChegada().isEmpty()){
+            msgConfirma = "Digite uma Data de Chegada!";
+            return false;
+        }
+        
+        if (caravana.getHoraChegada().isEmpty()){
+            msgConfirma = "Digite um Horário de Chegada!";
+            return false;
+        }
+        
+        if (caravana.getDataRetorno().isEmpty()){
+            msgConfirma = "Digite uma Data de Retorno!";
+            return false;
+        }
+        
+        if (caravana.getHoraRetorno().isEmpty()){
+            msgConfirma = "Digite um Horário de Retorno!";
+            return false;
+        }
+        
+        return true;
+    }
+    
+    
     public String salvar() {
+        if (!validaSalvar()){
+            GenericaMensagem.warn("Atenção", msgConfirma);
+            return null;
+        }
+        
         SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
         AEvento aEvento = new AEvento();
         sv.abrirTransacao();
-        if(getListaDescricaoEvento().isEmpty()) {
-            msgConfirma = "Cadastrar descrição de eventos!";
-            return null;
-        }
-        DescricaoEvento de = (DescricaoEvento) sv.find(new DescricaoEvento(), Integer.parseInt(getListaDescricaoEvento().get(idDescricaoEvento).getDescription())); 
+        
+        DescricaoEvento de = (DescricaoEvento) sv.find(new DescricaoEvento(), Integer.parseInt(getListaDescricaoEvento().get(idDescricaoEvento).getDescription()));
         if (caravana.getId() == -1) {
+            Evt evt = new Evt();
+            if (!sv.inserirObjeto(evt)) {
+                msgConfirma = "Erro ao salvar EVT!";
+                GenericaMensagem.warn("Erro", msgConfirma);
+                sv.desfazerTransacao();
+                return null;
+            }
+            caravana.setEvt(evt);
+            
             aEvento.setDescricaoEvento(de);
             if (!sv.inserirObjeto(aEvento)) {
                 msgConfirma = "Erro ao salvar Evento!";
@@ -94,6 +207,16 @@ public class CaravanaBean implements Serializable {
                 return null;
             }
         } else {
+            if (caravana.getEvt() == null){
+                Evt evt = new Evt();
+                if (!sv.inserirObjeto(evt)) {
+                    msgConfirma = "Erro ao salvar EVT!";
+                    GenericaMensagem.warn("Erro", msgConfirma);
+                    sv.desfazerTransacao();
+                    return null;
+                }
+                caravana.setEvt(evt);
+            }
             aEvento = (AEvento) sv.find(new AEvento(), caravana.getaEvento().getId());
             aEvento.setDescricaoEvento(de);
             if (!sv.alterarObjeto(aEvento)) {
@@ -123,26 +246,33 @@ public class CaravanaBean implements Serializable {
             GenericaMensagem.warn("Erro", msgConfirma);
             return null;
         }
+        
+        if (caravana.getId() == -1){
+            msgConfirma = "Salve a Caravana antes de adicionar serviços!";
+            GenericaMensagem.warn("Atenção", msgConfirma);
+            return null;
+        }
+        
         SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
         sv.abrirTransacao();
-        if (caravana.getId() == -1) {
-            AEvento aEvento = new AEvento();
-            aEvento.setDescricaoEvento((DescricaoEvento) sv.find(new DescricaoEvento(), Integer.parseInt(getListaDescricaoEvento().get(idDescricaoEvento).getDescription())));
-            if (!sv.inserirObjeto(aEvento)) {
-                msgConfirma = "Erro ao salvar Evento!";
-                GenericaMensagem.warn("Erro", msgConfirma);
-                sv.desfazerTransacao();
-                return null;
-            }
-
-            caravana.setaEvento(aEvento);
-            if (!sv.inserirObjeto(caravana)) {
-                msgConfirma = "Erro ao salvar caravana!";
-                GenericaMensagem.warn("Erro", msgConfirma);
-                sv.desfazerTransacao();
-                return null;
-            }
-        }
+//        if (caravana.getId() == -1) {
+//            AEvento aEvento = new AEvento();
+//            aEvento.setDescricaoEvento((DescricaoEvento) sv.find(new DescricaoEvento(), Integer.parseInt(getListaDescricaoEvento().get(idDescricaoEvento).getDescription())));
+//            if (!sv.inserirObjeto(aEvento)) {
+//                msgConfirma = "Erro ao salvar Evento!";
+//                GenericaMensagem.warn("Erro", msgConfirma);
+//                sv.desfazerTransacao();
+//                return null;
+//            }
+//
+//            caravana.setaEvento(aEvento);
+//            if (!sv.inserirObjeto(caravana)) {
+//                msgConfirma = "Erro ao salvar caravana!";
+//                GenericaMensagem.warn("Erro", msgConfirma);
+//                sv.desfazerTransacao();
+//                return null;
+//            }
+//        }
 
         servicos = new Servicos();
         servicos = (Servicos) sv.find(new Servicos(), Integer.parseInt(getListaServicos().get(idServicos).getDescription()));
@@ -280,42 +410,15 @@ public class CaravanaBean implements Serializable {
     }
 
     public List<SelectItem> getListaDescricaoEvento() {
-        List<SelectItem> result = new Vector<SelectItem>();
-        List<DescricaoEvento> select = new ArrayList();
-        DescricaoEventoDB db = new DescricaoEventoDBToplink();
-        if (getListaGrupoEvento().isEmpty()) {
-            return result;
-        }
-        select = db.pesquisaDescricaoPorGrupo(Integer.parseInt(getListaGrupoEvento().get(idGrupoEvento).getDescription()));
-        for (int i = 0; i < select.size(); i++) {
-            result.add(new SelectItem(i, select.get(i).getDescricao(), Integer.toString(select.get(i).getId())));
-        }
-        return result;
+        return listaDescricaoEvento;
     }
 
     public List<SelectItem> getListaGrupoEvento() {
-        List<SelectItem> result = new Vector<SelectItem>();
-        DescricaoEventoDB db = new DescricaoEventoDBToplink();
-        SalvarAcumuladoDB sadb = new SalvarAcumuladoDBToplink();
-        List<GrupoEvento> select = (List<GrupoEvento>) sadb.listaObjeto("GrupoEvento");
-        for (int i = 0; i < select.size(); i++) {
-            result.add(new SelectItem(i, select.get(i).getDescricao(), Integer.toString(select.get(i).getId())));
-        }
-        return result;
+        return listaGrupoEvento;
     }
 
     public List<SelectItem> getListaServicos() {
-        List<SelectItem> listaSe = new Vector<SelectItem>();
-        int i = 0;
-        ServicosDB db = new ServicosDBToplink();
-        List select = db.pesquisaTodos(138);
-        while (i < select.size()) {
-            listaSe.add(new SelectItem(i,
-                    (String) ((Servicos) select.get(i)).getDescricao(),
-                    Integer.toString(((Servicos) select.get(i)).getId())));
-            i++;
-        }
-        return listaSe;
+        return listaServicos;
     }
 
     public List<DataObject> getListaServicosAdd() {
@@ -359,30 +462,6 @@ public class CaravanaBean implements Serializable {
 
     public void setMsgConfirma(String msgConfirma) {
         this.msgConfirma = msgConfirma;
-    }
-
-    public int getIdDescricaoEvento() {
-        return idDescricaoEvento;
-    }
-
-    public void setIdDescricaoEvento(int idDescricaoEvento) {
-        this.idDescricaoEvento = idDescricaoEvento;
-    }
-
-    public int getIdGrupoEvento() {
-        return idGrupoEvento;
-    }
-
-    public void setIdGrupoEvento(int idGrupoEvento) {
-        this.idGrupoEvento = idGrupoEvento;
-    }
-
-    public int getIdServicos() {
-        return idServicos;
-    }
-
-    public void setIdServicos(int idServicos) {
-        this.idServicos = idServicos;
     }
 
     public Servicos getServicos() {
@@ -437,19 +516,43 @@ public class CaravanaBean implements Serializable {
         this.listaCaravana = listaCaravana;
     }
 
-    public int getIdIndex() {
+    public Integer getIdDescricaoEvento() {
+        return idDescricaoEvento;
+    }
+
+    public void setIdDescricaoEvento(Integer idDescricaoEvento) {
+        this.idDescricaoEvento = idDescricaoEvento;
+    }
+
+    public Integer getIdGrupoEvento() {
+        return idGrupoEvento;
+    }
+
+    public void setIdGrupoEvento(Integer idGrupoEvento) {
+        this.idGrupoEvento = idGrupoEvento;
+    }
+
+    public Integer getIdServicos() {
+        return idServicos;
+    }
+
+    public void setIdServicos(Integer idServicos) {
+        this.idServicos = idServicos;
+    }
+
+    public Integer getIdIndex() {
         return idIndex;
     }
 
-    public void setIdIndex(int idIndex) {
+    public void setIdIndex(Integer idIndex) {
         this.idIndex = idIndex;
     }
 
-    public int getIdIndexServicos() {
+    public Integer getIdIndexServicos() {
         return idIndexServicos;
     }
 
-    public void setIdIndexServicos(int idIndexServicos) {
+    public void setIdIndexServicos(Integer idIndexServicos) {
         this.idIndexServicos = idIndexServicos;
     }
 }
