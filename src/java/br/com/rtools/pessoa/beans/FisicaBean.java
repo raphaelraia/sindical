@@ -1856,7 +1856,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     public void limparCamposData() {
         if (pessoaEmpresa.getId() != -1) {
             if (pessoaEmpresa.getJuridica().getId() != -1) {
-                if (!pessoaEmpresa.getDemissao().equals("")) {
+                if (!pessoaEmpresa.getDemissao().isEmpty()) {
                     pessoaEmpresa.setAdmissao("");
                     pessoaEmpresa.setDemissao("");
                     pessoaEmpresa = new PessoaEmpresa();
@@ -2323,7 +2323,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                     + listaPessoaEndereco.get(1).getEndereco().getDescricaoEndereco().getDescricao() + " " + listaPessoaEndereco.get(1).getNumero() + ", "
                     + listaPessoaEndereco.get(1).getEndereco().getBairro().getDescricao() + ", " + listaPessoaEndereco.get(1).getComplemento() + " "
                     + listaPessoaEndereco.get(1).getEndereco().getCidade().getCidade() + "  -  "
-                    + listaPessoaEndereco.get(1).getEndereco().getCidade().getUf();
+                    + listaPessoaEndereco.get(1).getEndereco().getCidade().getUf() +" / CEP: "+ AnaliseString.mascaraCep(listaPessoaEndereco.get(1).getEndereco().getCep());
         }
         return strEndereco;
     }
