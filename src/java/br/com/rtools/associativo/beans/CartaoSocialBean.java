@@ -17,6 +17,7 @@ import br.com.rtools.associativo.db.SociosDB;
 import br.com.rtools.associativo.db.SociosDBToplink;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.impressao.Etiquetas;
+import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Pessoa;
@@ -25,6 +26,7 @@ import br.com.rtools.pessoa.db.FisicaDBToplink;
 import br.com.rtools.pessoa.db.PessoaEmpresaDB;
 import br.com.rtools.pessoa.db.PessoaEmpresaDBToplink;
 import br.com.rtools.seguranca.MacFilial;
+import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
@@ -250,6 +252,9 @@ public class CartaoSocialBean implements Serializable {
         } else if (vector != null) {
             list.add(vector);
         }
+        String printLog = "";
+        NovoLog novoLog = new NovoLog();
+        novoLog.startList();
         if (!list.isEmpty()) {
             dao.openTransaction();
             SocioCarteirinhaDB dbc = new SocioCarteirinhaDBToplink();
@@ -261,11 +266,10 @@ public class CartaoSocialBean implements Serializable {
                 boolean validacao = false;
                 if (pessoa.getSocios().getId() != -1) {
                     Fisica f = new FisicaDBToplink().pesquisaFisicaPorPessoa(pessoa.getId());
-                    if (pessoa.getSocios().getMatriculaSocios().getCategoria().isEmpresaObrigatoria() && 
-                        f.getDtAposentadoria() == null && 
-                        titular_id == pessoa.getId()
-                        ){
-                        PessoaEmpresaDB db = new PessoaEmpresaDBToplink();                        
+                    if (pessoa.getSocios().getMatriculaSocios().getCategoria().isEmpresaObrigatoria()
+                            && f.getDtAposentadoria() == null
+                            && titular_id == pessoa.getId()) {
+                        PessoaEmpresaDB db = new PessoaEmpresaDBToplink();
                         PessoaEmpresa pe = db.pesquisaPessoaEmpresaPorPessoa(pessoa.getId());
                         //PessoaEmpresa pe = db.pesquisaPessoaEmpresaPorPessoa(titular_id);
                         if (pe.getId() == -1) {
@@ -347,6 +351,13 @@ public class CartaoSocialBean implements Serializable {
                             return;
                         }
                     }
+
+                    printLog = "ID" + hc.getId()
+                            + " - Pessoa {ID: " + pessoa.getId() + " - Nome: " + pessoa.getNome() + " }"
+                            + " - Impresso por {ID: " + hc.getCarteirinha().getModeloCarteirinha().getId() + " - Nome: " + hc.getCarteirinha().getModeloCarteirinha().getDescricao() + " }";
+                    novoLog.setTabela("soc_historico_carteirinha");
+                    novoLog.setCodigo(hc.getId());
+                    novoLog.print(printLog);
                 }
             }
 
@@ -355,7 +366,10 @@ public class CartaoSocialBean implements Serializable {
                 listaCarteirinha.clear();
                 listaSelecionado.clear();
                 listaSelecionadoMemoria.clear();
+                novoLog.print(printLog);
+                novoLog.saveList();
             } else {
+                novoLog.cancelList();
                 dao.rollback();
             }
         }

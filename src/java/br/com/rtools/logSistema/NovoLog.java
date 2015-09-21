@@ -250,6 +250,49 @@ public class NovoLog extends salvaLogs {
 
     /**
      * <p>
+     * <strong>Consuta / Impressão - String</strong></p>
+     * <p>
+     * <strong>Example:</strong>save("User" + user.getLogin()); Utilizar se for
+     * remover um registro. </p>
+     *
+     * @author Bruno
+     * @param infoLive - Texto de informações livres para o log.
+     *
+     */
+    public void print(String infoLive) {
+        validaTabela();
+        if (transaction) {
+            listLogs.add(new Log(-1, new Date(), DataHoje.livre(new Date(), "HH:mm"), getUsuario(), getRotina(), infoLive, null, getEvento(4), tabela, codigo));
+        } else {
+            Log log = new Log(-1, new Date(), DataHoje.livre(new Date(), "HH:mm"), getUsuario(), getRotina(), infoLive, null, getEvento(4), tabela, codigo);
+            execute(log);
+        }
+    }
+
+    /**
+     * <p>
+     * <strong>Consuta / Impressão</strong></p>
+     * <p>
+     * <strong>Example:</strong>delete((User) user, true); Utilizar se for
+     * remover um registro. </p>
+     *
+     * @author Bruno
+     * @param object - Texto de informações livres para o log.
+     * @param isObject - default = true
+     *
+     */
+    public void print(Object object, boolean isObject) {
+        validaTabela();
+        if (transaction) {
+            listLogs.add(new Log(-1, new Date(), DataHoje.livre(new Date(), "HH:mm"), getUsuario(), getRotina(), object.toString(), null, getEvento(4), tabela, codigo));
+        } else {
+            Log log = new Log(-1, new Date(), DataHoje.livre(new Date(), "HH:mm"), getUsuario(), getRotina(), object.toString(), null, getEvento(4), tabela, codigo);
+            execute(log);
+        }
+    }
+
+    /**
+     * <p>
      * <strong>Execute</strong></p>
      * <p>
      * <strong>Example:</strong>Executa o método.</p>
