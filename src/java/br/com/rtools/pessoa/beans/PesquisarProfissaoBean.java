@@ -51,6 +51,7 @@ public class PesquisarProfissaoBean implements Serializable {
 
     public void editar(Profissao p) {
         profissao = new Profissao();
+        listaProfissao.clear();
         profissao = p;
         //profissao.setProfissao(p.getProfissao());
     }

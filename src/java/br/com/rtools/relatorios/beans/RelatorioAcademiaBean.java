@@ -68,10 +68,14 @@ public class RelatorioAcademiaBean implements Serializable {
     private Map<String, Integer> listGrupoCategoria;
     private Float desconto;
     private Float descontoFinal;
+    private Boolean situacao;
+    private String situacaoString;
+    private Integer carenciaDias;
+    private String tipoCarencia;
 
     @PostConstruct
     public void init() {
-        filtro = new Boolean[13];
+        filtro = new Boolean[14];
         filtro[0] = false; // MODALIDADE
         filtro[1] = false; // PERÍODO EMISSÃO / INATIVAÇÃO
         filtro[2] = false; // RESPONSÁVEL
@@ -85,6 +89,7 @@ public class RelatorioAcademiaBean implements Serializable {
         filtro[10] = null; // NÃO SÓCIO
         filtro[11] = false; // CONVÊNIO EMPRESA
         filtro[12] = false; // FAIXA DESCONTO
+        filtro[13] = false; // SITUAÇÃO
         listSelectItem = new ArrayList[2];
         listSelectItem[0] = new ArrayList<>();
         listSelectItem[1] = new ArrayList<>();
@@ -110,9 +115,12 @@ public class RelatorioAcademiaBean implements Serializable {
         selectedConvenioEmpresa = null;
         listCategoria = null;
         listGrupoCategoria = null;
-        
         desconto = new Float(0);
         descontoFinal = new Float(0);
+        situacaoString = null;
+        situacao = false;
+        carenciaDias = null;
+        tipoCarencia = "todos";
     }
 
     @PreDestroy
@@ -179,6 +187,13 @@ public class RelatorioAcademiaBean implements Serializable {
             }
             listDetalhePesquisa.add(" Sexo: " + sexoString + "");
         }
+        if (filtro[13]) {
+            listDetalhePesquisa.add(" Tipo de Carência: " + tipoCarencia.toUpperCase() + "");
+            listDetalhePesquisa.add(" Situação: " + situacaoString.toUpperCase() + "");
+            if (carenciaDias > 0) {
+                listDetalhePesquisa.add(" Carência Dias: " + carenciaDias + "");
+            }
+        }
         if (!dReferencia.isEmpty()) {
             listDetalhePesquisa.add(" Período convenção: " + dReferencia + "");
         }
@@ -209,15 +224,37 @@ public class RelatorioAcademiaBean implements Serializable {
             }
 
         }
-        
+
         Float desconto_inicial = null;
         Float desconto_final = null;
         if (filtro[12]) {
             desconto_inicial = desconto;
             desconto_final = descontoFinal;
         }
-        
-        List list = new RelatorioAcademiaDao().find(relatorios, pIStringI, pFStringI, idResponsavel, idAluno, inIdModalidades, inIdPeriodos, sexo, periodo, filtro[7], idade, in_grupo_categoria, in_categoria, nao_socio, convenio_empresa, desconto_inicial, desconto_final, order);
+
+        List list = new RelatorioAcademiaDao().find(
+                relatorios,
+                pIStringI,
+                pFStringI,
+                idResponsavel,
+                idAluno,
+                inIdModalidades,
+                inIdPeriodos,
+                sexo,
+                periodo,
+                filtro[7],
+                idade,
+                in_grupo_categoria,
+                in_categoria,
+                nao_socio,
+                convenio_empresa,
+                desconto_inicial,
+                desconto_final,
+                tipoCarencia,
+                carenciaDias,
+                situacaoString,
+                order
+        );
         if (list.isEmpty()) {
             GenericaMensagem.info("Sistema", "Não existem registros para o relatório selecionado");
             return;
@@ -358,12 +395,21 @@ public class RelatorioAcademiaBean implements Serializable {
         } else {
             filtro[10] = false;
         }
+        if (!filtro[13]) {
+            situacaoString = null;
+            situacao = false;
+            carenciaDias = null;
+            tipoCarencia = "todos";
+        }
     }
 
     public void clear(Integer tcase) {
         switch (tcase) {
             case 0:
                 listCategoria = null;
+                break;
+            case 1:
+                clear();
                 break;
         }
     }
@@ -419,6 +465,13 @@ public class RelatorioAcademiaBean implements Serializable {
                 break;
             case "faixaDesconto":
                 filtro[12] = false;
+                break;
+            case "situacao":
+                situacaoString = null;
+                situacao = false;
+                carenciaDias = null;
+                tipoCarencia = "todos";
+                filtro[13] = false;
                 break;
         }
         PF.update("form_relatorio:id_panel");
@@ -489,6 +542,7 @@ public class RelatorioAcademiaBean implements Serializable {
      * <li>[10] NÃO SÓCIO </li>
      * <li>[11] CONVÊNIO EMPRESA </li>
      * <li>[12] FAIXA DESCONTO </li>
+     * <li>[13] SITUAÇÃO </li>
      * </ul>
      *
      * @return boolean
@@ -828,4 +882,55 @@ public class RelatorioAcademiaBean implements Serializable {
         this.descontoFinal = descontoFinal;
     }
 
+    public Boolean getSituacao() {
+        return situacao;
+    }
+
+    public void setSituacao(Boolean situacao) {
+        this.situacao = situacao;
+    }
+
+    public Integer getCarenciaDias() {
+        return carenciaDias;
+    }
+
+    public void setCarenciaDias(Integer carenciaDias) {
+        try {
+            this.carenciaDias = carenciaDias;
+        } catch (Exception e) {
+            this.carenciaDias = 0;
+        }
+    }
+
+    public String getCarenciaDiasString() {
+        try {
+            return Integer.toString(carenciaDias);
+        } catch (Exception e) {
+            return "0";
+        }
+    }
+
+    public void setCarenciaDiasString(String carenciaDiasString) {
+        try {
+            this.carenciaDias = Integer.parseInt(carenciaDiasString);
+        } catch (Exception e) {
+            this.carenciaDias = 0;
+        }
+    }
+
+    public String getTipoCarencia() {
+        return tipoCarencia;
+    }
+
+    public void setTipoCarencia(String tipoCarencia) {
+        this.tipoCarencia = tipoCarencia;
+    }
+
+    public String getSituacaoString() {
+        return situacaoString;
+    }
+
+    public void setSituacaoString(String situacaoString) {
+        this.situacaoString = situacaoString;
+    }
 }

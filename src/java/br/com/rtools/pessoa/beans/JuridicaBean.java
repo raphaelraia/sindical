@@ -848,19 +848,23 @@ public class JuridicaBean implements Serializable {
         listRepisMovimento.clear();
         String url = (String) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("urlRetorno");
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("linkClicado", true);
-        juridica = j;
+        Boolean clear = false;
         if (!completo) {
             if (url != null && !url.isEmpty() && !url.equals("pessoaJuridica")) {
                 switch (url) {
                     case "agendamento":
                         break;
                     default:
-                        GenericaSessao.remove("juridicaBean");
+                        clear = true;
                 }
-                FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("juridicaPesquisa", juridica);
+                FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("juridicaPesquisa", j);
+                if (clear) {
+                    GenericaSessao.remove("juridicaBean");
+                }
                 return url;
             }
         }
+        juridica = j;
         listSocios.clear();
         listaContribuintesInativos.clear();
         listaEmpresasPertencentes.clear();

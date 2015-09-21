@@ -30,9 +30,15 @@ public class RelatorioAcademiaDao extends DB {
      * @param idade
      * @param desconto
      * @param desconto_final
+     * @param inIdGrupoFinanceiro
+     * @param inIdServicos
+     * @param tipoCarencia
+     * @param carenciaDias
+     * @param situacao
+     * @param inIdSubGrupoFinanceiro
      * @return
      */
-    public List find(Relatorios r, String emissaoInicial, String emissaoFinal, Integer idResponsavel, Integer idAluno, String inModalidade, String inIdPeriodos, String inSexo, String periodo, Boolean ativos, Integer[] idade, String in_grupo_categoria, String in_categoria, Boolean nao_socio, Boolean convenio_empresa, Float desconto, Float desconto_final, String order) {
+    public List find(Relatorios r, String emissaoInicial, String emissaoFinal, Integer idResponsavel, Integer idAluno, String inModalidade, String inIdPeriodos, String inSexo, String periodo, Boolean ativos, Integer[] idade, String in_grupo_categoria, String in_categoria, Boolean nao_socio, Boolean convenio_empresa, Float desconto, Float desconto_final, String tipoCarencia, Integer carenciaDias, String situacao, String order) {
         List listWhere = new ArrayList();
         String queryString = ""
                 + "     SELECT PA.nome,                                                       \n" // 0 - NOME
@@ -55,7 +61,7 @@ public class RelatorioAcademiaDao extends DB {
                 + "  LEFT JOIN                                                                      \n"
                 + "  (SELECT SP.id_pessoa, id_servico                                               \n"
                 + "      FROM fin_servico_pessoa    AS SP                                           \n"
-                + "INNER JOIN matr_academia         AS M    ON M.id_servico_pessoa = SP.id          \n"
+                + " INNER JOIN matr_academia        AS M    ON M.id_servico_pessoa = SP.id          \n"
                 + "     WHERE SP.is_ativo = true                                                    \n"
                 + " ) AS MA ON MA.id_servico = SP.id_servico AND MA.id_pessoa = SP.id_pessoa        \n";
         if (convenio_empresa != null && convenio_empresa) {
@@ -133,14 +139,32 @@ public class RelatorioAcademiaDao extends DB {
             }
         }
 
-        if (desconto != null && desconto_final != null){
-            listWhere.add("SP.nr_desconto BETWEEN "+ desconto+ " AND "+desconto_final);
-        }else if (desconto != null && desconto_final == null){
-            listWhere.add("SP.nr_desconto >= "+ desconto);
-        }else if (desconto == null && desconto_final != null){
-            listWhere.add("SP.nr_desconto <= "+ desconto_final);
+        if (carenciaDias != null && carenciaDias >= 0) {
+            Boolean s = false;
+            if (situacao != null) {
+                s = !situacao.equals("adimplente");
+            }
+            switch (tipoCarencia) {
+                case "todos":
+                    listWhere.add(" func_inadimplente(SP.id_pessoa, " + carenciaDias + ") = " + s);
+                    break;
+                case "eleicao":
+                    listWhere.add(" func_inadimplente_eleicao(SP.id_pessoa, " + carenciaDias + ") = " + s);
+                    break;
+                case "clube":
+                    listWhere.add(" func_inadimplente_clube(SP.id_pessoa, " + carenciaDias + ") = " + s);
+                    break;
+            }
         }
-        
+
+        if (desconto != null && desconto_final != null) {
+            listWhere.add("SP.nr_desconto BETWEEN " + desconto + " AND " + desconto_final);
+        } else if (desconto != null && desconto_final == null) {
+            listWhere.add("SP.nr_desconto >= " + desconto);
+        } else if (desconto == null && desconto_final != null) {
+            listWhere.add("SP.nr_desconto <= " + desconto_final);
+        }
+
         if (!listWhere.isEmpty()) {
             queryString += " WHERE ";
             for (int i = 0; i < listWhere.size(); i++) {

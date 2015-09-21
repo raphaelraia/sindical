@@ -103,10 +103,18 @@
                                         <p:selectBooleanCheckbox value="#{jasperBean.IS_HEADER}" itemLabel="Com cabeçalho">
                                             <p:ajax event="change" update="@this" listener="#{jasperBean.setTYPE('paisagem')}" />
                                         </p:selectBooleanCheckbox>
-                                        <p:selectBooleanCheckbox itemLabel="Exportar Excel" value="#{jasperBean.EXPORT_TO_EXCEL}">
-                                            <p:ajax event="change" update="@this" />
-                                        </p:selectBooleanCheckbox>                                        
                                     </h:panelGrid>
+                                    <h:column>
+                                        <h:panelGrid id="i_e_e_r_s" columns="2">
+                                            <p:selectBooleanCheckbox itemLabel="Exportar" value="#{jasperBean.EXPORT_TO}">
+                                                <p:ajax event="change" update="@this i_e_e_r_s" />
+                                            </p:selectBooleanCheckbox>
+                                            <p:selectOneMenu value="#{jasperBean.EXPORT_TYPE}" style="padding-right: 20px;" rendered="#{jasperBean.EXPORT_TO}">
+                                                <p:ajax event="change" update="@this" />
+                                                <f:selectItems value="#{jasperBean.listTypes('xls')}" />
+                                            </p:selectOneMenu>                                            
+                                        </h:panelGrid>                                            
+                                    </h:column>
                                 </h:column>
 
                                 <h:column>
@@ -431,8 +439,8 @@
                                                     <p:outputLabel value="Carência de Débito em Dias:" />
                                                     <p:selectOneButton value="#{relatorioSociosBean.tipoCarencia}">
                                                         <f:selectItem itemValue="eleicao" itemLabel="Eleição" />
-                                                        <f:selectItem itemValue="clube" itemLabel="Clube" itemDisabled="true"/>
-                                                        <f:selectItem itemValue="todos" itemLabel="Todos" itemDisabled="true"/>
+                                                        <f:selectItem itemValue="clube" itemLabel="Clube" />
+                                                        <f:selectItem itemValue="todos" itemLabel="Todos" />
                                                     </p:selectOneButton>                                                
                                                     <p:inputText value="#{relatorioSociosBean.carenciaDiasString}" maxlength="3" size="2" styleClass="margin-left-max" converter="#{thisNumber}">
                                                         <p:ajax event="change" update="@this" />
