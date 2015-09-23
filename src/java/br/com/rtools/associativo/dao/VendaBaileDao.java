@@ -15,10 +15,10 @@ public class VendaBaileDao extends DB {
     public List<EventoBaile> listaBaile(Boolean todos) {
         try {
             String textqry
-                    = " SELECT ev.* \n"
-                    + "   FROM eve_evento_baile ev \n "
-                    + (!todos ? "  WHERE ev.dt_data >= CURRENT_DATE \n " : " \n ")
-                    + "  ORDER BY ev.dt_data";
+                    = " SELECT EV.*                                             \n"
+                    + "   FROM eve_evento_baile AS EV                           \n "
+                    + (!todos ? "  WHERE EV.dt_data >= CURRENT_DATE             \n " : " \n ")
+                    + "  ORDER BY EV.dt_data DESC";
 
             Query qry = getEntityManager().createNativeQuery(textqry, EventoBaile.class);
             return qry.getResultList();
@@ -155,7 +155,7 @@ public class VendaBaileDao extends DB {
                     + " INNER JOIN seg_usuario u ON u.id = e.id_usuario \n "
                     + " INNER JOIN pes_pessoa pu ON pu.id = u.id_pessoa \n "
                     + "  LEFT JOIN fin_movimento m ON m.id = ebc.id_movimento \n "
-                    + " INNER JOIN eve_evento_servico es ON e.id_evento_servico = es.id \n "                                    
+                    + " INNER JOIN eve_evento_servico es ON e.id_evento_servico = es.id \n "
                     + " WHERE e.id_evento = " + id_evento
                     + " ORDER BY ebc.nr_convite";
 
@@ -186,11 +186,11 @@ public class VendaBaileDao extends DB {
         }
         return null;
     }
-    
+
     public List listaMovimentosAtrasados(int id_pessoa) {
         try {
-            String textqry = 
-                      " SELECT * \n "
+            String textqry
+                    = " SELECT * \n "
                     + "   FROM fin_movimento m \n "
                     + "  WHERE m.dt_vencimento < CURRENT_DATE \n "
                     + "    AND m.id_pessoa = " + id_pessoa + " "
@@ -205,5 +205,5 @@ public class VendaBaileDao extends DB {
         }
         return new ArrayList();
     }
-    
+
 }

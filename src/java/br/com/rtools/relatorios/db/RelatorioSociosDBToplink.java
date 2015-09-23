@@ -459,7 +459,7 @@ public class RelatorioSociosDBToplink extends DB implements RelatorioSociosDB {
             }
             switch (tipoCarencia) {
                 case "todos":
-                    filtro += " AND func_inadimplente_todos(so.codsocio, " + carenciaDias + ") = " + s;
+                    filtro += " AND func_inadimplente(so.codsocio, " + carenciaDias + ") = " + s;
                     break;
                 case "eleicao":
                     filtro += " AND func_inadimplente_eleicao(so.codsocio, " + carenciaDias + ") = " + s;

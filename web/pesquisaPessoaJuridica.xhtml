@@ -34,7 +34,7 @@
                             <div class="clear"></div>
                             <p:panel id="i_panel_pesquisa" styleClass="fundoCinza">
                                 <h:panelGrid columns="4">
-                                    <p:inputMask value="#{juridicaBean.descPesquisa}" size="50" mask="#{juridicaBean.mascaraPesquisaJuridica}" placeholder="#{juridicaBean.porPesquisa.equals('endereco') ?  'Logradouro + Descrição Endereço + , + Número + - + Bairro' : ''}"/>
+                                    <p:inputMask value="#{juridicaBean.descPesquisa}" size="50" mask="#{juridicaBean.mascaraPesquisaJuridica}" placeholder="#{juridicaBean.porPesquisa eq 'endereco' ?  'Logradouro + Descrição Endereço + , + Número + - + Bairro' : ''}"/>
                                     <h:column>
                                         <h:panelGrid columns="2">
                                             <p:selectOneMenu value="#{juridicaBean.porPesquisa}">
@@ -48,7 +48,7 @@
                                                 <f:selectItem itemValue="email2" itemLabel="E-mail 2"/>
                                                 <f:selectItem itemValue="endereco" itemLabel="Endereço"/>
                                             </p:selectOneMenu>                        
-                                            <p:commandLink rendered="#{juridicaBean.porPesquisa.equals('endereco')}" onclick="PF('dlg_wiki').show()" value="Ajuda" global="false"/>
+                                            <p:commandLink rendered="#{juridicaBean.porPesquisa eq 'endereco'}" onclick="PF('dlg_wiki').show()" value="Ajuda" global="false"/>
                                         </h:panelGrid>
                                     </h:column>
                                     <p:commandButton value="Inicial" action="#{juridicaBean.acaoPesquisaInicial}" update=":formGridPesquisaPessoaJuridica:i_panel_grid" />

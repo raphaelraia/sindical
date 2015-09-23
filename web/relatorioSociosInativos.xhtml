@@ -125,9 +125,15 @@
                                         <br />
                                         <h:panelGrid columns="4" id="i_actions" cellspacing="5">
                                             <p:commandButton ajax="false" value="Imprimir" action="#{relatorioSociosInativosBean.imprimir()}"/>
-                                            <p:selectBooleanCheckbox value="#{jasperBean.EXPORT_TO_EXCEL}" itemLabel="Excel" disabled="#{!relatorioSociosInativosBean.relatorios.excel}">
-                                                <p:ajax event="change" update="@this" />
+                                            <p:selectBooleanCheckbox value="#{jasperBean.EXPORT_TO}" itemLabel="Exportar" disabled="#{!relatorioSociosInativosBean.relatorios.excel}">
+                                                <p:ajax event="change" update="@this i_actions" />
                                             </p:selectBooleanCheckbox>
+                                            <h:panelGrid columns="2">
+                                                <p:selectOneMenu value="#{jasperBean.EXPORT_TYPE}" style="padding-right: 20px;" rendered="#{jasperBean.EXPORT_TO}">
+                                                    <p:ajax event="change" update="@this" />
+                                                    <f:selectItems value="#{jasperBean.listTypes('xls')}" />
+                                                </p:selectOneMenu>
+                                            </h:panelGrid>                                            
                                             <p:selectBooleanCheckbox value="#{jasperBean.COMPRESS_FILE}" itemLabel="Compactar Arquivo (ZIP)">
                                                 <p:ajax event="change" update="@this" />
                                             </p:selectBooleanCheckbox>

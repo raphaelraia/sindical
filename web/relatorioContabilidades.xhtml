@@ -137,11 +137,15 @@
                             </p:panel>
                         </h:column>
                     </h:panelGrid>
-                    <h:panelGrid columns="2" styleClass="margin-top-max" id="i_acoes">
+                    <h:panelGrid columns="3" styleClass="margin-top-max" id="i_acoes">
                         <p:commandButton id="ddd" value="Visualizar" action="#{relatorioContabilidadesBean.print}" title="Visualizar"  ajax="false" update="id_status_default" />
-                        <p:selectBooleanCheckbox itemLabel="Exportar Excel" value="#{jasperBean.EXPORT_TO_EXCEL}" disabled="#{!relatorioContabilidadesBean.relatorios.excel}">
-                            <p:ajax event="change" update="@this" />
+                        <p:selectBooleanCheckbox itemLabel="Exportar" value="#{jasperBean.EXPORT_TO}" disabled="#{!relatorioContabilidadesBean.relatorios.excel}">
+                            <p:ajax event="change" update="@this i_acoes" />
                         </p:selectBooleanCheckbox>
+                        <p:selectOneMenu value="#{jasperBean.EXPORT_TYPE}" rendered="#{jasperBean.EXPORT_TO}">
+                            <p:ajax event="change" update="@this" />
+                            <f:selectItems value="#{jasperBean.listTypes('xls')}" />
+                        </p:selectOneMenu>                         
                     </h:panelGrid>
                     <h:panelGrid columns="5" styleClass="margin-top-max" id="i_acoes_2">
                         <p:selectBooleanCheckbox itemLabel="Zip" value="#{jasperBean.COMPRESS_FILE}">

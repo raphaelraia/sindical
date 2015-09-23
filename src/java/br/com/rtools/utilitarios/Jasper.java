@@ -23,20 +23,28 @@ import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
+import javax.faces.model.SelectItem;
 import javax.servlet.ServletContext;
 import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JRExporterParameter;
 import net.sf.jasperreports.engine.JRGroup;
 import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.data.JRCsvDataSource;
 import net.sf.jasperreports.engine.design.JRDesignQuery;
 import net.sf.jasperreports.engine.design.JasperDesign;
 import net.sf.jasperreports.engine.export.JRPdfExporter;
+import net.sf.jasperreports.engine.export.JRTextExporter;
+import net.sf.jasperreports.engine.export.JRTextExporterParameter;
 import net.sf.jasperreports.engine.export.JRXlsExporter;
+import net.sf.jasperreports.engine.export.ooxml.JRDocxExporter;
 import net.sf.jasperreports.engine.util.JRLoader;
 import net.sf.jasperreports.engine.xml.JRXmlLoader;
+import net.sf.jasperreports.export.SimpleDocxReportConfiguration;
 import net.sf.jasperreports.export.SimpleExporterInput;
 import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
 import net.sf.jasperreports.export.SimplePdfExporterConfiguration;
@@ -119,9 +127,14 @@ public class Jasper implements Serializable {
      */
     public static Boolean IS_REPORT_CONNECTION;
     /**
-     * Exporta para excel
+     * Exportar
      */
     public static Boolean EXPORT_TO;
+    /**
+     * Exportar para tipo , default: IF (EXPORT_TO == false) default = pdf ELSE
+     * IF (EXPORT_TO == true) EXPORT_TYPE = tipo definido
+     */
+    private static String EXPORT_TYPE;
     /**
      * Campos Excel
      */
@@ -156,6 +169,14 @@ public class Jasper implements Serializable {
         load();
     }
 
+    public String getEXPORT_TYPE() {
+        return EXPORT_TYPE;
+    }
+
+    public void setEXPORT_TYPE(String aEXPORT_TYPE) {
+        EXPORT_TYPE = aEXPORT_TYPE;
+    }
+
     @PostConstruct
     public void init() {
         load();
@@ -181,6 +202,7 @@ public class Jasper implements Serializable {
         SUBREPORT_NAME = "";
         IS_REPORT_CONNECTION = false;
         EXPORT_TO = false;
+        EXPORT_TYPE = "";
         EXCEL_FIELDS = "";
         NO_COMPACT = false;
         IGNORE_UUID = false;
@@ -430,7 +452,48 @@ public class Jasper implements Serializable {
                         listJasper = jasperListExport;
                     }
 
-                    if (!EXPORT_TO) {
+                    if (EXPORT_TO && !EXPORT_TYPE.equals("pdf") && !EXPORT_TYPE.isEmpty()) {
+                        downloadName = fileName + PART_NAME + uuid + "." + EXPORT_TYPE;
+                        String fileString = dirPath + "/" + downloadName;
+                        File file = new File(fileString);
+                        if (EXPORT_TYPE.equals("xls")) {
+                            mimeType = "application/xls";
+                            JRXlsExporter exporter = new JRXlsExporter();
+                            exporter.setExporterInput(SimpleExporterInput.getInstance(listJasper));
+                            exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(file.getPath()));
+                            SimpleXlsReportConfiguration configuration = new SimpleXlsReportConfiguration();
+                            configuration.setIgnoreGraphics(true);
+                            exporter.setConfiguration(configuration);
+                            exporter.exportReport();
+                        } else if (EXPORT_TYPE.equals("docx")) {
+                            mimeType = "application/xls";
+                            JRDocxExporter exporter = new JRDocxExporter();
+                            exporter.setExporterInput(SimpleExporterInput.getInstance(listJasper));
+                            exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(file.getPath()));
+                            SimpleDocxReportConfiguration configuration = new SimpleDocxReportConfiguration();
+                            exporter.setConfiguration(configuration);
+                            exporter.exportReport();
+                        } else if (EXPORT_TYPE.equals("html")) {
+                            JasperExportManager.exportReportToHtmlFile(print, fileString);
+                        } else if (EXPORT_TYPE.equals("text")) {
+                            mimeType = "text/plain";
+                            JRCsvDataSource dataSource = new JRCsvDataSource(JRLoader.getLocationInputStream(downloadName));
+                            dataSource.setRecordDelimiter("\r\n");
+                            dataSource.setUseFirstRowAsHeader(true);
+                            JRTextExporter exporter = new JRTextExporter();
+                            exporter.setParameter(JRTextExporterParameter.PAGE_WIDTH, 80);
+                            exporter.setParameter(JRTextExporterParameter.PAGE_HEIGHT, 40);
+                            exporter.setParameter(JRExporterParameter.JASPER_PRINT, listJasper);
+                            exporter.setParameter(JRExporterParameter.OUTPUT_FILE_NAME, file.getPath());
+                            exporter.exportReport();
+                        } else if (EXPORT_TYPE.equals("json")) {
+                        } else if (EXPORT_TYPE.equals("odt")) {
+                        } else if (EXPORT_TYPE.equals("rtf")) {
+                        } else if (EXPORT_TYPE.equals("pptx")) {
+                        } else if (EXPORT_TYPE.equals("xml")) {
+                            JasperExportManager.exportReportToXmlFile(print, fileString, false);
+                        }
+                    } else {
                         downloadName = fileName + PART_NAME + uuid + ".pdf";
                         File file = new File(dirPath + "/" + downloadName);
                         mimeType = "application/pdf";
@@ -440,20 +503,6 @@ public class Jasper implements Serializable {
                         exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(file.getPath()));
                         SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
                         configuration.setCreatingBatchModeBookmarks(true);
-                        exporter.setConfiguration(configuration);
-                        exporter.exportReport();
-                    } else {
-                        downloadName = fileName + PART_NAME + uuid + ".xls";
-                        File file = new File(dirPath + "/" + downloadName);
-                        mimeType = "application/xls";
-
-                        JRXlsExporter exporter = new JRXlsExporter();
-                        exporter.setExporterInput(SimpleExporterInput.getInstance(listJasper));
-                        exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(file.getPath()));
-                        //SimpleXlsExporterConfiguration configuration = new SimpleXlsExporterConfiguration();
-                        SimpleXlsReportConfiguration configuration = new SimpleXlsReportConfiguration();
-                        //exporter.setParameter(JRXlsExporterParameter.IS_IGNORE_GRAPHICS, false);
-                        configuration.setIgnoreGraphics(true);
                         exporter.setConfiguration(configuration);
                         exporter.exportReport();
                     }
@@ -518,6 +567,7 @@ public class Jasper implements Serializable {
             }
         }
         dbe = null;
+
         clear();
     }
 
@@ -565,11 +615,11 @@ public class Jasper implements Serializable {
         FILE_NAME_GENERATED = aFILE_NAME_GENERATED;
     }
 
-    public Boolean getEXPORT_TO_EXCEL() {
+    public Boolean getEXPORT_TO() {
         return EXPORT_TO;
     }
 
-    public void setEXPORT_TO_EXCEL(Boolean aEXPORT_TO_EXCEL) {
+    public void setEXPORT_TO(Boolean aEXPORT_TO_EXCEL) {
         EXPORT_TO = aEXPORT_TO_EXCEL;
     }
 
@@ -627,6 +677,73 @@ public class Jasper implements Serializable {
 
     public void setDbe(DBExternal dbe) {
         this.dbe = dbe;
+    }
+
+    /**
+     * Retorna todos os tipos
+     *
+     * @return
+     */
+    public List<SelectItem> getListDefaultTypes() {
+        return listTypes("");
+    }
+
+    /**
+     * Definir tipo da combo, separados por vírgula. Ex. pdf,excel,txt,xml (sem
+     * espaços)
+     *
+     * @param types (Extensões)
+     * @return
+     */
+    public List<SelectItem> listTypes(String types) {
+        List list = new ArrayList();
+        if (types == null || types.isEmpty()) {
+            list.add(new SelectItem("pdf", "PDF", "pdf", false));
+            list.add(new SelectItem("xls", "Excel", "xls", false));
+            list.add(new SelectItem("docx", "Word", "docx", false));
+            list.add(new SelectItem("txt", "Texto", "txt", true));
+            list.add(new SelectItem("xml", "XML", "xml", false));
+            list.add(new SelectItem("ppt", "Power Point", "ppt", true));
+            list.add(new SelectItem("json", "JSON", "json", true));
+            return list;
+        }
+        String[] t = types.split(",");
+        try {
+            for (int i = 0; i < t.length; i++) {
+                switch (t[i]) {
+                    case "pdf":
+                        list.add(new SelectItem("pdf", "PDF", "pdf", false));
+                        break;
+                    case "xls":
+                        list.add(new SelectItem("xls", "Excel", "xls", false));
+                        break;
+                    case "docx":
+                        list.add(new SelectItem("docx", "Word", "docx", false));
+                        break;
+                    case "txt":
+                        list.add(new SelectItem("txt", "Texto", "txt", true));
+                        break;
+                    case "xml":
+                        list.add(new SelectItem("xml", "XML", "xml", false));
+                        break;
+                    case "ppt":
+                        list.add(new SelectItem("ppt", "Power Point", "ppt", true));
+                        break;
+                    case "json":
+                        list.add(new SelectItem("json", "JSON", "json", true));
+                        break;
+                }
+            }
+        } catch (Exception e) {
+            list.add(new SelectItem("pdf", "PDF", "pdf", false));
+            list.add(new SelectItem("xls", "Excel", "xls", false));
+            list.add(new SelectItem("docx", "Word", "docx", false));
+            list.add(new SelectItem("txt", "Texto", "txt", true));
+            list.add(new SelectItem("xml", "XML", "xml", false));
+            list.add(new SelectItem("ppt", "Power Point", "ppt", true));
+            list.add(new SelectItem("json", "JSON", "json", true));
+        }
+        return list;
     }
 
     // USAR - ADICIONAR AO JASPER NO XML

@@ -140,7 +140,7 @@ public class RelatorioSociosBean implements Serializable {
     private String situacaoString = null;
     private Boolean compactar = false;
     private Integer carenciaDias = null;
-    private String tipoCarencia = "eleicao";
+    private String tipoCarencia = "todos";
     private Boolean enableFolha = false;
     private Boolean porFolha = false;
     private Juridica empresa = new Juridica();
@@ -241,12 +241,12 @@ public class RelatorioSociosBean implements Serializable {
         } else if (index == 17) {
             situacao = !situacao;
             if (situacao) {
-                tipoCarencia = "eleicao";
+                tipoCarencia = "todos";
                 situacaoString = "adimplente";
                 carenciaDias = 0;
             } else {
                 situacaoString = null;
-                tipoCarencia = "eleicao";
+                tipoCarencia = "todos";
                 carenciaDias = null;
             }
         } else if (index == 18) {
