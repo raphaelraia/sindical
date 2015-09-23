@@ -857,10 +857,10 @@ public class JuridicaBean implements Serializable {
                     default:
                         clear = true;
                 }
-                FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("juridicaPesquisa", j);
                 if (clear) {
                     GenericaSessao.remove("juridicaBean");
                 }
+                FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("juridicaPesquisa", j);
                 return url;
             }
         }
