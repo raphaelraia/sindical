@@ -166,7 +166,7 @@ public class ExtratoTelaSocialBean implements Serializable {
 
         if (!listab.isEmpty()) {
             ImprimirBoleto ib = new ImprimirBoleto();
-            ib.imprimirBoletoSocial(listab, imprimirVerso);
+            ib.imprimirBoletoSocial(listab, "soc_socios_vw", imprimirVerso);
             ib.visualizar(null);
         }
     }
@@ -343,7 +343,7 @@ public class ExtratoTelaSocialBean implements Serializable {
                 Registro reg = (Registro) new Dao().find(new Registro(), 1);
 
                 ImprimirBoleto ib = new ImprimirBoleto();
-                ib.imprimirBoletoSocial(bol, false);
+                ib.imprimirBoletoSocial(bol, "soc_socios_vw", false);
                 ib.setPathPasta(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/boletos"));
                 Pessoa pessoa_envio = null;
                 MovimentosReceberSocialDB dbs = new MovimentosReceberSocialDBToplink();

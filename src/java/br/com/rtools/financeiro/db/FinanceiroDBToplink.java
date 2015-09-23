@@ -753,7 +753,7 @@ public class FinanceiroDBToplink extends DB implements FinanceiroDB {
     }
 
     @Override
-    public List<Vector> listaBoletoSocioFisica(String nr_ctr_boleto) {
+    public List<Vector> listaBoletoSocioFisica(String nr_ctr_boleto, String view) {
         try {
             Query qry = getEntityManager().createNativeQuery(
                     " SELECT "
@@ -798,7 +798,7 @@ public class FinanceiroDBToplink extends DB implements FinanceiroDB {
                     "       vencimento_movimento, " + // 38
                     "       vencimento_boleto, " + // 39
                     "       vencimento_original_boleto " + // 40
-                    "   FROM soc_boletos_vw "
+                    "   FROM " + view
                     + "  WHERE nr_ctr_boleto IN ('" + nr_ctr_boleto + "') "
                     + "  ORDER BY responsavel, nome_titular, vencimento_movimento, codigo, nome_beneficiario "
             );
@@ -809,7 +809,7 @@ public class FinanceiroDBToplink extends DB implements FinanceiroDB {
     }
 
     @Override
-    public List<Vector> listaBoletoSocioJuridica(String nr_ctr_boleto) {
+    public List<Vector> listaBoletoSocioJuridica(String nr_ctr_boleto, String view) {
         try {
             String text_qry
                     = " SELECT "
@@ -854,7 +854,7 @@ public class FinanceiroDBToplink extends DB implements FinanceiroDB {
                     + "       vencimento_movimento, "
                     + "       vencimento_boleto, "
                     + "       vencimento_original_boleto "
-                    + "   FROM soc_boletos_vw"
+                    + "   FROM " + view
                     + "  WHERE nr_ctr_boleto IN ('" + nr_ctr_boleto + "') "
                     + "  GROUP BY "
                     + //"       id_fin_lote, " +

@@ -507,14 +507,15 @@ public class VendasCaravanaBean {
 
     public String dataVencimento() {
         String dataVencimento;
-        String mesPrimeiraParcela;
+        DataHoje dh = new DataHoje();
+        String mesPrimeiraParcela = DataHoje.converteDataParaReferencia(dh.incrementarMeses(1, DataHoje.data()));
         String mes;
         String ano;
-        if (!listaMesVencimento.isEmpty()) {
-            mesPrimeiraParcela = listaMesVencimento.get(idMesVencimento).getDescription();
-        } else {
-            mesPrimeiraParcela = DataHoje.dataReferencia(DataHoje.data());
-        }
+//        if (!listaMesVencimento.isEmpty()) {
+//            mesPrimeiraParcela = listaMesVencimento.get(idMesVencimento).getDescription();
+//        } else {
+//            mesPrimeiraParcela = DataHoje.dataReferencia(DataHoje.data());
+//        }
         mes = mesPrimeiraParcela.substring(0, 2);
         ano = mesPrimeiraParcela.substring(3, 7);
         if (DataHoje.qtdeDiasDoMes(Integer.parseInt(mes), Integer.parseInt(ano)) >= idDiaVencimento) {

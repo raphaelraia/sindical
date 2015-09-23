@@ -413,7 +413,7 @@ public class MovimentosReceberSocialBean implements Serializable {
         Boleto boletox = (Boleto) new Dao().find(new Boleto(), id_boleto);
 
         ImprimirBoleto ib = new ImprimirBoleto();
-        ib.imprimirBoletoSocial(boletox, false);
+        ib.imprimirBoletoSocial(boletox, "soc_boletos_geral_vw", false);
         ib.visualizar(null);
     }
 

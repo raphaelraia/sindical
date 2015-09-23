@@ -136,9 +136,9 @@ public class ImpressaoBoletoSocialBean {
         FinanceiroDB db = new FinanceiroDBToplink();
         List<Vector> lista_socio;
         if (tipo.equals("fisica")) {
-            lista_socio = db.listaBoletoSocioFisica(nrCtrBoleto); // NR_CTR_BOLETO
+            lista_socio = db.listaBoletoSocioFisica(nrCtrBoleto, "soc_boletos_vw"); // NR_CTR_BOLETO
         } else {
-            lista_socio = db.listaBoletoSocioJuridica(nrCtrBoleto); // NR_CTR_BOLETO
+            lista_socio = db.listaBoletoSocioJuridica(nrCtrBoleto, "soc_boletos_vw"); // NR_CTR_BOLETO
         }
         return String.valueOf(lista_socio.size());
     }
@@ -266,7 +266,7 @@ public class ImpressaoBoletoSocialBean {
         
         ImprimirBoleto ib = new ImprimirBoleto();
         
-        ib.imprimirBoletoSocial(lista, imprimeVerso);
+        ib.imprimirBoletoSocial(lista, "soc_boletos_vw", imprimeVerso);
         ib.visualizar(null);
     }
 

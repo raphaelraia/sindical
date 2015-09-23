@@ -1758,13 +1758,13 @@ public class ImprimirBoleto {
         return arquivo;
     }
 
-    public byte[] imprimirBoletoSocial(Boleto boleto, boolean imprimeVerso) {
+    public byte[] imprimirBoletoSocial(Boleto boleto, String view, boolean imprimeVerso) {
         List<Boleto> l = new ArrayList();
         l.add(boleto);
-        return imprimirBoletoSocial(l, imprimeVerso);
+        return imprimirBoletoSocial(l, view, imprimeVerso);
     }
     
-    public byte[] imprimirBoletoSocial(List<Boleto> listaBoleto, boolean imprimeVerso) {
+    public byte[] imprimirBoletoSocial(List<Boleto> listaBoleto, String view, boolean imprimeVerso) {
         List lista = new ArrayList();
         Filial filial = (Filial) new Dao().find(new Filial(), 1);
         FinanceiroDB db = new FinanceiroDBToplink();
@@ -1797,9 +1797,9 @@ public class ImprimirBoleto {
                 List<Vector> lista_socio = null;
                 String contabilidade = "";
                 if (dbf.pesquisaFisicaPorPessoa(pessoa.getId()) != null)
-                    lista_socio = db.listaBoletoSocioFisica(boleto.getNrCtrBoleto()); // NR_CTR_BOLETO
+                    lista_socio = db.listaBoletoSocioFisica(boleto.getNrCtrBoleto(), view); // NR_CTR_BOLETO
                  else {
-                    lista_socio = db.listaBoletoSocioJuridica(boleto.getNrCtrBoleto()); // NR_CTR_BOLETO
+                    lista_socio = db.listaBoletoSocioJuridica(boleto.getNrCtrBoleto(), view); // NR_CTR_BOLETO
                     Juridica j = dbj.pesquisaJuridicaPorPessoa(pessoa.getId());
                     String doc = (j.getContabilidade() != null && 
                                   !j.getContabilidade().getPessoa().getDocumento().isEmpty() && 

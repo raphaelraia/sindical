@@ -104,9 +104,9 @@ public interface FinanceiroDB {
 
     public List<Vector> listaBoletoSocioAgrupado(String responsavel, String lote, String data, String tipo, String documento);
 
-    public List<Vector> listaBoletoSocioFisica(String nr_ctr_boleto);
+    public List<Vector> listaBoletoSocioFisica(String nr_ctr_boleto, String view);
 
-    public List<Vector> listaBoletoSocioJuridica(String nr_ctr_boleto);
+    public List<Vector> listaBoletoSocioJuridica(String nr_ctr_boleto, String view);
 
     public List<Vector> listaBoletoSocioJuridicaAgrupado(String nr_ctr_boleto);
 

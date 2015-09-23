@@ -178,8 +178,8 @@ public class AnaliseString {
     }
 
     public static String mascaraCep(final String cep) {
-        String cepMask = "";
-        if (!cep.equals("")) {
+        String cepMask = cep;
+        if (!cep.isEmpty() && cep.length() == 8) { 
             cepMask = cep.substring(0, 2) + "." + cep.substring(2, 5) + "-" + cep.substring(5, 8);
         }
         return cepMask;

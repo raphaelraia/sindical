@@ -810,6 +810,12 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         getListaPessoaEndereco().clear();
         getListaPessoaEndereco();
         getStrEndereco();
+        if (pessoaComplemento.getId() == -1) {
+            pessoaComplemento = new PessoaComplementoDao().findByPessoa(fisica.getPessoa().getId());
+            if (pessoaComplemento == null) {
+                pessoaComplemento = new PessoaComplemento();
+            }
+        }
         return url;
     }
 

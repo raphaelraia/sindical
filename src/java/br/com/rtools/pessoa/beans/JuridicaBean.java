@@ -265,6 +265,7 @@ public class JuridicaBean implements Serializable {
 
             juridica.getPessoa().setNome(juridicaReceita.getNome().toUpperCase());
             juridica.setFantasia(juridicaReceita.getFantasia().toUpperCase());
+            juridica.setDtAbertura(juridicaReceita.getDtAbertura());
 
             String emails[] = (juridicaReceita.getEmail() == null) ? "".split("") : juridicaReceita.getEmail().toLowerCase().split(" ");
             String telefones[] = (juridicaReceita.getTelefone() == null) ? "".split("") : juridicaReceita.getTelefone().split(" / ");
