@@ -344,6 +344,22 @@
                                             </h:panelGrid>
                                         </h:column> 
                                         
+                                        <!-- TIPO COBRANÇA -->
+                                        <h:column>
+                                            <h:panelGrid columns="2" rendered="#{relatorioFinanceiroSocialBean.listaFiltrosFinanceiro[6].ativo}" style="float: left; margin: 10px ">
+                                                <h:column>
+                                                    <p:outputLabel value="Tipo de Cobrança" />
+                                                </h:column>
+                                                <h:column></h:column>
+                                                <h:column>
+                                                    <p:selectOneMenu value="#{relatorioFinanceiroSocialBean.idTipoCobranca}" style="padding-right: 20px">
+                                                        <p:ajax event="change" update="@this panel_filtro"/>
+                                                        <f:selectItems value="#{relatorioFinanceiroSocialBean.listaTipoCobranca}"/>
+                                                    </p:selectOneMenu>
+                                                </h:column>
+                                            </h:panelGrid>
+                                        </h:column> 
+                                        
                                         <!-- DATAS FINANCEIRO -->
                                         <h:column>
                                             <h:panelGrid columns="10" rendered="#{relatorioFinanceiroSocialBean.listaFiltrosFinanceiro.get(3).ativo}" style="float: left; margin: 10px ">

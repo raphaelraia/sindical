@@ -8,12 +8,12 @@ import br.com.rtools.associativo.db.CategoriaDBToplink;
 import br.com.rtools.associativo.db.ParentescoDB;
 import br.com.rtools.associativo.db.ParentescoDao;
 import br.com.rtools.endereco.Cidade;
+import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.GrupoFinanceiro;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.SubGrupoFinanceiro;
 import br.com.rtools.financeiro.db.FinanceiroDB;
 import br.com.rtools.financeiro.db.FinanceiroDBToplink;
-import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.RelatorioParametros;
@@ -61,12 +61,12 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
     private List<SelectItem> listaCategoria = new ArrayList();
     private Integer idParentesco = 0;
     private List<SelectItem> listaParentesco = new ArrayList();
-    
+
     private Boolean chkCidadeSocio = true;
     private Cidade cidadeSocio = new Cidade();
     private Cidade cidadeEmpresa = new Cidade();
     private Boolean votante = true;
-    
+
     private String dataCadastro = "";
     private String dataCadastroFinal = "";
     private String dataRecadastro = "";
@@ -81,9 +81,9 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
     private String dataAposentadoriaFinal = "";
     private String dataAtualizacao = "";
     private String dataAtualizacaoFinal = "";
-    
+
     private String tipoSituacao = "ativo";
-    
+
     private Integer idGrupo = 0;
     private List<SelectItem> listaGrupo = new ArrayList();
 
@@ -92,13 +92,16 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
 
     private Integer idServicos = 0;
     private List<SelectItem> listaServicos = new ArrayList();
-    
+
+    private Integer idTipoCobranca = 0;
+    private List<SelectItem> listaTipoCobranca = new ArrayList();
+
     private String dataEmissao = "";
     private String dataEmissaoFinal = "";
     private String dataVencimento = "";
     private String dataVencimentoFinal = "";
     private String dataQuitacao = "";
-    private String dataQuitacaoFinal = "";  
+    private String dataQuitacaoFinal = "";
     private String tipoES = "E";
     private Pessoa pessoa = new Pessoa();
     private String tipoPessoa = "responsavel";
@@ -116,15 +119,15 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
      * <br />7 PESSOA
      */
     private List<Filtros> listaFiltros = new ArrayList();
-    
+
     /**
      * Lista de Filtros (indices)
      * <p>
-     * 0 GRUPO
-     * 1 SUB GRUPO
+     * 0 GRUPO 1 SUB GRUPO
      * <br />2 SERVIÇOS
      * <br />3 DATAS
      * <br />4 E / S
+     * <br />6 TIPO COBRANÇA
      */
     private List<Filtros> listaFiltrosFinanceiro = new ArrayList();
 
@@ -133,6 +136,7 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
         loadListaRelatorio();
         loadListaFiltro();
         loadListaFiltroFinanceiro();
+        loadListaTipoCobranca();
     }
 
     @PreDestroy
@@ -192,7 +196,7 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
         listaFiltros.add(new Filtros("pessoa", "Pessoa", false));
 
     }
-    
+
     public void loadListaFiltroFinanceiro() {
         listaFiltrosFinanceiro.clear();
 
@@ -202,6 +206,7 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
         listaFiltrosFinanceiro.add(new Filtros("datas", "Datas", false));
         listaFiltrosFinanceiro.add(new Filtros("es", "E / S", false));
         listaFiltrosFinanceiro.add(new Filtros("situacaoFinanceiro", "Situação Financeiro", false));
+        listaFiltrosFinanceiro.add(new Filtros("tipo_cobranca", "Tipo de Cobrança", false));
     }
 
     public void acao(Filtros linha) {
@@ -225,7 +230,7 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
                 break;
         }
     }
-    
+
     public void acaoFinanceiro(Filtros linha) {
         linha.setAtivo(!linha.ativo);
 
@@ -238,6 +243,9 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
                 break;
             case "servicos":
                 loadListaServicos();
+                break;
+            case "tipo_cobranca":
+                loadListaTipoCobranca();
                 break;
         }
     }
@@ -276,7 +284,7 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
         } else {
             listaCategoria.add(new SelectItem(0, "Nenhuma Categoria Encontrada", "0"));
         }
-        
+
         if (listaFiltros.get(0).ativo && listaFiltros.get(1).ativo) {
             loadListaParentesco();
         }
@@ -324,7 +332,7 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
 
         loadListaSubGrupo();
     }
-    
+
     public void loadListaSubGrupo() {
         listaSubGrupo.clear();
         idSubGrupo = 0;
@@ -347,11 +355,11 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
 
         loadListaServicos();
     }
-    
+
     public void loadListaServicos() {
         listaServicos.clear();
         idServicos = 0;
-        
+
         // (listaFiltrosFinanceiro.get(1).ativo) SUB GRUPO
         List<Servicos> result = new RelatorioFinanceiroDao().listaServicosSubGrupo((listaFiltrosFinanceiro.get(1).ativo) ? Integer.valueOf(listaSubGrupo.get(idSubGrupo).getDescription()) : null);
         if (!result.isEmpty()) {
@@ -365,62 +373,83 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
                 );
             }
         }
-    }    
-    
-    public String pesquisaPessoa(){
+    }
+
+    public void loadListaTipoCobranca() {
+        listaTipoCobranca.clear();
+        idTipoCobranca = 0;
+
+        // (listaFiltrosFinanceiro.get(1).ativo) SUB GRUPO
+        List<FTipoDocumento> result = new Dao().find("FTipoDocumento", new int[]{13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23});
+        if (!result.isEmpty()) {
+            for (int i = 0; i < result.size(); i++) {
+                listaTipoCobranca.add(
+                        new SelectItem(
+                                i,
+                                result.get(i).getDescricao(),
+                                Integer.toString(result.get(i).getId())
+                        )
+                );
+            }
+        }
+    }
+
+    public String pesquisaPessoa() {
         GenericaSessao.put("linkClicado", true);
         return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).pesquisaPessoa();
     }
-    
-    public String pesquisaCidadeSocio(){
+
+    public String pesquisaCidadeSocio() {
         chkCidadeSocio = true;
         GenericaSessao.put("linkClicado", true);
         return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).cidade();
     }
-    
-    public String pesquisaCidadeEmpresa(){
+
+    public String pesquisaCidadeEmpresa() {
         chkCidadeSocio = false;
         GenericaSessao.put("linkClicado", true);
-        return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).cidade();        
+        return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).cidade();
     }
 
     public void imprimir() {
         Relatorios relatorios = (Relatorios) new Dao().find(new Relatorios(), Integer.parseInt(listaRelatorio.get(idRelatorio).getDescription()));
-        Integer id_grupo_categoria = null, id_categoria = null, id_parentesco = null, id_cidade_socio = null, id_cidade_empresa = null;
+        Integer id_grupo_categoria = null, id_categoria = null, id_parentesco = null, id_cidade_socio = null, id_cidade_empresa = null, id_tipo_cobranca = null;
         Boolean is_votante = null;
         String dtCadastro = "", dtRecadastro = "", dtAdmissao = "", dtDemissao = "", dtFiliacao = "", dtAposentadoria = "", dtAtualizacao = "";
         String dtCadastroFinal = "", dtRecadastroFinal = "", dtAdmissaoFinal = "", dtDemissaoFinal = "", dtFiliacaoFinal = "", dtAposentadoriaFinal = "", dtAtualizacaoFinal = "";
         String tipo_situacao = "";
         List<String> ldescricao = new ArrayList();
-        
+
         // GRUPO / CATEGORIA
         if (listaFiltros.get(0).ativo) {
             id_grupo_categoria = Integer.valueOf(listaGrupoCategoria.get(idGrupoCategoria).getDescription());
             id_categoria = Integer.valueOf(listaCategoria.get(idCategoria).getDescription());
         }
-        
+
         // PARENTESCO
         if (listaFiltros.get(1).ativo) {
             id_parentesco = Integer.valueOf(listaParentesco.get(idParentesco).getDescription());
         }
-        
+
         // CIDADE DO SÓCIO
         if (listaFiltros.get(2).ativo) {
-            if (cidadeSocio.getId() != -1)
+            if (cidadeSocio.getId() != -1) {
                 id_cidade_socio = cidadeSocio.getId();
+            }
         }
-        
+
         // CIDADE DA EMPRESA
         if (listaFiltros.get(3).ativo) {
-            if (cidadeEmpresa.getId() != -1)
+            if (cidadeEmpresa.getId() != -1) {
                 id_cidade_empresa = cidadeEmpresa.getId();
+            }
         }
-        
+
         // VOTANTE
         if (listaFiltros.get(4).ativo) {
             is_votante = votante;
         }
-        
+
         // DATAS
         if (listaFiltros.get(5).ativo) {
             // CADASTRO --------------
@@ -435,7 +464,7 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
                 ldescricao.add("Data de Cadastro até: " + dataCadastroFinal);
                 dtCadastroFinal = dataCadastroFinal;
             }
-            
+
             // RECADASTRO --------------
             if (!dataRecadastro.isEmpty() && !dataRecadastroFinal.isEmpty()) {
                 ldescricao.add("Data de Recadastro de: " + dataRecadastro + " à " + dataRecadastroFinal);
@@ -448,7 +477,7 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
                 ldescricao.add("Data de Recadastro até: " + dataRecadastroFinal);
                 dtRecadastroFinal = dataRecadastroFinal;
             }
-            
+
             // ADMISSÃO --------------
             if (!dataAdmissao.isEmpty() && !dataAdmissaoFinal.isEmpty()) {
                 ldescricao.add("Data de Admissão de: " + dataAdmissao + " à " + dataAdmissaoFinal);
@@ -461,7 +490,7 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
                 ldescricao.add("Data de Admissão até: " + dataAdmissaoFinal);
                 dtAdmissaoFinal = dataAdmissaoFinal;
             }
-            
+
             // DEMISSÃO --------------
             if (!dataDemissao.isEmpty() && !dataDemissaoFinal.isEmpty()) {
                 ldescricao.add("Data de Demissão de: " + dataDemissao + " à " + dataDemissaoFinal);
@@ -474,7 +503,7 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
                 ldescricao.add("Data de Demissão até: " + dataDemissaoFinal);
                 dtDemissaoFinal = dataDemissaoFinal;
             }
-            
+
             // FILIAÇÃO --------------
             if (!dataFiliacao.isEmpty() && !dataFiliacaoFinal.isEmpty()) {
                 ldescricao.add("Data de Filiação de: " + dataFiliacao + " à " + dataFiliacaoFinal);
@@ -487,7 +516,7 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
                 ldescricao.add("Data de Filiação até: " + dataFiliacaoFinal);
                 dtFiliacaoFinal = dataFiliacaoFinal;
             }
-            
+
             // APOSENTADORIA --------------
             if (!dataAposentadoria.isEmpty() && !dataAposentadoriaFinal.isEmpty()) {
                 ldescricao.add("Data de Aposentadoria de: " + dataAposentadoria + " à " + dataAposentadoriaFinal);
@@ -500,7 +529,7 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
                 ldescricao.add("Data de Aposentadoria até: " + dataAposentadoriaFinal);
                 dtAposentadoriaFinal = dataAposentadoriaFinal;
             }
-            
+
             // ATUALIZAÇÃO --------------
             if (!dataAtualizacao.isEmpty() && !dataAtualizacaoFinal.isEmpty()) {
                 ldescricao.add("Data de Atualização de: " + dataAtualizacao + " à " + dataAtualizacaoFinal);
@@ -514,18 +543,18 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
                 dtAtualizacaoFinal = dataAtualizacaoFinal;
             }
         }
-        
+
         // SITUAÇÃO
         if (listaFiltros.get(6).ativo) {
-            tipo_situacao =  tipoSituacao;
+            tipo_situacao = tipoSituacao;
         }
-        
+
         // PESSOA SÓCIO
         Integer id_pessoa = null;
         if (listaFiltros.get(7).ativo) {
             id_pessoa = pessoa.getId();
         }
-        
+
         Integer id_grupo_financeiro = null, id_sub_grupo = null, id_servicos = null;
         // FILTROS FINANCEIRO ---------------------
         // GRUPO
@@ -541,6 +570,11 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
         // SERVIÇOS 
         if (listaFiltrosFinanceiro.get(2).ativo) {
             id_servicos = Integer.valueOf(listaServicos.get(idServicos).getDescription());
+        }
+
+        // TIPO DE COBRANÇA
+        if (listaFiltrosFinanceiro.get(6).ativo) {
+            id_tipo_cobranca = Integer.valueOf(listaTipoCobranca.get(idTipoCobranca).getDescription());
         }
 
         // DATAS
@@ -584,20 +618,19 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
                 dtQuitacaoFinal = dataQuitacaoFinal;
             }
         }
-        
+
         // ENTRADA / SAIDA 
         String tipo_es = "";
         if (listaFiltrosFinanceiro.get(4).ativo) {
             tipo_es = tipoES;
         }
-        
+
         // SITUAÇÃO FINANCEIRO
         String tipo_situacao_financeiro = "";
         if (listaFiltrosFinanceiro.get(5).ativo) {
             tipo_situacao_financeiro = tipoSituacaoFinanceiro;
         }
 
-        
         Map params = new HashMap();
         // MOEDA PARA BRASIL VALORES IREPORT PTBR CONVERTE VALOR JASPER PTBR MOEDA
         params.put("REPORT_LOCALE", new Locale("pt", "BR"));
@@ -614,11 +647,11 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
         params.put("logo_sindicato", ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));
 
         String ordem = "";
-        if (!listaRelatorioOrdem.isEmpty()){
+        if (!listaRelatorioOrdem.isEmpty()) {
             ordem = ((RelatorioOrdem) new Dao().find(new RelatorioOrdem(), Integer.valueOf(listaRelatorioOrdem.get(idRelatorioOrdem).getDescription()))).getQuery();
         }
-        
-        List<Object> result = new RelatorioFinanceiroSocialDao().listaRelatorioFinanceiroSocial(id_grupo_categoria, id_categoria, id_parentesco, id_cidade_socio, id_cidade_empresa, is_votante, dtCadastro, dtCadastroFinal, dtRecadastro, dtRecadastroFinal, dtAdmissao, dtAdmissaoFinal, dtDemissao, dtDemissaoFinal, dtFiliacao, dtFiliacaoFinal, dtAposentadoria, dtAposentadoriaFinal, dtAtualizacao, dtAtualizacaoFinal, tipo_situacao, tipoPessoa, id_pessoa, id_grupo_financeiro, id_sub_grupo, id_servicos, dtEmissao, dtEmissaoFinal, dtVencimento, dtVencimentoFinal, dtQuitacao, dtQuitacaoFinal, tipo_es, tipo_situacao_financeiro, ordem, relatorios);
+
+        List<Object> result = new RelatorioFinanceiroSocialDao().listaRelatorioFinanceiroSocial(id_grupo_categoria, id_categoria, id_parentesco, id_cidade_socio, id_cidade_empresa, is_votante, dtCadastro, dtCadastroFinal, dtRecadastro, dtRecadastroFinal, dtAdmissao, dtAdmissaoFinal, dtDemissao, dtDemissaoFinal, dtFiliacao, dtFiliacaoFinal, dtAposentadoria, dtAposentadoriaFinal, dtAtualizacao, dtAtualizacaoFinal, tipo_situacao, tipoPessoa, id_pessoa, id_grupo_financeiro, id_sub_grupo, id_servicos, id_tipo_cobranca, dtEmissao, dtEmissaoFinal, dtVencimento, dtVencimentoFinal, dtQuitacao, dtQuitacaoFinal, tipo_es, tipo_situacao_financeiro, ordem, relatorios);
 
         if (result.isEmpty()) {
             GenericaMensagem.error("Atenção", "Nenhum resultado encontrado para a pesquisa!");
@@ -628,7 +661,6 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
         List<RelatorioParametros> listaRL = new RelatorioDao().listaRelatorioParametro(relatorios.getId());
 
         List<HashMap> list_hash = new ArrayList();
-        
 
         String[] param_query = new String[listaRL.size()];
         for (int i = 0; i < listaRL.size(); i++) {
@@ -646,8 +678,8 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
         }
 
         Jasper.EXPORT_TO = chkExcel;
-        Jasper.printReports(relatorios.getJasper(), relatorios.getNome(), list_hash, params);        
-        
+        Jasper.printReports(relatorios.getJasper(), relatorios.getNome(), list_hash, params);
+
     }
 
     public Integer getIdRelatorio() {
@@ -693,6 +725,7 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
      * <br />5 DATAS
      * <br />6 SITUAÇÃO
      * <br />7 PESSOA
+     * <br />8 TIPO COBRANÇA
      *
      * @return Lista de Filtros
      */
@@ -769,7 +802,7 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
     }
 
     public Cidade getCidadeSocio() {
-        if (GenericaSessao.exists("cidadePesquisa") && chkCidadeSocio){
+        if (GenericaSessao.exists("cidadePesquisa") && chkCidadeSocio) {
             cidadeSocio = (Cidade) GenericaSessao.getObject("cidadePesquisa", true);
             chkCidadeSocio = true;
         }
@@ -781,7 +814,7 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
     }
 
     public Cidade getCidadeEmpresa() {
-        if (GenericaSessao.exists("cidadePesquisa") && !chkCidadeSocio){
+        if (GenericaSessao.exists("cidadePesquisa") && !chkCidadeSocio) {
             cidadeEmpresa = (Cidade) GenericaSessao.getObject("cidadePesquisa", true);
             chkCidadeSocio = true;
         }
@@ -923,14 +956,14 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
     /**
      * Lista de Filtros (indices)
      * <p>
-     * 0 GRUPO 
-     * 1 SUB GRUPO 
+     * 0 GRUPO 1 SUB GRUPO
      * <br />2 SERVIÇOS
      * <br />3 DATAS
      * <br />4 E / S
      * <br />5 SITUAÇÃO FINANCEIRO
+     *
      * @return Lista de Filtros
-     */    
+     */
     public List<Filtros> getListaFiltrosFinanceiro() {
         return listaFiltrosFinanceiro;
     }
@@ -1044,7 +1077,7 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
     }
 
     public Pessoa getPessoa() {
-        if (GenericaSessao.exists("pessoaPesquisa")){
+        if (GenericaSessao.exists("pessoaPesquisa")) {
             pessoa = (Pessoa) GenericaSessao.getObject("pessoaPesquisa", true);
         }
         return pessoa;
@@ -1068,6 +1101,22 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
 
     public void setTipoSituacaoFinanceiro(String tipoSituacaoFinanceiro) {
         this.tipoSituacaoFinanceiro = tipoSituacaoFinanceiro;
+    }
+
+    public Integer getIdTipoCobranca() {
+        return idTipoCobranca;
+    }
+
+    public void setIdTipoCobranca(Integer idTipoCobranca) {
+        this.idTipoCobranca = idTipoCobranca;
+    }
+
+    public List<SelectItem> getListaTipoCobranca() {
+        return listaTipoCobranca;
+    }
+
+    public void setListaTipoCobranca(List<SelectItem> listaTipoCobranca) {
+        this.listaTipoCobranca = listaTipoCobranca;
     }
 
     public class Filtros {

@@ -280,7 +280,7 @@ public class RelatorioSociosBean implements Serializable {
             /* 04 */ listaMenuRSocial.add(new DataObject("Grau ", "Remover", null, null, null, null));
             /* 05 */ listaMenuRSocial.add(new DataObject("Fotos ", "Editar", null, null, null, null));
             /* 06 */ listaMenuRSocial.add(new DataObject("Carteirinha ", "Editar", null, null, null, null));
-            /* 07 */ listaMenuRSocial.add(new DataObject("Tipo de Pagamento ", "Editar", null, null, null, null));
+            /* 07 */ listaMenuRSocial.add(new DataObject("Tipo de Cobrança ", "Editar", null, null, null, null));
             /* 08 */ listaMenuRSocial.add(new DataObject("Cidade do Sócio ", "Editar", null, null, null, null));
             /* 09 */ listaMenuRSocial.add(new DataObject("Cidade do Empresa ", "Editar", null, null, null, null));
             /* 10 */ listaMenuRSocial.add(new DataObject("Aniversário ", "Editar", null, null, null, null));
@@ -1715,7 +1715,7 @@ public class RelatorioSociosBean implements Serializable {
 
     public String getContemServicos() {
         try {
-            return "" + contemServicos;            
+            return "" + contemServicos;
         } catch (Exception e) {
             return null;
         }

@@ -513,12 +513,12 @@ public class Dao extends DB implements DaoInterface {
             } else {
                 queryPesquisaString += ", " + Integer.toString(id[i]);
             }
-            String queryString = "SELECT OB FROM " + className + " OB WHERE OB." + stringCampo + " IN (" + queryPesquisaString + ")";
-            Query query = getEntityManager().createQuery(queryString);
-            list = query.getResultList();
-            if (list.isEmpty()) {
-                return list;
-            }
+        }
+        String queryString = "SELECT OB FROM " + className + " OB WHERE OB." + stringCampo + " IN (" + queryPesquisaString + ")";
+        Query query = getEntityManager().createQuery(queryString);
+        list = query.getResultList();
+        if (list.isEmpty()) {
+            return list;
         }
         return list;
     }
