@@ -591,119 +591,148 @@ public class SimplesBean implements Serializable {
             case "Bairro":
                 if (((Bairro) obj).getDescricao().contains(pesquisaLista)) {
                     return true;
-                }   break;
+                }
+                break;
             case "Logradouro":
                 if (((Logradouro) obj).getDescricao().contains(pesquisaLista)) {
                     return true;
-                }   break;
+                }
+                break;
             case "GrupoCidade":
                 if (((GrupoCidade) obj).getDescricao().contains(pesquisaLista)) {
                     return true;
-            }   break;
+                }
+                break;
             case "DescricaoEndereco":
                 if (((DescricaoEndereco) obj).getDescricao().contains(pesquisaLista)) {
                     return true;
-            }   break;
+                }
+                break;
             case "TipoEndereco":
                 if (((TipoEndereco) obj).getDescricao().contains(pesquisaLista)) {
                     return true;
-            }   break;
+                }
+                break;
             case "TipoDocumento":
                 if (((TipoDocumento) obj).getDescricao().contains(pesquisaLista)) {
                     return true;
-            }   break;
+                }
+                break;
             case "GrupoAgenda":
                 if (((GrupoAgenda) obj).getDescricao().contains(pesquisaLista)) {
                     return true;
-            }   break;
+                }
+                break;
             case "Evento":
                 if (((Evento) obj).getDescricao().contains(pesquisaLista)) {
                     return true;
-            }   break;
+                }
+                break;
             case "Modulo":
                 if (((Modulo) obj).getDescricao().contains(pesquisaLista)) {
                     return true;
-            }   break;
+                }
+                break;
             case "Departamento":
                 if (((Departamento) obj).getDescricao().contains(pesquisaLista)) {
-                return true;
-                }   break;
+                    return true;
+                }
+                break;
             case "Genero":
                 if (((Genero) obj).getDescricao().contains(pesquisaLista)) {
-                return true;
-                }   break;
+                    return true;
+                }
+                break;
             case "Indice":
                 if (((Indice) obj).getDescricao().contains(pesquisaLista)) {
-                return true;
-            }   break;
+                    return true;
+                }
+                break;
             case "TipoCentroComercial":
                 if (((TipoCentroComercial) obj).getDescricao().contains(pesquisaLista)) {
-                return true;
-                }   break;
+                    return true;
+                }
+                break;
             case "GrupoConvenio":
                 if (((GrupoConvenio) obj).getDescricao().contains(pesquisaLista)) {
-                return true;
-            }   break;
+                    return true;
+                }
+                break;
             case "ComponenteCurricular":
                 if (((ComponenteCurricular) obj).getDescricao().contains(pesquisaLista)) {
-                return true;
-                }   break;
+                    return true;
+                }
+                break;
             case "GrupoEvento":
                 if (((GrupoEvento) obj).getDescricao().contains(pesquisaLista)) {
-                return true;
-                }   break;
+                    return true;
+                }
+                break;
             case "Banda":
                 if (((Banda) obj).getDescricao().contains(pesquisaLista)) {
-                return true;
-                }   break;
+                    return true;
+                }
+                break;
             case "Midia":
                 if (((Midia) obj).getDescricao().contains(pesquisaLista)) {
                     return true;
-                }   break;
+                }
+                break;
             case "Nivel":
                 if (((Nivel) obj).getDescricao().contains(pesquisaLista)) {
-                return true;
-                }   break;
+                    return true;
+                }
+                break;
             case "MotivoInativacao":
                 if (((MotivoInativacao) obj).getDescricao().contains(pesquisaLista)) {
                     return true;
-                }   break;
+                }
+                break;
             case "TipoServico":
                 if (((TipoServico) obj).getDescricao().contains(pesquisaLista)) {
                     return true;
-                }   break;
+                }
+                break;
             case "AteOperacao":
                 if (((AteOperacao) obj).getDescricao().contains(pesquisaLista)) {
                     return true;
-                }   break;
+                }
+                break;
             case "ConviteMotivoSuspencao":
                 if (((ConviteMotivoSuspencao) obj).getDescricao().contains(pesquisaLista)) {
                     return true;
-                }   break;
+                }
+                break;
             case "ProStatus":
                 if (((ProStatus) obj).getDescricao().contains(pesquisaLista)) {
                     return true;
-                }   break;
+                }
+                break;
             case "ProdutoUnidade":
                 if (((ProdutoUnidade) obj).getDescricao().contains(pesquisaLista)) {
                     return true;
-                }   break;
+                }
+                break;
             case "ProdutoGrupo":
                 if (((ProdutoGrupo) obj).getDescricao().contains(pesquisaLista)) {
                     return true;
-                }   break;
+                }
+                break;
             case "Cor":
                 if (((Cor) obj).getDescricao().contains(pesquisaLista)) {
                     return true;
-                }   break;
+                }
+                break;
             case "Nacionalidade":
                 if (((Nacionalidade) obj).getDescricao().contains(pesquisaLista)) {
                     return true;
-                }   break;
+                }
+                break;
             case "MalaDiretaGrupo":
                 if (((MalaDiretaGrupo) obj).getDescricao().contains(pesquisaLista)) {
-                return true;
-            }   break;
+                    return true;
+                }
+                break;
         }
         return false;
     }
@@ -731,18 +760,53 @@ public class SimplesBean implements Serializable {
 
                     String queryString = "";
 
+                    Query query;
                     if (tableName.equals("end_bairro") || tableName.equals("end_descricao_endereco")) {
                         queryString = " SELECT t.* FROM " + tableName + "  AS t WHERE upper(func_translate(ds_descricao)) LIKE '%" + desc + "%' AND is_ativo = true ORDER BY t.ds_descricao ASC LIMIT " + maxResults;
+                        query = dao.getEntityManager().createNativeQuery(queryString, o.getClass());
+                        try {
+                            lista = query.getResultList();
+                        } catch (Exception e) {
+                            Logger.getLogger(SimplesBean.class.getName()).log(Level.SEVERE, null, e);
+                            lista = new ArrayList();
+                        }
+                        if (lista.isEmpty()) {
+                            queryString = " SELECT id, ds_descricao, is_ativo FROM " + tableName + "  AS t WHERE upper(func_translate(ds_descricao)) LIKE '" + desc + "' AND is_ativo = false ORDER BY t.ds_descricao ASC";
+                            query = dao.getEntityManager().createNativeQuery(queryString);
+                            try {
+                                lista = query.getResultList();
+                                if (!lista.isEmpty()) {
+                                    for (int i = 0; i < lista.size(); i++) {
+                                        try {
+                                            dao.getEntityManager().getTransaction().begin();
+                                            queryString = " UPDATE " + tableName + " SET is_ativo = true WHERE id = " + ((List) lista.get(i)).get(0);
+                                            Query queryUpdate = dao.getEntityManager().createNativeQuery(queryString);
+                                            if (queryUpdate.executeUpdate() > 0) {
+                                                dao.getEntityManager().getTransaction().commit();
+                                                limpaLista();
+                                            } else {
+                                                dao.getEntityManager().getTransaction().rollback();
+                                            }
+                                        } catch (Exception e) {
+                                            dao.getEntityManager().getTransaction().rollback();
+                                        }
+
+                                    }
+                                }
+                            } catch (Exception e) {
+                                Logger.getLogger(SimplesBean.class.getName()).log(Level.SEVERE, null, e);
+                                lista = new ArrayList();
+                            }
+                        }
                     } else {
                         queryString = " SELECT t.* FROM " + tableName + "  AS t WHERE upper(func_translate(ds_descricao)) LIKE '%" + desc + "%'  ORDER BY t.ds_descricao ASC LIMIT " + maxResults;
-                    }
-
-                    try {
-                        Query query = dao.getEntityManager().createNativeQuery(queryString, o.getClass());
-                        lista = query.getResultList();
-                    } catch (Exception e) {
-                        Logger.getLogger(SimplesBean.class.getName()).log(Level.SEVERE, null, e);
-                        lista = new ArrayList();
+                        query = dao.getEntityManager().createNativeQuery(queryString, o.getClass());
+                        try {
+                            lista = query.getResultList();
+                        } catch (Exception e) {
+                            Logger.getLogger(SimplesBean.class.getName()).log(Level.SEVERE, null, e);
+                            lista = new ArrayList();
+                        }
                     }
                 }
             }
@@ -844,8 +908,8 @@ public class SimplesBean implements Serializable {
 
     public void habilitaAtivo() {
         if (sessoes[0].equals("MalaDiretaGrupo")) {
-            if(ativo == null) {
-                ativo = true;                
+            if (ativo == null) {
+                ativo = true;
             }
         }
     }
