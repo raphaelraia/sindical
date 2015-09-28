@@ -771,27 +771,31 @@ public class SimplesBean implements Serializable {
                             lista = new ArrayList();
                         }
                         if (lista.isEmpty()) {
-                            queryString = " SELECT id, ds_descricao, is_ativo FROM " + tableName + "  AS t WHERE upper(func_translate(ds_descricao)) LIKE '" + desc + "' AND is_ativo = false ORDER BY t.ds_descricao ASC";
-                            query = dao.getEntityManager().createNativeQuery(queryString);
                             try {
-                                lista = query.getResultList();
-                                if (!lista.isEmpty()) {
-                                    for (int i = 0; i < lista.size(); i++) {
-                                        try {
-                                            dao.getEntityManager().getTransaction().begin();
-                                            queryString = " UPDATE " + tableName + " SET is_ativo = true WHERE id = " + ((List) lista.get(i)).get(0);
-                                            Query queryUpdate = dao.getEntityManager().createNativeQuery(queryString);
-                                            if (queryUpdate.executeUpdate() > 0) {
-                                                dao.getEntityManager().getTransaction().commit();
-                                                limpaLista();
-                                            } else {
+                                queryString = " SELECT id, ds_descricao, is_ativo FROM " + tableName + "  AS t WHERE upper(func_translate(ds_descricao)) LIKE '" + desc + "' AND is_ativo = false ORDER BY t.ds_descricao ASC";
+                                query = dao.getEntityManager().createNativeQuery(queryString);
+                                try {
+                                    lista = query.getResultList();
+                                    if (!lista.isEmpty()) {
+                                        for (int i = 0; i < lista.size(); i++) {
+                                            try {
+                                                dao.getEntityManager().getTransaction().begin();
+                                                queryString = " UPDATE " + tableName + " SET is_ativo = true WHERE id = " + ((List) lista.get(i)).get(0);
+                                                Query queryUpdate = dao.getEntityManager().createNativeQuery(queryString);
+                                                if (queryUpdate.executeUpdate() > 0) {
+                                                    dao.getEntityManager().getTransaction().commit();
+                                                    limpaLista();
+                                                } else {
+                                                    dao.getEntityManager().getTransaction().rollback();
+                                                }
+                                            } catch (Exception e) {
                                                 dao.getEntityManager().getTransaction().rollback();
                                             }
-                                        } catch (Exception e) {
-                                            dao.getEntityManager().getTransaction().rollback();
                                         }
-
                                     }
+                                } catch (Exception e) {
+                                    Logger.getLogger(SimplesBean.class.getName()).log(Level.SEVERE, null, e);
+                                    lista = new ArrayList();
                                 }
                             } catch (Exception e) {
                                 Logger.getLogger(SimplesBean.class.getName()).log(Level.SEVERE, null, e);
