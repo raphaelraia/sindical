@@ -17,6 +17,7 @@ import javax.persistence.Query;
 import oracle.toplink.essentials.exceptions.EJBQLException;
 
 public class MovimentoDBToplink extends DB implements MovimentoDB {
+
     private Integer limit = null;
 
     @Override
@@ -76,7 +77,7 @@ public class MovimentoDBToplink extends DB implements MovimentoDB {
             Query qry = getEntityManager().createNativeQuery(
                     " SELECT b.* "
                     + "  FROM fin_boleto b"
-                    + " WHERE b.nr_ctr_boleto = '" + nrCtrBoleto+"'", Boleto.class
+                    + " WHERE b.nr_ctr_boleto = '" + nrCtrBoleto + "'", Boleto.class
             );
             result = (Boleto) qry.getSingleResult();
         } catch (Exception e) {
@@ -1165,15 +1166,15 @@ public class MovimentoDBToplink extends DB implements MovimentoDB {
             }
 
             if (todasContas.equals("false")) {
-                filtros = " and m.id_servicos = " + idServico
-                        + " and bo.id_conta_Cobranca = " + idContaCobranca + " ";
+                filtros = " AND m.id_servicos = " + idServico + "\n"
+                        + " AND bo.id_conta_Cobranca = " + idContaCobranca + "\n";
             } else {
                 idTipoServico = 1;
             }
 
             String grupoCidadeConvencao = "";
             if ((!listaConvencao.isEmpty()) && (!listaGrupoCidade.isEmpty())) {
-                grupoCidadeConvencao = " and contr.id_grupo_cidade in (";
+                grupoCidadeConvencao = " AND contr.id_grupo_cidade IN (";
 
                 for (int i = 0; i < listaGrupoCidade.size(); i++) {
                     grupoCidadeConvencao += listaGrupoCidade.get(i);
@@ -1182,7 +1183,8 @@ public class MovimentoDBToplink extends DB implements MovimentoDB {
                     }
 
                 }
-                grupoCidadeConvencao += ") and contr.id_convencao in (";
+                grupoCidadeConvencao += ") \n "
+                        + " AND contr.id_convencao IN (";
 
                 for (int i = 0; i < listaConvencao.size(); i++) {
                     grupoCidadeConvencao += listaConvencao.get(i);
@@ -1190,84 +1192,85 @@ public class MovimentoDBToplink extends DB implements MovimentoDB {
                         grupoCidadeConvencao += ",";
                     }
                 }
-                grupoCidadeConvencao += ") ";
+                grupoCidadeConvencao += ") \n";
             }
 
             filtros += grupoCidadeConvencao;
 
             if (email.equals("com")) {
-                email = " and ( "
-                        + " (pj.is_email_escritorio = true  and (length(rtrim(p_contabil.ds_email1)) > 10))      or "
-                        + " (pj.is_email_escritorio = false and (length(rtrim(p.ds_email1                   )) > 10))"
-                        + " )";
+                email = " AND ( \n"
+                        + " (pj.is_email_escritorio = true  AND (length(rtrim(p_contabil.ds_email1)) > 10)) OR  \n"
+                        + " (pj.is_email_escritorio = false AND (length(rtrim(p.ds_email1)) > 10))              \n"
+                        + " ) \n";
             } else if (email.equals("sem")) {
-                email = " and ( "
-                        + " (pj.is_email_escritorio = true  and ((length(rtrim(p_contabil.ds_email1)) <= 10) or p_contabil.ds_email1 is null)) or "
-                        + " (pj.is_email_escritorio = false and ((length(rtrim(p.ds_email1)) <= 10) or p.ds_email1 is null)) "
+                email = " AND ( "
+                        + " (pj.is_email_escritorio = true  AND ((length(rtrim(p_contabil.ds_email1)) <= 10) OR p_contabil.ds_email1 IS NULL)) OR  \n"
+                        + " (pj.is_email_escritorio = false AND ((length(rtrim(p.ds_email1)) <= 10) OR p.ds_email1 IS NULL))                       \n"
                         + ")  ";
             } else {
                 email = " ";
             }
 
             if (id_esc != 0) {
-                email += " and j_contabil.id = " + id_esc + " ";
+                email += " AND j_contabil.id = " + id_esc + " \n";
             }
-            String textQry = "select m.ds_documento as boleto, "
-                    + "       contr.ds_nome as razao, "
-                    + "       contr.ds_documento as cnpj,"
-                    + "       CASE WHEN pce2.id_endereco = pce.id_endereco THEN p_contabil.ds_nome ELSE '' END as escritorio,"
-                    + "       s.ds_descricao as servico,"
-                    + "       t.ds_descricao as tipo_servico,"
-                    + "       m.dt_vencimento as vencimento,"
-                    + "       m.ds_referencia as referencia,"
-                    + "       m.id as id,  "
-                    + " CASE WHEN pce2.id_endereco=pce.id_endereco THEN p_contabil.id ELSE 0 END as idContabilidade,        "
-                    + " contr.id_juridica as idJuridica, "
-                    + " CASE WHEN pce2.id_endereco=pce.id_endereco THEN x.qtde  ELSE 0 END as qtde "
+            String textQry = "SELECT m.ds_documento AS boleto,                                                              \n"
+                    + "              contr.ds_nome  AS razao,                                                               \n"
+                    + "              contr.ds_documento AS cnpj,                                                            \n"
+                    + "    CASE WHEN pj.is_cobranca_escritorio = true THEN p_contabil.ds_nome ELSE '' END AS escritorio,    \n"
+                    + "              s.ds_descricao  AS servico,                                                            \n"
+                    + "              t.ds_descricao  AS tipo_servico,                                                       \n"
+                    + "              m.dt_vencimento AS vencimento,                                                         \n"
+                    + "              m.ds_referencia AS referencia,                                                         \n"
+                    + "              m.id AS id,                                                                            \n"
+                    + "    CASE WHEN pj.is_cobranca_escritorio = true THEN p_contabil.id ELSE 0 END AS idContabilidade,     \n"
+                    + "              contr.id_juridica AS idJuridica,                                                       \n"
+                    + "    CASE WHEN pj.is_cobranca_escritorio = true THEN x.qtde ELSE 0 END AS qtde                        \n"
                     // + " p.ds_email1 email_empresa,p_contabil.ds_email1 email_contabil,pj.is_email_escritorio,length(rtrim(p.ds_email1))
-                    + "  from fin_movimento as m  "
                     // ADICIONEI LOTE AQUI -- CASO FICAR PESADO TIRAR --
                     //+ " inner join fin_lote as l on (l.id = m.id_lote)  "
 
-                    + " inner join arr_contribuintes_vw contr on (m.id_pessoa = contr.id_pessoa)  "
-                    + " inner join pes_pessoa p          on (p.id = contr.id_pessoa)    "
-                    + " inner join pes_juridica as pj on pj.id=contr.id_juridica "
-                    + " left join pes_juridica j_contabil    on (j_contabil.id = contr.id_contabilidade)   "
-                    + " left join pes_pessoa p_contabil on (p_contabil.id = j_contabil.id_pessoa)    "
-                    + " inner join fin_boleto bo on (bo.nr_ctr_boleto = m.nr_ctr_boleto)   "
-                    + " inner join fin_servicos s          on (s.id = m.id_servicos)  "
-                    + " inner join fin_tipo_servico t      on (t.id = m.id_tipo_servico)  "
-                    + " inner join pes_pessoa_endereco pce       on (pce.id_pessoa  = contr.id_pessoa  and pce.id_tipo_endereco = 3)   "
-                    + " left join pes_pessoa_endereco pce2      on (pce2.id_pessoa = p_contabil.id and pce2.id_tipo_endereco = 3)   "
-                    + " left join fin_bloqueia_servico_pessoa as sp on sp.id_pessoa = m.id_pessoa and sp.id_servicos = m.id_servicos and m.dt_vencimento >= sp.dt_inicio and  m.dt_vencimento <= sp.dt_fim "
-                    + " left join ( select CASE WHEN pce2.id_endereco = pce.id_endereco THEN p_contabil.id ELSE 0 END as idContabilidade, count(*) qtde                "
-                    + "               from fin_movimento as m                     "
-                    + "              inner join arr_contribuintes_vw contr on (m.id_pessoa = contr.id_pessoa)  "
-                    + "              inner join pes_pessoa p          on (p.id = contr.id_pessoa)    "
-                    + "              left join pes_juridica j_contabil    on (j_contabil.id = contr.id_contabilidade)   "
-                    + "              left join pes_pessoa p_contabil on (p_contabil.id = j_contabil.id_pessoa)"
-                    + "              inner join fin_boleto bo on (bo.nr_ctr_boleto = m.nr_ctr_boleto)   "
-                    + "              inner join fin_servicos s          on (s.id = m.id_servicos)  "
-                    + "              inner join fin_tipo_servico t      on (t.id = m.id_tipo_servico)   "
-                    + "              inner join pes_pessoa_endereco pce       on (pce.id_pessoa  = contr.id_pessoa  and pce.id_tipo_endereco = 3)   "
-                    + "               left join pes_pessoa_endereco pce2      on (pce2.id_pessoa = p_contabil.id and pce2.id_tipo_endereco = 3)   "
-                    + "               left join fin_bloqueia_servico_pessoa as sp on sp.id_pessoa = m.id_pessoa and sp.id_servicos = m.id_servicos and m.dt_vencimento >= sp.dt_inicio and  m.dt_vencimento <= sp.dt_fim   "
-                    + "              where (sp.is_impressao = true or sp.is_impressao is null)       "
-                    + "                and m.id_Baixa is null "
-                    + "                and m.ds_es = 'E' "
-                    + "                and m.id_tipo_Servico = " + idTipoServico
-                    + "                and m.dt_Vencimento in  " + datas + " group by 1"
-                    + "            ) as x  on x.idcontabilidade = p_contabil.id  "
-                    + " where (sp.is_impressao = true or sp.is_impressao is null)     "
+                    + "         FROM fin_movimento              AS m                                                    \n"
+                    + " INNER JOIN arr_contribuintes_vw         AS contr      ON m.id_pessoa = contr.id_pessoa          \n"
+                    + " INNER JOIN pes_pessoa                   AS p          ON p.id = contr.id_pessoa                 \n"
+                    + " INNER JOIN pes_juridica                 AS pj         ON pj.id=contr.id_juridica                \n"
+                    + "  LEFT JOIN pes_juridica                 AS j_contabil ON j_contabil.id = contr.id_contabilidade \n"
+                    + "  LEFT JOIN pes_pessoa                   AS p_contabil ON p_contabil.id = j_contabil.id_pessoa   \n"
+                    + " INNER JOIN fin_boleto                   AS bo         ON bo.nr_ctr_boleto = m.nr_ctr_boleto     \n"
+                    + " INNER JOIN fin_servicos                 AS s          ON s.id = m.id_servicos                   \n"
+                    + " INNER JOIN fin_tipo_servico             AS t          ON t.id = m.id_tipo_servico               \n"
+                    + " INNER JOIN pes_pessoa_endereco          AS pce        ON pce.id_pessoa = contr.id_pessoa AND pce.id_tipo_endereco = 3 \n"
+                    + "  LEFT JOIN pes_pessoa_endereco          AS pce2       ON pce2.id_pessoa = p_contabil.id AND pce2.id_tipo_endereco = 3 \n"
+                    + "  LEFT JOIN fin_bloqueia_servico_pessoa  AS sp         ON sp.id_pessoa = m.id_pessoa AND sp.id_servicos = m.id_servicos AND m.dt_vencimento >= sp.dt_inicio AND m.dt_vencimento <= sp.dt_fim \n"
+                    + "  LEFT JOIN ( SELECT CASE WHEN pj.is_cobranca_escritorio = true THEN p_contabil.id ELSE 0 END AS idContabilidade, count(*) qtde                                                              \n"
+                    + "                FROM fin_movimento               AS m                                                        \n"
+                    + "          INNER JOIN arr_contribuintes_vw        AS contr        ON m.id_pessoa = contr.id_pessoa            \n"
+                    + "          INNER JOIN pes_juridica                AS pj           ON pj.id = contr.id_juridica                \n"
+                    + "          INNER JOIN pes_pessoa                  AS p            ON p.id = contr.id_pessoa                   \n"
+                    + "           LEFT JOIN pes_juridica                AS j_contabil   ON j_contabil.id = contr.id_contabilidade   \n"
+                    + "           LEFT JOIN pes_pessoa                  AS p_contabil   ON p_contabil.id = j_contabil.id_pessoa     \n"
+                    + "          INNER JOIN fin_boleto                  AS bo           ON bo.nr_ctr_boleto = m.nr_ctr_boleto       \n"
+                    + "          INNER JOIN fin_servicos                AS s            ON s.id = m.id_servicos                     \n"
+                    + "          INNER JOIN fin_tipo_servico            AS t            ON t.id = m.id_tipo_servico                 \n"
+                    + "          INNER JOIN pes_pessoa_endereco         AS pce          ON pce.id_pessoa  = contr.id_pessoa AND pce.id_tipo_endereco = 3  \n"
+                    + "           LEFT JOIN pes_pessoa_endereco         AS pce2         ON pce2.id_pessoa = p_contabil.id AND pce2.id_tipo_endereco = 3   \n"
+                    + "           LEFT JOIN fin_bloqueia_servico_pessoa AS sp           ON sp.id_pessoa = m.id_pessoa AND sp.id_servicos = m.id_servicos AND m.dt_vencimento >= sp.dt_inicio AND m.dt_vencimento <= sp.dt_fim \n"
+                    + "               WHERE (sp.is_impressao = true OR sp.is_impressao IS NULL) \n"
+                    + "                 AND m.id_Baixa IS NULL                                  \n"
+                    + "                 AND m.ds_es = 'E'                                       \n"
+                    + "                 AND m.id_tipo_Servico = " + idTipoServico + "           \n"
+                    + "                 AND m.dt_Vencimento IN  " + datas + " GROUP BY 1        \n"
+                    + "            ) AS x ON x.idcontabilidade = p_contabil.id                  \n"
+                    + "      WHERE (sp.is_impressao = true OR sp.is_impressao IS NULL)          \n"
                     + email
                     + filtros
-                    + " and m.id_Baixa is null "
-                    + " and m.is_ativo = true "
-                    + " and contr.id_pessoa not in (select bl.id_pessoa from fin_bloqueia_servico_pessoa bl where bl.is_impressao is false and bl.id_servicos = " + idServico + " and '15/09/2013' >= bl.dt_inicio and '15/09/2013' <= bl.dt_fim)"
-                    + " and m.ds_es = 'E' "
-                    + " and m.id_tipo_Servico = " + idTipoServico
-                    + " and m.dt_Vencimento in " + datas
-                    + " order by escritorio,razao;";
+                    + "      AND m.id_Baixa IS NULL                                             \n"
+                    + "      AND m.is_ativo = true                                              \n"
+                    + "      AND contr.id_pessoa NOT IN(SELECT bl.id_pessoa FROM fin_bloqueia_servico_pessoa AS bl WHERE bl.is_impressao = false AND bl.id_servicos = " + idServico + " AND '15/09/2013' >= bl.dt_inicio AND '15/09/2013' <= bl.dt_fim) \n"
+                    + "      AND m.ds_es = 'E'                                                  \n"
+                    + "      AND m.id_tipo_Servico = " + idTipoServico + "                      \n"
+                    + "      AND m.dt_Vencimento IN " + datas + "                               \n"
+                    + " ORDER BY escritorio, razao                                              \n";
 
             qry = getEntityManager().createNativeQuery(textQry);
             List listaBoletos = qry.getResultList();
