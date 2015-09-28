@@ -8,11 +8,11 @@ import javax.persistence.Id;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
-
 @Entity
 @Table(name = "soc_modelo_carteirinha")
-@NamedQuery(name = "ModeloCarteirinha.pesquisaID", query = "select mc from ModeloCarteirinha mc where mc.id = :pid")
-public class ModeloCarteirinha  implements java.io.Serializable {
+@NamedQuery(name = "ModeloCarteirinha.findAll", query = "SELECT MC FROM ModeloCarteirinha AS MC ORDER BY MC.descricao ASC")
+public class ModeloCarteirinha implements java.io.Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -27,7 +27,7 @@ public class ModeloCarteirinha  implements java.io.Serializable {
         this.descricao = "";
         this.jasper = "";
     }
-    
+
     public ModeloCarteirinha(int id, String descricao, String jasper) {
         this.id = id;
         this.descricao = descricao;

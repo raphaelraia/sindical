@@ -3,238 +3,312 @@ package br.com.rtools.associativo.beans;
 import br.com.rtools.associativo.Categoria;
 import br.com.rtools.associativo.ModeloCarteirinha;
 import br.com.rtools.associativo.ModeloCarteirinhaCategoria;
-import br.com.rtools.associativo.db.SocioCarteirinhaDB;
+import br.com.rtools.associativo.dao.ModeloCarteirinhaCategoriaDao;
 import br.com.rtools.associativo.db.SocioCarteirinhaDBToplink;
+import br.com.rtools.associativo.lista.ListModeloCarterinhaCategoria;
 import br.com.rtools.seguranca.Rotina;
+import br.com.rtools.seguranca.dao.RotinaDao;
+import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
+import br.com.rtools.utilitarios.GenericaSessao;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
-import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
 @ManagedBean
 @SessionScoped
-public class ModeloCarteirinhaBean { 
+public class ModeloCarteirinhaBean {
 
-    private ModeloCarteirinha modelo = new ModeloCarteirinha();
-    private ModeloCarteirinhaCategoria modeloCategoria = new ModeloCarteirinhaCategoria();
-    private int idCategoria = 0;
-    private int idRotina = 0;
-    private boolean[] disabled = new boolean[]{false};
-    private List<SelectItem> listaCategoria = new ArrayList();
-    private List<SelectItem> listaRotina = new ArrayList();
-    private List<ModeloCarteirinhaCategoria> listaModelo = new ArrayList();
+    private ModeloCarteirinha modeloCarteirinha;
+    private Map<Integer, Integer> categoria_id;
+    private Map<Integer, Integer> rotina_id;
+    private List<ModeloCarteirinha> listModeloCarteirinha;
+    private List<ModeloCarteirinhaCategoria> listModeloCarteirinhaCategoria;
+    private List<ListModeloCarterinhaCategoria> listGeneric;
 
-    public void salvar() {
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+    @PostConstruct
+    public void init() {
+        modeloCarteirinha = new ModeloCarteirinha();
+        categoria_id = new HashMap<>();
+        rotina_id = new HashMap<>();
+        listModeloCarteirinha = new ArrayList();
+        listModeloCarteirinhaCategoria = new ArrayList();
+        listGeneric = new ArrayList();
+        loadListModeloCarteirinha();
+    }
 
-        if (modelo.getDescricao().isEmpty()) {
+    @PreDestroy
+    public void destroy() {
+        GenericaSessao.remove("modeloCarteirinhaBean");
+    }
+
+    public void save() {
+        if (modeloCarteirinha.getDescricao().isEmpty()) {
             GenericaMensagem.warn("Erro", "Digite um nome para o Modelo!");
             return;
         }
-
-        if (modelo.getJasper().isEmpty()) {
+        if (modeloCarteirinha.getJasper().isEmpty()) {
             GenericaMensagem.warn("Erro", "Digite o caminho do Jasper!");
             return;
         }
-
-        sv.abrirTransacao();
-
-        Rotina rotina = (Rotina) sv.pesquisaCodigo(Integer.valueOf(listaRotina.get(idRotina).getDescription()), "Rotina");
-
-        Categoria categoria = null;
-        if (Integer.valueOf(listaCategoria.get(idCategoria).getDescription()) != -1) {
-            categoria = (Categoria) sv.pesquisaCodigo(Integer.valueOf(listaCategoria.get(idCategoria).getDescription()), "Categoria");
-        }
-
-        if (modelo.getId() == -1) {
-            if (!sv.inserirObjeto(modelo)) {
-                GenericaMensagem.warn("Erro", "Não foi possível adicionar Modelo!");
-                sv.desfazerTransacao();
-                return;
-            }
-
-            ModeloCarteirinhaCategoria mcc = new ModeloCarteirinhaCategoria(
-                    -1,
-                    rotina,
-                    categoria,
-                    modelo
-            );
-
-            if (!sv.inserirObjeto(mcc)) {
-                GenericaMensagem.warn("Erro", "Não foi possível salvar Modelo Categoria!");
-                sv.desfazerTransacao();
-                return;
+        if (modeloCarteirinha.getId() == -1) {
+            if (new Dao().save(modeloCarteirinha, true)) {
+                GenericaMensagem.info("Sucesso", "Registro inserido");
+                loadListModeloCarteirinha();
+                loadListModeloCarteirinhaCategoria();
+            } else {
+                GenericaMensagem.warn("Erro", "Ao adicionar registro!");
             }
         } else {
-            if (!sv.alterarObjeto(modelo)) {
-                GenericaMensagem.warn("Erro", "Não foi possível alterar Modelo!");
-                sv.desfazerTransacao();
-                return;
-            }
-
-            SocioCarteirinhaDB db = new SocioCarteirinhaDBToplink();
-
-            if (db.pesquisaModeloCarteirinhaCategoria(modelo.getId(), (categoria == null) ? -1 : categoria.getId(), rotina.getId()) == null) {
-                ModeloCarteirinhaCategoria mcc = new ModeloCarteirinhaCategoria(
-                        -1,
-                        rotina,
-                        categoria,
-                        modelo
-                );
-
-                if (!sv.inserirObjeto(mcc)) {
-                    GenericaMensagem.warn("Erro", "Não foi possível salvar Modelo Categoria!");
-                    sv.desfazerTransacao();
-                    return;
-                }
+            if (new Dao().update(modeloCarteirinha, true)) {
+                GenericaMensagem.info("Sucesso", "Registro atualizado");
+                loadListModeloCarteirinha();
+                loadListModeloCarteirinhaCategoria();
+            } else {
+                GenericaMensagem.warn("Erro", "Ao atualizar registro!");
             }
         }
-
-        sv.comitarTransacao();
-        listaModelo.clear();
-        //modelo = new ModeloCarteirinha();
-        GenericaMensagem.info("Sucesso", "Modelo Salvo!");
     }
 
-    public void novo() {
-        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("modeloCarteirinhaBean", new ModeloCarteirinhaBean());
+    public void saveModeloCarteirinhaCategoria() {
+        saveModeloCarteirinhaCategoria(modeloCarteirinha);
     }
 
-    public void excluir(ModeloCarteirinhaCategoria linha) {
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-
-        sv.abrirTransacao();
-        if (!sv.deletarObjeto(sv.find(linha))) {
-            sv.desfazerTransacao();
-            GenericaMensagem.warn("Erro", "Não foi possível excluir Modelo!");
+    public void saveModeloCarteirinhaCategoria(ModeloCarteirinha mc) {
+        Dao dao = new Dao();
+        ModeloCarteirinhaCategoria mcc = new ModeloCarteirinhaCategoria();
+        mcc.setModeloCarteirinha(mc);
+        Integer mc_id = null;
+        Integer pos = null;
+        for (int i = 0; i < listGeneric.size(); i++) {
+            if (listGeneric.get(i).getModelo_categoria_id() == mc.getId()) {
+                if (listGeneric.get(i).getRotina_id() != null) {
+                    mcc.setRotina((Rotina) dao.find(new Rotina(), listGeneric.get(i).getRotina_id()));
+                }
+                if (listGeneric.get(i).getCategoria_id() != null) {
+                    mcc.setCategoria((Categoria) dao.find(new Categoria(), listGeneric.get(i).getCategoria_id()));
+                }
+                mc_id = listGeneric.get(i).getModelo_categoria_id();
+                pos = i;
+                break;
+            }
+        }
+        ModeloCarteirinhaCategoria exists = new SocioCarteirinhaDBToplink().pesquisaModeloCarteirinhaCategoria(mc.getId(), (mcc.getCategoria() == null) ? -1 : mcc.getCategoria().getId(), mcc.getRotina().getId());
+        if (exists != null) {
+            GenericaMensagem.warn("Validação", "Modelo já existe!");
             return;
         }
-
-        sv.comitarTransacao();
-        listaModelo.clear();
-        GenericaMensagem.info("Sucesso", "Modelo Excluído!");
+        if (new Dao().save(mcc, true)) {
+            GenericaMensagem.info("Sucesso", "Registro adicionado");
+            List<ModeloCarteirinhaCategoria> list = loadListModeloCarteirinhaCategoria(mc_id);
+            if (!list.isEmpty()) {
+                listGeneric.get(pos).setListMCC(new ArrayList());
+                listGeneric.get(pos).setListMCC(list);
+                listGeneric.get(pos).setListCategoria(new ArrayList());
+                listGeneric.get(pos).setListCategoria(listCategoria(mc_id, mcc.getRotina().getId()));
+            }
+        } else {
+            GenericaMensagem.warn("Erro", "Ao adicionar registro!");
+        }
     }
 
-    public void editar(ModeloCarteirinhaCategoria linha) {
-        modeloCategoria = linha;
-        modelo = modeloCategoria.getModeloCarteirinha();
-        boolean cat = false;
-        if (modeloCategoria.getCategoria() != null) {
-            for (int i = 0; i < listaCategoria.size(); i++) {
-                if (Integer.valueOf(listaCategoria.get(i).getDescription()) == modeloCategoria.getCategoria().getId()) {
-                    idCategoria = i;
-                    cat = true;
+    public void clear() {
+        GenericaSessao.remove("modeloCarteirinhaBean");
+    }
+
+    public void deleteModeloCarteirinha(ModeloCarteirinha mc) {
+        Dao dao = new Dao();
+        for (int i = 0; i < listModeloCarteirinhaCategoria.size(); i++) {
+            new Dao().delete(listModeloCarteirinhaCategoria.get(i), true);
+        }
+        if (!new Dao().delete(mc, true)) {
+            GenericaMensagem.warn("Erro", "Ao remover registro!");
+            dao.rollback();
+            return;
+        }
+        loadListModeloCarteirinha();
+        Integer mc_id = null;
+        Integer pos = null;
+        for (int i = 0; i < listGeneric.size(); i++) {
+            if (listGeneric.get(i).getModelo_categoria_id() == mc.getId()) {
+                mc_id = listGeneric.get(i).getModelo_categoria_id();
+                pos = i;
+                break;
+            }
+        }
+        List<ModeloCarteirinhaCategoria> list = loadListModeloCarteirinhaCategoria(mc_id);
+        if (!list.isEmpty()) {
+            listGeneric.get(pos).setListMCC(new ArrayList());
+            listGeneric.get(pos).setListMCC(list);
+        }
+        GenericaMensagem.info("Sucesso", "Registro excluído!");
+    }
+
+    public void deleteModeloCarteirinhaCategoria(ModeloCarteirinhaCategoria mcc) {
+        if (!new Dao().delete(mcc, true)) {
+            GenericaMensagem.warn("Erro", "Ao remover registro!");
+            return;
+        }
+        Integer mc_id = null;
+        Integer pos = null;
+        for (int i = 0; i < listGeneric.size(); i++) {
+            if (listGeneric.get(i).getModelo_categoria_id() == mcc.getModeloCarteirinha().getId()) {
+                mc_id = listGeneric.get(i).getModelo_categoria_id();
+                pos = i;
+                break;
+            }
+        }
+        List<ModeloCarteirinhaCategoria> list = loadListModeloCarteirinhaCategoria(mc_id);
+        if (!list.isEmpty()) {
+            listGeneric.get(pos).setListMCC(new ArrayList());
+            listGeneric.get(pos).setListMCC(list);
+        } else {
+            listGeneric.get(pos).setListMCC(new ArrayList());
+        }
+        listGeneric.get(pos).setListCategoria(new ArrayList());
+        listGeneric.get(pos).setListCategoria(listCategoria(mc_id, mcc.getRotina().getId()));
+        GenericaMensagem.info("Sucesso", "Registro excluído!");
+    }
+
+    public void edit(ModeloCarteirinha mc) {
+        modeloCarteirinha = (ModeloCarteirinha) new Dao().rebind(mc);
+        loadListModeloCarteirinhaCategoria();
+    }
+
+    public ModeloCarteirinha getModeloCarteirinha() {
+        return modeloCarteirinha;
+    }
+
+    public void setModeloCarteirinha(ModeloCarteirinha modeloCarteirinha) {
+        this.modeloCarteirinha = modeloCarteirinha;
+    }
+
+    public List<SelectItem> listCategoria(Integer modelo_carteirinha_id, Integer rotina_id) {
+        List<SelectItem> listCategoria = new ArrayList();
+        List<Categoria> list = new ModeloCarteirinhaCategoriaDao().findNotInCategoriaByMCC(modelo_carteirinha_id, rotina_id);
+        if (!list.isEmpty()) {
+            listCategoria.add(new SelectItem(null, "Sem Categoria"));
+            for (int i = 1; i < list.size(); i++) {
+                listCategoria.add(new SelectItem(list.get(i).getId(), list.get(i).getCategoria()));
+            }
+        } else {
+            listCategoria.add(new SelectItem(0, "Nenhuma Categoria encontrada", "0"));
+        }
+        return listCategoria;
+    }
+
+    public List<SelectItem> listRotina(Integer modelo_carteirinha_id) {
+        List<SelectItem> listRotina = new ArrayList();
+        List<Rotina> list = new ArrayList<>();
+        list.add((Rotina) new Dao().find(new Rotina(), 170));
+        list.add((Rotina) new Dao().find(new Rotina(), 122));
+        if (!list.isEmpty()) {
+            for (int i = 0; i < list.size(); i++) {
+                listRotina.add(new SelectItem(list.get(i).getId(), list.get(i).getRotina()));
+            }
+        } else {
+            listRotina.add(new SelectItem(0, "Nenhuma Rotina encontrada", "0"));
+        }
+        return listRotina;
+    }
+
+    public void loadListModeloCarteirinha() {
+        listModeloCarteirinha = new ArrayList();
+        listModeloCarteirinha = new Dao().list(new ModeloCarteirinha());
+        for (int i = 0; i < listModeloCarteirinha.size(); i++) {
+            ListModeloCarterinhaCategoria generic = new ListModeloCarterinhaCategoria();
+            generic.setListRotina(listRotina(listModeloCarteirinha.get(i).getId()));
+            for (int x = 0; x < generic.getListRotina().size(); i++) {
+                generic.setRotina_id((Integer) generic.getListRotina().get(x).getValue());
+                break;
+            }
+            generic.setListCategoria(listRotina(listModeloCarteirinha.get(i).getId()));
+            for (int x = 0; x < generic.getListCategoria().size(); i++) {
+                generic.setCategoria_id((Integer) generic.getListCategoria().get(x).getValue());
+                break;
+            }
+            generic.setModelo_categoria_id(listModeloCarteirinha.get(i).getId());
+            generic.setListCategoria(listCategoria(listModeloCarteirinha.get(i).getId(), generic.getRotina_id()));
+            generic.setListMCC(loadListModeloCarteirinhaCategoria(listModeloCarteirinha.get(i).getId()));
+            listGeneric.add(generic);
+        }
+    }
+
+    public void loadListModeloCarteirinhaCategoria() {
+        listModeloCarteirinhaCategoria = loadListModeloCarteirinhaCategoria(modeloCarteirinha.getId());
+    }
+
+    public List loadListModeloCarteirinhaCategoria(Integer modelo_carteirinha_id) {
+        return new ModeloCarteirinhaCategoriaDao().findByModeloCarteirinha(modelo_carteirinha_id);
+
+    }
+
+    public Integer categoria_id(Integer modelo_carteirinha_id) {
+        try {
+            Integer c_id = null;
+            for (Map.Entry<Integer, Integer> entry : categoria_id.entrySet()) {
+                if (Objects.equals(modelo_carteirinha_id, entry.getKey())) {
+                    c_id = entry.getValue();
                 }
             }
-        }
-
-        if (!cat) {
-            idCategoria = 0;
-        }
-
-        for (int i = 0; i < listaRotina.size(); i++) {
-            if (Integer.valueOf(listaRotina.get(i).getDescription()) == modeloCategoria.getRotina().getId()) {
-                idRotina = i;
-            }
+            return c_id;
+        } catch (Exception e) {
+            return null;
         }
     }
 
-    public ModeloCarteirinha getModelo() {
-        return modelo;
-    }
-
-    public void setModelo(ModeloCarteirinha modelo) {
-        this.modelo = modelo;
-    }
-
-    public int getIdCategoria() {
-        return idCategoria;
-    }
-
-    public void setIdCategoria(int idCategoria) {
-        this.idCategoria = idCategoria;
-    }
-
-    public int getIdRotina() {
-        return idRotina;
-    }
-
-    public void setIdRotina(int idRotina) {
-        this.idRotina = idRotina;
-    }
-
-    public List<SelectItem> getListaCategoria() {
-        if (listaCategoria.isEmpty()) {
-            List<Categoria> result = (new SalvarAcumuladoDBToplink()).listaObjeto("Categoria");
-
-            if (!result.isEmpty()) {
-                listaCategoria.add(new SelectItem(0, "Sem Categoria", "-1"));
-                for (int i = 1; (i - 1) < result.size(); i++) {
-                    listaCategoria.add(new SelectItem(i, result.get((i - 1)).getCategoria(), Integer.toString(result.get((i - 1)).getId())));
+    public Integer rotina_id(Integer modelo_carteirinha_id) {
+        try {
+            Integer c_id = null;
+            for (Map.Entry<Integer, Integer> entry : rotina_id.entrySet()) {
+                if (Objects.equals(modelo_carteirinha_id, entry.getKey())) {
+                    c_id = entry.getValue();
                 }
-            } else {
-                listaCategoria.add(new SelectItem(0, "Nenhuma Categoria encontrada", "0"));
             }
+            return c_id;
+        } catch (Exception e) {
+            return null;
         }
-        return listaCategoria;
     }
 
-    public void setListaCategoria(List<SelectItem> listaCategoria) {
-        this.listaCategoria = listaCategoria;
+    public List<ModeloCarteirinha> getListModeloCarteirinha() {
+        return listModeloCarteirinha;
     }
 
-    public List<SelectItem> getListaRotina() {
-        if (listaRotina.isEmpty()) {
-            List<Rotina> result = new ArrayList<Rotina>();
-            result.add((Rotina) new SalvarAcumuladoDBToplink().pesquisaCodigo(170, "Rotina"));
-            result.add((Rotina) new SalvarAcumuladoDBToplink().pesquisaCodigo(122, "Rotina"));
-
-            if (!result.isEmpty()) {
-                for (int i = 0; i < result.size(); i++) {
-                    listaRotina.add(new SelectItem(i, result.get(i).getRotina(), Integer.toString(result.get(i).getId())));
-                }
-            } else {
-                listaRotina.add(new SelectItem(0, "Nenhuma Rotina encontrada", "0"));
-            }
-        }
-        return listaRotina;
+    public void setListModeloCarteirinha(List<ModeloCarteirinha> listModeloCarteirinha) {
+        this.listModeloCarteirinha = listModeloCarteirinha;
     }
 
-    public void setListaRotina(List<SelectItem> listaRotina) {
-        this.listaRotina = listaRotina;
+    public List<ModeloCarteirinhaCategoria> getListModeloCarteirinhaCategoria() {
+        return listModeloCarteirinhaCategoria;
     }
 
-    public List<ModeloCarteirinhaCategoria> getListaModelo() {
-        if (listaModelo.isEmpty()) {
-            listaModelo = new SalvarAcumuladoDBToplink().listaObjeto("ModeloCarteirinhaCategoria");
-        }
-        return listaModelo;
+    public void setListModeloCarteirinhaCategoria(List<ModeloCarteirinhaCategoria> listModeloCarteirinhaCategoria) {
+        this.listModeloCarteirinhaCategoria = listModeloCarteirinhaCategoria;
     }
 
-    public void setListaModelo(List<ModeloCarteirinhaCategoria> listaModelo) {
-        this.listaModelo = listaModelo;
+    /**
+     * Lista ModeloCarteirinhaCategoria
+     *
+     * @param modelo_carteirinha_id
+     * @return
+     */
+    public List<ModeloCarteirinhaCategoria> listMCC(Integer modelo_carteirinha_id) {
+        return loadListModeloCarteirinhaCategoria(modelo_carteirinha_id);
     }
 
-    public boolean[] getDisabled() {
-        if (!getListaRotina().get(idRotina).getDescription().isEmpty()) {
-            if (Integer.parseInt(getListaRotina().get(idRotina).getDescription()) == 122) {
-                idCategoria = 0;
-                disabled[0] = true;
-            } else {
-                disabled[0] = false;
-
-            }
-        }
-        return disabled;
+    public List<ListModeloCarterinhaCategoria> getListGeneric() {
+        return listGeneric;
     }
 
-    public void setDisabled(boolean[] disabled) {
-        this.disabled = disabled;
+    public void setListGeneric(List<ListModeloCarterinhaCategoria> listGeneric) {
+        this.listGeneric = listGeneric;
     }
-
 }
