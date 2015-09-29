@@ -45,10 +45,12 @@ public class CaixaFederal extends ArquivoRetorno {
                     FileReader reader = new FileReader(host + listFile[u].getName());
                     BufferedReader buffReader = new BufferedReader(reader);
                     List lista = new Vector();
+                    
                     while ((linha = buffReader.readLine()) != null) {
                         if (!linha.isEmpty())
                             lista.add(linha);
                     }
+                    
                     reader.close();
                     buffReader.close();
                     int i = 0;
