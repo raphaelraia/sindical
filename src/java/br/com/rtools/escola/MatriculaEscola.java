@@ -39,6 +39,9 @@ public class MatriculaEscola implements java.io.Serializable {
     @JoinColumn(name = "id_servico_pessoa", referencedColumnName = "id")
     @ManyToOne
     private ServicoPessoa servicoPessoa;
+    @Temporal(TemporalType.DATE)
+    @Column(name = "dt_cartao")
+    private Date dtCartao;
 
     public MatriculaEscola() {
         id = -1;
@@ -49,9 +52,10 @@ public class MatriculaEscola implements java.io.Serializable {
         status = new Date();
         filial = new Filial();
         servicoPessoa = new ServicoPessoa();
+        dtCartao = null;
     }
 
-    public MatriculaEscola(int id, EscStatus escStatus, Vendedor vendedor, Midia midia, String obs, Date status, Filial filial, ServicoPessoa servicoPessoa) {
+    public MatriculaEscola(int id, EscStatus escStatus, Vendedor vendedor, Midia midia, String obs, Date status, Filial filial, ServicoPessoa servicoPessoa, Date dtCartao) {
         this.id = id;
         this.escStatus = escStatus;
         this.vendedor = vendedor;
@@ -60,6 +64,7 @@ public class MatriculaEscola implements java.io.Serializable {
         this.status = status;
         this.filial = filial;
         this.servicoPessoa = servicoPessoa;
+        this.dtCartao = dtCartao;
     }
 
     public int getId() {
@@ -138,4 +143,36 @@ public class MatriculaEscola implements java.io.Serializable {
     public void setServicoPessoa(ServicoPessoa servicoPessoa) {
         this.servicoPessoa = servicoPessoa;
     }
+
+    public Date getDtCartao() {
+        return dtCartao;
+    }
+
+    public void setDtCartao(Date dtCartao) {
+        this.dtCartao = dtCartao;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final MatriculaEscola other = (MatriculaEscola) obj;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "MatriculaEscola{" + "id=" + id + ", escStatus=" + escStatus + ", vendedor=" + vendedor + ", midia=" + midia + ", obs=" + obs + ", status=" + status + ", filial=" + filial + ", servicoPessoa=" + servicoPessoa + ", dtCartao=" + dtCartao + '}';
+    }
+
 }

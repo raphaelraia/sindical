@@ -1,5 +1,6 @@
 package br.com.rtools.financeiro;
 
+import br.com.rtools.associativo.ModeloCarteirinha;
 import br.com.rtools.pessoa.Administradora;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.seguranca.Departamento;
@@ -74,6 +75,9 @@ public class Servicos implements java.io.Serializable {
     private boolean cursoRenovacao;
     @Column(name = "is_boleto", nullable = true, columnDefinition = "boolean default false")
     private boolean boleto;
+    @JoinColumn(name = "id_modelo_cartao ", referencedColumnName = "id", nullable = true)
+    @ManyToOne
+    private ModeloCarteirinha modeloCarteirinha;
 
     public Servicos() {
         this.id = -1;
@@ -102,6 +106,7 @@ public class Servicos implements java.io.Serializable {
         this.validadeGuias = false;
         this.cursoRenovacao = false;
         this.boleto = false;
+        this.modeloCarteirinha = null;
     }
 
     public Servicos(int id,
@@ -129,7 +134,8 @@ public class Servicos implements java.io.Serializable {
             Administradora administradora,
             boolean validadeGuias,
             boolean cursoRenovacao,
-            boolean boleto) {
+            boolean boleto,
+            ModeloCarteirinha modeloCarteirinha) {
         this.id = id;
         this.descricao = descricao;
         this.filial = filial;
@@ -156,6 +162,7 @@ public class Servicos implements java.io.Serializable {
         this.validadeGuias = validadeGuias;
         this.cursoRenovacao = cursoRenovacao;
         this.boleto = boleto;
+        this.modeloCarteirinha = modeloCarteirinha;
     }
 
     public int getId() {
@@ -286,11 +293,6 @@ public class Servicos implements java.io.Serializable {
         this.produto = produto;
     }
 
-    @Override
-    public String toString() {
-        return "Servicos{" + "id=" + id + ", descricao=" + descricao + ", filial=" + filial + ", plano5=" + plano5 + ", departamento=" + departamento + ", validade=" + validade + ", codigo=" + codigo + ", situacao=" + situacao + ", debito=" + debito + ", alterarValor=" + alterarValor + ", adm=" + adm + ", tabela=" + tabela + ", eleicao=" + eleicao + ", agrupaBoleto=" + agrupaBoleto + ", produto=" + produto + ", subGrupoFinanceiro=" + subGrupoFinanceiro + '}';
-    }
-
     public boolean isValorFixo() {
         return valorFixo;
     }
@@ -370,4 +372,36 @@ public class Servicos implements java.io.Serializable {
     public void setBoleto(boolean boleto) {
         this.boleto = boleto;
     }
+
+    public ModeloCarteirinha getModeloCarteirinha() {
+        return modeloCarteirinha;
+    }
+
+    public void setModeloCarteirinha(ModeloCarteirinha modeloCarteirinha) {
+        this.modeloCarteirinha = modeloCarteirinha;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Servicos other = (Servicos) obj;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "Servicos{" + "id=" + id + ", descricao=" + descricao + ", filial=" + filial + ", plano5=" + plano5 + ", departamento=" + departamento + ", validade=" + validade + ", codigo=" + codigo + ", situacao=" + situacao + ", debito=" + debito + ", alterarValor=" + alterarValor + ", adm=" + adm + ", tabela=" + tabela + ", eleicao=" + eleicao + ", agrupaBoleto=" + agrupaBoleto + ", produto=" + produto + ", subGrupoFinanceiro=" + subGrupoFinanceiro + ", valorFixo=" + valorFixo + ", periodo=" + periodo + ", quantidadePeriodo=" + quantidadePeriodo + ", familiarPeriodo=" + familiarPeriodo + ", valorZerado=" + valorZerado + ", validadeGuiasVigente=" + validadeGuiasVigente + ", administradora=" + administradora + ", validadeGuias=" + validadeGuias + ", cursoRenovacao=" + cursoRenovacao + ", boleto=" + boleto + ", modeloCarteirinha=" + modeloCarteirinha + '}';
+    }
+
 }

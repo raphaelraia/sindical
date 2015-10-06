@@ -6,6 +6,7 @@ import br.com.rtools.relatorios.RelatorioJoin;
 import br.com.rtools.relatorios.RelatorioParametros;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.seguranca.Rotina;
+import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
@@ -132,31 +133,31 @@ public class RelatorioDao extends DB {
         }
         return lista;
     }
-    
+
     public List<RelatorioParametros> listaRelatorioParametro(Integer id_relatorio) {
         List<RelatorioParametros> lista = new ArrayList();
         try {
-            Query qry = getEntityManager().createQuery("SELECT r FROM RelatorioParametros AS r WHERE r.relatorio.id = "+id_relatorio+" ORDER BY r.id");
+            Query qry = getEntityManager().createQuery("SELECT r FROM RelatorioParametros AS r WHERE r.relatorio.id = " + id_relatorio + " ORDER BY r.id");
             lista = qry.getResultList();
         } catch (Exception e) {
         }
         return lista;
     }
-    
+
     public List<RelatorioGrupo> listaRelatorioGrupo(Integer id_relatorio) {
         List<RelatorioGrupo> lista = new ArrayList();
         try {
-            Query qry = getEntityManager().createQuery("SELECT r FROM RelatorioGrupo AS r WHERE r.relatorio.id = "+id_relatorio+" ORDER BY r.id");
+            Query qry = getEntityManager().createQuery("SELECT r FROM RelatorioGrupo AS r WHERE r.relatorio.id = " + id_relatorio + " ORDER BY r.id");
             lista = qry.getResultList();
         } catch (Exception e) {
         }
         return lista;
     }
-    
+
     public List<RelatorioJoin> listaRelatorioJoin(Integer id_relatorio) {
         List<RelatorioJoin> lista = new ArrayList();
         try {
-            Query qry = getEntityManager().createQuery("SELECT r FROM RelatorioJoin AS r WHERE r.relatorio.id = "+id_relatorio+" ORDER BY r.id");
+            Query qry = getEntityManager().createQuery("SELECT r FROM RelatorioJoin AS r WHERE r.relatorio.id = " + id_relatorio + " ORDER BY r.id");
             lista = qry.getResultList();
         } catch (Exception e) {
         }

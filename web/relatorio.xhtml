@@ -78,7 +78,7 @@
                                 </h:panelGrid>
                             </p:panel>
 
-                            <p:panel styleClass="margin-top-max" rendered="#{relatorioBean.relatorio.rotina.id eq 324}">
+                            <p:panel styleClass="margin-top-max" rendered="#{relatorioBean.relatorio.rotina.id eq 324 or relatorioBean.relatorio.rotina.id eq 327}">
                                 <f:facet name="header">
                                     <p:outputLabel value="Montagem de Query (Apenas para Relatório Financeiro) ** movimentos_vw AS m **" />
                                     <p:commandLink value="Ver Query (parcial)" style="color: blue; margin-left: 50px" action="#{relatorioBean.verQuery()}"/>
@@ -129,14 +129,14 @@
                                                 <p:column headerText="Grupo">
                                                     <p:outputLabel value="#{linha.grupo}" />
                                                 </p:column>
-                                                
+
                                                 <p:column headerText="" style="width: 30px">
                                                     <p:commandButton icon="ui-icon-close" action="#{relatorioBean.excluirRelatorioGrupo(linha)}" update="@form"/>
                                                 </p:column>
                                             </p:dataTable>
                                         </h:panelGrid>
                                     </h:column>
-                                    
+
                                     <h:column>
                                         <h:panelGrid>
                                             <h:outputLabel value="Join da Query:" />
@@ -152,7 +152,7 @@
                                                 <p:column headerText="Join">
                                                     <p:outputLabel value="#{linha.join}" />
                                                 </p:column>
-                                                
+
                                                 <p:column headerText="" style="width: 30px">
                                                     <p:commandButton icon="ui-icon-close" action="#{relatorioBean.excluirRelatorioJoin(linha)}" update="@form"/>
                                                 </p:column>
@@ -222,15 +222,15 @@
 
                             <p:dialog widgetVar="dlg_ver_query" header="Query Parcial" resizable="false" width="600" modal="true">
                                 <p:outputLabel value="Visualização da Query Parcial" style="font-size: 12pt!important; font-weight: bold"/>
-                                
+
                                 <h:panelGrid id="panel_ver_query" style="width: 100%">
                                     <p:inputTextarea value="#{relatorioBean.textQuery}" style="width: 100%; font-size: 11pt!important" readonly="true">
                                     </p:inputTextarea>
                                 </h:panelGrid>
-                                
+
                                 <p:commandButton icon="ui-icon-check" value="OK" onclick="PF('dlg_ver_query').hide()"/>
                             </p:dialog>
-                            
+
                             <p:dialog widgetVar="i_dlg_s" header="Salvar este Relatório" resizable="false" width="400" modal="true">
                                 <p:commandButton value="Salvar"   type="submit" styleClass="ui-confirmdialog-yes" action="#{relatorioBean.save()}" onclick="PF('i_dlg_s').hide()" update="form_relatorio" style="clear: both; float: left" icon="ui-icon-check"/>  
                                 <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_s').hide()" style="float: left" icon="ui-icon-close"/>       

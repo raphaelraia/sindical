@@ -72,6 +72,7 @@ public class RelatorioAcademiaBean implements Serializable {
     private String situacaoString;
     private Integer carenciaDias;
     private String tipoCarencia;
+    private String matricula_situacao;
 
     @PostConstruct
     public void init() {
@@ -103,7 +104,7 @@ public class RelatorioAcademiaBean implements Serializable {
         idade[1] = 0;
         tipoRelatorio = "Simples";
         indexAccordion = "Simples";
-        order = "PA.nome";
+        order = "PA.nome, SP.dt_emissao";
         aluno = new Pessoa();
         responsavel = new Pessoa();
         sexo = "";
@@ -242,7 +243,7 @@ public class RelatorioAcademiaBean implements Serializable {
                 inIdPeriodos,
                 sexo,
                 periodo,
-                filtro[7],
+                matricula_situacao,
                 idade,
                 in_grupo_categoria,
                 in_categoria,
@@ -375,7 +376,7 @@ public class RelatorioAcademiaBean implements Serializable {
             sexo = "";
         }
         if (!filtro[5]) {
-            order = "";
+            order = "PA.nome, SP.dt_emissao";
         }
         if (!filtro[6]) {
             selectedPeriodos = null;
@@ -397,7 +398,7 @@ public class RelatorioAcademiaBean implements Serializable {
         }
         if (!filtro[13]) {
             situacaoString = null;
-            situacao = false;
+            situacao = situacao;
             carenciaDias = null;
             tipoCarencia = "todos";
         }
@@ -440,7 +441,7 @@ public class RelatorioAcademiaBean implements Serializable {
                 filtro[4] = false;
                 break;
             case "order":
-                order = "";
+                order = "PA.nome, SP.dt_emissao";
                 filtro[5] = false;
                 break;
             case "periodo":
@@ -932,5 +933,13 @@ public class RelatorioAcademiaBean implements Serializable {
 
     public void setSituacaoString(String situacaoString) {
         this.situacaoString = situacaoString;
+    }
+
+    public String getMatricula_situacao() {
+        return matricula_situacao;
+    }
+
+    public void setMatricula_situacao(String matricula_situacao) {
+        this.matricula_situacao = matricula_situacao;
     }
 }

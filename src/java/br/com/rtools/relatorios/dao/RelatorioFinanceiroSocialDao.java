@@ -10,7 +10,8 @@ import java.util.List;
 import javax.persistence.Query;
 
 public class RelatorioFinanceiroSocialDao extends DB {
-    public List<Object> listaRelatorioFinanceiroSocial(Integer id_grupo_categoria, Integer id_categoria, Integer id_parentesco, Integer id_cidade_socio, Integer id_cidade_empresa, Boolean is_votante, String dataCadastro, String dataCadastroFinal, String dataRecadastro, String dataRecadastroFinal, String dataAdmissao, String dataAdmissaoFinal, String dataDemissao, String dataDemissaoFinal, String dataFiliacao, String dataFiliacaoFinal, String dataAposentadoria, String dataAposentadoriaFinal, String dataAtualizacao, String dataAtualizacaoFinal, String tipo_situacao, String tipo_pessoa, Integer id_pessoa, Integer id_grupo_financeiro, Integer id_sub_grupo, Integer id_servicos, Integer id_tipo_cobranca, String dataEmissao, String dataEmissaoFinal, String dataVencimento, String dataVencimentoFinal, String dataQuitacao, String dataQuitacaoFinal, String tipo_es, String tipo_situacao_financeiro, String tipo_departamento, String tipo_pessoa_financeiro, String order, Relatorios relatorio){
+
+    public List<Object> listaRelatorioFinanceiroSocial(Integer id_grupo_categoria, Integer id_categoria, Integer id_parentesco, Integer id_cidade_socio, Integer id_cidade_empresa, Boolean is_votante, String dataCadastro, String dataCadastroFinal, String dataRecadastro, String dataRecadastroFinal, String dataAdmissao, String dataAdmissaoFinal, String dataDemissao, String dataDemissaoFinal, String dataFiliacao, String dataFiliacaoFinal, String dataAposentadoria, String dataAposentadoriaFinal, String dataAtualizacao, String dataAtualizacaoFinal, String tipo_situacao, String tipo_pessoa, Integer id_pessoa, Integer id_grupo_financeiro, Integer id_sub_grupo, Integer id_servicos, Integer id_tipo_cobranca, String dataEmissao, String dataEmissaoFinal, String dataVencimento, String dataVencimentoFinal, String dataQuitacao, String dataQuitacaoFinal, String tipo_es, String tipo_situacao_financeiro, String tipo_departamento, String tipo_pessoa_financeiro, String desconto_folha_socio, String desconto_folha_financeiro, String order, Relatorios relatorio) {
         String select = " SELECT ";
 
         List<RelatorioParametros> listaRL = new RelatorioDao().listaRelatorioParametro(relatorio.getId());
@@ -160,6 +161,15 @@ public class RelatorioFinanceiroSocialDao extends DB {
             }
         }
 
+        // DESCONTO FOLHA SÓCIO ---
+        if (desconto_folha_socio != null) {
+            if (desconto_folha_socio.equals("SIM")) {
+                list_where.add(" so.desconto_folha = true ");
+            } else {
+                list_where.add(" so.desconto_folha = false ");
+            }
+        }
+
         // GRUPO ---
         if (id_grupo_financeiro != null) {
             list_where.add(" m.id_grupo = " + id_grupo_financeiro + " \n ");
@@ -174,7 +184,7 @@ public class RelatorioFinanceiroSocialDao extends DB {
         if (id_servicos != null) {
             list_where.add(" m.id_servico = " + id_servicos + " \n ");
         }
-        
+
         // TIPO COBRANÇA ---
         if (id_tipo_cobranca != null) {
             list_where.add(" so.cod_tipo_cobranca = " + id_tipo_cobranca + " \n ");
@@ -233,10 +243,10 @@ public class RelatorioFinanceiroSocialDao extends DB {
                     list_where.add(" m.baixa IS NULL \n ");
                     break;
             }
-        }        
-        
+        }
+
         // TIPO DEPARTAMENTO ---
-        if (!tipo_departamento.isEmpty()){
+        if (!tipo_departamento.isEmpty()) {
             switch (tipo_departamento) {
                 case "outros":
                     list_where.add(" m.id_rotina <> 4 \n ");
@@ -249,8 +259,17 @@ public class RelatorioFinanceiroSocialDao extends DB {
                     break;
             }
         }
-        
-        if (!tipo_pessoa_financeiro.isEmpty()){
+
+        // DESCONTO FOLHA FINANCEIRO ---
+        if (desconto_folha_financeiro != null) {
+            if (desconto_folha_financeiro.equals("SIM")) {
+                list_where.add(" j.id > 0 ");
+            } else {
+                list_where.add(" j.id IS NULL ");
+            }
+        }
+
+        if (!tipo_pessoa_financeiro.isEmpty()) {
             switch (tipo_pessoa_financeiro) {
                 case "fisica":
                     join += " INNER JOIN pes_fisica pfx ON pfx.id_pessoa = m.id_pessoa \n ";
@@ -258,12 +277,12 @@ public class RelatorioFinanceiroSocialDao extends DB {
                 default:
                     join += " INNER JOIN pes_juridica pjx ON pjx.id_pessoa = m.id_pessoa \n ";
                     break;
-            }            
-        }else{
-            join += " INNER JOIN pes_fisica pfx ON pfx.id_pessoa = m.id_pessoa \n ";
+            }
+        } else {
+            // join += " INNER JOIN pes_fisica pfx ON pfx.id_pessoa = m.id_pessoa \n ";
         }
-        
-        if (list_where.isEmpty()){
+
+        if (list_where.isEmpty()) {
             return new ArrayList();
         }
 

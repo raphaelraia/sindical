@@ -1,0 +1,108 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>Impressão de Cartões</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+    </h:head>
+    <h:body class="divMenu">
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>            
+        </f:subview>
+        <f:view>
+            <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                <h:outputScript name="tradutor_primefaces.js" library="js" />
+                <h:form id="form_relatorio"> 
+                    <h:outputText value="Impressão de Cartões" styleClass="fonteHeader" />
+                    <div class="clear"></div>
+                    <p:messages autoUpdate="true" showSummary="true" showDetail="true" />
+                    <p:growl id="id_messages_growl" showDetail="true" showSummary="true" autoUpdate="true" />
+                    <h:panelGrid columns="2" id="id_panel" columnClasses="verticalAlignTop,verticalAlignTop" styleClass="margin-top-max">
+                        <h:column>
+                            <p:panel style="width: 225px;" id="i_panel_accordion" header="Avançado">
+                                <h:panelGrid columns="1" styleClass="text-left">
+                                    <f:facet name="header">
+                                        <h:outputLabel value="Aluno" style="text-decoration: underline;"/>
+                                    </f:facet>
+                                    <p:commandButton action="#{chamadaPaginaBean.pesquisa('pesquisaPessoaFisica')}"  icon="ui-icon-search" value="Pesquisar Aluno" />
+                                </h:panelGrid>
+                                <h:panelGrid columns="1" styleClass="text-left margin-top-max">
+                                    <f:facet name="header">
+                                        <h:outputLabel value="Filtros" style="text-decoration: underline;"/>
+                                    </f:facet>
+                                    <p:commandButton value="Não Impressos"      action="#{cartaoEscolaBean.loadCartaoEscola('nao_impressos')}" update=":form_relatorio:" style="width: 150px; text-align: left;border-color: #{cartaoEscolaBean.period eq 'nao_impressos' ? 'red!important' : 'detaulf!important'}"/>
+                                    <p:commandButton value="Hoje"               action="#{cartaoEscolaBean.loadCartaoEscola('hoje')}" update=":form_relatorio:" style="width: 150px; text-align: left;border-color: #{cartaoEscolaBean.period eq 'hoje' ? 'red!important' : 'detaulf!important'}"/>
+                                    <p:commandButton value="Ultimos 30 dias"    action="#{cartaoEscolaBean.loadCartaoEscola('ultimos_30_dias')}" update=":form_relatorio:" style="width: 150px; text-align: left;border-color: #{cartaoEscolaBean.period eq 'ultimos_30_dias' ? 'red!important' : 'detaulf!important'}"/>
+                                    <p:commandButton value="Todos"              action="#{cartaoEscolaBean.loadCartaoEscola('todos')}" update=":form_relatorio:" style="width: 150px; text-align: left; border-color: #{cartaoEscolaBean.period eq 'todos' ? 'red!important' : 'detaulf!important'}"/>
+                                </h:panelGrid>
+                                <h:panelGrid columns="1" styleClass="margin-top">
+                                    <p:outputLabel value="Ordenar por: " />
+                                    <p:selectOneMenu value="#{relatorioAcademiaBean.order}">
+                                        <f:selectItem itemValue="" itemLabel="Nenhum"  />
+                                        <f:selectItem itemValue="Aluno" itemLabel="Aluno"  />
+                                    </p:selectOneMenu>
+                                </h:panelGrid>
+                                <h:panelGrid columns="3" id="i_btns">
+                                    <p:commandButton value="Imprimir" icon="ui-icon-print" title="Imprimir" action="#{cartaoEscolaBean.print()}" ajax="false" styleClass="margin-top-max" update="id_messages_growl" />
+                                    <p:selectBooleanCheckbox itemLabel="Exportar" styleClass="margin-top-max" value="#{jasperBean.EXPORT_TO}" disabled="true">
+                                        <p:ajax event="change" update="@this i_btns" />
+                                    </p:selectBooleanCheckbox>
+                                    <p:selectOneMenu value="#{jasperBean.EXPORT_TYPE}" rendered="#{jasperBean.EXPORT_TO}">
+                                        <p:ajax event="change" update="@this" />
+                                        <f:selectItems value="#{jasperBean.listTypes('xls')}" />
+                                    </p:selectOneMenu>  
+                                </h:panelGrid>                                 
+                            </p:panel>
+                        </h:column>
+                        <h:column>
+                            <h:panelGrid id="id_panel_relatorio">
+                                <p:panel style="width: 100%!important;">
+                                    <f:facet name="header">
+                                        #{cartaoEscolaBean.details}
+                                    </f:facet>
+                                    <p:column>
+                                        <h:panelGrid columns="2" styleClass="margin-top">
+                                            <h:column>
+                                                <h:panelGrid columns="2">
+                                                    <p:outputLabel value="#{cartaoEscolaBean.aluno.nome}" />
+                                                    <p:commandButton icon="ui-icon-close" action="#{cartaoEscolaBean.close('aluno')}" title="Remover filtro" rendered="#{cartaoEscolaBean.aluno.id != -1}"/>
+                                                </h:panelGrid>
+                                            </h:column>
+                                        </h:panelGrid>
+                                    </p:column>
+                                    <h:panelGrid>
+                                        <p:dataTable value="#{cartaoEscolaBean.listCartaoEscolas}" var="ce" paginator="true" rows="20" emptyMessage="Nenhum registro encontrado!">
+                                            <p:column width="30" styleClass="text-center">
+                                                <p:selectBooleanCheckbox value="#{ce.selected}">
+                                                    <p:ajax event="change" update="@this" />
+                                                </p:selectBooleanCheckbox>
+                                            </p:column>
+                                            <p:column width="40" headerText="Nº Matr." styleClass="text-center" filterBy="#{ce.matricula_escola_id}">
+                                                #{ce.matricula_escola_id}
+                                            </p:column>
+                                            <p:column headerText="Nome" filterBy="#{ce.pessoa_nome}">
+                                                #{ce.pessoa_nome}                            
+                                            </p:column>
+                                            <p:column headerText="Curso" filterBy="#{ce.servico_descricao}">
+                                                #{ce.servico_descricao}
+                                            </p:column>
+                                            <p:column headerText="Impresso" width="80" styleClass="text-center" rendered="#{cartaoEscolaBean.period ne 'nao_impressos'}"> 
+                                                #{ce.data_impressao}
+                                            </p:column>
+                                            <p:column width="30" styleClass="text-center">
+                                                <p:commandButton icon="ui-icon-print" action="#{cartaoEscolaBean.print(ce)}" ajax="false"/>
+                                            </p:column>
+                                        </p:dataTable>
+                                    </h:panelGrid>
+                                </p:panel>                                
+                            </h:panelGrid>
+                        </h:column>
+                    </h:panelGrid>                    
+                </h:form>                          
+            </p:panel>
+        </f:view>
+    </h:body>
+</ui:composition>

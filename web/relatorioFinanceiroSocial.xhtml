@@ -63,7 +63,7 @@
                             <h:panelGrid columns="1" style="width: 100%;">
                                 <p:messages autoUpdate="false" closable="true" showDetail="true"/>
                             </h:panelGrid> 
-                            
+
                             <h:panelGrid columns="2" style="width: 100%;" columnClasses="column01, column02">
                                 <h:column>
                                     <p:panel header="Filtros SÓCIO">
@@ -74,7 +74,7 @@
                                             <br /><br />
                                         </c:forEach>
                                     </p:panel>
-                                    
+
                                     <p:panel header="Filtros FINANCEIRO">
                                         <br />
                                         <c:forEach items="#{relatorioFinanceiroSocialBean.listaFiltrosFinanceiro}" var="linha" varStatus="loop">
@@ -104,7 +104,7 @@
                                                         <f:selectItems value="#{relatorioFinanceiroSocialBean.listaGrupoCategoria}"/>
                                                     </p:selectOneMenu>
                                                 </h:column>
-                                                
+
                                                 <h:column>
                                                     <p:outputLabel value="Categoria" /><br />
                                                     <p:selectOneMenu value="#{relatorioFinanceiroSocialBean.idCategoria}" style="padding-right: 20px">
@@ -114,7 +114,7 @@
                                                 </h:column>
                                             </h:panelGrid>
                                         </h:column>
-                                        
+
                                         <!-- GRAU -->
                                         <h:column>
                                             <h:panelGrid columns="2" rendered="#{relatorioFinanceiroSocialBean.listaFiltros.get(1).ativo}" style="float: left; margin: 10px ">
@@ -130,7 +130,7 @@
                                                 </h:column>
                                             </h:panelGrid>
                                         </h:column>
-                                        
+
                                         <!-- CIDADE DO SÓCIO -->
                                         <h:column>
                                             <h:panelGrid columns="2" rendered="#{relatorioFinanceiroSocialBean.listaFiltros.get(2).ativo}" style="float: left; margin: 10px ">
@@ -144,7 +144,7 @@
                                                 </h:column>
                                             </h:panelGrid>
                                         </h:column>
-                                        
+
                                         <!-- CIDADE DA EMPRESA -->
                                         <h:column>
                                             <h:panelGrid columns="2" rendered="#{relatorioFinanceiroSocialBean.listaFiltros.get(3).ativo}" style="float: left; margin: 10px ">
@@ -175,7 +175,7 @@
                                                 </h:column>
                                             </h:panelGrid>
                                         </h:column>
-                                        
+
 
                                         <!-- DATAS -->
                                         <h:column>
@@ -245,7 +245,7 @@
                                                         </h:panelGrid>
                                                     </p:panel>
                                                 </h:column>
-                                                
+
                                                 <h:column>
                                                     <p:panel styleClass="fundoCinza">
                                                         <h:panelGrid columns="1">
@@ -258,7 +258,7 @@
                                                 </h:column>
                                             </h:panelGrid>
                                         </h:column>   
-                                        
+
                                         <!-- SITUAÇÃO -->
                                         <h:column>
                                             <h:panelGrid columns="2" rendered="#{relatorioFinanceiroSocialBean.listaFiltros.get(6).ativo}" style="float: left; margin: 10px ">
@@ -275,7 +275,7 @@
                                                 </h:column>
                                             </h:panelGrid>
                                         </h:column>
-                                        
+
                                         <!-- PESSOA SÓCIO -->
                                         <h:column>
                                             <h:panelGrid columns="2" rendered="#{relatorioFinanceiroSocialBean.listaFiltros.get(7).ativo}" style="float: left; margin: 10px ">
@@ -294,8 +294,23 @@
                                                 </h:column>
                                             </h:panelGrid>
                                         </h:column>
-                                        
-                                        
+
+                                        <!-- DESCONTO EM FOLHA -->
+                                        <h:column>
+                                            <h:panelGrid columns="2" rendered="#{relatorioFinanceiroSocialBean.listaFiltros[8].ativo}" style="float: left; margin: 10px ">
+                                                <p:outputLabel value="Desconto em Folha" style="font-weight: bold"/>
+                                                <p:selectOneRadio value="#{relatorioFinanceiroSocialBean.descontoFolhaSocio}">
+                                                    <p:ajax event="change" update="@this" />
+                                                    <f:selectItem itemValue="SIM"   itemLabel="SIM" />
+                                                    <f:selectItem itemValue="NAO"   itemLabel="NÃO" />
+                                                </p:selectOneRadio>
+                                            </h:panelGrid>
+                                        </h:column>
+
+
+                                        <!-- FINANCEIRO -->
+
+
                                         <!-- GRUPO FINANCEIRO -->
                                         <h:column>
                                             <h:panelGrid columns="2" rendered="#{relatorioFinanceiroSocialBean.listaFiltrosFinanceiro.get(0).ativo}" style="float: left; margin: 10px ">
@@ -343,7 +358,7 @@
                                                 </h:column>
                                             </h:panelGrid>
                                         </h:column> 
-                                        
+
                                         <!-- TIPO COBRANÇA -->
                                         <h:column>
                                             <h:panelGrid columns="2" rendered="#{relatorioFinanceiroSocialBean.listaFiltrosFinanceiro[8].ativo}" style="float: left; margin: 10px ">
@@ -359,7 +374,7 @@
                                                 </h:column>
                                             </h:panelGrid>
                                         </h:column> 
-                                        
+
                                         <!-- DATAS FINANCEIRO -->
                                         <h:column>
                                             <h:panelGrid columns="10" rendered="#{relatorioFinanceiroSocialBean.listaFiltrosFinanceiro.get(3).ativo}" style="float: left; margin: 10px ">
@@ -397,7 +412,7 @@
                                                 </h:column>
                                             </h:panelGrid>
                                         </h:column>
-                                        
+
                                         <!-- E / S -->
                                         <h:column>
                                             <h:panelGrid columns="2" rendered="#{relatorioFinanceiroSocialBean.listaFiltrosFinanceiro.get(4).ativo}" style="float: left; margin: 10px ">
@@ -414,13 +429,13 @@
                                                 </h:column>
                                             </h:panelGrid>
                                         </h:column>   
-                                        
-                                        
+
+
                                         <!-- SITUAÇÃO FINANCEIRO-->
                                         <h:column>
                                             <h:panelGrid columns="2" rendered="#{relatorioFinanceiroSocialBean.listaFiltrosFinanceiro.get(5).ativo}" style="float: left; margin: 10px ">
                                                 <h:column>
-                                                    <p:outputLabel value="Situação Financeiro" />
+                                                    <p:outputLabel value="Situação Financeira" />
                                                 </h:column>
                                                 <h:column></h:column>
                                                 <h:column>
@@ -433,7 +448,7 @@
                                                 </h:column>
                                             </h:panelGrid>
                                         </h:column>    
-                                        
+
                                         <!-- DEPARTAMENTO -->
                                         <h:column>
                                             <h:panelGrid columns="2" rendered="#{relatorioFinanceiroSocialBean.listaFiltrosFinanceiro.get(6).ativo}" style="float: left; margin: 10px ">
@@ -451,7 +466,7 @@
                                                 </h:column>
                                             </h:panelGrid>
                                         </h:column>
-                                        
+
                                         <!-- PESSOA -->
                                         <h:column>
                                             <h:panelGrid columns="2" rendered="#{relatorioFinanceiroSocialBean.listaFiltrosFinanceiro.get(7).ativo}" style="float: left; margin: 10px ">
@@ -467,8 +482,20 @@
                                                     </p:selectOneMenu>
                                                 </h:column>
                                             </h:panelGrid>
-                                        </h:column>     
-                                        
+                                        </h:column>
+
+                                        <!-- DESCONTO EM FOLHA -->
+                                        <h:column>
+                                            <h:panelGrid columns="2" rendered="#{relatorioFinanceiroSocialBean.listaFiltrosFinanceiro[9].ativo}" style="float: left; margin: 10px ">
+                                                <p:outputLabel value="Desconto em Folha" style="font-weight: bold"/>
+                                                <p:selectOneRadio value="#{relatorioFinanceiroSocialBean.descontoFolhaFinanceiro}">
+                                                    <p:ajax event="change" update="@this" />
+                                                    <f:selectItem itemValue="SIM"   itemLabel="SIM" />
+                                                    <f:selectItem itemValue="NAO"   itemLabel="NÃO" />
+                                                </p:selectOneRadio>
+                                            </h:panelGrid>
+                                        </h:column>                                        
+
                                     </h:panelGrid>                            
                                 </h:column>
                             </h:panelGrid>                            

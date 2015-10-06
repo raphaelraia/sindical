@@ -149,6 +149,16 @@
                                                 </h:panelGrid>
                                             </p:fieldset>
                                         </p:tab>
+                                        <p:tab title="Complemento">
+                                            <h:panelGrid columns="2">
+                                                <p:outputLabel value="Modelo de Carterinha" /><br />
+                                                <p:selectOneMenu value="#{servicosBean.idModeloCarteirinha}" style="margin-right: 10px;">
+                                                    <p:ajax event="change" update="@this" />
+                                                    <f:selectItem itemValue="" itemLabel="Nenhum" />
+                                                    <f:selectItems value="#{servicosBean.listModeloCarteirinha}"/>
+                                                </p:selectOneMenu>
+                                            </h:panelGrid>
+                                        </p:tab>
                                         <p:tab id="valor" disabled="#{servicosBean.desabilitaValor}" title="Serviço Valor">                                    
                                             <p:messages id="id_messages_growl" showDetail="true" autoUpdate="true" closable="true" />
                                             <p:panel  id="id_painel_servico_valor" styleClass="margin-top">

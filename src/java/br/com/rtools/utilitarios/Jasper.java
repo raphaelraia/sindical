@@ -267,6 +267,7 @@ public class Jasper implements Serializable {
             case "retrato":
                 subreport = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/CABECALHO_RETRATO.jasper");
                 break;
+            case "default":
             case "paisagem":
                 subreport = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/CABECALHO_PAISAGEM.jasper");
                 break;
@@ -294,6 +295,22 @@ public class Jasper implements Serializable {
             parameters.put("sindicato_cep", juridica.getPessoa().getPessoaEndereco().getEndereco().getCep());
             parameters.put("sindicato_telefone", juridica.getPessoa().getTelefone1());
             parameters.put("sindicato_logo", ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));
+
+            // CORREÇÃO
+            // parameters.put("instituicao_nome", juridica.getPessoa().getNome());
+            // parameters.put("instituicao_documento", juridica.getPessoa().getDocumento());
+            // parameters.put("instituicao_site", juridica.getPessoa().getSite());
+            // parameters.put("instituicao_logradouro", juridica.getPessoa().getPessoaEndereco().getEndereco().getLogradouro().getDescricao());
+            // parameters.put("instituicao_endereco", juridica.getPessoa().getPessoaEndereco().getEndereco().getDescricaoEndereco().getDescricao());
+            // parameters.put("instituicao_numero", juridica.getPessoa().getPessoaEndereco().getNumero());
+            // parameters.put("instituicao_complemento", juridica.getPessoa().getPessoaEndereco().getComplemento());
+            // parameters.put("instituicao_bairro", juridica.getPessoa().getPessoaEndereco().getEndereco().getBairro().getDescricao());
+            // parameters.put("instituicao_cidade", juridica.getPessoa().getPessoaEndereco().getEndereco().getCidade().getCidade());
+            // parameters.put("instituicao_uf", juridica.getPessoa().getPessoaEndereco().getEndereco().getCidade().getUf());
+            // parameters.put("instituicao_cep", juridica.getPessoa().getPessoaEndereco().getEndereco().getCep());
+            // parameters.put("instituicao_telefone", juridica.getPessoa().getTelefone1());
+            // parameters.put("instituicao_logo", ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));
+            //
             parameters.put("template_dir", subreport);
         }
 
@@ -510,6 +527,7 @@ public class Jasper implements Serializable {
                     System.out.println(e);
                     IS_DOWNLOAD = false;
                     COMPRESS_FILE = false;
+                    GenericaMensagem.warn("Erro de sistema", e.getMessage());
                     return;
                 } catch (OutOfMemoryError e) {
                     IS_DOWNLOAD = false;
@@ -534,7 +552,7 @@ public class Jasper implements Serializable {
                         Compact.toZip(fileName + PART_NAME + uuid + "." + COMPRESS_EXTENSION, dirPath + "/" + downloadName);
                         downloadName = fileName + PART_NAME + uuid + "." + COMPRESS_EXTENSION;
                     } catch (IOException e) {
-
+                        GenericaMensagem.warn("Erro de sistema", e.getMessage());
                     }
                 }
 

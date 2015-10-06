@@ -95,10 +95,13 @@
                         <h:column>
                             <p:panel header="Filtro" id="id_panel_relatorio" style="width: 760px;" >
                                 <h:panelGrid columns="2" cellspacing="5">
-                                    <p:outputLabel value="Situação:" />
-                                    <p:selectBooleanCheckbox value="#{relatorioAcademiaBean.filtro[7]}" itemLabel="Ativo">
+                                    <p:outputLabel value="Situação da Matrícula:" />
+                                    <p:selectOneMenu value="#{relatorioAcademiaBean.matricula_situacao}">
                                         <p:ajax event="change" update="@this" />
-                                    </p:selectBooleanCheckbox>
+                                        <f:selectItem itemValue="ativos" itemLabel="Ativos" />
+                                        <f:selectItem itemValue="inativos" itemLabel="Inativos" />
+                                        <f:selectItem itemValue="todos" itemLabel="Todos" />
+                                    </p:selectOneMenu>
                                 </h:panelGrid>
                                 <p:panel header="Aluno" rendered="#{relatorioAcademiaBean.filtro[8]}">
                                     <p:column rendered="#{relatorioAcademiaBean.filtro[8]}">
@@ -236,7 +239,7 @@
                                             <p:outputLabel value="Ordenar por: " />
                                             <p:selectOneMenu value="#{relatorioAcademiaBean.order}">
                                                 <f:selectItem itemValue="" itemLabel="Nenhum"  />
-                                                <f:selectItem itemValue="PA.nome" itemLabel="Nome"  />
+                                                <f:selectItem itemValue="PA.nome, SP.dt_emissao" itemLabel="Nome,Emissão"  />
                                             </p:selectOneMenu>
                                             <p:commandButton icon="ui-icon-close" action="#{relatorioAcademiaBean.close('order')}" title="Remover filtro"/>
                                         </h:panelGrid>                                        

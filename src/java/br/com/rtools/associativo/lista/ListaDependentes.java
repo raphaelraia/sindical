@@ -1,7 +1,9 @@
 package br.com.rtools.associativo.lista;
 
+import br.com.rtools.associativo.Parentesco;
 import br.com.rtools.financeiro.ServicoPessoa;
 import br.com.rtools.pessoa.Fisica;
+import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.Moeda;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -71,6 +73,13 @@ public class ListaDependentes implements Serializable {
         this.idParentesco = Integer.parseInt(parentescoString);
     }
 
+    public Parentesco getParentesco() {
+        if (idParentesco != null) {
+            return (Parentesco) new Dao().find(new Parentesco(), idParentesco);
+        }
+        return new Parentesco();
+    }
+
     public Integer getViaCarteirinha() {
         return viaCarteirinha;
     }
@@ -134,14 +143,14 @@ public class ListaDependentes implements Serializable {
     public void setValor(Float valor) {
         this.valor = valor;
     }
-    
+
     public String getValorString() {
         return Moeda.converteR$Float(valor);
     }
 
     public void setValorString(String valorString) {
         this.valor = Moeda.converteUS$(valorString);
-    }    
+    }
 
     public ServicoPessoa getServicoPessoa() {
         return servicoPessoa;

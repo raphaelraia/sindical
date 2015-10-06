@@ -16,29 +16,33 @@ public class ModeloCarteirinha implements java.io.Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
     @Column(name = "ds_descricao", length = 150)
     private String descricao;
     @Column(name = "ds_jasper", length = 150)
     private String jasper;
+    @Column(name = "ds_foto", length = 255)
+    private String foto;
 
     public ModeloCarteirinha() {
         this.id = -1;
         this.descricao = "";
         this.jasper = "";
+        this.foto = null;
     }
 
-    public ModeloCarteirinha(int id, String descricao, String jasper) {
+    public ModeloCarteirinha(Integer id, String descricao, String jasper, String foto) {
         this.id = id;
         this.descricao = descricao;
         this.jasper = jasper;
+        this.foto = foto;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -56,5 +60,13 @@ public class ModeloCarteirinha implements java.io.Serializable {
 
     public void setJasper(String jasper) {
         this.jasper = jasper;
+    }
+
+    public String getFoto() {
+        return foto;
+    }
+
+    public void setFoto(String foto) {
+        this.foto = foto;
     }
 }

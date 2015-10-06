@@ -21,7 +21,7 @@ public class RelatorioAcademiaDao extends DB {
      * @param inIdPeriodos
      * @param inSexo
      * @param periodo
-     * @param ativos
+     * @param matricula_situacao
      * @param order
      * @param in_grupo_categoria
      * @param in_categoria
@@ -38,7 +38,7 @@ public class RelatorioAcademiaDao extends DB {
      * @param inIdSubGrupoFinanceiro
      * @return
      */
-    public List find(Relatorios r, String emissaoInicial, String emissaoFinal, Integer idResponsavel, Integer idAluno, String inModalidade, String inIdPeriodos, String inSexo, String periodo, Boolean ativos, Integer[] idade, String in_grupo_categoria, String in_categoria, Boolean nao_socio, Boolean convenio_empresa, Float desconto, Float desconto_final, String tipoCarencia, Integer carenciaDias, String situacao, String order) {
+    public List find(Relatorios r, String emissaoInicial, String emissaoFinal, Integer idResponsavel, Integer idAluno, String inModalidade, String inIdPeriodos, String inSexo, String periodo, String matricula_situacao, Integer[] idade, String in_grupo_categoria, String in_categoria, Boolean nao_socio, Boolean convenio_empresa, Float desconto, Float desconto_final, String tipoCarencia, Integer carenciaDias, String situacao, String order) {
         List listWhere = new ArrayList();
         String queryString = ""
                 + "     SELECT PA.nome,                                                       \n" // 0 - NOME
@@ -63,25 +63,20 @@ public class RelatorioAcademiaDao extends DB {
                 + "      FROM fin_servico_pessoa    AS SP                                           \n"
                 + " INNER JOIN matr_academia        AS M    ON M.id_servico_pessoa = SP.id          \n"
                 + "     WHERE SP.is_ativo = true                                                    \n"
-                + " ) AS MA ON MA.id_servico = SP.id_servico AND MA.id_pessoa = SP.id_pessoa        \n";
+                + " ) AS MA ON MA.id_pessoa = SP.id_pessoa                                          \n";
         if (convenio_empresa != null && convenio_empresa) {
             queryString += " INNER JOIN fin_desconto_servico_empresa AS FDSE ON FDSE.id_juridica = PA.id_juridica AND FDSE.id_servico = SP.id_servico ";
             listWhere.add("SP.id_pessoa NOT IN (SELECT SOCVW.codsocio FROM soc_socios_vw AS SOCVW GROUP BY SOCVW.codsocio )");
         }
         String emissaoInativacaoString = "";
         if (periodo != null) {
-            if (periodo.equals("emissao")) {
-                if (ativos != null) {
-                    if (ativos) {
-                        emissaoInativacaoString += " SP.is_ativo = true AND ";
-                    } else {
-                        listWhere.add(" MA.id_pessoa IS NULL ");
-                        emissaoInativacaoString += " SP.is_ativo = false AND ";
-                    }
-                    emissaoInativacaoString = emissaoInativacaoString + " SP.dt_emissao ";
-                }
-            } else if (periodo.equals("inativacao")) {
-                emissaoInativacaoString = " SP.is_ativo = false AND A.dt_inativo ";
+            switch (periodo) {
+                case "emissao":
+                    emissaoInativacaoString = " SP.dt_emissao ";
+                    break;
+                case "inativacao":
+                    emissaoInativacaoString = " A.dt_inativo ";
+                    break;
             }
             if (!emissaoInicial.isEmpty() && !emissaoFinal.isEmpty()) {
                 listWhere.add(emissaoInativacaoString + "BETWEEN '" + emissaoInicial + "' AND '" + emissaoFinal + "'");
@@ -90,16 +85,36 @@ public class RelatorioAcademiaDao extends DB {
             } else if (!emissaoFinal.isEmpty()) {
                 listWhere.add(emissaoInativacaoString + " = '" + emissaoFinal + "'");
             } else if (emissaoInicial.isEmpty() || emissaoFinal.isEmpty()) {
-                if (ativos) {
+                if (matricula_situacao != null && matricula_situacao.equals("ativos")) {
                     listWhere.add(emissaoInativacaoString + " IS NOT NULL ");
                 }
             }
-        } else {
-            if (ativos) {
-                listWhere.add(" SP.is_ativo = true  ");
-            } else {
-                listWhere.add(" SP.is_ativo = false ");
-                listWhere.add(" MA.id_pessoa IS NULL ");
+        }
+        if (matricula_situacao != null) {
+            switch (matricula_situacao) {
+                case "ativos":
+                    listWhere.add(" SP.is_ativo = true ");
+                    break;
+                case "inativos":
+                    listWhere.add(" MA.id_pessoa IS NULL ");
+                    listWhere.add(" SP.id IN                                                        \n"
+                            + "    (                                                                \n"
+                            + "       SELECT max(sp.id)         AS id_servico_pessoa                \n"
+                            + "         FROM fin_servico_pessoa AS SP                               \n"
+                            + "   INNER JOIN matr_academia      AS M ON M.id_servico_pessoa = SP.id \n"
+                            + "   INNER JOIN                                                        \n"
+                            + "       (                                                             \n"
+                            + "             SELECT SP.id_pessoa,                                          \n"
+                            + "                    max(m.dt_inativo)  AS dt_inativo                       \n"
+                            + "               FROM fin_servico_pessoa AS SP                               \n"
+                            + "         INNER JOIN matr_academia      AS M ON M.id_servico_pessoa = SP.id \n"
+                            + "              WHERE SP.is_ativo = false                                    \n"
+                            + "           GROUP BY SP.id_pessoa                                           \n"
+                            + "       ) AS xmi ON sp.id_pessoa = xmi.id_pessoa                            \n"
+                            + "         AND xmi.dt_inativo = m.dt_inativo                                 \n"
+                            + "     GROUP BY SP.id                                                        \n"
+                            + "    ) ");
+                    break;
             }
         }
 

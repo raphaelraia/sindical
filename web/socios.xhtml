@@ -366,7 +366,7 @@
                                 </p:dataTable>
                             </p:panel>
 
-                            <p:dialog widgetVar="i_dlg_deps" header="Lista de Dependentes Inativos" resizable="false" width="600" modal="true" closeOnEscape="true">
+                            <p:dialog widgetVar="i_dlg_deps" header="Lista de Dependentes Inativos" resizable="false" width="800" modal="true" closeOnEscape="true">
                                 <h:panelGrid id="i_l_d_i">
                                     <p:dataTable value="#{sociosBean.listDependentesInativos}" var="listDependentesInativos" rowIndexVar="index" emptyMessage="Nenhum Dependente Inativo">
                                         <p:column style="text-align: center" width="30">
@@ -376,7 +376,9 @@
                                             <h:outputLabel value="#{listDependentesInativos.fisica.pessoa.nome}" />
                                         </p:column>
                                         <p:column headerText="Parentesco">
-                                            <h:outputLabel value="#{listDependentesInativos.parentescoString}" />
+                                            <p:selectOneMenu value="#{listDependentesInativos.idParentesco}" disabled="true" syncTooltip="true">
+                                                <f:selectItems value="#{listDependentesInativos.listParentesco}"/>
+                                            </p:selectOneMenu>                                            
                                         </p:column>
                                         <p:column headerText="Validade Dependente" style="text-align: center" width="150">
                                             <p:inputMask id="i_validade_dependente_inativo" value="#{listDependentesInativos.validadeDependente}" size="5" mask="99/9999"/>

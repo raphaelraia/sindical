@@ -176,6 +176,7 @@ public class ImpressaoBoletosBean implements Serializable {
     }
 
     public synchronized void carregarGrid() {
+        int x = 0;
         try {
             listaMovGrid.clear();
             listaMovGridSelecionada.clear();
@@ -243,11 +244,11 @@ public class ImpressaoBoletosBean implements Serializable {
 
                 Vector v = (Vector) result[0];
 
-                int auxEsc = 0;
-                int auxEmpresa = 0;
-                int ate = 0, apartir = 0;
-                for (int i = 0; i < v.size(); i++) {
-                    vetorAux = (Vector) v.get(i);
+                Integer auxEsc = 0;
+                Integer auxEmpresa = 0;
+                Integer ate = 0, apartir = 0;
+                for (x = 0; x < v.size(); x++) {
+                    vetorAux = (Vector) v.get(x);
                     if (this.regraEscritorios.equals("ate")) {
                         if (((Long) vetorAux.get(11)) <= this.quantidadeEmpresas) {
                             linha = addGrid(vetorAux, ate);
@@ -279,7 +280,7 @@ public class ImpressaoBoletosBean implements Serializable {
                             apartir++;
                         }
                     } else {
-                        linha = addGrid((Vector) v.get(i), i);
+                        linha = addGrid((Vector) v.get(x), x);
                         if (auxEsc != ((Integer) vetorAux.get(9))) {
                             totalEscritorios++;
                         }

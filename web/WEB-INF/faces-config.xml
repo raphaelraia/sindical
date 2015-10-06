@@ -1782,6 +1782,18 @@
             <redirect/>
         </navigation-case>         
         
+        <navigation-case>
+            <from-outcome>cartaoEscola</from-outcome>
+            <to-view-id>/cartaoEscola.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>         
+        
+        <navigation-case>
+            <from-outcome>relatorioCobrancaExterna</from-outcome>
+            <to-view-id>/relatorioCobrancaExterna.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>         
+        
         <!-- 
         <navigation-case>
             <from-outcome>#{navigationRules.param}</from-outcome>

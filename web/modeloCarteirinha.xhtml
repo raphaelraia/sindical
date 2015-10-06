@@ -26,7 +26,21 @@
                 <f:subview id="header">
                     <ui:include src="templates/templatePrime.xhtml"/>
                 </f:subview>
-                <f:view>
+                <f:view>        
+                    <h:form id="form_logo_upload" enctype="multipart/form-data" acceptcharset="UTF-8" style="">
+                        <p:dialog id="i_dlg_cartao" widgetVar="dlg_cartao" modal="true"  header="Anexar logo" closable="true">
+                            <p:fileUpload label="Procurar"
+                                          cancelLabel="Cancelar"
+                                          uploadLabel="Anexar"
+                                          mode="advanced"                                          
+                                          dragDropSupport="true"
+                                          multiple="false"
+                                          update=":formModeloCarteirinha:"
+                                          immediate="true"
+                                          fileUploadListener="#{modeloCarteirinhaBean.upload}"
+                                          oncomplete="PF('dlg_cartao').hide()" />
+                        </p:dialog>
+                    </h:form> 
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:form id="formModeloCarteirinha">
                             <c:set scope="request" var="object" value="${modeloCarteirinhaBean.modeloCarteirinha}"/>
@@ -54,7 +68,10 @@
                                         <h:outputLabel value=" Ex. nome_jasper.jasper" style="font-size: 7pt!important; color: red"/>
                                     </p:column>
                                     <p:column>
-                                        <p:commandButton value="#{modeloCarteirinhaBean.modeloCarteirinha.id == -1 ? 'Salvar' : 'Atualizar'} modelo" action="#{modeloCarteirinhaBean.save()}" update="formModeloCarteirinha" icon="ui-icon-plus" styleClass="margin-left-max" disabled="#{controleAcessoBean.botaoSalvar}"/>
+                                        <h:panelGrid styleClass="margin-left-max" >
+                                            <p:commandButton value="#{modeloCarteirinhaBean.modeloCarteirinha.id == -1 ? 'Salvar' : 'Atualizar'} modelo" action="#{modeloCarteirinhaBean.save()}" update="formModeloCarteirinha" icon="ui-icon-plus" disabled="#{controleAcessoBean.botaoSalvar}"/>
+                                            <p:commandButton id="i_dlg_cartao" value="Enviar imagem" onclick="PF('dlg_cartao').show();" title="Alterar imagem" styleClass="margin-top-max"  alt="Pesquisar uma imagem" rendered="#{modeloCarteirinhaBean.modeloCarteirinha.id != -1}"/>
+                                        </h:panelGrid>
                                     </p:column>
                                 </h:panelGrid>
                                 <f:facet name="footer">
@@ -80,6 +97,9 @@
                                                     <p:column headerText="Jasper">
                                                         <h:outputText value="#{modeloCarteirinha.jasper}"/>
                                                     </p:column>                                           
+                                                    <p:column width="100" styleClass="text-center">
+                                                        <h:graphicImage value="/Cliente/#{controleUsuarioBean.clienteString}/Imagens/ModeloCarteirinha/#{modeloCarteirinhaBean.modeloCarteirinha.foto}" style="width: auto; height: 100px; border: 2px dashed gray;" rendered="#{modeloCarteirinha.foto ne null}"/>
+                                                    </p:column>
                                                     <p:column width="30" styleClass="text-center">
                                                         <p:commandButton action="#{modeloCarteirinhaBean.deleteModeloCarteirinha(modeloCarteirinha)}" update=":formModeloCarteirinha" icon="ui-icon-close" disabled="#{controleAcessoBean.botaoExcluir}"/>
                                                     </p:column>

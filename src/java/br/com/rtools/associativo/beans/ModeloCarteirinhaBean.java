@@ -8,19 +8,27 @@ import br.com.rtools.associativo.db.SocioCarteirinhaDBToplink;
 import br.com.rtools.associativo.lista.ListModeloCarterinhaCategoria;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.dao.RotinaDao;
+import br.com.rtools.sistema.ConfiguracaoUpload;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.Jasper;
+import br.com.rtools.utilitarios.Upload;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
+import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import javax.servlet.ServletContext;
+import org.primefaces.event.FileUploadEvent;
 
 @ManagedBean
 @SessionScoped
@@ -60,6 +68,7 @@ public class ModeloCarteirinhaBean {
         }
         if (modeloCarteirinha.getId() == -1) {
             if (new Dao().save(modeloCarteirinha, true)) {
+                modeloCarteirinha.setFoto(null);
                 GenericaMensagem.info("Sucesso", "Registro inserido");
                 loadListModeloCarteirinha();
                 loadListModeloCarteirinhaCategoria();
@@ -310,5 +319,37 @@ public class ModeloCarteirinhaBean {
 
     public void setListGeneric(List<ListModeloCarterinhaCategoria> listGeneric) {
         this.listGeneric = listGeneric;
+    }
+
+    public void upload(FileUploadEvent event) {
+        if (modeloCarteirinha.getId() != -1) {
+            UUID uuidX = UUID.randomUUID();
+            String uuid = uuidX.toString().replace("-", "_");
+            if (modeloCarteirinha.getFoto() != null && !modeloCarteirinha.getFoto().isEmpty()) {
+                try {
+                    File file = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("Imagens/ModeloCarteirinha/" + modeloCarteirinha.getFoto()));
+                    if (file.exists()) {
+                        file.delete();
+                    }
+                } catch (Exception e) {
+
+                }
+            }
+            ConfiguracaoUpload cu = new ConfiguracaoUpload();
+            cu.setArquivo(event.getFile().getFileName());
+            cu.setDiretorio("Imagens/ModeloCarteirinha");
+            cu.setSubstituir(true);
+            String extension = event.getFile().getContentType().replace("image/", "");
+            if (!extension.equals("jpg") && !extension.equals("jpeg") && !extension.equals("gif") && !extension.equals("png")) {
+                GenericaMensagem.warn("Erro Sistema", "Extensão inválida!");
+                return;
+            }
+            cu.setRenomear(uuid + "." + extension);
+            cu.setEvent(event);
+            if (Upload.enviar(cu, true)) {
+                modeloCarteirinha.setFoto(uuid + "." + extension);
+                new Dao().update(modeloCarteirinha, true);
+            };
+        }
     }
 }
