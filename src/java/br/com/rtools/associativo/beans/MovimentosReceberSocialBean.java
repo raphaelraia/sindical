@@ -798,7 +798,8 @@ public class MovimentosReceberSocialBean implements Serializable {
                         socios_enc.getParentesco().getParentesco(),
                         (socios_enc.getMatriculaSocios().getId() == -1) ? "" : String.valueOf(socios_enc.getMatriculaSocios().getId()),
                         socios_enc.getMatriculaSocios().getCategoria().getCategoria(),
-                        guia.getSubGrupoConvenio().getObservacao()
+                        guia.getLote().getHistorico()
+                        //guia.getSubGrupoConvenio().getObservacao()
                 ));
 
                 JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(vetor);
@@ -1469,8 +1470,8 @@ public class MovimentosReceberSocialBean implements Serializable {
                 lista = db.pesquisaListaMovimentos(id_pessoa, id_responsavel, porPesquisa, criterioReferencia, "juridica", criterioLoteBaixa);
             }
 
-            boolean chk = false, disabled = false;
-            String dataBaixa = "";
+            boolean chk, disabled;
+            String dataBaixa;
 
             for (int i = 0; i < lista.size(); i++) {
                 if (lista.get(i).get(8) != null) {
