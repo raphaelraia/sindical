@@ -149,6 +149,7 @@ public class SocioCarteirinha implements java.io.Serializable {
         }
     }
 
+    // HÁ CASO EM QUE O DEPENDENTE NÃO IMPRIMIR CARTEIRINHA, NESSES CASOS ENTÃO DEFINIR IS_ATIVO COMO false
     public boolean isAtivo() {
         return ativo;
     }
