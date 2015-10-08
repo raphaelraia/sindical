@@ -271,6 +271,9 @@ public class Jasper implements Serializable {
             case "paisagem":
                 subreport = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/CABECALHO_PAISAGEM.jasper");
                 break;
+            case "recibo_sem_logo":
+                subreport = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/CABECALHO_RECIBO_SEM_LOGO.jasper");
+                break;
             default:
                 IS_HEADER = false;
                 break;

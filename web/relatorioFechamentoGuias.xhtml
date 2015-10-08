@@ -43,7 +43,7 @@
                                             <f:facet name="header">
                                                 <h:outputLabel value="Filtros" style="text-decoration: underline;"/>
                                             </f:facet>
-                                            <p:selectBooleanButton value="#{relatorioFechamentoGuiasBean.filtro[0]}" onLabel="P. de Emissão - Edição" offLabel="P. de Emissão - Editar" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;">
+                                            <p:selectBooleanButton value="#{relatorioFechamentoGuiasBean.listFilters[0].active}" onLabel="P. de Emissão - Edição" offLabel="P. de Emissão - Editar" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;">
                                                 <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio :form_relatorio:i_acoes" listener="#{relatorioFechamentoGuiasBean.clear}" />
                                             </p:selectBooleanButton>
                                         </h:panelGrid>                                        
@@ -52,7 +52,7 @@
                                         <f:facet name="header">
                                             <h:outputLabel value="Empresa Convêniada" style="text-decoration: underline;"/>
                                         </f:facet>
-                                        <p:selectBooleanButton value="#{relatorioFechamentoGuiasBean.filtro[1]}" onLabel="Pesquisar Empresa" offLabel="Pesquisar Empresa" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;" >
+                                        <p:selectBooleanButton value="#{relatorioFechamentoGuiasBean.listFilters[1].active}" onLabel="Pesquisar Empresa" offLabel="Pesquisar Empresa" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;" >
                                             <p:ajax event="change" update="@this :form_relatorio:id_tipo_relatorio :form_relatorio:i_acoes :form_relatorio:id_panel_relatorio" listener="#{relatorioFechamentoGuiasBean.clear}" />
                                         </p:selectBooleanButton>                                            
                                     </h:panelGrid>
@@ -60,7 +60,7 @@
                                         <f:facet name="header">
                                             <h:outputLabel value="Beneficiário" style="text-decoration: underline;"/>
                                         </f:facet>
-                                        <p:selectBooleanButton value="#{relatorioFechamentoGuiasBean.filtro[2]}" onLabel="Pesquisar Beneficiário" offLabel="Pesquisar Beneficiário" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;" >
+                                        <p:selectBooleanButton value="#{relatorioFechamentoGuiasBean.listFilters[2].active}" onLabel="Pesquisar Beneficiário" offLabel="Pesquisar Beneficiário" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;" >
                                             <p:ajax event="change" update="@this :form_relatorio:id_tipo_relatorio :form_relatorio:i_acoes :form_relatorio:id_panel_relatorio" listener="#{relatorioFechamentoGuiasBean.clear}"  />
                                         </p:selectBooleanButton>                                            
                                     </h:panelGrid>                                            
@@ -70,7 +70,7 @@
                         <h:column>
                             <p:panel header="Filtro" id="id_panel_relatorio" style="width: 760px;" >
                                 <h:panelGrid>
-                                    <p:column rendered="#{relatorioFechamentoGuiasBean.filtro[0]}">
+                                    <p:column rendered="#{relatorioFechamentoGuiasBean.listFilters[0].active}">
                                         <h:column>
                                             <h:panelGrid columns="2">
                                                 <p:outputLabel value="Período Emissão: " />
@@ -83,13 +83,13 @@
                                                         <p:calendar value="#{relatorioFechamentoGuiasBean.dataFinal}" pattern="dd/MM/yyyy"  size="10" navigator="true" mask="99/99/9999">
                                                             <p:ajax event="dateSelect" listener="#{relatorioFechamentoGuiasBean.selecionaDataFinal}" />
                                                         </p:calendar>
-                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioFechamentoGuiasBean.close('pagamento')}" title="Remover filtro"/>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioFechamentoGuiasBean.close(relatorioFechamentoGuiasBean.listFilters[0])}" title="Remover filtro"/>
                                                     </h:panelGrid>
                                                 </h:column>
                                             </h:panelGrid>                                       
                                         </h:column>
                                     </p:column>
-                                    <p:column rendered="#{relatorioFechamentoGuiasBean.filtro[1]}">
+                                    <p:column rendered="#{relatorioFechamentoGuiasBean.listFilters[1].active}">
                                         <h:panelGrid id="i_panel_grupos" columns="1">
                                             <h:panelGrid columns="4">
                                                 <p:outputLabel value="Grupo: " />
@@ -103,6 +103,14 @@
                                                     <f:selectItems value="#{relatorioFechamentoGuiasBean.listSubGrupo}"/>
                                                 </p:selectOneMenu>
                                             </h:panelGrid>
+                                            <h:panelGrid id="i_pn_serv" columns="2">
+                                                <p:outputLabel value="Serviços: " />
+                                                <p:selectCheckboxMenu label="Selecionar serviço" value="#{relatorioFechamentoGuiasBean.selectedServicos}" filter="true" filterMatchMode="startsWith">
+                                                    <p:ajax event="toggleSelect" global="false"/>
+                                                    <p:ajax event="change" global="false"/>
+                                                    <f:selectItems value="#{relatorioFechamentoGuiasBean.listServicos}" />
+                                                </p:selectCheckboxMenu>                                                
+                                            </h:panelGrid>
                                             <h:panelGrid columns="4">
                                                 <p:outputLabel value="Razão: " />
                                                 <p:selectOneMenu id="idEmpresasConv" value="#{relatorioFechamentoGuiasBean.index[4]}" filter="true" filterMatchMode="startsWith">
@@ -110,7 +118,7 @@
                                                     <f:selectItems value="#{relatorioFechamentoGuiasBean.listJuridica}" />
                                                 </p:selectOneMenu>
                                                 <p:commandButton action="#{relatorioFechamentoGuiasBean.addEmpresa()}" icon="ui-icon-plus" update=":form_relatorio:i_pessoa_juridica_selecteds"/>
-                                                <p:commandButton icon="ui-icon-close" action="#{relatorioFechamentoGuiasBean.close('empresa')}" title="Remover filtro"/>
+                                                <p:commandButton icon="ui-icon-close" action="#{relatorioFechamentoGuiasBean.close(relatorioFechamentoGuiasBean.listFilters[1])}" title="Remover filtro"/>
                                             </h:panelGrid>
                                         </h:panelGrid>
                                         <p:panel header="Empresas" styleClass="margin-top-max">
@@ -129,11 +137,11 @@
                                             </h:panelGrid>    
                                         </p:panel>                                     
                                     </p:column>
-                                    <p:column rendered="#{relatorioFechamentoGuiasBean.filtro[2]}">
+                                    <p:column rendered="#{relatorioFechamentoGuiasBean.listFilters[2].active}">
                                         <h:column>
                                             <h:panelGrid columns="4">
                                                 <p:commandButton value="Pesquisar Beneficiário" action="#{chamadaPaginaBean.pesquisa('pesquisaPessoaFisica')}" actionListener="#{fisicaBean.listernerTipoPesquisa('multiple')}" icon="ui-icon-search"/>
-                                                <p:commandButton icon="ui-icon-close" action="#{relatorioFechamentoGuiasBean.close('beneficiario')}" title="Remover filtro"/>
+                                                <p:commandButton icon="ui-icon-close" action="#{relatorioFechamentoGuiasBean.close(relatorioFechamentoGuiasBean.listFilters[2])}" title="Remover filtro"/>
                                             </h:panelGrid>
                                             <h:panelGrid id="i_pessoa_fisica_selecteds">
                                                 <p:dataTable value="#{relatorioFechamentoGuiasBean.listFisica}" emptyMessage="Nenhum registro encontrado" scrollHeight="150" scrollable="true" var="fisica">

@@ -207,7 +207,7 @@ public class SocioCarteirinhaDBToplink extends DB implements SocioCarteirinhaDB 
                 }
 
                 if (!descricao.isEmpty()) {
-                    textqry += "    AND TRIM(UPPER(func_translate(pj.ds_nome)))  LIKE TRIM(UPPER(func_translate('%" + descricao+ "%'))) \n";
+                    textqry += "    AND TRIM(UPPER(func_translate(pj.ds_nome)))  LIKE TRIM(UPPER(func_translate('%" + descricao + "%'))) \n";
                 }
             }
 
@@ -318,8 +318,9 @@ public class SocioCarteirinhaDBToplink extends DB implements SocioCarteirinhaDB 
                 }
             }
 
-            textqry += " AND sc.is_ativo = true \n"; // SE NÃO FOR SÓCIO (ACADEMIA)
-
+            // ROGÉRIO PODIU PRA COMENTAR O CAMPO ABAIXO - 07/10/2015
+            // textqry += " AND sc.is_ativo = true \n"; // SE NÃO FOR SÓCIO (ACADEMIA)
+            // 
             if (id_filial != null) {
                 textqry += " AND s.id_filial = " + id_filial + " \n";
             }

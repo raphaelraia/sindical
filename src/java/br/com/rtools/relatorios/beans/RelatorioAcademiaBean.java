@@ -73,6 +73,7 @@ public class RelatorioAcademiaBean implements Serializable {
     private Integer carenciaDias;
     private String tipoCarencia;
     private String matricula_situacao;
+    private Boolean mostrarDataInativacao;
 
     @PostConstruct
     public void init() {
@@ -122,6 +123,7 @@ public class RelatorioAcademiaBean implements Serializable {
         situacao = false;
         carenciaDias = null;
         tipoCarencia = "todos";
+        mostrarDataInativacao = false;
     }
 
     @PreDestroy
@@ -275,6 +277,7 @@ public class RelatorioAcademiaBean implements Serializable {
         }
         String nascimento = "";
         String emissao = "";
+        String inativacao = "";
         List<ParametroAcademiaCadastral> pacs = new ArrayList<>();
         ParametroAcademiaCadastral pac;
         for (Object list1 : list) {
@@ -286,6 +289,10 @@ public class RelatorioAcademiaBean implements Serializable {
             if (!emissao.isEmpty()) {
                 emissao = DataHoje.converteData(DataHoje.converteDateSqlToDate(emissao));
             }
+            inativacao = AnaliseString.converteNullString(((List) list1).get(9));
+            if (!inativacao.isEmpty()) {
+                inativacao = DataHoje.converteData(DataHoje.converteDateSqlToDate(inativacao));
+            }
             pac = new ParametroAcademiaCadastral(
                     detalheRelatorio,
                     AnaliseString.converteNullString(((List) list1).get(0)),
@@ -296,7 +303,8 @@ public class RelatorioAcademiaBean implements Serializable {
                     AnaliseString.converteNullString(((List) list1).get(6)),
                     AnaliseString.converteNullString(((List) list1).get(7)),
                     AnaliseString.converteNullString(((List) list1).get(5)),
-                    emissao
+                    emissao,
+                    inativacao
             );
             pacs.add(pac);
         }
@@ -306,7 +314,13 @@ public class RelatorioAcademiaBean implements Serializable {
             } else {
                 Jasper.EXCEL_FIELDS = "";
             }
-            Jasper.printReports(relatorios.getJasper(), "academia", (Collection) pacs);
+            Map map = new HashMap();
+            if (mostrarDataInativacao && matricula_situacao.equals("inativos")) {
+                map.put("matricula_situacao", matricula_situacao);
+            } else {
+                map.put("matricula_situacao", "");
+            }
+            Jasper.printReports(relatorios.getJasper(), "academia", (Collection) pacs, map);
 
         }
 
@@ -941,5 +955,13 @@ public class RelatorioAcademiaBean implements Serializable {
 
     public void setMatricula_situacao(String matricula_situacao) {
         this.matricula_situacao = matricula_situacao;
+    }
+
+    public Boolean getMostrarDataInativacao() {
+        return mostrarDataInativacao;
+    }
+
+    public void setMostrarDataInativacao(Boolean mostrarDataInativacao) {
+        this.mostrarDataInativacao = mostrarDataInativacao;
     }
 }

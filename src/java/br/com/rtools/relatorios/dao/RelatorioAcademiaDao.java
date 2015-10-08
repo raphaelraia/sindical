@@ -30,12 +30,9 @@ public class RelatorioAcademiaDao extends DB {
      * @param idade
      * @param desconto
      * @param desconto_final
-     * @param inIdGrupoFinanceiro
-     * @param inIdServicos
      * @param tipoCarencia
      * @param carenciaDias
      * @param situacao
-     * @param inIdSubGrupoFinanceiro
      * @return
      */
     public List find(Relatorios r, String emissaoInicial, String emissaoFinal, Integer idResponsavel, Integer idAluno, String inModalidade, String inIdPeriodos, String inSexo, String periodo, String matricula_situacao, Integer[] idade, String in_grupo_categoria, String in_categoria, Boolean nao_socio, Boolean convenio_empresa, Float desconto, Float desconto_final, String tipoCarencia, Integer carenciaDias, String situacao, String order) {
@@ -49,7 +46,8 @@ public class RelatorioAcademiaDao extends DB {
                 + "            PR.ds_nome                                  AS responsavel,    \n" // 5 - RESPONSÁVEL
                 + "            S.ds_descricao                              AS servico,        \n" // 6 - SERVIÇO
                 + "            P.ds_descricao                              AS periodo,        \n" // 7 - PERÍODO
-                + "            SP.dt_emissao                               AS emissao         \n" // 8 - EMISSÃO
+                + "            SP.dt_emissao                               AS emissao,        \n" // 8 - EMISSÃO
+                + "            A.dt_inativo                                AS inativacao      \n" // 9 - INATIVAÇÃO
                 + "       FROM matr_academia AS A                                             \n"
                 + " INNER JOIN fin_servico_pessoa   AS SP  ON SP.id         = A.id_servico_pessoa   \n"
                 + " INNER JOIN aca_servico_valor    AS ASV ON ASV.id        = A.id_servico_valor    \n"
