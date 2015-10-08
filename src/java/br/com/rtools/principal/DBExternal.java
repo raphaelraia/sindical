@@ -19,7 +19,7 @@ public class DBExternal {
 
     public Connection getConnection() {
         try {
-            Configuracao c = DB.servidor(GenericaSessao.getString("sessaoCliente"));
+            //Configuracao c = DB.servidor(GenericaSessao.getString("sessaoCliente"));
             //String url = "jdbc:postgresql://200.158.101.9:5432/Rtools";
             String uri = "jdbc:postgresql://" + this.url + ":" + port + "/" + database;
             // String uri = "jdbc:postgresql://" + c.getHost() + ":" + port + "/" + c.getPersistence();
