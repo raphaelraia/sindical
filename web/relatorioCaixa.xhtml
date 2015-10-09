@@ -1,0 +1,122 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>Cobrança Externa</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+    </h:head>
+    <h:body class="divMenu">
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>            
+        </f:subview>
+        <f:view>
+            <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                <h:outputScript name="tradutor_primefaces.js" library="js" />
+                <h:form id="form_relatorio">            
+                    <p:growl id="id_messages_growl" showDetail="true" showSummary="true" />
+                    <h:outputText value="Cobrança Externa" styleClass="fonteHeader" />
+                    <div class="clear"></div>
+                    <p:panel styleClass="fundoCinza">
+                        <h:panelGrid  cellpadding="4" columns="5" id="id_pg_relatorios">
+                            <p:outputLabel value="Tipo de Relatório: " />
+                            <p:selectOneMenu id="id_tipo_relatorio" value="#{relatorioCaixaBean.idRelatorio}" style="padding-right: 10px;">
+                                <p:ajax event="change" update="@this id_panel form_relatorio:i_panel_avancado" global="false" listener="#{relatorioCaixaBean.load}"/>
+                                <f:selectItems value="#{relatorioCaixaBean.listRelatorios}"/>
+                            </p:selectOneMenu>
+                            <p:outputLabel value="Ordenação: " rendered="#{not empty relatorioCaixaBean.listRelatorioOrdem}"/>
+                            <p:selectOneMenu value="#{relatorioCaixaBean.idRelatorioOrdem}" rendered="#{not empty relatorioCaixaBean.listRelatorioOrdem}">
+                                <p:ajax event="change" update="@this"/>
+                                <f:selectItems value="#{relatorioCaixaBean.listRelatorioOrdem}"/>
+                            </p:selectOneMenu>                            
+                        </h:panelGrid>
+                    </p:panel>                  
+                    <h:panelGrid columns="2" id="id_panel" columnClasses="verticalAlignTop, verticalAlignTop" styleClass="margin-top-max">
+                        <h:column>
+                            <p:panel header="Editar" style="width: 225px;" id="i_panel_avancado">
+                                <h:panelGrid>
+                                    <c:forEach items="#{relatorioCaixaBean.listFilters}" var="filter" varStatus="loop" id="i_foreach">                                            
+                                        <p:selectBooleanButton value="#{filter.active}" onLabel="#{filter.value}" offLabel="#{filter.value}" style="width: 200px; text-align: left">
+                                            <p:ajax event="change" update="@this form_relatorio:i_panel_avancado_2" listener="#{relatorioCaixaBean.close(relatorioCaixaBean.listFilters[loop.index])}" />
+                                        </p:selectBooleanButton>
+                                    </c:forEach>                                
+                                </h:panelGrid>
+                            </p:panel>
+                        </h:column>
+                        <h:column>
+                            <h:panelGrid id="i_panel_avancado_2" style="width: 800px">
+                                <p:column rendered="#{relatorioCaixaBean.listFilters[0].active}">
+                                    <p:panel header="Caixa" style="width: max-content">
+                                        <h:panelGrid columns="4">
+                                            <p:outputLabel value="Serviços: " />
+                                            <p:selectCheckboxMenu label="Selecionar caixa" value="#{relatorioCaixaBean.selectedCaixa}" filter="true" filterMatchMode="startsWith">
+                                                <p:ajax event="toggleSelect" global="false"/>
+                                                <p:ajax event="change" global="false"/>
+                                                <f:selectItems value="#{relatorioCaixaBean.listCaixa}" />
+                                            </p:selectCheckboxMenu>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioCaixaBean.clear(relatorioCaixaBean.listFilters[0])}" title="Remover filtro" update="form_relatorio"/>
+                                        </h:panelGrid>                                        
+                                    </p:panel>
+                                </p:column>
+                                <p:column rendered="#{relatorioCaixaBean.listFilters[1].active}">
+                                    <p:panel header="Operadores" style="width: max-content">
+                                        <h:panelGrid columns="4">
+                                            <p:outputLabel value="Serviços: " />
+                                            <p:selectCheckboxMenu label="Selecionar operador" value="#{relatorioCaixaBean.selectedOperador}" filter="true" filterMatchMode="startsWith">
+                                                <p:ajax event="toggleSelect" global="false"/>
+                                                <p:ajax event="change" global="false"/>
+                                                <f:selectItems value="#{relatorioCaixaBean.listOperador}" />
+                                            </p:selectCheckboxMenu>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioCaixaBean.clear(relatorioCaixaBean.listFilters[1])}" title="Remover filtro" update="form_relatorio"/>
+                                        </h:panelGrid>                                        
+                                    </p:panel>
+                                </p:column>
+                                <p:column rendered="#{relatorioCaixaBean.listFilters[2].active}">
+                                    <p:panel header="Tipo de pagamento" style="width: max-content">
+                                        <h:panelGrid columns="4">
+                                            <p:outputLabel value="Serviços: " />
+                                            <p:selectCheckboxMenu label="Selecionar tipo de pagamento" value="#{relatorioCaixaBean.selectedTipoPagamento}" filter="true" filterMatchMode="startsWith">
+                                                <p:ajax event="toggleSelect" global="false"/>
+                                                <p:ajax event="change" global="false"/>
+                                                <f:selectItems value="#{relatorioCaixaBean.listTipoPagamento}" />
+                                            </p:selectCheckboxMenu>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioCaixaBean.clear(relatorioCaixaBean.listFilters[2])}" title="Remover filtro" update="form_relatorio"/>
+                                        </h:panelGrid>                                        
+                                    </p:panel>
+                                </p:column>
+                                <p:column rendered="#{relatorioCaixaBean.listFilters[3].active}">
+                                    <p:panel header="Períodos" style="width: max-content">
+                                        <h:panelGrid columns="5">
+                                            <h:column>
+                                                <p:panel header="Baixa">
+                                                    <h:panelGrid columns="4">
+                                                        <p:calendar value="#{relatorioCaixaBean.dtBaixaInicial}" pattern="dd/MM/yyyy"  size="10" navigator="true">
+                                                            <p:ajax event="dateSelect" listener="#{relatorioCaixaBean.selecionaDataBaixaInicial}" />
+                                                        </p:calendar>
+                                                        <p:outputLabel value=" até" />
+                                                        <p:calendar value="#{relatorioCaixaBean.dtBaixaFinal}" pattern="dd/MM/yyyy"  size="10" navigator="true">
+                                                            <p:ajax event="dateSelect" listener="#{relatorioCaixaBean.selecionaDataBaixaFinal}" />
+                                                        </p:calendar>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioCaixaBean.clear(relatorioCaixaBean.listFilters[3])}" title="Remover filtro"/>
+                                                    </h:panelGrid>                                                    
+                                                </p:panel>
+                                            </h:column>                                            
+                                        </h:panelGrid>
+                                    </p:panel>
+                                </p:column>
+                            </h:panelGrid>
+                        </h:column>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1" id="i_btns">
+                        <p:commandButton value="Imprimir" icon="ui-icon-print" title="Imprimir" action="#{relatorioCaixaBean.print()}" ajax="false" styleClass="margin-top-max" update="id_messages_growl" />
+                        <p:selectBooleanCheckbox itemLabel="Cabeçalho" value="#{jasperBean.IS_HEADER}">
+                            <p:ajax event="change" update="@this" />
+                        </p:selectBooleanCheckbox>
+                    </h:panelGrid>
+                </h:form>               
+            </p:panel>
+        </f:view>
+    </h:body>
+</ui:composition>
