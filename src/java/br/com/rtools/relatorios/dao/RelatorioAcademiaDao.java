@@ -102,14 +102,15 @@ public class RelatorioAcademiaDao extends DB {
                             + "   INNER JOIN matr_academia      AS M ON M.id_servico_pessoa = SP.id \n"
                             + "   INNER JOIN                                                        \n"
                             + "       (                                                             \n"
-                            + "             SELECT SP.id_pessoa,                                          \n"
+                            + "             SELECT max(sp.id) AS id_servico_pessoa,                 \n"
+                            + "                    SP.id_pessoa,                                          \n"
                             + "                    max(m.dt_inativo)  AS dt_inativo                       \n"
                             + "               FROM fin_servico_pessoa AS SP                               \n"
                             + "         INNER JOIN matr_academia      AS M ON M.id_servico_pessoa = SP.id \n"
                             + "              WHERE SP.is_ativo = false                                    \n"
                             + "           GROUP BY SP.id_pessoa                                           \n"
                             + "       ) AS xmi ON sp.id_pessoa = xmi.id_pessoa                            \n"
-                            + "         AND xmi.dt_inativo = m.dt_inativo                                 \n"
+                            + "         AND xmi.id_servico_pessoa = sp.id                                 \n"
                             + "     GROUP BY SP.id                                                        \n"
                             + "    ) ");
                     break;
