@@ -131,7 +131,8 @@ public class PhotoUpload implements Serializable {
         nameFile = nameTemp;
 
         if (pessoa == null) {
-            String path = servletContext.getRealPath("/resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/" + savePath + "/" + nameTemp + ".png");
+//            String path = servletContext.getRealPath("/resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/" + savePath + "/" + nameTemp + ".png");
+            String path = servletContext.getRealPath("")+ "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/" + savePath + "/" + nameTemp + ".png";
             File file = new File(path);
             try {
                 FileUtils.writeByteArrayToFile(file, event.getFile().getContents());
@@ -142,7 +143,8 @@ public class PhotoUpload implements Serializable {
             if (!Diretorio.criar("imagens/pessoa", true)) { // PASTA ex. resources/cliente/sindical/imagens/pessoa
                 return;
             }
-            String path = servletContext.getRealPath("/resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + pessoa.getId() + "/" + nameTemp + ".png");
+            //String path = servletContext.getRealPath("/resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + pessoa.getId() + "/" + nameTemp + ".png");
+            String path = servletContext.getRealPath("")+"resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + pessoa.getId() + "/" + nameTemp + ".png";
             File file = new File(path);
             try {
                 FileUtils.writeByteArrayToFile(file, event.getFile().getContents());
@@ -156,7 +158,8 @@ public class PhotoUpload implements Serializable {
 
                 if (fisica != null) {
                     // CASO QUEIRA REMOVER A FOTO ANTERIOR
-                    File fotoAntiga = new File(servletContext.getRealPath("/resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + pessoa.getId() + "/" + fisica.getFoto() + ".png"));
+                    //File fotoAntiga = new File(servletContext.getRealPath("/resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + pessoa.getId() + "/" + fisica.getFoto() + ".png"));
+                    File fotoAntiga = new File(servletContext.getRealPath("")+"resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + pessoa.getId() + "/" + fisica.getFoto() + ".png");
                     if (fotoAntiga.exists()) {
                         FileUtils.deleteQuietly(fotoAntiga);
                     }
@@ -169,7 +172,8 @@ public class PhotoUpload implements Serializable {
                     Juridica juridica = juridicaDB.pesquisaJuridicaPorPessoa(pessoa.getId());
                     
                     // CASO QUEIRA REMOVER A FOTO ANTERIOR
-                    File fotoAntiga = new File(servletContext.getRealPath("/resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + pessoa.getId() + "/" + juridica.getFoto() + ".png"));
+                    //File fotoAntiga = new File(servletContext.getRealPath("/resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + pessoa.getId() + "/" + juridica.getFoto() + ".png"));
+                    File fotoAntiga = new File(servletContext.getRealPath("")+"resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + pessoa.getId() + "/" + juridica.getFoto() + ".png");
                     if (fotoAntiga.exists()) {
                         FileUtils.deleteQuietly(fotoAntiga);
                     }

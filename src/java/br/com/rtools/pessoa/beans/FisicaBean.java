@@ -1899,6 +1899,15 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     public void apagarImagem() {
         boolean sucesso = false;
         try {
+            if (!PhotoCapture.getNameFile().isEmpty()) {
+                fisica.setFoto(PhotoCapture.getNameFile());
+            } else if (!PhotoUpload.getNameFile().isEmpty()) {
+                fisica.setFoto(PhotoUpload.getNameFile());
+            }
+
+            PhotoCapture.unload();
+            PhotoUpload.unload();
+            
             String path = ("/resources/cliente/" + ControleUsuarioBean.getCliente() + "/imagens/pessoa/" + fisica.getPessoa().getId() + "/").toLowerCase();
             String fcaminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(path);
             if (new File((fcaminho + "/" + fisica.getFoto() + ".png")).exists() && FileUtils.deleteQuietly(new File(fcaminho + "/" + fisica.getFoto() + ".png"))) {
