@@ -131,7 +131,7 @@ public class PhotoUpload implements Serializable {
         nameFile = nameTemp;
 
         if (pessoa == null) {
-            String path = servletContext.getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/" + savePath + "/" + nameTemp + ".png";
+            String path = servletContext.getRealPath("/resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/" + savePath + "/" + nameTemp + ".png");
             File file = new File(path);
             try {
                 FileUtils.writeByteArrayToFile(file, event.getFile().getContents());
@@ -142,7 +142,7 @@ public class PhotoUpload implements Serializable {
             if (!Diretorio.criar("imagens/pessoa", true)) { // PASTA ex. resources/cliente/sindical/imagens/pessoa
                 return;
             }
-            String path = servletContext.getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + pessoa.getId() + "/" + nameTemp + ".png";
+            String path = servletContext.getRealPath("/resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + pessoa.getId() + "/" + nameTemp + ".png");
             File file = new File(path);
             try {
                 FileUtils.writeByteArrayToFile(file, event.getFile().getContents());
