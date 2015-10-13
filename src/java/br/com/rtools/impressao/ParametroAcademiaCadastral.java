@@ -27,6 +27,8 @@ public class ParametroAcademiaCadastral {
     private String responsavel_nome;
     @Column(name = "Emissão")
     private String emissao;
+    @Column(name = "Inativação")
+    private String inativacao;
 
     /**
      *
@@ -40,8 +42,9 @@ public class ParametroAcademiaCadastral {
      * @param periodo
      * @param responsavel_nome
      * @param emissao
+     * @param inativacao
      */
-    public ParametroAcademiaCadastral(String detalhes_relatorio, String aluno_nome, String aluno_idade, String aluno_nascimento, String aluno_sexo, String aluno_cidade, String servico, String periodo, String responsavel_nome, String emissao) {
+    public ParametroAcademiaCadastral(String detalhes_relatorio, String aluno_nome, String aluno_idade, String aluno_nascimento, String aluno_sexo, String aluno_cidade, String servico, String periodo, String responsavel_nome, String emissao, String inativacao) {
         this.detalhes_relatorio = detalhes_relatorio;
         this.aluno_nome = aluno_nome;
         this.aluno_idade = aluno_idade;
@@ -52,6 +55,7 @@ public class ParametroAcademiaCadastral {
         this.periodo = periodo;
         this.responsavel_nome = responsavel_nome;
         this.emissao = emissao;
+        this.inativacao = inativacao;
     }
 
     /**
@@ -140,5 +144,13 @@ public class ParametroAcademiaCadastral {
 
     public void setEmissao(String emissao) {
         this.emissao = emissao;
+    }
+
+    public String getInativacao() {
+        return inativacao;
+    }
+
+    public void setInativacao(String inativacao) {
+        this.inativacao = inativacao;
     }
 }

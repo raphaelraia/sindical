@@ -1,5 +1,7 @@
 package br.com.rtools.principal;
 
+import br.com.rtools.sistema.Configuracao;
+import br.com.rtools.utilitarios.GenericaSessao;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -17,11 +19,14 @@ public class DBExternal {
 
     public Connection getConnection() {
         try {
+            //Configuracao c = DB.servidor(GenericaSessao.getString("sessaoCliente"));
             //String url = "jdbc:postgresql://200.158.101.9:5432/Rtools";
             String uri = "jdbc:postgresql://" + this.url + ":" + port + "/" + database;
+            // String uri = "jdbc:postgresql://" + c.getHost() + ":" + port + "/" + c.getPersistence();
             Properties props = new Properties();
             props.setProperty("user", user);
             props.setProperty("password", password);
+            // props.setProperty("password", c.getSenha());
             //props.setProperty("ssl", "true");
             Connection conn = DriverManager.getConnection(uri, props);
             return conn;

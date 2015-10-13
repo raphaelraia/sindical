@@ -12,7 +12,7 @@ public class RelatorioFechamentoGuiasDao extends DB {
 
     private String order = "";
 
-    public List find(Relatorios relatorio, String inEmpresas, String inBeneficiarios, Date pagamentoInicial, Date pagamentoFinal) {
+    public List find(Relatorios relatorio, String inEmpresas, String inBeneficiarios, String inIdServicos, Date pagamentoInicial, Date pagamentoFinal) {
         List listWhere = new ArrayList();
         String queryString = ""
                 + "      SELECT C.ds_nome,                      \n "
@@ -24,8 +24,8 @@ public class RelatorioFechamentoGuiasDao extends DB {
                 + "             P.ds_nome        AS beneficiario, \n "
                 + "             B.dt_baixa       AS datapagto,  \n "
                 + "             M.nr_valor_baixa AS valor,       \n "
-                + "             EXTRACT(month FROM B.dt_baixa) AS mes, \n " 
-                + "             EXTRACT(year FROM B.dt_baixa) AS ano\n " 
+                + "             EXTRACT(month FROM B.dt_baixa) AS mes, \n "
+                + "             EXTRACT(year FROM B.dt_baixa) AS ano\n "
                 + "        FROM fin_movimento   AS M            \n "
                 + "  INNER JOIN fin_baixa       AS B  ON B.id  = M.id_baixa        \n "
                 + "  INNER JOIN fin_servicos    AS SE ON SE.id = M.id_servicos     \n "
@@ -45,6 +45,9 @@ public class RelatorioFechamentoGuiasDao extends DB {
             listWhere.add(" B.dt_baixa BETWEEN '" + DataHoje.converteData(pagamentoInicial) + "' AND '" + DataHoje.converteData(pagamentoFinal) + "' \n ");
         } else if (pagamentoInicial != null) {
             listWhere.add(" B.dt_baixa >= '" + DataHoje.converteData(pagamentoInicial) + "' \n ");
+        }
+        if (inIdServicos != null && !inIdServicos.isEmpty()) {
+            listWhere.add(" SE.id IN (" + inIdServicos + ") ");
         }
         if (!listWhere.isEmpty()) {
             queryString += " WHERE ";

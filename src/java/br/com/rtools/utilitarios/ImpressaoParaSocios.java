@@ -50,6 +50,7 @@ public class ImpressaoParaSocios {
         String codigoFuncional = "";
         Socios socioDependente = new Socios();
         for (int i = 0; i < listaCartao.size(); i++) {
+            String logoCartao = "";
             String imagem = "semFoto.jpg";
             for (int j = 0; j < listFile.length; j++) {
                 String[] arrayString = listFile[j].getName().split("\\.");
@@ -122,6 +123,20 @@ public class ImpressaoParaSocios {
                 titular = socioDependente.getMatriculaSocios().getTitular().getNome();
                 dependente = getConverteNullString(((List) (listaCartao.get(i))).get(1));
             }
+            try {
+                if (new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png")).exists()) {
+                    logoCartao = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png");
+                }
+            } catch (Exception e) {
+
+            }
+            try {
+                if (new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/logo_preto_branco.png")).exists()) {
+                    logoCartao = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/logo_preto_branco.png");
+                }
+            } catch (Exception e) {
+
+            }
             listax.add(
                     new CartaoSocial(
                             matr, //                                                         CODIGO
@@ -133,7 +148,7 @@ public class ImpressaoParaSocios {
                             getConverteNullString(((List) (listaCartao.get(i))).get(6)), //  DATA VALIDADE
                             getConverteNullString(((List) (listaCartao.get(i))).get(5)), //  CIDADE
                             getConverteNullString(((List) (listaCartao.get(i))).get(7)), //  UF
-                            ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"), // LOGO
+                            logoCartao, // LOGO
                             ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/Fotos/" + imagem), // CAMINHO FOTO
                             getConverteNullString(((List) (listaCartao.get(i))).get(13)), // FILIAÇÃO
                             getConverteNullString(((List) (listaCartao.get(i))).get(14)), // PROFISSÃO
@@ -161,7 +176,7 @@ public class ImpressaoParaSocios {
                             getConverteNullString(((List) (listaCartao.get(i))).get(41)), // GRUPO CATEGORIA
                             ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/imagemExtra.png"), // IMAGEM EXTRA
                             ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/imagemExtra2.png"), // IMAGEM EXTRA 2
-                            ( !getConverteNullString(((List) (listaCartao.get(i))).get(42)).isEmpty() ) ? "( APOSENTADO )" : "" // DATA APOSENTADORIA
+                            (!getConverteNullString(((List) (listaCartao.get(i))).get(42)).isEmpty()) ? "( APOSENTADO )" : "" // DATA APOSENTADORIA
                     )
             );
 

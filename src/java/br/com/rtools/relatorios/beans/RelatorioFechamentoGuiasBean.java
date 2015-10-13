@@ -6,6 +6,8 @@ import br.com.rtools.associativo.db.LancamentoIndividualDB;
 import br.com.rtools.associativo.db.LancamentoIndividualDBToplink;
 import br.com.rtools.associativo.db.SubGrupoConvenioDB;
 import br.com.rtools.associativo.db.SubGrupoConvenioDBToplink;
+import br.com.rtools.financeiro.Servicos;
+import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.impressao.ParametroFechamentoGuias;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
@@ -19,6 +21,7 @@ import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.Filters;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Jasper;
@@ -29,7 +32,7 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -48,7 +51,7 @@ import org.primefaces.event.TabChangeEvent;
 @SessionScoped
 public class RelatorioFechamentoGuiasBean implements Serializable {
 
-    private Boolean[] filtro;
+    private List<Filters> listFilters;
     private String tipoRelatorio;
     private String tipo;
     private String indexAccordion;
@@ -57,6 +60,8 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
     private List<Juridica> listEmpresas;
     private Date dataInicial;
     private Date dataFinal;
+    private Map<String, Integer> listServicos;
+    private List selectedServicos;
 
     /**
      * <ul>
@@ -73,10 +78,7 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
 
     @PostConstruct
     public void init() {
-        filtro = new Boolean[3];
-        filtro[0] = false; // PERIODO
-        filtro[1] = false; // EMPRESA
-        filtro[2] = false; // BENEFICIÁRIO
+        listFilters = new ArrayList<>();
         index = new Integer[5];
         index[0] = 0;
         index[1] = 0;
@@ -97,7 +99,21 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
         listEmpresas = new ArrayList<>();
         dataInicial = DataHoje.dataHoje();
         dataFinal = DataHoje.dataHoje();
+        listServicos = null;
+        selectedServicos = new ArrayList();
+        loadListFilters();
+        loadServicos();
         new Tabbed().init();
+    }
+
+    /**
+     * 0 - Período; 1 - Empresa; 2 - Beneficiário;
+     */
+    public void loadListFilters() {
+        listFilters.clear();
+        listFilters.add(new Filters("periodo", "Período", false));
+        listFilters.add(new Filters("empresa", "Empresa", false));
+        listFilters.add(new Filters("beneficiario", "Beneficiário", false));
     }
 
     @PreDestroy
@@ -148,15 +164,20 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
 
                 }
             }
+            String in_id_servicos = null;
+            if (!selectedServicos.isEmpty()) {
+                in_id_servicos = inIdServicos();
+            }
             List listDetalhePesquisa = new ArrayList();
-            Map params = new HashMap();
+            Map params = new LinkedHashMap();
             Date dtInicial = null;
             Date dtFinal = null;
-            if (filtro[0]) {
+            if (listFilters.get(0).getActive()) {
                 dtInicial = dataInicial;
                 dtFinal = dataFinal;
             }
-            List list = new RelatorioFechamentoGuiasDao().find(relatorios, idInEmpresas, idInBeneficiarios, dtInicial, dtFinal);
+            List list = new RelatorioFechamentoGuiasDao().find(relatorios, idInEmpresas, idInBeneficiarios, in_id_servicos, dtInicial, dtFinal
+            );
             if (list.isEmpty()) {
                 GenericaMensagem.info("Sistema", "Não existem registros para o relatório selecionado");
                 return;
@@ -197,14 +218,14 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
                         Integer.parseInt(AnaliseString.converteNullString(((List) list1).get(1))),
                         Integer.parseInt(AnaliseString.converteNullString(((List) list1).get(2))),
                         AnaliseString.converteNullString(((List) list1).get(3)),
-                        ( (Integer) ((List) list1).get(4) ),
+                        ((Integer) ((List) list1).get(4)),
                         AnaliseString.converteNullString(((List) list1).get(5)),
                         AnaliseString.converteNullString(((List) list1).get(6)),
                         date,
                         valor,
-                        ( (Double) ((List) list1).get(9) ).intValue(),
-                        ( (Double) ((List) list1).get(10) ).intValue(),
-                        filtro[0] ? "Período de "+DataHoje.converteData(dtInicial)+" à " +DataHoje.converteData(dtFinal) : ""
+                        ((Double) ((List) list1).get(9)).intValue(),
+                        ((Double) ((List) list1).get(10)).intValue(),
+                        listFilters.get(0).getActive() ? "Período de " + DataHoje.converteData(dtInicial) + " à " + DataHoje.converteData(dtFinal) : ""
                 );
                 parametroFechamentoGuias.add(pfg);
             }
@@ -230,11 +251,11 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
     }
 
     public void clear() {
-        if (!filtro[0]) {
+        if (!listFilters.get(0).getActive()) {
             dataInicial = DataHoje.dataHoje();
             dataFinal = DataHoje.dataHoje();
         }
-        if (!filtro[1]) {
+        if (!listFilters.get(1).getActive()) {
             listEmpresas.clear();
             index[2] = 0;
             index[3] = 0;
@@ -243,7 +264,7 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
             listSelectItem[3] = new ArrayList();
             listSelectItem[4] = new ArrayList();
         }
-        if (!filtro[2]) {
+        if (!listFilters.get(2).getActive()) {
             listFisica.clear();
         }
     }
@@ -257,25 +278,27 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
                 index[4] = 0;
                 getListSubGrupo();
                 getListJuridica();
+                loadServicos();
                 break;
             case 2:
                 listSelectItem[4] = new ArrayList();
                 index[4] = 0;
                 getListSubGrupo();
                 getListJuridica();
+                loadServicos();
         }
 
     }
 
-    public void close(String close) {
-        switch (close) {
-            case "pagamento":
-                filtro[0] = false;
+    public void close(Filters selected) {
+        switch (selected.getKey()) {
+            case "periodo":
+                listFilters.get(0).setActive(false);
                 dataInicial = DataHoje.dataHoje();
                 dataFinal = DataHoje.dataHoje();
                 break;
             case "empresa":
-                filtro[1] = false;
+                listFilters.get(1).setActive(false);
                 listEmpresas.clear();
                 index[2] = 0;
                 index[3] = 0;
@@ -285,10 +308,39 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
                 listSelectItem[4] = new ArrayList();
                 break;
             case "beneficiario":
-                filtro[2] = false;
+                listFilters.get(2).setActive(false);
                 break;
         }
         PF.update("form_relatorio:id_panel");
+    }
+
+    public String inIdServicos() {
+        String ids = null;
+        if (selectedServicos != null) {
+            for (Object selectedServico : selectedServicos) {
+                if (selectedServico != null) {
+                    if (ids == null) {
+                        ids = "" + selectedServico;
+                    } else {
+                        ids += "," + selectedServico;
+                    }
+                }
+            }
+        }
+        return ids;
+    }
+
+    public void loadServicos() {
+        ServicosDao servicosDao = new ServicosDao();
+        listServicos = new LinkedHashMap<>();
+        selectedServicos = new ArrayList<>();
+        if (!listSelectItem[3].isEmpty()) {
+            List<Servicos> list = servicosDao.findBySubGrupoConvenio(listSelectItem[3].get(index[3]).getDescription());
+            listServicos.put("Selecionar", null);
+            for (Servicos list1 : list) {
+                listServicos.put(list1.getDescricao(), list1.getId());
+            }
+        }
     }
 
     public String getIndexAccordion() {
@@ -319,24 +371,6 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
         this.index = index;
     }
 
-    /**
-     * <strong>Filtros</strong>
-     * <ul>
-     * <li>[0] EMISSÃO</li>
-     * <li>[1] EMPRESA</li>
-     * <li>[2] BENEFICIÁRIO</li>
-     * </ul>
-     *
-     * @return boolean
-     */
-    public Boolean[] getFiltro() {
-        return filtro;
-    }
-
-    public void setFiltro(Boolean[] filtro) {
-        this.filtro = filtro;
-    }
-
     public String getTipo() {
         return tipo;
     }
@@ -350,7 +384,7 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
             RelatorioDao db = new RelatorioDao();
             List<Relatorios> list = db.pesquisaTipoRelatorio(132);
             for (int i = 0; i < list.size(); i++) {
-                if (i == 0) {
+                if (list.get(i).getPrincipal()) {
                     index[0] = i;
                 }
                 listSelectItem[0].add(new SelectItem(i,
@@ -371,6 +405,9 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
                     index[1] = null;
                 }
                 for (int i = 0; i < list.size(); i++) {
+                    if (list.get(i).getPrincipal()) {
+                        index[1] = i;
+                    }
                     listSelectItem[1].add(new SelectItem(i, list.get(i).getNome(), "" + list.get(i).getId()));
                 }
             }
@@ -409,6 +446,7 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
                     listSelectItem[3] = new ArrayList();
                 }
             }
+            loadServicos();
 
         }
         return listSelectItem[3];
@@ -541,4 +579,40 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
     public void setListSelectItem(List<SelectItem>[] listSelectItem) {
         this.listSelectItem = listSelectItem;
     }
+
+    /**
+     * <strong>ListFilters</strong>
+     * <ul>
+     * <li>[0] EMISSÃO</li>
+     * <li>[1] EMPRESA</li>
+     * <li>[2] BENEFICIÁRIO</li>
+     * <li>[3] SERVIÇOS</li>
+     * </ul>
+     *
+     * @return boolean
+     */
+    public List<Filters> getListFilters() {
+        return listFilters;
+    }
+
+    public void setListFilters(List<Filters> listFilters) {
+        this.listFilters = listFilters;
+    }
+
+    public Map<String, Integer> getListServicos() {
+        return listServicos;
+    }
+
+    public void setListServicos(Map<String, Integer> listServicos) {
+        this.listServicos = listServicos;
+    }
+
+    public List getSelectedServicos() {
+        return selectedServicos;
+    }
+
+    public void setSelectedServicos(List selectedServicos) {
+        this.selectedServicos = selectedServicos;
+    }
+
 }

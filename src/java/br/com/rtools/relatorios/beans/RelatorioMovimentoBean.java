@@ -41,6 +41,7 @@ import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Download;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.Mail;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.SalvaArquivos;
@@ -407,29 +408,7 @@ public class RelatorioMovimentoBean implements Serializable {
         JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(collection);
         Relatorios relatorio = (new RelatorioDao()).pesquisaRelatorios(Integer.parseInt(listaTipoRelatorio.get(idRelatorios).getDescription()));
         GenericaMensagem.warn("Sucesso", "Relatório gerado!");
-        try {
-            JasperPrint print = JasperFillManager.fillReport(
-                    (JasperReport) JRLoader.loadObject(new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(relatorio.getJasper()))),
-                    null,
-                    dtSource
-            );
-
-            byte[] arquivo = JasperExportManager.exportReportToPdf(print);
-
-            String nomeDownload = "relatorio_movimentos_" + DataHoje.horaMinuto().replace(":", "") + ".pdf";
-            SalvaArquivos sa = new SalvaArquivos(arquivo, nomeDownload, false);
-
-            String pathPasta = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/relatorios");
-            sa.salvaNaPasta(pathPasta);
-
-            Download download = new Download(nomeDownload,
-                    pathPasta,
-                    "application/pdf",
-                    FacesContext.getCurrentInstance());
-            download.baixar();
-        } catch (Exception e) {
-            GenericaMensagem.warn("Sistema", e.getMessage());
-        }
+        Jasper.printReports(relatorio.getJasper(), relatorio.getNome(), collection);
     }
 
     public void enviarEmail() {

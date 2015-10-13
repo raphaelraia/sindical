@@ -1,5 +1,6 @@
 package br.com.rtools.seguranca.controleUsuario;
 
+import br.com.rtools.principal.DBExternal;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import static br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean.getCliente;
@@ -16,8 +17,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
@@ -102,6 +109,7 @@ public class ChamadaPaginaBean implements Serializable {
      * @throws java.io.IOException
      */
     public synchronized String pagina(String pagina) throws IOException {
+        DBExternal dBExternal = new DBExternal();
         GenericaSessao.remove(pagina + "Bean");
         String redirect = metodoGenerico(2, pagina);
         return redirect;

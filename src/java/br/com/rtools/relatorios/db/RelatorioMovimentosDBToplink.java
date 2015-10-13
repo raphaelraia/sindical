@@ -73,11 +73,12 @@ public class RelatorioMovimentosDBToplink extends DB implements RelatorioMovimen
                 + " INNER JOIN fin_servicos            AS se               ON se.id                = mov.id_servicos                            \n "
                 + " INNER JOIN fin_servico_rotina      AS ser              ON ser.id_servicos      = se.id AND ser.id_rotina = 4                \n "
                 + " INNER JOIN fin_tipo_servico        AS ts               ON ts.id                = mov.id_tipo_servico                        \n "
-                + "  LEFT JOIN pes_juridica            AS jur              ON jur.id_pessoa        = pes.id                                     \n "
-                + "  LEFT JOIN arr_contribuintes_vw    AS C                ON C.id_juridica        = jur.id                                     \n ";
-        if (condicao.equals("inativos") || condicao.equals("naoContribuintes")) {
-            textQuery += " LEFT JOIN arr_contribuintes_inativos_agrupados_vw AS CI ON CI.id_juridica = C.id_juridica \n ";
-        }
+                + "  LEFT JOIN pes_juridica            AS jur              ON jur.id_pessoa        = pes.id                                     \n ";
+                // REMOVIDA EM 13/10/2015 - SOLICITAÇÃO DO ROGÉRIO, LENTIDÃO
+                // + "  LEFT JOIN arr_contribuintes_vw    AS C                ON C.id_juridica        = jur.id                                     \n ";
+//        if (condicao.equals("inativos") || condicao.equals("naoContribuintes")) {
+//            textQuery += " LEFT JOIN arr_contribuintes_inativos_agrupados_vw AS CI ON CI.id_juridica = C.id_juridica \n ";
+//        }
         textQuery += " "
                 //+ "  LEFT JOIN fin_baixa               AS lot              ON lot.id               = mov.id_baixa                                                                       \n "
                 + "  LEFT JOIN pes_juridica            AS esc              ON esc.id               = jur.id_contabilidade                                                               \n "
@@ -103,21 +104,31 @@ public class RelatorioMovimentosDBToplink extends DB implements RelatorioMovimen
                 + "  LEFT JOIN fin_conta_cobranca      AS cc               ON cc.id                = bol.id_conta_cobranca                                                              \n ";
 
         // CONDICAO -----------------------------------------------------
+        textQuery += " WHERE mov.is_ativo = true \n";
         switch (condicao) {
             case "todos":
-                textQuery += " WHERE mov.is_ativo = true \n ";
+                textQuery += " \n ";
                 break;
             case "ativos":
-                textQuery += " WHERE mov.is_ativo = true AND C.id_juridica IS NOT NULL AND C.dt_inativacao IS NULL \n ";
+                /// REMOVIDA EM 13/10/2015 - SOLICITAÇÃO DO ROGÉRIO, LENTIDÃO
+                // textQuery += " WHERE mov.is_ativo = true AND C.id_juridica IS NOT NULL AND C.dt_inativacao IS NULL \n ";
+                textQuery += " AND mov.id_pessoa IN ( SELECT id_pessoa FROM arr_contribuintes_vw WHERE dt_inativacao IS NULL ) \n";
                 break;
             case "inativos":
-                textQuery += " WHERE mov.is_ativo = true AND CI.id_juridica IS NOT NULL \n ";
+                textQuery += " AND mov.id_pessoa NOT IN ( SELECT id_pessoa FROM arr_contribuintes_vw WHERE dt_inativacao IS NULL ) \n";
+                textQuery += " AND mov.id_pessoa IN ( SELECT id_pessoa FROM arr_contribuintes_vw WHERE dt_inativacao IS NOT NULL GROUP BY id_pessoa ) \n";
+                /// REMOVIDA EM 13/10/2015 - SOLICITAÇÃO DO ROGÉRIO, LENTIDÃO
+                // textQuery += " WHERE mov.is_ativo = true AND CI.id_juridica IS NOT NULL \n ";
                 // 03/11/2014 - Chamado 234 - RUNRUN + "   AND jur.id NOT IN (SELECT c.id_juridica FROM arr_contribuintes_vw c) "
                 // + "   AND jur.id NOT IN (SELECT c.id_juridica FROM arr_contribuintes_vw C WHERE dt_inativacao IS NULL) "
                 //+ "   AND jur.id IN (SELECT ci.id_juridica FROM arr_contribuintes_inativos ci GROUP BY ci.id_juridica) "
                 // + " AND C.dt_inativacao IS NOT NULL ";
+                break;
             case "naoContribuintes":
-                textQuery += " WHERE mov.is_ativo = true AND CI.id_juridica IS NULL AND C.id_juridica IS NULL \n ";
+                textQuery += " AND mov.id_pessoa NOT IN ( SELECT id_pessoa FROM arr_contribuintes_vw WHERE dt_inativacao IS NULL ) \n";
+                textQuery += " AND mov.id_pessoa NOT IN ( SELECT id_pessoa FROM arr_contribuintes_vw WHERE dt_inativacao IS NOT NULL GROUP BY id_pessoa ) \n";
+                /// REMOVIDA EM 13/10/2015 - SOLICITAÇÃO DO ROGÉRIO, LENTIDÃO
+                // textQuery += " AND CI.id_juridica IS NULL AND C.id_juridica IS NULL \n ";
                 break;
         }
 

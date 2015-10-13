@@ -94,6 +94,43 @@ public class ServicosDao extends DB {
         }
     }
 
+    public List findBySubGrupoConvenio(String inIdSubGrupoConvenio) {
+        try {
+            String queryString;
+            if (!inIdSubGrupoConvenio.isEmpty()) {
+                queryString = " "
+                        + "     SELECT S.* FROM fin_servicos AS S                                       \n"
+                        + "      WHERE S.id IN (                                                        \n"
+                        + "         SELECT id_servico                                                   \n"
+                        + "           FROM soc_convenio_servico                                         \n"
+                        + "          WHERE id_convenio_sub_grupo IN ( " + inIdSubGrupoConvenio + " )    \n"
+                        + ")                                                                            \n";
+            } else {
+                queryString = " "
+                        + "     SELECT S.* FROM fin_servicos AS S                                       \n"
+                        + "      WHERE S.id IN (                                                        \n"
+                        + "         SELECT id_servico                                                   \n"
+                        + "           FROM soc_convenio_servico                                         \n"
+                        + ")                                                                            \n";
+
+            }
+            if (situacao != null) {
+                if (situacao.equals("A")) {
+                    queryString += " S.ds_situacao = " + situacao + " \n";
+                } else {
+                    queryString += " S.ds_situacao = " + situacao + " \n";
+                }
+            }
+            if (!order.isEmpty()) {
+                queryString += " ORDER BY " + order;
+            }
+            Query query = getEntityManager().createNativeQuery(queryString, Servicos.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
     /**
      * Situaçao A ou I
      *

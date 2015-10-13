@@ -309,6 +309,11 @@
                             <f:selectItems value="#{jasperBean.listTypes('xls')}" />
                         </p:selectOneMenu>  
                     </h:panelGrid>                                                           
+                    <h:panelGrid columns="3">
+                        <p:selectBooleanCheckbox itemLabel="Exibir data de inativação" styleClass="margin-top-max" value="#{relatorioAcademiaBean.mostrarDataInativacao}">
+                            <p:ajax event="change" update="@this" />
+                        </p:selectBooleanCheckbox>
+                    </h:panelGrid>
                 </h:form>                          
             </p:panel>
         </f:view>

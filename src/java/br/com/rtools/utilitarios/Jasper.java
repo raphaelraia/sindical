@@ -263,18 +263,6 @@ public class Jasper implements Serializable {
         // DEFINE O CABEÇALHO
         FacesContext faces = FacesContext.getCurrentInstance();
         String subreport = "";
-        switch (TYPE) {
-            case "retrato":
-                subreport = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/CABECALHO_RETRATO.jasper");
-                break;
-            case "default":
-            case "paisagem":
-                subreport = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/CABECALHO_PAISAGEM.jasper");
-                break;
-            default:
-                IS_HEADER = false;
-                break;
-        }
         if (parameters == null) {
             parameters = new HashMap();
         }
@@ -282,6 +270,22 @@ public class Jasper implements Serializable {
             parameters.put("relatorio_titulo", TITLE);
         }
         if (IS_HEADER || IS_HEADER_PARAMS) {
+            switch (TYPE) {
+                case "retrato":
+                    subreport = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/CABECALHO_RETRATO.jasper");
+                    break;
+                case "default":
+                case "paisagem":
+                    subreport = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/CABECALHO_PAISAGEM.jasper");
+                    break;
+                case "recibo_sem_logo":
+                    subreport = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/CABECALHO_RECIBO_SEM_LOGO.jasper");
+                    break;
+                default:
+                    IS_HEADER = false;
+                    break;
+            }
+            parameters.put("is_header", true);
             parameters.put("sindicato_nome", juridica.getPessoa().getNome());
             parameters.put("sindicato_documento", juridica.getPessoa().getDocumento());
             parameters.put("sindicato_site", juridica.getPessoa().getSite());
@@ -312,6 +316,8 @@ public class Jasper implements Serializable {
             // parameters.put("instituicao_logo", ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));
             //
             parameters.put("template_dir", subreport);
+        } else {
+            parameters.put("is_header", false);
         }
 
         MemoryMXBean memoryBean = ManagementFactory.getMemoryMXBean();
