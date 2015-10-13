@@ -10,7 +10,7 @@
                 <p:ajax event="close" listener="#{photoCapture.close()}" />
 
                 <h:panelGrid id="photo_capture_panel_imagem" columns="1">
-                    <p:photoCam widgetVar="pc" listener="#{photoCapture.capturar}" update="#{photoCapture.updateView}" style="width: 500px"/>
+                    <p:photoCam widgetVar="pc" listener="#{photoCapture.capturar}" update="#{photoCapture.updateView}" style="width: 500px" rendered="#{photoCapture.renderedPhotoCaptureView}"/>
                     <h:column>
                         <p:commandButton type="button" value="CAPTURAR">
                             <p:ajax event="click" oncomplete="PF('pc').capture();"/>
