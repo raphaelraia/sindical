@@ -39,13 +39,20 @@
                 </f:subview>
                 <f:view>
                     <f:metadata>
-                        <f:event type="preRenderView" listener="${uploadBean.setRotinaNome('socios')}"/>
-                        <f:event type="preRenderView" listener="${photoCamBean.setRotinaNome('socios')}"/>
-                        <f:event type="preRenderView" listener="${uploadBean.setUPDATE(':formSocios:tab_view:i_panel_foto :formSocios:i_panel_dependente')}"/>
-                        <f:event type="preRenderView" listener="${photoCamBean.setUPDATE(':formSocios:tab_view:i_panel_foto :formSocios:i_panel_dependente')}"/>
+                        <!--
+                        <f:event type="preRenderView" listener="$ {uploadBean.setRotinaNome('socios')}"/>
+                        <f:event type="preRenderView" listener="$ {photoCamBean.setRotinaNome('socios')}"/>
+                        <f:event type="preRenderView" listener="$ {uploadBean.setUPDATE(':formSocios:tab_view:i_panel_foto :formSocios:i_panel_dependente')}"/>
+                        <f:event type="preRenderView" listener="$ {photoCamBean.setUPDATE(':formSocios:tab_view:i_panel_foto :formSocios:i_panel_dependente')}"/>
+                        -->
                     </f:metadata>
+                    <!--
                     <ui:include src="templates/templateUpload.xhtml" />
                     <ui:include src="templates/templatePhotoCam.xhtml" />
+                    -->
+                    <ui:include src="templates/templatePhotoCapture.xhtml" />
+                    <ui:include src="templates/templatePhotoUpload.xhtml" />
+                    
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Cadastro do Sócio" styleClass="fonteHeader" />
                         <h:form id="formSocios">
@@ -66,7 +73,7 @@
                                     <h:outputText value="#{sociosBean.servicoPessoa.pessoa.tipoDocumento.descricao} - #{sociosBean.servicoPessoa.pessoa.documento}" style="font-size: 12pt!important;"/>
                                     <h:commandLink id="i_link_pessoa" action="#{sociosBean.editarTitular()}" value="#{sociosBean.servicoPessoa.pessoa.nome}" style="margin-left: 20px; font-size: 12pt!important;"/>
                                     <p:tooltip for="i_link_pessoa">
-                                        <p:graphicImage value="#{sociosBean.fotoTipTitular}" width="100"/>
+                                        <p:graphicImage name="#{sociosBean.servicoPessoa.pessoa.fotoResource}" cache="false" width="100"/>
                                     </p:tooltip>
                                 </h:panelGrid>
                             </p:panel>
@@ -329,7 +336,7 @@
                                     </p:column>
 
                                     <p:column width="80">
-                                        <p:graphicImage value="#{listDependentes.fisica.pessoa.foto}" style="width: 70px; height: auto;" cache="false"/>
+                                        <p:graphicImage name="#{listDependentes.fisica.pessoa.foto}" style="width: 70px; height: auto;" cache="false"/>
                                     </p:column>
 
                                     <p:column headerText="Nome" width="200">
@@ -600,22 +607,14 @@
 
                                                 <p:column>
                                                     <p:panel header="Foto do Perfil" style="width: 265px; text-align: center" id="i_panel_foto">
-                                                        <h:column rendered="#{sociosBean.fotoTempPerfil eq ''}">
-                                                            <p:graphicImage value="#{sociosBean.novoDependente.pessoa.foto}" cache="false" style="max-width: 250px; max-height: 395px" />
-                                                        </h:column>
-                                                        <h:column rendered="#{sociosBean.fotoTempPerfil ne ''}">
-                                                            <p:graphicImage value="#{sociosBean.fotoTempPerfil}" id="i_perfil" style="max-width: 300px; max-height: 395px" cache="false"/>
-                                                            <div class="clear"></div>
+                                                        <h:column rendered="#{not empty sociosBean.novoDependente.pessoa.foto}">
+                                                            <p:graphicImage name="#{sociosBean.novoDependente.pessoa.foto}" cache="false" style="max-width: 250px; max-height: 395px" />
                                                         </h:column>
                                                     </p:panel>                                                
                                                     <h:panelGrid columns="5">
-                                                        <h:column rendered="false">
-                                                            <p:commandButton value="Upload Foto" type="button" onclick="PF('dgl_upload').show();" id="id_btn_uploads" />
-                                                            <p:commandButton value="Capturar" onclick="PF('dgl_captura').show();" />                                                        
-                                                        </h:column>                                                    
-                                                        <p:commandButton icon="photocam" value="Capturar" title="Capturar Foto" oncomplete="PF('dlg_photocam').show();" action="#{photoCamBean.listener(sociosBean.path, sociosBean.novoDependente.pessoa.id == -1 ? 'perfil' : sociosBean.novoDependente.pessoa.id, true, (sociosBean.novoDependente.pessoa.id == -1 ? true : false))}" global="false" update=":form_photocam_files:i_panel_photocam" disabled="#{sociosBean.novoDependente.id == -1}" />
-                                                        <p:commandButton icon="ui-icon-arrowthick-1-n" value="Upload Foto" title="Enviar foto" oncomplete="PF('dlg_upload').show();" actionListener="#{uploadBean.listener(sociosBean.path, sociosBean.novoDependente.pessoa.id == -1 ? 'perfil' : sociosBean.novoDependente.pessoa.id, 'image/png,image/jpeg', true, true)}"  global="false" update=":form_upload_files:i_panel_anexos"  disabled="#{sociosBean.novoDependente.id == -1}" />
-                                                        <p:commandButton icon="ui-icon-trash" title="Remover Foto" action="#{sociosBean.apagarImagem()}" rendered="#{empty sociosBean.fotoTempPerfil}" update=":formSocios:i_panel_dados"  disabled="#{sociosBean.novoDependente.id == -1}"/>
+                                                        <p:commandButton icon="photocam" value="Capturar Foto" title="Capturar Foto" action="#{photoCapture.open(sociosBean.novoDependente.pessoa, ':formSocios:i_panel_dados')}" global="false" disabled="#{sociosBean.novoDependente.id == -1}" />
+                                                        <p:commandButton icon="ui-icon-arrowthick-1-n" value="Upload Foto" title="Enviar Foto" action="#{photoUpload.open(sociosBean.novoDependente.pessoa, ':formSocios:i_panel_dados')}" disabled="#{sociosBean.novoDependente.id == -1}" />
+                                                        <p:commandButton icon="ui-icon-trash" title="Remover Foto" action="#{sociosBean.apagarImagem()}" rendered="#{not empty sociosBean.novoDependente.pessoa.foto}" update=":formSocios:i_panel_dados"  disabled="#{sociosBean.novoDependente.id == -1}"/>
                                                     </h:panelGrid>
                                                 </p:column>
                                             </h:panelGrid>
@@ -734,19 +733,6 @@
                         </p:dialog>
                     </h:form>
 
-                    <h:form id="form_dependente_upload" enctype="multipart/form-data" acceptcharset="UTF-8">
-                        <p:dialog id="id_dgl_anexos" widgetVar="dgl_upload" modal="true"  header="Anexar Foto" >
-                            <p:fileUpload label="Procurar"
-                                          cancelLabel="Cancelar"
-                                          uploadLabel="Anexar"
-                                          mode="advanced"                                          
-                                          multiple="false"
-                                          sizeLimit="204800"
-                                          update=":formSocios:i_panel_dados"
-                                          fileUploadListener="#{sociosBean.upload}"
-                                          oncomplete="PF('dgl_upload').hide()" />
-                        </p:dialog>
-                    </h:form>    
                 </f:view>
                 <!-- FINALIZA div wrap main -->
             </div>

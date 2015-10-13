@@ -25,14 +25,22 @@
                 </f:subview>
                 <f:view>
                     <f:metadata>  
-                        <f:event type="preRenderView" listener="${uploadBean.setRotinaNome('usuario')}"/>  
-                        <f:event type="preRenderView" listener="${photoCamBean.setRotinaNome('usuario')}"/>
-                        <f:event type="preRenderView" listener="${uploadBean.setUPDATE(':form_u:i_photo_cam')}"/>
-                        <f:event type="preRenderView" listener="${photoCamBean.setUPDATE(':form_u:i_photo_cam')}"/>                        
+                        <!-- 
+                        <f:event type="preRenderView" listener="$ {uploadBean.setRotinaNome('usuario')}"/>  
+                        <f:event type="preRenderView" listener="$ {photoCamBean.setRotinaNome('usuario')}"/>
+                        <f:event type="preRenderView" listener="$ {uploadBean.setUPDATE(':form_u:i_photo_cam')}"/>
+                        <f:event type="preRenderView" listener="$ {photoCamBean.setUPDATE(':form_u:i_photo_cam')}"/>                        
+                        -->
                     </f:metadata>
                     <ui:include src="templates/templateStatus.xhtml"/>
+                    <!--
                     <ui:include src="templates/templateUpload.xhtml" />
                     <ui:include src="templates/templatePhotoCam.xhtml" />                    
+                    -->
+                    
+                    <ui:include src="templates/templatePhotoCapture.xhtml" />
+                    <ui:include src="templates/templatePhotoUpload.xhtml" />
+                    
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <p:outputLabel value="Cadastro de Usuários" styleClass="fonteHeader" />
                         <div class="clear"></div>
@@ -113,10 +121,10 @@
                                     </h:column>
                                     <h:column>
                                         <p:panel header="Foto" rendered="#{usuarioBean.usuario.id != -1}" style="float: right" id="i_photo_cam">
-                                            <p:graphicImage value="#{usuarioBean.usuario.pessoa.foto}" cache="false" width="130" />
+                                            <p:graphicImage name="#{usuarioBean.usuario.pessoa.foto}" cache="false" width="130" />
                                             <h:panelGrid columns="2" style="width: 100%" columnClasses="text-center" styleClass="margin-top-max">
-                                                <p:commandButton icon="ui-icon-arrowthick-1-n" title="Enviar foto" oncomplete="PF('dlg_upload').show();" actionListener="#{uploadBean.listener('Imagens/Fotos', usuarioBean.usuario.pessoa.id, 'image/png,image/jpeg', true, true)}"  global="false" update=":form_upload_files:i_panel_anexos" />
-                                                <p:commandButton icon="photocam"  title="Capturar Foto" oncomplete="PF('dlg_photocam').show();" actionListener="#{photoCamBean.listener('Imagens/Fotos', usuarioBean.usuario.pessoa.id, true, true)}" global="false" update=":form_photocam_files:i_panel_photocam" />
+                                                <p:commandButton action="#{photoUpload.openAndSave(usuarioBean.usuario.pessoa, 'form_u')}" icon="ui-icon-arrowthick-1-n" title="Enviar Foto" global="false"  />
+                                                <p:commandButton action="#{photoCapture.openAndSave(usuarioBean.usuario.pessoa, 'form_u')}" icon="photocam"  title="Capturar Foto" global="false"/>
                                             </h:panelGrid>
                                         </p:panel>
                                     </h:column>

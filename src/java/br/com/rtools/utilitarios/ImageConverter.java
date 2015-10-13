@@ -7,9 +7,14 @@ package br.com.rtools.utilitarios;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import javax.imageio.ImageIO;
+import org.apache.commons.io.IOUtils;
+import org.primefaces.model.DefaultStreamedContent;
 
 public class ImageConverter {
 
@@ -73,4 +78,17 @@ public class ImageConverter {
     public static void setOUTPUT_FILE(String aOUTPUT_FILE) {
         OUTPUT_FILE = aOUTPUT_FILE;
     }
+     
+    public static DefaultStreamedContent getImageStreamed(File file, String type){
+        InputStream dbStream;
+        try {
+            dbStream = new FileInputStream(file);
+            byte[] bytes = IOUtils.toByteArray(dbStream);
+            dbStream.close();
+        return new DefaultStreamedContent(new ByteArrayInputStream(bytes), type);
+        } catch (Exception ex) {
+            ex.getMessage();
+        }
+        return null;
+    }    
 }

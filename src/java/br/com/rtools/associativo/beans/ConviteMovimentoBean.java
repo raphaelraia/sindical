@@ -44,33 +44,29 @@ import br.com.rtools.sistema.SisPessoa;
 import br.com.rtools.sistema.dao.SisPessoaDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
-import br.com.rtools.utilitarios.Diretorio;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Mask;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.PF;
+import br.com.rtools.utilitarios.PhotoCapture;
+import br.com.rtools.utilitarios.PhotoUpload;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.faces.FacesException;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
-import javax.imageio.stream.FileImageOutputStream;
 import javax.servlet.ServletContext;
-import org.primefaces.event.CaptureEvent;
-import org.primefaces.model.DefaultStreamedContent;
-import org.primefaces.model.StreamedContent;
+import org.apache.commons.io.FileUtils;
 
 @ManagedBean
 @SessionScoped
@@ -85,9 +81,8 @@ public class ConviteMovimentoBean implements Serializable {
     private List<SelectItem> listPessoaAutoriza = new ArrayList();
     private List<SelectItem> conviteServicos = new ArrayList();
 
-    private StreamedContent fotoPerfilStreamed; //CARREGAR IMAGEM UPLOAD FOTO PHOTOCAM 
-    private StreamedContent fotoArquivoStreamed;
-
+//    private StreamedContent fotoPerfilStreamed; //CARREGAR IMAGEM UPLOAD FOTO PHOTOCAM 
+//    private StreamedContent fotoArquivoStreamed;
     private String message = "";
     private String tipoCaptura = "";
     private String descricaoPesquisa = "";
@@ -102,12 +97,18 @@ public class ConviteMovimentoBean implements Serializable {
     private boolean desabilitaCampos = false;
     private boolean desabilitaCamposMovimento = false;
     private boolean desabilitaBaixa = false;
-    private boolean renderedPhotoCam = false;
-
+    // FOTO
     private String nomeFoto = "";
     private String nomeArquivo = "";
+    private String fotoPerfil = "";
+    private String fotoArquivo = "";
 
     private boolean disabledValor = true;
+
+    public ConviteMovimentoBean() {
+        loadUsuario();
+        //PhotoCapture.load("temp/convite/" + usuario.getId(), "form_convite:panel_foto");
+    }
 
     public void novo() {
         valorString = "";
@@ -122,11 +123,9 @@ public class ConviteMovimentoBean implements Serializable {
         comoPesquisa = "";
         porPesquisa = "todos";
         conviteMovimentos.clear();
-
-//        fotoPerfilStreamed = new DefaultStreamedContent();
-//        fotoArquivoStreamed = new DefaultStreamedContent();
-        fotoPerfilStreamed = null;
-        fotoArquivoStreamed = null;
+//
+//        fotoPerfilStreamed = null;
+//        fotoArquivoStreamed = null;
 
         visibility = true;
         desabilitaCampos = false;
@@ -137,8 +136,14 @@ public class ConviteMovimentoBean implements Serializable {
         listPessoaAutoriza.clear();
         loadValor();
     }
-    
-    public void loadValor(){
+
+    public final void loadUsuario() {
+        if (GenericaSessao.exists("sessaoUsuario")) {
+            usuario = (Usuario) GenericaSessao.getObject("sessaoUsuario");
+        }
+    }
+
+    public void loadValor() {
         if (conviteMovimento.isCortesia() || conviteServicos.isEmpty() || conviteMovimento.getSisPessoa().getNascimento().isEmpty()) {
             disabledValor = true;
             valorString = "0,00";
@@ -151,12 +156,13 @@ public class ConviteMovimentoBean implements Serializable {
             DataHoje dh = new DataHoje();
             ServicoValor sv = (ServicoValor) svdb.pesquisaServicoValorPorIdade(((ConviteServico) dao.find(new ConviteServico(), Integer.parseInt(conviteServicos.get(idServico).getDescription()))).getServicos().getId(), dh.calcularIdade(conviteMovimento.getSisPessoa().getNascimento()));
             valorString = Moeda.converteR$(Float.toString((sv.getValor())));
-            
-            if (sv.getServicos().isAlterarValor())
+
+            if (sv.getServicos().isAlterarValor()) {
                 disabledValor = false;
-            else
+            } else {
                 disabledValor = true;
-            
+            }
+
         } catch (NumberFormatException e) {
             disabledValor = true;
             valorString = "0,00";
@@ -171,7 +177,7 @@ public class ConviteMovimentoBean implements Serializable {
     public void close() {
         novo();
         visibility = false;
-        renderedPhotoCam = false;
+        PhotoCapture.setRenderedPhotoCapture(false);
         PF.update("form_convite");
     }
 
@@ -209,9 +215,10 @@ public class ConviteMovimentoBean implements Serializable {
         Dao dao = new Dao();
         if (conviteMovimento.isCortesia()) {
             conviteMovimento.setAutorizaCortesia((ConviteAutorizaCortesia) dao.find(new ConviteAutorizaCortesia(), Integer.parseInt(listPessoaAutoriza.get(idPessoaAutoriza).getDescription())));
-        }else{
+        } else {
             conviteMovimento.setAutorizaCortesia(null);
         }
+        
         NovoLog novoLog = new NovoLog();
         conviteMovimento.setConviteServico((ConviteServico) dao.find(new ConviteServico(), Integer.parseInt(conviteServicos.get(idServico).getDescription())));
         dao.openTransaction();
@@ -374,36 +381,17 @@ public class ConviteMovimentoBean implements Serializable {
                 message = "Erro ao atualizar registro!";
                 return null;
             }
-
-            PF.update("form_convite:panel_foto");
-            PF.closeDialog("dgl_panel_salvar");
-            PF.openDialog("dgl_panel_mensagem");
         }
 
         if (sucesso) {
             NovoLog log = new NovoLog();
             log.save(conviteMovimento.toString());
 
-            if (!Diretorio.criar("Imagens/Fotos/SisPessoa/" + conviteMovimento.getSisPessoa().getId())) {
-                return null;
-            }
-
-            File fotoTemp = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/temp/convite/" + getUsuario().getId() + "/" + nomeFoto + ".png"));
-            if (fotoTemp.exists()) {
-                String path = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/Imagens/Fotos/SisPessoa/" + conviteMovimento.getSisPessoa().getId() + "/" + nomeFoto + ".png");
-                boolean rename = fotoTemp.renameTo(new File(path));
-                fotoTemp.delete();
-
-                try {
-                    InputStream dbStream = new FileInputStream(new File(path));
-                    fotoPerfilStreamed = new DefaultStreamedContent(dbStream, "image/png");
-                } catch (Exception e) {
-                    e.getMessage();
-                }
-
-                File fotoAntiga = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/Imagens/Fotos/SisPessoa/" + conviteMovimento.getSisPessoa().getId() + "/" + conviteMovimento.getSisPessoa().getFotoPerfil() + ".png"));
+            if (!nomeFoto.isEmpty()) {
+                // CASO NÃO QUEIRA EXCLUIR A IMAGEM ANTERIOR
+                File fotoAntiga = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/resources/cliente/" + getCliente().toLowerCase() + "/imagens/sispessoa/" + conviteMovimento.getSisPessoa().getId() + "/perfil/" + conviteMovimento.getSisPessoa().getFotoPerfil() + ".png"));
                 if (fotoAntiga.exists()) {
-                    fotoAntiga.delete();
+                    FileUtils.deleteQuietly(fotoAntiga);
                 }
 
                 conviteMovimento.getSisPessoa().setFotoPerfil(nomeFoto);
@@ -412,22 +400,11 @@ public class ConviteMovimentoBean implements Serializable {
                 dao.commit();
             }
 
-            File arquivoTemp = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/temp/convite/" + getUsuario().getId() + "/" + nomeArquivo + ".png"));
-            if (arquivoTemp.exists()) {
-                String path = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/Imagens/Fotos/SisPessoa/" + conviteMovimento.getSisPessoa().getId() + "/" + nomeArquivo + ".png");
-                boolean rename = arquivoTemp.renameTo(new File(path));
-                arquivoTemp.delete();
-
-                try {
-                    InputStream dbStream = new FileInputStream(new File(path));
-                    fotoArquivoStreamed = new DefaultStreamedContent(dbStream, "image/png");
-                } catch (Exception e) {
-                    e.getMessage();
-                }
-
-                File fotoAntiga = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/Imagens/Fotos/SisPessoa/" + conviteMovimento.getSisPessoa().getId() + "/" + conviteMovimento.getSisPessoa().getFotoArquivo() + ".png"));
+            if (!nomeArquivo.isEmpty()) {
+                // CASO NÃO QUEIRA EXCLUIR A IMAGEM ANTERIOR
+                File fotoAntiga = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/resources/cliente/" + getCliente().toLowerCase() + "/imagens/sispessoa/" + conviteMovimento.getSisPessoa().getId() + "/documento/" + conviteMovimento.getSisPessoa().getFotoArquivo() + ".png"));
                 if (fotoAntiga.exists()) {
-                    fotoAntiga.delete();
+                    FileUtils.deleteQuietly(fotoAntiga);
                 }
 
                 conviteMovimento.getSisPessoa().setFotoArquivo(nomeArquivo);
@@ -452,6 +429,10 @@ public class ConviteMovimentoBean implements Serializable {
                 }
             }
         }
+
+//        PF.update("form_convite");
+//        PF.closeDialog("dgl_panel_salvar");
+//        PF.openDialog("dgl_panel_mensagem");
         return null;
     }
 
@@ -497,7 +478,7 @@ public class ConviteMovimentoBean implements Serializable {
         }
         loadValor();
     }
-    
+
     public void pesquisaSisPessoaNomeNascimento() {
         if (conviteMovimento.getSisPessoa().getId() == -1) {
             // NOME / DATA DE NASCIMENTO    
@@ -507,7 +488,7 @@ public class ConviteMovimentoBean implements Serializable {
                 if (sp != null) {
                     conviteMovimento.setSisPessoa(sp);
                 }
-            } 
+            }
             conviteMovimento.getSisPessoa().setNome(conviteMovimento.getSisPessoa().getNome().toUpperCase());
         }
         loadValor();
@@ -578,25 +559,9 @@ public class ConviteMovimentoBean implements Serializable {
                 break;
             }
         }
-
-        try {
-            String arquivo = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/Imagens/Fotos/SisPessoa/" + conviteMovimento.getSisPessoa().getId());
-            File perfil = new File(arquivo + "/" + conviteMovimento.getSisPessoa().getFotoPerfil() + ".png");
-            if (perfil.exists()) {
-                InputStream dbStream = new FileInputStream(new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/Imagens/Fotos/SisPessoa/" + conviteMovimento.getSisPessoa().getId() + "/" + conviteMovimento.getSisPessoa().getFotoPerfil() + ".png")));
-                fotoPerfilStreamed = new DefaultStreamedContent(dbStream, "image/png");
-            }
-
-            File documento = new File(arquivo + "/" + conviteMovimento.getSisPessoa().getFotoArquivo() + ".png");
-            if (documento.exists()) {
-                InputStream dbStream = new FileInputStream(new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/Imagens/Fotos/SisPessoa/" + conviteMovimento.getSisPessoa().getId() + "/" + conviteMovimento.getSisPessoa().getFotoArquivo() + ".png")));
-                fotoArquivoStreamed = new DefaultStreamedContent(dbStream, "image/png");
-            }
-        } catch (FileNotFoundException e) {
-            e.getMessage();
-        }
         visibility = true;
-        //PF.update("form_convite");
+        fotoPerfil = "";
+        fotoArquivo = "";
     }
 
     public List<ConviteMovimento> getConviteMovimentos() {
@@ -730,66 +695,6 @@ public class ConviteMovimentoBean implements Serializable {
         this.pessoaEndereco = pessoaEndereco;
     }
 
-//    public void capturar(CaptureEvent captureEvent) {
-//        String fotoTempCaminho = "convite/" + conviteMovimento.getSisPessoa().getId(); //getUsuario().getId();
-//        tipoCaptura = "perfil";
-//        if (tipoCaptura.equals("perfil")) {
-//            if (PhotoCam.oncapture(captureEvent, "perfil", "temp/" + fotoTempCaminho, true)) {
-//                File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/temp/" + fotoTempCaminho + "/perfil.png"));
-//                if (f.exists()) {
-//                    fotoTempPerfil = "/Cliente/" + getCliente() + "/temp/" + fotoTempCaminho + "/perfil.png";
-//                    fotoPerfil = "";
-//                } else {
-//                    fotoTempPerfil = "";
-//                }
-//            }
-//        } else {
-//            if (PhotoCam.oncapture(captureEvent, "documento", "temp/" + fotoTempCaminho, true)) {
-//                File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/temp/" + fotoTempCaminho + "/documento.png"));
-//                if (f.exists()) {
-//                    fotoTempArquivo = "/Cliente/" + getCliente() + "/temp/" + fotoTempCaminho + "/documento.png";
-//                    fotoArquivo = "";
-//                } else {
-//                    fotoTempArquivo = "";
-//                }
-//            }
-//        }
-//        PF.closeDialog("dgl_captura");
-//        renderedPhotoCam = false;
-//        
-////        RequestContext.getCurrentInstance().execute("dgl_captura.hide();");
-////        RequestContext.getCurrentInstance().execute("dgl_captura.hide();");
-//    }
-    public void capturar(CaptureEvent captureEvent) throws FileNotFoundException {
-        int i = (int) (Math.random() * 10000000);
-        String nameTemp = String.valueOf(i);
-
-        ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
-        byte[] data = captureEvent.getData();
-        String path;
-
-        path = servletContext.getRealPath("") + "Cliente" + File.separator + getCliente() + File.separator + "temp" + File.separator + "convite" + File.separator + getUsuario().getId() + File.separator + nameTemp + ".png";
-
-        FileImageOutputStream imageOutput;
-
-        try {
-            imageOutput = new FileImageOutputStream(new File(path));
-            imageOutput.write(data, 0, data.length);
-            imageOutput.close();
-        } catch (IOException e) {
-            throw new FacesException("Error in writing captured image.", e);
-        }
-
-        InputStream dbStream = new FileInputStream(new File(path));
-        if (tipoCaptura.equals("perfil")) {
-            fotoPerfilStreamed = new DefaultStreamedContent(dbStream, "image/png");
-            nomeFoto = nameTemp;
-        } else {
-            fotoArquivoStreamed = new DefaultStreamedContent(dbStream, "image/png");
-            nomeArquivo = nameTemp;
-        }
-    }
-
     public String getTipoCaptura() {
         return tipoCaptura;
     }
@@ -800,13 +705,14 @@ public class ConviteMovimentoBean implements Serializable {
 
     public void capturarTipo(String tipoCaptura) {
         this.tipoCaptura = tipoCaptura;
-        //RequestContext.getCurrentInstance().execute("pc.capture();");
+        if (tipoCaptura.equals("perfil")) {
+            PhotoCapture.open("sispessoa/" + conviteMovimento.getSisPessoa().getId() + "/perfil", "form_convite:panel_foto");
+        } else {
+            PhotoCapture.open("sispessoa/" + conviteMovimento.getSisPessoa().getId() + "/documento", "form_convite:panel_foto");
+        }
     }
 
     public Usuario getUsuario() {
-        if (GenericaSessao.exists("sessaoUsuario")) {
-            usuario = (Usuario) GenericaSessao.getObject("sessaoUsuario");
-        }
         return usuario;
     }
 
@@ -840,14 +746,9 @@ public class ConviteMovimentoBean implements Serializable {
 
     public void apagarImagem(String tipoCaptura, Dao dao) {
         if (tipoCaptura.equals("perfil")) {
-            File ftemp = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/temp/convite/" + getUsuario().getId() + "/" + nomeFoto + ".png"));
-            if (ftemp.exists()) {
-                ftemp.delete();
-            }
-
-            File fsave = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/Imagens/Fotos/SisPessoa/" + conviteMovimento.getSisPessoa().getId() + "/" + conviteMovimento.getSisPessoa().getFotoPerfil() + ".png"));
+            File fsave = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/resources/cliente/" + getCliente().toLowerCase() + "/imagens/sispessoa/" + conviteMovimento.getSisPessoa().getId() + "/perfil/" + conviteMovimento.getSisPessoa().getFotoPerfil() + ".png"));
             if (fsave.exists()) {
-                fsave.delete();
+                FileUtils.deleteQuietly(fsave);
 
                 conviteMovimento.getSisPessoa().setFotoPerfil("");
                 if (dao == null) {
@@ -859,16 +760,10 @@ public class ConviteMovimentoBean implements Serializable {
                     dao.update(conviteMovimento.getSisPessoa());
                 }
             }
-            fotoPerfilStreamed = null;
         } else {
-            File ftemp = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/temp/convite/" + getUsuario().getId() + "/" + nomeArquivo + ".png"));
-            if (ftemp.exists()) {
-                ftemp.delete();
-            }
-
-            File fsave = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/Imagens/Fotos/SisPessoa/" + conviteMovimento.getSisPessoa().getId() + "/" + conviteMovimento.getSisPessoa().getFotoArquivo() + ".png"));
+            File fsave = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/resources/cliente/" + getCliente().toLowerCase() + "/imagens/sispessoa/" + conviteMovimento.getSisPessoa().getId() + "/documento/" + conviteMovimento.getSisPessoa().getFotoArquivo() + ".png"));
             if (fsave.exists()) {
-                fsave.delete();
+                FileUtils.deleteQuietly(fsave);
 
                 conviteMovimento.getSisPessoa().setFotoArquivo("");
                 if (dao == null) {
@@ -880,7 +775,6 @@ public class ConviteMovimentoBean implements Serializable {
                     dao.update(conviteMovimento.getSisPessoa());
                 }
             }
-            fotoArquivoStreamed = null;
         }
     }
 
@@ -1140,54 +1034,55 @@ public class ConviteMovimentoBean implements Serializable {
         this.desabilitaBaixa = desabilitaBaixa;
     }
 
-    public boolean isRenderedPhotoCam() {
-        return renderedPhotoCam;
-    }
-
-    public void setRenderedPhotoCam(boolean renderedPhotoCam) {
-        this.renderedPhotoCam = renderedPhotoCam;
-    }
-
-    public StreamedContent getFotoPerfilStreamed() {
+    public String getFotoPerfil() {
         try {
-            File fotoTemp = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/temp/convite/" + getUsuario().getId() + "/" + nomeFoto + ".png"));
-            if (fotoTemp.exists()) {
-                InputStream dbStream = new FileInputStream(fotoTemp);
-                fotoPerfilStreamed = new DefaultStreamedContent(dbStream, "image/png");
+            if (!PhotoCapture.getNameFile().isEmpty() && tipoCaptura.equals("perfil")) {
+                nomeFoto = PhotoCapture.getNameFile();
+                File fotoSave = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/resources/cliente/" + getCliente().toLowerCase() + "/imagens/sispessoa/" + conviteMovimento.getSisPessoa().getId() + "/perfil/" + PhotoCapture.getNameFile() + ".png"));
+                if (fotoSave.exists()) {
+                    fotoPerfil = "cliente/" + getCliente().toLowerCase() + "/imagens/sispessoa/" + conviteMovimento.getSisPessoa().getId() + "/perfil/" + PhotoCapture.getNameFile() + ".png";
+                }
+                PhotoCapture.unload();
             } else {
-                File fotoSave = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/Imagens/Fotos/SisPessoa/" + conviteMovimento.getSisPessoa().getId() + "/" + conviteMovimento.getSisPessoa().getFotoPerfil() + ".png"));
-                InputStream dbStream = new FileInputStream(fotoSave);
-                fotoPerfilStreamed = new DefaultStreamedContent(dbStream, "image/png");
+                File fotoSave = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/resources/cliente/" + getCliente().toLowerCase() + "/imagens/sispessoa/" + conviteMovimento.getSisPessoa().getId() + "/perfil/" + conviteMovimento.getSisPessoa().getFotoPerfil() + ".png"));
+                if (fotoSave.exists()) {
+                    fotoPerfil = "cliente/" + getCliente().toLowerCase() + "/imagens/sispessoa/" + conviteMovimento.getSisPessoa().getId() + "/perfil/" + conviteMovimento.getSisPessoa().getFotoPerfil() + ".png";
+                }
             }
         } catch (Exception e) {
             e.getMessage();
         }
-        return fotoPerfilStreamed;
+        return fotoPerfil;
     }
 
-    public void setFotoPerfilStreamed(StreamedContent fotoPerfilStreamed) {
-        this.fotoPerfilStreamed = fotoPerfilStreamed;
+    public void setFotoPerfil(String fotoPerfil) {
+        this.fotoPerfil = fotoPerfil;
     }
 
-    public StreamedContent getFotoArquivoStreamed() {
+    public String getFotoArquivo() {
         try {
-            File arquivoTemp = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/temp/convite/" + getUsuario().getId() + "/" + nomeArquivo + ".png"));
-            if (arquivoTemp.exists()) {
-                InputStream dbStream = new FileInputStream(arquivoTemp);
-                fotoArquivoStreamed = new DefaultStreamedContent(dbStream, "image/png");
+            if (!PhotoCapture.getNameFile().isEmpty() && tipoCaptura.equals("documento")) {
+                nomeArquivo = PhotoCapture.getNameFile();
+                File fotoSave = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/resources/cliente/" + getCliente().toLowerCase() + "/imagens/sispessoa/" + conviteMovimento.getSisPessoa().getId() + "/documento/" + PhotoCapture.getNameFile() + ".png"));
+                if (fotoSave.exists()) {
+                    fotoArquivo = "cliente/" + getCliente().toLowerCase() + "/imagens/sispessoa/" + conviteMovimento.getSisPessoa().getId() + "/documento/" + PhotoCapture.getNameFile() + ".png";
+                }
+
+                PhotoCapture.unload();
             } else {
-                File fotoSave = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/Imagens/Fotos/SisPessoa/" + conviteMovimento.getSisPessoa().getId() + "/" + conviteMovimento.getSisPessoa().getFotoArquivo() + ".png"));
-                InputStream dbStream = new FileInputStream(fotoSave);
-                fotoArquivoStreamed = new DefaultStreamedContent(dbStream, "image/png");
+                File fotoSave = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/resources/cliente/" + getCliente().toLowerCase() + "/imagens/sispessoa/" + conviteMovimento.getSisPessoa().getId() + "/documento/" + conviteMovimento.getSisPessoa().getFotoArquivo() + ".png"));
+                if (fotoSave.exists()) {
+                    fotoArquivo = "cliente/" + getCliente().toLowerCase() + "/imagens/sispessoa/" + conviteMovimento.getSisPessoa().getId() + "/documento/" + conviteMovimento.getSisPessoa().getFotoArquivo() + ".png";
+                }
             }
         } catch (Exception e) {
             e.getMessage();
         }
-        return fotoArquivoStreamed;
+        return fotoArquivo;
     }
 
-    public void setFotoArquivoStreamed(StreamedContent fotoArquivoStreamed) {
-        this.fotoArquivoStreamed = fotoArquivoStreamed;
+    public void setFotoArquivo(String fotoArquivo) {
+        this.fotoArquivo = fotoArquivo;
     }
 
     public boolean isDisabledValor() {
@@ -1196,5 +1091,13 @@ public class ConviteMovimentoBean implements Serializable {
 
     public void setDisabledValor(boolean disabledValor) {
         this.disabledValor = disabledValor;
+    }
+
+    public String getNomeFoto() {
+        return nomeFoto;
+    }
+
+    public void setNomeFoto(String nomeFoto) {
+        this.nomeFoto = nomeFoto;
     }
 }

@@ -5,10 +5,8 @@ import br.com.rtools.seguranca.dao.PermissaoUsuarioDao;
 import br.com.rtools.seguranca.dao.UsuarioAcessoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Pessoa;
-import br.com.rtools.pessoa.beans.FisicaBean;
 import br.com.rtools.seguranca.*;
 import br.com.rtools.seguranca.db.*;
-import br.com.rtools.seguranca.utilitarios.SegurancaUtilitariosBean;
 import br.com.rtools.sistema.Email;
 import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.utilitarios.Dao;
@@ -17,23 +15,18 @@ import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Mail;
-import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
-import org.apache.commons.io.FileUtils;
 
 @ManagedBean
 @SessionScoped
@@ -74,11 +67,11 @@ public class UsuarioBean implements Serializable {
         listaPermissaoUsuario = new ArrayList();
         listaUsuario = new ArrayList();
         listaUsuarioAcesso = new ArrayList();
-        listaModulos = new ArrayList<SelectItem>();
-        listaRotinas = new ArrayList<SelectItem>();
-        listaEventos = new ArrayList<SelectItem>();
-        listaDepartamentos = new ArrayList<SelectItem>();
-        listaNiveis = new ArrayList<SelectItem>();
+        listaModulos = new ArrayList();
+        listaRotinas = new ArrayList();
+        listaEventos = new ArrayList();
+        listaDepartamentos = new ArrayList();
+        listaNiveis = new ArrayList();
         confirmaSenha = "";
         descricaoPesquisa = "";
         mensagem = "";
@@ -105,8 +98,8 @@ public class UsuarioBean implements Serializable {
         GenericaSessao.remove("usuarioBean");
         GenericaSessao.remove("usuarioPesquisa");
         GenericaSessao.remove("pessoaPesquisa");
-        GenericaSessao.remove("uploadBean");
-        GenericaSessao.remove("photoCamBean");
+//        GenericaSessao.remove("uploadBean");
+//        GenericaSessao.remove("photoCamBean");
         clear(1);
         clear(2);
     }
@@ -117,20 +110,20 @@ public class UsuarioBean implements Serializable {
 
     public void clear(Integer tCase) {
         if (tCase == 1) {
-            try {
-                FileUtils.deleteDirectory(new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "/Cliente/" + getCliente() + "/temp/" + "foto/" + new SegurancaUtilitariosBean().getSessaoUsuario().getId()));
-                File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/Imagens/Fotos/" + -1 + ".png"));
-                if (f.exists()) {
-                    f.delete();
-                }
-            } catch (IOException ex) {
-                Logger.getLogger(FisicaBean.class.getName()).log(Level.SEVERE, null, ex);
-            }
+//            try {
+//                FileUtils.deleteDirectory(new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "/Cliente/" + getCliente() + "/temp/" + "foto/" + new SegurancaUtilitariosBean().getSessaoUsuario().getId()));
+//                File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/Imagens/Fotos/" + -1 + ".png"));
+//                if (f.exists()) {
+//                    f.delete();
+//                }
+//            } catch (IOException ex) {
+//                Logger.getLogger(FisicaBean.class.getName()).log(Level.SEVERE, null, ex);
+//            }
         }
         if (tCase == 2) {
-            GenericaSessao.remove("cropperBean");
-            GenericaSessao.remove("uploadBean");
-            GenericaSessao.remove("photoCamBean");
+//            GenericaSessao.remove("cropperBean");
+//            GenericaSessao.remove("uploadBean");
+//            GenericaSessao.remove("photoCamBean");
         }
     }
 

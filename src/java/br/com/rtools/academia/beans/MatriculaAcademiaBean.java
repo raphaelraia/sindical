@@ -40,7 +40,6 @@ import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaComplemento;
-import br.com.rtools.pessoa.beans.FisicaBean;
 import br.com.rtools.pessoa.db.FisicaDB;
 import br.com.rtools.pessoa.db.FisicaDBToplink;
 import br.com.rtools.pessoa.db.JuridicaDB;
@@ -56,15 +55,18 @@ import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.seguranca.dao.FilialRotinaDao;
-import br.com.rtools.seguranca.utilitarios.SegurancaUtilitariosBean;
 import br.com.rtools.sistema.Periodo;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.Diretorio;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.ImageConverter;
 import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.Mask;
 import br.com.rtools.utilitarios.Moeda;
+import br.com.rtools.utilitarios.PhotoCapture;
+import br.com.rtools.utilitarios.PhotoUpload;
 import br.com.rtools.utilitarios.db.FunctionsDB;
 import br.com.rtools.utilitarios.db.FunctionsDao;
 import java.io.File;
@@ -75,8 +77,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -85,6 +85,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.servlet.ServletContext;
 import org.apache.commons.io.FileUtils;
+import org.primefaces.model.StreamedContent;
 
 @ManagedBean
 @SessionScoped
@@ -131,7 +132,6 @@ public class MatriculaAcademiaBean implements Serializable {
     private boolean ocultaParcelas;
     private boolean ocultaBotaoTarifaCartao;
     private boolean taxaCartao;
-    private boolean alunoFoto;
     private boolean matriculaAtiva;
     private Boolean disabled;
     private Boolean liberaAcessaFilial;
@@ -150,6 +150,9 @@ public class MatriculaAcademiaBean implements Serializable {
     private float valorCartao;
     private String dataValidade;
     private String mensagemInadinplente;
+    // FOTO
+    private StreamedContent fotoStreamed = null;
+    private String nomeFoto = "";
 
     @PostConstruct
     public void init() {
@@ -194,7 +197,6 @@ public class MatriculaAcademiaBean implements Serializable {
         ocultaBotaoTarifaCartao = true;
         matriculaAtiva = true;
         taxaCartao = false;
-        alunoFoto = false;
         idDiaVencimento = Integer.parseInt(DataHoje.data().substring(0, 2));
         idModalidade = 0;
         idModalidadePesquisa = null;
@@ -219,6 +221,9 @@ public class MatriculaAcademiaBean implements Serializable {
         filial_id_2 = 0;
         liberaAcessaFilial = false;
         loadLiberaAcessaFilial();
+
+        //PhotoCapture.load("form_matricula_academia");
+        //PhotoUpload.load("form_matricula_academia");
     }
 
     public void loadLiberaAcessaFilial() {
@@ -307,24 +312,24 @@ public class MatriculaAcademiaBean implements Serializable {
             GenericaSessao.remove("matriculaAcademiaBean");
             GenericaSessao.remove("fisicaPesquisa");
             GenericaSessao.remove("juridicaPesquisa");
-            GenericaSessao.remove("uploadBean");
-            GenericaSessao.remove("photoCamBean");
+//            GenericaSessao.remove("uplophotoadBean");
+//            GenericaSessao.remove("photoCamBean");
         }
         if (tCase == 1) {
-            try {
-                FileUtils.deleteDirectory(new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "/Cliente/" + ControleUsuarioBean.getCliente() + "/temp/" + "foto/" + new SegurancaUtilitariosBean().getSessaoUsuario().getId()));
-                File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/Fotos/" + -1 + ".png"));
-                if (f.exists()) {
-                    f.delete();
-                }
-            } catch (IOException ex) {
-                Logger.getLogger(FisicaBean.class.getName()).log(Level.SEVERE, null, ex);
-            }
+//            try {
+//                FileUtils.deleteDirectory(new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "/Cliente/" + ControleUsuarioBean.getCliente() + "/temp/" + "foto/" + new SegurancaUtilitariosBean().getSessaoUsuario().getId()));
+//                File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/Fotos/" + -1 + ".png"));
+//                if (f.exists()) {
+//                    f.delete();
+//                }
+//            } catch (IOException ex) {
+//                Logger.getLogger(FisicaBean.class.getName()).log(Level.SEVERE, null, ex);
+//            }
         }
         if (tCase == 2) {
-            GenericaSessao.remove("cropperBean");
-            GenericaSessao.remove("uploadBean");
-            GenericaSessao.remove("photoCamBean");
+//            GenericaSessao.remove("cropperBean");
+//            GenericaSessao.remove("uploadBean");
+//            GenericaSessao.remove("photoCamBean");
         }
     }
 
@@ -563,8 +568,53 @@ public class MatriculaAcademiaBean implements Serializable {
                 new FunctionsDao().gerarMensalidades(matriculaAcademia.getServicoPessoa().getPessoa().getId(), matriculaAcademia.getServicoPessoa().getReferenciaVigoracao());
             }
         }
+
+        salvarImagem();
         return null;
     }
+
+    public void salvarImagem() {
+        if (!Diretorio.criar("Imagens/Fotos/Fisica")) {
+            return;
+        }
+
+        File fotoTempx = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/temp/foto/" + Usuario.getUsuario().getId() + "/" + nomeFoto + ".png"));
+        if (fotoTempx.exists()) {
+            String path = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/Fotos/Fisica/" + nomeFoto + ".png");
+            try {
+                FileUtils.moveFile(fotoTempx, new File(path));
+                fotoStreamed = ImageConverter.getImageStreamed(new File(path), "image/png");
+            } catch (IOException ex) {
+                ex.getMessage();
+                GenericaMensagem.error("Atenção", "Erro ao salvar Foto, verifique as permissões de acesso!");
+                return;
+            }
+//            FisicaDB db = new FisicaDBToplink();
+//            Fisica f = db.pesquisaFisicaPorPessoa(matriculaAcademia.getServicoPessoa().getPessoa().getId());
+            
+            File fotoAntiga = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/Fotos/Fisica/" + aluno.getFoto() + ".png"));
+            if (fotoAntiga.exists()) {
+                FileUtils.deleteQuietly(fotoAntiga);
+            }
+
+            Dao dao = new Dao();
+            dao.openTransaction();
+            aluno.setFoto(nomeFoto);
+            dao.update(aluno);
+            dao.commit();
+        }
+    }
+    
+    public void showImagemFisica() {
+        String[] imagensTipo = new String[]{"jpg", "jpeg", "png", "gif"};
+        for (String imagensTipo1 : imagensTipo) {
+            String path = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/Fotos/Fisica/" + aluno.getFoto() + "." + imagensTipo1);
+            File fpath = new File(path);
+            if (fpath.exists()) {
+                fotoStreamed = ImageConverter.getImageStreamed(fpath, "image/png");
+            }
+        }
+    }    
 
     public void delete() {
         Dao di = new Dao();
@@ -682,12 +732,12 @@ public class MatriculaAcademiaBean implements Serializable {
         //calculaValorLiquido();
 //        pessoaResponsavelMemoria = matriculaAcademia.getServicoPessoa().getCobranca();
 //        pessoaAlunoMemoria = matriculaAcademia.getServicoPessoa().getPessoa();
-        alunoFoto = false;
         GenericaSessao.put("linkClicado", true);
         listaDiaParcela.clear();
         getListaDiaParcela();
         clear(1);
         clear(2);
+        showImagemFisica();
         return "matriculaAcademia";
     }
 
@@ -2275,17 +2325,17 @@ public class MatriculaAcademiaBean implements Serializable {
         this.taxaCartao = taxaCartao;
     }
 
-    public boolean isAlunoFoto() {
-        if (matriculaAcademia.getServicoPessoa().getPessoa().getId() != -1) {
-            File file = new File(FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/Fotos/" + matriculaAcademia.getServicoPessoa().getPessoa().getId() + ".png"));
-            alunoFoto = file.exists();
-        }
-        return alunoFoto;
-    }
-
-    public void setAlunoFoto(boolean alunoFoto) {
-        this.alunoFoto = alunoFoto;
-    }
+//    public boolean isAlunoFoto() {
+//        if (matriculaAcademia.getServicoPessoa().getPessoa().getId() != -1) {
+//            File file = new File(FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/Fotos/" + matriculaAcademia.getServicoPessoa().getPessoa().getId() + ".png"));
+//            alunoFoto = file.exists();
+//        }
+//        return alunoFoto;
+//    }
+//
+//    public void setAlunoFoto(boolean alunoFoto) {
+//        this.alunoFoto = alunoFoto;
+//    }
 
     public int getIdDiaParcela() {
         return idDiaParcela;
@@ -2489,6 +2539,50 @@ public class MatriculaAcademiaBean implements Serializable {
 
     public void setLiberaAcessaFilial(Boolean liberaAcessaFilial) {
         this.liberaAcessaFilial = liberaAcessaFilial;
+    }
+
+    public StreamedContent getFotoStreamed() {
+//        try {
+//            if (PhotoCapture.getFile() != null) {
+//                nomeFoto = PhotoCapture.getImageName();
+//                PhotoCapture.unload();
+//            }
+//            
+//            if (PhotoUpload.getFile() != null) {
+//                nomeFoto = PhotoUpload.getImageName();
+//                PhotoUpload.unload();
+//            }
+//
+//            fotoStreamed = null;
+//            File fotoTempx = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/temp/foto/" + Usuario.getUsuario().getId() + "/" + nomeFoto + ".png"));
+//            if (fotoTempx.exists()) {
+//                fotoStreamed = ImageConverter.getImageStreamed(fotoTempx, "image/png");
+//            } else {
+////                FisicaDB db = new FisicaDBToplink();
+////                Fisica f = db.pesquisaFisicaPorPessoa(matriculaAcademia.getServicoPessoa().getPessoa().getId());
+//                
+//                File fotoSave = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/Fotos/Fisica/" + aluno.getFoto() + ".png"));
+//                if (fotoSave.exists()) {
+//                    fotoStreamed = ImageConverter.getImageStreamed(fotoSave, "image/png");
+//                }
+//                
+//            }
+//        } catch (Exception e) {
+//            e.getMessage();
+//        }
+        return fotoStreamed;
+    }
+
+    public void setFotoStreamed(StreamedContent fotoStreamed) {
+        this.fotoStreamed = fotoStreamed;
+    }
+
+    public String getNomeFoto() {
+        return nomeFoto;
+    }
+
+    public void setNomeFoto(String nomeFoto) {
+        this.nomeFoto = nomeFoto;
     }
 
 }

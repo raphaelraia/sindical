@@ -14,14 +14,17 @@ import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.ImageConverter;
 import java.io.File;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.persistence.*;
 import javax.servlet.ServletContext;
 import org.primefaces.event.SelectEvent;
+import org.primefaces.model.StreamedContent;
 
 @Entity
 @Table(name = "pes_pessoa")
@@ -355,43 +358,59 @@ public class Pessoa implements Serializable {
         return "Pessoa{" + "id=" + id + ", nome=" + nome + ", tipoDocumento=" + tipoDocumento + ", obs=" + obs + ", site=" + site + ", telefone1=" + telefone1 + ", telefone2=" + telefone2 + ", telefone3=" + telefone3 + ", email1=" + email1 + ", email2=" + email2 + ", email3=" + email3 + ", documento=" + documento + ", login=" + login + ", senha=" + senha + ", dtCriacao=" + dtCriacao + ", dtAtualizacao=" + dtAtualizacao + '}';
     }
 
-    public String getFoto() {
-        return getFoto(0);
-    }
+    public String getFotoResource() {
+        if (this.id != -1) {
+            FisicaDB fisicaDB = new FisicaDBToplink();
+            Fisica fisica = fisicaDB.pesquisaFisicaPorPessoa(this.id);
+            String foto = "";
+            if (fisica != null) {
+                foto = "cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + this.id + "/" + fisica.getFoto() + ".png";
+                File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/" + foto);
 
-    /**
-     * Retorna foto da pessoa
-     *
-     * @param waiting
-     * @return
-     */
-    public String getFoto(Integer waiting) {
-        if (waiting > 0) {
-            try {
-                Thread.sleep(waiting);
-            } catch (InterruptedException ex) {
-            }
-        }
-
-        String foto = "/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/Fotos/" + id + ".png";
-        File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(foto));
-        if (!f.exists()) {
-            foto = "/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/Fotos/" + id + ".jpg";
-            f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(foto));
-            if (!f.exists()) {
-                try {
-                    if (getFisica().getSexo().equals("F")) {
-                        foto = "/Imagens/user_female.png";
-                    } else {
-                        foto = "/Imagens/user_male.png";
-                    }
-                } catch (Exception e) {
-                    e.getMessage();
-                    return null;
+                if (f.exists()) {
+                    return foto;
                 }
+
+                foto = "cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + this.id + "/" + fisica.getFoto() + ".jpg";
+                f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/" + foto);
+
+                if (f.exists()) {
+                    return foto;
+                }
+
+                if (fisica.getSexo().equals("F")) {
+                    foto = "images/user_female.png";
+                } else {
+                    foto = "images/user_male.png";
+                }
+            } else {
+                JuridicaDB juridicaDB = new JuridicaDBToplink();
+                Juridica juridica = juridicaDB.pesquisaJuridicaPorPessoa(this.id);
+                
+                if (juridica != null){
+                    foto = "cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + this.id + "/" + juridica.getFoto() + ".png";
+                    File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/" + foto);
+
+                    if (f.exists()) {
+                        return foto;
+                    }
+
+                    foto = "cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + this.id + "/" + juridica.getFoto() + ".jpg";
+                    f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/" + foto);
+
+                    if (f.exists()) {
+                        return foto;
+                    }
+                }
+
+                foto = "images/user_male.png";
             }
+            return foto;
         }
-        return foto;
+        return "images/user_male.png";
     }
 
+    public String getFoto() {
+        return getFotoResource();
+    }
 }

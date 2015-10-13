@@ -20,7 +20,7 @@ public class Diretorio {
         if (!ignore) {
             diretorio = "/Cliente/" + getCliente() + "/" + diretorio;
         } else {
-            diretorio = "/resources/cliente/" + getCliente().toUpperCase() + "/" + diretorio.toUpperCase();
+            diretorio = "/resources/cliente/" + getCliente().toLowerCase() + "/" + diretorio.toLowerCase();
         }
         try {
             String s[] = diretorio.split("/");

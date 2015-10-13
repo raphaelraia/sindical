@@ -38,11 +38,12 @@
 
                                     <p:selectOneMenu value="#{pessoaBean.porPesquisa}" style="width: 100px">
                                         <p:ajax event="change" update="i_panel_pesquisa" listener="#{pessoaBean.limparMascara}"/>
-                                        <f:selectItem itemValue="nome" itemLabel="Nome"/>
-                                        <f:selectItem itemValue="cei"      itemLabel="CEI"/>
+                                        <f:selectItem itemValue="nome"      itemLabel="Nome"/>
+                                        <f:selectItem itemValue="cei"       itemLabel="CEI"/>
                                         <f:selectItem itemValue="cnpj"      itemLabel="CNPJ"/>
-                                        <f:selectItem itemValue="cpf"      itemLabel="CPF"/>
+                                        <f:selectItem itemValue="cpf"       itemLabel="CPF"/>
                                         <f:selectItem itemValue="telefone1" itemLabel="Telefone"/>
+                                        <f:selectItem itemValue="codigo"    itemLabel="Código"/>
                                     </p:selectOneMenu>
 
                                     <p:commandButton id="i_pesquisa_inicial" value="Inicial" action="#{pessoaBean.acaoPesquisaInicial}" update=":formGridPesquisaPessoa:" />

@@ -1,0 +1,23 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core">
+
+    <f:view>
+        <h:form id="form_photo_capture">
+            <p:dialog widgetVar="dlg_photo_capture" header="Captura de Imagem" rendered="#{photoCapture.renderedPhotoCaptureView}">
+                <p:ajax event="close" listener="#{photoCapture.close()}" />
+
+                <h:panelGrid id="photo_capture_panel_imagem" columns="1">
+                    <p:photoCam widgetVar="pc" listener="#{photoCapture.capturar}" update="#{photoCapture.updateView}" style="width: 500px"/>
+                    <h:column>
+                        <p:commandButton type="button" value="CAPTURAR">
+                            <p:ajax event="click" oncomplete="PF('pc').capture();"/>
+                        </p:commandButton>
+                    </h:column>
+                </h:panelGrid>                        
+            </p:dialog>         
+        </h:form>
+    </f:view>
+</ui:composition>

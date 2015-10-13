@@ -22,10 +22,13 @@ import br.com.rtools.financeiro.Caixa;
 import br.com.rtools.financeiro.CondicaoPagamento;
 import br.com.rtools.financeiro.FStatus;
 import br.com.rtools.financeiro.FTipoDocumento;
+import br.com.rtools.financeiro.FormaPagamento;
 import br.com.rtools.financeiro.Guia;
 import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.Movimento;
+import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.Servicos;
+import br.com.rtools.financeiro.TipoPagamento;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.db.MovimentoDB;
 import br.com.rtools.financeiro.db.MovimentoDBToplink;
@@ -124,7 +127,7 @@ public class EmissaoGuiasBean implements Serializable {
     private Fisica fisicaNovoCadastro = new Fisica();
 
     private ControleAcessoBean cab = new ControleAcessoBean();
-    
+
     private String novoDesconto = "0,00";
 
     @PostConstruct
@@ -187,12 +190,10 @@ public class EmissaoGuiasBean implements Serializable {
         GenericaSessao.remove("usuarioAutenticado");
     }
 
-        
-    public void autorizarDesconto(){
+    public void autorizarDesconto() {
         GenericaSessao.put("AutenticaUsuario", new AutenticaUsuario("dlg_desconto", "autorizaDescontos", 3));
     }
-    
-    
+
     public void adicionarDesconto() {
         desconto = novoDesconto;
         PF.closeDialog("dlg_autentica_usuario");
@@ -606,14 +607,14 @@ public class EmissaoGuiasBean implements Serializable {
         }
         float descontox = Moeda.converteUS$(desconto);
         Pessoa pessoa_movimento = null;
-        
+
         // Se o beneficiário for sócio então id_titular e id_pessoa do movimento será o titular.
         // Se o beneficiário NÃO for sócio então id_titular e  id_pessoa será o próprio beneficiário.
         // CHAMADO 775
         FunctionsDao dbfunc = new FunctionsDao();
         if (socios.getId() != -1) {
             pessoa_movimento = dbfunc.titularDaPessoa(pessoa.getId());
-        }else{
+        } else {
             pessoa_movimento = pessoa;
         }
         listaMovimento.add(
@@ -800,6 +801,7 @@ public class EmissaoGuiasBean implements Serializable {
             valorx = Moeda.multiplicarValores(listaMovimento.get(i).getMovimento().getQuantidade(), Moeda.converteUS$(listaMovimento.get(i).getValor()));
 
             valor_soma = Moeda.somaValores(valor_soma, valorx);
+            //valor_soma = Moeda.subtracaoValores(valor_soma, descontox);
 
             movimento.setMulta(listaMovimento.get(i).getMovimento().getMulta());
             movimento.setJuros(listaMovimento.get(i).getMovimento().getJuros());
@@ -842,8 +844,17 @@ public class EmissaoGuiasBean implements Serializable {
             }
 
             di.commit();
+
+            List<FormaPagamento> lf = new ArrayList();
+
+            lf.add(
+                    new FormaPagamento(
+                            -1, null, null, null, 100, 0, filial, (Plano5) new Dao().find(new Plano5(), 1), null, null, (TipoPagamento) new Dao().find(new TipoPagamento(), 3), 0, DataHoje.dataHoje(), 0
+                    )
+            );
+
             Caixa caixa = MacFilial.getAcessoFilial().getCaixa();
-            if (!GerarMovimento.baixarMovimentoManual(listaMovimentoAuxiliar, new SegurancaUtilitariosBean().getSessaoUsuario(), new ArrayList(), valor_soma, DataHoje.data(), caixa, 0)) {
+            if (!GerarMovimento.baixarMovimentoManual(listaMovimentoAuxiliar, new SegurancaUtilitariosBean().getSessaoUsuario(), lf, valor_soma, DataHoje.data(), caixa, 0)) {
                 message = "Erro ao baixar Guias";
                 return null;
             }

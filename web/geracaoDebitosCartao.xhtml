@@ -7,7 +7,8 @@
 
     <h:head>
         <title>Geração de Débitos de Cartões</title>
-        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" charset="UTF-8"/>
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/> 
     </h:head>
     <h:body class="divMenu">
         <f:subview id="header">
@@ -16,16 +17,20 @@
         <f:view>
             <ui:include src="templates/templateAcessoFilialComCaixa.xhtml" />
             <f:metadata>  
-                <f:event type="preRenderView" listener="${uploadBean.load()}"/>
-                <f:event type="preRenderView" listener="${photoCamBean.load()}"/>
-                <f:event type="preRenderView" listener="${uploadBean.setRotinaNome('geracaoDebitosCartao')}"/>  
-                <f:event type="preRenderView" listener="${uploadBean.setUPDATE('form_gdc')}"/>
-                <f:event type="preRenderView" listener="${photoCamBean.setRotinaNome('geracaoDebitosCartao')}"/>
-                <f:event type="preRenderView" listener="${photoCamBean.setUPDATE('form_gdc')}"/>                
-                <f:event type="preRenderView" listener="${geracaoDebitosCartaoBean.load()}"/>
+                <!-- 
+                <f:event type="preRenderView" listener="$ {uploadBean.load()}"/>
+                <f:event type="preRenderView" listener="$ {photoCamBean.load()}"/>
+                <f:event type="preRenderView" listener="$ {uploadBean.setRotinaNome('geracaoDebitosCartao')}"/>  
+                <f:event type="preRenderView" listener="$ {uploadBean.setUPDATE('form_gdc')}"/>
+                <f:event type="preRenderView" listener="$ {photoCamBean.setRotinaNome('geracaoDebitosCartao')}"/>
+                <f:event type="preRenderView" listener="$ {photoCamBean.setUPDATE('form_gdc')}"/>                
+                <f:event type="preRenderView" listener="$ {geracaoDebitosCartaoBean.load()}"/>
+                -->
             </f:metadata>
-            <ui:include src="templates/templateUpload.xhtml" />
-            <ui:include src="templates/templatePhotoCam.xhtml" />
+            
+            <ui:include src="templates/templatePhotoCapture.xhtml" />
+            <ui:include src="templates/templatePhotoUpload.xhtml" />
+            
             <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                 <h:form id="form_gdc">
                     <p:messages autoUpdate="true" closable="true" showDetail="true" showSummary="true" />
@@ -40,11 +45,13 @@
                         <p:panel id="i_tbl" header="Titular / Dependente(s)" styleClass="margin-top-max">
                             <p:dataTable value="#{geracaoDebitosCartaoBean.listaSocios}" var="socio" styleClass="margin-top-max" rendered="#{not empty geracaoDebitosCartaoBean.listaSocios}" selection="#{geracaoDebitosCartaoBean.selected}" rowKey="#{socio.id}" disabledSelection="#{geracaoDebitosCartaoBean.disabled(socio.servicoPessoa.pessoa, socio.object)}">
                                 <p:column selectionMode="multiple" width="20" styleClass="text-center" disabledSelection="#{not empty socio.object}" />
-                                <p:column headerText="Foto" width="80">
-                                    <p:graphicImage value="#{socio.servicoPessoa.pessoa.foto}" style="width: 70px; height: auto;" cache="false"/>
+                                <p:column headerText="Foto" width="80" style="text-align: center">
+                                    <p:graphicImage name="#{socio.servicoPessoa.pessoa.fotoResource}" style="width: 70px; height: auto;" cache="false">
+                                        
+                                    </p:graphicImage>
                                 </p:column>
                                 <p:column headerText="Nome" styleClass="#{socio.parentesco.parentesco eq 'TITULAR' ? 'font-color-red bold' : ''}">
-                                    #{socio.servicoPessoa.pessoa.nome }
+                                    #{socio.servicoPessoa.pessoa.nome}
                                 </p:column>
                                 <p:column headerText="Parentesco" styleClass="#{socio.parentesco.parentesco eq 'TITULAR' ? 'font-color-red bold' : ''}">
                                     #{socio.parentesco.parentesco}                                
@@ -57,8 +64,8 @@
                                 </p:column>
                                 <p:column width="100" styleClass="text-center" headerText="Foto">
                                     <h:panelGrid columns="2" styleClass="sbb">
-                                        <p:commandButton rendered="#{!geracaoDebitosCartaoBean.renderedUpload(socio.servicoPessoa.pessoa)}" icon="ui-icon-arrowthick-1-n" title="Enviar foto" oncomplete="PF('dlg_upload').show();" action="#{uploadBean.listener('Imagens/Fotos', socio.servicoPessoa.pessoa.id, 'image/png,image/jpeg', true, true)}" global="false" update=":form_upload_files:i_panel_anexos" />
-                                        <p:commandButton rendered="#{!geracaoDebitosCartaoBean.renderedUpload(socio.servicoPessoa.pessoa)}" icon="photocam"  title="Capturar Foto" oncomplete="PF('dlg_photocam').show();" action="#{photoCamBean.listener('Imagens/Fotos', socio.servicoPessoa.pessoa.id, true, true)}" global="false" update=":form_photocam_files:i_panel_photocam"/>
+                                        <p:commandButton rendered="#{!geracaoDebitosCartaoBean.renderedUpload(socio.servicoPessoa.pessoa)}" action="#{photoUpload.openAndSave(socio.servicoPessoa.pessoa, 'form_gdc')}" icon="ui-icon-arrowthick-1-n" title="Enviar Foto" global="false" />
+                                        <p:commandButton rendered="#{!geracaoDebitosCartaoBean.renderedUpload(socio.servicoPessoa.pessoa)}" action="#{photoCapture.openAndSave(socio.servicoPessoa.pessoa, 'form_gdc')}" icon="photocam"  title="Capturar Foto" global="false" />
                                     </h:panelGrid>
                                 </p:column>
                             </p:dataTable>                            

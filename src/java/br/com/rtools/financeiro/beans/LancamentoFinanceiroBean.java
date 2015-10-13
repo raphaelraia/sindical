@@ -888,7 +888,7 @@ public class LancamentoFinanceiroBean implements Serializable {
                     sv.desfazerTransacao();
                 }
 
-                Juridica juridica = new Juridica(-1, pessoa, pessoa.getNome().toUpperCase(), null, null, "", "", "", "", (Porte) sv.pesquisaCodigo(1, "Porte"), "", "", true, false);
+                Juridica juridica = new Juridica(-1, pessoa, pessoa.getNome().toUpperCase(), null, null, "", "", "", "", (Porte) sv.pesquisaCodigo(1, "Porte"), "", "", true, false, "");
                 if (!sv.inserirObjeto(juridica)) {
                     GenericaMensagem.warn("Erro", "Erro ao Salvar Empresa!");
                     sv.desfazerTransacao();
@@ -914,7 +914,7 @@ public class LancamentoFinanceiroBean implements Serializable {
                     sv.desfazerTransacao();
                 }
 
-                Fisica fisica = new Fisica(-1, pessoa, "", "", "", "", DataHoje.dataHoje(), "", "", "", "", "", "", "", "", "", "", "", "", "", "", "");
+                Fisica fisica = new Fisica(-1, pessoa, "", "", "", "", DataHoje.dataHoje(), "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "");
                 if (!sv.inserirObjeto(fisica)) {
                     GenericaMensagem.warn("Erro", "Erro ao Salvar Cadastro!");
                     sv.desfazerTransacao();
@@ -955,7 +955,7 @@ public class LancamentoFinanceiroBean implements Serializable {
                 sv.desfazerTransacao();
             }
 
-            Juridica juridica = new Juridica(-1, pessoa, pessoa.getNome().toUpperCase(), null, null, "", "", "", "", (Porte) sv.pesquisaCodigo(1, "Porte"), "", "", true, false);
+            Juridica juridica = new Juridica(-1, pessoa, pessoa.getNome().toUpperCase(), null, null, "", "", "", "", (Porte) sv.pesquisaCodigo(1, "Porte"), "", "", true, false, "");
             if (!sv.inserirObjeto(juridica)) {
                 GenericaMensagem.warn("Erro", "Erro ao Salvar Empresa!");
                 sv.desfazerTransacao();
@@ -993,7 +993,7 @@ public class LancamentoFinanceiroBean implements Serializable {
                 sv.desfazerTransacao();
             }
 
-            Fisica fisica = new Fisica(-1, pessoa, "", "", "", "", DataHoje.dataHoje(), "", "", "", "", "", "", "", "", "", "", "", "", "", "", "");
+            Fisica fisica = new Fisica(-1, pessoa, "", "", "", "", DataHoje.dataHoje(), "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "");
             if (!sv.inserirObjeto(fisica)) {
                 GenericaMensagem.warn("Erro", "Erro ao Salvar Cadastro!");
                 sv.desfazerTransacao();

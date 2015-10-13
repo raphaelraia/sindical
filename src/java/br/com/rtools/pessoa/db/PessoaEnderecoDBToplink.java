@@ -3,6 +3,7 @@ package br.com.rtools.pessoa.db;
 import br.com.rtools.endereco.Endereco;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.principal.DB;
+import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.SalvarAcumuladoDB;
 import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.util.ArrayList;
@@ -47,39 +48,40 @@ public class PessoaEnderecoDBToplink extends DB implements PessoaEnderecoDB {
 
     @Override
     public Endereco enderecoReceita(String cep, String[] descricao, String[] bairro) {
-        List vetor;
-        Endereco endereco = new Endereco();
-        SalvarAcumuladoDB dB = new SalvarAcumuladoDBToplink();
+//        List vetor;
+//        Endereco endereco = new Endereco();
+//        SalvarAcumuladoDB dB = new SalvarAcumuladoDBToplink();
 
         try {
-            String text_qry = "select e.* from end_endereco e "
-                    + " inner join end_descricao_endereco de on (de.id = e.id_descricao_endereco) "
-                    + " inner join end_bairro ba on (ba.id = e.id_bairro) "
-                    + " where ds_cep = '" + cep + "'";
+            String text_qry = "SELECT e.* \n "
+                            + "  FROM end_endereco e \n "
+                            + " INNER JOIN end_descricao_endereco de ON (de.id = e.id_descricao_endereco) \n "
+                            + " INNER JOIN end_bairro ba ON (ba.id = e.id_bairro) \n "
+                            + " WHERE ds_cep = '" + cep + "' \n ";
             String or_desc = "", or_bairro = "";
             for (int i = 0; i < descricao.length; i++) {
                 if (descricao.length == 1) {
-                    text_qry += " and ( upper(translate(de.ds_descricao)) like upper('%" + descricao[i] + "%') ) ";
+                    text_qry += " AND ( UPPER(TRANSLATE(de.ds_descricao)) LIKE UPPER('%" + AnaliseString.normalizeLower(descricao[i]) + "%') )  \n ";
                     break;
                 } else {
-                    or_desc += " or upper(translate(de.ds_descricao)) like upper('%" + descricao[i] + "%') ";
+                    or_desc += " OR UPPER(TRANSLATE(de.ds_descricao)) LIKE UPPER('%" + AnaliseString.normalizeLower(descricao[i]) + "%') \n ";
                 }
             }
             if (descricao.length > 1) {
-                text_qry += " and ( upper(translate(de.ds_descricao)) like upper('%" + descricao[0] + "%') " + or_desc + ") ";
+                text_qry += " AND ( UPPER(TRANSLATE(de.ds_descricao)) LIKE UPPER('%" + AnaliseString.normalizeLower(descricao[0]) + "%') " + or_desc + ") \n ";
             }
 
 
             for (int i = 0; i < bairro.length; i++) {
                 if (bairro.length == 1) {
-                    text_qry += " and ( upper(translate(ba.ds_descricao)) like upper('%" + bairro[i] + "%') ) ";
+                    text_qry += " AND ( UPPER(TRANSLATE(ba.ds_descricao)) LIKE UPPER('%" + AnaliseString.normalizeLower(bairro[i]) + "%') ) \n ";
                     break;
                 } else {
-                    or_bairro += " or upper(translate(ba.ds_descricao)) like upper('%" + bairro[i] + "%') ";
+                    or_bairro += " OR UPPER(TRANSLATE(ba.ds_descricao)) LIKE UPPER('%" + AnaliseString.normalizeLower(bairro[i]) + "%') \n ";
                 }
             }
             if (bairro.length > 1) {
-                text_qry += " and ( upper(translate(ba.ds_descricao)) like upper('%" + bairro[0] + "%') " + or_bairro + ") ";
+                text_qry += " AND ( UPPER(TRANSLATE(ba.ds_descricao)) LIKE UPPER('%" + AnaliseString.normalizeLower(bairro[0]) + "%') " + or_bairro + ") ";
             }
 
             Query qry = getEntityManager().createNativeQuery(text_qry, Endereco.class);

@@ -42,6 +42,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.servlet.ServletContext;
 import javax.servlet.http.Part;
+import org.apache.commons.io.FileUtils;
 import org.primefaces.context.RequestContext;
 import org.primefaces.event.CaptureEvent;
 import org.primefaces.event.FileUploadEvent;
@@ -73,8 +74,6 @@ public class SociosBean implements Serializable {
     private Integer idInativacao;
     private Integer idFilial;
     private boolean renderServicos;
-    private boolean fotoTemp;
-    private boolean temFoto;
     private boolean desabilitaImpressao;
     private boolean imprimirVerso;
     private String lblSocio;
@@ -97,7 +96,6 @@ public class SociosBean implements Serializable {
     private List<Socios> listaSocioInativo;
 
     private Part filePart;
-    private String fotoTempPerfil;
     private Usuario usuario;
 
     private boolean modelVisible;
@@ -138,8 +136,6 @@ public class SociosBean implements Serializable {
         idInativacao = 0;
         idFilial = 0;
         renderServicos = true;
-        fotoTemp = false;
-        temFoto = false;
         desabilitaImpressao = true;
         imprimirVerso = false;
         dataInativacao = DataHoje.data();
@@ -165,7 +161,6 @@ public class SociosBean implements Serializable {
         index_dependente = 0;
         imagensTipo = new String[]{"jpg", "jpeg", "png", "gif"};
         listaSocioInativo = new ArrayList();
-        fotoTempPerfil = "";
         usuario = new Usuario();
         modelVisible = false;
         novaValidadeCartao = "";
@@ -416,12 +411,12 @@ public class SociosBean implements Serializable {
             }
         }
 
-        if (servicoPessoa.getTipoDocumento().getId() == 2){
+        if (servicoPessoa.getTipoDocumento().getId() == 2) {
             chkContaCobranca = true;
-        }else{
+        } else {
             chkContaCobranca = false;
         }
-        
+
         loadTipoDocumento();
         for (int i = 0; i < listaTipoDocumento.size(); i++) {
             if (Integer.parseInt((String) listaTipoDocumento.get(i).getDescription()) == servicoPessoa.getTipoDocumento().getId()) {
@@ -729,110 +724,71 @@ public class SociosBean implements Serializable {
         }
     }
 
-    public void loadingImage() throws InterruptedException {
-        Thread.sleep(5000);
-        if (novoDependente.getId() != -1) {
-            salvarImagem();
-        }
-        // PF.closeDialog("dlg_loading_image");
-    }
-
-    public void upload(FileUploadEvent event) {
-        String fotoTempCaminho = "foto/" + getUsuario().getId();
-        File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/temp/" + fotoTempCaminho + "/perfil.png"));
-        if (f.exists()) {
-            boolean delete = f.delete();
-        } else {
-            fotoTempPerfil = "";
-        }
-        ConfiguracaoUpload cu = new ConfiguracaoUpload();
-        cu.setArquivo(event.getFile().getFileName());
-        cu.setDiretorio("temp/foto/" + getUsuario().getId() + "/" + novoDependente.getPessoa().getId());
-        cu.setArquivo("perfil.png");
-        cu.setSubstituir(true);
-        cu.setRenomear("perfil.png");
-        cu.setEvent(event);
-        if (Upload.enviar(cu, true)) {
-            fotoTempPerfil = "/Cliente/" + getCliente() + "/temp/" + fotoTempCaminho + "/" + novoDependente.getPessoa().getId() + "/perfil.png";
-            //fotoPerfil = "";
-            try {
-                loadingImage();
-            } catch (Exception e) {
-
-            }
-        } else {
-            fotoTempPerfil = "";
-            //fotoPerfil = "";
-        }
-        RequestContext.getCurrentInstance().update(":formSocios:tab_view:i_panel_dados");
-
-    }
-
+//    public void loadingImage() throws InterruptedException {
+//        Thread.sleep(5000);
+//        if (novoDependente.getId() != -1) {
+//            salvarImagem();
+//        }
+//        // PF.closeDialog("dlg_loading_image");
+//    }
+//    public void upload(FileUploadEvent event) {
+//        String fotoTempCaminho = "foto/" + getUsuario().getId();
+//        File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/temp/" + fotoTempCaminho + "/perfil.png"));
+//        if (f.exists()) {
+//            boolean delete = f.delete();
+//        } else {
+//            fotoTempPerfil = "";
+//        }
+//        ConfiguracaoUpload cu = new ConfiguracaoUpload();
+//        cu.setArquivo(event.getFile().getFileName());
+//        cu.setDiretorio("temp/foto/" + getUsuario().getId() + "/" + novoDependente.getPessoa().getId());
+//        cu.setArquivo("perfil.png");
+//        cu.setSubstituir(true);
+//        cu.setRenomear("perfil.png");
+//        cu.setEvent(event);
+//        if (Upload.enviar(cu, true)) {
+//            fotoTempPerfil = "/Cliente/" + getCliente() + "/temp/" + fotoTempCaminho + "/" + novoDependente.getPessoa().getId() + "/perfil.png";
+//            //fotoPerfil = "";
+//            try {
+//                loadingImage();
+//            } catch (Exception e) {
+//
+//            }
+//        } else {
+//            fotoTempPerfil = "";
+//            //fotoPerfil = "";
+//        }
+//        RequestContext.getCurrentInstance().update(":formSocios:tab_view:i_panel_dados");
+//
+//    }
+    
     public String apagarImagem() {
         boolean sucesso = false;
-        if (!fotoTempPerfil.equals("")) {
-            File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/temp/foto/" + getUsuario().getId() + "/perfil.png"));
-            if (f.exists()) {
-                sucesso = f.delete();
-            }
-            if (!sucesso) {
-                f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/temp/foto/" + getUsuario().getId() + "/perfil.jpg"));
-                if (f.exists()) {
-                    sucesso = f.delete();
-                }
-            }
-        } else {
-            File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/temp/foto/" + getUsuario().getId() + "/perfil.png"));
-            if (f.exists()) {
-                f.delete();
-            }
-            f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/temp/foto/" + getUsuario().getId() + "/perfil.jpg"));
-            if (f.exists()) {
-                f.delete();
-            }
-            if (novoDependente.getId() != -1) {
-                String file_delete = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/Imagens/Fotos/" + novoDependente.getPessoa().getId());
-                if (new File((file_delete + ".png")).exists()) {
-                    if (new File((file_delete + ".png")).delete()) {
-                        sucesso = true;
-                    }
-                }
-                if (new File((file_delete + ".jpg")).exists()) {
-                    if (new File((file_delete + ".jpg")).delete()) {
-                        sucesso = true;
-                    }
-                }
-                if (new File((file_delete + ".jpeg")).exists()) {
-                    if (new File((file_delete + ".jpeg")).delete()) {
-                        sucesso = true;
-                    }
-                }
-                if (new File((file_delete + ".gif")).exists()) {
-                    if (new File((file_delete + ".gif")).delete()) {
-                        sucesso = true;
-                    }
-                }
-            }
+
+        String fcaminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente() + "/imagens/pessoa/" + novoDependente.getPessoa().getId() + "/" + novoDependente.getFoto();
+        if (new File((fcaminho + ".png")).exists() && FileUtils.deleteQuietly(new File(fcaminho + ".png"))) {
+            sucesso = true;
+        } else if (new File((fcaminho + ".jpg")).exists() && FileUtils.deleteQuietly(new File(fcaminho + ".jpg"))) {
+            sucesso = true;
+        } else if (new File((fcaminho + ".jpeg")).exists() && FileUtils.deleteQuietly(new File(fcaminho + ".jpeg"))) {
+            sucesso = true;
+        } else if (new File((fcaminho + ".gif")).exists() && FileUtils.deleteQuietly(new File(fcaminho + ".gif"))) {
+            sucesso = true;
         }
-        if (sucesso) {
-            getFotoTempPerfil();
-            GenericaSessao.remove("photoCamBean");
-            PhotoCam photoCam = new PhotoCam();
-            GenericaSessao.put("photoCamBean", photoCam);
-            Dao dao = new Dao();
+
+        if (sucesso && novoDependente.getId() != -1) {
             novoDependente.setDtFoto(null);
-            dao.update(novoDependente, true);
-            fotoTempPerfil = "";
-            RequestContext.getCurrentInstance().update(":formSocios:tab_view:i_panel_dados");
+            novoDependente.setFoto("");
+            new Dao().update(novoDependente, true);
         }
 
         return null;
     }
 
     public void salvarImagem() {
-        if (!Diretorio.criar("Imagens/Fotos/")) {
-            return;
-        }
+//        if (!Diretorio.criar("Imagens/Fotos/")) {
+//            return;
+//        }
 //        String arquivo = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/Imagens/Fotos/");
 //        boolean error = false;
 //        if (!fotoTempPerfil.equals("")) {
@@ -867,7 +823,7 @@ public class SociosBean implements Serializable {
 //            boolean delete = f.delete();
 //
 //        }
-        ((PhotoCam) GenericaSessao.getObject("photoCamBean")).setFILE_PERMANENT("/Imagens/user_undefined.png");
+//        ((PhotoCam) GenericaSessao.getObject("photoCamBean")).setFILE_PERMANENT("/Imagens/user_undefined.png");
         // GenericaMensagem.info("Sistema", "Foto atualizada com sucesso!");
     }
 
@@ -891,48 +847,46 @@ public class SociosBean implements Serializable {
 //            return "/Imagens/user_female.png";
 //        }
 //    }
-    public void capturar(CaptureEvent captureEvent) {
-        String fotoTempCaminho = "foto/" + getUsuario().getId();
-        if (PhotoCam.oncapture(captureEvent, "perfil", "" + novoDependente.getPessoa().getId(), true)) {
-            File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/temp/" + fotoTempCaminho + "/" + novoDependente.getPessoa().getId() + "/perfil.png"));
-            if (f.exists()) {
-                fotoTempPerfil = "/Cliente/" + getCliente() + "/temp/" + fotoTempCaminho + "/" + novoDependente.getPessoa().getId() + "/perfil.png";
-            } else {
-                fotoTempPerfil = "";
-            }
-        }
-        RequestContext.getCurrentInstance().execute("dgl_captura.hide();");
-        try {
-            // loadingImage();
-        } catch (Exception e) {
-
-        }
-        RequestContext.getCurrentInstance().update(":formSocios:tab_view:i_panel_dados");
-
-    }
-
-    public String getFotoTipTitular() {
-        String caminhoTemp = "/Cliente/" + getCliente() + "/Imagens/Fotos/";
-        String arquivo = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(caminhoTemp);
-        for (String imagensTipo1 : imagensTipo) {
-            File f = new File(arquivo + "/" + servicoPessoa.getPessoa().getId() + "." + imagensTipo1);
-            if (f.exists()) {
-                return caminhoTemp + "/" + servicoPessoa.getPessoa().getId() + "." + imagensTipo1;
-            }
-        }
-        if (servicoPessoa.getPessoa().getId() != -1) {
-            FisicaDB db = new FisicaDBToplink();
-            Fisica fis = db.pesquisaFisicaPorPessoa(servicoPessoa.getPessoa().getId());
-            if (fis.getSexo().equals("M")) {
-                return "/Imagens/user_male.png";
-            } else {
-                return "/Imagens/user_female.png";
-            }
-        } else {
-            return "/Imagens/user_female.png";
-        }
-    }
-
+//    public void capturar(CaptureEvent captureEvent) {
+//        String fotoTempCaminho = "foto/" + getUsuario().getId();
+//        if (PhotoCam.oncapture(captureEvent, "perfil", "" + novoDependente.getPessoa().getId(), true)) {
+//            File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/temp/" + fotoTempCaminho + "/" + novoDependente.getPessoa().getId() + "/perfil.png"));
+//            if (f.exists()) {
+//                fotoTempPerfil = "/Cliente/" + getCliente() + "/temp/" + fotoTempCaminho + "/" + novoDependente.getPessoa().getId() + "/perfil.png";
+//            } else {
+//                fotoTempPerfil = "";
+//            }
+//        }
+//        RequestContext.getCurrentInstance().execute("dgl_captura.hide();");
+//        try {
+//            // loadingImage();
+//        } catch (Exception e) {
+//
+//        }
+//        RequestContext.getCurrentInstance().update(":formSocios:tab_view:i_panel_dados");
+//
+//    }
+//    public String getFotoTipTitular() {
+//        String caminhoTemp = "/Cliente/" + getCliente() + "/Imagens/Fotos/";
+//        String arquivo = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(caminhoTemp);
+//        for (String imagensTipo1 : imagensTipo) {
+//            File f = new File(arquivo + "/" + servicoPessoa.getPessoa().getId() + "." + imagensTipo1);
+//            if (f.exists()) {
+//                return caminhoTemp + "/" + servicoPessoa.getPessoa().getId() + "." + imagensTipo1;
+//            }
+//        }
+//        if (servicoPessoa.getPessoa().getId() != -1) {
+//            FisicaDB db = new FisicaDBToplink();
+//            Fisica fis = db.pesquisaFisicaPorPessoa(servicoPessoa.getPessoa().getId());
+//            if (fis.getSexo().equals("M")) {
+//                return "/Imagens/user_male.png";
+//            } else {
+//                return "/Imagens/user_female.png";
+//            }
+//        } else {
+//            return "/Imagens/user_female.png";
+//        }
+//    }
     public void salvarData() {
         if (servicoPessoa.getId() != -1) {
             Dao dao = new Dao();
@@ -1523,7 +1477,7 @@ public class SociosBean implements Serializable {
                             return null;
                         }
                         saveString = "Sócio Dependente - ID: " + socioDependente.getId()
-                                + " - Pessoa - ID: " + + socioDependente.getServicoPessoa().getPessoa().getId() + " - Nome: " + socioDependente.getServicoPessoa().getPessoa().getNome()
+                                + " - Pessoa - ID: " + +socioDependente.getServicoPessoa().getPessoa().getId() + " - Nome: " + socioDependente.getServicoPessoa().getPessoa().getNome()
                                 + " - Titular (ID: " + socioDependente.getMatriculaSocios().getTitular().getId() + " - Nome: " + socioDependente.getMatriculaSocios().getTitular() + ") "
                                 + " - Parentesco : " + socioDependente.getParentesco().getParentesco()
                                 + " - Serviço Pessoa (Ativo: " + socioDependente.getServicoPessoa().isAtivo() + " - Validade: " + socioDependente.getServicoPessoa().getReferenciaValidade() + ") ";
@@ -1556,7 +1510,7 @@ public class SociosBean implements Serializable {
                                 + " - Cartão: " + sc.getCartao()
                                 + " - Emissão: " + sc.getEmissao()
                                 + " - Validade: " + sc.getValidadeCarteirinha();
-                        
+
                         novoLog.save(saveString);
                     } else {
                         saveString = "Sócio Carteirinha: " + sc.getId()
@@ -1769,13 +1723,16 @@ public class SociosBean implements Serializable {
             return;
         }
         Dao dao = new Dao();
-        if (temFoto) {
-            novoDependente.setDataFoto(DataHoje.data());
-        } else {
-            novoDependente.setDtFoto(null);
-        }
 
         novoDependente.getPessoa().setNome(novoDependente.getPessoa().getNome().trim());
+        if (!PhotoCapture.getNameFile().isEmpty()){
+            novoDependente.setFoto(PhotoCapture.getNameFile());
+        }else if (!PhotoUpload.getNameFile().isEmpty()){
+            novoDependente.setFoto(PhotoUpload.getNameFile());
+        }
+        
+        PhotoCapture.unload();
+        PhotoUpload.unload();
 
         if (novoDependente.getId() == -1) {
             novoDependente.getPessoa().setTipoDocumento((TipoDocumento) dao.find(new TipoDocumento(), 1));
@@ -1922,8 +1879,6 @@ public class SociosBean implements Serializable {
             if (s.getServicoPessoa().isAtivo()) {
                 if (s.getMatriculaSocios().getTitular().getId() == socios.getMatriculaSocios().getTitular().getId()) {
                     salvarImagem();
-                    getFotoSocio();
-                    //GenericaMensagem.error("Validação", "Pessoa já é dependente nesta matrícula!");
                 } else {
                     GenericaMensagem.error("Validação", "Esta pessoa já é sócia em outra matrícula para o(a) titular " + s.getMatriculaSocios().getTitular().getNome());
                     return false;
@@ -2045,7 +2000,6 @@ public class SociosBean implements Serializable {
         }
         novoDependente = new Fisica();
         fisicaPesquisa = new Fisica();
-        temFoto = false;
         loadNaturalidadeDependente();
         return null;
     }
@@ -2363,33 +2317,12 @@ public class SociosBean implements Serializable {
     }
 
     public void fechaModal() {
-        Diretorio.remover("temp/foto/" + getUsuario().getId() + "/");
-        File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/Imagens/Fotos/" + -1 + ".png"));
-        if (f.exists()) {
-            f.delete();
-        }
         novoDependente = new Fisica();
         modelVisible = false;
-        File del = new File(fotoTempPerfil);
-        if (del.exists()) {
-            del.delete();
-        }
-        fotoTempPerfil = "";
     }
 
     public void editarDependente(Fisica f) {
-        File del = new File(fotoTempPerfil);
-        if (del.exists()) {
-            del.delete();
-        }
-        File f1 = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/Fotos/" + -1 + ".png"));
-        if (f1.exists()) {
-            f1.delete();
-        }
-        Diretorio.remover("temp/foto/" + getUsuario().getId() + "/");
-        fotoTempPerfil = "";
         dependente = (Fisica) f;
-
     }
 
     public void reativarDependente(int index) {
@@ -2495,12 +2428,12 @@ public class SociosBean implements Serializable {
 
                     List<SocioCarteirinha> listsc = new ArrayList();
                     if (modeloc != null) {
-                        listsc = db.pesquisaCarteirinhasPorPessoa(listaDepsAtivo.get(i).getServicoPessoa().getPessoa().getId(), modeloc.getId());                        
-                        if (!listsc.isEmpty()){
-                            if(DataHoje.maiorData(listsc.get(0).getDtValidadeCarteirinha(), DataHoje.dataHoje())) {
+                        listsc = db.pesquisaCarteirinhasPorPessoa(listaDepsAtivo.get(i).getServicoPessoa().getPessoa().getId(), modeloc.getId());
+                        if (!listsc.isEmpty()) {
+                            if (DataHoje.maiorData(listsc.get(0).getDtValidadeCarteirinha(), DataHoje.dataHoje())) {
                                 vencimento_dep = listsc.get(0).getValidadeCarteirinha();
                             } else {
-                                vencimento_dep = listsc.get(0).getValidadeCarteirinha();                            
+                                vencimento_dep = listsc.get(0).getValidadeCarteirinha();
                             }
                         }
                     }
@@ -2794,8 +2727,7 @@ public class SociosBean implements Serializable {
     }
 
     public String imprimirFichaSocial() {
-        String foto = getFotoSocio();
-
+        String foto = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") +  "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + socios.getServicoPessoa().getPessoa().getId() + "/" + socios.getServicoPessoa().getPessoa().getFisica().getFoto() + ".png";
         String path = "/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/FICHACADASTRO.jasper";
         String pathVerso = "/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/FICHACADASTROVERSO.jasper";
 
@@ -2809,7 +2741,8 @@ public class SociosBean implements Serializable {
                 pessoaEmpresa,
                 matriculaSocios,
                 imprimirVerso,
-                foto);
+                foto
+        );
         return null;
     }
 
@@ -2820,34 +2753,6 @@ public class SociosBean implements Serializable {
 
     public void imprimirFichaSocialBranco() {
         ImpressaoParaSocios.branco();
-    }
-
-    public String getFotoSocio() {
-        FacesContext context = FacesContext.getCurrentInstance();
-        File files;
-        String extensao = "jpg";
-        String fotoCaminho = (String) ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/Fotos/" + socios.getServicoPessoa().getPessoa().getId());
-        if (new File(fotoCaminho + ".jpg").exists()) {
-            extensao = "jpg";
-        } else if (new File(fotoCaminho + ".JPG").exists()) {
-            extensao = "JPG";
-        } else if (new File(fotoCaminho + ".png").exists()) {
-            extensao = "png";
-        } else if (new File(fotoCaminho + ".PNG").exists()) {
-            extensao = "PNG";
-        } else if (new File(fotoCaminho + ".gif").exists()) {
-            extensao = "gif";
-        }
-        if (socios.getId() != -1) {
-            files = new File(((ServletContext) context.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/Fotos/" + socios.getServicoPessoa().getPessoa().getId() + "." + extensao));
-            if (files.exists()) {
-                return files.getPath();
-            } else {
-                return ((ServletContext) context.getExternalContext().getContext()).getRealPath("/Imagens/Fotos/semFoto.jpg");
-            }
-        } else {
-            return ((ServletContext) context.getExternalContext().getContext()).getRealPath("/Imagens/Fotos/semFoto.jpg");
-        }
     }
 
     public void atualizarCategoria() {
@@ -3056,49 +2961,49 @@ public class SociosBean implements Serializable {
 //        this.listaParentesco = listaParentesco;
 //    }
 
-    public String getPessoaImagem() {
-        FacesContext context = FacesContext.getCurrentInstance();
-        File files = new File(((ServletContext) context.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/Fotos/"));
-        File fExiste = new File(((ServletContext) context.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/Fotos/fotoTemp.jpg"));
-        File listFile[] = files.listFiles();
-        String nome;
-        //temFoto = false;
-        if (fExiste.exists() && dependente.getDataFoto().isEmpty()) {
-            fotoTemp = true;
-        }
-        if (fotoTemp) {
-            nome = "fotoTemp";
-        } else {
-            nome = "semFoto";
-        }
-        int numArq = listFile.length;
-        for (int i = 0; i < numArq; i++) {
-            String n = listFile[i].getName();
-            for (int o = 0; o < n.length(); o++) {
-                if (n.substring(o, o + 1).equals(".")) {
-                    n = listFile[i].getName().substring(0, o);
-                }
-            }
-            try {
-                if (!fotoTemp) {
-                    if (Integer.parseInt(n) == dependente.getPessoa().getId()) {
-                        nome = n;
-                        fotoTemp = false;
-                        String caminho = ((ServletContext) context.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/Fotos/fotoTemp.jpg");
-                        File fl = new File(caminho);
-                        fl.delete();
-                        break;
-                    }
-                } else {
-                    fotoTemp = false;
-                    break;
-                }
-            } catch (NumberFormatException e) {
-
-            }
-        }
-        return nome + ".jpg";
-    }
+//    public String getPessoaImagem() {
+//        FacesContext context = FacesContext.getCurrentInstance();
+//        File files = new File(((ServletContext) context.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/Fotos/"));
+//        File fExiste = new File(((ServletContext) context.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/Fotos/fotoTemp.jpg"));
+//        File listFile[] = files.listFiles();
+//        String nome;
+//        //temFoto = false;
+//        if (fExiste.exists() && dependente.getDataFoto().isEmpty()) {
+//            fotoTemp = true;
+//        }
+//        if (fotoTemp) {
+//            nome = "fotoTemp";
+//        } else {
+//            nome = "semFoto";
+//        }
+//        int numArq = listFile.length;
+//        for (int i = 0; i < numArq; i++) {
+//            String n = listFile[i].getName();
+//            for (int o = 0; o < n.length(); o++) {
+//                if (n.substring(o, o + 1).equals(".")) {
+//                    n = listFile[i].getName().substring(0, o);
+//                }
+//            }
+//            try {
+//                if (!fotoTemp) {
+//                    if (Integer.parseInt(n) == dependente.getPessoa().getId()) {
+//                        nome = n;
+//                        fotoTemp = false;
+//                        String caminho = ((ServletContext) context.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/Fotos/fotoTemp.jpg");
+//                        File fl = new File(caminho);
+//                        fl.delete();
+//                        break;
+//                    }
+//                } else {
+//                    fotoTemp = false;
+//                    break;
+//                }
+//            } catch (NumberFormatException e) {
+//
+//            }
+//        }
+//        return nome + ".jpg";
+//    }
 
     public Fisica getDependente() {
         return dependente;
@@ -3306,31 +3211,31 @@ public class SociosBean implements Serializable {
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
     }
-
-    public String getFotoTempPerfil() {
-        if (novoDependente.getId() == -1) {
-            if (fotoTempPerfil.isEmpty()) {
-                String urlTemp = "/Cliente/" + getCliente() + "/temp/" + "foto/" + getUsuario().getId() + "/perfil.png";
-                String arquivo = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(urlTemp);
-                for (String imagensTipo1 : imagensTipo) {
-                    File f = new File(arquivo);
-                    if (f.exists()) {
-                        fotoTempPerfil = urlTemp;
-                        break;
-                    } else {
-                        fotoTempPerfil = "";
-                    }
-                }
-            }
-        } else {
-            fotoTempPerfil = "";
-        }
-        return fotoTempPerfil;
-    }
-
-    public void setFotoTempPerfil(String fotoTempPerfil) {
-        this.fotoTempPerfil = fotoTempPerfil;
-    }
+//
+//    public String getFotoTempPerfil() {
+//        if (novoDependente.getId() == -1) {
+//            if (fotoTempPerfil.isEmpty()) {
+//                String urlTemp = "/Cliente/" + getCliente() + "/temp/" + "foto/" + getUsuario().getId() + "/perfil.png";
+//                String arquivo = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(urlTemp);
+//                for (String imagensTipo1 : imagensTipo) {
+//                    File f = new File(arquivo);
+//                    if (f.exists()) {
+//                        fotoTempPerfil = urlTemp;
+//                        break;
+//                    } else {
+//                        fotoTempPerfil = "";
+//                    }
+//                }
+//            }
+//        } else {
+//            fotoTempPerfil = "";
+//        }
+//        return fotoTempPerfil;
+//    }
+//
+//    public void setFotoTempPerfil(String fotoTempPerfil) {
+//        this.fotoTempPerfil = fotoTempPerfil;
+//    }
 
     public boolean isModelVisible() {
         return modelVisible;

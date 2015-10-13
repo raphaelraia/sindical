@@ -114,24 +114,32 @@ public class PessoaDBToplink extends DB implements PessoaDB {
         if (por.equals("cpf") || por.equals("cnpj") || por.equals("cei")) {
             field = "documento";
         }
-
+        
+        String text_qry = "";
         int maxResults = 300;
-        if (desc.length() == 1) {
-            maxResults = 50;
-        } else if (desc.length() == 2) {
-            maxResults = 150;
-        } else if (desc.length() == 3) {
-            maxResults = 200;
+        if (por.equals("codigo")) {
+            text_qry= " SELECT p.* " +
+                      "   FROM pes_pessoa p " +
+                      "  WHERE p.id = " + Integer.valueOf(desc) +
+                      "  ORDER BY p.ds_nome";
+        } else {
+            if (desc.length() == 1) {
+                maxResults = 50;
+            } else if (desc.length() == 2) {
+                maxResults = 150;
+            } else if (desc.length() == 3) {
+                maxResults = 200;
+            }
+
+            desc = AnaliseString.normalizeLower(desc);
+            desc = (como.equals("I") ? desc + "%" : "%" + desc + "%");
+
+            text_qry = " SELECT p.* " +
+                       "   FROM pes_pessoa p " +
+                       "  WHERE LOWER(FUNC_TRANSLATE(p.ds_" + field + ")) LIKE '" + desc + "' " +
+                       "  ORDER BY p.ds_nome";
         }
 
-        desc = AnaliseString.normalizeLower(desc);
-        desc = (como.equals("I") ? desc + "%" : "%" + desc + "%");
-
-        String text_qry
-                = " SELECT p.* "
-                + " FROM pes_pessoa p "
-                + "WHERE LOWER(FUNC_TRANSLATE(p.ds_" + field + ")) LIKE '" + desc + "' "
-                + "ORDER BY p.ds_nome";
         try {
             Query qry = getEntityManager().createNativeQuery(text_qry, Pessoa.class);
             qry.setMaxResults(maxResults);
@@ -140,37 +148,6 @@ public class PessoaDBToplink extends DB implements PessoaDB {
             e.getMessage();
             return new ArrayList();
         }
-//        SelectTranslate st = new SelectTranslate();
-//        
-//        return st.select(new Pessoa()).where(field, desc).find();        
-
-//        if (por.equals("cnpj") || por.equals("cpf") || por.equals("cei")){
-//            por = "documento";
-//        }
-//        List lista;
-//        String textQuery = null;
-//        if (como.equals("T")) {
-//            textQuery = "";
-//            //textQuery = "select objeto from Pessoa objeto";
-//        } else if (como.equals("P")) {
-//            desc = "%" + desc.toLowerCase().toUpperCase() + "%";
-//            textQuery = "select objeto from Pessoa objeto where UPPER(objeto." + por + ") like :desc"
-//                    + " order by objeto.nome";
-//        } else if (como.equals("I")) {
-//            desc = desc.toLowerCase().toUpperCase() + "%";
-//            textQuery = "select objeto from Pessoa objeto where UPPER(objeto." + por + ") like :desc"
-//                    + " order by objeto.nome";
-//        }
-//        try {
-//            Query qry = getEntityManager().createQuery(textQuery);
-//            if ((desc != null) && (!(como.equals("T")))) {
-//                qry.setParameter("desc", desc);
-//            }
-//            lista = qry.getResultList();
-//        } catch (Exception e) {
-//            lista = new ArrayList();
-//        }
-//        return lista;
     }
 
     @Override

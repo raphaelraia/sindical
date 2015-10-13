@@ -64,6 +64,8 @@ public class Fisica implements java.io.Serializable {
     private String tituloSecao;
     @Column(name = "ds_titulo_zona", length = 20)
     private String tituloZona;
+    @Column(name = "ds_foto", length = 1000)
+    private String foto;
 
     public Fisica() {
         this.id = -1;
@@ -88,11 +90,12 @@ public class Fisica implements java.io.Serializable {
         this.tituloEleitor = "";
         this.tituloSecao = "";
         this.tituloZona = "";
+        this.foto = "";
     }
 
     public Fisica(int id, Pessoa pessoa, String rg, String carteira, String serie, String sexo, Date dtNascimento, String nacionalidade,
             String naturalidade, String orgaoEmissaoRG, String ufEmissaoRG, String estadoCivil, String pai, String mae, String nit,
-            String pis, String aposentadoria, String recadastro, String dataFoto, String tituloEleitor, String tituloSecao, String tituloZona) {
+            String pis, String aposentadoria, String recadastro, String dataFoto, String tituloEleitor, String tituloSecao, String tituloZona, String foto) {
         this.id = id;
         this.pessoa = pessoa;
         this.rg = rg;
@@ -115,6 +118,7 @@ public class Fisica implements java.io.Serializable {
         this.tituloEleitor = tituloEleitor;
         this.tituloSecao = tituloSecao;
         this.tituloZona = tituloZona;
+        this.foto = foto;
     }
 
     public int getId() {
@@ -362,5 +366,13 @@ public class Fisica implements java.io.Serializable {
            return pe;
         }
         return null;
+    }
+
+    public String getFoto() {
+        return foto;
+    }
+
+    public void setFoto(String foto) {
+        this.foto = foto;
     }
 }

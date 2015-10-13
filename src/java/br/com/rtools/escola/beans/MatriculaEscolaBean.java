@@ -143,7 +143,6 @@ public class MatriculaEscolaBean implements Serializable {
     private Integer filial_id;
     private Integer filial_id_2;
     private float vTaxa;
-    private boolean alunoFoto;
     private boolean alterarPessoaComplemento;
     private boolean desabilitaTurma;
     private boolean desabilitaIndividual;
@@ -241,7 +240,6 @@ public class MatriculaEscolaBean implements Serializable {
         idadeAluno = 0;
         vagasDisponiveis = 0;
         vTaxa = 0;
-        alunoFoto = false;
         alterarPessoaComplemento = false;
         desabilitaTurma = false;
         desabilitaIndividual = false;
@@ -3041,18 +3039,7 @@ public class MatriculaEscolaBean implements Serializable {
 //        byte[] outputData = outputBuffer.array();
 //        return new String(outputData);
 //    }
-    public boolean isAlunoFoto() {
-        if (servicoPessoa.getPessoa().getId() != -1) {
-            File file = new File(FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/Fotos/" + servicoPessoa.getPessoa().getId() + ".png"));
-            alunoFoto = file.exists();
-        }
-        return alunoFoto;
-    }
-
-    public void setAlunoFoto(boolean alunoFoto) {
-        this.alunoFoto = alunoFoto;
-    }
-
+    
     public boolean isVisibility() {
         return visibility;
     }

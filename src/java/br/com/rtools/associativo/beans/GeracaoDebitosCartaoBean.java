@@ -16,29 +16,30 @@ import br.com.rtools.financeiro.beans.BaixaGeralBean;
 import br.com.rtools.financeiro.db.MovimentoDBToplink;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Pessoa;
+import br.com.rtools.pessoa.db.FisicaDB;
 import br.com.rtools.pessoa.db.FisicaDBToplink;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
-import br.com.rtools.seguranca.utilitarios.SegurancaUtilitariosBean;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.ImageConverter;
 import br.com.rtools.utilitarios.db.FunctionsDao;
 import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
-import org.apache.commons.io.FileUtils;
+import org.primefaces.model.StreamedContent;
 
 @ManagedBean
 @SessionScoped
@@ -52,7 +53,10 @@ public class GeracaoDebitosCartaoBean implements Serializable {
     private List<Movimento> listMovimentos;
     private Boolean habilitaImpressao;
     private List<HistoricoCarteirinha> listHistoricoCarteirinhas;
-
+    
+    // FOTO
+//    private StreamedContent fotoStreamed = null;
+//    private String nomeFoto = "";    
     @PostConstruct
     public void init() {
         fisica = new Fisica();
@@ -63,13 +67,18 @@ public class GeracaoDebitosCartaoBean implements Serializable {
         listMovimentos = new ArrayList();
         listHistoricoCarteirinhas = new ArrayList();
         habilitaImpressao = false;
+
+//        PhotoCapture.load("temp/foto/" + Usuario.getUsuario().getId(), "form_gdc");
+//        PhotoUpload.load("temp/foto/" + Usuario.getUsuario().getId(), "form_gdc");
+//        fotoStreamed = null;
+//        nomeFoto = "";
     }
 
     @PreDestroy
     public void destroy() {
         GenericaSessao.remove("geracaoDebitosCartaoBean");
-        GenericaSessao.remove("uploadBean");
-        GenericaSessao.remove("photoCamBean");
+//        GenericaSessao.remove("uploadBean");
+//        GenericaSessao.remove("photoCamBean");
         GenericaSessao.remove("cartaoSocialBean");
         GenericaSessao.remove("fisicaPesquisa");
         GenericaSessao.remove("fisicaBean");
@@ -79,6 +88,41 @@ public class GeracaoDebitosCartaoBean implements Serializable {
         GenericaSessao.remove("lista_movimentos_baixados");
         GenericaSessao.remove("pessoaUtilitariosBean");
         clear(2);
+    }
+
+    public StreamedContent getFotoStreamed() {
+        String id_pessoa = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("image_pessoa_id");  
+//        
+////        FacesContext context = FacesContext.getCurrentInstance();
+////        HttpServletRequest myRequest = (HttpServletRequest)context.getExternalContext().getRequest();
+////        HttpSession mySession = myRequest.getSession();        
+////        String id_pessoa = myRequest.getParameter("image_pessoa_id");
+//        //String id = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("image_id");
+        if (id_pessoa == null) {  
+            return null;
+        }
+        FisicaDB fisicaDB = new FisicaDBToplink();
+        Fisica fisica_imagem = fisicaDB.pesquisaFisicaPorPessoa(Integer.valueOf(28502));
+
+        File file = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/Fotos/Fisica/" + fisica_imagem.getFoto() + ".png"));
+        if (file.exists()) {
+            return ImageConverter.getImageStreamed(file, "image/png");
+        }
+
+        file = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/Fotos/Fisica/" + fisica_imagem.getFoto() + ".jpg"));
+        if (file.exists()) {
+            return ImageConverter.getImageStreamed(file, "image/png");
+        }
+
+        StreamedContent sc;
+        if (fisica_imagem.getSexo().equals("F")) {
+            file = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Imagens/user_female.png"));
+            sc = ImageConverter.getImageStreamed(file, "image/png");
+        } else {
+            file = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Imagens/user_male.png"));
+            sc = ImageConverter.getImageStreamed(file, "image/png");
+        }
+        return sc;
     }
 
     public void load() {
@@ -185,6 +229,7 @@ public class GeracaoDebitosCartaoBean implements Serializable {
         }
 
         dao.commit();
+
         listaSocios.clear();
         BaixaGeralBean.listenerTipoCaixaSession("caixa");
         GenericaSessao.put("listaMovimento", listMovimentos);
@@ -210,20 +255,20 @@ public class GeracaoDebitosCartaoBean implements Serializable {
             clear(2);
         }
         if (tCase == 2) {
-            try {
-                FileUtils.deleteDirectory(new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "/Cliente/" + ControleUsuarioBean.getCliente() + "/temp/" + "foto/" + new SegurancaUtilitariosBean().getSessaoUsuario().getId()));
-                File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/Fotos/" + -1 + ".png"));
-                if (f.exists()) {
-                    f.delete();
-                }
-            } catch (IOException ex) {
-
-            }
+//            try {
+//                FileUtils.deleteDirectory(new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "/Cliente/" + ControleUsuarioBean.getCliente() + "/temp/" + "foto/" + new SegurancaUtilitariosBean().getSessaoUsuario().getId()));
+//                File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/Fotos/" + -1 + ".png"));
+//                if (f.exists()) {
+//                    f.delete();
+//                }
+//            } catch (IOException ex) {
+//
+//            }
         }
         if (tCase == 3) {
-            GenericaSessao.remove("cropperBean");
-            GenericaSessao.remove("uploadBean");
-            GenericaSessao.remove("photoCamBean");
+//            GenericaSessao.remove("cropperBean");
+//            GenericaSessao.remove("uploadBean");
+//            GenericaSessao.remove("photoCamBean");
         }
     }
 
@@ -302,8 +347,7 @@ public class GeracaoDebitosCartaoBean implements Serializable {
 
     public Boolean renderedUpload(Pessoa p) {
         if (registro.isFotoCartao()) {
-            Dao dao = new Dao();
-            if (p.getFisica().getDtFoto() != null) {
+            if (!p.getFisica().getFoto().isEmpty()) {
                 return false;
             }
         } else {
@@ -314,7 +358,7 @@ public class GeracaoDebitosCartaoBean implements Serializable {
 
     public Boolean disabled(Pessoa p, Movimento m) {
         if (registro.isFotoCartao()) {
-            if (p.getFisica().getDtFoto() == null) {
+            if (p.getFisica().getFoto().isEmpty()) {
                 return true;
             } else if (m != null) {
                 return true;
@@ -340,4 +384,45 @@ public class GeracaoDebitosCartaoBean implements Serializable {
     public void setListHistoricoCarteirinhas(List<HistoricoCarteirinha> listHistoricoCarteirinhas) {
         this.listHistoricoCarteirinhas = listHistoricoCarteirinhas;
     }
+
+//    public StreamedContent getFotoStreamed() {
+//        try {
+//            if (PhotoCapture.getFile() != null) {
+//                nomeFoto = PhotoCapture.getImageName();
+//                PhotoCapture.unload();
+//            }
+//            
+//            if (PhotoUpload.getFile() != null) {
+//                nomeFoto = PhotoUpload.getImageName();
+//                PhotoUpload.unload();
+//            }
+//
+//            fotoStreamed = null;
+//            File fotoTempx = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/temp/foto/" + Usuario.getUsuario().getId() + "/" + nomeFoto + ".png"));
+//            if (fotoTempx.exists()) {
+//                fotoStreamed = ImageConverter.getImageStreamed(fotoTempx, "image/png");
+//            } else {
+//                File fotoSave = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/Fotos/Fisica/" + fisica.getFoto() + ".png"));
+//                if (fotoSave.exists()) {
+//                    fotoStreamed = ImageConverter.getImageStreamed(fotoSave, "image/png");
+//                }
+//                
+//            }
+//        } catch (Exception e) {
+//            e.getMessage();
+//        }
+//        return fotoStreamed;
+//    }
+//
+//    public void setFotoStreamed(StreamedContent fotoStreamed) {
+//        this.fotoStreamed = fotoStreamed;
+//    }
+//
+//    public String getNomeFoto() {
+//        return nomeFoto;
+//    }
+//
+//    public void setNomeFoto(String nomeFoto) {
+//        this.nomeFoto = nomeFoto;
+//    }    
 }
