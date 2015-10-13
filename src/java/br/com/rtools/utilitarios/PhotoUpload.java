@@ -156,7 +156,7 @@ public class PhotoUpload implements Serializable {
 
                 if (fisica != null) {
                     // CASO QUEIRA REMOVER A FOTO ANTERIOR
-                    File fotoAntiga = new File(servletContext.getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente() + "/imagens/pessoa/" + pessoa.getId() + "/" + fisica.getFoto() + ".png");
+                    File fotoAntiga = new File(servletContext.getRealPath("/resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + pessoa.getId() + "/" + fisica.getFoto() + ".png"));
                     if (fotoAntiga.exists()) {
                         FileUtils.deleteQuietly(fotoAntiga);
                     }
@@ -169,7 +169,7 @@ public class PhotoUpload implements Serializable {
                     Juridica juridica = juridicaDB.pesquisaJuridicaPorPessoa(pessoa.getId());
                     
                     // CASO QUEIRA REMOVER A FOTO ANTERIOR
-                    File fotoAntiga = new File(servletContext.getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente() + "/imagens/pessoa/" + pessoa.getId() + "/" + juridica.getFoto() + ".png");
+                    File fotoAntiga = new File(servletContext.getRealPath("/resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + pessoa.getId() + "/" + juridica.getFoto() + ".png"));
                     if (fotoAntiga.exists()) {
                         FileUtils.deleteQuietly(fotoAntiga);
                     }

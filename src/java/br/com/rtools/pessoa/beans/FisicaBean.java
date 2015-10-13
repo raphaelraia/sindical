@@ -150,11 +150,11 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     // FOTO
     private String nomeFoto = "";
 
-    public FisicaBean(){
+    public FisicaBean() {
         //PhotoCapture.load("temp/foto/" + Usuario.getUsuario().getId(), "form_pessoa_fisica");
         //PhotoUpload.load("temp/foto/" + Usuario.getUsuario().getId(), "form_pessoa_fisica");
     }
-    
+
     public void loadListaOposicao() {
         if (fisica.getId() != -1) {
             listaOposicao.clear();
@@ -309,13 +309,13 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         Dao dao = new Dao();
         dao.openTransaction();
         pessoaUpper();
-        
-        if (!PhotoCapture.getNameFile().isEmpty()){
+
+        if (!PhotoCapture.getNameFile().isEmpty()) {
             fisica.setFoto(PhotoCapture.getNameFile());
-        }else if (!PhotoUpload.getNameFile().isEmpty()){
+        } else if (!PhotoUpload.getNameFile().isEmpty()) {
             fisica.setFoto(PhotoUpload.getNameFile());
         }
-        
+
         PhotoCapture.unload();
         PhotoUpload.unload();
 
@@ -632,7 +632,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         if (!listernerValidacao(f, url)) {
             return null;
         }
-        
+
         GenericaSessao.put("fisicaPesquisa", f);
         if (!url.equals("pessoaFisica") && !completo) {
             GenericaSessao.put("linkClicado", true);
@@ -1273,12 +1273,11 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public void salvarImagem() {
-        if (fisica.getId() != -1){
+        if (fisica.getId() != -1) {
             ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
-            
+
             // nomeFoto NÃO ESTA SENDO SETADO POIS A FOTO DA PESSOA ESTA SENDO PEGADA DIRETAMENTE DA CLASSE pessoa.getFotoResource();
             // PARA FUNCIONAR TEM QUE CRIAR UM getFoto DENTRO DA PRÓPRIA CLASSE FisicaBean ASSIM COMO ESTA NO BEAN ConviteMovimentoBean
-            
             if (nomeFoto.isEmpty()) {
                 // CASO QUEIRA REMOVER A FOTO ANTERIOR
                 File fotoAntiga = new File(servletContext.getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente() + "/imagens/pessoa/" + fisica.getPessoa().getId() + "/" + fisica.getFoto() + ".png");
@@ -1293,7 +1292,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 dao.commit();
             }
         }
-        
+
     }
 
     public String excluirEmpresaAnterior(PessoaEmpresa pe) {
@@ -1899,22 +1898,30 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     public void apagarImagem() {
         boolean sucesso = false;
-        
-        String fcaminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente() + "/imagens/pessoa/" + fisica.getPessoa().getId() + "/" + fisica.getFoto();
-        if (new File((fcaminho + ".png")).exists() && FileUtils.deleteQuietly(new File(fcaminho + ".png"))) {
-            sucesso = true;
-        } else if (new File((fcaminho + ".jpg")).exists() && FileUtils.deleteQuietly(new File(fcaminho + ".jpg"))) {
-            sucesso = true;
-        } else if (new File((fcaminho + ".jpeg")).exists() && FileUtils.deleteQuietly(new File(fcaminho + ".jpeg"))) {
-            sucesso = true;
-        } else if (new File((fcaminho + ".gif")).exists() && FileUtils.deleteQuietly(new File(fcaminho + ".gif"))) {
-            sucesso = true;
-        }
+        try {
+            String path = ("/resources/cliente/" + ControleUsuarioBean.getCliente() + "/imagens/pessoa/" + fisica.getPessoa().getId() + "/").toLowerCase();
+            String fcaminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(path);
+            if (new File((fcaminho + "/" + fisica.getFoto() + ".png")).exists() && FileUtils.deleteQuietly(new File(fcaminho + "/" + fisica.getFoto() + ".png"))) {
+                sucesso = true;
+            } else if (new File((fcaminho + "/" + fisica.getFoto() + ".jpg")).exists() && FileUtils.deleteQuietly(new File(fcaminho + "/" + fisica.getFoto() + ".jpg"))) {
+                sucesso = true;
+            } else if (new File((fcaminho + "/" + fisica.getFoto() + ".jpeg")).exists() && FileUtils.deleteQuietly(new File(fcaminho + "/" + fisica.getFoto() + ".jpeg"))) {
+                sucesso = true;
+            } else if (new File((fcaminho + "/" + fisica.getFoto() + ".gif")).exists() && FileUtils.deleteQuietly(new File(fcaminho + "/" + fisica.getFoto() + ".gif"))) {
+                sucesso = true;
+            }
 
-        if (sucesso && fisica.getId() != -1) {
-            fisica.setDtFoto(null);
-            fisica.setFoto("");
-            new Dao().update(fisica, true);
+            if (sucesso && fisica.getId() != -1) {
+                fisica.setDtFoto(null);
+                fisica.setFoto("");
+                new Dao().update(fisica, true);
+            }
+        } catch (Exception e) {
+            GenericaMensagem.error("Sistema", e.getMessage());
+            return;
+        }
+        if (!sucesso) {
+            GenericaMensagem.error("Sistema", "Erro ao excluir imagem!");
         }
     }
 
