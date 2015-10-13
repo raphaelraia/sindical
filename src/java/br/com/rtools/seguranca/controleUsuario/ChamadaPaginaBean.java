@@ -916,6 +916,9 @@ public class ChamadaPaginaBean implements Serializable {
     public synchronized String conviteMovimento() {
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("conviteClubeBean");
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("conviteMovimentoBean");
+        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("fisicaPesquisa");
+        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("sisPessoaPesquisa");
+        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("enderecoPesquisa");
         return metodoGenerico(2, "conviteMovimento");
     }
 
