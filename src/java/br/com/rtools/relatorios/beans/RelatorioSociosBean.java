@@ -469,7 +469,7 @@ public class RelatorioSociosBean implements Serializable {
                     getConverteNullString(result.get(i).get(29)),// NATURALIDADE
                     (Date) result.get(i).get(30),// RECADASTRO
                     (Date) result.get(i).get(31),// DT NASCIMENTO -------------
-                    (Date) result.get(i).get(32),// DT FOTO -------------------
+                    getConverteNullString(result.get(i).get(32)),// DT FOTO -------------------
                     getConverteNullString(result.get(i).get(33)),// RG
                     "",// CAMINHO DA FOTO SOCIO
                     getConverteNullString(result.get(i).get(35)),// LOGRADOURO

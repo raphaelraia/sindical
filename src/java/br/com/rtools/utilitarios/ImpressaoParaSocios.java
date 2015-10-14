@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 import net.sf.jasperreports.engine.JRException;
@@ -37,31 +38,21 @@ public class ImpressaoParaSocios {
 
     public static boolean imprimirCarteirinha(List listaCartao) {
         List<CartaoSocial> listax = new ArrayList();
-        FacesContext context = FacesContext.getCurrentInstance();
 
-        File files = new File(((ServletContext) context.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/Fotos/"));
-        File listFile[] = files.listFiles();
         List<ModeloCarteirinha> listaModelo = new Dao().list(new ModeloCarteirinha());
         Map<Integer, List> hash = new HashMap();
         SociosDao sociosDao = new SociosDao();
-        String titular = "";
-        String dependente = "";
+        String titular;
+        String dependente;
         String orgaoOrigem = "";
         String codigoFuncional = "";
-        Socios socioDependente = new Socios();
+        Socios socioDependente;
+        
         for (int i = 0; i < listaCartao.size(); i++) {
+            String id_pessoa = ((List) (listaCartao.get(i))).get(0).toString();
+            
             String logoCartao = "";
-            String imagem = "semFoto.jpg";
-            for (int j = 0; j < listFile.length; j++) {
-                String[] arrayString = listFile[j].getName().split("\\.");
-                String descricaoFile = arrayString[0];
-                String idPessoa = ((List) (listaCartao.get(i))).get(0).toString();
-                if (descricaoFile.equals(idPessoa)) {
-                    imagem = listFile[j].getName();
-                    break;
-                }
-            }
-
+            
             String matr = "";
             if (((List) (listaCartao.get(i))).get(10) != null) {
                 matr = "000000".substring(0, 6 - ((List) (listaCartao.get(i))).get(10).toString().length()) + ((List) (listaCartao.get(i))).get(10).toString();
@@ -71,13 +62,14 @@ public class ImpressaoParaSocios {
             if (((List) (listaCartao.get(i))).get(11) != null) {
                 via = ((List) (listaCartao.get(i))).get(11).toString();
             }
+            
             if (via.length() == 1) {
                 via = "0" + via;
             }
 
             Registro reg = (Registro) new Dao().find(new Registro(), 1);
             String bc = getConverteNullString(((List) (listaCartao.get(i))).get(18)) + via; //             String bc = ((List) (listaCartao.get(i))).get(0).toString() + via; // id_pessoa
-            String barras = "";
+            String barras;
 
             if (reg.isValidadeBarras() && ((List) (listaCartao.get(i))).get(6) != null) {
                 Date vencto = DataHoje.converte(((List) (listaCartao.get(i))).get(6).toString());
@@ -137,6 +129,20 @@ public class ImpressaoParaSocios {
             } catch (Exception e) {
 
             }
+            
+            FisicaDB fisicaDB = new FisicaDBToplink();
+            Fisica fisica = fisicaDB.pesquisaFisicaPorPessoa(Integer.valueOf(id_pessoa));
+            String[] imagensTipo = new String[]{"jpg", "jpeg", "png", "gif"};
+            File foto_cartao = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("")+ "resources/images/user_undefined.png");
+            
+            for (String imagensTipo1 : imagensTipo) {
+                File test = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("")+ "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + fisica.getPessoa().getId() +"/"+fisica.getFoto()+"." + imagensTipo1);
+                if (test.exists()){
+                    foto_cartao = test;
+                    break;
+                }
+            }
+            
             listax.add(
                     new CartaoSocial(
                             matr, //                                                         CODIGO
@@ -149,7 +155,7 @@ public class ImpressaoParaSocios {
                             getConverteNullString(((List) (listaCartao.get(i))).get(5)), //  CIDADE
                             getConverteNullString(((List) (listaCartao.get(i))).get(7)), //  UF
                             logoCartao, // LOGO
-                            ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/Fotos/" + imagem), // CAMINHO FOTO
+                            foto_cartao.getAbsolutePath(), // CAMINHO FOTO
                             getConverteNullString(((List) (listaCartao.get(i))).get(13)), // FILIAÇÃO
                             getConverteNullString(((List) (listaCartao.get(i))).get(14)), // PROFISSÃO
                             getConverteNullString(((List) (listaCartao.get(i))).get(15)), // CPF
@@ -181,7 +187,7 @@ public class ImpressaoParaSocios {
             );
 
             for (ModeloCarteirinha modelo : listaModelo) {
-                if (carteirinha.getModeloCarteirinha().getId() == modelo.getId()) {
+                if (Objects.equals(carteirinha.getModeloCarteirinha().getId(), modelo.getId())) {
                     hash.put(modelo.getId(), listax);
                 }
             }
@@ -305,303 +311,289 @@ public class ImpressaoParaSocios {
     public static void comDependente(String nomeDownload, String path, String pathVerso, Socios socios, PessoaEmpresa pessoaEmpresa, MatriculaSocios matriculaSocios, boolean imprimirVerso, String fotoSocio) {
         Dao dao = new Dao();
         Registro registro = (Registro) dao.find(new Registro(), 1);
-        Fisica fisica = new Fisica();
-        Juridica sindicato = new Juridica();
+        Fisica fisica;
+        Juridica sindicato;
         FisicaDB db = new FisicaDBToplink();
-        PessoaEndereco pesEndereco, pesDestinatario, pesEndEmpresa, pesEndSindicato = new PessoaEndereco();
+        PessoaEndereco pesEndereco, pesDestinatario, pesEndEmpresa, pesEndSindicato;
         PessoaEnderecoDB dbEnd = new PessoaEnderecoDBToplink();
-        //PessoaEmpresa pesEmpresa = new PessoaEmpresa();
-        PessoaEmpresaDB dbEmp = new PessoaEmpresaDBToplink();
         SociosDB dbSoc = new SociosDBToplink();
         FacesContext faces = FacesContext.getCurrentInstance();
-        try {
-            //HttpServletResponse response = (HttpServletResponse) faces.getExternalContext().getResponse();
-            Collection listaSocios = new ArrayList<FichaSocial>();
-            JasperReport jasper = (JasperReport) JRLoader.loadObject(
-                    new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath(path))
-            );
-
-            fisica = db.pesquisaFisicaPorPessoa(socios.getServicoPessoa().getPessoa().getId());
-            pesEndereco = dbEnd.pesquisaEndPorPessoaTipo(fisica.getPessoa().getId(), 1);
-            sindicato = (Juridica) dao.find(new Juridica(), 1);
-
-            if (pessoaEmpresa != null) {
-                if (pessoaEmpresa.getId() != -1) {
-                    pesEndEmpresa = dbEnd.pesquisaEndPorPessoaTipo(pessoaEmpresa.getJuridica().getPessoa().getId(), 2);
-                } else {
-                    pesEndEmpresa = dbEnd.pesquisaEndPorPessoaTipo(pessoaEmpresa.getJuridica().getPessoa().getId(), 2);
-                }
+        
+        Collection listaSocios = new ArrayList();
+        fisica = db.pesquisaFisicaPorPessoa(socios.getServicoPessoa().getPessoa().getId());
+        pesEndereco = dbEnd.pesquisaEndPorPessoaTipo(fisica.getPessoa().getId(), 1);
+        sindicato = (Juridica) dao.find(new Juridica(), 1);
+        if (pessoaEmpresa != null) {
+            if (pessoaEmpresa.getId() != -1) {
+                pesEndEmpresa = dbEnd.pesquisaEndPorPessoaTipo(pessoaEmpresa.getJuridica().getPessoa().getId(), 2);
             } else {
-                pesEndEmpresa = new PessoaEndereco();
+                pesEndEmpresa = dbEnd.pesquisaEndPorPessoaTipo(pessoaEmpresa.getJuridica().getPessoa().getId(), 2);
             }
-
-            pesEndSindicato = dbEnd.pesquisaEndPorPessoaTipo(sindicato.getPessoa().getId(), 2);
-
-            pesDestinatario = dbEnd.pesquisaEndPorPessoaTipo(fisica.getPessoa().getId(), 1);
-
-            String dados[] = new String[34];
-
-            try {
-                dados[0] = pesEndereco.getEndereco().getLogradouro().getDescricao();
-                dados[1] = pesEndereco.getEndereco().getDescricaoEndereco().getDescricao();
-                dados[2] = pesEndereco.getNumero();
-                dados[3] = pesEndereco.getComplemento();
-                dados[4] = pesEndereco.getEndereco().getBairro().getDescricao();
-                dados[5] = pesEndereco.getEndereco().getCidade().getCidade();
-                dados[6] = pesEndereco.getEndereco().getCidade().getUf();
-                dados[7] = AnaliseString.mascaraCep(pesEndereco.getEndereco().getCep());
-            } catch (Exception e) {
-                dados[0] = "";
-                dados[1] = "";
-                dados[2] = "";
-                dados[3] = "";
-                dados[4] = "";
-                dados[5] = "";
-                dados[6] = "";
-                dados[7] = "";
-            }
-
-            try {
-                dados[8] = pesDestinatario.getEndereco().getLogradouro().getDescricao();
-                dados[9] = pesDestinatario.getEndereco().getDescricaoEndereco().getDescricao();
-                dados[10] = pesDestinatario.getNumero();
-                dados[11] = pesDestinatario.getComplemento();
-                dados[12] = pesDestinatario.getEndereco().getBairro().getDescricao();
-                dados[13] = pesDestinatario.getEndereco().getCidade().getCidade();
-                dados[14] = pesDestinatario.getEndereco().getCidade().getUf();
-                dados[15] = AnaliseString.mascaraCep(pesDestinatario.getEndereco().getCep());
-                dados[26] = pesDestinatario.getPessoa().getDocumento();
-                dados[27] = pesDestinatario.getPessoa().getNome();
-            } catch (Exception e) {
-                dados[8] = "";
-                dados[9] = "";
-                dados[10] = "";
-                dados[11] = "";
-                dados[12] = "";
-                dados[13] = "";
-                dados[14] = "";
-                dados[15] = "";
-                dados[26] = "";
-                dados[27] = "";
-            }
-
-            try {
-                dados[16] = pessoaEmpresa.getJuridica().getPessoa().getNome();
-                dados[17] = pessoaEmpresa.getJuridica().getPessoa().getTelefone1();
-                if (pessoaEmpresa.getFuncao() == null) {
-                    dados[18] = "";
-                } else {
-                    dados[18] = pessoaEmpresa.getFuncao().getProfissao();
-                }
-                dados[19] = pesEndEmpresa.getEndereco().getDescricaoEndereco().getDescricao();
-                dados[20] = pesEndEmpresa.getNumero();
-                dados[21] = pesEndEmpresa.getComplemento();
-                dados[22] = pesEndEmpresa.getEndereco().getBairro().getDescricao();
-                dados[23] = pesEndEmpresa.getEndereco().getCidade().getCidade();
-                dados[24] = pesEndEmpresa.getEndereco().getCidade().getUf();
-                dados[25] = AnaliseString.mascaraCep(pesEndEmpresa.getEndereco().getCep());
-                dados[28] = pessoaEmpresa.getAdmissao();
-                dados[29] = pessoaEmpresa.getJuridica().getPessoa().getDocumento();
-                dados[30] = pessoaEmpresa.getJuridica().getFantasia();
-                dados[31] = pesEndEmpresa.getEndereco().getLogradouro().getDescricao();
-                dados[32] = pessoaEmpresa.getCodigo();
-            } catch (Exception e) {
-                dados[16] = "";
-                dados[17] = "";
+        } else {
+            pesEndEmpresa = new PessoaEndereco();
+        }
+        pesEndSindicato = dbEnd.pesquisaEndPorPessoaTipo(sindicato.getPessoa().getId(), 2);
+        pesDestinatario = dbEnd.pesquisaEndPorPessoaTipo(fisica.getPessoa().getId(), 1);
+        String dados[] = new String[34];
+        try {
+            dados[0] = pesEndereco.getEndereco().getLogradouro().getDescricao();
+            dados[1] = pesEndereco.getEndereco().getDescricaoEndereco().getDescricao();
+            dados[2] = pesEndereco.getNumero();
+            dados[3] = pesEndereco.getComplemento();
+            dados[4] = pesEndereco.getEndereco().getBairro().getDescricao();
+            dados[5] = pesEndereco.getEndereco().getCidade().getCidade();
+            dados[6] = pesEndereco.getEndereco().getCidade().getUf();
+            dados[7] = AnaliseString.mascaraCep(pesEndereco.getEndereco().getCep());
+        } catch (Exception e) {
+            dados[0] = "";
+            dados[1] = "";
+            dados[2] = "";
+            dados[3] = "";
+            dados[4] = "";
+            dados[5] = "";
+            dados[6] = "";
+            dados[7] = "";
+        }
+        try {
+            dados[8] = pesDestinatario.getEndereco().getLogradouro().getDescricao();
+            dados[9] = pesDestinatario.getEndereco().getDescricaoEndereco().getDescricao();
+            dados[10] = pesDestinatario.getNumero();
+            dados[11] = pesDestinatario.getComplemento();
+            dados[12] = pesDestinatario.getEndereco().getBairro().getDescricao();
+            dados[13] = pesDestinatario.getEndereco().getCidade().getCidade();
+            dados[14] = pesDestinatario.getEndereco().getCidade().getUf();
+            dados[15] = AnaliseString.mascaraCep(pesDestinatario.getEndereco().getCep());
+            dados[26] = pesDestinatario.getPessoa().getDocumento();
+            dados[27] = pesDestinatario.getPessoa().getNome();
+        } catch (Exception e) {
+            dados[8] = "";
+            dados[9] = "";
+            dados[10] = "";
+            dados[11] = "";
+            dados[12] = "";
+            dados[13] = "";
+            dados[14] = "";
+            dados[15] = "";
+            dados[26] = "";
+            dados[27] = "";
+        }
+        try {
+            dados[16] = pessoaEmpresa.getJuridica().getPessoa().getNome();
+            dados[17] = pessoaEmpresa.getJuridica().getPessoa().getTelefone1();
+            if (pessoaEmpresa.getFuncao() == null) {
                 dados[18] = "";
-                dados[19] = "";
-                dados[20] = "";
-                dados[21] = "";
-                dados[22] = "";
-                dados[23] = "";
-                dados[24] = "";
-                dados[25] = "";
-                dados[28] = "";
-                dados[29] = "";
-                dados[30] = "";
-                dados[31] = "";
-                dados[32] = "";
+            } else {
+                dados[18] = pessoaEmpresa.getFuncao().getProfissao();
             }
-            String assinatura = "";
-            File f = new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/assinatura.jpg"));
-            if (f.exists()) {
-                assinatura = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/assinatura.jpg");
-            }
-            try {
-                String recadastro = DataHoje.converteData(fisica.getDtRecadastro());
+            dados[19] = pesEndEmpresa.getEndereco().getDescricaoEndereco().getDescricao();
+            dados[20] = pesEndEmpresa.getNumero();
+            dados[21] = pesEndEmpresa.getComplemento();
+            dados[22] = pesEndEmpresa.getEndereco().getBairro().getDescricao();
+            dados[23] = pesEndEmpresa.getEndereco().getCidade().getCidade();
+            dados[24] = pesEndEmpresa.getEndereco().getCidade().getUf();
+            dados[25] = AnaliseString.mascaraCep(pesEndEmpresa.getEndereco().getCep());
+            dados[28] = pessoaEmpresa.getAdmissao();
+            dados[29] = pessoaEmpresa.getJuridica().getPessoa().getDocumento();
+            dados[30] = pessoaEmpresa.getJuridica().getFantasia();
+            dados[31] = pesEndEmpresa.getEndereco().getLogradouro().getDescricao();
+            dados[32] = pessoaEmpresa.getCodigo();
+        } catch (Exception e) {
+            dados[16] = "";
+            dados[17] = "";
+            dados[18] = "";
+            dados[19] = "";
+            dados[20] = "";
+            dados[21] = "";
+            dados[22] = "";
+            dados[23] = "";
+            dados[24] = "";
+            dados[25] = "";
+            dados[28] = "";
+            dados[29] = "";
+            dados[30] = "";
+            dados[31] = "";
+            dados[32] = "";
+        }
+        String assinatura = "";
+        File f = new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/assinatura.jpg"));
+        if (f.exists()) {
+            assinatura = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/assinatura.jpg");
+        }
+        try {
+            String recadastro = DataHoje.converteData(fisica.getDtRecadastro());
+            listaSocios.add(new FichaSocial(0,
+                    matriculaSocios.getTitular().getId(),
+                    matriculaSocios.getNrMatricula(),
+                    matriculaSocios.getEmissao(),
+                    recadastro,
+                    matriculaSocios.getCategoria().getGrupoCategoria().getGrupoCategoria(),
+                    matriculaSocios.getCategoria().getCategoria(),
+                    fisica.getPessoa().getNome(),
+                    fisica.getSexo(),
+                    fisica.getNascimento(),
+                    fisica.getNaturalidade(),
+                    fisica.getNacionalidade(),
+                    fisica.getRg(),
+                    fisica.getPessoa().getDocumento(),
+                    fisica.getCarteira(),
+                    fisica.getSerie(),
+                    fisica.getEstadoCivil(),
+                    fisica.getPai(),
+                    fisica.getMae(),
+                    fisica.getPessoa().getTelefone1(),
+                    fisica.getPessoa().getTelefone3(),
+                    fisica.getPessoa().getEmail1(),
+                    dados[0],
+                    dados[1],
+                    dados[2],
+                    dados[3],
+                    dados[4],
+                    dados[5],
+                    dados[6],
+                    dados[7],
+                    imprimirVerso,
+                    dados[26],
+                    dados[27],
+                    dados[8],
+                    dados[9],
+                    dados[10],
+                    dados[11],
+                    dados[12],
+                    dados[13],
+                    dados[14],
+                    dados[15],
+                    dados[16],
+                    dados[17],
+                    "", // fax
+                    dados[28],
+                    dados[18],
+                    dados[19],
+                    dados[20],
+                    dados[21],
+                    dados[22],
+                    dados[23],
+                    dados[24],
+                    dados[25],
+                    ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
+                    registro.getFichaSocial(), // obs
+                    socios.getParentesco().getParentesco(),
+                    sindicato.getPessoa().getNome(),
+                    pesEndSindicato.getEndereco().getDescricaoEndereco().getDescricao(),
+                    pesEndSindicato.getNumero(),
+                    pesEndSindicato.getComplemento(),
+                    pesEndSindicato.getEndereco().getBairro().getDescricao(),
+                    pesEndSindicato.getEndereco().getCidade().getCidade(),
+                    pesEndSindicato.getEndereco().getCidade().getUf(),
+                    AnaliseString.mascaraCep(pesEndSindicato.getEndereco().getCep()),
+                    sindicato.getPessoa().getDocumento(),
+                    "",
+                    ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
+                    fotoSocio,
+                    sindicato.getPessoa().getEmail1(),
+                    sindicato.getPessoa().getSite(),
+                    sindicato.getPessoa().getTelefone1(),
+                    ((ServletContext) faces.getExternalContext().getContext()).getRealPath(pathVerso),
+                    dados[29],
+                    fisica.getRecadastro(),
+                    dados[30],
+                    pesEndSindicato.getEndereco().getLogradouro().getDescricao(),
+                    dados[31],
+                    assinatura,
+                    dados[32],
+                    fisica.getPis()
+            ));
+            
+            List<Socios> deps = dbSoc.pesquisaDependentesOrdenado(matriculaSocios.getId());
+            for (int n = 0; n < deps.size(); n++) {
                 listaSocios.add(new FichaSocial(0,
-                        matriculaSocios.getTitular().getId(),
+                        deps.get(n).getServicoPessoa().getPessoa().getId(),
                         matriculaSocios.getNrMatricula(),
-                        matriculaSocios.getEmissao(),
-                        recadastro,
-                        matriculaSocios.getCategoria().getGrupoCategoria().getGrupoCategoria(),
+                        "",
+                        "",
+                        "",
                         matriculaSocios.getCategoria().getCategoria(),
-                        fisica.getPessoa().getNome(),
-                        fisica.getSexo(),
-                        fisica.getNascimento(),
-                        fisica.getNaturalidade(),
-                        fisica.getNacionalidade(),
-                        fisica.getRg(),
-                        fisica.getPessoa().getDocumento(),
-                        fisica.getCarteira(),
-                        fisica.getSerie(),
-                        fisica.getEstadoCivil(),
-                        fisica.getPai(),
-                        fisica.getMae(),
-                        fisica.getPessoa().getTelefone1(),
-                        fisica.getPessoa().getTelefone3(),
-                        fisica.getPessoa().getEmail1(),
-                        dados[0],
-                        dados[1],
-                        dados[2],
-                        dados[3],
-                        dados[4],
-                        dados[5],
-                        dados[6],
-                        dados[7],
+                        deps.get(n).getServicoPessoa().getPessoa().getNome(),
+                        db.pesquisaFisicaPorPessoa(deps.get(n).getServicoPessoa().getPessoa().getId()).getSexo(),
+                        db.pesquisaFisicaPorPessoa(deps.get(n).getServicoPessoa().getPessoa().getId()).getNascimento(),
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
                         imprimirVerso,
-                        dados[26],
-                        dados[27],
-                        dados[8],
-                        dados[9],
-                        dados[10],
-                        dados[11],
-                        dados[12],
-                        dados[13],
-                        dados[14],
-                        dados[15],
-                        dados[16],
-                        dados[17],
-                        "", // fax
-                        dados[28],
-                        dados[18],
-                        dados[19],
-                        dados[20],
-                        dados[21],
-                        dados[22],
-                        dados[23],
-                        dados[24],
-                        dados[25],
-                        ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
-                        registro.getFichaSocial(), // obs
-                        socios.getParentesco().getParentesco(),
-                        sindicato.getPessoa().getNome(),
-                        pesEndSindicato.getEndereco().getDescricaoEndereco().getDescricao(),
-                        pesEndSindicato.getNumero(),
-                        pesEndSindicato.getComplemento(),
-                        pesEndSindicato.getEndereco().getBairro().getDescricao(),
-                        pesEndSindicato.getEndereco().getCidade().getCidade(),
-                        pesEndSindicato.getEndereco().getCidade().getUf(),
-                        AnaliseString.mascaraCep(pesEndSindicato.getEndereco().getCep()),
-                        sindicato.getPessoa().getDocumento(),
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
                         "",
                         ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
-                        fotoSocio,
-                        sindicato.getPessoa().getEmail1(),
-                        sindicato.getPessoa().getSite(),
-                        sindicato.getPessoa().getTelefone1(),
+                        registro.getFichaSocial(), // obs
+                        deps.get(n).getParentesco().getParentesco(),
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
+                        ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Imagens/Fotos/semFoto.jpg"),
+                        "",
+                        "",
+                        "",
                         ((ServletContext) faces.getExternalContext().getContext()).getRealPath(pathVerso),
-                        dados[29],
-                        fisica.getRecadastro(),
-                        dados[30],
-                        pesEndSindicato.getEndereco().getLogradouro().getDescricao(),
-                        dados[31],
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
                         assinatura,
-                        dados[32],
-                        fisica.getPis()
-                ));
-
-                List<Socios> deps = dbSoc.pesquisaDependentesOrdenado(matriculaSocios.getId());
-                for (int n = 0; n < deps.size(); n++) {
-                    listaSocios.add(new FichaSocial(0,
-                            deps.get(n).getServicoPessoa().getPessoa().getId(),
-                            matriculaSocios.getNrMatricula(),
-                            "",
-                            "",
-                            "",
-                            matriculaSocios.getCategoria().getCategoria(),
-                            deps.get(n).getServicoPessoa().getPessoa().getNome(),
-                            db.pesquisaFisicaPorPessoa(deps.get(n).getServicoPessoa().getPessoa().getId()).getSexo(),
-                            db.pesquisaFisicaPorPessoa(deps.get(n).getServicoPessoa().getPessoa().getId()).getNascimento(),
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            imprimirVerso,
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
-                            registro.getFichaSocial(), // obs
-                            deps.get(n).getParentesco().getParentesco(),
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
-                            ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Imagens/Fotos/semFoto.jpg"),
-                            "",
-                            "",
-                            "",
-                            ((ServletContext) faces.getExternalContext().getContext()).getRealPath(pathVerso),
-                            "",
-                            "",
-                            "",
-                            "",
-                            "",
-                            assinatura,
-                            "",
-                            "")
-                    );
-                }
-                if (listaSocios.isEmpty()) {
-                    return;
-                }
-                Jasper.load();
-                Jasper.PATH = "downloads";
-                Jasper.PART_NAME = "";
-                Jasper.printReports(path, "cartao_social", listaSocios);
+                        "",
+                        "")
+                );
+            }
+            if (listaSocios.isEmpty()) {
+                return;
+            }
+            Jasper.load();
+            Jasper.PATH = "downloads";
+            Jasper.PART_NAME = "";
+            Jasper.printReports(path, "cartao_social", listaSocios);
 //                JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(listaSocios);
 //                JasperPrint print = JasperFillManager.fillReport(
 //                        jasper,
@@ -626,10 +618,7 @@ public class ImpressaoParaSocios {
 //                        FacesContext.getCurrentInstance());
 //                download.baixar();
 //                download.remover();
-            } catch (Exception erro) {
-                System.err.println("O arquivo não foi gerado corretamente! Erro: " + erro.getMessage());
-            }
-        } catch (JRException erro) {
+        } catch (Exception erro) {
             System.err.println("O arquivo não foi gerado corretamente! Erro: " + erro.getMessage());
         }
     }

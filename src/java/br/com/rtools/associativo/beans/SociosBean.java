@@ -2734,7 +2734,17 @@ public class SociosBean implements Serializable {
     }
 
     public String imprimirFichaSocial() {
-        String foto = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + socios.getServicoPessoa().getPessoa().getId() + "/" + socios.getServicoPessoa().getPessoa().getFisica().getFoto() + ".png";
+        String foto = "";
+        
+        for (String imagensTipo1 : imagensTipo) {
+            File test = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + socios.getServicoPessoa().getPessoa().getId() + "/" + socios.getServicoPessoa().getPessoa().getFisica().getFoto() + "." + imagensTipo1);
+            if (test.exists()){
+                foto = test.getAbsolutePath();
+                break;
+            }
+        }        
+        
+        
         String path = "/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/FICHACADASTRO.jasper";
         String pathVerso = "/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/FICHACADASTROVERSO.jasper";
 

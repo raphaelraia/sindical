@@ -200,7 +200,7 @@ public class RelatorioSociosDBToplink extends DB implements RelatorioSociosDB {
                 + "           p.ds_naturalidade,                                \n " // 29
                 + "           p.recadastro,                                     \n " // 30
                 + "           p.dt_nascimento,                                  \n " // 31
-                + "           p.dt_foto,                                        \n " // 32
+                + "           p.ds_foto,                                        \n " // 32
                 + "           p.ds_rg,                                          \n " // 33
                 + "           foto,                                             \n " // 34
                 + "           p.logradouro,                                     \n " // 35
@@ -303,9 +303,9 @@ public class RelatorioSociosDBToplink extends DB implements RelatorioSociosDB {
 
         if (booFoto) {
             if (tipo_foto.equals("com")) {
-                filtro += " AND p.dt_foto IS NOT NULL" + " \n ";
+                filtro += " AND p.ds_foto <> ''" + " \n ";
             } else if (tipo_foto.equals("sem")) {
-                filtro += " AND p.dt_foto IS NULL" + " \n ";
+                filtro += " AND p.ds_foto == ''" + " \n ";
             }
         }
 
