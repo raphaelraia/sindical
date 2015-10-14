@@ -15,7 +15,9 @@ import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Diretorio;
 import br.com.rtools.utilitarios.GenericaMensagem;
+import br.com.rtools.utilitarios.GenericaRequisicao;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.Implantacao;
 import br.com.rtools.utilitarios.SalvarAcumuladoDB;
 import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import br.com.rtools.utilitarios.db.FunctionsDB;
@@ -54,6 +56,7 @@ public class ControleUsuarioBean implements Serializable {
     private List<ContadorAcessos> listaContador = new ArrayList();
     private List<String> images = new ArrayList<String>();
     private boolean habilitaLog = false;
+    private Boolean export = null;
 
     public void atualizaDemissionaSocios() {
         FunctionsDB db = new FunctionsDao();
@@ -183,7 +186,10 @@ public class ControleUsuarioBean implements Serializable {
                 Diretorio.criar("Arquivos/retorno/pendentes"); // EXCLUIR DEPOIS DA DATA 01/11/2014 EM FASE DE TESTES
                 Diretorio.criar("Arquivos/senhas");
             }
-
+            if (export != null && export == true) {
+                Implantacao implantacao = new Implantacao();
+                implantacao.run();
+            }
             pagina = "menuPrincipal";
             GenericaSessao.put("sessaoUsuario", usuario);
             GenericaSessao.put("usuarioLogin", usuario.getLogin());
@@ -398,6 +404,7 @@ public class ControleUsuarioBean implements Serializable {
         String novoCliente = "";
         if (GenericaSessao.exists("sessaoCliente")) {
             novoCliente = GenericaSessao.getString("sessaoCliente");
+            getExport();
         }
         return novoCliente;
     }
@@ -465,6 +472,19 @@ public class ControleUsuarioBean implements Serializable {
     public void setHabilitaLog(boolean habilitaLog) {
         GenericaSessao.put("habilitaLog", habilitaLog);
         this.habilitaLog = habilitaLog;
+    }
+
+    public Boolean getExport() {
+        try {
+            export = Boolean.parseBoolean(GenericaRequisicao.getParametro("export"));
+        } catch (Exception e) {
+            export = null;
+        }
+        return export;
+    }
+
+    public void setExport(Boolean export) {
+        this.export = export;
     }
 
 }
