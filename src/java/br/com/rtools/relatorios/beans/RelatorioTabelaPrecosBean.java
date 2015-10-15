@@ -133,35 +133,35 @@ public class RelatorioTabelaPrecosBean implements Serializable {
                     if (tsp.getCategoria1() == null) {
                         count++;
                         tsp.setCategoria1(object.get(5));
-                        tsp.setValor1(object.get(7));
+                        tsp.setValor1(object.get(8));
                     } else if (tsp.getCategoria2() == null) {
                         count++;
                         tsp.setCategoria2(object.get(5));
-                        tsp.setValor2(object.get(7));
+                        tsp.setValor2(object.get(8));
                     } else if (tsp.getCategoria3() == null) {
                         count++;
                         tsp.setCategoria3(object.get(5));
-                        tsp.setValor3(object.get(7));
+                        tsp.setValor3(object.get(8));
                     } else if (tsp.getCategoria4() == null) {
                         count++;
                         tsp.setCategoria4(object.get(5));
-                        tsp.setValor4(object.get(7));
+                        tsp.setValor4(object.get(8));
                     } else if (tsp.getCategoria5() == null) {
                         count++;
                         tsp.setCategoria5(object.get(5));
-                        tsp.setValor5(object.get(7));
+                        tsp.setValor5(object.get(8));
                     } else if (tsp.getCategoria6() == null) {
                         count++;
                         tsp.setCategoria6(object.get(5));
-                        tsp.setValor6(object.get(7));
+                        tsp.setValor6(object.get(8));
                     } else if (tsp.getCategoria7() == null) {
                         count++;
                         tsp.setCategoria7(object.get(5));
-                        tsp.setValor7(object.get(7));
+                        tsp.setValor7(object.get(8));
                     } else if (tsp.getCategoria8() == null) {
                         count++;
                         tsp.setCategoria8(object.get(5));
-                        tsp.setValor8(object.get(7));
+                        tsp.setValor8(object.get(8));
                     }
                 } else if (!subgrupo_descricao.equals((String) object.get(1))) {
                     add = true;
@@ -178,35 +178,35 @@ public class RelatorioTabelaPrecosBean implements Serializable {
                     if (tsp.getCategoria1() == null) {
                         count++;
                         tsp.setCategoria1(object.get(5));
-                        tsp.setValor1(object.get(7));
+                        tsp.setValor1(object.get(8));
                     } else if (tsp.getCategoria2() == null) {
                         count++;
                         tsp.setCategoria2(object.get(5));
-                        tsp.setValor2(object.get(7));
+                        tsp.setValor2(object.get(8));
                     } else if (tsp.getCategoria3() == null) {
                         count++;
                         tsp.setCategoria3(object.get(5));
-                        tsp.setValor3(object.get(7));
+                        tsp.setValor3(object.get(8));
                     } else if (tsp.getCategoria4() == null) {
                         count++;
                         tsp.setCategoria4(object.get(5));
-                        tsp.setValor4(object.get(7));
+                        tsp.setValor4(object.get(8));
                     } else if (tsp.getCategoria5() == null) {
                         count++;
                         tsp.setCategoria5(object.get(5));
-                        tsp.setValor5(object.get(7));
+                        tsp.setValor5(object.get(8));
                     } else if (tsp.getCategoria6() == null) {
                         count++;
                         tsp.setCategoria6(object.get(5));
-                        tsp.setValor6(object.get(7));
+                        tsp.setValor6(object.get(8));
                     } else if (tsp.getCategoria7() == null) {
                         count++;
                         tsp.setCategoria7(object.get(5));
-                        tsp.setValor7(object.get(7));
+                        tsp.setValor7(object.get(8));
                     } else if (tsp.getCategoria8() == null) {
                         count++;
                         tsp.setCategoria8(object.get(5));
-                        tsp.setValor8(object.get(7));
+                        tsp.setValor8(object.get(8));
                     }
                 } else if (!servico_descricao.equals((String) object.get(3))) {
                     add = true;
@@ -223,35 +223,35 @@ public class RelatorioTabelaPrecosBean implements Serializable {
                     if (tsp.getCategoria1() == null) {
                         count++;
                         tsp.setCategoria1(object.get(5));
-                        tsp.setValor1(object.get(7));
+                        tsp.setValor1(object.get(8));
                     } else if (tsp.getCategoria2() == null) {
                         count++;
                         tsp.setCategoria2(object.get(5));
-                        tsp.setValor2(object.get(7));
+                        tsp.setValor2(object.get(8));
                     } else if (tsp.getCategoria3() == null) {
                         count++;
                         tsp.setCategoria3(object.get(5));
-                        tsp.setValor3(object.get(7));
+                        tsp.setValor3(object.get(8));
                     } else if (tsp.getCategoria4() == null) {
                         count++;
                         tsp.setCategoria4(object.get(5));
-                        tsp.setValor4(object.get(7));
+                        tsp.setValor4(object.get(8));
                     } else if (tsp.getCategoria5() == null) {
                         count++;
                         tsp.setCategoria5(object.get(5));
-                        tsp.setValor5(object.get(7));
+                        tsp.setValor5(object.get(8));
                     } else if (tsp.getCategoria6() == null) {
                         count++;
                         tsp.setCategoria6(object.get(5));
-                        tsp.setValor6(object.get(7));
+                        tsp.setValor6(object.get(8));
                     } else if (tsp.getCategoria7() == null) {
                         count++;
                         tsp.setCategoria7(object.get(5));
-                        tsp.setValor7(object.get(7));
+                        tsp.setValor7(object.get(8));
                     } else if (tsp.getCategoria8() == null) {
                         count++;
                         tsp.setCategoria8(object.get(5));
-                        tsp.setValor8(object.get(7));
+                        tsp.setValor8(object.get(8));
                     }
                 } else {
                     add = false;
@@ -264,35 +264,35 @@ public class RelatorioTabelaPrecosBean implements Serializable {
                     if (tsp.getCategoria1() == null) {
                         count++;
                         tsp.setCategoria1(object.get(5));
-                        tsp.setValor1(object.get(7));
+                        tsp.setValor1(object.get(8));
                     } else if (tsp.getCategoria2() == null) {
                         count++;
                         tsp.setCategoria2(object.get(5));
-                        tsp.setValor2(object.get(7));
+                        tsp.setValor2(object.get(8));
                     } else if (tsp.getCategoria3() == null) {
                         count++;
                         tsp.setCategoria3(object.get(5));
-                        tsp.setValor3(object.get(7));
+                        tsp.setValor3(object.get(8));
                     } else if (tsp.getCategoria4() == null) {
                         count++;
                         tsp.setCategoria4(object.get(5));
-                        tsp.setValor4(object.get(7));
+                        tsp.setValor4(object.get(8));
                     } else if (tsp.getCategoria5() == null) {
                         count++;
                         tsp.setCategoria5(object.get(5));
-                        tsp.setValor5(object.get(7));
+                        tsp.setValor5(object.get(8));
                     } else if (tsp.getCategoria6() == null) {
                         count++;
                         tsp.setCategoria6(object.get(5));
-                        tsp.setValor6(object.get(7));
+                        tsp.setValor6(object.get(8));
                     } else if (tsp.getCategoria7() == null) {
                         count++;
                         tsp.setCategoria7(object.get(5));
-                        tsp.setValor7(object.get(7));
+                        tsp.setValor7(object.get(8));
                     } else if (tsp.getCategoria8() == null) {
                         count++;
                         tsp.setCategoria8(object.get(5));
-                        tsp.setValor8(object.get(7));
+                        tsp.setValor8(object.get(8));
                     }
                 }
                 if (count == count_categoria) {

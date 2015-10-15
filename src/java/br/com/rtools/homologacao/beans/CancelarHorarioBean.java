@@ -18,6 +18,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -278,6 +279,7 @@ public class CancelarHorarioBean implements Serializable {
                 } else {
                     ch = cancelarHorarioDao.pesquisaCancelamentoHorario(DataHoje.converte(strDataInicial), horarioses.get(x).getId(), f.getId());
                 }
+                Boolean save = true;
                 cancelarHorario.setUsuario(u);
                 if (ch.getId() == -1) {
                     cancelarHorario.setFilial(f);
@@ -298,17 +300,26 @@ public class CancelarHorarioBean implements Serializable {
                                 }
                             }
                         } else {
-                            cancelarHorario.setQuantidade(horarioses.get(x).getQuantidade());
+                            Integer day_of_month_a = cancelarHorario.getDtData().getDay();
+                            Integer day_of_month_b = horarioses.get(x).getSemana().getId() - 1;
+                            if (Objects.equals(day_of_month_a, day_of_month_b)) {
+                                save = true;
+                                cancelarHorario.setQuantidade(horarioses.get(x).getQuantidade());
+                            } else {
+                                save = false;                                
+                            }
                         }
                     } else {
                         cancelarHorario.setQuantidade(0);
                     }
-                    if (dao.save(cancelarHorario)) {
-                        cancelarHorario = new CancelarHorario();
-                        erro = false;
-                    } else {
-                        erro = true;
-                        break;
+                    if(save) {
+                        if (dao.save(cancelarHorario)) {
+                            cancelarHorario = new CancelarHorario();
+                            erro = false;
+                        } else {
+                            erro = true;
+                            break;
+                        }                        
                     }
                 } else {
                     boolean delete = false;
