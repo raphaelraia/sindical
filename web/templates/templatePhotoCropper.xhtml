@@ -1,0 +1,25 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core">
+    <h:head>
+        <style type="text/css">
+            .crop_image_size{
+                width: 400px;
+            }       
+        </style>
+    </h:head>
+    <f:view>
+        <h:form id="form_photo_cropper">
+            <p:dialog widgetVar="dlg_photo_cropper" modal="true" header="Cortar de Imagem" rendered="#{photoCropper.renderedPhotoCropperView}" width="400">
+                <p:ajax event="close" listener="#{photoCropper.close()}" />
+
+                <h:panelGrid style="width: 350px; height: 300px">
+                    <p:imageCropper value="#{photoCropper.croppedImage}" image="/resources/#{photoCropper.pessoaView.fotoResource}" initialCoords="0, 0, 100, 100"  />
+                    <p:commandButton value="Cortar" action="#{photoCropper.crop}" update="#{photoCropper.updateView}" icon="ui-icon-scissors"/>
+                </h:panelGrid>
+            </p:dialog>      
+        </h:form>
+    </f:view>
+</ui:composition>

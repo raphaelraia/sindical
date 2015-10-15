@@ -312,12 +312,15 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
         if (!PhotoCapture.getNameFile().isEmpty()) {
             fisica.setFoto(PhotoCapture.getNameFile());
+            PhotoCapture.unload();
         } else if (!PhotoUpload.getNameFile().isEmpty()) {
             fisica.setFoto(PhotoUpload.getNameFile());
+            PhotoUpload.unload();
+        } else if (!PhotoCropper.getNameFile().isEmpty()) {
+            fisica.setFoto(PhotoCropper.getNameFile());
+            PhotoCropper.unload();
         }
 
-        PhotoCapture.unload();
-        PhotoUpload.unload();
 
         if ((fisica.getPessoa().getId() == -1) && (fisica.getId() == -1)) {
             fisica.getPessoa().setTipoDocumento((TipoDocumento) dao.find(new TipoDocumento(), 1));
@@ -1901,13 +1904,16 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         try {
             if (!PhotoCapture.getNameFile().isEmpty()) {
                 fisica.setFoto(PhotoCapture.getNameFile());
+                PhotoCapture.unload();
             } else if (!PhotoUpload.getNameFile().isEmpty()) {
                 fisica.setFoto(PhotoUpload.getNameFile());
+                PhotoUpload.unload();
+            } else if (!PhotoCropper.getNameFile().isEmpty()) {
+                fisica.setFoto(PhotoCropper.getNameFile());
+                PhotoCropper.unload();
             }
 
-            PhotoCapture.unload();
-            PhotoUpload.unload();
-            
+
             String path = ("/resources/cliente/" + ControleUsuarioBean.getCliente() + "/imagens/pessoa/" + fisica.getPessoa().getId() + "/").toLowerCase();
             String fcaminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(path);
             if (new File((fcaminho + "/" + fisica.getFoto() + ".png")).exists() && FileUtils.deleteQuietly(new File(fcaminho + "/" + fisica.getFoto() + ".png"))) {

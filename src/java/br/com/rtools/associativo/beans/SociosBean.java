@@ -191,8 +191,8 @@ public class SociosBean implements Serializable {
 
     @PreDestroy
     public void destroy() {
-        GenericaSessao.remove("uploadBean");
-        GenericaSessao.remove("photoCamBean");
+//        GenericaSessao.remove("uploadBean");
+//        GenericaSessao.remove("photoCamBean");
         Diretorio.remover("temp/foto/" + getUsuario().getId() + "/");
         File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/Imagens/Fotos/" + -1 + ".png"));
         if (f.exists()) {
@@ -765,12 +765,15 @@ public class SociosBean implements Serializable {
         boolean sucesso = false;
         if (!PhotoCapture.getNameFile().isEmpty()) {
             novoDependente.setFoto(PhotoCapture.getNameFile());
+            PhotoCapture.unload();
         } else if (!PhotoUpload.getNameFile().isEmpty()) {
             novoDependente.setFoto(PhotoUpload.getNameFile());
+            PhotoUpload.unload();
+        } else if (!PhotoCropper.getNameFile().isEmpty()) {
+            novoDependente.setFoto(PhotoCropper.getNameFile());
+            PhotoCropper.unload();
         }
 
-        PhotoCapture.unload();
-        PhotoUpload.unload();
 
         String fcaminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente() + "/imagens/pessoa/" + novoDependente.getPessoa().getId() + "/" + novoDependente.getFoto();
         if (new File((fcaminho + ".png")).exists() && FileUtils.deleteQuietly(new File(fcaminho + ".png"))) {
@@ -1734,12 +1737,14 @@ public class SociosBean implements Serializable {
         novoDependente.getPessoa().setNome(novoDependente.getPessoa().getNome().trim());
         if (!PhotoCapture.getNameFile().isEmpty()) {
             novoDependente.setFoto(PhotoCapture.getNameFile());
+            PhotoCapture.unload();
         } else if (!PhotoUpload.getNameFile().isEmpty()) {
             novoDependente.setFoto(PhotoUpload.getNameFile());
+            PhotoUpload.unload();
+        } else if (!PhotoCropper.getNameFile().isEmpty()) {
+            novoDependente.setFoto(PhotoCropper.getNameFile());
+            PhotoCropper.unload();
         }
-
-        PhotoCapture.unload();
-        PhotoUpload.unload();
 
         if (novoDependente.getId() == -1) {
             novoDependente.getPessoa().setTipoDocumento((TipoDocumento) dao.find(new TipoDocumento(), 1));
@@ -2735,16 +2740,15 @@ public class SociosBean implements Serializable {
 
     public String imprimirFichaSocial() {
         String foto = "";
-        
+
         for (String imagensTipo1 : imagensTipo) {
             File test = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + socios.getServicoPessoa().getPessoa().getId() + "/" + socios.getServicoPessoa().getPessoa().getFisica().getFoto() + "." + imagensTipo1);
-            if (test.exists()){
+            if (test.exists()) {
                 foto = test.getAbsolutePath();
                 break;
             }
-        }        
-        
-        
+        }
+
         String path = "/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/FICHACADASTRO.jasper";
         String pathVerso = "/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/FICHACADASTROVERSO.jasper";
 

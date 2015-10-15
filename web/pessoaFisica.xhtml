@@ -43,6 +43,7 @@
                 
                 <ui:include src="templates/templatePhotoCapture.xhtml" />
                 <ui:include src="templates/templatePhotoUpload.xhtml" />
+                <ui:include src="templates/templatePhotoCropper.xhtml" />
                 
                 <f:view>
 
@@ -289,9 +290,10 @@
                                                     </h:column>
                                                 </p:panel>
 
-                                                <h:panelGrid columns="3">
+                                                <h:panelGrid columns="4">
                                                     <p:commandButton icon="photocam" value="Capturar" action="#{photoCapture.openAndSave(fisicaBean.fisica.pessoa, 'form_pessoa_fisica')}" title="Capturar Foto" global="false" disabled="#{fisicaBean.fisica.id == -1}" />
                                                     <p:commandButton icon="ui-icon-arrowthick-1-n" value="Upload Foto" title="Enviar Foto" action="#{photoUpload.openAndSave(fisicaBean.fisica.pessoa, 'form_pessoa_fisica')}" global="false" disabled="#{fisicaBean.fisica.id == -1}"/>
+                                                    <p:commandButton icon="ui-icon-scissors" value="Cortar Foto" title="Cortar Foto" action="#{photoCropper.openAndSave(fisicaBean.fisica.pessoa, 'form_pessoa_fisica')}" global="false" disabled="#{fisicaBean.fisica.id == -1 or (fisicaBean.fisica.pessoa.fotoResource eq 'images/user_male.png' or fisicaBean.fisica.pessoa.fotoResource eq 'images/user_female.png')}"/>
                                                     <p:commandButton icon="ui-icon-trash" title="Remover Foto" action="#{fisicaBean.apagarImagem()}" update="i_panel_imagens" disabled="#{fisicaBean.fisica.id == -1}"/>
                                                 </h:panelGrid>
                                             </p:column>

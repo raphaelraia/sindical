@@ -17,64 +17,36 @@ import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 import org.apache.commons.io.FileUtils;
-import org.primefaces.event.FileUploadEvent;
+import org.primefaces.model.CroppedImage;
 
 @ManagedBean
 @SessionScoped
-public class PhotoUpload implements Serializable {
+public class PhotoCropper implements Serializable {
 
-    private static Boolean renderedPhotoUpload = false;
+    private static Boolean renderedPhotoCropper = false;
     private static String update = "";
     private static String savePath = "";
     private static String nameFile = "";
     private static Pessoa pessoa = null;
 
+    private CroppedImage croppedImage;
+
     public static void open(String aSavePath, String aUpdate) {
         savePath = aSavePath;
         update = aUpdate;
-        renderedPhotoUpload = true;
+        renderedPhotoCropper = true;
 
-        PF.openDialog("dlg_photo_upload");
-        PF.update("form_photo_upload");
+        PF.openDialog("dlg_photo_cropper");
+        PF.update("form_photo_cropper");
     }
 
     public static void openAndSave(Pessoa aPessoa, String aUpdate) {
         pessoa = aPessoa;
         update = aUpdate;
-        renderedPhotoUpload = true;
+        renderedPhotoCropper = true;
 
-        PF.openDialog("dlg_photo_upload");
-        PF.update("form_photo_upload");
-    }
-
-    public static void unload() {
-        savePath = "";
-        update = "";
-        nameFile = "";
-    }
-
-    public static Boolean getRenderedPhotoUpload() {
-        return renderedPhotoUpload;
-    }
-
-    public static void setRenderedPhotoUpload(Boolean aRenderedPhotoUpload) {
-        renderedPhotoUpload = aRenderedPhotoUpload;
-    }
-
-    public static String getUpdate() {
-        return update;
-    }
-
-    public static void setUpdate(String aUpdate) {
-        update = aUpdate;
-    }
-
-    public static Pessoa getPessoa() {
-        return pessoa;
-    }
-
-    public static void setPessoa(Pessoa aPessoa) {
-        pessoa = aPessoa;
+        PF.openDialog("dlg_photo_cropper");
+        PF.update("form_photo_cropper");
     }
 
     public static String getSavePath() {
@@ -93,6 +65,14 @@ public class PhotoUpload implements Serializable {
         nameFile = aNameFile;
     }
 
+    public static Pessoa getPessoa() {
+        return pessoa;
+    }
+
+    public static void setPessoa(Pessoa aPessoa) {
+        pessoa = aPessoa;
+    }
+
     public Pessoa getPessoaView() {
         return pessoa;
     }
@@ -101,12 +81,41 @@ public class PhotoUpload implements Serializable {
         pessoa = aPessoa;
     }
 
-    public Boolean getRenderedPhotoUploadView() {
-        return renderedPhotoUpload;
+    public void close() {
+        renderedPhotoCropper = false;
+        PF.closeDialog("dlg_photo_cropper");
+        PF.update("form_photo_cropper");
     }
 
-    public void setRenderedPhotoUploadView(Boolean aRenderedPhotoUploadView) {
-        renderedPhotoUpload = aRenderedPhotoUploadView;
+    public static void unload() {
+        savePath = "";
+        update = "";
+        nameFile = "";
+        pessoa = null;
+    }
+
+    public static Boolean getRenderedPhotoCropper() {
+        return renderedPhotoCropper;
+    }
+
+    public static void setRenderedPhotoCropper(Boolean aRenderedPhotoCropper) {
+        renderedPhotoCropper = aRenderedPhotoCropper;
+    }
+
+    public static String getUpdate() {
+        return update;
+    }
+
+    public static void setUpdate(String aUpdate) {
+        update = aUpdate;
+    }
+
+    public Boolean getRenderedPhotoCropperView() {
+        return renderedPhotoCropper;
+    }
+
+    public void setRenderedPhotoCropperView(Boolean aRenderedPhotoCropperView) {
+        renderedPhotoCropper = aRenderedPhotoCropperView;
     }
 
     public String getUpdateView() {
@@ -117,24 +126,32 @@ public class PhotoUpload implements Serializable {
         update = aUpdateView;
     }
 
-    public void close() {
-        renderedPhotoUpload = false;
-        PF.closeDialog("dlg_photo_upload");
-        PF.update("form_photo_upload");
+    public String getNameFileView() {
+        return nameFile;
     }
 
-    public void upload(FileUploadEvent event) {
+    public void setNameFileView(String aNameFileView) {
+        nameFile = aNameFileView;
+    }
+
+    public void crop() {
+        if (croppedImage == null) {
+            return;
+        }
+
         UUID uuidX = UUID.randomUUID();
         String nameTemp = uuidX.toString().replace("-", "_");
+
         ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
+        byte[] data = croppedImage.getBytes();
 
         nameFile = nameTemp;
 
         if (pessoa == null) {
-            String path = servletContext.getRealPath("")+ "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/" + savePath + "/" + nameTemp + ".png";
+            String path = servletContext.getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/" + savePath + "/" + nameTemp + ".png";
             File file = new File(path);
             try {
-                FileUtils.writeByteArrayToFile(file, event.getFile().getContents());
+                FileUtils.writeByteArrayToFile(file, data);
             } catch (IOException e) {
                 e.getMessage();
             }
@@ -142,10 +159,10 @@ public class PhotoUpload implements Serializable {
             if (!Diretorio.criar("imagens/pessoa", true)) { // PASTA ex. resources/cliente/sindical/imagens/pessoa
                 return;
             }
-            String path = servletContext.getRealPath("")+"resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + pessoa.getId() + "/" + nameTemp + ".png";
+            String path = servletContext.getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + pessoa.getId() + "/" + nameTemp + ".png";
             File file = new File(path);
             try {
-                FileUtils.writeByteArrayToFile(file, event.getFile().getContents());
+                FileUtils.writeByteArrayToFile(file, data);
             } catch (IOException e) {
                 e.getMessage();
             }
@@ -156,20 +173,19 @@ public class PhotoUpload implements Serializable {
 
                 if (fisica != null) {
                     // CASO QUEIRA REMOVER A FOTO ANTERIOR
-                    File fotoAntiga = new File(servletContext.getRealPath("")+"resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + pessoa.getId() + "/" + fisica.getFoto() + ".png");
+                    File fotoAntiga = new File(servletContext.getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + pessoa.getId() + "/" + fisica.getFoto() + ".png");
                     if (fotoAntiga.exists()) {
                         FileUtils.deleteQuietly(fotoAntiga);
                     }
 
-                    
                     fisica.setFoto(nameTemp);
                     new Dao().update(fisica, true);
                 } else {
                     JuridicaDB juridicaDB = new JuridicaDBToplink();
                     Juridica juridica = juridicaDB.pesquisaJuridicaPorPessoa(pessoa.getId());
-                    
+
                     // CASO QUEIRA REMOVER A FOTO ANTERIOR
-                    File fotoAntiga = new File(servletContext.getRealPath("")+"resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + pessoa.getId() + "/" + juridica.getFoto() + ".png");
+                    File fotoAntiga = new File(servletContext.getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + pessoa.getId() + "/" + juridica.getFoto() + ".png");
                     if (fotoAntiga.exists()) {
                         FileUtils.deleteQuietly(fotoAntiga);
                     }
@@ -180,10 +196,17 @@ public class PhotoUpload implements Serializable {
             }
         }
         
+        PhotoUpload.unload();
         PhotoCapture.unload();
-        PhotoCropper.unload();
         
-        PF.closeDialog("dlg_photo_upload");
+        PF.closeDialog("dlg_photo_cropper");
     }
 
+    public CroppedImage getCroppedImage() {
+        return croppedImage;
+    }
+
+    public void setCroppedImage(CroppedImage croppedImage) {
+        this.croppedImage = croppedImage;
+    }
 }

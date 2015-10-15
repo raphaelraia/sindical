@@ -194,5 +194,8 @@ public class PhotoCapture implements Serializable {
                 }
             }
         }
+        
+        PhotoUpload.unload();
+        PhotoCropper.unload();
     }
 }
