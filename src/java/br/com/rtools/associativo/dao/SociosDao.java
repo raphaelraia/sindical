@@ -311,6 +311,7 @@ public class SociosDao extends DB {
                     + "       GROUP BY SP.id_pessoa                                              \n"
                     + "    ) AS X ON X.id_pessoa = SP.id_pessoa                                  \n"
                     + "        WHERE SP.is_ativo = true                                          \n"
+                    + "          AND S.id_parentesco = 1                                         \n"
                     + "          AND SP.id <> X.id_servico_pessoa                                \n";
             Query query;
             if (return_pessoas) {

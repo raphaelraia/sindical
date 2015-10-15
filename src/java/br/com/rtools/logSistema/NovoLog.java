@@ -17,8 +17,8 @@ import javax.servlet.http.HttpServletRequest;
 
 public class NovoLog extends salvaLogs {
 
-    private boolean transaction;
-    private boolean cadastroSimples;
+    private Boolean transaction;
+    private Boolean cadastroSimples;
     private final List<Log> listLogs;
     private String tabela;
     private Integer codigo;
@@ -367,11 +367,11 @@ public class NovoLog extends salvaLogs {
         return null;
     }
 
-    public boolean isCadastroSimples() {
+    public Boolean getCadastroSimples() {
         return cadastroSimples;
     }
 
-    public void setCadastroSimples(boolean cadastroSimples) {
+    public void setCadastroSimples(Boolean cadastroSimples) {
         this.cadastroSimples = cadastroSimples;
     }
 
