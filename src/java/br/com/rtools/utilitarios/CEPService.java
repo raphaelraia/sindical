@@ -77,10 +77,7 @@ public class CEPService {
                 Dao dao = new Dao();
                 Cidade cidade = cidadeDB.pesquisaCidadePorEstadoCidade(cepAlias.getUf(), cepAlias.getCidade());
                 if (cidade == null) {
-                    cidade = new Cidade();
-                    cidade.setCidade(cepAlias.getCidade());
-                    cidade.setUf(cepAlias.getUf());
-                    dao.save(cidade, true);
+                    return;
                 }
                 LogradouroDao logradouroDao = new LogradouroDao();
                 Logradouro logradouro = logradouroDao.pesquisaLogradouroPorDescricao(cepAlias.getTipo_logradouro());
