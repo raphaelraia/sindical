@@ -18,6 +18,7 @@ import br.com.rtools.homologacao.Status;
 import br.com.rtools.homologacao.dao.FeriadosDao;
 import br.com.rtools.homologacao.db.*;
 import br.com.rtools.impressao.beans.ProtocoloAgendamento;
+import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.pessoa.*;
 import br.com.rtools.pessoa.db.*;
@@ -253,6 +254,15 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     }
 
     public void salvarTransferencia() {
+        Agendamento a = (Agendamento) new Dao().find(agendamento);
+        String beforeUpdate = ""
+                + " ID: " + a.getId()
+                + " - Funcionário { " + a.getPessoaEmpresa().getFisica().getPessoa().getId() + " - Nome: " + a.getPessoaEmpresa().getFisica().getPessoa().getNome() + " } "
+                + " - Empresa { " + a.getPessoaEmpresa().getJuridica().getPessoa().getId() + " - Nome: " + a.getPessoaEmpresa().getJuridica().getPessoa().getNome() + " } "
+                + " - Admissão: " + a.getPessoaEmpresa().getAdmissao()
+                + " - Demissão: " + a.getPessoaEmpresa().getDemissao()
+                + " - Data da homologação: " + a.getData()
+                + " - Horário: " + a.getHorarios().getHora();
         if (getDataTransferencia().getDay() == 6 || getDataTransferencia().getDay() == 0) {
             GenericaMensagem.warn("Atenção", "Fins de semana não permitido!");
             return;
@@ -269,23 +279,36 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             return;
         }
 
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+        Dao dao = new Dao();
         agendamento.setDtData(dataTransferencia);
         if (listaHorarioTransferencia.isEmpty()) {
             GenericaMensagem.warn("Atenção", "Não existem horários para esse dia da semana!");
             return;
         }
 
-        Horarios h = (Horarios) sv.find("Horarios", Integer.valueOf(listaHorarioTransferencia.get(idHorarioTransferencia).getDescription()));
+        NovoLog novoLog = new NovoLog();
+        Horarios h = (Horarios) dao.find(new Horarios(), Integer.valueOf(listaHorarioTransferencia.get(idHorarioTransferencia).getDescription()));
         agendamento.setHorarios(h);
 
-        sv.abrirTransacao();
-        if (!sv.alterarObjeto(agendamento)) {
-            sv.desfazerTransacao();
+        dao.openTransaction();
+        agendamento.setAgendador((Usuario) GenericaSessao.getObject("sessaoUsuario"));
+        if (!dao.update(agendamento)) {
+            dao.rollback();
             GenericaMensagem.error("Erro", "Não foi possível transferir horário, tente novamente!");
             return;
         }
-        sv.comitarTransacao();
+        dao.commit();
+        novoLog.setTabela("hom_agendamento");
+        novoLog.setCodigo(agendamento.getId());
+        novoLog.update(
+                beforeUpdate,
+                " ID: " + agendamento.getId()
+                + " - Funcionário { " + agendamento.getPessoaEmpresa().getFisica().getPessoa().getId() + " - Nome: " + agendamento.getPessoaEmpresa().getFisica().getPessoa().getNome() + " } "
+                + " - Empresa { " + agendamento.getPessoaEmpresa().getJuridica().getPessoa().getId() + " - Nome: " + agendamento.getPessoaEmpresa().getJuridica().getPessoa().getNome() + " } "
+                + " - Admissão: " + agendamento.getPessoaEmpresa().getAdmissao()
+                + " - Demissão: " + agendamento.getPessoaEmpresa().getDemissao()
+                + " - Data da homologação: " + agendamento.getData()
+                + " - Horário: " + agendamento.getHorarios().getHora());
         GenericaMensagem.info("Sucesso", "Horário transferido!");
         loadListaHorarios();
         PF.closeDialog("dlg_transferir_horario");
@@ -298,9 +321,9 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         ImprimirBoleto imp = new ImprimirBoleto();
         List<Movimento> lista = new ArrayList();
         List<Float> listaValores = new ArrayList<Float>();
+        Dao dao = new Dao();
         for (int i = 0; i < listaMovimento.size(); i++) {
-            SalvarAcumuladoDB sadb = new SalvarAcumuladoDBToplink();
-            Movimento m = (Movimento) sadb.find("Movimento", (Integer) ((List) listaMovimento.get(i)).get(0));
+            Movimento m = (Movimento) dao.find(new Movimento(), (Integer) ((List) listaMovimento.get(i)).get(0));
             lista.add(m);
             listaValores.add(m.getValor());
         }
@@ -429,8 +452,8 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
 
     public List<SelectItem> getListaStatus() {
         if (listaStatus.isEmpty()) {
-            SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
-            List<Status> list = (List<Status>) salvarAcumuladoDB.listaObjeto("Status");
+            Dao dao = new Dao();
+            List<Status> list = (List<Status>) dao.list(new Status());
             for (int i = 0; i < list.size(); i++) {
                 listaStatus.add(new SelectItem(i, list.get(i).getDescricao(), Integer.toString(list.get(i).getId())));
             }
@@ -440,8 +463,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
 
     public List<SelectItem> getListaDemissao() {
         if (listaDemissao.isEmpty()) {
-            SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
-            List<Demissao> list = (List<Demissao>) salvarAcumuladoDB.listaObjeto("Demissao");
+            List<Demissao> list = (List<Demissao>) new Dao().list(new Demissao());
             for (int i = 0; i < list.size(); i++) {
                 listaDemissao.add(new SelectItem(i, list.get(i).getDescricao(), Integer.toString(list.get(i).getId())));
             }
@@ -591,6 +613,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     }
 
     public void save() {
+        NovoLog novoLog = new NovoLog();
         if (!validaAdmissao()) {
             return;
         }
@@ -892,13 +915,44 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 dao.commit();
 //                msgConfirma = "Para imprimir Protocolo clique aqui! ";
                 GenericaMensagem.info("Sucesso", "Agendamento Concluído!");
+                novoLog.setTabela("hom_agendamento");
+                novoLog.setCodigo(agendamento.getId());
+                novoLog.save(
+                        " ID: " + agendamento.getId()
+                        + " - Funcionário { " + agendamento.getPessoaEmpresa().getFisica().getPessoa().getId() + " - Nome: " + agendamento.getPessoaEmpresa().getFisica().getPessoa().getNome() + " } "
+                        + " - Empresa { " + agendamento.getPessoaEmpresa().getJuridica().getPessoa().getId() + " - Nome: " + agendamento.getPessoaEmpresa().getJuridica().getPessoa().getNome() + " } "
+                        + " - Admissão: " + agendamento.getPessoaEmpresa().getAdmissao()
+                        + " - Demissão: " + agendamento.getPessoaEmpresa().getDemissao()
+                        + " - Data da homologação: " + agendamento.getData()
+                        + " - Horário: " + agendamento.getHorarios().getHora());
             } else {
                 GenericaMensagem.fatal("Atenção", "Erro ao realizar este Agendamento!");
                 dao.rollback();
             }
         } else {
+            Agendamento a = (Agendamento) new Dao().find(agendamento);
+            String beforeUpdate = ""
+                    + " ID: " + a.getId()
+                    + " - Funcionário { " + a.getPessoaEmpresa().getFisica().getPessoa().getId() + " - Nome: " + a.getPessoaEmpresa().getFisica().getPessoa().getNome() + " } "
+                    + " - Empresa { " + a.getPessoaEmpresa().getJuridica().getPessoa().getId() + " - Nome: " + a.getPessoaEmpresa().getJuridica().getPessoa().getNome() + " } "
+                    + " - Admissão: " + a.getPessoaEmpresa().getAdmissao()
+                    + " - Demissão: " + a.getPessoaEmpresa().getDemissao()
+                    + " - Data da homologação: " + a.getData()
+                    + " - Horário: " + a.getHorarios().getHora();
+
             if (dao.update(agendamento)) {
                 dao.commit();
+                novoLog.setTabela("hom_agendamento");
+                novoLog.setCodigo(agendamento.getId());
+                novoLog.update(
+                        beforeUpdate,
+                        " ID: " + agendamento.getId()
+                        + " - Funcionário { " + agendamento.getPessoaEmpresa().getFisica().getPessoa().getId() + " - Nome: " + agendamento.getPessoaEmpresa().getFisica().getPessoa().getNome() + " } "
+                        + " - Empresa { " + agendamento.getPessoaEmpresa().getJuridica().getPessoa().getId() + " - Nome: " + agendamento.getPessoaEmpresa().getJuridica().getPessoa().getNome() + " } "
+                        + " - Admissão: " + agendamento.getPessoaEmpresa().getAdmissao()
+                        + " - Demissão: " + agendamento.getPessoaEmpresa().getDemissao()
+                        + " - Data da homologação: " + agendamento.getData()
+                        + " - Horário: " + agendamento.getHorarios().getHora());
                 if (isOposicao) {
                     //msgConfirma = "Agendamento atualizado com Sucesso! imprimir Protocolo clicando aqui! Pessoa cadastrada em oposição. ";
                     styleDestaque = "color: red; font-size: 14pt; font-weight:bold";
@@ -965,6 +1019,18 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         }
         GenericaMensagem.info("Sucesso", "Agendamento Cancelado!");
         dao.commit();
+
+        NovoLog novoLog = new NovoLog();
+        novoLog.setTabela("hom_cancelamento");
+        novoLog.setCodigo(cancelamento.getId());
+        novoLog.delete(
+                "Cancelamento de homologação : "
+                + " - ID do cancelamento: " + cancelamento.getId()
+                + " - Agendamento {ID: " + cancelamento.getAgendamento().getId() + "} "
+                + " - Funcionário { " + agendamento.getPessoaEmpresa().getFisica().getPessoa().getId() + " - Nome: " + agendamento.getPessoaEmpresa().getFisica().getPessoa().getNome() + " } "
+                + " - Data do cancelamento: " + cancelamento.getData()
+                + " - Motivo: " + cancelamento.getMotivo());
+
         cancelamento = new Cancelamento();
         pessoaEmpresa.setDtDemissao(null);
 
@@ -1037,21 +1103,21 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 GenericaMensagem.warn("Atenção", "Documento Inválido!");
                 return;
             }
-                        
-            if (fisica.getId() != -1 && fisica.getPessoa().getDocumento().equals(documentoFisica)){
+
+            if (fisica.getId() != -1 && fisica.getPessoa().getDocumento().equals(documentoFisica)) {
                 return;
             }
-            
+
             fisica.getPessoa().setDocumento(documentoFisica);
             //fisica = new Fisica();
             FisicaDB dbFis = new FisicaDBToplink();
             HomologacaoDB db = new HomologacaoDBToplink();
             PessoaEnderecoDB dbe = new PessoaEnderecoDBToplink();
-            
+
             String documento = documentoFisica;
-            
+
             List<Fisica> listFisica = dbFis.pesquisaFisicaPorDocSemLike(documento);
-            
+
             if (listFisica.isEmpty()) {
                 if (!fisica.getPessoa().getNome().isEmpty() && !fisica.getNascimento().isEmpty()) {
                     Fisica f = (Fisica) dbFis.pesquisaFisicaPorNomeNascimento(fisica.getPessoa().getNome().trim(), fisica.getDtNascimento());
@@ -1060,7 +1126,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                     }
                 }
             }
-            
+
             List<Oposicao> listao = db.pesquisaFisicaOposicaoSemEmpresa(documento);
             PessoaEmpresa pem = db.pesquisaPessoaEmpresaPertencente(documento);
 
@@ -1528,8 +1594,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     }
 
     public void adicionarHorarioAlternativo() {
-        SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
-        agendamento.setHorarios((Horarios) salvarAcumuladoDB.find("Horarios", Integer.parseInt(listaHorarioTransferencia.get(idHorarioAlternativo).getDescription())));
+        agendamento.setHorarios((Horarios) new Dao().find(new Horarios(), Integer.parseInt(listaHorarioTransferencia.get(idHorarioAlternativo).getDescription())));
         setOcultarHorarioAlternativo(true);
         loadListaHorariosTransferencia();
     }
