@@ -55,6 +55,7 @@ public class RelatorioDescontoFolhaDao extends DB {
 
             List listWhere = new ArrayList<>();
             listWhere.add(" m.id_baixa is null ");
+            listWhere.add(" m.is_ativo = true ");
             if (referenciaInicial != null && referenciaFinal != null && !referenciaInicial.isEmpty() && !referenciaFinal.isEmpty()) {
                 listWhere.add(" m.ds_referencia BETWEEN '" + referenciaInicial + "' AND '" + referenciaFinal + "'");
             } else if (referenciaInicial != null && (referenciaFinal == null || referenciaFinal.isEmpty()) && !referenciaInicial.isEmpty()) {
