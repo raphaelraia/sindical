@@ -49,7 +49,6 @@ import br.com.rtools.utilitarios.Mask;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.PF;
 import br.com.rtools.utilitarios.PhotoCapture;
-import br.com.rtools.utilitarios.PhotoUpload;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -97,6 +96,7 @@ public class ConviteMovimentoBean implements Serializable {
     private boolean desabilitaCampos = false;
     private boolean desabilitaCamposMovimento = false;
     private boolean desabilitaBaixa = false;
+    private boolean disabledConviteVencido = false;
     // FOTO
     private String nomeFoto = "";
     private String nomeArquivo = "";
@@ -123,9 +123,9 @@ public class ConviteMovimentoBean implements Serializable {
         comoPesquisa = "";
         porPesquisa = "todos";
         conviteMovimentos.clear();
-//
-//        fotoPerfilStreamed = null;
-//        fotoArquivoStreamed = null;
+
+        fotoPerfil = "";
+        fotoArquivo = "";
 
         visibility = true;
         desabilitaCampos = false;
@@ -218,7 +218,7 @@ public class ConviteMovimentoBean implements Serializable {
         } else {
             conviteMovimento.setAutorizaCortesia(null);
         }
-        
+
         NovoLog novoLog = new NovoLog();
         conviteMovimento.setConviteServico((ConviteServico) dao.find(new ConviteServico(), Integer.parseInt(conviteServicos.get(idServico).getDescription())));
         dao.openTransaction();
@@ -313,38 +313,35 @@ public class ConviteMovimentoBean implements Serializable {
 
                 } else {
                     float valor = Moeda.substituiVirgulaFloat(valorString);
-                    if (valor == 0) {
-                        dao.rollback();
-                        conviteMovimento.setId(-1);
-                        message = "Informar valor do serviço! Deve ser direfente de 0.";
-                        return null;
-                    }
-                    try {
-                        if (gerarMovimento(dao)) {
-                            dao.commit();
-                            message = "Registro inserido com sucesso";
-                            desabilitaCamposMovimento = true;
-                            sucesso = true;
-                            novoLog.save(""
-                                    + "ID: " + conviteMovimento.getId()
-                                    + " - Emissão: " + conviteMovimento.getEmissao()
-                                    + " - SisPessoa: (" + conviteMovimento.getSisPessoa().getId() + ") " + conviteMovimento.getSisPessoa().getNome()
-                                    + " - Responsável (Pessoa): (" + conviteMovimento.getPessoa().getId() + ") " + conviteMovimento.getPessoa().getNome()
-                                    + " - Validade: " + conviteMovimento.getValidade()
-                                    + " - Convite Serviço: (" + conviteMovimento.getConviteServico().getId() + ") " + conviteMovimento.getConviteServico().getServicos().getDescricao()
-                            );
-                        } else {
+                    if (valor > 0) {
+                        try {
+                            if (!gerarMovimento(dao)) {
+                                dao.rollback();
+                                conviteMovimento.setId(-1);
+                                message = "Erro ao inserir registro!";
+                                return null;
+                            }
+                        } catch (Exception e) {
                             dao.rollback();
                             conviteMovimento.setId(-1);
                             message = "Erro ao inserir registro!";
                             return null;
                         }
-                    } catch (Exception e) {
-                        dao.rollback();
-                        conviteMovimento.setId(-1);
-                        message = "Erro ao inserir registro!";
-                        return null;
                     }
+                    
+                    dao.commit();
+                    sucesso = true;
+                    message = "Registro inserido com sucesso";
+                    desabilitaCamposMovimento = true;
+                    sucesso = true;
+                    novoLog.save(""
+                            + "ID: " + conviteMovimento.getId()
+                            + " - Emissão: " + conviteMovimento.getEmissao()
+                            + " - SisPessoa: (" + conviteMovimento.getSisPessoa().getId() + ") " + conviteMovimento.getSisPessoa().getNome()
+                            + " - Responsável (Pessoa): (" + conviteMovimento.getPessoa().getId() + ") " + conviteMovimento.getPessoa().getNome()
+                            + " - Validade: " + conviteMovimento.getValidade()
+                            + " - Convite Serviço: (" + conviteMovimento.getConviteServico().getId() + ") " + conviteMovimento.getConviteServico().getServicos().getDescricao()
+                    );
                 }
             } else {
                 dao.rollback();
@@ -429,10 +426,6 @@ public class ConviteMovimentoBean implements Serializable {
                 }
             }
         }
-
-//        PF.update("form_convite");
-//        PF.closeDialog("dgl_panel_salvar");
-//        PF.openDialog("dgl_panel_mensagem");
         return null;
     }
 
@@ -559,6 +552,9 @@ public class ConviteMovimentoBean implements Serializable {
                 break;
             }
         }
+        
+        loadValor();
+
         visibility = true;
         fotoPerfil = "";
         fotoArquivo = "";
@@ -1011,7 +1007,7 @@ public class ConviteMovimentoBean implements Serializable {
                 movimento = m;
                 break;
             }
-            if (movimento.getBaixa() != null) {
+            if (movimento.getBaixa() != null && movimento.getBaixa().getId() != -1) {
                 desabilitaBaixa = true;
             } else {
                 desabilitaBaixa = false;
@@ -1038,13 +1034,13 @@ public class ConviteMovimentoBean implements Serializable {
         try {
             if (!PhotoCapture.getNameFile().isEmpty() && tipoCaptura.equals("perfil")) {
                 nomeFoto = PhotoCapture.getNameFile();
-                File fotoSave = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("")+"resources/cliente/" + getCliente().toLowerCase() + "/imagens/sispessoa/" + conviteMovimento.getSisPessoa().getId() + "/perfil/" + PhotoCapture.getNameFile() + ".png");
+                File fotoSave = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/cliente/" + getCliente().toLowerCase() + "/imagens/sispessoa/" + conviteMovimento.getSisPessoa().getId() + "/perfil/" + PhotoCapture.getNameFile() + ".png");
                 if (fotoSave.exists()) {
                     fotoPerfil = "cliente/" + getCliente().toLowerCase() + "/imagens/sispessoa/" + conviteMovimento.getSisPessoa().getId() + "/perfil/" + PhotoCapture.getNameFile() + ".png";
                 }
                 PhotoCapture.unload();
             } else {
-                File fotoSave = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("")+"resources/cliente/" + getCliente().toLowerCase() + "/imagens/sispessoa/" + conviteMovimento.getSisPessoa().getId() + "/perfil/" + conviteMovimento.getSisPessoa().getFotoPerfil() + ".png");
+                File fotoSave = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/cliente/" + getCliente().toLowerCase() + "/imagens/sispessoa/" + conviteMovimento.getSisPessoa().getId() + "/perfil/" + conviteMovimento.getSisPessoa().getFotoPerfil() + ".png");
                 if (fotoSave.exists()) {
                     fotoPerfil = "cliente/" + getCliente().toLowerCase() + "/imagens/sispessoa/" + conviteMovimento.getSisPessoa().getId() + "/perfil/" + conviteMovimento.getSisPessoa().getFotoPerfil() + ".png";
                 }
@@ -1063,14 +1059,14 @@ public class ConviteMovimentoBean implements Serializable {
         try {
             if (!PhotoCapture.getNameFile().isEmpty() && tipoCaptura.equals("documento")) {
                 nomeArquivo = PhotoCapture.getNameFile();
-                File fotoSave = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("")+"resources/cliente/" + getCliente().toLowerCase() + "/imagens/sispessoa/" + conviteMovimento.getSisPessoa().getId() + "/documento/" + PhotoCapture.getNameFile() + ".png");
+                File fotoSave = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/cliente/" + getCliente().toLowerCase() + "/imagens/sispessoa/" + conviteMovimento.getSisPessoa().getId() + "/documento/" + PhotoCapture.getNameFile() + ".png");
                 if (fotoSave.exists()) {
                     fotoArquivo = "cliente/" + getCliente().toLowerCase() + "/imagens/sispessoa/" + conviteMovimento.getSisPessoa().getId() + "/documento/" + PhotoCapture.getNameFile() + ".png";
                 }
 
                 PhotoCapture.unload();
             } else {
-                File fotoSave = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("")+"resources/cliente/" + getCliente().toLowerCase() + "/imagens/sispessoa/" + conviteMovimento.getSisPessoa().getId() + "/documento/" + conviteMovimento.getSisPessoa().getFotoArquivo() + ".png");
+                File fotoSave = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/cliente/" + getCliente().toLowerCase() + "/imagens/sispessoa/" + conviteMovimento.getSisPessoa().getId() + "/documento/" + conviteMovimento.getSisPessoa().getFotoArquivo() + ".png");
                 if (fotoSave.exists()) {
                     fotoArquivo = "cliente/" + getCliente().toLowerCase() + "/imagens/sispessoa/" + conviteMovimento.getSisPessoa().getId() + "/documento/" + conviteMovimento.getSisPessoa().getFotoArquivo() + ".png";
                 }
@@ -1099,5 +1095,18 @@ public class ConviteMovimentoBean implements Serializable {
 
     public void setNomeFoto(String nomeFoto) {
         this.nomeFoto = nomeFoto;
+    }
+
+    public boolean isDisabledConviteVencido() {
+        if (DataHoje.menorData(conviteMovimento.getValidade(), DataHoje.data())){
+            disabledConviteVencido = true;
+        }else{
+            disabledConviteVencido = false;
+        }        
+        return disabledConviteVencido;
+    }
+
+    public void setDisabledConviteVencido(boolean disabledConviteVencido) {
+        this.disabledConviteVencido = disabledConviteVencido;
     }
 }

@@ -76,7 +76,7 @@ public class SisPessoa implements Serializable {
         this.tipoDocumento = new TipoDocumento();
         this.endereco = new Endereco();
         this.dtCriacao = DataHoje.dataHoje();
-        this.dtNascimento = DataHoje.dataHoje();
+        this.dtNascimento = null;
         this.dtImportacao = DataHoje.dataHoje();
         this.fotoPerfil = "";
         this.fotoArquivo = "";        

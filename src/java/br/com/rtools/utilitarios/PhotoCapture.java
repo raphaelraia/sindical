@@ -172,10 +172,10 @@ public class PhotoCapture implements Serializable {
 
                 if (fisica != null) {
                     // CASO QUEIRA REMOVER A FOTO ANTERIOR
-                    File fotoAntiga = new File(servletContext.getRealPath("")+"resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + pessoa.getId() + "/" + fisica.getFoto() + ".png");
-                    if (fotoAntiga.exists()) {
-                        FileUtils.deleteQuietly(fotoAntiga);
-                    }
+//                    File fotoAntiga = new File(servletContext.getRealPath("")+"resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + pessoa.getId() + "/" + fisica.getFoto() + ".png");
+//                    if (fotoAntiga.exists()) {
+//                        FileUtils.deleteQuietly(fotoAntiga);
+//                    }
 
                     fisica.setFoto(nameTemp);
                     new Dao().update(fisica, true);
@@ -184,10 +184,10 @@ public class PhotoCapture implements Serializable {
                     Juridica juridica = juridicaDB.pesquisaJuridicaPorPessoa(pessoa.getId());
 
                     // CASO QUEIRA REMOVER A FOTO ANTERIOR
-                    File fotoAntiga = new File(servletContext.getRealPath("")+"resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + pessoa.getId() + "/" + juridica.getFoto() + ".png");
-                    if (fotoAntiga.exists()) {
-                        FileUtils.deleteQuietly(fotoAntiga);
-                    }
+//                    File fotoAntiga = new File(servletContext.getRealPath("")+"resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + pessoa.getId() + "/" + juridica.getFoto() + ".png");
+//                    if (fotoAntiga.exists()) {
+//                        FileUtils.deleteQuietly(fotoAntiga);
+//                    }
 
                     juridica.setFoto(nameTemp);
                     new Dao().update(juridica, true);

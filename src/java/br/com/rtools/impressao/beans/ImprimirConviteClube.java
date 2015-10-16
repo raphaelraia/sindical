@@ -68,7 +68,7 @@ public class ImprimirConviteClube implements Serializable {
             download.baixar();
             download.remover();
         } catch (JRException e) {
-            return;
+            e.getMessage();
         }
     }
 
