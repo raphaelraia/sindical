@@ -54,7 +54,7 @@ public class ControleUsuarioBean implements Serializable {
     private String msgErro = "";
     private MacFilial macFilial = null;
     private List<ContadorAcessos> listaContador = new ArrayList();
-    private List<String> images = new ArrayList<String>();
+    private List<String> images = new ArrayList<>();
     private boolean habilitaLog = false;
     private Boolean export = null;
 
@@ -63,7 +63,7 @@ public class ControleUsuarioBean implements Serializable {
         ConfiguracaoSocialBean csb = new ConfiguracaoSocialBean();
         csb.init();
         ConfiguracaoSocial cs = csb.getConfiguracaoSocial();
-        if (cs.isInativaDemissionado() && DataHoje.maiorData(DataHoje.dataHoje(), cs.getDataInativacaoDemissionado()) && cs.getGrupoCategoriaInativaDemissionado() != null) {
+        if (cs.getInativaDemissionado() && DataHoje.maiorData(DataHoje.dataHoje(), cs.getDataInativacaoDemissionado()) && cs.getGrupoCategoriaInativaDemissionado() != null) {
             db.demissionaSocios(cs.getGrupoCategoriaInativaDemissionado().getId(), cs.getDiasInativaDemissionado());
             Dao di = new Dao();
             cs = (ConfiguracaoSocial) di.find(cs);

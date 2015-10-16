@@ -1498,7 +1498,7 @@ public class MovimentosReceberSocialBean implements Serializable {
                     if (csb.getConfiguracaoSocial() == null) {
                         csb.init();
                     }
-                    if (csb.getConfiguracaoSocial().isRecebeAtrasado()) {
+                    if (csb.getConfiguracaoSocial().getRecebeAtrasado()) {
                         disabled = true;
                     } else {
                         disabled = false;

@@ -10,6 +10,7 @@ import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.relatorios.dao.RelatorioOrdemDao;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
+import br.com.rtools.sistema.SisProcesso;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Filters;
@@ -91,6 +92,8 @@ public class RelatorioCaixaBean implements Serializable {
     }
 
     public void print() {
+        SisProcesso sisProcesso = new SisProcesso();
+        sisProcesso.start();
         Relatorios r = getRelatorios();
         if (r == null) {
             return;
@@ -114,7 +117,9 @@ public class RelatorioCaixaBean implements Serializable {
             dt_f = getBaixaFinalString();
         }
         List<RelatorioCaixa> rcs = new ArrayList<>();
+        sisProcesso.startQuery();
         List list = new RelatorioCaixaDao().find(r.getId(), inIdCaixa, inIdOperador, inIdTipoPagamento, dt_i, dt_f);
+        sisProcesso.finishQuery();
         for (int i = 0; i < list.size(); i++) {
             List o = (List) list.get(i);
             if (r.getId() == 60) {
@@ -134,6 +139,8 @@ public class RelatorioCaixaBean implements Serializable {
         Jasper.TITLE = r.getNome();
         Jasper.TYPE = "default";
         Jasper.printReports(r.getJasper(), r.getNome(), rcs);
+        sisProcesso.setProcesso(r.getNome());
+        sisProcesso.finish();
     }
 
     // LOAD

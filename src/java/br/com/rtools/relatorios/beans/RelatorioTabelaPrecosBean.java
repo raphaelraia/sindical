@@ -10,6 +10,7 @@ import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.relatorios.dao.RelatorioOrdemDao;
 import br.com.rtools.relatorios.dao.RelatorioTabelaPrecosDao;
+import br.com.rtools.sistema.SisProcesso;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.Filters;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -86,6 +87,8 @@ public class RelatorioTabelaPrecosBean implements Serializable {
     }
 
     public void print() {
+        SisProcesso sisProcesso = new SisProcesso();
+        sisProcesso.start();        
         Relatorios r = null;
         if (!listRelatorio.isEmpty()) {
             RelatorioDao rgdb = new RelatorioDao();
@@ -97,7 +100,9 @@ public class RelatorioTabelaPrecosBean implements Serializable {
         String order = "";
         String detalheRelatorio = "";
         List<TabelaServicosPaisagem> tsps = new ArrayList<>();
+        sisProcesso.startQuery();
         List list = new RelatorioTabelaPrecosDao().find(inIdServicos(), idGrupoFinanceiro, inIdSubGrupoFinanceiro());
+        sisProcesso.finishQuery();
         if (list.isEmpty()) {
             GenericaMensagem.warn("Mensagem", "Nenhum registro encontrado!");
             return;
@@ -318,6 +323,8 @@ public class RelatorioTabelaPrecosBean implements Serializable {
         }
 
         Jasper.printReports(r.getJasper(), r.getNome(), (Collection) tsps);
+        sisProcesso.setProcesso(r.getNome());
+        sisProcesso.finish();
     }
 
     // LOAD

@@ -18,6 +18,7 @@ public class RelatorioMovimentosDBToplink extends DB implements RelatorioMovimen
         List result;
         
         String textQuery = ""
+                + "-- RelatorioMovimentosDBToplink - listaMovimentos;           \n\n"
                 + "SELECT mov.id                       AS idMov,                \n "
                 + "       mov.ds_documento             AS numeroDocumento,      \n "
                 + "       se.ds_descricao              AS servico,              \n "

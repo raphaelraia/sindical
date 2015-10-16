@@ -63,6 +63,7 @@
                                     <p:menuitem value="Pesquisar Logs"              action="#{chamadaPaginaBean.pagina('pesquisaLog')}" title="Registro de atividades"  />
                                     <p:submenu label="Sistema">
                                         <p:menuitem value="Configurações"       action="#{chamadaPaginaBean.pagina('configuracao')}" rendered="#{controleUsuarioBean.clienteString eq 'Rtools'}"/>
+                                        <p:menuitem value="Processos"           action="#{chamadaPaginaBean.pagina('sisProcesso')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" />
                                         <p:menuitem value="Class Loader"        action="#{chamadaPaginaBean.pagina('javaClassLoader')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" />
                                     </p:submenu> 
                                     <p:submenu label="Ordem Serviço" rendered="#{controleUsuarioBean.clienteString eq 'Rtools'}"> 

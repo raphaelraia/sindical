@@ -37,18 +37,18 @@ public class RelatorioTabelaPrecosDao extends DB {
      */
     public List find(String inIdServicos, Integer inIdGrupoFinanceiro, String inIdSubGrupoFinanceiro) {
         List listWhere = new ArrayList();
-        String queryString = ""
-                + "     SELECT G.ds_descricao  AS grupo_descricao,     \n" // 0 - GRUPO -> DESCRIÇÃO
-                + "            SG.ds_descricao AS subgrupo_descricao,  \n" // 1 - SUBGRUPO -> DESCRIÇÃO
-                + "            S.id            AS servico_id,          \n" // 2 - SERVIÇO -> ID
-                + "            S.ds_descricao  AS servico_descricao,   \n" // 3 - SERVIÇO -> DESCRIÇÃO
-                + "            CT.id           AS categoria_id,        \n" // 4 - CATEGORIA -> ID
-                + "            CT.ds_categoria AS categoria_descricao, \n" // 5 - CATEGORIA -> DESCRIÇÃO
+        String queryString = "-- RelatorioTabelaPrecosDao->find()       \n"
+                + "     SELECT G.ds_descricao  AS grupo_descricao,      \n" // 0 - GRUPO -> DESCRIÇÃO
+                + "            SG.ds_descricao AS subgrupo_descricao,   \n" // 1 - SUBGRUPO -> DESCRIÇÃO
+                + "            S.id            AS servico_id,           \n" // 2 - SERVIÇO -> ID
+                + "            S.ds_descricao  AS servico_descricao,    \n" // 3 - SERVIÇO -> DESCRIÇÃO
+                + "            CT.id           AS categoria_id,         \n" // 4 - CATEGORIA -> ID
+                + "            CT.ds_categoria AS categoria_descricao,  \n" // 5 - CATEGORIA -> DESCRIÇÃO
                 + "            SV.nr_idade_ini || ' / ' || SV.nr_idade_fim AS idade, \n" // 6 - IDADE
-                + "            SV.nr_valor 	AS valor_cheio,        \n" // 7 - VALOR CHEIO
-                + "            cast(                                   \n"
-                + "            round(                                  \n"
-                + "                  CAST(                             \n"
+                + "            SV.nr_valor 	AS valor_cheio,         \n" // 7 - VALOR CHEIO
+                + "            cast(                                    \n"
+                + "            round(                                   \n"
+                + "                  CAST(                              \n"
                 + "                          SV.nr_valor - ((SV.nr_valor * DC.nr_desconto) / 100 ) AS numeric \n"
                 + "                  ), 2                                                   \n"
                 + "             ) AS double precision) AS valor_final,                      \n" // 8 - VALOR TOTAL

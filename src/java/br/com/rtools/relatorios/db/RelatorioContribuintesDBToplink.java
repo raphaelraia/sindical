@@ -57,7 +57,8 @@ public class RelatorioContribuintesDBToplink extends DB implements RelatorioCont
         List result = new ArrayList();
         String textQuery = "";
         try {
-            textQuery = "select j.id                     as idJuridica," +//0
+            textQuery = " -- RelatorioContribuintesDBToplink->listaRelatorioContribuintes() \n"
+                    + "select j.id                     as idJuridica," +//0
                     "       p.ds_nome                as nome," +//1
                     "       p.ds_documento           as documento," +//2
                     "       l.ds_descricao           as logradouro," +//3
@@ -188,7 +189,6 @@ public class RelatorioContribuintesDBToplink extends DB implements RelatorioCont
 //            if (!inCentroComercial.isEmpty()) {
 //                textQuery += " AND CECOM.id IN (" + inCentroComercial + ") ";
 //            }
-
             if (bairros.length() != 0) {
                 textQuery += " and b.id in (" + bairros + ")";
             }

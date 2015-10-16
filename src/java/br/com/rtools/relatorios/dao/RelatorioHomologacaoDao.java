@@ -12,41 +12,41 @@ public class RelatorioHomologacaoDao extends DB {
 
     public List find(Relatorios relatorio, Integer empresa, Integer funcionario, String tipoUsuarioOperacional, Integer usuarioOperacional, Integer status, Integer filial, Integer tCase, String dateStart, String dateFinish, Integer motivoDemissao, Boolean tipoAviso, String tipoAgendador, String sexo, Boolean webAgendamento, Integer idConvencao) {
         List listQuery = new ArrayList();
-        String queryString = ""
-                + "     SELECT to_char(A.dt_data,'dd/mm/yyyy')  AS dataInicial,         "
-                + "            to_char(A.dt_data,'dd/mm/yyyy')  AS dataFinal,           "
-                + "            to_char(A.dt_data,'dd/mm/yyyy')  AS data,                "
-                + "            H.ds_hora                        AS hora,                "
-                + "            PPE.ds_documento                 AS cnpj,                "
-                + "            PPE.ds_nome                      AS empresa,             "
-                + "            FUNC.ds_nome                     AS funcionario,         "
-                + "            A.ds_contato                     AS contato,             "
-                + "            A.ds_telefone                    AS telefone,            ";
+        String queryString = " -- RelatorioHomologacaoDao->find()                       \n"
+                + "     SELECT to_char(A.dt_data,'dd/mm/yyyy')  AS dataInicial,         \n"
+                + "            to_char(A.dt_data,'dd/mm/yyyy')  AS dataFinal,           \n"
+                + "            to_char(A.dt_data,'dd/mm/yyyy')  AS data,                \n"
+                + "            H.ds_hora                        AS hora,                \n"
+                + "            PPE.ds_documento                 AS cnpj,                \n"
+                + "            PPE.ds_nome                      AS empresa,             \n"
+                + "            FUNC.ds_nome                     AS funcionario,         \n"
+                + "            A.ds_contato                     AS contato,             \n"
+                + "            A.ds_telefone                    AS telefone,            \n";
         if (tipoUsuarioOperacional != null) {
-            queryString += " UO.ds_nome AS usuario_operacional, ";
+            queryString += " UO.ds_nome AS usuario_operacional, \n ";
         } else {
-            queryString += " '' AS usuario_operacional, ";
+            queryString += " '' AS usuario_operacional, \n ";
         }
-        queryString += "       A.ds_obs                         AS obs,                 "
-                + "            S.ds_descricao                   AS status               "
-                + "       FROM hom_agendamento                  AS A                    "
-                + " INNER JOIN hom_horarios       AS H       ON H.id    = A.id_horario          "
-                + " INNER JOIN hom_status         AS S       ON S.id    = A.id_status           ";
+        queryString += "       A.ds_obs                         AS obs,                 \n"
+                + "            S.ds_descricao                   AS status               \n"
+                + "       FROM hom_agendamento                  AS A                    \n"
+                + " INNER JOIN hom_horarios       AS H       ON H.id    = A.id_horario  \n"
+                + " INNER JOIN hom_status         AS S       ON S.id    = A.id_status   \n";
         if (tipoUsuarioOperacional != null) {
             queryString += "  LEFT JOIN seg_usuario        AS U       ON U.id    = A." + tipoUsuarioOperacional
-                    + "  LEFT JOIN pes_pessoa         AS UO      ON UO.id   = U.id_pessoa           ";
+                    + "  LEFT JOIN pes_pessoa         AS UO      ON UO.id   = U.id_pessoa   \n";
 
         }
-        queryString += " INNER JOIN pes_pessoa_empresa AS PE      ON PE.id   = A.id_pessoa_empresa   "
-                + " INNER JOIN pes_juridica       AS J       ON J.id    = PE.id_juridica        "
-                + " INNER JOIN pes_fisica         AS F       ON F.id    = PE.id_fisica          "
-                + " INNER JOIN pes_pessoa         AS FUNC    ON FUNC.id = F.id_pessoa           "
-                + " INNER JOIN pes_pessoa         AS PPE     ON PPE.id  = J.id_pessoa           ";
+        queryString += " INNER JOIN pes_pessoa_empresa AS PE      ON PE.id   = A.id_pessoa_empresa   \n"
+                + " INNER JOIN pes_juridica       AS J       ON J.id    = PE.id_juridica\n"
+                + " INNER JOIN pes_fisica         AS F       ON F.id    = PE.id_fisica  \n"
+                + " INNER JOIN pes_pessoa         AS FUNC    ON FUNC.id = F.id_pessoa   \n"
+                + " INNER JOIN pes_pessoa         AS PPE     ON PPE.id  = J.id_pessoa   \n";
 
-        if (idConvencao != null){
-            queryString += " INNER JOIN arr_contribuintes_vw AS CONTR      ON CONTR.id_juridica   = J.id AND CONTR.dt_inativacao IS NULL ";
+        if (idConvencao != null) {
+            queryString += " INNER JOIN arr_contribuintes_vw AS CONTR      ON CONTR.id_juridica   = J.id AND CONTR.dt_inativacao IS NULL \n";
         }
-        
+
         if (relatorio.getQry() == null || relatorio.getQry().isEmpty()) {
             if (tCase != null) {
                 if (tCase == 1) {
@@ -90,7 +90,7 @@ public class RelatorioHomologacaoDao extends DB {
                     if (webAgendamento) {
                         listQuery.add("A." + tipoUsuarioOperacional + " IS NULL");
                     } else {
-                        if(usuarioOperacional != null) {
+                        if (usuarioOperacional != null) {
                             listQuery.add("A." + tipoUsuarioOperacional + " = " + usuarioOperacional);
                         }
                     }
@@ -124,10 +124,10 @@ public class RelatorioHomologacaoDao extends DB {
                 } else {
                     queryString += " AND ";
                 }
-                queryString += " " + listQuery.get(i).toString();
+                queryString += " " + listQuery.get(i).toString() + " \n";
             }
         } else {
-            queryString += " WHERE" + relatorio.getQry();
+            queryString += " WHERE" + relatorio.getQry() + " \n";
         }
 
         // ORDEM DA QRY

@@ -21,9 +21,9 @@ public class ConfiguracaoSocial implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
     @Column(name = "nr_dias_inativa_demissionado")
-    private int diasInativaDemissionado;
+    private Integer diasInativaDemissionado;
     @Column(name = "dt_inativa_demissionado")
     @Temporal(TemporalType.DATE)
     private Date dataInativacaoDemissionado;
@@ -31,17 +31,19 @@ public class ConfiguracaoSocial implements Serializable {
     @ManyToOne
     private GrupoCategoria grupoCategoriaInativaDemissionado;
     @Column(name = "is_inativa_demissionado", columnDefinition = "boolean default false")
-    private boolean inativaDemissionado;
+    private Boolean inativaDemissionado;
     @Column(name = "is_recebe_atrasado", columnDefinition = "boolean default false")
-    private boolean recebeAtrasado;
+    private Boolean recebeAtrasado;
     @Column(name = "is_controla_cartao_filial", columnDefinition = "boolean default false")
-    private boolean controlaCartaoFilial;
+    private Boolean controlaCartaoFilial;
     @Column(name = "nr_cartao_digitos")
-    private int cartaoDigitos;    
+    private Integer cartaoDigitos;
     @Column(name = "nr_cartao_posicao_via")
-    private int cartaoPosicaoVia;    
+    private Integer cartaoPosicaoVia;
     @Column(name = "nr_cartao_posicao_codigo")
-    private int cartaoPosicaoCodigo;    
+    private Integer cartaoPosicaoCodigo;
+    @Column(name = "ds_obs_desconto_folha")
+    private String obsDescontoFolha;
 
     public ConfiguracaoSocial() {
         this.id = -1;
@@ -54,9 +56,10 @@ public class ConfiguracaoSocial implements Serializable {
         this.cartaoDigitos = 0;
         this.cartaoPosicaoVia = 0;
         this.cartaoPosicaoCodigo = 0;
+        this.obsDescontoFolha = "";
     }
 
-    public ConfiguracaoSocial(int id, int diasInativaDemissionado, Date dataInativacaoDemissionado, GrupoCategoria grupoCategoriaInativaDemissionado, boolean inativaDemissionado, boolean recebeAtrasado, boolean controlaCartaoFilial, int cartaoDigitos, int cartaoPosicaoVia, int cartaoPosicaoCodigo) {
+    public ConfiguracaoSocial(Integer id, Integer diasInativaDemissionado, Date dataInativacaoDemissionado, GrupoCategoria grupoCategoriaInativaDemissionado, Boolean inativaDemissionado, Boolean recebeAtrasado, Boolean controlaCartaoFilial, Integer cartaoDigitos, Integer cartaoPosicaoVia, Integer cartaoPosicaoCodigo, String obsDescontoFolha) {
         this.id = id;
         this.diasInativaDemissionado = diasInativaDemissionado;
         this.dataInativacaoDemissionado = dataInativacaoDemissionado;
@@ -67,21 +70,22 @@ public class ConfiguracaoSocial implements Serializable {
         this.cartaoDigitos = cartaoDigitos;
         this.cartaoPosicaoVia = cartaoPosicaoVia;
         this.cartaoPosicaoCodigo = cartaoPosicaoCodigo;
+        this.obsDescontoFolha = obsDescontoFolha;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public int getDiasInativaDemissionado() {
+    public Integer getDiasInativaDemissionado() {
         return diasInativaDemissionado;
     }
 
-    public void setDiasInativaDemissionado(int diasInativaDemissionado) {
+    public void setDiasInativaDemissionado(Integer diasInativaDemissionado) {
         this.diasInativaDemissionado = diasInativaDemissionado;
     }
 
@@ -109,51 +113,59 @@ public class ConfiguracaoSocial implements Serializable {
         this.grupoCategoriaInativaDemissionado = grupoCategoriaInativaDemissionado;
     }
 
-    public boolean isInativaDemissionado() {
+    public Boolean getInativaDemissionado() {
         return inativaDemissionado;
     }
 
-    public void setInativaDemissionado(boolean inativaDemissionado) {
+    public void setInativaDemissionado(Boolean inativaDemissionado) {
         this.inativaDemissionado = inativaDemissionado;
     }
 
-    public boolean isRecebeAtrasado() {
+    public Boolean getRecebeAtrasado() {
         return recebeAtrasado;
     }
 
-    public void setRecebeAtrasado(boolean recebeAtrasado) {
+    public void setRecebeAtrasado(Boolean recebeAtrasado) {
         this.recebeAtrasado = recebeAtrasado;
     }
 
-    public boolean isControlaCartaoFilial() {
+    public Boolean getControlaCartaoFilial() {
         return controlaCartaoFilial;
     }
 
-    public void setControlaCartaoFilial(boolean controlaCartaoFilial) {
+    public void setControlaCartaoFilial(Boolean controlaCartaoFilial) {
         this.controlaCartaoFilial = controlaCartaoFilial;
     }
 
-    public int getCartaoDigitos() {
+    public Integer getCartaoDigitos() {
         return cartaoDigitos;
     }
 
-    public void setCartaoDigitos(int cartaoDigitos) {
+    public void setCartaoDigitos(Integer cartaoDigitos) {
         this.cartaoDigitos = cartaoDigitos;
     }
 
-    public int getCartaoPosicaoVia() {
+    public Integer getCartaoPosicaoVia() {
         return cartaoPosicaoVia;
     }
 
-    public void setCartaoPosicaoVia(int cartaoPosicaoVia) {
+    public void setCartaoPosicaoVia(Integer cartaoPosicaoVia) {
         this.cartaoPosicaoVia = cartaoPosicaoVia;
     }
 
-    public int getCartaoPosicaoCodigo() {
+    public Integer getCartaoPosicaoCodigo() {
         return cartaoPosicaoCodigo;
     }
 
-    public void setCartaoPosicaoCodigo(int cartaoPosicaoCodigo) {
+    public void setCartaoPosicaoCodigo(Integer cartaoPosicaoCodigo) {
         this.cartaoPosicaoCodigo = cartaoPosicaoCodigo;
+    }
+
+    public String getObsDescontoFolha() {
+        return obsDescontoFolha;
+    }
+
+    public void setObsDescontoFolha(String obsDescontoFolha) {
+        this.obsDescontoFolha = obsDescontoFolha;
     }
 }

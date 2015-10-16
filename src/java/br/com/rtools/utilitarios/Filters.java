@@ -5,17 +5,26 @@ public class Filters {
     private String key;
     private String value;
     private Boolean active;
+    private Boolean disabled;
 
     public Filters() {
         this.key = null;
         this.value = null;
         this.active = false;
+        this.disabled = false;
     }
 
     public Filters(String key, String value, Boolean active) {
         this.key = key;
         this.value = value;
         this.active = active;
+    }
+    
+    public Filters(String key, String value, Boolean active, Boolean disabled) {
+        this.key = key;
+        this.value = value;
+        this.active = active;
+        this.disabled = disabled;
     }
 
     public String getKey() {
@@ -40,6 +49,14 @@ public class Filters {
 
     public void setActive(Boolean active) {
         this.active = active;
+    }
+
+    public Boolean getDisabled() {
+        return disabled;
+    }
+
+    public void setDisabled(Boolean disabled) {
+        this.disabled = disabled;
     }
 
 }

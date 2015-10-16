@@ -86,7 +86,7 @@ public class RelatorioMatriculaEscolaDao extends DB {
                 }
             }
             String queryString;
-            queryString = ""
+            queryString = " -- RelatorioMatriculaEscolaDao->find()                                                 \n"
                     + "      SELECT P.ds_nome,                                                                     \n" // 0  - NOME
                     + "             F.dt_nascimento,                                                               \n" // 1  - NASCIMENTO
                     + "             F.ds_sexo,                                                                     \n" // 2  - SEXO

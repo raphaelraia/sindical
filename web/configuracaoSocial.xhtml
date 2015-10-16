@@ -114,6 +114,10 @@
                                 </h:panelGrid>
                             </p:panel>
                             
+                            <p:panel styleClass="margin-top-max" header="Observação Desconto em Folha">
+                                <p:inputTextarea value="#{configuracaoSocialBean.configuracaoSocial.obsDescontoFolha}" cols="120" maxlength="2000"/>
+                            </p:panel>
+                            
                             <p:commandButton value="Atualizar" action="#{configuracaoSocialBean.update()}" update=":formConfiguracaoSocial:" styleClass="margin-top-max"/>
                         </h:form>
                     </p:panel>

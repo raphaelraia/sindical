@@ -254,6 +254,9 @@ public class Jasper implements Serializable {
         fileName = fileName.trim();
         fileName = fileName.replace(" ", "_");
         fileName = fileName.replace("/", "");
+        fileName = fileName.replace("(", "_");
+        fileName = fileName.replace(")", "_");
+        fileName = fileName.replace("-", "_");
         fileName = fileName.toLowerCase();
         fileName = AnaliseString.removerAcentos(fileName);
         if (!Diretorio.criar("Arquivos/" + PATH + "/" + fileName)) {

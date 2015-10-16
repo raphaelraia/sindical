@@ -77,7 +77,7 @@ public class CartaoSocialBean implements Serializable {
     public CartaoSocialBean() {
         ConfiguracaoSocial configuracaoSocial = (ConfiguracaoSocial) new Dao().find(new ConfiguracaoSocial(), 1);
         disabled = false;
-        if (configuracaoSocial.isControlaCartaoFilial()) {
+        if (configuracaoSocial.getControlaCartaoFilial()) {
             disabled = true;
         }
         getListFilial();

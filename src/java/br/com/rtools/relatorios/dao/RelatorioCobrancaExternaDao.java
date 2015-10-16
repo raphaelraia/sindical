@@ -20,7 +20,7 @@ public class RelatorioCobrancaExternaDao extends DB {
         try {
             String queryString = "";
             if (relatorio_id == 56) {
-                queryString += "      "
+                queryString += " -- RelatorioCobrancaExternaDao->find()             \n"
                         + "      SELECT so.tipo_cobranca AS tipo_cobranca_descricao,\n"
                         + "             m.id_titular     AS socio_codigo,           \n"
                         + "             t.nome           AS socio_nome,             \n"

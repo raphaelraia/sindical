@@ -37,7 +37,7 @@ public class RelatorioAcademiaDao extends DB {
      */
     public List find(Relatorios r, String emissaoInicial, String emissaoFinal, Integer idResponsavel, Integer idAluno, String inModalidade, String inIdPeriodos, String inSexo, String periodo, String matricula_situacao, Integer[] idade, String in_grupo_categoria, String in_categoria, Boolean nao_socio, Boolean convenio_empresa, Float desconto, Float desconto_final, String tipoCarencia, Integer carenciaDias, String situacao, String order) {
         List listWhere = new ArrayList();
-        String queryString = ""
+        String queryString = " -- RelatorioAcademiaDao->find()                                \n"
                 + "     SELECT PA.nome,                                                       \n" // 0 - NOME
                 + "            func_idade(PA.dt_nascimento, current_date)  AS idade,          \n" // 1 - IDADE
                 + "            PA.dt_nascimento                            AS nascimento,     \n" // 2 - NASCIMENTO

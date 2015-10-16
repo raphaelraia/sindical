@@ -95,7 +95,8 @@ public class SocioCarteirinhaDBToplink extends DB implements SocioCarteirinhaDB 
         Registro registro = (Registro) new Dao().find(new Registro(), 1);
         try {
             String textqry
-                    = "     SELECT p.id,                                                    \n" // 0 
+                    = " -- SocioCarteirinhaDBToplink->pesquisaCarteirinha() \n\n "
+                    + "     SELECT p.id,                                                    \n" // 0 
                     + "            p.ds_nome,                                               \n" // 1 NOME
                     + "            pj.ds_documento,                                         \n" // 2 CNPJ
                     + "            pj.ds_nome,                                              \n" // 3 RAZÃO SOCIAL

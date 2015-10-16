@@ -166,7 +166,7 @@ public class RelatorioSociosDBToplink extends DB implements RelatorioSociosDB {
                     "   null AS empresa_demissionada \n "; // 82
         }
 
-        String textQry = ""
+        String textQry = " -- RelatorioSociosDBToplink->pesquisaSocios()        \n"
                 + "SELECT "
                 + "           ''                  AS sindLogo,                  \n " // 0
                 + "           sind.jurSite        AS sindSite,                  \n " // 1

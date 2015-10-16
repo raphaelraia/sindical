@@ -1,0 +1,138 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>Processos</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important;} 
+            .ui-button { padding: 3px!important; }
+            .ui-selectonemenu-label .ui-inputfield{
+
+            }
+
+            .coluna01{
+                width: 210px;
+                vertical-align: top!important;
+            }
+            .coluna02{
+                width: 100%;
+                vertical-align: top!important;
+            }
+        </style>
+    </h:head>
+    <h:body class="divMenu">
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>
+        </f:subview>
+        <f:view>
+            <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                <h:outputScript name="tradutor_primefaces.js" library="js" />
+                <h:form id="form_processos">            
+                    <p:growl id="id_messages_growl" showDetail="true" showSummary="true" />
+                    <h:outputText value="Processos" styleClass="fonteHeader"/>
+                    <div class="clear"></div>
+                    <h:panelGrid columns="2" id="id_panel" columnClasses="coluna01, coluna02" styleClass="margin-top-max" style="width: 100%;">
+                        <h:column>
+                            <p:accordionPanel styleClass="no-border" style="width: 200px; float: left" dynamic="true" id="i_panel_accordion">
+                                <p:tab title="Avançado">
+                                    <h:panelGrid columns="1" id="i_panel_avancado">
+                                        <p:selectBooleanButton value="#{sisProcessoBean.filtro[0]}" onLabel="Período - Edição" offLabel="Período - Editar" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 165px; text-align: left;">
+                                            <p:ajax event="change" update="@this, :form_processos:id_panel_logs" listener="#{sisProcessoBean.clear}" />
+                                        </p:selectBooleanButton>
+                                        <p:selectBooleanButton value="#{sisProcessoBean.filtro[2]}" onLabel="Rotina - Edição" offLabel="Rotina - Editar" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 165px; text-align: left;" >
+                                            <p:ajax event="change" update="@this, :form_processos:id_panel_logs" listener="#{sisProcessoBean.clear}" />
+                                        </p:selectBooleanButton>
+                                        <p:selectBooleanButton value="#{sisProcessoBean.filtro[4]}" onLabel="Texto - Edição" offLabel="Texto - Editar" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 165px; text-align: left;">
+                                            <p:ajax event="change" update="@this, :form_processos:id_panel_logs" listener="#{sisProcessoBean.clear}" />
+                                        </p:selectBooleanButton>
+                                        <p:commandButton value="Filtrar" title="Filtrar" styleClass="margin-top-max" update=":form_processos_list:" action="#{sisProcessoBean.loadProcessos()}" />
+                                    </h:panelGrid>
+                                </p:tab>
+                            </p:accordionPanel>
+                        </h:column>
+                        <h:column>
+                            <p:panel id="id_panel_logs" style="width: 100%;" header="Aplicar os filtros">
+                                <h:column rendered="#{sisProcessoBean.filtro[0]}">
+                                    <h:panelGrid columns="2">
+                                        <p:outputLabel value="Período " styleClass="bold" />
+                                        <p:commandButton icon="ui-icon-close" action="#{sisProcessoBean.close('periodo')}" title="Remover filtro"/>
+                                    </h:panelGrid>
+                                    <h:panelGrid columns="2">
+                                        <h:column>
+                                            <h:panelGrid columns="8">
+                                                <p:outputLabel value="Data: " />
+                                                <p:calendar value="#{sisProcessoBean.data[0]}" pattern="dd/MM/yyyy" size="10" navigator="true" mask="99/99/9999">
+                                                    <p:ajax event="dateSelect" listener="#{sisProcessoBean.selectedDataInicial}" />
+                                                </p:calendar>
+                                                <p:outputLabel value=" até" />
+                                                <p:calendar value="#{sisProcessoBean.data[1]}" pattern="dd/MM/yyyy"  size="10" navigator="true" mask="99/99/9999">
+                                                    <p:ajax event="dateSelect" listener="#{sisProcessoBean.selectedDataFinal}" />
+                                                </p:calendar>                                                
+                                            </h:panelGrid>                                            
+                                        </h:column>
+                                    </h:panelGrid>
+                                    <hr />
+                                </h:column>                                 
+                                <h:column rendered="#{sisProcessoBean.filtro[2]}">
+                                    <h:panelGrid columns="3">
+                                        <p:outputLabel value="Rotinas:" styleClass="bold"/>
+                                        <p:selectOneMenu value="#{sisProcessoBean.index[0]}" filter="true" filterMatchMode="startsWith" >
+                                            <p:ajax event="change" update="@this" />
+                                            <f:selectItem itemValue="" itemLabel="Selecionar" />
+                                            <f:selectItems value="#{sisProcessoBean.listRotinas}" />
+                                        </p:selectOneMenu>
+                                        <p:commandButton icon="ui-icon-close" action="#{sisProcessoBean.close('rotina')}" title="Remover filtro" />
+                                    </h:panelGrid>
+                                    <hr />
+                                </h:column>                                   
+                                <h:column rendered="#{sisProcessoBean.filtro[4]}">
+                                    <h:column>
+                                        <h:panelGrid columns="3">
+                                            <p:outputLabel value="Descrição:" styleClass="bold"/>
+                                            <p:inputText size="50" value="#{sisProcessoBean.descPesquisa}" />
+                                            <p:commandButton icon="ui-icon-close" action="#{sisProcessoBean.close('descricao')}" title="Remover filtro"/>
+                                        </h:panelGrid>
+                                    </h:column>
+                                </h:column>                                    
+                            </p:panel>
+                        </h:column>
+                    </h:panelGrid>                    
+                </h:form>
+            </p:panel>
+            <h:form id="form_processos_list">
+                <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                    <p:dataTable value="#{sisProcessoBean.listProcessos}" scrollable="true" scrollHeight="400" var="processo" emptyMessage="Nenhum registro encontrado!" rows="10" paginator="true" id="i_logs">
+                        <p:column headerText="Rotina" styleClass="text-center">                            
+                            <h:outputText value="#{processo.rotina_descricao}"/>
+                        </p:column>
+                        <p:column headerText="Detalhes" styleClass="text-center">                            
+                            <h:outputText value="#{processo.detalhes}"/>
+                        </p:column>
+                        <p:column headerText="Tempo Min (ms)" styleClass="text-center">
+                            <h:outputText value="#{processo.tempo_min}"/>
+                        </p:column>
+                        <p:column headerText="Tempo Máx (ms)" styleClass="text-center">
+                            <h:outputText value="#{processo.tempo_max}"/>
+                        </p:column>
+                        <p:column headerText="Tempo Méd (ms)" styleClass="text-center">
+                            <h:outputText value="#{processo.tempo_med}"/>
+                        </p:column>
+                        <p:column headerText="Tempo Query Min (ms)" styleClass="text-center">
+                            <h:outputText value="#{processo.tempo_query_min}"/>
+                        </p:column>
+                        <p:column headerText="Tempo Query Máx (ms)" styleClass="text-center">
+                            <h:outputText value="#{processo.tempo_query_max}"/>
+                        </p:column>
+                        <p:column headerText="Tempo Query Méd (ms)" styleClass="text-center">
+                            <h:outputText value="#{processo.tempo_query_med}"/>
+                        </p:column>
+                    </p:dataTable>
+                </p:panel>                
+            </h:form>
+        </f:view>
+    </h:body>
+</ui:composition>

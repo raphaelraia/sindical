@@ -8,6 +8,7 @@ import br.com.rtools.pessoa.Filial;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.sistema.Semana;
+import br.com.rtools.sistema.SisProcesso;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -109,7 +110,8 @@ public class CancelarHorarioBean implements Serializable {
     }
 
     public void cancelarHorario(boolean todos) {
-
+        SisProcesso sisProcesso = new SisProcesso();
+        sisProcesso.start();
         if (!todos) {
             if (nrQuantidadeCancelar == 0) {
                 GenericaMensagem.warn("Sistema", "Digite uma quantidade!");
@@ -187,6 +189,7 @@ public class CancelarHorarioBean implements Serializable {
             dao.commit();
             GenericaMensagem.info("Sucesso", "Horário cancelado com sucesso.");
             getListaHorariosDisponiveis().clear();
+            sisProcesso.finish();
         }
         nrQuantidadeDisponivel = 0;
         nrQuantidadeDisponivelB = 0;
@@ -196,6 +199,8 @@ public class CancelarHorarioBean implements Serializable {
     }
 
     public void cancelarHorarioPeriodo() {
+        SisProcesso sisProcesso = new SisProcesso();
+        sisProcesso.start();        
         Date date = DataHoje.dataHoje();
         int intDataHoje = DataHoje.converteDataParaInteger(DataHoje.converteData(date));
         int intDataInicial = DataHoje.converteDataParaInteger(DataHoje.converteData(getDataInicial()));
@@ -380,6 +385,7 @@ public class CancelarHorarioBean implements Serializable {
         dao.commit();
         listaHorariosCancelados.clear();
         cancelarHorario = new CancelarHorario();
+        sisProcesso.finish();
         GenericaMensagem.info("Sucesso", "Horários cancelados com sucesso");
     }
 

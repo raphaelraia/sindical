@@ -1800,6 +1800,18 @@
             <redirect/>
         </navigation-case>         
         
+        <navigation-case>
+            <from-outcome>relatorioDescontoFolha</from-outcome>
+            <to-view-id>/relatorioDescontoFolha.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>         
+        
+        <navigation-case>
+            <from-outcome>sisProcesso</from-outcome>
+            <to-view-id>/sisProcesso.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>         
+        
         <!-- 
         <navigation-case>
             <from-outcome>#{navigationRules.param}</from-outcome>

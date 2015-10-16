@@ -10,7 +10,8 @@ public class RelatorioFechamentoBaileDao extends DB {
 
     public List<Vector> listaEventoBaile(Integer id_evento_baile) {
         String text
-                = "      SELECT \n "
+                = " -- RelatorioFechamentoBaileDao->listaEventoBaile() \n "
+                + "SELECT \n "
                 + "	v.dt_emissao AS emissao,\n "
                 + "	PO.DS_NOME AS operador, \n "
                 + "	p.id AS codigo, \n "

@@ -14,7 +14,7 @@ public class RelatorioFechamentoGuiasDao extends DB {
 
     public List find(Relatorios relatorio, String inEmpresas, String inBeneficiarios, String inIdServicos, Date pagamentoInicial, Date pagamentoFinal) {
         List listWhere = new ArrayList();
-        String queryString = ""
+        String queryString = " -- RelatorioFechamentoGuiasDao->find() \n"
                 + "      SELECT C.ds_nome,                      \n "
                 + "             G.id             AS guia,       \n "
                 + "             M.id_baixa,                     \n "

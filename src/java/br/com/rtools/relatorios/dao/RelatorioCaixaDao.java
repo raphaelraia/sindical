@@ -26,7 +26,8 @@ public class RelatorioCaixaDao extends DB {
      */
     public List find(Integer relatorio_id, String inCaixa, String inOperador, String inTipoPagamento, String dataBaixaInicial, String dataBaixaFinal) {
         try {
-            String queryString = " SELECT ";
+            String queryString = " -- RelatorioCaixaDao->find() \n"
+                    + " SELECT ";
             String queryAsString = "";
             String queryGroup = "";
             if (relatorio_id == 60) {
