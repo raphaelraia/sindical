@@ -21,27 +21,27 @@
 
         <script type="text/javascript">
             /* Máscaras ER */
-            function mascara(o,f){
-                v_obj=o
-                v_fun=f
-                setTimeout("execmascara()",1)
+            function mascara(o, f) {
+                v_obj = o
+                v_fun = f
+                setTimeout("execmascara()", 1)
             }
-            function execmascara(){
-                v_obj.value=v_fun(v_obj.value)
+            function execmascara() {
+                v_obj.value = v_fun(v_obj.value)
             }
-            function mtel(v){
-                v=v.replace(/D/g,"");             //Remove tudo o que não é dígito
-                v=v.replace(/^(d{2})(d)/g,"($1) $2"); //Coloca parênteses em volta dos dois primeiros dígitos
-                v=v.replace(/(d)(d{4})$/,"$1-$2");    //Coloca hífen entre o quarto e o quinto dígitos
+            function mtel(v) {
+                v = v.replace(/D/g, "");             //Remove tudo o que não é dígito
+                v = v.replace(/^(d{2})(d)/g, "($1) $2"); //Coloca parênteses em volta dos dois primeiros dígitos
+                v = v.replace(/(d)(d{4})$/, "$1-$2");    //Coloca hífen entre o quarto e o quinto dígitos
                 return v;
             }
-            function id( el ){
-                    return document.getElementById( el );
+            function id(el) {
+                return document.getElementById(el);
             }
-            window.onload = function(){
-                    id('i_tel').onkeypress = function(){
-                            mascara( this, mtel );
-                    }
+            window.onload = function () {
+                id('i_tel').onkeypress = function () {
+                    mascara(this, mtel);
+                }
             }
         </script>
     </h:head>
@@ -87,9 +87,9 @@
                                     </p:selectOneMenu>
                                 </h:column>
                             </h:panelGrid>
-                            
+
                             <p:messages autoUpdate="true" showDetail="true" closable="true" />
-                            
+
                             <p:panel styleClass="fundoCinza" style="margin-top: 10px;" >
                                 <h:panelGrid id="i_panel_dados" columns="4">
                                     <h:column>
@@ -112,14 +112,14 @@
                                         </p:inputText>
                                     </h:column>
                                     <h:column>
-                                        <h:column rendered="#{atendimentoBean.tipoTelefone.equals('telefone')}">
+                                        <h:column rendered="#{atendimentoBean.tipoTelefone eq 'telefone'}">
                                             <p:outputLabel value="Telefone" style="font-weight: bold"/><br />
                                             <p:inputMask value="#{atendimentoBean.sisPessoa.telefone}" readonly="#{atendimentoBean.sisPessoa.id != -1}" style="text-align: center" mask="(99) 9999-9999" size="13">
                                                 <p:ajax event="change" update="@this"/>
                                             </p:inputMask>
                                             <p:commandButton icon="ui-icon-help" title="Usar mascara de Celular SP" action="#{atendimentoBean.alterarTipoMascara()}" update="i_panel_dados" disabled="#{atendimentoBean.sisPessoa.id != -1}"/>
                                         </h:column>
-                                        <h:column rendered="#{atendimentoBean.tipoTelefone.equals('celular')}">
+                                        <h:column rendered="#{atendimentoBean.tipoTelefone eq 'celular'}">
                                             <p:outputLabel value="Telefone (Celular)" style="font-weight: bold"/><br />
                                             <p:inputMask value="#{atendimentoBean.sisPessoa.telefone}" readonly="#{atendimentoBean.sisPessoa.id != -1}" style="text-align: center" mask="(99) 99999-9999" size="13">
                                                 <p:ajax event="change" update="@this"/>
@@ -136,10 +136,10 @@
                                     <p:commandLink value="#{atendimentoBean.empresa.pessoa.nome}" action="#{chamadaPaginaBean.pesquisaPessoaJuridica()}" rendered="#{atendimentoBean.empresa.id != -1}" style="font-weight: bold; font-size: 11pt!important"/>
                                     <p:commandButton value="Adicionar uma Empresa" action="#{chamadaPaginaBean.pesquisaPessoaJuridica()}" rendered="#{atendimentoBean.empresa == null or atendimentoBean.empresa.id == -1}" ajax="false"/>
                                 </h:column>
-                                
+
                                 <h:column>
                                     <p:selectBooleanCheckbox value="#{atendimentoBean.chkReserva}" itemLabel="Reservar para Usuário" style="float: right">
-                                            <p:ajax event="change" update="@this i_panel_e_u" />
+                                        <p:ajax event="change" update="@this i_panel_e_u" />
                                     </p:selectBooleanCheckbox>
                                     <br /><br />
                                     <p:selectOneMenu value="#{atendimentoBean.index_usuario}" rendered="#{atendimentoBean.chkReserva}" style="float: right">
@@ -166,15 +166,15 @@
                                 <h:column>
                                     <p:commandButton value="Novo" title="Novo" action="#{atendimentoBean.novo}" ajax="false"/>
                                 </h:column>
-                                
+
                                 <h:column>
                                     <p:commandButton value="Excluir " title="Excluir Atendimento" onclick="PF('dlg_excluir').show()" disabled="#{controleAcessoBean.botaoExcluir}" rendered="#{atendimentoBean.ateMovimento.id != -1}"/>
                                 </h:column>
-                                    
+
                                 <h:column>
                                     <p:commandButton value="Cancelar " title="Cancelar Atendimento" onclick="PF('dlg_cancelar').show()" disabled="#{controleAcessoBean.botaoExcluir}" rendered="#{atendimentoBean.ateMovimento.id != -1}"/>
                                 </h:column>
-                                    
+
                                 <h:column>
                                     <p:selectOneMenu value="#{atendimentoBean.porPesquisa}" style="margin-left: 612px">
                                         <p:ajax event="change" update="i_panel_lista" />
@@ -191,27 +191,27 @@
                                     <p:column style="width:15px">  
                                         <p:rowToggler />  
                                     </p:column>  
-                                    
+
                                     <p:column style="text-align: center; width: 15px">
                                         <p:commandLink action="#{atendimentoBean.editar(linha)}" value="#{linha.id}" update=":formAtendimentoPessoa"/>
                                     </p:column>  
-                                    
+
                                     <p:column headerText="Data Emissão" style="text-align: center" width="70">
                                         <p:commandLink action="#{atendimentoBean.editar(linha)}" value="#{linha.dataEmissaoString}" update=":formAtendimentoPessoa"/>
                                     </p:column>
-                                    
+
                                     <p:column headerText="Horário" style="text-align: center; width: 50px">
                                         <p:outputLabel value="#{linha.horaEmissao}"/>
                                     </p:column>
-                                    
+
                                     <p:column headerText="Nome" width="200">
                                         <p:commandLink action="#{atendimentoBean.editar(linha)}" value="#{linha.pessoa.nome}" update=":formAtendimentoPessoa"/>
                                     </p:column>
-                                    
+
                                     <p:column headerText="CPF" width="100" style="text-align: center">
                                         <p:outputLabel value="#{linha.pessoa.documento}"/>
                                     </p:column>
-                                     
+
                                     <p:column headerText="Operação" style="text-align: center" width="">
                                         <p:outputLabel value="#{linha.operacao.descricao}"/>
                                     </p:column>
@@ -219,38 +219,38 @@
                                     <p:column style="text-align: center">
                                         <p:outputLabel value="#{linha.status.descricao}" />
                                     </p:column>
-                                    
+
                                     <p:column headerText="Homologador">
                                         <p:outputLabel value="#{linha.atendente.pessoa.nome}" />
                                     </p:column>
-                                    
+
                                     <p:column headerText="Reserva">
                                         <p:outputLabel value="#{linha.reserva.pessoa.nome}" />
                                     </p:column>
-                                    
+
                                     <p:column headerText="Senha" style="text-align: center">
                                         <p:commandLink value="#{atendimentoBean.verSenha(linha)}" actionListener="#{atendimentoBean.imprimirSenha(linha)}" ajax="false">
                                             <p:fileDownload value="#{atendimentoBean.fileDownload}" />
                                         </p:commandLink>
                                     </p:column>
-                                    
+
                                     <p:rowExpansion>
                                         <h:panelGrid columns="4" style="height: 40px" styleClass="sbb">
                                             <p:column>
                                                 <p:outputLabel value="RG" style="font-weight: bold"/><br />
                                                 <p:outputLabel value="#{linha.pessoa.rg}" />
                                             </p:column>
-                                            
+
                                             <p:column>
                                                 <p:outputLabel value="Telefone" style="font-weight: bold"/><br />
                                                 <p:outputLabel value="#{linha.pessoa.telefone}" />
                                             </p:column>
-                                            
+
                                             <p:column>
                                                 <p:outputLabel value="Empresa" style="font-weight: bold"/><br />
                                                 <p:outputLabel value="#{linha.juridica.pessoa.nome}" />
                                             </p:column>
-                                            
+
                                             <p:column>
                                                 <p:outputLabel value="Filial" style="font-weight: bold"/><br />
                                                 <p:outputLabel value="#{linha.filial.matriz.pessoa.nome}" />
@@ -267,8 +267,8 @@
                                     </f:facet>                                         
                                 </p:dataTable>                            
                             </h:panelGrid>
-                            
-                            
+
+
                             <p:dialog widgetVar="dlg_salvar" modal="true" header="Salvar Atendimento" width="500" resizable="false" visible="#{atendimentoBean.visibleModal}">
                                 <p:ajax event="close" update="formAtendimentoPessoa" listener="#{atendimentoBean.fecharModal()}"/>  
                                 <h:outputLabel value="Deseja realmente SALVAR esse Atendimento?" />
@@ -283,7 +283,7 @@
                                     <p:commandButton value="Fechar" type="button" update=":formAtendimentoPessoa" styleClass="ui-confirmdialog-no" onclick="PF('dlg_salvar').hide()" style="float: left" icon="ui-icon-close"/>    
                                 </h:panelGrid>
                             </p:dialog>
-                            
+
                             <p:dialog widgetVar="dlg_alterar" modal="true" header="Alterar Atendimento" width="500" resizable="false">
                                 <p:ajax event="close" update="formAtendimentoPessoa"/>  
                                 <h:outputLabel value="Deseja realmente ALTERAR esse Atendimento?" />
@@ -294,14 +294,14 @@
                                     <p:commandButton value="Fechar" type="button" update=":formAtendimentoPessoa" styleClass="ui-confirmdialog-no" onclick="PF('dlg_alterar').hide()" style="float: left" icon="ui-icon-close"/>    
                                 </h:panelGrid>
                             </p:dialog>
-                            
+
                             <p:dialog widgetVar="dlg_excluir" modal="true" header="Excluir Atendimento" width="400" resizable="false">
                                 <h:outputLabel value="Deseja realmente EXCLUIR esse Atendimento?" />
                                 <br /><br />
                                 <p:commandButton value="Sim" type="submit" styleClass="ui-confirmdialog-yes" action="#{atendimentoBean.excluir()}" update="formAtendimentoPessoa" oncomplete="PF('dlg_salvar').hide()" style="clear: both; float: left" icon="ui-icon-check"/>  
                                 <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_excluir').hide()" style="float: left" icon="ui-icon-close"/>    
                             </p:dialog>
-                            
+
                             <p:dialog widgetVar="dlg_cancelar" modal="true" header="Cancelar este Atendimento" width="400" resizable="false">
                                 <h:outputLabel value="Deseja realmente CANCELAR esse Atendimento?" />
                                 <br /><br />
@@ -311,7 +311,7 @@
 
                             <p:dialog widgetVar="dlg_alterar_pessoa" modal="true" header="Alterar essa Pessoa" width="420" resizable="false">
                                 <h:panelGrid id="i_dlg_alterar_pessoa">
-                                     <h:panelGrid columns="1" style="width: 99%">
+                                    <h:panelGrid columns="1" style="width: 99%">
                                         <h:column>
                                             <p:outputLabel value="Nome" style="font-weight: bold"/><br />
                                             <p:inputText value="#{atendimentoBean.sisPessoaAtualiza.nome}" style="margin-right: 10px; width: 370px"/>
@@ -327,14 +327,14 @@
                                             <p:inputText value="#{atendimentoBean.sisPessoaAtualiza.rg}" size="10" style="margin-right: 10px;"/>
                                         </h:column>
                                         <h:column>
-                                            <h:column rendered="#{atendimentoBean.tipoTelefone.equals('telefone')}">
+                                            <h:column rendered="#{atendimentoBean.tipoTelefone eq 'telefone'}">
                                                 <p:outputLabel value="Telefone" style="font-weight: bold"/><br />
                                                 <p:inputMask value="#{atendimentoBean.sisPessoaAtualiza.telefone}" style="text-align: center" mask="(99) 9999-9999" size="14">
                                                     <p:ajax event="change" update="@this"/>
                                                 </p:inputMask>
                                                 <p:commandButton icon="ui-icon-help" title="Usar máscara de Celular SP" action="#{atendimentoBean.alterarTipoMascara()}" update="i_dlg_alterar_pessoa"/>
                                             </h:column>
-                                            <h:column rendered="#{atendimentoBean.tipoTelefone.equals('celular')}">
+                                            <h:column rendered="#{atendimentoBean.tipoTelefone eq 'celular'}">
                                                 <p:outputLabel value="Telefone (Celular)" style="font-weight: bold"/><br />
                                                 <p:inputMask value="#{atendimentoBean.sisPessoaAtualiza.telefone}" style="text-align: center" mask="(99) 99999-9999" size="14">
                                                     <p:ajax event="change" update="@this"/>
@@ -350,7 +350,7 @@
                                     </h:panelGrid>
                                 </h:panelGrid>
                             </p:dialog>
-                                
+
                             <p:dialog widgetVar="dlg_mensagem_oposicao" modal="true" header="Atenção" width="400" resizable="false">
                                 <p:outputLabel value="Essa pessoa esta cadastrada em Oposição!" style="font-size: 11pt!important"/>
                                 <br /><br />
