@@ -45,7 +45,7 @@ public class RelatorioDescontoFolhaDao extends DB {
                     + "            e.cep             AS e_endereco_cep,         \n" // 15 - ENDEREÇO DA EMPRESA -> CEP 
                     + "            j.ds_contato      AS empresa_contato         \n" // 16 - EMPRESA -> CONTATO 
                     + "       FROM soc_socios_vw     AS so                      \n"
-                    + " INNER JOIN fin_movimento     AS m  ON m.id_titular = so.titular                     \n"
+                    + " INNER JOIN fin_movimento     AS m  ON m.id_titular = so.codsocio                    \n"
                     + " INNER JOIN pes_pessoa        AS t  ON t.id         = so.titular                     \n"
                     + " INNER JOIN pes_juridica      AS j  ON j.id_pessoa  = m.id_pessoa                    \n"
                     + " INNER JOIN pes_pessoa_complemento AS pc ON pc.id_pessoa = j.id_pessoa               \n"
