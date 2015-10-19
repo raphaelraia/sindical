@@ -79,6 +79,9 @@ public class RelatorioCobrancaExternaDao extends DB {
                     // 08/10/2015 - CHAMADO 1057 - listWhere.add("td.id IN (" + inTipoCobranca + ")");
                     listWhere.add("so.tipo_cobranca IN (" + inTipoCobranca + ")");
                 }
+                if (titular_id != null) {
+                    listWhere.add("so.codsocio = " + titular_id + " ");
+                }
                 for (int i = 0; i < listWhere.size(); i++) {
                     if (i == 0) {
                         queryString += " WHERE " + listWhere.get(i).toString() + " \n";
