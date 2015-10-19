@@ -188,7 +188,7 @@ public class Jasper implements Serializable {
         IS_DOWNLOAD = true;
         IS_REMOVE_FILE = true;
         BYTES = null;
-        IS_HEADER = false;
+        IS_HEADER = true;
         IS_HEADER_PARAMS = false;
         IS_BY_LEAF = false;
         GROUP_NAME = "";
@@ -353,6 +353,7 @@ public class Jasper implements Serializable {
         if (!Jasper.PART_NAME.isEmpty()) {
             Jasper.PART_NAME = Jasper.PART_NAME.trim();
             Jasper.PART_NAME = Jasper.PART_NAME.toLowerCase();
+            Jasper.PART_NAME = Jasper.PART_NAME.replace("_", "-");
             Jasper.PART_NAME = Jasper.PART_NAME.replace(" ", "_");
             Jasper.PART_NAME = Jasper.PART_NAME.replace("/", "");
             Jasper.PART_NAME = AnaliseString.removerAcentos(Jasper.PART_NAME);
@@ -604,7 +605,7 @@ public class Jasper implements Serializable {
         IS_DOWNLOAD = true;
         IS_REMOVE_FILE = true;
         BYTES = null;
-        IS_HEADER = false;
+        IS_HEADER = true;
         // IMPRIME POR FOLHA
         IS_BY_LEAF = false;
         GROUP_NAME = "";
