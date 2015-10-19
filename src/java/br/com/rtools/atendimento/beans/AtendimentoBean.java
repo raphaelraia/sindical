@@ -28,8 +28,6 @@ import br.com.rtools.utilitarios.Diretorio;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.SalvaArquivos;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import br.com.rtools.utilitarios.ValidaDocumentos;
 import java.io.File;
 import java.io.InputStream;
@@ -108,65 +106,101 @@ public class AtendimentoBean implements Serializable {
     }
 
     public void pesquisaCPFeOPOSICAO() {
-        if (sisPessoa.getDocumento().isEmpty()) {
-            return;
-        }
+        if (sisPessoa.getFisica().getId() == -1) {
+            if (sisPessoa.getId() == -1) {
+                if (sisPessoa.getDocumento().isEmpty()) {
+                    return;
+                }
 
-        if (!ValidaDocumentos.isValidoCPF(AnaliseString.extrairNumeros(sisPessoa.getDocumento()))) {
-            return;
-        }
+                if (!ValidaDocumentos.isValidoCPF(AnaliseString.extrairNumeros(sisPessoa.getDocumento()))) {
+                    return;
+                }
 
-        FisicaDB fisicaDB = new FisicaDBToplink();
-        List<Fisica> listf = fisicaDB.pesquisaFisicaPorDoc(sisPessoa.getDocumento());
+                FisicaDB fisicaDB = new FisicaDBToplink();
+                List<Fisica> listf = fisicaDB.pesquisaFisicaPorDoc(sisPessoa.getDocumento());
 
-        // SE NÃO ACHAR PESSOA FÍSICA, PESQUISAR EM SIS_PESSOA
-        if (listf.isEmpty()) {
-            AtendimentoDB atendimentoDB = new AtendimentoDBTopLink();
-            SisPessoa spes = (SisPessoa) atendimentoDB.pessoaDocumento(sisPessoa.getDocumento());
+                // SE NÃO ACHAR PESSOA FÍSICA, PESQUISAR EM SIS_PESSOA
+                if (listf.isEmpty()) {
+                    AtendimentoDB atendimentoDB = new AtendimentoDBTopLink();
+                    SisPessoa spes = (SisPessoa) atendimentoDB.pessoaDocumento(sisPessoa.getDocumento());
 
-            if (spes == null) {
-                return;
+                    if (spes == null) {
+                        return;
+                    }
+                    sisPessoa = spes;
+                    verificaPessoaOposicao();
+                    return;
+                }
+
+                Fisica fi = (Fisica) listf.get(0);
+
+                sisPessoa.setNome(fi.getPessoa().getNome());
+                sisPessoa.setDocumento(fi.getPessoa().getDocumento());
+                sisPessoa.setTelefone(fi.getPessoa().getTelefone1());
+                sisPessoa.setRg(fi.getRg());
+                if (fi.getDtNascimento() == null) {
+                    if (sisPessoa.getDtNascimento() == null) {
+                        sisPessoa.setNascimento("01/01/1900");
+                    }
+                } else {
+                    if (sisPessoa.getDtNascimento() == null) {
+                        sisPessoa.setDtNascimento(fi.getDtNascimento());
+                    }
+                }
+                verificaPessoaOposicao();
+                try {
+                    sisPessoa.setFisica(fi);
+                } catch (Exception e) {
+
+                }
             }
-            sisPessoa = spes;
-            verificaPessoaOposicao();
-            return;
         }
-
-        Fisica fi = (Fisica) listf.get(0);
-
-        sisPessoa.setNome(fi.getPessoa().getNome());
-        sisPessoa.setDocumento(fi.getPessoa().getDocumento());
-        sisPessoa.setTelefone(fi.getPessoa().getTelefone1());
-        sisPessoa.setRg(fi.getRg());
-        verificaPessoaOposicao();
     }
 
     public void pesquisaRG() {
-        if (sisPessoa.getRg().isEmpty()) {
-            return;
-        }
+        if (sisPessoa.getFisica().getId() == -1) {
+            if (sisPessoa.getId() == -1) {
+                if (sisPessoa.getRg().isEmpty()) {
+                    return;
+                }
 
-        FisicaDB fisicaDB = new FisicaDBToplink();
-        List<Fisica> listf = fisicaDB.pesquisaFisicaPorDocRG(sisPessoa.getRg());
+                FisicaDB fisicaDB = new FisicaDBToplink();
+                List<Fisica> listf = fisicaDB.pesquisaFisicaPorDocRG(sisPessoa.getRg());
 
-        // SE NÃO ACHAR PESSOA FÍSICA, PESQUISAR EM SIS_PESSOA
-        if (listf.isEmpty()) {
-            AtendimentoDB atendimentoDB = new AtendimentoDBTopLink();
-            SisPessoa spes = (SisPessoa) atendimentoDB.pessoaDocumento(sisPessoa.getRg());
+                // SE NÃO ACHAR PESSOA FÍSICA, PESQUISAR EM SIS_PESSOA
+                if (listf.isEmpty()) {
+                    AtendimentoDB atendimentoDB = new AtendimentoDBTopLink();
+                    SisPessoa spes = (SisPessoa) atendimentoDB.pessoaDocumento(sisPessoa.getRg());
 
-            if (spes == null) {
-                return;
+                    if (spes == null) {
+                        return;
+                    }
+                    sisPessoa = spes;
+                    return;
+                }
+
+                Fisica fi = (Fisica) listf.get(0);
+
+                sisPessoa.setNome(fi.getPessoa().getNome());
+                sisPessoa.setDocumento(fi.getPessoa().getDocumento());
+                sisPessoa.setTelefone(fi.getPessoa().getTelefone1());
+                sisPessoa.setRg(fi.getRg());
+                if (fi.getDtNascimento() == null) {
+                    if (sisPessoa.getDtNascimento() == null) {
+                        sisPessoa.setNascimento("01/01/1900");
+                    }
+                } else {
+                    if (sisPessoa.getDtNascimento() == null) {
+                        sisPessoa.setDtNascimento(fi.getDtNascimento());
+                    }
+                }
+                try {
+                    sisPessoa.setFisica(fi);
+                } catch (Exception e) {
+
+                }
             }
-            sisPessoa = spes;
-            return;
         }
-
-        Fisica fi = (Fisica) listf.get(0);
-
-        sisPessoa.setNome(fi.getPessoa().getNome());
-        sisPessoa.setDocumento(fi.getPessoa().getDocumento());
-        sisPessoa.setTelefone(fi.getPessoa().getTelefone1());
-        sisPessoa.setRg(fi.getRg());
     }
 
     public void editarSisPessoa() {
@@ -199,19 +233,19 @@ public class AtendimentoBean implements Serializable {
             }
         }
 
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+        Dao dao = new Dao();
 
-        sv.abrirTransacao();
+        dao.openTransaction();
 
-        if (!sv.alterarObjeto(sisPessoaAtualiza)) {
-            sv.desfazerTransacao();
+        if (!dao.update(sisPessoaAtualiza)) {
+            dao.rollback();
             GenericaMensagem.error("Erro", "Não foi possivel atualizar cadastro!");
             return;
         }
 
         sisPessoa = sisPessoaAtualiza;
         sisPessoaAtualiza = new SisPessoa();
-        sv.comitarTransacao();
+        dao.commit();
 
     }
 
@@ -307,8 +341,6 @@ public class AtendimentoBean implements Serializable {
 
     public void salvar(boolean imprimir) {
 
-        AtendimentoDB atendimentoDB = new AtendimentoDBTopLink();
-
         if (ateMovimento.getFilial().getId() == -1) {
             GenericaMensagem.error("Erro", "Informe qual a sua Filial!");
             return;
@@ -316,13 +348,18 @@ public class AtendimentoBean implements Serializable {
 
         if (!sisPessoa.getDocumento().isEmpty()) {
             if (!ValidaDocumentos.isValidoCPF(AnaliseString.extrairNumeros(sisPessoa.getDocumento()))) {
-                GenericaMensagem.warn("Atenção", "Informe um CPF válido!");
+                GenericaMensagem.warn("Validação", "Informe um CPF válido!");
                 return;
             }
         }
 
+        if (sisPessoa.getDtNascimento() == null) {
+            GenericaMensagem.warn("Validação", "Informe data de nascimento!");
+            return;
+        }
+
         if (sisPessoa.getNome().isEmpty()) {
-            GenericaMensagem.warn("Atenção", "Digite o NOME da pessoa!");
+            GenericaMensagem.warn("Validação", "Digite o NOME da pessoa!");
             return;
         }
 
@@ -335,41 +372,41 @@ public class AtendimentoBean implements Serializable {
 //        if (ap == null) {
 //            ap = atendimentoDB.pessoaDocumento(ateMovimento.getPessoa().getRg());
 //        }
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+        Dao dao = new Dao();
 
-        sisPessoa.setTipoDocumento((TipoDocumento) sv.pesquisaObjeto(1, "TipoDocumento"));
+        sisPessoa.setTipoDocumento((TipoDocumento) dao.find(new TipoDocumento(), 1));
         sisPessoa.setEndereco(null);
 
-        sv.abrirTransacao();
+        dao.openTransaction();
         if (sisPessoa.getId() == -1) {
-            if (!sv.inserirObjeto(sisPessoa)) {
-                sv.desfazerTransacao();
+            if (!dao.save(sisPessoa)) {
+                dao.rollback();
                 return;
             }
         } else {
-            if (!sv.alterarObjeto(sisPessoa)) {
-                sv.desfazerTransacao();
+            if (!dao.update(sisPessoa)) {
+                dao.rollback();
                 return;
             }
         }
-        sv.comitarTransacao();
+        dao.commit();
 
         ateMovimento.setHoraEmissao(getHoraEmissaoString());
         ateMovimento.setFilial(filial);
-        ateMovimento.setOperacao((AteOperacao) sv.pesquisaObjeto(Integer.parseInt(listaAtendimentoOperacoes.get(idOperacao).getDescription()), "AteOperacao"));
-        ateMovimento.setStatus((AteStatus) sv.pesquisaCodigo(1, "AteStatus"));
+        ateMovimento.setOperacao((AteOperacao) dao.find(new AteOperacao(), Integer.parseInt(listaAtendimentoOperacoes.get(idOperacao).getDescription())));
+        ateMovimento.setStatus((AteStatus) dao.find(new AteStatus(), 1));
         ateMovimento.setJuridica((empresa == null || empresa.getId() == -1) ? null : empresa);
         ateMovimento.setPessoa(sisPessoa);
         ateMovimento.setAtendente(null);
 
         if (chkReserva && !listaUsuarios.isEmpty()) {
-            PermissaoUsuario pu = (PermissaoUsuario) sv.pesquisaCodigo(Integer.valueOf(listaUsuarios.get(index_usuario).getDescription()), "PermissaoUsuario");
+            PermissaoUsuario pu = (PermissaoUsuario) dao.find(new PermissaoUsuario(), Integer.valueOf(listaUsuarios.get(index_usuario).getDescription()));
             ateMovimento.setReserva(pu.getUsuario());
         } else {
             ateMovimento.setReserva(null);
         }
 
-        sv.abrirTransacao();
+        dao.openTransaction();
         if (ateMovimento.getId() == -1) {
             ateMovimento.setHoraEmissao(getHoraEmissaoString());
 
@@ -379,9 +416,9 @@ public class AtendimentoBean implements Serializable {
 //                sv.desfazerTransacao();
 //                return;
 //            }
-            if (!sv.inserirObjeto(ateMovimento)) {
+            if (!dao.save(ateMovimento)) {
                 GenericaMensagem.error("Erro", "Não foi possivel salvar Atendimento!");
-                sv.desfazerTransacao();
+                dao.rollback();
                 return;
             }
 
@@ -389,13 +426,13 @@ public class AtendimentoBean implements Serializable {
             int ultima_senha = dbh.pesquisaUltimaSenha(filial.getId()) + 1;
             Senha senha = new Senha(-1, null, DataHoje.horaMinuto(), "", 0, usuario, DataHoje.data(), ultima_senha, filial, ateMovimento);
 
-            if (!sv.inserirObjeto(senha)) {
+            if (!dao.save(senha)) {
                 GenericaMensagem.error("Erro", "Erro ao Salvar Senha!");
-                sv.desfazerTransacao();
+                dao.rollback();
                 return;
             }
 
-            sv.comitarTransacao();
+            dao.commit();
 
             if (imprimir) {
                 try {
@@ -408,13 +445,13 @@ public class AtendimentoBean implements Serializable {
 
             GenericaMensagem.info("Sucesso", "Atendimento Salvo!");
         } else {
-            if (!sv.alterarObjeto(ateMovimento)) {
-                sv.desfazerTransacao();
+            if (!dao.update(ateMovimento)) {
+                dao.rollback();
                 GenericaMensagem.error("Erro", "Não foi possivel atualizar o Atendimento");
                 return;
             }
 
-            sv.comitarTransacao();
+            dao.commit();
 
             GenericaSessao.put("atendimentoBean", new AtendimentoBean());
             GenericaMensagem.info("Sucesso", "Atendimento Atualizado!");
@@ -454,30 +491,30 @@ public class AtendimentoBean implements Serializable {
     }
 
     public void excluir() {
-        SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
+        Dao dao = new Dao();
         if (ateMovimento.getId() > 0) {
-            AteMovimento ateMov = (AteMovimento) salvarAcumuladoDB.pesquisaObjeto(ateMovimento.getId(), "AteMovimento");
+            AteMovimento ateMov = (AteMovimento) dao.find(new AteMovimento(), ateMovimento.getId());
             AtendimentoDB db = new AtendimentoDBTopLink();
 
             Senha senha = db.pesquisaSenha(ateMovimento.getId());
 
-            salvarAcumuladoDB.abrirTransacao();
+            dao.openTransaction();
 
             if (senha != null) {
-                if (!salvarAcumuladoDB.deletarObjeto(salvarAcumuladoDB.pesquisaObjeto(senha.getId(), "Senha"))) {
-                    salvarAcumuladoDB.desfazerTransacao();
+                if (!dao.delete(senha)) {
+                    dao.rollback();
                     GenericaMensagem.error("Erro", "Falha excluir Senha!");
                     return;
                 }
             }
 
-            if (salvarAcumuladoDB.deletarObjeto(ateMov)) {
-                salvarAcumuladoDB.comitarTransacao();
+            if (dao.delete(ateMov)) {
+                dao.commit();
                 GenericaMensagem.info("Sucesso", "Atendimento Excluido!");
                 novo();
                 return;
             } else {
-                salvarAcumuladoDB.desfazerTransacao();
+                dao.rollback();
                 GenericaMensagem.error("Erro", "Falha ao excluir Atendimento!");
             }
 
@@ -486,17 +523,17 @@ public class AtendimentoBean implements Serializable {
     }
 
     public void cancelar() {
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-        sv.abrirTransacao();
+        Dao dao = new Dao();
+        dao.openTransaction();
 
         //AteMovimento ateMov = (AteMovimento) sv.pesquisaObjeto(ateMovimento.getId(), "AteMovimento");
         // status 3 Atendimento Cancelado
-        ateMovimento.setStatus((AteStatus) sv.pesquisaCodigo(3, "AteStatus"));
+        ateMovimento.setStatus((AteStatus) dao.find(new AteStatus(), 3));
 
-        if (!sv.alterarObjeto(ateMovimento)) {
-            sv.desfazerTransacao();
+        if (!dao.update(ateMovimento)) {
+            dao.rollback();
         } else {
-            sv.comitarTransacao();
+            dao.commit();
         }
     }
 
@@ -589,10 +626,10 @@ public class AtendimentoBean implements Serializable {
 
     public List<SelectItem> getListaFiliais() {
         if (listaFiliais.isEmpty()) {
-            SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
-            List<Filial> listaFilial = (List<Filial>) salvarAcumuladoDB.listaObjeto("Filial", true);
+            Dao dao = new Dao();
+            List<Filial> listaFilial = (List<Filial>) dao.list(new Filial(), true);
             for (int i = 0; i < listaFilial.size(); i++) {
-                listaFiliais.add(new SelectItem(new Integer(i),
+                listaFiliais.add(new SelectItem(i,
                         listaFilial.get(i).getFilial().getPessoa().getDocumento() + " / " + listaFilial.get(i).getFilial().getPessoa().getNome(),
                         Integer.toString(listaFilial.get(i).getId())));
             }
@@ -606,8 +643,8 @@ public class AtendimentoBean implements Serializable {
 
     public List<SelectItem> getListaAtendimentoOperacoes() {
         if (listaAtendimentoOperacoes.isEmpty()) {
-            SalvarAcumuladoDB dB = new SalvarAcumuladoDBToplink();
-            List<AteOperacao> list = dB.listaObjeto("AteOperacao");
+            Dao dao = new Dao();
+            List<AteOperacao> list = dao.list(new AteOperacao());
             if (list != null) {
                 int i = 0;
                 while (i < list.size()) {
@@ -632,8 +669,8 @@ public class AtendimentoBean implements Serializable {
         if (FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("acessoFilial") != null) {
             if (filial.getId() == -1) {
                 setMacFilial((MacFilial) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("acessoFilial"));
-                SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
-                filial = (Filial) salvarAcumuladoDB.pesquisaCodigo(getMacFilial().getFilial().getId(), "Filial");
+                Dao dao = new Dao();
+                filial = (Filial) dao.find(new Filial(), getMacFilial().getFilial().getId());
                 ateMovimento.setFilial(filial);
             }
         }

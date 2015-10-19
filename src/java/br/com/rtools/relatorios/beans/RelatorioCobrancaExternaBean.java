@@ -110,7 +110,7 @@ public class RelatorioCobrancaExternaBean implements Serializable {
             List o = (List) list.get(i);
             if (r.getId() == 58) {
                 cers.add(
-                        new CobrancaExternaRecibo(o.get(0), o.get(1), o.get(2), o.get(3), o.get(4), o.get(5), o.get(6), o.get(7), o.get(8), o.get(9), o.get(10), o.get(11))
+                        new CobrancaExternaRecibo(o.get(0), o.get(1), o.get(2), o.get(3), o.get(4), o.get(5), o.get(6), o.get(7), o.get(8), o.get(9), o.get(10), o.get(11), o.get(12))
                 );
             } else {
                 rces.add(
@@ -131,6 +131,7 @@ public class RelatorioCobrancaExternaBean implements Serializable {
             Jasper.TYPE = "default";
             Jasper.printReports(r.getJasper(), r.getNome(), (Collection) rces, map);
         }
+        sisProcesso.setProcesso(r.getNome());
         sisProcesso.finish();
     }
 
@@ -422,7 +423,6 @@ public class RelatorioCobrancaExternaBean implements Serializable {
 //        }
 //
 //    }
-
     public class CobrancaExternaRecibo {
 
         private Object empresa_nome;
@@ -437,6 +437,7 @@ public class RelatorioCobrancaExternaBean implements Serializable {
         private Object servico_descricao;
         private Object valor;
         private Object beneficiario;
+        private Object movimento_vencimento;
 
         /**
          *
@@ -452,8 +453,9 @@ public class RelatorioCobrancaExternaBean implements Serializable {
          * @param servico_descricao
          * @param valor
          * @param beneficiario
+         * @param movimento_vencimento
          */
-        public CobrancaExternaRecibo(Object empresa_nome, Object empresa_cnpj, Object categoria, Object matricula, Object tipo_cobranca_descricao, Object socio_codigo, Object socio_nome, Object mes, Object ano, Object servico_descricao, Object valor, Object beneficiario) {
+        public CobrancaExternaRecibo(Object empresa_nome, Object empresa_cnpj, Object categoria, Object matricula, Object tipo_cobranca_descricao, Object socio_codigo, Object socio_nome, Object mes, Object ano, Object servico_descricao, Object valor, Object beneficiario, Object movimento_vencimento) {
             this.empresa_nome = empresa_nome;
             this.empresa_cnpj = empresa_cnpj;
             this.categoria = categoria;
@@ -466,6 +468,7 @@ public class RelatorioCobrancaExternaBean implements Serializable {
             this.servico_descricao = servico_descricao;
             this.valor = valor;
             this.beneficiario = beneficiario;
+            this.movimento_vencimento = movimento_vencimento;
         }
 
         public Object getEmpresa_nome() {
@@ -562,6 +565,14 @@ public class RelatorioCobrancaExternaBean implements Serializable {
 
         public void setServico_descricao(Object servico_descricao) {
             this.servico_descricao = servico_descricao;
+        }
+
+        public Object getMovimento_vencimento() {
+            return movimento_vencimento;
+        }
+
+        public void setMovimento_vencimento(Object movimento_vencimento) {
+            this.movimento_vencimento = movimento_vencimento;
         }
 
     }

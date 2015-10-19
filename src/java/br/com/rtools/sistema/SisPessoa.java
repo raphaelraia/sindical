@@ -1,6 +1,7 @@
 package br.com.rtools.sistema;
 
 import br.com.rtools.endereco.Endereco;
+import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.TipoDocumento;
 import br.com.rtools.utilitarios.DataHoje;
 import java.io.Serializable;
@@ -17,7 +18,7 @@ public class SisPessoa implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
     @Column(name = "ds_nome", length = 200, nullable = false)
     private String nome;
     @Column(name = "ds_documento", length = 20)
@@ -58,7 +59,10 @@ public class SisPessoa implements Serializable {
     @Column(name = "ds_foto_perfil", length = 300)
     private String fotoPerfil;
     @Column(name = "ds_foto_arquivo", length = 300)
-    private String fotoArquivo;    
+    private String fotoArquivo;
+
+    @Transient
+    private Fisica fisica;
 
     public SisPessoa() {
         this.id = -1;
@@ -79,10 +83,11 @@ public class SisPessoa implements Serializable {
         this.dtNascimento = null;
         this.dtImportacao = DataHoje.dataHoje();
         this.fotoPerfil = "";
-        this.fotoArquivo = "";        
+        this.fotoArquivo = "";
+        this.fisica = new Fisica();
     }
 
-    public SisPessoa(int id, String nome, String documento, String rg, String telefone, String celular, String email1, String email2, String observacao, String complemento, String numero, String sexo, TipoDocumento tipoDocumento, Endereco endereco, String criacao, String nascimento, String fotoPerfil, String fotoArquivo) {
+    public SisPessoa(Integer id, String nome, String documento, String rg, String telefone, String celular, String email1, String email2, String observacao, String complemento, String numero, String sexo, TipoDocumento tipoDocumento, Endereco endereco, String criacao, String nascimento, String fotoPerfil, String fotoArquivo) {
         this.id = id;
         this.nome = nome;
         this.documento = documento;
@@ -100,14 +105,14 @@ public class SisPessoa implements Serializable {
         this.dtCriacao = DataHoje.converte(criacao);
         this.dtNascimento = DataHoje.converte(nascimento);
         this.fotoPerfil = fotoPerfil;
-        this.fotoArquivo = fotoArquivo;        
+        this.fotoArquivo = fotoArquivo;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -279,6 +284,14 @@ public class SisPessoa implements Serializable {
 
     public void setFotoArquivo(String fotoArquivo) {
         this.fotoArquivo = fotoArquivo;
-    }    
+    }
+
+    public Fisica getFisica() {
+        return fisica;
+    }
+
+    public void setFisica(Fisica fisica) {
+        this.fisica = fisica;
+    }
 
 }
