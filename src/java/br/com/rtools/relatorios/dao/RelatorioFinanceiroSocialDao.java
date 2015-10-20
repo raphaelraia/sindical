@@ -43,45 +43,76 @@ public class RelatorioFinanceiroSocialDao extends DB {
         }
 
         List<String> list_where = new ArrayList();
+        List<String> list_where_socios = new ArrayList();
+        List<String> list_where_pessoa = new ArrayList();
         String where = "";
 
+        /**
+         * SOMENTE SÓCIOS
+         */
         // GRUPO CATEGORIA
         if (id_grupo_categoria != null) {
-            list_where.add(" so.id_grupo_categoria = " + id_grupo_categoria);
+            list_where_socios.add(" so.id_grupo_categoria = " + id_grupo_categoria);
         }
 
         // CATEGORIA
         if (id_categoria != null) {
-            list_where.add(" so.id_categoria = " + id_categoria);
+            list_where_socios.add(" so.id_categoria = " + id_categoria);
         }
 
         // PARENTESCO
         if (id_parentesco != null) {
-            list_where.add(" so.id_parentesco = " + id_parentesco);
+            list_where_socios.add(" so.id_parentesco = " + id_parentesco);
         }
 
         // CIDADE DO SÓCIO
         if (id_cidade_socio != null) {
-            list_where.add(" p.id_cidade = " + id_cidade_socio);
-        }
-
-        // CIDADE DA EMPRESA
-        if (id_cidade_empresa != null) {
-            list_where.add(" p.e_id_cidade = " + id_cidade_empresa);
+            list_where_socios.add(" p.id_cidade = " + id_cidade_socio);
         }
 
         // VOTANTE
         if (is_votante != null) {
-            list_where.add(" so.votante = " + is_votante);
+            list_where_socios.add(" so.votante = " + is_votante);
+        }
+
+        // DATA FILIACAO ---
+        if (!dataFiliacao.isEmpty() && !dataFiliacaoFinal.isEmpty()) {
+            list_where_socios.add(" so.filiacao BETWEEN '" + dataFiliacao + "' and '" + dataFiliacaoFinal + "' \n ");
+        } else if (!dataFiliacao.isEmpty() && dataFiliacaoFinal.isEmpty()) {
+            list_where_socios.add(" so.filiacao >= '" + dataFiliacao + "' \n ");
+        } else if (dataFiliacao.isEmpty() && !dataFiliacaoFinal.isEmpty()) {
+            list_where_socios.add(" so.filiacao <= '" + dataFiliacaoFinal + "' \n ");
+        }
+
+        // DESCONTO FOLHA SÓCIO ---
+        if (desconto_folha_socio != null) {
+            if (desconto_folha_socio.equals("SIM")) {
+                list_where_socios.add(" so.desconto_folha = true ");
+            } else {
+                list_where_socios.add(" so.desconto_folha = false ");
+            }
+        }
+
+        // TIPO COBRANÇA ---
+        if (id_tipo_cobranca != null) {
+            list_where_socios.add(" so.cod_tipo_cobranca = " + id_tipo_cobranca + " \n ");
+        }
+
+        /**
+         * SOMENTE PESSOA
+         */
+        // CIDADE DA EMPRESA
+        if (id_cidade_empresa != null) {
+            list_where_pessoa.add(" p.e_id_cidade = " + id_cidade_empresa);
         }
 
         // DATA CADASTRO ---
         if (!dataCadastro.isEmpty() && !dataCadastroFinal.isEmpty()) {
-            list_where.add(" p.cadastro BETWEEN '" + dataCadastro + "' and '" + dataCadastroFinal + "' \n ");
+            list_where_pessoa.add(" p.cadastro BETWEEN '" + dataCadastro + "' and '" + dataCadastroFinal + "' \n ");
         } else if (!dataCadastro.isEmpty() && dataCadastroFinal.isEmpty()) {
-            list_where.add(" p.cadastro >= '" + dataCadastro + "' \n ");
+            list_where_pessoa.add(" p.cadastro >= '" + dataCadastro + "' \n ");
         } else if (dataCadastro.isEmpty() && !dataCadastroFinal.isEmpty()) {
-            list_where.add(" p.cadastro <= '" + dataCadastroFinal + "' \n ");
+            list_where_pessoa.add(" p.cadastro <= '" + dataCadastroFinal + "' \n ");
         }
 
         // DATA RECADASTRO ---
@@ -95,47 +126,38 @@ public class RelatorioFinanceiroSocialDao extends DB {
 
         // DATA ADMISSAO ---
         if (!dataAdmissao.isEmpty() && !dataAdmissaoFinal.isEmpty()) {
-            list_where.add(" p.admissao BETWEEN '" + dataAdmissao + "' and '" + dataAdmissaoFinal + "' \n ");
+            list_where_pessoa.add(" p.admissao BETWEEN '" + dataAdmissao + "' and '" + dataAdmissaoFinal + "' \n ");
         } else if (!dataAdmissao.isEmpty() && dataAdmissaoFinal.isEmpty()) {
-            list_where.add(" p.admissao >= '" + dataAdmissao + "' \n ");
+            list_where_pessoa.add(" p.admissao >= '" + dataAdmissao + "' \n ");
         } else if (dataAdmissao.isEmpty() && !dataAdmissaoFinal.isEmpty()) {
-            list_where.add(" p.admissao <= '" + dataAdmissaoFinal + "' \n ");
+            list_where_pessoa.add(" p.admissao <= '" + dataAdmissaoFinal + "' \n ");
         }
 
         // DATA DEMISSAO ---
         if (!dataDemissao.isEmpty() && !dataDemissaoFinal.isEmpty()) {
-            list_where.add(" p.demissao BETWEEN '" + dataDemissao + "' and '" + dataDemissaoFinal + "' \n ");
+            list_where_pessoa.add(" p.demissao BETWEEN '" + dataDemissao + "' and '" + dataDemissaoFinal + "' \n ");
         } else if (!dataDemissao.isEmpty() && dataDemissaoFinal.isEmpty()) {
-            list_where.add(" p.demissao >= '" + dataDemissao + "' \n ");
+            list_where_pessoa.add(" p.demissao >= '" + dataDemissao + "' \n ");
         } else if (dataDemissao.isEmpty() && !dataDemissaoFinal.isEmpty()) {
-            list_where.add(" p.demissao <= '" + dataDemissaoFinal + "' \n ");
-        }
-
-        // DATA FILIACAO ---
-        if (!dataFiliacao.isEmpty() && !dataFiliacaoFinal.isEmpty()) {
-            list_where.add(" so.filiacao BETWEEN '" + dataFiliacao + "' and '" + dataFiliacaoFinal + "' \n ");
-        } else if (!dataFiliacao.isEmpty() && dataFiliacaoFinal.isEmpty()) {
-            list_where.add(" so.filiacao >= '" + dataFiliacao + "' \n ");
-        } else if (dataFiliacao.isEmpty() && !dataFiliacaoFinal.isEmpty()) {
-            list_where.add(" so.filiacao <= '" + dataFiliacaoFinal + "' \n ");
+            list_where_pessoa.add(" p.demissao <= '" + dataDemissaoFinal + "' \n ");
         }
 
         // DATA APOSENTADORIA ---
         if (!dataAposentadoria.isEmpty() && !dataAposentadoriaFinal.isEmpty()) {
-            list_where.add(" p.dt_aposentadoria BETWEEN '" + dataAposentadoria + "' and '" + dataAposentadoriaFinal + "' \n ");
+            list_where_pessoa.add(" p.dt_aposentadoria BETWEEN '" + dataAposentadoria + "' and '" + dataAposentadoriaFinal + "' \n ");
         } else if (!dataAposentadoria.isEmpty() && dataAposentadoriaFinal.isEmpty()) {
-            list_where.add(" p.dt_aposentadoria >= '" + dataAposentadoria + "' \n ");
+            list_where_pessoa.add(" p.dt_aposentadoria >= '" + dataAposentadoria + "' \n ");
         } else if (dataAposentadoria.isEmpty() && !dataAposentadoriaFinal.isEmpty()) {
-            list_where.add(" p.dt_aposentadoria <= '" + dataAposentadoriaFinal + "' \n ");
+            list_where_pessoa.add(" p.dt_aposentadoria <= '" + dataAposentadoriaFinal + "' \n ");
         }
 
         // DATA ATUALIZAÇÃO ---
         if (!dataAtualizacao.isEmpty() && !dataAtualizacaoFinal.isEmpty()) {
-            list_where.add(" p.dt_atualizacao BETWEEN '" + dataAtualizacao + "' and '" + dataAtualizacaoFinal + "' \n ");
+            list_where_pessoa.add(" p.dt_atualizacao BETWEEN '" + dataAtualizacao + "' and '" + dataAtualizacaoFinal + "' \n ");
         } else if (!dataAtualizacao.isEmpty() && dataAtualizacaoFinal.isEmpty()) {
-            list_where.add(" p.dt_atualizacao >= '" + dataAtualizacao + "' \n ");
+            list_where_pessoa.add(" p.dt_atualizacao >= '" + dataAtualizacao + "' \n ");
         } else if (dataAtualizacao.isEmpty() && !dataAtualizacaoFinal.isEmpty()) {
-            list_where.add(" p.dt_atualizacao <= '" + dataAtualizacaoFinal + "' \n ");
+            list_where_pessoa.add(" p.dt_atualizacao <= '" + dataAtualizacaoFinal + "' \n ");
         }
 
         // TIPO SITUAÇÃO
@@ -162,15 +184,6 @@ public class RelatorioFinanceiroSocialDao extends DB {
             }
         }
 
-        // DESCONTO FOLHA SÓCIO ---
-        if (desconto_folha_socio != null) {
-            if (desconto_folha_socio.equals("SIM")) {
-                list_where.add(" so.desconto_folha = true ");
-            } else {
-                list_where.add(" so.desconto_folha = false ");
-            }
-        }
-
         // GRUPO ---
         if (id_grupo_financeiro != null) {
             list_where.add(" m.id_grupo = " + id_grupo_financeiro + " \n ");
@@ -184,11 +197,6 @@ public class RelatorioFinanceiroSocialDao extends DB {
         // SERVICOS ---
         if (id_servicos != null) {
             list_where.add(" m.id_servico = " + id_servicos + " \n ");
-        }
-
-        // TIPO COBRANÇA ---
-        if (id_tipo_cobranca != null) {
-            list_where.add(" so.cod_tipo_cobranca = " + id_tipo_cobranca + " \n ");
         }
 
         // DATA EMISSAO ---
@@ -295,6 +303,34 @@ public class RelatorioFinanceiroSocialDao extends DB {
             } else {
                 where += " AND " + linha + " \n ";
             }
+        }
+        if (where.isEmpty()) {
+            where += " WHERE ";
+        }
+        if (!list_where_socios.isEmpty()) {
+            where += " AND m.id_beneficiario in (select codsocio from soc_socios_vw as so ";
+            for (int i = 0; i < list_where_socios.size(); i++) {
+                if (i == 0) {
+                    where += " WHERE " + list_where_socios.get(i) + " \n ";
+                } else {
+                    where += " AND " + list_where_socios.get(i) + " \n ";
+                }
+            }
+            where += " ) \n";
+        }
+        if (where.isEmpty()) {
+            where += " WHERE ";
+        }
+        if (list_where_pessoa.isEmpty()) {
+            where += " AND m.id_titular in (select codigo from pes_pessoa_vw ";
+            for (int i = 0; i < list_where_pessoa.size(); i++) {
+                if (i == 0) {
+                    where += " WHERE " + list_where_pessoa.get(i) + " \n ";
+                } else {
+                    where += " AND " + list_where_pessoa.get(i) + " \n ";
+                }
+            }
+            where += " ) \n";
         }
 
         List<RelatorioGrupo> listaRG = new RelatorioDao().listaRelatorioGrupo(relatorio.getId());

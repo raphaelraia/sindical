@@ -9,10 +9,14 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "sis_relatorio_parametros")
+@Table(name = "sis_relatorio_parametros",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"id_relatorio", "ds_parametro", "ds_apelido"})
+)
 public class RelatorioParametros implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -21,9 +25,9 @@ public class RelatorioParametros implements Serializable {
     @ManyToOne
     private Relatorios relatorio;
     @Column(name = "ds_parametro", length = 100, nullable = false)
-    private String parametro;    
+    private String parametro;
     @Column(name = "ds_apelido", length = 100, nullable = false)
-    private String apelido;    
+    private String apelido;
 
     public RelatorioParametros() {
         this.id = -1;
@@ -31,7 +35,7 @@ public class RelatorioParametros implements Serializable {
         this.parametro = "";
         this.apelido = "";
     }
-    
+
     public RelatorioParametros(Integer id, Relatorios relatorio, String parametro, String apelido) {
         this.id = id;
         this.relatorio = relatorio;

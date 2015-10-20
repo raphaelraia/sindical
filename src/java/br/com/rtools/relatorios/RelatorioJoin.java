@@ -9,9 +9,12 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "sis_relatorio_join")
+@Table(name = "sis_relatorio_join",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"id_relatorio", "ds_join"})
+)
 public class RelatorioJoin implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
