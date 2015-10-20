@@ -101,39 +101,74 @@ public class RelatorioDescontoFolhaBean implements Serializable {
         }
         List<RelatorioDescontoFolha> rdfs = new ArrayList<>();
         sisProcesso.startQuery();
-        List list = new RelatorioDescontoFolhaDao().find(empresa_id, titular_id, rf_i, rf_f);
+        List list = new RelatorioDescontoFolhaDao().find(r.getId(), empresa_id, titular_id, rf_i, rf_f);
         sisProcesso.finishQuery();
         ConfiguracaoSocial configuracaoSocial = (ConfiguracaoSocial) new Dao().find(new ConfiguracaoSocial(), 1);
         for (int i = 0; i < list.size(); i++) {
             List o = (List) list.get(i);
-            rdfs.add(
-                    new RelatorioDescontoFolha(
-                            o.get(0),
-                            o.get(1),
-                            o.get(2),
-                            o.get(3),
-                            o.get(4),
-                            o.get(5),
-                            o.get(6),
-                            o.get(7),
-                            o.get(8),
-                            o.get(9),
-                            o.get(10),
-                            o.get(11),
-                            o.get(12),
-                            o.get(13),
-                            o.get(14),
-                            o.get(15),
-                            o.get(16)
-                    )
-            );
+            if (r.getId().equals(62)) {
+                rdfs.add(
+                        new RelatorioDescontoFolha(
+                                o.get(0),
+                                o.get(1),
+                                o.get(2),
+                                o.get(3),
+                                o.get(4),
+                                o.get(5),
+                                o.get(6),
+                                o.get(7),
+                                o.get(8),
+                                o.get(9),
+                                o.get(10),
+                                o.get(11),
+                                o.get(12),
+                                o.get(13),
+                                o.get(14),
+                                o.get(15),
+                                o.get(16)
+                        )
+                );
+            } else if (r.getId().equals(63)) {
+                rdfs.add(
+                        new RelatorioDescontoFolha(
+                                o.get(0),
+                                o.get(1),
+                                o.get(2),
+                                o.get(3),
+                                o.get(4),
+                                o.get(5),
+                                o.get(6),
+                                o.get(7),
+                                o.get(8),
+                                o.get(9),
+                                o.get(10),
+                                o.get(11),
+                                o.get(12),
+                                o.get(13),
+                                o.get(14),
+                                o.get(15),
+                                o.get(16),
+                                o.get(17),
+                                o.get(18),
+                                o.get(19),
+                                o.get(20),
+                                o.get(21),
+                                o.get(22)
+                        )
+                );
+
+            }
         }
         if (list.isEmpty()) {
             GenericaMensagem.warn("Mensagem", "Nenhum registro encontrado!");
             return;
         }
         Jasper.TITLE = r.getNome();
-        Jasper.TYPE = "default";
+        if(r.getId().equals(62)) {
+            Jasper.TYPE = "default";            
+        } else if(r.getId().equals(63)) {
+            Jasper.TYPE = "recibo_sem_logo";            
+        }
         Map map = new HashMap();
         map.put("obs_desconto_folha", configuracaoSocial.getObsDescontoFolha());
         Jasper.printReports(r.getJasper(), r.getNome(), rdfs, map);
@@ -329,7 +364,33 @@ public class RelatorioDescontoFolhaBean implements Serializable {
         private Object e_endereco_uf;
         private Object e_endereco_cep;
         private Object empresa_contato;
+        private Object categoria_descricao;
+        private Object matricula;
+        private Object servico_descricao;
+        private Object beneficiario_nome;
+        private Object mes;
+        private Object ano;
 
+        /**
+         *
+         * @param socio_codigo
+         * @param empresa_nome
+         * @param titular_nome
+         * @param movimento_referencia
+         * @param movimento_vencimento
+         * @param movimento_valor
+         * @param empresa_documento
+         * @param empresa_telefone1
+         * @param e_endereco_logradouro
+         * @param e_endereco_descricao
+         * @param e_endereco_numero
+         * @param e_endereco_complemento
+         * @param e_endereco_bairro
+         * @param e_endereco_cidade
+         * @param e_endereco_uf
+         * @param e_endereco_cep
+         * @param empresa_contato
+         */
         public RelatorioDescontoFolha(Object socio_codigo, Object empresa_nome, Object titular_nome, Object movimento_referencia, Object movimento_vencimento, Object movimento_valor, Object empresa_documento, Object empresa_telefone1, Object e_endereco_logradouro, Object e_endereco_descricao, Object e_endereco_numero, Object e_endereco_complemento, Object e_endereco_bairro, Object e_endereco_cidade, Object e_endereco_uf, Object e_endereco_cep, Object empresa_contato) {
             this.socio_codigo = socio_codigo;
             this.empresa_nome = empresa_nome;
@@ -348,6 +409,58 @@ public class RelatorioDescontoFolhaBean implements Serializable {
             this.e_endereco_uf = e_endereco_uf;
             this.e_endereco_cep = e_endereco_cep;
             this.empresa_contato = empresa_contato;
+        }
+
+        /**
+         *
+         * @param socio_codigo
+         * @param empresa_nome
+         * @param titular_nome
+         * @param movimento_referencia
+         * @param movimento_vencimento
+         * @param movimento_valor
+         * @param empresa_documento
+         * @param empresa_telefone1
+         * @param e_endereco_logradouro
+         * @param e_endereco_descricao
+         * @param e_endereco_numero
+         * @param e_endereco_complemento
+         * @param e_endereco_bairro
+         * @param e_endereco_cidade
+         * @param e_endereco_uf
+         * @param e_endereco_cep
+         * @param empresa_contato
+         * @param categoria_descricao
+         * @param matricula
+         * @param servico_descricao
+         * @param beneficiario_nome
+         * @param mes
+         * @param ano
+         */
+        public RelatorioDescontoFolha(Object socio_codigo, Object empresa_nome, Object titular_nome, Object movimento_referencia, Object movimento_vencimento, Object movimento_valor, Object empresa_documento, Object empresa_telefone1, Object e_endereco_logradouro, Object e_endereco_descricao, Object e_endereco_numero, Object e_endereco_complemento, Object e_endereco_bairro, Object e_endereco_cidade, Object e_endereco_uf, Object e_endereco_cep, Object empresa_contato, Object categoria_descricao, Object matricula, Object servico_descricao, Object beneficiario_nome, Object mes, Object ano) {
+            this.socio_codigo = socio_codigo;
+            this.empresa_nome = empresa_nome;
+            this.titular_nome = titular_nome;
+            this.movimento_referencia = movimento_referencia;
+            this.movimento_vencimento = movimento_vencimento;
+            this.movimento_valor = movimento_valor;
+            this.empresa_documento = empresa_documento;
+            this.empresa_telefone1 = empresa_telefone1;
+            this.e_endereco_logradouro = e_endereco_logradouro;
+            this.e_endereco_descricao = e_endereco_descricao;
+            this.e_endereco_numero = e_endereco_numero;
+            this.e_endereco_complemento = e_endereco_complemento;
+            this.e_endereco_bairro = e_endereco_bairro;
+            this.e_endereco_cidade = e_endereco_cidade;
+            this.e_endereco_uf = e_endereco_uf;
+            this.e_endereco_cep = e_endereco_cep;
+            this.empresa_contato = empresa_contato;
+            this.categoria_descricao = categoria_descricao;
+            this.matricula = matricula;
+            this.servico_descricao = servico_descricao;
+            this.beneficiario_nome = beneficiario_nome;
+            this.mes = mes;
+            this.ano = ano;
         }
 
         public Object getSocio_codigo() {
@@ -484,6 +597,54 @@ public class RelatorioDescontoFolhaBean implements Serializable {
 
         public void setEmpresa_contato(Object empresa_contato) {
             this.empresa_contato = empresa_contato;
+        }
+
+        public Object getCategoria_descricao() {
+            return categoria_descricao;
+        }
+
+        public void setCategoria_descricao(Object categoria_descricao) {
+            this.categoria_descricao = categoria_descricao;
+        }
+
+        public Object getMatricula() {
+            return matricula;
+        }
+
+        public void setMatricula(Object matricula) {
+            this.matricula = matricula;
+        }
+
+        public Object getServico_descricao() {
+            return servico_descricao;
+        }
+
+        public void setServico_descricao(Object servico_descricao) {
+            this.servico_descricao = servico_descricao;
+        }
+
+        public Object getBeneficiario_nome() {
+            return beneficiario_nome;
+        }
+
+        public void setBeneficiario_nome(Object beneficiario_nome) {
+            this.beneficiario_nome = beneficiario_nome;
+        }
+
+        public Object getMes() {
+            return mes;
+        }
+
+        public void setMes(Object mes) {
+            this.mes = mes;
+        }
+
+        public Object getAno() {
+            return ano;
+        }
+
+        public void setAno(Object ano) {
+            this.ano = ano;
         }
     }
 }

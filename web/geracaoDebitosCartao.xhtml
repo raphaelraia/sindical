@@ -64,8 +64,8 @@
                                 </p:column>
                                 <p:column width="100" styleClass="text-center" headerText="Foto">
                                     <h:panelGrid columns="2" styleClass="sbb">
-                                        <p:commandButton rendered="#{!geracaoDebitosCartaoBean.renderedUpload(socio.servicoPessoa.pessoa)}" action="#{photoUpload.openAndSave(socio.servicoPessoa.pessoa, 'form_gdc')}" icon="ui-icon-arrowthick-1-n" title="Enviar Foto" global="false" />
-                                        <p:commandButton rendered="#{!geracaoDebitosCartaoBean.renderedUpload(socio.servicoPessoa.pessoa)}" action="#{photoCapture.openAndSave(socio.servicoPessoa.pessoa, 'form_gdc')}" icon="photocam"  title="Capturar Foto" global="false" />
+                                        <p:commandButton rendered="#{!geracaoDebitosCartaoBean.renderedUpload(socio.servicoPessoa.pessoa)}" action="#{photoUpload.openAndSave(socio.servicoPessoa.pessoa, 'form_gdc')}" icon="ui-icon-arrowthick-1-n" title="Enviar Foto" global="false" disabled="#{controleAcessoBean.verificarPermissao('libera_camera', 1)}"/>
+                                        <p:commandButton rendered="#{!geracaoDebitosCartaoBean.renderedUpload(socio.servicoPessoa.pessoa)}" action="#{photoCapture.openAndSave(socio.servicoPessoa.pessoa, 'form_gdc')}" icon="photocam"  title="Capturar Foto" global="false" disabled="#{controleAcessoBean.verificarPermissao('libera_upload', 1)}"/>
                                     </h:panelGrid>
                                 </p:column>
                             </p:dataTable>                            

@@ -362,7 +362,7 @@
                                     </p:column>
 
                                     <p:column headerText="Val. Dependente" style="text-align: center">
-                                        <p:inputMask id="i_validade_dependente" value="#{listDependentes.validadeDependente}" size="5" mask="99/9999"/>
+                                        <p:inputMask id="i_validade_dependente" value="#{listDependentes.validadeDependente}" size="5" mask="99/9999" disabled="#{controleAcessoBean.verificarPermissao('validade_socio', 1)}" />
                                     </p:column>
 
                                     <p:column headerText="Valor" style="text-align: center">
@@ -613,8 +613,8 @@
                                                         </h:column>
                                                     </p:panel>                                                
                                                     <h:panelGrid columns="4">
-                                                        <p:commandButton icon="photocam" value="Capturar Foto" title="Capturar Foto" action="#{photoCapture.openAndSave(sociosBean.novoDependente.pessoa, ':formSocios:i_panel_dados')}" global="false" disabled="#{sociosBean.novoDependente.id == -1}" />
-                                                        <p:commandButton icon="ui-icon-arrowthick-1-n" value="Upload Foto" title="Enviar Foto" action="#{photoUpload.openAndSave(sociosBean.novoDependente.pessoa, ':formSocios:i_panel_dados')}" disabled="#{sociosBean.novoDependente.id == -1}" />
+                                                        <p:commandButton icon="photocam" value="Capturar Foto" title="Capturar Foto" action="#{photoCapture.openAndSave(sociosBean.novoDependente.pessoa, ':formSocios:i_panel_dados')}" global="false" disabled="#{sociosBean.novoDependente.id == -1 or controleAcessoBean.verificarPermissao('libera_camera', 1)}"/>
+                                                        <p:commandButton icon="ui-icon-arrowthick-1-n" value="Upload Foto" title="Enviar Foto" action="#{photoUpload.openAndSave(sociosBean.novoDependente.pessoa, ':formSocios:i_panel_dados')}" disabled="#{sociosBean.novoDependente.id == -1 or controleAcessoBean.verificarPermissao('libera_upload', 1)}" />
                                                         <p:commandButton icon="ui-icon-scissors" value="Cortar Foto" title="Cortar Foto" action="#{photoCropper.openAndSave(sociosBean.novoDependente.pessoa, ':formSocios:i_panel_dados')}" global="false" disabled="#{sociosBean.novoDependente.id == -1 or (sociosBean.novoDependente.pessoa.fotoResource eq 'images/user_male.png' or sociosBean.novoDependente.pessoa.fotoResource eq 'images/user_female.png')}"/>
                                                         <p:commandButton icon="ui-icon-trash" title="Remover Foto" action="#{sociosBean.apagarImagem()}" rendered="#{not empty sociosBean.novoDependente.pessoa.foto}" update=":formSocios:i_panel_dados"  disabled="#{sociosBean.novoDependente.id == -1}"/>
                                                     </h:panelGrid>

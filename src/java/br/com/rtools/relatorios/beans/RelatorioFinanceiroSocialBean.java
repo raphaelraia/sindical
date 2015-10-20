@@ -12,6 +12,7 @@ import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.GrupoFinanceiro;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.SubGrupoFinanceiro;
+import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.financeiro.db.FinanceiroDB;
 import br.com.rtools.financeiro.db.FinanceiroDBToplink;
 import br.com.rtools.pessoa.Pessoa;
@@ -24,6 +25,7 @@ import br.com.rtools.relatorios.dao.RelatorioFinanceiroSocialDao;
 import br.com.rtools.relatorios.dao.RelatorioOrdemDao;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
+import br.com.rtools.sistema.SisProcesso;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
@@ -270,7 +272,7 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
                 break;
             case "desconto_folha_financeiro":
                 descontoFolhaFinanceiro = "SIM";
-                    break;
+                break;
         }
     }
 
@@ -385,7 +387,11 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
         idServicos = 0;
 
         // (listaFiltrosFinanceiro.get(1).ativo) SUB GRUPO
-        List<Servicos> result = new RelatorioFinanceiroDao().listaServicosSubGrupo((listaFiltrosFinanceiro.get(1).ativo) ? Integer.valueOf(listaSubGrupo.get(idSubGrupo).getDescription()) : null);
+        List<Servicos> result = new ArrayList<>();
+        result = new RelatorioFinanceiroDao().listaServicosSubGrupo((listaFiltrosFinanceiro.get(1).ativo) ? Integer.valueOf(listaSubGrupo.get(idSubGrupo).getDescription()) : null);
+//        if (result.isEmpty()) {
+//            result = new Dao().list(new Servicos(), true);
+//        }
         if (!result.isEmpty()) {
             for (int i = 0; i < result.size(); i++) {
                 listaServicos.add(
@@ -436,6 +442,8 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
     }
 
     public void imprimir() {
+        SisProcesso sisProcesso = new SisProcesso();
+        sisProcesso.start();
         Relatorios relatorios = (Relatorios) new Dao().find(new Relatorios(), Integer.parseInt(listaRelatorio.get(idRelatorio).getDescription()));
         Integer id_grupo_categoria = null, id_categoria = null, id_parentesco = null, id_cidade_socio = null, id_cidade_empresa = null, id_tipo_cobranca = null;
         Boolean is_votante = null;
@@ -698,7 +706,9 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
             ordem = ((RelatorioOrdem) new Dao().find(new RelatorioOrdem(), Integer.valueOf(listaRelatorioOrdem.get(idRelatorioOrdem).getDescription()))).getQuery();
         }
 
+        sisProcesso.startQuery();
         List<Object> result = new RelatorioFinanceiroSocialDao().listaRelatorioFinanceiroSocial(id_grupo_categoria, id_categoria, id_parentesco, id_cidade_socio, id_cidade_empresa, is_votante, dtCadastro, dtCadastroFinal, dtRecadastro, dtRecadastroFinal, dtAdmissao, dtAdmissaoFinal, dtDemissao, dtDemissaoFinal, dtFiliacao, dtFiliacaoFinal, dtAposentadoria, dtAposentadoriaFinal, dtAtualizacao, dtAtualizacaoFinal, tipo_situacao, tipoPessoa, id_pessoa, id_grupo_financeiro, id_sub_grupo, id_servicos, id_tipo_cobranca, dtEmissao, dtEmissaoFinal, dtVencimento, dtVencimentoFinal, dtQuitacao, dtQuitacaoFinal, tipo_es, tipo_situacao_financeiro, tipo_departamento, tipo_pessoa, is_desc_folha_soc, is_desc_folha_fin, ordem, relatorios);
+        sisProcesso.finishQuery();
 
         if (result.isEmpty()) {
             GenericaMensagem.error("Atenção", "Nenhum resultado encontrado para a pesquisa!");
@@ -726,7 +736,8 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
 
         Jasper.EXPORT_TO = chkExcel;
         Jasper.printReports(relatorios.getJasper(), relatorios.getNome(), list_hash, params);
-
+        sisProcesso.setProcesso(relatorios.getNome());
+        sisProcesso.finish();
     }
 
     public Integer getIdRelatorio() {

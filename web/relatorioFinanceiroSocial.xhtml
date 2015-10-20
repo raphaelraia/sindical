@@ -37,7 +37,7 @@
                     <ui:include src="templates/templatePrime.xhtml"/>
                 </f:subview>
                 <f:view>
-                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}" footer="Tempo médio estimado: #{sisProcessoBean.tempoMedio()} ms">
                         <h:outputText value="Relatório Financeiro Social" styleClass="fonteHeader" />
                         <h:form id="formRelatorioFinanceiroSocial">
                             <p:panel styleClass="fundoCinza" style="clear: both; width: 100%">
