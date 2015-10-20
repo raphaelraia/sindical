@@ -321,7 +321,7 @@ public class RelatorioFinanceiroSocialDao extends DB {
         if (where.isEmpty()) {
             where += " WHERE ";
         }
-        if (list_where_pessoa.isEmpty()) {
+        if (!list_where_pessoa.isEmpty()) {
             where += " AND m.id_titular in (select codigo from pes_pessoa_vw ";
             for (int i = 0; i < list_where_pessoa.size(); i++) {
                 if (i == 0) {
@@ -352,7 +352,7 @@ public class RelatorioFinanceiroSocialDao extends DB {
             order = " ORDER BY " + order;
         }
 
-        Query qry = getEntityManager().createNativeQuery(select + where + group + order + " LIMIT 4000");
+        Query qry = getEntityManager().createNativeQuery(select + where + group + order);
 
         try {
             return qry.getResultList();

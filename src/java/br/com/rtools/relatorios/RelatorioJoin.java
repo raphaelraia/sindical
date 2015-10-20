@@ -23,7 +23,7 @@ public class RelatorioJoin implements Serializable {
     @JoinColumn(name = "id_relatorio", referencedColumnName = "id", nullable = false)
     @ManyToOne
     private Relatorios relatorio;
-    @Column(name = "ds_join", length = 100, nullable = false)
+    @Column(name = "ds_join", length = 255, nullable = false)
     private String join;  
 
     public RelatorioJoin() {

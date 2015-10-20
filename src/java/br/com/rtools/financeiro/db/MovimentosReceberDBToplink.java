@@ -8,40 +8,40 @@ import javax.persistence.Query;
 public class MovimentosReceberDBToplink extends DB implements MovimentosReceberDB {
 
     @Override
-    public List pesquisaListaMovimentos(int id_juridica) {
+    public List pesquisaListaMovimentos(Integer id_juridica) {
         try {
-            String textoQuery = ""
-                    + "     SELECT m.ds_documento Boleto,                       "
-                    + "            se.ds_descricao          AS Servico,         "
-                    + "            tp.ds_descricao          AS Tipo,            "
-                    + "            m.ds_referencia          AS Referencia,      "
-                    + "            m.dt_vencimento          AS Vencimento,      "
-                    + "            func_valor_folha(m.id)   AS Valor_Mov,       "
-                    //+ "            m.nr_valor               AS Valor_Mov,       "
-                    + "            f.nr_valor               AS Valor_Folha,     "
-                    + "            func_multa(m.id)         AS Multa,           "
-                    + "            func_juros(m.id)         AS Juros,           "
-                    + "            func_correcao(m.id)      AS Correcao,        "
-                    + "            null                     AS Desconto,        "
-                    + "            func_valor_folha(m.id) + func_multa(m.id) + func_juros(m.id) + func_correcao(m.id)   AS Valor_calculado, "
-                    + "            func_intervalo_meses(CURRENT_DATE,dt_vencimento)                                     AS Meses_em_Atraso, "
-                    + "            CURRENT_DATE-dt_vencimento                                                           AS Dias_em_atraso,  "
-                    + "            i.ds_descricao indice,"
-                    + "            m.id AS id"
-                    + "       FROM fin_movimento                    AS m"
-                    + " INNER JOIN fin_servicos                     AS se ON se.id = m.id_servicos"
-                    + " INNER JOIN fin_tipo_servico                 AS tp ON tp.id = m.id_tipo_servico"
-                    + " INNER JOIN pes_juridica                     AS j ON j.id_pessoa = m.id_pessoa"
-                    + "  LEFT JOIN arr_faturamento_folha_empresa    AS f ON f.id_juridica = j.id AND f.ds_referencia = m.ds_referencia AND f.id_tipo_servico = m.id_tipo_servico "
-                    + "  LEFT JOIN fin_correcao                     AS cr ON cr.id_servicos = m.id_servicos AND "
+            String textoQuery = "-- MovimentosReceberDBToplink->pesquisaListaMovimentos(Integer id_juridica:" + id_juridica + ") \n\n"
+                    + ""
+                    + "     SELECT m.ds_documento Boleto,                           \n" // 0
+                    + "            se.ds_descricao          AS Servico,             \n" // 1
+                    + "            tp.ds_descricao          AS Tipo,                \n" // 2
+                    + "            m.ds_referencia          AS Referencia,          \n" // 3
+                    + "            m.dt_vencimento          AS Vencimento,          \n" // 4
+                    + "            func_valor_folha(m.id)   AS Valor_Mov,           \n" // 5
+                    + "            f.nr_valor               AS Valor_Folha,         \n" // 6
+                    + "            func_multa(m.id)         AS Multa,               \n" // 7
+                    + "            func_juros(m.id)         AS Juros,               \n" // 8
+                    + "            func_correcao(m.id)      AS Correcao,            \n" // 9
+                    + "            null                     AS Desconto,            \n" // 10
+                    + "            func_valor_folha(m.id) + func_multa(m.id) + func_juros(m.id) + func_correcao(m.id)   AS Valor_calculado, \n" // 11
+                    + "            func_intervalo_meses(CURRENT_DATE,dt_vencimento)                                     AS Meses_em_Atraso, \n" // 12
+                    + "            CURRENT_DATE-dt_vencimento                                                           AS Dias_em_atraso,  \n" // 13
+                    + "            i.ds_descricao indice,                                                                                   \n" // 14
+                    + "            m.id                                                                                 AS id               \n" // 15
+                    + "       FROM fin_movimento                    AS m                                \n"
+                    + " INNER JOIN fin_servicos                     AS se ON se.id = m.id_servicos      \n"
+                    + " INNER JOIN fin_tipo_servico                 AS tp ON tp.id = m.id_tipo_servico  \n"
+                    + " INNER JOIN pes_juridica                     AS j ON j.id_pessoa = m.id_pessoa   \n"
+                    + "  LEFT JOIN arr_faturamento_folha_empresa    AS f ON f.id_juridica = j.id AND f.ds_referencia = m.ds_referencia AND f.id_tipo_servico = m.id_tipo_servico \n"
+                    + "  LEFT JOIN fin_correcao                     AS cr ON cr.id_servicos = m.id_servicos AND                                                                  "
                     + "                                                 (substring(m.ds_referencia,4,4)||substring(m.ds_referencia,1,2)) >= (substring(cr.ds_ref_inicial,4,4)||substring(cr.ds_ref_inicial,1,2)) AND "
                     + "                                                 (substring(m.ds_referencia,4,4)||substring(m.ds_referencia,1,2)) <= (substring(cr.ds_ref_final,4,4)||substring(cr.ds_ref_final,1,2))         "
-                    + "  LEFT JOIN fin_indice                       AS i ON i.id = cr.id_indice"
-                    + "      WHERE m.id_pessoa = " + id_juridica
-                    + "        AND m.is_ativo IS TRUE "
-                    + "        AND m.id_baixa IS NULL "
-                    + "        AND m.id_servicos IN (SELECT sr.id_servicos FROM fin_servico_rotina sr WHERE sr.id_rotina = 4)"
-                    + "   ORDER BY m.dt_vencimento";
+                    + "  LEFT JOIN fin_indice                       AS i ON i.id = cr.id_indice \n"
+                    + "      WHERE m.id_pessoa = " + id_juridica + " \n"
+                    + "        AND m.is_ativo IS TRUE \n"
+                    + "        AND m.id_baixa IS NULL \n"
+                    + "        AND m.id_servicos IN (SELECT sr.id_servicos FROM fin_servico_rotina sr WHERE sr.id_rotina = 4) \n"
+                    + "   ORDER BY m.dt_vencimento \n";
 
             Query qry = getEntityManager().createNativeQuery(textoQuery);
 

@@ -1810,7 +1810,13 @@
             <from-outcome>sisProcesso</from-outcome>
             <to-view-id>/sisProcesso.jsf</to-view-id>
             <redirect/>
-        </navigation-case>         
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>novapagina</from-outcome>
+            <to-view-id>/novapagina.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
         
         <!-- 
         <navigation-case>

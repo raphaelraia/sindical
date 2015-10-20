@@ -24,9 +24,9 @@ public class RelatorioParametros implements Serializable {
     @JoinColumn(name = "id_relatorio", referencedColumnName = "id", nullable = false)
     @ManyToOne
     private Relatorios relatorio;
-    @Column(name = "ds_parametro", length = 100, nullable = false)
+    @Column(name = "ds_parametro", length = 255, nullable = false)
     private String parametro;
-    @Column(name = "ds_apelido", length = 100, nullable = false)
+    @Column(name = "ds_apelido", length = 255, nullable = false)
     private String apelido;
 
     public RelatorioParametros() {
