@@ -321,7 +321,7 @@
                             <p:dialog id="i_panel_salvar" widgetVar="dgl_panel_salvar" modal="true" header="Deseja salvar este registro?" width="300">
                                 <center>
                                     <h:panelGrid columns="2">
-                                        <p:commandButton value="Sim" title="Salvar" actionListener="#{conviteMovimentoBean.save()}" update="@form"/>
+                                        <p:commandButton value="Sim" title="Salvar" actionListener="#{conviteMovimentoBean.save()}" update="@form" oncomplete="PF('dgl_panel_mensagem').show();"/>
                                         <p:commandButton value="Não" title="Cancelar" onclick="PF('dgl_panel_salvar').hide();"/>
                                     </h:panelGrid>
                                 </center>

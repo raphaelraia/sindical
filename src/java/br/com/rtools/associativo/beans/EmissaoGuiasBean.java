@@ -436,6 +436,11 @@ public class EmissaoGuiasBean implements Serializable {
 
     public void selecionarPessoaCadastro() {
         if (fisicaNovoCadastro.getId() != -1) {
+            if (new FunctionsDao().inadimplente(fisicaNovoCadastro.getPessoa().getId())) {
+                GenericaMensagem.error("Atenção", "Esta pessoa possui débitos com o Sindicato!");
+                return;
+            }
+        
             fisica = fisicaNovoCadastro;
             pessoa = fisicaNovoCadastro.getPessoa();
         }

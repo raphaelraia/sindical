@@ -133,7 +133,7 @@ public class ImpressaoParaSocios {
             FisicaDB fisicaDB = new FisicaDBToplink();
             Fisica fisica = fisicaDB.pesquisaFisicaPorPessoa(Integer.valueOf(id_pessoa));
             String[] imagensTipo = new String[]{"jpg", "jpeg", "png", "gif"};
-            File foto_cartao = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("")+ "resources/images/user_undefined.png");
+            File foto_cartao = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("")+ "resources/images/.png");
             
             for (String imagensTipo1 : imagensTipo) {
                 File test = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("")+ "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + fisica.getPessoa().getId() +"/"+fisica.getFoto()+"." + imagensTipo1);

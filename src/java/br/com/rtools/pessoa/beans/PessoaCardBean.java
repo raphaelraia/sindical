@@ -290,12 +290,17 @@ public class PessoaCardBean implements Serializable {
     }
 
     public String situacao(Pessoa p) {
-        JuridicaDB juridicaDB = new JuridicaDBToplink();
-        if (juridicaDB.empresaInativa(p.getId())) {
-            return "CONTRIBUINTE INÁTIVO";
-        } else {
-            return "CONTRIBUINTE";
+        try {
+            JuridicaDB juridicaDB = new JuridicaDBToplink();
+            if (juridicaDB.empresaInativa(p.getId())) {
+                return "CONTRIBUINTE INATIVO";
+            } else {
+                return "CONTRIBUINTE";
+            }
+        } catch (Exception e) {
+            e.getMessage();
         }
+        return "ERRO!";
     }
 
 }
