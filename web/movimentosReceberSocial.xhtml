@@ -347,9 +347,15 @@
                                         </p:column>
                                     </h:panelGrid>
 
-                                    <h:panelGrid styleClass="margin-top-max sbb">
-                                        <p:outputLabel value="Rotina" styleClass="bold"/>
-                                        <p:outputLabel value="#{linha.argumento1.lote.rotina.rotina}" />
+                                    <h:panelGrid styleClass="margin-top-max sbb" columns="4">
+                                        <p:column>
+                                            <p:outputLabel value="Rotina" styleClass="bold"/><br />
+                                            <p:outputLabel value="#{linha.argumento1.lote.rotina.rotina}" />                                            
+                                        </p:column>
+                                        <p:column>
+                                            <p:outputLabel value="Boleto" styleClass="bold"/><br />
+                                            <p:outputLabel value="#{linha.argumento17}" />
+                                        </p:column>
                                     </h:panelGrid>
                                     
                                     <p:panel header="Dados do Fechamento" rendered="#{linha.argumento1.baixa.fechamentoCaixa != null}">

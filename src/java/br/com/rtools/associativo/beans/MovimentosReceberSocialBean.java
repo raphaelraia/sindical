@@ -799,7 +799,7 @@ public class MovimentosReceberSocialBean implements Serializable {
                         (socios_enc.getMatriculaSocios().getId() == -1) ? "" : String.valueOf(socios_enc.getMatriculaSocios().getId()),
                         socios_enc.getMatriculaSocios().getCategoria().getCategoria(),
                         guia.getLote().getHistorico()
-                        //guia.getSubGrupoConvenio().getObservacao()
+                //guia.getSubGrupoConvenio().getObservacao()
                 ));
 
                 JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(vetor);
@@ -1002,7 +1002,7 @@ public class MovimentosReceberSocialBean implements Serializable {
             return null;
         }
 
-        if (motivoEstorno.isEmpty() || motivoEstorno.length() <= 5){
+        if (motivoEstorno.isEmpty() || motivoEstorno.length() <= 5) {
             GenericaMensagem.error("Atenção", "Motivo de Estorno INVÁLIDO!");
             return null;
         }
@@ -1472,7 +1472,7 @@ public class MovimentosReceberSocialBean implements Serializable {
 
             boolean chk, disabled;
             String dataBaixa;
-
+            // List<MovimentosReceberSocial> mrses = new ArrayList<>();
             for (int i = 0; i < lista.size(); i++) {
                 if (lista.get(i).get(8) != null) {
                     dataBaixa = DataHoje.converteData((Date) lista.get(i).get(8));
@@ -1542,7 +1542,6 @@ public class MovimentosReceberSocialBean implements Serializable {
                         lista.get(i).get(24), // ARG 23 DOCUMENTO
                         Moeda.converteR$(getConverteNullString(lista.get(i).get(7))), // ARG 24 VALOR CALCULADO ORIGINAL
                         disabled,
-                        //lista.get(i).get(18), // ARG 26 ID_BAIXA
                         lista.get(i).get(23), // ARG 26 ID_BAIXA
                         lista.get(i).get(15), // ARG 27 ID_LOTE
                         (!descPesquisaBoleto.isEmpty() && descPesquisaBoleto.equals(lista.get(i).get(17))) ? "tblListaBoleto" : "", // BOLETO PESQUISADO -- ARG 28
@@ -1993,5 +1992,343 @@ public class MovimentosReceberSocialBean implements Serializable {
     public void setMotivoEstorno(String motivoEstorno) {
         this.motivoEstorno = motivoEstorno;
     }
+
+//    public class MovimentosReceberSocial {
+//
+//        private Boolean selected;
+//        private Movimento movimento;
+//        private Object servico_descricao;
+//        private Object tipo_servico_descricao;
+//        private Object referencia;
+//        private String vencimento;
+//        private String valor;
+//        private String acrescimento;
+//        private String desconto;
+//        private String valor_calculado;
+//        private String baixa_data;
+//        private String baixa_valor;
+//        private Object es;
+//        private Object responsavel_nome;
+//        private Object beneficiario_nome;
+//        private Object titular_id;
+//        private String criacao;
+//        private Object boleto;
+//        private Object dias_atraso;
+//        private String multa;
+//        private String juros;
+//        private String correcao;
+//        private String caixa;
+//        private Object documento;
+//        private Object valor_calculado_original;
+//        private Boolean disabled;
+//        private Object baixa_id;
+//        private Object lote_id;
+//        private String tbl;
+//        private Boolean juros_bool;
+//        private Object titular_nome;
+//        private PessoaComplemento pessoa_complemento_titular;
+//        private PessoaComplemento pessoa_complemento_beneficiario;
+//
+//        public MovimentosReceberSocial(Boolean selected, Movimento movimento, Object servico_descricao, Object tipo_servico_descricao, Object referencia, String vencimento, String valor, String acrescimento, String desconto, String valor_calculado, String baixa_data, String baixa_valor, Object es, Object responsavel_nome, Object beneficiario_nome, Object titular_id, String criacao, Object boleto, Object dias_atraso, String multa, String juros, String correcao, String caixa, Object documento, Object valor_calculado_original, Boolean disabled, Object baixa_id, Object lote_id, String tbl, Boolean juros_bool, Object titular_nome, PessoaComplemento pessoa_complemento_titular, PessoaComplemento pessoa_complemento_beneficiario) {
+//            this.selected = selected;
+//            this.movimento = movimento;
+//            this.servico_descricao = servico_descricao;
+//            this.tipo_servico_descricao = tipo_servico_descricao;
+//            this.referencia = referencia;
+//            this.vencimento = vencimento;
+//            this.valor = valor;
+//            this.acrescimento = acrescimento;
+//            this.desconto = desconto;
+//            this.valor_calculado = valor_calculado;
+//            this.baixa_data = baixa_data;
+//            this.baixa_valor = baixa_valor;
+//            this.es = es;
+//            this.responsavel_nome = responsavel_nome;
+//            this.beneficiario_nome = beneficiario_nome;
+//            this.titular_id = titular_id;
+//            this.criacao = criacao;
+//            this.boleto = boleto;
+//            this.dias_atraso = dias_atraso;
+//            this.multa = multa;
+//            this.juros = juros;
+//            this.correcao = correcao;
+//            this.caixa = caixa;
+//            this.documento = documento;
+//            this.valor_calculado_original = valor_calculado_original;
+//            this.disabled = disabled;
+//            this.baixa_id = baixa_id;
+//            this.lote_id = lote_id;
+//            this.tbl = tbl;
+//            this.juros_bool = juros_bool;
+//            this.titular_nome = titular_nome;
+//            this.pessoa_complemento_titular = pessoa_complemento_titular;
+//            this.pessoa_complemento_beneficiario = pessoa_complemento_beneficiario;
+//        }
+//
+//        public Boolean getSelected() {
+//            return selected;
+//        }
+//
+//        public void setSelected(Boolean selected) {
+//            this.selected = selected;
+//        }
+//
+//        public Movimento getMovimento() {
+//            return movimento;
+//        }
+//
+//        public void setMovimento(Movimento movimento) {
+//            this.movimento = movimento;
+//        }
+//
+//        public Object getServico_descricao() {
+//            return servico_descricao;
+//        }
+//
+//        public void setServico_descricao(Object servico_descricao) {
+//            this.servico_descricao = servico_descricao;
+//        }
+//
+//        public Object getTipo_servico_descricao() {
+//            return tipo_servico_descricao;
+//        }
+//
+//        public void setTipo_servico_descricao(Object tipo_servico_descricao) {
+//            this.tipo_servico_descricao = tipo_servico_descricao;
+//        }
+//
+//        public Object getReferencia() {
+//            return referencia;
+//        }
+//
+//        public void setReferencia(Object referencia) {
+//            this.referencia = referencia;
+//        }
+//
+//        public String getVencimento() {
+//            return vencimento;
+//        }
+//
+//        public void setVencimento(String vencimento) {
+//            this.vencimento = vencimento;
+//        }
+//
+//        public String getValor() {
+//            return valor;
+//        }
+//
+//        public void setValor(String valor) {
+//            this.valor = valor;
+//        }
+//
+//        public String getAcrescimento() {
+//            return acrescimento;
+//        }
+//
+//        public void setAcrescimento(String acrescimento) {
+//            this.acrescimento = acrescimento;
+//        }
+//
+//        public String getDesconto() {
+//            return desconto;
+//        }
+//
+//        public void setDesconto(String desconto) {
+//            this.desconto = desconto;
+//        }
+//
+//        public String getValor_calculado() {
+//            return valor_calculado;
+//        }
+//
+//        public void setValor_calculado(String valor_calculado) {
+//            this.valor_calculado = valor_calculado;
+//        }
+//
+//        public String getBaixa_data() {
+//            return baixa_data;
+//        }
+//
+//        public void setBaixa_data(String baixa_data) {
+//            this.baixa_data = baixa_data;
+//        }
+//
+//        public String getBaixa_valor() {
+//            return baixa_valor;
+//        }
+//
+//        public void setBaixa_valor(String baixa_valor) {
+//            this.baixa_valor = baixa_valor;
+//        }
+//
+//        public Object getEs() {
+//            return es;
+//        }
+//
+//        public void setEs(Object es) {
+//            this.es = es;
+//        }
+//
+//        public Object getResponsavel_nome() {
+//            return responsavel_nome;
+//        }
+//
+//        public void setResponsavel_nome(Object responsavel_nome) {
+//            this.responsavel_nome = responsavel_nome;
+//        }
+//
+//        public Object getBeneficiario_nome() {
+//            return beneficiario_nome;
+//        }
+//
+//        public void setBeneficiario_nome(Object beneficiario_nome) {
+//            this.beneficiario_nome = beneficiario_nome;
+//        }
+//
+//        public Object getTitular_id() {
+//            return titular_id;
+//        }
+//
+//        public void setTitular_id(Object titular_id) {
+//            this.titular_id = titular_id;
+//        }
+//
+//        public String getCriacao() {
+//            return criacao;
+//        }
+//
+//        public void setCriacao(String criacao) {
+//            this.criacao = criacao;
+//        }
+//
+//        public Object getBoleto() {
+//            return boleto;
+//        }
+//
+//        public void setBoleto(Object boleto) {
+//            this.boleto = boleto;
+//        }
+//
+//        public Object getDias_atraso() {
+//            return dias_atraso;
+//        }
+//
+//        public void setDias_atraso(Object dias_atraso) {
+//            this.dias_atraso = dias_atraso;
+//        }
+//
+//        public String getMulta() {
+//            return multa;
+//        }
+//
+//        public void setMulta(String multa) {
+//            this.multa = multa;
+//        }
+//
+//        public String getJuros() {
+//            return juros;
+//        }
+//
+//        public void setJuros(String juros) {
+//            this.juros = juros;
+//        }
+//
+//        public String getCorrecao() {
+//            return correcao;
+//        }
+//
+//        public void setCorrecao(String correcao) {
+//            this.correcao = correcao;
+//        }
+//
+//        public Object getDocumento() {
+//            return documento;
+//        }
+//
+//        public void setDocumento(Object documento) {
+//            this.documento = documento;
+//        }
+//
+//        public Object getValor_calculado_original() {
+//            return valor_calculado_original;
+//        }
+//
+//        public void setValor_calculado_original(Object valor_calculado_original) {
+//            this.valor_calculado_original = valor_calculado_original;
+//        }
+//
+//        public Boolean getDisabled() {
+//            return disabled;
+//        }
+//
+//        public void setDisabled(Boolean disabled) {
+//            this.disabled = disabled;
+//        }
+//
+//        public Object getBaixa_id() {
+//            return baixa_id;
+//        }
+//
+//        public void setBaixa_id(Object baixa_id) {
+//            this.baixa_id = baixa_id;
+//        }
+//
+//        public Object getLote_id() {
+//            return lote_id;
+//        }
+//
+//        public void setLote_id(Object lote_id) {
+//            this.lote_id = lote_id;
+//        }
+//
+//        public String getTbl() {
+//            return tbl;
+//        }
+//
+//        public void setTbl(String tbl) {
+//            this.tbl = tbl;
+//        }
+//
+//        public Boolean getJuros_bool() {
+//            return juros_bool;
+//        }
+//
+//        public void setJuros_bool(Boolean juros_bool) {
+//            this.juros_bool = juros_bool;
+//        }
+//
+//        public Object getTitular_nome() {
+//            return titular_nome;
+//        }
+//
+//        public void setTitular_nome(Object titular_nome) {
+//            this.titular_nome = titular_nome;
+//        }
+//
+//        public PessoaComplemento getPessoa_complemento_titular() {
+//            return pessoa_complemento_titular;
+//        }
+//
+//        public void setPessoa_complemento_titular(PessoaComplemento pessoa_complemento_titular) {
+//            this.pessoa_complemento_titular = pessoa_complemento_titular;
+//        }
+//
+//        public PessoaComplemento getPessoa_complemento_beneficiario() {
+//            return pessoa_complemento_beneficiario;
+//        }
+//
+//        public void setPessoa_complemento_beneficiario(PessoaComplemento pessoa_complemento_beneficiario) {
+//            this.pessoa_complemento_beneficiario = pessoa_complemento_beneficiario;
+//        }
+//
+//        public String getCaixa() {
+//            return caixa;
+//        }
+//
+//        public void setCaixa(String caixa) {
+//            this.caixa = caixa;
+//        }
+//
+//    }
 
 }
