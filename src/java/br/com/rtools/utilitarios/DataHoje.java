@@ -218,7 +218,9 @@ public class DataHoje {
         if (((dInicial != null) && (dFinal != null))
                 && (DataHoje.converteDataParaInteger(DataHoje.converteData(dInicial)) < DataHoje.converteDataParaInteger(DataHoje.converteData(dFinal)))) {
             long dias = dFinal.getTime() - dInicial.getTime();
-            long total = dias / 86400000;
+            // CORRIGE DATAS COM HORÁRIO DE VERÃO -- 3600000
+            long total = (dias + 3600000) / 86400000;
+            //long total = (dias) / 86400000;
             return total;
         } else {
             return 0;

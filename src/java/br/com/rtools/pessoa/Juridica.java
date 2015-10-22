@@ -304,10 +304,12 @@ public class Juridica implements Serializable {
     }
 
     public CnaeConvencao getCnaeConvencao() {
-        CnaeConvencaoDB dB = new CnaeConvencaoDBToplink();
-        CnaeConvencao cnaeConvencao = dB.pesquisaCnaeComConvencao(cnae.getId());
-        if (cnaeConvencao != null) {
-            return cnaeConvencao;
+        if (cnae != null){
+            CnaeConvencaoDB dB = new CnaeConvencaoDBToplink();
+            CnaeConvencao cnaeConvencao = dB.pesquisaCnaeComConvencao(cnae.getId());
+            if (cnaeConvencao != null) {
+                return cnaeConvencao;
+            }
         }
         return null;
     }

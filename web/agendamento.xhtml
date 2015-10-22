@@ -358,7 +358,7 @@
                                     </h:column>
                                 </h:panelGrid>
 
-                                <h:panelGrid columns="1">
+                                <h:panelGrid columns="1" rendered="#{agendamentoBean.juridica.cnaeConvencao ne null}">
                                     <h:column>
                                         <h:outputText value="Convenção" style="font-weight: bold"/><br />
                                         <h:outputText value="#{agendamentoBean.juridica.cnaeConvencao.convencao.descricao}"/>

@@ -197,8 +197,13 @@ public class Sicoob extends Cobranca {
         if (vencimento != null) {
             Date dataModel = DataHoje.converte("03/07/2000");
             long dias = vencimento.getTime() - dataModel.getTime();
-            long total = dias / 86400000;
+            // CORRIGE DATAS COM HORÁRIO DE VERÃO -- 3600000
+            long total = (dias + 3600000) / 86400000;
+            //long total = (dias) / 86400000;
             total = total + 1000;
+            
+            //long totalx = (dias) / 86400000;
+            //totalx = totalx + 1000;
             return Long.toString(total);
         } else {
             return "";

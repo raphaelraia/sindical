@@ -11,6 +11,7 @@ import br.com.rtools.associativo.db.ParentescoDB;
 import br.com.rtools.associativo.db.ParentescoDao;
 import br.com.rtools.financeiro.GrupoFinanceiro;
 import br.com.rtools.financeiro.Plano5;
+import br.com.rtools.financeiro.ServicoContaCobranca;
 import br.com.rtools.financeiro.ServicoValor;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.SubGrupoFinanceiro;
@@ -41,7 +42,7 @@ import javax.faces.model.SelectItem;
 @ManagedBean
 @SessionScoped
 public class ServicosBean implements Serializable {
-    
+
     private Servicos servicos;
     private ServicoValor servicoValor;
     //private ServicoValor servicoValorDetalhe;
@@ -79,9 +80,8 @@ public class ServicosBean implements Serializable {
     private String valorDependente;
     private List<CategoriaDescontoDependente> listaDescontoDependente;
     private String situacao;
-    
-    @PostConstruct
-    public void init() {
+
+    public ServicosBean (){
         servicos = new Servicos();
         porPesquisa = "ds_descricao";
         comoPesquisa = "P";
@@ -120,7 +120,7 @@ public class ServicosBean implements Serializable {
         listModeloCarteirinha = new ArrayList();
         loadModeloCarteirinha();
     }
-    
+
     @PreDestroy
     public void destroy() {
         GenericaSessao.remove("servicosBean");
@@ -128,28 +128,28 @@ public class ServicosBean implements Serializable {
         GenericaSessao.remove("pesquisaServicos");
         GenericaSessao.remove("contaCobrancaPesquisa");
     }
-    
+
     public void loadModeloCarteirinha() {
         List<ModeloCarteirinha> list = new Dao().list(new ModeloCarteirinha(), true);
         idModeloCarteirinha = null;
         for (int i = 0; i < list.size(); i++) {
             listModeloCarteirinha.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
         }
-        
+
     }
-    
+
     public void clear() {
         GenericaSessao.remove("servicosBean");
     }
-    
+
     public String getDescPesquisa() {
         return descPesquisa;
     }
-    
+
     public void setDescPesquisa(String descPesquisa) {
         this.descPesquisa = descPesquisa;
     }
-    
+
     public Servicos getServicos() {
         if (GenericaSessao.exists("pesquisaServicos")) {
             servicos = (Servicos) GenericaSessao.getObject("pesquisaServicos", true);
@@ -160,40 +160,40 @@ public class ServicosBean implements Serializable {
         }
         return servicos;
     }
-    
+
     public void setServicos(Servicos servicos) {
         this.servicos = servicos;
     }
-    
+
     public String getMessage() {
         return message;
     }
-    
+
     public void setMessage(String message) {
         this.message = message;
     }
-    
+
     public void acaoInicial() {
         comoPesquisa = "I";
         load();
     }
-    
+
     public void acaoParcial() {
         comoPesquisa = "P";
         load();
     }
-    
+
     public void load() {
         listServicos.clear();
         listServicos = (List<Servicos>) new ServicosDBToplink().pesquisaServicos(descPesquisa, porPesquisa, comoPesquisa, situacao);
     }
-    
+
     public void save() {
         if (servicos.getDescricao().isEmpty()) {
             message = "Informe o nome do serviço a ser cadastrado!";
             return;
         }
-        
+
         if (servicos.getPlano5() == null || servicos.getPlano5().getId() == -1) {
             message = "Pesquise o plano de contas antes de salvar!";
             return;
@@ -208,7 +208,7 @@ public class ServicosBean implements Serializable {
             } else {
                 servicos.setSubGrupoFinanceiro(null);
             }
-            
+
             if (!listPeriodo.isEmpty() && Integer.valueOf(listPeriodo.get(idPeriodo).getDescription()) != 0) {
                 servicos.setPeriodo((Periodo) di.find(new Periodo(), Integer.valueOf(listPeriodo.get(idPeriodo).getDescription())));
             } else {
@@ -219,13 +219,13 @@ public class ServicosBean implements Serializable {
             } else {
                 servicos.setAdministradora(null);
             }
-            
+
             if (idModeloCarteirinha == null) {
                 servicos.setModeloCarteirinha(null);
             } else {
                 servicos.setModeloCarteirinha((ModeloCarteirinha) di.find(new ModeloCarteirinha(), idModeloCarteirinha));
             }
-            
+
             if (servicos.getId() == -1) {
                 if (db.idServicos(servicos) == null) {
                     servicos.setDepartamento((Departamento) di.find(new Departamento(), 14));
@@ -318,7 +318,7 @@ public class ServicosBean implements Serializable {
             message = "Erro no cadastro de serviço!";
         }
     }
-    
+
     public String novo() {
 //        servicos = new Servicos();
 //        listCategoriaDesconto.clear();
@@ -332,16 +332,16 @@ public class ServicosBean implements Serializable {
 
         //GenericaSessao.newSessionBean("servicosBean", new ServicosBean());
         GenericaSessao.put("servicosBean", new ServicosBean());
-        
+
         GenericaSessao.remove("contaCobrancaPesquisa");
-        
+
         return null;
     }
-    
+
     public String novox() {
         return "servicos";
     }
-    
+
     public String edit(Servicos s) {
         idAdministradora = null;
         servicos = (Servicos) new Dao().rebind(s);
@@ -362,7 +362,7 @@ public class ServicosBean implements Serializable {
                 }
                 //}
             }
-            
+
             getListSubGrupo();
             for (int i = 0; i < listSubGrupo.size(); i++) {
                 if (Integer.valueOf(listSubGrupo.get(i).getDescription()) == servicos.getSubGrupoFinanceiro().getId()) {
@@ -375,7 +375,7 @@ public class ServicosBean implements Serializable {
             idGrupo = 0;
             idSubGrupo = 0;
         }
-        
+
         if (servicos.getAdministradora() != null) {
             for (int i = 0; i < listAdministradora.size(); i++) {
                 if (Integer.parseInt(listAdministradora.get(i).getDescription()) == servicos.getAdministradora().getId()) {
@@ -393,7 +393,7 @@ public class ServicosBean implements Serializable {
                 }
             }
         }
-        
+
         if (servicos.getPeriodo() != null) {
             getListPeriodo();
             for (int i = 0; i < listPeriodo.size(); i++) {
@@ -410,7 +410,7 @@ public class ServicosBean implements Serializable {
             return GenericaSessao.getString("urlRetorno");
         }
     }
-    
+
     public void delete() {
         if (servicos.getId() != -1) {
             Dao di = new Dao();
@@ -433,50 +433,78 @@ public class ServicosBean implements Serializable {
                     }
                 }
                 di.openTransaction();
-                if (di.delete(servicos)) {
-                    novoLog.setCodigo(servicos.getId());
-                    novoLog.setTabela("fin_servicos");
-                    novoLog.delete(
-                            "ID: " + servicos.getId()
-                            + " - Plano5: (" + servicos.getPlano5().getId() + ") " + servicos.getPlano5().getConta()
-                            + " - Descrição: " + servicos.getDescricao()
-                            + " - Validade: " + servicos.getValidade()
-                            + " - Adm: [" + servicos.isAdm() + "]"
-                            + " - Agrupa Boleto: [" + servicos.isAgrupaBoleto() + "]"
-                            + " - Altera Valor: [" + servicos.isAlterarValor() + "]"
-                            + " - Débito: [" + servicos.isDebito() + "]"
-                            + " - Eleição: [" + servicos.isEleicao() + "]"
-                            + " - Produto: [" + servicos.isProduto() + "]"
-                            + " - Tabela: [" + servicos.isTabela() + "]"
+
+                ServicoContaCobrancaDB db = new ServicoContaCobrancaDBToplink();
+                List<ServicoContaCobranca> listaServicoCobranca = db.pesquisaServPorIdServ(servicos.getId());
+
+                for (ServicoContaCobranca scc : listaServicoCobranca) {
+                    if (!di.delete(di.find(scc))) {
+                        di.rollback();
+                        message = "Erro ao excluir Serviço Conta Cobrança!";
+                        return;
+                    }
+
+                    NovoLog novoLogx = new NovoLog();
+                    novoLogx.setCodigo(scc.getId());
+                    novoLogx.setTabela("fin_servico_conta_cobranca");
+                    novoLogx.delete(
+                            "ID: " + scc.getId()
+                            + " - ID / Serviço: " + scc.getServicos().getId()+" - "+scc.getServicos().getDescricao()
+                            + " - ID / Tipo Serviço: " + scc.getTipoServico().getId()+" - "+scc.getTipoServico().getDescricao()
                     );
-                    di.commit();
-                    message = "Cadastro excluido com sucesso!";
-                } else {
+                }
+
+                if (!di.delete(servicos)) {
                     di.rollback();
                     message = "Erro cadastro não pode ser excluído!";
+                    return;
                 }
+
+                novoLog.setCodigo(servicos.getId());
+                novoLog.setTabela("fin_servicos");
+                novoLog.delete(
+                        "ID: " + servicos.getId()
+                        + " - Plano5: (" + servicos.getPlano5().getId() + ") " + servicos.getPlano5().getConta()
+                        + " - Descrição: " + servicos.getDescricao()
+                        + " - Validade: " + servicos.getValidade()
+                        + " - Adm: [" + servicos.isAdm() + "]"
+                        + " - Agrupa Boleto: [" + servicos.isAgrupaBoleto() + "]"
+                        + " - Altera Valor: [" + servicos.isAlterarValor() + "]"
+                        + " - Débito: [" + servicos.isDebito() + "]"
+                        + " - Eleição: [" + servicos.isEleicao() + "]"
+                        + " - Produto: [" + servicos.isProduto() + "]"
+                        + " - Tabela: [" + servicos.isTabela() + "]"
+                );
+                di.commit();
+                
+                //((ServicosBean) GenericaSessao.getObject("servicosBean")).setMessage("Cadastro excluido com sucesso!");
+                
+                ((ServicosBean) GenericaSessao.getObject("servicosBean")).setMessage("Cadastro excluido com sucesso!");
+                GenericaSessao.put("servicosBean", new ServicosBean());
+                
+                GenericaSessao.remove("contaCobrancaPesquisa");
             } catch (Exception e) {
                 message = "Erro cadastro não pode ser excluído!";
             }
         }
-        novo();
+
     }
-    
+
     public String pesquisaContaCobranca() {
         GenericaSessao.put("urlRetorno", "servicos");
         return "pesquisaContaCobranca";
     }
-    
+
     public String pesquisarServicos() {
         GenericaSessao.put("urlRetorno", "servicos");
         descPesquisa = "";
         return "pesquisaServicos";
     }
-    
+
     public List<Servicos> getListServicos() {
         return listServicos;
     }
-    
+
     public List<ServicoValor> getListServicoValor() {
         //servicoValorDetalhe = new ServicoValor();
         ServicoValorDB servicoValorDB = new ServicoValorDBToplink();
@@ -492,15 +520,15 @@ public class ServicosBean implements Serializable {
         }
         return listServicoValor;
     }
-    
+
     public void setListServicoValor(List<ServicoValor> listServicoValor) {
         this.listServicoValor = listServicoValor;
     }
-    
+
     public boolean getDesabilitaValor() {
         return servicos.getId() == -1;
     }
-    
+
     public void saveServicoValor() {
         Dao di = new Dao();
         NovoLog novoLog = new NovoLog();
@@ -524,7 +552,7 @@ public class ServicosBean implements Serializable {
                             + " - Taxa: " + servicoValor.getTaxa()
                             + " - Idade: " + servicoValor.getIdadeIni() + " - " + servicoValor.getIdadeFim()
                     );
-                    
+
                     List<Categoria> listc = new Dao().list(new Categoria());
                     for (Categoria c : listc) {
                         CategoriaDesconto cd = new CategoriaDesconto(-1, c, 0, servicoValor);
@@ -565,7 +593,7 @@ public class ServicosBean implements Serializable {
                     );
                     List<Categoria> listc = new Dao().list(new Categoria());
                     CategoriaDescontoDB db = new CategoriaDescontoDBToplink();
-                    
+
                     for (Categoria c : listc) {
                         if (db.listaCategoriaDescontoCategoriaServicoValor(c.getId(), servicoValor.getId()).isEmpty()) {
                             CategoriaDesconto cd = new CategoriaDesconto(-1, c, 0, servicoValor);
@@ -591,7 +619,7 @@ public class ServicosBean implements Serializable {
         }
         setActiveIndex(1);
     }
-    
+
     public String clearServicoValor() {
         servicoValor = new ServicoValor();
         valorf = "0";
@@ -602,7 +630,7 @@ public class ServicosBean implements Serializable {
         listServicoValor.clear();
         return null;
     }
-    
+
     public void editServicoValor(ServicoValor sv) {
         servicoValor = (ServicoValor) new Dao().rebind(sv);
         valorf = Moeda.converteR$Float(servicoValor.getValor());
@@ -611,11 +639,11 @@ public class ServicosBean implements Serializable {
         textoBtnServico = "Atualizar";
         setActiveIndex(1);
     }
-    
+
     public void removeServicoValor() {
         removeServicoValor(null);
     }
-    
+
     public void removeServicoValor(ServicoValor sv) {
         Dao di = new Dao();
         if (sv != null) {
@@ -623,13 +651,13 @@ public class ServicosBean implements Serializable {
                 servicoValor = sv;
             }
         }
-        
+
         NovoLog novoLog = new NovoLog();
         textoBtnServico = "Adicionar";
         if (servicoValor.getId() != -1) {
             CategoriaDescontoDB db = new CategoriaDescontoDBToplink();
             List<CategoriaDesconto> listc = db.listaCategoriaDescontoServicoValor(servicoValor.getId());
-            
+
             for (CategoriaDesconto cd : listc) {
                 if (!di.delete(di.find(cd))) {
                     di.rollback();
@@ -637,7 +665,7 @@ public class ServicosBean implements Serializable {
                     return;
                 }
             }
-            
+
             if (di.delete(servicoValor, false)) {
                 novoLog.setCodigo(servicoValor.getId());
                 novoLog.setTabela("fin_servico_valor");
@@ -664,22 +692,22 @@ public class ServicosBean implements Serializable {
         }
         setActiveIndex(1);
     }
-    
+
     public ServicoValor getServicoValor() {
         return servicoValor;
     }
-    
+
     public void setServicoValor(ServicoValor servicoValor) {
         this.servicoValor = servicoValor;
     }
-    
+
     public String getValorf() {
         if (valorf.isEmpty()) {
             valorf = "0";
         }
         return Moeda.converteR$(valorf);
     }
-    
+
     public void setValorf(String valorf) {
         if (!valorf.isEmpty()) {
             if (AnaliseString.isInteger(valorf)) {
@@ -693,14 +721,14 @@ public class ServicosBean implements Serializable {
             this.valorf = Moeda.substituiVirgula("0");
         }
     }
-    
+
     public String getDesconto() {
         if (desconto.isEmpty()) {
             desconto = "0";
         }
         return Moeda.converteR$(desconto);
     }
-    
+
     public void setDesconto(String desconto) {
         if (!desconto.isEmpty()) {
             if (AnaliseString.isInteger(desconto)) {
@@ -717,14 +745,14 @@ public class ServicosBean implements Serializable {
             this.desconto = "100,00";
         }
     }
-    
+
     public String getTaxa() {
         if (taxa.isEmpty()) {
             taxa = "0";
         }
         return Moeda.converteR$(taxa);
     }
-    
+
     public void setTaxa(String taxa) {
         if (!taxa.isEmpty()) {
             if (AnaliseString.isInteger(taxa)) {
@@ -738,23 +766,23 @@ public class ServicosBean implements Serializable {
             this.taxa = Moeda.substituiVirgula("0");
         }
     }
-    
+
     public String getIndice() {
         return indice;
     }
-    
+
     public void setIndice(String indice) {
         this.indice = indice;
     }
-    
+
     public float getDescontoCategoria() {
         return descontoCategoria;
     }
-    
+
     public void setDescontoCategoria(float descontoCategoria) {
         this.descontoCategoria = descontoCategoria;
     }
-    
+
     public List<CategoriaDesconto> getListCategoriaDesconto() {
         CategoriaDescontoDB categoriaDescontoDB = new CategoriaDescontoDBToplink();
         List<Categoria> listaCategoria = categoriaDescontoDB.pesquisaCategoriasSemServico(servicos.getId());
@@ -769,11 +797,11 @@ public class ServicosBean implements Serializable {
         }
         return listCategoriaDesconto;
     }
-    
+
     public void setListCategoriaDesconto(List listaCategoriaDesconto) {
         this.listCategoriaDesconto = listaCategoriaDesconto;
     }
-    
+
     public void updateDescontoCategoriaPercentual(ListServicosCategoriaDesconto lscd) {
         float v = 0;
         for (int i = 0; i < listServicosCategoriaDesconto.size(); i++) {
@@ -795,7 +823,7 @@ public class ServicosBean implements Serializable {
 //            }
 //        }
     }
-    
+
     public void updateDescontoCategoriaValor(ListServicosCategoriaDesconto lscd) {
         //float v = 0;
         float v1 = 0;
@@ -833,32 +861,32 @@ public class ServicosBean implements Serializable {
 //            }
 //        }
     }
-    
+
     public CategoriaDesconto getCategoriaDesconto() {
         return categoriaDesconto;
     }
-    
+
     public void setCategoriaDesconto(CategoriaDesconto categoriaDesconto) {
         this.categoriaDesconto = categoriaDesconto;
     }
-    
+
     public void setListServicos(List<Servicos> listaServicos) {
         this.listServicos = listaServicos;
     }
-    
+
     public String getTextoBtnServico() {
         return textoBtnServico;
     }
-    
+
     public void setTextoBtnServico(String textoBtnServico) {
         this.textoBtnServico = textoBtnServico;
     }
-    
+
     public List<SelectItem> getListGrupo() {
         if (listGrupo.isEmpty()) {
             Dao di = new Dao();
             List<GrupoFinanceiro> result = di.list(new GrupoFinanceiro());
-            
+
             listGrupo.add(new SelectItem(0, "Nenhum Grupo Financeiro Adicionado", "0"));
             if (!result.isEmpty()) {
 //                if (servicos.getSubGrupoFinanceiro() == null)
@@ -873,23 +901,23 @@ public class ServicosBean implements Serializable {
         }
         return listGrupo;
     }
-    
+
     public void setListGrupo(List<SelectItem> listGrupo) {
         this.listGrupo = listGrupo;
     }
-    
+
     public int getIdGrupo() {
         return idGrupo;
     }
-    
+
     public void setIdGrupo(int idGrupo) {
         this.idGrupo = idGrupo;
     }
-    
+
     public List<SelectItem> getListSubGrupo() {
         if (listSubGrupo.isEmpty()) {
             FinanceiroDB db = new FinanceiroDBToplink();
-            
+
             List<SubGrupoFinanceiro> result = db.listaSubGrupo(Integer.valueOf(getListGrupo().get(idGrupo).getDescription()));
             listSubGrupo.add(new SelectItem(0, "Nenhum Sub Grupo Financeiro Encontrado", "0"));
             if (!result.isEmpty()) {
@@ -902,19 +930,19 @@ public class ServicosBean implements Serializable {
                     );
                 }
             }
-            
+
         }
         return listSubGrupo;
     }
-    
+
     public void setListSubGrupo(List<SelectItem> listSubGrupo) {
         this.listSubGrupo = listSubGrupo;
     }
-    
+
     public int getIdSubGrupo() {
         return idSubGrupo;
     }
-    
+
     public void setIdSubGrupo(int idSubGrupo) {
         this.idSubGrupo = idSubGrupo;
     }
@@ -938,7 +966,7 @@ public class ServicosBean implements Serializable {
         }
         return "0,00";
     }
-    
+
     public List<ListServicosCategoriaDesconto> getListServicosCategoriaDesconto() {
         if (listServicosCategoriaDesconto.isEmpty()) {
             List<CategoriaDesconto> cds = getListCategoriaDesconto();
@@ -956,34 +984,34 @@ public class ServicosBean implements Serializable {
         }
         return listServicosCategoriaDesconto;
     }
-    
+
     public void setListServicosCategoriaDesconto(List<ListServicosCategoriaDesconto> listServicosCategoriaDesconto) {
         this.listServicosCategoriaDesconto = listServicosCategoriaDesconto;
     }
-    
+
     public Integer getActiveIndex() {
         return activeIndex;
     }
-    
+
     public void setActiveIndex(Integer activeIndex) {
         this.activeIndex = activeIndex;
     }
-    
+
     public int getIdPeriodo() {
         return idPeriodo;
     }
-    
+
     public void setIdPeriodo(int idPeriodo) {
         this.idPeriodo = idPeriodo;
     }
-    
+
     public List<SelectItem> getListPeriodo() {
         if (listPeriodo.isEmpty()) {
             FinanceiroDB db = new FinanceiroDBToplink();
-            
+
             List<Periodo> result = (new SalvarAcumuladoDBToplink()).listaObjeto("Periodo");
             SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-            
+
             listPeriodo.add(new SelectItem(0, "Selecionar Periodo", "0"));
             if (!result.isEmpty()) {
                 for (int i = 1; i < result.size(); i++) {
@@ -998,16 +1026,16 @@ public class ServicosBean implements Serializable {
         }
         return listPeriodo;
     }
-    
+
     public void setListPeriodo(List<SelectItem> listPeriodo) {
         this.listPeriodo = listPeriodo;
     }
-    
+
     public void openDescontoDependente(CategoriaDesconto cd) {
         if (cd.getId() == -1) {
             GenericaMensagem.error("Atenção", "Salve o Serviço antes de Adicionar um Desconto");
         }
-        
+
         this.id_categoria = cd.getCategoria().getId();
         indexParentesco = 0;
         listaParentesco.clear();
@@ -1020,7 +1048,7 @@ public class ServicosBean implements Serializable {
         PF.update("form_servicos:i_desconto_dependente");
         PF.openDialog("dlg_desconto_dependente");
     }
-    
+
     public List<SelectItem> getListaParentesco() {
         if (listaParentesco.isEmpty()) {
             ParentescoDB db = new ParentescoDao();
@@ -1037,10 +1065,10 @@ public class ServicosBean implements Serializable {
         }
         return listaParentesco;
     }
-    
+
     public void updateDescontoCategoriaDependentePercentual() {
         float v = 0;
-        
+
         if (descontoDepentende.getDesconto() > 100) {
             descontoDepentende.setDesconto(100);
         }
@@ -1049,14 +1077,14 @@ public class ServicosBean implements Serializable {
         //descontoDepentende.setDesconto(Moeda.converteFloatR$Float(v));
         valorDependente = Moeda.converteR$Float(v);
     }
-    
+
     public String linhaDescontoCategoriaDependentePercentual(float desconto) {
         float v = 0;
         //v = servicoValorDetalhe.getValor() - (desconto / 100) * servicoValorDetalhe.getValor();
         v = categoriaDesconto.getServicoValor().getValor() - (desconto / 100) * categoriaDesconto.getServicoValor().getValor();
         return Moeda.converteR$Float(v);
     }
-    
+
     public void updateDescontoCategoriaDependenteValor() {
         float v = 0;
         float v1 = 0;
@@ -1069,10 +1097,10 @@ public class ServicosBean implements Serializable {
             updateDescontoCategoriaDependentePercentual();
         }
     }
-    
+
     public void adicionarDescontoDependente() {
         Dao di = new Dao();
-        
+
         if (Integer.valueOf(listaParentesco.get(indexParentesco).getDescription()) == 0) {
             GenericaMensagem.error("Erro", "Selecione um Parentesco para adicionar Desconto!");
             return;
@@ -1086,16 +1114,16 @@ public class ServicosBean implements Serializable {
             }
         }
         di.openTransaction();
-        
+
         descontoDepentende.setParentesco(par);
         descontoDepentende.setCategoriaDesconto(categoriaDesconto);
-        
+
         if (!di.save(descontoDepentende)) {
             GenericaMensagem.error("Erro", "Não foi possivel salvar Desconto!");
             di.rollback();
             return;
         }
-        
+
         descontoDepentende = new CategoriaDescontoDependente();
         valorDependente = categoriaDesconto.getServicoValor().getValorString();
         listaDescontoDependente.clear();
@@ -1103,15 +1131,15 @@ public class ServicosBean implements Serializable {
         listaParentesco.clear();
         di.commit();
     }
-    
+
     public void adicionarDescontoDependenteTodosParentesco() {
         Dao di = new Dao();
-        
+
         if (listaParentesco.size() == 1 && Integer.valueOf(listaParentesco.get(0).getDescription()) == 0) {
             GenericaMensagem.error("Erro", "Não existe lista de Parentesco para ser adicionada!");
             return;
         }
-        
+
         di.openTransaction();
         float descontox = descontoDepentende.getDesconto();
         //float valorx = descontoDepentende.getDesconto();
@@ -1119,11 +1147,11 @@ public class ServicosBean implements Serializable {
             Parentesco par = (Parentesco) di.find(new Parentesco(), Integer.valueOf(si.getDescription()));
             if (par != null) {
                 CategoriaDescontoDB db = new CategoriaDescontoDBToplink();
-                
+
                 if (db.pesquisaDescontoDependentePorCategoria(par.getId(), categoriaDesconto.getId()) == null) {
                     descontoDepentende.setParentesco(par);
                     descontoDepentende.setCategoriaDesconto(categoriaDesconto);
-                    
+
                     if (!di.save(descontoDepentende)) {
                         GenericaMensagem.error("Erro", "Não foi possivel salvar Desconto!");
                         di.rollback();
@@ -1134,35 +1162,35 @@ public class ServicosBean implements Serializable {
                 descontoDepentende.setDesconto(descontox);
             }
         }
-        
+
         valorDependente = categoriaDesconto.getServicoValor().getValorString();//servicoValorDetalhe.getValorString();
         listaDescontoDependente.clear();
         indexParentesco = 0;
         listaParentesco.clear();
         di.commit();
     }
-    
+
     public void deletarDescontoDependente(CategoriaDescontoDependente cdd) {
         Dao di = new Dao();
-        
+
         di.openTransaction();
-        
+
         if (!di.delete(di.find(cdd, cdd.getId()))) {
             GenericaMensagem.error("Erro", "Não foi possivel deletar Desconto!");
             di.rollback();
             return;
         }
-        
+
         listaDescontoDependente.clear();
         indexParentesco = 0;
         listaParentesco.clear();
         di.commit();
     }
-    
+
     public void deletarDescontoDependenteTodos() {
         Dao di = new Dao();
         di.openTransaction();
-        
+
         for (CategoriaDescontoDependente cdd : listaDescontoDependente) {
             if (!di.delete(di.find(cdd, cdd.getId()))) {
                 GenericaMensagem.error("Erro", "Não foi possivel deletar Desconto!");
@@ -1175,35 +1203,35 @@ public class ServicosBean implements Serializable {
         listaParentesco.clear();
         di.commit();
     }
-    
+
     public void setListaParentesco(List<SelectItem> listaParentesco) {
         this.listaParentesco = listaParentesco;
     }
-    
+
     public Integer getIndexParentesco() {
         return indexParentesco;
     }
-    
+
     public void setIndexParentesco(Integer indexParentesco) {
         this.indexParentesco = indexParentesco;
     }
-    
+
     public CategoriaDescontoDependente getDescontoDepentende() {
         return descontoDepentende;
     }
-    
+
     public void setDescontoDepentende(CategoriaDescontoDependente descontoDepentende) {
         this.descontoDepentende = descontoDepentende;
     }
-    
+
     public String getValorDependente() {
         return Moeda.converteR$(valorDependente);
     }
-    
+
     public void setValorDependente(String valorDependente) {
         this.valorDependente = Moeda.converteR$(valorDependente);
     }
-    
+
     public List<CategoriaDescontoDependente> getListaDescontoDependente() {
         if (listaDescontoDependente.isEmpty() && categoriaDesconto.getId() != -1) {
             CategoriaDescontoDB db = new CategoriaDescontoDBToplink();
@@ -1211,11 +1239,11 @@ public class ServicosBean implements Serializable {
         }
         return listaDescontoDependente;
     }
-    
+
     public void setListaDescontoDependente(List<CategoriaDescontoDependente> listaDescontoDependente) {
         this.listaDescontoDependente = listaDescontoDependente;
     }
-    
+
     public List<SelectItem> getListAdministradora() {
         if (listAdministradora.isEmpty()) {
             Dao dao = new Dao();
@@ -1226,39 +1254,39 @@ public class ServicosBean implements Serializable {
         }
         return listAdministradora;
     }
-    
+
     public void setListAdministradora(List<SelectItem> listAdministradora) {
         this.listAdministradora = listAdministradora;
     }
-    
+
     public Integer getIdAdministradora() {
         return idAdministradora;
     }
-    
+
     public void setIdAdministradora(Integer idAdministradora) {
         this.idAdministradora = idAdministradora;
     }
-    
+
     public String getSituacao() {
         return situacao;
     }
-    
+
     public void setSituacao(String situacao) {
         this.situacao = situacao;
     }
-    
+
     public List<SelectItem> getListModeloCarteirinha() {
         return listModeloCarteirinha;
     }
-    
+
     public void setListModeloCarteirinha(List<SelectItem> listModeloCarteirinha) {
         this.listModeloCarteirinha = listModeloCarteirinha;
     }
-    
+
     public Integer getIdModeloCarteirinha() {
         return idModeloCarteirinha;
     }
-    
+
     public void setIdModeloCarteirinha(Integer idModeloCarteirinha) {
         this.idModeloCarteirinha = idModeloCarteirinha;
     }

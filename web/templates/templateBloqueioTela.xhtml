@@ -1,0 +1,22 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html">
+    <f:view>
+        <h:form id="templateBloqueioTela">
+            <p:dialog widgetVar="dlg_block" modal="true" resizable="false" header="Bloqueio de Tela" width="600" draggable="false" closable="false" visible="#{segurancaUtilitariosBean.existeBloqueio}" dynamic="true">
+                <h:outputText value="Não é possível acessar essa tela devido um bloqueio:" style="font-size: 12pt!important; color: #ff0000" /><br /><br />
+                <h:outputText value="#{segurancaUtilitariosBean.mensagem}" style="font-size: 11pt!important" escape="false"/><br />
+                
+                <f:facet name="footer">
+                    <h:panelGrid columns="2">
+                        <p:commandButton value="Menu Principal" action="#{chamadaPaginaBean.menuPrincipal()}" title="Voltar para o Menu Principal" immediate="true" ajax="false" />
+                        <p:commandButton value="Desbloquear Tela" action="#{segurancaUtilitariosBean.verPaginaBloqueada()}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" actionListener="#{genericaSessao.putBoolean('back', true)}" immediate="true" ajax="false" />
+                    </h:panelGrid>
+                </f:facet>
+            </p:dialog>
+        </h:form>
+    </f:view>
+</ui:composition>

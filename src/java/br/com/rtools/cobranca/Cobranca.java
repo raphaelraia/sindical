@@ -49,7 +49,7 @@ public abstract class Cobranca {
         if (vencimento != null) {
             Date dataModel = DataHoje.converte("07/10/1997");
             long dias = vencimento.getTime() - dataModel.getTime();
-            long total = dias / 86400000;
+            long total = (dias + 3600000) / 86400000;
             return Long.toString(total);
         } else {
             return "";
