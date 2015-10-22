@@ -644,7 +644,7 @@ public class AtendimentoBean implements Serializable {
     public List<SelectItem> getListaAtendimentoOperacoes() {
         if (listaAtendimentoOperacoes.isEmpty()) {
             Dao dao = new Dao();
-            List<AteOperacao> list = dao.list(new AteOperacao());
+            List<AteOperacao> list = dao.list(new AteOperacao(), true);
             if (list != null) {
                 int i = 0;
                 while (i < list.size()) {
