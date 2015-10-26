@@ -1,5 +1,6 @@
 package br.com.rtools.associativo;
 
+import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import java.io.Serializable;
 import java.util.Date;
@@ -44,6 +45,8 @@ public class ConfiguracaoSocial implements Serializable {
     private Integer cartaoPosicaoCodigo;
     @Column(name = "ds_obs_desconto_folha")
     private String obsDescontoFolha;
+    @Column(name = "nr_validade_meses_cartao_academia")
+    private Integer validadeMesesCartaoAcademia;
 
     public ConfiguracaoSocial() {
         this.id = -1;
@@ -57,9 +60,10 @@ public class ConfiguracaoSocial implements Serializable {
         this.cartaoPosicaoVia = 0;
         this.cartaoPosicaoCodigo = 0;
         this.obsDescontoFolha = "";
+        this.validadeMesesCartaoAcademia = 12;
     }
 
-    public ConfiguracaoSocial(Integer id, Integer diasInativaDemissionado, Date dataInativacaoDemissionado, GrupoCategoria grupoCategoriaInativaDemissionado, Boolean inativaDemissionado, Boolean recebeAtrasado, Boolean controlaCartaoFilial, Integer cartaoDigitos, Integer cartaoPosicaoVia, Integer cartaoPosicaoCodigo, String obsDescontoFolha) {
+    public ConfiguracaoSocial(Integer id, Integer diasInativaDemissionado, Date dataInativacaoDemissionado, GrupoCategoria grupoCategoriaInativaDemissionado, Boolean inativaDemissionado, Boolean recebeAtrasado, Boolean controlaCartaoFilial, Integer cartaoDigitos, Integer cartaoPosicaoVia, Integer cartaoPosicaoCodigo, String obsDescontoFolha, Integer validadeMesesCartaoAcademia) {
         this.id = id;
         this.diasInativaDemissionado = diasInativaDemissionado;
         this.dataInativacaoDemissionado = dataInativacaoDemissionado;
@@ -71,6 +75,7 @@ public class ConfiguracaoSocial implements Serializable {
         this.cartaoPosicaoVia = cartaoPosicaoVia;
         this.cartaoPosicaoCodigo = cartaoPosicaoCodigo;
         this.obsDescontoFolha = obsDescontoFolha;
+        this.validadeMesesCartaoAcademia = validadeMesesCartaoAcademia;
     }
 
     public Integer getId() {
@@ -167,5 +172,17 @@ public class ConfiguracaoSocial implements Serializable {
 
     public void setObsDescontoFolha(String obsDescontoFolha) {
         this.obsDescontoFolha = obsDescontoFolha;
+    }
+
+    public Integer getValidadeMesesCartaoAcademia() {
+        return validadeMesesCartaoAcademia;
+    }
+
+    public void setValidadeMesesCartaoAcademia(Integer validadeMesesCartaoAcademia) {
+        this.validadeMesesCartaoAcademia = validadeMesesCartaoAcademia;
+    }
+
+    public static ConfiguracaoSocial get() {
+        return (ConfiguracaoSocial) new Dao().find(new ConfiguracaoSocial(), 1);
     }
 }

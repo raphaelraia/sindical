@@ -85,6 +85,7 @@ public class RelatorioTabelaPrecosDao extends DB {
                 + "   ORDER BY G.ds_descricao,      \n"
                 + "            SG.ds_descricao,     \n"
                 + "            S.ds_descricao,      \n"
+                + "            SV.nr_idade_ini,     \n"
                 + "            CT.ds_categoria,     \n"
                 + "            SV.nr_idade_ini      \n";
         try {

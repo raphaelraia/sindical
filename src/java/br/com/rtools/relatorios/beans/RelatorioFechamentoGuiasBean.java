@@ -17,6 +17,7 @@ import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioFechamentoGuiasDao;
 import br.com.rtools.relatorios.dao.RelatorioOrdemDao;
 import br.com.rtools.relatorios.dao.RelatorioDao;
+import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
@@ -381,8 +382,9 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
 
     public List<SelectItem> getListRelatorios() {
         if (listSelectItem[0].isEmpty()) {
+            Rotina r = new Rotina().get();
             RelatorioDao db = new RelatorioDao();
-            List<Relatorios> list = db.pesquisaTipoRelatorio(132);
+            List<Relatorios> list = db.pesquisaTipoRelatorio(r.getId());
             for (int i = 0; i < list.size(); i++) {
                 if (list.get(i).getPrincipal()) {
                     index[0] = i;

@@ -144,7 +144,7 @@
 
                                 <br /><br />
                                 <p:commandLink ajax="false" value="Imprimir 2º Via" action="#{cartaoSocialBean.reImprimirCarteirinha()}" 
-                                               rendered="#{(cartaoSocialBean.por != 'niEmpresa' or cartaoSocialBean.por != 'niCNPJ') and cartaoSocialBean.listaCarteirinha.size() != 0}"/>
+                                               rendered="#{(cartaoSocialBean.por != 'niEmpresa' or cartaoSocialBean.por != 'niCNPJ') and cartaoSocialBean.listaCarteirinha.size() != 0}" disabled="true"/>
 
                                 <br /><br />    
                                 <p:commandLink ajax="false" value="Etiqueta" action="#{cartaoSocialBean.imprimirEtiqueta()}" rendered="#{cartaoSocialBean.listaCarteirinha.size() != 0}"/>
@@ -209,9 +209,10 @@
                                     </p:column>
 
                                     <p:rowExpansion>
-                                        <p:panelGrid columns="2" styleClass="sbb">
+                                        <p:panelGrid columns="3" styleClass="sbb">
                                             <p:column>Parentesco: #{linha[36]}</p:column>
                                             <p:column>Categoria: #{linha[37]}</p:column>
+                                            <p:column>Validade da Carteirinha: #{linha[6]}</p:column>
                                         </p:panelGrid>
                                     </p:rowExpansion>
 

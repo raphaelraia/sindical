@@ -3,6 +3,7 @@ package br.com.rtools.academia.beans;
 import br.com.rtools.academia.AcademiaSemana;
 import br.com.rtools.academia.AcademiaServicoValor;
 import br.com.rtools.academia.dao.AcademiaDao;
+import br.com.rtools.associativo.ConfiguracaoSocial;
 import br.com.rtools.associativo.DescontoSocial;
 import br.com.rtools.associativo.HistoricoEmissaoGuias;
 import br.com.rtools.associativo.MatriculaAcademia;
@@ -410,7 +411,8 @@ public class MatriculaAcademiaBean implements Serializable {
                 // validadeCarteirinha = dh.incrementarMeses(socios.getMatriculaSocios().getCategoria().getGrupoCategoria().getNrValidadeMesCartao(), DataHoje.data());
                 // modeloCarteirinha = scdb.pesquisaModeloCarteirinha(socios.getMatriculaSocios().getCategoria().getId(), 122);
             } else {
-                validadeCarteirinha = dh.incrementarAnos(5, DataHoje.data());
+                ConfiguracaoSocial cs = ConfiguracaoSocial.get();
+                validadeCarteirinha = dh.incrementarMeses(cs.getValidadeMesesCartaoAcademia(), DataHoje.data());
             }
             ModeloCarteirinha modeloCarteirinha = scdb.pesquisaModeloCarteirinha(-1, 122);
             if (modeloCarteirinha == null) {
@@ -591,7 +593,7 @@ public class MatriculaAcademiaBean implements Serializable {
             }
 //            FisicaDB db = new FisicaDBToplink();
 //            Fisica f = db.pesquisaFisicaPorPessoa(matriculaAcademia.getServicoPessoa().getPessoa().getId());
-            
+
             File fotoAntiga = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/Fotos/Fisica/" + aluno.getFoto() + ".png"));
             if (fotoAntiga.exists()) {
                 FileUtils.deleteQuietly(fotoAntiga);
@@ -604,7 +606,7 @@ public class MatriculaAcademiaBean implements Serializable {
             dao.commit();
         }
     }
-    
+
     public void showImagemFisica() {
         String[] imagensTipo = new String[]{"jpg", "jpeg", "png", "gif"};
         for (String imagensTipo1 : imagensTipo) {
@@ -614,7 +616,7 @@ public class MatriculaAcademiaBean implements Serializable {
                 fotoStreamed = ImageConverter.getImageStreamed(fpath, "image/png");
             }
         }
-    }    
+    }
 
     public void delete() {
         Dao di = new Dao();
@@ -2336,7 +2338,6 @@ public class MatriculaAcademiaBean implements Serializable {
 //    public void setAlunoFoto(boolean alunoFoto) {
 //        this.alunoFoto = alunoFoto;
 //    }
-
     public int getIdDiaParcela() {
         return idDiaParcela;
     }

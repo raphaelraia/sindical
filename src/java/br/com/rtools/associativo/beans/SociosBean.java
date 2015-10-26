@@ -774,7 +774,6 @@ public class SociosBean implements Serializable {
             PhotoCropper.unload();
         }
 
-
         String fcaminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente() + "/imagens/pessoa/" + novoDependente.getPessoa().getId() + "/" + novoDependente.getFoto();
         if (new File((fcaminho + ".png")).exists() && FileUtils.deleteQuietly(new File(fcaminho + ".png"))) {
             sucesso = true;
@@ -1021,6 +1020,16 @@ public class SociosBean implements Serializable {
             }
 
             GenericaMensagem.info("Concluído", "Sócio inativado com Sucesso!");
+
+            NovoLog novoLog = new NovoLog();
+            novoLog.setTabela("matr_socios");
+            novoLog.setCodigo(matriculaSocios.getId());
+            novoLog.update("Inativação de Sócio",
+                    " Matrícula: " + socios.getMatriculaSocios().getNrMatricula()
+                    + " - Sócio {ID: " + socios.getId() + "}"
+                    + " - Titular {ID: " + socios.getMatriculaSocios().getTitular().getId() + " - Nome: " + socios.getMatriculaSocios().getTitular().getNome() + "}"
+                    + " - Data da inativação: " + dataInativacao
+            );
             dao.commit();
             FisicaDB dbf = new FisicaDBToplink();
             GenericaSessao.put("fisicaBean", new FisicaBean());
@@ -1098,6 +1107,15 @@ public class SociosBean implements Serializable {
         dataInativacao = DataHoje.data();
 
         dao.commit();
+        NovoLog novoLog = new NovoLog();
+        novoLog.setTabela("matr_socios");
+        novoLog.setCodigo(matriculaSocios.getId());
+        novoLog.update("Reativação de sócio",
+                " Matrícula: " + socios.getMatriculaSocios().getNrMatricula()
+                + " - Sócio {ID: " + socios.getId() + "}"
+                + " - Titular {ID: " + socios.getMatriculaSocios().getTitular().getId() + " - Nome: " + socios.getMatriculaSocios().getTitular().getNome() + "}"
+                + " - Data da reativação: " + DataHoje.data()
+        );
         FisicaDB dbf = new FisicaDBToplink();
         GenericaSessao.put("fisicaBean", new FisicaBean());
         ((FisicaBean) GenericaSessao.getObject("fisicaBean")).editarFisicaParametro(dbf.pesquisaFisicaPorPessoa(socios.getServicoPessoa().getPessoa().getId()));

@@ -88,7 +88,7 @@ public class RelatorioTabelaPrecosBean implements Serializable {
 
     public void print() {
         SisProcesso sisProcesso = new SisProcesso();
-        sisProcesso.start();        
+        sisProcesso.start();
         Relatorios r = null;
         if (!listRelatorio.isEmpty()) {
             RelatorioDao rgdb = new RelatorioDao();
@@ -214,6 +214,51 @@ public class RelatorioTabelaPrecosBean implements Serializable {
                         tsp.setValor8(object.get(8));
                     }
                 } else if (!servico_descricao.equals((String) object.get(3))) {
+                    add = true;
+                    tsp = new TabelaServicosPaisagem();
+                    tsp.setGrupo_descricao(grupo_descricao);
+                    tsp.setSubgrupo_descricao(subgrupo_descricao);
+                    subgrupo_descricao = (String) object.get(1);
+                    tsp.setServico_id(object.get(2));
+                    tsp.setServico_descricao(object.get(3));
+                    servico_descricao = (String) object.get(3);
+                    tsp.setIdade(object.get(6));
+                    tsp.setValor_cheio(object.get(7));
+                    idade = (String) object.get(6);
+                    if (tsp.getCategoria1() == null) {
+                        count++;
+                        tsp.setCategoria1(object.get(5));
+                        tsp.setValor1(object.get(8));
+                    } else if (tsp.getCategoria2() == null) {
+                        count++;
+                        tsp.setCategoria2(object.get(5));
+                        tsp.setValor2(object.get(8));
+                    } else if (tsp.getCategoria3() == null) {
+                        count++;
+                        tsp.setCategoria3(object.get(5));
+                        tsp.setValor3(object.get(8));
+                    } else if (tsp.getCategoria4() == null) {
+                        count++;
+                        tsp.setCategoria4(object.get(5));
+                        tsp.setValor4(object.get(8));
+                    } else if (tsp.getCategoria5() == null) {
+                        count++;
+                        tsp.setCategoria5(object.get(5));
+                        tsp.setValor5(object.get(8));
+                    } else if (tsp.getCategoria6() == null) {
+                        count++;
+                        tsp.setCategoria6(object.get(5));
+                        tsp.setValor6(object.get(8));
+                    } else if (tsp.getCategoria7() == null) {
+                        count++;
+                        tsp.setCategoria7(object.get(5));
+                        tsp.setValor7(object.get(8));
+                    } else if (tsp.getCategoria8() == null) {
+                        count++;
+                        tsp.setCategoria8(object.get(5));
+                        tsp.setValor8(object.get(8));
+                    }
+                } else if (!idade.equals((String) object.get(6))) {
                     add = true;
                     tsp = new TabelaServicosPaisagem();
                     tsp.setGrupo_descricao(grupo_descricao);
