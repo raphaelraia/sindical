@@ -449,85 +449,85 @@ public class MovimentoDBToplink extends DB implements MovimentoDB {
         switch (faixa_data) {
             case "recebimento":
                 if (!data_inicial.isEmpty() && data_final.isEmpty()) {
-                    qry_data = " and ba.dt_baixa >= '" + data_inicial + "'";
+                    qry_data = " and ba.dt_baixa >= '" + data_inicial + "' \n ";
                 } else if (!data_inicial.isEmpty() && !data_final.isEmpty()) {
-                    qry_data = " and ba.dt_baixa >= '" + data_inicial + "' and ba.dt_baixa <= '" + data_final + "'";
+                    qry_data = " and ba.dt_baixa >= '" + data_inicial + "' and ba.dt_baixa <= '" + data_final + "' \n ";
                 } else if (data_inicial.isEmpty() && !data_final.isEmpty()) {
-                    qry_data = "' and ba.dt_baixa <= '" + data_final + "'";
+                    qry_data = "' and ba.dt_baixa <= '" + data_final + "' \n ";
                 }
                 break;
             case "importacao":
                 if (!data_inicial.isEmpty() && data_final.isEmpty()) {
-                    qry_data = " and ba.dt_importacao >= '" + data_inicial + "'";
+                    qry_data = " and ba.dt_importacao >= '" + data_inicial + "' \n ";
                 } else if (!data_inicial.isEmpty() && !data_final.isEmpty()) {
-                    qry_data = " and ba.dt_importacao >= '" + data_inicial + "' and ba.dt_importacao <= '" + data_final + "'";
+                    qry_data = " and ba.dt_importacao >= '" + data_inicial + "' and ba.dt_importacao <= '" + data_final + "' \n ";
                 } else if (data_inicial.isEmpty() && !data_final.isEmpty()) {
-                    qry_data = "' and ba.dt_importacao <= '" + data_final + "'";
+                    qry_data = "' and ba.dt_importacao <= '" + data_final + "' \n ";
                 }
                 break;
             case "vencimento":
                 if (!data_inicial.isEmpty() && data_final.isEmpty()) {
-                    qry_data = " and m.dt_vencimento >= '" + data_inicial + "'";
+                    qry_data = " and m.dt_vencimento >= '" + data_inicial + "' \n ";
                 } else if (!data_inicial.isEmpty() && !data_final.isEmpty()) {
-                    qry_data = " and m.dt_vencimento >= '" + data_inicial + "' and m.dt_vencimento <= '" + data_final + "'";
+                    qry_data = " and m.dt_vencimento >= '" + data_inicial + "' and m.dt_vencimento <= '" + data_final + "' \n ";
                 } else if (data_inicial.isEmpty() && !data_final.isEmpty()) {
-                    qry_data = "' and m.dt_vencimento <= '" + data_final + "'";
+                    qry_data = "' and m.dt_vencimento <= '" + data_final + "' \n ";
                 }
                 break;
             case "referencia":
 
                 if (!referencia_inicial.isEmpty() && referencia_final.isEmpty()) {
                     String ini = referencia_inicial.substring(3, 7) + referencia_inicial.substring(0, 2);
-                    qry_data = " and substring(m.ds_referencia, 4, 8)|| substring(m.ds_referencia, 0, 3) >= '" + ini + "'";
+                    qry_data = " and substring(m.ds_referencia, 4, 8)|| substring(m.ds_referencia, 0, 3) >= '" + ini + "' \n ";
                 } else if (!referencia_inicial.isEmpty() && !referencia_final.isEmpty()) {
                     String ini = referencia_inicial.substring(3, 7) + referencia_inicial.substring(0, 2);
                     String fin = referencia_final.substring(3, 7) + referencia_final.substring(0, 2);
-                    qry_data = " and substring(m.ds_referencia, 4, 8)|| substring(m.ds_referencia, 0, 3) >= '" + ini + "' and substring(m.ds_referencia, 4, 8)|| substring(m.ds_referencia, 0, 3) <= '" + fin + "'";
+                    qry_data = " and substring(m.ds_referencia, 4, 8)|| substring(m.ds_referencia, 0, 3) >= '" + ini + "' and substring(m.ds_referencia, 4, 8)|| substring(m.ds_referencia, 0, 3) <= '" + fin + "' \n ";
                 } else if (referencia_inicial.isEmpty() && !referencia_final.isEmpty()) {
                     String fin = referencia_final.substring(3, 7) + referencia_final.substring(0, 2);
-                    qry_data = "' substring(m.ds_referencia, 4, 8)|| substring(m.ds_referencia, 0, 3) <= '" + fin + "'";
+                    qry_data = "' substring(m.ds_referencia, 4, 8)|| substring(m.ds_referencia, 0, 3) <= '" + fin + "' \n ";
                 }
                 break;
         }
 
         if (id_servico != 0) {
-            qry_servico = " and m.id_servicos = " + id_servico;
+            qry_servico = " and m.id_servicos = " + id_servico+" \n ";
         }
 
         if (id_tipo_servico != 0) {
-            qry_tipo_servico = " and m.id_tipo_servico = " + id_tipo_servico;
+            qry_tipo_servico = " and m.id_tipo_servico = " + id_tipo_servico+ " \n ";
         }
 
         if (id_pessoa != -1) {
             if (movimentoDaEmpresa) {
-                qry_pessoa = " and m.id_pessoa in (select id_pessoa from arr_contribuintes_vw where id_contabilidade = " + id_pessoa + " and dt_inativacao is null order by ds_nome)";
+                qry_pessoa = " and m.id_pessoa in (select id_pessoa from arr_contribuintes_vw where id_contabilidade = " + id_pessoa + " and dt_inativacao is null order by ds_nome) \n ";
                 ordem = "nome, ";
             } else {
-                qry_pessoa = " and m.id_pessoa = " + id_pessoa;
+                qry_pessoa = " and m.id_pessoa = " + id_pessoa+" \n ";
             }
         }
 
         if (!boleto_inicial.isEmpty() && boleto_final.isEmpty()) {
-            qry_boleto = " and b.ds_boleto >= '" + boleto_inicial + "'";
+            qry_boleto = " and b.ds_boleto >= '" + boleto_inicial + "' \n ";
         } else if (!boleto_inicial.isEmpty() && !boleto_final.isEmpty()) {
-            qry_boleto = " and b.ds_boleto >= '" + boleto_inicial + "'"
-                    + " and b.ds_boleto <= '" + boleto_final + "'";
+            qry_boleto = " and b.ds_boleto >= '" + boleto_inicial + "' \n "
+                    + " and b.ds_boleto <= '" + boleto_final + "' \n ";
         } else if (boleto_inicial.isEmpty() && !boleto_final.isEmpty()) {
-            qry_boleto = " and b.ds_boleto <= '" + boleto_final + "'";
+            qry_boleto = " and b.ds_boleto <= '" + boleto_final + "' \n ";
         }
 
         switch (tipo) {
             case "todos":
                 break;
             case "recebidas":
-                qry_condicao = "   and m.id_baixa is not null ";
+                qry_condicao = "   and m.id_baixa is not null \n ";
                 break;
             case "naoRecebidas":
-                qry_condicao = "   and m.id_baixa is null ";
+                qry_condicao = "   and m.id_baixa is null \n ";
                 break;
             case "atrasadas":
-                qry_condicao = "   and m.id_baixa is null "
-                        + "   and m.dt_vencimento < '" + DataHoje.data() + "'";
+                qry_condicao = "   and m.id_baixa is null \n "
+                        + "   and m.dt_vencimento < '" + DataHoje.data() + "' \n ";
                 break;
         }
 
@@ -557,46 +557,46 @@ public class MovimentoDBToplink extends DB implements MovimentoDB {
             ordem += "ba.dt_importacao desc";
         }
 
-        textQuery = "select m.id            as id, "
-                + "       p.ds_documento  as documento, "
-                + "       p.ds_nome       as nome, "
-                + "       m.ds_documento  as boleto, "
-                + "       s.ds_descricao  as contribuicao, "
-                + "       m.ds_referencia as referencia, "
-                + "       m.dt_vencimento as vencimento, "
-                + "       ba.dt_importacao as importacao, "
-                + "       m.nr_valor      as valor, "
-                + "       m.nr_taxa       as taxa, "
-                + "       pu.ds_nome      as nomeUsuario, "
-                + "       t.ds_descricao  as tipo,"
-                + "       ba.dt_baixa     as quitacao, "
-                + "       m.nr_multa      as multa, "
-                + "       m.nr_juros      as juros, "
-                + "       m.nr_correcao   as correcao, "
-                + "       m.nr_desconto   as desconto, "
-                + "       cc.nr_repasse   as repasse, "
-                + "       case when l.id = null              then 0 else l.id end   as id_baixa, "
-                + "       case when pb.ds_nome = null then '' else pb.ds_nome end  as beneficiario, "
-                + "       case when pf.ds_nome = null       then '' else pf.ds_nome end  as filial, "
-                + "       m.nr_valor_baixa as valor_baixa "
-                + "  from fin_movimento m "
-                + "  left join fin_baixa ba on (m.id_baixa = ba.id) "
-                + "  left join fin_lote l on (m.id_lote = l.id) "
-                + "  left join seg_usuario u    on (u.id = ba.id_usuario) "
-                + "  left join pes_pessoa pu    on (pu.id = u.id_pessoa)"
-                + "  left join fin_boleto b     on (b.nr_ctr_boleto = cast(m.id as text)) "
-                + "  left join fin_conta_cobranca cc on (cc.id = b.id_conta_cobranca) "
-                + "  left join pes_filial f on (f.id = l.id_filial) "
-                + "  left join pes_juridica pj on (pj.id = f.id_filial) "
-                + "  left join pes_pessoa pf on (pf.id = pj.id_pessoa) "
-                + "  left join pes_pessoa pb on (pb.id = m.id_beneficiario), "
-                + "       pes_pessoa p, "
-                + "       fin_servicos s, "
-                + "       fin_tipo_servico t "
-                + " where m.id_servicos in (select sr.id_servicos from fin_servico_rotina sr where sr.id_rotina = 4) "
-                + "   and m.is_ativo = true "
-                + "   and m.id_pessoa = p.id "
-                + "   and m.id_servicos = s.id "
+        textQuery = "select m.id            as id, \n "
+                + "       p.ds_documento  as documento, \n "
+                + "       p.ds_nome       as nome, \n "
+                + "       m.ds_documento  as boleto, \n "
+                + "       s.ds_descricao  as contribuicao, \n "
+                + "       m.ds_referencia as referencia, \n "
+                + "       m.dt_vencimento as vencimento, \n "
+                + "       ba.dt_importacao as importacao, \n "
+                + "       m.nr_valor      as valor, \n "
+                + "       m.nr_taxa       as taxa, \n "
+                + "       pu.ds_nome      as nomeUsuario, \n "
+                + "       t.ds_descricao  as tipo, \n "
+                + "       ba.dt_baixa     as quitacao, \n "
+                + "       m.nr_multa      as multa, \n "
+                + "       m.nr_juros      as juros, \n "
+                + "       m.nr_correcao   as correcao, \n "
+                + "       m.nr_desconto   as desconto, \n "
+                + "       cc.nr_repasse   as repasse, \n "
+                + "       case when l.id = null              then 0 else l.id end   as id_baixa, \n "
+                + "       case when pb.ds_nome = null then '' else pb.ds_nome end  as beneficiario, \n "
+                + "       case when pf.ds_nome = null       then '' else pf.ds_nome end  as filial, \n "
+                + "       m.nr_valor_baixa as valor_baixa \n "
+                + "  from fin_movimento m \n "
+                + "  left join fin_baixa ba on (m.id_baixa = ba.id) \n "
+                + "  left join fin_lote l on (m.id_lote = l.id) \n "
+                + "  left join seg_usuario u    on (u.id = ba.id_usuario) \n "
+                + "  left join pes_pessoa pu    on (pu.id = u.id_pessoa) \n "
+                + "  left join fin_boleto b     on (b.nr_ctr_boleto = cast(m.id as text)) \n "
+                + "  left join fin_conta_cobranca cc on (cc.id = b.id_conta_cobranca) \n "
+                + "  left join pes_filial f on (f.id = l.id_filial) \n "
+                + "  left join pes_juridica pj on (pj.id = f.id_filial) \n "
+                + "  left join pes_pessoa pf on (pf.id = pj.id_pessoa) \n "
+                + "  left join pes_pessoa pb on (pb.id = m.id_beneficiario), \n "
+                + "       pes_pessoa p, \n "
+                + "       fin_servicos s, \n "
+                + "       fin_tipo_servico t \n "
+                + " where m.id_servicos in (select sr.id_servicos from fin_servico_rotina sr where sr.id_rotina = 4) \n "
+                + "   and m.is_ativo = true \n "
+                + "   and m.id_pessoa = p.id \n "
+                + "   and m.id_servicos = s.id \n "
                 + "   and m.id_tipo_servico = t.id " + qry_data + qry_boleto + qry_servico + qry_tipo_servico + qry_pessoa + qry_condicao
                 + " order by " + ordem + ", nome";
 

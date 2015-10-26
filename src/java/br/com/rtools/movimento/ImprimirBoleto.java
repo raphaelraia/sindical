@@ -1791,23 +1791,24 @@ public class ImprimirBoleto {
             JuridicaDB dbj = new JuridicaDBToplink();
             FisicaDB dbf = new FisicaDBToplink();
             
+            List<Vector> lista_socio = new ArrayList();
             for (Boleto boleto : listaBoleto) {
                 // PESSOA RESPONSÁVEL PELO BOLETO
                 Pessoa pessoa = dbs.responsavelBoleto(boleto.getNrCtrBoleto());
-                List<Vector> lista_socio = null;
                 String contabilidade = "";
-                if (dbf.pesquisaFisicaPorPessoa(pessoa.getId()) != null)
-                    lista_socio = db.listaBoletoSocioFisica(boleto.getNrCtrBoleto(), view); // NR_CTR_BOLETO
-                 else {
-                    lista_socio = db.listaBoletoSocioJuridica(boleto.getNrCtrBoleto(), view); // NR_CTR_BOLETO
-                    Juridica j = dbj.pesquisaJuridicaPorPessoa(pessoa.getId());
-                    String doc = (j.getContabilidade() != null && 
-                                  !j.getContabilidade().getPessoa().getDocumento().isEmpty() && 
-                                  !j.getContabilidade().getPessoa().getDocumento().equals("0") ) ? j.getContabilidade().getPessoa().getDocumento() + " - " : " ";
-                    
-                    contabilidade = (j.getContabilidade() != null) ? "CONTABILIDADE : " + doc + j.getContabilidade().getPessoa().getNome() : "";
+                if (lista_socio.isEmpty()){
+                    if (dbf.pesquisaFisicaPorPessoa(pessoa.getId()) != null)
+                        lista_socio = db.listaBoletoSocioFisica(boleto.getNrCtrBoleto(), view); // NR_CTR_BOLETO
+                     else {
+                        lista_socio = db.listaBoletoSocioJuridica(boleto.getNrCtrBoleto(), view); // NR_CTR_BOLETO
+                        Juridica j = dbj.pesquisaJuridicaPorPessoa(pessoa.getId());
+                        String doc = (j.getContabilidade() != null && 
+                                      !j.getContabilidade().getPessoa().getDocumento().isEmpty() && 
+                                      !j.getContabilidade().getPessoa().getDocumento().equals("0") ) ? j.getContabilidade().getPessoa().getDocumento() + " - " : " ";
+
+                        contabilidade = (j.getContabilidade() != null) ? "CONTABILIDADE : " + doc + j.getContabilidade().getPessoa().getNome() : "";
+                    }
                 }
-                
                 Cobranca cobranca = null;
                 // SOMA VALOR DAS ATRASADAS
                 float valor_total_atrasadas = 0, valor_total = 0, valor_boleto = 0;

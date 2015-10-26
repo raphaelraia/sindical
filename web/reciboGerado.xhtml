@@ -12,6 +12,13 @@
         <style type="text/css">
             .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
             .ui-button { padding: 3px!important; }
+            
+            .column01{
+                width: 380px; 
+            }
+            .column02{
+                width: 100%; 
+            }
         </style>
         
         <script type="text/javascript">
@@ -27,12 +34,12 @@
                     <ui:include src="templates/templatePrime.xhtml"/>
                 </f:subview>
                 <f:view>
-                    <p:panel styleClass="wrapper" style="border: 0px;">
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Recibo Gerado" styleClass="fonteHeader" />
                         <h:form id="formReciboGerado">
-                            <h:panelGrid columns="2" style="clear: both; width: 100%;">
+                            <h:panelGrid columns="2" style="clear: both; width: 100%;" columnClasses="column01, column02">
                                 
-                                <p:panel style="width: 380px; height: 500px" styleClass="fundoCinza">
+                                <p:panel style="height: 500px" styleClass="fundoCinza">
                                     <h:outputLabel value="Lista Caixas" style="font-size: 12pt!important; font-weight: bold"/>
                                     <p:tree value="#{reciboGeradoBean.root}" var="cx" style="margin-top: 30px" animate="true" selectionMode="single"  
                                         selection="#{reciboGeradoBean.selectedRoot}">
@@ -44,14 +51,14 @@
                                     </p:tree>
                                 </p:panel>
                             
-                                <p:panel id="i_panel_recibo" style="width: 600px; height: 500px">
+                                <p:panel id="i_panel_recibo" style="height: 500px">
                                     <p:column style="float: left; width: 200px">
                                         <h:outputLabel value="Meus Recibos" style="font-size: 12pt!important; font-weight: bold; vertical-align: top"/>
                                         <h:panelGrid style="margin-top: 30px; clear: both">
                                                 
-                                            <p:dataGrid value="#{reciboGeradoBean.listaArquivo}" var="arquivo" columns="3" emptyMessage="Nenhum Arquivo Encontrado.">
+                                            <p:dataGrid value="#{reciboGeradoBean.listaArquivo}" var="arquivo" columns="4" emptyMessage="Nenhum Arquivo Encontrado." paginator="true" layout="grid" rows="8">
                                                 <p:panel header="#{arquivo.argumento0.name}" style="text-align:center">  
-                                                    <h:panelGrid columns="1" style="width:100%">  
+                                                    <h:panelGrid columns="1" style="width:100%; text-align: center">  
                                                         <p:graphicImage value="/Imagens/img_recibo.png" width="100">
                                                             
                                                         </p:graphicImage>

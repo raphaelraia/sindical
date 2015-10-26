@@ -216,15 +216,14 @@ public class LancamentoIndividualBean {
         Pessoa empresaConveniada = null;
         
         if (listaJuridica.size() == 1 && listaJuridica.get(idJuridica).getDescription().equals("0")){
-//            GenericaMensagem.warn("Atenção", "Empresa Conveniada não encontrada!");
-//            return null;
+
         }else{
             empresaConveniada = ((Juridica) sv.pesquisaCodigo(Integer.valueOf(listaJuridica.get(idJuridica).getDescription()), "Juridica")).getPessoa();
         }
         
         
         // CODICAO DE PAGAMENTO
-        CondicaoPagamento cp = new CondicaoPagamento();
+        CondicaoPagamento cp;
         
         if (DataHoje.converteDataParaInteger(((Movimento)listaMovimento.get(0).getArgumento0()).getVencimento()) > DataHoje.converteDataParaInteger(DataHoje.data())){
             cp = (CondicaoPagamento)sv.pesquisaCodigo(2, "CondicaoPagamento");
@@ -233,7 +232,7 @@ public class LancamentoIndividualBean {
         }
         
         // TIPO DE DOCUMENTO  FTipo_documento 13 - CARTEIRA, 2 - BOLETO
-        FTipoDocumento td = new FTipoDocumento();
+        FTipoDocumento td;
         if (descontoFolha.equals("sim")){
             td = (FTipoDocumento)sv.pesquisaCodigo(13, "FTipoDocumento");
         }else{
@@ -291,7 +290,8 @@ public class LancamentoIndividualBean {
                     lote, 
                     empresaConveniada, 
                     null, 
-                    false
+                    false,
+                    ""
             );
 
             if (!sv.inserirObjeto(guias)){

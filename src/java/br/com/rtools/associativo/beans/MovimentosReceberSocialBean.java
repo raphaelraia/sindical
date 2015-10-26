@@ -798,8 +798,9 @@ public class MovimentosReceberSocialBean implements Serializable {
                         socios_enc.getParentesco().getParentesco(),
                         (socios_enc.getMatriculaSocios().getId() == -1) ? "" : String.valueOf(socios_enc.getMatriculaSocios().getId()),
                         socios_enc.getMatriculaSocios().getCategoria().getCategoria(),
-                        guia.getLote().getHistorico()
-                //guia.getSubGrupoConvenio().getObservacao()
+                        guia.getObservacao()
+                        //guia.getLote().getHistorico()
+                        //guia.getSubGrupoConvenio().getObservacao()
                 ));
 
                 JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(vetor);
@@ -834,15 +835,6 @@ public class MovimentosReceberSocialBean implements Serializable {
                 download.baixar();
                 download.remover();
             }
-//            byte[] arquivo = JasperExportManager.exportReportToPdf(print);
-//
-//            HttpServletResponse res = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
-//            res.setContentType("application/pdf");
-//            res.setHeader("Content-disposition", "inline; filename=\"" + "Impressão de Encaminhamento" + ".pdf\"");
-//            res.getOutputStream().write(arquivo);
-//            res.getCharacterEncoding();
-//
-//            FacesContext.getCurrentInstance().responseComplete();
         } catch (JRException e) {
             e.getMessage();
         }

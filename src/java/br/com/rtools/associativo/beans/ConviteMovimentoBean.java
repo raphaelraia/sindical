@@ -243,7 +243,10 @@ public class ConviteMovimentoBean implements Serializable {
                 return null;
             }
         }
-
+        
+        DataHoje dh = new DataHoje();
+        conviteMovimento.setValidade(dh.incrementarMeses(1, DataHoje.data()));
+        
         if (conviteMovimento.getId() == -1) {
             Registro r = (Registro) dao.find(new Registro(), 1);
             SpcDB spcDB = new SpcDBToplink();

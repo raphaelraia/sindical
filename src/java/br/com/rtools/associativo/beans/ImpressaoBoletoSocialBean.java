@@ -942,7 +942,7 @@ public class ImpressaoBoletoSocialBean {
 
     public List<Pessoa> getListaPessoaSemEndereco() {
         if (atualizaListaPessoaSemEndereco) {
-            loadLista();
+            //loadLista();
         }
         return listaPessoaSemEndereco;
     }

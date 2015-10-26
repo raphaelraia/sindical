@@ -698,12 +698,12 @@ public class FinanceiroDBToplink extends DB implements FinanceiroDB {
         String text_qry = "", where = "", inner_join = "";
 
         if (tipo.equals("fisica")) {
-            inner_join = " INNER JOIN pes_fisica f ON f.id_pessoa = b.codigo ";
+            inner_join = " INNER JOIN pes_fisica f ON f.id_pessoa = b.codigo \n ";
         } else if (tipo.equals("juridica")) {
-            inner_join = " INNER JOIN pes_juridica j ON j.id_pessoa = b.codigo ";
+            inner_join = " INNER JOIN pes_juridica j ON j.id_pessoa = b.codigo \n ";
         }
 
-        where = " WHERE b.ativo = true";
+        where = " WHERE b.ativo = true \n ";
 
 //        // IF temporário... excluir
 //        if (tipo.equals("fisica")){
@@ -717,31 +717,50 @@ public class FinanceiroDBToplink extends DB implements FinanceiroDB {
 //                inner_join = " INNER JOIN pes_pessoa p ON p.id = j.id_pessoa ";
 //            }
 
-            inner_join += " INNER JOIN pes_pessoa p ON p.id = b.codigo ";
-            where += " AND p.ds_documento = '" + documento + "'";
+            inner_join += " INNER JOIN pes_pessoa p ON p.id = b.codigo \n ";
+            where += " AND p.ds_documento = '" + documento + "' \n ";
         }
 
         // RESPONSAVEL --
         if (!responsavel.isEmpty()) {
             responsavel = AnaliseString.normalizeLower(responsavel);
-            where += " AND TRANSLATE(LOWER(b.responsavel)) like '%" + responsavel + "%'";
+            where += " AND TRANSLATE(LOWER(b.responsavel)) like '%" + responsavel + "%' \n ";
         }
 
         // LOTE --
         if (!lote.isEmpty()) {
-            where += " AND b.id_lote_boleto = " + Integer.valueOf(lote);
+            where += " AND b.id_lote_boleto = " + Integer.valueOf(lote) + " \n ";
 
         }
 
         // DATA --
         if (!data.isEmpty()) {
-            where += " AND b.processamento = '" + data + "'";
+            where += " AND b.processamento = '" + data + "' \n ";
         }
 
-        text_qry = " SELECT b.nr_ctr_boleto, b.id_lote_boleto, b.responsavel, b.boleto, to_char(b.vencimento,'dd/MM/yyyy') as vencimento, to_char(b.processamento,'dd/MM/yyyy') as processamento, sum(b.valor) as valor, b.endereco_responsavel, b.codigo "
+        text_qry = 
+                " SELECT b.nr_ctr_boleto, \n "
+                + "      b.id_lote_boleto, \n "
+                + "      b.responsavel, \n "
+                + "      b.boleto, \n "
+                + "      to_char(b.vencimento,'dd/MM/yyyy') as vencimento, \n "
+                + "      to_char(b.processamento,'dd/MM/yyyy') as processamento, \n "
+                + "      sum(b.valor) as valor, \n "
+                + "      b.endereco_responsavel, \n "
+                + "      b.codigo \n "
                 + "   FROM soc_boletos_vw b " + inner_join + where
-                + "  GROUP BY b.nr_ctr_boleto, b.id_lote_boleto, b.responsavel, b.boleto, b.vencimento, b.processamento, b.endereco_responsavel, b.codigo "
-                + "  ORDER BY b.responsavel, b.vencimento desc";
+                + "  GROUP BY \n "
+                + "      b.nr_ctr_boleto, \n "
+                + "      b.id_lote_boleto, \n "
+                + "      b.responsavel, \n "
+                + "      b.boleto, \n "
+                + "      b.vencimento, \n "
+                + "      b.processamento, \n "
+                + "      b.endereco_responsavel, \n "
+                + "      b.codigo \n "
+                + "  ORDER BY \n "
+                + "      b.responsavel, \n "
+                + "      b.vencimento desc";
 
         try {
             Query qry = getEntityManager().createNativeQuery(text_qry);

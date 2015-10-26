@@ -364,24 +364,6 @@ public class SociosBean implements Serializable {
         servicoPessoa = socios.getServicoPessoa();
         descontoSocial = servicoPessoa.getDescontoSocial();
 
-        // CARREGAR OS SERVICOS APENAS QUANDO TER UMA PESSOA NA SESSÃO
-        loadServicos();
-        loadPessoaComplemento(servicoPessoa.getPessoa().getId());
-
-        ModeloCarteirinha modeloc = dbc.pesquisaModeloCarteirinha(socios.getMatriculaSocios().getCategoria().getId(), 170);
-        List<SocioCarteirinha> listsc;
-
-        if (modeloc != null) {
-            listsc = db.pesquisaCarteirinhasPorPessoa(socios.getServicoPessoa().getPessoa().getId(), modeloc.getId());
-            if (!listsc.isEmpty()) {
-                socCarteirinha = listsc.get(0);
-            } else {
-                GenericaMensagem.warn("Ateção", "Sócio sem modelo de Carteirinha!");
-            }
-        }
-
-        matriculaSocios = socios.getMatriculaSocios();
-
         //GrupoCategoria gpCat = dbca.pesquisaGrupoPorCategoria(socios.getMatriculaSocios().getCategoria().getId());
         loadGrupoCategoria();
         for (int i = 0; i < listaGrupoCategoria.size(); i++) {
@@ -400,6 +382,24 @@ public class SociosBean implements Serializable {
                 break;
             }
         }
+        // CARREGAR OS SERVICOS APENAS QUANDO TER UMA PESSOA NA SESSÃO
+        loadServicos();
+        loadPessoaComplemento(servicoPessoa.getPessoa().getId());
+
+        ModeloCarteirinha modeloc = dbc.pesquisaModeloCarteirinha(socios.getMatriculaSocios().getCategoria().getId(), 170);
+        List<SocioCarteirinha> listsc;
+
+        if (modeloc != null) {
+            listsc = db.pesquisaCarteirinhasPorPessoa(socios.getServicoPessoa().getPessoa().getId(), modeloc.getId());
+            if (!listsc.isEmpty()) {
+                socCarteirinha = listsc.get(0);
+            } else {
+                GenericaMensagem.warn("Ateção", "Sócio sem modelo de Carteirinha!");
+            }
+        }
+
+        matriculaSocios = socios.getMatriculaSocios();
+
         listaFilial.clear();
         idFilial = 0;
         for (int i = 0; i < getListaFilial().size(); i++) {
@@ -436,7 +436,6 @@ public class SociosBean implements Serializable {
             }
         }
 
-        loadServicos();
 
         atualizarListaDependenteAtivo();
         atualizarListaDependenteInativo();

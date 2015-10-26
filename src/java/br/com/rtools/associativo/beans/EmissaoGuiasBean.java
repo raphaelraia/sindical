@@ -129,6 +129,7 @@ public class EmissaoGuiasBean implements Serializable {
     private ControleAcessoBean cab = new ControleAcessoBean();
 
     private String novoDesconto = "0,00";
+    private String observacao = "";
 
     @PostConstruct
     public void init() {
@@ -169,7 +170,8 @@ public class EmissaoGuiasBean implements Serializable {
         getListSubGrupo();
         if (!listSelectItem[0].isEmpty() && !listSelectItem[1].isEmpty()) {
             SubGrupoConvenio sgc = (SubGrupoConvenio) (new Dao()).find(new SubGrupoConvenio(), Integer.parseInt(getListSubGrupo().get(index[1]).getDescription()));
-            lote.setHistorico(sgc.getObservacao());
+            //lote.setHistorico(sgc.getObservacao());
+            observacao = sgc.getObservacao();
         }
 
         socios = new Socios();
@@ -365,7 +367,8 @@ public class EmissaoGuiasBean implements Serializable {
                 listenerEnabledItensPedido();
                 if (!listSelectItem[0].isEmpty() && !listSelectItem[1].isEmpty()) {
                     SubGrupoConvenio sgc = (SubGrupoConvenio) (new Dao()).find(new SubGrupoConvenio(), Integer.parseInt(getListSubGrupo().get(index[1]).getDescription()));
-                    lote.setHistorico(sgc.getObservacao());
+                    //lote.setHistorico(sgc.getObservacao());
+                    observacao = sgc.getObservacao();
                 }
                 break;
             case 2:
@@ -380,7 +383,8 @@ public class EmissaoGuiasBean implements Serializable {
                 listenerEnabledItensPedido();
                 if (!listSelectItem[0].isEmpty() && !listSelectItem[1].isEmpty()) {
                     SubGrupoConvenio sgc = (SubGrupoConvenio) (new Dao()).find(new SubGrupoConvenio(), Integer.parseInt(getListSubGrupo().get(index[1]).getDescription()));
-                    lote.setHistorico(sgc.getObservacao());
+                    //lote.setHistorico(sgc.getObservacao());
+                    observacao = sgc.getObservacao();
                 }
                 break;
             case 3:
@@ -756,7 +760,7 @@ public class EmissaoGuiasBean implements Serializable {
             //listaaux.add((Movimento)listaMovimento.get(i).getArgumento0());
         }
 
-        Estoque e = new Estoque();
+        Estoque e;
         ProdutoDao produtoDao = new ProdutoDao();
         for (Pedido listPedido : listPedidos) {
             listPedido.setLote(lote);
@@ -782,7 +786,8 @@ public class EmissaoGuiasBean implements Serializable {
                 lote,
                 empresaConvenio.getPessoa(),
                 (SubGrupoConvenio) di.find(new SubGrupoConvenio(), Integer.parseInt(getListSubGrupo().get(index[1]).getDescription())),
-                false
+                false,
+                observacao
         );
 
         if (!di.save(guias)) {
@@ -1396,5 +1401,13 @@ public class EmissaoGuiasBean implements Serializable {
 
     public void setNovoDesconto(String novoDesconto) {
         this.novoDesconto = novoDesconto;
+    }
+
+    public String getObservacao() {
+        return observacao;
+    }
+
+    public void setObservacao(String observacao) {
+        this.observacao = observacao;
     }
 }

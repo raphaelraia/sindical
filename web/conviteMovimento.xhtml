@@ -181,7 +181,7 @@
 
                                                         <h:column>
                                                             <p:outputLabel value="Validade" style="color: red; font-weight: bold"/><br />
-                                                            <p:inputText value="#{conviteMovimentoBean.validadeConvite(conviteMovimentoBean.conviteMovimento.emissao)}" readonly="true" rendered="#{conviteMovimentoBean.conviteMovimento.id != -1}" style="color: red;; width: 85px; text-align: center"/>
+                                                            <p:inputText value="#{conviteMovimentoBean.conviteMovimento.validade}" readonly="true" rendered="#{conviteMovimentoBean.conviteMovimento.id != -1}" style="color: red;; width: 85px; text-align: center"/>
                                                         </h:column>
                                                     </h:panelGrid>
                                                 </p:panel>
