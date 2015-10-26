@@ -387,12 +387,12 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             fisica.getPessoa().setDtAtualizacao(new Date());
             fisica.getPessoa().setTipoDocumento((TipoDocumento) dao.find(new TipoDocumento(), 1));
             Fisica f = (Fisica) dao.find(new Fisica(), fisica.getId());
-            String antes = " De: ID - " + fisica.getId()
+            String antes = " ID - " + f.getId()
                     + " - Nome: " + f.getPessoa().getNome()
                     + " - Nascimento: " + f.getNascimento()
                     + " - CPF: " + f.getPessoa().getDocumento()
                     + " - RG: " + f.getRg()
-                    + " - Recadastro : " + fisica.getRecadastro();
+                    + " - Recadastro : " + f.getRecadastro();
             if (fisica.getPessoa().getDocumento().equals("") || fisica.getPessoa().getDocumento().equals("0")) {
                 fisica.getPessoa().setDocumento("0");
             } else {
@@ -429,7 +429,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 logs.setTabela("pes_fisica");
                 logs.setCodigo(fisica.getId());
                 logs.update(antes,
-                        " para: Nome: " + fisica.getPessoa().getNome()
+                        " Nome: " + fisica.getPessoa().getNome()
                         + " - Nascimento: " + f.getNascimento()
                         + " - CPF: " + fisica.getPessoa().getDocumento()
                         + " - RG: " + fisica.getRg()

@@ -44,6 +44,7 @@
                 <ui:include src="templates/templatePhotoCapture.xhtml" />
                 <ui:include src="templates/templatePhotoUpload.xhtml" />
                 <ui:include src="templates/templatePhotoCropper.xhtml" />
+                <ui:include src="templates/templateLogHistory.xhtml" />
                 
                 <f:view>
 
@@ -230,7 +231,7 @@
 
                                                     <p:column>
                                                         <p:outputLabel value="Atualização de Cadastro" /><br />
-                                                        <p:inputMask id="i_recadastro" size="8" value="#{fisicaBean.fisica.recadastro}" mask="99/99/9999" disabled="true">
+                                                        <p:inputMask id="i_recadastro" size="8" value="#{fisicaBean.fisica.recadastro}" mask="99/99/9999" readonly="true">
                                                             <p:ajax event="change" update="@this" />
                                                         </p:inputMask>
                                                         <p:commandButton icon="ui-icon-close" title="clique limpar" action="#{fisicaBean.clear(1)}" update="i_recadastro"/>
@@ -277,8 +278,9 @@
                                                         </p:selectOneMenu>
                                                     </p:column>
                                                 </h:panelGrid>
-                                                <h:panelGrid columns="2" styleClass="margin-top-max">
+                                                <h:panelGrid columns="1" styleClass="margin-top-max">
                                                     <p:outputLabel value="Ultima alteração: #{fisicaBean.fisica.pessoa.atualizacao}" rendered="#{fisicaBean.fisica.pessoa.id != -1}" />
+                                                    <p:commandLink update=":form_log_history:i_panel_history" oncomplete="PF('dlg_log_history').show()" title="Ver histórico de logs" action="#{logHistoryBean.load('pes_fisica', fisicaBean.fisica.id)}" rendered="#{fisicaBean.fisica.pessoa.id != -1}" value="Histórico de alterações" style="color: red;" disabled="#{fisicaBean.fisica.id == -1 or controleAcessoBean.verificarPermissao('historico_alteracao_logs', 1)}"/>
                                                 </h:panelGrid>
                                             </p:column>
 

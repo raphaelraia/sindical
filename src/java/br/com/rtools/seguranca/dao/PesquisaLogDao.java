@@ -1,7 +1,9 @@
 package br.com.rtools.seguranca.dao;
 
 import br.com.rtools.principal.DB;
+import br.com.rtools.seguranca.Log;
 import br.com.rtools.utilitarios.DataHoje;
+import com.sun.org.apache.bcel.internal.generic.LOR;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
@@ -60,6 +62,27 @@ public class PesquisaLogDao extends DB {
                 query.setParameter("dtInicial", DataHoje.converte(dataInicial), TemporalType.DATE);
                 query.setParameter("dtFinal", DataHoje.converte(dataFinal), TemporalType.DATE);
             }
+            query.setMaxResults(200);
+            List list = query.getResultList();
+            if (list.size() > 0) {
+                return list;
+            }
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+        return new ArrayList();
+    }
+
+    public List find(String tabela, Integer codigo) {
+        String queryString = ""
+                + "     SELECT L.*                                              \n"
+                + "       FROM seg_log AS L                                     \n"
+                + "      WHERE ds_tabela = '" + tabela + "'                     \n"
+                + "        AND nr_codigo = " + codigo + "                       \n"
+                + "   ORDER BY dt_data DESC, ds_hora DESC";
+
+        try {
+            Query query = getEntityManager().createNativeQuery(queryString, Log.class);
             query.setMaxResults(200);
             List list = query.getResultList();
             if (list.size() > 0) {

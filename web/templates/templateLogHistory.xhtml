@@ -1,0 +1,70 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core">
+
+    <f:view>
+        <h:form id="form_log_history">
+            <p:dialog widgetVar="dlg_log_history" header="Histórico de Alterações" width="800">
+                <h:panelGrid id="i_panel_history">                    
+                    <p:dataTable value="#{logHistoryBean.listLogs}" scrollable="true" scrollHeight="400" var="log" emptyMessage="Nenhum registro encontrado!" rows="10" paginator="true" id="i_logs">
+                        <p:column width="25" exportable="false">  
+                            <p:rowToggler />  
+                        </p:column>              
+                        <p:rowExpansion styleClass="bg-yellow-ligth">
+                            <span class="ui-icon ui-icon-arrowreturnthick-1-e float-left"></span>
+                            <p:outputLabel value="De: #{log.conteudoOriginal}" /><br /><br />
+                            <h:column rendered="#{not empty log.conteudoAlterado}">
+                                <span class="ui-icon ui-icon-arrowreturnthick-1-e float-left"></span>
+                                <p:outputLabel value="Para: #{log.conteudoAlterado}"/>
+                            </h:column>
+                        </p:rowExpansion>
+                        <p:column headerText="Data" styleClass="text-center" width="80">
+                            <f:facet name="header">
+                                <h:outputText value="Data" />
+                            </f:facet>
+                            <h:outputText value="#{log.data}" />
+                        </p:column>
+                        <p:column headerText="Hora" styleClass="text-center" width="40">
+                            <f:facet name="header">
+                                <h:outputText value="Hora" />
+                            </f:facet>
+                            <h:outputText value="#{log.hora}" />
+                        </p:column>
+                        <p:column headerText="Rotina">
+                            <f:facet name="header">
+                                <h:outputText value="Rotina" />
+                            </f:facet>                                
+                            <h:outputText value="#{log.rotina.rotina}" />
+                        </p:column>
+                        <p:column headerText="Evento" styleClass="text-center" width="60">
+                            <f:facet name="header">
+                                <h:outputText value="Evento" />
+                            </f:facet>                            
+                            <h:outputText value="#{log.evento.descricao}" />
+                        </p:column>
+                        <p:column headerText="Usuário">
+                            <f:facet name="header">
+                                <h:outputText value="Usuario" />
+                            </f:facet>
+                            <h:outputText value="#{log.usuario.login}" />
+                        </p:column>
+                        <p:column width="25" style="visibility: hidden;" exportable="true">
+                            <f:facet name="header">
+                                <h:outputText value="Detalhes" />
+                            </f:facet>
+                            <h:outputText value="De: #{log.conteudoOriginal} - Para: #{log.conteudoAlterado}" style="width: 1px!important; height: 1px!important; position: absolute"/>
+                        </p:column>
+                        <p:column width="25" exportable="false" rendered="false">
+                            <p:commandButton icon="ui-icon-info" title="De: #{log.conteudoOriginal} - Para: #{log.conteudoAlterado}" />
+                        </p:column>
+                        <f:facet name="footer">
+                            <h:outputLabel value="Mostra apenas 200 resultados! Para verificar mais registros acessar a rotina de Logs!" />
+                        </f:facet>  
+                    </p:dataTable>
+                </h:panelGrid>                        
+            </p:dialog>         
+        </h:form>
+    </f:view>
+</ui:composition>
