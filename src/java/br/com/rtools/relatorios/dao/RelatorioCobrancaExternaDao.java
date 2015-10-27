@@ -32,15 +32,13 @@ public class RelatorioCobrancaExternaDao extends DB {
                         + "              ELSE e_logradouro||' '||e_endereco||', '||e_numero||' '||e_complemento||' '||e_bairro||' '||e_cidade||e_uf||' CEP: '||left(e_cep,5)||'-'||right(e_cep,3)      \n"
                         + "             END AS endereco                             \n"
                         + "        FROM movimentos_vw       AS m                    \n"
-                        + "  INNER JOIN fin_tipo_documento  AS td ON td.id = m.id_tipo_documento  \n"
                         + "  INNER JOIN pes_pessoa_vw       AS t  ON t.codigo = m.id_titular      \n"
                         + "  INNER JOIN soc_socios_vw       AS so ON so.codsocio = m.id_titular   \n";
                 List listWhere = new ArrayList<>();
-                listWhere.add("m.id_tipo_documento <> 13");
                 listWhere.add("m.es = 'E'");
                 listWhere.add("m.id_baixa IS NULL");
                 if (inTipoCobranca != null && !inTipoCobranca.isEmpty()) {
-                    listWhere.add("td.id IN (" + inTipoCobranca + ")");
+                    listWhere.add("so.cod_tipo_cobranca IN (" + inTipoCobranca + ")");
                 }
                 for (int i = 0; i < listWhere.size(); i++) {
                     if (i == 0) {
@@ -67,17 +65,15 @@ public class RelatorioCobrancaExternaDao extends DB {
                         + "              ELSE e_logradouro||' '||e_endereco||', '||e_numero||' '||e_complemento||' '||e_bairro||' '||e_cidade||e_uf||' CEP: '||left(e_cep,5)||'-'||right(e_cep,3)      \n"
                         + "             END AS endereco                             \n"
                         + "        FROM movimentos_vw       AS m                    \n"
-                        + "  INNER JOIN fin_tipo_documento  AS td ON td.id = m.id_tipo_documento  \n"
                         + "  INNER JOIN pes_pessoa_vw       AS t  ON t.codigo = m.id_titular      \n"
                         + "  INNER JOIN soc_socios_vw       AS so ON so.codsocio = m.id_titular   \n";
                 List listWhere = new ArrayList<>();
                 // 08/10/2015 - CHAMADO 1057
-                // listWhere.add("m.id_tipo_documento <> 13");
                 listWhere.add("m.es = 'E'");
                 listWhere.add("m.id_baixa IS NULL");
                 if (inTipoCobranca != null && !inTipoCobranca.isEmpty()) {
                     // 08/10/2015 - CHAMADO 1057 - listWhere.add("td.id IN (" + inTipoCobranca + ")");
-                    listWhere.add("so.tipo_cobranca IN (" + inTipoCobranca + ")");
+                    listWhere.add("so.cod_tipo_cobranca IN (" + inTipoCobranca + ")");
                 }
                 if (titular_id != null) {
                     listWhere.add("so.codsocio = " + titular_id + " ");
@@ -113,7 +109,6 @@ public class RelatorioCobrancaExternaDao extends DB {
                         + "             b.ds_nome as beneficiario,                  \n"
                         + "             m.vencimento    AS movimento_vencimento     \n"
                         + "        FROM movimentos_vw       AS m                    \n"
-                        + "  INNER JOIN fin_tipo_documento  AS td ON td.id = m.id_tipo_documento\n"
                         + "  INNER JOIN pes_pessoa_vw       AS t  ON t.codigo = m.id_titular    \n"
                         + "  INNER JOIN soc_socios_vw       AS so ON so.codsocio = m.id_titular \n"
                         + "  INNER JOIN pes_pessoa          AS b  ON b.id = m.id_beneficiario   \n";
@@ -128,7 +123,7 @@ public class RelatorioCobrancaExternaDao extends DB {
                 }
                 if (inTipoCobranca != null && !inTipoCobranca.isEmpty()) {
                     // 08/10/2015 - CHAMADO 1057 - listWhere.add("td.id IN (" + inTipoCobranca + ")");
-                    listWhere.add("so.tipo_cobranca IN (" + inTipoCobranca + ")");
+                    listWhere.add("so.cod_tipo_cobranca IN (" + inTipoCobranca + ")");
                 }
                 for (int i = 0; i < listWhere.size(); i++) {
                     if (i == 0) {
