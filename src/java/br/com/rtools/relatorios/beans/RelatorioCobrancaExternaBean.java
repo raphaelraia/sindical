@@ -222,12 +222,16 @@ public class RelatorioCobrancaExternaBean implements Serializable {
     public String inIdTipoCobranca() {
         String ids = null;
         if (selectedTipoCobranca != null) {
+            ids = "";
+            int b = 0;
             for (int i = 0; i < selectedTipoCobranca.size(); i++) {
                 if (selectedTipoCobranca.get(i) != null) {
-                    if (ids == null) {
-                        ids = "" + selectedTipoCobranca.get(i);
-                    } else {
-                        ids += "," + selectedTipoCobranca.get(i);
+                    if(b > 0) {
+                        ids += ",";
+                    }
+                    if(selectedTipoCobranca.get(i) != null) {
+                        ids += selectedTipoCobranca.get(i);
+                        b++;
                     }
                 }
             }
