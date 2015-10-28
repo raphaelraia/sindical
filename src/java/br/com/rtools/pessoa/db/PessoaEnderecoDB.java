@@ -6,7 +6,6 @@ import java.util.List;
 import javax.persistence.EntityManager;
 
 public interface PessoaEnderecoDB {
-
     public EntityManager getEntityManager();
 
     public List pesquisaEndPorPessoa(int id);

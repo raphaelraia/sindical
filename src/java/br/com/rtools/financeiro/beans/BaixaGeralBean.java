@@ -575,7 +575,7 @@ public class BaixaGeralBean implements Serializable {
             } else if (url.equals("movimentosReceberSocial")) {
                 ((MovimentosReceberSocialBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("movimentosReceberSocialBean")).getListaMovimento().clear();
             } else if (url.equals("emissaoGuias") || url.equals("menuPrincipal")) {
-                ((EmissaoGuiasBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("emissaoGuiasBean")).atualizarHistorico();
+                
             } else if (url.equals("lancamentoFinanceiro")) {
                 ((LancamentoFinanceiroBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("lancamentoFinanceiroBean")).getListaParcela().clear();
                 ((LancamentoFinanceiroBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("lancamentoFinanceiroBean")).getListaParcelaSelecionada().clear();
@@ -585,6 +585,9 @@ public class BaixaGeralBean implements Serializable {
                 ((MatriculaAcademiaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("matriculaAcademiaBean")).setDesabilitaDiaVencimento(true);
 
             }
+            
+            ((EmissaoGuiasBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("emissaoGuiasBean")).atualizarHistorico();
+            
             retorna = true;
             mensagem = "Baixa realizada com sucesso!";
             GenericaSessao.put("baixa_sucesso", true);

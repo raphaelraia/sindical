@@ -244,7 +244,7 @@
                                     <p:column headerText="" style="text-align: center" width="40">
                                         <p:commandLink value="Baixar" type="submit" action="#{emissaoGuiasBean.baixarErrado(historicoEmissaoGuias)}" oncomplete="PF('i_dlg_guias').hide()" style="font-weight: bold"/>  
                                     </p:column>                                            
-                                    <p:column headerText="" style="text-align: center" width="40">
+                                    <p:column headerText="" style="text-align: center" width="40" rendered="false">
                                         <p:commandLink value="Excluir" type="submit" action="#{emissaoGuiasBean.excluirErrado(historicoEmissaoGuias)}" oncomplete="PF('i_dlg_guias').hide()" style="font-weight: bold"/>  
                                     </p:column>
                                 </p:dataTable>

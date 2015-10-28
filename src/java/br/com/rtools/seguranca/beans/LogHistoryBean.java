@@ -18,7 +18,8 @@ public class LogHistoryBean implements Serializable {
     public void load(String tabela, Integer codigo) {
         listLogs = new ArrayList();
         listLogs.addAll(new PesquisaLogDao().find(tabela, codigo));
-        listLogs.addAll(new PesquisaLogDao().find(new Rotina().get().getId(), codigo));
+        // ARQUIVO NÃO ENVIADO PELO GITHUB
+        //listLogs.addAll(new PesquisaLogDao().find(new Rotina().get().getId(), codigo));
     }
 
     public List<Log> getListLogs() {

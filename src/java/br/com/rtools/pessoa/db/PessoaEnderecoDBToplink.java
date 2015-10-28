@@ -4,11 +4,8 @@ import br.com.rtools.endereco.Endereco;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.principal.DB;
 import br.com.rtools.utilitarios.AnaliseString;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 import javax.persistence.Query;
 
 public class PessoaEnderecoDBToplink extends DB implements PessoaEnderecoDB {

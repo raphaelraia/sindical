@@ -83,12 +83,17 @@
                                     <p:menuitem value="Emissão de Guias"       action="#{chamadaPaginaBean.pagina('emissaoGuias')}" />
                                     <p:menuitem value="Extrato Tela Social"    action="#{chamadaPaginaBean.pagina('extratoTelaSocial')}"/>
                                     <p:menuitem value="Retorno Banco (Social)" action="#{chamadaPaginaBean.retornoSocial()}" />
-                                    <p:menuitem value="Vendas Caravana"        action="#{chamadaPaginaBean.vendasCaravana}" />
-                                    <p:menuitem value="Vendas Baile"           action="#{chamadaPaginaBean.vendasBaile}" />
+                                    <p:submenu label="Vendas">
+                                        <p:menuitem value="Caravana"        action="#{chamadaPaginaBean.vendasCaravana}" />
+                                        <p:menuitem value="Baile"           action="#{chamadaPaginaBean.vendasBaile}" />
+                                    </p:submenu>
                                     <p:menuitem value="Transf. Entre Caixas" onclick="i_dlg_t.show()"/>
                                     <p:menuitem value="Fechamento de Caixa"    action="#{chamadaPaginaBean.fechamentoCaixa()}"/>
                                     <p:menuitem value="Ag. Cobrança Mensal"    action="#{chamadaPaginaBean.cobrancaMensal()}" />
-                                    <p:menuitem value="Pesquisa Boletos"       action="#{chamadaPaginaBean.pagina('pesquisaBoletosSocial')}" />
+                                    <p:submenu label="Boletos">
+                                        <p:menuitem value="Pesquisa Boletos"     action="#{chamadaPaginaBean.pagina('pesquisaBoletosSocial')}" />
+                                        <p:menuitem value="Boletos Não Baixados" action="#{chamadaPaginaBean.pagina('boletoNaoBaixado')}" />
+                                    </p:submenu>
                                     <p:menuitem value="Convite Clube"          action="#{chamadaPaginaBean.conviteMovimento}"/>
                                 </p:submenu>    
 

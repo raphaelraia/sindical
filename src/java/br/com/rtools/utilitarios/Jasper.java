@@ -272,6 +272,8 @@ public class Jasper implements Serializable {
         if (TITLE != null && !TITLE.isEmpty()) {
             parameters.put("relatorio_titulo", TITLE);
         }
+        
+        subreport = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/CABECALHO_PAISAGEM.jasper");
         if (IS_HEADER || IS_HEADER_PARAMS) {
             switch (TYPE) {
                 case "retrato":
@@ -288,7 +290,7 @@ public class Jasper implements Serializable {
                     IS_HEADER = false;
                     break;
             }
-            parameters.put("is_header", true);
+            parameters.put("is_header", IS_HEADER);
             parameters.put("sindicato_nome", juridica.getPessoa().getNome());
             parameters.put("sindicato_documento", juridica.getPessoa().getDocumento());
             parameters.put("sindicato_site", juridica.getPessoa().getSite());
@@ -319,8 +321,8 @@ public class Jasper implements Serializable {
             // parameters.put("instituicao_logo", ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));
             //
             parameters.put("template_dir", subreport);
-        } else {
-            parameters.put("is_header", false);
+        }else{
+            parameters.put("is_header", IS_HEADER);
         }
 
         MemoryMXBean memoryBean = ManagementFactory.getMemoryMXBean();

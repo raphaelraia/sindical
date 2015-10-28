@@ -63,7 +63,6 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
     private Date dataFinal;
     private Map<String, Integer> listServicos;
     private List selectedServicos;
-
     /**
      * <ul>
      * <li> Indices </li>

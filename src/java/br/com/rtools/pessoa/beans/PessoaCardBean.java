@@ -183,13 +183,13 @@ public class PessoaCardBean implements Serializable {
 
     public PessoaEndereco getPessoaEndereco() {
         if (pessoaEndereco.getId() == -1) {
-            PessoaEnderecoDB pessoaEnderecoDB = new PessoaEnderecoDBToplink();
+            PessoaEnderecoDB db = new PessoaEnderecoDBToplink();
             if (fisica != null && fisica.getId() != -1) {
-                pessoaEndereco = (PessoaEndereco) pessoaEnderecoDB.pesquisaEndPorPessoaTipo(fisica.getPessoa().getId(), 4);
+                pessoaEndereco = (PessoaEndereco) db.pesquisaEndPorPessoaTipo(fisica.getPessoa().getId(), 4);
             } else if (juridica != null && juridica.getId() != -1) {
-                pessoaEndereco = (PessoaEndereco) pessoaEnderecoDB.pesquisaEndPorPessoaTipo(juridica.getPessoa().getId(), 4);
+                pessoaEndereco = (PessoaEndereco) db.pesquisaEndPorPessoaTipo(juridica.getPessoa().getId(), 4);
             } else if (pessoa != null && pessoa.getId() != -1) {
-                pessoaEndereco = (PessoaEndereco) pessoaEnderecoDB.pesquisaEndPorPessoaTipo(pessoa.getId(), 4);
+                pessoaEndereco = (PessoaEndereco) db.pesquisaEndPorPessoaTipo(pessoa.getId(), 4);
             }
             if (pessoaEndereco == null) {
                 pessoaEndereco = new PessoaEndereco();

@@ -45,12 +45,13 @@ import net.sf.jasperreports.engine.util.JRLoader;
 @ManagedBean
 @ViewScoped
 public class ImprimirConviteClube implements Serializable {
+
     private ConfiguracaoSocial cs = new ConfiguracaoSocial();
-    
+
     public ImprimirConviteClube() {
         cs = (ConfiguracaoSocial) new Dao().find(new ConfiguracaoSocial(), 1);
     }
-    
+
     public void imprimir(ConviteMovimento cm) {
         try {
             Collection lista = parametroConvite(cm);
@@ -154,50 +155,52 @@ public class ImprimirConviteClube implements Serializable {
         DataHoje dh = new DataHoje();
 
         List listSemana = new ArrayList();
-        if (cm.getConviteServico().isDomingo()) {
-            listSemana.add("Dom");
-        }
-        if (cm.getConviteServico().isSegunda()) {
-            listSemana.add("Seg");
-        }
-        if (cm.getConviteServico().isTerca()) {
-            listSemana.add("Ter");
-        }
-        if (cm.getConviteServico().isQuarta()) {
-            listSemana.add("Qua");
-        }
-        if (cm.getConviteServico().isQuinta()) {
-            listSemana.add("Qui");
-        }
-        if (cm.getConviteServico().isSexta()) {
-            listSemana.add("Sex");
-        }
-        if (cm.getConviteServico().isSabado()) {
-            listSemana.add("Sáb");
-        }
-        if (cm.getConviteServico().isFeriado()) {
-            listSemana.add("Feriado");
+        if (cm.getConviteServico() != null) {
+            if (cm.getConviteServico().isDomingo()) {
+                listSemana.add("Dom");
+            }
+            if (cm.getConviteServico().isSegunda()) {
+                listSemana.add("Seg");
+            }
+            if (cm.getConviteServico().isTerca()) {
+                listSemana.add("Ter");
+            }
+            if (cm.getConviteServico().isQuarta()) {
+                listSemana.add("Qua");
+            }
+            if (cm.getConviteServico().isQuinta()) {
+                listSemana.add("Qui");
+            }
+            if (cm.getConviteServico().isSexta()) {
+                listSemana.add("Sex");
+            }
+            if (cm.getConviteServico().isSabado()) {
+                listSemana.add("Sáb");
+            }
+            if (cm.getConviteServico().isFeriado()) {
+                listSemana.add("Feriado");
+            }
         }
 
-        String s_barras = "00000000".substring(0, 8 - (""+cm.getId()).length()) + cm.getId();
+        String s_barras = "00000000".substring(0, 8 - ("" + cm.getId()).length()) + cm.getId();
         String barras = "";
-        
+
         int cont_via = 0, cont_codigo = 0;
-        for (int i = 0; i < cs.getCartaoDigitos(); i++){
-            if (cs.getCartaoPosicaoVia() == i){
+        for (int i = 0; i < cs.getCartaoDigitos(); i++) {
+            if (cs.getCartaoPosicaoVia() == i) {
                 barras += "99";
                 i = i + 1;
                 continue;
             }
-            
-            if (cs.getCartaoPosicaoCodigo() == i){
+
+            if (cs.getCartaoPosicaoCodigo() == i) {
                 barras += s_barras;
                 i = i + 7;
                 continue;
             }
             barras += "0";
         }
-        
+
         lista.add(new ConviteClube(
                 cm.getSisPessoa().getNome(),
                 cm.getEmissao(),
@@ -205,7 +208,7 @@ public class ImprimirConviteClube implements Serializable {
                 ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoConvite.png"),
                 barras,
                 GenericaString.converterNullToString(cm.getSisPessoa().getObservacao()),
-                "NO(S) DIA(S): " + listSemana
+                (!listSemana.isEmpty()) ? "NO(S) DIA(S): " + listSemana : "CORTESIA"
         ));
         return lista;
     }
