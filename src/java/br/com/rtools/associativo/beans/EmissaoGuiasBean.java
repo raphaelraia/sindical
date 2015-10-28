@@ -249,14 +249,17 @@ public class EmissaoGuiasBean implements Serializable {
             listaMovimentoAuxiliar.clear();
 
             for (HistoricoEmissaoGuias listHistoricoEmissaoGuia : listHistoricoEmissaoGuias) {
-                if (heg.getMovimento().getLote().getId() == listHistoricoEmissaoGuia.getMovimento().getLote().getId()) {
+                if (heg.getMovimento().getLote().getId() == listHistoricoEmissaoGuia.getMovimento().getLote().getId() && listHistoricoEmissaoGuia.getMovimento().getBaixa() == null) {
                     listaMovimentoAuxiliar.add(listHistoricoEmissaoGuia.getMovimento());
                 }
             }
-            listHistoricoEmissaoGuias.clear();
-            GenericaSessao.put("listaMovimento", listaMovimentoAuxiliar);
-            GenericaSessao.put("caixa_banco", "caixa");
-            return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).baixaGeral();
+            
+            if (!listaMovimentoAuxiliar.isEmpty()){
+                listHistoricoEmissaoGuias.clear();
+                GenericaSessao.put("listaMovimento", listaMovimentoAuxiliar);
+                GenericaSessao.put("caixa_banco", "caixa");
+                return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).baixaGeral();
+            }
         }
         return null;
     }
@@ -281,7 +284,6 @@ public class EmissaoGuiasBean implements Serializable {
 
             // GUIA
             Guia guias = db.pesquisaGuias(heg.getMovimento().getLote().getId());
-
             if (guias.getId() != -1) {
                 if (!di.delete(guias)) {
                     di.rollback();
@@ -314,28 +316,32 @@ public class EmissaoGuiasBean implements Serializable {
 
     public void atualizarHistorico() {
         DaoInterface di = new Dao();
-        Usuario usuario = (Usuario) GenericaSessao.getObject("sessaoUsuario");
         MovimentoDB db = new MovimentoDBToplink();
-        if (!listaMovimentoAuxiliar.isEmpty()) {
-            for (Movimento listaMovimentoAuxiliar1 : listaMovimentoAuxiliar) {
-                HistoricoEmissaoGuias heg = db.pesquisaHistoricoEmissaoGuiasPorMovimento(usuario.getId(), listaMovimentoAuxiliar1.getId());
-                heg.setBaixado(true);
-                di.openTransaction();
-                if (di.update(heg)) {
-                    di.commit();
-                } else {
-                    di.rollback();
-                }
+        Usuario usuario = (Usuario) GenericaSessao.getObject("sessaoUsuario");
+        List<HistoricoEmissaoGuias> listHEGuias = db.pesquisaHistoricoEmissaoGuias(usuario.getId());
+        
+        if (listHEGuias.isEmpty()){
+            return;
+        }
+        
+        di.openTransaction();
+        for (HistoricoEmissaoGuias list_h : listHEGuias) {
+            if (list_h.getMovimento().getBaixa() != null){
+                list_h.setBaixado(true);
+            }
+            if (!di.update(list_h)) {
+                di.rollback();
+                return;
             }
         }
+        
+        di.commit();
     }
 
     public List<HistoricoEmissaoGuias> getListHistoricoEmissaoGuias() {
-        //if (listHistoricoEmissaoGuias.isEmpty()) {
         MovimentoDB db = new MovimentoDBToplink();
         Usuario usuario = (Usuario) GenericaSessao.getObject("sessaoUsuario");
         listHistoricoEmissaoGuias = db.pesquisaHistoricoEmissaoGuias(usuario.getId());
-        //}
         return listHistoricoEmissaoGuias;
     }
 

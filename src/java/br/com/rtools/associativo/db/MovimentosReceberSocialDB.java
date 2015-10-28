@@ -53,7 +53,7 @@ public interface MovimentosReceberSocialDB {
     public List dadosSocio(int id_lote);
 
     public Pessoa pesquisaPessoaPorBoleto(String boleto, int id_conta_cobranca);
-
+    
     public float[] pesquisaValorAcrescimo(int id_movimento);
 
     public List<Vector> listaBoletosAbertosAgrupado(int id_pessoa, boolean atrasados);

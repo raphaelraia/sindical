@@ -54,7 +54,6 @@ import org.primefaces.component.tabview.TabView;
 import org.primefaces.context.RequestContext;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.event.TabChangeEvent;
-import org.primefaces.model.StreamedContent;
 
 @ManagedBean
 @SessionScoped
@@ -320,7 +319,6 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             fisica.setFoto(PhotoCropper.getNameFile());
             PhotoCropper.unload();
         }
-
 
         if ((fisica.getPessoa().getId() == -1) && (fisica.getId() == -1)) {
             fisica.getPessoa().setTipoDocumento((TipoDocumento) dao.find(new TipoDocumento(), 1));
@@ -1912,7 +1910,6 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 fisica.setFoto(PhotoCropper.getNameFile());
                 PhotoCropper.unload();
             }
-
 
             String path = ("/resources/cliente/" + ControleUsuarioBean.getCliente() + "/imagens/pessoa/" + fisica.getPessoa().getId() + "/").toLowerCase();
             String fcaminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(path);

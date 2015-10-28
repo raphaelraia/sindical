@@ -4,6 +4,7 @@ import br.com.rtools.arrecadacao.Acordo;
 import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.MensagemConvencao;
 import br.com.rtools.arrecadacao.db.*;
+import br.com.rtools.associativo.BoletoNaoBaixado;
 import br.com.rtools.financeiro.*;
 import br.com.rtools.financeiro.db.*;
 import br.com.rtools.logSistema.NovoLog;
@@ -1188,10 +1189,9 @@ public class GerarMovimento extends DB {
                 return lista_log;
             }
         }
-
+        
         if (valor_baixa == soma) {
             // valor baixado corretamente
-            // sv.comitarTransacao();
             for (Movimento movimento : lista_movimento) {
                 movimento.setValorBaixa(movimento.getValor());
                 if (!sv.alterarObjeto(movimento)) {
@@ -1201,30 +1201,42 @@ public class GerarMovimento extends DB {
                     lista_log[2] = "Erro ao alterar Movimento com Desconto e Valor Baixa";
                 }
             }
-        } else if (valor_baixa < soma) {
+        } else if (valor_baixa < (soma-0.03)) {
             float acrescimo = Moeda.subtracaoValores(soma, valor_baixa);
             // valor da baixa é menor que os boletos ( O CLIENTE PAGOU MENOS )
-            for (Movimento movimento : lista_movimento) {
-                float valor = 0, percentual = 0;
-                percentual = Moeda.multiplicarValores(Moeda.divisaoValores(movimento.getValor(), soma), 100);
-                valor = Moeda.divisaoValores(Moeda.multiplicarValores(acrescimo, percentual), 100);
-
-                movimento.setDesconto(valor);
-                movimento.setValorBaixa(Moeda.subtracaoValores(movimento.getValor(), valor));
-
-                if (!sv.alterarObjeto(movimento)) {
-                    sv.desfazerTransacao();
-                    lista_log[0] = 3; // 3 - ERRO AO ALTERAR MOVIMENTO COM DESCONTO E VALOR BAIXA
-                    lista_log[1] = movimento;
-                    lista_log[2] = "Erro ao alterar Movimento com Desconto e Valor Baixa";
-                    return lista_log;
-                }
+            
+            // ROGÉRIO PEDIU PRA NÃO BAIXAR (CHAMADO 1095)
+//            for (Movimento movimento : lista_movimento) {
+//                float valor = 0, percentual = 0;
+//                percentual = Moeda.multiplicarValores(Moeda.divisaoValores(movimento.getValor(), soma), 100);
+//                valor = Moeda.divisaoValores(Moeda.multiplicarValores(acrescimo, percentual), 100);
+//
+//                movimento.setDesconto(valor);
+//                movimento.setValorBaixa(Moeda.subtracaoValores(movimento.getValor(), valor));
+//
+//                if (!sv.alterarObjeto(movimento)) {
+//                    sv.desfazerTransacao();
+//                    lista_log[0] = 3; // 3 - ERRO AO ALTERAR MOVIMENTO COM DESCONTO E VALOR BAIXA
+//                    lista_log[1] = movimento;
+//                    lista_log[2] = "Erro ao alterar Movimento com Desconto e Valor Baixa";
+//                    return lista_log;
+//                }
+//            }
+//            sv.comitarTransacao();
+            sv.desfazerTransacao();
+            
+            String msg = "Valor do Boleto " + lista_movimento.get(0).getDocumento() + " - vencto. " + lista_movimento.get(0).getVencimento() + " - pag. " + data_pagamento + " MENOR com défit de " + Moeda.converteR$Float(acrescimo);
+            BoletoNaoBaixado bnb = new BoletoNaoBaixado(-1, bol, msg, valor_baixa, DataHoje.dataHoje(), DataHoje.dataHoje());
+            
+            sv.abrirTransacao();
+            if (!sv.inserirObjeto(bnb)) {
+                sv.desfazerTransacao();
+                return new String[3];
             }
             sv.comitarTransacao();
-            //sv.desfazerTransacao();
             lista_log[0] = 6; // 6 - VALOR DO ARQUIVO MENOR
             lista_log[1] = lista_movimento;
-            lista_log[2] = "Valor do Boleto " + lista_movimento.get(0).getDocumento() + " - vencto. " + lista_movimento.get(0).getVencimento() + " - pag. " + data_pagamento + " MENOR com défit de " + Moeda.converteR$Float(acrescimo);
+            lista_log[2] = msg;
             return lista_log;
         } else if (valor_baixa > soma) {
             float acrescimo = Moeda.subtracaoValores(valor_baixa, soma);

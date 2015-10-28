@@ -220,7 +220,10 @@ public class ConviteMovimentoBean implements Serializable {
         }
 
         NovoLog novoLog = new NovoLog();
-        conviteMovimento.setConviteServico((ConviteServico) dao.find(new ConviteServico(), Integer.parseInt(conviteServicos.get(idServico).getDescription())));
+        if (conviteMovimento.isCortesia()) 
+            conviteMovimento.setConviteServico(null);
+        else
+            conviteMovimento.setConviteServico((ConviteServico) dao.find(new ConviteServico(), Integer.parseInt(conviteServicos.get(idServico).getDescription())));
         dao.openTransaction();
         if (conviteMovimento.getSisPessoa().getEndereco() == null || conviteMovimento.getSisPessoa().getEndereco().getId() == -1) {
             conviteMovimento.getSisPessoa().setEndereco(null);
@@ -307,7 +310,7 @@ public class ConviteMovimentoBean implements Serializable {
                             + " - Responsável (Pessoa): (" + conviteMovimento.getPessoa().getId() + ") " + conviteMovimento.getPessoa().getNome()
                             + " - Validade: " + conviteMovimento.getValidade()
                             + (conviteMovimento.getAutorizaCortesia() != null ? " - Autorizado por (Pessoa): (" + conviteMovimento.getAutorizaCortesia().getId() + ") " + conviteMovimento.getAutorizaCortesia().getPessoa().getNome() : "")
-                            + " - Convite Serviço: (" + conviteMovimento.getConviteServico().getId() + ") " + conviteMovimento.getConviteServico().getServicos().getDescricao()
+                            + (conviteMovimento.getConviteServico() != null  ? " - Convite Serviço: (" + conviteMovimento.getConviteServico().getId() + ") " + conviteMovimento.getConviteServico().getServicos().getDescricao() : " - Convite Serviço: (null)")
                     );
                     dao.commit();
                     message = "Registro inserido com sucesso";
@@ -343,7 +346,7 @@ public class ConviteMovimentoBean implements Serializable {
                             + " - SisPessoa: (" + conviteMovimento.getSisPessoa().getId() + ") " + conviteMovimento.getSisPessoa().getNome()
                             + " - Responsável (Pessoa): (" + conviteMovimento.getPessoa().getId() + ") " + conviteMovimento.getPessoa().getNome()
                             + " - Validade: " + conviteMovimento.getValidade()
-                            + " - Convite Serviço: (" + conviteMovimento.getConviteServico().getId() + ") " + conviteMovimento.getConviteServico().getServicos().getDescricao()
+                            + (conviteMovimento.getConviteServico() != null  ? " - Convite Serviço: (" + conviteMovimento.getConviteServico().getId() + ") " + conviteMovimento.getConviteServico().getServicos().getDescricao() : " - Convite Serviço: (null)")
                     );
                 }
             } else {
@@ -362,7 +365,7 @@ public class ConviteMovimentoBean implements Serializable {
                     + " - Responsável (Pessoa): (" + cm.getPessoa().getId() + ") " + cm.getPessoa().getNome()
                     + " - Validade: " + cm.getValidade()
                     + (cm.getAutorizaCortesia() != null ? " - Autorizado por (Pessoa): (" + cm.getAutorizaCortesia().getId() + ") " + cm.getAutorizaCortesia().getPessoa().getNome() : "")
-                    + " - Convite Serviço: (" + cm.getConviteServico().getId() + ") " + cm.getConviteServico().getServicos().getDescricao();
+                    + (cm.getConviteServico() != null  ? " - Convite Serviço: (" + cm.getConviteServico().getId() + ") " + cm.getConviteServico().getServicos().getDescricao() : " - Convite Serviço: (null)");
             if (dao.update(conviteMovimento)) {
                 dao.commit();
                 message = "Registro atualizado com sucesso";
@@ -373,7 +376,7 @@ public class ConviteMovimentoBean implements Serializable {
                         + " - Responsável (Pessoa): (" + conviteMovimento.getPessoa().getId() + ") " + conviteMovimento.getPessoa().getNome()
                         + " - Validade: " + conviteMovimento.getValidade()
                         + (conviteMovimento.getAutorizaCortesia() != null ? " - Autorizado por (Pessoa): (" + conviteMovimento.getAutorizaCortesia().getId() + ") " + conviteMovimento.getAutorizaCortesia().getPessoa().getNome() : "")
-                        + " - Convite Serviço: (" + conviteMovimento.getConviteServico().getId() + ") " + conviteMovimento.getConviteServico().getServicos().getDescricao()
+                        + (conviteMovimento.getConviteServico() != null  ? " - Convite Serviço: (" + conviteMovimento.getConviteServico().getId() + ") " + conviteMovimento.getConviteServico().getServicos().getDescricao() : " - Convite Serviço: (null)")
                 );
                 sucesso = true;
             } else {
@@ -461,17 +464,21 @@ public class ConviteMovimentoBean implements Serializable {
     }
 
     public void pesquisaSisPessoaDocumento() {
-        if (conviteMovimento.getSisPessoa().getId() == -1) {
+        //if (conviteMovimento.getSisPessoa().getId() == -1) {
             // APENAS COM CPF
             SisPessoaDao sisPessoaDB = new SisPessoaDao();
             if (!conviteMovimento.getSisPessoa().getDocumento().isEmpty()) {
                 SisPessoa sp = sisPessoaDB.sisPessoaExiste(conviteMovimento.getSisPessoa(), true);
                 if (sp != null) {
                     conviteMovimento.setSisPessoa(sp);
+                }else{
+                    String d = conviteMovimento.getSisPessoa().getDocumento();
+                    conviteMovimento.setSisPessoa(new SisPessoa());
+                    conviteMovimento.getSisPessoa().setDocumento(d);
                 }
             }
             conviteMovimento.getSisPessoa().setNome(conviteMovimento.getSisPessoa().getNome().toUpperCase());
-        }
+        //}
         loadValor();
     }
 
@@ -513,7 +520,7 @@ public class ConviteMovimentoBean implements Serializable {
                         + " - Responsável (Pessoa): (" + conviteMovimento.getPessoa().getId() + ") " + conviteMovimento.getPessoa().getNome()
                         + " - Validade: " + conviteMovimento.getValidade()
                         + (conviteMovimento.getAutorizaCortesia() != null ? " - Autorizado por (Pessoa): (" + conviteMovimento.getAutorizaCortesia().getId() + ") " + conviteMovimento.getAutorizaCortesia().getPessoa().getNome() : "")
-                        + " - Convite Serviço: (" + conviteMovimento.getConviteServico().getId() + ") " + conviteMovimento.getConviteServico().getServicos().getDescricao()
+                        + (conviteMovimento.getConviteServico() != null  ? " - Convite Serviço: (" + conviteMovimento.getConviteServico().getId() + ") " + conviteMovimento.getConviteServico().getServicos().getDescricao() : " - Convite Serviço: (null)")
                 );
                 apagarImagem("perfil", dao);
                 apagarImagem("documento", dao);
@@ -548,11 +555,14 @@ public class ConviteMovimentoBean implements Serializable {
                 }
             }
         }
-
-        for (int i = 0; i < getConviteServicos().size(); i++) {
-            if (Integer.parseInt(getConviteServicos().get(i).getDescription()) == conviteMovimento.getConviteServico().getId()) {
-                idServico = i;
-                break;
+        
+        getConviteServicos();
+        if (conviteMovimento.getConviteServico() != null){
+            for (int i = 0; i < conviteServicos.size(); i++) {
+                if (Integer.parseInt(conviteServicos.get(i).getDescription()) == conviteMovimento.getConviteServico().getId()) {
+                    idServico = i;
+                    break;
+                }
             }
         }
         
@@ -851,10 +861,10 @@ public class ConviteMovimentoBean implements Serializable {
 
     public int getIdadeConvidado() {
         if (!conviteMovimento.getSisPessoa().getNascimento().equals("")) {
-            if (idadeConvidado == 0) {
+            //if (idadeConvidado == 0) {
                 DataHoje dh = new DataHoje();
                 idadeConvidado = (int) dh.calcularIdade(conviteMovimento.getSisPessoa().getNascimento());
-            }
+            //}
         }
         return idadeConvidado;
     }

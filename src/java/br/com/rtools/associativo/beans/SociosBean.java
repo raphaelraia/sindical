@@ -436,7 +436,6 @@ public class SociosBean implements Serializable {
             }
         }
 
-
         atualizarListaDependenteAtivo();
         atualizarListaDependenteInativo();
     }
@@ -2698,6 +2697,17 @@ public class SociosBean implements Serializable {
                 dao.rollback();
                 return null;
             }
+
+            HistoricoCarteirinha hc = new HistoricoCarteirinha();
+
+            hc.setCarteirinha(sctitular);
+            hc.setDescricao("Impressão de Carteirinha Titular");
+
+            if (!dao.save(hc)) {
+                GenericaMensagem.warn("Erro", "Não foi possivel salvar histórico da carteirinha do dependente!");
+                dao.rollback();
+                return null;
+            }
             dao.commit();
         }
 
@@ -2732,6 +2742,17 @@ public class SociosBean implements Serializable {
                     sc.setDtEmissao(DataHoje.dataHoje());
                     if (!dao.update(sc)) {
                         GenericaMensagem.warn("Erro", "Não foi possivel alterar data de emissão do dependente!");
+                        dao.rollback();
+                        return null;
+                    }
+
+                    HistoricoCarteirinha hc = new HistoricoCarteirinha();
+
+                    hc.setCarteirinha(sc);
+                    hc.setDescricao("Impressão de Carteirinha Dependente");
+
+                    if (!dao.save(hc)) {
+                        GenericaMensagem.warn("Erro", "Não foi possivel salvar histórico da carteirinha do dependente!");
                         dao.rollback();
                         return null;
                     }

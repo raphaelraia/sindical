@@ -423,8 +423,9 @@ public class MatriculaAcademiaBean implements Serializable {
             SocioCarteirinha scx = scdb.pesquisaCarteirinhaPessoa(matriculaAcademia.getServicoPessoa().getPessoa().getId(), modeloCarteirinha.getId());
             Boolean insert = false;
             if (scx == null || scx.getId() == -1) {
-                socioCarteirinha.setDtEmissao(DataHoje.dataHoje());
+                socioCarteirinha.setEmissao("");
                 socioCarteirinha.setCartao(0);
+                socioCarteirinha.setVia(1);
                 socioCarteirinha.setValidadeCarteirinha(validadeCarteirinha);
                 socioCarteirinha.setPessoa(matriculaAcademia.getServicoPessoa().getPessoa());
                 socioCarteirinha.setModeloCarteirinha(modeloCarteirinha);
@@ -511,9 +512,10 @@ public class MatriculaAcademiaBean implements Serializable {
             SocioCarteirinha scx = scdb.pesquisaCarteirinhaPessoa(matriculaAcademia.getServicoPessoa().getPessoa().getId(), modeloCarteirinha.getId());
             Boolean insert = false;
             if (scx == null || scx.getId() == -1) {
-                socioCarteirinha.setDtEmissao(DataHoje.dataHoje());
+                socioCarteirinha.setEmissao("");
                 socioCarteirinha.setCartao(0);
                 socioCarteirinha.setValidadeCarteirinha(validadeCarteirinha);
+                socioCarteirinha.setVia(1);
                 socioCarteirinha.setPessoa(matriculaAcademia.getServicoPessoa().getPessoa());
                 socioCarteirinha.setModeloCarteirinha(modeloCarteirinha);
                 insert = true;

@@ -901,6 +901,15 @@ public class CartaoSocialBean implements Serializable {
             if (isBeneficiario) {
                 listAux.addAll(dbc.filtroCartao(((HistoricoCarteirinha) list.get(i)).getMovimento().getBeneficiario().getId()));
             } else {
+                HistoricoCarteirinha hc = new HistoricoCarteirinha();
+
+                hc.setCarteirinha(carteirinhas.get(i));
+                hc.setDescricao("Impressão de Carteirinha pela Geração de Cartão");
+
+                if (!new Dao().save(hc, true)) {
+                    return;
+                }
+                
                 listAux.addAll(dbc.filtroCartao(carteirinhas.get(i).getPessoa().getId()));
             }
         }
