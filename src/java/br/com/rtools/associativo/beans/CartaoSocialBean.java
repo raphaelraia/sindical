@@ -73,9 +73,10 @@ public class CartaoSocialBean implements Serializable {
     private Integer firstIndex = 0;
     private Integer lastIndex = 0;
     private Boolean disabled;
+    private ConfiguracaoSocial configuracaoSocial;
 
     public CartaoSocialBean() {
-        ConfiguracaoSocial configuracaoSocial = (ConfiguracaoSocial) new Dao().find(new ConfiguracaoSocial(), 1);
+        configuracaoSocial = (ConfiguracaoSocial) new Dao().find(new ConfiguracaoSocial(), 1);
         disabled = false;
         if (configuracaoSocial.getControlaCartaoFilial()) {
             disabled = true;
@@ -261,26 +262,33 @@ public class CartaoSocialBean implements Serializable {
             DataHoje dh = new DataHoje();
             SociosDB dbs = new SociosDBToplink();
             for (int i = 0; i < list.size(); i++) {
+                Integer nrValidadeMeses = 0;
                 Integer titular_id = (Integer) ((List) list.get(i)).get(40);
                 Pessoa pessoa = (Pessoa) dao.find(new Pessoa(), (Integer) ((List) list.get(i)).get(0));
                 Socios socios = dbs.pesquisaSocioPorPessoa(pessoa.getId());
+                ValidadeCartao validadeCartao = new ValidadeCartao();
                 SocioCarteirinha carteirinha = (SocioCarteirinha) dao.find(new SocioCarteirinha(), (Integer) ((List) list.get(i)).get(19));
-                ValidadeCartao validadeCartao = new ValidadeCartaoDao().findByCategoriaParentesco(socios.getMatriculaSocios().getCategoria().getId(), socios.getParentesco().getId());
-                if (validadeCartao == null) {
-                    GenericaMensagem.warn("Validação", "Nenhuma validade de cartão encontrada!");
-                    dao.rollback();
-                    return;
+                if (socios.getId() != -1) {
+                    validadeCartao = new ValidadeCartaoDao().findByCategoriaParentesco(socios.getMatriculaSocios().getCategoria().getId(), socios.getParentesco().getId());
+                    if (validadeCartao == null) {
+                        GenericaMensagem.warn("Validação", "Nenhuma validade de cartão encontrada!");
+                        dao.rollback();
+                        return;
+                    }
+                    nrValidadeMeses = validadeCartao.getNrValidadeMeses();
+                } else {
+                    nrValidadeMeses = configuracaoSocial.getValidadeMesesCartaoAcademia();
                 }
                 if (socios.getId() != -1 && socios.getMatriculaSocios().getId() != -1) {
                     Date validadeCarteirinha;
                     if (validadeCartao.getDtValidadeFixa() == null) {
-                        validadeCarteirinha = DataHoje.converte(dh.incrementarMeses(validadeCartao.getNrValidadeMeses(), DataHoje.data()));
+                        validadeCarteirinha = DataHoje.converte(dh.incrementarMeses(nrValidadeMeses, DataHoje.data()));
                     } else {
                         validadeCarteirinha = validadeCartao.getDtValidadeFixa();
                     }
                     carteirinha.setDtValidadeCarteirinha(validadeCarteirinha);
                 } else {
-                    carteirinha.setDtValidadeCarteirinha(null);
+                    carteirinha.setDtValidadeCarteirinha(DataHoje.converte(dh.incrementarMeses(nrValidadeMeses, DataHoje.data())));
                 }
                 boolean validacao = false;
                 if (pessoa.getSocios().getId() != -1) {
@@ -925,5 +933,13 @@ public class CartaoSocialBean implements Serializable {
 
     public void setDisabled(Boolean disabled) {
         this.disabled = disabled;
+    }
+
+    public ConfiguracaoSocial getConfiguracaoSocial() {
+        return configuracaoSocial;
+    }
+
+    public void setConfiguracaoSocial(ConfiguracaoSocial configuracaoSocial) {
+        this.configuracaoSocial = configuracaoSocial;
     }
 }

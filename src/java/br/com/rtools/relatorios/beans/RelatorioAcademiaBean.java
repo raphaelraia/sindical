@@ -11,6 +11,7 @@ import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioAcademiaDao;
 import br.com.rtools.relatorios.dao.RelatorioDao;
+import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.sistema.Periodo;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
@@ -329,7 +330,7 @@ public class RelatorioAcademiaBean implements Serializable {
     public List<SelectItem> getListTipoRelatorios() {
         if (listSelectItem[0].isEmpty()) {
             RelatorioDao db = new RelatorioDao();
-            List<Relatorios> list = (List<Relatorios>) db.pesquisaTipoRelatorio(275);
+            List<Relatorios> list = (List<Relatorios>) db.pesquisaTipoRelatorio(new Rotina().get().getId());
             for (int i = 0; i < list.size(); i++) {
                 if (i == 0) {
                     index[0] = list.get(i).getId();

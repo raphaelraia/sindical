@@ -59,7 +59,7 @@ public class RelatorioDao extends DB {
         return true;
     }
 
-    public List<Relatorios> pesquisaTipoRelatorio(int idRotina) {
+    public List<Relatorios> pesquisaTipoRelatorio(Integer idRotina) {
         List<Relatorios> result = new ArrayList();
         try {
             Query qry = getEntityManager().createQuery("select rel "
