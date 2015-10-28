@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "soc_grupo_categoria")
@@ -20,29 +21,34 @@ public class GrupoCategoria implements java.io.Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
     @Column(name = "ds_grupo_categoria", length = 50, nullable = true)
     private String grupoCategoria;
     @Column(name = "nr_proxima_matricula", length = 10, nullable = true)
-    private int nrProximaMatricula;
+    private Integer nrProximaMatricula;
+
+    @Transient
+    private Boolean selected;
 
     public GrupoCategoria() {
         this.id = -1;
         this.grupoCategoria = "";
         this.nrProximaMatricula = 1;
+        this.selected = false;
     }
 
-    public GrupoCategoria(int id, String grupoCategoria, int nrProximaMatricula) {
+    public GrupoCategoria(Integer id, String grupoCategoria, Integer nrProximaMatricula) {
         this.id = id;
         this.grupoCategoria = grupoCategoria;
         this.nrProximaMatricula = nrProximaMatricula;
+        this.selected = false;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -54,11 +60,19 @@ public class GrupoCategoria implements java.io.Serializable {
         this.grupoCategoria = grupoCategoria;
     }
 
-    public int getNrProximaMatricula() {
+    public Integer getNrProximaMatricula() {
         return nrProximaMatricula;
     }
 
-    public void setNrProximaMatricula(int nrProximaMatricula) {
+    public void setNrProximaMatricula(Integer nrProximaMatricula) {
         this.nrProximaMatricula = nrProximaMatricula;
+    }
+
+    public Boolean getSelected() {
+        return selected;
+    }
+
+    public void setSelected(Boolean selected) {
+        this.selected = selected;
     }
 }

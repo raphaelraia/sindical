@@ -1,7 +1,6 @@
 package br.com.rtools.seguranca.beans;
 
 import br.com.rtools.seguranca.Log;
-import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.dao.PesquisaLogDao;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -18,7 +17,7 @@ public class LogHistoryBean implements Serializable {
     public void load(String tabela, Integer codigo) {
         listLogs = new ArrayList();
         listLogs.addAll(new PesquisaLogDao().find(tabela, codigo));
-        listLogs.addAll(new PesquisaLogDao().find(new Rotina().get().getId(), codigo));
+        // listLogs.addAll(new PesquisaLogDao().find(new Rotina().get().getId(), codigo));
     }
 
     public List<Log> getListLogs() {

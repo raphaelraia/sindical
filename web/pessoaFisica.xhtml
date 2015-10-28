@@ -280,7 +280,7 @@
                                                 </h:panelGrid>
                                                 <h:panelGrid columns="1" styleClass="margin-top-max">
                                                     <p:outputLabel value="Ultima alteração: #{fisicaBean.fisica.pessoa.atualizacao}" rendered="#{fisicaBean.fisica.pessoa.id != -1}" />
-                                                    <p:commandLink update=":form_log_history:i_panel_history" oncomplete="PF('dlg_log_history').show()" title="Ver histórico de logs" action="#{logHistoryBean.load('pes_fisica', fisicaBean.fisica.id)}" rendered="#{fisicaBean.fisica.pessoa.id != -1}" value="Histórico de alterações" style="color: red;" disabled="#{fisicaBean.fisica.id == -1 or controleAcessoBean.verificarPermissao('historico_alteracao_logs', 1)}"/>
+                                                    <p:commandLink update=":form_log_history:i_panel_history" oncomplete="PF('dlg_log_history').show()" title="Ver histórico de logs" action="#{logHistoryBean.load('pes_fisica', fisicaBean.fisica.id)}" rendered="#{fisicaBean.fisica.pessoa.id != -1}" value="Histórico de alterações" style="color: red;" disabled="#{fisicaBean.fisica.id == -1 or controleAcessoBean.verificarPermissao('historico_alteracao_logs', 4)}"/>
                                                 </h:panelGrid>
                                             </p:column>
 

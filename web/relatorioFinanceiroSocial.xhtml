@@ -306,6 +306,18 @@
                                                 </p:selectOneRadio>
                                             </h:panelGrid>
                                         </h:column>
+                                        
+                                        <!-- DESCONTO SOCIAL -->
+                                        <h:column>
+                                            <h:panelGrid columns="2" rendered="#{relatorioFinanceiroSocialBean.listaFiltros[9].ativo}" style="float: left; margin: 10px ">
+                                                <p:outputLabel value="Desconto Social" style="font-weight: bold"/>
+                                                <p:selectCheckboxMenu label="Selecionar " value="#{relatorioFinanceiroSocialBean.selectedDescontoSocial}" filter="true" filterMatchMode="startsWith">
+                                                    <p:ajax event="toggleSelect" global="false" />
+                                                    <p:ajax event="change" global="false" />
+                                                    <f:selectItems value="#{relatorioFinanceiroSocialBean.listDescontoSocial}" />
+                                                </p:selectCheckboxMenu>
+                                            </h:panelGrid>
+                                        </h:column>
 
 
                                         <!-- FINANCEIRO -->

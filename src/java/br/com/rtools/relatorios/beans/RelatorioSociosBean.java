@@ -1,12 +1,11 @@
 package br.com.rtools.relatorios.beans;
 
 import br.com.rtools.associativo.Categoria;
+import br.com.rtools.associativo.DescontoSocial;
 import br.com.rtools.associativo.GrupoCategoria;
 import br.com.rtools.associativo.Parentesco;
 import br.com.rtools.associativo.db.CategoriaDB;
 import br.com.rtools.associativo.db.CategoriaDBToplink;
-import br.com.rtools.associativo.db.ParentescoDB;
-import br.com.rtools.associativo.db.ParentescoDao;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.GrupoFinanceiro;
@@ -24,16 +23,16 @@ import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.relatorios.dao.RelatorioOrdemDao;
 import br.com.rtools.relatorios.db.RelatorioSociosDB;
 import br.com.rtools.relatorios.db.RelatorioSociosDBToplink;
+import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
+import br.com.rtools.utilitarios.Filters;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Jasper;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -68,10 +67,10 @@ public class RelatorioSociosBean implements Serializable {
     private String dataAtualicacao = "";
     private String dataAtualicacaoFim = "";
     private String tipoEleicao = "todos";
-    private String tipoSexo = "M";
-    private String tipoCarteirinha = "com";
+    private String tipoSexo = "";
+    private String tipoCarteirinha = "";
     private String tipoSuspensos = "todos";
-    private String tipoFotos = "com";
+    private String tipoFotos = "";
     private String tipoDescontoGeracao = "todos";
     private String tipoEmpresas = "todas";
     private String tipoOrdem = "nome";
@@ -95,27 +94,27 @@ public class RelatorioSociosBean implements Serializable {
     private boolean chkServicos = false;
     private boolean chkEmpresa = false;
     private Integer idEmpresas = null;
-    private int idDias = 0;
-    private int matriculaInicial = 0;
-    private int matriculaFinal = 9999999;
-    private int idadeInicial = 0;
-    private int idadeFinal = 500;
-    private int diaInicial = 1;
-    private int diaFinal = 31;
+    private Integer idDias = 0;
+    private Integer matriculaInicial = 0;
+    private Integer matriculaFinal = 9999999;
+    private Integer idadeInicial = 0;
+    private Integer idadeFinal = 500;
+    private Integer diaInicial = 1;
+    private Integer diaFinal = 31;
     private Integer idRelatorioOrdem = null;
     private Integer idRelatorio = null;
     private List<DataObject> listaTipoCobranca = new ArrayList();
     private List<DataObject> listaCidadesSocio = new ArrayList();
     private List<DataObject> listaCidadesEmpresa = new ArrayList();
     private List<DataObject> listaMeses = new ArrayList();
-    private List<DataObject> listaParentesco = new ArrayList();
     private List listaServicos = new ArrayList();
     private String selectAccordion = "simples";
     private List<DataObject> listaMenuRSocial = new ArrayList();
-    private List<DataObject> listaGrupo = new ArrayList();
-    private List<DataObject> listaCategoria = new ArrayList();
-    private List<SelectItem> listaRelatorio = new ArrayList();
-    private List<SelectItem> listaRelatorioOrdem = new ArrayList();
+    private List<GrupoCategoria> listGrupoCategoria = new ArrayList();
+    private List<Categoria> listCategoria = new ArrayList();
+    private List<Parentesco> listParentesco = new ArrayList();
+    private List<SelectItem> listRelatorio = new ArrayList();
+    private List<SelectItem> listRelatorioOrdem = new ArrayList();
     private boolean booMatricula = false;
     private boolean booIdade = false;
     private boolean booGrupoCategoria = false;
@@ -148,6 +147,7 @@ public class RelatorioSociosBean implements Serializable {
     private Integer maxQtdeFuncionario = null;
     private boolean ordemAniversario = false;
     private Boolean contemServicos = null;
+    private Boolean booDescontoSocial = false;
 
     private Map<String, Integer> listServicos;
     private List selectedServicos;
@@ -158,12 +158,27 @@ public class RelatorioSociosBean implements Serializable {
     private Map<String, Integer> listSubGrupoFinanceiro;
     private List selectedSubGrupoFinanceiro;
 
+    private Map<String, Integer> listDescontoSocial;
+    private List selectedDescontoSocial;
+
+    private List<Filters> filtersSocio;
+    private List<Filters> filtersEmpresa;
+    private List<Filters> filtersFinanceiro;
+
+    public RelatorioSociosBean() {
+        loadFilters();
+    }
+
+    public void clear() {
+        GenericaSessao.put("relatorioSociosBean", new RelatorioSociosBean());
+    }
+
     public void limparFiltro() {
         GenericaSessao.put("relatorioSociosBean", new RelatorioSociosBean());
     }
 
     public boolean validaFiltro() {
-        if (!booMatricula
+        return !(!booMatricula
                 && !booIdade
                 && !booGrupoCategoria
                 && !booSexo
@@ -183,10 +198,8 @@ public class RelatorioSociosBean implements Serializable {
                 && !situacao
                 && !booBiometria
                 && !booDescontoFolha
-                && !booServicos) {
-            return false;
-        }
-        return true;
+                && !booServicos
+                && !booDescontoSocial);
     }
 
     public void editarOpcao(int index) {
@@ -198,18 +211,62 @@ public class RelatorioSociosBean implements Serializable {
 
         if (index == 0) {
             booMatricula = !booMatricula;
+            if (booMatricula) {
+                matriculaInicial = 0;
+                matriculaFinal = 0;
+            } else {
+                matriculaInicial = null;
+                matriculaFinal = null;
+            }
         } else if (index == 1) {
             booIdade = !booIdade;
+            if (booIdade) {
+                idadeInicial = 0;
+                idadeFinal = 0;
+            } else {
+                idadeInicial = null;
+                idadeFinal = null;
+            }
         } else if (index == 2) {
             booGrupoCategoria = !booGrupoCategoria;
+            if (booGrupoCategoria) {
+                listGrupoCategoria.clear();
+                listCategoria.clear();
+                getListGrupoCategoria();
+                getListCategoria();
+            } else {
+                listGrupoCategoria.clear();
+                listCategoria.clear();
+            }
         } else if (index == 3) {
             booSexo = !booSexo;
+            if (booSexo) {
+                tipoSexo = "M";
+            } else {
+                tipoSexo = "";
+            }
         } else if (index == 4) {
             booGrau = !booGrau;
+            if (booGrau) {
+                listParentesco.clear();
+                getListParentesco();
+            } else {
+                listParentesco.clear();
+            }
         } else if (index == 5) {
             booFotos = !booFotos;
+            if (booFotos) {
+                tipoFotos = "com";
+            } else {
+                tipoFotos = "";
+            }
         } else if (index == 6) {
             booCarteirinha = !booCarteirinha;
+            if (booCarteirinha) {
+                tipoCarteirinha = "com";
+            } else {
+                tipoCarteirinha = "";
+            }
         } else if (index == 7) {
             booTipoCobranca = !booTipoCobranca;
         } else if (index == 8) {
@@ -218,6 +275,18 @@ public class RelatorioSociosBean implements Serializable {
             booCidadeEmpresa = !booCidadeEmpresa;
         } else if (index == 10) {
             booAniversario = !booAniversario;
+            if (booAniversario) {
+                listaMeses.clear();
+                getListaMeses();
+                diaInicial = 1;
+                diaFinal = 31;
+                ordemAniversario = false;
+            } else {
+                listaMeses.clear();
+                diaInicial = 0;
+                diaFinal = 0;
+                ordemAniversario = false;
+            }
         } else if (index == 11) {
             booData = !booData;
         } else if (index == 12) {
@@ -228,8 +297,10 @@ public class RelatorioSociosBean implements Serializable {
             booTelefone = !booTelefone;
         } else if (index == 15) {
             booEstadoCivil = !booEstadoCivil;
-            if (!booEstadoCivil) {
+            if (booEstadoCivil) {
                 tipoEstadoCivil = "Solteiro(a)";
+            } else {
+                tipoEstadoCivil = "";
             }
         } else if (index == 16) {
             booEmpresa = !booEmpresa;
@@ -268,7 +339,70 @@ public class RelatorioSociosBean implements Serializable {
                 selectedServicos = new ArrayList<>();
                 contemServicos = null;
             }
+        } else if (index == 21) {
+            booDescontoSocial = !booDescontoSocial;
+            if (booDescontoSocial) {
+                loadDescontoSocial();
+            } else {
+                listDescontoSocial = null;
+                selectedDescontoSocial = null;
+            }
         }
+
+    }
+
+    public final void loadFilters() {
+
+        // SÓCIO
+        filtersSocio = new ArrayList<>();
+        /* 00 */ filtersSocio.add(new Filters("numero_matricula", "Número da Matrícula", false));
+        /* 01 */ filtersSocio.add(new Filters("idade", "Idade", false));
+        /* 02 */ filtersSocio.add(new Filters("grupo_categoria", "Grupo / Categoria", false));
+        /* 03 */ filtersSocio.add(new Filters("sexo", "Sexo", false));
+        /* 04 */ filtersSocio.add(new Filters("grau", "Grau", false));
+        /* 05 */ filtersSocio.add(new Filters("fotos", "Fotos", false));
+        /* 06 */ filtersSocio.add(new Filters("cidade_socio", "Cidade do Sócio", false));
+        /* 07 */ filtersSocio.add(new Filters("carteirinha", "Carteirinha", false));
+        /* 08 */ filtersSocio.add(new Filters("aniversario", "Aniversário", false));
+        /* 09 */ filtersSocio.add(new Filters("estado_civil", "Estado Civil", false));
+        /* 10 */ filtersSocio.add(new Filters("votante", "Votante", false));
+        /* 11 */ filtersSocio.add(new Filters("email", "Email", false));
+        /* 12 */ filtersSocio.add(new Filters("telefone", "Telefone", false));
+        /* 13 */ filtersSocio.add(new Filters("biometria", "Estado Civil", false));
+        /* 14 */ filtersSocio.add(new Filters("situacao", "Situação", false));
+
+        // EMPRESA
+        filtersEmpresa = new ArrayList<>();
+        /* 01 */ filtersEmpresa.add(new Filters("empresas", "Empresas", false));
+        /* 02 */ filtersEmpresa.add(new Filters("cidade_empresa", "Cidade da Empresa", false));
+
+        // FINANÇEIRO
+        filtersFinanceiro = new ArrayList<>();
+        /* 01 */ filtersFinanceiro.add(new Filters("servicos", "Serviços", false));
+        /* 02 */ filtersFinanceiro.add(new Filters("tipo_cobranca", "Tipo de Cobrança", false));
+        /* 03 */ filtersFinanceiro.add(new Filters("datas", "Datas", false));
+        /* 04 */ filtersFinanceiro.add(new Filters("desconto_folha", "Desconto em Folha", false));
+        /* 05 */ filtersFinanceiro.add(new Filters("desconto_social", "Desconto Social", false));
+    }
+
+    public void close(Filters filter) {
+//        if (!filter.getActive()) {
+//            switch (filter.getGroup()) {
+//                case "Sócio":
+//                    switch (filter.getKey()) {
+//                        case "tipo_cobranca":
+//                            loadTipoCobranca();
+//                            break;
+//                        case "titular":
+//                            fisica = new Fisica();
+//                            break;
+//                    }   break;
+//                case "Empresa":
+//                    break;
+//                case "Financeiro":
+//                    break;
+//            }
+//        }
     }
 
     public List<DataObject> getListaMenuRSocial() {
@@ -294,6 +428,7 @@ public class RelatorioSociosBean implements Serializable {
             /* 18 */ listaMenuRSocial.add(new DataObject("Biometria ", "Editar", null, null, null, null));
             /* 19 */ listaMenuRSocial.add(new DataObject("Desconto Folha ", "Editar", null, null, null, null));
             /* 20 */ listaMenuRSocial.add(new DataObject("Serviços ", "Editar", null, null, null, null));
+            /* 21 */ listaMenuRSocial.add(new DataObject("Desconto Social ", "Editar", null, null, null, null));
         }
         return listaMenuRSocial;
     }
@@ -302,8 +437,8 @@ public class RelatorioSociosBean implements Serializable {
         this.listaMenuRSocial = listaMenuRSocial;
     }
 
-    public List<SelectItem> getListaRelatorios() {
-        if (listaRelatorio.isEmpty()) {
+    public List<SelectItem> getListRelatorios() {
+        if (listRelatorio.isEmpty()) {
             RelatorioDao db = new RelatorioDao();
             List<Relatorios> list = db.pesquisaTipoRelatorio(171);
             for (int i = 0; i < list.size(); i++) {
@@ -313,12 +448,12 @@ public class RelatorioSociosBean implements Serializable {
                 if (list.get(i).getPrincipal()) {
                     idRelatorio = i;
                 }
-                listaRelatorio.add(new SelectItem(i,
+                listRelatorio.add(new SelectItem(i,
                         list.get(i).getNome(),
                         Integer.toString(list.get(i).getId())));
             }
         }
-        return listaRelatorio;
+        return listRelatorio;
     }
 
     public String visualizarRelatorio() {
@@ -336,30 +471,20 @@ public class RelatorioSociosBean implements Serializable {
 
         RelatorioDao db = new RelatorioDao();
         RelatorioSociosDB dbS = new RelatorioSociosDBToplink();
-        Relatorios relatorios = db.pesquisaRelatorios(Integer.parseInt(getListaRelatorios().get(idRelatorio).getDescription()));
-        if (!listaRelatorioOrdem.isEmpty()) {
+        Relatorios relatorios = db.pesquisaRelatorios(Integer.parseInt(getListRelatorios().get(idRelatorio).getDescription()));
+        if (!listRelatorioOrdem.isEmpty()) {
             Dao dao = new Dao();
-            relatorios.setQryOrdem(((RelatorioOrdem) dao.find(new RelatorioOrdem(), Integer.parseInt(getListaRelatorioOrdem().get(idRelatorioOrdem).getDescription()))).getQuery());
+            relatorios.setQryOrdem(((RelatorioOrdem) dao.find(new RelatorioOrdem(), Integer.parseInt(getListRelatorioOrdem().get(idRelatorioOrdem).getDescription()))).getQuery());
         }
 
-        String ids_gc = "", ids_c = "";
+        String ids_gc = "", ids_c = "", id_ds = "";
         if (booGrupoCategoria) {
-            for (int i = 0; i < listaGrupo.size(); i++) {
-                if ((Boolean) listaGrupo.get(i).getArgumento0()) {
-                    if (ids_gc.length() > 0 && i != listaGrupo.size()) {
-                        ids_gc += ",";
-                    }
-                    ids_gc += String.valueOf(((GrupoCategoria) listaGrupo.get(i).getArgumento1()).getId());
-                }
-            }
-            for (int i = 0; i < listaCategoria.size(); i++) {
-                if ((Boolean) listaCategoria.get(i).getArgumento0()) {
-                    if (ids_c.length() > 0 && i != listaCategoria.size()) {
-                        ids_c += ",";
-                    }
-                    ids_c += String.valueOf(((Categoria) listaCategoria.get(i).getArgumento1()).getId());
-                }
-            }
+            ids_gc = inIdGrupoCategoria();
+            ids_c = inIdCategoria();
+        }
+
+        if (booDescontoSocial) {
+            id_ds = inIdDescontoSocial();
         }
 
         String meses = "";
@@ -415,24 +540,14 @@ public class RelatorioSociosBean implements Serializable {
             }
         }
 
-        String ids_parentesco = "";
-        for (int i = 0; i < listaParentesco.size(); i++) {
-            if ((Boolean) listaParentesco.get(i).getArgumento0()) {
-                if (ids_parentesco.length() > 0 && i != listaParentesco.size()) {
-                    ids_parentesco += ",";
-                }
-                ids_parentesco += ((Parentesco) listaParentesco.get(i).getArgumento1()).getId();
-            }
-        }
-
+        String ids_parentesco = inIdParentesco();
         List<List> result = dbS.pesquisaSocios(
-                relatorios, booMatricula, matriculaInicial, matriculaFinal, booIdade, idadeInicial, idadeFinal, booGrupoCategoria, ids_gc, ids_c,
-                booSexo, tipoSexo, booGrau, ids_parentesco, booFotos, tipoFotos, booCarteirinha, tipoCarteirinha,
+                relatorios, matriculaInicial, matriculaFinal, idadeInicial, idadeFinal, ids_gc, ids_c, tipoSexo, ids_parentesco, tipoFotos, tipoCarteirinha,
                 booTipoCobranca, ids_pagamento, booCidadeSocio, ids_cidade_socio, booCidadeEmpresa, ids_cidade_empresa,
                 booAniversario, meses, di, df, ordema, booData, dataCadastro, dataCadastroFim, dataRecadastro, dataRecadastroFim, dataDemissao, dataDemissaoFim, dataAdmissaoSocio,
                 dataAdmissaoSocioFim, dataAdmissaoEmpresa, dataAdmissaoEmpresaFim, booVotante, tipoEleicao,
                 booEmail, tipoEmail, booTelefone, tipoTelefone, booEstadoCivil, tipoEstadoCivil, booEmpresa, tipoEmpresas, empresa.getId(), minQtdeFuncionario, maxQtdeFuncionario, dataAposetandoria, dataAposetandoriaFim, tipoOrdem, tipoCarencia, carenciaDias, situacaoString,
-                booBiometria, tipoBiometria, booDescontoFolha, tipoDescontoFolha, dataAtualicacao, dataAtualicacaoFim, contemServicos, inIdGrupoFinanceiro(), inIdSubGrupoFinanceiro(), inIdServicos()
+                booBiometria, tipoBiometria, booDescontoFolha, tipoDescontoFolha, dataAtualicacao, dataAtualicacaoFim, contemServicos, inIdGrupoFinanceiro(), inIdSubGrupoFinanceiro(), inIdServicos(), inIdDescontoSocial()
         );
 
         Collection lista = new ArrayList();
@@ -549,33 +664,26 @@ public class RelatorioSociosBean implements Serializable {
         return null;
     }
 
-    public List<DataObject> getListaCategoria() {
-        if (listaCategoria.isEmpty()) {
+    public List<Categoria> getListCategoria() {
+        if (listCategoria.isEmpty()) {
             CategoriaDB db = new CategoriaDBToplink();
-            List<Categoria> result = new ArrayList();
-            if (!listaGrupo.isEmpty()) {
-
-                String ids = "";
-                for (int i = 0; i < listaGrupo.size(); i++) {
-                    if ((Boolean) listaGrupo.get(i).getArgumento0()) {
-                        if (ids.length() > 0 && i != listaGrupo.size()) {
-                            ids += ",";
-                        }
-                        ids += ((GrupoCategoria) listaGrupo.get(i).getArgumento1()).getId();
-                    }
+            List<Categoria> list = new ArrayList();
+            if (!listGrupoCategoria.isEmpty()) {
+                String ids = inIdGrupoCategoria();
+                if (ids != null) {
+                    list = db.pesquisaCategoriaPorGrupoIds(ids);
                 }
-                if (!ids.isEmpty()) {
-                    result = db.pesquisaCategoriaPorGrupoIds(ids);
-                }
-//                }else{
-//                    result = db.pesquisaTodos();
-//                }
             }
-            for (int i = 0; i < result.size(); i++) {
-                listaCategoria.add(new DataObject(true, result.get(i)));
+            for (Categoria c : list) {
+                c.setSelected(true);
+                listCategoria.add(c);
             }
         }
-        return listaCategoria;
+        return listCategoria;
+    }
+
+    public void setListCategoria(List<Categoria> listCategoria) {
+        this.listCategoria = listCategoria;
     }
 
     public List<SelectItem> getListaEmpresas() {
@@ -620,8 +728,8 @@ public class RelatorioSociosBean implements Serializable {
     }
 
     public void marcarGrau() {
-        for (int i = 0; i < listaParentesco.size(); i++) {
-            listaParentesco.get(i).setArgumento0(chkGrau);
+        for (int i = 0; i < listParentesco.size(); i++) {
+            listParentesco.get(i).setSelected(chkGrau);
         }
     }
 
@@ -749,7 +857,7 @@ public class RelatorioSociosBean implements Serializable {
         }
     }
 
-    public int getConverteNullInt(Object object) {
+    public Integer getConverteNullInt(Object object) {
         if (object == null) {
             return 0;
         } else {
@@ -793,19 +901,19 @@ public class RelatorioSociosBean implements Serializable {
         this.chkCategoria = chkCategoria;
     }
 
-    public int getMatriculaInicial() {
+    public Integer getMatriculaInicial() {
         return matriculaInicial;
     }
 
-    public void setMatriculaInicial(int matriculaInicial) {
+    public void setMatriculaInicial(Integer matriculaInicial) {
         this.matriculaInicial = matriculaInicial;
     }
 
-    public int getMatriculaFinal() {
+    public Integer getMatriculaFinal() {
         return matriculaFinal;
     }
 
-    public void setMatriculaFinal(int matriculaFinal) {
+    public void setMatriculaFinal(Integer matriculaFinal) {
         this.matriculaFinal = matriculaFinal;
     }
 
@@ -817,19 +925,19 @@ public class RelatorioSociosBean implements Serializable {
         this.tipoEleicao = tipoEleicao;
     }
 
-    public int getIdadeInicial() {
+    public Integer getIdadeInicial() {
         return idadeInicial;
     }
 
-    public void setIdadeInicial(int idadeInicial) {
+    public void setIdadeInicial(Integer idadeInicial) {
         this.idadeInicial = idadeInicial;
     }
 
-    public int getIdadeFinal() {
+    public Integer getIdadeFinal() {
         return idadeFinal;
     }
 
-    public void setIdadeFinal(int idadeFinal) {
+    public void setIdadeFinal(Integer idadeFinal) {
         this.idadeFinal = idadeFinal;
     }
 
@@ -937,27 +1045,27 @@ public class RelatorioSociosBean implements Serializable {
         this.chkMeses = chkMeses;
     }
 
-    public int getIdDias() {
+    public Integer getIdDias() {
         return idDias;
     }
 
-    public void setIdDias(int idDias) {
+    public void setIdDias(Integer idDias) {
         this.idDias = idDias;
     }
 
-    public int getDiaInicial() {
+    public Integer getDiaInicial() {
         return diaInicial;
     }
 
-    public void setDiaInicial(int diaInicial) {
+    public void setDiaInicial(Integer diaInicial) {
         this.diaInicial = diaInicial;
     }
 
-    public int getDiaFinal() {
+    public Integer getDiaFinal() {
         return diaFinal;
     }
 
-    public void setDiaFinal(int diaFinal) {
+    public void setDiaFinal(Integer diaFinal) {
         this.diaFinal = diaFinal;
     }
 
@@ -1057,35 +1165,35 @@ public class RelatorioSociosBean implements Serializable {
         this.booGrupoCategoria = booGrupoCategoria;
     }
 
-    public List<DataObject> getListaGrupo() {
-        if (listaGrupo.isEmpty()) {
-            SalvarAcumuladoDB sadb = new SalvarAcumuladoDBToplink();
-            List<GrupoCategoria> gcs = (List<GrupoCategoria>) sadb.listaObjeto("GrupoCategoria", true);
-            for (GrupoCategoria gc : gcs) {
-                listaGrupo.add(new DataObject(true, gc));
+    public List<GrupoCategoria> getListGrupoCategoria() {
+        if (listGrupoCategoria.isEmpty()) {
+            List<GrupoCategoria> list = (List<GrupoCategoria>) new Dao().list(new GrupoCategoria(), true);
+            for (GrupoCategoria gc : list) {
+                gc.setSelected(true);
+                listGrupoCategoria.add(gc);
             }
         }
-        return listaGrupo;
+        return listGrupoCategoria;
     }
 
-    public void setListaGrupo(List<DataObject> listaGrupo) {
-        this.listaGrupo = listaGrupo;
+    public void setListGrupoCategoria(List<GrupoCategoria> listGrupoCategoria) {
+        this.listGrupoCategoria = listGrupoCategoria;
     }
 
-    public void marcarGrupos() {
-        for (int i = 0; i < listaGrupo.size(); i++) {
-            listaGrupo.get(i).setArgumento0(chkGrupo);
+    public void marcarGrupoCatregoria() {
+        for (int i = 0; i < listGrupoCategoria.size(); i++) {
+            listGrupoCategoria.get(i).setSelected(chkGrupo);
         }
-        listaCategoria.clear();
+        listCategoria.clear();
     }
 
-    public void marcarUmGrupo() {
-        listaCategoria.clear();
+    public void marcarUmGrupoCategoria() {
+        listCategoria.clear();
     }
 
     public void marcarCategorias() {
-        for (int i = 0; i < listaCategoria.size(); i++) {
-            listaCategoria.get(i).setArgumento0(chkCategoria);
+        for (int i = 0; i < listCategoria.size(); i++) {
+            listCategoria.get(i).setSelected(chkCategoria);
         }
     }
 
@@ -1225,37 +1333,35 @@ public class RelatorioSociosBean implements Serializable {
         this.tipoEstadoCivil = tipoEstadoCivil;
     }
 
-    public List<DataObject> getListaParentesco() {
-        if (listaParentesco.isEmpty()) {
-            ParentescoDB db = new ParentescoDao();
-            List select = db.pesquisaTodos();
-            for (int i = 0; i < select.size(); i++) {
-                boolean b = false;
-                if (i == 0) {
-                    b = true;
+    public List<Parentesco> getListParentesco() {
+        if (listParentesco.isEmpty()) {
+            List<Parentesco> list = new Dao().list(new Parentesco(), true);
+            for (Parentesco p : list) {
+                if (p.getParentesco().equals("TITULAR")) {
+                    p.setSelected(true);
                 } else {
-                    b = false;
+                    p.setSelected(false);
                 }
-                listaParentesco.add(new DataObject(b, ((Parentesco) select.get(i))));
+                listParentesco.add(p);
             }
         }
-        return listaParentesco;
+        return listParentesco;
     }
 
-    public List<SelectItem> getListaRelatorioOrdem() {
-        listaRelatorioOrdem.clear();
+    public void setListParentesco(List<Parentesco> listParentesco) {
+        this.listParentesco = listParentesco;
+    }
+
+    public List<SelectItem> getListRelatorioOrdem() {
+        listRelatorioOrdem.clear();
         if (idRelatorio != null) {
             RelatorioOrdemDao relatorioOrdemDao = new RelatorioOrdemDao();
-            List<RelatorioOrdem> list = relatorioOrdemDao.findAllByRelatorio(Integer.parseInt(getListaRelatorios().get(idRelatorio).getDescription()));
+            List<RelatorioOrdem> list = relatorioOrdemDao.findAllByRelatorio(new Rotina().get().getId());
             for (int i = 0; i < list.size(); i++) {
-                listaRelatorioOrdem.add(new SelectItem(i, list.get(i).getNome(), "" + list.get(i).getId()));
+                listRelatorioOrdem.add(new SelectItem(i, list.get(i).getNome(), "" + list.get(i).getId()));
             }
         }
-        return listaRelatorioOrdem;
-    }
-
-    public void setListaParentesco(List<DataObject> listaParentesco) {
-        this.listaParentesco = listaParentesco;
+        return listRelatorioOrdem;
     }
 
     public boolean isChkEmpresa() {
@@ -1400,7 +1506,7 @@ public class RelatorioSociosBean implements Serializable {
 
     public Boolean getEnableFolha() {
         if (idRelatorio != null) {
-            Relatorios r = (Relatorios) new Dao().find(new Relatorios(), Integer.parseInt(getListaRelatorios().get(idRelatorio).getDescription()));
+            Relatorios r = (Relatorios) new Dao().find(new Relatorios(), Integer.parseInt(getListRelatorios().get(idRelatorio).getDescription()));
             if (r != null) {
                 enableFolha = r.getPorFolha();
             }
@@ -1615,6 +1721,15 @@ public class RelatorioSociosBean implements Serializable {
         }
     }
 
+    public void loadDescontoSocial() {
+        listDescontoSocial = new LinkedHashMap<>();
+        selectedDescontoSocial = new ArrayList<>();
+        List<DescontoSocial> list = new Dao().list(new DescontoSocial());
+        for (int i = 0; i < list.size(); i++) {
+            listDescontoSocial.put(list.get(i).getDescricao(), list.get(i).getId());
+        }
+    }
+
     // TRATAMENTO
     public String inIdSubGrupoFinanceiro() {
         String ids = null;
@@ -1659,6 +1774,58 @@ public class RelatorioSociosBean implements Serializable {
                         ids += "," + selectedServicos.get(i);
                     }
                 }
+            }
+        }
+        return ids;
+    }
+
+    public String inIdDescontoSocial() {
+        String ids = null;
+        if (selectedDescontoSocial != null) {
+            for (int i = 0; i < selectedDescontoSocial.size(); i++) {
+                if (selectedDescontoSocial.get(i) != null) {
+                    if (ids == null) {
+                        ids = "" + selectedDescontoSocial.get(i);
+                    } else {
+                        ids += "," + selectedDescontoSocial.get(i);
+                    }
+                }
+            }
+        }
+        return ids;
+    }
+
+    public String inIdGrupoCategoria() {
+        String ids = null;
+        int b = 0;
+        for (int i = 0; i < listGrupoCategoria.size(); i++) {
+            if (listGrupoCategoria.get(i).getSelected()) {
+                if (b == 0) {
+                    ids = "" + listGrupoCategoria.get(i).getId();
+                } else {
+                    ids += ", " + listGrupoCategoria.get(i).getId();
+                }
+                b++;
+            }
+        }
+        return ids;
+    }
+
+    public String inIdCategoria() {
+        String ids = null;
+        for (Categoria listCategoria1 : listCategoria) {
+            if (listCategoria1.getSelected()) {
+                ids = "" + listCategoria1.getId();
+            }
+        }
+        return ids;
+    }
+
+    public String inIdParentesco() {
+        String ids = null;
+        for (Parentesco listParentesco1 : listParentesco) {
+            if (listParentesco1.getSelected()) {
+                ids = "" + listParentesco1.getId();
             }
         }
         return ids;
@@ -1728,4 +1895,53 @@ public class RelatorioSociosBean implements Serializable {
             this.contemServicos = Boolean.parseBoolean(contemServicos);
         }
     }
+
+    public List<Filters> getFiltersSocio() {
+        return filtersSocio;
+    }
+
+    public void setFiltersSocio(List<Filters> filtersSocio) {
+        this.filtersSocio = filtersSocio;
+    }
+
+    public List<Filters> getFiltersEmpresa() {
+        return filtersEmpresa;
+    }
+
+    public void setFiltersEmpresa(List<Filters> filtersEmpresa) {
+        this.filtersEmpresa = filtersEmpresa;
+    }
+
+    public List<Filters> getFiltersFinanceiro() {
+        return filtersFinanceiro;
+    }
+
+    public void setFiltersFinanceiro(List<Filters> filtersFinanceiro) {
+        this.filtersFinanceiro = filtersFinanceiro;
+    }
+
+    public Map<String, Integer> getListDescontoSocial() {
+        return listDescontoSocial;
+    }
+
+    public void setListDescontoSocial(Map<String, Integer> listDescontoSocial) {
+        this.listDescontoSocial = listDescontoSocial;
+    }
+
+    public List getSelectedDescontoSocial() {
+        return selectedDescontoSocial;
+    }
+
+    public void setSelectedDescontoSocial(List selectedDescontoSocial) {
+        this.selectedDescontoSocial = selectedDescontoSocial;
+    }
+
+    public Boolean getBooDescontoSocial() {
+        return booDescontoSocial;
+    }
+
+    public void setBooDescontoSocial(Boolean booDescontoSocial) {
+        this.booDescontoSocial = booDescontoSocial;
+    }
+
 }

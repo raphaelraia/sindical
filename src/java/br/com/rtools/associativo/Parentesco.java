@@ -13,17 +13,20 @@ public class Parentesco implements java.io.Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
     @Column(name = "ds_parentesco", length = 30, nullable = true)
     private String parentesco;
     @Column(name = "ds_sexo", length = 1, nullable = true)
     private String sexo;
     @Column(name = "nr_validade", length = 10, nullable = true)
-    private int nrValidade;
+    private Integer nrValidade;
     @Column(name = "validade", nullable = true)
     private boolean validade;
     @Column(name = "ativo", nullable = true)
     private boolean ativo;
+
+    @Transient
+    private Boolean selected;
 
     public Parentesco() {
         this.id = -1;
@@ -32,22 +35,24 @@ public class Parentesco implements java.io.Serializable {
         this.nrValidade = 0;
         this.validade = false;
         this.ativo = true;
+        this.selected = false;
     }
 
-    public Parentesco(int id, String parentesco, String sexo, int nrValidade, boolean validade, boolean ativo) {
+    public Parentesco(Integer id, String parentesco, String sexo, Integer nrValidade, boolean validade, boolean ativo) {
         this.id = id;
         this.parentesco = parentesco;
         this.sexo = sexo;
         this.nrValidade = nrValidade;
         this.validade = validade;
         this.ativo = ativo;
+        this.selected = false;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -83,11 +88,19 @@ public class Parentesco implements java.io.Serializable {
         this.ativo = ativo;
     }
 
-    public int getNrValidade() {
+    public Integer getNrValidade() {
         return nrValidade;
     }
 
-    public void setNrValidade(int nrValidade) {
+    public void setNrValidade(Integer nrValidade) {
         this.nrValidade = nrValidade;
+    }
+
+    public Boolean getSelected() {
+        return selected;
+    }
+
+    public void setSelected(Boolean selected) {
+        this.selected = selected;
     }
 }

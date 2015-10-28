@@ -76,7 +76,7 @@ public class RelatorioSociosDBToplink extends DB implements RelatorioSociosDB {
                     + "                                 group by pe.endereco.id"
                     + "                                )"
                     + "                 group by e.cidade.id"
-                    + "                )";
+                    + "                ) ORDER BY C.cidade ASC ";
             Query qry = getEntityManager().createQuery(textQuery);
             result = qry.getResultList();
         } catch (EJBQLException e) {
@@ -144,14 +144,13 @@ public class RelatorioSociosDBToplink extends DB implements RelatorioSociosDB {
     }
 
     @Override
-    public List pesquisaSocios(Relatorios relatorio, boolean booMatricula, int matricula_inicial, int matricula_final, boolean booIdade, int idade_inicial, int idade_final, boolean booGrupo, String ids_gc, String ids_c,
-            boolean booSexo, String tipo_sexo, boolean booGrau, String ids_parentesco, boolean booFoto, String tipo_foto, boolean booCarteirinha, String tipo_carteirinha,
-            boolean booTipoPagamento, String ids_pagamento, boolean booCidadeSocio, String ids_cidade_socio, boolean booCidadeEmpresa, String ids_cidade_empresa,
-            boolean booAniversario, String meses_aniversario, String dia_inicial, String dia_final, boolean ordemAniversario, boolean booData, String dt_cadastro, String dt_cadastro_fim, String dt_recadastro,
-            String dt_recadastro_fim, String dt_demissao, String dt_demissao_fim, String dt_admissao_socio, String dt_admissao_socio_fim, String dt_admissao_empresa, String dt_admissao_empresa_fim, boolean booVotante, String tipo_votante,
-            boolean booEmail, String tipo_email, boolean booTelefone, String tipo_telefone, boolean booEstadoCivil, String tipo_estado_civil, boolean booEmpresas, String tipo_empresa, int id_juridica, Integer minQtdeFuncionario, Integer maxQtdeFuncionario,
-            String data_aposentadoria, String data_aposentadoria_fim, String ordem, String tipoCarencia, Integer carenciaDias, String situacao, boolean booBiometria, String tipoBiometria, boolean booDescontoFolha, String tipoDescontoFolha,
-            String data_atualizacao, String data_atualizacao_fim, Boolean contemServicos, String inIdGrupoFinanceiro, String inIdSubGrupoFinanceiro, String inIdServicos) {
+    public List pesquisaSocios(Relatorios relatorio, Integer matricula_inicial, Integer matricula_final, Integer idade_inicial, Integer idade_final, String ids_gc, String ids_c, String tipo_sexo, String ids_parentesco, String tipo_foto, String tipo_carteirinha,
+            Boolean booTipoPagamento, String ids_pagamento, Boolean booCidadeSocio, String ids_cidade_socio, Boolean booCidadeEmpresa, String ids_cidade_empresa,
+            Boolean booAniversario, String meses_aniversario, String dia_inicial, String dia_final, Boolean ordemAniversario, Boolean booData, String dt_cadastro, String dt_cadastro_fim, String dt_recadastro,
+            String dt_recadastro_fim, String dt_demissao, String dt_demissao_fim, String dt_admissao_socio, String dt_admissao_socio_fim, String dt_admissao_empresa, String dt_admissao_empresa_fim, Boolean booVotante, String tipo_votante,
+            Boolean booEmail, String tipo_email, Boolean booTelefone, String tipo_telefone, Boolean booEstadoCivil, String tipo_estado_civil, Boolean booEmpresas, String tipo_empresa, Integer id_juridica, Integer minQtdeFuncionario, Integer maxQtdeFuncionario,
+            String data_aposentadoria, String data_aposentadoria_fim, String ordem, String tipoCarencia, Integer carenciaDias, String situacao, Boolean booBiometria, String tipoBiometria, Boolean booDescontoFolha, String tipoDescontoFolha,
+            String data_atualizacao, String data_atualizacao_fim, Boolean contemServicos, String inIdGrupoFinanceiro, String inIdSubGrupoFinanceiro, String inIdServicos, String inIdDescontoSocial) {
 
         String p_demissao = "";
         if (booData && !dt_demissao.isEmpty() && !dt_demissao_fim.isEmpty()) {
@@ -266,7 +265,7 @@ public class RelatorioSociosDBToplink extends DB implements RelatorioSociosDB {
             filtro = " WHERE " + relatorio.getQry() + " AND ";
         }
         // MATRICULA --------------------
-        if (booMatricula) {
+        if (matricula_inicial > 0 || matricula_final > 0) {
             filtro += " so.matricula >= " + matricula_inicial + " AND so.matricula <= " + matricula_final + " \n ";
         } else {
             filtro += " so.matricula >= 0 AND so.matricula <= 9999999" + " \n ";
@@ -274,46 +273,47 @@ public class RelatorioSociosDBToplink extends DB implements RelatorioSociosDB {
 
         //filtro += relatorio.getQry(); 
         // IDADE ------------
-        if (booIdade) {
+        if (idade_inicial > 0 || idade_final > 0) {
             filtro += " AND extract(year FROM age(p.dt_nascimento)) >= " + idade_inicial + " AND extract(year FROM age(p.dt_nascimento)) <= " + idade_final + " \n ";
         }
 
         // GRUPO CATEGORIA ----------------
-        if (booGrupo) {
-            if (!ids_gc.isEmpty()) {
-                filtro += " AND so.id_grupo_categoria IN(" + ids_gc + ")" + " \n ";
-            }
-
-            if (!ids_gc.isEmpty()) {
-                filtro += " AND so.id_categoria IN(" + ids_c + ")" + " \n ";
-            }
+        if (ids_gc != null && !ids_gc.isEmpty()) {
+            filtro += " AND so.id_grupo_categoria IN(" + ids_gc + ")" + " \n ";
         }
 
+        if (ids_c != null && !ids_c.isEmpty()) {
+            filtro += " AND so.id_categoria IN(" + ids_c + ")" + " \n ";
+        }
         // SEXO --------------------
-        if (booSexo) {
+        if (!tipo_sexo.isEmpty()) {
             filtro += " AND p.sexo = '" + tipo_sexo + "'" + " \n ";
         }
 
         // PARENTESCO ------------------
-        if (booGrau) {
-            if (!ids_parentesco.isEmpty()) {
-                filtro += " AND so.id_parentesco IN(" + ids_parentesco + ")" + " \n ";
+        if (ids_parentesco != null && !ids_parentesco.isEmpty()) {
+            filtro += " AND so.id_parentesco IN(" + ids_parentesco + ")" + " \n ";
+        }
+
+        if (tipo_foto != null && !tipo_foto.isEmpty()) {
+            switch (tipo_foto) {
+                case "com":
+                    filtro += " AND p.ds_foto <> ''" + " \n ";
+                    break;
+                case "sem":
+                    filtro += " AND p.ds_foto == ''" + " \n ";
+                    break;
             }
         }
 
-        if (booFoto) {
-            if (tipo_foto.equals("com")) {
-                filtro += " AND p.ds_foto <> ''" + " \n ";
-            } else if (tipo_foto.equals("sem")) {
-                filtro += " AND p.ds_foto == ''" + " \n ";
-            }
-        }
-
-        if (booCarteirinha) {
-            if (tipo_carteirinha.equals("com")) {
-                filtro += " AND so.codsocio IN(SELECT sc.id_pessoa FROM soc_carteirinha AS sc GROUP BY sc.id_pessoa)" + " \n ";
-            } else if (tipo_carteirinha.equals("sem")) {
-                filtro += " AND so.codsocio NOT IN(SELECT sc.id_pessoa FROM soc_carteirinha AS sc GROUP BY sc.id_pessoa)" + " \n ";
+        if (tipo_carteirinha != null && !tipo_carteirinha.isEmpty()) {
+            switch (tipo_carteirinha) {
+                case "com":
+                    filtro += " AND so.codsocio IN(SELECT sc.id_pessoa FROM soc_carteirinha AS sc GROUP BY sc.id_pessoa)" + " \n ";
+                    break;
+                case "sem":
+                    filtro += " AND so.codsocio NOT IN(SELECT sc.id_pessoa FROM soc_carteirinha AS sc GROUP BY sc.id_pessoa)" + " \n ";
+                    break;
             }
         }
 
@@ -510,6 +510,10 @@ public class RelatorioSociosDBToplink extends DB implements RelatorioSociosDB {
                 filtro += " AND G.id IN (" + inIdGrupoFinanceiro + ") \n";
             }
             filtro += " ) \n";
+        }
+
+        if (inIdDescontoSocial != null && !inIdDescontoSocial.isEmpty()) {
+            filtro += " AND so.id_desconto IN ( " + inIdDescontoSocial + " ) ";
         }
 
         String tordem = "";

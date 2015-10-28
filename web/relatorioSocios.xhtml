@@ -45,12 +45,12 @@
                                     <p:outputLabel value="Tipo de Relatório: " />
                                     <p:selectOneMenu value="#{relatorioSociosBean.idRelatorio}">
                                         <p:ajax event="change" update="@this i_p_r i_ordernacao"/>
-                                        <f:selectItems value="#{relatorioSociosBean.listaRelatorios}"/>
+                                        <f:selectItems value="#{relatorioSociosBean.listRelatorios}"/>
                                     </p:selectOneMenu>
-                                    <p:outputLabel value="Ordem: " styleClass="margin-left-max" rendered="#{not empty relatorioSociosBean.listaRelatorioOrdem}"/>
-                                    <p:selectOneMenu value="#{relatorioSociosBean.idRelatorioOrdem}" rendered="#{not empty relatorioSociosBean.listaRelatorioOrdem}">
+                                    <p:outputLabel value="Ordem: " styleClass="margin-left-max" rendered="#{not empty relatorioSociosBean.listRelatorioOrdem}"/>
+                                    <p:selectOneMenu value="#{relatorioSociosBean.idRelatorioOrdem}" rendered="#{not empty relatorioSociosBean.listRelatorioOrdem}">
                                         <p:ajax event="change" update="@this"/>
-                                        <f:selectItems value="#{relatorioSociosBean.listaRelatorioOrdem}"/>
+                                        <f:selectItems value="#{relatorioSociosBean.listRelatorioOrdem}"/>
                                     </p:selectOneMenu>
                                     <p:selectBooleanCheckbox itemLabel="Imprimir por folha" value="#{jasperBean.IS_BY_LEAF}" rendered="#{relatorioSociosBean.enableFolha}"/>
                                 </h:panelGrid>
@@ -73,7 +73,7 @@
                                             <br /><br />
                                             <c:forEach items="#{relatorioSociosBean.listaMenuRSocial}" var="linha" varStatus="loop">
                                                 <p:outputLabel value="#{linha.argumento0}" />
-                                                <p:commandLink value="#{linha.argumento1}" action="#{relatorioSociosBean.editarOpcao(loop.index)}" style="#{linha.argumento1 == 'Editar' ? 'color: blue' : 'color: red'} " update="@this :formRelatorioSocios:i_panel_filtro :formRelatorioSocios:i_panel_filtro2 :formRelatorioSocios:i_panel_filtro3 :formRelatorioSocios:i_panel_filtro6 :formRelatorioSocios:i_panel_filtro12"/>
+                                                <p:commandLink value="#{linha.argumento1}" action="#{relatorioSociosBean.editarOpcao(loop.index)}" style="#{linha.argumento1 == 'Editar' ? 'color: blue' : 'color: red'} " update="@this :formRelatorioSocios:i_panel_filtro :formRelatorioSocios:i_panel_filtro2 :formRelatorioSocios:i_panel_filtro3 :formRelatorioSocios:i_panel_filtro12"/>
 
                                                 <br /><br />
                                             </c:forEach>
@@ -84,7 +84,7 @@
 
 
                                     <h:panelGrid columns="1" id="i_ordernacao">
-                                        <p:panel styleClass="fundoCinza" rendered="#{empty relatorioSociosBean.listaRelatorioOrdem}">
+                                        <p:panel styleClass="fundoCinza" rendered="#{empty relatorioSociosBean.listRelatorioOrdem}">
                                             <h:outputLabel value="Ordenar por "/><br />
                                             <p:selectOneRadio id="idOrdem" value="#{relatorioSociosBean.tipoOrdem}">
                                                 <f:selectItem itemValue="nome"      itemLabel="Nome"/>
@@ -118,64 +118,56 @@
                                 </h:column>
 
                                 <h:column>
-                                    <h:panelGrid id="i_panel_filtro" columns="2">
+
+                                    <h:panelGrid id="i_panel_filtro" columns="1">
                                         <h:panelGrid columns="1" rendered="#{!relatorioSociosBean.validaFiltro()}" style="float: left; margin: 10px ">
                                             <h:column>
                                                 <p:outputLabel value="Listar todos Sócios" style="font-size: 20pt!important"/>
                                             </h:column>
                                         </h:panelGrid>
 
-                                        <h:panelGrid columns="2" rendered="#{relatorioSociosBean.booMatricula}" style="float: left; margin: 10px ">
-                                            <h:column>
-                                                <p:outputLabel value="Número da Matricula" />
-                                            </h:column>
-                                            <h:column></h:column>
-                                            <h:column>
-                                                <p:inputText value="#{relatorioSociosBean.matriculaInicial}" size="8"/><p:outputLabel value=" Até " style="font-weight: bold"/>
+                                        <p:panel header="Número da Matrícula" rendered="#{relatorioSociosBean.booMatricula}">
+                                            <h:panelGrid columns="3" >
+                                                <p:inputText value="#{relatorioSociosBean.matriculaInicial}" size="8"/>
+                                                <p:outputLabel value=" até " style="font-weight: bold"/>
                                                 <p:inputText value="#{relatorioSociosBean.matriculaFinal}" size="8"/>
-                                            </h:column>
-                                        </h:panelGrid>
+                                            </h:panelGrid>                                            
+                                        </p:panel>
 
-                                        <h:panelGrid columns="2" rendered="#{relatorioSociosBean.booIdade}" style="float: left; margin: 10px">
-                                            <h:column>
-                                                <p:outputLabel value="Idade " />
-                                            </h:column>
-                                            <h:column></h:column>
-                                            <h:column>
-                                                <p:inputText value="#{relatorioSociosBean.idadeInicial}" size="8"/><p:outputLabel value=" Até " style="font-weight: bold"/>
+                                        <p:panel header="Idade" rendered="#{relatorioSociosBean.booIdade}">
+                                            <h:panelGrid columns="3">
+                                                <p:inputText value="#{relatorioSociosBean.idadeInicial}" size="8"/>
+                                                <p:outputLabel value=" até " style="font-weight: bold"/>
                                                 <p:inputText value="#{relatorioSociosBean.idadeFinal}" size="8"/>
-                                            </h:column>
-                                        </h:panelGrid>
+                                            </h:panelGrid>
+                                        </p:panel>
 
-                                        <h:panelGrid columns="2" rendered="#{relatorioSociosBean.booGrupoCategoria}" style="float: left; margin: 10px">
-                                            <h:column>
-                                                <div style="height: 150px; width: 100%; overflow: auto">
-                                                    <p:dataTable id="tbl1" value="#{relatorioSociosBean.listaGrupo}" var="linha" emptyMessage="">
+                                        <p:panel rendered="#{relatorioSociosBean.booGrupoCategoria}">
+                                            <h:panelGrid columns="2">
+                                                <h:column>
+                                                    <p:dataTable id="tbl1" value="#{relatorioSociosBean.listGrupoCategoria}" var="grupoCategoria" emptyMessage="Nenhum registro encontrado!" scrollable="true" scrollHeight="100">
                                                         <f:facet name="header">
                                                             <p:outputLabel value="Lista de Grupo" />
                                                         </f:facet>
-
                                                         <p:column style="width: 15px">
                                                             <f:facet name="header">
                                                                 <p:selectBooleanCheckbox id="c_grupo" value="#{relatorioSociosBean.chkGrupo}">
-                                                                    <p:ajax event="change" listener="#{relatorioSociosBean.marcarGrupos}" update="tbl1 :formRelatorioSocios:tbl2"/>
+                                                                    <p:ajax event="change" listener="#{relatorioSociosBean.marcarGrupoCatregoria()}" update="tbl1 :formRelatorioSocios:tbl2"/>
                                                                 </p:selectBooleanCheckbox>
                                                             </f:facet>
-                                                            <p:selectBooleanCheckbox value="#{linha.argumento0}">
-                                                                <p:ajax event="change" listener="#{relatorioSociosBean.marcarUmGrupo()}" update=":formRelatorioSocios:tbl2"/>
+                                                            <p:selectBooleanCheckbox value="#{grupoCategoria.selected}">
+                                                                <p:ajax event="change" listener="#{relatorioSociosBean.marcarUmGrupoCategoria()}" update=":formRelatorioSocios:tbl2"/>
                                                             </p:selectBooleanCheckbox>
                                                         </p:column>
 
                                                         <p:column headerText="Grupo">
-                                                            <h:outputText value="#{linha.argumento1.grupoCategoria}" />
+                                                            <h:outputText value="#{grupoCategoria.grupoCategoria}" />
                                                         </p:column>
                                                     </p:dataTable>
-                                                </div>
-                                            </h:column>
+                                                </h:column>
 
-                                            <h:column>
-                                                <div style="height: 150px; width: 100%; overflow: auto">
-                                                    <p:dataTable id="tbl2" value="#{relatorioSociosBean.listaCategoria}" var="linha" style="margin-left: 20px" emptyMessage="Nenhum Grupo Selecionado">
+                                                <h:column>
+                                                    <p:dataTable id="tbl2" value="#{relatorioSociosBean.listCategoria}" var="categoria" emptyMessage="Nenhum grupo selecionado"  scrollable="true" scrollHeight="100">
                                                         <f:facet name="header">
                                                             <p:outputLabel value="Lista de Categoria" />
                                                         </f:facet>
@@ -185,41 +177,16 @@
                                                                     <p:ajax event="change" listener="#{relatorioSociosBean.marcarCategorias()}" update="tbl2"/>
                                                                 </p:selectBooleanCheckbox>
                                                             </f:facet>
-                                                            <p:selectBooleanCheckbox value="#{linha.argumento0}" />
+                                                            <p:selectBooleanCheckbox value="#{categoria.selected}" />
                                                         </p:column>
 
                                                         <p:column headerText="Categoria">
-                                                            <h:outputText value="#{linha.argumento1.categoria}"/>
+                                                            <h:outputText value="#{categoria.categoria}"/>
                                                         </p:column>
                                                     </p:dataTable>
-                                                </div>
-                                            </h:column>
-                                        </h:panelGrid>    
-
-                                        <h:panelGrid columns="2" rendered="#{relatorioSociosBean.booTipoCobranca}" style="float: left; margin: 10px">
-                                            <h:column>
-                                                <div style="height: 150px; width: 100%; overflow: auto"> 
-                                                    <p:dataTable id="tbl3" value="#{relatorioSociosBean.listaTipoCobranca}" var="linha">
-                                                        <f:facet name="header">
-                                                            <p:outputLabel value="Tipo de Cobrança" />
-                                                        </f:facet>
-
-                                                        <p:column style="width: 15px">
-                                                            <f:facet name="header">
-                                                                <p:selectBooleanCheckbox value="#{relatorioSociosBean.chkTipoCobranca}">
-                                                                    <p:ajax event="change" listener="#{relatorioSociosBean.marcarTipos()}" update=":formRelatorioSocios:tbl3"/>
-                                                                </p:selectBooleanCheckbox>
-                                                            </f:facet>
-                                                            <p:selectBooleanCheckbox value="#{linha.argumento0}" />
-                                                        </p:column>
-
-                                                        <p:column headerText="Tipo">
-                                                            <h:outputText value="#{linha.argumento1.descricao}" />
-                                                        </p:column>
-                                                    </p:dataTable>
-                                                </div>
-                                            </h:column>
-                                        </h:panelGrid>
+                                                </h:column>
+                                            </h:panelGrid>    
+                                        </p:panel>
 
                                         <h:panelGrid columns="2" rendered="#{relatorioSociosBean.booCidadeSocio}" style="float: left; margin: 10px">
                                             <h:column>
@@ -245,125 +212,115 @@
                                                 </div>
                                             </h:column>
                                         </h:panelGrid>
-
-                                        <h:panelGrid columns="2" rendered="#{relatorioSociosBean.booCidadeEmpresa}" style="float: left; margin: 10px">
+                                        <p:panel header="Cidade das Empresas" rendered="#{relatorioSociosBean.booCidadeEmpresa}" >
                                             <h:column>
-                                                <div style="height: 150px; width: 100%; overflow: auto"> 
-                                                    <p:dataTable id="tbl5" value="#{relatorioSociosBean.listaCidadesEmpresa}" var="linha">
+                                                <p:dataTable id="tbl5" value="#{relatorioSociosBean.listaCidadesEmpresa}" var="linha" scrollable="true" scrollHeight="100" emptyMessage="Nenhum registro encontrado!">
+                                                    <p:column styleClass="text-center" style="width: 15px">
                                                         <f:facet name="header">
-                                                            <p:outputLabel value="Cidade das Empresas" />
+                                                            <p:selectBooleanCheckbox value="#{relatorioSociosBean.chkCidadesEmpresa}">
+                                                                <p:ajax event="change" listener="#{relatorioSociosBean.marcarCidadesEmpresa}" update=":formRelatorioSocios:tbl5"/>
+                                                            </p:selectBooleanCheckbox>
                                                         </f:facet>
-                                                        <p:column styleClass="centralizar" style="width: 15px">
-                                                            <f:facet name="header">
-                                                                <p:selectBooleanCheckbox value="#{relatorioSociosBean.chkCidadesEmpresa}">
-                                                                    <p:ajax event="change" listener="#{relatorioSociosBean.marcarCidadesEmpresa}" update=":formRelatorioSocios:tbl5"/>
-                                                                </p:selectBooleanCheckbox>
-                                                            </f:facet>
-                                                            <p:selectBooleanCheckbox value="#{linha.argumento0}" />
-                                                        </p:column>
-
-                                                        <p:column headerText="Cidade">
-                                                            <h:outputText value="#{linha.argumento1.cidade}" />
-                                                        </p:column>
-                                                    </p:dataTable>
-                                                </div>
+                                                        <p:selectBooleanCheckbox value="#{linha.argumento0}" />
+                                                    </p:column>
+                                                    <p:column headerText="Cidade" filterBy="#{linha.argumento1.cidade}" filterMatchMode="global">
+                                                        <h:outputText value="#{linha.argumento1.cidade}" />
+                                                    </p:column>
+                                                </p:dataTable>
                                             </h:column>
-                                        </h:panelGrid>
+                                        </p:panel>
 
-                                        <h:panelGrid columns="2" rendered="#{relatorioSociosBean.booAniversario}" style="float: left; margin: 10px">
+                                        <p:panel header="Aniversário" rendered="#{relatorioSociosBean.booAniversario}">
                                             <h:column>
-                                                <div style="height: 150px; width: 100%; overflow: auto"> 
-                                                    <p:dataTable id="tbl6" value="#{relatorioSociosBean.listaMeses}" var="linha">
+                                                <p:dataTable id="tbl6" value="#{relatorioSociosBean.listaMeses}" var="mes" scrollable="true" scrollHeight="100">
+                                                    <p:column style="width: 15px">
                                                         <f:facet name="header">
-                                                            <p:outputLabel value="Data de Aniversário" />
+                                                            <p:selectBooleanCheckbox value="#{relatorioSociosBean.chkMeses}">
+                                                                <p:ajax event="change" listener="#{relatorioSociosBean.marcarMeses}" update=":formRelatorioSocios:tbl6"/>
+                                                            </p:selectBooleanCheckbox>
                                                         </f:facet>
-                                                        <p:column style="width: 15px">
-                                                            <f:facet name="header">
-                                                                <p:selectBooleanCheckbox value="#{relatorioSociosBean.chkMeses}">
-                                                                    <p:ajax event="change" listener="#{relatorioSociosBean.marcarMeses}" update=":formRelatorioSocios:tbl6"/>
-                                                                </p:selectBooleanCheckbox>
-                                                            </f:facet>
-                                                            <p:selectBooleanCheckbox value="#{linha.argumento0}" />
-                                                        </p:column>
-
-                                                        <p:column>
-                                                            <f:facet name="header"><h:outputText value="Mês" style="font-size:8pt"/></f:facet>
-                                                            <h:outputText value="#{linha.argumento1}"/>
-                                                        </p:column>
-                                                    </p:dataTable>
-                                                </div>
-                                                <h:panelGrid columns="4">
-                                                    <h:inputText value="#{relatorioSociosBean.diaInicial}" size="2"/><h:outputLabel value=" Até " styleClass="fontePadraoNegrito"/>
-                                                    <h:inputText value="#{relatorioSociosBean.diaFinal}" size="2"/>
+                                                        <p:selectBooleanCheckbox value="#{mes.argumento0}" />
+                                                    </p:column>
+                                                    <p:column headerText="Mês">
+                                                        <h:outputText value="#{mes.argumento1}"/>
+                                                    </p:column>
+                                                </p:dataTable>
+                                                <h:panelGrid columns="4" styleClass="margin-top-max">
+                                                    <p:inputText value="#{relatorioSociosBean.diaInicial}" size="2" styleClass="text-center" />
+                                                    <h:outputLabel value=" até " styleClass="fontePadraoNegrito"/>
+                                                    <p:inputText value="#{relatorioSociosBean.diaFinal}" size="2" styleClass="text-center"/>
                                                     <p:selectBooleanCheckbox value="#{relatorioSociosBean.ordemAniversario}" itemLabel="Ordem por Aniversário"/>
                                                 </h:panelGrid>
                                             </h:column>
-                                        </h:panelGrid>
+                                        </p:panel>
 
-                                        <h:panelGrid columns="2" rendered="#{relatorioSociosBean.booGrau}" style="float: left; margin: 10px">
-                                            <h:column>
-                                                <div style="height: 150px; width: 100%; overflow: auto"> 
-                                                    <p:dataTable id="tbl7" value="#{relatorioSociosBean.listaParentesco}" var="linha">
-                                                        <f:facet name="header">
-                                                            <p:outputLabel value="Parentesco" />
-                                                        </f:facet>
-                                                        <p:column style="width: 15px">
-                                                            <f:facet name="header">
-                                                                <p:selectBooleanCheckbox value="#{relatorioSociosBean.chkGrau}">
-                                                                    <p:ajax event="change" listener="#{relatorioSociosBean.marcarGrau}" update=":formRelatorioSocios:tbl7"/>
-                                                                </p:selectBooleanCheckbox>
-                                                            </f:facet>
-                                                            <p:selectBooleanCheckbox value="#{linha.argumento0}"/>
-                                                        </p:column>
-
-                                                        <p:column headerText="Grau">
-                                                            <h:outputText value="#{linha.argumento1.parentesco}"/>
-                                                        </p:column>
-                                                    </p:dataTable>
-                                                </div>
-                                            </h:column>
-                                        </h:panelGrid>
-
-
-                                        <h:panelGrid columns="1" rendered="#{relatorioSociosBean.booSexo}" style="float: left; margin: 10px">
-                                            <h:column>
-                                                <p:outputLabel value="Sexo" /><br />
+                                        <p:panel header="Sexo" rendered="#{relatorioSociosBean.booSexo}">
+                                            <h:panelGrid columns="2">
                                                 <p:selectOneMenu value="#{relatorioSociosBean.tipoSexo}">
                                                     <f:selectItem itemValue="M" itemLabel="Masculino"/>
                                                     <f:selectItem itemValue="F" itemLabel="Feminino"/>
                                                 </p:selectOneMenu>
-                                            </h:column>
-                                        </h:panelGrid>
+                                            </h:panelGrid>
+                                        </p:panel>
 
-                                        <h:panelGrid columns="1" rendered="#{relatorioSociosBean.booFotos}" style="float: left; margin: 10px">
-                                            <h:column>
-                                                <p:outputLabel value="Fotos" /><br />
+                                        <p:panel header="Parentesco" rendered="#{relatorioSociosBean.booGrau}">
+                                            <p:dataTable id="tbl7" value="#{relatorioSociosBean.listParentesco}" var="parentesco" emptyMessage="Nenhum registro encontrado!" scrollable="true" scrollHeight="100">
+                                                <p:column style="width: 15px">
+                                                    <f:facet name="header">
+                                                        <p:selectBooleanCheckbox value="#{relatorioSociosBean.chkGrau}">
+                                                            <p:ajax event="change" listener="#{relatorioSociosBean.marcarGrau}" update=":formRelatorioSocios:tbl7"/>
+                                                        </p:selectBooleanCheckbox>
+                                                    </f:facet>
+                                                    <p:selectBooleanCheckbox value="#{parentesco.selected}"/>
+                                                </p:column>
+
+                                                <p:column headerText="Grau" filterBy="#{parentesco.parentesco}" filterMatchMode="global">
+                                                    <h:outputText value="#{parentesco.parentesco}"/>
+                                                </p:column>
+                                            </p:dataTable>
+                                        </p:panel>
+
+                                        <p:panel header="Fotos" rendered="#{relatorioSociosBean.booFotos}">
+                                            <h:panelGrid columns="2">
                                                 <p:selectOneMenu value="#{relatorioSociosBean.tipoFotos}">
                                                     <f:selectItem itemValue="com" itemLabel="Com"/>
                                                     <f:selectItem itemValue="sem" itemLabel="Sem"/>
                                                 </p:selectOneMenu>
-                                            </h:column>
-                                        </h:panelGrid>
+                                            </h:panelGrid>
+                                        </p:panel>
 
-                                        <h:panelGrid columns="2" rendered="#{relatorioSociosBean.booCarteirinha}" style="float: left; margin: 10px">
-                                            <h:column>
-                                                <p:outputLabel value="Carteirinha" /><br />
+                                        <p:panel header="Carteirinha" rendered="#{relatorioSociosBean.booFotos}">
+                                            <h:panelGrid columns="2">
                                                 <p:selectOneMenu value="#{relatorioSociosBean.tipoCarteirinha}">
                                                     <f:selectItem itemValue="com" itemLabel="Com"/>
                                                     <f:selectItem itemValue="sem" itemLabel="Sem"/>
                                                 </p:selectOneMenu>
-                                            </h:column>
-                                        </h:panelGrid>
+                                            </h:panelGrid>
+                                        </p:panel>
 
-                                        <h:panelGrid columns="2" rendered="#{relatorioSociosBean.booVotante}" style="float: left; margin: 10px">
-                                            <h:column>
-                                                <p:outputLabel value="Votante" /><br />
-                                                <p:selectOneMenu value="#{relatorioSociosBean.tipoEleicao}">
-                                                    <f:selectItem itemValue="votante" itemLabel="Votantes"/>
-                                                    <f:selectItem itemValue="naoVotante" itemLabel="Não Votantes"/>
-                                                </p:selectOneMenu>
-                                            </h:column>
-                                        </h:panelGrid>
+                                        <p:panel header="Tipo de Cobrança" rendered="#{relatorioSociosBean.booTipoCobranca}">
+                                            <p:dataTable id="tbl3" value="#{relatorioSociosBean.listaTipoCobranca}" var="tipoCobranca" emptyMessage="nenhum registro encontrado!" scrollable="true" scrollHeight="100">
+                                                <p:column style="width: 15px">
+                                                    <f:facet name="header">
+                                                        <p:selectBooleanCheckbox value="#{relatorioSociosBean.chkTipoCobranca}">
+                                                            <p:ajax event="change" listener="#{relatorioSociosBean.marcarTipos()}" update=":formRelatorioSocios:tbl3"/>
+                                                        </p:selectBooleanCheckbox>
+                                                    </f:facet>
+                                                    <p:selectBooleanCheckbox value="#{tipoCobranca.argumento0}" />
+                                                </p:column>
+
+                                                <p:column headerText="Tipo">
+                                                    <h:outputText value="#{tipoCobranca.argumento1.descricao}" />
+                                                </p:column>
+                                            </p:dataTable>                                            
+                                        </p:panel>
+
+                                        <p:panel header="Votante" rendered="#{relatorioSociosBean.booVotante}">
+                                            <p:selectOneMenu value="#{relatorioSociosBean.tipoEleicao}">
+                                                <f:selectItem itemValue="votante" itemLabel="Votantes"/>
+                                                <f:selectItem itemValue="naoVotante" itemLabel="Não Votantes"/>
+                                            </p:selectOneMenu>
+                                        </p:panel>
 
                                         <h:panelGrid columns="2" rendered="#{relatorioSociosBean.booEmail}" style="float: left; margin: 10px">
                                             <h:column>
@@ -405,79 +362,85 @@
                                             </h:column>
                                         </h:panelGrid>
 
-                                        <h:panelGrid columns="2" rendered="#{relatorioSociosBean.booEstadoCivil}" style="float: left; margin: 10px">
-                                            <h:column>
-                                                <p:outputLabel value="Estado Civil" /><br />
-                                                <p:selectOneMenu value="#{relatorioSociosBean.tipoEstadoCivil}">
-                                                    <f:selectItem itemValue="Amasiado(a)" itemLabel="Amasiado(a)"/>
-                                                    <f:selectItem itemValue="Casado(a)" itemLabel="Casado(a)"/>
-                                                    <f:selectItem itemValue="Desquitado(a)" itemLabel="Desquitado(a)"/>
-                                                    <f:selectItem itemValue="Divorciado(a)" itemLabel="Divorciado(a)"/>
-                                                    <f:selectItem itemValue="Indefinido" itemLabel="Indefinido"/>
-                                                    <f:selectItem itemValue="Separado(a)" itemLabel="Separado(a)"/>
-                                                    <f:selectItem itemValue="Solteiro(a)" itemLabel="Solteiro(a)"/>
-                                                    <f:selectItem itemValue="Viuvo(a)" itemLabel="Viúvo(a)"/>
-                                                </p:selectOneMenu>
-                                            </h:column>
-                                        </h:panelGrid>
+                                        <p:panel header="Estado Civil" rendered="#{relatorioSociosBean.booEstadoCivil}">
+                                            <p:selectOneMenu value="#{relatorioSociosBean.tipoEstadoCivil}">
+                                                <f:selectItem itemValue="Amasiado(a)" itemLabel="Amasiado(a)"/>
+                                                <f:selectItem itemValue="Casado(a)" itemLabel="Casado(a)"/>
+                                                <f:selectItem itemValue="Desquitado(a)" itemLabel="Desquitado(a)"/>
+                                                <f:selectItem itemValue="Divorciado(a)" itemLabel="Divorciado(a)"/>
+                                                <f:selectItem itemValue="Indefinido" itemLabel="Indefinido"/>
+                                                <f:selectItem itemValue="Separado(a)" itemLabel="Separado(a)"/>
+                                                <f:selectItem itemValue="Solteiro(a)" itemLabel="Solteiro(a)"/>
+                                                <f:selectItem itemValue="Viuvo(a)" itemLabel="Viúvo(a)"/>
+                                            </p:selectOneMenu>
+                                        </p:panel>
 
+                                        <p:panel header="Situação" rendered="#{relatorioSociosBean.situacao}">
+                                            <h:panelGrid columns="4" >
+                                                <h:column>
+                                                    <h:panelGrid columns="2">
+                                                        <p:outputLabel value="Situação:" />
+                                                        <p:selectOneMenu value="#{relatorioSociosBean.situacaoString}">
+                                                            <f:selectItem itemValue="adimplente" itemLabel="Adimplente" />
+                                                            <f:selectItem itemValue="inadimplente" itemLabel="Inadimplente" />
+                                                        </p:selectOneMenu>
+                                                    </h:panelGrid>
+                                                </h:column>
+                                                <h:column>
+                                                    <h:panelGrid columns="4">
+                                                        <p:outputLabel value="Carência de Débito em Dias:" />
+                                                        <p:selectOneButton value="#{relatorioSociosBean.tipoCarencia}">
+                                                            <f:selectItem itemValue="eleicao" itemLabel="Eleição" />
+                                                            <f:selectItem itemValue="clube" itemLabel="Clube" />
+                                                            <f:selectItem itemValue="todos" itemLabel="Todos" />
+                                                        </p:selectOneButton>                                                
+                                                        <p:inputText value="#{relatorioSociosBean.carenciaDiasString}" maxlength="3" size="2" styleClass="margin-left-max" converter="#{thisNumber}">
+                                                            <p:ajax event="change" update="@this" />
+                                                        </p:inputText>
+                                                    </h:panelGrid>
+                                                </h:column>
+                                            </h:panelGrid>
+                                        </p:panel>
+
+                                        <p:panel header="Desconto Social" rendered="#{relatorioSociosBean.booDescontoSocial}">
+                                            <p:selectCheckboxMenu label="Selecionar " value="#{relatorioSociosBean.selectedDescontoSocial}" filter="true" filterMatchMode="startsWith">
+                                                <p:ajax event="toggleSelect" global="false" />
+                                                <p:ajax event="change" global="false" />
+                                                <f:selectItems value="#{relatorioSociosBean.listDescontoSocial}" />
+                                            </p:selectCheckboxMenu>
+                                        </p:panel>
                                     </h:panelGrid>
                                     <div class="clear"></div>
-                                    <h:panelGrid id="i_panel_filtro6" columns="1">
-                                        <h:panelGrid columns="4" rendered="#{relatorioSociosBean.situacao}" style="margin: 10px">
-                                            <h:column>
+
+                                    <h:panelGrid id="i_panel_filtro2" >                                        
+                                        <p:panel header="Empresas"  rendered="#{relatorioSociosBean.booEmpresa}">
+                                            <h:panelGrid  styleClass="margin-top-max">
                                                 <h:panelGrid columns="2">
-                                                    <p:outputLabel value="Situação:" />
-                                                    <p:selectOneMenu value="#{relatorioSociosBean.situacaoString}">
-                                                        <f:selectItem itemValue="adimplente" itemLabel="Adimplente" />
-                                                        <f:selectItem itemValue="inadimplente" itemLabel="Inadimplente" />
-                                                    </p:selectOneMenu>
+                                                    <p:selectOneRadio id="idRadioEmpresas" value="#{relatorioSociosBean.tipoEmpresas}">
+                                                        <p:ajax event="change" update="@this idEmpresas"/>
+                                                        <f:selectItem itemValue="com"         itemLabel="Com"/>
+                                                        <f:selectItem itemValue="sem"         itemLabel="Sem"/>
+                                                        <f:selectItem itemValue="especificas" itemLabel="Específicas"/>
+                                                    </p:selectOneRadio>
                                                 </h:panelGrid>
-                                            </h:column>
-                                            <h:column>
-                                                <h:panelGrid columns="4">
-                                                    <p:outputLabel value="Carência de Débito em Dias:" />
-                                                    <p:selectOneButton value="#{relatorioSociosBean.tipoCarencia}">
-                                                        <f:selectItem itemValue="eleicao" itemLabel="Eleição" />
-                                                        <f:selectItem itemValue="clube" itemLabel="Clube" />
-                                                        <f:selectItem itemValue="todos" itemLabel="Todos" />
-                                                    </p:selectOneButton>                                                
-                                                    <p:inputText value="#{relatorioSociosBean.carenciaDiasString}" maxlength="3" size="2" styleClass="margin-left-max" converter="#{thisNumber}">
+                                                <h:panelGrid columns="3" id="idEmpresas">
+                                                    <p:commandButton value="Pesquisar Empresa" action="#{chamadaPaginaBean.pagina('pesquisaPessoaJuridica')}" actionListener="#{juridicaBean.pesquisaTodosEAtivos}" rendered="#{relatorioSociosBean.tipoEmpresas eq 'especificas'}" icon="ui-icon-search"/>
+                                                    <h:outputLabel value="#{relatorioSociosBean.empresa.pessoa.nome} - CNPJ: #{relatorioSociosBean.empresa.pessoa.documento}" rendered="#{relatorioSociosBean.empresa.id != -1}"/> 
+                                                    <p:commandButton action="#{relatorioSociosBean.setEmpresa(null)}" icon="ui-icon-close" rendered="#{relatorioSociosBean.empresa.id != -1}" update="idEmpresas"/>
+                                                </h:panelGrid>
+                                                <h:panelGrid columns="5">
+                                                    <p:outputLabel value="Número de funcionários a partir de:" />                                                
+                                                    <p:inputText value="#{relatorioSociosBean.minQtdeFuncionarioString}" size="3" >
+                                                        <p:ajax event="change" update="@this" />
+                                                    </p:inputText>
+                                                    <p:outputLabel value=" até " />                                                
+                                                    <p:inputText value="#{relatorioSociosBean.maxQtdeFuncionarioString}" size="3" >
                                                         <p:ajax event="change" update="@this" />
                                                     </p:inputText>
                                                 </h:panelGrid>
-                                            </h:column>
-                                        </h:panelGrid>
+                                            </h:panelGrid>                                            
+                                        </p:panel>
                                     </h:panelGrid>
-
-                                    <h:panelGrid id="i_panel_filtro2">
-                                        <h:panelGrid rendered="#{relatorioSociosBean.booEmpresa}" styleClass="margin-top-max">
-                                            <h:panelGrid columns="2">
-                                                <p:selectOneRadio id="idRadioEmpresas" value="#{relatorioSociosBean.tipoEmpresas}">
-                                                    <p:ajax event="change" update="@this idEmpresas"/>
-                                                    <f:selectItem itemValue="com"         itemLabel="Com"/>
-                                                    <f:selectItem itemValue="sem"         itemLabel="Sem"/>
-                                                    <f:selectItem itemValue="especificas" itemLabel="Específicas"/>
-                                                </p:selectOneRadio>
-                                            </h:panelGrid>
-                                            <h:panelGrid columns="3" id="idEmpresas">
-                                                <p:commandButton value="Pesquisar Empresa" action="#{chamadaPaginaBean.pagina('pesquisaPessoaJuridica')}" actionListener="#{juridicaBean.pesquisaTodosEAtivos}" rendered="#{relatorioSociosBean.tipoEmpresas eq 'especificas'}" icon="ui-icon-search"/>
-                                                <h:outputLabel value="#{relatorioSociosBean.empresa.pessoa.nome} - CNPJ: #{relatorioSociosBean.empresa.pessoa.documento}" rendered="#{relatorioSociosBean.empresa.id != -1}"/> 
-                                                <p:commandButton action="#{relatorioSociosBean.setEmpresa(null)}" icon="ui-icon-close" rendered="#{relatorioSociosBean.empresa.id != -1}" update="idEmpresas"/>
-                                            </h:panelGrid>
-                                            <h:panelGrid columns="5">
-                                                <p:outputLabel value="Número de funcionários a partir de:" />                                                
-                                                <p:inputText value="#{relatorioSociosBean.minQtdeFuncionarioString}" size="3" >
-                                                    <p:ajax event="change" update="@this" />
-                                                </p:inputText>
-                                                <p:outputLabel value=" até " />                                                
-                                                <p:inputText value="#{relatorioSociosBean.maxQtdeFuncionarioString}" size="3" >
-                                                    <p:ajax event="change" update="@this" />
-                                                </p:inputText>
-                                            </h:panelGrid>
-                                        </h:panelGrid>
-                                    </h:panelGrid>
-
                                     <h:panelGrid id="i_panel_filtro3" columns="1">
                                         <h:panelGrid columns="10" rendered="#{relatorioSociosBean.booData}" style="float: left; margin: 10px ">
                                             <h:column>

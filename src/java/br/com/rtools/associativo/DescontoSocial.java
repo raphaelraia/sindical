@@ -10,11 +10,13 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "soc_desconto")
 @NamedQuery(name = "DescontoSocial.pesquisaID", query = "select ds from DescontoSocial ds where ds.id=:pid")
 public class DescontoSocial implements java.io.Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -25,20 +27,25 @@ public class DescontoSocial implements java.io.Serializable {
     private String descricao;
     @JoinColumn(name = "id_categoria", referencedColumnName = "id", nullable = true)
     @ManyToOne(fetch = FetchType.EAGER)
-    private Categoria categoria;    
+    private Categoria categoria;
+
+    @Transient
+    private Boolean selected;
 
     public DescontoSocial() {
         this.id = -1;
         this.nrDesconto = 0;
         this.descricao = "";
         this.categoria = null;
+        this.selected = false;
     }
-    
+
     public DescontoSocial(int id, float nrDesconto, String descricao, Categoria categoria) {
         this.id = id;
         this.nrDesconto = nrDesconto;
         this.descricao = descricao;
         this.categoria = categoria;
+        this.selected = false;
     }
 
     public int getId() {
@@ -60,15 +67,15 @@ public class DescontoSocial implements java.io.Serializable {
     public String getNrDescontoString() {
         return String.valueOf(nrDesconto);
     }
-    
+
     public void setNrDescontoString(String nrDescontoString) {
-        try{
+        try {
             this.nrDesconto = Float.valueOf(nrDescontoString.replace(",", "."));
-        }catch(Exception e){
+        } catch (Exception e) {
             this.nrDesconto = 0;
         }
     }
-    
+
     public String getDescricao() {
         return descricao;
     }
@@ -83,5 +90,13 @@ public class DescontoSocial implements java.io.Serializable {
 
     public void setCategoria(Categoria categoria) {
         this.categoria = categoria;
+    }
+
+    public Boolean getSelected() {
+        return selected;
+    }
+
+    public void setSelected(Boolean selected) {
+        this.selected = selected;
     }
 }
