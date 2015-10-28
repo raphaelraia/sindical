@@ -1,6 +1,7 @@
 package br.com.rtools.relatorios.beans;
 
 import br.com.rtools.associativo.Categoria;
+import br.com.rtools.associativo.DescontoSocial;
 import br.com.rtools.associativo.GrupoCategoria;
 import br.com.rtools.associativo.Parentesco;
 import br.com.rtools.associativo.db.CategoriaDB;
@@ -113,6 +114,9 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
 
     private String descontoFolhaSocio = "SIM";
     private String descontoFolhaFinanceiro = "SIM";
+
+    private Map<String, Integer> listDescontoSocial;
+    private List selectedDescontoSocial;
     /**
      * Lista de Filtros (indices)
      * <p>
@@ -149,6 +153,7 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
         loadListaFiltro();
         loadListaFiltroFinanceiro();
         loadListaTipoCobranca();
+        loadDescontoSocial();
     }
 
     @PreDestroy
@@ -197,16 +202,26 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
 
     public void loadListaFiltro() {
         listaFiltros.clear();
-
+        /* 0 */
         listaFiltros.add(new Filtros("grupoCategoria", "Grupo / Categoria", false));
+        /* 1 */
         listaFiltros.add(new Filtros("grau", "Grau", false));
+        /* 2 */
         listaFiltros.add(new Filtros("cidadeSocio", "Cidade do Sócio", false));
+        /* 3 */
         listaFiltros.add(new Filtros("cidadeEmpresa", "Cidade da Empresa", false));
+        /* 4 */
         listaFiltros.add(new Filtros("votante", "Votante", false));
+        /* 5 */
         listaFiltros.add(new Filtros("datas", "Datas", false));
+        /* 6 */
         listaFiltros.add(new Filtros("situacao", "Situação", false));
+        /* 7 */
         listaFiltros.add(new Filtros("pessoa", "Pessoa", false));
+        /* 8 */
         listaFiltros.add(new Filtros("desconto_folha_social", "Desconto em Folha Social", false));
+        /* 9 */
+        listaFiltros.add(new Filtros("desconto_social", "Desconto Social", false));
 
     }
 
@@ -424,6 +439,15 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
         }
     }
 
+    public void loadDescontoSocial() {
+        listDescontoSocial = new LinkedHashMap<>();
+        selectedDescontoSocial = new ArrayList<>();
+        List<DescontoSocial> list = new Dao().list(new DescontoSocial());
+        for (int i = 0; i < list.size(); i++) {
+            listDescontoSocial.put(list.get(i).getDescricao(), list.get(i).getId());
+        }
+    }
+
     public String pesquisaPessoa() {
         GenericaSessao.put("linkClicado", true);
         return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).pesquisaPessoa();
@@ -449,6 +473,7 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
         Boolean is_votante = null;
         String is_desc_folha_soc = null;
         String is_desc_folha_fin = null;
+        String in_id_desc_social = null;
         String dtCadastro = "", dtRecadastro = "", dtAdmissao = "", dtDemissao = "", dtFiliacao = "", dtAposentadoria = "", dtAtualizacao = "";
         String dtCadastroFinal = "", dtRecadastroFinal = "", dtAdmissaoFinal = "", dtDemissaoFinal = "", dtFiliacaoFinal = "", dtAposentadoriaFinal = "", dtAtualizacaoFinal = "";
         String tipo_situacao = "";
@@ -487,6 +512,11 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
         // DESCONTO FOLHA SOCIAL
         if (listaFiltros.get(8).ativo) {
             is_desc_folha_soc = descontoFolhaFinanceiro;
+        }
+
+        // DESCONTO SOCIAL
+        if (listaFiltros.get(9).ativo) {
+            in_id_desc_social = inIdDescontoSocial();
         }
 
         // DATAS
@@ -707,7 +737,7 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
         }
 
         sisProcesso.startQuery();
-        List<Object> result = new RelatorioFinanceiroSocialDao().listaRelatorioFinanceiroSocial(id_grupo_categoria, id_categoria, id_parentesco, id_cidade_socio, id_cidade_empresa, is_votante, dtCadastro, dtCadastroFinal, dtRecadastro, dtRecadastroFinal, dtAdmissao, dtAdmissaoFinal, dtDemissao, dtDemissaoFinal, dtFiliacao, dtFiliacaoFinal, dtAposentadoria, dtAposentadoriaFinal, dtAtualizacao, dtAtualizacaoFinal, tipo_situacao, tipoPessoa, id_pessoa, id_grupo_financeiro, id_sub_grupo, id_servicos, id_tipo_cobranca, dtEmissao, dtEmissaoFinal, dtVencimento, dtVencimentoFinal, dtQuitacao, dtQuitacaoFinal, tipo_es, tipo_situacao_financeiro, tipo_departamento, tipo_pessoa, is_desc_folha_soc, is_desc_folha_fin, ordem, relatorios);
+        List<Object> result = new RelatorioFinanceiroSocialDao().listaRelatorioFinanceiroSocial(id_grupo_categoria, id_categoria, id_parentesco, id_cidade_socio, id_cidade_empresa, is_votante, dtCadastro, dtCadastroFinal, dtRecadastro, dtRecadastroFinal, dtAdmissao, dtAdmissaoFinal, dtDemissao, dtDemissaoFinal, dtFiliacao, dtFiliacaoFinal, dtAposentadoria, dtAposentadoriaFinal, dtAtualizacao, dtAtualizacaoFinal, tipo_situacao, tipoPessoa, id_pessoa, id_grupo_financeiro, id_sub_grupo, id_servicos, id_tipo_cobranca, dtEmissao, dtEmissaoFinal, dtVencimento, dtVencimentoFinal, dtQuitacao, dtQuitacaoFinal, tipo_es, tipo_situacao_financeiro, tipo_departamento, tipo_pessoa, is_desc_folha_soc, is_desc_folha_fin, in_id_desc_social, ordem, relatorios);
         sisProcesso.finishQuery();
 
         if (result.isEmpty()) {
@@ -738,6 +768,22 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
         Jasper.printReports(relatorios.getJasper(), relatorios.getNome(), list_hash, params);
         sisProcesso.setProcesso(relatorios.getNome());
         sisProcesso.finish();
+    }
+
+    public String inIdDescontoSocial() {
+        String ids = null;
+        if (selectedDescontoSocial != null) {
+            for (int i = 0; i < selectedDescontoSocial.size(); i++) {
+                if (selectedDescontoSocial.get(i) != null) {
+                    if (ids == null) {
+                        ids = "" + selectedDescontoSocial.get(i);
+                    } else {
+                        ids += "," + selectedDescontoSocial.get(i);
+                    }
+                }
+            }
+        }
+        return ids;
     }
 
     public Integer getIdRelatorio() {
@@ -1211,6 +1257,22 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
 
     public void setDescontoFolhaFinanceiro(String descontoFolhaFinanceiro) {
         this.descontoFolhaFinanceiro = descontoFolhaFinanceiro;
+    }
+
+    public Map<String, Integer> getListDescontoSocial() {
+        return listDescontoSocial;
+    }
+
+    public void setListDescontoSocial(Map<String, Integer> listDescontoSocial) {
+        this.listDescontoSocial = listDescontoSocial;
+    }
+
+    public List getSelectedDescontoSocial() {
+        return selectedDescontoSocial;
+    }
+
+    public void setSelectedDescontoSocial(List selectedDescontoSocial) {
+        this.selectedDescontoSocial = selectedDescontoSocial;
     }
 
     public class Filtros {

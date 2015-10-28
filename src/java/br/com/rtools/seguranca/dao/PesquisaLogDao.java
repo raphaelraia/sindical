@@ -3,7 +3,6 @@ package br.com.rtools.seguranca.dao;
 import br.com.rtools.principal.DB;
 import br.com.rtools.seguranca.Log;
 import br.com.rtools.utilitarios.DataHoje;
-import com.sun.org.apache.bcel.internal.generic.LOR;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;

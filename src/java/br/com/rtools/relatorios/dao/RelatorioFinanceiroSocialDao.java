@@ -11,7 +11,7 @@ import javax.persistence.Query;
 
 public class RelatorioFinanceiroSocialDao extends DB {
 
-    public List<Object> listaRelatorioFinanceiroSocial(Integer id_grupo_categoria, Integer id_categoria, Integer id_parentesco, Integer id_cidade_socio, Integer id_cidade_empresa, Boolean is_votante, String dataCadastro, String dataCadastroFinal, String dataRecadastro, String dataRecadastroFinal, String dataAdmissao, String dataAdmissaoFinal, String dataDemissao, String dataDemissaoFinal, String dataFiliacao, String dataFiliacaoFinal, String dataAposentadoria, String dataAposentadoriaFinal, String dataAtualizacao, String dataAtualizacaoFinal, String tipo_situacao, String tipo_pessoa, Integer id_pessoa, Integer id_grupo_financeiro, Integer id_sub_grupo, Integer id_servicos, Integer id_tipo_cobranca, String dataEmissao, String dataEmissaoFinal, String dataVencimento, String dataVencimentoFinal, String dataQuitacao, String dataQuitacaoFinal, String tipo_es, String tipo_situacao_financeiro, String tipo_departamento, String tipo_pessoa_financeiro, String desconto_folha_socio, String desconto_folha_financeiro, String order, Relatorios relatorio) {
+    public List<Object> listaRelatorioFinanceiroSocial(Integer id_grupo_categoria, Integer id_categoria, Integer id_parentesco, Integer id_cidade_socio, Integer id_cidade_empresa, Boolean is_votante, String dataCadastro, String dataCadastroFinal, String dataRecadastro, String dataRecadastroFinal, String dataAdmissao, String dataAdmissaoFinal, String dataDemissao, String dataDemissaoFinal, String dataFiliacao, String dataFiliacaoFinal, String dataAposentadoria, String dataAposentadoriaFinal, String dataAtualizacao, String dataAtualizacaoFinal, String tipo_situacao, String tipo_pessoa, Integer id_pessoa, Integer id_grupo_financeiro, Integer id_sub_grupo, Integer id_servicos, Integer id_tipo_cobranca, String dataEmissao, String dataEmissaoFinal, String dataVencimento, String dataVencimentoFinal, String dataQuitacao, String dataQuitacaoFinal, String tipo_es, String tipo_situacao_financeiro, String tipo_departamento, String tipo_pessoa_financeiro, String desconto_folha_socio, String desconto_folha_financeiro, String in_desconto_social, String order, Relatorios relatorio) {
         String select = " -- RelatorioFinanceiroSocialDao->listaRelatorioFinanceiroSocial() \n"
                 + " SELECT ";
 
@@ -91,6 +91,11 @@ public class RelatorioFinanceiroSocialDao extends DB {
             } else {
                 list_where_socios.add(" so.desconto_folha = false ");
             }
+        }
+
+        // DESCONTO SOCIAL
+        if (in_desconto_social != null && !in_desconto_social.isEmpty()) {
+            list_where_socios.add(" so.id_desconto in (" + in_desconto_social + ") ");
         }
 
         // TIPO COBRANÇA ---

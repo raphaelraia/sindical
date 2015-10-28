@@ -11,6 +11,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "soc_categoria")
@@ -24,16 +25,16 @@ public class Categoria implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
     @Column(name = "ds_categoria", length = 100, nullable = true)
     private String categoria;
     @JoinColumn(name = "id_grupo_categoria", referencedColumnName = "id", nullable = true)
     @ManyToOne
     private GrupoCategoria grupoCategoria;
     @Column(name = "nr_carencia_balcao", length = 10, nullable = true)
-    private int nrCarenciaBalcao;
+    private Integer nrCarenciaBalcao;
     @Column(name = "nr_carencia_desc_folha", length = 10, nullable = true)
-    private int nrCarenciaDescFolha;
+    private Integer nrCarenciaDescFolha;
     @Column(name = "empresa_obrigatoria", nullable = true)
     private boolean empresaObrigatoria;
     @Column(name = "votante", nullable = true)
@@ -57,6 +58,9 @@ public class Categoria implements Serializable {
     @Column(name = "is_cartao_dependente", nullable = true, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private boolean cartaoDependente;
 
+    @Transient
+    private Boolean selected;
+
     public Categoria() {
         this.id = -1;
         this.categoria = "";
@@ -74,9 +78,10 @@ public class Categoria implements Serializable {
         this.usaClubeDomingo = false;
         this.cartaoTitular = true;
         this.cartaoDependente = true;
+        this.selected = false;
     }
 
-    public Categoria(int id, String categoria, GrupoCategoria grupoCategoria, int nrCarenciaBalcao, int nrCarenciaDescFolha,
+    public Categoria(Integer id, String categoria, GrupoCategoria grupoCategoria, Integer nrCarenciaBalcao, Integer nrCarenciaDescFolha,
             boolean empresaObrigatoria, boolean votante, boolean usaClubeSegunda, boolean usaClubeTerca, boolean usaClubeQuarta,
             boolean usaClubeQuinta, boolean usaClubeSexta, boolean usaClubeSabado, boolean usaClubeDomingo, boolean cartaoTitular, boolean cartaoDependente) {
         this.id = id;
@@ -95,13 +100,14 @@ public class Categoria implements Serializable {
         this.usaClubeDomingo = usaClubeDomingo;
         this.cartaoTitular = cartaoTitular;
         this.cartaoDependente = cartaoDependente;
+        this.selected = false;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -121,19 +127,19 @@ public class Categoria implements Serializable {
         this.categoria = categoria;
     }
 
-    public int getNrCarenciaBalcao() {
+    public Integer getNrCarenciaBalcao() {
         return nrCarenciaBalcao;
     }
 
-    public void setNrCarenciaBalcao(int nrCarenciaBalcao) {
+    public void setNrCarenciaBalcao(Integer nrCarenciaBalcao) {
         this.nrCarenciaBalcao = nrCarenciaBalcao;
     }
 
-    public int getNrCarenciaDescFolha() {
+    public Integer getNrCarenciaDescFolha() {
         return nrCarenciaDescFolha;
     }
 
-    public void setNrCarenciaDescFolha(int nrCarenciaDescFolha) {
+    public void setNrCarenciaDescFolha(Integer nrCarenciaDescFolha) {
         this.nrCarenciaDescFolha = nrCarenciaDescFolha;
     }
 
@@ -247,6 +253,14 @@ public class Categoria implements Serializable {
             }
         }
         this.cartaoDependente = cartaoDependente;
+    }
+
+    public Boolean getSelected() {
+        return selected;
+    }
+
+    public void setSelected(Boolean selected) {
+        this.selected = selected;
     }
 
 }
