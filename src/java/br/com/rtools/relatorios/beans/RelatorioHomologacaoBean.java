@@ -3,13 +3,13 @@ package br.com.rtools.relatorios.beans;
 import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.homologacao.Demissao;
 import br.com.rtools.homologacao.Status;
-import br.com.rtools.impressao.ParametroHomologacao;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioHomologacaoDao;
 import br.com.rtools.relatorios.dao.RelatorioDao;
+import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
@@ -64,7 +64,7 @@ public class RelatorioHomologacaoBean implements Serializable {
     private Boolean tipoAviso;
     private Boolean printHeader;
     private Boolean webAgendamento;
-    
+
     @PostConstruct
     public void init() {
         disabled = new Boolean[2];
@@ -114,6 +114,7 @@ public class RelatorioHomologacaoBean implements Serializable {
         tipo = "todos";
         printHeader = false;
         webAgendamento = false;
+        loadRelatorios();
     }
 
     @PreDestroy
@@ -123,6 +124,28 @@ public class RelatorioHomologacaoBean implements Serializable {
         GenericaSessao.remove("juridicaPesquisa");
         GenericaSessao.remove("usuarioPesquisa");
         GenericaSessao.remove("tipoPesquisaPessoaJuridica");
+    }
+
+    // LOAD
+    public void loadRelatorios() {
+        listSelectItem[0] = new ArrayList();
+        RelatorioDao db = new RelatorioDao();
+        List<Relatorios> list = (List<Relatorios>) db.pesquisaTipoRelatorio(new Rotina().get().getId());
+        getListStatus();
+        for (int i = 0; i < list.size(); i++) {
+            if (Integer.parseInt(listSelectItem[2].get(index[2]).getDescription()) == 3) {
+                if (list.get(i).getId().equals(65)) {
+                    listSelectItem[0].add(new SelectItem(list.get(i).getId(), list.get(i).getNome()));
+                }
+            } else {
+                if (!list.get(i).getId().equals(65)) {
+                    listSelectItem[0].add(new SelectItem(list.get(i).getId(), list.get(i).getNome()));
+                }
+            }
+        }
+        if (listSelectItem[0].isEmpty()) {
+            listSelectItem[0] = new ArrayList<>();
+        }
     }
 
     public void print() {
@@ -214,13 +237,13 @@ public class RelatorioHomologacaoBean implements Serializable {
                 }
             }
         }
-        
+
         Integer idConvencao = null;
         if (filtro[11]) {
             idConvencao = Integer.parseInt(listSelectItem[5].get(index[5]).getDescription());
             listDetalhePesquisa.add("Convenção: " + ((Convencao) dao.find(new Convencao(), idConvencao)).getDescricao());
         }
-        
+
         if (order == null) {
             order = "";
         }
@@ -254,6 +277,7 @@ public class RelatorioHomologacaoBean implements Serializable {
         List<ParametroHomologacao> phs = new ArrayList<>();
         String operadorString = "";
         for (Object list1 : list) {
+            List o = (List) list1;
             if (tipoUsuarioOperacional == null || tipoUsuarioOperacional.equals("id_homologador")) {
                 operadorString = AnaliseString.converteNullString(((List) list1).get(9));
             } else if (tipoUsuarioOperacional.equals("id_agendador")) {
@@ -262,40 +286,19 @@ public class RelatorioHomologacaoBean implements Serializable {
                     operadorString = "** Web ** ";
                 }
             }
-            phs.add(new ParametroHomologacao(
-                    detalheRelatorio,
-                    AnaliseString.converteNullString(((List) list1).get(2)), // DATA
-                    AnaliseString.converteNullString(((List) list1).get(3)), // HORA
-                    AnaliseString.converteNullString(((List) list1).get(4)), // CNPJ
-                    AnaliseString.converteNullString(((List) list1).get(5)), // EMPRESA
-                    AnaliseString.converteNullString(((List) list1).get(6)), // FUNCIONARIO
-                    AnaliseString.converteNullString(((List) list1).get(7)), // CONTATO
-                    AnaliseString.converteNullString(((List) list1).get(8)), // TELEFONE
-                    operadorString, // OPERADOR
-                    AnaliseString.converteNullString(((List) list1).get(10)), // OBS
-                    AnaliseString.converteNullString(((List) list1).get(11)) // STATUS
-            ));
+            phs.add(new ParametroHomologacao(o.get(1), o.get(2), o.get(3), o.get(4), o.get(5), o.get(6), o.get(7), o.get(8), operadorString, o.get(10), o.get(11), o.get(12), o.get(13), o.get(13)));
         }
         if (!phs.isEmpty()) {
             Jasper.TYPE = "paisagem";
             Jasper.IS_HEADER = printHeader;
             Map map = new HashMap();
             map.put("operador_header", operadorHeader);
-            Jasper.printReports(relatorios.getJasper(), "homologacao", (Collection) phs, map);
+            map.put("detalhes_relatorio", detalheRelatorio);
+            Jasper.printReports(relatorios.getJasper(), relatorios.getNome(), (Collection) phs, map);
         }
     }
 
     public List<SelectItem> getListTipoRelatorios() {
-        if (listSelectItem[0].isEmpty()) {
-            RelatorioDao db = new RelatorioDao();
-            List<Relatorios> list = (List<Relatorios>) db.pesquisaTipoRelatorio(177);
-            for (int i = 0; i < list.size(); i++) {
-                listSelectItem[0].add(new SelectItem(list.get(i).getId(), list.get(i).getNome()));
-            }
-            if (listSelectItem[0].isEmpty()) {
-                listSelectItem[0] = new ArrayList<>();
-            }
-        }
         return listSelectItem[0];
     }
 
@@ -323,6 +326,17 @@ public class RelatorioHomologacaoBean implements Serializable {
     public void selecionaDataFinal(SelectEvent event) {
         SimpleDateFormat format = new SimpleDateFormat("d/M/yyyy");
         this.dataFinal = DataHoje.converte(format.format(event.getObject()));
+    }
+
+    public void loadRelatoriosStatus() {
+        loadRelatoriosStatus(1);
+    }
+
+    public void loadRelatoriosStatus(Integer tcase) {
+        loadRelatorios();
+        if (tcase != 0) {
+            clear();
+        }
     }
 
     public void clear() {
@@ -386,7 +400,7 @@ public class RelatorioHomologacaoBean implements Serializable {
             listSelectItem[5] = new ArrayList();
             index[5] = null;
         }
-        
+
     }
 
     public void close(String close) {
@@ -620,6 +634,9 @@ public class RelatorioHomologacaoBean implements Serializable {
             DaoInterface di = new Dao();
             List<Status> list = (List<Status>) di.list(new Status(), true);
             for (int i = 0; i < list.size(); i++) {
+                if (i == 0) {
+                    index[2] = i;
+                }
                 listSelectItem[2].add(new SelectItem(i,
                         list.get(i).getDescricao(),
                         Integer.toString(list.get(i).getId())));
@@ -712,5 +729,153 @@ public class RelatorioHomologacaoBean implements Serializable {
                 }
             }
         }
+    }
+
+    public class ParametroHomologacao {
+
+        private Object data_final;
+        private Object data;
+        private Object hora;
+        private Object cnpj;
+        private Object empresa;
+        private Object funcionario;
+        private Object contato;
+        private Object telefone;
+        private Object operador;
+        private Object obs;
+        private Object status;
+        private Object cancelamento_data;
+        private Object cancelamento_usuario_nome;
+        private Object cancelamento_motivo;
+
+        public ParametroHomologacao(Object data_final, Object data, Object hora, Object cnpj, Object empresa, Object funcionario, Object contato, Object telefone, Object operador, Object obs, Object status, Object cancelamento_data, Object cancelamento_usuario_nome, Object cancelamento_motivo) {
+            this.data_final = data_final;
+            this.data = data;
+            this.hora = hora;
+            this.cnpj = cnpj;
+            this.empresa = empresa;
+            this.funcionario = funcionario;
+            this.contato = contato;
+            this.telefone = telefone;
+            this.operador = operador;
+            this.obs = obs;
+            this.status = status;
+            this.cancelamento_data = cancelamento_data;
+            this.cancelamento_usuario_nome = cancelamento_usuario_nome;
+            this.cancelamento_motivo = cancelamento_motivo;
+        }
+
+        public Object getData_final() {
+            return data_final;
+        }
+
+        public void setData_final(Object data_final) {
+            this.data_final = data_final;
+        }
+
+        public Object getData() {
+            return data;
+        }
+
+        public void setData(Object data) {
+            this.data = data;
+        }
+
+        public Object getHora() {
+            return hora;
+        }
+
+        public void setHora(Object hora) {
+            this.hora = hora;
+        }
+
+        public Object getCnpj() {
+            return cnpj;
+        }
+
+        public void setCnpj(Object cnpj) {
+            this.cnpj = cnpj;
+        }
+
+        public Object getEmpresa() {
+            return empresa;
+        }
+
+        public void setEmpresa(Object empresa) {
+            this.empresa = empresa;
+        }
+
+        public Object getFuncionario() {
+            return funcionario;
+        }
+
+        public void setFuncionario(Object funcionario) {
+            this.funcionario = funcionario;
+        }
+
+        public Object getContato() {
+            return contato;
+        }
+
+        public void setContato(Object contato) {
+            this.contato = contato;
+        }
+
+        public Object getTelefone() {
+            return telefone;
+        }
+
+        public void setTelefone(Object telefone) {
+            this.telefone = telefone;
+        }
+
+        public Object getOperador() {
+            return operador;
+        }
+
+        public void setOperador(Object operador) {
+            this.operador = operador;
+        }
+
+        public Object getObs() {
+            return obs;
+        }
+
+        public void setObs(Object obs) {
+            this.obs = obs;
+        }
+
+        public Object getStatus() {
+            return status;
+        }
+
+        public void setStatus(Object status) {
+            this.status = status;
+        }
+
+        public Object getCancelamento_data() {
+            return cancelamento_data;
+        }
+
+        public void setCancelamento_data(Object cancelamento_data) {
+            this.cancelamento_data = cancelamento_data;
+        }
+
+        public Object getCancelamento_usuario_nome() {
+            return cancelamento_usuario_nome;
+        }
+
+        public void setCancelamento_usuario_nome(Object cancelamento_usuario_nome) {
+            this.cancelamento_usuario_nome = cancelamento_usuario_nome;
+        }
+
+        public Object getCancelamento_motivo() {
+            return cancelamento_motivo;
+        }
+
+        public void setCancelamento_motivo(Object cancelamento_motivo) {
+            this.cancelamento_motivo = cancelamento_motivo;
+        }
+
     }
 }

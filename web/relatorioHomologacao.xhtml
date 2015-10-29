@@ -18,7 +18,7 @@
                     <p:growl id="id_messages_growl" showDetail="true" showSummary="true" />
                     <h:outputText value="Relatório Homologação" styleClass="fonteHeader" />
                     <div class="clear"></div>
-                    <p:panel styleClass="fundoCinza">
+                    <p:panel styleClass="fundoCinza" id="i_panel_relatorios">
                         <h:panelGrid  cellpadding="5" columns="2">
                             <p:outputLabel value="Tipo de Relatório: " />
                             <p:selectOneMenu id="id_tipo_relatorio" value="#{relatorioHomologacaoBean.index[0]}" style="padding-right: 10px;">
@@ -44,7 +44,7 @@
                                                 <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio :form_relatorio:i_panel_accordion:i_panel_avancado" listener="#{relatorioHomologacaoBean.clear}" />
                                             </p:selectBooleanButton>
                                             <p:selectBooleanButton value="#{relatorioHomologacaoBean.filtro[2]}" onLabel="Status" offLabel="Status" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;">
-                                                <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio" listener="#{relatorioHomologacaoBean.clear}" />
+                                                <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio :form_relatorio:i_panel_relatorios" listener="#{relatorioHomologacaoBean.loadRelatoriosStatus(1)}" />
                                             </p:selectBooleanButton>
                                             <p:selectBooleanButton value="#{relatorioHomologacaoBean.filtro[3]}" onLabel="Empresa" offLabel="Empresa" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;" >
                                                 <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio" listener="#{relatorioHomologacaoBean.clear}" />
@@ -111,7 +111,7 @@
                                         <h:panelGrid columns="4">
                                             <p:outputLabel value="Status: " />
                                             <p:selectOneMenu label="Selecionar status" value="#{relatorioHomologacaoBean.index[2]}">
-                                                <p:ajax event="change" update="@this"/>
+                                                <p:ajax event="change" update="@this i_panel_relatorios" listener="#{relatorioHomologacaoBean.loadRelatoriosStatus}"/>
                                                 <f:selectItems value="#{relatorioHomologacaoBean.listStatus}" />
                                             </p:selectOneMenu>
                                             <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close('status')}" title="Remover filtro"/>

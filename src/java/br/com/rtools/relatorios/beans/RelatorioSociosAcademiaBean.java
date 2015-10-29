@@ -103,6 +103,11 @@ public class RelatorioSociosAcademiaBean implements Serializable {
                     }
                     listRelatorio.add(new SelectItem(list.get(i).getId(), list.get(i).getNome()));
                 }
+                if(idRelatorio == null) {
+                    if(!listRelatorio.isEmpty()) {
+                        idRelatorio = list.get(0).getId();
+                    }
+                }
                 loadRelatorioOrdem();
             }
         } catch (Exception e) {
@@ -184,7 +189,11 @@ public class RelatorioSociosAcademiaBean implements Serializable {
         String in_categoria = inIdCategoria();
         RelatorioSociosAcademiaDao rsad = new RelatorioSociosAcademiaDao();
         rsad.setRelatorios(getRelatorios());
-        rsad.setRelatorioOrdem((RelatorioOrdem) new Dao().find(new RelatorioOrdem(), Integer.parseInt(listRelatorioOrdem.get(idRelatorioOrdem).getDescription())));
+        RelatorioOrdem ro = null;
+        if(idRelatorioOrdem != null) {
+            ro = (RelatorioOrdem) new Dao().find(new RelatorioOrdem(), idRelatorioOrdem);
+        }
+        rsad.setRelatorioOrdem(ro);
         List list = rsad.find(inIdModalidades, in_grupo_categoria, in_categoria);
         if (list.isEmpty()) {
             GenericaMensagem.info("Sistema", "Não existem registros para o relatório selecionado!");
@@ -225,6 +234,7 @@ public class RelatorioSociosAcademiaBean implements Serializable {
             } else {
                 Jasper.EXCEL_FIELDS = "";
             }
+            Jasper.TYPE = "default";
             Jasper.printReports(getRelatorios().getJasper(), getRelatorios().getNome(), (Collection) prsas);
 
         }
