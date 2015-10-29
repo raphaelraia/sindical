@@ -15,6 +15,7 @@ import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.Filters;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Jasper;
@@ -44,8 +45,7 @@ public class RelatorioHomologacaoBean implements Serializable {
     private Juridica empresa;
     private Usuario operador;
     private List<SelectItem>[] listSelectItem;
-    private Boolean[] filtro;
-    private Boolean[] disabled;
+    private List<Filters> listFilters;
     private Date dataInicial;
     private Date dataFinal;
     private Date dataDemissaoInicial;
@@ -55,9 +55,7 @@ public class RelatorioHomologacaoBean implements Serializable {
     // 2 - RECEPÇÃO
     // 3 - HOMOLOGADOR
     private String tipoUsuarioOperacional;
-    private String tipoRelatorio;
     private String tipo;
-    private String indexAccordion;
     private String order;
     private String sexo;
     private String tipoAgendador;
@@ -67,22 +65,6 @@ public class RelatorioHomologacaoBean implements Serializable {
 
     @PostConstruct
     public void init() {
-        disabled = new Boolean[2];
-        disabled[0] = false; // PERÍODO AGENDAMENTO
-        disabled[1] = false; // PERÍODO DEMISSÃO
-        filtro = new Boolean[12];
-        filtro[0] = false; // FILIAL
-        filtro[1] = false; // PERÍODO AGENDAMENTO
-        filtro[2] = false; // STATUS
-        filtro[3] = false; // EMPRESA
-        filtro[4] = false; // FUNCIONÁRIO
-        filtro[5] = false; // USUÁRIO OPERACIONAL
-        filtro[6] = false; // SEXO
-        filtro[7] = false; // MOTIVO DEMISSÃO
-        filtro[8] = false; // TIPO AVISO
-        filtro[9] = false; // PERÍODO DEMISSÃO
-        filtro[10] = false; // ORDER
-        filtro[11] = false; // CONVENCAO
         listSelectItem = new ArrayList[6];
         listSelectItem[0] = new ArrayList<>();
         listSelectItem[1] = new ArrayList<>();
@@ -104,8 +86,6 @@ public class RelatorioHomologacaoBean implements Serializable {
         tipoAviso = null;
         tipoUsuarioOperacional = null;
         tipoAgendador = null;
-        tipoRelatorio = "Simples";
-        indexAccordion = "Simples";
         order = "";
         funcionario = new Fisica();
         empresa = new Juridica();
@@ -114,6 +94,7 @@ public class RelatorioHomologacaoBean implements Serializable {
         tipo = "todos";
         printHeader = false;
         webAgendamento = false;
+        loadListaFiltro();
         loadRelatorios();
     }
 
@@ -127,6 +108,23 @@ public class RelatorioHomologacaoBean implements Serializable {
     }
 
     // LOAD
+    public void loadListaFiltro() {
+        listFilters = new ArrayList();
+        /*  00 */ listFilters.add(new Filters("filial", "Filial", false));
+        /*  01 */ listFilters.add(new Filters("periodo_emissao", "Período de emissão", false));
+        /*  02 */ listFilters.add(new Filters("status", "Status", false));
+        /*  03 */ listFilters.add(new Filters("empresa", "Empresa", false));
+        /*  04 */ listFilters.add(new Filters("funcionario", "Funcionário", false));
+        /*  05 */ listFilters.add(new Filters("operador", "Operador", false));
+        /*  06 */ listFilters.add(new Filters("sexo", "Sexo", false));
+        /*  07 */ listFilters.add(new Filters("motivo_demissao", "Motivo da demissão", false));
+        /*  08 */ listFilters.add(new Filters("tipo_aviso", "Tipo de aviso", false));
+        /*  09 */ listFilters.add(new Filters("periodo_demissao", "Período de demissão", false));
+        /*  10 */ listFilters.add(new Filters("order", "Ordem", false));
+        /*  11 */ listFilters.add(new Filters("convencao", "Convenção", false));
+
+    }
+
     public void loadRelatorios() {
         listSelectItem[0] = new ArrayList();
         RelatorioDao db = new RelatorioDao();
@@ -177,18 +175,18 @@ public class RelatorioHomologacaoBean implements Serializable {
         String sexoString = "";
         List listDetalhePesquisa = new ArrayList();
         Integer tCase = null;
-        if (filtro[1]) {
+        if (listFilters.get(1).getActive()) {
             tCase = 1;
             pIStringI = DataHoje.converteData(dataInicial);
             pFStringI = DataHoje.converteData(dataFinal);
             listDetalhePesquisa.add(" Período de Agendamento entre " + pIStringI + " e " + pFStringI);
-        } else if (filtro[9]) {
+        } else if (listFilters.get(9).getActive()) {
             tCase = 2;
             pIStringI = DataHoje.converteData(dataInicial);
             pFStringI = DataHoje.converteData(dataFinal);
             listDetalhePesquisa.add(" Período de Demissão entre " + pIStringI + " e " + pFStringI);
         }
-        if (filtro[6]) {
+        if (listFilters.get(6).getActive()) {
             if (sexo != null) {
                 switch (sexo) {
                     case "M":
@@ -228,7 +226,7 @@ public class RelatorioHomologacaoBean implements Serializable {
             idMotivoDemissao = Integer.parseInt(listSelectItem[3].get(index[3]).getDescription());
             listDetalhePesquisa.add("Motivo Demissão: " + ((Demissao) dao.find(new Demissao(), idMotivoDemissao)).getDescricao());
         }
-        if (filtro[8]) {
+        if (listFilters.get(8).getActive()) {
             if (tipoAviso != null) {
                 if (tipoAviso) {
                     listDetalhePesquisa.add("Tipo de aviso: trabalhado");
@@ -239,7 +237,7 @@ public class RelatorioHomologacaoBean implements Serializable {
         }
 
         Integer idConvencao = null;
-        if (filtro[11]) {
+        if (listFilters.get(11).getActive()) {
             idConvencao = Integer.parseInt(listSelectItem[5].get(index[5]).getDescription());
             listDetalhePesquisa.add("Convenção: " + ((Convencao) dao.find(new Convencao(), idConvencao)).getDescricao());
         }
@@ -302,22 +300,6 @@ public class RelatorioHomologacaoBean implements Serializable {
         return listSelectItem[0];
     }
 
-    public String getTipoRelatorio() {
-        return tipoRelatorio;
-    }
-
-    public void setTipoRelatorio(String tipoRelatorio) {
-        this.tipoRelatorio = tipoRelatorio;
-    }
-
-    public void tipoRelatorioChange(TabChangeEvent event) {
-        tipoRelatorio = event.getTab().getTitle();
-        indexAccordion = ((AccordionPanel) event.getComponent()).getActiveIndex();
-        if (tipoRelatorio.equals("Simples")) {
-            clear();
-        }
-    }
-
     public void selecionaDataInicial(SelectEvent event) {
         SimpleDateFormat format = new SimpleDateFormat("d/M/yyyy");
         this.dataInicial = DataHoje.converte(format.format(event.getObject()));
@@ -340,143 +322,128 @@ public class RelatorioHomologacaoBean implements Serializable {
     }
 
     public void clear() {
-        if (!filtro[0]) {
+        if (!listFilters.get(0).getActive()) {
             listSelectItem[1] = new ArrayList();
             index[1] = null;
         }
-        if (!filtro[1]) {
-            if (!filtro[9]) {
+        if (!listFilters.get(1).getActive()) {
+            if (!listFilters.get(9).getActive()) {
                 dataInicial = DataHoje.dataHoje();
                 dataFinal = null;
-                disabled[0] = false;
-                disabled[1] = false;
+                listFilters.get(1).setDisabled(false);
+                listFilters.get(9).setDisabled(false);
             }
         } else {
-            disabled[0] = true;
-            disabled[1] = false;
-            filtro[9] = false;
+            listFilters.get(1).setDisabled(false);
+            listFilters.get(9).setDisabled(true);
+            listFilters.get(9).setActive(false);
         }
-        if (!filtro[2]) {
+        if (!listFilters.get(2).getActive()) {
             listSelectItem[2] = new ArrayList();
             index[2] = null;
         }
-        if (!filtro[3]) {
+        if (!listFilters.get(3).getActive()) {
             empresa = new Juridica();
         }
-        if (!filtro[4]) {
+        if (!listFilters.get(4).getActive()) {
             funcionario = new Fisica();
         }
-        if (!filtro[5]) {
+        if (!listFilters.get(5).getActive()) {
             operador = new Usuario();
             webAgendamento = false;
             tipoUsuarioOperacional = null;
         }
-        if (!filtro[6]) {
+        if (!listFilters.get(6).getActive()) {
             sexo = "";
         }
-        if (!filtro[7]) {
+        if (!listFilters.get(7).getActive()) {
             listSelectItem[3] = new ArrayList();
             index[3] = null;
         }
-        if (!filtro[8]) {
+        if (!listFilters.get(8).getActive()) {
             tipoAviso = null;
         }
-        if (!filtro[9]) {
-            if (!filtro[1]) {
-                disabled[0] = false;
-                disabled[1] = false;
+        if (!listFilters.get(9).getActive()) {
+            if (!listFilters.get(1).getActive()) {
+                listFilters.get(1).setDisabled(false);
+                listFilters.get(9).setDisabled(false);
                 dataDemissaoInicial = DataHoje.dataHoje();
                 dataDemissaoInicial = null;
             }
         } else {
-            disabled[0] = false;
-            disabled[1] = true;
-            filtro[1] = false;
+            listFilters.get(1).setDisabled(false);
+            listFilters.get(9).setDisabled(false);
+            listFilters.get(1).setActive(false);
         }
-        if (!filtro[10]) {
+        if (!listFilters.get(10).getActive()) {
             order = "";
         }
-        if (!filtro[11]) {
+        if (!listFilters.get(11).getActive()) {
             listSelectItem[5] = new ArrayList();
             index[5] = null;
         }
 
     }
 
-    public void close(String close) {
-        switch (close) {
+    public void close(Filters filter) {
+        filter.setActive(!filter.getActive());
+        load(filter);
+    }
+
+    public void load(Filters filter) {
+        switch (filter.getKey()) {
             case "filial":
                 listSelectItem[1] = new ArrayList();
                 index[1] = null;
-                filtro[0] = false;
                 break;
             case "periodo_emissao":
                 dataInicial = DataHoje.dataHoje();
                 dataFinal = null;
-                disabled[0] = false;
-                disabled[1] = false;
-                filtro[1] = false;
+                listFilters.get(1).setDisabled(false);
+                listFilters.get(9).setDisabled(false);
                 PF.update("form_relatorio:i_panel_accordion:i_panel_avancado");
                 break;
             case "status":
                 listSelectItem[2] = new ArrayList();
                 index[2] = null;
-                filtro[2] = false;
                 break;
             case "empresa":
                 empresa = new Juridica();
-                filtro[3] = false;
                 break;
             case "funcionario":
                 funcionario = new Fisica();
-                filtro[4] = false;
                 break;
             case "operador":
                 operador = new Usuario();
-                filtro[5] = false;
                 webAgendamento = false;
                 tipoUsuarioOperacional = null;
                 break;
             case "sexo":
-                filtro[6] = false;
                 sexo = "";
                 break;
             case "motivo_demissao":
                 listSelectItem[3] = new ArrayList();
                 index[3] = null;
-                filtro[7] = false;
                 break;
             case "tipo_aviso":
                 tipoAviso = null;
-                filtro[8] = false;
                 break;
             case "periodo_demissao":
                 dataDemissaoInicial = DataHoje.dataHoje();
                 dataDemissaoFinal = null;
-                disabled[0] = false;
-                disabled[1] = false;
-                filtro[9] = false;
+                listFilters.get(1).setDisabled(false);
+                listFilters.get(9).setDisabled(false);
                 PF.update("form_relatorio:i_panel_accordion:i_panel_avancado");
                 break;
             case "order":
                 order = "";
-                filtro[10] = false;
                 break;
             case "convencao":
-                filtro[11] = false;
                 listSelectItem[5] = new ArrayList();
                 index[5] = null;
                 break;
         }
         PF.update("form_relatorio:id_panel");
-    }
-
-    public String getIndexAccordion() {
-        return indexAccordion;
-    }
-
-    public void setIndexAccordion(String indexAccordion) {
-        this.indexAccordion = indexAccordion;
     }
 
     public Date getDataInicial() {
@@ -518,28 +485,6 @@ public class RelatorioHomologacaoBean implements Serializable {
 
     public void setIndex(Integer[] index) {
         this.index = index;
-    }
-
-    /**
-     * <strong>Filtros</strong>
-     * <ul>
-     * <li>[0] MODALIDADE</li>
-     * <li>[1] PERÍODO EMISSÃO / INATIVAÇÃO</li>
-     * <li>[2] RESPONSÁVEL</li>
-     * <li>[3] ALUNO</li>
-     * <li>[4] SEXO</li>
-     * <li>[5] ORDENAÇÃO </li>
-     * <li>[6] PERIODOS </li>
-     * </ul>
-     *
-     * @return boolean
-     */
-    public Boolean[] getFiltro() {
-        return filtro;
-    }
-
-    public void setFiltro(Boolean[] filtro) {
-        this.filtro = filtro;
     }
 
     public String getOrder() {
@@ -698,14 +643,6 @@ public class RelatorioHomologacaoBean implements Serializable {
         this.dataDemissaoFinal = dataDemissaoFinal;
     }
 
-    public Boolean[] getDisabled() {
-        return disabled;
-    }
-
-    public void setDisabled(Boolean[] disabled) {
-        this.disabled = disabled;
-    }
-
     public Boolean getWebAgendamento() {
         return webAgendamento;
     }
@@ -717,8 +654,8 @@ public class RelatorioHomologacaoBean implements Serializable {
     public void listener(Integer tCase) {
         if (tCase == 1) {
             if (tipoUsuarioOperacional != null && tipoUsuarioOperacional.equals("id_homologador")) {
-                if (!filtro[2]) {
-                    filtro[2] = true;
+                if (!listFilters.get(2).getActive()) {
+                    listFilters.get(2).setActive(true);
                     getListStatus();
                     for (int i = 0; i < listSelectItem[2].size(); i++) {
                         if (Integer.parseInt(listSelectItem[2].get(i).getDescription()) == 4) {
@@ -729,6 +666,14 @@ public class RelatorioHomologacaoBean implements Serializable {
                 }
             }
         }
+    }
+
+    public List<Filters> getListFilters() {
+        return listFilters;
+    }
+
+    public void setListFilters(List<Filters> listFilters) {
+        this.listFilters = listFilters;
     }
 
     public class ParametroHomologacao {
