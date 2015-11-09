@@ -76,6 +76,7 @@
                                                         <f:selectItem itemValue="I" itemLabel="I" />
                                                     </p:selectOneMenu>
                                                 </p:column>
+                                                
                                                 <p:column>
                                                     <p:outputLabel value="Administradora" /><br />
                                                     <p:selectOneMenu id="i_administradora" value="#{servicosBean.idAdministradora}" style="margin-right: 10px;">
@@ -86,7 +87,14 @@
                                                 
                                                 <p:column>
                                                     <br />
-                                                    <p:selectBooleanCheckbox value="#{servicosBean.servicos.boleto}" itemLabel="Sair Descrição no Boleto"/>
+                                                    <p:selectBooleanCheckbox value="#{servicosBean.servicos.boleto}" itemLabel="Sair Descrição no Boleto">
+                                                        <p:ajax event="change" update="@this" />
+                                                    </p:selectBooleanCheckbox>
+                                                </p:column>
+                                                
+                                                <p:column>
+                                                    <p:outputLabel value="Meses Débito Exclusão" /><br />
+                                                    <p:inputText size="16" value="#{servicosBean.servicos.mesesDebitoExclusao}" style="text-align: right"/>
                                                 </p:column>
                                             </h:panelGrid>
 
@@ -242,7 +250,7 @@
                                                     
                                                     <p:column headerText="Valor R$" width="100" styleClass="text-center">
                                                         <p:column>
-                                                            <p:inputText value="#{listServicosCategoriaDesconto.valorDescontoString}" styleClass="text-center font-color-red bold" size="5">
+                                                            <p:inputText value="#{listServicosCategoriaDesconto.valorDescontoString}" styleClass="text-center font-color-red bold" size="5" dir="rtl">
                                                                 <p:ajax event="change" update=":form_servicos:id_tab_view:tblDesconto" listener="#{servicosBean.updateDescontoCategoriaValor(listServicosCategoriaDesconto)}" global="false"/>
                                                             </p:inputText>
                                                         </p:column>

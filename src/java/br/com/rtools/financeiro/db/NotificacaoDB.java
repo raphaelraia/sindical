@@ -10,7 +10,7 @@ import java.util.Vector;
 
 public interface NotificacaoDB {
 
-    public Object[] listaParaNotificacao(int id_lote, String data, String id_empresa, String id_contabil, String id_cidade, boolean comContabil, boolean semContabil);
+    public Object[] listaParaNotificacao(int id_lote, String data, String id_empresa, String id_contabil, String id_cidade, boolean comContabil, boolean semContabil, String ids_servicos, String ids_tipo_servico);
 
     public List listaNotificado(int id_movimento);
 

@@ -11,6 +11,7 @@ import br.com.rtools.financeiro.db.*;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.pessoa.PessoaEndereco;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.*;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
@@ -113,7 +114,7 @@ public class ServicoPessoaBean implements Serializable {
     public void pesquisaFisica() {
         Fisica fis = (Fisica) GenericaSessao.getObject("fisicaPesquisa", true);
         if (fis != null) {
-            PessoaEnderecoDB db = new PessoaEnderecoDBToplink();
+            PessoaEnderecoDao db = new PessoaEnderecoDao();
             titular = fis;
             titularEndereco = db.pesquisaEndPorPessoaTipo(fis.getPessoa().getId(), 3);
             servicoPessoa.setPessoa(fis.getPessoa());
@@ -133,7 +134,7 @@ public class ServicoPessoaBean implements Serializable {
         FisicaDB db = new FisicaDBToplink();
         titular = db.pesquisaFisicaPorPessoa(servicoPessoa.getPessoa().getId());
 
-        PessoaEnderecoDB dbe = new PessoaEnderecoDBToplink();
+        PessoaEnderecoDao dbe = new PessoaEnderecoDao();
         titularEndereco = dbe.pesquisaEndPorPessoaTipo(titular.getPessoa().getId(), 3);
 
         for (int i = 0; i < qntTipoDocumento; i++) {

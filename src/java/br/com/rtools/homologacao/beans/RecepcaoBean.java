@@ -11,7 +11,6 @@ import br.com.rtools.homologacao.ListaAgendamento;
 import br.com.rtools.homologacao.Recepcao;
 import br.com.rtools.homologacao.Senha;
 import br.com.rtools.homologacao.Status;
-import br.com.rtools.homologacao.dao.HomologacaoDao;
 import br.com.rtools.homologacao.db.HomologacaoDB;
 import br.com.rtools.homologacao.db.HomologacaoDBToplink;
 import br.com.rtools.impressao.ParametroSenha;
@@ -21,10 +20,9 @@ import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.Profissao;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.PessoaEmpresaDB;
 import br.com.rtools.pessoa.db.PessoaEmpresaDBToplink;
-import br.com.rtools.pessoa.db.PessoaEnderecoDB;
-import br.com.rtools.pessoa.db.PessoaEnderecoDBToplink;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Usuario;
@@ -675,7 +673,7 @@ public class RecepcaoBean implements Serializable {
 
     public String getStrEndereco() {
         if (agendamentoEdit.getPessoaEmpresa().getJuridica().getId() != -1) {
-            PessoaEnderecoDB pessoaEnderecoDB = new PessoaEnderecoDBToplink();
+            PessoaEnderecoDao pessoaEnderecoDB = new PessoaEnderecoDao();
             PessoaEndereco enderecoEmpresa = pessoaEnderecoDB.pesquisaEndPorPessoaTipo(agendamentoEdit.getPessoaEmpresa().getJuridica().getPessoa().getId(), 2);
             if (enderecoEmpresa.getId() != -1) {
                 String strCompl;

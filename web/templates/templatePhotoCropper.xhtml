@@ -12,12 +12,13 @@
     </h:head>
     <f:view>
         <h:form id="form_photo_cropper">
-            <p:dialog widgetVar="dlg_photo_cropper" modal="true" header="Cortar de Imagem" rendered="#{photoCropper.renderedPhotoCropperView}" width="400">
+            <p:dialog widgetVar="dlg_photo_cropper" modal="true" header="Cortar de Imagem" rendered="#{photoCropper.renderedPhotoCropper}" width="400">
                 <p:ajax event="close" listener="#{photoCropper.close()}" />
 
                 <h:panelGrid style="width: 350px; height: 300px">
-                    <p:imageCropper value="#{photoCropper.croppedImage}" image="/resources/#{photoCropper.pessoaView.fotoResource}" initialCoords="0, 0, 100, 100"  />
-                    <p:commandButton value="Cortar" action="#{photoCropper.crop}" update="#{photoCropper.updateView}" icon="ui-icon-scissors"/>
+                    <p:imageCropper value="#{photoCropper.croppedImage}" rendered="#{photoCropper.fisica != null}" image="/resources/#{photoCropper.fisica.pessoa.fotoResource}" initialCoords="0, 0, 100, 100"  />
+                    <p:imageCropper value="#{photoCropper.croppedImage}" rendered="#{photoCropper.juridica != null}" image="/resources/#{photoCropper.juridica.pessoa.fotoResource}" initialCoords="0, 0, 100, 100"  />
+                    <p:commandButton value="Cortar" action="#{photoCropper.crop}" update="#{photoCropper.update}" icon="ui-icon-scissors"/>
                 </h:panelGrid>
             </p:dialog>      
         </h:form>

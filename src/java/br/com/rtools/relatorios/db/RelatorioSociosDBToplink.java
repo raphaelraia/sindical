@@ -423,7 +423,7 @@ public class RelatorioSociosDBToplink extends DB implements RelatorioSociosDB {
         }
 
         if (booEstadoCivil) {
-            filtro += " AND p.estado_civil '" + tipo_estado_civil + "'";
+            filtro += " AND p.estado_civil = '" + tipo_estado_civil + "'";
         }
 
         if (booEmpresas) {

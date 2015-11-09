@@ -7,17 +7,20 @@ import br.com.rtools.financeiro.CobrancaEnvio;
 import br.com.rtools.financeiro.CobrancaLote;
 import br.com.rtools.financeiro.CobrancaTipo;
 import br.com.rtools.financeiro.PollingEmail;
+import br.com.rtools.financeiro.Servicos;
+import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.db.NotificacaoDB;
 import br.com.rtools.financeiro.db.NotificacaoDBToplink;
+import br.com.rtools.financeiro.db.ServicoRotinaDB;
+import br.com.rtools.financeiro.db.ServicoRotinaDBToplink;
 import br.com.rtools.impressao.ParametroEtiqueta;
 import br.com.rtools.impressao.ParametroNotificacao;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEndereco;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
-import br.com.rtools.pessoa.db.PessoaEnderecoDB;
-import br.com.rtools.pessoa.db.PessoaEnderecoDBToplink;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
@@ -32,7 +35,6 @@ import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.Download;
-import br.com.rtools.utilitarios.EnviarEmail;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Mail;
@@ -73,10 +75,10 @@ public class NotificacaoBean implements Serializable {
     private boolean chkTodos = true;
     private boolean empresa = true;
     private boolean habilitaNot = false;
-    private List<DataObject> listaEmpresaAdd = new ArrayList<DataObject>();
-    private List<DataObject> listaContabilAdd = new ArrayList<DataObject>();
+    private List<DataObject> listaEmpresaAdd = new ArrayList();
+    private List<DataObject> listaContabilAdd = new ArrayList();
     private Registro registro = null;
-    private List<DataObject> listaCidadesBase = new ArrayList<DataObject>();
+    private final List<DataObject> listaCidadesBase = new ArrayList();
     private boolean chkCidadesBase = false;
     private boolean comContabil = false;
     private boolean semContabil = false;
@@ -85,6 +87,12 @@ public class NotificacaoBean implements Serializable {
     private int valorAtual = 0;
     private boolean progressoAtivo = false;
     private List<DataObject> listaArquivo = new ArrayList();
+    
+    private Boolean chkServicos = false;
+    private List<ListaDeServicos> listaServicos = new ArrayList();
+    
+    private Boolean chkTipoServico = false;
+    private List<ListaDeTipoServico> listaTipoServico = new ArrayList();
 
     public NotificacaoBean() {
         SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
@@ -184,12 +192,24 @@ public class NotificacaoBean implements Serializable {
         comContabil = false;
         semContabil = false;
     }
+    
+    public void addServicos() {
+        listaNotificacao.clear();
+        comContabil = false;
+        semContabil = false;
+    }
+    
+    public void addTipoServico() {
+        listaNotificacao.clear();
+        comContabil = false;
+        semContabil = false;
+    }
 
     public synchronized List<DataObject> getListaNotificacao() {
         if (listaNotificacao.isEmpty()) {
             NotificacaoDB db = new NotificacaoDBToplink();
             //quantidade = 0;
-            String empresas = "", contabils = "", cidades = "";
+            String empresas = "", contabils = "", cidades = "", servicos = "", tipo_servico = "";
             for (int i = 0; i < listaEmpresaAdd.size(); i++) {
                 if (empresas.length() > 0 && i != listaEmpresaAdd.size()) {
                     empresas += ",";
@@ -212,18 +232,36 @@ public class NotificacaoBean implements Serializable {
                     cidades += ((Cidade) listaCidadesBase.get(i).getArgumento1()).getId();
                 }
             }
+            
+            for (int i = 0; i < listaServicos.size(); i++) {
+                if (listaServicos.get(i).getChk()) {
+                    if (servicos.length() > 0 && i != listaServicos.size()) {
+                        servicos += ",";
+                    }
+                    servicos += listaServicos.get(i).getServicos().getId();
+                }
+            }
+            
+            for (int i = 0; i < listaTipoServico.size(); i++) {
+                if (listaTipoServico.get(i).getChk()) {
+                    if (tipo_servico.length() > 0 && i != listaTipoServico.size()) {
+                        tipo_servico += ",";
+                    }
+                    tipo_servico += listaTipoServico.get(i).getTipoServico().getId();
+                }
+            }
 
             List<Vector> result = null;
             Object[] obj = new Object[2];
 
             if (lote.getId() != -1) {
-                obj = db.listaParaNotificacao(lote.getId(), DataHoje.data(), empresas, contabils, cidades, comContabil, semContabil);
+                obj = db.listaParaNotificacao(lote.getId(), DataHoje.data(), empresas, contabils, cidades, comContabil, semContabil, servicos, tipo_servico);
             } else {
                 // EMPRESA --
                 if ( (indexTab == 1 && empresas.isEmpty()) || (indexTab == 2 && contabils.isEmpty())  ){
                     return listaNotificacao;
                 }else{
-                    obj = db.listaParaNotificacao(-1, DataHoje.data(), empresas, contabils, cidades, comContabil, semContabil);
+                    obj = db.listaParaNotificacao(-1, DataHoje.data(), empresas, contabils, cidades, comContabil, semContabil, servicos, tipo_servico);
                 }
             }
 
@@ -352,7 +390,7 @@ public class NotificacaoBean implements Serializable {
         SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
         CobrancaTipo ct = (CobrancaTipo) sv.pesquisaCodigo(Integer.valueOf(listaTipoEnvio.get(idTipoEnvio).getDescription()), "CobrancaTipo");
         JuridicaDB dbJur = new JuridicaDBToplink();
-        PessoaEnderecoDB dbPesEnd = new PessoaEnderecoDBToplink();
+        PessoaEnderecoDao dbPesEnd = new PessoaEnderecoDao();
         NotificacaoDB db = new NotificacaoDBToplink();
         
         List<Vector> result = db.listaParaEtiqueta(query, ct);
@@ -1187,6 +1225,20 @@ public class NotificacaoBean implements Serializable {
         }
         listaNotificacao.clear();
     }
+    
+    public void marcarServicos() {
+        for (int i = 0; i < listaServicos.size(); i++) {
+            listaServicos.get(i).setChk(chkServicos);
+        }
+        listaNotificacao.clear();
+    }
+    
+    public void marcarTipoServico() {
+        for (int i = 0; i < listaTipoServico.size(); i++) {
+            listaTipoServico.get(i).setChk(chkTipoServico);
+        }
+        listaNotificacao.clear();
+    }
 
     public String getTabAtiva() {
         return tabAtiva;
@@ -1250,4 +1302,103 @@ public class NotificacaoBean implements Serializable {
         this.indexTab = indexTab;
     }
 
+    public Boolean getChkServicos() {
+        return chkServicos;
+    }
+
+    public void setChkServicos(Boolean chkServicos) {
+        this.chkServicos = chkServicos;
+    }
+
+    public List<ListaDeServicos> getListaServicos() {
+        if (listaServicos.isEmpty()){
+            ServicoRotinaDB dbsr = new ServicoRotinaDBToplink();
+            List<Servicos> s = dbsr.listaServicosIn("1,2,3,4");
+            
+            for (Servicos item : s) {
+                listaServicos.add(new ListaDeServicos(false, item));
+            }
+        }
+        return listaServicos;
+    }
+
+    public void setListaServicos(List<ListaDeServicos> listaServicos) {
+        this.listaServicos = listaServicos;
+    }
+
+    public Boolean getChkTipoServico() {
+        return chkTipoServico;
+    }
+
+    public void setChkTipoServico(Boolean chkTipoServico) {
+        this.chkTipoServico = chkTipoServico;
+    }
+
+    public List<ListaDeTipoServico> getListaTipoServico() {
+        if (listaTipoServico.isEmpty()){
+            List<TipoServico> ts = new Dao().list(new TipoServico());
+            
+            for (TipoServico item : ts) {
+                listaTipoServico.add(new ListaDeTipoServico(false, item));
+            }
+        }        
+        return listaTipoServico;
+    }
+
+    public void setListaTipoServico(List<ListaDeTipoServico> listaTipoServico) {
+        this.listaTipoServico = listaTipoServico;
+    }
+
+    public class ListaDeServicos {
+        private Boolean chk = false;
+        private Servicos servicos = new Servicos();
+
+        public ListaDeServicos(Boolean chk, Servicos servicos) {
+            this.chk = chk;
+            this.servicos = servicos;
+        }
+        
+        public Boolean getChk() {
+            return chk;
+        }
+
+        public void setChk(Boolean chk) {
+            this.chk = chk;
+        }
+
+        public Servicos getServicos() {
+            return servicos;
+        }
+
+        public void setServicos(Servicos servicos) {
+            this.servicos = servicos;
+        }
+    }
+    
+    public class ListaDeTipoServico {
+        private Boolean chk = false;
+        private TipoServico tipoServico = new TipoServico();
+
+        public ListaDeTipoServico(Boolean chk, TipoServico tipoServico) {
+            this.chk = chk;
+            this.tipoServico = tipoServico;
+        }
+        
+        public Boolean getChk() {
+            return chk;
+        }
+
+        public void setChk(Boolean chk) {
+            this.chk = chk;
+        }
+
+        public TipoServico getTipoServico() {
+            return tipoServico;
+        }
+
+        public void setTipoServicos(TipoServico tipoServico) {
+            this.tipoServico = tipoServico;
+        }
+    }
+    
 }

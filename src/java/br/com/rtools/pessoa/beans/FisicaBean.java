@@ -24,6 +24,7 @@ import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.pessoa.*;
 import br.com.rtools.pessoa.dao.MalaDiretaDao;
 import br.com.rtools.pessoa.dao.PessoaComplementoDao;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.*;
 import br.com.rtools.pessoa.utilitarios.PessoaUtilitarios;
 import br.com.rtools.seguranca.Usuario;
@@ -146,12 +147,9 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     private List<SelectItem> listMalaDiretaGrupo = new ArrayList();
 
     private List<Oposicao> listaOposicao = new ArrayList();
-    // FOTO
-    private String nomeFoto = "";
 
     public FisicaBean() {
-        //PhotoCapture.load("temp/foto/" + Usuario.getUsuario().getId(), "form_pessoa_fisica");
-        //PhotoUpload.load("temp/foto/" + Usuario.getUsuario().getId(), "form_pessoa_fisica");
+        
     }
 
     public void loadListaOposicao() {
@@ -308,17 +306,6 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         Dao dao = new Dao();
         dao.openTransaction();
         pessoaUpper();
-
-        if (!PhotoCapture.getNameFile().isEmpty()) {
-            fisica.setFoto(PhotoCapture.getNameFile());
-            PhotoCapture.unload();
-        } else if (!PhotoUpload.getNameFile().isEmpty()) {
-            fisica.setFoto(PhotoUpload.getNameFile());
-            PhotoUpload.unload();
-        } else if (!PhotoCropper.getNameFile().isEmpty()) {
-            fisica.setFoto(PhotoCropper.getNameFile());
-            PhotoCropper.unload();
-        }
 
         if ((fisica.getPessoa().getId() == -1) && (fisica.getId() == -1)) {
             fisica.getPessoa().setTipoDocumento((TipoDocumento) dao.find(new TipoDocumento(), 1));
@@ -545,7 +532,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         //PessoaDB dbPessoa = new PessoaDBToplink();
         if (fisica.getId() != -1) {
             //fisica.setPessoa(dbPessoa.pesquisaCodigo(fisica.getPessoa().getId()));
-            PessoaEnderecoDB dbPE = new PessoaEnderecoDBToplink();
+            PessoaEnderecoDao dbPE = new PessoaEnderecoDao();
             List<PessoaEndereco> listaEndereco = dbPE.pesquisaEndPorPessoa(fisica.getPessoa().getId());
             Dao dao = new Dao();
             dao.openTransaction();
@@ -938,7 +925,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public List getPesquisaEndPorPessoa() {
-        PessoaEnderecoDB db = new PessoaEnderecoDBToplink();
+        PessoaEnderecoDao db = new PessoaEnderecoDao();
         List list = db.pesquisaEndPorPessoa(fisica.getPessoa().getId());
         return list;
     }
@@ -1252,7 +1239,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         }
 
         if (fisica.getId() == -1 || fisica.getNaturalidade().isEmpty()) {
-            PessoaEnderecoDB dbPes = new PessoaEnderecoDBToplink();
+            PessoaEnderecoDao dbPes = new PessoaEnderecoDao();
             Dao dao = new Dao();
             Filial fili = (Filial) dao.find(new Filial(), 1);
             if (fili != null) {
@@ -1273,28 +1260,28 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         return null;
     }
 
-    public void salvarImagem() {
-        if (fisica.getId() != -1) {
-            ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
-
-            // nomeFoto NÃO ESTA SENDO SETADO POIS A FOTO DA PESSOA ESTA SENDO PEGADA DIRETAMENTE DA CLASSE pessoa.getFotoResource();
-            // PARA FUNCIONAR TEM QUE CRIAR UM getFoto DENTRO DA PRÓPRIA CLASSE FisicaBean ASSIM COMO ESTA NO BEAN ConviteMovimentoBean
-            if (nomeFoto.isEmpty()) {
-                // CASO QUEIRA REMOVER A FOTO ANTERIOR
-                File fotoAntiga = new File(servletContext.getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente() + "/imagens/pessoa/" + fisica.getPessoa().getId() + "/" + fisica.getFoto() + ".png");
-                if (fotoAntiga.exists()) {
-                    FileUtils.deleteQuietly(fotoAntiga);
-                }
-
-                Dao dao = new Dao();
-                dao.openTransaction();
-                fisica.setFoto(nomeFoto);
-                dao.update(fisica);
-                dao.commit();
-            }
-        }
-
-    }
+//    public void salvarImagem() {
+//        if (fisica.getId() != -1) {
+//            ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
+//
+//            // nomeFoto NÃO ESTA SENDO SETADO POIS A FOTO DA PESSOA ESTA SENDO PEGADA DIRETAMENTE DA CLASSE pessoa.getFotoResource();
+//            // PARA FUNCIONAR TEM QUE CRIAR UM getFoto DENTRO DA PRÓPRIA CLASSE FisicaBean ASSIM COMO ESTA NO BEAN ConviteMovimentoBean
+//            if (nomeFoto.isEmpty()) {
+//                // CASO QUEIRA REMOVER A FOTO ANTERIOR
+//                File fotoAntiga = new File(servletContext.getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente() + "/imagens/pessoa/" + fisica.getPessoa().getId() + "/" + fisica.getFoto() + ".png");
+//                if (fotoAntiga.exists()) {
+//                    FileUtils.deleteQuietly(fotoAntiga);
+//                }
+//
+//                Dao dao = new Dao();
+//                dao.openTransaction();
+//                fisica.setFoto(nomeFoto);
+//                dao.update(fisica);
+//                dao.commit();
+//            }
+//        }
+//
+//    }
 
     public String excluirEmpresaAnterior(PessoaEmpresa pe) {
         HomologacaoDB dbAge = new HomologacaoDBToplink();
@@ -1883,34 +1870,23 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 //        nomeFoto = nameTemp;
 //    }
 
-    public void upload(FileUploadEvent event) {
-        UUID uuidX = UUID.randomUUID();
-        String nameTemp = uuidX.toString().replace("-", "_");
-        ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
-        Diretorio.criar("temp/foto/" + getUsuario().getId());
-        String path = servletContext.getRealPath("") + "Cliente" + File.separator + getCliente() + File.separator + "temp" + File.separator + "foto" + File.separator + getUsuario().getId() + File.separator + nameTemp + ".png";
-        try {
-            FileUtils.writeByteArrayToFile(new File(path), event.getFile().getContents());
-        } catch (Exception e) {
-            e.getMessage();
-        }
-        nomeFoto = nameTemp;
-    }
+//    public void upload(FileUploadEvent event) {
+//        UUID uuidX = UUID.randomUUID();
+//        String nameTemp = uuidX.toString().replace("-", "_");
+//        ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
+//        Diretorio.criar("temp/foto/" + getUsuario().getId());
+//        String path = servletContext.getRealPath("") + "Cliente" + File.separator + getCliente() + File.separator + "temp" + File.separator + "foto" + File.separator + getUsuario().getId() + File.separator + nameTemp + ".png";
+//        try {
+//            FileUtils.writeByteArrayToFile(new File(path), event.getFile().getContents());
+//        } catch (Exception e) {
+//            e.getMessage();
+//        }
+//        nomeFoto = nameTemp;
+//    }
 
     public void apagarImagem() {
         boolean sucesso = false;
         try {
-            if (!PhotoCapture.getNameFile().isEmpty()) {
-                fisica.setFoto(PhotoCapture.getNameFile());
-                PhotoCapture.unload();
-            } else if (!PhotoUpload.getNameFile().isEmpty()) {
-                fisica.setFoto(PhotoUpload.getNameFile());
-                PhotoUpload.unload();
-            } else if (!PhotoCropper.getNameFile().isEmpty()) {
-                fisica.setFoto(PhotoCropper.getNameFile());
-                PhotoCropper.unload();
-            }
-
             String path = ("/resources/cliente/" + ControleUsuarioBean.getCliente() + "/imagens/pessoa/" + fisica.getPessoa().getId() + "/").toLowerCase();
             String fcaminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(path);
             if (new File((fcaminho + "/" + fisica.getFoto() + ".png")).exists() && FileUtils.deleteQuietly(new File(fcaminho + "/" + fisica.getFoto() + ".png"))) {
@@ -1923,17 +1899,17 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 sucesso = true;
             }
 
-            if (sucesso && fisica.getId() != -1) {
-                fisica.setDtFoto(null);
-                fisica.setFoto("");
-                new Dao().update(fisica, true);
+            if (!sucesso) {
+                GenericaMensagem.error("Atenção", "Imagem não encontrada no Servidor!");
+                return;
             }
+
+            fisica.setDtFoto(null);
+            fisica.setFoto("");
+            new Dao().update(fisica, true);
+
         } catch (Exception e) {
             GenericaMensagem.error("Sistema", e.getMessage());
-            return;
-        }
-        if (!sucesso) {
-            GenericaMensagem.error("Sistema", "Erro ao excluir imagem!");
         }
     }
 
@@ -2006,7 +1982,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     public List<PessoaEndereco> getListaPessoaEndereco() {
         if (fisica.getId() != -1 && listaPessoaEndereco.isEmpty()) {
-            PessoaEnderecoDB db = new PessoaEnderecoDBToplink();
+            PessoaEnderecoDao db = new PessoaEnderecoDao();
             listaPessoaEndereco = db.pesquisaEndPorPessoa(fisica.getPessoa().getId());
         }
         return listaPessoaEndereco;
@@ -2050,7 +2026,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             somaValoresHistorico = "0,00";
             for (Vector linha : result) {
                 listaServicoPessoa.add(new DataObject(linha, null));
-                somaValoresHistorico = Moeda.converteR$Float(Moeda.somaValores(Moeda.converteUS$(somaValoresHistorico), ((Double) linha.get(7)).floatValue()));
+                somaValoresHistorico = Moeda.converteR$Float(Moeda.somaValores(Moeda.converteUS$(somaValoresHistorico), ((Double) linha.get(8)).floatValue()));
             }
         }
         return listaServicoPessoa;
@@ -2613,13 +2589,4 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     public void setListaOposicao(List<Oposicao> listaOposicao) {
         this.listaOposicao = listaOposicao;
     }
-
-    public String getNomeFoto() {
-        return nomeFoto;
-    }
-
-    public void setNomeFoto(String nomeFoto) {
-        this.nomeFoto = nomeFoto;
-    }
-
 }

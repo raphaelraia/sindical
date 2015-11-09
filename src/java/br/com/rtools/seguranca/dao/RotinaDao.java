@@ -110,7 +110,9 @@ public class RotinaDao extends DB {
 
     public Rotina pesquisaRotinaPorPagina(String pagina) {
         try {
-            Query query = getEntityManager().createQuery("SELECT ROT FROM Rotina AS ROT WHERE (ROT.pagina LIKE 'Sindical/" + pagina + ".jsf' OR ROT.pagina LIKE '\"/Sindical/" + pagina + ".jsf\"')");
+            // BRUNO ALTERANDO A COLUNA ds_nome_pagina tirando as aspas ex. "/Sindical/simples.jsf" para /Sindical/simples.jsf COM ERRO
+            Query query = getEntityManager().createQuery("SELECT ROT FROM Rotina AS ROT WHERE (ROT.pagina LIKE '/Sindical/" + pagina + ".jsf' OR ROT.pagina LIKE '\"/Sindical/" + pagina + ".jsf\"')");
+            
             List list = query.getResultList();
             if (!list.isEmpty()) {
                 return (Rotina) query.getSingleResult();

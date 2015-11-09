@@ -19,6 +19,7 @@ import br.com.rtools.financeiro.db.ServicoContaCobrancaDBToplink;
 import br.com.rtools.pessoa.DocumentoInvalido;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.PessoaEndereco;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.*;
 import br.com.rtools.retornos.*;
 import br.com.rtools.seguranca.Usuario;
@@ -340,7 +341,7 @@ public final class ArquivoBancoBean implements Serializable {
     }
 
     public boolean criarArquivoTXT(List<Movimento> movs) {
-        PessoaEnderecoDB dbPes = new PessoaEnderecoDBToplink();
+        PessoaEnderecoDao dao = new PessoaEnderecoDao();
         FinanceiroDB dbfin = new FinanceiroDBToplink();
         MovimentoDB dbmov = new MovimentoDBToplink();
         RemessaBancoDB rbd = new RemessaBancoDBToplink();
@@ -553,7 +554,7 @@ public final class ArquivoBancoBean implements Serializable {
 
                 conteudoRemessa += (AnaliseString.removerAcentos(movs.get(i).getPessoa().getNome()).toUpperCase() + "                                        ").substring(0, 40);
 
-                pessoaEndereco = dbPes.pesquisaEndPorPessoaTipo(movs.get(i).getPessoa().getId(), 3);
+                pessoaEndereco = dao.pesquisaEndPorPessoaTipo(movs.get(i).getPessoa().getId(), 3);
 
                 if (pessoaEndereco != null) {
                     descricaoEndereco = pessoaEndereco.getEndereco().getDescricaoEndereco().getDescricao();

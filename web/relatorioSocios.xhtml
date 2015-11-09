@@ -145,16 +145,11 @@
                                         <p:panel rendered="#{relatorioSociosBean.booGrupoCategoria}">
                                             <h:panelGrid columns="2">
                                                 <h:column>
+                                                    <p:selectBooleanCheckbox id="c_grupo" value="#{relatorioSociosBean.chkGrupo}" itemLabel="SELECIONAR TODOS GRUPOS" style="font-weight: bold">
+                                                        <p:ajax event="change" listener="#{relatorioSociosBean.marcarGrupoCatregoria()}" update="tbl1 :formRelatorioSocios:tbl2"/>
+                                                    </p:selectBooleanCheckbox>
                                                     <p:dataTable id="tbl1" value="#{relatorioSociosBean.listGrupoCategoria}" var="grupoCategoria" emptyMessage="Nenhum registro encontrado!" scrollable="true" scrollHeight="100">
-                                                        <f:facet name="header">
-                                                            <p:outputLabel value="Lista de Grupo" />
-                                                        </f:facet>
                                                         <p:column style="width: 15px">
-                                                            <f:facet name="header">
-                                                                <p:selectBooleanCheckbox id="c_grupo" value="#{relatorioSociosBean.chkGrupo}">
-                                                                    <p:ajax event="change" listener="#{relatorioSociosBean.marcarGrupoCatregoria()}" update="tbl1 :formRelatorioSocios:tbl2"/>
-                                                                </p:selectBooleanCheckbox>
-                                                            </f:facet>
                                                             <p:selectBooleanCheckbox value="#{grupoCategoria.selected}">
                                                                 <p:ajax event="change" listener="#{relatorioSociosBean.marcarUmGrupoCategoria()}" update=":formRelatorioSocios:tbl2"/>
                                                             </p:selectBooleanCheckbox>
@@ -167,16 +162,11 @@
                                                 </h:column>
 
                                                 <h:column>
+                                                    <p:selectBooleanCheckbox value="#{relatorioSociosBean.chkCategoria}" itemLabel="SELECIONAR TODAS CATEGORIAS" style="font-weight: bold">
+                                                        <p:ajax event="change" listener="#{relatorioSociosBean.marcarCategorias()}" update="tbl2"/>
+                                                    </p:selectBooleanCheckbox>
                                                     <p:dataTable id="tbl2" value="#{relatorioSociosBean.listCategoria}" var="categoria" emptyMessage="Nenhum grupo selecionado"  scrollable="true" scrollHeight="100">
-                                                        <f:facet name="header">
-                                                            <p:outputLabel value="Lista de Categoria" />
-                                                        </f:facet>
                                                         <p:column style="width: 15px">
-                                                            <f:facet name="header">
-                                                                <p:selectBooleanCheckbox value="#{relatorioSociosBean.chkCategoria}">
-                                                                    <p:ajax event="change" listener="#{relatorioSociosBean.marcarCategorias()}" update="tbl2"/>
-                                                                </p:selectBooleanCheckbox>
-                                                            </f:facet>
                                                             <p:selectBooleanCheckbox value="#{categoria.selected}" />
                                                         </p:column>
 
@@ -263,14 +253,12 @@
                                             </h:panelGrid>
                                         </p:panel>
 
-                                        <p:panel header="Parentesco" rendered="#{relatorioSociosBean.booGrau}">
+                                        <p:panel rendered="#{relatorioSociosBean.booGrau}">
+                                            <p:selectBooleanCheckbox value="#{relatorioSociosBean.chkGrau}" itemLabel="SELECIONAR TODOS PARENTESCOS" style="font-weight: bold">
+                                                <p:ajax event="change" listener="#{relatorioSociosBean.marcarGrau}" update=":formRelatorioSocios:tbl7"/>
+                                            </p:selectBooleanCheckbox>
                                             <p:dataTable id="tbl7" value="#{relatorioSociosBean.listParentesco}" var="parentesco" emptyMessage="Nenhum registro encontrado!" scrollable="true" scrollHeight="100">
                                                 <p:column style="width: 15px">
-                                                    <f:facet name="header">
-                                                        <p:selectBooleanCheckbox value="#{relatorioSociosBean.chkGrau}">
-                                                            <p:ajax event="change" listener="#{relatorioSociosBean.marcarGrau}" update=":formRelatorioSocios:tbl7"/>
-                                                        </p:selectBooleanCheckbox>
-                                                    </f:facet>
                                                     <p:selectBooleanCheckbox value="#{parentesco.selected}"/>
                                                 </p:column>
 

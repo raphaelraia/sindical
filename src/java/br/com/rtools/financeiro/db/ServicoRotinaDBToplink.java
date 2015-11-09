@@ -81,12 +81,30 @@ public class ServicoRotinaDBToplink extends DB implements ServicoRotinaDB {
         return false;
     }
     
+    @Override
     public List<Servicos> listaServicosNotIn(String ids) {
         try {
             Query query = getEntityManager().createQuery(
                     "   SELECT sr.servicos "
                     + "   FROM ServicoRotina AS sr"
                     + "  WHERE sr.rotina.id NOT IN ("+ids+") "
+                    + "  ORDER BY sr.servicos.descricao");
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return list;
+            }
+        } catch (Exception e) {
+        }
+        return new ArrayList();
+    }    
+    
+    @Override
+    public List<Servicos> listaServicosIn(String ids) {
+        try {
+            Query query = getEntityManager().createQuery(
+                    "   SELECT sr.servicos "
+                    + "   FROM ServicoRotina AS sr"
+                    + "  WHERE sr.rotina.id IN ("+ids+") "
                     + "  ORDER BY sr.servicos.descricao");
             List list = query.getResultList();
             if (!list.isEmpty()) {

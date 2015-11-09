@@ -13,6 +13,7 @@ import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.pessoa.PessoaEndereco;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.*;
 import br.com.rtools.principal.DBExternal;
 import br.com.rtools.seguranca.Registro;
@@ -315,7 +316,7 @@ public class ImpressaoParaSocios {
         Juridica sindicato;
         FisicaDB db = new FisicaDBToplink();
         PessoaEndereco pesEndereco, pesDestinatario, pesEndEmpresa, pesEndSindicato;
-        PessoaEnderecoDB dbEnd = new PessoaEnderecoDBToplink();
+        PessoaEnderecoDao dbEnd = new PessoaEnderecoDao();
         SociosDB dbSoc = new SociosDBToplink();
         FacesContext faces = FacesContext.getCurrentInstance();
         
@@ -629,7 +630,7 @@ public class ImpressaoParaSocios {
         FisicaDB db = new FisicaDBToplink();
         JuridicaDB dbJur = new JuridicaDBToplink();
         PessoaEndereco pesEndereco, pesDestinatario, pesEndEmpresa, pesEndSindicato = new PessoaEndereco();
-        PessoaEnderecoDB dbEnd = new PessoaEnderecoDBToplink();
+        PessoaEnderecoDao dbEnd = new PessoaEnderecoDao();
         PessoaEmpresa pesEmpresa = new PessoaEmpresa();
         PessoaEmpresaDB dbEmp = new PessoaEmpresaDBToplink();
         String dados[] = new String[34];
@@ -859,7 +860,7 @@ public class ImpressaoParaSocios {
 
     public static void branco() {
         String pathPasta = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/fichas");
-        PessoaEnderecoDB enderecoDB = new PessoaEnderecoDBToplink();
+        PessoaEnderecoDao enderecoDB = new PessoaEnderecoDao();
         Dao dao = new Dao();
         try {
             FacesContext faces = FacesContext.getCurrentInstance();

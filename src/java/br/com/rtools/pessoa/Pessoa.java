@@ -3,28 +3,25 @@ package br.com.rtools.pessoa;
 import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.db.SociosDB;
 import br.com.rtools.associativo.db.SociosDBToplink;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.FisicaDB;
 import br.com.rtools.pessoa.db.FisicaDBToplink;
 import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
 import br.com.rtools.pessoa.db.PessoaDB;
 import br.com.rtools.pessoa.db.PessoaDBToplink;
-import br.com.rtools.pessoa.db.PessoaEnderecoDBToplink;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
-import br.com.rtools.utilitarios.ImageConverter;
 import java.io.File;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.persistence.*;
 import javax.servlet.ServletContext;
 import org.primefaces.event.SelectEvent;
-import org.primefaces.model.StreamedContent;
 
 @Entity
 @Table(name = "pes_pessoa")
@@ -265,9 +262,9 @@ public class Pessoa implements Serializable {
         if (tipoDocumento.getId() == 2) {
             idTipoEndereco = 2;
         }
-        PessoaEndereco pessoaEndereco = new PessoaEnderecoDBToplink().pesquisaEndPorPessoaTipo(this.id, idTipoEndereco);
+        PessoaEndereco pessoaEndereco = new PessoaEnderecoDao().pesquisaEndPorPessoaTipo(this.id, idTipoEndereco);
         if (pessoaEndereco == null) {
-            pessoaEndereco = new PessoaEnderecoDBToplink().pesquisaEndPorPessoaTipo(this.id, 2);
+            pessoaEndereco = new PessoaEnderecoDao().pesquisaEndPorPessoaTipo(this.id, 2);
         }
         return pessoaEndereco;
     }

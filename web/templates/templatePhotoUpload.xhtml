@@ -6,7 +6,7 @@
 
     <f:view>
         <h:form id="form_photo_upload">
-            <p:dialog widgetVar="dlg_photo_upload" modal="true" header="Update de Imagem" rendered="#{photoUpload.renderedPhotoUploadView}">
+            <p:dialog widgetVar="dlg_photo_upload" modal="true" header="Update de Imagem" rendered="#{photoUpload.renderedPhotoUpload}">
                 <p:ajax event="close" listener="#{photoUpload.close()}" />
                 
                 <h:panelGrid>
@@ -16,7 +16,7 @@
                                   mode="advanced"
                                   fileUploadListener="#{photoUpload.upload}"
                                   oncomplete="PF('dlg_upload').hide()" 
-                                  update="#{photoUpload.updateView}"
+                                  update="#{photoUpload.update}"
                                   />
                 </h:panelGrid>
             </p:dialog>      

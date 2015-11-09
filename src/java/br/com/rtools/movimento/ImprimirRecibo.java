@@ -9,8 +9,7 @@ import br.com.rtools.financeiro.db.MovimentoDBToplink;
 import br.com.rtools.impressao.ParametroRecibo;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.PessoaEndereco;
-import br.com.rtools.pessoa.db.PessoaEnderecoDB;
-import br.com.rtools.pessoa.db.PessoaEnderecoDBToplink;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Diretorio;
@@ -43,7 +42,7 @@ public class ImprimirRecibo {
         try {
             Collection vetor = new ArrayList();
             Juridica sindicato = (Juridica) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(1, "Juridica");
-            PessoaEnderecoDB dbp = new PessoaEnderecoDBToplink();
+            PessoaEnderecoDao dbp = new PessoaEnderecoDao();
             //MovimentosReceberSocialDB dbs = new MovimentosReceberSocialDBToplink();
 
             PessoaEndereco pe = dbp.pesquisaEndPorPessoaTipo(1, 2);

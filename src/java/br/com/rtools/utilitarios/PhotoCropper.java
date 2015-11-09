@@ -23,15 +23,16 @@ import org.primefaces.model.CroppedImage;
 @SessionScoped
 public class PhotoCropper implements Serializable {
 
-    private static Boolean renderedPhotoCropper = false;
-    private static String update = "";
-    private static String savePath = "";
-    private static String nameFile = "";
-    private static Pessoa pessoa = null;
+    private Boolean renderedPhotoCropper = false;
+    private String update = "";
+    private String savePath = "";
+    private String nameFile = "";
+    private Fisica fisica = null;
+    private Juridica juridica = null;
 
     private CroppedImage croppedImage;
 
-    public static void open(String aSavePath, String aUpdate) {
+    public void open(String aSavePath, String aUpdate) {
         savePath = aSavePath;
         update = aUpdate;
         renderedPhotoCropper = true;
@@ -40,8 +41,19 @@ public class PhotoCropper implements Serializable {
         PF.update("form_photo_cropper");
     }
 
-    public static void openAndSave(Pessoa aPessoa, String aUpdate) {
-        pessoa = aPessoa;
+    public void openAndSave(Pessoa aPessoa, String aUpdate) {
+        FisicaDB fisicaDB = new FisicaDBToplink();
+        Fisica fisica_x = fisicaDB.pesquisaFisicaPorPessoa(aPessoa.getId());
+        if (fisica_x != null) {
+            fisica = fisica_x;
+        } else {
+            JuridicaDB juridicaDB = new JuridicaDBToplink();
+            Juridica juridica_x = juridicaDB.pesquisaJuridicaPorPessoa(aPessoa.getId());
+            if (juridica_x != null) {
+                juridica = juridica_x;
+            }
+        }
+
         update = aUpdate;
         renderedPhotoCropper = true;
 
@@ -49,36 +61,22 @@ public class PhotoCropper implements Serializable {
         PF.update("form_photo_cropper");
     }
 
-    public static String getSavePath() {
-        return savePath;
+    public void openAndSave(Fisica aFisica, String aUpdate) {
+        fisica = aFisica;
+        update = aUpdate;
+        renderedPhotoCropper = true;
+
+        PF.openDialog("dlg_photo_cropper");
+        PF.update("form_photo_cropper");
     }
 
-    public static void setSavePath(String aSavePath) {
-        savePath = aSavePath;
-    }
+    public void openAndSave(Juridica aJuridica, String aUpdate) {
+        juridica = aJuridica;
+        update = aUpdate;
+        renderedPhotoCropper = true;
 
-    public static String getNameFile() {
-        return nameFile;
-    }
-
-    public static void setNameFile(String aNameFile) {
-        nameFile = aNameFile;
-    }
-
-    public static Pessoa getPessoa() {
-        return pessoa;
-    }
-
-    public static void setPessoa(Pessoa aPessoa) {
-        pessoa = aPessoa;
-    }
-
-    public Pessoa getPessoaView() {
-        return pessoa;
-    }
-
-    public void setPessoaView(Pessoa aPessoa) {
-        pessoa = aPessoa;
+        PF.openDialog("dlg_photo_cropper");
+        PF.update("form_photo_cropper");
     }
 
     public void close() {
@@ -87,51 +85,13 @@ public class PhotoCropper implements Serializable {
         PF.update("form_photo_cropper");
     }
 
-    public static void unload() {
+    public void unload() {
         savePath = "";
         update = "";
         nameFile = "";
-        pessoa = null;
-    }
 
-    public static Boolean getRenderedPhotoCropper() {
-        return renderedPhotoCropper;
-    }
-
-    public static void setRenderedPhotoCropper(Boolean aRenderedPhotoCropper) {
-        renderedPhotoCropper = aRenderedPhotoCropper;
-    }
-
-    public static String getUpdate() {
-        return update;
-    }
-
-    public static void setUpdate(String aUpdate) {
-        update = aUpdate;
-    }
-
-    public Boolean getRenderedPhotoCropperView() {
-        return renderedPhotoCropper;
-    }
-
-    public void setRenderedPhotoCropperView(Boolean aRenderedPhotoCropperView) {
-        renderedPhotoCropper = aRenderedPhotoCropperView;
-    }
-
-    public String getUpdateView() {
-        return update;
-    }
-
-    public void setUpdateView(String aUpdateView) {
-        update = aUpdateView;
-    }
-
-    public String getNameFileView() {
-        return nameFile;
-    }
-
-    public void setNameFileView(String aNameFileView) {
-        nameFile = aNameFileView;
+        fisica = null;
+        juridica = null;
     }
 
     public void crop() {
@@ -147,7 +107,7 @@ public class PhotoCropper implements Serializable {
 
         nameFile = nameTemp;
 
-        if (pessoa == null) {
+        if (fisica == null && juridica == null) {
             String path = servletContext.getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/" + savePath + "/" + nameTemp + ".png";
             File file = new File(path);
             try {
@@ -159,46 +119,41 @@ public class PhotoCropper implements Serializable {
             if (!Diretorio.criar("imagens/pessoa", true)) { // PASTA ex. resources/cliente/sindical/imagens/pessoa
                 return;
             }
-            String path = servletContext.getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + pessoa.getId() + "/" + nameTemp + ".png";
-            File file = new File(path);
-            try {
-                FileUtils.writeByteArrayToFile(file, data);
-            } catch (IOException e) {
-                e.getMessage();
-            }
 
-            if (file.exists()) {
-                FisicaDB fisicaDB = new FisicaDBToplink();
-                Fisica fisica = fisicaDB.pesquisaFisicaPorPessoa(pessoa.getId());
+            if (fisica != null) {
+                String path = servletContext.getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + fisica.getPessoa().getId() + "/" + nameTemp + ".png";
+                File file = new File(path);
+                try {
+                    FileUtils.writeByteArrayToFile(file, data);
+                } catch (IOException e) {
+                    e.getMessage();
+                }
 
-                if (fisica != null) {
-                    // CASO QUEIRA REMOVER A FOTO ANTERIOR
+                // CASO QUEIRA REMOVER A FOTO ANTERIOR
 //                    File fotoAntiga = new File(servletContext.getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + pessoa.getId() + "/" + fisica.getFoto() + ".png");
 //                    if (fotoAntiga.exists()) {
 //                        FileUtils.deleteQuietly(fotoAntiga);
 //                    }
-
-                    fisica.setFoto(nameTemp);
-                    new Dao().update(fisica, true);
-                } else {
-                    JuridicaDB juridicaDB = new JuridicaDBToplink();
-                    Juridica juridica = juridicaDB.pesquisaJuridicaPorPessoa(pessoa.getId());
-
-                    // CASO QUEIRA REMOVER A FOTO ANTERIOR
+                fisica.setFoto(nameTemp);
+                new Dao().update(fisica, true);
+            } else {
+                String path = servletContext.getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + juridica.getPessoa().getId() + "/" + nameTemp + ".png";
+                File file = new File(path);
+                try {
+                    FileUtils.writeByteArrayToFile(file, data);
+                } catch (IOException e) {
+                    e.getMessage();
+                }
+                // CASO QUEIRA REMOVER A FOTO ANTERIOR
 //                    File fotoAntiga = new File(servletContext.getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + pessoa.getId() + "/" + juridica.getFoto() + ".png");
 //                    if (fotoAntiga.exists()) {
 //                        FileUtils.deleteQuietly(fotoAntiga);
 //                    }
-
-                    juridica.setFoto(nameTemp);
-                    new Dao().update(juridica, true);
-                }
+                juridica.setFoto(nameTemp);
+                new Dao().update(juridica, true);
             }
         }
-        
-        PhotoUpload.unload();
-        PhotoCapture.unload();
-        
+
         PF.closeDialog("dlg_photo_cropper");
     }
 
@@ -208,5 +163,53 @@ public class PhotoCropper implements Serializable {
 
     public void setCroppedImage(CroppedImage croppedImage) {
         this.croppedImage = croppedImage;
+    }
+
+    public Boolean getRenderedPhotoCropper() {
+        return renderedPhotoCropper;
+    }
+
+    public void setRenderedPhotoCropper(Boolean renderedPhotoCropper) {
+        this.renderedPhotoCropper = renderedPhotoCropper;
+    }
+
+    public String getUpdate() {
+        return update;
+    }
+
+    public void setUpdate(String update) {
+        this.update = update;
+    }
+
+    public String getSavePath() {
+        return savePath;
+    }
+
+    public void setSavePath(String savePath) {
+        this.savePath = savePath;
+    }
+
+    public String getNameFile() {
+        return nameFile;
+    }
+
+    public void setNameFile(String nameFile) {
+        this.nameFile = nameFile;
+    }
+
+    public Fisica getFisica() {
+        return fisica;
+    }
+
+    public void setFisica(Fisica fisica) {
+        this.fisica = fisica;
+    }
+
+    public Juridica getJuridica() {
+        return juridica;
+    }
+
+    public void setJuridica(Juridica juridica) {
+        this.juridica = juridica;
     }
 }

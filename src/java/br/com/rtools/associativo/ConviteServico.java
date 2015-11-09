@@ -35,6 +35,8 @@ public class ConviteServico implements Serializable {
     private boolean domingo;
     @Column(name = "is_feriado", columnDefinition = "boolean default false")
     private boolean feriado;
+    @Column(name = "is_cortesia", columnDefinition = "boolean default false")
+    private boolean cortesia;    
 
     public ConviteServico() {
         this.id = -1;
@@ -47,9 +49,10 @@ public class ConviteServico implements Serializable {
         this.sabado = false;
         this.domingo = false;
         this.feriado = false;
+        this.cortesia = false;
     }
 
-    public ConviteServico(int id, Servicos servicos, boolean segunda, boolean terca, boolean quarta, boolean quinta, boolean sexta, boolean sabado, boolean domingo, boolean feriado) {
+    public ConviteServico(int id, Servicos servicos, boolean segunda, boolean terca, boolean quarta, boolean quinta, boolean sexta, boolean sabado, boolean domingo, boolean feriado, boolean cortesia) {
         this.id = id;
         this.servicos = servicos;
         this.segunda = segunda;
@@ -60,6 +63,7 @@ public class ConviteServico implements Serializable {
         this.sabado = sabado;
         this.domingo = domingo;
         this.feriado = feriado;
+        this.cortesia = cortesia;
     }
 
     public int getId() {
@@ -146,5 +150,13 @@ public class ConviteServico implements Serializable {
     public String toString() {
         return "ConviteServico{" + "id=" + id + ", servicos=" + servicos + ", segunda=" + segunda + ", terca=" + terca + ", quarta=" + quarta + ", quinta=" + quinta + ", sexta=" + sexta + ", sabado=" + sabado + ", domingo=" + domingo + ", feriado=" + feriado + '}';
     }    
+
+    public boolean isCortesia() {
+        return cortesia;
+    }
+
+    public void setCortesia(boolean cortesia) {
+        this.cortesia = cortesia;
+    }
 
 }

@@ -20,6 +20,7 @@ import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.TipoDocumento;
 import br.com.rtools.pessoa.beans.FisicaBean;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.*;
 import br.com.rtools.pessoa.utilitarios.PessoaUtilitarios;
 import br.com.rtools.seguranca.MacFilial;
@@ -27,7 +28,6 @@ import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import static br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean.getCliente;
-import br.com.rtools.sistema.ConfiguracaoUpload;
 import br.com.rtools.utilitarios.*;
 import br.com.rtools.utilitarios.db.FunctionsDao;
 import java.io.File;
@@ -44,8 +44,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.Part;
 import org.apache.commons.io.FileUtils;
 import org.primefaces.context.RequestContext;
-import org.primefaces.event.CaptureEvent;
-import org.primefaces.event.FileUploadEvent;
 
 @ManagedBean
 @SessionScoped
@@ -761,16 +759,6 @@ public class SociosBean implements Serializable {
 //    }
     public String apagarImagem() {
         boolean sucesso = false;
-        if (!PhotoCapture.getNameFile().isEmpty()) {
-            novoDependente.setFoto(PhotoCapture.getNameFile());
-            PhotoCapture.unload();
-        } else if (!PhotoUpload.getNameFile().isEmpty()) {
-            novoDependente.setFoto(PhotoUpload.getNameFile());
-            PhotoUpload.unload();
-        } else if (!PhotoCropper.getNameFile().isEmpty()) {
-            novoDependente.setFoto(PhotoCropper.getNameFile());
-            PhotoCropper.unload();
-        }
 
         String fcaminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente() + "/imagens/pessoa/" + novoDependente.getPessoa().getId() + "/" + novoDependente.getFoto();
         if (new File((fcaminho + ".png")).exists() && FileUtils.deleteQuietly(new File(fcaminho + ".png"))) {
@@ -1144,6 +1132,11 @@ public class SociosBean implements Serializable {
         }
         // NOVO REGISTRO -----------------------
         if (servicoPessoa.getId() == -1) {
+            if (pessoaEmpresa == null || pessoaEmpresa.getId() == -1) {
+                GenericaMensagem.warn("Atenção", "Vincular uma empresa para esta Pessoa!");
+                return null;
+            }
+            
             servicoPessoa.setAtivo(true);
             servicoPessoa.setCobranca(servicoPessoa.getPessoa());
 
@@ -1654,10 +1647,6 @@ public class SociosBean implements Serializable {
 
         Fisica f = new FisicaDBToplink().pesquisaFisicaPorPessoa(servicoPessoa.getPessoa().getId());
         if (servicoCategoria.getCategoria().isEmpresaObrigatoria() && f.getDtAposentadoria() == null && servicoCategoria.getCategoria().isVotante()) {
-            if (pessoaEmpresa == null || pessoaEmpresa.getId() == -1) {
-                GenericaMensagem.warn("Atenção", "Vincular uma empresa para esta Pessoa!");
-                return false;
-            }
             JuridicaDB db = new JuridicaDBToplink();
             List listax = db.listaJuridicaContribuinte(pessoaEmpresa.getJuridica().getId());
 
@@ -1751,17 +1740,7 @@ public class SociosBean implements Serializable {
         Dao dao = new Dao();
 
         novoDependente.getPessoa().setNome(novoDependente.getPessoa().getNome().trim());
-        if (!PhotoCapture.getNameFile().isEmpty()) {
-            novoDependente.setFoto(PhotoCapture.getNameFile());
-            PhotoCapture.unload();
-        } else if (!PhotoUpload.getNameFile().isEmpty()) {
-            novoDependente.setFoto(PhotoUpload.getNameFile());
-            PhotoUpload.unload();
-        } else if (!PhotoCropper.getNameFile().isEmpty()) {
-            novoDependente.setFoto(PhotoCropper.getNameFile());
-            PhotoCropper.unload();
-        }
-
+        
         if (novoDependente.getId() == -1) {
             novoDependente.getPessoa().setTipoDocumento((TipoDocumento) dao.find(new TipoDocumento(), 1));
             dao.openTransaction();
@@ -2331,7 +2310,7 @@ public class SociosBean implements Serializable {
         }
 
         if (novoDependente.getId() == -1 || novoDependente.getNaturalidade().isEmpty()) {
-            PessoaEnderecoDB dbPes = new PessoaEnderecoDBToplink();
+            PessoaEnderecoDao dbPes = new PessoaEnderecoDao();
             Dao dao = new Dao();
             Filial fili = (Filial) dao.find(new Filial(), 1);
             if (fili != null) {
@@ -2935,7 +2914,7 @@ public class SociosBean implements Serializable {
     }
 
     public MatriculaSocios getMatriculaSocios() {
-        PessoaEnderecoDB db = new PessoaEnderecoDBToplink();
+        PessoaEnderecoDao db = new PessoaEnderecoDao();
         Dao dao = new Dao();
         List<GrupoCidades> cids = (List<GrupoCidades>) dao.list(new GrupoCidades(), true);
         if (socios.getId() == -1 && matriculaSocios.getId() == -1) {

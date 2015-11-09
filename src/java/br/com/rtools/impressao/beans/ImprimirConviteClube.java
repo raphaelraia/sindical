@@ -8,8 +8,7 @@ import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEndereco;
-import br.com.rtools.pessoa.db.PessoaEnderecoDB;
-import br.com.rtools.pessoa.db.PessoaEnderecoDBToplink;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.Links;
@@ -141,8 +140,8 @@ public class ImprimirConviteClube implements Serializable {
     public PessoaEndereco pessoaEndereco(Filial f) {
         PessoaEndereco pessoaEndereco = new PessoaEndereco();
         if (f.getId() != -1) {
-            PessoaEnderecoDB pessoaEnderecoDB = new PessoaEnderecoDBToplink();
-            pessoaEndereco = pessoaEnderecoDB.pesquisaEndPorPessoaTipo(f.getFilial().getPessoa().getId(), 2);
+            PessoaEnderecoDao dao = new PessoaEnderecoDao();
+            pessoaEndereco = dao.pesquisaEndPorPessoaTipo(f.getFilial().getPessoa().getId(), 2);
         }
         return pessoaEndereco;
     }
@@ -204,11 +203,11 @@ public class ImprimirConviteClube implements Serializable {
         lista.add(new ConviteClube(
                 cm.getSisPessoa().getNome(),
                 cm.getEmissao(),
-                "VÁLIDO ATÉ " + dh.incrementarMeses(1, cm.getValidade()),
+                "VÁLIDO ATÉ " + cm.getValidade(),
                 ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoConvite.png"),
                 barras,
                 GenericaString.converterNullToString(cm.getSisPessoa().getObservacao()),
-                (!listSemana.isEmpty()) ? "NO(S) DIA(S): " + listSemana : "CORTESIA"
+                (!cm.isCortesia()) ? "NO(S) DIA(S): " + listSemana : "CORTESIA PARA OS DIAS: " + listSemana 
         ));
         return lista;
     }

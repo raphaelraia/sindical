@@ -7,8 +7,7 @@ import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEndereco;
-import br.com.rtools.pessoa.db.PessoaEnderecoDB;
-import br.com.rtools.pessoa.db.PessoaEnderecoDBToplink;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
@@ -150,7 +149,7 @@ public class ProtocoloAgendamento implements Serializable {
     public PessoaEndereco pessoaEndereco(Filial f) {
         PessoaEndereco pessoaEndereco = new PessoaEndereco();
         if (f.getId() != -1) {
-            PessoaEnderecoDB pessoaEnderecoDB = new PessoaEnderecoDBToplink();
+            PessoaEnderecoDao pessoaEnderecoDB = new PessoaEnderecoDao();
             pessoaEndereco = pessoaEnderecoDB.pesquisaEndPorPessoaTipo(f.getFilial().getPessoa().getId(), 2);
         }
         return pessoaEndereco;

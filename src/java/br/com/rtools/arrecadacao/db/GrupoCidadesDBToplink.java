@@ -3,8 +3,7 @@ package br.com.rtools.arrecadacao.db;
 import br.com.rtools.arrecadacao.GrupoCidade;
 import br.com.rtools.arrecadacao.GrupoCidades;
 import br.com.rtools.pessoa.PessoaEndereco;
-import br.com.rtools.pessoa.db.PessoaEnderecoDB;
-import br.com.rtools.pessoa.db.PessoaEnderecoDBToplink;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.principal.DB;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,8 +46,8 @@ public class GrupoCidadesDBToplink extends DB implements GrupoCidadesDB {
 
     @Override
     public GrupoCidade grupoCidadesPorPessoa(int idPessoa, int idConvencao) {
-        PessoaEnderecoDB pesdb = new PessoaEnderecoDBToplink();
-        PessoaEndereco pes = pesdb.pesquisaEndPorPessoaTipo(idPessoa, 5);
+        PessoaEnderecoDao dao = new PessoaEnderecoDao();
+        PessoaEndereco pes = dao.pesquisaEndPorPessoaTipo(idPessoa, 5);
         GrupoCidade result = null;
         try {
             Query qry = getEntityManager().createQuery(

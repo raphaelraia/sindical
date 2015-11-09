@@ -30,14 +30,13 @@ import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.beans.FisicaBean;
 import br.com.rtools.pessoa.beans.JuridicaBean;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.FisicaDB;
 import br.com.rtools.pessoa.db.FisicaDBToplink;
 import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
 import br.com.rtools.pessoa.db.PessoaDB;
 import br.com.rtools.pessoa.db.PessoaDBToplink;
-import br.com.rtools.pessoa.db.PessoaEnderecoDB;
-import br.com.rtools.pessoa.db.PessoaEnderecoDBToplink;
 import br.com.rtools.seguranca.Departamento;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
@@ -904,7 +903,7 @@ public class VendasCaravanaBean {
 
     public PessoaEndereco getPessoaEndereco() {
         if (pessoaEndereco.getId() == -1) {
-            PessoaEnderecoDB dbp = new PessoaEnderecoDBToplink();
+            PessoaEnderecoDao dbp = new PessoaEnderecoDao();
             pessoaEndereco = dbp.pesquisaEndPorPessoaTipo(pessoa.getId(), 4);
             if (pessoaEndereco == null) {
                 pessoaEndereco = new PessoaEndereco();

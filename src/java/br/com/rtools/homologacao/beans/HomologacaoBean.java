@@ -14,6 +14,7 @@ import br.com.rtools.homologacao.Status;
 import br.com.rtools.homologacao.dao.HomologacaoDao;
 import br.com.rtools.homologacao.db.*;
 import br.com.rtools.pessoa.*;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.*;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Registro;
@@ -1208,7 +1209,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
     }
 
     public String getStrEndereco() {
-        PessoaEnderecoDB pessoaEnderecoDB = new PessoaEnderecoDBToplink();
+        PessoaEnderecoDao pessoaEnderecoDB = new PessoaEnderecoDao();
         if (juridica.getId() != -1) {
             enderecoEmpresa = pessoaEnderecoDB.pesquisaEndPorPessoaTipo(juridica.getPessoa().getId(), 2);
             if (enderecoEmpresa.getId() != -1) {

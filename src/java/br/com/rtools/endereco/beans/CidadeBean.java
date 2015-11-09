@@ -6,8 +6,7 @@ import br.com.rtools.endereco.Cidade;
 import br.com.rtools.endereco.dao.CidadeDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.PessoaEndereco;
-import br.com.rtools.pessoa.db.PessoaEnderecoDB;
-import br.com.rtools.pessoa.db.PessoaEnderecoDBToplink;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -40,7 +39,7 @@ public class CidadeBean implements Serializable {
         listCidade = new ArrayList<Cidade>();
         descricaoCidadePesquisa = "";
         descricaoUFPesquisa = "";
-        PessoaEnderecoDB db = new PessoaEnderecoDBToplink();
+        PessoaEnderecoDao db = new PessoaEnderecoDao();
         PessoaEndereco pe = db.pesquisaEndPorPessoaTipo(1, 3);
         cidade.setUf(pe.getEndereco().getCidade().getUf());
     }
@@ -176,7 +175,7 @@ public class CidadeBean implements Serializable {
                 if (!lgc.isEmpty()) {
                     listCidade.addAll(lgc);
                 }
-                PessoaEnderecoDB dbp = new PessoaEnderecoDBToplink();
+                PessoaEnderecoDao dbp = new PessoaEnderecoDao();
                 PessoaEndereco pe = dbp.pesquisaEndPorPessoaTipo(1, 3);
                 cidade.setUf(pe.getEndereco().getCidade().getUf());
             } else {

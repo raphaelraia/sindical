@@ -14,17 +14,15 @@ import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.pessoa.PessoaEndereco;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.FilialCidadeDB;
 import br.com.rtools.pessoa.db.FilialCidadeDBToplink;
 import br.com.rtools.pessoa.db.FisicaDB;
 import br.com.rtools.pessoa.db.FisicaDBToplink;
 import br.com.rtools.pessoa.db.PessoaEmpresaDB;
 import br.com.rtools.pessoa.db.PessoaEmpresaDBToplink;
-import br.com.rtools.pessoa.db.PessoaEnderecoDB;
-import br.com.rtools.pessoa.db.PessoaEnderecoDBToplink;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
-import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.Download;
 import br.com.rtools.utilitarios.SalvarAcumuladoDB;
@@ -95,7 +93,7 @@ public class SocioCarteirinhaJSFBean {
     public List<Socios> getListaSocios() {
         SocioCarteirinhaDB db = new SocioCarteirinhaDBToplink();
         FilialCidadeDB dbC = new FilialCidadeDBToplink();
-        PessoaEnderecoDB dbE = new PessoaEnderecoDBToplink();
+        PessoaEnderecoDao dbE = new PessoaEnderecoDao();
         FilialCidade filCidade;
         SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
         DataObject dt = null;
@@ -133,7 +131,7 @@ public class SocioCarteirinhaJSFBean {
             }
         }
         FilialCidadeDB dbC = new FilialCidadeDBToplink();
-        PessoaEnderecoDB dbE = new PessoaEnderecoDBToplink();
+        PessoaEnderecoDao dbE = new PessoaEnderecoDao();
         PessoaEndereco pesEnde = dbE.pesquisaEndPorPessoaTipo(socioCarteirinha.getPessoa().getId(), 1);
         FilialCidade filCidade;
         if (pesEnde != null) {
@@ -243,7 +241,7 @@ public class SocioCarteirinhaJSFBean {
         FisicaDB db = new FisicaDBToplink();
         SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
         PessoaEndereco pesEndereco, pesDestinatario, pesEndEmpresa, pesEndSindicato = new PessoaEndereco();
-        PessoaEnderecoDB dbEnd = new PessoaEnderecoDBToplink();
+        PessoaEnderecoDao dbEnd = new PessoaEnderecoDao();
         PessoaEmpresa pesEmpresa = new PessoaEmpresa();
         PessoaEmpresaDB dbEmp = new PessoaEmpresaDBToplink();
         SociosDB dbSoc = new SociosDBToplink();
@@ -546,7 +544,7 @@ public class SocioCarteirinhaJSFBean {
         Juridica sindicato = new Juridica();
         FisicaDB db = new FisicaDBToplink();
         PessoaEndereco pesEndereco, pesDestinatario, pesEndEmpresa, pesEndSindicato = new PessoaEndereco();
-        PessoaEnderecoDB dbEnd = new PessoaEnderecoDBToplink();
+        PessoaEnderecoDao dbEnd = new PessoaEnderecoDao();
         PessoaEmpresa pesEmpresa = new PessoaEmpresa();
         PessoaEmpresaDB dbEmp = new PessoaEmpresaDBToplink();
         SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
@@ -554,7 +552,7 @@ public class SocioCarteirinhaJSFBean {
         try {
             FacesContext faces = FacesContext.getCurrentInstance();
             HttpServletResponse response = (HttpServletResponse) faces.getExternalContext().getResponse();
-            Collection listaSocios = new ArrayList<FichaSocial>();
+            Collection listaSocios = new ArrayList();
 
             File fl = new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/FICHACADASTRO.jasper"));
             JasperReport jasper = (JasperReport) JRLoader.loadObject(fl);

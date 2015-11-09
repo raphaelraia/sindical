@@ -439,7 +439,24 @@ public class ConviteDBToplink extends DB implements ConviteDB {
     @Override
     public List<ConviteServico> listaConviteServico(Integer id_servico){
         try{
-            Query query = getEntityManager().createQuery("SELECT cs FROM ConviteServico cs WHERE cs.servicos.id = "+id_servico);
+            Query query = getEntityManager().createQuery("SELECT cs FROM ConviteServico cs WHERE cs.cortesia = false AND cs.servicos.id = "+id_servico);
+            return query.getResultList();
+        }catch(Exception e){
+            e.getMessage();
+        }
+        return new ArrayList();
+    }
+    
+    @Override
+    public List<ConviteServico> listaConviteServicoCortesia(Boolean cortesia){
+        try{
+            String text = "";
+            if (cortesia != null)
+                text = "SELECT cs FROM ConviteServico cs WHERE cs.cortesia = " + cortesia;
+            else
+                text = "SELECT cs FROM ConviteServico cs ";
+            
+            Query query = getEntityManager().createQuery(text);
             return query.getResultList();
         }catch(Exception e){
             e.getMessage();

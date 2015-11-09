@@ -20,10 +20,9 @@ import br.com.rtools.impressao.ParametroCertificado;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEndereco;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
-import br.com.rtools.pessoa.db.PessoaEnderecoDB;
-import br.com.rtools.pessoa.db.PessoaEnderecoDBToplink;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.seguranca.db.UsuarioDB;
 import br.com.rtools.seguranca.db.UsuarioDBToplink;
@@ -117,8 +116,8 @@ public class WebREPISBean implements Serializable {
     }
 
     public PessoaEndereco enderecoPessoa(int id_pessoa) {
-        PessoaEnderecoDB dbe = new PessoaEnderecoDBToplink();
-        PessoaEndereco endereco_pessoa = dbe.pesquisaEndPorPessoaTipo(id_pessoa, 5);
+        PessoaEnderecoDao dao = new PessoaEnderecoDao();
+        PessoaEndereco endereco_pessoa = dao.pesquisaEndPorPessoaTipo(id_pessoa, 5);
         return endereco_pessoa;
     }
 
@@ -402,15 +401,15 @@ public class WebREPISBean implements Serializable {
         try {
             Juridica sindicato = dbj.pesquisaJuridicaPorPessoa(1);
 
-            PessoaEnderecoDB dbe = new PessoaEnderecoDBToplink();
-            PessoaEndereco sindicato_endereco = dbe.pesquisaEndPorPessoaTipo(1, 5);
+            PessoaEnderecoDao dao = new PessoaEnderecoDao();
+            PessoaEndereco sindicato_endereco = dao.pesquisaEndPorPessoaTipo(1, 5);
 
             di.openTransaction();
             for (RepisMovimento repis : listam) {
                 if (repis.getRepisStatus().getId() == 3 || repis.getRepisStatus().getId() == 4 || repis.getRepisStatus().getId() == 5) {
                     Juridica juridica = dbj.pesquisaJuridicaPorPessoa(repis.getPessoa().getId());
                     PisoSalarialLote lote = dbw.pesquisaPisoSalarial(repis.getAno(), repis.getPatronal().getId(), juridica.getPorte().getId());
-                    PessoaEndereco ee = dbe.pesquisaEndPorPessoaTipo(repis.getPessoa().getId(), 5);
+                    PessoaEndereco ee = dao.pesquisaEndPorPessoaTipo(repis.getPessoa().getId(), 5);
                     List<PisoSalarial> listapiso = dbw.listaPisoSalarialLote(lote.getId());
 
                     List<List> listax = dbj.listaJuridicaContribuinte(juridica.getId());
@@ -581,9 +580,9 @@ public class WebREPISBean implements Serializable {
     }
 
     public String getEnderecoString() {
-        PessoaEnderecoDB enderecoDB = new PessoaEnderecoDBToplink();
+        PessoaEnderecoDao dao = new PessoaEnderecoDao();
         PessoaEndereco ende = null;
-        List listaEnd = enderecoDB.pesquisaEndPorPessoa(repisMovimento.getPessoa().getId());
+        List listaEnd = dao.pesquisaEndPorPessoa(repisMovimento.getPessoa().getId());
         String strCompl;
         String enderecoString;
         if (!listaEnd.isEmpty()) {
@@ -892,8 +891,8 @@ public class WebREPISBean implements Serializable {
             }
 
             int id_convencao = (Integer) listax.get(0).get(5), id_grupo = (Integer) listax.get(0).get(6);
-            PessoaEnderecoDB dbe = new PessoaEnderecoDBToplink();
-            PessoaEndereco pend = dbe.pesquisaEndPorPessoaTipo(juridica.getPessoa().getId(), 5);
+            PessoaEnderecoDao dao = new PessoaEnderecoDao();
+            PessoaEndereco pend = dao.pesquisaEndPorPessoaTipo(juridica.getPessoa().getId(), 5);
 
             if (pend == null) {
                 listComboCertidaoDisponivel.add(new SelectItem(0, "Nenhuma Certidão Disponível", "0"));

@@ -20,9 +20,9 @@ import br.com.rtools.pessoa.Cnae;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEndereco;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
-import br.com.rtools.pessoa.db.PessoaEnderecoDBToplink;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.db.RelatorioContribuintesDB;
 import br.com.rtools.relatorios.db.RelatorioContribuintesDBToplink;
@@ -38,7 +38,6 @@ import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.DataHoje;
-import br.com.rtools.utilitarios.Download;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Jasper;
@@ -213,7 +212,7 @@ public class RelatorioMovimentoBean implements Serializable {
         cab.init();
         Juridica sindicato =  cab.getConfiguracaoArrecadacao().getFilial().getFilial();
         //Juridica sindicato = (Juridica) (new Dao()).find(new Juridica(), 1);
-        PessoaEndereco endSindicato = (new PessoaEnderecoDBToplink()).pesquisaEndPorPessoaTipo(sindicato.getPessoa().getId(), 3);
+        PessoaEndereco endSindicato = (new PessoaEnderecoDao()).pesquisaEndPorPessoaTipo(sindicato.getPessoa().getId(), 3);
 
         Relatorios relatorio = (new RelatorioDao()).pesquisaRelatorios(Integer.parseInt(listaTipoRelatorio.get(idRelatorios).getDescription()));
 

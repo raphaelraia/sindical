@@ -17,6 +17,7 @@ import br.com.rtools.homologacao.dao.FeriadosDao;
 import br.com.rtools.homologacao.db.*;
 import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.pessoa.*;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.*;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.utilitarios.*;
@@ -70,7 +71,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
         if (FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuarioAcessoWeb") != null) {
             JuridicaDB db = new JuridicaDBToplink();
             FilialCidadeDB dbf = new FilialCidadeDBToplink();
-            PessoaEnderecoDB dbp = new PessoaEnderecoDBToplink();
+            PessoaEnderecoDao dbp = new PessoaEnderecoDao();
 
             juridica = db.pesquisaJuridicaPorPessoa(((Pessoa) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuarioAcessoWeb")).getId());
             enderecoEmpresa = dbp.pesquisaEndPorPessoaTipo(juridica.getPessoa().getId(), 5);
@@ -387,7 +388,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
             return;
         }
 
-        PessoaEnderecoDB dbp = new PessoaEnderecoDBToplink();
+        PessoaEnderecoDao dbp = new PessoaEnderecoDao();
         int ids[] = {1, 3, 4};
 
         if (enderecoFisica.getId() == -1) {
@@ -591,7 +592,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
 
             // STATUS AGENDADO
             case 2: {
-                PessoaEnderecoDB db = new PessoaEnderecoDBToplink();
+                PessoaEnderecoDao db = new PessoaEnderecoDao();
                 agendamento = (Agendamento) datao.getArgumento9();
                 fisica = ((PessoaEmpresa) datao.getArgumento7()).getFisica();
                 enderecoFisica = db.pesquisaEndPorPessoaTipo(fisica.getPessoa().getId(), 1);
@@ -643,7 +644,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
             return true;
         } else {
             listFeriados = feriadosDao.pesquisarPorData(DataHoje.converteData(getData()));
-            PessoaEndereco pe = ((PessoaEndereco) ((List) new PessoaEnderecoDBToplink().pesquisaEndPorPessoa(getSindicatoFilial().getFilial().getFilial().getPessoa().getId())).get(0));
+            PessoaEndereco pe = ((PessoaEndereco) ((List) new PessoaEnderecoDao().pesquisaEndPorPessoa(getSindicatoFilial().getFilial().getFilial().getPessoa().getId())).get(0));
             if (!listFeriados.isEmpty()) {
                 for (int i = 0; i < listFeriados.size(); i++) {
                     if (listFeriados.get(i).getCidade() == null) {
@@ -692,7 +693,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
         if (!fisica.getPessoa().getDocumento().isEmpty() && !fisica.getPessoa().getDocumento().equals("___.___.___-__")) {
             String documento = fisica.getPessoa().getDocumento();
             FisicaDB dbFis = new FisicaDBToplink();
-            PessoaEnderecoDB dbp = new PessoaEnderecoDBToplink();
+            PessoaEnderecoDao dbp = new PessoaEnderecoDao();
             HomologacaoDB db = new HomologacaoDBToplink();
             Dao dao = new Dao();
             fisica.getPessoa().setTipoDocumento((TipoDocumento) dao.find(new TipoDocumento(), 1));
@@ -833,7 +834,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
     }
 
     public String getStrEndereco() {
-        PessoaEnderecoDB pessoaEnderecoDB = new PessoaEnderecoDBToplink();
+        PessoaEnderecoDao pessoaEnderecoDB = new PessoaEnderecoDao();
         if (juridica.getId() != -1) {
             if (enderecoEmpresa.getId() != -1) {
                 String strCompl;
@@ -946,7 +947,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
     }
 
     public PessoaEndereco getEnderecoFilial() {
-        PessoaEnderecoDB pessoaEnderecoDB = new PessoaEnderecoDBToplink();
+        PessoaEnderecoDao pessoaEnderecoDB = new PessoaEnderecoDao();
         if (enderecoFilial.getId() == -1) {
             enderecoFilial = pessoaEnderecoDB.pesquisaEndPorPessoaTipo(sindicatoFilial.getFilial().getFilial().getPessoa().getId(), 2);
         }

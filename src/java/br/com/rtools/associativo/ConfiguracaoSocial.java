@@ -47,6 +47,11 @@ public class ConfiguracaoSocial implements Serializable {
     private String obsDescontoFolha;
     @Column(name = "nr_validade_meses_cartao_academia")
     private Integer validadeMesesCartaoAcademia;
+    @Column(name = "nr_meses_debito_inativacao")
+    private Integer mesesDebitoInativacao;
+    @Column(name = "is_inativa_oposicao", columnDefinition = "boolean default true")
+    private Boolean inativaOposicao;
+    
 
     public ConfiguracaoSocial() {
         this.id = -1;
@@ -61,9 +66,11 @@ public class ConfiguracaoSocial implements Serializable {
         this.cartaoPosicaoCodigo = 0;
         this.obsDescontoFolha = "";
         this.validadeMesesCartaoAcademia = 12;
+        this.mesesDebitoInativacao = 6;
+        this.inativaOposicao = true;
     }
 
-    public ConfiguracaoSocial(Integer id, Integer diasInativaDemissionado, Date dataInativacaoDemissionado, GrupoCategoria grupoCategoriaInativaDemissionado, Boolean inativaDemissionado, Boolean recebeAtrasado, Boolean controlaCartaoFilial, Integer cartaoDigitos, Integer cartaoPosicaoVia, Integer cartaoPosicaoCodigo, String obsDescontoFolha, Integer validadeMesesCartaoAcademia) {
+    public ConfiguracaoSocial(Integer id, Integer diasInativaDemissionado, Date dataInativacaoDemissionado, GrupoCategoria grupoCategoriaInativaDemissionado, Boolean inativaDemissionado, Boolean recebeAtrasado, Boolean controlaCartaoFilial, Integer cartaoDigitos, Integer cartaoPosicaoVia, Integer cartaoPosicaoCodigo, String obsDescontoFolha, Integer validadeMesesCartaoAcademia, Integer mesesDebitoInativacao, Boolean inativaOposicao) {
         this.id = id;
         this.diasInativaDemissionado = diasInativaDemissionado;
         this.dataInativacaoDemissionado = dataInativacaoDemissionado;
@@ -76,6 +83,8 @@ public class ConfiguracaoSocial implements Serializable {
         this.cartaoPosicaoCodigo = cartaoPosicaoCodigo;
         this.obsDescontoFolha = obsDescontoFolha;
         this.validadeMesesCartaoAcademia = validadeMesesCartaoAcademia;
+        this.mesesDebitoInativacao = mesesDebitoInativacao;
+        this.inativaOposicao = inativaOposicao;
     }
 
     public Integer getId() {
@@ -184,5 +193,21 @@ public class ConfiguracaoSocial implements Serializable {
 
     public static ConfiguracaoSocial get() {
         return (ConfiguracaoSocial) new Dao().find(new ConfiguracaoSocial(), 1);
+    }
+
+    public Integer getMesesDebitoInativacao() {
+        return mesesDebitoInativacao;
+    }
+
+    public void setMesesDebitoInativacao(Integer mesesDebitoInativacao) {
+        this.mesesDebitoInativacao = mesesDebitoInativacao;
+    }
+
+    public Boolean getInativaOposicao() {
+        return inativaOposicao;
+    }
+
+    public void setInativaOposicao(Boolean inativaOposicao) {
+        this.inativaOposicao = inativaOposicao;
     }
 }

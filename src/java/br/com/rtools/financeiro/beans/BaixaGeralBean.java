@@ -2,6 +2,7 @@ package br.com.rtools.financeiro.beans;
 
 import br.com.rtools.academia.beans.MatriculaAcademiaBean;
 import br.com.rtools.arrecadacao.beans.BaixaBoletoBean;
+import br.com.rtools.associativo.beans.ConviteMovimentoBean;
 import br.com.rtools.associativo.beans.EmissaoGuiasBean;
 import br.com.rtools.associativo.beans.MovimentosReceberSocialBean;
 import br.com.rtools.associativo.beans.VendaBaileBean;
@@ -226,6 +227,7 @@ public class BaixaGeralBean implements Serializable {
                 ((VendaBaileBean) GenericaSessao.getObject("vendaBaileBean")).novo();
                 return "vendasBaile";
             } else if (url.equals("conviteMovimento")) {
+                //((ConviteMovimentoBean) GenericaSessao.getObject("conviteMovimentoBean")).setDesabilitaBaixa(true);
                 return "conviteMovimento";
             } else {
                 return "menuPrincipal";

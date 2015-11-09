@@ -5,8 +5,7 @@ import br.com.rtools.impressao.ParametroCarneMensalidades;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEndereco;
-import br.com.rtools.pessoa.db.PessoaEnderecoDB;
-import br.com.rtools.pessoa.db.PessoaEnderecoDBToplink;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
@@ -14,7 +13,6 @@ import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
 import java.io.File;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -65,8 +63,8 @@ public class CarneMensalidadesBean {
     
     public void imprimirCarne(){
         Juridica sindicato = (Juridica) (new Dao()).find(new Juridica(), 1);
-        PessoaEnderecoDB dbp = new PessoaEnderecoDBToplink();
-        PessoaEndereco pe = dbp.pesquisaEndPorPessoaTipo(1, 2);
+        PessoaEnderecoDao dao = new PessoaEnderecoDao();
+        PessoaEndereco pe = dao.pesquisaEndPorPessoaTipo(1, 2);
         
         CarneMensalidadesDao db = new CarneMensalidadesDao();
         String id_pessoa = "";

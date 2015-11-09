@@ -171,24 +171,61 @@
                                         </p:tab>  
                                     </p:accordionPanel>  
                                 </p:column>
+                                                                
+                                <h:panelGrid rendered="#{notificacaoBean.lote.id == -1}" style="clear: both; width: 285px;">
+                                    <p:selectBooleanCheckbox value="#{notificacaoBean.chkServicos}" itemLabel="Todos Serviços" style="font-weight: bold">
+                                        <p:ajax event="change" listener="#{notificacaoBean.marcarServicos}" update=":formNotificacao"/>
+                                    </p:selectBooleanCheckbox>
+
+                                    <p:dataTable value="#{notificacaoBean.listaServicos}" var="l_servicos" rendered="#{notificacaoBean.lote.id == -1}" scrollable="true">
+                                        <p:column width="20" style="text-align: center">
+                                            <p:selectBooleanCheckbox value="#{l_servicos.chk}">
+                                                <p:ajax event="change" listener="#{notificacaoBean.addServicos}" update=":formNotificacao"/>
+                                            </p:selectBooleanCheckbox>
+                                        </p:column>
+
+                                        <p:column headerText="Contribução"> 
+                                            <h:outputText value="#{l_servicos.servicos.descricao}"/>
+                                        </p:column>
+                                    </p:dataTable>
+                                </h:panelGrid>
+                                
+                                <h:panelGrid rendered="#{notificacaoBean.lote.id == -1}" style="clear: both; width: 285px;">
+                                    <p:selectBooleanCheckbox value="#{notificacaoBean.chkTipoServico}" itemLabel="Todos Serviços" style="font-weight: bold">
+                                        <p:ajax event="change" listener="#{notificacaoBean.marcarTipoServico}" update=":formNotificacao"/>
+                                    </p:selectBooleanCheckbox>
+
+                                    <p:dataTable value="#{notificacaoBean.listaTipoServico}" var="l_tipoServico" rendered="#{notificacaoBean.lote.id == -1}" scrollable="true">
+                                        <p:column width="20" style="text-align: center">
+                                            <p:selectBooleanCheckbox value="#{l_tipoServico.chk}">
+                                                <p:ajax event="change" listener="#{notificacaoBean.addTipoServico}" update=":formNotificacao"/>
+                                            </p:selectBooleanCheckbox>
+                                        </p:column>
+
+                                        <p:column headerText="Tipo"> 
+                                            <h:outputText value="#{l_tipoServico.tipoServico.descricao}"/>
+                                        </p:column>
+                                    </p:dataTable>
+                                </h:panelGrid>
                                 
                                 <h:panelGrid rendered="#{notificacaoBean.lote.id == -1}" style="clear: both; width: 285px;">
                                     <p:selectBooleanCheckbox id="chkCidades" value="#{notificacaoBean.chkCidadesBase}" itemLabel="Todas Cidades da Base" style="font-weight: bold">
                                         <p:ajax event="change" listener="#{notificacaoBean.marcarCidadesBase}" update=":formNotificacao"/>
                                     </p:selectBooleanCheckbox>
 
-                                    <p:dataTable id="tblCidadesBase" value="#{notificacaoBean.listaCidadesBase}" var="linha" rendered="#{notificacaoBean.lote.id == -1}" scrollable="true" scrollHeight="440">
+                                    <p:dataTable id="tblCidadesBase" value="#{notificacaoBean.listaCidadesBase}" var="l_object" rendered="#{notificacaoBean.lote.id == -1}" scrollable="true" scrollHeight="440">
                                         <p:column width="20" style="text-align: center">
-                                            <p:selectBooleanCheckbox value="#{linha.argumento0}">
+                                            <p:selectBooleanCheckbox value="#{l_object.argumento0}">
                                                 <p:ajax event="change" listener="#{notificacaoBean.addCidades}" update=":formNotificacao"/>
                                             </p:selectBooleanCheckbox>
                                         </p:column>
 
                                         <p:column headerText="Cidade / UF"> 
-                                            <h:outputText value="#{linha.argumento1.cidade} - #{linha.argumento1.uf}"/>
+                                            <h:outputText value="#{l_object.argumento1.cidade} - #{l_object.argumento1.uf}"/>
                                         </p:column>
                                     </p:dataTable>
                                 </h:panelGrid>
+
                             </h:panelGrid>
                         </h:form>
                     </p:panel>

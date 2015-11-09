@@ -293,10 +293,10 @@
                                                 </p:panel>
 
                                                 <h:panelGrid columns="4">
-                                                    <p:commandButton icon="photocam" value="Capturar" action="#{photoCapture.openAndSave(fisicaBean.fisica.pessoa, 'form_pessoa_fisica')}" title="Capturar Foto" global="false" disabled="#{fisicaBean.fisica.id == -1 or controleAcessoBean.verificarPermissao('libera_camera', 1)}"/>
-                                                    <p:commandButton icon="ui-icon-arrowthick-1-n" value="Upload Foto" title="Enviar Foto" action="#{photoUpload.openAndSave(fisicaBean.fisica.pessoa, 'form_pessoa_fisica')}" global="false" disabled="#{fisicaBean.fisica.id == -1 or controleAcessoBean.verificarPermissao('libera_upload', 1)}"/>
-                                                    <p:commandButton icon="ui-icon-scissors" value="Cortar Foto" title="Cortar Foto" action="#{photoCropper.openAndSave(fisicaBean.fisica.pessoa, 'form_pessoa_fisica')}" global="false" disabled="#{fisicaBean.fisica.id == -1 or (fisicaBean.fisica.pessoa.fotoResource eq 'images/user_male.png' or fisicaBean.fisica.pessoa.fotoResource eq 'images/user_female.png')}"/>
-                                                    <p:commandButton icon="ui-icon-trash" title="Remover Foto" action="#{fisicaBean.apagarImagem()}" update="i_panel_imagens" disabled="#{fisicaBean.fisica.id == -1}"/>
+                                                    <p:commandButton icon="photocam" value="Capturar" action="#{photoCapture.openAndSave(fisicaBean.fisica, 'form_pessoa_fisica')}" title="Capturar Foto" global="false" disabled="#{fisicaBean.fisica.id == -1 or controleAcessoBean.verificarPermissao('libera_camera', 1)}"/>
+                                                    <p:commandButton icon="ui-icon-arrowthick-1-n" value="Upload Foto" title="Enviar Foto" action="#{photoUpload.openAndSave(fisicaBean.fisica, 'form_pessoa_fisica')}" global="false" disabled="#{fisicaBean.fisica.id == -1 or controleAcessoBean.verificarPermissao('libera_upload', 1)}"/>
+                                                    <p:commandButton icon="ui-icon-scissors" value="Cortar Foto" title="Cortar Foto" action="#{photoCropper.openAndSave(fisicaBean.fisica, 'form_pessoa_fisica')}" global="false" disabled="#{fisicaBean.fisica.id == -1 or (fisicaBean.fisica.pessoa.fotoResource eq 'images/user_male.png' or fisicaBean.fisica.pessoa.fotoResource eq 'images/user_female.png')}"/>
+                                                    <p:commandButton icon="ui-icon-trash" title="Remover Foto" action="#{fisicaBean.apagarImagem()}" update="i_panel_imagens" disabled="#{fisicaBean.fisica.id == -1 or fisicaBean.fisica.foto == null or fisicaBean.fisica.foto eq ''}"/>
                                                 </h:panelGrid>
                                             </p:column>
                                         </h:panelGrid>
@@ -561,7 +561,7 @@
                                                 <p:outputLabel value="SIM" rendered="#{linha.argumento0[2]}"/>
                                             </p:column>
 
-                                            <p:column headerText="Desconto" style="text-align: center; width: 60px">
+                                            <p:column headerText="Desconto" style="text-align: center; width: 60px" rendered="false">
                                                 <p:outputLabel value="#{linha.argumento0[3]}" />
                                             </p:column>
 
@@ -578,11 +578,11 @@
                                             </p:column>
 
                                             <p:column headerText="Valor" style="width: 80px; text-align: right">
-                                                <p:outputLabel value="#{fisicaBean.converteMoeda(linha.argumento0[8])}" />
+                                                <p:outputLabel value="#{fisicaBean.converteMoeda(linha.argumento0[7])}" />
                                             </p:column>
 
                                             <p:column headerText="Vlr c/ Desconto" style="width: 80px; text-align: right">
-                                                <p:outputLabel value="#{fisicaBean.converteMoeda(linha.argumento0[7])}" />
+                                                <p:outputLabel value="#{fisicaBean.converteMoeda(linha.argumento0[8])}" />
                                             </p:column>
                                         </p:dataTable>
                                         <br />
@@ -947,30 +947,31 @@
                             </p:dialog>
                         </h:form>
                     </p:panel>
-
+<!--
                     <h:form id="form_aplicativos">
-                        <p:dialog widgetVar="dlg_waiting_biometria" modal="true" resizable="false" header="Aguarde..." visible="#{biometriaBean.disabled}" closable="false">
+                        <p:dialog widgetVar="dlg_waiting_biometria" modal="true" resizable="false" header="Aguarde..." visible="# {biometriaBean.disabled}" closable="false">
                             <h:outputLabel value="Não feche essa janela durante a operação. Caso apresente erros contate o administrador do sistema ou reinicie o aplicativo da leitura." />
                             <br /><br />
-                            <p:commandButton value="Cancelar" title="Cancelar" update=":form_aplicativos:i_message_err_x" onclick="PF('dlg_waiting_biometria_erro').show();" action="#{biometriaBean.abort(fisicaBean.fisica.pessoa)}" ajax="false"/>
+                            <p:commandButton value="Cancelar" title="Cancelar" update=":form_aplicativos:i_message_err_x" onclick="PF('dlg_waiting_biometria_erro').show();" action="# {biometriaBean.abort(fisicaBean.fisica.pessoa)}" ajax="false"/>
                         </p:dialog>
-                        <p:poll id="i_app_leitor" interval="5" update="i_app_leitor :form_pessoa_fisica:i_app_message" stop="#{biometriaBean.disabled}" autoStart="true" delay="5" ignoreAutoUpdate="true"/>
+                        <p:poll id="i_app_leitor" interval="5" update="i_app_leitor :form_pessoa_fisica:i_app_message" stop="# {biometriaBean.disabled}" autoStart="false" delay="5" ignoreAutoUpdate="true"/>
                         <p:dialog widgetVar="dlg_waiting_biometria_info" modal="true" resizable="false" header="Erro" closable="true">
                             <h:outputLabel value="Dispostivo de leitura esta desconectado. Caso apresente erros contate o administrador do sistema ou reinicie o aplicativo da leitura." styleClass="font-color-red bold"/>
                             <f:facet name="footer">
                                 <p:commandButton value="Ok" title="Ok" onclick="PF('dlg_waiting_biometria_info').hide();" update="i_app_leitor"/>
                             </f:facet>
                         </p:dialog>
-                        <p:dialog widgetVar="dlg_waiting_biometria_erro" modal="true" resizable="false" header="Mensagem Sistema" closable="true" visible="#{biometriaBean.open_modal_cancel}">
-                            <p:ajax event="close" update=":form_aplicativos:" listener="#{biometriaBean.closeModalApp()}"/>
+                        <p:dialog widgetVar="dlg_waiting_biometria_erro" modal="true" resizable="false" header="Mensagem Sistema" closable="true" visible="# {biometriaBean.open_modal_cancel}">
+                            <p:ajax event="close" update=":form_aplicativos:" listener="# {biometriaBean.closeModalApp()}"/>
                             <h:panelGrid id="i_message_err_x">
                                 <p:messages autoUpdate="true" showSummary="true" showDetail="true" closable="true"/>
                             </h:panelGrid>
                             <f:facet name="footer">
-                                <p:commandButton value="Ok" title="Ok" onclick="PF('dlg_waiting_biometria_erro').hide();" update="i_app_leitor" action="#{biometriaBean.closeModalApp()}"/>
+                                <p:commandButton value="Ok" title="Ok" onclick="PF('dlg_waiting_biometria_erro').hide();" update="i_app_leitor" action="# {biometriaBean.closeModalApp()}"/>
                             </f:facet>                                
                         </p:dialog>
-                    </h:form>                    
+                    </h:form>            
+-->
                 </f:view>
 
                 <!-- FINALIZA div wrap main -->

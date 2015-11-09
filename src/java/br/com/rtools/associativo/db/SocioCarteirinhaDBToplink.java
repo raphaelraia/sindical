@@ -100,16 +100,16 @@ public class SocioCarteirinhaDBToplink extends DB implements SocioCarteirinhaDB 
                     + "            p.ds_nome,                                               \n" // 1 NOME
                     + "            pj.ds_documento,                                         \n" // 2 CNPJ
                     + "            pj.ds_nome,                                              \n" // 3 RAZÃO SOCIAL
-                    + "            to_char(sc.dt_emissao, 'DD/MM/YYYY'),                    \n" // 4 EMISSÃO
+                    + "            to_char(sc.dt_emissao, 'DD/MM/YYYY') as impresso,        \n" // 4 EMISSÃO
                     + "            c.ds_cidade,                                             \n" // 5 EMPRESA CIDADE
-                    + "            to_char(sc.dt_validade_carteirinha, 'DD/MM/YYYY'),       \n" // 6 VALIDADE
+                    + "            to_char(sc.dt_validade_carteirinha, 'DD/MM/YYYY') as validade_carteirinha, \n" // 6 VALIDADE
                     + "            c.ds_uf,                                                 \n" // 7 EMPRESA UF
-                    + "            to_char(pe.dt_admissao, 'DD/MM/YYYY'),                   \n" // 8 ADMISSÃO
+                    + "            to_char(pe.dt_admissao, 'DD/MM/YYYY') as admissao,       \n" // 8 ADMISSÃO
                     + "            j.ds_fantasia,                                           \n" // 9 FANTASIA
                     + "            s.matricula,                                             \n" // 10 MATRÍCULA
                     + "            s.nr_via,                                                \n" // 11 VIA
                     + "            s.id_socio,                                              \n" // 12 
-                    + "            to_char(s.filiacao, 'DD/MM/YYYY'),                       \n" // 13 FILIAÇÃO
+                    + "            to_char(s.filiacao, 'DD/MM/YYYY') as filiacao,           \n" // 13 FILIAÇÃO
                     + "            pr.ds_profissao as cargo,                                \n" // 14 PROFISSÃO
                     + "            p.ds_documento,                                          \n" // 15 CPF
                     + "            f.ds_rg,                                                 \n" // 16 RG
@@ -163,7 +163,7 @@ public class SocioCarteirinhaDBToplink extends DB implements SocioCarteirinhaDB 
             if (tipo.equals("niEmpresa")) {
                 if (registro.isCobrancaCarteirinha()) {
                     textqry += " WHERE ( "
-                            + "	(m.id_servicos IS NOT NULL AND sh.id_movimento IS NULL) OR "
+                            + "	(m.id_servicos IS NOT NULL AND sh.id_movimento IS NULL AND m.is_ativo = true) OR "
                             + "	(p.id IN (SELECT id_pessoa FROM soc_autoriza_impressao_cartao WHERE id_historico_carteirinha IS NULL)) "
                             + "       ) \n";
                 } else {
@@ -184,7 +184,7 @@ public class SocioCarteirinhaDBToplink extends DB implements SocioCarteirinhaDB 
             if (tipo.equals("niCNPJ")) {
                 if (registro.isCobrancaCarteirinha()) {
                     textqry += " WHERE ( "
-                            + "	(m.id_servicos IS NOT NULL AND sh.id_movimento IS NULL) OR "
+                            + "	(m.id_servicos IS NOT NULL AND sh.id_movimento IS NULL AND m.is_ativo = true) OR "
                             + "	(p.id IN (SELECT id_pessoa FROM soc_autoriza_impressao_cartao WHERE id_historico_carteirinha IS NULL)) "
                             + "       ) \n";
                 } else {

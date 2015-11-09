@@ -2,12 +2,21 @@ package br.com.rtools.sistema;
 
 import br.com.rtools.endereco.Endereco;
 import br.com.rtools.pessoa.Fisica;
+import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.TipoDocumento;
+import br.com.rtools.pessoa.db.FisicaDB;
+import br.com.rtools.pessoa.db.FisicaDBToplink;
+import br.com.rtools.pessoa.db.JuridicaDB;
+import br.com.rtools.pessoa.db.JuridicaDBToplink;
+import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.DataHoje;
+import java.io.File;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.faces.context.FacesContext;
 import javax.persistence.*;
+import javax.servlet.ServletContext;
 import org.primefaces.event.SelectEvent;
 
 @Entity
@@ -294,4 +303,29 @@ public class SisPessoa implements Serializable {
         this.fisica = fisica;
     }
 
+    public String getFotoResourcePerfil() {
+        if (this.id != -1) {
+            String foto = "";
+            foto = "cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/sispessoa/" + this.id + "/perfil/" + this.fotoPerfil + ".png";
+            File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/" + foto);
+
+            if (f.exists()) {
+                return foto;
+            }
+        }
+        return "";
+    }
+    
+    public String getFotoResourceArquivo() {
+        if (this.id != -1) {
+            String foto = "";
+            foto = "cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/sispessoa/" + this.id + "/documento/" + this.fotoArquivo + ".png";
+            File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/" + foto);
+
+            if (f.exists()) {
+                return foto;
+            }
+        }
+        return "";
+    }
 }

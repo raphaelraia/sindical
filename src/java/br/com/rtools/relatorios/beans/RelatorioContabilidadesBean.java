@@ -5,7 +5,7 @@ import br.com.rtools.impressao.ParametroEscritorios;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.TipoEndereco;
-import br.com.rtools.pessoa.db.*;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioOrdemDao;
@@ -102,7 +102,7 @@ public class RelatorioContabilidadesBean implements Serializable {
 
         RelatorioDao db = new RelatorioDao();
         RelatorioContabilidadesDB dbConta = new RelatorioContabilidadesDBToplink();
-        PessoaEnderecoDB dbPesEnd = new PessoaEnderecoDBToplink();
+        PessoaEnderecoDao dbPesEnd = new PessoaEnderecoDao();
         Cidade cidade;
         Dao dao = new Dao();
         Relatorios r = db.pesquisaRelatorios(Integer.parseInt(getListRelatorios().get(index[0]).getDescription()));

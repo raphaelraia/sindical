@@ -8,7 +8,7 @@ import br.com.rtools.associativo.db.CategoriaDBToplink;
 import br.com.rtools.impressao.ParametroSociosInativos;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.PessoaEndereco;
-import br.com.rtools.pessoa.db.PessoaEnderecoDBToplink;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.relatorios.db.RelatorioSociosDB;
@@ -93,7 +93,7 @@ public class RelatorioSociosInativosBean implements Serializable {
         Dao di = new Dao();
 
         Juridica sindicato = (Juridica) di.find(new Juridica(), 1);
-        PessoaEndereco endSindicato = (new PessoaEnderecoDBToplink()).pesquisaEndPorPessoaTipo(sindicato.getId(), 3);
+        PessoaEndereco endSindicato = (new PessoaEnderecoDao()).pesquisaEndPorPessoaTipo(sindicato.getId(), 3);
 
         List<ParametroSociosInativos> lista = new ArrayList();
         for (int i = 0; i < result.size(); i++) {

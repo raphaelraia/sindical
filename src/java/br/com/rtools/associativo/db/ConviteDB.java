@@ -44,5 +44,6 @@ public interface ConviteDB {
     
     public List<ConviteAutorizaCortesia> listaConviteAutorizaCortesia(boolean is_ativo);
     public List<ConviteServico> listaConviteServico(Integer id_servico);
+    public List<ConviteServico> listaConviteServicoCortesia(Boolean cortesia);
 
 }

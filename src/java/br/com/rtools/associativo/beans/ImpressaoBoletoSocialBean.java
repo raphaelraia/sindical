@@ -13,12 +13,11 @@ import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.beans.FisicaBean;
 import br.com.rtools.pessoa.beans.JuridicaBean;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.FisicaDB;
 import br.com.rtools.pessoa.db.FisicaDBToplink;
 import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
-import br.com.rtools.pessoa.db.PessoaEnderecoDB;
-import br.com.rtools.pessoa.db.PessoaEnderecoDBToplink;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.ConfiguracaoUpload;
@@ -652,7 +651,7 @@ public class ImpressaoBoletoSocialBean {
         try {
             Map<Integer, PessoaEndereco> hash = new LinkedHashMap();
 
-            PessoaEnderecoDB dbpe = new PessoaEnderecoDBToplink();
+            PessoaEnderecoDao dbpe = new PessoaEnderecoDao();
             PessoaEndereco pe;
 
             JuridicaDB dbj = new JuridicaDBToplink();
@@ -796,7 +795,7 @@ public class ImpressaoBoletoSocialBean {
             for (int i = 0; i < listaGrid.size(); i++) {
                 if ((Boolean) listaGrid.get(i).getArgumento1()) {
                     List<Vector> lista_socio;
-                    PessoaEnderecoDB dbpe = new PessoaEnderecoDBToplink();
+                    PessoaEnderecoDao dbpe = new PessoaEnderecoDao();
                     PessoaEndereco pe;
 
                     lista_socio = db.listaBoletoSocioJuridicaAgrupado((String) ((Vector) listaGrid.get(i).getArgumento2()).get(0)); // NR_CTR_BOLETO

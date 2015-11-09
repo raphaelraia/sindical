@@ -16,8 +16,7 @@ import br.com.rtools.pessoa.Raca;
 import br.com.rtools.pessoa.TipoDeficiencia;
 import br.com.rtools.pessoa.TipoDocumento;
 import br.com.rtools.pessoa.beans.PesquisarProfissaoBean;
-import br.com.rtools.pessoa.db.PessoaEnderecoDB;
-import br.com.rtools.pessoa.db.PessoaEnderecoDBToplink;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.sistema.SisPessoa;
 import br.com.rtools.sistema.dao.SisPessoaDao;
@@ -553,8 +552,8 @@ public class RaisBean extends PesquisarProfissaoBean implements Serializable {
                 rais.getSisPessoa().setDocumento(f.getPessoa().getDocumento());
                 rais.getSisPessoa().setNascimento(f.getNascimento());
                 rais.getSisPessoa().setSexo(f.getSexo());
-                PessoaEnderecoDB pedb = new PessoaEnderecoDBToplink();
-                PessoaEndereco pe = pedb.pesquisaEndPorPessoaTipo(f.getPessoa().getId(), 1);
+                PessoaEnderecoDao dao = new PessoaEnderecoDao();
+                PessoaEndereco pe = dao.pesquisaEndPorPessoaTipo(f.getPessoa().getId(), 1);
                 if (pe != null && pe.getId() != -1) {
                     rais.getSisPessoa().setEndereco(pe.getEndereco());
                 } else {

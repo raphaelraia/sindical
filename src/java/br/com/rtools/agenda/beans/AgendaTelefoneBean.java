@@ -12,8 +12,7 @@ import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.TipoEndereco;
-import br.com.rtools.pessoa.db.PessoaEnderecoDB;
-import br.com.rtools.pessoa.db.PessoaEnderecoDBToplink;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -277,8 +276,8 @@ public class AgendaTelefoneBean implements Serializable {
                     agenda.setNome(email2Memoria);
                 }
             }
-            PessoaEnderecoDB pessoaEnderecoDB = new PessoaEnderecoDBToplink();
-            List<PessoaEndereco> pessoaEnderecos = pessoaEnderecoDB.pesquisaEndPorPessoa(pessoa.getId());
+            PessoaEnderecoDao dao = new PessoaEnderecoDao();
+            List<PessoaEndereco> pessoaEnderecos = dao.pesquisaEndPorPessoa(pessoa.getId());
             if (!pessoaEnderecos.isEmpty()) {
                 endereco = pessoaEnderecos.get(0).getEndereco();
             }

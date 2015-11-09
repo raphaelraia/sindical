@@ -1,7 +1,6 @@
 package br.com.rtools.movimento;
 
 import br.com.rtools.arrecadacao.Acordo;
-import br.com.rtools.arrecadacao.ConfiguracaoArrecadacao;
 import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.ConvencaoServico;
 import br.com.rtools.arrecadacao.beans.ConfiguracaoArrecadacaoBean;
@@ -38,14 +37,13 @@ import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEndereco;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.FilialDB;
 import br.com.rtools.pessoa.db.FilialDao;
 import br.com.rtools.pessoa.db.FisicaDB;
 import br.com.rtools.pessoa.db.FisicaDBToplink;
 import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
-import br.com.rtools.pessoa.db.PessoaEnderecoDB;
-import br.com.rtools.pessoa.db.PessoaEnderecoDBToplink;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.Links;
 import br.com.rtools.utilitarios.*;
@@ -201,7 +199,7 @@ public class ImprimirBoleto {
         try {
             FacesContext faces = FacesContext.getCurrentInstance();
             Collection vetor = new ArrayList();
-            PessoaEnderecoDB pesEndDB = new PessoaEnderecoDBToplink();
+            PessoaEnderecoDao pesEndDB = new PessoaEnderecoDao();
             JuridicaDB jurDB = new JuridicaDBToplink();
             String swap[] = new String[50];
             PessoaEndereco pe = null;
@@ -528,7 +526,7 @@ public class ImprimirBoleto {
             FacesContext faces = FacesContext.getCurrentInstance();
             JasperReport jasper;
             Collection vetor = new ArrayList();
-            PessoaEnderecoDB pesEndDB = new PessoaEnderecoDBToplink();
+            PessoaEnderecoDao pesEndDB = new PessoaEnderecoDao();
             PessoaEndereco pe = null;
             JuridicaDB jurDB = new JuridicaDBToplink();
             Juridica juridica = new Juridica();
@@ -733,7 +731,7 @@ public class ImprimirBoleto {
             FacesContext faces = FacesContext.getCurrentInstance();
             JasperReport jasper;
             Collection vetor = new ArrayList();
-            PessoaEnderecoDB pesEndDB = new PessoaEnderecoDBToplink();
+            PessoaEnderecoDao pesEndDB = new PessoaEnderecoDao();
             PessoaEndereco pe = null;
             JuridicaDB jurDB = new JuridicaDBToplink();
             Juridica juridica = new Juridica();
@@ -901,7 +899,7 @@ public class ImprimirBoleto {
             FacesContext faces = FacesContext.getCurrentInstance();
             JasperReport jasper;
             Collection vetor = new ArrayList();
-            PessoaEnderecoDB pesEndDB = new PessoaEnderecoDBToplink();
+            PessoaEnderecoDao pesEndDB = new PessoaEnderecoDao();
             PessoaEndereco pe = null;
             JuridicaDB jurDB = new JuridicaDBToplink();
             Juridica juridica = new Juridica();
@@ -1133,7 +1131,7 @@ public class ImprimirBoleto {
             FacesContext faces = FacesContext.getCurrentInstance();
             JasperReport jasper;
             Collection vetor1 = new ArrayList(), vetor2 = new ArrayList();
-            PessoaEnderecoDB pesEndDB = new PessoaEnderecoDBToplink();
+            PessoaEnderecoDao pesEndDB = new PessoaEnderecoDao();
             PessoaEndereco pe = null;
             JuridicaDB jurDB = new JuridicaDBToplink();
             Juridica juridica = new Juridica();
@@ -1437,7 +1435,7 @@ public class ImprimirBoleto {
             FacesContext faces = FacesContext.getCurrentInstance();
             JasperReport jasper;
             Collection vetor1 = new ArrayList(), vetor2 = new ArrayList(), vetor3 = new ArrayList();
-            PessoaEnderecoDB pesEndDB = new PessoaEnderecoDBToplink();
+            PessoaEnderecoDao pesEndDB = new PessoaEnderecoDao();
             PessoaEndereco pe = null;
             JuridicaDB jurDB = new JuridicaDBToplink();
             Juridica juridica = new Juridica();

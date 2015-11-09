@@ -13,8 +13,7 @@ public class RelatorioConvenioMedicoDao extends DB {
 
     public List find(Relatorios relatorio, Integer subgrupo, Integer convenio, Boolean isentos, Float faixaValorInicial, Float faixaValorFinal, String situacao) {
         List listWhere = new ArrayList();
-        String queryString = " -- RelatorioConvenioMedicoDao->find()"
-                + "     SELECT SB.ds_descricao                          AS grupo,                           " // 0 - SubGrupo
+        String queryString = "     SELECT SB.ds_descricao                          AS grupo,                           " // 0 - SubGrupo
                 + "            SE.ds_descricao                          AS servico,                         " // 1 - Serviço
                 + "            P.ds_nome                                AS nome,                            " // 2 - Nome
                 + "            func_idade(F.dt_nascimento,current_date) AS idade,                           " // 3 - Idade

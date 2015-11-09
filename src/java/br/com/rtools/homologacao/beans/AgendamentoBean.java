@@ -21,6 +21,7 @@ import br.com.rtools.impressao.beans.ProtocoloAgendamento;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.pessoa.*;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.*;
 import br.com.rtools.pessoa.utilitarios.PessoaUtilitarios;
 import br.com.rtools.seguranca.MacFilial;
@@ -552,7 +553,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 break;
             }
             case 2: {
-                PessoaEnderecoDB db = new PessoaEnderecoDBToplink();
+                PessoaEnderecoDao db = new PessoaEnderecoDao();
                 agendamento = a;
                 fisica = a.getPessoaEmpresa().getFisica();
                 documentoFisica = fisica.getPessoa().getDocumento();
@@ -787,7 +788,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             isOposicao = true;
         }
 
-        PessoaEnderecoDB dbp = new PessoaEnderecoDBToplink();
+        PessoaEnderecoDao dbp = new PessoaEnderecoDao();
 
         if (enderecoFisica.getId() == -1) {
             if (enderecoFisica.getEndereco().getId() != -1) {
@@ -1112,7 +1113,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             //fisica = new Fisica();
             FisicaDB dbFis = new FisicaDBToplink();
             HomologacaoDB db = new HomologacaoDBToplink();
-            PessoaEnderecoDB dbe = new PessoaEnderecoDBToplink();
+            PessoaEnderecoDao dbe = new PessoaEnderecoDao();
 
             String documento = documentoFisica;
 
@@ -1228,7 +1229,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 agendamento.setAgendador((Usuario) GenericaSessao.getObject("sessaoUsuario"));
                 agendamento.setFilial(macFilial.getFilial());
                 fisica = agendamento.getPessoaEmpresa().getFisica();
-                PessoaEnderecoDB dbe = new PessoaEnderecoDBToplink();
+                PessoaEnderecoDao dbe = new PessoaEnderecoDao();
                 enderecoFisica = dbe.pesquisaEndPorPessoaTipo(fisica.getPessoa().getId(), 3);
                 pessoaEmpresa = agendamento.getPessoaEmpresa();
                 profissao = pessoaEmpresa.getFuncao();
@@ -1323,7 +1324,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     }
 
     public String getStrEndereco() {
-        PessoaEnderecoDB pessoaEnderecoDB = new PessoaEnderecoDBToplink();
+        PessoaEnderecoDao pessoaEnderecoDB = new PessoaEnderecoDao();
         if (juridica.getId() != -1) {
             enderecoEmpresa = pessoaEnderecoDB.pesquisaEndPorPessoaTipo(juridica.getPessoa().getId(), 5);
             if (enderecoEmpresa.getId() != -1) {
@@ -1538,7 +1539,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     }
 
     public PessoaEndereco getEnderecoFilial() {
-        PessoaEnderecoDB pessoaEnderecoDB = new PessoaEnderecoDBToplink();
+        PessoaEnderecoDao pessoaEnderecoDB = new PessoaEnderecoDao();
         if (enderecoFilial.getId() == -1) {
             enderecoFilial = pessoaEnderecoDB.pesquisaEndPorPessoaTipo(macFilial.getFilial().getFilial().getPessoa().getId(), 2);
         }

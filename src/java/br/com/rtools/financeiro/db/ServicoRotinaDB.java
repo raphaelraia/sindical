@@ -19,4 +19,6 @@ public interface ServicoRotinaDB {
     public boolean existeServicoRotina(int idServico, int idRotina);
     
     public List<Servicos> listaServicosNotIn(String ids);
+    
+    public List<Servicos> listaServicosIn(String ids);
 }

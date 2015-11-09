@@ -17,14 +17,13 @@ import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.Porte;
 import br.com.rtools.pessoa.TipoDocumento;
 import br.com.rtools.pessoa.TipoEndereco;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.CnaeDB;
 import br.com.rtools.pessoa.db.CnaeDBToplink;
 import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
 import br.com.rtools.pessoa.db.PessoaDB;
 import br.com.rtools.pessoa.db.PessoaDBToplink;
-import br.com.rtools.pessoa.db.PessoaEnderecoDB;
-import br.com.rtools.pessoa.db.PessoaEnderecoDBToplink;
 import br.com.rtools.pessoa.db.TipoEnderecoDB;
 import br.com.rtools.pessoa.db.TipoEnderecoDBToplink;
 import br.com.rtools.seguranca.Registro;
@@ -537,7 +536,7 @@ public class ControleAcessoWebBean implements Serializable {
             return null;
         }
 
-        PessoaEnderecoDB dbe = new PessoaEnderecoDBToplink();
+        PessoaEnderecoDao dbe = new PessoaEnderecoDao();
 
         String cep = jr.getCep();
         cep = cep.replace(".", "").replace("-", "");

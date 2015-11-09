@@ -12,6 +12,7 @@ import br.com.rtools.impressao.ParametroMovimentos;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEndereco;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.*;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioDao;
@@ -87,7 +88,7 @@ public class RelatorioMovimentosJSFBean extends MovimentoValorBean {
         Juridica sindicato = new Juridica();
         JuridicaDB dbJur = new JuridicaDBToplink();
         PessoaEndereco endSindicato = new PessoaEndereco();
-        PessoaEnderecoDB dbPesEnd = new PessoaEnderecoDBToplink();
+        PessoaEnderecoDao dbPesEnd = new PessoaEnderecoDao();
 
         FinanceiroDB dbFin = new FinanceiroDBToplink();
 
@@ -385,7 +386,7 @@ public class RelatorioMovimentosJSFBean extends MovimentoValorBean {
         Juridica sindicato = new Juridica();
         JuridicaDB dbJur = new JuridicaDBToplink();
         PessoaEndereco endSindicato = new PessoaEndereco();
-        PessoaEnderecoDB dbPesEnd = new PessoaEnderecoDBToplink();
+        PessoaEnderecoDao dbPesEnd = new PessoaEnderecoDao();
 
         Registro reg = new Registro();
         reg = (Registro) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(1, "Registro");

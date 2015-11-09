@@ -37,6 +37,7 @@ import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaComplemento;
 import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.pessoa.PessoaEndereco;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.FilialDao;
 import br.com.rtools.pessoa.db.FisicaDB;
 import br.com.rtools.pessoa.db.FisicaDBToplink;
@@ -46,8 +47,6 @@ import br.com.rtools.pessoa.db.PessoaDB;
 import br.com.rtools.pessoa.db.PessoaDBToplink;
 import br.com.rtools.pessoa.db.PessoaEmpresaDB;
 import br.com.rtools.pessoa.db.PessoaEmpresaDBToplink;
-import br.com.rtools.pessoa.db.PessoaEnderecoDB;
-import br.com.rtools.pessoa.db.PessoaEnderecoDBToplink;
 import br.com.rtools.pessoa.db.SpcDB;
 import br.com.rtools.pessoa.db.SpcDBToplink;
 import br.com.rtools.seguranca.FilialRotina;
@@ -661,7 +660,7 @@ public class MatriculaEscolaBean implements Serializable {
             String cidadeResponsavelString = "";
             String estadoResponsavelString = "";
             String cepResponsavelString = "";
-            PessoaEnderecoDB pessoaEnderecoDB = new PessoaEnderecoDBToplink();
+            PessoaEnderecoDao pessoaEnderecoDB = new PessoaEnderecoDao();
             PessoaEndereco pessoaEnderecoAluno = (PessoaEndereco) pessoaEnderecoDB.pesquisaEndPorPessoaTipo(servicoPessoa.getPessoa().getId(), 1);
 
             int idTipoEndereco = -1;
@@ -3039,7 +3038,6 @@ public class MatriculaEscolaBean implements Serializable {
 //        byte[] outputData = outputBuffer.array();
 //        return new String(outputData);
 //    }
-    
     public boolean isVisibility() {
         return visibility;
     }

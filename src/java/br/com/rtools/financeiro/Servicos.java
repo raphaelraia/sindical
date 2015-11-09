@@ -78,6 +78,8 @@ public class Servicos implements java.io.Serializable {
     @JoinColumn(name = "id_modelo_cartao ", referencedColumnName = "id", nullable = true)
     @ManyToOne
     private ModeloCarteirinha modeloCarteirinha;
+    @Column(name = "nr_meses_debito_exclusao")
+    private Integer mesesDebitoExclusao;    
 
     public Servicos() {
         this.id = -1;
@@ -107,6 +109,7 @@ public class Servicos implements java.io.Serializable {
         this.cursoRenovacao = false;
         this.boleto = false;
         this.modeloCarteirinha = null;
+        this.mesesDebitoExclusao = 60;
     }
 
     public Servicos(int id,
@@ -135,7 +138,8 @@ public class Servicos implements java.io.Serializable {
             boolean validadeGuias,
             boolean cursoRenovacao,
             boolean boleto,
-            ModeloCarteirinha modeloCarteirinha) {
+            ModeloCarteirinha modeloCarteirinha,
+            Integer mesesDebitoExclusao) {
         this.id = id;
         this.descricao = descricao;
         this.filial = filial;
@@ -163,6 +167,7 @@ public class Servicos implements java.io.Serializable {
         this.cursoRenovacao = cursoRenovacao;
         this.boleto = boleto;
         this.modeloCarteirinha = modeloCarteirinha;
+        this.mesesDebitoExclusao = mesesDebitoExclusao;
     }
 
     public int getId() {
@@ -402,6 +407,14 @@ public class Servicos implements java.io.Serializable {
     @Override
     public String toString() {
         return "Servicos{" + "id=" + id + ", descricao=" + descricao + ", filial=" + filial + ", plano5=" + plano5 + ", departamento=" + departamento + ", validade=" + validade + ", codigo=" + codigo + ", situacao=" + situacao + ", debito=" + debito + ", alterarValor=" + alterarValor + ", adm=" + adm + ", tabela=" + tabela + ", eleicao=" + eleicao + ", agrupaBoleto=" + agrupaBoleto + ", produto=" + produto + ", subGrupoFinanceiro=" + subGrupoFinanceiro + ", valorFixo=" + valorFixo + ", periodo=" + periodo + ", quantidadePeriodo=" + quantidadePeriodo + ", familiarPeriodo=" + familiarPeriodo + ", valorZerado=" + valorZerado + ", validadeGuiasVigente=" + validadeGuiasVigente + ", administradora=" + administradora + ", validadeGuias=" + validadeGuias + ", cursoRenovacao=" + cursoRenovacao + ", boleto=" + boleto + ", modeloCarteirinha=" + modeloCarteirinha + '}';
+    }
+
+    public Integer getMesesDebitoExclusao() {
+        return mesesDebitoExclusao;
+    }
+
+    public void setMesesDebitoExclusao(Integer mesesDebitoExclusao) {
+        this.mesesDebitoExclusao = mesesDebitoExclusao;
     }
 
 }

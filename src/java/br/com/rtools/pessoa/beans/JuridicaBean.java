@@ -10,6 +10,7 @@ import br.com.rtools.endereco.Endereco;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.*;
 import br.com.rtools.pessoa.dao.MalaDiretaDao;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.*;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
@@ -318,7 +319,7 @@ public class JuridicaBean implements Serializable {
             }
             retornaCnaeReceita(listac.get(0));
 
-            PessoaEnderecoDB dbe = new PessoaEnderecoDBToplink();
+            PessoaEnderecoDao dbe = new PessoaEnderecoDao();
 
             String cep = juridicaReceita.getCep();
             cep = cep.replace(".", "").replace("-", "");
@@ -765,7 +766,7 @@ public class JuridicaBean implements Serializable {
 
     public String excluir() {
         SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-        PessoaEnderecoDB dbPE = new PessoaEnderecoDBToplink();
+        PessoaEnderecoDao dbPE = new PessoaEnderecoDao();
         if (juridica.getId() == -1) {
             GenericaMensagem.error("Erro", "Pesquise uma empresa para ser excluída!");
             return null;
@@ -1082,7 +1083,7 @@ public class JuridicaBean implements Serializable {
     public String adicionarEnderecos() {
         // List tiposE = new ArrayList();
         TipoEnderecoDB db_tipoEndereco = new TipoEnderecoDBToplink();
-        PessoaEnderecoDB db_pesEnd = new PessoaEnderecoDBToplink();
+        PessoaEnderecoDao db_pesEnd = new PessoaEnderecoDao();
         endereco = new Endereco();
         String num;
         String comp;
@@ -1289,7 +1290,7 @@ public class JuridicaBean implements Serializable {
     }
 
     public void verificarEndContabilidade() {
-        PessoaEnderecoDB db = new PessoaEnderecoDBToplink();
+        PessoaEnderecoDao db = new PessoaEnderecoDao();
         if (juridica.getId() != -1) {
             if (juridica.isCobrancaEscritorio() && (juridica.getContabilidade() != null && juridica.getContabilidade().getId() != -1)) {
                 if (juridica.getId() != juridica.getContabilidade().getId()) {
@@ -1343,7 +1344,7 @@ public class JuridicaBean implements Serializable {
     public String atualizarEndJuridicaComContabil() {
         if (juridica.getId() != -1) {
             JuridicaDB db = new JuridicaDBToplink();
-            PessoaEnderecoDB pesEndDB = new PessoaEnderecoDBToplink();
+            PessoaEnderecoDao pesEndDB = new PessoaEnderecoDao();
             SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
             List listaPesEndEmpPertencente = db.pesquisaPesEndEmpresaComContabil(juridica.getId());
             PessoaEndereco endeEmp2 = pesEndDB.pesquisaEndPorPessoaTipo(juridica.getPessoa().getId(), 2);
@@ -1372,7 +1373,7 @@ public class JuridicaBean implements Serializable {
     public String RetornarObjetoDaGrid(PessoaEndereco linha, int index) {
         pessoaEndereco = linha;//(PessoaEndereco) listaEnd.get(idIndexEndereco);
         idIndexEndereco = index;
-        PessoaEnderecoDB db = new PessoaEnderecoDBToplink();
+        PessoaEnderecoDao db = new PessoaEnderecoDao();
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("enderecoPesquisa", pessoaEndereco.getEndereco());
         log = pessoaEndereco.getEndereco().getLogradouro().getDescricao();
         desc = pessoaEndereco.getEndereco().getDescricaoEndereco().getDescricao();
@@ -1415,7 +1416,7 @@ public class JuridicaBean implements Serializable {
     }
 
     public List getPesquisaEndPorPessoa() {
-        PessoaEnderecoDB db = new PessoaEnderecoDBToplink();
+        PessoaEnderecoDao db = new PessoaEnderecoDao();
         List result = db.pesquisaEndPorPessoa(juridica.getPessoa().getId());
         return result;
     }
@@ -1745,7 +1746,7 @@ public class JuridicaBean implements Serializable {
 
     public List<DataObject> getListaEmpresasPertencentes() {
         JuridicaDB db = new JuridicaDBToplink();
-        PessoaEnderecoDB dbPe = new PessoaEnderecoDBToplink();
+        PessoaEnderecoDao dbPe = new PessoaEnderecoDao();
         PessoaEndereco pe;
         if (juridica.getId() != -1) {
             listaEmpresasPertencentes.clear();

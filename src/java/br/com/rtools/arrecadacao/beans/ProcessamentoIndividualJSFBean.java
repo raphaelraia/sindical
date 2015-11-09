@@ -14,6 +14,7 @@ import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.beans.JuridicaBean;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.*;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
@@ -341,10 +342,10 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
         CnaeConvencaoDB cnaeConvencaoDB = new CnaeConvencaoDBToplink();
         ConvencaoCidadeDB convencaoCidade = new ConvencaoCidadeDBToplink();
         Convencao convencao = cnaeConvencaoDB.pesquisarCnaeConvencao(juridica.getId());
-        PessoaEnderecoDB pessoaEnderecoDB = new PessoaEnderecoDBToplink();
+        PessoaEnderecoDao dao = new PessoaEnderecoDao();
         GrupoCidade grupoCidade = null;
         if (convencao != null) {
-            PessoaEndereco pessoaEndereco = pessoaEnderecoDB.pesquisaEndPorPessoaTipo(juridica.getPessoa().getId(), 5);
+            PessoaEndereco pessoaEndereco = dao.pesquisaEndPorPessoaTipo(juridica.getPessoa().getId(), 5);
             if (pessoaEndereco != null) {
                 grupoCidade = convencaoCidade.pesquisaGrupoCidadeJuridica(convencao.getId(), pessoaEndereco.getEndereco().getCidade().getId());
                 if (grupoCidade != null) {

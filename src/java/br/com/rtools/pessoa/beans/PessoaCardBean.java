@@ -7,14 +7,13 @@ import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.pessoa.PessoaEndereco;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.FisicaDB;
 import br.com.rtools.pessoa.db.FisicaDBToplink;
 import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
 import br.com.rtools.pessoa.db.PessoaEmpresaDB;
 import br.com.rtools.pessoa.db.PessoaEmpresaDBToplink;
-import br.com.rtools.pessoa.db.PessoaEnderecoDB;
-import br.com.rtools.pessoa.db.PessoaEnderecoDBToplink;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.sistema.EmailPessoa;
@@ -183,7 +182,7 @@ public class PessoaCardBean implements Serializable {
 
     public PessoaEndereco getPessoaEndereco() {
         if (pessoaEndereco.getId() == -1) {
-            PessoaEnderecoDB db = new PessoaEnderecoDBToplink();
+            PessoaEnderecoDao db = new PessoaEnderecoDao();
             if (fisica != null && fisica.getId() != -1) {
                 pessoaEndereco = (PessoaEndereco) db.pesquisaEndPorPessoaTipo(fisica.getPessoa().getId(), 4);
             } else if (juridica != null && juridica.getId() != -1) {

@@ -33,12 +33,11 @@ import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.beans.FisicaBean;
 import br.com.rtools.pessoa.beans.JuridicaBean;
 import br.com.rtools.pessoa.dao.PessoaComplementoDao;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.FisicaDB;
 import br.com.rtools.pessoa.db.FisicaDBToplink;
 import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
-import br.com.rtools.pessoa.db.PessoaEnderecoDB;
-import br.com.rtools.pessoa.db.PessoaEnderecoDBToplink;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
@@ -702,7 +701,7 @@ public class MovimentosReceberSocialBean implements Serializable {
 
     public void encaminhamento(int id_lote) {
         Juridica sindicato = (Juridica) (new Dao()).find(new Juridica(), 1);
-        PessoaEnderecoDB dbp = new PessoaEnderecoDBToplink();
+        PessoaEnderecoDao dbp = new PessoaEnderecoDao();
         PessoaEndereco pe = dbp.pesquisaEndPorPessoaTipo(1, 2);
         MovimentoDB db = new MovimentoDBToplink();
 
@@ -874,7 +873,7 @@ public class MovimentosReceberSocialBean implements Serializable {
 
     public boolean semValor() {
         for (int i = 0; i < listaMovimento.size(); i++) {
-            if ((Boolean) listaMovimento.get(i).getArgumento0() && Moeda.converteUS$(listaMovimento.get(i).getArgumento9().toString()) <= 0.0) {
+            if ((Boolean) listaMovimento.get(i).getArgumento0() && ((Movimento) listaMovimento.get(i).getArgumento1()).getBaixa() != null) {
                 return true;
             }
         }
@@ -1213,7 +1212,7 @@ public class MovimentosReceberSocialBean implements Serializable {
             MovimentosReceberSocialDB db = new MovimentosReceberSocialDBToplink();
             float[] valorx = db.pesquisaValorAcrescimo(((Movimento) listaMovimento.get(i).getArgumento1()).getId());
 
-            if ((Boolean) listaMovimento.get(i).getArgumento0() && Moeda.converteUS$(listaMovimento.get(i).getArgumento11().toString()) == 0.0) {
+            if ((Boolean) listaMovimento.get(i).getArgumento0() && ((Movimento) listaMovimento.get(i).getArgumento1()).getBaixa() == null) {
                 float calculo = 0;
                 if ((Boolean) listaMovimento.get(i).getArgumento29()) {
                     float valox = valorx[1];
@@ -1297,7 +1296,7 @@ public class MovimentosReceberSocialBean implements Serializable {
         if (!listaMovimento.isEmpty()) {
             float soma = 0;
             for (int i = 0; i < listaMovimento.size(); i++) {
-                if ((Boolean) listaMovimento.get(i).getArgumento0() && Moeda.converteUS$(listaMovimento.get(i).getArgumento11().toString()) == 0.0) {
+                if ((Boolean) listaMovimento.get(i).getArgumento0() && ((Movimento) listaMovimento.get(i).getArgumento1()).getBaixa() == null) {
                     soma = Moeda.somaValores(soma, Moeda.converteUS$(listaMovimento.get(i).getArgumento6().toString()));
                 }
             }
@@ -1327,7 +1326,7 @@ public class MovimentosReceberSocialBean implements Serializable {
         if (!listaMovimento.isEmpty()) {
             float soma = 0;
             for (int i = 0; i < listaMovimento.size(); i++) {
-                if ((Boolean) listaMovimento.get(i).getArgumento0() && Moeda.converteUS$(listaMovimento.get(i).getArgumento11().toString()) == 0.0) {
+                if ((Boolean) listaMovimento.get(i).getArgumento0() && ((Movimento) listaMovimento.get(i).getArgumento1()).getBaixa() == null) {
                     MovimentosReceberSocialDB db = new MovimentosReceberSocialDBToplink();
                     float[] valorx = db.pesquisaValorAcrescimo(((Movimento) listaMovimento.get(i).getArgumento1()).getId());
 
@@ -1348,7 +1347,7 @@ public class MovimentosReceberSocialBean implements Serializable {
         if (!listaMovimento.isEmpty()) {
             float soma = 0;
             for (int i = 0; i < listaMovimento.size(); i++) {
-                if ((Boolean) listaMovimento.get(i).getArgumento0() && Moeda.converteUS$(listaMovimento.get(i).getArgumento11().toString()) == 0.0) {
+                if ((Boolean) listaMovimento.get(i).getArgumento0() && ((Movimento) listaMovimento.get(i).getArgumento1()).getBaixa() == null) {
                     soma = Moeda.somaValores(soma, Moeda.converteUS$(listaMovimento.get(i).getArgumento9().toString()));
                 }
             }

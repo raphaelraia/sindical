@@ -7,8 +7,8 @@ import br.com.rtools.pessoa.db.FisicaDB;
 import br.com.rtools.pessoa.db.FisicaDBToplink;
 import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
-import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
+import br.com.rtools.sistema.SisPessoa;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -25,13 +25,16 @@ import org.primefaces.event.CaptureEvent;
 @SessionScoped
 public class PhotoCapture implements Serializable {
 
-    private static Boolean renderedPhotoCapture = false;
-    private static String update = "";
-    private static String savePath = "";
-    private static String nameFile = "";
-    private static Pessoa pessoa = null;
+    private Boolean renderedPhotoCapture = false;
+    private String update = "";
+    private String savePath = "";
+    private String nameFile = "";
+    private Fisica fisica = null;
+    private Juridica juridica = null;
+    private SisPessoa sisPessoa = null;
+    private String tipo = "";
 
-    public static void open(String aSavePath, String aUpdate) {
+    public void open(String aSavePath, String aUpdate) {
         savePath = aSavePath;
         update = aUpdate;
         renderedPhotoCapture = true;
@@ -40,8 +43,19 @@ public class PhotoCapture implements Serializable {
         PF.update("form_photo_capture");
     }
 
-    public static void openAndSave(Pessoa aPessoa, String aUpdate) {
-        pessoa = aPessoa;
+    public void openAndSave(Pessoa aPessoa, String aUpdate) {
+        FisicaDB fisicaDB = new FisicaDBToplink();
+        Fisica fisica_x = fisicaDB.pesquisaFisicaPorPessoa(aPessoa.getId());
+        if (fisica_x != null) {
+            fisica = fisica_x;
+        } else {
+            JuridicaDB juridicaDB = new JuridicaDBToplink();
+            Juridica juridica_x = juridicaDB.pesquisaJuridicaPorPessoa(aPessoa.getId());
+            if (juridica_x != null) {
+                juridica = juridica_x;
+            }
+        }
+        
         update = aUpdate;
         renderedPhotoCapture = true;
 
@@ -49,28 +63,32 @@ public class PhotoCapture implements Serializable {
         PF.update("form_photo_capture");
     }
 
-    public static String getSavePath() {
-        return savePath;
+    public void openAndSave(Fisica aFisica, String aUpdate) {
+        fisica = aFisica;
+        update = aUpdate;
+        renderedPhotoCapture = true;
+
+        PF.openDialog("dlg_photo_capture");
+        PF.update("form_photo_capture");
     }
 
-    public static void setSavePath(String aSavePath) {
-        savePath = aSavePath;
+    public void openAndSave(Juridica aJuridica, String aUpdate) {
+        juridica = aJuridica;
+        update = aUpdate;
+        renderedPhotoCapture = true;
+
+        PF.openDialog("dlg_photo_capture");
+        PF.update("form_photo_capture");
     }
 
-    public static String getNameFile() {
-        return nameFile;
-    }
+    public void openAndSave(SisPessoa aSisPessoa, String aTipo, String aUpdate) {
+        sisPessoa = aSisPessoa;
+        tipo = aTipo;
+        update = aUpdate;
+        renderedPhotoCapture = true;
 
-    public static void setNameFile(String aNameFile) {
-        nameFile = aNameFile;
-    }
-
-    public static Pessoa getPessoa() {
-        return pessoa;
-    }
-
-    public static void setPessoa(Pessoa aPessoa) {
-        pessoa = aPessoa;
+        PF.openDialog("dlg_photo_capture");
+        PF.update("form_photo_capture");
     }
 
     public void close() {
@@ -79,65 +97,15 @@ public class PhotoCapture implements Serializable {
         PF.update("form_photo_capture");
     }
 
-//    public static void load(String aUpdate, Pessoa aPessoa) {
-//        update = aUpdate;
-//        renderedPhotoCapture = true;
-//
-//        PF.openDialog("dlg_photo_capture");
-//        PF.update("form_photo_capture");
-//    }
-    public static void unload() {
+    public void unload() {
         savePath = "";
         update = "";
         nameFile = "";
-        pessoa = null;
-    }
-
-    public static Boolean getRenderedPhotoCapture() {
-        return renderedPhotoCapture;
-    }
-
-    public static void setRenderedPhotoCapture(Boolean aRenderedPhotoCapture) {
-        renderedPhotoCapture = aRenderedPhotoCapture;
-    }
-
-    public static String getUpdate() {
-        return update;
-    }
-
-    public static void setUpdate(String aUpdate) {
-        update = aUpdate;
-    }
-
-    public Boolean getRenderedPhotoCaptureView() {
-        return renderedPhotoCapture;
-    }
-
-    public void setRenderedPhotoCaptureView(Boolean aRenderedPhotoCaptureView) {
-        renderedPhotoCapture = aRenderedPhotoCaptureView;
-    }
-
-    public String getUpdateView() {
-        return update;
-    }
-
-    public void setUpdateView(String aUpdateView) {
-        update = aUpdateView;
-    }
-
-    public String getNameFileView() {
-        return nameFile;
-    }
-
-    public void setNameFileView(String aNameFileView) {
-        nameFile = aNameFileView;
+        fisica = null;
+        juridica = null;
     }
 
     public void capturar(CaptureEvent captureEvent) throws FileNotFoundException {
-//        if (!Diretorio.criar("imagens/temp/" + Usuario.getUsuario().getId(), true)) { // PASTA resources/cliente/sindical/imagens
-//            return;
-//        }
-
         UUID uuidX = UUID.randomUUID();
         String nameTemp = uuidX.toString().replace("-", "_");
 
@@ -146,8 +114,8 @@ public class PhotoCapture implements Serializable {
 
         nameFile = nameTemp;
 
-        if (pessoa == null) {
-            String path = servletContext.getRealPath("")+"resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/" + savePath + "/" + nameTemp + ".png";
+        if (fisica == null && juridica == null && sisPessoa == null) {
+            String path = servletContext.getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/" + savePath + "/" + nameTemp + ".png";
             File file = new File(path);
             try {
                 FileUtils.writeByteArrayToFile(file, data);
@@ -158,44 +126,131 @@ public class PhotoCapture implements Serializable {
             if (!Diretorio.criar("imagens/pessoa", true)) { // PASTA ex. resources/cliente/sindical/imagens/pessoa
                 return;
             }
-            String path = servletContext.getRealPath("")+"resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + pessoa.getId() + "/" + nameTemp + ".png";
-            File file = new File(path);
-            try {
-                FileUtils.writeByteArrayToFile(file, data);
-            } catch (IOException e) {
-                e.getMessage();
-            }
 
-            if (file.exists()) {
-                FisicaDB fisicaDB = new FisicaDBToplink();
-                Fisica fisica = fisicaDB.pesquisaFisicaPorPessoa(pessoa.getId());
+            // FISICA
+            if (fisica != null) {
+                String path = servletContext.getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + fisica.getPessoa().getId() + "/" + nameTemp + ".png";
+                File file = new File(path);
+                try {
+                    FileUtils.writeByteArrayToFile(file, data);
+                } catch (IOException e) {
+                    e.getMessage();
+                    return;
+                }
 
-                if (fisica != null) {
-                    // CASO QUEIRA REMOVER A FOTO ANTERIOR
+                // CASO QUEIRA REMOVER A FOTO ANTERIOR
 //                    File fotoAntiga = new File(servletContext.getRealPath("")+"resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + pessoa.getId() + "/" + fisica.getFoto() + ".png");
 //                    if (fotoAntiga.exists()) {
 //                        FileUtils.deleteQuietly(fotoAntiga);
 //                    }
+                fisica.setFoto(nameTemp);
+                new Dao().update(fisica, true);
+            }
 
-                    fisica.setFoto(nameTemp);
-                    new Dao().update(fisica, true);
-                } else {
-                    JuridicaDB juridicaDB = new JuridicaDBToplink();
-                    Juridica juridica = juridicaDB.pesquisaJuridicaPorPessoa(pessoa.getId());
+            // JURIDICA
+            if (juridica != null) {
+                String path = servletContext.getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + juridica.getPessoa().getId() + "/" + nameTemp + ".png";
+                File file = new File(path);
+                try {
+                    FileUtils.writeByteArrayToFile(file, data);
+                } catch (IOException e) {
+                    e.getMessage();
+                    return;
+                }
 
-                    // CASO QUEIRA REMOVER A FOTO ANTERIOR
+                // CASO QUEIRA REMOVER A FOTO ANTERIOR
 //                    File fotoAntiga = new File(servletContext.getRealPath("")+"resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + pessoa.getId() + "/" + juridica.getFoto() + ".png");
 //                    if (fotoAntiga.exists()) {
 //                        FileUtils.deleteQuietly(fotoAntiga);
 //                    }
+                juridica.setFoto(nameTemp);
+                new Dao().update(juridica, true);
+            }
 
-                    juridica.setFoto(nameTemp);
-                    new Dao().update(juridica, true);
+            // SIS PESSOA
+            if (sisPessoa != null) {
+                String path;
+                if (tipo.equals("perfil")) {
+                    path = servletContext.getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/sispessoa/" + sisPessoa.getId() + "/perfil/" + nameTemp + ".png";
+                    sisPessoa.setFotoPerfil(nameTemp);
+                } else {
+                    path = servletContext.getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/sispessoa/" + sisPessoa.getId() + "/documento/" + nameTemp + ".png";
+                    sisPessoa.setFotoArquivo(nameTemp);
                 }
+
+                File file = new File(path);
+                try {
+                    FileUtils.writeByteArrayToFile(file, data);
+                } catch (IOException e) {
+                    e.getMessage();
+                    return;
+                }
+                new Dao().update(sisPessoa, true);
             }
         }
-        
-        PhotoUpload.unload();
-        PhotoCropper.unload();
+    }
+
+    public Boolean getRenderedPhotoCapture() {
+        return renderedPhotoCapture;
+    }
+
+    public void setRenderedPhotoCapture(Boolean renderedPhotoCapture) {
+        this.renderedPhotoCapture = renderedPhotoCapture;
+    }
+
+    public String getUpdate() {
+        return update;
+    }
+
+    public void setUpdate(String update) {
+        this.update = update;
+    }
+
+    public String getSavePath() {
+        return savePath;
+    }
+
+    public void setSavePath(String savePath) {
+        this.savePath = savePath;
+    }
+
+    public String getNameFile() {
+        return nameFile;
+    }
+
+    public void setNameFile(String nameFile) {
+        this.nameFile = nameFile;
+    }
+
+    public Fisica getFisica() {
+        return fisica;
+    }
+
+    public void setFisica(Fisica fisica) {
+        this.fisica = fisica;
+    }
+
+    public Juridica getJuridica() {
+        return juridica;
+    }
+
+    public void setJuridica(Juridica juridica) {
+        this.juridica = juridica;
+    }
+
+    public SisPessoa getSisPessoa() {
+        return sisPessoa;
+    }
+
+    public void setSisPessoa(SisPessoa sisPessoa) {
+        this.sisPessoa = sisPessoa;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
     }
 }

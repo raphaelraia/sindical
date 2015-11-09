@@ -10,8 +10,7 @@ import br.com.rtools.pessoa.CentroComercial;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.TipoEndereco;
-import br.com.rtools.pessoa.db.PessoaEnderecoDB;
-import br.com.rtools.pessoa.db.PessoaEnderecoDBToplink;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.db.RelatorioContribuintesDB;
 import br.com.rtools.relatorios.db.RelatorioContribuintesDBToplink;
@@ -121,7 +120,7 @@ public class RelatorioContribuintesBean implements Serializable {
 
         RelatorioDao db = new RelatorioDao();
         RelatorioContribuintesDB dbContri = new RelatorioContribuintesDBToplink();
-        PessoaEnderecoDB dbPesEnd = new PessoaEnderecoDBToplink();
+        PessoaEnderecoDao dbPesEnd = new PessoaEnderecoDao();
         Cidade cidade;
         Juridica contabilidade;
         Relatorios relatorios = db.pesquisaRelatorios(Integer.parseInt(listaTipoRelatorios.get(idRelatorios).getDescription()));

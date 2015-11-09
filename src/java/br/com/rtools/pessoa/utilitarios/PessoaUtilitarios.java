@@ -6,21 +6,19 @@ import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.TipoEndereco;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.FisicaDB;
 import br.com.rtools.pessoa.db.FisicaDBToplink;
 import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
 import br.com.rtools.pessoa.db.PessoaEmpresaDB;
 import br.com.rtools.pessoa.db.PessoaEmpresaDBToplink;
-import br.com.rtools.pessoa.db.PessoaEnderecoDB;
-import br.com.rtools.pessoa.db.PessoaEnderecoDBToplink;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.seguranca.db.UsuarioDB;
 import br.com.rtools.seguranca.db.UsuarioDBToplink;
-import br.com.rtools.utilitarios.Diretorio;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.SalvarAcumuladoDB;
 import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
@@ -64,9 +62,9 @@ public class PessoaUtilitarios implements Serializable {
      * @return
      */
     public List<PessoaEndereco> listaPessoaEndereco() {
-        List<PessoaEndereco> pessoaEnderecos = new ArrayList<PessoaEndereco>();
+        List<PessoaEndereco> pessoaEnderecos = new ArrayList();
         if (this.pessoa.getId() != -1) {
-            PessoaEnderecoDB pessoaEnderecoDB = new PessoaEnderecoDBToplink();
+            PessoaEnderecoDao pessoaEnderecoDB = new PessoaEnderecoDao();
             pessoaEnderecos = (List<PessoaEndereco>) pessoaEnderecoDB.pesquisaEndPorPessoa(this.pessoa.getId());
         }
         return pessoaEnderecos;
@@ -81,7 +79,7 @@ public class PessoaUtilitarios implements Serializable {
     public PessoaEndereco pessoaEndereco(TipoEndereco tipoEndereco) {
         PessoaEndereco pessoaEnderecos = new PessoaEndereco();
         if (this.pessoa.getId() != -1) {
-            PessoaEnderecoDB pessoaEnderecoDB = new PessoaEnderecoDBToplink();
+            PessoaEnderecoDao pessoaEnderecoDB = new PessoaEnderecoDao();
             if (tipoEndereco.getId() != -1) {
                 pessoaEnderecos = (PessoaEndereco) pessoaEnderecoDB.pesquisaEndPorPessoaTipo(this.pessoa.getId(), tipoEndereco.getId());
             }

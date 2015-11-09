@@ -9,8 +9,7 @@ import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEndereco;
-import br.com.rtools.pessoa.db.PessoaEnderecoDB;
-import br.com.rtools.pessoa.db.PessoaEnderecoDBToplink;
+import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.utilitarios.CEPService;
 import br.com.rtools.utilitarios.Dao;
@@ -416,7 +415,7 @@ public class EnderecoBean implements Serializable {
 
     public List<SelectItem> getListCidade() {
         if (listSelectItem[1].isEmpty()) {
-            PessoaEnderecoDB dbPes = new PessoaEnderecoDBToplink();
+            PessoaEnderecoDao dbPes = new PessoaEnderecoDao();
             DaoInterface di = new Dao();
             Filial fili = (Filial) di.find(new Filial(), 1);
             if (fili == null) {
