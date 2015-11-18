@@ -32,7 +32,7 @@
                         <h:outputText value="Notificações" styleClass="fonteHeader" />
                         <h:form id="formNotificacao">
                             <p:ajaxStatus id="i_status" onstart="PF('i_dlg_modal').show();" onsuccess="PF('i_dlg_modal').hide();" />
-                            
+
                             <p:panel styleClass="fundoCinza" style="clear: both">
                                 <h:panelGrid id="i_panel" columns="6">
                                     <p:column>
@@ -41,11 +41,11 @@
                                             <f:selectItems value="#{notificacaoBean.itensLista}"/>
                                         </p:selectOneMenu>
                                     </p:column>
-                                    
+
                                     <p:column>
                                         <h:outputLabel value="15 últimos" styleClass="fontePadraoPequeno" />
                                     </p:column>
-                                    
+
                                     <p:column>
                                         <h:panelGrid columns="3">
                                             <p:commandButton id="id_atualizar" style="width: 100px" onclick="PF('i_dlg_a').show()" value="Atualizar" title="Atualizar Mensagem Editada" rendered="#{notificacaoBean.lote.id != -1}"/>
@@ -53,56 +53,69 @@
                                             <p:commandButton icon="ui-icon-mail-open" action="#{chamadaPaginaBean.pesquisa('email')}" title="Ver emails enviados" actionListener="#{emailBean.showEmailRotina(181)}" />
                                         </h:panelGrid>
                                     </p:column>
-                                        
+
                                     <p:column>
                                         <p:selectOneMenu value="#{notificacaoBean.idTipoEnvio}" rendered="#{notificacaoBean.lote.id != -1}" style="padding-right: 20px">
                                             <p:ajax event="change" update="i_panel" />
                                             <f:selectItems value="#{notificacaoBean.listaTipoEnvio}"/>
                                         </p:selectOneMenu>
                                     </p:column>
-                                    
+
                                     <p:column>
                                         <h:column rendered="#{notificacaoBean.idTipoEnvio == 3 or notificacaoBean.idTipoEnvio == 4}">
                                             <p:commandButton value="Enviar" title="Enviar Notificação por Email" rendered="#{notificacaoBean.lote.id != -1}" onclick="PF('i_dlg_e').show()"/>
                                         </h:column>
-                                        
+
                                         <h:column rendered="#{notificacaoBean.idTipoEnvio == 0 or notificacaoBean.idTipoEnvio == 1 or notificacaoBean.idTipoEnvio == 2}">
                                             <p:commandButton value="Criar Arquivos" title="Criar arquivos de Notificação" rendered="#{notificacaoBean.lote.id != -1}" onclick="PF('i_dlg_e').show()"/>
                                         </h:column>
-                                        
+
                                         <h:column rendered="#{notificacaoBean.idTipoEnvio == 5 or notificacaoBean.idTipoEnvio == 6}">
                                             <p:commandButton ajax="false" value="Criar Etiquetas" title="Criar etiquetas de Notificação" rendered="#{notificacaoBean.lote.id != -1}" action="#{notificacaoBean.gerarEtiquetas}"/>
                                         </h:column>
                                     </p:column>
-                                        
+
                                     <p:dialog widgetVar="i_dlg_s" header="Deseja Realmente Gerar esta Notificação?" resizable="false" width="400" modal="true">
                                         <p:commandButton value="Salvar"   type="submit" styleClass="ui-confirmdialog-yes" action="#{notificacaoBean.gerarNotificacao()}" update="formNotificacao" onclick="PF('i_dlg_s').hide()" style="clear: both; float: left" icon="ui-icon-check"/>  
                                         <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_s').hide()" style="float: left" icon="ui-icon-close"/>
                                     </p:dialog>
-                                    
+
                                     <p:dialog widgetVar="i_dlg_a" header="Deseja Realmente Atualizar esta Notificação?" resizable="false" width="400" modal="true">
                                         <p:commandButton value="Salvar"   type="submit" styleClass="ui-confirmdialog-yes" action="#{notificacaoBean.salvar()}" update="formNotificacao" onclick="PF('i_dlg_a').hide()" style="clear: both; float: left" icon="ui-icon-check"/>  
                                         <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_a').hide()" style="float: left" icon="ui-icon-close"/>       
                                     </p:dialog>
-                                    
+
                                     <p:dialog widgetVar="i_dlg_e" header="Deseja Realmente Enviar estas Notificações?" resizable="false" width="400" modal="true">
                                         <p:commandButton value="Salvar"   type="submit" styleClass="ui-confirmdialog-yes" action="#{notificacaoBean.enviarNotificacao()}" update="formNotificacao" onclick="PF('i_dlg_e').hide()" style="clear: both; float: left" icon="ui-icon-check"/>  
                                         <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_e').hide()" style="float: left" icon="ui-icon-close"/>       
                                     </p:dialog>
-                                    
-                                    <p:dialog widgetVar="i_dlg_popup" header="Lista de Arquivos" resizable="false" width="400" modal="true">
-                                        <c:forEach var="linha" items="#{notificacaoBean.listaArquivo}">
-                                            <h:outputLink value="#{linha.argumento0}" target="_blank">
-                                                <h:outputText value="#{linha.argumento1}" />
-                                            </h:outputLink>
-                                            <br /><br />
-                                        </c:forEach>
+
+                                    <p:dialog widgetVar="i_dlg_popup" header="Lista de Arquivos" resizable="false" width="450" modal="true">
+                                        <h:panelGrid id="i_dlg_popup" style="width: 100%">
+                                            <p:dataTable  var="linha" value="#{notificacaoBean.listaArquivo}" scrollable="true" scrollHeight="200" style="width: 100%" emptyMessage="Nenhum arquivo encontrado!">
+                                                <p:column headerText="#" style="width: 20px; text-align: center">
+                                                    <h:outputText value="#{linha.argumento1}" />
+                                                </p:column>
+                                                
+                                                <p:column headerText="NOME">
+                                                    <h:outputLink value="#{linha.argumento0}" target="_blank">
+                                                        <h:outputText value="#{linha.argumento2.descricao}" />
+                                                    </h:outputLink>
+                                                </p:column>
+                                                
+                                                <p:column headerText="EMISSÃO" style="width: 80px; text-align: center">
+                                                    <h:outputLink value="#{linha.argumento0}" target="_blank">
+                                                        <h:outputText value="#{linha.argumento2.emissao}" />
+                                                    </h:outputLink>
+                                                </p:column>
+                                            </p:dataTable>
+                                        </h:panelGrid>
                                     </p:dialog>
                                 </h:panelGrid>
-                                
+
                                 <h:panelGrid id="i_panel_qnt" style="width: 100%" columns="2">
                                     <h:outputLabel value="#{notificacaoBean.listaNotificacao.size()} notificações" style="float: left; font-weight: bold"/>
-                                    <p:commandLink value="Listar arquivos do Lote" onclick="PF('i_dlg_popup').show()" rendered="#{notificacaoBean.lote.id != -1}" style="float: right"/>
+                                    <p:commandLink value="Listar arquivos do Lote" onclick="PF('i_dlg_popup').show()" rendered="#{notificacaoBean.lote.id != -1}" style="float: right" update=":formNotificacao:i_dlg_popup"/>
                                 </h:panelGrid>
                             </p:panel>
                             <p:messages id="i_msg" showDetail="true" closable="true" />  
@@ -111,7 +124,7 @@
                                     <p:inputTextarea id="i_mensagem" style="width: 875px" rows="5" value="#{notificacaoBean.lote.mensagem}" /><br />
                                     <p:watermark value="Digite a mensagem que irá ser enviada na notificação" for="i_mensagem"/>
                                     <p:dataTable value="#{notificacaoBean.listaNotificacao}" rowKey="#{linha.argumento1[0]}" var="linha" id="tbl" style="width: 875px"
-                                         emptyMessage="Nenhuma pendência foi encontrada" rows="15" paginator="true" rowsPerPageTemplate="15, 30, 50, 100">
+                                                 emptyMessage="Nenhuma pendência foi encontrada" rows="15" paginator="true" rowsPerPageTemplate="15, 30, 50, 100">
                                         <p:column headerText="Empresa">
                                             <h:outputText value="#{linha.argumento1[1]}" />
                                         </p:column>
@@ -126,7 +139,7 @@
                                     </p:dataTable>
                                 </p:column>
                             </h:panelGrid>
-                                
+
                             <h:panelGrid style="float: left">
                                 <p:column>
                                     <p:accordionPanel style="width: 285px; " activeIndex="#{notificacaoBean.indexTab}" rendered="#{notificacaoBean.lote.id == -1}">   
@@ -137,7 +150,7 @@
                                                 <h:outputLabel value="Todas Empresas" />
                                             </h:panelGrid>
                                         </p:tab>  
-                                        
+
                                         <p:tab title="Gerar para Empresas Específicas">  
                                             <p:commandLink value="Adicionar" action="#{chamadaPaginaBean.pesquisaPessoaJuridica()}" style="float: right; " />
                                             <h:outputLabel value=" | " style="float: right; margin-left: 5px; margin-right: 5px"/>
@@ -147,7 +160,7 @@
                                                 <br /><hr /><h:outputText value="#{linhae.argumento1.pessoa.nome}" style="float: left"/>
                                             </c:forEach>
                                         </p:tab>  
-                                        
+
                                         <p:tab title="Gerar para Contabilidade Específica">  
                                             <p:commandLink value="Adicionar" action="#{chamadaPaginaBean.pesquisaPessoaJuridica()}" style="float: right; " />
                                             <h:outputLabel value=" | " style="float: right; margin-left: 5px; margin-right: 5px"/>
@@ -157,13 +170,13 @@
                                                 <br /><hr /><h:outputText value="#{linhac.argumento1.pessoa.nome}" style="float: left"/>
                                             </c:forEach>
                                         </p:tab> 
-                                        
+
                                         <p:tab title="Gerar para Empresas SEM Contabilidade" closable="false">  
                                             <h:panelGrid style="background: #99ccff; padding: 5px; text-align: center">
                                                 <h:outputText value="Todas Empresas sem Contabilidade" style="float: left; font-weight: bold; width: 100%"/>
                                             </h:panelGrid>
                                         </p:tab>  
-                                        
+
                                         <p:tab title="Gerar para Empresas COM Contabilidade">  
                                             <h:panelGrid style="background: #99ccff; padding: 5px; text-align: center">
                                                 <h:outputText value="Todas Empresas com Contabilidade" style="float: left; font-weight: bold; width: 100%"/>
@@ -171,7 +184,7 @@
                                         </p:tab>  
                                     </p:accordionPanel>  
                                 </p:column>
-                                                                
+
                                 <h:panelGrid rendered="#{notificacaoBean.lote.id == -1}" style="clear: both; width: 285px;">
                                     <p:selectBooleanCheckbox value="#{notificacaoBean.chkServicos}" itemLabel="Todos Serviços" style="font-weight: bold">
                                         <p:ajax event="change" listener="#{notificacaoBean.marcarServicos}" update=":formNotificacao"/>
@@ -189,9 +202,9 @@
                                         </p:column>
                                     </p:dataTable>
                                 </h:panelGrid>
-                                
+
                                 <h:panelGrid rendered="#{notificacaoBean.lote.id == -1}" style="clear: both; width: 285px;">
-                                    <p:selectBooleanCheckbox value="#{notificacaoBean.chkTipoServico}" itemLabel="Todos Serviços" style="font-weight: bold">
+                                    <p:selectBooleanCheckbox value="#{notificacaoBean.chkTipoServico}" itemLabel="Todos Tipo Serviço" style="font-weight: bold">
                                         <p:ajax event="change" listener="#{notificacaoBean.marcarTipoServico}" update=":formNotificacao"/>
                                     </p:selectBooleanCheckbox>
 
@@ -207,7 +220,7 @@
                                         </p:column>
                                     </p:dataTable>
                                 </h:panelGrid>
-                                
+
                                 <h:panelGrid rendered="#{notificacaoBean.lote.id == -1}" style="clear: both; width: 285px;">
                                     <p:selectBooleanCheckbox id="chkCidades" value="#{notificacaoBean.chkCidadesBase}" itemLabel="Todas Cidades da Base" style="font-weight: bold">
                                         <p:ajax event="change" listener="#{notificacaoBean.marcarCidadesBase}" update=":formNotificacao"/>

@@ -167,18 +167,30 @@ public class RelatorioSociosDBToplink extends DB implements RelatorioSociosDB {
 
         String textQry = " -- RelatorioSociosDBToplink->pesquisaSocios()        \n"
                 + "SELECT "
-                + "           ''                  AS sindLogo,                  \n " // 0
-                + "           sind.jurSite        AS sindSite,                  \n " // 1
-                + "           sind.jurNome        AS sinnome,                   \n " // 2
-                + "           sind.jurEndereco    AS sinendereco,               \n " // 3
-                + "           sind.jurLogradouro  AS sinlogradouro,             \n " // 4
-                + "           sind.jurNumero      AS sinnumero,                 \n " // 5
-                + "           sind.jurComplemento AS sincomplemento,            \n " // 6
-                + "           sind.jurBairro      AS sinbairro,                 \n " // 7
-                + "           substring(sind.jurCep,1,5)||'-'||substring(sind.jurCep,6,3)  AS sincep,   \n "
-                + "           sind.jurCidade      AS sincidade,                 \n " // 9
-                + "           sind.jurUf          AS sinuF,                     \n " // 10
-                + "           sind.jurDocumento   AS sindocumento,              \n " // 11
+                + "           '' AS sindLogo,                  \n " // 0
+                + "           '' AS sindSite,                  \n " // 1
+                + "           '' AS sinnome,                   \n " // 2
+                + "           '' AS sinendereco,               \n " // 3
+                + "           '' AS sinlogradouro,             \n " // 4
+                + "           '' AS sinnumero,                 \n " // 5
+                + "           '' AS sincomplemento,            \n " // 6
+                + "           '' AS sinbairro,                 \n " // 7
+                + "           '' AS sincep,   \n "
+                + "           '' AS sincidade,                 \n " // 9
+                + "           '' AS sinuF,                     \n " // 10
+                + "           '' AS sindocumento,              \n " // 11
+//                + "                             AS sindLogo,                  \n " // 0
+//                + "           sind.jurSite        AS sindSite,                  \n " // 1
+//                + "           sind.jurNome        AS sinnome,                   \n " // 2
+//                + "           sind.jurEndereco    AS sinendereco,               \n " // 3
+//                + "           sind.jurLogradouro  AS sinlogradouro,             \n " // 4
+//                + "           sind.jurNumero      AS sinnumero,                 \n " // 5
+//                + "           sind.jurComplemento AS sincomplemento,            \n " // 6
+//                + "           sind.jurBairro      AS sinbairro,                 \n " // 7
+//                + "           substring(sind.jurCep,1,5)||'-'||substring(sind.jurCep,6,3)  AS sincep,   \n "
+//                + "           sind.jurCidade      AS sincidade,                 \n " // 9
+//                + "           sind.jurUf          AS sinuF,                     \n " // 10
+//                + "           sind.jurDocumento   AS sindocumento,              \n " // 11
                 + "           p.codigo,                                         \n " // 12
                 + "           p.cadastro,                                       \n " // 13
                 + "           p.nome,                                           \n " // 14
@@ -250,7 +262,7 @@ public class RelatorioSociosDBToplink extends DB implements RelatorioSociosDB {
                 + "           func_idade(p.dt_nascimento,CURRENT_DATE) AS idade \n " // 83
                 + "      FROM pes_pessoa_vw      AS p                           \n "
                 + "INNER JOIN soc_socios_vw      AS so   ON so.codsocio     = p.codigo              \n "
-                + "INNER JOIN pes_juridica_vw    AS sind ON sind.id_pessoa  = 1                     \n "
+                //+ "INNER JOIN pes_juridica_vw    AS sind ON sind.id_pessoa  = 1                     \n "
                 + "INNER JOIN pes_pessoa         AS pt   ON pt.id           = so.titular            \n "
                 + " LEFT JOIN pes_juridica       AS J    ON J.id            = P.e_id                \n "
                 + " LEFT JOIN pes_juridica       AS PJC  ON PJC.id          = J.id_contabilidade    \n "
@@ -535,6 +547,9 @@ public class RelatorioSociosDBToplink extends DB implements RelatorioSociosDB {
                     break;
                 case "endereco":
                     tordem += tordem.isEmpty() ? " p.logradouro, p.endereco, p.numero, p.bairro " : ", p.logradouro, p.endereco, p.numero, p.bairro ";
+                    break;
+                case "bairro":
+                    tordem += tordem.isEmpty() ? " p.uf, p.cidade, p.bairro " : ", p.uf, p.cidade, p.numero, p.bairro ";
                     break;
             }
         }

@@ -1,0 +1,82 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Sindical - Grupo Digitalização</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
+            .ui-button { padding: 3px!important; }
+            .ui-selectonemenu {padding-right: 25px!important;}
+        </style>
+
+        <script type="text/javascript">
+
+        </script>
+    </h:head>
+    <h:body>
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                </f:subview>
+                <f:view>
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:outputText value="Grupo Digitalização" styleClass="fonteHeader" />
+                        <div style="clear: both"></div>
+                        <h:form id="formGrupoDigitalizacao">
+                            <c:set scope="request" var="object" value="${grupoDigitalizacaoBean.grupo}"/>
+                            <p:panel styleClass="fundoCinza">
+                                <h:panelGrid columns="2">
+                                    <h:column>
+                                        <p:outputLabel value="Módulo" /><br />
+                                        <p:selectOneMenu value="#{grupoDigitalizacaoBean.indexModulo}">
+                                            <f:selectItems value="#{grupoDigitalizacaoBean.listaModulo}" />
+                                        </p:selectOneMenu>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="Descrição" /><br />
+                                        <p:inputText value="#{grupoDigitalizacaoBean.grupo.descricao}" placeholder="DIGITE UMA DESCRIÇÃO PARA GRUPO" style="width: 400px"/>
+                                    </h:column>
+                                </h:panelGrid>
+                            </p:panel>
+
+                            <h:panelGrid columns="3">
+                                <p:commandButton value="#{grupoDigitalizacaoBean.grupo.id == -1 ? 'Salvar' : 'Alterar'}" action="#{grupoDigitalizacaoBean.salvar()}" disabled="#{controleAcessoBean.botaoSalvar}" update="@form"/>
+                                <p:commandButton value="Novo" action="#{grupoDigitalizacaoBean.novo()}" update="@form"/>
+                                <p:commandButton value="Excluir" action="#{grupoDigitalizacaoBean.excluir()}" update="@form" disabled="#{grupoDigitalizacaoBean.grupo.id == -1}"/>
+                            </h:panelGrid>
+                            <br />
+                            <p:messages closable="true" showDetail="true"/>
+                            <p:dataTable value="#{grupoDigitalizacaoBean.listaGrupo}" var="linha" emptyMessage="Nenhum Grupo Encontrado.">
+                                <p:column headerText="Módulo" style="width: 150px">
+                                    <p:commandLink value="#{linha.modulo.descricao}" action="#{grupoDigitalizacaoBean.editar(linha)}" title="Editar" update="@form"/>
+                                </p:column>
+
+                                <p:column headerText="Descrição">
+                                    <p:commandLink value="#{linha.descricao}" action="#{grupoDigitalizacaoBean.editar(linha)}" title="Editar" update="@form"/>
+                                </p:column>
+                            </p:dataTable>
+                        </h:form>
+                    </p:panel>
+                </f:view>
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>                
+    </h:body>
+</ui:composition>

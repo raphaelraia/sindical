@@ -304,6 +304,7 @@ public class Jasper implements Serializable {
             parameters.put("sindicato_cep", juridica.getPessoa().getPessoaEndereco().getEndereco().getCep());
             parameters.put("sindicato_telefone", juridica.getPessoa().getTelefone1());
             parameters.put("sindicato_logo", ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));
+            parameters.put("sindicato_email", juridica.getPessoa().getEmail1());
 
             // CORREÇÃO
             // parameters.put("instituicao_nome", juridica.getPessoa().getNome());

@@ -6,6 +6,9 @@ import br.com.rtools.arrecadacao.beans.OposicaoBean;
 import br.com.rtools.arrecadacao.db.*;
 import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.associativo.lista.ListaSociosEmpresa;
+import br.com.rtools.digitalizacao.Documento;
+import br.com.rtools.digitalizacao.beans.DigitalizacaoBean;
+import br.com.rtools.digitalizacao.dao.DigitalizacaoDao;
 import br.com.rtools.endereco.Endereco;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.*;
@@ -34,6 +37,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -43,6 +48,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.io.FilenameUtils;
 import org.primefaces.component.tabview.TabView;
 import org.primefaces.event.TabChangeEvent;
 import org.primefaces.json.JSONException;
@@ -141,6 +147,10 @@ public class JuridicaBean implements Serializable {
     private List<MalaDireta> listMalaDireta = new ArrayList();
     private List<SelectItem> listMalaDiretaGrupo = new ArrayList();
 
+    // TAB DOCUMENTOS
+    private List<Documento> listaDocumentos = new ArrayList();
+    private List<LinhaArquivo> listaArquivos = new ArrayList();
+
     @PostConstruct
     public void init() {
         disabled = new Boolean[3];
@@ -158,6 +168,33 @@ public class JuridicaBean implements Serializable {
         GenericaSessao.remove("contribuintes");
         GenericaSessao.remove("escritorios");
         GenericaSessao.remove("pessoaBean");
+    }
+
+    public void loadListaDocumentos() {
+        listaDocumentos.clear();
+
+        DigitalizacaoDao dao = new DigitalizacaoDao();
+
+        if(juridica.getId() != -1)
+            listaDocumentos = dao.listaDocumento(juridica.getPessoa().getId());
+    }
+
+    public void verDocumentos(Documento linha) {
+        listaArquivos.clear();
+
+        ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
+        String path = servletContext.getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/documentos/" + linha.getPessoa().getId() + "/" + linha.getId() + "/";
+        File file = new File(path);
+
+        File lista_datas[] = file.listFiles();
+
+        if (lista_datas != null) {
+            for (File lista_data : lista_datas) {
+                String ext = FilenameUtils.getExtension(lista_data.getPath()).toUpperCase();
+                String mimeType = servletContext.getMimeType(lista_data.getPath());
+                listaArquivos.add(new LinhaArquivo("fileExtension" + ext + ".png", lista_data.getName(), mimeType, linha));
+            }
+        }
     }
 
     public void pesquisaCnpjXML() {
@@ -350,6 +387,10 @@ public class JuridicaBean implements Serializable {
 
     public void accordion(TabChangeEvent event) {
         indicaTab = ((TabView) event.getComponent()).getActiveIndex();
+
+        if (indicaTab == 6) {
+            loadListaDocumentos();
+        }
     }
 
     public void pesquisaDocumento() {
@@ -926,6 +967,7 @@ public class JuridicaBean implements Serializable {
         existeOposicaoEmpresa();
         getListSocios();
         loadMalaDireta();
+        if (indicaTab == 6) loadListaDocumentos();
         return "pessoaJuridica";
 
     }
@@ -2743,6 +2785,22 @@ public class JuridicaBean implements Serializable {
         if (idMalaDiretaGrupo == null) {
             habilitaMalaDireta = false;
         }
+    }
+
+    public List<Documento> getListaDocumentos() {
+        return listaDocumentos;
+    }
+
+    public void setListaDocumentos(List<Documento> listaDocumentos) {
+        this.listaDocumentos = listaDocumentos;
+    }
+
+    public List<LinhaArquivo> getListaArquivos() {
+        return listaArquivos;
+    }
+
+    public void setListaArquivos(List<LinhaArquivo> listaArquivos) {
+        this.listaArquivos = listaArquivos;
     }
 }
 

@@ -1,19 +1,6 @@
 package br.com.rtools.impressao;
 
 public class ParametroNotificacao {
-
-    private String sinlogo;
-    private String sindsite;
-    private String sinnome;
-    private String sinendereco;
-    private String sinlogradouro;
-    private String sinnumero;
-    private String sincomplemento;
-    private String sinbairro;
-    private String sincep;
-    private String sincidade;
-    private String sinuf;
-    private String sindocumento;
     private String escnome;
     private String esctelefone;
     private String esclogradouro;
@@ -41,19 +28,7 @@ public class ParametroNotificacao {
     private String movnumeroboleto;
     private String ds_mensagem;
 
-    public ParametroNotificacao(String sinlogo, String sindsite, String sinnome, String sinendereco, String sinlogradouro, String sinnumero, String sincomplemento, String sinbairro, String sincep, String sincidade, String sinuf, String sindocumento, String escnome, String esctelefone, String esclogradouro, String escendereco, String escnumero, String esccomplemento, String escbairro, String esccep, String esccidade, String escuf, String jurnome, String jurdocumento, String jurtelefone, String jurcidade, String juruf, String jurcep, String jurlogradouro, String jurendereco, String jurnumero, String jurcomplemento, String jurbairro, String movservico, String movtiposervico, String movreferencia, String movnumeroboleto, String ds_mensagem) {
-        this.sinlogo = sinlogo;
-        this.sindsite = sindsite;
-        this.sinnome = sinnome;
-        this.sinendereco = sinendereco;
-        this.sinlogradouro = sinlogradouro;
-        this.sinnumero = sinnumero;
-        this.sincomplemento = sincomplemento;
-        this.sinbairro = sinbairro;
-        this.sincep = sincep;
-        this.sincidade = sincidade;
-        this.sinuf = sinuf;
-        this.sindocumento = sindocumento;
+    public ParametroNotificacao(String escnome, String esctelefone, String esclogradouro, String escendereco, String escnumero, String esccomplemento, String escbairro, String esccep, String esccidade, String escuf, String jurnome, String jurdocumento, String jurtelefone, String jurcidade, String juruf, String jurcep, String jurlogradouro, String jurendereco, String jurnumero, String jurcomplemento, String jurbairro, String movservico, String movtiposervico, String movreferencia, String movnumeroboleto, String ds_mensagem) {
         this.escnome = escnome;
         this.esctelefone = esctelefone;
         this.esclogradouro = esclogradouro;
@@ -80,102 +55,6 @@ public class ParametroNotificacao {
         this.movreferencia = movreferencia;
         this.movnumeroboleto = movnumeroboleto;
         this.ds_mensagem = ds_mensagem;
-    }
-
-    public String getSinlogo() {
-        return sinlogo;
-    }
-
-    public void setSinlogo(String sinlogo) {
-        this.sinlogo = sinlogo;
-    }
-
-    public String getSindsite() {
-        return sindsite;
-    }
-
-    public void setSindsite(String sindsite) {
-        this.sindsite = sindsite;
-    }
-
-    public String getSinnome() {
-        return sinnome;
-    }
-
-    public void setSinnome(String sinnome) {
-        this.sinnome = sinnome;
-    }
-
-    public String getSinendereco() {
-        return sinendereco;
-    }
-
-    public void setSinendereco(String sinendereco) {
-        this.sinendereco = sinendereco;
-    }
-
-    public String getSinlogradouro() {
-        return sinlogradouro;
-    }
-
-    public void setSinlogradouro(String sinlogradouro) {
-        this.sinlogradouro = sinlogradouro;
-    }
-
-    public String getSinnumero() {
-        return sinnumero;
-    }
-
-    public void setSinnumero(String sinnumero) {
-        this.sinnumero = sinnumero;
-    }
-
-    public String getSincomplemento() {
-        return sincomplemento;
-    }
-
-    public void setSincomplemento(String sincomplemento) {
-        this.sincomplemento = sincomplemento;
-    }
-
-    public String getSinbairro() {
-        return sinbairro;
-    }
-
-    public void setSinbairro(String sinbairro) {
-        this.sinbairro = sinbairro;
-    }
-
-    public String getSincep() {
-        return sincep;
-    }
-
-    public void setSincep(String sincep) {
-        this.sincep = sincep;
-    }
-
-    public String getSincidade() {
-        return sincidade;
-    }
-
-    public void setSincidade(String sincidade) {
-        this.sincidade = sincidade;
-    }
-
-    public String getSinuf() {
-        return sinuf;
-    }
-
-    public void setSinuf(String sinuf) {
-        this.sinuf = sinuf;
-    }
-
-    public String getSindocumento() {
-        return sindocumento;
-    }
-
-    public void setSindocumento(String sindocumento) {
-        this.sindocumento = sindocumento;
     }
 
     public String getEscnome() {

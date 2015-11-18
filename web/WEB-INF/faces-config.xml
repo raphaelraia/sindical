@@ -1824,6 +1824,18 @@
             <redirect/>
         </navigation-case>
         
+        <navigation-case>
+            <from-outcome>grupoDigitalizacao</from-outcome>
+            <to-view-id>/grupoDigitalizacao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>digitalizacao</from-outcome>
+            <to-view-id>/digitalizacao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
         <!-- 
         <navigation-case>
             <from-outcome>#{navigationRules.param}</from-outcome>

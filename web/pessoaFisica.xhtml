@@ -25,7 +25,19 @@
             }            
             .leitor-biometrico-off {  
                 background-image: url("#{facesContext.externalContext.requestContextPath}/Imagens/biometric-off-icon.png") !important;  
-            }            
+            }     
+            
+            .column01{
+                width: 100px;
+            }
+
+            .column02{
+                width: 100%;
+            }
+
+            .column03{
+                width: 50px;
+            }                
         </style>
 
         <script type="text/javascript">
@@ -40,12 +52,12 @@
                 <f:subview id="header">
                     <ui:include src="templates/templatePrime.xhtml"/>
                 </f:subview>
-                
+
                 <ui:include src="templates/templatePhotoCapture.xhtml" />
                 <ui:include src="templates/templatePhotoUpload.xhtml" />
                 <ui:include src="templates/templatePhotoCropper.xhtml" />
                 <ui:include src="templates/templateLogHistory.xhtml" />
-                
+
                 <f:view>
 
                     <f:metadata>
@@ -301,7 +313,7 @@
                                             </p:column>
                                         </h:panelGrid>
 
-                                        
+
                                         <h:column rendered="#{fisicaBean.fisica.id != -1}">
                                             <p:panel style="margin-top: 10px" styleClass="fundoCinza">
                                                 <h:panelGrid columns="2" style="width: 100%">
@@ -720,6 +732,69 @@
                                             </p:column>
                                         </p:dataTable>
                                     </p:tab>
+
+                                    <p:tab title="Documentos">
+                                        <p:dataTable value="#{fisicaBean.listaDocumentos}" var="linha" emptyMessage="Nenhum documento Encontrado!" scrollable="true" scrollHeight="400">
+                                            <p:column style="width:15px">  
+                                                <p:rowToggler />  
+                                            </p:column>  
+
+                                            <p:column headerText="Data" style="width: 80px; text-align: center">
+                                                <p:commandLink value="#{linha.dtEmissaoString}" action="#{digitalizacaoBean.editGeneric(linha)}" title="CLIQUE PARA EDITAR" />
+                                            </p:column>
+
+                                            <p:column headerText="Grupo" style="width: 100px; text-align: center">
+                                                <p:commandLink value="#{linha.assunto.grupo.descricao}" action="#{digitalizacaoBean.editGeneric(linha)}" title="CLIQUE PARA EDITAR" />
+                                            </p:column>
+
+                                            <p:column headerText="Assunto" style="width: 250px;">
+                                                <p:commandLink value="#{linha.assunto.descricao}" action="#{digitalizacaoBean.editGeneric(linha)}" title="CLIQUE PARA EDITAR" />
+                                            </p:column>
+
+                                            <p:column headerText="Título" style="width: 250px;">
+                                                <p:commandLink value="#{linha.titulo}" action="#{digitalizacaoBean.editGeneric(linha)}" title="CLIQUE PARA EDITAR" />
+                                            </p:column>
+
+                                            <p:column headerText="Arq" style="width: 40px; text-align: center">
+                                                <p:commandButton icon="ui-icon-folder-open" action="#{fisicaBean.verDocumentos(linha)}" title="VER ARQUIVOS DESSA PESSOA" oncomplete="PF('dlg_arquivos').show()" update=":form_pessoa_fisica:i_tabview_fisica:panel_arquivos"/>
+                                            </p:column>
+
+                                            <p:rowExpansion>
+                                                <h:panelGrid columns="2" style="height: 40px" styleClass="sbb" columnClasses="column01, column02">
+                                                    <p:column rendered="#{linha.historico ne ''}">
+                                                        <p:outputLabel value="HISTÓRICO" style="font-weight: bold"/><br />
+                                                        <p:outputLabel value="#{linha.historico}"/>
+                                                    </p:column>
+                                                </h:panelGrid>
+                                            </p:rowExpansion>
+                                        </p:dataTable>
+
+                                        <p:dialog widgetVar="dlg_arquivos" width="600" header="Arquivos da Pessoa" modal="true">
+                                            <p:ajax event="close" listener="#{fisicaBean.listaArquivos.clear()}" update="@form"/>
+
+                                            <h:panelGrid id="panel_arquivos" style="width: 100%">
+                                                <p:messages showDetail="true" closable="true" />
+                                                <ui:repeat value="#{fisicaBean.listaArquivos}" var="linha_arquivo">
+                                                    <h:panelGrid columns="4" columnClasses="column01, column02, column03, column03">
+                                                        <h:column>
+                                                            <p:graphicImage value="/Imagens/#{linha_arquivo.extensionFile}" width="50" />
+                                                        </h:column>
+
+                                                        <h:column>
+                                                            <p:commandLink value="#{linha_arquivo.nameFile}" title="ABRIR ARQUIVO" action="#{digitalizacaoBean.view(linha_arquivo)}" target="_BLANK" ajax="false" />  
+                                                        </h:column>
+
+                                                        <h:column>
+                                                            <p:commandButton icon="ui-icon-arrowthickstop-1-s" title="BAIXAR ARQUIVO" action="#{digitalizacaoBean.download(linha_arquivo)}" ajax="false" onclick="form.target = '_blank'"/>
+                                                        </h:column>
+                                                    </h:panelGrid>
+                                                    <hr />
+                                                </ui:repeat>
+
+                                                <p:outputLabel value="NENHUM ARQUIVO ADICIONADO!" rendered="#{fisicaBean.listaArquivos.size() eq 0}" style="font-weight: bold; font-size: 12pt!important; color: red"/>
+                                            </h:panelGrid>
+                                        </p:dialog>
+                                    </p:tab>
                                 </p:tabView>
 
                                 <!-- ENDEREÇO -->
@@ -947,31 +1022,31 @@
                             </p:dialog>
                         </h:form>
                     </p:panel>
-<!--
-                    <h:form id="form_aplicativos">
-                        <p:dialog widgetVar="dlg_waiting_biometria" modal="true" resizable="false" header="Aguarde..." visible="# {biometriaBean.disabled}" closable="false">
-                            <h:outputLabel value="Não feche essa janela durante a operação. Caso apresente erros contate o administrador do sistema ou reinicie o aplicativo da leitura." />
-                            <br /><br />
-                            <p:commandButton value="Cancelar" title="Cancelar" update=":form_aplicativos:i_message_err_x" onclick="PF('dlg_waiting_biometria_erro').show();" action="# {biometriaBean.abort(fisicaBean.fisica.pessoa)}" ajax="false"/>
-                        </p:dialog>
-                        <p:poll id="i_app_leitor" interval="5" update="i_app_leitor :form_pessoa_fisica:i_app_message" stop="# {biometriaBean.disabled}" autoStart="false" delay="5" ignoreAutoUpdate="true"/>
-                        <p:dialog widgetVar="dlg_waiting_biometria_info" modal="true" resizable="false" header="Erro" closable="true">
-                            <h:outputLabel value="Dispostivo de leitura esta desconectado. Caso apresente erros contate o administrador do sistema ou reinicie o aplicativo da leitura." styleClass="font-color-red bold"/>
-                            <f:facet name="footer">
-                                <p:commandButton value="Ok" title="Ok" onclick="PF('dlg_waiting_biometria_info').hide();" update="i_app_leitor"/>
-                            </f:facet>
-                        </p:dialog>
-                        <p:dialog widgetVar="dlg_waiting_biometria_erro" modal="true" resizable="false" header="Mensagem Sistema" closable="true" visible="# {biometriaBean.open_modal_cancel}">
-                            <p:ajax event="close" update=":form_aplicativos:" listener="# {biometriaBean.closeModalApp()}"/>
-                            <h:panelGrid id="i_message_err_x">
-                                <p:messages autoUpdate="true" showSummary="true" showDetail="true" closable="true"/>
-                            </h:panelGrid>
-                            <f:facet name="footer">
-                                <p:commandButton value="Ok" title="Ok" onclick="PF('dlg_waiting_biometria_erro').hide();" update="i_app_leitor" action="# {biometriaBean.closeModalApp()}"/>
-                            </f:facet>                                
-                        </p:dialog>
-                    </h:form>            
--->
+                    <!--
+                                        <h:form id="form_aplicativos">
+                                            <p:dialog widgetVar="dlg_waiting_biometria" modal="true" resizable="false" header="Aguarde..." visible="# {biometriaBean.disabled}" closable="false">
+                                                <h:outputLabel value="Não feche essa janela durante a operação. Caso apresente erros contate o administrador do sistema ou reinicie o aplicativo da leitura." />
+                                                <br /><br />
+                                                <p:commandButton value="Cancelar" title="Cancelar" update=":form_aplicativos:i_message_err_x" onclick="PF('dlg_waiting_biometria_erro').show();" action="# {biometriaBean.abort(fisicaBean.fisica.pessoa)}" ajax="false"/>
+                                            </p:dialog>
+                                            <p:poll id="i_app_leitor" interval="5" update="i_app_leitor :form_pessoa_fisica:i_app_message" stop="# {biometriaBean.disabled}" autoStart="false" delay="5" ignoreAutoUpdate="true"/>
+                                            <p:dialog widgetVar="dlg_waiting_biometria_info" modal="true" resizable="false" header="Erro" closable="true">
+                                                <h:outputLabel value="Dispostivo de leitura esta desconectado. Caso apresente erros contate o administrador do sistema ou reinicie o aplicativo da leitura." styleClass="font-color-red bold"/>
+                                                <f:facet name="footer">
+                                                    <p:commandButton value="Ok" title="Ok" onclick="PF('dlg_waiting_biometria_info').hide();" update="i_app_leitor"/>
+                                                </f:facet>
+                                            </p:dialog>
+                                            <p:dialog widgetVar="dlg_waiting_biometria_erro" modal="true" resizable="false" header="Mensagem Sistema" closable="true" visible="# {biometriaBean.open_modal_cancel}">
+                                                <p:ajax event="close" update=":form_aplicativos:" listener="# {biometriaBean.closeModalApp()}"/>
+                                                <h:panelGrid id="i_message_err_x">
+                                                    <p:messages autoUpdate="true" showSummary="true" showDetail="true" closable="true"/>
+                                                </h:panelGrid>
+                                                <f:facet name="footer">
+                                                    <p:commandButton value="Ok" title="Ok" onclick="PF('dlg_waiting_biometria_erro').hide();" update="i_app_leitor" action="# {biometriaBean.closeModalApp()}"/>
+                                                </f:facet>                                
+                                            </p:dialog>
+                                        </h:form>            
+                    -->
                 </f:view>
 
                 <!-- FINALIZA div wrap main -->

@@ -16,67 +16,22 @@ public class RelatorioMovimentosDBToplink extends DB implements RelatorioMovimen
             String ordem, boolean chkPesEmpresa, String porPesquisa, String filtroEmpresa,
             int idConvencao, int idGrupoCidade, String idsCidades, String idsEsc, String inCnaes) {
         List result;
+
         
-        String textQuery = ""
-                + "-- RelatorioMovimentosDBToplink - listaMovimentos;           \n\n"
-                + "SELECT mov.id                       AS idMov,                \n "
-                + "       mov.ds_documento             AS numeroDocumento,      \n "
-                + "       se.ds_descricao              AS servico,              \n "
-                + "       ts.ds_descricao              AS tipoServico,          \n "
-                + "       mov.ds_referencia            AS referencia,           \n "
-                + "       mov.dt_vencimento            AS vencimento,           \n "
-                + "       mov.nr_valor                 AS valor,                \n "
-                + "       se.id                        AS idServico,            \n "
-                + "       ts.id                        AS idTipoServico,        \n "
-                + "       pes.id                       AS idPessoa,             \n "
-                + "       pes.ds_nome                  AS nomePessoa,           \n "
-                + "       pes_endereco.ds_descricao    AS enderecoPessoa,       \n "
-                + "       pes_logradouro.ds_descricao  AS logradouroPessoa,     \n "
-                + "       pes_pend.ds_numero           AS numeroPessoa,         \n "
-                + "       pes_pend.ds_complemento      AS complementoPessoa,    \n "
-                + "       pes_bairro.ds_descricao      AS bairroPessoa,         \n "
-                + "       pes_end.ds_cep               AS cepPessoa,            \n "
-                + "       pes_cidade.ds_cidade         AS cidadePessoa,         \n "
-                + "       pes_cidade.ds_uf             AS ufCidade,             \n "
-                + "       pes.ds_telefone1             AS telefonePessoa,       \n "
-                + "       pes.ds_email1                AS emailPessoa,          \n "
-                + "       pdoc.ds_descricao            AS tipoDocPessoa,        \n "
-                + "       pes.ds_documento             AS documentoPessoa,      \n "
-                + "       cnae.id                      AS idCnae,               \n "
-                + "       cnae.ds_numero               AS numeroCnae,           \n "
-                + "       cnae.ds_cnae                 AS nomeCnae,             \n "
-                + "       jur.id_contabilidade         AS idContabil,           \n "
-                + "       pesc.ds_nome                 AS nomeContabil,         \n "
-                + "       esc_endereco.ds_descricao    AS enderecoContabil,     \n "
-                + "       esc_logradouro.ds_descricao  AS logradouroContabil,   \n "
-                + "       esc_pend.ds_numero           AS numeroContabil,       \n "
-                + "       esc_pend.ds_complemento      AS complementoContabil,  \n "
-                + "       esc_bairro.ds_descricao      AS bairroContabil,       \n "
-                + "       esc_end.ds_cep               AS cepContabil,          \n "
-                + "       esc_cidade.ds_cidade         AS cidadeContabil,       \n "
-                + "       esc_cidade.ds_uf             AS ufCidade,             \n "
-                + "       pesc.ds_telefone1            AS telefoneContabil,     \n "
-                + "       pesc.ds_email1               AS emailContabil,        \n "
-                + "       lot.id                       AS idLote,               \n "
-                + "       lot.dt_baixa                 AS quitacaoLote,         \n "
-                + "       lot.dt_importacao            AS importacaoLote,       \n "
-                + "       jur.id                       AS idJuridica,           \n "
-                + "       upes.ds_nome                 AS usuario,              \n "
-                + "       mov.nr_taxa                  AS taxa,                 \n "
-                + "       mov.nr_multa                 AS multa,                \n "
-                + "       mov.nr_juros                 AS juros,                \n "
-                + "       mov.nr_correcao              AS correcao,             \n "
-                + "       mov.nr_valor_baixa           AS valor_baixa,          \n "
-                + "       cc.nr_repasse                AS vl_repasse            \n "
-                + "  FROM fin_movimento                AS mov                   \n "
+
+        String textQuery = 
+                "    FROM fin_movimento                AS mov                   \n "
+                + "  LEFT JOIN fin_baixa               AS lot              ON lot.id               = mov.id_baixa                               \n "
+                + "  LEFT JOIN fin_boleto              AS bol              ON bol.nr_ctr_boleto    = mov.nr_ctr_boleto                          \n "
+                + "  LEFT JOIN fin_conta_cobranca      AS cc               ON cc.id                = bol.id_conta_cobranca                      \n "
                 + " INNER JOIN pes_pessoa              AS pes              ON pes.id               = mov.id_pessoa                              \n "
                 + " INNER JOIN pes_tipo_documento      AS pdoc             ON pdoc.id              = pes.id_tipo_documento                      \n "
                 + " INNER JOIN fin_servicos            AS se               ON se.id                = mov.id_servicos                            \n "
                 + " INNER JOIN fin_servico_rotina      AS ser              ON ser.id_servicos      = se.id AND ser.id_rotina = 4                \n "
                 + " INNER JOIN fin_tipo_servico        AS ts               ON ts.id                = mov.id_tipo_servico                        \n "
                 + "  LEFT JOIN pes_juridica            AS jur              ON jur.id_pessoa        = pes.id                                     \n ";
-                // REMOVIDA EM 13/10/2015 - SOLICITAÇÃO DO ROGÉRIO, LENTIDÃO
-                // + "  LEFT JOIN arr_contribuintes_vw    AS C                ON C.id_juridica        = jur.id                                     \n ";
+        // REMOVIDA EM 13/10/2015 - SOLICITAÇÃO DO ROGÉRIO, LENTIDÃO
+        // + "  LEFT JOIN arr_contribuintes_vw    AS C                ON C.id_juridica        = jur.id                                     \n ";
 //        if (condicao.equals("inativos") || condicao.equals("naoContribuintes")) {
 //            textQuery += " LEFT JOIN arr_contribuintes_inativos_agrupados_vw AS CI ON CI.id_juridica = C.id_juridica \n ";
 //        }
@@ -98,11 +53,8 @@ public class RelatorioMovimentosDBToplink extends DB implements RelatorioMovimen
                 + "  LEFT JOIN end_descricao_endereco  AS esc_endereco     ON esc_endereco.id      = esc_end.id_descricao_endereco                                                      \n "
                 + "  LEFT JOIN end_bairro              AS esc_bairro       ON esc_bairro.id        = esc_end.id_bairro                                                                  \n "
                 + "  LEFT JOIN end_cidade              AS esc_cidade       ON esc_cidade.id        = esc_end.id_cidade                                                                  \n "
-                + "  LEFT JOIN fin_baixa               AS lot              ON lot.id               = mov.id_baixa                                                                       \n "
                 + "  LEFT JOIN seg_usuario             AS us               ON us.id                = lot.id_usuario                                                                     \n "
-                + "  LEFT JOIN pes_pessoa              AS upes             ON upes.id              = us.id_pessoa                                                                       \n "
-                + "  LEFT JOIN fin_boleto              AS bol              ON bol.nr_ctr_boleto    = mov.nr_ctr_boleto                                                                  \n "
-                + "  LEFT JOIN fin_conta_cobranca      AS cc               ON cc.id                = bol.id_conta_cobranca                                                              \n ";
+                + "  LEFT JOIN pes_pessoa              AS upes             ON upes.id              = us.id_pessoa                                                                       \n ";
 
         // CONDICAO -----------------------------------------------------
         textQuery += " WHERE mov.is_ativo = true \n";
@@ -185,6 +137,7 @@ public class RelatorioMovimentosDBToplink extends DB implements RelatorioMovimen
                 break;
         }
 
+        String data_mes = "extract(month from lot.dt_baixa)", data_ano = "extract(year from lot.dt_baixa)";
         // DATA DO RELATORIO ---------------------------------------------------------
         if (data) {
             if (dtInicial != null && dtFinal != null) {
@@ -193,22 +146,34 @@ public class RelatorioMovimentosDBToplink extends DB implements RelatorioMovimen
                         textQuery += " AND mov.id_baixa = lot.id \n "
                                 + " AND lot.dt_importacao >= '" + DataHoje.converteData(dtInicial) + "' \n "
                                 + " AND lot.dt_importacao <= '" + DataHoje.converteData(dtFinal) + "' \n ";
+                        
+                        data_mes = "extract(month from lot.dt_importacao)";
+                        data_ano = "extract(year from lot.dt_importacao)";
                         break;
                     case "recebimento":
                         textQuery += " AND mov.id_baixa = lot.id \n "
                                 + " AND lot.dt_baixa >= '" + DataHoje.converteData(dtInicial) + "' \n "
                                 + " AND lot.dt_baixa <= '" + DataHoje.converteData(dtFinal) + "' \n ";
+                        
+                        data_mes = "extract(month from lot.dt_baixa)";
+                        data_ano = "extract(year from lot.dt_baixa)";
                         break;
                     case "vencimento":
                         textQuery += " AND mov.dt_vencimento >= '" + DataHoje.converteData(dtInicial) + "' \n "
                                 + " AND mov.dt_vencimento <= '" + DataHoje.converteData(dtFinal) + "' \n ";
+                        
+                        data_mes = "extract(month from mov.dt_vencimento)";
+                        data_ano = "extract(year from mov.dt_vencimento)";
                         break;
                 }
             } else if (!dtRefInicial.equals("") && !dtRefFinal.equals("")) {
                 String ini = dtRefInicial.substring(3, 7) + dtRefInicial.substring(0, 2);
                 String fin = dtRefFinal.substring(3, 7) + dtRefFinal.substring(0, 2);
                 textQuery += " AND concatenar(substring(mov.ds_referencia, 4, 8), substring(mov.ds_referencia, 0, 3)) >=  \'" + ini + "\' \n "
-                        + " AND concatenar(substring(mov.ds_referencia, 4, 8), substring(mov.ds_referencia, 0, 3)) <=  \'" + fin + "\' \n ";
+                           + " AND concatenar(substring(mov.ds_referencia, 4, 8), substring(mov.ds_referencia, 0, 3)) <=  \'" + fin + "\' \n ";
+                
+                data_mes = "cast(substring(mov.ds_referencia, 0, 3) as double precision)";
+                data_ano = "cast(substring(mov.ds_referencia, 4, 8) as double precision)";
             }
         }
 
@@ -230,47 +195,62 @@ public class RelatorioMovimentosDBToplink extends DB implements RelatorioMovimen
         if (!idsCidades.isEmpty()) {
             textQuery += " AND pes_cidade.id in (" + idsCidades + ") \n ";
         }
+        
+        String[] montaqry = objetoRelatorio(relatorios, data_mes, data_ano);
+        textQuery = montaqry[0] + textQuery;
+        
+        // SE NÃO TER GRUPO
+        if (montaqry[1].isEmpty()) {
 
-        String ordem2;
-        if (relatorios.getQryOrdem() == null || relatorios.getQryOrdem().isEmpty()) {
-            ordem2 = " ORDER BY ";
         } else {
-            ordem2 = " ORDER BY " + relatorios.getQryOrdem() + ", ";
+            textQuery += "GROUP BY " + montaqry[1];
         }
 
-        // ORDEM DO RELATORIO --------------------------------------------------------
-        if (chkPesEmpresa) {
-            textQuery += ordem2 + " pes.ds_nome, ";
-            switch (ordem) {
-                case "vencimento":
-                    textQuery += " mov.dt_vencimento \n ";
-                    break;
-                case "quitacao":
-                    textQuery += " lot.dt_baixa \n ";
-                    break;
-                case "importacao":
-                    textQuery += " lot.dt_importacao \n ";
-                    break;
-                case "referencia":
-                    textQuery += " concatenar(substring(mov.ds_referencia, 4, 8), substring(mov.ds_referencia, 0, 3)) \n ";
-                    break;
+        // SE NÃO TER ORDEM
+        if (montaqry[2].isEmpty()) {
+            String ordem2;
+            if (relatorios.getQryOrdem() == null || relatorios.getQryOrdem().isEmpty()) {
+                ordem2 = " ORDER BY ";
+            } else {
+                ordem2 = " ORDER BY " + relatorios.getQryOrdem() + ", ";
+            }
+
+            // ORDEM DO RELATORIO --------------------------------------------------------
+            if (chkPesEmpresa) {
+                textQuery += ordem2 + " pes.ds_nome, ";
+                switch (ordem) {
+                    case "vencimento":
+                        textQuery += " mov.dt_vencimento \n ";
+                        break;
+                    case "quitacao":
+                        textQuery += " lot.dt_baixa \n ";
+                        break;
+                    case "importacao":
+                        textQuery += " lot.dt_importacao \n ";
+                        break;
+                    case "referencia":
+                        textQuery += " concatenar(substring(mov.ds_referencia, 4, 8), substring(mov.ds_referencia, 0, 3)) \n ";
+                        break;
+                }
+            } else {
+                textQuery += ordem2 + " pes.ds_nome, ";
+                switch (ordem) {
+                    case "vencimento":
+                        textQuery += " mov.dt_vencimento \n ";
+                        break;
+                    case "quitacao":
+                        textQuery += " lot.dt_baixa \n ";
+                        break;
+                    case "importacao":
+                        textQuery += " lot.dt_importacao \n ";
+                        break;
+                    case "referencia":
+                        textQuery += " concatenar(substring(mov.ds_referencia, 4, 8), substring(mov.ds_referencia, 0, 3)) \n ";
+                        break;
+                }
             }
         } else {
-            textQuery += ordem2 + " pes.ds_nome, ";
-            switch (ordem) {
-                case "vencimento":
-                    textQuery += " mov.dt_vencimento \n ";
-                    break;
-                case "quitacao":
-                    textQuery += " lot.dt_baixa \n ";
-                    break;
-                case "importacao":
-                    textQuery += " lot.dt_importacao \n ";
-                    break;
-                case "referencia":
-                    textQuery += " concatenar(substring(mov.ds_referencia, 4, 8), substring(mov.ds_referencia, 0, 3)) \n ";
-                    break;
-            }
+            textQuery += "ORDER BY " + montaqry[2];
         }
 
         try {
@@ -280,5 +260,119 @@ public class RelatorioMovimentosDBToplink extends DB implements RelatorioMovimen
             result = new ArrayList();
         }
         return result;
+    }
+
+    public String[] objetoRelatorio(Relatorios relatorio, String mes, String ano) {
+        String select, group, order;
+
+        if (relatorio.getId() == 66) {
+            // RESUMO CONTRIBUICOES
+            select = "-- RelatorioMovimentosDBToplink - listaMovimentos;           \n\n"
+                    + "SELECT "+mes+" as mes, \n "
+                    + "      "+ano+" as ano, \n "
+                    + "      se.ds_descricao as contribuicao, \n "
+                    + "      sum(mov.nr_valor_baixa) as valor_recebido, \n "
+                    + "      sum(mov.nr_taxa) as taxa, \n "
+                    + "      sum(mov.nr_valor_baixa - (mov.nr_valor_baixa*(cc.nr_repasse/100)))-sum(mov.nr_taxa) as valor_liquido \n ";
+
+            group = mes + ", " + ano + ", se.ds_descricao \n ";
+
+            order = mes + ", " + ano + ",se.ds_descricao  \n ";
+        } else if (relatorio.getId() == 67) {
+            // RESUMO CONTRIBUICOES POR EMPRESA
+            select = "-- RelatorioMovimentosDBToplink - listaMovimentos;           \n\n"
+                    + "SELECT "+mes+" as mes, \n "
+                    + "      "+ano+" as ano, \n "
+                    + "      pes.ds_documento as cnpj, \n "
+                    + "      pes.ds_nome as empresa, \n "
+                    + "      se.ds_descricao as contribuicao, \n "
+                    + "      sum(mov.nr_valor_baixa) as valor_recebido, \n "
+                    + "      sum(mov.nr_taxa) as taxa, \n "
+                    + "      sum(mov.nr_valor_baixa - (mov.nr_valor_baixa*(cc.nr_repasse/100)))-sum(mov.nr_taxa) as valor_liquido \n ";
+
+            group = "pes.ds_nome, \n "
+                    + "pes.ds_documento, \n "
+                    + mes + ", " + ano + ", se.ds_descricao \n ";
+
+            order = "pes.ds_nome, \n "
+                    + "pes.ds_documento, \n "
+                    + mes + ", " + ano + ", se.ds_descricao \n ";
+        } else if (relatorio.getId() == 68) {
+            // RESUMO CONTRIBUICOES ANALITICO
+            select = "-- RelatorioMovimentosDBToplink - listaMovimentos;           \n\n"
+                    + "SELECT "+mes+" as mes, \n "
+                    + "      "+ano+" as ano, \n "
+                    + "      se.ds_descricao as contribuicao, \n "
+                    + "      sum(mov.nr_valor_baixa) as valor_recebido, \n "
+                    + "      sum(mov.nr_taxa) as taxa, \n "
+                    + "      sum(mov.nr_valor_baixa - (mov.nr_valor_baixa*(cc.nr_repasse/100)))-sum(mov.nr_taxa) as valor_liquido \n ";
+
+            group = mes + ", " + ano + ", se.ds_descricao \n ";
+
+            order = "se.ds_descricao, " + mes + ", " + ano + " \n ";
+        } else {
+            // OUTROS RELATORIOS
+            select = ""
+                    + "-- RelatorioMovimentosDBToplink - listaMovimentos;           \n\n"
+                    + "SELECT mov.id                       AS idMov,                \n "
+                    + "       mov.ds_documento             AS numeroDocumento,      \n "
+                    + "       se.ds_descricao              AS servico,              \n "
+                    + "       ts.ds_descricao              AS tipoServico,          \n "
+                    + "       mov.ds_referencia            AS referencia,           \n "
+                    + "       mov.dt_vencimento            AS vencimento,           \n "
+                    + "       mov.nr_valor                 AS valor,                \n "
+                    + "       se.id                        AS idServico,            \n "
+                    + "       ts.id                        AS idTipoServico,        \n "
+                    + "       pes.id                       AS idPessoa,             \n "
+                    + "       pes.ds_nome                  AS nomePessoa,           \n "
+                    + "       pes_endereco.ds_descricao    AS enderecoPessoa,       \n "
+                    + "       pes_logradouro.ds_descricao  AS logradouroPessoa,     \n "
+                    + "       pes_pend.ds_numero           AS numeroPessoa,         \n "
+                    + "       pes_pend.ds_complemento      AS complementoPessoa,    \n "
+                    + "       pes_bairro.ds_descricao      AS bairroPessoa,         \n "
+                    + "       pes_end.ds_cep               AS cepPessoa,            \n "
+                    + "       pes_cidade.ds_cidade         AS cidadePessoa,         \n "
+                    + "       pes_cidade.ds_uf             AS ufCidade,             \n "
+                    + "       pes.ds_telefone1             AS telefonePessoa,       \n "
+                    + "       pes.ds_email1                AS emailPessoa,          \n "
+                    + "       pdoc.ds_descricao            AS tipoDocPessoa,        \n "
+                    + "       pes.ds_documento             AS documentoPessoa,      \n "
+                    + "       cnae.id                      AS idCnae,               \n "
+                    + "       cnae.ds_numero               AS numeroCnae,           \n "
+                    + "       cnae.ds_cnae                 AS nomeCnae,             \n "
+                    + "       jur.id_contabilidade         AS idContabil,           \n "
+                    + "       pesc.ds_nome                 AS nomeContabil,         \n "
+                    + "       esc_endereco.ds_descricao    AS enderecoContabil,     \n "
+                    + "       esc_logradouro.ds_descricao  AS logradouroContabil,   \n "
+                    + "       esc_pend.ds_numero           AS numeroContabil,       \n "
+                    + "       esc_pend.ds_complemento      AS complementoContabil,  \n "
+                    + "       esc_bairro.ds_descricao      AS bairroContabil,       \n "
+                    + "       esc_end.ds_cep               AS cepContabil,          \n "
+                    + "       esc_cidade.ds_cidade         AS cidadeContabil,       \n "
+                    + "       esc_cidade.ds_uf             AS ufCidade,             \n "
+                    + "       pesc.ds_telefone1            AS telefoneContabil,     \n "
+                    + "       pesc.ds_email1               AS emailContabil,        \n "
+                    + "       lot.id                       AS idLote,               \n "
+                    + "       lot.dt_baixa                 AS quitacaoLote,         \n "
+                    + "       lot.dt_importacao            AS importacaoLote,       \n "
+                    + "       jur.id                       AS idJuridica,           \n "
+                    + "       upes.ds_nome                 AS usuario,              \n "
+                    + "       mov.nr_taxa                  AS taxa,                 \n "
+                    + "       mov.nr_multa                 AS multa,                \n "
+                    + "       mov.nr_juros                 AS juros,                \n "
+                    + "       mov.nr_correcao              AS correcao,             \n "
+                    + "       mov.nr_valor_baixa           AS valor_baixa,          \n "
+                    + "       cc.nr_repasse                AS vl_repasse            \n ";
+            group = "";
+            order = "";
+        }
+
+        String[] qry = new String[3];
+
+        qry[0] = select;
+        qry[1] = group;
+        qry[2] = order;
+
+        return qry;
     }
 }

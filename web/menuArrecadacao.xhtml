@@ -46,6 +46,10 @@
                                         <p:menuitem value="Registro Empresarial"  action="#{chamadaPaginaBean.registroEmpresarial}" />
                                     </p:submenu>
                                     <p:menuitem value="RAIS"     action="#{chamadaPaginaBean.pagina('rais')}" />
+                                    <p:submenu label="Digitalização" icon="ui-icon-document" style="margin-right: 15px">
+                                        <p:menuitem value="Grupo"     action="#{chamadaPaginaBean.pagina('grupoDigitalizacao')}" />
+                                        <p:menuitem value="Documento" action="#{chamadaPaginaBean.pagina('digitalizacao')}" />
+                                    </p:submenu>
                                 </p:submenu>
 
                                 <p:submenu label="Movimento" icon="ui-icon-document" style="margin-right: 15px;">

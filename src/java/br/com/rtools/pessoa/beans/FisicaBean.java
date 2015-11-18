@@ -8,6 +8,8 @@ import br.com.rtools.associativo.beans.SociosBean;
 import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.associativo.db.SociosDB;
 import br.com.rtools.associativo.db.SociosDBToplink;
+import br.com.rtools.digitalizacao.Documento;
+import br.com.rtools.digitalizacao.dao.DigitalizacaoDao;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.endereco.Endereco;
 import br.com.rtools.endereco.beans.PesquisaEnderecoBean;
@@ -38,7 +40,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.Vector;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -50,10 +51,10 @@ import javax.faces.validator.ValidatorException;
 import javax.servlet.ServletContext;
 import javax.servlet.http.Part;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.primefaces.component.accordionpanel.AccordionPanel;
 import org.primefaces.component.tabview.TabView;
 import org.primefaces.context.RequestContext;
-import org.primefaces.event.FileUploadEvent;
 import org.primefaces.event.TabChangeEvent;
 
 @ManagedBean
@@ -148,10 +149,42 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     private List<Oposicao> listaOposicao = new ArrayList();
 
+    // TAB DOCUMENTOS
+    private List<Documento> listaDocumentos = new ArrayList();
+    private List<LinhaArquivo> listaArquivos = new ArrayList();
+    
     public FisicaBean() {
         
     }
 
+
+    public void loadListaDocumentos() {
+        listaDocumentos.clear();
+
+        DigitalizacaoDao dao = new DigitalizacaoDao();
+
+        if(fisica.getId() != -1)
+            listaDocumentos = dao.listaDocumento(fisica.getPessoa().getId());
+    }
+
+    public void verDocumentos(Documento linha) {
+        listaArquivos.clear();
+
+        ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
+        String path = servletContext.getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/documentos/" + linha.getPessoa().getId() + "/" + linha.getId() + "/";
+        File file = new File(path);
+
+        File lista_datas[] = file.listFiles();
+
+        if (lista_datas != null) {
+            for (File lista_data : lista_datas) {
+                String ext = FilenameUtils.getExtension(lista_data.getPath()).toUpperCase();
+                String mimeType = servletContext.getMimeType(lista_data.getPath());
+                listaArquivos.add(new LinhaArquivo("fileExtension" + ext + ".png", lista_data.getName(), mimeType, linha));
+            }
+        }
+    }    
+    
     public void loadListaOposicao() {
         if (fisica.getId() != -1) {
             listaOposicao.clear();
@@ -685,6 +718,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             }
         }
         loadListaOposicao();
+        loadListaDocumentos();
         return url;
     }
 
@@ -1798,6 +1832,10 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         if (indexPessoaFisica == 6) {
             loadListaOposicao();
         }
+        
+        if (indexPessoaFisica == 7) {
+            loadListaDocumentos();
+        }
     }
 
     public String getIndexNovoEndereco() {
@@ -2588,5 +2626,21 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     public void setListaOposicao(List<Oposicao> listaOposicao) {
         this.listaOposicao = listaOposicao;
+    }
+
+    public List<Documento> getListaDocumentos() {
+        return listaDocumentos;
+    }
+
+    public void setListaDocumentos(List<Documento> listaDocumentos) {
+        this.listaDocumentos = listaDocumentos;
+    }
+
+    public List<LinhaArquivo> getListaArquivos() {
+        return listaArquivos;
+    }
+
+    public void setListaArquivos(List<LinhaArquivo> listaArquivos) {
+        this.listaArquivos = listaArquivos;
     }
 }

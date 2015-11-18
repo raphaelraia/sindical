@@ -1,0 +1,237 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Sindical - Digitalização</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
+            .ui-button { padding: 3px!important; }
+            .ui-selectonemenu {padding-right: 25px!important;}
+
+            .column01{
+                width: 100px;
+            }
+
+            .column02{
+                width: 100%;
+            }
+
+            .column03{
+                width: 50px;
+            }
+        </style>
+
+        <script type="text/javascript">
+
+        </script>
+    </h:head>
+    <h:body>
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                    <ui:include src="templates/templateStatus.xhtml"/>
+                </f:subview>
+                <f:view>
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:outputText value="Digitalização de Documentos" styleClass="fonteHeader" />
+                        <div style="clear: both"></div>
+                        <h:form id="formDigitalizacao">
+                            <c:set scope="request" var="object" value="${digitalizacaoBean.documento}"/>
+
+                            <p:panel styleClass="fundoCinza">
+                                <h:panelGrid columns="2">
+                                    <h:column>
+                                        <p:outputLabel value="Grupo" /><br />
+                                        <p:selectOneMenu value="#{digitalizacaoBean.indexGrupo}">
+                                            <p:ajax event="change" update="@this" global="false"/>
+                                            <f:selectItems value="#{digitalizacaoBean.listaGrupo}" />
+                                        </p:selectOneMenu>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="Assunto" /><br />
+                                        <p:inputText value="#{digitalizacaoBean.documento.assunto.descricao}" placeholder="DIGITE UM ASSUNTO" style="width: 400px">
+                                            <p:ajax event="change" update="@this" global="false"/>
+                                        </p:inputText>
+                                    </h:column>
+                                </h:panelGrid>
+
+                                <h:panelGrid style="width: 100%">
+                                    <h:column>
+                                        <p:outputLabel value="Título" /><br />
+                                        <p:inputText value="#{digitalizacaoBean.documento.titulo}" placeholder="DIGITE UM TÍTULO" style="width: 100%">
+                                            <p:ajax event="change" update="@this" global="false"/>
+                                        </p:inputText>
+                                    </h:column>
+                                </h:panelGrid>
+
+                                <h:panelGrid style="width: 100%">
+                                    <h:column>
+                                        <p:outputLabel value="Histórico" /><br />
+                                        <p:inputTextarea value="#{digitalizacaoBean.documento.historico}" placeholder="OBSERVAÇÃO PARA A DIGITALIZAÇÃO" style="width: 100%" rows="4">
+                                            <p:ajax event="change" update="@this" global="false"/>
+                                        </p:inputTextarea>
+                                    </h:column>
+                                </h:panelGrid>
+
+                                <h:panelGrid columns="3">
+                                    <h:column>
+                                        <p:commandButton icon="ui-icon-search" value="PESQUISAR PESSOA" action="#{chamadaPaginaBean.pesquisaPessoa}" rendered="#{digitalizacaoBean.pessoa.id == -1}"/>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="Documentos de: #{digitalizacaoBean.pessoa.nome}" style="font-size: 14pt!important" rendered="#{digitalizacaoBean.pessoa.id != -1}"/>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:commandButton icon="ui-icon-close" action="#{digitalizacaoBean.limparPesquisaPessoa}" rendered="#{digitalizacaoBean.pessoa.id != -1}" update="@form"/>
+                                    </h:column>
+                                </h:panelGrid>
+                            </p:panel>   
+
+                            <p:messages showDetail="true" closable="true" />
+
+                            <h:panelGrid columns="4">
+                                <p:commandButton value="#{digitalizacaoBean.documento.id eq -1 ? 'SALVAR' : 'ALTERAR'}" action="#{digitalizacaoBean.saveDigitalizacao()}" update="@form formDigitalizacaoUpload formDigitalizacaoLista" disabled="#{controleAcessoBean.botaoSalvar}"/>
+                                <p:commandButton value="NOVO" action="#{digitalizacaoBean.novo()}" update="@form formDigitalizacaoUpload formDigitalizacaoLista"/>
+                                <p:commandButton value="EXCLUIR" disabled="#{controleAcessoBean.botaoExcluir or digitalizacaoBean.documento.id eq -1}" onclick="PF('dlg_excluir').show()"/>
+                                <p:commandButton value="VER ARQUIVOS" icon="ui-icon-folder-open" action="#{digitalizacaoBean.verDocumentos(digitalizacaoBean.documento)}" title="VER ARQUIVOS DESSA PESSOA" oncomplete="PF('dlg_arquivos').show()" update=":formDigitalizacaoLista:panel_arquivos" rendered="#{digitalizacaoBean.documento.id ne -1}"/>
+                            </h:panelGrid>
+                        </h:form>
+
+                        <h:form id="formDigitalizacaoUpload" enctype="multipart/form-data">
+                            <p:fileUpload fileUploadListener="#{digitalizacaoBean.fileUpload}" update="@form formDigitalizacao formDigitalizacaoLista" mode="advanced" dragDropSupport="true" multiple="true" style="width: 100%" label="Selecionar Arquivos" uploadLabel="Enviar" cancelLabel="Cancelar" rendered="#{digitalizacaoBean.documento.id ne -1}"/>
+                        </h:form>
+
+                        <h:form id="formDigitalizacaoLista">
+                            <h:panelGrid columns="1">
+                                <p:outputLabel value="LISTA DE DIGITALIZAÇÕES" style="font-size: 14pt!important; font-weight: bold"/>
+                            </h:panelGrid>
+
+                            <p:dataTable value="#{digitalizacaoBean.listaDocumentos}" var="linha" emptyMessage="Nenhum documento Encontrado!" scrollable="true" scrollHeight="400">
+                                <p:column style="width:15px">  
+                                    <p:rowToggler />  
+                                </p:column>  
+
+                                <p:column headerText="Data" style="width: 80px; text-align: center">
+                                    <p:commandLink value="#{linha.dtEmissaoString}" action="#{digitalizacaoBean.editar(linha)}" title="CLIQUE PARA EDITAR" update="formDigitalizacao formDigitalizacaoUpload"/>
+                                </p:column>
+
+                                <p:column headerText="Pessoa">
+                                    <p:commandLink value="#{linha.pessoa.nome}" action="#{digitalizacaoBean.editar(linha)}" title="CLIQUE PARA EDITAR" update="formDigitalizacao formDigitalizacaoUpload"/>
+                                </p:column>
+
+                                <p:column headerText="Grupo" style="width: 100px; text-align: center">
+                                    <p:commandLink value="#{linha.assunto.grupo.descricao}" action="#{digitalizacaoBean.editar(linha)}" title="CLIQUE PARA EDITAR" update="formDigitalizacao formDigitalizacaoUpload"/>
+                                </p:column>
+
+                                <p:column headerText="Assunto" style="width: 250px;">
+                                    <p:commandLink value="#{linha.assunto.descricao}" action="#{digitalizacaoBean.editar(linha)}" title="CLIQUE PARA EDITAR" update="formDigitalizacao formDigitalizacaoUpload"/>
+                                </p:column>
+
+                                <p:column headerText="Título" style="width: 250px;">
+                                    <p:commandLink value="#{linha.titulo}" action="#{digitalizacaoBean.editar(linha)}" title="CLIQUE PARA EDITAR" update="formDigitalizacao formDigitalizacaoUpload"/>
+                                </p:column>
+
+                                <p:column headerText="Arq" style="width: 40px; text-align: center">
+                                    <p:commandButton icon="ui-icon-folder-open" action="#{digitalizacaoBean.verDocumentos(linha)}" title="VER ARQUIVOS DESSA PESSOA" oncomplete="PF('dlg_arquivos').show()" update=":formDigitalizacaoLista:panel_arquivos"/>
+                                </p:column>
+
+                                <p:rowExpansion>
+                                    <h:panelGrid columns="2" style="height: 40px" styleClass="sbb" columnClasses="column01, column02">
+                                        <p:column>
+                                            <p:outputLabel value="#{linha.pessoa.tipoDocumento.descricao}" style="font-weight: bold"/><br />
+                                            <p:outputLabel value="#{linha.pessoa.documento}"/>
+                                        </p:column>
+
+                                        <p:column rendered="#{linha.historico ne ''}">
+                                            <p:outputLabel value="HISTÓRICO" style="font-weight: bold"/><br />
+                                            <p:outputLabel value="#{linha.historico}"/>
+                                        </p:column>
+                                    </h:panelGrid>
+                                </p:rowExpansion>
+                            </p:dataTable>
+
+                            <p:dialog widgetVar="dlg_arquivos" width="600" header="Arquivos da Pessoa" modal="true">
+                                <p:ajax event="close" listener="#{digitalizacaoBean.listaArquivos.clear()}" update="@form"/>
+
+                                <h:panelGrid id="panel_arquivos" style="width: 100%">
+                                    <p:messages showDetail="true" closable="true" />
+                                    <ui:repeat value="#{digitalizacaoBean.listaArquivos}" var="linha_arquivo">
+                                        <h:panelGrid columns="4" columnClasses="column01, column02, column03, column03">
+                                            <h:column>
+                                                <p:graphicImage value="/Imagens/#{linha_arquivo.extensionFile}" width="50" />
+                                            </h:column>
+
+                                            <h:column>
+                                                <p:commandLink value="#{linha_arquivo.nameFile}" title="ABRIR ARQUIVO" action="#{digitalizacaoBean.view(linha_arquivo)}" target="_BLANK" ajax="false" />  
+                                            </h:column>
+
+                                            <h:column>
+                                                <p:commandButton icon="ui-icon-arrowthickstop-1-s" title="BAIXAR ARQUIVO" action="#{digitalizacaoBean.download(linha_arquivo)}" ajax="false" onclick="form.target = '_blank'"/>
+                                            </h:column>
+
+                                            <h:column>
+                                                <p:commandButton icon="ui-icon-close" title="EXCLUIR ARQUIVO" action="#{digitalizacaoBean.clickExcluir(linha_arquivo)}" oncomplete="PF('dlg_excluir_arquivos').show()" update=":formDigitalizacaoLista:panel_excluir_arquivos"/>
+                                            </h:column>
+                                        </h:panelGrid>
+                                        <hr />
+                                    </ui:repeat>
+
+                                    <p:outputLabel value="NENHUM ARQUIVO ADICIONADO!" rendered="#{digitalizacaoBean.listaArquivos.size() eq 0}" style="font-weight: bold; font-size: 12pt!important; color: red"/>
+                                </h:panelGrid>
+                            </p:dialog>
+
+                            <p:dialog widgetVar="dlg_excluir_arquivos" width="400" header="EXCLUIR ARQUIVOS" modal="true">
+                                <p:outputLabel value="DESEJA REALMENTE EXCLUIR ESTE ARQUIVO?" style="font-size: 11pt!important"/>
+                                <br /><br />
+                                
+                                <h:panelGrid id="panel_excluir_arquivos" columns="2" columnClasses="column01, column02">
+                                    <h:column>
+                                        <p:graphicImage value="/Imagens/#{digitalizacaoBean.linhaArquivoExcluir.extensionFile}" width="50" />
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="#{digitalizacaoBean.linhaArquivoExcluir.nameFile}" title="NOME DO ARQUIVO"/>
+                                    </h:column>
+                                </h:panelGrid>
+                                <br />
+                                <h:panelGrid columns="2">
+                                    <p:commandButton value="SIM" icon="ui-icon-check" action="#{digitalizacaoBean.excluirArquivo()}" oncomplete="PF('dlg_excluir_arquivos').hide()" update="formDigitalizacaoLista:panel_arquivos"/>
+                                    <p:commandButton value="NÃO" icon="ui-icon-close" onclick="PF('dlg_excluir_arquivos').hide()"/>
+                                </h:panelGrid>
+                            </p:dialog>
+                            
+                            <p:dialog widgetVar="dlg_excluir" width="400" header="EXCLUIR ARQUIVOS" modal="true">
+                                <p:outputLabel value="DESEJA REALMENTE EXCLUIR ESTA DIGITALIZAÇÃO?" style="font-size: 11pt!important"/>
+                                <br /><br />
+                                
+                                <h:panelGrid columns="2">
+                                    <p:commandButton value="SIM" icon="ui-icon-check" action="#{digitalizacaoBean.excluir()}" oncomplete="PF('dlg_excluir_arquivos').hide()" update="@form formDigitalizacao formDigitalizacaoUpload"/>
+                                    <p:commandButton value="NÃO" icon="ui-icon-close" onclick="PF('dlg_excluir_arquivos').hide()"/>
+                                </h:panelGrid>
+                            </p:dialog>
+                        </h:form>                        
+                    </p:panel>
+                </f:view>
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>                
+    </h:body>
+</ui:composition>

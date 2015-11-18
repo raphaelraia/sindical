@@ -16,6 +16,7 @@ import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.db.ServicoRotinaDB;
 import br.com.rtools.financeiro.db.ServicoRotinaDBToplink;
 import br.com.rtools.impressao.ParametroMovimentos;
+import br.com.rtools.impressao.ParametroMovimentosResumo;
 import br.com.rtools.pessoa.Cnae;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
@@ -210,7 +211,7 @@ public class RelatorioMovimentoBean implements Serializable {
         RelatorioMovimentosDB db_rel = new RelatorioMovimentosDBToplink();
         ConfiguracaoArrecadacaoBean cab = new ConfiguracaoArrecadacaoBean();
         cab.init();
-        Juridica sindicato =  cab.getConfiguracaoArrecadacao().getFilial().getFilial();
+        Juridica sindicato = cab.getConfiguracaoArrecadacao().getFilial().getFilial();
         //Juridica sindicato = (Juridica) (new Dao()).find(new Juridica(), 1);
         PessoaEndereco endSindicato = (new PessoaEnderecoDao()).pesquisaEndPorPessoaTipo(sindicato.getPessoa().getId(), 3);
 
@@ -304,93 +305,124 @@ public class RelatorioMovimentoBean implements Serializable {
         );
 
         Collection listaParametro = new ArrayList<>();
-        for (int i = 0; i < result.size(); i++) {
 
-            float valor = Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(6))); // VALOR ORIGINAL     
-
-            String quitacao = "", importacao = "", usuario = "";
-
-            if (((Vector) result.get(i)).get(38) != null) {
-                quitacao = DataHoje.converteData((Date) ((Vector) result.get(i)).get(39));
-                importacao = DataHoje.converteData((Date) ((Vector) result.get(i)).get(40));
-                usuario = getConverteNullString(((Vector) result.get(i)).get(42));
+        if (relatorio.getId() == 66 || relatorio.getId() == 68) {
+            // RESUMO CONTRIBUICOES - RESUMO CONTRIBUICOES ANALITICO
+            for (Vector vresult : result) {
+                listaParametro.add(new ParametroMovimentosResumo(
+                        vresult.get(0) != null ? String.valueOf(((Double) vresult.get(0)).intValue()) : "",
+                        vresult.get(0) != null ? String.valueOf(((Double) vresult.get(1)).intValue()) : "",
+                        String.valueOf(vresult.get(2)),
+                        Float.parseFloat(String.valueOf(vresult.get(3))),
+                        Float.parseFloat(String.valueOf(vresult.get(4))),
+                        Float.parseFloat(String.valueOf(vresult.get(5)))
+                )
+                );
+            }
+        } else if (relatorio.getId() == 67) {
+            // RESUMO CONTRIBUICOES POR EMPRESA
+            for (Vector vresult : result) {
+                listaParametro.add(new ParametroMovimentosResumo(
+                        vresult.get(0) != null ? String.valueOf(((Double) vresult.get(0)).intValue()) : "",
+                        vresult.get(0) != null ? String.valueOf(((Double) vresult.get(1)).intValue()) : "",
+                        String.valueOf(vresult.get(2)),
+                        String.valueOf(vresult.get(3)),
+                        String.valueOf(vresult.get(4)),
+                        Float.parseFloat(String.valueOf(vresult.get(5))),
+                        Float.parseFloat(String.valueOf(vresult.get(6))),
+                        Float.parseFloat(String.valueOf(vresult.get(7)))
+                )
+                );
             }
 
-            String srepasse = getConverteNullString(((Vector) result.get(i)).get(48));
-            float repasse = 0;
-            if (srepasse.isEmpty()) {
-                repasse = Moeda.multiplicarValores(Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(47))), Moeda.divisaoValores(0, 100));
-            } else {
-                repasse = Moeda.multiplicarValores(Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(47))), Moeda.divisaoValores(Float.parseFloat(srepasse), 100));
+        } else {
+            for (int i = 0; i < result.size(); i++) {
+                float valor = Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(6))); // VALOR ORIGINAL     
+
+                String quitacao = "", importacao = "", usuario = "";
+
+                if (((Vector) result.get(i)).get(38) != null) {
+                    quitacao = DataHoje.converteData((Date) ((Vector) result.get(i)).get(39));
+                    importacao = DataHoje.converteData((Date) ((Vector) result.get(i)).get(40));
+                    usuario = getConverteNullString(((Vector) result.get(i)).get(42));
+                }
+
+                String srepasse = getConverteNullString(((Vector) result.get(i)).get(48));
+                float repasse = 0;
+                if (srepasse.isEmpty()) {
+                    repasse = Moeda.multiplicarValores(Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(47))), Moeda.divisaoValores(0, 100));
+                } else {
+                    repasse = Moeda.multiplicarValores(Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(47))), Moeda.divisaoValores(Float.parseFloat(srepasse), 100));
+                }
+
+                float valorLiquido = Moeda.subtracaoValores(Moeda.subtracaoValores(Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(47))), Float.valueOf(Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(43))))), repasse);
+
+                listaParametro.add(
+                        new ParametroMovimentos(
+                                ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
+                                sindicato.getPessoa().getNome(),
+                                endSindicato.getEndereco().getDescricaoEndereco().getDescricao(),
+                                endSindicato.getEndereco().getLogradouro().getDescricao(),
+                                endSindicato.getNumero(),
+                                endSindicato.getComplemento(),
+                                endSindicato.getEndereco().getBairro().getDescricao(),
+                                endSindicato.getEndereco().getCep(),
+                                endSindicato.getEndereco().getCidade().getCidade(),
+                                endSindicato.getEndereco().getCidade().getUf(),
+                                sindicato.getPessoa().getTelefone1(),
+                                sindicato.getPessoa().getEmail1(),
+                                sindicato.getPessoa().getSite(),
+                                sindicato.getPessoa().getTipoDocumento().getDescricao(),
+                                sindicato.getPessoa().getDocumento(),
+                                getConverteNullInt(((Vector) result.get(i)).get(41)), // ID JURIDICA
+                                getConverteNullString(((Vector) result.get(i)).get(10)), // NOME PESSOA
+                                getConverteNullString(((Vector) result.get(i)).get(11)), // ENDERECO PESSOA
+                                getConverteNullString(((Vector) result.get(i)).get(12)), // LOGRADOURO PESSOA
+                                getConverteNullString(((Vector) result.get(i)).get(13)), // NUMERO ENDERECO PESSOA
+                                getConverteNullString(((Vector) result.get(i)).get(14)), // COMPLEMENTO PESSOA
+                                getConverteNullString(((Vector) result.get(i)).get(15)), // BAIRRO PESSOA
+                                getConverteNullString(((Vector) result.get(i)).get(16)), // CEP PESSOA
+                                getConverteNullString(((Vector) result.get(i)).get(17)), // CIDADE PESSOA
+                                getConverteNullString(((Vector) result.get(i)).get(18)), // UF PESSOA
+                                getConverteNullString(((Vector) result.get(i)).get(19)), // TELEFONE PESSOA
+                                getConverteNullString(((Vector) result.get(i)).get(20)), // EMAIL PESSOA
+                                getConverteNullString(((Vector) result.get(i)).get(21)), // TIPO DOC PESSOA
+                                getConverteNullString(((Vector) result.get(i)).get(22)), // DOCUMENTO PESSOA
+                                getConverteNullInt(((Vector) result.get(i)).get(23)), // ID CNAE
+                                getConverteNullString(((Vector) result.get(i)).get(24)), // NUMERO CNAE
+                                getConverteNullString(((Vector) result.get(i)).get(25)), // NOME CNAE
+                                getConverteNullInt(((Vector) result.get(i)).get(26)), // ID CONTABILIDADE
+                                getConverteNullString(((Vector) result.get(i)).get(27)), // NOME CONTABILIDADE
+                                getConverteNullString(((Vector) result.get(i)).get(28)), // ENDERECO CONTABIL
+                                getConverteNullString(((Vector) result.get(i)).get(29)), // LOGRADOURO CONTABIL
+                                getConverteNullString(((Vector) result.get(i)).get(30)), // NUMERO CONTABIL
+                                getConverteNullString(((Vector) result.get(i)).get(31)), // COMPLEMENTO CONTABIL
+                                getConverteNullString(((Vector) result.get(i)).get(32)), // BAIRRO CONTABIL
+                                getConverteNullString(((Vector) result.get(i)).get(33)), // CEP CONTABIL
+                                getConverteNullString(((Vector) result.get(i)).get(34)), // CIDADE CONTABIL
+                                getConverteNullString(((Vector) result.get(i)).get(35)), // UF CONTABIL
+                                getConverteNullString(((Vector) result.get(i)).get(36)), // TELEFONE CONTABIL
+                                getConverteNullString(((Vector) result.get(i)).get(37)), // EMAIL CONTABIL
+                                getConverteNullString(((Vector) result.get(i)).get(1)), // NUMERO BOLETO
+                                getConverteNullString(((Vector) result.get(i)).get(2)), // SERVICO
+                                getConverteNullString(((Vector) result.get(i)).get(3)), // TIPO SERVICO
+                                getConverteNullString(((Vector) result.get(i)).get(4)), // REFERENCIA
+                                DataHoje.converteData((Date) ((Vector) result.get(i)).get(5)), // VENCIMENTO
+                                quitacao, //result.get(i).getLoteBaixa().getQuitacao(),
+                                new BigDecimal(Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(47)))), // VALOR BAIXA
+                                new BigDecimal(Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(43)))),// TAXA
+                                importacao, //result.get(i).getLoteBaixa().getImportacao(),
+                                usuario,// result.get(i).getLoteBaixa().getUsuario().getPessoa().getNome()
+                                new BigDecimal(Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(44)))),// MULTA,
+                                new BigDecimal(Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(45)))),// JUROS,
+                                new BigDecimal(Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(46)))),// CORRECAO,
+                                new BigDecimal(valor), // VALOR TOTAL
+                                new BigDecimal(repasse), // REPASSE
+                                new BigDecimal(valorLiquido), // VALOR LIQUIDO
+                                totaliza
+                        )
+                );
             }
-
-            float valorLiquido = Moeda.subtracaoValores(Moeda.subtracaoValores(Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(47))), Float.valueOf(Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(43))))), repasse);
-
-            listaParametro.add(
-                    new ParametroMovimentos(
-                            ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
-                            sindicato.getPessoa().getNome(),
-                            endSindicato.getEndereco().getDescricaoEndereco().getDescricao(),
-                            endSindicato.getEndereco().getLogradouro().getDescricao(),
-                            endSindicato.getNumero(),
-                            endSindicato.getComplemento(),
-                            endSindicato.getEndereco().getBairro().getDescricao(),
-                            endSindicato.getEndereco().getCep(),
-                            endSindicato.getEndereco().getCidade().getCidade(),
-                            endSindicato.getEndereco().getCidade().getUf(),
-                            sindicato.getPessoa().getTelefone1(),
-                            sindicato.getPessoa().getEmail1(),
-                            sindicato.getPessoa().getSite(),
-                            sindicato.getPessoa().getTipoDocumento().getDescricao(),
-                            sindicato.getPessoa().getDocumento(),
-                            getConverteNullInt(((Vector) result.get(i)).get(41)), // ID JURIDICA
-                            getConverteNullString(((Vector) result.get(i)).get(10)), // NOME PESSOA
-                            getConverteNullString(((Vector) result.get(i)).get(11)), // ENDERECO PESSOA
-                            getConverteNullString(((Vector) result.get(i)).get(12)), // LOGRADOURO PESSOA
-                            getConverteNullString(((Vector) result.get(i)).get(13)), // NUMERO ENDERECO PESSOA
-                            getConverteNullString(((Vector) result.get(i)).get(14)), // COMPLEMENTO PESSOA
-                            getConverteNullString(((Vector) result.get(i)).get(15)), // BAIRRO PESSOA
-                            getConverteNullString(((Vector) result.get(i)).get(16)), // CEP PESSOA
-                            getConverteNullString(((Vector) result.get(i)).get(17)), // CIDADE PESSOA
-                            getConverteNullString(((Vector) result.get(i)).get(18)), // UF PESSOA
-                            getConverteNullString(((Vector) result.get(i)).get(19)), // TELEFONE PESSOA
-                            getConverteNullString(((Vector) result.get(i)).get(20)), // EMAIL PESSOA
-                            getConverteNullString(((Vector) result.get(i)).get(21)), // TIPO DOC PESSOA
-                            getConverteNullString(((Vector) result.get(i)).get(22)), // DOCUMENTO PESSOA
-                            getConverteNullInt(((Vector) result.get(i)).get(23)), // ID CNAE
-                            getConverteNullString(((Vector) result.get(i)).get(24)), // NUMERO CNAE
-                            getConverteNullString(((Vector) result.get(i)).get(25)), // NOME CNAE
-                            getConverteNullInt(((Vector) result.get(i)).get(26)), // ID CONTABILIDADE
-                            getConverteNullString(((Vector) result.get(i)).get(27)), // NOME CONTABILIDADE
-                            getConverteNullString(((Vector) result.get(i)).get(28)), // ENDERECO CONTABIL
-                            getConverteNullString(((Vector) result.get(i)).get(29)), // LOGRADOURO CONTABIL
-                            getConverteNullString(((Vector) result.get(i)).get(30)), // NUMERO CONTABIL
-                            getConverteNullString(((Vector) result.get(i)).get(31)), // COMPLEMENTO CONTABIL
-                            getConverteNullString(((Vector) result.get(i)).get(32)), // BAIRRO CONTABIL
-                            getConverteNullString(((Vector) result.get(i)).get(33)), // CEP CONTABIL
-                            getConverteNullString(((Vector) result.get(i)).get(34)), // CIDADE CONTABIL
-                            getConverteNullString(((Vector) result.get(i)).get(35)), // UF CONTABIL
-                            getConverteNullString(((Vector) result.get(i)).get(36)), // TELEFONE CONTABIL
-                            getConverteNullString(((Vector) result.get(i)).get(37)), // EMAIL CONTABIL
-                            getConverteNullString(((Vector) result.get(i)).get(1)), // NUMERO BOLETO
-                            getConverteNullString(((Vector) result.get(i)).get(2)), // SERVICO
-                            getConverteNullString(((Vector) result.get(i)).get(3)), // TIPO SERVICO
-                            getConverteNullString(((Vector) result.get(i)).get(4)), // REFERENCIA
-                            DataHoje.converteData((Date) ((Vector) result.get(i)).get(5)), // VENCIMENTO
-                            quitacao, //result.get(i).getLoteBaixa().getQuitacao(),
-                            new BigDecimal(Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(47)))), // VALOR BAIXA
-                            new BigDecimal(Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(43)))),// TAXA
-                            importacao, //result.get(i).getLoteBaixa().getImportacao(),
-                            usuario,// result.get(i).getLoteBaixa().getUsuario().getPessoa().getNome()
-                            new BigDecimal(Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(44)))),// MULTA,
-                            new BigDecimal(Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(45)))),// JUROS,
-                            new BigDecimal(Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(46)))),// CORRECAO,
-                            new BigDecimal(valor), // VALOR TOTAL
-                            new BigDecimal(repasse), // REPASSE
-                            new BigDecimal(valorLiquido), // VALOR LIQUIDO
-                            totaliza
-                    )
-            );
         }
         return listaParametro;
     }
@@ -406,7 +438,8 @@ public class RelatorioMovimentoBean implements Serializable {
         }
         JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(collection);
         Relatorios relatorio = (new RelatorioDao()).pesquisaRelatorios(Integer.parseInt(listaTipoRelatorio.get(idRelatorios).getDescription()));
-        GenericaMensagem.warn("Sucesso", "Relatório gerado!");
+        GenericaMensagem.warn("Sucesso", "Relatório Gerado!");
+        Jasper.IS_HEADER_PARAMS = true;
         Jasper.printReports(relatorio.getJasper(), relatorio.getNome(), collection);
     }
 

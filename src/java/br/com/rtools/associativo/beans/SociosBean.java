@@ -1132,11 +1132,6 @@ public class SociosBean implements Serializable {
         }
         // NOVO REGISTRO -----------------------
         if (servicoPessoa.getId() == -1) {
-            if (pessoaEmpresa == null || pessoaEmpresa.getId() == -1) {
-                GenericaMensagem.warn("Atenção", "Vincular uma empresa para esta Pessoa!");
-                return null;
-            }
-            
             servicoPessoa.setAtivo(true);
             servicoPessoa.setCobranca(servicoPessoa.getPessoa());
 
@@ -1645,25 +1640,30 @@ public class SociosBean implements Serializable {
         // SE DESCONTO FOLHA = true NAO SALVAR EM cobranca ID EMPRESA -- alterado na data 12/01/2014 (ID da tarefa 388)
         servicoPessoa.setCobranca(servicoPessoa.getPessoa());
 
-        Fisica f = new FisicaDBToplink().pesquisaFisicaPorPessoa(servicoPessoa.getPessoa().getId());
-        if (servicoCategoria.getCategoria().isEmpresaObrigatoria() && f.getDtAposentadoria() == null && servicoCategoria.getCategoria().isVotante()) {
-            JuridicaDB db = new JuridicaDBToplink();
-            List listax = db.listaJuridicaContribuinte(pessoaEmpresa.getJuridica().getId());
-
-            if (!listax.isEmpty()) {
-                for (int i = 0; i < listax.size(); i++) {
-                    if (((List) listax.get(0)).get(9) != null) {
-                        // CONTRIBUINTE INATIVO
-                        GenericaMensagem.warn("Atenção", "Sócio com EMPRESA INATIVA não pode ser salvo!");
-                        return false;
-                    }
+        if (servicoPessoa.getId() == -1) {
+            Fisica f = new FisicaDBToplink().pesquisaFisicaPorPessoa(servicoPessoa.getPessoa().getId());
+            if (servicoCategoria.getCategoria().isEmpresaObrigatoria() && f.getDtAposentadoria() == null && servicoCategoria.getCategoria().isVotante()) {
+                JuridicaDB db = new JuridicaDBToplink();
+                List listax = db.listaJuridicaContribuinte(pessoaEmpresa.getJuridica().getId());
+                if (pessoaEmpresa == null || pessoaEmpresa.getId() == -1) {
+                    GenericaMensagem.warn("Atenção", "Vincular uma empresa para esta Pessoa!");
+                    return false;
                 }
-            } else {
-                GenericaMensagem.warn("Atenção", "Sócio com EMPRESA NÃO CONTRIBUINTE não pode ser salvo!");
-                return false;
+                if (!listax.isEmpty()) {
+                    for (int i = 0; i < listax.size(); i++) {
+                        if (((List) listax.get(0)).get(9) != null) {
+                            // CONTRIBUINTE INATIVO
+                            GenericaMensagem.warn("Atenção", "Sócio com EMPRESA INATIVA não pode ser salvo!");
+                            return false;
+                        }
+                    }
+                } else {
+                    GenericaMensagem.warn("Atenção", "Sócio com EMPRESA NÃO CONTRIBUINTE não pode ser salvo!");
+                    return false;
+                }
             }
         }
-
+        
         SociosDB db = new SociosDBToplink();
         if ((servicoPessoa.getId() == -1) && (db.pesquisaSocioPorPessoaAtivo(servicoPessoa.getPessoa().getId()).getId() != -1)) {
             GenericaMensagem.error("Erro", "Esta pessoa já um Sócio Cadastrado!");
@@ -1740,7 +1740,7 @@ public class SociosBean implements Serializable {
         Dao dao = new Dao();
 
         novoDependente.getPessoa().setNome(novoDependente.getPessoa().getNome().trim());
-        
+
         if (novoDependente.getId() == -1) {
             novoDependente.getPessoa().setTipoDocumento((TipoDocumento) dao.find(new TipoDocumento(), 1));
             dao.openTransaction();

@@ -1,5 +1,6 @@
 package br.com.rtools.associativo.beans;
 
+import br.com.rtools.associativo.ConfiguracaoSocial;
 import br.com.rtools.associativo.ConviteAutorizaCortesia;
 import br.com.rtools.associativo.ConviteMovimento;
 import br.com.rtools.associativo.ConviteServico;
@@ -95,9 +96,12 @@ public class ConviteMovimentoBean implements Serializable {
     private boolean disabledConviteVencido = false;
     
     private boolean disabledValor = true;
+    
+    private ConfiguracaoSocial cs = new ConfiguracaoSocial();
 
     public ConviteMovimentoBean() {
         loadUsuario();
+        cs = (ConfiguracaoSocial) new Dao().find(new ConfiguracaoSocial(), 1);
         //PhotoCapture.load("temp/convite/" + usuario.getId(), "form_convite:panel_foto");
     }
 
@@ -121,6 +125,7 @@ public class ConviteMovimentoBean implements Serializable {
         listPessoaAutoriza.clear();
         
         loadValor();
+        atualizarCortesia();
     }
 
     public final void loadUsuario() {
@@ -174,6 +179,11 @@ public class ConviteMovimentoBean implements Serializable {
     }
 
     public boolean validaSave() {
+        if (cs.getCartaoDigitos() <= 0){
+            message = "ATENÇÃO CARTÃO NÃO TEM CÓDIGO DE BARRAS CONFIGURADO!";
+            return false;
+        }
+        
         if (MacFilial.getAcessoFilial().getId() == -1) {
             if (conviteMovimento.getId() == -1) {
                 if (!conviteMovimento.isCortesia()) {
@@ -353,6 +363,9 @@ public class ConviteMovimentoBean implements Serializable {
                 );
             }
 
+            // LIMPAR DADOS DO CONVIDADO
+            //conviteMovimento.setSisPessoa(new SisPessoa());
+            
             message = "Registro inserido com sucesso";
         } else {
             ConviteMovimento cm = (ConviteMovimento) dao.find(new ConviteMovimento(), conviteMovimento.getId());
@@ -387,18 +400,6 @@ public class ConviteMovimentoBean implements Serializable {
 
         NovoLog log = new NovoLog();
         log.save(conviteMovimento.toString());
-
-//        if (getMovimento().getId() != -1) {
-//            if (getMovimento().getBaixa() == null) {
-//                List listMovimento = new ArrayList();
-//                getMovimento();
-//                movimento.setValorBaixa(movimento.getValor());
-//                listMovimento.add(movimento);
-//                GenericaSessao.put("listaMovimento", listMovimento);
-//                GenericaSessao.put("caixa_banco", "caixa");
-//                return ((ChamadaPaginaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("chamadaPaginaBean")).baixaGeral();
-//            }
-//        }
         return null;
     }
 
@@ -525,7 +526,9 @@ public class ConviteMovimentoBean implements Serializable {
                 }
             }
         }
-
+        
+        idServico = 0;
+        conviteServicos.clear();
         getConviteServicos();
         if (conviteMovimento.getConviteServico() != null) {
             for (int i = 0; i < conviteServicos.size(); i++) {

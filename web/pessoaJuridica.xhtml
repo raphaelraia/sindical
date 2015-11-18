@@ -17,6 +17,18 @@
             .class_tbl_contabil:hover {
                 background: #9eb4cf!important;
             }
+
+            .column01{
+                width: 100px;
+            }
+
+            .column02{
+                width: 100%;
+            }
+
+            .column03{
+                width: 50px;
+            }            
         </style>
 
         <script type="text/javascript">
@@ -53,7 +65,7 @@
                             <h:panelGrid id="i_panel_pessoa_fisica" style="clear: both; width: 100%">
                                 <p:messages id="i_msg_m" autoUpdate="true" showDetail="true" closable="true"/>
                                 <p:tabView id="i_tabview_juridica" style="width: 100%" activeIndex="#{juridicaBean.indicaTab}">
-                                    <p:ajax event="tabChange" listener="#{juridicaBean.accordion}" /> 
+                                    <p:ajax event="tabChange" listener="#{juridicaBean.accordion}" update="@this"/> 
                                     <p:tab title="Dados Gerais">
                                         <h:panelGrid columns="6" id="i_panel_cnae">
                                             <p:column>
@@ -390,7 +402,68 @@
                                             </p:rowExpansion>
                                         </p:dataTable>
                                     </p:tab>
+                                    <p:tab title="Documentos">
+                                        <p:dataTable value="#{juridicaBean.listaDocumentos}" var="linha" emptyMessage="Nenhum documento Encontrado!" scrollable="true" scrollHeight="400">
+                                            <p:column style="width:15px">  
+                                                <p:rowToggler />  
+                                            </p:column>  
 
+                                            <p:column headerText="Data" style="width: 80px; text-align: center">
+                                                <p:commandLink value="#{linha.dtEmissaoString}" action="#{digitalizacaoBean.editGeneric(linha)}" title="CLIQUE PARA EDITAR" />
+                                            </p:column>
+
+                                            <p:column headerText="Grupo" style="width: 100px; text-align: center">
+                                                <p:commandLink value="#{linha.assunto.grupo.descricao}" action="#{digitalizacaoBean.editGeneric(linha)}" title="CLIQUE PARA EDITAR" />
+                                            </p:column>
+
+                                            <p:column headerText="Assunto" style="width: 250px;">
+                                                <p:commandLink value="#{linha.assunto.descricao}" action="#{digitalizacaoBean.editGeneric(linha)}" title="CLIQUE PARA EDITAR" />
+                                            </p:column>
+
+                                            <p:column headerText="Título" style="width: 250px;">
+                                                <p:commandLink value="#{linha.titulo}" action="#{digitalizacaoBean.editGeneric(linha)}" title="CLIQUE PARA EDITAR" />
+                                            </p:column>
+
+                                            <p:column headerText="Arq" style="width: 40px; text-align: center">
+                                                <p:commandButton icon="ui-icon-folder-open" action="#{juridicaBean.verDocumentos(linha)}" title="VER ARQUIVOS DESSA PESSOA" oncomplete="PF('dlg_arquivos').show()" update=":formPessoaJuridica:i_tabview_juridica:panel_arquivos"/>
+                                            </p:column>
+
+                                            <p:rowExpansion>
+                                                <h:panelGrid columns="2" style="height: 40px" styleClass="sbb" columnClasses="column01, column02">
+                                                    <p:column rendered="#{linha.historico ne ''}">
+                                                        <p:outputLabel value="HISTÓRICO" style="font-weight: bold"/><br />
+                                                        <p:outputLabel value="#{linha.historico}"/>
+                                                    </p:column>
+                                                </h:panelGrid>
+                                            </p:rowExpansion>
+                                        </p:dataTable>
+
+                                        <p:dialog widgetVar="dlg_arquivos" width="600" header="Arquivos da Pessoa" modal="true">
+                                            <p:ajax event="close" listener="#{juridicaBean.listaArquivos.clear()}" update="@form"/>
+
+                                            <h:panelGrid id="panel_arquivos" style="width: 100%">
+                                                <p:messages showDetail="true" closable="true" />
+                                                <ui:repeat value="#{juridicaBean.listaArquivos}" var="linha_arquivo">
+                                                    <h:panelGrid columns="4" columnClasses="column01, column02, column03, column03">
+                                                        <h:column>
+                                                            <p:graphicImage value="/Imagens/#{linha_arquivo.extensionFile}" width="50" />
+                                                        </h:column>
+
+                                                        <h:column>
+                                                            <p:commandLink value="#{linha_arquivo.nameFile}" title="ABRIR ARQUIVO" action="#{digitalizacaoBean.view(linha_arquivo)}" target="_BLANK" ajax="false" />  
+                                                        </h:column>
+
+                                                        <h:column>
+                                                            <p:commandButton icon="ui-icon-arrowthickstop-1-s" title="BAIXAR ARQUIVO" action="#{digitalizacaoBean.download(linha_arquivo)}" ajax="false" onclick="form.target = '_blank'"/>
+                                                        </h:column>
+                                                    </h:panelGrid>
+                                                    <hr />
+                                                </ui:repeat>
+
+                                                <p:outputLabel value="NENHUM ARQUIVO ADICIONADO!" rendered="#{juridicaBean.listaArquivos.size() eq 0}" style="font-weight: bold; font-size: 12pt!important; color: red"/>
+                                            </h:panelGrid>
+                                        </p:dialog>                                        
+                                    </p:tab>
                                 </p:tabView>
                             </h:panelGrid>
 

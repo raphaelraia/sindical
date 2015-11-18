@@ -1,5 +1,6 @@
 package br.com.rtools.financeiro.beans;
 
+import br.com.rtools.arrecadacao.ConfiguracaoArrecadacao;
 import br.com.rtools.arrecadacao.db.GrupoCidadesDB;
 import br.com.rtools.arrecadacao.db.GrupoCidadesDBToplink;
 import br.com.rtools.endereco.Cidade;
@@ -45,6 +46,8 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Vector;
 import javax.faces.bean.ManagedBean;
@@ -63,6 +66,7 @@ import net.sf.jasperreports.engine.util.JRLoader;
 @ManagedBean
 @SessionScoped
 public class NotificacaoBean implements Serializable {
+
     private int idLista = 0;
     private int idTipoEnvio = 0;
     private List<SelectItem> itensLista = new ArrayList();
@@ -87,36 +91,39 @@ public class NotificacaoBean implements Serializable {
     private int valorAtual = 0;
     private boolean progressoAtivo = false;
     private List<DataObject> listaArquivo = new ArrayList();
-    
+
     private Boolean chkServicos = false;
     private List<ListaDeServicos> listaServicos = new ArrayList();
-    
+
     private Boolean chkTipoServico = false;
     private List<ListaDeTipoServico> listaTipoServico = new ArrayList();
+    private ConfiguracaoArrecadacao ca = new ConfiguracaoArrecadacao();
 
     public NotificacaoBean() {
         SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
         registro = (Registro) sv.pesquisaCodigo(1, "Registro");
+        ca = (ConfiguracaoArrecadacao) new Dao().find(new ConfiguracaoArrecadacao(), 1);
+
     }
-    
-    public void acoes(){
-        if (indexTab == 0){
+
+    public void acoes() {
+        if (indexTab == 0) {
             gerarParaTodas();
         }
-        
-        if (indexTab == 1){
+
+        if (indexTab == 1) {
             addEmpresa();
         }
-        
-        if (indexTab == 2){
+
+        if (indexTab == 2) {
             addContabil();
         }
-        
-        if (indexTab == 3){
+
+        if (indexTab == 3) {
             gerarSemContabil();
         }
-        
-        if (indexTab == 4){
+
+        if (indexTab == 4) {
             gerarComContabil();
         }
     }
@@ -124,15 +131,15 @@ public class NotificacaoBean implements Serializable {
     public void removerListaJuridica() {
         listaEmpresaAdd.clear();
         listaContabilAdd.clear();
-        if (indexTab == 1){
+        if (indexTab == 1) {
             addEmpresa();
         }
-        
-        if (indexTab == 2){
+
+        if (indexTab == 2) {
             addContabil();
         }
     }
-    
+
     public void iniciar() {
         progressoAtivo = true;
         valorAtual = 0;
@@ -192,13 +199,13 @@ public class NotificacaoBean implements Serializable {
         comContabil = false;
         semContabil = false;
     }
-    
+
     public void addServicos() {
         listaNotificacao.clear();
         comContabil = false;
         semContabil = false;
     }
-    
+
     public void addTipoServico() {
         listaNotificacao.clear();
         comContabil = false;
@@ -232,7 +239,7 @@ public class NotificacaoBean implements Serializable {
                     cidades += ((Cidade) listaCidadesBase.get(i).getArgumento1()).getId();
                 }
             }
-            
+
             for (int i = 0; i < listaServicos.size(); i++) {
                 if (listaServicos.get(i).getChk()) {
                     if (servicos.length() > 0 && i != listaServicos.size()) {
@@ -241,7 +248,7 @@ public class NotificacaoBean implements Serializable {
                     servicos += listaServicos.get(i).getServicos().getId();
                 }
             }
-            
+
             for (int i = 0; i < listaTipoServico.size(); i++) {
                 if (listaTipoServico.get(i).getChk()) {
                     if (tipo_servico.length() > 0 && i != listaTipoServico.size()) {
@@ -258,9 +265,9 @@ public class NotificacaoBean implements Serializable {
                 obj = db.listaParaNotificacao(lote.getId(), DataHoje.data(), empresas, contabils, cidades, comContabil, semContabil, servicos, tipo_servico);
             } else {
                 // EMPRESA --
-                if ( (indexTab == 1 && empresas.isEmpty()) || (indexTab == 2 && contabils.isEmpty())  ){
+                if ((indexTab == 1 && empresas.isEmpty()) || (indexTab == 2 && contabils.isEmpty())) {
                     return listaNotificacao;
-                }else{
+                } else {
                     obj = db.listaParaNotificacao(-1, DataHoje.data(), empresas, contabils, cidades, comContabil, semContabil, servicos, tipo_servico);
                 }
             }
@@ -269,17 +276,9 @@ public class NotificacaoBean implements Serializable {
             if (!result.isEmpty()) {
                 query = String.valueOf(obj[0]);
                 for (int i = 0; i < result.size(); i++) {
-
                     String noti = (result.get(i).get(5) == null) ? "Nunca" : DataHoje.converteData((Date) result.get(i).get(5));
                     listaNotificacao.add(new DataObject(true, result.get(i), noti, null, null, null));
-//                    List<Vector> listaNots = db.listaNotificado( (Integer) result.get(i).get(0) );
-//                    if (listaNots.isEmpty())
-//                        listaNotificacao.add(new DataObject(true, result.get(i), "Nunca", null, null, null));
-//                    else{
-//                        listaNotificacao.add(new DataObject(true, result.get(i), listaNots.get(1), null, null, null));
-//                    }
                 }
-                //quantidade = listaNotificacao.size();
             }
         }
         if (listaNotificacao.isEmpty()) {
@@ -359,7 +358,7 @@ public class NotificacaoBean implements Serializable {
         sv.abrirTransacao();
         //for (int i = 0; i < listaNotificacao.size(); i++) {
         //if (!sv.executeQuery("insert into fin_cobranca (id_movimento,id_lote) (select m.id, " + lote.getId() + query + " and fc.id_lote is null order by c.ds_nome, c.id_pessoa)")) {
-        if (!sv.executeQuery("insert into fin_cobranca (id_movimento,id_lote) (select m.id, " + lote.getId() + query + " order by c.ds_nome, c.id_pessoa)")) {
+        if (!sv.executeQuery("INSERT INTO fin_cobranca (id_movimento,id_lote) (select m.id, " + lote.getId() + query + " GROUP BY m.id)")) {
 //            if ((Boolean) listaNotificacao.get(i).getArgumento0()) {
 //                if (!sv.inserirQuery("insert into fin_cobranca (id_movimento,id_lote) values (" + ((Vector) listaNotificacao.get(i).getArgumento1()).get(0) + "," + lote.getId() + ")")) {
             GenericaMensagem.warn("Erro", "Erro ao inserir Cobrança");
@@ -377,7 +376,7 @@ public class NotificacaoBean implements Serializable {
         sv.comitarTransacao();
         GenericaMensagem.info("Sucesso", "Gerado com sucesso!");
         itensLista.clear();
-        
+
         listaNotificacao.clear();
         listaEmpresaAdd.clear();
         listaContabilAdd.clear();
@@ -385,27 +384,30 @@ public class NotificacaoBean implements Serializable {
         chkTodos = true;
         return null;
     }
-    
+
     public String gerarEtiquetas() {
         SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
         CobrancaTipo ct = (CobrancaTipo) sv.pesquisaCodigo(Integer.valueOf(listaTipoEnvio.get(idTipoEnvio).getDescription()), "CobrancaTipo");
         JuridicaDB dbJur = new JuridicaDBToplink();
         PessoaEnderecoDao dbPesEnd = new PessoaEnderecoDao();
         NotificacaoDB db = new NotificacaoDBToplink();
-        
+
         List<Vector> result = db.listaParaEtiqueta(query, ct);
-        
+
         List<ParametroEtiqueta> listax = new ArrayList();
-        
-        Juridica juridica = new Juridica();
-        PessoaEndereco endereco = new PessoaEndereco();
+
+        Juridica juridica;
+        PessoaEndereco endereco;
         for (int i = 0; i < result.size(); i++) {
-            try{
-                
-                if (ct.getId() == 6){
+            try {
+                // 6 - ETIQUETA PARA EMPRESAS
+                // SE EMPRESA RETORNO DA QUERY id_pessoa (pes_pessoa)
+                if (ct.getId() == 6) {
                     juridica = dbJur.pesquisaJuridicaPorPessoa((Integer) result.get(i).get(0));
-                    endereco = dbPesEnd.pesquisaEndPorPessoaTipo(juridica.getPessoa().getId(), 3);
-                }else{
+                    endereco = dbPesEnd.pesquisaEndPorPessoaTipo(juridica.getPessoa().getId(), 2);
+                } else {
+                    // 7 - ETIQUETA PARA ESCRITÓRIOS
+                    // SE ESCRITÓRIO RETORNO DA QUERY id_contabilidade (pes_juridica)
                     juridica = dbJur.pesquisaCodigo((Integer) result.get(i).get(0));
                     endereco = dbPesEnd.pesquisaEndPorPessoaTipo(juridica.getPessoa().getId(), 3);
                 }
@@ -420,33 +422,33 @@ public class NotificacaoBean implements Serializable {
                         (endereco != null) ? endereco.getEndereco().getBairro().getDescricao() : "",
                         (endereco != null) ? endereco.getEndereco().getCep() : "",
                         (endereco != null) ? endereco.getEndereco().getCidade().getCidade() : "",
-                        (endereco != null) ? endereco.getEndereco().getCidade().getUf() : "", 
-                        (juridica.getPessoa().getTelefone1() != null) ? juridica.getPessoa().getTelefone1() : "", 
-                        (juridica.getPessoa().getEmail1() != null) ? juridica.getPessoa().getEmail1() : "", 
+                        (endereco != null) ? endereco.getEndereco().getCidade().getUf() : "",
+                        (juridica.getPessoa().getTelefone1() != null) ? juridica.getPessoa().getTelefone1() : "",
+                        (juridica.getPessoa().getEmail1() != null) ? juridica.getPessoa().getEmail1() : "",
                         (juridica.getPessoa().getTipoDocumento().getDescricao() != null) ? juridica.getPessoa().getTipoDocumento().getDescricao() : "",
                         (juridica.getPessoa().getDocumento() != null) ? juridica.getPessoa().getDocumento() : ""
                 ));
-            }catch(Exception e){
-                
+            } catch (Exception e) {
+
             }
         }
-        
-        try{
+
+        try {
             JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(listax);
             String string_jasper = "";
-            if (ct.getId() == 6){
+            if (ct.getId() == 6) {
                 string_jasper = "/Relatorios/ETCONTRIBUINTES6181.jasper";
-            }else{
+            } else {
                 // USANDO O MESMO RELATÓRIO PARA OS DOIS TROCAR DEPOIS AQUI
                 string_jasper = "/Relatorios/ETCONTRIBUINTES6181.jasper";
                 //string_jasper = "/Relatorios/ETESCRITORIO6181.jasper";
             }
-            
+
             File fl = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(string_jasper));
             JasperReport jasperx = (JasperReport) JRLoader.loadObject(fl);
             JasperPrint print = JasperFillManager.fillReport(jasperx, null, dtSource);
             byte[] arquivo = new byte[0];
-            
+
             arquivo = JasperExportManager.exportReportToPdf(print);
 
             String nomeDownload = "etiquetas_notificacao_" + DataHoje.horaMinuto().replace(":", "") + ".pdf";
@@ -461,7 +463,7 @@ public class NotificacaoBean implements Serializable {
                     "application/pdf",
                     FacesContext.getCurrentInstance());
             download.baixar();
-        }catch(Exception e){
+        } catch (Exception e) {
             e.getMessage();
         }
         return null;
@@ -544,6 +546,27 @@ public class NotificacaoBean implements Serializable {
         if (((Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuario")).getId() == -1) {
             return;
         }
+        Juridica sindicato = (Juridica) new Dao().find(new Juridica(), 1);
+        if (ca == null)
+            ca = (ConfiguracaoArrecadacao) new Dao().find(new ConfiguracaoArrecadacao(), 1);
+        String documentox = (ca.getFilial().getFilial().getPessoa().getDocumento().isEmpty() || ca.getFilial().getFilial().getPessoa().getDocumento().equals("0")) ? sindicato.getPessoa().getDocumento() : ca.getFilial().getFilial().getPessoa().getDocumento();
+
+        HashMap params = new LinkedHashMap();
+
+        params.put("sindicato_logo", ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));
+        params.put("sindicato_nome", ca.getFilial().getFilial().getPessoa().getNome());
+        params.put("sindicato_documento", documentox);
+        params.put("sindicato_site", ca.getFilial().getFilial().getPessoa().getSite());
+        params.put("sindicato_logradouro", ca.getFilial().getFilial().getPessoa().getPessoaEndereco().getEndereco().getLogradouro().getDescricao());
+        params.put("sindicato_endereco", ca.getFilial().getFilial().getPessoa().getPessoaEndereco().getEndereco().getDescricaoEndereco().getDescricao());
+        params.put("sindicato_numero", ca.getFilial().getFilial().getPessoa().getPessoaEndereco().getNumero());
+        params.put("sindicato_complemento", ca.getFilial().getFilial().getPessoa().getPessoaEndereco().getComplemento());
+        params.put("sindicato_bairro", ca.getFilial().getFilial().getPessoa().getPessoaEndereco().getEndereco().getBairro().getDescricao());
+        params.put("sindicato_cidade", ca.getFilial().getFilial().getPessoa().getPessoaEndereco().getEndereco().getCidade().getCidade());
+        params.put("sindicato_uf", ca.getFilial().getFilial().getPessoa().getPessoaEndereco().getEndereco().getCidade().getUf());
+        params.put("sindicato_cep", ca.getFilial().getFilial().getPessoa().getPessoaEndereco().getEndereco().getCep());
+        params.put("sindicato_telefone", ca.getFilial().getFilial().getPessoa().getTelefone1());
+        params.put("sindicato_email", ca.getFilial().getFilial().getPessoa().getEmail1());
 
         SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
         CobrancaTipo ct = (CobrancaTipo) sv.pesquisaCodigo(Integer.valueOf(listaTipoEnvio.get(idTipoEnvio).getDescription()), "CobrancaTipo");
@@ -590,57 +613,49 @@ public class NotificacaoBean implements Serializable {
             int atual = 1;
             String ph = "";
             for (int i = 0; i < result.size(); i++) {
-                listax.add(new ParametroNotificacao(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Imagens/LogoCliente.png"),
-                        getConverteNullString(result.get(i).get(1)), 
-                        getConverteNullString(result.get(i).get(2)),
-                        getConverteNullString(result.get(i).get(3)),
-                        getConverteNullString(result.get(i).get(4)),
-                        getConverteNullString(result.get(i).get(5)),
-                        getConverteNullString(result.get(i).get(6)),
-                        getConverteNullString(result.get(i).get(7)),
-                        getConverteNullString(result.get(i).get(8)),
-                        getConverteNullString(result.get(i).get(9)),
-                        getConverteNullString(result.get(i).get(10)),
-                        getConverteNullString(result.get(i).get(11)),
-                        getConverteNullString(result.get(i).get(12)),
-                        getConverteNullString(result.get(i).get(13)),
-                        getConverteNullString(result.get(i).get(14)),
-                        getConverteNullString(result.get(i).get(15)),
-                        getConverteNullString(result.get(i).get(16)),
-                        getConverteNullString(result.get(i).get(17)),
-                        getConverteNullString(result.get(i).get(18)),
-                        getConverteNullString(result.get(i).get(19)),
-                        getConverteNullString(result.get(i).get(20)),
-                        getConverteNullString(result.get(i).get(21)),
-                        getConverteNullString(result.get(i).get(22)),
-                        getConverteNullString(result.get(i).get(23)),
-                        getConverteNullString(result.get(i).get(24)),
-                        getConverteNullString(result.get(i).get(25)),
-                        getConverteNullString(result.get(i).get(26)),
-                        getConverteNullString(result.get(i).get(27)),
-                        getConverteNullString(result.get(i).get(28)),
-                        getConverteNullString(result.get(i).get(29)),
-                        getConverteNullString(result.get(i).get(30)),
-                        getConverteNullString(result.get(i).get(31)),
-                        getConverteNullString(result.get(i).get(32)),
-                        getConverteNullString(result.get(i).get(33)),
-                        getConverteNullString(result.get(i).get(34)),
-                        getConverteNullString(result.get(i).get(35)),
-                        getConverteNullString(result.get(i).get(36)),
-                        getConverteNullString(result.get(i).get(37))));
+                listax.add(
+                        new ParametroNotificacao(
+                                getConverteNullString(result.get(i).get(0)),
+                                getConverteNullString(result.get(i).get(1)),
+                                getConverteNullString(result.get(i).get(2)),
+                                getConverteNullString(result.get(i).get(3)),
+                                getConverteNullString(result.get(i).get(4)),
+                                getConverteNullString(result.get(i).get(5)),
+                                getConverteNullString(result.get(i).get(6)),
+                                getConverteNullString(result.get(i).get(7)),
+                                getConverteNullString(result.get(i).get(8)),
+                                getConverteNullString(result.get(i).get(9)),
+                                getConverteNullString(result.get(i).get(10)),
+                                getConverteNullString(result.get(i).get(11)),
+                                getConverteNullString(result.get(i).get(12)),
+                                getConverteNullString(result.get(i).get(13)),
+                                getConverteNullString(result.get(i).get(14)),
+                                getConverteNullString(result.get(i).get(15)),
+                                getConverteNullString(result.get(i).get(16)),
+                                getConverteNullString(result.get(i).get(17)),
+                                getConverteNullString(result.get(i).get(18)),
+                                getConverteNullString(result.get(i).get(19)),
+                                getConverteNullString(result.get(i).get(20)),
+                                getConverteNullString(result.get(i).get(21)),
+                                getConverteNullString(result.get(i).get(22)),
+                                getConverteNullString(result.get(i).get(23)),
+                                getConverteNullString(result.get(i).get(24)),
+                                getConverteNullString(result.get(i).get(25))
+                        )
+                );
 
                 try {
                     if (ct.getId() == 4) {
                         jasper = "NOTIFICACAO_ARRECADACAO_ESCRITORIO.jasper";
-                        id_compara = getConverteNullInt(result.get(i).get(38)); // ID_JURIDICA
-                        if (id_compara != getConverteNullInt(result.get(i + 1).get(38))) {
+                        id_compara = getConverteNullInt(result.get(i).get(26)); // ID_JURIDICA
+                        if (id_compara != getConverteNullInt(result.get(i + 1).get(26))) {
                             enviar = true;
                             pes = ((Juridica) sv.pesquisaCodigo(id_compara, "Juridica")).getPessoa();
                         }
                     } else {
                         jasper = "NOTIFICACAO_ARRECADACAO_EMPRESA.jasper";
-                        id_compara = getConverteNullInt(result.get(i).get(39)); // ID_PESSOA
-                        if (id_compara != getConverteNullInt(result.get(i + 1).get(39))) {
+                        id_compara = getConverteNullInt(result.get(i).get(27)); // ID_PESSOA
+                        if (id_compara != getConverteNullInt(result.get(i + 1).get(27))) {
                             enviar = true;
                             pes = (Pessoa) sv.pesquisaCodigo(id_compara, "Pessoa");
                             //pes = ((Juridica)sv.pesquisaCodigo(id_compara, "Juridica")).getPessoa();
@@ -659,7 +674,7 @@ public class NotificacaoBean implements Serializable {
                     try {
                         if (atual <= registro.getLimiteEnvios() && ph.isEmpty()) {
                             if (!pes.getEmail1().isEmpty()) {
-                                enviarEmail(pes, listax, sv, jasper);
+                                enviarEmail(pes, listax, sv, jasper, params);
                                 atual++;
                             }
                         } else {
@@ -670,12 +685,12 @@ public class NotificacaoBean implements Serializable {
 
                             JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(listax);
                             JasperReport jasperx = null;
-                            
+
                             File fl = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/" + jasper));
                             jasperx = (JasperReport) JRLoader.loadObject(fl);
                             String nomeArq = "notificacao_";
 
-                            JasperPrint print = JasperFillManager.fillReport(jasperx, null, dtSource);
+                            JasperPrint print = JasperFillManager.fillReport(jasperx, params, dtSource);
                             byte[] arquivo = new byte[0];
                             arquivo = JasperExportManager.exportReportToPdf(print);
 
@@ -731,72 +746,64 @@ public class NotificacaoBean implements Serializable {
         } else {
             int id_compara = 0;
             boolean imprimir = false;
-            int atual = 0, limite = 5000;
+            int atual = 0, limite = 3000;
             JasperReport jasper = null;
 
             for (int i = 0; i < result.size(); i++) {
-                listax.add(new ParametroNotificacao(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Imagens/LogoCliente.png"),
-                        getConverteNullString(result.get(i).get(1)),
-                        getConverteNullString(result.get(i).get(2)),
-                        getConverteNullString(result.get(i).get(3)),
-                        getConverteNullString(result.get(i).get(4)),
-                        getConverteNullString(result.get(i).get(5)),
-                        getConverteNullString(result.get(i).get(6)),
-                        getConverteNullString(result.get(i).get(7)),
-                        getConverteNullString(result.get(i).get(8)),
-                        getConverteNullString(result.get(i).get(9)),
-                        getConverteNullString(result.get(i).get(10)),
-                        getConverteNullString(result.get(i).get(11)),
-                        getConverteNullString(result.get(i).get(12)),
-                        getConverteNullString(result.get(i).get(13)),
-                        getConverteNullString(result.get(i).get(14)),
-                        getConverteNullString(result.get(i).get(15)),
-                        getConverteNullString(result.get(i).get(16)),
-                        getConverteNullString(result.get(i).get(17)),
-                        getConverteNullString(result.get(i).get(18)),
-                        getConverteNullString(result.get(i).get(19)),
-                        getConverteNullString(result.get(i).get(20)),
-                        getConverteNullString(result.get(i).get(21)),
-                        getConverteNullString(result.get(i).get(22)),
-                        getConverteNullString(result.get(i).get(23)),
-                        getConverteNullString(result.get(i).get(24)),
-                        getConverteNullString(result.get(i).get(25)),
-                        getConverteNullString(result.get(i).get(26)),
-                        getConverteNullString(result.get(i).get(27)),
-                        getConverteNullString(result.get(i).get(28)),
-                        getConverteNullString(result.get(i).get(29)),
-                        getConverteNullString(result.get(i).get(30)),
-                        getConverteNullString(result.get(i).get(31)),
-                        getConverteNullString(result.get(i).get(32)),
-                        getConverteNullString(result.get(i).get(33)),
-                        getConverteNullString(result.get(i).get(34)),
-                        getConverteNullString(result.get(i).get(35)),
-                        getConverteNullString(result.get(i).get(36)),
-                        getConverteNullString(result.get(i).get(37))));
+                listax.add(
+                        new ParametroNotificacao(
+                                getConverteNullString(result.get(i).get(0)),
+                                getConverteNullString(result.get(i).get(1)),
+                                getConverteNullString(result.get(i).get(2)),
+                                getConverteNullString(result.get(i).get(3)),
+                                getConverteNullString(result.get(i).get(4)),
+                                getConverteNullString(result.get(i).get(5)),
+                                getConverteNullString(result.get(i).get(6)),
+                                getConverteNullString(result.get(i).get(7)),
+                                getConverteNullString(result.get(i).get(8)),
+                                getConverteNullString(result.get(i).get(9)),
+                                getConverteNullString(result.get(i).get(10)),
+                                getConverteNullString(result.get(i).get(11)),
+                                getConverteNullString(result.get(i).get(12)),
+                                getConverteNullString(result.get(i).get(13)),
+                                getConverteNullString(result.get(i).get(14)),
+                                getConverteNullString(result.get(i).get(15)),
+                                getConverteNullString(result.get(i).get(16)),
+                                getConverteNullString(result.get(i).get(17)),
+                                getConverteNullString(result.get(i).get(18)),
+                                getConverteNullString(result.get(i).get(19)),
+                                getConverteNullString(result.get(i).get(20)),
+                                getConverteNullString(result.get(i).get(21)),
+                                getConverteNullString(result.get(i).get(22)),
+                                getConverteNullString(result.get(i).get(23)),
+                                getConverteNullString(result.get(i).get(24)),
+                                getConverteNullString(result.get(i).get(25))
+                        )
+                );
 
                 JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(listax);
                 String nomeArq = "notificacao_";
                 try {
                     File fl = null;
                     if (ct.getId() == 1) {
-                        id_compara = getConverteNullInt(result.get(i).get(38)); // ID_JURIDICA
+                        id_compara = getConverteNullInt(result.get(i).get(26)); // ID_JURIDICA
                         fl = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/NOTIFICACAO_ARRECADACAO_ESCRITORIO.jasper"));
                         jasper = (JasperReport) JRLoader.loadObject(fl);
-                        if (id_compara != getConverteNullInt(result.get(i + 1).get(38)) && !imprimir) {
+                        if (id_compara != getConverteNullInt(result.get(i + 1).get(26)) && !imprimir) {
                             imprimir = true;
                         }
                     } else if (ct.getId() == 2) {
-                        id_compara = getConverteNullInt(result.get(i).get(39)); // ID_PESSOA
+                        id_compara = getConverteNullInt(result.get(i).get(27)); // ID_PESSOA
                         fl = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/NOTIFICACAO_ARRECADACAO_EMPRESA.jasper"));
                         jasper = (JasperReport) JRLoader.loadObject(fl);
-                        if (id_compara != getConverteNullInt(result.get(i + 1).get(39)) && !imprimir) {
+                        if (id_compara != getConverteNullInt(result.get(i + 1).get(27)) && !imprimir) {
                             imprimir = true;
                         }
                     } else if (ct.getId() == 3) {
                         fl = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/NOTIFICACAO_ARRECADACAO_EMPRESA.jasper"));
                         jasper = (JasperReport) JRLoader.loadObject(fl);
-                        id_compara = getConverteNullInt(result.get(i).get(39)); // ID_PESSOA
-                        if (id_compara != getConverteNullInt(result.get(i + 1).get(39)) && !imprimir) {
+                        id_compara = getConverteNullInt(result.get(i).get(27)); // ID_PESSOA
+                        if (id_compara != getConverteNullInt(result.get(i + 1).get(27)) && !imprimir) {
                             imprimir = true;
                         }
                     }
@@ -807,7 +814,7 @@ public class NotificacaoBean implements Serializable {
 
                 try {
                     if (imprimir && (atual >= limite)) {
-                        JasperPrint print = JasperFillManager.fillReport(jasper, null, dtSource);
+                        JasperPrint print = JasperFillManager.fillReport(jasper, params, dtSource);
                         byte[] arquivo = new byte[0];
                         arquivo = JasperExportManager.exportReportToPdf(print);
 
@@ -837,7 +844,6 @@ public class NotificacaoBean implements Serializable {
 
 //                        Download download = new Download(nomeDownload, pathPasta, "application/pdf", FacesContext.getCurrentInstance());
 //                        download.baixar();
-
                         imprimir = false;
                         atual = 0;
                         listax.clear();
@@ -865,17 +871,17 @@ public class NotificacaoBean implements Serializable {
             List<Pessoa> pes_add = new ArrayList();
             pes_add.add(link.getPessoa());
             String pathPasta = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/notificacao/" + lote.getId());
-            
+
             List<File> fls = new ArrayList<File>();
-            String mensagem= "";
-            
+            String mensagem = "";
+
             if (!registro.isEnviarEmailAnexo()) {
-                mensagem = " <h5> Visualize seu boleto clicando no link abaixo </5> <br /><br />"
-                 + " <a href='" + registro.getUrlPath() + "/Sindical/acessoLinks.jsf?cliente=" + ControleUsuarioBean.getCliente() + "&amp;arquivo=" + link.getNomeArquivo() + "' target='_blank'>Clique aqui para abrir a notificacão</a><br />";
+                mensagem = " <h5> Visualize sua notificação clicando no link abaixo </5> <br /><br />"
+                        + " <a href='" + registro.getUrlPath() + "/Sindical/acessoLinks.jsf?cliente=" + ControleUsuarioBean.getCliente() + "&amp;arquivo=" + link.getNomeArquivo() + "' target='_blank'>Clique aqui para abrir a notificacão</a><br />";
             } else {
                 fls.add(new File(pathPasta + "/" + link.getNomeArquivo()));
                 mensagem = "<h5>Baixe sua notificação anexado neste email</5><br /><br />";
-            }            
+            }
 
             DaoInterface di = new Dao();
             Mail mail = new Mail();
@@ -893,7 +899,7 @@ public class NotificacaoBean implements Serializable {
                             false,
                             false
                     )
-            );            
+            );
             List<EmailPessoa> emailPessoas = new ArrayList<EmailPessoa>();
             EmailPessoa emailPessoa = new EmailPessoa();
 
@@ -906,7 +912,7 @@ public class NotificacaoBean implements Serializable {
                 emailPessoa = new EmailPessoa();
             }
 
-            String[] retorno = mail.send("personalizado");            
+            String[] retorno = mail.send("personalizado");
             if (!retorno[1].isEmpty()) {
                 GenericaMensagem.warn("Erro", retorno[1]);
             } else {
@@ -917,14 +923,14 @@ public class NotificacaoBean implements Serializable {
         return null;
     }
 
-    public String enviarEmail(Pessoa pessoa, List<ParametroNotificacao> lista, SalvarAcumuladoDB sv, String nomeJasper) {
+    public String enviarEmail(Pessoa pessoa, List<ParametroNotificacao> lista, SalvarAcumuladoDB sv, String nomeJasper, HashMap params) {
         JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(lista);
         JasperReport jasper = null;
         String nomeArq = "notificacao_";
         try {
             File fl = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/" + nomeJasper));
             jasper = (JasperReport) JRLoader.loadObject(fl);
-            JasperPrint print = JasperFillManager.fillReport(jasper, null, dtSource);
+            JasperPrint print = JasperFillManager.fillReport(jasper, params, dtSource);
 
             byte[] arquivo = new byte[0];
             arquivo = JasperExportManager.exportReportToPdf(print);
@@ -932,12 +938,12 @@ public class NotificacaoBean implements Serializable {
             String nomeDownload = nomeArq + DataHoje.hora().replace(":", "") + ".pdf";
             SalvaArquivos sa = new SalvaArquivos(arquivo, nomeDownload, false);
             String pathPasta = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/notificacao/" + lote.getId());
-            
+
             File create = new File(pathPasta);
             if (!create.exists()) {
                 create.mkdir();
             }
-            
+
             sa.salvaNaPasta(pathPasta);
 
             Links link = new Links();
@@ -954,17 +960,17 @@ public class NotificacaoBean implements Serializable {
 
             List<Pessoa> pes_add = new ArrayList();
             pes_add.add(pessoa);
-            
-            List<File> fls = new ArrayList<File>();
-            String mensagem= "";
-            
+
+            List<File> fls = new ArrayList();
+            String mensagem = "";
+
             if (!registro.isEnviarEmailAnexo()) {
-                mensagem = " <h5> Visualize seu boleto clicando no link abaixo </5> <br /><br />"
-                 + " <a href='" + registro.getUrlPath() + "/Sindical/acessoLinks.jsf?cliente=" + ControleUsuarioBean.getCliente() + "&amp;arquivo=" + nomeDownload + "' target='_blank'>Clique aqui para abrir a notificacão</a><br />";
+                mensagem = " <h5> Visualize sua notificação clicando no link abaixo </5> <br /><br />"
+                        + " <a href='" + registro.getUrlPath() + "/Sindical/acessoLinks.jsf?cliente=" + ControleUsuarioBean.getCliente() + "&amp;arquivo=" + nomeDownload + "' target='_blank'>Clique aqui para abrir a notificacão</a><br />";
             } else {
                 fls.add(new File(pathPasta + "/" + link.getNomeArquivo()));
                 mensagem = "<h5>Baixe sua notificação anexado neste email</5><br /><br />";
-            }            
+            }
 
             DaoInterface di = new Dao();
             Mail mail = new Mail();
@@ -982,8 +988,8 @@ public class NotificacaoBean implements Serializable {
                             false,
                             false
                     )
-            );            
-            List<EmailPessoa> emailPessoas = new ArrayList<EmailPessoa>();
+            );
+            List<EmailPessoa> emailPessoas = new ArrayList();
             EmailPessoa emailPessoa = new EmailPessoa();
 
             for (Pessoa pe : pes_add) {
@@ -996,7 +1002,7 @@ public class NotificacaoBean implements Serializable {
             }
 
             String[] retorno = mail.send("personalizado");
-            
+
             if (!retorno[1].isEmpty()) {
                 GenericaMensagem.warn("Erro", retorno[1]);
             } else {
@@ -1127,13 +1133,13 @@ public class NotificacaoBean implements Serializable {
 
             for (int i = 0; i < listaEmpresaAdd.size(); i++) {
                 if (listaEmpresaAdd.get(i).getArgumento0().equals(j.getId())) {
-                     GenericaSessao.remove("juridicaPesquisa");
+                    GenericaSessao.remove("juridicaPesquisa");
                     return listaEmpresaAdd;
                 }
             }
 
             listaEmpresaAdd.add(new DataObject(j.getId(), j));
-             GenericaSessao.remove("juridicaPesquisa");
+            GenericaSessao.remove("juridicaPesquisa");
             listaNotificacao.clear();
         }
         return listaEmpresaAdd;
@@ -1225,14 +1231,14 @@ public class NotificacaoBean implements Serializable {
         }
         listaNotificacao.clear();
     }
-    
+
     public void marcarServicos() {
         for (int i = 0; i < listaServicos.size(); i++) {
             listaServicos.get(i).setChk(chkServicos);
         }
         listaNotificacao.clear();
     }
-    
+
     public void marcarTipoServico() {
         for (int i = 0; i < listaTipoServico.size(); i++) {
             listaTipoServico.get(i).setChk(chkTipoServico);
@@ -1281,7 +1287,7 @@ public class NotificacaoBean implements Serializable {
                         continue;
                     }
 
-                    listaArquivo.add(new DataObject(registro.getUrlPath() + "/Sindical/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/notificacao/" + lote.getId() + "/" + listFile[i].getName(), i + 1 + " - " + link.getDescricao()));
+                    listaArquivo.add(new DataObject(registro.getUrlPath() + "/Sindical/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/notificacao/" + lote.getId() + "/" + listFile[i].getName(), i + 1, link));
                 }
             } catch (Exception e) {
                 return new ArrayList();
@@ -1311,10 +1317,10 @@ public class NotificacaoBean implements Serializable {
     }
 
     public List<ListaDeServicos> getListaServicos() {
-        if (listaServicos.isEmpty()){
+        if (listaServicos.isEmpty()) {
             ServicoRotinaDB dbsr = new ServicoRotinaDBToplink();
             List<Servicos> s = dbsr.listaServicosIn("1,2,3,4");
-            
+
             for (Servicos item : s) {
                 listaServicos.add(new ListaDeServicos(false, item));
             }
@@ -1335,13 +1341,13 @@ public class NotificacaoBean implements Serializable {
     }
 
     public List<ListaDeTipoServico> getListaTipoServico() {
-        if (listaTipoServico.isEmpty()){
+        if (listaTipoServico.isEmpty()) {
             List<TipoServico> ts = new Dao().list(new TipoServico());
-            
+
             for (TipoServico item : ts) {
                 listaTipoServico.add(new ListaDeTipoServico(false, item));
             }
-        }        
+        }
         return listaTipoServico;
     }
 
@@ -1350,6 +1356,7 @@ public class NotificacaoBean implements Serializable {
     }
 
     public class ListaDeServicos {
+
         private Boolean chk = false;
         private Servicos servicos = new Servicos();
 
@@ -1357,7 +1364,7 @@ public class NotificacaoBean implements Serializable {
             this.chk = chk;
             this.servicos = servicos;
         }
-        
+
         public Boolean getChk() {
             return chk;
         }
@@ -1374,8 +1381,9 @@ public class NotificacaoBean implements Serializable {
             this.servicos = servicos;
         }
     }
-    
+
     public class ListaDeTipoServico {
+
         private Boolean chk = false;
         private TipoServico tipoServico = new TipoServico();
 
@@ -1383,7 +1391,7 @@ public class NotificacaoBean implements Serializable {
             this.chk = chk;
             this.tipoServico = tipoServico;
         }
-        
+
         public Boolean getChk() {
             return chk;
         }
@@ -1400,5 +1408,5 @@ public class NotificacaoBean implements Serializable {
             this.tipoServico = tipoServico;
         }
     }
-    
+
 }

@@ -549,21 +549,45 @@ public class RelatorioSociosBean implements Serializable {
                 booEmail, tipoEmail, booTelefone, tipoTelefone, booEstadoCivil, tipoEstadoCivil, booEmpresa, tipoEmpresas, empresa.getId(), minQtdeFuncionario, maxQtdeFuncionario, dataAposetandoria, dataAposetandoriaFim, tipoOrdem, tipoCarencia, carenciaDias, situacaoString,
                 booBiometria, tipoBiometria, booDescontoFolha, tipoDescontoFolha, dataAtualicacao, dataAtualicacaoFim, contemServicos, inIdGrupoFinanceiro(), inIdSubGrupoFinanceiro(), inIdServicos(), inIdDescontoSocial()
         );
-
+        
+        Juridica sindicato = (Juridica) new Dao().find(new Juridica(), 1);
+        String s_site = sindicato.getPessoa().getSite(), // SITE
+               s_nome = sindicato.getPessoa().getNome(), // SIN NOME
+               s_endereco = sindicato.getPessoa().getPessoaEndereco().getEndereco().getDescricaoEndereco().getDescricao(), // SIN ENDERECO
+               s_logradouro = sindicato.getPessoa().getPessoaEndereco().getEndereco().getLogradouro().getDescricao(), // SIN LOGRADOURO
+               s_numero = sindicato.getPessoa().getPessoaEndereco().getNumero(), // SIN NUMERO
+               s_complemento = sindicato.getPessoa().getPessoaEndereco().getComplemento(), // SIN COMPLEMENTO
+               s_bairro = sindicato.getPessoa().getPessoaEndereco().getEndereco().getBairro().getDescricao(), // SIN BAIRRO
+               s_cep = sindicato.getPessoa().getPessoaEndereco().getEndereco().getCep(), // SIN CEP
+               s_cidade = sindicato.getPessoa().getPessoaEndereco().getEndereco().getCidade().getCidade(), // SIN CIDADE
+               s_uf = sindicato.getPessoa().getPessoaEndereco().getEndereco().getCidade().getUf(),// SIN UF 
+               s_documento = sindicato.getPessoa().getDocumento(); // SIN DOCUMENTO 
+                    
         Collection lista = new ArrayList();
         for (int i = 0; i < result.size(); i++) {
             lista.add(new ParametroSocios(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
-                    getConverteNullString(result.get(i).get(1)), // SITE
-                    getConverteNullString(result.get(i).get(2)), // SIN NOME
-                    getConverteNullString(result.get(i).get(3)), // SIN ENDERECO
-                    getConverteNullString(result.get(i).get(4)), // SIN LOGRADOURO
-                    getConverteNullString(result.get(i).get(5)), // SIN NUMERO
-                    getConverteNullString(result.get(i).get(6)), // SIN COMPLEMENTO
-                    getConverteNullString(result.get(i).get(7)), // SIN BAIRRO
-                    getConverteNullString(result.get(i).get(8)), // SIN CEP
-                    getConverteNullString(result.get(i).get(9)), // SIN CIDADE
-                    getConverteNullString(result.get(i).get(10)),// SIN UF 
-                    getConverteNullString(result.get(i).get(11)),// SIN DOCUMENTO 
+//                    getConverteNullString(result.get(i).get(1)), // SITE
+//                    getConverteNullString(result.get(i).get(2)), // SIN NOME
+//                    getConverteNullString(result.get(i).get(3)), // SIN ENDERECO
+//                    getConverteNullString(result.get(i).get(4)), // SIN LOGRADOURO
+//                    getConverteNullString(result.get(i).get(5)), // SIN NUMERO
+//                    getConverteNullString(result.get(i).get(6)), // SIN COMPLEMENTO
+//                    getConverteNullString(result.get(i).get(7)), // SIN BAIRRO
+//                    getConverteNullString(result.get(i).get(8)), // SIN CEP
+//                    getConverteNullString(result.get(i).get(9)), // SIN CIDADE
+//                    getConverteNullString(result.get(i).get(10)),// SIN UF 
+//                    getConverteNullString(result.get(i).get(11)),// SIN DOCUMENTO 
+                    s_site, // SITE
+                    s_nome, // SIN NOME
+                    s_endereco, // SIN ENDERECO
+                    s_logradouro, // SIN LOGRADOURO
+                    s_numero, // SIN NUMERO
+                    s_complemento, // SIN COMPLEMENTO
+                    s_bairro, // SIN BAIRRO
+                    s_cep, // SIN CEP
+                    s_cidade, // SIN CIDADE
+                    s_uf,// SIN UF 
+                    sindicato.getPessoa().getDocumento(),// SIN DOCUMENTO 
                     getConverteNullInt(result.get(i).get(12)),// CODIGO 
                     (Date) result.get(i).get(13),// CADASTRO
                     getConverteNullString(result.get(i).get(14)),// NOME
@@ -1796,26 +1820,27 @@ public class RelatorioSociosBean implements Serializable {
     }
 
     public String inIdGrupoCategoria() {
-        String ids = null;
-        int b = 0;
+        String ids = "";
         for (int i = 0; i < listGrupoCategoria.size(); i++) {
             if (listGrupoCategoria.get(i).getSelected()) {
-                if (b == 0) {
+                if (ids.isEmpty()) {
                     ids = "" + listGrupoCategoria.get(i).getId();
                 } else {
                     ids += ", " + listGrupoCategoria.get(i).getId();
                 }
-                b++;
             }
         }
         return ids;
     }
 
     public String inIdCategoria() {
-        String ids = null;
+        String ids = "";
         for (Categoria listCategoria1 : listCategoria) {
             if (listCategoria1.getSelected()) {
-                ids = "" + listCategoria1.getId();
+                if (ids.isEmpty())
+                    ids = "" + listCategoria1.getId();
+                else
+                    ids += ", " + listCategoria1.getId();
             }
         }
         return ids;
