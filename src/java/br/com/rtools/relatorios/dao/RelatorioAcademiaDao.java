@@ -61,7 +61,7 @@ public class RelatorioAcademiaDao extends DB {
                 + "      FROM fin_servico_pessoa    AS SP                                           \n"
                 + " INNER JOIN matr_academia        AS M    ON M.id_servico_pessoa = SP.id          \n"
                 + "     WHERE SP.is_ativo = true                                                    \n"
-                + " ) AS MA ON MA.id_pessoa = SP.id_pessoa                                          \n";
+                + " ) AS MA ON MA.id_pessoa = SP.id_pessoa AND MA.id_servico = SP.id_servico        \n";
         if (convenio_empresa != null && convenio_empresa) {
             queryString += " INNER JOIN fin_desconto_servico_empresa AS FDSE ON FDSE.id_juridica = PA.id_juridica AND FDSE.id_servico = SP.id_servico ";
             listWhere.add("SP.id_pessoa NOT IN (SELECT SOCVW.codsocio FROM soc_socios_vw AS SOCVW GROUP BY SOCVW.codsocio )");

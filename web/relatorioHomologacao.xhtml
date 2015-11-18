@@ -18,7 +18,7 @@
                     <p:growl id="id_messages_growl" showDetail="true" showSummary="true" />
                     <h:outputText value="Relatório Homologação" styleClass="fonteHeader" />
                     <div class="clear"></div>
-                    <p:panel styleClass="fundoCinza">
+                    <p:panel styleClass="fundoCinza" id="i_panel_relatorios">
                         <h:panelGrid  cellpadding="5" columns="2">
                             <p:outputLabel value="Tipo de Relatório: " />
                             <p:selectOneMenu id="id_tipo_relatorio" value="#{relatorioHomologacaoBean.index[0]}" style="padding-right: 10px;">
@@ -29,58 +29,19 @@
                     </p:panel>                  
                     <h:panelGrid columns="2" id="id_panel" columnClasses="verticalAlignTop,verticalAlignTop" styleClass="margin-top-max">
                         <h:column>
-                            <p:accordionPanel styleClass="no-border" style="width: 225px;" dynamic="true" activeIndex="#{relatorioHomologacaoBean.indexAccordion}" id="i_panel_accordion">
-                                <p:ajax event="tabChange" listener="#{relatorioHomologacaoBean.tipoRelatorioChange}" update=":form_relatorio:id_panel_relatorio, i_panel_avancado" />
-                                <p:tab title="Simples">
-                                    * Todos resultados
-                                </p:tab>
-                                <p:tab title="Avançado">
-                                    <h:panelGrid columns="1" id="i_panel_avancado">
-                                        <h:panelGrid columns="1" styleClass="text-left">
-                                            <p:selectBooleanButton value="#{relatorioHomologacaoBean.filtro[0]}" onLabel="Filial" offLabel="Filial" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;">
-                                                <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio" listener="#{relatorioHomologacaoBean.clear}" />
-                                            </p:selectBooleanButton>
-                                            <p:selectBooleanButton value="#{relatorioHomologacaoBean.filtro[1]}" onLabel="Período Emissão" offLabel="Período Emissão" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;" disabled="#{relatorioHomologacaoBean.disabled[1]}">
-                                                <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio :form_relatorio:i_panel_accordion:i_panel_avancado" listener="#{relatorioHomologacaoBean.clear}" />
-                                            </p:selectBooleanButton>
-                                            <p:selectBooleanButton value="#{relatorioHomologacaoBean.filtro[2]}" onLabel="Status" offLabel="Status" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;">
-                                                <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio" listener="#{relatorioHomologacaoBean.clear}" />
-                                            </p:selectBooleanButton>
-                                            <p:selectBooleanButton value="#{relatorioHomologacaoBean.filtro[3]}" onLabel="Empresa" offLabel="Empresa" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;" >
-                                                <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio" listener="#{relatorioHomologacaoBean.clear}" />
-                                            </p:selectBooleanButton>
-                                            <p:selectBooleanButton value="#{relatorioHomologacaoBean.filtro[4]}" onLabel="Funcionário" offLabel="Funcionário" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;">
-                                                <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio" listener="#{relatorioHomologacaoBean.clear}" />
-                                            </p:selectBooleanButton>
-                                            <p:selectBooleanButton value="#{relatorioHomologacaoBean.filtro[5]}" onLabel="Operador" offLabel="Operador" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;">
-                                                <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio" listener="#{relatorioHomologacaoBean.clear}" />
-                                            </p:selectBooleanButton>
-                                            <p:selectBooleanButton value="#{relatorioHomologacaoBean.filtro[6]}" onLabel="Sexo" offLabel="Sexo" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;">
-                                                <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio" listener="#{relatorioHomologacaoBean.clear}" />
-                                            </p:selectBooleanButton>
-                                            <p:selectBooleanButton value="#{relatorioHomologacaoBean.filtro[7]}" onLabel="Motivo Demissão" offLabel="Motivo Demissão" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;" >
-                                                <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio" listener="#{relatorioHomologacaoBean.clear}" />
-                                            </p:selectBooleanButton>
-                                            <p:selectBooleanButton value="#{relatorioHomologacaoBean.filtro[8]}" onLabel="Tipo de Aviso" offLabel="Tipo de Aviso" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;">
-                                                <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio" listener="#{relatorioHomologacaoBean.clear}" />
-                                            </p:selectBooleanButton>
-                                            <p:selectBooleanButton value="#{relatorioHomologacaoBean.filtro[9]}" onLabel="Período Demissão" offLabel="Período Demissão" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;"  disabled="#{relatorioHomologacaoBean.disabled[0]}">
-                                                <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio :form_relatorio:i_panel_accordion:i_panel_avancado" listener="#{relatorioHomologacaoBean.clear}" />
-                                            </p:selectBooleanButton>
-                                            <p:selectBooleanButton value="#{relatorioHomologacaoBean.filtro[10]}" onLabel="Ordenação" offLabel="Ordenação" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;">
-                                                <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio" listener="#{relatorioHomologacaoBean.clear}" />
-                                            </p:selectBooleanButton>
-                                            <p:selectBooleanButton value="#{relatorioHomologacaoBean.filtro[11]}" onLabel="Convenção" offLabel="Convenção" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;">
-                                                <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio" listener="#{relatorioHomologacaoBean.clear}" />
-                                            </p:selectBooleanButton>
-                                        </h:panelGrid>
-                                    </h:panelGrid>
-                                </p:tab>
-                            </p:accordionPanel>
-                        </h:column>
+                            <p:panel header="Editar" style="width: 225px;" id="i_panel_avancado">
+                                <h:panelGrid>
+                                    <c:forEach items="#{relatorioHomologacaoBean.listFilters}" var="filter" varStatus="loop" id="i_foreach">                                            
+                                        <p:selectBooleanButton value="#{filter.active}" onLabel="#{filter.value}" offLabel="#{filter.value}" style="width: 200px; text-align: left" disabled="#{filter.disabled}">
+                                            <p:ajax event="change" update="@this :form_relatorio:" listener="#{relatorioHomologacaoBean.clear()}" />
+                                        </p:selectBooleanButton>
+                                    </c:forEach>                                
+                                </h:panelGrid>
+                            </p:panel>
+                        </h:column>                        
                         <h:column>
                             <p:panel header="Filtro" id="id_panel_relatorio" style="width: 935px;" >                                                                
-                                <p:column rendered="#{relatorioHomologacaoBean.filtro[0]}">
+                                <p:column rendered="#{relatorioHomologacaoBean.listFilters[0].active}">
                                     <h:column>
                                         <h:panelGrid columns="4">
                                             <p:outputLabel value="Filial: " />
@@ -88,11 +49,11 @@
                                                 <p:ajax event="change" update="@this"/>
                                                 <f:selectItems value="#{relatorioHomologacaoBean.listFiliais}" />
                                             </p:selectOneMenu>
-                                            <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close('filial')}" title="Remover filtro"/>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close(relatorioHomologacaoBean.listFilters[0])}" title="Remover listFilters"/>
                                         </h:panelGrid>                                        
                                     </h:column>
                                 </p:column>
-                                <p:column rendered="#{relatorioHomologacaoBean.filtro[1]}">
+                                <p:column rendered="#{relatorioHomologacaoBean.listFilters[1].active}">
                                     <p:panel header="Data agendamento">
                                         <h:panelGrid columns="5">
                                             <p:calendar value="#{relatorioHomologacaoBean.dataInicial}" pattern="dd/MM/yyyy" size="10" navigator="true" mask="99/99/9999">
@@ -102,52 +63,52 @@
                                             <p:calendar value="#{relatorioHomologacaoBean.dataFinal}" pattern="dd/MM/yyyy"  size="10" navigator="true" mask="99/99/9999">
                                                 <p:ajax event="dateSelect" listener="#{relatorioHomologacaoBean.selecionaDataFinal}" />
                                             </p:calendar>
-                                            <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close('periodo_emissao')}" title="Remover filtro"/>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close(relatorioHomologacaoBean.listFilters[1])}" title="Remover listFilters"/>
                                         </h:panelGrid>
                                     </p:panel>
                                 </p:column>
-                                <p:column rendered="#{relatorioHomologacaoBean.filtro[2]}">
+                                <p:column rendered="#{relatorioHomologacaoBean.listFilters[2].active}">
                                     <h:column>
                                         <h:panelGrid columns="4">
                                             <p:outputLabel value="Status: " />
                                             <p:selectOneMenu label="Selecionar status" value="#{relatorioHomologacaoBean.index[2]}">
-                                                <p:ajax event="change" update="@this"/>
+                                                <p:ajax event="change" update="@this i_panel_relatorios" listener="#{relatorioHomologacaoBean.loadRelatoriosStatus}"/>
                                                 <f:selectItems value="#{relatorioHomologacaoBean.listStatus}" />
                                             </p:selectOneMenu>
-                                            <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close('status')}" title="Remover filtro"/>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close(relatorioHomologacaoBean.listFilters[2])}" title="Remover listFilters"/>
                                         </h:panelGrid>                                        
                                     </h:column>
                                 </p:column>
-                                <p:column rendered="#{relatorioHomologacaoBean.filtro[3]}">
+                                <p:column rendered="#{relatorioHomologacaoBean.listFilters[3].active}">
                                     <h:panelGrid columns="2">
                                         <p:commandButton action="#{chamadaPaginaBean.pesquisa('pesquisaPessoaJuridica')}" icon="ui-icon-search" value="Pesquisar Empresa" />
                                         <h:column>
                                             <h:panelGrid columns="2">
                                                 <p:outputLabel value="#{relatorioHomologacaoBean.empresa.pessoa.nome}" />
-                                                <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close('empresa')}" title="Remover filtro"/>
+                                                <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close(relatorioHomologacaoBean.listFilters[3])}" title="Remover listFilters"/>
                                             </h:panelGrid>
                                         </h:column>
                                     </h:panelGrid>
                                 </p:column>
-                                <p:column rendered="#{relatorioHomologacaoBean.filtro[4]}">
+                                <p:column rendered="#{relatorioHomologacaoBean.listFilters[4].active}">
                                     <h:panelGrid columns="2">
                                         <p:commandButton action="#{chamadaPaginaBean.pesquisa('pesquisaPessoaFisica')}"  icon="ui-icon-search" value="Pesquisar Funcionário" />
                                         <h:column>
                                             <h:panelGrid columns="2">
                                                 <p:outputLabel value="#{relatorioHomologacaoBean.funcionario.pessoa.nome}" />
-                                                <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close('funcionario')}" title="Remover filtro"/>
+                                                <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close(relatorioHomologacaoBean.listFilters[4])}" title="Remover listFilters"/>
                                             </h:panelGrid>
                                         </h:column>
                                     </h:panelGrid>
                                 </p:column>
-                                <p:column rendered="#{relatorioHomologacaoBean.filtro[5]}">
+                                <p:column rendered="#{relatorioHomologacaoBean.listFilters[5].active}">
                                     <h:panelGrid columns="2">
                                         <p:commandButton action="#{chamadaPaginaBean.pesquisa('pesquisaUsuario')}"  icon="ui-icon-search" value="Pesquisar Operador" />
                                         <h:column>
                                             <h:panelGrid columns="4" id="i_pu">
                                                 <p:outputLabel value="#{relatorioHomologacaoBean.operador.pessoa.nome}" />
                                                 <p:selectOneMenu value="#{relatorioHomologacaoBean.tipoUsuarioOperacional}" label="Tipo de operador" styleClass="margin-left-max">
-                                                    <p:ajax event="change" update="@this id_panel_relatorio :form_relatorio:i_panel_accordion:i_panel_avancado" global="false" listener="#{relatorioHomologacaoBean.listener(1)}"/>
+                                                    <p:ajax event="change" update="@this id_panel_relatorio :form_relatorio:i_panel_avancado" global="false" listener="#{relatorioHomologacaoBean.listener(1)}"/>
                                                     <f:selectItem itemValue="" itemLabel="Todos" />
                                                     <f:selectItem itemValue="id_agendador" itemLabel="Agendador"  />
                                                     <f:selectItem itemValue="id_homologador" itemLabel="Homologador"  />
@@ -155,12 +116,12 @@
                                                 <p:selectBooleanCheckbox itemLabel="Web Agendamento" value="#{relatorioHomologacaoBean.webAgendamento}" rendered="#{relatorioHomologacaoBean.tipoUsuarioOperacional eq 'id_agendador'}">
                                                     <p:ajax event="change" update="@this" />
                                                 </p:selectBooleanCheckbox>
-                                                <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close('operador')}" title="Remover filtro" styleClass="margin-left-max"/>
+                                                <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close(relatorioHomologacaoBean.listFilters[5])}" title="Remover listFilters" styleClass="margin-left-max"/>
                                             </h:panelGrid>
                                         </h:column>
                                     </h:panelGrid>
                                 </p:column>
-                                <p:column rendered="#{relatorioHomologacaoBean.filtro[6]}">
+                                <p:column rendered="#{relatorioHomologacaoBean.listFilters[6].active}">
                                     <h:column>
                                         <h:panelGrid columns="4">
                                             <p:outputLabel value="Sexo: " />
@@ -170,11 +131,11 @@
                                                 <f:selectItem itemValue="F" itemLabel="Feminino"  />
                                                 <f:selectItem itemValue="M" itemLabel="Masculino"  />
                                             </p:selectOneMenu>
-                                            <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close('sexo')}" title="Remover filtro"/>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close(relatorioHomologacaoBean.listFilters[6])}" title="Remover listFilters"/>
                                         </h:panelGrid>                                        
                                     </h:column>
                                 </p:column>
-                                <p:column rendered="#{relatorioHomologacaoBean.filtro[7]}">
+                                <p:column rendered="#{relatorioHomologacaoBean.listFilters[7].active}">
                                     <h:column>
                                         <h:panelGrid columns="4">
                                             <p:outputLabel value="Motivo Demissão: " />
@@ -182,20 +143,20 @@
                                                 <p:ajax event="change" update="@this"/>
                                                 <f:selectItems value="#{relatorioHomologacaoBean.listMotivoDemissao}" />
                                             </p:selectOneMenu>
-                                            <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close('motivo_demissao')}" title="Remover filtro"/>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close(relatorioHomologacaoBean.listFilters[7])}" title="Remover listFilters"/>
                                         </h:panelGrid>                                        
                                     </h:column>
                                 </p:column>                                                                 
-                                <p:column rendered="#{relatorioHomologacaoBean.filtro[8]}">
+                                <p:column rendered="#{relatorioHomologacaoBean.listFilters[8].active}">
                                     <h:column>
                                         <h:panelGrid columns="4">
                                             <p:outputLabel value="Tipo Aviso: " />
                                             <p:selectBooleanButton onLabel="Trabalhado" offLabel="Indenizado" value="#{relatorioHomologacaoBean.tipoAviso}" />
-                                            <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close('tipo_aviso')}" title="Remover filtro"/>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close(relatorioHomologacaoBean.listFilters[8])}" title="Remover listFilters"/>
                                         </h:panelGrid>                                        
                                     </h:column>
                                 </p:column>
-                                <p:column rendered="#{relatorioHomologacaoBean.filtro[9]}">
+                                <p:column rendered="#{relatorioHomologacaoBean.listFilters[9].active}">
                                     <p:panel header="Data demissão" styleClass="margin-top-max">
                                         <h:panelGrid columns="5">
                                             <p:calendar value="#{relatorioHomologacaoBean.dataInicial}" pattern="dd/MM/yyyy" size="10" navigator="true" mask="99/99/9999">
@@ -205,22 +166,22 @@
                                             <p:calendar value="#{relatorioHomologacaoBean.dataFinal}" pattern="dd/MM/yyyy"  size="10" navigator="true" mask="99/99/9999">
                                                 <p:ajax event="dateSelect" listener="#{relatorioHomologacaoBean.selecionaDataFinal}" />
                                             </p:calendar>
-                                            <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close('periodo_demissao')}" title="Remover filtro"/>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close(relatorioHomologacaoBean.listFilters[9])}" title="Remover listFilters"/>
                                         </h:panelGrid>
                                     </p:panel>
                                 </p:column>                                
-                                <p:column rendered="#{relatorioHomologacaoBean.filtro[11]}">
+                                <p:column rendered="#{relatorioHomologacaoBean.listFilters[11].active}">
                                     <h:panelGrid columns="4">
                                         <p:outputLabel value="Convenção:" />
                                         <p:selectOneMenu value="#{relatorioHomologacaoBean.index[5]}">
                                             <p:ajax event="change" update="@this" />
                                             <f:selectItems value="#{relatorioHomologacaoBean.listConvencao}"/>
                                         </p:selectOneMenu>
-                                        <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close('convencao')}" title="Remover filtro"/>
+                                        <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close(relatorioHomologacaoBean.listFilters[11])}" title="Remover listFilters"/>
                                     </h:panelGrid>
                                 </p:column>
 
-                                <p:column rendered="#{relatorioHomologacaoBean.filtro[10]}">
+                                <p:column rendered="#{relatorioHomologacaoBean.listFilters[10].active}">
                                     <h:column>
                                         <h:panelGrid columns="4">
                                             <p:outputLabel value="Ordenar por: " />
@@ -232,16 +193,9 @@
                                                 <f:selectItem itemValue="funcionario" itemLabel="Funcionário"  />
                                                 <f:selectItem itemValue="homologador" itemLabel="Homologador"  />
                                             </p:selectOneMenu>
-                                            <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close('order')}" title="Remover filtro"/>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close(relatorioHomologacaoBean.listFilters[10])}" title="Remover listFilters"/>
                                         </h:panelGrid>                                        
                                     </h:column>
-                                </p:column>
-                                <p:column rendered="#{relatorioHomologacaoBean.tipoRelatorio == 'Simples'}">
-                                    * Todos 
-                                </p:column>
-                                <p:column rendered="#{relatorioHomologacaoBean.tipoRelatorio == 'Avançado'}">
-                                    <f:facet name="header">Filtro Avançado</f:facet>
-                                    <f:facet name="footer">Selecione os tipos de filtros disponíveis</f:facet>
                                 </p:column>
                             </p:panel>
                         </h:column>

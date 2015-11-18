@@ -3,18 +3,19 @@ package br.com.rtools.relatorios.beans;
 import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.homologacao.Demissao;
 import br.com.rtools.homologacao.Status;
-import br.com.rtools.impressao.ParametroHomologacao;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioHomologacaoDao;
 import br.com.rtools.relatorios.dao.RelatorioDao;
+import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.Filters;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Jasper;
@@ -44,8 +45,7 @@ public class RelatorioHomologacaoBean implements Serializable {
     private Juridica empresa;
     private Usuario operador;
     private List<SelectItem>[] listSelectItem;
-    private Boolean[] filtro;
-    private Boolean[] disabled;
+    private List<Filters> listFilters;
     private Date dataInicial;
     private Date dataFinal;
     private Date dataDemissaoInicial;
@@ -55,34 +55,16 @@ public class RelatorioHomologacaoBean implements Serializable {
     // 2 - RECEPÇÃO
     // 3 - HOMOLOGADOR
     private String tipoUsuarioOperacional;
-    private String tipoRelatorio;
     private String tipo;
-    private String indexAccordion;
     private String order;
     private String sexo;
     private String tipoAgendador;
     private Boolean tipoAviso;
     private Boolean printHeader;
     private Boolean webAgendamento;
-    
+
     @PostConstruct
     public void init() {
-        disabled = new Boolean[2];
-        disabled[0] = false; // PERÍODO AGENDAMENTO
-        disabled[1] = false; // PERÍODO DEMISSÃO
-        filtro = new Boolean[12];
-        filtro[0] = false; // FILIAL
-        filtro[1] = false; // PERÍODO AGENDAMENTO
-        filtro[2] = false; // STATUS
-        filtro[3] = false; // EMPRESA
-        filtro[4] = false; // FUNCIONÁRIO
-        filtro[5] = false; // USUÁRIO OPERACIONAL
-        filtro[6] = false; // SEXO
-        filtro[7] = false; // MOTIVO DEMISSÃO
-        filtro[8] = false; // TIPO AVISO
-        filtro[9] = false; // PERÍODO DEMISSÃO
-        filtro[10] = false; // ORDER
-        filtro[11] = false; // CONVENCAO
         listSelectItem = new ArrayList[6];
         listSelectItem[0] = new ArrayList<>();
         listSelectItem[1] = new ArrayList<>();
@@ -104,8 +86,6 @@ public class RelatorioHomologacaoBean implements Serializable {
         tipoAviso = null;
         tipoUsuarioOperacional = null;
         tipoAgendador = null;
-        tipoRelatorio = "Simples";
-        indexAccordion = "Simples";
         order = "";
         funcionario = new Fisica();
         empresa = new Juridica();
@@ -114,6 +94,8 @@ public class RelatorioHomologacaoBean implements Serializable {
         tipo = "todos";
         printHeader = false;
         webAgendamento = false;
+        loadListaFiltro();
+        loadRelatorios();
     }
 
     @PreDestroy
@@ -123,6 +105,45 @@ public class RelatorioHomologacaoBean implements Serializable {
         GenericaSessao.remove("juridicaPesquisa");
         GenericaSessao.remove("usuarioPesquisa");
         GenericaSessao.remove("tipoPesquisaPessoaJuridica");
+    }
+
+    // LOAD
+    public void loadListaFiltro() {
+        listFilters = new ArrayList();
+        /*  00 */ listFilters.add(new Filters("filial", "Filial", false));
+        /*  01 */ listFilters.add(new Filters("periodo_emissao", "Período de emissão", false));
+        /*  02 */ listFilters.add(new Filters("status", "Status", false));
+        /*  03 */ listFilters.add(new Filters("empresa", "Empresa", false));
+        /*  04 */ listFilters.add(new Filters("funcionario", "Funcionário", false));
+        /*  05 */ listFilters.add(new Filters("operador", "Operador", false));
+        /*  06 */ listFilters.add(new Filters("sexo", "Sexo", false));
+        /*  07 */ listFilters.add(new Filters("motivo_demissao", "Motivo da demissão", false));
+        /*  08 */ listFilters.add(new Filters("tipo_aviso", "Tipo de aviso", false));
+        /*  09 */ listFilters.add(new Filters("periodo_demissao", "Período de demissão", false));
+        /*  10 */ listFilters.add(new Filters("order", "Ordem", false));
+        /*  11 */ listFilters.add(new Filters("convencao", "Convenção", false));
+
+    }
+
+    public void loadRelatorios() {
+        listSelectItem[0] = new ArrayList();
+        RelatorioDao db = new RelatorioDao();
+        List<Relatorios> list = (List<Relatorios>) db.pesquisaTipoRelatorio(new Rotina().get().getId());
+        getListStatus();
+        for (int i = 0; i < list.size(); i++) {
+            if (Integer.parseInt(listSelectItem[2].get(index[2]).getDescription()) == 3) {
+                if (list.get(i).getId().equals(65)) {
+                    listSelectItem[0].add(new SelectItem(list.get(i).getId(), list.get(i).getNome()));
+                }
+            } else {
+                if (!list.get(i).getId().equals(65)) {
+                    listSelectItem[0].add(new SelectItem(list.get(i).getId(), list.get(i).getNome()));
+                }
+            }
+        }
+        if (listSelectItem[0].isEmpty()) {
+            listSelectItem[0] = new ArrayList<>();
+        }
     }
 
     public void print() {
@@ -154,18 +175,18 @@ public class RelatorioHomologacaoBean implements Serializable {
         String sexoString = "";
         List listDetalhePesquisa = new ArrayList();
         Integer tCase = null;
-        if (filtro[1]) {
+        if (listFilters.get(1).getActive()) {
             tCase = 1;
             pIStringI = DataHoje.converteData(dataInicial);
             pFStringI = DataHoje.converteData(dataFinal);
             listDetalhePesquisa.add(" Período de Agendamento entre " + pIStringI + " e " + pFStringI);
-        } else if (filtro[9]) {
+        } else if (listFilters.get(9).getActive()) {
             tCase = 2;
             pIStringI = DataHoje.converteData(dataInicial);
             pFStringI = DataHoje.converteData(dataFinal);
             listDetalhePesquisa.add(" Período de Demissão entre " + pIStringI + " e " + pFStringI);
         }
-        if (filtro[6]) {
+        if (listFilters.get(6).getActive()) {
             if (sexo != null) {
                 switch (sexo) {
                     case "M":
@@ -205,7 +226,7 @@ public class RelatorioHomologacaoBean implements Serializable {
             idMotivoDemissao = Integer.parseInt(listSelectItem[3].get(index[3]).getDescription());
             listDetalhePesquisa.add("Motivo Demissão: " + ((Demissao) dao.find(new Demissao(), idMotivoDemissao)).getDescricao());
         }
-        if (filtro[8]) {
+        if (listFilters.get(8).getActive()) {
             if (tipoAviso != null) {
                 if (tipoAviso) {
                     listDetalhePesquisa.add("Tipo de aviso: trabalhado");
@@ -214,13 +235,13 @@ public class RelatorioHomologacaoBean implements Serializable {
                 }
             }
         }
-        
+
         Integer idConvencao = null;
-        if (filtro[11]) {
+        if (listFilters.get(11).getActive()) {
             idConvencao = Integer.parseInt(listSelectItem[5].get(index[5]).getDescription());
             listDetalhePesquisa.add("Convenção: " + ((Convencao) dao.find(new Convencao(), idConvencao)).getDescricao());
         }
-        
+
         if (order == null) {
             order = "";
         }
@@ -254,6 +275,7 @@ public class RelatorioHomologacaoBean implements Serializable {
         List<ParametroHomologacao> phs = new ArrayList<>();
         String operadorString = "";
         for (Object list1 : list) {
+            List o = (List) list1;
             if (tipoUsuarioOperacional == null || tipoUsuarioOperacional.equals("id_homologador")) {
                 operadorString = AnaliseString.converteNullString(((List) list1).get(9));
             } else if (tipoUsuarioOperacional.equals("id_agendador")) {
@@ -262,57 +284,20 @@ public class RelatorioHomologacaoBean implements Serializable {
                     operadorString = "** Web ** ";
                 }
             }
-            phs.add(new ParametroHomologacao(
-                    detalheRelatorio,
-                    AnaliseString.converteNullString(((List) list1).get(2)), // DATA
-                    AnaliseString.converteNullString(((List) list1).get(3)), // HORA
-                    AnaliseString.converteNullString(((List) list1).get(4)), // CNPJ
-                    AnaliseString.converteNullString(((List) list1).get(5)), // EMPRESA
-                    AnaliseString.converteNullString(((List) list1).get(6)), // FUNCIONARIO
-                    AnaliseString.converteNullString(((List) list1).get(7)), // CONTATO
-                    AnaliseString.converteNullString(((List) list1).get(8)), // TELEFONE
-                    operadorString, // OPERADOR
-                    AnaliseString.converteNullString(((List) list1).get(10)), // OBS
-                    AnaliseString.converteNullString(((List) list1).get(11)) // STATUS
-            ));
+            phs.add(new ParametroHomologacao(o.get(1), o.get(2), o.get(3), o.get(4), o.get(5), o.get(6), o.get(7), o.get(8), operadorString, o.get(10), o.get(11), o.get(12), o.get(13), o.get(13)));
         }
         if (!phs.isEmpty()) {
             Jasper.TYPE = "paisagem";
             Jasper.IS_HEADER = printHeader;
             Map map = new HashMap();
             map.put("operador_header", operadorHeader);
-            Jasper.printReports(relatorios.getJasper(), "homologacao", (Collection) phs, map);
+            map.put("detalhes_relatorio", detalheRelatorio);
+            Jasper.printReports(relatorios.getJasper(), relatorios.getNome(), (Collection) phs, map);
         }
     }
 
     public List<SelectItem> getListTipoRelatorios() {
-        if (listSelectItem[0].isEmpty()) {
-            RelatorioDao db = new RelatorioDao();
-            List<Relatorios> list = (List<Relatorios>) db.pesquisaTipoRelatorio(177);
-            for (int i = 0; i < list.size(); i++) {
-                listSelectItem[0].add(new SelectItem(list.get(i).getId(), list.get(i).getNome()));
-            }
-            if (listSelectItem[0].isEmpty()) {
-                listSelectItem[0] = new ArrayList<>();
-            }
-        }
         return listSelectItem[0];
-    }
-
-    public String getTipoRelatorio() {
-        return tipoRelatorio;
-    }
-
-    public void setTipoRelatorio(String tipoRelatorio) {
-        this.tipoRelatorio = tipoRelatorio;
-    }
-
-    public void tipoRelatorioChange(TabChangeEvent event) {
-        tipoRelatorio = event.getTab().getTitle();
-        indexAccordion = ((AccordionPanel) event.getComponent()).getActiveIndex();
-        if (tipoRelatorio.equals("Simples")) {
-            clear();
-        }
     }
 
     public void selecionaDataInicial(SelectEvent event) {
@@ -325,144 +310,140 @@ public class RelatorioHomologacaoBean implements Serializable {
         this.dataFinal = DataHoje.converte(format.format(event.getObject()));
     }
 
+    public void loadRelatoriosStatus() {
+        loadRelatoriosStatus(1);
+    }
+
+    public void loadRelatoriosStatus(Integer tcase) {
+        loadRelatorios();
+        if (tcase != 0) {
+            clear();
+        }
+    }
+
     public void clear() {
-        if (!filtro[0]) {
+        if (!listFilters.get(0).getActive()) {
             listSelectItem[1] = new ArrayList();
             index[1] = null;
         }
-        if (!filtro[1]) {
-            if (!filtro[9]) {
+        if (!listFilters.get(1).getActive()) {
+            if (!listFilters.get(9).getActive()) {
                 dataInicial = DataHoje.dataHoje();
                 dataFinal = null;
-                disabled[0] = false;
-                disabled[1] = false;
+                listFilters.get(1).setDisabled(false);
+                listFilters.get(9).setDisabled(false);
             }
         } else {
-            disabled[0] = true;
-            disabled[1] = false;
-            filtro[9] = false;
+            listFilters.get(1).setDisabled(false);
+            listFilters.get(9).setDisabled(true);
+            listFilters.get(9).setActive(false);
         }
-        if (!filtro[2]) {
+        if (!listFilters.get(2).getActive()) {
             listSelectItem[2] = new ArrayList();
             index[2] = null;
         }
-        if (!filtro[3]) {
+        if (!listFilters.get(3).getActive()) {
             empresa = new Juridica();
         }
-        if (!filtro[4]) {
+        if (!listFilters.get(4).getActive()) {
             funcionario = new Fisica();
         }
-        if (!filtro[5]) {
+        if (!listFilters.get(5).getActive()) {
             operador = new Usuario();
             webAgendamento = false;
             tipoUsuarioOperacional = null;
         }
-        if (!filtro[6]) {
+        if (!listFilters.get(6).getActive()) {
             sexo = "";
         }
-        if (!filtro[7]) {
+        if (!listFilters.get(7).getActive()) {
             listSelectItem[3] = new ArrayList();
             index[3] = null;
         }
-        if (!filtro[8]) {
+        if (!listFilters.get(8).getActive()) {
             tipoAviso = null;
         }
-        if (!filtro[9]) {
-            if (!filtro[1]) {
-                disabled[0] = false;
-                disabled[1] = false;
+        if (!listFilters.get(9).getActive()) {
+            if (!listFilters.get(1).getActive()) {
+                listFilters.get(1).setDisabled(false);
+                listFilters.get(9).setDisabled(false);
                 dataDemissaoInicial = DataHoje.dataHoje();
                 dataDemissaoInicial = null;
             }
         } else {
-            disabled[0] = false;
-            disabled[1] = true;
-            filtro[1] = false;
+            listFilters.get(1).setDisabled(false);
+            listFilters.get(9).setDisabled(false);
+            listFilters.get(1).setActive(false);
         }
-        if (!filtro[10]) {
+        if (!listFilters.get(10).getActive()) {
             order = "";
         }
-        if (!filtro[11]) {
+        if (!listFilters.get(11).getActive()) {
             listSelectItem[5] = new ArrayList();
             index[5] = null;
         }
-        
+
     }
 
-    public void close(String close) {
-        switch (close) {
+    public void close(Filters filter) {
+        filter.setActive(!filter.getActive());
+        load(filter);
+    }
+
+    public void load(Filters filter) {
+        switch (filter.getKey()) {
             case "filial":
                 listSelectItem[1] = new ArrayList();
                 index[1] = null;
-                filtro[0] = false;
                 break;
             case "periodo_emissao":
                 dataInicial = DataHoje.dataHoje();
                 dataFinal = null;
-                disabled[0] = false;
-                disabled[1] = false;
-                filtro[1] = false;
+                listFilters.get(1).setDisabled(false);
+                listFilters.get(9).setDisabled(false);
                 PF.update("form_relatorio:i_panel_accordion:i_panel_avancado");
                 break;
             case "status":
                 listSelectItem[2] = new ArrayList();
                 index[2] = null;
-                filtro[2] = false;
                 break;
             case "empresa":
                 empresa = new Juridica();
-                filtro[3] = false;
                 break;
             case "funcionario":
                 funcionario = new Fisica();
-                filtro[4] = false;
                 break;
             case "operador":
                 operador = new Usuario();
-                filtro[5] = false;
                 webAgendamento = false;
                 tipoUsuarioOperacional = null;
                 break;
             case "sexo":
-                filtro[6] = false;
                 sexo = "";
                 break;
             case "motivo_demissao":
                 listSelectItem[3] = new ArrayList();
                 index[3] = null;
-                filtro[7] = false;
                 break;
             case "tipo_aviso":
                 tipoAviso = null;
-                filtro[8] = false;
                 break;
             case "periodo_demissao":
                 dataDemissaoInicial = DataHoje.dataHoje();
                 dataDemissaoFinal = null;
-                disabled[0] = false;
-                disabled[1] = false;
-                filtro[9] = false;
+                listFilters.get(1).setDisabled(false);
+                listFilters.get(9).setDisabled(false);
                 PF.update("form_relatorio:i_panel_accordion:i_panel_avancado");
                 break;
             case "order":
                 order = "";
-                filtro[10] = false;
                 break;
             case "convencao":
-                filtro[11] = false;
                 listSelectItem[5] = new ArrayList();
                 index[5] = null;
                 break;
         }
         PF.update("form_relatorio:id_panel");
-    }
-
-    public String getIndexAccordion() {
-        return indexAccordion;
-    }
-
-    public void setIndexAccordion(String indexAccordion) {
-        this.indexAccordion = indexAccordion;
     }
 
     public Date getDataInicial() {
@@ -504,28 +485,6 @@ public class RelatorioHomologacaoBean implements Serializable {
 
     public void setIndex(Integer[] index) {
         this.index = index;
-    }
-
-    /**
-     * <strong>Filtros</strong>
-     * <ul>
-     * <li>[0] MODALIDADE</li>
-     * <li>[1] PERÍODO EMISSÃO / INATIVAÇÃO</li>
-     * <li>[2] RESPONSÁVEL</li>
-     * <li>[3] ALUNO</li>
-     * <li>[4] SEXO</li>
-     * <li>[5] ORDENAÇÃO </li>
-     * <li>[6] PERIODOS </li>
-     * </ul>
-     *
-     * @return boolean
-     */
-    public Boolean[] getFiltro() {
-        return filtro;
-    }
-
-    public void setFiltro(Boolean[] filtro) {
-        this.filtro = filtro;
     }
 
     public String getOrder() {
@@ -620,6 +579,9 @@ public class RelatorioHomologacaoBean implements Serializable {
             DaoInterface di = new Dao();
             List<Status> list = (List<Status>) di.list(new Status(), true);
             for (int i = 0; i < list.size(); i++) {
+                if (i == 0) {
+                    index[2] = i;
+                }
                 listSelectItem[2].add(new SelectItem(i,
                         list.get(i).getDescricao(),
                         Integer.toString(list.get(i).getId())));
@@ -681,14 +643,6 @@ public class RelatorioHomologacaoBean implements Serializable {
         this.dataDemissaoFinal = dataDemissaoFinal;
     }
 
-    public Boolean[] getDisabled() {
-        return disabled;
-    }
-
-    public void setDisabled(Boolean[] disabled) {
-        this.disabled = disabled;
-    }
-
     public Boolean getWebAgendamento() {
         return webAgendamento;
     }
@@ -700,8 +654,8 @@ public class RelatorioHomologacaoBean implements Serializable {
     public void listener(Integer tCase) {
         if (tCase == 1) {
             if (tipoUsuarioOperacional != null && tipoUsuarioOperacional.equals("id_homologador")) {
-                if (!filtro[2]) {
-                    filtro[2] = true;
+                if (!listFilters.get(2).getActive()) {
+                    listFilters.get(2).setActive(true);
                     getListStatus();
                     for (int i = 0; i < listSelectItem[2].size(); i++) {
                         if (Integer.parseInt(listSelectItem[2].get(i).getDescription()) == 4) {
@@ -712,5 +666,161 @@ public class RelatorioHomologacaoBean implements Serializable {
                 }
             }
         }
+    }
+
+    public List<Filters> getListFilters() {
+        return listFilters;
+    }
+
+    public void setListFilters(List<Filters> listFilters) {
+        this.listFilters = listFilters;
+    }
+
+    public class ParametroHomologacao {
+
+        private Object data_final;
+        private Object data;
+        private Object hora;
+        private Object cnpj;
+        private Object empresa;
+        private Object funcionario;
+        private Object contato;
+        private Object telefone;
+        private Object operador;
+        private Object obs;
+        private Object status;
+        private Object cancelamento_data;
+        private Object cancelamento_usuario_nome;
+        private Object cancelamento_motivo;
+
+        public ParametroHomologacao(Object data_final, Object data, Object hora, Object cnpj, Object empresa, Object funcionario, Object contato, Object telefone, Object operador, Object obs, Object status, Object cancelamento_data, Object cancelamento_usuario_nome, Object cancelamento_motivo) {
+            this.data_final = data_final;
+            this.data = data;
+            this.hora = hora;
+            this.cnpj = cnpj;
+            this.empresa = empresa;
+            this.funcionario = funcionario;
+            this.contato = contato;
+            this.telefone = telefone;
+            this.operador = operador;
+            this.obs = obs;
+            this.status = status;
+            this.cancelamento_data = cancelamento_data;
+            this.cancelamento_usuario_nome = cancelamento_usuario_nome;
+            this.cancelamento_motivo = cancelamento_motivo;
+        }
+
+        public Object getData_final() {
+            return data_final;
+        }
+
+        public void setData_final(Object data_final) {
+            this.data_final = data_final;
+        }
+
+        public Object getData() {
+            return data;
+        }
+
+        public void setData(Object data) {
+            this.data = data;
+        }
+
+        public Object getHora() {
+            return hora;
+        }
+
+        public void setHora(Object hora) {
+            this.hora = hora;
+        }
+
+        public Object getCnpj() {
+            return cnpj;
+        }
+
+        public void setCnpj(Object cnpj) {
+            this.cnpj = cnpj;
+        }
+
+        public Object getEmpresa() {
+            return empresa;
+        }
+
+        public void setEmpresa(Object empresa) {
+            this.empresa = empresa;
+        }
+
+        public Object getFuncionario() {
+            return funcionario;
+        }
+
+        public void setFuncionario(Object funcionario) {
+            this.funcionario = funcionario;
+        }
+
+        public Object getContato() {
+            return contato;
+        }
+
+        public void setContato(Object contato) {
+            this.contato = contato;
+        }
+
+        public Object getTelefone() {
+            return telefone;
+        }
+
+        public void setTelefone(Object telefone) {
+            this.telefone = telefone;
+        }
+
+        public Object getOperador() {
+            return operador;
+        }
+
+        public void setOperador(Object operador) {
+            this.operador = operador;
+        }
+
+        public Object getObs() {
+            return obs;
+        }
+
+        public void setObs(Object obs) {
+            this.obs = obs;
+        }
+
+        public Object getStatus() {
+            return status;
+        }
+
+        public void setStatus(Object status) {
+            this.status = status;
+        }
+
+        public Object getCancelamento_data() {
+            return cancelamento_data;
+        }
+
+        public void setCancelamento_data(Object cancelamento_data) {
+            this.cancelamento_data = cancelamento_data;
+        }
+
+        public Object getCancelamento_usuario_nome() {
+            return cancelamento_usuario_nome;
+        }
+
+        public void setCancelamento_usuario_nome(Object cancelamento_usuario_nome) {
+            this.cancelamento_usuario_nome = cancelamento_usuario_nome;
+        }
+
+        public Object getCancelamento_motivo() {
+            return cancelamento_motivo;
+        }
+
+        public void setCancelamento_motivo(Object cancelamento_motivo) {
+            this.cancelamento_motivo = cancelamento_motivo;
+        }
+
     }
 }
