@@ -599,32 +599,12 @@ public class ImpressaoBoletosBean implements Serializable {
     }
 
     public String etiquetaEmpresa() {
-        String condicao = "";
-        String escritorios = "";
-        String cidades = "";
-        String pCidade = "";
-        String ordem = "";
         String cnaes = "";
-
         RelatorioContribuintesDB dbContri = new RelatorioContribuintesDBToplink();
-        PessoaEnderecoDao dao = new PessoaEnderecoDao();
-        ConvencaoDB dbConv = new ConvencaoDBToplink();
-        PessoaEndereco endEmpresa = new PessoaEndereco();
+        PessoaEnderecoDao pessoaEnderecoDao = new PessoaEnderecoDao();
         List listaCnaes = new ArrayList();
-        // CONDICAO DO RELATORIO -----------------------------------------------------------
-        condicao = "ativos";
-
-        // ESCRITORIO DO RELATORIO -----------------------------------------------------------
-        escritorios = "todos";
-
-        // CIDADE DO RELATORIO -----------------------------------------------------------
-        pCidade = "todas";
-
-        // ORDEM DO RELATORIO -----------------------------------------------------------
-        ordem = "razao";
-
         // CNAES DO RELATORIO -----------------------------------------------------------
-        List<Convencao> resultConvencoes = dbConv.pesquisaTodos();
+        List<Convencao> resultConvencoes = new ConvencaoDBToplink().pesquisaTodos();
         String ids = "", idsJuridica = "";
         for (int i = 0; i < resultConvencoes.size(); i++) {
             if (ids.length() > 0 && i != resultConvencoes.size()) {
@@ -659,12 +639,12 @@ public class ImpressaoBoletosBean implements Serializable {
         }
         List<Juridica> result = new ArrayList();
         if (!resultCnaeConvencao.isEmpty() && !listaCnaes.isEmpty() && !idsJuridica.isEmpty()) {
-            result = dbContri.listaRelatorioContribuintesPorJuridica(condicao, escritorios, pCidade, cidades, ordem, cnaes, 2, idsJuridica);
+            result = dbContri.listaRelatorioContribuintesPorJuridica("ativos", "todos", "todas", "", "razao", cnaes, 2, idsJuridica);
         }
         List listEtiquetas = new ArrayList<>();
         for (int i = 0; i < result.size(); i++) {
             try {
-                endEmpresa = dao.pesquisaEndPorPessoaTipo(result.get(i).getPessoa().getId(), 2);
+                PessoaEndereco endEmpresa = pessoaEnderecoDao.pesquisaEndPorPessoaTipo(result.get(i).getPessoa().getId(), 2);
                 listEtiquetas.add(
                         new Etiquetas(
                                 result.get(i).getPessoa().getNome(),
