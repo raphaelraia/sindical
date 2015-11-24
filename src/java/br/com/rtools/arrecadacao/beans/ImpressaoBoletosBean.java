@@ -14,17 +14,14 @@ import br.com.rtools.financeiro.db.MovimentoDB;
 import br.com.rtools.financeiro.db.MovimentoDBToplink;
 import br.com.rtools.financeiro.db.ServicoContaCobrancaDB;
 import br.com.rtools.financeiro.db.ServicoContaCobrancaDBToplink;
-import br.com.rtools.impressao.ParametroContribuintes;
+import br.com.rtools.impressao.Etiquetas;
 import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEndereco;
-import br.com.rtools.pessoa.TipoEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
-import br.com.rtools.pessoa.db.TipoEnderecoDB;
-import br.com.rtools.pessoa.db.TipoEnderecoDBToplink;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.db.RelatorioContribuintesDB;
 import br.com.rtools.relatorios.db.RelatorioContribuintesDBToplink;
@@ -40,18 +37,16 @@ import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
-import br.com.rtools.utilitarios.Download;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.Linha;
 import br.com.rtools.utilitarios.Mail;
-import br.com.rtools.utilitarios.SalvaArquivos;
 import br.com.rtools.utilitarios.SalvarAcumuladoDB;
 import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Vector;
@@ -59,14 +54,6 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletResponse;
-import net.sf.jasperreports.engine.JasperExportManager;
-import net.sf.jasperreports.engine.JasperFillManager;
-import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.JasperReport;
-import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-import net.sf.jasperreports.engine.util.JRLoader;
 
 @ManagedBean
 @SessionScoped
@@ -619,19 +606,11 @@ public class ImpressaoBoletosBean implements Serializable {
         String ordem = "";
         String cnaes = "";
 
-        RelatorioDao db = new RelatorioDao();
         RelatorioContribuintesDB dbContri = new RelatorioContribuintesDBToplink();
-        JuridicaDB dbJur = new JuridicaDBToplink();
         PessoaEnderecoDao dao = new PessoaEnderecoDao();
         ConvencaoDB dbConv = new ConvencaoDBToplink();
-        SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
-
-        
-        
-        
+        PessoaEndereco endEmpresa = new PessoaEndereco();
         List listaCnaes = new ArrayList();
-        Relatorios relatorios = db.pesquisaRelatoriosPorJasper("/Relatorios/ETCONTRIBUINTES6181.jasper");
-        TipoEndereco tipoEndereco = (TipoEndereco) salvarAcumuladoDB.pesquisaCodigo(2, "TipoEndereco");
         // CONDICAO DO RELATORIO -----------------------------------------------------------
         condicao = "ativos";
 
@@ -678,158 +657,32 @@ public class ImpressaoBoletosBean implements Serializable {
             }
             idsJuridica = idsJuridica + ((Integer) listaMovGridSelecionada.get(i).getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getValor());
         }
-
-        Juridica sindicato = dbJur.pesquisaCodigo(1);
-        PessoaEndereco endSindicato = dao.pesquisaEndPorPessoaTipo(1, 3);
         List<Juridica> result = new ArrayList();
         if (!resultCnaeConvencao.isEmpty() && !listaCnaes.isEmpty() && !idsJuridica.isEmpty()) {
-            result = dbContri.listaRelatorioContribuintesPorJuridica(condicao, escritorios, pCidade, cidades, ordem, cnaes, tipoEndereco.getId(), idsJuridica);
+            result = dbContri.listaRelatorioContribuintesPorJuridica(condicao, escritorios, pCidade, cidades, ordem, cnaes, 2, idsJuridica);
         }
-
-        try {
-            FacesContext faces = FacesContext.getCurrentInstance();
-            HttpServletResponse response = (HttpServletResponse) faces.getExternalContext().getResponse();
-            byte[] arquivo = new byte[0];
-            JasperReport jasper = null;
-            Collection listaContrs = new ArrayList();
-
-            File fl = new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath(relatorios.getJasper()));
-            jasper = (JasperReport) JRLoader.loadObject(fl);
+        List listEtiquetas = new ArrayList<>();
+        for (int i = 0; i < result.size(); i++) {
             try {
-                String dados[] = new String[21];
-                for (int i = 0; i < result.size(); i++) {
-                    PessoaEndereco endEmpresa = dao.pesquisaEndPorPessoaTipo(result.get(i).getPessoa().getId(), tipoEndereco.getId());
-                    try {
-                        dados[0] = endEmpresa.getEndereco().getDescricaoEndereco().getDescricao();
-                        dados[1] = endEmpresa.getEndereco().getLogradouro().getDescricao();
-                        dados[2] = endEmpresa.getEndereco().getBairro().getDescricao();
-                        dados[3] = endEmpresa.getEndereco().getCep();
-                        dados[4] = endEmpresa.getEndereco().getCidade().getCidade();
-                        dados[5] = endEmpresa.getEndereco().getCidade().getUf();
-                    } catch (Exception e) {
-                        dados[0] = "";
-                        dados[1] = "";
-                        dados[2] = "";
-                        dados[3] = "";
-                        dados[4] = "";
-                        dados[5] = "";
-                    }
+                endEmpresa = dao.pesquisaEndPorPessoaTipo(result.get(i).getPessoa().getId(), 2);
+                listEtiquetas.add(
+                        new Etiquetas(
+                                result.get(i).getPessoa().getNome(),
+                                endEmpresa.getEndereco().getLogradouro().getDescricao(),
+                                endEmpresa.getEndereco().getDescricaoEndereco().getDescricao(),
+                                endEmpresa.getNumero(),
+                                endEmpresa.getEndereco().getBairro().getDescricao(),
+                                endEmpresa.getEndereco().getCidade().getCidade(),
+                                endEmpresa.getEndereco().getCidade().getUf(),
+                                endEmpresa.getEndereco().getCep(),
+                                endEmpresa.getComplemento()
+                        ));
+            } catch (Exception e) {
 
-                    try {
-                        dados[6] = String.valueOf(result.get(i).getCnae().getId());
-                        dados[7] = result.get(i).getCnae().getNumero();
-                        dados[8] = result.get(i).getCnae().getCnae();
-                    } catch (Exception e) {
-                        dados[6] = "0";
-                        dados[7] = "";
-                        dados[8] = "";
-                    }
-
-                    try {
-                        dados[9] = String.valueOf(result.get(i).getContabilidade().getId());
-                        dados[10] = result.get(i).getContabilidade().getPessoa().getNome();
-                        dados[11] = result.get(i).getContabilidade().getPessoa().getTelefone1();
-                        dados[12] = result.get(i).getContabilidade().getPessoa().getEmail1();
-                    } catch (Exception e) {
-                        dados[9] = "0";
-                        dados[10] = "";
-                        dados[11] = "";
-                        dados[12] = "";
-                    }
-
-                    try {
-                        PessoaEndereco endEscritorio = dao.pesquisaEndPorPessoaTipo(result.get(i).getContabilidade().getPessoa().getId(), 2);
-                        dados[13] = endEscritorio.getEndereco().getDescricaoEndereco().getDescricao();
-                        dados[14] = endEscritorio.getEndereco().getLogradouro().getDescricao();
-                        dados[15] = endEscritorio.getNumero();
-                        dados[16] = endEscritorio.getComplemento();
-                        dados[17] = endEscritorio.getEndereco().getBairro().getDescricao();
-                        dados[18] = endEscritorio.getEndereco().getCep();
-                        dados[19] = endEscritorio.getEndereco().getCidade().getCidade();
-                        dados[20] = endEscritorio.getEndereco().getCidade().getUf();
-                    } catch (Exception e) {
-                        dados[13] = "";
-                        dados[14] = "";
-                        dados[15] = "";
-                        dados[16] = "";
-                        dados[17] = "";
-                        dados[18] = "";
-                        dados[19] = "";
-                        dados[20] = "";
-                    }
-                    listaContrs.add(new ParametroContribuintes(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Imagens/LogoCliente.png"),
-                            sindicato.getPessoa().getNome(),
-                            endSindicato.getEndereco().getDescricaoEndereco().getDescricao(),
-                            endSindicato.getEndereco().getLogradouro().getDescricao(),
-                            endSindicato.getNumero(),
-                            endSindicato.getComplemento(),
-                            endSindicato.getEndereco().getBairro().getDescricao(),
-                            endSindicato.getEndereco().getCep(),
-                            endSindicato.getEndereco().getCidade().getCidade(),
-                            endSindicato.getEndereco().getCidade().getUf(),
-                            sindicato.getPessoa().getTelefone1(),
-                            sindicato.getPessoa().getEmail1(),
-                            sindicato.getPessoa().getSite(),
-                            sindicato.getPessoa().getTipoDocumento().getDescricao(),
-                            sindicato.getPessoa().getDocumento(),
-                            result.get(i).getId(),
-                            result.get(i).getPessoa().getNome(),
-                            dados[0], // DESCRICAO ENDERECO
-                            dados[1], // LOGRADOURO
-                            endEmpresa.getNumero(),
-                            endEmpresa.getComplemento(),
-                            dados[2], // BAIRRO
-                            dados[3], // CEP
-                            dados[4], // CIDADE
-                            dados[5], // UF
-                            result.get(i).getPessoa().getTelefone1(),
-                            result.get(i).getPessoa().getEmail1(),
-                            result.get(i).getPessoa().getTipoDocumento().getDescricao(),
-                            result.get(i).getPessoa().getDocumento(),
-                            Integer.parseInt(dados[6]), // ID CNAE
-                            dados[7], // NUMERO CNAE
-                            dados[8], // DESCRICAO CNAE
-                            Integer.parseInt(dados[9]), // ID CONTABILIDADE
-                            dados[10], // NOME CONTABILIDADE
-                            dados[13], // DESCRICAO ENDERECO CONTABILIDADE
-                            dados[14], // LOGRADOURO CONTABILIDADE
-                            dados[15], // NUMERO CONTABILIDADE
-                            dados[16], // COMPLEMENTO CONTABILIDADE
-                            dados[17], // BAIRRO CONTABILIDADE
-                            dados[18], // CEP CONTABILIDADE
-                            dados[19], // CIDADE CONTABILIDADE
-                            dados[20], // UF CONTABILIDADE
-                            dados[11], // TELEFONE CONTABILIDADE
-                            dados[12] // EMAIL CONTABILIDADE
-                    ));
-                }
-                JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(listaContrs);
-                JasperPrint print = JasperFillManager.fillReport(
-                        jasper,
-                        null,
-                        dtSource);
-                arquivo = JasperExportManager.exportReportToPdf(print);
-
-                String nomeDownload = "etiquetas_empresa_" + DataHoje.horaMinuto().replace(":", "") + ".pdf";
-
-                SalvaArquivos sa = new SalvaArquivos(arquivo, nomeDownload, false);
-                String pathPasta = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/etiquetas");
-
-                sa.salvaNaPasta(pathPasta);
-
-                Download download = new Download(nomeDownload,
-                        pathPasta,
-                        "application/pdf",
-                        FacesContext.getCurrentInstance());
-                download.baixar();
-            } catch (Exception erro) {
-                System.err.println("O arquivo não foi gerado corretamente! Erro: " + erro.getMessage());
-                return null;
             }
-        } catch (Exception erro) {
-            System.err.println("O arquivo não foi gerado corretamente! Erro: " + erro.getMessage());
-            return null;
         }
+        Jasper.PART_NAME = "";
+        Jasper.printReports("ETIQUETAS.jasper", "etiqueta_empresa", listEtiquetas);
         return null;
     }
 
@@ -845,19 +698,9 @@ public class ImpressaoBoletosBean implements Serializable {
         RelatorioContribuintesDB dbContri = new RelatorioContribuintesDBToplink();
         JuridicaDB dbJur = new JuridicaDBToplink();
         PessoaEnderecoDao dao = new PessoaEnderecoDao();
-        TipoEnderecoDB dbTipoEnd = new TipoEnderecoDBToplink();
         ConvencaoDB dbConv = new ConvencaoDBToplink();
-        SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
-
-        Relatorios relatorios = new Relatorios();
-        Juridica sindicato = new Juridica();
-        PessoaEndereco endSindicato = new PessoaEndereco();
-        PessoaEndereco endEmpresa = new PessoaEndereco();
         PessoaEndereco endEscritorio = new PessoaEndereco();
         List listaCnaes = new ArrayList();
-        TipoEndereco tipoEndereco = new TipoEndereco();
-        relatorios = db.pesquisaRelatoriosPorJasper("/Relatorios/ETESCRITORIO6181.jasper");
-        tipoEndereco = (TipoEndereco) salvarAcumuladoDB.pesquisaCodigo(2, "TipoEndereco");
         // CONDICAO DO RELATORIO -----------------------------------------------------------
         condicao = "ativos";
 
@@ -918,160 +761,36 @@ public class ImpressaoBoletosBean implements Serializable {
                 }
             }
         }
-
-        sindicato = dbJur.pesquisaCodigo(1);
-        endSindicato = dao.pesquisaEndPorPessoaTipo(1, 3);
         List<Juridica> result = new ArrayList();
         if (!resultCnaeConvencao.isEmpty() && !listaCnaes.isEmpty() && !idsJuridica.isEmpty()) {
-            result = dbContri.listaRelatorioContribuintesPorJuridica(condicao, escritorios, pCidade, cidades, ordem, cnaes, tipoEndereco.getId(), idsJuridica);
+            result = dbContri.listaRelatorioContribuintesPorJuridica(condicao, escritorios, pCidade, cidades, ordem, cnaes, 2, idsJuridica);
         }
-
-        try {
-            FacesContext faces = FacesContext.getCurrentInstance();
-            HttpServletResponse response = (HttpServletResponse) faces.getExternalContext().getResponse();
-            byte[] arquivo = new byte[0];
-            JasperReport jasper = null;
-            Collection listaContrs = new ArrayList<ParametroContribuintes>();
-
-            File fl = new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath(relatorios.getJasper()));
-            jasper = (JasperReport) JRLoader.loadObject(fl);
+        List listEtiquetas = new ArrayList<>();
+        for (int i = 0; i < result.size(); i++) {
             try {
-                String dados[] = new String[21];
-                for (int i = 0; i < result.size(); i++) {
-                    endEmpresa = dao.pesquisaEndPorPessoaTipo(result.get(i).getPessoa().getId(), tipoEndereco.getId());
-                    try {
-                        dados[0] = endEmpresa.getEndereco().getDescricaoEndereco().getDescricao();
-                        dados[1] = endEmpresa.getEndereco().getLogradouro().getDescricao();
-                        dados[2] = endEmpresa.getEndereco().getBairro().getDescricao();
-                        dados[3] = endEmpresa.getEndereco().getCep();
-                        dados[4] = endEmpresa.getEndereco().getCidade().getCidade();
-                        dados[5] = endEmpresa.getEndereco().getCidade().getUf();
-                    } catch (Exception e) {
-                        dados[0] = "";
-                        dados[1] = "";
-                        dados[2] = "";
-                        dados[3] = "";
-                        dados[4] = "";
-                        dados[5] = "";
-                    }
+                endEscritorio = dao.pesquisaEndPorPessoaTipo(result.get(i).getContabilidade().getPessoa().getId(), 2);
+                listEtiquetas.add(
+                        new Etiquetas(
+                                result.get(i).getContabilidade().getPessoa().getNome(),
+                                endEscritorio.getEndereco().getLogradouro().getDescricao(),
+                                endEscritorio.getEndereco().getDescricaoEndereco().getDescricao(),
+                                endEscritorio.getNumero(),
+                                endEscritorio.getEndereco().getBairro().getDescricao(),
+                                endEscritorio.getEndereco().getCidade().getCidade(),
+                                endEscritorio.getEndereco().getCidade().getUf(),
+                                endEscritorio.getEndereco().getCep(),
+                                endEscritorio.getComplemento()
+                        ));
+            } catch (Exception e) {
 
-                    try {
-                        dados[6] = String.valueOf(result.get(i).getCnae().getId());
-                        dados[7] = result.get(i).getCnae().getNumero();
-                        dados[8] = result.get(i).getCnae().getCnae();
-                    } catch (Exception e) {
-                        dados[6] = "0";
-                        dados[7] = "";
-                        dados[8] = "";
-                    }
-
-                    try {
-                        dados[9] = String.valueOf(result.get(i).getContabilidade().getId());
-                        dados[10] = result.get(i).getContabilidade().getPessoa().getNome();
-                        dados[11] = result.get(i).getContabilidade().getPessoa().getTelefone1();
-                        dados[12] = result.get(i).getContabilidade().getPessoa().getEmail1();
-                    } catch (Exception e) {
-                        dados[9] = "0";
-                        dados[10] = "";
-                        dados[11] = "";
-                        dados[12] = "";
-                    }
-
-                    try {
-                        endEscritorio = dao.pesquisaEndPorPessoaTipo(result.get(i).getContabilidade().getPessoa().getId(), 2);
-                        dados[13] = endEscritorio.getEndereco().getDescricaoEndereco().getDescricao();
-                        dados[14] = endEscritorio.getEndereco().getLogradouro().getDescricao();
-                        dados[15] = endEscritorio.getNumero();
-                        dados[16] = endEscritorio.getComplemento();
-                        dados[17] = endEscritorio.getEndereco().getBairro().getDescricao();
-                        dados[18] = endEscritorio.getEndereco().getCep();
-                        dados[19] = endEscritorio.getEndereco().getCidade().getCidade();
-                        dados[20] = endEscritorio.getEndereco().getCidade().getUf();
-                    } catch (Exception e) {
-                        dados[13] = "";
-                        dados[14] = "";
-                        dados[15] = "";
-                        dados[16] = "";
-                        dados[17] = "";
-                        dados[18] = "";
-                        dados[19] = "";
-                        dados[20] = "";
-                    }
-                    listaContrs.add(new ParametroContribuintes(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
-                            sindicato.getPessoa().getNome(),
-                            endSindicato.getEndereco().getDescricaoEndereco().getDescricao(),
-                            endSindicato.getEndereco().getLogradouro().getDescricao(),
-                            endSindicato.getNumero(),
-                            endSindicato.getComplemento(),
-                            endSindicato.getEndereco().getBairro().getDescricao(),
-                            endSindicato.getEndereco().getCep(),
-                            endSindicato.getEndereco().getCidade().getCidade(),
-                            endSindicato.getEndereco().getCidade().getUf(),
-                            sindicato.getPessoa().getTelefone1(),
-                            sindicato.getPessoa().getEmail1(),
-                            sindicato.getPessoa().getSite(),
-                            sindicato.getPessoa().getTipoDocumento().getDescricao(),
-                            sindicato.getPessoa().getDocumento(),
-                            result.get(i).getId(),
-                            result.get(i).getPessoa().getNome(),
-                            dados[0], // DESCRICAO ENDERECO
-                            dados[1], // LOGRADOURO
-                            endEmpresa.getNumero(),
-                            endEmpresa.getComplemento(),
-                            dados[2], // BAIRRO
-                            dados[3], // CEP
-                            dados[4], // CIDADE
-                            dados[5], // UF
-                            result.get(i).getPessoa().getTelefone1(),
-                            result.get(i).getPessoa().getEmail1(),
-                            result.get(i).getPessoa().getTipoDocumento().getDescricao(),
-                            result.get(i).getPessoa().getDocumento(),
-                            Integer.parseInt(dados[6]), // ID CNAE
-                            dados[7], // NUMERO CNAE
-                            dados[8], // DESCRICAO CNAE
-                            Integer.parseInt(dados[9]), // ID CONTABILIDADE
-                            dados[10], // NOME CONTABILIDADE
-                            dados[13], // DESCRICAO ENDERECO CONTABILIDADE
-                            dados[14], // LOGRADOURO CONTABILIDADE
-                            dados[15], // NUMERO CONTABILIDADE
-                            dados[16], // COMPLEMENTO CONTABILIDADE
-                            dados[17], // BAIRRO CONTABILIDADE
-                            dados[18], // CEP CONTABILIDADE
-                            dados[19], // CIDADE CONTABILIDADE
-                            dados[20], // UF CONTABILIDADE
-                            dados[11], // TELEFONE CONTABILIDADE
-                            dados[12] // EMAIL CONTABILIDADE
-                    ));
-                    endEmpresa = new PessoaEndereco();
-                    endEscritorio = new PessoaEndereco();
-                }
-                JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(listaContrs);
-                JasperPrint print = JasperFillManager.fillReport(
-                        jasper,
-                        null,
-                        dtSource);
-                arquivo = JasperExportManager.exportReportToPdf(print);
-
-                String nomeDownload = "etiquetas_contabil_" + DataHoje.horaMinuto().replace(":", "") + ".pdf";
-
-                SalvaArquivos sa = new SalvaArquivos(arquivo, nomeDownload, false);
-                String pathPasta = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/etiquetas");
-
-                sa.salvaNaPasta(pathPasta);
-
-                Download download = new Download(nomeDownload,
-                        pathPasta,
-                        "application/pdf",
-                        FacesContext.getCurrentInstance());
-                download.baixar();
-            } catch (Exception erro) {
-                System.err.println("O arquivo não foi gerado corretamente! Erro: " + erro.getMessage());
-                return null;
             }
-        } catch (Exception erro) {
-            System.err.println("O arquivo não foi gerado corretamente! Erro: " + erro.getMessage());
+        }
+        if (listEtiquetas.isEmpty()) {
+            GenericaMensagem.warn("Sistema", "Nenhum registro encontrado!");
             return null;
         }
+        Jasper.PART_NAME = "";
+        Jasper.printReports("ETIQUETAS.jasper", "etiqueta_escritorio", listEtiquetas);
         return null;
     }
 
