@@ -6,6 +6,7 @@ import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.principal.DB;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
+import br.com.rtools.utilitarios.DataHoje;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -640,10 +641,12 @@ public class FisicaDBToplink extends DB implements FisicaDB {
     }
 
     public List<Fisica> pesquisaFisicaPorDocRG(String doc) {
-        String documento = doc;
+        doc = doc.replace("-", "").replace(".", "");
         try {
-            Query qry = getEntityManager().createQuery("SELECT FIS FROM Fisica AS FIS WHERE FIS.rg LIKE :documento");
-            qry.setParameter("documento", documento);
+            Query qry = getEntityManager().createNativeQuery(
+                    "SELECT f.* FROM pes_fisica f WHERE replace(replace(f.ds_rg, '-', ''), '.', '') LIKE '" + doc + "'", Fisica.class
+            );
+
             List list = qry.getResultList();
             if (!list.isEmpty()) {
                 return list;
@@ -815,14 +818,25 @@ public class FisicaDBToplink extends DB implements FisicaDB {
             return null;
         }
         try {
-            Query query = getEntityManager().createQuery("SELECT F FROM Fisica AS F WHERE UPPER(F.pessoa.nome) LIKE :nome AND F.dtNascimento = :nascimento");
-            query.setParameter("nascimento", nascimento);
-            query.setParameter("nome", nome.trim());
+//            Query query = getEntityManager().createQuery("SELECT F FROM Fisica AS F WHERE UPPER(F.pessoa.nome) LIKE :nome AND F.dtNascimento = :nascimento");
+//            query.setParameter("nascimento", nascimento);
+//            query.setParameter("nome", nome.trim());
+
+            nome = AnaliseString.normalizeLower(nome);
+            
+            Query query = getEntityManager().createNativeQuery(
+                    "SELECT f.* \n "
+                    + "  FROM pes_fisica f \n "
+                    + " INNER JOIN pes_pessoa p ON p.id = f.id_pessoa \n "
+                    + " WHERE LOWER(FUNC_TRANSLATE(p.ds_nome)) LIKE '" + nome + "' \n "
+                    + "   AND f.dt_nascimento = '"+DataHoje.converteData(nascimento)+"'", Fisica.class
+            );
             List list = query.getResultList();
             if (!list.isEmpty() && list.size() == 1) {
                 return (Fisica) query.getSingleResult();
             }
         } catch (Exception e) {
+            e.getMessage();
         }
         return null;
     }

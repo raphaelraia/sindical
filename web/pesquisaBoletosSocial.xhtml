@@ -14,9 +14,9 @@
             .ui-button { padding: 3px!important; }
             .ui-selectonemenu {padding-right: 25px!important;}
         </style>
-        
+
         <script type="text/javascript">
-            
+
         </script>
     </h:head>
     <h:body>
@@ -36,59 +36,69 @@
                                 <h:panelGrid columns="3">
                                     <p:column>
                                         <p:outputLabel value="Boleto" /><br />
-                                        <p:inputText value="#{pesquisaBoletosSocialBean.boleto}" placeholder="DIGITE UM NÚMERO DE BOLETO" style="width: 400px"/>
+                                        <p:inputText value="#{pesquisaBoletosSocialBean.descricaoPesquisa}" placeholder="#{pesquisaBoletosSocialBean.placeholder}" style="width: 400px"/>
                                     </p:column>
-                                    
+
+                                    <p:column>
+                                        <br />
+                                        <p:selectOneMenu value="#{pesquisaBoletosSocialBean.tipoPesquisa}">
+                                            <p:ajax event="change" update="@form" listener="#{pesquisaBoletosSocialBean.alterarPlaceholder}"/>
+                                            <f:selectItem itemValue="boleto"       itemLabel="Boleto"/>
+                                            <f:selectItem itemValue="beneficiario" itemLabel="Beneficiário"/>
+                                            <f:selectItem itemValue="codigo"       itemLabel="Código"/>
+                                        </p:selectOneMenu>
+                                    </p:column>
+
                                     <p:column>
                                         <br />
                                         <p:commandButton value="Pesquisar" icon="ui-icon-search" action="#{pesquisaBoletosSocialBean.loadList()}" update="formPesquisaBoletosSocial"/>
                                     </p:column>
                                 </h:panelGrid>
-                                
+
                             </p:panel>
-                            
+
                             <p:messages showDetail="true" closable="true"/>
-                            
+
                             <p:dataTable value="#{pesquisaBoletosSocialBean.listaMovimentoBoleto}" var="linha" emptyMessage="Lista vazia!">
                                 <p:column style="width:15px">  
                                     <p:rowToggler />  
                                 </p:column>  
-                                
+
                                 <p:column headerText="Titular">
                                     <p:outputLabel value="#{linha.movimento.titular.nome}" />
                                 </p:column>
-                                
+
                                 <p:column headerText="Beneficiário">
                                     <p:outputLabel value="#{linha.movimento.beneficiario.nome}" />
                                 </p:column>
-                                
+
                                 <p:column headerText="Serviço">
                                     <p:outputLabel value="#{linha.movimento.servicos.descricao}" />
                                 </p:column>
-                                
+
                                 <p:column headerText="Valor" style="width: 80px; text-align: right">
                                     <p:outputLabel value="#{linha.movimento.valorString}" />
                                 </p:column>
-                                
+
                                 <p:column headerText="Vencimento" style="width: 80px; text-align: center">
                                     <p:outputLabel value="#{linha.movimento.vencimento}" />
                                 </p:column>
-                                
+
                                 <p:column headerText="Quitação" style="width: 80px; text-align: center"> 
                                     <p:outputLabel value="#{linha.movimento.baixa.baixa}" />
                                 </p:column>
-                                
+
                                 <p:column headerText="Boleto Atual" style="width: 100px; text-align: center">
                                     <p:outputLabel value="#{linha.movimento.documento}" />
                                 </p:column>
-                                
+
                                 <p:rowExpansion>
                                     <h:panelGrid columns="2" style="height: 40px" styleClass="sbb">
                                         <p:column>
                                             <p:outputLabel value="Responsável" style="font-weight: bold"/><br />
                                             <p:outputLabel value="#{linha.movimento.pessoa.nome}" />
                                         </p:column>
-                                        
+
                                         <p:column>
                                             <p:outputLabel value="Codigo Cedente" style="font-weight: bold"/><br />
                                             <p:outputLabel value="#{linha.boleto.contaCobranca.codCedente}" />
@@ -96,13 +106,13 @@
                                     </h:panelGrid>
                                 </p:rowExpansion>
                             </p:dataTable>
-                            
+
                             <h:panelGrid columns="1">
                                 <p:column>
-                                    <p:commandButton value="Voltar Movimentos para Boleto Selecionado" onclick="PF('dlg_voltar').show()"/>
+                                    <p:commandButton value="Voltar Movimentos para Boleto Selecionado" onclick="PF('dlg_voltar').show()" disabled="true"/>
                                 </p:column>
                             </h:panelGrid>
-                            
+
                             <p:dialog widgetVar="dlg_voltar" header="Voltar Boletos" resizable="false" width="400" modal="true">
                                 <h:panelGrid>
                                     <p:outputLabel value="Deseja realmente VOLTAR esses movimentos para o boleto original?" style="font-size: 11pt!important"/>
@@ -111,7 +121,7 @@
                                 <p:commandButton value="Sim" type="submit" action="#{pesquisaBoletosSocialBean.voltarBoletos}" oncomplete="PF('dlg_voltar').hide()" style="float: left;" icon="ui-icon-check" update="formPesquisaBoletosSocial"/> 
                                 <p:commandButton value="Não" type="button" onclick="PF('dlg_voltar').hide()" style="float: left;" icon="ui-icon-close"/>
                             </p:dialog>
-                            
+
                         </h:form>
                     </p:panel>
                 </f:view>

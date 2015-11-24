@@ -1,5 +1,6 @@
 package br.com.rtools.utilitarios;
 
+import br.com.rtools.arrecadacao.beans.ConfiguracaoArrecadacaoBean;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.principal.DBExternal;
@@ -236,7 +237,8 @@ public class Jasper implements Serializable {
     public static void printReports(String jasperName, String fileName, Collection listCollections, Map parameters, List jasperListExport) throws SecurityException, IllegalArgumentException {
         Jasper.LIST_FILE_GENERATED = new ArrayList();
         Dao dao = new Dao();
-        Juridica juridica = (Juridica) dao.find(new Juridica(), 1);
+
+        //Juridica juridica = (Juridica) dao.find(new Juridica(), 1);
         byte[] bytesComparer = null;
         byte[] b = null;
         if (jasperListExport.isEmpty()) {
@@ -272,9 +274,19 @@ public class Jasper implements Serializable {
         if (TITLE != null && !TITLE.isEmpty()) {
             parameters.put("relatorio_titulo", TITLE);
         }
-        
+
         subreport = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/CABECALHO_PAISAGEM.jasper");
         if (IS_HEADER || IS_HEADER_PARAMS) {
+            ConfiguracaoArrecadacaoBean cab = new ConfiguracaoArrecadacaoBean();
+            cab.init();
+            Juridica juridica = cab.getConfiguracaoArrecadacao().getFilial().getFilial();
+            String documentox = juridica.getPessoa().getDocumento();// ? sindicato.getPessoa().getDocumento() : ;
+
+            if (juridica.getPessoa().getDocumento().isEmpty() || juridica.getPessoa().getDocumento().equals("0")) {
+                Juridica sindicato = (Juridica) new Dao().find(new Juridica(), 1);
+                documentox = sindicato.getPessoa().getDocumento();
+            }
+            
             switch (TYPE) {
                 case "retrato":
                     subreport = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/CABECALHO_RETRATO.jasper");
@@ -292,7 +304,7 @@ public class Jasper implements Serializable {
             }
             parameters.put("is_header", IS_HEADER);
             parameters.put("sindicato_nome", juridica.getPessoa().getNome());
-            parameters.put("sindicato_documento", juridica.getPessoa().getDocumento());
+            parameters.put("sindicato_documento", documentox);
             parameters.put("sindicato_site", juridica.getPessoa().getSite());
             parameters.put("sindicato_logradouro", juridica.getPessoa().getPessoaEndereco().getEndereco().getLogradouro().getDescricao());
             parameters.put("sindicato_endereco", juridica.getPessoa().getPessoaEndereco().getEndereco().getDescricaoEndereco().getDescricao());
@@ -322,7 +334,7 @@ public class Jasper implements Serializable {
             // parameters.put("instituicao_logo", ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));
             //
             parameters.put("template_dir", subreport);
-        }else{
+        } else {
             parameters.put("is_header", IS_HEADER);
         }
 

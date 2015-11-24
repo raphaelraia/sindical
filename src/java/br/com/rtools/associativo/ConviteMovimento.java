@@ -6,6 +6,7 @@ import br.com.rtools.seguranca.Departamento;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.sistema.SisPessoa;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.Moeda;
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.*;
@@ -58,6 +59,11 @@ public class ConviteMovimento implements Serializable {
     private ConviteServico conviteServico;
     @Column(name = "ds_controle_cortesia", length = 200)
     private String controleCortesia;
+    @Temporal(TemporalType.DATE)
+    @Column(name = "dt_entrada")
+    private Date dtEntrada;
+    @Column(name = "nr_desconto", nullable = true)
+    private float desconto;    
     
     public ConviteMovimento() {
         this.id = -1;
@@ -75,9 +81,11 @@ public class ConviteMovimento implements Serializable {
         this.dtEmissao = DataHoje.dataHoje();
         this.conviteServico = new ConviteServico();
         this.controleCortesia = "";
+        this.dtEntrada = null;
+        this.desconto = 0;
     }
 
-    public ConviteMovimento(int id, String observacao, SisPessoa sisPessoa, Pessoa pessoa, Usuario usuario, Usuario usuarioInativacao, Evt evt, Departamento departamento, ConviteAutorizaCortesia autorizaCortesia, boolean cortesia, boolean ativo, String validade, String emissao, ConviteServico conviteServico, String controleCortesia) {
+    public ConviteMovimento(int id, String observacao, SisPessoa sisPessoa, Pessoa pessoa, Usuario usuario, Usuario usuarioInativacao, Evt evt, Departamento departamento, ConviteAutorizaCortesia autorizaCortesia, boolean cortesia, boolean ativo, String validade, String emissao, ConviteServico conviteServico, String controleCortesia, Date dtEntrada, float desconto) {
         this.id = id;
         this.observacao = observacao;
         this.sisPessoa = sisPessoa;
@@ -93,6 +101,8 @@ public class ConviteMovimento implements Serializable {
         this.dtEmissao = DataHoje.converte(emissao);
         this.conviteServico = conviteServico;
         this.controleCortesia = controleCortesia;
+        this.dtEntrada = dtEntrada;
+        this.desconto = desconto;
     }
 
     public int getId() {
@@ -234,5 +244,37 @@ public class ConviteMovimento implements Serializable {
 
     public void setControleCortesia(String controleCortesia) {
         this.controleCortesia = controleCortesia;
+    }
+
+    public Date getDtEntrada() {
+        return dtEntrada;
+    }
+
+    public void setDtEntrada(Date dtEntrada) {
+        this.dtEntrada = dtEntrada;
+    }
+    
+    public String getDtEntradaString() {
+        return DataHoje.converteData(dtEntrada);
+    }
+
+    public void setDtEntradaString(String entrada) {
+        this.dtEntrada = DataHoje.converte(entrada);
+    }    
+
+    public float getDesconto() {
+        return desconto;
+    }
+
+    public void setDesconto(float desconto) {
+        this.desconto = desconto;
+    }
+    
+    public String getDescontoString() {
+        return Moeda.converteR$Float(desconto);
+    }
+
+    public void setDescontoString(String descontoString) {
+        this.desconto = Moeda.converteUS$(descontoString);
     }
 }

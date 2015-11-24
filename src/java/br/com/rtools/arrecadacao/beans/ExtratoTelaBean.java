@@ -243,7 +243,10 @@ public class ExtratoTelaBean implements Serializable {
             if ((linha_list.get(17)) == null) {
                 linha_list.set(17, 0.0);
             }
-
+            float valor_baixa = Float.parseFloat(Double.toString((Double) linha_list.get(21))),
+                    valor = Float.parseFloat(Double.toString((Double) linha_list.get(8))),
+                    taxa = Float.parseFloat(Double.toString((Double) linha_list.get(9)));
+            
             somaValores = Moeda.subtracaoValores(Moeda.somaValores(
                     Moeda.somaValores(
                             Moeda.somaValores(
@@ -253,6 +256,11 @@ public class ExtratoTelaBean implements Serializable {
                             Float.parseFloat(Double.toString((Double) linha_list.get(15)))//correcao
                     ), Float.parseFloat(Double.toString((Double) linha_list.get(13))) //multa
             ), Float.parseFloat(Double.toString((Double) linha_list.get(16))));// desconto
+            
+//            somaRepasse = Moeda.multiplicarValores(valor_baixa,
+//                    Moeda.divisaoValores(
+//                            Float.parseFloat(Double.toString((Double) linha_list.get(17))), 100));
+            // ALTERADO PARA BATER COM O RELATÓRIO RESUMO DE CONTRIBUIÇÕES > Menu Financeiro > Relatório > Movimento
             somaRepasse = Moeda.multiplicarValores(somaValores,
                     Moeda.divisaoValores(
                             Float.parseFloat(Double.toString((Double) linha_list.get(17))), 100));
@@ -269,9 +277,7 @@ public class ExtratoTelaBean implements Serializable {
             } else {
                 classTbl = "";
             }
-            float valor_baixa = Float.parseFloat(Double.toString((Double) linha_list.get(21))),
-                    valor = Float.parseFloat(Double.toString((Double) linha_list.get(8))),
-                    taxa = Float.parseFloat(Double.toString((Double) linha_list.get(9)));
+
 
             listaMovimentos.add(new DataObject(
                     false,

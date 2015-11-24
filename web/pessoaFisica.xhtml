@@ -734,6 +734,9 @@
                                     </p:tab>
 
                                     <p:tab title="Documentos">
+                                        <p:commandLink value="CLIQUE PARA CRIAR NOVA PASTA DE ARQUIVOS" action="#{digitalizacaoBean.novoGeneric(fisicaBean.fisica.pessoa)}" ajax="false" rendered="#{fisicaBean.fisica.id ne -1}"/>
+                                        <br />
+                                        <br />                                        
                                         <p:dataTable value="#{fisicaBean.listaDocumentos}" var="linha" emptyMessage="Nenhum documento Encontrado!" scrollable="true" scrollHeight="400">
                                             <p:column style="width:15px">  
                                                 <p:rowToggler />  

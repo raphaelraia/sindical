@@ -3,10 +3,12 @@ package br.com.rtools.associativo.db;
 import br.com.rtools.associativo.ConviteAutorizaCortesia;
 import br.com.rtools.associativo.ConviteServico;
 import br.com.rtools.associativo.ConviteSuspencao;
+import br.com.rtools.associativo.Socios;
 import br.com.rtools.principal.DB;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.sistema.SisPessoa;
+import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import java.util.ArrayList;
 import java.util.List;
@@ -238,6 +240,10 @@ public class ConviteDBToplink extends DB implements ConviteDB {
 
     @Override
     public boolean socio(SisPessoa s) {
+        return (socioObject(s) != null);
+    }
+    
+    public Socios socioObject(SisPessoa s) {
         try {
 //          ##################
 //          #     CAMPOS     #
@@ -252,7 +258,7 @@ public class ConviteDBToplink extends DB implements ConviteDB {
             String documento = s.getDocumento().toUpperCase();
             String nascimento = s.getNascimento();
             String queryString = ""
-                    + "                SELECT *                                                                                                                                                                                                                                 "
+                    + "                SELECT codsocio                                                                                                                                                                                                                                 "
                     + "                 FROM soc_socios_vw AS s                                                                                                                                                                                                                 "
                     + "            INNER JOIN pes_pessoa AS p ON p.id = s.codsocio                                                                                                                                                                                              "
                     + "            INNER JOIN pes_fisica AS f ON f.id_pessoa = p.id                                                                                                                                                                                             "
@@ -263,14 +269,16 @@ public class ConviteDBToplink extends DB implements ConviteDB {
                     + "                   OR (UPPER(f.ds_rg) = '"+rg+"' AND inativacao IS NULL AND p.ds_nome <> '' AND p.ds_nome <> '' AND f.ds_rg <> '')                                                                                                                       "
                     + "                   OR (p.ds_documento = '"+documento+"' AND inativacao IS NULL AND p.ds_documento <> '')";
             Query query = getEntityManager().createNativeQuery(queryString);
+            query.setMaxResults(1);
             List list = query.getResultList();
             if (!list.isEmpty()) {
-                return true;
+                Integer id_socio = (Integer) ((List)list.get(0)).get(0);
+                return (Socios) new Dao().find(new Socios(), id_socio);
             }
         } catch (Exception e) {
-            return false;
+            e.getMessage();
         }
-        return false;
+        return null;
     }
 
     @Override

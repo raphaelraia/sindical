@@ -2,7 +2,6 @@ package br.com.rtools.financeiro.beans;
 
 import br.com.rtools.academia.beans.MatriculaAcademiaBean;
 import br.com.rtools.arrecadacao.beans.BaixaBoletoBean;
-import br.com.rtools.associativo.beans.ConviteMovimentoBean;
 import br.com.rtools.associativo.beans.EmissaoGuiasBean;
 import br.com.rtools.associativo.beans.MovimentosReceberSocialBean;
 import br.com.rtools.associativo.beans.VendaBaileBean;
@@ -42,7 +41,6 @@ import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.dao.RotinaDao;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;

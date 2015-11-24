@@ -108,16 +108,16 @@ public class MovimentosReceberSocialDBToplink extends DB implements MovimentosRe
                     ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL) or m.id_pessoa IN (" + id_pessoa + ")) \n "
                     // ands = where + " WHERE (m.id_pessoa in (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL)) \n  "
                             + "        AND m.is_ativo = true \n"
-                            + "        AND m.id_servicos NOT IN(SELECT sr.id_servicos FROM fin_servico_rotina AS sr WHERE id_rotina = 4) \n";
-                    order_by = (tipoPessoa.equals("fisica")) ? " ORDER BY m.dt_vencimento asc, p.ds_nome, t.ds_nome, b.ds_nome, se.ds_descricao \n"
-                            : "";
+                            + "        AND m.id_servicos NOT IN(SELECT sr.id_servicos FROM fin_servico_rotina AS sr WHERE id_rotina = 4) \n ";
+                    order_by = (tipoPessoa.equals("fisica")) ? " ORDER BY m.dt_vencimento asc, p.ds_nome, t.ds_nome, b.ds_nome, se.ds_descricao \n "
+                            : " ORDER BY m.dt_vencimento asc, p.ds_nome, t.ds_nome, b.ds_nome, se.ds_descricao \n ";
                     break;
                 case "abertos":
                     ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL) or m.id_pessoa IN (" + id_pessoa + ")) \n "
                     //ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL)) \n "
                             + "        AND m.id_baixa IS NULL   \n"
                             + "        AND m.is_ativo = true    \n"
-                            + "        AND m.id_servicos NOT IN(SELECT sr.id_servicos FROM fin_servico_rotina AS sr WHERE id_rotina = 4) \n";
+                            + "        AND m.id_servicos NOT IN(SELECT sr.id_servicos FROM fin_servico_rotina AS sr WHERE id_rotina = 4) \n ";
                     order_by = " ORDER BY m.dt_vencimento ASC, p.ds_nome, t.ds_nome, b.ds_nome, se.ds_descricao \n";
                     break;
                 case "quitados":
@@ -127,7 +127,7 @@ public class MovimentosReceberSocialDBToplink extends DB implements MovimentosRe
                             + "        AND m.is_ativo = true        \n"
                             + "        AND m.id_servicos NOT IN(SELECT sr.id_servicos FROM fin_servico_rotina AS sr WHERE id_rotina = 4) \n";
                     order_by = (tipoPessoa.equals("fisica")) ? " ORDER BY bx.dt_baixa ASC, m.dt_vencimento, p.ds_nome, se.ds_descricao \n"
-                            : "";
+                            : " ORDER BY bx.dt_baixa ASC, m.dt_vencimento, p.ds_nome, se.ds_descricao \n ";
                     break;
                 case "atrasados":
                     ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL) or m.id_pessoa IN (" + id_pessoa + ")) \n "
@@ -136,8 +136,8 @@ public class MovimentosReceberSocialDBToplink extends DB implements MovimentosRe
                             + "        AND m.is_ativo = true                \n"
                             + "        AND m.dt_vencimento < current_date   \n"
                             + "        AND m.id_servicos NOT IN(SELECT sr.id_servicos FROM fin_servico_rotina AS sr WHERE id_rotina = 4) \n";
-                    order_by = (tipoPessoa.equals("fisica")) ? " ORDER BY m.dt_vencimento, p.ds_nome, t.ds_nome, se.ds_descricao \n"
-                            : "";
+                    order_by = (tipoPessoa.equals("fisica")) ? " ORDER BY m.dt_vencimento, p.ds_nome, t.ds_nome, se.ds_descricao \n "
+                            : " ORDER BY m.dt_vencimento, p.ds_nome, t.ds_nome, se.ds_descricao \n ";
                     break;
                 case "vencer":
                     ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL) or m.id_pessoa IN (" + id_pessoa + ")) \n "
@@ -146,8 +146,8 @@ public class MovimentosReceberSocialDBToplink extends DB implements MovimentosRe
                             + "        AND m.is_ativo = true                \n"
                             + "        AND m.dt_vencimento > current_date   \n"
                             + "        AND m.id_servicos NOT IN(SELECT sr.id_servicos FROM fin_servico_rotina AS sr WHERE id_rotina = 4) \n";
-                    order_by = (tipoPessoa.equals("fisica")) ? " ORDER BY m.dt_vencimento, p.ds_nome, t.ds_nome, se.ds_descricao \n"
-                            : "";
+                    order_by = (tipoPessoa.equals("fisica")) ? " ORDER BY m.dt_vencimento, p.ds_nome, t.ds_nome, se.ds_descricao \n "
+                            : " ORDER BY m.dt_vencimento, p.ds_nome, t.ds_nome, se.ds_descricao \n ";
                     break;
             }
 

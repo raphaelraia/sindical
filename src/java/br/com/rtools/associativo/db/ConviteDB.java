@@ -3,6 +3,7 @@ package br.com.rtools.associativo.db;
 import br.com.rtools.associativo.ConviteAutorizaCortesia;
 import br.com.rtools.associativo.ConviteServico;
 import br.com.rtools.associativo.ConviteSuspencao;
+import br.com.rtools.associativo.Socios;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.sistema.SisPessoa;
@@ -26,6 +27,8 @@ public interface ConviteDB {
 
     public boolean socio(SisPessoa s);
 
+    public Socios socioObject(SisPessoa s);
+    
     public List<Usuario> listaUsuariosDisponiveis();
 
     public List filtroRelatorio(

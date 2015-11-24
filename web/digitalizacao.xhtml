@@ -89,11 +89,11 @@
                                     </h:column>
 
                                     <h:column>
-                                        <p:outputLabel value="Documentos de: #{digitalizacaoBean.pessoa.nome}" style="font-size: 14pt!important" rendered="#{digitalizacaoBean.pessoa.id != -1}"/>
+                                        <p:outputLabel value="Documentos de: #{digitalizacaoBean.pessoa.nome}" style="font-size: 14pt!important; font-weight: bold" rendered="#{digitalizacaoBean.pessoa.id != -1}"/>
                                     </h:column>
 
                                     <h:column>
-                                        <p:commandButton icon="ui-icon-close" action="#{digitalizacaoBean.limparPesquisaPessoa}" rendered="#{digitalizacaoBean.pessoa.id != -1}" update="@form"/>
+                                        <p:commandButton icon="ui-icon-close" action="#{digitalizacaoBean.limparPesquisaPessoa}" rendered="#{digitalizacaoBean.pessoa.id != -1}" update="@form formDigitalizacaoUpload formDigitalizacaoLista"/>
                                     </h:column>
                                 </h:panelGrid>
                             </p:panel>   
@@ -114,7 +114,7 @@
 
                         <h:form id="formDigitalizacaoLista">
                             <h:panelGrid columns="1">
-                                <p:outputLabel value="LISTA DE DIGITALIZAÇÕES" style="font-size: 14pt!important; font-weight: bold"/>
+                                <p:outputLabel value="LISTA DE DIGITALIZAÇÕES" style="font-size: 14pt!important;"/>
                             </h:panelGrid>
 
                             <p:dataTable value="#{digitalizacaoBean.listaDocumentos}" var="linha" emptyMessage="Nenhum documento Encontrado!" scrollable="true" scrollHeight="400">

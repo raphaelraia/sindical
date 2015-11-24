@@ -213,7 +213,10 @@ public final class DigitalizacaoBean implements Serializable {
     }
 
     public void novo() {
-        GenericaSessao.put("digitalizacaoBean", new DigitalizacaoBean());
+        documento = new Documento();
+        indexGrupo = 0;
+        loadListaDocumentos();
+        //GenericaSessao.put("digitalizacaoBean", new DigitalizacaoBean());
     }
 
     public void excluir() {
@@ -284,10 +287,20 @@ public final class DigitalizacaoBean implements Serializable {
 
     public String editGeneric(Documento linha) throws IOException {
         String retorno = ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).pagina("digitalizacao");
-        
+
         GenericaSessao.put("digitalizacaoBean", new DigitalizacaoBean());
         DigitalizacaoBean db = (DigitalizacaoBean) GenericaSessao.getObject("digitalizacaoBean");
         db.editar(linha);
+        return retorno;
+    }
+    
+    public String novoGeneric(Pessoa pe) throws IOException {
+        String retorno = ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).pagina("digitalizacao");
+
+        GenericaSessao.put("digitalizacaoBean", new DigitalizacaoBean());
+        DigitalizacaoBean db = (DigitalizacaoBean) GenericaSessao.getObject("digitalizacaoBean");
+        db.setPessoa(pe);
+        db.loadListaDocumentos();
         return retorno;
     }
 
@@ -323,6 +336,8 @@ public final class DigitalizacaoBean implements Serializable {
 
     public void limparPesquisaPessoa() {
         pessoa = new Pessoa();
+        documento = new Documento();
+        loadListaDocumentos();
     }
 
     public void loadListaGrupo() {

@@ -34,6 +34,8 @@ public interface SociosDB {
 
     public List pesquisaSociosInativos();
 
+    public Socios pesquisaSocioPorPessoaAtivoDocumento(String cpf);
+
     public Socios pesquisaSocioPorPessoaAtivo(int idPessoa);
 
     public List pesquisaSocioPorPessoaInativo(int idPessoa);
@@ -41,7 +43,7 @@ public interface SociosDB {
     public List<Socios> pesquisaSocioPorPessoaTitularInativo(int idPessoa);
 
     public Socios pesquisaSocioTitularInativoPorPessoa(int idPessoa);
-    
+
     public List<Socios> listaSocioTitularInativoPorPessoa(int idPessoa);
 
     public List pesquisaDependentesOrdenado(int idPessoaSocio);

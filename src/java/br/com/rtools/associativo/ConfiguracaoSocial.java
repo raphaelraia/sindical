@@ -51,6 +51,10 @@ public class ConfiguracaoSocial implements Serializable {
     private Integer mesesDebitoInativacao;
     @Column(name = "is_inativa_oposicao", columnDefinition = "boolean default true")
     private Boolean inativaOposicao;
+    @Column(name = "is_bloqueia_convite_oposicao", columnDefinition = "boolean default false")
+    private Boolean bloqueiaConviteOposicao;
+    @Column(name = "is_libera_convite_dia", columnDefinition = "boolean default false")
+    private Boolean liberaConviteDia;
     
 
     public ConfiguracaoSocial() {
@@ -68,9 +72,11 @@ public class ConfiguracaoSocial implements Serializable {
         this.validadeMesesCartaoAcademia = 12;
         this.mesesDebitoInativacao = 6;
         this.inativaOposicao = true;
+        this.bloqueiaConviteOposicao = false;
+        this.liberaConviteDia = false;
     }
 
-    public ConfiguracaoSocial(Integer id, Integer diasInativaDemissionado, Date dataInativacaoDemissionado, GrupoCategoria grupoCategoriaInativaDemissionado, Boolean inativaDemissionado, Boolean recebeAtrasado, Boolean controlaCartaoFilial, Integer cartaoDigitos, Integer cartaoPosicaoVia, Integer cartaoPosicaoCodigo, String obsDescontoFolha, Integer validadeMesesCartaoAcademia, Integer mesesDebitoInativacao, Boolean inativaOposicao) {
+    public ConfiguracaoSocial(Integer id, Integer diasInativaDemissionado, Date dataInativacaoDemissionado, GrupoCategoria grupoCategoriaInativaDemissionado, Boolean inativaDemissionado, Boolean recebeAtrasado, Boolean controlaCartaoFilial, Integer cartaoDigitos, Integer cartaoPosicaoVia, Integer cartaoPosicaoCodigo, String obsDescontoFolha, Integer validadeMesesCartaoAcademia, Integer mesesDebitoInativacao, Boolean inativaOposicao, Boolean bloqueiaConviteOposicao, Boolean liberaConviteDia) {
         this.id = id;
         this.diasInativaDemissionado = diasInativaDemissionado;
         this.dataInativacaoDemissionado = dataInativacaoDemissionado;
@@ -85,6 +91,8 @@ public class ConfiguracaoSocial implements Serializable {
         this.validadeMesesCartaoAcademia = validadeMesesCartaoAcademia;
         this.mesesDebitoInativacao = mesesDebitoInativacao;
         this.inativaOposicao = inativaOposicao;
+        this.bloqueiaConviteOposicao = bloqueiaConviteOposicao;
+        this.liberaConviteDia = liberaConviteDia;
     }
 
     public Integer getId() {
@@ -209,5 +217,21 @@ public class ConfiguracaoSocial implements Serializable {
 
     public void setInativaOposicao(Boolean inativaOposicao) {
         this.inativaOposicao = inativaOposicao;
+    }
+
+    public Boolean getBloqueiaConviteOposicao() {
+        return bloqueiaConviteOposicao;
+    }
+
+    public void setBloqueiaConviteOposicao(Boolean bloqueiaConviteOposicao) {
+        this.bloqueiaConviteOposicao = bloqueiaConviteOposicao;
+    }
+
+    public Boolean getLiberaConviteDia() {
+        return liberaConviteDia;
+    }
+
+    public void setLiberaConviteDia(Boolean liberaConviteDia) {
+        this.liberaConviteDia = liberaConviteDia;
     }
 }

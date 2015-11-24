@@ -239,11 +239,32 @@ public class SociosDBToplink extends DB implements SociosDB {
         return socio;
     }
 
+
+    @Override
+    public Socios pesquisaSocioPorPessoaAtivoDocumento(String cpf) {
+        Socios soc = new Socios();
+        try {
+            Query qry = getEntityManager().createQuery(
+                    "  select s from Socios s"
+                    + " where s.servicoPessoa.pessoa.documento = :pcpf"
+                    + "   and s.servicoPessoa.ativo = true");
+            qry.setParameter("pcpf", cpf);
+            List list = qry.getResultList();
+            if (!list.isEmpty() && list.size() == 1) {
+                soc = (Socios) qry.getSingleResult();
+            }
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return soc;
+    }
+    
     @Override
     public Socios pesquisaSocioPorPessoaAtivo(int idPessoa) {
         Socios soc = new Socios();
         try {
-            Query qry = getEntityManager().createQuery("select s from Socios s"
+            Query qry = getEntityManager().createQuery(
+                    "  select s from Socios s"
                     + " where s.servicoPessoa.pessoa.id = :pid"
                     + "   and s.servicoPessoa.ativo = true");
             qry.setParameter("pid", idPessoa);

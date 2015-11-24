@@ -5,38 +5,25 @@
  */
 package br.com.rtools.utilitarios;
 
-import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
-import br.com.rtools.seguranca.utilitarios.SegurancaUtilitariosBean;
 import br.com.rtools.sistema.ConfiguracaoUpload;
-import static br.com.rtools.utilitarios.Diretorio.arquivo;
-import com.google.common.io.Files;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Scanner;
-import java.util.ServiceLoader;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
-import javax.faces.model.SelectItem;
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaCompiler;
 import javax.tools.StandardJavaFileManager;
-import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
-import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.JavaFileObject;
 import org.apache.commons.io.FileUtils;
 import org.primefaces.event.FileUploadEvent;

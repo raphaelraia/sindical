@@ -99,7 +99,7 @@
                                 </p:dataTable>
                             </p:panel>
 
-                            <p:dialog id="i_adicionar" widgetVar="dlg_adicionar" modal="true" header="Cadastro de Convite" width="1050" visible="#{conviteMovimentoBean.visibility}" height="620">
+                            <p:dialog id="i_adicionar" widgetVar="dlg_adicionar" modal="true" header="Cadastro de Convite" width="1050" visible="#{conviteMovimentoBean.visibility}" position="top" height="620">
                                 <p:ajax event="close" listener="#{conviteMovimentoBean.close}"/> 
 
                                 <p:panel >
@@ -168,7 +168,7 @@
                                                 <h:column>        
                                                     <p:outputLabel value="RG" style="font-weight: bold"/><br />
                                                     <p:inputText value="#{conviteMovimentoBean.conviteMovimento.sisPessoa.rg}" disabled="#{conviteMovimentoBean.conviteMovimento.id != -1}" style="width: 120px; font-weight: bold; opacity: 0.8">
-
+                                                        <p:ajax event="change" listener="#{conviteMovimentoBean.pesquisaSisPessoaRG()}" update="@this i_panel_adicionar"/>
                                                     </p:inputText>
                                                 </h:column>        
 
@@ -235,18 +235,25 @@
                                                 </h:column>
                                             </h:panelGrid>
 
-                                            <h:panelGrid columns="2">
+                                            <h:panelGrid columns="3">
                                                 <h:column>
                                                     <p:outputLabel value="Serviços" style="font-weight: bold" /><br />
-                                                    <p:selectOneMenu value="#{conviteMovimentoBean.idServico}" disabled="#{conviteMovimentoBean.conviteMovimento.id != -1}" style="width: 435px; opacity: 0.8;">
-                                                        <p:ajax event="change" update="form_convite" listener="#{conviteMovimentoBean.loadValor()}" />
+                                                    <p:selectOneMenu value="#{conviteMovimentoBean.idServico}" disabled="#{conviteMovimentoBean.conviteMovimento.id != -1}" style="width: 335px; opacity: 0.8;">
+                                                        <p:ajax event="change" update="form_convite" listener="#{conviteMovimentoBean.atualizaDescontoValor()}" />
                                                         <f:selectItems value="#{conviteMovimentoBean.conviteServicos}" />
                                                     </p:selectOneMenu>
                                                 </h:column>
 
                                                 <h:column>
+                                                    <p:outputLabel value="Desconto" style="font-weight: bold" /><br />
+                                                    <p:inputText value="#{conviteMovimentoBean.conviteMovimento.descontoString}" disabled="#{conviteMovimentoBean.disabledValor or conviteMovimentoBean.conviteMovimento.id != -1}" style="text-align: right; width: 100px; font-weight: bold; #{(conviteMovimentoBean.disabledValor or conviteMovimentoBean.conviteMovimento.id != -1) ? 'opacity: 0.7' : ''}">
+                                                        <p:ajax event="change" listener="#{conviteMovimentoBean.atualizaDescontoValor}" update="form_convite" oncomplete="PF('dgl_panel_mensagem').show();"/>
+                                                    </p:inputText>
+                                                </h:column>
+                                                
+                                                <h:column>
                                                     <p:outputLabel value="Valor" style="font-weight: bold" /><br />
-                                                    <p:inputText value="#{conviteMovimentoBean.valorString}" id="id_valor_servico" disabled="#{conviteMovimentoBean.disabledValor}" style="text-align: right; width: 100px; font-weight: bold; #{conviteMovimentoBean.disabledValor ? 'opacity: 0.7' : ''}"/>
+                                                    <p:inputText value="#{conviteMovimentoBean.valorString}" id="id_valor_servico" disabled="#{conviteMovimentoBean.disabledValor or conviteMovimentoBean.conviteMovimento.id != -1}" style="text-align: right; width: 100px; font-weight: bold; #{(conviteMovimentoBean.disabledValor or conviteMovimentoBean.conviteMovimento.id != -1) ? 'opacity: 0.7' : ''}"/>
                                                 </h:column>
                                             </h:panelGrid>
                                             <hr />
@@ -301,7 +308,7 @@
                                         <p:commandButton value="Salvar" onclick="PF('dgl_panel_salvar').show()" disabled="#{controleAcessoBean.botaoSalvar}" />
                                         <p:commandButton value="Novo" action="#{conviteMovimentoBean.novo}" update="form_convite"/>
                                         <p:commandButton value="Excluir" onclick="PF('dgl_panel_excluir').show()"  disabled="#{controleAcessoBean.botaoExcluir}" />
-                                        
+
                                         <h:column rendered="#{conviteMovimentoBean.renderedImpressao}">
                                             <h:commandLink action="#{imprimirConviteClube.imprimir(conviteMovimentoBean.conviteMovimento)}" target="_blank" disabled="#{conviteMovimentoBean.disabledConviteVencido}">
                                                 <p:button icon="ui-icon-print"  value="Imprimir"></p:button>
@@ -325,6 +332,7 @@
                                     </h:panelGrid>
                                 </center>
                             </p:dialog>
+
                             <p:dialog id="i_panel_excluir" widgetVar="dgl_panel_excluir"  modal="true" resizable="true" header="Deseja excluir este registro?" width="300">
                                 <center>
                                     <h:panelGrid columns="2">
@@ -332,13 +340,15 @@
                                         <p:commandButton value="Não" title="Cancelar" onclick="PF('dgl_panel_excluir').hide();"/>
                                     </h:panelGrid>
                                 </center>
-                            </p:dialog>                    
-                            <p:dialog id="id_panel_mensagem" widgetVar="dgl_panel_mensagem" modal="true" header="Mensagem" width="300">
+                            </p:dialog>    
+
+                            <p:dialog id="id_panel_mensagem" widgetVar="dgl_panel_mensagem" modal="true" header="Mensagem" width="500">
                                 <center>
-                                    <h:panelGrid id="out_mensagem">
-                                        <p:outputLabel value="#{conviteMovimentoBean.message}" />                            
+                                    <h:panelGrid id="out_mensagem" style="width: 100%">
+                                        <p:messages showDetail="true" style="font-size: 11pt!important"/>
                                     </h:panelGrid> 
-                                    <p:commandButton value="Ok" title="Ok" onclick="PF('dgl_panel_mensagem').hide();" />
+                                    <br />
+                                    <p:commandButton icon="ui-icon-circle-check" value="OK" title="OK" onclick="PF('dgl_panel_mensagem').hide();" />
                                 </center>
                             </p:dialog>                    
                         </h:form>                    

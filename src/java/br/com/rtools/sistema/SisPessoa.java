@@ -2,12 +2,7 @@ package br.com.rtools.sistema;
 
 import br.com.rtools.endereco.Endereco;
 import br.com.rtools.pessoa.Fisica;
-import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.TipoDocumento;
-import br.com.rtools.pessoa.db.FisicaDB;
-import br.com.rtools.pessoa.db.FisicaDBToplink;
-import br.com.rtools.pessoa.db.JuridicaDB;
-import br.com.rtools.pessoa.db.JuridicaDBToplink;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.DataHoje;
 import java.io.File;

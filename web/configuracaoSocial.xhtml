@@ -67,12 +67,12 @@
                                             <f:selectItems value="#{configuracaoSocialBean.listaGrupoCategoria}"/>
                                         </p:selectOneMenu>
                                     </h:column>
-                                    
+
                                     <h:column>
                                         <p:outputLabel value="Meses débito inativação" /><br />
                                         <p:inputText value="#{configuracaoSocialBean.configuracaoSocial.mesesDebitoInativacao}" style="margin-right: 20px; text-align: right"/>
                                     </h:column>
-                                    
+
                                     <h:column>
                                         <br />
                                         <p:selectBooleanCheckbox value="#{configuracaoSocialBean.configuracaoSocial.inativaOposicao}" style="margin-right: 20px" itemLabel="Inativa por Oposição?"/>
@@ -106,7 +106,7 @@
 
                             <p:panel styleClass="margin-top-max">
                                 <p:outputLabel value="Controle Catraca" style="font-weight: bold; font-size: 11pt!important"/>
-                                <h:panelGrid columns="3" style="width: 40%">
+                                <h:panelGrid columns="5" style="width: 70%">
                                     <h:column>
                                         <p:outputLabel value="Cartão Dígitos" /><br />
                                         <p:inputText value="#{configuracaoSocialBean.configuracaoSocial.cartaoDigitos}" style="width: 80px"/>
@@ -121,6 +121,16 @@
                                         <p:outputLabel value="Cartão Posição Código" /><br />
                                         <p:inputText value="#{configuracaoSocialBean.configuracaoSocial.cartaoPosicaoCodigo}" style="width: 130px"/>
                                     </h:column>
+
+                                    <h:column>
+                                        <br />
+                                        <p:selectBooleanCheckbox value="#{configuracaoSocialBean.configuracaoSocial.liberaConviteDia}" style="margin-right: 20px" itemLabel="Libera Convite por Dia?"/>
+                                    </h:column>
+                                    
+                                    <h:column>
+                                        <br />
+                                        <p:selectBooleanCheckbox value="#{configuracaoSocialBean.configuracaoSocial.bloqueiaConviteOposicao}" style="margin-right: 20px" itemLabel="Bloqueia Convite com Oposição?"/>
+                                    </h:column>
                                 </h:panelGrid>
                             </p:panel>
 
@@ -130,7 +140,7 @@
                                     <p:inputTextarea value="#{configuracaoSocialBean.configuracaoSocial.obsDescontoFolha}" cols="120" maxlength="2000"/>
                                 </h:panelGrid>
                             </p:panel>
-                            
+
                             <p:commandButton value="Atualizar" action="#{configuracaoSocialBean.update()}" update=":formConfiguracaoSocial:" styleClass="margin-top-max"/>
                         </h:form>
                     </p:panel>

@@ -284,7 +284,7 @@ public class RelatorioHomologacaoBean implements Serializable {
                     operadorString = "** Web ** ";
                 }
             }
-            phs.add(new ParametroHomologacao(o.get(1), o.get(2), o.get(3), o.get(4), o.get(5), o.get(6), o.get(7), o.get(8), operadorString, o.get(10), o.get(11), o.get(12), o.get(13), o.get(13)));
+            phs.add(new ParametroHomologacao(o.get(1), o.get(2), o.get(3), o.get(4), o.get(5), o.get(6), o.get(7), o.get(8), operadorString, o.get(10), o.get(11), o.get(12), o.get(13), o.get(14)));
         }
         if (!phs.isEmpty()) {
             Jasper.TYPE = "paisagem";

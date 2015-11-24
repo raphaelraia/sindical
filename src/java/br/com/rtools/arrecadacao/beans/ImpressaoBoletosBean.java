@@ -566,18 +566,18 @@ public class ImpressaoBoletosBean implements Serializable {
 
     public String imprimirBoleto() {
         MovimentoDB db = new MovimentoDBToplink();
-        List<Movimento> lista = new ArrayList<Movimento>();
-        List<Float> listaValores = new ArrayList<Float>();
-        List<String> listaVencimentos = new ArrayList<String>();
-        Movimento mov = new Movimento();
+        List<Movimento> lista = new ArrayList();
+        List<Float> listaValores = new ArrayList();
+        List<String> listaVencimentos = new ArrayList();
 
         SegurancaUtilitariosBean su = new SegurancaUtilitariosBean();
         SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
 
         sv.abrirTransacao();
         for (int i = 0; i < listaMovGridSelecionada.size(); i++) {
-            mov = db.pesquisaCodigo(
-                    (Integer) listaMovGridSelecionada.get(i).getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getValor());
+            Movimento mov = db.pesquisaCodigo(
+                    (Integer) listaMovGridSelecionada.get(i).getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getValor()
+            );
             lista.add(mov);
             listaValores.add(mov.getValor());
             listaVencimentos.add(mov.getVencimento());
@@ -626,15 +626,12 @@ public class ImpressaoBoletosBean implements Serializable {
         ConvencaoDB dbConv = new ConvencaoDBToplink();
         SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
 
-        Relatorios relatorios = new Relatorios();
-        Juridica sindicato = new Juridica();
-        PessoaEndereco endSindicato = new PessoaEndereco();
-        PessoaEndereco endEmpresa = new PessoaEndereco();
-        PessoaEndereco endEscritorio = new PessoaEndereco();
+        
+        
+        
         List listaCnaes = new ArrayList();
-        TipoEndereco tipoEndereco = new TipoEndereco();
-        relatorios = db.pesquisaRelatoriosPorJasper("/Relatorios/ETCONTRIBUINTES6181.jasper");
-        tipoEndereco = (TipoEndereco) salvarAcumuladoDB.pesquisaCodigo(2, "TipoEndereco");
+        Relatorios relatorios = db.pesquisaRelatoriosPorJasper("/Relatorios/ETCONTRIBUINTES6181.jasper");
+        TipoEndereco tipoEndereco = (TipoEndereco) salvarAcumuladoDB.pesquisaCodigo(2, "TipoEndereco");
         // CONDICAO DO RELATORIO -----------------------------------------------------------
         condicao = "ativos";
 
@@ -682,8 +679,8 @@ public class ImpressaoBoletosBean implements Serializable {
             idsJuridica = idsJuridica + ((Integer) listaMovGridSelecionada.get(i).getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getValor());
         }
 
-        sindicato = dbJur.pesquisaCodigo(1);
-        endSindicato = dao.pesquisaEndPorPessoaTipo(1, 3);
+        Juridica sindicato = dbJur.pesquisaCodigo(1);
+        PessoaEndereco endSindicato = dao.pesquisaEndPorPessoaTipo(1, 3);
         List<Juridica> result = new ArrayList();
         if (!resultCnaeConvencao.isEmpty() && !listaCnaes.isEmpty() && !idsJuridica.isEmpty()) {
             result = dbContri.listaRelatorioContribuintesPorJuridica(condicao, escritorios, pCidade, cidades, ordem, cnaes, tipoEndereco.getId(), idsJuridica);
@@ -701,7 +698,7 @@ public class ImpressaoBoletosBean implements Serializable {
             try {
                 String dados[] = new String[21];
                 for (int i = 0; i < result.size(); i++) {
-                    endEmpresa = dao.pesquisaEndPorPessoaTipo(result.get(i).getPessoa().getId(), tipoEndereco.getId());
+                    PessoaEndereco endEmpresa = dao.pesquisaEndPorPessoaTipo(result.get(i).getPessoa().getId(), tipoEndereco.getId());
                     try {
                         dados[0] = endEmpresa.getEndereco().getDescricaoEndereco().getDescricao();
                         dados[1] = endEmpresa.getEndereco().getLogradouro().getDescricao();
@@ -741,7 +738,7 @@ public class ImpressaoBoletosBean implements Serializable {
                     }
 
                     try {
-                        endEscritorio = dao.pesquisaEndPorPessoaTipo(result.get(i).getContabilidade().getPessoa().getId(), 2);
+                        PessoaEndereco endEscritorio = dao.pesquisaEndPorPessoaTipo(result.get(i).getContabilidade().getPessoa().getId(), 2);
                         dados[13] = endEscritorio.getEndereco().getDescricaoEndereco().getDescricao();
                         dados[14] = endEscritorio.getEndereco().getLogradouro().getDescricao();
                         dados[15] = endEscritorio.getNumero();
@@ -805,8 +802,6 @@ public class ImpressaoBoletosBean implements Serializable {
                             dados[11], // TELEFONE CONTABILIDADE
                             dados[12] // EMAIL CONTABILIDADE
                     ));
-                    endEmpresa = new PessoaEndereco();
-                    endEscritorio = new PessoaEndereco();
                 }
                 JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(listaContrs);
                 JasperPrint print = JasperFillManager.fillReport(

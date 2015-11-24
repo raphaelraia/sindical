@@ -333,7 +333,7 @@
 
                                 <p:dataTable var="listDependentes" id="tbl" value="#{sociosBean.listDependentes}" emptyMessage="Nenhum Dependente Adicionado." rowIndexVar="index" styleClass="margin-top">
                                     <p:column width="30">
-                                        <p:commandButton icon="ui-icon-close" action="#{sociosBean.excluirDependente(listDependentes, index)}" update=":formSocios:i_panel_dependente" title="Excluir dependente"/>
+                                        <p:commandButton icon="ui-icon-close" action="#{sociosBean.excluirDependente(listDependentes, index)}" update=":formSocios:i_panel_dependente" title="Excluir dependente" disabled="#{controleAcessoBean.verificarPermissao('linkDependente', 1)}" />
                                     </p:column>
 
                                     <p:column width="80">
@@ -378,7 +378,7 @@
                                 <h:panelGrid id="i_l_d_i">
                                     <p:dataTable value="#{sociosBean.listDependentesInativos}" var="listDependentesInativos" rowIndexVar="index" emptyMessage="Nenhum Dependente Inativo">
                                         <p:column style="text-align: center" width="30">
-                                            <p:commandButton title="Excluir" icon="ui-icon-close" update=":formSocios:i_panel_dependente :formSocios:i_growl :formSocios:i_l_d_i" action="#{sociosBean.excluirDependente(listDependentesInativos, index)}" disabled="#{controleAcessoBean.botaoExcluir}" />
+                                            <p:commandButton title="Excluir" icon="ui-icon-close" update=":formSocios:i_panel_dependente :formSocios:i_growl :formSocios:i_l_d_i" action="#{sociosBean.excluirDependente(listDependentesInativos, index)}" />
                                         </p:column>
                                         <p:column headerText="Nome">
                                             <h:outputLabel value="#{listDependentesInativos.fisica.pessoa.nome}" />

@@ -1893,6 +1893,7 @@ public class ImprimirBoleto {
                 }
 
                 lista.clear();
+                lista_socio.clear();
             }
 
             JRPdfExporter exporter = new JRPdfExporter();
