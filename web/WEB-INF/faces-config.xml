@@ -1842,6 +1842,12 @@
             <redirect/>
         </navigation-case>
         
+        <navigation-case>
+            <from-outcome>acessoCatracaServico</from-outcome>
+            <to-view-id>/acessoCatracaServico.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
         <!-- 
         <navigation-case>
             <from-outcome>#{navigationRules.param}</from-outcome>
