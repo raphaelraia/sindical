@@ -59,6 +59,47 @@ public class Implantacao {
         }
     }
 
+    public void importarParaHomologacao() {
+        if (getCliente().equals("ComercioRP")) {
+            DB db = new DB();
+            List<MemoryFile> listaDiretorios = Diretorio.listMemoryFiles("/Arquivos/Todos/");
+            Query query = null;
+            for (int i = 0; i < listaDiretorios.size(); i++) {
+                List<MemoryFile> listaArquivos = Diretorio.listMemoryFiles("/Arquivos/Todos/" + listaDiretorios.get(i).getName());
+                String data = listaDiretorios.get(i).getName().replace("_", "-");
+                for (int x = 0; x < listaArquivos.size(); x++) {
+                    String cpf = listaArquivos.get(x).getName().replace(".pdf", "");
+                    try {
+                        String queryString = ""
+                                + "     SELECT A.id AS agendamento_id,                                                \n"
+                                + "            P.ds_nome,                                                             \n"
+                                + "            P.ds_documento                                                         \n"
+                                + "       FROM pes_pessoa AS P                                                        \n"
+                                + " INNER JOIN pes_fisica AS F ON F.id_pessoa = P.id                                  \n"
+                                + " INNER JOIN pes_pessoa_empresa AS PE ON PE.id_fisica = F.id                        \n"
+                                + " INNER JOIN hom_agendamento AS A ON A.id_pessoa_empresa = PE.id                    \n"
+                                + "      WHERE dt_data = '" + data + "' \n"
+                                + "        AND replace(replace(ds_documento, '-', ''), '.', '') LIKE '" + cpf + "'";
+                        query = db.getEntityManager().createNativeQuery(queryString);
+                        List result = query.getResultList();
+                        List o = (List) result.get(0);
+                        Integer agendamento_id = (Integer) o.get(0);
+                        Diretorio.criar("Arquivos/homologacao/" + agendamento_id);
+                        String origem = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/Arquivos/Todos/" + listaDiretorios.get(i).getName() + "/" + listaArquivos.get(x).getName());
+                        String destino = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/Arquivos/homologacao/" + agendamento_id + "/" + listaArquivos.get(x).getName());
+                        File f = new File(origem);
+                        boolean mv = f.renameTo(new File(destino));
+                        if (mv) {
+                            mv = true;
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Data: " + data + " - CPF: " + cpf);
+                    }
+                }
+            }
+        }
+    }
+
     public static String getCliente() {
         if (cliente.equals("")) {
             if (GenericaSessao.exists("sessaoCliente")) {

@@ -17,28 +17,19 @@ public class RelatorioMovimentosDBToplink extends DB implements RelatorioMovimen
             int idConvencao, int idGrupoCidade, String idsCidades, String idsEsc, String inCnaes) {
         List result;
 
-        
-
-        String textQuery = 
-                "    FROM fin_movimento                AS mov                   \n "
-                + "  LEFT JOIN fin_baixa               AS lot              ON lot.id               = mov.id_baixa                               \n "
-                + "  LEFT JOIN fin_boleto              AS bol              ON bol.nr_ctr_boleto    = mov.nr_ctr_boleto                          \n "
-                + "  LEFT JOIN fin_conta_cobranca      AS cc               ON cc.id                = bol.id_conta_cobranca                      \n "
-                + " INNER JOIN pes_pessoa              AS pes              ON pes.id               = mov.id_pessoa                              \n "
-                + " INNER JOIN pes_tipo_documento      AS pdoc             ON pdoc.id              = pes.id_tipo_documento                      \n "
+        String textQuery
+                = "    FROM fin_movimento                AS mov                   \n "
                 + " INNER JOIN fin_servicos            AS se               ON se.id                = mov.id_servicos                            \n "
                 + " INNER JOIN fin_servico_rotina      AS ser              ON ser.id_servicos      = se.id AND ser.id_rotina = 4                \n "
+                + "  LEFT JOIN fin_baixa               AS lot              ON lot.id               = mov.id_baixa                               \n "
+                + " INNER JOIN pes_pessoa              AS pes              ON pes.id               = mov.id_pessoa                              \n "
+                + "  LEFT JOIN pes_juridica            AS jur              ON jur.id_pessoa        = pes.id                                     \n "
+                + "  LEFT JOIN pes_juridica            AS esc              ON esc.id               = jur.id_contabilidade                       \n "
+                + "  LEFT JOIN fin_boleto              AS bol              ON bol.nr_ctr_boleto    = mov.nr_ctr_boleto                          \n "
+                + "  LEFT JOIN fin_conta_cobranca      AS cc               ON cc.id                = bol.id_conta_cobranca                      \n "
+                + " INNER JOIN pes_tipo_documento      AS pdoc             ON pdoc.id              = pes.id_tipo_documento                      \n "
                 + " INNER JOIN fin_tipo_servico        AS ts               ON ts.id                = mov.id_tipo_servico                        \n "
-                + "  LEFT JOIN pes_juridica            AS jur              ON jur.id_pessoa        = pes.id                                     \n ";
-        // REMOVIDA EM 13/10/2015 - SOLICITAÇÃO DO ROGÉRIO, LENTIDÃO
-        // + "  LEFT JOIN arr_contribuintes_vw    AS C                ON C.id_juridica        = jur.id                                     \n ";
-//        if (condicao.equals("inativos") || condicao.equals("naoContribuintes")) {
-//            textQuery += " LEFT JOIN arr_contribuintes_inativos_agrupados_vw AS CI ON CI.id_juridica = C.id_juridica \n ";
-//        }
-        textQuery += " "
-                //+ "  LEFT JOIN fin_baixa               AS lot              ON lot.id               = mov.id_baixa                                                                       \n "
-                + "  LEFT JOIN pes_juridica            AS esc              ON esc.id               = jur.id_contabilidade                                                               \n "
-                + "  LEFT JOIN pes_pessoa              AS pesc             ON pesc.id              = esc.id_pessoa                                                                      \n "
+                + "  LEFT JOIN pes_pessoa              AS pesc             ON pesc.id              = esc.id_pessoa                              \n "
                 + "  LEFT JOIN pes_tipo_documento      AS escdoc           ON escdoc.id            = pes.id_tipo_documento                                                              \n "
                 + "  LEFT JOIN pes_cnae                AS cnae             ON cnae.id              = jur.id_cnae                                                                        \n "
                 + "  LEFT JOIN pes_pessoa_endereco     AS pes_pend         ON pes_pend.id_pessoa   = pes.id AND (pes_pend.id_tipo_endereco = 2 OR pes_pend.id_tipo_endereco IS NULL)    \n "
@@ -54,8 +45,14 @@ public class RelatorioMovimentosDBToplink extends DB implements RelatorioMovimen
                 + "  LEFT JOIN end_bairro              AS esc_bairro       ON esc_bairro.id        = esc_end.id_bairro                                                                  \n "
                 + "  LEFT JOIN end_cidade              AS esc_cidade       ON esc_cidade.id        = esc_end.id_cidade                                                                  \n "
                 + "  LEFT JOIN seg_usuario             AS us               ON us.id                = lot.id_usuario                                                                     \n "
-                + "  LEFT JOIN pes_pessoa              AS upes             ON upes.id              = us.id_pessoa                                                                       \n ";
+                + "  LEFT JOIN pes_pessoa              AS upes             ON upes.id              = us.id_pessoa ";
+        // REMOVIDA EM 13/10/2015 - SOLICITAÇÃO DO ROGÉRIO, LENTIDÃO
+        // + "  LEFT JOIN arr_contribuintes_vw    AS C                ON C.id_juridica        = jur.id                                     \n ";
+//        if (condicao.equals("inativos") || condicao.equals("naoContribuintes")) {
+//            textQuery += " LEFT JOIN arr_contribuintes_inativos_agrupados_vw AS CI ON CI.id_juridica = C.id_juridica \n ";
+//        }
 
+                //+ "  LEFT JOIN fin_baixa               AS lot              ON lot.id               = mov.id_baixa                                                                       \n "                                                                   \n ";
         // CONDICAO -----------------------------------------------------
         textQuery += " WHERE mov.is_ativo = true \n";
         switch (condicao) {
@@ -146,7 +143,7 @@ public class RelatorioMovimentosDBToplink extends DB implements RelatorioMovimen
                         textQuery += " AND mov.id_baixa = lot.id \n "
                                 + " AND lot.dt_importacao >= '" + DataHoje.converteData(dtInicial) + "' \n "
                                 + " AND lot.dt_importacao <= '" + DataHoje.converteData(dtFinal) + "' \n ";
-                        
+
                         data_mes = "extract(month from lot.dt_importacao)";
                         data_ano = "extract(year from lot.dt_importacao)";
                         break;
@@ -154,14 +151,14 @@ public class RelatorioMovimentosDBToplink extends DB implements RelatorioMovimen
                         textQuery += " AND mov.id_baixa = lot.id \n "
                                 + " AND lot.dt_baixa >= '" + DataHoje.converteData(dtInicial) + "' \n "
                                 + " AND lot.dt_baixa <= '" + DataHoje.converteData(dtFinal) + "' \n ";
-                        
+
                         data_mes = "extract(month from lot.dt_baixa)";
                         data_ano = "extract(year from lot.dt_baixa)";
                         break;
                     case "vencimento":
                         textQuery += " AND mov.dt_vencimento >= '" + DataHoje.converteData(dtInicial) + "' \n "
                                 + " AND mov.dt_vencimento <= '" + DataHoje.converteData(dtFinal) + "' \n ";
-                        
+
                         data_mes = "extract(month from mov.dt_vencimento)";
                         data_ano = "extract(year from mov.dt_vencimento)";
                         break;
@@ -170,8 +167,8 @@ public class RelatorioMovimentosDBToplink extends DB implements RelatorioMovimen
                 String ini = dtRefInicial.substring(3, 7) + dtRefInicial.substring(0, 2);
                 String fin = dtRefFinal.substring(3, 7) + dtRefFinal.substring(0, 2);
                 textQuery += " AND concatenar(substring(mov.ds_referencia, 4, 8), substring(mov.ds_referencia, 0, 3)) >=  \'" + ini + "\' \n "
-                           + " AND concatenar(substring(mov.ds_referencia, 4, 8), substring(mov.ds_referencia, 0, 3)) <=  \'" + fin + "\' \n ";
-                
+                        + " AND concatenar(substring(mov.ds_referencia, 4, 8), substring(mov.ds_referencia, 0, 3)) <=  \'" + fin + "\' \n ";
+
                 data_mes = "cast(substring(mov.ds_referencia, 0, 3) as double precision)";
                 data_ano = "cast(substring(mov.ds_referencia, 4, 8) as double precision)";
             }
@@ -195,10 +192,10 @@ public class RelatorioMovimentosDBToplink extends DB implements RelatorioMovimen
         if (!idsCidades.isEmpty()) {
             textQuery += " AND pes_cidade.id in (" + idsCidades + ") \n ";
         }
-        
+
         String[] montaqry = objetoRelatorio(relatorios, data_mes, data_ano);
         textQuery = montaqry[0] + textQuery;
-        
+
         // SE NÃO TER GRUPO
         if (montaqry[1].isEmpty()) {
 
@@ -268,8 +265,8 @@ public class RelatorioMovimentosDBToplink extends DB implements RelatorioMovimen
         if (relatorio.getId() == 66) {
             // RESUMO CONTRIBUICOES
             select = "-- RelatorioMovimentosDBToplink - listaMovimentos;           \n\n"
-                    + "SELECT "+mes+" as mes, \n "
-                    + "      "+ano+" as ano, \n "
+                    + "SELECT " + mes + " as mes, \n "
+                    + "      " + ano + " as ano, \n "
                     + "      se.ds_descricao as contribuicao, \n "
                     + "      sum(mov.nr_valor_baixa) as valor_recebido, \n "
                     + "      sum(mov.nr_taxa) as taxa, \n "
@@ -281,8 +278,8 @@ public class RelatorioMovimentosDBToplink extends DB implements RelatorioMovimen
         } else if (relatorio.getId() == 67) {
             // RESUMO CONTRIBUICOES POR EMPRESA
             select = "-- RelatorioMovimentosDBToplink - listaMovimentos;           \n\n"
-                    + "SELECT "+mes+" as mes, \n "
-                    + "      "+ano+" as ano, \n "
+                    + "SELECT " + mes + " as mes, \n "
+                    + "      " + ano + " as ano, \n "
                     + "      pes.ds_documento as cnpj, \n "
                     + "      pes.ds_nome as empresa, \n "
                     + "      se.ds_descricao as contribuicao, \n "
@@ -300,8 +297,8 @@ public class RelatorioMovimentosDBToplink extends DB implements RelatorioMovimen
         } else if (relatorio.getId() == 68) {
             // RESUMO CONTRIBUICOES ANALITICO
             select = "-- RelatorioMovimentosDBToplink - listaMovimentos;           \n\n"
-                    + "SELECT "+mes+" as mes, \n "
-                    + "      "+ano+" as ano, \n "
+                    + "SELECT " + mes + " as mes, \n "
+                    + "      " + ano + " as ano, \n "
                     + "      se.ds_descricao as contribuicao, \n "
                     + "      sum(mov.nr_valor_baixa) as valor_recebido, \n "
                     + "      sum(mov.nr_taxa) as taxa, \n "
