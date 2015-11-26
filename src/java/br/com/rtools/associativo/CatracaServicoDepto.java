@@ -9,7 +9,9 @@ import javax.persistence.*;
 @Table(name = "soc_catraca_servico_depto",
         uniqueConstraints = @UniqueConstraint(columnNames = {"id_servico", "id_departamento"})
 )
-
+@NamedQueries({
+    @NamedQuery(name = "CatracaServicoDepto.findAll", query = "SELECT CSD FROM CatracaServicoDepto AS CSD ORDER BY CSD.departamento.descricao ASC, CSD.servicos.descricao ASC ")
+})
 public class CatracaServicoDepto implements Serializable {
 
     @Id
