@@ -131,9 +131,6 @@ public class MovimentosReceberSocialBean implements Serializable {
 
     private boolean booAcrescimo = true;
 
-    private List<DataObject> listaBoletosAbertos = new ArrayList();
-    private List<DataObject> listaBoletosAbertosSelecionados = new ArrayList();
-
     private List<Movimento> listaMovimentosAnexo = new ArrayList();
     private List<Movimento> listaMovimentosAnexoSelecionados = new ArrayList();
 
@@ -148,9 +145,14 @@ public class MovimentosReceberSocialBean implements Serializable {
     private String criterioReferencia = "";
     private String criterioLoteBaixa = "";
 
-    private List<Movimento> listaMovimentoDoBoletoSelecionado = new ArrayList();
-
     private String motivoEstorno = "";
+
+    private List<LinhaBoletosAnexo> listaBoletosAnexo = new ArrayList();
+    private List<LinhaBoletosAnexo> listaBoletosAnexoSelecionado = new ArrayList();
+    private List<LinhaMovimentoDoBoleto> listaMovimentoDoBoleto = new ArrayList();
+    
+    private Boolean visibleAnexar = false;
+    private LinhaBoletosAnexo linhaBoletosAnexo = null;
 
     @PostConstruct
     public void init() {
@@ -167,6 +169,25 @@ public class MovimentosReceberSocialBean implements Serializable {
     public void destroy() {
         //GenericaSessao.remove("movimentosReceberSocialBean");
         GenericaSessao.remove("usuarioAutenticado");
+    }
+
+    public void loadListaMovimentoDoBoleto(LinhaBoletosAnexo lma) {
+        if (lma != null)
+            linhaBoletosAnexo = lma;
+        
+        listaMovimentoDoBoleto.clear();
+
+        MovimentosReceberSocialDB db = new MovimentosReceberSocialDBToplink();
+        List<Movimento> l_movimento = db.listaMovimentosPorNrCtrBoleto(linhaBoletosAnexo.getBoleto().getNrCtrBoleto());
+
+        for (Movimento m : l_movimento) {
+            listaMovimentoDoBoleto.add(
+                    new LinhaMovimentoDoBoleto(
+                            false,
+                            m
+                    )
+            );
+        }
     }
 
     public void clickCriteriosDeBusca() {
@@ -258,14 +279,17 @@ public class MovimentosReceberSocialBean implements Serializable {
 
         dao.openTransaction();
         if (movimentoRemover == null) {
-            for (Movimento m : listaMovimentoDoBoletoSelecionado) {
-                m.setNrCtrBoleto("");
-                m.setDocumento("");
+            for (LinhaMovimentoDoBoleto lmb : listaMovimentoDoBoleto) {
+                if (lmb.getSelecionado()) {
+                    lmb.getMovimento().setNrCtrBoleto("");
+                    lmb.getMovimento().setDocumento("");
 
-                if (!dao.update(m)) {
-                    GenericaMensagem.error("Erro", "Não foi possível atualizar Movimento, tente novamente!");
-                    dao.rollback();
-                    return;
+                    if (!dao.update(lmb.getMovimento())) {
+                        GenericaMensagem.error("Erro", "Não foi possível atualizar Movimento, tente novamente!");
+                        dao.rollback();
+                        return;
+                    }
+
                 }
             }
         } else {
@@ -282,25 +306,30 @@ public class MovimentosReceberSocialBean implements Serializable {
 
         loadBoletosAbertos();
         loadMovimentosAnexo();
+        loadListaMovimentoDoBoleto(null);
         movimentoRemover = null;
-        listaMovimentoDoBoletoSelecionado.clear();
+        
+        //listaMovimentoDoBoletoSelecionado.clear();
     }
 
     public void loadBoletosAbertos() {
-        listaBoletosAbertos.clear();
-        listaBoletosAbertosSelecionados.clear();
+//        listaBoletosAbertos.clear();
+//        listaBoletosAbertosSelecionados.clear();
+
+        listaBoletosAnexo.clear();
+        listaBoletosAnexoSelecionado.clear();
 
         MovimentosReceberSocialDB db = new MovimentosReceberSocialDBToplink();
 
         List<Vector> result = db.listaBoletosAbertosAgrupado(pessoa.getId(), chkBoletosAtrasados);
 
         for (List linha : result) {
+            listaBoletosAnexo.add(
+                    // [0] - b.id, [1] - b.nr_ctr_boleto, [2] - b.ds_boleto, [3] - sum(m.nr_valor), [4] - b.dt_vencimento, [5] - b.dt_vencimento_original, [6] - b.ds_mensagem 
 
-            listaBoletosAbertos.add(
-                    new DataObject(
-                            linha, // ARGUMENTO 0 || 0 - fin_boleto.id, 1 - fin_boleto.nr_ctr_boleto, sum(fin.movimento.nr_valor)
-                            new Dao().find(new Boleto(), linha.get(0)), // ARGUMENTO 1 || Boleto 
-                            db.listaMovimentosPorNrCtrBoleto(linha.get(1).toString()) // ARGUMENTO 2 || List<Movimento>
+                    new LinhaBoletosAnexo(
+                            linha,
+                            (Boleto) new Dao().find(new Boleto(), linha.get(0))
                     )
             );
 
@@ -320,8 +349,10 @@ public class MovimentosReceberSocialBean implements Serializable {
         if (movimento != null) {
             movimentoRemover = (Movimento) new Dao().rebind(movimento);
         } else {
-            for (int i = 0; i < listaMovimentoDoBoletoSelecionado.size(); i++) {
-                listaMovimentoDoBoletoSelecionado.set(i, (Movimento) new Dao().rebind(listaMovimentoDoBoletoSelecionado.get(i)));
+            for (LinhaMovimentoDoBoleto lmb : listaMovimentoDoBoleto) {
+                if (lmb.getSelecionado()) {
+                    lmb.setMovimento((Movimento) new Dao().rebind(lmb.getMovimento()));
+                }
             }
         }
     }
@@ -333,15 +364,16 @@ public class MovimentosReceberSocialBean implements Serializable {
         loadMovimentosAnexo();
 
         vencimentoNovoBoleto = "";
+        visibleAnexar = true;
     }
 
     public void anexarMovimentos() {
-        if (listaBoletosAbertosSelecionados.isEmpty()) {
+        if (listaBoletosAnexoSelecionado.isEmpty()) {
             GenericaMensagem.warn("Atenção", "Selecione um Boleto para Anexar Movimentos");
             return;
         }
 
-        if (listaBoletosAbertosSelecionados.size() > 1) {
+        if (listaBoletosAnexoSelecionado.size() > 1) {
             GenericaMensagem.warn("Atenção", "Apenas 1 Boleto pode ser selecionado para Anexar!");
             return;
         }
@@ -355,10 +387,8 @@ public class MovimentosReceberSocialBean implements Serializable {
 
         dao.openTransaction();
         for (Movimento mov : listaMovimentosAnexoSelecionados) {
-            //Movimento mov = (Movimento) dao.find(selecionados.getArgumento0());
-
-            mov.setNrCtrBoleto(((Boleto) listaBoletosAbertosSelecionados.get(0).getArgumento1()).getNrCtrBoleto());
-            mov.setDocumento(((Boleto) listaBoletosAbertosSelecionados.get(0).getArgumento1()).getBoletoComposto());
+            mov.setNrCtrBoleto(listaBoletosAnexoSelecionado.get(0).getBoleto().getNrCtrBoleto());
+            mov.setDocumento(listaBoletosAnexoSelecionado.get(0).getBoleto().getBoletoComposto());
 
             if (!dao.update(mov)) {
                 GenericaMensagem.error("Erro", "Não foi possível atualizar Movimento, tente novamente!");
@@ -368,7 +398,7 @@ public class MovimentosReceberSocialBean implements Serializable {
 
         dao.commit();
 
-        GenericaMensagem.info("Sucesso", "Movimentos Anexados ao Boleto " + ((Boleto) listaBoletosAbertosSelecionados.get(0).getArgumento1()).getBoletoComposto());
+        GenericaMensagem.info("Sucesso", "Movimentos Anexados ao Boleto " + listaBoletosAnexoSelecionado.get(0).getBoleto().getBoletoComposto());
 
         Object ob = dao.liveSingle("select func_boleto_vencimento_original()", true);
 
@@ -408,8 +438,12 @@ public class MovimentosReceberSocialBean implements Serializable {
 
     }
 
-    public void imprimirBoletos(int id_boleto) {
-        Boleto boletox = (Boleto) new Dao().find(new Boleto(), id_boleto);
+    public void imprimirBoletos(Integer id_boleto) {
+        Boleto boletox = null;
+        if (id_boleto == null)
+            boletox = (Boleto) new Dao().find(new Boleto(), linhaBoletosAnexo.getBoleto().getId());
+        else
+            boletox = (Boleto) new Dao().find(new Boleto(), id_boleto);
 
         ImprimirBoleto ib = new ImprimirBoleto();
         ib.imprimirBoletoSocial(boletox, "soc_boletos_geral_vw", false);
@@ -798,8 +832,8 @@ public class MovimentosReceberSocialBean implements Serializable {
                         (socios_enc.getMatriculaSocios().getId() == -1) ? "" : String.valueOf(socios_enc.getMatriculaSocios().getId()),
                         socios_enc.getMatriculaSocios().getCategoria().getCategoria(),
                         guia.getObservacao()
-                        //guia.getLote().getHistorico()
-                        //guia.getSubGrupoConvenio().getObservacao()
+                //guia.getLote().getHistorico()
+                //guia.getSubGrupoConvenio().getObservacao()
                 ));
 
                 JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(vetor);
@@ -1865,22 +1899,21 @@ public class MovimentosReceberSocialBean implements Serializable {
         this.booAcrescimo = booAcrescimo;
     }
 
-    public List<DataObject> getListaBoletosAbertos() {
-        return listaBoletosAbertos;
-    }
-
-    public void setListaBoletosAbertos(List<DataObject> listaBoletosAbertos) {
-        this.listaBoletosAbertos = listaBoletosAbertos;
-    }
-
-    public List<DataObject> getListaBoletosAbertosSelecionados() {
-        return listaBoletosAbertosSelecionados;
-    }
-
-    public void setListaBoletosAbertosSelecionados(List<DataObject> listaBoletosAbertosSelecionados) {
-        this.listaBoletosAbertosSelecionados = listaBoletosAbertosSelecionados;
-    }
-
+//    public List<DataObject> getListaBoletosAbertos() {
+//        return listaBoletosAbertos;
+//    }
+//
+//    public void setListaBoletosAbertos(List<DataObject> listaBoletosAbertos) {
+//        this.listaBoletosAbertos = listaBoletosAbertos;
+//    }
+//
+//    public List<DataObject> getListaBoletosAbertosSelecionados() {
+//        return listaBoletosAbertosSelecionados;
+//    }
+//
+//    public void setListaBoletosAbertosSelecionados(List<DataObject> listaBoletosAbertosSelecionados) {
+//        this.listaBoletosAbertosSelecionados = listaBoletosAbertosSelecionados;
+//    }
 //    public List<DataObject> getListaMovimentosAnexo() {
 //        return listaMovimentosAnexo;
 //    }
@@ -1959,14 +1992,14 @@ public class MovimentosReceberSocialBean implements Serializable {
     public void setCriterioLoteBaixa(String criterioLoteBaixa) {
         this.criterioLoteBaixa = criterioLoteBaixa;
     }
-
-    public List<Movimento> getListaMovimentoDoBoletoSelecionado() {
-        return listaMovimentoDoBoletoSelecionado;
-    }
-
-    public void setListaMovimentoDoBoletoSelecionado(List<Movimento> listaMovimentoDoBoletoSelecionado) {
-        this.listaMovimentoDoBoletoSelecionado = listaMovimentoDoBoletoSelecionado;
-    }
+//
+//    public List<Movimento> getListaMovimentoDoBoletoSelecionado() {
+//        return listaMovimentoDoBoletoSelecionado;
+//    }
+//
+//    public void setListaMovimentoDoBoletoSelecionado(List<Movimento> listaMovimentoDoBoletoSelecionado) {
+//        this.listaMovimentoDoBoletoSelecionado = listaMovimentoDoBoletoSelecionado;
+//    }
 
     public DataObject getObjectMensagem() {
         return objectMensagem;
@@ -1984,6 +2017,107 @@ public class MovimentosReceberSocialBean implements Serializable {
         this.motivoEstorno = motivoEstorno;
     }
 
+    public List<LinhaBoletosAnexo> getListaBoletosAnexo() {
+        return listaBoletosAnexo;
+    }
+
+    public void setListaBoletosAnexo(List<LinhaBoletosAnexo> listaBoletosAnexo) {
+        this.listaBoletosAnexo = listaBoletosAnexo;
+    }
+
+    public List<LinhaBoletosAnexo> getListaBoletosAnexoSelecionado() {
+        return listaBoletosAnexoSelecionado;
+    }
+
+    public void setListaBoletosAnexoSelecionado(List<LinhaBoletosAnexo> listaBoletosAnexoSelecionado) {
+        this.listaBoletosAnexoSelecionado = listaBoletosAnexoSelecionado;
+    }
+
+    public List<LinhaMovimentoDoBoleto> getListaMovimentoDoBoleto() {
+        return listaMovimentoDoBoleto;
+    }
+
+    public void setListaMovimentoDoBoleto(List<LinhaMovimentoDoBoleto> listaMovimentoDoBoleto) {
+        this.listaMovimentoDoBoleto = listaMovimentoDoBoleto;
+    }
+
+    public Boolean getVisibleAnexar() {
+        return visibleAnexar;
+    }
+
+    public void setVisibleAnexar(Boolean visibleAnexar) {
+        this.visibleAnexar = visibleAnexar;
+    }
+
+    public LinhaBoletosAnexo getLinhaBoletosAnexo() {
+        return linhaBoletosAnexo;
+    }
+
+    public void setLinhaBoletosAnexo(LinhaBoletosAnexo linhaBoletosAnexo) {
+        this.linhaBoletosAnexo = linhaBoletosAnexo;
+    }
+
+//    public List<Movimento> getListaMovimentoDoBoleto() {
+//        return listaMovimentoDoBoleto;
+//    }
+//
+//    public void setListaMovimentoDoBoleto(List<Movimento> listaMovimentoDoBoleto) {
+//        this.listaMovimentoDoBoleto = listaMovimentoDoBoleto;
+//    }
+    public class LinhaBoletosAnexo {
+
+        private List listaQuery;
+        private Boleto boleto;
+
+        public LinhaBoletosAnexo(List listaQuery, Boleto boleto) {
+            this.listaQuery = listaQuery;
+            this.boleto = boleto;
+        }
+
+        public Boleto getBoleto() {
+            return boleto;
+        }
+
+        public void setBoleto(Boleto boleto) {
+            this.boleto = boleto;
+        }
+
+        public List getListaQuery() {
+            return listaQuery;
+        }
+
+        public void setListaQuery(List listaQuery) {
+            this.listaQuery = listaQuery;
+        }
+    }
+
+    public class LinhaMovimentoDoBoleto {
+
+        private Boolean selecionado;
+        private Movimento movimento;
+
+        public LinhaMovimentoDoBoleto(Boolean selecionado, Movimento movimento) {
+            this.selecionado = selecionado;
+            this.movimento = movimento;
+        }
+
+        public Boolean getSelecionado() {
+            return selecionado;
+        }
+
+        public void setSelecionado(Boolean selecionado) {
+            this.selecionado = selecionado;
+        }
+
+        public Movimento getMovimento() {
+            return movimento;
+        }
+
+        public void setMovimento(Movimento movimento) {
+            this.movimento = movimento;
+        }
+
+    }
 //    public class MovimentosReceberSocial {
 //
 //        private Boolean selected;
@@ -2321,5 +2455,4 @@ public class MovimentosReceberSocialBean implements Serializable {
 //        }
 //
 //    }
-
 }

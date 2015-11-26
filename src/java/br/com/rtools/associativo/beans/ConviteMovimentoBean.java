@@ -45,6 +45,7 @@ import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.sistema.SisPessoa;
 import br.com.rtools.sistema.dao.SisPessoaDao;
+import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -53,6 +54,7 @@ import br.com.rtools.utilitarios.Mask;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.PF;
 import br.com.rtools.utilitarios.PhotoCapture;
+import br.com.rtools.utilitarios.ValidaDocumentos;
 import br.com.rtools.utilitarios.db.FunctionsDao;
 import java.io.File;
 import java.io.FileInputStream;
@@ -114,11 +116,11 @@ public class ConviteMovimentoBean implements Serializable {
     public void atualizaDescontoValor() {
         // loadValor() LIMPA O CAMPO DESCONTO, POR ISSO ELE É SETADO O ATUAL AQUI
         //String ds = conviteMovimento.getDescontoString();
-        
+
         loadValor();
         // DEVOLVE O DESCONTO DIGITADO DEPOIS DE TER SIDO APAGADO NO loadValor()
         //conviteMovimento.setDesconto(Moeda.converteUS$(ds));
-        
+
         float p_desconto = Moeda.converteUS$(Moeda.percentualDoValor(valorString, conviteMovimento.getDescontoString()));
         // DESCONTO NÃO PODE SER MAIOR QUE 80%, desconto setado igual a 20% onde 80 - 100 = 20
         // SE DESCONTO NÃO PODE SER MAIOR QUE 70%, desconto setado igual a 30% onde 70 - 100 = 30
@@ -195,7 +197,7 @@ public class ConviteMovimentoBean implements Serializable {
             disabledValor = true;
             valorString = "0,00";
         }
-        
+
         //conviteMovimento.setDesconto(0);
     }
 
@@ -256,6 +258,13 @@ public class ConviteMovimentoBean implements Serializable {
             //message = "Pesquisar sócio!";
             GenericaMensagem.warn("ATENÇÃO", "PESQUISAR SÓCIO!");
             return false;
+        }
+
+        if (!conviteMovimento.getSisPessoa().getDocumento().isEmpty()) {
+            if (!ValidaDocumentos.isValidoCPF(AnaliseString.extrairNumeros(conviteMovimento.getSisPessoa().getDocumento()))) {
+                GenericaMensagem.warn("ATENÇÃO", "CPF DIGITADO INVÁLIDO!");
+                return false;
+            }
         }
         if (conviteMovimento.getSisPessoa().getNome().isEmpty()) {
             //message = "Informar nome do convidado!";
@@ -615,9 +624,11 @@ public class ConviteMovimentoBean implements Serializable {
             conviteMovimento.getSisPessoa().setTipoDocumento(lf.get(0).getPessoa().getTipoDocumento());
             conviteMovimento.getSisPessoa().setTelefone(lf.get(0).getPessoa().getTelefone1());
 
-            conviteMovimento.getSisPessoa().setEndereco(lf.get(0).getPessoa().getPessoaEndereco().getEndereco());
-            conviteMovimento.getSisPessoa().setNumero(lf.get(0).getPessoa().getPessoaEndereco().getNumero());
-            conviteMovimento.getSisPessoa().setComplemento(lf.get(0).getPessoa().getPessoaEndereco().getComplemento());
+            if (lf.get(0).getPessoa().getPessoaEndereco() != null) {
+                conviteMovimento.getSisPessoa().setEndereco(lf.get(0).getPessoa().getPessoaEndereco().getEndereco());
+                conviteMovimento.getSisPessoa().setNumero(lf.get(0).getPessoa().getPessoaEndereco().getNumero());
+                conviteMovimento.getSisPessoa().setComplemento(lf.get(0).getPessoa().getPessoaEndereco().getComplemento());
+            }
 
             conviteMovimento.getSisPessoa().setFisica(lf.get(0));
             return lf;
@@ -665,10 +676,11 @@ public class ConviteMovimentoBean implements Serializable {
                 // SE FOR CHEIO PESSOA FISICA JÁ SETADA EM SIS PESSOA
                 if (lf.isEmpty()) {
                     String d = conviteMovimento.getSisPessoa().getDocumento();
-
+                    String r = conviteMovimento.getSisPessoa().getRg();
                     // LIMPA SE NÃO ENCONTROU O DOCUMENTO
                     conviteMovimento.setSisPessoa(new SisPessoa());
                     conviteMovimento.getSisPessoa().setDocumento(d);
+                    conviteMovimento.getSisPessoa().setRg(r);
                 }
             }
         }
@@ -778,7 +790,7 @@ public class ConviteMovimentoBean implements Serializable {
 
         atualizaDescontoValor();
         //valorString = Moeda.converteR$Float(Moeda.subtracaoValores(Moeda.converteUS$(valorString), conviteMovimento.getDesconto()));
-        
+
         visibility = true;
     }
 

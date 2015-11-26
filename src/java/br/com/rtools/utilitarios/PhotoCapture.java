@@ -35,6 +35,7 @@ public class PhotoCapture implements Serializable {
     private String tipo = "";
 
     public void open(String aSavePath, String aUpdate) {
+        unload();
         savePath = aSavePath;
         update = aUpdate;
         renderedPhotoCapture = true;
@@ -44,6 +45,7 @@ public class PhotoCapture implements Serializable {
     }
 
     public void openAndSave(Pessoa aPessoa, String aUpdate) {
+        unload();
         FisicaDB fisicaDB = new FisicaDBToplink();
         Fisica fisica_x = fisicaDB.pesquisaFisicaPorPessoa(aPessoa.getId());
         if (fisica_x != null) {
@@ -64,6 +66,7 @@ public class PhotoCapture implements Serializable {
     }
 
     public void openAndSave(Fisica aFisica, String aUpdate) {
+        unload();
         fisica = aFisica;
         update = aUpdate;
         renderedPhotoCapture = true;
@@ -73,6 +76,7 @@ public class PhotoCapture implements Serializable {
     }
 
     public void openAndSave(Juridica aJuridica, String aUpdate) {
+        unload();
         juridica = aJuridica;
         update = aUpdate;
         renderedPhotoCapture = true;
@@ -82,6 +86,7 @@ public class PhotoCapture implements Serializable {
     }
 
     public void openAndSave(SisPessoa aSisPessoa, String aTipo, String aUpdate) {
+        unload();
         sisPessoa = aSisPessoa;
         tipo = aTipo;
         update = aUpdate;
@@ -103,6 +108,8 @@ public class PhotoCapture implements Serializable {
         nameFile = "";
         fisica = null;
         juridica = null;
+        sisPessoa = null;
+        tipo = "";
     }
 
     public void capturar(CaptureEvent captureEvent) throws FileNotFoundException {

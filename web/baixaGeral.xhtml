@@ -49,7 +49,7 @@
 
                                         <p:column>
                                             <h:outputLabel value="Tipo de Recebimento" rendered="#{baixaGeralBean.tipo == 'banco' or baixaGeralBean.tipo == 'caixa'}" style="font-size: 12pt!important;"/><br />
-                                            <p:selectOneMenu style="margin-right: 20px; padding-right: 10px" value="#{baixaGeralBean.idConta}" disabled="#{baixaGeralBean.desHabilitaConta}" rendered="#{baixaGeralBean.tipo == 'caixa'}">
+                                            <p:selectOneMenu style="margin-right: 20px;" value="#{baixaGeralBean.idConta}" disabled="#{baixaGeralBean.desHabilitaConta}" rendered="#{baixaGeralBean.tipo == 'caixa'}">
                                                 <f:selectItems value="#{baixaGeralBean.listaConta}"/>
                                             </p:selectOneMenu>
                                             <br />
