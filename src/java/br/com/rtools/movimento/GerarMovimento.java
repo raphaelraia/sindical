@@ -159,68 +159,106 @@ public class GerarMovimento extends DB {
             /* ------------------------ ***/
             Integer count = 0;
             /* INSERÇÃO DE BOLETO */
-            for (int i = 0; i < 500; i++) {
-                queryString = ""
-                        + "     SELECT m.id                                             \n"
-                        + "       FROM fin_movimento AS m                               \n"
-                        + " INNER JOIN fin_lote AS l ON l.id = m.id_lote                \n"
-                        + " INNER JOIN fin_servico_conta_cobranca AS scc ON scc.id_servicos = m.id_servicos \n"
-                        + "        AND scc.id_tipo_servico = m.id_tipo_servico                              \n"
-                        + "      WHERE l.id_rotina = 4                                                      \n"
-                        + "        AND m.nr_ctr_boleto IS NULL                                              \n"
-                        + "        AND m.id_servicos > 0                                                    \n"
-                        + "        AND m.id_servicos IS NOT NULL                                            \n"
-                        + "        AND m.is_ativo = true                                                    \n"
-                        + "      LIMIT 50";
-                qry = getEntityManager().createNativeQuery(queryString);
-                List listResult = qry.getResultList();
+//            for (int i = 0; i < 500; i++) {
+//                queryString = ""
+//                        + "     SELECT m.id                                             \n"
+//                        + "       FROM fin_movimento AS m                               \n"
+//                        + " INNER JOIN fin_lote AS l ON l.id = m.id_lote                \n"
+//                        + " INNER JOIN fin_servico_conta_cobranca AS scc ON scc.id_servicos = m.id_servicos \n"
+//                        + "        AND scc.id_tipo_servico = m.id_tipo_servico                              \n"
+//                        + "      WHERE l.id_rotina = 4                                                      \n"
+//                        + "        AND m.nr_ctr_boleto IS NULL                                              \n"
+//                        + "        AND m.id_servicos > 0                                                    \n"
+//                        + "        AND m.id_servicos IS NOT NULL                                            \n"
+//                        + "        AND m.is_ativo = true                                                    \n"
+//                        + "      LIMIT 50";
+//                qry = getEntityManager().createNativeQuery(queryString);
+//                List listResult = qry.getResultList();
+//
+//                Integer size = listResult.size();
+//                count += size;
+//                if (size == 0) {
+//                    break;
+//                }
 
-                Integer size = listResult.size();
-                count += size;
-                if (size == 0) {
-                    break;
-                }
+//                textQry = "INSERT INTO fin_boleto (nr_ctr_boleto, is_ativo, id_conta_cobranca)              \n"
+//                        + "(    SELECT m.id AS nr_ctr_boleto,                                               \n"
+//                        + "            true AS is_ativo,                                                    \n"
+//                        + "            scc.id_conta_cobranca                                                \n"
+//                        + "       FROM fin_movimento AS m                                                   \n"
+//                        + " INNER JOIN fin_lote AS l ON l.id = m.id_lote                                    \n"
+//                        + " INNER JOIN fin_servico_conta_cobranca AS scc ON scc.id_servicos = m.id_servicos \n"
+//                        + "        AND scc.id_tipo_servico = m.id_tipo_servico                              \n"
+//                        + "      WHERE l.id_rotina = 4                                                      \n"
+//                        + "        AND m.nr_ctr_boleto IS NULL                                              \n"
+//                        + "        AND m.id_servicos > 0                                                    \n"
+//                        + "        AND m.id_servicos IS NOT NULL                                            \n"
+//                        + "        AND m.is_ativo = true                                                    \n"
+//                        //+ "      LIMIT " + size + "                                                                  \n"
+//                        + ");";
+//                qry = getEntityManager().createNativeQuery(textQry);
+//                if (qry.executeUpdate() <= 0) {
+//                    getEntityManager().getTransaction().rollback();
+//                    message[0] = 1;
+//                    message[1] = "Erro ao gravar boleto!";
+//                    return message;
+//                }
+//                /* ---------------------- ***/
+//                /* ---------------------- ***/
+//
+//                /* ATUALIZAÇÃO DE MOVIMENTO */
+//                textQry = "  UPDATE fin_movimento                                                                    \n"
+//                        + "     SET nr_ctr_boleto = text(fin_movimento.id), ds_documento = ds_boleto FROM fin_boleto \n"
+//                        + "   WHERE text(fin_movimento.id) = fin_boleto.nr_ctr_boleto                                \n"
+//                        + "     AND (fin_movimento.nr_ctr_boleto IS NULL OR length(fin_movimento.nr_ctr_boleto) = 0) \n";
+//                qry = getEntityManager().createNativeQuery(textQry);
+//                if (qry.executeUpdate() <= 0) {
+//                    getEntityManager().getTransaction().rollback();
+//                    message[0] = 1;
+//                    message[1] = "Erro ao atualizar movimentos!";
+//                    return message;
+//                }
+//                GenericaMensagem.info("Gerados...", sizeBoleto + " registros");
+//                PF.update("form_contribuicao_poll");
+//            }
 
-                textQry = "INSERT INTO fin_boleto (nr_ctr_boleto, is_ativo, id_conta_cobranca)              \n"
-                        + "(    SELECT m.id AS nr_ctr_boleto,                                               \n"
-                        + "            true AS is_ativo,                                                    \n"
-                        + "            scc.id_conta_cobranca                                                \n"
-                        + "       FROM fin_movimento AS m                                                   \n"
-                        + " INNER JOIN fin_lote AS l ON l.id = m.id_lote                                    \n"
-                        + " INNER JOIN fin_servico_conta_cobranca AS scc ON scc.id_servicos = m.id_servicos \n"
-                        + "        AND scc.id_tipo_servico = m.id_tipo_servico                              \n"
-                        + "      WHERE l.id_rotina = 4                                                      \n"
-                        + "        AND m.nr_ctr_boleto IS NULL                                              \n"
-                        + "        AND m.id_servicos > 0                                                    \n"
-                        + "        AND m.id_servicos IS NOT NULL                                            \n"
-                        + "        AND m.is_ativo = true                                                    \n"
-                        + "      LIMIT " + size + "                                                                  \n"
-                        + ");";
-                qry = getEntityManager().createNativeQuery(textQry);
-                if (qry.executeUpdate() <= 0) {
-                    getEntityManager().getTransaction().rollback();
-                    message[0] = 1;
-                    message[1] = "Erro ao gravar boleto!";
-                    return message;
-                }
-                /* ---------------------- ***/
-                /* ---------------------- ***/
-
-                /* ATUALIZAÇÃO DE MOVIMENTO */
-                textQry = "  UPDATE fin_movimento                                                                    \n"
-                        + "     SET nr_ctr_boleto = text(fin_movimento.id), ds_documento = ds_boleto FROM fin_boleto \n"
-                        + "   WHERE text(fin_movimento.id) = fin_boleto.nr_ctr_boleto                                \n"
-                        + "     AND (fin_movimento.nr_ctr_boleto IS NULL OR length(fin_movimento.nr_ctr_boleto) = 0) \n";
-                qry = getEntityManager().createNativeQuery(textQry);
-                if (qry.executeUpdate() <= 0) {
-                    getEntityManager().getTransaction().rollback();
-                    message[0] = 1;
-                    message[1] = "Erro ao atualizar movimentos!";
-                    return message;
-                }
-                GenericaMensagem.info("Gerando...", size + " de " + sizeBoleto);
-                PF.update("form_contribuicao_poll");
+            textQry = "INSERT INTO fin_boleto (nr_ctr_boleto, is_ativo, id_conta_cobranca)              \n"
+                    + "(    SELECT m.id AS nr_ctr_boleto,                                               \n"
+                    + "            true AS is_ativo,                                                    \n"
+                    + "            scc.id_conta_cobranca                                                \n"
+                    + "       FROM fin_movimento AS m                                                   \n"
+                    + " INNER JOIN fin_lote AS l ON l.id = m.id_lote                                    \n"
+                    + " INNER JOIN fin_servico_conta_cobranca AS scc ON scc.id_servicos = m.id_servicos \n"
+                    + "        AND scc.id_tipo_servico = m.id_tipo_servico                              \n"
+                    + "      WHERE l.id_rotina = 4                                                      \n"
+                    + "        AND m.nr_ctr_boleto IS NULL                                              \n"
+                    + "        AND m.id_servicos > 0                                                    \n"
+                    + "        AND m.id_servicos IS NOT NULL                                            \n"
+                    + "        AND m.is_ativo = true                                                    \n"
+                    + ");";
+            qry = getEntityManager().createNativeQuery(textQry);
+            if (qry.executeUpdate() <= 0) {
+                getEntityManager().getTransaction().rollback();
+                message[0] = 1;
+                message[1] = "Erro ao gravar boleto!";
+                return message;
             }
+            /* ---------------------- ***/
+            /* ---------------------- ***/
+
+            /* ATUALIZAÇÃO DE MOVIMENTO */
+            textQry = "  UPDATE fin_movimento                                                                    \n"
+                    + "     SET nr_ctr_boleto = text(fin_movimento.id), ds_documento = ds_boleto FROM fin_boleto \n"
+                    + "   WHERE text(fin_movimento.id) = fin_boleto.nr_ctr_boleto                                \n"
+                    + "     AND (fin_movimento.nr_ctr_boleto IS NULL OR length(fin_movimento.nr_ctr_boleto) = 0) \n";
+            qry = getEntityManager().createNativeQuery(textQry);
+            if (qry.executeUpdate() <= 0) {
+                getEntityManager().getTransaction().rollback();
+                message[0] = 1;
+                message[1] = "Erro ao atualizar movimentos!";
+                return message;
+            }
+
             log.save("Geracao geral: FIN_BOLETO - Data: " + DataHoje.data());
             log.save("Geracao geral: atualiza FIN_MOVIMENTO - Data: " + DataHoje.data());
             /* ---------------------- ***/
@@ -259,6 +297,7 @@ public class GerarMovimento extends DB {
         getEntityManager().getTransaction().commit();
         message[0] = 0;
         message[1] = "Gerado com sucesso! (" + sizeBoleto + " movimentos) ";
+        GenericaMensagem.info("Gerados...", sizeBoleto + " registros");
         return message;
     }
 
@@ -1189,7 +1228,7 @@ public class GerarMovimento extends DB {
                 return lista_log;
             }
         }
-        
+
         if (valor_baixa == soma) {
             // valor baixado corretamente
             for (Movimento movimento : lista_movimento) {
@@ -1201,10 +1240,10 @@ public class GerarMovimento extends DB {
                     lista_log[2] = "Erro ao alterar Movimento com Desconto e Valor Baixa";
                 }
             }
-        } else if (valor_baixa < (soma-0.03)) {
+        } else if (valor_baixa < (soma - 0.03)) {
             float acrescimo = Moeda.subtracaoValores(soma, valor_baixa);
             // valor da baixa é menor que os boletos ( O CLIENTE PAGOU MENOS )
-            
+
             // ROGÉRIO PEDIU PRA NÃO BAIXAR (CHAMADO 1095)
 //            for (Movimento movimento : lista_movimento) {
 //                float valor = 0, percentual = 0;
@@ -1224,10 +1263,10 @@ public class GerarMovimento extends DB {
 //            }
 //            sv.comitarTransacao();
             sv.desfazerTransacao();
-            
+
             String msg = "Valor do Boleto " + lista_movimento.get(0).getDocumento() + " - vencto. " + lista_movimento.get(0).getVencimento() + " - pag. " + data_pagamento + " MENOR com défit de " + Moeda.converteR$Float(acrescimo);
             BoletoNaoBaixado bnb = new BoletoNaoBaixado(-1, bol, msg, valor_baixa, DataHoje.dataHoje(), DataHoje.dataHoje());
-            
+
             sv.abrirTransacao();
             if (!sv.inserirObjeto(bnb)) {
                 sv.desfazerTransacao();
