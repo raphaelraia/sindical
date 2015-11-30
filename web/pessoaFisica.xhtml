@@ -375,6 +375,7 @@
                                     </p:tab>
 
                                     <p:tab title="Local de Trabalho" id="i_panel_profissao">
+                                        <h:column>
                                         <p:messages id="msg_local_trabalho" autoUpdate="true" showSummary="true" showDetail="true" closable="true"/>
                                         <h:panelGrid columns="2">
                                             <h:column>
@@ -438,7 +439,7 @@
                                         </h:panelGrid>
 
                                         <p:panel id="i_tbl_empresa" header="Outras Empresas" styleClass="margin-top-max">
-                                            <p:dataTable id="i_tbl_empresa_b" var="pessoaEmpresa" value="#{fisicaBean.listaPessoaEmpresa}" styleClass="margin-top-max" scrollable="true" scrollHeight="100" emptyMessage="Nenhum registro encontrado!">
+                                            <p:dataTable id="i_tbl_empresa_b" var="pessoaEmpresa" value="#{fisicaBean.listaPessoaEmpresa}" styleClass="margin-top-max" emptyMessage="Nenhum registro encontrado!">
                                                 <p:column headerText="Documento" style="width: 110px; text-align: center">
                                                     <p:outputLabel value="#{pessoaEmpresa.juridica.pessoa.documento}"/>
                                                 </p:column>
@@ -465,6 +466,7 @@
                                                 </p:column>                                
                                             </p:dataTable>
                                         </p:panel>
+                                        </h:column>
                                     </p:tab>
 
                                     <p:tab title="Complemento" id="i_tab_complemento">
