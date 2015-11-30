@@ -62,11 +62,13 @@ public class PesquisaEnderecoBean implements Serializable {
             case "pessoaFisica":
                 GenericaSessao.put("enderecoPesquisa", e);
                 PF.closeDialog("dlg_pesquisa_endereco");
-                PF.update("form_pessoa_fisica:");
+                PF.update("form_pessoa_fisica");
+                break;
             case "pessoaJuridica":
                 GenericaSessao.put("enderecoPesquisa", e);
                 PF.closeDialog("dlg_pesquisa_endereco");
-                PF.update("formPessoaJuridica:");
+                PF.update("formPessoaJuridica");
+                break;
         }
         return tcase;
     }
