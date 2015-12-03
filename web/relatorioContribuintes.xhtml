@@ -163,7 +163,7 @@
                                                 <p:ajax event="rowUnselectCheckbox" update="@this, :form_relatorio_contribuintes:id_acordion:tbl_cnae_convencaos, :form_relatorio_contribuintes:id_acordion:tbl_convencao :form_relatorio_contribuintes:id_acordion:tbl_grupos" />
                                                 <p:ajax event="rowUnselect" update="@this, :form_relatorio_contribuintes:id_acordion:tbl_cnae_convencaos, :form_relatorio_contribuintes:id_acordion:tbl_convencao :form_relatorio_contribuintes:id_acordion:tbl_grupos" />
                                                 <p:ajax event="toggleSelect" process="@this" update="@this, :form_relatorio_contribuintes:id_acordion:tbl_cnae_convencaos, :form_relatorio_contribuintes:id_acordion:tbl_convencao :form_relatorio_contribuintes:id_acordion:tbl_grupos"  />
-                                                <p:column selectionMode="multiple" width="20" styleClass="text-center" disabledSelection="true"/>
+                                                <p:column selectionMode="multiple" width="20" styleClass="text-center" />
                                                 <p:column headerText="Convenção">
                                                     <p:outputLabel value="#{convencao.descricao}"/>
                                                 </p:column>
