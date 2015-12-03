@@ -16,6 +16,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
@@ -213,7 +214,9 @@ public class Mail extends MailTemplate implements Serializable {
                         msg.setSubject(email.getAssunto());
                         msg.setContent(multipart);
                         msg.setSentDate(new Date());
-                        msg.setHeader("X-Mailer", "Tov Are's program");
+                        String id = UUID.randomUUID().toString();
+                        //msg.setHeader("X-Mailer", "Tov Are's program");
+                        msg.setHeader("Content-ID", "<" + id + ">");
                         Transport.send(msg);
                         boolean updateEmail = false;
                         if (emailPessoas.get(i).getPessoa() == null || emailPessoas.get(i).getPessoa().getId() == -1) {
