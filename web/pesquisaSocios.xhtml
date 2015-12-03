@@ -38,14 +38,14 @@
                                         <f:selectItem itemValue="socioativo"            itemLabel="Sócio Ativo"/>
                                         <f:selectItem itemValue="socioinativo"          itemLabel="Sócio Inativos"/>
                                     </p:selectOneMenu>                             
-                                    <p:inputMask id="id_desc_pesquisa" value="#{fisicaBean.descPesquisa}" size="50" mask="#{fisicaBean.mask}" placeholder="#{fisicaBean.porPesquisa.equals('endereco') ?  'Logradouro + Descrição Endereço + , + Número + - + Bairro' : ''}">
+                                    <p:inputMask id="id_desc_pesquisa" value="#{fisicaBean.descPesquisa}" size="50" mask="#{fisicaBean.mask}" placeholder="#{fisicaBean.porPesquisa eq 'endereco' ?  'Logradouro + Descrição Endereço + , + Número + - + Bairro' : ''}">
                                         <p:ajax event="change" update="@this" global="false" />
                                     </p:inputMask>
                                     <h:column>
                                         <h:panelGrid id="i_por">
                                             <h:column>
                                                 <h:panelGrid columns="2">
-                                                    <p:selectOneMenu value="#{fisicaBean.porPesquisa}" style="padding-right: 20px" rendered="#{!fisicaBean.pesquisaPor.equals('pessoa')}">
+                                                    <p:selectOneMenu value="#{fisicaBean.porPesquisa}" style="padding-right: 20px" rendered="#{fisicaBean.pesquisaPor ne 'pessoa'}">
                                                         <p:ajax event="change" update="@this i_panel_pesquisa id_desc_pesquisa" global="false" listener="#{fisicaBean.mascaraPesquisaFisica}"/>
                                                         <f:selectItem itemValue="nome"     itemLabel="Nome"/>
                                                         <f:selectItem itemValue="cpf"      itemLabel="CPF"/>
@@ -56,7 +56,7 @@
                                                         <f:selectItem itemValue="matricula" itemLabel="Matrícula"/>
                                                         <f:selectItem itemValue="codigo" itemLabel="Código do Funcionário"/>
                                                     </p:selectOneMenu>
-                                                    <p:selectOneMenu value="#{fisicaBean.porPesquisa}" style="padding-right: 20px" rendered="#{fisicaBean.pesquisaPor.equals('pessoa')}">
+                                                    <p:selectOneMenu value="#{fisicaBean.porPesquisa}" style="padding-right: 20px" rendered="#{fisicaBean.pesquisaPor eq 'pessoa'}">
                                                         <p:ajax event="change" update="@this i_panel_pesquisa" global="false" listener="#{fisicaBean.mascaraPesquisaFisica}"/>
                                                         <f:selectItem itemValue="nome"     itemLabel="Nome"/>
                                                         <f:selectItem itemValue="cpf"      itemLabel="CPF"/>
@@ -66,14 +66,14 @@
                                                         <f:selectItem itemValue="endereco" itemLabel="Endereço"/>
                                                         <f:selectItem itemValue="codigo" itemLabel="Código do Funcionário"/>
                                                     </p:selectOneMenu>
-                                                    <p:commandLink rendered="#{fisicaBean.porPesquisa.equals('endereco')}" onclick="PF('dlg_wiki').show()" value="Ajuda" global="false"/>
+                                                    <p:commandLink rendered="#{fisicaBean.porPesquisa eq 'endereco'}" onclick="PF('dlg_wiki').show()" value="Ajuda" global="false"/>
                                                 </h:panelGrid>
                                             </h:column>
                                         </h:panelGrid>
                                     </h:column>
-                                    <p:commandButton value="Pesquisar" action="#{fisicaBean.acaoPesquisaInicial}" update="i_panel_pesquisa tbl" rendered="#{fisicaBean.porPesquisa.equals('cpf')}"/>
-                                    <p:commandButton value="Inicial" action="#{fisicaBean.acaoPesquisaInicial}" update="i_panel_pesquisa tbl" rendered="#{!fisicaBean.porPesquisa.equals('cpf')}"/>
-                                    <p:commandButton value="Parcial" action="#{fisicaBean.acaoPesquisaParcial}" update="i_panel_pesquisa tbl" rendered="#{!fisicaBean.porPesquisa.equals('cpf')}"/>
+                                    <p:commandButton value="Pesquisar" action="#{fisicaBean.acaoPesquisaInicial}" update="i_panel_pesquisa tbl" rendered="#{fisicaBean.porPesquisa eq 'cpf'}"/>
+                                    <p:commandButton value="Inicial" action="#{fisicaBean.acaoPesquisaInicial}" update="i_panel_pesquisa tbl" rendered="#{fisicaBean.porPesquisa ne 'cpf'}"/>
+                                    <p:commandButton value="Parcial" action="#{fisicaBean.acaoPesquisaParcial}" update="i_panel_pesquisa tbl" rendered="#{fisicaBean.porPesquisa ne 'cpf'}"/>
                                 </h:panelGrid>
                                 <p:focus for="id_desc_pesquisa" />
                             </p:panel>

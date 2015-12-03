@@ -26,7 +26,7 @@
             .leitor-biometrico-off {  
                 background-image: url("#{facesContext.externalContext.requestContextPath}/Imagens/biometric-off-icon.png") !important;  
             }     
-            
+
             .column01{
                 width: 100px;
             }
@@ -375,96 +375,98 @@
                                     </p:tab>
 
                                     <p:tab title="Local de Trabalho" id="i_panel_profissao">
-                                        <p:messages id="msg_local_trabalho" autoUpdate="true" showSummary="true" showDetail="true" closable="true"/>
-                                        <h:panelGrid columns="2">
-                                            <h:column>
-                                                <p:commandButton icon="ui-icon-search" title="Pesquisar Empresa" action="#{chamadaPaginaBean.pesquisaPessoaJuridica}" immediate="true" id="i_pesquisar_empresa"/>
-                                            </h:column>
-                                            <h:column>
-                                                <h:panelGrid columns="5">
-                                                    <p:outputLabel value="PESQUISAR EMPRESA " rendered="#{fisicaBean.pessoaEmpresa.juridica.pessoa.id == -1}" style="border-bottom: 1px dashed gray; color: gray;" for="i_pesquisar_empresa"/>
-                                                    <p:outputLabel value="CNPJ: #{fisicaBean.pessoaEmpresa.juridica.pessoa.documento} - #{fisicaBean.pessoaEmpresa.juridica.pessoa.nome}"  rendered="#{fisicaBean.pessoaEmpresa.juridica.pessoa.id != -1}" for="i_pesquisar_empresa"  style="font-weight: bold"/>
-                                                    <p:commandButton icon="ui-icon-trash" action="#{fisicaBean.removerJuridicaPesquisada}" rendered="#{fisicaBean.renderJuridicaPesquisa}" />
-                                                    <p:commandButton icon="ui-icon-contact" update=":form_pessoa_fisica:i_pessoa_juridica_card" action="#{pessoaCardBean.cardJuridica(fisicaBean.pessoaEmpresa.juridica.pessoa.id)}" oncomplete="PF('dlg_pessoa_juridica_card').show()" title="Ver detalhes" rendered="#{fisicaBean.pessoaEmpresa.juridica.pessoa.id != -1}"/>
-                                                    <h:commandLink action="#{juridicaBean.editar(fisicaBean.pessoaEmpresa.juridica, true)}" value="Alterar cadastro" rendered="#{fisicaBean.pessoaEmpresa.juridica.pessoa.id != -1}" actionListener="#{chamadaPaginaBean.backButton}" />
-                                                </h:panelGrid>
-                                            </h:column>
-                                            <p:outputLabel value="Nome Fantasia: "/>
-                                            <p:outputLabel value="#{fisicaBean.pessoaEmpresa.juridica.fantasia}" style="font-weight: bold"/>
-                                        </h:panelGrid>
+                                        <h:column>
+                                            <p:messages id="msg_local_trabalho" autoUpdate="true" showSummary="true" showDetail="true" closable="true"/>
+                                            <h:panelGrid columns="2">
+                                                <h:column>
+                                                    <p:commandButton icon="ui-icon-search" title="Pesquisar Empresa" action="#{chamadaPaginaBean.pesquisaPessoaJuridica}" immediate="true" id="i_pesquisar_empresa"/>
+                                                </h:column>
+                                                <h:column>
+                                                    <h:panelGrid columns="5">
+                                                        <p:outputLabel value="PESQUISAR EMPRESA " rendered="#{fisicaBean.pessoaEmpresa.juridica.pessoa.id == -1}" style="border-bottom: 1px dashed gray; color: gray;" for="i_pesquisar_empresa"/>
+                                                        <p:outputLabel value="CNPJ: #{fisicaBean.pessoaEmpresa.juridica.pessoa.documento} - #{fisicaBean.pessoaEmpresa.juridica.pessoa.nome}"  rendered="#{fisicaBean.pessoaEmpresa.juridica.pessoa.id != -1}" for="i_pesquisar_empresa"  style="font-weight: bold"/>
+                                                        <p:commandButton icon="ui-icon-trash" action="#{fisicaBean.removerJuridicaPesquisada}" rendered="#{fisicaBean.renderJuridicaPesquisa}" />
+                                                        <p:commandButton icon="ui-icon-contact" update=":form_pessoa_fisica:i_pessoa_juridica_card" action="#{pessoaCardBean.cardJuridica(fisicaBean.pessoaEmpresa.juridica.pessoa.id)}" oncomplete="PF('dlg_pessoa_juridica_card').show()" title="Ver detalhes" rendered="#{fisicaBean.pessoaEmpresa.juridica.pessoa.id != -1}"/>
+                                                        <h:commandLink action="#{juridicaBean.editar(fisicaBean.pessoaEmpresa.juridica, true)}" value="Alterar cadastro" rendered="#{fisicaBean.pessoaEmpresa.juridica.pessoa.id != -1}" actionListener="#{chamadaPaginaBean.backButton}" />
+                                                    </h:panelGrid>
+                                                </h:column>
+                                                <p:outputLabel value="Nome Fantasia: "/>
+                                                <p:outputLabel value="#{fisicaBean.pessoaEmpresa.juridica.fantasia}" style="font-weight: bold"/>
+                                            </h:panelGrid>
 
-                                        <h:panelGrid columns="3" style="margin-top: 10px">
-                                            <h:column>                                        
-                                                <p:outputLabel value="Data Admissão" /><br />
-                                                <p:inputMask size="10" value="#{fisicaBean.pessoaEmpresa.admissao}" mask="99/99/9999" style="margin-right: 20px; text-align: center">
-                                                    <p:ajax event="change" update="@this" global="false"/>
-                                                </p:inputMask>
-                                            </h:column>
+                                            <h:panelGrid columns="3" style="margin-top: 10px">
+                                                <h:column>                                        
+                                                    <p:outputLabel value="Data Admissão" /><br />
+                                                    <p:inputMask size="10" value="#{fisicaBean.pessoaEmpresa.admissao}" mask="99/99/9999" style="margin-right: 20px; text-align: center">
+                                                        <p:ajax event="change" update="@this" global="false"/>
+                                                    </p:inputMask>
+                                                </h:column>
 
-                                            <h:column>
-                                                <p:outputLabel value="Data Demissão" /><br />
-                                                <p:inputMask size="10" value="#{fisicaBean.pessoaEmpresa.demissao}" mask="99/99/9999" style="text-align: center">
-                                                    <p:ajax event="change" update="@this" />
-                                                </p:inputMask>
-                                            </h:column>
+                                                <h:column>
+                                                    <p:outputLabel value="Data Demissão" /><br />
+                                                    <p:inputMask size="10" value="#{fisicaBean.pessoaEmpresa.demissao}" mask="99/99/9999" style="text-align: center">
+                                                        <p:ajax event="change" update="@this" />
+                                                    </p:inputMask>
+                                                </h:column>
 
-                                            <h:column>
-                                                <p:outputLabel value="Código" /><br />
-                                                <p:inputText size="10" value="#{fisicaBean.pessoaEmpresa.codigo}">
-                                                    <p:ajax event="change" update="@this" global="false"/>
-                                                </p:inputText>
-                                            </h:column>
-                                        </h:panelGrid>                                
+                                                <h:column>
+                                                    <p:outputLabel value="Código" /><br />
+                                                    <p:inputText size="10" value="#{fisicaBean.pessoaEmpresa.codigo}">
+                                                        <p:ajax event="change" update="@this" global="false"/>
+                                                    </p:inputText>
+                                                </h:column>
+                                            </h:panelGrid>                                
 
-                                        <h:panelGrid columns="3" style="margin-top: 15px">
-                                            <h:column>
-                                                <p:commandButton icon="ui-icon-search" value="Função" onclick="PF('dgl_painel_profissao').show();" />
-                                            </h:column>
+                                            <h:panelGrid columns="3" style="margin-top: 15px">
+                                                <h:column>
+                                                    <p:commandButton icon="ui-icon-search" value="Função" onclick="PF('dgl_painel_profissao').show();" />
+                                                </h:column>
 
-                                            <h:column>
-                                                <h:panelGrid columns="4" id="idFuncao" >
-                                                    <p:inputText size="5" id="i_cbo" value="#{fisicaBean.profissao.cbo}"  readonly="true" />
-                                                    <p:inputText size="40" id="i_profissao" value="#{fisicaBean.profissao.profissao}"  readonly="true" />
-                                                    <p:inputText size="20" id="i_setor" value="#{fisicaBean.pessoaEmpresa.setor}"  />
-                                                </h:panelGrid>
-                                            </h:column>
+                                                <h:column>
+                                                    <h:panelGrid columns="4" id="idFuncao" >
+                                                        <p:inputText size="5" id="i_cbo" value="#{fisicaBean.profissao.cbo}"  readonly="true" />
+                                                        <p:inputText size="40" id="i_profissao" value="#{fisicaBean.profissao.profissao}"  readonly="true" />
+                                                        <p:inputText size="20" id="i_setor" value="#{fisicaBean.pessoaEmpresa.setor}"  />
+                                                    </h:panelGrid>
+                                                </h:column>
 
-                                            <h:column>
-                                                <p:commandButton value="Adicionar Empresa" action="#{fisicaBean.adicionarEmpresa()}" update="i_tbl_empresa_b, :form_pessoa_fisica:" rendered="#{fisicaBean.pessoaEmpresa.juridica.id != -1 and fisicaBean.fisica.id != -1}"/>
-                                            </h:column>
-                                            <p:watermark value="CBO" for="i_cbo"/>
-                                            <p:watermark value="Profissão" for="i_profissao"/>
-                                            <p:watermark value="Setor" for="i_setor"/>
-                                        </h:panelGrid>
+                                                <h:column>
+                                                    <p:commandButton value="Adicionar Empresa" action="#{fisicaBean.adicionarEmpresa()}" update="i_tbl_empresa_b, :form_pessoa_fisica:" rendered="#{fisicaBean.pessoaEmpresa.juridica.id != -1 and fisicaBean.fisica.id != -1}"/>
+                                                </h:column>
+                                                <p:watermark value="CBO" for="i_cbo"/>
+                                                <p:watermark value="Profissão" for="i_profissao"/>
+                                                <p:watermark value="Setor" for="i_setor"/>
+                                            </h:panelGrid>
 
-                                        <p:panel id="i_tbl_empresa" header="Outras Empresas" styleClass="margin-top-max">
-                                            <p:dataTable id="i_tbl_empresa_b" var="pessoaEmpresa" value="#{fisicaBean.listaPessoaEmpresa}" styleClass="margin-top-max" scrollable="true" scrollHeight="100" emptyMessage="Nenhum registro encontrado!">
-                                                <p:column headerText="Documento" style="width: 110px; text-align: center">
-                                                    <p:outputLabel value="#{pessoaEmpresa.juridica.pessoa.documento}"/>
-                                                </p:column>
-                                                <p:column headerText="Nome">
-                                                    <p:outputLabel value="#{pessoaEmpresa.juridica.pessoa.nome}" title="#{pessoaEmpresa.juridica.pessoa.nome}"/>
-                                                </p:column>
-                                                <p:column headerText="Setor" style="width: 110px; text-align: center">
-                                                    <p:outputLabel value="#{pessoaEmpresa.setor}"/>
-                                                </p:column>
-                                                <p:column headerText="Admissão" style="width: 80px; text-align: center">
-                                                    <p:outputLabel value="#{pessoaEmpresa.admissao}"/>
-                                                </p:column>
-                                                <p:column headerText="Demissão" style="width: 80px; text-align: center">
-                                                    <p:outputLabel value="#{pessoaEmpresa.demissao}"/>
-                                                </p:column>
-                                                <p:column headerText="CBO / Função">
-                                                    <p:outputLabel value="#{pessoaEmpresa.funcao.cbo} - #{pessoaEmpresa.funcao.profissao}" title="#{pessoaEmpresa.funcao.cbo} - #{pessoaEmpresa.funcao.profissao}"/>
-                                                </p:column>
-                                                <p:column width="30">
-                                                    <p:commandButton icon="ui-icon-trash" action="#{fisicaBean.excluirEmpresaAnterior(pessoaEmpresa)}" update="i_tbl_empresa_b, :form_pessoa_fisica:"  title="Remover Difinitivamente essa Empresa"/>
-                                                </p:column>                                
-                                                <p:column width="30">
-                                                    <p:commandButton icon="ui-icon-arrowthick-2-e-w" action="#{fisicaBean.alterarEmpresaAtual(pessoaEmpresa)}" update="i_tbl_empresa_b, :form_pessoa_fisica:"  title="Alterar Empresa Atual"/>
-                                                </p:column>                                
-                                            </p:dataTable>
-                                        </p:panel>
+                                            <p:panel id="i_tbl_empresa" header="Outras Empresas" styleClass="margin-top-max">
+                                                <p:dataTable id="i_tbl_empresa_b" var="pessoaEmpresa" value="#{fisicaBean.listaPessoaEmpresa}" styleClass="margin-top-max" emptyMessage="Nenhum registro encontrado!" scrollable="true" scrollHeight="250">
+                                                    <p:column headerText="Documento" style="width: 110px; text-align: center">
+                                                        <p:outputLabel value="#{pessoaEmpresa.juridica.pessoa.documento}"/>
+                                                    </p:column>
+                                                    <p:column headerText="Nome">
+                                                        <p:outputLabel value="#{pessoaEmpresa.juridica.pessoa.nome}" title="#{pessoaEmpresa.juridica.pessoa.nome}"/>
+                                                    </p:column>
+                                                    <p:column headerText="Setor" style="width: 110px; text-align: center">
+                                                        <p:outputLabel value="#{pessoaEmpresa.setor}"/>
+                                                    </p:column>
+                                                    <p:column headerText="Admissão" style="width: 80px; text-align: center">
+                                                        <p:outputLabel value="#{pessoaEmpresa.admissao}"/>
+                                                    </p:column>
+                                                    <p:column headerText="Demissão" style="width: 80px; text-align: center">
+                                                        <p:outputLabel value="#{pessoaEmpresa.demissao}"/>
+                                                    </p:column>
+                                                    <p:column headerText="CBO / Função">
+                                                        <p:outputLabel value="#{pessoaEmpresa.funcao.cbo} - #{pessoaEmpresa.funcao.profissao}" title="#{pessoaEmpresa.funcao.cbo} - #{pessoaEmpresa.funcao.profissao}"/>
+                                                    </p:column>
+                                                    <p:column width="30">
+                                                        <p:commandButton icon="ui-icon-trash" action="#{fisicaBean.excluirEmpresaAnterior(pessoaEmpresa)}" update="i_tbl_empresa_b, :form_pessoa_fisica:"  title="Remover Difinitivamente essa Empresa"/>
+                                                    </p:column>                                
+                                                    <p:column width="30">
+                                                        <p:commandButton icon="ui-icon-arrowthick-2-e-w" action="#{fisicaBean.alterarEmpresaAtual(pessoaEmpresa)}" update="i_tbl_empresa_b, :form_pessoa_fisica:"  title="Alterar Empresa Atual"/>
+                                                    </p:column>                                
+                                                </p:dataTable>
+                                            </p:panel>
+                                        </h:column>
                                     </p:tab>
 
                                     <p:tab title="Complemento" id="i_tab_complemento">
@@ -1025,31 +1027,29 @@
                             </p:dialog>
                         </h:form>
                     </p:panel>
-                    <!--
-                                        <h:form id="form_aplicativos">
-                                            <p:dialog widgetVar="dlg_waiting_biometria" modal="true" resizable="false" header="Aguarde..." visible="# {biometriaBean.disabled}" closable="false">
-                                                <h:outputLabel value="Não feche essa janela durante a operação. Caso apresente erros contate o administrador do sistema ou reinicie o aplicativo da leitura." />
-                                                <br /><br />
-                                                <p:commandButton value="Cancelar" title="Cancelar" update=":form_aplicativos:i_message_err_x" onclick="PF('dlg_waiting_biometria_erro').show();" action="# {biometriaBean.abort(fisicaBean.fisica.pessoa)}" ajax="false"/>
-                                            </p:dialog>
-                                            <p:poll id="i_app_leitor" interval="5" update="i_app_leitor :form_pessoa_fisica:i_app_message" stop="# {biometriaBean.disabled}" autoStart="false" delay="5" ignoreAutoUpdate="true"/>
-                                            <p:dialog widgetVar="dlg_waiting_biometria_info" modal="true" resizable="false" header="Erro" closable="true">
-                                                <h:outputLabel value="Dispostivo de leitura esta desconectado. Caso apresente erros contate o administrador do sistema ou reinicie o aplicativo da leitura." styleClass="font-color-red bold"/>
-                                                <f:facet name="footer">
-                                                    <p:commandButton value="Ok" title="Ok" onclick="PF('dlg_waiting_biometria_info').hide();" update="i_app_leitor"/>
-                                                </f:facet>
-                                            </p:dialog>
-                                            <p:dialog widgetVar="dlg_waiting_biometria_erro" modal="true" resizable="false" header="Mensagem Sistema" closable="true" visible="# {biometriaBean.open_modal_cancel}">
-                                                <p:ajax event="close" update=":form_aplicativos:" listener="# {biometriaBean.closeModalApp()}"/>
-                                                <h:panelGrid id="i_message_err_x">
-                                                    <p:messages autoUpdate="true" showSummary="true" showDetail="true" closable="true"/>
-                                                </h:panelGrid>
-                                                <f:facet name="footer">
-                                                    <p:commandButton value="Ok" title="Ok" onclick="PF('dlg_waiting_biometria_erro').hide();" update="i_app_leitor" action="# {biometriaBean.closeModalApp()}"/>
-                                                </f:facet>                                
-                                            </p:dialog>
-                                        </h:form>            
-                    -->
+                    <h:form id="form_aplicativos">
+                        <p:dialog widgetVar="dlg_waiting_biometria" modal="true" resizable="false" header="Aguarde..." visible="#{biometriaBean.disabled}" closable="false">
+                            <h:outputLabel value="Não feche essa janela durante a operação. Caso apresente erros contate o administrador do sistema ou reinicie o aplicativo da leitura." />
+                            <br /><br />
+                            <p:commandButton value="Cancelar" title="Cancelar" update=":form_aplicativos:i_message_err_x" onclick="PF('dlg_waiting_biometria_erro').show();" action="#{biometriaBean.abort(fisicaBean.fisica.pessoa)}" ajax="false"/>
+                        </p:dialog>
+                        <p:poll id="i_app_leitor" interval="5" update="i_app_leitor :form_pessoa_fisica:i_app_message" stop="#{biometriaBean.disabled}" autoStart="false" delay="5" ignoreAutoUpdate="true"/>
+                        <p:dialog widgetVar="dlg_waiting_biometria_info" modal="true" resizable="false" header="Erro" closable="true">
+                            <h:outputLabel value="Dispostivo de leitura esta desconectado. Caso apresente erros contate o administrador do sistema ou reinicie o aplicativo da leitura." styleClass="font-color-red bold"/>
+                            <f:facet name="footer">
+                                <p:commandButton value="Ok" title="Ok" onclick="PF('dlg_waiting_biometria_info').hide();" update="i_app_leitor"/>
+                            </f:facet>
+                        </p:dialog>
+                        <p:dialog widgetVar="dlg_waiting_biometria_erro" modal="true" resizable="false" header="Mensagem Sistema" closable="true" visible="#{biometriaBean.open_modal_cancel}">
+                            <p:ajax event="close" update=":form_aplicativos:" listener="#{biometriaBean.closeModalApp()}"/>
+                            <h:panelGrid id="i_message_err_x">
+                                <p:messages autoUpdate="true" showSummary="true" showDetail="true" closable="true"/>
+                            </h:panelGrid>
+                            <f:facet name="footer">
+                                <p:commandButton value="Ok" title="Ok" onclick="PF('dlg_waiting_biometria_erro').hide();" update="i_app_leitor" action="#{biometriaBean.closeModalApp()}"/>
+                            </f:facet>                                
+                        </p:dialog>
+                    </h:form>            
                 </f:view>
 
                 <!-- FINALIZA div wrap main -->

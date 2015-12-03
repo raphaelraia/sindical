@@ -1,0 +1,90 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Sindical - Locadora Autorizados</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
+            .ui-button { padding: 3px!important; }
+            .ui-selectonemenu {padding-right: 25px!important;}
+        </style>
+
+        <script type="text/javascript">
+
+        </script>          
+    </h:head>
+    <h:body>
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>
+        </f:subview>
+        <f:view>
+            <div id="wrapx">
+                <!-- INICIA DIV wrap e main -->  
+                <div id="mainx">
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:outputText value="Locadora Autorizados" styleClass="fonteHeader" />
+                        <div class="clear"></div>
+                        <h:form id="form_locadora_autorizados">
+                            <c:set scope="request" var="object" value="${locadoraAutorizadosBean.locadoraAutorizados}"/>
+                            <p:messages autoUpdate="true" showDetail="true" closable="true"/>
+                            <p:panel styleClass="fundoCinza">
+                                <h:panelGrid columns="2">
+                                    <p:commandButton value="Pesquisar titular" action="#{chamadaPaginaBean.pesquisa('pesquisaSocios')}" icon="ui-icon-search" />
+                                    <p:outputLabel value="#{locadoraAutorizadosBean.titular.nome}" />
+                                </h:panelGrid>
+                                <h:panelGrid columns="2" styleClass="margin-top-max">
+                                    <p:outputLabel value="Nome: " />
+                                    <p:inputText value="#{locadoraAutorizadosBean.locadoraAutorizados.nome}" maxlength="100" size="80"/>
+                                    <p:outputLabel value="Sexo: " />
+                                    <h:panelGrid columns="3">
+                                        <p:selectOneMenu value="#{locadoraAutorizadosBean.sexo}">
+                                            <p:ajax event="change" update="@this id_parentesco" listener="#{locadoraAutorizadosBean.listener(2)}"/>
+                                            <f:selectItem itemValue="F" itemLabel="F"/>
+                                            <f:selectItem itemValue="M" itemLabel="M" />
+                                        </p:selectOneMenu>
+                                        <p:outputLabel value="Parentesco:" styleClass="margin-left-max"/>
+                                        <p:selectOneMenu id="id_parentesco" value="#{locadoraAutorizadosBean.idParentesco}" filter="true" filterMatchMode="startsWith">
+                                            <p:ajax event="change" update="@this" />
+                                            <f:selectItems value="#{locadoraAutorizadosBean.listParentesco}" />
+                                        </p:selectOneMenu>
+                                    </h:panelGrid>
+                                </h:panelGrid>
+                                <f:facet name="footer">
+                                    <p:commandButton value="Salvar" action="#{locadoraAutorizadosBean.save()}" update=":form_locadora_autorizados:" disabled="#{controleAcessoBean.botaoSalvar}" styleClass="margin-left-max"/>
+                                    <p:commandButton value="Novo" action="#{locadoraAutorizadosBean.clear()}" update=":form_locadora_autorizados:" disabled="#{controleAcessoBean.botaoSalvar}" styleClass="margin-left-max"/>
+                                </f:facet>
+                            </p:panel>
+                            <h:panelGrid id="i_pg_fd">
+                                <p:dataTable var="locadoraAutorizados" value="#{locadoraAutorizadosBean.listLocadoraAutorizados}" scrollable="true" scrollHeight="200" styleClass="margin-top-max" emptyMessage="Nenhum registro encontrado!">
+                                    <p:column headerText="Nome">
+                                        #{locadoraAutorizados.nome}
+                                    </p:column>
+                                    <p:column headerText="Parentesco">
+                                        #{locadoraAutorizados.parentesco.parentesco}
+                                    </p:column>
+                                    <p:column width="25">
+                                        <p:commandButton icon="ui-icon-trash" action="#{locadoraAutorizadosBean.delete(locadoraAutorizados)}" update=":form_locadora_autorizados:" disabled="#{controleAcessoBean.botaoExcluir}" />
+                                    </p:column>
+                                </p:dataTable>
+                            </h:panelGrid>
+                        </h:form>
+                    </p:panel>
+                    <!-- FINALIZA div wrap main -->
+                </div>
+            </div>
+            <!-- FINALIZA div wrap main -->
+        </f:view>
+
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>                
+    </h:body>
+</ui:composition>

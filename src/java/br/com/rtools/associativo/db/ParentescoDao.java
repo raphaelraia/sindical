@@ -2,13 +2,20 @@ package br.com.rtools.associativo.db;
 
 import br.com.rtools.associativo.Parentesco;
 import br.com.rtools.principal.DB;
-import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.utilitarios.dao.FindDao;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 
 public class ParentescoDao extends DB implements ParentescoDB {
+
+    private String sexo;
+    private String not_in;
+
+    public ParentescoDao() {
+        this.sexo = "";
+        not_in = "";
+    }
 
     @Override
     public boolean insert(Parentesco parentesco) {
@@ -190,5 +197,37 @@ public class ParentescoDao extends DB implements ParentescoDB {
             return new ArrayList();
         }
         return new FindDao().findNotInByTabela(Parentesco.class, "soc_parentesco", new String[]{"ds_parentesco"}, table, column, colum_filter_key, colum_filter_value, "");
+    }
+
+    public List findBySexo(String sexo) {
+        try {
+            String queryString = ""
+                    + "     SELECT P.* "
+                    + "       FROM soc_parentesco AS P"
+                    + "      WHERE P.ds_sexo = '" + sexo + "'";
+            Query query = getEntityManager().createNativeQuery(queryString, Parentesco.class);
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return list;
+            }
+        } catch (Exception e) {
+        }
+        return new ArrayList();
+    }
+
+    public String getNot_in() {
+        return not_in;
+    }
+
+    public void setNot_in(String not_in) {
+        this.not_in = not_in;
+    }
+
+    public String getSexo() {
+        return sexo;
+    }
+
+    public void setSexo(String sexo) {
+        this.sexo = sexo;
     }
 }

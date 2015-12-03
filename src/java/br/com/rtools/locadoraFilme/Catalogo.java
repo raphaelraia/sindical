@@ -1,6 +1,7 @@
 package br.com.rtools.locadoraFilme;
 
 import br.com.rtools.pessoa.Filial;
+import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -8,18 +9,20 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.NamedQuery;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "loc_titulo_filial")
-@NamedQuery(name = "Catalogo.pesquisaID", query = "Select c from Catalogo c where c.id = :pid")
-public class Catalogo implements java.io.Serializable {
+@Table(name = "loc_titulo_filial",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"id_filial", "id_titulo"})
+)
+public class Catalogo implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
     @JoinColumn(name = "id_filial", referencedColumnName = "id")
     @ManyToOne
     private Filial filial;
@@ -27,27 +30,31 @@ public class Catalogo implements java.io.Serializable {
     @ManyToOne
     private Titulo titulo;
     @Column(name = "nr_qtde")
-    private int quantidade;
+    private Integer quantidade;
 
-    public Catalogo(int id, Filial filial, Titulo titulo, int quantidade) {
+    @Transient
+    private Boolean selected;
+
+    public Catalogo(Integer id, Filial filial, Titulo titulo, Integer quantidade) {
         this.id = id;
         this.filial = filial;
         this.titulo = titulo;
         this.quantidade = quantidade;
+        selected = false;
     }
 
     public Catalogo() {
-        id = -1;
+        id = null;
         filial = new Filial();
         titulo = new Titulo();
         quantidade = 0;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -67,11 +74,19 @@ public class Catalogo implements java.io.Serializable {
         this.titulo = titulo;
     }
 
-    public int getQuantidade() {
+    public Integer getQuantidade() {
         return quantidade;
     }
 
-    public void setQuantidade(int quantidade) {
+    public void setQuantidade(Integer quantidade) {
         this.quantidade = quantidade;
+    }
+
+    public Boolean getSelected() {
+        return selected;
+    }
+
+    public void setSelected(Boolean selected) {
+        this.selected = selected;
     }
 }

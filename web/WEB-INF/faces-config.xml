@@ -1848,6 +1848,19 @@
             <redirect/>
         </navigation-case>
         
+        <navigation-case>
+            <from-outcome>locadoraTaxa</from-outcome>
+            <to-view-id>/locadoraTaxa.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        
+        <navigation-case>
+            <from-outcome>locadoraAutorizados</from-outcome>
+            <to-view-id>/locadoraAutorizados.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
         <!-- 
         <navigation-case>
             <from-outcome>#{navigationRules.param}</from-outcome>

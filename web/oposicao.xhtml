@@ -29,7 +29,7 @@
                     <div class="clear"></div>
                     <p:messages id="messages" showDetail="true" autoUpdate="true" closable="true"/>
                     <p:panel id="i_panel_oposicao" styleClass="margin-top">
-                        <h:panelGrid columns="2">
+                        <h:panelGrid columns="2" columnClasses="verticalAlignTop verticalAlignTop">
                             <p:outputLabel value="CPF: " />
                             <h:column>
                                 <p:inputMask mask="999.999.999-99" id="idCPF" value="#{oposicaoBean.oposicao.oposicaoPessoa.cpf}" size="15" readonly="#{oposicaoBean.desabilitaPessoa}" placeholder="999.999.999-99">
@@ -55,13 +55,13 @@
                             <p:outputLabel value="RG: " />
                             <h:column>
                                 <p:inputText id="idRG"  value="#{oposicaoBean.oposicao.oposicaoPessoa.rg}" maxlength="15" size="15"  rendered="#{oposicaoBean.oposicao.oposicaoPessoa.cpf == ''}" >
-                                    <p:ajax event="blur" listener="#{oposicaoBean.consultaPessoa}" update="i_panel_oposicao messages" />
+                                    <p:ajax event="change" listener="#{oposicaoBean.consultaPessoa}" update="i_panel_oposicao messages" />
                                 </p:inputText>
                                 <p:inputText id="idRGs"  value="#{oposicaoBean.oposicao.oposicaoPessoa.rg}" maxlength="15" size="15"  rendered="#{oposicaoBean.oposicao.oposicaoPessoa.cpf != ''}"/>
                             </h:column>
                             <p:outputLabel value="Nome: " />
                             <p:inputText id="idNome" value="#{oposicaoBean.oposicao.oposicaoPessoa.nome}" size="50" maxlength="50">
-                                <p:ajax event="blur" update="@this" />
+                                <p:ajax event="change" update="@this" />
                             </p:inputText>
                             <p:outputLabel value="Sexo: " />
                             <p:selectOneRadio value="#{oposicaoBean.sexo}"  id="idSexo" >
@@ -69,6 +69,22 @@
                                 <f:selectItem itemValue="M" itemLabel="Masculino"/>
                                 <f:selectItem itemValue="F" itemLabel="Feminino"/>
                             </p:selectOneRadio>
+                            <p:outputLabel value="Telefone:" />
+                            <h:column>
+                                <h:panelGrid columns="3">
+                                    <p:inputMask value="#{oposicaoBean.oposicao.oposicaoPessoa.telefone1}" size="10" mask="(99) 9999-9999">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:inputMask>
+                                    <p:outputLabel value="Celular:" />                                    
+                                    <p:inputMask value="#{oposicaoBean.oposicao.oposicaoPessoa.telefone2}" size="12" mask="(99) 99999-9999">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:inputMask>
+                                </h:panelGrid>
+                            </h:column>
+                            <p:outputLabel value="Email:" />
+                            <p:inputText value="#{oposicaoBean.oposicao.oposicaoPessoa.email1}" size="50" maxlength="100">
+                                <p:ajax event="change" update="@this" />
+                            </p:inputText>
                             <p:outputLabel value="Observação: " />
                             <p:inputTextarea value="#{oposicaoBean.oposicao.observacao}" cols="80" rows="5" placeholder="Digite aqui as observações"></p:inputTextarea>
                         </h:panelGrid>
@@ -137,26 +153,26 @@
                             </h:panelGrid>
                         </center>
                     </p:dialog>
-                    
+
                     <p:dialog widgetVar="dlg_inativar"  modal="true" resizable="true" header="Inativar Oposição" width="400">
-                        
+
                         <h:panelGrid columns="1">
                             <p:outputLabel value="Deseja realmente inativar esta oposição?" style="font-size: 11pt!important" />
                         </h:panelGrid>
-                        
+
                         <h:panelGrid columns="2">
                             <p:commandButton icon="ui-icon-check" value="Sim" title="Inativar" action="#{oposicaoBean.inativar}" update=":form_oposicao: out_mensagem" oncomplete="PF('dlg_inativar').hide(); PF('dlg_message').show();"/>
                             <p:commandButton icon="ui-icon-close" value="Não" title="Cancelar" onclick="PF('dlg_inativar').hide();"/>
                         </h:panelGrid>
                     </p:dialog>
-                    
+
                     <p:dialog id="id_panel_mensagem" widgetVar="dlg_message" modal="true" header="Mensagem" width="400">
-                        <center>
-                            <h:panelGrid id="out_mensagem">
-                                <p:outputLabel value="#{oposicaoBean.message}" />                            
-                            </h:panelGrid> 
-                            <p:commandButton value="Ok" title="Ok" onclick="PF('dlg_message').hide();" />
-                        </center>
+                        <h:panelGrid id="out_mensagem">
+                            <p:outputLabel value="#{oposicaoBean.message}" />
+                        </h:panelGrid>
+                        <f:facet name="footer">
+                            <p:commandButton value="Ok" title="Ok" onclick="PF('dlg_message').hide();" />                            
+                        </f:facet>
                     </p:dialog>
                     <p:dialog widgetVar="dlg_pessoa_juridica_card" modal="true" resizable="false" height="400" width="600" header="Detalhes">
                         <p:ajax event="close" listener="#{pessoaCardBean.close}"/>

@@ -135,7 +135,7 @@ public class Jasper implements Serializable {
      * Exportar para tipo , default: IF (EXPORT_TO == false) default = pdf ELSE
      * IF (EXPORT_TO == true) EXPORT_TYPE = tipo definido
      */
-    private static String EXPORT_TYPE;
+    public static String EXPORT_TYPE;
     /**
      * Campos Excel
      */

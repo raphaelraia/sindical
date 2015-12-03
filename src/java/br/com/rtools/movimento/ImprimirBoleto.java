@@ -417,26 +417,27 @@ public class ImprimirBoleto {
                 // CAIXA EXIGE QUE SE COLOQUE O AGENCIA/COD SINDICAL NA FICHA DE COMPENSACAO NO LUGAR DO AG/COD CEDENDE,
                 // POREM CONCATENANDO COM O DIGITO VERIFICADOR DO COD CEDENTE EX.
                 // 0242/004.136.02507-5 >>>>> FICARA : 0242/S02507-5
-                
-                String referencia = "Ref:. "+lista.get(i).getReferencia(), descricaoServico = "Contribuição:. " + lista.get(i).getServicos().getDescricao();
+
+                String referencia = "Ref:. " + lista.get(i).getReferencia(), descricaoServico = "Contribuição:. " + lista.get(i).getServicos().getDescricao();
                 if (boletox.getContaCobranca().getLayout().getId() == 2) {
                     //codc = swap[44] + "-" + codc.substring(codc.length() - 1, codc.length()); 17/03/2014 -- HOMOLOGAÇÃO DE ARCERBURGO EXIRGIU A RETIRADA DESDE DV
                     codc = swap[44];
-                }else{
+                } else {
                     // SE NÃO FOR SINDICAL E FOR ACORDO NÃO MOSTRAR REFERÊNCIA 
                     if (lista.get(i).getServicos().getId() != 1 && lista.get(i).getTipoServico().getId() == 4) {
                         referencia = "";
                     }
-                    
-                    if (!lista.get(i).getServicos().isBoleto()){
+
+                    if (!lista.get(i).getServicos().isBoleto()) {
                         descricaoServico = "";
                     }
-                    
+
                     ConvencaoServico cservico = new ConvencaoServicoDao().pesquisaConvencaoServico(conv.getId(), dbCon.pesquisaGrupoCidadeJuridica(conv.getId(), id_cidade_endereco).getId());
-                    if (cservico != null)
+                    if (cservico != null) {
                         descricaoServico = cservico.getClausula() + " - " + descricaoServico;
+                    }
                 }
-                
+
                 vetor.add(new ParametroBoleto(
                         referencia, // ref (referencia)
                         imprimeVerso, // imprimeVerso
@@ -539,7 +540,7 @@ public class ImprimirBoleto {
                 SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
                 ConfiguracaoArrecadacaoBean cab = new ConfiguracaoArrecadacaoBean();
                 cab.init();
-                filial = cab.getConfiguracaoArrecadacao().getFilial();                
+                filial = cab.getConfiguracaoArrecadacao().getFilial();
                 //filial = (Filial) salvarAcumuladoDB.pesquisaCodigo(1, "Filial");
                 pessoa = lista.get(0).getPessoa();
             }
@@ -744,7 +745,7 @@ public class ImprimirBoleto {
                 SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
                 ConfiguracaoArrecadacaoBean cab = new ConfiguracaoArrecadacaoBean();
                 cab.init();
-                filial = cab.getConfiguracaoArrecadacao().getFilial();                
+                filial = cab.getConfiguracaoArrecadacao().getFilial();
                 //filial = (Filial) salvarAcumuladoDB.pesquisaCodigo(1, "Filial");
                 pessoa = lista.get(0).getPessoa();
             }
@@ -912,7 +913,7 @@ public class ImprimirBoleto {
                 SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
                 ConfiguracaoArrecadacaoBean cab = new ConfiguracaoArrecadacaoBean();
                 cab.init();
-                filial = cab.getConfiguracaoArrecadacao().getFilial();                
+                filial = cab.getConfiguracaoArrecadacao().getFilial();
                 //filial = (Filial) salvarAcumuladoDB.pesquisaCodigo(1, "Filial");
                 pessoa = lista.get(0).getPessoa();
             }
@@ -1142,7 +1143,7 @@ public class ImprimirBoleto {
 
             if (!lista.isEmpty()) {
                 SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
-                
+
                 ConfiguracaoArrecadacaoBean cab = new ConfiguracaoArrecadacaoBean();
                 cab.init();
                 filial = cab.getConfiguracaoArrecadacao().getFilial();
@@ -1407,6 +1408,7 @@ public class ImprimirBoleto {
             dtSource = new JRBeanCollectionDataSource(vetor2);
             ljasper.add(JasperFillManager.fillReport(jasper, null, dtSource));
 
+            Jasper.EXPORT_TYPE = "pdf";
             Jasper.PART_NAME = "";
             Jasper.printReports("planilha_acordo", ljasper);
             //* ------------- *//
@@ -1761,7 +1763,7 @@ public class ImprimirBoleto {
         l.add(boleto);
         return imprimirBoletoSocial(l, view, imprimeVerso);
     }
-    
+
     public byte[] imprimirBoletoSocial(List<Boleto> listaBoleto, String view, boolean imprimeVerso) {
         List lista = new ArrayList();
         Filial filial = (Filial) new Dao().find(new Filial(), 1);
@@ -1784,25 +1786,25 @@ public class ImprimirBoleto {
             if (!file_promo_verso.exists()) {
                 file_promo_verso = null;
             }
-            
+
             MovimentosReceberSocialDB dbs = new MovimentosReceberSocialDBToplink();
             JuridicaDB dbj = new JuridicaDBToplink();
             FisicaDB dbf = new FisicaDBToplink();
-            
+
             List<Vector> lista_socio = new ArrayList();
             for (Boleto boleto : listaBoleto) {
                 // PESSOA RESPONSÁVEL PELO BOLETO
                 Pessoa pessoa = dbs.responsavelBoleto(boleto.getNrCtrBoleto());
                 String contabilidade = "";
-                if (lista_socio.isEmpty()){
-                    if (dbf.pesquisaFisicaPorPessoa(pessoa.getId()) != null)
+                if (lista_socio.isEmpty()) {
+                    if (dbf.pesquisaFisicaPorPessoa(pessoa.getId()) != null) {
                         lista_socio = db.listaBoletoSocioFisica(boleto.getNrCtrBoleto(), view); // NR_CTR_BOLETO
-                     else {
+                    } else {
                         lista_socio = db.listaBoletoSocioJuridica(boleto.getNrCtrBoleto(), view); // NR_CTR_BOLETO
                         Juridica j = dbj.pesquisaJuridicaPorPessoa(pessoa.getId());
-                        String doc = (j.getContabilidade() != null && 
-                                      !j.getContabilidade().getPessoa().getDocumento().isEmpty() && 
-                                      !j.getContabilidade().getPessoa().getDocumento().equals("0") ) ? j.getContabilidade().getPessoa().getDocumento() + " - " : " ";
+                        String doc = (j.getContabilidade() != null
+                                && !j.getContabilidade().getPessoa().getDocumento().isEmpty()
+                                && !j.getContabilidade().getPessoa().getDocumento().equals("0")) ? j.getContabilidade().getPessoa().getDocumento() + " - " : " ";
 
                         contabilidade = (j.getContabilidade() != null) ? "CONTABILIDADE : " + doc + j.getContabilidade().getPessoa().getNome() : "";
                     }
@@ -1821,7 +1823,7 @@ public class ImprimirBoleto {
                     }
                     valor_boleto = Moeda.somaValores(valor_total, valor_total_atrasadas);
                 }
-                
+
                 String mensagemAtrasadas = "Mensalidades Atrasadas Corrigidas";
                 if (!list_at.isEmpty()) {
                     mensagemAtrasadas = "Mensalidades Atrasadas Corrigidas de " + list_at.get(0).substring(3) + " até " + list_at.get(list_at.size() - 1).substring(3);
@@ -1832,8 +1834,8 @@ public class ImprimirBoleto {
 
                 int qntItens = 0;
                 for (int w = 0; w < lista_socio.size(); w++) {
-                    if (DataHoje.maiorData(DataHoje.converteData((Date) lista_socio.get(w).get(38)), "01/"+DataHoje.converteData((Date) lista_socio.get(w).get(40)).substring(3))) {
-                        qntItens++; 
+                    if (DataHoje.maiorData(DataHoje.converteData((Date) lista_socio.get(w).get(38)), "01/" + DataHoje.converteData((Date) lista_socio.get(w).get(40)).substring(3))) {
+                        qntItens++;
                         float valor = Moeda.converteUS$(lista_socio.get(w).get(14).toString());
                         lista.add(new ParametroBoletoSocial(
                                 ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"), // LOGO SINDICATO

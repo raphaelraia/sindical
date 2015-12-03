@@ -103,11 +103,11 @@ public class OposicaoBean implements Serializable {
 
     public void save() {
         if (oposicao.getJuridica().getId() == -1) {
-            message = "Informar o Pessoa Jurídica!";
+            message = "Informar a pessoa jurídica!";
             return;
         }
         if (oposicao.getOposicaoPessoa().getNome().isEmpty()) {
-            message = "Informar o nome da Pessoa!";
+            message = "Informar o nome da pessoa!";
             return;
         }
         JuridicaDB db = new JuridicaDBToplink();
@@ -314,7 +314,14 @@ public class OposicaoBean implements Serializable {
                 }
             }
         } else {
-            if (op.getCpf().equals(oposicao.getOposicaoPessoa().getCpf()) && op.getRg().equals(oposicao.getOposicaoPessoa().getRg()) && op.getNome().equals(oposicao.getOposicaoPessoa().getNome()) && op.getSexo().equals(oposicao.getOposicaoPessoa().getSexo())) {
+            if (op.getCpf().equals(oposicao.getOposicaoPessoa().getCpf()) 
+                    && op.getRg().equals(oposicao.getOposicaoPessoa().getRg()) 
+                    && op.getNome().equals(oposicao.getOposicaoPessoa().getNome())
+                    && op.getSexo().equals(oposicao.getOposicaoPessoa().getSexo())
+                    && op.getEmail1().equals(oposicao.getOposicaoPessoa().getEmail1())
+                    && op.getTelefone1().equals(oposicao.getOposicaoPessoa().getTelefone1())
+                    && op.getTelefone2().equals(oposicao.getOposicaoPessoa().getTelefone2())
+                    ) {
                 return true;
             } else {
                 if (oposicao.getOposicaoPessoa().getId() != -1) {
