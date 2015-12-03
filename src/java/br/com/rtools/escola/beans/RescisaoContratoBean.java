@@ -14,6 +14,7 @@ import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
+import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaComplemento;
@@ -292,7 +293,7 @@ public class RescisaoContratoBean implements Serializable {
             GenericaMensagem.error("Erro", "Não foi possível inativar matrícula!");
             return;
         }
-        
+
         matriculaEscola.getServicoPessoa().setAtivo(false);
         if (!dao.update(matriculaEscola.getServicoPessoa())) {
             dao.rollback();
@@ -304,6 +305,22 @@ public class RescisaoContratoBean implements Serializable {
             GenericaMensagem.info("Sucesso", "Matrícula Rescindida!");
             dao.commit();
             pesquisaMovimentosPorMatricula();
+            NovoLog novoLog = new NovoLog();
+            novoLog.setTabela("matr_escola");
+            novoLog.setCodigo(matriculaEscola.getId());
+            String cobrancaMovimento = "";
+            try {
+                cobrancaMovimento = matriculaEscola.getServicoPessoa().getCobrancaMovimento().getNome();
+            } catch (Exception e) {
+
+            }
+            novoLog.update("",
+                    "ID: " + matriculaEscola.getId()
+                    + " - Aluno: (" + matriculaEscola.getServicoPessoa().getPessoa().getId() + ") " + matriculaEscola.getServicoPessoa().getPessoa().getNome()
+                    + " - Responsável: (" + matriculaEscola.getServicoPessoa().getCobranca().getId() + ") " + matriculaEscola.getServicoPessoa().getCobranca().getNome()
+                    + " - Cobrança: " + cobrancaMovimento
+                    + " - Serviço: " + matriculaEscola.getServicoPessoa().getServicos().getDescricao()
+            );
             return;
         }
 
@@ -622,8 +639,8 @@ public class RescisaoContratoBean implements Serializable {
         MatriculaEscolaBean matriculaEscolaBean = new MatriculaEscolaBean();
         matriculaEscolaBean.init();
         GenericaSessao.put("matriculaEscolaBean", matriculaEscolaBean);
-        for(int i = 0; i < ((MatriculaEscolaBean) GenericaSessao.getObject("matriculaEscolaBean")).getListFiliais().size(); i++) {
-            if(Integer.parseInt(((MatriculaEscolaBean) GenericaSessao.getObject("matriculaEscolaBean")).getListFiliais().get(i).getDescription()) == Integer.parseInt(getListFiliais().get(filial_id).getDescription())) {
+        for (int i = 0; i < ((MatriculaEscolaBean) GenericaSessao.getObject("matriculaEscolaBean")).getListFiliais().size(); i++) {
+            if (Integer.parseInt(((MatriculaEscolaBean) GenericaSessao.getObject("matriculaEscolaBean")).getListFiliais().get(i).getDescription()) == Integer.parseInt(getListFiliais().get(filial_id).getDescription())) {
                 ((MatriculaEscolaBean) GenericaSessao.getObject("matriculaEscolaBean")).setFilial_id(i);
                 break;
             }
