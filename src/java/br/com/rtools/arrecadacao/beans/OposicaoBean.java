@@ -155,6 +155,16 @@ public class OposicaoBean implements Serializable {
                     + " - " + o.getConvencaoPeriodo().getReferenciaFinal()
                     + " ]";
         }
+        
+        if (oposicao.getOposicaoPessoa().getCpf().equals("___.___.___-__") || oposicao.getOposicaoPessoa().getCpf().equals("")) {
+            message = "Informar o CPF!";
+            return;
+        }
+        if (!ValidaDocumentos.isValidoCPF(AnaliseString.extrairNumeros(oposicao.getOposicaoPessoa().getCpf()))) {
+            message = "CPF inválido!";
+            return;
+        }   
+        
         if (!saveOposicaoPessoa()) {
             message = "Falha ao salvar oposição pessoa!";
             return;
@@ -287,14 +297,6 @@ public class OposicaoBean implements Serializable {
     }
 
     public boolean saveOposicaoPessoa() {
-        if (oposicao.getOposicaoPessoa().getCpf().equals("___.___.___-__") || oposicao.getOposicaoPessoa().getCpf().equals("")) {
-            message = "Informar o CPF!";
-            return false;
-        }
-        if (!ValidaDocumentos.isValidoCPF(AnaliseString.extrairNumeros(oposicao.getOposicaoPessoa().getCpf()))) {
-            message = "CPF inválido!";
-            return false;
-        }
         oposicao.getOposicaoPessoa().setSexo(sexo);
         Dao dao = new Dao();
         dao.openTransaction();
