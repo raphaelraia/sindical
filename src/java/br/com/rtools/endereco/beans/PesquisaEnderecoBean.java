@@ -37,6 +37,7 @@ public class PesquisaEnderecoBean implements Serializable {
         GenericaSessao.remove("pesquisaEnderecoBean");
     }
 
+    
     public void find() {
         listaEndereco.clear();
         if (cep != null && !cep.isEmpty()) {
