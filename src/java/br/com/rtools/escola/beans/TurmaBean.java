@@ -431,7 +431,11 @@ public class TurmaBean implements Serializable {
 
     public List<Turma> getListTurma() {
         if (listTurma.isEmpty()) {
-            listTurma = new TurmaDao().findbyFilial(Integer.parseInt(getListFiliais().get(filial_id).getDescription()));
+            try {
+                listTurma = new TurmaDao().findbyFilial(Integer.parseInt(getListFiliais().get(filial_id).getDescription()));                
+            } catch (Exception e) {
+                listTurma = new ArrayList();
+            }
         }
         return listTurma;
     }
@@ -572,6 +576,7 @@ public class TurmaBean implements Serializable {
     }
 
     public List<SelectItem> getListFiliais() {
+        // listFiliais.clear();
         if (listFiliais.isEmpty()) {
             Filial f = MacFilial.getAcessoFilial().getFilial();
             if (f.getId() != -1) {
