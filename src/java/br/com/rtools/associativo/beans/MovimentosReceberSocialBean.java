@@ -22,6 +22,7 @@ import br.com.rtools.financeiro.db.MovimentoDBToplink;
 import br.com.rtools.financeiro.db.ServicoContaCobrancaDB;
 import br.com.rtools.financeiro.db.ServicoContaCobrancaDBToplink;
 import br.com.rtools.impressao.ParametroEncaminhamento;
+import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.movimento.ImprimirRecibo;
@@ -150,7 +151,7 @@ public class MovimentosReceberSocialBean implements Serializable {
     private List<LinhaBoletosAnexo> listaBoletosAnexo = new ArrayList();
     private List<LinhaBoletosAnexo> listaBoletosAnexoSelecionado = new ArrayList();
     private List<LinhaMovimentoDoBoleto> listaMovimentoDoBoleto = new ArrayList();
-    
+
     private Boolean visibleAnexar = false;
     private LinhaBoletosAnexo linhaBoletosAnexo = null;
 
@@ -172,9 +173,10 @@ public class MovimentosReceberSocialBean implements Serializable {
     }
 
     public void loadListaMovimentoDoBoleto(LinhaBoletosAnexo lma) {
-        if (lma != null)
+        if (lma != null) {
             linhaBoletosAnexo = lma;
-        
+        }
+
         listaMovimentoDoBoleto.clear();
 
         MovimentosReceberSocialDB db = new MovimentosReceberSocialDBToplink();
@@ -308,7 +310,7 @@ public class MovimentosReceberSocialBean implements Serializable {
         loadMovimentosAnexo();
         loadListaMovimentoDoBoleto(null);
         movimentoRemover = null;
-        
+
         //listaMovimentoDoBoletoSelecionado.clear();
     }
 
@@ -440,10 +442,11 @@ public class MovimentosReceberSocialBean implements Serializable {
 
     public void imprimirBoletos(Integer id_boleto) {
         Boleto boletox = null;
-        if (id_boleto == null)
+        if (id_boleto == null) {
             boletox = (Boleto) new Dao().find(new Boleto(), linhaBoletosAnexo.getBoleto().getId());
-        else
+        } else {
             boletox = (Boleto) new Dao().find(new Boleto(), id_boleto);
+        }
 
         ImprimirBoleto ib = new ImprimirBoleto();
         ib.imprimirBoletoSocial(boletox, "soc_boletos_geral_vw", false);
@@ -1061,6 +1064,17 @@ public class MovimentosReceberSocialBean implements Serializable {
             GenericaMensagem.warn("Erro", msgConfirma);
         } else {
             msgConfirma = "Boletos estornados com sucesso!";
+            NovoLog novoLog = new NovoLog();
+            novoLog.setCodigo(mov.getId());
+            novoLog.setTabela("fin_movimento");
+            novoLog.update("",
+                    " - Movimento - ID: " + mov.getId()
+                    + " - Ref.: " + mov.getReferencia()
+                    + " - Vencimento: " + mov.getVencimento()
+                    + " - Vencimento: " + mov.getValor()
+                    + " - Titular: " + mov.getId() + " - Titular: (" + mov.getTitular().getId() + ") " + mov.getTitular().getNome()
+                    + " - Motivo: " + motivoEstorno
+            );
             GenericaMensagem.info("Sucesso", msgConfirma);
         }
         listaMovimento.clear();
