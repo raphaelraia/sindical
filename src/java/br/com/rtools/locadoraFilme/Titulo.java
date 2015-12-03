@@ -13,19 +13,22 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "loc_titulo")
+@Table(name = "loc_titulo",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"ds_descricao", "id_genero", "ano_lancamento"})
+)
 public class Titulo implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_data")
     private Date data;
-    @Column(name = "ds_descricao", length = 50, nullable = true)
+    @Column(name = "ds_descricao", length = 50, nullable = false)
     private String descricao;
     @Column(name = "ds_autor", length = 100, nullable = true)
     private String autor;
@@ -37,19 +40,19 @@ public class Titulo implements Serializable {
     @Column(name = "nr_duracao_minutos", length = 5, nullable = true)
     private String duracao;
     @Column(name = "ano_lancamento")
-    private int anoLancamento;
+    private Integer anoLancamento;
     @Column(name = "ds_legenda", length = 10, nullable = true)
     private String legenda;
     @Column(name = "ds_formato", length = 20, nullable = true)
     private String formato;
-    @Column(name = "is_imprime_etiqueta")
-    private boolean imprimeEtiqueta;
+    @Column(name = "is_imprime_etiqueta", columnDefinition = "boolean default false")
+    private Boolean imprimeEtiqueta;
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_foto")
     private Date foto;
 
     public Titulo() {
-        id = -1;
+        id = null;
         data = new Date();
         descricao = "";
         autor = "";
@@ -63,7 +66,7 @@ public class Titulo implements Serializable {
         this.foto = null;
     }
 
-    public Titulo(int id, Date data, String descricao, String autor, Genero genero, String barras, String duracao, int anoLancamento, String legenda, String formato, boolean imprimeEtiqueta, Date foto) {
+    public Titulo(Integer id, Date data, String descricao, String autor, Genero genero, String barras, String duracao, Integer anoLancamento, String legenda, String formato, Boolean imprimeEtiqueta, Date foto) {
         this.id = id;
         this.data = data;
         this.descricao = descricao;
@@ -78,11 +81,11 @@ public class Titulo implements Serializable {
         this.foto = foto;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -134,11 +137,11 @@ public class Titulo implements Serializable {
         this.duracao = duracao;
     }
 
-    public int getAnoLancamento() {
+    public Integer getAnoLancamento() {
         return anoLancamento;
     }
 
-    public void setAnoLancamento(int anoLancamento) {
+    public void setAnoLancamento(Integer anoLancamento) {
         this.anoLancamento = anoLancamento;
     }
 
@@ -158,11 +161,11 @@ public class Titulo implements Serializable {
         this.formato = formato;
     }
 
-    public boolean isImprimeEtiqueta() {
+    public Boolean getImprimeEtiqueta() {
         return imprimeEtiqueta;
     }
 
-    public void setImprimeEtiqueta(boolean imprimeEtiqueta) {
+    public void setImprimeEtiqueta(Boolean imprimeEtiqueta) {
         this.imprimeEtiqueta = imprimeEtiqueta;
     }
 
