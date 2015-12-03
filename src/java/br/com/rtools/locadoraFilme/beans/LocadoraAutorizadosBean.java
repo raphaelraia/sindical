@@ -135,7 +135,7 @@ public class LocadoraAutorizadosBean implements Serializable {
         }
     }
 
-    public Pessoa getTitular() {
+    public Pessoa getTitular() { 
         if (GenericaSessao.exists("fisicaPesquisa")) {
             titular = ((Fisica) GenericaSessao.getObject("fisicaPesquisa")).getPessoa();
             loadLocadoraAutorizados();
