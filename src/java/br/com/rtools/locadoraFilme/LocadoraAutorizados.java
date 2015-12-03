@@ -15,7 +15,7 @@ import javax.persistence.UniqueConstraint;
 
 @Entity
 @Table(name = "loc_autorizados",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"id_titular", "id_parentesco"})
+        uniqueConstraints = @UniqueConstraint(columnNames = {"id_titular", "id_parentesco", "ds_nome"})
 )
 public class LocadoraAutorizados implements Serializable {
 
@@ -25,7 +25,7 @@ public class LocadoraAutorizados implements Serializable {
     private Integer id;
     @Column(name = "ds_nome")
     private String nome;
-    @Column(name = "ds_sexo")
+    @Column(name = "ds_sexo", length = 1)
     private String sexo;
     @JoinColumn(name = "id_titular", referencedColumnName = "id", nullable = false)
     @ManyToOne
@@ -63,7 +63,7 @@ public class LocadoraAutorizados implements Serializable {
     }
 
     public void setNome(String nome) {
-        this.nome = nome;
+        this.nome = nome.toUpperCase();
     }
 
     public String getSexo() {
