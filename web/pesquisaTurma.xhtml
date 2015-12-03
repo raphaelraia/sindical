@@ -19,41 +19,54 @@
                     <p:outputLabel value="Pesquisar de Turma" styleClass="fonteHeader"/>
                     <c:set scope="request" var="object" value="${turmaBean.turma}"/>
                     <div class="clear"></div>
-                    <p:dataTable value="#{turmaBean.listTurma}" var="turma" scrollHeight="400" scrollable="true" emptyMessage="Não existem turmas cadastradas">
-                        <f:facet name="footer">
-                            Selecione uma turma selecionando o id ou curso
-                        </f:facet>
-                        <p:column width="25" styleClass="text-center">
-                            <p:commandButton icon="ui-icon-link" title="Editar Registro nº #{turma.id}" action="#{turmaBean.edit(turma)}" styleClass="underline-hover"/>
-                        </p:column>
-                        <p:column headerText="Dt. Inicio" width="80" styleClass="text-center">
-                            <h:outputText value="#{turma.dataInicio}"/>
-                        </p:column>
-                        <p:column headerText="Dt. Término" width="80" styleClass="text-center">
-                            <h:outputText value="#{turma.dataTermino}"/>
-                        </p:column>
-                        <p:column headerText="Hora Inicio / Término" width="100">
-                            <h:outputText value="#{turma.horaInicio} - #{turma.horaTermino}"/>
-                        </p:column>
-                        <p:column headerText="Curso">
-                            <p:commandLink value="#{turma.cursos.descricao}" action="#{turmaBean.edit(turma)}"/>
-                        </p:column>
-                        <p:column headerText="Idade" styleClass="text-center">
-                            <h:outputText value="#{turma.idadeInicial} à #{turma.idadeFim} ano(s)"/>
-                        </p:column>
-                        <p:column headerText="Sala" styleClass="text-center">
-                            <h:outputText value="#{turma.sala}"/>
-                        </p:column>
-                        <p:column headerText="Vagas" styleClass="text-center">
-                            <h:outputText value="#{turma.quantidade}"/>
-                        </p:column>
-                        <p:column headerText="Descrição" styleClass="text-center">
-                            <h:outputText value="#{turma.descricao}"/>
-                        </p:column>
-                        <p:column headerText="Filial">
-                            <h:outputText value="#{turma.filial.filial.pessoa.nome} - CNPJ: #{turma.filial.filial.pessoa.documento}"/>
-                        </p:column>
-                    </p:dataTable>                     
+                    <h:panelGrid columns="2" styleClass="margin-top-max">
+                        <h:column>
+                            <p:outputLabel value="Filial: "  />
+                        </h:column>
+                        <h:column>
+                            <p:selectOneMenu value="#{turmaBean.filial_id}" disabled="#{!turmaBean.liberaAcessaFilial}">
+                                <p:ajax event="change" update="@this id_turmas" listener="#{turmaBean.listTurma.clear()}"/>
+                                <f:selectItems value="#{turmaBean.listFiliais}" />
+                            </p:selectOneMenu>
+                        </h:column>                        
+                    </h:panelGrid>
+                    <h:panelGrid id="id_turmas" styleClass="margin-top-max">                        
+                        <p:dataTable value="#{turmaBean.listTurma}" var="turma" scrollHeight="400" scrollable="true" emptyMessage="Não existem turmas cadastradas">
+                            <f:facet name="footer">
+                                Selecione uma turma selecionando o id ou curso
+                            </f:facet>
+                            <p:column width="25" styleClass="text-center">
+                                <p:commandButton icon="ui-icon-link" title="Editar Registro nº #{turma.id}" action="#{turmaBean.edit(turma)}" styleClass="underline-hover"/>
+                            </p:column>
+                            <p:column headerText="Dt. Inicio" width="80" styleClass="text-center">
+                                <h:outputText value="#{turma.dataInicio}"/>
+                            </p:column>
+                            <p:column headerText="Dt. Término" width="80" styleClass="text-center">
+                                <h:outputText value="#{turma.dataTermino}"/>
+                            </p:column>
+                            <p:column headerText="Hora Inicio / Término" width="100">
+                                <h:outputText value="#{turma.horaInicio} - #{turma.horaTermino}"/>
+                            </p:column>
+                            <p:column headerText="Curso">
+                                <p:commandLink value="#{turma.cursos.descricao}" action="#{turmaBean.edit(turma)}"/>
+                            </p:column>
+                            <p:column headerText="Idade" styleClass="text-center">
+                                <h:outputText value="#{turma.idadeInicial} à #{turma.idadeFim} ano(s)"/>
+                            </p:column>
+                            <p:column headerText="Sala" styleClass="text-center">
+                                <h:outputText value="#{turma.sala}"/>
+                            </p:column>
+                            <p:column headerText="Vagas" styleClass="text-center">
+                                <h:outputText value="#{turma.quantidade}"/>
+                            </p:column>
+                            <p:column headerText="Descrição" styleClass="text-center">
+                                <h:outputText value="#{turma.descricao}"/>
+                            </p:column>
+                            <p:column headerText="Filial">
+                                <h:outputText value="#{turma.filial.filial.pessoa.nome} - CNPJ: #{turma.filial.filial.pessoa.documento}"/>
+                            </p:column>
+                        </p:dataTable>                     
+                    </h:panelGrid>
                 </h:form>                    
             </p:panel>                    
         </f:view>
