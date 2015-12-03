@@ -39,13 +39,13 @@ public class CatalogoBean {
     @PostConstruct
     public void init() {
         catalogo = new Catalogo();
-        listCatalogo = new ArrayList<Catalogo>();
+        listCatalogo = new ArrayList<>();
         comoPesquisa = "";
         descPesquisa = "";
         idCatalogo = 0;
-        listTitulo = new ArrayList<SelectItem>();
+        listTitulo = new ArrayList<>();
         idTitulo = 0;
-        listFilial = new ArrayList<SelectItem>();
+        listFilial = new ArrayList<>();
         idFilial = 0;
         quantidade = 0;
         data = new Date();
@@ -79,7 +79,7 @@ public class CatalogoBean {
         catalogo.setFilial((Filial) dao.find(new Filial(), Integer.parseInt(listFilial.get(idFilial).getDescription())));
         catalogo.setTitulo((Titulo) dao.find(new Titulo(), Integer.parseInt(listTitulo.get(idTitulo).getDescription())));
         NovoLog novoLog = new NovoLog();
-        if (catalogo.getId() == -1) {
+        if (catalogo.getId() == null) {
             if (!catalogoDao.verificaFilial(catalogo.getFilial(), catalogo.getTitulo())) {
                 GenericaMensagem.warn("Validação", "Já existe esse catálogo para essa filial!");
                 return;
@@ -121,7 +121,7 @@ public class CatalogoBean {
     }
 
     public synchronized void delete() {
-        if (catalogo.getId() != -1) {
+        if (catalogo.getId() != null) {
             Dao dao = new Dao();
             NovoLog novoLog = new NovoLog();
             if (dao.delete(catalogo, true)) {

@@ -116,7 +116,7 @@ public class TituloBean {
             return;
         }
         NovoLog novoLog = new NovoLog();
-        if (titulo.getId() == -1) {
+        if (titulo.getId() == null) {
             TituloDao tituloDao = new TituloDao();
             if (tituloDao.pesquisaTitulo(titulo.getDescricao()) != null) {
                 GenericaMensagem.warn("Validação", "Titulo já existe!");
@@ -169,7 +169,7 @@ public class TituloBean {
     }
 
     public synchronized void delete() {
-        if (titulo.getId() != -1) {
+        if (titulo.getId() != null) {
             Dao dao = new Dao();
             NovoLog novoLog = new NovoLog();
             if (dao.delete(titulo, true)) {
@@ -398,7 +398,7 @@ public class TituloBean {
             f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/temp/locadora/titulo/" + getUsuario().getId() + "/titulo.png"));
             sucesso = f.delete();
         } else {
-            if (titulo.getId() != -1) {
+            if (titulo.getId() != null) {
                 f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/Imagens/locadora/titulo/" + titulo.getId() + ".png"));
                 sucesso = f.delete();
             }
