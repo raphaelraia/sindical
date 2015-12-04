@@ -1853,11 +1853,16 @@
             <to-view-id>/locadoraTaxa.jsf</to-view-id>
             <redirect/>
         </navigation-case>
-        
-        
+                
         <navigation-case>
             <from-outcome>locadoraAutorizados</from-outcome>
             <to-view-id>/locadoraAutorizados.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>locadoraStatus</from-outcome>
+            <to-view-id>/locadoraStatus.jsf</to-view-id>
             <redirect/>
         </navigation-case>
         

@@ -18,15 +18,15 @@
         </style>
     </h:head>
     <h:body>
-        <!-- INICIA DIV wrap e main -->
-        <div id="wrapx">
-            <div id="mainx">
-                <!-- INICIA DIV wrap e main -->  
-                <f:subview id="header">
-                    <ui:include src="templates/templatePrime.xhtml"/>
-                </f:subview>
-                <f:view>
-                    <p:panel styleClass="wrapper" style="border: 0px;">
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>
+        </f:subview>
+        <f:view>
+            <!-- INICIA DIV wrap e main -->
+            <div id="wrapx">
+                <div id="mainx">
+                    <!-- INICIA DIV wrap e main -->  
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Cadastro de Catálogo Filme" styleClass="fonteHeader" />
                         <div class="clear"></div>
                         <h:form id="form_catalogo">
@@ -91,16 +91,10 @@
                             </p:dialog>
                         </h:form>                         
                     </p:panel>
-                </f:view>
-                <!-- FINALIZA div wrap main -->
+                    <!-- FINALIZA div wrap main -->
+                </div>
             </div>
-        </div>
-        <!-- FINALIZA div wrap main -->
-
-        <div id="footerx">
-            <f:subview id="footer">
-                <ui:include src="templates/templateFooter.xhtml"/>
-            </f:subview>
-        </div>                
+            <!-- FINALIZA div wrap main -->               
+        </f:view>
     </h:body>
 </ui:composition>

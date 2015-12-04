@@ -1,0 +1,109 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Sindical - Locadora Status</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
+            .ui-button { padding: 3px!important; }
+            .ui-selectonemenu {padding-right: 25px!important;}
+        </style>
+
+        <script type="text/javascript">
+
+        </script>          
+    </h:head>
+    <h:body>
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>
+        </f:subview>
+        <f:view>
+            <div id="wrapx">
+                <!-- INICIA DIV wrap e main -->  
+                <div id="mainx">
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:outputText value="Locadora Status" styleClass="fonteHeader" />
+                        <div class="clear"></div>
+                        <h:form id="form_locadora_status">
+                            <c:set scope="request" var="object" value="${locadoraStatusBean.locadoraStatus}"/>
+                            <p:messages autoUpdate="true" showDetail="true" closable="true"/>
+                            <p:panel styleClass="fundoCinza">
+                                <h:panelGrid columns="2" styleClass="margin-top-max" id="i_p_g_1">
+                                    <p:outputLabel value="Filial" />
+                                    <p:selectOneMenu value="#{locadoraStatusBean.idFilial}" filter="true" filterMatchMode="startsWith">
+                                        <p:ajax event="change" update="@this i_pg_fd" listener="#{locadoraStatusBean.loadLocadoraStatus()}" />
+                                        <f:selectItems value="#{locadoraStatusBean.listFilial}" />
+                                    </p:selectOneMenu>
+                                    <p:outputLabel value="Data: " />
+                                    <p:inputMask value="#{locadoraStatusBean.locadoraStatus.dataString}" size="6" mask="99/99/9999" converter="#{isDateString}">
+                                        <p:ajax event="change" update="@this i_p_g_1" />
+                                    </p:inputMask>
+                                    <p:outputLabel value="Semana:" rendered="#{locadoraStatusBean.locadoraStatus.data eq null}"/>
+                                    <p:selectOneMenu value="#{locadoraStatusBean.idSemana}" rendered="#{locadoraStatusBean.locadoraStatus.data eq null}">
+                                        <p:ajax event="change" update="@this" />
+                                        <f:selectItems value="#{locadoraStatusBean.listSemana}" />
+                                    </p:selectOneMenu>
+                                    <p:outputLabel value="Taxa" />
+                                    <p:selectOneMenu value="#{locadoraStatusBean.idLocadoraTaxa}" filter="true" filterMatchMode="startsWith">
+                                        <p:ajax event="change" update="@this" />
+                                        <f:selectItems value="#{locadoraStatusBean.listLocadoraTaxa}" />
+                                    </p:selectOneMenu>
+                                    <p:outputLabel value="Qtde locação" />
+                                    <p:inputText value="#{locadoraStatusBean.locadoraStatus.qtdeLocacaoString}" size="6" maxlength="3" converter="#{thisNumber}">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:inputText>                                    
+                                    <p:outputLabel value="Qtde lançamentos" />
+                                    <p:inputText value="#{locadoraStatusBean.locadoraStatus.qtdeLancamentosString}" size="6" maxlength="3" converter="#{thisNumber}">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:inputText>                                    
+                                    <p:outputLabel value="Dias para devolução" />
+                                    <p:inputText value="#{locadoraStatusBean.locadoraStatus.diasDevolucaoString}" size="6" maxlength="3" converter="#{thisNumber}">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:inputText>
+                                </h:panelGrid>                                
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Salvar" action="#{locadoraStatusBean.save()}" update=":form_locadora_status:" disabled="#{controleAcessoBean.botaoSalvar}" styleClass="margin-left-max"/>
+                                        <p:commandButton value="Novo" action="#{locadoraStatusBean.clear()}" update=":form_locadora_status:" />                                        
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:panel>
+                            <h:panelGrid id="i_pg_fd">
+                                <p:dataTable var="locadoraStatus" value="#{locadoraStatusBean.listLocadoraStatus}" scrollable="true" scrollHeight="200" styleClass="margin-top-max" emptyMessage="Nenhum registro encontrado!">
+                                    <p:column width="25">
+                                        <p:commandButton icon="ui-icon-link" action="#{locadoraStatusBean.edit(locadoraStatus)}" update=":form_locadora_status:" />
+                                    </p:column>
+                                    <p:column headerText="Data" width="80">
+                                        #{locadoraStatus.dataString}
+                                    </p:column>
+                                    <p:column headerText="Semana">
+                                        <h:column rendered="#{locadoraStatus.semana eq null}">
+                                            #{locadoraStatus.semana.descricao}
+                                        </h:column>
+                                    </p:column>
+                                    <p:column headerText="(Taxa) Diária">
+                                        #{locadoraStatus.taxa.servicoDiaria.descricao}
+                                    </p:column>
+                                    <p:column headerText="(Taxa) Multa diária">
+                                        #{locadoraStatus.taxa.servicoMultaDiaria.descricao}
+                                    </p:column>
+                                    <p:column width="25">
+                                        <p:commandButton icon="ui-icon-trash" action="#{locadoraStatusBean.delete(locadoraStatus)}" update=":form_locadora_status:" disabled="#{controleAcessoBean.botaoExcluir}" />
+                                    </p:column>
+                                </p:dataTable>
+                            </h:panelGrid>
+                        </h:form>
+                    </p:panel>
+                    <!-- FINALIZA div wrap main -->
+                </div>
+            </div>
+            <!-- FINALIZA div wrap main -->
+        </f:view>               
+    </h:body>
+</ui:composition>

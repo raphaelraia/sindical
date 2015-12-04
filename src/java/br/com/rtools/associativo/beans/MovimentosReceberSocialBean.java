@@ -1068,12 +1068,13 @@ public class MovimentosReceberSocialBean implements Serializable {
             novoLog.setCodigo(mov.getId());
             novoLog.setTabela("fin_movimento");
             novoLog.update("",
-                    " - Movimento - ID: " + mov.getId()
+                    " Movimento - ID: " + mov.getId()
                     + " - Ref.: " + mov.getReferencia()
                     + " - Vencimento: " + mov.getVencimento()
-                    + " - Vencimento: " + mov.getValor()
-                    + " - Titular: " + mov.getId() + " - Titular: (" + mov.getTitular().getId() + ") " + mov.getTitular().getNome()
+                    + " - Valor: " + mov.getValor()
+                    + " - Responsável: (" + mov.getPessoa().getId() + ") " + mov.getPessoa().getNome()
                     + " - Motivo: " + motivoEstorno
+                    + " - Número da Baixa: " + mov.getBaixa().getId()
             );
             GenericaMensagem.info("Sucesso", msgConfirma);
         }

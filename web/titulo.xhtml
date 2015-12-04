@@ -18,15 +18,15 @@
         </style>
     </h:head>
     <h:body>
-        <!-- INICIA DIV wrap e main -->
-        <div id="wrapx">
-            <div id="mainx">
-                <!-- INICIA DIV wrap e main -->  
-                <f:subview id="header">
-                    <ui:include src="templates/templatePrime.xhtml"/>
-                </f:subview>
-                <f:view>
-                    <p:panel styleClass="wrapper" style="border: 0px;">
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>
+        </f:subview>
+        <f:view>
+            <!-- INICIA DIV wrap e main -->
+            <div id="wrapx">
+                <div id="mainx">
+                    <!-- INICIA DIV wrap e main -->  
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Título" styleClass="fonteHeader" />
                         <div class="clear"></div>
                         <h:form id="form_titulo">
@@ -77,12 +77,12 @@
                                     <h:column>
                                         <p:panel style="width: 200px; margin-left: 15px" header="Imagem" id="i_panel_imagens">
                                             <h:panelGrid>
-                                                <h:column rendered="#{!tituloBean.fotoTempPerfil.equals('')}" >
+                                                <h:column rendered="#{not empty tituloBean.fotoTempPerfil}" >
                                                     <p:graphicImage value="#{tituloBean.fotoTempPerfil}" id="i_perfil_temp" width="140"/>
                                                     <div class="clear"></div>
                                                 </h:column>
 
-                                                <h:column rendered="#{!tituloBean.fotoPerfil.equals('')}" >
+                                                <h:column rendered="#{not empty tituloBean.fotoPerfil}" >
                                                     <p:graphicImage value="#{tituloBean.fotoPerfil}" id="i_perfil" width="140"/>
                                                     <div class="clear"></div>
                                                 </h:column>
@@ -90,7 +90,7 @@
                                             <f:facet name="footer">
                                                 <h:panelGrid columns="2">
                                                     <p:commandButton value="Upload Foto" type="button" onclick="PF('dlg_upload').show();" id="id_btn_uploads" />
-                                                    <p:commandButton icon="ui-icon-trash" title="Remover Foto" action="#{tituloBean.deleteImage}" rendered="#{!tituloBean.fotoTempPerfil.equals('') or !tituloBean.fotoPerfil.equals('')}" update=":form_titulo"/>
+                                                    <p:commandButton icon="ui-icon-trash" title="Remover Foto" action="#{tituloBean.deleteImage}" rendered="#{not empty tituloBean.fotoTempPerfil or not empty tituloBean.fotoPerfil}" update=":form_titulo"/>
                                                 </h:panelGrid>
                                             </f:facet>
                                         </p:panel>
@@ -133,16 +133,10 @@
                             </p:dialog>
                         </h:form>                         
                     </p:panel>
-                </f:view>
-                <!-- FINALIZA div wrap main -->
+                    <!-- FINALIZA div wrap main -->
+                </div>
             </div>
-        </div>
-        <!-- FINALIZA div wrap main -->
-
-        <div id="footerx">
-            <f:subview id="footer">
-                <ui:include src="templates/templateFooter.xhtml"/>
-            </f:subview>
-        </div>                
+            <!-- FINALIZA div wrap main -->              
+        </f:view>
     </h:body>
 </ui:composition>
