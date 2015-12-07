@@ -123,7 +123,7 @@
 
                                                     <h:column>
                                                         <p:outputLabel value="Quantidade por Periodo"/><br />
-                                                        <p:inputText value="#{servicosBean.servicos.quantidadePeriodo}" size="18"/>                                        
+                                                        <p:inputText value="#{servicosBean.servicos.quantidadePeriodo}" size="18" styleClass="text-center"/>
                                                     </h:column>
                                                     <h:panelGrid columns="2">
                                                         <h:column>
@@ -140,7 +140,7 @@
                                                         
                                                         <h:column>
                                                             <br />
-                                                            <p:selectBooleanCheckbox value="#{servicosBean.servicos.validadeGuiasVigente}" itemLabel="Validade somente dentro do mês vigente"   >
+                                                            <p:selectBooleanCheckbox value="#{servicosBean.servicos.validadeGuiasVigente}" itemLabel="Validade somente dentro do mês vigente">
                                                                 <p:ajax event="change" update="@this i_panel_opcoes"/>
                                                             </p:selectBooleanCheckbox>
                                                         </h:column>

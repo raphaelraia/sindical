@@ -44,7 +44,11 @@
                                                 <p:ajax update="@this" event="change" />
                                             </p:inputText>
                                             <p:outputLabel value="Autor:"/>
-                                            <p:inputText value="#{tituloBean.titulo.autor}"  maxlength="50" size="80"/>
+                                            <p:inputText value="#{tituloBean.titulo.autor}"  maxlength="50" size="80" converter="#{toUpperCase}">
+                                                <p:ajax update="@this" event="change" />                                            
+                                            </p:inputText>
+                                            <p:outputLabel value="Atores:"/>
+                                            <p:inputTextarea value="#{tituloBean.titulo.atores}"  maxlength="1000" cols="82" rows="5"/>
                                             <p:outputLabel value="Gênero:" />
                                             <p:selectOneMenu value="#{tituloBean.idGenero}" >
                                                 <f:selectItem itemValue="" itemLabel="Selecionar" />
@@ -53,12 +57,14 @@
                                             <p:outputLabel value="Código de Barras:" />
                                             <p:inputText value="#{tituloBean.titulo.barras}" maxlength="15" size="16" />
                                             <p:outputLabel value="Duração:" />
-                                            <p:inputMask id="idDuracao" size="2" value="#{tituloBean.titulo.duracao}" mask="99:99" />
+                                            <p:inputMask id="idDuracao" size="2" value="#{tituloBean.titulo.duracao}" mask="99:99" >
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputMask>
                                             <p:outputLabel value="Ano de Lançamento:" />
                                             <p:inputMask id="idAnoDeLancamento" value="#{tituloBean.titulo.anoLancamentoString}" mask="9999" size="2"/>
                                             <p:outputLabel value="Legenda:"  />
                                             <h:column>
-                                                <h:panelGrid columns="4">
+                                                <h:panelGrid columns="3">
                                                     <p:selectOneMenu value="#{tituloBean.titulo.legenda}" >
                                                         <f:selectItem itemLabel="DUBLADO" itemValue="DUBLADO"/>
                                                         <f:selectItem itemLabel="LEGENDADO" itemValue="LEGENDADO"/>
@@ -68,6 +74,18 @@
                                                         <f:selectItem itemLabel="DVD" itemValue="DVD"/>
                                                         <f:selectItem itemLabel="BLU-RAY" itemValue="BLU-RAY"/>
                                                     </p:selectOneMenu>
+                                                </h:panelGrid>
+                                            </h:column>
+                                            <p:outputLabel value="Classificação:"/>
+                                            <h:column>
+                                                <h:panelGrid columns="3">
+                                                    <p:inputText value="#{tituloBean.titulo.idadeMinimaString}" maxlength="2" size="1" styleClass="text-center">
+                                                        <p:ajax update="@this" event="change" />
+                                                    </p:inputText>
+                                                    <p:outputLabel value="Qtde por embalagem:" styleClass="margin-left-max"/>
+                                                    <p:inputText value="#{tituloBean.titulo.qtdePorEmbalagemString}" maxlength="2" size="1" styleClass="text-center">
+                                                        <p:ajax update="@this" event="change" />
+                                                    </p:inputText>
                                                 </h:panelGrid>
                                             </h:column>
                                             <h:column />
@@ -103,6 +121,40 @@
                                 <p:commandButton onclick="PF('dlg_delete').show();" value="Excluir" disabled="#{controleAcessoBean.botaoExcluir}" title="Excluir"/>
                                 <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pesquisa('pesquisaTitulo')}" title="Pesquisar"/>
                             </h:panelGrid>
+                            <h:panelGrid styleClass="margin-top-max">
+                                <p:messages autoUpdate="true" closable="true" showDetail="true"/>
+                            </h:panelGrid>                            
+                            <p:panel header="Catalogo por filial" rendered="#{tituloBean.titulo.id != null}" styleClass="margin-top-max">
+                                <h:panelGrid columns="9">
+                                    <p:outputLabel value="Filial:" />
+                                    <p:selectOneMenu  value="#{tituloBean.idFilial}" style="width: 500px">
+                                        <p:ajax event="change" update="tbl" listener="#{tituloBean.listCatalogo.clear()}" />
+                                        <f:selectItems value="#{tituloBean.listFilial}" />
+                                    </p:selectOneMenu>
+                                    <p:outputLabel value="Quantidade"  styleClass="margin-left-max"/>
+                                    <p:inputText value="#{tituloBean.catalogo.quantidade}" size="2" maxlength="2"/>
+                                    <p:commandButton icon="ui-icon-plus" value="Adicionar" action="#{tituloBean.add()}" update=":form_titulo:" styleClass="margin-left-max" disabled="#{controleAcessoBean.botaoSalvar}"/>
+                                </h:panelGrid>
+                            </p:panel>
+                            <p:dataTable value="#{tituloBean.listCatalogo}" var="catalogo" id="tbl" rows="15" paginator="true" styleClass="margin-top-max" emptyMessage="Nenhum registro encontrado para esta filial!" rendered="#{tituloBean.titulo.id != null}">
+                                <p:column width="25">
+                                    <p:commandButton icon="ui-icon-link" action="#{tituloBean.edit(catalogo)}" update=":form_titulo:"/>
+                                </p:column>
+                                <p:column width="80" headerText="Imagem">
+                                    <h:column rendered="#{catalogo.titulo.foto != null}">
+                                        <p:graphicImage value="#{tituloBean.showImagem(catalogo.titulo.id)}" width="80" alt="Não possui imagem"/>
+                                    </h:column>
+                                </p:column>
+                                <p:column headerText="Filial">
+                                    <h:outputText value="#{catalogo.filial.filial.pessoa.nome}"/>
+                                </p:column>
+                                <p:column headerText="Qtde" styleClass="text-center" width="30">
+                                    <h:outputText value="#{catalogo.quantidade}" />
+                                </p:column>
+                                <p:column width="25">
+                                    <p:commandButton icon="ui-icon-close" action="#{tituloBean.remove(catalogo)}" update=":form_titulo:"  disabled="#{controleAcessoBean.botaoExcluir}" />
+                                </p:column>
+                            </p:dataTable>                             
                             <p:dialog widgetVar="dlg_save" header="Deseja salvar este registro?" resizable="false" width="400" modal="true">
                                 <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{tituloBean.save()}" oncomplete="PF('dlg_save').hide();PF('dlg_message').show();" style="clear: both; float: left; margin-left: 10px;" update="i_message  :form_titulo:"/> 
                                 <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_save').hide()" style="float: left;" icon="ui-icon-close"/>

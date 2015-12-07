@@ -60,6 +60,20 @@ public class CatalogoDao extends DB {
         return new ArrayList();
     }
 
+    public List findByTitulo(Integer titulo_id) {
+        try {
+            Query query = getEntityManager().createQuery(" SELECT C FROM Catalogo AS C WHERE C.titulo.id = :titulo_id ORDER BY C.titulo.descricao");
+            query.setParameter("titulo_id", titulo_id);
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return list;
+            }
+        } catch (Exception e) {
+
+        }
+        return new ArrayList();
+    }
+
     public List<Catalogo> pesquisaCatalogo(Filial filial) {
         List<Catalogo> result = null;
         try {

@@ -209,15 +209,15 @@ public class CatalogoBean {
         return idTitulo;
     }
 
-    public void setIdTitulo(int idTitulo) {
+    public void setIdTitulo(Integer idTitulo) {
         this.idTitulo = idTitulo;
     }
 
-    public int getIdFilial() {
+    public Integer getIdFilial() {
         return idFilial;
     }
 
-    public void setIdFilial(int idFilial) {
+    public void setIdFilial(Integer idFilial) {
         this.idFilial = idFilial;
     }
 

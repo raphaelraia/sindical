@@ -64,7 +64,7 @@ public class Titulo implements Serializable {
         this.autor = "";
         this.atores = "";
         this.idadeMinima = 0;
-        this.qtdePorEmbalagem = 0;
+        this.qtdePorEmbalagem = 1;
         this.genero = new Genero();
         this.barras = "";
         this.duracao = "";
@@ -217,6 +217,15 @@ public class Titulo implements Serializable {
         return atores;
     }
 
+    public Integer getQtdePorEmbalagem() {
+        return qtdePorEmbalagem;
+    }
+
+    public void setQtdePorEmbalagem(Integer qtdePorEmbalagem) {
+        this.qtdePorEmbalagem = qtdePorEmbalagem;
+
+    }
+
     public void setAtores(String atores) {
         this.atores = atores;
     }
@@ -229,12 +238,27 @@ public class Titulo implements Serializable {
         this.idadeMinima = idadeMinima;
     }
 
-    public Integer getQtdePorEmbalagem() {
-        return qtdePorEmbalagem;
+    public String getIdadeMinimaString() {
+        return Integer.toString(idadeMinima);
     }
 
-    public void setQtdePorEmbalagem(Integer qtdePorEmbalagem) {
-        this.qtdePorEmbalagem = qtdePorEmbalagem;
+    public void setIdadeMinimaString(String idadeMinimaString) {
+        try {
+            this.idadeMinima = Integer.parseInt(idadeMinimaString);
+        } catch (Exception e) {
+        }
+    }
+
+    public String getQtdePorEmbalagemString() {
+        return Integer.toString(qtdePorEmbalagem);
+    }
+
+    public void setQtdePorEmbalagemString(String qtdePorEmbalagemString) {
+        try {
+            this.qtdePorEmbalagem = Integer.parseInt(qtdePorEmbalagemString);
+        } catch (Exception e) {
+        }
+
     }
 
     @Override
