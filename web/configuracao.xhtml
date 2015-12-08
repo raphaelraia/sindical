@@ -26,7 +26,7 @@
                     <ui:include src="templates/templatePrime.xhtml"/>
                 </f:subview>
                 <f:view>
-                    <p:panel styleClass="wrapper" style="border: 0px;">
+                    <p:panel style="border: 0px; margin: 0 auto; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Configuração" styleClass="fonteHeader" />
                         <div class="clear"></div>
                         <h:form id="form_c">
@@ -46,6 +46,31 @@
                                     <p:ajax event="change" update="@this" />
                                 </p:selectBooleanCheckbox>                            
                             </h:panelGrid>
+                            <p:panel header="Emails para notificações" rendered="#{configuracaoBean.configuracao.id ne null}" styleClass="margin-top-max">
+                                <p:messages autoUpdate="true" showDetail="true" showSummary="true" /> 
+                                <h:panelGrid columns="5">
+                                    <p:outputLabel value="Contato"/>
+                                    <p:inputText value="#{configuracaoBean.sisConfiguracaoEmail.contato}" size="25">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:inputText>
+                                    <p:outputLabel value="Email" styleClass="margin-left-max"/>     
+                                    <p:inputText value="#{configuracaoBean.sisConfiguracaoEmail.email}" size="25">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:inputText>
+                                    <p:commandButton action="#{configuracaoBean.add()}" value="Adicionar" disabled="#{controleAcessoBean.botaoSalvar}" update=":form_c:" styleClass="margin-left-max"/>
+                                </h:panelGrid>
+                                <p:dataTable value="#{configuracaoBean.listSisConfiguracaoEmail}" var="sisConfiguracaoEmail" scrollable="true" scrollHeight="200" emptyMessage="Nenhum registro encontrado!" styleClass="margin-top-max">
+                                    <p:column headerText="Contato">
+                                        #{sisConfiguracaoEmail.contato}
+                                    </p:column>
+                                    <p:column headerText="E-mail">
+                                        #{sisConfiguracaoEmail.email}
+                                    </p:column>
+                                    <p:column width="30" styleClass="text-center">
+                                        <p:commandButton action="#{configuracaoBean.remove(sisConfiguracaoEmail)}" icon="ui-icon-close" disabled="#{controleAcessoBean.botaoExcluir}" update=":form_c:"/>
+                                    </p:column>
+                                </p:dataTable>
+                            </p:panel>                            
                             <h:panelGrid columns="4" styleClass="margin-top-max">
                                 <p:commandButton id="idBtnSalvar" value="Salvar" title="Salvar" onclick="PF('dlg_save').show()" disabled="#{controleAcessoBean.botaoSalvar}" />
                                 <p:commandButton action="#{configuracaoBean.clear}" value="Novo" title="Novo" update=":form_c:"  />
