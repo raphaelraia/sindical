@@ -1,7 +1,5 @@
 package br.com.rtools.principal;
 
-import br.com.rtools.sistema.Configuracao;
-import br.com.rtools.utilitarios.GenericaSessao;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
