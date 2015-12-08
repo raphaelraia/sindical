@@ -62,9 +62,11 @@
                                     <p:separator />  
                                     <p:menuitem value="Pesquisar Logs"              action="#{chamadaPaginaBean.pagina('pesquisaLog')}" title="Registro de atividades"  />
                                     <p:submenu label="Sistema">
-                                        <p:menuitem value="Configurações"       action="#{chamadaPaginaBean.pagina('configuracao')}" rendered="#{controleUsuarioBean.clienteString eq 'Rtools'}"/>
-                                        <p:menuitem value="Processos"           action="#{chamadaPaginaBean.pagina('sisProcesso')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" />
-                                        <p:menuitem value="Class Loader"        action="#{chamadaPaginaBean.pagina('javaClassLoader')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" />
+                                        <p:menuitem value="Configurações"           action="#{chamadaPaginaBean.pagina('configuracao')}" rendered="#{controleUsuarioBean.clienteString eq 'Rtools'}"/>
+                                        <p:menuitem value="Notificações"            action="#{chamadaPaginaBean.pagina('sisNotificacao')}" rendered="#{controleUsuarioBean.clienteString eq 'Rtools'}"/>
+                                        <p:menuitem value="Notificações Categoria"  action="#{chamadaPaginaBean.paginaSimples('SisNotificacaoCategoria', 'Notificação Categoria')}" rendered="#{controleUsuarioBean.clienteString eq 'Rtools'}"/>
+                                        <p:menuitem value="Processos"               action="#{chamadaPaginaBean.pagina('sisProcesso')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" />
+                                        <p:menuitem value="Class Loader"            action="#{chamadaPaginaBean.pagina('javaClassLoader')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" />
                                     </p:submenu> 
                                     <p:submenu label="Ordem Serviço" rendered="#{controleUsuarioBean.clienteString eq 'Rtools'}"> 
                                         <p:menuitem value="Ordem Serviço"    />
@@ -154,7 +156,23 @@
                                 </p:column>
 
                                 <p:column>
-                                    <p:panel style="height: 50px">
+                                    <p:panel rendered="#{not empty sisNotificacaoView.listNotificacao}">
+                                        <f:facet name="header">
+                                            <p:outputLabel value="NOTIFICAÇÕES DO SISTEMA" style="font-size: 12pt; color: #dd3b58; font-weight: bold" />
+                                        </f:facet>
+                                        <p:dataTable value="#{sisNotificacaoView.listNotificacao}" var="sNotificacao">
+                                            <p:column headerText="Motivo" width="120" styleClass="text-center">
+                                                <p:outputLabel value="#{sNotificacao.categoria}" style="color: #{sNotificacao.destaque ? 'blue' : 'black'}" />
+                                            </p:column>
+                                            <p:column>
+                                                #{sNotificacao.observacao}
+                                            </p:column>
+                                            <p:column width="30" styleClass="text-center">
+                                                <p:commandButton icon="ui-icon-star" rendered="#{sNotificacao.destaque}" />                                                                 
+                                            </p:column>
+                                        </p:dataTable>
+                                    </p:panel>                                    
+                                    <p:panel style="height: 50px" styleClass="margin-top-max">
                                         <!-- <p:poll interval="5" update="i_panel_poll" listener="# {polling.existeUsuarioSessao()}"/>  -->
                                         <h:panelGrid id="i_panel_poll" style="float: left">
                                             <h:outputLabel value="Sem Notificações" rendered="#{!notificacaoBean.habilitaNot}" style="font-size: 12pt; color: #dd3b58; font-weight: bold"/>
