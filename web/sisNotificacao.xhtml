@@ -1,0 +1,150 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Sindical - Notificações</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important;} 
+            .ui-button { padding: 3px!important; }
+            .ui-datatable tr.ui-datatable-even:hover, .ui-datatable tr.ui-datatable-odd:hover {
+                background: #ECF3FE;
+            }            
+        </style>
+    </h:head>
+    <h:body>
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>
+        </f:subview>
+        <f:view>
+            <!-- INICIA DIV wrap e main -->
+            <div id="wrapx">
+                <div id="mainx">
+                    <!-- INICIA DIV wrap e main -->  
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:outputText value="Notificações" styleClass="fonteHeader" />
+                        <div class="clear"></div>
+                        <h:form id="form_sis_notificacao">
+                            <c:set scope="request" var="object" value="${sisNotificacaoBean.sisNotificacao}"/>
+                            <p:panel>
+                                <f:facet name="header">
+                                    <h:panelGrid columns="2">
+                                        <p:outputLabel value="Data de cadastro: #{sisNotificacaoBean.sisNotificacao.cadastroString}" />                                        
+                                    </h:panelGrid>
+                                </f:facet>
+                                <h:panelGrid columns="2">
+                                    <p:outputLabel value="Categoria:" />
+                                    <h:column>
+                                        <p:selectOneMenu  value="#{sisNotificacaoBean.idSisNotificacaoCategoria}" filter="true" filterMatchMode="startsWith" rendered="#{sisNotificacaoBean.idSisNotificacaoCategoria ne null}">
+                                            <p:ajax event="change" update="@this" />
+                                            <f:selectItems value="#{sisNotificacaoBean.listSisNotificacaoCategoria}" />
+                                        </p:selectOneMenu>                                        
+                                    </h:column>
+                                    <p:outputLabel value="Data inicial:" />
+                                    <h:column>
+                                        <h:panelGrid columns="3" id="id_p_d_i">
+                                            <p:inputMask value="#{sisNotificacaoBean.sisNotificacao.inicialString}" size="8" mask="99/99/9999" converter="#{isDateString}">
+                                                <p:ajax event="change" update="@this id_p_d_i id_p_h_i" />
+                                            </p:inputMask>
+                                            <p:outputLabel value="Hora inicio:" styleClass="margin-left-max"/>
+                                            <p:inputMask value="#{sisNotificacaoBean.sisNotificacao.horaInicial}" size="2" mask="99:99" converter="#{isValidTimeString}">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputMask>
+                                        </h:panelGrid>
+                                    </h:column>
+                                    <p:outputLabel value="Data final:" />
+                                    <h:column>
+                                        <h:panelGrid columns="3" id="id_p_h_i">
+                                            <p:inputMask value="#{sisNotificacaoBean.sisNotificacao.finalString}" size="8" mask="99/99/9999" converter="#{isDateString}">
+                                                <p:ajax event="change" update="@this id_p_d_i id_p_d_i" />
+                                            </p:inputMask>
+                                            <p:outputLabel value="Hora Fim:" styleClass="margin-left-max"/>
+                                            <p:inputMask value="#{sisNotificacaoBean.sisNotificacao.horaFinal}" size="2" mask="99:99" converter="#{isValidTimeString}">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputMask>
+                                        </h:panelGrid>
+                                    </h:column>
+                                    <p:outputLabel value="Observação:" />
+                                    <p:inputTextarea value="#{sisNotificacaoBean.sisNotificacao.observacao}" cols="150" rows="10" maxlength="5000">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:inputTextarea>
+                                    <h:column />
+                                    <p:selectBooleanCheckbox value="#{sisNotificacaoBean.sisNotificacao.destaque}" itemLabel="Destaque">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:selectBooleanCheckbox>
+                                    <h:column />
+                                    <p:selectBooleanCheckbox value="#{sisNotificacaoBean.sisNotificacao.ativo}" itemLabel="Ativo">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:selectBooleanCheckbox>
+                                </h:panelGrid>
+                                <p:panel header="Clientes" rendered="#{sisNotificacaoBean.sisNotificacao.id ne null}" styleClass="margin-top-max">
+                                    <p:messages autoUpdate="true" showDetail="true" showSummary="true" /> 
+                                    <h:panelGrid columns="5" rendered="#{not empty sisNotificacaoBean.listClientes}">
+                                        <p:selectOneMenu value="#{sisNotificacaoBean.idClientes}" filter="true" filterMatchMode="startsWith">
+                                            <p:ajax event="change" update="@this" />
+                                            <f:selectItems value="#{sisNotificacaoBean.listClientes}" />
+                                        </p:selectOneMenu>                                            
+                                        <p:commandButton action="#{sisNotificacaoBean.add()}" value="Adicionar" disabled="#{controleAcessoBean.botaoSalvar}" update=":form_sis_notificacao:"/>
+                                        <p:commandButton action="#{sisNotificacaoBean.addAll()}" value="Todos" disabled="#{controleAcessoBean.botaoSalvar}" update=":form_sis_notificacao:"/>
+                                    </h:panelGrid>
+                                    <p:dataTable value="#{sisNotificacaoBean.listSisNotificacaoCliente}" var="sisNotificacaoCliente" scrollable="true" scrollHeight="200" emptyMessage="Nenhum registro encontrado!" styleClass="margin-top-max">
+                                        <p:column headerText="Identificador">
+                                            #{sisNotificacaoCliente.configuracao.identifica}
+                                        </p:column>
+                                        <p:column width="30" styleClass="text-center">
+                                            <p:commandButton action="#{sisNotificacaoBean.delete(sisNotificacaoCliente)}" icon="ui-icon-close" disabled="#{controleAcessoBean.botaoExcluir}" update=":form_sis_notificacao:"/>
+                                        </p:column>
+                                    </p:dataTable>
+                                </p:panel>
+                            </p:panel>
+                            <h:panelGrid columns="5" styleClass="margin-top-max">
+                                <p:commandButton onclick="PF('dlg_save').show();" value="Concluir" disabled="#{controleAcessoBean.botaoSalvar}" title="Salvar"/>
+                                <p:commandButton value="Novo" action="#{sisNotificacaoBean.clear}" update=":form_sis_notificacao:"/>
+                                <p:commandButton onclick="PF('dlg_delete').show();" value="Excluir" disabled="#{controleAcessoBean.botaoExcluir}" title="Excluir"/>
+                                <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pesquisa('pesquisaSisNotificacao')}" title="Pesquisar"/>
+                                <p:commandButton value="Enviar notificação por email" onclick="PF('dlg_notificacao_mail').show()" type="button" rendered="#{not empty sisNotificacaoBean.listSisNotificacaoCliente}"/>
+                            </h:panelGrid>
+                            <p:dialog widgetVar="dlg_save" header="Deseja salvar esta notificação?" resizable="false" width="400" modal="true">
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{sisNotificacaoBean.save()}" oncomplete="PF('dlg_save').hide();PF('dlg_message').show();" style="clear: both; float: left; margin-left: 10px;" update="i_message  :form_sis_notificacao:"/> 
+                                        <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_save').hide()" style="float: left;" icon="ui-icon-close"/>                                        
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_delete" header="Deseja remover esta notificação?" resizable="false" width="400" modal="true">
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{sisNotificacaoBean.delete()}" oncomplete="PF('dlg_delete').hide();PF('dlg_message').show();" style="clear: both; float: left; margin-left: 10px;" update="i_message  :form_sis_notificacao:"/> 
+                                        <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_delete').hide()" style="float: left;" icon="ui-icon-close"/>                                        
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_message" header="Mensagem" resizable="false" width="400" modal="true" closable="true">
+                                <p:messages autoUpdate="true" showDetail="true" showSummary="true" id="i_message" /> 
+                                <f:facet name="footer">
+                                    <h:panelGrid>
+                                        <p:commandButton value="OK" type="submit" styleClass="ui-confirmdialog-yes" onclick="PF('dlg_message').hide();"/>                                        
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_notificacao_mail" modal="true" resizable="false" header="Notificar por email">
+                                <p:messages autoUpdate="true" showDetail="true" closable="true" id="i_panel_email_test" /> 
+                                <h:panelGrid columns="3" styleClass="margin-top-max">
+                                    <p:commandButton action="#{sisNotificacaoBean.send}" value="Enviar" update="i_panel_email_test"/>
+                                </h:panelGrid>
+                            </p:dialog>
+                        </h:form>
+                    </p:panel>
+                    <!-- FINALIZA div wrap main -->
+                </div>
+            </div>
+            <!-- FINALIZA div wrap main -->              
+        </f:view>
+    </h:body>
+</ui:composition>
