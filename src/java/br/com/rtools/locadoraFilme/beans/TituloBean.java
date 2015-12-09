@@ -8,6 +8,7 @@ import br.com.rtools.locadoraFilme.dao.TituloDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.db.FilialDao;
+import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.sistema.ConfiguracaoUpload;
 import br.com.rtools.utilitarios.Dao;
@@ -40,11 +41,13 @@ public class TituloBean {
     private Titulo titulo;
     private Catalogo catalogo;
     private Usuario usuario;
-    private String descPesquisa;
+    private String tipoPesquisa;
+    private String descricaoPesquisa;
     private String porPesquisa;
     private String comoPesquisa;
     private Integer idGenero;
-    private List<SelectItem> listGeneroCombo;
+    private Integer idGeneroPesquisa;
+    private List<SelectItem> listGenero;
     private List<Titulo> listTitulo;
     private String fotoPerfil;
     private String fotoArquivo;
@@ -56,17 +59,22 @@ public class TituloBean {
     private List<SelectItem> listFilial;
     private Integer idFilial;
     private List<Catalogo> listCatalogo;
+    private Boolean habilitaGenero;
+    private Integer faixaEtariaInicial;
+    private Integer faixaEtariaFinal;
+    private Boolean habilitaPesquisaFilial;
 
     @PostConstruct
     public void init() {
         titulo = new Titulo();
         catalogo = new Catalogo();
         usuario = new Usuario();
-        descPesquisa = "";
+        descricaoPesquisa = "";
+        tipoPesquisa = "titulo";
         porPesquisa = "descricao";
         comoPesquisa = "";
         idGenero = 0;
-        listGeneroCombo = new ArrayList<>();
+        listGenero = new ArrayList<>();
         listTitulo = new ArrayList<>();
         fotoPerfil = "";
         fotoArquivo = "";
@@ -78,6 +86,14 @@ public class TituloBean {
         listFilial = new ArrayList<>();
         idFilial = 0;
         listCatalogo = new ArrayList<>();
+        habilitaGenero = false;
+        faixaEtariaInicial = 0;
+        faixaEtariaFinal = 0;
+        habilitaPesquisaFilial = false;
+        if (GenericaSessao.exists("habilitaPesquisaFilial")) {
+            habilitaPesquisaFilial = true;
+            GenericaSessao.remove("habilitaPesquisaFilial");
+        }
     }
 
     @PreDestroy
@@ -90,19 +106,23 @@ public class TituloBean {
         GenericaSessao.remove("tituloBean");
     }
 
-    public List<SelectItem> getListGeneroCombo() {
-        if (listGeneroCombo.isEmpty()) {
+    public List<SelectItem> getListGenero() {
+        if (listGenero.isEmpty()) {
             Dao dao = new Dao();
             List<Genero> list = (List<Genero>) dao.list(new Genero(), true);
             for (int i = 0; i < list.size(); i++) {
-                listGeneroCombo.add(new SelectItem(i, list.get(i).getDescricao(), "" + list.get(i).getId()));
+                if (i == 0) {
+                    idGenero = list.get(i).getId();
+                    idGeneroPesquisa = null;
+                }
+                listGenero.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
             }
         }
-        return listGeneroCombo;
+        return listGenero;
     }
 
     public synchronized void save() {
-        if (listGeneroCombo.isEmpty()) {
+        if (listGenero.isEmpty()) {
             GenericaMensagem.warn("Validação", "Cadastrar gêneros!");
             return;
         }
@@ -119,7 +139,7 @@ public class TituloBean {
             return;
         }
         Dao dao = new Dao();
-        titulo.setGenero((Genero) dao.find(new Genero(), Integer.parseInt(listGeneroCombo.get(idGenero).getDescription())));
+        titulo.setGenero((Genero) dao.find(new Genero(), idGenero));
         if (titulo.getDuracao().isEmpty()) {
             GenericaMensagem.warn("Validação", "Informar o tempo de duração!");
             return;
@@ -138,7 +158,7 @@ public class TituloBean {
         NovoLog novoLog = new NovoLog();
         if (titulo.getId() == null) {
             TituloDao tituloDao = new TituloDao();
-            if (tituloDao.pesquisaTitulo(titulo.getDescricao()) != null) {
+            if (tituloDao.exists(titulo.getDescricao()) != null) {
                 GenericaMensagem.warn("Validação", "Titulo já existe!");
                 return;
             }
@@ -157,7 +177,9 @@ public class TituloBean {
                 saveImage();
                 if (titulo.getBarras().isEmpty()) {
                     titulo.setBarras("" + titulo.getId());
-                    new Dao().update(titulo, true);
+                    if (!new Dao().update(titulo, true)) {
+                        titulo.setBarras(null);
+                    }
                 }
             } else {
                 GenericaMensagem.warn("Erro", "Ao inserir registro!");
@@ -224,7 +246,7 @@ public class TituloBean {
         idFilial = c.getFilial().getId();
     }
 
-    public String link(Titulo t) {
+    public String edit(Titulo t) {
         titulo = t;
         GenericaSessao.put("tituloPesquisa", titulo);
         GenericaSessao.put("linkClicado", true);
@@ -325,25 +347,39 @@ public class TituloBean {
     public void acaoPesquisaInicial() {
         listTitulo.clear();
         comoPesquisa = "I";
+        find();
     }
 
     public void acaoPesquisaParcial() {
         listTitulo.clear();
         comoPesquisa = "P";
+        find();
     }
 
-    public List<Titulo> getListTitulo() {
+    public void find() {
         TituloDao tituloDao = new TituloDao();
-        if (descPesquisa.equals("")) {
+        if (descricaoPesquisa.equals("")) {
             listTitulo = new ArrayList();
-            return listTitulo;
         } else {
-            listTitulo = tituloDao.pesquisaTitulos(descPesquisa, porPesquisa, comoPesquisa);
-            return listTitulo;
+            Integer gerero_id = null;
+            if (habilitaGenero) {
+                gerero_id = idGeneroPesquisa;
+            }
+            if (habilitaPesquisaFilial) {
+                MacFilial mf = MacFilial.getAcessoFilial();
+                if (mf != null && mf.getId() != -1) {
+                    listTitulo = tituloDao.find(mf.getFilial().getId(), porPesquisa, comoPesquisa, descricaoPesquisa, gerero_id, faixaEtariaInicial, faixaEtariaFinal);
+                } else {
+                    listTitulo = tituloDao.find(porPesquisa, comoPesquisa, descricaoPesquisa, gerero_id, faixaEtariaInicial, faixaEtariaFinal);
+                }
+            } else {
+                listTitulo = tituloDao.find(porPesquisa, comoPesquisa, descricaoPesquisa, gerero_id, faixaEtariaInicial, faixaEtariaFinal);
+            }
         }
     }
 
-    public void refreshForm() {
+    public List<Titulo> getListTitulo() {
+        return listTitulo;
     }
 
     public String validaHora(String hora) {
@@ -410,16 +446,16 @@ public class TituloBean {
         this.comoPesquisa = comoPesquisa;
     }
 
-    public String getDescPesquisa() {
-        return descPesquisa;
+    public String getDescricaoPesquisa() {
+        return descricaoPesquisa;
     }
 
-    public void setDescPesquisa(String descPesquisa) {
-        this.descPesquisa = descPesquisa;
+    public void setDescricaoPesquisa(String descricaoPesquisa) {
+        this.descricaoPesquisa = descricaoPesquisa;
     }
 
-    public void setListGeneroCombo(List<SelectItem> listGeneroCombo) {
-        this.listGeneroCombo = listGeneroCombo;
+    public void setListGenero(List<SelectItem> listGenero) {
+        this.listGenero = listGenero;
     }
 
     public Integer getIdGenero() {
@@ -668,5 +704,69 @@ public class TituloBean {
 
     public void setListCatalogo(List<Catalogo> listCatalogo) {
         this.listCatalogo = listCatalogo;
+    }
+
+    public String getTipoPesquisa() {
+        return tipoPesquisa;
+    }
+
+    public void setTipoPesquisa(String tipoPesquisa) {
+        this.tipoPesquisa = tipoPesquisa;
+    }
+
+    public Integer getIdGeneroPesquisa() {
+        return idGeneroPesquisa;
+    }
+
+    public void setIdGeneroPesquisa(Integer idGeneroPesquisa) {
+        this.idGeneroPesquisa = idGeneroPesquisa;
+    }
+
+    public Boolean getHabilitaGenero() {
+        return habilitaGenero;
+    }
+
+    public void setHabilitaGenero(Boolean habilitaGenero) {
+        this.habilitaGenero = habilitaGenero;
+    }
+
+    public Integer getFaixaEtariaInicial() {
+        return faixaEtariaInicial;
+    }
+
+    public void setFaixaEtariaInicial(Integer faixaEtariaInicial) {
+        this.faixaEtariaInicial = faixaEtariaInicial;
+    }
+
+    public Integer getFaixaEtariaFinal() {
+        return faixaEtariaFinal;
+    }
+
+    public void setFaixaEtariaFinal(Integer faixaEtariaFinal) {
+        this.faixaEtariaFinal = faixaEtariaFinal;
+    }
+
+    public Boolean getHabilitaPesquisaFilial() {
+        return habilitaPesquisaFilial;
+    }
+
+    public void setHabilitaPesquisaFilial(Boolean habilitaPesquisaFilial) {
+        this.habilitaPesquisaFilial = habilitaPesquisaFilial;
+    }
+
+    public void listener(Integer tcase) {
+        switch (tcase) {
+            case 1:
+                Titulo t;
+                if (habilitaPesquisaFilial) {
+                    t = new TituloDao().findBarras(idFilial, porPesquisa);
+                } else {
+                    t = new TituloDao().findBarras(null, porPesquisa);
+                }
+                if (t == null) {
+                    titulo.setBarras(null);
+                }
+                break;
+        }
     }
 }
