@@ -37,6 +37,7 @@ public class CatalogoDao extends DB {
                     + "     WHERE c.filial.id = " + filial.getId() + "    "
                     + "       AND c.titulo.id = " + titulo.getId() + "    "
                     + "  ORDER BY c.titulo.descricao                  ");
+       
             result = qry.getResultList();
 
         } catch (Exception e) {
@@ -44,20 +45,6 @@ public class CatalogoDao extends DB {
             result = null;
         }
         return result;
-    }
-
-    public List pesquisaCatalogoPorFilial(int idFilial) {
-        try {
-            Query query = getEntityManager().createQuery(" SELECT C FROM Catalogo AS C WHERE C.filial.id = :idFilial ORDER BY C.titulo.descricao");
-            query.setParameter("idFilial", idFilial);
-            List list = query.getResultList();
-            if (!list.isEmpty()) {
-                return list;
-            }
-        } catch (Exception e) {
-
-        }
-        return new ArrayList();
     }
 
     public List findByTitulo(Integer titulo_id) {
@@ -74,36 +61,4 @@ public class CatalogoDao extends DB {
         return new ArrayList();
     }
 
-    public List<Catalogo> pesquisaCatalogo(Filial filial) {
-        List<Catalogo> result = null;
-        try {
-            Query qry = getEntityManager().createQuery("    SELECT c                                   "
-                    + "      FROM Catalogo c                          "
-                    + "     WHERE c.filial.id = " + filial.getId() + "    "
-                    + "  ORDER BY c.titulo.descricao                  ");
-            result = qry.getResultList();
-
-        } catch (Exception e) {
-            e.getMessage();
-            result = null;
-        }
-        return result;
-    }
-
-    public Catalogo pesquisaMatriz(int idTitulo) {
-        Catalogo result = null;
-        try {
-            Query qry = getEntityManager().createQuery("    SELECT c                         "
-                    + "      FROM Catalogo c,               "
-                    + "           Filial f                  "
-                    + "     WHERE c.filial.id = f.id        "
-                    + "       and f.filial.id = f.matriz.id "
-                    + "       and c.titulo.id = " + idTitulo);
-            result = (Catalogo) qry.getSingleResult();
-        } catch (Exception e) {
-            e.getMessage();
-            result = null;
-        }
-        return result;
-    }
 }
