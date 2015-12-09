@@ -97,9 +97,13 @@ public class TituloDao extends DB {
     }
 
     public Titulo findBarras(Integer filial_id, String barras) {
-        List list = find(filial_id, "barras", "T", barras, null, null, null);
-        if (!list.isEmpty()) {
-            return (Titulo) list.get(0);
+        try {
+            List list = find(filial_id, "barras", "T", barras, null, 0, 0);
+            if (!list.isEmpty()) {
+                return (Titulo) list.get(0);
+            }
+        } catch (Exception e) {
+            return null;
         }
         return null;
     }
