@@ -759,12 +759,14 @@ public class TituloBean {
             case 1:
                 Titulo t;
                 if (habilitaPesquisaFilial) {
-                    t = new TituloDao().findBarras(idFilial, porPesquisa);
+                    t = new TituloDao().findBarras(idFilial, titulo.getBarras());
                 } else {
-                    t = new TituloDao().findBarras(null, porPesquisa);
+                    t = new TituloDao().findBarras(null, titulo.getBarras());
                 }
-                if (t == null) {
-                    titulo.setBarras(null);
+                if (t != null) {
+                    if(!t.getBarras().equals(titulo.getBarras())) {
+                        titulo.setBarras(null);                        
+                    }
                 }
                 break;
         }
