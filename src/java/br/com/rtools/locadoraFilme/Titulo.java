@@ -41,7 +41,7 @@ public class Titulo implements Serializable {
     @JoinColumn(name = "id_genero", referencedColumnName = "id")
     @ManyToOne
     private Genero genero;
-    @Column(name = "ds_barras", length = 100)
+    @Column(name = "ds_barras", length = 100, unique = true)
     private String barras;
     @Column(name = "nr_duracao_minutos", length = 5)
     private String duracao;
