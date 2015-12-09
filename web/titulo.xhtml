@@ -52,10 +52,12 @@
                                             <p:outputLabel value="Gênero:" />
                                             <p:selectOneMenu value="#{tituloBean.idGenero}" >
                                                 <f:selectItem itemValue="" itemLabel="Selecionar" />
-                                                <f:selectItems value="#{tituloBean.listGeneroCombo}" />
+                                                <f:selectItems value="#{tituloBean.listGenero}" />
                                             </p:selectOneMenu>
                                             <p:outputLabel value="Código de Barras:" />
-                                            <p:inputText value="#{tituloBean.titulo.barras}" maxlength="15" size="16" />
+                                            <p:inputText value="#{tituloBean.titulo.barras}" maxlength="15" size="16">
+                                                <p:ajax event="change" update="@this" listener="#{tituloBean.listener(1)}"/>                                            
+                                            </p:inputText>
                                             <p:outputLabel value="Duração:" />
                                             <p:inputMask id="idDuracao" size="2" value="#{tituloBean.titulo.duracao}" mask="99:99" >
                                                 <p:ajax event="change" update="@this" />
