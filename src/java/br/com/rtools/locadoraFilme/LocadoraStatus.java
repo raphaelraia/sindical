@@ -46,6 +46,8 @@ public class LocadoraStatus implements Serializable {
     private Integer qtdeLancamentos;
     @Column(name = "nr_dias_devolucao", columnDefinition = "integer default 0")
     private Integer diasDevolucao;
+    @Column(name = "is_locacao_dependente", columnDefinition = "boolean default false", nullable = false)
+    private Boolean locacaoDependente;
 
     @Transient
     private Boolean selected;
@@ -60,9 +62,10 @@ public class LocadoraStatus implements Serializable {
         this.qtdeLancamentos = 0;
         this.diasDevolucao = 0;
         this.selected = false;
+        this.locacaoDependente = false;
     }
 
-    public LocadoraStatus(Integer id, Filial filial, Semana semana, LocadoraTaxa taxa, Date data, Integer qtdeLocacao, Integer qtdeLancamentos, Integer diasDevolucao) {
+    public LocadoraStatus(Integer id, Filial filial, Semana semana, LocadoraTaxa taxa, Date data, Integer qtdeLocacao, Integer qtdeLancamentos, Integer diasDevolucao, Boolean locacaoDependente) {
         this.id = id;
         this.filial = filial;
         this.semana = semana;
@@ -71,6 +74,7 @@ public class LocadoraStatus implements Serializable {
         this.qtdeLocacao = qtdeLocacao;
         this.qtdeLancamentos = qtdeLancamentos;
         this.diasDevolucao = diasDevolucao;
+        this.locacaoDependente = locacaoDependente;
     }
 
     public Integer getId() {
@@ -187,6 +191,14 @@ public class LocadoraStatus implements Serializable {
 
     public void setSelected(Boolean selected) {
         this.selected = selected;
+    }
+
+    public Boolean getLocacaoDependente() {
+        return locacaoDependente;
+    }
+
+    public void setLocacaoDependente(Boolean locacaoDependente) {
+        this.locacaoDependente = locacaoDependente;
     }
 
     @Override
