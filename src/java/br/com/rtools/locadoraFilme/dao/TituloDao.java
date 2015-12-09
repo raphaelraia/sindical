@@ -1,80 +1,107 @@
 package br.com.rtools.locadoraFilme.dao;
 
-import br.com.rtools.locadoraFilme.Genero;
 import br.com.rtools.locadoraFilme.Titulo;
 import br.com.rtools.principal.DB;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 import javax.persistence.Query;
 
 public class TituloDao extends DB {
 
-    public String pesquisaTitulo(String des_titulo) {
-        String result = null;
-        des_titulo = "%" + des_titulo + "%";
+    public Boolean exists(String descricao) {
         try {
-            Query qry = getEntityManager().createQuery("select t.descricao from Titulo t where t.descricao like '" + des_titulo + "'");
-            result = (String) qry.getSingleResult();
+            String queryString = " -- TituloDao()->exists() \n\n"
+                    + "     SELECT T.*              \n"
+                    + "       FROM loc_titulo AS T  \n"
+                    + "      WHERE func_translate(UPPER(T.ds_descricao)) LIKE func_translate(UPPER('" + descricao.trim() + "')) \n";
+            Query query = getEntityManager().createNativeQuery(queryString, Titulo.class);
+            List list = query.getResultList();
+            return !list.isEmpty();
         } catch (Exception e) {
+            return false;
         }
-        return result;
     }
 
-    public List pesquisaTitulos(String desc, String por, String como) {
-        List lista = new Vector<Object>();
-        String textQuery = null;
-        if (como.equals("T")) {
-            textQuery = "";
-            //textQuery = "select objeto from Titulo objeto";
-        } else if (como.equals("P")) {
-            desc = "%" + desc.toLowerCase().toUpperCase() + "%";
-            textQuery = "select objeto from Titulo objeto where UPPER(objeto." + por + ") like :desc"
-                    + " order by objeto.descricao";
-        } else if (como.equals("I")) {
-            desc = desc.toLowerCase().toUpperCase() + "%";
-            textQuery = "select objeto from Titulo objeto where UPPER(objeto." + por + ") like :desc"
-                    + " order by objeto.descricao";
+    /**
+     * Se alterar aqui alterar tambem em catalogoDao
+     *
+     * @param por
+     * @param como
+     * @param descricao
+     * @param genero_id
+     * @param faixa_etaria_inicial
+     * @param faixa_etaria_final
+     * @return
+     */
+    public List find(String por, String como, String descricao, Integer genero_id, Integer faixa_etaria_inicial, Integer faixa_etaria_final) {
+        return find(null, por, como, descricao, genero_id, faixa_etaria_inicial, faixa_etaria_final);
+    }
+
+    /**
+     * cao, Integer genero_id, Integer faixa_etaria_inicial, Integer
+     * faixa_etaria_final); } /** Se alterar aqui alterar tambem em catalogoDao
+     *
+     * @param filial_id
+     * @param por
+     * @param como
+     * @param descricao
+     * @param genero_id
+     * @param faixa_etaria_inicial
+     * @param faixa_etaria_final
+     * @return
+     */
+    public List find(Integer filial_id, String por, String como, String descricao, Integer genero_id, Integer faixa_etaria_inicial, Integer faixa_etaria_final) {
+        List listQuery = new ArrayList();
+        String queryString = " -- TituloDao()->find() \n\n"
+                + "     SELECT T.*              \n"
+                + "       FROM loc_titulo AS T  \n";
+        if (filial_id != null) {
+            queryString += " INNER JOIN loc_titulo_filial AS TF ON TF.id_titulo = T.id ";
+            listQuery.add("TC.id_filial = " + filial_id);
         }
-        try {
-            Query qry = getEntityManager().createQuery(textQuery);
-            if ((desc != null) && (!(como.equals("T")))) {
-                qry.setParameter("desc", desc);
+        switch (como) {
+            case "T":
+                listQuery.add("func_translate(UPPER(T.ds_" + por + ")) LIKE func_translate(UPPER('" + descricao + "'))");
+                break;
+            case "P":
+                listQuery.add("func_translate(UPPER(T.ds_" + por + ")) LIKE func_translate(UPPER('%" + descricao + "%'))");
+                break;
+            case "I":
+                listQuery.add("func_translate(UPPER(T.ds_" + por + ")) LIKE func_translate(UPPER('" + descricao + "%'))");
+                break;
+        }
+
+        if (genero_id != null) {
+            listQuery.add("T.id_genero = " + genero_id);
+        }
+        if (faixa_etaria_inicial > 0 && faixa_etaria_inicial == 0) {
+            listQuery.add("T.nr_idade_minima = " + faixa_etaria_inicial);
+        } else if (faixa_etaria_inicial > 0 && faixa_etaria_inicial > 0 && faixa_etaria_final > faixa_etaria_inicial) {
+            listQuery.add("T.nr_idade_minima BETWEEN " + faixa_etaria_inicial + " AND " + faixa_etaria_final);
+        }
+        for (int i = 0; i < listQuery.size(); i++) {
+            if (i == 0) {
+                queryString += " WHERE " + listQuery.get(i).toString();
+            } else {
+                queryString += " AND " + listQuery.get(i).toString();
             }
-            lista = qry.getResultList();
-        } catch (Exception e) {
-            lista = new Vector<Object>();
+            queryString += " \n";
         }
-        return lista;
-    }
-
-    public Genero pesquisaCodigoGenero(int id) {
-        Genero result = null;
+        queryString += " ORDER BY T.ds_descricao ASC ";
         try {
-            Query qry = getEntityManager().createNamedQuery("Genero.pesquisaID");
-            qry.setParameter("pid", id);
-            result = (Genero) qry.getSingleResult();
+            Query query = getEntityManager().createNativeQuery(queryString, Titulo.class);
+            return query.getResultList();
         } catch (Exception e) {
-        }
-        return result;
-    }
-
-    public List pesquisaTodosGenero() {
-        try {
-            Query qry = getEntityManager().createQuery("select g from Genero g ");
-            return (qry.getResultList());
-        } catch (Exception e) {
-            return null;
+            return new ArrayList<>();
         }
     }
 
-    public String pesquisaGenero(String des_genero) {
-        String result = null;
-        des_genero = "%" + des_genero + "%";
-        try {
-            Query qry = getEntityManager().createQuery("select g.descricao from Genero g where g.descricao like '" + des_genero + "'");
-            result = (String) qry.getSingleResult();
-        } catch (Exception e) {
+    public Titulo findBarras(Integer filial_id, String barras) {
+        List list = find(filial_id, "barras", "T", barras, null, null, null);
+        if (!list.isEmpty()) {
+            return (Titulo) list.get(0);
         }
-        return result;
+        return null;
     }
+
 }
