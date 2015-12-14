@@ -20,9 +20,11 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 @ManagedBean
@@ -1355,5 +1357,38 @@ public class ControleAcessoBean implements Serializable {
 
         }
         return retorno;
+    }
+
+    public static String getStaticClienteCoockie() {
+        //Obter cookie    
+        String clienteString = "Sindical";
+        FacesContext ctx = FacesContext.getCurrentInstance();
+        if (ctx != null) {
+            Map<String, Object> cookies = ctx.getExternalContext().getRequestCookieMap();
+            Cookie cookieCliente = (Cookie) cookies.get("cliente");
+            if (cookieCliente != null) {
+                clienteString = cookieCliente.getValue();
+            }
+        }
+        return clienteString;
+    }
+
+    public String getClienteCoockie() {
+        //Obter cookie    
+        String clienteString = "Sindical";
+        FacesContext ctx = FacesContext.getCurrentInstance();
+        if (ctx != null) {
+            Map<String, Object> cookies = ctx.getExternalContext().getRequestCookieMap();
+            Cookie cookieCliente = (Cookie) cookies.get("cliente");
+            if (cookieCliente != null) {
+                clienteString = cookieCliente.getValue();
+            }
+            clienteString += "/";
+            Cookie cookieFilial = (Cookie) cookies.get("filial");
+            if (cookieFilial != null && !cookieFilial.getValue().isEmpty()) {
+                clienteString += "?filial=" + cookieFilial.getValue();
+            }
+        }
+        return clienteString;
     }
 }

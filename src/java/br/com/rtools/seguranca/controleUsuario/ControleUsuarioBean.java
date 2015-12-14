@@ -28,10 +28,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 @ManagedBean
@@ -190,6 +193,24 @@ public class ControleUsuarioBean implements Serializable {
                 Implantacao implantacao = new Implantacao();
                 implantacao.run();
             }
+            String c = ControleAcessoBean.getStaticClienteCoockie();
+            if (c != null && !c.isEmpty()) {
+                if (!c.equals(getCliente())) {
+
+                }
+            }
+            // Inserir cookie
+            FacesContext context = FacesContext.getCurrentInstance();
+            if (context != null) {
+                // Cria cookie
+                Cookie coockieCliente = new Cookie("cliente", getCliente());
+                // Adiciona
+                ((HttpServletResponse) context.getExternalContext().getResponse()).addCookie(coockieCliente);
+                if (filial != null && !filial.isEmpty()) {
+                    Cookie coockieFilial = new Cookie("filial", macFilial.getMac());
+                    ((HttpServletResponse) context.getExternalContext().getResponse()).addCookie(coockieFilial);
+                }
+            }
             pagina = "menuPrincipal";
             GenericaSessao.put("sessaoUsuario", usuario);
             GenericaSessao.put("usuarioLogin", usuario.getLogin());
@@ -344,10 +365,12 @@ public class ControleUsuarioBean implements Serializable {
         //  filialDep = request.getRequestURL().toString();
         // filialDep = requestFilial.getQueryString();
         filialDep = request.getParameter("filial");
+        if (filialDep == null) {
+            filialDep = getFilialCoockie();
+        }
         if (filialDep != null) {
             MacFilialDao macFilialDao = new MacFilialDao();
             setMacFilial(macFilialDao.pesquisaMac(filialDep));
-
             if (getMacFilial() != null) {
                 filialDep = getMacFilial().getFilial().getFilial().getPessoa().getNome();
             } else {
@@ -485,6 +508,19 @@ public class ControleUsuarioBean implements Serializable {
 
     public void setExport(Boolean export) {
         this.export = export;
+    }
+
+    public String getFilialCoockie() {
+        String filialCoockie = null;
+        FacesContext ctx = FacesContext.getCurrentInstance();
+        if (ctx != null) {
+            Map<String, Object> cookies = ctx.getExternalContext().getRequestCookieMap();
+            Cookie cookieCliente = (Cookie) cookies.get("filial");
+            if (cookieCliente != null && !cookieCliente.getValue().isEmpty()) {
+                filialDep = cookieCliente.getValue();
+            }
+        }
+        return filialCoockie;
     }
 
 }
