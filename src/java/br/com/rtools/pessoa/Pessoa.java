@@ -419,6 +419,10 @@ public class Pessoa implements Serializable {
         return getFotoResource();
     }
 
+    /**
+     * Retorna true se for titular ( getIsTitular() )
+     * @return 
+     */
     public Boolean getIsTitular() {
         return isTitular;
     }
