@@ -358,12 +358,12 @@ public class Fisica implements java.io.Serializable {
         }
         return s;
     }
-    
-    public PessoaEmpresa getPessoaEmpresa(){
+
+    public PessoaEmpresa getPessoaEmpresa() {
         PessoaEmpresaDB pessoaEmpresaDB = new PessoaEmpresaDBToplink();
         PessoaEmpresa pe = (PessoaEmpresa) pessoaEmpresaDB.pesquisaPessoaEmpresaPorFisica(this.id);
         if (pe != null && pe.getId() != -1) {
-           return pe;
+            return pe;
         }
         return null;
     }
@@ -374,5 +374,13 @@ public class Fisica implements java.io.Serializable {
 
     public void setFoto(String foto) {
         this.foto = foto;
+    }
+
+    public Integer getIdade() {
+        try {
+            return new DataHoje().calcularIdade(this.getDtNascimento());
+        } catch (Exception e) {
+            return 0;
+        }
     }
 }
