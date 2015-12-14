@@ -66,6 +66,9 @@ public class Pessoa implements Serializable {
     @Column(name = "dt_atualizacao")
     private Date dtAtualizacao;
 
+    @Transient
+    private Boolean isTitular;
+
     public Pessoa() {
         this.id = -1;
         this.nome = "";
@@ -314,6 +317,11 @@ public class Pessoa implements Serializable {
             SociosDB sociosDB = new SociosDBToplink();
             socios = sociosDB.pesquisaSocioPorPessoaAtivo(this.id);
             socios.getServicoPessoa().setPessoa(null);
+            if (socios.getMatriculaSocios().getTitular().getId() == this.id) {
+                isTitular = true;
+            } else {
+                isTitular = false;
+            }
         }
         return socios;
     }
@@ -383,8 +391,8 @@ public class Pessoa implements Serializable {
             } else {
                 JuridicaDB juridicaDB = new JuridicaDBToplink();
                 Juridica juridica = juridicaDB.pesquisaJuridicaPorPessoa(this.id);
-                
-                if (juridica != null){
+
+                if (juridica != null) {
                     foto = "cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + this.id + "/" + juridica.getFoto() + ".png";
                     File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/" + foto);
 
@@ -409,5 +417,13 @@ public class Pessoa implements Serializable {
 
     public String getFoto() {
         return getFotoResource();
+    }
+
+    public Boolean getIsTitular() {
+        return isTitular;
+    }
+
+    public void setIsTitular(Boolean isTitular) {
+        this.isTitular = isTitular;
     }
 }
