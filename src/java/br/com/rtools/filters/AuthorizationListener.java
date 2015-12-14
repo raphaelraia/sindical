@@ -16,7 +16,8 @@ public class AuthorizationListener implements PhaseListener {
 
         boolean isLoginPage = 
                 (
-                currentPage.lastIndexOf("index.xhtml") > -1 || 
+                currentPage.lastIndexOf("index.jsf") > -1 ||
+                currentPage.lastIndexOf("index.xhtml") > -1 ||
                 currentPage.lastIndexOf("indexLogin.xhtml") > -1 || 
                 currentPage.lastIndexOf("indexLoginExpirou.xhtml") > -1 ||
                 currentPage.lastIndexOf("indexAcessoWeb.xhtml") > -1
