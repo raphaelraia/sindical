@@ -93,7 +93,7 @@
         <welcome-file>index.xhtml</welcome-file>
     </welcome-file-list>
     
-    <!-- 
+    <!--
     <servet>
         <servet-name>Push Servlet</servet-name>
         <servet-class>org.primefaces.push.PushServlet</servet-class>
