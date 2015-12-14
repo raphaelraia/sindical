@@ -26,6 +26,8 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 @ManagedBean
@@ -365,6 +367,14 @@ public class UsuarioBean implements Serializable {
                 retorno += "?filial=" + macFilial.getMac();
             }
 
+        }
+        // Inserir cookie
+        FacesContext context = FacesContext.getCurrentInstance();
+        if (context != null) {
+            // Cria cookie
+            Cookie coockieFilial = new Cookie("filial", null);
+            // Adiciona
+            ((HttpServletResponse) context.getExternalContext().getResponse()).addCookie(coockieFilial);
         }
         /*String sair;
          if (FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuario") != null){
