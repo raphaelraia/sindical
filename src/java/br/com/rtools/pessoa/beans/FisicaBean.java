@@ -152,19 +152,19 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     // TAB DOCUMENTOS
     private List<Documento> listaDocumentos = new ArrayList();
     private List<LinhaArquivo> listaArquivos = new ArrayList();
-    
-    public FisicaBean() {
-        
-    }
 
+    public FisicaBean() {
+
+    }
 
     public void loadListaDocumentos() {
         listaDocumentos.clear();
 
         DigitalizacaoDao dao = new DigitalizacaoDao();
 
-        if(fisica.getId() != -1)
+        if (fisica.getId() != -1) {
             listaDocumentos = dao.listaDocumento(fisica.getPessoa().getId());
+        }
     }
 
     public void verDocumentos(Documento linha) {
@@ -183,8 +183,8 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 listaArquivos.add(new LinhaArquivo("fileExtension" + ext + ".png", lista_data.getName(), mimeType, linha));
             }
         }
-    }    
-    
+    }
+
     public void loadListaOposicao() {
         if (fisica.getId() != -1) {
             listaOposicao.clear();
@@ -1316,7 +1316,6 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 //        }
 //
 //    }
-
     public String excluirEmpresaAnterior(PessoaEmpresa pe) {
         HomologacaoDB dbAge = new HomologacaoDBToplink();
         List<Agendamento> agendas = dbAge.pesquisaAgendamentoPorPessoaEmpresa(pe.getId());
@@ -1832,7 +1831,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         if (indexPessoaFisica == 6) {
             loadListaOposicao();
         }
-        
+
         if (indexPessoaFisica == 7) {
             loadListaDocumentos();
         }
@@ -1921,7 +1920,6 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 //        }
 //        nomeFoto = nameTemp;
 //    }
-
     public void apagarImagem() {
         boolean sucesso = false;
         try {
@@ -2266,6 +2264,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             case "matriculaEscola":
             case "matriculaAcademia":
             case "convenioMedico":
+            case "locacaoFilme":
                 if (!p.getDocumento().isEmpty()) {
                     OposicaoDao odbt = new OposicaoDao();
                     if (odbt.existPessoaDocumentoPeriodo(p.getDocumento())) {
@@ -2281,11 +2280,10 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         // DÉBITOS
         switch (validacao) {
             case "convenioMedico":
-            //case "matriculaEscola":
             case "matriculaAcademia":
             case "emissaoGuias":
-            //case "lancamentoIndividual":
             case "geracaoDebitosCartao":
+            case "locacaoFilme":
                 FunctionsDao functionsDao = new FunctionsDao();
                 if (functionsDao.inadimplente(p.getId())) {
                     count++;
@@ -2302,6 +2300,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             case "emissaoGuias":
             case "lancamentoIndividual":
             case "geracaoDebitosCartao":
+            case "locacaoFilme":
                 PessoaComplemento pc = f.getPessoa().getPessoaComplemento();
                 if (pc.getBloqueiaObsAviso()) {
                     count++;
