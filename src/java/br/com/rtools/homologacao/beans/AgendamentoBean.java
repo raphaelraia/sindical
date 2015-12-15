@@ -624,35 +624,35 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         }
         styleDestaque = "";
         Dao dao = new Dao();
-        if (configuracaoHomologacao.isValidaNome()) {
+        if (configuracaoHomologacao.getValidaNome()) {
             if (fisica.getPessoa().getNome().isEmpty()) {
                 GenericaMensagem.warn("Atenção", "Digite o nome do Funcionário!");
                 return;
             }
         }
 
-        if (configuracaoHomologacao.isValidaDataNascimento()) {
+        if (configuracaoHomologacao.getValidaDataNascimento()) {
             if (fisica.getNascimento().isEmpty()) {
                 GenericaMensagem.warn("Validação", "Informar data de nascimento!");
                 return;
             }
         }
 
-        if (configuracaoHomologacao.isValidaFuncao()) {
+        if (configuracaoHomologacao.getValidaFuncao()) {
             if (profissao.getId() == -1 || profissao.getId() == 0) {
                 GenericaMensagem.warn("Atenção", "Informar a Função!");
                 return;
             }
         }
 
-        if (configuracaoHomologacao.isValidaCarteira()) {
+        if (configuracaoHomologacao.getValidaCarteira()) {
             if (fisica.getCarteira().isEmpty()) {
                 GenericaMensagem.warn("Atenção", "Informar a Carteira!");
                 return;
             }
         }
 
-        if (configuracaoHomologacao.isValidaSerie()) {
+        if (configuracaoHomologacao.getValidaSerie()) {
             if (fisica.getSerie().isEmpty()) {
                 GenericaMensagem.warn("Atenção", "Informar a Série!");
                 return;
@@ -877,21 +877,21 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 return;
             }
         }
-        if (configuracaoHomologacao.isValidaContato()) {
+        if (configuracaoHomologacao.getValidaContato()) {
             if (agendamento.getContato().isEmpty()) {
                 dao.rollback();
                 GenericaMensagem.warn("Atenção", "Informar o nome do Contato!");
                 return;
             }
         }
-        if (configuracaoHomologacao.isValidaTelefone()) {
+        if (configuracaoHomologacao.getValidaTelefone()) {
             if (agendamento.getTelefone().isEmpty()) {
                 dao.rollback();
                 GenericaMensagem.warn("Atenção", "Informar o telefone para contato!");
                 return;
             }
         }
-        if (configuracaoHomologacao.isValidaEmail()) {
+        if (configuracaoHomologacao.getValidaEmail()) {
             if (agendamento.getEmail().isEmpty()) {
                 dao.rollback();
                 GenericaMensagem.warn("Atenção", "Informar o email!");
@@ -1645,9 +1645,8 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     }
 
     public ConfiguracaoHomologacao getConfiguracaoHomologacao() {
-        if (configuracaoHomologacao.getId() == -1) {
-            Dao dao = new Dao();
-            configuracaoHomologacao = (ConfiguracaoHomologacao) dao.find(new ConfiguracaoHomologacao(), 1);
+        if (configuracaoHomologacao.getId() == null) {
+            configuracaoHomologacao = (ConfiguracaoHomologacao) new Dao().find(new ConfiguracaoHomologacao(), 1);
         }
         return configuracaoHomologacao;
     }

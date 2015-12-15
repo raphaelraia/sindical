@@ -2,11 +2,13 @@ package br.com.rtools.associativo.beans;
 
 import br.com.rtools.financeiro.dao.CarneMensalidadesDao;
 import br.com.rtools.impressao.ParametroCarneMensalidades;
+import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
+import br.com.rtools.sistema.Mes;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaSessao;
@@ -25,6 +27,7 @@ import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
+import javax.faces.model.SelectItem;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
 import net.sf.jasperreports.engine.JRException;
@@ -35,66 +38,74 @@ import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.util.JRLoader;
 
-
 @ManagedBean
 @SessionScoped
 public class CarneMensalidadesBean {
-    private String mes;
+
+    private String idMes;
     private String ano;
     private List listaData;
     private Pessoa pessoa;
     private List<Pessoa> listaPessoa;
-    
+    private List<SelectItem> listMeses;
+
     @PostConstruct
-    public void init(){
+    public void init() {
         DataHoje dh = new DataHoje();
-        mes = DataHoje.DataToArrayString(dh.incrementarMeses(1, DataHoje.data()))[1];
         ano = DataHoje.DataToArrayString(DataHoje.data())[2];
-        
         listaData = new ArrayList();
         pessoa = new Pessoa();
         listaPessoa = new ArrayList();
+        listMeses = Mes.loadSelectItem();
+        idMes = DataHoje.DataToArrayString(dh.incrementarMeses(1, DataHoje.data()))[1];
     }
-    
+
     @PreDestroy
-    public void destroy(){
-        
+    public void destroy() {
+        GenericaSessao.remove("fisicaPesquisa");
+        GenericaSessao.remove("carneMensalidadesBean");
     }
-    
-    public void imprimirCarne(){
+
+    public void imprimirCarne() {
+        imprimirCarne(false);
+    }
+
+    public void imprimirCarne(Boolean todos) {
+        String id_pessoa = "";
+        if (todos) {
+
+        } else {
+            for (int i = 0; i < listaPessoa.size(); i++) {
+                if (id_pessoa.length() > 0 && i != listaPessoa.size()) {
+                    id_pessoa = id_pessoa + ",";
+                }
+                id_pessoa = id_pessoa + String.valueOf(listaPessoa.get(i).getId());
+            }
+        }
+
         Juridica sindicato = (Juridica) (new Dao()).find(new Juridica(), 1);
         PessoaEnderecoDao dao = new PessoaEnderecoDao();
         PessoaEndereco pe = dao.pesquisaEndPorPessoaTipo(1, 2);
-        
         CarneMensalidadesDao db = new CarneMensalidadesDao();
-        String id_pessoa = "";
-        for (int i = 0; i < listaPessoa.size(); i++) {
-            if (id_pessoa.length() > 0 && i != listaPessoa.size()) {
-                id_pessoa = id_pessoa + ",";
-            }
-            id_pessoa = id_pessoa + String.valueOf(listaPessoa.get(i).getId());
-        }
-        
         String datas = "";
-        if (!listaData.isEmpty()){
+        if (!listaData.isEmpty()) {
             for (int i = 0; i < listaData.size(); i++) {
                 if (datas.length() > 0 && i != listaData.size()) {
                     datas = datas + ",";
                 }
-                datas = datas + "'"+String.valueOf(listaData.get(i))+"'";
+                datas = datas + "'" + String.valueOf(listaData.get(i)) + "'";
             }
-        }else{
-            datas = "'"+mes+"/"+ano+"'";
+        } else {
+            datas = "'" + idMes + "/" + ano + "'";
         }
-        
-        
-        List<Vector> result = db.listaCarneMensalidadesAgrupado( (id_pessoa.isEmpty()) ? null : id_pessoa, datas );
+
+        List<Vector> result = db.listaCarneMensalidadesAgrupado((id_pessoa.isEmpty()) ? null : id_pessoa, datas);
         Collection lista = new ArrayList();
-        
+
         Map hash_subreport = new HashMap();
         hash_subreport.put("subreport_file", ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/CARNE_MENSALIDADES_subreport.jasper"));
         String logo_sindicato = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png");
-        
+
         for (Vector result1 : result) {
             List<Vector> result_servico = db.listaServicosCarneMensalidades(Integer.valueOf(result1.get(3).toString()), datas);
             List listax = new ArrayList();
@@ -107,8 +118,8 @@ public class CarneMensalidadesBean {
             List<Vector> result_2 = db.listaCarneMensalidades(Integer.valueOf(result1.get(3).toString()), datas);
             String valor_total = "";
             float soma = 0;
-            for (int w = 0; w < result_2.size(); w++){
-                float valor_linha = Moeda.converteFloatR$Float(Float.parseFloat(Double.toString( (Double) result_2.get(w).get(5) )));
+            for (int w = 0; w < result_2.size(); w++) {
+                float valor_linha = Moeda.converteFloatR$Float(Float.parseFloat(Double.toString((Double) result_2.get(w).get(5))));
                 soma = Moeda.somaValores(soma, valor_linha);
                 valor_total = Moeda.converteR$Float(soma);
                 lista.add(
@@ -128,19 +139,19 @@ public class CarneMensalidadesBean {
                                 sindicato.getPessoa().getSite(),
                                 sindicato.getPessoa().getDocumento(),
                                 result_2.get(w).get(0).toString(),
-                                ( result_2.get(w).get(1) != null ) ? result_2.get(w).get(1).toString() : "",
+                                (result_2.get(w).get(1) != null) ? result_2.get(w).get(1).toString() : "",
                                 result_2.get(w).get(3).toString(),
-                                ( result_2.get(w).get(2) != null ) ? result_2.get(w).get(2).toString() : "",
-                                w+1,
-                                DataHoje.converteData( (Date) result_2.get(w).get(4) ),
-                                Moeda.converteR$Float( valor_linha ),
+                                (result_2.get(w).get(2) != null) ? result_2.get(w).get(2).toString() : "",
+                                w + 1,
+                                DataHoje.converteData((Date) result_2.get(w).get(4)),
+                                Moeda.converteR$Float(valor_linha),
                                 valor_total,
                                 listax
                         )
                 );
             }
         }
-        
+
         try {
             File file_jasper = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/CARNE_MENSALIDADES.jasper"));
             JasperReport jasperReport = (JasperReport) JRLoader.loadObject(file_jasper);
@@ -148,7 +159,7 @@ public class CarneMensalidadesBean {
             JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(lista);
             JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, hash_subreport, dtSource);
             byte[] arquivo = JasperExportManager.exportReportToPdf(jasperPrint);
-            
+
             HttpServletResponse res = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
             res.setContentType("application/pdf");
             res.setHeader("Content-disposition", "inline; filename=\"Carnê de Mensalidades.pdf\"");
@@ -158,74 +169,73 @@ public class CarneMensalidadesBean {
 
         } catch (JRException | IOException e) {
             e.getMessage();
-        }        
-    }    
-    
-    public void adicionarData(){
-        if (!listaData.isEmpty()){
+        }
+    }
+
+    public void adicionarData() {
+        if (!listaData.isEmpty()) {
             boolean existe = false;
             for (Object data : listaData) {
-                if (data.toString().equals(mes+"/"+ano)) {
+                if (data.toString().equals(idMes + "/" + ano)) {
                     existe = true;
                 }
             }
-            if (!existe)
-                listaData.add(mes+"/"+ano);
-                
-        }else{
-            listaData.add(mes+"/"+ano);
+            if (!existe) {
+                listaData.add(idMes + "/" + ano);
+            }
+
+        } else {
+            listaData.add(idMes + "/" + ano);
         }
-    }    
-    
-    
-    public void adicionarTodasData(){
-        if (!listaData.isEmpty()){
+    }
+
+    public void adicionarTodasData() {
+        if (!listaData.isEmpty()) {
             boolean existe = false;
-            for (int w = 1; w <= 12; w++){
-                String mesx = (w < 10) ? "0"+w : ""+w;
-                for (int i = 0; i < listaData.size(); i++){
-                    if (listaData.get(i).toString().equals(mesx+"/"+ano)){
+            for (int w = 1; w <= 12; w++) {
+                String mesx = (w < 10) ? "0" + w : "" + w;
+                for (int i = 0; i < listaData.size(); i++) {
+                    if (listaData.get(i).toString().equals(mesx + "/" + ano)) {
                         existe = true;
                         break;
                     }
                 }
-                if (!existe){
-                    listaData.add(mesx+"/"+ano);
+                if (!existe) {
+                    listaData.add(mesx + "/" + ano);
                 }
                 existe = false;
             }
-        }else{
-            for (int w = 1; w <= 12; w++){
-                String mesx = (w < 10) ? "0"+w : ""+w;
-                listaData.add(mesx+"/"+ano);
+        } else {
+            for (int w = 1; w <= 12; w++) {
+                String mesx = (w < 10) ? "0" + w : "" + w;
+                listaData.add(mesx + "/" + ano);
             }
         }
-    }    
-        
+    }
+
     public void removerDataLista(int index) {
         listaData.remove(index);
-    }   
-       
+    }
+
     public void adicionarPessoa() {
         listaPessoa.add(pessoa);
         pessoa = new Pessoa();
     }
-    
 
     public void removerPessoaLista(int index) {
         listaPessoa.remove(index);
-    }    
-    
-    public void removerPessoa(){
-        pessoa = new Pessoa();
-    }
-    
-    public String getMes() {
-        return mes;
     }
 
-    public void setMes(String mes) {
-        this.mes = mes;
+    public void removerPessoa() {
+        pessoa = new Pessoa();
+    }
+
+    public String getIdMes() {
+        return idMes;
+    }
+
+    public void setIdMes(String idMes) {
+        this.idMes = idMes;
     }
 
     public String getAno() {
@@ -245,11 +255,11 @@ public class CarneMensalidadesBean {
     }
 
     public Pessoa getPessoa() {
-        if (GenericaSessao.getObject("pessoaPesquisa") != null){
-            pessoa = (Pessoa) GenericaSessao.getObject("pessoaPesquisa");
-            GenericaSessao.remove("pessoaPesquisa");
+        if (GenericaSessao.getObject("fisicaPesquisa") != null) {
+            pessoa = ((Fisica) GenericaSessao.getObject("fisicaPesquisa")).getPessoa();
+            GenericaSessao.remove("fisicaPesquisa");
             adicionarPessoa();
-        }        
+        }
         return pessoa;
     }
 
@@ -264,6 +274,15 @@ public class CarneMensalidadesBean {
     public void setListaPessoa(List<Pessoa> listaPessoa) {
         this.listaPessoa = listaPessoa;
     }
+
+    public List<SelectItem> getListMeses() {
+        return listMeses;
+    }
+
+    public void setListMeses(List<SelectItem> listMeses) {
+        this.listMeses = listMeses;
+    }
+
 }
 // select       se.ds_descricao as servico,  
 //     tp.ds_descricao as tipo, 

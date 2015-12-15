@@ -37,12 +37,12 @@
                     <p:panel styleClass="fundoCinza">
                         <h:panelGrid columns="2">
                             <p:calendar size="8" value="#{webAgendamentoContribuinteBean.data}" pattern="dd/MM/yyyy" navigator="true" yearRange="c-1:c+1" mask="99/99/9999">
-                                <p:ajax event="dateSelect" update="tbl" listener="#{webAgendamentoContribuinteBean.listaHorarios.clear()}"/>
-                                <p:ajax event="change" update="tbl" listener="#{webAgendamentoContribuinteBean.listaHorarios.clear()}"/>
+                                <p:ajax event="dateSelect" update="@this tbl" listener="#{webAgendamentoContribuinteBean.clearHorarios}"/>
+                                <p:ajax event="change" update="@this tbl" listener="#{webAgendamentoContribuinteBean.clearHorarios}"/>
                             </p:calendar>
 
                             <p:selectOneMenu value="#{webAgendamentoContribuinteBean.idStatus}" style="width: 200px">
-                                <p:ajax event="change" update="tbl" listener="#{webAgendamentoContribuinteBean.listaHorarios.clear()}"/>
+                                <p:ajax event="change" update="tbl" listener="#{webAgendamentoContribuinteBean.clearHorarios()}"/>
                                 <f:selectItems value="#{webAgendamentoContribuinteBean.listaStatus}"/>
                             </p:selectOneMenu>
                         </h:panelGrid>        

@@ -12,6 +12,7 @@ import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.PF;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,7 @@ public class LocadoraAutorizadosBean implements Serializable {
     private List<LocadoraAutorizados> listLocadoraAutorizados;
     private Pessoa titular;
     private String sexo;
+    private String message;
 
     @PostConstruct
     public void init() {
@@ -42,6 +44,7 @@ public class LocadoraAutorizadosBean implements Serializable {
         loadParentesco();
         listLocadoraAutorizados = new ArrayList<>();
         loadLocadoraAutorizados();
+        message = null;
     }
 
     @PreDestroy
@@ -135,11 +138,7 @@ public class LocadoraAutorizadosBean implements Serializable {
         }
     }
 
-    public Pessoa getTitular() { 
-        if (GenericaSessao.exists("fisicaPesquisa")) {
-            titular = ((Fisica) GenericaSessao.getObject("fisicaPesquisa")).getPessoa();
-            loadLocadoraAutorizados();
-        }
+    public Pessoa getTitular() {
         return titular;
     }
 
@@ -156,6 +155,14 @@ public class LocadoraAutorizadosBean implements Serializable {
     }
 
     public LocadoraAutorizados getLocadoraAutorizados() {
+        if (GenericaSessao.exists("fisicaPesquisa")) {
+            message = "";
+            titular = ((Fisica) GenericaSessao.getObject("fisicaPesquisa", true)).getPessoa();
+            if (titular.getSocios().getMatriculaSocios().getTitular().getId() != titular.getId()) {
+                message = "Sócio dependente não pode autorizar!";
+            }
+            loadLocadoraAutorizados();
+        }
         return locadoraAutorizados;
     }
 
@@ -185,6 +192,14 @@ public class LocadoraAutorizadosBean implements Serializable {
 
     public void setListLocadoraAutorizados(List<LocadoraAutorizados> listLocadoraAutorizados) {
         this.listLocadoraAutorizados = listLocadoraAutorizados;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 
 }

@@ -22,6 +22,7 @@
             <ui:include src="templates/templatePrime.xhtml"/>
         </f:subview>
         <f:view>
+            <ui:include src="templates/templateAcessoFilialComCaixa.xhtml" />
             <!-- INICIA DIV wrap e main -->
             <div id="wrapx">
                 <div id="mainx">
@@ -29,66 +30,100 @@
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Locação de Filmes" styleClass="fonteHeader" />
                         <div class="clear"></div>
-                        <h:form id="form_locacao_filmes">
-                            <!-- <c:set scope="request" var="object" value="$ {tituloBean.titulo}"/> -->
+                        <h:form id="form_locacao_filmes" onsubmit="return false;">
+                            <c:set scope="request" var="object" value="${locacaoFilmeBean.locadoraLote}"/>
+                            <p:messages autoUpdate="true" showDetail="true" showSummary="true" />
+                            <h:panelGrid id="id_msg_aviso_block" style="width: 100%" rendered="#{locacaoFilmeBean.pessoaComplemento ne null}" >
+                                <p:panel style="border: 1px solid #ff9999" styleClass="margin-top">
+                                    <f:facet name="header">
+                                        <h:outputLabel value="! MENSAGEM DE BLOQUEIO" style="font-weight: bold; color: red; "/>                                            
+                                    </f:facet>
+                                    <h:panelGrid columns="1">
+                                        <h:column>
+                                            <h:outputLabel value="#{locacaoFilmeBean.pessoaComplemento.obsAviso}" style="color: black; font-weight: bold;"/>                                        
+                                        </h:column>
+                                    </h:panelGrid>
+                                </p:panel>                                
+                            </h:panelGrid>
                             <p:panel>
                                 <f:facet name="header">
                                     <h:panelGrid columns="2">
                                         <p:outputLabel value="Data da locação" />
-                                        <p:inputMask maxlength="10" size="6" readonly="readonly" mask="99/99/9999" converter="#{isDateString}">
+                                        <p:inputMask maxlength="10" size="6" value="#{locacaoFilmeBean.locadoraLote.dataLocacaoString}" readonly="readonly" mask="99/99/9999" converter="#{isDateString}">
                                             <p:ajax update="@this" event="change" />
                                         </p:inputMask>
                                     </h:panelGrid>
                                 </f:facet>
-                                <p:panel header="Locatário">
+                                <p:panel header="Locatário" id="i_panel_locatario">
                                     <h:panelGrid columns="2">
                                         <h:column>
-                                            <h:panelGrid columns="3">
-                                                <p:commandButton value="Código" />
-                                                <p:inputText />
-                                                <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pesquisa('pesquisaSocio')}" title="Pesquisar"/>
+                                            <h:panelGrid columns="4">
+                                                <h:column>
+                                                    <p:commandButton action="#{chamadaPaginaBean.pesquisa('pesquisaSocios')}" title="Pesquisar" icon="ui-icon-search" rendered="#{empty locacaoFilmeBean.codigoLocatario}" actionListener="#{fisicaBean.listernerTipoPesquisa('socioativo')}"/>
+                                                    <p:commandButton action="#{locacaoFilmeBean.listener(1)}" title="Pesquisar" icon="ui-icon-search" rendered="#{not empty locacaoFilmeBean.codigoLocatario}" update="i_panel_locatario"/>
+                                                </h:column>
+                                                <p:outputLabel value="#{locacaoFilmeBean.locatario.pessoa.nome}" styleClass="bold" />
+                                                <p:outputLabel value="( #{locacaoFilmeBean.locatario.idade} anos )" styleClass="bold margin-left-max" rendered="#{locacaoFilmeBean.locatario.id ne -1}"/>
                                             </h:panelGrid>
                                         </h:column>
-                                        <h:outputLabel />
+                                    </h:panelGrid>
+                                    <h:panelGrid columns="2" rendered="#{locacaoFilmeBean.locatario.id ne -1}">
+                                        <h:outputLabel value="Autorizados"/>
+                                        <p:selectOneMenu id="id_autorizados" value="#{locacaoFilmeBean.idLocadoraAutorizado}" filter="true" filterMatchMode="startsWith">
+                                            <p:ajax event="change" update="@this" />
+                                            <f:selectItems value="#{locacaoFilmeBean.listLocadoraAutorizados}" />
+                                        </p:selectOneMenu>                                      
                                     </h:panelGrid>
                                 </p:panel>
-                                <p:panel header="Filme(s)" styleClass="margin-top-max">
+                                <p:panel header="Filme(s)" styleClass="margin-top-max" id="i_panel_filme" rendered="#{locacaoFilmeBean.locatario.id ne -1}">
                                     <h:panelGrid columns="2">
                                         <h:column>
                                             <h:panelGrid columns="3">
-                                                <p:commandButton value="Código" />
-                                                <p:inputText />
-                                                <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pesquisa('pesquisaTitulo')}" title="Pesquisar"/>
+                                                <p:inputText size="5" maxlength="10" value="#{locacaoFilmeBean.codigoBarras}" styleClass="font-size-14 input-text-med bg-yellow-ligth text-center"  placeholder="Código">
+                                                    <p:ajax event="change" update="@this i_panel_filme" listener="#{locacaoFilmeBean.listener(2)}" />
+                                                </p:inputText>
+                                                <h:column>
+                                                    <p:commandButton action="#{chamadaPaginaBean.pesquisa('pesquisaTitulo', 'tituloBean')}" title="Pesquisar" icon="ui-icon-search" actionListener="#{locacaoFilmeBean.listener(3)}" />
+                                                </h:column>
                                             </h:panelGrid>
                                         </h:column>
-                                        <h:outputLabel />
-                                        <h:column />
-                                        <p:selectOneMenu  >
-                                            <f:selectItems />
-                                        </p:selectOneMenu>
+                                        <h:panelGrid columns="3">
+                                            <p:outputLabel value="#{locacaoFilmeBean.titulo.descricao}" styleClass="bold" />
+                                            <p:commandButton icon="ui-icon-info" onclick="PF('dlg_detalhes_filme').show();"  title="Detalhes" update=":form_locacao_filmes:i_detalhes_filme :form_locacao_filmes:i_detalhes_filme_t" styleClass="margin-left" rendered="#{locacaoFilmeBean.titulo.id ne null}"/>
+                                            <p:commandButton icon="ui-icon-close" action="#{locacaoFilmeBean.listener(5)}"  title="Limpar" update=":form_locacao_filmes:" styleClass="margin-left-max" rendered="#{locacaoFilmeBean.titulo.id ne null}"/>
+                                        </h:panelGrid>
                                     </h:panelGrid>
                                     <f:facet name="footer">
-                                        <p:commandButton value="Adicionar" disabled="#{controleAcessoBean.botaoSalvar}" title="Adicionar"/>
+                                        <p:commandButton value="Adicionar" action="#{locacaoFilmeBean.add()}"  disabled="#{controleAcessoBean.botaoSalvar}" title="Detalhes sobre o filme" update=":form_locacao_filmes:" />
                                     </f:facet>
                                 </p:panel>
-                                <h:panelGrid>
-                                    <p:dataTable>
-                                        <p:column headerText="Código" />
-                                        <p:column headerText="Barras" />
-                                        <p:column headerText="Filme" />
-                                        <p:column headerText="Lançamento" />
-                                    </p:dataTable>
-                                </h:panelGrid>
+                                <p:panel header="Filtrar" rendered="#{locacaoFilmeBean.locatario.id ne -1}" styleClass="margin-top-max">
+                                    <h:panelGrid id="i_history">
+                                        <p:dataTable emptyMessage="Nenhum registro adicionado!" value="# {locacaoFilmeBean.listLocadoraMovimento}" var="locadoraMovimento" rendered="# {not empty locacaoFilmeBean.listLocadoraMovimento}">
+                                            <p:column headerText="Locação" width="80">#{locadoraMovimento.locadoraLote.dataLocacaoString}</p:column>
+                                            <p:column headerText="Previsão de entrega" width="80">#{locadoraMovimento.dataDevolucaoPrevisaoString}</p:column>
+                                            <p:column headerText="Autorizado">#{locadoraMovimento.locadoraLote.locadoraAutorizados.nome}</p:column>
+                                            <p:column headerText="Filme">#{locadoraMovimento.titulo.descricao}</p:column>
+                                            <p:column headerText="Ano Lançamento" width="80" styleClass="text-center">#{locadoraMovimento.titulo.anoLancamento}</p:column>
+                                            <p:column width="80" styleClass="text-center">#{locadoraMovimento.titulo.lancamento ? 'Lançamento' : ''}</p:column>
+                                            <p:column styleClass="text-center" width="30">
+                                                <p:commandButton icon="ui-icon-close" action="#{locacaoFilmeBean.remove(locadoraMovimento)}" disabled="#{controleAcessoBean.botaoExcluir}" title="Excluir" update=":form_locacao_filmes:"/>                                            
+                                            </p:column>
+                                        </p:dataTable>
+                                    </h:panelGrid>
+                                </p:panel>
                             </p:panel>
-                            <h:panelGrid columns="4" styleClass="margin-top-max">
-                                <p:commandButton onclick="PF('dlg_save').show();" value="Concluir" disabled="#{controleAcessoBean.botaoSalvar}" title="Concluir locação"/>
-                                <p:commandButton value="Novo" action="#{tituloBean.clear}" update=":form_locacao_filmes:"/>
-                                <p:commandButton onclick="PF('dlg_delete').show();" value="Desfazer" disabled="#{controleAcessoBean.botaoExcluir}" title="Excluir"/>                                
+                            <h:panelGrid columns="6" styleClass="margin-top-max">
+                                <p:commandButton onclick="PF('dlg_save').show();" value="Concluir" disabled="#{controleAcessoBean.botaoSalvar or locacaoFilmeBean.locatario.id eq -1}" title="Concluir locação"/>
+                                <p:commandButton value="Novo" action="#{locacaoFilmeBean.clear}" update=":form_locacao_filmes:"/>
+                                <p:commandButton onclick="PF('dlg_delete').show();" value="Desfazer" disabled="#{controleAcessoBean.botaoExcluir}" title="Excluir" rendered="#{locacaoFilmeBean.locadoraLote.id ne null}"/>
+                                <p:commandButton onclick="PF('dlg_locacoes').show();" value="Histórico" title="Histórico" update="i_history_pending" rendered="#{locacaoFilmeBean.locatario.id ne -1}"/>
+                                <p:outputLabel value="Filmes pendentes para entrega (#{locacaoFilmeBean.listLocadoraHistorico.size()})" rendered="#{locacaoFilmeBean.locatario.id ne -1}"/>
                             </h:panelGrid>
                             <p:dialog widgetVar="dlg_save" header="Deseja concluir esta locação?" resizable="false" width="400" modal="true">
                                 <f:facet name="footer">
                                     <h:panelGrid columns="2">
-                                        <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{tituloBean.save()}" oncomplete="PF('dlg_save').hide();PF('dlg_message').show();" style="clear: both; float: left; margin-left: 10px;" update="i_message  :form_locacao_filmes:"/> 
+                                        <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{locacaoFilmeBean.save()}" oncomplete="PF('dlg_save').hide();PF('dlg_message').show();" style="clear: both; float: left; margin-left: 10px;" update="i_message  :form_locacao_filmes:"/> 
                                         <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_save').hide()" style="float: left;" icon="ui-icon-close"/>                                        
                                     </h:panelGrid>
                                 </f:facet>
@@ -96,8 +131,59 @@
                             <p:dialog widgetVar="dlg_delete" header="Deseja desfazer esta locação?" resizable="false" width="400" modal="true">
                                 <f:facet name="footer">
                                     <h:panelGrid columns="2">
-                                        <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{tituloBean.delete()}" oncomplete="PF('dlg_delete').hide();PF('dlg_message').show();" style="clear: both; float: left; margin-left: 10px;" update="i_message :form_locacao_filmes:"/> 
+                                        <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{locacaoFilmeBean.delete()}" oncomplete="PF('dlg_delete').hide();PF('dlg_message').show();" style="clear: both; float: left; margin-left: 10px;" update="i_message :form_locacao_filmes:"/> 
                                         <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_delete').hide()" style="float: left;" icon="ui-icon-close"/>                                    
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_locacoes" header="Pendências" resizable="false" width="1024" modal="true" positionType="fixed" position="top">
+                                <p:ajax event="close" update=":form_locacao_filmes:" listener="#{locacaoFilmeBean.listener(4)}"/>
+                                <h:panelGrid cellpadding="5" columns="3">
+                                    <p:commandButton value="Locados" title="Locados" update="i_history_pending" action="#{locacaoFilmeBean.listener(4)}" style="color: blue"/>
+                                    <p:commandButton value="Atrasados" title="Atrasados" update="i_history_pending" action="#{locacaoFilmeBean.listener(6)}" styleClass="font-color-red"/>
+                                    <p:commandButton value="Histórico" title="Histórico" update="i_history_pending" action="#{locacaoFilmeBean.listener(7)}" style="color: #333300"/>
+                                </h:panelGrid>
+                                <h:panelGrid id="i_history_pending">
+                                    <p:dataTable emptyMessage="Nenhum registro adicionado!" value="#{locacaoFilmeBean.listLocadoraHistorico}" var="locadoraMovimento" scrollable="true" scrollHeight="200">
+                                        <p:column headerText="Locação" width="80">#{locadoraMovimento.locadoraLote.dataLocacaoString}</p:column>
+                                        <p:column headerText="Previsão de entrega" width="80">#{locadoraMovimento.dataDevolucaoPrevisaoString}</p:column>
+                                        <p:column headerText="Autorizado">#{locadoraMovimento.locadoraLote.locadoraAutorizados.nome}</p:column>
+                                        <p:column headerText="Filme">#{locadoraMovimento.titulo.descricao}</p:column>
+                                        <p:column headerText="Ano Lançamento" width="80" styleClass="text-center">#{locadoraMovimento.titulo.anoLancamento}</p:column>
+                                        <p:column width="80" styleClass="text-center">#{locadoraMovimento.titulo.lancamento ? 'Lançamento' : ''}</p:column>
+                                    </p:dataTable>
+                                </h:panelGrid>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Sair" title="Sair" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_locacoes').hide()" icon="ui-icon-close" update=":form_locacao_filmes:" action="#{locacaoFilmeBean.listener(4)}"/>
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_detalhes_filme" resizable="false" width="400" modal="true">
+                                <f:facet name="header">
+                                    <h:panelGrid id="i_detalhes_filme_t">
+                                        #{locacaoFilmeBean.titulo.descricao}                                        
+                                    </h:panelGrid>
+                                </f:facet>
+                                <h:panelGrid columns="2" id="i_detalhes_filme">
+                                    <p:column>Autor:</p:column>
+                                    <p:column>#{locacaoFilmeBean.titulo.autor}</p:column>
+                                    <p:column>Atores:</p:column>
+                                    <p:column>#{locacaoFilmeBean.titulo.atores}</p:column>
+                                    <p:column>Barras:</p:column>
+                                    <p:column>#{locacaoFilmeBean.titulo.barras}</p:column>
+                                    <p:column>Ano:</p:column>
+                                    <p:column>#{locacaoFilmeBean.titulo.anoLancamento}</p:column>
+                                    <p:column>Legenda:</p:column>
+                                    <p:column>#{locacaoFilmeBean.titulo.legenda}</p:column>
+                                    <p:column>Faixa Etária:</p:column>
+                                    <p:column>#{locacaoFilmeBean.titulo.idadeMinimaString}</p:column>
+                                    <p:column>Gênero:</p:column>
+                                    <p:column>#{locacaoFilmeBean.titulo.genero.descricao}</p:column>
+                                </h:panelGrid>
+                                <f:facet name="footer">
+                                    <h:panelGrid>
+                                        <p:commandButton value="Sair"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_detalhes_filme').hide()" style="float: left;" icon="ui-icon-close"/>
                                     </h:panelGrid>
                                 </f:facet>
                             </p:dialog>
@@ -106,6 +192,15 @@
                                 <f:facet name="footer">
                                     <h:panelGrid>
                                         <p:commandButton value="OK" type="submit" styleClass="ui-confirmdialog-yes" onclick="PF('dlg_message').hide();"/>                                        
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_validacao" header="Configurar Status!" resizable="false" width="400" modal="true" closable="false" visible="#{locacaoFilmeBean.locadoraStatus eq null and segurancaUtilitariosBean.existeMacFilialComCaixa}">
+                                <p:outputLabel value="Vá em: Menu Principal > Locadora > Cadastro > Status" />
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandLink value="Menu Principal" action="#{chamadaPaginaBean.menuPrincipal()}" title="Menu Principal" immediate="true"/>
+                                        <p:commandLink value="Voltar" action="#{chamadaPaginaBean.back()}" title="Voltar" immediate="true" styleClass="margin-left-max"/>
                                     </h:panelGrid>
                                 </f:facet>
                             </p:dialog>

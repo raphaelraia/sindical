@@ -16,7 +16,8 @@
             .ui-datalist-item {float: left!important;}
             * {font-family: 'lucida grande', verdana, tahoma, arial, sans-serif; font-size: 9pt!important}
             //.ui-datalist-item a {color: white; text-decoration: none;}
-        </style>        
+        </style>
+        <meta http-equiv="Refresh"   content="10; URL=#{controleAcessoBean.clienteCoockie}" />
     </h:head>
     <h:body>
         <h:form id="formTemplateLinks" onsubmit="#{chamadaPaginaBean.controleLinks}"> 
@@ -32,13 +33,23 @@
             <div id="mainx">
                 <!-- INICIA DIV wrap e main -->  
                 <f:view>
-                    <p:panel styleClass="wrapper" style="border: 0px;">
-                        <h:outputText value="Sessão Expirou" styleClass="fonteHeader font-color-red" escape="true"/>
-                        <div class="clear"></div>
-                        <p:outputLabel value="- Sua sessão de acesso expirou." styleClass="fonteHeader" />
-                        <div class="clear"></div>
-                        <h:outputText value="- Faça novamente seu login." styleClass="fonteHeader" />
-                    </p:panel>
+                    <h:form prependId="false">
+                        <p:poll update="@this id_count_m" listener="#{counterView.decrement}" autoStart="true"/>
+                        <p:panel styleClass="wrapper" style="border: 0px;">
+                            <h:outputText value="Sessão Expirou" styleClass="fonteHeader font-color-red" escape="true"/>
+                            <div class="clear"></div>
+                            <p:outputLabel value="- Sua sessão de acesso expirou." styleClass="fonteHeader" />
+                            <div class="clear"></div>
+                            <h:outputText value="- Faça novamente seu login." styleClass="fonteHeader" />
+                            <br />
+                            <br />
+                            <br />
+                            <h:panelGrid columns="2">
+                                <h:outputText value="Aguarde você será redirecionado em " styleClass="fonteHeader" />                                
+                                <h:outputText value=" #{counterView.numberDecrement}" styleClass="fonteHeader font-color-red margin-left-max" id="id_count_m"/>
+                            </h:panelGrid>
+                        </p:panel>                        
+                    </h:form>
                 </f:view>
                 <!-- FINALIZA div wrap main -->
             </div>

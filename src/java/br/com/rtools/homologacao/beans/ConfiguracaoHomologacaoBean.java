@@ -40,7 +40,7 @@ public class ConfiguracaoHomologacaoBean implements Serializable {
 
     public void update() {
         Dao dao = new Dao();
-        if (configuracaoHomologacao.getId() != -1) {
+        if (configuracaoHomologacao.getId() != null) {
             if (dao.update(configuracaoHomologacao, true)) {
                 GenericaMensagem.info("Sucesso", "Configurações aplicadas");
             } else {

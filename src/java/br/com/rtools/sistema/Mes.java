@@ -1,10 +1,17 @@
 package br.com.rtools.sistema;
 
+import br.com.rtools.utilitarios.Dao;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import javax.faces.model.SelectItem;
 import javax.persistence.*;
 
 @Entity
 @Table(name = "sis_mes")
+@NamedQueries({
+    @NamedQuery(name = "Mes.findAll", query = "SELECT M FROM Mes AS M ORDER BY M.id ASC ")
+})
 public class Mes implements Serializable {
 
     @Id
@@ -69,6 +76,40 @@ public class Mes implements Serializable {
     @Override
     public String toString() {
         return "Mes{" + "id=" + id + ", descricao=" + descricao + '}';
+    }
+
+    /**
+     *
+     * @return new SelectItem(id, descricao)
+     */
+    public static List<SelectItem> loadSelectItem() {
+        return loadSelectItem(false);
+    }
+
+    /**
+     *
+     * @param index (Se a lista usa index : true = index ; false = id;
+     * @return new SelectItem(id, descricao)
+     */
+    public static List<SelectItem> loadSelectItem(Boolean index) {
+        List<SelectItem> listMeses = new ArrayList<>();
+        try {
+            List<Mes> list = new Dao().list(new Mes(), true);
+            for (int i = 0; i < list.size(); i++) {
+                String mes = "" + list.get(i).getId();
+                if (list.get(i).getId() < 10) {
+                    mes = "0" + list.get(i).getId();
+                }
+                if (index == null || !index) {
+                    listMeses.add(new SelectItem(mes, list.get(i).getDescricao()));
+                } else {
+                    listMeses.add(new SelectItem(i, list.get(i).getDescricao(), mes));
+                }
+            }
+        } catch (Exception e) {
+
+        }
+        return listMeses;
     }
 
 }

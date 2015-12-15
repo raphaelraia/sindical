@@ -150,7 +150,7 @@ public class ControleUsuarioBean implements Serializable {
                 }
             }
         } else {
-            GenericaSessao.put("acessoFilial", null);
+            GenericaSessao.put("acessoFilial");
             filial = "";
         }
         GenericaSessao.put("indicaAcesso", "local");

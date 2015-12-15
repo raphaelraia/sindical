@@ -37,17 +37,17 @@
                     <p:panel styleClass="fundoCinza">
                         <h:panelGrid columns="3">
                             <p:calendar size="8" value="#{webAgendamentoContabilidadeBean.data}" pattern="dd/MM/yyyy" navigator="true" yearRange="c-1:c+1" mask="99/99/9999">
-                                <p:ajax event="dateSelect" update="tbl" listener="#{webAgendamentoContabilidadeBean.loadListHorarios()}"/>
-                                <p:ajax event="change" update="tbl" listener="#{webAgendamentoContabilidadeBean.loadListHorarios()}"/>
+                                <p:ajax event="dateSelect" update="tbl id_msg_web" listener="#{webAgendamentoContabilidadeBean.clearHorarios()}"/>
+                                <p:ajax event="change" update="tbl id_msg_web" listener="#{webAgendamentoContabilidadeBean.clearHorarios()}"/>
                             </p:calendar>
 
                             <p:selectOneMenu value="#{webAgendamentoContabilidadeBean.idStatus}" style="width: 200px">
-                                <p:ajax event="change" update="tbl" listener="#{webAgendamentoContabilidadeBean.loadListHorarios()}"/>
+                                <p:ajax event="change" update="tbl id_msg_web"  listener="#{webAgendamentoContabilidadeBean.clearHorarios()}"/>
                                 <f:selectItems value="#{webAgendamentoContabilidadeBean.listaStatus}"/>
                             </p:selectOneMenu>
 
                             <p:selectOneMenu value="#{webAgendamentoContabilidadeBean.filtraPor}">
-                                <p:ajax event="change" update="tbl" listener="#{webAgendamentoContabilidadeBean.loadListHorarios()}"/>
+                                <p:ajax event="change" update="tbl id_msg_web" listener="#{webAgendamentoContabilidadeBean.clearHorarios()}"/>
                                 <f:selectItem itemValue="todos" itemLabel="Todos"/>
                                 <f:selectItem itemValue="selecionado" itemLabel="Selecionado"/>
                             </p:selectOneMenu>
@@ -58,16 +58,16 @@
                 <h:panelGrid style="margin: 0 auto; width: 1024px;">
                     <h:panelGroup style="overflow:auto; height:150px" layout="block">
                         <p:selectOneRadio layout="grid" value="#{webAgendamentoContabilidadeBean.idSelectRadio}" columns="1">
-                            <p:ajax event="change" update="tbl" listener="#{webAgendamentoContabilidadeBean.loadListHorarios()}"/>
+                            <p:ajax event="change" update="tbl id_msg_web" listener="#{webAgendamentoContabilidadeBean.clearHorarios()}"/>
                             <f:selectItems value="#{webAgendamentoContabilidadeBean.listaEmpresas}"/>
                         </p:selectOneRadio>
                     </h:panelGroup>
                 </h:panelGrid>
 
-                <p:poll id="poolMonitor" interval="5" update="poolMonitor tbl" listener="#{webAgendamentoContabilidadeBean.loadListHorarios()}" global="false"/>
+                <p:poll id="poolMonitor" interval="5" update="poolMonitor tbl" listener="#{webAgendamentoContabilidadeBean.loadListHorarios()}" global="false" />
 
                 <h:panelGrid style="margin: 0 auto; width: 1024px">
-                    <p:messages autoUpdate="true" closable="true" showDetail="true"/>
+                    <p:messages  id="id_msg_web" closable="true" showDetail="true"/>
                 </h:panelGrid>
 
                 <h:panelGrid style="margin: 0 auto; width: 1024px" id="tbl">
@@ -390,8 +390,8 @@
 
                         <h:panelGrid columns="2" style="width: 100%">
                             <h:column>
-                                <p:commandButton value="Agendar" action="#{webAgendamentoContabilidadeBean.salvar}" rendered="#{webAgendamentoContabilidadeBean.agendamento.id == -1}" update="formAgendamentoContabilidade:tbl formAgendamentoContabilidade:i_panel_agendamento"/>
-                                <p:commandButton value="Novo" action="#{webAgendamentoContabilidadeBean.limpar()}" rendered="#{webAgendamentoContabilidadeBean.agendamento.id == -1}" update="formAgendamentoContabilidade:i_panel_agendamento"/>
+                                <p:commandButton value="Agendar" action="#{webAgendamentoContabilidadeBean.salvar}" rendered="#{webAgendamentoContabilidadeBean.agendamento.id == -1}" update="formAgendamentoContabilidade:tbl formAgendamentoContabilidade:i_panel_agendamento id_msg_web"/>
+                                <p:commandButton value="Novo" action="#{webAgendamentoContabilidadeBean.limpar()}" rendered="#{webAgendamentoContabilidadeBean.agendamento.id == -1}" update="formAgendamentoContabilidade:i_panel_agendamento id_msg_web"/>
                                 <p:commandButton value="Fechar" onclick="PF('dlg_agendamento').hide()"/>
                             </h:column>
 

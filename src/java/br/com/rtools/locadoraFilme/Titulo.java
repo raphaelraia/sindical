@@ -245,6 +245,9 @@ public class Titulo implements Serializable {
     public void setIdadeMinimaString(String idadeMinimaString) {
         try {
             this.idadeMinima = Integer.parseInt(idadeMinimaString);
+            if (this.idadeMinima < 0) {
+                this.idadeMinima = 0;
+            }
         } catch (Exception e) {
         }
     }
@@ -256,9 +259,24 @@ public class Titulo implements Serializable {
     public void setQtdePorEmbalagemString(String qtdePorEmbalagemString) {
         try {
             this.qtdePorEmbalagem = Integer.parseInt(qtdePorEmbalagemString);
+            if (this.qtdePorEmbalagem < 1) {
+                this.qtdePorEmbalagem = 1;
+            }
         } catch (Exception e) {
         }
 
+    }
+
+    public boolean isLancamento() {
+        try {
+            Integer ano = 0;
+            if (this.anoLancamento > 1985) {
+                ano = Integer.parseInt(DataHoje.livre(new Date(), "YYYY")) - this.anoLancamento;
+            }
+            return ano <= 1;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @Override

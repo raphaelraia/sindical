@@ -12,9 +12,6 @@
         <style type="text/css">
             .ui-widget-content .ui-inputfield{ padding: 8px!important;} 
             .ui-button { padding: 3px!important; }
-            .ui-selectonemenu-label .ui-inputfield{
-
-            }
             * {font-family: 'lucida grande',verdana, tahoma, arial, sans-serif; font-size: 9pt!important}
         </style>
     </h:head>
@@ -43,7 +40,7 @@
                                                 <f:selectItem itemValue="apartir" itemLabel="A partir"/>
                                             </p:selectOneRadio>
 
-                                            <p:selectOneMenu disabled="#{impressaoBoletosBean.desabilitaComboQuantidadeEmpresas}" id="cbQuantidade" value="#{impressaoBoletosBean.quantidadeEmpresas}" style="margin-left: 20px; padding-right: 5px;">
+                                            <p:selectOneMenu disabled="#{impressaoBoletosBean.desabilitaComboQuantidadeEmpresas}" id="cbQuantidade" value="#{impressaoBoletosBean.quantidadeEmpresas}" style="margin-left: 20px;">
                                                 <p:ajax event="change" update="cbQuantidade" />
                                                 <f:selectItem itemValue="1" itemLabel="1"/>
                                                 <f:selectItem itemValue="2" itemLabel="2"/>
@@ -56,7 +53,7 @@
                                     <h:column>
                                         <h:outputText value="Filtro Emails" style="font-weight: bold; margin-left: 20px"/>
                                         <h:panelGrid>
-                                            <p:selectOneMenu id="cbEmail" value="#{impressaoBoletosBean.cbEmail}" style="margin-left: 20px; padding-right: 10px">
+                                            <p:selectOneMenu id="cbEmail" value="#{impressaoBoletosBean.cbEmail}" style="margin-left: 20px;">
                                                 <p:ajax event="change" listener="#{impressaoBoletosBean.limparTotais()}" update="i_panel_botao tbMovimento i_panel_mais"/>
                                                 <f:selectItem itemValue="todos" itemLabel="Todos"/>
                                                 <f:selectItem itemValue="com" itemLabel="Com e-mail"/>

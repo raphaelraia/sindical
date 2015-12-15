@@ -15,67 +15,70 @@
     </h:head>
     <h:body>
 
-        <!-- INICIA DIV wrap e main -->
-        <div id="wrapx">
-            <div id="mainx">
-                <!-- INICIA DIV wrap e main -->  
-                <f:subview id="header">
-                    <ui:include src="templates/templatePrime.xhtml"/>
-                </f:subview>
-                <f:view>
-                    <p:panel styleClass="wrapper" style="border: 0px;">
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>
+        </f:subview>
+        <f:view>
+            <!-- INICIA DIV wrap e main -->
+            <div id="wrapx">
+                <div id="mainx">
+                    <!-- INICIA DIV wrap e main -->  
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:form id="form_pesquisa_titulo">
                             <h:outputText value="Pesquisa Título" styleClass="fonteHeader" />
                             <div class="clear"></div>
                             <p:panel id="i_panel_pesquisa" styleClass="fundoCinza">
-                                <h:panelGrid columns="7">
+                                <h:panelGrid columns="8">
                                     <p:outputLabel value="Pesquisar: "/>
-                                    <p:inputText id="palavraChave" value="#{tituloBean.descPesquisa}" size="50"/>
+                                    <p:inputText id="palavraChave" value="#{tituloBean.descricaoPesquisa}" size="50"/>
                                     <p:outputLabel value="Por: " styleClass="margin-left-max"/>
                                     <p:selectOneMenu value="#{tituloBean.porPesquisa}">
                                         <p:ajax update="palavraChave" event="change" />
                                         <f:selectItem itemValue="descricao" itemLabel="Titulo"/>
                                         <f:selectItem itemValue="barras" itemLabel="Código de Barras"/>
+                                        <f:selectItem itemValue="autor" itemLabel="Autor"/>
+                                        <f:selectItem itemValue="atores" itemLabel="Atores"/>
                                     </p:selectOneMenu>
-                                    <p:commandButton value="Inicial" action="#{tituloBean.acaoPesquisaInicial}" update=":form_pesquisa_titulo_datatable:i_table" styleClass="margin-left-max" />
-                                    <p:commandButton value="Parcial" action="#{tituloBean.acaoPesquisaParcial}" update=":form_pesquisa_titulo_datatable:i_table" />
+                                    <p:outputLabel value="Gênero" styleClass="margin-left-max"/>
+                                    <p:selectOneMenu value="#{tituloBean.idGeneroPesquisa}">
+                                        <p:ajax update="@this" event="change" />
+                                        <f:selectItem itemValue="" itemLabel="Nenhum"/>                                        
+                                        <f:selectItems value="#{tituloBean.listGenero}" />
+                                    </p:selectOneMenu>
+                                    <p:commandButton value="Inicial" action="#{tituloBean.acaoPesquisaInicial}" update=":form_pesquisa_titulo:i_table" styleClass="margin-left-max" />
+                                    <p:commandButton value="Parcial" action="#{tituloBean.acaoPesquisaParcial}" update=":form_pesquisa_titulo:i_table" />
                                 </h:panelGrid>
                                 <p:focus for="i_panel_pesquisa" />
                             </p:panel>
+                            <p:dataTable value="#{tituloBean.listTitulo}" var="titulo" scrollHeight="400" scrollable="true" emptyMessage="Nenhum registro encontrado!"  styleClass="margin-top-max" id="i_table">
+                                <p:column width="30">
+                                    <p:commandButton icon="ui-icon-link" action="#{tituloBean.edit(titulo)}" title="Editar registro nº#{titulo.id}"/>
+                                </p:column>
+                                <p:column width="100" headerText="Imagem">
+                                    <h:column rendered="#{titulo.foto != null}">
+                                        <p:graphicImage value="#{tituloBean.showImagem(titulo.id)}" width="100" alt="Não possui imagem"/>
+                                    </h:column>
+                                </p:column>
+                                <p:column headerText="Título">
+                                    <h:outputText value="#{titulo.descricao}"/>
+                                </p:column>
+                                <p:column headerText="Autor" width="250"> 
+                                    <h:outputText value="#{titulo.autor}"/>
+                                </p:column>
+                                <p:column headerText="Ano" width="30">
+                                    <h:outputText value="#{titulo.anoLancamento}"/>
+                                </p:column>
+                                <p:column headerText="Barras" width="150">
+                                    <h:outputText value="#{titulo.barras}"/>
+                                </p:column>
+                            </p:dataTable>
                         </h:form>
                     </p:panel>
-
-                    <h:form id="form_pesquisa_titulo_datatable">                           
-                        <ui:include src="templates/templateStatus.xhtml" />
-                        <p:dataTable value="#{tituloBean.listTitulo}" var="titulo" scrollHeight="400" scrollable="true" emptyMessage="Nenhum registro encontrado!"  styleClass="margin-left-max margin-right-max" id="i_table">
-                            <p:column width="30">
-                                <p:commandButton icon="ui-icon-link" action="#{tituloBean.link(titulo)}" title="Editar registro nº#{titulo.id}"/>
-                            </p:column>
-                            <p:column width="100" headerText="Imagem">
-                                <h:column rendered="#{titulo.foto != null}">
-                                    <p:graphicImage value="#{tituloBean.showImagem(titulo.id)}" width="100" alt="Não possui imagem"/>
-                                </h:column>
-                            </p:column>
-                            <p:column headerText="Título">
-                                <h:outputText value="#{titulo.descricao}"/>
-                            </p:column>
-                            <p:column headerText="Autor" width="250"> 
-                                <h:outputText value="#{titulo.autor}"/>
-                            </p:column>
-                            <p:column headerText="Ano" width="30">
-                                <h:outputText value="#{titulo.anoLancamento}"/>
-                            </p:column>
-                            <p:column headerText="Barras" width="150">
-                                <h:outputText value="#{titulo.barras}"/>
-                            </p:column>
-                        </p:dataTable>
-                    </h:form>
-
-                </f:view>        
-                <!-- FINALIZA div wrap main -->
+                    <!-- FINALIZA div wrap main -->
+                </div>
             </div>
-        </div>
-        <!-- FINALIZA div wrap main -->
+            <!-- FINALIZA div wrap main -->
+        </f:view>        
 
         <div id="footerx">
             <f:subview id="footer">

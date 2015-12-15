@@ -9,7 +9,40 @@ import javax.faces.context.FacesContext;
 @ManagedBean
 public class GenericaSessao implements Serializable {
 
+    /**
+     * Null
+     *
+     * @param sessionName
+     */
+    public static void put(String sessionName) {
+        if (GenericaSessao.exists(sessionName)) {
+            GenericaSessao.remove(sessionName);
+        }
+        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put(sessionName, null);
+    }
+
     public static void put(String sessionName, String sessionValue) {
+        if (GenericaSessao.exists(sessionName)) {
+            GenericaSessao.remove(sessionName);
+        }
+        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put(sessionName, sessionValue);
+    }
+
+    public static void put(String sessionName, List sessionValue) {
+        if (GenericaSessao.exists(sessionName)) {
+            GenericaSessao.remove(sessionName);
+        }
+        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put(sessionName, sessionValue);
+    }
+
+    public static void put(String sessionName, Boolean sessionValue) {
+        if (GenericaSessao.exists(sessionName)) {
+            GenericaSessao.remove(sessionName);
+        }
+        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put(sessionName, sessionValue);
+    }
+
+    public static void put(String sessionName, Object sessionValue) {
         if (GenericaSessao.exists(sessionName)) {
             GenericaSessao.remove(sessionName);
         }
@@ -48,10 +81,6 @@ public class GenericaSessao implements Serializable {
         if (GenericaSessao.exists(sessionName)) {
             GenericaSessao.remove(sessionName);
         }
-        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put(sessionName, sessionValue);
-    }
-
-    public static void put(String sessionName, Object sessionValue) {
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put(sessionName, sessionValue);
     }
 
@@ -160,5 +189,15 @@ public class GenericaSessao implements Serializable {
 
     public static boolean exists(String sessionName) {
         return FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get(sessionName) != null;
+    }
+
+    public static boolean exists(String sessionName, boolean remove) {
+        if (FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get(sessionName) != null) {
+            remove(sessionName);
+            return true;
+        } else {
+            remove(sessionName);
+            return false;
+        }
     }
 }

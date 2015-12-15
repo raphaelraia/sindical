@@ -34,17 +34,17 @@ public class LocadoraMovimento implements Serializable {
     @JoinColumn(name = "id_titulo", referencedColumnName = "id", nullable = false)
     @ManyToOne
     private Titulo titulo;
-    @JoinColumn(name = "id_operador_devolucao", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "id_operador_devolucao", referencedColumnName = "id")
     @ManyToOne
     private Usuario operadorDevolucao;
-    @JoinColumn(name = "id_evt", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "id_evt", referencedColumnName = "id")
     @ManyToOne
     private Evt evt;
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_devolucao_previsao", nullable = false)
     private Date dtDevolucaoPrevisao;
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "dt_devolucao", nullable = true)
+    @Column(name = "dt_devolucao")
     private Date dtDevolucao;
 
     @Transient

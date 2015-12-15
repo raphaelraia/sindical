@@ -80,7 +80,7 @@ public class LocadoraStatusBean implements Serializable {
         List<Semana> list = new Dao().list(new Semana());
         for (int i = 0; i < list.size(); i++) {
             if (i == 0) {
-                idSemana = list.get(i).getId();
+                idSemana = list.get(i).getCurrentDay();
             }
             listSemana.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
         }
@@ -88,7 +88,8 @@ public class LocadoraStatusBean implements Serializable {
 
     public void loadLocadoraStatus() {
         listLocadoraStatus.clear();
-        listLocadoraStatus = new LocadoraStatusDao().findAllByFilial(idFilial);
+        listLocadoraStatus.addAll(new LocadoraStatusDao().findAllByFilialData(idFilial));
+        listLocadoraStatus.addAll(new LocadoraStatusDao().findAllByFilialSemana(idFilial));
     }
 
     public void save() {

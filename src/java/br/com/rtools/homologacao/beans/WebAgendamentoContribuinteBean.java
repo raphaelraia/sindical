@@ -63,7 +63,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
     private final List<SelectItem> listaStatus = new ArrayList<SelectItem>();
     private final List<SelectItem> listaMotivoDemissao = new ArrayList<SelectItem>();
     private String tipoTelefone = "telefone";
-    private ConfiguracaoHomologacao configuracaoHomologacao = new ConfiguracaoHomologacao();
+    private ConfiguracaoHomologacao configuracaoHomologacao;
 
     private String tipoAviso = null;
 
@@ -81,7 +81,18 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
             }
             Dao dao = new Dao();
             registro = (Registro) dao.find(new Registro(), 1);
+            configuracaoHomologacao = (ConfiguracaoHomologacao) new Dao().find(new ConfiguracaoHomologacao(), 1);
+            if (configuracaoHomologacao == null) {
+                configuracaoHomologacao = new ConfiguracaoHomologacao();
+                new Dao().save(configuracaoHomologacao, true);
+            }
+            lock(true);
         }
+    }
+
+    public void clearHorarios() {
+        listaHorarios.clear();
+        lock(true);
     }
 
     public boolean validaAdmissao() {
@@ -171,6 +182,27 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
         return listaMotivoDemissao;
     }
 
+    public Boolean lock() {
+        return lock(false);
+    }
+
+    public Boolean lock(Boolean message) {
+        if (configuracaoHomologacao.getWebDesabilitaInicial() != null) {
+            if (DataHoje.between(DataHoje.converteData(data), configuracaoHomologacao.getWebDesabilitaInicialString(), configuracaoHomologacao.getWebDesabilitaFinalString())) {
+                if (message) {
+                    GenericaMensagem.info("Sistema", "Agendamento web suspenso entre " + configuracaoHomologacao.getWebDesabilitaInicialString() + " até " + configuracaoHomologacao.getWebDesabilitaFinalString());
+                }
+                if (!configuracaoHomologacao.getWebDesabilitaObs().isEmpty()) {
+                    if (message) {
+                        GenericaMensagem.info("Mensagem", configuracaoHomologacao.getWebDesabilitaObs());
+                    }
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
     public synchronized List<DataObject> getListaHorarios() {
         if (listaHorarios.isEmpty()) {
             List<Agendamento> ag;
@@ -182,6 +214,9 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
             switch (Integer.parseInt(((SelectItem) getListaStatus().get(idStatus)).getDescription())) {
                 //STATUS DISPONIVEL ----------------------------------------------------------------------------------------------
                 case 1: {
+                    if (lock()) {
+                        return listaHorarios;
+                    }
                     // TIRAR VALOR 1 DA PESQUISA PELO MAC DA FILIAL
                     int idDiaSemana = DataHoje.diaDaSemana(data);
                     horario = db.pesquisaTodosHorariosDisponiveis(sindicatoFilial.getFilial().getId(), idDiaSemana, true);
@@ -279,51 +314,50 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
         }
         pessoaEmpresa.setAvisoTrabalhado(tipoAviso.equals("true"));
 
-        configuracaoHomologacao = (ConfiguracaoHomologacao) dao.find(new ConfiguracaoHomologacao(), 1);
-        if (configuracaoHomologacao.isWebValidaDataNascimento()) {
+        if (configuracaoHomologacao.getWebValidaDataNascimento()) {
             if (fisica.getNascimento().isEmpty()) {
                 GenericaMensagem.warn("Validação", "Informar data de nascimento!");
                 return;
             }
         }
-        if (configuracaoHomologacao.isValidaFuncao()) {
+        if (configuracaoHomologacao.getValidaFuncao()) {
             if (profissao.getId() == -1) {
                 GenericaMensagem.warn("Validação", "Informar a função/profissão!");
                 return;
             }
         }
-        if (configuracaoHomologacao.isWebValidaCarteira()) {
+        if (configuracaoHomologacao.getWebValidaCarteira()) {
             if (fisica.getCarteira().isEmpty()) {
                 GenericaMensagem.warn("Validação", "Informar o número da carteira de trabalho!");
                 return;
             }
         }
-        if (configuracaoHomologacao.isWebValidaSerie()) {
+        if (configuracaoHomologacao.getWebValidaSerie()) {
             if (fisica.getSerie().isEmpty()) {
                 GenericaMensagem.warn("Validação", "Informar o número de série da carteira de trabalho!");
                 return;
             }
         }
-        if (configuracaoHomologacao.isWebValidaContato()) {
+        if (configuracaoHomologacao.getWebValidaContato()) {
             if (agendamento.getContato().isEmpty()) {
                 GenericaMensagem.warn("Validação", "Informar nome do contato!");
                 return;
             }
         }
-        if (configuracaoHomologacao.isWebValidaEmail()) {
+        if (configuracaoHomologacao.getWebValidaEmail()) {
             if (agendamento.getEmail().isEmpty()) {
                 GenericaMensagem.warn("Validação", "Informar email!");
                 return;
             }
         }
-        if (configuracaoHomologacao.isWebValidaTelefone()) {
+        if (configuracaoHomologacao.getWebValidaTelefone()) {
             if (agendamento.getTelefone().isEmpty()) {
                 GenericaMensagem.warn("Validação", "Informar telefone!");
                 return;
             }
         }
 
-        if (configuracaoHomologacao.isWebValidaAdmissao()) {
+        if (configuracaoHomologacao.getWebValidaAdmissao()) {
             if (pessoaEmpresa.getAdmissao().isEmpty()) {
                 GenericaMensagem.warn("Validação", "Informar data de admissão!");
                 return;
@@ -999,9 +1033,8 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
     }
 
     public ConfiguracaoHomologacao getConfiguracaoHomologacao() {
-        if (configuracaoHomologacao.getId() == -1) {
-            Dao dao = new Dao();
-            configuracaoHomologacao = (ConfiguracaoHomologacao) dao.find(new ConfiguracaoHomologacao(), 1);
+        if (configuracaoHomologacao.getId() == null) {
+            configuracaoHomologacao = (ConfiguracaoHomologacao) new Dao().find(new ConfiguracaoHomologacao(), 1);
         }
         return configuracaoHomologacao;
     }

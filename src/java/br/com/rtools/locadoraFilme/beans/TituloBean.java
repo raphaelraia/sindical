@@ -158,7 +158,7 @@ public class TituloBean {
         NovoLog novoLog = new NovoLog();
         if (titulo.getId() == null) {
             TituloDao tituloDao = new TituloDao();
-            if (tituloDao.exists(titulo.getDescricao()) != null) {
+            if (tituloDao.exists(titulo.getDescricao())) {
                 GenericaMensagem.warn("Validação", "Titulo já existe!");
                 return;
             }
@@ -358,6 +358,9 @@ public class TituloBean {
 
     public void find() {
         TituloDao tituloDao = new TituloDao();
+        if(GenericaSessao.exists("titulosNotIn")) {
+            tituloDao.setNot_in(GenericaSessao.getString("titulosNotIn", true));
+        }
         if (descricaoPesquisa.equals("")) {
             listTitulo = new ArrayList();
         } else {

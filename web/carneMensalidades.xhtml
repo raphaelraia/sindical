@@ -40,19 +40,9 @@
 
                                             <h:column>
                                                 <h:outputLabel value="Mês"/><br />
-                                                <p:selectOneMenu value="#{carneMensalidadesBean.mes}" style="width: 60px">
-                                                    <f:selectItem itemValue="01" itemLabel="01"/>
-                                                    <f:selectItem itemValue="02" itemLabel="02"/>
-                                                    <f:selectItem itemValue="03" itemLabel="03"/>
-                                                    <f:selectItem itemValue="04" itemLabel="04"/>
-                                                    <f:selectItem itemValue="05" itemLabel="05"/>
-                                                    <f:selectItem itemValue="06" itemLabel="06"/>
-                                                    <f:selectItem itemValue="07" itemLabel="07"/>
-                                                    <f:selectItem itemValue="08" itemLabel="08"/>
-                                                    <f:selectItem itemValue="09" itemLabel="09"/>
-                                                    <f:selectItem itemValue="10" itemLabel="10"/>
-                                                    <f:selectItem itemValue="11" itemLabel="11"/>
-                                                    <f:selectItem itemValue="12" itemLabel="12"/>
+                                                <p:selectOneMenu value="#{carneMensalidadesBean.idMes}" style="width: 100px" >
+                                                    <p:ajax event="change" update="@this" />
+                                                    <f:selectItems value="#{carneMensalidadesBean.listMeses}"/>
                                                 </p:selectOneMenu>
                                             </h:column>
 
@@ -73,9 +63,12 @@
 
                                         <h:panelGrid style="width: 100%">
                                             <p:dataGrid value="#{carneMensalidadesBean.listaData}" var="linha" rowIndexVar="index" columns="4" emptyMessage="Clique para adicionar MAIS VENCIMENTO">
-                                                <h:outputLabel value="#{linha}" style="font-weight: bold"/>
-                                                <p:commandButton icon="ui-icon-close" action="#{carneMensalidadesBean.removerDataLista(index)}" update=":formCarneMensalidades:i_panel_mes" style="margin-left: 5px; width: 15px; height: 15"/>
-                                                <br />
+                                                <h:column>
+                                                    <h:panelGrid columns="2" styleClass="border-solid">
+                                                        <h:outputLabel value="#{linha}" style="font-weight: bold"/>
+                                                        <p:commandButton icon="ui-icon-close" action="#{carneMensalidadesBean.removerDataLista(index)}" update=":formCarneMensalidades:i_panel_mes" style="width: 15px; height: 15px;"/>
+                                                    </h:panelGrid>
+                                                </h:column>
                                             </p:dataGrid>
                                         </h:panelGrid>
                                     </p:panel>
@@ -84,7 +77,7 @@
                                 <p:column>
                                     <p:panel id="i_panel_pessoa" styleClass="fundoCinza" style="height: 200px">
                                         <h:panelGrid columns="5">
-                                            <p:commandButton icon="ui-icon-search" action="#{chamadaPaginaBean.pesquisaPessoa()}" value="Pesquisa Pessoa" rendered="#{carneMensalidadesBean.pessoa.id == -1}"/>
+                                            <p:commandButton icon="ui-icon-search" action="#{chamadaPaginaBean.pesquisa('pesquisaSocios', 'FisicaBean')}" value="Pesquisa Pessoa" rendered="#{carneMensalidadesBean.pessoa.id == -1}" />
                                             <h:outputText value="#{carneMensalidadesBean.pessoa.nome}" title="#{formCarneMensalidades.pessoa.nome}"/>
                                             <p:commandButton icon="ui-icon-circle-close" action="#{carneMensalidadesBean.removerPessoa}" rendered="#{carneMensalidadesBean.pessoa.id != -1}" update="i_panel_pessoa" title="Excluir Pesquisa"/>
                                             <p:commandButton icon="ui-icon-circle-plus" action="#{carneMensalidadesBean.adicionarPessoa()}" style="margin-left: 10px; cursor: pointer" rendered="#{carneMensalidadesBean.pessoa.id != -1}" update="i_panel_pessoa :formCarneMensalidades:i_panel_boleto" title="Adicionar Pessoa"/>
@@ -105,22 +98,22 @@
                             <h:panelGrid style="width: 100%">
                                 <p:messages id="i_msg" showDetail="true" closable="true" />
                             </h:panelGrid>
-                            
+
                             <h:panelGrid id="i_panel_boleto" columns="3">
                                 <p:commandButton value="Imprimir Carnê para Todos" onclick="PF('i_dlg_todos').show()" rendered="false"/>
                                 <p:commandButton value="Imprimir Carnê para SUA LISTA de Pessoas" onclick="PF('i_dlg_lista').show()" rendered="#{carneMensalidadesBean.listaPessoa.size() != 0}"/>
                             </h:panelGrid>
-                   
+
                             <p:dialog widgetVar="i_dlg_todos" header="Imprimir carnê para TODOS" resizable="false" modal="true">
                                 <h:outputLabel value="Deseja realmente imprimir esses carnês?" /><br />
                                 <h:panelGrid columns="2">
-                                    <h:commandLink target="_blank" action="#{carneMensalidadesBean.imprimirCarne()}" title="Imprimir Carnê de Mensalidades">
+                                    <h:commandLink target="_blank" action="#{carneMensalidadesBean.imprimirCarne(true)}" title="Imprimir Carnê de Mensalidades">
                                         <p:commandButton value="Sim" type="submit" styleClass="ui-confirmdialog-yes" ajax="false" style="clear: both; float: left" icon="ui-icon-check"/>  
                                     </h:commandLink> 
                                     <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_todos').hide()" style="float: left" icon="ui-icon-close"/>       
                                 </h:panelGrid>
                             </p:dialog>
-                            
+
                             <p:dialog widgetVar="i_dlg_lista" header="Imprimir carnês para LISTA" resizable="false" modal="true">
                                 <h:outputLabel value="Deseja realmente imprimir esses carnês?" /><br />
                                 <h:panelGrid columns="2">
@@ -130,7 +123,7 @@
                                     <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_lista').hide()" style="float: left" icon="ui-icon-close"/>       
                                 </h:panelGrid>
                             </p:dialog>
-                                                        
+
                         </h:form>
                     </p:panel>
                 </f:view>

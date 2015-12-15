@@ -8,6 +8,12 @@ import javax.persistence.Query;
 
 public class TituloDao extends DB {
 
+    private String not_in;
+
+    public TituloDao() {
+        not_in = null;
+    }
+
     public Boolean exists(String descricao) {
         try {
             String queryString = " -- TituloDao()->exists() \n\n"
@@ -57,7 +63,7 @@ public class TituloDao extends DB {
                 + "       FROM loc_titulo AS T  \n";
         if (filial_id != null) {
             queryString += " INNER JOIN loc_titulo_filial AS TF ON TF.id_titulo = T.id ";
-            listQuery.add("TC.id_filial = " + filial_id);
+            listQuery.add("TF.id_filial = " + filial_id);
         }
         switch (como) {
             case "T":
@@ -78,6 +84,9 @@ public class TituloDao extends DB {
             listQuery.add("T.nr_idade_minima = " + faixa_etaria_inicial);
         } else if (faixa_etaria_inicial > 0 && faixa_etaria_inicial > 0 && faixa_etaria_final > faixa_etaria_inicial) {
             listQuery.add("T.nr_idade_minima BETWEEN " + faixa_etaria_inicial + " AND " + faixa_etaria_final);
+        }
+        if (this.not_in != null) {
+            listQuery.add("T.ds_barras NOT IN ('" + this.not_in + "') ");
         }
         for (int i = 0; i < listQuery.size(); i++) {
             if (i == 0) {
@@ -106,6 +115,14 @@ public class TituloDao extends DB {
             return null;
         }
         return null;
+    }
+
+    public String getNot_in() {
+        return not_in;
+    }
+
+    public void setNot_in(String not_in) {
+        this.not_in = not_in;
     }
 
 }

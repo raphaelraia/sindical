@@ -1,5 +1,6 @@
 package br.com.rtools.homologacao;
 
+import br.com.rtools.utilitarios.DataHoje;
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Column;
@@ -18,25 +19,25 @@ public class ConfiguracaoHomologacao implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
 
     // PARÂMETROS
     @Column(name = "dt_habilita_correcao")
     @Temporal(TemporalType.DATE)
     private Date homolocaoHabilitaCorrecao;
     @Column(name = "nr_tempo_refresh_agendamento")
-    private int tempoRefreshAgendamento;
+    private Integer tempoRefreshAgendamento;
     @Column(name = "nr_tempo_refresh_web_agendamento")
-    private int tempoRefreshWebAgendamento;
+    private Integer tempoRefreshWebAgendamento;
     @Column(name = "nr_tempo_refresh_recepcao")
-    private int tempoRefreshRecepcao;
+    private Integer tempoRefreshRecepcao;
     @Column(name = "nr_tempo_refresh_homologacao")
-    private int tempoRefreshHomologacao;
+    private Integer tempoRefreshHomologacao;
     @Column(name = "nr_tempo_refresh_atendimento")
-    private int tempoRefreshAtendimento;
+    private Integer tempoRefreshAtendimento;
     // LIMITE DE MESES PARA AGENDAMENTO - > FUTURO
     @Column(name = "nr_limite_meses", columnDefinition = "integer default 3")
-    private int limiteMeses;
+    private Integer limiteMeses;
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_limite_agendamento_retroativo")
     private Date limiteAgendamentoRetroativo;
@@ -46,58 +47,66 @@ public class ConfiguracaoHomologacao implements Serializable {
 
     // CAMPOS OBRIGATÓRIOS AGENDAMENTO
     @Column(name = "is_valida_cpf", columnDefinition = "boolean default true")
-    private boolean validaCpf;
+    private Boolean validaCpf;
     @Column(name = "is_valida_nome", columnDefinition = "boolean default true")
-    private boolean validaNome;
+    private Boolean validaNome;
     @Column(name = "is_valida_endereco", columnDefinition = "boolean default true")
-    private boolean validaEndereco;
+    private Boolean validaEndereco;
     @Column(name = "is_valida_carteira", columnDefinition = "boolean default false")
-    private boolean validaCarteira;
+    private Boolean validaCarteira;
     @Column(name = "is_valida_serie", columnDefinition = "boolean default false")
-    private boolean validaSerie;
+    private Boolean validaSerie;
     @Column(name = "is_valida_funcao", columnDefinition = "boolean default false")
-    private boolean validaFuncao;
+    private Boolean validaFuncao;
     @Column(name = "is_valida_admissao", columnDefinition = "boolean default true")
-    private boolean validaAdmissao;
+    private Boolean validaAdmissao;
     @Column(name = "is_valida_demissao", columnDefinition = "boolean default true")
-    private boolean validaDemissao;
+    private Boolean validaDemissao;
     @Column(name = "is_valida_contato", columnDefinition = "boolean default false")
-    private boolean validaContato;
+    private Boolean validaContato;
     @Column(name = "is_valida_email", columnDefinition = "boolean default false")
-    private boolean validaEmail;
+    private Boolean validaEmail;
     @Column(name = "is_valida_telefone", columnDefinition = "boolean default false")
-    private boolean validaTelefone;
+    private Boolean validaTelefone;
     @Column(name = "is_data_nascimento", columnDefinition = "boolean default false")
-    private boolean validaDataNascimento;
+    private Boolean validaDataNascimento;
 
 // CAMPOS OBRIGATÓRIOS WEB AGENDAMENTO
     @Column(name = "is_web_valida_cpf", columnDefinition = "boolean default true")
-    private boolean webValidaCpf;
+    private Boolean webValidaCpf;
     @Column(name = "is_web_valida_nome", columnDefinition = "boolean default true")
-    private boolean webValidaNome;
+    private Boolean webValidaNome;
     @Column(name = "is_web_valida_endereco", columnDefinition = "boolean default true")
-    private boolean webValidaEndereco;
+    private Boolean webValidaEndereco;
     @Column(name = "is_web_valida_carteira", columnDefinition = "boolean default false")
-    private boolean webValidaCarteira;
+    private Boolean webValidaCarteira;
     @Column(name = "is_web_valida_serie", columnDefinition = "boolean default false")
-    private boolean webValidaSerie;
+    private Boolean webValidaSerie;
     @Column(name = "is_web_valida_funcao", columnDefinition = "boolean default false")
-    private boolean webValidaFuncao;
+    private Boolean webValidaFuncao;
     @Column(name = "is_web_valida_admissao", columnDefinition = "boolean default true")
-    private boolean webValidaAdmissao;
+    private Boolean webValidaAdmissao;
     @Column(name = "is_web_valida_demissao", columnDefinition = "boolean default true")
-    private boolean webValidaDemissao;
+    private Boolean webValidaDemissao;
     @Column(name = "is_web_valida_contato", columnDefinition = "boolean default false")
-    private boolean webValidaContato;
+    private Boolean webValidaContato;
     @Column(name = "is_web_valida_email", columnDefinition = "boolean default false")
-    private boolean webValidaEmail;
+    private Boolean webValidaEmail;
     @Column(name = "is_web_valida_telefone", columnDefinition = "boolean default false")
-    private boolean webValidaTelefone;
+    private Boolean webValidaTelefone;
     @Column(name = "is_web_data_nascimento", columnDefinition = "boolean default false")
-    private boolean webValidaDataNascimento;
+    private Boolean webValidaDataNascimento;
+    @Temporal(TemporalType.DATE)
+    @Column(name = "dt_web_desabilita_inicial")
+    private Date webDesabilitaInicial;
+    @Temporal(TemporalType.DATE)
+    @Column(name = "dt_web_desabilita_final")
+    private Date webDesabilitaFinal;
+    @Column(name = "web_desabilita_obs", length = 1000)
+    private String webDesabilitaObs;
 
     public ConfiguracaoHomologacao() {
-        this.id = -1;
+        this.id = null;
         this.homolocaoHabilitaCorrecao = null;
         this.tempoRefreshAgendamento = 5;
         this.tempoRefreshWebAgendamento = 5;
@@ -131,9 +140,12 @@ public class ConfiguracaoHomologacao implements Serializable {
         this.webValidaEmail = false;
         this.webValidaTelefone = false;
         this.webValidaDataNascimento = false;
+        this.webDesabilitaInicial = null;
+        this.webDesabilitaFinal = null;
+        this.webDesabilitaObs = "";
     }
 
-    public ConfiguracaoHomologacao(int id, Date homolocaoHabilitaCorrecao, int tempoRefreshAgendamento, int tempoRefreshWebAgendamento, int tempoRefreshRecepcao, int tempoRefreshHomologacao, int tempoRefreshAtendimento, int limiteMeses, Date limiteAgendamentoRetroativo, Date dataAtualizaHomologacao, boolean validaCpf, boolean validaNome, boolean validaEndereco, boolean validaCarteira, boolean validaSerie, boolean validaFuncao, boolean validaAdmissao, boolean validaDemissao, boolean validaContato, boolean validaEmail, boolean validaTelefone, boolean validaDataNascimento, boolean webValidaCpf, boolean webValidaNome, boolean webValidaEndereco, boolean webValidaCarteira, boolean webValidaSerie, boolean webValidaFuncao, boolean webValidaAdmissao, boolean webValidaDemissao, boolean webValidaContato, boolean webValidaEmail, boolean webValidaTelefone, boolean webValidaDataNascimento) {
+    public ConfiguracaoHomologacao(Integer id, Date homolocaoHabilitaCorrecao, Integer tempoRefreshAgendamento, Integer tempoRefreshWebAgendamento, Integer tempoRefreshRecepcao, Integer tempoRefreshHomologacao, Integer tempoRefreshAtendimento, Integer limiteMeses, Date limiteAgendamentoRetroativo, Date dataAtualizaHomologacao, Boolean validaCpf, Boolean validaNome, Boolean validaEndereco, Boolean validaCarteira, Boolean validaSerie, Boolean validaFuncao, Boolean validaAdmissao, Boolean validaDemissao, Boolean validaContato, Boolean validaEmail, Boolean validaTelefone, Boolean validaDataNascimento, Boolean webValidaCpf, Boolean webValidaNome, Boolean webValidaEndereco, Boolean webValidaCarteira, Boolean webValidaSerie, Boolean webValidaFuncao, Boolean webValidaAdmissao, Boolean webValidaDemissao, Boolean webValidaContato, Boolean webValidaEmail, Boolean webValidaTelefone, Boolean webValidaDataNascimento, Date webDesabilitaInicial, Date webDesabilitaFinal, String webDesabilitaObs) {
         this.id = id;
         this.homolocaoHabilitaCorrecao = homolocaoHabilitaCorrecao;
         this.tempoRefreshAgendamento = tempoRefreshAgendamento;
@@ -168,13 +180,16 @@ public class ConfiguracaoHomologacao implements Serializable {
         this.webValidaEmail = webValidaEmail;
         this.webValidaTelefone = webValidaTelefone;
         this.webValidaDataNascimento = webValidaDataNascimento;
+        this.webDesabilitaInicial = webDesabilitaInicial;
+        this.webDesabilitaFinal = webDesabilitaFinal;
+        this.webDesabilitaObs = webDesabilitaObs;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -186,51 +201,51 @@ public class ConfiguracaoHomologacao implements Serializable {
         this.homolocaoHabilitaCorrecao = homolocaoHabilitaCorrecao;
     }
 
-    public int getTempoRefreshAgendamento() {
+    public Integer getTempoRefreshAgendamento() {
         return tempoRefreshAgendamento;
     }
 
-    public void setTempoRefreshAgendamento(int tempoRefreshAgendamento) {
+    public void setTempoRefreshAgendamento(Integer tempoRefreshAgendamento) {
         this.tempoRefreshAgendamento = tempoRefreshAgendamento;
     }
 
-    public int getTempoRefreshWebAgendamento() {
+    public Integer getTempoRefreshWebAgendamento() {
         return tempoRefreshWebAgendamento;
     }
 
-    public void setTempoRefreshWebAgendamento(int tempoRefreshWebAgendamento) {
+    public void setTempoRefreshWebAgendamento(Integer tempoRefreshWebAgendamento) {
         this.tempoRefreshWebAgendamento = tempoRefreshWebAgendamento;
     }
 
-    public int getTempoRefreshRecepcao() {
+    public Integer getTempoRefreshRecepcao() {
         return tempoRefreshRecepcao;
     }
 
-    public void setTempoRefreshRecepcao(int tempoRefreshRecepcao) {
+    public void setTempoRefreshRecepcao(Integer tempoRefreshRecepcao) {
         this.tempoRefreshRecepcao = tempoRefreshRecepcao;
     }
 
-    public int getTempoRefreshHomologacao() {
+    public Integer getTempoRefreshHomologacao() {
         return tempoRefreshHomologacao;
     }
 
-    public void setTempoRefreshHomologacao(int tempoRefreshHomologacao) {
+    public void setTempoRefreshHomologacao(Integer tempoRefreshHomologacao) {
         this.tempoRefreshHomologacao = tempoRefreshHomologacao;
     }
 
-    public int getTempoRefreshAtendimento() {
+    public Integer getTempoRefreshAtendimento() {
         return tempoRefreshAtendimento;
     }
 
-    public void setTempoRefreshAtendimento(int tempoRefreshAtendimento) {
+    public void setTempoRefreshAtendimento(Integer tempoRefreshAtendimento) {
         this.tempoRefreshAtendimento = tempoRefreshAtendimento;
     }
 
-    public int getLimiteMeses() {
+    public Integer getLimiteMeses() {
         return limiteMeses;
     }
 
-    public void setLimiteMeses(int limiteMeses) {
+    public void setLimiteMeses(Integer limiteMeses) {
         this.limiteMeses = limiteMeses;
     }
 
@@ -250,196 +265,251 @@ public class ConfiguracaoHomologacao implements Serializable {
         this.dataAtualizaHomologacao = dataAtualizaHomologacao;
     }
 
-    public boolean isValidaCpf() {
+    public Boolean getValidaCpf() {
         return validaCpf;
     }
 
-    public void setValidaCpf(boolean validaCpf) {
+    public void setValidaCpf(Boolean validaCpf) {
         this.validaCpf = validaCpf;
     }
 
-    public boolean isValidaNome() {
+    public Boolean getValidaNome() {
         return validaNome;
     }
 
-    public void setValidaNome(boolean validaNome) {
+    public void setValidaNome(Boolean validaNome) {
         this.validaNome = validaNome;
     }
 
-    public boolean isValidaEndereco() {
+    public Boolean getValidaEndereco() {
         return validaEndereco;
     }
 
-    public void setValidaEndereco(boolean validaEndereco) {
+    public void setValidaEndereco(Boolean validaEndereco) {
         this.validaEndereco = validaEndereco;
     }
 
-    public boolean isValidaCarteira() {
+    public Boolean getValidaCarteira() {
         return validaCarteira;
     }
 
-    public void setValidaCarteira(boolean validaCarteira) {
+    public void setValidaCarteira(Boolean validaCarteira) {
         this.validaCarteira = validaCarteira;
     }
 
-    public boolean isValidaSerie() {
+    public Boolean getValidaSerie() {
         return validaSerie;
     }
 
-    public void setValidaSerie(boolean validaSerie) {
+    public void setValidaSerie(Boolean validaSerie) {
         this.validaSerie = validaSerie;
     }
 
-    public boolean isValidaFuncao() {
+    public Boolean getValidaFuncao() {
         return validaFuncao;
     }
 
-    public void setValidaFuncao(boolean validaFuncao) {
+    public void setValidaFuncao(Boolean validaFuncao) {
         this.validaFuncao = validaFuncao;
     }
 
-    public boolean isValidaAdmissao() {
+    public Boolean getValidaAdmissao() {
         return validaAdmissao;
     }
 
-    public void setValidaAdmissao(boolean validaAdmissao) {
+    public void setValidaAdmissao(Boolean validaAdmissao) {
         this.validaAdmissao = validaAdmissao;
     }
 
-    public boolean isValidaDemissao() {
+    public Boolean getValidaDemissao() {
         return validaDemissao;
     }
 
-    public void setValidaDemissao(boolean validaDemissao) {
+    public void setValidaDemissao(Boolean validaDemissao) {
         this.validaDemissao = validaDemissao;
     }
 
-    public boolean isValidaContato() {
+    public Boolean getValidaContato() {
         return validaContato;
     }
 
-    public void setValidaContato(boolean validaContato) {
+    public void setValidaContato(Boolean validaContato) {
         this.validaContato = validaContato;
     }
 
-    public boolean isValidaEmail() {
+    public Boolean getValidaEmail() {
         return validaEmail;
     }
 
-    public void setValidaEmail(boolean validaEmail) {
+    public void setValidaEmail(Boolean validaEmail) {
         this.validaEmail = validaEmail;
     }
 
-    public boolean isValidaTelefone() {
+    public Boolean getValidaTelefone() {
         return validaTelefone;
     }
 
-    public void setValidaTelefone(boolean validaTelefone) {
+    public void setValidaTelefone(Boolean validaTelefone) {
         this.validaTelefone = validaTelefone;
     }
 
-    public boolean isWebValidaCpf() {
+    public Boolean getWebValidaCpf() {
         return webValidaCpf;
     }
 
-    public void setWebValidaCpf(boolean webValidaCpf) {
+    public void setWebValidaCpf(Boolean webValidaCpf) {
         this.webValidaCpf = webValidaCpf;
     }
 
-    public boolean isWebValidaNome() {
+    public Boolean getWebValidaNome() {
         return webValidaNome;
     }
 
-    public void setWebValidaNome(boolean webValidaNome) {
+    public void setWebValidaNome(Boolean webValidaNome) {
         this.webValidaNome = webValidaNome;
     }
 
-    public boolean isWebValidaEndereco() {
+    public Boolean getWebValidaEndereco() {
         return webValidaEndereco;
     }
 
-    public void setWebValidaEndereco(boolean webValidaEndereco) {
+    public void setWebValidaEndereco(Boolean webValidaEndereco) {
         this.webValidaEndereco = webValidaEndereco;
     }
 
-    public boolean isWebValidaCarteira() {
+    public Boolean getWebValidaCarteira() {
         return webValidaCarteira;
     }
 
-    public void setWebValidaCarteira(boolean webValidaCarteira) {
+    public void setWebValidaCarteira(Boolean webValidaCarteira) {
         this.webValidaCarteira = webValidaCarteira;
     }
 
-    public boolean isWebValidaSerie() {
+    public Boolean getWebValidaSerie() {
         return webValidaSerie;
     }
 
-    public void setWebValidaSerie(boolean webValidaSerie) {
+    public void setWebValidaSerie(Boolean webValidaSerie) {
         this.webValidaSerie = webValidaSerie;
     }
 
-    public boolean isWebValidaFuncao() {
+    public Boolean getWebValidaFuncao() {
         return webValidaFuncao;
     }
 
-    public void setWebValidaFuncao(boolean webValidaFuncao) {
+    public void setWebValidaFuncao(Boolean webValidaFuncao) {
         this.webValidaFuncao = webValidaFuncao;
     }
 
-    public boolean isWebValidaAdmissao() {
+    public Boolean getWebValidaAdmissao() {
         return webValidaAdmissao;
     }
 
-    public void setWebValidaAdmissao(boolean webValidaAdmissao) {
+    public void setWebValidaAdmissao(Boolean webValidaAdmissao) {
         this.webValidaAdmissao = webValidaAdmissao;
     }
 
-    public boolean isWebValidaDemissao() {
+    public Boolean getWebValidaDemissao() {
         return webValidaDemissao;
     }
 
-    public void setWebValidaDemissao(boolean webValidaDemissao) {
+    public void setWebValidaDemissao(Boolean webValidaDemissao) {
         this.webValidaDemissao = webValidaDemissao;
     }
 
-    public boolean isWebValidaContato() {
+    public Boolean getWebValidaContato() {
         return webValidaContato;
     }
 
-    public void setWebValidaContato(boolean webValidaContato) {
+    public void setWebValidaContato(Boolean webValidaContato) {
         this.webValidaContato = webValidaContato;
     }
 
-    public boolean isWebValidaEmail() {
+    public Boolean getWebValidaEmail() {
         return webValidaEmail;
     }
 
-    public void setWebValidaEmail(boolean webValidaEmail) {
+    public void setWebValidaEmail(Boolean webValidaEmail) {
         this.webValidaEmail = webValidaEmail;
     }
 
-    public boolean isWebValidaTelefone() {
+    public Boolean getWebValidaTelefone() {
         return webValidaTelefone;
     }
 
-    public void setWebValidaTelefone(boolean webValidaTelefone) {
+    public void setWebValidaTelefone(Boolean webValidaTelefone) {
         this.webValidaTelefone = webValidaTelefone;
     }
 
-    public boolean isWebValidaDataNascimento() {
+    public Boolean getWebValidaDataNascimento() {
         return webValidaDataNascimento;
     }
 
-    public void setWebValidaDataNascimento(boolean webValidaDataNascimento) {
+    public void setWebValidaDataNascimento(Boolean webValidaDataNascimento) {
         this.webValidaDataNascimento = webValidaDataNascimento;
     }
 
-    public boolean isValidaDataNascimento() {
+    public Boolean getValidaDataNascimento() {
         return validaDataNascimento;
     }
 
-    public void setValidaDataNascimento(boolean validaDataNascimento) {
+    public void setValidaDataNascimento(Boolean validaDataNascimento) {
         this.validaDataNascimento = validaDataNascimento;
+    }
+
+    public Date getWebDesabilitaInicial() {
+        return webDesabilitaInicial;
+    }
+
+    public void setWebDesabilitaInicial(Date webDesabilitaInicial) {
+        this.webDesabilitaInicial = webDesabilitaInicial;
+    }
+
+    public Date getWebDesabilitaFinal() {
+        return webDesabilitaFinal;
+    }
+
+    public void setWebDesabilitaFinal(Date webDesabilitaFinal) {
+        this.webDesabilitaFinal = webDesabilitaFinal;
+    }
+
+    public String getWebDesabilitaInicialString() {
+        Integer x = DataHoje.converteDataParaInteger(DataHoje.data());
+        Integer y = DataHoje.converteDataParaInteger(getWebDesabilitaFinalString());
+        if(x > y) {
+            webDesabilitaInicial = null;
+            webDesabilitaFinal = null;
+            webDesabilitaObs = "";            
+        } 
+        return DataHoje.converteData(webDesabilitaInicial);
+    }
+
+    public void setWebDesabilitaInicialString(String webDesabilitaInicialString) {
+        this.webDesabilitaInicial = DataHoje.converte(webDesabilitaInicialString);
+    }
+
+    public String getWebDesabilitaFinalString() {
+        if (webDesabilitaInicial != null) {
+            if (webDesabilitaFinal == null) {
+                webDesabilitaFinal = webDesabilitaInicial;
+            }
+            if (DataHoje.maiorData(webDesabilitaInicial, webDesabilitaFinal)) {
+                webDesabilitaFinal = webDesabilitaInicial;
+            }
+        }
+        return DataHoje.converteData(webDesabilitaFinal);
+    }
+
+    public void setWebDesabilitaFinalString(String webDesabilitaFinalString) {
+        this.webDesabilitaFinal = DataHoje.converte(webDesabilitaFinalString);
+    }
+
+    public String getWebDesabilitaObs() {
+        return webDesabilitaObs;
+    }
+
+    public void setWebDesabilitaObs(String webDesabilitaObs) {
+        this.webDesabilitaObs = webDesabilitaObs;
     }
 
 }
