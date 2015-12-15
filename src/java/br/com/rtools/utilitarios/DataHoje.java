@@ -1187,4 +1187,25 @@ public class DataHoje {
         return null;
     }
 
+    /**
+     *
+     * @param date (Data a ser comparada)
+     * @param start (Inicio)
+     * @param finish (Fim)
+     * @return
+     */
+    public static Boolean between(String date, String start, String finish) {
+        try {
+            int d = DataHoje.converteDataParaInteger(date);
+            int s = DataHoje.converteDataParaInteger(start);
+            int f = DataHoje.converteDataParaInteger(finish);
+            if (d >= s && d <= f) {
+                return true;
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return false;
+    }
+
 }
