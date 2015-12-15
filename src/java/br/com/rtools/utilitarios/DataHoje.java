@@ -1188,6 +1188,7 @@ public class DataHoje {
     }
 
     /**
+     * Compara uma data num determinado período
      *
      * @param date (Data a ser comparada)
      * @param start (Inicio)
@@ -1206,6 +1207,10 @@ public class DataHoje {
             return null;
         }
         return false;
+    }
+
+    public static Boolean between(Date date, Date start, Date finish) {
+        return between(converteData(date), converteData(start), converteData(finish));
     }
 
 }
