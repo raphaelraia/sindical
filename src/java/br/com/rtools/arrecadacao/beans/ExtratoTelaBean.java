@@ -257,13 +257,18 @@ public class ExtratoTelaBean implements Serializable {
                     ), Float.parseFloat(Double.toString((Double) linha_list.get(13))) //multa
             ), Float.parseFloat(Double.toString((Double) linha_list.get(16))));// desconto
             
-//            somaRepasse = Moeda.multiplicarValores(valor_baixa,
-//                    Moeda.divisaoValores(
-//                            Float.parseFloat(Double.toString((Double) linha_list.get(17))), 100));
-            // ALTERADO PARA BATER COM O RELATÓRIO RESUMO DE CONTRIBUIÇÕES > Menu Financeiro > Relatório > Movimento
-            somaRepasse = Moeda.multiplicarValores(somaValores,
+            // ROGÉRIO PEDIU PARA ESSE CALCULO SER PELO VALOR BAIXA, SENDO QUE EM UM CASO DE TESTE NÃO BATEU, APENAS COM O VALOR (somaValores)
+            somaRepasse = Moeda.multiplicarValores(valor_baixa,
                     Moeda.divisaoValores(
                             Float.parseFloat(Double.toString((Double) linha_list.get(17))), 100));
+            
+
+// ALTERADO PARA BATER COM O RELATÓRIO RESUMO DE CONTRIBUIÇÕES > Menu Financeiro > Relatório > Movimento
+//            somaRepasse = Moeda.multiplicarValores(
+//                    somaValores,
+//                    Moeda.divisaoValores(
+//                            Float.parseFloat(Double.toString((Double) linha_list.get(17))), 100)
+//            );
 
             if (linha_list.get(12) == null
                     && ((String) linha_list.get(11)).equals("Acordo")) {

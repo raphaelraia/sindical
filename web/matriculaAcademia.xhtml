@@ -91,7 +91,7 @@
                                                     </p:inputMask>
                                                     <p:outputLabel value="Vencimento para Boleto Bancário:" styleClass="margin-left-max" />
                                                     <h:column rendered="#{matriculaAcademiaBean.aluno.id == -1}"></h:column>
-                                                    <p:selectOneMenu value="#{matriculaAcademiaBean.idDiaVencimento}" disabled="true" id="i_l_m" style="padding-right: 10px">
+                                                    <p:selectOneMenu value="#{matriculaAcademiaBean.idDiaVencimento}" disabled="true" id="i_l_m">
                                                         <f:selectItems value="#{matriculaAcademiaBean.listaDiaVencimento}"/>
                                                     </p:selectOneMenu>
                                                     <p:commandLink value="Alterar dia Vencimento" onclick="PF('dlg_alterar_dia_vencto').show()" rendered="#{matriculaAcademiaBean.aluno.id != -1}"/>
@@ -241,7 +241,7 @@
                                             <p:inputText value="#{matriculaAcademiaBean.valorCartao}" rendered="#{matriculaAcademiaBean.taxaCartao}" readonly="true" size="5"/>
                                             <p:outputLabel value="Dia do Vencimento: " styleClass="margin-left-max" />
                                             <!-- <p:selectOneMenu value="# {matriculaAcademiaBean.idDiaParcela}" style="padding-right: 10px" disabled="# {matriculaAcademiaBean.desabilitaCamposMovimento}"> -->
-                                            <p:selectOneMenu value="#{matriculaAcademiaBean.idDiaParcela}" style="padding-right: 10px">
+                                            <p:selectOneMenu value="#{matriculaAcademiaBean.idDiaParcela}">
                                                 <f:selectItems value="#{matriculaAcademiaBean.listaDiaParcela}" />
                                             </p:selectOneMenu>
                                         </h:panelGrid>

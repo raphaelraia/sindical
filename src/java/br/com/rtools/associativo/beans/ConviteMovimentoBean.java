@@ -86,6 +86,7 @@ public class ConviteMovimentoBean implements Serializable {
     private List<ConviteMovimento> conviteMovimentos = new ArrayList();
     private List<SelectItem> listPessoaAutoriza = new ArrayList();
     private List<SelectItem> conviteServicos = new ArrayList();
+    
 
 //    private StreamedContent fotoPerfilStreamed; //CARREGAR IMAGEM UPLOAD FOTO PHOTOCAM 
 //    private StreamedContent fotoArquivoStreamed;
@@ -104,13 +105,26 @@ public class ConviteMovimentoBean implements Serializable {
 
     private boolean disabledValor = true;
 
+    
     private ConfiguracaoSocial cs = new ConfiguracaoSocial();
     //private float desconto = 0;
+    
+    private Integer indexTipoDocumento = 0;
+    private List<SelectItem> listTipoDocumento = new ArrayList();
 
     public ConviteMovimentoBean() {
         loadUsuario();
         cs = (ConfiguracaoSocial) new Dao().find(new ConfiguracaoSocial(), 1);
         //PhotoCapture.load("temp/convite/" + usuario.getId(), "form_convite:panel_foto");
+        loadListTipoDocumento();
+    }
+    
+    public void loadListTipoDocumento(){
+        listTipoDocumento.clear();
+        
+        // REFERENTE A TABELA pes_tipo_documento E OBJETO TipoDocumento
+        listTipoDocumento.add(new SelectItem(0, "CPF", "1"));
+        listTipoDocumento.add(new SelectItem(1, "ESTRANGEIRO", "5"));
     }
 
     public void atualizaDescontoValor() {
@@ -128,12 +142,15 @@ public class ConviteMovimentoBean implements Serializable {
 
         if (p_desconto > 80) {
             GenericaMensagem.warn("ATENÇÃO", "VALOR DO DESCONTO NÃO PODE ULTRAPASSAR 80% ( R$ " + Moeda.converteR$Float(p_valor) + " ).");
+            PF.update("form_convite:out_mensagem");
+            PF.openDialog("dgl_panel_mensagem");
             conviteMovimento.setDesconto(0);
             return;
         }
 
         valorString = Moeda.converteR$Float(Moeda.subtracaoValores(Moeda.converteUS$(valorString), conviteMovimento.getDesconto()));
-        GenericaMensagem.info("DESCONTO DE R$ ", conviteMovimento.getDescontoString() + " APLICADO!");
+        // MENSAGEM COM O VALOR DO DESCONTO APLICADO
+        //GenericaMensagem.info("DESCONTO DE R$ ", conviteMovimento.getDescontoString() + " APLICADO!");
     }
 
     public void novo() {
@@ -229,6 +246,7 @@ public class ConviteMovimentoBean implements Serializable {
         atualizarCortesia();
 
         visibility = false;
+        indexTipoDocumento = 0;
         PF.update("form_convite");
     }
 
@@ -261,11 +279,15 @@ public class ConviteMovimentoBean implements Serializable {
         }
 
         if (!conviteMovimento.getSisPessoa().getDocumento().isEmpty()) {
-            if (!ValidaDocumentos.isValidoCPF(AnaliseString.extrairNumeros(conviteMovimento.getSisPessoa().getDocumento()))) {
-                GenericaMensagem.warn("ATENÇÃO", "CPF DIGITADO INVÁLIDO!");
-                return false;
+            // SE O TIPO DE DOCUMENTO FOR IGUAL A CPF
+            if (listTipoDocumento.get(indexTipoDocumento).getDescription().equals("1")){
+                if (!ValidaDocumentos.isValidoCPF(AnaliseString.extrairNumeros(conviteMovimento.getSisPessoa().getDocumento()))) {
+                    GenericaMensagem.warn("ATENÇÃO", "CPF DIGITADO INVÁLIDO!");
+                    return false;
+                }
             }
         }
+        
         if (conviteMovimento.getSisPessoa().getNome().isEmpty()) {
             //message = "Informar nome do convidado!";
             GenericaMensagem.warn("ATENÇÃO", "INFORMAR NOME DO CONVIDADO!");
@@ -347,7 +369,7 @@ public class ConviteMovimentoBean implements Serializable {
                 GenericaMensagem.warn("ATENÇÃO", "Limite de convites excedido para convidado! Este convidado tem direito a " + r.getConviteQuantidadeConvidado() + " a cada " + r.getConviteDiasConvidado() + "dia(s)");
                 return false;
             }
-
+        } else {
             if (Moeda.converteUS$(valorString) <= 0) {
                 //message = "Informar o valor do serviço, faixa etária não possuí valor do serviço!";
                 GenericaMensagem.warn("ATENÇÃO", "INFORMAR O VALOR DO SERVIÇO, FAIXA ETÁRIA NÃO POSSUI VALOR DO SERVIÇO!");
@@ -371,21 +393,6 @@ public class ConviteMovimentoBean implements Serializable {
                 //message = "Convidado não pode ser sócio ativo!";
                 GenericaMensagem.warn("ATENÇÃO", "CONVIDADO NÃO PODE SER SÓCIO ATIVO!");
                 return false;
-            }
-
-            if (cs.getBloqueiaConviteOposicao()) {
-                Boolean temOposicao = odbt.existPessoaDocumentoPeriodo(conviteMovimento.getSisPessoa().getDocumento());
-                if (temOposicao) {
-                    //message = "Convidado cadastrado em Oposição!";
-                    GenericaMensagem.fatal("ATENÇÃO", "CONVIDADO CADASTRADO EM OPOSIÇÃO!");
-                    return false;
-                }
-            } else {
-                Boolean temOposicao = odbt.existPessoaDocumentoPeriodo(conviteMovimento.getSisPessoa().getDocumento());
-                if (temOposicao) {
-                    //message = "Convidado cadastrado em Oposição!";
-                    GenericaMensagem.fatal("ATENÇÃO", "CONVIDADO CADASTRADO EM OPOSIÇÃO!");
-                }
             }
 
             FisicaDBToplink fdb = new FisicaDBToplink();
@@ -443,6 +450,7 @@ public class ConviteMovimentoBean implements Serializable {
 
         dao.openTransaction();
         // SALVAR sis_pessoa ------------------------
+        conviteMovimento.getSisPessoa().setTipoDocumento((TipoDocumento) dao.find(new TipoDocumento(), Integer.valueOf(listTipoDocumento.get(indexTipoDocumento).getDescription()) ));
         if (conviteMovimento.getSisPessoa().getId() == -1) {
             conviteMovimento.getSisPessoa().setTipoDocumento((TipoDocumento) dao.find(new TipoDocumento(), 1));
             if (!dao.save(conviteMovimento.getSisPessoa())) {
@@ -637,10 +645,34 @@ public class ConviteMovimentoBean implements Serializable {
     }
 
     public void pesquisaSisPessoaDocumento() {
-        //if (conviteMovimento.getSisPessoa().getId() == -1) {
         // APENAS COM CPF
         SisPessoaDao sisPessoaDB = new SisPessoaDao();
         if (!conviteMovimento.getSisPessoa().getDocumento().isEmpty()) {
+
+            // VALIDA SE CONVIDADO TEM OPOSIÇÃO --------------------------------
+            OposicaoDao odbt = new OposicaoDao();
+            if (cs.getBloqueiaConviteOposicao()) {
+                Boolean temOposicao = odbt.existPessoaDocumentoPeriodo(conviteMovimento.getSisPessoa().getDocumento());
+                // BLOQUEIA SE TIVER OPOSIÇÃO
+                if (temOposicao) {
+                    GenericaMensagem.fatal("ATENÇÃO", "CONVIDADO CADASTRADO EM OPOSIÇÃO!");
+                    PF.openDialog("dgl_panel_mensagem");
+
+                    // LIMPA SE TIVER OPOSIÇÃO
+                    conviteMovimento.setSisPessoa(new SisPessoa());
+                    return;
+                }
+            } else {
+                // APENAS MOSTRA A MENSAGEM
+                Boolean temOposicao = odbt.existPessoaDocumentoPeriodo(conviteMovimento.getSisPessoa().getDocumento());
+                if (temOposicao) {
+                    GenericaMensagem.fatal("ATENÇÃO", "CONVIDADO CADASTRADO EM OPOSIÇÃO!");
+                    PF.update("form_convite:out_mensagem");
+                    PF.openDialog("dgl_panel_mensagem");
+                }
+            }
+            // -----------------------------------------------------------------
+
             SisPessoa sp = sisPessoaDB.sisPessoaExiste(conviteMovimento.getSisPessoa(), true);
             if (sp != null) {
                 conviteMovimento.setSisPessoa(sp);
@@ -658,7 +690,6 @@ public class ConviteMovimentoBean implements Serializable {
             }
         }
         conviteMovimento.getSisPessoa().setNome(conviteMovimento.getSisPessoa().getNome().toUpperCase());
-        //}
         atualizaDescontoValor();
     }
 
@@ -766,6 +797,13 @@ public class ConviteMovimentoBean implements Serializable {
             conviteMovimento.getSisPessoa().setEndereco(new Endereco());
         }
 
+        for (int i = 0; i < listTipoDocumento.size(); i++) {
+            if (Integer.parseInt(listTipoDocumento.get(i).getDescription()) == conviteMovimento.getSisPessoa().getTipoDocumento().getId()) {
+                indexTipoDocumento = i;
+                break;
+            }
+        }        
+        
         if (conviteMovimento.getAutorizaCortesia() != null) {
             listPessoaAutoriza.clear();
             for (int i = 0; i < getListPessoaAutoriza().size(); i++) {
@@ -1258,5 +1296,21 @@ public class ConviteMovimentoBean implements Serializable {
             }
         }
         return false;
+    }
+
+    public List<SelectItem> getListTipoDocumento() {
+        return listTipoDocumento;
+    }
+
+    public void setListTipoDocumento(List<SelectItem> listTipoDocumento) {
+        this.listTipoDocumento = listTipoDocumento;
+    }
+
+    public Integer getIndexTipoDocumento() {
+        return indexTipoDocumento;
+    }
+
+    public void setIndexTipoDocumento(Integer indexTipoDocumento) {
+        this.indexTipoDocumento = indexTipoDocumento;
     }
 }

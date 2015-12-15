@@ -172,6 +172,17 @@ public class MovimentosReceberSocialBean implements Serializable {
         GenericaSessao.remove("usuarioAutenticado");
     }
 
+    public Boolean movimentosBaixado(Boleto b) {
+        MovimentosReceberSocialDB db = new MovimentosReceberSocialDBToplink();
+        List<Movimento> l_movimento = db.listaMovimentosPorNrCtrBoleto(b.getNrCtrBoleto());
+        for (Movimento m : l_movimento) {
+            if (m.getBaixa() != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void loadListaMovimentoDoBoleto(LinhaBoletosAnexo lma) {
         if (lma != null) {
             linhaBoletosAnexo = lma;
@@ -281,8 +292,10 @@ public class MovimentosReceberSocialBean implements Serializable {
 
         dao.openTransaction();
         if (movimentoRemover == null) {
+            Boolean selecionado = false;
             for (LinhaMovimentoDoBoleto lmb : listaMovimentoDoBoleto) {
                 if (lmb.getSelecionado()) {
+                    selecionado = true;
                     lmb.getMovimento().setNrCtrBoleto("");
                     lmb.getMovimento().setDocumento("");
 
@@ -291,8 +304,11 @@ public class MovimentosReceberSocialBean implements Serializable {
                         dao.rollback();
                         return;
                     }
-
                 }
+            }
+            
+            if (!selecionado){
+                GenericaMensagem.warn("Atenção", "Nenhum movimento foi selecionado!");
             }
         } else {
             movimentoRemover.setNrCtrBoleto("");
@@ -326,12 +342,13 @@ public class MovimentosReceberSocialBean implements Serializable {
         List<Vector> result = db.listaBoletosAbertosAgrupado(pessoa.getId(), chkBoletosAtrasados);
 
         for (List linha : result) {
+            Boleto bo = (Boleto) new Dao().find(new Boleto(), linha.get(0));
             listaBoletosAnexo.add(
-                    // [0] - b.id, [1] - b.nr_ctr_boleto, [2] - b.ds_boleto, [3] - sum(m.nr_valor), [4] - b.dt_vencimento, [5] - b.dt_vencimento_original, [6] - b.ds_mensagem 
-
+                    // [0] - b.id, [1] - b.nr_ctr_boleto, [2] - b.ds_boleto, [3] - sum(m.nr_valor), [4] - b.dt_vencimento, [5] - b.dt_vencimento_original, [6] - b.ds_mensagem
                     new LinhaBoletosAnexo(
                             linha,
-                            (Boleto) new Dao().find(new Boleto(), linha.get(0))
+                            bo,
+                            movimentosBaixado(bo)
                     )
             );
 
@@ -2083,10 +2100,12 @@ public class MovimentosReceberSocialBean implements Serializable {
 
         private List listaQuery;
         private Boleto boleto;
+        private Boolean movimentoBaixado;
 
-        public LinhaBoletosAnexo(List listaQuery, Boleto boleto) {
+        public LinhaBoletosAnexo(List listaQuery, Boleto boleto, Boolean movimentoBaixado) {
             this.listaQuery = listaQuery;
             this.boleto = boleto;
+            this.movimentoBaixado = movimentoBaixado;
         }
 
         public Boleto getBoleto() {
@@ -2103,6 +2122,14 @@ public class MovimentosReceberSocialBean implements Serializable {
 
         public void setListaQuery(List listaQuery) {
             this.listaQuery = listaQuery;
+        }
+
+        public Boolean getMovimentoBaixado() {
+            return movimentoBaixado;
+        }
+
+        public void setMovimentoBaixado(Boolean movimentoBaixado) {
+            this.movimentoBaixado = movimentoBaixado;
         }
     }
 
