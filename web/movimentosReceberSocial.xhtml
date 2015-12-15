@@ -465,7 +465,7 @@
 
                                     <p:outputLabel value="BOLETOS DISPONÍVEIS" style="font-size: 13pt!important; font-weight: bold"/>
 
-                                    <p:selectBooleanCheckbox itemLabel="Boletos Atrasados" value="#{movimentosReceberSocialBean.chkBoletosAtrasados}" style="float: right">
+                                    <p:selectBooleanCheckbox itemLabel="Boletos Anteriores" value="#{movimentosReceberSocialBean.chkBoletosAtrasados}" style="float: right">
                                         <p:ajax event="change" update="panel_anexar_boletos" listener="#{movimentosReceberSocialBean.loadBoletosAbertos()}"/>
                                     </p:selectBooleanCheckbox>
 
@@ -483,7 +483,7 @@
                                         </p:column>
 
                                         <p:column headerText="Vencimento" style="width: 100px; text-align: center">
-                                            <p:commandButton value="#{movimentosReceberSocialBean.converteData(linha_boleto_anexo.listaQuery[4])}" action="#{movimentosReceberSocialBean.selecionaVencimentoBoleto(linha_boleto_anexo.listaQuery[0])}" oncomplete="PF('dlg_vencimento_boleto').show()" update=":formMovimentosReceber:panelAlterarVencimento" rendered="#{!movimentosReceberSocialBean.cab.verificarPermissao('alterarVencimentoBoletoSocial', 3)}"/>
+                                            <p:commandButton value="#{movimentosReceberSocialBean.converteData(linha_boleto_anexo.listaQuery[4])}" action="#{movimentosReceberSocialBean.selecionaVencimentoBoleto(linha_boleto_anexo.listaQuery[0])}" oncomplete="PF('dlg_vencimento_boleto').show()" update=":formMovimentosReceber:panelAlterarVencimento" rendered="#{!movimentosReceberSocialBean.cab.verificarPermissao('alterarVencimentoBoletoSocial', 3)}" disabled="#{linha_boleto_anexo.movimentoBaixado}"/>
                                             <p:outputLabel value="#{movimentosReceberSocialBean.converteData(linha_boleto_anexo.listaQuery[4])}" rendered="#{movimentosReceberSocialBean.cab.verificarPermissao('alterarVencimentoBoletoSocial', 3)}" style="font-size: 11pt!important"/>
                                         </p:column>
 
@@ -536,9 +536,12 @@
                             <p:dialog widgetVar="dlg_movimentos_do_boleto" header="Movimentos do Boleto" resizable="false" width="900" modal="true">
                                 <h:panelGrid id="tbl_movimentos_do_boleto">
                                     <p:outputLabel value="BOLETO SELECIONADO: #{movimentosReceberSocialBean.listaMovimentoDoBoleto[0].movimento.documento}" style="font-size: 12pt!important; font-weight: bold"/>
+                                    
+                                    <p:messages autoUpdate="false" closable="true" showDetail="true" />
+                                    
                                     <p:dataTable value="#{movimentosReceberSocialBean.listaMovimentoDoBoleto}" var="linha_movimento" emptyMessage="Nenhum Movimento Encontrado!" scrollable="true" scrollHeight="400">
                                         <p:column style="width: 20px; text-align: center">
-                                            <p:selectBooleanCheckbox value="#{linha_movimento.selecionado}" style="float: right">
+                                            <p:selectBooleanCheckbox value="#{linha_movimento.selecionado}" style="float: right" disabled="#{linha_movimento.movimento.baixa ne null}">
                                                 <p:ajax event="change" update="@this" global="false"/>
                                             </p:selectBooleanCheckbox>
                                         </p:column>
@@ -564,13 +567,13 @@
                                         </p:column>
 
                                         <p:column headerText="Anexo" style="text-align: center; width: 40px">
-                                            <p:commandButton icon="ui-icon-close" actionListener="#{movimentosReceberSocialBean.clickRemoverMovimentos(linha_movimento.movimento)}" oncomplete="PF('dlg_confirma_desanexar').show()" title="REMOVER MOVIMENTO DESTE BOLETO"/>
+                                            <p:commandButton icon="ui-icon-close" actionListener="#{movimentosReceberSocialBean.clickRemoverMovimentos(linha_movimento.movimento)}" oncomplete="PF('dlg_confirma_desanexar').show()" title="REMOVER MOVIMENTO DESTE BOLETO" disabled="#{linha_movimento.movimento.baixa ne null}"/>
                                         </p:column>
                                     </p:dataTable>
                                     <br />
                                     <h:panelGrid columns="2" style="width: 100%">
                                         <p:commandButton value="IMPRIMIR BOLETO" ajax="false" onclick="this.form.target = '_blank'" action="#{movimentosReceberSocialBean.imprimirBoletos(null)}" style="font-weight: bold" rendered="#{movimentosReceberSocialBean.listaMovimentoDoBoleto.size() > 0}"/>
-                                        <p:commandButton value="REMOVER MOVIMENTOS SELECIONADOS" actionListener="#{movimentosReceberSocialBean.clickRemoverMovimentos(null)}" oncomplete="PF('dlg_confirma_desanexar').show()" style="float: right" rendered="#{movimentosReceberSocialBean.listaMovimentoDoBoleto.size() > 0}" title="REMOVE TODOS OS MOVIMENTOS DESSE BOLETO"/>
+                                        <p:commandButton value="REMOVER MOVIMENTOS SELECIONADOS" actionListener="#{movimentosReceberSocialBean.clickRemoverMovimentos(null)}" oncomplete="PF('dlg_confirma_desanexar').show()" style="float: right" rendered="#{movimentosReceberSocialBean.listaMovimentoDoBoleto.size() > 0}" title="REMOVE TODOS OS MOVIMENTOS SELECIONADOS DESTE BOLETO"/>
                                     </h:panelGrid>
                                 </h:panelGrid>
 

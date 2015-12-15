@@ -108,6 +108,7 @@
                                 </p:panel>
 
                                 <p:panel id="i_panel_adicionar" styleClass="no-border">
+
                                     <div style="float: left; width: 600px; margin-right: 15px;">
                                         <p:panel header="SÓCIO">
                                             <h:panelGrid id="i_panel_convite">
@@ -137,12 +138,15 @@
                                                         <p:selectBooleanCheckbox value="#{conviteMovimentoBean.conviteMovimento.cortesia}" itemLabel="Cortesia" disabled="#{conviteMovimentoBean.conviteMovimento.id != -1}" style="font-weight: bold">
                                                             <p:ajax event="change" update="form_convite" listener="#{conviteMovimentoBean.atualizarCortesia()}"/>
                                                         </p:selectBooleanCheckbox><br />
-                                                        <p:inputText value="#{conviteMovimentoBean.conviteMovimento.controleCortesia}" rendered="#{conviteMovimentoBean.conviteMovimento.cortesia}" placeholder="CONTROLE PARA O CONVITE" style="width: 190px"/>
+                                                        <p:inputText value="#{conviteMovimentoBean.conviteMovimento.controleCortesia}" rendered="#{conviteMovimentoBean.conviteMovimento.cortesia}" placeholder="CONTROLE PARA O CONVITE" style="width: 190px">
+                                                            <p:ajax event="change" update="@this" global="false"/>
+                                                        </p:inputText>
                                                     </h:column>
                                                     <p:spacer width="15" />
                                                     <h:column>
                                                         <p:outputLabel value="Autorizada por" rendered="#{conviteMovimentoBean.conviteMovimento.cortesia}" style="font-weight: bold"/><br />
                                                         <p:selectOneMenu value="#{conviteMovimentoBean.idPessoaAutoriza}" rendered="#{conviteMovimentoBean.conviteMovimento.cortesia}" disabled="#{conviteMovimentoBean.conviteMovimento.id != -1}" style="width: 330px">
+                                                            <p:ajax event="change" update="@this" global="false"/>
                                                             <f:selectItems value="#{conviteMovimentoBean.listPessoaAutoriza}" />
                                                         </p:selectOneMenu>                                            
                                                     </h:column>
@@ -152,31 +156,39 @@
                                         </p:panel>
 
                                         <p:panel header="CONVIDADO" styleClass="margin-top-max" id="i_panel_convidado">
-                                            <h:panelGrid columns="4">
+                                            <h:panelGrid columns="5">
                                                 <h:column>
                                                     <p:outputLabel value="Emissão" style="font-weight: bold"/><br />
                                                     <p:inputText value="#{conviteMovimentoBean.conviteMovimento.emissao}" readonly="true" style="width: 85px; text-align: center"/>
                                                 </h:column>
 
                                                 <h:column>
-                                                    <p:outputLabel value="CPF" style="font-weight: bold"/><br />
-                                                    <p:inputMask mask="999.999.999-99" value="#{conviteMovimentoBean.conviteMovimento.sisPessoa.documento}" disabled="#{conviteMovimentoBean.conviteMovimento.id != -1}" style="width: 120px; text-align: center; font-weight: bold; opacity: 0.8">
+                                                    <br />
+                                                    <p:selectOneMenu value="#{conviteMovimentoBean.indexTipoDocumento}" disabled="#{conviteMovimentoBean.conviteMovimento.id != -1}"  style="width: 50px; opacity: 0.8">
+                                                        <p:ajax event="change" update="@this input_cpf" global="false"/>
+                                                        <f:selectItems value="#{conviteMovimentoBean.listTipoDocumento}" />
+                                                    </p:selectOneMenu>
+                                                </h:column>
+
+                                                <h:column>
+                                                    <br />
+                                                    <p:inputMask id="input_cpf" mask="#{conviteMovimentoBean.indexTipoDocumento eq 0 ? '999.999.999-99' : ''}" value="#{conviteMovimentoBean.conviteMovimento.sisPessoa.documento}" disabled="#{conviteMovimentoBean.conviteMovimento.id != -1}" style="width: 120px; text-align: center; font-weight: bold; opacity: 0.8">
                                                         <p:ajax event="change" listener="#{conviteMovimentoBean.pesquisaSisPessoaDocumento()}" update="@this i_panel_adicionar"/>
                                                     </p:inputMask>
                                                 </h:column>        
 
                                                 <h:column>        
                                                     <p:outputLabel value="RG" style="font-weight: bold"/><br />
-                                                    <p:inputText value="#{conviteMovimentoBean.conviteMovimento.sisPessoa.rg}" disabled="#{conviteMovimentoBean.conviteMovimento.id != -1}" style="width: 120px; font-weight: bold; opacity: 0.8">
+                                                    <p:inputText value="#{conviteMovimentoBean.conviteMovimento.sisPessoa.rg}" disabled="#{conviteMovimentoBean.conviteMovimento.id != -1}" style="width: 95px; font-weight: bold; opacity: 0.8">
                                                         <p:ajax event="change" listener="#{conviteMovimentoBean.pesquisaSisPessoaRG()}" update="@this i_panel_adicionar"/>
                                                     </p:inputText>
                                                 </h:column>        
 
-                                                <p:panel style="margin-left: 30px" rendered="#{conviteMovimentoBean.conviteMovimento.id != -1}" styleClass="fundoCinza">
+                                                <p:panel style="margin-left: 5px" rendered="#{conviteMovimentoBean.conviteMovimento.id != -1}" styleClass="fundoCinza">
                                                     <h:panelGrid columns="2">
                                                         <h:column>
                                                             <p:outputLabel value="Convite" style="font-weight: bold"/><br />
-                                                            <p:inputText value="#{conviteMovimentoBean.conviteMovimento.id}" readonly="true" size="5" rendered="#{conviteMovimentoBean.conviteMovimento.id != -1}" style="text-align: right"/>
+                                                            <p:inputText value="#{conviteMovimentoBean.conviteMovimento.id}" readonly="true" size="2" rendered="#{conviteMovimentoBean.conviteMovimento.id != -1}" style="text-align: right"/>
                                                         </h:column>
 
                                                         <h:column>
@@ -210,7 +222,7 @@
                                                 <h:column>
                                                     <p:outputLabel value="Sexo" style="font-weight: bold" /><br />
                                                     <p:selectOneMenu value="#{conviteMovimentoBean.conviteMovimento.sisPessoa.sexo}">
-                                                        <p:ajax event="change" update="@this" />
+                                                        <p:ajax event="change" update="@this" global="false"/>
                                                         <f:selectItem itemValue="M" itemLabel="Masculino"/>
                                                         <f:selectItem itemValue="F" itemLabel="Feminino"/>
                                                     </p:selectOneMenu>
@@ -221,17 +233,23 @@
                                             <h:panelGrid columns="3">
                                                 <h:column>
                                                     <p:outputLabel value="Telefone" style="font-weight: bold" /><br />
-                                                    <p:inputMask value="#{conviteMovimentoBean.conviteMovimento.sisPessoa.telefone}" mask="(99) 9999-9999" style="width: 110px; text-align: center"/>
+                                                    <p:inputMask value="#{conviteMovimentoBean.conviteMovimento.sisPessoa.telefone}" mask="(99) 9999-9999" style="width: 110px; text-align: center">
+                                                        <p:ajax event="change" update="@this" global="false"/>
+                                                    </p:inputMask>
                                                 </h:column>
 
                                                 <h:column>
                                                     <p:outputLabel value="Celular" style="font-weight: bold" /><br />
-                                                    <p:inputMask value="#{conviteMovimentoBean.conviteMovimento.sisPessoa.celular}" mask="(99) 99999-9999" style="width: 115px; text-align: center"/>
+                                                    <p:inputMask value="#{conviteMovimentoBean.conviteMovimento.sisPessoa.celular}" mask="(99) 99999-9999" style="width: 115px; text-align: center">
+                                                        <p:ajax event="change" update="@this" global="false" />
+                                                    </p:inputMask>
                                                 </h:column>
 
                                                 <h:column>
                                                     <p:outputLabel value="Observação" style="font-weight: bold" /><br />
-                                                    <p:inputText value="#{conviteMovimentoBean.conviteMovimento.observacao}" style="width: 335px"/>
+                                                    <p:inputText value="#{conviteMovimentoBean.conviteMovimento.observacao}" style="width: 335px">
+                                                        <p:ajax event="change" update="@this" global="false"/>
+                                                    </p:inputText>
                                                 </h:column>
                                             </h:panelGrid>
 
@@ -247,10 +265,10 @@
                                                 <h:column>
                                                     <p:outputLabel value="Desconto" style="font-weight: bold" /><br />
                                                     <p:inputText value="#{conviteMovimentoBean.conviteMovimento.descontoString}" disabled="#{conviteMovimentoBean.disabledValor or conviteMovimentoBean.conviteMovimento.id != -1}" style="text-align: right; width: 100px; font-weight: bold; #{(conviteMovimentoBean.disabledValor or conviteMovimentoBean.conviteMovimento.id != -1) ? 'opacity: 0.7' : ''}">
-                                                        <p:ajax event="change" listener="#{conviteMovimentoBean.atualizaDescontoValor}" update="form_convite" oncomplete="PF('dgl_panel_mensagem').show();"/>
+                                                        <p:ajax event="change" listener="#{conviteMovimentoBean.atualizaDescontoValor}" update="form_convite"/>
                                                     </p:inputText>
                                                 </h:column>
-                                                
+
                                                 <h:column>
                                                     <p:outputLabel value="Valor" style="font-weight: bold" /><br />
                                                     <p:inputText value="#{conviteMovimentoBean.valorString}" id="id_valor_servico" disabled="#{conviteMovimentoBean.disabledValor or conviteMovimentoBean.conviteMovimento.id != -1}" style="text-align: right; width: 100px; font-weight: bold; #{(conviteMovimentoBean.disabledValor or conviteMovimentoBean.conviteMovimento.id != -1) ? 'opacity: 0.7' : ''}"/>

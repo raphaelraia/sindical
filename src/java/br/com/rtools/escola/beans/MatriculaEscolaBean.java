@@ -1946,7 +1946,8 @@ public class MatriculaEscolaBean implements Serializable {
             return aluno;
         }
 
-        String tipoFisica = GenericaSessao.getString("pesquisaFisicaTipo", true);
+        
+        String tipoFisica = GenericaSessao.getString("pesquisaFisicaTipo", false);
         if (tipoFisica.equals("aluno")) {
             aluno = (Fisica) GenericaSessao.getObject("fisicaPesquisa", true);
             verificaSocio();
@@ -1963,7 +1964,8 @@ public class MatriculaEscolaBean implements Serializable {
             }
 
             servicoPessoa.setPessoa(aluno.getPessoa());
-        } else {
+            GenericaSessao.remove("pesquisaFisicaTipo");
+        } else if (tipoFisica.equals("responsavel")) {
             verificaSocio();
             if (socios != null && socios.getId() != -1) {
                 // PESSOA ASSOCIADA
@@ -1973,6 +1975,7 @@ public class MatriculaEscolaBean implements Serializable {
                 servicoPessoa.setCobranca(retornaResponsavel(aluno.getPessoa().getId(), false));
             }
             GenericaSessao.remove("pessoaPesquisa");
+            GenericaSessao.remove("pesquisaFisicaTipo");
         }
         pegarIdServico();
         calculaValorLiquido();

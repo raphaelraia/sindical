@@ -68,7 +68,8 @@ public class ServicoPessoaDBToplink extends DB implements ServicoPessoaDB {
     @Override
     public List listByPessoaInativo(int idPessoa) {
         try {
-            Query query = getEntityManager().createQuery(" SELECT SP FROM ServicoPessoa AS SP WHERE SP.pessoa.id = :pessoa AND SP.ativo = false");
+            //Query query = getEntityManager().createQuery(" SELECT SP FROM ServicoPessoa AS SP WHERE SP.pessoa.id = :pessoa AND SP.ativo = false ");
+            Query query = getEntityManager().createQuery(" SELECT S.servicoPessoa FROM Socios S WHERE S.servicoPessoa.pessoa.id = :pessoa AND S.servicoPessoa.ativo = false ");
             query.setParameter("pessoa", idPessoa);
             List list = query.getResultList();
             if (!list.isEmpty()) {

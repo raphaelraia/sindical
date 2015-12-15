@@ -1834,7 +1834,8 @@ public class ImprimirBoleto {
 
                 int qntItens = 0;
                 for (int w = 0; w < lista_socio.size(); w++) {
-                    if (DataHoje.maiorData(DataHoje.converteData((Date) lista_socio.get(w).get(38)), "01/" + DataHoje.converteData((Date) lista_socio.get(w).get(40)).substring(3))) {
+                    if (DataHoje.maiorData(DataHoje.converteData((Date) lista_socio.get(w).get(38)), "01/" + DataHoje.converteData((Date) lista_socio.get(w).get(40)).substring(3)) 
+                     || DataHoje.igualdadeData(DataHoje.converteData((Date) lista_socio.get(w).get(38)), "01/" + DataHoje.converteData((Date) lista_socio.get(w).get(40)).substring(3))) {
                         qntItens++;
                         float valor = Moeda.converteUS$(lista_socio.get(w).get(14).toString());
                         lista.add(new ParametroBoletoSocial(

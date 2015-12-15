@@ -496,7 +496,7 @@
                                                     <p:commandButton icon="ui-icon-contact" update=":form_matricula_escola:i_pessoa_fisica_card" action="#{pessoaCardBean.cardFisica(escolaAutorizados.pessoa.id)}" oncomplete="PF('dlg_pessoa_fisica_card').show()" title="Ver detalhes" />
                                                 </p:column>
                                                 <p:column width="100" >
-                                                    <p:graphicImage value="#{escolaAutorizados.pessoa.fotoResource}" width="100" alt="Sem foto" cache="false"/>
+                                                    <p:graphicImage name="#{escolaAutorizados.pessoa.fotoResource}" width="100" alt="Sem foto" cache="false"/>
                                                 </p:column>
                                                 <p:column headerText="Nome">
                                                     #{escolaAutorizados.pessoa.nome}
