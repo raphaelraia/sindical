@@ -198,9 +198,10 @@ public class CancelarHorarioBean implements Serializable {
         calculaQuantidadeDisponivel();
     }
 
-    public void cancelarHorarioPeriodo() {
+    public String cancelarHorarioPeriodo() {
         SisProcesso sisProcesso = new SisProcesso();
-        sisProcesso.start();        
+        sisProcesso.start();
+        sisProcesso.setProcesso("Cancelar horários");
         Date date = DataHoje.dataHoje();
         int intDataHoje = DataHoje.converteDataParaInteger(DataHoje.converteData(date));
         int intDataInicial = DataHoje.converteDataParaInteger(DataHoje.converteData(getDataInicial()));
@@ -209,17 +210,17 @@ public class CancelarHorarioBean implements Serializable {
 
         if (intDataInicial < intDataHoje) {
             GenericaMensagem.warn("Sistema", "A data inicial tem que ser maior ou igual a data de hoje!");
-            return;
+            return null;
         }
 
         if (intDataFinal < intDataHoje) {
             GenericaMensagem.warn("Sistema", "A data final tem que ser maior ou igual a data de hoje!");
-            return;
+            return null;
         }
 
         if (intDataFinal < intDataInicial) {
             GenericaMensagem.warn("Sistema", "A data final tem que ser maior ou igual que a data inicial!");
-            return;
+            return null;
         }
 
         Dao dao = new Dao();
@@ -259,20 +260,20 @@ public class CancelarHorarioBean implements Serializable {
                 horarioses = horariosDao.pesquisaTodosPorFilial(f.getId(), DataHoje.diaDaSemana(DataHoje.converte(strDataInicial)));
             } else if (habilitaSemana && !habilitaHorarios) {
                 if (listSemana.isEmpty()) {
-                    return;
+                    return null;
                 }
                 if (DataHoje.diaDaSemana(DataHoje.converte(strDataInicial)) == Integer.parseInt(listSemana.get(idSemana).getDescription())) {
                     horarioses = horariosDao.pesquisaTodosPorFilial(f.getId(), DataHoje.diaDaSemana(DataHoje.converte(strDataInicial)));
                 }
             } else if (!habilitaSemana && habilitaHorarios) {
                 if (listHorarios.isEmpty()) {
-                    return;
+                    return null;
                 }
                 horarioses = horariosDao.pesquisaPorHorarioFilial(f.getId(), listHorarios.get(idHorario).getDescription());
             } else if (habilitaSemana && habilitaHorarios) {
                 if (DataHoje.diaDaSemana(DataHoje.converte(strDataInicial)) == Integer.parseInt(listSemana.get(idSemana).getDescription())) {
                     if (listHorarios.isEmpty() || listSemana.isEmpty()) {
-                        return;
+                        return null;
                     }
                     horarioses = horariosDao.pesquisaPorHorarioFilial(f.getId(), listHorarios.get(idHorario).getDescription(), DataHoje.diaDaSemana(DataHoje.converte(strDataInicial)));
                 }
@@ -311,20 +312,20 @@ public class CancelarHorarioBean implements Serializable {
                                 save = true;
                                 cancelarHorario.setQuantidade(horarioses.get(x).getQuantidade());
                             } else {
-                                save = false;                                
+                                save = false;
                             }
                         }
                     } else {
                         cancelarHorario.setQuantidade(0);
                     }
-                    if(save) {
+                    if (save) {
                         if (dao.save(cancelarHorario)) {
                             cancelarHorario = new CancelarHorario();
                             erro = false;
                         } else {
                             erro = true;
                             break;
-                        }                        
+                        }
                     }
                 } else {
                     boolean delete = false;
@@ -380,13 +381,14 @@ public class CancelarHorarioBean implements Serializable {
         if (erro) {
             GenericaMensagem.warn("Erro", "Erro ao cancelar horário(s) do período!");
             dao.rollback();
-            return;
+            return null;
         }
         dao.commit();
         listaHorariosCancelados.clear();
         cancelarHorario = new CancelarHorario();
         sisProcesso.finish();
         GenericaMensagem.info("Sucesso", "Horários cancelados com sucesso");
+        return null;
     }
 
     public void excluir(CancelarHorario ch) {

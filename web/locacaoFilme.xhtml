@@ -1,0 +1,120 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Sindical - Locação de Filmes</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important;} 
+            .ui-button { padding: 3px!important; }
+            .ui-datatable tr.ui-datatable-even:hover, .ui-datatable tr.ui-datatable-odd:hover {
+                background: #ECF3FE;
+            }            
+        </style>
+    </h:head>
+    <h:body>
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>
+        </f:subview>
+        <f:view>
+            <!-- INICIA DIV wrap e main -->
+            <div id="wrapx">
+                <div id="mainx">
+                    <!-- INICIA DIV wrap e main -->  
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:outputText value="Locação de Filmes" styleClass="fonteHeader" />
+                        <div class="clear"></div>
+                        <h:form id="form_locacao_filmes">
+                            <!-- <c:set scope="request" var="object" value="$ {tituloBean.titulo}"/> -->
+                            <p:panel>
+                                <f:facet name="header">
+                                    <h:panelGrid columns="2">
+                                        <p:outputLabel value="Data da locação" />
+                                        <p:inputMask maxlength="10" size="6" readonly="readonly" mask="99/99/9999" converter="#{isDateString}">
+                                            <p:ajax update="@this" event="change" />
+                                        </p:inputMask>
+                                    </h:panelGrid>
+                                </f:facet>
+                                <p:panel header="Locatário">
+                                    <h:panelGrid columns="2">
+                                        <h:column>
+                                            <h:panelGrid columns="3">
+                                                <p:commandButton value="Código" />
+                                                <p:inputText />
+                                                <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pesquisa('pesquisaSocio')}" title="Pesquisar"/>
+                                            </h:panelGrid>
+                                        </h:column>
+                                        <h:outputLabel />
+                                    </h:panelGrid>
+                                </p:panel>
+                                <p:panel header="Filme(s)" styleClass="margin-top-max">
+                                    <h:panelGrid columns="2">
+                                        <h:column>
+                                            <h:panelGrid columns="3">
+                                                <p:commandButton value="Código" />
+                                                <p:inputText />
+                                                <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pesquisa('pesquisaTitulo')}" title="Pesquisar"/>
+                                            </h:panelGrid>
+                                        </h:column>
+                                        <h:outputLabel />
+                                        <h:column />
+                                        <p:selectOneMenu  >
+                                            <f:selectItems />
+                                        </p:selectOneMenu>
+                                    </h:panelGrid>
+                                    <f:facet name="footer">
+                                        <p:commandButton value="Adicionar" disabled="#{controleAcessoBean.botaoSalvar}" title="Adicionar"/>
+                                    </f:facet>
+                                </p:panel>
+                                <h:panelGrid>
+                                    <p:dataTable>
+                                        <p:column headerText="Código" />
+                                        <p:column headerText="Barras" />
+                                        <p:column headerText="Filme" />
+                                        <p:column headerText="Lançamento" />
+                                    </p:dataTable>
+                                </h:panelGrid>
+                            </p:panel>
+                            <h:panelGrid columns="4" styleClass="margin-top-max">
+                                <p:commandButton onclick="PF('dlg_save').show();" value="Concluir" disabled="#{controleAcessoBean.botaoSalvar}" title="Concluir locação"/>
+                                <p:commandButton value="Novo" action="#{tituloBean.clear}" update=":form_locacao_filmes:"/>
+                                <p:commandButton onclick="PF('dlg_delete').show();" value="Desfazer" disabled="#{controleAcessoBean.botaoExcluir}" title="Excluir"/>                                
+                            </h:panelGrid>
+                            <p:dialog widgetVar="dlg_save" header="Deseja concluir esta locação?" resizable="false" width="400" modal="true">
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{tituloBean.save()}" oncomplete="PF('dlg_save').hide();PF('dlg_message').show();" style="clear: both; float: left; margin-left: 10px;" update="i_message  :form_locacao_filmes:"/> 
+                                        <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_save').hide()" style="float: left;" icon="ui-icon-close"/>                                        
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_delete" header="Deseja desfazer esta locação?" resizable="false" width="400" modal="true">
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{tituloBean.delete()}" oncomplete="PF('dlg_delete').hide();PF('dlg_message').show();" style="clear: both; float: left; margin-left: 10px;" update="i_message :form_locacao_filmes:"/> 
+                                        <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_delete').hide()" style="float: left;" icon="ui-icon-close"/>                                    
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_message" header="Mensagem" resizable="false" width="400" modal="true" closable="true">
+                                <p:messages autoUpdate="true" showDetail="true" showSummary="true" id="i_message" /> 
+                                <f:facet name="footer">
+                                    <h:panelGrid>
+                                        <p:commandButton value="OK" type="submit" styleClass="ui-confirmdialog-yes" onclick="PF('dlg_message').hide();"/>                                        
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>
+                        </h:form>
+                    </p:panel>
+                    <!-- FINALIZA div wrap main -->
+                </div>
+            </div>
+            <!-- FINALIZA div wrap main -->              
+        </f:view>
+    </h:body>
+</ui:composition>

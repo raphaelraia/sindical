@@ -28,18 +28,18 @@
                         <p:panel style="border: 0px; margin: 0 auto;  width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                             <p:menubar>
                                 <p:submenu label="Cadastro" icon="ui-icon-document" style="margin-right: 15px">
-                                    <p:menuitem value="Catálogo Filme"       action="#{chamadaPaginaBean.pagina('catalogoFilme', 'catalogoBean')}" />
-                                    <p:menuitem value="Gênero"               action="#{chamadaPaginaBean.paginaSimples('Genero','Cadastro de Gênero')}" />
                                     <p:menuitem value="Título"               action="#{chamadaPaginaBean.pagina('titulo')}" />
+                                    <p:menuitem value="Gênero"               action="#{chamadaPaginaBean.paginaSimples('Genero','Cadastro de Gênero')}" />
                                     <p:menuitem value="Vendedor"             action="#{chamadaPaginaBean.pagina('vendedor')}" />
                                     <p:menuitem value="Mídias"               action="#{chamadaPaginaBean.paginaSimples('Midia','Cadastro de Mídia')}" />
                                     <p:menuitem value="Desc Serviço Empresa" action="#{chamadaPaginaBean.pagina('descontoServicoEmpresa')}" />
                                     <p:menuitem value="Taxa"                 action="#{chamadaPaginaBean.pagina('locadoraTaxa')}" />
                                     <p:menuitem value="Locadora Autorizados" action="#{chamadaPaginaBean.pagina('locadoraAutorizados')}" />
+                                    <p:menuitem value="Locadora Status"      action="#{chamadaPaginaBean.pagina('locadoraStatus')}" />
                                 </p:submenu>
 
                                 <p:submenu label="Movimento" icon="ui-icon-document" style="margin-right: 15px">
-
+                                    <p:menuitem value="Locação"             action="#{chamadaPaginaBean.pagina('locacaoFilme')}" />
                                 </p:submenu>
 
                                 <p:submenu label="Relatórios" icon="ui-icon-document" style="margin-right: 15px">

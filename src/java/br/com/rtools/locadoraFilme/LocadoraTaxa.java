@@ -9,6 +9,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -16,6 +18,9 @@ import javax.persistence.UniqueConstraint;
 @Table(name = "loc_taxa",
         uniqueConstraints = @UniqueConstraint(columnNames = {"id_servico_diaria", "id_servico_multa_diaria"})
 )
+@NamedQueries({
+    @NamedQuery(name = "LocadoraTaxa.findAll", query = "SELECT LT FROM LocadoraTaxa AS LT ORDER BY LT.servicoDiaria.descricao ASC, LT.servicoMultaDiaria.descricao ASC")
+})
 public class LocadoraTaxa implements Serializable {
 
     @Id

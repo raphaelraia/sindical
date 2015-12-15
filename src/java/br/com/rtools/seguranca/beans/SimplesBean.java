@@ -28,6 +28,7 @@ import br.com.rtools.pessoa.dao.MalaDiretaDao;
 import br.com.rtools.pessoa.dao.MalaDiretaGrupoDao;
 import br.com.rtools.seguranca.*;
 import br.com.rtools.sistema.Cor;
+import br.com.rtools.sistema.SisNotificacaoCategoria;
 import br.com.rtools.suporte.ProStatus;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
@@ -366,6 +367,9 @@ public class SimplesBean implements Serializable {
             case "MalaDiretaGrupo":
                 o = (MalaDiretaGrupo) new MalaDiretaGrupo(id, descricao, true);
                 break;
+            case "SisNotificacaoCategoria":
+                o = (SisNotificacaoCategoria) new SisNotificacaoCategoria(id, descricao);
+                break;
         }
         return o;
     }
@@ -458,6 +462,9 @@ public class SimplesBean implements Serializable {
                 break;
             case "MalaDiretaGrupo":
                 ((MalaDiretaGrupo) objeto).setDescricao(descricao);
+                break;
+            case "SisNotificacaoCategoria":
+                ((SisNotificacaoCategoria) objeto).setDescricao(descricao);
                 break;
         }
     }
@@ -580,6 +587,10 @@ public class SimplesBean implements Serializable {
                 descricao = ((MalaDiretaGrupo) obj).getDescricao();
                 id = ((MalaDiretaGrupo) objeto).getId();
                 ativo = ((MalaDiretaGrupo) objeto).getAtivo();
+                break;
+            case "SisNotificacaoCategoria":
+                descricao = ((SisNotificacaoCategoria) obj).getDescricao();
+                id = ((SisNotificacaoCategoria) objeto).getId();
                 break;
         }
         Dao dao = new Dao();
@@ -730,6 +741,11 @@ public class SimplesBean implements Serializable {
                 break;
             case "MalaDiretaGrupo":
                 if (((MalaDiretaGrupo) obj).getDescricao().contains(pesquisaLista)) {
+                    return true;
+                }
+                break;
+            case "SisNotificacaoCategoria":
+                if (((SisNotificacaoCategoria) obj).getDescricao().contains(pesquisaLista)) {
                     return true;
                 }
                 break;

@@ -1853,11 +1853,40 @@
             <to-view-id>/locadoraTaxa.jsf</to-view-id>
             <redirect/>
         </navigation-case>
-        
-        
+                
         <navigation-case>
             <from-outcome>locadoraAutorizados</from-outcome>
             <to-view-id>/locadoraAutorizados.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>locadoraStatus</from-outcome>
+            <to-view-id>/locadoraStatus.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>locacaoFilme</from-outcome>
+            <to-view-id>/locacaoFilme.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>sisNotificacaoCategoria</from-outcome>
+            <to-view-id>/sisNotificacaoCategoria.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>sisNotificacao</from-outcome>
+            <to-view-id>/sisNotificacao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>pesquisaSisNotificacao</from-outcome>
+            <to-view-id>/pesquisaSisNotificacao.jsf</to-view-id>
             <redirect/>
         </navigation-case>
         

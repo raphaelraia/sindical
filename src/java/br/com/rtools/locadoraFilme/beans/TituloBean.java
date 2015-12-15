@@ -1,9 +1,13 @@
 package br.com.rtools.locadoraFilme.beans;
 
+import br.com.rtools.locadoraFilme.Catalogo;
 import br.com.rtools.locadoraFilme.Genero;
 import br.com.rtools.locadoraFilme.Titulo;
+import br.com.rtools.locadoraFilme.dao.CatalogoDao;
 import br.com.rtools.locadoraFilme.dao.TituloDao;
 import br.com.rtools.logSistema.NovoLog;
+import br.com.rtools.pessoa.Filial;
+import br.com.rtools.pessoa.db.FilialDao;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.sistema.ConfiguracaoUpload;
 import br.com.rtools.utilitarios.Dao;
@@ -34,11 +38,12 @@ import org.primefaces.event.FileUploadEvent;
 public class TituloBean {
 
     private Titulo titulo;
+    private Catalogo catalogo;
     private Usuario usuario;
     private String descPesquisa;
     private String porPesquisa;
     private String comoPesquisa;
-    private int idGenero;
+    private Integer idGenero;
     private List<SelectItem> listGeneroCombo;
     private List<Titulo> listTitulo;
     private String fotoPerfil;
@@ -48,17 +53,21 @@ public class TituloBean {
     private String fileContent;
     private Part file;
     private String[] imagensTipo;
+    private List<SelectItem> listFilial;
+    private Integer idFilial;
+    private List<Catalogo> listCatalogo;
 
     @PostConstruct
     public void init() {
         titulo = new Titulo();
+        catalogo = new Catalogo();
         usuario = new Usuario();
         descPesquisa = "";
         porPesquisa = "descricao";
         comoPesquisa = "";
         idGenero = 0;
-        listGeneroCombo = new ArrayList<SelectItem>();
-        listTitulo = new ArrayList<Titulo>();
+        listGeneroCombo = new ArrayList<>();
+        listTitulo = new ArrayList<>();
         fotoPerfil = "";
         fotoArquivo = "";
         fotoTempPerfil = "";
@@ -66,6 +75,9 @@ public class TituloBean {
         fileContent = "";
         file = null;
         imagensTipo = new String[]{"jpg", "jpeg", "png", "gif"};
+        listFilial = new ArrayList<>();
+        idFilial = 0;
+        listCatalogo = new ArrayList<>();
     }
 
     @PreDestroy
@@ -96,6 +108,14 @@ public class TituloBean {
         }
         if (titulo.getDescricao().isEmpty()) {
             GenericaMensagem.warn("Validação", "Digite o nome do titulo!");
+            return;
+        }
+        if (titulo.getIdadeMinima() < 0) {
+            GenericaMensagem.warn("Validação", "Idade mínima deve ser maior ou igual a 0!");
+            return;
+        }
+        if (titulo.getQtdePorEmbalagem() < 0) {
+            GenericaMensagem.warn("Validação", "Quantidade por embalagem deve ser maior que 0!");
             return;
         }
         Dao dao = new Dao();
@@ -135,6 +155,10 @@ public class TituloBean {
                         + " - Autor: " + titulo.getAutor()
                 );
                 saveImage();
+                if (titulo.getBarras().isEmpty()) {
+                    titulo.setBarras("" + titulo.getId());
+                    new Dao().update(titulo, true);
+                }
             } else {
                 GenericaMensagem.warn("Erro", "Ao inserir registro!");
             }
@@ -194,15 +218,107 @@ public class TituloBean {
         }
     }
 
+    public void edit(Catalogo c) {
+        catalogo = c;
+        listFilial.add(new SelectItem(c.getFilial().getFilial().getPessoa().getNome()));
+        idFilial = c.getFilial().getId();
+    }
+
     public String link(Titulo t) {
         titulo = t;
         GenericaSessao.put("tituloPesquisa", titulo);
         GenericaSessao.put("linkClicado", true);
         showImagem();
+        listFilial.clear();
+        listCatalogo.clear();
         if (!GenericaSessao.exists("urlRetorno")) {
             return "titulo";
         } else {
             return (String) GenericaSessao.getString("urlRetorno");
+        }
+    }
+
+    public synchronized void add() {
+        CatalogoDao catalogoDao = new CatalogoDao();
+        if (catalogo.getQuantidade() <= 0) {
+            GenericaMensagem.warn("Validação", "Quantidade deve ser maior que 0!");
+            return;
+        }
+        if (listFilial.isEmpty()) {
+            GenericaMensagem.warn("Validação", "Cadastrar filiais!");
+            return;
+        }
+        if (titulo.getId() == null) {
+            GenericaMensagem.warn("Validação", "Cadastrar titulo!");
+            return;
+        }
+        Dao dao = new Dao();
+        catalogo.setFilial((Filial) dao.find(new Filial(), idFilial));
+        catalogo.setTitulo(titulo);
+        NovoLog novoLog = new NovoLog();
+        if (catalogo.getId() == null) {
+            if (!catalogoDao.verificaFilial(catalogo.getFilial(), catalogo.getTitulo())) {
+                GenericaMensagem.warn("Validação", "Já existe esse catálogo para essa filial!");
+                return;
+            }
+            if (dao.save(catalogo, true)) {
+                GenericaMensagem.info("Sucesso", "Registro inserido");
+                novoLog.save(""
+                        + "ID: " + catalogo.getId()
+                        + " - Filial: (" + catalogo.getFilial().getId() + ") - " + catalogo.getFilial().getFilial().getPessoa().getNome()
+                        + " - Título: (" + catalogo.getTitulo().getId() + ") - " + catalogo.getTitulo().getDescricao()
+                        + " - Quantidade: " + catalogo.getQuantidade()
+                );
+                listCatalogo.clear();
+                catalogo = new Catalogo();
+                listFilial.clear();
+            } else {
+                GenericaMensagem.warn("Erro", "Ao inserir registro!");
+            }
+        } else {
+            Catalogo c = (Catalogo) dao.find(catalogo);
+            String beforeUpdate = ""
+                    + "ID: " + c.getId()
+                    + " - Filial: (" + c.getFilial().getId() + ") - " + c.getFilial().getFilial().getPessoa().getNome()
+                    + " - Título: (" + c.getTitulo().getId() + ") - " + c.getTitulo().getDescricao()
+                    + " - Quantidade: " + c.getQuantidade();
+            if (dao.update(catalogo, true)) {
+                GenericaMensagem.info("Sucesso", "Registro atualizado");
+                novoLog.update(beforeUpdate,
+                        "ID: " + catalogo.getId()
+                        + " - Filial: (" + catalogo.getFilial().getId() + ") - " + catalogo.getFilial().getFilial().getPessoa().getNome()
+                        + " - Título: (" + catalogo.getTitulo().getId() + ") - " + catalogo.getTitulo().getDescricao()
+                        + " - Quantidade: " + catalogo.getQuantidade()
+                );
+                catalogo = new Catalogo();
+                listCatalogo.clear();
+                listFilial.clear();
+            } else {
+                GenericaMensagem.warn("Erro", "Ao atualizar registro!");
+            }
+        }
+    }
+
+    public synchronized void remove(Catalogo c) {
+        if (c.getId() != null) {
+            Dao dao = new Dao();
+            NovoLog novoLog = new NovoLog();
+            if (dao.delete(c, true)) {
+                GenericaMensagem.info("Sucesso", "Registro removido");
+                novoLog.delete(""
+                        + "ID: " + c.getId()
+                        + " - Filial: (" + c.getFilial().getId() + ") - " + c.getFilial().getFilial().getPessoa().getNome()
+                        + " - Título: (" + c.getTitulo().getId() + ") - " + c.getTitulo().getDescricao()
+                        + " - Quantidade: " + c.getQuantidade()
+                );
+                catalogo = new Catalogo();
+                listCatalogo.clear();
+                listFilial.clear();
+            } else {
+                GenericaMensagem.warn("Erro", "Ao remover registro!");
+            }
+        } else {
+            GenericaMensagem.warn("Validação", "Nenhum registro selecionado!");
         }
     }
 
@@ -306,11 +422,11 @@ public class TituloBean {
         this.listGeneroCombo = listGeneroCombo;
     }
 
-    public int getIdGenero() {
+    public Integer getIdGenero() {
         return idGenero;
     }
 
-    public void setIdGenero(int idGenero) {
+    public void setIdGenero(Integer idGenero) {
         this.idGenero = idGenero;
     }
 
@@ -502,5 +618,55 @@ public class TituloBean {
             }
         }
         return fotoMemoria;
+    }
+
+    public List<SelectItem> getListFilial() {
+        if (titulo.getId() != null) {
+            if (listFilial.isEmpty()) {
+                FilialDao filialDao = new FilialDao();
+                List<Filial> list = filialDao.findNotInByTabela("loc_titulo_filial", "id_titulo", "" + titulo.getId());
+                for (int i = 0; i < list.size(); i++) {
+                    if (i == 0) {
+                        idFilial = list.get(i).getId();
+                    }
+                    listFilial.add(new SelectItem(list.get(i).getId(), list.get(i).getFilial().getPessoa().getNome()));
+                }
+            }
+        }
+        return listFilial;
+    }
+
+    public void setListFilial(List<SelectItem> listFilial) {
+        this.listFilial = listFilial;
+    }
+
+    public Integer getIdFilial() {
+        return idFilial;
+    }
+
+    public void setIdFilial(Integer idFilial) {
+        this.idFilial = idFilial;
+    }
+
+    public Catalogo getCatalogo() {
+        return catalogo;
+    }
+
+    public void setCatalogo(Catalogo catalogo) {
+        this.catalogo = catalogo;
+    }
+
+    public List<Catalogo> getListCatalogo() {
+        if (titulo.getId() != null) {
+            if (listCatalogo.isEmpty()) {
+                CatalogoDao catalogoDao = new CatalogoDao();
+                listCatalogo = catalogoDao.findByTitulo(titulo.getId());
+            }
+        }
+        return listCatalogo;
+    }
+
+    public void setListCatalogo(List<Catalogo> listCatalogo) {
+        this.listCatalogo = listCatalogo;
     }
 }

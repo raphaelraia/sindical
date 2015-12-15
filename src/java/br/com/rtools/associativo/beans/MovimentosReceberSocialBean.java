@@ -22,6 +22,7 @@ import br.com.rtools.financeiro.db.MovimentoDBToplink;
 import br.com.rtools.financeiro.db.ServicoContaCobrancaDB;
 import br.com.rtools.financeiro.db.ServicoContaCobrancaDBToplink;
 import br.com.rtools.impressao.ParametroEncaminhamento;
+import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.movimento.ImprimirRecibo;
@@ -1080,6 +1081,18 @@ public class MovimentosReceberSocialBean implements Serializable {
             GenericaMensagem.warn("Erro", msgConfirma);
         } else {
             msgConfirma = "Boletos estornados com sucesso!";
+            NovoLog novoLog = new NovoLog();
+            novoLog.setCodigo(mov.getId());
+            novoLog.setTabela("fin_movimento");
+            novoLog.update("",
+                    " Movimento - ID: " + mov.getId()
+                    + " - Ref.: " + mov.getReferencia()
+                    + " - Vencimento: " + mov.getVencimento()
+                    + " - Valor: " + mov.getValor()
+                    + " - Responsável: (" + mov.getPessoa().getId() + ") " + mov.getPessoa().getNome()
+                    + " - Motivo: " + motivoEstorno
+                    + " - Número da Baixa: " + mov.getBaixa().getId()
+            );
             GenericaMensagem.info("Sucesso", msgConfirma);
         }
         listaMovimento.clear();

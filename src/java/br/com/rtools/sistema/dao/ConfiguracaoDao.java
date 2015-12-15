@@ -1,8 +1,10 @@
-package br.com.rtools.sistema.beans;
+package br.com.rtools.sistema.dao;
 
+import br.com.rtools.pessoa.Filial;
 import br.com.rtools.principal.DB;
 import br.com.rtools.sistema.Configuracao;
 import br.com.rtools.sistema.Resolucao;
+import br.com.rtools.utilitarios.dao.FindDao;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
@@ -58,5 +60,39 @@ public class ConfiguracaoDao extends DB {
         } catch (Exception e) {
             return new Resolucao();
         }
+    }
+
+    /**
+     * Nome da tabela onde esta a lista de filiais Ex:
+     * findNotInByTabela('matr_escola');
+     *
+     * @param table (Use alias T+colum
+     * @param colum_filter_key Nome da coluna do filtro
+     * @return Todas as rotinas da tabela específicada
+     * @param colum_filter_value Valor do filtro
+     */
+    public List findNotInByTabela(String table, String colum_filter_key, String colum_filter_value) {
+        return findNotInByTabela(table, "id_configuracao", colum_filter_key, colum_filter_value, true);
+    }
+
+    /**
+     * Nome da tabela onde esta a lista de filiais Ex:
+     * findNotInByTabela('seg_filial_rotina', 'id_filial', 1);
+     *
+     * @param table (Use alias T+colum)
+     * @param column
+     * @param colum_filter_key Nome da coluna do filtro
+     * @return Todas as rotinas não usadas em uma chave conforme o valor
+     * @param colum_filter_value Valor do filtro
+     * @param is_ativo default null
+     */
+    public List findNotInByTabela(String table, String column, String colum_filter_key, String colum_filter_value, Boolean is_ativo) {
+        if (column == null || column.isEmpty()) {
+            column = "id_configuracao";
+        }
+        if (colum_filter_key == null || colum_filter_key.isEmpty() || colum_filter_value == null || colum_filter_value.isEmpty()) {
+            return new ArrayList();
+        }
+        return new FindDao().findNotInByTabela(Configuracao.class, "sis_configuracao", new String[]{"ds_identifica"}, table, column, colum_filter_key, colum_filter_value, "");
     }
 }

@@ -25,25 +25,31 @@ public class Titulo implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "dt_data")
     private Date data;
     @Column(name = "ds_descricao", length = 50, nullable = false)
     private String descricao;
-    @Column(name = "ds_autor", length = 100, nullable = true)
+    @Column(name = "ds_autor", length = 100)
     private String autor;
+    @Column(name = "ds_atores", length = 1000)
+    private String atores;
+    @Column(name = "nr_idade_minima", columnDefinition = "integer default 0")
+    private Integer idadeMinima;
+    @Column(name = "nr_qtde_por_embalagem", columnDefinition = "integer default 0")
+    private Integer qtdePorEmbalagem;
     @JoinColumn(name = "id_genero", referencedColumnName = "id")
     @ManyToOne
     private Genero genero;
-    @Column(name = "ds_barras", length = 100, nullable = true)
+    @Column(name = "ds_barras", length = 100)
     private String barras;
-    @Column(name = "nr_duracao_minutos", length = 5, nullable = true)
+    @Column(name = "nr_duracao_minutos", length = 5)
     private String duracao;
     @Column(name = "ano_lancamento")
     private Integer anoLancamento;
-    @Column(name = "ds_legenda", length = 10, nullable = true)
+    @Column(name = "ds_legenda", length = 10)
     private String legenda;
-    @Column(name = "ds_formato", length = 20, nullable = true)
+    @Column(name = "ds_formato", length = 20)
     private String formato;
     @Column(name = "is_imprime_etiqueta", columnDefinition = "boolean default false")
     private Boolean imprimeEtiqueta;
@@ -52,25 +58,31 @@ public class Titulo implements Serializable {
     private Date foto;
 
     public Titulo() {
-        id = null;
-        data = new Date();
-        descricao = "";
-        autor = "";
-        genero = new Genero();
-        barras = "";
-        duracao = "";
-        anoLancamento = 0;
-        legenda = "";
-        formato = "";
-        imprimeEtiqueta = false;
+        this.id = null;
+        this.data = new Date();
+        this.descricao = "";
+        this.autor = "";
+        this.atores = "";
+        this.idadeMinima = 0;
+        this.qtdePorEmbalagem = 1;
+        this.genero = new Genero();
+        this.barras = "";
+        this.duracao = "";
+        this.anoLancamento = 0;
+        this.legenda = "";
+        this.formato = "";
+        this.imprimeEtiqueta = false;
         this.foto = null;
     }
 
-    public Titulo(Integer id, Date data, String descricao, String autor, Genero genero, String barras, String duracao, Integer anoLancamento, String legenda, String formato, Boolean imprimeEtiqueta, Date foto) {
+    public Titulo(Integer id, Date data, String descricao, String autor, String atores, Integer idadeMinima, Integer qtdePorEmbalagem, Genero genero, String barras, String duracao, Integer anoLancamento, String legenda, String formato, Boolean imprimeEtiqueta, Date foto) {
         this.id = id;
         this.data = data;
         this.descricao = descricao;
         this.autor = autor;
+        this.atores = atores;
+        this.idadeMinima = idadeMinima;
+        this.qtdePorEmbalagem = qtdePorEmbalagem;
         this.genero = genero;
         this.barras = barras;
         this.duracao = duracao;
@@ -200,4 +212,76 @@ public class Titulo implements Serializable {
     public void setFoto(Date foto) {
         this.foto = foto;
     }
+
+    public String getAtores() {
+        return atores;
+    }
+
+    public Integer getQtdePorEmbalagem() {
+        return qtdePorEmbalagem;
+    }
+
+    public void setQtdePorEmbalagem(Integer qtdePorEmbalagem) {
+        this.qtdePorEmbalagem = qtdePorEmbalagem;
+
+    }
+
+    public void setAtores(String atores) {
+        this.atores = atores;
+    }
+
+    public Integer getIdadeMinima() {
+        return idadeMinima;
+    }
+
+    public void setIdadeMinima(Integer idadeMinima) {
+        this.idadeMinima = idadeMinima;
+    }
+
+    public String getIdadeMinimaString() {
+        return Integer.toString(idadeMinima);
+    }
+
+    public void setIdadeMinimaString(String idadeMinimaString) {
+        try {
+            this.idadeMinima = Integer.parseInt(idadeMinimaString);
+        } catch (Exception e) {
+        }
+    }
+
+    public String getQtdePorEmbalagemString() {
+        return Integer.toString(qtdePorEmbalagem);
+    }
+
+    public void setQtdePorEmbalagemString(String qtdePorEmbalagemString) {
+        try {
+            this.qtdePorEmbalagem = Integer.parseInt(qtdePorEmbalagemString);
+        } catch (Exception e) {
+        }
+
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Titulo other = (Titulo) obj;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "Titulo{" + "id=" + id + ", data=" + data + ", descricao=" + descricao + ", autor=" + autor + ", atores=" + atores + ", idadeMinima=" + idadeMinima + ", qtdePorEmbalagem=" + qtdePorEmbalagem + ", genero=" + genero + ", barras=" + barras + ", duracao=" + duracao + ", anoLancamento=" + anoLancamento + ", legenda=" + legenda + ", formato=" + formato + ", imprimeEtiqueta=" + imprimeEtiqueta + ", foto=" + foto + '}';
+    }
+
 }

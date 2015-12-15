@@ -98,7 +98,7 @@ public class SisProcesso implements Serializable {
     }
 
     public void finish() {
-        if (!this.processo.isEmpty()) {
+        if (this.processo != null && !this.processo.isEmpty()) {
             tempo = System.currentTimeMillis() - tempo;
             this.setRotina(new Rotina().get());
             this.setData(new Date());

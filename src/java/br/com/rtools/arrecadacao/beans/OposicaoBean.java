@@ -23,7 +23,7 @@ import br.com.rtools.pessoa.db.JuridicaDBToplink;
 import br.com.rtools.pessoa.db.PessoaDB;
 import br.com.rtools.pessoa.db.PessoaDBToplink;
 import br.com.rtools.seguranca.Usuario;
-import br.com.rtools.sistema.beans.ConfiguracaoDao;
+import br.com.rtools.sistema.dao.ConfiguracaoDao;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;

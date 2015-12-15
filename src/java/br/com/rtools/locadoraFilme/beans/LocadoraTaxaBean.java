@@ -84,11 +84,11 @@ public class LocadoraTaxaBean implements Serializable {
     public void save() {
         Dao dao = new Dao();
         if (idServicoDiaria == null) {
-            GenericaMensagem.warn("Erro", "Informar serviço diária!");
+            GenericaMensagem.warn("Validação", "Informar serviço diária!");
             return;
         }
         if (idServicoMultaDiaria == null) {
-            GenericaMensagem.warn("Erro", "Informar serviço multa!");
+            GenericaMensagem.warn("Validação", "Informar serviço multa!");
             return;
         }
         locadoraTaxa.setServicoDiaria((Servicos) dao.find(new Servicos(), idServicoDiaria));
@@ -106,7 +106,7 @@ public class LocadoraTaxaBean implements Serializable {
             listener(1);
             GenericaMensagem.info("Sucesso", "Registro inserido");
         } else {
-            GenericaMensagem.warn("Erro", "Ao adicionar registro!");
+            GenericaMensagem.warn("Validação", "Registro já existe!");
         }
     }
 

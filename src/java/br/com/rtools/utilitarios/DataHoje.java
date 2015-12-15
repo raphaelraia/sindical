@@ -46,6 +46,17 @@ public class DataHoje {
         }
     }
 
+    public static String converteHora(Date data) {
+        if (data != null) {
+            String a = data.toString();
+            DateFormat dateFormat = new SimpleDateFormat("HH:mm");
+            String b = dateFormat.format(data);
+            return b;
+        } else {
+            return "";
+        }
+    }
+
     public static String converteData(String data) {
         if (!data.isEmpty()) {
             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -60,6 +71,23 @@ public class DataHoje {
             try {
                 DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
                 return dateFormat.parse(data);
+            } catch (ParseException e) {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    public static Date converteDataHora(String data, String hora) {
+        if (data != null) {
+            try {
+                DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                try {
+                    return dateFormat.parse(data + " " + hora);
+                } catch (Exception e) {
+                    return dateFormat.parse(data + " " + hora + ":00");
+                }
             } catch (ParseException e) {
                 return null;
             }
@@ -429,11 +457,11 @@ public class DataHoje {
         return null;
     }
 
-    public String decrementarDias(int qtd, String data){
-        GregorianCalendar calendar = new GregorianCalendar();  
-        SimpleDateFormat dt = new SimpleDateFormat("dd/MM/yyyy");  
+    public String decrementarDias(int qtd, String data) {
+        GregorianCalendar calendar = new GregorianCalendar();
+        SimpleDateFormat dt = new SimpleDateFormat("dd/MM/yyyy");
         calendar.setTime(DataHoje.converte(data));
-        calendar.add(GregorianCalendar.DATE, -1);  
+        calendar.add(GregorianCalendar.DATE, -1);
         return dt.format(calendar.getTime());
     }
 
@@ -722,7 +750,7 @@ public class DataHoje {
         }
         return numeroDeMeses;
     }
-    
+
     public static int quantidadeMeses(String dataInicial, String dataFinal) {
         return quantidadeMeses(converte(dataInicial), converte(dataFinal));
     }

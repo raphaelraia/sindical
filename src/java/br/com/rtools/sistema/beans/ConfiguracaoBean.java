@@ -1,13 +1,16 @@
 package br.com.rtools.sistema.beans;
 
+import br.com.rtools.sistema.dao.ConfiguracaoDao;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.sistema.Configuracao;
 import br.com.rtools.sistema.ConfiguracaoUpload;
 import br.com.rtools.sistema.Resolucao;
+import br.com.rtools.sistema.SisConfiguracaoEmail;
 import br.com.rtools.sistema.TipoResolucao;
+import br.com.rtools.sistema.dao.SisConfiguracaoEmailDao;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
+import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Upload;
 import java.io.Serializable;
@@ -28,25 +31,28 @@ public class ConfiguracaoBean implements Serializable {
 
     private List<Configuracao> listaConfiguracao;
     private Configuracao configuracao;
+    private SisConfiguracaoEmail sisConfiguracaoEmail;
     private String mensagem;
     private String descricaoPesquisa;
     private Juridica juridica;
     private Usuario usuario;
-    
+
     private int indexTipoResolucao;
     private List<SelectItem> listaTipoResolucao;
     private Resolucao resolucao;
     private String resolucaoUsuario;
+    private List<SisConfiguracaoEmail> listSisConfiguracaoEmail;
 
     @PostConstruct
     public void init() {
         listaConfiguracao = new ArrayList();
+        listSisConfiguracaoEmail = new ArrayList();
         configuracao = new Configuracao();
         mensagem = "";
         descricaoPesquisa = "";
         juridica = new Juridica();
         usuario = (Usuario) GenericaSessao.getObject("sessaoUsuario");
-        
+        sisConfiguracaoEmail = new SisConfiguracaoEmail();
         indexTipoResolucao = 2;
         listaTipoResolucao = new ArrayList();
         resolucao = new Resolucao();
@@ -63,40 +69,46 @@ public class ConfiguracaoBean implements Serializable {
         GenericaSessao.remove("configuracaoBean");
     }
 
-    public void loadResolucao(){
+    public void loadResolucao() {
         getUsuario();
         getListaTipoResolucao();
         getResolucao();
     }
-    
-    public String salvarResolucao(){
-        Dao di = new Dao();
-        
-        di.openTransaction();
-        
-        if (getResolucao().getId() == -1){
+
+    public String salvarResolucao() {
+        Dao dao = new Dao();
+
+        dao.openTransaction();
+
+        if (getResolucao().getId() == -1) {
             resolucao.setUsuario(usuario);
-            resolucao.setTipoResolucao( (TipoResolucao) di.find(new TipoResolucao(), Integer.valueOf(listaTipoResolucao.get(indexTipoResolucao).getDescription())) );
-            if (di.save(resolucao)) di.commit(); else di.rollback();
-        }else{
-            resolucao.setTipoResolucao( (TipoResolucao) di.find(new TipoResolucao(), Integer.valueOf(listaTipoResolucao.get(indexTipoResolucao).getDescription())) );
-            if (di.update(resolucao)) di.commit(); else di.rollback();
+            resolucao.setTipoResolucao((TipoResolucao) dao.find(new TipoResolucao(), Integer.valueOf(listaTipoResolucao.get(indexTipoResolucao).getDescription())));
+            if (dao.save(resolucao)) {
+                dao.commit();
+            } else {
+                dao.rollback();
+            }
+        } else {
+            resolucao.setTipoResolucao((TipoResolucao) dao.find(new TipoResolucao(), Integer.valueOf(listaTipoResolucao.get(indexTipoResolucao).getDescription())));
+            if (dao.update(resolucao)) {
+                dao.commit();
+            } else {
+                dao.rollback();
+            }
         }
-        
+
 //        String retorno = GenericaSessao.getString("urlRetorno").isEmpty() ? "menuPrincipal" : GenericaSessao.getString("urlRetorno");
 //        GenericaSessao.put("linkClicado", true);
-        
-        
         HttpServletRequest paginaRequerida = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
         String urlAtual = paginaRequerida.getRequestURI();
         urlAtual = urlAtual.substring(urlAtual.lastIndexOf("/") + 1, urlAtual.lastIndexOf("."));
-        
+
         return urlAtual;
     }
-    
+
     public void save() {
 
-        DaoInterface di = new Dao();
+        Dao dao = new Dao();
 
         configuracao.setJuridica(juridica);
 
@@ -114,7 +126,7 @@ public class ConfiguracaoBean implements Serializable {
             return;
         }
 
-        if (getConfiguracao().getId() == -1) {
+        if (getConfiguracao().getId() == null) {
             ConfiguracaoDao configuracaoDB = new ConfiguracaoDao();
             if (configuracaoDB.existeIdentificador(configuracao)) {
                 setMensagem("Identificador já existe!");
@@ -125,36 +137,59 @@ public class ConfiguracaoBean implements Serializable {
                 setMensagem("Identificador já existe para essa pessoa!");
                 return;
             }
-            di.openTransaction();
-            if (di.save(configuracao)) {
-                di.commit();
+            dao.openTransaction();
+            if (dao.save(configuracao)) {
+                dao.commit();
                 setMensagem("Configuração efetuada com sucesso");
             } else {
-                di.rollback();
+                dao.rollback();
                 setMensagem("Erro ao criar configuração.");
             }
         } else {
-            di.openTransaction();
-            if (di.update(configuracao)) {
-                di.commit();
+            dao.openTransaction();
+            if (dao.update(configuracao)) {
+                dao.commit();
                 setMensagem("Configuração atualizada com sucesso");
             } else {
-                di.rollback();
+                dao.rollback();
                 setMensagem("Erro ao atualizar configuração.");
             }
         }
     }
 
+    public void add() {
+        if (configuracao.getId() != null) {
+            if (sisConfiguracaoEmail.getId() != null) {
+                sisConfiguracaoEmail.setConfiguracao(configuracao);
+                if (new Dao().save(sisConfiguracaoEmail, true)) {
+                    GenericaMensagem.info("Sucesso", "Registro inserido");
+                    listSisConfiguracaoEmail.clear();
+                } else {
+                    GenericaMensagem.warn("Erro", "Registro já existe!");
+                }
+            }
+        }
+    }
+
+    public void remove(SisConfiguracaoEmail sce) {
+        if (new Dao().delete(sce, true)) {
+            listSisConfiguracaoEmail.clear();
+            GenericaMensagem.info("Sucesso", "Registro removido");
+        } else {
+            GenericaMensagem.warn("Erro", "Ao remover registro!");
+        }
+    }
+
     public void delete() {
-        DaoInterface di = new Dao();
-        di.openTransaction();
+        Dao dao = new Dao();
+        dao.openTransaction();
         if (getConfiguracao().getId() != -1) {
-            if (di.delete((Configuracao) di.find(configuracao))) {
-                di.commit();
+            if (dao.delete((Configuracao) dao.find(configuracao))) {
+                dao.commit();
                 configuracao = new Configuracao();
                 setMensagem("Configuração excluída com sucesso");
             } else {
-                di.commit();
+                dao.commit();
                 setMensagem("Erro ao excluir configuração.");
             }
         }
@@ -164,6 +199,7 @@ public class ConfiguracaoBean implements Serializable {
         GenericaSessao.put("linkClicado", true);
         configuracao = c;
         juridica = configuracao.getJuridica();
+        listSisConfiguracaoEmail.clear();
         return "configuracao";
     }
 
@@ -173,8 +209,8 @@ public class ConfiguracaoBean implements Serializable {
                 ConfiguracaoDao configuracaoDB = new ConfiguracaoDao();
                 listaConfiguracao = (List<Configuracao>) configuracaoDB.listaConfiguracao(descricaoPesquisa);
             } else {
-                DaoInterface di = new Dao();
-                listaConfiguracao = (List<Configuracao>) di.list("Configuracao");
+                Dao dao = new Dao();
+                listaConfiguracao = (List<Configuracao>) dao.list("Configuracao");
             }
         }
         return listaConfiguracao;
@@ -251,13 +287,13 @@ public class ConfiguracaoBean implements Serializable {
     }
 
     public List<SelectItem> getListaTipoResolucao() {
-        if (listaTipoResolucao.isEmpty()){
-            Dao di = new Dao();
-            
-            List<TipoResolucao> result = di.list(new TipoResolucao());
-            
-            for (int i = 0; i < result.size(); i++){
-                listaTipoResolucao.add(new SelectItem(i, result.get(i).getDescricao(), ""+result.get(i).getId()));
+        if (listaTipoResolucao.isEmpty()) {
+            Dao dao = new Dao();
+
+            List<TipoResolucao> result = dao.list(new TipoResolucao());
+
+            for (int i = 0; i < result.size(); i++) {
+                listaTipoResolucao.add(new SelectItem(i, result.get(i).getDescricao(), "" + result.get(i).getId()));
             }
         }
         return listaTipoResolucao;
@@ -268,15 +304,16 @@ public class ConfiguracaoBean implements Serializable {
     }
 
     public Resolucao getResolucao() {
-        if (resolucao.getId() == -1){
+        if (resolucao.getId() == -1) {
             ConfiguracaoDao db = new ConfiguracaoDao();
-            
-            if(usuario != null)
+
+            if (usuario != null) {
                 resolucao = db.pesquisaResolucaoUsuario(usuario.getId());
-            
-            if (resolucao.getId() != -1){
-                for(int i = 0; i < listaTipoResolucao.size(); i++){
-                    if (resolucao.getTipoResolucao().getId() == Integer.valueOf(listaTipoResolucao.get(i).getDescription())){
+            }
+
+            if (resolucao.getId() != -1) {
+                for (int i = 0; i < listaTipoResolucao.size(); i++) {
+                    if (resolucao.getTipoResolucao().getId() == Integer.valueOf(listaTipoResolucao.get(i).getDescription())) {
                         indexTipoResolucao = i;
                     }
                 }
@@ -287,5 +324,26 @@ public class ConfiguracaoBean implements Serializable {
 
     public void setResolucao(Resolucao resolucao) {
         this.resolucao = resolucao;
+    }
+
+    public List<SisConfiguracaoEmail> getListSisConfiguracaoEmail() {
+        if (configuracao.getId() != null) {
+            if (listSisConfiguracaoEmail.isEmpty()) {
+                listSisConfiguracaoEmail = new SisConfiguracaoEmailDao().findByConfiguracao(configuracao.getId());
+            }
+        }
+        return listSisConfiguracaoEmail;
+    }
+
+    public void setListSisConfiguracaoEmail(List<SisConfiguracaoEmail> listSisConfiguracaoEmail) {
+        this.listSisConfiguracaoEmail = listSisConfiguracaoEmail;
+    }
+
+    public SisConfiguracaoEmail getSisConfiguracaoEmail() {
+        return sisConfiguracaoEmail;
+    }
+
+    public void setSisConfiguracaoEmail(SisConfiguracaoEmail sisConfiguracaoEmail) {
+        this.sisConfiguracaoEmail = sisConfiguracaoEmail;
     }
 }

@@ -1006,16 +1006,6 @@ public class SociosBean implements Serializable {
             }
 
             GenericaMensagem.info("Concluído", "Sócio inativado com Sucesso!");
-
-            NovoLog novoLog = new NovoLog();
-            novoLog.setTabela("matr_socios");
-            novoLog.setCodigo(matriculaSocios.getId());
-            novoLog.update("Inativação de Sócio",
-                    " Matrícula: " + socios.getMatriculaSocios().getNrMatricula()
-                    + " - Sócio {ID: " + socios.getId() + "}"
-                    + " - Titular {ID: " + socios.getMatriculaSocios().getTitular().getId() + " - Nome: " + socios.getMatriculaSocios().getTitular().getNome() + "}"
-                    + " - Data da inativação: " + dataInativacao
-            );
             dao.commit();
             FisicaDB dbf = new FisicaDBToplink();
             GenericaSessao.put("fisicaBean", new FisicaBean());
@@ -1030,6 +1020,15 @@ public class SociosBean implements Serializable {
             //listaDependentesInativos.clear();
             atualizarListaDependenteAtivo();
             atualizarListaDependenteInativo();
+            NovoLog novoLog = new NovoLog();
+            novoLog.setTabela("matr_socios");
+            novoLog.setCodigo(matriculaSocios.getId());
+            novoLog.update("Inativação de Sócio",
+                    " Matrícula: " + socios.getMatriculaSocios().getNrMatricula()
+                    + " - Sócio {ID: " + socios.getId() + "}"
+                    + " - Titular {ID: " + socios.getMatriculaSocios().getTitular().getId() + " - Nome: " + socios.getMatriculaSocios().getTitular().getNome() + "}"
+                    + " - Data da inativação: " + dataInativacao
+            );
 
         } else {
             GenericaMensagem.warn("Erro", "Não existe sócio para ser inativado!");

@@ -33,7 +33,6 @@ import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
@@ -81,7 +80,7 @@ public class ServicosBean implements Serializable {
     private List<CategoriaDescontoDependente> listaDescontoDependente;
     private String situacao;
 
-    public ServicosBean (){
+    public ServicosBean() {
         servicos = new Servicos();
         porPesquisa = "ds_descricao";
         comoPesquisa = "P";
@@ -449,8 +448,8 @@ public class ServicosBean implements Serializable {
                     novoLogx.setTabela("fin_servico_conta_cobranca");
                     novoLogx.delete(
                             "ID: " + scc.getId()
-                            + " - ID / Serviço: " + scc.getServicos().getId()+" - "+scc.getServicos().getDescricao()
-                            + " - ID / Tipo Serviço: " + scc.getTipoServico().getId()+" - "+scc.getTipoServico().getDescricao()
+                            + " - ID / Serviço: " + scc.getServicos().getId() + " - " + scc.getServicos().getDescricao()
+                            + " - ID / Tipo Serviço: " + scc.getTipoServico().getId() + " - " + scc.getTipoServico().getDescricao()
                     );
                 }
 
@@ -476,12 +475,11 @@ public class ServicosBean implements Serializable {
                         + " - Tabela: [" + servicos.isTabela() + "]"
                 );
                 di.commit();
-                
+
                 //((ServicosBean) GenericaSessao.getObject("servicosBean")).setMessage("Cadastro excluido com sucesso!");
-                
                 ((ServicosBean) GenericaSessao.getObject("servicosBean")).setMessage("Cadastro excluido com sucesso!");
                 GenericaSessao.put("servicosBean", new ServicosBean());
-                
+
                 GenericaSessao.remove("contaCobrancaPesquisa");
             } catch (Exception e) {
                 message = "Erro cadastro não pode ser excluído!";
