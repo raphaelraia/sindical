@@ -73,7 +73,7 @@ public class CarneMensalidadesBean {
     public void imprimirCarne(Boolean todos) {
         String id_pessoa = "";
         if (todos) {
-
+            listaPessoa.clear();
         } else {
             for (int i = 0; i < listaPessoa.size(); i++) {
                 if (id_pessoa.length() > 0 && i != listaPessoa.size()) {

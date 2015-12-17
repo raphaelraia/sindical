@@ -93,32 +93,9 @@
         <welcome-file>index.xhtml</welcome-file>
     </welcome-file-list>
     
-    <!--
-    <servet>
-        <servet-name>Push Servlet</servet-name>
-        <servet-class>org.primefaces.push.PushServlet</servet-class>
-        <async-suported>true</async-suported>
-    </servet>    
-    
-    <servet-mapping>
-        <servlet-name>Push Servlet</servlet-name>  
-        <url-pattern>/primepush/*</url-pattern> 
-    </servet-mapping>    -->
-    
-    
-    
-    <!-- ERRORS AND EXCEPTIONS -->    
-    <!-- <error-page>
-        <exception-type>javax.servlet.ServletException</exception-type>
-        <location>/index.xhtml</location>
-    </error-page>     -->
     <error-page>
         <exception-type>javax.faces.application.ViewExpiredException</exception-type>
         <location>/index.xhtml</location>
     </error-page>
-    <!-- ERRORS AND EXCEPTIONS 
-    <env-entry>
-        <env-entry-name>com.sun.faces.ClientStateSavingPassword</env-entry-name>
-        <env-entry-type>java.lang.String</env-entry-type>
-    </env-entry>-->
+    
 </web-app>
