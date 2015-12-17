@@ -37,18 +37,18 @@
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Agendamento de Homologação" styleClass="fonteHeader" />
                         <h:form id="formAgendamento">
-                            <p:poll global="false" interval="#{agendamentoBean.configuracaoHomologacao.tempoRefreshAgendamento}" update="tbl" delay="10" stop="#{agendamentoBean.visibleModal}" autoStart="true" ignoreAutoUpdate="true"/>
+                            <p:poll global="false" interval="#{agendamentoBean.configuracaoHomologacao.tempoRefreshAgendamento}" update="tbl" delay="10" stop="#{agendamentoBean.visibleModal}" autoStart="true" ignoreAutoUpdate="true" listener="#{agendamentoBean.loadListaHorarios()}" />
                             <c:set scope="request" var="object" value="${agendamentoBean.agendamento}"/>
                             <h:panelGrid style="margin: 0 auto; width: 100%; clear: both">
                                 <p:panel styleClass="fundoCinza">
                                     <h:panelGrid columns="3">
                                         <p:calendar size="8" value="#{agendamentoBean.data}" pattern="dd/MM/yyyy" navigator="true" yearRange="c-1:c+1" mask="99/99/9999" locale="pt_BR">
-                                            <p:ajax event="dateSelect" update="id_count tbl" listener="#{agendamentoBean.loadListaHorarios()}"/>
-                                            <p:ajax event="change" update="id_count tbl" listener="#{agendamentoBean.loadListaHorarios()}"/>
+                                            <p:ajax event="dateSelect" update="id_count tbl" listener="#{agendamentoBean.loadListaHorarios(false)}"/>
+                                            <p:ajax event="change" update="id_count tbl" listener="#{agendamentoBean.loadListaHorarios(false)}"/>
                                         </p:calendar>
 
                                         <p:selectOneMenu value="#{agendamentoBean.idStatus}" style="width: 200px">
-                                            <p:ajax event="change" update="@this id_count tbl" listener="#{agendamentoBean.loadListaHorarios()}" />
+                                            <p:ajax event="change" update="@this id_count tbl" listener="#{agendamentoBean.loadListaHorarios(false)}" />
                                             <f:selectItems value="#{agendamentoBean.listaStatus}"/>
                                         </p:selectOneMenu>
                                         
