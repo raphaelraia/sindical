@@ -66,6 +66,7 @@ public class DescontoServicoEmpresaBean implements Serializable {
         desabilitaPesquisaCNPJ = false;
         selectedServicos = null;
         habilitaSubGrupo = false;
+        loadGrupoFinanceiro();
     }
 
     @PreDestroy
@@ -87,16 +88,20 @@ public class DescontoServicoEmpresaBean implements Serializable {
             listDescontoServicoEmpresa.clear();
             listDSEPorEmpresa.clear();
             listServicos.clear();
+            loadServicos();
         }
         if (tcase == 1) {
             listSubGrupoFinanceiro.clear();
             listServicos.clear();
             idSubGrupoFinanceiro = null;
             selectedServicos = null;
+            loadSubGrupoFinanceiro();
+            loadServicos();
         }
         if (tcase == 2) {
             listServicos.clear();
             selectedServicos = null;
+            loadServicos();
         }
     }
 
@@ -313,16 +318,6 @@ public class DescontoServicoEmpresaBean implements Serializable {
     }
 
     public List<DescontoServicoEmpresa> getListDescontoServicoEmpresa() {
-        if (listDescontoServicoEmpresa.isEmpty()) {
-            DescontoServicoEmpresaDB descontoServicoEmpresaDB = new DescontoServicoEmpresaDBTopLink();
-            if (desabilitaPesquisaCNPJ && !descricaoPesquisaNome.equals("")) {
-                listDescontoServicoEmpresa = descontoServicoEmpresaDB.pesquisaDescontoServicoEmpresas("nome", descricaoPesquisaNome, comoPesquisa);
-            } else if (desabilitaPesquisaNome && !descricaoPesquisaCNPJ.equals("")) {
-                listDescontoServicoEmpresa = descontoServicoEmpresaDB.pesquisaDescontoServicoEmpresas("cnpj", descricaoPesquisaCNPJ, comoPesquisa);
-            } else {
-                listDescontoServicoEmpresa = descontoServicoEmpresaDB.listaTodos();
-            }
-        }
         return listDescontoServicoEmpresa;
     }
 
@@ -348,6 +343,7 @@ public class DescontoServicoEmpresaBean implements Serializable {
                     descontoServicoEmpresa.setJuridica(juridica);
                 }
             }
+            loadServicos();
         }
         if (GenericaSessao.exists("descontoServicoEmpresaPesquisa")) {
             listDSEPorEmpresa.clear();
@@ -368,17 +364,18 @@ public class DescontoServicoEmpresaBean implements Serializable {
         this.idServicos = idServicos;
     }
 
-    public List<Servicos> getListServicos() {
+    public final void loadServicos() {
         if (descontoServicoEmpresa.getJuridica().getId() != -1) {
-            if (listServicos.isEmpty()) {
-                DescontoServicoEmpresaDB dsedb = new DescontoServicoEmpresaDBTopLink();
-                if (habilitaSubGrupo) {
-                    listServicos = dsedb.listaTodosServicosDisponiveis(descontoServicoEmpresa.getJuridica().getId(), Integer.parseInt(listSubGrupoFinanceiro.get(idSubGrupoFinanceiro).getDescription()));
-                } else {
-                    listServicos = dsedb.listaTodosServicosDisponiveis(descontoServicoEmpresa.getJuridica().getId(), Integer.parseInt(listGrupoFinanceiro.get(idGrupoFinanceiro).getDescription()), null);
-                }
+            DescontoServicoEmpresaDB dsedb = new DescontoServicoEmpresaDBTopLink();
+            if (habilitaSubGrupo) {
+                listServicos = dsedb.listaTodosServicosDisponiveis(descontoServicoEmpresa.getJuridica().getId(), Integer.parseInt(listSubGrupoFinanceiro.get(idSubGrupoFinanceiro).getDescription()));
+            } else {
+                listServicos = dsedb.listaTodosServicosDisponiveis(descontoServicoEmpresa.getJuridica().getId(), Integer.parseInt(listGrupoFinanceiro.get(idGrupoFinanceiro).getDescription()), null);
             }
         }
+    }
+
+    public List<Servicos> getListServicos() {
         return listServicos;
     }
 
@@ -436,12 +433,24 @@ public class DescontoServicoEmpresaBean implements Serializable {
 
     public void acaoPesquisaInicial() {
         comoPesquisa = "I";
-        listDescontoServicoEmpresa.clear();
+        find();
     }
 
     public void acaoPesquisaParcial() {
         comoPesquisa = "P";
+        find();
+    }
+
+    public void find() {
         listDescontoServicoEmpresa.clear();
+        DescontoServicoEmpresaDB descontoServicoEmpresaDB = new DescontoServicoEmpresaDBTopLink();
+        if (desabilitaPesquisaCNPJ && !descricaoPesquisaNome.equals("")) {
+            listDescontoServicoEmpresa = descontoServicoEmpresaDB.pesquisaDescontoServicoEmpresas("nome", descricaoPesquisaNome, comoPesquisa);
+        } else if (desabilitaPesquisaNome && !descricaoPesquisaCNPJ.equals("")) {
+            listDescontoServicoEmpresa = descontoServicoEmpresaDB.pesquisaDescontoServicoEmpresas("cnpj", descricaoPesquisaCNPJ, comoPesquisa);
+        } else {
+            listDescontoServicoEmpresa = descontoServicoEmpresaDB.listaTodos();
+        }
     }
 
     public String getComoPesquisa() {
@@ -468,16 +477,17 @@ public class DescontoServicoEmpresaBean implements Serializable {
         this.message = message;
     }
 
-    public List<SelectItem> getListGrupoFinanceiro() {
-        if (listGrupoFinanceiro.isEmpty()) {
-            List<GrupoFinanceiro> list = new Dao().list(new GrupoFinanceiro(), true);
-            for (int i = 0; i < list.size(); i++) {
-                if (i == 0) {
-                    idGrupoFinanceiro = i;
-                }
-                listGrupoFinanceiro.add(new SelectItem(i, list.get(i).getDescricao(), "" + list.get(i).getId()));
+    public final void loadGrupoFinanceiro() {
+        List<GrupoFinanceiro> list = new Dao().list(new GrupoFinanceiro(), true);
+        for (int i = 0; i < list.size(); i++) {
+            if (i == 0) {
+                idGrupoFinanceiro = i;
             }
+            listGrupoFinanceiro.add(new SelectItem(i, list.get(i).getDescricao(), "" + list.get(i).getId()));
         }
+    }
+
+    public List<SelectItem> getListGrupoFinanceiro() {
         return listGrupoFinanceiro;
     }
 
@@ -493,19 +503,20 @@ public class DescontoServicoEmpresaBean implements Serializable {
         this.idGrupoFinanceiro = idGrupoFinanceiro;
     }
 
-    public List<SelectItem> getListSubGrupoFinanceiro() {
+    public final void loadSubGrupoFinanceiro() {
         if (!listGrupoFinanceiro.isEmpty() && habilitaSubGrupo) {
-            if (listSubGrupoFinanceiro.isEmpty()) {
-                FinanceiroDB financeiroDB = new FinanceiroDBToplink();
-                List<SubGrupoFinanceiro> list = financeiroDB.listaSubGrupo(Integer.parseInt(listGrupoFinanceiro.get(idGrupoFinanceiro).getDescription()));
-                for (int i = 0; i < list.size(); i++) {
-                    if (i == 0) {
-                        idSubGrupoFinanceiro = i;
-                    }
-                    listSubGrupoFinanceiro.add(new SelectItem(i, list.get(i).getDescricao(), "" + list.get(i).getId()));
+            FinanceiroDB financeiroDB = new FinanceiroDBToplink();
+            List<SubGrupoFinanceiro> list = financeiroDB.listaSubGrupo(Integer.parseInt(listGrupoFinanceiro.get(idGrupoFinanceiro).getDescription()));
+            for (int i = 0; i < list.size(); i++) {
+                if (i == 0) {
+                    idSubGrupoFinanceiro = i;
                 }
+                listSubGrupoFinanceiro.add(new SelectItem(i, list.get(i).getDescricao(), "" + list.get(i).getId()));
             }
         }
+    }
+
+    public List<SelectItem> getListSubGrupoFinanceiro() {
         return listSubGrupoFinanceiro;
     }
 
