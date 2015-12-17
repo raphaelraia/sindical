@@ -492,7 +492,7 @@
                                         </p:column>
 
                                         <p:column headerText="Mensagem">
-                                            <p:commandLink value="#{(linha_boleto_anexo.listaQuery[6] eq '' or linha_boleto_anexo.listaQuery[6] eq null) ? 'ADICIONAR MENSAGEM' : linha_boleto_anexo.listaQuery[6]}" action="#{movimentosReceberSocialBean.selecionaMensagemBoleto(linha_boleto_anexo.listaQuery[6])}" oncomplete="PF('dlg_mensagem_boleto').show()" update=":formMovimentosReceber:panelAlterarMensagem"/>
+                                            <p:commandLink value="#{(linha_boleto_anexo.listaQuery[6] eq '' or linha_boleto_anexo.listaQuery[6] eq null) ? 'ADICIONAR MENSAGEM' : linha_boleto_anexo.listaQuery[6]}" action="#{movimentosReceberSocialBean.selecionaMensagemBoleto(linha_boleto_anexo.boleto.id)}" oncomplete="PF('dlg_mensagem_boleto').show()" update=":formMovimentosReceber:panelAlterarMensagem"/>
                                         </p:column>
                                         
                                         <p:column style="text-align: center; width: 40px">

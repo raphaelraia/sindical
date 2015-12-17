@@ -2,8 +2,8 @@ package br.com.rtools.arrecadacao.beans;
 
 import br.com.rtools.associativo.dao.PesquisaBoletosSocialDao;
 import br.com.rtools.financeiro.Boleto;
+import br.com.rtools.financeiro.ContaCobranca;
 import br.com.rtools.financeiro.Movimento;
-import br.com.rtools.financeiro.MovimentoBoleto;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
@@ -114,7 +114,8 @@ public class PesquisaBoletosSocialBean {
                             (String) ((List) linha).get(9), // boleto anterior
                             DataHoje.converteData( (Date) ((List) linha).get(10) ), // quitacao
                             (Integer) ((List) linha).get(11), // id_movimento (atual)
-                            (Integer) ((List) linha).get(12) // id_boleto (anterior)
+                            (Integer) ((List) linha).get(12), // id_boleto (anterior)
+                            (ContaCobranca) new Dao().find(new ContaCobranca(), (Integer) ((List) linha).get(13)) // id_conta_cobranca
                     )
             );
         }
@@ -179,8 +180,9 @@ public class PesquisaBoletosSocialBean {
         private String quitacao;
         private Integer id_movimento;
         private Integer id_boleto;
+        private ContaCobranca contaCobranca;
 
-        public LinhaBoleto(Integer id_titular, String nome_titular, Integer id_beneficiario, String nome_beneficiario, Integer id_servico, String nome_servico, float valor, String vencimento, String boleto_atual, String boleto_anterior, String quitacao, Integer id_movimento, Integer id_boleto) {
+        public LinhaBoleto(Integer id_titular, String nome_titular, Integer id_beneficiario, String nome_beneficiario, Integer id_servico, String nome_servico, float valor, String vencimento, String boleto_atual, String boleto_anterior, String quitacao, Integer id_movimento, Integer id_boleto, ContaCobranca contaCobranca) {
             this.id_titular = id_titular;
             this.nome_titular = nome_titular;
             this.id_beneficiario = id_beneficiario;
@@ -194,6 +196,7 @@ public class PesquisaBoletosSocialBean {
             this.quitacao = quitacao;
             this.id_movimento = id_movimento;
             this.id_boleto = id_boleto;
+            this.contaCobranca = contaCobranca;
         }
 
         public Integer getId_titular() {
@@ -306,6 +309,14 @@ public class PesquisaBoletosSocialBean {
 
         public void setId_boleto(Integer id_boleto) {
             this.id_boleto = id_boleto;
+        }
+
+        public ContaCobranca getContaCobranca() {
+            return contaCobranca;
+        }
+
+        public void setContaCobranca(ContaCobranca contaCobranca) {
+            this.contaCobranca = contaCobranca;
         }
 
     }

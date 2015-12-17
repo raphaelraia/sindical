@@ -6,6 +6,7 @@ import br.com.rtools.digitalizacao.dao.DigitalizacaoDao;
 import br.com.rtools.digitalizacao.dao.GrupoDigitalizacaoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Pessoa;
+import br.com.rtools.pessoa.beans.FisicaBean;
 import br.com.rtools.pessoa.beans.JuridicaBean;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
@@ -23,8 +24,6 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
@@ -126,16 +125,18 @@ public final class DigitalizacaoBean implements Serializable {
     }
 
     public void saveDigitalizacao() {
-        if (documento.getAssunto().getDescricao().isEmpty() || documento.getAssunto().getDescricao().length() < 3) {
-            GenericaMensagem.fatal("Atenção", "DIGITE UM ASSUNTO PARA OS DOCUMENTOS!");
-            return;
-        }
+        /*
+        // NÃO É OBRIGATÓRIO
+         if (documento.getAssunto().getDescricao().isEmpty() || documento.getAssunto().getDescricao().length() < 3) {
+         GenericaMensagem.fatal("Atenção", "DIGITE UM ASSUNTO PARA OS DOCUMENTOS!");
+         return;
+         }
 
-        if (documento.getTitulo().isEmpty() || documento.getTitulo().length() < 3) {
-            GenericaMensagem.fatal("Atenção", "DIGITE UM TÍTULO PARA OS DOCUMENTOS!");
-            return;
-        }
-
+         if (documento.getTitulo().isEmpty() || documento.getTitulo().length() < 3) {
+         GenericaMensagem.fatal("Atenção", "DIGITE UM TÍTULO PARA OS DOCUMENTOS!");
+         return;
+         }
+         */
         if (pessoa.getId() == -1) {
             GenericaMensagem.fatal("Atenção", "PESQUISE UMA PESSOA!");
             return;
@@ -293,7 +294,7 @@ public final class DigitalizacaoBean implements Serializable {
         db.editar(linha);
         return retorno;
     }
-    
+
     public String novoGeneric(Pessoa pe) throws IOException {
         String retorno = ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).pagina("digitalizacao");
 
@@ -365,6 +366,16 @@ public final class DigitalizacaoBean implements Serializable {
             listaDocumentos = dao.listaDocumento();
         } else {
             listaDocumentos = dao.listaDocumento(pessoa.getId());
+        }
+
+        // ATUALIZA LISTA DE DOCUMENTOS COM PESSOA FÍSICA NA SESSÃO
+        if (GenericaSessao.exists("fisicaBean")) {
+            ((FisicaBean) GenericaSessao.getObject("fisicaBean")).loadListaDocumentos();
+        }
+
+        // ATUALIZA LISTA DE DOCUMENTOS COM PESSOA JURÍDICA NA SESSÃO
+        if (GenericaSessao.exists("juridicaBean")) {
+            ((JuridicaBean) GenericaSessao.getObject("juridicaBean")).loadListaDocumentos();
         }
     }
 
