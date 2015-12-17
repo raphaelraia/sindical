@@ -84,7 +84,7 @@
                     <div style="background: red; height: 15px; width: 100%; display: block">
                         <p:dataList var="menuLinks" value="#{chamadaPaginaBean.menuLinks}" rowIndexVar="it" type="definition" >
                             <h:column>
-                                <h:outputLabel value=" / " title="Voltar um nível" rendered="#{!menuLinks.descricao.equals('Menu Principal')}"/>
+                                <h:outputLabel value=" / " title="Voltar um nível" rendered="#{menuLinks.descricao ne 'Menu Principal'}"/>
                                 <h:commandLink value="#{menuLinks.descricao}" title="#{menuLinks.descricao}" action="#{chamadaPaginaBean.cliqueMenuLinks(it)}" rendered="#{menuLinks.ativo}" immediate="true"/> 
                             </h:column>
                         </p:dataList>
