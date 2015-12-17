@@ -5,11 +5,14 @@ import br.com.rtools.pessoa.BiometriaAtualizaCatraca;
 import br.com.rtools.pessoa.BiometriaCaptura;
 import br.com.rtools.pessoa.BiometriaErro;
 import br.com.rtools.pessoa.BiometriaServidor;
+import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.dao.BiometriaDao;
 import br.com.rtools.pessoa.dao.BiometriaErroDao;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Registro;
+import br.com.rtools.seguranca.Rotina;
+import br.com.rtools.seguranca.beans.RotinaBean;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
@@ -49,15 +52,37 @@ public class BiometriaBean implements Serializable {
         return false;
     }
 
+    public boolean complete() {
+        switch (new Rotina().get().getCurrentPage()) {
+            case "pessoaFisica":
+                return complete(((FisicaBean) GenericaSessao.getObject("fisicaBean")).getFisica().getPessoa().getId());
+        }
+        return false;
+    }
+
+    public boolean complete(Fisica f) {
+        if (f == null) {
+            return false;
+        }
+        return complete(f.getPessoa().getId());
+    }
+
     public boolean complete(Pessoa p) {
         if (p == null) {
+            return false;
+        }
+        return complete(p.getId());
+    }
+
+    public boolean complete(Integer pessoa_id) {
+        if (pessoa_id == null) {
             return false;
         }
         if (biometria == null) {
             if (GenericaSessao.exists("acessoFilial")) {
                 BiometriaDao biometriaDao = new BiometriaDao();
                 Dao dao = new Dao();
-                biometria = biometriaDao.pesquisaBiometriaPorPessoa(p.getId());
+                biometria = biometriaDao.pesquisaBiometriaPorPessoa(pessoa_id);
                 if (biometria != null) {
                     biometria = (Biometria) dao.rebind(biometria);
                     if (biometria.isAtivo() && biometria.getBiometria() != null && !biometria.getBiometria().isEmpty()) {
