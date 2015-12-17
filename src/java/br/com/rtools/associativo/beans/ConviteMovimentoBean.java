@@ -370,7 +370,7 @@ public class ConviteMovimentoBean implements Serializable {
                 return false;
             }
         } else {
-            if (Moeda.converteUS$(valorString) <= 0) {
+            if (Moeda.converteUS$(valorString) <= 0 && conviteMovimento.getDesconto() != 0) {
                 //message = "Informar o valor do serviço, faixa etária não possuí valor do serviço!";
                 GenericaMensagem.warn("ATENÇÃO", "INFORMAR O VALOR DO SERVIÇO, FAIXA ETÁRIA NÃO POSSUI VALOR DO SERVIÇO!");
                 return false;
