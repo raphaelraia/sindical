@@ -63,6 +63,19 @@ public class Rotina implements java.io.Serializable {
         this.rotina = rotina;
     }
 
+    public String getCurrentPage() {
+        try {
+            this.pagina = this.pagina.replace("Sindical", "");
+            this.pagina = this.pagina.replace("/", "");
+            this.pagina = this.pagina.replace("\"", "");
+            this.pagina = this.pagina.replace(".jsf", "");
+            this.pagina = this.pagina.replace(".xhml", "");
+            return this.pagina;
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
     public String getPagina() {
         return pagina;
     }
