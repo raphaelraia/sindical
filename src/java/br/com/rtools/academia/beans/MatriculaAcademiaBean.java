@@ -759,6 +759,16 @@ public class MatriculaAcademiaBean implements Serializable {
             desabilitaCamposMovimento = true;
             desabilitaDiaVencimento = true;
             listaAcademia.clear();
+            NovoLog novoLog = new NovoLog();
+            novoLog.setTabela("matr_academia");
+            novoLog.setCodigo(matriculaAcademia.getId());
+            novoLog.update("", ""
+                    + "ID: " + matriculaAcademia.getId()
+                    + " - Pessoa: (" + matriculaAcademia.getServicoPessoa().getPessoa().getId() + ") " + matriculaAcademia.getServicoPessoa().getPessoa().getNome()
+                    + " - Cobrança: (" + matriculaAcademia.getServicoPessoa().getCobranca().getId() + ") " + matriculaAcademia.getServicoPessoa().getCobranca().getNome()
+                    + " - Serviço: (" + matriculaAcademia.getAcademiaServicoValor().getServicos().getId() + ") " + matriculaAcademia.getAcademiaServicoValor().getServicos().getDescricao()
+                    + " - Motivo: " + matriculaAcademia.getMotivoInativacao()
+            );
         }
     }
 

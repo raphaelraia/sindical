@@ -904,12 +904,14 @@
                                     <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pesquisaPessoaFisica}" />
                                     <p:commandButton value="Extrato" rendered="#{fisicaBean.fisica.id != -1}" action="#{fisicaBean.telaMovimentosReceberSocial}" ajax="false"/>
                                     <h:column>
-                                        <h:panelGrid id="i_app_message" rendered="#{biometriaBean.openBiometria and fisicaBean.fisica.id != -1}" columns="3">
-                                            <h:column>
-                                                <p:commandButton value="Leitor Biométrico" icon="leitor-biometrico-on" rendered="#{biometriaBean.status}" title="Online" action="#{biometriaBean.gravar(fisicaBean.fisica.pessoa)}" onclick="PF('dlg_waiting_biometria').show()" update=":form_aplicativos:" immediate="true" />
-                                            </h:column>
-                                            <p:commandButton value="Leitor Biométrico" icon="leitor-biometrico-off" rendered="#{!biometriaBean.status}" disabled="#{!biometriaBean.status}"  title="Offline" />
-                                            <p:commandLink value="Biometria cadastrada" rendered="#{biometriaBean.complete(fisicaBean.fisica.pessoa)}" styleClass="font-color-green" onclick="PF('dlg_delete_biometria').show()" style="color: red"/>
+                                        <h:panelGrid id="i_app_message">
+                                            <h:panelGrid rendered="#{biometriaBean.openBiometria and fisicaBean.fisica.id != -1}" columns="3">
+                                                <h:column>
+                                                    <p:commandButton value="Leitor Biométrico" icon="leitor-biometrico-on" rendered="#{biometriaBean.status}" title="Online" action="#{biometriaBean.gravar(fisicaBean.fisica.pessoa)}" onclick="PF('dlg_waiting_biometria').show()" update=":form_aplicativos:" immediate="true" />
+                                                </h:column>
+                                                <p:commandButton value="Leitor Biométrico" icon="leitor-biometrico-off" rendered="#{!biometriaBean.status}" disabled="#{!biometriaBean.status}"  title="Offline" />
+                                                <p:commandLink value="Biometria cadastrada" rendered="#{biometriaBean.complete()}" styleClass="font-color-green" onclick="PF('dlg_delete_biometria').show()" style="color: red"/>
+                                            </h:panelGrid>                                        
                                         </h:panelGrid>                                        
                                     </h:column>
                                 </h:panelGrid>
@@ -1033,7 +1035,7 @@
                             <br /><br />
                             <p:commandButton value="Cancelar" title="Cancelar" update=":form_aplicativos:i_message_err_x" onclick="PF('dlg_waiting_biometria_erro').show();" action="#{biometriaBean.abort(fisicaBean.fisica.pessoa)}" ajax="false"/>
                         </p:dialog>
-                        <p:poll id="i_app_leitor" interval="5" update="i_app_leitor :form_pessoa_fisica:i_app_message" stop="#{biometriaBean.disabled}" autoStart="false" delay="5" ignoreAutoUpdate="true"/>
+                        <p:poll id="i_app_leitor" interval="5" update="i_app_leitor :form_pessoa_fisica:i_app_message" stop="#{biometriaBean.disabled}" autoStart="#{fisicaBean.fisica.id == -1 ? false : true}" delay="5" ignoreAutoUpdate="true"/>
                         <p:dialog widgetVar="dlg_waiting_biometria_info" modal="true" resizable="false" header="Erro" closable="true">
                             <h:outputLabel value="Dispostivo de leitura esta desconectado. Caso apresente erros contate o administrador do sistema ou reinicie o aplicativo da leitura." styleClass="font-color-red bold"/>
                             <f:facet name="footer">

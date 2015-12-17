@@ -2,13 +2,14 @@ package br.com.rtools.associativo.beans;
 
 import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.pessoa.Pessoa;
+import java.io.Serializable;
 import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 
 @ManagedBean
 @ViewScoped
-public class SocialBean {
+public class SocialBean implements Serializable {
 
     public Boolean getExistPessoasMesmaMatricula() {
         return new SociosDao().existPessoasMesmaMatricula();

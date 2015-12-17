@@ -93,6 +93,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     private String tipoTelefone = "telefone";
     private Cancelamento cancelamento = new Cancelamento();
     private String documentoFisica = "";
+    private Date polling;
 
     public AgendamentoBean() {
         macFilial = (MacFilial) GenericaSessao.getObject("acessoFilial");
@@ -104,6 +105,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             this.loadListaHorarios();
             this.loadListaHorariosTransferencia();
         }
+        GlobalSync.load();
     }
 
     public boolean validaAdmissao() {
@@ -200,6 +202,13 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     }
 
     public final void loadListaHorarios() {
+        loadListaHorarios(stop());
+    }
+
+    public final void loadListaHorarios(Boolean stop) {
+        if (stop) {
+            return;
+        }
         listaHorarios.clear();
         if (macFilial == null) {
             return;
@@ -311,6 +320,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 + " - Data da homologação: " + agendamento.getData()
                 + " - Horário: " + agendamento.getHorarios().getHora());
         GenericaMensagem.info("Sucesso", "Horário transferido!");
+        GlobalSync.load();
         loadListaHorarios();
         PF.closeDialog("dlg_transferir_horario");
     }
@@ -926,6 +936,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                         + " - Demissão: " + agendamento.getPessoaEmpresa().getDemissao()
                         + " - Data da homologação: " + agendamento.getData()
                         + " - Horário: " + agendamento.getHorarios().getHora());
+                GlobalSync.load();
             } else {
                 GenericaMensagem.fatal("Atenção", "Erro ao realizar este Agendamento!");
                 dao.rollback();
@@ -970,6 +981,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
 
         renderCancelarHorario = true;
         loadListaHorariosTransferencia();
+        GlobalSync.load();
         loadListaHorarios();
         id_protocolo = agendamento.getId();
         ocultarHorarioAlternativo = true;
@@ -1055,6 +1067,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         enderecoFisica = new PessoaEndereco();
 
         setVisibleModal(false);
+        GlobalSync.load();
         loadListaHorarios();
         loadListaHorariosTransferencia();
         return "agendamento";
@@ -1696,6 +1709,21 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
 
     public void setDocumentoFisica(String documentoFisica) {
         this.documentoFisica = documentoFisica;
+    }
+
+    public boolean stop() {
+        if (GlobalSync.getStaticDate() != null) {
+            if (polling != null) {
+                if (GlobalSync.getStaticDate() == polling) {
+                    return true;
+                } else {
+                    polling = GlobalSync.getStaticDate();
+                }
+            } else {
+                polling = GlobalSync.getStaticDate();
+            }
+        }
+        return false;
     }
 
 }
