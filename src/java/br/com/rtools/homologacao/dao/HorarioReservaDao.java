@@ -73,7 +73,7 @@ public class HorarioReservaDao extends DB {
         clear();
         Dao dao = new Dao();
         HorarioReserva horarioReserva = new HorarioReserva();
-        horarioReserva.setDtExpiracao(DataHoje.incrementarMinuto(new Date(), 1));
+        horarioReserva.setDtExpiracao(DataHoje.incrementarMinuto(new Date(), 15));
         horarioReserva.setHorario((Horarios) dao.find(new Horarios(), horario_id));
         dao.save(horarioReserva, true);
     }
