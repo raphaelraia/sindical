@@ -311,49 +311,24 @@ public class CartaoSocialBean implements Serializable {
                     return;
                 }
 
-                //ModeloCarteirinha modeloc = dbc.pesquisaModeloCarteirinha(-1, 170);
-                //ModeloCarteirinha modeloc = (ModeloCarteirinha) sv.pesquisaCodigo((Integer) ((List) listaSelecionado.get(i)).get(19), "ModeloCarteirinha");
-                //carteirinha = dbc.pesquisaCarteirinhaPessoa(pessoa.getId(), modeloc.getId());               
-                // CHAMADO: 1091 Criada por: Rogério em 26/10/2015 14:58
-//                if (carteirinha.getDtEmissao() == null) {
-// } else {
-//            HistoricoCarteirinha hc = new HistoricoCarteirinha();
-//
-//            hc.setCarteirinha(carteirinha);
-//            hc.setDescricao("Impressão de Carteirinha");
-//
-//            if (list.get(i).get(17) != null) {
-//                Movimento m = (Movimento) dao.find(new Movimento(), Integer.valueOf(list.get(i).get(17).toString()));
-//                if (m != null) {
-//                    hc.setMovimento(m);
-//                }
-//            }
-//
-//            if (!dao.save(hc)) {
-//                dao.rollback();
-//                return;
-//            }
-//
-//            //AutorizaImpressaoCartao ai = dbc.pesquisaAutorizaSemHistorico(pessoa.getId(), modeloc.getId());
-//            AutorizaImpressaoCartao ai = dbc.pesquisaAutorizaSemHistorico(pessoa.getId(), carteirinha.getModeloCarteirinha().getId());
-//
-//            if (ai != null) {
-//                ai.setHistoricoCarteirinha(hc);
-//                if (!dao.update(ai)) {
-//                    dao.rollback();
-//                    return;
-//                }
-//            }
+                String descricao_historico = "Impressão de Carteirinha";
+                if (configuracaoSocial.getAtualizaViaCarteirinha()) {
+                    carteirinha.setVia(carteirinha.getVia() + 1);
+                    descricao_historico = "Impressão de " + carteirinha.getVia() + "° via do cartão";
+                    list.get(i).set(11, carteirinha.getVia());
+                }
+
                 carteirinha.setEmissao(DataHoje.data());
                 if (!dao.update(carteirinha)) {
                     dao.rollback();
                     return;
                 }
+                
                 list.get(i).set(6, carteirinha.getValidadeCarteirinha());
                 HistoricoCarteirinha hc = new HistoricoCarteirinha();
 
                 hc.setCarteirinha(carteirinha);
-                hc.setDescricao("Primeira Impressão de Carteirinha");
+                hc.setDescricao(descricao_historico);
 
                 if (list.get(i).get(17) != null) {
                     Movimento m = (Movimento) dao.find(new Movimento(), Integer.valueOf(list.get(i).get(17).toString()));
@@ -398,6 +373,7 @@ public class CartaoSocialBean implements Serializable {
         }
     }
 
+    // MÉTODO EM DESUSO APAGAR DEPOIS DE 30/04/2016
     public void reImprimirCarteirinha() {
         SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
 
@@ -909,7 +885,7 @@ public class CartaoSocialBean implements Serializable {
                 if (!new Dao().save(hc, true)) {
                     return;
                 }
-                
+
                 listAux.addAll(dbc.filtroCartao(carteirinhas.get(i).getPessoa().getId()));
             }
         }

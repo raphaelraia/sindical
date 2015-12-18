@@ -40,6 +40,7 @@ public class CartaoSocial {
     private String imagemExtra;
     private String imagemExtra2;
     private String dataAposentadoria;
+    private String via;
 
     public CartaoSocial() {
         this.matricula = "";
@@ -80,9 +81,10 @@ public class CartaoSocial {
         this.imagemExtra = "";
         this.imagemExtra2 = "";
         this.dataAposentadoria = "";
+        this.via = "";
     }
 
-    public CartaoSocial(String matricula, String barras, String nome, String empresa, String cnpj, String admissao, String validade, String empresa_cidade, String empresa_uf, String logo, String imagem, String filiacao, String profissao, String cpf, String rg, int id_pessoa, String endereco, String cidade, String nacionalidade, String nascimento, String estado_civil, String carteira, String serie, String imagem_fundo, String codigo_funcional, String orgao_expeditor, String parentesco, String categoria, String fantasia, String titular, String dependente, String fantasia_titular, String codigo_funcional_titular, Integer titular_id, String grupo_categoria, String imagemExtra, String imagemExtra2, String dataAposentadoria) {
+    public CartaoSocial(String matricula, String barras, String nome, String empresa, String cnpj, String admissao, String validade, String empresa_cidade, String empresa_uf, String logo, String imagem, String filiacao, String profissao, String cpf, String rg, int id_pessoa, String endereco, String cidade, String nacionalidade, String nascimento, String estado_civil, String carteira, String serie, String imagem_fundo, String codigo_funcional, String orgao_expeditor, String parentesco, String categoria, String fantasia, String titular, String dependente, String fantasia_titular, String codigo_funcional_titular, Integer titular_id, String grupo_categoria, String imagemExtra, String imagemExtra2, String dataAposentadoria, String via) {
         this.matricula = matricula;
         this.barras = barras;
         this.nome = nome;
@@ -121,6 +123,7 @@ public class CartaoSocial {
         this.imagemExtra = imagemExtra;
         this.imagemExtra2 = imagemExtra2;
         this.dataAposentadoria = dataAposentadoria;
+        this.via = via;
     }
 
     public String getMatricula() {
@@ -425,5 +428,13 @@ public class CartaoSocial {
 
     public void setDataAposentadoria(String dataAposentadoria) {
         this.dataAposentadoria = dataAposentadoria;
+    }
+
+    public String getVia() {
+        return via;
+    }
+
+    public void setVia(String via) {
+        this.via = via;
     }
 }

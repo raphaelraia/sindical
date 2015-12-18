@@ -1,6 +1,7 @@
 package br.com.rtools.associativo;
 
 import br.com.rtools.financeiro.Movimento;
+import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.DataHoje;
 import java.util.Date;
 import javax.persistence.Column;
@@ -36,6 +37,9 @@ public class HistoricoCarteirinha implements java.io.Serializable {
     @JoinColumn(name = "id_movimento", referencedColumnName = "id")
     @ManyToOne
     private Movimento movimento;
+    @JoinColumn(name = "id_usuario", referencedColumnName = "id")
+    @ManyToOne
+    private Usuario usuario;
     
     public HistoricoCarteirinha() {
         this.id = -1;
@@ -44,15 +48,17 @@ public class HistoricoCarteirinha implements java.io.Serializable {
         this.descricao = "";
         this.carteirinha = new SocioCarteirinha();
         this.movimento = null;
+        this.usuario = Usuario.getUsuario();
     }
     
-    public HistoricoCarteirinha(int id, String emissao, String hora, String descricao, SocioCarteirinha carteirinha, Movimento movimento) {
+    public HistoricoCarteirinha(int id, String emissao, String hora, String descricao, SocioCarteirinha carteirinha, Movimento movimento, Usuario usuario) {
         this.id = id;
         this.setEmissao(emissao);
         this.hora = hora;
         this.descricao = descricao;
         this.carteirinha = carteirinha;
         this.movimento = movimento;
+        this.usuario = usuario;
     }
 
     public int getId() {
@@ -115,5 +121,13 @@ public class HistoricoCarteirinha implements java.io.Serializable {
 
     public void setMovimento(Movimento movimento) {
         this.movimento = movimento;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
     }
 }

@@ -142,9 +142,8 @@
                                 <p:commandLink ajax="false" value="Imprimir" action="#{cartaoSocialBean.imprimirCarteirinha()}" 
                                                rendered="#{cartaoSocialBean.listaCarteirinha.size() != 0}"/>
 
-                                <br /><br />
                                 <p:commandLink ajax="false" value="Imprimir 2º Via" action="#{cartaoSocialBean.reImprimirCarteirinha()}" 
-                                               rendered="#{(cartaoSocialBean.por != 'niEmpresa' or cartaoSocialBean.por != 'niCNPJ') and cartaoSocialBean.listaCarteirinha.size() != 0}" disabled="true"/>
+                                               rendered="false"/>
 
                                 <br /><br />    
                                 <p:commandLink ajax="false" value="Etiqueta" action="#{cartaoSocialBean.imprimirEtiqueta()}" rendered="#{cartaoSocialBean.listaCarteirinha.size() != 0}"/>
@@ -240,7 +239,7 @@
                                 </p:dataTable>  
                             </h:panelGrid>
 
-                            <p:dialog id="i_panel_dlgx" widgetVar="i_dlg" header="Lista de Impressões" modal="true" height="300">
+                            <p:dialog id="i_panel_dlgx" widgetVar="i_dlg" header="Lista de Impressões" modal="true" height="300" width="1000">
                                 <h:panelGrid id="i_panel_dlg">
                                     <h:column rendered="#{cartaoSocialBean.listaSelecionado.size() == 0}">
                                         <h:outputLabel value="Nenhuma carteirinha foi selecionada!" />  
@@ -248,7 +247,7 @@
 
                                     <h:column rendered="#{cartaoSocialBean.listaSelecionado.size() != 0}">
                                         <p:dataTable id="i_tbl_dlg" var="linha" value="#{cartaoSocialBean.listaHistorico}" emptyMessage="Nenhum histórico foi encontrado!">  
-                                            <p:column headerText="Código" style="text-align: center">  
+                                            <p:column headerText="Código" style="text-align: center; width: 80px">  
                                                 <h:outputText value="#{linha.argumento0.carteirinha.pessoa.id}" />  
                                             </p:column>  
 
@@ -256,7 +255,7 @@
                                                 <h:outputText value="#{linha.argumento0.carteirinha.pessoa.nome}" />  
                                             </p:column>  
 
-                                            <p:column headerText="Data / Hora">  
+                                            <p:column headerText="Data / Hora" style="text-align: center; width: 150px">  
                                                 <h:outputText value="#{linha.argumento0.emissao} - #{linha.argumento0.hora}" />  
                                             </p:column>  
 
@@ -266,6 +265,10 @@
 
                                             <p:column headerText="Autorizado">  
                                                 <h:outputText value="#{linha.argumento3.usuario.pessoa.nome}" />  
+                                            </p:column>  
+                                            
+                                            <p:column headerText="Usuário">  
+                                                <h:outputText value="#{linha.argumento0.usuario.pessoa.nome}" />  
                                             </p:column>  
                                         </p:dataTable>  
                                     </h:column>

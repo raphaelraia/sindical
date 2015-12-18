@@ -254,7 +254,7 @@
                                 </center>
                             </p:dialog>
 
-                            <h:panelGrid columns="7" style="margin-top: 5px">
+                            <h:panelGrid columns="8" style="margin-top: 5px">
                                 <p:column>
                                     <h:outputLabel value="Data Filiação"/><br />
                                     <p:inputMask value="#{sociosBean.matriculaSocios.emissao}" size="8" mask="99/99/9999" />
@@ -273,6 +273,11 @@
                                 <p:column>
                                     <h:outputLabel value="Validade Carteirinha" style="margin-left: 20px"/><br />
                                     <p:inputMask value="#{sociosBean.socCarteirinha.validadeCarteirinha}" size="13" mask="99/99/9999" style="margin-left: 20px; text-align: center" readonly="true"/>
+                                </p:column>
+                                
+                                <p:column>
+                                    <h:outputLabel value="Via" style="margin-left: 20px"/><br />
+                                    <p:inputText value="#{(sociosBean.socCarteirinha.via lt 10) ? '0'.concat(sociosBean.socCarteirinha.via) : sociosBean.socCarteirinha.via}" size="5" style="margin-left: 20px; text-align: center" readonly="true"/>
                                 </p:column>
 
                                 <p:column>
@@ -332,40 +337,40 @@
                                 </h:panelGrid>
 
                                 <p:dataTable var="listDependentes" id="tbl" value="#{sociosBean.listDependentes}" emptyMessage="Nenhum Dependente Adicionado." rowIndexVar="index" styleClass="margin-top">
-                                    <p:column width="30">
+                                    <p:column style="width: 30px; text-align: center">
                                         <p:commandButton icon="ui-icon-close" action="#{sociosBean.excluirDependente(listDependentes, index)}" update=":formSocios:i_panel_dependente" title="Excluir dependente" disabled="#{controleAcessoBean.verificarPermissao('linkDependente', 1)}" />
                                     </p:column>
 
-                                    <p:column width="80">
+                                    <p:column style="width: 90px; text-align: center">
                                         <p:graphicImage name="#{listDependentes.fisica.pessoa.foto}" style="width: 70px; height: auto;" cache="false"/>
                                     </p:column>
 
-                                    <p:column headerText="Nome" width="200">
+                                    <p:column headerText="Nome">
                                         <p:commandLink rendered="#{listDependentes.fisica.pessoa.id == -1}" value="Cadastrar ou Pesquisar um Dependente" oncomplete="PF('dlg_dependente').show()" action="#{sociosBean.editarOUsalvar(index)}" update=":formSocios:i_panel_dados :formSocios:tab_view:i_panel_pesquisa" style="font-size: 10pt!important" />
                                         <p:commandLink rendered="#{listDependentes.fisica.id != -1}" value="#{listDependentes.fisica.pessoa.documento} - #{listDependentes.fisica.pessoa.nome}" oncomplete="PF('dlg_dependente').show()" action="#{sociosBean.editarOUsalvar(index)}" update=":formSocios:i_panel_dados :formSocios:tab_view:i_panel_pesquisa" style="font-size: 10pt!important" title="#{listDependentes.fisica.pessoa.id}" />
                                     </p:column>
 
-                                    <p:column headerText="Parentesco" >
-                                        <p:selectOneMenu value="#{listDependentes.idParentesco}" style="width: 120px">
+                                    <p:column headerText="Parentesco" style="text-align: center; width: 130px">
+                                        <p:selectOneMenu value="#{listDependentes.idParentesco}" style="width: 100px">
                                             <p:ajax event="change" update="i_validade_dependente i_validade_dependente2 :formSocios:i_growl :formSocios:i_panel_dependente" listener="#{sociosBean.atualizaValidadeTela(index)}"/>
                                             <!-- <f:selectItems value="# {sociosBean.listaParentesco}"/> -->
                                             <f:selectItems value="#{listDependentes.listParentesco}"/>
                                         </p:selectOneMenu>
                                     </p:column>
 
-                                    <p:column headerText="Via Carteirinha" style="text-align: center">
-                                        <p:inputText value="#{listDependentes.viaCarteirinha}" size="3"/>
+                                    <p:column headerText="Via Carteirinha" style="text-align: center; width: 80px;">
+                                        <p:inputText value="#{listDependentes.viaCarteirinha}" style="width: 40px; text-align: center"/>
                                     </p:column>
 
-                                    <p:column headerText="Validade Carteirinha" style="text-align: center">
-                                        <p:inputMask value="#{listDependentes.validadeCarteirinha}" size="8" mask="99/99/9999" readonly="true" id="i_validade_dependente2"/>
+                                    <p:column headerText="Validade Carteirinha" style="text-align: center; width: 90px">
+                                        <p:inputMask value="#{listDependentes.validadeCarteirinha}" mask="99/99/9999" readonly="true" id="i_validade_dependente2" style="width: 80px; text-align: center"/>
                                     </p:column>
 
-                                    <p:column headerText="Val. Dependente" style="text-align: center">
-                                        <p:inputMask id="i_validade_dependente" value="#{listDependentes.validadeDependente}" size="5" mask="99/9999" disabled="#{controleAcessoBean.verificarPermissao('validade_socio', 1)}" />
+                                    <p:column headerText="Validade Dependente" style="text-align: center; width: 90px">
+                                        <p:inputMask id="i_validade_dependente" value="#{listDependentes.validadeDependente}" size="5" mask="99/9999" disabled="#{controleAcessoBean.verificarPermissao('validade_socio', 1)}" style="width: 70px; text-align: center"/>
                                     </p:column>
 
-                                    <p:column headerText="Valor" style="text-align: center">
+                                    <p:column headerText="Valor" style="text-align: center; width: 100px">
                                         <p:outputLabel value="R$ " />
                                         <p:inputText value="#{listDependentes.valorString}" size="5" style="text-align: center" disabled="#{listDependentes.fisica.id == -1}">
                                             <p:ajax event="blur" listener="#{sociosBean.calculoDescontoDependente(listDependentes)}" update="@this" />

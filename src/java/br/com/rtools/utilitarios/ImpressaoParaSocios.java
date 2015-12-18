@@ -183,7 +183,8 @@ public class ImpressaoParaSocios {
                             getConverteNullString(((List) (listaCartao.get(i))).get(41)), // GRUPO CATEGORIA
                             ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/imagemExtra.png"), // IMAGEM EXTRA
                             ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/imagemExtra2.png"), // IMAGEM EXTRA 2
-                            (!getConverteNullString(((List) (listaCartao.get(i))).get(42)).isEmpty()) ? "( APOSENTADO )" : "" // DATA APOSENTADORIA
+                            (!getConverteNullString(((List) (listaCartao.get(i))).get(42)).isEmpty()) ? "( APOSENTADO )" : "", // DATA APOSENTADORIA
+                            via
                     )
             );
 
