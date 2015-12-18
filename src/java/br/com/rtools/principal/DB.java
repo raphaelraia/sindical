@@ -93,6 +93,14 @@ public class DB {
                 configuracao.setPersistence(cliente);
                 // IP LOCAL: 192.168.0.201
                 // IP EXTERNO: 200.204.32.23
+                configuracao.setHost("192.168.0.201");
+                configuracao.setSenha("r#@tools");
+                break;
+            case "Sinecol":
+                configuracao.setCaminhoSistema("ComercioLimeira");
+                configuracao.setPersistence("ComercioLimeira");
+                // IP LOCAL: 192.168.0.201
+                // IP EXTERNO: 200.204.32.23
                 configuracao.setHost("200.204.32.23");
                 configuracao.setSenha("r#@tools");
                 break;

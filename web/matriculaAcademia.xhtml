@@ -293,7 +293,7 @@
                         <p:commandButton value="Excluir" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('dlg_delete').show()" type="button" rendered="#{matriculaAcademiaBean.matriculaAcademia.id != -1}"/>
                         <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pesquisa('pesquisaMatriculaAcademia')}" />
                         <h:column rendered="#{matriculaAcademiaBean.matriculaAcademia.id != -1}">
-                            <p:commandButton value="Inativar" onclick="PF('dlg_inative').show()" disabled="#{!matriculaAcademiaBean.matriculaAcademia.servicoPessoa.ativo}"/>                                        
+                            <p:commandButton value="Inativar" onclick="PF('dlg_inative').show()" disabled="#{!matriculaAcademiaBean.matriculaAcademia.servicoPessoa.ativo or controleAcessoBean.verificarPermissao('inativa_matricula_academia', 3)}"/>
                         </h:column>
                         <h:column rendered="#{matriculaAcademiaBean.matriculaAcademia.id != -1}">
                             <p:commandLink action="#{chamadaPaginaBean.pagina('movimentosReceberSocial')}" value="Movimentos a receber social" actionListener="#{genericaSessao.putObject('pessoaPesquisa', matriculaAcademiaBean.matriculaAcademia.servicoPessoa.cobranca)}" />

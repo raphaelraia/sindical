@@ -74,7 +74,7 @@ public class CarneMensalidadesDao extends DB {
         }
 
         String text
-                = " -- CarneMensalidadesDao->(new Pessoa(), new Date()) \n\n"
+                = " -- CarneMensalidadesDao->listaCarneMensalidadesAgrupado(new Pessoa(), new Date()) \n\n"
                 + "      SELECT P.ds_nome     AS titular,         \n "
                 + "             S.matricula,                      \n "
                 + "             S.categoria,                      \n "
@@ -97,6 +97,54 @@ public class CarneMensalidadesDao extends DB {
                 + "             M.id_pessoa   \n "
                 + "    ORDER BY P.ds_nome,    \n"
                 + "             M.id_pessoa";
+        try {
+            Query query = getEntityManager().createNativeQuery(text);
+            return query.getResultList();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return new ArrayList();
+    }
+
+    public List listaCarneMensalidadesAgrupadoEtiqueta(String id_pessoa) {
+        String and = "";
+
+        if (id_pessoa != null) {
+            and = "   AND func_titular_da_pessoa(M.id_beneficiario) IN (" + id_pessoa + ") \n ";
+        }
+
+        String text
+                = " -- CarneMensalidadesDao->listaCarneMensalidadesAgrupadoEtiqueta(new Pessoa(), new Date()) \n\n"
+                + "      SELECT P.nome,        \n"
+                + "             P.endereco,    \n"
+                + "             P.numero,      \n"
+                + "             P.complemento, \n"
+                + "             P.bairro,      \n"
+                + "             P.cidade,      \n"
+                + "             P.uf,          \n"
+                + "             P.cep,         \n"
+                + "             P.logradouro   \n"
+                + "        FROM fin_movimento AS M                                    \n"
+                + "  INNER JOIN pes_pessoa_vw AS P ON P.codigo   = M.id_pessoa        \n"
+                + "   LEFT JOIN soc_socios_vw AS S ON S.codsocio = M.id_pessoa        \n"
+                + "       WHERE is_ativo = true                                       \n"
+                + "         AND id_baixa IS NULL                                      \n"
+                // + "         AND to_char(M.dt_vencimento, 'MM/YYYY') IN (" + datas + ")\n"
+                + "         AND M.id_servicos NOT IN (SELECT id_servicos              \n"
+                + "                                     FROM fin_servico_rotina       \n"
+                + "                                    WHERE id_rotina = 4            \n"
+                + ")                                                                  \n"
+                + and
+                + "    GROUP BY P.nome,        \n"
+                + "             P.logradouro,  \n"
+                + "             P.endereco,    \n"
+                + "             P.numero,      \n"
+                + "             P.complemento, \n"
+                + "             P.bairro,      \n"
+                + "             P.cidade,      \n"
+                + "             P.uf,          \n"
+                + "             P.cep          \n"
+                + "    ORDER BY P.nome";
         try {
             Query query = getEntityManager().createNativeQuery(text);
             return query.getResultList();

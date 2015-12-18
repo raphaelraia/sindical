@@ -1,6 +1,5 @@
 package br.com.rtools.pessoa.db;
 
-import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.ServicoPessoa;
 import br.com.rtools.pessoa.Fisica;
 import java.util.Date;

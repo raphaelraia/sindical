@@ -66,8 +66,6 @@ import br.com.rtools.utilitarios.ImageConverter;
 import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.Mask;
 import br.com.rtools.utilitarios.Moeda;
-import br.com.rtools.utilitarios.PhotoCapture;
-import br.com.rtools.utilitarios.PhotoUpload;
 import br.com.rtools.utilitarios.db.FunctionsDB;
 import br.com.rtools.utilitarios.db.FunctionsDao;
 import java.io.File;

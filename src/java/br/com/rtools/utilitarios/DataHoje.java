@@ -1,6 +1,7 @@
 package br.com.rtools.utilitarios;
 
 import java.text.DateFormat;
+import java.text.Format;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -601,6 +602,17 @@ public class DataHoje {
             }
         }
         return result;
+    }
+
+    public static Date incrementarMinuto(Date date, Integer minutos) {
+        try {
+            Calendar instance = Calendar.getInstance();
+            instance.setTime(date);
+            instance.add(Calendar.MINUTE, minutos);
+            return instance.getTime();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public static String horaSemPonto() {
