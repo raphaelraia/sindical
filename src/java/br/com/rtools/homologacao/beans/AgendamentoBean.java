@@ -545,11 +545,19 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         switch (Integer.parseInt(((SelectItem) getListaStatus().get(idStatus)).getDescription())) {
             case 1: {
                 HorarioReservaDao hrd = new HorarioReservaDao();
-                hrd.begin();
-//                if (hrd.exists(nrDataHoje)) {
-//                    GenericaMensagem.warn("Sistema", "Este horário não esta mais disponivel! (reservado ou já agendado)");
-//                    return;
-//                }
+                HomologacaoDB dba = new HomologacaoDBToplink();
+                hrd.exists(nrDataHoje);
+                int quantidade_reservada = hrd.count(a.getHorarios().getId());
+                int quantidade = dba.pesquisaQntdDisponivel(macFilial.getFilial().getId(), a.getHorarios(), getData());
+                int quantidade_resultado = quantidade - quantidade_reservada;
+                if (quantidade == -1) {
+                    GenericaMensagem.error("Sistema", "Este horário não esta mais disponivel! (reservado ou já agendado)");
+                    break;
+                }
+                if (quantidade_resultado < 0) {
+                    GenericaMensagem.error("Sistema", "Este horário não esta mais disponivel! (reservado ou já agendado)");
+                    break;
+                }
                 hrd.begin();
                 if (getData() == null) {
                     GenericaMensagem.warn("Atenção", "Selecione uma data para Agendamento!");
