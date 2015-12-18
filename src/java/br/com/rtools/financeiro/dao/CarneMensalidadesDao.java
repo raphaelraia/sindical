@@ -106,7 +106,10 @@ public class CarneMensalidadesDao extends DB {
         return new ArrayList();
     }
 
-    public List listaCarneMensalidadesAgrupadoEtiqueta(String id_pessoa) {
+    public List listaCarneMensalidadesAgrupadoEtiqueta(String id_pessoa, String datas) {
+        if(datas.isEmpty()) {
+            return new ArrayList<>();
+        }
         String and = "";
 
         if (id_pessoa != null) {
@@ -129,7 +132,7 @@ public class CarneMensalidadesDao extends DB {
                 + "   LEFT JOIN soc_socios_vw AS S ON S.codsocio = M.id_pessoa        \n"
                 + "       WHERE is_ativo = true                                       \n"
                 + "         AND id_baixa IS NULL                                      \n"
-                // + "         AND to_char(M.dt_vencimento, 'MM/YYYY') IN (" + datas + ")\n"
+                + "         AND to_char(M.dt_vencimento, 'MM/YYYY') IN (" + datas + ")\n"
                 + "         AND M.id_servicos NOT IN (SELECT id_servicos              \n"
                 + "                                     FROM fin_servico_rotina       \n"
                 + "                                    WHERE id_rotina = 4            \n"
