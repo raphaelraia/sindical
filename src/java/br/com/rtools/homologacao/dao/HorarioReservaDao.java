@@ -9,6 +9,7 @@ import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaSessao;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.Query;
 
 public class HorarioReservaDao extends DB {
@@ -50,31 +51,31 @@ public class HorarioReservaDao extends DB {
 
     }
 
+    public Integer count(Integer horario_id) {
+        try {
+            Query query = getEntityManager().createNativeQuery("SELECT COUNT(*) FROM hom_horario_reserva WHERE id_horario = " + horario_id);
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return Integer.parseInt(((List) (list.get(0))).get(0).toString());
+            }
+        } catch (Exception e) {
+            return 0;
+        }
+        return 0;
+    }
+
     public void reserve(Integer horario_id) {
         reserve(horario_id, getIdPessoaReserva());
     }
 
     public void reserve(Integer horario_id, Integer pessoa_id) {
-        boolean success = false;
-        try {
-            getEntityManager().getTransaction().begin();
-            Query query = getEntityManager().createNativeQuery("DELETE FROM hom_horario_reserva WHERE id_pessoa_reserva = " + pessoa_id + " AND id_horario <> " + horario_id);
-            if (query.executeUpdate() != 0) {
-                getEntityManager().getTransaction().rollback();
-            }
-            getEntityManager().getTransaction().commit();
-            success = true;
-
-        } catch (Exception e) {
-            getEntityManager().getTransaction().rollback();
-        }
-        if (success) {
-            Dao dao = new Dao();
-            HorarioReserva horarioReserva = new HorarioReserva();
-            horarioReserva.setDtExpiracao(DataHoje.incrementarMinuto(new Date(), 15));
-            horarioReserva.setHorario((Horarios) dao.find(new Horarios(), horario_id));
-            dao.save(horarioReserva, true);
-        }
+        begin();
+        clear();
+        Dao dao = new Dao();
+        HorarioReserva horarioReserva = new HorarioReserva();
+        horarioReserva.setDtExpiracao(DataHoje.incrementarMinuto(new Date(), 1));
+        horarioReserva.setHorario((Horarios) dao.find(new Horarios(), horario_id));
+        dao.save(horarioReserva, true);
     }
 
     public void clear() {
