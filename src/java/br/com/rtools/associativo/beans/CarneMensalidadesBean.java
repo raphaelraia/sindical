@@ -96,19 +96,7 @@ public class CarneMensalidadesBean {
         PessoaEnderecoDao dao = new PessoaEnderecoDao();
         PessoaEndereco pe = dao.pesquisaEndPorPessoaTipo(1, 2);
         CarneMensalidadesDao db = new CarneMensalidadesDao();
-        String datas = "";
-        if (!listaData.isEmpty()) {
-            for (int i = 0; i < listaData.size(); i++) {
-                if (datas.length() > 0 && i != listaData.size()) {
-                    datas = datas + ",";
-                }
-                datas = datas + "'" + String.valueOf(listaData.get(i)) + "'";
-            }
-        } else {
-            datas = "'" + idMes + "/" + ano + "'";
-        }
-
-        List<Vector> result = db.listaCarneMensalidadesAgrupado((id_pessoa.isEmpty()) ? null : id_pessoa, datas);
+        List<Vector> result = db.listaCarneMensalidadesAgrupado((id_pessoa.isEmpty()) ? null : id_pessoa, getDatas());
         Collection lista = new ArrayList();
 
         Map hash_subreport = new HashMap();
@@ -116,7 +104,7 @@ public class CarneMensalidadesBean {
         String logo_sindicato = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png");
 
         for (Vector result1 : result) {
-            List<Vector> result_servico = db.listaServicosCarneMensalidades(Integer.valueOf(result1.get(3).toString()), datas);
+            List<Vector> result_servico = db.listaServicosCarneMensalidades(Integer.valueOf(result1.get(3).toString()), getDatas());
             List listax = new ArrayList();
             for (Vector result_servico1 : result_servico) {
                 Map hash = new HashMap();
@@ -124,7 +112,7 @@ public class CarneMensalidadesBean {
                 hash.put("quantidade", result_servico1.get(1).toString());
                 listax.add(hash);
             }
-            List<Vector> result_2 = db.listaCarneMensalidades(Integer.valueOf(result1.get(3).toString()), datas);
+            List<Vector> result_2 = db.listaCarneMensalidades(Integer.valueOf(result1.get(3).toString()), getDatas());
             String valor_total = "";
             float soma = 0;
             for (int w = 0; w < result_2.size(); w++) {
@@ -199,7 +187,7 @@ public class CarneMensalidadesBean {
         }
         List<Etiquetas> c = new ArrayList<>();
         CarneMensalidadesDao cmd = new CarneMensalidadesDao();
-        List list = cmd.listaCarneMensalidadesAgrupadoEtiqueta((id_pessoa.isEmpty()) ? null : id_pessoa);
+        List list = cmd.listaCarneMensalidadesAgrupadoEtiqueta((id_pessoa.isEmpty()) ? null : id_pessoa, getDatas());
         for (Object list1 : list) {
             Etiquetas e;
             try {
@@ -240,6 +228,21 @@ public class CarneMensalidadesBean {
                 "etiquetas",
                 (Collection) c
         );
+    }
+
+    public String getDatas() {
+        String datas = "";
+        if (!listaData.isEmpty()) {
+            for (int i = 0; i < listaData.size(); i++) {
+                if (datas.length() > 0 && i != listaData.size()) {
+                    datas = datas + ",";
+                }
+                datas = datas + "'" + String.valueOf(listaData.get(i)) + "'";
+            }
+        } else {
+            datas = "'" + idMes + "/" + ano + "'";
+        }
+        return datas;
     }
 
     public void adicionarData() {
