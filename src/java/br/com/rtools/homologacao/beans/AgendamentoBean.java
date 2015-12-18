@@ -16,6 +16,7 @@ import br.com.rtools.homologacao.Horarios;
 import br.com.rtools.homologacao.ListaAgendamento;
 import br.com.rtools.homologacao.Status;
 import br.com.rtools.homologacao.dao.FeriadosDao;
+import br.com.rtools.homologacao.dao.HorarioReservaDao;
 import br.com.rtools.homologacao.db.*;
 import br.com.rtools.impressao.beans.ProtocoloAgendamento;
 import br.com.rtools.logSistema.NovoLog;
@@ -97,10 +98,11 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
 
     public AgendamentoBean() {
         macFilial = (MacFilial) GenericaSessao.getObject("acessoFilial");
-
         Dao dao = new Dao();
         registro = (Registro) dao.find(new Registro(), 1);
-
+        HorarioReservaDao horarioReservaDao = new HorarioReservaDao();
+        horarioReservaDao.begin();
+        horarioReservaDao.clear();
         if (macFilial != null) {
             this.loadListaHorarios();
             this.loadListaHorariosTransferencia();
@@ -542,6 +544,13 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
 
         switch (Integer.parseInt(((SelectItem) getListaStatus().get(idStatus)).getDescription())) {
             case 1: {
+                HorarioReservaDao hrd = new HorarioReservaDao();
+                hrd.begin();
+//                if (hrd.exists(nrDataHoje)) {
+//                    GenericaMensagem.warn("Sistema", "Este horário não esta mais disponivel! (reservado ou já agendado)");
+//                    return;
+//                }
+                hrd.begin();
                 if (getData() == null) {
                     GenericaMensagem.warn("Atenção", "Selecione uma data para Agendamento!");
                     return;
@@ -557,8 +566,9 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                         agendamento.setHorarios(horarios);
                     }
                 }
-
                 visibleModal = true;
+                hrd.reserve(a.getHorarios().getId());
+                GlobalSync.load();
                 PF.openDialog("dlg_agendamento");
                 break;
             }
@@ -1684,6 +1694,12 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     }
 
     public void setVisibleModal(boolean visibleModal) {
+        if (!visibleModal) {
+            HorarioReservaDao hrd = new HorarioReservaDao();
+            hrd.clear();
+            hrd.begin();
+            GlobalSync.load();
+        }
         this.visibleModal = visibleModal;
     }
 

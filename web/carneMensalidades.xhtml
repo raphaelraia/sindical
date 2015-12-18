@@ -48,9 +48,9 @@
 
                                             <h:column>
                                                 <h:outputLabel value="Ano"/><br />
-                                                <p:inputText id="ano" value="#{carneMensalidadesBean.ano}" maxlength="4" size="5">
-
-                                                </p:inputText>
+                                                <p:inputMask id="ano" value="#{carneMensalidadesBean.ano}" maxlength="4" size="5" mask="9999">
+                                                    <p:ajax event="change" update="@this" />
+                                                </p:inputMask>
                                             </h:column>
 
                                             <h:column>
@@ -99,9 +99,11 @@
                                 <p:messages id="i_msg" showDetail="true" closable="true" />
                             </h:panelGrid>
 
-                            <h:panelGrid id="i_panel_boleto" columns="3">
+                            <h:panelGrid id="i_panel_boleto" columns="4">
                                 <p:commandButton value="Imprimir Carnê para Todos" onclick="PF('i_dlg_todos').show()" disabled="#{not empty carneMensalidadesBean.listaPessoa}"/>
                                 <p:commandButton value="Imprimir Carnê para SUA LISTA de Pessoas" onclick="PF('i_dlg_lista').show()" rendered="#{carneMensalidadesBean.listaPessoa.size() != 0}"/>
+                                <p:commandButton value="Etiqueta" icon="ui-icon-print" title="Imprimir" action="#{carneMensalidadesBean.printEtiqueta(true)}" ajax="false" update="id_messages_growl" disabled="#{not empty carneMensalidadesBean.listaPessoa}"/>
+                                <p:commandButton value="Etiqueta" icon="ui-icon-print" title="Imprimir" action="#{carneMensalidadesBean.printEtiqueta(false)}" ajax="false" update="id_messages_growl" rendered="#{carneMensalidadesBean.listaPessoa.size() != 0}"/>
                             </h:panelGrid>
 
                             <p:dialog widgetVar="i_dlg_todos" header="Imprimir carnê para TODOS" resizable="false" modal="true">

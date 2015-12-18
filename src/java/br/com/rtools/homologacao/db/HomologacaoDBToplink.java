@@ -430,8 +430,16 @@ public class HomologacaoDBToplink extends DB implements HomologacaoDB {
                     + "               AND dt_data = '" + data + "' "
                     + "               AND id_status = 2 "
                     + "          ) "
-                    + "     ) "
-                    + "  ) IS NULL THEN 0 ELSE "
+                    + "     )) - "
+                    // INICIO TRECHO NOVO
+                    + "    ( SELECT func_nullInteger ("
+                    + "          ( SELECT cast(count(*) AS int) "
+                    + "              FROM hom_horario_reserva "
+                    + "             WHERE id_horario = " + horarios.getId() + " "
+                    + "          ) "
+                    + "     ) ) "
+                    // FIM TRECHO NOVO
+                    + "  IS NULL THEN 0 ELSE "
                     + "      ( SELECT "
                     + "      ( SELECT nr_quantidade  "
                     + "          FROM hom_horarios   "
@@ -452,7 +460,17 @@ public class HomologacaoDBToplink extends DB implements HomologacaoDB {
                     + "               AND dt_data = '" + data + "' "
                     + "               AND id_status = 2 "
                     + "          ) "
-                    + "     ) ) ) END; ";
+                    + "     ) "
+                    + "     ) - "
+                    // INICIO TRECHO NOVO
+                    + "    ( SELECT func_nullInteger ("
+                    + "          ( SELECT cast(count(*) AS int) "
+                    + "              FROM hom_horario_reserva "
+                    + "             WHERE id_horario = " + horarios.getId() + " "
+                    + "          ) "
+                    + "     )) "
+                    // FIM TRECHO NOVO
+                    + ") END; ";
             Query qry = getEntityManager().createNativeQuery(text);
             List list = qry.getResultList();
             if (!list.isEmpty()) {

@@ -1,6 +1,7 @@
 package br.com.rtools.associativo.beans;
 
 import br.com.rtools.financeiro.dao.CarneMensalidadesDao;
+import br.com.rtools.impressao.Etiquetas;
 import br.com.rtools.impressao.ParametroCarneMensalidades;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
@@ -11,7 +12,10 @@ import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.Mes;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.GenericaString;
+import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.Moeda;
 import java.io.File;
 import java.io.IOException;
@@ -57,7 +61,12 @@ public class CarneMensalidadesBean {
         pessoa = new Pessoa();
         listaPessoa = new ArrayList();
         listMeses = Mes.loadSelectItem();
+        Integer mes_corrent = Integer.parseInt(DataHoje.livre(new Date(), "MM"));
         idMes = DataHoje.DataToArrayString(dh.incrementarMeses(1, DataHoje.data()))[1];
+        if (mes_corrent > Integer.parseInt(idMes)) {
+            Integer a = Integer.parseInt(ano) + 1;
+            ano = "" + a;
+        }
     }
 
     @PreDestroy
@@ -170,6 +179,67 @@ public class CarneMensalidadesBean {
         } catch (JRException | IOException e) {
             e.getMessage();
         }
+    }
+
+    public void printEtiqueta() {
+        printEtiqueta(false);
+    }
+
+    public void printEtiqueta(Boolean todos) {
+        String id_pessoa = "";
+        if (todos) {
+            listaPessoa.clear();
+        } else {
+            for (int i = 0; i < listaPessoa.size(); i++) {
+                if (id_pessoa.length() > 0 && i != listaPessoa.size()) {
+                    id_pessoa = id_pessoa + ",";
+                }
+                id_pessoa = id_pessoa + String.valueOf(listaPessoa.get(i).getId());
+            }
+        }
+        List<Etiquetas> c = new ArrayList<>();
+        CarneMensalidadesDao cmd = new CarneMensalidadesDao();
+        List list = cmd.listaCarneMensalidadesAgrupadoEtiqueta((id_pessoa.isEmpty()) ? null : id_pessoa);
+        for (Object list1 : list) {
+            Etiquetas e;
+            try {
+                e = new Etiquetas(
+                        GenericaString.converterNullToString(((List) list1).get(0)), // Nome
+                        GenericaString.converterNullToString(((List) list1).get(1)), // Logradouro
+                        GenericaString.converterNullToString(((List) list1).get(2)), // Endereço
+                        GenericaString.converterNullToString(((List) list1).get(3)), // Número
+                        GenericaString.converterNullToString(((List) list1).get(4)), // Bairro
+                        GenericaString.converterNullToString(((List) list1).get(5)), // Cidade
+                        GenericaString.converterNullToString(((List) list1).get(6)), // UF
+                        GenericaString.converterNullToString(((List) list1).get(7)), // Cep
+                        GenericaString.converterNullToString(((List) list1).get(8)), // Complemento
+                        "" /// Observação
+                );
+            } catch (Exception ex) {
+                e = new Etiquetas(
+                        GenericaString.converterNullToString(((List) list1).get(0)), // Nome
+                        GenericaString.converterNullToString(((List) list1).get(1)), // Logradouro
+                        GenericaString.converterNullToString(((List) list1).get(2)), // Endereço
+                        GenericaString.converterNullToString(((List) list1).get(3)), // Número
+                        GenericaString.converterNullToString(((List) list1).get(4)), // Bairro
+                        GenericaString.converterNullToString(((List) list1).get(5)), // Cidade
+                        GenericaString.converterNullToString(((List) list1).get(6)), // UF
+                        GenericaString.converterNullToString(((List) list1).get(7)), // Cep               
+                        GenericaString.converterNullToString(((List) list1).get(8)) /// Complemento
+                );
+            }
+            c.add(e);
+        }
+        if (c.isEmpty()) {
+            GenericaMensagem.info("Sistema", "Nenhum registro encontrado!");
+            return;
+        }
+
+        Jasper.printReports(
+                "/Relatorios/ETIQUETAS.jasper",
+                "etiquetas",
+                (Collection) c
+        );
     }
 
     public void adicionarData() {
