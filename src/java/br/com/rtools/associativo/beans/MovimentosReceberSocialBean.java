@@ -263,7 +263,7 @@ public class MovimentosReceberSocialBean implements Serializable {
 
         dao.openTransaction();
 
-        boletox.setMensagem(mensagem);
+        boletox.setMensagem(mensagem.toUpperCase());
 
         if (!dao.update(boletox)) {
             GenericaMensagem.error("Error", "Nao foi possivel alterar mensagem do Boleto! Tente Novamente.");
