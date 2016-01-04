@@ -287,6 +287,10 @@ public class DataHoje {
         return false;
     }
 
+    public static Boolean validaReferencia(String referencia) {
+        return new DataHoje().integridadeReferencia(referencia);
+    }
+
     public static String converteReferenciaVencimento(String referencia, String diaVencimento, String tipo) {
         String vencimento = DataHoje.data();
         DataHoje data = new DataHoje();

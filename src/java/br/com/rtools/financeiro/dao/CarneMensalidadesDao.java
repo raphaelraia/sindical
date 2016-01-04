@@ -66,6 +66,15 @@ public class CarneMensalidadesDao extends DB {
         return new ArrayList();
     }
 
+    /**
+     *
+     * Result [0] titular; [1] matricula; [2] categoria; [3] id_responsavel; [4]
+     * valor; [5] vencimento;[6] servico;[7] quantidade
+     *
+     * @param id_pessoa
+     * @param datas
+     * @return
+     */
     public List listaCarneMensalidadesAgrupado(String id_pessoa, String datas) {
         String and = "";
 
@@ -73,15 +82,82 @@ public class CarneMensalidadesDao extends DB {
             and = "   AND func_titular_da_pessoa(M.id_beneficiario) IN (" + id_pessoa + ") \n ";
         }
 
-        String text
-                = " -- CarneMensalidadesDao->listaCarneMensalidadesAgrupado(new Pessoa(), new Date()) \n\n"
-                + "      SELECT P.ds_nome     AS titular,         \n "
-                + "             S.matricula,                      \n "
-                + "             S.categoria,                      \n "
-                + "             M.id_pessoa   AS id_responsavel,  \n "
-                + "             sum(nr_valor - nr_desconto_ate_vencimento) AS valor   \n"
+//        String text
+//                = " -- CarneMensalidadesDao->listaCarneMensalidadesAgrupado(new Pessoa(), new Date()) \n\n"
+//                + "      SELECT P.ds_nome     AS titular,         \n "
+//                + "             S.matricula,                      \n "
+//                + "             S.categoria,                      \n "
+//                + "             M.id_pessoa   AS id_responsavel,  \n "
+//                + "             sum(nr_valor - nr_desconto_ate_vencimento) AS valor,  \n"
+//                + "             M.dt_vencimento AS vencimento                         \n"
+//                + "        FROM fin_movimento AS M                                    \n"
+//                + "  INNER JOIN pes_pessoa    AS P ON P.id        = M.id_pessoa       \n"
+//                + "  INNER JOIN pes_pessoa    AS B ON B.id        = M.id_beneficiario \n"
+//                + "   LEFT JOIN soc_socios_vw AS S ON S.codsocio  = M.id_pessoa       \n"
+//                + "       WHERE is_ativo = true                                       \n"
+//                + "         AND id_baixa IS NULL                                      \n"
+//                + "         AND to_char(M.dt_vencimento, 'MM/YYYY') IN (" + datas + ")\n"
+//                + "         AND M.id_servicos NOT IN (SELECT id_servicos              \n"
+//                + "                                     FROM fin_servico_rotina       \n"
+//                + "                                    WHERE id_rotina = 4            \n"
+//                + ")                                                                  \n"
+//                + and
+//                + "    GROUP BY P.ds_nome,      \n"
+//                + "             S.matricula,    \n"
+//                + "             S.categoria,    \n"
+//                + "             M.id_pessoa,    \n"
+//                + "             M.dt_vencimento \n"
+//                + "    ORDER BY P.ds_nome,      \n"
+//                + "             M.id_pessoa";
+        String queryString = ""
+                + "(                                                                                    \n"
+                + " -- CarneMensalidadesDao->listaCarneMensalidadesAgrupado(new Pessoa(), new Date())   \n"
+                + "                                                                                     \n"
+                + "       SELECT P.ds_nome     AS titular,          \n"
+                + "              S.matricula   AS matricula,        \n"
+                + "              S.categoria   AS categoria,        \n"
+                + "              M.id_pessoa   AS id_responsavel,   \n"
+                + "              sum(nr_valor - nr_desconto_ate_vencimento) AS valor,   \n"
+                + "              M.dt_vencimento AS vencimento,                         \n"
+                + "              ''            AS servico ,                             \n"
+                + "              0 AS quantidade                                        \n"
+                + "        FROM fin_movimento AS M                                      \n"
+                + "  INNER JOIN pes_pessoa    AS P ON P.id        = M.id_pessoa         \n"
+                + "  INNER JOIN pes_pessoa    AS B ON B.id        = M.id_beneficiario   \n"
+                + "   LEFT JOIN soc_socios_vw AS S ON S.codsocio  = M.id_pessoa         \n"
+                + "       WHERE is_ativo = true                                         \n"
+                + "         AND id_baixa IS NULL                                        \n"
+                + "         AND to_char(M.dt_vencimento, 'MM/YYYY') IN (" + datas + ")  \n"
+                + "         AND M.id_servicos NOT IN (SELECT id_servicos                \n"
+                + "                                     FROM fin_servico_rotina         \n"
+                + "                                    WHERE id_rotina = 4              \n"
+                + ")                                                \n"
+                + and
+                + "    GROUP BY P.ds_nome,                          \n"
+                + "              S.matricula,                       \n"
+                + "              S.categoria,                       \n"
+                + "              M.id_pessoa,                       \n"
+                + "              M.dt_vencimento                    \n"
+                + ")                                                \n"
+                + "                                                 \n"
+                + "                                                 \n"
+                + "UNION                                            \n"
+                + "                                                 \n"
+                + "                                                 \n"
+                + "                                                 \n"
+                + "(                                                \n"
+                + "      SELECT P.ds_nome       AS titular,         \n"
+                + "              S.matricula    AS matricula,       \n"
+                + "              S.categoria    AS categoria,       \n"
+                + "              M.id_pessoa    AS id_responsavel,  \n"
+                + "              sum(nr_valor - nr_desconto_ate_vencimento) AS valor,\n"
+                + "              '01/01/1900'   AS vencimento,      \n"
+                + "              SE.ds_descricao AS servico,        \n"
+                + "              count(*)       AS quantidade       \n"
                 + "        FROM fin_movimento AS M                                    \n"
+                + "  INNER JOIN fin_servicos  AS SE ON SE.id       = M.id_servicos    \n"
                 + "  INNER JOIN pes_pessoa    AS P ON P.id        = M.id_pessoa       \n"
+                + "  INNER JOIN pes_pessoa    AS B ON B.id        = M.id_beneficiario \n"
                 + "   LEFT JOIN soc_socios_vw AS S ON S.codsocio  = M.id_pessoa       \n"
                 + "       WHERE is_ativo = true                                       \n"
                 + "         AND id_baixa IS NULL                                      \n"
@@ -91,14 +167,15 @@ public class CarneMensalidadesDao extends DB {
                 + "                                    WHERE id_rotina = 4            \n"
                 + ")                                                                  \n"
                 + and
-                + "    GROUP BY P.ds_nome,    \n "
-                + "             S.matricula,  \n "
-                + "             S.categoria,  \n "
-                + "             M.id_pessoa   \n "
-                + "    ORDER BY P.ds_nome,    \n"
-                + "             M.id_pessoa";
+                + "    GROUP BY P.ds_nome,      \n"
+                + "              S.matricula,   \n"
+                + "              S.categoria,   \n"
+                + "              M.id_pessoa,   \n"
+                + "              SE.ds_descricao\n"
+                + ")                            \n"
+                + "    ORDER BY 1,4,6";
         try {
-            Query query = getEntityManager().createNativeQuery(text);
+            Query query = getEntityManager().createNativeQuery(queryString);
             return query.getResultList();
         } catch (Exception e) {
             e.getMessage();
@@ -107,7 +184,7 @@ public class CarneMensalidadesDao extends DB {
     }
 
     public List listaCarneMensalidadesAgrupadoEtiqueta(String id_pessoa, String datas) {
-        if(datas.isEmpty()) {
+        if (datas.isEmpty()) {
             return new ArrayList<>();
         }
         String and = "";

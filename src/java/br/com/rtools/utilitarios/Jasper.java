@@ -116,7 +116,7 @@ public class Jasper implements Serializable {
      */
     public static List LIST_FILE_GENERATED;
     /**
-     * set: retrato or paisagem
+     * set: retrato, paisagem, recibo_sem_logo
      */
     public static String TYPE;
     /**
@@ -286,7 +286,7 @@ public class Jasper implements Serializable {
                 Juridica sindicato = (Juridica) new Dao().find(new Juridica(), 1);
                 documentox = sindicato.getPessoa().getDocumento();
             }
-            
+
             switch (TYPE) {
                 case "retrato":
                     subreport = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/CABECALHO_RETRATO.jasper");

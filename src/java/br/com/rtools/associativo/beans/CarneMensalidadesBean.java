@@ -2,30 +2,21 @@ package br.com.rtools.associativo.beans;
 
 import br.com.rtools.financeiro.dao.CarneMensalidadesDao;
 import br.com.rtools.impressao.Etiquetas;
-import br.com.rtools.impressao.ParametroCarneMensalidades;
 import br.com.rtools.pessoa.Fisica;
-import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
-import br.com.rtools.pessoa.PessoaEndereco;
-import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
-import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.Mes;
-import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.GenericaString;
 import br.com.rtools.utilitarios.Jasper;
-import br.com.rtools.utilitarios.Moeda;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -33,14 +24,6 @@ import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletResponse;
-import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JasperExportManager;
-import net.sf.jasperreports.engine.JasperFillManager;
-import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.JasperReport;
-import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-import net.sf.jasperreports.engine.util.JRLoader;
 
 @ManagedBean
 @SessionScoped
@@ -92,81 +75,41 @@ public class CarneMensalidadesBean {
             }
         }
 
-        Juridica sindicato = (Juridica) (new Dao()).find(new Juridica(), 1);
-        PessoaEnderecoDao dao = new PessoaEnderecoDao();
-        PessoaEndereco pe = dao.pesquisaEndPorPessoaTipo(1, 2);
-        CarneMensalidadesDao db = new CarneMensalidadesDao();
-        List<Vector> result = db.listaCarneMensalidadesAgrupado((id_pessoa.isEmpty()) ? null : id_pessoa, getDatas());
-        Collection lista = new ArrayList();
-
+        List list = new CarneMensalidadesDao().listaCarneMensalidadesAgrupado((id_pessoa.isEmpty()) ? null : id_pessoa, getDatas());
         Map hash_subreport = new HashMap();
         hash_subreport.put("subreport_file", ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/CARNE_MENSALIDADES_subreport.jasper"));
-        String logo_sindicato = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png");
-
-        for (Vector result1 : result) {
-            List<Vector> result_servico = db.listaServicosCarneMensalidades(Integer.valueOf(result1.get(3).toString()), getDatas());
-            List listax = new ArrayList();
-            for (Vector result_servico1 : result_servico) {
-                Map hash = new HashMap();
-                hash.put("servicos", result_servico1.get(0).toString());
-                hash.put("quantidade", result_servico1.get(1).toString());
-                listax.add(hash);
-            }
-            List<Vector> result_2 = db.listaCarneMensalidades(Integer.valueOf(result1.get(3).toString()), getDatas());
-            String valor_total = "";
-            float soma = 0;
-            for (int w = 0; w < result_2.size(); w++) {
-                float valor_linha = Moeda.converteFloatR$Float(Float.parseFloat(Double.toString((Double) result_2.get(w).get(5))));
-                soma = Moeda.somaValores(soma, valor_linha);
-                valor_total = Moeda.converteR$Float(soma);
-                lista.add(
-                        new ParametroCarneMensalidades(
-                                logo_sindicato,
-                                sindicato.getPessoa().getNome(),
-                                pe.getEndereco().getDescricaoEndereco().getDescricao(),
-                                pe.getEndereco().getLogradouro().getDescricao(),
-                                pe.getNumero(),
-                                pe.getComplemento(),
-                                pe.getEndereco().getBairro().getDescricao(),
-                                pe.getEndereco().getCep().substring(0, 5) + "-" + pe.getEndereco().getCep().substring(5),
-                                pe.getEndereco().getCidade().getCidade(),
-                                pe.getEndereco().getCidade().getUf(),
-                                sindicato.getPessoa().getTelefone1(),
-                                sindicato.getPessoa().getEmail1(),
-                                sindicato.getPessoa().getSite(),
-                                sindicato.getPessoa().getDocumento(),
-                                result_2.get(w).get(0).toString(),
-                                (result_2.get(w).get(1) != null) ? result_2.get(w).get(1).toString() : "",
-                                result_2.get(w).get(3).toString(),
-                                (result_2.get(w).get(2) != null) ? result_2.get(w).get(2).toString() : "",
-                                w + 1,
-                                DataHoje.converteData((Date) result_2.get(w).get(4)),
-                                Moeda.converteR$Float(valor_linha),
-                                valor_total,
-                                listax
+        List listServicos = new ArrayList();
+        Map mapServicos = new LinkedHashMap();
+        Collection listCarnesMensalidade = new ArrayList();
+        Integer parcela = 1;
+        for (int i = 0; i < list.size(); i++) {
+            List carneMensalidades = (List) list.get(i);
+            if (carneMensalidades.get(5).equals(DataHoje.converteDateSqlToDate("1900-01-01"))) {
+                parcela = 1;
+                mapServicos.put("servico", carneMensalidades.get(6).toString());
+                mapServicos.put("quantidade", carneMensalidades.get(7).toString());
+                listServicos.add(mapServicos);
+            } else {
+                listCarnesMensalidade.add(
+                        new CarneMensalidades(
+                                carneMensalidades.get(0),
+                                carneMensalidades.get(1),
+                                carneMensalidades.get(2),
+                                carneMensalidades.get(3),
+                                carneMensalidades.get(4),
+                                carneMensalidades.get(5),
+                                parcela,
+                                listServicos
                         )
                 );
+                parcela++;
+                mapServicos = new LinkedHashMap();
+                listServicos = new ArrayList();
             }
         }
-
-        try {
-            File file_jasper = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/CARNE_MENSALIDADES.jasper"));
-            JasperReport jasperReport = (JasperReport) JRLoader.loadObject(file_jasper);
-
-            JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(lista);
-            JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, hash_subreport, dtSource);
-            byte[] arquivo = JasperExportManager.exportReportToPdf(jasperPrint);
-
-            HttpServletResponse res = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
-            res.setContentType("application/pdf");
-            res.setHeader("Content-disposition", "inline; filename=\"Carnê de Mensalidades.pdf\"");
-            res.getOutputStream().write(arquivo);
-            res.getCharacterEncoding();
-            FacesContext.getCurrentInstance().responseComplete();
-
-        } catch (JRException | IOException e) {
-            e.getMessage();
-        }
+        Jasper.IS_HEADER = true;
+        Jasper.TYPE = "recibo_sem_logo";
+        Jasper.printReports("/Relatorios/CARNE_MENSALIDADES.jasper", "Carnê de Mensalidades", listCarnesMensalidade, hash_subreport);
     }
 
     public void printEtiqueta() {
@@ -354,6 +297,138 @@ public class CarneMensalidadesBean {
 
     public void setListMeses(List<SelectItem> listMeses) {
         this.listMeses = listMeses;
+    }
+
+    public class CarneMensalidades {
+
+        private Object titular;
+        private Object matricula;
+        private Object categoria;
+        private Object responsavel_id;
+        private Object valor;
+        private Object vencimento;
+        private List list_servicos;
+        private Integer parcela;
+        private Object servico;
+        private Object quantidade;
+
+        public CarneMensalidades() {
+            this.titular = "";
+            this.matricula = 0;
+            this.categoria = "";
+            this.responsavel_id = 0;
+            this.valor = null;
+            this.vencimento = new Date();
+            this.list_servicos = new ArrayList();
+            this.parcela = 0;
+        }
+
+        public CarneMensalidades(Object titular, Object matricula, Object categoria, Object responsavel_id, Object valor, Object vencimento, Integer parcela, List list_servicos) {
+            this.titular = titular;
+            this.matricula = matricula;
+            this.categoria = categoria;
+            this.responsavel_id = responsavel_id;
+            this.vencimento = vencimento;
+            this.valor = valor;
+            this.parcela = parcela;
+            this.list_servicos = list_servicos;
+            this.servico = "";
+            this.quantidade = "";
+        }
+
+        public CarneMensalidades(Object titular, Object matricula, Object responsavel_id, Object categoria, Object valor, Object vencimento, Integer parcela, Object servico, Object quantidade, List list_servicos) {
+            this.titular = titular;
+            this.matricula = matricula;
+            this.responsavel_id = responsavel_id;
+            this.categoria = categoria;
+            this.vencimento = vencimento;
+            this.valor = valor;
+            this.parcela = parcela;
+            this.servico = servico;
+            this.quantidade = quantidade;
+            this.list_servicos = list_servicos;
+        }
+
+        public Object getTitular() {
+            return titular;
+        }
+
+        public void setTitular(Object titular) {
+            this.titular = titular;
+        }
+
+        public Object getMatricula() {
+            return matricula;
+        }
+
+        public void setMatricula(Object matricula) {
+            this.matricula = matricula;
+        }
+
+        public Object getCategoria() {
+            return categoria;
+        }
+
+        public void setCategoria(Object categoria) {
+            this.categoria = categoria;
+        }
+
+        public Object getResponsavel_id() {
+            return responsavel_id;
+        }
+
+        public void setResponsavel_id(Object responsavel_id) {
+            this.responsavel_id = responsavel_id;
+        }
+
+        public Object getVencimento() {
+            return vencimento;
+        }
+
+        public void setVencimento(Object vencimento) {
+            this.vencimento = vencimento;
+        }
+
+        public Object getValor() {
+            return valor;
+        }
+
+        public void setValor(Object valor) {
+            this.valor = valor;
+        }
+
+        public List getList_servicos() {
+            return list_servicos;
+        }
+
+        public void setList_servicos(List list_servicos) {
+            this.list_servicos = list_servicos;
+        }
+
+        public Object getServico() {
+            return servico;
+        }
+
+        public void setServico(Object servico) {
+            this.servico = servico;
+        }
+
+        public Object getQuantidade() {
+            return quantidade;
+        }
+
+        public void setQuantidade(Object quantidade) {
+            this.quantidade = quantidade;
+        }
+
+        public Integer getParcela() {
+            return parcela;
+        }
+
+        public void setParcela(Integer parcela) {
+            this.parcela = parcela;
+        }
+
     }
 
 }

@@ -763,7 +763,6 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 }
             }
             loadMalaDireta();
-            RequestContext.getCurrentInstance().update("form_pessoa_fisica:i_p_o");
         }
     }
 
