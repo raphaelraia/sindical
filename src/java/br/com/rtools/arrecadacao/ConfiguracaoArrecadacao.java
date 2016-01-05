@@ -14,44 +14,51 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "conf_arrecadacao")
 public class ConfiguracaoArrecadacao implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
-    @JoinColumn(name = "id_filial", referencedColumnName = "id")
+    private Integer id;
+    @JoinColumn(name = "id_filial", referencedColumnName = "id", nullable = true)
     @ManyToOne
-    private Filial filial;    
-    
+    private Filial filial;
+    @Column(name = "is_certificado_faturamento_bruto_anual", columnDefinition = "boolean default false", nullable = false)
+    private Boolean certificadoFaturementoBrutoAnual;
+
     public ConfiguracaoArrecadacao() {
         this.id = -1;
         this.filial = new Filial();
-    }
-    
-    public ConfiguracaoArrecadacao(int id, Filial filial) {
-        this.id = id;
-        this.filial = filial;
+        this.certificadoFaturementoBrutoAnual = false;
     }
 
-    public int getId() {
+    public ConfiguracaoArrecadacao(Integer id, Filial filial, Boolean certificadoFaturementoBrutoAnual) {
+        this.id = id;
+        this.filial = filial;
+        this.certificadoFaturementoBrutoAnual = certificadoFaturementoBrutoAnual;
+    }
+
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    /**
-     * @return the filial
-     */
     public Filial getFilial() {
         return filial;
     }
 
-    /**
-     * @param filial the filial to set
-     */
     public void setFilial(Filial filial) {
         this.filial = filial;
+    }
+
+    public Boolean getCertificadoFaturementoBrutoAnual() {
+        return certificadoFaturementoBrutoAnual;
+    }
+
+    public void setCertificadoFaturementoBrutoAnual(Boolean certificadoFaturementoBrutoAnual) {
+        this.certificadoFaturementoBrutoAnual = certificadoFaturementoBrutoAnual;
     }
 
 }

@@ -2,6 +2,7 @@ package br.com.rtools.arrecadacao;
 
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.Moeda;
 import java.util.Date;
 import javax.persistence.*;
 import java.io.Serializable;
@@ -10,10 +11,11 @@ import java.io.Serializable;
 @Table(name = "arr_repis_movimento")
 @NamedQuery(name = "RepisMovimento.pesquisaID", query = "select m from RepisMovimento m where m.id = :pid")
 public class RepisMovimento implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_emissao")
     private Date dataEmissao;
@@ -26,7 +28,7 @@ public class RepisMovimento implements Serializable {
     @Column(name = "dt_resposta")
     private Date dataResposta;
     @Column(name = "nr_ano", length = 4, nullable = false)
-    private int ano;
+    private Integer ano;
     @JoinColumn(name = "id_repis_status", referencedColumnName = "id", nullable = false)
     @ManyToOne
     private RepisStatus repisStatus;
@@ -39,7 +41,9 @@ public class RepisMovimento implements Serializable {
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_impressao")
     private Date dataImpressao;
-    
+    @Column(name = "nr_faturamento_bruto_anual", columnDefinition = "double precision 0")
+    private Float faturamentoBrutoAnual;
+
     public RepisMovimento() {
         this.id = -1;
         this.dataEmissao = DataHoje.dataHoje();
@@ -51,9 +55,10 @@ public class RepisMovimento implements Serializable {
         this.patronal = new Patronal();
         this.certidaoTipo = new CertidaoTipo();
         this.dataImpressao = null;
+        this.faturamentoBrutoAnual = new Float(0);
     }
 
-    public RepisMovimento(int id, String dataEmissaoString, String contato, Pessoa pessoa, String dataRespostaString, int ano, RepisStatus repisStatus, Patronal patronal, CertidaoTipo certidaoTipo, String dataImpressaoString) {
+    public RepisMovimento(Integer id, String dataEmissaoString, String contato, Pessoa pessoa, String dataRespostaString, Integer ano, RepisStatus repisStatus, Patronal patronal, CertidaoTipo certidaoTipo, String dataImpressaoString, Float faturamentoBrutoAnual) {
         this.id = id;
         setDataEmissaoString(dataEmissaoString);
         this.contato = contato;
@@ -64,13 +69,14 @@ public class RepisMovimento implements Serializable {
         this.patronal = patronal;
         this.certidaoTipo = certidaoTipo;
         setDataImpressaoString(dataRespostaString);
+        this.faturamentoBrutoAnual = faturamentoBrutoAnual;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -122,11 +128,11 @@ public class RepisMovimento implements Serializable {
         this.dataResposta = DataHoje.converte(dataRespostaString);
     }
 
-    public int getAno() {
+    public Integer getAno() {
         return ano;
     }
 
-    public void setAno(int ano) {
+    public void setAno(Integer ano) {
         this.ano = ano;
     }
 
@@ -161,12 +167,28 @@ public class RepisMovimento implements Serializable {
     public void setDataImpressao(Date dataImpressao) {
         this.dataImpressao = dataImpressao;
     }
-    
+
     public String getDataImpressaoString() {
         return DataHoje.converteData(dataImpressao);
     }
 
     public void setDataImpressaoString(String dataImpressaoString) {
         this.dataImpressao = DataHoje.converte(dataImpressaoString);
+    }
+
+    public Float getFaturamentoBrutoAnual() {
+        return faturamentoBrutoAnual;
+    }
+
+    public void setFaturamentoBrutoAnual(Float faturamentoBrutoAnual) {
+        this.faturamentoBrutoAnual = faturamentoBrutoAnual;
+    }
+
+    public String getFaturamentoBrutoAnualString() {
+        return Moeda.converteR$Float(faturamentoBrutoAnual);
+    }
+
+    public void setFaturamentoBrutoAnualString(String faturamentoBrutoAnualString) {
+        this.faturamentoBrutoAnual = Moeda.converteUS$(faturamentoBrutoAnualString);
     }
 }

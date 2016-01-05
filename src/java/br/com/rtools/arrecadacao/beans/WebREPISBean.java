@@ -3,6 +3,7 @@ package br.com.rtools.arrecadacao.beans;
 import br.com.rtools.arrecadacao.CertidaoDisponivel;
 import br.com.rtools.arrecadacao.CertidaoMensagem;
 import br.com.rtools.arrecadacao.CertidaoTipo;
+import br.com.rtools.arrecadacao.ConfiguracaoArrecadacao;
 import br.com.rtools.arrecadacao.ConvencaoPeriodo;
 import br.com.rtools.arrecadacao.Patronal;
 import br.com.rtools.arrecadacao.PisoSalarial;
@@ -94,6 +95,7 @@ public class WebREPISBean implements Serializable {
     private int indexStatus = 1;
     private String valueLenght = "15";
     private String contato = "";
+    private ConfiguracaoArrecadacao configuracaoArrecadacao;
 
     public WebREPISBean() {
         UsuarioDB db = new UsuarioDBToplink();
@@ -113,6 +115,7 @@ public class WebREPISBean implements Serializable {
             renderEmpresa = false;
             renderContabil = false;
         }
+        configuracaoArrecadacao = (ConfiguracaoArrecadacao) new Dao().find(new ConfiguracaoArrecadacao(), 1);
     }
 
     public PessoaEndereco enderecoPessoa(int id_pessoa) {
@@ -248,7 +251,7 @@ public class WebREPISBean implements Serializable {
     }
 
     public void solicitarREPIS() {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
 
         if (!listComboPessoa.isEmpty()) {
             if (Integer.parseInt(listComboPessoa.get(idPessoa).getDescription()) > 0) {
@@ -323,7 +326,14 @@ public class WebREPISBean implements Serializable {
             repisMovimento.setDataEmissao(DataHoje.dataHoje());
             repisMovimento.setPatronal(patronal);
             repisMovimento.setCertidaoTipo(cd.getCertidaoTipo());
-
+            if (configuracaoArrecadacao != null) {
+                if (configuracaoArrecadacao.getCertificadoFaturementoBrutoAnual()) {
+                    if (repisMovimento.getFaturamentoBrutoAnual() <= 0) {
+                        GenericaMensagem.warn("Validação", "Informar o valor do faturamento bruto anual!");
+                        return;
+                    }
+                }
+            }
             di.openTransaction();
             if (!showAndamentoProtocolo(pessoaSolicitante.getId(), repisMovimento.getPatronal().getId())) {
                 if (di.save(repisMovimento)) {
@@ -819,25 +829,28 @@ public class WebREPISBean implements Serializable {
     }
 
     public List getListArquivosEnviados() {
+        try {
+            String caminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/repis/" + pessoa.getId() + "/");
+            File file = new File(caminho);
+            file.mkdir();
 
-        String caminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/repis/" + pessoa.getId() + "/");
-        File file = new File(caminho);
-        file.mkdir();
-
-        File file2 = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/repis/"));
-        File listFile[] = file2.listFiles();
-        for (int i = 0; i < listFile.length; i++) {
-            if (listFile[i].isFile()) {
-                listFile[i].renameTo(new File(file.getPath() + "/" + listFile[i].getName()));
-                listArquivosEnviados.clear();
+            File file2 = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/repis/"));
+            File listFile[] = file2.listFiles();
+            for (int i = 0; i < listFile.length; i++) {
+                if (listFile[i].isFile()) {
+                    listFile[i].renameTo(new File(file.getPath() + "/" + listFile[i].getName()));
+                    listArquivosEnviados.clear();
+                }
             }
-        }
 
-        File list[] = file.listFiles();
-        if (listArquivosEnviados.size() != list.length) {
-            for (int i = 0; i < list.length; i++) {
-                listArquivosEnviados.add(list[i].getName());
-            }
+            File list[] = file.listFiles();
+            if (listArquivosEnviados.size() != list.length) {
+                for (int i = 0; i < list.length; i++) {
+                    listArquivosEnviados.add(list[i].getName());
+                }
+            }            
+        } catch (Exception e) {
+            
         }
 
         return listArquivosEnviados;

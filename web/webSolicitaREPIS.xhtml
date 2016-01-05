@@ -17,10 +17,6 @@
                 text-align: center !important;
             }
         </style>
-
-        <script type="text/javascript">
-
-        </script>
     </h:head>
     <h:body>
         <f:subview id="header">
@@ -47,10 +43,20 @@
                 <div class="clear"></div>
                 <h:form id="form_sr">
                     <p:panel styleClass="fundoCinza">
-                        <p:outputLabel value="Nome do solicitante" /><br />
-                        <p:inputText value="#{webREPISBean.contato}" size="100" converter="#{toUpperCase}">
-                            <p:ajax event="change" update="@this" />
-                        </p:inputText>
+                        <h:panelGrid columns="2" cellpadding="5">
+                            <h:column>
+                                <p:outputLabel value="Nome do solicitante" /><br />
+                                <p:inputText value="#{webREPISBean.contato}" size="100" converter="#{toUpperCase}">
+                                    <p:ajax event="change" update="@this" />
+                                </p:inputText>                                                            
+                            </h:column>
+                            <h:column>
+                                <p:outputLabel value="Faturamento Anual Bruto (R$)" /><br />
+                                <p:inputText value="#{webREPISBean.repisMovimento.faturamentoBrutoAnualString}" converter="#{toCurrency}">
+                                    <p:ajax event="change" update="@this" />
+                                </p:inputText>                                                            
+                            </h:column>
+                        </h:panelGrid>
                     </p:panel>
                     <p:accordionPanel styleClass="margin-top-max no-border" dynamic="false">
                         <p:tab title="CONTRIBUINTE" rendered="#{webREPISBean.renderEmpresa}">
@@ -69,10 +75,12 @@
                     <p:messages id="i_msg" showDetail="true" closable="true" />
                     <h:panelGrid id="i_panel_solicitar" columns="2" styleClass="margin-top-max" style="width: 100%">
                         <h:column>
-                            <p:commandButton value="Solicitar" action="#{webREPISBean.solicitarREPIS}" update=":form_sr:" style="float: left"/>
-                            <p:selectOneMenu value="#{webREPISBean.indexCertidaoDisponivel}" style="float: left; padding-right: 20px">
-                                <f:selectItems value="#{webREPISBean.listComboCertidaoDisponivel}"/>
-                            </p:selectOneMenu>
+                            <h:panelGrid columns="2">
+                                <p:commandButton value="Solicitar" action="#{webREPISBean.solicitarREPIS}" update=":form_sr:" />
+                                <p:selectOneMenu value="#{webREPISBean.indexCertidaoDisponivel}">
+                                    <f:selectItems value="#{webREPISBean.listComboCertidaoDisponivel}"/>
+                                </p:selectOneMenu>                                
+                            </h:panelGrid>
                         </h:column>
                         <h:column>
                             <p:commandButton value="Andamento das Certidões" action="#{webREPISBean.clear}" update=":form_sr_list:" style="float: right"/>
@@ -115,7 +123,7 @@
                         <h:panelGrid id="i_panel" columns="3" styleClass="margin-top">
                             <p:inputText size="100" value="#{webREPISBean.descricao}" rendered="#{!webREPISBean.tipoPesquisa.equals('cnpj')}" />
                             <p:inputMask mask="99.999.999/9999-99" size="20" value="#{webREPISBean.descricao}" rendered="#{webREPISBean.tipoPesquisa.equals('cnpj')}" />
-                            <p:selectOneMenu value="#{webREPISBean.tipoPesquisa}" style="padding-right: 25px;">
+                            <p:selectOneMenu value="#{webREPISBean.tipoPesquisa}">
                                 <p:ajax event="change" update="@this, :form_sr_list:" />
                                 <f:selectItem itemLabel="Nome" itemValue="nome"/>
                                 <f:selectItem itemLabel="CNPJ" itemValue="cnpj"/>
