@@ -248,7 +248,7 @@ public class JuridicaBean implements Serializable {
                     con.setRequestMethod("GET");
                     try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
                         String str = in.readLine();
-                        JSONObject obj = new JSONObject(str);
+                            JSONObject obj = new JSONObject(str);
                         int status = obj.getInt("status");
                         String error = obj.getString("msg");
 

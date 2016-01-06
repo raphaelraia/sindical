@@ -1643,11 +1643,11 @@ public class SociosBean implements Serializable {
             Fisica f = new FisicaDBToplink().pesquisaFisicaPorPessoa(servicoPessoa.getPessoa().getId());
             if (servicoCategoria.getCategoria().isEmpresaObrigatoria() && f.getDtAposentadoria() == null && servicoCategoria.getCategoria().isVotante()) {
                 JuridicaDB db = new JuridicaDBToplink();
-                List listax = db.listaJuridicaContribuinte(pessoaEmpresa.getJuridica().getId());
                 if (pessoaEmpresa == null || pessoaEmpresa.getId() == -1) {
                     GenericaMensagem.warn("Atenção", "Vincular uma empresa para esta Pessoa!");
                     return false;
                 }
+                List listax = db.listaJuridicaContribuinte(pessoaEmpresa.getJuridica().getId());
                 if (!listax.isEmpty()) {
                     for (int i = 0; i < listax.size(); i++) {
                         if (((List) listax.get(0)).get(9) != null) {

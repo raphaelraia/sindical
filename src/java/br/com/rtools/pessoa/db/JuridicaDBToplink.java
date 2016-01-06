@@ -303,7 +303,7 @@ public class JuridicaDBToplink extends DB implements JuridicaDB {
     }
 
     @Override
-    public List listaJuridicaContribuinte(int id_juridica) {
+    public List listaJuridicaContribuinte(Integer id_juridica) {
         try {
             String textQuery = "select * from arr_contribuintes_vw where id_juridica = " + id_juridica;
             Query qry = getEntityManager().createNativeQuery(textQuery);
