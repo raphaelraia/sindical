@@ -13,7 +13,6 @@
 /* NOSSO ESTILO (Consultar padrões pré-definidos) */
 
 .google-footer-bar {
-    //position: absolute;
     bottom: 0;
     height: 50px;
     width: 100%;
@@ -109,7 +108,7 @@ div.wrapper { width: 1024px; margin: 0 auto;}
 .input-text-med {width: 100%!important; height: 40px;}
 .input-text-max {width: 100%!important; height: 50px;}
 
-// Imagens
+/* Imagens */
 
 .icon-table-blue {background-image: url("/img/icon-table-blue.png") !important;} 
 
