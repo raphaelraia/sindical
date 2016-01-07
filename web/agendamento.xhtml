@@ -17,10 +17,6 @@
                 background-color: #ff8282!important;
             }
         </style>
-
-        <script type="text/javascript">
-
-        </script>
     </h:head>
     <h:body>
         <!-- INICIA DIV wrap e main -->
@@ -144,7 +140,7 @@
                     </p:panel>
 
                     <h:form id="formConcluirAgendamento">
-                        <p:dialog widgetVar="dlg_agendamento" header="Agendamento de Homologação" resizable="false" modal="true" visible="#{agendamentoBean.visibleModal}" height="550" width="900">
+                        <p:dialog widgetVar="dlg_agendamento" header="Agendamento de Homologação" resizable="false" modal="true" visible="#{agendamentoBean.visibleModal}" height="550" width="900" closeOnEscape="true">
                             <p:ajax event="close" listener="#{agendamentoBean.setVisibleModal(false)}" update=":formAgendamento"/>  
                             
                             <!-- visibility: hidden SE TIRAR ESSA VARIAVEL OS CAMPOS DE PessoaEmpresa NAO ATUALIZAM QUANDO PESQUISA JURIDICA ex. dt_admissao -->
