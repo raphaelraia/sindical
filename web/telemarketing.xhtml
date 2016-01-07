@@ -1,0 +1,74 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Sindical - Telemarketing Pessoa</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
+            .ui-button { padding: 3px!important; }
+            .ui-selectonemenu { padding-right: 25px!important; }
+            .tblOposicaox{
+                background-color: #ff8282!important;
+            }
+        </style>
+
+        <script type="text/javascript">
+            /* Máscaras ER */
+            function mascara(o, f) {
+                v_obj = o
+                v_fun = f
+                setTimeout("execmascara()", 1)
+            }
+            function execmascara() {
+                v_obj.value = v_fun(v_obj.value)
+            }
+            function mtel(v) {
+                v = v.replace(/D/g, "");             //Remove tudo o que não é dígito
+                v = v.replace(/^(d{2})(d)/g, "($1) $2"); //Coloca parênteses em volta dos dois primeiros dígitos
+                v = v.replace(/(d)(d{4})$/, "$1-$2");    //Coloca hífen entre o quarto e o quinto dígitos
+                return v;
+            }
+            function id(el) {
+                return document.getElementById(el);
+            }
+            window.onload = function () {
+                id('i_tel').onkeypress = function () {
+                    mascara(this, mtel);
+                }
+            }
+        </script>
+    </h:head>
+    <h:body>
+        <!-- INICIA DIV wrap e main -->
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>
+        </f:subview>
+        <f:view>
+            <div id="wrapx">
+                <div id="mainx">
+                    <!-- INICIA DIV wrap e main -->  
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:outputText value="Telemarketing" styleClass="fonteHeader" />
+                        <div class="clear"></div>
+                        <h:form id="form_telemarketing">
+                            <c:set scope="request" var="object" value="${atendimentoBean.ateMovimento}"/>
+                            <p:panel>
+                            </p:panel>
+                        </h:form>
+                    </p:panel>
+                </div>
+            </div>
+        </f:view>
+        <f:subview id="footer">
+            <div id="footerx">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </div>                
+        </f:subview>
+    </h:body>
+</ui:composition>
