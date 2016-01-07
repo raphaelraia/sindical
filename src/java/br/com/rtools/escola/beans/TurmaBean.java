@@ -106,6 +106,8 @@ public class TurmaBean implements Serializable {
             message = "Cadastrar serviços!";
             return;
         }
+        Dao dao = new Dao();
+        turma.setFilial((Filial) dao.find(new Filial(), Integer.parseInt(listFiliais.get(filial_id).getDescription())));
         if (turma.getFilial().getId() == -1) {
             message = "Informar a filial! Obs: Necessário acessar o sistema usando autênticação.";
             return;
@@ -155,10 +157,8 @@ public class TurmaBean implements Serializable {
         }
         if (turma.getHoraTermino().equals("__:__")) {
             turma.setHoraTermino("");
-        }
-        Dao dao = new Dao();
-        turma.setCursos((Servicos) dao.find(new Servicos(), Integer.parseInt(listServicos.get(idServicos).getDescription())));
-        turma.setFilial((Filial) dao.find(new Filial(), Integer.parseInt(listFiliais.get(filial_id).getDescription())));
+        }        
+        turma.setCursos((Servicos) dao.find(new Servicos(), Integer.parseInt(listServicos.get(idServicos).getDescription())));        
         NovoLog novoLog = new NovoLog();
         TurmaDao td = new TurmaDao();
         if (turma.getId() == -1) {
