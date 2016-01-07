@@ -9,6 +9,8 @@ import br.com.rtools.associativo.GrupoConvenio;
 import br.com.rtools.associativo.GrupoEvento;
 import br.com.rtools.associativo.Midia;
 import br.com.rtools.atendimento.AteOperacao;
+import br.com.rtools.cobranca.TmktContato;
+import br.com.rtools.cobranca.TmktNatureza;
 import br.com.rtools.endereco.Bairro;
 import br.com.rtools.endereco.DescricaoEndereco;
 import br.com.rtools.endereco.Logradouro;
@@ -24,7 +26,6 @@ import br.com.rtools.pessoa.Nacionalidade;
 import br.com.rtools.pessoa.TipoCentroComercial;
 import br.com.rtools.pessoa.TipoDocumento;
 import br.com.rtools.pessoa.TipoEndereco;
-import br.com.rtools.pessoa.dao.MalaDiretaDao;
 import br.com.rtools.pessoa.dao.MalaDiretaGrupoDao;
 import br.com.rtools.seguranca.*;
 import br.com.rtools.sistema.Cor;
@@ -370,6 +371,12 @@ public class SimplesBean implements Serializable {
             case "SisNotificacaoCategoria":
                 o = (SisNotificacaoCategoria) new SisNotificacaoCategoria(id, descricao);
                 break;
+            case "TmktContato":
+                o = (TmktContato) new TmktContato(id, descricao);
+                break;
+            case "TmktNatureza":
+                o = (TmktNatureza) new TmktNatureza(id, descricao);
+                break;
         }
         return o;
     }
@@ -465,6 +472,12 @@ public class SimplesBean implements Serializable {
                 break;
             case "SisNotificacaoCategoria":
                 ((SisNotificacaoCategoria) objeto).setDescricao(descricao);
+                break;
+            case "TmktContato":
+                ((TmktContato) objeto).setDescricao(descricao);
+                break;
+            case "TmktNatureza":
+                ((TmktNatureza) objeto).setDescricao(descricao);
                 break;
         }
     }
@@ -583,6 +596,16 @@ public class SimplesBean implements Serializable {
                 descricao = ((Nacionalidade) obj).getDescricao();
                 id = ((Nacionalidade) objeto).getId();
                 break;
+            case "TmktContato":
+                descricao = ((TmktContato) obj).getDescricao();
+                id = ((TmktContato) objeto).getId();
+                break;
+            case "TmktNatureza":
+                descricao = ((TmktNatureza) obj).getDescricao();
+                id = ((TmktNatureza) objeto).getId();
+                break;
+
+            // COM CAMPO ATIVO
             case "MalaDiretaGrupo":
                 descricao = ((MalaDiretaGrupo) obj).getDescricao();
                 id = ((MalaDiretaGrupo) objeto).getId();
@@ -746,6 +769,16 @@ public class SimplesBean implements Serializable {
                 break;
             case "SisNotificacaoCategoria":
                 if (((SisNotificacaoCategoria) obj).getDescricao().contains(pesquisaLista)) {
+                    return true;
+                }
+                break;
+            case "TmktContato":
+                if (((TmktContato) obj).getDescricao().contains(pesquisaLista)) {
+                    return true;
+                }
+                break;
+            case "TmktNatureza":
+                if (((TmktNatureza) obj).getDescricao().contains(pesquisaLista)) {
                     return true;
                 }
                 break;

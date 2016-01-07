@@ -57,6 +57,7 @@ public class ChamadaPaginaBean implements Serializable {
     private final int SEGURANCA = 10;
     private final int LOCADORA = 11;
     private final int ATENDIMENTO = 12;
+    private final int COBRANCA = 13;
     private boolean render1 = false;
     private boolean render2 = false;
     private boolean render3 = false;
@@ -1412,6 +1413,11 @@ public class ChamadaPaginaBean implements Serializable {
         GenericaSessao.put("idModulo", ATENDIMENTO);
         return metodoGenerico(0, "menuAtendimento");
     }
+    
+    public synchronized String menuCobranca() {
+        GenericaSessao.put("idModulo", COBRANCA);
+        return metodoGenerico(0, "menuCobranca");
+    }    
 
     //------------------------------------------------------------------------------------------------------------
     //------------------------------------------------------------------------------------------------------------

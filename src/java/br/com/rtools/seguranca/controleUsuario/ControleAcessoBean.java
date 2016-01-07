@@ -210,12 +210,10 @@ public class ControleAcessoBean implements Serializable {
                         } else {
                             dao.rollback();
                         }
+                    } else if (dao.update(cont)) {
+                        dao.commit();
                     } else {
-                        if (dao.update(cont)) {
-                            dao.commit();
-                        } else {
-                            dao.rollback();
-                        }
+                        dao.rollback();
                     }
                 }
 
@@ -310,13 +308,11 @@ public class ControleAcessoBean implements Serializable {
                         idEvento = 1;
                     }
 
+                } else if (modulo.getId() != -1) {
+                    idEvento = 3;
                 } else {
-                    if (modulo.getId() != -1) {
-                        idEvento = 3;
-                    } else {
-                        idModulo = 9;
-                        idEvento = 3;
-                    }
+                    idModulo = 9;
+                    idEvento = 3;
                 }
                 permissao = db.pesquisaPermissao(idModulo, rotina.getId(), idEvento);
                 if (permissao.getId() != -1) {
@@ -391,13 +387,11 @@ public class ControleAcessoBean implements Serializable {
                         idEvento = 1;
                     }
 
+                } else if (m.getId() != -1) {
+                    idEvento = 3;
                 } else {
-                    if (m.getId() != -1) {
-                        idEvento = 3;
-                    } else {
-                        idModulo = 9;
-                        idEvento = 3;
-                    }
+                    idModulo = 9;
+                    idEvento = 3;
                 }
                 permissao = db.pesquisaPermissao(idModulo, rotina.getId(), idEvento);
                 if (permissao.getId() != -1) {

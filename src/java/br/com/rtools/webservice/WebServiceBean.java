@@ -3,11 +3,13 @@ package br.com.rtools.webservice;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.TipoDocumento;
 import br.com.rtools.principal.DB;
+import br.com.rtools.seguranca.controleUsuario.ControleAcessoWebService;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaRequisicao;
 import br.com.rtools.utilitarios.GenericaSessao;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.InetAddress;
 import java.util.Collection;
 import java.util.List;
 import javax.faces.bean.ManagedBean;
@@ -46,30 +48,33 @@ public class WebServiceBean implements Serializable {
         return pessoaString;
     }
 
-    public void renderJson() {
+    public void response() {
         try {
-            String client = GenericaRequisicao.getParametro("client");
-            String user = GenericaRequisicao.getParametro("user");
-            String password = GenericaRequisicao.getParametro("password");
-            String app = GenericaRequisicao.getParametro("app");
-            String key = GenericaRequisicao.getParametro("key");
-            String method = GenericaRequisicao.getParametro("method");
-            String action = GenericaRequisicao.getParametro("action");
             GenericaSessao.remove("conexao");
-            GenericaSessao.put("sessaoCliente", client);
+            ControleAcessoWebService caws = new ControleAcessoWebService();            
             JSONObject jSONObject = new JSONObject();
             FacesContext facesContext = FacesContext.getCurrentInstance();
             ExternalContext externalContext = facesContext.getExternalContext();
             externalContext.setResponseContentType("application/json");
             externalContext.setResponseCharacterEncoding("UTF-8");
             String jsonResponse = "";
-            if (!key.equals("123456")) {
-                jSONObject.put("error_code", "0");
-                jSONObject.put("error_details", "invalid key");
+            Boolean error = false;
+            String result = caws.permiteWebService(caws.getMac(), true);
+            if (result == null) {
+                error = true;
+                jSONObject.put("status_code", "1");
+                jSONObject.put("status_details", result);
                 jsonResponse = jSONObject.toString();
-            } else {
-                List<TipoDocumento> listBiometria = new Dao().list(new TipoDocumento());
-                jsonResponse = listBiometria.toString();
+            }
+            if (!error) {
+                if (!caws.getKey().equals("123456")) {
+                    jSONObject.put("status_code", "0");
+                    jSONObject.put("status_details", "invalid key");
+                    jsonResponse = jSONObject.toString();
+                } else {
+                    List<TipoDocumento> listBiometria = new Dao().list(new TipoDocumento());
+                    jsonResponse = listBiometria.toString();
+                }
             }
             externalContext.getResponseOutputWriter().write(jsonResponse);
             facesContext.responseComplete();
