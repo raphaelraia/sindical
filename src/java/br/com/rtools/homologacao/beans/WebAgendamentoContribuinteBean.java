@@ -14,6 +14,7 @@ import br.com.rtools.homologacao.Feriados;
 import br.com.rtools.homologacao.Horarios;
 import br.com.rtools.homologacao.Status;
 import br.com.rtools.homologacao.dao.FeriadosDao;
+import br.com.rtools.homologacao.dao.HorarioReservaDao;
 import br.com.rtools.homologacao.db.*;
 import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.pessoa.*;
@@ -58,17 +59,17 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
     private boolean readonlyEndereco = false;
     private String strContribuinte = "";
     private Registro registro = new Registro();
-
-    private final List<DataObject> listaHorarios = new ArrayList<DataObject>();
-    private final List<SelectItem> listaStatus = new ArrayList<SelectItem>();
-    private final List<SelectItem> listaMotivoDemissao = new ArrayList<SelectItem>();
+    private final List<DataObject> listaHorarios = new ArrayList<>();
+    private final List<SelectItem> listaStatus = new ArrayList<>();
+    private final List<SelectItem> listaMotivoDemissao = new ArrayList<>();
     private String tipoTelefone = "telefone";
     private ConfiguracaoHomologacao configuracaoHomologacao;
-
+    private boolean visibleModal = false;
+    private Date polling;
     private String tipoAviso = null;
 
     public WebAgendamentoContribuinteBean() {
-        if (FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuarioAcessoWeb") != null) {
+        if (GenericaSessao.exists("sessaoUsuarioAcessoWeb")) {
             JuridicaDB db = new JuridicaDBToplink();
             FilialCidadeDB dbf = new FilialCidadeDBToplink();
             PessoaEnderecoDao dbp = new PessoaEnderecoDao();
@@ -86,12 +87,16 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
                 configuracaoHomologacao = new ConfiguracaoHomologacao();
                 new Dao().save(configuracaoHomologacao, true);
             }
-            lock(true);
+            HorarioReservaDao horarioReservaDao = new HorarioReservaDao();
+            horarioReservaDao.begin();
+            horarioReservaDao.clear();
+            clearHorarios();
+            GlobalSync.load();
         }
     }
 
-    public void clearHorarios() {
-        listaHorarios.clear();
+    public final void clearHorarios() {
+        loadListHorarios(false);
         lock(true);
     }
 
@@ -203,81 +208,90 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
         return false;
     }
 
-    public synchronized List<DataObject> getListaHorarios() {
-        if (listaHorarios.isEmpty()) {
-            List<Agendamento> ag;
-            List<Horarios> horario;
-            HomologacaoDB db = new HomologacaoDBToplink();
-            String agendador;
-            String homologador;
-            DataObject dtObj;
-            switch (Integer.parseInt(((SelectItem) getListaStatus().get(idStatus)).getDescription())) {
-                //STATUS DISPONIVEL ----------------------------------------------------------------------------------------------
-                case 1: {
-                    if (lock()) {
-                        return listaHorarios;
-                    }
-                    // TIRAR VALOR 1 DA PESQUISA PELO MAC DA FILIAL
-                    int idDiaSemana = DataHoje.diaDaSemana(data);
-                    horario = db.pesquisaTodosHorariosDisponiveis(sindicatoFilial.getFilial().getId(), idDiaSemana, true);
-                    int qnt;
-                    for (int i = 0; i < horario.size(); i++) {
-                        qnt = db.pesquisaQntdDisponivel(getSindicatoFilial().getFilial().getId(), horario.get(i), data);
-                        if (qnt == -1) {
-                            //msgAgendamento = "Erro ao pesquisar horários disponíveis!";
-                            GenericaMensagem.error("Erro", "Não foi possível pesquisar horários disponíveis!");
-                            listaHorarios.clear();
-                            break;
-                        }
-                        if (qnt > 0) {
-                            dtObj = new DataObject(horario.get(i), // ARG 0 HORA
-                                    null, // ARG 1 CNPJ
-                                    null, //ARG 2 NOME
-                                    null, //ARG 3 HOMOLOGADOR
-                                    null, // ARG 4 CONTATO
-                                    null, // ARG 5 TELEFONE
-                                    null, // ARG 6 USUARIO
-                                    null,
-                                    qnt, // ARG 8 QUANTIDADE DISPONÍVEL
-                                    null);
-                            listaHorarios.add(dtObj);
-                        }
-                    }
-                    break;
-                }
-                // STATUS AGENDADO -----------------------------------------------------------------------------------------------
-                case 2: {
-                    ag = db.pesquisaAgendadoPorEmpresaSemHorario(getSindicatoFilial().getFilial().getId(), data, ((Pessoa) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuarioAcessoWeb")).getId());
-                    for (int i = 0; i < ag.size(); i++) {
-                        if (ag.get(i).getAgendador() != null) {
-                            agendador = ag.get(i).getAgendador().getPessoa().getNome();
-                        } else {
-                            agendador = "** Web User **";
-                        }
-                        if (ag.get(i).getHomologador() != null) {
-                            homologador = ag.get(i).getHomologador().getPessoa().getNome();
-                        } else {
-                            homologador = "";
-                        }
+    public final void loadListHorarios() {
+        loadListHorarios(stop());
+    }
 
-                        dtObj = new DataObject(ag.get(i).getHorarios(), // ARG 0 HORA
-                                ag.get(i).getPessoaEmpresa().getJuridica().getPessoa().getDocumento(), // ARG 1 CNPJ
-                                ag.get(i).getPessoaEmpresa().getJuridica().getPessoa().getNome(), //ARG 2 NOME
-                                homologador, //ARG 3 HOMOLOGADOR
-                                ag.get(i).getContato(), // ARG 4 CONTATO
-                                ag.get(i).getTelefone(), // ARG 5 TELEFONE
-                                agendador, // ARG 6 USUARIO
-                                ag.get(i).getPessoaEmpresa(), // ARG 7 PESSOA EMPRESA
-                                null, // ARG 8
-                                ag.get(i));// ARG 9 AGENDAMENTO
+    public final void loadListHorarios(Boolean stop) {
+        if (stop) {
+            return;
+        }
+        listaHorarios.clear();
+        List<Agendamento> ag;
+        List<Horarios> horario;
+        HomologacaoDB db = new HomologacaoDBToplink();
+        String agendador;
+        String homologador;
+        DataObject dtObj;
+        switch (Integer.parseInt(((SelectItem) getListaStatus().get(idStatus)).getDescription())) {
+            //STATUS DISPONIVEL ----------------------------------------------------------------------------------------------
+            case 1: {
+                if (lock()) {
+                    return;
+                }
+                // TIRAR VALOR 1 DA PESQUISA PELO MAC DA FILIAL
+                int idDiaSemana = DataHoje.diaDaSemana(data);
+                horario = db.pesquisaTodosHorariosDisponiveis(sindicatoFilial.getFilial().getId(), idDiaSemana, true);
+                int qnt;
+                for (int i = 0; i < horario.size(); i++) {
+                    qnt = db.pesquisaQntdDisponivel(getSindicatoFilial().getFilial().getId(), horario.get(i), data);
+                    if (qnt == -1) {
+                        //msgAgendamento = "Erro ao pesquisar horários disponíveis!";
+                        GenericaMensagem.error("Erro", "Não foi possível pesquisar horários disponíveis!");
+                        listaHorarios.clear();
+                        break;
+                    }
+                    if (qnt > 0) {
+                        dtObj = new DataObject(horario.get(i), // ARG 0 HORA
+                                null, // ARG 1 CNPJ
+                                null, //ARG 2 NOME
+                                null, //ARG 3 HOMOLOGADOR
+                                null, // ARG 4 CONTATO
+                                null, // ARG 5 TELEFONE
+                                null, // ARG 6 USUARIO
+                                null,
+                                qnt, // ARG 8 QUANTIDADE DISPONÍVEL
+                                null);
                         listaHorarios.add(dtObj);
                     }
-                    break;
                 }
-                // ---------------------------------------------------------------------------------------------------------------
-                // ---------------------------------------------------------------------------------------------------------------
+                break;
             }
-        }
+            // STATUS AGENDADO -----------------------------------------------------------------------------------------------
+            case 2: {
+                ag = db.pesquisaAgendadoPorEmpresaSemHorario(getSindicatoFilial().getFilial().getId(), data, ((Pessoa) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuarioAcessoWeb")).getId());
+                for (int i = 0; i < ag.size(); i++) {
+                    if (ag.get(i).getAgendador() != null) {
+                        agendador = ag.get(i).getAgendador().getPessoa().getNome();
+                    } else {
+                        agendador = "** Web User **";
+                    }
+                    if (ag.get(i).getHomologador() != null) {
+                        homologador = ag.get(i).getHomologador().getPessoa().getNome();
+                    } else {
+                        homologador = "";
+                    }
+
+                    dtObj = new DataObject(ag.get(i).getHorarios(), // ARG 0 HORA
+                            ag.get(i).getPessoaEmpresa().getJuridica().getPessoa().getDocumento(), // ARG 1 CNPJ
+                            ag.get(i).getPessoaEmpresa().getJuridica().getPessoa().getNome(), //ARG 2 NOME
+                            homologador, //ARG 3 HOMOLOGADOR
+                            ag.get(i).getContato(), // ARG 4 CONTATO
+                            ag.get(i).getTelefone(), // ARG 5 TELEFONE
+                            agendador, // ARG 6 USUARIO
+                            ag.get(i).getPessoaEmpresa(), // ARG 7 PESSOA EMPRESA
+                            null, // ARG 8
+                            ag.get(i));// ARG 9 AGENDAMENTO
+                    listaHorarios.add(dtObj);
+                }
+                break;
+            }
+            // ---------------------------------------------------------------------------------------------------------------
+            // ---------------------------------------------------------------------------------------------------------------
+            }
+    }
+
+    public synchronized List<DataObject> getListaHorarios() {
         return listaHorarios;
     }
 
@@ -553,6 +567,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
                 }
             }
             dao.commit();
+            GlobalSync.load();
         }
     }
 
@@ -577,7 +592,22 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
             // STATUS DISPONÍVEL
             case 1: {
                 HomologacaoDB db = new HomologacaoDBToplink();
-
+                int nrDataHoje = DataHoje.converteDataParaInteger(DataHoje.converteData(DataHoje.dataHoje()));
+                HorarioReservaDao hrd = new HorarioReservaDao();
+                HomologacaoDB dba = new HomologacaoDBToplink();
+                hrd.exists(nrDataHoje);
+                int quantidade_reservada = hrd.count(((Horarios) datao.getArgumento0()).getId());
+                int quantidade = dba.pesquisaQntdDisponivel(getSindicatoFilial().getFilial().getId(), ((Horarios) datao.getArgumento0()), getData());
+                int quantidade_resultado = quantidade - quantidade_reservada;
+                if (quantidade == -1) {
+                    GenericaMensagem.error("Sistema", "Este horário não esta mais disponivel! (reservado ou já agendado)");
+                    return;
+                }
+                if (quantidade_resultado < 0 && quantidade != 1) {
+                    GenericaMensagem.error("Sistema", "Este horário não esta mais disponivel! (reservado ou já agendado)");
+                    return;
+                }
+                hrd.begin();
                 List<Agendamento> list_a = db.pesquisaAgendadoPorEmpresaSemHorario(getSindicatoFilial().getFilial().getId(), data, juridica.getPessoa().getId());
                 if (list_a.size() >= sindicatoFilial.getFilial().getQuantidadeAgendamentosPorEmpresa()) {
                     GenericaMensagem.warn("Atenção", "Limite de Agendamentos para hoje é de " + sindicatoFilial.getFilial().getQuantidadeAgendamentosPorEmpresa());
@@ -621,6 +651,9 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
                     agendamento.setFilial(getSindicatoFilial().getFilial());
                 }
                 setAgendamentoProtocolo(agendamento);
+                visibleModal = true;
+                hrd.reserve(((Horarios) datao.getArgumento0()).getId());
+                GlobalSync.load();
                 break;
             }
 
@@ -720,6 +753,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
         pessoaEmpresa = new PessoaEmpresa();
         profissao = new Profissao();
         enderecoFisica = new PessoaEndereco();
+        GlobalSync.load();
         return "webAgendamentoContribuinte";
     }
 
@@ -777,11 +811,9 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
                 //msgConfirma = "Este CPF possui carta de oposição em "+op.getEmissao();
                 //return;
             }
-        } else {
-            if (fisica.getId() != -1) {
-                fisica = new Fisica();
-                enderecoFisica = new PessoaEndereco();
-            }
+        } else if (fisica.getId() != -1) {
+            fisica = new Fisica();
+            enderecoFisica = new PessoaEndereco();
         }
 
         // VERIFICAÇÃO DE PESSOA EMPRESA SEM DEMISSAO
@@ -1049,5 +1081,35 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
 
     public void setTipoAviso(String tipoAviso) {
         this.tipoAviso = tipoAviso;
+    }
+
+    public boolean isVisibleModal() {
+        return visibleModal;
+    }
+
+    public void setVisibleModal(boolean visibleModal) {
+        if (!visibleModal) {
+            HorarioReservaDao hrd = new HorarioReservaDao();
+            hrd.clear();
+            hrd.begin();
+            GlobalSync.load();
+            loadListHorarios();
+        }
+        this.visibleModal = visibleModal;
+    }
+
+    public boolean stop() {
+        if (GlobalSync.getStaticDate() != null) {
+            if (polling != null) {
+                if (GlobalSync.getStaticDate() == polling) {
+                    return true;
+                } else {
+                    polling = GlobalSync.getStaticDate();
+                }
+            } else {
+                polling = GlobalSync.getStaticDate();
+            }
+        }
+        return false;
     }
 }

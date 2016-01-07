@@ -220,15 +220,19 @@ public class AgrupaTurmaBean implements Serializable {
     }
 
     public List<AgrupaTurma> getListAgrupaTurma() {
-        if (listAgrupaTurma.isEmpty()) {
-            Dao dao = new Dao();
-            List<AgrupaTurma> list = (List<AgrupaTurma>) dao.list(new AgrupaTurma(), true);
-            for (int i = 0; i < list.size(); i++) {
-                int idMemoria = list.get(i).getTurmaIntegral().getId();
-                if (idMemoria == list.get(i).getTurma().getId()) {
-                    listAgrupaTurma.add(list.get(i));
+        try {
+            if (listAgrupaTurma.isEmpty()) {
+                Dao dao = new Dao();
+                List<AgrupaTurma> list = (List<AgrupaTurma>) dao.list(new AgrupaTurma(), true);
+                for (int i = 0; i < list.size(); i++) {
+                    int idMemoria = list.get(i).getTurmaIntegral().getId();
+                    if (idMemoria == list.get(i).getTurma().getId()) {
+                        listAgrupaTurma.add(list.get(i));
+                    }
                 }
-            }
+            }            
+        } catch (Exception e) {
+            
         }
         return listAgrupaTurma;
     }
