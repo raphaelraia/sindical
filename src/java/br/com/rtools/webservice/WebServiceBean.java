@@ -2,15 +2,11 @@ package br.com.rtools.webservice;
 
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.TipoDocumento;
-import br.com.rtools.principal.DB;
 import br.com.rtools.seguranca.controleUsuario.ControleAcessoWebService;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.GenericaRequisicao;
 import br.com.rtools.utilitarios.GenericaSessao;
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.InetAddress;
-import java.util.Collection;
 import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;

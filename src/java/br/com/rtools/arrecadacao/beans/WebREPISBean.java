@@ -253,7 +253,8 @@ public class WebREPISBean implements Serializable {
 
     public void solicitarREPIS() {
         Dao di = new Dao();
-
+        ConfiguracaoArrecadacao cf = ConfiguracaoArrecadacaoBean.get();
+        String detalhes = cf.getFilial().getFilial().getPessoa().getNome() + " - Telefone: " + cf.getFilial().getFilial().getPessoa().getTelefone1();
         if (!listComboPessoa.isEmpty()) {
             if (Integer.parseInt(listComboPessoa.get(idPessoa).getDescription()) > 0) {
                 setPessoaSolicitante((Pessoa) di.find(new Pessoa(), Integer.parseInt(listComboPessoa.get(idPessoa).getDescription())));
@@ -263,7 +264,7 @@ public class WebREPISBean implements Serializable {
         }
         WebREPISDB dbr = new WebREPISDBToplink();
         if (!dbr.listaAcordoAberto(pessoaSolicitante.getId()).isEmpty()) {
-            GenericaMensagem.warn("Atenção", "Não foi possível concluir sua solicitação. Consulte o sindícato!");
+            GenericaMensagem.warn("Atenção", "Não foi possível concluir sua solicitação. Consulte o sindicato!" + detalhes);
             return;
         }
 
@@ -271,7 +272,7 @@ public class WebREPISBean implements Serializable {
         setShowProtocolo(false);
 
         if (!db.pesquisaPessoaDebito(pessoaSolicitante.getId(), DataHoje.data()).isEmpty()) {
-            GenericaMensagem.warn("Atenção", "Não foi possível concluir sua solicitação. Consulte o sindícato!");
+            GenericaMensagem.warn("Atenção", "Não foi possível concluir sua solicitação. Consulte o sindicato!" + detalhes);
         } else {
             if (contato.isEmpty()) {
                 GenericaMensagem.warn("Atenção", "Informe o nome do solicitante!");
@@ -288,7 +289,7 @@ public class WebREPISBean implements Serializable {
             PisoSalarialLote lote = dbr.pesquisaPisoSalarial(getAnoConvencao(), patronal.getId(), juridicax.getPorte().getId());
 
             if (lote.getId() == -1) {
-                GenericaMensagem.warn("Atenção", "Patronal sem Lote, contate seu Sindicato!");
+                GenericaMensagem.warn("Atenção", "Patronal sem Lote, contate seu Sindicato!" + detalhes);
                 return;
             }
 
@@ -343,7 +344,7 @@ public class WebREPISBean implements Serializable {
                     limpar();
                 } else {
                     di.rollback();
-                    GenericaMensagem.error("Erro", "Não foi possível concluir sua solicitação. Consulte o sindicato!");
+                    GenericaMensagem.error("Erro", "Não foi possível concluir sua solicitação. Consulte o sindicato!" + detalhes);
                 }
             } else {
                 GenericaMensagem.warn("Atenção", "Certidão já solicitada!");
@@ -849,9 +850,9 @@ public class WebREPISBean implements Serializable {
                 for (int i = 0; i < list.length; i++) {
                     listArquivosEnviados.add(list[i].getName());
                 }
-            }            
+            }
         } catch (Exception e) {
-            
+
         }
 
         return listArquivosEnviados;

@@ -3,14 +3,14 @@ package br.com.rtools.escola;
 public class ListaAgrupaTurma {
 
     private AgrupaTurma agrupaTurma;
-    private boolean isIntegral;
+    private Boolean isIntegral;
 
     public ListaAgrupaTurma() {
         this.agrupaTurma = new AgrupaTurma();
         this.isIntegral = false;
     }
 
-    public ListaAgrupaTurma(AgrupaTurma agrupaTurma, boolean isIntegral) {
+    public ListaAgrupaTurma(AgrupaTurma agrupaTurma, Boolean isIntegral) {
         this.agrupaTurma = agrupaTurma;
         this.isIntegral = isIntegral;
     }
@@ -23,11 +23,11 @@ public class ListaAgrupaTurma {
         this.agrupaTurma = agrupaTurma;
     }
 
-    public boolean isIsIntegral() {
+    public Boolean getIsIntegral() {
         return isIntegral;
     }
 
-    public void setIsIntegral(boolean isIntegral) {
+    public void setIsIntegral(Boolean isIntegral) {
         this.isIntegral = isIntegral;
     }
 
