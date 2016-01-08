@@ -54,6 +54,7 @@
                                     <p:menuitem value="Lançamento Individual" action="#{chamadaPaginaBean.lancamentoIndividual}" />
                                     <p:menuitem value="Fechamento de Caixa"   action="#{chamadaPaginaBean.fechamentoCaixa()}"/>
                                     <p:menuitem value="Rescisão de Contrato"    action="#{chamadaPaginaBean.rescisaoMatricula}" actionListener="#{rescisaoContratoBean.defineTipoRescisaoContrato('matriculaEscola')}" />
+                                    <p:menuitem value="Geração Mensal"         action="#{chamadaPaginaBean.gerarBoleto()}" />
                                 </p:submenu>
                                 <p:submenu label="Relatório" icon="ui-icon-document" style="margin-right: 15px">  
                                     <p:menuitem value="Matrícula Turma"         action="#{chamadaPaginaBean.pagina('relatorioMatriculaEscola')}" actionListener="#{relatorioMatriculaEscolaBean.listener('matriculaTurma')}"/>
