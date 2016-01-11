@@ -104,7 +104,6 @@ public class ChamadaPaginaBean implements Serializable {
      * @throws java.io.IOException
      */
     public synchronized String pagina(String pagina) throws IOException {
-        DBExternal dBExternal = new DBExternal();
         GenericaSessao.remove(pagina + "Bean");
         String redirect = metodoGenerico(2, pagina);
         return redirect;

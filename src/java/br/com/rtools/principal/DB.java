@@ -79,13 +79,15 @@ public class DB {
             case "TecelagemRP":
                 configuracao.setCaminhoSistema(cliente);
                 configuracao.setPersistence(cliente);
-                configuracao.setHost("192.168.1.102");
+                //configuracao.setHost("192.168.1.102");
+                configuracao.setHost("192.168.1.100");
                 configuracao.setSenha("r#@tools");
                 break;
             case "Rtools":
                 configuracao.setCaminhoSistema(cliente);
                 configuracao.setPersistence(cliente);
-                configuracao.setHost("192.168.1.102");
+                //configuracao.setHost("192.168.1.102");
+                configuracao.setHost("192.168.1.100");
                 configuracao.setSenha("r#@tools");
                 break;
             case "ComercioLimeira":
@@ -123,7 +125,8 @@ public class DB {
 //                    configuracao.setSenha("989899");
                     // -- ATUAL
                     cliente = "ComercioRP";
-                    configuracao.setHost("192.168.1.102");
+                    //configuracao.setHost("192.168.1.102");
+                    configuracao.setHost("192.168.1.100");
                     configuracao.setSenha("r#@tools");
                 }   //            } else {
 //                if (cliente.equals("ServidoresRP")) {
