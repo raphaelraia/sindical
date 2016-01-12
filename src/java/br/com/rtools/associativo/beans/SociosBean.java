@@ -28,6 +28,7 @@ import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import static br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean.getCliente;
+import br.com.rtools.seguranca.utilitarios.SegurancaUtilitariosBean;
 import br.com.rtools.utilitarios.*;
 import br.com.rtools.utilitarios.db.FunctionsDao;
 import java.io.File;
@@ -2649,7 +2650,12 @@ public class SociosBean implements Serializable {
          COMENTEI TODO ESSE CÓDIGO PORQUE A PRINCIPIO NA MUDANÇA QUANDO SALVAR O SÓCIO ELE SEMPRE TERÁ CARTEIRINHA
          EM FASE DE TESTES 22/05/2014 QUINTA-FEIRA -- COMÉRCIO RP -- DEPOIS EXCLUIR COMENTÁRIO
          */
-
+        if (registro.isFotoCartao()) {
+            if (socios.getServicoPessoa().getPessoa().getFisica().getFoto() == null || socios.getServicoPessoa().getPessoa().getFisica().getFoto().isEmpty()) {
+                GenericaMensagem.warn("Validação", "Obrigatório foto do titular!");
+                return null;
+            }
+        }
         SocioCarteirinhaDB dbc = new SocioCarteirinhaDBToplink();
         ModeloCarteirinha modeloc = dbc.pesquisaModeloCarteirinha(socios.getMatriculaSocios().getCategoria().getId(), 170);
 
@@ -2705,13 +2711,18 @@ public class SociosBean implements Serializable {
 
             dao.commit();
         }
-
         List listaAux = dbc.filtroCartao(socios.getServicoPessoa().getPessoa().getId());
-
+        Boolean dependentesSemFotos = false;
         SociosDB db = new SociosDBToplink();
         if (registro.isCarteirinhaDependente() && !listDependentes.isEmpty()) {
             dao.openTransaction();
             for (ListaDependentes ld : listDependentes) {
+                if (registro.isFotoCartao()) {
+                    if (ld.getServicoPessoa().getPessoa().getFisica().getFoto() == null || ld.getServicoPessoa().getPessoa().getFisica().getFoto().isEmpty()) {
+                        dependentesSemFotos = true;
+                        break;
+                    }
+                }
                 Socios socioDependente = db.pesquisaSocioPorPessoaAtivo(ld.getFisica().getPessoa().getId());
                 SocioCarteirinha sc = dbc.pesquisaCarteirinhaPessoa(socioDependente.getServicoPessoa().getPessoa().getId(), modeloc.getId());
 
@@ -2745,6 +2756,9 @@ public class SociosBean implements Serializable {
             ImpressaoParaSocios.imprimirCarteirinha(listaAux);
         } else {
             GenericaMensagem.warn("Sistema", "Socio não tem carteirinha!");
+        }
+        if(dependentesSemFotos) {
+            GenericaMensagem.warn("Sistema", "Existem dependentes sem fotos!");
         }
 
 //        if (!comita) {
