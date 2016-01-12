@@ -57,18 +57,78 @@
                         <h:outputText value="Telemarketing" styleClass="fonteHeader" />
                         <div class="clear"></div>
                         <h:form id="form_telemarketing">
-                            <c:set scope="request" var="object" value="${atendimentoBean.ateMovimento}"/>
-                            <p:panel>
-                            </p:panel>
-                        </h:form>
-                    </p:panel>
-                </div>
+                            <c:set scope="request" var="object" value="${tmktHistoricoBean.historico}"/>
+                            <p:panel header="Data: #{tmktHistoricoBean.historico.dataLancamento} - Hora #{tmktHistoricoBean.historico.horaLancamento}">
+                                <h:panelGrid columns="2" cellpadding="3">
+                                    <p:commandButton value="Pessoa" icon="ui-icon-search" action="#{chamadaPaginaBean.pesquisa('pesquisaPessoa')}" title="Pesquisar pessoa" />
+                                    <p:column>
+                                        <p:outputLabel value="Pesquisar pessoa" style="border-bottom: 1px dotted #888;" rendered="#{tmktHistoricoBean.pessoa == null}" />
+                                        <p:outputLabel id="idNome" value="#{tmktHistoricoBean.pessoa.nome}" rendered="#{tmktHistoricoBean.pessoa != null}" />
+                                    </p:column>
+                                    <h:outputLabel value="Departamento:" />
+                                    <p:selectOneMenu value="#{tmktHistoricoBean.idDepartamento}" filter="true">
+                                        <p:ajax event="change" update="@this" />
+                                        <f:selectItems value="#{tmktHistoricoBean.listDepartamento}" />
+                                    </p:selectOneMenu>
+                                    <h:outputLabel value="Operador:" />
+                                    <h:outputLabel value="#{tmktHistoricoBean.historico.operador.pessoa.nome}" />
+                                    <h:outputLabel value="Natureza:" />
+                                    <p:selectOneMenu value="#{tmktHistoricoBean.idNatureza}" filter="true">
+                                        <p:ajax event="change" update="@this" />
+                                        <f:selectItems value="#{tmktHistoricoBean.listNatureza}" />
+                                    </p:selectOneMenu>
+                                    <h:outputLabel value="Contato:" />
+                                    <h:panelGrid columns="3">
+                                        <p:selectOneMenu value="#{tmktHistoricoBean.idContato}" filter="true">
+                                            <p:ajax event="change" update="@this" />
+                                            <f:selectItems value="#{tmktHistoricoBean.listContato}" />
+                                        </p:selectOneMenu>
+                                        <h:outputLabel value="Detalhes:" styleClass="margin-left-max"/>
+                                        <p:inputText value="#{tmktHistoricoBean.historico.contatoDescricao}" maxlength="100" size="50"/>
+                                </h:panelGrid>
+                            </h:panelGrid>
+                            <h:outputLabel value="Histórico" /><br />
+                            <p:inputTextarea placeholder="Histórico" value="#{tmktHistoricoBean.historico.historico}" maxlength="5000" cols="150" rows="10"/>
+                            <f:facet name="footer">
+                                <h:panelGrid columns="5">
+                                    <p:commandButton value="Salvar" disabled="#{controleAcessoBean.botaoSalvar}" onclick="PF('dlg_save').show()" type="button"  />
+                                    <p:commandButton value="Novo" action="#{tmktHistoricoBean.listener(1)}" update=":form_telemarketing:"/>
+                                    <p:commandButton value="Excluir" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('dlg_delete').show()" type="button"/>
+                                    <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pesquisa('pesquisaTelemarketing')}" />
+                                </h:panelGrid>
+                            </f:facet>
+                        </p:panel>
+                        <p:dialog widgetVar="dlg_save" modal="true" closable="true" width="300" header="Deseja salvar este registro?">
+                            <f:facet name="footer">
+                                <p:panelGrid columns="2" styleClass="sbb">
+                                    <p:commandButton value="Sim" title="Salvar" action="#{tmktHistoricoBean.save}" update="form_telemarketing"  oncomplete="PF('dlg_message').show(); PF('dlg_save').hide();" />
+                                    <p:commandButton value="Não" title="Cancelar" onclick="PF('dlg_save').hide()"/>
+                                </p:panelGrid>
+                            </f:facet>
+                        </p:dialog>
+                        <p:dialog widgetVar="dlg_delete" modal="true" width="300" closable="true" header="Deseja excluir este registro?">
+                            <f:facet name="footer">
+                                <p:panelGrid columns="2" styleClass="sbb">
+                                    <p:commandButton value="Sim" title="Excluir" action="#{tmktHistoricoBean.delete}" update="form_telemarketing" oncomplete="PF('dlg_message').show(); PF('dlg_delete').hide();"  />
+                                    <p:commandButton value="Não" title="Cancelar" onclick="PF('dlg_delete').hide()"/>
+                                </p:panelGrid>
+                            </f:facet> 
+                        </p:dialog>
+                        <p:dialog id="i_panel_mensagem" widgetVar="dlg_message" modal="true" width="300" header="Mensagem">
+                            <p:messages autoUpdate="true" showSummary="true" showDetail="true" />
+                            <f:facet name="footer">
+                                <p:commandButton value="Ok" title="Ok" oncomplete="PF('dlg_message').hide()"  />
+                            </f:facet>
+                        </p:dialog>                            
+                    </h:form>
+                </p:panel>
             </div>
-        </f:view>
-        <f:subview id="footer">
-            <div id="footerx">
-                <ui:include src="templates/templateFooter.xhtml"/>
-            </div>                
-        </f:subview>
-    </h:body>
+        </div>
+    </f:view>
+    <f:subview id="footer">
+        <div id="footerx">
+            <ui:include src="templates/templateFooter.xhtml"/>
+        </div>                
+    </f:subview>
+</h:body>
 </ui:composition>

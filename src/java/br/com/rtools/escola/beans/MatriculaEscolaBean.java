@@ -1013,7 +1013,7 @@ public class MatriculaEscolaBean implements Serializable {
                     return;
                 }
                 if(getServicoIndividual().isCursoRenovacao()) {
-                    servicoPessoa.setReferenciaValidade(null);
+                    servicoPessoa.setReferenciaValidade("");
                     matriculaIndividual.setDataTermino(null);
                 } else {
                     if (matriculaIndividual.getDataTermino() == null) {

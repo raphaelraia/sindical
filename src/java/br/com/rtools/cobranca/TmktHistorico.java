@@ -3,6 +3,7 @@ package br.com.rtools.cobranca;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.seguranca.Departamento;
 import br.com.rtools.seguranca.Usuario;
+import br.com.rtools.utilitarios.DataHoje;
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.*;
@@ -76,6 +77,22 @@ public class TmktHistorico implements Serializable {
 
     public void setLancamento(Date lancamento) {
         this.lancamento = lancamento;
+    }
+
+    public String getDataLancamento() {
+        return DataHoje.converteData(lancamento);
+    }
+
+    public void setDataLancamento(String dataLancamento) {
+        lancamento = DataHoje.converte(dataLancamento);
+    }
+
+    public String getHoraLancamento() {
+        return DataHoje.converteHora(lancamento);
+    }
+
+    public void setHoraLancamento(String horaLancamento) {
+        this.lancamento = DataHoje.converteDataHora(getDataLancamento(), horaLancamento);
     }
 
     public Pessoa getPessoa() {

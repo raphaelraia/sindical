@@ -1662,7 +1662,7 @@ public class SociosBean implements Serializable {
                 }
             }
         }
-        
+
         SociosDB db = new SociosDBToplink();
         if ((servicoPessoa.getId() == -1) && (db.pesquisaSocioPorPessoaAtivo(servicoPessoa.getPessoa().getId()).getId() != -1)) {
             GenericaMensagem.error("Erro", "Esta pessoa já um Sócio Cadastrado!");
@@ -1727,11 +1727,9 @@ public class SociosBean implements Serializable {
                 GenericaMensagem.warn("Validação", "O titular não pode ser dependente!");
                 return;
             }
-        } else {
-            if (matriculaSocios.getTitular().getId() == novoDependente.getPessoa().getId()) {
-                GenericaMensagem.warn("Validação", "O titular não pode ser dependente!");
-                return;
-            }
+        } else if (matriculaSocios.getTitular().getId() == novoDependente.getPessoa().getId()) {
+            GenericaMensagem.warn("Validação", "O titular não pode ser dependente!");
+            return;
         }
         if (!validaSalvarDependente()) {
             return;
@@ -1834,17 +1832,15 @@ public class SociosBean implements Serializable {
                     return false;
                 }
             }
+        } else if (novoDependente.getPessoa().getDocumento().isEmpty() || novoDependente.getPessoa().getDocumento().equals("0")) {
+            novoDependente.getPessoa().setDocumento("0");
         } else {
-            if (novoDependente.getPessoa().getDocumento().isEmpty() || novoDependente.getPessoa().getDocumento().equals("0")) {
-                novoDependente.getPessoa().setDocumento("0");
-            } else {
 
-                List listDocumento = db.pesquisaFisicaPorDoc(novoDependente.getPessoa().getDocumento());
-                for (Object listDocumento1 : listDocumento) {
-                    if (!listDocumento.isEmpty() && ((Fisica) listDocumento1).getId() != novoDependente.getId()) {
-                        GenericaMensagem.error("Erro", "Documento já existente!");
-                        return false;
-                    }
+            List listDocumento = db.pesquisaFisicaPorDoc(novoDependente.getPessoa().getDocumento());
+            for (Object listDocumento1 : listDocumento) {
+                if (!listDocumento.isEmpty() && ((Fisica) listDocumento1).getId() != novoDependente.getId()) {
+                    GenericaMensagem.error("Erro", "Documento já existente!");
+                    return false;
                 }
             }
         }
@@ -2376,6 +2372,9 @@ public class SociosBean implements Serializable {
                             + " - Parentesco: " + s.getParentesco().getParentesco()
                     );
                 }
+            }
+            if (listDependentesInativos.get(0).getValidadeDependente().isEmpty()) {
+                listDependentesInativos.get(0).setValidadeDependente(atualizaValidade(listDependentesInativos.get(0).getParentesco(), listDependentesInativos.get(0).getFisica()));
             }
             listDependentes.add(listDependentesInativos.get(index));
             listDependentesInativos.remove(index);
@@ -3148,12 +3147,10 @@ public class SociosBean implements Serializable {
     public String getStatusSocio() {
         if (socios.getId() == -1) {
             statusSocio = "STATUS";
+        } else if (matriculaSocios.getMotivoInativacao() != null) {
+            statusSocio = "INATIVO / " + matriculaSocios.getMotivoInativacao().getDescricao() + " - " + matriculaSocios.getInativo();
         } else {
-            if (matriculaSocios.getMotivoInativacao() != null) {
-                statusSocio = "INATIVO / " + matriculaSocios.getMotivoInativacao().getDescricao() + " - " + matriculaSocios.getInativo();
-            } else {
-                statusSocio = "ATIVO";
-            }
+            statusSocio = "ATIVO";
         }
         return statusSocio;
     }

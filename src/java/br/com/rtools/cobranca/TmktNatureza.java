@@ -5,6 +5,10 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "tlm_natureza")
+@NamedQueries({
+    @NamedQuery(name = "TmktNatureza.findAll", query = "SELECT N FROM TmktNatureza N ORDER BY N.descricao ASC "),
+    @NamedQuery(name = "TmktNatureza.findName", query = "SELECT N FROM TmktNatureza N WHERE UPPER(N.descricao) LIKE :pdescricao ORDER BY N.descricao ASC ")
+})
 public class TmktNatureza implements Serializable {
 
     @Id

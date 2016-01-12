@@ -800,6 +800,34 @@
                                             </h:panelGrid>
                                         </p:dialog>
                                     </p:tab>
+                                    <p:tab title="Telemarketing">
+                                        <p:dataTable value="#{fisicaBean.listTelemarketing}" var="telemarketing" emptyMessage="Nenhum registro encontrado!" scrollHeight="400" scrollable="true" styleClass="margin-top-max">
+                                            <p:column width="15">
+                                                <p:rowToggler />                                                
+                                            </p:column>
+                                            <p:column headerText="Lançamento" width="80" styleClass="text-center">
+                                                #{telemarketing.dataLancamento}
+                                            </p:column>
+                                            <p:column headerText="Hora" width="40" styleClass="text-center">
+                                                #{telemarketing.horaLancamento}
+                                            </p:column>
+                                            <p:column headerText="Natureza" width="120" styleClass="text-center">
+                                                #{telemarketing.natureza.descricao}
+                                            </p:column>
+                                            <p:column headerText="Contato" >
+                                                #{telemarketing.contato.descricao}
+                                            </p:column>
+                                            <p:column headerText="..." >
+                                                #{telemarketing.contatoDescricao}
+                                            </p:column>
+                                            <p:column headerText="Responsável" >
+                                                #{telemarketing.operador.pessoa.nome}
+                                            </p:column>
+                                            <p:rowExpansion>
+                                                Histórico: #{telemarketing.historico}                                                
+                                            </p:rowExpansion>
+                                        </p:dataTable>
+                                    </p:tab>  
                                 </p:tabView>
 
                                 <!-- ENDEREÇO -->
