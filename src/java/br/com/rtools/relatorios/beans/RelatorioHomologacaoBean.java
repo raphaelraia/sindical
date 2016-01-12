@@ -292,7 +292,9 @@ public class RelatorioHomologacaoBean implements Serializable {
             Map map = new HashMap();
             map.put("operador_header", operadorHeader);
             map.put("detalhes_relatorio", detalheRelatorio);
+            Jasper.TITLE = relatorios.getNome();
             Jasper.printReports(relatorios.getJasper(), relatorios.getNome(), (Collection) phs, map);
+            new Jasper();
         }
     }
 
