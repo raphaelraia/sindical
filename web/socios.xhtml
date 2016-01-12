@@ -516,12 +516,14 @@
                             </p:dialog>
 
                             <p:dialog widgetVar="dlg_imprimir_carteirinha" header="Imprimir Carteirinha" resizable="false" width="400" modal="true">
-                                <h:panelGrid columns="2">
-                                    <h:outputLabel value="Deseja realmente imprimir essa carteirinha?" /><br />
-                                </h:panelGrid>
+                                <h:outputLabel value="Deseja realmente imprimir essa carteirinha?" />
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Sim" type="submit" styleClass="ui-confirmdialog-yes" action="#{sociosBean.visualizarCarteirinha(false)}" icon="ui-icon-check" ajax="false"/>  
+                                        <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_imprimir_carteirinha').hide()" icon="ui-icon-close"/>                                        
+                                    </h:panelGrid>
+                                </f:facet>
 
-                                <p:commandButton value="Sim" type="submit" styleClass="ui-confirmdialog-yes" action="#{sociosBean.visualizarCarteirinha(false)}" style="clear: both; float: left" icon="ui-icon-check" ajax="false"/>  
-                                <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_imprimir_carteirinha').hide()" style="float: left" icon="ui-icon-close"/>       
                             </p:dialog>
 
                             <p:dialog header="Cadastrar ou Pesquisar um Dependente" widgetVar="dlg_dependente" modal="true" resizable="false" width="900" visible="#{sociosBean.modelVisible}">
