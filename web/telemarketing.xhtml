@@ -77,13 +77,13 @@
                                         <p:ajax event="change" update="@this" />
                                         <f:selectItems value="#{tmktHistoricoBean.listNatureza}" />
                                     </p:selectOneMenu>
-                                    <h:outputLabel value="Contato:" />
+                                    <h:outputLabel value="Tipo de Contato:" />
                                     <h:panelGrid columns="3">
                                         <p:selectOneMenu value="#{tmktHistoricoBean.idContato}" filter="true">
                                             <p:ajax event="change" update="@this" />
                                             <f:selectItems value="#{tmktHistoricoBean.listContato}" />
                                         </p:selectOneMenu>
-                                        <h:outputLabel value="Detalhes:" styleClass="margin-left-max"/>
+                                        <h:outputLabel value="Contato:" styleClass="margin-left-max"/>
                                         <p:inputText value="#{tmktHistoricoBean.historico.contatoDescricao}" maxlength="100" size="50"/>
                                 </h:panelGrid>
                             </h:panelGrid>

@@ -61,16 +61,7 @@
                 <f:view>
 
                     <f:metadata>
-                        <!--    <f:event type="preRenderView" listener="$ {uploadBean.load()}"/> -->
-                        <!--    <f:event type="preRenderView" listener="$ {photoCamBean.load()}"/> -->
-                        <!--    <f:event type="preRenderView" listener="$ {uploadBean.setRotinaNome('pessoaFisica')}"/> -->
-                        <!--    <f:event type="preRenderView" listener="$ {photoCamBean.setRotinaNome('pessoaFisica')}"/>-->
-                        <!--    <f:event type="preRenderView" listener="$ {uploadBean.setUPDATE(':form_pessoa_fisica:i_tabview_fisica:i_panel_imagens')}"/> -->
-                        <!--    <f:event type="preRenderView" listener="$ {photoCamBean.setUPDATE(':form_pessoa_fisica:i_tabview_fisica:i_panel_imagens')}"/> -->
                     </f:metadata>
-                    <!-- <ui:include src="templates/templateUpload.xhtml" /> -->
-                    <!-- <ui:include src="templates/templatePhotoCam.xhtml" /> -->
-
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:form id="form_pessoa_fisica">
                             <h:outputScript name="tradutor_primefaces.js" library="js" /> 
@@ -178,14 +169,21 @@
                                                     <p:column>
                                                         <p:outputLabel value="Telefone" /><br />
                                                         <p:inputMask mask="(99) 9999-9999" size="13" maxlength="10" value="#{fisicaBean.fisica.pessoa.telefone1}" style="margin-right: 30px">
-                                                            <p:ajax event="blur" update="@this" />
+                                                            <p:ajax event="change" update="@this" />
+                                                        </p:inputMask>
+                                                    </p:column>
+                                                    
+                                                    <p:column>
+                                                        <p:outputLabel value="Telefone 2" /><br />
+                                                        <p:inputMask mask="(99) 9999-9999" size="13" maxlength="10" value="#{fisicaBean.fisica.pessoa.telefone2}" style="margin-right: 30px">
+                                                            <p:ajax event="change" update="@this" />
                                                         </p:inputMask>
                                                     </p:column>
 
                                                     <p:column>
                                                         <p:outputLabel value="Celular" /><br />
                                                         <p:inputText size="14" maxlength="10" value="#{fisicaBean.fisica.pessoa.telefone3}" styleClass="ddd_telefone">
-                                                            <p:ajax event="blur" update="@this" />
+                                                            <p:ajax event="change" update="@this" />
                                                         </p:inputText>
                                                     </p:column>                                            
                                                 </h:panelGrid>

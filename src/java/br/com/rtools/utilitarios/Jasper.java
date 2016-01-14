@@ -247,11 +247,9 @@ public class Jasper implements Serializable {
                 return;
             }
             jasperName = jasperName.trim();
-        } else {
-            if (fileName.isEmpty() && !IS_QUERY_STRING) {
-                GenericaMensagem.info("Sistema", "Erro ao criar relatório!");
-                return;
-            }
+        } else if (fileName.isEmpty() && !IS_QUERY_STRING) {
+            GenericaMensagem.info("Sistema", "Erro ao criar relatório!");
+            return;
         }
         fileName = fileName.trim();
         fileName = fileName.replace(" ", "_");
@@ -303,20 +301,48 @@ public class Jasper implements Serializable {
                     break;
             }
             parameters.put("is_header", IS_HEADER);
-            parameters.put("sindicato_nome", juridica.getPessoa().getNome());
-            parameters.put("sindicato_documento", documentox);
-            parameters.put("sindicato_site", juridica.getPessoa().getSite());
-            parameters.put("sindicato_logradouro", juridica.getPessoa().getPessoaEndereco().getEndereco().getLogradouro().getDescricao());
-            parameters.put("sindicato_endereco", juridica.getPessoa().getPessoaEndereco().getEndereco().getDescricaoEndereco().getDescricao());
-            parameters.put("sindicato_numero", juridica.getPessoa().getPessoaEndereco().getNumero());
-            parameters.put("sindicato_complemento", juridica.getPessoa().getPessoaEndereco().getComplemento());
-            parameters.put("sindicato_bairro", juridica.getPessoa().getPessoaEndereco().getEndereco().getBairro().getDescricao());
-            parameters.put("sindicato_cidade", juridica.getPessoa().getPessoaEndereco().getEndereco().getCidade().getCidade());
-            parameters.put("sindicato_uf", juridica.getPessoa().getPessoaEndereco().getEndereco().getCidade().getUf());
-            parameters.put("sindicato_cep", juridica.getPessoa().getPessoaEndereco().getEndereco().getCep());
-            parameters.put("sindicato_telefone", juridica.getPessoa().getTelefone1());
-            parameters.put("sindicato_logo", ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));
-            parameters.put("sindicato_email", juridica.getPessoa().getEmail1());
+            if(parameters.get("sindicato_nome") == null) {
+                parameters.put("sindicato_nome", juridica.getPessoa().getNome());                
+            }
+            if(parameters.get("sindicato_documento") == null) {
+                parameters.put("sindicato_documento", documentox);
+            }
+            if(parameters.get("sindicato_site") == null) {
+                parameters.put("sindicato_site", juridica.getPessoa().getSite());
+            }
+            if(parameters.get("sindicato_logradouro") == null) {
+                parameters.put("sindicato_logradouro", juridica.getPessoa().getPessoaEndereco().getEndereco().getLogradouro().getDescricao());
+            }
+            if(parameters.get("sindicato_endereco") == null) {
+                parameters.put("sindicato_endereco", juridica.getPessoa().getPessoaEndereco().getEndereco().getDescricaoEndereco().getDescricao());                
+            }
+            if(parameters.get("sindicato_numero") == null) {
+                parameters.put("sindicato_numero", juridica.getPessoa().getPessoaEndereco().getNumero());                
+            }
+            if(parameters.get("sindicato_complemento") == null) {
+                parameters.put("sindicato_complemento", juridica.getPessoa().getPessoaEndereco().getComplemento());                
+            }
+            if(parameters.get("sindicato_bairro") == null) {
+                parameters.put("sindicato_bairro", juridica.getPessoa().getPessoaEndereco().getEndereco().getBairro().getDescricao());                
+            }
+            if(parameters.get("sindicato_cidade") == null) {
+                parameters.put("sindicato_cidade", juridica.getPessoa().getPessoaEndereco().getEndereco().getCidade().getCidade());                
+            }
+            if(parameters.get("sindicato_uf") == null) {
+                parameters.put("sindicato_uf", juridica.getPessoa().getPessoaEndereco().getEndereco().getCidade().getUf());                
+            }
+            if(parameters.get("sindicato_cep") == null) {
+                parameters.put("sindicato_cep", juridica.getPessoa().getPessoaEndereco().getEndereco().getCep());                
+            }
+            if(parameters.get("sindicato_telefone") == null) {
+                parameters.put("sindicato_telefone", juridica.getPessoa().getTelefone1());                
+            }
+            if(parameters.get("sindicato_logo") == null) {
+                parameters.put("sindicato_logo", ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));                
+            }
+            if(parameters.get("sindicato_logo") == null) {
+                parameters.put("sindicato_logo", juridica.getPessoa().getEmail1());                
+            }
 
             // CORREÇÃO
             // parameters.put("instituicao_nome", juridica.getPessoa().getNome());
@@ -518,7 +544,7 @@ public class Jasper implements Serializable {
                         } else if (EXPORT_TYPE.equals("html")) {
                             JasperExportManager.exportReportToHtmlFile(print, fileString);
                         } else if (EXPORT_TYPE.equals("text")) {
-                            mimeType = "text/plain";
+                           mimeType = "text/plain";
                             JRCsvDataSource dataSource = new JRCsvDataSource(JRLoader.getLocationInputStream(downloadName));
                             dataSource.setRecordDelimiter("\r\n");
                             dataSource.setUseFirstRowAsHeader(true);
