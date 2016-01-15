@@ -42,7 +42,8 @@ public class RelatorioCobrancaDao extends DB {
                     + "             P.bairro      AS pessoa_bairro,           \n" // 12
                     + "             P.numero      AS pessoa_numero,           \n" // 13
                     + "             P.complemento AS pessoa_complemento,      \n" // 14
-                    + "             P.cep         AS pessoa_cep               \n" // 15
+                    + "             P.cep         AS pessoa_cep,              \n" // 15
+                    + "             S.categoria   AS categoria                \n" // 16
                     + "        FROM (                                       \n"
                     + "               SELECT id_pessoa,                     \n"
                     + "                      extract(MONTH FROM dt_vencimento) AS mes,      \n"
@@ -76,7 +77,8 @@ public class RelatorioCobrancaDao extends DB {
                     + "            extract(MONTH FROM M.dt_vencimento),         \n"
                     + "            extract(YEAR FROM M.dt_vencimento)           \n"
                     + ") AS X                                                   \n"
-                    + " INNER JOIN pes_pessoa_vw AS P ON P.codigo = X.id_pessoa \n";
+                    + " INNER JOIN pes_pessoa_vw AS P ON P.codigo = X.id_pessoa \n"
+                    + "  LEFT JOIN soc_socios_vw AS S ON S.codsocio = X.id_pessoa \n";
             List listWhere = new ArrayList<>();
             // SÓCIOS / NÃO SÓCIOS / TODOS
             if (tipoSocio.equals("socios")) {
@@ -111,7 +113,8 @@ public class RelatorioCobrancaDao extends DB {
                     + "          P.bairro,      \n"
                     + "          P.numero,      \n"
                     + "          P.complemento, \n"
-                    + "          P.cep          \n";
+                    + "          P.cep,         \n"
+                    + "          S.categoria    \n";
             switch (tipoMesesDebito) {
                 case "apartir":
                     queryString += " HAVING COUNT(*) >= " + monthS;

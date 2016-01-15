@@ -1,6 +1,7 @@
 package br.com.rtools.principal;
 
 import br.com.rtools.sistema.Configuracao;
+import br.com.rtools.sistema.conf.DataBase;
 import br.com.rtools.utilitarios.GenericaRequisicao;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.GenericaString;
@@ -22,6 +23,14 @@ public class DB {
             if (!GenericaSessao.exists("conexao")) {
                 String cliente = (String) GenericaSessao.getString("sessaoCliente");
                 Configuracao configuracao = servidor(cliente.replace("/", ""));
+                DataBase dataBase = new DataBase();
+                dataBase.loadJson();
+                if (!dataBase.getHost().isEmpty()) {
+                    configuracao.setHost(dataBase.getHost());
+                }
+                if (!dataBase.getDatabase().isEmpty()) {
+                    configuracao.setPersistence(dataBase.getDatabase());
+                }
                 try {
                     Map properties = new HashMap();
                     properties.put(TopLinkProperties.CACHE_TYPE_DEFAULT, CacheType.SoftWeak);
@@ -96,7 +105,7 @@ public class DB {
                 configuracao.setPersistence(cliente);
                 // IP LOCAL: 192.168.0.201
                 // IP EXTERNO: 200.204.32.23
-                configuracao.setHost("192.168.0.201");
+                // configuracao.setHost("192.168.0.201");
                 configuracao.setSenha("r#@tools");
                 break;
             case "Sinecol":

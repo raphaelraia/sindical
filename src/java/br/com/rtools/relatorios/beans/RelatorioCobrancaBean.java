@@ -12,7 +12,6 @@ import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioCobrancaDao;
 import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.relatorios.dao.RelatorioOrdemDao;
-import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.SisProcesso;
@@ -22,7 +21,6 @@ import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.GenericaString;
 import br.com.rtools.utilitarios.Jasper;
-import static br.com.rtools.utilitarios.Jasper.EXPORT_TO;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -108,19 +106,19 @@ public class RelatorioCobrancaBean implements Serializable {
         Map map = new HashMap();
         FacesContext faces = FacesContext.getCurrentInstance();
         Pessoa p = (Pessoa) new Dao().find(new Pessoa(), 1);
-        map.put("sindicato_nome", p.getNome());                
+        map.put("sindicato_nome", p.getNome());
         map.put("sindicato_documento", p.getDocumento());
         map.put("sindicato_site", p.getSite());
         map.put("sindicato_logradouro", p.getPessoaEndereco().getEndereco().getLogradouro().getDescricao());
-        map.put("sindicato_endereco", p.getPessoaEndereco().getEndereco().getDescricaoEndereco().getDescricao());                
-        map.put("sindicato_numero", p.getPessoaEndereco().getNumero());                
-        map.put("sindicato_complemento", p.getPessoaEndereco().getComplemento());                
-        map.put("sindicato_bairro", p.getPessoaEndereco().getEndereco().getBairro().getDescricao());                
-        map.put("sindicato_cidade", p.getPessoaEndereco().getEndereco().getCidade().getCidade());                
-        map.put("sindicato_uf", p.getPessoaEndereco().getEndereco().getCidade().getUf());                
-        map.put("sindicato_cep", p.getPessoaEndereco().getEndereco().getCep());                
-        map.put("sindicato_telefone", p.getTelefone1());                
-        map.put("sindicato_logo", ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));                
+        map.put("sindicato_endereco", p.getPessoaEndereco().getEndereco().getDescricaoEndereco().getDescricao());
+        map.put("sindicato_numero", p.getPessoaEndereco().getNumero());
+        map.put("sindicato_complemento", p.getPessoaEndereco().getComplemento());
+        map.put("sindicato_bairro", p.getPessoaEndereco().getEndereco().getBairro().getDescricao());
+        map.put("sindicato_cidade", p.getPessoaEndereco().getEndereco().getCidade().getCidade());
+        map.put("sindicato_uf", p.getPessoaEndereco().getEndereco().getCidade().getUf());
+        map.put("sindicato_cep", p.getPessoaEndereco().getEndereco().getCep());
+        map.put("sindicato_telefone", p.getTelefone1());
+        map.put("sindicato_logo", ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));
         map.put("sindicato_email", p.getEmail1());
         String detalheRelatorio = "";
         List<Cobranca> cs = new ArrayList<>();
@@ -152,7 +150,7 @@ public class RelatorioCobrancaBean implements Serializable {
                 }
             } else {
                 cs.add(
-                        new Cobranca(o.get(0), o.get(1), o.get(2), o.get(3), o.get(4), o.get(5), o.get(6), o.get(7), o.get(8), o.get(9), o.get(10), o.get(11), o.get(12), o.get(13), o.get(14), o.get(15))
+                        new Cobranca(o.get(0), o.get(1), o.get(2), o.get(3), o.get(4), o.get(5), o.get(6), o.get(7), o.get(8), o.get(9), o.get(10), o.get(11), o.get(12), o.get(13), o.get(14), o.get(15), o.get(16))
                 );
             }
         }
@@ -183,7 +181,7 @@ public class RelatorioCobrancaBean implements Serializable {
             if (r != null) {
                 list = (List<Relatorios>) new RelatorioDao().pesquisaTipoRelatorio(r.getId());
             }
-            if(!list.isEmpty()) {
+            if (!list.isEmpty()) {
                 idRelatorio = list.get(0).getId();
             }
             for (int i = 0; i < list.size(); i++) {
@@ -566,8 +564,30 @@ public class RelatorioCobrancaBean implements Serializable {
         private Object pessoa_numero;
         private Object pessoa_complemento;
         private Object pessoa_cep;
+        private Object categoria;
 
-        public Cobranca(Object pessoa_id, Object pessoa_nome, Object pessoa_documento, Object pessoa_cidade, Object pessoa_uf, Object pessoa_telefone, Object pessoa_telefone2, Object pessoa_telefone3, Object valor, Object meses, Object pessoa_logradouro, Object pessoa_descricao_endereco, Object pessoa_bairro, Object pessoa_numero, Object pessoa_complemento, Object pessoa_cep) {
+        /**
+         * *
+         *
+         * @param pessoa_id
+         * @param pessoa_nome
+         * @param pessoa_documento
+         * @param pessoa_cidade
+         * @param pessoa_uf
+         * @param pessoa_telefone
+         * @param pessoa_telefone2
+         * @param pessoa_telefone3
+         * @param valor
+         * @param meses
+         * @param pessoa_logradouro
+         * @param pessoa_descricao_endereco
+         * @param pessoa_bairro
+         * @param pessoa_numero
+         * @param pessoa_complemento
+         * @param pessoa_cep
+         * @param categoria
+         */
+        public Cobranca(Object pessoa_id, Object pessoa_nome, Object pessoa_documento, Object pessoa_cidade, Object pessoa_uf, Object pessoa_telefone, Object pessoa_telefone2, Object pessoa_telefone3, Object valor, Object meses, Object pessoa_logradouro, Object pessoa_descricao_endereco, Object pessoa_bairro, Object pessoa_numero, Object pessoa_complemento, Object pessoa_cep, Object categoria) {
             this.pessoa_id = pessoa_id;
             this.pessoa_nome = pessoa_nome;
             this.pessoa_documento = pessoa_documento;
@@ -584,6 +604,7 @@ public class RelatorioCobrancaBean implements Serializable {
             this.pessoa_numero = pessoa_numero;
             this.pessoa_complemento = pessoa_complemento;
             this.pessoa_cep = pessoa_cep;
+            this.categoria = categoria;
         }
 
         public Object getPessoa_id() {
@@ -712,6 +733,14 @@ public class RelatorioCobrancaBean implements Serializable {
 
         public void setPessoa_cep(Object pessoa_cep) {
             this.pessoa_cep = pessoa_cep;
+        }
+
+        public Object getCategoria() {
+            return categoria;
+        }
+
+        public void setCategoria(Object categoria) {
+            this.categoria = categoria;
         }
 
     }
