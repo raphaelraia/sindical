@@ -42,7 +42,7 @@
         <properties>
         </properties>
     </persistence-unit>
-    <persistence-unit name="FederacaoBH">
+    <persistence-unit name="CondominiosRP">
         <provider>oracle.toplink.essentials.PersistenceProvider</provider>
         <exclude-unlisted-classes>false</exclude-unlisted-classes>
         <properties>

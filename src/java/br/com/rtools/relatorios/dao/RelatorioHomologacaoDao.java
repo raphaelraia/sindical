@@ -8,7 +8,20 @@ import javax.persistence.Query;
 
 public class RelatorioHomologacaoDao extends DB {
 
-    private String order = "";
+    private String order;
+    private Relatorios relatorios;
+
+    public RelatorioHomologacaoDao() {
+        this.order = "";
+        this.relatorios = new Relatorios();
+    }
+    
+    public RelatorioHomologacaoDao(Relatorios relatorios) {
+        this.order = "";
+        this.relatorios = relatorios;
+    }
+    
+    
 
     /* <ul>
      * <li> [00] - Data Inicial Ignorar) </li>
@@ -46,7 +59,7 @@ public class RelatorioHomologacaoDao extends DB {
      * @param idConvencao
      * @return 
      */
-    public List find(Relatorios relatorio, Integer empresa, Integer funcionario, String tipoUsuarioOperacional, Integer usuarioOperacional, Integer status, Integer filial, Integer tCase, String dateStart, String dateFinish, Integer motivoDemissao, Boolean tipoAviso, String tipoAgendador, String sexo, Boolean webAgendamento, Integer idConvencao) {
+    public List find(String inIdEmpresas, Integer funcionario, String tipoUsuarioOperacional, Integer usuarioOperacional, Integer status, Integer filial, Integer tCase, String dateStart, String dateFinish, Integer motivoDemissao, Boolean tipoAviso, String tipoAgendador, String sexo, Boolean webAgendamento, Integer idConvencao) {
         List listQuery = new ArrayList();
         String queryString = " -- RelatorioHomologacaoDao->find()                               \n"
                 + "     SELECT A.dt_data        AS data_inicial,                \n" /*  00 - Data Inicial                   */
@@ -91,7 +104,7 @@ public class RelatorioHomologacaoDao extends DB {
             queryString += " INNER JOIN arr_contribuintes_vw AS CONTR      ON CONTR.id_juridica   = J.id AND CONTR.dt_inativacao IS NULL \n";
         }
 
-        if (relatorio.getQry() == null || relatorio.getQry().isEmpty()) {
+        if (relatorios.getQry() == null || relatorios.getQry().isEmpty()) {
             if (tCase != null) {
                 if (tCase == 1) {
                     // DATA DE AGENDAMENTO ---------------
@@ -113,8 +126,8 @@ public class RelatorioHomologacaoDao extends DB {
                     }
                 }
             }
-            if (empresa != null) {
-                listQuery.add("J.id = " + empresa);
+            if (inIdEmpresas != null) {
+                listQuery.add("J.id IN ( " + inIdEmpresas + " )");
             }
             if (funcionario != null) {
                 listQuery.add("F.id = " + funcionario);
@@ -174,11 +187,11 @@ public class RelatorioHomologacaoDao extends DB {
                 queryString += " " + listQuery.get(i).toString() + " \n";
             }
         } else {
-            queryString += " WHERE" + relatorio.getQry() + " \n";
+            queryString += " WHERE" + relatorios.getQry() + " \n";
         }
 
         // ORDEM DA QRY
-        if (relatorio.getQryOrdem() == null || relatorio.getQryOrdem().isEmpty()) {
+        if (relatorios.getQryOrdem() == null || relatorios.getQryOrdem().isEmpty()) {
             if (!order.isEmpty()) {
                 switch (order) {
                     case "data":
@@ -196,7 +209,7 @@ public class RelatorioHomologacaoDao extends DB {
                 }
             }
         } else {
-            queryString += " ORDER BY" + relatorio.getQryOrdem();
+            queryString += " ORDER BY" + relatorios.getQryOrdem();
         }
 
         try {
@@ -218,5 +231,13 @@ public class RelatorioHomologacaoDao extends DB {
 
     public void setOrder(String order) {
         this.order = order;
+    }
+
+    public Relatorios getRelatorios() {
+        return relatorios;
+    }
+
+    public void setRelatorios(Relatorios relatorios) {
+        this.relatorios = relatorios;
     }
 }

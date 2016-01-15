@@ -70,6 +70,12 @@
                                 <p:column rendered="#{relatorioHomologacaoBean.listFilters[2].active}">
                                     <h:column>
                                         <h:panelGrid columns="4">
+                                            <p:outputLabel value="Status:" />
+                                            <p:selectCheckboxMenu label="Selecionar status" value="#{relatorioCobrancaBean.selectedGrupoFinanceiro}" filter="true" filterMatchMode="startsWith">
+                                                <p:ajax event="toggleSelect" global="false" update=":form_relatorio:id_subgrupo_financeiro :form_relatorio:id_servicos" listener="#{relatorioCobrancaBean.listener(1)}"/>
+                                                <p:ajax event="change" global="false" update=":form_relatorio:id_subgrupo_financeiro :form_relatorio:id_servicos" listener="#{relatorioCobrancaBean.listener(1)}"/>
+                                                <f:selectItems value="#{relatorioCobrancaBean.listGrupoFinanceiro}" />
+                                            </p:selectCheckboxMenu>                                            
                                             <p:outputLabel value="Status: " />
                                             <p:selectOneMenu label="Selecionar status" value="#{relatorioHomologacaoBean.index[2]}">
                                                 <p:ajax event="change" update="@this i_panel_relatorios" listener="#{relatorioHomologacaoBean.loadRelatoriosStatus}"/>
@@ -83,8 +89,9 @@
                                     <h:panelGrid columns="2">
                                         <p:commandButton action="#{chamadaPaginaBean.pesquisa('pesquisaPessoaJuridica')}" icon="ui-icon-search" value="Pesquisar Empresa" />
                                         <h:column>
-                                            <h:panelGrid columns="2">
+                                            <h:panelGrid columns="3">
                                                 <p:outputLabel value="#{relatorioHomologacaoBean.empresa.pessoa.nome}" />
+                                                <p:commandButton icon="ui-icon-plus" action="#{relatorioHomologacaoBean.add('empresa')}" title="Adicionar empresa"/>
                                                 <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close(relatorioHomologacaoBean.listFilters[3])}" title="Remover listFilters"/>
                                             </h:panelGrid>
                                         </h:column>

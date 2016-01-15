@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.PostConstruct;
@@ -33,9 +34,7 @@ import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.model.SelectItem;
-import org.primefaces.component.accordionpanel.AccordionPanel;
 import org.primefaces.event.SelectEvent;
-import org.primefaces.event.TabChangeEvent;
 
 @ManagedBean
 @SessionScoped
@@ -43,6 +42,7 @@ public class RelatorioHomologacaoBean implements Serializable {
 
     private Fisica funcionario;
     private Juridica empresa;
+    private List<Juridica> listEmpresa;
     private Usuario operador;
     private List<SelectItem>[] listSelectItem;
     private List<Filters> listFilters;
@@ -63,6 +63,9 @@ public class RelatorioHomologacaoBean implements Serializable {
     private Boolean printHeader;
     private Boolean webAgendamento;
 
+    private Map<String, Integer> listStatus;
+    private List selectedStatus;
+
     @PostConstruct
     public void init() {
         listSelectItem = new ArrayList[6];
@@ -72,6 +75,7 @@ public class RelatorioHomologacaoBean implements Serializable {
         listSelectItem[3] = new ArrayList<>();
         listSelectItem[4] = new ArrayList<>();
         listSelectItem[5] = new ArrayList<>(); // CONVENCAO
+        listEmpresa = new ArrayList<>(); // EMPRESA
         dataInicial = DataHoje.dataHoje();
         dataFinal = DataHoje.dataHoje();
         dataDemissaoInicial = DataHoje.dataHoje();
@@ -129,16 +133,14 @@ public class RelatorioHomologacaoBean implements Serializable {
         listSelectItem[0] = new ArrayList();
         RelatorioDao db = new RelatorioDao();
         List<Relatorios> list = (List<Relatorios>) db.pesquisaTipoRelatorio(new Rotina().get().getId());
-        getListStatus();
+        loadListStatus();
         for (int i = 0; i < list.size(); i++) {
             if (Integer.parseInt(listSelectItem[2].get(index[2]).getDescription()) == 3) {
                 if (list.get(i).getId().equals(65)) {
                     listSelectItem[0].add(new SelectItem(list.get(i).getId(), list.get(i).getNome()));
                 }
-            } else {
-                if (!list.get(i).getId().equals(65)) {
-                    listSelectItem[0].add(new SelectItem(list.get(i).getId(), list.get(i).getNome()));
-                }
+            } else if (!list.get(i).getId().equals(65)) {
+                listSelectItem[0].add(new SelectItem(list.get(i).getId(), list.get(i).getNome()));
             }
         }
         if (listSelectItem[0].isEmpty()) {
@@ -164,7 +166,7 @@ public class RelatorioHomologacaoBean implements Serializable {
             return;
         }
         String detalheRelatorio = "";
-        Integer idEmpresa = null;
+        String idEmpresa = null;
         Integer idFuncionario = null;
         Integer idUsuarioOperacional = null;
         Integer idFilial = null;
@@ -202,9 +204,20 @@ public class RelatorioHomologacaoBean implements Serializable {
             }
             listDetalhePesquisa.add("Sexo: " + sexoString + "");
         }
-        if (empresa.getId() != -1) {
-            idEmpresa = empresa.getId();
-            listDetalhePesquisa.add("Empresa: " + empresa.getPessoa().getDocumento() + " - " + empresa.getPessoa().getNome());
+        if (listEmpresa.isEmpty() && empresa.getId() != -1) {
+            idEmpresa = "" + empresa.getId();
+            if (empresa.getId() != -1) {
+                listDetalhePesquisa.add("Empresa: " + empresa.getPessoa().getDocumento() + " - " + empresa.getPessoa().getNome());
+            }
+        } else if (!listEmpresa.isEmpty()) {
+            for (int i = 0; i < listEmpresa.size(); i++) {
+                if (i == 0) {
+                    idEmpresa += "" + listEmpresa.get(i).getId();
+                } else {
+                    idEmpresa += "," + listEmpresa.get(i).getId();
+                }
+                listDetalhePesquisa.add("Empresa: " + listEmpresa.get(i).getPessoa().getDocumento() + " - " + listEmpresa.get(i).getPessoa().getNome() + "; ");
+            }
         }
         if (funcionario.getId() != -1) {
             idFuncionario = funcionario.getId();
@@ -254,7 +267,8 @@ public class RelatorioHomologacaoBean implements Serializable {
         } else if (tipoUsuarioOperacional.equals("id_agendador")) {
             operadorHeader = "AGENDADOR";
         }
-        List list = relatorioHomologacaoDao.find(relatorios, idEmpresa, idFuncionario, tipoUsuarioOperacional, idUsuarioOperacional, idStatus, idFilial, tCase, pIStringI, pFStringI, idMotivoDemissao, tipoAviso, tipoAgendador, sexo, webAgendamento, idConvencao);
+        relatorioHomologacaoDao.setRelatorios(relatorios);
+        List list = relatorioHomologacaoDao.find(idEmpresa, idFuncionario, tipoUsuarioOperacional, idUsuarioOperacional, idStatus, idFilial, tCase, pIStringI, pFStringI, idMotivoDemissao, tipoAviso, tipoAgendador, sexo, webAgendamento, idConvencao);
         if (list.isEmpty()) {
             GenericaMensagem.info("Sistema", "Não existem registros para o relatório selecionado");
             return;
@@ -323,6 +337,10 @@ public class RelatorioHomologacaoBean implements Serializable {
         }
     }
 
+    public void add() {
+        listEmpresa.add(empresa);
+    }
+
     public void clear() {
         if (!listFilters.get(0).getActive()) {
             listSelectItem[1] = new ArrayList();
@@ -341,11 +359,11 @@ public class RelatorioHomologacaoBean implements Serializable {
             listFilters.get(9).setActive(false);
         }
         if (!listFilters.get(2).getActive()) {
-            listSelectItem[2] = new ArrayList();
-            index[2] = null;
+            loadListStatus();
         }
         if (!listFilters.get(3).getActive()) {
             empresa = new Juridica();
+            listEmpresa.clear();
         }
         if (!listFilters.get(4).getActive()) {
             funcionario = new Fisica();
@@ -406,11 +424,11 @@ public class RelatorioHomologacaoBean implements Serializable {
                 PF.update("form_relatorio:i_panel_accordion:i_panel_avancado");
                 break;
             case "status":
-                listSelectItem[2] = new ArrayList();
-                index[2] = null;
+                loadListStatus();
                 break;
             case "empresa":
                 empresa = new Juridica();
+                listEmpresa.clear();
                 break;
             case "funcionario":
                 funcionario = new Fisica();
@@ -576,20 +594,14 @@ public class RelatorioHomologacaoBean implements Serializable {
         return listSelectItem[5];
     }
 
-    public List<SelectItem> getListStatus() {
-        if (listSelectItem[2].isEmpty()) {
-            DaoInterface di = new Dao();
-            List<Status> list = (List<Status>) di.list(new Status(), true);
-            for (int i = 0; i < list.size(); i++) {
-                if (i == 0) {
-                    index[2] = i;
-                }
-                listSelectItem[2].add(new SelectItem(i,
-                        list.get(i).getDescricao(),
-                        Integer.toString(list.get(i).getId())));
-            }
+    public void loadListStatus() {
+        listStatus = new LinkedHashMap<>();
+        selectedStatus = new ArrayList();
+        Dao dao = new Dao();
+        List<Status> list = (List<Status>) dao.list(new Status(), true);
+        for (int i = 0; i < list.size(); i++) {
+            listStatus.put(list.get(i).getDescricao(), list.get(i).getId());
         }
-        return listSelectItem[2];
     }
 
     public List<SelectItem> getListMotivoDemissao() {
@@ -658,11 +670,11 @@ public class RelatorioHomologacaoBean implements Serializable {
             if (tipoUsuarioOperacional != null && tipoUsuarioOperacional.equals("id_homologador")) {
                 if (!listFilters.get(2).getActive()) {
                     listFilters.get(2).setActive(true);
-                    getListStatus();
-                    for (int i = 0; i < listSelectItem[2].size(); i++) {
-                        if (Integer.parseInt(listSelectItem[2].get(i).getDescription()) == 4) {
-                            index[2] = i;
-                            break;
+                    loadListStatus();
+                    for (Map.Entry<String, Integer> entry : listStatus.entrySet()) {
+                        if(entry.getValue() == 4) {
+                            selectedStatus.add(entry.getValue());
+                            break;                            
                         }
                     }
                 }
@@ -676,6 +688,26 @@ public class RelatorioHomologacaoBean implements Serializable {
 
     public void setListFilters(List<Filters> listFilters) {
         this.listFilters = listFilters;
+    }
+
+    public List<Juridica> getListEmpresa() {
+        return listEmpresa;
+    }
+
+    public void setListEmpresa(List<Juridica> listEmpresa) {
+        this.listEmpresa = listEmpresa;
+    }
+
+    public void setListStatus(Map<String, Integer> listStatus) {
+        this.listStatus = listStatus;
+    }
+
+    public List getSelectedStatus() {
+        return selectedStatus;
+    }
+
+    public void setSelectedStatus(List selectedStatus) {
+        this.selectedStatus = selectedStatus;
     }
 
     public class ParametroHomologacao {

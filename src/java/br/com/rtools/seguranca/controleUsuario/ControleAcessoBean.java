@@ -300,7 +300,7 @@ public class ControleAcessoBean implements Serializable {
                 PermissaoUsuarioDao db = new PermissaoUsuarioDao();
                 Permissao permissao;
                 idModulo = modulo.getId();
-                if (id == -1) {
+                if (id == null || id == -1) {
                     if (modulo.getId() != -1) {
                         idEvento = 1;
                     } else {
