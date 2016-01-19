@@ -4,32 +4,44 @@ import br.com.rtools.principal.DB;
 import br.com.rtools.relatorios.Relatorios;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javax.persistence.Query;
 
 public class RelatorioMatriculaEscolaDao extends DB {
 
-    private String order = "";
+    private String order;
+    private Relatorios relatorios;
+
+    public RelatorioMatriculaEscolaDao() {
+        this.order = "";
+        this.relatorios = new Relatorios();
+    }
+
+    public RelatorioMatriculaEscolaDao(String order, Relatorios relatorios) {
+        this.order = order;
+        this.relatorios = relatorios;
+    }
 
     /**
      *
-     * @param relatorios
      * @param filial
      * @param periodoMatricula
      * @param periodo
-     * @param nascimento
+     * @param tipoIdade
+     * @param idade
      * @param horario
      * @param midia
      * @param status
      * @param vendedor
      * @param tipoMatricula
-     * @param idTurmaOuCurso
+     * @param inIdTurmaOuCurso
      * @param aluno
      * @param professor
      * @param responsavel
      * @param sexo
      * @return
      */
-    public List find(Relatorios relatorios, Integer filial, String periodoMatricula[], String periodo[], String nascimento[], Integer status, Integer midia, Integer professor, Integer vendedor, Boolean tipoMatricula, Integer idTurmaOuCurso, Integer aluno, String sexo, Integer responsavel, String horario[]) {
+    public List find(Integer filial, String periodoMatricula[], String periodo[], String tipoIdade, Integer idade[], Integer status, Integer midia, Integer professor, Integer vendedor, Boolean tipoMatricula, String inIdTurmaOuCurso, Integer aluno, String sexo, Integer responsavel, String horario[]) {
         String asString = "";
         String joinString = "";
         List listQuery = new ArrayList();
@@ -40,7 +52,7 @@ public class RelatorioMatriculaEscolaDao extends DB {
                 joinString += " INNER JOIN esc_matr_turma AS MT ON MT.id_matr_escola = ME.id \n";
                 joinString += " INNER JOIN esc_turma AS T ON T.id = MT.id_turma \n";
                 joinString += " INNER JOIN fin_servicos AS S ON S.id = T.id_curso \n";
-                if (idTurmaOuCurso == null) {
+                if (inIdTurmaOuCurso == null) {
                     if (periodo[1].isEmpty()) {
                         if (!periodo[0].isEmpty()) {
                             listQuery.add("T.dt_inicio = '" + periodo[0] + "'");
@@ -56,7 +68,9 @@ public class RelatorioMatriculaEscolaDao extends DB {
                         listQuery.add("T.tm_inicio  >= '" + horario[0] + "' AND T.tm_termino <= '" + horario[1] + "'");
                     }
                 } else {
-                    listQuery.add("T.id = " + idTurmaOuCurso);
+                    if(!inIdTurmaOuCurso.isEmpty()) {
+                        listQuery.add("T.id IN (" + inIdTurmaOuCurso + ")");                        
+                    }
                 }
             } else {
                 asString += " MI.dt_inicio, ";
@@ -64,8 +78,8 @@ public class RelatorioMatriculaEscolaDao extends DB {
                 joinString += " INNER JOIN esc_matr_individual AS MI ON MI.id_matr_escola = ME.id \n";
                 joinString += " INNER JOIN fin_servicos AS S ON S.id = MI.id_curso \n";
                 joinString += " LEFT JOIN esc_professor AS PROF ON PROF.id = MI.id_professor \n";
-                if (idTurmaOuCurso != null) {
-                    listQuery.add("MI.id_curso = " + idTurmaOuCurso);
+                if (inIdTurmaOuCurso != null) {
+                    listQuery.add("MI.id_curso IN (" + inIdTurmaOuCurso + ")");
                 }
                 if (vendedor != null) {
                     listQuery.add("MI.id_professor = " + professor);
@@ -88,12 +102,13 @@ public class RelatorioMatriculaEscolaDao extends DB {
             String queryString;
             queryString = " -- RelatorioMatriculaEscolaDao->find()                                                 \n"
                     + "      SELECT P.ds_nome,                                                                     \n" // 0  - NOME
-                    + "             F.dt_nascimento,                                                               \n" // 1  - NASCIMENTO
+                    + "             func_idade(F.dt_nascimento, current_date) AS idade,                            \n" // 1  - IDADE
                     + "             F.ds_sexo,                                                                     \n" // 2  - SEXO
                     + "             ST.ds_descricao,                                                               \n" // 3  - MATRÍCULA STATUS
                     + "             S.ds_descricao,                                                                \n" // 4  - SERVIÇO
                     + "         " + asString // 5 INICIO - 6 TÉRMINO
-                    + "             SVW.categoria                                                                  \n" // 7 - CATEGORIA DE SÓCIOS
+                    + "             SVW.categoria,                                                                 \n" // 7 - CATEGORIA DE SÓCIOS
+                    + "             ME.dt_status                                                                   \n" // 8 - DATA STATUS
                     + "        FROM matr_escola AS ME                                                              \n"
                     + "  INNER JOIN fin_servico_pessoa      AS SP   ON SP.id = ME.id_servico_pessoa                \n"
                     + "  INNER JOIN pes_fisica              AS F    ON F.id_pessoa   = SP.id_pessoa                \n"
@@ -113,12 +128,25 @@ public class RelatorioMatriculaEscolaDao extends DB {
             } else {
                 listQuery.add("RM.dt_emissao BETWEEN '" + periodoMatricula[0] + "' AND '" + periodoMatricula[1] + "'");
             }
-            if (nascimento[1].isEmpty()) {
-                if (!nascimento[0].isEmpty()) {
-                    listQuery.add("F.dt_nascimento = '" + nascimento[0] + "'");
+            if (idade[0] != null || idade[1] != null) {
+                switch (tipoIdade) {
+                    case "igual":
+                        listQuery.add("func_idade(F.dt_nascimento, current_date) = " + idade[0] + "");
+                        break;
+                    case "apartir":
+                        listQuery.add("func_idade(F.dt_nascimento, current_date) >= " + idade[0] + "");
+                        break;
+                    case "ate":
+                        listQuery.add("func_idade(F.dt_nascimento, current_date) <= " + idade[0] + "");
+                        break;
+                    case "faixa":
+                        if (idade[1] > idade[0]) {
+                            listQuery.add("func_idade(F.dt_nascimento, current_date) BETWEEN " + idade[0] + " AND " + idade[1] + "");
+                        } else {
+                            listQuery.add("func_idade(F.dt_nascimento, current_date) = " + idade[0] + "");
+                        }
+                        break;
                 }
-            } else {
-                listQuery.add("F.dt_nascimento BETWEEN '" + nascimento[0] + "' AND '" + nascimento[1] + "'");
             }
             if (status != null) {
                 listQuery.add("ME.id_status = " + status);
@@ -148,12 +176,10 @@ public class RelatorioMatriculaEscolaDao extends DB {
             }
             if (!relatorios.getQryOrdem().isEmpty()) {
                 queryString += " ORDER BY " + relatorios.getQry();
+            } else if (order.isEmpty()) {
+                queryString += " ORDER BY P.ds_nome ASC";
             } else {
-                if (order.isEmpty()) {
-                    queryString += " ORDER BY P.ds_nome ASC";
-                } else {
-                    queryString += " ORDER BY " + order;
-                }
+                queryString += " ORDER BY " + order;
             }
             Query query = getEntityManager().createNativeQuery(queryString);
             List list = query.getResultList();
@@ -172,6 +198,14 @@ public class RelatorioMatriculaEscolaDao extends DB {
 
     public void setOrder(String order) {
         this.order = order;
+    }
+
+    public Relatorios getRelatorios() {
+        return relatorios;
+    }
+
+    public void setRelatorios(Relatorios relatorios) {
+        this.relatorios = relatorios;
     }
 
 }

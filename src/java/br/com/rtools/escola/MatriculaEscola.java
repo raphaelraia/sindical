@@ -1,10 +1,10 @@
 package br.com.rtools.escola;
 
 import br.com.rtools.associativo.Midia;
-import br.com.rtools.financeiro.Evt;
 import br.com.rtools.financeiro.ServicoPessoa;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.utilitarios.DataHoje;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.persistence.*;
@@ -12,13 +12,12 @@ import org.primefaces.event.SelectEvent;
 
 @Entity
 @Table(name = "matr_escola")
-@NamedQuery(name = "MatriculaEscola.pesquisaID", query = "SELECT MAE FROM MatriculaEscola MAE WHERE MAE.id = :pid")
-public class MatriculaEscola implements java.io.Serializable {
+public class MatriculaEscola implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
     @JoinColumn(name = "id_status", referencedColumnName = "id")
     @ManyToOne
     private EscStatus escStatus;
@@ -43,6 +42,9 @@ public class MatriculaEscola implements java.io.Serializable {
     @Column(name = "dt_cartao")
     private Date dtCartao;
 
+    @Transient
+    private Boolean selected;
+
     public MatriculaEscola() {
         id = -1;
         escStatus = new EscStatus();
@@ -53,9 +55,10 @@ public class MatriculaEscola implements java.io.Serializable {
         filial = new Filial();
         servicoPessoa = new ServicoPessoa();
         dtCartao = null;
+        selected = false;
     }
 
-    public MatriculaEscola(int id, EscStatus escStatus, Vendedor vendedor, Midia midia, String obs, Date status, Filial filial, ServicoPessoa servicoPessoa, Date dtCartao) {
+    public MatriculaEscola(Integer id, EscStatus escStatus, Vendedor vendedor, Midia midia, String obs, Date status, Filial filial, ServicoPessoa servicoPessoa, Date dtCartao) {
         this.id = id;
         this.escStatus = escStatus;
         this.vendedor = vendedor;
@@ -67,11 +70,11 @@ public class MatriculaEscola implements java.io.Serializable {
         this.dtCartao = dtCartao;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -153,6 +156,19 @@ public class MatriculaEscola implements java.io.Serializable {
     }
 
     @Override
+    public String toString() {
+        return "MatriculaEscola{" + "id=" + id + ", escStatus=" + escStatus + ", vendedor=" + vendedor + ", midia=" + midia + ", obs=" + obs + ", status=" + status + ", filial=" + filial + ", servicoPessoa=" + servicoPessoa + ", dtCartao=" + dtCartao + '}';
+    }
+
+    public Boolean getSelected() {
+        return selected;
+    }
+
+    public void setSelected(Boolean selected) {
+        this.selected = selected;
+    }
+
+    @Override
     public int hashCode() {
         int hash = 3;
         return hash;
@@ -168,11 +184,6 @@ public class MatriculaEscola implements java.io.Serializable {
         }
         final MatriculaEscola other = (MatriculaEscola) obj;
         return true;
-    }
-
-    @Override
-    public String toString() {
-        return "MatriculaEscola{" + "id=" + id + ", escStatus=" + escStatus + ", vendedor=" + vendedor + ", midia=" + midia + ", obs=" + obs + ", status=" + status + ", filial=" + filial + ", servicoPessoa=" + servicoPessoa + ", dtCartao=" + dtCartao + '}';
     }
 
 }

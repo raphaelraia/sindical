@@ -21,7 +21,7 @@
                     <p:panel styleClass="fundoCinza">
                         <h:panelGrid  cellpadding="5" columns="2">
                             <p:outputLabel value="Tipo de Relatório: " />
-                            <p:selectOneMenu id="id_tipo_relatorio" value="#{relatorioMatriculaEscolaBean.index[0]}" style="padding-right: 10px;">
+                            <p:selectOneMenu id="id_tipo_relatorio" value="#{relatorioMatriculaEscolaBean.index[0]}">
                                 <p:ajax event="change" update="@this" global="false"/>
                                 <f:selectItems value="#{relatorioMatriculaEscolaBean.listTipoRelatorios}"/>
                             </p:selectOneMenu>
@@ -46,7 +46,7 @@
                                             <p:selectBooleanButton value="#{relatorioMatriculaEscolaBean.filtro[2]}" onLabel="Período" offLabel="Período" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;">
                                                 <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio" listener="#{relatorioMatriculaEscolaBean.clear}" />
                                             </p:selectBooleanButton>
-                                            <p:selectBooleanButton value="#{relatorioMatriculaEscolaBean.filtro[3]}" onLabel="Nascimento" offLabel="Nascimento" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;" >
+                                            <p:selectBooleanButton value="#{relatorioMatriculaEscolaBean.filtro[3]}" onLabel="Idade" offLabel="Idade" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;" >
                                                 <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio" listener="#{relatorioMatriculaEscolaBean.clear}" />
                                             </p:selectBooleanButton>
                                             <p:selectBooleanButton value="#{relatorioMatriculaEscolaBean.filtro[4]}" onLabel="Status" offLabel="Status" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;">
@@ -130,16 +130,24 @@
                                     </p:panel>
                                 </p:column>
                                 <p:column rendered="#{relatorioMatriculaEscolaBean.filtro[3]}">
-                                    <p:panel header="Data nascimento">
-                                        <h:panelGrid columns="5">
-                                            <p:calendar value="#{relatorioMatriculaEscolaBean.dataNascimentoInicial}" pattern="dd/MM/yyyy" size="10" navigator="true" mask="99/99/9999">
-                                                <p:ajax event="dateSelect" listener="#{relatorioMatriculaEscolaBean.selecionaNascimentoInicial}" />
-                                            </p:calendar>
-                                            <p:outputLabel value=" até" />
-                                            <p:calendar value="#{relatorioMatriculaEscolaBean.dataNascimentoFinal}" pattern="dd/MM/yyyy"  size="10" navigator="true" mask="99/99/9999">
-                                                <p:ajax event="dateSelect" listener="#{relatorioMatriculaEscolaBean.selecionaNascimentoFinal}" />
-                                            </p:calendar>
-                                            <p:commandButton icon="ui-icon-close" action="#{relatorioMatriculaEscolaBean.close('nascimento')}" title="Remover filtro"/>
+                                    <p:panel header="Idade">
+                                        <h:panelGrid columns="6" id="id_faixa_idade">
+                                            <p:selectOneMenu label="Idade" value="#{relatorioMatriculaEscolaBean.tipoIdade}">
+                                                <p:ajax event="change" update="@this id_faixa_idade" />
+                                                <f:selectItem itemValue="todos" itemLabel="Todos" />
+                                                <f:selectItem itemValue="igual" itemLabel="Igual" />
+                                                <f:selectItem itemValue="apartir" itemLabel="A partir" />
+                                                <f:selectItem itemValue="ate" itemLabel="Até" />
+                                                <f:selectItem itemValue="faixa" itemLabel="Faixa" />
+                                            </p:selectOneMenu>                                            
+                                            <p:inputText value="#{relatorioMatriculaEscolaBean.idadeInicialString}" converter="#{thisNumber}" size="2" styleClass="text-center" rendered="#{relatorioMatriculaEscolaBean.tipoIdade ne 'todos'}">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputText >
+                                            <p:outputLabel value=" até " rendered="#{relatorioMatriculaEscolaBean.tipoIdade eq 'faixa'}"/>
+                                            <p:inputText value="#{relatorioMatriculaEscolaBean.idadeFinalString}" converter="#{thisNumber}" size="2" styleClass="text-center" rendered="#{relatorioMatriculaEscolaBean.tipoIdade eq 'faixa'}">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputText>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioMatriculaEscolaBean.close('idade')}" title="Remover filtro"/>
                                         </h:panelGrid>
                                     </p:panel>
                                 </p:column>
@@ -228,14 +236,29 @@
                                     </h:panelGrid>
                                 </p:column>
                                 <p:column rendered="#{relatorioMatriculaEscolaBean.filtro[12]}">
-                                    <h:panelGrid columns="2">
+                                    <h:panelGrid columns="3">
                                         <p:commandButton action="#{chamadaPaginaBean.pesquisa('pesquisaTurma')}" icon="ui-icon-search" value="Pesquisar Turma" />
                                         <h:column>
                                             <h:panelGrid columns="2">
                                                 <p:outputLabel value="#{relatorioMatriculaEscolaBean.turma.cursos.descricao}" />
-                                                <p:commandButton icon="ui-icon-close" action="#{relatorioMatriculaEscolaBean.close('turma')}" title="Remover filtro"/>
+                                                <p:commandButton action="#{relatorioMatriculaEscolaBean.add('turma')}" icon="ui-icon-plus"  update=":form_relatorio:" title="Adicionar turma"/>
                                             </h:panelGrid>
                                         </h:column>
+                                        <p:commandButton icon="ui-icon-close" action="#{relatorioMatriculaEscolaBean.close('turma')}" title="Remover filtro"/>
+                                    </h:panelGrid>
+                                    <h:panelGrid id="i_turma_list">
+                                        <p:dataTable value="#{relatorioMatriculaEscolaBean.listTurma}" var="turma" emptyMessage="Nenhum registro encontrado!">
+                                            <p:column width="25">
+                                                <p:selectBooleanCheckbox value="#{turma.selected}">
+                                                    <p:ajax event="change" update="@this"/>
+                                                </p:selectBooleanCheckbox> 
+                                            </p:column>
+                                            <p:column headerText="Descrição">#{turma.descricao}</p:column>
+                                            <p:column headerText="Turma (Serviço)">#{turma.cursos.descricao}</p:column>
+                                            <p:column width="25">
+                                                <p:commandButton action="#{relatorioMatriculaEscolaBean.remove('turma', turma)}" icon="ui-icon-close" update=":form_relatorio:i_turma_list"/>
+                                            </p:column>
+                                        </p:dataTable>                                        
                                     </h:panelGrid>
                                 </p:column>                                
                                 <p:column rendered="#{relatorioMatriculaEscolaBean.filtro[13]}">

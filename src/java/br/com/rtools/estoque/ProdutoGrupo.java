@@ -2,6 +2,7 @@ package br.com.rtools.estoque;
 
 import br.com.rtools.utilitarios.BaseEntity;
 import java.io.Serializable;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -23,7 +24,7 @@ public class ProdutoGrupo implements BaseEntity, Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
     @Column(name = "ds_descricao", length = 100, nullable = false, unique = true)
     private String descricao;
 
@@ -32,17 +33,17 @@ public class ProdutoGrupo implements BaseEntity, Serializable {
         this.descricao = "";
     }
 
-    public ProdutoGrupo(int id, String descricao) {
+    public ProdutoGrupo(Integer id, String descricao) {
         this.id = id;
         this.descricao = descricao;
     }
 
     @Override
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -71,7 +72,7 @@ public class ProdutoGrupo implements BaseEntity, Serializable {
             return false;
         }
         final ProdutoGrupo other = (ProdutoGrupo) obj;
-        if (this.id != other.id) {
+        if (!Objects.equals(this.id, other.id)) {
             return false;
         }
         if ((this.descricao == null) ? (other.descricao != null) : !this.descricao.equals(other.descricao)) {

@@ -627,8 +627,8 @@
                                     <h:outputText value="#{juridicaBean.juridica.pessoa.nome}" style="font-weight: bold"/>
                                 </h:panelGrid>
 
-                                <p:panel styleClass="fundoCinza" rendered="#{juridicaBean.listaPessoaEmpresa.size() > 0}">
-                                    <p:outputLabel value="Atenção empresa com sócios vinculados, eles serão demissionados automaticamente!" style="color: red"/>
+                                <p:panel styleClass="fundoCinza" rendered="#{not empty juridicaBean.listaPessoaEmpresa and not empty juridicaBean.listSocios}">
+                                    <p:outputLabel value="Atenção empresa com sócios vinculados, eles serão demissionados automaticamente!" style="color: red" />
                                 </p:panel>
 
                                 <h:panelGrid columns="3">

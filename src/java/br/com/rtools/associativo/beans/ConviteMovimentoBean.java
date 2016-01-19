@@ -684,8 +684,12 @@ public class ConviteMovimentoBean implements Serializable {
                     String d = conviteMovimento.getSisPessoa().getDocumento();
 
                     // LIMPA SE NÃO ENCONTROU O DOCUMENTO
-                    conviteMovimento.setSisPessoa(new SisPessoa());
-                    conviteMovimento.getSisPessoa().setDocumento(d);
+                    if(!conviteMovimento.getSisPessoa().getNome().isEmpty() || !conviteMovimento.getSisPessoa().getRg().isEmpty() || !conviteMovimento.getSisPessoa().getNascimento().isEmpty()) {
+                        
+                    } else {
+                        conviteMovimento.setSisPessoa(new SisPessoa());
+                    }
+                    conviteMovimento.getSisPessoa().setDocumento(d);                        
                 }
             }
         }

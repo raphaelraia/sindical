@@ -9,7 +9,6 @@ import br.com.rtools.associativo.lista.ListaSociosEmpresa;
 import br.com.rtools.cobranca.TmktHistorico;
 import br.com.rtools.cobranca.dao.TmktHistoricoDao;
 import br.com.rtools.digitalizacao.Documento;
-import br.com.rtools.digitalizacao.beans.DigitalizacaoBean;
 import br.com.rtools.digitalizacao.dao.DigitalizacaoDao;
 import br.com.rtools.endereco.Endereco;
 import br.com.rtools.logSistema.NovoLog;
@@ -39,8 +38,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -964,7 +961,7 @@ public class JuridicaBean implements Serializable {
 //            }
 //        }
         existeOposicaoEmpresa();
-        getListSocios();
+        loadListSocios();
         loadMalaDireta();
         if (indicaTab == 6) {
             loadListaDocumentos();
@@ -2616,41 +2613,41 @@ public class JuridicaBean implements Serializable {
     }
 
     public List<ListaSociosEmpresa> getListSocios() {
-        if (listSocios.isEmpty()) {
-            if (juridica.getId() != -1) {
-                SociosDao sociosDao = new SociosDao();
-                List list = sociosDao.pesquisaSocioPorEmpresa(juridica.getId());
-                for (int i = 0; i < list.size(); i++) {
-                    Integer matricula = Integer.parseInt(AnaliseString.converteNullString(((List) list.get(i)).get(1)));
-                    Date filiacao = null;
-                    if (!((List) list.get(i)).get(3).toString().isEmpty()) {
-                        filiacao = (Date) ((List) list.get(i)).get(3);
-                    }
-                    Date admissao = null;
-                    if (!AnaliseString.converteNullString(((List) list.get(i)).get(4)).isEmpty()) {
-                        admissao = (Date) ((List) list.get(i)).get(4);
-                    }
-                    Boolean desconto_folha = false;
-                    if (!AnaliseString.converteNullString(((List) list.get(i)).get(5)).isEmpty()) {
-                        desconto_folha = (Boolean) ((List) list.get(i)).get(5);
-                    }
-                    listSocios.add(
-                            new ListaSociosEmpresa(
-                                    AnaliseString.converteNullString(((List) list.get(i)).get(0)),
-                                    matricula,
-                                    AnaliseString.converteNullString(((List) list.get(i)).get(2)),
-                                    filiacao,
-                                    admissao,
-                                    desconto_folha
-                            ));
-                }
-            }
-        }
         return listSocios;
     }
 
     public void setListSocios(List<ListaSociosEmpresa> listSocios) {
         this.listSocios = listSocios;
+    }
+
+    public void loadListSocios() {
+        listSocios = new ArrayList<>();
+        SociosDao sociosDao = new SociosDao();
+        List list = sociosDao.pesquisaSocioPorEmpresa(juridica.getPessoa().getId());
+        for (int i = 0; i < list.size(); i++) {
+            Integer matricula = Integer.parseInt(AnaliseString.converteNullString(((List) list.get(i)).get(1)));
+            Date filiacao = null;
+            if (!((List) list.get(i)).get(3).toString().isEmpty()) {
+                filiacao = (Date) ((List) list.get(i)).get(3);
+            }
+            Date admissao = null;
+            if (!AnaliseString.converteNullString(((List) list.get(i)).get(4)).isEmpty()) {
+                admissao = (Date) ((List) list.get(i)).get(4);
+            }
+            Boolean desconto_folha = false;
+            if (!AnaliseString.converteNullString(((List) list.get(i)).get(5)).isEmpty()) {
+                desconto_folha = (Boolean) ((List) list.get(i)).get(5);
+            }
+            listSocios.add(
+                    new ListaSociosEmpresa(
+                            AnaliseString.converteNullString(((List) list.get(i)).get(0)),
+                            matricula,
+                            AnaliseString.converteNullString(((List) list.get(i)).get(2)),
+                            filiacao,
+                            admissao,
+                            desconto_folha
+                    ));
+        }
     }
 
     public ConfiguracaoCnpj getConfiguracaoCnpj() {

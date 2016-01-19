@@ -11,11 +11,11 @@ public class Prioridade implements BaseEntity, Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
     @Column(name = "ds_descricao", length = 30)
     private String descricao;
 
-    public Prioridade(int id, String descricao) {
+    public Prioridade(Integer id, String descricao) {
         this.id = id;
         this.descricao = descricao;
     }
@@ -26,11 +26,11 @@ public class Prioridade implements BaseEntity, Serializable {
     }
 
     @Override
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

@@ -116,6 +116,7 @@
                                             <p:selectOneMenu label="Meses" value="#{relatorioCobrancaBean.tipoMesesDebito}" filter="true" filterMatchMode="startsWith">
                                                 <p:ajax event="change" global="false" update="@this i_panel_md"/>
                                                 <f:selectItem itemValue="todos" itemLabel="Todos" />
+                                                <f:selectItem itemValue="igual" itemLabel="A partir" />
                                                 <f:selectItem itemValue="apartir" itemLabel="A partir" />
                                                 <f:selectItem itemValue="ate" itemLabel="Até" />
                                                 <f:selectItem itemValue="faixa" itemLabel="Faixa" />

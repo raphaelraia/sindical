@@ -799,12 +799,18 @@ public class SimplesBean implements Serializable {
                     }
                     Dao dao = new Dao();
                     int maxResults = 500;
-                    if (desc.length() == 1) {
-                        maxResults = 100;
-                    } else if (desc.length() == 2) {
-                        maxResults = 150;
-                    } else if (desc.length() == 3) {
-                        maxResults = 200;
+                    switch (desc.length()) {
+                        case 1:
+                            maxResults = 100;
+                            break;
+                        case 2:
+                            maxResults = 150;
+                            break;
+                        case 3:
+                            maxResults = 200;
+                            break;
+                        default:
+                            break;
                     }
 
                     String queryString = "";

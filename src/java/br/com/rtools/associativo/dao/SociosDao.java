@@ -122,17 +122,17 @@ public class SociosDao extends DB {
     public List pesquisaSocioPorEmpresa(Integer idJuridica) {
         try {
             String queryString = ""
-                    + "     SELECT S.nome           AS nome,                    " // 0 - NOME
-                    + "            S.matricula      AS matricula,               " // 1 - MATRÍCULA
-                    + "            S.categoria      As categoria,               " // 2 - CATEGORIA
-                    + "            S.filiacao       As filiacao,                " // 3 - FILIAÇÃO
-                    + "            P.admissao       AS admissao,                " // 4 - ADMISSÃO
-                    + "            S.desconto_folha AS desconto_folha           " // 5 - DESCONTO FOLHA
-                    + "       FROM soc_socios_vw AS S                           "
-                    + " INNER JOIN pes_pessoa_vw AS P ON P.codigo = S.codsocio  "
-                    + "      WHERE P.e_id_pessoa = ?                            ";
+                    + "     SELECT S.nome           AS nome,                    \n" // 0 - NOME
+                    + "            S.matricula      AS matricula,               \n" // 1 - MATRÍCULA
+                    + "            S.categoria      As categoria,               \n" // 2 - CATEGORIA
+                    + "            S.filiacao       As filiacao,                \n" // 3 - FILIAÇÃO
+                    + "            P.admissao       AS admissao,                \n" // 4 - ADMISSÃO
+                    + "            S.desconto_folha AS desconto_folha           \n" // 5 - DESCONTO FOLHA
+                    + "       FROM soc_socios_vw AS S                           \n"
+                    + " INNER JOIN pes_pessoa_vw AS P ON P.codigo = S.codsocio  \n"
+                    + "      WHERE P.e_id_pessoa = " + idJuridica + "                            \n";
+
             Query query = getEntityManager().createNativeQuery(queryString);
-            query.setParameter("1", idJuridica);
             List list = query.getResultList();
             if (!list.isEmpty()) {
                 return list;
@@ -283,6 +283,7 @@ public class SociosDao extends DB {
     public Boolean existMatriculaAtivaAtivacaoDesordenada() {
         return !listMatriculaAtivaAtivacaoDesordenada(false, 1).isEmpty();
     }
+
     /*
      * Traz uma lista Matrícula Ativa com id_servico_pessoa menor que último.
      * Mensagem: Constam a mesma pessoa mais de uma vez na mesma matrícula
@@ -292,6 +293,7 @@ public class SociosDao extends DB {
     public List listMatriculaAtivaAtivacaoDesordenada() {
         return listMatriculaAtivaAtivacaoDesordenada(true, null);
     }
+
     /*
      * Matrícula Ativa com id_servico_pessoa menor que último, favor entrar em contato com nosso suporte técnico.
      * @return

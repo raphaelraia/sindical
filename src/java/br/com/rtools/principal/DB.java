@@ -31,6 +31,9 @@ public class DB {
                 if (!dataBase.getDatabase().isEmpty()) {
                     configuracao.setPersistence(dataBase.getDatabase());
                 }
+                if (!dataBase.getPassword().isEmpty()) {
+                    configuracao.setSenha(dataBase.getPassword());
+                }
                 try {
                     Map properties = new HashMap();
                     properties.put(TopLinkProperties.CACHE_TYPE_DEFAULT, CacheType.SoftWeak);

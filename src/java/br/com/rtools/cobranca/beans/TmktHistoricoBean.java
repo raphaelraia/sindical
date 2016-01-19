@@ -159,10 +159,12 @@ public class TmktHistoricoBean implements Serializable {
     public void delete() {
         if (new Dao().delete(historico, true)) {
             historico = new TmktHistorico();
+            historico.setOperador(Usuario.getUsuario());
             idDepartamento = 1;
             idNatureza = 1;
             idContato = 1;
             listHistorico.clear();
+            pessoa = new Pessoa();
             GenericaMensagem.info("Sucesso", "Registro removido");
         } else {
             GenericaMensagem.warn("Erro", "Ao remover registro!");

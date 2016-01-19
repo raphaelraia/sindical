@@ -15,21 +15,24 @@ public class DataBase {
 
     private String host;
     private String database;
+    private String password;
 
     public DataBase() {
         this.host = "";
         this.database = "";
+        this.password = "";
     }
 
-    public DataBase(String host, String database) {
+    public DataBase(String host, String database, String password) {
         this.host = host;
         this.database = database;
+        this.password = password;
     }
 
     public void loadJson() {
         FacesContext faces = FacesContext.getCurrentInstance();
         try {
-            File file = new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/resources/" + ControleUsuarioBean.getCliente().toLowerCase() + "/conf/database.json"));
+            File file = new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/conf/database.json"));
             if (!file.exists()) {
                 return;
             }
@@ -47,6 +50,11 @@ public class DataBase {
             }
             try {
                 database = jSONObject.getString("database");
+            } catch (Exception e) {
+
+            }
+            try {
+                password = jSONObject.getString("password");
             } catch (Exception e) {
 
             }
@@ -69,5 +77,13 @@ public class DataBase {
 
     public void setDatabase(String database) {
         this.database = database;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

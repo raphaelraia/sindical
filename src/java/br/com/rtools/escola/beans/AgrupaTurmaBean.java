@@ -110,7 +110,7 @@ public class AgrupaTurmaBean implements Serializable {
         boolean turmaIntegral;
         if (!list.isEmpty()) {
             for (int i = 0; i < list.size(); i++) {
-                if (list.get(i).getTurmaIntegral() != null && list.get(i).getTurma().getId() == list.get(i).getTurmaIntegral().getId()) {
+                if (list.get(i).getTurmaIntegral() != null && Objects.equals(list.get(i).getTurma().getId(), list.get(i).getTurmaIntegral().getId())) {
                     turmaIntegral = true;
                 } else {
                     turmaIntegral = false;
@@ -157,7 +157,7 @@ public class AgrupaTurmaBean implements Serializable {
                     GenericaMensagem.warn("Validação", "Não é possível agrupar esta turma, não pertence a mesma sala!");
                     return;
                 }
-                if (itensAgrupados.get(i).getAgrupaTurma().getTurma().getId() == agrupaTurma.getTurma().getId()) {
+                if (Objects.equals(itensAgrupados.get(i).getAgrupaTurma().getTurma().getId(), agrupaTurma.getTurma().getId())) {
                     GenericaMensagem.warn("Validação", "Não pode existir duas turmas para o mesmo grupo!");
                     return;
                 }
@@ -188,7 +188,7 @@ public class AgrupaTurmaBean implements Serializable {
             itensAgrupados.get(i).setIsIntegral(false);
         }
         for (int i = 0; i < itensAgrupados.size(); i++) {
-            if (itensAgrupados.get(i).getAgrupaTurma().getTurma().getId() == lat.getAgrupaTurma().getTurma().getId()) {
+            if (Objects.equals(itensAgrupados.get(i).getAgrupaTurma().getTurma().getId(), lat.getAgrupaTurma().getTurma().getId())) {
                 itensAgrupados.get(i).setIsIntegral(true);
             }
             itensAgrupados.get(i).getAgrupaTurma().setTurmaIntegral(lat.getAgrupaTurma().getTurma());
@@ -199,8 +199,8 @@ public class AgrupaTurmaBean implements Serializable {
         boolean grupoIntegral = false;
         if (lat.getAgrupaTurma().getId() == -1) {
             for (int i = 0; i < itensAgrupados.size(); i++) {
-                if (itensAgrupados.get(i).getAgrupaTurma().getTurma().getId() == lat.getAgrupaTurma().getTurma().getId()) {
-                    if (itensAgrupados.get(i).getAgrupaTurma().getTurmaIntegral().getId() == lat.getAgrupaTurma().getTurma().getId()) {
+                if (Objects.equals(itensAgrupados.get(i).getAgrupaTurma().getTurma().getId(), lat.getAgrupaTurma().getTurma().getId())) {
+                    if (Objects.equals(itensAgrupados.get(i).getAgrupaTurma().getTurmaIntegral().getId(), lat.getAgrupaTurma().getTurma().getId())) {
                         grupoIntegral = true;
                     }
                     itensAgrupados.remove(i);
@@ -216,12 +216,10 @@ public class AgrupaTurmaBean implements Serializable {
                     grupoIntegral = false;
                 }
             }
-        } else {
-            if(new Dao().delete(lat.getAgrupaTurma(), true)) {
-                for (int i = 0; i < itensAgrupados.size(); i++) {
-                    if(itensAgrupados.get(i).getAgrupaTurma().getId() == lat.getAgrupaTurma().getId()) {
-                        itensAgrupados.remove(i);
-                    }
+        } else if (new Dao().delete(lat.getAgrupaTurma(), true)) {
+            for (int i = 0; i < itensAgrupados.size(); i++) {
+                if (itensAgrupados.get(i).getAgrupaTurma().getId() == lat.getAgrupaTurma().getId()) {
+                    itensAgrupados.remove(i);
                 }
             }
         }

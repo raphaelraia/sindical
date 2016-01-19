@@ -15,7 +15,7 @@ public class MatriculaIndividual implements java.io.Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
     @JoinColumn(name = "id_matr_escola", referencedColumnName = "id")
     @ManyToOne
     private MatriculaEscola matriculaEscola;
@@ -36,19 +36,19 @@ public class MatriculaIndividual implements java.io.Serializable {
     @ManyToOne
     private Professor professor;
     @Column(name = "is_seg", columnDefinition = "boolean default false")
-    private boolean segunda;
+    private Boolean segunda;
     @Column(name = "is_ter", columnDefinition = "boolean default false")
-    private boolean terca;
+    private Boolean terca;
     @Column(name = "is_qua", columnDefinition = "boolean default false")
-    private boolean quarta;
+    private Boolean quarta;
     @Column(name = "is_qui", columnDefinition = "boolean default false")
-    private boolean quinta;
+    private Boolean quinta;
     @Column(name = "is_sex", columnDefinition = "boolean default false")
-    private boolean sexta;
+    private Boolean sexta;
     @Column(name = "is_sab", columnDefinition = "boolean default false")
-    private boolean sabado;
+    private Boolean sabado;
     @Column(name = "is_dom", columnDefinition = "boolean default false")
-    private boolean domingo;
+    private Boolean domingo;
 
     public MatriculaIndividual() {
         id = -1;
@@ -68,7 +68,7 @@ public class MatriculaIndividual implements java.io.Serializable {
         domingo = false;
     }
 
-    public MatriculaIndividual(int id, MatriculaEscola matriculaEscola, Servicos curso, Date dataInicio, Date dataTermino, String inicio, String termino, Professor professor, boolean segunda, boolean terca, boolean quarta, boolean quinta, boolean sexta, boolean sabado, boolean domingo) {
+    public MatriculaIndividual(Integer id, MatriculaEscola matriculaEscola, Servicos curso, Date dataInicio, Date dataTermino, String inicio, String termino, Professor professor, Boolean segunda, Boolean terca, Boolean quarta, Boolean quinta, Boolean sexta, Boolean sabado, Boolean domingo) {
         this.id = id;
         this.matriculaEscola = matriculaEscola;
         this.curso = curso;
@@ -86,11 +86,11 @@ public class MatriculaIndividual implements java.io.Serializable {
         this.domingo = domingo;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -150,62 +150,6 @@ public class MatriculaIndividual implements java.io.Serializable {
         this.professor = professor;
     }
 
-    public boolean isSegunda() {
-        return segunda;
-    }
-
-    public void setSegunda(boolean segunda) {
-        this.segunda = segunda;
-    }
-
-    public boolean isTerca() {
-        return terca;
-    }
-
-    public void setTerca(boolean terca) {
-        this.terca = terca;
-    }
-
-    public boolean isQuarta() {
-        return quarta;
-    }
-
-    public void setQuarta(boolean quarta) {
-        this.quarta = quarta;
-    }
-
-    public boolean isQuinta() {
-        return quinta;
-    }
-
-    public void setQuinta(boolean quinta) {
-        this.quinta = quinta;
-    }
-
-    public boolean isSexta() {
-        return sexta;
-    }
-
-    public void setSexta(boolean sexta) {
-        this.sexta = sexta;
-    }
-
-    public boolean isSabado() {
-        return sabado;
-    }
-
-    public void setSabado(boolean sabado) {
-        this.sabado = sabado;
-    }
-
-    public boolean isDomingo() {
-        return domingo;
-    }
-
-    public void setDomingo(boolean domingo) {
-        this.domingo = domingo;
-    }
-
     public void setDataInicioString(String dataInicio) {
         this.dataInicio = DataHoje.converte(dataInicio);
     }
@@ -230,5 +174,61 @@ public class MatriculaIndividual implements java.io.Serializable {
     public void listenerTermino(SelectEvent event) {
         SimpleDateFormat format = new SimpleDateFormat("d/M/yyyy");
         this.dataTermino = DataHoje.converte(format.format(event.getObject()));
+    }
+
+    public Boolean getSegunda() {
+        return segunda;
+    }
+
+    public void setSegunda(Boolean segunda) {
+        this.segunda = segunda;
+    }
+
+    public Boolean getTerca() {
+        return terca;
+    }
+
+    public void setTerca(Boolean terca) {
+        this.terca = terca;
+    }
+
+    public Boolean getQuarta() {
+        return quarta;
+    }
+
+    public void setQuarta(Boolean quarta) {
+        this.quarta = quarta;
+    }
+
+    public Boolean getQuinta() {
+        return quinta;
+    }
+
+    public void setQuinta(Boolean quinta) {
+        this.quinta = quinta;
+    }
+
+    public Boolean getSexta() {
+        return sexta;
+    }
+
+    public void setSexta(Boolean sexta) {
+        this.sexta = sexta;
+    }
+
+    public Boolean getSabado() {
+        return sabado;
+    }
+
+    public void setSabado(Boolean sabado) {
+        this.sabado = sabado;
+    }
+
+    public Boolean getDomingo() {
+        return domingo;
+    }
+
+    public void setDomingo(Boolean domingo) {
+        this.domingo = domingo;
     }
 }

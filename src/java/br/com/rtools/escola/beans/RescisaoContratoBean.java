@@ -37,6 +37,7 @@ import br.com.rtools.utilitarios.db.FunctionsDao;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -669,7 +670,7 @@ public class RescisaoContratoBean implements Serializable {
                             if (i == 0) {
                                 filial_id = i;
                             }
-                            if (f.getId() == list.get(i).getFilial().getId()) {
+                            if (Objects.equals(f.getId(), list.get(i).getFilial().getId())) {
                                 filial_id = i;
                             }
                             listFiliais.add(new SelectItem(i, list.get(i).getFilial().getFilial().getPessoa().getNome(), "" + list.get(i).getFilial().getId()));

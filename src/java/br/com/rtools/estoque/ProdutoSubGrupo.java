@@ -29,7 +29,7 @@ public class ProdutoSubGrupo implements BaseEntity, Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
     @JoinColumn(name = "id_grupo", referencedColumnName = "id", nullable = false)
     @OneToOne
     private ProdutoGrupo produtoGrupo;
@@ -42,18 +42,18 @@ public class ProdutoSubGrupo implements BaseEntity, Serializable {
         this.descricao = "";
     }
 
-    public ProdutoSubGrupo(int id, ProdutoGrupo produtoGrupo, String descricao) {
+    public ProdutoSubGrupo(Integer id, ProdutoGrupo produtoGrupo, String descricao) {
         this.produtoGrupo = produtoGrupo;
         this.id = id;
         this.descricao = descricao;
     }
 
     @Override
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

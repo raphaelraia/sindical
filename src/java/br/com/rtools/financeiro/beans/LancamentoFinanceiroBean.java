@@ -36,6 +36,7 @@ import br.com.rtools.utilitarios.ValidaDocumentos;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
@@ -480,7 +481,7 @@ public class LancamentoFinanceiroBean implements Serializable {
 
         // FILIAL --
         for (int i = 0; i < listaFilial.size(); i++) {
-            if (Integer.valueOf(listaFilial.get(i).getDescription()) == lote.getFilial().getId()) {
+            if (Objects.equals(Integer.valueOf(listaFilial.get(i).getDescription()), lote.getFilial().getId())) {
                 idFilial = i;
             }
         }

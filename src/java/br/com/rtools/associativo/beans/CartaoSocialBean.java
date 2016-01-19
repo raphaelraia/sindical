@@ -40,6 +40,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Vector;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
@@ -777,7 +778,7 @@ public class CartaoSocialBean implements Serializable {
             j = 1;
             for (int i = 0; i < list.size(); i++) {
                 if (disabled) {
-                    if (list.get(i).getId() == mf.getFilial().getId()) {
+                    if (Objects.equals(list.get(i).getId(), mf.getFilial().getId())) {
                         idFilial = j;
                     }
                 }

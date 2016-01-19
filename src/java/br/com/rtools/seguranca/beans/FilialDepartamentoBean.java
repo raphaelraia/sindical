@@ -8,6 +8,7 @@ import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -45,7 +46,7 @@ public class FilialDepartamentoBean {
 
     public void clear(int ctype) {
         if (ctype == 1) {
-            listDepartamentos.clear();            
+            listDepartamentos.clear();
         } else if (ctype == 2) {
             departamento = new Departamento();
             listDepartamentos.clear();
@@ -89,13 +90,13 @@ public class FilialDepartamentoBean {
             return;
         }
         for (FilialDepartamento fd : listFilialDepartamentos) {
-            if (fd.getFilial().getId() == filial.getId() && fd.getDepartamento().getId() == departamento.getId()) {
+            if (Objects.equals(fd.getFilial().getId(), filial.getId()) && Objects.equals(fd.getDepartamento().getId(), departamento.getId())) {
                 GenericaMensagem.warn("Validação", "Item já adicionado a lista!");
                 return;
             }
         }
         for (int i = 0; i < listDepartamentos.size(); i++) {
-            if (departamento.getId() == listDepartamentos.get(i).getId()) {
+            if (Objects.equals(departamento.getId(), listDepartamentos.get(i).getId())) {
                 listDepartamentos.remove(i);
                 break;
             }

@@ -8,6 +8,7 @@ import br.com.rtools.utilitarios.GenericaSessao;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -69,7 +70,7 @@ public class ConfiguracaoArrecadacaoBean implements Serializable {
         if (listaFilial.isEmpty()) {
             List<Filial> list = new Dao().list(new Filial(), true);
             for (int i = 0; i < list.size(); i++) {
-                if (list.get(i).getId() == configuracaoArrecadacao.getFilial().getId()) {
+                if (Objects.equals(list.get(i).getId(), configuracaoArrecadacao.getFilial().getId())) {
                     setIdFilial((Integer) i);
                 }
                 listaFilial.add(new SelectItem(i, list.get(i).getFilial().getPessoa().getNome(), "" + list.get(i).getId()));

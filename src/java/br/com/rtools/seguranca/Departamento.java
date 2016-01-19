@@ -2,6 +2,7 @@ package br.com.rtools.seguranca;
 
 import br.com.rtools.utilitarios.BaseEntity;
 import java.io.Serializable;
+import java.util.Objects;
 import javax.persistence.*;
 
 @Entity
@@ -11,12 +12,12 @@ import javax.persistence.*;
     @NamedQuery(name = "Departamento.findAll", query = "SELECT DEP FROM Departamento DEP ORDER BY DEP.descricao ASC "),
     @NamedQuery(name = "Departamento.findName", query = "SELECT DEP FROM Departamento DEP WHERE UPPER(DEP.descricao) LIKE :pdescricao ORDER BY DEP.descricao ASC ")
 })
-public class Departamento implements BaseEntity, Serializable {
+public class Departamento implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
     @Column(name = "ds_descricao", length = 50, nullable = false)
     private String descricao;
 
@@ -25,17 +26,16 @@ public class Departamento implements BaseEntity, Serializable {
         this.descricao = "";
     }
 
-    public Departamento(int id, String descricao) {
+    public Departamento(Integer id, String descricao) {
         this.id = id;
         this.descricao = descricao;
     }
 
-    @Override
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -64,7 +64,7 @@ public class Departamento implements BaseEntity, Serializable {
             return false;
         }
         final Departamento other = (Departamento) obj;
-        if (this.id != other.id) {
+        if (!Objects.equals(this.id, other.id)) {
             return false;
         }
         if ((this.descricao == null) ? (other.descricao != null) : !this.descricao.equals(other.descricao)) {

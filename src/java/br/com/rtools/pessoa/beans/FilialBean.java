@@ -18,6 +18,7 @@ import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -268,7 +269,7 @@ public class FilialBean {
                     for (int w = 0; w < fc.size(); w++) {
                         if (lis.get(i).getId() == fc.get(w).getCidade().getId()) {
                             for (int u = 0; u < getResult().size(); u++) {
-                                if (fc.get(w).getFilial().getId() == Integer.valueOf(result.get(u).getDescription())) {
+                                if (Objects.equals(fc.get(w).getFilial().getId(), Integer.valueOf(result.get(u).getDescription()))) {
                                     listaCidade.add(new DataObject((Cidade) di.find(new Cidade(), lis.get(i).getId()), u));
                                     tem = true;
                                 }

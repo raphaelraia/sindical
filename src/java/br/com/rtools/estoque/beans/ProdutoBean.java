@@ -22,6 +22,7 @@ import br.com.rtools.utilitarios.Moeda;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -691,7 +692,7 @@ public class ProdutoBean implements Serializable {
                             if (i == 0) {
                                 filial_id = i;
                             }
-                            if (f.getId() == list.get(i).getId()) {
+                            if (Objects.equals(f.getId(), list.get(i).getId())) {
                                 filial_id = i;
                             }
                             listFiliaisPesquisa.add(new SelectItem(i, list.get(i).getFilial().getPessoa().getNome(), "" + list.get(i).getId()));
