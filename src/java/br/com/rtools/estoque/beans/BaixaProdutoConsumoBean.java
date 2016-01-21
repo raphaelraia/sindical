@@ -17,6 +17,7 @@ import br.com.rtools.utilitarios.PF;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -140,10 +141,10 @@ public class BaixaProdutoConsumoBean implements Serializable {
         estoqueSaidaConsumo.setEstoqueTipo((EstoqueTipo) dao.find(new EstoqueTipo(), 1));
         dao.commit();
         for (EstoqueSaidaConsumo esc : listEstoqueSaidaConsumo[0]) {
-            if (esc.getFilialSaida().getId() == esc.getFilialSaida().getId()
-                    && esc.getFilialEntrada().getId() == estoqueSaidaConsumo.getFilialEntrada().getId()
+            if (Objects.equals(esc.getFilialSaida().getId(), esc.getFilialSaida().getId())
+                    && Objects.equals(esc.getFilialEntrada().getId(), estoqueSaidaConsumo.getFilialEntrada().getId())
                     && esc.getProduto().getId() == estoqueSaidaConsumo.getProduto().getId()
-                    && esc.getDepartamento().getId() == estoqueSaidaConsumo.getDepartamento().getId()) {
+                    && Objects.equals(esc.getDepartamento().getId(), estoqueSaidaConsumo.getDepartamento().getId())) {
                 GenericaMensagem.warn("Validação", "Item já adicionado a lista!");
                 return;
             }
@@ -189,13 +190,13 @@ public class BaixaProdutoConsumoBean implements Serializable {
                     novoLog.cancelList();
                     return;
                 }
-                novoLog.update("Mesmo do atualizado", 
+                novoLog.update("Mesmo do atualizado",
                         "Estoque - ID: " + estoque.getId()
                         + " - Filial: (" + estoque.getFilial().getId() + ") " + estoque.getFilial().getFilial().getPessoa().getId()
                         + " - Produto: (" + estoque.getProduto().getId() + ") " + estoque.getProduto().getDescricao()
                         + " - Estoque Antes: " + beforeEstoque
                         + " - Estoque Atual: " + estoque.getEstoque()
-                );                
+                );
                 GenericaMensagem.warn("Sucesso", "Registro excluído");
                 dao.commit();
                 novoLog.saveList();

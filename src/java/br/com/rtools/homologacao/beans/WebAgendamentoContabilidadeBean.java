@@ -16,6 +16,7 @@ import br.com.rtools.homologacao.Feriados;
 import br.com.rtools.homologacao.Horarios;
 import br.com.rtools.homologacao.Status;
 import br.com.rtools.homologacao.dao.FeriadosDao;
+import br.com.rtools.homologacao.dao.HorarioReservaDao;
 import br.com.rtools.homologacao.db.*;
 import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.pessoa.*;
@@ -68,8 +69,9 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
     public List<SelectItem> listaMotivoDemissao = new ArrayList<>();
     private String tipoTelefone = "telefone";
     private ConfiguracaoHomologacao configuracaoHomologacao;
-
+    private boolean visibleModal = false;
     private String tipoAviso = null;
+    private Date polling;
 
     public WebAgendamentoContabilidadeBean() {
         Dao dao = new Dao();
@@ -80,7 +82,11 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
             new Dao().save(configuracaoHomologacao, true);
         }
         this.loadListEmpresa();
-        this.clearHorarios();
+        HorarioReservaDao horarioReservaDao = new HorarioReservaDao();
+        horarioReservaDao.begin();
+        horarioReservaDao.clear();
+        clearHorarios();
+        GlobalSync.load();
     }
 
     public boolean validaAdmissao() {
@@ -164,7 +170,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
     }
 
     public void clearHorarios() {
-        loadListHorarios();
+        loadListHorarios(false);
         lock(true);
     }
 
@@ -189,7 +195,14 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
         return false;
     }
 
-    public void loadListHorarios() {
+    public final void loadListHorarios() {
+        loadListHorarios(stop());
+    }
+
+    public final void loadListHorarios(Boolean stop) {
+        if (stop) {
+            return;
+        }
         listaHorarios.clear();
         // ENDEREÇO DA EMPRESA SELECIONADA PARA PESQUISAR OS HORÁRIOS
         if (listaEmpresas.isEmpty()) {
@@ -410,7 +423,22 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
         switch (Integer.parseInt(((SelectItem) getListaStatus().get(idStatus)).getDescription())) {
             case 1: {
                 HomologacaoDB db = new HomologacaoDBToplink();
-
+                int nrDataHoje = DataHoje.converteDataParaInteger(DataHoje.converteData(DataHoje.dataHoje()));
+                HorarioReservaDao hrd = new HorarioReservaDao();
+                HomologacaoDB dba = new HomologacaoDBToplink();
+                hrd.exists(nrDataHoje);
+                int quantidade_reservada = hrd.count(((Horarios) datao.getArgumento0()).getId());
+                int quantidade = dba.pesquisaQntdDisponivel(getSindicatoFilial().getFilial().getId(), ((Horarios) datao.getArgumento0()), getData());
+                int quantidade_resultado = quantidade - quantidade_reservada;
+                if (quantidade == -1) {
+                    GenericaMensagem.error("Sistema", "Este horário não esta mais disponivel! (reservado ou já agendado)");
+                    return;
+                }
+                if (quantidade_resultado < 0 && quantidade != 1) {
+                    GenericaMensagem.error("Sistema", "Este horário não esta mais disponivel! (reservado ou já agendado)");
+                    return;
+                }
+                hrd.begin();
                 List<Agendamento> list_a = db.pesquisaAgendadoPorEmpresaSemHorario(getSindicatoFilial().getFilial().getId(), data, empresa.getPessoa().getId());
                 if (list_a.size() >= sindicatoFilial.getFilial().getQuantidadeAgendamentosPorEmpresa()) {
                     GenericaMensagem.warn("Atenção", "Limite de Agendamentos para hoje é de " + sindicatoFilial.getFilial().getQuantidadeAgendamentosPorEmpresa());
@@ -456,6 +484,9 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
                     agendamento.setHorarios((Horarios) datao.getArgumento0());
                     agendamento.setFilial(sindicatoFilial.getFilial());
                     agendamentoProtocolo = agendamento;
+                    visibleModal = true;
+                    hrd.reserve(((Horarios) datao.getArgumento0()).getId());
+                    GlobalSync.load();
                 }
                 break;
             }
@@ -476,6 +507,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
                     }
                 }
                 tipoAviso = String.valueOf(pessoaEmpresa.isAvisoTrabalhado());
+                visibleModal = true;
                 break;
             }
         }
@@ -748,7 +780,6 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
                 } else {
                     GenericaMensagem.error("Erro", "Não foi possível salvar protocolo!");
                     dao.rollback();
-                    //agendamento.setId(-1);
                     return;
                 }
             } else {
@@ -763,6 +794,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
                 }
             }
             dao.commit();
+            GlobalSync.load();
         }
     }
 
@@ -783,6 +815,8 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
         profissao = new Profissao();
         empresa = new Juridica();
         enderecoFisica = new PessoaEndereco();
+        visibleModal = false;
+        GlobalSync.load();
     }
 
     public void limpar() {
@@ -865,11 +899,9 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
                 //msgConfirma = "Este CPF possui carta de oposição em "+op.getEmissao();
                 //return;
             }
-        } else {
-            if (fisica.getId() != -1) {
-                fisica = new Fisica();
-                enderecoFisica = new PessoaEndereco();
-            }
+        } else if (fisica.getId() != -1) {
+            fisica = new Fisica();
+            enderecoFisica = new PessoaEndereco();
         }
         //FacesContext.getCurrentInstance().getExternalContext().redirect("/Sindical/webAgendamentoContabilidade.jsf");
     }
@@ -1136,5 +1168,35 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
 
     public void setTipoAviso(String tipoAviso) {
         this.tipoAviso = tipoAviso;
+    }
+
+    public boolean isVisibleModal() {
+        return visibleModal;
+    }
+
+    public void setVisibleModal(boolean visibleModal) {
+        if (!visibleModal) {
+            HorarioReservaDao hrd = new HorarioReservaDao();
+            hrd.clear();
+            hrd.begin();
+            GlobalSync.load();
+            loadListHorarios();
+        }
+        this.visibleModal = visibleModal;
+    }
+
+    public boolean stop() {
+        if (GlobalSync.getStaticDate() != null) {
+            if (polling != null) {
+                if (GlobalSync.getStaticDate() == polling) {
+                    return true;
+                } else {
+                    polling = GlobalSync.getStaticDate();
+                }
+            } else {
+                polling = GlobalSync.getStaticDate();
+            }
+        }
+        return false;
     }
 }

@@ -22,9 +22,9 @@ public class GlobalSync implements Serializable {
                     if (entry.getKey().equals(getKey())) {
                         d = entry.getValue();
                     }
-
-                }
-            }
+                            
+                        }
+                    }
             return d;
         } catch (Exception e) {
             return null;
@@ -40,7 +40,13 @@ public class GlobalSync implements Serializable {
 
     private static String getKey() {
         try {
-            String key = (GenericaSessao.getString("sessaoCliente") + "_" + new Rotina().get().getCurrentPage()).toLowerCase();
+            String cliente = GenericaSessao.getString("sessaoCliente");
+            cliente = cliente.replace("/", "");
+            String rotina = new Rotina().get().getCurrentPage().toLowerCase();
+            if(rotina.contains("agendamento")) {
+                rotina = "agendamento";
+            }
+            String key = (cliente + "_" + rotina).toLowerCase();
             return key;
         } catch (Exception e) {
             return "";

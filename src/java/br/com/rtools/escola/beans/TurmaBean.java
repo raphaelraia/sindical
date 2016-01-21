@@ -27,6 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -106,6 +107,8 @@ public class TurmaBean implements Serializable {
             message = "Cadastrar serviços!";
             return;
         }
+        Dao dao = new Dao();
+        turma.setFilial((Filial) dao.find(new Filial(), Integer.parseInt(listFiliais.get(filial_id).getDescription())));
         if (turma.getFilial().getId() == -1) {
             message = "Informar a filial! Obs: Necessário acessar o sistema usando autênticação.";
             return;
@@ -155,10 +158,8 @@ public class TurmaBean implements Serializable {
         }
         if (turma.getHoraTermino().equals("__:__")) {
             turma.setHoraTermino("");
-        }
-        Dao dao = new Dao();
-        turma.setCursos((Servicos) dao.find(new Servicos(), Integer.parseInt(listServicos.get(idServicos).getDescription())));
-        turma.setFilial((Filial) dao.find(new Filial(), Integer.parseInt(listFiliais.get(filial_id).getDescription())));
+        }        
+        turma.setCursos((Servicos) dao.find(new Servicos(), Integer.parseInt(listServicos.get(idServicos).getDescription())));        
         NovoLog novoLog = new NovoLog();
         TurmaDao td = new TurmaDao();
         if (turma.getId() == -1) {
@@ -590,7 +591,7 @@ public class TurmaBean implements Serializable {
                             if (i == 0) {
                                 filial_id = i;
                             }
-                            if (f.getId() == list.get(i).getFilial().getId()) {
+                            if (Objects.equals(f.getId(), list.get(i).getFilial().getId())) {
                                 filial_id = i;
                             }
                             listFiliais.add(new SelectItem(i, list.get(i).getFilial().getFilial().getPessoa().getNome(), "" + list.get(i).getFilial().getId()));

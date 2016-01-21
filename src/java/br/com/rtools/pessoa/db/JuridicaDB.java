@@ -44,7 +44,7 @@ public interface JuridicaDB {
 
     public int quantidadeEmpresas(int idContabilidade);
 
-    public List listaJuridicaContribuinte(int id_juridica);
+    public List listaJuridicaContribuinte(Integer id_juridica);
 
     public List<Juridica> listaContabilidadePertencente(int id_juridica);
 

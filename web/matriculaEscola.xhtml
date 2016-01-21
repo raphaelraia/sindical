@@ -11,14 +11,14 @@
         <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
     </h:head>
     <h:body>
-        <!-- INICIA DIV wrap e main -->
-        <div id="wrapx">
-            <div id="mainx">
-                <!-- INICIA DIV wrap e main -->  
-                <f:subview id="header">
-                    <ui:include src="templates/templatePrime.xhtml"/>
-                </f:subview>
-                <f:view>
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>
+        </f:subview>
+        <f:view>
+            <!-- INICIA DIV wrap e main -->
+            <div id="wrapx">
+                <div id="mainx">
+                    <!-- INICIA DIV wrap e main -->  
                     <ui:include src="templates/templateAcessoFilial.xhtml"/>
                     <ui:include src="templates/templateStatus.xhtml"/>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
@@ -204,18 +204,21 @@
                                             <p:outputLabel value="Curso:" />
                                             <p:selectOneMenu  id="cbCursoIndividual" value="#{matriculaEscolaBean.idIndividual}" disabled="#{matriculaEscolaBean.desabilitaCampo}">
                                                 <f:selectItems value="#{matriculaEscolaBean.listaIndividual}" />
-                                                <p:ajax event="change" listener="#{matriculaEscolaBean.updateGrid}" update=":form_matricula_escola:panel_calculo" />
+                                                <p:ajax event="change" listener="#{matriculaEscolaBean.updateGrid}" update=":form_matricula_escola:panel_calculo i_panel_indeterminado" />
                                             </p:selectOneMenu>
                                             <p:outputLabel value="Data Inicío:"  for="idDataInicio"/>
                                             <h:column>
-                                                <h:panelGrid columns="3">
+                                                <h:panelGrid columns="3" id="i_panel_indeterminado">
                                                     <p:inputMask id="idDataInicio" size="8" maxlength="10" value="#{matriculaEscolaBean.matriculaIndividual.dataInicioString}" disabled="#{matriculaEscolaBean.desabilitaIndividual}" mask="99/99/9999">
                                                         <p:ajax event="change" listener="#{matriculaEscolaBean.updateData()}" update="@this :form_matricula_escola:" global="false"/>
                                                     </p:inputMask>
                                                     <p:outputLabel value="Data Término: "  for="idDataTermino"/>
-                                                    <p:inputMask id="idDataTermino" size="8" maxlength="10" value="#{matriculaEscolaBean.matriculaIndividual.dataTerminoString}" disabled="#{matriculaEscolaBean.desabilitaIndividual}" mask="99/99/9999">
-                                                        <p:ajax event="change" listener="#{matriculaEscolaBean.updateData()}" update="@this :form_matricula_escola:" global="false" />
-                                                    </p:inputMask>
+                                                    <h:column>
+                                                        <p:outputLabel value="Indeterminado" rendered="#{matriculaEscolaBean.servicoIndividual.cursoRenovacao}" styleClass="font-color-red" />
+                                                        <p:inputMask id="idDataTermino" size="8" maxlength="10" value="#{matriculaEscolaBean.matriculaIndividual.dataTerminoString}" disabled="#{matriculaEscolaBean.desabilitaIndividual}" mask="99/99/9999" rendered="#{!matriculaEscolaBean.servicoIndividual.cursoRenovacao}">
+                                                            <p:ajax event="change" listener="#{matriculaEscolaBean.updateData()}" update="@this :form_matricula_escola:" global="false" />
+                                                        </p:inputMask>                                                        
+                                                    </h:column>
                                                 </h:panelGrid>
                                             </h:column>
                                             <p:outputLabel value="Horário:" />
@@ -306,7 +309,7 @@
                                                 </p:inputMask>
                                             </p:column>
 
-                                            <p:column>
+                                            <p:column rendered="#{!matriculaEscolaBean.servicoIndividual.cursoRenovacao}">
                                                 <p:inputMask value="#{matriculaEscolaBean.servicoPessoa.referenciaValidade}" mask="99/9999" style="text-align: right; width: 80px; text-align: center">
                                                     <p:ajax event="blur" update="form_matricula_escola" listener="#{matriculaEscolaBean.validaDataVigoracaoValidade()}"/>
                                                 </p:inputMask>
@@ -543,16 +546,16 @@
                             </p:panel>
                         </h:form>
                     </p:panel>
-                </f:view>
-                <!-- FINALIZA div wrap main -->
+                    <!-- FINALIZA div wrap main -->
+                </div>
             </div>
-        </div>
-        <!-- FINALIZA div wrap main -->
+            <!-- FINALIZA div wrap main -->
+        </f:view>
 
-        <div id="footerx">
-            <f:subview id="footer">
+        <f:subview id="footer">
+            <div id="footerx">
                 <ui:include src="templates/templateFooter.xhtml"/>
-            </f:subview>
-        </div>    
+            </div>    
+        </f:subview>
     </h:body>
 </ui:composition>

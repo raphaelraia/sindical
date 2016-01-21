@@ -3,12 +3,13 @@ package br.com.rtools.seguranca;
 import br.com.rtools.financeiro.Caixa;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.utilitarios.GenericaSessao;
+import java.io.Serializable;
 import javax.persistence.*;
 
 @Entity
 @Table(name = "seg_mac_filial")
 @NamedQuery(name = "MacFilial.pesquisaID", query = "select mf from MacFilial mf where mf.id = :pid")
-public class MacFilial implements java.io.Serializable {
+public class MacFilial implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,14 +24,16 @@ public class MacFilial implements java.io.Serializable {
     @Column(name = "ds_mac", nullable = false)
     private String mac;
     @Column(name = "nr_mesa")
-    private int mesa;
+    private Integer mesa;
     @JoinColumn(name = "id_caixa", referencedColumnName = "id")
     @ManyToOne
     private Caixa caixa;
     @Column(name = "ds_descricao", nullable = true, length = 100)
     private String descricao;
     @Column(name = "is_caixa_operador", columnDefinition = "boolean default true")
-    private boolean caixaOperador;        
+    private boolean caixaOperador;
+    @Column(name = "ds_nome_dispositivo", nullable = true, length = 100)
+    private String nomeDispositivo;
 
     public MacFilial() {
         this.id = -1;
@@ -41,9 +44,10 @@ public class MacFilial implements java.io.Serializable {
         this.caixa = new Caixa();
         this.descricao = "";
         this.caixaOperador = true;
+        this.nomeDispositivo = "";
     }
 
-    public MacFilial(int id, Departamento departamento, Filial filial, String mac, int mesa, Caixa caixa, String descricao, boolean caixaOperador) {
+    public MacFilial(int id, Departamento departamento, Filial filial, String mac, Integer mesa, Caixa caixa, String descricao, boolean caixaOperador, String nomeDispositivo) {
         this.id = id;
         this.departamento = departamento;
         this.filial = filial;
@@ -86,11 +90,11 @@ public class MacFilial implements java.io.Serializable {
         this.mac = mac;
     }
 
-    public int getMesa() {
+    public Integer getMesa() {
         return mesa;
     }
 
-    public void setMesa(int mesa) {
+    public void setMesa(Integer mesa) {
         this.mesa = mesa;
     }
 
@@ -110,14 +114,6 @@ public class MacFilial implements java.io.Serializable {
         this.descricao = descricao;
     }
 
-    public static MacFilial getAcessoFilial() {
-        MacFilial macFilial = new MacFilial();
-        if (GenericaSessao.exists("acessoFilial")) {
-            macFilial = (MacFilial) GenericaSessao.getObject("acessoFilial");
-        }
-        return macFilial;
-    }
-    
     public boolean isCaixaOperador() {
         return caixaOperador;
     }
@@ -125,4 +121,21 @@ public class MacFilial implements java.io.Serializable {
     public void setCaixaOperador(boolean caixaOperador) {
         this.caixaOperador = caixaOperador;
     }
+
+    public String getNomeDispositivo() {
+        return nomeDispositivo;
+    }
+
+    public void setNomeDispositivo(String nomeDispositivo) {
+        this.nomeDispositivo = nomeDispositivo;
+    }
+
+    public static MacFilial getAcessoFilial() {
+        MacFilial macFilial = new MacFilial();
+        if (GenericaSessao.exists("acessoFilial")) {
+            macFilial = (MacFilial) GenericaSessao.getObject("acessoFilial");
+        }
+        return macFilial;
+    }
+
 }

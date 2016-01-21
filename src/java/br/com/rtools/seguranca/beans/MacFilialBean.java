@@ -15,6 +15,7 @@ import br.com.rtools.utilitarios.GenericaSessao;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -165,13 +166,13 @@ public class MacFilialBean implements Serializable {
         macFilial = mf;
 
         for (int i = 0; i < listaDepartamentos.size(); i++) {
-            if (Integer.valueOf(listaDepartamentos.get(i).getDescription()) == macFilial.getDepartamento().getId()) {
+            if (Objects.equals(Integer.valueOf(listaDepartamentos.get(i).getDescription()), macFilial.getDepartamento().getId())) {
                 idDepartamento = i;
             }
         }
 
         for (int i = 0; i < listaFiliais.size(); i++) {
-            if (Integer.valueOf(listaFiliais.get(i).getDescription()) == macFilial.getFilial().getId()) {
+            if (Objects.equals(Integer.valueOf(listaFiliais.get(i).getDescription()), macFilial.getFilial().getId())) {
                 idFilial = i;
             }
         }

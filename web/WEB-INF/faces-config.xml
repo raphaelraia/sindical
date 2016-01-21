@@ -1890,6 +1890,37 @@
             <redirect/>
         </navigation-case>
         
+        <navigation-case>
+            <from-outcome>web_service</from-outcome>
+            <to-view-id>/web_service.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>telemarketing</from-outcome>
+            <to-view-id>/telemarketing.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>menuCobranca</from-outcome>
+            <to-view-id>/menuCobranca.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>pesquisaTelemarketing</from-outcome>
+            <to-view-id>/pesquisaTelemarketing.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        
+        <navigation-case>
+            <from-outcome>relatorioCobranca</from-outcome>
+            <to-view-id>/relatorioCobranca.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>        
+        
         <!-- 
         <navigation-case>
             <from-outcome>#{navigationRules.param}</from-outcome>

@@ -24,10 +24,12 @@ public class Usuario implements Serializable {
     private String login;
     @Column(name = "ds_senha", length = 6, nullable = false)
     private String senha;
-    @Column(name = "is_ativo", columnDefinition = "BOOLEAN DEFAULT FALSE")
+    @Column(name = "is_ativo", columnDefinition = "boolean default false")
     private boolean ativo;
     @Column(name = "ds_email", length = 255)
     private String email;
+    @Column(name = "is_autenticado", columnDefinition = "boolean default false", nullable = false)
+    private Boolean autenticado;
 
     public Usuario() {
         this.id = -1;
@@ -36,15 +38,17 @@ public class Usuario implements Serializable {
         this.senha = "";
         this.ativo = false;
         this.email = "";
+        this.autenticado = false;
     }
 
-    public Usuario(int id, Pessoa pessoa, String login, String senha, boolean ativo, String email) {
+    public Usuario(int id, Pessoa pessoa, String login, String senha, boolean ativo, String email, Boolean autenticado) {
         this.id = id;
         this.pessoa = pessoa;
         this.login = login;
         this.senha = senha;
         this.ativo = ativo;
         this.email = email;
+        this.autenticado = autenticado;
     }
 
     public int getId() {
@@ -87,11 +91,6 @@ public class Usuario implements Serializable {
         this.ativo = ativo;
     }
 
-    @Override
-    public String toString() {
-        return "Usuario{" + "id=" + id + ", pessoa=" + pessoa + ", login=" + login + ", ativo=" + ativo + ", email=" + email + '}';
-    }
-
     public String getEmail() {
         return email;
     }
@@ -100,10 +99,24 @@ public class Usuario implements Serializable {
         this.email = email;
     }
 
+    public Boolean getAutenticado() {
+        return autenticado;
+    }
+
+    public void setAutenticado(Boolean autenticado) {
+        this.autenticado = autenticado;
+    }
+
+    @Override
+    public String toString() {
+        return "Usuario{" + "id=" + id + ", pessoa=" + pessoa + ", login=" + login + ", ativo=" + ativo + ", email=" + email + '}';
+    }
+
     public static Usuario getUsuario() {
         if (GenericaSessao.exists("sessaoUsuario")) {
             return (Usuario) GenericaSessao.getObject("sessaoUsuario");
         }
         return null;
     }
+
 }

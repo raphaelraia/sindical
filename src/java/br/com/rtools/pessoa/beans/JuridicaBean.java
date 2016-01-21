@@ -6,8 +6,9 @@ import br.com.rtools.arrecadacao.beans.OposicaoBean;
 import br.com.rtools.arrecadacao.db.*;
 import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.associativo.lista.ListaSociosEmpresa;
+import br.com.rtools.cobranca.TmktHistorico;
+import br.com.rtools.cobranca.dao.TmktHistoricoDao;
 import br.com.rtools.digitalizacao.Documento;
-import br.com.rtools.digitalizacao.beans.DigitalizacaoBean;
 import br.com.rtools.digitalizacao.dao.DigitalizacaoDao;
 import br.com.rtools.endereco.Endereco;
 import br.com.rtools.logSistema.NovoLog;
@@ -37,8 +38,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -175,8 +174,9 @@ public class JuridicaBean implements Serializable {
 
         DigitalizacaoDao dao = new DigitalizacaoDao();
 
-        if(juridica.getId() != -1)
+        if (juridica.getId() != -1) {
             listaDocumentos = dao.listaDocumento(juridica.getPessoa().getId());
+        }
     }
 
     public void verDocumentos(Documento linha) {
@@ -236,12 +236,10 @@ public class JuridicaBean implements Serializable {
                 try {
                     if (configuracaoCnpj == null) {
                         url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=" + documento + "&dias=" + configuracaoCnpj.getDias() + "&usuario=rogerio@rtools.com.br&senha=989899");
+                    } else if (configuracaoCnpj.getEmail().isEmpty() || configuracaoCnpj.getSenha().isEmpty()) {
+                        url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=" + documento + "&dias=" + configuracaoCnpj.getDias() + "&usuario=rogerio@rtools.com.br&senha=989899");
                     } else {
-                        if (configuracaoCnpj.getEmail().isEmpty() || configuracaoCnpj.getSenha().isEmpty()) {
-                            url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=" + documento + "&dias=" + configuracaoCnpj.getDias() + "&usuario=rogerio@rtools.com.br&senha=989899");
-                        } else {
-                            url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=" + documento + "&dias=" + configuracaoCnpj.getDias() + "&usuario=" + configuracaoCnpj.getEmail() + "&senha=" + configuracaoCnpj.getSenha());
-                        }
+                        url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=" + documento + "&dias=" + configuracaoCnpj.getDias() + "&usuario=" + configuracaoCnpj.getEmail() + "&senha=" + configuracaoCnpj.getSenha());
                     }
                     //URL url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=00000000000191&usuario=teste@wooki.com.br&senha=teste");
                     HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -522,12 +520,10 @@ public class JuridicaBean implements Serializable {
             enderecoCobranca = ende.getEndereco().getLogradouro().getDescricao() + " "
                     + ende.getEndereco().getDescricaoEndereco().getDescricao() + ", " + ende.getNumero() + " " + ende.getEndereco().getBairro().getDescricao() + ","
                     + strCompl + ende.getEndereco().getCidade().getCidade() + " - " + ende.getEndereco().getCidade().getUf() + " - " + AnaliseString.mascaraCep(ende.getEndereco().getCep());
+        } else if (alterarEnd) {
+            getListaEnderecos();
         } else {
-            if (alterarEnd) {
-                getListaEnderecos();
-            } else {
-                enderecoCobranca = "NENHUM";
-            }
+            enderecoCobranca = "NENHUM";
         }
         return enderecoCobranca;
     }
@@ -965,9 +961,11 @@ public class JuridicaBean implements Serializable {
 //            }
 //        }
         existeOposicaoEmpresa();
-        getListSocios();
+        loadListSocios();
         loadMalaDireta();
-        if (indicaTab == 6) loadListaDocumentos();
+        if (indicaTab == 6) {
+            loadListaDocumentos();
+        }
         return "pessoaJuridica";
 
     }
@@ -1300,32 +1298,29 @@ public class JuridicaBean implements Serializable {
                     }
                     pessoaEndereco = new PessoaEndereco();
                 }
-            } else {
-                if (endComercial) {
-                    atualizarEndJuridicaComContabil();
-                    for (int o = 0; o < listaEnd.size(); o++) {
-                        salvarAcumuladoDB.abrirTransacao();
-                        if (salvarAcumuladoDB.alterarObjeto((PessoaEndereco) listaEnd.get(o))) {
-                            salvarAcumuladoDB.comitarTransacao();
-                        } else {
-                            salvarAcumuladoDB.desfazerTransacao();
-                        }
-                    }
-                    endComercial = false;
-                } else {
-                    if (pessoaEndereco.getTipoEndereco().getId() == 3) {
-                        atualizarEndJuridicaComContabil();
-                    }
-                    for (int o = 0; o < listaEnd.size(); o++) {
-                        salvarAcumuladoDB.abrirTransacao();
-                        if (salvarAcumuladoDB.alterarObjeto((PessoaEndereco) listaEnd.get(o))) {
-                            salvarAcumuladoDB.comitarTransacao();
-                        } else {
-                            salvarAcumuladoDB.desfazerTransacao();
-                        }
+            } else if (endComercial) {
+                atualizarEndJuridicaComContabil();
+                for (int o = 0; o < listaEnd.size(); o++) {
+                    salvarAcumuladoDB.abrirTransacao();
+                    if (salvarAcumuladoDB.alterarObjeto((PessoaEndereco) listaEnd.get(o))) {
+                        salvarAcumuladoDB.comitarTransacao();
+                    } else {
+                        salvarAcumuladoDB.desfazerTransacao();
                     }
                 }
-
+                endComercial = false;
+            } else {
+                if (pessoaEndereco.getTipoEndereco().getId() == 3) {
+                    atualizarEndJuridicaComContabil();
+                }
+                for (int o = 0; o < listaEnd.size(); o++) {
+                    salvarAcumuladoDB.abrirTransacao();
+                    if (salvarAcumuladoDB.alterarObjeto((PessoaEndereco) listaEnd.get(o))) {
+                        salvarAcumuladoDB.comitarTransacao();
+                    } else {
+                        salvarAcumuladoDB.desfazerTransacao();
+                    }
+                }
             }
             pessoaEndereco = new PessoaEndereco();
         }
@@ -2314,12 +2309,10 @@ public class JuridicaBean implements Serializable {
         List listax = db.listaJuridicaContribuinte(j.getId());
         if (listax.isEmpty()) {
             status = "NÃO CONTRIBUINTE";
+        } else if (((List) listax.get(0)).get(11) != null) {
+            status = "CONTRIBUINTE INATIVO";
         } else {
-            if (((List) listax.get(0)).get(11) != null) {
-                status = "CONTRIBUINTE INATIVO";
-            } else {
-                status = "ATIVO";
-            }
+            status = "ATIVO";
         }
         return status;
     }
@@ -2620,41 +2613,41 @@ public class JuridicaBean implements Serializable {
     }
 
     public List<ListaSociosEmpresa> getListSocios() {
-        if (listSocios.isEmpty()) {
-            if (juridica.getId() != -1) {
-                SociosDao sociosDao = new SociosDao();
-                List list = sociosDao.pesquisaSocioPorEmpresa(juridica.getId());
-                for (int i = 0; i < list.size(); i++) {
-                    Integer matricula = Integer.parseInt(AnaliseString.converteNullString(((List) list.get(i)).get(1)));
-                    Date filiacao = null;
-                    if (!((List) list.get(i)).get(3).toString().isEmpty()) {
-                        filiacao = (Date) ((List) list.get(i)).get(3);
-                    }
-                    Date admissao = null;
-                    if (!AnaliseString.converteNullString(((List) list.get(i)).get(4)).isEmpty()) {
-                        admissao = (Date) ((List) list.get(i)).get(4);
-                    }
-                    Boolean desconto_folha = false;
-                    if (!AnaliseString.converteNullString(((List) list.get(i)).get(5)).isEmpty()) {
-                        desconto_folha = (Boolean) ((List) list.get(i)).get(5);
-                    }
-                    listSocios.add(
-                            new ListaSociosEmpresa(
-                                    AnaliseString.converteNullString(((List) list.get(i)).get(0)),
-                                    matricula,
-                                    AnaliseString.converteNullString(((List) list.get(i)).get(2)),
-                                    filiacao,
-                                    admissao,
-                                    desconto_folha
-                            ));
-                }
-            }
-        }
         return listSocios;
     }
 
     public void setListSocios(List<ListaSociosEmpresa> listSocios) {
         this.listSocios = listSocios;
+    }
+
+    public void loadListSocios() {
+        listSocios = new ArrayList<>();
+        SociosDao sociosDao = new SociosDao();
+        List list = sociosDao.pesquisaSocioPorEmpresa(juridica.getPessoa().getId());
+        for (int i = 0; i < list.size(); i++) {
+            Integer matricula = Integer.parseInt(AnaliseString.converteNullString(((List) list.get(i)).get(1)));
+            Date filiacao = null;
+            if (!((List) list.get(i)).get(3).toString().isEmpty()) {
+                filiacao = (Date) ((List) list.get(i)).get(3);
+            }
+            Date admissao = null;
+            if (!AnaliseString.converteNullString(((List) list.get(i)).get(4)).isEmpty()) {
+                admissao = (Date) ((List) list.get(i)).get(4);
+            }
+            Boolean desconto_folha = false;
+            if (!AnaliseString.converteNullString(((List) list.get(i)).get(5)).isEmpty()) {
+                desconto_folha = (Boolean) ((List) list.get(i)).get(5);
+            }
+            listSocios.add(
+                    new ListaSociosEmpresa(
+                            AnaliseString.converteNullString(((List) list.get(i)).get(0)),
+                            matricula,
+                            AnaliseString.converteNullString(((List) list.get(i)).get(2)),
+                            filiacao,
+                            admissao,
+                            desconto_folha
+                    ));
+        }
     }
 
     public ConfiguracaoCnpj getConfiguracaoCnpj() {
@@ -2743,24 +2736,20 @@ public class JuridicaBean implements Serializable {
                             return;
                         }
                     }
-                } else {
-                    if (md != null) {
-                        if (dao.delete(md, true)) {
-                            idMalaDiretaGrupo = null;
-                            listMalaDiretaGrupo.clear();
-                            GenericaMensagem.info("Sucesso", "Registro atualizado!");
-                            return;
-                        }
-                    }
-                }
-            } else {
-                if (md != null) {
+                } else if (md != null) {
                     if (dao.delete(md, true)) {
                         idMalaDiretaGrupo = null;
                         listMalaDiretaGrupo.clear();
                         GenericaMensagem.info("Sucesso", "Registro atualizado!");
                         return;
                     }
+                }
+            } else if (md != null) {
+                if (dao.delete(md, true)) {
+                    idMalaDiretaGrupo = null;
+                    listMalaDiretaGrupo.clear();
+                    GenericaMensagem.info("Sucesso", "Registro atualizado!");
+                    return;
                 }
             }
         }
@@ -2801,6 +2790,13 @@ public class JuridicaBean implements Serializable {
 
     public void setListaArquivos(List<LinhaArquivo> listaArquivos) {
         this.listaArquivos = listaArquivos;
+    }
+
+    public List<TmktHistorico> getListTelemarketing() {
+        if (juridica.getPessoa().getId() != -1) {
+            return new TmktHistoricoDao().findByPessoa(juridica.getPessoa().getId());
+        }
+        return new ArrayList();
     }
 }
 

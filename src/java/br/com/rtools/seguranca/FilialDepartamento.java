@@ -3,6 +3,7 @@ package br.com.rtools.seguranca;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.utilitarios.BaseEntity;
 import java.io.Serializable;
+import java.util.Objects;
 import javax.persistence.*;
 
 @Entity
@@ -20,7 +21,7 @@ public class FilialDepartamento implements BaseEntity, Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
     @JoinColumn(name = "id_filial", referencedColumnName = "id", nullable = false)
     @ManyToOne
     private Filial filial;
@@ -34,18 +35,18 @@ public class FilialDepartamento implements BaseEntity, Serializable {
         this.departamento = new Departamento();
     }
 
-    public FilialDepartamento(int id, Filial filial, Departamento departamento) {
+    public FilialDepartamento(Integer id, Filial filial, Departamento departamento) {
         this.id = id;
         this.filial = filial;
         this.departamento = departamento;
     }
 
     @Override
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -83,7 +84,7 @@ public class FilialDepartamento implements BaseEntity, Serializable {
             return false;
         }
         final FilialDepartamento other = (FilialDepartamento) obj;
-        if (this.id != other.id) {
+        if (!Objects.equals(this.id, other.id)) {
             return false;
         }
         if (this.filial != other.filial && (this.filial == null || !this.filial.equals(other.filial))) {

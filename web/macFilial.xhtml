@@ -51,8 +51,8 @@
                                     </p:selectOneMenu>
                                 </h:panelGrid>
                             </p:panel>
-
-                            <h:panelGrid style="clear: both; margin-top: 20px; float: left; width: 100%;" columns="5">
+                            <p:panel styleClass="margin-top-max">
+                                <h:panelGrid columns="5" cellpadding="5">
                                 <p:column>
                                     <h:outputLabel value="Mac "/>
                                     <br />
@@ -84,18 +84,21 @@
                                     </p:selectBooleanCheckbox>
                                 </p:column>
 
-                                <p:column>
-                                    <h:outputLabel value="Descrição"/>
-                                    <br />
-
+                            </h:panelGrid>
+                                <h:panelGrid columns="2" styleClass="margin-top">
+                                <h:outputLabel value="Descrição"/>
+                                <h:outputLabel value="Nome do dispositivo (Se web service)"/>
+                                <p:inputText value="#{macFilialBean.macFilial.descricao}" maxlength="100" size="25"/>
+                                <p:inputText value="#{macFilialBean.macFilial.nomeDispositivo}" maxlength="100" size="25"/>
+                            </h:panelGrid>
+                                <f:facet name="footer">
                                     <h:panelGrid columns="3">
-                                        <p:inputText value="#{macFilialBean.macFilial.descricao}" maxlength="100" size="25"/>
                                         <p:commandButton value="Salvar" action="#{macFilialBean.add}" disabled="#{controleAcessoBean.botaoSalvar}" update=":formMacFilial1: :formMacFilial2:tbl" rendered="#{macFilialBean.macFilial.id == -1}"/>
                                         <p:commandButton value="Alterar" action="#{macFilialBean.add}" disabled="#{controleAcessoBean.botaoSalvar}" update=":formMacFilial1: :formMacFilial2:tbl" rendered="#{macFilialBean.macFilial.id != -1}"/>
                                         <p:commandButton value="Novo" action="#{macFilialBean.clear()}" update=":formMacFilial1: :formMacFilial2:tbl" />
                                     </h:panelGrid>
-                                </p:column>
-                            </h:panelGrid>
+                                </f:facet>
+                            </p:panel>
 
                             <h:panelGrid style="clear: both; margin-bottom: 20px; float: right; width: 100%;" columns="1">
                                 <p:column style="width: 200px">
@@ -140,6 +143,9 @@
 
                                     <p:column headerText="..." rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" styleClass="text-center" style="width: 30px">
                                         <p:commandButton icon="ui-icon-transferthick-e-w" action="#{macFilialBean.selecionaFilial(macFilial)}" title="Acessar/Trocar filial"/>
+                                    </p:column>
+                                    <p:column width="16">
+                                        <h:graphicImage value="/resources/images/cloud_32.png"  width="16" title="PC verificado: #{macFilial.nomeDispositivo}" rendered="#{not empty macFilial.nomeDispositivo}"/>
                                     </p:column>
                                 </p:dataTable>   
                             </h:panelGrid>

@@ -462,11 +462,39 @@
                                                     </h:panelGrid>
                                                     <hr />
                                                 </ui:repeat>
-
                                                 <p:outputLabel value="NENHUM ARQUIVO ADICIONADO!" rendered="#{juridicaBean.listaArquivos.size() eq 0}" style="font-weight: bold; font-size: 12pt!important; color: red"/>
                                             </h:panelGrid>
                                         </p:dialog>                                        
                                     </p:tab>
+                                    <p:tab title="Telemarketing">
+                                        <p:dataTable value="#{juridicaBean.listTelemarketing}" var="telemarketing" emptyMessage="Nenhum registro encontrado!" scrollHeight="400" scrollable="true" styleClass="margin-top-max">
+                                            <p:column width="15">
+                                                <p:rowToggler />                                                
+                                            </p:column>
+                                            <p:column headerText="Lançamento" width="80" styleClass="text-center">
+                                                #{telemarketing.dataLancamento}
+                                            </p:column>
+                                            <p:column headerText="Hora" width="40" styleClass="text-center">
+                                                #{telemarketing.horaLancamento}
+                                            </p:column>
+                                            <p:column headerText="Natureza" width="120" styleClass="text-center">
+                                                #{telemarketing.natureza.descricao}
+                                            </p:column>
+                                            <p:column headerText="Contato" >
+                                                #{telemarketing.contato.descricao}
+                                            </p:column>
+                                            <p:column headerText="..." >
+                                                #{telemarketing.contatoDescricao}
+                                            </p:column>                                            
+                                            <p:column headerText="Responsável" >
+                                                #{telemarketing.operador.pessoa.nome}
+                                            </p:column>
+                                            <p:rowExpansion>
+                                                Histórico: #{telemarketing.historico}                                                
+                                            </p:rowExpansion>
+                                        </p:dataTable>
+                                    </p:tab>                                    
+
                                 </p:tabView>
                             </h:panelGrid>
 
@@ -599,8 +627,8 @@
                                     <h:outputText value="#{juridicaBean.juridica.pessoa.nome}" style="font-weight: bold"/>
                                 </h:panelGrid>
 
-                                <p:panel styleClass="fundoCinza" rendered="#{juridicaBean.listaPessoaEmpresa.size() > 0}">
-                                    <p:outputLabel value="Atenção empresa com sócios vinculados, eles serão demissionados automaticamente!" style="color: red"/>
+                                <p:panel styleClass="fundoCinza" rendered="#{not empty juridicaBean.listaPessoaEmpresa and not empty juridicaBean.listSocios}">
+                                    <p:outputLabel value="Atenção empresa com sócios vinculados, eles serão demissionados automaticamente!" style="color: red" />
                                 </p:panel>
 
                                 <h:panelGrid columns="3">

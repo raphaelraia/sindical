@@ -49,7 +49,7 @@
                     </p:panel>
                 </h:panelGrid>
 
-                <p:poll id="poolMonitor" interval="5000" update="tbl" />
+                <p:poll id="poolMonitor" interval="5" update="poolMonitor tbl" listener="#{webAgendamentoContribuinteBean.loadListHorarios()}" global="false" stop="#{webAgendamentoContribuinteBean.visibleModal}" autoStart="true" ignoreAutoUpdate="true" delay="10" />
 
                 <h:panelGrid style="margin: 0 auto; width: 1024px">
                     <p:messages autoUpdate="true" closable="true" showDetail="true"/>
@@ -118,12 +118,12 @@
 
                 <p:commandLink styleClass="idNovo iLink" style="width: 200px;" value="Agendar sem Horário" action="#{webAgendamentoContribuinteBean.novoProtocolo}" rendered="#{webAgendamentoContribuinteBean.registro.agendarSemHorarioWeb}"/>
 
-                <p:dialog widgetVar="dlg_agendamento" resizable="false" modal="true" height="550" width="870">
+                <p:dialog widgetVar="dlg_agendamento" resizable="false" modal="true" height="550" width="870" visible="#{webAgendamentoContribuinteBean.visibleModal}" closeOnEscape="true">
                     <f:facet name="header">
                         <h:outputLabel value="Agendamento de Homologação" /><br />
                         <p:messages autoUpdate="true" showDetail="true" closable="true"/>
-                    </f:facet>                    
-                    <p:ajax event="close" update="formAgendamentoContribuinte"/>
+                    </f:facet>
+                    <p:ajax event="close" listener="#{webAgendamentoContribuinteBean.setVisibleModal(false)}" global="false" update="formAgendamentoContribuinte"/> 
                     <h:panelGrid id="i_panel_agendamento">
                         <p:panel styleClass="fundoCinza" style="width: 810px">
                             <h:panelGrid columns="4">
@@ -389,7 +389,7 @@
                             <h:column>
                                 <p:commandButton value="Agendar" action="#{webAgendamentoContribuinteBean.salvar}" rendered="#{webAgendamentoContribuinteBean.agendamento.id == -1}" update=":formAgendamentoContribuinte:tbl :formAgendamentoContribuinte:i_panel_agendamento"/>
                                 <p:commandButton value="Novo" action="#{webAgendamentoContribuinteBean.limpar()}" rendered="#{webAgendamentoContribuinteBean.agendamento.id == -1}" update=":formAgendamentoContribuinte:i_panel_agendamento"/>
-                                <p:commandButton value="Fechar" onclick="PF('dlg_agendamento').hide()"/>
+                                <p:commandButton value="Fechar" onclick="PF('dlg_agendamento').hide()" action="#{webAgendamentoContribuinteBean.setVisibleModal(false)}" global="false" update="formAgendamentoContribuinte"/>
                             </h:column>
 
                             <h:column>

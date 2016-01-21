@@ -552,11 +552,11 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 int quantidade_resultado = quantidade - quantidade_reservada;
                 if (quantidade == -1) {
                     GenericaMensagem.error("Sistema", "Este horário não esta mais disponivel! (reservado ou já agendado)");
-                    break;
+                    return;
                 }
-                if (quantidade_resultado < 0) {
+                if (quantidade_resultado < 0 && quantidade != 1) {
                     GenericaMensagem.error("Sistema", "Este horário não esta mais disponivel! (reservado ou já agendado)");
-                    break;
+                    return;
                 }
                 hrd.begin();
                 if (getData() == null) {
@@ -577,6 +577,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 visibleModal = true;
                 hrd.reserve(a.getHorarios().getId());
                 GlobalSync.load();
+                this.loadListaHorarios();
                 PF.openDialog("dlg_agendamento");
                 break;
             }
@@ -898,12 +899,10 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 GenericaMensagem.error("Erro", "Não foi possível inserir Pessoa Empresa!");
                 return;
             }
-        } else {
-            if (!dao.update(pessoaEmpresa)) {
-                dao.rollback();
-                GenericaMensagem.error("Erro", "Não foi possível alterar Pessoa Empresa!");
-                return;
-            }
+        } else if (!dao.update(pessoaEmpresa)) {
+            dao.rollback();
+            GenericaMensagem.error("Erro", "Não foi possível alterar Pessoa Empresa!");
+            return;
         }
         if (configuracaoHomologacao.getValidaContato()) {
             if (agendamento.getContato().isEmpty()) {
@@ -1265,15 +1264,11 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 pessoaEmpresa = agendamento.getPessoaEmpresa();
                 profissao = pessoaEmpresa.getFuncao();
                 GenericaSessao.put("juridicaPesquisa", pessoaEmpresa.getJuridica());
-            } else {
-                if (agendamento.getId() != -1) {
-                    limpar();
-                }
-            }
-        } else {
-            if (agendamento.getId() != -1) {
+            } else if (agendamento.getId() != -1) {
                 limpar();
             }
+        } else if (agendamento.getId() != -1) {
+            limpar();
         }
         return "agendamento";
     }
@@ -1331,11 +1326,9 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                     if (pessoaEmpresa.getFuncao() != null) {
                         profissao = pessoaEmpresa.getFuncao();
                     }
-                } else {
-                    if (validaAdmissao() && validaDemissao()) {
+                } else if (validaAdmissao() && validaDemissao()) {
 //                        pessoaEmpresa = new PessoaEmpresa();
-                        //                      profissao = new Profissao();
-                    }
+                    //                      profissao = new Profissao();
                 }
             }
         }

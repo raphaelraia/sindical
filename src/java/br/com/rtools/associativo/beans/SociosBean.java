@@ -28,6 +28,7 @@ import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import static br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean.getCliente;
+import br.com.rtools.seguranca.utilitarios.SegurancaUtilitariosBean;
 import br.com.rtools.utilitarios.*;
 import br.com.rtools.utilitarios.db.FunctionsDao;
 import java.io.File;
@@ -35,6 +36,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
@@ -1643,11 +1645,11 @@ public class SociosBean implements Serializable {
             Fisica f = new FisicaDBToplink().pesquisaFisicaPorPessoa(servicoPessoa.getPessoa().getId());
             if (servicoCategoria.getCategoria().isEmpresaObrigatoria() && f.getDtAposentadoria() == null && servicoCategoria.getCategoria().isVotante()) {
                 JuridicaDB db = new JuridicaDBToplink();
-                List listax = db.listaJuridicaContribuinte(pessoaEmpresa.getJuridica().getId());
                 if (pessoaEmpresa == null || pessoaEmpresa.getId() == -1) {
                     GenericaMensagem.warn("Atenção", "Vincular uma empresa para esta Pessoa!");
                     return false;
                 }
+                List listax = db.listaJuridicaContribuinte(pessoaEmpresa.getJuridica().getId());
                 if (!listax.isEmpty()) {
                     for (int i = 0; i < listax.size(); i++) {
                         if (((List) listax.get(0)).get(9) != null) {
@@ -1662,7 +1664,7 @@ public class SociosBean implements Serializable {
                 }
             }
         }
-        
+
         SociosDB db = new SociosDBToplink();
         if ((servicoPessoa.getId() == -1) && (db.pesquisaSocioPorPessoaAtivo(servicoPessoa.getPessoa().getId()).getId() != -1)) {
             GenericaMensagem.error("Erro", "Esta pessoa já um Sócio Cadastrado!");
@@ -1727,11 +1729,9 @@ public class SociosBean implements Serializable {
                 GenericaMensagem.warn("Validação", "O titular não pode ser dependente!");
                 return;
             }
-        } else {
-            if (matriculaSocios.getTitular().getId() == novoDependente.getPessoa().getId()) {
-                GenericaMensagem.warn("Validação", "O titular não pode ser dependente!");
-                return;
-            }
+        } else if (matriculaSocios.getTitular().getId() == novoDependente.getPessoa().getId()) {
+            GenericaMensagem.warn("Validação", "O titular não pode ser dependente!");
+            return;
         }
         if (!validaSalvarDependente()) {
             return;
@@ -1834,17 +1834,15 @@ public class SociosBean implements Serializable {
                     return false;
                 }
             }
+        } else if (novoDependente.getPessoa().getDocumento().isEmpty() || novoDependente.getPessoa().getDocumento().equals("0")) {
+            novoDependente.getPessoa().setDocumento("0");
         } else {
-            if (novoDependente.getPessoa().getDocumento().isEmpty() || novoDependente.getPessoa().getDocumento().equals("0")) {
-                novoDependente.getPessoa().setDocumento("0");
-            } else {
 
-                List listDocumento = db.pesquisaFisicaPorDoc(novoDependente.getPessoa().getDocumento());
-                for (Object listDocumento1 : listDocumento) {
-                    if (!listDocumento.isEmpty() && ((Fisica) listDocumento1).getId() != novoDependente.getId()) {
-                        GenericaMensagem.error("Erro", "Documento já existente!");
-                        return false;
-                    }
+            List listDocumento = db.pesquisaFisicaPorDoc(novoDependente.getPessoa().getDocumento());
+            for (Object listDocumento1 : listDocumento) {
+                if (!listDocumento.isEmpty() && ((Fisica) listDocumento1).getId() != novoDependente.getId()) {
+                    GenericaMensagem.error("Erro", "Documento já existente!");
+                    return false;
                 }
             }
         }
@@ -2377,6 +2375,9 @@ public class SociosBean implements Serializable {
                     );
                 }
             }
+            if (listDependentesInativos.get(0).getValidadeDependente().isEmpty()) {
+                listDependentesInativos.get(0).setValidadeDependente(atualizaValidade(listDependentesInativos.get(0).getParentesco(), listDependentesInativos.get(0).getFisica()));
+            }
             listDependentes.add(listDependentesInativos.get(index));
             listDependentesInativos.remove(index);
         } else {
@@ -2650,7 +2651,12 @@ public class SociosBean implements Serializable {
          COMENTEI TODO ESSE CÓDIGO PORQUE A PRINCIPIO NA MUDANÇA QUANDO SALVAR O SÓCIO ELE SEMPRE TERÁ CARTEIRINHA
          EM FASE DE TESTES 22/05/2014 QUINTA-FEIRA -- COMÉRCIO RP -- DEPOIS EXCLUIR COMENTÁRIO
          */
-
+        if (registro.isFotoCartao()) {
+            if (socios.getServicoPessoa().getPessoa().getFisica().getFoto() == null || socios.getServicoPessoa().getPessoa().getFisica().getFoto().isEmpty()) {
+                GenericaMensagem.warn("Validação", "Obrigatório foto do titular!");
+                return null;
+            }
+        }
         SocioCarteirinhaDB dbc = new SocioCarteirinhaDBToplink();
         ModeloCarteirinha modeloc = dbc.pesquisaModeloCarteirinha(socios.getMatriculaSocios().getCategoria().getId(), 170);
 
@@ -2706,13 +2712,18 @@ public class SociosBean implements Serializable {
 
             dao.commit();
         }
-
         List listaAux = dbc.filtroCartao(socios.getServicoPessoa().getPessoa().getId());
-
+        Boolean dependentesSemFotos = false;
         SociosDB db = new SociosDBToplink();
         if (registro.isCarteirinhaDependente() && !listDependentes.isEmpty()) {
             dao.openTransaction();
             for (ListaDependentes ld : listDependentes) {
+                if (registro.isFotoCartao()) {
+                    if (ld.getServicoPessoa().getPessoa().getFisica().getFoto() == null || ld.getServicoPessoa().getPessoa().getFisica().getFoto().isEmpty()) {
+                        dependentesSemFotos = true;
+                        break;
+                    }
+                }
                 Socios socioDependente = db.pesquisaSocioPorPessoaAtivo(ld.getFisica().getPessoa().getId());
                 SocioCarteirinha sc = dbc.pesquisaCarteirinhaPessoa(socioDependente.getServicoPessoa().getPessoa().getId(), modeloc.getId());
 
@@ -2746,6 +2757,9 @@ public class SociosBean implements Serializable {
             ImpressaoParaSocios.imprimirCarteirinha(listaAux);
         } else {
             GenericaMensagem.warn("Sistema", "Socio não tem carteirinha!");
+        }
+        if(dependentesSemFotos) {
+            GenericaMensagem.warn("Sistema", "Existem dependentes sem fotos!");
         }
 
 //        if (!comita) {
@@ -3148,12 +3162,10 @@ public class SociosBean implements Serializable {
     public String getStatusSocio() {
         if (socios.getId() == -1) {
             statusSocio = "STATUS";
+        } else if (matriculaSocios.getMotivoInativacao() != null) {
+            statusSocio = "INATIVO / " + matriculaSocios.getMotivoInativacao().getDescricao() + " - " + matriculaSocios.getInativo();
         } else {
-            if (matriculaSocios.getMotivoInativacao() != null) {
-                statusSocio = "INATIVO / " + matriculaSocios.getMotivoInativacao().getDescricao() + " - " + matriculaSocios.getInativo();
-            } else {
-                statusSocio = "ATIVO";
-            }
+            statusSocio = "ATIVO";
         }
         return statusSocio;
     }
@@ -3388,7 +3400,7 @@ public class SociosBean implements Serializable {
                 mc.setFilial((Filial) new Dao().find(new Filial(), 1));
             }
             for (int i = 0; i < list.size(); i++) {
-                if (list.get(i).getId() == mc.getFilial().getId()) {
+                if (Objects.equals(list.get(i).getId(), mc.getFilial().getId())) {
                     idFilial = i;
                 }
                 listaFilial.add(new SelectItem(i, list.get(i).getFilial().getPessoa().getNome(), "" + list.get(i).getId()));

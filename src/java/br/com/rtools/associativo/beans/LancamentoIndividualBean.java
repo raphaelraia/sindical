@@ -3,8 +3,6 @@ package br.com.rtools.associativo.beans;
 import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.db.LancamentoIndividualDB;
 import br.com.rtools.associativo.db.LancamentoIndividualDBToplink;
-import br.com.rtools.associativo.db.SociosDB;
-import br.com.rtools.associativo.db.SociosDBToplink;
 import br.com.rtools.financeiro.CondicaoPagamento;
 import br.com.rtools.financeiro.FStatus;
 import br.com.rtools.financeiro.FTipoDocumento;
@@ -38,6 +36,7 @@ import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.SalvarAcumuladoDB;
 import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import br.com.rtools.utilitarios.db.FunctionsDao;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -49,7 +48,8 @@ import javax.faces.model.SelectItem;
 
 @ManagedBean
 @SessionScoped
-public class LancamentoIndividualBean {
+public class LancamentoIndividualBean implements Serializable {
+
     private Fisica fisica = new Fisica();
     private PessoaComplemento pessoaComplemento = new PessoaComplemento();
     private final List<SelectItem> listaServicos = new ArrayList();
@@ -71,181 +71,180 @@ public class LancamentoIndividualBean {
     private Lote lote = new Lote();
     private ServicoPessoa servicoPessoa = new ServicoPessoa();
     private Servicos servicos = new Servicos();
-    
+
     @PostConstruct
-    public void init(){
-        servicos = (Servicos)(new SalvarAcumuladoDBToplink().pesquisaCodigo(Integer.parseInt(getListaServicos().get(idServico).getDescription()), "Servicos"));
+    public void init() {
+        servicos = (Servicos) (new SalvarAcumuladoDBToplink().pesquisaCodigo(Integer.parseInt(getListaServicos().get(idServico).getDescription()), "Servicos"));
     }
-    
-    public void salvarData(){
-        if (servicoPessoa.getId() != -1){
+
+    public void salvarData() {
+        if (servicoPessoa.getId() != -1) {
             SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
             sv.abrirTransacao();
-            
-            if (!sv.alterarObjeto(servicoPessoa)){
+
+            if (!sv.alterarObjeto(servicoPessoa)) {
                 // ERRO
                 sv.desfazerTransacao();
-            }else{
+            } else {
                 sv.comitarTransacao();
             }
         }
-    }       
-    
-    public void adicionarParcelas(){
-        if (fisica.getId() == -1){
+    }
+
+    public void adicionarParcelas() {
+        if (fisica.getId() == -1) {
             GenericaMensagem.error("Erro", "Pesquise uma pessoa para gerar Parcelas");
             return;
         }
-        
-        if (responsavel.getId() == -1){
+
+        if (responsavel.getId() == -1) {
             GenericaMensagem.error("Erro", "Pesquise um Responsável");
             return;
         }
-        
-        if (listaServicos.isEmpty()){
+
+        if (listaServicos.isEmpty()) {
             GenericaMensagem.error("Erro", "A lista de serviços não pode estar vazia!");
             return;
         }
-        
-        
+
         String vencto_ini = "";
         DataHoje dh = new DataHoje();
         listaMovimento.clear();
-        
-        if (entrada.equals("sim")){
+
+        if (entrada.equals("sim")) {
             vencto_ini = DataHoje.data();
-        }else{
-            vencto_ini = dh.incrementarMeses(1, idDia +"/"+ DataHoje.data().substring(3));
+        } else {
+            vencto_ini = dh.incrementarMeses(1, idDia + "/" + DataHoje.data().substring(3));
         }
         SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
 
         int parcelas = idParcela;
-        
+
         FTipoDocumento td = new FTipoDocumento();
-        if (descontoFolha.equals("sim")){
-            td = (FTipoDocumento)sv.pesquisaCodigo(13, "FTipoDocumento");
-        }else{
-            td = (FTipoDocumento)sv.pesquisaCodigo(2, "FTipoDocumento");
+        if (descontoFolha.equals("sim")) {
+            td = (FTipoDocumento) sv.pesquisaCodigo(13, "FTipoDocumento");
+        } else {
+            td = (FTipoDocumento) sv.pesquisaCodigo(2, "FTipoDocumento");
         }
-        
-        Servicos serv = (Servicos)sv.pesquisaCodigo(Integer.parseInt(listaServicos.get(idServico).getDescription()), "Servicos");
+
+        Servicos serv = (Servicos) sv.pesquisaCodigo(Integer.parseInt(listaServicos.get(idServico).getDescription()), "Servicos");
         TipoServico tipo_serv = (TipoServico) sv.pesquisaCodigo(Integer.parseInt(listaTipoServico.get(idTipoServico).getDescription()), "TipoServico");
-        
+
         float totalpagar = Moeda.converteUS$(totalPagar);
         float valor = Moeda.converteFloatR$Float(Moeda.divisaoValores(totalpagar, parcelas));
-        
-        for (int i = 0; i < parcelas; i++){
+
+        for (int i = 0; i < parcelas; i++) {
             float valorswap = 0;
             //if ((Moeda.subtracaoValores(totalpagar, valor) != 0) && ( (i+1) == parcelas)) {
-            if ( (i+1) == parcelas) {
+            if ((i + 1) == parcelas) {
                 valor = totalpagar;
             } else {
                 totalpagar = Moeda.subtracaoValores(totalpagar, valor);
             }
-            
-            
+
             listaMovimento.add(new DataObject(
                     new Movimento(
-                    -1, 
-                    new Lote(), 
-                    serv.getPlano5(), 
-                    responsavel, //fisica.getPessoa(),
-                    serv, 
-                    null, // BAIXA
-                    tipo_serv, // TIPO SERVICO
-                    null, // ACORDO
-                    valor, // VALOR
-                    DataHoje.data().substring(3), // REFERENCIA
-                    vencto_ini, // VENCIMENTO
-                    1, // QUANTIDADE
-                    true, // ATIVO
-                    "E", // ES
-                    false, // OBRIGACAO
-                    responsavel, // PESSOA TITULAR
-                    fisica.getPessoa(), // PESSOA BENEFICIARIO
-                    "", // DOCUMENTO
-                    "", // NR_CTR_BOLETO
-                    vencto_ini, // VENCIMENTO ORIGINAL
-                    0, // DESCONTO ATE VENCIMENTO
-                    0, // CORRECAO
-                    0, // JUROS
-                    0, // MULTA
-                    0, // DESCONTO
-                    0, // TAXA
-                    0, // VALOR BAIXA
-                    td, // FTipo_documento 13 - CARTEIRA, 2 - BOLETO
-                    0, // REPASSE AUTOMATICO
-                    null // MATRICULA SÓCIO
-            ), 
+                            -1,
+                            new Lote(),
+                            serv.getPlano5(),
+                            responsavel, //fisica.getPessoa(),
+                            serv,
+                            null, // BAIXA
+                            tipo_serv, // TIPO SERVICO
+                            null, // ACORDO
+                            valor, // VALOR
+                            DataHoje.data().substring(3), // REFERENCIA
+                            vencto_ini, // VENCIMENTO
+                            1, // QUANTIDADE
+                            true, // ATIVO
+                            "E", // ES
+                            false, // OBRIGACAO
+                            responsavel, // PESSOA TITULAR
+                            fisica.getPessoa(), // PESSOA BENEFICIARIO
+                            "", // DOCUMENTO
+                            "", // NR_CTR_BOLETO
+                            vencto_ini, // VENCIMENTO ORIGINAL
+                            0, // DESCONTO ATE VENCIMENTO
+                            0, // CORRECAO
+                            0, // JUROS
+                            0, // MULTA
+                            0, // DESCONTO
+                            0, // TAXA
+                            0, // VALOR BAIXA
+                            td, // FTipo_documento 13 - CARTEIRA, 2 - BOLETO
+                            0, // REPASSE AUTOMATICO
+                            null // MATRICULA SÓCIO
+                    ),
                     Moeda.converteR$Float(Moeda.converteFloatR$Float(valor))
             ));
-            if (cobrancaBancaria.equals("sim"))
+            if (cobrancaBancaria.equals("sim")) {
                 vencto_ini = (idDia < 10) ? "0" + idDia + dh.incrementarMeses(1, vencto_ini).substring(2) : idDia + dh.incrementarMeses(1, vencto_ini).substring(2);
-            else
+            } else {
                 vencto_ini = dh.incrementarMeses(1, vencto_ini);
+            }
         }
     }
-    
-    public String salvar(){
+
+    public String salvar() {
         // VERIFICA SE OS VALORES ESTÃO BATENDO
         float valor = 0;
-        for (int i = 0; i < listaMovimento.size(); i++){
-            valor = Moeda.somaValores(valor,  Moeda.converteUS$(listaMovimento.get(i).getArgumento1().toString()));
+        for (int i = 0; i < listaMovimento.size(); i++) {
+            valor = Moeda.somaValores(valor, Moeda.converteUS$(listaMovimento.get(i).getArgumento1().toString()));
         }
-        
+
         // VERIFICA VENCIMENTO  
-        for (int i = 0; i < listaMovimento.size(); i++){
-            if (listaMovimento.get(i).getArgumento1().toString().isEmpty()){
+        for (int i = 0; i < listaMovimento.size(); i++) {
+            if (listaMovimento.get(i).getArgumento1().toString().isEmpty()) {
                 GenericaMensagem.error("Atenção", "Data de Vencimento na lista inválida!");
                 return null;
             }
         }
-        
-        if (Moeda.converteFloatR$Float(valor) !=  Moeda.converteUS$(totalPagar)){
+
+        if (Moeda.converteFloatR$Float(valor) != Moeda.converteUS$(totalPagar)) {
             float valordif1 = Moeda.converteFloatR$Float(valor), valordif2 = Moeda.converteUS$(totalPagar);
-            if (valordif1 > valordif2){
-                GenericaMensagem.warn("Atenção", "O valor total da parcela foi MAIOR em R$ "+Moeda.converteR$Float(Moeda.subtracaoValores(valordif1, valordif2)));
-            }else 
-                GenericaMensagem.warn("Atenção", "O valor total da parcela foi MENOR em R$ "+Moeda.converteR$Float(Moeda.subtracaoValores(valordif2, valordif1)));
-            
+            if (valordif1 > valordif2) {
+                GenericaMensagem.warn("Atenção", "O valor total da parcela foi MAIOR em R$ " + Moeda.converteR$Float(Moeda.subtracaoValores(valordif1, valordif2)));
+            } else {
+                GenericaMensagem.warn("Atenção", "O valor total da parcela foi MENOR em R$ " + Moeda.converteR$Float(Moeda.subtracaoValores(valordif2, valordif1)));
+            }
+
             //GenericaMensagem.warn("Atenção", "Os valores da parcela não corresponde ao Total do Serviço, verifique!");
             return null;
         }
-        
+
         SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
         Pessoa empresaConveniada = null;
-        
-        if (listaJuridica.size() == 1 && listaJuridica.get(idJuridica).getDescription().equals("0")){
 
-        }else{
+        if (listaJuridica.size() == 1 && listaJuridica.get(idJuridica).getDescription().equals("0")) {
+
+        } else {
             empresaConveniada = ((Juridica) sv.pesquisaCodigo(Integer.valueOf(listaJuridica.get(idJuridica).getDescription()), "Juridica")).getPessoa();
         }
-        
-        
+
         // CODICAO DE PAGAMENTO
         CondicaoPagamento cp;
-        
-        if (DataHoje.converteDataParaInteger(((Movimento)listaMovimento.get(0).getArgumento0()).getVencimento()) > DataHoje.converteDataParaInteger(DataHoje.data())){
-            cp = (CondicaoPagamento)sv.pesquisaCodigo(2, "CondicaoPagamento");
-        }else{
-            cp = (CondicaoPagamento)sv.pesquisaCodigo(1, "CondicaoPagamento");
+
+        if (DataHoje.converteDataParaInteger(((Movimento) listaMovimento.get(0).getArgumento0()).getVencimento()) > DataHoje.converteDataParaInteger(DataHoje.data())) {
+            cp = (CondicaoPagamento) sv.pesquisaCodigo(2, "CondicaoPagamento");
+        } else {
+            cp = (CondicaoPagamento) sv.pesquisaCodigo(1, "CondicaoPagamento");
         }
-        
+
         // TIPO DE DOCUMENTO  FTipo_documento 13 - CARTEIRA, 2 - BOLETO
         FTipoDocumento td;
-        if (descontoFolha.equals("sim")){
-            td = (FTipoDocumento)sv.pesquisaCodigo(13, "FTipoDocumento");
-        }else{
-            td = (FTipoDocumento)sv.pesquisaCodigo(2, "FTipoDocumento");
+        if (descontoFolha.equals("sim")) {
+            td = (FTipoDocumento) sv.pesquisaCodigo(13, "FTipoDocumento");
+        } else {
+            td = (FTipoDocumento) sv.pesquisaCodigo(2, "FTipoDocumento");
         }
-        
-        Servicos serv = (Servicos)sv.pesquisaCodigo(Integer.parseInt(listaServicos.get(idServico).getDescription()),"Servicos");
-        
+
+        Servicos serv = (Servicos) sv.pesquisaCodigo(Integer.parseInt(listaServicos.get(idServico).getDescription()), "Servicos");
+
         lote.setEmissao(DataHoje.data());
         lote.setAvencerContabil(false);
         lote.setPagRec("R");
         lote.setValor(Moeda.converteUS$(totalPagar));
-        lote.setFilial( serv.getFilial() );
+        lote.setFilial(serv.getFilial());
         lote.setEvt(null);
         lote.setPessoa(responsavel);
         lote.setFTipoDocumento(td);
@@ -255,46 +254,46 @@ public class LancamentoIndividualBean {
         lote.setDepartamento(serv.getDepartamento());
         lote.setCondicaoPagamento(cp);
         lote.setPlano5(serv.getPlano5());
-        lote.setDescontoFolha( descontoFolha.equals("sim") );
-        
+        lote.setDescontoFolha(descontoFolha.equals("sim"));
+
         sv.abrirTransacao();
-        if (!sv.inserirObjeto(lote) ){
+        if (!sv.inserirObjeto(lote)) {
             GenericaMensagem.error("Atenção", "Erro ao salvar Lote!");
             sv.desfazerTransacao();
             return null;
         }
-        
-        if (pessoaComplemento.getId() == -1){
+
+        if (pessoaComplemento.getId() == -1) {
             pessoaComplemento.setCobrancaBancaria(true);
             pessoaComplemento.setNrDiaVencimento(idDia);
             pessoaComplemento.setPessoa(fisica.getPessoa());
-            
-            if (!sv.inserirObjeto(pessoaComplemento)){
+
+            if (!sv.inserirObjeto(pessoaComplemento)) {
                 GenericaMensagem.error("Atenção", "Erro ao salvar Pessoa Complemento!");
                 sv.desfazerTransacao();
                 return null;
             }
         }
-        for (int i = 0; i < listaMovimento.size(); i++){
-            ((Movimento)listaMovimento.get(i).getArgumento0()).setLote(lote);
-            if (!sv.inserirObjeto((Movimento)listaMovimento.get(i).getArgumento0())){
+        for (int i = 0; i < listaMovimento.size(); i++) {
+            ((Movimento) listaMovimento.get(i).getArgumento0()).setLote(lote);
+            if (!sv.inserirObjeto((Movimento) listaMovimento.get(i).getArgumento0())) {
                 GenericaMensagem.error("Atenção", "Erro ao salvar Movimento!");
-                sv.desfazerTransacao();                
+                sv.desfazerTransacao();
                 return null;
             }
         }
-        
-        if (empresaConveniada != null){
+
+        if (empresaConveniada != null) {
             Guia guias = new Guia(
                     -1,
-                    lote, 
-                    empresaConveniada, 
-                    null, 
+                    lote,
+                    empresaConveniada,
+                    null,
                     false,
                     ""
             );
 
-            if (!sv.inserirObjeto(guias)){
+            if (!sv.inserirObjeto(guias)) {
                 GenericaMensagem.error("Atenção", "Erro ao salvar Guias!");
                 sv.desfazerTransacao();
                 return null;
@@ -304,54 +303,54 @@ public class LancamentoIndividualBean {
         GenericaMensagem.info("OK", "Lançamento efetuado com Sucesso!");
         return null;
     }
-    
-    public String novo(){
+
+    public String novo() {
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("lancamentoIndividualBean");
         return "lancamentoIndividual";
     }
-    
-    public void pesquisaDescontoFolha(){
+
+    public void pesquisaDescontoFolha() {
         responsavel = new Pessoa();
     }
-    
-    public void limpaEmpresaConvenio(){
+
+    public void limpaEmpresaConvenio() {
         listaJuridica.clear();
-        servicos = (Servicos)(new SalvarAcumuladoDBToplink().pesquisaCodigo(Integer.parseInt(listaServicos.get(idServico).getDescription()), "Servicos"));
+        servicos = (Servicos) (new SalvarAcumuladoDBToplink().pesquisaCodigo(Integer.parseInt(listaServicos.get(idServico).getDescription()), "Servicos"));
         totalPagar = "0,00";
     }
-    
+
     public List<SelectItem> getListaServicos() {
         if (listaServicos.isEmpty()) {
             int i = 0;
             ServicoRotinaDB db = new ServicoRotinaDBToplink();
             List<Servicos> select = db.pesquisaTodosServicosComRotinas(131);
-            if (!select.isEmpty()){
+            if (!select.isEmpty()) {
                 while (i < select.size()) {
                     listaServicos.add(new SelectItem(i,
-                                      select.get(i).getDescricao(),
-                                      Integer.toString(select.get(i).getId())
-                            ));
+                            select.get(i).getDescricao(),
+                            Integer.toString(select.get(i).getId())
+                    ));
                     i++;
                 }
-            }else{
+            } else {
                 listaServicos.add(new SelectItem(0, "Nenhum Serviço Encontrado", "0"));
             }
         }
         return listaServicos;
     }
-    
+
     public List<SelectItem> getListaTipoServico() {
         if (listaTipoServico.isEmpty()) {
             List<TipoServico> result = new Dao().list(new TipoServico());
-                    
-            if (!result.isEmpty()){
-                for(int i = 0; i < result.size(); i++){
+
+            if (!result.isEmpty()) {
+                for (int i = 0; i < result.size(); i++) {
                     listaTipoServico.add(new SelectItem(i,
-                                      result.get(i).getDescricao(),
-                                      Integer.toString(result.get(i).getId())
-                            ));
+                            result.get(i).getDescricao(),
+                            Integer.toString(result.get(i).getId())
+                    ));
                 }
-            }else{
+            } else {
                 listaTipoServico.add(new SelectItem(0, "Nenhum Tipo Serviço", "0"));
             }
         }
@@ -359,27 +358,27 @@ public class LancamentoIndividualBean {
     }
 
     public Fisica getFisica() {
-        if (GenericaSessao.exists("fisicaPesquisa")){
+        if (GenericaSessao.exists("fisicaPesquisa")) {
             fisica = (Fisica) GenericaSessao.getObject("fisicaPesquisa");
-            
-            Socios s = fisica.getPessoa().getSocios();
+
+            Socios s = fisica.getPessoa().getSocios();            
             LancamentoIndividualDB dbl = new LancamentoIndividualDBToplink();
-            if (!dbl.listaSerasa(fisica.getPessoa().getId()).isEmpty()){
+            if (!dbl.listaSerasa(fisica.getPessoa().getId()).isEmpty()) {
                 GenericaMensagem.warn("PESSOA", fisica.getPessoa().getNome() + " contém o nome no Serasa!");
             }
-            if (s != null && s.getId() != -1){
+            if (s != null && s.getId() != -1) {
                 // PESSOA ASSOCIADA
                 retornaResponsavel(fisica.getPessoa().getId(), true);
-            }else{
+            } else {
                 // PESSOA NÁO ASSOCIADA
                 retornaResponsavel(fisica.getPessoa().getId(), false);
             }
-            
+
             PessoaDB db = new PessoaDBToplink();
             ServicoPessoaDB dbS = new ServicoPessoaDBToplink();
-            
+
             servicoPessoa = dbS.pesquisaServicoPessoaPorPessoa(fisica.getPessoa().getId());
-            if (servicoPessoa == null){
+            if (servicoPessoa == null) {
                 servicoPessoa = new ServicoPessoa();
             }
             GenericaSessao.remove("fisicaPesquisa");
@@ -390,78 +389,78 @@ public class LancamentoIndividualBean {
     public void setFisica(Fisica fisica) {
         this.fisica = fisica;
     }
-    
-    public Pessoa retornaResponsavel(Integer id_pessoa, boolean associada){
-        if (associada){
+
+    public Pessoa retornaResponsavel(Integer id_pessoa, boolean associada) {
+        if (associada) {
             responsavel = new FunctionsDao().titularDaPessoa(id_pessoa);
-        }else{
-            if (GenericaSessao.exists("pessoaPesquisa"))
+        } else {
+            if (GenericaSessao.exists("pessoaPesquisa")) {
                 responsavel = (Pessoa) GenericaSessao.getObject("pessoaPesquisa");
-            else
+            } else {
                 responsavel = (Pessoa) new Dao().find(new Pessoa(), id_pessoa);
-            
+            }
+
             // RESPONSAVEL FISICA
             FisicaDB dbf = new FisicaDBToplink();
             Fisica fi = dbf.pesquisaFisicaPorPessoa(responsavel.getId());
-            if (fi != null){
+            if (fi != null) {
                 DataHoje dh = new DataHoje();
                 int idade = dh.calcularIdade(fi.getNascimento());
-                if (idade < 18){
+                if (idade < 18) {
                     GenericaMensagem.warn("RESPONSÁVEL", responsavel.getNome() + " não é maior de idade!");
                     return responsavel = new Pessoa();
                 }
-            }
-            else
-            {
-            // RESPONSAVEL JURIDICA
-            // POR ENQUANTO NÃO FAZ NADA
+            } else {
+                // RESPONSAVEL JURIDICA
+                // POR ENQUANTO NÃO FAZ NADA
                 GenericaMensagem.warn("RESPONSÁVEL", "Pessoa Juridica não disponível no momento!");
                 return responsavel = new Pessoa();
             }
         }
-        
+
         Socios s = responsavel.getSocios();
-        if (s != null && s.getId() != -1){
+        if (s != null && s.getId() != -1) {
             if (responsavel.getId() != s.getMatriculaSocios().getTitular().getId()) {
                 GenericaMensagem.warn("RESPONSÁVEL", responsavel.getNome() + " é um sócio dependente!");
                 return responsavel = new Pessoa();
             }
         }
-        
+
         // MENSAGEM SE POSSUI DÉBITOS
-        if (new FunctionsDao().inadimplente(responsavel.getId())){
+        if (new FunctionsDao().inadimplente(responsavel.getId())) {
             GenericaMensagem.warn("RESPONSÁVEL", responsavel.getNome() + " possui débitos com o Sindicato!");
         }
-        
+
         // ENDEREÇO OBRIGATÓRIO
         JuridicaDB dbj = new JuridicaDBToplink();
         List lista_pe = dbj.pesquisarPessoaEnderecoJuridica(responsavel.getId());
-        if (lista_pe.isEmpty()){
+        if (lista_pe.isEmpty()) {
             GenericaMensagem.warn("RESPONSÁVEL", responsavel.getNome() + " não possui endereço cadastrado!");
             return responsavel = new Pessoa();
         }
-        
+
         // CADASTRO NO SERASA
         LancamentoIndividualDB dbl = new LancamentoIndividualDBToplink();
-        if (!dbl.listaSerasa(responsavel.getId()).isEmpty()){
-            GenericaMensagem.warn("PESSOA", responsavel.getNome()+ " contém o nome no Serasa!");
+        if (!dbl.listaSerasa(responsavel.getId()).isEmpty()) {
+            GenericaMensagem.warn("PESSOA", responsavel.getNome() + " contém o nome no Serasa!");
         }
-        
+
         PessoaDB db = new PessoaDBToplink();
         pessoaComplemento = db.pesquisaPessoaComplementoPorPessoa(responsavel.getId());
-        if (pessoaComplemento.getId() != -1){
-            if (pessoaComplemento.getCobrancaBancaria()){
+        if (pessoaComplemento.getId() != -1) {
+            if (pessoaComplemento.getCobrancaBancaria()) {
                 cobrancaBancaria = "sim";
-            }else
+            } else {
                 cobrancaBancaria = "nao";
+            }
             idDia = pessoaComplemento.getNrDiaVencimento();
         }
-        
+
         return responsavel;
     }
 
     public Pessoa getResponsavel() {
-        if (GenericaSessao.exists("pessoaPesquisa")){
+        if (GenericaSessao.exists("pessoaPesquisa")) {
             Socios s = fisica.getPessoa().getSocios();
             retornaResponsavel(fisica.getPessoa().getId(), (s != null && s.getId() != -1));
             GenericaSessao.remove("pessoaPesquisa");
@@ -606,14 +605,14 @@ public class LancamentoIndividualBean {
                 GenericaMensagem.fatal("Atenção", "Responsável não encontrado, erro na função!");
             }
         }
-        */
+         */
         return responsavel;
     }
 
     public void setResponsavel(Pessoa responsavel) {
         this.responsavel = responsavel;
-    }    
-    
+    }
+
     public int getIdServico() {
         return idServico;
     }
@@ -623,9 +622,9 @@ public class LancamentoIndividualBean {
     }
 
     public List<DataObject> getListaMovimento() {
-        for (int i = 0; i < listaMovimento.size(); i++){
-            listaMovimento.get(i).setArgumento1( Moeda.converteR$(listaMovimento.get(i).getArgumento1().toString()) );
-            ((Movimento)listaMovimento.get(i).getArgumento0()).setValor(
+        for (int i = 0; i < listaMovimento.size(); i++) {
+            listaMovimento.get(i).setArgumento1(Moeda.converteR$(listaMovimento.get(i).getArgumento1().toString()));
+            ((Movimento) listaMovimento.get(i).getArgumento0()).setValor(
                     Moeda.converteUS$(Moeda.converteR$(listaMovimento.get(i).getArgumento1().toString()))
             );
         }
@@ -637,21 +636,21 @@ public class LancamentoIndividualBean {
     }
 
     public List<SelectItem> getListaJuridica() {
-        if (listaJuridica.isEmpty() && !listaServicos.isEmpty()){
+        if (listaJuridica.isEmpty() && !listaServicos.isEmpty()) {
             LancamentoIndividualDB db = new LancamentoIndividualDBToplink();
             List<Juridica> result = db.listaEmpresaConveniada(Integer.parseInt(listaServicos.get(idServico).getDescription()));
-            
-            if (listaServicos.isEmpty() || result.isEmpty()){
+
+            if (listaServicos.isEmpty() || result.isEmpty()) {
                 listaJuridica.add(new SelectItem(0, "Nenhuma Empresa Conveniada", "0"));
                 return listaJuridica;
             }
-            
-            if(!result.isEmpty()){
-                for (int i = 0; i < result.size(); i++){
+
+            if (!result.isEmpty()) {
+                for (int i = 0; i < result.size(); i++) {
                     listaJuridica.add(new SelectItem(i,
-                                      result.get(i).getPessoa().getNome(),
-                                      Integer.toString(result.get(i).getId())
-                            ));
+                            result.get(i).getPessoa().getNome(),
+                            Integer.toString(result.get(i).getId())
+                    ));
                 }
             }
         }
@@ -661,7 +660,7 @@ public class LancamentoIndividualBean {
     public void setListaJuridica(List<SelectItem> listaJuridica) {
         this.listaJuridica = listaJuridica;
     }
-    
+
     public List<SelectItem> getListaDiaVencimento() {
         if (listaDiaVencimento.isEmpty()) {
             for (int i = 1; i <= 31; i++) {
@@ -673,7 +672,7 @@ public class LancamentoIndividualBean {
 
     public void setListaDiaVencimento(List<SelectItem> listaDiaVencimento) {
         this.listaDiaVencimento = listaDiaVencimento;
-    }    
+    }
 
     public int getIdDia() {
         return idDia;
@@ -700,17 +699,18 @@ public class LancamentoIndividualBean {
     }
 
     public String getTotalPagar() {
-        if (fisica.getId() != -1 && !listaServicos.isEmpty()){
+        if (fisica.getId() != -1 && !listaServicos.isEmpty()) {
             LancamentoIndividualDB db = new LancamentoIndividualDBToplink();
-            
-            if (!listaServicos.get(idServico).getDescription().equals("0")){
-                Servicos se = (Servicos)(new SalvarAcumuladoDBToplink().pesquisaCodigo(Integer.parseInt(listaServicos.get(idServico).getDescription()), "Servicos"));
+
+            if (!listaServicos.get(idServico).getDescription().equals("0")) {
+                Servicos se = (Servicos) (new SalvarAcumuladoDBToplink().pesquisaCodigo(Integer.parseInt(listaServicos.get(idServico).getDescription()), "Servicos"));
 
                 List<Vector> valor = db.pesquisaServicoValor(fisica.getPessoa().getId(), se.getId());
-                float vl = Float.valueOf( ((Double)valor.get(0).get(0)).toString() );
+                float vl = Float.valueOf(((Double) valor.get(0).get(0)).toString());
 
-                if (!se.isAlterarValor())
+                if (!se.isAlterarValor()) {
                     totalPagar = Moeda.converteR$Float(vl);
+                }
             }
         }
         return Moeda.converteR$(totalPagar);
@@ -737,7 +737,7 @@ public class LancamentoIndividualBean {
     }
 
     public List<SelectItem> getListaParcelas() {
-         if (listaParcelas.isEmpty()) {
+        if (listaParcelas.isEmpty()) {
             for (int i = 1; i <= 24; i++) {
                 listaParcelas.add(new SelectItem(Integer.toString(i)));
             }

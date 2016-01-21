@@ -3,6 +3,7 @@ package br.com.rtools.academia;
 import br.com.rtools.utilitarios.BaseEntity;
 import br.com.rtools.utilitarios.DataHoje;
 import java.io.Serializable;
+import java.util.Objects;
 import javax.persistence.*;
 
 /**
@@ -27,7 +28,7 @@ public class AcademiaGrade implements BaseEntity, Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
     @Column(name = "ds_hora_inicio", length = 5)
     private String horaInicio;
     @Column(name = "ds_hora_fim", length = 5)
@@ -39,18 +40,18 @@ public class AcademiaGrade implements BaseEntity, Serializable {
         this.horaFim = DataHoje.livre(DataHoje.dataHoje(), "HH:mm");
     }
 
-    public AcademiaGrade(int id, String horaInicio, String horaFim) {
+    public AcademiaGrade(Integer id, String horaInicio, String horaFim) {
         this.id = id;
         this.horaInicio = horaInicio;
         this.horaFim = horaFim;
     }
 
     @Override
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -87,7 +88,7 @@ public class AcademiaGrade implements BaseEntity, Serializable {
             return false;
         }
         final AcademiaGrade other = (AcademiaGrade) obj;
-        if (this.id != other.id) {
+        if (!Objects.equals(this.id, other.id)) {
             return false;
         }
         if ((this.horaInicio == null) ? (other.horaInicio != null) : !this.horaInicio.equals(other.horaInicio)) {

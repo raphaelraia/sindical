@@ -34,78 +34,82 @@ public class SisNotificacaoView implements Serializable {
 
     public final void loadNotificacao() throws SQLException {
         if (!GenericaSessao.getString("sessaoCliente").equals("ComercioLimeira") && !GenericaSessao.getString("sessaoCliente").equals("Sindical")) {
+            try {
 
-            DBExternal dbe = new DBExternal();
-            if (dbe.getConnection() != null) {
-                try {
-                    String string = ""
-                            + "     SELECT 1    AS id, \n"
-                            + "            NCAT.ds_descricao AS categoria_descricao,                \n"
-                            + "            C.ds_identifica AS cliente,                              \n"
-                            + "            to_char(N.dt_cadastro, 'dd/MM/yyyy') AS data_cadastro,   \n"
-                            + "            to_char(N.dt_cadastro, 'HH24:ii') AS hora_cadastro,      \n"
-                            + "            to_char(N.dt_inicial, 'dd/MM/yyyy') AS inicio,           \n"
-                            + "            to_char(N.dt_final, 'dd/MM/yyyy') AS fim,                \n"
-                            + "            to_char(N.dt_inicial, 'HH24:MI') AS hora_inicio,         \n"
-                            + "            to_char(N.dt_final, 'HH24:MI') AS hora_fim,              \n"
-                            + "            N.ds_titulo AS titulo,                                   \n"
-                            + "            N.ds_observacao AS observacao,                           \n"
-                            + "            N.is_destaque AS destaque                                \n"
-                            + "       FROM sis_notificacao_cliente AS NC                            \n"
-                            + " INNER JOIN sis_notificacao AS N ON N.id = NC.id_notificacao         \n"
-                            + " INNER JOIN sis_notificacao_categoria AS NCAT ON NCAT.id = N.id_notificacao_categoria\n"
-                            + " INNER JOIN sis_configuracao AS C ON C.id = NC.id_configuracao                       \n"
-                            + "      WHERE C.ds_identifica = '" + GenericaSessao.getString("sessaoCliente") + "'    \n"
-                            + "        AND N.is_ativo = true                                                        \n"
-                            + "        AND current_timestamp >= N.dt_inicial                                        \n"
-                            + "        AND current_timestamp <= N.dt_final  ";
-                    ResultSet resultSet = dbe.getStatment().executeQuery(string);
-                    while (resultSet.next()) {
-                        SNotificacao sNotificacao = new SNotificacao();
-                        sNotificacao.setId(resultSet.getInt("id"));
-                        sNotificacao.setCategoria(resultSet.getString("categoria_descricao"));
-                        sNotificacao.setDataCadastro(resultSet.getString("data_cadastro"));
-                        sNotificacao.setHoraCadastro(resultSet.getString("hora_cadastro"));
-                        sNotificacao.setDataInicial(resultSet.getString("inicio"));
-                        sNotificacao.setDataFinal(resultSet.getString("fim"));
-                        sNotificacao.setHoraInicial(resultSet.getString("hora_inicio"));
-                        sNotificacao.setHoraFinal(resultSet.getString("hora_fim"));
-                        sNotificacao.setTitulo(resultSet.getString("titulo"));
-                        sNotificacao.setObservacao(resultSet.getString("observacao"));
-                        try {
-                            sNotificacao.setAtivo(resultSet.getBoolean("ativo"));
-                        } catch (Exception e) {
-
-                        }
-                        try {
-                            sNotificacao.setDestaque(resultSet.getBoolean("destaque"));
-                        } catch (Exception e) {
-
-                        }
-                        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                        if (sNotificacao.getHoraInicial() != null && !sNotificacao.getHoraInicial().isEmpty() && sNotificacao.getHoraFinal() != null && sNotificacao.getHoraFinal().isEmpty()) {
-                            String data_inicial = dateFormat.format(sNotificacao.getDataInicial() + " " + sNotificacao.getHoraInicial());
-                            String data_final = dateFormat.format(sNotificacao.getDataFinal() + " " + sNotificacao.getHoraFinal());
+                DBExternal dbe = new DBExternal();
+                if (dbe.getConnection() != null) {
+                    try {
+                        String string = ""
+                                + "     SELECT 1    AS id, \n"
+                                + "            NCAT.ds_descricao AS categoria_descricao,                \n"
+                                + "            C.ds_identifica AS cliente,                              \n"
+                                + "            to_char(N.dt_cadastro, 'dd/MM/yyyy') AS data_cadastro,   \n"
+                                + "            to_char(N.dt_cadastro, 'HH24:ii') AS hora_cadastro,      \n"
+                                + "            to_char(N.dt_inicial, 'dd/MM/yyyy') AS inicio,           \n"
+                                + "            to_char(N.dt_final, 'dd/MM/yyyy') AS fim,                \n"
+                                + "            to_char(N.dt_inicial, 'HH24:MI') AS hora_inicio,         \n"
+                                + "            to_char(N.dt_final, 'HH24:MI') AS hora_fim,              \n"
+                                + "            N.ds_titulo AS titulo,                                   \n"
+                                + "            N.ds_observacao AS observacao,                           \n"
+                                + "            N.is_destaque AS destaque                                \n"
+                                + "       FROM sis_notificacao_cliente AS NC                            \n"
+                                + " INNER JOIN sis_notificacao AS N ON N.id = NC.id_notificacao         \n"
+                                + " INNER JOIN sis_notificacao_categoria AS NCAT ON NCAT.id = N.id_notificacao_categoria\n"
+                                + " INNER JOIN sis_configuracao AS C ON C.id = NC.id_configuracao                       \n"
+                                + "      WHERE C.ds_identifica = '" + GenericaSessao.getString("sessaoCliente") + "'    \n"
+                                + "        AND N.is_ativo = true                                                        \n"
+                                + "        AND current_timestamp >= N.dt_inicial                                        \n"
+                                + "        AND current_timestamp <= N.dt_final  ";
+                        ResultSet resultSet = dbe.getStatment().executeQuery(string);
+                        while (resultSet.next()) {
+                            SNotificacao sNotificacao = new SNotificacao();
+                            sNotificacao.setId(resultSet.getInt("id"));
+                            sNotificacao.setCategoria(resultSet.getString("categoria_descricao"));
+                            sNotificacao.setDataCadastro(resultSet.getString("data_cadastro"));
+                            sNotificacao.setHoraCadastro(resultSet.getString("hora_cadastro"));
+                            sNotificacao.setDataInicial(resultSet.getString("inicio"));
+                            sNotificacao.setDataFinal(resultSet.getString("fim"));
+                            sNotificacao.setHoraInicial(resultSet.getString("hora_inicio"));
+                            sNotificacao.setHoraFinal(resultSet.getString("hora_fim"));
+                            sNotificacao.setTitulo(resultSet.getString("titulo"));
+                            sNotificacao.setObservacao(resultSet.getString("observacao"));
                             try {
-                                dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                                Date dtInicial = dateFormat.parse(data_inicial);
-                            } catch (ParseException e) {
+                                sNotificacao.setAtivo(resultSet.getBoolean("ativo"));
+                            } catch (Exception e) {
 
                             }
                             try {
-                                dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                                Date dtFinal = dateFormat.parse(data_final);
-                            } catch (ParseException e) {
+                                sNotificacao.setDestaque(resultSet.getBoolean("destaque"));
+                            } catch (Exception e) {
 
                             }
-                        } else {
+                            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            if (sNotificacao.getHoraInicial() != null && !sNotificacao.getHoraInicial().isEmpty() && sNotificacao.getHoraFinal() != null && sNotificacao.getHoraFinal().isEmpty()) {
+                                String data_inicial = dateFormat.format(sNotificacao.getDataInicial() + " " + sNotificacao.getHoraInicial());
+                                String data_final = dateFormat.format(sNotificacao.getDataFinal() + " " + sNotificacao.getHoraFinal());
+                                try {
+                                    dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                                    Date dtInicial = dateFormat.parse(data_inicial);
+                                } catch (ParseException e) {
+
+                                }
+                                try {
+                                    dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                                    Date dtFinal = dateFormat.parse(data_final);
+                                } catch (ParseException e) {
+
+                                }
+                            } else {
+                            }
+                            listNotificacao.add(sNotificacao);
                         }
-                        listNotificacao.add(sNotificacao);
+                    } catch (SQLException exception) {
+                        dbe.closeStatment();
                     }
-                } catch (SQLException exception) {
-                    dbe.closeStatment();
+                    dbe.getStatment().close();
                 }
-                dbe.getStatment().close();
+            } catch (Exception e) {
+
             }
         }
     }

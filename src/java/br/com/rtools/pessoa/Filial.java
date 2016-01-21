@@ -23,12 +23,12 @@ import javax.persistence.*;
     @NamedQuery(name = "Filial.pesquisaID", query = "SELECT FIL FROM Filial AS FIL WHERE FIL.id = :pid"),
     @NamedQuery(name = "Filial.findAll", query = "SELECT FIL FROM Filial AS FIL ORDER BY FIL.filial.pessoa.nome ASC ")
 })
-public class Filial implements BaseEntity, Serializable {
+public class Filial implements  Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
     @JoinColumn(name = "id_matriz", referencedColumnName = "id", nullable = false)
     @OneToOne(fetch = FetchType.EAGER)
     private Juridica matriz;
@@ -48,7 +48,7 @@ public class Filial implements BaseEntity, Serializable {
         this.quantidadeAgendamentosPorEmpresa = 50;
     }
 
-    public Filial(int id, Juridica matriz, Juridica filial, int centroCusto, int quantidadeAgendamentosPorEmpresa) {
+    public Filial(Integer id, Juridica matriz, Juridica filial, int centroCusto, int quantidadeAgendamentosPorEmpresa) {
         this.id = id;
         this.matriz = matriz;
         this.filial = filial;
@@ -56,12 +56,12 @@ public class Filial implements BaseEntity, Serializable {
         this.quantidadeAgendamentosPorEmpresa = quantidadeAgendamentosPorEmpresa;
     }
 
-    @Override
-    public int getId() {
+    
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

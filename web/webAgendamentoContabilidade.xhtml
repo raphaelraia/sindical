@@ -64,7 +64,7 @@
                     </h:panelGroup>
                 </h:panelGrid>
 
-                <p:poll id="poolMonitor" interval="5" update="poolMonitor tbl" listener="#{webAgendamentoContabilidadeBean.loadListHorarios()}" global="false" />
+                <p:poll id="poolMonitor" interval="5" update="poolMonitor tbl" listener="#{webAgendamentoContabilidadeBean.loadListHorarios()}" global="false" stop="#{agendamentoBean.visibleModal}" autoStart="true" ignoreAutoUpdate="true" delay="10" />
 
                 <h:panelGrid style="margin: 0 auto; width: 1024px">
                     <p:messages  id="id_msg_web" closable="true" showDetail="true"/>
@@ -77,7 +77,7 @@
                         </p:column> 
 
                         <p:column headerText="Horários" width="60" style="text-align: center">
-                            <p:commandLink action="#{webAgendamentoContabilidadeBean.agendar(linha)}" value="#{linha.argumento0.hora}" update=":formAgendamentoContabilidade:i_panel_agendamento"/>
+                            <p:commandLink action="#{webAgendamentoContabilidadeBean.agendar(linha)}" value="#{linha.argumento0.hora}" update=":formAgendamentoContabilidade:i_panel_agendamento :formAgendamentoContabilidade:id_msg_web"/>
                         </p:column>
 
                         <p:column width="70" style="text-align: center">
@@ -133,12 +133,12 @@
 
                 <p:commandLink styleClass="idNovo iLink" style="width: 200px;" value="Agendar sem Horário" action="#{webAgendamentoContabilidadeBean.novoProtocolo()}" rendered="#{webAgendamentoContabilidadeBean.registro.agendarSemHorarioWeb}"/>
 
-                <p:dialog widgetVar="dlg_agendamento" resizable="false" modal="true" height="550" width="870">
+                <p:dialog widgetVar="dlg_agendamento" resizable="false" modal="true" height="550" width="870" visible="#{webAgendamentoContabilidadeBean.visibleModal}" closeOnEscape="true">
                     <f:facet name="header">
                         <h:outputLabel value="Agendamento de Homologação" /><br />
-                        <p:messages autoUpdate="true" showDetail="true" closable="true"/>
+                        <p:messages autoUpdate="true" showDetail="true" closable="true" />
                     </f:facet>
-                    <p:ajax event="close" listener="#{webAgendamentoContabilidadeBean.loadListHorarios()}" global="false" /> 
+                    <p:ajax event="close" listener="#{webAgendamentoContabilidadeBean.setVisibleModal(false)}" global="false" update=":formAgendamentoContabilidade:"/> 
                     <h:panelGrid id="i_panel_agendamento">
                         <p:panel styleClass="fundoCinza" style="width: 810px">
                             <h:panelGrid columns="4">
@@ -390,9 +390,11 @@
 
                         <h:panelGrid columns="2" style="width: 100%">
                             <h:column>
-                                <p:commandButton value="Agendar" action="#{webAgendamentoContabilidadeBean.salvar}" rendered="#{webAgendamentoContabilidadeBean.agendamento.id == -1}" update="formAgendamentoContabilidade:tbl formAgendamentoContabilidade:i_panel_agendamento id_msg_web"/>
-                                <p:commandButton value="Novo" action="#{webAgendamentoContabilidadeBean.limpar()}" rendered="#{webAgendamentoContabilidadeBean.agendamento.id == -1}" update="formAgendamentoContabilidade:i_panel_agendamento id_msg_web"/>
-                                <p:commandButton value="Fechar" onclick="PF('dlg_agendamento').hide()"/>
+                                <h:panelGrid columns="3">
+                                    <p:commandButton value="Agendar" action="#{webAgendamentoContabilidadeBean.salvar}" rendered="#{webAgendamentoContabilidadeBean.agendamento.id == -1}" update="formAgendamentoContabilidade:tbl formAgendamentoContabilidade:i_panel_agendamento id_msg_web"/>
+                                    <p:commandButton value="Novo" action="#{webAgendamentoContabilidadeBean.limpar()}" rendered="#{webAgendamentoContabilidadeBean.agendamento.id == -1}" update="formAgendamentoContabilidade:i_panel_agendamento id_msg_web"/>
+                                    <p:commandButton value="Fechar" onclick="PF('dlg_agendamento').hide()" action="#{webAgendamentoContabilidadeBean.setVisibleModal(false)}" update=":formAgendamentoContabilidade:"/>                                    
+                                </h:panelGrid>
                             </h:column>
 
                             <h:column>

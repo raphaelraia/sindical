@@ -20,6 +20,7 @@ public class AuthorizationListener implements PhaseListener {
                 currentPage.lastIndexOf("index.xhtml") > -1 ||
                 currentPage.lastIndexOf("indexLogin.xhtml") > -1 || 
                 currentPage.lastIndexOf("indexLoginExpirou.xhtml") > -1 ||
+                currentPage.lastIndexOf("web_service.xhtml") > -1 ||
                 currentPage.lastIndexOf("indexAcessoWeb.xhtml") > -1
                 );
         HttpSession session = (HttpSession) facesContext.getExternalContext().getSession(true);

@@ -71,8 +71,12 @@
                                 </f:facet>
                             </p:dialog>
                             <p:dialog widgetVar="dlg_save" header="Deseja salvar este feriado?" resizable="false" width="400" modal="true">
-                                <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{feriadosBean.save}" onclick="PF('dlg_save').hide()" style="clear: both; float: left; margin-left: 10px;" icon="ui-icon-check" update=":formFeriadoNovo:, :formFeriado:i_panel_grid_feriados, schedule, i_msg"/> 
-                                <p:commandButton value="Cancelar"  type="submit" styleClass="ui-confirmdialog-no" onclick="PF('dlg_save').hide()" style="float: left;" icon="ui-icon-close"/>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{feriadosBean.save}" onclick="PF('dlg_save').hide()" style="clear: both; float: left; margin-left: 10px;" icon="ui-icon-check" update=":formFeriadoNovo: :formFeriado:i_panel_grid_feriados schedule i_msg"/> 
+                                        <p:commandButton value="Cancelar"  type="submit" styleClass="ui-confirmdialog-no" onclick="PF('dlg_save').hide()" style="float: left;" icon="ui-icon-close"/>                                        
+                                    </h:panelGrid>
+                                </f:facet>
                             </p:dialog>
                             <p:growl id="i_msg" showSummary="true" showDetail="true"/>
                         </h:form>                

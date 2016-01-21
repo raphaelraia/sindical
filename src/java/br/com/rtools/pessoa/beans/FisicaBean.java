@@ -8,6 +8,8 @@ import br.com.rtools.associativo.beans.SociosBean;
 import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.associativo.db.SociosDB;
 import br.com.rtools.associativo.db.SociosDBToplink;
+import br.com.rtools.cobranca.TmktHistorico;
+import br.com.rtools.cobranca.dao.TmktHistoricoDao;
 import br.com.rtools.digitalizacao.Documento;
 import br.com.rtools.digitalizacao.dao.DigitalizacaoDao;
 import br.com.rtools.endereco.Cidade;
@@ -511,11 +513,9 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                         dao.rollback();
                         return;
                     }
-                } else {
-                    if (!dao.update(pessoaProfissao)) {
-                        dao.rollback();
-                        return;
-                    }
+                } else if (!dao.update(pessoaProfissao)) {
+                    dao.rollback();
+                    return;
                 }
                 dao.commit();
             }
@@ -542,12 +542,10 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                             dao.rollback();
                             return;
                         }
-                    } else {
-                        if (!dao.update(pe)) {
-                            GenericaMensagem.warn("Erro", "Não foi possivel ALTERAR endereço!");
-                            dao.rollback();
-                            return;
-                        }
+                    } else if (!dao.update(pe)) {
+                        GenericaMensagem.warn("Erro", "Não foi possivel ALTERAR endereço!");
+                        dao.rollback();
+                        return;
                     }
                 }
 
@@ -763,7 +761,6 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 }
             }
             loadMalaDireta();
-            RequestContext.getCurrentInstance().update("form_pessoa_fisica:i_p_o");
         }
     }
 
@@ -1070,12 +1067,10 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                     GenericaMensagem.error("ERRO", "Não foi possível adicionar Empresa!");
                     return;
                 }
-            } else {
-                if (!di.update(pessoaEmpresa)) {
-                    di.rollback();
-                    GenericaMensagem.error("ERRO", "Não foi possível adicionar Empresa!");
-                    return;
-                }
+            } else if (!di.update(pessoaEmpresa)) {
+                di.rollback();
+                GenericaMensagem.error("ERRO", "Não foi possível adicionar Empresa!");
+                return;
             }
             di.commit();
 
@@ -2142,28 +2137,22 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             if (socios.getServicoPessoa().isAtivo()) {
                 // SÓCIO TITULAR
                 tipoCadastro = 2;
-            } else {
-                if (listaSocioInativo.isEmpty()) {
-                    // SÓCIO INATIVO
-                    tipoCadastro = 4;
-                } else if (!listaSocioInativo.isEmpty()) {
-                    // SÓCIO INATIVO
-                    tipoCadastro = 5;
-                }
+            } else if (listaSocioInativo.isEmpty()) {
+                // SÓCIO INATIVO
+                tipoCadastro = 4;
+            } else if (!listaSocioInativo.isEmpty()) {
+                // SÓCIO INATIVO
+                tipoCadastro = 5;
             }
-        } else {
-            if (socios.getServicoPessoa().isAtivo() && ((socios.getServicoPessoa().getReferenciaValidade() != null && socios.getServicoPessoa().getReferenciaValidade().isEmpty()) || DataHoje.maiorData("01/" + socios.getServicoPessoa().getReferenciaValidade(), DataHoje.data()))) {
-                // SÓCIO DEPENDENTE
-                tipoCadastro = 3;
-            } else {
-                if (listaSocioInativo.isEmpty()) {
-                    // SÓCIO INATIVO
-                    tipoCadastro = 4;
-                } else if (!listaSocioInativo.isEmpty()) {
-                    // SÓCIO INATIVO
-                    tipoCadastro = 5;
-                }
-            }
+        } else if (socios.getServicoPessoa().isAtivo() && ((socios.getServicoPessoa().getReferenciaValidade() != null && socios.getServicoPessoa().getReferenciaValidade().isEmpty()) || DataHoje.maiorData("01/" + socios.getServicoPessoa().getReferenciaValidade(), DataHoje.data()))) {
+            // SÓCIO DEPENDENTE
+            tipoCadastro = 3;
+        } else if (listaSocioInativo.isEmpty()) {
+            // SÓCIO INATIVO
+            tipoCadastro = 4;
+        } else if (!listaSocioInativo.isEmpty()) {
+            // SÓCIO INATIVO
+            tipoCadastro = 5;
         }
         return tipoCadastro;
     }
@@ -2575,24 +2564,20 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                             return;
                         }
                     }
-                } else {
-                    if (md != null) {
-                        if (dao.delete(md, true)) {
-                            idMalaDiretaGrupo = null;
-                            listMalaDiretaGrupo.clear();
-                            GenericaMensagem.info("Sucesso", "Registro atualizado!");
-                            return;
-                        }
-                    }
-                }
-            } else {
-                if (md != null) {
+                } else if (md != null) {
                     if (dao.delete(md, true)) {
                         idMalaDiretaGrupo = null;
                         listMalaDiretaGrupo.clear();
                         GenericaMensagem.info("Sucesso", "Registro atualizado!");
                         return;
                     }
+                }
+            } else if (md != null) {
+                if (dao.delete(md, true)) {
+                    idMalaDiretaGrupo = null;
+                    listMalaDiretaGrupo.clear();
+                    GenericaMensagem.info("Sucesso", "Registro atualizado!");
+                    return;
                 }
             }
         }
@@ -2641,5 +2626,12 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     public void setListaArquivos(List<LinhaArquivo> listaArquivos) {
         this.listaArquivos = listaArquivos;
+    }
+
+    public List<TmktHistorico> getListTelemarketing() {
+        if (fisica.getPessoa().getId() != -1) {
+            return new TmktHistoricoDao().findByPessoa(fisica.getPessoa().getId());
+        }
+        return new ArrayList();
     }
 }

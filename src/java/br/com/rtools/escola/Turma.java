@@ -37,7 +37,7 @@ public class Turma implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
     @JoinColumn(name = "id_curso", referencedColumnName = "id")
     @ManyToOne
     private Servicos cursos;
@@ -51,37 +51,40 @@ public class Turma implements Serializable {
     private String horaInicio;
     @Column(name = "tm_termino")
     private String horaTermino;
-    @Column(name = "is_segunda", columnDefinition = "boolean default false")
-    private boolean segunda;
-    @Column(name = "is_terca", columnDefinition = "boolean default false")
-    private boolean terca;
-    @Column(name = "is_quarta", columnDefinition = "boolean default false")
-    private boolean quarta;
-    @Column(name = "is_quinta", columnDefinition = "boolean default false")
-    private boolean quinta;
-    @Column(name = "is_sexta", columnDefinition = "boolean default false")
-    private boolean sexta;
-    @Column(name = "is_sabado", columnDefinition = "boolean default false")
-    private boolean sabado;
-    @Column(name = "is_domingo", columnDefinition = "boolean default false")
-    private boolean domingo;
+    @Column(name = "is_segunda", columnDefinition = "Boolean default false")
+    private Boolean segunda;
+    @Column(name = "is_terca", columnDefinition = "Boolean default false")
+    private Boolean terca;
+    @Column(name = "is_quarta", columnDefinition = "Boolean default false")
+    private Boolean quarta;
+    @Column(name = "is_quinta", columnDefinition = "Boolean default false")
+    private Boolean quinta;
+    @Column(name = "is_sexta", columnDefinition = "Boolean default false")
+    private Boolean sexta;
+    @Column(name = "is_sabado", columnDefinition = "Boolean default false")
+    private Boolean sabado;
+    @Column(name = "is_domingo", columnDefinition = "Boolean default false")
+    private Boolean domingo;
     @JoinColumn(name = "id_filial", referencedColumnName = "id")
     @ManyToOne
     private Filial filial;
     @Column(name = "nr_quantidade")
-    private int quantidade;
+    private Integer quantidade;
     @Column(name = "nr_sala", length = 2)
     private String sala;
     @Column(name = "ds_descricao", length = 255)
     private String descricao;
     @Column(name = "nr_idade_ini")
-    private int idadeInicial;
+    private Integer idadeInicial;
     @Column(name = "nr_idade_fim")
-    private int idadeFim;
+    private Integer idadeFim;
 
-    public Turma(int id, Servicos cursos, String dataInicio, String dataTermino, String horaInicio, String horaTermino,
-            boolean segunda, boolean terca, boolean quarta, boolean quinta, boolean sexta, boolean sabado, boolean domingo, Filial filial,
-            int quantidade, String sala, String descricao, int idadeInicial, int idadeFim) {
+    @Transient
+    private Boolean selected;
+
+    public Turma(Integer id, Servicos cursos, String dataInicio, String dataTermino, String horaInicio, String horaTermino,
+            Boolean segunda, Boolean terca, Boolean quarta, Boolean quinta, Boolean sexta, Boolean sabado, Boolean domingo, Filial filial,
+            Integer quantidade, String sala, String descricao, Integer idadeInicial, Integer idadeFim) {
         this.id = id;
         this.cursos = cursos;
         this.dtInicio = DataHoje.converte(dataInicio);
@@ -101,6 +104,7 @@ public class Turma implements Serializable {
         this.descricao = descricao;
         this.idadeInicial = idadeInicial;
         this.idadeFim = idadeFim;
+        this.selected = false;
     }
 
     public Turma() {
@@ -125,11 +129,11 @@ public class Turma implements Serializable {
         this.idadeFim = 120;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -173,59 +177,59 @@ public class Turma implements Serializable {
         this.horaTermino = horaTermino;
     }
 
-    public boolean isSegunda() {
+    public Boolean getSegunda() {
         return segunda;
     }
 
-    public void setSegunda(boolean segunda) {
+    public void setSegunda(Boolean segunda) {
         this.segunda = segunda;
     }
 
-    public boolean isTerca() {
+    public Boolean getTerca() {
         return terca;
     }
 
-    public void setTerca(boolean terca) {
+    public void setTerca(Boolean terca) {
         this.terca = terca;
     }
 
-    public boolean isQuarta() {
+    public Boolean getQuarta() {
         return quarta;
     }
 
-    public void setQuarta(boolean quarta) {
+    public void setQuarta(Boolean quarta) {
         this.quarta = quarta;
     }
 
-    public boolean isQuinta() {
+    public Boolean getQuinta() {
         return quinta;
     }
 
-    public void setQuinta(boolean quinta) {
+    public void setQuinta(Boolean quinta) {
         this.quinta = quinta;
     }
 
-    public boolean isSexta() {
+    public Boolean getSexta() {
         return sexta;
     }
 
-    public void setSexta(boolean sexta) {
+    public void setSexta(Boolean sexta) {
         this.sexta = sexta;
     }
 
-    public boolean isSabado() {
+    public Boolean getSabado() {
         return sabado;
     }
 
-    public void setSabado(boolean sabado) {
+    public void setSabado(Boolean sabado) {
         this.sabado = sabado;
     }
 
-    public boolean isDomingo() {
+    public Boolean getDomingo() {
         return domingo;
     }
 
-    public void setDomingo(boolean domingo) {
+    public void setDomingo(Boolean domingo) {
         this.domingo = domingo;
     }
 
@@ -275,11 +279,11 @@ public class Turma implements Serializable {
         this.filial = filial;
     }
 
-    public int getQuantidade() {
+    public Integer getQuantidade() {
         return quantidade;
     }
 
-    public void setQuantidade(int quantidade) {
+    public void setQuantidade(Integer quantidade) {
         this.quantidade = quantidade;
     }
 
@@ -299,19 +303,27 @@ public class Turma implements Serializable {
         this.descricao = descricao;
     }
 
-    public int getIdadeInicial() {
+    public Integer getIdadeInicial() {
         return idadeInicial;
     }
 
-    public void setIdadeInicial(int idadeInicial) {
+    public void setIdadeInicial(Integer idadeInicial) {
         this.idadeInicial = idadeInicial;
     }
 
-    public int getIdadeFim() {
+    public Integer getIdadeFim() {
         return idadeFim;
     }
 
-    public void setIdadeFim(int idadeFim) {
+    public void setIdadeFim(Integer idadeFim) {
         this.idadeFim = idadeFim;
+    }
+
+    public Boolean getSelected() {
+        return selected;
+    }
+
+    public void setSelected(Boolean selected) {
+        this.selected = selected;
     }
 }

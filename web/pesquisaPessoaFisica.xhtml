@@ -33,12 +33,6 @@
                             <div class="clear"></div>
                             <p:panel id="i_panel_pesquisa" styleClass="fundoCinza">
                                 <h:panelGrid columns="5">
-                                    <!-- <p:selectOneMenu id="i_pesquisa_por" value="# {fisicaBean.pesquisaPor}" style="margin-right: 30px; padding-right: 20px">
-                                        <p:ajax event="change" update="@this, id_desc_pesquisa, tbl, i_panel_pesquisa" listener="# {fisicaBean.listaPessoaFisica.clear()}" global="false"/>
-                                        <f:selectItem itemValue="pessoa"                itemLabel="Física"/>
-                                        <f:selectItem itemValue="socioativo"            itemLabel="Sócio Ativo"/>
-                                        <f:selectItem itemValue="socioinativo"          itemLabel="Sócio Inativos"/>
-                                    </p:selectOneMenu> -->
                                     <p:inputMask id="id_desc_pesquisa" value="#{fisicaBean.descPesquisa}" size="50" mask="#{fisicaBean.mask}" placeholder="#{fisicaBean.porPesquisa eq 'endereco' ?  'Logradouro + Descrição Endereço + , + Número + - + Bairro' : ''}">
                                         <p:ajax event="change" update="@this" global="false" />
                                     </p:inputMask>
@@ -113,7 +107,13 @@
                                 </p:column>
 
                                 <p:rowExpansion>
-                                    <h:panelGrid columns="4" style="height: 40px" styleClass="sbb">
+                                    <h:panelGrid columns="5" style="height: 40px" styleClass="sbb">
+
+                                        <p:column>
+                                            <h:outputText value="CÓDIGO" style="font-weight: bold"/><br />
+                                            <h:outputText value="#{fisica.pessoa.id}"/>
+                                        </p:column>
+
                                         <p:column>
                                             <h:outputText value="Dt Nascimento" style="font-weight: bold"/><br />
                                             <h:outputText value="#{fisica.nascimento}"/>
@@ -131,6 +131,7 @@
                                         <p:column>
                                             <p:commandButton icon="ui-icon-contact" update=":form_pesquisa_pessoa:i_pessoa_fisica_card" onclick="PF('dlg_pessoa_fisica_card').show()" action="#{pessoaCardBean.cardFisica(fisica.pessoa.id)}" title="Ver detalhes" />
                                         </p:column>
+
                                     </h:panelGrid>
                                     <h:panelGrid style="height: 40px" styleClass="sbb">
                                         <h:outputLabel value="Endereço: #{fisica.pessoa.pessoaEndereco.enderecoCompletoString} " styleClass="bold font-color-red"/>

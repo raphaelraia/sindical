@@ -24,6 +24,7 @@ import br.com.rtools.utilitarios.db.FunctionsDB;
 import br.com.rtools.utilitarios.db.FunctionsDao;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.InetAddress;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -168,6 +169,26 @@ public class ControleUsuarioBean implements Serializable {
         }
         usuario = db.ValidaUsuario(usuario.getLogin(), usuario.getSenha());
         if (usuario != null) {
+            if (usuario.getId() != 1) {
+                if (usuario.getAutenticado()) {
+                    if(macFilial == null) {
+                        usuario = new Usuario();
+                        GenericaMensagem.warn("Obrigatório uso de MAC Filial! Contate o administrador do sistema.", "Nome do dispositivo diferente do registrado (Registro Computador/Mac Filial)!");
+                        return null;                        
+                    }
+                }
+                try {
+                    InetAddress ia = InetAddress.getLocalHost();
+                    String hostName = ia.getHostName();
+                    if (!macFilial.getNomeDispositivo().isEmpty() && !hostName.equals(macFilial.getNomeDispositivo())) {
+                        usuario = new Usuario();
+                        GenericaMensagem.warn("Sistema. Nome do dispositivo diferente do registrado (Registro Computador/Mac Filial)! Contate o administrador do sistema.", "Nome do dispositivo diferente do registrado (Registro Computador/Mac Filial)!");
+                        return null;
+                    }
+                } catch (Exception e) {
+                    
+                }
+            }
             AtalhoDB dba = new AtalhoDBToplink();
             if (dba.listaAcessosUsuario(usuario.getId()).isEmpty()) {
                 Diretorio.criar("");

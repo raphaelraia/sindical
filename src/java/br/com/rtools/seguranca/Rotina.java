@@ -66,8 +66,10 @@ public class Rotina implements java.io.Serializable {
     public String getCurrentPage() {
         try {
             this.pagina = this.pagina.replace("Sindical", "");
+            this.pagina = this.pagina.replace("sindical", "");
             this.pagina = this.pagina.replace("/", "");
             this.pagina = this.pagina.replace("\"", "");
+            this.pagina = this.pagina.replace("_", ""); 
             this.pagina = this.pagina.replace(".jsf", "");
             this.pagina = this.pagina.replace(".xhml", "");
             return this.pagina;

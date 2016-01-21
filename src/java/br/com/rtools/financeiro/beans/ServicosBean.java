@@ -33,6 +33,7 @@ import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
@@ -128,7 +129,7 @@ public class ServicosBean implements Serializable {
         GenericaSessao.remove("contaCobrancaPesquisa");
     }
 
-    public void loadModeloCarteirinha() {
+    public final void loadModeloCarteirinha() {
         List<ModeloCarteirinha> list = new Dao().list(new ModeloCarteirinha(), true);
         idModeloCarteirinha = null;
         for (int i = 0; i < list.size(); i++) {
@@ -396,7 +397,7 @@ public class ServicosBean implements Serializable {
         if (servicos.getPeriodo() != null) {
             getListPeriodo();
             for (int i = 0; i < listPeriodo.size(); i++) {
-                if (Integer.valueOf(listPeriodo.get(i).getDescription()) == servicos.getPeriodo().getId()) {
+                if (Objects.equals(Integer.valueOf(listPeriodo.get(i).getDescription()), servicos.getPeriodo().getId())) {
                     idPeriodo = i;
                 }
             }

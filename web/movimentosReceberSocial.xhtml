@@ -14,11 +14,9 @@
             .ui-button { padding: 3px!important; }
 
             .ui-datatable tr.ui-datatable-even:hover, .ui-datatable tr.ui-datatable-odd:hover {
-                //background: #ECF3FE;
             }
             .tblListaBoleto{
                 background-color: #39ff9c!important;
-                //color: #CCFF66!important;
             }
         </style>
 
@@ -53,6 +51,11 @@
                         <h:outputText value="Movimentos a Receber" styleClass="fonteHeader" />
                         <div class="clear"></div>
                         <h:form id="formMovimentosReceberPesquisa">
+                            <h:panelGrid columns="2" styleClass="float-right" rendered="#{movimentosReceberSocialBean.pessoa.id != -1}">
+                                <p:outputLabel value="Atalho:" />
+                                <p:commandLink value="Telemarketing" action="#{chamadaPaginaBean.pagina('telemarketing')}" immediate="true" styleClass="font-size-14 font-color-blue" actionListener="#{genericaSessao.putObject('pessoaPesquisa', movimentosReceberSocialBean.pessoa)}" />
+                            </h:panelGrid>
+                            <div class="clear"></div>                            
                             <p:panel style="border: 1px solid #ff9999;" rendered="#{not empty movimentosReceberSocialBean.pessoa.pessoaComplemento.obsAviso}" styleClass="margin-top">
                                 <f:facet name="header">
                                     <h:outputLabel value="! MENSAGEM DE BLOQUEIO" style="font-weight: bold; color: red; "/>                                            
@@ -86,7 +89,7 @@
                         <h:form id="formMovimentosReceber">
                             <p:panel styleClass="fundoCinza" style="clear: both">
                                 <h:panelGrid columns="3" style="width: 100%">
-                                    <p:column>
+                                    <p:column>                                        
                                         <p:commandButton value="Adicionar uma Pessoa" action="#{chamadaPaginaBean.pesquisaPessoa}" rendered="#{movimentosReceberSocialBean.pessoa.id == -1}"/>
                                         <p:commandButton value="Pesquisar outra Pessoa" action="#{chamadaPaginaBean.pesquisaPessoa}" rendered="#{movimentosReceberSocialBean.pessoa.id != -1}"/>
                                         <h:column rendered="#{movimentosReceberSocialBean.pessoa.tipoDocumento.id == 1 and false == true}">

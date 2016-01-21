@@ -68,6 +68,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
@@ -329,9 +330,11 @@ public class MatriculaEscolaBean implements Serializable {
     }
 
     public boolean validaDataVigoracaoValidadeBoolean() {
-        if (!DataHoje.validaReferencias(servicoPessoa.getReferenciaVigoracao(), servicoPessoa.getReferenciaValidade())) {
-            GenericaMensagem.warn("Atenção", "Data de INICIAL não pode ser menor que FINAL para as Parcelas!");
-            return false;
+        if (!getServicoIndividual().isCursoRenovacao()) {
+            if (!DataHoje.validaReferencias(servicoPessoa.getReferenciaVigoracao(), servicoPessoa.getReferenciaValidade())) {
+                GenericaMensagem.warn("Atenção", "Data de INICIAL não pode ser menor que FINAL para as Parcelas!");
+                return false;
+            }
         }
         return true;
     }
@@ -561,6 +564,8 @@ public class MatriculaEscolaBean implements Serializable {
                 GenericaMensagem.error("Sistema", "Não é possível gerar um contrato para este serviço. Para gerar um contrato acesse: Menu Escola > Suporte > Modelo Contrato.");
                 return;
             }
+            String dataInicial = "";
+            String dataFinal = "";
             String horaInicial;
             String horaFinal;
             matriculaContrato.setDescricao(matriculaContrato.getDescricao().replace("$aluno", servicoPessoa.getPessoa().getNome()));
@@ -574,60 +579,74 @@ public class MatriculaEscolaBean implements Serializable {
                 rgAluno = new Fisica();
             }
             List listaDiaSemana = new ArrayList();
-            int periodoMeses;
+            int periodoMeses = 0;
             String periodoMesesExtenso;
+            Object periodoMesesObject;
             if (tipoMatricula.equals("Individual")) {
                 contratoCurso = matriculaIndividual.getCurso().getDescricao();
-                if (matriculaIndividual.isSegunda()) {
+                if (matriculaIndividual.getSegunda()) {
                     listaDiaSemana.add("Seg");
                 }
-                if (matriculaIndividual.isTerca()) {
+                if (matriculaIndividual.getTerca()) {
                     listaDiaSemana.add("Ter");
                 }
-                if (matriculaIndividual.isQuarta()) {
+                if (matriculaIndividual.getQuarta()) {
                     listaDiaSemana.add("Qua");
                 }
-                if (matriculaIndividual.isQuinta()) {
+                if (matriculaIndividual.getQuinta()) {
                     listaDiaSemana.add("Qui");
                 }
-                if (matriculaIndividual.isSexta()) {
+                if (matriculaIndividual.getSexta()) {
                     listaDiaSemana.add("Sex");
                 }
-                if (matriculaIndividual.isSabado()) {
+                if (matriculaIndividual.getSabado()) {
                     listaDiaSemana.add("Sab");
                 }
-                if (matriculaIndividual.isDomingo()) {
+                if (matriculaIndividual.getDomingo()) {
                     listaDiaSemana.add("Dom");
                 }
                 horaInicial = matriculaIndividual.getInicio();
                 horaFinal = matriculaIndividual.getTermino();
-                periodoMeses = DataHoje.quantidadeMeses(matriculaIndividual.getDataInicio(), matriculaIndividual.getDataTermino());
+                dataInicial = matriculaIndividual.getDataInicioString();
+                dataFinal = matriculaIndividual.getDataTerminoString();
+                if (dataFinal.isEmpty()) {
+                    dataFinal = "* (data Indeterminada)";
+                    periodoMesesObject = "Indeterminado";
+                } else {
+                    periodoMeses = DataHoje.quantidadeMeses(matriculaIndividual.getDataInicio(), matriculaIndividual.getDataTermino());
+                    periodoMesesObject = periodoMeses;
+                }
                 matriculaContrato.setDescricao(matriculaContrato.getDescricao().replace("$mesAnoInicialExtenso", DataHoje.dataExtenso(matriculaIndividual.getDataInicioString(), 1)));
                 matriculaContrato.setDescricao(matriculaContrato.getDescricao().replace("$mesAnoFinalExtenso", DataHoje.dataExtenso(matriculaIndividual.getDataTerminoString(), 1)));
             } else {
                 turmax = ((MatriculaTurma) dao.find(matriculaTurma)).getTurma();
                 contratoCurso = matriculaTurma.getTurma().getCursos().getDescricao();
-                periodoMeses = DataHoje.quantidadeMeses(turma.getDtInicio(), turma.getDtTermino());
-                if (turmax.isSegunda()) {
+                periodoMesesObject = DataHoje.quantidadeMeses(turma.getDtInicio(), turma.getDtTermino());
+                if (turmax.getSegunda()) {
                     listaDiaSemana.add("Seg");
                 }
-                if (turmax.isTerca()) {
+                if (turmax.getTerca()) {
                     listaDiaSemana.add("Ter");
                 }
-                if (turmax.isQuarta()) {
+                if (turmax.getQuarta()) {
                     listaDiaSemana.add("Qua");
                 }
-                if (turmax.isQuinta()) {
+                if (turmax.getQuinta()) {
                     listaDiaSemana.add("Qui");
                 }
-                if (turmax.isSexta()) {
+                if (turmax.getSexta()) {
                     listaDiaSemana.add("Sex");
                 }
-                if (turmax.isSabado()) {
+                if (turmax.getSabado()) {
                     listaDiaSemana.add("Sab");
                 }
-                if (turmax.isDomingo()) {
+                if (turmax.getDomingo()) {
                     listaDiaSemana.add("Dom");
+                }
+                dataInicial = matriculaTurma.getTurma().getDataInicio();
+                dataFinal = matriculaTurma.getTurma().getDataTermino();
+                if (dataFinal.isEmpty()) {
+                    dataFinal = "Indeterminada";
                 }
                 horaInicial = matriculaTurma.getTurma().getHoraInicio();
                 horaFinal = matriculaTurma.getTurma().getHoraTermino();
@@ -708,11 +727,11 @@ public class MatriculaEscolaBean implements Serializable {
             matriculaContrato.setDescricao(matriculaContrato.getDescricao().replace("$estadoCivilResponsavel", contratoFisica.getEstadoCivil()));
             matriculaContrato.setDescricao(matriculaContrato.getDescricao().replace("$curso", (contratoCurso)));
             matriculaContrato.setDescricao(matriculaContrato.getDescricao().replace("$diaSemana", (contratoDiaSemana)));
-            matriculaContrato.setDescricao(matriculaContrato.getDescricao().replace("$dataInicialExtenso", (DataHoje.dataExtenso(turmax.getDataInicio()))));
-            matriculaContrato.setDescricao(matriculaContrato.getDescricao().replace("$dataFinalExtenso", (DataHoje.dataExtenso(turmax.getDataTermino()))));
+            matriculaContrato.setDescricao(matriculaContrato.getDescricao().replace("$dataInicialExtenso", (DataHoje.dataExtenso(dataInicial))));
+            matriculaContrato.setDescricao(matriculaContrato.getDescricao().replace("$dataFinalExtenso", (DataHoje.dataExtenso(dataFinal))));
             matriculaContrato.setDescricao(matriculaContrato.getDescricao().replace("$dataExtenso", (DataHoje.dataExtenso(DataHoje.data()))));
-            matriculaContrato.setDescricao(matriculaContrato.getDescricao().replace("$dataInicial", (turmax.getDataInicio())));
-            matriculaContrato.setDescricao(matriculaContrato.getDescricao().replace("$dataFinal", (turmax.getDataTermino())));
+            matriculaContrato.setDescricao(matriculaContrato.getDescricao().replace("$dataInicial", (dataInicial)));
+            matriculaContrato.setDescricao(matriculaContrato.getDescricao().replace("$dataFinal", (dataFinal)));
             matriculaContrato.setDescricao(matriculaContrato.getDescricao().replace("$descontoExtenso", Moeda.converteR$Float(servicoPessoa.getNrDesconto())));
             matriculaContrato.setDescricao(matriculaContrato.getDescricao().replace("$desconto", Moeda.converteR$Float(servicoPessoa.getNrDesconto())));
             matriculaContrato.setDescricao(matriculaContrato.getDescricao().replace("$parcelas", (Integer.toString(numeroParcelas))));
@@ -753,7 +772,7 @@ public class MatriculaEscolaBean implements Serializable {
             matriculaContrato.setDescricao(matriculaContrato.getDescricao().replace("$estadoAluno", (estadoAlunoString)));
             matriculaContrato.setDescricao(matriculaContrato.getDescricao().replace("$cepAluno", (cepAlunoString)));
             matriculaContrato.setDescricao(matriculaContrato.getDescricao().replace("$mesesExtenso", (periodoMesesExtenso)));
-            matriculaContrato.setDescricao(matriculaContrato.getDescricao().replace("$meses", (Integer.toString(periodoMeses))));
+            matriculaContrato.setDescricao(matriculaContrato.getDescricao().replace("$meses", periodoMesesObject.toString()));
             String alunoNascimento = "";
             if (contratoFisica.getId() != -1) {
                 alunoNascimento = (contratoFisica.getNascimento());
@@ -987,26 +1006,29 @@ public class MatriculaEscolaBean implements Serializable {
                     GenericaMensagem.warn("Atenção", "Informar a data inicial!");
                     return;
                 }
-                if (matriculaIndividual.getDataTermino() == null) {
-                    GenericaMensagem.warn("Atenção", "Informar a data de término!");
-                    return;
-                }
-
                 int dataInicioInteger = DataHoje.converteDataParaInteger(matriculaIndividual.getDataInicioString());
                 int dataFinalInteger = DataHoje.converteDataParaInteger(matriculaIndividual.getDataTerminoString());
                 int dataHojeInteger = DataHoje.converteDataParaInteger(servicoPessoa.getEmissao());
-
                 if (dataInicioInteger < dataHojeInteger) {
                     GenericaMensagem.warn("Atenção", "A data inicial do curso deve ser maior ou igual a data de emissão!");
                     return;
                 }
-                if (dataFinalInteger < dataHojeInteger) {
-                    GenericaMensagem.warn("Atenção", "A data final do curso deve ser maior ou igual a data de emissão!");
-                    return;
-                }
-                if (dataFinalInteger < dataInicioInteger) {
-                    GenericaMensagem.warn("Atenção", "A data final deve ser maior ou igual a data inicial!");
-                    return;
+                if (getServicoIndividual().isCursoRenovacao()) {
+                    servicoPessoa.setReferenciaValidade("");
+                    matriculaIndividual.setDataTermino(null);
+                } else {
+                    if (matriculaIndividual.getDataTermino() == null) {
+                        GenericaMensagem.warn("Atenção", "Informar a data de término!");
+                        return;
+                    }
+                    if (dataFinalInteger < dataHojeInteger) {
+                        GenericaMensagem.warn("Atenção", "A data final do curso deve ser maior ou igual a data de emissão!");
+                        return;
+                    }
+                    if (dataFinalInteger < dataInicioInteger) {
+                        GenericaMensagem.warn("Atenção", "A data final deve ser maior ou igual a data inicial!");
+                        return;
+                    }
                 }
                 if (DataHoje.validaHora(matriculaIndividual.getInicio()).isEmpty()) {
                     GenericaMensagem.warn("Atenção", "Hora inicial invalida!");
@@ -1026,7 +1048,7 @@ public class MatriculaEscolaBean implements Serializable {
                 return;
             }
 
-            if (!matriculaIndividual.isDomingo() && !matriculaIndividual.isSegunda() && !matriculaIndividual.isTerca() && !matriculaIndividual.isQuarta() && !matriculaIndividual.isQuinta() && !matriculaIndividual.isSexta() && !matriculaIndividual.isSabado()) {
+            if (!matriculaIndividual.getDomingo() && !matriculaIndividual.getSegunda() && !matriculaIndividual.getTerca() && !matriculaIndividual.getQuarta() && !matriculaIndividual.getQuinta() && !matriculaIndividual.getSexta() && !matriculaIndividual.getSabado()) {
                 GenericaMensagem.warn("Atenção", "Selecione ao menos um Dia da Semana!");
                 return;
             }
@@ -1208,7 +1230,7 @@ public class MatriculaEscolaBean implements Serializable {
                 GenericaMensagem.error("Erro", "Não foi possível salvar Matrícula, tente novamente!");
             }
         } else {
-            if (fil.getId() != matriculaEscola.getFilial().getId()) {
+            if (!Objects.equals(fil.getId(), matriculaEscola.getFilial().getId())) {
                 GenericaMensagem.warn("Atençao", "Registro não pode ser atualizado por esta filial!");
                 return;
             }
@@ -1402,12 +1424,10 @@ public class MatriculaEscolaBean implements Serializable {
                     GenericaMensagem.warn("Atenção", "Falha ao excluir essa matrícula!");
                     return;
                 }
-            } else {
-                if (!dao.delete((MatriculaTurma) dao.find(matriculaTurma))) {
-                    dao.rollback();
-                    GenericaMensagem.warn("Atenção", "Falha ao excluir essa matrícula!");
-                    return;
-                }
+            } else if (!dao.delete((MatriculaTurma) dao.find(matriculaTurma))) {
+                dao.rollback();
+                GenericaMensagem.warn("Atenção", "Falha ao excluir essa matrícula!");
+                return;
             }
 
             if (!getListaEscolaAutorizadas().isEmpty()) {
@@ -1946,7 +1966,6 @@ public class MatriculaEscolaBean implements Serializable {
             return aluno;
         }
 
-        
         String tipoFisica = GenericaSessao.getString("pesquisaFisicaTipo", false);
         if (tipoFisica.equals("aluno")) {
             aluno = (Fisica) GenericaSessao.getObject("fisicaPesquisa", true);
@@ -3398,7 +3417,7 @@ public class MatriculaEscolaBean implements Serializable {
                             if (i == 0) {
                                 filial_id = i;
                             }
-                            if (f.getId() == list.get(i).getFilial().getId()) {
+                            if (Objects.equals(f.getId(), list.get(i).getFilial().getId())) {
                                 filial_id = i;
                             }
                             listFiliais.add(new SelectItem(i, list.get(i).getFilial().getFilial().getPessoa().getNome(), "" + list.get(i).getFilial().getId()));
@@ -3450,4 +3469,13 @@ public class MatriculaEscolaBean implements Serializable {
         new FilialDao();
 
     }
+
+    public Servicos getServicoIndividual() {
+        try {
+            return (Servicos) new Dao().find(new Servicos(), Integer.parseInt(listaIndividual.get(idIndividual).getDescription()));
+        } catch (Exception e) {
+            return new Servicos();
+        }
+    }
+
 }

@@ -6,11 +6,14 @@ import br.com.rtools.escola.Turma;
 import br.com.rtools.escola.dao.AgrupaTurmaDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.utilitarios.Dao;
+import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -23,7 +26,8 @@ public class AgrupaTurmaBean implements Serializable {
     private AgrupaTurma agrupaTurma;
     private List<AgrupaTurma> listAgrupaTurma;
     private List<ListaAgrupaTurma> itensAgrupados;
-    private boolean integral;
+    private Boolean integral;
+    private Boolean historico;
 
     @PostConstruct
     public void init() {
@@ -31,6 +35,7 @@ public class AgrupaTurmaBean implements Serializable {
         listAgrupaTurma = new ArrayList<>();
         itensAgrupados = new ArrayList<>();
         integral = false;
+        historico = false;
     }
 
     @PreDestroy
@@ -46,19 +51,28 @@ public class AgrupaTurmaBean implements Serializable {
     public void save() {
         Dao dao = new Dao();
         if (itensAgrupados.isEmpty()) {
-            GenericaMensagem.warn("Validação", "Pesquisar turma e adaocionar itens a lista!");
+            GenericaMensagem.warn("Validação", "Pesquisar turma e adicionar itens a lista!");
             return;
         }
         boolean erro = false;
-        dao.openTransaction();
-        int idTurmaIntegral = 0;
+        boolean is_agrupado = false;
+        Integer count_agrupado = 0;
         for (int i = 0; i < itensAgrupados.size(); i++) {
-            if (itensAgrupados.get(i).isIsIntegral()) {
-                idTurmaIntegral = itensAgrupados.get(i).getAgrupaTurma().getTurma().getId();
+            if (itensAgrupados.get(i).getIsIntegral()) {
+                count_agrupado++;
+                is_agrupado = true;
             }
         }
+        if (!is_agrupado) {
+            GenericaMensagem.warn("Validação", "Inserir uma turma como integral!");
+            return;
+        }
+        if (count_agrupado > 1) {
+            GenericaMensagem.warn("Validação", "Só é possível adicionar uma turma como integral!");
+            return;
+        }
         AgrupaTurmaDao agrupaTurmaDao = new AgrupaTurmaDao();
-        NovoLog novoLog = new NovoLog();
+        dao.openTransaction();
         for (int i = 0; i < itensAgrupados.size(); i++) {
             if (itensAgrupados.get(i).getAgrupaTurma().getId() == -1) {
                 if (itensAgrupados.isEmpty()) {
@@ -71,11 +85,9 @@ public class AgrupaTurmaBean implements Serializable {
                     erro = true;
                     break;
                 }
-            } else {
-                if (!dao.update(itensAgrupados.get(i).getAgrupaTurma())) {
-                    erro = true;
-                    break;
-                }
+            } else if (!dao.update(itensAgrupados.get(i).getAgrupaTurma())) {
+                erro = true;
+                break;
             }
         }
         if (erro) {
@@ -97,9 +109,8 @@ public class AgrupaTurmaBean implements Serializable {
         itensAgrupados.clear();
         boolean turmaIntegral;
         if (!list.isEmpty()) {
-            int idMemoria = list.get(0).getTurmaIntegral().getId();
             for (int i = 0; i < list.size(); i++) {
-                if (idMemoria == list.get(i).getTurma().getId()) {
+                if (list.get(i).getTurmaIntegral() != null && Objects.equals(list.get(i).getTurma().getId(), list.get(i).getTurmaIntegral().getId())) {
                     turmaIntegral = true;
                 } else {
                     turmaIntegral = false;
@@ -146,7 +157,7 @@ public class AgrupaTurmaBean implements Serializable {
                     GenericaMensagem.warn("Validação", "Não é possível agrupar esta turma, não pertence a mesma sala!");
                     return;
                 }
-                if (itensAgrupados.get(i).getAgrupaTurma().getTurma().getId() == agrupaTurma.getTurma().getId()) {
+                if (Objects.equals(itensAgrupados.get(i).getAgrupaTurma().getTurma().getId(), agrupaTurma.getTurma().getId())) {
                     GenericaMensagem.warn("Validação", "Não pode existir duas turmas para o mesmo grupo!");
                     return;
                 }
@@ -163,10 +174,8 @@ public class AgrupaTurmaBean implements Serializable {
                 itensAgrupados.get(i).setIsIntegral(false);
             }
             agrupaTurma.setTurmaIntegral(agrupaTurma.getTurma());
-        } else {
-            if (!itensAgrupados.isEmpty()) {
-                agrupaTurma.setTurmaIntegral(itensAgrupados.get(0).getAgrupaTurma().getTurmaIntegral());
-            }
+        } else if (!itensAgrupados.isEmpty()) {
+            agrupaTurma.setTurmaIntegral(itensAgrupados.get(0).getAgrupaTurma().getTurmaIntegral());
         }
         itensAgrupados.add(new ListaAgrupaTurma(agrupaTurma, integral));
         agrupaTurma = new AgrupaTurma();
@@ -179,7 +188,7 @@ public class AgrupaTurmaBean implements Serializable {
             itensAgrupados.get(i).setIsIntegral(false);
         }
         for (int i = 0; i < itensAgrupados.size(); i++) {
-            if (itensAgrupados.get(i).getAgrupaTurma().getTurma().getId() == lat.getAgrupaTurma().getTurma().getId()) {
+            if (Objects.equals(itensAgrupados.get(i).getAgrupaTurma().getTurma().getId(), lat.getAgrupaTurma().getTurma().getId())) {
                 itensAgrupados.get(i).setIsIntegral(true);
             }
             itensAgrupados.get(i).getAgrupaTurma().setTurmaIntegral(lat.getAgrupaTurma().getTurma());
@@ -188,24 +197,33 @@ public class AgrupaTurmaBean implements Serializable {
 
     public void removeItensList(ListaAgrupaTurma lat) {
         boolean grupoIntegral = false;
-        for (int i = 0; i < itensAgrupados.size(); i++) {
-            if (itensAgrupados.get(i).getAgrupaTurma().getTurma().getId() == lat.getAgrupaTurma().getTurma().getId()) {
-                if (itensAgrupados.get(i).getAgrupaTurma().getTurmaIntegral().getId() == lat.getAgrupaTurma().getTurma().getId()) {
-                    grupoIntegral = true;
+        if (lat.getAgrupaTurma().getId() == -1) {
+            for (int i = 0; i < itensAgrupados.size(); i++) {
+                if (Objects.equals(itensAgrupados.get(i).getAgrupaTurma().getTurma().getId(), lat.getAgrupaTurma().getTurma().getId())) {
+                    if (Objects.equals(itensAgrupados.get(i).getAgrupaTurma().getTurmaIntegral().getId(), lat.getAgrupaTurma().getTurma().getId())) {
+                        grupoIntegral = true;
+                    }
+                    itensAgrupados.remove(i);
                 }
-                itensAgrupados.remove(i);
+            }
+            if (itensAgrupados.size() > 0) {
+                int idTurma = itensAgrupados.get(0).getAgrupaTurma().getTurma().getId();
+                for (int j = 0; j < itensAgrupados.size(); j++) {
+                    if (grupoIntegral) {
+                        itensAgrupados.get(j).setIsIntegral(grupoIntegral);
+                    }
+                    itensAgrupados.get(j).getAgrupaTurma().setTurmaIntegral(itensAgrupados.get(j).getAgrupaTurma().getTurma());
+                    grupoIntegral = false;
+                }
+            }
+        } else if (new Dao().delete(lat.getAgrupaTurma(), true)) {
+            for (int i = 0; i < itensAgrupados.size(); i++) {
+                if (itensAgrupados.get(i).getAgrupaTurma().getId() == lat.getAgrupaTurma().getId()) {
+                    itensAgrupados.remove(i);
+                }
             }
         }
-        if (itensAgrupados.size() > 0) {
-            int idTurma = itensAgrupados.get(0).getAgrupaTurma().getTurma().getId();
-            for (int j = 0; j < itensAgrupados.size(); j++) {
-                if (grupoIntegral) {
-                    itensAgrupados.get(j).setIsIntegral(grupoIntegral);
-                }
-                itensAgrupados.get(j).getAgrupaTurma().setTurmaIntegral(itensAgrupados.get(j).getAgrupaTurma().getTurma());
-                grupoIntegral = false;
-            }
-        }
+        listAgrupaTurma.clear();
     }
 
     public AgrupaTurma getAgrupaTurma() {
@@ -220,15 +238,24 @@ public class AgrupaTurmaBean implements Serializable {
     }
 
     public List<AgrupaTurma> getListAgrupaTurma() {
-        if (listAgrupaTurma.isEmpty()) {
-            Dao dao = new Dao();
-            List<AgrupaTurma> list = (List<AgrupaTurma>) dao.list(new AgrupaTurma(), true);
-            for (int i = 0; i < list.size(); i++) {
-                int idMemoria = list.get(i).getTurmaIntegral().getId();
-                if (idMemoria == list.get(i).getTurma().getId()) {
-                    listAgrupaTurma.add(list.get(i));
+        try {
+            if (listAgrupaTurma.isEmpty()) {
+                AgrupaTurmaDao atd = new AgrupaTurmaDao();
+                List<AgrupaTurma> list = atd.findIntegral();
+                for (int i = 0; i < list.size(); i++) {
+                    Integer rf_atual = DataHoje.converteDataParaRefInteger(DataHoje.converteDataParaReferencia(new Date()));
+                    Integer rf_curso = DataHoje.converteDataParaRefInteger(DataHoje.converteDataParaReferencia(list.get(i).getTurma().getDtInicio()));
+                    if (historico) {
+                        if ((!Objects.equals(rf_atual, rf_curso))) {
+                            listAgrupaTurma.add(list.get(i));
+                        }
+                    } else if ((Objects.equals(rf_atual, rf_curso))) {
+                        listAgrupaTurma.add(list.get(i));
+                    }
                 }
             }
+        } catch (Exception e) {
+            return new ArrayList();
         }
         return listAgrupaTurma;
     }
@@ -245,11 +272,19 @@ public class AgrupaTurmaBean implements Serializable {
         this.itensAgrupados = itensAgrupados;
     }
 
-    public boolean isIntegral() {
+    public Boolean getIntegral() {
         return integral;
     }
 
-    public void setIntegral(boolean integral) {
+    public void setIntegral(Boolean integral) {
         this.integral = integral;
+    }
+
+    public Boolean getHistorico() {
+        return historico;
+    }
+
+    public void setHistorico(Boolean historico) {
+        this.historico = historico;
     }
 }

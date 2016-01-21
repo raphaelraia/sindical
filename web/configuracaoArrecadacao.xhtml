@@ -14,10 +14,6 @@
             .ui-button { padding: 3px!important; }
             .ui-selectonemenu {padding-right: 25px!important;}
         </style>
-
-        <script type="text/javascript">
-
-        </script>
     </h:head>
     <h:body>
         <!-- INICIA DIV wrap e main -->
@@ -34,25 +30,31 @@
 
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Configuração Arrecadação" styleClass="fonteHeader" />
-                        <h:form id="formConfiguracaoArrecadacao">
+                        <h:form id="form_configuracao_arrecadacao">
                             <c:set scope="request" var="object" value="${configuracaoArrecadacaoBean.configuracaoArrecadacao}"/>
                             <div style="clear:both"></div>
-                            <p:messages id="id_messages" showDetail="true" closable="true" />
+                            <p:messages id="id_messages" showDetail="true" closable="true" autoUpdate="true" />
                             <p:growl id="id_messages_growl" showDetail="true"  />
-
+                            <br />
                             <p:panel styleClass="fundoCinza">
-                                <h:panelGrid columns="1">
-                                    <h:column>
-                                        <p:outputLabel value="Filial" /><br />
-                                        <p:selectOneMenu value="#{configuracaoArrecadacaoBean.idFilial}">
-                                            <p:ajax event="change" update="@this" />
-                                            <f:selectItems value="#{configuracaoArrecadacaoBean.listaFilial}"/>
-                                        </p:selectOneMenu>  
-                                    </h:column>
+                                <h:panelGrid columns="2">
+                                    <p:outputLabel value="Filial" />
+                                    <p:selectOneMenu value="#{configuracaoArrecadacaoBean.idFilial}">
+                                        <p:ajax event="change" update="@this" />
+                                        <f:selectItems value="#{configuracaoArrecadacaoBean.listaFilial}"/>
+                                    </p:selectOneMenu>
+                                    <p:outputLabel value="Repis" />
+                                    <p:selectBooleanCheckbox value="#{configuracaoArrecadacaoBean.configuracaoArrecadacao.certificadoFaturementoBrutoAnual}" itemLabel="Faturamento Anual Bruto">
+                                        <p:ajax event="change"  listener="#{configuracaoArrecadacaoBean.update()}" update="form_configuracao_arrecadacao"/>
+                                    </p:selectBooleanCheckbox>
                                 </h:panelGrid>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="1">
+                                        <p:commandButton value="Atualizar" action="#{configuracaoArrecadacaoBean.update()}" update="form_configuracao_arrecadacao"/>                                        
+                                    </h:panelGrid>
+                                </f:facet>
                             </p:panel>
-                            
-                            <p:commandButton value="Atualizar" action="#{configuracaoArrecadacaoBean.update()}" update="formConfiguracaoArrecadacao"/>
+
                         </h:form>
                     </p:panel>
                 </f:view>

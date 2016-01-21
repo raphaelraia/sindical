@@ -24,20 +24,7 @@
                     <ui:include src="templates/templatePrime.xhtml"/>
                 </f:subview>
                 <f:view>
-                    <f:metadata>  
-                        <!-- 
-                        <f:event type="preRenderView" listener="$ {uploadBean.setRotinaNome('usuario')}"/>  
-                        <f:event type="preRenderView" listener="$ {photoCamBean.setRotinaNome('usuario')}"/>
-                        <f:event type="preRenderView" listener="$ {uploadBean.setUPDATE(':form_u:i_photo_cam')}"/>
-                        <f:event type="preRenderView" listener="$ {photoCamBean.setUPDATE(':form_u:i_photo_cam')}"/>                        
-                        -->
-                    </f:metadata>
                     <ui:include src="templates/templateStatus.xhtml"/>
-                    <!--
-                    <ui:include src="templates/templateUpload.xhtml" />
-                    <ui:include src="templates/templatePhotoCam.xhtml" />                    
-                    -->
-                    
                     <ui:include src="templates/templatePhotoCapture.xhtml" />
                     <ui:include src="templates/templatePhotoUpload.xhtml" />
                     
@@ -110,8 +97,13 @@
                                                     <p:ajax event="blur" update="@this"  global="false"/>
                                                 </p:inputText>
                                             </h:column>
+                                            <h:column />
                                             <h:column>
+                                                <p:selectBooleanCheckbox id="idAutenticadoUsuario"  value="#{usuarioBean.usuario.autenticado}" itemLabel="Autenticado (Obriga o uso de MAC Filial. Nome do dispositivo não obrigatório.">
+                                                    <p:ajax event="change" update="idAutenticadoUsuario"  global="false"/>
+                                                </p:selectBooleanCheckbox>
                                             </h:column>
+                                            <h:column />
                                             <h:column>
                                                 <p:selectBooleanCheckbox id="idAtivaUsuario"  value="#{usuarioBean.usuario.ativo}" itemLabel="Ativo?">
                                                     <p:ajax event="change" update="idAtivaUsuario"  global="false"/>

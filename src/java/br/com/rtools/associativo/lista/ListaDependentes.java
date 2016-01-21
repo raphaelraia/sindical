@@ -75,7 +75,7 @@ public class ListaDependentes implements Serializable {
 
     public Parentesco getParentesco() {
         if (idParentesco != null) {
-            return (Parentesco) new Dao().find(new Parentesco(), idParentesco);
+            return (Parentesco) new Dao().find(new Parentesco(), Integer.parseInt(listParentesco.get(idParentesco).getDescription()));
         }
         return new Parentesco();
     }

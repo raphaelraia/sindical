@@ -29,7 +29,7 @@ public class Professor implements BaseEntity, Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
     @JoinColumn(name = "id_professor", referencedColumnName = "id", unique = true)
     @ManyToOne
     private Pessoa professor;
@@ -42,18 +42,18 @@ public class Professor implements BaseEntity, Serializable {
         this.nrComissao = 0;
     }
 
-    public Professor(int id, Pessoa professor, float nrComissao) {
+    public Professor(Integer id, Pessoa professor, float nrComissao) {
         this.id = id;
         this.professor = professor;
         this.nrComissao = nrComissao;
     }
 
     @Override
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

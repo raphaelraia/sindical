@@ -142,6 +142,15 @@ public class DataHoje {
         }
     }
 
+    public static String converteDataParaReferencia(Date date) {
+        String data = converteData(date);
+        try {
+            return data.substring(3);
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
     public static String[] ArrayDataHoje() {
         String[] result = new String[3];
         result[0] = DataHoje.data().substring(0, 2);
@@ -285,6 +294,10 @@ public class DataHoje {
             return true;
         }
         return false;
+    }
+
+    public static Boolean validaReferencia(String referencia) {
+        return new DataHoje().integridadeReferencia(referencia);
     }
 
     public static String converteReferenciaVencimento(String referencia, String diaVencimento, String tipo) {

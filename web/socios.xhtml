@@ -53,7 +53,7 @@
                     <ui:include src="templates/templatePhotoCapture.xhtml" />
                     <ui:include src="templates/templatePhotoUpload.xhtml" />
                     <ui:include src="templates/templatePhotoCropper.xhtml" />
-                    
+
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Cadastro do Sócio" styleClass="fonteHeader" />
                         <h:form id="formSocios">
@@ -159,7 +159,7 @@
                                         <f:selectItems value="#{sociosBean.listaServicos}"/>
                                     </p:selectOneMenu>
                                 </p:column>
-                                
+
                                 <p:column>
                                     <p:selectBooleanCheckbox value="#{sociosBean.chkContaCobranca}" style="" itemLabel="Conta Cobrança">
                                         <p:ajax event="change" update="@this idTipoDocumento" listener="#{sociosBean.loadTipoDocumento()}"/>
@@ -257,17 +257,23 @@
                             <h:panelGrid columns="8" style="margin-top: 5px">
                                 <p:column>
                                     <h:outputLabel value="Data Filiação"/><br />
-                                    <p:inputMask value="#{sociosBean.matriculaSocios.emissao}" size="8" mask="99/99/9999" />
+                                    <p:inputMask value="#{sociosBean.matriculaSocios.emissao}" size="8" mask="99/99/9999" converter="#{isDateStringa}">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:inputMask>
                                 </p:column>
 
                                 <p:column>
                                     <h:outputLabel value="Ref. Vigoração" style="margin-left: 20px"/><br />
-                                    <p:inputMask value="#{sociosBean.servicoPessoa.referenciaVigoracao}" size="5" mask="99/9999" style="margin-left: 20px"/>
+                                    <p:inputMask value="#{sociosBean.servicoPessoa.referenciaVigoracao}" size="5" mask="99/9999" style="margin-left: 20px" converter="#{isDateReference}">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:inputMask>
                                 </p:column>
 
                                 <p:column>
                                     <h:outputLabel value="Ref. Validade" rendered="#{sociosBean.renderServicos}" style="margin-left: 20px"/><br />
-                                    <p:inputMask value="#{sociosBean.servicoPessoa.referenciaValidade}" size="5" rendered="#{servicoPessoaBean.renderServicos}" mask="99/9999" style="margin-left: 20px"/>
+                                    <p:inputMask value="#{sociosBean.servicoPessoa.referenciaValidade}" size="5" rendered="#{servicoPessoaBean.renderServicos}" mask="99/9999" style="margin-left: 20px" converter="#{isDateReference}">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:inputMask>
                                 </p:column>
 
                                 <p:column>
@@ -368,6 +374,8 @@
 
                                     <p:column headerText="Validade Dependente" style="text-align: center; width: 90px">
                                         <p:inputMask id="i_validade_dependente" value="#{listDependentes.validadeDependente}" size="5" mask="99/9999" disabled="#{controleAcessoBean.verificarPermissao('validade_socio', 1)}" style="width: 70px; text-align: center"/>
+                                            <p:ajax event="change" update="@this" />
+                                        </p:inputMask>
                                     </p:column>
 
                                     <p:column headerText="Valor" style="text-align: center; width: 100px">
@@ -394,7 +402,9 @@
                                             </p:selectOneMenu>                                            
                                         </p:column>
                                         <p:column headerText="Validade Dependente" style="text-align: center" width="150">
-                                            <p:inputMask id="i_validade_dependente_inativo" value="#{listDependentesInativos.validadeDependente}" size="5" mask="99/9999"/>
+                                            <p:inputMask id="i_validade_dependente_inativo" value="#{listDependentesInativos.validadeDependente}" size="5" mask="99/9999" converter="#{isDateReference}">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputMask>
                                         </p:column>
                                         <p:column style="text-align: center" width="100">
                                             <p:commandButton value="Reativar" icon="ui-icon-check" update=":formSocios:i_panel_dependente :formSocios:i_growl :formSocios:i_l_d_i" action="#{sociosBean.reativarDependente(index)}"/>
@@ -511,12 +521,14 @@
                             </p:dialog>
 
                             <p:dialog widgetVar="dlg_imprimir_carteirinha" header="Imprimir Carteirinha" resizable="false" width="400" modal="true">
-                                <h:panelGrid columns="2">
-                                    <h:outputLabel value="Deseja realmente imprimir essa carteirinha?" /><br />
-                                </h:panelGrid>
+                                <h:outputLabel value="Deseja realmente imprimir essa carteirinha?" />
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Sim" type="submit" styleClass="ui-confirmdialog-yes" action="#{sociosBean.visualizarCarteirinha(false)}" icon="ui-icon-check" ajax="false"/>  
+                                        <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_imprimir_carteirinha').hide()" icon="ui-icon-close"/>                                        
+                                    </h:panelGrid>
+                                </f:facet>
 
-                                <p:commandButton value="Sim" type="submit" styleClass="ui-confirmdialog-yes" action="#{sociosBean.visualizarCarteirinha(false)}" style="clear: both; float: left" icon="ui-icon-check" ajax="false"/>  
-                                <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_imprimir_carteirinha').hide()" style="float: left" icon="ui-icon-close"/>       
                             </p:dialog>
 
                             <p:dialog header="Cadastrar ou Pesquisar um Dependente" widgetVar="dlg_dependente" modal="true" resizable="false" width="900" visible="#{sociosBean.modelVisible}">

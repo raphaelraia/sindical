@@ -61,16 +61,7 @@
                 <f:view>
 
                     <f:metadata>
-                        <!--    <f:event type="preRenderView" listener="$ {uploadBean.load()}"/> -->
-                        <!--    <f:event type="preRenderView" listener="$ {photoCamBean.load()}"/> -->
-                        <!--    <f:event type="preRenderView" listener="$ {uploadBean.setRotinaNome('pessoaFisica')}"/> -->
-                        <!--    <f:event type="preRenderView" listener="$ {photoCamBean.setRotinaNome('pessoaFisica')}"/>-->
-                        <!--    <f:event type="preRenderView" listener="$ {uploadBean.setUPDATE(':form_pessoa_fisica:i_tabview_fisica:i_panel_imagens')}"/> -->
-                        <!--    <f:event type="preRenderView" listener="$ {photoCamBean.setUPDATE(':form_pessoa_fisica:i_tabview_fisica:i_panel_imagens')}"/> -->
                     </f:metadata>
-                    <!-- <ui:include src="templates/templateUpload.xhtml" /> -->
-                    <!-- <ui:include src="templates/templatePhotoCam.xhtml" /> -->
-
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:form id="form_pessoa_fisica">
                             <h:outputScript name="tradutor_primefaces.js" library="js" /> 
@@ -178,14 +169,21 @@
                                                     <p:column>
                                                         <p:outputLabel value="Telefone" /><br />
                                                         <p:inputMask mask="(99) 9999-9999" size="13" maxlength="10" value="#{fisicaBean.fisica.pessoa.telefone1}" style="margin-right: 30px">
-                                                            <p:ajax event="blur" update="@this" />
+                                                            <p:ajax event="change" update="@this" />
+                                                        </p:inputMask>
+                                                    </p:column>
+                                                    
+                                                    <p:column>
+                                                        <p:outputLabel value="Telefone 2" /><br />
+                                                        <p:inputMask mask="(99) 9999-9999" size="13" maxlength="10" value="#{fisicaBean.fisica.pessoa.telefone2}" style="margin-right: 30px">
+                                                            <p:ajax event="change" update="@this" />
                                                         </p:inputMask>
                                                     </p:column>
 
                                                     <p:column>
                                                         <p:outputLabel value="Celular" /><br />
                                                         <p:inputText size="14" maxlength="10" value="#{fisicaBean.fisica.pessoa.telefone3}" styleClass="ddd_telefone">
-                                                            <p:ajax event="blur" update="@this" />
+                                                            <p:ajax event="change" update="@this" />
                                                         </p:inputText>
                                                     </p:column>                                            
                                                 </h:panelGrid>
@@ -800,6 +798,34 @@
                                             </h:panelGrid>
                                         </p:dialog>
                                     </p:tab>
+                                    <p:tab title="Telemarketing">
+                                        <p:dataTable value="#{fisicaBean.listTelemarketing}" var="telemarketing" emptyMessage="Nenhum registro encontrado!" scrollHeight="400" scrollable="true" styleClass="margin-top-max">
+                                            <p:column width="15">
+                                                <p:rowToggler />                                                
+                                            </p:column>
+                                            <p:column headerText="Lançamento" width="80" styleClass="text-center">
+                                                #{telemarketing.dataLancamento}
+                                            </p:column>
+                                            <p:column headerText="Hora" width="40" styleClass="text-center">
+                                                #{telemarketing.horaLancamento}
+                                            </p:column>
+                                            <p:column headerText="Natureza" width="120" styleClass="text-center">
+                                                #{telemarketing.natureza.descricao}
+                                            </p:column>
+                                            <p:column headerText="Contato" >
+                                                #{telemarketing.contato.descricao}
+                                            </p:column>
+                                            <p:column headerText="..." >
+                                                #{telemarketing.contatoDescricao}
+                                            </p:column>
+                                            <p:column headerText="Responsável" >
+                                                #{telemarketing.operador.pessoa.nome}
+                                            </p:column>
+                                            <p:rowExpansion>
+                                                Histórico: #{telemarketing.historico}                                                
+                                            </p:rowExpansion>
+                                        </p:dataTable>
+                                    </p:tab>  
                                 </p:tabView>
 
                                 <!-- ENDEREÇO -->
@@ -898,7 +924,10 @@
                                 </p:dialog>
 
                                 <h:panelGrid columns="8">
-                                    <p:commandButton value="Salvar" disabled="#{controleAcessoBean.botaoSalvar}" onclick="PF('dlg_painel_salvar').show();"/>
+                                    <h:column>
+                                        <p:commandButton value="Salvar" disabled="#{controleAcessoBean.botaoSalvar}" onclick="PF('dlg_painel_salvar').show();" rendered="#{fisicaBean.fisica.id == -1}"/>                                        
+                                        <p:commandButton value="Salvar" disabled="#{controleAcessoBean.botaoAlterar}" onclick="PF('dlg_painel_salvar').show();" rendered="#{fisicaBean.fisica.id != -1}"/>                                        
+                                    </h:column>
                                     <p:commandButton value="Novo" action="#{fisicaBean.novo}" />
                                     <p:commandButton value="Excluir" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('dlg_painel_excluir').show();" rendered="#{fisicaBean.fisica.id != -1}" />
                                     <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pesquisaPessoaFisica}" />

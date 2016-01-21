@@ -116,7 +116,7 @@ public class Jasper implements Serializable {
      */
     public static List LIST_FILE_GENERATED;
     /**
-     * set: retrato or paisagem
+     * set: retrato, paisagem, recibo_sem_logo
      */
     public static String TYPE;
     /**
@@ -247,11 +247,9 @@ public class Jasper implements Serializable {
                 return;
             }
             jasperName = jasperName.trim();
-        } else {
-            if (fileName.isEmpty() && !IS_QUERY_STRING) {
-                GenericaMensagem.info("Sistema", "Erro ao criar relatório!");
-                return;
-            }
+        } else if (fileName.isEmpty() && !IS_QUERY_STRING) {
+            GenericaMensagem.info("Sistema", "Erro ao criar relatório!");
+            return;
         }
         fileName = fileName.trim();
         fileName = fileName.replace(" ", "_");
@@ -286,7 +284,7 @@ public class Jasper implements Serializable {
                 Juridica sindicato = (Juridica) new Dao().find(new Juridica(), 1);
                 documentox = sindicato.getPessoa().getDocumento();
             }
-            
+
             switch (TYPE) {
                 case "retrato":
                     subreport = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/CABECALHO_RETRATO.jasper");
@@ -303,35 +301,76 @@ public class Jasper implements Serializable {
                     break;
             }
             parameters.put("is_header", IS_HEADER);
-            parameters.put("sindicato_nome", juridica.getPessoa().getNome());
-            parameters.put("sindicato_documento", documentox);
-            parameters.put("sindicato_site", juridica.getPessoa().getSite());
-            parameters.put("sindicato_logradouro", juridica.getPessoa().getPessoaEndereco().getEndereco().getLogradouro().getDescricao());
-            parameters.put("sindicato_endereco", juridica.getPessoa().getPessoaEndereco().getEndereco().getDescricaoEndereco().getDescricao());
-            parameters.put("sindicato_numero", juridica.getPessoa().getPessoaEndereco().getNumero());
-            parameters.put("sindicato_complemento", juridica.getPessoa().getPessoaEndereco().getComplemento());
-            parameters.put("sindicato_bairro", juridica.getPessoa().getPessoaEndereco().getEndereco().getBairro().getDescricao());
-            parameters.put("sindicato_cidade", juridica.getPessoa().getPessoaEndereco().getEndereco().getCidade().getCidade());
-            parameters.put("sindicato_uf", juridica.getPessoa().getPessoaEndereco().getEndereco().getCidade().getUf());
-            parameters.put("sindicato_cep", juridica.getPessoa().getPessoaEndereco().getEndereco().getCep());
-            parameters.put("sindicato_telefone", juridica.getPessoa().getTelefone1());
-            parameters.put("sindicato_logo", ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));
-            parameters.put("sindicato_email", juridica.getPessoa().getEmail1());
+            if (parameters.get("sindicato_nome") == null || parameters.get("companhia_nome") == null) {
+                parameters.put("sindicato_nome", juridica.getPessoa().getNome());
+                parameters.put("companhia_nome", juridica.getPessoa().getNome());
+            }
+            if (parameters.get("sindicato_documento") == null || parameters.get("companhia_documento") == null) {
+                parameters.put("sindicato_documento", documentox);
+                parameters.put("companhia_documento", documentox);
+            }
+            if (parameters.get("sindicato_site") == null || parameters.get("companhia_site") == null) {
+                parameters.put("sindicato_site", juridica.getPessoa().getSite());
+                parameters.put("companhia_site", juridica.getPessoa().getSite());
+            }
+            if (parameters.get("sindicato_logradouro") == null || parameters.get("companhia_logradouro") == null) {
+                parameters.put("sindicato_logradouro", juridica.getPessoa().getPessoaEndereco().getEndereco().getLogradouro().getDescricao());
+                parameters.put("companhia_logradouro", juridica.getPessoa().getPessoaEndereco().getEndereco().getLogradouro().getDescricao());
+            }
+            if (parameters.get("sindicato_endereco") == null || parameters.get("companhia_endereco") == null) {
+                parameters.put("sindicato_endereco", juridica.getPessoa().getPessoaEndereco().getEndereco().getDescricaoEndereco().getDescricao());
+                parameters.put("companhia_endereco", juridica.getPessoa().getPessoaEndereco().getEndereco().getDescricaoEndereco().getDescricao());
+            }
+            if (parameters.get("sindicato_numero") == null || parameters.get("companhia_numero") == null) {
+                parameters.put("sindicato_numero", juridica.getPessoa().getPessoaEndereco().getNumero());
+                parameters.put("companhia_numero", juridica.getPessoa().getPessoaEndereco().getNumero());
+            }
+            if (parameters.get("sindicato_complemento") == null || parameters.get("companhia_complemento") == null) {
+                parameters.put("sindicato_complemento", juridica.getPessoa().getPessoaEndereco().getComplemento());
+                parameters.put("companhia_complemento", juridica.getPessoa().getPessoaEndereco().getComplemento());
+            }
+            if (parameters.get("sindicato_bairro") == null || parameters.get("companhia_bairro") == null) {
+                parameters.put("sindicato_bairro", juridica.getPessoa().getPessoaEndereco().getEndereco().getBairro().getDescricao());
+                parameters.put("companhia_bairro", juridica.getPessoa().getPessoaEndereco().getEndereco().getBairro().getDescricao());
+            }
+            if (parameters.get("sindicato_cidade") == null || parameters.get("companhia_cidade") == null) {
+                parameters.put("sindicato_cidade", juridica.getPessoa().getPessoaEndereco().getEndereco().getCidade().getCidade());
+                parameters.put("companhia_cidade", juridica.getPessoa().getPessoaEndereco().getEndereco().getCidade().getCidade());
+            }
+            if (parameters.get("sindicato_uf") == null || parameters.get("companhia_uf") == null) {
+                parameters.put("sindicato_uf", juridica.getPessoa().getPessoaEndereco().getEndereco().getCidade().getUf());
+                parameters.put("companhia_uf", juridica.getPessoa().getPessoaEndereco().getEndereco().getCidade().getUf());
+            }
+            if (parameters.get("sindicato_cep") == null || parameters.get("companhia_cep") == null) {
+                parameters.put("sindicato_cep", juridica.getPessoa().getPessoaEndereco().getEndereco().getCep());
+                parameters.put("companhia_cep", juridica.getPessoa().getPessoaEndereco().getEndereco().getCep());
+            }
+            if (parameters.get("sindicato_telefone") == null || parameters.get("companhia_telefone") == null) {
+                parameters.put("sindicato_telefone", juridica.getPessoa().getTelefone1());
+                parameters.put("companhia_telefone", juridica.getPessoa().getTelefone1());
+            }
+            if (parameters.get("sindicato_logo") == null || parameters.get("companhia_logo") == null) {
+                parameters.put("sindicato_logo", ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));
+                parameters.put("companhia_logo", ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));
+            }
+            if (parameters.get("sindicato_logo") == null || parameters.get("companhia_logo") == null) {
+                parameters.put("companhia_logo", juridica.getPessoa().getEmail1());
+            }
 
             // CORREÇÃO
-            // parameters.put("instituicao_nome", juridica.getPessoa().getNome());
-            // parameters.put("instituicao_documento", juridica.getPessoa().getDocumento());
-            // parameters.put("instituicao_site", juridica.getPessoa().getSite());
-            // parameters.put("instituicao_logradouro", juridica.getPessoa().getPessoaEndereco().getEndereco().getLogradouro().getDescricao());
-            // parameters.put("instituicao_endereco", juridica.getPessoa().getPessoaEndereco().getEndereco().getDescricaoEndereco().getDescricao());
-            // parameters.put("instituicao_numero", juridica.getPessoa().getPessoaEndereco().getNumero());
-            // parameters.put("instituicao_complemento", juridica.getPessoa().getPessoaEndereco().getComplemento());
-            // parameters.put("instituicao_bairro", juridica.getPessoa().getPessoaEndereco().getEndereco().getBairro().getDescricao());
-            // parameters.put("instituicao_cidade", juridica.getPessoa().getPessoaEndereco().getEndereco().getCidade().getCidade());
-            // parameters.put("instituicao_uf", juridica.getPessoa().getPessoaEndereco().getEndereco().getCidade().getUf());
-            // parameters.put("instituicao_cep", juridica.getPessoa().getPessoaEndereco().getEndereco().getCep());
-            // parameters.put("instituicao_telefone", juridica.getPessoa().getTelefone1());
-            // parameters.put("instituicao_logo", ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));
+            // parameters.put("companhia_nome", juridica.getPessoa().getNome());
+            // parameters.put("companhia_documento", juridica.getPessoa().getDocumento());
+            // parameters.put("companhia_site", juridica.getPessoa().getSite());
+            // parameters.put("companhia_logradouro", juridica.getPessoa().getPessoaEndereco().getEndereco().getLogradouro().getDescricao());
+            // parameters.put("companhia_endereco", juridica.getPessoa().getPessoaEndereco().getEndereco().getDescricaoEndereco().getDescricao());
+            // parameters.put("companhia_numero", juridica.getPessoa().getPessoaEndereco().getNumero());
+            // parameters.put("companhia_complemento", juridica.getPessoa().getPessoaEndereco().getComplemento());
+            // parameters.put("companhia_bairro", juridica.getPessoa().getPessoaEndereco().getEndereco().getBairro().getDescricao());
+            // parameters.put("companhia_cidade", juridica.getPessoa().getPessoaEndereco().getEndereco().getCidade().getCidade());
+            // parameters.put("companhia_uf", juridica.getPessoa().getPessoaEndereco().getEndereco().getCidade().getUf());
+            // parameters.put("companhia_cep", juridica.getPessoa().getPessoaEndereco().getEndereco().getCep());
+            // parameters.put("companhia_telefone", juridica.getPessoa().getTelefone1());
+            // parameters.put("companhia_logo", ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));
             //
             parameters.put("template_dir", subreport);
         } else {

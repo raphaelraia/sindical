@@ -8,7 +8,18 @@ import javax.persistence.Query;
 
 public class RelatorioHomologacaoDao extends DB {
 
-    private String order = "";
+    private String order;
+    private Relatorios relatorios;
+
+    public RelatorioHomologacaoDao() {
+        this.order = "";
+        this.relatorios = new Relatorios();
+    }
+
+    public RelatorioHomologacaoDao(Relatorios relatorios) {
+        this.order = "";
+        this.relatorios = relatorios;
+    }
 
     /* <ul>
      * <li> [00] - Data Inicial Ignorar) </li>
@@ -29,8 +40,8 @@ public class RelatorioHomologacaoDao extends DB {
      *
      *<strong> Parâmetros</>
      * @param relatorio
-     * @param empresa
-     * @param funcionario
+     * @param inIdEmpresas
+     * @param inIdFuncionarios
      * @param tipoUsuarioOperacional
      * @param usuarioOperacional
      * @param status
@@ -46,31 +57,42 @@ public class RelatorioHomologacaoDao extends DB {
      * @param idConvencao
      * @return 
      */
-    public List find(Relatorios relatorio, Integer empresa, Integer funcionario, String tipoUsuarioOperacional, Integer usuarioOperacional, Integer status, Integer filial, Integer tCase, String dateStart, String dateFinish, Integer motivoDemissao, Boolean tipoAviso, String tipoAgendador, String sexo, Boolean webAgendamento, Integer idConvencao) {
+    public List find(String inIdEmpresas, String inIdFuncionarios, String tipoUsuarioOperacional, Integer usuarioOperacional, String inIdStatus, Integer filial, Integer tCase, String dateStart, String dateFinish, Integer motivoDemissao, Boolean tipoAviso, String tipoAgendador, String sexo, Boolean webAgendamento, Integer idConvencao) {
         List listQuery = new ArrayList();
-        String queryString = " -- RelatorioHomologacaoDao->find()                               \n"
-                + "     SELECT A.dt_data        AS data_inicial,                \n" /*  00 - Data Inicial                   */
-                + "            A.dt_data        AS data_final,                  \n" /*  01 - Data Final                     */
-                + "            A.dt_data        AS data,                        \n" /*  02 - Data                           */
-                + "            H.ds_hora        AS hora,                        \n" /*  03 - Hora                           */
-                + "            PPE.ds_documento AS cnpj,                        \n" /*  04 - Empresa - CNPJ                 */
-                + "            PPE.ds_nome      AS empresa,                     \n" /*  05 - Empresa  Nome                  */
-                + "            FUNC.ds_nome     AS funcionario,                 \n" /*  06 - Funcionário - Nome             */
-                + "            A.ds_contato     AS contato,                     \n" /*  07 - Contato                        */
-                + "            A.ds_telefone    AS telefone,                    \n";/*  08 - Telefone                       */
+        String queryString = ""
+                + " -- RelatorioHomologacaoDao->find() \n\n "
+                + " SELECT ";
+        if (relatorios.getId() == 70) {
 
-        if (tipoUsuarioOperacional != null) {
-            queryString += " UO.ds_nome AS usuario_operacional, \n " /*                 09 - OPERADOR */ ;
+            queryString += " PPE.ds_documento AS cnpj,                          \n" /*  00 - Empresa - CNPJ                 */
+                    + "      PPE.ds_nome      AS empresa,                       \n" /*  01 - Empresa  Nome                  */
+                    + "      S.ds_descricao   AS status,                        \n" /*  02 - Status                         */
+                    + "      count(*)         AS quantidade_status              \n";
+            /* 03 - Quantidade por status          */
         } else {
-            queryString += " '' AS usuario_operacional, \n " /*                         09 - OPERADOR */ ;
-        }
+            queryString += "A.dt_data        AS data_inicial,                   \n" /*  00 - Data Inicial                   */
+                    + "     A.dt_data        AS data_final,                     \n" /*  01 - Data Final                     */
+                    + "     A.dt_data        AS data,                           \n" /*  02 - Data                           */
+                    + "     H.ds_hora        AS hora,                           \n" /*  03 - Hora                           */
+                    + "     PPE.ds_documento AS cnpj,                           \n" /*  04 - Empresa - CNPJ                 */
+                    + "     PPE.ds_nome      AS empresa,                        \n" /*  05 - Empresa  Nome                  */
+                    + "     FUNC.ds_nome     AS funcionario,                    \n" /*  06 - Funcionário - Nome             */
+                    + "     A.ds_contato     AS contato,                        \n" /*  07 - Contato                        */
+                    + "     A.ds_telefone    AS telefone,                       \n";/*  08 - Telefone                       */
 
-        queryString += "       A.ds_obs         AS obs,                         \n" /*  10 - Observações                    */
-                + "            S.ds_descricao   AS status,                      \n" /*  11 - Status                         */
-                + "            C.dt_data        AS cancelamento_data,           \n" /*  12 - Cancelamento - Data            */
-                + "            CPU.ds_nome      AS cancelamento_usuario_nome,   \n" /*  13 - Cancelamento - Usuário - Nome  */
-                + "            C.ds_motivo      AS cancelamento_motivo          \n" /*  14 - Cancelamento - Motivo          */
-                + "       FROM hom_agendamento                  AS A                    \n"
+            if (tipoUsuarioOperacional != null) {
+                queryString += " UO.ds_nome AS usuario_operacional, \n " /*                 09 - OPERADOR */;
+            } else {
+                queryString += " '' AS usuario_operacional, \n " /*                         09 - OPERADOR */;
+            }
+
+            queryString += "       A.ds_obs         AS obs,                         \n" /*  10 - Observações                    */
+                    + "            S.ds_descricao   AS status,                      \n" /*  11 - Status                         */
+                    + "            C.dt_data        AS cancelamento_data,           \n" /*  12 - Cancelamento - Data            */
+                    + "            CPU.ds_nome      AS cancelamento_usuario_nome,   \n" /*  13 - Cancelamento - Usuário - Nome  */
+                    + "            C.ds_motivo      AS cancelamento_motivo          \n" /*  14 - Cancelamento - Motivo          */;
+        }
+        queryString += "       FROM hom_agendamento                  AS A                    \n"
                 + " INNER JOIN hom_horarios       AS H       ON H.id    = A.id_horario  \n"
                 + " INNER JOIN hom_status         AS S       ON S.id    = A.id_status   \n";
         if (tipoUsuarioOperacional != null) {
@@ -82,7 +104,7 @@ public class RelatorioHomologacaoDao extends DB {
                 + " INNER JOIN pes_juridica       AS J       ON J.id    = PE.id_juridica \n"
                 + " INNER JOIN pes_fisica         AS F       ON F.id    = PE.id_fisica   \n"
                 + " INNER JOIN pes_pessoa         AS FUNC    ON FUNC.id = F.id_pessoa    \n"
-                + " INNER JOIN pes_pessoa         AS PPE     ON PPE.id  = J.id_pessoa    \n" 
+                + " INNER JOIN pes_pessoa         AS PPE     ON PPE.id  = J.id_pessoa    \n"
                 + "  LEFT JOIN hom_cancelamento   AS C       ON C.id_agendamento  = A.id \n"
                 + "  LEFT JOIN seg_usuario        AS CU      ON CU.id   = C.id_usuario   \n"
                 + "  LEFT JOIN pes_pessoa         AS CPU     ON CPU.id  = CU.id_pessoa   \n";
@@ -91,7 +113,7 @@ public class RelatorioHomologacaoDao extends DB {
             queryString += " INNER JOIN arr_contribuintes_vw AS CONTR      ON CONTR.id_juridica   = J.id AND CONTR.dt_inativacao IS NULL \n";
         }
 
-        if (relatorio.getQry() == null || relatorio.getQry().isEmpty()) {
+        if (relatorios.getQry() == null || relatorios.getQry().isEmpty()) {
             if (tCase != null) {
                 if (tCase == 1) {
                     // DATA DE AGENDAMENTO ---------------
@@ -102,8 +124,8 @@ public class RelatorioHomologacaoDao extends DB {
                     } else {
                         listQuery.add(" A.dt_data >= '01/01/1900' AND A.dt_data <= '01/01/2030'");
                     }
-                } else {
-                    // DATA DE DEMISSÃO ---------------
+                } else // DATA DE DEMISSÃO ---------------
+                {
                     if (!dateStart.isEmpty() && !dateFinish.isEmpty()) {
                         listQuery.add(" PE.dt_demissao >= '" + dateStart + "' AND PE.dt_demissao <= '" + dateFinish + "'");
                     } else if (!dateStart.isEmpty()) {
@@ -113,11 +135,11 @@ public class RelatorioHomologacaoDao extends DB {
                     }
                 }
             }
-            if (empresa != null) {
-                listQuery.add("J.id = " + empresa);
+            if (inIdEmpresas != null) {
+                listQuery.add("J.id IN ( " + inIdEmpresas + " )");
             }
-            if (funcionario != null) {
-                listQuery.add("F.id = " + funcionario);
+            if (inIdFuncionarios != null) {
+                listQuery.add("F.id IN ( " + inIdFuncionarios + ") ");
             }
             if (usuarioOperacional != null) {
                 if (tipoUsuarioOperacional != null && tipoUsuarioOperacional.equals("id_agendador")) {
@@ -129,25 +151,18 @@ public class RelatorioHomologacaoDao extends DB {
                 } else {
                     listQuery.add("A." + tipoUsuarioOperacional + " = " + usuarioOperacional);
                 }
-            } else {
-                if (tipoUsuarioOperacional != null && tipoUsuarioOperacional.equals("id_agendador")) {
-                    if (webAgendamento) {
-                        listQuery.add("A." + tipoUsuarioOperacional + " IS NULL");
-                    } else {
-                        if (usuarioOperacional != null) {
-                            listQuery.add("A." + tipoUsuarioOperacional + " = " + usuarioOperacional);
-                        }
-                    }
+            } else if (tipoUsuarioOperacional != null && tipoUsuarioOperacional.equals("id_agendador")) {
+                if (webAgendamento) {
+                    listQuery.add("A." + tipoUsuarioOperacional + " IS NULL");
+                } else if (usuarioOperacional != null) {
+                    listQuery.add("A." + tipoUsuarioOperacional + " = " + usuarioOperacional);
                 }
             }
             if (filial != null) {
                 listQuery.add("A.id_filial = " + filial);
             }
-            if (status != null) {
-                listQuery.add("A.id_status = " + status);
-                if(status.equals(3)) {
-                    
-                }
+            if (inIdStatus != null) {
+                listQuery.add("A.id_status IN ( " + inIdStatus + ") ");
             }
             if (motivoDemissao != null) {
                 listQuery.add("A.id_demissao = " + motivoDemissao);
@@ -174,11 +189,19 @@ public class RelatorioHomologacaoDao extends DB {
                 queryString += " " + listQuery.get(i).toString() + " \n";
             }
         } else {
-            queryString += " WHERE" + relatorio.getQry() + " \n";
+            queryString += " WHERE" + relatorios.getQry() + " \n";
         }
 
         // ORDEM DA QRY
-        if (relatorio.getQryOrdem() == null || relatorio.getQryOrdem().isEmpty()) {
+        if (relatorios.getId() == 70) {
+            queryString += ""
+                    + " GROUP BY PPE.ds_documento,  \n"
+                    + "          PPE.ds_nome,       \n"
+                    + "          S.ds_descricao     \n";
+            relatorios.setQryOrdem("PPE.ds_nome, PPE.ds_documento, S.ds_descricao");
+        }
+        if (relatorios.getQryOrdem()
+                == null || relatorios.getQryOrdem().isEmpty()) {
             if (!order.isEmpty()) {
                 switch (order) {
                     case "data":
@@ -196,7 +219,7 @@ public class RelatorioHomologacaoDao extends DB {
                 }
             }
         } else {
-            queryString += " ORDER BY" + relatorio.getQryOrdem();
+            queryString += " ORDER BY " + relatorios.getQryOrdem();
         }
 
         try {
@@ -218,5 +241,13 @@ public class RelatorioHomologacaoDao extends DB {
 
     public void setOrder(String order) {
         this.order = order;
+    }
+
+    public Relatorios getRelatorios() {
+        return relatorios;
+    }
+
+    public void setRelatorios(Relatorios relatorios) {
+        this.relatorios = relatorios;
     }
 }

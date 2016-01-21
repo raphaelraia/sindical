@@ -9,7 +9,8 @@ import java.util.Properties;
 public class DBExternal {
 
     private Statement statment;
-    private String url = "192.168.1.102";
+    //private String url = "192.168.1.102";
+    private String url = "192.168.1.100";
     private String port = "5432";
     private String database = "Rtools";
     private String user = "postgres";
