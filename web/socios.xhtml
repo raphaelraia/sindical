@@ -373,7 +373,7 @@
                                     </p:column>
 
                                     <p:column headerText="Validade Dependente" style="text-align: center; width: 90px">
-                                        <p:inputMask id="i_validade_dependente" value="#{listDependentes.validadeDependente}" size="5" mask="99/9999" disabled="#{controleAcessoBean.verificarPermissao('validade_socio', 1)}" style="width: 70px; text-align: center"/>
+                                        <p:inputMask id="i_validade_dependente" value="#{listDependentes.validadeDependente}" size="5" mask="99/9999" disabled="#{controleAcessoBean.verificarPermissao('validade_socio', 1)}" style="width: 70px; text-align: center">
                                             <p:ajax event="change" update="@this" />
                                         </p:inputMask>
                                     </p:column>
