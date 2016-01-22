@@ -714,7 +714,19 @@
                                     </p:tab>
 
                                     <p:tab title="Oposições">
-                                        <p:dataTable value="#{fisicaBean.listaOposicao}" var="linha" emptyMessage="Nenhuma Oposição Encontrada" scrollable="true" scrollHeight="400">
+                                        <h:panelGrid columns="1">
+                                            <h:column>
+                                                <p:outputLabel value="Filtrar por" /><br />
+                                                <p:selectOneMenu value="#{fisicaBean.filtroOposicao}">
+                                                    <p:ajax event="change" listener="#{fisicaBean.loadListaOposicao()}" update="tbl_oposicoes"/>
+                                                    <f:selectItem itemValue="ativas"     itemLabel="Ativas"/>
+                                                    <f:selectItem itemValue="anteriores" itemLabel="Anteriores"/>
+                                                    <f:selectItem itemValue="todas"      itemLabel="Todas"/>
+                                                </p:selectOneMenu>
+                                            </h:column>
+                                        </h:panelGrid>
+                                        
+                                        <p:dataTable id="tbl_oposicoes" value="#{fisicaBean.listaOposicao}" var="linha" emptyMessage="Nenhuma Oposição Encontrada" scrollable="true" scrollHeight="400">
                                             <p:column headerText="Emissão" style="width: 80px; text-align: center">
                                                 <p:outputLabel value="#{linha.emissao}" />
                                             </p:column>
