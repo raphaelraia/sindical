@@ -198,10 +198,11 @@ public class ConviteDBToplink extends DB implements ConviteDB {
     public boolean limiteConvitePorSocio(int quantidadeConvites, int quantidadeDias, int idPessoaSocio) {
         try {
             String queryString = ""
-                    + "     SELECT COUNT(*) AS qtde "
-                    + "       FROM conv_movimento "
-                    + "      WHERE id_pessoa = " + idPessoaSocio
-                    + "        AND dt_emissao >= (NOW() - INTERVAL '" + quantidadeDias + "' DAY)";
+                    + "     SELECT COUNT(*) AS qtde \n "
+                    + "       FROM conv_movimento \n "
+                    + "      WHERE id_pessoa = " + idPessoaSocio + " \n "
+                    + "        AND dt_emissao >= (NOW() - INTERVAL '" + quantidadeDias + "' DAY) \n "
+                    + "        AND id_usuario_inativacao IS NULL ";
             Query query = getEntityManager().createNativeQuery(queryString);
             List<List> list = query.getResultList();
             if (!list.isEmpty()) {
@@ -220,10 +221,11 @@ public class ConviteDBToplink extends DB implements ConviteDB {
     public boolean limiteConviteConvidado(int quantidadeConvites, int quantidadeDias, int idSisPessoa) {
         try {
             String queryString = ""
-                    + "     SELECT count(*) AS qtde "
-                    + "       FROM conv_movimento "
-                    + "      WHERE id_sis_pessoa = " + idSisPessoa
-                    + "        AND dt_emissao >= (NOW() - INTERVAL '" + quantidadeDias + "' DAY)";
+                    + "     SELECT count(*) AS qtde \n "
+                    + "       FROM conv_movimento \n "
+                    + "      WHERE id_sis_pessoa = " + idSisPessoa + " \n "
+                    + "        AND dt_emissao >= (NOW() - INTERVAL '" + quantidadeDias + "' DAY) \n "
+                    + "        AND id_usuario_inativacao IS NULL ";
             Query query = getEntityManager().createNativeQuery(queryString);
             List<List> list = query.getResultList();
             if (!list.isEmpty()) {

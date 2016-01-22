@@ -150,6 +150,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     private List<SelectItem> listMalaDiretaGrupo = new ArrayList();
 
     private List<Oposicao> listaOposicao = new ArrayList();
+    private String filtroOposicao = "ativas";
 
     // TAB DOCUMENTOS
     private List<Documento> listaDocumentos = new ArrayList();
@@ -193,7 +194,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
             OposicaoDao dao = new OposicaoDao();
 
-            listaOposicao = dao.listaOposicaoDocumento(fisica.getPessoa().getDocumento());
+            listaOposicao = dao.listaOposicaoDocumento(fisica.getPessoa().getDocumento(), filtroOposicao);
         }
     }
 
@@ -715,7 +716,12 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 pessoaComplemento = new PessoaComplemento();
             }
         }
+        
+        // LISTA DE OPOSIÇÕES --
+        filtroOposicao = "ativas";
         loadListaOposicao();
+        // --
+        
         loadListaDocumentos();
         return url;
     }
@@ -1819,14 +1825,18 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             listaServicoPessoa.clear();
         }
 
+        // TAB MOVIMENTOS
         if (indexPessoaFisica == 5) {
             loadListaMovimento();
         }
 
+        // TAB OPOSIÇÕES
         if (indexPessoaFisica == 6) {
+            filtroOposicao = "ativas";
             loadListaOposicao();
         }
 
+        // TAB DIGITALIZAÇÃO DE DOCUMENTOS
         if (indexPessoaFisica == 7) {
             loadListaDocumentos();
         }
@@ -2633,5 +2643,13 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             return new TmktHistoricoDao().findByPessoa(fisica.getPessoa().getId());
         }
         return new ArrayList();
+    }
+
+    public String getFiltroOposicao() {
+        return filtroOposicao;
+    }
+
+    public void setFiltroOposicao(String filtroOposicao) {
+        this.filtroOposicao = filtroOposicao;
     }
 }

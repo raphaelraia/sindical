@@ -386,14 +386,28 @@ public class OposicaoDao extends DB  {
         }
     }
     
-    public List<Oposicao> listaOposicaoDocumento(String cpf) {
+    public List<Oposicao> listaOposicaoDocumento(String cpf, String filtro) {
         List<Oposicao> list = new ArrayList();
         
+        String and_string = "";
+        
+        switch (filtro){
+            case "ativas":
+                and_string = " AND o.dt_inativacao IS NULL";
+                break;
+            case "anteriores":
+                and_string = " AND o.dt_inativacao IS NOT NULL";
+                break;
+            default:
+                break;
+        }
+            
         String queryString = 
                 "SELECT o.* \n " +
                 "  FROM arr_oposicao o \n " +
                 " INNER JOIN arr_oposicao_pessoa AS op ON op.id = o.id_oposicao_pessoa \n " +
                 " WHERE op.ds_cpf LIKE '"+cpf+"' \n " +
+                and_string +
                 " ORDER BY o.dt_emissao";
         try{
             Query query = getEntityManager().createNativeQuery(queryString, Oposicao.class);

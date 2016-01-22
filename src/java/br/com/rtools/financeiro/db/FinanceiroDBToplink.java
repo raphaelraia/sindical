@@ -776,49 +776,49 @@ public class FinanceiroDBToplink extends DB implements FinanceiroDB {
         try {
             Query qry = getEntityManager().createNativeQuery(
                     " SELECT "
-                    + "       id_fin_lote, " + // 0
-                    "       id_fin_movimento, " + // 1
-                    "       nr_ctr_boleto, " + // 2
-                    "       id_lote_boleto, " + // 3
-                    "       processamento, " + // 4
-                    "       codigo," + // 5
-                    "       responsavel," + // 6
-                    "       vencimento," + // 7
-                    "       matricula," + // 8
-                    "       grupo_categoria," + // 9
-                    "       categoria," + // 10
-                    "       servico," + // 11
-                    "       id_beneficiario," + // 12
-                    "       nome_beneficiario," + // 13
-                    "       valor," + // 14
-                    "       mensalidades_corrigidas," + // 15
-                    "       mensagem_boleto," + // 16
-                    "       banco," + // 17
-                    "       agencia," + // 18
-                    "       cedente," + // 19
-                    "       boleto," + // 20
-                    "       email," + // 21
-                    "       nome_filial," + // 22
-                    "       site_filial," + // 23
-                    "       cnpj_filial," + // 24
-                    "       tel_filial," + // 25
-                    "       endereco_filial," + // 26
-                    "       bairro_filial," + // 27
-                    "       cidade_filial," + // 28
-                    "       uf_filial," + // 29
-                    "       cep_filial," + // 30
-                    "       logradouro_responsavel," + // 31
-                    "       endereco_responsavel," + // 32
-                    "       cep_responsavel," + // 33
-                    "       uf_responsavel," + // 34
-                    "       cidade_responsavel," + // 35
-                    "       informativo," + // 36
-                    "       local_pagamento, " + // 37
-                    "       vencimento_movimento, " + // 38
-                    "       vencimento_boleto, " + // 39
-                    "       vencimento_original_boleto " + // 40
-                    "   FROM " + view
-                    + "  WHERE nr_ctr_boleto IN ('" + nr_ctr_boleto + "') "
+                    + "     id_fin_lote, \n " + // 0
+                    "       id_fin_movimento, \n " + // 1
+                    "       nr_ctr_boleto, \n " + // 2
+                    "       id_lote_boleto, \n " + // 3
+                    "       processamento, \n " + // 4
+                    "       codigo, \n " + // 5
+                    "       responsavel, \n " + // 6
+                    "       vencimento, \n " + // 7
+                    "       matricula, \n " + // 8
+                    "       grupo_categoria, \n " + // 9
+                    "       categoria, \n " + // 10
+                    "       servico, \n " + // 11
+                    "       id_beneficiario, \n " + // 12
+                    "       nome_beneficiario, \n " + // 13
+                    "       valor, \n " + // 14
+                    "       mensalidades_corrigidas, \n " + // 15
+                    "       mensagem_boleto, \n " + // 16
+                    "       banco, \n " + // 17
+                    "       agencia, \n " + // 18
+                    "       cedente, \n " + // 19
+                    "       boleto, \n " + // 20
+                    "       email, \n " + // 21
+                    "       nome_filial, \n " + // 22
+                    "       site_filial, \n " + // 23
+                    "       cnpj_filial, \n " + // 24
+                    "       tel_filial, \n " + // 25
+                    "       endereco_filial, \n " + // 26
+                    "       bairro_filial, \n " + // 27
+                    "       cidade_filial, \n " + // 28
+                    "       uf_filial, \n " + // 29
+                    "       cep_filial, \n " + // 30
+                    "       logradouro_responsavel, \n " + // 31
+                    "       endereco_responsavel, \n " + // 32
+                    "       cep_responsavel, \n " + // 33
+                    "       uf_responsavel, \n " + // 34
+                    "       cidade_responsavel, \n " + // 35
+                    "       informativo, \n " + // 36
+                    "       local_pagamento, \n " + // 37
+                    "       vencimento_movimento, \n " + // 38
+                    "       vencimento_boleto, \n " + // 39
+                    "       vencimento_original_boleto \n  " + // 40
+                    "   FROM " + view + " \n "
+                    + "  WHERE nr_ctr_boleto IN ('" + nr_ctr_boleto + "') \n "
                     + "  ORDER BY responsavel, nome_titular, vencimento_movimento, codigo, nome_beneficiario "
             );
             return qry.getResultList();
@@ -832,90 +832,90 @@ public class FinanceiroDBToplink extends DB implements FinanceiroDB {
         try {
             String text_qry
                     = " SELECT "
-                    + "       0 as id_lotex, "
-                    + "       0 as id_movimentox, "
-                    + "       nr_ctr_boleto, "
-                    + "       id_lote_boleto, "
-                    + "       processamento, "
-                    + "       codigo,"
-                    + "       responsavel,"
-                    + "       vencimento,"
-                    + "       matricula,"
-                    + "       grupo_categoria,"
-                    + "       categoria,"
-                    + "       '',"
-                    + "       codigo_titular,"
-                    + "       nome_titular,"
-                    + "       SUM(valor_sem_acrescimo),"
-                    + "       mensalidades_corrigidas,"
-                    + "       mensagem_boleto,"
-                    + "       banco,"
-                    + "       agencia,"
-                    + "       cedente,"
-                    + "       boleto,"
-                    + "       email,"
-                    + "       nome_filial,"
-                    + "       site_filial,"
-                    + "       cnpj_filial,"
-                    + "       tel_filial,"
-                    + "       endereco_filial,"
-                    + "       bairro_filial,"
-                    + "       cidade_filial,"
-                    + "       uf_filial,"
-                    + "       cep_filial,"
-                    + "       logradouro_responsavel,"
-                    + "       endereco_responsavel,"
-                    + "       cep_responsavel,"
-                    + "       uf_responsavel,"
-                    + "       cidade_responsavel,"
-                    + "       informativo,"
-                    + "       local_pagamento, "
-                    + "       vencimento_movimento, "
-                    + "       vencimento_boleto, "
-                    + "       vencimento_original_boleto "
-                    + "   FROM " + view
-                    + "  WHERE nr_ctr_boleto IN ('" + nr_ctr_boleto + "') "
-                    + "  GROUP BY "
+                    + "       0 as id_lotex, \n "
+                    + "       0 as id_movimentox, \n "
+                    + "       nr_ctr_boleto, \n  "
+                    + "       id_lote_boleto, \n  "
+                    + "       processamento, \n  "
+                    + "       codigo, \n "
+                    + "       responsavel, \n "
+                    + "       vencimento, \n "
+                    + "       matricula, \n "
+                    + "       grupo_categoria, \n "
+                    + "       categoria, \n "
+                    + "       '', \n "
+                    + "       codigo_titular, \n "
+                    + "       nome_titular, \n "
+                    + "       SUM(valor_sem_acrescimo), \n "
+                    + "       mensalidades_corrigidas, \n "
+                    + "       mensagem_boleto, \n "
+                    + "       banco, \n "
+                    + "       agencia, \n "
+                    + "       cedente, \n "
+                    + "       boleto, \n "
+                    + "       email, \n "
+                    + "       nome_filial, \n "
+                    + "       site_filial, \n "
+                    + "       cnpj_filial, \n "
+                    + "       tel_filial, \n "
+                    + "       endereco_filial, \n "
+                    + "       bairro_filial, \n "
+                    + "       cidade_filial, \n "
+                    + "       uf_filial, \n "
+                    + "       cep_filial, \n "
+                    + "       logradouro_responsavel, \n "
+                    + "       endereco_responsavel, \n "
+                    + "       cep_responsavel, \n "
+                    + "       uf_responsavel, \n "
+                    + "       cidade_responsavel, \n "
+                    + "       informativo, \n "
+                    + "       local_pagamento,  \n "
+                    + "       vencimento_movimento, \n  "
+                    + "       vencimento_boleto,  \n "
+                    + "       vencimento_original_boleto  \n "
+                    + "   FROM " + view + " \n "
+                    + "  WHERE nr_ctr_boleto IN ('" + nr_ctr_boleto + "')  \n "
+                    + "  GROUP BY  \n "
                     + //"       id_fin_lote, " +
                     //"       id_fin_movimento, " +
-                    "       nr_ctr_boleto, "
-                    + "       id_lote_boleto, "
-                    + "       processamento, "
-                    + "       codigo,"
-                    + "       responsavel,"
-                    + "       vencimento,"
-                    + "       matricula,"
-                    + "       grupo_categoria,"
-                    + "       categoria,"
+                    "       nr_ctr_boleto,  \n "
+                    + "       id_lote_boleto,  \n "
+                    + "       processamento,  \n "
+                    + "       codigo, \n "
+                    + "       responsavel, \n "
+                    + "       vencimento, \n "
+                    + "       matricula, \n "
+                    + "       grupo_categoria, \n "
+                    + "       categoria, \n "
                     + //"       servico," +
-                    "       codigo_titular,"
-                    + "       nome_titular,"
-                    + "       mensalidades_corrigidas,"
-                    + "       mensagem_boleto,"
-                    + "       banco,"
-                    + "       agencia,"
-                    + "       cedente,"
-                    + "       boleto,"
-                    + "       email,"
-                    + "       nome_filial,"
-                    + "       site_filial,"
-                    + "       cnpj_filial,"
-                    + "       tel_filial,"
-                    + "       endereco_filial,"
-                    + "       bairro_filial,"
-                    + "       cidade_filial,"
-                    + "       uf_filial,"
-                    + "       cep_filial,"
-                    + "       logradouro_responsavel,"
-                    + "       endereco_responsavel,"
-                    + "       cep_responsavel,"
-                    + "       uf_responsavel,"
-                    + "       cidade_responsavel,"
-                    + "       informativo,"
-                    + "       local_pagamento, "
-                    + "       vencimento_movimento, "
-                    + "       vencimento_boleto, "
-                    + "       vencimento_original_boleto "
+                    "       codigo_titular, \n "
+                    + "       nome_titular, \n "
+                    + "       mensalidades_corrigidas, \n "
+                    + "       mensagem_boleto, \n "
+                    + "       banco, \n "
+                    + "       agencia, \n "
+                    + "       cedente, \n "
+                    + "       boleto, \n "
+                    + "       email, \n "
+                    + "       nome_filial, \n "
+                    + "       site_filial, \n "
+                    + "       cnpj_filial, \n "
+                    + "       tel_filial, \n "
+                    + "       endereco_filial, \n "
+                    + "       bairro_filial, \n "
+                    + "       cidade_filial, \n "
+                    + "       uf_filial, \n "
+                    + "       cep_filial, \n "
+                    + "       logradouro_responsavel, \n "
+                    + "       endereco_responsavel, \n "
+                    + "       cep_responsavel, \n "
+                    + "       uf_responsavel, \n "
+                    + "       cidade_responsavel, \n "
+                    + "       informativo, \n "
+                    + "       local_pagamento,  \n "
+                    + "       vencimento_movimento, \n  "
+                    + "       vencimento_boleto,  \n "
+                    + "       vencimento_original_boleto  \n "
                     + "  ORDER BY responsavel, nome_titular, vencimento_movimento, codigo, nome_titular ";
 
             Query qry = getEntityManager().createNativeQuery(text_qry);
