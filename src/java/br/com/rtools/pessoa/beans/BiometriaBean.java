@@ -46,7 +46,7 @@ public class BiometriaBean implements Serializable {
             List list = biometriaDao.pesquisaStatusPorComputador(MacFilial.getAcessoFilial().getId());
             if (!list.isEmpty()) {
                 BiometriaServidor biometriaServidor = (BiometriaServidor) new Dao().rebind((BiometriaServidor) list.get(0));
-                return biometriaServidor.isAtivo();
+                return biometriaServidor.getAtivo();
             }
         }
         return false;
@@ -85,15 +85,13 @@ public class BiometriaBean implements Serializable {
                 biometria = biometriaDao.pesquisaBiometriaPorPessoa(pessoa_id);
                 if (biometria != null) {
                     biometria = (Biometria) dao.rebind(biometria);
-                    if (biometria.isAtivo() && biometria.getBiometria() != null && !biometria.getBiometria().isEmpty()) {
+                    if (biometria.getAtivo() && biometria.getBiometria() != null && !biometria.getBiometria().isEmpty()) {
                         return true;
                     }
                 }
             }
-        } else {
-            if (biometria.getBiometria() != null && !biometria.getBiometria().isEmpty() && biometria.isAtivo()) {
-                return true;
-            }
+        } else if (biometria.getBiometria() != null && !biometria.getBiometria().isEmpty() && biometria.getAtivo()) {
+            return true;
         }
         return false;
     }
@@ -223,10 +221,8 @@ public class BiometriaBean implements Serializable {
                     if (complete) {
                         GenericaMensagem.info("Sucesso", "Registro excluído com sucesso");
                     }
-                } else {
-                    if (complete) {
-                        GenericaMensagem.warn("Erro", "Ao excluir registro!");
-                    }
+                } else if (complete) {
+                    GenericaMensagem.warn("Erro", "Ao excluir registro!");
                 }
             }
         }
@@ -250,7 +246,7 @@ public class BiometriaBean implements Serializable {
 
     public boolean isDisabledSave() {
         if (biometria != null) {
-            if (biometria.isAtivo()) {
+            if (biometria.getAtivo()) {
                 return true;
             } else {
                 return false;

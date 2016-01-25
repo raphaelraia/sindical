@@ -1,0 +1,196 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>Relatório Telemarketing</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+    </h:head>
+    <h:body class="divMenu">
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>            
+        </f:subview>
+        <f:view>
+            <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}" footer="Tempo médio estimado: #{sisProcessoBean.tempoMedio()} ms">
+                <h:outputScript name="tradutor_primefaces.js" library="js" />
+                <h:form id="form_relatorio">            
+                    <p:growl id="id_messages_growl" showDetail="true" showSummary="true" />
+                    <h:outputText value="Relatório Telemarketing" styleClass="fonteHeader" />
+                    <div class="clear"></div>
+                    <p:panel styleClass="fundoCinza">
+                        <h:panelGrid  cellpadding="4" columns="5" id="id_pg_relatorios">
+                            <p:outputLabel value="Tipo de Relatório: " />
+                            <p:selectOneMenu id="id_tipo_relatorio" value="#{relatorioTelemarketingBean.idRelatorio}">
+                                <p:ajax event="change" update="@this id_panel form_relatorio:i_panel_avancado id_pg_relatorios" global="false" listener="#{relatorioTelemarketingBean.loadRelatorioOrdem()}"/>
+                                <f:selectItems value="#{relatorioTelemarketingBean.listRelatorios}"/>
+                            </p:selectOneMenu>
+                            <p:outputLabel value="Ordenação: " rendered="#{not empty relatorioTelemarketingBean.listRelatorioOrdem}"/>
+                            <p:selectOneMenu value="#{relatorioTelemarketingBean.idRelatorioOrdem}" rendered="#{not empty relatorioTelemarketingBean.listRelatorioOrdem}">
+                                <p:ajax event="change" update="@this"/>
+                                <f:selectItems value="#{relatorioTelemarketingBean.listRelatorioOrdem}"/>
+                            </p:selectOneMenu>                            
+                        </h:panelGrid>
+                    </p:panel>                  
+                    <h:panelGrid columns="2" id="id_panel" columnClasses="verticalAlignTop, verticalAlignTop" styleClass="margin-top-max">
+                        <h:column>
+                            <p:panel header="Editar" style="width: 225px;" id="i_panel_avancado">
+                                <h:panelGrid>
+                                    <c:forEach items="#{relatorioTelemarketingBean.listFilters}" var="filter" varStatus="loop" id="i_foreach">                                            
+                                        <p:selectBooleanButton value="#{filter.active}" onLabel="#{filter.value}" offLabel="#{filter.value}" style="width: 200px; text-align: left" rendered="#{!filter.disabled}">
+                                            <p:ajax event="change" update="@this form_relatorio:i_panel_avancado_2" listener="#{relatorioTelemarketingBean.load(relatorioTelemarketingBean.listFilters[loop.index])}" />
+                                        </p:selectBooleanButton>
+                                    </c:forEach>                                
+                                </h:panelGrid>
+                            </p:panel>
+                        </h:column>
+                        <h:column>
+                            <h:panelGrid id="i_panel_avancado_2" style="width: 800px">
+                                <p:column rendered="#{relatorioTelemarketingBean.listFilters[0].active}">
+                                    <p:panel header="Data" style="width: 100%!important">
+                                        <h:panelGrid columns="5" id="id_data_nascimento">
+                                            <p:selectOneMenu label="Data" value="#{relatorioTelemarketingBean.tipoDataLancamento}">
+                                                <p:ajax event="change" update="@this id_data_nascimento" />
+                                                <f:selectItem itemValue="todos" itemLabel="Todos" />
+                                                <f:selectItem itemValue="igual" itemLabel="Igual" />
+                                                <f:selectItem itemValue="apartir" itemLabel="A partir" />
+                                                <f:selectItem itemValue="ate" itemLabel="Até" />
+                                                <f:selectItem itemValue="faixa" itemLabel="Faixa" />
+                                            </p:selectOneMenu>
+                                            <p:inputMask mask="99/99/9999" value="#{relatorioTelemarketingBean.dataLancamentoInicial}" converter="#{isDateString}" rendered="#{relatorioTelemarketingBean.tipoDataLancamento ne 'todos'}">
+                                                <p:ajax event="change" global="false" />
+                                            </p:inputMask>
+                                            <p:outputLabel value="até" rendered="#{relatorioTelemarketingBean.tipoDataLancamento eq 'faixa'}" styleClass="margin-left-max"/>
+                                            <p:inputMask mask="99/99/9999" value="#{relatorioTelemarketingBean.dataLancamentoFinal}" converter="#{isDateString}" rendered="#{relatorioTelemarketingBean.tipoDataLancamento eq 'faixa'}">
+                                                <p:ajax event="change" global="false" />
+                                            </p:inputMask>                                            
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioTelemarketingBean.close(relatorioTelemarketingBean.listFilters[0])}" title="Remover filtro" update="form_relatorio"/>
+                                        </h:panelGrid>                                        
+                                    </p:panel>
+                                </p:column>
+                                <p:column rendered="#{relatorioTelemarketingBean.listFilters[1].active}">
+                                    <p:panel header="Pessoa" style="width: 100%!important">
+                                        <h:panelGrid columns="5">
+                                            <p:commandButton action="#{chamadaPaginaBean.pesquisa('pesquisaPessoa', 'pessoaBean')}" icon="ui-icon-search" title="Pesquisa pessoa"/>
+                                            <p:outputLabel value="#{relatorioTelemarketingBean.pessoa.nome}" />
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioTelemarketingBean.close(relatorioTelemarketingBean.listFilters[1])}" title="Remover filtro" update="form_relatorio"/>
+                                        </h:panelGrid>                                        
+                                    </p:panel>
+                                </p:column>
+                                <p:column>
+                                    <p:panel header="Operador" style="width: 100%!important" rendered="#{relatorioTelemarketingBean.listFilters[2].active}" >
+                                        <h:panelGrid columns="4">
+                                            <p:selectCheckboxMenu label="Selecionar operador" value="#{relatorioTelemarketingBean.selectedOperador}" filter="true" filterMatchMode="startsWith">
+                                                <p:ajax event="toggleSelect" global="false"/>
+                                                <p:ajax event="change" global="false"/>
+                                                <f:selectItems value="#{relatorioTelemarketingBean.listOperador}" />
+                                            </p:selectCheckboxMenu>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioTelemarketingBean.close(relatorioTelemarketingBean.listFilters[2])}" title="Remover filtro" update="form_relatorio"/>
+                                        </h:panelGrid>                                        
+                                    </p:panel>
+                                </p:column>                                
+                                <p:column>
+                                    <p:panel header="Natureza" style="width: 100%!important" rendered="#{relatorioTelemarketingBean.listFilters[3].active}" >
+                                        <h:panelGrid columns="4">
+                                            <p:selectCheckboxMenu label="Selecionar natureza" value="#{relatorioTelemarketingBean.selectedTmktNatureza}" filter="true" filterMatchMode="startsWith">
+                                                <p:ajax event="toggleSelect" global="false"/>
+                                                <p:ajax event="change" global="false"/>
+                                                <f:selectItems value="#{relatorioTelemarketingBean.listTmktNatureza}" />
+                                            </p:selectCheckboxMenu>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioTelemarketingBean.close(relatorioTelemarketingBean.listFilters[3])}" title="Remover filtro" update="form_relatorio"/>
+                                        </h:panelGrid>                                        
+                                    </p:panel>
+                                </p:column>                                
+                                <p:column>
+                                    <p:panel header="Tipo Contato" style="width: 100%!important" rendered="#{relatorioTelemarketingBean.listFilters[4].active}" >
+                                        <h:panelGrid columns="4">
+                                            <p:selectCheckboxMenu label="Selecionar tipo contato" value="#{relatorioTelemarketingBean.selectedTmktContato}" filter="true" filterMatchMode="startsWith">
+                                                <p:ajax event="toggleSelect" global="false"/>
+                                                <p:ajax event="change" global="false"/>
+                                                <f:selectItems value="#{relatorioTelemarketingBean.listTmktContato}" />
+                                            </p:selectCheckboxMenu>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioTelemarketingBean.close(relatorioTelemarketingBean.listFilters[4])}" title="Remover filtro" update="form_relatorio"/>
+                                        </h:panelGrid>                                        
+                                    </p:panel>
+                                </p:column>                                
+                                <p:column>
+                                    <p:panel header="Departamento" style="width: 100%!important" rendered="#{relatorioTelemarketingBean.listFilters[5].active}" >
+                                        <h:panelGrid columns="4">
+                                            <p:selectCheckboxMenu label="Selecionar departamento" value="#{relatorioTelemarketingBean.selectedDepartamento}" filter="true" filterMatchMode="startsWith">
+                                                <p:ajax event="toggleSelect" global="false"/>
+                                                <p:ajax event="change" global="false"/>
+                                                <f:selectItems value="#{relatorioTelemarketingBean.listDepartamento}" />
+                                            </p:selectCheckboxMenu>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioTelemarketingBean.close(relatorioTelemarketingBean.listFilters[5])}" title="Remover filtro" update="form_relatorio"/>
+                                        </h:panelGrid>                                        
+                                    </p:panel>
+                                </p:column>                                                            
+                            </h:panelGrid>
+                        </h:column>
+                    </h:panelGrid>
+                    <h:panelGrid columns="1" id="i_btns" cellpadding="3">
+                        <h:column>
+                            <h:panelGrid columns="2">
+                                <p:commandButton value="Imprimir" icon="ui-icon-print" title="Imprimir" action="#{relatorioTelemarketingBean.print()}" ajax="false" styleClass="margin-top-max" update="id_messages_growl" disabled="#{empty relatorioTelemarketingBean.listRelatorios}"/>
+                            </h:panelGrid>
+                        </h:column>
+                        <p:selectBooleanCheckbox itemLabel="Cabeçalho" value="#{jasperBean.IS_HEADER}">
+                            <p:ajax event="change" update="@this" />
+                        </p:selectBooleanCheckbox>
+                        <h:column>
+                            <h:panelGrid columns="2">
+                                <p:outputLabel value="Exportar para " />
+                                <p:selectOneMenu label="Meses" value="#{jasperBean.EXPORT_TYPE}">
+                                    <p:ajax event="change" global="false" update="@this"/>
+                                    <f:selectItem itemValue="pdf" itemLabel="PDF" />
+                                    <f:selectItem itemValue="xls" itemLabel="Excel" />
+                                </p:selectOneMenu>
+                            </h:panelGrid>
+                        </h:column>
+                        <h:column>
+                            <p:commandButton value="ALIAS para ordenar" title="Uso exclusivo do administrador" icon="ui-icon-close" onclick="PF('dlg_alias').show();" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
+                        </h:column>
+                    </h:panelGrid>
+                    <p:dialog widgetVar="dlg_alias" modal="true" width="330" header="ALIAS para ordenar">
+                        <h:panelGrid columns="1">
+                            <h:column>
+                                H.dt_lancamento                     
+                            </h:column>
+                            <h:column>
+                                 N.ds_descricao
+                            </h:column>
+                            <h:column>
+                                C.ds_descricao 
+                            </h:column>
+                            <h:column>
+                                 H.ds_contato
+                            </h:column>
+                            <h:column>
+                                O.ds_nome
+                            </h:column>
+                            <h:column>
+                                D.ds_descricao
+                            </h:column>
+                            <h:column>
+                                P.ds_nome 
+                            </h:column>
+                            <h:column>
+                                H.ds_historico
+                            </h:column>
+                            <h:column>
+                                count(*)
+                            </h:column>
+                            <h:column>
+                               extract(YEAR FROM H.dt_lancamento)
+                            </h:column>
+                            <h:column>
+                                extract(MONTH FROM H.dt_lancamento)
+                            </h:column>                            
+                        </h:panelGrid>
+                    </p:dialog>
+                </h:form>               
+            </p:panel>
+        </f:view>
+    </h:body>
+</ui:composition>
