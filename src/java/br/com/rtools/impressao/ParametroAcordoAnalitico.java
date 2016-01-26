@@ -20,8 +20,9 @@ public class ParametroAcordoAnalitico {
     private Date dtFechamento;
     private Date dtInicio;
     private BigDecimal comissao;
+    private Date dtEmissao;
 
-    public ParametroAcordoAnalitico(String cnpj, String empresa, int idAcordo, String boleto, String contribuicao, Date dtImportacao, Date dtRecebimento, Date dtVencimento, BigDecimal valorRecebido, BigDecimal taxa, BigDecimal repasse, BigDecimal liquido, Date dtFechamento, Date dtInicio, BigDecimal comissao) {
+    public ParametroAcordoAnalitico(String cnpj, String empresa, int idAcordo, String boleto, String contribuicao, Date dtImportacao, Date dtRecebimento, Date dtVencimento, BigDecimal valorRecebido, BigDecimal taxa, BigDecimal repasse, BigDecimal liquido, Date dtFechamento, Date dtInicio, BigDecimal comissao, Date dtEmissao) {
         this.cnpj = cnpj;
         this.empresa = empresa;
         this.idAcordo = idAcordo;
@@ -37,6 +38,7 @@ public class ParametroAcordoAnalitico {
         this.dtFechamento = dtFechamento;
         this.dtInicio = dtInicio;
         this.comissao = comissao;
+        this.dtEmissao = dtEmissao;
     }
 
     public String getCnpj() {
@@ -158,4 +160,12 @@ public class ParametroAcordoAnalitico {
     public void setComissao(BigDecimal comissao) {
         this.comissao = comissao;
     }
+    
+    public Date getDtEmissao() {
+        return dtEmissao;
+    }
+
+    public void setDtEmissao(Date dtEmissao) {
+        this.dtEmissao = dtEmissao;
+    }    
 }

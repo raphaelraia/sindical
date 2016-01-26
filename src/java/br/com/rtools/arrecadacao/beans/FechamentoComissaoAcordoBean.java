@@ -9,6 +9,7 @@ import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Download;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.SalvaArquivos;
 import java.io.File;
 import java.math.BigDecimal;
@@ -37,7 +38,7 @@ public class FechamentoComissaoAcordoBean {
     private List<SelectItem> listaData;
     private int idDataFechamento;
     private Acordo acordo;
-    
+
     @PostConstruct
     public void init() {
         listaData = new ArrayList();
@@ -83,78 +84,86 @@ public class FechamentoComissaoAcordoBean {
             List result = db.listaAcordoComissao(listaData.get(idDataFechamento).getLabel());
 
             JasperReport jasper = null;
-            Collection lista = new ArrayList<ParametroAcordoAnalitico>();
+            Collection lista = new ArrayList();
             BigDecimal repasse;
             BigDecimal liquido;
             BigDecimal comissao;
             BigDecimal valor;
             BigDecimal taxa;
 
-            for (int i = 0; i < result.size(); i++) {
-                valor = new BigDecimal(Double.valueOf(((List) result.get(i)).get(9).toString()));
-                taxa = new BigDecimal(Double.valueOf(((List) result.get(i)).get(10).toString()));
-                repasse = new BigDecimal(Double.valueOf(((List) result.get(i)).get(11).toString()));
-
+            for (Object result1 : result) {
+                valor = new BigDecimal(Double.valueOf(((List) result1).get(9).toString()));
+                taxa = new BigDecimal(Double.valueOf(((List) result1).get(10).toString()));
+                repasse = new BigDecimal(Double.valueOf(((List) result1).get(11).toString()));
                 repasse = (valor.subtract(taxa).multiply(repasse)).divide(new BigDecimal(100));
                 liquido = valor.subtract(taxa).subtract(repasse);
                 comissao = valor.subtract(taxa).subtract(repasse).multiply(new BigDecimal(0.015));
 
-                lista.add(new ParametroAcordoAnalitico(((List) result.get(i)).get(0).toString(),
-                        ((List) result.get(i)).get(1).toString(),
-                        (Integer) ((List) result.get(i)).get(2),
-                        ((List) result.get(i)).get(3).toString(),
-                        ((List) result.get(i)).get(4).toString(),
-                        (Date) ((List) result.get(i)).get(5),
-                        (Date) ((List) result.get(i)).get(6),
-                        (Date) ((List) result.get(i)).get(7),
-                        valor,
-                        taxa,
-                        repasse,
-                        liquido,
-                        DataHoje.converte(listaData.get(idDataFechamento).getLabel()),
-                        (Date) ((List) result.get(i)).get(8),
-                        comissao));
+                lista.add(
+                        new ParametroAcordoAnalitico(
+                                ((List) result1).get(0).toString(),
+                                ((List) result1).get(1).toString(),
+                                (Integer) ((List) result1).get(2),
+                                ((List) result1).get(3).toString(),
+                                ((List) result1).get(4).toString(),
+                                (Date) ((List) result1).get(5),
+                                (Date) ((List) result1).get(6),
+                                (Date) ((List) result1).get(7),
+                                valor,
+                                taxa,
+                                repasse,
+                                liquido,
+                                DataHoje.converte(listaData.get(idDataFechamento).getLabel()),
+                                (Date) ((List) result1).get(8),
+                                comissao,
+                                (Date) ((List) result1).get(12)
+                        )
+                );
             }
-            String patch = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos");
-            File fileA = new File(patch + "/downloads");
-            if (!fileA.exists()) {
-                fileA.mkdir();
-            }
-            File fileB = new File(patch + "/downloads/relatorios");
-            if (!fileB.exists()) {
-                fileB.mkdir();
-            }
-            try {
-                String patchRelatorio = "/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/ACORDO_ANALITICO.jasper";
-                byte[] arquivo = new byte[0];
-                if (!new File(FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/ACORDO_ANALITICO.jasper")).exists()) {
-                    patchRelatorio = "/Relatorios/ACORDO_ANALITICO.jasper";
-                }
-                
-                File fl = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(patchRelatorio));
-                jasper = (JasperReport) JRLoader.loadObject(fl);
-                JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(lista);
-                JasperPrint print = JasperFillManager.fillReport(
-                        jasper,
-                        null,
-                        dtSource);
-                arquivo = JasperExportManager.exportReportToPdf(print);
-
-                String nomeDownload = "acordo_analitico_" + DataHoje.horaMinuto().replace(":", "") + ".pdf";
-
-                SalvaArquivos sa = new SalvaArquivos(arquivo, nomeDownload, false);
-                String pathPasta = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/relatorios");
-
-                sa.salvaNaPasta(pathPasta);
-
-                Download download = new Download(nomeDownload,
-                        pathPasta,
-                        "application/pdf",
-                        FacesContext.getCurrentInstance());
-                download.baixar();
-                download.remover();
-            } catch (Exception e) {
-            }
+            
+            Jasper.IS_HEADER = true;
+            Jasper.printReports("/Relatorios/ACORDO_ANALITICO.jasper", "Acordo Analítico", lista);
+//            
+//            String patch = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos");
+//            File fileA = new File(patch + "/downloads");
+//            if (!fileA.exists()) {
+//                fileA.mkdir();
+//            }
+//            File fileB = new File(patch + "/downloads/relatorios");
+//            if (!fileB.exists()) {
+//                fileB.mkdir();
+//            }
+//            try {
+//                String patchRelatorio = "/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/ACORDO_ANALITICO.jasper";
+//                byte[] arquivo = new byte[0];
+//                if (!new File(FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/ACORDO_ANALITICO.jasper")).exists()) {
+//                    patchRelatorio = "/Relatorios/ACORDO_ANALITICO.jasper";
+//                }
+//
+//                File fl = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(patchRelatorio));
+//                jasper = (JasperReport) JRLoader.loadObject(fl);
+//                JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(lista);
+//                JasperPrint print = JasperFillManager.fillReport(
+//                        jasper,
+//                        null,
+//                        dtSource);
+//                arquivo = JasperExportManager.exportReportToPdf(print);
+//
+//                String nomeDownload = "acordo_analitico_" + DataHoje.horaMinuto().replace(":", "") + ".pdf";
+//
+//                SalvaArquivos sa = new SalvaArquivos(arquivo, nomeDownload, false);
+//                String pathPasta = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/relatorios");
+//
+//                sa.salvaNaPasta(pathPasta);
+//
+//                Download download = new Download(nomeDownload,
+//                        pathPasta,
+//                        "application/pdf",
+//                        FacesContext.getCurrentInstance());
+//                download.baixar();
+//                download.remover();
+//            } catch (Exception e) {
+//            }
         }
     }
 
@@ -191,7 +200,6 @@ public class FechamentoComissaoAcordoBean {
 //    public void setMensagem(String mensagem) {
 //        this.mensagem = mensagem;
 //    }
-
     public Acordo getAcordo() {
         return acordo;
     }

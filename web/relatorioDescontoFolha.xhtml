@@ -22,7 +22,7 @@
                     <p:panel styleClass="fundoCinza">
                         <h:panelGrid  cellpadding="4" columns="5" id="id_pg_relatorios">
                             <p:outputLabel value="Tipo de Relatório: " />
-                            <p:selectOneMenu id="id_tipo_relatorio" value="#{relatorioDescontoFolhaBean.idRelatorio}" style="padding-right: 10px;">
+                            <p:selectOneMenu id="id_tipo_relatorio" value="#{relatorioDescontoFolhaBean.idRelatorio}">
                                 <p:ajax event="change" update="@this id_panel form_relatorio:i_panel_avancado" global="false" listener="#{relatorioDescontoFolhaBean.load}"/>
                                 <f:selectItems value="#{relatorioDescontoFolhaBean.listRelatorios}"/>
                             </p:selectOneMenu>
@@ -83,7 +83,7 @@
                         </h:column>
                     </h:panelGrid>
                     <h:panelGrid columns="1" id="i_btns">
-                        <p:commandButton value="Imprimir" icon="ui-icon-print" title="Imprimir" action="#{relatorioDescontoFolhaBean.print()}" ajax="false" styleClass="margin-top-max" update="id_messages_growl" />
+                        <p:commandButton value="Imprimir" icon="ui-icon-print" title="Imprimir" action="#{relatorioDescontoFolhaBean.print()}" ajax="false" styleClass="margin-top-max" update="id_messages_growl" onclick="form.target='_BLANK'"/>
                         <p:selectBooleanCheckbox itemLabel="Cabeçalho" value="#{jasperBean.IS_HEADER}">
                             <p:ajax event="change" update="@this" />
                         </p:selectBooleanCheckbox>                        
