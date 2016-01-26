@@ -1922,10 +1922,16 @@
         </navigation-case>        
         
         <navigation-case>
+            <from-outcome>relatorioTelemarketing</from-outcome>
+            <to-view-id>/relatorioTelemarketing.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>     
+        
+        <navigation-case>
             <from-outcome>relatorioMalaDireta</from-outcome>
             <to-view-id>/relatorioMalaDireta.jsf</to-view-id>
             <redirect/>
-        </navigation-case>        
+        </navigation-case>                 
         
         <!-- 
         <navigation-case>
