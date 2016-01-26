@@ -12,7 +12,7 @@ import javax.persistence.*;
     @NamedQuery(name = "Departamento.findAll", query = "SELECT DEP FROM Departamento DEP ORDER BY DEP.descricao ASC "),
     @NamedQuery(name = "Departamento.findName", query = "SELECT DEP FROM Departamento DEP WHERE UPPER(DEP.descricao) LIKE :pdescricao ORDER BY DEP.descricao ASC ")
 })
-public class Departamento implements Serializable {
+public class Departamento implements BaseEntity, Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,6 +31,7 @@ public class Departamento implements Serializable {
         this.descricao = descricao;
     }
 
+    @Override
     public Integer getId() {
         return id;
     }
