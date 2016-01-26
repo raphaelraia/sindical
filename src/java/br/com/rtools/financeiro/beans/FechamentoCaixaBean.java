@@ -285,11 +285,15 @@ public final class FechamentoCaixaBean implements Serializable {
         for (int i = 0; i < result.size(); i++){
             lista.add(new ResumoFechamentoCaixa(
                     DataHoje.converteData((Date)result.get(i).get(0)), 
-                    (result.get(i).get(1) == null) ? "" : result.get(i).get(1).toString(), 
+                    (result.get(i).get(1) == null) ? "" : (result.get(i).get(1).equals("E")) ? "ENTRADA" : "SAÍDA", 
                     (result.get(i).get(2) == null) ? "" : result.get(i).get(2).toString(), 
                     (result.get(i).get(3) == null) ? "" : result.get(i).get(3).toString(), 
                     (result.get(i).get(4) == null) ? "" : result.get(i).get(4).toString(), 
-                    BigDecimal.valueOf(Double.valueOf(String.valueOf(Moeda.converteUS$(result.get(i).get(5).toString()))))
+                    BigDecimal.valueOf(Double.valueOf(String.valueOf(Moeda.converteUS$(result.get(i).get(5).toString())))),
+                    result.get(i).get(6),
+                    result.get(i).get(7),
+                    result.get(i).get(8)
+                            
             )
             );
         }

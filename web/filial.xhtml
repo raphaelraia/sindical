@@ -79,7 +79,7 @@
                             </p:column>
 
                             <p:column headerText="Filial">
-                                <p:selectOneMenu id="cbSelectFilial" value="#{filialCidade.argumento1}" style="width: 100%">
+                                <p:selectOneMenu id="cbSelectFilial" value="#{filialCidade.argumento1}" style="width: 95%">
                                     <p:ajax event="change" listener="#{filialBean.saveCidadeFilial(filialCidade.argumento0, filialCidade.argumento1)}" update=":form_filial:"/>
                                     <f:selectItems value="#{filialBean.result}" />
                                 </p:selectOneMenu>
