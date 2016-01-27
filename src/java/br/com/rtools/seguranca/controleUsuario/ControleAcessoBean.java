@@ -152,9 +152,9 @@ public class ControleAcessoBean implements Serializable {
             return true;
         } else if (conv.equals("menuPrincipalAcessoWeb") || conv.equals("webConfiguracoes")) {
             return true;
-        } else if ((tipo == 1) && (conv.equals("webContribuinte") || conv.equals("webAgendamentoContribuinte") || conv.equals("webSolicitaREPIS"))) {
+        } else if ((tipo == 1) && (conv.equals("webPessoaJuridica") || conv.equals("webContribuinte") || conv.equals("webAgendamentoContribuinte") || conv.equals("webSolicitaREPIS"))) {
             return true;
-        } else if ((tipo == 2) && (conv.equals("webContabilidade") || conv.equals("webAgendamentoContabilidade") || conv.equals("webSolicitaREPIS"))) {
+        } else if ((tipo == 2) && (conv.equals("webPessoaJuridica") || conv.equals("webContabilidade") || conv.equals("webAgendamentoContabilidade") || conv.equals("webSolicitaREPIS"))) {
             return true;
         } else if ((tipo == 3) && (conv.equals("webLiberacaoREPIS") || conv.equals("webRelatorioCertificados"))) {
             return true;

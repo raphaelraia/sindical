@@ -286,10 +286,6 @@ public class SocioCarteirinhaDBToplink extends DB implements SocioCarteirinhaDB 
                 } else {
                     textqry += " ";
                 }
-                if (registro.isFotoCartao()) {
-                    //textqry += "    AND (f.dt_foto IS NOT NULL OR p.id IN (SELECT id_pessoa FROM soc_autoriza_impressao_cartao WHERE is_foto = TRUE AND id_historico_carteirinha IS NULL)) \n";
-                    textqry += "    AND (f.ds_foto <> '' OR p.id IN (SELECT id_pessoa FROM soc_autoriza_impressao_cartao WHERE is_foto = TRUE AND id_historico_carteirinha IS NULL)) \n";
-                }
             }
 
             // SOCIO / MATRICULA
@@ -298,10 +294,6 @@ public class SocioCarteirinhaDBToplink extends DB implements SocioCarteirinhaDB 
                     textqry += "    WHERE s.matricula = " + Integer.parseInt(descricao) + " \n";
                 } else {
                     textqry += "  ";
-                }
-                if (registro.isFotoCartao()) {
-                    //textqry += "    AND (f.dt_foto IS NOT NULL OR p.id IN (SELECT id_pessoa FROM soc_autoriza_impressao_cartao WHERE is_foto = TRUE AND id_historico_carteirinha IS NULL)) \n";
-                    textqry += "    AND (f.ds_foto <> '' OR p.id IN (SELECT id_pessoa FROM soc_autoriza_impressao_cartao WHERE is_foto = TRUE AND id_historico_carteirinha IS NULL)) \n";
                 }
             }
 
@@ -325,7 +317,11 @@ public class SocioCarteirinhaDBToplink extends DB implements SocioCarteirinhaDB 
 
             // ROGÉRIO PODIU PRA COMENTAR O CAMPO ABAIXO - 07/10/2015
             textqry += " AND sc.is_ativo = true \n"; // SE NÃO FOR SÓCIO (ACADEMIA)
-            // 
+            // QUE POSSUEM FOTOS
+            if (registro.isFotoCartao()) {
+                textqry += "    AND (f.ds_foto <> '' OR p.id IN (SELECT id_pessoa FROM soc_autoriza_impressao_cartao WHERE is_foto = TRUE AND id_historico_carteirinha IS NULL)) \n";
+            }            
+            
             if (id_filial != null) {
                 textqry += " AND s.id_filial = " + id_filial + " \n";
             }
@@ -610,47 +606,88 @@ public class SocioCarteirinhaDBToplink extends DB implements SocioCarteirinhaDB 
                 + "      WHERE s.codsocio = " + id_pessoa;
 
         textqry += " GROUP BY                                               \n"
-                + "          p.codigo,                                      \n" + // 0 CÓDIGO
-                "            p.nome,                                        \n" + // 1 NOME
-                "            p.cnpj,                                        \n" + // 2 CNPJ
-                "            p.empresa,                                     \n" + // 3 EMPRESA
-                "            to_char(c.dt_emissao, 'DD/MM/YYYY'),           \n" + // 4 DATA EMISSÃO
-                "            p.e_cidade,                                    \n" + // 5 CIDADE
-                "            to_char(s.validade_carteirinha, 'DD/MM/YYYY'), \n" + // 6 VALIDADE
-                "            p.e_uf,                                        \n" + // 7 ESTADO
-                "            to_char(p.admissao, 'DD/MM/YYYY'),             \n" + // 8 ADMISSÃO
-                "            p.fantasia,                                    \n" + // 9 FANTASIA
-                "            s.matricula,                                   \n" + // 10 MATRICULA
-                "            s.nr_via,                                      \n" + // 11 VIA
-                "            s.id_socio,                                    \n" + // 12 CÓDIGO SÓCIO
-                "            to_char(s.filiacao, 'DD/MM/YYYY'),             \n" + // 13 FILIAÇÃO
-                "            p.profissao,                                   \n" + // 14 PROFISSÃO
-                "            p.cpf,                                         \n" + // 15 CPF
-                "            p.ds_rg,                                       \n" + // 16 RG 
-                "            c.nr_cartao,                                   \n" + // 17 NÚMERO CARTÃO
-                "            c.id,                                          \n" + // 18
-                "            mc.ds_descricao,                               \n" + // 19 MODELO CARTEIRINHA
-                "            p.logradouro,                                  \n" + // 20
-                "            p.endereco,                                    \n" + // 21
-                "            p.numero,                                      \n" + // 22
-                "            p.complemento,                                 \n" + // 23
-                "            p.bairro,                                      \n" + // 24
-                "            p.cidade,                                      \n" + // 25
-                "            p.uf,                                          \n" + // 26
-                "            p.cep,                                         \n" + // 27
-                "            p.nacionalidade,                               \n" + // 28
-                "            to_char(p.dt_nascimento, 'DD/MM/YYYY'),        \n" + // 29
-                "            p.estado_civil,                                \n" + // 30
-                "            p.ctps,                                        \n" + // 31
-                "            p.ds_serie,                                    \n" + // 32
-                "            p.ds_orgao_emissao_rg,                         \n" + // 34
-                "            p.codigo_funcional,                            \n" + // 35
-                "            s.parentesco,                                  \n" + // 36
-                "            s.categoria,                                   \n" + // 37
-                "            pt.fantasia,                                   \n" + // 38
-                "            pt.codigo_funcional,                           \n" + // 39
-                "            s.titular,                                     \n" + // 40
-                "            s.grupo_categoria,                             \n" + // 41
+                + "          p.codigo,                                      \n"
+                + // 0 CÓDIGO
+                "            p.nome,                                        \n"
+                + // 1 NOME
+                "            p.cnpj,                                        \n"
+                + // 2 CNPJ
+                "            p.empresa,                                     \n"
+                + // 3 EMPRESA
+                "            to_char(c.dt_emissao, 'DD/MM/YYYY'),           \n"
+                + // 4 DATA EMISSÃO
+                "            p.e_cidade,                                    \n"
+                + // 5 CIDADE
+                "            to_char(s.validade_carteirinha, 'DD/MM/YYYY'), \n"
+                + // 6 VALIDADE
+                "            p.e_uf,                                        \n"
+                + // 7 ESTADO
+                "            to_char(p.admissao, 'DD/MM/YYYY'),             \n"
+                + // 8 ADMISSÃO
+                "            p.fantasia,                                    \n"
+                + // 9 FANTASIA
+                "            s.matricula,                                   \n"
+                + // 10 MATRICULA
+                "            s.nr_via,                                      \n"
+                + // 11 VIA
+                "            s.id_socio,                                    \n"
+                + // 12 CÓDIGO SÓCIO
+                "            to_char(s.filiacao, 'DD/MM/YYYY'),             \n"
+                + // 13 FILIAÇÃO
+                "            p.profissao,                                   \n"
+                + // 14 PROFISSÃO
+                "            p.cpf,                                         \n"
+                + // 15 CPF
+                "            p.ds_rg,                                       \n"
+                + // 16 RG 
+                "            c.nr_cartao,                                   \n"
+                + // 17 NÚMERO CARTÃO
+                "            c.id,                                          \n"
+                + // 18
+                "            mc.ds_descricao,                               \n"
+                + // 19 MODELO CARTEIRINHA
+                "            p.logradouro,                                  \n"
+                + // 20
+                "            p.endereco,                                    \n"
+                + // 21
+                "            p.numero,                                      \n"
+                + // 22
+                "            p.complemento,                                 \n"
+                + // 23
+                "            p.bairro,                                      \n"
+                + // 24
+                "            p.cidade,                                      \n"
+                + // 25
+                "            p.uf,                                          \n"
+                + // 26
+                "            p.cep,                                         \n"
+                + // 27
+                "            p.nacionalidade,                               \n"
+                + // 28
+                "            to_char(p.dt_nascimento, 'DD/MM/YYYY'),        \n"
+                + // 29
+                "            p.estado_civil,                                \n"
+                + // 30
+                "            p.ctps,                                        \n"
+                + // 31
+                "            p.ds_serie,                                    \n"
+                + // 32
+                "            p.ds_orgao_emissao_rg,                         \n"
+                + // 34
+                "            p.codigo_funcional,                            \n"
+                + // 35
+                "            s.parentesco,                                  \n"
+                + // 36
+                "            s.categoria,                                   \n"
+                + // 37
+                "            pt.fantasia,                                   \n"
+                + // 38
+                "            pt.codigo_funcional,                           \n"
+                + // 39
+                "            s.titular,                                     \n"
+                + // 40
+                "            s.grupo_categoria,                             \n"
+                + // 41
                 "            f.dt_aposentadoria                             \n"; // 42
         try {
             Query qry = getEntityManager().createNativeQuery(textqry);
@@ -751,14 +788,12 @@ public class SocioCarteirinhaDBToplink extends DB implements SocioCarteirinhaDB 
 
         if (id_rotina == -1 && id_categoria == -1) {
 
-        } else {
-            if (id_categoria != -1 && id_rotina == -1) {
-                text_qry += " WHERE mcc.categoria IS NOT NULL AND mcc.categoria.id = " + id_categoria;
-            } else if (id_categoria != -1 && id_rotina != -1) {
-                text_qry += " WHERE mcc.categoria IS NOT NULL AND mcc.categoria.id = " + id_categoria + " AND mcc.rotina.id = " + id_rotina;
-            } else if (id_categoria == -1 && id_rotina != -1) {
-                text_qry += " WHERE mcc.rotina.id = " + id_rotina + " AND mcc.categoria IS NULL";
-            }
+        } else if (id_categoria != -1 && id_rotina == -1) {
+            text_qry += " WHERE mcc.categoria IS NOT NULL AND mcc.categoria.id = " + id_categoria;
+        } else if (id_categoria != -1 && id_rotina != -1) {
+            text_qry += " WHERE mcc.categoria IS NOT NULL AND mcc.categoria.id = " + id_categoria + " AND mcc.rotina.id = " + id_rotina;
+        } else if (id_categoria == -1 && id_rotina != -1) {
+            text_qry += " WHERE mcc.rotina.id = " + id_rotina + " AND mcc.categoria IS NULL";
         }
 
         try {
@@ -779,14 +814,12 @@ public class SocioCarteirinhaDBToplink extends DB implements SocioCarteirinhaDB 
 
         if (id_rotina == -1 && id_categoria == -1) {
 
-        } else {
-            if (id_categoria != -1 && id_rotina == -1) {
-                text_qry += " AND mcc.categoria IS NOT NULL AND mc.ccategoria.id = " + id_categoria;
-            } else if (id_categoria != -1 && id_rotina != -1) {
-                text_qry += " AND mcc.categoria IS NOT NULL AND mcc.categoria.id = " + id_categoria + " AND mcc.rotina.id = " + id_rotina;
-            } else if (id_categoria == -1 && id_rotina != -1) {
-                text_qry += " AND mcc.categoria IS NULL AND mcc.rotina.id = " + id_rotina;
-            }
+        } else if (id_categoria != -1 && id_rotina == -1) {
+            text_qry += " AND mcc.categoria IS NOT NULL AND mc.ccategoria.id = " + id_categoria;
+        } else if (id_categoria != -1 && id_rotina != -1) {
+            text_qry += " AND mcc.categoria IS NOT NULL AND mcc.categoria.id = " + id_categoria + " AND mcc.rotina.id = " + id_rotina;
+        } else if (id_categoria == -1 && id_rotina != -1) {
+            text_qry += " AND mcc.categoria IS NULL AND mcc.rotina.id = " + id_rotina;
         }
 
         try {

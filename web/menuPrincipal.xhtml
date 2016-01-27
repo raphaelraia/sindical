@@ -42,10 +42,10 @@
                         <p:panel style="border: 0px; margin: 0 auto; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                             <p:menubar>
                                 <p:submenu label="Segurança" icon="ui-icon-document" style="margin-right: 15px">
-                                    <p:menuitem value="Usuários" action="#{chamadaPaginaBean.usuario}" />  
+                                    <p:menuitem value="Usuários" action="#{chamadaPaginaBean.pagina('usuario')}" />  
                                     <p:submenu label="Manutenção" icon="ui-icon-contact">  
                                         <p:menuitem value="Perm. Departamento"      action="#{chamadaPaginaBean.permissaoDepartamento}" />
-                                        <p:menuitem value="Módulo/Rotina"           action="#{chamadaPaginaBean.permissao}" />
+                                        <p:menuitem value="Módulo/Rotina"           action="#{chamadaPaginaBean.pagina('permissao')}"  />
                                         <p:menuitem value="Cadastro Simples"        action="#{chamadaPaginaBean.simples}" />
                                         <p:menuitem value="Rotina"                  action="#{chamadaPaginaBean.rotina}" />
                                         <p:menuitem value="Níveis"                  action="#{chamadaPaginaBean.nivel}" />

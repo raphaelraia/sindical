@@ -1933,6 +1933,12 @@
             <redirect/>
         </navigation-case>                 
         
+        <navigation-case>
+            <from-outcome>webPessoaJuridica</from-outcome>
+            <to-view-id>/webPessoaJuridica.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>                 
+        
         <!-- 
         <navigation-case>
             <from-outcome>#{navigationRules.param}</from-outcome>
