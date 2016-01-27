@@ -1,6 +1,7 @@
 package br.com.rtools.relatorios.dao;
 
 import br.com.rtools.principal.DB;
+import br.com.rtools.utilitarios.DataHoje;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
@@ -26,14 +27,45 @@ public class RelatorioDescontoFolhaDao extends DB {
     public List find(Integer relatorio_id, Integer empresa_id, Integer titular_id, String referenciaInicial, String referenciaFinal) {
         // CHAMADO: #1066 Criada por: Rogério em 15/10/2015 16:28
         try {
-            String queryString = "";
-            if (relatorio_id.equals(62)) {
-                queryString += " -- RelatorioDescontoFolhaDao->find(62)             \n"
-                        + "     SELECT t.id              AS socio_codigo,           \n" // 00 - SÓCIO -> CÓDIGO
+
+            List listWhere = new ArrayList<>();
+            listWhere.add(" m.id_baixa is null ");
+            listWhere.add(" m.is_ativo = true ");
+            if (referenciaInicial != null && referenciaFinal != null && !referenciaInicial.isEmpty() && !referenciaFinal.isEmpty()) {
+                listWhere.add(" m.ds_referencia BETWEEN '" + referenciaInicial + "' AND '" + referenciaFinal + "'");
+            } else if (referenciaInicial != null && (referenciaFinal == null || referenciaFinal.isEmpty()) && !referenciaInicial.isEmpty()) {
+                listWhere.add(" m.ds_referencia = '" + referenciaInicial + "' ");
+            } else if (referenciaInicial == null && referenciaFinal != null && !referenciaFinal.isEmpty()) {
+                listWhere.add(" m.ds_referencia <= '" + referenciaFinal + "' ");
+            }
+            if (empresa_id != null) {
+                listWhere.add(" j.id = " + empresa_id);
+            }
+            if (titular_id != null) {
+                listWhere.add(" t.id = " + titular_id);
+            }
+
+            String SELECT_STRING = "", WHERE_STRING = "";
+            
+            DataHoje dh = new DataHoje();
+            String referencia_anterior = dh.decrementarMeses(1, "01/"+referenciaInicial);
+            referencia_anterior = DataHoje.converteDataParaReferencia(referencia_anterior);
+
+            for (int i = 0; i < listWhere.size(); i++) {
+                if (i == 0) {
+                    WHERE_STRING += " WHERE " + listWhere.get(i).toString() + " \n";
+                } else {
+                    WHERE_STRING += " AND " + listWhere.get(i).toString() + " \n";
+                }
+            }
+
+            if (relatorio_id.equals(62) || relatorio_id.equals(77)) {
+                SELECT_STRING += " -- RelatorioDescontoFolhaDao->find(62)             \n"
+                        + "(     SELECT t.id              AS socio_codigo,          \n" // 00 - SÓCIO -> CÓDIGO
                         + "            pj.ds_nome        AS empresa_nome,           \n" // 01 - EMPRESA -> NOME
                         + "            t.ds_nome         AS titular_nome,           \n" // 02 - TITULAR -> NOME
                         + "            m.ds_referencia   AS movimento_referencia,   \n" // 03 - MOVIMENTO -> REFERÊNCIA
-                        + "            (m.dt_vencimento - cast(extract(DAY FROM m.dt_vencimento) AS int) + pc.nr_dia_vencimento) AS movimento_vencimento,   \n" // 04 - MOVIMENTO -> VENCIMENTO 
+                        + "            (m.dt_vencimento - cast(extract(DAY FROM m.dt_vencimento) AS int) + pc.nr_dia_vencimento) AS movimento_vencimento, \n" // 04 - MOVIMENTO -> VENCIMENTO 
                         + "            sum(m.nr_valor)   AS movimento_valor,        \n" // 05 - MOVIMENTO -> VALOR
                         + "            pj.ds_documento   AS empresa_documento,      \n" // 06 - EMPRESA -> DOCUMENTO
                         + "            pj.ds_telefone1   AS empresa_telefone1,      \n" // 07 - EMPRESA -> TELEFONE1
@@ -45,18 +77,144 @@ public class RelatorioDescontoFolhaDao extends DB {
                         + "            e.cidade          AS e_endereco_cidade,      \n" // 13 - ENDEREÇO DA EMPRESA -> CIDADE 
                         + "            e.uf              AS e_endereco_uf,          \n" // 14 - ENDEREÇO DA EMPRESA -> UF 
                         + "            e.cep             AS e_endereco_cep,         \n" // 15 - ENDEREÇO DA EMPRESA -> CEP 
-                        + "            j.ds_contato      AS empresa_contato         \n" // 16 - EMPRESA -> CONTATO 
+                        + "            j.ds_contato      AS empresa_contato,        \n" // 16 - EMPRESA -> CONTATO 
+                        + "            1                 AS grupo,                  \n" // 17 - GRUPO
+                        + "            j.id              AS empresa_id              \n" // 18 - EMPRESA ID
                         + "       FROM soc_socios_vw     AS so                      \n"
                         + " INNER JOIN fin_movimento     AS m  ON m.id_titular = so.codsocio                    \n"
                         + " INNER JOIN pes_pessoa        AS t  ON t.id         = so.titular                     \n"
                         + " INNER JOIN pes_juridica      AS j  ON j.id_pessoa  = m.id_pessoa                    \n"
                         + " INNER JOIN pes_pessoa_complemento AS pc ON pc.id_pessoa = j.id_pessoa               \n"
                         + " INNER JOIN pes_pessoa        AS pj ON pj.id        = j.id_pessoa                    \n"
-                        + " INNER JOIN pes_pessoa_endereco AS pe ON pe.id_pessoa = pj.id AND id_tipo_endereco = 3  \n"
-                        + " INNER JOIN endereco_vw       AS e  ON e.id         = pe.id_endereco                 \n";
+                        + " INNER JOIN pes_pessoa_endereco AS pe ON pe.id_pessoa = pj.id AND id_tipo_endereco = 3 \n"
+                        + " INNER JOIN endereco_vw       AS e  ON e.id         = pe.id_endereco                 \n"
+                        + WHERE_STRING
+                        + " GROUP BY t.id,              \n"
+                        + "          pj.ds_nome,        \n"
+                        + "          t.ds_nome,         \n"
+                        + "          m.ds_referencia,   \n"
+                        + "          m.dt_vencimento - cast(extract(DAY FROM m.dt_vencimento) AS int) + pc.nr_dia_vencimento,   \n"
+                        + "          pj.ds_documento,   \n"
+                        + "          pj.ds_telefone1,   \n"
+                        + "          e.logradouro,      \n"
+                        + "          e.endereco,        \n"
+                        + "          pe.ds_numero,      \n"
+                        + "          pe.ds_complemento, \n"
+                        + "          e.bairro,          \n"
+                        + "          e.cidade,          \n"
+                        + "          e.uf,              \n"
+                        + "          e.cep,             \n"
+                        + "          j.ds_contato,      \n"
+                        + "          m.dt_vencimento-cast(extract(day from m.dt_vencimento) as int) + pc.nr_dia_vencimento, \n"
+                        + "          j.id \n"
+                        + ") \n";
+
+                SELECT_STRING
+                        += "-- NOVOS \n"
+                        + "UNION \n"
+                        + "("
+                        + "SELECT   \n"
+                        + "        t.id              AS socio_codigo,       --- 1 \n"
+                        + "        pj.ds_nome        AS empresa_nome,       --- 2 -- 1   \n"
+                        + "        t.ds_nome         AS titular_nome,       --- 3 -- 4     \n"
+                        + "        '' AS movimento_referencia,              --- 4 \n"
+                        + "        '01/01/1900' AS movimento_vencimento,    --- 5 \n"
+                        + "        0  AS movimento_valor,                   --- 6 \n"
+                        + "        pj.ds_documento   AS empresa_documento,  --- 7 -- 2   \n"
+                        + "        '' AS empresa_telefone1,                 --- 8 \n"
+                        + "        '' AS e_endereco_logradouro,             --- 9 \n"
+                        + "        '' AS e_endereco_descricao,              --- 10 \n"
+                        + "        '' AS e_endereco_numero,                 --- 11 \n"
+                        + "        '' AS e_endereco_complemento,            --- 12 \n"
+                        + "        '' AS e_endereco_bairro,                 --- 13 \n"
+                        + "        '' AS e_endereco_cidade,                 --- 14 \n"
+                        + "        '' AS e_endereco_uf,                     --- 15 \n"
+                        + "        '' AS e_endereco_cep,                    --- 16 \n"
+                        + "        '' AS empresa_contato,                   --- 17 \n"
+                        + "        2 AS grupo,                              --- 18 --- 3 \n"
+                        + "        j.id AS empresa_id                         --- 19 \n"
+                        + " FROM soc_socios_vw                AS so                       \n"
+                        + " INNER JOIN fin_movimento          AS m  ON m.id_titular = so.codsocio                     \n"
+                        + " INNER JOIN pes_pessoa             AS t  ON t.id         = so.titular                     \n"
+                        + " INNER JOIN pes_juridica           AS j  ON j.id_pessoa  = m.id_pessoa                     \n"
+                        + " INNER JOIN pes_pessoa_complemento AS pc ON pc.id_pessoa = j.id_pessoa               \n"
+                        + " INNER JOIN pes_pessoa             AS pj ON pj.id        = j.id_pessoa                     \n"
+                        + " INNER JOIN pes_pessoa_endereco    AS pe ON pe.id_pessoa = pj.id AND id_tipo_endereco = 3   \n"
+                        + " INNER JOIN endereco_vw            AS e  ON e.id         = pe.id_endereco                 \n"
+                        + " LEFT JOIN (select id_pessoa,id_titular from fin_movimento where is_ativo=true and ds_referencia = '"+referencia_anterior+"' --- REF.ANTERIOR A INFORMADA \n"
+                        + "            group by id_pessoa,id_titular) as x on x.id_pessoa=m.id_pessoa and x.id_titular=m.id_titular \n"
+                        + "\n"
+                        + WHERE_STRING
+                        + "\n"
+                        + "     GROUP BY \n"
+                        + "        t.id,           \n"
+                        + "        pj.ds_nome,           \n"
+                        + "        t.ds_nome,           \n"
+                        + "        pj.ds_documento, \n"
+                        + "        j.id \n"
+                        + "\n"
+                        + ") ";
+
+                SELECT_STRING
+                        += "-- INATIVOS \n"
+                        + "UNION \n"
+                        + "("
+                        + "SELECT   \n"
+                        + "        t.id              AS socio_codigo,           \n"
+                        + "        pj.ds_nome        AS empresa_nome,           \n"
+                        + "        t.ds_nome         AS titular_nome,           \n"
+                        + "        '' as movimento_referencia, \n"
+                        + "        '01/01/1900' AS movimento_vencimento,   \n"
+                        + "        0  AS movimento_valor,         \n"
+                        + "        pj.ds_documento   AS empresa_documento,       \n"
+                        + "        '' AS empresa_telefone1,       \n"
+                        + "        '' AS e_endereco_logradouro,   \n"
+                        + "        '' AS e_endereco_descricao,   \n"
+                        + "        '' AS e_endereco_numero,       \n"
+                        + "        '' AS e_endereco_complemento, \n"
+                        + "        '' AS e_endereco_bairro,       \n"
+                        + "        '' AS e_endereco_cidade,       \n"
+                        + "        '' AS e_endereco_uf,           \n"
+                        + "        '' AS e_endereco_cep,         \n"
+                        + "        '' AS empresa_contato, \n"
+                        + "        3 as grupo, \n"
+                        + "        j.id AS empresa_id \n"
+                        + "from fin_movimento      as m \n"
+                        + "inner join pes_pessoa   as t  on t.id  = m.id_titular \n"
+                        + "inner join pes_pessoa   as pj on pj.id = m.id_pessoa \n"
+                        + "inner join pes_juridica as j  on j.id_pessoa = m.id_pessoa \n"
+                        + "inner join pes_fisica as f on f.id_pessoa=t.id \n"
+                        + "left join   \n"
+                        + "( \n"
+                        + "select \n"
+                        + "m.id_pessoa             AS id_empresa, \n"
+                        + "m.id_titular              AS id_titular           \n"
+                        + "FROM soc_socios_vw                AS so                       \n"
+                        + "INNER JOIN fin_movimento          AS m  ON m.id_titular = so.codsocio                     \n"
+                        + "INNER JOIN pes_pessoa             AS t  ON t.id         = so.titular                     \n"
+                        + "INNER JOIN pes_juridica           AS j  ON j.id_pessoa  = m.id_pessoa                     \n"
+                        + "INNER JOIN pes_pessoa_complemento AS pc ON pc.id_pessoa = j.id_pessoa               \n"
+                        + "INNER JOIN pes_pessoa             AS pj ON pj.id        = j.id_pessoa                     \n"
+                        + "INNER JOIN pes_pessoa_endereco    AS pe ON pe.id_pessoa = pj.id AND id_tipo_endereco = 3   \n"
+                        + "INNER JOIN endereco_vw            AS e  ON e.id         = pe.id_endereco                 \n"
+                        + WHERE_STRING
+                        + "  AND m.id_servicos not in (select id_servicos from fin_servico_rotina where id_rotina = 4) \n"
+                        + "GROUP BY \n"
+                        + "m.id_pessoa,           \n"
+                        + "m.id_titular   \n"
+                        + ") as x on x.id_titular=m.id_titular and x.id_empresa = m.id_pessoa \n"
+                        + "where x.id_titular is null and m.is_ativo=true and m.ds_referencia = '"+referencia_anterior+"'  --- REF.ANTERIOR A INFORMADA \n"
+                        + "and m.id_servicos not in (select id_servicos from fin_servico_rotina where id_rotina = 4) \n"
+                        + "group by \n"
+                        + "        t.id,           \n"
+                        + "        pj.ds_nome,           \n"
+                        + "        t.ds_nome,           \n"
+                        + "        pj.ds_documento, \n"
+                        + "        j.id \n"
+                        + " ) ";
             } else if (relatorio_id.equals(63)) {
                 // # CHAMADO 1074 Criada por: Rogério em 19/10/2015 09:52
-                queryString += " -- RelatorioDescontoFolhaDao->find(63)             \n"
+                SELECT_STRING += " -- RelatorioDescontoFolhaDao->find(63)             \n"
                         + "     SELECT t.id              AS socio_codigo,           \n" // 0
                         + "            pj.ds_nome        AS empresa_nome,           \n" // 1
                         + "            t.ds_nome         AS titular_nome,           \n" // 2
@@ -89,57 +247,16 @@ public class RelatorioDescontoFolhaDao extends DB {
                         + " INNER JOIN pes_pessoa_complemento AS pc ON pc.id_pessoa = j.id_pessoa       \n"
                         + " INNER JOIN pes_pessoa        AS pj ON pj.id        = j.id_pessoa            \n"
                         + " INNER JOIN pes_pessoa_endereco AS pe ON pe.id_pessoa = pj.id AND id_tipo_endereco = 3 \n"
-                        + " INNER JOIN endereco_vw       AS e  ON e.id         = pe.id_endereco ";
+                        + " INNER JOIN endereco_vw       AS e  ON e.id         = pe.id_endereco "
+                        + WHERE_STRING;
             }
 
-            List listWhere = new ArrayList<>();
-            listWhere.add(" m.id_baixa is null ");
-            listWhere.add(" m.is_ativo = true ");
-            if (referenciaInicial != null && referenciaFinal != null && !referenciaInicial.isEmpty() && !referenciaFinal.isEmpty()) {
-                listWhere.add(" m.ds_referencia BETWEEN '" + referenciaInicial + "' AND '" + referenciaFinal + "'");
-            } else if (referenciaInicial != null && (referenciaFinal == null || referenciaFinal.isEmpty()) && !referenciaInicial.isEmpty()) {
-                listWhere.add(" m.ds_referencia = '" + referenciaInicial + "' ");
-            } else if (referenciaInicial == null && referenciaFinal != null && !referenciaFinal.isEmpty()) {
-                listWhere.add(" m.ds_referencia <= '" + referenciaFinal + "' ");
-            }
-            if (empresa_id != null) {
-                listWhere.add(" j.id = " + empresa_id);
-            }
-            if (titular_id != null) {
-                listWhere.add(" t.id = " + titular_id);
-            }
-            for (int i = 0; i < listWhere.size(); i++) {
-                if (i == 0) {
-                    queryString += " WHERE " + listWhere.get(i).toString() + " \n";
-                } else {
-                    queryString += " AND " + listWhere.get(i).toString() + " \n";
-                }
-            }
-            if (relatorio_id.equals(62)) {
-                queryString += "    "
-                        + " GROUP BY t.id,              \n"
-                        + "          pj.ds_nome,        \n"
-                        + "          t.ds_nome,         \n"
-                        + "          m.ds_referencia,   \n"
-                        + "          m.dt_vencimento - cast(extract(DAY FROM m.dt_vencimento) AS int) + pc.nr_dia_vencimento,   \n"
-                        + "          pj.ds_documento,   \n"
-                        + "          pj.ds_telefone1,   \n"
-                        + "          e.logradouro,      \n"
-                        + "          e.endereco,        \n"
-                        + "          pe.ds_numero,      \n"
-                        + "          pe.ds_complemento, \n"
-                        + "          e.bairro,          \n"
-                        + "          e.cidade,          \n"
-                        + "          e.uf,              \n"
-                        + "          e.cep,             \n"
-                        + "          j.ds_contato,      \n"
-                        + "          m.dt_vencimento-cast(extract(day from m.dt_vencimento) as int)+pc.nr_dia_vencimento \n";
-            }
-            queryString += " ORDER BY pj.ds_nome,       \n"
-                    + "               pj.ds_documento,  \n"
-                    + "               t.ds_nome         \n";
+            SELECT_STRING += " ORDER BY 2,7,18,3";
+//            SELECT_STRING += " ORDER BY pj.ds_nome,       \n"
+//                    + "               pj.ds_documento,  \n"
+//                    + "               t.ds_nome         \n";
 
-            Query query = getEntityManager().createNativeQuery(queryString);
+            Query query = getEntityManager().createNativeQuery(SELECT_STRING);
             return query.getResultList();
         } catch (Exception e) {
             return new ArrayList();
