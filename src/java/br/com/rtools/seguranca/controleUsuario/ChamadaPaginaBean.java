@@ -266,20 +266,6 @@ public class ChamadaPaginaBean implements Serializable {
         return metodoGenerico(2, "pessoaFisica");
     }
 
-    public synchronized String usuario() {
-        String urlTemp = "/Cliente/" + getCliente() + "/temp/" + "foto/" + ((Usuario) GenericaSessao.getObject("sessaoUsuario")).getId() + "/perfil.png";
-        String arquivo = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(urlTemp);
-        if (new File(arquivo).exists()) {
-            new File(arquivo).delete();
-        }
-        //if(FacesContext.getCurrentInstance().getExternalContext().getSessionMap().containsKey("usuarioBean")){
-        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("usuarioBean");
-        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("usuarioPesquisa");
-        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("pessoaPesquisa");
-        //}
-        return metodoGenerico(2, "usuario");
-    }
-
     public synchronized String permissao() {
         //if(FacesContext.getCurrentInstance().getExternalContext().getSessionMap().containsKey("permissaoBean")){
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("permissaoBean");
@@ -1412,11 +1398,11 @@ public class ChamadaPaginaBean implements Serializable {
         GenericaSessao.put("idModulo", ATENDIMENTO);
         return metodoGenerico(0, "menuAtendimento");
     }
-    
+
     public synchronized String menuCobranca() {
         GenericaSessao.put("idModulo", COBRANCA);
         return metodoGenerico(0, "menuCobranca");
-    }    
+    }
 
     //------------------------------------------------------------------------------------------------------------
     //------------------------------------------------------------------------------------------------------------
@@ -1715,7 +1701,7 @@ public class ChamadaPaginaBean implements Serializable {
     public String getControleLinks() {
         try {
             paginaRequerida = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-            
+
             //URL BROWSER COMPLETA
 //            StringBuffer currentURL = paginaRequerida.getRequestURL();
 //            String currentURLX = paginaRequerida.getScheme();
@@ -1723,7 +1709,6 @@ public class ChamadaPaginaBean implements Serializable {
 //            String currentURLXXX = paginaRequerida.getContextPath();
 //            String currentURLXXXx = String.valueOf(paginaRequerida.getServerPort());
             //Executions.getCurrent().getScheme();
-            
             String urlDestino = paginaRequerida.getRequestURI();
             String linkAtual = converteURL(urlDestino);
             String linkTeste = (String) GenericaSessao.getString("urlRetorno");
@@ -2265,7 +2250,7 @@ public class ChamadaPaginaBean implements Serializable {
 
     public String entrarPagina() {
         if (oqFazer.equals("usuario")) {
-            return usuario();
+            return null;
         }
         if (oqFazer.equals("fisica")) {
             return pessoaFisica();
@@ -2471,6 +2456,64 @@ public class ChamadaPaginaBean implements Serializable {
             return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).getUrlAtual();
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    /**
+     *
+     * FINANCEIRO = 1; SOCIAL = 2; ARRECADACAO = 3; HOMOLOGACAO = 4; JURIDICO =
+     * 5; CLUBE = 6; ACADEMIA = 7; ESCOLA = 8; CADASTRO_AUXILIAR = 9; SEGURANCA
+     * = 10; LOCADORA = 11; ATENDIMENTO = 12; COBRANCA = 13;
+     *
+     * @param MODULO
+     */
+    public static void setModulo(String MODULO) {
+        new ChamadaPaginaBean().setModuloOpcoes(MODULO);
+    }
+
+    public void setModuloOpcoes(String MODULO) {
+        switch (MODULO) {
+            case "FINANCEIRO":
+                GenericaSessao.put("idModulo", FINANCEIRO);
+                break;
+            case "SOCIAL":
+                GenericaSessao.put("idModulo", SOCIAL);
+                break;
+            case "ARRECADACAO":
+                GenericaSessao.put("idModulo", ARRECADACAO);
+                break;
+            case "HOMOLOGACAO":
+                GenericaSessao.put("idModulo", HOMOLOGACAO);
+                break;
+            case "JURIDICO":
+                GenericaSessao.put("idModulo", JURIDICO);
+                break;
+            case "CLUBE":
+                GenericaSessao.put("idModulo", CLUBE);
+                break;
+            case "ACADEMIA":
+                GenericaSessao.put("idModulo", ACADEMIA);
+                break;
+            case "ESCOLA":
+                GenericaSessao.put("idModulo", ESCOLA);
+                break;
+            case "CADASTRO_AUXILIAR":
+                GenericaSessao.put("idModulo", CADASTRO_AUXILIAR);
+                break;
+            case "SEGURANCA":
+                GenericaSessao.put("idModulo", SEGURANCA);
+                break;
+            case "LOCADORA":
+                GenericaSessao.put("idModulo", LOCADORA);
+                break;
+            case "ATENDIMENTO":
+                GenericaSessao.put("idModulo", ATENDIMENTO);
+                break;
+            case "COBRANCA":
+                GenericaSessao.put("idModulo", COBRANCA);
+                break;
+            default:
+                break;
         }
     }
 }

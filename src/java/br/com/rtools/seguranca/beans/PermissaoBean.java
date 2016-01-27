@@ -4,6 +4,7 @@ import br.com.rtools.seguranca.dao.PermissaoDao;
 import br.com.rtools.seguranca.dao.RotinaDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.seguranca.*;
+import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.seguranca.db.*;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -74,6 +75,7 @@ public class PermissaoBean implements Serializable {
         idDepartamento = 0;
         idNivel = 0;
         idIndex = -1;
+        ChamadaPaginaBean.setModulo("SEGURANCA");
     }
 
     @PreDestroy
