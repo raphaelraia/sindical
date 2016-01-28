@@ -49,6 +49,9 @@
                                             <p:selectBooleanButton value="#{relatorioMatriculaEscolaBean.filtro[3]}" onLabel="Idade" offLabel="Idade" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;" >
                                                 <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio" listener="#{relatorioMatriculaEscolaBean.clear}" />
                                             </p:selectBooleanButton>
+                                            <p:selectBooleanButton value="#{relatorioMatriculaEscolaBean.filtro[17]}" onLabel="Aniversáriantes" offLabel="Aniversáriantes" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;" >
+                                                <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio" listener="#{relatorioMatriculaEscolaBean.clear}" />
+                                            </p:selectBooleanButton>
                                             <p:selectBooleanButton value="#{relatorioMatriculaEscolaBean.filtro[4]}" onLabel="Status" offLabel="Status" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;">
                                                 <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio" listener="#{relatorioMatriculaEscolaBean.clear}" />
                                             </p:selectBooleanButton>
@@ -148,6 +151,19 @@
                                                 <p:ajax event="change" update="@this" />
                                             </p:inputText>
                                             <p:commandButton icon="ui-icon-close" action="#{relatorioMatriculaEscolaBean.close('idade')}" title="Remover filtro"/>
+                                        </h:panelGrid>
+                                    </p:panel>
+                                </p:column>
+                                <p:column rendered="#{relatorioMatriculaEscolaBean.filtro[17]}">
+                                    <p:panel header="Aniversáriantes">
+                                        <h:panelGrid columns="4">
+                                            <p:outputLabel value="Status: " />
+                                            <p:selectCheckboxMenu label="Selecionar mês" value="#{relatorioMatriculaEscolaBean.selectedMesesAniversario}" filter="true" filterMatchMode="startsWith">
+                                                <p:ajax event="toggleSelect" global="false"/>
+                                                <p:ajax event="change" global="false"/>
+                                                <f:selectItems value="#{relatorioMatriculaEscolaBean.listMeses}" />
+                                            </p:selectCheckboxMenu>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioMatriculaEscolaBean.close('aniversariantes')}" title="Remover filtro"/>
                                         </h:panelGrid>
                                     </p:panel>
                                 </p:column>
