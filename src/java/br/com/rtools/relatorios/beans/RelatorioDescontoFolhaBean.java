@@ -106,7 +106,16 @@ public class RelatorioDescontoFolhaBean implements Serializable {
         ConfiguracaoSocial configuracaoSocial = (ConfiguracaoSocial) new Dao().find(new ConfiguracaoSocial(), 1);
         for (int i = 0; i < list.size(); i++) {
             List o = (List) list.get(i);
-            if (r.getId().equals(62)) {
+            if (r.getId().equals(62) || r.getId().equals(77)) {
+                String nome_grupo = "";
+                if ((Integer) o.get(17) == 1) {
+                    nome_grupo = "MOVIMENTOS DO MÊS";
+                } else if ((Integer) o.get(17) == 2) {
+                    nome_grupo = "NOVOS";
+                } else {
+                    nome_grupo = "INATIVOS";
+                }
+
                 rdfs.add(
                         new RelatorioDescontoFolha(
                                 o.get(0),
@@ -125,7 +134,10 @@ public class RelatorioDescontoFolhaBean implements Serializable {
                                 o.get(13),
                                 o.get(14),
                                 o.get(15),
-                                o.get(16)
+                                o.get(16),
+                                o.get(17),
+                                nome_grupo,
+                                o.get(18)
                         )
                 );
             } else if (r.getId().equals(63)) {
@@ -164,10 +176,10 @@ public class RelatorioDescontoFolhaBean implements Serializable {
             return;
         }
         Jasper.TITLE = r.getNome();
-        if(r.getId().equals(62)) {
-            Jasper.TYPE = "default";            
-        } else if(r.getId().equals(63)) {
-            Jasper.TYPE = "recibo_sem_logo";            
+        if (r.getId().equals(62) || r.getId().equals(77)) {
+            Jasper.TYPE = "default";
+        } else if (r.getId().equals(63)) {
+            Jasper.TYPE = "recibo_sem_logo";
         }
         Map map = new HashMap();
         map.put("obs_desconto_folha", configuracaoSocial.getObsDescontoFolha());
@@ -370,6 +382,9 @@ public class RelatorioDescontoFolhaBean implements Serializable {
         private Object beneficiario_nome;
         private Object mes;
         private Object ano;
+        private Object grupo;
+        private Object nome_grupo;
+        private Object empresa_id;
 
         /**
          *
@@ -390,8 +405,10 @@ public class RelatorioDescontoFolhaBean implements Serializable {
          * @param e_endereco_uf
          * @param e_endereco_cep
          * @param empresa_contato
+         * @param grupo
+         * @param nome_grupo
          */
-        public RelatorioDescontoFolha(Object socio_codigo, Object empresa_nome, Object titular_nome, Object movimento_referencia, Object movimento_vencimento, Object movimento_valor, Object empresa_documento, Object empresa_telefone1, Object e_endereco_logradouro, Object e_endereco_descricao, Object e_endereco_numero, Object e_endereco_complemento, Object e_endereco_bairro, Object e_endereco_cidade, Object e_endereco_uf, Object e_endereco_cep, Object empresa_contato) {
+        public RelatorioDescontoFolha(Object socio_codigo, Object empresa_nome, Object titular_nome, Object movimento_referencia, Object movimento_vencimento, Object movimento_valor, Object empresa_documento, Object empresa_telefone1, Object e_endereco_logradouro, Object e_endereco_descricao, Object e_endereco_numero, Object e_endereco_complemento, Object e_endereco_bairro, Object e_endereco_cidade, Object e_endereco_uf, Object e_endereco_cep, Object empresa_contato, Object grupo, Object nome_grupo, Object empresa_id) {
             this.socio_codigo = socio_codigo;
             this.empresa_nome = empresa_nome;
             this.titular_nome = titular_nome;
@@ -409,6 +426,9 @@ public class RelatorioDescontoFolhaBean implements Serializable {
             this.e_endereco_uf = e_endereco_uf;
             this.e_endereco_cep = e_endereco_cep;
             this.empresa_contato = empresa_contato;
+            this.grupo = grupo;
+            this.nome_grupo = nome_grupo;
+            this.empresa_id = empresa_id;
         }
 
         /**
@@ -645,6 +665,30 @@ public class RelatorioDescontoFolhaBean implements Serializable {
 
         public void setAno(Object ano) {
             this.ano = ano;
+        }
+
+        public Object getGrupo() {
+            return grupo;
+        }
+
+        public void setGrupo(Object grupo) {
+            this.grupo = grupo;
+        }
+
+        public Object getNome_grupo() {
+            return nome_grupo;
+        }
+
+        public void setNome_grupo(Object nome_grupo) {
+            this.nome_grupo = nome_grupo;
+        }
+
+        public Object getEmpresa_id() {
+            return empresa_id;
+        }
+
+        public void setEmpresa_id(Object empresa_id) {
+            this.empresa_id = empresa_id;
         }
     }
 }
