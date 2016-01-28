@@ -1400,6 +1400,9 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public String associarFisica() {
+        if (!listernerValidacao(fisica, "associarFisica")) {
+            return null;
+        }        
         if (new SociosDao().existPessoasMesmaMatricula()) {
             GenericaMensagem.warn("Sistema", "Constam a mesma pessoa mais de uma vez na mesma matrícula!");
             return null;
@@ -2264,6 +2267,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             case "matriculaAcademia":
             case "convenioMedico":
             case "locacaoFilme":
+            case "associarFisica":
                 if (!p.getDocumento().isEmpty()) {
                     OposicaoDao odbt = new OposicaoDao();
                     if (odbt.existPessoaDocumentoPeriodo(p.getDocumento())) {
@@ -2283,6 +2287,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             case "emissaoGuias":
             case "geracaoDebitosCartao":
             case "locacaoFilme":
+            case "associarFisica":
                 FunctionsDao functionsDao = new FunctionsDao();
                 if (functionsDao.inadimplente(p.getId())) {
                     count++;
@@ -2300,6 +2305,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             case "lancamentoIndividual":
             case "geracaoDebitosCartao":
             case "locacaoFilme":
+            case "associarFisica":
                 PessoaComplemento pc = f.getPessoa().getPessoaComplemento();
                 if (pc.getBloqueiaObsAviso()) {
                     count++;
