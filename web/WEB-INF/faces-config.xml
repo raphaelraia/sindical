@@ -1939,6 +1939,24 @@
             <redirect/>
         </navigation-case>                 
         
+        <navigation-case>
+            <from-outcome>frequenciaCatraca</from-outcome>
+            <to-view-id>/frequenciaCatraca.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>                 
+        
+        <navigation-case>
+            <from-outcome>exameMedico</from-outcome>
+            <to-view-id>/exameMedico.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>                 
+        
+        <navigation-case>
+            <from-outcome>validadeExameMedico</from-outcome>
+            <to-view-id>/validadeExameMedico.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>                 
+        
         <!-- 
         <navigation-case>
             <from-outcome>#{navigationRules.param}</from-outcome>
