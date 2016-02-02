@@ -4,6 +4,7 @@ import br.com.rtools.associativo.EventoBaile;
 import br.com.rtools.associativo.dao.VendaBaileDao;
 import br.com.rtools.impressao.ParametroFechamentoBaile;
 import br.com.rtools.relatorios.dao.RelatorioFechamentoBaileDao;
+import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Jasper;
 import java.io.Serializable;
@@ -139,10 +140,6 @@ public class RelatorioFechamentoBaileBean implements Serializable {
 //        }
 //    }
     public void imprimir() {
-        // File file_jasper = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/FECHAMENTO_BAILE.jasper"));
-//        try {
-        // JasperReport jasperReport = (JasperReport) JRLoader.loadObject(file_jasper);
-
         RelatorioFechamentoBaileDao dao = new RelatorioFechamentoBaileDao();
 
         List list = dao.listaEventoBaile(Integer.valueOf(listaEventoBaile.get(idEventoBaile).getDescription()));
@@ -166,27 +163,8 @@ public class RelatorioFechamentoBaileBean implements Serializable {
                     )
             );
         }
-
-        HashMap map = new HashMap();
-//            // MOEDA PARA BRASIL VALORES IREPORT PTBR CONVERTE VALOR JASPER VALOR IREPORT VALOR
-        map.put("REPORT_LOCALE", new Locale("pt", "BR"));
-        Jasper.printReports("/Relatorios/FECHAMENTO_BAILE.jasper", "fechamento_baile", lista, map);
-
-//            JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(lista);
-//            JasperPrint print = JasperFillManager.fillReport(jasperReport, param, dtSource);
-//
-//            byte[] arquivo = JasperExportManager.exportReportToPdf(print);
-//
-//            HttpServletResponse res = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
-//            res.setContentType("application/pdf");
-//            res.setHeader("Content-disposition", "inline; filename=\"" + "relatorioFechamentoBaile" + ".pdf\"");
-//            res.getOutputStream().write(arquivo);
-//            res.getCharacterEncoding();
-//
-//            FacesContext.getCurrentInstance().responseComplete();
-//        } catch (Exception e) {
-//            e.getMessage();
-//        }
+        Jasper.TITLE = "FECHAMENTO BAILE \n " + listaEventoBaile.get(idEventoBaile).getLabel();
+        Jasper.printReports("/Relatorios/FECHAMENTO_BAILE.jasper", "fechamento_baile", lista);
     }
 
     public void loadListaEventoBaile() {
