@@ -850,7 +850,11 @@ public class MatriculaEscolaBean implements Serializable {
             }
 
             matriculaContrato.setDescricao(matriculaContrato.getDescricao().replace("<br>", "<br />"));
-
+            try {
+                matriculaContrato.setDescricao(matriculaContrato.getDescricao().replaceAll("(<img[^>]*[^/]>)(?!\\s*</img>)", "$1</img>"));            
+            } catch (Exception e) {
+                
+            }
             try {
                 File dirFile = new File(FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/contrato/"));
                 if (!dirFile.exists()) {
