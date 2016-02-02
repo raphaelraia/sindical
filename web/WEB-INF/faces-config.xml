@@ -1891,8 +1891,8 @@
         </navigation-case>
         
         <navigation-case>
-            <from-outcome>web_service</from-outcome>
-            <to-view-id>/web_service.jsf</to-view-id>
+            <from-outcome>autenticar_dispositivo</from-outcome>
+            <to-view-id>/autenticar_dispositivo.jsf</to-view-id>
             <redirect/>
         </navigation-case>
         
