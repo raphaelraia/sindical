@@ -49,8 +49,8 @@ public class ControleAcessoWebService {
             InetAddress ia = InetAddress.getLocalHost();
             String hostName = ia.getHostName();
             MacFilial macFilial = new MacFilialDao().pesquisaMac(mac);
-            if (macFilial.getNomeDispositivo().isEmpty()) {
-                return "Mac não existe!";
+            if(macFilial == null) {
+                return "Mac não existe!";                
             }
             if (!hostName.equals(macFilial.getNomeDispositivo())) {
                 return "Computador não registrado! Solicite a liberação ao administrador do sistema.";
