@@ -5,6 +5,7 @@ import br.com.rtools.pessoa.TipoDocumento;
 import br.com.rtools.seguranca.controleUsuario.ControleAcessoWebService;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaSessao;
+import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
@@ -19,15 +20,15 @@ import org.primefaces.json.JSONObject;
 @ManagedBean
 @RequestScoped
 @ViewScoped
-public class WebServiceBean implements Serializable {
+public class AutenticarDispositivoBean implements Serializable {
 
     private Pessoa pessoa;
 
-    public WebServiceBean() {
+    public AutenticarDispositivoBean() {
         this.pessoa = new Pessoa();
     }
 
-    public WebServiceBean(Pessoa pessoa) {
+    public AutenticarDispositivoBean(Pessoa pessoa) {
         this.pessoa = pessoa;
     }
 
@@ -47,7 +48,7 @@ public class WebServiceBean implements Serializable {
     public void response() {
         try {
             GenericaSessao.remove("conexao");
-            ControleAcessoWebService caws = new ControleAcessoWebService();            
+            ControleAcessoWebService caws = new ControleAcessoWebService();
             JSONObject jSONObject = new JSONObject();
             FacesContext facesContext = FacesContext.getCurrentInstance();
             ExternalContext externalContext = facesContext.getExternalContext();
@@ -56,22 +57,16 @@ public class WebServiceBean implements Serializable {
             String jsonResponse = "";
             Boolean error = false;
             String result = caws.permiteWebService(caws.getMac(), true);
-            if (result == null) {
+            if (result != null) {
                 error = true;
-                jSONObject.put("status_code", "1");
+                jSONObject.put("status_code", 1);
                 jSONObject.put("status_details", result);
-                jsonResponse = jSONObject.toString();
+            } else {
+                error = false;
+                jSONObject.put("status_code", 0);
+                jSONObject.put("status_details", "Dispositivo OK");
             }
-            if (!error) {
-                if (!caws.getKey().equals("123456")) {
-                    jSONObject.put("status_code", "0");
-                    jSONObject.put("status_details", "invalid key");
-                    jsonResponse = jSONObject.toString();
-                } else {
-                    List<TipoDocumento> listBiometria = new Dao().list(new TipoDocumento());
-                    jsonResponse = listBiometria.toString();
-                }
-            }
+            jsonResponse = jSONObject.toString();
             externalContext.getResponseOutputWriter().write(jsonResponse);
             facesContext.responseComplete();
         } catch (NullPointerException | JSONException | IOException e) {
