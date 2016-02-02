@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import javax.annotation.PostConstruct;
@@ -269,6 +270,8 @@ public class Jasper implements Serializable {
         if (parameters == null) {
             parameters = new HashMap();
         }
+        // MOEDA PARA BRASIL VALORES IREPORT PT-BR CONVERTE VALOR JASPER VALOR IREPORT VALOR
+        parameters.put("REPORT_LOCALE", new Locale("pt", "BR"));
         if (TITLE != null && !TITLE.isEmpty()) {
             parameters.put("relatorio_titulo", TITLE);
         }
@@ -353,10 +356,6 @@ public class Jasper implements Serializable {
                 parameters.put("sindicato_logo", ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));
                 parameters.put("companhia_logo", ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));
             }
-            if (parameters.get("sindicato_logo") == null || parameters.get("companhia_logo") == null) {
-                parameters.put("companhia_logo", juridica.getPessoa().getEmail1());
-            }
-
             // CORREÇÃO
             // parameters.put("companhia_nome", juridica.getPessoa().getNome());
             // parameters.put("companhia_documento", juridica.getPessoa().getDocumento());
