@@ -288,7 +288,7 @@
                                         </f:facet>
                                         <p:row>
                                             <p:column>
-                                                <p:inputText id="idValor" style="text-align: right; width: 100px" maxlength="10" value="#{matriculaEscolaBean.valorString}" styleClass="real" title="Valor">
+                                                <p:inputText id="idValor" style="text-align: right; width: 100px" maxlength="10" value="#{matriculaEscolaBean.valorString}" styleClass="real" disabled="#{controleAcessoBean.verificarPermissao('alterar_valor_matricula_escola', 3)}" title="ALTERAR VALOR MATRICULA ESCOLA">
                                                     <p:ajax event="blur" listener="#{matriculaEscolaBean.calculoDesconto()}" update="@this panel_calculo" />
                                                 </p:inputText>
                                             </p:column>
