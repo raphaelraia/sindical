@@ -32,7 +32,7 @@
                                 <p:menuitem value="Agendamento" action="#{chamadaPaginaBean.webAgendamentoContabilidade}" disabled="#{!controleAcessoWebBean.registro.agendamentoWeb}"/>
                                 <p:menuitem value="Solicitar Certidões" action="#{chamadaPaginaBean.webSolicitaREPIS}" disabled="#{!controleAcessoWebBean.registro.repisWeb}"/>
                                 <p:menuitem value="Andamento Certidões" action="#{webREPISBean.clear()}" onclick="PF('dlg_andamento_certidao').show()" disabled="#{!controleAcessoWebBean.registro.repisWeb}" update=":form_sr_list:"/>
-                                <p:menuitem value="Pessoa Jurídica" action="#{chamadaPaginaBean.pagina('webPessoaJuridica')}" ajax="false"/>
+                                <p:menuitem value="Pessoa Jurídica" action="#{chamadaPaginaBean.pagina('webPessoaJuridica')}" ajax="false"/>                              
                             </p:submenu>
 
                             <p:submenu label="CONTRIBUINTE" rendered="#{controleAcessoWebBean.pessoaContabilidade != null and controleAcessoWebBean.pessoaContribuinte != null and controleAcessoWebBean.pessoaPatronal == null}">
@@ -40,7 +40,7 @@
                                 <p:menuitem value="Agendamento" action="#{chamadaPaginaBean.webAgendamentoContribuinte}" disabled="#{!controleAcessoWebBean.registro.agendamentoWeb}"/>
                                 <p:menuitem value="Solicitar Certidões" action="#{chamadaPaginaBean.webSolicitaREPIS}" disabled="#{!controleAcessoWebBean.registro.repisWeb}"/>
                                 <p:menuitem value="Andamento Certidões" action="#{webREPISBean.clear()}" onclick="PF('dlg_andamento_certidao').show()" disabled="#{!controleAcessoWebBean.registro.repisWeb}" update=":form_sr_list:"/>
-                                <p:menuitem value="Pessoa Jurídica" action="#{chamadaPaginaBean.pagina('webPessoaJuridica')}" ajax="false"/>
+                                <p:menuitem value="Pessoa Jurídica" action="#{chamadaPaginaBean.pagina('webPessoaJuridica')}" ajax="false"/>                            
                             </p:submenu>
 
                             <p:submenu label="CONTRIBUINTE" rendered="#{controleAcessoWebBean.pessoaContribuinte != null and controleAcessoWebBean.pessoaContabilidade == null and controleAcessoWebBean.pessoaPatronal == null}">
@@ -48,7 +48,7 @@
                                 <p:menuitem value="Agendamento" action="#{chamadaPaginaBean.webAgendamentoContribuinte}" disabled="#{!controleAcessoWebBean.registro.agendamentoWeb}" />
                                 <p:menuitem value="Solicitar Certidões" action="#{chamadaPaginaBean.webSolicitaREPIS}" disabled="#{!controleAcessoWebBean.registro.repisWeb}"/>
                                 <p:menuitem value="Andamento Certidões" action="#{webREPISBean.clear()}" onclick="PF('dlg_andamento_certidao').show()" disabled="#{!controleAcessoWebBean.registro.repisWeb}" update=":form_sr_list:"/>
-                                <p:menuitem value="Pessoa Jurídica" action="#{chamadaPaginaBean.pagina('webPessoaJuridica')}" ajax="false"/>
+                                <p:menuitem value="Pessoa Jurídica" action="#{chamadaPaginaBean.pagina('webPessoaJuridica')}" ajax="false"/>                            
                             </p:submenu>
 
                             <p:submenu label="PATRONAL" rendered="#{controleAcessoWebBean.pessoaPatronal != null}">
@@ -57,7 +57,7 @@
                             </p:submenu>
                         </p:menu>
                     </h:panelGrid>
-                    
+
                     <h:panelGrid style="margin-top: 20px; float: left; width: 850px">
                         <p:panel>
                             <h:outputLabel value="Nenhuma notificação pendente" />
@@ -69,8 +69,8 @@
                     <h:form id="form_sr_list">
                         <p:panel header="Pesquisar">
                             <h:panelGrid id="i_panel" columns="3" styleClass="margin-top">
-                                <p:inputText size="80" value="#{webREPISBean.descricao}" rendered="#{!webREPISBean.tipoPesquisa.equals('cnpj')}" />
-                                <p:inputMask mask="99.999.999/9999-99" size="20" value="#{webREPISBean.descricao}" rendered="#{webREPISBean.tipoPesquisa.equals('cnpj')}" />
+                                <p:inputText size="80" value="#{webREPISBean.descricao}" rendered="#{webREPISBean.tipoPesquisa ne 'cnpj'}" />
+                                <p:inputMask mask="99.999.999/9999-99" size="20" value="#{webREPISBean.descricao}" rendered="#{webREPISBean.tipoPesquisa eq 'cnpj'}" />
                                 <p:selectOneMenu value="#{webREPISBean.tipoPesquisa}" style="padding-right: 25px;">
                                     <p:ajax event="change" update="@this, :form_sr_list:" />
                                     <f:selectItem itemLabel="Nome" itemValue="nome"/>
@@ -134,9 +134,48 @@
 
                 </p:dialog>
             </h:panelGrid>
+            <p:dialog widgetVar="dlg_alterar_usuario" header="Alterar usuário" resizable="false" modal="true" width="900">
+                <h:form id="form_usuario_login" onsubmit="#{usuarioBean.usuarioPerfil}">                                                
+                </h:form>                
+
+            </p:dialog>
+            <p:dialog widgetVar="dlg_alterar_senha" header="Alterar senha" resizable="false" modal="true" width="900">
+                <h:form id="form_usuario_senha" onsubmit="#{usuarioBean.usuarioPerfil}">
+                    <p:panel>
+                        <h:panelGrid columns="2">
+                            <h:outputLabel value="Login: " styleClass="fontePadrao"/>
+                            <h:outputText value="#{usuarioBean.usuario.login}"/>
+                            <h:outputLabel value="Nome: " styleClass="fontePadrao"/>
+                            <h:outputText value="#{usuarioBean.usuario.pessoa.nome}"/>
+                            <h:outputLabel value="Email: " styleClass="fontePadrao"/>
+                            <h:outputText value="#{usuarioBean.usuario.email}"/>
+                        </h:panelGrid>
+                        <h:panelGrid columns="4" styleClass="margin-top-max">
+                            <p:commandButton value="Alterar senha" onclick="PF('dlg_senha').show();" type="button"/>
+                        </h:panelGrid>
+                    </p:panel>
+                    <p:dialog id="divNovaSenha" modal="true" widgetVar="dlg_senha" header="Alterar Senha">
+                        <h:panelGrid id="idPainelNovaSenha" columns="2">
+                            <p:outputLabel value="E-mail:" />
+                            <p:inputText value="#{usuarioBean.usuario.email}"/>
+                            <p:outputLabel value="Antiga: " />
+                            <p:inputText value="#{usuarioBean.senhaAntiga}" autocomplete="off" type="password"/>
+                            <p:outputLabel value="Nova: "  />
+                            <p:inputText value="#{usuarioBean.senhaNova}" autocomplete="off" type="password" />
+                        </h:panelGrid>                        
+                        <h:panelGrid columns="2" styleClass="margin-top">
+                            <p:commandButton value="Alterar" title="Alterar" action="#{usuarioBean.salvarSenhaUsuarioPerfil()}" update=":form_usuario_senha:" oncomplete="PF('dlg_senha').hide(); PF('dlg_mensagem').show();" />
+                            <p:commandButton value="Voltar" title="Voltar" onclick="PF('dlg_senha').hide();"/>
+                        </h:panelGrid>
+                    </p:dialog>
+                    <p:dialog id="divMensagem" widgetVar="dlg_mensagem" modal="true" header="mensagem">
+                        <h:outputText value="#{usuarioBean.mensagem}" styleClass="fontePadrao"/>                            
+                        <p:commandButton value="Voltar" title="Voltar" onclick="PF('dlg_senha').hide();" update=":form_usuario_senha:"/>
+                    </p:dialog>                            
+                </h:form>                
+
+            </p:dialog>
 
         </f:view>
     </h:body>
 </html>
-
-<!-- <p:menuitem value="Configurações" action="# {chamadaPaginaBean.webConfiguracoes}" rendered="false"/>  -->
