@@ -17,10 +17,14 @@ public class Diretorio {
     }
 
     public static boolean criar(String diretorio, boolean ignore) {
-        if (!ignore) {
-            diretorio = "/Cliente/" + getCliente() + "/" + diretorio;
+        if(diretorio.equals("cookie")) {
+            diretorio = "/resources/global/cookie";
         } else {
-            diretorio = "/resources/cliente/" + getCliente().toLowerCase() + "/" + diretorio.toLowerCase();
+            if (!ignore) {
+                diretorio = "/Cliente/" + getCliente() + "/" + diretorio;
+            } else {
+                diretorio = "/resources/cliente/" + getCliente().toLowerCase() + "/" + diretorio.toLowerCase();
+            }
         }
         try {
             String path = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(diretorio);

@@ -1,6 +1,7 @@
 package br.com.rtools.utilitarios;
 
 import br.com.rtools.principal.DB;
+import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Usuario;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
