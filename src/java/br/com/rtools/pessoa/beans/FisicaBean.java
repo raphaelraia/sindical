@@ -716,12 +716,12 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 pessoaComplemento = new PessoaComplemento();
             }
         }
-        
+
         // LISTA DE OPOSIÇÕES --
         filtroOposicao = "ativas";
         loadListaOposicao();
         // --
-        
+
         loadListaDocumentos();
         return url;
     }
@@ -1400,9 +1400,6 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public String associarFisica() {
-        if (!listernerValidacao(fisica, "associarFisica")) {
-            return null;
-        }        
         if (new SociosDao().existPessoasMesmaMatricula()) {
             GenericaMensagem.warn("Sistema", "Constam a mesma pessoa mais de uma vez na mesma matrícula!");
             return null;
@@ -1451,6 +1448,16 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             reativar = false;
         }
 
+        if (socios.getId() == -1) {
+            if (!listernerValidacao(fisica, "associarFisica")) {
+                return null;
+            }
+        } else if (socios.getId() != -1 && (socios.getMatriculaSocios().getDtInativo() != null || !socios.getServicoPessoa().isAtivo())) {
+            if (!listernerValidacao(fisica, "associarFisica")) {
+                return null;
+            }
+        }
+
         GenericaSessao.put("sociosBean", new SociosBean());
         SociosBean sb = (SociosBean) GenericaSessao.getObject("sociosBean");
         clear(0);
@@ -1459,6 +1466,9 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public String associarFisica(Pessoa _pessoa) {
+        if (!listernerValidacao(fisica, "associarFisica")) {
+            return null;
+        }
         clear(0);
         String retorno = ((ChamadaPaginaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("chamadaPaginaBean")).socios();
         GenericaSessao.put("pessoaEmpresaPesquisa", (new PessoaEmpresaDBToplink()).pesquisaPessoaEmpresaPorPessoa(_pessoa.getId()));
