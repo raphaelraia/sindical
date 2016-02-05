@@ -1979,6 +1979,12 @@
             <from-outcome>biometria_atualiza_catraca</from-outcome>
             <to-view-id>/biometria_atualiza_catraca.jsf</to-view-id>
             <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>biometria_captura</from-outcome>
+            <to-view-id>/biometria_captura.jsf</to-view-id>
+            <redirect/>
         </navigation-case>                 
         
         <!-- 
