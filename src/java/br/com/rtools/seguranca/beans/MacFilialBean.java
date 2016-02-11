@@ -62,6 +62,12 @@ public class MacFilialBean implements Serializable {
     public void clear() {
         GenericaSessao.remove("macFilialBean");
     }
+    
+    public void alterarCaixa(){
+        if (macFilial.isCaixaOperador()){
+            idCaixa = 0;
+        }
+    }
 
     public void add() {
         MacFilialDao macFilialDao = new MacFilialDao();

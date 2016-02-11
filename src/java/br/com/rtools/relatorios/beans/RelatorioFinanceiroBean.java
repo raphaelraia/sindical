@@ -518,7 +518,7 @@ public class RelatorioFinanceiroBean implements Serializable {
             }
         }
         params.put("descricao_data", descricaoData);
-        params.put("logo_sindicato", ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));
+        //params.put("logo_sindicato", ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));
 
         String ordem = "";
         if (!listaRelatorioOrdem.isEmpty()){
@@ -552,6 +552,8 @@ public class RelatorioFinanceiroBean implements Serializable {
         }
 
         Jasper.EXPORT_TO = chkExcel;
+        Jasper.IS_HEADER_PARAMS = true;
+        
         //Jasper.printReportsHashMap(relatorios.getJasper(), relatorios.getNome(), list_hash, params);
         Jasper.printReports(relatorios.getJasper(), relatorios.getNome(), list_hash, params);
     }

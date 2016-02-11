@@ -69,6 +69,19 @@ public class RelatorioHomologacaoDao extends DB {
                     + "      S.ds_descricao   AS status,                        \n" /*  02 - Status                         */
                     + "      count(*)         AS quantidade_status              \n";
             /* 03 - Quantidade por status          */
+        } else if (relatorios.getId() == 81) {
+            queryString += " A.id               AS codigo,      \n" // 00 - ID Agendamento
+                    + "      A.dt_data          AS data,        \n" // 01 - Data Agendamento
+                    + "      CONTR.ds_descricao AS convencao,   \n" // 02 - Convenção
+                    + "      PPE.ds_documento   AS cnpj,        \n" // 03 - CNPJ Empresa
+                    + "      PPE.ds_nome        AS empresa,     \n" // 04 - Nome Empresa
+                    + "      FUNC.ds_documento  AS cpf,         \n" // 05 - CPF Funcionário
+                    + "      FUNC.ds_nome       AS funcionario, \n" // 06 - Nome Funcionário
+                    + "      PE.dt_admissao     AS admissao,    \n" // 07 - Data de Admissão
+                    + "      PE.dt_demissao     AS demissao,    \n" // 08 - Data de Demissão
+                    + "      D.ds_descricao     AS dispensa,    \n" // 09 - Motivo Demissão
+                    + "      PROF.ds_profissao  AS funcao,      \n" // 10 - Profissão
+                    + "      S.ds_descricao     AS status       \n"; // 11 - Status
         } else {
             queryString += "A.dt_data        AS data_inicial,                   \n" /*  00 - Data Inicial                   */
                     + "     A.dt_data        AS data_final,                     \n" /*  01 - Data Final                     */
@@ -111,7 +124,12 @@ public class RelatorioHomologacaoDao extends DB {
 
         if (idConvencao != null) {
             queryString += " INNER JOIN arr_contribuintes_vw AS CONTR      ON CONTR.id_juridica   = J.id AND CONTR.dt_inativacao IS NULL \n";
+        } else {
+            queryString += "  LEFT JOIN arr_contribuintes_vw AS CONTR      ON CONTR.id_juridica   = J.id AND CONTR.dt_inativacao IS NULL \n";
         }
+
+        queryString += "  LEFT JOIN hom_demissao AS D ON D.id = A.id_demissao \n";
+        queryString += "  LEFT JOIN pes_profissao AS PROF ON PROF.id = PE.id_funcao \n";
 
         if (relatorios.getQry() == null || relatorios.getQry().isEmpty()) {
             if (tCase != null) {

@@ -39,6 +39,9 @@ public class OposicaoPessoa implements Serializable {
     private String telefone1;
     @Column(name = "ds_telefone2", length = 20)
     private String telefone2;
+    @Temporal(TemporalType.DATE)
+    @Column(name = "dt_nascimento")
+    private Date dataNascimento;    
 
     public OposicaoPessoa() {
         this.id = -1;
@@ -49,9 +52,10 @@ public class OposicaoPessoa implements Serializable {
         this.email1 = "";
         this.telefone1 = "";
         this.telefone2 = "";
+        this.dataNascimento = null;
     }
 
-    public OposicaoPessoa(Integer id, String dataCadastro, String nome, String cpf, String rg, String observacao, String email1, String telefone1, String telefone2) {
+    public OposicaoPessoa(Integer id, String dataCadastro, String nome, String cpf, String rg, String observacao, String email1, String telefone1, String telefone2, Date dataNascimento) {
         this.id = id;
         setDataCadastroString(dataCadastro);
         this.nome = nome;
@@ -60,6 +64,7 @@ public class OposicaoPessoa implements Serializable {
         this.email1 = email1;
         this.telefone1 = telefone1;
         this.telefone2 = telefone2;
+        this.dataNascimento = dataNascimento;
     }
 
     public Integer getId() {
@@ -141,4 +146,20 @@ public class OposicaoPessoa implements Serializable {
     public void setTelefone2(String telefone2) {
         this.telefone2 = telefone2;
     }
+
+    public Date getDataNascimento() {
+        return dataNascimento;
+    }
+
+    public void setDataNascimento(Date dataNascimento) {
+        this.dataNascimento = dataNascimento;
+    }
+    
+    public String getDataNascimentoString() {
+        return DataHoje.converteData(this.dataNascimento);
+    }
+
+    public void setDataNascimentoString(String dataNascimentoString) {
+        this.dataNascimento = DataHoje.converte(dataNascimentoString);
+    }    
 }

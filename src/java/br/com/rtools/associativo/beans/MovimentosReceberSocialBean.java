@@ -306,8 +306,8 @@ public class MovimentosReceberSocialBean implements Serializable {
                     }
                 }
             }
-            
-            if (!selecionado){
+
+            if (!selecionado) {
                 GenericaMensagem.warn("Atenção", "Nenhum movimento foi selecionado!");
             }
         } else {

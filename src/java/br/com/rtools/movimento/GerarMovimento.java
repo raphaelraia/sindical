@@ -825,7 +825,7 @@ public class GerarMovimento extends DB {
                             nrCtrBoleto = bol.getNrCtrBoleto();
                         }
                     }
-                    novoLog.delete("Inativação de boleto: Documento: " + mi.getMovimento().getDocumento() + " - Valor: " + mi.getMovimento().getValorString() + " - Data inativação: " + mi.getData() + " - Pessoa: (" + mi.getMovimento().getPessoa().getId() + ") - " + mi.getMovimento().getPessoa().getNome() + " - CTR Boleto: " + nrCtrBoleto + " - Motivo: " + mi.getHistorico());
+                    novoLog.delete("Inativação de boleto: ID MOVIMENTO: "+mi.getMovimento().getId()+" - Documento: " + mi.getMovimento().getDocumento() + " - Valor: " + mi.getMovimento().getValorString() + " - Data inativação: " + mi.getData() + " - Pessoa: (" + mi.getMovimento().getPessoa().getId() + ") - " + mi.getMovimento().getPessoa().getNome() + " - CTR Boleto: " + nrCtrBoleto + " - Motivo: " + mi.getHistorico());
                 }
             } catch (Exception e) {
                 mensagem = e.getMessage();

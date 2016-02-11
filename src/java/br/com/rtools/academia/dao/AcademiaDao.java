@@ -211,6 +211,29 @@ public class AcademiaDao extends DB {
             return false;
         }
     }
+    
+    public List<Movimento> listaRefazerMovimento(MatriculaAcademia ma) {
+//        LoteDB loteDB = new LoteDBToplink();
+//        Lote lote = (Lote) loteDB.pesquisaLotePorEvt(ma.getEvt());
+//        
+//        if (lote == null) {
+//            return new ArrayList();
+//        }
+//        
+//        if (lote.getId() == -1) {
+//            return new ArrayList();
+//        }
+        
+        try {
+            Query queryMovimentos = getEntityManager().createQuery("SELECT M FROM Movimento AS M WHERE M.servicos.id = " + ma.getServicoPessoa().getServicos().getId() + " AND M.baixa IS NULL AND M.ativo = TRUE AND M.pessoa.id = "+ma.getServicoPessoa().getPessoa().getId());
+            List<Movimento> listMovimentos = (List<Movimento>) queryMovimentos.getResultList();
+            
+            return listMovimentos;
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return new ArrayList();
+    }
 
     public List<MatriculaAcademia> pesquisaMatriculaAcademia(String tipo, String por, String como, String descricao, boolean ativo, int servicos) {
         String queryString = "";

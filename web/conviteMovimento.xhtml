@@ -41,35 +41,71 @@
                             <p:panel id="i_panel_acao" styleClass="fundoCinza">
                                 <h:panelGrid columns="2" style="width: 100%">
                                     <h:column>
-                                        <h:panelGrid columns="6">
-                                            <p:inputMask id="i_mask" mask="#{conviteMovimentoBean.mascara}" value="#{conviteMovimentoBean.descricaoPesquisa}" disabled="#{conviteMovimentoBean.porPesquisa eq 'todos'}" size="70" placeholder="DIGITE SUA PESQUISA"/>
-                                            <h:outputLabel value="Por: "/>
-                                            <p:selectOneMenu value="#{conviteMovimentoBean.porPesquisa}">
-                                                <p:ajax event="change" update="i_mask id_lista" listener="#{conviteMovimentoBean.conviteMovimentos.clear()}"/>
-                                                <f:selectItem itemValue="todos" itemLabel="Todos" />
-                                                <f:selectItem itemValue="codigo"  itemLabel="Código Convite" />
-                                                <f:selectItem itemValue="nome"  itemLabel="Nome Convidado" />
-                                                <f:selectItem itemValue="cpf"   itemLabel="CPF Convidado" />
-                                                <f:selectItem itemValue="rg"    itemLabel="RG Convidado" />
-                                                <f:selectItem itemValue="socio" itemLabel="Nome Sócio" />
-                                                <f:selectItem itemValue="socioCPF" itemLabel="CPF Sócio" />
-                                            </p:selectOneMenu>
-                                            <p:commandButton value="Inicial" action="#{conviteMovimentoBean.acaoPesquisaInicial}" actionListener="#{conviteMovimentoBean.conviteMovimentos.clear()}" update="id_lista"/>
-                                            <p:commandButton value="Parcial" action="#{conviteMovimentoBean.acaoPesquisaParcial}" actionListener="#{conviteMovimentoBean.conviteMovimentos.clear()}" update="id_lista"/>
+                                        <h:panelGrid id="panel_pesquisa" columns="8">
                                             <h:column>
-                                                <div class="margin-top-max">
-                                                    <ui:include src="templates/templateStatusLoader.xhtml"/>
-                                                </div>
+                                                <p:outputLabel value="Descrição da Pesquisa"/><br />
+                                                <p:inputMask mask="#{conviteMovimentoBean.mascara}" value="#{conviteMovimentoBean.descricaoPesquisa}" disabled="#{conviteMovimentoBean.porPesquisa eq 'todos'}" size="50" placeholder="DIGITE SUA PESQUISA"/>
+                                            </h:column>
+
+                                            <h:column rendered="#{conviteMovimentoBean.porPesquisa eq 'data'}">
+                                                <p:outputLabel value="Data Inicial" /><br />
+                                                <p:inputMask mask="99/99/9999" value="#{conviteMovimentoBean.dataInicial}" style="width: 80px; text-align: center">
+                                                    <p:ajax event="change" update="@this"/>
+                                                </p:inputMask>
+                                            </h:column>
+
+                                            <h:column rendered="#{conviteMovimentoBean.porPesquisa eq 'data'}">
+                                                <p:outputLabel value="Data Final"/><br />
+                                                <p:inputMask mask="99/99/9999" value="#{conviteMovimentoBean.dataFinal}" style="width: 80px; text-align: center">
+                                                    <p:ajax event="change" update="@this"/>
+                                                </p:inputMask>
+                                            </h:column>
+                                            
+                                            <h:column>
+                                                <br />
+                                                <p:selectOneMenu value="#{conviteMovimentoBean.porPesquisa}">
+                                                    <p:ajax event="change" update="panel_pesquisa id_lista" listener="#{conviteMovimentoBean.conviteMovimentos.clear()}"/>
+                                                    <f:selectItem itemValue="todos"    itemLabel="Todos" />
+                                                    <f:selectItem itemValue="codigo"   itemLabel="Código Convite" />
+                                                    <f:selectItem itemValue="nome"     itemLabel="Nome Convidado" />
+                                                    <f:selectItem itemValue="cpf"      itemLabel="CPF Convidado" />
+                                                    <f:selectItem itemValue="rg"       itemLabel="RG Convidado" />
+                                                    <f:selectItem itemValue="socio"    itemLabel="Nome Sócio" />
+                                                    <f:selectItem itemValue="socioCPF" itemLabel="CPF Sócio" />
+                                                    <f:selectItem itemValue="data"     itemLabel="Data e/ou Convidado" />
+                                                </p:selectOneMenu>
+                                            </h:column>
+                                            
+                                            <h:column rendered="#{conviteMovimentoBean.porPesquisa ne 'data' and conviteMovimentoBean.porPesquisa ne 'todos'}">
+                                                <br />
+                                                <p:commandButton value="Inicial" action="#{conviteMovimentoBean.acaoPesquisaInicial}" actionListener="#{conviteMovimentoBean.conviteMovimentos.clear()}" update="id_lista" />
+                                            </h:column>
+
+                                            <h:column rendered="#{conviteMovimentoBean.porPesquisa ne 'data' and conviteMovimentoBean.porPesquisa ne 'todos'}">
+                                                <br />
+                                                <p:commandButton value="Parcial" action="#{conviteMovimentoBean.acaoPesquisaParcial}" actionListener="#{conviteMovimentoBean.conviteMovimentos.clear()}" update="id_lista" />
+                                            </h:column>
+                                            
+                                            <h:column rendered="#{conviteMovimentoBean.porPesquisa eq 'data'}">
+                                                <br />
+                                                <p:commandButton value="Pesquisar" action="#{conviteMovimentoBean.acaoPesquisaInicial()}" actionListener="#{conviteMovimentoBean.conviteMovimentos.clear()}" update="id_lista" />
+                                            </h:column>
+
+                                            <h:column>
+                                                <br />
+                                                <ui:include src="templates/templateStatusLoader.xhtml"/>
                                             </h:column>
                                         </h:panelGrid>
-                                    </h:column>
 
+                                    </h:column>
                                     <h:column>
-                                        <p:commandButton icon="ui-icon-circle-plus" value="Novo Convite" action="#{conviteMovimentoBean.openDialog}" style="float: right"/>
+                                        <h:column>
+                                            <p:commandButton icon="ui-icon-circle-plus" value="Novo Convite" action="#{conviteMovimentoBean.openDialog}" style="float: right"/>
+                                        </h:column>
                                     </h:column>
                                 </h:panelGrid>
                             </p:panel>
-
+                            
                             <p:panel styleClass="margin-top-max" id="id_lista" header="Convidados">
                                 <p:dataTable value="#{conviteMovimentoBean.conviteMovimentos}" var="conviteMovimento" scrollHeight="400" scrollable="true" emptyMessage="Nenhum registro encontrado" id="id_lista_tbl">
                                     <f:facet name="footer">
@@ -363,7 +399,7 @@
                             <p:dialog id="id_panel_mensagem" widgetVar="dgl_panel_mensagem" modal="true" header="Mensagem" width="500">
                                 <center>
                                     <h:panelGrid id="out_mensagem" style="width: 100%">
-                                        <p:messages showDetail="true" style="font-size: 11pt!important"/>
+                                        <p:messages showDetail="true" style="font-size: 11pt!important" autoUpdate="true"/>
                                     </h:panelGrid> 
                                     <br />
                                     <p:commandButton icon="ui-icon-circle-check" value="OK" title="OK" onclick="PF('dgl_panel_mensagem').hide();" />

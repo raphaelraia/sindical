@@ -1955,7 +1955,7 @@
             <from-outcome>validadeExameMedico</from-outcome>
             <to-view-id>/validadeExameMedico.jsf</to-view-id>
             <redirect/>
-        </navigation-case>                 
+        </navigation-case>       
         
         <!-- 
         <navigation-case>

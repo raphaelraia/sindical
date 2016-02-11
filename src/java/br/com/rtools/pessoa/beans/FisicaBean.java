@@ -716,12 +716,12 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 pessoaComplemento = new PessoaComplemento();
             }
         }
-        
+
         // LISTA DE OPOSIÇÕES --
         filtroOposicao = "ativas";
         loadListaOposicao();
         // --
-        
+
         loadListaDocumentos();
         return url;
     }
@@ -1320,6 +1320,12 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     public String excluirEmpresaAnterior(PessoaEmpresa pe) {
         HomologacaoDB dbAge = new HomologacaoDBToplink();
         List<Agendamento> agendas = dbAge.pesquisaAgendamentoPorPessoaEmpresa(pe.getId());
+        // CHAMADO 1262
+        if (!agendas.isEmpty()) {
+            GenericaMensagem.error("ATENÇÃO", "Empresa com data de demissão não pode ser removida!");
+            return null;
+        }
+        
         Dao dao = new Dao();
         for (Agendamento agenda : agendas) {
             if (!dao.delete(agenda, true)) {

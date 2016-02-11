@@ -1,6 +1,8 @@
 package br.com.rtools.associativo.db;
 
+import br.com.rtools.associativo.Categoria;
 import br.com.rtools.associativo.ConviteAutorizaCortesia;
+import br.com.rtools.associativo.ConviteMovimento;
 import br.com.rtools.associativo.ConviteServico;
 import br.com.rtools.associativo.ConviteSuspencao;
 import br.com.rtools.associativo.Socios;
@@ -8,6 +10,7 @@ import br.com.rtools.principal.DB;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.sistema.SisPessoa;
+import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import java.util.ArrayList;
@@ -141,49 +144,98 @@ public class ConviteDBToplink extends DB implements ConviteDB {
     }
 
     @Override
-    public List pesquisaConviteMovimento(String descricaoPesquisa, String porPesquisa, String comoPesquisa) {
-        return pesquisaConviteMovimento(descricaoPesquisa, porPesquisa, comoPesquisa, true);
+    public List pesquisaConviteMovimento(String descricaoPesquisa, String porPesquisa, String comoPesquisa, String dataInicial, String dataFinal) {
+        return pesquisaConviteMovimento(descricaoPesquisa, porPesquisa, comoPesquisa, dataInicial, dataFinal, true);
     }
 
-    public List pesquisaConviteMovimento(String descricaoPesquisa, String porPesquisa, String comoPesquisa, boolean ativo) {
+    public List pesquisaConviteMovimento(String descricaoPesquisa, String porPesquisa, String comoPesquisa, String dataInicial, String dataFinal, boolean ativo) {
+        if (descricaoPesquisa.isEmpty() && (!porPesquisa.equals("todos") && !porPesquisa.equals("data"))) {
+            return new ArrayList();
+        }
+
         if (!ativo) {
             ativo = false;
         }
-        String filtroString = "";
-        if (porPesquisa.equals("nome")) {
-            filtroString = " WHERE UPPER(CM.sisPessoa.nome) LIKE :descricaoPesquisa ";
-        } else if (porPesquisa.equals("cpf")) {
-            filtroString = " WHERE CM.sisPessoa.documento LIKE :descricaoPesquisa ";
-        } else if (porPesquisa.equals("codigo")) {
-            filtroString = " WHERE CM.id = " + descricaoPesquisa;
-        } else if (porPesquisa.equals("rg")) {
-            filtroString = " WHERE UPPER(CM.sisPessoa.rg) LIKE :descricaoPesquisa ";
-        } else if (porPesquisa.equals("socio")) {
-            filtroString = " WHERE UPPER(CM.pessoa.nome) LIKE :descricaoPesquisa ";
-        } else if (porPesquisa.equals("socioCPF")) {
-            filtroString = " WHERE UPPER(CM.pessoa.documento) LIKE :descricaoPesquisa ";
-        } else if (porPesquisa.equals("todos")) {
-            DataHoje dh = new DataHoje();
-            String dataAntiga = dh.decrementarMeses(1, DataHoje.data());
-            filtroString = " WHERE CM.dtEmissao >= '" + dataAntiga + "' ";
-        }
-        if (ativo) {
-            if (filtroString.equals("")) {
-                filtroString = " WHERE CM.ativo = true";
-            } else {
-                filtroString += " AND CM.ativo = true";
-            }
-        }
-        String queryString = " SELECT CM FROM ConviteMovimento AS CM " + (filtroString) + " ORDER BY CM.dtEmissao DESC ";
-        try {
-            Query qry = getEntityManager().createQuery(queryString);
-            if (!porPesquisa.equals("") && !porPesquisa.equals("todos") && !porPesquisa.equals("codigo")) {
-                if (comoPesquisa.equals("Inicial")) {
-                    qry.setParameter("descricaoPesquisa", "" + descricaoPesquisa.toUpperCase() + "%");
-                } else if (comoPesquisa.equals("Parcial")) {
-                    qry.setParameter("descricaoPesquisa", "%" + descricaoPesquisa.toUpperCase() + "%");
+
+        String text_query
+                = "SELECT cm.* \n"
+                + "  FROM conv_movimento AS cm \n"
+                + "  LEFT JOIN sis_pessoa sp ON sp.id = cm.id_sis_pessoa \n"
+                + "  LEFT JOIN pes_pessoa pp ON pp.id = cm.id_pessoa \n";
+
+        List<String> list_where = new ArrayList();
+
+        switch (porPesquisa) {
+            case "nome":
+                descricaoPesquisa = AnaliseString.normalizeLower(descricaoPesquisa);
+                descricaoPesquisa = (comoPesquisa.equals("Inicial")) ? descricaoPesquisa + "%" : "%" + descricaoPesquisa + "%";
+
+                list_where.add("LOWER(TRANSLATE(sp.ds_nome)) LIKE ('" + descricaoPesquisa + "')");
+                break;
+            case "cpf":
+                descricaoPesquisa = (comoPesquisa.equals("Inicial")) ? descricaoPesquisa + "%" : "%" + descricaoPesquisa + "%";
+                list_where.add("LOWER(TRANSLATE(sp.ds_documento)) LIKE ('" + descricaoPesquisa + "')");
+                break;
+            case "codigo":
+                list_where.add("cm.id = " + descricaoPesquisa);
+                break;
+            case "rg":
+                descricaoPesquisa = (comoPesquisa.equals("Inicial")) ? descricaoPesquisa + "%" : "%" + descricaoPesquisa + "%";
+                list_where.add("LOWER(TRANSLATE(sp.ds_rs)) LIKE ('" + descricaoPesquisa + "')");
+                break;
+            case "socio":
+                descricaoPesquisa = AnaliseString.normalizeLower(descricaoPesquisa);
+                descricaoPesquisa = (comoPesquisa.equals("Inicial")) ? descricaoPesquisa + "%" : "%" + descricaoPesquisa + "%";
+
+                list_where.add("LOWER(TRANSLATE(pp.ds_nome)) LIKE ('" + descricaoPesquisa + "')");
+                break;
+            case "socioCPF":
+                descricaoPesquisa = AnaliseString.normalizeLower(descricaoPesquisa);
+                descricaoPesquisa = (comoPesquisa.equals("Inicial")) ? descricaoPesquisa + "%" : "%" + descricaoPesquisa + "%";
+
+                list_where.add("LOWER(TRANSLATE(pp.ds_documento)) LIKE ('" + descricaoPesquisa + "')");
+                break;
+            case "data":
+                // POR DATA
+                if (dataInicial != null && dataFinal != null) {
+                    list_where.add("cm.dt_emissao >= '" + dataInicial + "' AND cm.dt_emissao <= '" + dataFinal + "'");
+                } else if (dataInicial != null && dataFinal == null) {
+                    list_where.add("cm.dt_emissao >= '" + dataInicial);
+                } else if (dataInicial == null && dataFinal != null) {
+                    list_where.add("cm.dt_emissao <= '" + dataFinal);
                 }
+                // E CONVIDADO
+                if (!descricaoPesquisa.isEmpty()) {
+                    descricaoPesquisa = AnaliseString.normalizeLower(descricaoPesquisa);
+                    descricaoPesquisa = "%" + descricaoPesquisa + "%";
+
+                    list_where.add("LOWER(TRANSLATE(sp.ds_nome)) LIKE ('" + descricaoPesquisa + "')");
+                }
+                break;
+            case "todos":
+                DataHoje dh = new DataHoje();
+                String dataAntiga = dh.decrementarMeses(1, DataHoje.data());
+                list_where.add("cm.dt_emissao >= '" + dataAntiga + "'");
+                break;
+        }
+
+        if (ativo) {
+            list_where.add("cm.is_ativo = TRUE");
+        }
+
+        String where = "";
+        for (String w : list_where) {
+            if (where.isEmpty()) {
+                text_query += where = " WHERE " + w + " \n";
+            } else {
+                text_query += where = " AND " + w + " \n";
             }
+        }
+
+        text_query += " ORDER BY cm.dt_emissao DESC";
+
+        try {
+            Query qry = getEntityManager().createNativeQuery(text_query, ConviteMovimento.class);
             List list = qry.getResultList();
             if (!list.isEmpty()) {
                 return list;
@@ -244,7 +296,7 @@ public class ConviteDBToplink extends DB implements ConviteDB {
     public boolean socio(SisPessoa s) {
         return (socioObject(s) != null);
     }
-    
+
     public Socios socioObject(SisPessoa s) {
         try {
 //          ##################
@@ -264,17 +316,17 @@ public class ConviteDBToplink extends DB implements ConviteDB {
                     + "                 FROM soc_socios_vw AS s                                                                                                                                                                                                                 "
                     + "            INNER JOIN pes_pessoa AS p ON p.id = s.codsocio                                                                                                                                                                                              "
                     + "            INNER JOIN pes_fisica AS f ON f.id_pessoa = p.id                                                                                                                                                                                             "
-                    + "                WHERE (p.ds_documento = '"+documento+"' AND UPPER(p.ds_nome) = '"+nome+"' AND dt_nascimento = '"+nascimento+"' AND UPPER(f.ds_rg) = '"+rg+"' AND inativacao IS NULL AND p.ds_nome <> '' AND p.ds_documento <> '' AND f.ds_rg <> '')      "
-                    + "                   OR (UPPER(p.ds_nome) = '"+nome+"' AND dt_nascimento = '"+nascimento+"' AND UPPER(f.ds_rg) = '"+rg+"' AND inativacao IS NULL AND p.ds_nome <> '' AND f.ds_rg <> '')                                                                    "
-                    + "                   OR (UPPER(p.ds_nome) = '"+nome+"' AND dt_nascimento = '"+nascimento+"' AND inativacao IS NULL AND p.ds_nome <> '')                                                                                                                    "
-                    + "                   OR (UPPER(p.ds_nome) = '"+nome+"' AND UPPER(f.ds_rg) = '"+rg+"' AND inativacao IS NULL AND p.ds_nome <> '')                                                                                                                           "
-                    + "                   OR (UPPER(f.ds_rg) = '"+rg+"' AND inativacao IS NULL AND p.ds_nome <> '' AND p.ds_nome <> '' AND f.ds_rg <> '')                                                                                                                       "
-                    + "                   OR (p.ds_documento = '"+documento+"' AND inativacao IS NULL AND p.ds_documento <> '')";
+                    + "                WHERE (p.ds_documento = '" + documento + "' AND UPPER(p.ds_nome) = '" + nome + "' AND dt_nascimento = '" + nascimento + "' AND UPPER(f.ds_rg) = '" + rg + "' AND inativacao IS NULL AND p.ds_nome <> '' AND p.ds_documento <> '' AND f.ds_rg <> '')      "
+                    + "                   OR (UPPER(p.ds_nome) = '" + nome + "' AND dt_nascimento = '" + nascimento + "' AND UPPER(f.ds_rg) = '" + rg + "' AND inativacao IS NULL AND p.ds_nome <> '' AND f.ds_rg <> '')                                                                    "
+                    + "                   OR (UPPER(p.ds_nome) = '" + nome + "' AND dt_nascimento = '" + nascimento + "' AND inativacao IS NULL AND p.ds_nome <> '')                                                                                                                    "
+                    + "                   OR (UPPER(p.ds_nome) = '" + nome + "' AND UPPER(f.ds_rg) = '" + rg + "' AND inativacao IS NULL AND p.ds_nome <> '')                                                                                                                           "
+                    + "                   OR (UPPER(f.ds_rg) = '" + rg + "' AND inativacao IS NULL AND p.ds_nome <> '' AND p.ds_nome <> '' AND f.ds_rg <> '')                                                                                                                       "
+                    + "                   OR (p.ds_documento = '" + documento + "' AND inativacao IS NULL AND p.ds_documento <> '')";
             Query query = getEntityManager().createNativeQuery(queryString);
             query.setMaxResults(1);
             List list = query.getResultList();
             if (!list.isEmpty()) {
-                Integer id_socio = (Integer) ((List)list.get(0)).get(0);
+                Integer id_socio = (Integer) ((List) list.get(0)).get(0);
                 return (Socios) new Dao().find(new Socios(), id_socio);
             }
         } catch (Exception e) {
@@ -426,52 +478,75 @@ public class ConviteDBToplink extends DB implements ConviteDB {
         return new ArrayList();
 
     }
-    
+
     @Override
-    public List<ConviteAutorizaCortesia> listaConviteAutorizaCortesia(boolean is_ativo){
-        try{
+    public List<ConviteAutorizaCortesia> listaConviteAutorizaCortesia(boolean is_ativo) {
+        try {
             String text = "";
-            
-            if (is_ativo){
+
+            if (is_ativo) {
                 text = "SELECT cac.* FROM conv_autoriza_cortesia cac WHERE cac.is_ativo = TRUE";
-            }else{
+            } else {
                 text = "SELECT cac.* FROM conv_autoriza_cortesia cac";
             }
-            
+
             Query query = getEntityManager().createNativeQuery(text, ConviteAutorizaCortesia.class);
             return query.getResultList();
-        }catch(Exception e){
+        } catch (Exception e) {
             e.getMessage();
         }
         return new ArrayList();
     }
-    
+
     @Override
-    public List<ConviteServico> listaConviteServico(Integer id_servico){
-        try{
-            Query query = getEntityManager().createQuery("SELECT cs FROM ConviteServico cs WHERE cs.cortesia = false AND cs.servicos.id = "+id_servico);
+    public List<ConviteServico> listaConviteServico(Integer id_servico) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT cs FROM ConviteServico cs WHERE cs.cortesia = false AND cs.servicos.id = " + id_servico);
             return query.getResultList();
-        }catch(Exception e){
+        } catch (Exception e) {
             e.getMessage();
         }
         return new ArrayList();
     }
-    
+
     @Override
-    public List<ConviteServico> listaConviteServicoCortesia(Boolean cortesia){
-        try{
+    public List<ConviteServico> listaConviteServicoCortesia(Boolean cortesia) {
+        try {
             String text = "";
-            if (cortesia != null)
+            if (cortesia != null) {
                 text = "SELECT cs FROM ConviteServico cs WHERE cs.cortesia = " + cortesia;
-            else
+            } else {
                 text = "SELECT cs FROM ConviteServico cs ";
-            
+            }
+
             Query query = getEntityManager().createQuery(text);
             return query.getResultList();
-        }catch(Exception e){
+        } catch (Exception e) {
             e.getMessage();
         }
         return new ArrayList();
+    }
+
+    public Categoria pesquisaCategoriaTodosDiasClube(Integer id_categoria) {
+        String text_qry
+                = "SELECT c.* \n"
+                + "  FROM soc_categoria AS c \n"
+                + " WHERE c.id = " + id_categoria + " \n"
+                + "   AND c.usa_clube_segunda = TRUE \n"
+                + "   AND c.usa_clube_terca = TRUE \n"
+                + "   AND c.usa_clube_quarta = TRUE \n"
+                + "   AND c.usa_clube_quinta = TRUE \n"
+                + "   AND c.usa_clube_sexta = TRUE \n"
+                + "   AND c.usa_clube_sabado = TRUE \n"
+                + "   AND c.usa_clube_domingo = TRUE";
+
+        try {
+            Query qry = getEntityManager().createNativeQuery(text_qry, Categoria.class);
+            return (Categoria) qry.getSingleResult();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return null;
     }
 
 }

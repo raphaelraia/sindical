@@ -536,7 +536,7 @@
                                 <p:commandButton value="Fechar" type="button"  onclick="PF('dlg_anexar_boletos').hide()" style="float: left" icon="ui-icon-close" />       
                             </p:dialog>
 
-                            <p:dialog widgetVar="dlg_movimentos_do_boleto" header="Movimentos do Boleto" resizable="false" width="900" modal="true">
+                            <p:dialog widgetVar="dlg_movimentos_do_boleto" header="Movimentos do Boleto" resizable="false" width="1000" modal="true">
                                 <h:panelGrid id="tbl_movimentos_do_boleto">
                                     <p:outputLabel value="BOLETO SELECIONADO: #{movimentosReceberSocialBean.listaMovimentoDoBoleto[0].movimento.documento}" style="font-size: 12pt!important; font-weight: bold"/>
                                     
@@ -559,6 +559,10 @@
 
                                         <p:column headerText="Serviços">
                                             <h:outputLabel value="#{linha_movimento.movimento.servicos.descricao}" />
+                                        </p:column>
+
+                                        <p:column headerText="Vencimento" style="text-align: center; width: 100px">
+                                            <h:outputLabel value="R$ #{linha_movimento.movimento.vencimento}" />
                                         </p:column>
 
                                         <p:column headerText="Vencimento Original" style="text-align: center; width: 100px">

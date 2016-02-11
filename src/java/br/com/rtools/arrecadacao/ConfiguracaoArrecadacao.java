@@ -24,17 +24,21 @@ public class ConfiguracaoArrecadacao implements Serializable {
     private Filial filial;
     @Column(name = "is_certificado_faturamento_bruto_anual", columnDefinition = "boolean default false", nullable = false)
     private Boolean certificadoFaturementoBrutoAnual;
+    @Column(name = "nr_dias_acordo", nullable = false)
+    private Integer nrDiasAcordo;
 
     public ConfiguracaoArrecadacao() {
         this.id = -1;
         this.filial = new Filial();
         this.certificadoFaturementoBrutoAnual = false;
+        this.nrDiasAcordo = 0;
     }
 
-    public ConfiguracaoArrecadacao(Integer id, Filial filial, Boolean certificadoFaturementoBrutoAnual) {
+    public ConfiguracaoArrecadacao(Integer id, Filial filial, Boolean certificadoFaturementoBrutoAnual, Integer nrDiasAcordo) {
         this.id = id;
         this.filial = filial;
         this.certificadoFaturementoBrutoAnual = certificadoFaturementoBrutoAnual;
+        this.nrDiasAcordo = nrDiasAcordo;
     }
 
     public Integer getId() {
@@ -59,6 +63,14 @@ public class ConfiguracaoArrecadacao implements Serializable {
 
     public void setCertificadoFaturementoBrutoAnual(Boolean certificadoFaturementoBrutoAnual) {
         this.certificadoFaturementoBrutoAnual = certificadoFaturementoBrutoAnual;
+    }
+
+    public Integer getNrDiasAcordo() {
+        return nrDiasAcordo;
+    }
+
+    public void setNrDiasAcordo(Integer nrDiasAcordo) {
+        this.nrDiasAcordo = nrDiasAcordo;
     }
 
 }

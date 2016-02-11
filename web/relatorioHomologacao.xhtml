@@ -7,6 +7,7 @@
     <h:head>
         <title>Relatório Homologação</title>
         <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
     </h:head>
     <h:body class="divMenu">
         <f:subview id="header">
@@ -233,11 +234,16 @@
                             </p:panel>
                         </h:column>
                     </h:panelGrid>
-                    <h:panelGrid columns="3" id="i_btns">
-                        <p:commandButton value="Visualizar" icon="ui-icon-print" title="Visualizar" action="#{relatorioHomologacaoBean.print()}" ajax="false" styleClass="margin-top-max" update="id_messages_growl" />
+                    <h:panelGrid columns="2" id="i_btns">
                         <p:selectBooleanCheckbox itemLabel="Mostrar cabeçalho" value="#{relatorioHomologacaoBean.printHeader}" styleClass="margin-top-max">
                             <p:ajax event="change" update="@this" />
                         </p:selectBooleanCheckbox>
+                        
+                        <p:selectBooleanCheckbox itemLabel="Exportar para Excel" value="#{relatorioHomologacaoBean.exportExcel}" styleClass="margin-top-max">
+                            <p:ajax event="change" update="@this" />
+                        </p:selectBooleanCheckbox>
+                        
+                        <p:commandButton value="Visualizar" icon="ui-icon-print" title="Visualizar" action="#{relatorioHomologacaoBean.print()}" ajax="false" styleClass="margin-top-max" update="id_messages_growl" />
                     </h:panelGrid>
                 </h:form>                          
             </p:panel>

@@ -63,7 +63,7 @@
 
                                             <p:separator />
 
-                                            <h:panelGrid columns="5">
+                                            <h:panelGrid columns="6">
                                                 <h:column>
                                                     <p:outputLabel value="Código" for="idCodigo"/><br />
                                                     <p:inputText id="idCodigo" size="10" value="#{servicosBean.servicos.codigo}"/>
@@ -95,6 +95,11 @@
                                                 <p:column>
                                                     <p:outputLabel value="Meses Débito Exclusão" /><br />
                                                     <p:inputText size="16" value="#{servicosBean.servicos.mesesDebitoExclusao}" style="text-align: right"/>
+                                                </p:column>
+                                                
+                                                <p:column>
+                                                    <br />
+                                                    <p:selectBooleanCheckbox value="#{servicosBean.servicos.mesesDebitoExclusaoTodos}" itemLabel="Após caducar o primeiro registro, excluir todos em aberto?" style="text-align: right"/>
                                                 </p:column>
                                             </h:panelGrid>
 

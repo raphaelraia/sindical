@@ -52,7 +52,7 @@ public class RelatorioMovimentosDBToplink extends DB implements RelatorioMovimen
 //            textQuery += " LEFT JOIN arr_contribuintes_inativos_agrupados_vw AS CI ON CI.id_juridica = C.id_juridica \n ";
 //        }
 
-                //+ "  LEFT JOIN fin_baixa               AS lot              ON lot.id               = mov.id_baixa                                                                       \n "                                                                   \n ";
+        //+ "  LEFT JOIN fin_baixa               AS lot              ON lot.id               = mov.id_baixa                                                                       \n "                                                                   \n ";
         // CONDICAO -----------------------------------------------------
         textQuery += " WHERE mov.is_ativo = true \n";
         switch (condicao) {
@@ -307,6 +307,20 @@ public class RelatorioMovimentosDBToplink extends DB implements RelatorioMovimen
             group = mes + ", " + ano + ", se.ds_descricao \n ";
 
             order = "se.ds_descricao, " + mes + ", " + ano + " \n ";
+        } else if (relatorio.getId() == 78) {
+            // RESUMO CONTRIBUICOES CIDADE
+            select = "-- RelatorioMovimentosDBToplink - listaMovimentos;           \n\n"
+                    + "SELECT pes_cidade.ds_cidade as cidade, \n"
+                    +        mes + " as mes, \n "
+                    +        ano + " as ano, \n "
+                    + "      se.ds_descricao as contribuicao, \n "
+                    + "      sum(mov.nr_valor_baixa) as valor_recebido, \n "
+                    + "      sum(mov.nr_taxa) as taxa, \n "
+                    + "      sum(mov.nr_valor_baixa - (mov.nr_valor_baixa*(cc.nr_repasse/100)))-sum(mov.nr_taxa) as valor_liquido \n ";
+
+            group = " pes_cidade.ds_cidade, "+mes+", " + ano + ", se.ds_descricao ";
+
+            order = " se.ds_descricao, pes_cidade.ds_cidade, "+mes+", " + ano;
         } else {
             // OUTROS RELATORIOS
             select = ""

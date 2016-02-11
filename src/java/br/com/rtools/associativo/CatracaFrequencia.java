@@ -1,50 +1,56 @@
 package br.com.rtools.associativo;
 
-import br.com.rtools.financeiro.Servicos;
+import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.seguranca.Departamento;
+import br.com.rtools.sistema.SisPessoa;
 import br.com.rtools.utilitarios.DataHoje;
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "soc_catraca_frequencia",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"id_pessoa", "id_departamento", "dt_entrada", "dt_saida"})
-)
-
+@Table(name = "soc_catraca_frequencia")
 public class CatracaFrequencia implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
-    @JoinColumn(name = "id_servico", referencedColumnName = "id", nullable = false)
-    @ManyToOne
-    private Servicos servicos;
-    @JoinColumn(name = "id_departamento", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "id_departamento", referencedColumnName = "id")
     @ManyToOne
     private Departamento departamento;
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "dt_entrada", nullable = false)
-    private Date dtEntrada;
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "dt_saida", nullable = false)
-    private Date dtSaida;
+    @JoinColumn(name = "id_pessoa", referencedColumnName = "id")
+    @ManyToOne
+    private Pessoa pessoa;
+    @Temporal(TemporalType.DATE)
+    @Column(name = "dt_acesso", nullable = false)
+    private Date dtAcesso;
+    @Column(name = "ds_hora_acesso")
+    private String horaAcesso;
+    @Column(name = "ds_es")
+    private String es;
+    @JoinColumn(name = "id_sis_pessoa", referencedColumnName = "id")
+    @ManyToOne
+    private SisPessoa sisPessoa;
 
     public CatracaFrequencia() {
-        this.id = null;
-        this.servicos = null;
-        this.departamento = null;
-        this.dtEntrada = null;
-        this.dtSaida = null;
+        this.id = -1;
+        this.departamento = new Departamento();
+        this.pessoa = new Pessoa();
+        this.dtAcesso = DataHoje.dataHoje();
+        this.horaAcesso = DataHoje.horaMinuto();
+        this.es = "E";
+        this.sisPessoa = new SisPessoa();
     }
 
-    public CatracaFrequencia(Integer id, Servicos servicos, Departamento departamento, Date dtEntrada, Date dtSaida) {
+    public CatracaFrequencia(Integer id, Departamento departamento, Pessoa pessoa, Date dtAcesso, String horaAcesso, String es, SisPessoa sisPessoa) {
         this.id = id;
-        this.servicos = servicos;
         this.departamento = departamento;
-        this.dtEntrada = dtEntrada;
-        this.dtSaida = dtSaida;
+        this.pessoa = pessoa;
+        this.dtAcesso = dtAcesso;
+        this.horaAcesso = horaAcesso;
+        this.es = es;
+        this.sisPessoa = sisPessoa;
     }
 
     public Integer getId() {
@@ -55,14 +61,6 @@ public class CatracaFrequencia implements Serializable {
         this.id = id;
     }
 
-    public Servicos getServicos() {
-        return servicos;
-    }
-
-    public void setServicos(Servicos servicos) {
-        this.servicos = servicos;
-    }
-
     public Departamento getDepartamento() {
         return departamento;
     }
@@ -71,71 +69,44 @@ public class CatracaFrequencia implements Serializable {
         this.departamento = departamento;
     }
 
-    public Date getDtEntrada() {
-        return dtEntrada;
+    public Pessoa getPessoa() {
+        return pessoa;
     }
 
-    public void setDtEntrada(Date dtEntrada) {
-        this.dtEntrada = dtEntrada;
+    public void setPessoa(Pessoa pessoa) {
+        this.pessoa = pessoa;
     }
 
-    public Date getDtSaida() {
-        return dtSaida;
+    public Date getDtAcesso() {
+        return dtAcesso;
     }
 
-    public void setDtSaida(Date dtSaida) {
-        this.dtSaida = dtSaida;
+    public void setDtAcesso(Date dtAcesso) {
+        this.dtAcesso = dtAcesso;
     }
 
-    public String getDataEntradaString() {
-        if (dtEntrada != null) {
-            return DataHoje.livre(dtEntrada, "dd/MM/yyyy");
-        }
-        return null;
+    public String getEs() {
+        return es;
     }
 
-    public String getHoraEntradaString() {
-        if (dtEntrada != null) {
-            return DataHoje.livre(dtEntrada, "HH:mm");
-        }
-        return null;
+    public void setEs(String es) {
+        this.es = es;
     }
 
-    public String getDataSaidaString() {
-        if (dtSaida != null) {
-            return DataHoje.livre(dtSaida, "dd/MM/yyyy");
-        }
-        return null;
+    public SisPessoa getSisPessoa() {
+        return sisPessoa;
     }
 
-    public String getHoraSaidaString() {
-        if (dtSaida != null) {
-            return DataHoje.livre(dtSaida, "HH:mm");
-        }
-        return null;
+    public void setSisPessoa(SisPessoa sisPessoa) {
+        this.sisPessoa = sisPessoa;
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 3;
-        return hash;
+    public String getHoraAcesso() {
+        return horaAcesso;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final CatracaFrequencia other = (CatracaFrequencia) obj;
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return "CatracaFrequencia{" + "id=" + id + ", servicos=" + servicos + ", departamento=" + departamento + ", dtEntrada=" + dtEntrada + ", dtSaida=" + dtSaida + '}';
+    public void setHoraAcesso(String horaAcesso) {
+        this.horaAcesso = horaAcesso;
     }
 
 }
