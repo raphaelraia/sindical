@@ -66,9 +66,7 @@ public class RelatorioTelemarketingDao extends DB {
                             + " INNER JOIN seg_departamento AS D ON D.id = H.id_departamento\n"
                             + " INNER JOIN tlm_contato      AS C ON C.id = H.id_contato     \n"
                             + " INNER JOIN tlm_natureza     AS N on N.id = H.id_natureza    \n"
-                            + " INNER JOIN pes_pessoa       AS O on O.id = u.id_pessoa      \n"
-                            + "   GROUP BY to_date(to_char(H.dt_lancamento, 'YYYY/MM/DD'), 'YYYY/MM/DD')  \n"
-                            + "   ORDER BY to_date(to_char(H.dt_lancamento, 'YYYY/MM/DD'), 'YYYY/MM/DD')  ";
+                            + " INNER JOIN pes_pessoa       AS O on O.id = u.id_pessoa      \n";
                     break;
                 case 73:
                     /**
@@ -84,11 +82,7 @@ public class RelatorioTelemarketingDao extends DB {
                             + " INNER JOIN seg_departamento AS D ON D.id=H.id_departamento  \n"
                             + " INNER JOIN tlm_contato      AS C ON C.id=H.id_contato       \n"
                             + " INNER JOIN tlm_natureza     AS N ON N.id=H.id_natureza      \n"
-                            + " INNER JOIN pes_pessoa       AS O ON O.id=U.id_pessoa        \n"
-                            + "   GROUP BY extract(MONTH FROM H.dt_lancamento),             \n"
-                            + "            extract(YEAR FROM H.dt_lancamento)               \n"
-                            + "   ORDER BY extract(YEAR FROM H.dt_lancamento),              \n"
-                            + "            extract(MONTH FROM H.dt_lancamento)              \n";
+                            + " INNER JOIN pes_pessoa       AS O ON O.id=U.id_pessoa        \n";
                     break;
                 case 74:
                     /**
@@ -103,8 +97,7 @@ public class RelatorioTelemarketingDao extends DB {
                             + " INNER JOIN seg_departamento AS D ON D.id = H.id_departamento\n"
                             + " INNER JOIN tlm_contato      AS C ON C.id = H.id_contato     \n"
                             + " INNER JOIN tlm_natureza     AS N ON N.id = H.id_natureza    \n"
-                            + " INNER JOIN pes_pessoa       AS O ON P.id = U.id_pessoa      \n"
-                            + "   GROUP BY O.ds_nome  ";
+                            + " INNER JOIN pes_pessoa       AS O ON P.id = U.id_pessoa      \n";
                     break;
                 default:
                     break;
@@ -158,6 +151,23 @@ public class RelatorioTelemarketingDao extends DB {
                 } else {
                     queryString += " AND " + listWhere.get(i).toString() + " \n";
                 }
+            }
+            switch (relatorios.getId()) {
+                case 72:
+                    queryString
+                            += "  GROUP BY to_date(to_char(H.dt_lancamento, 'YYYY/MM/DD'), 'YYYY/MM/DD')  \n"
+                            + "   ORDER BY to_date(to_char(H.dt_lancamento, 'YYYY/MM/DD'), 'YYYY/MM/DD')  ";
+                    break;
+                case 73:
+                    queryString
+                            += "  GROUP BY extract(MONTH FROM H.dt_lancamento),             \n"
+                            + "            extract(YEAR FROM H.dt_lancamento)               \n"
+                            + "   ORDER BY extract(YEAR FROM H.dt_lancamento),              \n"
+                            + "            extract(MONTH FROM H.dt_lancamento)              \n";
+                    break;
+                case 74:
+                    queryString += "   GROUP BY O.ds_nome  ";
+                    break;
             }
             if (relatorioOrdem != null) {
                 queryString += " ORDER BY " + relatorioOrdem.getQuery();

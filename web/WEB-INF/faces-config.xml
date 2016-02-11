@@ -1891,8 +1891,8 @@
         </navigation-case>
         
         <navigation-case>
-            <from-outcome>web_service</from-outcome>
-            <to-view-id>/web_service.jsf</to-view-id>
+            <from-outcome>autenticar_dispositivo</from-outcome>
+            <to-view-id>/autenticar_dispositivo.jsf</to-view-id>
             <redirect/>
         </navigation-case>
         
@@ -1955,7 +1955,55 @@
             <from-outcome>validadeExameMedico</from-outcome>
             <to-view-id>/validadeExameMedico.jsf</to-view-id>
             <redirect/>
-        </navigation-case>       
+        </navigation-case>      
+                
+        <navigation-case>
+            <from-outcome>executar_sistema</from-outcome>
+            <to-view-id>/executar_sistema.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>                 
+        
+        <navigation-case>
+            <from-outcome>biometria_habilitar</from-outcome>
+            <to-view-id>/biometria_habilitar.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>                 
+        
+        <navigation-case>
+            <from-outcome>biometria_limpar</from-outcome>
+            <to-view-id>/biometria_limpar.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>                 
+        
+        <navigation-case>
+            <from-outcome>biometria_lista</from-outcome>
+            <to-view-id>/biometria_lista.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+                         
+        <navigation-case>
+            <from-outcome>biometria_atualizar</from-outcome>
+            <to-view-id>/biometria_atualizar.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>                 
+        
+        <navigation-case>
+            <from-outcome>biometria_reload</from-outcome>
+            <to-view-id>/biometria_reload.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>                 
+        
+        <navigation-case>
+            <from-outcome>biometria_atualiza_catraca</from-outcome>
+            <to-view-id>/biometria_atualiza_catraca.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>biometria_captura</from-outcome>
+            <to-view-id>/biometria_captura.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>                 
         
         <!-- 
         <navigation-case>

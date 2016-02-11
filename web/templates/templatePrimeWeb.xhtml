@@ -39,7 +39,13 @@
                 <h:panelGrid columns="3" style="width: 100%">
                     <h:outputText value="Bem Vindo" />
                     <h:outputText value="#{controleAcessoWebBean.login}" style="font-weight: bold"/>
-                    <p:commandLink value="SAIR DO SISTEMA" action="#{controleAcessoWebBean.sairSistemaWeb}" style="float: right; color: black"/>
+                    <h:column>
+                        <p:menuButton value="Opções" style="float: right" rendered="#{(controleAcessoWebBean.pessoaContabilidade != null or controleAcessoWebBean.pessoaContribuinte != null) and controleAcessoWebBean.pessoaPatronal == null}" >
+                            <p:menuitem value="Alterar usuário" onclick="PF('dlg_alterar_usuario').show()" disabled="true"/>
+                            <p:menuitem value="Alterar senha" onclick="PF('dlg_alterar_senha').show()" disabled="true"/>                    
+                            <p:menuitem value="SAIR DO SISTEMA" action="#{controleAcessoWebBean.sairSistemaWeb}"  />              
+                       </p:menuButton>
+                    </h:column>
                 </h:panelGrid>
             </h:panelGrid>
         </h:form>

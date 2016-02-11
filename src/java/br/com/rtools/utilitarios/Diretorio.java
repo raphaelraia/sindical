@@ -17,40 +17,24 @@ public class Diretorio {
     }
 
     public static boolean criar(String diretorio, boolean ignore) {
-        if (!ignore) {
-            diretorio = "/Cliente/" + getCliente() + "/" + diretorio;
+        if(diretorio.equals("cookie")) {
+            diretorio = "/resources/global/cookie";
         } else {
-            diretorio = "/resources/cliente/" + getCliente().toLowerCase() + "/" + diretorio.toLowerCase();
+            if (!ignore) {
+                diretorio = "/Cliente/" + getCliente() + "/" + diretorio;
+            } else {
+                diretorio = "/resources/cliente/" + getCliente().toLowerCase() + "/" + diretorio.toLowerCase();
+            }
         }
         try {
-            String s[] = diretorio.split("/");
-            boolean err = false;
-            String caminhoContac = "";
-            int b = 0;
-            String caminho = "";
-            for (String item : s) {
-                if (!item.equals("")) {
-                    if (b == 0) {
-                        caminhoContac = item;
-                        caminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/" + caminhoContac);
-                    } else {
-                        caminhoContac = "/" + caminhoContac + "/" + item;
-                        caminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(caminhoContac);
-                    }
-                    if (!new File(caminho).exists()) {
-                        File file = new File(caminho);
-                        if (!file.mkdir()) {
-                            err = false;
-                            break;
-                        }
-                    }
-                    b++;
+            String path = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(diretorio);
+            if (!new File(path).exists()) {
+                File file = new File(path);
+                if (!file.mkdirs()) {
+                    return false;
                 }
             }
-            if (!err) {
-                return true;
-            }
-            return false;
+            return true;
         } catch (Exception e) {
             return false;
         }

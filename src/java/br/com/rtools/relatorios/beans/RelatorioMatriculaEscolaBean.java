@@ -17,6 +17,7 @@ import br.com.rtools.relatorios.dao.RelatorioMatriculaEscolaDao;
 import br.com.rtools.relatorios.dao.RelatorioOrdemDao;
 import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.seguranca.Usuario;
+import br.com.rtools.sistema.Mes;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -29,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.PostConstruct;
@@ -70,6 +72,8 @@ public class RelatorioMatriculaEscolaBean implements Serializable {
     private Boolean socios;
     private Boolean tipoMatricula;
     private String title;
+    private Map<String, String> listMeses;
+    private List selectedMesesAniversario;
 
     @PostConstruct
     public void init() {
@@ -79,7 +83,7 @@ public class RelatorioMatriculaEscolaBean implements Serializable {
         disabled = new Boolean[2];
         disabled[0] = false;
         disabled[1] = false;
-        filtro = new Boolean[17];
+        filtro = new Boolean[18];
         filtro[0] = false; // FILIAL
         filtro[1] = false; // PERÍODO MATRÍCULA
         filtro[2] = false; // PERÍODO
@@ -97,6 +101,7 @@ public class RelatorioMatriculaEscolaBean implements Serializable {
         filtro[14] = false; // HORÁRIO
         filtro[15] = false; // ORDER
         filtro[16] = false; // 
+        filtro[17] = false; // ANIVERSÁRIANTES 
         listSelectItem = new ArrayList[7];
         listSelectItem[0] = new ArrayList<>();
         listSelectItem[1] = new ArrayList<>();
@@ -141,6 +146,7 @@ public class RelatorioMatriculaEscolaBean implements Serializable {
         if (GenericaSessao.exists("tipoMatricula")) {
             tipoMatricula = GenericaSessao.getBoolean("tipoMatricula", true);
         }
+        loadMeses();
     }
 
     @PreDestroy
@@ -264,6 +270,10 @@ public class RelatorioMatriculaEscolaBean implements Serializable {
             idVendedor = Integer.parseInt(listSelectItem[5].get(index[5]).getDescription());
             listDetalhePesquisa.add("Vendedor: " + ((Vendedor) dao.find(new Vendedor(), idVendedor)).getPessoa().getNome());
         }
+        String meses_aniversario = null;
+        if (filtro[17]) {
+            meses_aniversario = inMesesAniversario();
+        }
         if (tipoMatricula) {
             if (turma.getId() != -1) {
                 inIdCursoOuTurma = "" + turma.getId();
@@ -278,7 +288,7 @@ public class RelatorioMatriculaEscolaBean implements Serializable {
         RelatorioMatriculaEscolaDao relatorioMatriculaEscolaDao = new RelatorioMatriculaEscolaDao();
         relatorioMatriculaEscolaDao.setOrder(order);
         relatorioMatriculaEscolaDao.setRelatorios(relatorios);
-        List list = relatorioMatriculaEscolaDao.find(idFilial, dataMatricula, periodo, tipoIdade, idade, idStatus, idMidia, idProfessor, idVendedor, tipoMatricula, inIdCursoOuTurma, idAluno, sexo, idResponsavel, horario);
+        List list = relatorioMatriculaEscolaDao.find(idFilial, dataMatricula, periodo, tipoIdade, idade, idStatus, idMidia, idProfessor, idVendedor, tipoMatricula, inIdCursoOuTurma, idAluno, sexo, idResponsavel, horario, meses_aniversario);
         if (list.isEmpty()) {
             GenericaMensagem.info("Sistema", "Não existem registros para o relatório selecionado");
             return;
@@ -308,7 +318,8 @@ public class RelatorioMatriculaEscolaBean implements Serializable {
                     o.get(5), // INICIO
                     o.get(6), // TÉRMINO
                     o.get(7), // SÓCIO CATEGORIA
-                    o.get(8) // DATA STATUS
+                    o.get(8), // DATA STATUS
+                    o.get(9) // [TURMA DESCRICAO]
             ));
         }
         Map map = new HashMap();
@@ -456,6 +467,9 @@ public class RelatorioMatriculaEscolaBean implements Serializable {
         if (!filtro[15]) {
             order = "";
         }
+        if (!filtro[17]) {
+            order = "";
+        }
         if (filtro[8]) {
             disabled[0] = false;
             disabled[1] = true;
@@ -559,6 +573,10 @@ public class RelatorioMatriculaEscolaBean implements Serializable {
                 filtro[14] = false;
                 horario[0] = "";
                 horario[1] = "";
+                break;
+            case "aniversariantes":
+                selectedMesesAniversario = null;
+                filtro[17] = false;
                 break;
             case "order":
                 filtro[15] = false;
@@ -909,6 +927,22 @@ public class RelatorioMatriculaEscolaBean implements Serializable {
         this.listTurma = listTurma;
     }
 
+    public Map<String, String> getListMeses() {
+        return listMeses;
+    }
+
+    public void setListMeses(Map<String, String> listMeses) {
+        this.listMeses = listMeses;
+    }
+
+    public List getSelectedMesesAniversario() {
+        return selectedMesesAniversario;
+    }
+
+    public void setSelectedMesesAniversario(List selectedMesesAniversario) {
+        this.selectedMesesAniversario = selectedMesesAniversario;
+    }
+
     public class RelatorioEscolaCadastral {
 
         private Object aluno_nome;
@@ -920,8 +954,9 @@ public class RelatorioMatriculaEscolaBean implements Serializable {
         private Object data_termino;
         private Object socio_categoria;
         private Object data_status;
+        private Object turma_descricao;
 
-        public RelatorioEscolaCadastral(Object aluno_nome, Object aluno_idade, Object aluno_sexo, Object curso, Object status, Object data_inicio, Object data_termino, Object socio_categoria, Object data_status) {
+        public RelatorioEscolaCadastral(Object aluno_nome, Object aluno_idade, Object aluno_sexo, Object curso, Object status, Object data_inicio, Object data_termino, Object socio_categoria, Object data_status, Object turma_descricao) {
             this.aluno_nome = aluno_nome;
             this.aluno_idade = aluno_idade;
             this.aluno_sexo = aluno_sexo;
@@ -931,6 +966,7 @@ public class RelatorioMatriculaEscolaBean implements Serializable {
             this.data_termino = data_termino;
             this.socio_categoria = socio_categoria;
             this.data_status = data_status;
+            this.turma_descricao = turma_descricao;
         }
 
         public Object getAluno_nome() {
@@ -1005,5 +1041,45 @@ public class RelatorioMatriculaEscolaBean implements Serializable {
             this.data_status = data_status;
         }
 
+        public Object getTurma_descricao() {
+            return turma_descricao;
+        }
+
+        public void setTurma_descricao(Object turma_descricao) {
+            this.turma_descricao = turma_descricao;
+        }
+    }
+
+    public void loadMeses() {
+        List<Mes> list = new Dao().list(new Mes(), true);
+        listMeses = new LinkedHashMap<>();
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getId() < 10) {
+                listMeses.put(list.get(i).getDescricao(), "0" + list.get(i).getId());
+            } else {
+                listMeses.put(list.get(i).getDescricao(), "" + list.get(i).getId());
+            }
+        }
+    }
+
+    public String inMesesAniversario() {
+        String ids = null;
+        if (selectedMesesAniversario != null) {
+            for (int i = 0; i < selectedMesesAniversario.size(); i++) {
+                if (selectedMesesAniversario.get(i) != null) {
+                    Integer m = 0;
+                    try {
+                        m = Integer.parseInt(selectedMesesAniversario.get(i) + "");
+                    } catch (Exception e) {
+                    }
+                    if (ids == null) {
+                        ids = "'" + m + "'";
+                    } else {
+                        ids += ",'" + m + "'";
+                    }
+                }
+            }
+        }
+        return ids;
     }
 }

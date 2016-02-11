@@ -1454,6 +1454,16 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             reativar = false;
         }
 
+        if (socios.getId() == -1) {
+            if (!listernerValidacao(fisica, "associarFisica")) {
+                return null;
+            }
+        } else if (socios.getId() != -1 && (socios.getMatriculaSocios().getDtInativo() != null || !socios.getServicoPessoa().isAtivo())) {
+            if (!listernerValidacao(fisica, "associarFisica")) {
+                return null;
+            }
+        }
+
         GenericaSessao.put("sociosBean", new SociosBean());
         SociosBean sb = (SociosBean) GenericaSessao.getObject("sociosBean");
         clear(0);
@@ -1462,6 +1472,9 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public String associarFisica(Pessoa _pessoa) {
+        if (!listernerValidacao(fisica, "associarFisica")) {
+            return null;
+        }
         clear(0);
         String retorno = ((ChamadaPaginaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("chamadaPaginaBean")).socios();
         GenericaSessao.put("pessoaEmpresaPesquisa", (new PessoaEmpresaDBToplink()).pesquisaPessoaEmpresaPorPessoa(_pessoa.getId()));
@@ -2270,6 +2283,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             case "matriculaAcademia":
             case "convenioMedico":
             case "locacaoFilme":
+            case "associarFisica":
                 if (!p.getDocumento().isEmpty()) {
                     OposicaoDao odbt = new OposicaoDao();
                     if (odbt.existPessoaDocumentoPeriodo(p.getDocumento())) {
@@ -2289,6 +2303,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             case "emissaoGuias":
             case "geracaoDebitosCartao":
             case "locacaoFilme":
+            case "associarFisica":
                 FunctionsDao functionsDao = new FunctionsDao();
                 if (functionsDao.inadimplente(p.getId())) {
                     count++;
@@ -2306,6 +2321,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             case "lancamentoIndividual":
             case "geracaoDebitosCartao":
             case "locacaoFilme":
+            case "associarFisica":
                 PessoaComplemento pc = f.getPessoa().getPessoaComplemento();
                 if (pc.getBloqueiaObsAviso()) {
                     count++;

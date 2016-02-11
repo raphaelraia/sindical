@@ -115,6 +115,12 @@ public class ModeloContratoBean implements Serializable {
             mensagem = "Informar a descrição!";
             return;
         }
+//        matriculaContrato.setDescricao(matriculaContrato.getDescricao().replace("<br>", "<br />"));
+//        try {
+//            matriculaContrato.setDescricao(matriculaContrato.getDescricao().replaceAll("(<img[^>]*[^/]>)(?!\\s*</img>)", "$1</img>"));
+//        } catch (Exception e) {
+//
+//        }
         Dao dao = new Dao();
         NovoLog novoLog = new NovoLog();
         if (matriculaContrato.getId() == -1) {
