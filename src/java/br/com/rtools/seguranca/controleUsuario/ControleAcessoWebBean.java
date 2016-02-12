@@ -380,12 +380,10 @@ public class ControleAcessoWebBean implements Serializable {
                 URL url = null;
                 if (configuracaoCnpj == null) {
                     url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=" + documentox + "&dias=" + configuracaoCnpj.getDias() + "&usuario=rogerio@rtools.com.br&senha=989899");
+                } else if (configuracaoCnpj.getEmail().isEmpty() || configuracaoCnpj.getSenha().isEmpty()) {
+                    url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=" + documentox + "&dias=" + configuracaoCnpj.getDias() + "&usuario=rogerio@rtools.com.br&senha=989899");
                 } else {
-                    if (configuracaoCnpj.getEmail().isEmpty() || configuracaoCnpj.getSenha().isEmpty()) {
-                        url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=" + documentox + "&dias=" + configuracaoCnpj.getDias() + "&usuario=rogerio@rtools.com.br&senha=989899");
-                    } else {
-                        url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=" + documentox + "&dias=" + configuracaoCnpj.getDias() + "&usuario=" + configuracaoCnpj.getEmail() + "&senha=" + configuracaoCnpj.getSenha());
-                    }
+                    url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=" + documentox + "&dias=" + configuracaoCnpj.getDias() + "&usuario=" + configuracaoCnpj.getEmail() + "&senha=" + configuracaoCnpj.getSenha());
                 }
 
                 //URL url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero="+documentox+"&usuario=rogerio@rtools.com.br&senha=989899");
@@ -783,6 +781,15 @@ public class ControleAcessoWebBean implements Serializable {
             GenericaMensagem.error("Login Inválido", "Digite uma SENHA válida!");
             return null;
         }
+
+        if (pessoa.getLogin().equals("contribuinte") && pessoa.getSenha().equals("sindical")) {
+            pessoa = new PessoaDBToplink().contribuinteRandon();
+        }
+
+        if (pessoa.getLogin().equals("contabilidade") && pessoa.getSenha().equals("sindical")) {
+            pessoa = new PessoaDBToplink().contabilidadeRandon();
+        }
+
         String pagina = null;
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("indicaAcesso", "web");
         UsuarioDB db = new UsuarioDBToplink();
@@ -797,13 +804,11 @@ public class ControleAcessoWebBean implements Serializable {
                     //msgLoginInvalido = "Usuário não contribuinte!";
                     GenericaMensagem.error("Login Inválido", "Usuário não Contribuinte");
                     return null;
+                } else if (((List) listax.get(0)).get(11) != null) {
+                    //msgLoginInvalido = "Contribuinte inativo, contate seu sindicato!";
+                    GenericaMensagem.error("Login Inválido", "Contribuinte inativo, contate seu Sindicato!");
+                    return null;
                 } else {
-                    if (((List) listax.get(0)).get(11) != null) {
-                        //msgLoginInvalido = "Contribuinte inativo, contate seu sindicato!";
-                        GenericaMensagem.error("Login Inválido", "Contribuinte inativo, contate seu Sindicato!");
-                        return null;
-                    } else {
-                    }
                 }
             }
             pessoaPatronal = db.ValidaUsuarioPatronalWeb(pessoa.getId());

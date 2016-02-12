@@ -114,14 +114,14 @@ public class PessoaDBToplink extends DB implements PessoaDB {
         if (por.equals("cpf") || por.equals("cnpj") || por.equals("cei")) {
             field = "documento";
         }
-        
+
         String text_qry = "";
         int maxResults = 300;
         if (por.equals("codigo")) {
-            text_qry= " SELECT p.* " +
-                      "   FROM pes_pessoa p " +
-                      "  WHERE p.id = " + Integer.valueOf(desc) +
-                      "  ORDER BY p.ds_nome";
+            text_qry = " SELECT p.* "
+                    + "   FROM pes_pessoa p "
+                    + "  WHERE p.id = " + Integer.valueOf(desc)
+                    + "  ORDER BY p.ds_nome";
         } else {
             if (desc.length() == 1) {
                 maxResults = 50;
@@ -134,10 +134,10 @@ public class PessoaDBToplink extends DB implements PessoaDB {
             desc = AnaliseString.normalizeLower(desc);
             desc = (como.equals("I") ? desc + "%" : "%" + desc + "%");
 
-            text_qry = " SELECT p.* " +
-                       "   FROM pes_pessoa p " +
-                       "  WHERE LOWER(FUNC_TRANSLATE(p.ds_" + field + ")) LIKE '" + desc + "' " +
-                       "  ORDER BY p.ds_nome";
+            text_qry = " SELECT p.* "
+                    + "   FROM pes_pessoa p "
+                    + "  WHERE LOWER(FUNC_TRANSLATE(p.ds_" + field + ")) LIKE '" + desc + "' "
+                    + "  ORDER BY p.ds_nome";
         }
 
         try {
@@ -348,6 +348,54 @@ public class PessoaDBToplink extends DB implements PessoaDB {
         } catch (Exception e) {
             getEntityManager().getTransaction().rollback();
             return false;
+        }
+    }
+
+    /**
+     * Acesso web randômico (Login: contriuinte - Senha: sindical)
+     *
+     * @return
+     */
+    public Pessoa contribuinteRandon() {
+        try {
+            Query query = getEntityManager().createNativeQuery(""
+                    + "     SELECT P.* FROM pes_pessoa AS P                     \n"
+                    + "      WHERE P.id IN(                                     \n"
+                    + "         SELECT id_pessoa                                \n"
+                    + "           FROM arr_contribuintes_vw                     \n"
+                    + "          WHERE dt_inativacao IS NULL                    \n"
+                    + "     )                                                   \n"
+                    + "   ORDER BY RANDOM()                                     \n"
+                    + "      LIMIT 1                                            \n"
+                    + "", Pessoa.class);
+            return (Pessoa) query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Acesso web randômico (Login: contabilidade - Senha: sindical)
+     *
+     * @return
+     */
+    public Pessoa contabilidadeRandon() {
+        try {
+            Query query = getEntityManager().createNativeQuery(""
+                    + "     SELECT P.* FROM pes_pessoa AS P                     \n"
+                    + " INNER JOIN pes_juridica AS J ON J.id_pessoa = P.id      \n"
+                    + "      WHERE J.id IN(                                     \n"
+                    + "         SELECT id_contabilidade                         \n"
+                    + "           FROM arr_contribuintes_vw                     \n"
+                    + "          WHERE dt_inativacao IS NULL                    \n"
+                    + "            AND id_contabilidade IS NOT NULL             \n"
+                    + "     )                                                   \n"
+                    + "   ORDER BY RANDOM()                                     \n"
+                    + "      LIMIT 1                                            \n"
+                    + "", Pessoa.class);
+            return (Pessoa) query.getSingleResult();
+        } catch (Exception e) {
+            return null;
         }
     }
 
