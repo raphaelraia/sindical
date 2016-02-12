@@ -94,6 +94,9 @@ public class ControleAcessoWebBean implements Serializable {
 
     private String documento = "";
     private Empregados empregados = new Empregados();
+    private String alteraLogin = "";
+    private String alteraSenha = "";
+    private String alteraSenha2 = "";
 
     public void validaEmpregados() {
         if (pessoaContribuinte.getEmail1().isEmpty()) {
@@ -1214,4 +1217,112 @@ public class ControleAcessoWebBean implements Serializable {
     public void setEmpregados(Empregados empregados) {
         this.empregados = empregados;
     }
+
+    // ALTERAR LOGIN
+    public String getLoginAtual() {
+        if (pessoaContribuinte != null) {
+            return pessoaContribuinte.getLogin();
+        }
+        if (pessoaContabilidade != null) {
+            return pessoaContabilidade.getLogin();
+        }
+        return "";
+    }
+
+    public String getAlteraLogin() {
+        return alteraLogin;
+    }
+
+    public void setAlteraLogin(String alteraLogin) {
+        this.alteraLogin = alteraLogin;
+    }
+
+    public String getAlteraSenha() {
+        return alteraSenha;
+    }
+
+    public void setAlteraSenha(String alteraSenha) {
+        this.alteraSenha = alteraSenha;
+    }
+
+    public String getAlteraSenha2() {
+        return alteraSenha2;
+    }
+
+    public void setAlteraSenha2(String alteraSenha2) {
+        this.alteraSenha2 = alteraSenha2;
+    }
+
+    public void updatePessoaWeb(String tcase) {
+        Pessoa p = new Pessoa();
+        switch (tcase) {
+            case "login":
+                if (alteraLogin.isEmpty()) {
+                    GenericaMensagem.warn("Validação", "Informar login!");
+                    return;
+                }
+                if (pessoaContribuinte != null) {
+                    if (new PessoaDBToplink().existLogin(alteraLogin)) {
+                        GenericaMensagem.warn("Validação", "Login já existe!");
+                        return;
+                    }
+                }
+                if (pessoaContabilidade != null) {
+                    if (new PessoaDBToplink().existLogin(alteraLogin)) {
+                        GenericaMensagem.warn("Validação", "Login já existe!");
+                        return;
+                    }
+                }
+                if (pessoaContribuinte != null) {
+                    pessoaContribuinte.setLogin(alteraLogin);
+                    p = pessoaContribuinte;
+                }
+                if (pessoaContabilidade != null) {
+                    pessoaContabilidade.setLogin(alteraLogin);
+                    p = pessoaContabilidade;
+                }
+                break;
+            case "senha":
+                if (alteraSenha.isEmpty()) {
+                    GenericaMensagem.warn("Validação", "Informar senha!");
+                    return;
+                }
+                if (alteraSenha.length() < 6 || alteraSenha.length() > 50) {
+                    GenericaMensagem.warn("Validação", "A senha deve conter no mínimo 6 caracteres e no máximo 50 !");
+                    return;
+                }
+                if (!alteraSenha.equals(alteraSenha2)) {
+                    GenericaMensagem.warn("Validação", "A senha de confirmação esta diferente da senha!");
+                    return;
+                }
+                if (pessoaContribuinte != null) {
+                    pessoaContribuinte.setSenha(alteraSenha);
+                    p = pessoaContribuinte;
+                }
+                if (pessoaContabilidade != null) {
+                    pessoaContabilidade.setSenha(alteraSenha);
+                    p = pessoaContabilidade;
+                }
+                break;
+            default:
+                return;
+        }
+        if (new Dao().update(p, true)) {
+            if (pessoaContribuinte != null) {
+                pessoaContribuinte = p;
+            }
+            if (pessoaContabilidade != null) {
+                pessoaContabilidade = p;
+            }
+            switch (tcase) {
+                case "login":
+                    GenericaMensagem.info("Sucesso", "Login atualizado com sucesso! " + getLoginAtual());
+                    break;
+                case "senha":
+                    GenericaMensagem.info("Sucesso", "Senha atualizada com sucesso");
+                    break;
+            }
+        }
+    }
+
 }

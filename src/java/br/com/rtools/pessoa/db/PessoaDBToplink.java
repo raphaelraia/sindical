@@ -399,4 +399,15 @@ public class PessoaDBToplink extends DB implements PessoaDB {
         }
     }
 
+    // R28576
+    public Boolean existLogin(String login) {
+        try {
+            Query query = getEntityManager().createNativeQuery("SELECT EXISTS(SELECT id FROM pes_pessoa WHERE func_translate(ds_login) LIKE func_translate('" + login + "'))");
+            query.setMaxResults(1);
+            Boolean b =  (Boolean) ((List) ((List) query.getResultList()).get(0)).get(0);
+            return b;
+        } catch (Exception e) {
+            return true;
+        }
+    }
 }
