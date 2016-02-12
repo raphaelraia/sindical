@@ -1581,12 +1581,13 @@ public class MatriculaAcademiaBean implements Serializable {
                 if (periodo == 3) {
                     // TAXA PROPORCIONAL ATÉ O VENCIMENTO
                     // METODO NOVO PARA O CHAMADO 1226
-                    if (!gerarTaxaMovimento()) {
+                    String ref_geracao = gerarTaxaMovimento();
+                    if (ref_geracao.isEmpty()) {
                         GenericaMensagem.warn("ATENÇÃO", "Movimento não foi gerado, Tente novamente!");
                         return null;
                     }
                     // --------------
-                    new FunctionsDao().gerarMensalidades(matriculaAcademia.getServicoPessoa().getPessoa().getId(), matriculaAcademia.getServicoPessoa().getReferenciaVigoracao());
+                    new FunctionsDao().gerarMensalidades(matriculaAcademia.getServicoPessoa().getPessoa().getId(), ref_geracao);
                     if (!matriculaAcademia.isTaxa()) {
                         desabilitaCamposMovimento = true;
                         desabilitaDiaVencimento = true;
@@ -1827,7 +1828,8 @@ public class MatriculaAcademiaBean implements Serializable {
         return null;
     }
 
-    public boolean gerarTaxaMovimento() {
+    public String gerarTaxaMovimento() {
+        String referencia_geracao = matriculaAcademia.getServicoPessoa().getReferenciaVigoracao();
 
         String mes = DataHoje.data().substring(3, 5),
                 ano = DataHoje.data().substring(6, 10),
@@ -1840,12 +1842,21 @@ public class MatriculaAcademiaBean implements Serializable {
 
         DataHoje dh = new DataHoje();
         String data_hoje = DataHoje.data();
+        Integer dia_hoje = Integer.valueOf(data_hoje.substring(0, 2));
+        if (dia_hoje < idDiaParcela) {
+            Integer qnt_dias = Integer.valueOf(Long.toString(DataHoje.calculoDosDias(DataHoje.converte(data_hoje), DataHoje.converte(proximo_vencimento))));
 
-        if (Integer.valueOf(data_hoje.substring(0, 2)) <= idDiaParcela) {
-            valor_x = Moeda.multiplicarValores(Moeda.divisaoValores(Moeda.substituiVirgulaFloat(valorLiquido), 30), DataHoje.calculoDosDias(DataHoje.converte(data_hoje), DataHoje.converte(proximo_vencimento)) + 1);
+            valor_x = Moeda.multiplicarValores(Moeda.divisaoValores(Moeda.substituiVirgulaFloat(valorLiquido), 30), qnt_dias);
+        } else if (dia_hoje == idDiaParcela) {
+            valor_x = Moeda.converteUS$(valorLiquido);
+
+            referencia_geracao = DataHoje.converteDataParaReferencia(dh.incrementarMeses(1, "01/" + referencia_geracao));
         } else {
             proximo_vencimento = dh.incrementarMeses(1, proximo_vencimento);
-            valor_x = Moeda.multiplicarValores(Moeda.divisaoValores(Moeda.substituiVirgulaFloat(valorLiquido), 30), DataHoje.calculoDosDias(DataHoje.converte(data_hoje), DataHoje.converte(proximo_vencimento)) + 1);
+            Integer qnt_dias = Integer.valueOf(Long.toString(DataHoje.calculoDosDias(DataHoje.converte(data_hoje), DataHoje.converte(proximo_vencimento))));
+
+            valor_x = Moeda.multiplicarValores(Moeda.divisaoValores(Moeda.substituiVirgulaFloat(valorLiquido), 30), qnt_dias);
+            referencia_geracao = DataHoje.converteDataParaReferencia(dh.incrementarMeses(1, "01/" + referencia_geracao));
         }
 
         Dao dao = new Dao();
@@ -1876,7 +1887,7 @@ public class MatriculaAcademiaBean implements Serializable {
         if (!dao.save(lote_taxa)) {
             dao.rollback();
             GenericaMensagem.warn("Sistema", "Não foi possível salvar Lote de Taxa!");
-            return false;
+            return "";
         }
 
         Movimento m
@@ -1916,11 +1927,22 @@ public class MatriculaAcademiaBean implements Serializable {
         if (!dao.save(m)) {
             dao.rollback();
             GenericaMensagem.warn("Sistema", "Não foi possível salvar Movimento de Taxa gerar esse movimento!");
-            return false;
+            return "";
         }
 
         dao.commit();
-        return true;
+        NovoLog logs = new NovoLog();
+
+        logs.setTabela("matr_academia");
+        logs.setCodigo(matriculaAcademia.getId());
+        logs.save(
+                "** GERAÇÃO DE TAXA MATRÍCULA **\n "
+                + "Matrícula ID: " + matriculaAcademia.getId() + " \n "
+                + "Movimento ID: " + m.getId() + " \n "
+                + " - Valor: " + m.getValorString() + " \n "
+                + " - Vencimento: " + m.getVencimento()
+        );
+        return referencia_geracao;
     }
 
     public String baixaGeral(boolean mensal) {
@@ -2016,7 +2038,7 @@ public class MatriculaAcademiaBean implements Serializable {
                     dao.rollback();
                     return;
                 }
-                
+
                 if (!dao.update(matriculaAcademia)) {
                     dao.rollback();
                     return;

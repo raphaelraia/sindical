@@ -747,9 +747,33 @@ public class MovimentosReceberSocialBean implements Serializable {
 
     }
 
+    public String targetImprimeRecibo(Movimento mov) {
+        if (validaImprimeRecibo(mov)) {
+            return "_blank";
+        }
+        return "";
+    }
+
+    public Boolean validaImprimeRecibo(Movimento mov) {
+        if (Usuario.getUsuario().getId() != 1) {
+            if (mov.getBaixa() != null && !mov.getBaixa().getImportacao().isEmpty()) {
+                GenericaMensagem.fatal("ATENÇÃO", "RECIBO COM DATA DE IMPORTAÇÃO NÃO PODE SER REIMPRESSO!");
+                return false;
+            }
+            
+            if (mov.getBaixa().getUsuario().getId() != Usuario.getUsuario().getId() && cab.verificaPermissao("reimpressao_recibo_outro_operador", 4)) {
+                GenericaMensagem.fatal("ATENÇÃO", "USUÁRIO SEM PERMISSÃO PARA REIMPRIMIR ESTE RECIBO!");
+                return false;
+            }
+        }
+        return true;
+    }
+
     public String recibo(Movimento mov) {
         ImprimirRecibo ir = new ImprimirRecibo();
-        ir.recibo(mov.getId());
+        if (validaImprimeRecibo(mov)) {
+            ir.recibo(mov.getId());
+        }
         return null;
     }
 

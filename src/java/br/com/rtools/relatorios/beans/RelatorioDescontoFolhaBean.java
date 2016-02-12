@@ -99,9 +99,15 @@ public class RelatorioDescontoFolhaBean implements Serializable {
             rf_i = getReferenciaInicial();
             rf_f = getReferenciaFinal();
         }
+        
+        if (rf_i == null || rf_i.isEmpty()) {
+            GenericaMensagem.warn("ATENÇÃO", "DIGITE UMA REFEÊNCIA!");
+            return;
+        }
+        
         List<RelatorioDescontoFolha> rdfs = new ArrayList<>();
         sisProcesso.startQuery();
-        List list = new RelatorioDescontoFolhaDao().find(r.getId(), empresa_id, titular_id, rf_i, rf_f);
+        List list = new RelatorioDescontoFolhaDao().find(r.getId(), empresa_id, titular_id, rf_i);
         sisProcesso.finishQuery();
         ConfiguracaoSocial configuracaoSocial = (ConfiguracaoSocial) new Dao().find(new ConfiguracaoSocial(), 1);
         for (int i = 0; i < list.size(); i++) {

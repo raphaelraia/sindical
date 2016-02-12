@@ -1,6 +1,5 @@
 package br.com.rtools.associativo.beans;
 
-import br.com.rtools.arrecadacao.beans.GerarBoletoBean;
 import br.com.rtools.associativo.AStatus;
 import br.com.rtools.associativo.BVenda;
 import br.com.rtools.associativo.EventoBaile;
@@ -92,6 +91,12 @@ public class VendaBaileBean implements Serializable {
 
     private List<Movimento> listaMovimento = new ArrayList();
 
+    private EventoBaileMapa ebmTroca = new EventoBaileMapa();
+    private EventoBaileMapa ebmTrocaSelecionada = new EventoBaileMapa();
+    
+    private EventoBaileConvite ebcTroca = new EventoBaileConvite();
+    private EventoBaileConvite ebcTrocaSelecionada = new EventoBaileConvite();
+    
     @PostConstruct
     public void init() {
         loadListaEventoBaile();
@@ -105,54 +110,198 @@ public class VendaBaileBean implements Serializable {
         cab = (ControleAcessoBean) GenericaSessao.getObject("controleAcessoBean");
     }
 
+    public void trocarMesa(Vector linha) {
+        ebmTroca = (EventoBaileMapa) new Dao().find(new EventoBaileMapa(), (Integer) linha.get(9));
+        if (Usuario.getUsuario().getId() != 1){
+            if (ebmTroca.getbVenda().getUsuario().getId() != Usuario.getUsuario().getId() && cab.verificaPermissao("trocar_mesa_convite", 3)){
+                GenericaMensagem.fatal("ATENÇÃO", "USUÁRIO SEM PERMISSÃO PARA TROCAR ESTA MESA!");
+                PF.update("formPesquisaVendasBaile:message_mesa");
+                return;
+            }
+        }
+        ebmTrocaSelecionada = new EventoBaileMapa();
+        //Pessoa pv = bv.getPessoa();
+        //Pessoa rv = new FunctionsDao().titularDaPessoa(pv.getId());
+
+        loadListaMesa();
+        PF.openDialog("dlg_trocar_mesa");
+    }
+
+    public void selecionarTrocarMesa(EventoBaileMapa ebm) {
+        ebmTrocaSelecionada = ebm;
+    }
+
+    public void salvarTrocarMesa() {
+        if (ebmTrocaSelecionada.getId() == -1) {
+            GenericaMensagem.warn("ATENÇÃO", "SELECIONE UMA MESA PARA TROCA!");
+            PF.update("formPesquisaVendasBaile:panel_trocar_mesa");
+            return;
+        }
+        if (ebmTroca.getId() != -1) {
+            Movimento m = ebmTroca.getMovimento();
+            BVenda v = ebmTroca.getbVenda();
+
+            Dao dao = new Dao();
+
+            dao.openTransaction();
+
+            ebmTroca.setMovimento(null);
+            ebmTroca.setbVenda(null);
+            if (!dao.update(ebmTroca)) {
+                dao.rollback();
+                ebmTroca = new EventoBaileMapa();
+                ebmTrocaSelecionada = new EventoBaileMapa();
+                GenericaMensagem.error("ATENÇÃO", "ERRO AO TROCAR MESA, TENTE NOVAMENTE!");
+                PF.update("formPesquisaVendasBaile:panel_trocar_mesa");
+                return;
+            }
+
+            ebmTrocaSelecionada.setMovimento(m);
+            ebmTrocaSelecionada.setbVenda(v);
+
+            if (!dao.update(ebmTrocaSelecionada)) {
+                dao.rollback();
+                ebmTroca = new EventoBaileMapa();
+                ebmTrocaSelecionada = new EventoBaileMapa();
+                GenericaMensagem.error("ATENÇÃO", "ERRO AO ATUALIZAR MESA, TENTE NOVAMENTE!");
+                PF.update("formPesquisaVendasBaile:panel_trocar_mesa");
+                return;
+            }
+
+            dao.commit();
+
+            GenericaMensagem.info("SUCESSO", "MESA TROCADA DE: " + (ebmTroca.getMesa() < 10 ? "0" + ebmTroca.getMesa() : ebmTroca.getMesa()) + " PARA: " + (ebmTrocaSelecionada.getMesa() < 10 ? "0" + ebmTrocaSelecionada.getMesa() : ebmTrocaSelecionada.getMesa()));
+            ebmTroca = new EventoBaileMapa();
+            ebmTrocaSelecionada = new EventoBaileMapa();
+
+            loadListaVendasMesa();
+            PF.closeDialog("dlg_trocar_mesa");
+            PF.update("formPesquisaVendasBaile:message_mesa");
+            PF.update("formPesquisaVendasBaile:table_mesa");
+        }
+    }
+    
+    public void trocarConvite(Vector linha) {
+        ebcTroca = (EventoBaileConvite) new Dao().find(new EventoBaileConvite(), (Integer) linha.get(9));
+        if (Usuario.getUsuario().getId() != 1){
+            if (ebcTroca.getbVenda().getUsuario().getId() != Usuario.getUsuario().getId() && cab.verificaPermissao("trocar_mesa_convite", 3)){
+                GenericaMensagem.fatal("ATENÇÃO", "USUÁRIO SEM PERMISSÃO PARA TROCAR ESTE CONVITE!");
+                PF.update("formPesquisaVendasBaile:message_convite");
+                return;
+            }
+        }
+                
+        ebcTrocaSelecionada = new EventoBaileConvite();
+        //Pessoa pv = bv.getPessoa();
+        //Pessoa rv = new FunctionsDao().titularDaPessoa(pv.getId());
+
+        loadListaConvite();
+        PF.openDialog("dlg_trocar_convite");
+    }
+
+    public void selecionarTrocarConvite(EventoBaileConvite ebc) {
+        ebcTrocaSelecionada = ebc;
+    }
+
+    public void salvarTrocarConvite() {
+        if (ebcTrocaSelecionada.getId() == -1) {
+            GenericaMensagem.warn("ATENÇÃO", "SELECIONE UM CONVITE PARA TROCA!");
+            PF.update("formPesquisaVendasBaile:panel_trocar_convite");
+            return;
+        }
+        
+        if (ebcTroca.getId() != -1) {
+            Movimento m = ebcTroca.getMovimento();
+            BVenda v = ebcTroca.getbVenda();
+
+            Dao dao = new Dao();
+
+            dao.openTransaction();
+
+            ebcTroca.setMovimento(null);
+            ebcTroca.setbVenda(null);
+            if (!dao.update(ebcTroca)) {
+                dao.rollback();
+                ebcTroca = new EventoBaileConvite();
+                ebcTrocaSelecionada = new EventoBaileConvite();
+                GenericaMensagem.error("ATENÇÃO", "ERRO AO TROCAR CONVITE, TENTE NOVAMENTE!");
+                PF.update("formPesquisaVendasBaile:panel_trocar_convite");
+                return;
+            }
+
+            ebcTrocaSelecionada.setMovimento(m);
+            ebcTrocaSelecionada.setbVenda(v);
+
+            if (!dao.update(ebcTrocaSelecionada)) {
+                dao.rollback();
+                ebcTroca = new EventoBaileConvite();
+                ebcTrocaSelecionada = new EventoBaileConvite();
+                GenericaMensagem.error("ATENÇÃO", "ERRO AO ATUALIZAR CONVITE, TENTE NOVAMENTE!");
+                PF.update("formPesquisaVendasBaile:panel_trocar_convite");
+                return;
+            }
+
+            dao.commit();
+
+            GenericaMensagem.info("SUCESSO", "CONVITE TROCADO DE: " + (ebcTroca.getConvite() < 10 ? "0" + ebcTroca.getConvite() : ebcTroca.getConvite()) + " PARA: " + (ebcTrocaSelecionada.getConvite() < 10 ? "0" + ebcTrocaSelecionada.getConvite() : ebcTrocaSelecionada.getConvite()));
+            ebcTroca = new EventoBaileConvite();
+            ebcTrocaSelecionada = new EventoBaileConvite();
+
+            loadListaVendasConvite();
+            PF.closeDialog("dlg_trocar_convite");
+            PF.update("formPesquisaVendasBaile:message_convite");
+            PF.update("formPesquisaVendasBaile:table_convite");
+        }
+    }
+
     public void gravarVendaLog(BVenda v, Boolean update_log) {
         NovoLog logs = new NovoLog();
         if (!update_log) {
             logs.setTabela("eve_venda");
             logs.setCodigo(v.getId());
             logs.save(
-                    "ID: " + v.getId()
-                    + " - Pessoa ID: " + v.getPessoa().getId()
-                    + " - Pessoa Nome: " + v.getPessoa().getNome()
-                    + " - Responsável ID: " + v.getResponsavel().getId()
-                    + " - Responsável Nome: " + v.getResponsavel().getNome()
-                    + " - Evento: " + v.getEvento().getDescricaoEvento().getDescricao()
-                    + " - Serviço: " + v.getEventoServico().getServicos().getDescricao()
-                    + " - Status: " + v.getStatus().getDescricao()
-                    + " - Valor Unitário: " + v.getValorUnitarioString()
-                    + " - Desconto Unitário: " + v.getDescontoUnitarioString()
+                    "ID: " + v.getId() + " \n "
+                    + " - Pessoa ID: " + v.getPessoa().getId() + " \n "
+                    + " - Pessoa Nome: " + v.getPessoa().getNome() + " \n "
+                    + " - Responsável ID: " + v.getResponsavel().getId() + " \n "
+                    + " - Responsável Nome: " + v.getResponsavel().getNome() + " \n "
+                    + " - Evento: " + v.getEvento().getDescricaoEvento().getDescricao() + " \n "
+                    + " - Serviço: " + v.getEventoServico().getServicos().getDescricao() + " \n "
+                    + " - Status: " + v.getStatus().getDescricao() + " \n "
+                    + " - Valor Unitário: " + v.getValorUnitarioString() + " \n "
+                    + " - Desconto Unitário: " + v.getDescontoUnitarioString() + " \n "
                     + " - Observação: " + v.getObs()
             );
         } else {
             Dao dao = new Dao();
             BVenda v_update = (BVenda) dao.find(new BVenda(), v.getId());
             String antes
-                    = "ID: " + v_update.getId()
-                    + " - Pessoa ID: " + v_update.getPessoa().getId()
-                    + " - Pessoa Nome: " + v_update.getPessoa().getNome()
-                    + " - Responsável ID: " + v_update.getResponsavel().getId()
-                    + " - Responsável Nome: " + v_update.getResponsavel().getNome()
-                    + " - Evento: " + v_update.getEvento().getDescricaoEvento().getDescricao()
-                    + " - Serviço: " + v_update.getEventoServico().getServicos().getDescricao()
-                    + " - Status: " + v_update.getStatus().getDescricao()
-                    + " - Valor Unitário: " + v_update.getValorUnitarioString()
-                    + " - Desconto Unitário: " + v_update.getDescontoUnitarioString()
+                    = "ID: " + v_update.getId() + " \n "
+                    + " - Pessoa ID: " + v_update.getPessoa().getId() + " \n "
+                    + " - Pessoa Nome: " + v_update.getPessoa().getNome() + " \n "
+                    + " - Responsável ID: " + v_update.getResponsavel().getId() + " \n "
+                    + " - Responsável Nome: " + v_update.getResponsavel().getNome() + " \n "
+                    + " - Evento: " + v_update.getEvento().getDescricaoEvento().getDescricao() + " \n "
+                    + " - Serviço: " + v_update.getEventoServico().getServicos().getDescricao() + " \n "
+                    + " - Status: " + v_update.getStatus().getDescricao() + " \n "
+                    + " - Valor Unitário: " + v_update.getValorUnitarioString() + " \n "
+                    + " - Desconto Unitário: " + v_update.getDescontoUnitarioString() + " \n "
                     + " - Observação: " + v_update.getObs();
 
             logs.setTabela("eve_venda");
             logs.setCodigo(v.getId());
             logs.update(
                     antes,
-                    "ID: " + v.getId()
-                    + " - Pessoa ID: " + v.getPessoa().getId()
-                    + " - Pessoa Nome: " + v.getPessoa().getNome()
-                    + " - Responsável ID: " + v.getResponsavel().getId()
-                    + " - Responsável Nome: " + v.getResponsavel().getNome()
-                    + " - Evento: " + v.getEvento().getDescricaoEvento().getDescricao()
-                    + " - Serviço: " + v.getEventoServico().getServicos().getDescricao()
-                    + " - Status: " + v.getStatus().getDescricao()
-                    + " - Valor Unitário: " + v.getValorUnitarioString()
-                    + " - Desconto Unitário: " + v.getDescontoUnitarioString()
+                    "ID: " + v.getId() + " \n "
+                    + " - Pessoa ID: " + v.getPessoa().getId() + " \n "
+                    + " - Pessoa Nome: " + v.getPessoa().getNome() + " \n "
+                    + " - Responsável ID: " + v.getResponsavel().getId() + " \n "
+                    + " - Responsável Nome: " + v.getResponsavel().getNome() + " \n "
+                    + " - Evento: " + v.getEvento().getDescricaoEvento().getDescricao() + " \n "
+                    + " - Serviço: " + v.getEventoServico().getServicos().getDescricao() + " \n "
+                    + " - Status: " + v.getStatus().getDescricao() + " \n "
+                    + " - Valor Unitário: " + v.getValorUnitarioString() + " \n "
+                    + " - Desconto Unitário: " + v.getDescontoUnitarioString() + " \n "
                     + " - Observação: " + v.getObs()
             );
         }
@@ -838,7 +987,7 @@ public class VendaBaileBean implements Serializable {
         PessoaComplemento pc = responsavel.getPessoaComplemento();
         DataHoje dh = new DataHoje();
         CondicaoPagamento cp = tipoPagamento.equals("avista") ? (CondicaoPagamento) new Dao().find(new CondicaoPagamento(), 1) : (CondicaoPagamento) new Dao().find(new CondicaoPagamento(), 2);
-        String vencimento = tipoPagamento.equals("avista") ? DataHoje.data() : (pc.getNrDiaVencimento() < 9) ? "0" + pc.getNrDiaVencimento() : "" + pc.getNrDiaVencimento() + "/" + dh.incrementarMeses(1, DataHoje.data()).substring(3);
+        String vencimento = tipoPagamento.equals("avista") ? DataHoje.data() : (pc.getNrDiaVencimento() < 10) ? "0" + pc.getNrDiaVencimento() : "" + pc.getNrDiaVencimento() + "/" + dh.incrementarMeses(1, DataHoje.data()).substring(3);
         listaMovimento.clear();
 
 //        Evt evt = new Evt();
@@ -1216,5 +1365,37 @@ public class VendaBaileBean implements Serializable {
 
     public void setListaVendasConvite(List<Vector> listaVendasConvite) {
         this.listaVendasConvite = listaVendasConvite;
+    }
+
+    public EventoBaileMapa getEbmTroca() {
+        return ebmTroca;
+    }
+
+    public void setEbmTroca(EventoBaileMapa ebmTroca) {
+        this.ebmTroca = ebmTroca;
+    }
+
+    public EventoBaileMapa getEbmTrocaSelecionada() {
+        return ebmTrocaSelecionada;
+    }
+
+    public void setEbmTrocaSelecionada(EventoBaileMapa ebmTrocaSelecionada) {
+        this.ebmTrocaSelecionada = ebmTrocaSelecionada;
+    }
+
+    public EventoBaileConvite getEbcTroca() {
+        return ebcTroca;
+    }
+
+    public void setEbcTroca(EventoBaileConvite ebcTroca) {
+        this.ebcTroca = ebcTroca;
+    }
+
+    public EventoBaileConvite getEbcTrocaSelecionada() {
+        return ebcTrocaSelecionada;
+    }
+
+    public void setEbcTrocaSelecionada(EventoBaileConvite ebcTrocaSelecionada) {
+        this.ebcTrocaSelecionada = ebcTrocaSelecionada;
     }
 }

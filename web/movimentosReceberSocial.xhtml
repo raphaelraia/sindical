@@ -305,7 +305,7 @@
                                 </p:column>
 
                                 <p:column style="text-align: center; width: 30px" headerText="Recibo" rendered="#{movimentosReceberSocialBean.porPesquisa != 'abertos'}">
-                                    <h:commandLink target="_blank" action="#{movimentosReceberSocialBean.recibo(linha.argumento1)}" rendered="#{!empty(linha.argumento10)}" title="Imprimir este Recibo">
+                                    <h:commandLink target="#{movimentosReceberSocialBean.targetImprimeRecibo(linha.argumento1)}" action="#{movimentosReceberSocialBean.recibo(linha.argumento1)}" rendered="#{!empty(linha.argumento10)}" title="Imprimir este Recibo">
                                         <p:commandButton icon="ui-icon-print" title="Imprimir este Recibo"/>
                                     </h:commandLink>
                                 </p:column>
