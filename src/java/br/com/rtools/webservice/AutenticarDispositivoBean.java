@@ -3,29 +3,22 @@ package br.com.rtools.webservice;
 import br.com.rtools.webservice.classes.WSStatus;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.seguranca.controleUsuario.ControleAcessoWebService;
-import br.com.rtools.utilitarios.Diretorio;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.webservice.classes.WSHeaders;
 import com.google.gson.Gson;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.Serializable;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.faces.bean.ApplicationScoped;
+import javax.annotation.Resource;
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-import javax.servlet.ServletContext;
-import org.apache.commons.io.FileUtils;
-import org.primefaces.json.JSONException;
-import org.primefaces.json.JSONObject;
+import javax.xml.ws.WebServiceContext;
 
 @ManagedBean
-@ApplicationScoped
+@RequestScoped
 public class AutenticarDispositivoBean implements Serializable {
 
     private Pessoa pessoa;
@@ -51,7 +44,11 @@ public class AutenticarDispositivoBean implements Serializable {
         return pessoaString;
     }
 
+    @Resource
+    WebServiceContext wsContext;
+
     public void response() {
+        WSHeaders wSHeaders = new WSHeaders();
         FacesContext facesContext = FacesContext.getCurrentInstance();
         ExternalContext externalContext = facesContext.getExternalContext();
         externalContext.setResponseContentType("application/json");
@@ -61,11 +58,11 @@ public class AutenticarDispositivoBean implements Serializable {
         try {
             GenericaSessao.remove("conexao");
             ControleAcessoWebService caws = new ControleAcessoWebService();
-            wSStatus = caws.permiteWebService(caws.getMac(), true);
+            wSStatus = caws.permiteWebService(wSHeaders.getMac(), true);
             if (wSStatus.getCodigo() == 0) {
-                GenericaSessao.put("sessaoWebService", caws.getClient());
+                GenericaSessao.put("sessaoWebService", wSHeaders.getClient());
                 if (caws.getSession() != null && caws.getSession()) {
-                    if (!ControleAcessoWebService.session(caws.getClient(), caws.getMac())) {
+                    if (!ControleAcessoWebService.session(wSHeaders.getClient(), wSHeaders.getMac())) {
                         wSStatus.setCodigo(1);
                         wSStatus.setDescricao("Erro ao gerar sessão!");
                     }

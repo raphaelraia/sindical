@@ -134,47 +134,78 @@
 
                 </p:dialog>
             </h:panelGrid>
-            <p:dialog widgetVar="dlg_alterar_usuario" header="Alterar usuário" resizable="false" modal="true" width="900">
-                <h:form id="form_usuario_login" onsubmit="#{usuarioBean.usuarioPerfil}">                                                
-                </h:form>                
-
-            </p:dialog>
-            <p:dialog widgetVar="dlg_alterar_senha" header="Alterar senha" resizable="false" modal="true" width="900">
-                <h:form id="form_usuario_senha" onsubmit="#{usuarioBean.usuarioPerfil}">
+            <h:form id="form_usuario_login">
+                <p:dialog widgetVar="dlg_alterar_usuario" header="Alterar usuário" resizable="false" modal="true" width="900">
                     <p:panel>
                         <h:panelGrid columns="2">
-                            <h:outputLabel value="Login: " styleClass="fontePadrao"/>
-                            <h:outputText value="#{usuarioBean.usuario.login}"/>
-                            <h:outputLabel value="Nome: " styleClass="fontePadrao"/>
-                            <h:outputText value="#{usuarioBean.usuario.pessoa.nome}"/>
-                            <h:outputLabel value="Email: " styleClass="fontePadrao"/>
-                            <h:outputText value="#{usuarioBean.usuario.email}"/>
+                            <p:outputLabel value="Login Atual: " styleClass="fontePadrao"/>
+                            <p:outputLabel value="#{controleAcessoWebBean.loginAtual}" />
+                            <p:outputLabel value="Novo Login: " styleClass="fontePadrao"/>
+                            <p:inputText value="#{controleAcessoWebBean.alteraLogin}" maxlength="50" size="60">
+                                <p:ajax event="change" />
+                            </p:inputText>
                         </h:panelGrid>
                         <h:panelGrid columns="4" styleClass="margin-top-max">
-                            <p:commandButton value="Alterar senha" onclick="PF('dlg_senha').show();" type="button"/>
+                            <p:commandButton value="Confirma" onclick="PF('dlg_login_confirma').show();" type="button" />
                         </h:panelGrid>
                     </p:panel>
-                    <p:dialog id="divNovaSenha" modal="true" widgetVar="dlg_senha" header="Alterar Senha">
-                        <h:panelGrid id="idPainelNovaSenha" columns="2">
-                            <p:outputLabel value="E-mail:" />
-                            <p:inputText value="#{usuarioBean.usuario.email}"/>
-                            <p:outputLabel value="Antiga: " />
-                            <p:inputText value="#{usuarioBean.senhaAntiga}" autocomplete="off" type="password"/>
-                            <p:outputLabel value="Nova: "  />
-                            <p:inputText value="#{usuarioBean.senhaNova}" autocomplete="off" type="password" />
-                        </h:panelGrid>                        
+                </p:dialog>
+                <p:dialog modal="true" widgetVar="dlg_login_confirma" header="Confirma a alteração de login?">                        
+                    <f:facet name="footer">
                         <h:panelGrid columns="2" styleClass="margin-top">
-                            <p:commandButton value="Alterar" title="Alterar" action="#{usuarioBean.salvarSenhaUsuarioPerfil()}" update=":form_usuario_senha:" oncomplete="PF('dlg_senha').hide(); PF('dlg_mensagem').show();" />
-                            <p:commandButton value="Voltar" title="Voltar" onclick="PF('dlg_senha').hide();"/>
+                            <p:commandButton value="Sim" title="Alterar" action="#{controleAcessoWebBean.updatePessoaWeb('login')}" update=":form_usuario_login:" oncomplete="PF('dlg_login_confirma').hide(); PF('dlg_message_login').show();" />
+                            <p:commandButton value="Não" title="Voltar" onclick="PF('dlg_login_confirma').hide();"/>
+                        </h:panelGrid>                            
+                    </f:facet>
+                </p:dialog>
+                <p:dialog widgetVar="dlg_message_login" modal="true" header="mensagem">
+                    <p:messages autoUpdate="true" showDetail="true" showSummary="true" />
+                    <f:facet name="footer">
+                        <h:panelGrid columns="1">
+                            <p:commandButton value="Ok" title="Ok" onclick="PF('dlg_alterar_usuario').hide();" update=":form_usuario_login: :form_menu_principal_web:"/>                                
                         </h:panelGrid>
-                    </p:dialog>
-                    <p:dialog id="divMensagem" widgetVar="dlg_mensagem" modal="true" header="mensagem">
-                        <h:outputText value="#{usuarioBean.mensagem}" styleClass="fontePadrao"/>                            
-                        <p:commandButton value="Voltar" title="Voltar" onclick="PF('dlg_senha').hide();" update=":form_usuario_senha:"/>
-                    </p:dialog>                            
-                </h:form>                
+                    </f:facet>
+                </p:dialog>                      
+            </h:form>
+            <h:form id="form_usuario_senha">
+                <p:dialog widgetVar="dlg_alterar_senha" header="Alterar senha" resizable="false" modal="true" width="900">
+                    <p:panel>
+                        <h:panelGrid columns="2">
+                            <p:outputLabel value="Login Atual: " styleClass="fontePadrao"/>
+                            <p:outputLabel value="#{controleAcessoWebBean.loginAtual}" />
+                            <p:outputLabel value="Nova senha: " styleClass="fontePadrao"/>
+                            <p:inputText value="#{controleAcessoWebBean.alteraSenha}" maxlength="50" size="60" type="password">
+                                <p:ajax event="change" />
+                            </p:inputText>
+                            <p:outputLabel value="Confirma senha: " styleClass="fontePadrao"/>
+                            <p:inputText value="#{controleAcessoWebBean.alteraSenha2}" maxlength="50" size="60" type="password">
+                                <p:ajax event="change" />
+                            </p:inputText>
+                        </h:panelGrid>
+                        <h:panelGrid columns="4" styleClass="margin-top-max">
+                            <p:commandButton value="Confirma" onclick="PF('dlg_senha_confirma').show();" type="button" />
+                        </h:panelGrid>
+                    </p:panel>
+                </p:dialog>
+                <p:dialog modal="true" widgetVar="dlg_senha_confirma" header="Confirma a alteração de senha?">                        
+                    <f:facet name="footer">
+                        <h:panelGrid columns="2" styleClass="margin-top">
+                            <p:commandButton value="Sim" title="Alterar" action="#{controleAcessoWebBean.updatePessoaWeb('senha')}" update=":form_usuario_senha:" oncomplete="PF('dlg_senha_confirma').hide(); PF('dlg_message_senha').show();" />
+                            <p:commandButton value="Não" title="Voltar" onclick="PF('dlg_senha_confirma').hide();"/>
+                        </h:panelGrid>                            
+                    </f:facet>
+                </p:dialog>
+                <p:dialog widgetVar="dlg_message_senha" modal="true" header="mensagem">
+                    <p:messages autoUpdate="true" showDetail="true" showSummary="true" />
+                    <f:facet name="footer">
+                        <h:panelGrid columns="1">
+                            <p:commandButton value="Ok" title="Ok" onclick="PF('dlg_alterar_senha').hide();" update=":form_usuario_senha: :form_menu_principal_web:"/>                                
+                        </h:panelGrid>
+                    </f:facet>
+                </p:dialog>                      
+            </h:form>
 
-            </p:dialog>
+            
 
         </f:view>
     </h:body>

@@ -20,6 +20,7 @@ import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaRequisicao;
 import br.com.rtools.webservice.classes.WSBiometriaCaptura;
+import br.com.rtools.webservice.classes.WSHeaders;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.Serializable;
@@ -43,6 +44,7 @@ public class LeitorBiometricoBean implements Serializable {
     private final ExternalContext externalContext;
     private final Gson gson;
     private final WSStatus status;
+    private final WSHeaders wSHeaders;
 
     public LeitorBiometricoBean() {
         caws = new ControleAcessoWebService();
@@ -55,6 +57,7 @@ public class LeitorBiometricoBean implements Serializable {
         if (caws.getAction() == null) {
             caws.setAction("");
         }
+        wSHeaders = new WSHeaders();
     }
 
     public void lista() {
@@ -90,7 +93,7 @@ public class LeitorBiometricoBean implements Serializable {
         try {
             BiometriaDao biometriaDao = new BiometriaDao();
             MacFilialDao macFilialDao = new MacFilialDao();
-            MacFilial macFilial = macFilialDao.pesquisaMac(caws.getMac());
+            MacFilial macFilial = macFilialDao.pesquisaMac(wSHeaders.getMac());
             Dao dao = new Dao();
             List list = biometriaDao.pesquisaBiometriaCapturaPorMacFilial(macFilial.getId());
             if (!list.isEmpty()) {
@@ -122,7 +125,7 @@ public class LeitorBiometricoBean implements Serializable {
 
             BiometriaDao biometriaDao = new BiometriaDao();
             MacFilialDao macFilialDao = new MacFilialDao();
-            MacFilial macFilial = macFilialDao.pesquisaMac(caws.getMac());
+            MacFilial macFilial = macFilialDao.pesquisaMac(wSHeaders.getMac());
             List<BiometriaServidor> list = biometriaDao.pesquisaStatusPorComputador(macFilial.getId());
             Dao dao = new Dao();
             if (habilitar) {
@@ -215,7 +218,7 @@ public class LeitorBiometricoBean implements Serializable {
         String biometria_ip = "";
         String codigo_pessoa = null;
         BiometriaAtualizaCatraca bac = null;
-        if (caws.getAction() != null) {
+        if (caws.getAction() != null && !caws.getAction().isEmpty()) {
             if (caws.getAction().equals("update")) {
                 try {
                     biometria_atualiza_catraca = GenericaRequisicao.getParametro("biometria_atualiza_catraca");
@@ -317,7 +320,7 @@ public class LeitorBiometricoBean implements Serializable {
 
     public void biometriaCaptura() {
         MacFilialDao macFilialDao = new MacFilialDao();
-        MacFilial macFilial = macFilialDao.pesquisaMac(caws.getMac());
+        MacFilial macFilial = macFilialDao.pesquisaMac(wSHeaders.getMac());
         if (caws.getAction().equals("pedido_captura")) {
 
             if (macFilial == null) {
