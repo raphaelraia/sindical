@@ -318,7 +318,7 @@ public class MatriculaEscolaBean implements Serializable {
         }
 
         for (int i = 1; i < listaDataVencimento.size(); i++) {
-            if (Integer.valueOf(listaDataVencimento.get(i).getValue().toString()) == dia) {
+            if (Objects.equals(Integer.valueOf(listaDataVencimento.get(i).getValue().toString()), dia)) {
                 idDiaVencimento = dia;
             }
         }
@@ -545,13 +545,8 @@ public class MatriculaEscolaBean implements Serializable {
     }
 
     public void gerarContrato() {
-//        if (matriculaEscola.getEvt() == null) {
-//            GenericaMensagem.warn("Sistema", "Necessário gerar movimento para imprimir esse contrato!");
-//            return;
-//        }
         if (matriculaEscola.getId() != -1) {
             Dao dao = new Dao();
-            Turma turmax = new Turma();
             String contratoCurso;
             String contratoDiaSemana = "";
             MatriculaContratoDao mcd = new MatriculaContratoDao();
@@ -564,8 +559,8 @@ public class MatriculaEscolaBean implements Serializable {
                 GenericaMensagem.error("Sistema", "Não é possível gerar um contrato para este serviço. Para gerar um contrato acesse: Menu Escola > Suporte > Modelo Contrato.");
                 return;
             }
-            String dataInicial = "";
-            String dataFinal = "";
+            String dataInicial;
+            String dataFinal;
             String horaInicial;
             String horaFinal;
             matriculaContrato.setDescricao(matriculaContrato.getDescricao().replace("$aluno", servicoPessoa.getPessoa().getNome()));
@@ -619,7 +614,7 @@ public class MatriculaEscolaBean implements Serializable {
                 matriculaContrato.setDescricao(matriculaContrato.getDescricao().replace("$mesAnoInicialExtenso", DataHoje.dataExtenso(matriculaIndividual.getDataInicioString(), 1)));
                 matriculaContrato.setDescricao(matriculaContrato.getDescricao().replace("$mesAnoFinalExtenso", DataHoje.dataExtenso(matriculaIndividual.getDataTerminoString(), 1)));
             } else {
-                turmax = ((MatriculaTurma) dao.find(matriculaTurma)).getTurma();
+                Turma turmax = ((MatriculaTurma) dao.find(matriculaTurma)).getTurma();
                 contratoCurso = matriculaTurma.getTurma().getCursos().getDescricao();
                 periodoMesesObject = DataHoje.quantidadeMeses(turma.getDtInicio(), turma.getDtTermino());
                 if (turmax.getSegunda()) {
@@ -851,9 +846,9 @@ public class MatriculaEscolaBean implements Serializable {
 
             matriculaContrato.setDescricao(matriculaContrato.getDescricao().replace("<br>", "<br />"));
             try {
-                matriculaContrato.setDescricao(matriculaContrato.getDescricao().replaceAll("(<img[^>]*[^/]>)(?!\\s*</img>)", "$1</img>"));            
+                matriculaContrato.setDescricao(matriculaContrato.getDescricao().replaceAll("(<img[^>]*[^/]>)(?!\\s*</img>)", "$1</img>"));
             } catch (Exception e) {
-                
+
             }
             try {
                 File dirFile = new File(FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/contrato/"));
@@ -867,23 +862,24 @@ public class MatriculaEscolaBean implements Serializable {
                 File file = new File(filePDF);
                 boolean success = file.createNewFile();
                 if (success) {
-                    OutputStream os = new FileOutputStream(filePDF);
-                    HtmlToPDF.convert(matriculaContrato.getDescricao(), os);
-                    os.close();
+                    // LOG CONTRATO
+                    NovoLog novoLog = new NovoLog();
+                    novoLog.setCodigo(matriculaEscola.getId());
+                    novoLog.setTabela("matr_escola");
+                    novoLog.print("Matricula Escola "
+                            + tipoMatricula + ": ID " + matriculaEscola.getId()
+                            + " - Aluno: " + servicoPessoa.getPessoa().getId() + " - " + servicoPessoa.getPessoa().getNome()
+                            + " - Responsável: " + servicoPessoa.getCobranca().getId() + " - " + servicoPessoa.getCobranca().getNome()
+                            + " - Mac Filial da impressão: " + MacFilial.getAcessoFilial().getDescricao() + " - MAC: " + MacFilial.getAcessoFilial().getMac()
+                    );
+
+                    try (OutputStream os = new FileOutputStream(filePDF)) {
+                        HtmlToPDF.convert(matriculaContrato.getDescricao(), os);
+                    }
                     String pathPasta = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/contrato");
-                    //String linha = getRegistro().getUrlPath() + "/Sindical/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/contrato/" + fileName;
-                    //HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
-//                    URL url = new URL(linha);
-//                    InputStream is = url.openStream();
-//                    if (is != null) {
-//                        response.sendRedirect(linha);
-//                    } else {
-//                        //não conectou  
-//                    }
                     Download download = new Download(fileName, pathPasta, "application/pdf", FacesContext.getCurrentInstance());
                     download.baixar();
                     download.remover();
-                    // FacesContext.getCurrentInstance().getExternalContext().setSessionMaxInactiveInterval(2); 
                 }
             } catch (IOException e) {
                 e.getMessage();
@@ -1362,7 +1358,7 @@ public class MatriculaEscolaBean implements Serializable {
             //tipoMatricula = "Turma";
             turma = matriculaTurma.getTurma();
             for (int i = 0; i < listaTurma.size(); i++) {
-                if (matriculaTurma.getTurma().getId() == turma.getId()) {
+                if (Objects.equals(matriculaTurma.getTurma().getId(), turma.getId())) {
                     idTurma = i;
                     break;
                 }
@@ -2463,8 +2459,8 @@ public class MatriculaEscolaBean implements Serializable {
                     idStatusI = Integer.parseInt(listaStatus.get(idStatusFiltro).getDescription());
                 }
                 List<MatriculaEscola> list = dB.pesquisaMatriculaEscola(tipoMatricula, descricaoCurso, descricao, comoPesquisa, porPesquisa, idStatusI, (Filial) new Dao().find(new Filial(), Integer.parseInt(getListFiliais().get(filial_id).getDescription())));
-                MatriculaIndividual mIndividual = null;
-                MatriculaTurma mTurma = null;
+                MatriculaIndividual mIndividual;
+                MatriculaTurma mTurma;
                 for (MatriculaEscola listaMatriculaEscola : list) {
                     if (tipoMatricula.equals("Individual")) {
                         mIndividual = (MatriculaIndividual) dB.pesquisaCodigoMIndividual(listaMatriculaEscola.getId());
@@ -3328,7 +3324,7 @@ public class MatriculaEscolaBean implements Serializable {
     }
 
     public int getNumeroParcelas() {
-        String dt = null;
+        String dt;
         //String dia_string = (idDiaParcela < 10) ? "0" + idDiaParcela : "" + idDiaParcela;
 
         if ((servicoPessoa.getReferenciaVigoracao() != null && servicoPessoa.getReferenciaValidade() != null)
@@ -3470,7 +3466,6 @@ public class MatriculaEscolaBean implements Serializable {
                 filial_id_2 = 0;
                 break;
         }
-        new FilialDao();
 
     }
 
