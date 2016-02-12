@@ -116,7 +116,7 @@
                                             <p:selectOneMenu label="Meses" value="#{relatorioCobrancaBean.tipoMesesDebito}" filter="true" filterMatchMode="startsWith">
                                                 <p:ajax event="change" global="false" update="@this i_panel_md"/>
                                                 <f:selectItem itemValue="todos" itemLabel="Todos" />
-                                                <f:selectItem itemValue="igual" itemLabel="A partir" />
+                                                <f:selectItem itemValue="igual" itemLabel="Igual" />
                                                 <f:selectItem itemValue="apartir" itemLabel="A partir" />
                                                 <f:selectItem itemValue="ate" itemLabel="Até" />
                                                 <f:selectItem itemValue="faixa" itemLabel="Faixa" />
@@ -129,6 +129,28 @@
                                                 <p:ajax event="change" update="@this" />
                                             </p:inputText>
                                             <p:commandButton icon="ui-icon-close" action="#{relatorioCobrancaBean.close(relatorioCobrancaBean.listFilters[5])}" title="Remover filtro" update="form_relatorio"/>
+                                        </h:panelGrid>                                        
+                                    </p:panel>
+                                </p:column>
+                                <p:column rendered="#{relatorioCobrancaBean.listFilters[6].active}">
+                                    <p:panel header="Período de meses em débito" style="width: 100%!important" id="i_panel_me">
+                                        <h:panelGrid columns="8" cellpadding="5 ">
+                                            <p:selectOneMenu label="Meses" value="#{relatorioCobrancaBean.tipoMesesDebitoData}" filter="true" filterMatchMode="startsWith">
+                                                <p:ajax event="change" global="false" update="@this i_panel_me"/>
+                                                <f:selectItem itemValue="todos" itemLabel="Todos" />
+                                                <f:selectItem itemValue="igual" itemLabel="Igual" />
+                                                <f:selectItem itemValue="apartir" itemLabel="A partir" />
+                                                <f:selectItem itemValue="ate" itemLabel="Até" />
+                                                <f:selectItem itemValue="faixa" itemLabel="Faixa" />
+                                            </p:selectOneMenu>
+                                            <p:inputMask value="#{relatorioCobrancaBean.dtS}" converter="#{isDateString}" rendered="#{relatorioCobrancaBean.tipoMesesDebitoData eq 'igual' or relatorioCobrancaBean.tipoMesesDebitoData eq 'apartir' or relatorioCobrancaBean.tipoMesesDebitoData eq 'ate' or relatorioCobrancaBean.tipoMesesDebitoData eq 'faixa'}" size="10" mask="99/99/9999">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputMask>
+                                            <p:outputLabel value="até" rendered="#{relatorioCobrancaBean.tipoMesesDebitoData eq 'faixa'}"/>
+                                            <p:inputMask value="#{relatorioCobrancaBean.dtF}" converter="#{isDateString}" rendered="#{relatorioCobrancaBean.tipoMesesDebitoData eq 'faixa'}" size="10" mask="99/99/9999">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputMask>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioCobrancaBean.close(relatorioCobrancaBean.listFilters[6])}" title="Remover filtro" update="form_relatorio"/>
                                         </h:panelGrid>                                        
                                     </p:panel>
                                 </p:column>

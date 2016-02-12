@@ -60,8 +60,11 @@ public class RelatorioCobrancaBean implements Serializable {
     private String tipoSocio;
     private String tipoPessoa;
     private String tipoMesesDebito;
+    private String tipoMesesDebitoData;
     private String monthS;
     private String monthF;
+    private String dtS;
+    private String dtF;
 
     @PostConstruct
     public void init() {
@@ -76,9 +79,13 @@ public class RelatorioCobrancaBean implements Serializable {
         tipoSocio = "socios";
         tipoPessoa = "todas";
         tipoMesesDebito = "todos";
+        tipoMesesDebitoData = "todos";
 
         monthS = "0";
         monthF = "0";
+
+        dtS = "";
+        dtF = "";
 
         loadFilters();
         loadRelatorio();
@@ -127,7 +134,7 @@ public class RelatorioCobrancaBean implements Serializable {
         RelatorioCobrancaDao rcd = new RelatorioCobrancaDao();
         rcd.setRelatorioOrdem((RelatorioOrdem) new Dao().find(new RelatorioOrdem(), idRelatorioOrdem));
         rcd.setRelatorios(r);
-        List list = rcd.find(inIdGrupoFinanceiro(), inIdSubGrupoFinanceiro(), inIdServicos(), tipoSocio, tipoPessoa, tipoMesesDebito, monthS, monthF);
+        List list = rcd.find(inIdGrupoFinanceiro(), inIdSubGrupoFinanceiro(), inIdServicos(), tipoSocio, tipoPessoa, tipoMesesDebito, monthS, monthF, tipoMesesDebitoData, dtS, dtF);
         sisProcesso.finishQuery();
         for (int i = 0; i < list.size(); i++) {
             List o = (List) list.get(i);
@@ -221,6 +228,7 @@ public class RelatorioCobrancaBean implements Serializable {
         listFilters.add(new Filters("socios", "Sócios", false, false));
         listFilters.add(new Filters("tipo_pessoa", "Tipo de pessoa", false, false));
         listFilters.add(new Filters("meses_debito", "Meses em Débito", false, false));
+        listFilters.add(new Filters("meses_debito_data", "Meses em Débito por Data", false, false));
 
     }
 
@@ -285,6 +293,15 @@ public class RelatorioCobrancaBean implements Serializable {
                     tipoMesesDebito = "todos";
                     monthS = "0";
                     monthF = "0";
+                }
+                break;
+            case "meses_debito_data":
+                if (filter.getActive()) {
+
+                } else {
+                    tipoMesesDebitoData = "todos";
+                    dtS = "";
+                    dtF = "";
                 }
                 break;
         }
@@ -498,6 +515,14 @@ public class RelatorioCobrancaBean implements Serializable {
         this.tipoMesesDebito = tipoMesesDebito;
     }
 
+    public String getTipoMesesDebitoData() {
+        return tipoMesesDebitoData;
+    }
+
+    public void setTipoMesesDebitoData(String tipoMesesDebitoData) {
+        this.tipoMesesDebitoData = tipoMesesDebitoData;
+    }
+
     public Map<String, Integer> getListGrupoFinanceiro() {
         return listGrupoFinanceiro;
     }
@@ -544,6 +569,22 @@ public class RelatorioCobrancaBean implements Serializable {
 
     public void setMonthF(String monthF) {
         this.monthF = monthF;
+    }
+
+    public String getDtS() {
+        return dtS;
+    }
+
+    public void setDtS(String dtS) {
+        this.dtS = dtS;
+    }
+
+    public String getDtF() {
+        return dtF;
+    }
+
+    public void setDtF(String dtF) {
+        this.dtF = dtF;
     }
 
     public class Cobranca {
