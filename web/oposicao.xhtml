@@ -63,6 +63,10 @@
                             <p:inputText id="idNome" value="#{oposicaoBean.oposicao.oposicaoPessoa.nome}" size="50" maxlength="50">
                                 <p:ajax event="change" update="@this" />
                             </p:inputText>
+                            <p:outputLabel value="Nascimento: " />
+                            <p:inputMask value="#{oposicaoBean.oposicao.oposicaoPessoa.dataNascimentoString}" style="width: 80px" mask="99/99/9999">
+                                <p:ajax event="change" update="@this" />
+                            </p:inputMask>
                             <p:outputLabel value="Sexo: " />
                             <p:selectOneRadio value="#{oposicaoBean.sexo}"  id="idSexo" >
                                 <p:ajax event="change" update="@this"/>

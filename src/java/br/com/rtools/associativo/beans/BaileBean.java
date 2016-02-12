@@ -179,7 +179,6 @@ public class BaileBean implements Serializable {
                                 Integer.parseInt(listaMesasDisponivei.getDescription()),
                                 "",
                                 null,
-                                (AStatus) sv.pesquisaCodigo(1, "AStatus"),
                                 null
                         );
                         if (!sv.inserirObjeto(ebm)) {
@@ -218,7 +217,6 @@ public class BaileBean implements Serializable {
                                 eventoBaile,
                                 Integer.parseInt(conviteDisponivel.getDescription()),
                                 null,
-                                (AStatus) sv.pesquisaCodigo(1, "AStatus"),
                                 null
                         );
                         if (!sv.inserirObjeto(ebc)) {

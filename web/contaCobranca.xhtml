@@ -23,7 +23,7 @@
                     <ui:include src="templates/templatePrime.xhtml"/>
                 </f:subview>
                 <f:view>
-                    <p:panel styleClass="wrapper" style="border: 0px;">
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Conta Cobrança" styleClass="fonteHeader" />
                         <h:form id="formContaCobranca">
                             <c:set scope="request" var="object" value="${contaCobrancaBean.contaCobranca}"/>
@@ -117,7 +117,7 @@
                                     </p:column>
                                 </h:panelGrid>
                                 
-                                <h:panelGrid style="margin-top: 10px" columns="4">
+                                <h:panelGrid style="margin-top: 10px" columns="6">
                                     <p:column>
                                         <h:outputLabel value="Layout:" />
                                     </p:column>
@@ -127,6 +127,14 @@
                                             <p:ajax event="change" update="@this" />
                                             <f:selectItems value="#{contaCobrancaBean.listaLayout}" />
                                         </p:selectOneMenu>
+                                    </p:column>
+                                    
+                                    <p:column>
+                                        <h:outputLabel value="Boleto Atual: "/>
+                                    </p:column>
+                                    
+                                    <p:column>
+                                        <p:inputText value="#{contaCobrancaBean.contaCobranca.boletoAtual}" size="8" maxlength="100" title="Boleto Atual" disabled="true" style="opacity: .5; text-align: right"/>
                                     </p:column>
                                     
                                     <p:column>

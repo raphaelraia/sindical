@@ -67,6 +67,8 @@ public class RelatorioHomologacaoBean implements Serializable {
     private Map<String, Integer> listStatus;
     private List selectedStatus;
 
+    private Boolean exportExcel;
+    
     @PostConstruct
     public void init() {
         listSelectItem = new ArrayList[6];
@@ -317,6 +319,9 @@ public class RelatorioHomologacaoBean implements Serializable {
             List o = (List) list1;
             if (relatorios.getId() == 70) {
                 phs.add(new ParametroHomologacao(o.get(0), o.get(1), o.get(2), o.get(3)));
+            } else if (relatorios.getId() == 81) {
+                phs.add(new ParametroHomologacao(o.get(0), o.get(1), o.get(2), o.get(3), o.get(4), o.get(5), o.get(6), o.get(7), o.get(8), o.get(9), o.get(10), o.get(11)));
+                Jasper.IS_HEADER_PARAMS = true;
             } else {
                 if (tipoUsuarioOperacional == null || tipoUsuarioOperacional.equals("id_homologador")) {
                     operadorString = AnaliseString.converteNullString(((List) list1).get(9));
@@ -330,6 +335,8 @@ public class RelatorioHomologacaoBean implements Serializable {
             }
         }
         if (!phs.isEmpty()) {
+            Jasper.EXPORT_TO = exportExcel;
+            Jasper.EXPORT_TYPE = (exportExcel ? "xls" : "pdf");
             Jasper.TYPE = "paisagem";
             Jasper.IS_HEADER = printHeader;
             Map map = new HashMap();
@@ -783,6 +790,14 @@ public class RelatorioHomologacaoBean implements Serializable {
         this.listFuncionario = listFuncionario;
     }
 
+    public Boolean getExportExcel() {
+        return exportExcel;
+    }
+
+    public void setExportExcel(Boolean exportExcel) {
+        this.exportExcel = exportExcel;
+    }
+
     public class ParametroHomologacao {
 
         private Object data_final;
@@ -800,6 +815,15 @@ public class RelatorioHomologacaoBean implements Serializable {
         private Object cancelamento_usuario_nome;
         private Object cancelamento_motivo;
         private Object quantidade_status;
+        
+        private Object id_agendamento;
+        private Object convencao;
+        private Object cpf;
+        private Object admissao;
+        private Object demissao;
+        private Object dispensa;
+        private Object funcao;
+        
 
         public ParametroHomologacao(Object cnpj, Object empresa, Object status, Object quantidade_status) {
             this.cnpj = cnpj;
@@ -824,6 +848,21 @@ public class RelatorioHomologacaoBean implements Serializable {
             this.cancelamento_data = cancelamento_data;
             this.cancelamento_usuario_nome = cancelamento_usuario_nome;
             this.cancelamento_motivo = cancelamento_motivo;
+        }
+        
+        public ParametroHomologacao(Object id_agendamento, Object data, Object convencao, Object cnpj, Object empresa, Object cpf, Object funcionario, Object admissao, Object demissao, Object dispensa, Object funcao, Object status) {
+            this.id_agendamento = id_agendamento;
+            this.data = data;
+            this.convencao = convencao;
+            this.cnpj = cnpj;
+            this.empresa = empresa;
+            this.cpf = cpf;
+            this.funcionario = funcionario;
+            this.admissao = admissao;
+            this.demissao = demissao;
+            this.dispensa = dispensa;
+            this.funcao = funcao;
+            this.status = status;
         }
 
         public Object getData_final() {
@@ -944,6 +983,62 @@ public class RelatorioHomologacaoBean implements Serializable {
 
         public void setQuantidade_status(Object quantidade_status) {
             this.quantidade_status = quantidade_status;
+        }
+
+        public Object getId_agendamento() {
+            return id_agendamento;
+        }
+
+        public void setId_agendamento(Object id_agendamento) {
+            this.id_agendamento = id_agendamento;
+        }
+
+        public Object getConvencao() {
+            return convencao;
+        }
+
+        public void setConvencao(Object convencao) {
+            this.convencao = convencao;
+        }
+
+        public Object getCpf() {
+            return cpf;
+        }
+
+        public void setCpf(Object cpf) {
+            this.cpf = cpf;
+        }
+
+        public Object getAdmissao() {
+            return admissao;
+        }
+
+        public void setAdmissao(Object admissao) {
+            this.admissao = admissao;
+        }
+
+        public Object getDemissao() {
+            return demissao;
+        }
+
+        public void setDemissao(Object demissao) {
+            this.demissao = demissao;
+        }
+
+        public Object getDispensa() {
+            return dispensa;
+        }
+
+        public void setDispensa(Object dispensa) {
+            this.dispensa = dispensa;
+        }
+
+        public Object getFuncao() {
+            return funcao;
+        }
+
+        public void setFuncao(Object funcao) {
+            this.funcao = funcao;
         }
 
     }

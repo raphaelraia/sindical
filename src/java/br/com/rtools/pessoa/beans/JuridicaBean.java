@@ -455,6 +455,11 @@ public class JuridicaBean implements Serializable {
 
         Dao dao = new Dao();
 
+        NovoLog logs = new NovoLog();
+
+        logs.setCodigo(juridica.getId());
+        logs.setTabela("arr_contribuintes_inativos");
+
         if (!listaMotivoInativacao.isEmpty()) {
             contribuintesInativos.setJuridica(juridica);
             contribuintesInativos.setDtAtivacao(null);
@@ -470,7 +475,7 @@ public class JuridicaBean implements Serializable {
 
             PessoaEmpresaDB dbp = new PessoaEmpresaDBToplink();
             List<PessoaEmpresa> result = dbp.listaPessoaEmpresaPorJuridica(juridica.getId());
-
+            String ids_pessoa_empresa = "";
             if (!result.isEmpty()) {
                 for (PessoaEmpresa pe : result) {
                     pe.setPrincipal(false);
@@ -481,9 +486,28 @@ public class JuridicaBean implements Serializable {
                         GenericaMensagem.error("Erro", "Não foi possível demissionar sócios!");
                         return;
                     }
+
+                    if (ids_pessoa_empresa.isEmpty()) {
+                        ids_pessoa_empresa = "" + pe.getId();
+                    } else {
+                        ids_pessoa_empresa += ", " + pe.getId();
+                    }
                 }
             }
+
             dao.commit();
+
+            logs.update("",
+                    "** Inativação de Empresas**\n"
+                    + " ID: " + juridica.getId() + "\n"
+                    + " NOME: " + juridica.getPessoa().getNome() + "\n"
+                    + " MOTIVO: " + contribuintesInativos.getMotivoInativacao().getDescricao() + "\n"
+                    + " SOCILITANTE: " + contribuintesInativos.getSolicitante() + "\n"
+                    + " OBS: " + contribuintesInativos.getObservacao() + "\n"
+                    + " ATIVAÇÃO: " + contribuintesInativos.getAtivacao() + "\n"
+                    + " INATIVAÇÃO: " + contribuintesInativos.getInativacao() + "\n"
+                    + " PESSOA EMPRESA ID: {" + ids_pessoa_empresa + "}"
+            );
 
             GenericaMensagem.info("Sucesso", "Contribuinte Inativado!");
             contribuintesInativos = new ContribuintesInativos();
@@ -572,6 +596,11 @@ public class JuridicaBean implements Serializable {
         ContribuintesInativosDB db = new ContribuintesInativosDBToplink();
         ContribuintesInativos cont = db.pesquisaContribuintesInativos(juridica.getId());
 
+        NovoLog logs = new NovoLog();
+        
+        logs.setCodigo(juridica.getId());
+        logs.setTabela("arr_contribuintes_inativos");
+        
         if (cont.getId() != -1) {
             SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
             contribuintesInativos = (ContribuintesInativos) sv.pesquisaCodigo(cont.getId(), "ContribuintesInativos");
@@ -585,6 +614,19 @@ public class JuridicaBean implements Serializable {
                 GenericaMensagem.info("Sucesso", "Contribuinte Reativado!");
                 sv.comitarTransacao();
             }
+            
+            
+            logs.update("",
+                    "** Reativação de Empresas**\n"
+                    + " ID: " + juridica.getId() + "\n"
+                    + " NOME: " + juridica.getPessoa().getNome() + "\n"
+                    + " MOTIVO: " + contribuintesInativos.getMotivoInativacao().getDescricao() + "\n"
+                    + " SOCILITANTE: " + contribuintesInativos.getSolicitante() + "\n"
+                    + " OBS: " + contribuintesInativos.getObservacao() + "\n"
+                    + " ATIVAÇÃO: " + contribuintesInativos.getAtivacao() + "\n"
+                    + " INATIVAÇÃO: " + contribuintesInativos.getInativacao()
+            );
+
             contribuintesInativos = new ContribuintesInativos();
             listaContribuintesInativos.clear();
             getListaContribuintesInativos();

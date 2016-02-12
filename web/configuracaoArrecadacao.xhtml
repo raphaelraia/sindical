@@ -43,10 +43,16 @@
                                         <p:ajax event="change" update="@this" />
                                         <f:selectItems value="#{configuracaoArrecadacaoBean.listaFilial}"/>
                                     </p:selectOneMenu>
+                                    
                                     <p:outputLabel value="Repis" />
                                     <p:selectBooleanCheckbox value="#{configuracaoArrecadacaoBean.configuracaoArrecadacao.certificadoFaturementoBrutoAnual}" itemLabel="Faturamento Anual Bruto">
                                         <p:ajax event="change"  listener="#{configuracaoArrecadacaoBean.update()}" update="form_configuracao_arrecadacao"/>
                                     </p:selectBooleanCheckbox>
+                                    
+                                    <p:outputLabel value="Dias Acordo" />
+                                    <p:inputText value="#{configuracaoArrecadacaoBean.configuracaoArrecadacao.nrDiasAcordo}" title="Somente poderá fechar acordo caso a empresa já tenha débito com vencimentos acima de [??]" style="text-align: right">
+                                        <p:ajax event="change" update="form_configuracao_arrecadacao"/>
+                                    </p:inputText>
                                 </h:panelGrid>
                                 <f:facet name="footer">
                                     <h:panelGrid columns="1">

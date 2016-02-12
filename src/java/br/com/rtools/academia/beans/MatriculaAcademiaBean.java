@@ -36,6 +36,7 @@ import br.com.rtools.financeiro.db.ServicoValorDB;
 import br.com.rtools.financeiro.db.ServicoValorDBToplink;
 import br.com.rtools.impressao.CarneEscola;
 import br.com.rtools.logSistema.NovoLog;
+import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
@@ -1578,6 +1579,13 @@ public class MatriculaAcademiaBean implements Serializable {
                     numeroParcelas = 1;
                 }
                 if (periodo == 3) {
+                    // TAXA PROPORCIONAL ATÉ O VENCIMENTO
+                    // METODO NOVO PARA O CHAMADO 1226
+                    if (!gerarTaxaMovimento()) {
+                        GenericaMensagem.warn("ATENÇÃO", "Movimento não foi gerado, Tente novamente!");
+                        return null;
+                    }
+                    // --------------
                     new FunctionsDao().gerarMensalidades(matriculaAcademia.getServicoPessoa().getPessoa().getId(), matriculaAcademia.getServicoPessoa().getReferenciaVigoracao());
                     if (!matriculaAcademia.isTaxa()) {
                         desabilitaCamposMovimento = true;
@@ -1665,7 +1673,7 @@ public class MatriculaAcademiaBean implements Serializable {
                         }
                         vencimento = diaSwap + "/" + mes + "/" + ano;
                     }
-                    String dataVencimento = "";
+
                     boolean insereTaxa = false;
                     if (isTaxa()) {
                         insereTaxa = true;
@@ -1819,21 +1827,114 @@ public class MatriculaAcademiaBean implements Serializable {
         return null;
     }
 
+    public boolean gerarTaxaMovimento() {
+
+        String mes = DataHoje.data().substring(3, 5),
+                ano = DataHoje.data().substring(6, 10),
+                referencia = mes + "/" + ano;
+
+        String vencimento = DataHoje.data();
+        String proximo_vencimento = (idDiaParcela < 10) ? "0" + idDiaParcela + "/" + mes + "/" + ano : idDiaParcela + "/" + mes + "/" + ano;
+
+        Float valor_x;
+
+        DataHoje dh = new DataHoje();
+        String data_hoje = DataHoje.data();
+
+        if (Integer.valueOf(data_hoje.substring(0, 2)) <= idDiaParcela) {
+            valor_x = Moeda.multiplicarValores(Moeda.divisaoValores(Moeda.substituiVirgulaFloat(valorLiquido), 30), DataHoje.calculoDosDias(DataHoje.converte(data_hoje), DataHoje.converte(proximo_vencimento)) + 1);
+        } else {
+            proximo_vencimento = dh.incrementarMeses(1, proximo_vencimento);
+            valor_x = Moeda.multiplicarValores(Moeda.divisaoValores(Moeda.substituiVirgulaFloat(valorLiquido), 30), DataHoje.calculoDosDias(DataHoje.converte(data_hoje), DataHoje.converte(proximo_vencimento)) + 1);
+        }
+
+        Dao dao = new Dao();
+        dao.openTransaction();
+        FTipoDocumento fTipoDocumento = (FTipoDocumento) dao.find(new FTipoDocumento(), matriculaAcademia.getServicoPessoa().getTipoDocumento().getId());
+        Lote lote_taxa
+                = new Lote(
+                        -1,
+                        (Rotina) dao.find(new Rotina(), 122),
+                        "R",
+                        DataHoje.data(),
+                        matriculaAcademia.getServicoPessoa().getCobranca(),
+                        matriculaAcademia.getServicoPessoa().getServicos().getPlano5(),
+                        false,
+                        "",
+                        0,
+                        (Filial) dao.find(new Filial(), 1),
+                        null,
+                        null,
+                        "",
+                        fTipoDocumento,
+                        (CondicaoPagamento) dao.find(new CondicaoPagamento(), 1),
+                        (FStatus) dao.find(new FStatus(), 1),
+                        null,
+                        matriculaAcademia.getServicoPessoa().isDescontoFolha(), 0
+                );
+
+        if (!dao.save(lote_taxa)) {
+            dao.rollback();
+            GenericaMensagem.warn("Sistema", "Não foi possível salvar Lote de Taxa!");
+            return false;
+        }
+
+        Movimento m
+                = new Movimento(
+                        -1,
+                        lote_taxa,
+                        matriculaAcademia.getServicoPessoa().getServicos().getPlano5(),
+                        matriculaAcademia.getServicoPessoa().getCobranca(),
+                        matriculaAcademia.getServicoPessoa().getServicos(),
+                        null,
+                        (TipoServico) dao.find(new TipoServico(), 5),
+                        null,
+                        valor_x,
+                        referencia,
+                        vencimento,
+                        1,
+                        true,
+                        "E",
+                        false,
+                        matriculaAcademia.getServicoPessoa().getCobranca(), // TITULAR / RESPONSÁVEL
+                        matriculaAcademia.getServicoPessoa().getPessoa(), // BENEFICIÁRIO
+                        "",
+                        "",
+                        vencimento,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        fTipoDocumento,
+                        0,
+                        new MatriculaSocios()
+                );
+
+        if (!dao.save(m)) {
+            dao.rollback();
+            GenericaMensagem.warn("Sistema", "Não foi possível salvar Movimento de Taxa gerar esse movimento!");
+            return false;
+        }
+
+        dao.commit();
+        return true;
+    }
+
     public String baixaGeral(boolean mensal) {
         Dao dao = new Dao();
-        List<Movimento> listaMovimentoAuxiliar = new ArrayList<Movimento>();
-        Movimento m = new Movimento();
-        float valorx = 0;
-        float descontox = 0;
+        List<Movimento> listaMovimentoAuxiliar = new ArrayList();
         if (mensal) {
 
         } else {
             if (matriculaAcademia.isTaxa()) {
                 for (int i = 0; i < getListaMovimentos().size(); i++) {
                     HistoricoEmissaoGuias heg = new HistoricoEmissaoGuias();
-                    m = (Movimento) dao.find(new Movimento(), listaMovimentos.get(i).getId());
-                    descontox = listaMovimentos.get(i).getDesconto();
-                    valorx = Moeda.converteUS$(listaMovimentos.get(i).getValorString());
+                    Movimento m = (Movimento) dao.find(new Movimento(), listaMovimentos.get(i).getId());
+                    float descontox = listaMovimentos.get(i).getDesconto();
+                    float valorx = Moeda.converteUS$(listaMovimentos.get(i).getValorString());
                     m.setMulta(listaMovimentos.get(i).getMulta());
                     m.setJuros(listaMovimentos.get(i).getJuros());
                     m.setDesconto(descontox);
@@ -1849,9 +1950,9 @@ public class MatriculaAcademiaBean implements Serializable {
             } else {
                 for (int i = 0; i < getListaMovimentos().size(); i++) {
                     HistoricoEmissaoGuias heg = new HistoricoEmissaoGuias();
-                    m = (Movimento) dao.find(new Movimento(), listaMovimentos.get(i).getId());
-                    descontox = listaMovimentos.get(i).getDesconto();
-                    valorx = Moeda.converteUS$(listaMovimentos.get(i).getValorString());
+                    Movimento m = (Movimento) dao.find(new Movimento(), listaMovimentos.get(i).getId());
+                    float descontox = listaMovimentos.get(i).getDesconto();
+                    float valorx = Moeda.converteUS$(listaMovimentos.get(i).getValorString());
                     m.setMulta(listaMovimentos.get(i).getMulta());
                     m.setJuros(listaMovimentos.get(i).getJuros());
                     m.setDesconto(descontox);
@@ -1890,6 +1991,46 @@ public class MatriculaAcademiaBean implements Serializable {
                 Dao di = new Dao();
                 matriculaAcademia = (MatriculaAcademia) di.find(matriculaAcademia);
             }
+        }
+    }
+
+    public void renovarMatricula() {
+        if (matriculaAcademia.getId() != -1) {
+            //if (matriculaAcademia.getEvt() != null) {
+            AcademiaDao academiaDao = new AcademiaDao();
+            List<Movimento> list_movimento = academiaDao.listaRefazerMovimento(matriculaAcademia);
+
+            if (!list_movimento.isEmpty()) {
+                Dao dao = new Dao();
+
+                dao.openTransaction();
+
+                if (!GerarMovimento.inativarArrayMovimento(list_movimento, "RENOVAÇÃO CADASTRAL DE MATRÍCULA ACADEMIA", dao).isEmpty()) {
+                    GenericaMensagem.warn("ATENÇÃO", "Não foi possível renovar cadastro, tente novamente!");
+                    return;
+                }
+
+                //int idEvt = matriculaAcademia.getEvt().getId();
+                matriculaAcademia.getServicoPessoa().setReferenciaVigoracao(DataHoje.converteDataParaReferencia(DataHoje.data()));
+                if (!dao.update(matriculaAcademia.getServicoPessoa())) {
+                    dao.rollback();
+                    return;
+                }
+                
+                if (!dao.update(matriculaAcademia)) {
+                    dao.rollback();
+                    return;
+                }
+
+                dao.commit();
+
+                matriculaAcademia = (MatriculaAcademia) dao.find(matriculaAcademia);
+
+                gerarMovimento();
+            } else {
+                GenericaMensagem.warn("ATENÇÃO", "Não tem movimentos para serem renovados!");
+            }
+            //}
         }
     }
 

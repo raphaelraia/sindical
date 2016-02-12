@@ -80,6 +80,8 @@ public class Servicos implements java.io.Serializable {
     private ModeloCarteirinha modeloCarteirinha;
     @Column(name = "nr_meses_debito_exclusao")
     private Integer mesesDebitoExclusao;
+    @Column(name = "is_meses_debito_exclusao_todos", nullable = true, columnDefinition = "boolean default false")
+    private boolean mesesDebitoExclusaoTodos;
 
     @Transient
     private Boolean selected;
@@ -114,6 +116,7 @@ public class Servicos implements java.io.Serializable {
         this.modeloCarteirinha = null;
         this.mesesDebitoExclusao = 60;
         this.selected = false;
+        this.mesesDebitoExclusaoTodos = false;
     }
 
     public Servicos(int id,
@@ -143,7 +146,8 @@ public class Servicos implements java.io.Serializable {
             boolean cursoRenovacao,
             boolean boleto,
             ModeloCarteirinha modeloCarteirinha,
-            Integer mesesDebitoExclusao) {
+            Integer mesesDebitoExclusao,
+            boolean mesesDebitoExclusaoTodos) {
         this.id = id;
         this.descricao = descricao;
         this.filial = filial;
@@ -172,6 +176,7 @@ public class Servicos implements java.io.Serializable {
         this.boleto = boleto;
         this.modeloCarteirinha = modeloCarteirinha;
         this.mesesDebitoExclusao = mesesDebitoExclusao;
+        this.mesesDebitoExclusaoTodos = mesesDebitoExclusaoTodos;
     }
 
     public int getId() {
@@ -427,6 +432,14 @@ public class Servicos implements java.io.Serializable {
     @Override
     public String toString() {
         return "Servicos{" + "id=" + id + ", descricao=" + descricao + ", filial=" + filial + ", plano5=" + plano5 + ", departamento=" + departamento + ", validade=" + validade + ", codigo=" + codigo + ", situacao=" + situacao + ", debito=" + debito + ", alterarValor=" + alterarValor + ", adm=" + adm + ", tabela=" + tabela + ", eleicao=" + eleicao + ", agrupaBoleto=" + agrupaBoleto + ", produto=" + produto + ", subGrupoFinanceiro=" + subGrupoFinanceiro + ", valorFixo=" + valorFixo + ", periodo=" + periodo + ", quantidadePeriodo=" + quantidadePeriodo + ", familiarPeriodo=" + familiarPeriodo + ", valorZerado=" + valorZerado + ", validadeGuiasVigente=" + validadeGuiasVigente + ", administradora=" + administradora + ", validadeGuias=" + validadeGuias + ", cursoRenovacao=" + cursoRenovacao + ", boleto=" + boleto + ", modeloCarteirinha=" + modeloCarteirinha + '}';
+    }
+
+    public boolean isMesesDebitoExclusaoTodos() {
+        return mesesDebitoExclusaoTodos;
+    }
+
+    public void setMesesDebitoExclusaoTodos(boolean mesesDebitoExclusaoTodos) {
+        this.mesesDebitoExclusaoTodos = mesesDebitoExclusaoTodos;
     }
 
 }

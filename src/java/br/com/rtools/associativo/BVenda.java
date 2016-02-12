@@ -1,6 +1,5 @@
 package br.com.rtools.associativo;
 
-import br.com.rtools.financeiro.Evt;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.DataHoje;
@@ -12,6 +11,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -22,6 +22,7 @@ import javax.persistence.TemporalType;
 @Table(name = "eve_venda")
 @NamedQuery(name = "BVenda.pesquisaID", query = "select s from BVenda s where s.id=:pid")
 public class BVenda implements java.io.Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -49,7 +50,10 @@ public class BVenda implements java.io.Serializable {
     private float descontoUnitario;
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_emissao", nullable = false)
-    private Date dtEmissao;    
+    private Date dtEmissao;
+    @JoinColumn(name = "id_status", referencedColumnName = "id")
+    @ManyToOne
+    private AStatus status;
 
     public BVenda() {
         this.id = -1;
@@ -60,9 +64,10 @@ public class BVenda implements java.io.Serializable {
         this.obs = "";
         this.eventoServico = null;
         this.dtEmissao = DataHoje.dataHoje();
+        this.status = new AStatus();
     }
 
-    public BVenda(int id, AEvento evento, Pessoa pessoa, Pessoa responsavel, Usuario usuario, String obs, EventoServico eventoServico, Date dtEmissao) {
+    public BVenda(int id, AEvento evento, Pessoa pessoa, Pessoa responsavel, Usuario usuario, String obs, EventoServico eventoServico, Date dtEmissao, AStatus status) {
         this.id = id;
         this.evento = evento;
         this.pessoa = pessoa;
@@ -71,6 +76,7 @@ public class BVenda implements java.io.Serializable {
         this.obs = obs;
         this.eventoServico = eventoServico;
         this.dtEmissao = dtEmissao;
+        this.status = status;
     }
 
     public int getId() {
@@ -136,7 +142,7 @@ public class BVenda implements java.io.Serializable {
     public void setValorUnitario(float valorUnitario) {
         this.valorUnitario = valorUnitario;
     }
-    
+
     public String getValorUnitarioString() {
         return Moeda.converteR$Float(valorUnitario);
     }
@@ -152,7 +158,7 @@ public class BVenda implements java.io.Serializable {
     public void setDescontoUnitario(float descontoUnitario) {
         this.descontoUnitario = descontoUnitario;
     }
-    
+
     public String getDescontoUnitarioString() {
         return Moeda.converteR$Float(descontoUnitario);
     }
@@ -175,5 +181,13 @@ public class BVenda implements java.io.Serializable {
 
     public void setDtEmissao(Date dtEmissao) {
         this.dtEmissao = dtEmissao;
+    }
+
+    public AStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(AStatus status) {
+        this.status = status;
     }
 }

@@ -1271,6 +1271,9 @@ public class ControleAcessoBean implements Serializable {
                 }
                 if (idModulo == 0) {
                     idModulo = modulo.getId();
+                    if (modulo.getId() == -1) {
+                        idModulo = GenericaSessao.getInteger("idModulo");
+                    }
                 }
                 if (idRotina == 0 || idRotina == -1) {
                     idRotina = rotina.getId();
@@ -1282,7 +1285,7 @@ public class ControleAcessoBean implements Serializable {
                 } else {
                     permissao = permissaoDao.pesquisaPermissaoModuloRotinaEvento(2, idRotina, idEvento);
                 }
-                if (permissao != null) {
+                if (permissao != null && permissao.getId() != -1) {
                     List<PermissaoUsuario> permissaoUsuarios = permissaoUsuarioDB.listaPermissaoUsuario(user.getId());
                     for (int i = 0; i < permissaoUsuarios.size(); i++) {
                         PermissaoDepartamento permissaoDepartamento = permissaoUsuarioDB.pesquisaPermissaoDepartamento(permissaoUsuarios.get(i).getDepartamento().getId(), permissaoUsuarios.get(i).getNivel().getId(), permissao.getId());

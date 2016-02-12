@@ -27,9 +27,6 @@ public class EventoBaileConvite implements Serializable {
     @JoinColumn(name = "id_venda", referencedColumnName = "id")
     @ManyToOne
     private BVenda bVenda;
-    @JoinColumn(name = "id_status", referencedColumnName = "id")
-    @ManyToOne
-    private AStatus status;    
     @JoinColumn(name = "id_movimento", referencedColumnName = "id")
     @ManyToOne
     private Movimento movimento;    
@@ -39,16 +36,14 @@ public class EventoBaileConvite implements Serializable {
         this.eventoBaile = new EventoBaile();
         this.convite = 0;
         this.bVenda = new BVenda();
-        this.status = new AStatus();
         this.movimento = null;
     }
     
-    public EventoBaileConvite(int id, EventoBaile eventoBaile, int convite, BVenda bVenda, AStatus status, Movimento movimento) {
+    public EventoBaileConvite(int id, EventoBaile eventoBaile, int convite, BVenda bVenda, Movimento movimento) {
         this.id = id;
         this.eventoBaile = eventoBaile;
         this.convite = convite;
         this.bVenda = bVenda;
-        this.status = status;
         this.movimento = movimento;
     }
 
@@ -82,14 +77,6 @@ public class EventoBaileConvite implements Serializable {
 
     public void setbVenda(BVenda bVenda) {
         this.bVenda = bVenda;
-    }
-
-    public AStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(AStatus status) {
-        this.status = status;
     }
 
     public Movimento getMovimento() {

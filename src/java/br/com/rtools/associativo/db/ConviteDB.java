@@ -1,5 +1,6 @@
 package br.com.rtools.associativo.db;
 
+import br.com.rtools.associativo.Categoria;
 import br.com.rtools.associativo.ConviteAutorizaCortesia;
 import br.com.rtools.associativo.ConviteServico;
 import br.com.rtools.associativo.ConviteSuspencao;
@@ -19,7 +20,7 @@ public interface ConviteDB {
 
     public List<ConviteSuspencao> listaPessoasSuspensas(ConviteSuspencao cs, boolean filtro, boolean fitroPorPessoa, String descricaoPesquisa, String porPesquisa, String comoPesquisa);
 
-    public List pesquisaConviteMovimento(String descricaoPesquisa, String porPesquisa, String comoPesquisa);
+    public List pesquisaConviteMovimento(String descricaoPesquisa, String porPesquisa, String comoPesquisa, String dataInicial, String dataFinal);
 
     public boolean limiteConvitePorSocio(int quantidadeConvites, int quantidadeDias, int idPessoaSocio);
 
@@ -48,5 +49,6 @@ public interface ConviteDB {
     public List<ConviteAutorizaCortesia> listaConviteAutorizaCortesia(boolean is_ativo);
     public List<ConviteServico> listaConviteServico(Integer id_servico);
     public List<ConviteServico> listaConviteServicoCortesia(Boolean cortesia);
+    public Categoria pesquisaCategoriaTodosDiasClube(Integer id_categoria);
 
 }

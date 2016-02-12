@@ -334,7 +334,20 @@ public class RelatorioMovimentoBean implements Serializable {
                 )
                 );
             }
-
+        } else if (relatorio.getId() == 78) {
+            // RESUMO CONTRIBUICOES POR CIDADE
+            for (Vector vresult : result) {
+                listaParametro.add(new ParametroMovimentosResumo(
+                        String.valueOf(vresult.get(0)),
+                        vresult.get(1) != null ? String.valueOf(((Double) vresult.get(1)).intValue()) : "",
+                        vresult.get(1) != null ? String.valueOf(((Double) vresult.get(2)).intValue()) : "",
+                        String.valueOf(vresult.get(3)),
+                        Float.parseFloat(String.valueOf(vresult.get(4))),
+                        Float.parseFloat(String.valueOf(vresult.get(5))),
+                        Float.parseFloat(String.valueOf(vresult.get(6)))
+                )
+                );
+            }
         } else {
             for (int i = 0; i < result.size(); i++) {
                 float valor = Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(6))); // VALOR ORIGINAL     

@@ -282,22 +282,39 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
         List lista = new ArrayList();
         ///MovimentoDB db = new MovimentoDBToplink();
         Movimento movimento = new Movimento();
-        Movimento m = new Movimento();
-        boolean err = false;
+        boolean err = false, err_2 = false;
         if (!listMovimentoReceber.isEmpty()) {
             for (int i = 0; i < listMovimentoReceber.size(); i++) {
                 if (listMovimentoReceber.get(i).getSelected()) {
-                    m = (Movimento) dao.find(new Movimento(), Integer.parseInt(listMovimentoReceber.get(i).getIdMovimento()));
+                    Movimento m = (Movimento) dao.find(new Movimento(), Integer.parseInt(listMovimentoReceber.get(i).getIdMovimento()));
                     if (m.getAcordo() != null) {
                         GenericaMensagem.warn("Boleto " + listMovimentoReceber.get(i).getBoleto() + " já acordado", "Data do acordo: " + m.getAcordo().getData() + " - Usuário: " + m.getAcordo().getUsuario().getPessoa().getNome());
                         err = true;
                     }
-                    m = new Movimento();
+                    
+                    if (cab.getConfiguracaoArrecadacao().getNrDiasAcordo() != 0){
+                        String data_para_acordo = new DataHoje().incrementarDias(cab.getConfiguracaoArrecadacao().getNrDiasAcordo(), m.getVencimento());
+                        // SE A DATA DE VENCIMENTO + OS DIAS DE ACORDO ex. 01/01/2000 + [30] dias FOR MENOR QUE A DATA ATUAL (existe um movimento vencido a mais que [30] dias) 
+                        
+                        // CASO NÃO TENHA NENHUM MOVIMENTO VENCIDO MAIS QUE [30] dias ENTÃO RETORNAR true, E NÃO PERMITIR O ACORDO
+                        // SENDO ASSIM É OBRIGATÓRIO PELO MENOS UM DOS MOVIMENTOS SELECIONADOS ESTAREM VENCIDOS MAIS QUE [30] dias
+                        if (DataHoje.menorData(data_para_acordo, DataHoje.data())){
+                            err_2 = true;
+                        }
+                    }
+                    //m = new Movimento();
                 }
             }
+            
             if (err) {
                 return null;
             }
+            
+            if (cab.getConfiguracaoArrecadacao().getNrDiasAcordo() != 0 && !err_2){
+                GenericaMensagem.warn("ATENÇÃO", "NENHUM BOLETO VENCIDO A MAIS QUE "+ cab.getConfiguracaoArrecadacao().getNrDiasAcordo() + " DIAS");
+                return null;
+            }
+            
             dao.openTransaction();
             for (int i = 0; i < listMovimentoReceber.size(); i++) {
                 if (listMovimentoReceber.get(i).getSelected()) {

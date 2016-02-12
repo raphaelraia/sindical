@@ -18,6 +18,7 @@ public class ParametroMovimentosResumo {
     private float valor;
     private float taxa;
     private float liquido;
+    private String cidade;
 
     public ParametroMovimentosResumo(String mes, String ano, String contribuicao, float valor, float taxa, float liquido) {
         this.mes = mes;
@@ -38,6 +39,16 @@ public class ParametroMovimentosResumo {
         this.taxa = taxa;
         this.liquido = liquido;
     }
+    
+    public ParametroMovimentosResumo(String cidade, String mes, String ano, String contribuicao, float valor, float taxa, float liquido) {
+        this.cidade = cidade;
+        this.mes = mes;
+        this.ano = ano;
+        this.contribuicao = contribuicao;
+        this.valor = valor;
+        this.taxa = taxa;
+        this.liquido = liquido;
+    }    
 
     public String getMes() {
         return mes;
@@ -101,6 +112,14 @@ public class ParametroMovimentosResumo {
 
     public void setLiquido(float liquido) {
         this.liquido = liquido;
+    }
+
+    public String getCidade() {
+        return cidade;
+    }
+
+    public void setCidade(String cidade) {
+        this.cidade = cidade;
     }
 
     

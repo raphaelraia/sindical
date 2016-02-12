@@ -107,13 +107,29 @@ public class EventoBaileDBToplink extends DB implements EventoBaileDB {
 
     @Override
     public List<EventoBaileMapa> listaBaileMapaDisponiveis(int id_baile, Integer id_status, Integer id_pessoa, Integer id_venda) {
-        String textQuery = "SELECT ebm.* "
-                + "  FROM eve_evento_baile_mapa ebm "
-                + (id_pessoa != null ? " INNER JOIN eve_venda v ON v.id = ebm.id_venda " : "")
-                + " WHERE ebm.id_evento_baile = " + id_baile
-                + "   AND ebm.id_status = " + id_status
-                + (id_pessoa != null ? " AND v.id = " + id_venda + "  AND v.id_pessoa = " + id_pessoa : "")
-                + " ORDER BY ebm.nr_mesa";
+        String textQuery
+                = "SELECT ebm.* \n"
+                + "  FROM eve_evento_baile_mapa ebm \n"
+                + "  LEFT JOIN eve_venda v ON v.id = ebm.id_venda \n"
+                + " WHERE ebm.id_evento_baile = " + id_baile;
+
+        if (id_status == 1) {
+            // DISPONÍVEL
+            textQuery += " AND ebm.id_venda IS NULL \n";
+        } else if (id_status == 2) {
+            // RESERVADO
+            textQuery += " AND ebm.id_venda IS NOT NULL AND v.id_status = 2 \n";
+        } else {
+            // VENDIDO
+            textQuery += " AND ebm.id_venda IS NOT NULL AND v.id_status = 3 \n";
+        }
+
+        if (id_pessoa != null) {
+            textQuery += " AND v.id = " + id_venda + "  AND v.id_pessoa = " + id_pessoa + " \n";
+        }
+
+        textQuery += " ORDER BY ebm.nr_mesa";
+
         try {
             Query qry = getEntityManager().createNativeQuery(textQuery, EventoBaileMapa.class);
             return qry.getResultList();
@@ -125,13 +141,25 @@ public class EventoBaileDBToplink extends DB implements EventoBaileDB {
 
     @Override
     public List<EventoBaileConvite> listaBaileConviteDisponiveis(int id_baile, Integer id_status, Integer id_pessoa, Integer id_venda) {
-        String textQuery = "SELECT ebc.* "
+        String textQuery
+                = "SELECT ebc.* "
                 + "  FROM eve_evento_baile_convite ebc "
-                + (id_pessoa != null ? " INNER JOIN eve_venda v ON v.id = ebc.id_venda " : "")
-                + " WHERE ebc.id_evento_baile = " + id_baile
-                + "   AND ebc.id_status = " + id_status
-                + (id_pessoa != null ? " AND v.id = " + id_venda + "  AND v.id_pessoa = " + id_pessoa : "")
-                + " ORDER BY ebc.nr_convite";
+                + "  LEFT JOIN eve_venda v ON v.id = ebc.id_venda "
+                + " WHERE ebc.id_evento_baile = " + id_baile;
+
+        if (id_status == 1) {
+            // DISPONÍVEL
+            textQuery += " AND ebc.id_venda IS NULL \n";
+        } else if (id_status == 3) {
+            // VENDIDO
+            textQuery += " AND ebc.id_venda IS NOT NULL AND v.id_status = 3 \n";
+        }
+
+        if (id_pessoa != null) {
+            textQuery += " AND v.id = " + id_venda + "  AND v.id_pessoa = " + id_pessoa + " \n";
+        }
+
+        textQuery += " ORDER BY ebc.nr_convite";
         try {
             Query qry = getEntityManager().createNativeQuery(textQuery, EventoBaileConvite.class);
             return qry.getResultList();

@@ -304,6 +304,7 @@ public class FinanceiroDBToplink extends DB implements FinanceiroDB {
                     + " INNER JOIN fin_caixa AS cx ON cx.id = b.id_caixa \n "
                     + " WHERE b.id_caixa = " + id_caixa + " \n "
                     + "   AND b.id_fechamento_caixa IS NULL \n "
+                    + "   AND m.is_ativo = TRUE \n "
                     + "   AND b.dt_baixa = '" + data + "' \n "
                     + "   AND m.ds_es = '" + es + "' \n " + and);
             return qry.getResultList();

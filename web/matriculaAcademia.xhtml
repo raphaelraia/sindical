@@ -278,6 +278,11 @@
                         <h:column rendered="#{matriculaAcademiaBean.matriculaAcademia.id != -1}">
                             <p:commandButton value="Inativar" onclick="PF('dlg_inative').show()" disabled="#{!matriculaAcademiaBean.matriculaAcademia.servicoPessoa.ativo or controleAcessoBean.verificarPermissao('inativa_matricula_academia', 3)}"/>
                         </h:column>
+                        
+                        <h:column rendered="#{matriculaAcademiaBean.matriculaAcademia.id != -1}">
+                            <p:commandButton value="Renovar Matrícula" onclick="PF('dlg_renovar_matricula').show()" disabled="#{!matriculaAcademiaBean.matriculaAcademia.servicoPessoa.ativo or controleAcessoBean.verificarPermissao('renovar_matricula_academia', 3)}"/>
+                        </h:column>
+                        
                         <h:column rendered="#{matriculaAcademiaBean.matriculaAcademia.id != -1}">
                             <p:commandLink action="#{chamadaPaginaBean.pagina('movimentosReceberSocial')}" value="Movimentos a receber social" actionListener="#{genericaSessao.putObject('pessoaPesquisa', matriculaAcademiaBean.matriculaAcademia.servicoPessoa.cobranca)}" />
                         </h:column>
@@ -354,6 +359,14 @@
                                 <ui:param name="idPessoa" value="#{matriculaAcademiaBean.matriculaAcademia.servicoPessoa.cobranca.id}" />
                             </ui:include>      
                         </p:panel>
+                    </p:dialog>
+
+                    <p:dialog widgetVar="dlg_renovar_matricula" modal="true" resizable="false" height="120" width="400" header="Detalhes">
+                        <p:outputLabel value="DESEJA REALMENTE RENOVAR ESTE CADASTRO?" style="font-size: 12pt!important"/><br />
+                        <p:outputLabel value="ATENÇÃO: Esta ação apagará TODOS MOVIMENTOS EM ABERTO DESTE SERVIÇO e PESSOA." style="font-size: 8pt!important; color: red"/><br /><br />
+
+                        <p:commandButton value="SIM" type="submit" styleClass="ui-confirmdialog-yes" action="#{matriculaAcademiaBean.renovarMatricula()}" update="@form" style="clear: both; float: left" icon="ui-icon-check" />
+                        <p:commandButton value="NÃO" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_renovar_matricula').hide()" style="float: left" icon="ui-icon-close"/>       
                     </p:dialog>
                 </h:form>
             </p:panel>

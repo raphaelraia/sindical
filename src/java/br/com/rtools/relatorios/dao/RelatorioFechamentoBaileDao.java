@@ -34,7 +34,7 @@ public class RelatorioFechamentoBaileDao extends DB {
                 + " LEFT JOIN pes_pessoa AS p ON p.id = v.id_pessoa \n "
                 + " LEFT JOIN eve_evento_baile_mapa AS m ON m.id_venda = v.id \n "
                 + " LEFT JOIN eve_evento_baile_convite AS c ON c.id_venda = v.id \n "
-                + " LEFT JOIN eve_status AS st on st.id=m.id_status or st.id = c.id_status \n "
+                + " LEFT JOIN eve_status AS st on st.id = v.id_status \n "
                 + " LEFT JOIN fin_movimento AS mv ON mv.id = m.id_movimento OR mv.id = c.id_movimento \n "
                 + " LEFT JOIN fin_baixa AS b ON b.id = mv.id_baixa \n "
                 + " LEFT JOIN seg_usuario AS u ON u.id = b.id_usuario \n "

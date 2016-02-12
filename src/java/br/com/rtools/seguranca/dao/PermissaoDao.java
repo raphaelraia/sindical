@@ -127,23 +127,31 @@ public class PermissaoDao extends DB {
     public Permissao pesquisaPermissaoModuloRotinaEvento(int idModulo, int idRotina, int idEvento) {
         Permissao permissao = new Permissao();
         try {
-            Query qry = getEntityManager().createQuery(
-                    " SELECT per                       "
-                    + "   FROM Permissao per             "
-                    + "  WHERE per.modulo.id = :idModulo "
-                    + "    AND per.rotina.id = :idRotina "
-                    + "    AND per.evento.id = :idEvento");
-            qry.setParameter("idModulo", idModulo);
-            qry.setParameter("idRotina", idRotina);
-            qry.setParameter("idEvento", idEvento);
+//            Query qry = getEntityManager().createQuery(
+//                    " SELECT per                       "
+//                    + "   FROM Permissao per             "
+//                    + "  WHERE per.modulo.id = :idModulo "
+//                    + "    AND per.rotina.id = :idRotina "
+//                    + "    AND per.evento.id = :idEvento");
+//            qry.setParameter("idModulo", idModulo);
+//            qry.setParameter("idRotina", idRotina);
+//            qry.setParameter("idEvento", idEvento);
+            Query qry = getEntityManager().createNativeQuery(
+                    " SELECT p.* \n "
+                    + " FROM seg_permissao p \n"
+                    + "WHERE p.id_modulo = " + idModulo
+                    + "  AND p.id_rotina = " + idRotina
+                    + "  AND p.id_evento = " + idEvento,
+                    Permissao.class
+            );
             if (!qry.getResultList().isEmpty()) {
                 permissao = (Permissao) qry.getSingleResult();
             }
         } catch (Exception e) {
+            e.getMessage();
         }
         return permissao;
     }
-
 
     public List<UsuarioAcesso> listaUsuarioAcesso(int idUsuario, int idModulo, int idRotina, int idEvento) {
         String moduloString = "";

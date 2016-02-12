@@ -15,6 +15,10 @@
             .ui-selectonemenu-label .ui-inputfield{
 
             }
+
+            .choices td label{
+                font-size: 11pt!important;
+            }
         </style>   
     </h:head>
     <h:body>
@@ -80,14 +84,14 @@
                                     <f:selectItem itemValue="convite" itemLabel="Convite" />
                                 </p:selectOneMenu>
 
-                                <p:selectOneRadio value="#{vendaBaileBean.tipoVenda}" style="margin-right: 50px;" disabled="#{vendaBaileBean.venda.id != -1}">
+                                <p:selectOneRadio value="#{vendaBaileBean.tipoVenda}" style="margin-right: 50px; opacity: #{vendaBaileBean.venda.id != -1 ? '1' : ''}" disabled="#{vendaBaileBean.venda.id != -1}" styleClass="choices">
                                     <p:ajax event="change" update="@this formVendasBaile formVendasBaileTbl" />
                                     <f:selectItems value="#{vendaBaileBean.listaTipoVenda}" />
                                 </p:selectOneRadio>
 
-                                <p:outputLabel value="Tipo Pagamento:" style="font-weight: bold; margin-left: 50px" rendered="#{vendaBaileBean.tipoVenda ne 'reserva'}"/>
+                                <p:outputLabel value="Tipo Pagamento:" style="font-weight: bold; margin-left: 50px" rendered="#{vendaBaileBean.tipoVenda ne 'reserva' and !vendaBaileBean.chkCortesia and vendaBaileBean.tipoVenda ne 'vendido'}"/>
 
-                                <p:selectOneRadio value="#{vendaBaileBean.tipoPagamento}" rendered="#{vendaBaileBean.tipoVenda ne 'reserva'}" label="Tipo Pagamento" disabled="#{vendaBaileBean.venda.id != -1}">
+                                <p:selectOneRadio value="#{vendaBaileBean.tipoPagamento}" rendered="#{vendaBaileBean.tipoVenda ne 'reserva' and !vendaBaileBean.chkCortesia and vendaBaileBean.tipoVenda ne 'vendido'}" label="Tipo Pagamento" style="opacity: #{vendaBaileBean.venda.id != -1 ? '1' : ''}" disabled="#{vendaBaileBean.venda.status.id eq 3}">
                                     <p:ajax event="change" update="@this" />
                                     <f:selectItem itemValue="debitar" itemLabel="Debitar"/>
                                     <f:selectItem itemValue="avista" itemLabel="A vista"/>
@@ -109,7 +113,7 @@
                                 <p:outputLabel value="VENDAS DE MESA" style="font-size: 12pt!important; font-weight: bold" rendered="#{vendaBaileBean.mesaConvite eq 'mesa' and vendaBaileBean.tipoVenda ne 'reserva'}"/>
                                 <p:outputLabel value="RESERVA DE MESA" style="font-size: 12pt!important; font-weight: bold" rendered="#{vendaBaileBean.mesaConvite eq 'mesa' and vendaBaileBean.tipoVenda eq 'reserva'}"/>
                                 <p:outputLabel value="VENDAS DE CONVITE" style="font-size: 12pt!important; font-weight: bold" rendered="#{vendaBaileBean.mesaConvite eq 'convite'}"/>
-                                <p:selectBooleanCheckbox value="#{vendaBaileBean.chkCortesia}" itemLabel="CORTESIA" style="margin-left: 20px; #{vendaBaileBean.venda.id != -1 ? 'opacity: 0.7' : ''}" disabled="#{vendaBaileBean.venda.id != -1}">
+                                <p:selectBooleanCheckbox value="#{vendaBaileBean.chkCortesia}" itemLabel="CORTESIA" style="margin-left: 20px; #{vendaBaileBean.venda.id != -1 ? 'opacity: 0.7' : ''}" disabled="#{vendaBaileBean.venda.status.id eq 3}">
                                     <p:ajax event="change" listener="#{vendaBaileBean.loadListaServicos()}" update="@this formVendasBaile formVendasBaileTbl"/>
                                 </p:selectBooleanCheckbox>
                             </h:panelGrid>
@@ -157,12 +161,12 @@
                             <h:panelGrid id="panelValores" columns="6" rendered="#{vendaBaileBean.tipoVenda ne 'reserva'}">
                                 <h:column>
                                     <p:outputLabel value="Valor Unitário" style="font-weight: bold"/><br />
-                                    <p:inputText value="#{vendaBaileBean.valor}" style="width: 100px; text-align: right; #{vendaBaileBean.venda.id != -1 ? 'opacity: 0.7' : ''}" readonly="true" disabled="#{vendaBaileBean.venda.id != -1}"/>
+                                    <p:inputText value="#{vendaBaileBean.valor}" style="width: 100px; text-align: right; #{vendaBaileBean.venda.status.id eq 3 ? 'opacity: 0.7' : ''}" readonly="true" disabled="#{vendaBaileBean.venda.status.id eq 3}"/>
                                 </h:column>
 
                                 <h:column>
                                     <p:outputLabel value="Desconto" style="font-weight: bold"/><br />
-                                    <p:inputText value="#{vendaBaileBean.desconto}" style="width: 100px; text-align: right; #{vendaBaileBean.venda.id != -1 ? 'opacity: 0.7' : ''}" disabled="#{controleAcessoBean.verificarPermissao('descontoVendasBaile', 3) or vendaBaileBean.venda.id != -1}">
+                                    <p:inputText value="#{vendaBaileBean.desconto}" style="width: 100px; text-align: right; #{vendaBaileBean.venda.status.id eq 3 ? 'opacity: 0.7' : ''}" disabled="#{controleAcessoBean.verificarPermissao('descontoVendasBaile', 3) or vendaBaileBean.venda.status.id eq 3}">
                                         <p:ajax event="blur" update="@this panelValores" listener="#{vendaBaileBean.calculoDesconto()}"/>
                                     </p:inputText>
                                 </h:column>
@@ -175,25 +179,26 @@
 
                                 <h:column>
                                     <p:outputLabel value="Valor Liquido" style="font-weight: bold"/><br />
-                                    <p:inputText value="#{vendaBaileBean.valorLiquido}" style="width: 100px; text-align: right; #{vendaBaileBean.venda.id != -1 ? 'opacity: 0.7' : ''}" readonly="true" disabled="#{vendaBaileBean.venda.id != -1}"/>
+                                    <p:inputText value="#{vendaBaileBean.valorLiquido}" style="width: 100px; text-align: right; #{vendaBaileBean.venda.status.id eq 3 ? 'opacity: 0.7' : ''}" readonly="true" disabled="#{vendaBaileBean.venda.status.id eq 3}"/>
                                 </h:column>
 
                                 <h:column>
                                     <p:outputLabel value="Quantidade" style="font-weight: bold"/><br />
-                                    <p:inputText value="#{vendaBaileBean.quantidade}" style="width: 100px; #{vendaBaileBean.venda.id != -1 ? 'opacity: 0.7' : ''}" readonly="true" disabled="#{vendaBaileBean.venda.id != -1}"/>
+                                    <p:inputText value="#{vendaBaileBean.quantidade}" style="width: 100px; #{vendaBaileBean.venda.status.id eq 3 ? 'opacity: 0.7' : ''}" readonly="true" disabled="#{vendaBaileBean.venda.status.id eq 3}"/>
                                 </h:column>
 
                                 <h:column>
                                     <p:outputLabel value="Total" style="font-weight: bold"/><br />
-                                    <p:inputText value="#{vendaBaileBean.total}" style="width: 100px; #{vendaBaileBean.venda.id != -1 ? 'opacity: 0.7' : ''}" readonly="true" disabled="#{vendaBaileBean.venda.id != -1}"/>
+                                    <p:inputText value="#{vendaBaileBean.total}" style="width: 100px; #{vendaBaileBean.venda.status.id eq 3 ? 'opacity: 0.7' : ''}" readonly="true" disabled="#{vendaBaileBean.venda.status.id eq 3}"/>
                                 </h:column>
                             </h:panelGrid>
 
                             <br /><br />
+                            
                             <p:panel styleClass="fundoCinza" style="width: 565px">
-                                <p:commandButton value="Salvar" action="#{vendaBaileBean.concluir()}" update="panel_reserva panel_venda" />
-                                <p:commandButton value="Nova Venda" action="#{vendaBaileBean.novo()}" update="formVendasBaile formVendasBaileTbl"/>
-                                <p:commandButton value="Excluir" onclick="PF('dlg_excluir').show()" rendered="#{vendaBaileBean.venda.id != -1}"/>
+                                <p:commandButton value="SALVAR" action="#{vendaBaileBean.concluir()}" update="panel_reserva panel_venda" />
+                                <p:commandButton value="NOVA VENDA" action="#{vendaBaileBean.novo()}" update="formVendasBaile formVendasBaileTbl"/>
+                                <p:commandButton value="EXCLUIR" onclick="PF('dlg_excluir').show()" rendered="#{vendaBaileBean.venda.id != -1}"/>
                             </p:panel>
 
                             <p:dialog widgetVar="dlg_desconto" modal="true" header="Inserir Desconto" width="200">  
@@ -211,7 +216,7 @@
 
                             <p:dialog widgetVar="dlg_venda" header="Concluir VENDA" width="600" modal="true" closable="true" >
                                 <h:panelGrid id="panel_venda">
-                                    <p:outputLabel value="Confirma a VENDA?" style="font-size: 11pt!important"/>
+                                    <p:outputLabel value="Deseja realmente concluir esta VENDA?" style="font-size: 11pt!important"/>
                                     <br />
                                     <p:dataTable value="#{vendaBaileBean.listaMesasBaileSelecionada}" var="linha" rendered="#{vendaBaileBean.mesaConvite eq 'mesa'}">
                                         <p:column headerText="Número das Mesa">
@@ -226,19 +231,30 @@
                                     </p:dataTable>
                                     <br />
                                     <h:panelGrid columns="2">
-                                        <p:commandButton icon="ui-icon-check" value="Salvar" action="#{vendaBaileBean.salvar()}" oncomplete="PF('dlg_venda').hide()" update="formVendasBaile formVendasBaileTbl"/>
-                                        <p:commandButton icon="ui-icon-close" value="Cancelar" onclick="PF('dlg_venda').hide()"/>
+                                        <p:commandButton icon="ui-icon-check" value="SIM" action="#{vendaBaileBean.salvar()}" oncomplete="PF('dlg_venda').hide()" update="formVendasBaile formVendasBaileTbl"/>
+                                        <p:commandButton icon="ui-icon-close" value="NÃO" onclick="PF('dlg_venda').hide()"/>
+                                    </h:panelGrid>
+                                </h:panelGrid>
+                            </p:dialog>
+                            
+                            <p:dialog widgetVar="dlg_vendido" header="Alterar VENDA" width="600" modal="true" closable="true" >
+                                <h:panelGrid id="panel_vendido">
+                                    <p:outputLabel value="Deseja realmente alterar esta VENDA?" style="font-size: 11pt!important"/>
+                                    
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton icon="ui-icon-check" value="SIM" action="#{vendaBaileBean.salvar()}" oncomplete="PF('dlg_vendido').hide()" update="formVendasBaile formVendasBaileTbl"/>
+                                        <p:commandButton icon="ui-icon-close" value="NÃO" onclick="PF('dlg_vendido').hide()"/>
                                     </h:panelGrid>
                                 </h:panelGrid>
                             </p:dialog>
 
-                            <p:dialog widgetVar="dlg_excluir" header="Excluir Venda" width="600" modal="true" closable="true">
+                            <p:dialog widgetVar="dlg_excluir" header="Excluir VENDA" width="600" modal="true" closable="true">
                                 <h:panelGrid id="panel_excluir">
-                                    <p:outputLabel value="Deseja realmente excluir essa venda?" style="font-size: 11pt!important"/>
+                                    <p:outputLabel value="Deseja realmente excluir essa VENDA?" style="font-size: 11pt!important"/>
                                     <br />
                                     <h:panelGrid columns="2">
-                                        <p:commandButton icon="ui-icon-check" value="Sim" action="#{vendaBaileBean.excluir()}" oncomplete="PF('dlg_excluir').hide()" update="formVendasBaile formVendasBaileTbl"/>
-                                        <p:commandButton icon="ui-icon-close" value="Não" onclick="PF('dlg_excluir').hide()"/>
+                                        <p:commandButton icon="ui-icon-check" value="SIM" action="#{vendaBaileBean.excluir()}" oncomplete="PF('dlg_excluir').hide()" update="formVendasBaile formVendasBaileTbl"/>
+                                        <p:commandButton icon="ui-icon-close" value="NÃO" onclick="PF('dlg_excluir').hide()"/>
                                     </h:panelGrid>
                                 </h:panelGrid>
                             </p:dialog>

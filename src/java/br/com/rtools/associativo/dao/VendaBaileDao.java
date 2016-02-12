@@ -119,7 +119,7 @@ public class VendaBaileDao extends DB {
                     + "       es.id_servicos AS id_servico \n "
                     + "  FROM eve_venda e \n "
                     + "  LEFT JOIN eve_evento_baile_mapa ebm ON e.id = ebm.id_venda \n "
-                    + " INNER JOIN eve_status sm ON sm.id = ebm.id_status \n "
+                    + " INNER JOIN eve_status sm ON sm.id = e.id_status \n "
                     + " INNER JOIN pes_pessoa p ON p.id = e.id_pessoa \n "
                     + " INNER JOIN seg_usuario u ON u.id = e.id_usuario \n "
                     + " INNER JOIN pes_pessoa pu ON pu.id = u.id_pessoa \n "

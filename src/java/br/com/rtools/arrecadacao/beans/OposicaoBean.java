@@ -298,6 +298,7 @@ public class OposicaoBean implements Serializable {
 
     public boolean saveOposicaoPessoa() {
         oposicao.getOposicaoPessoa().setSexo(sexo);
+        
         Dao dao = new Dao();
         dao.openTransaction();
         OposicaoDao oposicaoDao = new OposicaoDao();
@@ -321,6 +322,7 @@ public class OposicaoBean implements Serializable {
                     && op.getEmail1().equals(oposicao.getOposicaoPessoa().getEmail1())
                     && op.getTelefone1().equals(oposicao.getOposicaoPessoa().getTelefone1())
                     && op.getTelefone2().equals(oposicao.getOposicaoPessoa().getTelefone2())
+                    && op.getDataNascimentoString().equals(oposicao.getOposicaoPessoa().getDataNascimentoString())
                     ) {
                 return true;
             } else {

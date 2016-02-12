@@ -15,6 +15,7 @@ import br.com.rtools.homologacao.db.HomologacaoDB;
 import br.com.rtools.homologacao.db.HomologacaoDBToplink;
 import br.com.rtools.impressao.ParametroSenha;
 import br.com.rtools.impressao.beans.SenhaHomologacao;
+import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.PessoaEmpresa;
@@ -410,6 +411,18 @@ public class RecepcaoBean implements Serializable {
 
         GenericaMensagem.info("Sucesso", "Homologação Cancelada!");
         di.commit();
+        
+        NovoLog novoLog = new NovoLog();
+        novoLog.setTabela("hom_cancelamento");
+        novoLog.setCodigo(cancelamento.getId());
+        novoLog.delete(
+                "Cancelamento de homologação (Recepção): "
+                + " - ID do cancelamento: " + cancelamento.getId()
+                + " - Agendamento {ID: " + cancelamento.getAgendamento().getId() + "} "
+                + " - Funcionário { " + agendamento.getPessoaEmpresa().getFisica().getPessoa().getId() + " - Nome: " + agendamento.getPessoaEmpresa().getFisica().getPessoa().getNome() + " } "
+                + " - Data do cancelamento: " + cancelamento.getData()
+                + " - Motivo: " + cancelamento.getMotivo());
+        
         //cancelamento = new Cancelamento();
         loadListHorarios();
     }
