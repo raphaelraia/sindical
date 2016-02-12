@@ -1,9 +1,7 @@
 package br.com.rtools.pessoa.db;
 
-import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.principal.DB;
-import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.utilitarios.dao.FindDao;
 import java.util.ArrayList;

@@ -7,6 +7,7 @@ import br.com.rtools.seguranca.dao.WebServiceDao;
 import br.com.rtools.utilitarios.Diretorio;
 import br.com.rtools.utilitarios.GenericaRequisicao;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.webservice.classes.WSHeaders;
 import br.com.rtools.webservice.classes.WSStatus;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -17,6 +18,7 @@ import java.util.Calendar;
 import java.util.Date;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.FileUtils;
 import org.primefaces.json.JSONException;
 import org.primefaces.json.JSONObject;
@@ -47,7 +49,9 @@ public class ControleAcessoWebService {
             this.session = Boolean.parseBoolean(GenericaRequisicao.getParametro("session"));
         } catch (Exception e) {
         }
-        GenericaSessao.put("sessaoCliente", client);
+        if (client != null && !client.isEmpty()) {
+            GenericaSessao.put("sessaoCliente", client);
+        }
     }
 
     /**
@@ -74,11 +78,13 @@ public class ControleAcessoWebService {
     }
 
     public WSStatus permiteWebService(String mac, Boolean message) {
+        WSHeaders wSHeaders = new WSHeaders();
+        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
         WSStatus sStatus = new WSStatus();
         try {
             sStatus.setCodigo(1);
-            InetAddress ia = InetAddress.getLocalHost();
-            String hostName = ia.getHostName();
+            String hostName = wSHeaders.getDeviceName();
+            FacesContext req = FacesContext.getCurrentInstance();
             MacFilial macFilial = new MacFilialDao().pesquisaMac(mac);
             if (macFilial == null) {
                 sStatus.setDescricao("Mac não existe!");
@@ -99,7 +105,7 @@ public class ControleAcessoWebService {
             sStatus.setCodigo(0);
             sStatus.setDescricao("Cliente válido");
         } catch (Exception e) {
-            sStatus.setCodigo(0);
+            sStatus.setCodigo(1);
             sStatus.setDescricao(e.getMessage());
         }
         return sStatus;
