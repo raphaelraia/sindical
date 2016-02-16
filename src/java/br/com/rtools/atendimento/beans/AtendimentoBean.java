@@ -142,10 +142,8 @@ public class AtendimentoBean implements Serializable {
                     if (sisPessoa.getDtNascimento() == null) {
                         sisPessoa.setNascimento("01/01/1900");
                     }
-                } else {
-                    if (sisPessoa.getDtNascimento() == null) {
-                        sisPessoa.setDtNascimento(fi.getDtNascimento());
-                    }
+                } else if (sisPessoa.getDtNascimento() == null) {
+                    sisPessoa.setDtNascimento(fi.getDtNascimento());
                 }
                 verificaPessoaOposicao();
                 try {
@@ -189,10 +187,8 @@ public class AtendimentoBean implements Serializable {
                     if (sisPessoa.getDtNascimento() == null) {
                         sisPessoa.setNascimento("01/01/1900");
                     }
-                } else {
-                    if (sisPessoa.getDtNascimento() == null) {
-                        sisPessoa.setDtNascimento(fi.getDtNascimento());
-                    }
+                } else if (sisPessoa.getDtNascimento() == null) {
+                    sisPessoa.setDtNascimento(fi.getDtNascimento());
                 }
                 try {
                     sisPessoa.setFisica(fi);
@@ -383,11 +379,9 @@ public class AtendimentoBean implements Serializable {
                 dao.rollback();
                 return;
             }
-        } else {
-            if (!dao.update(sisPessoa)) {
-                dao.rollback();
-                return;
-            }
+        } else if (!dao.update(sisPessoa)) {
+            dao.rollback();
+            return;
         }
         dao.commit();
 
@@ -424,7 +418,7 @@ public class AtendimentoBean implements Serializable {
 
             HomologacaoDB dbh = new HomologacaoDBToplink();
             int ultima_senha = dbh.pesquisaUltimaSenha(filial.getId()) + 1;
-            Senha senha = new Senha(-1, null, DataHoje.horaMinuto(), "", 0, usuario, DataHoje.data(), ultima_senha, filial, ateMovimento);
+            Senha senha = new Senha(-1, null, DataHoje.horaMinuto(), "", 0, usuario, DataHoje.data(), ultima_senha, filial, ateMovimento, null);
 
             if (!dao.save(senha)) {
                 GenericaMensagem.error("Erro", "Erro ao Salvar Senha!");

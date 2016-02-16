@@ -50,6 +50,9 @@ public class Senha implements java.io.Serializable {
     @JoinColumn(name = "id_atendimento", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.EAGER)
     private AteMovimento ateMovimento;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "dt_verificada")
+    private Date dtVerificada;
 
     public Senha() {
         this.id = -1;
@@ -62,9 +65,10 @@ public class Senha implements java.io.Serializable {
         this.senha = 0;
         this.filial = new Filial();
         this.ateMovimento = null;
+        this.dtVerificada = null;
     }
 
-    public Senha(int id, Agendamento agendamento, String hora, String horaChamada, int mesa, Usuario usuario, String data, int senha, Filial filial, AteMovimento ateMovimento) {
+    public Senha(int id, Agendamento agendamento, String hora, String horaChamada, int mesa, Usuario usuario, String data, int senha, Filial filial, AteMovimento ateMovimento, Date dtVerificada) {
         this.id = id;
         this.agendamento = agendamento;
         this.hora = hora;
@@ -75,6 +79,7 @@ public class Senha implements java.io.Serializable {
         this.senha = senha;
         this.filial = filial;
         this.ateMovimento = ateMovimento;
+        this.dtVerificada = dtVerificada;
     }
 
     public int getId() {
@@ -169,5 +174,27 @@ public class Senha implements java.io.Serializable {
 
     public void setAteMovimento(AteMovimento ateMovimento) {
         this.ateMovimento = ateMovimento;
+    }
+
+    public Date getDtVerificada() {
+        return dtVerificada;
+    }
+
+    public void setDtVerificada(Date dtVerificada) {
+        this.dtVerificada = dtVerificada;
+    }
+
+    public boolean isSucesso() {
+        try {
+            if (this.agendamento != null && this.agendamento.getHomologador() != null && this.agendamento.getStatus().getId() == 4) {
+                return true;
+            }
+            if (this.ateMovimento != null && this.ateMovimento.getAtendente() != null && this.ateMovimento.getStatus().getId() == 2) {
+                return true;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return false;
     }
 }

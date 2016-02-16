@@ -178,13 +178,13 @@ public class ControleUsuarioBean implements Serializable {
                     }
                 }
                 try {
-                    InetAddress ia = InetAddress.getLocalHost();
-                    String hostName = ia.getHostName();
-                    if (!macFilial.getNomeDispositivo().isEmpty() && !hostName.equals(macFilial.getNomeDispositivo())) {
-                        usuario = new Usuario();
-                        GenericaMensagem.warn("Sistema. Nome do dispositivo diferente do registrado (Registro Computador/Mac Filial)! Contate o administrador do sistema.", "Nome do dispositivo diferente do registrado (Registro Computador/Mac Filial)!");
-                        return null;
-                    }
+//                    InetAddress ia = InetAddress.getLocalHost();
+//                    String hostName = ia.getHostName();
+//                    if (!macFilial.getNomeDispositivo().isEmpty() && !hostName.equals(macFilial.getNomeDispositivo())) {
+//                        usuario = new Usuario();
+//                        GenericaMensagem.warn("Sistema. Nome do dispositivo diferente do registrado (Registro Computador/Mac Filial)! Contate o administrador do sistema.", "Nome do dispositivo diferente do registrado (Registro Computador/Mac Filial)!");
+//                        return null;
+//                    }
                 } catch (Exception e) {
                     
                 }

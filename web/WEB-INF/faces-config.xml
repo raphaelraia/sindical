@@ -2005,6 +2005,12 @@
             <redirect/>
         </navigation-case>                 
         
+        <navigation-case>
+            <from-outcome>senha</from-outcome>
+            <to-view-id>/senha.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>                 
+        
         <!-- 
         <navigation-case>
             <from-outcome>#{navigationRules.param}</from-outcome>

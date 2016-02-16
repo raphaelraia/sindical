@@ -1,0 +1,151 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Sindical - Senha</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>
+        <style>
+            body, div:first-of-type { margin: 0 auto; overflow: hidden; /* background: url('#{facesContext.externalContext.requestContextPath}/resources/images/bg_senha.png') */}
+            .ui-datagrid-content {border: 0!important}
+
+            /* MANTER HEAD E FOOTER */
+            html, body {}
+
+            #wrapx {min-width: 640px}
+
+            #mainx {overflow:auto;
+                    padding-bottom: 350px;}  /* must be same height as the footer */
+
+            /*Opera Fix*/
+            body:before {
+                float:left;
+                width:0;
+                margin-top:-32767px;
+            }
+            /* FIM MANTER HEAD E FOOTER */
+            .columns_50 {width: 50%!important}            
+        </style>
+        <script type="text/javascript">
+            var clock = 5;
+            var countdownId = 0;
+            
+            function start() {
+                countdownId = setInterval("countdown()", 1000);
+                countdownId = setInterval("countdown()", 1000);
+                countdownId = setInterval("countdown()", 1000);
+            }
+
+            function pisca() {
+                if (clock > 0) {
+                    clock = clock - 1;
+                    if ($(".pisca").css("opacity") === "0.5") {
+                        $(".pisca").css("opacity", "1");
+                    } else if ($(".pisca").css("opacity") === "1") {
+                        $(".pisca").css("opacity", "0.5");
+                    }
+                } else {
+                    // Stop timer
+                    clearInterval(countdownId);
+                }
+            }
+
+        </script>
+    </h:head>
+    <h:body>
+        <f:view>
+            <div id="wrapx" style="border: 0!important">
+                <div id="mainx" style="border: 0;margin: 0!important;"> 
+                    <h:form id="form_senha">
+                        <p:panel style="border: 0;margin: 0!important;">                       
+                            <c:set scope="request" var="object" value="${senhaBean.senha}"/>
+                            <p:poll id="i_poll_senha" interval="5" update="i_poll_senha i_panel_senha :form_sound:" stop="#{!senhaBean.activePoll}" delay="5" listener="#{senhaBean.loadSenha()}" />
+                            <p:panel id="i_panel_senha" style="margin: 0!important;  border: 0!important">
+                                <h:panelGrid style="width: 100%;">
+                                    <h:column>
+                                        <p:panel style="text-align: center"> 
+                                            <f:facet name="header">
+                                                <h:outputLabel value="ÚLTIMA" style="font-weight: bolder;" />
+                                            </f:facet>                                            
+                                            <h:outputLabel value="#{senhaBean.ultimaSenha.senha}" style="font-weight: bolder; font-size: 100pt; color: #{senha.sucesso ? 'green' : 'red'}" styleClass="pisca" />
+                                        </p:panel>
+                                    </h:column>
+                                    <h:column>
+                                        <h:panelGrid columns="2" style="width: 100%" columnClasses="columns_50, columns_50">
+                                            <h:column>
+                                                <p:panel header="MESA" style="text-align: center;">
+                                                    <h:outputLabel value="#{senhaBean.ultimaSenha.mesa}" style="font-weight: bolder; font-size: 32pt" />
+                                                </p:panel>
+                                            </h:column>
+                                            <h:column>
+                                                <p:panel header="HORÁRIO" style="text-align: center;">
+                                                    <h:outputLabel value="#{senhaBean.ultimaSenha.horaChamada}" style="font-weight: bolder; font-size: 32pt" />
+                                                </p:panel>
+                                            </h:column>
+                                        </h:panelGrid>
+                                    </h:column>
+                                </h:panelGrid>
+                                <h:panelGrid style="margin-top: 15px; text-align: center; width: 100%">
+                                    <p:panel header="Últimas chamadas">
+                                        <p:dataGrid emptyMessage="Nenhum registro encontrado!" value="#{senhaBean.listUltimasChamadas}" var="senha" id="xxxxx" columns="3">
+                                            <p:panel style="text-align:center">
+                                                <h:panelGrid style="width: 100%; text-align: center">
+                                                    <h:column>
+                                                        <p:panel styleClass="no-border text-center">
+                                                            <f:facet name="header">
+                                                                <h:outputLabel value="SENHA" style="font-weight: bolder;" />
+                                                            </f:facet>
+                                                            <h:outputLabel value="#{senha.senha}" style="font-weight: bolder; font-size: 48pt; color: #{senha.sucesso ? 'green' : 'red'}" />
+                                                            <h:column rendered="#{senha.sucesso}">
+                                                                <span class="ui-icon ui-icon-check" style="float: right"></span>
+                                                            </h:column>                                                            
+                                                        </p:panel>
+                                                    </h:column>
+                                                    <h:column>
+                                                        <h:panelGrid columns="2" style="width: 100%;" columnClasses="columns_50, columns_50">
+                                                            <h:column>
+                                                                <p:panel header="MESA" style="text-align: center">
+                                                                    <h:outputLabel value="#{senha.mesa}" style="font-weight: bolder; font-size: 26pt" />
+                                                                </p:panel>
+                                                            </h:column>
+                                                            <h:column>
+                                                                <p:panel header="HORÁRIO" style="text-align: center">
+                                                                    <h:outputLabel value="#{senha.horaChamada}" style="font-weight: bolder; font-size: 26pt" />
+                                                                </p:panel>
+                                                            </h:column>
+                                                        </h:panelGrid>
+                                                    </h:column>
+                                                </h:panelGrid>
+                                            </p:panel>
+                                        </p:dataGrid>
+                                    </p:panel>
+                                </h:panelGrid>                                
+                            </p:panel>
+                            <f:facet name="footer">
+                                <h:panelGrid columns="1" style="float: right">
+                                    <p:commandButton icon="ui-icon-refresh" title="Atualizar" action="#{senhaBean.clear}" update=":form_senha:" />                                
+                                </h:panelGrid>
+                            </f:facet>
+                        </p:panel>
+                    </h:form>
+                    <h:form id="form_sound">
+                        <h:column rendered="#{senhaBean.sound}">
+                            <audio controls="controls" autoplay="autoplay" preload="auto">
+                                <source src="#{facesContext.externalContext.requestContextPath}/resources/sound/senha.mp3" type="audio/mpeg"></source>                                      
+                            </audio>
+                            <p:poll interval="5" update=":form_sound:id_hidden" delay="5" autoStart="false" stop="#{!senhaBean.sound}"/>
+                            <h:inputHidden id="id_hidden" value="#{senhaBean.disabledSound}"  />
+                            <script>
+                                pisca();
+                            </script>
+                        </h:column>
+                    </h:form>
+                </div>
+            </div>                
+        </f:view>
+    </h:body>
+</ui:composition>
