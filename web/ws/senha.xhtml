@@ -27,13 +27,19 @@
                 width:0;
                 margin-top:-32767px;
             }
+            .border-radius {border-radius: 35px!important; -moz-border-radius: 35px!important; -webkit-border-radius: 35px!important;}
             /* FIM MANTER HEAD E FOOTER */
-            .columns_50 {width: 50%!important}            
+            .columns_50 {width: 50%!important;}
+            .columns_50_col {width: 50%!important; border-right: 3px solid white!important;}
+            .bg_panel_color {background: #003399;}
+            .bg_panel_color_dotted {background: #003399; border: 1px solid #0066cc}
+            .no_border {border: 0!important}
+            .text-center {text-align: center!important}
         </style>
         <script type="text/javascript">
             var clock = 5;
             var countdownId = 0;
-            
+
             function start() {
                 countdownId = setInterval("countdown()", 1000);
                 countdownId = setInterval("countdown()", 1000);
@@ -58,78 +64,54 @@
     </h:head>
     <h:body>
         <f:view>
-            <div id="wrapx" style="border: 0!important">
+            <div id="wrapx" style="border: 0!important; margin-top: 10px ">
                 <div id="mainx" style="border: 0;margin: 0!important;"> 
                     <h:form id="form_senha">
-                        <p:panel style="border: 0;margin: 0!important;">                       
+                        <p:panel style="border: 0!important; margin: 0!important;  ">                       
                             <c:set scope="request" var="object" value="${senhaBean.senha}"/>
                             <p:poll id="i_poll_senha" interval="5" update="i_poll_senha i_panel_senha :form_sound:" stop="#{!senhaBean.activePoll}" delay="5" listener="#{senhaBean.loadSenha()}" />
-                            <p:panel id="i_panel_senha" style="margin: 0!important;  border: 0!important">
-                                <h:panelGrid style="width: 100%;">
+                            <p:panel id="i_panel_senha" style="margin: 0!important; border: 0!important" styleClass="border-radius">
+                                <h:panelGrid columns="2" columnClasses="columns_50 columns_50" style="width: 100%;" cellspacing="30">
                                     <h:column>
-                                        <p:panel style="text-align: center"> 
-                                            <f:facet name="header">
-                                                <h:outputLabel value="ÚLTIMA" style="font-weight: bolder;" />
-                                            </f:facet>                                            
-                                            <h:outputLabel value="#{senhaBean.ultimaSenha.senha}" style="font-weight: bolder; font-size: 100pt; color: #{senha.sucesso ? 'green' : 'red'}" styleClass="pisca" />
+                                        <p:panel style="text-align: center;" styleClass="border-radius bg_panel_color">
+                                            <h1 style="font-weight: bolder; text-align: center; color: white;">SENHA</h1>
+                                            <h:outputLabel value="#{senhaBean.ultimaSenha.senha}" style="font-weight: bolder; font-size: 100pt; color: #{senha.sucesso ? 'green' : 'white'}" styleClass="pisca" />
                                         </p:panel>
                                     </h:column>
                                     <h:column>
-                                        <h:panelGrid columns="2" style="width: 100%" columnClasses="columns_50, columns_50">
-                                            <h:column>
-                                                <p:panel header="MESA" style="text-align: center;">
-                                                    <h:outputLabel value="#{senhaBean.ultimaSenha.mesa}" style="font-weight: bolder; font-size: 32pt" />
-                                                </p:panel>
-                                            </h:column>
-                                            <h:column>
-                                                <p:panel header="HORÁRIO" style="text-align: center;">
-                                                    <h:outputLabel value="#{senhaBean.ultimaSenha.horaChamada}" style="font-weight: bolder; font-size: 32pt" />
-                                                </p:panel>
-                                            </h:column>
-                                        </h:panelGrid>
+                                        <p:panel style="text-align: center;" styleClass="border-radius bg_panel_color">
+                                            <h1 style="font-weight: bolder; text-align: center; color: white;">SALA</h1>
+                                            <h:outputLabel value="#{senhaBean.ultimaSenha.mesa}" style="font-weight: bolder; font-size: 100pt; color: white" styleClass="pisca" />
+                                        </p:panel>
                                     </h:column>
                                 </h:panelGrid>
-                                <h:panelGrid style="margin-top: 15px; text-align: center; width: 100%">
-                                    <p:panel header="Últimas chamadas">
-                                        <p:dataGrid emptyMessage="Nenhum registro encontrado!" value="#{senhaBean.listUltimasChamadas}" var="senha" id="xxxxx" columns="3">
-                                            <p:panel style="text-align:center">
-                                                <h:panelGrid style="width: 100%; text-align: center">
-                                                    <h:column>
-                                                        <p:panel styleClass="no-border text-center">
-                                                            <f:facet name="header">
-                                                                <h:outputLabel value="SENHA" style="font-weight: bolder;" />
-                                                            </f:facet>
-                                                            <h:outputLabel value="#{senha.senha}" style="font-weight: bolder; font-size: 48pt; color: #{senha.sucesso ? 'green' : 'red'}" />
-                                                            <h:column rendered="#{senha.sucesso}">
-                                                                <span class="ui-icon ui-icon-check" style="float: right"></span>
-                                                            </h:column>                                                            
-                                                        </p:panel>
-                                                    </h:column>
-                                                    <h:column>
-                                                        <h:panelGrid columns="2" style="width: 100%;" columnClasses="columns_50, columns_50">
-                                                            <h:column>
-                                                                <p:panel header="MESA" style="text-align: center">
-                                                                    <h:outputLabel value="#{senha.mesa}" style="font-weight: bolder; font-size: 26pt" />
-                                                                </p:panel>
-                                                            </h:column>
-                                                            <h:column>
-                                                                <p:panel header="HORÁRIO" style="text-align: center">
-                                                                    <h:outputLabel value="#{senha.horaChamada}" style="font-weight: bolder; font-size: 26pt" />
-                                                                </p:panel>
-                                                            </h:column>
-                                                        </h:panelGrid>
-                                                    </h:column>
-                                                </h:panelGrid>
-                                            </p:panel>
-                                        </p:dataGrid>
-                                    </p:panel>
+                                <h3 style="text-align: center; margin-top: 30px!important">SENHAS ANTERIORES</h3>
+                                <h:panelGrid style="text-align: center; width: 100%;">
+                                    <p:dataGrid emptyMessage="Nenhum registro encontrado!" value="#{senhaBean.listUltimasChamadas}" var="senha" id="xxxxx" columns="3">
+                                        <p:panel style="text-align:center; border: 0!important; padding: 0!important; margin: 0 25px 0 25px!important;" styleClass="border-radius bg_panel_color">
+                                            <h:panelGrid columns="2" columnClasses="columns_50 columns_50_col" style="width: 100%;" cellspacing="30">
+                                                <h:column>
+                                                    <p:panel style="text-align: center;" styleClass="bg_panel_color no_border text-center">
+                                                        <h2 style="font-weight: bolder; color: white;">SENHA</h2>
+                                                        <h:outputLabel value="#{senha.senha}" style="font-weight: bolder; font-size: 64pt; color: #{senha.sucesso ? 'green' : 'white'}" styleClass="pisca" />
+                                                    </p:panel>
+                                                </h:column>
+                                                <h:column>
+                                                    <p:panel style="text-align: center;" styleClass="bg_panel_color no_border text-center">
+                                                        <h2 style="font-weight: bolder; color: white;">SALA</h2>
+                                                        <h:outputLabel value="#{senha.mesa}" style="font-weight: bolder; font-size: 64pt; color: white" styleClass="pisca" />
+                                                    </p:panel>
+                                                </h:column>
+                                            </h:panelGrid>
+                                        </p:panel>
+                                    </p:dataGrid>
                                 </h:panelGrid>                                
                             </p:panel>
-                            <f:facet name="footer">
-                                <h:panelGrid columns="1" style="float: right">
-                                    <p:commandButton icon="ui-icon-refresh" title="Atualizar" action="#{senhaBean.clear}" update=":form_senha:" />                                
+                            <center>
+                                <h:panelGrid columns="1" style="border: 0">
+                                    <p:commandButton icon="ui-icon-refresh" title="Atualizar" action="#{senhaBean.clear}" update=":form_senha:" style="background: none; margin-top: 20px"/>
                                 </h:panelGrid>
-                            </f:facet>
+                            </center>
                         </p:panel>
                     </h:form>
                     <h:form id="form_sound">
