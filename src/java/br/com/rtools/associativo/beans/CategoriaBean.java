@@ -18,6 +18,7 @@ import br.com.rtools.utilitarios.GenericaSessao;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.model.SelectItem;
@@ -203,7 +204,7 @@ public class CategoriaBean implements Serializable {
         GenericaSessao.put("linkClicado", true);
         list.clear();
         for (int i = 0; i < getListGrupoCategoria().size(); i++) {
-            if (Integer.valueOf(getListGrupoCategoria().get(i).getDescription()) == categoria.getGrupoCategoria().getId()) {
+            if (Objects.equals(Integer.valueOf(getListGrupoCategoria().get(i).getDescription()), categoria.getGrupoCategoria().getId())) {
                 idGrupoCategoria = i;
             }
         }

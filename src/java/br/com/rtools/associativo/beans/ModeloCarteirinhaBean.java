@@ -204,7 +204,7 @@ public class ModeloCarteirinhaBean {
         List<Categoria> list = new ModeloCarteirinhaCategoriaDao().findNotInCategoriaByMCC(modelo_carteirinha_id, rotina_id);
         if (!list.isEmpty()) {
             listCategoria.add(new SelectItem(null, "Sem Categoria"));
-            for (int i = 1; i < list.size(); i++) {
+            for (int i = 0; i < list.size(); i++) {
                 listCategoria.add(new SelectItem(list.get(i).getId(), list.get(i).getCategoria()));
             }
         } else {

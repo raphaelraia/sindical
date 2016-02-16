@@ -110,8 +110,12 @@
                                 <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pesquisa('pesquisaCategoria')}" title="Pesquisar"/>
                             </h:panelGrid>
                             <p:dialog widgetVar="dlg_save" header="Deseja salvar este registro?" resizable="false" width="400" modal="true">
-                                <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{categoriaBean.save()}" oncomplete="PF('dlg_save').hide();PF('dlg_message').show();" style="clear: both; float: left; margin-left: 10px;" update="i_message  :form_categoria:"/> 
-                                <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_save').hide()" style="float: left;" icon="ui-icon-close"/>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{categoriaBean.save()}" oncomplete="PF('dlg_save').hide();PF('dlg_message').show();" style="clear: both; float: left; margin-left: 10px;" update="i_message  :form_categoria:"/> 
+                                        <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_save').hide()" style="float: left;" icon="ui-icon-close"/>                                        
+                                    </h:panelGrid>
+                                </f:facet>
                             </p:dialog>
                             <p:dialog widgetVar="dlg_delete" header="Deseja excluir este registro?" resizable="false" width="400" modal="true">
                                 <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{categoriaBean.delete()}" oncomplete="PF('dlg_delete').hide();
