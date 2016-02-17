@@ -10,7 +10,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=9" />
         <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>
         <style>
-            body, div:first-of-type { margin: 0 auto; overflow: hidden; /* background: url('#{facesContext.externalContext.requestContextPath}/resources/images/bg_senha.png') */}
+            body, div:first-of-type { margin: 0 auto;}
             .ui-datagrid-content {border: 0!important}
 
             /* MANTER HEAD E FOOTER */
@@ -31,10 +31,48 @@
             /* FIM MANTER HEAD E FOOTER */
             .columns_50 {width: 50%!important;}
             .columns_50_col {width: 50%!important; border-right: 3px solid white!important;}
-            .bg_panel_color {background: #003399;}
+            .bg_panel_color {background: #003399!important;}
             .bg_panel_color_dotted {background: #003399; border: 1px solid #0066cc}
             .no_border {border: 0!important}
             .text-center {text-align: center!important}
+
+            .font-color-white {color: white}
+            .font-color-green {color: green}
+            .font-color-red {color: red}
+
+
+            .padding-25 {padding: 25px!important}
+            .margin-25 {margin: 25px!important}
+            .margin-50 {margin: 50px!important}
+            .margin-75 {margin: 75px!important}
+            h1, h2, h3 {text-align: center; color: white; font-weight: bolder!important;}
+            .border-panel {border: 10px solid white}
+
+            .password {font-weight: bolder; text-align: center; color: white}
+            .min-password {font-weight: bolder; text-align: center; color: white}
+            .border-white {border-left: 3px solid white!important;}
+
+            /* Extra small devices (phones, up to 480px) */            
+            @media screen and (max-width: 767px) {
+                .password {font-size: 60pt!important;}
+                .min-password {font-size: 36pt!important;}
+            }
+            /* Small devices (tablets, 768px and up) */
+            @media (min-width: 768px) and (max-width: 991px) {
+                .password {font-size: 100pt!important;}
+                .min-password {font-size: 50pt!important;}
+            }
+            /* tablets/desktops and up ----------- */
+            @media (min-width: 992px) and (max-width: 1199px) {
+                .password {font-size: 170pt!important;}
+                .min-password {font-size: 54pt!important;}
+            }
+            /* large desktops and up ----------- */
+            @media screen and (min-width: 1200px) {
+                .password {font-size: 220pt!important;}
+                .min-password {font-size: 64pt!important;}
+            }
+
         </style>
         <script type="text/javascript">
             var clock = 5;
@@ -59,75 +97,119 @@
                     clearInterval(countdownId);
                 }
             }
-
         </script>
+        <!-- Bootstrap -->
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="rtools" />
     </h:head>
     <h:body>
         <f:view>
-            <div id="wrapx" style="border: 0!important; margin-top: 10px ">
-                <div id="mainx" style="border: 0;margin: 0!important;"> 
-                    <h:form id="form_senha">
-                        <p:panel style="border: 0!important; margin: 0!important;  ">                       
-                            <c:set scope="request" var="object" value="${senhaBean.senha}"/>
-                            <p:poll id="i_poll_senha" interval="5" update="i_poll_senha i_panel_senha :form_sound:" stop="#{!senhaBean.activePoll}" delay="5" listener="#{senhaBean.loadSenha()}" />
-                            <p:panel id="i_panel_senha" style="margin: 0!important; border: 0!important" styleClass="border-radius">
-                                <h:panelGrid columns="2" columnClasses="columns_50 columns_50" style="width: 100%;" cellspacing="30">
-                                    <h:column>
-                                        <p:panel style="text-align: center;" styleClass="border-radius bg_panel_color">
-                                            <h1 style="font-weight: bolder; text-align: center; color: white;">SENHA</h1>
-                                            <h:outputLabel value="#{senhaBean.ultimaSenha.senha}" style="font-weight: bolder; font-size: 100pt; color: #{senha.sucesso ? 'green' : 'white'}" styleClass="pisca" />
-                                        </p:panel>
-                                    </h:column>
-                                    <h:column>
-                                        <p:panel style="text-align: center;" styleClass="border-radius bg_panel_color">
-                                            <h1 style="font-weight: bolder; text-align: center; color: white;">SALA</h1>
-                                            <h:outputLabel value="#{senhaBean.ultimaSenha.mesa}" style="font-weight: bolder; font-size: 100pt; color: white" styleClass="pisca" />
-                                        </p:panel>
-                                    </h:column>
-                                </h:panelGrid>
-                                <h3 style="text-align: center; margin-top: 30px!important">SENHAS ANTERIORES</h3>
-                                <h:panelGrid style="text-align: center; width: 100%;">
-                                    <p:dataGrid emptyMessage="Nenhum registro encontrado!" value="#{senhaBean.listUltimasChamadas}" var="senha" id="xxxxx" columns="3">
-                                        <p:panel style="text-align:center; border: 0!important; padding: 0!important; margin: 0 25px 0 25px!important;" styleClass="border-radius bg_panel_color">
-                                            <h:panelGrid columns="2" columnClasses="columns_50 columns_50_col" style="width: 100%;" cellspacing="30">
-                                                <h:column>
-                                                    <p:panel style="text-align: center;" styleClass="bg_panel_color no_border text-center">
-                                                        <h2 style="font-weight: bolder; color: white;">SENHA</h2>
-                                                        <h:outputLabel value="#{senha.senha}" style="font-weight: bolder; font-size: 64pt; color: #{senha.sucesso ? 'green' : 'white'}" styleClass="pisca" />
-                                                    </p:panel>
-                                                </h:column>
-                                                <h:column>
-                                                    <p:panel style="text-align: center;" styleClass="bg_panel_color no_border text-center">
-                                                        <h2 style="font-weight: bolder; color: white;">SALA</h2>
-                                                        <h:outputLabel value="#{senha.mesa}" style="font-weight: bolder; font-size: 64pt; color: white" styleClass="pisca" />
-                                                    </p:panel>
-                                                </h:column>
-                                            </h:panelGrid>
-                                        </p:panel>
-                                    </p:dataGrid>
-                                </h:panelGrid>                                
-                            </p:panel>
-                            <center>
-                                <h:panelGrid columns="1" style="border: 0">
-                                    <p:commandButton icon="ui-icon-refresh" title="Atualizar" action="#{senhaBean.clear}" update=":form_senha:" style="background: none; margin-top: 20px"/>
-                                </h:panelGrid>
-                            </center>
-                        </p:panel>
-                    </h:form>
-                    <h:form id="form_sound">
-                        <h:column rendered="#{senhaBean.sound}">
-                            <audio controls="controls" autoplay="autoplay" preload="auto">
-                                <source src="#{facesContext.externalContext.requestContextPath}/resources/sound/senha.mp3" type="audio/mpeg"></source>                                      
-                            </audio>
-                            <p:poll interval="5" update=":form_sound:id_hidden" delay="5" autoStart="false" stop="#{!senhaBean.sound}"/>
-                            <h:inputHidden id="id_hidden" value="#{senhaBean.disabledSound}"  />
-                            <script>
-                                pisca();
-                            </script>
-                        </h:column>
-                    </h:form>
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h:form prependId="false">
+                            <strong>
+                                <h:outputText id="relogio" value="#{relogioBean.dataAtual}" style="float: right; margin-right: 40px ">
+                                    <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="GMT-3"/>                                
+                                </h:outputText>                    
+                            </strong>
+                            <p:poll interval="60" id="id_poll_relogio" listener="#{relogioBean.relogio}" update="id_poll_relogio relogio" ignoreAutoUpdate="true" delay="5"/>
+                        </h:form> 
+                    </div>
                 </div>
-            </div>                
+            </div>
+            <div class="container-fluid">
+                <c:set scope="request" var="object" value="${senhaBean.senha}"/>
+                <h:form id="form_senha">
+                    <p:poll id="i_poll_senha" interval="5" update="i_poll_senha i_panel_senha :form_sound:" stop="#{!senhaBean.activePoll}" delay="5" listener="#{senhaBean.loadSenha()}" />
+                    <h:panelGrid style="width: 100%" id="i_panel_senha">
+                        <div class="row">
+                            <div class="col-xs-6 col-lg-6 col-md-6 col-sm-6">
+                                <div class="panel">
+                                    <div class="bg_panel_color border-radius">
+                                        <br />
+                                        <h1 class="font-color-white">SENHA</h1>
+                                        <span class="pisca">
+                                            <p class="password" style="color: #{senhaBean.ultimaSenha.sucesso ? 'green' : 'white'}">#{senhaBean.ultimaSenha.senha}</p>
+                                        </span>
+                                        <br />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-6 col-lg-6 col-md-6 col-sm-6">
+                                <div class="panel">
+                                    <div class="bg_panel_color border-radius">
+                                        <br />
+                                        <h1 class="font-color-white">SALA</h1>
+                                        <span class="pisca">
+                                            <p class="password">#{senhaBean.ultimaSenha.mesa}</p>
+                                        </span>                                        
+                                        <br />
+                                    </div>
+                                </div>
+                            </div>                            
+                        </div>
+                        <div class="row">
+                            <h3>SENHAS ANTERIORES</h3>
+                            <div class="col-lg-12">
+                                <div class="row">
+                                    <ui:repeat var="senha" value="#{senhaBean.listUltimasChamadas}" varStatus="index">
+                                        <div class="col-lg-4 col-md-4 col-sm-4 border-panel bg_panel_color  border-radius">
+                                            <div class="row">
+                                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                                    <div class="panel" style="background: none">
+                                                        <br />
+                                                        <h2 class="font-color-white">SENHA</h2>
+                                                        <span>
+                                                            <p class="min-password" style="color: #{senha.sucesso ? 'green' : 'white'}">#{senha.senha}</p>
+                                                        </span>                                                        
+                                                        <br />
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-2 col-md-2 col-sm-2">
+
+                                                </div>
+                                                <div class="col-lg-6 col-md-6 col-sm-6 border-white">
+                                                    <div class="panel" style="background: none">
+                                                        <br />
+                                                        <h2 class="font-color-white">SALA</h2>
+                                                        <span>
+                                                            <p class="min-password">#{senha.mesa}</p>
+                                                        </span>
+                                                        <br />
+                                                    </div>
+                                                </div>
+                                            </div>                                
+                                        </div>
+                                    </ui:repeat>                        
+                                </div>
+                            </div>
+                        </div>
+                    </h:panelGrid>
+                    <center>
+                        <span class="ui-icon ui-icon-refresh"></span>
+                        <a href="senha.jsf?client=#{usuarioBean.cliente}&amp;">Atualizar</a>
+                    </center>                    
+                </h:form>
+                <h:form id="form_sound">
+                    <h:column rendered="#{senhaBean.sound}">
+                        <audio controls="controls" autoplay="autoplay" preload="auto" style="width: 0; height: 0">
+                            <source src="#{facesContext.externalContext.requestContextPath}/resources/sound/senha.mp3" type="audio/mpeg"></source>                                      
+                        </audio>
+                        <p:poll interval="5" update=":form_sound:id_hidden" delay="5" autoStart="false" stop="#{!senhaBean.sound}"/>
+                        <h:inputHidden id="id_hidden" value="#{senhaBean.disabledSound}"  />
+                        <script>
+                            pisca();
+                        </script>
+                    </h:column>
+                </h:form>
+            </div>                                        
+            <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>            
+
+
+            <!-- Latest compiled and minified JavaScript -->
+            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="rtools"></script>
         </f:view>
     </h:body>
 </ui:composition>
