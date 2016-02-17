@@ -447,7 +447,7 @@ public class LocacaoFilmeBean implements Serializable {
             locatario = f;
             loadLocadoraAutorizados();
             pessoaComplemento = locatario.getPessoa().getPessoaComplemento();
-            if (pessoaComplemento.getObsAviso().isEmpty()) {
+            if (pessoaComplemento.getObsAviso() != null && pessoaComplemento.getObsAviso().isEmpty()) {
                 pessoaComplemento = null;
             }
             if (!new LocadoraLoteDao().exists(locatario.getId())) {
