@@ -444,7 +444,7 @@ public class RelatorioSociosDBToplink extends DB implements RelatorioSociosDB {
             } else if (tipo_empresa != null && tipo_empresa.equals("com")) {
                 filtro += " AND p.empresa <> '' ";
             } else if (tipo_empresa != null && tipo_empresa.equals("sem")) {
-                filtro += " AND p.empresa IS NULL ";
+                filtro += " AND J.id IS NULL ";
             }
             if (minQtdeFuncionario != null && maxQtdeFuncionario != null && (minQtdeFuncionario > 0 || maxQtdeFuncionario > 0)) {
                 filtro += " AND p.e_id IN (SELECT pempre.e_id "

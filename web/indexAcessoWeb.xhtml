@@ -151,7 +151,7 @@
                     
                     <h:panelGrid style="width: 100%">
                         <p:outputLabel value="Quantidade de empregados para este mês" />
-                        <p:inputMask id="i_quantidade" value="#{controleAcessoWebBean.empregados.quantidade}" style="text-align: right; width: 100%" mask="9?9999999999999" placeHolder="">
+                        <p:inputMask id="i_quantidade" value="#{controleAcessoWebBean.empregados.quantidade}" style="text-align: right; width: 100%" mask="9?9999999999999" >
                             <p:ajax event="change" update="@this i_panel_quantidade" global="false"/>
                         </p:inputMask>
                     </h:panelGrid>

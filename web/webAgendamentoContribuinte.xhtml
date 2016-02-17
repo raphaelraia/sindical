@@ -160,8 +160,8 @@
                         <h:panelGrid columns="4" style="margin-top: 20px; width: 820px">
                             <h:column>
                                 <h:outputLabel value="CPF" style="color: red; font-weight: bold"/><br />
-                                <p:inputMask value="#{webAgendamentoContribuinteBean.fisica.pessoa.documento}" mask="999.999.999-99" size="13" readonly="#{webAgendamentoContribuinteBean.fisica.id != -1}">
-                                    <p:ajax event="blur" listener="#{webAgendamentoContribuinteBean.pesquisarFuncionarioCPF}" update="i_panel_agendamento" />
+                                <p:inputMask value="#{webAgendamentoContribuinteBean.fisica.pessoa.documento}" mask="999.999.999-99" readonly="#{webAgendamentoContribuinteBean.fisica.id != -1 or webAgendamentoContribuinteBean.oposicaoPessoa.id != -1}">
+                                    <p:ajax event="change" listener="#{webAgendamentoContribuinteBean.pesquisarFuncionarioCPF()}" update="@this i_panel_agendamento" />
                                 </p:inputMask>
                             </h:column>
 
@@ -385,17 +385,21 @@
 
                         <h:outputLabel value="** CONFIRA AS INFORMAÇÕES LANÇADAS. EM CASO DE ERRO ENTRAR EM CONTATO COM O SINDICATO **" style="color: red"/>
 
-                        <h:panelGrid columns="2" style="width: 100%">
-                            <h:column>
-                                <p:commandButton value="Agendar" action="#{webAgendamentoContribuinteBean.salvar}" rendered="#{webAgendamentoContribuinteBean.agendamento.id == -1}" update=":formAgendamentoContribuinte:tbl :formAgendamentoContribuinte:i_panel_agendamento"/>
-                                <p:commandButton value="Novo" action="#{webAgendamentoContribuinteBean.limpar()}" rendered="#{webAgendamentoContribuinteBean.agendamento.id == -1}" update=":formAgendamentoContribuinte:i_panel_agendamento"/>
-                                <p:commandButton value="Fechar" onclick="PF('dlg_agendamento').hide()" action="#{webAgendamentoContribuinteBean.setVisibleModal(false)}" global="false" update="formAgendamentoContribuinte"/>
-                            </h:column>
+                        <f:facet name="footer">
+                            <h:panelGrid columns="2" style="width: 100%">
+                                <h:column>
+                                    <h:panelGrid columns="3">
+                                        <p:commandButton value="Agendar" action="#{webAgendamentoContribuinteBean.salvar}" rendered="#{webAgendamentoContribuinteBean.agendamento.id == -1}" update=":formAgendamentoContribuinte:tbl :formAgendamentoContribuinte:i_panel_agendamento"/>
+                                        <p:commandButton value="Novo" action="#{webAgendamentoContribuinteBean.limpar()}" rendered="#{webAgendamentoContribuinteBean.agendamento.id == -1}" update=":formAgendamentoContribuinte:i_panel_agendamento"/>
+                                        <p:commandButton value="Fechar" onclick="PF('dlg_agendamento').hide()" action="#{webAgendamentoContribuinteBean.setVisibleModal(false)}" global="false" update="formAgendamentoContribuinte"/>
+                                    </h:panelGrid>                                    
+                                </h:column>
 
-                            <h:column>
-                                <p:commandButton value="Imprimir Protocolo" action="#{protocoloAgendamento.imprimir(webAgendamentoContribuinteBean.agendamento)}" rendered="#{webAgendamentoContribuinteBean.agendamento.id != -1}" style="float: right" ajax="false"/>
-                            </h:column>
-                        </h:panelGrid>
+                                <h:column>
+                                    <p:commandButton value="Imprimir Protocolo" action="#{protocoloAgendamento.imprimir(webAgendamentoContribuinteBean.agendamento)}" rendered="#{webAgendamentoContribuinteBean.agendamento.id != -1}" style="float: right" ajax="false"/>
+                                </h:column>
+                            </h:panelGrid>
+                        </f:facet>
                     </h:panelGrid>
                 </p:dialog>
 

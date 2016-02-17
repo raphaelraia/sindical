@@ -15,9 +15,8 @@ import java.util.List;
 import java.util.Vector;
 import javax.persistence.Query;
 
-public class OposicaoDao extends DB  {
+public class OposicaoDao extends DB {
 
-    
     public ConvencaoPeriodo pesquisaConvencaoPeriodo(int id_convencao, int id_grupo) {
         ConvencaoPeriodo result = new ConvencaoPeriodo();
         try {
@@ -28,7 +27,6 @@ public class OposicaoDao extends DB  {
         return result;
     }
 
-    
     public List<ConvencaoPeriodo> listaConvencaoPeriodo() {
         try {
             Query qry = getEntityManager().createQuery("select cp from ConvencaoPeriodo cp order by cp.convencao.descricao");
@@ -38,7 +36,6 @@ public class OposicaoDao extends DB  {
         }
     }
 
-    
     public Oposicao pesquisaOposicao(int id_fisica, int id_juridica) {
         Oposicao result = new Oposicao();
         try {
@@ -49,7 +46,6 @@ public class OposicaoDao extends DB  {
         return result;
     }
 
-    
     public PessoaEmpresa pesquisaPessoaFisicaEmpresa(String cpf, String rg) {
         SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
         PessoaEmpresa pessoaEmpresa = new PessoaEmpresa();
@@ -85,36 +81,26 @@ public class OposicaoDao extends DB  {
         return pessoaEmpresa;
     }
 
-    
     public OposicaoPessoa pesquisaOposicaoPessoa(String cpf, String rg) {
-        SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
-        OposicaoPessoa oposicaoPessoa = new OposicaoPessoa();
-        List vector = new Vector();
-        String queryString = "                                                                          "
-                + "      SELECT id                                                                        "
-                + "        FROM arr_oposicao_pessoa                                                       "
-                + "       WHERE ds_cpf = '" + cpf + "'                                                        "
-                + "          OR (                                                                         "
-                + "                 TRANSLATE(UPPER(ds_rg),'./-', '') = TRANSLATE('" + rg + "','./-', '')     "
-                + "                 AND ds_rg is not null                                                 "
-                + "                 AND trim(ds_rg)<>''                                                   "
-                + "                 AND trim(ds_rg)<>'0'                                                  "
-                + "          )                                                                            "
-                + "                                                                                       ";
+        String queryString = "                                                                            \n"
+                + "      SELECT OP.*                                                                      \n"
+                + "        FROM arr_oposicao_pessoa OP                                                    \n"
+                + "       WHERE ds_cpf = '" + cpf + "'                                                    \n"
+                + "          OR (                                                                         \n"
+                + "                 TRANSLATE(UPPER(ds_rg),'./-', '') = TRANSLATE('" + rg + "','./-', '') \n"
+                + "                 AND ds_rg is not null                                                 \n"
+                + "                 AND trim(ds_rg)<>''                                                   \n"
+                + "                 AND trim(ds_rg)<>'0'                                                  \n"
+                + "          )                                                                            \n"
+                + "                                                                                       \n";
         try {
-            Query qry = getEntityManager().createNativeQuery(queryString);
-            vector = (Vector) qry.getSingleResult();
-            if (!vector.isEmpty()) {
-                oposicaoPessoa = (OposicaoPessoa) salvarAcumuladoDB.pesquisaCodigo((Integer) vector.get(0), "OposicaoPessoa");
-                return oposicaoPessoa;
-            }
+            Query qry = getEntityManager().createNativeQuery(queryString, OposicaoPessoa.class);
+            return (OposicaoPessoa) qry.getSingleResult();
         } catch (Exception e) {
-            return oposicaoPessoa;
+            return new OposicaoPessoa();
         }
-        return oposicaoPessoa;
     }
 
-    
     public List<Vector> pesquisaPessoaConvencaoGrupoCidade(int id) {
         List<Vector> vetor = new ArrayList();
         String queryString = " SELECT id_convencao, id_grupo_cidade from arr_contribuintes_vw where dt_inativacao is null and id_juridica = " + id;
@@ -127,7 +113,6 @@ public class OposicaoDao extends DB  {
         return vetor;
     }
 
-    
     public List<Oposicao> pesquisaOposicao(String descricaoPesquisa, String tipoPesquisa, String comoPesquisa) {
         String filtroString = "";
         if (tipoPesquisa.equals("nome")) {
@@ -170,7 +155,6 @@ public class OposicaoDao extends DB  {
         return new ArrayList();
     }
 
-    
     public boolean validaOposicao(Oposicao oposicao) {
         List result = null;
         try {
@@ -199,7 +183,6 @@ public class OposicaoDao extends DB  {
         return false;
     }
 
-    
     public List filtroRelatorio(int idEmpresa, Integer idFuncionario, String emissaoInicial, String emissaoFinal, String convencaoPeriodo, Relatorios r, String inCnaes, String status, String order) {
         try {
             List listQuery = new ArrayList();
@@ -256,13 +239,13 @@ public class OposicaoDao extends DB  {
             if (!convencaoPeriodo.isEmpty()) {
                 listQuery.add(" O.id_convencao_periodo IN (" + convencaoPeriodo + ")");
             }
-            
-            if (status.equals("ativo")){
+
+            if (status.equals("ativo")) {
                 listQuery.add(" O.dt_inativacao IS NULL");
-            }else if (status.equals("inativo")){
+            } else if (status.equals("inativo")) {
                 listQuery.add(" O.dt_inativacao IS NOT NULL");
             }
-            
+
             if (!queryEmissao.isEmpty()) {
                 listQuery.add(queryEmissao);
             }
@@ -304,7 +287,6 @@ public class OposicaoDao extends DB  {
         return new ArrayList();
     }
 
-    
     public List<ConvencaoPeriodo> listaConvencaoPeriodoPorOposicao() {
         try {
             Query query = getEntityManager().createQuery(" SELECT O.convencaoPeriodo FROM Oposicao AS O GROUP BY O.convencaoPeriodo ORDER BY O.convencaoPeriodo.referenciaFinal DESC, O.convencaoPeriodo.referenciaFinal DESC");
@@ -318,7 +300,6 @@ public class OposicaoDao extends DB  {
         return new ArrayList();
     }
 
-    
     public List<Cnae> listaCnaesPorOposicaoJuridica(String inIdsCnaeConvencao) {
         try {
             Query query = getEntityManager().createQuery(" SELECT CC.cnae FROM CnaeConvencao AS CC WHERE CC.convencao.id IN(" + inIdsCnaeConvencao + ") ORDER BY CC.cnae.cnae ASC, CC.cnae.numero ASC");
@@ -332,7 +313,6 @@ public class OposicaoDao extends DB  {
         return new ArrayList();
     }
 
-    
     public boolean existPessoaDocumentoPeriodo(String cpf) {
         String dataReferencia = DataHoje.DataToArray(DataHoje.dataHoje())[2] + DataHoje.DataToArray(DataHoje.dataHoje())[1];
         String queryString = ""
@@ -365,7 +345,7 @@ public class OposicaoDao extends DB  {
         List list = query.getResultList();
         return !list.isEmpty();
     }
-    
+
     public List<Oposicao> listaOposicaoEmpresaID(int id_juridica) {
         String dataReferencia = DataHoje.DataToArray(DataHoje.dataHoje())[2] + DataHoje.DataToArray(DataHoje.dataHoje())[1];
         String queryString = ""
@@ -377,21 +357,21 @@ public class OposicaoDao extends DB  {
                 + "        AND '" + dataReferencia + "' <= CAST(SUBSTRING(CP.ds_referencia_final,4,4) || SUBSTRING(CP.ds_referencia_final  ,1,2) AS int))    "
                 + "        AND O.id_juridica = " + id_juridica;
         List<Oposicao> list = new ArrayList();
-        try{
+        try {
             Query query = getEntityManager().createNativeQuery(queryString, Oposicao.class);
             list = query.getResultList();
             return list;
-        }catch(Exception w){
+        } catch (Exception w) {
             return list;
         }
     }
-    
+
     public List<Oposicao> listaOposicaoDocumento(String cpf, String filtro) {
         List<Oposicao> list = new ArrayList();
-        
+
         String and_string = "";
-        
-        switch (filtro){
+
+        switch (filtro) {
             case "ativas":
                 and_string = " AND o.dt_inativacao IS NULL";
                 break;
@@ -401,19 +381,19 @@ public class OposicaoDao extends DB  {
             default:
                 break;
         }
-            
-        String queryString = 
-                "SELECT o.* \n " +
-                "  FROM arr_oposicao o \n " +
-                " INNER JOIN arr_oposicao_pessoa AS op ON op.id = o.id_oposicao_pessoa \n " +
-                " WHERE op.ds_cpf LIKE '"+cpf+"' \n " +
-                and_string +
-                " ORDER BY o.dt_emissao";
-        try{
+
+        String queryString
+                = "SELECT o.* \n "
+                + "  FROM arr_oposicao o \n "
+                + " INNER JOIN arr_oposicao_pessoa AS op ON op.id = o.id_oposicao_pessoa \n "
+                + " WHERE op.ds_cpf LIKE '" + cpf + "' \n "
+                + and_string
+                + " ORDER BY o.dt_emissao";
+        try {
             Query query = getEntityManager().createNativeQuery(queryString, Oposicao.class);
             list = query.getResultList();
             return list;
-        }catch(Exception e){
+        } catch (Exception e) {
             e.getMessage();
             return list;
         }
