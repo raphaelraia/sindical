@@ -535,11 +535,6 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
             dao.commit();
         } else {
             if (agendamento.getId() == -1) {
-                if (agendamento.getId() < 0) {
-                    GenericaMensagem.error("Erro", "Não foi possível atualizar Pessoa Empresa!");
-                    dao.rollback();
-                    return;
-                }
                 agendamento.setAgendador(null);
                 agendamento.setRecepcao(null);
                 agendamento.setDtEmissao(DataHoje.dataHoje());
