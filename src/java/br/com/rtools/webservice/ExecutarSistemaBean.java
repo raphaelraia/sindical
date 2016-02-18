@@ -1,7 +1,6 @@
 package br.com.rtools.webservice;
 
 import br.com.rtools.seguranca.Registro;
-import br.com.rtools.webservice.classes.WSStatus;
 import br.com.rtools.seguranca.controleUsuario.ControleAcessoWebService;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaSessao;
