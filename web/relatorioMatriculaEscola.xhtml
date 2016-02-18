@@ -43,7 +43,7 @@
                                             <p:selectBooleanButton value="#{relatorioMatriculaEscolaBean.filtro[1]}" onLabel="Período Matrícula" offLabel="Período Matrícula" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;">
                                                 <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio" listener="#{relatorioMatriculaEscolaBean.clear}" />
                                             </p:selectBooleanButton>
-                                            <p:selectBooleanButton value="#{relatorioMatriculaEscolaBean.filtro[2]}" onLabel="Período" offLabel="Período" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;">
+                                            <p:selectBooleanButton value="#{relatorioMatriculaEscolaBean.filtro[2]}" onLabel="Período" offLabel="Período" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;" title="Curso/Turma">
                                                 <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio" listener="#{relatorioMatriculaEscolaBean.clear}" />
                                             </p:selectBooleanButton>
                                             <p:selectBooleanButton value="#{relatorioMatriculaEscolaBean.filtro[3]}" onLabel="Idade" offLabel="Idade" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;" >
@@ -120,7 +120,7 @@
                                 </p:column>
                                 <p:column rendered="#{relatorioMatriculaEscolaBean.filtro[2]}">
                                     <p:panel header="Período">
-                                        <h:panelGrid columns="5">
+                                        <h:panelGrid columns="6">
                                             <p:calendar value="#{relatorioMatriculaEscolaBean.dataInicial}" pattern="dd/MM/yyyy" size="10" navigator="true" mask="99/99/9999">
                                                 <p:ajax event="dateSelect" listener="#{relatorioMatriculaEscolaBean.selecionaDataInicial}" />
                                             </p:calendar>
@@ -128,6 +128,10 @@
                                             <p:calendar value="#{relatorioMatriculaEscolaBean.dataFinal}" pattern="dd/MM/yyyy"  size="10" navigator="true" mask="99/99/9999">
                                                 <p:ajax event="dateSelect" listener="#{relatorioMatriculaEscolaBean.selecionaDataFinal}" />
                                             </p:calendar>
+                                            <p:outputLabel value="Ano:" styleClass="margin-left-max" />
+                                            <p:inputMask value="#{relatorioMatriculaEscolaBean.ano}" mask="9999">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputMask>
                                             <p:commandButton icon="ui-icon-close" action="#{relatorioMatriculaEscolaBean.close('periodo')}" title="Remover filtro"/>
                                         </h:panelGrid>
                                     </p:panel>

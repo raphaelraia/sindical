@@ -74,6 +74,7 @@ public class RelatorioMatriculaEscolaBean implements Serializable {
     private String title;
     private Map<String, String> listMeses;
     private List selectedMesesAniversario;
+    private String ano;
 
     @PostConstruct
     public void init() {
@@ -146,6 +147,7 @@ public class RelatorioMatriculaEscolaBean implements Serializable {
         if (GenericaSessao.exists("tipoMatricula")) {
             tipoMatricula = GenericaSessao.getBoolean("tipoMatricula", true);
         }
+        ano = "";
         loadMeses();
     }
 
@@ -198,7 +200,11 @@ public class RelatorioMatriculaEscolaBean implements Serializable {
         if (filtro[2]) {
             periodo[0] = DataHoje.converteData(dataInicial);
             periodo[1] = DataHoje.converteData(dataFinal);
-            listDetalhePesquisa.add(" Período do curso: " + periodo[0] + " e " + periodo[1]);
+            if (ano.isEmpty()) {
+                listDetalhePesquisa.add(" Período do curso: " + periodo[0] + " e " + periodo[1]);
+            } else {
+                listDetalhePesquisa.add(" Ano de : " + ano);
+            }
         }
         if (filtro[3]) {
             idade[0] = idadeInicial;
@@ -288,7 +294,7 @@ public class RelatorioMatriculaEscolaBean implements Serializable {
         RelatorioMatriculaEscolaDao relatorioMatriculaEscolaDao = new RelatorioMatriculaEscolaDao();
         relatorioMatriculaEscolaDao.setOrder(order);
         relatorioMatriculaEscolaDao.setRelatorios(relatorios);
-        List list = relatorioMatriculaEscolaDao.find(idFilial, dataMatricula, periodo, tipoIdade, idade, idStatus, idMidia, idProfessor, idVendedor, tipoMatricula, inIdCursoOuTurma, idAluno, sexo, idResponsavel, horario, meses_aniversario);
+        List list = relatorioMatriculaEscolaDao.find(idFilial, dataMatricula, periodo, ano, tipoIdade, idade, idStatus, idMidia, idProfessor, idVendedor, tipoMatricula, inIdCursoOuTurma, idAluno, sexo, idResponsavel, horario, meses_aniversario);
         if (list.isEmpty()) {
             GenericaMensagem.info("Sistema", "Não existem registros para o relatório selecionado");
             return;
@@ -516,6 +522,7 @@ public class RelatorioMatriculaEscolaBean implements Serializable {
                 filtro[2] = false;
                 dataInicial = DataHoje.dataHoje();
                 dataFinal = null;
+                ano = "";
                 break;
             case "idade":
                 filtro[3] = false;
@@ -941,6 +948,14 @@ public class RelatorioMatriculaEscolaBean implements Serializable {
 
     public void setSelectedMesesAniversario(List selectedMesesAniversario) {
         this.selectedMesesAniversario = selectedMesesAniversario;
+    }
+
+    public String getAno() {
+        return ano;
+    }
+
+    public void setAno(String ano) {
+        this.ano = ano;
     }
 
     public class RelatorioEscolaCadastral {

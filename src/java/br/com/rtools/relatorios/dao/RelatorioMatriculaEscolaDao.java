@@ -27,6 +27,7 @@ public class RelatorioMatriculaEscolaDao extends DB {
      * @param filial
      * @param periodoMatricula
      * @param periodo
+     * @param ano
      * @param tipoIdade
      * @param idade
      * @param horario
@@ -42,7 +43,7 @@ public class RelatorioMatriculaEscolaDao extends DB {
      * @param meses_aniversario
      * @return
      */
-    public List find(Integer filial, String periodoMatricula[], String periodo[], String tipoIdade, Integer idade[], Integer status, Integer midia, Integer professor, Integer vendedor, Boolean tipoMatricula, String inIdTurmaOuCurso, Integer aluno, String sexo, Integer responsavel, String horario[], String meses_aniversario) {
+    public List find(Integer filial, String periodoMatricula[], String periodo[], String ano, String tipoIdade, Integer idade[], Integer status, Integer midia, Integer professor, Integer vendedor, Boolean tipoMatricula, String inIdTurmaOuCurso, Integer aluno, String sexo, Integer responsavel, String horario[], String meses_aniversario) {
         String asString = "";
         String whereB = "";
         String joinString = "";
@@ -56,7 +57,9 @@ public class RelatorioMatriculaEscolaDao extends DB {
                 joinString += " INNER JOIN esc_turma AS T ON T.id = MT.id_turma \n";
                 joinString += " INNER JOIN fin_servicos AS S ON S.id = T.id_curso \n";
                 if (inIdTurmaOuCurso == null) {
-                    if (periodo[1].isEmpty()) {
+                    if (!ano.isEmpty()) {
+                        listQuery.add(ano + " BETWEEN EXTRACT('YEAR' FROM T.dt_inicio) AND EXTRACT('YEAR' FROM T.dt_termino)");
+                    } else if (periodo[1].isEmpty()) {
                         if (!periodo[0].isEmpty()) {
                             listQuery.add("T.dt_inicio = '" + periodo[0] + "'");
                         }
@@ -70,10 +73,8 @@ public class RelatorioMatriculaEscolaDao extends DB {
                     } else {
                         listQuery.add("T.tm_inicio  >= '" + horario[0] + "' AND T.tm_termino <= '" + horario[1] + "'");
                     }
-                } else {
-                    if(!inIdTurmaOuCurso.isEmpty()) {
-                        listQuery.add("T.id IN (" + inIdTurmaOuCurso + ")");                        
-                    }
+                } else if (!inIdTurmaOuCurso.isEmpty()) {
+                    listQuery.add("T.id IN (" + inIdTurmaOuCurso + ")");
                 }
             } else {
                 asString += " MI.dt_inicio, ";
@@ -88,7 +89,9 @@ public class RelatorioMatriculaEscolaDao extends DB {
                 if (vendedor != null) {
                     listQuery.add("MI.id_professor = " + professor);
                 }
-                if (periodo[1].isEmpty()) {
+                if (!ano.isEmpty()) {
+                    listQuery.add(ano + " BETWEEN EXTRACT('YEAR' FROM MI.dt_inicio) AND EXTRACT('YEAR', MI.dt_termino)");
+                } else if (periodo[1].isEmpty()) {
                     if (!periodo[0].isEmpty()) {
                         listQuery.add("MI.dt_inicio = '" + periodo[0] + "'");
                     }
@@ -113,7 +116,7 @@ public class RelatorioMatriculaEscolaDao extends DB {
                     + "         " + asString + "                                                                   \n" // 5 - INICIO - 6 TÉRMINO
                     + "             SVW.categoria,                                                                 \n" // 7 - CATEGORIA DE SÓCIOS
                     + "             ME.dt_status,                                                                  \n" // 8 - DATA STATUS
-                    + ""            + whereB + "                                                                   \n" // 9 - TURMA DESCRIÇÃO
+                    + "" + whereB + "                                                                   \n" // 9 - TURMA DESCRIÇÃO
                     + "        FROM matr_escola AS ME                                                              \n"
                     + "  INNER JOIN fin_servico_pessoa      AS SP   ON SP.id = ME.id_servico_pessoa                \n"
                     + "  INNER JOIN pes_fisica              AS F    ON F.id_pessoa   = SP.id_pessoa                \n"
@@ -128,10 +131,10 @@ public class RelatorioMatriculaEscolaDao extends DB {
             }
             if (periodoMatricula[1].isEmpty()) {
                 if (!periodoMatricula[0].isEmpty()) {
-                    listQuery.add("RM.dt_emissao = '" + periodoMatricula[0] + "'");
+                    listQuery.add("SP.dt_emissao = '" + periodoMatricula[0] + "'");
                 }
             } else {
-                listQuery.add("RM.dt_emissao BETWEEN '" + periodoMatricula[0] + "' AND '" + periodoMatricula[1] + "'");
+                listQuery.add("SP.dt_emissao BETWEEN '" + periodoMatricula[0] + "' AND '" + periodoMatricula[1] + "'");
             }
             if (idade[0] != null || idade[1] != null) {
                 switch (tipoIdade) {
@@ -171,7 +174,7 @@ public class RelatorioMatriculaEscolaDao extends DB {
             if (aluno != null) {
                 listQuery.add("SP.id_pessoa = " + aluno);
             }
-            if(meses_aniversario != null) {
+            if (meses_aniversario != null) {
                 listQuery.add(" date_part('month', F.dt_nascimento) IN ( " + meses_aniversario + " )");
             }
             for (int i = 0; i < listQuery.size(); i++) {
