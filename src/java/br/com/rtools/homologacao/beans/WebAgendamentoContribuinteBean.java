@@ -525,8 +525,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
             return;
         }
 
-        AtendimentoDB dbat = new AtendimentoDBTopLink();
-        if (dbat.pessoaOposicao(fisica.getPessoa().getDocumento())) {
+        if (new OposicaoDao().existsPorPessoaEmpresa(fisica.getPessoa().getDocumento(), juridica.getId())) {
             if (!updatePessoaEmpresa(dao)) {
                 GenericaMensagem.error("Erro", "Não foi possível atualizar Pessoa Empresa!");
                 dao.rollback();
@@ -536,6 +535,11 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
             dao.commit();
         } else {
             if (agendamento.getId() == -1) {
+                if (agendamento.getId() < 0) {
+                    GenericaMensagem.error("Erro", "Não foi possível atualizar Pessoa Empresa!");
+                    dao.rollback();
+                    return;
+                }
                 agendamento.setAgendador(null);
                 agendamento.setRecepcao(null);
                 agendamento.setDtEmissao(DataHoje.dataHoje());
@@ -746,7 +750,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
         agendamento.setData(datax);
         agendamento.setHorarios(horario);
         agendamento.setFilial(sindicatoFilial.getFilial());
-        
+
         oposicaoPessoa = new OposicaoPessoa();
     }
 
@@ -835,13 +839,13 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
                         }
                     }
                 }
-                if(!pularFisica) {
+                if (!pularFisica) {
                     if (fisica.getId() == -1 && op.getId() != -1) {
                         fisica.getPessoa().setNome(op.getOposicaoPessoa().getNome());
                         fisica.setRg(op.getOposicaoPessoa().getRg());
                         fisica.setSexo(op.getOposicaoPessoa().getSexo());
                         fisica.getPessoa().setDocumento(documento);
-                    }                    
+                    }
                 }
 
                 if (op.getId() != -1) {

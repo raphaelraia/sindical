@@ -2,6 +2,7 @@ package br.com.rtools.homologacao.beans;
 
 import br.com.rtools.pessoa.beans.PesquisarProfissaoBean;
 import br.com.rtools.arrecadacao.Oposicao;
+import br.com.rtools.arrecadacao.dao.OposicaoDao;
 import br.com.rtools.arrecadacao.db.WebContabilidadeDB;
 import br.com.rtools.arrecadacao.db.WebContabilidadeDBToplink;
 import br.com.rtools.atendimento.db.AtendimentoDB;
@@ -752,9 +753,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
             dao.commit();
             return;
         }
-
-        AtendimentoDB dbat = new AtendimentoDBTopLink();
-        if (dbat.pessoaOposicao(fisica.getPessoa().getDocumento())) {
+        if (new OposicaoDao().existsPorPessoaEmpresa(fisica.getPessoa().getDocumento(), juridica.getId())) {
             if (!updatePessoaEmpresa(dao)) {
                 GenericaMensagem.error("Erro", "Não foi possível atualizar Pessoa Empresa!");
                 dao.rollback();

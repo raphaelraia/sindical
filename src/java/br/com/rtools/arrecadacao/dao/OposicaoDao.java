@@ -11,6 +11,7 @@ import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.SalvarAcumuladoDB;
 import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 import javax.persistence.Query;
@@ -44,6 +45,69 @@ public class OposicaoDao extends DB {
         } catch (Exception e) {
         }
         return result;
+    }
+
+    public Boolean existsPorPessoa(String cpf) {
+        return !pesquisaListaPorPessoaEmpresa(cpf, null).isEmpty();
+    }
+
+    public Boolean existsPorPessoaEmpresa(String cpf, Integer empresa_id) {
+        return !pesquisaListaPorPessoaEmpresa(cpf, empresa_id).isEmpty();
+    }
+
+    public Oposicao pesquisaPorPessoa(String cpf) {
+        return pesquisaPorPessoaEmpresa(cpf, null);
+    }
+
+    public Oposicao pesquisaPorPessoaEmpresa(String cpf, Integer empresa_id) {
+        try {
+            String data = DataHoje.livre(new Date(), "yyyyMM");
+            String queryString = ""
+                    + "     -- OposicaoDao por documento ou empresa             \n"
+                    + "     SELECT opo.*                                        \n"
+                    + "       FROM arr_oposicao opo                             \n"
+                    + " INNER JOIN arr_oposicao_pessoa pes on pes.id = opo.id_oposicao_pessoa       \n"
+                    + " INNER JOIN arr_convencao_periodo per on per.id = opo.id_convencao_periodo   \n"
+                    + "      WHERE pes.ds_cpf = '" + cpf + "'                                       \n"
+                    + "        AND '" + data + "' >= (substring(per.ds_referencia_inicial,4,4)||substring(per.ds_referencia_inicial,1,2))   \n"
+                    + "        AND '" + data + "' <= (substring(per.ds_referencia_final,4,4)||substring(per.ds_referencia_final,1,2))       \n"
+                    + "        AND opo.dt_inativacao IS NULL \n";
+            if (empresa_id != null) {
+                queryString += " AND opo.id_juridica = " + empresa_id + " \n";
+            }
+            Query qry = getEntityManager().createNativeQuery(queryString, Oposicao.class);
+            qry.setMaxResults(1);
+            return (Oposicao) qry.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public List pesquisaListaPorPessoa(String cpf) {
+        return pesquisaListaPorPessoaEmpresa(cpf, null);
+    }
+
+    public List pesquisaListaPorPessoaEmpresa(String cpf, Integer empresa_id) {
+        try {
+            String data = DataHoje.livre(new Date(), "yyyyMM");
+            String queryString = ""
+                    + "     -- OposicaoDao por documento ou empresa             \n"
+                    + "     SELECT opo.*                                        \n"
+                    + "       FROM arr_oposicao opo                             \n"
+                    + " INNER JOIN arr_oposicao_pessoa pes on pes.id = opo.id_oposicao_pessoa       \n"
+                    + " INNER JOIN arr_convencao_periodo per on per.id = opo.id_convencao_periodo   \n"
+                    + "      WHERE pes.ds_cpf = '" + cpf + "'                                       \n"
+                    + "        AND '" + data + "' >= (substring(per.ds_referencia_inicial,4,4)||substring(per.ds_referencia_inicial,1,2))   \n"
+                    + "        AND '" + data + "' <= (substring(per.ds_referencia_final,4,4)||substring(per.ds_referencia_final,1,2))       \n"
+                    + "        AND opo.dt_inativacao IS NULL \n";
+            if (empresa_id != null) {
+                queryString += " AND opo.id_juridica = " + empresa_id + " \n";
+            }
+            Query qry = getEntityManager().createNativeQuery(queryString, Oposicao.class);
+            return qry.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
     }
 
     public PessoaEmpresa pesquisaPessoaFisicaEmpresa(String cpf, String rg) {
