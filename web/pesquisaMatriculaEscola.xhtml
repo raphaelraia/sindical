@@ -41,8 +41,8 @@
                                 <f:selectItems value="#{matriculaEscolaBean.listaStatus}" />
                                 <f:selectItem itemLabel="Todos" itemValue="5" />
                             </p:selectOneMenu>                            
-                            <p:commandButton id="idInicial" value="Inicial" action="#{matriculaEscolaBean.acaoPesquisaInicial}" actionListener="#{matriculaEscolaBean.listaMatriculaEscolas.clear()}" update=":formGridPesquisaMatrícula:i_panel_grid" />
-                            <p:commandButton id="idParcial" value="Parcial" action="#{matriculaEscolaBean.acaoPesquisaParcial}" actionListener="#{matriculaEscolaBean.listaMatriculaEscolas.clear()}" update=":formGridPesquisaMatrícula:i_panel_grid" />
+                            <p:commandButton id="idInicial" value="Inicial" action="#{matriculaEscolaBean.acaoPesquisaInicial}" actionListener="#{matriculaEscolaBean.listaMatriculaEscolas.clear()}" update=":formGridPesquisaMatrícula:" />
+                            <p:commandButton id="idParcial" value="Parcial" action="#{matriculaEscolaBean.acaoPesquisaParcial}" actionListener="#{matriculaEscolaBean.listaMatriculaEscolas.clear()}" update=":formGridPesquisaMatrícula:" />
                         </h:panelGrid> 
                         <p:focus for="i_ds_pesquisa" />
                     </p:panel>
@@ -52,30 +52,33 @@
             <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                 <h:form id="formGridPesquisaMatrícula">
                     <h:panelGrid id="i_panel_grid" style="width: 100%">
-                        <p:dataTable value="#{matriculaEscolaBean.listaMatriculaEscolas}" var="listaMatriculaEscola" emptyMessage="Nenhum registro encontrado">
+                        <p:dataTable value="#{matriculaEscolaBean.listaMatriculaEscolas}" var="listaMatriculaEscola" emptyMessage="Nenhum registro encontrado" paginator="true" rows="10">
+                            <p:column width="30" styleClass="text-center">
+                                <p:commandButton icon="ui-icon-link" action="#{matriculaEscolaBean.editar(listaMatriculaEscola.matriculaEscola)}" immediate="true"/>
+                            </p:column>
                             <p:column headerText="Contrato" style="width: 50px" styleClass="text-center">
                                 <p:commandLink action="#{matriculaEscolaBean.editar(listaMatriculaEscola.matriculaEscola)}" value="#{listaMatriculaEscola.matriculaEscola.id}" immediate="true"/>
                             </p:column>
-                            <p:column headerText="Nome do Aluno">
-                                <p:commandLink action="#{matriculaEscolaBean.editar(listaMatriculaEscola.matriculaEscola)}" value="#{listaMatriculaEscola.matriculaEscola.servicoPessoa.pessoa.nome}" />
+                            <p:column headerText="Nome do Aluno">                                
+                                <p:commandLink action="#{matriculaEscolaBean.editar(listaMatriculaEscola.matriculaEscola)}" value="#{listaMatriculaEscola.matriculaEscola.servicoPessoa.pessoa.nome}" immediate="true"/>
                             </p:column>
                             <p:column headerText="Responsável">
-                                <p:commandLink action="#{matriculaEscolaBean.editar(listaMatriculaEscola.matriculaEscola)}" value="#{listaMatriculaEscola.matriculaEscola.servicoPessoa.cobranca.nome}" />
+                                #{listaMatriculaEscola.matriculaEscola.servicoPessoa.cobranca.nome}
                             </p:column>
                             <p:column headerText="Nome do Curso">
-                                <p:commandLink action="#{matriculaEscolaBean.editar(listaMatriculaEscola.matriculaEscola)}" value="#{listaMatriculaEscola.curso}" />
+                                #{listaMatriculaEscola.curso}
                             </p:column>
                             <p:column headerText="Período" styleClass="text-center">
-                                <p:commandLink action="#{matriculaEscolaBean.editar(listaMatriculaEscola.matriculaEscola)}" value="#{listaMatriculaEscola.periodo}" />
+                                #{listaMatriculaEscola.periodo}
                             </p:column>
                             <p:column headerText="Valor do Curso" style="text-align: right; width: 80px">
-                                <p:commandLink action="#{matriculaEscolaBean.editar(listaMatriculaEscola.matriculaEscola)}" value="R$ #{matriculaEscolaBean.valorServico(listaMatriculaEscola.matriculaEscola)}" />
+                                R$ #{matriculaEscolaBean.valorServico(listaMatriculaEscola.matriculaEscola)}
                             </p:column>
                             <p:column headerText="Status" style="width: 60px; text-align: center">
-                                <p:commandLink action="#{matriculaEscolaBean.editar(listaMatriculaEscola.matriculaEscola)}" value="#{listaMatriculaEscola.matriculaEscola.escStatus.descricao}" />
+                                #{listaMatriculaEscola.matriculaEscola.escStatus.descricao}
                             </p:column>
                             <p:column headerText="Filial">
-                                <p:commandLink action="#{matriculaEscolaBean.editar(listaMatriculaEscola.matriculaEscola)}" value="#{listaMatriculaEscola.matriculaEscola.filial.filial.pessoa.nome} - CNPJ: #{listaMatriculaEscola.matriculaEscola.filial.filial.pessoa.documento}" />
+                                #{listaMatriculaEscola.matriculaEscola.filial.filial.pessoa.nome} - CNPJ: #{listaMatriculaEscola.matriculaEscola.filial.filial.pessoa.documento}
                             </p:column>
                         </p:dataTable>
                     </h:panelGrid>
