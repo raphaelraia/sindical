@@ -2009,7 +2009,13 @@
             <from-outcome>senha</from-outcome>
             <to-view-id>/senha.jsf</to-view-id>
             <redirect/>
-        </navigation-case>                 
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>devolucaoFilme</from-outcome>
+            <to-view-id>/devolucaoFilme.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>        
         
         <!-- 
         <navigation-case>

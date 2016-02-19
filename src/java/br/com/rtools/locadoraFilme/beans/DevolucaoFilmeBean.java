@@ -30,12 +30,13 @@ import javax.faces.model.SelectItem;
 
 @ManagedBean
 @SessionScoped
-public class LocacaoFilmeBean implements Serializable {
+public class DevolucaoFilmeBean implements Serializable {
 
     private LocadoraLote locadoraLote;
     private LocadoraMovimento locadoraMovimento;
     private String codigoLocatario;
     private String codigoBarras;
+    private String dataDevolucaoString;
     private Titulo titulo;
     private List<LocadoraMovimento> listLocadoraMovimento;
     private List<LocadoraMovimento> listLocadoraHistorico;
@@ -64,6 +65,7 @@ public class LocacaoFilmeBean implements Serializable {
         if (locadoraStatus == null) {
             locadoraStatus = new LocadoraStatusDao().findByFilialSemana(MacFilial.getAcessoFilial().getFilial().getId());
         }
+        dataDevolucaoString = DataHoje.data();
     }
 
     public void loadLocadoraAutorizados() {
@@ -107,13 +109,13 @@ public class LocacaoFilmeBean implements Serializable {
             return;
         }
         Dao dao = new Dao();
-        locadoraLote.setPessoa((Pessoa) dao.find(locatario.getPessoa()));
-        locadoraLote.setDtLocacao(new Date());
-        if (idLocadoraAutorizado != null) {
-            locadoraLote.setLocadoraAutorizados((LocadoraAutorizados) dao.find(new LocadoraAutorizados(), idLocadoraAutorizado));
-        }
         dao.openTransaction();
         if (locadoraLote.getId() == null) {
+            locadoraLote.setPessoa(locatario.getPessoa());
+            locadoraLote.setDtLocacao(new Date());
+            if (idLocadoraAutorizado != null) {
+                locadoraLote.setLocadoraAutorizados((LocadoraAutorizados) new Dao().find(new LocadoraAutorizados(), idLocadoraAutorizado));
+            }
             if (!dao.save(locadoraLote)) {
                 dao.rollback();
                 GenericaMensagem.warn("Erro", "Ao realizar esta locação!");
@@ -173,10 +175,8 @@ public class LocacaoFilmeBean implements Serializable {
 //        }
         // Movimento movimento = new Movimento();
         // movimento.setIdInteger(null);
-        DataHoje dataHoje = new DataHoje();
         if (locadoraLote.getId() != null) {
             for (int i = 0; i < listLocadoraMovimento.size(); i++) {
-                listLocadoraMovimento.get(i).setDataDevolucaoString(dataHoje.incrementarDias(locadoraStatus.getDiasDevolucao(), DataHoje.data()));
                 if (listLocadoraMovimento.get(i).getLocadoraLote() == null) {
                     listLocadoraMovimento.get(i).setLocadoraLote(locadoraLote);
                     quantidade++;
@@ -339,7 +339,7 @@ public class LocacaoFilmeBean implements Serializable {
         }
         LocadoraMovimentoDao locadoraMovimentoDao = new LocadoraMovimentoDao();
         List<LocadoraMovimento> lms = locadoraMovimentoDao.pesquisaPendentesPorPessoa(locatario.getPessoa().getId());
-        if (lms.size() > locadoraStatus.getQtdeLocacao()) {
+        if (locadoraStatus.getQtdeLocacao() > lms.size()) {
             GenericaMensagem.warn("Validação", "Quantidade de locações excedidas, existem locações em aberto!");
             return;
         }
@@ -508,5 +508,13 @@ public class LocacaoFilmeBean implements Serializable {
 
     public void setListLocadoraHistorico(List<LocadoraMovimento> listLocadoraHistorico) {
         this.listLocadoraHistorico = listLocadoraHistorico;
+    }
+
+    public String getDataDevolucaoString() {
+        return dataDevolucaoString;
+    }
+
+    public void setDataDevolucaoString(String dataDevolucaoString) {
+        this.dataDevolucaoString = dataDevolucaoString;
     }
 }
