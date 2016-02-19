@@ -67,16 +67,18 @@ public class ContaOperacaoBean implements Serializable {
 
     public void clear(int type) {
         hidden[0] = false;
-        if (type == 1 || type == 4) {
-            if (type == 1) {
-                index[3] = 0;
-            }
+        if (type == 1) {
             index[1] = 0;
             index[2] = 0;
-            listSelectItem[3] = new ArrayList<SelectItem>();
+            index[3] = 0;
+            listSelectItem[3] = new ArrayList();
             listPlano5.clear();
             listContaOperacao.clear();
+        } else if (type == 4) {
             if (type == 4) {
+                listPlano5.clear();
+                listContaOperacao.clear();
+
                 contaOperacao = new ContaOperacao();
                 PF.closeDialog("dlg_co");
                 PF.update("form_co");

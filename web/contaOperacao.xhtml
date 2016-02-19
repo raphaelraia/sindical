@@ -8,7 +8,15 @@
     <h:head>
         <title>Conta Operação</title>
         <meta http-equiv="X-UA-Compatible" content="IE=9" />
-        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important;} 
+            .ui-button { padding: 3px!important; }
+        </style>
+
+        <script type="text/javascript">
+
+        </script>
     </h:head>
     <h:body>
         <!-- INICIA DIV wrap e main -->
@@ -21,7 +29,7 @@
                 <f:view>
                     <h:form id="form_co">
                         <c:set scope="request" var="object" value="${contaOperacaoBean.contaOperacao}"/>
-                        <p:panel styleClass="wrapper" style="border: 0px;">
+                        <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                             <h:outputText value="Conta Operação" styleClass="fonteHeader" />
                             <div class="clear"></div>
                             <p:messages showDetail="true" showSummary="true" autoUpdate="true" closable="true"/>
@@ -41,63 +49,63 @@
                                     </p:selectOneMenu>
                                 </h:panelGrid>
                             </p:panel>
+                            <h:panelGrid columns="3" columnClasses="verticalAlignTop, verticalAlignTop, verticalAlignTop">
+                                <h:column>
+                                    <h:panelGrid columns="1">
+                                        <p:dataTable var="plano5" value="#{contaOperacaoBean.listPlano5}" scrollHeight="250" scrollable="true" emptyMessage="Nenhum registro encontrado!">
+                                            <p:column headerText="Conta (Plano 5)">
+                                                #{plano5.conta}
+                                            </p:column>
+                                            <p:column headerText="Classificador" width="120">
+                                                #{plano5.classificador}
+                                            </p:column>
+                                            <p:column width="25" styleClass="text-center">
+                                                <p:commandButton icon="ui-icon-plus" action="#{contaOperacaoBean.setItem(plano5)}" disabled="#{controleAcessoBean.botaoSalvar}"/>
+                                            </p:column>
+                                        </p:dataTable>                                        
+                                    </h:panelGrid>
+                                </h:column>
+                                <h:column>
+                                    <h:panelGrid columns="1" >
+                                        <p:commandButton value="Remover contas selecionadas" action="#{contaOperacaoBean.removeItens()}" disabled="#{controleAcessoBean.botaoExcluir}"/>
+                                        <hr />
+                                        <p:commandButton value="Remover todas contas" action="#{contaOperacaoBean.removeItens()}" disabled="#{controleAcessoBean.botaoExcluir}"/>
+                                    </h:panelGrid>
+                                </h:column>
+                                <h:column>
+                                    <h:panelGrid id="i_tbl_co">
+                                        <p:dataTable var="contaOperacao" value="#{contaOperacaoBean.listContaOperacao}" scrollHeight="250" scrollable="true" selection="#{contaOperacaoBean.selectedContaOperacao}" rowKey="#{contaOperacao.id}" emptyMessage="Nenhum registro encontrado!">
+                                            <p:ajax event="rowSelect" />
+                                            <p:ajax event="rowSelectCheckbox" />
+                                            <p:ajax event="rowUnselect" />
+                                            <p:ajax event="rowUnselectCheckbox" />
+                                            <p:ajax event="toggleSelect" />
+                                            <p:column selectionMode="multiple" width="20" styleClass="text-center"/>                                    
+                                            <p:column width="25" styleClass="text-center">
+                                                <p:commandButton icon="ui-icon-link" action="#{contaOperacaoBean.editItem(contaOperacao)}" disabled="#{controleAcessoBean.botaoSalvar}" title="Editar"/>
+                                            </p:column>                                    
+                                            <p:column headerText="Plano 5">
+                                                #{contaOperacao.plano5.conta} - #{contaOperacao.plano5.numero}
+                                            </p:column>
+                                            <p:column headerText="E/S" width="25" styleClass="text-center">
+                                                #{contaOperacao.es}
+                                            </p:column>
+                                            <p:column headerText="C.F." width="25" styleClass="text-center">
+                                                <p:selectBooleanCheckbox value="#{contaOperacao.contaFixa}" disabled="#{controleAcessoBean.botaoSalvar}">
+                                                    <p:ajax event="change" listener="#{contaOperacaoBean.updateContaOperacao(contaOperacao)}" />
+                                                </p:selectBooleanCheckbox>
+                                            </p:column>
+                                            <p:column width="25" styleClass="text-center">
+                                                <p:commandButton icon="ui-icon-close" action="#{contaOperacaoBean.removeItem(contaOperacao)}" disabled="#{controleAcessoBean.botaoExcluir}" title="Remover item"/>
+                                            </p:column>                                    
+                                            <f:facet name="footer">
+                                                C.F.: Conta Fixa
+                                            </f:facet>
+                                        </p:dataTable>
+                                    </h:panelGrid>
+                                </h:column>
+                            </h:panelGrid>
                         </p:panel>
-                        <h:panelGrid columns="3" columnClasses="verticalAlignTop, verticalAlignTop, verticalAlignTop" styleClass="margin">
-                            <h:column>
-                                <h:panelGrid columns="1">
-                                    <p:dataTable var="plano5" value="#{contaOperacaoBean.listPlano5}" scrollHeight="250" scrollable="true" emptyMessage="Nenhum registro encontrado!">
-                                        <p:column headerText="Conta (Plano 5)">
-                                            #{plano5.conta}
-                                        </p:column>
-                                        <p:column headerText="Classificador" width="120">
-                                            #{plano5.classificador}
-                                        </p:column>
-                                        <p:column width="25" styleClass="text-center">
-                                            <p:commandButton icon="ui-icon-plus" action="#{contaOperacaoBean.setItem(plano5)}" disabled="#{controleAcessoBean.botaoSalvar}"/>
-                                        </p:column>
-                                    </p:dataTable>                                        
-                                </h:panelGrid>
-                            </h:column>
-                            <h:column>
-                                <h:panelGrid columns="1" >
-                                    <p:commandButton value="Remover contas selecionadas" action="#{contaOperacaoBean.removeItens()}" disabled="#{controleAcessoBean.botaoExcluir}"/>
-                                    <hr />
-                                    <p:commandButton value="Remover todas contas" action="#{contaOperacaoBean.removeItens()}" disabled="#{controleAcessoBean.botaoExcluir}"/>
-                                </h:panelGrid>
-                            </h:column>
-                            <h:column>
-                                <h:panelGrid id="i_tbl_co">
-                                    <p:dataTable var="contaOperacao" value="#{contaOperacaoBean.listContaOperacao}" scrollHeight="250" scrollable="true" selection="#{contaOperacaoBean.selectedContaOperacao}" rowKey="#{contaOperacao.id}" emptyMessage="Nenhum registro encontrado!">
-                                        <p:ajax event="rowSelect" />
-                                        <p:ajax event="rowSelectCheckbox" />
-                                        <p:ajax event="rowUnselect" />
-                                        <p:ajax event="rowUnselectCheckbox" />
-                                        <p:ajax event="toggleSelect" />
-                                        <p:column selectionMode="multiple" width="20" styleClass="text-center"/>                                    
-                                        <p:column width="25" styleClass="text-center">
-                                            <p:commandButton icon="ui-icon-link" action="#{contaOperacaoBean.editItem(contaOperacao)}" disabled="#{controleAcessoBean.botaoSalvar}" title="Editar"/>
-                                        </p:column>                                    
-                                        <p:column headerText="Plano 5">
-                                            #{contaOperacao.plano5.conta} - #{contaOperacao.plano5.numero}
-                                        </p:column>
-                                        <p:column headerText="E/S" width="25" styleClass="text-center">
-                                            #{contaOperacao.es}
-                                        </p:column>
-                                        <p:column headerText="C.F." width="25" styleClass="text-center">
-                                            <p:selectBooleanCheckbox value="#{contaOperacao.contaFixa}" disabled="#{controleAcessoBean.botaoSalvar}">
-                                                <p:ajax event="change" listener="#{contaOperacaoBean.updateContaOperacao(contaOperacao)}" />
-                                            </p:selectBooleanCheckbox>
-                                        </p:column>
-                                        <p:column width="25" styleClass="text-center">
-                                            <p:commandButton icon="ui-icon-close" action="#{contaOperacaoBean.removeItem(contaOperacao)}" disabled="#{controleAcessoBean.botaoExcluir}" title="Remover item"/>
-                                        </p:column>                                    
-                                        <f:facet name="footer">
-                                            C.F.: Conta Fixa
-                                        </f:facet>
-                                    </p:dataTable>
-                                </h:panelGrid>
-                            </h:column>
-                        </h:panelGrid>
                         <p:dialog widgetVar="dlg_co" width="1024" modal="true" closable="false" header="Conta Operação" dynamic="true">
                             <p:messages showDetail="true" showSummary="true" autoUpdate="true" closable="true" id="i_message_co"  />
                             <h:panelGrid columns="2" id="i_panel_co">

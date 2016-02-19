@@ -154,7 +154,8 @@ public class MovimentosReceberSocialBean implements Serializable {
 
     private Boolean visibleAnexar = false;
     private LinhaBoletosAnexo linhaBoletosAnexo = null;
-
+    private String limitePesquisa = "todos";
+    
     @PostConstruct
     public void init() {
         Object cc = GenericaSessao.getObject("pessoaPesquisa");
@@ -1368,6 +1369,10 @@ public class MovimentosReceberSocialBean implements Serializable {
 
     public void atualizarStatus() {
         listaMovimento.clear();
+        
+        if (porPesquisa.equals("quitados") || porPesquisa.equals("todos")){
+            limitePesquisa = "50";
+        }
     }
 
     public void listenerPesquisa() {
@@ -1543,12 +1548,12 @@ public class MovimentosReceberSocialBean implements Serializable {
                 id_responsavel = id_responsavel + String.valueOf(listaPessoaQry.get(i).getId());
             }
 
-            List<Vector> lista = null;
+            List<Vector> lista;
 
             if (dbf.pesquisaFisicaPorPessoa(pessoa.getId()) != null) {
-                lista = db.pesquisaListaMovimentos(id_pessoa, id_responsavel, porPesquisa, criterioReferencia, "fisica", criterioLoteBaixa);
+                lista = db.pesquisaListaMovimentos(id_pessoa, id_responsavel, porPesquisa, criterioReferencia, "fisica", criterioLoteBaixa, limitePesquisa);
             } else {
-                lista = db.pesquisaListaMovimentos(id_pessoa, id_responsavel, porPesquisa, criterioReferencia, "juridica", criterioLoteBaixa);
+                lista = db.pesquisaListaMovimentos(id_pessoa, id_responsavel, porPesquisa, criterioReferencia, "juridica", criterioLoteBaixa, limitePesquisa);
             }
 
             boolean chk, disabled;
@@ -2111,6 +2116,14 @@ public class MovimentosReceberSocialBean implements Serializable {
 
     public void setLinhaBoletosAnexo(LinhaBoletosAnexo linhaBoletosAnexo) {
         this.linhaBoletosAnexo = linhaBoletosAnexo;
+    }
+
+    public String getLimitePesquisa() {
+        return limitePesquisa;
+    }
+
+    public void setLimitePesquisa(String limitePesquisa) {
+        this.limitePesquisa = limitePesquisa;
     }
 
 //    public List<Movimento> getListaMovimentoDoBoleto() {

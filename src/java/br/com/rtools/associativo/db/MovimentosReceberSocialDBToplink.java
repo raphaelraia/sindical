@@ -54,7 +54,7 @@ public class MovimentosReceberSocialDBToplink extends DB implements MovimentosRe
      * @return
      */
     @Override
-    public List pesquisaListaMovimentos(String id_pessoa, String id_responsavel, String por_status, String referencia, String tipoPessoa, String lote_baixa) {
+    public List pesquisaListaMovimentos(String id_pessoa, String id_responsavel, String por_status, String referencia, String tipoPessoa, String lote_baixa, String limite_pesquisa) {
         try {
             if (id_pessoa.isEmpty()) {
                 return new ArrayList();
@@ -109,8 +109,8 @@ public class MovimentosReceberSocialDBToplink extends DB implements MovimentosRe
                     // ands = where + " WHERE (m.id_pessoa in (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL)) \n  "
                             + "        AND m.is_ativo = true \n"
                             + "        AND m.id_servicos NOT IN(SELECT sr.id_servicos FROM fin_servico_rotina AS sr WHERE id_rotina = 4) \n ";
-                    order_by = (tipoPessoa.equals("fisica")) ? " ORDER BY m.dt_vencimento asc, p.ds_nome, t.ds_nome, b.ds_nome, se.ds_descricao \n "
-                            : " ORDER BY m.dt_vencimento asc, p.ds_nome, t.ds_nome, b.ds_nome, se.ds_descricao \n ";
+                    order_by = (tipoPessoa.equals("fisica")) ? " ORDER BY m.dt_vencimento desc, p.ds_nome, t.ds_nome, b.ds_nome, se.ds_descricao \n "
+                            : " ORDER BY m.dt_vencimento desc, p.ds_nome, t.ds_nome, b.ds_nome, se.ds_descricao \n ";
                     break;
                 case "abertos":
                     ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL) or m.id_pessoa IN (" + id_pessoa + ")) \n "
@@ -126,8 +126,8 @@ public class MovimentosReceberSocialDBToplink extends DB implements MovimentosRe
                             + "        AND m.id_baixa IS NOT NULL   \n"
                             + "        AND m.is_ativo = true        \n"
                             + "        AND m.id_servicos NOT IN(SELECT sr.id_servicos FROM fin_servico_rotina AS sr WHERE id_rotina = 4) \n";
-                    order_by = (tipoPessoa.equals("fisica")) ? " ORDER BY bx.dt_baixa ASC, m.dt_vencimento, p.ds_nome, se.ds_descricao \n"
-                            : " ORDER BY bx.dt_baixa ASC, m.dt_vencimento, p.ds_nome, se.ds_descricao \n ";
+                    order_by = (tipoPessoa.equals("fisica")) ? " ORDER BY bx.dt_baixa DESC, m.dt_vencimento, p.ds_nome, se.ds_descricao \n"
+                            : " ORDER BY bx.dt_baixa DESC, m.dt_vencimento, p.ds_nome, se.ds_descricao \n ";
                     break;
                 case "atrasados":
                     ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL) or m.id_pessoa IN (" + id_pessoa + ")) \n "
@@ -159,7 +159,13 @@ public class MovimentosReceberSocialDBToplink extends DB implements MovimentosRe
                 ands += " AND m.id_baixa = " + lote_baixa + " \n";
             }
 
+            
             textqry += ands + order_by;
+            
+            if (!limite_pesquisa.equals("todos")){
+                textqry += " LIMIT " + limite_pesquisa;
+            }
+            
             Query qry = getEntityManager().createNativeQuery(textqry);
 
             return qry.getResultList();

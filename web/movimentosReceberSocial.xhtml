@@ -201,10 +201,21 @@
                                 </p:column>
                             </h:panelGrid>
 
-                            <h:panelGrid id="panelAnexar" columns="2" rendered="#{movimentosReceberSocialBean.listaMovimento.size() > 0 or movimentosReceberSocialBean.pessoa.id != -1}" style="width: 100%">
+                            <h:panelGrid id="panelAnexar" columns="3" rendered="#{movimentosReceberSocialBean.listaMovimento.size() > 0 or movimentosReceberSocialBean.pessoa.id != -1}" style="width: 100%">
                                 <p:column>
                                     <br />
                                     <p:commandButton value="Anexar Boletos" action="#{movimentosReceberSocialBean.clickAnexarMovimentos}" title="Anexar Boletos" rendered="#{movimentosReceberSocialBean.porPesquisa != 'quitados'}"  onclick="PF('dlg_anexar_boletos').show()" update="panel_anexar_boletos panel_criar_boleto" disabled="#{movimentosReceberSocialBean.cab.verificarPermissao('anexarBoletos', 3) or movimentosReceberSocialBean.cab.verificarPermissao('anexarBoletos', 1)}"/>
+                                </p:column>
+
+                                <p:column>
+                                    <p:outputLabel value="Limite de resultados na lista" style="color: red" /><br />
+                                    <p:selectOneMenu value="#{movimentosReceberSocialBean.limitePesquisa}" style="width: 250px">
+                                        <p:ajax event="change" update="@this formMovimentosReceber" listener="#{movimentosReceberSocialBean.listenerPesquisa()}"/>
+                                        <f:selectItem itemValue="30" itemLabel="30"/>
+                                        <f:selectItem itemValue="50" itemLabel="50"/>
+                                        <f:selectItem itemValue="150" itemLabel="150"/>
+                                        <f:selectItem itemValue="todos" itemLabel="Todos Movimentos (Não Recomendado)"/>
+                                    </p:selectOneMenu>
                                 </p:column>
 
                                 <p:column>
@@ -497,7 +508,7 @@
                                         <p:column headerText="Mensagem">
                                             <p:commandLink value="#{(linha_boleto_anexo.listaQuery[6] eq '' or linha_boleto_anexo.listaQuery[6] eq null) ? 'ADICIONAR MENSAGEM' : linha_boleto_anexo.listaQuery[6]}" action="#{movimentosReceberSocialBean.selecionaMensagemBoleto(linha_boleto_anexo.boleto.id)}" oncomplete="PF('dlg_mensagem_boleto').show()" update=":formMovimentosReceber:panelAlterarMensagem"/>
                                         </p:column>
-                                        
+
                                         <p:column style="text-align: center; width: 40px">
                                             <p:commandButton icon="ui-icon-print" ajax="false" onclick="this.form.target = '_blank'" action="#{movimentosReceberSocialBean.imprimirBoletos(linha_boleto_anexo.listaQuery[0])}" style="font-weight: bold" title="IMPRIMIR BOLETO"/>
                                         </p:column>
@@ -539,9 +550,9 @@
                             <p:dialog widgetVar="dlg_movimentos_do_boleto" header="Movimentos do Boleto" resizable="false" width="1000" modal="true">
                                 <h:panelGrid id="tbl_movimentos_do_boleto">
                                     <p:outputLabel value="BOLETO SELECIONADO: #{movimentosReceberSocialBean.listaMovimentoDoBoleto[0].movimento.documento}" style="font-size: 12pt!important; font-weight: bold"/>
-                                    
+
                                     <p:messages autoUpdate="false" closable="true" showDetail="true" />
-                                    
+
                                     <p:dataTable value="#{movimentosReceberSocialBean.listaMovimentoDoBoleto}" var="linha_movimento" emptyMessage="Nenhum Movimento Encontrado!" scrollable="true" scrollHeight="400">
                                         <p:column style="width: 20px; text-align: center">
                                             <p:selectBooleanCheckbox value="#{linha_movimento.selecionado}" style="float: right" disabled="#{linha_movimento.movimento.baixa ne null}">

@@ -1,6 +1,7 @@
 package br.com.rtools.utilitarios;
 
 import br.com.rtools.arrecadacao.beans.ConfiguracaoArrecadacaoBean;
+import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.principal.DBExternal;
@@ -166,6 +167,10 @@ public class Jasper implements Serializable {
      * Relatório Título
      */
     public static String TITLE;
+    /**
+     * Filial Header Relatório
+     */
+    public static Filial FILIAL;
 
     static {
         load();
@@ -280,14 +285,25 @@ public class Jasper implements Serializable {
         if (IS_HEADER || IS_HEADER_PARAMS) {
             ConfiguracaoArrecadacaoBean cab = new ConfiguracaoArrecadacaoBean();
             cab.init();
-            Juridica juridica = cab.getConfiguracaoArrecadacao().getFilial().getFilial();
-            String documentox = juridica.getPessoa().getDocumento();// ? sindicato.getPessoa().getDocumento() : ;
 
+            Juridica juridica;
+            String documentox;
+            if (FILIAL != null) {
+                juridica = FILIAL.getFilial();
+                documentox = juridica.getPessoa().getDocumento();// ? sindicato.getPessoa().getDocumento() : ;
+
+            } else {
+                juridica = cab.getConfiguracaoArrecadacao().getFilial().getFilial();
+                documentox = juridica.getPessoa().getDocumento();// ? sindicato.getPessoa().getDocumento() : ;
+            }
+            
             if (juridica.getPessoa().getDocumento().isEmpty() || juridica.getPessoa().getDocumento().equals("0")) {
                 Juridica sindicato = (Juridica) new Dao().find(new Juridica(), 1);
                 documentox = sindicato.getPessoa().getDocumento();
             }
 
+            FILIAL = null;
+            
             switch (TYPE) {
                 case "retrato":
                     subreport = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/CABECALHO_RETRATO.jasper");

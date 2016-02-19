@@ -20,7 +20,10 @@
                     <div class="clear"></div>
                     <p:panel id="i_panel_pesquisa" styleClass="fundoCinza">
                         <h:panelGrid columns="8">
-                            <p:inputMask id="id_desc_pesquisa" value="#{matriculaAcademiaBean.descricaoPesquisa}" size="50" mask="#{matriculaAcademiaBean.mascaraPesquisa}"/>
+                            <p:inputMask id="id_desc_pesquisa" value="#{matriculaAcademiaBean.descricaoPesquisa}" size="50" mask="#{matriculaAcademiaBean.mascaraPesquisa}">
+                                <p:ajax event="change" update="i_panel_pesquisa" />
+                            </p:inputMask>
+                            
                             <p:selectOneMenu value="#{matriculaAcademiaBean.porPesquisa}">
                                 <p:ajax event="change" update="i_panel_pesquisa" />
                                 <f:selectItem itemValue="nome"     itemLabel="Aluno"/>

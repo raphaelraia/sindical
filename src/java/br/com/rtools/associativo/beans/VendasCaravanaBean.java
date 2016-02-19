@@ -41,6 +41,7 @@ import br.com.rtools.seguranca.Departamento;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
+import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -179,6 +180,7 @@ public class VendasCaravanaBean {
         }
 
         Jasper.IS_HEADER_PARAMS = true;
+        Jasper.FILIAL = (Filial) new Dao().find(new Filial(), 1);
         Jasper.printReports("FICHA_RESERVA.jasper", "Ficha de Reserva", l);
     }
 

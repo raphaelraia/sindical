@@ -259,6 +259,8 @@ public class ControleAcessoBean implements Serializable {
                         } else {
                             retorno = false;
                         }
+                    } else {
+                        retorno = true;
                     }
                     //}
                 } else {
@@ -335,6 +337,8 @@ public class ControleAcessoBean implements Serializable {
                         } else {
                             retorno = true;
                         }
+                    } else {
+                        retorno = true;
                     }
 //                    }
                 } else {
@@ -413,6 +417,8 @@ public class ControleAcessoBean implements Serializable {
                         } else {
                             retorno = true;
                         }
+                    } else {
+                        retorno = true;
                     }
                 } else {
                     retorno = true;
@@ -463,6 +469,8 @@ public class ControleAcessoBean implements Serializable {
                     } else {
                         retorno = true;
                     }
+                } else {
+                    retorno = true;
                 }
 //                }
             } else {
@@ -515,6 +523,8 @@ public class ControleAcessoBean implements Serializable {
                     } else {
                         retorno = true;
                     }
+                } else {
+                    retorno = true;
                 }
             } else {
                 retorno = true;
@@ -562,6 +572,8 @@ public class ControleAcessoBean implements Serializable {
                     } else {
                         retorno = true;
                     }
+                } else {
+                    retorno = true;
                 }
 //                }
             } else {
@@ -609,6 +621,8 @@ public class ControleAcessoBean implements Serializable {
                     } else {
                         retorno = true;
                     }
+                } else {
+                    retorno = true;
                 }
 //                }
             } else {
@@ -655,6 +669,8 @@ public class ControleAcessoBean implements Serializable {
                     } else {
                         retorno = false;
                     }
+                } else {
+                    retorno = true;
                 }
 //                }
             } else {
@@ -701,6 +717,8 @@ public class ControleAcessoBean implements Serializable {
                     } else {
                         retorno = false;
                     }
+                } else {
+                    retorno = true;
                 }
 //                }
             } else {
@@ -747,6 +765,8 @@ public class ControleAcessoBean implements Serializable {
                     } else {
                         retorno = true;
                     }
+                } else {
+                    retorno = true;
                 }
 //                }
             } else {
@@ -793,6 +813,8 @@ public class ControleAcessoBean implements Serializable {
                     } else {
                         retorno = true;
                     }
+                } else {
+                    retorno = true;
                 }
 //                }
             } else {
@@ -839,6 +861,8 @@ public class ControleAcessoBean implements Serializable {
                     } else {
                         retorno = true;
                     }
+                } else {
+                    retorno = true;
                 }
 //                }
             } else {
@@ -885,6 +909,8 @@ public class ControleAcessoBean implements Serializable {
                     } else {
                         retorno = true;
                     }
+                } else {
+                    retorno = true;
                 }
 //                }
             } else {
@@ -898,7 +924,7 @@ public class ControleAcessoBean implements Serializable {
 
     public boolean getBotaoEstornarMensalidades() {
         //PESQUISA DE PERMISSAO-------------------------------------------------------------------------------------------
-        boolean retorno = false;
+        
         if ((Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuario") != null) {
             Permissao permissao;
             PermissaoUsuarioDao db = new PermissaoUsuarioDao();
@@ -911,30 +937,30 @@ public class ControleAcessoBean implements Serializable {
 
             if (permissao.getId() != -1) {
                 List<PermissaoUsuario> permissaoUsuarios = db.listaPermissaoUsuario(user.getId());
+                
                 for (PermissaoUsuario permissaoUsuario : permissaoUsuarios) {
                     PermissaoDepartamento permissaoDepartamento = db.pesquisaPermissaoDepartamento(permissaoUsuario.getDepartamento().getId(), permissaoUsuario.getNivel().getId(), permissao.getId());
-                    if (permissaoDepartamento.getId() == -1) {
-                        retorno = true;
-                    } else {
-                        retorno = false;
-                        break;
-                    }
+                    if (permissaoDepartamento.getId() != -1) {
+                        return false;
+                    } 
                 }
+
                 UsuarioAcesso usuarioAcesso = new UsuarioAcessoDao().pesquisaUsuarioAcesso(user.getId(), permissao.getId());
                 if (usuarioAcesso.getId() != -1) {
                     if (usuarioAcesso.isPermite()) {
-                        retorno = false;
+                        return false;
                     } else {
-                        retorno = true;
+                        return true;
                     }
+                } else {
+                    return true;
                 }
             } else {
-                retorno = true;
+                return true;
             }
         } else {
-            retorno = true;
+            return true;
         }
-        return retorno;
     }
 
     public boolean getBotaoEstornarMensalidadesOutrosUsuarios() {
@@ -968,6 +994,8 @@ public class ControleAcessoBean implements Serializable {
                     } else {
                         retorno = true;
                     }
+                } else {
+                    retorno = true;
                 }
             } else {
                 retorno = true;
@@ -1013,6 +1041,8 @@ public class ControleAcessoBean implements Serializable {
                     } else {
                         retorno = true;
                     }
+                } else {
+                    retorno = true;
                 }
             } else {
                 retorno = true;
@@ -1058,6 +1088,8 @@ public class ControleAcessoBean implements Serializable {
                     } else {
                         retorno = true;
                     }
+                } else {
+                    retorno = true;
                 }
             } else {
                 retorno = true;
@@ -1070,7 +1102,7 @@ public class ControleAcessoBean implements Serializable {
 
     public boolean getBotaoFecharCaixaOutroUsuario() {
         //PESQUISA DE PERMISSAO-------------------------------------------------------------------------------------------
-        boolean retorno = false;
+        //boolean retorno = false;
         if ((Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuario") != null) {
             Permissao permissao;
             PermissaoUsuarioDao db = new PermissaoUsuarioDao();
@@ -1090,27 +1122,26 @@ public class ControleAcessoBean implements Serializable {
                 for (PermissaoUsuario permissaoUsuario : permissaoUsuarios) {
                     PermissaoDepartamento permissaoDepartamento = db.pesquisaPermissaoDepartamento(permissaoUsuario.getDepartamento().getId(), permissaoUsuario.getNivel().getId(), permissao.getId());
                     if (permissaoDepartamento.getId() == -1) {
-                        retorno = true;
+                        return true;
                     } else {
-                        retorno = false;
-                        break;
+                        return false;
                     }
                 }
                 UsuarioAcesso usuarioAcesso = new UsuarioAcessoDao().pesquisaUsuarioAcesso(user.getId(), permissao.getId());
                 if (usuarioAcesso.getId() != -1) {
                     if (usuarioAcesso.isPermite()) {
-                        retorno = false;
+                        return false;
                     } else {
-                        retorno = true;
+                        return true;
                     }
+                } else {
+                    return true;
                 }
             } else {
-                retorno = true;
+                return true;
             }
-        } else {
-            retorno = true;
         }
-        return retorno;
+        return true;
     }
 
     public boolean verificarUsuario() {
@@ -1303,6 +1334,8 @@ public class ControleAcessoBean implements Serializable {
                         } else {
                             retorno = true;
                         }
+                    } else {
+                        retorno = true;
                     }
                 } else {
                     retorno = true;
@@ -1347,6 +1380,8 @@ public class ControleAcessoBean implements Serializable {
                     } else {
                         retorno = true;
                     }
+                } else {
+                    retorno = true;
                 }
             } else {
                 retorno = true;
