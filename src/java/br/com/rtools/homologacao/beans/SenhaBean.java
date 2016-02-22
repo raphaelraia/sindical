@@ -22,6 +22,7 @@ public class SenhaBean {
     private MacFilial macFilial;
     private Boolean activePoll;
     private Boolean sound;
+    private String tipo;
 
     @PostConstruct
     public void init() {
@@ -31,6 +32,10 @@ public class SenhaBean {
         activePoll = false;
         String client = GenericaRequisicao.getParametro("client");
         String mac = GenericaRequisicao.getParametro("mac");
+        tipo = GenericaRequisicao.getParametro("tipo");
+        if(tipo == null || tipo.isEmpty()) {
+            tipo = "MESA";
+        }
         if (!client.isEmpty() && !mac.isEmpty()) {
             if (!client.equals(GenericaSessao.getString("sessaoCliente"))) {
                 GenericaSessao.put("sessaoCliente", client);
@@ -123,6 +128,14 @@ public class SenhaBean {
 
     public void setSound(Boolean sound) {
         this.sound = sound;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
     }
 
 }
