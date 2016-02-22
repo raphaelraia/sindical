@@ -158,6 +158,14 @@ public class LocadoraMovimento implements Serializable {
     public void setSelected(Boolean selected) {
         this.selected = selected;
     }
+    
+    public Integer getDiasAtraso() {
+        if(dtDevolucao == null) {
+            Integer dias = DataHoje.calculoDosDiasInt(dtDevolucaoPrevisao, new Date());
+            return dias;
+        }
+        return 0;
+    }
 
     @Override
     public int hashCode() {

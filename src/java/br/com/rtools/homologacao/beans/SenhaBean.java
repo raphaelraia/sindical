@@ -33,10 +33,10 @@ public class SenhaBean {
         String client = GenericaRequisicao.getParametro("client");
         String mac = GenericaRequisicao.getParametro("mac");
         tipo = GenericaRequisicao.getParametro("tipo");
-        if(tipo == null || tipo.isEmpty()) {
+        if (tipo == null || tipo.isEmpty()) {
             tipo = "MESA";
         }
-        if (!client.isEmpty() && !mac.isEmpty()) {
+        if (client != null && mac != null && !client.isEmpty() && !mac.isEmpty()) {
             if (!client.equals(GenericaSessao.getString("sessaoCliente"))) {
                 GenericaSessao.put("sessaoCliente", client);
             }
@@ -61,14 +61,14 @@ public class SenhaBean {
     public void loadSenha() {
         if (activePoll) {
             SenhaDao sd = new SenhaDao();
-            if(!listSenha.isEmpty()) {
+            if (!listSenha.isEmpty()) {
                 if (sd.novaChamada(macFilial.getFilial().getId())) {
                     sound = true;
                     listSenha.clear();
-                }                
+                }
             }
             if (listSenha.isEmpty()) {
-                listSenha = sd.ultimasQuatro(macFilial.getFilial().getId());                
+                listSenha = sd.ultimasQuatro(macFilial.getFilial().getId());
             }
         }
     }
@@ -99,9 +99,9 @@ public class SenhaBean {
     public List<Senha> getListUltimasChamadas() {
         if (!listSenha.isEmpty() && listSenha.size() > 1) {
             List<Senha> list = new ArrayList();
-            for(int i = 0; i < listSenha.size(); i++) {
-                if(i > 0) {
-                    list.add(listSenha.get(i));                    
+            for (int i = 0; i < listSenha.size(); i++) {
+                if (i > 0) {
+                    list.add(listSenha.get(i));
                 }
             }
             return list;
@@ -116,7 +116,7 @@ public class SenhaBean {
     public void setActivePoll(Boolean activePoll) {
         this.activePoll = activePoll;
     }
-    
+
     public String getDisabledSound() {
         this.sound = false;
         return "";

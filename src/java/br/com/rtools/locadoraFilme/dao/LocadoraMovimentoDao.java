@@ -34,14 +34,32 @@ public class LocadoraMovimentoDao extends DB {
     }
 
     public List pesquisaHistoricoPorPessoa(Integer pessoa_id) {
+        return pesquisaHistoricoPorPessoa("todos", pessoa_id);
+    }
+
+    public List pesquisaHistoricoPorPessoa(String tcase, Integer pessoa_id) {
         try {
-            Query query = getEntityManager().createQuery("SELECT LM FROM LocadoraMovimento LM WHERE LM.dtDevolucao IS NOT NULL AND LM.locadoraLote.pessoa.id = :pessoa_id ORDER BY LM.dtDevolucao DESC");
+            Query query = null;
+            switch (tcase) {
+                case "todos":
+                    query = getEntityManager().createQuery("SELECT LM FROM LocadoraMovimento LM WHERE LM.dtDevolucao IS NULL AND LM.locadoraLote.pessoa.id = :pessoa_id ORDER BY LM.locadoraLote.dtLocacao DESC");
+                    break;
+                case "devolvidos":
+                    query = getEntityManager().createQuery("SELECT LM FROM LocadoraMovimento LM WHERE LM.dtDevolucao IS NOT NULL AND LM.locadoraLote.pessoa.id = :pessoa_id ORDER BY LM.dtDevolucao DESC");
+                    break;
+                case "nao_devolvidos":
+                    query = getEntityManager().createQuery("SELECT LM FROM LocadoraMovimento LM WHERE LM.dtDevolucao IS NULL AND LM.dtDevolucaoPrevisao IS NOT NULL AND CURRENT_TIMESTAMP > LM.dtDevolucaoPrevisao AND LM.locadoraLote.pessoa.id = :pessoa_id ORDER BY LM.dtDevolucaoPrevisao DESC");
+                    break;
+                default:
+                    break;
+            }
             query.setParameter("pessoa_id", pessoa_id);
             List list = query.getResultList();
             if (!list.isEmpty()) {
                 return list;
             }
         } catch (Exception e) {
+            return new ArrayList();
         }
         return new ArrayList();
     }

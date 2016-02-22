@@ -418,7 +418,7 @@ public class AtendimentoBean implements Serializable {
 
             HomologacaoDB dbh = new HomologacaoDBToplink();
             int ultima_senha = dbh.pesquisaUltimaSenha(filial.getId()) + 1;
-            Senha senha = new Senha(-1, null, DataHoje.horaMinuto(), "", 0, usuario, DataHoje.data(), ultima_senha, filial, ateMovimento, null);
+            Senha senha = new Senha(-1, null, DataHoje.horaMinuto(), "", 0, usuario, DataHoje.data(), ultima_senha, filial, ateMovimento, null, null);
 
             if (!dao.save(senha)) {
                 GenericaMensagem.error("Erro", "Erro ao Salvar Senha!");

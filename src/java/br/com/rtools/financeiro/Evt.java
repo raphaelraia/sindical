@@ -1,11 +1,15 @@
 package br.com.rtools.financeiro;
 
+import br.com.rtools.financeiro.db.LoteDBToplink;
+import br.com.rtools.financeiro.db.MovimentoDBToplink;
+import java.io.Serializable;
+import java.util.List;
 import javax.persistence.*;
 
 @Entity
 @Table(name = "fin_evt")
 @NamedQuery(name = "Evt.pesquisaID", query = "select e from Evt e where e.id=:pid")
-public class Evt implements java.io.Serializable {
+public class Evt implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,6 +47,14 @@ public class Evt implements java.io.Serializable {
     @Override
     public String toString() {
         return "Evt{" + "id=" + id + ", descricao=" + descricao + '}';
+    }
+
+    public Lote getLote() {
+        return new LoteDBToplink().pesquisaLotePorEvt(this);
+    }
+
+    public List<Movimento> getMovimento() {
+        return new MovimentoDBToplink().listaMovimentosDoLote(getLote().getId());
     }
 
 }

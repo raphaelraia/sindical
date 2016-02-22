@@ -53,6 +53,8 @@ public class Senha implements java.io.Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "dt_verificada")
     private Date dtVerificada;
+    @Column(name = "nr_ordem")
+    private Integer ordem;
 
     public Senha() {
         this.id = -1;
@@ -66,9 +68,10 @@ public class Senha implements java.io.Serializable {
         this.filial = new Filial();
         this.ateMovimento = null;
         this.dtVerificada = null;
+        this.ordem = null;
     }
 
-    public Senha(int id, Agendamento agendamento, String hora, String horaChamada, int mesa, Usuario usuario, String data, int senha, Filial filial, AteMovimento ateMovimento, Date dtVerificada) {
+    public Senha(int id, Agendamento agendamento, String hora, String horaChamada, int mesa, Usuario usuario, String data, int senha, Filial filial, AteMovimento ateMovimento, Date dtVerificada, Integer ordem) {
         this.id = id;
         this.agendamento = agendamento;
         this.hora = hora;
@@ -80,6 +83,7 @@ public class Senha implements java.io.Serializable {
         this.filial = filial;
         this.ateMovimento = ateMovimento;
         this.dtVerificada = dtVerificada;
+        this.ordem = ordem;
     }
 
     public int getId() {
@@ -184,6 +188,14 @@ public class Senha implements java.io.Serializable {
         this.dtVerificada = dtVerificada;
     }
 
+    public Integer getOrdem() {
+        return ordem;
+    }
+
+    public void setOrdem(Integer ordem) {
+        this.ordem = ordem;
+    }
+
     public boolean isSucesso() {
         try {
             if (this.agendamento != null && this.agendamento.getHomologador() != null && this.agendamento.getStatus().getId() == 4) {
@@ -197,4 +209,5 @@ public class Senha implements java.io.Serializable {
         }
         return false;
     }
+
 }

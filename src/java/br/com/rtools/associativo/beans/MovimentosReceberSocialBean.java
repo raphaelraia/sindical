@@ -155,7 +155,7 @@ public class MovimentosReceberSocialBean implements Serializable {
     private Boolean visibleAnexar = false;
     private LinhaBoletosAnexo linhaBoletosAnexo = null;
     private String limitePesquisa = "todos";
-    
+
     @PostConstruct
     public void init() {
         Object cc = GenericaSessao.getObject("pessoaPesquisa");
@@ -761,7 +761,7 @@ public class MovimentosReceberSocialBean implements Serializable {
                 GenericaMensagem.fatal("ATENÇÃO", "RECIBO COM DATA DE IMPORTAÇÃO NÃO PODE SER REIMPRESSO!");
                 return false;
             }
-            
+
             if (mov.getBaixa().getUsuario().getId() != Usuario.getUsuario().getId() && cab.verificaPermissao("reimpressao_recibo_outro_operador", 4)) {
                 GenericaMensagem.fatal("ATENÇÃO", "USUÁRIO SEM PERMISSÃO PARA REIMPRIMIR ESTE RECIBO!");
                 return false;
@@ -1369,8 +1369,8 @@ public class MovimentosReceberSocialBean implements Serializable {
 
     public void atualizarStatus() {
         listaMovimento.clear();
-        
-        if (porPesquisa.equals("quitados") || porPesquisa.equals("todos")){
+
+        if (porPesquisa.equals("quitados") || porPesquisa.equals("todos")) {
             limitePesquisa = "50";
         }
     }
@@ -1958,6 +1958,13 @@ public class MovimentosReceberSocialBean implements Serializable {
 
     public void setBooAcrescimo(boolean booAcrescimo) {
         this.booAcrescimo = booAcrescimo;
+    }
+
+    public String put(Pessoa p) {
+        String retorno = ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).movimentosReceberSocial();
+        GenericaSessao.put("movimentosReceberSocialBean", new MovimentosReceberSocialBean());
+        GenericaSessao.put("pessoaPesquisa", p);
+        return retorno;
     }
 
 //    public List<DataObject> getListaBoletosAbertos() {

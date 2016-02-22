@@ -35,7 +35,6 @@ public class SenhaDao extends DB {
                     + "      WHERE id_filial = " + filial_id + "    \n"
                     + "        AND nr_mesa > 0                      \n"
                     + "        AND ds_hora_chamada IS NOT NULL      \n"
-                    + "        AND ds_hora_chamada IS NOT NULL      \n"
                     + "        AND dt_verificada IS NOT NULL        \n"
                     + "   ORDER BY nr_ordem DESC                    ";
             Query query = getEntityManager().createNativeQuery(queryString, Senha.class);

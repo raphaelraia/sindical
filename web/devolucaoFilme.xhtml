@@ -67,7 +67,17 @@
                                             </h:panelGrid>
                                         </h:column>
                                     </h:panelGrid>
+                                    <h:panelGrid columns="2" rendered="#{devolucaoFilmeBean.locatario.id ne -1}" styleClass="margin-top-max">
+                                        <p:outputLabel value="Status: " />
+                                        <p:selectOneMenu value="#{devolucaoFilmeBean.status}">
+                                            <p:ajax event="change" update="@this i_history" listener="#{devolucaoFilmeBean.loadLocadoraMovimento()}"/>
+                                            <f:selectItem itemValue="todos" itemLabel="Todos" />
+                                            <f:selectItem itemValue="devolvidos" itemLabel="Devolvidos" />
+                                            <f:selectItem itemValue="nao_devolvidos" itemLabel="Não devolvidos" />
+                                        </p:selectOneMenu>
+                                    </h:panelGrid>
                                 </p:panel>
+                                <!-- 
                                 <p:panel header="Filme(s)" styleClass="margin-top-max" id="i_panel_filme" rendered="#{devolucaoFilmeBean.locatario.id ne -1}">
                                     <h:panelGrid columns="2">
                                         <h:column>
@@ -86,32 +96,47 @@
                                             <p:commandButton icon="ui-icon-close" action="#{devolucaoFilmeBean.listener(5)}"  title="Limpar" update=":form_locacao_filmes:" styleClass="margin-left-max" rendered="#{devolucaoFilmeBean.titulo.id ne null}"/>
                                         </h:panelGrid>
                                     </h:panelGrid>
-                                    <f:facet name="footer">
-                                        <p:commandButton value="Adicionar" action="#{devolucaoFilmeBean.add()}"  disabled="#{controleAcessoBean.botaoSalvar}" title="Detalhes sobre o filme" update=":form_locacao_filmes:" />
-                                    </f:facet>
-                                </p:panel>
-                                <p:panel header="Filtrar" rendered="#{devolucaoFilmeBean.locatario.id ne -1}" styleClass="margin-top-max">
+                                </p:panel> -->
+                                <h:panelGrid rendered="#{devolucaoFilmeBean.locatario.id ne -1}" styleClass="margin-top-max">
                                     <h:panelGrid id="i_history">
-                                        <p:dataTable emptyMessage="Nenhum registro adicionado!" value="#{devolucaoFilmeBean.listLocadoraMovimento}" var="locadoraMovimento" rendered="# {not empty devolucaoFilmeBean.listLocadoraMovimento}">
-                                            <p:column headerText="Locação" width="80">#{locadoraMovimento.locadoraLote.dataLocacaoString}</p:column>
-                                            <p:column headerText="Previsão de entrega" width="80">#{locadoraMovimento.dataDevolucaoPrevisaoString}</p:column>
-                                            <p:column headerText="Autorizado">#{locadoraMovimento.locadoraLote.locadoraAutorizados.nome}</p:column>
-                                            <p:column headerText="Filme">#{locadoraMovimento.titulo.descricao}</p:column>
-                                            <p:column headerText="Ano Lançamento" width="80" styleClass="text-center">#{locadoraMovimento.titulo.anoLancamento}</p:column>
-                                            <p:column width="80" styleClass="text-center">#{locadoraMovimento.titulo.lancamento ? 'Lançamento' : ''}</p:column>
+                                        <p:dataTable emptyMessage="Nenhum registro adicionado!" value="#{devolucaoFilmeBean.listLocadoraMovimento}" var="locadoraMovimento" rendered="#{not empty devolucaoFilmeBean.listLocadoraMovimento}">
+                                            <p:column style="width:15px">  
+                                                <p:rowToggler />  
+                                            </p:column>                                              
                                             <p:column styleClass="text-center" width="30">
-                                                <p:commandButton icon="ui-icon-close" action="#{devolucaoFilmeBean.remove(locadoraMovimento)}" disabled="#{controleAcessoBean.botaoExcluir}" title="Excluir" update=":form_locacao_filmes:"/>                                            
+                                                <p:selectBooleanCheckbox value="#{locadoraMovimento.selected}">
+                                                    <p:ajax event="change" update="@this" />
+                                                </p:selectBooleanCheckbox>
                                             </p:column>
+                                            <p:column headerText="Previsão" width="80" styleClass="text-center">#{locadoraMovimento.dataDevolucaoPrevisaoString}</p:column>
+                                            <p:column headerText="Devolução" width="80" styleClass="text-center">#{locadoraMovimento.dataDevolucaoString}</p:column>
+                                            <p:column headerText="Filme">#{locadoraMovimento.titulo.descricao}</p:column>
+                                            <p:column headerText="Locação" width="80">#{locadoraMovimento.locadoraLote.dataLocacaoString}</p:column>
+                                            <p:column headerText="Atraso" styleClass="text-center">#{locadoraMovimento.diasAtraso}</p:column>
+                                            <p:column headerText="Total" styleClass="text-center"></p:column>
+                                            <p:column headerText="Vencto" width="80" styleClass="text-center"></p:column>
+                                            <p:column headerText="Pagto" styleClass="text-center"></p:column>
+                                            <p:column headerText="Vl. Pago" styleClass="text-center"></p:column>
+                                            <p:rowExpansion>
+                                                <h:panelGrid>
+                                                    <p:column>Autorizado: #{locadoraMovimento.locadoraLote.locadoraAutorizados.nome}</p:column>                                                    
+                                                    <p:column>#{locadoraMovimento.titulo.lancamento ? 'Lançamento' : ''}</p:column>
+                                                    <p:column>Lote (EVT): #{locadoraMovimento.evt}</p:column>
+                                                </h:panelGrid>
+                                            </p:rowExpansion>
                                         </p:dataTable>
                                     </h:panelGrid>
-                                </p:panel>
+                                </h:panelGrid>
+                                <f:facet name="footer">
+                                    <p:outputLabel value="Filmes pendentes para entrega (#{devolucaoFilmeBean.listLocadoraHistorico.size()})" rendered="#{devolucaoFilmeBean.locatario.id ne -1}" styleClass="font-color-red"/>                                    
+                                </f:facet>
                             </p:panel>
                             <h:panelGrid columns="6" styleClass="margin-top-max">
-                                <p:commandButton onclick="PF('dlg_save').show();" value="Concluir" disabled="#{controleAcessoBean.botaoSalvar or devolucaoFilmeBean.locatario.id eq -1}" title="Concluir locação"/>
+                                <p:commandButton onclick="PF('dlg_save').show();" value="Receber" disabled="#{controleAcessoBean.botaoSalvar or devolucaoFilmeBean.locatario.id eq -1}" title="Receber locação"/>
+                                <p:commandButton value="2ª Via Recibo" />
                                 <p:commandButton value="Novo" action="#{devolucaoFilmeBean.clear}" update=":form_locacao_filmes:"/>
                                 <p:commandButton onclick="PF('dlg_delete').show();" value="Desfazer" disabled="#{controleAcessoBean.botaoExcluir}" title="Excluir" rendered="#{devolucaoFilmeBean.locadoraLote.id ne null}"/>
-                                <p:commandButton onclick="PF('dlg_locacoes').show();" value="Histórico" title="Histórico" update="i_history_pending" rendered="#{devolucaoFilmeBean.locatario.id ne -1}"/>
-                                <p:outputLabel value="Filmes pendentes para entrega (#{devolucaoFilmeBean.listLocadoraHistorico.size()})" rendered="#{devolucaoFilmeBean.locatario.id ne -1}"/>
+                                <p:commandButton value="Movimentos a receber" rendered="#{devolucaoFilmeBean.locatario.id ne -1}" action="#{movimentosReceberSocialBean.put(devolucaoFilmeBean.locatario.pessoa)}" immediate="true" icon="ui-icon-transferthick-e-w"/>
                             </h:panelGrid>
                             <p:dialog widgetVar="dlg_save" header="Deseja concluir esta locação?" resizable="false" width="400" modal="true">
                                 <f:facet name="footer">
@@ -126,29 +151,6 @@
                                     <h:panelGrid columns="2">
                                         <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{devolucaoFilmeBean.delete()}" oncomplete="PF('dlg_delete').hide();PF('dlg_message').show();" style="clear: both; float: left; margin-left: 10px;" update="i_message :form_locacao_filmes:"/> 
                                         <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_delete').hide()" style="float: left;" icon="ui-icon-close"/>                                    
-                                    </h:panelGrid>
-                                </f:facet>
-                            </p:dialog>
-                            <p:dialog widgetVar="dlg_locacoes" header="Pendências" resizable="false" width="1024" modal="true" positionType="fixed" position="top">
-                                <p:ajax event="close" update=":form_locacao_filmes:" listener="#{devolucaoFilmeBean.listener(4)}"/>
-                                <h:panelGrid cellpadding="5" columns="3">
-                                    <p:commandButton value="Locados" title="Locados" update="i_history_pending" action="#{devolucaoFilmeBean.listener(4)}" style="color: blue"/>
-                                    <p:commandButton value="Atrasados" title="Atrasados" update="i_history_pending" action="#{devolucaoFilmeBean.listener(6)}" styleClass="font-color-red"/>
-                                    <p:commandButton value="Histórico" title="Histórico" update="i_history_pending" action="#{devolucaoFilmeBean.listener(7)}" style="color: #333300"/>
-                                </h:panelGrid>
-                                <h:panelGrid id="i_history_pending">
-                                    <p:dataTable emptyMessage="Nenhum registro adicionado!" value="#{devolucaoFilmeBean.listLocadoraHistorico}" var="locadoraMovimento" scrollable="true" scrollHeight="200">
-                                        <p:column headerText="Locação" width="80">#{locadoraMovimento.locadoraLote.dataLocacaoString}</p:column>
-                                        <p:column headerText="Previsão de entrega" width="80">#{locadoraMovimento.dataDevolucaoPrevisaoString}</p:column>
-                                        <p:column headerText="Autorizado">#{locadoraMovimento.locadoraLote.locadoraAutorizados.nome}</p:column>
-                                        <p:column headerText="Filme">#{locadoraMovimento.titulo.descricao}</p:column>
-                                        <p:column headerText="Ano Lançamento" width="80" styleClass="text-center">#{locadoraMovimento.titulo.anoLancamento}</p:column>
-                                        <p:column width="80" styleClass="text-center">#{locadoraMovimento.titulo.lancamento ? 'Lançamento' : ''}</p:column>
-                                    </p:dataTable>
-                                </h:panelGrid>
-                                <f:facet name="footer">
-                                    <h:panelGrid columns="2">
-                                        <p:commandButton value="Sair" title="Sair" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_locacoes').hide()" icon="ui-icon-close" update=":form_locacao_filmes:" action="#{devolucaoFilmeBean.listener(4)}"/>
                                     </h:panelGrid>
                                 </f:facet>
                             </p:dialog>

@@ -250,6 +250,21 @@ public class DataHoje {
         }
     }
 
+    public static int getMaxDiasFevereiro(Integer ano) {
+        Calendar cal = (Calendar) Calendar.getInstance().clone();
+        cal.set(Calendar.YEAR, ano);
+        cal.set(Calendar.MONTH, 1);
+        return cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+    }
+
+    public static int calculoDosDiasInt(Date dInicial, Date dFinal) {
+        try {
+            return Integer.parseInt(Long.toString(calculoDosDias(dInicial, dFinal)));
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
     public static long calculoDosDias(Date dInicial, Date dFinal) {
         DataHoje.converteDataParaInteger(DataHoje.converteData(dInicial));
         DataHoje.converteDataParaInteger(DataHoje.converteData(dFinal));
