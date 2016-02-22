@@ -17,7 +17,7 @@ public class SenhaDao extends DB {
                     + "        AND nr_mesa > 0                      \n"
                     + "        AND ds_hora_chamada IS NOT NULL      \n"
                     + "        AND dt_data = current_date           \n"
-                    + "   ORDER BY nr_ordem DESC                    \n"
+                    + "   ORDER BY nr_ordem DESC, nr_senha DESC     \n"
                     + "      LIMIT 4                                ";
             Query query = getEntityManager().createNativeQuery(queryString, Senha.class);
             return query.getResultList();
