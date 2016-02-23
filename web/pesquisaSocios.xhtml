@@ -139,7 +139,16 @@
                                     </p:panel>
                                 </p:rowExpansion>
 
-                                <f:facet name="footer">Abra a lista para mais informações</f:facet>
+                                <f:facet name="footer">
+                                    Abra a lista para mais informações
+                                    <h:panelGroup rendered="#{not empty fisicaBean.listaPessoaFisica}">
+                                        <p:commandButton icon="ui-icon-seek-prev"  action="#{fisicaBean.reloadList(false)}" update=":form_pesquisa_pessoa:tbl" title="Menos 500" disabled="#{fisicaBean.de eq 0}"/>
+                                        <p:commandButton icon="ui-icon-seek-next" action="#{fisicaBean.reloadList(true)}" update=":form_pesquisa_pessoa:tbl" title="Mais 500" disabled="#{fisicaBean.listaPessoaFisica.size() != fisicaBean.limit}"/>
+                                    </h:panelGroup> 
+                                </f:facet>
+                                <f:facet name="header" rendered="#{not empty fisicaBean.listaPessoaFisica}">
+                                    #{fisicaBean.de} à #{fisicaBean.ate} de #{fisicaBean.count} resultado(s)
+                                </f:facet>                                
                             </p:dataTable>
                             <p:dialog widgetVar="dlg_pessoa_fisica_card" modal="true" resizable="false" height="400" width="400" header="Detalhes">
                                 <p:ajax event="close" listener="#{pessoaCardBean.close}"/>  

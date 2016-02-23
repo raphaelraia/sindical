@@ -149,6 +149,9 @@ public class JuridicaBean implements Serializable {
     // TAB DOCUMENTOS
     private List<Documento> listaDocumentos = new ArrayList();
     private List<LinhaArquivo> listaArquivos = new ArrayList();
+    private Integer offset = 0;
+    private Integer count = 0;
+    private Integer limit = 500;
 
     @PostConstruct
     public void init() {
@@ -597,10 +600,10 @@ public class JuridicaBean implements Serializable {
         ContribuintesInativos cont = db.pesquisaContribuintesInativos(juridica.getId());
 
         NovoLog logs = new NovoLog();
-        
+
         logs.setCodigo(juridica.getId());
         logs.setTabela("arr_contribuintes_inativos");
-        
+
         if (cont.getId() != -1) {
             SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
             contribuintesInativos = (ContribuintesInativos) sv.pesquisaCodigo(cont.getId(), "ContribuintesInativos");
@@ -614,8 +617,7 @@ public class JuridicaBean implements Serializable {
                 GenericaMensagem.info("Sucesso", "Contribuinte Reativado!");
                 sv.comitarTransacao();
             }
-            
-            
+
             logs.update("",
                     "** Reativação de Empresas**\n"
                     + " ID: " + juridica.getId() + "\n"
@@ -2298,35 +2300,40 @@ public class JuridicaBean implements Serializable {
         this.atualiza = atualiza;
     }
 
-//    public List<DataObject> getListaJuridicax() {
-//        if (listaJuridica.isEmpty()) {
-//            JuridicaDB db = new JuridicaDBToplink();
-//            //List<Juridica> lista = new ArrayList();
-//            List<Juridica> lista = db.pesquisaPessoa(descPesquisa, porPesquisa, comoPesquisa);
-//
-//            for (int i = 0; i < lista.size(); i++) {
-//                List listax = db.listaJuridicaContribuinte(lista.get(i).getId());
-//                String status;
-//                if (listax.isEmpty()) {
-//                    status = "NÃO CONTRIBUINTE";
-//                } else {
-//                    if (((List) listax.get(0)).get(11) != null) {
-//                        status = "CONTRIBUINTE INATIVO";
-//                    } else {
-//                        status = "ATIVO";
-//                    }
-//                }
-//                listaJuridica.add(new DataObject(lista.get(i), status));
-//            }
-//
-//        }
-//        return listaJuridica;
-//    }
-//    
-//    public void setListaJuridica(List<DataObject> listaJuridica) {
-//        this.listaJuridica = listaJuridica;
-//    }
+    public void reloadList(Boolean addOrRemove) {
+        Integer result = 0;
+        if (addOrRemove) {
+            result = offset + 500;
+            if (result > count) {
+                limit = count - offset;
+                result = offset;
+            } else {
+                limit = 500;
+            }
+        } else {
+            result = offset - 500;
+            if (result < 0) {
+                offset = 0;
+            } else {
+                if (count < result) {
+                    limit = count - offset;
+                    result = offset;
+                } else {
+                    limit = 500;
+                }
+                if (offset < 500) {
+                    result = 500;
+                }
+            }
+        }
+        listaJuridica.clear();
+        offset = result;
+        loadList(offset);
+    }
+
     public void loadList() {
+        limit = 500;
+        offset = 0;
         JuridicaDB db = new JuridicaDBToplink();
         boolean somenteContabilidadesx = false;
         boolean somenteContribuintesAtivos = false;
@@ -2338,7 +2345,30 @@ public class JuridicaBean implements Serializable {
                 somenteContribuintesAtivos = true;
                 break;
         }
-        listaJuridica = db.pesquisaPessoa(descPesquisa.trim(), porPesquisa, comoPesquisa, somenteContabilidadesx, somenteContribuintesAtivos);
+        List list = db.pesquisaPessoa(descPesquisa.trim(), porPesquisa, comoPesquisa, somenteContabilidadesx, somenteContribuintesAtivos, null, null);
+        if (!list.isEmpty()) {
+            try {
+                count = Integer.parseInt(((List) list.get(0)).get(0).toString());
+            } catch (Exception e) {
+                count = 0;
+            }
+        }
+        loadList(0);
+    }
+
+    public void loadList(Integer new_offset) {
+        JuridicaDB db = new JuridicaDBToplink();
+        boolean somenteContabilidadesx = false;
+        boolean somenteContribuintesAtivos = false;
+        switch (tipoFiltro) {
+            case "escritorios":
+                somenteContabilidadesx = true;
+                break;
+            case "contribuintes_ativos":
+                somenteContribuintesAtivos = true;
+                break;
+        }
+        listaJuridica = db.pesquisaPessoa(descPesquisa.trim(), porPesquisa, comoPesquisa, somenteContabilidadesx, somenteContribuintesAtivos, limit, new_offset);
     }
 
     public List<Juridica> getListaJuridica() {
@@ -2840,219 +2870,46 @@ public class JuridicaBean implements Serializable {
         }
         return new ArrayList();
     }
-}
 
-// ANTIGA PESQUISA POR WEBSERVICE KNU -- depois da data 01/12/2014 excluir esse comentário
-//            try {
-//                SSLUtil.acceptSSL();
-//                URL url = new URL("https://c.knu.com.br/webservice");
-//                URLConnection conn = url.openConnection();
-//                conn.setDoOutput(true);
-//                OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-//                wr.write(
-//                        "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n"
-//                        + "<dados>\n"
-//                        + "    <usuario>lucasprogramatecno@gmail.com</usuario>\n"
-//                        + "    <senha>lucasjava13</senha>\n"
-//                        + "    <funcao>receitaCNPJ</funcao>\n"
-//                        + "    <param>" + AnaliseString.extrairNumeros(juridica.getPessoa().getDocumento()) + "</param>\n"
-//                        + "    <retorno>1</retorno>\n"
-//                        + "</dados>"
-//                );
-//
-//                wr.flush();
-//                BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-//                String line;
-//                while ((line = rd.readLine()) != null) {
-//                    if (line.contains("<atividade_principal>")) {
-//                        //juridica.getPessoa().setNome(line.substring(22, line.indexOf("</atividade_principal>")));
-//                        //juridica.setFantasia(juridica.getPessoa().getNome());
-//                    }
-//                    if (line.contains("<nome_empresarial>")) {
-//                        juridica.getPessoa().setNome(line.substring(20, line.indexOf("</nome_empresarial>")));
-//                        juridica.setFantasia(juridica.getPessoa().getNome());
-//                    }
-//                }
-//
-//                wr.close();
-//                rd.close();
-//            } catch (Exception ex) {
-//                ex.printStackTrace();
-//            }
-//
-//    public void pesquisaCnpj() {
-//        if (juridica.getId() != -1) {
-//            return;
-//        }
-//
-//        if (juridica.getPessoa().getDocumento().isEmpty()) {
-//            return;
-//        }
-//
-//        String documento = AnaliseString.extrairNumeros(juridica.getPessoa().getDocumento());
-//
-//        if (!validaTipoDocumento(2, documento)) {
-//            msgDocumento = "Documento inválido!";
-//            GenericaMensagem.warn("Atenção", "Documento Inválido!");
-//            return;
-//        }
-//        JuridicaDB dbj = new JuridicaDBToplink();
-//        List listDocumento = dbj.pesquisaJuridicaPorDoc(juridica.getPessoa().getDocumento());
-//        for (int i = 0; i < listDocumento.size(); i++) {
-//            if (!listDocumento.isEmpty()) {
-//                GenericaMensagem.warn("Atenção", "Empresa já esta cadastrada no Sistema!");
-//                return;
-//            }
-//        }
-//
-//        PessoaDB db = new PessoaDBToplink();
-//
-//        juridicaReceita = db.pesquisaJuridicaReceita(documento);
-//        if (juridicaReceita.getPessoa() != null && juridicaReceita.getPessoa().getId() != -1) {
-//            GenericaMensagem.warn("Erro", "Pessoa já cadastrada no Sistema!");
-//            return;
-//        }
-//        if (juridicaReceita.getId() == -1) {
-//
-//            try {
-//                System.loadLibrary("knu");
-//            } catch (Exception e) {
-//                System.out.println(e.getMessage() + " Erro Carregar Lib ");
-//                GenericaMensagem.warn("Erro", "Consulta temporarimente indisponível!");
-//                return;
-//            } catch (UnsatisfiedLinkError e) {
-//                System.out.println(e.getMessage() + " Erro Carregar Lib ");
-//                GenericaMensagem.warn("Erro", "Consulta temporarimente indisponível!");
-//                return;
-//            }
-//
-//            knu.ReceitaCNPJ resultado = knu.knu.receitaCNPJ(documento);
-//
-//            if (resultado.getCod_erro() != 0) {
-//                GenericaMensagem.warn("Falha na Busca", resultado.getDesc_erro());
-//                return;
-//            }
-//
-//            if (resultado.getNome_empresarial().isEmpty()) {
-//                GenericaMensagem.warn("Erro", "Erro ao pesquisar na Receita!");
-//                return;
-//            }
-//
-//            if (resultado.getSituacao_cadastral().equals("BAIXADA")) {
-//                GenericaMensagem.warn("Erro", "Erro ao pesquisar na Receita!");
-//                return;
-//            }
-//
-//            juridicaReceita.setNome(resultado.getNome_empresarial());
-//            juridicaReceita.setFantasia(resultado.getNome_empresarial());
-//            juridicaReceita.setDocumento(documento);
-//            juridicaReceita.setCep(resultado.getCep());
-//            juridicaReceita.setDescricaoEndereco(resultado.getLogradouro());
-//            juridicaReceita.setBairro(resultado.getBairro());
-//            juridicaReceita.setComplemento(resultado.getComplemento());
-//            juridicaReceita.setNumero(resultado.getNumero());
-//            juridicaReceita.setCnae(resultado.getAtividade_principal());
-//            juridicaReceita.setPessoa(null);
-//            juridicaReceita.setStatus(resultado.getSituacao_cadastral());
-//            juridicaReceita.setDtAbertura(DataHoje.converte(resultado.getData_abertura()));
-//
-//            SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-//
-//            sv.abrirTransacao();
-//
-//            if (!sv.inserirObjeto(juridicaReceita)) {
-//                GenericaMensagem.warn("Erro", "Erro ao Salvar pesquisa!");
-//                sv.desfazerTransacao();
-//                return;
-//            }
-//
-//            sv.comitarTransacao();
-//
-//            juridica.getPessoa().setNome(juridicaReceita.getNome());
-//            juridica.setFantasia(juridicaReceita.getNome());
-//
-//            String result[] = juridicaReceita.getCnae().split(" ");
-//            CnaeDB dbc = new CnaeDBToplink();
-//
-//            List<Cnae> listac = dbc.pesquisaCnae(result[0], "cnae", "I");
-//
-//            if (listac.isEmpty()) {
-//                GenericaMensagem.warn("Erro", "Erro ao pesquisar CNAE");
-//                return;
-//            }
-//            retornaCnaeReceita(listac.get(0));
-//
-//            PessoaEnderecoDB dbe = new PessoaEnderecoDBToplink();
-//
-//            String cep = juridicaReceita.getCep();
-//            cep = cep.replace(".", "").replace("-", "");
-//
-//            String descricao[] = AnaliseString.removerAcentos(resultado.getLogradouro()).split(" ");
-//            String bairros[] = AnaliseString.removerAcentos(resultado.getBairro()).split(" ");
-//
-//            endereco = dbe.enderecoReceita(cep, descricao, bairros);
-//
-//            if (endereco != null) {
-//                TipoEnderecoDB dbt = new TipoEnderecoDBToplink();
-//                List tiposE = dbt.listaTipoEnderecoParaJuridica();
-//                for (int i = 0; i < tiposE.size(); i++) {
-//                    pessoaEndereco.setEndereco(endereco);
-//                    pessoaEndereco.setTipoEndereco((TipoEndereco) tiposE.get(i));
-//                    pessoaEndereco.setPessoa(juridica.getPessoa());
-//                    pessoaEndereco.setNumero(juridicaReceita.getNumero());
-//                    pessoaEndereco.setComplemento(juridicaReceita.getComplemento());
-//                    listaEnd.add(pessoaEndereco);
-//
-//                    pessoaEndereco = new PessoaEndereco();
-//                }
-//            } else {
-//                String msg = "Endereço não encontrado no Sistema - CEP: " + resultado.getCep() + " DESC: " + resultado.getLogradouro() + " BAIRRO: " + resultado.getBairro();
-//                GenericaMensagem.warn("Erro", msg);
-//            }
-//        } else {
-//            juridica.getPessoa().setNome(juridicaReceita.getNome());
-//            juridica.setFantasia(juridicaReceita.getNome());
-//
-//            String result[] = juridicaReceita.getCnae().split(" ");
-//            CnaeDB dbc = new CnaeDBToplink();
-//
-//            List<Cnae> listac = dbc.pesquisaCnae(result[0], "cnae", "I");
-//
-//            if (listac.isEmpty()) {
-//                GenericaMensagem.warn("Erro", "Erro ao pesquisar CNAE");
-//                return;
-//            }
-//            retornaCnaeReceita(listac.get(0));
-//
-//            if (juridicaReceita.getStatus().equals("BAIXADA")) {
-//                GenericaMensagem.warn("Erro", "Esta empresa esta INATIVA na receita!");
-//            }
-//
-//            PessoaEnderecoDB dbe = new PessoaEnderecoDBToplink();
-//
-//            String cep = juridicaReceita.getCep();
-//            cep = cep.replace(".", "").replace("-", "");
-//
-//            String descricao[] = AnaliseString.removerAcentos(juridicaReceita.getDescricaoEndereco()).split(" ");
-//            String bairros[] = AnaliseString.removerAcentos(juridicaReceita.getBairro()).split(" ");
-//
-//            endereco = dbe.enderecoReceita(cep, descricao, bairros);
-//
-//            if (endereco != null) {
-//                TipoEnderecoDB dbt = new TipoEnderecoDBToplink();
-//                List tiposE = dbt.listaTipoEnderecoParaJuridica();
-//                for (Object tiposE1 : tiposE) {
-//                    pessoaEndereco.setEndereco(endereco);
-//                    pessoaEndereco.setTipoEndereco((TipoEndereco) tiposE1);
-//                    pessoaEndereco.setPessoa(juridica.getPessoa());
-//                    pessoaEndereco.setNumero(juridicaReceita.getNumero());
-//                    pessoaEndereco.setComplemento(juridicaReceita.getComplemento());
-//                    listaEnd.add(pessoaEndereco);
-//                    pessoaEndereco = new PessoaEndereco();
-//                }
-//            } else {
-//                String msg = "Endereço não encontrado no Sistema - CEP: " + juridicaReceita.getCep() + " DESC: " + juridicaReceita.getDescricaoEndereco() + " BAIRRO: " + juridicaReceita.getBairro();
-//                GenericaMensagem.warn("Erro", msg);
-//            }
-//        }
-//    }
+    public Integer getOffset() {
+        return offset;
+    }
+
+    public void setOffset(Integer offset) {
+        this.offset = offset;
+    }
+
+    public Integer getCount() {
+        return count;
+    }
+
+    public void setCount(Integer count) {
+        this.count = count;
+    }
+
+    public Integer getLimit() {
+        return limit;
+    }
+
+    public void setLimit(Integer limit) {
+        this.limit = limit;
+    }
+
+    public Integer getDe() {
+        int result = 0;
+        if (offset <= 0) {
+            offset = 0;
+            return 0;
+        } else {
+            return offset;
+        }
+    }
+
+    public Integer getAte() {
+        int result = offset + 500;
+        if (result > count) {
+            result = count;
+        }
+        return result;
+    }
+}

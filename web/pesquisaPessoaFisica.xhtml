@@ -165,6 +165,13 @@
                                             <p:commandButton value="Ver selecionados" rendered="#{fisicaBean.multiple}" update=":form_pesquisa_pessoa:i_pessoa_fisica_selecteds" onclick="PF('dlg_selecteds').show()" />
                                         </h:column>
                                     </h:panelGrid>
+                                    <h:panelGroup rendered="#{not empty fisicaBean.listaPessoaFisica}">
+                                        <p:commandButton icon="ui-icon-seek-prev"  action="#{fisicaBean.reloadList(false)}" update=":form_pesquisa_pessoa:tbl" title="Menos 500" disabled="#{fisicaBean.de eq 0}"/>
+                                        <p:commandButton icon="ui-icon-seek-next" action="#{fisicaBean.reloadList(true)}" update=":form_pesquisa_pessoa:tbl" title="Mais 500" disabled="#{fisicaBean.listaPessoaFisica.size() != fisicaBean.limit}"/>
+                                    </h:panelGroup>                                
+                                </f:facet>
+                                <f:facet name="header" rendered="#{not empty fisicaBean.listaPessoaFisica}">
+                                    #{fisicaBean.de} à #{fisicaBean.ate} de #{fisicaBean.count} resultado(s)
                                 </f:facet>
                             </p:dataTable>
                             <p:dialog widgetVar="dlg_selecteds" modal="true" resizable="false" height="250" width="600" header="Selecionados">

@@ -21,13 +21,13 @@ public interface FisicaDB {
 
     public List pesquisaTodos();
 
-    public List<Fisica> pesquisaPessoa(String desc, String por, String como);
+    public List<Fisica> pesquisaPessoa(String desc, String por, String como, Integer limit, Integer offset);
 
-    public List pesquisaPessoaSocio(String desc, String por, String como);
+    public List pesquisaPessoaSocio(String desc, String por, String como, Integer limit, Integer offset);
 
-    public List pesquisaPessoaSocio(String desc, String por, String como, Boolean titular);
+    public List pesquisaPessoaSocio(String desc, String por, String como, Boolean titular, Integer limit, Integer offset);
 
-    public List pesquisaPessoaSocioInativo(String desc, String por, String como);
+    public List pesquisaPessoaSocioInativo(String desc, String por, String como, Integer limit, Integer offset);
 
     public Fisica idFisica(Fisica des_fisica);
 
