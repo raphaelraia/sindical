@@ -67,7 +67,7 @@
 
                         <h:form id="formGridPesquisaPessoaJuridica">
                             <h:panelGrid id="i_panel_grid" style="width: 100%">
-                                <p:dataTable value="#{juridicaBean.listaJuridica}" var="juridica" id="tbl" emptyMessage="Nenhuma empresa encontrada" scrollHeight="400" scrollable="true">
+                                <p:dataTable value="#{juridicaBean.listaJuridica}" var="juridica" id="tbl" emptyMessage="Nenhuma empresa encontrada" scrollHeight="400" scrollable="true" paginator="true" rows="100">
                                     <p:column style="width:20px">  
                                         <p:rowToggler />  
                                     </p:column>  
