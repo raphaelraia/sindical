@@ -177,7 +177,7 @@ public class LocacaoFilmeBean implements Serializable {
         DataHoje dataHoje = new DataHoje();
         if (locadoraLote.getId() != null) {
             for (int i = 0; i < listLocadoraMovimento.size(); i++) {
-                listLocadoraMovimento.get(i).setDataDevolucaoString(dataHoje.incrementarDias(locadoraStatus.getDiasDevolucao(), DataHoje.data()));
+                listLocadoraMovimento.get(i).setDataDevolucaoPrevisaoString(dataHoje.incrementarDias(locadoraStatus.getDiasDevolucao(), DataHoje.data()));
                 if (listLocadoraMovimento.get(i).getLocadoraLote() == null) {
                     listLocadoraMovimento.get(i).setLocadoraLote(locadoraLote);
                     quantidade++;
@@ -261,18 +261,26 @@ public class LocacaoFilmeBean implements Serializable {
                 break;
             case 4:
                 listLocadoraHistorico.clear();
-                listLocadoraHistorico = new LocadoraMovimentoDao().pesquisaPendentesPorPessoa(locatario.getPessoa().getId());
+                listLocadoraHistorico = new LocadoraMovimentoDao().pesquisaHistoricoPorPessoa("todos", locatario.getPessoa().getId(), MacFilial.getAcessoFilial().getFilial().getId());
                 break;
             case 5:
                 titulo = new Titulo();
                 break;
             case 6:
                 listLocadoraHistorico.clear();
-                listLocadoraHistorico = new LocadoraMovimentoDao().pesquisaAtrasadosPorPessoa(locatario.getPessoa().getId());
+                listLocadoraHistorico = new LocadoraMovimentoDao().pesquisaHistoricoPorPessoa("nao_devolvidos", locatario.getPessoa().getId(), MacFilial.getAcessoFilial().getFilial().getId());
                 break;
             case 7:
                 listLocadoraHistorico.clear();
-                listLocadoraHistorico = new LocadoraMovimentoDao().pesquisaHistoricoPorPessoa(locatario.getPessoa().getId(), MacFilial.getAcessoFilial().getFilial().getId());
+                listLocadoraHistorico = new LocadoraMovimentoDao().pesquisaHistoricoPorPessoa("todos", locatario.getPessoa().getId(), MacFilial.getAcessoFilial().getFilial().getId());
+                break;
+            case 8:
+                listLocadoraHistorico.clear();
+                listLocadoraHistorico = new LocadoraMovimentoDao().pesquisaHistoricoPorPessoa("hoje", locatario.getPessoa().getId(), MacFilial.getAcessoFilial().getFilial().getId());
+                break;
+            case 9:
+                listLocadoraHistorico.clear();
+                listLocadoraHistorico = new LocadoraMovimentoDao().pesquisaHistoricoPorPessoa("pendentes", locatario.getPessoa().getId(), MacFilial.getAcessoFilial().getFilial().getId());
                 break;
         }
     }
@@ -503,5 +511,13 @@ public class LocacaoFilmeBean implements Serializable {
 
     public void setListLocadoraHistorico(List<LocadoraMovimento> listLocadoraHistorico) {
         this.listLocadoraHistorico = listLocadoraHistorico;
+    }
+    
+    public Integer getPendentes() {
+        return new LocadoraMovimentoDao().pesquisaHistoricoPorPessoa("pendentes", locatario.getPessoa().getId(), MacFilial.getAcessoFilial().getFilial().getId()).size();
+    }
+    
+    public Integer getPendentesAtrasados() {
+        return new LocadoraMovimentoDao().pesquisaHistoricoPorPessoa("nao_devolvidos", locatario.getPessoa().getId(), MacFilial.getAcessoFilial().getFilial().getId()).size();
     }
 }

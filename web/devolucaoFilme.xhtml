@@ -71,9 +71,10 @@
                                         <p:outputLabel value="Status: " />
                                         <p:selectOneMenu value="#{devolucaoFilmeBean.status}">
                                             <p:ajax event="change" update="@this i_history" listener="#{devolucaoFilmeBean.loadLocadoraMovimento()}"/>
+                                            <f:selectItem itemValue="pendentes" itemLabel="Pendentes" />
                                             <f:selectItem itemValue="todos" itemLabel="Todos" />
                                             <f:selectItem itemValue="devolvidos" itemLabel="Devolvidos" />
-                                            <f:selectItem itemValue="nao_devolvidos" itemLabel="Não devolvidos" />
+                                            <f:selectItem itemValue="nao_devolvidos" itemLabel="Atrasados" />
                                         </p:selectOneMenu>
                                     </h:panelGrid>
                                 </p:panel>

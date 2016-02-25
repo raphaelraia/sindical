@@ -117,8 +117,15 @@
                                 <p:commandButton onclick="PF('dlg_save').show();" value="Concluir" disabled="#{controleAcessoBean.botaoSalvar or locacaoFilmeBean.locatario.id eq -1}" title="Concluir locação"/>
                                 <p:commandButton value="Novo" action="#{locacaoFilmeBean.clear}" update=":form_locacao_filmes:"/>
                                 <p:commandButton onclick="PF('dlg_delete').show();" value="Desfazer" disabled="#{controleAcessoBean.botaoExcluir}" title="Excluir" rendered="#{locacaoFilmeBean.locadoraLote.id ne null}"/>
-                                <p:commandButton onclick="PF('dlg_locacoes').show();" value="Histórico" title="Histórico" update="i_history_pending" rendered="#{locacaoFilmeBean.locatario.id ne -1}"/>
-                                <p:outputLabel value="Filmes pendentes para entrega (#{locacaoFilmeBean.listLocadoraHistorico.size()})" rendered="#{locacaoFilmeBean.locatario.id ne -1}"/>
+                                <p:commandButton onclick="PF('dlg_locacoes').show();" value="Histórico" title="Histórico" update="i_history_pending" rendered="#{locacaoFilmeBean.locatario.id ne -1}" action="#{locacaoFilmeBean.listener(8)}"/>
+                                <h:column>
+                                    <p:outputLabel value="Pendentes (#{locacaoFilmeBean.pendentes})" rendered="#{locacaoFilmeBean.locatario.id ne -1}" styleClass="font-color-blue font-size-12"/>                                        
+                                </h:column>
+                                <h:column>
+                                    <strong>
+                                        <p:outputLabel value="Atrasados (#{locacaoFilmeBean.pendentesAtrasados})" rendered="#{locacaoFilmeBean.locatario.id ne -1}" styleClass="font-color-red font-size-12"/>
+                                    </strong>                                    
+                                </h:column>
                             </h:panelGrid>
                             <p:dialog widgetVar="dlg_save" header="Deseja concluir esta locação?" resizable="false" width="400" modal="true">
                                 <f:facet name="footer">
@@ -138,8 +145,9 @@
                             </p:dialog>
                             <p:dialog widgetVar="dlg_locacoes" header="Pendências" resizable="false" width="1024" modal="true" positionType="fixed" position="top">
                                 <p:ajax event="close" update=":form_locacao_filmes:" listener="#{locacaoFilmeBean.listener(4)}"/>
-                                <h:panelGrid cellpadding="5" columns="3">
-                                    <p:commandButton value="Locados" title="Locados" update="i_history_pending" action="#{locacaoFilmeBean.listener(4)}" style="color: blue"/>
+                                <h:panelGrid cellpadding="5" columns="5">
+                                    <p:commandButton value="Hoje" title="Hoje" update="i_history_pending" action="#{locacaoFilmeBean.listener(8)}" style="color: blue"/>
+                                    <p:commandButton value="Pendentes" title="Pendentes" update="i_history_pending" action="#{locacaoFilmeBean.listener(9)}" styleClass="font-color-red"/>
                                     <p:commandButton value="Atrasados" title="Atrasados" update="i_history_pending" action="#{locacaoFilmeBean.listener(6)}" styleClass="font-color-red"/>
                                     <p:commandButton value="Histórico" title="Histórico" update="i_history_pending" action="#{locacaoFilmeBean.listener(7)}" style="color: #333300"/>
                                 </h:panelGrid>
@@ -147,6 +155,7 @@
                                     <p:dataTable emptyMessage="Nenhum registro adicionado!" value="#{locacaoFilmeBean.listLocadoraHistorico}" var="locadoraMovimento" scrollable="true" scrollHeight="200">
                                         <p:column headerText="Locação" width="80">#{locadoraMovimento.locadoraLote.dataLocacaoString}</p:column>
                                         <p:column headerText="Previsão de entrega" width="80">#{locadoraMovimento.dataDevolucaoPrevisaoString}</p:column>
+                                        <p:column headerText="Entrega" width="80">#{locadoraMovimento.dataDevolucaoString}</p:column>
                                         <p:column headerText="Autorizado">#{locadoraMovimento.locadoraLote.locadoraAutorizados.nome}</p:column>
                                         <p:column headerText="Filme">#{locadoraMovimento.titulo.descricao}</p:column>
                                         <p:column headerText="Ano Lançamento" width="80" styleClass="text-center">#{locadoraMovimento.titulo.anoLancamento}</p:column>
