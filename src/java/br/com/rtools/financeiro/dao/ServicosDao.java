@@ -190,7 +190,7 @@ public class ServicosDao extends DB {
                 where += " T1.ds_situacao = '" + situacao + "' \n";
             }
         }
-        return new FindDao().findNotInByTabela(Servicos.class, "fin_servicos", new String[]{"id_departamento"}, table, column, colum_filter_key, colum_filter_value, where);
+        return new FindDao().findNotInByTabela(Servicos.class, "fin_servicos", new String[]{"id_departamento, ds_descricao"}, table, column, colum_filter_key, colum_filter_value, where);
     }
 
     /**

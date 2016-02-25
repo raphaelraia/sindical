@@ -22,7 +22,7 @@
             <ui:include src="templates/templatePrime.xhtml"/>
         </f:subview>
         <f:view>
-            <ui:include src="templates/templateAcessoFilialComCaixa.xhtml" />
+            <ui:include src="templates/templateAcessoFilial.xhtml" />
             <!-- INICIA DIV wrap e main -->
             <div id="wrapx">
                 <div id="mainx">
@@ -195,7 +195,7 @@
                                     </h:panelGrid>
                                 </f:facet>
                             </p:dialog>
-                            <p:dialog widgetVar="dlg_validacao" header="Configurar Status!" resizable="false" width="400" modal="true" closable="false" visible="#{locacaoFilmeBean.locadoraStatus eq null and segurancaUtilitariosBean.existeMacFilialComCaixa}">
+                            <p:dialog widgetVar="dlg_validacao" header="Configurar Status!" resizable="false" width="400" modal="true" closable="false" visible="#{locacaoFilmeBean.locadoraStatus eq null and segurancaUtilitariosBean.existeMacFilial}">
                                 <p:outputLabel value="Vá em: Menu Principal > Locadora > Cadastro > Status" />
                                 <f:facet name="footer">
                                     <h:panelGrid columns="2">

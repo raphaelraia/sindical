@@ -38,7 +38,7 @@ public class LocadoraStatusDao extends DB {
                     + "      WHERE LS.id_filial = " + filial_id + "             \n"
                     + "        AND LS.dt_data IS NULL                           \n"
                     + "        AND LS.id_semana IS NOT NULL                     \n"
-                    + "   ORDER BY S.ds_descricao ASC   ";
+                    + "   ORDER BY LS.id_semana ASC, S.ds_descricao ASC   ";
             Query query = getEntityManager().createNativeQuery(queryString, LocadoraStatus.class);
             List list = query.getResultList();
             if (!list.isEmpty()) {
@@ -57,7 +57,7 @@ public class LocadoraStatusDao extends DB {
                     + " INNER JOIN fin_servicos AS S ON S.id = LS.id_taxa                               \n"
                     + "      WHERE LS.id_filial = " + filial_id + "                                     \n"
                     + "        AND LS.dt_data >= CURRENT_DATE                                           \n"
-                    + "   ORDER BY S.ds_descricao ASC   ";
+                    + "   ORDER BY LS.id_semana ASC, S.ds_descricao ASC   ";
             Query query = getEntityManager().createNativeQuery(queryString, LocadoraStatus.class);
             return (LocadoraStatus) query.getSingleResult();
         } catch (Exception e) {

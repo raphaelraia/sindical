@@ -3,6 +3,8 @@ package br.com.rtools.locadoraFilme;
 import br.com.rtools.financeiro.Evt;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.Moeda;
+import br.com.rtools.utilitarios.db.FunctionsDao;
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Column;
@@ -49,6 +51,12 @@ public class LocadoraMovimento implements Serializable {
 
     @Transient
     private Boolean selected;
+
+    @Transient
+    private Float valorMultaDiaria;
+
+    @Transient
+    private Float valorTotal;
 
     public LocadoraMovimento() {
         this.id = null;
@@ -158,35 +166,60 @@ public class LocadoraMovimento implements Serializable {
     public void setSelected(Boolean selected) {
         this.selected = selected;
     }
-    
+
     public Integer getDiasAtraso() {
-        if(dtDevolucao == null) {
+        if (dtDevolucao == null) {
             Integer dias = DataHoje.calculoDosDiasInt(dtDevolucaoPrevisao, new Date());
             return dias;
         }
         return 0;
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 3;
-        return hash;
+    public Float getValorMultaDiaria() {
+        if (valorMultaDiaria == null) {
+            this.valorMultaDiaria = new FunctionsDao().multaDiariaLocadora(this.locadoraLote.getFilial().getId(), this.locadoraLote.getDtLocacao());
+        }
+        return valorMultaDiaria;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
+    public void setValorMultaDiaria(Float valorMultaDiaria) {
+        this.valorMultaDiaria = valorMultaDiaria;
+    }
+
+    public String getValorMultaDiariaString() {
+        return Moeda.converteR$Float(getValorMultaDiaria());
+    }
+
+    public void setValorMultaDiariaString(String valorMultaDiariaString) {
+        this.valorMultaDiaria = Moeda.converteUS$(valorMultaDiariaString);
+    }
+
+    public Float getValorTotal() {
+        if (valorTotal == null) {
+            valorTotal = getDiasAtraso() * valorMultaDiaria;
         }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final LocadoraMovimento other = (LocadoraMovimento) obj;
-        return true;
+        return valorTotal;
+    }
+
+    public void setValorTotal(Float valorTotal) {
+        this.valorTotal = valorTotal;
+    }
+
+    public String getValorTotalString() {
+        return Moeda.converteR$Float(getValorTotal());
+    }
+
+    public void setValorTotalString(String valorTotalString) {
+        this.valorTotal = Moeda.converteUS$(valorTotalString);
+    }
+
+    public Double getValorTotalDouble() {
+        return Double.parseDouble(Moeda.converteR$Float(getValorTotal()));
     }
 
     @Override
     public String toString() {
         return "LocadoraMovimento{" + "id=" + id + ", locadoraLote=" + locadoraLote + ", titulo=" + titulo + ", operadorDevolucao=" + operadorDevolucao + ", evt=" + evt + ", dtDevolucaoPrevisao=" + dtDevolucaoPrevisao + ", dtDevolucao=" + dtDevolucao + '}';
     }
+
 }

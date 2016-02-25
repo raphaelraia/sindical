@@ -53,8 +53,16 @@ public class Evt implements Serializable {
         return new LoteDBToplink().pesquisaLotePorEvt(this);
     }
 
-    public List<Movimento> getMovimento() {
+    public List<Movimento> getListMovimento() {
         return new MovimentoDBToplink().listaMovimentosDoLote(getLote().getId());
+    }
+
+    public Movimento getMovimento() {
+        List<Movimento> list = new MovimentoDBToplink().listaMovimentosDoLote(getLote().getId());
+        if (!list.isEmpty() && list.size() == 1) {
+            return list.get(0);
+        }
+        return null;
     }
 
 }

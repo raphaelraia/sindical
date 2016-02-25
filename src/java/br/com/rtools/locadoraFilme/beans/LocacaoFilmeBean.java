@@ -114,6 +114,7 @@ public class LocacaoFilmeBean implements Serializable {
         }
         dao.openTransaction();
         if (locadoraLote.getId() == null) {
+            locadoraLote.setFilial(MacFilial.getAcessoFilial().getFilial());
             if (!dao.save(locadoraLote)) {
                 dao.rollback();
                 GenericaMensagem.warn("Erro", "Ao realizar esta locação!");
@@ -191,12 +192,10 @@ public class LocacaoFilmeBean implements Serializable {
                         GenericaMensagem.warn("Erro", "Ao inserir locadora movimento!");
                         return;
                     }
-                } else {
-                    if (!dao.update(listLocadoraMovimento.get(i))) {
-                        dao.rollback();
-                        GenericaMensagem.warn("Erro", "Ao atualizar locadora movimento!");
-                        return;
-                    }
+                } else if (!dao.update(listLocadoraMovimento.get(i))) {
+                    dao.rollback();
+                    GenericaMensagem.warn("Erro", "Ao atualizar locadora movimento!");
+                    return;
                 }
             }
         } else {
@@ -273,7 +272,7 @@ public class LocacaoFilmeBean implements Serializable {
                 break;
             case 7:
                 listLocadoraHistorico.clear();
-                listLocadoraHistorico = new LocadoraMovimentoDao().pesquisaHistoricoPorPessoa(locatario.getPessoa().getId());
+                listLocadoraHistorico = new LocadoraMovimentoDao().pesquisaHistoricoPorPessoa(locatario.getPessoa().getId(), MacFilial.getAcessoFilial().getFilial().getId());
                 break;
         }
     }
@@ -319,11 +318,9 @@ public class LocacaoFilmeBean implements Serializable {
                     return;
                 }
             }
-        } else {
-            if (!locatario.getPessoa().getIsTitular()) {
-                GenericaMensagem.warn("Validação", "Não permitida a locação para dependentes, somente para pessoas autorizadas pelo titular!");
-                return;
-            }
+        } else if (!locatario.getPessoa().getIsTitular()) {
+            GenericaMensagem.warn("Validação", "Não permitida a locação para dependentes, somente para pessoas autorizadas pelo titular!");
+            return;
         }
         if (locatario.getIdade() > 0) {
             if (locatario.getIdade() < titulo.getIdadeMinima()) {
@@ -358,16 +355,14 @@ public class LocacaoFilmeBean implements Serializable {
             if (listLocadoraMovimento.get(i).getTitulo().getId().equals(lm.getTitulo().getId())) {
                 if (listLocadoraMovimento.get(i).getId() == null) {
                     listLocadoraMovimento.remove(i);
-                } else {
-                    if (listLocadoraMovimento.get(i).getDtDevolucao() != null) {
-                        if (!new Dao().delete(listLocadoraMovimento.get(i), true)) {
-                            GenericaMensagem.warn("Erro", "Ao remover titulo!");
-                            return;
-                        }
-                    } else {
-                        GenericaMensagem.warn("Erro", "Locações devolvidas não podem ser removidos!");
+                } else if (listLocadoraMovimento.get(i).getDtDevolucao() != null) {
+                    if (!new Dao().delete(listLocadoraMovimento.get(i), true)) {
+                        GenericaMensagem.warn("Erro", "Ao remover titulo!");
                         return;
                     }
+                } else {
+                    GenericaMensagem.warn("Erro", "Locações devolvidas não podem ser removidos!");
+                    return;
                 }
                 GenericaMensagem.info("Validação", "Titulo removido!");
                 return;
@@ -456,7 +451,7 @@ public class LocacaoFilmeBean implements Serializable {
                 GenericaMensagem.warn("Mensagem sistema", "Fazer Atualização Cadastral!");
             }
             listLocadoraMovimento.clear();
-            listLocadoraMovimento = new LocadoraMovimentoDao().findAllByPessoa(DataHoje.data(), locatario.getPessoa().getId());
+            listLocadoraMovimento = new LocadoraMovimentoDao().findAllByPessoa(DataHoje.data(), locatario.getPessoa().getId(), MacFilial.getAcessoFilial().getFilial().getId());
             listLocadoraHistorico = new LocadoraMovimentoDao().pesquisaPendentesPorPessoa(locatario.getPessoa().getId());
         }
         return locatario;

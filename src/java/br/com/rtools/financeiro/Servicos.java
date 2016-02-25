@@ -5,6 +5,9 @@ import br.com.rtools.pessoa.Administradora;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.seguranca.Departamento;
 import br.com.rtools.sistema.Periodo;
+import br.com.rtools.utilitarios.Moeda;
+import br.com.rtools.utilitarios.db.FunctionsDao;
+import java.util.Date;
 import javax.persistence.*;
 
 @Entity
@@ -86,6 +89,9 @@ public class Servicos implements java.io.Serializable {
     @Transient
     private Boolean selected;
 
+    @Transient
+    private Float valorCheio;
+
     public Servicos() {
         this.id = -1;
         this.descricao = "";
@@ -117,6 +123,8 @@ public class Servicos implements java.io.Serializable {
         this.mesesDebitoExclusao = 60;
         this.selected = false;
         this.mesesDebitoExclusaoTodos = false;
+        // TRANSIENT
+        this.valorCheio = null;
     }
 
     public Servicos(int id,
@@ -440,6 +448,63 @@ public class Servicos implements java.io.Serializable {
 
     public void setMesesDebitoExclusaoTodos(boolean mesesDebitoExclusaoTodos) {
         this.mesesDebitoExclusaoTodos = mesesDebitoExclusaoTodos;
+    }
+
+    /**
+     * Por pessoa
+     *
+     * @param pessoa_id
+     * @return
+     */
+    public Float getValorCheio(Integer pessoa_id) {
+        try {
+            return new FunctionsDao().valorServicoCheio(pessoa_id, this.id, new Date());
+        } catch (Exception e) {
+            return new Float(0);
+        }
+    }
+
+    /**
+     * Por pessoa
+     *
+     * @param pessoa_id
+     * @return
+     */
+    public String getValorCheioString(Integer pessoa_id) {
+        try {
+            return Moeda.converteR$Float(new FunctionsDao().valorServicoCheio(pessoa_id, this.id, new Date()));
+        } catch (Exception e) {
+            return "0,00";
+        }
+    }
+
+    /**
+     * Valor do serviço com ID 1
+     *
+     * @return
+     */
+    public Float getValorCheio() {
+        if (valorCheio == null) {
+            try {
+                valorCheio = new FunctionsDao().valorServicoCheio(1, this.id, new Date());
+                return valorCheio;
+            } catch (Exception e) {
+                return new Float(0);
+            }
+        }
+        return new Float(0);
+    }
+
+    public String getValorCheioString() {
+        return Moeda.converteR$Float(getValorCheio());
+    }
+
+    public void setValorCheioString(String valorCheioString) {
+        this.valorCheio = Moeda.converteUS$(valorCheioString);
+    }
+
+    public void setValorCheio(Float valorCheio) {
+        this.valorCheio = valorCheio;
     }
 
 }

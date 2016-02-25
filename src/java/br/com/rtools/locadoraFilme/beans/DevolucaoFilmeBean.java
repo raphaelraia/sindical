@@ -18,6 +18,7 @@ import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.Moeda;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -85,9 +86,9 @@ public class DevolucaoFilmeBean implements Serializable {
 
     public void loadLocadoraMovimento() {
         listLocadoraMovimento.clear();
-        listLocadoraMovimento = new LocadoraMovimentoDao().pesquisaHistoricoPorPessoa(status, locatario.getPessoa().getId());
+        listLocadoraMovimento = new LocadoraMovimentoDao().pesquisaHistoricoPorPessoa(status, locatario.getPessoa().getId(), MacFilial.getAcessoFilial().getFilial().getId());
         listLocadoraHistorico.clear();
-        listLocadoraHistorico = new LocadoraMovimentoDao().pesquisaHistoricoPorPessoa("nao_devolvidos", locatario.getPessoa().getId());
+        listLocadoraHistorico = new LocadoraMovimentoDao().pesquisaHistoricoPorPessoa("nao_devolvidos", locatario.getPessoa().getId(), MacFilial.getAcessoFilial().getFilial().getId());
 
     }
 
@@ -98,7 +99,7 @@ public class DevolucaoFilmeBean implements Serializable {
 
     public void clear() {
         GenericaSessao.remove("tituloPesquisa");
-        GenericaSessao.remove("locacaoFilmeBean");
+        GenericaSessao.remove("devolucaoFilmeBean");
         GenericaSessao.remove("titulosNotIn");
     }
 
@@ -277,7 +278,7 @@ public class DevolucaoFilmeBean implements Serializable {
                 break;
             case 7:
                 listLocadoraHistorico.clear();
-                listLocadoraHistorico = new LocadoraMovimentoDao().pesquisaHistoricoPorPessoa(locatario.getPessoa().getId());
+                listLocadoraHistorico = new LocadoraMovimentoDao().pesquisaHistoricoPorPessoa(locatario.getPessoa().getId(), MacFilial.getAcessoFilial().getFilial().getId());
                 break;
         }
     }
@@ -477,5 +478,53 @@ public class DevolucaoFilmeBean implements Serializable {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Float getValorTotalMultaDiaria() {
+        Float total = new Float(0);
+        for (int i = 0; i < listLocadoraMovimento.size(); i++) {
+            if (listLocadoraMovimento.get(i).getSelected()) {
+                total += listLocadoraMovimento.get(i).getValorMultaDiaria();
+            }
+        }
+        return total;
+    }
+
+    public String getValorTotalMultaDiariaString() {
+        try {
+            return Moeda.converteR$Float(getValorTotalMultaDiaria());
+        } catch (Exception e) {
+            return "0,00";
+        }
+    }
+
+    public Float getValorTotalReceber() {
+        Float total = new Float(0);
+        for (int i = 0; i < listLocadoraMovimento.size(); i++) {
+            total += listLocadoraMovimento.get(i).getValorMultaDiaria();
+        }
+        return total;
+    }
+
+    public String getValorTotalReceberString() {
+        try {
+            return Moeda.converteR$Float(getValorTotalReceber());
+        } catch (Exception e) {
+            return "0,00";
+        }
+    }
+
+    public Integer getQuantidadeDevolucaoes() {
+        Integer qtde = 0;
+        try {
+            for (int i = 0; i < listLocadoraMovimento.size(); i++) {
+                if (listLocadoraMovimento.get(i).getSelected()) {
+                    qtde++;
+                }
+            }
+        } catch (Exception e) {
+            return 0;
+        }
+        return qtde;
     }
 }
