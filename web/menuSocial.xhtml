@@ -73,6 +73,8 @@
                                         <p:menuitem value="Grupo Categoria"      action="#{chamadaPaginaBean.pagina('grupoCategoria')}" />
                                         <p:menuitem value="Parentesco"           action="#{chamadaPaginaBean.parentesco}" />
                                         <p:menuitem value="Registro Empresarial" action="#{chamadaPaginaBean.registroEmpresarial}" />
+                                        <p:menuitem value="Sorteio Categoria"    disabled="true"/>
+                                        <p:menuitem value="Sorteio Status"       disabled="true"/>
                                     </p:submenu>
                                 </p:submenu>
 
@@ -89,8 +91,9 @@
                                         <p:menuitem value="Baile"           action="#{chamadaPaginaBean.vendasBaile}" />
                                     </p:submenu>
                                     <p:menuitem value="Transf. Entre Caixas" onclick="i_dlg_t.show()"/>
-                                    <p:menuitem value="Fechamento de Caixa"    action="#{chamadaPaginaBean.fechamentoCaixa()}"/>
-                                    <p:menuitem value="Ag. Cobrança Mensal"    action="#{chamadaPaginaBean.cobrancaMensal()}" />
+                                    <p:menuitem value="Fechamento de Caixa" action="#{chamadaPaginaBean.fechamentoCaixa()}"/>
+                                    <p:menuitem value="Ag. Cobrança Mensal" action="#{chamadaPaginaBean.cobrancaMensal()}" />
+                                    <p:menuitem value="Sorteio"             action="#{chamadaPaginaBean.pagina('sorteioMovimento')}" />
                                     <p:submenu label="Boletos">
                                         <p:menuitem value="Pesquisa Boletos"     action="#{chamadaPaginaBean.pagina('pesquisaBoletosSocial')}" />
                                         <p:menuitem value="Boletos Não Baixados" action="#{chamadaPaginaBean.pagina('boletoNaoBaixado')}" />

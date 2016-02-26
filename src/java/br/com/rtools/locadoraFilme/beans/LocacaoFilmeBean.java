@@ -247,9 +247,10 @@ public class LocacaoFilmeBean implements Serializable {
                     }
                     if (t != null) {
                         titulo = t;
+                    } else {
+                        GenericaMensagem.warn("Validação", "Titulo não existe / indisponível / locado!");
                     }
                     codigoBarras = "";
-                    GenericaMensagem.warn("Validação", "Titulo não existe / indisponível / locado!");
                 }
                 break;
             case 3:
@@ -294,7 +295,7 @@ public class LocacaoFilmeBean implements Serializable {
     }
 
     public String inTitulos() {
-        String in = null;
+        String in = "";
         for (int i = 0; i < listLocadoraMovimento.size(); i++) {
             if (i == 0) {
                 in = "" + listLocadoraMovimento.get(i).getTitulo().getBarras();
@@ -305,9 +306,9 @@ public class LocacaoFilmeBean implements Serializable {
         List<LocadoraMovimento> lms = new LocadoraMovimentoDao().pesquisaPendentesPorPessoa(locatario.getPessoa().getId());
         for (int i = 0; i < lms.size(); i++) {
             if (i == 0) {
-                in = "" + lms.get(i).getTitulo().getBarras();
+                in += "" + lms.get(i).getTitulo().getBarras();
             } else {
-                in = ", " + lms.get(i).getTitulo().getBarras();
+                in += ", " + lms.get(i).getTitulo().getBarras();
             }
         }
         return in;
@@ -339,6 +340,13 @@ public class LocacaoFilmeBean implements Serializable {
         for (int i = 0; i < listLocadoraMovimento.size(); i++) {
             if (listLocadoraMovimento.get(i).getTitulo().getId().equals(titulo.getId())) {
                 GenericaMensagem.warn("Validação", "Titulo já adicionado!");
+                return;
+            }
+        }
+        List<LocadoraMovimento> listLM = new LocadoraMovimentoDao().pesquisaHistoricoPorPessoa("pendentes", locatario.getPessoa().getId(), MacFilial.getAcessoFilial().getFilial().getId());
+        for (int i = 0; i < listLM.size(); i++) {
+            if (listLM.get(i).getTitulo().getId().equals(titulo.getId())) {
+                GenericaMensagem.warn("Validação", "Titulo já locado / pendente de devolução!");
                 return;
             }
         }
@@ -512,11 +520,11 @@ public class LocacaoFilmeBean implements Serializable {
     public void setListLocadoraHistorico(List<LocadoraMovimento> listLocadoraHistorico) {
         this.listLocadoraHistorico = listLocadoraHistorico;
     }
-    
+
     public Integer getPendentes() {
         return new LocadoraMovimentoDao().pesquisaHistoricoPorPessoa("pendentes", locatario.getPessoa().getId(), MacFilial.getAcessoFilial().getFilial().getId()).size();
     }
-    
+
     public Integer getPendentesAtrasados() {
         return new LocadoraMovimentoDao().pesquisaHistoricoPorPessoa("nao_devolvidos", locatario.getPessoa().getId(), MacFilial.getAcessoFilial().getFilial().getId()).size();
     }

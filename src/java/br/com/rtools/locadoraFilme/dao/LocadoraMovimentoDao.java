@@ -59,7 +59,7 @@ public class LocadoraMovimentoDao extends DB {
                     query.setParameter("filial_id", filial_id);
                     break;
                 case "pendentes":
-                    query = getEntityManager().createQuery("SELECT LM FROM LocadoraMovimento LM WHERE LM.dtDevolucao IS NULL AND LM.locadoraLote.pessoa.id = :pessoa_id AND LM.locadoraLote.filial.id = :filial_id ORDER BY LM.dtDevolucaoPrevisao DESC");
+                    query = getEntityManager().createQuery("SELECT LM FROM LocadoraMovimento LM WHERE LM.movimento IS NULL AND LM.dtDevolucao IS NULL AND LM.locadoraLote.pessoa.id = :pessoa_id AND LM.locadoraLote.filial.id = :filial_id ORDER BY LM.dtDevolucaoPrevisao DESC");
                     query.setParameter("pessoa_id", pessoa_id);
                     query.setParameter("filial_id", filial_id);
                     break;
@@ -78,6 +78,16 @@ public class LocadoraMovimentoDao extends DB {
                     break;
             }
             List list = query.getResultList();
+            if (!list.isEmpty()) {
+                switch (tcase) {
+                    case "pendentes":
+                        query = getEntityManager().createQuery("SELECT LM FROM LocadoraMovimento LM WHERE LM.movimento IS NOT NULL AND LM.movimento.baixa IS NULL AND LM.dtDevolucao IS NOT NULL AND LM.locadoraLote.pessoa.id = :pessoa_id AND LM.locadoraLote.filial.id = :filial_id ORDER BY LM.dtDevolucaoPrevisao DESC");
+                        query.setParameter("pessoa_id", pessoa_id);
+                        query.setParameter("filial_id", filial_id);
+                        list.add(query.getResultList());
+                        break;
+                }
+            }
             if (!list.isEmpty()) {
                 return list;
             }

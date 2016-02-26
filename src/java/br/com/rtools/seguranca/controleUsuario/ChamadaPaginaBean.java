@@ -1,6 +1,5 @@
 package br.com.rtools.seguranca.controleUsuario;
 
-import br.com.rtools.principal.DBExternal;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import static br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean.getCliente;

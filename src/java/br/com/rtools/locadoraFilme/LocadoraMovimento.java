@@ -1,6 +1,7 @@
 package br.com.rtools.locadoraFilme;
 
 import br.com.rtools.financeiro.Evt;
+import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Moeda;
@@ -39,9 +40,9 @@ public class LocadoraMovimento implements Serializable {
     @JoinColumn(name = "id_operador_devolucao", referencedColumnName = "id")
     @ManyToOne
     private Usuario operadorDevolucao;
-    @JoinColumn(name = "id_evt", referencedColumnName = "id")
+    @JoinColumn(name = "id_movimento", referencedColumnName = "id")
     @ManyToOne
-    private Evt evt;
+    private Movimento movimento;
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_devolucao_previsao", nullable = false)
     private Date dtDevolucaoPrevisao;
@@ -63,18 +64,18 @@ public class LocadoraMovimento implements Serializable {
         this.locadoraLote = null;
         this.titulo = null;
         this.operadorDevolucao = null;
-        this.evt = null;
+        this.movimento = null;
         this.dtDevolucaoPrevisao = null;
         this.dtDevolucao = null;
         this.selected = false;
     }
 
-    public LocadoraMovimento(Integer id, LocadoraLote locadoraLote, Titulo titulo, Usuario operadorDevolucao, Evt evt, Date dtDevolucaoPrevisao, Date dtDevolucao) {
+    public LocadoraMovimento(Integer id, LocadoraLote locadoraLote, Titulo titulo, Usuario operadorDevolucao, Movimento movimento, Date dtDevolucaoPrevisao, Date dtDevolucao) {
         this.id = id;
         this.locadoraLote = locadoraLote;
         this.titulo = titulo;
         this.operadorDevolucao = operadorDevolucao;
-        this.evt = evt;
+        this.movimento = movimento;
         this.dtDevolucaoPrevisao = dtDevolucaoPrevisao;
         this.dtDevolucao = dtDevolucao;
     }
@@ -111,12 +112,12 @@ public class LocadoraMovimento implements Serializable {
         this.operadorDevolucao = operadorDevolucao;
     }
 
-    public Evt getEvt() {
-        return evt;
+    public Movimento getMovimento() {
+        return movimento;
     }
 
-    public void setEvt(Evt evt) {
-        this.evt = evt;
+    public void setMovimento(Movimento movimento) {
+        this.movimento = movimento;
     }
 
     public Date getDtDevolucaoPrevisao() {
@@ -219,7 +220,7 @@ public class LocadoraMovimento implements Serializable {
 
     @Override
     public String toString() {
-        return "LocadoraMovimento{" + "id=" + id + ", locadoraLote=" + locadoraLote + ", titulo=" + titulo + ", operadorDevolucao=" + operadorDevolucao + ", evt=" + evt + ", dtDevolucaoPrevisao=" + dtDevolucaoPrevisao + ", dtDevolucao=" + dtDevolucao + '}';
+        return "LocadoraMovimento{" + "id=" + id + ", locadoraLote=" + locadoraLote + ", titulo=" + titulo + ", operadorDevolucao=" + operadorDevolucao + ", movimento=" + movimento + ", dtDevolucaoPrevisao=" + dtDevolucaoPrevisao + ", dtDevolucao=" + dtDevolucao + '}';
     }
 
 }

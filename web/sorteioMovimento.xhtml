@@ -1,0 +1,103 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Sindical - Sorteio</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important;} 
+            .ui-button { padding: 3px!important; }
+            .ui-datatable tr.ui-datatable-even:hover, .ui-datatable tr.ui-datatable-odd:hover {
+                background: #ECF3FE;
+            }            
+        </style>
+    </h:head>
+    <h:body>
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>
+        </f:subview>
+        <f:view>
+            <!-- INICIA DIV wrap e main -->
+            <div id="wrapx">
+                <div id="mainx">
+                    <!-- INICIA DIV wrap e main -->  
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:outputText value="Sorteio" styleClass="fonteHeader" />
+                        <div class="clear"></div>
+                        <h:form id="form_sorteio">
+                            <c:set scope="request" var="object" value="${sorteioMovimentoBean.sorteio}"/>
+                            <p:messages autoUpdate="true" showDetail="true" showSummary="true" />
+                            <p:panel>
+                                <h:panelGrid columns="3" cellspacing="5">
+                                    <h:outputLabel value="Sorteio" />
+                                    <p:selectOneMenu value="#{sorteioMovimentoBean.idSorteio}" >
+                                        <p:ajax event="change" update="@this id_grid_sorteados id_sorteio_categoria" listener="#{sorteioMovimentoBean.loadSorteio}"/>
+                                        <f:selectItems value="#{sorteioMovimentoBean.listSorteio}" />
+                                    </p:selectOneMenu>
+                                    <p:selectBooleanCheckbox value="#{sorteioMovimentoBean.historico}" itemLabel="Histórico">
+                                        <p:ajax event="change" update="@this id_grid_sorteados id_sorteio_categoria" listener="#{sorteioMovimentoBean.loadListSorteio()}"/>
+                                    </p:selectBooleanCheckbox>
+                                </h:panelGrid>
+                                <h:panelGrid id="id_sorteio_categoria" width="350">
+                                    <p:outputLabel value="Carência débito: #{sorteioMovimentoBean.sorteio.sorteioStatus.carenciaDebito} dia(s)" />
+                                    <p:dataTable value="#{sorteioMovimentoBean.sorteio.listSorteioCategoria}" var="sorteioCategoria" styleClass="margin-top-max" emptyMessage="Nenhum registro encontrado!">
+                                        <p:column headerText="Categoria" styleClass="text-center" width="50">
+                                            #{sorteioCategoria.categoria.categoria}
+                                        </p:column>
+                                    </p:dataTable>
+                                </h:panelGrid>
+                                <f:facet name="footer">
+                                    <p:commandButton value="Sortear" action="#{sorteioMovimentoBean.process}" update="id_grid_sorteados" disabled="#{controleAcessoBean.botaoSalvar}"/>
+                                </f:facet>
+                            </p:panel>
+                            <p:panel header="Sorteados" id="id_grid_sorteados" styleClass="margin-top-max">
+                                <p:dataTable value="#{sorteioMovimentoBean.listSorteioMovimento}" var="sorteioMovimento" id="id_grid_sorteados_this" emptyMessage="Nenhum registro encontrado!">
+                                    <p:column style="width:5%">  
+                                        <p:rowToggler />  
+                                    </p:column>                                      
+                                    <p:column styleClass="text-center" width="30">
+                                        <p:commandButton icon="ui-icon-close" action="#{sorteioMovimentoBean.delete(sorteioMovimento)}" update="id_grid_sorteados_this" disabled="#{controleAcessoBean.verificarPermissao('sorteio_movimento_excluir', 2)}" title="SORTEIO MOVIMENTO (BOTÃO EXCLUIR)"/>
+                                    </p:column>
+                                    <p:column headerText="Data do sorteio" styleClass="text-center" width="80">
+                                        #{sorteioMovimento.sorteioString}
+                                    </p:column>
+                                    <p:column headerText="Horário" styleClass="text-center" width="50">
+                                        #{sorteioMovimento.horario}
+                                    </p:column>
+                                    <p:column headerText="Sorteado">
+                                        #{sorteioMovimento.pessoa.nome}
+                                    </p:column>
+                                    <p:column headerText="CPF">
+                                        #{sorteioMovimento.pessoa.documento}
+                                    </p:column>
+                                    <p:column headerText="Operador">
+                                        #{sorteioMovimento.operador.pessoa.nome}
+                                    </p:column>
+                                    <p:column width="30">
+                                        <p:commandButton icon="ui-icon-contact" update=":form_sorteio:i_pessoa_fisica_card" onclick="PF('dlg_pessoa_fisica_card').show()" action="#{pessoaCardBean.cardFisica(sorteioMovimento.pessoa.id)}" title="Ver detalhes" />
+                                    </p:column>
+                                    <p:rowExpansion>
+
+                                    </p:rowExpansion>
+                                </p:dataTable>
+                            </p:panel>
+                            <p:dialog widgetVar="dlg_pessoa_fisica_card" modal="true" resizable="false" height="400" width="400" header="Detalhes">
+                                <p:ajax event="close" listener="#{pessoaCardBean.close}"/>  
+                                <p:panel id="i_pessoa_fisica_card">
+                                    <ui:include src="templates/templatePessoaFisicaCard.xhtml" />
+                                </p:panel>
+                            </p:dialog>                             
+                        </h:form>
+                    </p:panel>
+                    <!-- FINALIZA div wrap main -->
+                </div>
+            </div>
+            <!-- FINALIZA div wrap main -->              
+        </f:view>
+    </h:body>
+</ui:composition>

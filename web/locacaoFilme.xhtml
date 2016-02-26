@@ -143,13 +143,13 @@
                                     </h:panelGrid>
                                 </f:facet>
                             </p:dialog>
-                            <p:dialog widgetVar="dlg_locacoes" header="Pendências" resizable="false" width="1024" modal="true" positionType="fixed" position="top">
+                            <p:dialog widgetVar="dlg_locacoes" header="Histórico" resizable="false" width="1024" modal="true" positionType="fixed" position="top">
                                 <p:ajax event="close" update=":form_locacao_filmes:" listener="#{locacaoFilmeBean.listener(4)}"/>
                                 <h:panelGrid cellpadding="5" columns="5">
                                     <p:commandButton value="Hoje" title="Hoje" update="i_history_pending" action="#{locacaoFilmeBean.listener(8)}" style="color: blue"/>
                                     <p:commandButton value="Pendentes" title="Pendentes" update="i_history_pending" action="#{locacaoFilmeBean.listener(9)}" styleClass="font-color-red"/>
                                     <p:commandButton value="Atrasados" title="Atrasados" update="i_history_pending" action="#{locacaoFilmeBean.listener(6)}" styleClass="font-color-red"/>
-                                    <p:commandButton value="Histórico" title="Histórico" update="i_history_pending" action="#{locacaoFilmeBean.listener(7)}" style="color: #333300"/>
+                                    <p:commandButton value="Locações" title="Locações" update="i_history_pending" action="#{locacaoFilmeBean.listener(7)}" style="color: #333300"/>
                                 </h:panelGrid>
                                 <h:panelGrid id="i_history_pending">
                                     <p:dataTable emptyMessage="Nenhum registro adicionado!" value="#{locacaoFilmeBean.listLocadoraHistorico}" var="locadoraMovimento" scrollable="true" scrollHeight="200">
