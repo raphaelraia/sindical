@@ -1351,6 +1351,7 @@ public class ChamadaPaginaBean implements Serializable {
     //------------------------------------------------------------------------------------------------------------
     //------------------------------------------------------------------------------------------------------------
     public synchronized String menuPrincipal() {
+        GenericaSessao.put("idModulo", CADASTRO_AUXILIAR);
         return metodoGenerico(0, "menuPrincipal");
     }
 
