@@ -713,7 +713,7 @@
                                         </p:dialog>
                                     </p:tab>
 
-                                    <p:tab title="Oposições">
+                                    <p:tab title="Oposições" disabled="#{controleAcessoBean.verificarPermissao('ver_oposicao_pessoa_fisica', 4)}">
                                         <h:panelGrid columns="1">
                                             <h:column>
                                                 <p:outputLabel value="Filtrar por" /><br />
