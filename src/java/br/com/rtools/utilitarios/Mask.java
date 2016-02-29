@@ -1,5 +1,8 @@
 package br.com.rtools.utilitarios;
 
+import javax.faces.bean.ManagedBean;
+
+@ManagedBean
 public class Mask {
 
     private String getModelo(String label, boolean pesquisaInicial) {
@@ -25,6 +28,15 @@ public class Mask {
         } else {
             return "";
         }
+    }
+
+    public String getTelefone(String value) {
+        if (!value.isEmpty()) {
+            if (value.length() == 15) {
+                return "(99) 9999?9-9999";
+            }
+        }
+        return "(99) 9999-9999?9";
     }
 
     public static String getMascara(String label) {

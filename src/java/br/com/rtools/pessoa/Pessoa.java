@@ -47,6 +47,8 @@ public class Pessoa implements Serializable {
     private String telefone2;
     @Column(name = "ds_telefone3", length = 20)
     private String telefone3;
+    @Column(name = "ds_telefone4", length = 20)
+    private String telefone4;
     @Column(name = "ds_email1", length = 50, nullable = true)
     private String email1;
     @Column(name = "ds_email2", length = 50)
@@ -79,6 +81,7 @@ public class Pessoa implements Serializable {
         this.telefone1 = "";
         this.telefone2 = "";
         this.telefone3 = "";
+        this.telefone4 = "";
         this.email1 = "";
         this.email2 = "";
         this.email3 = "";
@@ -89,7 +92,7 @@ public class Pessoa implements Serializable {
     }
 
     public Pessoa(int id, String nome, TipoDocumento tipoDocumento, String obs, String site, String criacao,
-            String telefone1, String telefone2, String telefone3, String email1, String email2, String email3, String documento, String login, String senha) {
+            String telefone1, String telefone2, String telefone3, String telefone4, String email1, String email2, String email3, String documento, String login, String senha) {
         this.id = id;
         this.nome = nome;
         this.tipoDocumento = tipoDocumento;
@@ -99,6 +102,7 @@ public class Pessoa implements Serializable {
         this.telefone1 = telefone1;
         this.telefone2 = telefone2;
         this.telefone3 = telefone3;
+        this.telefone4 = telefone4;
         this.email1 = email1;
         this.email2 = email2;
         this.email3 = email3;
@@ -430,5 +434,13 @@ public class Pessoa implements Serializable {
 
     public void setIsTitular(Boolean isTitular) {
         this.isTitular = isTitular;
+    }
+
+    public String getTelefone4() {
+        return telefone4;
+    }
+
+    public void setTelefone4(String telefone4) {
+        this.telefone4 = telefone4;
     }
 }
