@@ -172,7 +172,7 @@
                                                             <p:ajax event="change" update="@this" />
                                                         </p:inputMask>
                                                     </p:column>
-                                                    
+
                                                     <p:column>
                                                         <p:outputLabel value="Telefone 2" /><br />
                                                         <p:inputMask mask="(99) 9999-9999" size="13" maxlength="10" value="#{fisicaBean.fisica.pessoa.telefone2}" style="margin-right: 30px">
@@ -185,7 +185,14 @@
                                                         <p:inputText size="14" maxlength="10" value="#{fisicaBean.fisica.pessoa.telefone3}" styleClass="ddd_telefone">
                                                             <p:ajax event="change" update="@this" />
                                                         </p:inputText>
-                                                    </p:column>                                            
+                                                    </p:column>
+
+                                                    <p:column>
+                                                        <p:outputLabel value="Celular 2"  /><br />
+                                                        <p:inputMask size="14" maxlength="10" value="#{fisicaBean.fisica.pessoa.telefone4}" mask="#{mask.getTelefone(fisicaBean.fisica.pessoa.telefone4)}">
+                                                            <p:ajax event="change" update="@this" />
+                                                        </p:inputMask>
+                                                    </p:column>
                                                 </h:panelGrid>
 
                                                 <h:panelGrid columns="2" columnClasses="duas-colunas" style="margin-top: 10px; width: 100%">
@@ -725,7 +732,7 @@
                                                 </p:selectOneMenu>
                                             </h:column>
                                         </h:panelGrid>
-                                        
+
                                         <p:dataTable id="tbl_oposicoes" value="#{fisicaBean.listaOposicao}" var="linha" emptyMessage="Nenhuma Oposição Encontrada" scrollable="true" scrollHeight="400">
                                             <p:column headerText="Emissão" style="width: 80px; text-align: center">
                                                 <p:outputLabel value="#{linha.emissao}" />
