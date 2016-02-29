@@ -33,7 +33,7 @@
                             <h:outputText value="Pesquisa Pessoas Juridicas" styleClass="fonteHeader" />
                             <div class="clear"></div>
                             <p:panel id="i_panel_pesquisa" styleClass="fundoCinza">
-                                <h:panelGrid columns="4">
+                                <h:panelGrid columns="5">
                                     <p:inputMask value="#{juridicaBean.descPesquisa}" size="50" mask="#{juridicaBean.mascaraPesquisaJuridica}" placeholder="#{juridicaBean.porPesquisa eq 'endereco' ?  'Logradouro + Descrição Endereço + , + Número + - + Bairro' : ''}"/>
                                     <h:column>
                                         <h:panelGrid columns="2">
@@ -67,7 +67,7 @@
 
                         <h:form id="formGridPesquisaPessoaJuridica">
                             <h:panelGrid id="i_panel_grid" style="width: 100%">
-                                <p:dataTable value="#{juridicaBean.listaJuridica}" var="juridica" id="tbl" emptyMessage="Nenhuma empresa encontrada" scrollHeight="400" scrollable="true">
+                                <p:dataTable value="#{juridicaBean.listaJuridica}" var="juridica" id="tbl" emptyMessage="Nenhuma empresa encontrada" scrollHeight="400" scrollable="true" paginator="true" rows="100">
                                     <p:column style="width:20px">  
                                         <p:rowToggler />  
                                     </p:column>  
@@ -118,6 +118,13 @@
                                             <h:outputLabel value="Endereço: #{juridica.pessoa.pessoaEndereco.enderecoCompletoString} " styleClass="bold font-color-red"/>
                                         </h:panelGrid>
                                     </p:rowExpansion>
+                                    <f:facet name="header" rendered="#{not empty juridicaBean.listaJuridica}">
+                                        #{juridicaBean.de} à #{juridicaBean.ate} de #{juridicaBean.count} resultado(s)
+                                    </f:facet>
+                                    <f:facet name="footer" rendered="#{not empty juridicaBean.listaJuridica}">
+                                        <p:commandButton icon="ui-icon-seek-prev"  action="#{juridicaBean.reloadList(false)}" update=":formGridPesquisaPessoaJuridica:i_panel_grid" title="Menos 500" disabled="#{juridicaBean.de eq 0}"/>
+                                        <p:commandButton icon="ui-icon-seek-next" action="#{juridicaBean.reloadList(true)}" update=":formGridPesquisaPessoaJuridica:i_panel_grid" title="Mais 500" disabled="#{juridicaBean.listaJuridica.size() != juridicaBean.limit}"/>
+                                    </f:facet>
                                 </p:dataTable>
                             </h:panelGrid>
                             <p:dialog widgetVar="dlg_pessoa_juridica_card" modal="true" resizable="false" header="Detalhes">

@@ -97,6 +97,18 @@
                                     <p:column headerText="(Taxa) Multa diária">
                                         #{locadoraStatus.taxa.servicoMultaDiaria.descricao}
                                     </p:column>
+                                    <p:column headerText="Dias devolução" styleClass="text-center" width="70">
+                                        #{locadoraStatus.diasDevolucao}
+                                    </p:column>
+                                    <p:column headerText="Qtde locação" styleClass="text-center" width="60">
+                                        #{locadoraStatus.qtdeLocacao}
+                                    </p:column>
+                                    <p:column headerText="Qtde lançamentos" styleClass="text-center" width="90">
+                                        #{locadoraStatus.qtdeLancamentos}
+                                    </p:column>
+                                    <p:column headerText="Dep." styleClass="text-center" width="30">
+                                        <p:selectBooleanCheckbox value="#{locadoraStatus.locacaoDependente}" disabled="true" />
+                                    </p:column>
                                     <p:column width="25">
                                         <p:commandButton icon="ui-icon-trash" action="#{locadoraStatusBean.delete(locadoraStatus)}" update=":form_locadora_status:" disabled="#{controleAcessoBean.botaoExcluir}" />
                                     </p:column>

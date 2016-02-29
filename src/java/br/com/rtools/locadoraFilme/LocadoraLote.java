@@ -1,5 +1,6 @@
 package br.com.rtools.locadoraFilme;
 
+import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.DataHoje;
@@ -40,6 +41,9 @@ public class LocadoraLote implements Serializable {
     @JoinColumn(name = "id_operador", referencedColumnName = "id", nullable = false)
     @ManyToOne
     private Usuario usuario;
+    @JoinColumn(name = "id_filial", referencedColumnName = "id", nullable = false)
+    @ManyToOne
+    private Filial filial;
 
     public LocadoraLote() {
         this.id = null;
@@ -47,14 +51,16 @@ public class LocadoraLote implements Serializable {
         this.pessoa = null;
         this.locadoraAutorizados = null;
         this.usuario = (Usuario) GenericaSessao.getObject("sessaoUsuario");
+        this.filial = null;
     }
 
-    public LocadoraLote(Integer id, Date dtLocacao, Pessoa pessoa, LocadoraAutorizados locadoraAutorizados, Usuario usuario) {
+    public LocadoraLote(Integer id, Date dtLocacao, Pessoa pessoa, LocadoraAutorizados locadoraAutorizados, Usuario usuario, Filial filial) {
         this.id = id;
         this.dtLocacao = dtLocacao;
         this.pessoa = pessoa;
         this.locadoraAutorizados = locadoraAutorizados;
         this.usuario = usuario;
+        this.filial = filial;
     }
 
     public Integer getId() {
@@ -113,27 +119,17 @@ public class LocadoraLote implements Serializable {
         this.dtLocacao = DataHoje.converteDataHora(DataHoje.converteData(dtLocacao), horaLocacaoString);
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 5;
-        return hash;
+    public Filial getFilial() {
+        return filial;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final LocadoraLote other = (LocadoraLote) obj;
-        return true;
+    public void setFilial(Filial filial) {
+        this.filial = filial;
     }
 
     @Override
     public String toString() {
-        return "LocadoraLote{" + "id=" + id + ", dtLocacao=" + dtLocacao + ", pessoa=" + pessoa + ", locadoraAutorizados=" + locadoraAutorizados + ", usuario=" + usuario + '}';
+        return "LocadoraLote{" + "id=" + id + ", dtLocacao=" + dtLocacao + ", pessoa=" + pessoa + ", locadoraAutorizados=" + locadoraAutorizados + ", usuario=" + usuario + ", filial=" + filial + '}';
     }
 
 }

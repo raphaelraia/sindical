@@ -90,6 +90,23 @@ public final class Moeda {
         return $dolar;
     }
 
+    public static String converteR$Double(double valor) {
+        String $dolar = Double.toString(valor);
+        if ($dolar == null || $dolar.isEmpty()) {
+            return "0,00";
+        }
+        $dolar = Moeda.substituiVirgula($dolar);
+        if ($dolar.length() >= 3) {
+            String wponto = $dolar.substring($dolar.trim().length() - 3, $dolar.trim().length() - 2);
+            if (!wponto.equals(",")) {
+                $dolar = Moeda.mascaraDinheiro(Float.parseFloat($dolar), Moeda.DINHEIRO_REAL);
+            }
+        } else {
+            $dolar = Moeda.mascaraDinheiro(Float.parseFloat($dolar), Moeda.DINHEIRO_REAL);
+        }
+        return $dolar;
+    }
+
     public static String converteR$Float(float valor) {
         String $dolar = Float.toString(valor);
         if ($dolar == null || $dolar.isEmpty()) {
@@ -207,10 +224,8 @@ public final class Moeda {
         while (i < valor.length()) {
             if (valor.charAt(i) != '.') {
                 result += valor.charAt(i);
-            } else {
-                if (((i + 2) > valor.length()) && (valor.charAt(i + 1) == '0')) {
-                    i++;
-                }
+            } else if (((i + 2) > valor.length()) && (valor.charAt(i + 1) == '0')) {
+                i++;
             }
             i++;
         }
@@ -223,12 +238,10 @@ public final class Moeda {
         while (i < valor.length()) {
             if (valor.charAt(i) != ',') {
                 result += valor.charAt(i);
-            } else {
-                if ((i + 2) > valor.length()) {
-                    result += valor.charAt(i + 1);
-                    result += valor.charAt(i + 2);
-                    break;
-                }
+            } else if ((i + 2) > valor.length()) {
+                result += valor.charAt(i + 1);
+                result += valor.charAt(i + 2);
+                break;
             }
             i++;
         }
@@ -240,7 +253,6 @@ public final class Moeda {
 //        float v2 = Moeda.multiplicarValores(Moeda.divisaoValores(v1, Moeda.converteUS$(valorFixo)), 100);
 //        return Moeda.converteR$Float(v2);
 //    }
-    
     public static String percentualDoValor(String valorFixo, String valorCalculo) {
         double v1 = Moeda.converteUS$(valorFixo);
         double v2 = Moeda.converteUS$(valorCalculo);
@@ -252,7 +264,7 @@ public final class Moeda {
         float v = Moeda.converteUS$(valorFixo) - (Moeda.converteUS$(percentual) / 100) * Moeda.converteUS$(valorFixo);
         return Moeda.converteR$Float(v);
     }
-    
+
 //
 //    public static String valorDoPercentual(String valorFixo, String percentual) {
 //        //float v = Moeda.converteUS$(valorFixo) - (Moeda.converteUS$(percentual) / 100) * Moeda.converteUS$(valorFixo);

@@ -9,8 +9,9 @@ public class LocadoraTaxaDao extends DB {
 
     public List findAllByServicoDiaria(Integer servico_diaria_id) {
         try {
-            Query query = getEntityManager().createQuery("SELECT LT FROM LocadoraTaxa AS LT WHERE LT.servicoDiaria.id = :servico_diaria_id ORDER BY LT.servicoDiaria.descricao ASC, LT.servicoMultaDiaria.descricao ASC");
-            query.setParameter("servico_diaria_id", servico_diaria_id);
+            // LT.servicoDiaria.id = :servico_diaria_id
+            Query query = getEntityManager().createQuery("SELECT LT FROM LocadoraTaxa AS LT ORDER BY LT.servicoDiaria.descricao ASC, LT.servicoMultaDiaria.descricao ASC");
+            // query.setParameter("servico_diaria_id", servico_diaria_id);
             List list = query.getResultList();
             if (!list.isEmpty()) {
                 return list;

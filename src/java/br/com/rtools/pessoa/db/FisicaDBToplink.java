@@ -75,7 +75,7 @@ public class FisicaDBToplink extends DB implements FisicaDB {
     }
 
     @Override
-    public List<Fisica> pesquisaPessoa(String desc, String por, String como) {
+    public List<Fisica> pesquisaPessoa(String desc, String por, String como, Integer limit, Integer offset) {
         if (desc.isEmpty()) {
             return new ArrayList();
         }
@@ -116,102 +116,127 @@ public class FisicaDBToplink extends DB implements FisicaDB {
                 field = "f.dt_nascimento";
             }
 
-            int maxResults = 1000;
-            if (limit == 0) {
-                if (desc.length() == 1) {
-                    maxResults = 50;
-                } else if (desc.length() == 2) {
-                    maxResults = 150;
-                } else if (desc.length() == 3) {
-                    maxResults = 500;
-                }
-            } else {
-                maxResults = limit;
+            String textSelect = " SELECT F.* ";
+            if (offset == null) {
+                textSelect = " SELECT COUNT(*) ";
+
             }
 
-            if (por.equals("endereco")) {
-                textQuery
-                        = "       SELECT fis.* "
-                        + "        FROM pes_pessoa_endereco pesend                                                                                                                               "
-                        + "  INNER JOIN pes_pessoa pes ON (pes.id = pesend.id_pessoa)                                                                                                            "
-                        + "  INNER JOIN end_endereco ende ON (ende.id = pesend.id_endereco)                                                                                                      "
-                        + "  INNER JOIN end_cidade cid ON (cid.id = ende.id_cidade)                                                                                                              "
-                        + "  INNER JOIN end_descricao_endereco enddes ON (enddes.id = ende.id_descricao_endereco)                                                                                "
-                        + "  INNER JOIN end_bairro bai ON (bai.id = ende.id_bairro)                                                                                                              "
-                        + "  INNER JOIN end_logradouro logr ON (logr.id = ende.id_logradouro)                                                                                                    "
-                        + "  INNER JOIN pes_fisica fis ON (fis.id_pessoa = pes.id)                                                                                                               "
-                        + "  WHERE (LOWER(FUNC_TRANSLATE(logr.ds_descricao || ' ' || enddes.ds_descricao || ', ' || bai.ds_descricao || ', ' || cid.ds_cidade || ', ' || cid.ds_uf)) LIKE '%" + desc + "%' "
-                        + "     OR LOWER(FUNC_TRANSLATE(logr.ds_descricao || ' ' || enddes.ds_descricao || ', ' || cid.ds_cidade  || ', ' || cid.ds_uf)) LIKE '%" + desc + "%'                     "
-                        + "     OR LOWER(FUNC_TRANSLATE(logr.ds_descricao || ' ' || enddes.ds_descricao || ', ' || cid.ds_cidade  )) LIKE '%" + desc + "%'                                         "
-                        + "     OR LOWER(FUNC_TRANSLATE(logr.ds_descricao || ' ' || enddes.ds_descricao)) LIKE '%" + desc + "%'                                                                    "
-                        + "     OR LOWER(FUNC_TRANSLATE(enddes.ds_descricao)) LIKE '%" + desc + "%'                                                                                                "
-                        + "     OR LOWER(FUNC_TRANSLATE(cid.ds_cidade)) LIKE '%" + desc + "%'                                                                                                      "
-                        + "     OR LOWER(FUNC_TRANSLATE(ende.ds_cep)) = '" + desc + "')"
-                        + "    AND pesend.id_tipo_endereco = 1 "
-                        + "  ORDER BY pes.ds_nome LIMIT " + maxResults;
+            switch (por) {
+                case "endereco":
+                    textQuery
+                            = textSelect
+                            + "        FROM pes_pessoa_endereco pesend                                                                                                                               "
+                            + "  INNER JOIN pes_pessoa pes ON (pes.id = pesend.id_pessoa)                                                                                                            "
+                            + "  INNER JOIN end_endereco ende ON (ende.id = pesend.id_endereco)                                                                                                      "
+                            + "  INNER JOIN end_cidade cid ON (cid.id = ende.id_cidade)                                                                                                              "
+                            + "  INNER JOIN end_descricao_endereco enddes ON (enddes.id = ende.id_descricao_endereco)                                                                                "
+                            + "  INNER JOIN end_bairro bai ON (bai.id = ende.id_bairro)                                                                                                              "
+                            + "  INNER JOIN end_logradouro logr ON (logr.id = ende.id_logradouro)                                                                                                    "
+                            + "  INNER JOIN pes_fisica F ON (F.id_pessoa = pes.id)                                                                                                               "
+                            + "  WHERE (LOWER(FUNC_TRANSLATE(logr.ds_descricao || ' ' || enddes.ds_descricao || ', ' || bai.ds_descricao || ', ' || cid.ds_cidade || ', ' || cid.ds_uf)) LIKE '%" + desc + "%' "
+                            + "     OR LOWER(FUNC_TRANSLATE(logr.ds_descricao || ' ' || enddes.ds_descricao || ', ' || cid.ds_cidade  || ', ' || cid.ds_uf)) LIKE '%" + desc + "%'                     "
+                            + "     OR LOWER(FUNC_TRANSLATE(logr.ds_descricao || ' ' || enddes.ds_descricao || ', ' || cid.ds_cidade  )) LIKE '%" + desc + "%'                                         "
+                            + "     OR LOWER(FUNC_TRANSLATE(logr.ds_descricao || ' ' || enddes.ds_descricao)) LIKE '%" + desc + "%'                                                                    "
+                            + "     OR LOWER(FUNC_TRANSLATE(enddes.ds_descricao)) LIKE '%" + desc + "%'                                                                                                "
+                            + "     OR LOWER(FUNC_TRANSLATE(cid.ds_cidade)) LIKE '%" + desc + "%'                                                                                                      "
+                            + "     OR LOWER(FUNC_TRANSLATE(ende.ds_cep)) = '" + desc + "')"
+                            + "    AND pesend.id_tipo_endereco = 1 "
+                            + "  ";
+                    if (offset != null) {
+                        textQuery += " ORDER BY pes.ds_nome ";
+                    }
+                    break;
+                case "codigo":
+                    textQuery
+                            = textSelect
+                            + "        FROM pes_fisica AS F                                 "
+                            + "  INNER JOIN pes_pessoa AS P ON P.id = F.id_pessoa           "
+                            + "  INNER JOIN pes_pessoa_empresa PE ON F.id = PE.id_fisica    "
+                            + "       WHERE PE.ds_codigo LIKE '" + desc + "'                ";
+                    if (offset != null) {
+                        textQuery += " ORDER BY P.ds_nome ";
 
-            } else if (por.equals("codigo")) {
-                textQuery
-                        = "      SELECT F.*                                             "
-                        + "      FROM pes_fisica AS F                                   "
-                        + "  INNER JOIN pes_pessoa AS P ON P.id = F.id_pessoa           "
-                        + "  INNER JOIN pes_pessoa_empresa PE ON F.id = PE.id_fisica    "
-                        + "       WHERE PE.ds_codigo LIKE '" + desc + "'                "
-                        + "    ORDER BY P.ds_nome LIMIT " + maxResults;
-            } else if (por.equals("matricula")) {
-                desc = desc.replace("%", "");
-                try {
-                    Integer.parseInt(desc);
-                } catch (Exception e) {
-                    return new ArrayList();
-                }
-                textQuery
-                        = "      SELECT F.* "
-                        + "        FROM pes_fisica AS F                                                         "
-                        + "  INNER JOIN pes_pessoa AS P ON P.id = F.id_pessoa                                   "
-                        + "       WHERE P.id IN (                                                               "
-                        + "              SELECT P2.id                                                           "
-                        + "                FROM fin_servico_pessoa  AS SP                                       "
-                        + "          INNER JOIN soc_socios          AS S    ON S.id_servico_pessoa  = SP.id     "
-                        + "          INNER JOIN matr_socios         AS MS   ON MS.id = S.id_matricula_socios    "
-                        + "          INNER JOIN pes_pessoa          AS P2   ON P2.id = SP.id_pessoa             "
-                        + "               WHERE SP.is_ativo = TRUE  "
-                        + "                 AND ms.nr_matricula = " + desc.replace("%", "");
-                textQuery += " AND SP.id_pessoa = MS.id_titular ";
-                textQuery += " ) "
-                        + "  ORDER BY P.ds_nome LIMIT " + maxResults;
-            } else {
-                if (por.equals("codigo_pessoa")) {
-                    textQuery = "    SELECT F.*                                             "
+                    }
+                    break;
+                case "matricula":
+                    desc = desc.replace("%", "");
+                    try {
+                        Integer.parseInt(desc);
+                    } catch (Exception e) {
+                        return new ArrayList();
+                    }
+                    textQuery
+                            = textSelect
+                            + "        FROM pes_fisica AS F                                                         "
+                            + "  INNER JOIN pes_pessoa AS P ON P.id = F.id_pessoa                                   "
+                            + "       WHERE P.id IN (                                                               "
+                            + "              SELECT P2.id                                                           "
+                            + "                FROM fin_servico_pessoa  AS SP                                       "
+                            + "          INNER JOIN soc_socios          AS S    ON S.id_servico_pessoa  = SP.id     "
+                            + "          INNER JOIN matr_socios         AS MS   ON MS.id = S.id_matricula_socios    "
+                            + "          INNER JOIN pes_pessoa          AS P2   ON P2.id = SP.id_pessoa             "
+                            + "               WHERE SP.is_ativo = TRUE  "
+                            + "                 AND ms.nr_matricula = " + desc.replace("%", "");
+                    textQuery += " AND SP.id_pessoa = MS.id_titular ";
+                    textQuery += " ) ";
+                    if (offset != null) {
+                        textQuery += "  ORDER BY P.ds_nome ";
+                    }
+                    break;
+                case "codigo_pessoa":
+                    textQuery
+                            = textSelect
                             + "        FROM pes_fisica AS F                                 "
                             + "  INNER JOIN pes_pessoa AS P ON P.id = F.id_pessoa           "
                             + "       WHERE " + field + " = " + Integer.valueOf(desc);
                     if (!not_in.isEmpty()) {
                         textQuery += " AND P.id NOT IN (" + not_in + ")";
                     }
-                    textQuery += "       ORDER BY P.ds_nome LIMIT " + maxResults;
-                } else if (por.equals("nascimento")) {
-                    textQuery = "    SELECT F.*                                             "
+                    if (offset != null) {
+                        textQuery += "       ORDER BY P.ds_nome ";
+                    }
+                    break;
+                case "nascimento":
+                    textQuery
+                            = textSelect
                             + "        FROM pes_fisica AS F                                 "
                             + "  INNER JOIN pes_pessoa AS P ON P.id = F.id_pessoa           "
                             + "       WHERE " + field + " = '" + desc + "'";
                     if (!not_in.isEmpty()) {
                         textQuery += " AND P.id NOT IN (" + not_in + ")";
                     }
-                    textQuery += "       ORDER BY P.ds_nome LIMIT " + maxResults;
-                } else {
-                    textQuery = "    SELECT F.*                                             "
+                    textQuery += "       ORDER BY P.ds_nome ";
+                    break;
+                default:
+                    textQuery
+                            = textSelect
                             + "        FROM pes_fisica AS F                                 "
                             + "  INNER JOIN pes_pessoa AS P ON P.id = F.id_pessoa           "
                             + "       WHERE LOWER(FUNC_TRANSLATE(" + field + ")) LIKE '" + desc + "'";
                     if (!not_in.isEmpty()) {
                         textQuery += " AND P.id NOT IN (" + not_in + ")";
                     }
-                    textQuery += "       ORDER BY P.ds_nome LIMIT " + maxResults;
-                }
+                    if (offset != null) {
+                        textQuery += "       ORDER BY P.ds_nome ";
+                    }
+                    break;
             }
-
-            Query query = getEntityManager().createNativeQuery(textQuery, Fisica.class);
+            if (offset != null && limit != null) {
+                textQuery += " LIMIT " + limit + " OFFSET " + offset;
+            } else if (this.limit > 0) {
+                textQuery += " LIMIT " + this.limit;
+            }
+            Query query;
+            if (offset == null) {
+                if (this.limit > 0) {
+                    query = getEntityManager().createNativeQuery(textQuery, Fisica.class);
+                } else {
+                    query = getEntityManager().createNativeQuery(textQuery);
+                }
+            } else {
+                query = getEntityManager().createNativeQuery(textQuery, Fisica.class);
+            }
             List list = query.getResultList();
             if (!list.isEmpty()) {
                 return list;
@@ -223,12 +248,12 @@ public class FisicaDBToplink extends DB implements FisicaDB {
     }
 
     @Override
-    public List pesquisaPessoaSocio(String desc, String por, String como) {
-        return pesquisaPessoaSocio(desc, por, como, false);
+    public List pesquisaPessoaSocio(String desc, String por, String como, Integer limit, Integer offset) {
+        return pesquisaPessoaSocio(desc, por, como, false, limit, offset);
     }
 
     @Override
-    public List pesquisaPessoaSocio(String desc, String por, String como, Boolean titular) {
+    public List pesquisaPessoaSocio(String desc, String por, String como, Boolean titular, Integer limit, Integer offset) {
         if (desc.isEmpty()) {
             return new ArrayList();
         }
@@ -258,20 +283,15 @@ public class FisicaDBToplink extends DB implements FisicaDB {
             if (por.equals("cpf")) {
                 field = "p.ds_documento";
             }
+            String textSelect = " SELECT F.* ";
+            if (offset == null) {
+                textSelect = " SELECT COUNT(*) ";
 
-            int maxResults = 1000;
-            if (desc.length() == 1) {
-                maxResults = 50;
-            } else if (desc.length() == 2) {
-                maxResults = 150;
-            } else if (desc.length() == 3) {
-                maxResults = 500;
             }
-
             switch (por) {
                 case "endereco":
                     textQuery
-                            = "      SELECT fis.*                                               "
+                            = textSelect
                             + "        FROM pes_pessoa_endereco pesend                                                                                                                               "
                             + "  INNER JOIN pes_pessoa pes ON (pes.id = pesend.id_pessoa)                                                                                                            "
                             + "  INNER JOIN end_endereco ende ON (ende.id = pesend.id_endereco)                                                                                                      "
@@ -279,7 +299,7 @@ public class FisicaDBToplink extends DB implements FisicaDB {
                             + "  INNER JOIN end_descricao_endereco enddes ON (enddes.id = ende.id_descricao_endereco)                                                                                "
                             + "  INNER JOIN end_bairro bai ON (bai.id = ende.id_bairro)                                                                                                              "
                             + "  INNER JOIN end_logradouro logr ON (logr.id = ende.id_logradouro)                                                                                                    "
-                            + "  INNER JOIN pes_fisica fis ON (fis.id_pessoa = pes.id)                                                                                                               "
+                            + "  INNER JOIN pes_fisica fis ON (F.id_pessoa = pes.id)                                                                                                               "
                             + "  WHERE (LOWER(FUNC_TRANSLATE(logr.ds_descricao || ' ' || enddes.ds_descricao || ', ' || bai.ds_descricao || ', ' || cid.ds_cidade || ', ' || cid.ds_uf)) LIKE '%" + desc + "%' "
                             + "     OR LOWER(FUNC_TRANSLATE(logr.ds_descricao || ' ' || enddes.ds_descricao || ', ' || cid.ds_cidade  || ', ' || cid.ds_uf)) LIKE '%" + desc + "%'                     "
                             + "     OR LOWER(FUNC_TRANSLATE(logr.ds_descricao || ' ' || enddes.ds_descricao || ', ' || cid.ds_cidade  )) LIKE '%" + desc + "%'                                         "
@@ -299,8 +319,10 @@ public class FisicaDBToplink extends DB implements FisicaDB {
                     if (titular) {
                         textQuery += " AND SP.id_pessoa = MS.id_titular ";
                     }
-                    textQuery += " ) "
-                            + "  ORDER BY pes.ds_nome LIMIT " + maxResults;
+                    textQuery += " ) ";
+                    if (offset != null) {
+                        textQuery += "  ORDER BY P.ds_nome ";
+                    }
                     break;
                 case "matricula":
                     desc = desc.replace("%", "");
@@ -310,7 +332,7 @@ public class FisicaDBToplink extends DB implements FisicaDB {
                         return new ArrayList();
                     }
                     textQuery
-                            = "      SELECT F.* "
+                            = textSelect
                             + "        FROM pes_fisica AS F                                                         "
                             + "  INNER JOIN pes_pessoa AS P ON P.id = F.id_pessoa                                   "
                             + "       WHERE P.id IN (                                                               "
@@ -324,12 +346,14 @@ public class FisicaDBToplink extends DB implements FisicaDB {
                     if (titular) {
                         textQuery += " AND SP.id_pessoa = MS.id_titular ";
                     }
-                    textQuery += " ) "
-                            + "  ORDER BY P.ds_nome LIMIT " + maxResults;
+                    textQuery += " ) ";
+                    if (offset != null) {
+                        textQuery += "  ORDER BY P.ds_nome ";
+                    }
                     break;
                 case "codigo":
                     textQuery
-                            = "      SELECT F.* "
+                            = textSelect
                             + "        FROM pes_fisica          AS F                                                "
                             + "  INNER JOIN pes_pessoa          AS P    ON P.id = F.id_pessoa                       "
                             + "  INNER JOIN pes_pessoa_empresa  AS PE   ON F.id = PE.id_fisica                      "
@@ -344,13 +368,15 @@ public class FisicaDBToplink extends DB implements FisicaDB {
                     if (titular) {
                         textQuery += " AND SP.id_pessoa = MS.id_titular ";
                     }
-                    textQuery += " ) "
-                            + "  ORDER BY P.ds_nome LIMIT " + maxResults;
+                    textQuery += " ) ";
+                    if (offset != null) {
+                        textQuery += "  ORDER BY P.ds_nome ";
+                    }
                     break;
                 default:
                     if (por.equals("codigo_pessoa")) {
                         textQuery
-                                = "      SELECT F.* "
+                                = textSelect
                                 + "        FROM pes_fisica AS F                                                         "
                                 + "  INNER JOIN pes_pessoa AS P ON P.id = F.id_pessoa                                   "
                                 + "       WHERE " + field + " = " + Integer.valueOf(desc)
@@ -363,7 +389,7 @@ public class FisicaDBToplink extends DB implements FisicaDB {
                                 + "               WHERE SP.is_ativo = TRUE                                              ";
                     } else {
                         textQuery
-                                = "      SELECT F.* "
+                                = textSelect
                                 + "        FROM pes_fisica AS F                                                         "
                                 + "  INNER JOIN pes_pessoa AS P ON P.id = F.id_pessoa                                   "
                                 + "       WHERE LOWER(FUNC_TRANSLATE(" + field + ")) LIKE '" + desc + "'                "
@@ -379,12 +405,21 @@ public class FisicaDBToplink extends DB implements FisicaDB {
                     if (titular) {
                         textQuery += " AND SP.id_pessoa = MS.id_titular ";
                     }
-                    textQuery += " ) "
-                            + "  ORDER BY P.ds_nome LIMIT " + maxResults;
+                    textQuery += " ) ";
+                    if (offset != null) {
+                        textQuery += "  ORDER BY P.ds_nome ";
+                    }
                     break;
             }
-
-            Query query = getEntityManager().createNativeQuery(textQuery, Fisica.class);
+            if (offset != null && limit != null) {
+                textQuery += " LIMIT " + limit + " OFFSET " + offset;
+            }
+            Query query;
+            if (offset == null) {
+                query = getEntityManager().createNativeQuery(textQuery);
+            } else {
+                query = getEntityManager().createNativeQuery(textQuery, Fisica.class);
+            }
 
             List list = query.getResultList();
             if (!list.isEmpty()) {
@@ -419,7 +454,7 @@ public class FisicaDBToplink extends DB implements FisicaDB {
     }
 
     @Override
-    public List pesquisaPessoaSocioInativo(String desc, String por, String como) {
+    public List pesquisaPessoaSocioInativo(String desc, String por, String como, Integer limit, Integer offset) {
         if (desc.isEmpty()) {
             return new ArrayList();
         }
@@ -449,19 +484,15 @@ public class FisicaDBToplink extends DB implements FisicaDB {
             if (por.equals("cpf")) {
                 field = "p.ds_documento";
             }
+            String textSelect = " SELECT F.* ";
+            if (offset == null) {
+                textSelect = " SELECT COUNT(*) ";
 
-            int maxResults = 1000;
-            if (desc.length() == 1) {
-                maxResults = 50;
-            } else if (desc.length() == 2) {
-                maxResults = 150;
-            } else if (desc.length() == 3) {
-                maxResults = 500;
             }
 
             if (por.equals("endereco")) {
                 textQuery
-                        = "       SELECT fis.* "
+                        = textSelect
                         + "        FROM pes_pessoa_endereco pesend                                                                                                                               "
                         + "  INNER JOIN pes_pessoa pes ON (pes.id = pesend.id_pessoa)                                                                                                            "
                         + "  INNER JOIN end_endereco ende ON (ende.id = pesend.id_endereco)                                                                                                      "
@@ -469,7 +500,7 @@ public class FisicaDBToplink extends DB implements FisicaDB {
                         + "  INNER JOIN end_descricao_endereco enddes ON (enddes.id = ende.id_descricao_endereco)                                                                                "
                         + "  INNER JOIN end_bairro bai ON (bai.id = ende.id_bairro)                                                                                                              "
                         + "  INNER JOIN end_logradouro logr ON (logr.id = ende.id_logradouro)                                                                                                    "
-                        + "  INNER JOIN pes_fisica fis ON (fis.id_pessoa = pes.id)                                                                                                               "
+                        + "  INNER JOIN pes_fisica F ON (F.id_pessoa = pes.id)                                                                                                               "
                         + "  WHERE (LOWER(FUNC_TRANSLATE(logr.ds_descricao || ' ' || enddes.ds_descricao || ', ' || bai.ds_descricao || ', ' || cid.ds_cidade || ', ' || cid.ds_uf)) LIKE '%" + desc + "%' "
                         + "     OR LOWER(FUNC_TRANSLATE(logr.ds_descricao || ' ' || enddes.ds_descricao || ', ' || cid.ds_cidade  || ', ' || cid.ds_uf)) LIKE '%" + desc + "%'                     "
                         + "     OR LOWER(FUNC_TRANSLATE(logr.ds_descricao || ' ' || enddes.ds_descricao || ', ' || cid.ds_cidade  )) LIKE '%" + desc + "%'                                         "
@@ -488,13 +519,15 @@ public class FisicaDBToplink extends DB implements FisicaDB {
                         + "         SELECT p2.id FROM fin_servico_pessoa sp "
                         + "          INNER JOIN soc_socios s ON sp.id = s.id_servico_pessoa "
                         + "          INNER JOIN pes_pessoa p2 ON  p2.id = sp.id_pessoa "
-                        + "          WHERE sp.is_ativo = TRUE "
-                        + "  ) "
-                        + "  ORDER BY pes.ds_nome LIMIT " + maxResults;
+                        + "          WHERE sp.is_ativo = TRUE ) ";
+                if (offset != null) {
+                    textQuery += "  ORDER BY P.ds_nome ";
+                }
 
             } else if (por.equals("matricula")) {
                 textQuery
-                        = " SELECT f.* FROM pes_fisica f "
+                        = textSelect
+                        + "        FROM pes_fisica f "
                         + "  INNER JOIN pes_pessoa p ON p.id = f.id_pessoa "
                         + "  WHERE p.id IN ( "
                         + "         SELECT p2.id FROM fin_servico_pessoa sp "
@@ -507,12 +540,14 @@ public class FisicaDBToplink extends DB implements FisicaDB {
                         + "         SELECT p2.id FROM fin_servico_pessoa sp "
                         + "          INNER JOIN soc_socios s ON sp.id = s.id_servico_pessoa "
                         + "          INNER JOIN pes_pessoa p2 ON  p2.id = sp.id_pessoa "
-                        + "          WHERE sp.is_ativo = TRUE "
-                        + "  ) "
-                        + "  ORDER BY p.ds_nome LIMIT " + maxResults;
+                        + "          WHERE sp.is_ativo = TRUE ) ";
+                if (offset != null) {
+                    textQuery += "  ORDER BY P.ds_nome ";
+                }
             } else if (por.equals("codigo")) {
                 textQuery
-                        = " SELECT f.* FROM pes_fisica f "
+                        = textSelect
+                        + "        FROM pes_fisica f "
                         + "  INNER JOIN pes_pessoa p ON p.id = f.id_pessoa "
                         + "  INNER JOIN pes_pessoa_empresa pe ON f.id = pe.id_fisica "
                         + "  WHERE pe.ds_codigo LIKE '" + desc + "'"
@@ -525,53 +560,64 @@ public class FisicaDBToplink extends DB implements FisicaDB {
                         + "         SELECT p2.id FROM fin_servico_pessoa sp "
                         + "          INNER JOIN soc_socios s ON sp.id = s.id_servico_pessoa "
                         + "          INNER JOIN pes_pessoa p2 ON  p2.id = sp.id_pessoa "
-                        + "          WHERE sp.is_ativo = TRUE "
-                        + "    ) "
-                        + "  ORDER BY p.ds_nome LIMIT " + maxResults;
-            } else {
-                if (!field.isEmpty()) {
-                    if (por.equals("codigo_pessoa")) {
-                        textQuery
-                                = " SELECT f.* FROM pes_fisica f "
-                                + "  INNER JOIN pes_pessoa p ON p.id = f.id_pessoa "
-                                + "  WHERE " + field + " = " + Integer.valueOf(desc)
-                                + "    AND p.id IN ( "
-                                + "         SELECT p2.id FROM fin_servico_pessoa sp "
-                                + "          INNER JOIN soc_socios s ON sp.id = s.id_servico_pessoa "
-                                + "          INNER JOIN pes_pessoa p2 ON  p2.id = sp.id_pessoa "
-                                + "    ) "
-                                + "    AND p.id NOT IN ( "
-                                + "         SELECT p2.id FROM fin_servico_pessoa sp "
-                                + "          INNER JOIN soc_socios s ON sp.id = s.id_servico_pessoa "
-                                + "          INNER JOIN pes_pessoa p2 ON  p2.id = sp.id_pessoa "
-                                + "          WHERE sp.is_ativo = TRUE "
-                                + "    ) "
-                                + "  ORDER BY p.ds_nome LIMIT " + maxResults;
-                    } else {
-                        textQuery
-                                = " SELECT f.* FROM pes_fisica f "
-                                + "  INNER JOIN pes_pessoa p ON p.id = f.id_pessoa "
-                                + "  WHERE LOWER(FUNC_TRANSLATE(" + field + ")) LIKE '" + desc + "'"
-                                + "    AND p.id IN ( "
-                                + "         SELECT p2.id FROM fin_servico_pessoa sp "
-                                + "          INNER JOIN soc_socios s ON sp.id = s.id_servico_pessoa "
-                                + "          INNER JOIN pes_pessoa p2 ON  p2.id = sp.id_pessoa "
-                                + "    ) "
-                                + "    AND p.id NOT IN ( "
-                                + "         SELECT p2.id FROM fin_servico_pessoa sp "
-                                + "          INNER JOIN soc_socios s ON sp.id = s.id_servico_pessoa "
-                                + "          INNER JOIN pes_pessoa p2 ON  p2.id = sp.id_pessoa "
-                                + "          WHERE sp.is_ativo = TRUE "
-                                + "    ) "
-                                + "  ORDER BY p.ds_nome LIMIT " + maxResults;
+                        + "          WHERE sp.is_ativo = TRUE ) ";
+                if (offset != null) {
+                    textQuery += "  ORDER BY P.ds_nome ";
+                }
+            } else if (!field.isEmpty()) {
+                if (por.equals("codigo_pessoa")) {
+                    textQuery
+                            = textSelect
+                            + "        FROM pes_fisica f "
+                            + "  INNER JOIN pes_pessoa p ON p.id = f.id_pessoa "
+                            + "  WHERE " + field + " = " + Integer.valueOf(desc)
+                            + "    AND p.id IN ( "
+                            + "         SELECT p2.id FROM fin_servico_pessoa sp "
+                            + "          INNER JOIN soc_socios s ON sp.id = s.id_servico_pessoa "
+                            + "          INNER JOIN pes_pessoa p2 ON  p2.id = sp.id_pessoa "
+                            + "    ) "
+                            + "    AND p.id NOT IN ( "
+                            + "         SELECT p2.id FROM fin_servico_pessoa sp "
+                            + "          INNER JOIN soc_socios s ON sp.id = s.id_servico_pessoa "
+                            + "          INNER JOIN pes_pessoa p2 ON  p2.id = sp.id_pessoa "
+                            + "          WHERE sp.is_ativo = TRUE ) ";
+                    if (offset != null) {
+                        textQuery += "  ORDER BY P.ds_nome ";
                     }
                 } else {
-                    textQuery = "";
+                    textQuery
+                            = textSelect
+                            + "        FROM pes_fisica f "
+                            + "  INNER JOIN pes_pessoa p ON p.id = f.id_pessoa "
+                            + "  WHERE LOWER(FUNC_TRANSLATE(" + field + ")) LIKE '" + desc + "'"
+                            + "    AND p.id IN ( "
+                            + "         SELECT p2.id FROM fin_servico_pessoa sp "
+                            + "          INNER JOIN soc_socios s ON sp.id = s.id_servico_pessoa "
+                            + "          INNER JOIN pes_pessoa p2 ON  p2.id = sp.id_pessoa "
+                            + "    ) "
+                            + "    AND p.id NOT IN ( "
+                            + "         SELECT p2.id FROM fin_servico_pessoa sp "
+                            + "          INNER JOIN soc_socios s ON sp.id = s.id_servico_pessoa "
+                            + "          INNER JOIN pes_pessoa p2 ON  p2.id = sp.id_pessoa "
+                            + "          WHERE sp.is_ativo = TRUE "
+                            + "    ) ";
+                    if (offset != null) {
+                        textQuery += "  ORDER BY P.ds_nome ";
+                    }
                 }
+            } else {
+                textQuery = "";
             }
             if (!textQuery.isEmpty()) {
-                Query query = getEntityManager().createNativeQuery(textQuery, Fisica.class);
-
+                if (offset != null && limit != null) {
+                    textQuery += " LIMIT " + limit + " OFFSET " + offset;
+                }
+                Query query;
+                if (offset == null) {
+                    query = getEntityManager().createNativeQuery(textQuery);
+                } else {
+                    query = getEntityManager().createNativeQuery(textQuery, Fisica.class);
+                }
                 List list = query.getResultList();
                 if (!list.isEmpty()) {
                     return list;
@@ -581,25 +627,6 @@ public class FisicaDBToplink extends DB implements FisicaDB {
             return new ArrayList();
         }
         return new ArrayList();
-//        List<Vector> result_list = qry.getResultList();
-//        List<Object> return_list = new ArrayList<Object>();
-//
-//        if (!result_list.isEmpty()) {
-//            if (result_list.size() > 1) {
-//                String listId = "";
-//                for (int i = 0; i < result_list.size(); i++) {
-//                    if (i == 0) {
-//                        listId = result_list.get(i).get(0).toString();
-//                    } else {
-//                        listId += ", " + result_list.get(i).get(0).toString();
-//                    }
-//                }
-//                return getEntityManager().createQuery("SELECT f FROM Fisica f WHERE f.id IN ( " + listId + " )").getResultList();
-//            } else {
-//                return getEntityManager().createQuery("SELECT f FROM Fisica f WHERE f.id = " + (Integer) result_list.get(0).get(0)).getResultList();
-//            }
-//        }
-//        return return_list;
     }
 
     @Override
@@ -821,13 +848,13 @@ public class FisicaDBToplink extends DB implements FisicaDB {
 //            query.setParameter("nome", nome.trim());
 
             nome = AnaliseString.normalizeLower(nome);
-            
+
             Query query = getEntityManager().createNativeQuery(
                     "SELECT f.* \n "
                     + "  FROM pes_fisica f \n "
                     + " INNER JOIN pes_pessoa p ON p.id = f.id_pessoa \n "
                     + " WHERE LOWER(FUNC_TRANSLATE(p.ds_nome)) LIKE '" + nome + "' \n "
-                    + "   AND f.dt_nascimento = '"+DataHoje.converteData(nascimento)+"'", Fisica.class
+                    + "   AND f.dt_nascimento = '" + DataHoje.converteData(nascimento) + "'", Fisica.class
             );
             List list = query.getResultList();
             if (!list.isEmpty() && list.size() == 1) {

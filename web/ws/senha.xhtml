@@ -1,11 +1,9 @@
-<?xml version='1.0' encoding='UTF-8' ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:p="http://primefaces.org/ui"
-      xmlns:f="http://java.sun.com/jsf/core"
-      xmlns:c="http://java.sun.com/jsp/jstl/core"
-      xmlns:ui="http://java.sun.com/jsf/facelets">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
 
     <h:head>
         <title>Sindical - Senha</title>
@@ -142,7 +140,7 @@
                                 <div class="panel">
                                     <div class="bg_panel_color border-radius">
                                         <br />
-                                        <h1 class="font-color-white">SALA</h1>
+                                        <h1 class="font-color-white">#{senhaBean.tipo}</h1>
                                         <span class="pisca">
                                             <p class="password">#{senhaBean.ultimaSenha.mesa}</p>
                                         </span>                                        
@@ -174,7 +172,7 @@
                                                 <div class="col-lg-6 col-md-6 col-sm-6 border-white">
                                                     <div class="panel" style="background: none">
                                                         <br />
-                                                        <h2 class="font-color-white">SALA</h2>
+                                                        <h2 class="font-color-white">#{senhaBean.tipo}</h2>
                                                         <span>
                                                             <p class="min-password">#{senha.mesa}</p>
                                                         </span>
@@ -215,4 +213,3 @@
         </f:view>
     </h:body>
 </ui:composition>
-</html>

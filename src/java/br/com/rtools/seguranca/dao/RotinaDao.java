@@ -24,7 +24,8 @@ public class RotinaDao extends DB {
 
     public List pesquisaRotinasDisponiveisModulo(int idModulo) {
         try {
-            Query query = getEntityManager().createQuery(" SELECT ROT FROM Rotina AS ROT WHERE ROT.ativo = true AND ROT.id NOT IN ( SELECT PER.rotina.id FROM Permissao AS PER WHERE PER.modulo.id = " + idModulo + " GROUP BY PER.rotina.id ) ORDER BY ROT.rotina ASC ");
+            Query query = getEntityManager().createQuery(" SELECT ROT FROM Rotina AS ROT WHERE ROT.ativo = true AND ROT.id NOT IN ( SELECT PER.rotina.id FROM Permissao AS PER WHERE PER.modulo.id = :modulo_id GROUP BY PER.rotina.id ) ORDER BY ROT.rotina ASC ");
+            query.setParameter("modulo_id", idModulo);
             List list = query.getResultList();
             if (!list.isEmpty()) {
                 return list;
@@ -112,7 +113,7 @@ public class RotinaDao extends DB {
         try {
             // BRUNO ALTERANDO A COLUNA ds_nome_pagina tirando as aspas ex. "/Sindical/simples.jsf" para /Sindical/simples.jsf COM ERRO
             Query query = getEntityManager().createQuery("SELECT ROT FROM Rotina AS ROT WHERE (ROT.pagina LIKE '/Sindical/" + pagina + ".jsf' OR ROT.pagina LIKE '\"/Sindical/" + pagina + ".jsf\"')");
-            
+
             List list = query.getResultList();
             if (!list.isEmpty()) {
                 return (Rotina) query.getSingleResult();

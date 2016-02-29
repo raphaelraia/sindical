@@ -21,7 +21,7 @@ public interface JuridicaDB {
 //    public List pesquisaTodos();
     public List pesquisaPessoa(String desc, String por, String como);
 
-    public List pesquisaPessoa(String desc, String por, String como, boolean isContabilidades, boolean isAtivas);
+    public List pesquisaPessoa(String desc, String por, String como, boolean isContabilidades, boolean isAtivas, Integer limit, Integer offset);
 
     public List<PessoaEndereco> pesquisarPessoaEnderecoJuridica(int id);
 

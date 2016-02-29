@@ -2017,12 +2017,11 @@
             <redirect/>
         </navigation-case>        
         
-        <!-- 
         <navigation-case>
-            <from-outcome>#{navigationRules.param}</from-outcome>
-            <to-view-id>/#{navigationRules.param}</to-view-id>
+            <from-outcome>sorteioMovimento</from-outcome>
+            <to-view-id>/sorteioMovimento.jsf</to-view-id>
             <redirect/>
-        </navigation-case> -->        
+        </navigation-case>
         
     </navigation-rule>
     

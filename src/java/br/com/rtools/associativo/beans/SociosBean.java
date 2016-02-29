@@ -928,18 +928,19 @@ public class SociosBean implements Serializable {
             in += "," + listDependentesInativos.get(i).getFisica().getPessoa().getId();
         }
         db.setNot_in(in);
-        listaFisica = db.pesquisaPessoa(query, "nome", como);
+        db.setLimit(1000);
+        listaFisica = db.pesquisaPessoa(query, "nome", como, null, null);
         if (listaFisica.isEmpty()) {
             if (ValidaDocumentos.isValidoCPF(AnaliseString.extrairNumeros(query))) {
                 db.setLimit(1);
-                listaFisica = db.pesquisaPessoa(query, "cpf", "");
+                listaFisica = db.pesquisaPessoa(query, "cpf", "", null, null);
             } else if (DataHoje.isDataValida(query)) {
                 db.setLimit(100);
-                listaFisica = db.pesquisaPessoa(query, "nascimento", "");
+                listaFisica = db.pesquisaPessoa(query, "nascimento", "", null, null);
             }
             if (listaFisica.isEmpty()) {
                 db.setLimit(2);
-                listaFisica = db.pesquisaPessoa(query, "rg", "");
+                listaFisica = db.pesquisaPessoa(query, "rg", "", null, null);
             }
         }
         return listaFisica;
@@ -2758,7 +2759,7 @@ public class SociosBean implements Serializable {
         } else {
             GenericaMensagem.warn("Sistema", "Socio não tem carteirinha!");
         }
-        if(dependentesSemFotos) {
+        if (dependentesSemFotos) {
             GenericaMensagem.warn("Sistema", "Existem dependentes sem fotos!");
         }
 

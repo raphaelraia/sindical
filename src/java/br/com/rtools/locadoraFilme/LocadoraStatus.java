@@ -3,6 +3,7 @@ package br.com.rtools.locadoraFilme;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.sistema.Semana;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.db.FunctionsDao;
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Column;
@@ -52,6 +53,9 @@ public class LocadoraStatus implements Serializable {
     @Transient
     private Boolean selected;
 
+    @Transient
+    private Float valorMultaDiaria;
+
     public LocadoraStatus() {
         this.id = null;
         this.filial = null;
@@ -63,6 +67,12 @@ public class LocadoraStatus implements Serializable {
         this.diasDevolucao = 0;
         this.selected = false;
         this.locacaoDependente = false;
+        this.valorMultaDiaria = new Float(0);
+        try {
+            valorMultaDiaria = new FunctionsDao().multaDiariaLocadora(filial.getId(), data);
+        } catch (Exception e) {
+
+        }
     }
 
     public LocadoraStatus(Integer id, Filial filial, Semana semana, LocadoraTaxa taxa, Date data, Integer qtdeLocacao, Integer qtdeLancamentos, Integer diasDevolucao, Boolean locacaoDependente) {
@@ -201,22 +211,12 @@ public class LocadoraStatus implements Serializable {
         this.locacaoDependente = locacaoDependente;
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 5;
-        return hash;
+    public Float getValorMultaDiaria() {
+        return valorMultaDiaria;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final LocadoraStatus other = (LocadoraStatus) obj;
-        return true;
+    public void setValorMultaDiaria(Float valorMultaDiaria) {
+        this.valorMultaDiaria = valorMultaDiaria;
     }
 
     @Override

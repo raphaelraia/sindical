@@ -48,11 +48,11 @@ public class JuridicaDBToplink extends DB implements JuridicaDB {
 
     @Override
     public List pesquisaPessoa(String desc, String por, String como) {
-        return pesquisaPessoa(desc, por, como, false, false);
+        return pesquisaPessoa(desc, por, como, false, false, null, null);
     }
 
     @Override
-    public List pesquisaPessoa(String desc, String por, String como, boolean isContabilidades, boolean isAtivas) {
+    public List pesquisaPessoa(String desc, String por, String como, boolean isContabilidades, boolean isAtivas, Integer limit, Integer offset) {
         if (desc.isEmpty()) {
             return new ArrayList();
         }
@@ -79,16 +79,12 @@ public class JuridicaDBToplink extends DB implements JuridicaDB {
             field = "p.ds_documento";
         }
 
-        int maxResults = 1000;
-        if (desc.length() == 1) {
-            maxResults = 50;
-        } else if (desc.length() == 2) {
-            maxResults = 300;
-        } else if (desc.length() == 3) {
-            maxResults = 500;
+        if (offset == null) {
+            textQuery = " SELECT COUNT(*) ";
+        } else {
+            textQuery = " SELECT j.* ";
         }
-
-        textQuery = "   SELECT j.* "
+        textQuery = textQuery + ""
                 + "       FROM pes_juridica j "
                 + " INNER JOIN pes_pessoa p ON p.id = j.id_pessoa "
                 + "       WHERE LOWER(TRANSLATE(" + field + ")) LIKE ('" + desc + "')";
@@ -100,11 +96,17 @@ public class JuridicaDBToplink extends DB implements JuridicaDB {
         if (isContabilidades) {
             textQuery += " AND j.id IN (SELECT id_contabilidade FROM pes_juridica WHERE id_contabilidade IS NOT NULL) ";
         }
-        textQuery += "  ORDER BY p.ds_nome LIMIT " + maxResults;
+        if (offset != null) {
+            textQuery += "  ORDER BY p.ds_nome ";
+        }
 
         if (por.equals("endereco")) {
-            textQuery
-                    = "       SELECT jur.* "
+            if (offset == null) {
+                textQuery = " SELECT COUNT(*) ";
+            } else {
+                textQuery = " SELECT jur.* ";
+            }
+            textQuery = textQuery + ""
                     + "        FROM pes_pessoa_endereco pesend                                                                                                                               "
                     + "  INNER JOIN pes_pessoa pes ON (pes.id = pesend.id_pessoa)                                                                                                            "
                     + "  INNER JOIN end_endereco ende ON (ende.id = pesend.id_endereco)                                                                                                      "
@@ -130,10 +132,19 @@ public class JuridicaDBToplink extends DB implements JuridicaDB {
             if (isContabilidades) {
                 textQuery += " AND jur.id IN (SELECT id_contabilidade FROM pes_juridica WHERE id_contabilidade IS NOT NULL) ";
             }
-            textQuery += " ORDER BY pes.ds_nome LIMIT " + maxResults;
+            if (offset != null) {
+                textQuery += " ORDER BY pes.ds_nome ";
+            }
         }
-
-        Query query = getEntityManager().createNativeQuery(textQuery, Juridica.class);
+        if (offset != null && limit != null) {
+            textQuery += " LIMIT " + limit + " OFFSET " + offset;
+        }
+        Query query;
+        if (offset == null) {
+            query = getEntityManager().createNativeQuery(textQuery);
+        } else {
+            query = getEntityManager().createNativeQuery(textQuery, Juridica.class);
+        }
         try {
             List list = query.getResultList();
             if (!list.isEmpty()) {
@@ -212,16 +223,16 @@ public class JuridicaDBToplink extends DB implements JuridicaDB {
         }
         return result;
     }
-    
+
     @Override
     public List pesquisaJuridicaPorDocSubstring(String doc) {
         List result = new ArrayList();
         try {
             Query qry = getEntityManager().createNativeQuery(
-                    "SELECT j.* \n " +
-                    "  FROM pes_pessoa p \n " +
-                    " INNER JOIN pes_juridica j ON j.id_pessoa = p.id \n " +
-                    " WHERE '000"+doc+"' = '000'||SUBSTRING(REPLACE(REPLACE(REPLACE(p.ds_documento,'/',''),'-',''),'.',''),1,12)", Juridica.class
+                    "SELECT j.* \n "
+                    + "  FROM pes_pessoa p \n "
+                    + " INNER JOIN pes_juridica j ON j.id_pessoa = p.id \n "
+                    + " WHERE '000" + doc + "' = '000'||SUBSTRING(REPLACE(REPLACE(REPLACE(p.ds_documento,'/',''),'-',''),'.',''),1,12)", Juridica.class
             );
             qry.setParameter("doc", doc);
             result = qry.getResultList();
@@ -458,23 +469,23 @@ public class JuridicaDBToplink extends DB implements JuridicaDB {
         }
         return null;
     }
-    
+
     @Override
-    public Juridica pesquisaContabilidadePorEmail(String email){
-        String text_qry = "select j.* from pes_juridica j where j.id in ( "+
-                            "select jc.id_contabilidade " +
-                            "  from pes_pessoa p " +
-                            " inner join pes_juridica j ON j.id_pessoa = p.id " +
-                            " inner join pes_juridica jc ON j.id = jc.id_contabilidade " +
-                            " where p.ds_email1 like '"+email.toLowerCase()+"' " +
-                            " group by jc.id_contabilidade " +
-                          ") limit 1";
-        
+    public Juridica pesquisaContabilidadePorEmail(String email) {
+        String text_qry = "select j.* from pes_juridica j where j.id in ( "
+                + "select jc.id_contabilidade "
+                + "  from pes_pessoa p "
+                + " inner join pes_juridica j ON j.id_pessoa = p.id "
+                + " inner join pes_juridica jc ON j.id = jc.id_contabilidade "
+                + " where p.ds_email1 like '" + email.toLowerCase() + "' "
+                + " group by jc.id_contabilidade "
+                + ") limit 1";
+
         Query qry = getEntityManager().createNativeQuery(text_qry, Juridica.class);
-        
-        try{
+
+        try {
             return (Juridica) qry.getSingleResult();
-        }catch(Exception e){
+        } catch (Exception e) {
             e.getMessage();
         }
         return null;

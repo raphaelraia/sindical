@@ -1962,6 +1962,13 @@ public class MovimentosReceberSocialBean implements Serializable {
         this.booAcrescimo = booAcrescimo;
     }
 
+    public String put(Pessoa p) {
+        String retorno = ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).movimentosReceberSocial();
+        GenericaSessao.put("movimentosReceberSocialBean", new MovimentosReceberSocialBean());
+        GenericaSessao.put("pessoaPesquisa", p);
+        return retorno;
+    }
+
 //    public List<DataObject> getListaBoletosAbertos() {
 //        return listaBoletosAbertos;
 //    }

@@ -42,6 +42,7 @@ public class LocadoraTaxaBean implements Serializable {
         loadServicoMultaDiaria();
         listLocadoraTaxa = new ArrayList<>();
         loadServicoMultaDiaria();
+        loadLocadoraTaxa();
     }
 
     @PreDestroy

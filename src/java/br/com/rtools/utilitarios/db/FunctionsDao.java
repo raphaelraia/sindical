@@ -68,10 +68,45 @@ public class FunctionsDao extends DB implements FunctionsDB {
         }
         return 0;
     }
-    
+
+    @Override
     public float valorServicoCheio(int idPessoa, int idServico, Date date) {
         String dataString = DataHoje.converteData(date);
         String queryString = "SELECT func_valor_servico_cheio(" + idPessoa + ", " + idServico + ", '" + dataString + "') ";
+        try {
+            Query qry = getEntityManager().createNativeQuery(queryString);
+            List list = qry.getResultList();
+            if (!list.isEmpty()) {
+                list = (List) qry.getSingleResult();
+                float valor = Float.parseFloat(list.get(0).toString());
+                return valor;
+            }
+        } catch (Exception e) {
+            return 0;
+        }
+        return 0;
+    }
+    
+    public float valorServicoCheio(Integer servico_id, Date date) {
+        String dataString = DataHoje.converteData(date);
+        String queryString = "SELECT func_valor_servico_cheio(" + 1 + ", " + servico_id + ", '" + dataString + "') ";
+        try {
+            Query qry = getEntityManager().createNativeQuery(queryString);
+            List list = qry.getResultList();
+            if (!list.isEmpty()) {
+                list = (List) qry.getSingleResult();
+                float valor = Float.parseFloat(list.get(0).toString());
+                return valor;
+            }
+        } catch (Exception e) {
+            return 0;
+        }
+        return 0;
+    }
+
+    public float multaDiariaLocadora(Integer filial_id, Date dtDevolucao) {
+        String devolucao = DataHoje.converteData(dtDevolucao);
+        String queryString = "SELECT func_multa_diaria_locadora(" + filial_id + ", '" + devolucao + "') ";
         try {
             Query qry = getEntityManager().createNativeQuery(queryString);
             List list = qry.getResultList();
@@ -263,18 +298,19 @@ public class FunctionsDao extends DB implements FunctionsDB {
         }
         return false;
     }
-    
+
     public Boolean gerarBoletoSocial(List<Movimento> lista_movimento, String vencimento) {
         String ids = "";
-        for (Movimento movimento : lista_movimento){
-            if (ids.isEmpty())
-                ids = ""+movimento.getId();
-            else
-                ids += ", "+movimento.getId();
+        for (Movimento movimento : lista_movimento) {
+            if (ids.isEmpty()) {
+                ids = "" + movimento.getId();
+            } else {
+                ids += ", " + movimento.getId();
+            }
         }
-         
+
         try {
-            Query query = getEntityManager().createNativeQuery("select func_gerar_boleto_ass('{"+ids+"}','"+vencimento +"');");
+            Query query = getEntityManager().createNativeQuery("select func_gerar_boleto_ass('{" + ids + "}','" + vencimento + "');");
             List list = query.getResultList();
             if (!list.isEmpty()) {
                 return true;

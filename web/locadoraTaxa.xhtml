@@ -37,13 +37,13 @@
                             </div>
                             <p:panel styleClass="fundoCinza">
                                 <h:panelGrid columns="7">
-                                    <p:outputLabel value="Diária: " />
+                                    <p:outputLabel value="Locação Diária: " />
                                     <p:selectOneMenu value="#{locadoraTaxaBean.idServicoDiaria}" filter="true" filterMatchMode="startsWith">
                                         <p:ajax event="change" update="@this, i_sel_d, i_pg_fd" listener="#{locadoraTaxaBean.listener(1)}"/>
                                         <f:selectItems value="#{locadoraTaxaBean.listServicoDiaria}"/>
                                     </p:selectOneMenu>
                                     <p:outputLabel value="Multa Diaria:" styleClass="margin-left-max"/>
-                                    <p:selectOneMenu id="i_sel_d" value="#{locadoraTaxaBean.idServicoMultaDiaria}" disabled="#{empty locadoraTaxaBean.listServicoDiaria}" filterMatchMode="startsWith">
+                                    <p:selectOneMenu id="i_sel_d" value="#{locadoraTaxaBean.idServicoMultaDiaria}" disabled="#{empty locadoraTaxaBean.listServicoDiaria}" filter="true" filterMatchMode="startsWith">
                                         <p:ajax event="change" update="@this" />
                                         <f:selectItems value="#{locadoraTaxaBean.listServicoMultaDiaria}" />
                                     </p:selectOneMenu>
@@ -52,11 +52,17 @@
                             </p:panel>
                             <h:panelGrid id="i_pg_fd">
                                 <p:dataTable var="locadoraTaxa" value="#{locadoraTaxaBean.listLocadoraTaxa}" scrollable="true" scrollHeight="200" styleClass="margin-top-max" emptyMessage="Nenhum registro encontrado!">
-                                    <p:column headerText="Diária">
+                                    <p:column headerText="Locação Diária">
                                         #{locadoraTaxa.servicoDiaria.descricao}
                                     </p:column>
-                                    <p:column headerText="Multa diária">
+                                    <p:column headerText="Vl. Locação Diária (R$)" styleClass="text-center">
+                                        #{locadoraTaxa.servicoDiaria.valorCheioString}
+                                    </p:column>
+                                    <p:column headerText="Multa Diária">
                                         #{locadoraTaxa.servicoMultaDiaria.descricao}
+                                    </p:column>
+                                    <p:column headerText="Vl. Multa Diária (R$)" styleClass="text-center">
+                                        #{locadoraTaxa.servicoMultaDiaria.valorCheioString}
                                     </p:column>
                                     <p:column width="25">
                                         <p:commandButton icon="ui-icon-trash" action="#{locadoraTaxaBean.delete(locadoraTaxa)}" update=":form_locadora_taxa:" disabled="#{controleAcessoBean.botaoExcluir}" />
