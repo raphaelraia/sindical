@@ -102,6 +102,6 @@
     <error-page>
         <exception-type>javax.faces.application.ViewExpiredException</exception-type>
         <location>/index.xhtml</location>
-    </error-page>
+    </error-page>    
     
 </web-app>
