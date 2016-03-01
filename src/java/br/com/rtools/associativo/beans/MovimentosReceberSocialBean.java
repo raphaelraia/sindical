@@ -1372,6 +1372,8 @@ public class MovimentosReceberSocialBean implements Serializable {
 
         if (porPesquisa.equals("quitados") || porPesquisa.equals("todos")) {
             limitePesquisa = "50";
+        } else if (porPesquisa.equals("abertos")) {
+            limitePesquisa = "todos";
         }
     }
 
