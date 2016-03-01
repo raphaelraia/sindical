@@ -392,7 +392,7 @@ public class ChamadaPaginaBean implements Serializable {
     }
 
     public String webContabilidade() {
-        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("webContabilidadeBean");
+        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("webContabilidadeBean"); 
         return metodoGenerico(2, "webContabilidade");
     }
 
