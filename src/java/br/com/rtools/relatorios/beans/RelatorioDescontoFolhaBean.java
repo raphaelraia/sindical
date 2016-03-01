@@ -1,6 +1,7 @@
 package br.com.rtools.relatorios.beans;
 
 import br.com.rtools.associativo.ConfiguracaoSocial;
+import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
@@ -189,6 +190,9 @@ public class RelatorioDescontoFolhaBean implements Serializable {
         }
         Map map = new HashMap();
         map.put("obs_desconto_folha", configuracaoSocial.getObsDescontoFolha());
+        
+        Jasper.FILIAL = (Filial) new Dao().find(new Filial(), 1);
+        
         Jasper.printReports(r.getJasper(), r.getNome(), rdfs, map);
         sisProcesso.setProcesso("Relatório " + r.getNome());
         sisProcesso.finish();

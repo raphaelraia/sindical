@@ -491,11 +491,11 @@ public class MovimentoDBToplink extends DB implements MovimentoDB {
         }
 
         if (id_servico != 0) {
-            qry_servico = " and m.id_servicos = " + id_servico+" \n ";
+            qry_servico = " and m.id_servicos = " + id_servico + " \n ";
         }
 
         if (id_tipo_servico != 0) {
-            qry_tipo_servico = " and m.id_tipo_servico = " + id_tipo_servico+ " \n ";
+            qry_tipo_servico = " and m.id_tipo_servico = " + id_tipo_servico + " \n ";
         }
 
         if (id_pessoa != -1) {
@@ -503,7 +503,7 @@ public class MovimentoDBToplink extends DB implements MovimentoDB {
                 qry_pessoa = " and m.id_pessoa in (select id_pessoa from arr_contribuintes_vw where id_contabilidade = " + id_pessoa + " and dt_inativacao is null order by ds_nome) \n ";
                 ordem = "nome, ";
             } else {
-                qry_pessoa = " and m.id_pessoa = " + id_pessoa+" \n ";
+                qry_pessoa = " and m.id_pessoa = " + id_pessoa + " \n ";
             }
         }
 
@@ -1534,32 +1534,37 @@ public class MovimentoDBToplink extends DB implements MovimentoDB {
     @Override
     public List<Movimento> pesquisaMovPorNumDocumentoList(String numero, Date vencimento, int idContaCobranca) {
         List<Movimento> listMov = new ArrayList();
-        String textQuery = "";
-        Registro reg = new Registro();
+        String textQuery;
         FilialDB db = new FilialDao();
         // PESQUISANDO PELA FILIAL... DEPOIS ADICIONAR UMA COMBO COM ELAS
-        reg = db.pesquisaRegistroPorFilial(1);
-        textQuery = "select m from Movimento m, Boleto b "
-                + " where m.nrCtrBoleto = b.nrCtrBoleto "
-                + "   and m.baixa is null "
-                + "   and m.ativo = true "
-                + "   and b.boletoComposto = '" + numero + "'";
+        Registro reg = db.pesquisaRegistroPorFilial(1);
+        textQuery
+                = "SELECT m.* \n"
+                + "  FROM fin_movimento m \n "
+                + " INNER JOIN fin_boleto b ON b.nr_ctr_boleto = m.nr_ctr_boleto \n "
+                + " WHERE m.id_baixa IS NULL \n "
+                + "   AND m.is_ativo = TRUE \n "
+                + "   AND SUBSTRING('000000000000000'||'" + numero + "', LENGTH('000000000000000'||'" + numero + "') - 16, LENGTH('000000000000000'||'" + numero + "')) \n"
+                + "                = \n"
+                + "       SUBSTRING('000000000000000'||b.ds_boleto, LENGTH('000000000000000'||b.ds_boleto) - 16, LENGTH('000000000000000'||b.ds_boleto))";
         if (!reg.isBaixaVencimento()) {
-            textQuery += " and b.contaCobranca.id = " + idContaCobranca;
+            textQuery += " AND b.id_conta_cobranca = " + idContaCobranca;
         } else {
             if (DataHoje.converteData(vencimento).equals("11/11/1111")) {
-                textQuery += " and b.contaCobranca.id = " + idContaCobranca;
+                textQuery 
+                        += " AND b.id_conta_cobranca = " + idContaCobranca;
             } else {
-                textQuery += " and b.contaCobranca.id = " + idContaCobranca
-                        + " and m.dtVencimento = '" + DataHoje.converteData(vencimento) + "'";
+                textQuery
+                        += " AND b.id_conta_cobranca  = " + idContaCobranca
+                        + "  AND b.dt_vencimento = '" + DataHoje.converteData(vencimento) + "'";
             }
         }
         try {
-            Query qry = getEntityManager().createQuery(textQuery);
+            Query qry = getEntityManager().createNativeQuery(textQuery, Movimento.class);
             listMov = qry.getResultList();
             return listMov;
         } catch (EJBQLException e) {
-
+            e.getMessage();
             return listMov;
         }
 
@@ -1921,25 +1926,20 @@ public class MovimentoDBToplink extends DB implements MovimentoDB {
 
     @Override
     public List<Movimento> pesquisaAcordoTodos(int idAcordo) {
-        List<Movimento> result = new ArrayList();
+        // TANTO PARA ACORDO DE ARRECADAÇÃO QUANTO SOCIAL
         try {
             String textoQuery
                     = "  select m "
                     + "    from Movimento m "
                     + "   where m.acordo.id = :pid "
                     + "   order by m.dtVencimento asc";
-//            String textoQuery =
-//                    "  select m"
-//                    + "  from Movimento m"
-//                    + " where m.acordo.id = :pid"
-//                    + "   order by m.documento desc";
             Query qry = getEntityManager().createQuery(textoQuery);
             qry.setParameter("pid", idAcordo);
-            result = qry.getResultList();
+            return qry.getResultList();
         } catch (Exception e) {
-            result = new ArrayList();
+            e.getMessage();
         }
-        return result;
+        return new ArrayList();
     }
 
     @Override
@@ -2184,22 +2184,23 @@ public class MovimentoDBToplink extends DB implements MovimentoDB {
 
     @Override
     public List<Vector> pesquisaAcrescimo(int id_movimento) {
-        List<Vector> vetor = new ArrayList();
+        // TANTO DE ARRECADAÇÃO QUANTO DE SOCIAL
         try {
-            String textQuery = "select m.nr_valor valor,"
+            String textQuery
+                    = "SELECT m.nr_valor valor,"
                     + "       m.nr_multa multa, "
                     + "       m.nr_juros juros, "
                     + "       m.nr_correcao correcao, "
                     + "       m.nr_desconto desconto, "
-                    + "       (m.nr_valor+m.nr_multa+m.nr_juros+m.nr_correcao-m.nr_desconto) vlrpagar "
-                    + "  from fin_movimento as m "
-                    + " where m.id = " + id_movimento;
+                    + "       (m.nr_valor + m.nr_multa + m.nr_juros + m.nr_correcao - m.nr_desconto) vlrpagar "
+                    + "  FROM fin_movimento as m "
+                    + " WHERE m.id = " + id_movimento;
             Query qry = getEntityManager().createNativeQuery(textQuery);
-            vetor = (Vector) qry.getResultList();
+            return qry.getResultList();
         } catch (Exception e) {
-            return new ArrayList();
+            e.getMessage();
         }
-        return vetor;
+        return new ArrayList();
     }
 
     @Override

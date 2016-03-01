@@ -829,8 +829,12 @@ public class RelatorioHomologacaoBean implements Serializable {
             this.cnpj = cnpj;
             this.empresa = empresa;
             this.status = status;
-            Integer qs = Integer.parseInt(quantidade_status.toString());
-            this.quantidade_status = Integer.toString(qs);
+            try{
+                this.quantidade_status = Integer.parseInt(quantidade_status.toString());
+            }catch(Exception e){
+                e.getMessage();
+            }
+            this.quantidade_status = 0;
         }
 
         public ParametroHomologacao(Object data_final, Object data, Object hora, Object cnpj, Object empresa, Object funcionario, Object contato, Object telefone, Object operador, Object obs, Object status, Object cancelamento_data, Object cancelamento_usuario_nome, Object cancelamento_motivo) {

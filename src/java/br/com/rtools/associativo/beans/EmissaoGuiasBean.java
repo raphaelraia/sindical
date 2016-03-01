@@ -253,8 +253,8 @@ public class EmissaoGuiasBean implements Serializable {
                     listaMovimentoAuxiliar.add(listHistoricoEmissaoGuia.getMovimento());
                 }
             }
-            
-            if (!listaMovimentoAuxiliar.isEmpty()){
+
+            if (!listaMovimentoAuxiliar.isEmpty()) {
                 listHistoricoEmissaoGuias.clear();
                 GenericaSessao.put("listaMovimento", listaMovimentoAuxiliar);
                 GenericaSessao.put("caixa_banco", "caixa");
@@ -319,14 +319,14 @@ public class EmissaoGuiasBean implements Serializable {
         MovimentoDB db = new MovimentoDBToplink();
         Usuario usuario = (Usuario) GenericaSessao.getObject("sessaoUsuario");
         List<HistoricoEmissaoGuias> listHEGuias = db.pesquisaHistoricoEmissaoGuias(usuario.getId());
-        
-        if (listHEGuias.isEmpty()){
+
+        if (listHEGuias.isEmpty()) {
             return;
         }
-        
+
         di.openTransaction();
         for (HistoricoEmissaoGuias list_h : listHEGuias) {
-            if (list_h.getMovimento().getBaixa() != null){
+            if (list_h.getMovimento().getBaixa() != null) {
                 list_h.setBaixado(true);
             }
             if (!di.update(list_h)) {
@@ -334,7 +334,7 @@ public class EmissaoGuiasBean implements Serializable {
                 return;
             }
         }
-        
+
         di.commit();
     }
 
@@ -450,7 +450,7 @@ public class EmissaoGuiasBean implements Serializable {
                 GenericaMensagem.error("Atenção", "Esta pessoa possui débitos com o Sindicato!");
                 return;
             }
-        
+
             fisica = fisicaNovoCadastro;
             pessoa = fisicaNovoCadastro.getPessoa();
         }
@@ -1256,25 +1256,27 @@ public class EmissaoGuiasBean implements Serializable {
         this.quantidadePedido = quantidadePedido;
     }
 
-    public Pedido getPedido() {
+    public void validaProdutoPesquisa() {
         if (GenericaSessao.exists("produtoPesquisa")) {
             Produto p = (Produto) GenericaSessao.getObject("produtoPesquisa", true);
             for (Pedido listPedido : listPedidos) {
                 if (listPedido.getProduto().getId() == p.getId()) {
                     GenericaMensagem.warn("Validação", "Produto já adicionado!");
-                    return new Pedido();
+                    PF.update(":form_eg:i_message_pedido");
+                    pedido = new Pedido();
                 }
             }
             ProdutoDao produtoDao = new ProdutoDao();
             estoque = new Estoque();
             estoque = produtoDao.listaEstoquePorProdutoFilial(p, filial);
             if (estoque == null) {
-                GenericaMensagem.warn("Validação", "Produto indiponível para esta filial!");
+                GenericaMensagem.warn("Validação", "Produto indisponível para esta filial!");
+                PF.update(":form_eg:i_message_pedido");
             } else {
                 if (estoque.getEstoqueTipo().getId() == 3) {
                     pedido.setProduto(estoque.getProduto());
                     if (estoque.getEstoque() == 0) {
-                        GenericaMensagem.warn("Validação", "Quantidade indiponível!");
+                        GenericaMensagem.warn("Validação", "Quantidade indisponível!");
                     }
                     valorUnitarioPedido = pedido.getProduto().getValorString();
                 } else {
@@ -1282,6 +1284,9 @@ public class EmissaoGuiasBean implements Serializable {
                 }
             }
         }
+    }
+
+    public Pedido getPedido() {
         return pedido;
     }
 

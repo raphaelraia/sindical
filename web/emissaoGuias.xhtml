@@ -20,6 +20,11 @@
 
         </script>        
     </h:head>
+    
+    <f:metadata>  
+        <f:event type="preRenderView" listener="#{emissaoGuiasBean.validaProdutoPesquisa}"/>
+    </f:metadata>
+
     <h:body>
         <!-- INICIA DIV wrap e main -->
         <div id="wrapx">
@@ -266,25 +271,27 @@
                                 </h:panelGrid>
                             </p:dialog>                    
 
-                            <p:dialog id="dlg_pedido" widgetVar="dlg_pedido" width="800" resizable="false" modal="true" visible="#{emissaoGuiasBean.modalPedido}" header="Produtos do serviço" draggable="false">
+                            <p:dialog id="dlg_pedido" widgetVar="dlg_pedido" width="800" resizable="false" modal="true" visible="#{emissaoGuiasBean.modalPedido}" header="Produtos do Serviço" draggable="false">
                                 <p:ajax event="close" listener="#{emissaoGuiasBean.closeModalPedido()}" update="@this i_valor"/>
                                 <h:panelGrid id="i_grid_pedido">
                                     <!-- TELA CADASTRO -->
-                                    <p:messages autoUpdate="true" showDetail="true" id="i_message_pedido"/>
+                                    <p:messages showDetail="true" id="i_message_pedido" closable="true"/>
                                     <h:panelGrid columns="2">
                                         <p:commandButton value="Pesquisar" icon="ui-icon-search" title="Pesquisar Produto" action="#{chamadaPaginaBean.pesquisa('pesquisaProduto', 'produtoBean')}" disabled="#{emissaoGuiasBean.lote.id != -1}"/>
                                         <p:outputLabel value="#{emissaoGuiasBean.pedido.produto.descricao} -  Marca: #{emissaoGuiasBean.pedido.produto.marca} - #{emissaoGuiasBean.pedido.produto.fabricante}" />
                                     </h:panelGrid>
+                                    
                                     <h:panelGrid columns="2">
                                         <p:outputLabel value="Estoque Disponível:" />
                                         <p:outputLabel value="#{emissaoGuiasBean.estoque.estoque} (#{emissaoGuiasBean.estoque.produto.produtoUnidade.descricao} (S))" />
                                     </h:panelGrid>                                    
+                                    
                                     <h:panelGrid columns="4">
                                         <p:outputLabel value="Qtde" />
                                         <p:outputLabel value="Valor Unit." />
                                         <p:outputLabel value="Desconto Unit." />
                                         <p:column />
-                                        <p:spinner value="#{emissaoGuiasBean.quantidadePedido}" size="5" min="0" max="#{emissaoGuiasBean.estoque.estoque}" disabled="#{emissaoGuiasBean.lote.id != -1}" style="width: 80px">
+                                        <p:spinner value="#{emissaoGuiasBean.quantidadePedido}" size="5" min="0" max="#{emissaoGuiasBean.estoque.estoque}" disabled="#{emissaoGuiasBean.lote.id != -1}" style="width: 90px">
                                             <p:ajax event="blur" update="@this" />
                                         </p:spinner>
                                         <p:inputText value="#{emissaoGuiasBean.valorUnitarioPedido}" size="8" dir="rtl" readonly="true">

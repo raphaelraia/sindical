@@ -182,7 +182,7 @@
 
                                 <p:column>
                                     <br />
-                                    <p:commandButton value="Acordo" title="Fazer um acordo" action="#{movimentosReceberSocialBean.telaAcordo()}" rendered="#{movimentosReceberSocialBean.porPesquisa != 'quitados'}" />
+                                    <p:commandButton value="Acordo" title="Fazer um acordo" action="#{movimentosReceberSocialBean.telaAcordo()}" rendered="#{movimentosReceberSocialBean.porPesquisa != 'quitados'}" update="@form"/>
                                 </p:column>
 
                                 <p:column>
@@ -207,7 +207,7 @@
                                     <p:commandButton value="Anexar Boletos" action="#{movimentosReceberSocialBean.clickAnexarMovimentos}" title="Anexar Boletos" rendered="#{movimentosReceberSocialBean.porPesquisa != 'quitados'}"  onclick="PF('dlg_anexar_boletos').show()" update="panel_anexar_boletos panel_criar_boleto" disabled="#{movimentosReceberSocialBean.cab.verificarPermissao('anexarBoletos', 3) or movimentosReceberSocialBean.cab.verificarPermissao('anexarBoletos', 1)}"/>
                                 </p:column>
 
-                                <p:column>
+                                <p:column rendered="#{movimentosReceberSocialBean.porPesquisa eq 'quitados' or movimentosReceberSocialBean.porPesquisa eq 'todos'}">
                                     <p:outputLabel value="Limite de resultados na lista" style="color: red" /><br />
                                     <p:selectOneMenu value="#{movimentosReceberSocialBean.limitePesquisa}" style="width: 250px">
                                         <p:ajax event="change" update="@this formMovimentosReceber" listener="#{movimentosReceberSocialBean.listenerPesquisa()}"/>
@@ -467,7 +467,7 @@
                                     <p:inputTextarea value="#{movimentosReceberSocialBean.motivoInativacao}" style="width: 100%"/>
                                 </h:panelGrid>
 
-                                <p:commandButton value="Sim"      type="submit" styleClass="ui-confirmdialog-yes" action="#{movimentosReceberSocialBean.inativarMovimentos()}" update="formMovimentosReceber" onclick="PF('i_dlg_estorno').hide()" style="clear: both; float: left" icon="ui-icon-check"/>  
+                                <p:commandButton value="Sim"      type="submit" styleClass="ui-confirmdialog-yes" action="#{movimentosReceberSocialBean.inativarMovimentos()}" update="formMovimentosReceber" onclick="PF('i_dlg_excluir').hide()" style="clear: both; float: left" icon="ui-icon-check"/>  
                                 <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_excluir').hide()" style="float: left" icon="ui-icon-close"/>       
                             </p:dialog>
 

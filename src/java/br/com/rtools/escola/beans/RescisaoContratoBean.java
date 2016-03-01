@@ -15,6 +15,7 @@ import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.logSistema.NovoLog;
+import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaComplemento;
@@ -29,6 +30,7 @@ import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
 import br.com.rtools.seguranca.dao.FilialRotinaDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
@@ -54,7 +56,7 @@ public class RescisaoContratoBean implements Serializable {
     private Pessoa pessoa;
     private Pessoa beneficiario;
     private Registro registro;
-    private List<Movimento> movimentos;
+    private List<ListaMovimentoCheck> listaMovimento;
     private List<Movimento> movimentosRescisao;
     private List<SelectItem> listaMesVencimento;
     private String descricaoServico;
@@ -75,6 +77,9 @@ public class RescisaoContratoBean implements Serializable {
     private Integer filial_id;
     private Boolean liberaAcessaFilial;
 
+    private String motivoInativacao;
+    private Boolean chkSeleciona;
+
     @PostConstruct
     public void init() {
         matriculaEscola = new MatriculaEscola();
@@ -83,9 +88,9 @@ public class RescisaoContratoBean implements Serializable {
         pessoa = new Pessoa();
         beneficiario = new Pessoa();
         registro = new Registro();
-        movimentos = new ArrayList<>();
-        movimentosRescisao = new ArrayList<>();
-        listaMesVencimento = new ArrayList<>();
+        listaMovimento = new ArrayList();
+        movimentosRescisao = new ArrayList();
+        listaMesVencimento = new ArrayList();
         descricaoServico = "";
         tipoRescisaoContrato = "";
         valorMulta = "";
@@ -101,6 +106,8 @@ public class RescisaoContratoBean implements Serializable {
         liberaAcessaFilial = false;
         filial_id = 0;
         listFiliais = new ArrayList();
+        motivoInativacao = "";
+        chkSeleciona = true;
         loadLiberaAcessaFilial();
     }
 
@@ -108,7 +115,55 @@ public class RescisaoContratoBean implements Serializable {
     public void destroy() {
         /* chamado quando outra view for chamada através do UIViewRoot.setViewId(String viewId) */
     }
+    
+    public void inativarMovimentos() {
+        if (motivoInativacao.isEmpty()) {
+            GenericaMensagem.warn("Atenção", "Digite um motivo para exclusão!");
+            return;
+        } else if (motivoInativacao.length() < 6) {
+            GenericaMensagem.warn("Atenção", "Motivo de exclusão inválido!");
+            return;
+        }
 
+        List<Movimento> listam = new ArrayList();
+
+        for (ListaMovimentoCheck lmc : listaMovimento) {
+            if (lmc.getCheck()) {
+                //int id_movimento = ((Movimento) dh.getArgumento1()).getId();
+                Movimento mov = (Movimento) new Dao().find(lmc.getMovimento());
+                listam.add(mov);
+            }
+        }
+
+        if (listam.isEmpty()) {
+            GenericaMensagem.warn("Atenção", "Nenhum boletos foi selecionado!");
+            return;
+        }
+
+        Dao dao = new Dao();
+        dao.openTransaction();
+
+        if (!GerarMovimento.inativarArrayMovimento(listam, motivoInativacao, dao).isEmpty()) {
+            GenericaMensagem.error("Atenção", "Ocorreu um erro em uma das exclusões, verifique o log!");
+            dao.rollback();
+            return;
+        } else {
+            GenericaMensagem.info("Sucesso", "Boletos foram excluídos!");
+        }
+
+        dao.commit();
+        
+        listaMovimento.clear();
+        pesquisaMovimentosPorMatricula();
+    }
+
+
+    public void marcarTodos() {
+        for (ListaMovimentoCheck lmc : listaMovimento) {
+            lmc.setCheck(chkSeleciona);
+        }
+    }
+    
     public void loadLiberaAcessaFilial() {
         if (new ControleAcessoBean().permissaoValida("libera_acesso_filiais", 4)) {
             liberaAcessaFilial = true;
@@ -139,8 +194,8 @@ public class RescisaoContratoBean implements Serializable {
             return;
         }
 
-        for (Movimento movimento : movimentos) {
-            if (DataHoje.menorData(movimento.getDtVencimento(), DataHoje.dataHoje())) {
+        for (ListaMovimentoCheck lmc : listaMovimento) {
+            if (DataHoje.menorData(lmc.getMovimento().getDtVencimento(), DataHoje.dataHoje())) {
                 GenericaMensagem.warn("Atenção", "Existem movimentos atrasados, rescisão não permitida!");
                 PF.update("form_rescisao");
                 return;
@@ -152,7 +207,9 @@ public class RescisaoContratoBean implements Serializable {
     public MatriculaEscola getMatriculaEscola() {
         if (GenericaSessao.exists("matriculaEscolaPesquisa")) {
             matriculaEscola = (MatriculaEscola) GenericaSessao.getObject("matriculaEscolaPesquisa", true);
-            movimentos.clear();
+            
+            listaMovimento.clear();
+            
             if (matriculaEscola.getServicoPessoa().getEvt() != null) {
                 this.idEvt = matriculaEscola.getServicoPessoa().getEvt().getId();
                 titular = matriculaEscola.getServicoPessoa().getCobranca();
@@ -182,14 +239,6 @@ public class RescisaoContratoBean implements Serializable {
         this.matriculaEscola = matriculaEscola;
     }
 
-    public List<Movimento> getMovimentos() {
-        return movimentos;
-    }
-
-    public void setMovimentos(List<Movimento> movimentos) {
-        this.movimentos = movimentos;
-    }
-
     public Servicos getServicos() {
         return servicos;
     }
@@ -198,8 +247,8 @@ public class RescisaoContratoBean implements Serializable {
         this.servicos = servicos;
     }
 
-    public List<Movimento> pesquisaMovimentosPorMatricula() {
-        if (movimentos.isEmpty()) {
+    public void pesquisaMovimentosPorMatricula() {
+        if (listaMovimento.isEmpty()) {
             dataGeracao = "";
             RescisaoContratoDao dao = new RescisaoContratoDao();
             List<Lote> lista_lote = dao.listaLoteEVT(idEvt);
@@ -209,12 +258,12 @@ public class RescisaoContratoBean implements Serializable {
                     dataGeracao = list.get(0).getLote().getEmissao();
                     if (matriculaEscola.getEscStatus().getId() != 3) {
                         for (Movimento list1 : list) {
-                            movimentos.add(list1);
+                            listaMovimento.add(new ListaMovimentoCheck(true, list1));
                         }
                     } else {
                         for (Movimento list1 : list) {
                             if (list1.getTipoServico().getId() == 6) {
-                                movimentos.add(list1);
+                                listaMovimento.add(new ListaMovimentoCheck(true, list1));
                             }
                         }
                     }
@@ -243,7 +292,6 @@ public class RescisaoContratoBean implements Serializable {
 
             valor = Moeda.converteR$Float(parcelasRestantes * valor_parcela);
         }
-        return movimentos;
     }
 
     public int getIdEvt() {
@@ -265,8 +313,8 @@ public class RescisaoContratoBean implements Serializable {
             return;
         }
 
-        for (Movimento movimento : movimentos) {
-            if (DataHoje.menorData(movimento.getDtVencimento(), DataHoje.dataHoje())) {
+        for (ListaMovimentoCheck lmc : listaMovimento) {
+            if (DataHoje.menorData(lmc.getMovimento().getDtVencimento(), DataHoje.dataHoje())) {
                 GenericaMensagem.warn("Atenção", "Existem movimentos atrasados, rescisão não permitida!");
                 return;
             }
@@ -274,11 +322,11 @@ public class RescisaoContratoBean implements Serializable {
 
         Dao dao = new Dao();
         dao.openTransaction();
-        if (!movimentos.isEmpty()) {
-            for (Movimento movimento : movimentos) {
-                if (movimento.getBaixa() == null && movimento.isAtivo()) {
-                    movimento.setAtivo(false);
-                    if (!dao.update(movimento)) {
+        if (!listaMovimento.isEmpty()) {
+            for (ListaMovimentoCheck lmc : listaMovimento) {
+                if (lmc.getMovimento().getBaixa() == null && lmc.getMovimento().isAtivo()) {
+                    lmc.getMovimento().setAtivo(false);
+                    if (!dao.update(lmc.getMovimento())) {
                         dao.rollback();
                         GenericaMensagem.error("Erro", "Não foi possível inativar movimentos!");
                         return;
@@ -326,7 +374,7 @@ public class RescisaoContratoBean implements Serializable {
         }
 
         if (gerarMovimentoMulta(dao, servicos, matriculaEscola.getServicoPessoa().getPessoa())) {
-            movimentos.clear();
+            listaMovimento.clear();
             GenericaMensagem.info("Sucesso", "Matrícula rescindida!");
             dao.commit();
             pesquisaMovimentosPorMatricula();
@@ -698,6 +746,63 @@ public class RescisaoContratoBean implements Serializable {
 
     public void setFilial_id(Integer filial_id) {
         this.filial_id = filial_id;
+    }
+
+    public List<ListaMovimentoCheck> getListaMovimento() {
+        return listaMovimento;
+    }
+
+    public void setListaMovimento(List<ListaMovimentoCheck> listaMovimento) {
+        this.listaMovimento = listaMovimento;
+    }
+
+    public String getMotivoInativacao() {
+        return motivoInativacao;
+    }
+
+    public void setMotivoInativacao(String motivoInativacao) {
+        this.motivoInativacao = motivoInativacao;
+    }
+
+    public Boolean getChkSeleciona() {
+        return chkSeleciona;
+    }
+
+    public void setChkSeleciona(Boolean chkSeleciona) {
+        this.chkSeleciona = chkSeleciona;
+    }
+
+    public class ListaMovimentoCheck {
+
+        private Boolean check;
+        private Movimento movimento;
+
+        public ListaMovimentoCheck() {
+            this.check = true;
+            this.movimento = new Movimento();
+        }
+
+        public ListaMovimentoCheck(Boolean check, Movimento movimento) {
+            this.check = check;
+            this.movimento = movimento;
+        }
+
+        public Boolean getCheck() {
+            return check;
+        }
+
+        public void setCheck(Boolean check) {
+            this.check = check;
+        }
+
+        public Movimento getMovimento() {
+            return movimento;
+        }
+
+        public void setMovimento(Movimento movimento) {
+            this.movimento = movimento;
+        }
+
     }
 
 }

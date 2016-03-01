@@ -30,10 +30,12 @@ import br.com.rtools.financeiro.db.MovimentoDBToplink;
 import br.com.rtools.financeiro.db.ServicoContaCobrancaDB;
 import br.com.rtools.financeiro.db.ServicoContaCobrancaDBToplink;
 import br.com.rtools.impressao.DemonstrativoAcordo;
+import br.com.rtools.impressao.DemonstrativoEPlanilhaAcordoSocial;
 import br.com.rtools.impressao.ParametroBoleto;
 import br.com.rtools.impressao.ParametroBoletoSocial;
 import br.com.rtools.impressao.Promissoria;
 import br.com.rtools.pessoa.Filial;
+import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEndereco;
@@ -44,6 +46,7 @@ import br.com.rtools.pessoa.db.FisicaDB;
 import br.com.rtools.pessoa.db.FisicaDBToplink;
 import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
+import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.Links;
 import br.com.rtools.utilitarios.*;
@@ -53,7 +56,11 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 import java.util.Vector;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
@@ -68,6 +75,9 @@ import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.export.JRPdfExporter;
 import net.sf.jasperreports.engine.export.JRPdfExporterParameter;
 import net.sf.jasperreports.engine.util.JRLoader;
+import net.sf.jasperreports.export.SimpleExporterInput;
+import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
+import net.sf.jasperreports.export.SimplePdfExporterConfiguration;
 
 public class ImprimirBoleto {
 
@@ -234,7 +244,7 @@ public class ImprimirBoleto {
                         swap[40] = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/SICOB.jasper");
                     } else {
                         swap[40] = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/SICOB.jasper");
-                    }                    
+                    }
                 }
                 swap[43] = "";
                 swap[42] = "";
@@ -1438,6 +1448,221 @@ public class ImprimirBoleto {
             System.err.println("O arquivo não foi gerado corretamente! Erro: " + erro.getMessage());
         }
         return arquivo;
+    }
+
+    public void imprimirAcordoSocial(List<Movimento> lista, Acordo acordo, Historico historico) {
+        try {
+            FacesContext faces = FacesContext.getCurrentInstance();
+            JasperReport jasper;
+            Collection vetor1 = new ArrayList(), vetor2 = new ArrayList(), vetor3 = new ArrayList();
+            PessoaEnderecoDao pesEndDB = new PessoaEnderecoDao();
+            PessoaEndereco pe;
+
+            int i = 0;
+            String swap[] = new String[35];
+            Pessoa pessoa;
+
+            if (lista.isEmpty()) {
+                return;
+            }
+
+            pessoa = lista.get(0).getPessoa();
+
+            Fisica fisica;
+            try {
+                fisica = new FisicaDBToplink().pesquisaFisicaPorPessoa(pessoa.getId());
+                swap[0] = fisica.getPessoa().getNome();
+                swap[1] = fisica.getPessoa().getDocumento();
+            } catch (Exception e) {
+                swap[0] = "";
+                swap[1] = "";
+            }
+
+            try {
+                pe = pesEndDB.pesquisaEndPorPessoaTipo(pessoa.getId(), 3);
+                swap[2] = pe.getEndereco().getEnderecoSimplesToString();
+                swap[3] = pe.getNumero();
+                swap[4] = pe.getComplemento();
+                swap[5] = pe.getEndereco().getBairro().getDescricao();
+                swap[6] = pe.getEndereco().getCidade().getCidade();
+                swap[7] = pe.getEndereco().getCidade().getUf();
+                swap[8] = pe.getEndereco().getCep().substring(0, 5) + "-" + pe.getEndereco().getCep().substring(5);
+                swap[9] = pessoa.getTelefone1();
+            } catch (Exception e) {
+                swap[2] = "";
+                swap[3] = "";
+                swap[4] = "";
+                swap[5] = "";
+                swap[6] = "";
+                swap[7] = "";
+                swap[8] = "";
+                swap[9] = "";
+            }
+
+            MovimentoDB dbm = new MovimentoDBToplink();
+            int qnt = dbm.pesquisaAcordoAberto(acordo.getId()).size();
+            while (i < lista.size()) {
+                List<Vector> lAcres = dbm.pesquisaAcrescimo(lista.get(i).getId());
+
+                BigDecimal valor, multa, juros, correcao, desconto;
+
+                if (lAcres.isEmpty()) {
+                    valor = new BigDecimal(0);
+                    multa = new BigDecimal(0);
+                    juros = new BigDecimal(0);
+                    correcao = new BigDecimal(0);
+                    desconto = new BigDecimal(0);
+                } else {
+                    valor = new BigDecimal(((Double) lAcres.get(0).get(0)).floatValue());
+                    multa = new BigDecimal(((Double) lAcres.get(0).get(1)).floatValue());
+                    juros = new BigDecimal(((Double) lAcres.get(0).get(2)).floatValue());
+                    correcao = new BigDecimal(((Double) lAcres.get(0).get(3)).floatValue());
+                    desconto = new BigDecimal(((Double) lAcres.get(0).get(4)).floatValue());
+                }
+
+                BigDecimal valor_calculado
+                        = new BigDecimal(
+                                Moeda.somaValores(
+                                        lista.get(i).getValor(), Moeda.subtracaoValores(
+                                                Moeda.somaValores(
+                                                        Moeda.somaValores(multa.floatValue(), juros.floatValue()), correcao.floatValue()), desconto.floatValue()
+                                        )
+                                )
+                        );
+                if (lista.get(i).getTipoServico().getId() == 4) {
+                    vetor1.add(new DemonstrativoEPlanilhaAcordoSocial(
+                            acordo.getId(), // acordo_id
+                            acordo.getData(), // acordo_data
+                            acordo.getContato(), // acordo_contato
+                            acordo.getEmail(), // acordo_email
+                            swap[0], // nome
+                            swap[1], // documento
+                            swap[2], // endereco
+                            swap[3], // numero
+                            swap[4], // complemento
+                            swap[5], // bairro
+                            swap[6], // cidade
+                            swap[7], // cep
+                            swap[8], // uf
+                            swap[9], // telefone
+                            historico.getHistorico(), // obs
+                            lista.get(i).getDtVencimento(), // vencto
+                            valor_calculado, // vlr pagar
+                            valor,
+                            multa,
+                            juros,
+                            correcao,
+                            desconto,
+                            lista.get(i).getServicos().getDescricao(), // servico
+                            lista.get(i).getTipoServico().getDescricao(),
+                            lista.get(i).getReferencia(),
+                            acordo.getUsuario().getPessoa().getNome()
+                    ));
+                } else {
+                    vetor2.add(new DemonstrativoEPlanilhaAcordoSocial(
+                            acordo.getId(), // acordo_id
+                            acordo.getData(), // acordo_data
+                            acordo.getContato(), // acordo_contato
+                            acordo.getEmail(), // acordo_email
+                            swap[0], // nome
+                            swap[1], // documento
+                            swap[2], // endereco
+                            swap[3], // numero
+                            swap[4], // complemento
+                            swap[5], // bairro
+                            swap[6], // cidade
+                            swap[7], // cep
+                            swap[8], // uf
+                            swap[9], // telefone
+                            historico.getHistorico(), // obs
+                            lista.get(i).getDtVencimento(), // vencto
+                            valor_calculado, // vlr pagar
+                            valor,
+                            multa,
+                            juros,
+                            correcao,
+                            desconto,
+                            lista.get(i).getServicos().getDescricao(), // servico
+                            lista.get(i).getTipoServico().getDescricao(),
+                            lista.get(i).getReferencia(),
+                            acordo.getUsuario().getPessoa().getNome()
+                    ));
+                }
+                i++;
+
+            }
+//            
+            ConfiguracaoArrecadacaoBean cab = new ConfiguracaoArrecadacaoBean();
+            cab.init();
+
+            Juridica juridica = (Juridica) new Dao().find(new Juridica(), 1);
+            String documentox = juridica.getPessoa().getDocumento();// ? sindicato.getPessoa().getDocumento() : ;
+
+            Map parameters = new HashMap();
+//
+//            // MOEDA PARA BRASIL VALORES IREPORT PT-BR CONVERTE VALOR JASPER VALOR IREPORT VALOR
+            parameters.put("REPORT_LOCALE", new Locale("pt", "BR"));
+            parameters.put("sindicato_nome", juridica.getPessoa().getNome());
+            parameters.put("sindicato_documento", documentox);
+            parameters.put("sindicato_site", juridica.getPessoa().getSite());
+            parameters.put("sindicato_logradouro", juridica.getPessoa().getPessoaEndereco().getEndereco().getLogradouro().getDescricao());
+            parameters.put("sindicato_endereco", juridica.getPessoa().getPessoaEndereco().getEndereco().getDescricaoEndereco().getDescricao());
+            parameters.put("sindicato_numero", juridica.getPessoa().getPessoaEndereco().getNumero());
+            parameters.put("sindicato_complemento", juridica.getPessoa().getPessoaEndereco().getComplemento());
+            parameters.put("sindicato_bairro", juridica.getPessoa().getPessoaEndereco().getEndereco().getBairro().getDescricao());
+            parameters.put("sindicato_cidade", juridica.getPessoa().getPessoaEndereco().getEndereco().getCidade().getCidade());
+            parameters.put("sindicato_uf", juridica.getPessoa().getPessoaEndereco().getEndereco().getCidade().getUf());
+            parameters.put("sindicato_cep", juridica.getPessoa().getPessoaEndereco().getEndereco().getCep());
+            parameters.put("sindicato_telefone", juridica.getPessoa().getTelefone1());
+            parameters.put("sindicato_logo", ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));
+
+            List ljasper = new ArrayList();
+            //* JASPER 1 *//
+            jasper = (JasperReport) JRLoader.loadObject(
+                    new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/DEMOSTRATIVO_ACORDO_SOCIAL.jasper"))
+            );
+            JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(vetor1);
+            ljasper.add(JasperFillManager.fillReport(jasper, parameters, dtSource));
+            //* ------------- *//
+
+            //* JASPER 2 *//
+            jasper = (JasperReport) JRLoader.loadObject(
+                    new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/PLANILHA_DE_DEBITO_SOCIAL.jasper"))
+            );
+            dtSource = new JRBeanCollectionDataSource(vetor2);
+            ljasper.add(JasperFillManager.fillReport(jasper, parameters, dtSource));
+            //* ------------- *//
+
+            // NÃO DESCOBRI COMO SETAR Map parameters = new HashMap(); DEPOIS DE CRIAR fillReport() NESTE CASO PARA SETAR A FILIAL NO parameters
+//            Jasper.printReports("planilha_de_acordo_e_demostrativo", ljasper);
+//
+            UUID uuidX = UUID.randomUUID();
+            String uuid = "_" + uuidX.toString().replace("-", "_");
+            String downloadName = "planilha_de_acordo_e_demostrativo" + uuid + ".pdf";
+
+            if (!Diretorio.criar("/Arquivos/downloads/relatorios/planilha_de_acordo_e_demostrativo")) {
+                GenericaMensagem.info("Sistema", "Erro ao criar diretório!");
+                return;
+            }
+
+            String realPath = "/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/relatorios/planilha_de_acordo_e_demostrativo/";
+            String dirPath = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(realPath);
+            File file = new File(dirPath + "/" + downloadName);
+
+            JRPdfExporter exporter = new JRPdfExporter();
+            exporter.setExporterInput(SimpleExporterInput.getInstance(ljasper));
+            exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(file.getPath()));
+            SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
+            configuration.setCreatingBatchModeBookmarks(true);
+            exporter.setConfiguration(configuration);
+            exporter.exportReport();
+
+            Download download = new Download(downloadName, dirPath, "application/pdf", FacesContext.getCurrentInstance());
+            download.baixar();
+            download.remover();
+        } catch (Exception erro) {
+            System.err.println("O arquivo não foi gerado corretamente! Erro: " + erro.getMessage());
+        }
     }
 
     public byte[] imprimirAcordoPromissoria(List<Movimento> lista, Acordo acordo, Historico historico, boolean imprimir_pro) {

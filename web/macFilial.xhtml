@@ -79,7 +79,7 @@
                                 
                                 <p:column>
                                     <br />
-                                    <p:selectBooleanCheckbox value="#{macFilialBean.macFilial.caixaOperador}" itemLabel="Caixa por Operador" style="margin-right: 20px">
+                                    <p:selectBooleanCheckbox value="#{macFilialBean.macFilial.caixaOperador}" itemLabel="Caixa por Operador" style="margin-right: 20px; opacity: 0.5" disabled="true">
                                         <p:ajax event="change" update="@this id_caixa" listener="#{macFilialBean.alterarCaixa}"/>
                                     </p:selectBooleanCheckbox>
                                 </p:column>

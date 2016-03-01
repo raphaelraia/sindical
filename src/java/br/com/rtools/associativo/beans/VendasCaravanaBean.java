@@ -404,13 +404,34 @@ public class VendasCaravanaBean {
             listaReserva1.setArgumento4(res);
         }
 
-        Lote lote = new Lote(-1, (Rotina) sv.find(new Rotina(), 142), "", DataHoje.data(), pessoa, null, false, "", Moeda.converteUS$(valorTotal), (Filial) sv.pesquisaObjeto(1, "Filial"),
-                (Departamento) sv.find(new Departamento(), 6), caravana.getEvt(), "", null, null, null, null, false, 0);
+        Lote lote = new Lote(
+                -1, 
+                (Rotina) sv.find(new Rotina(), 142), 
+                "", 
+                DataHoje.data(), 
+                pessoa, 
+                null, 
+                false, 
+                "", 
+                Moeda.converteUS$(valorTotal), 
+                (Filial) sv.pesquisaObjeto(1, "Filial"),
+                (Departamento) sv.find(new Departamento(), 6), 
+                caravana.getEvt(), 
+                "", 
+                null, 
+                null, 
+                null, 
+                null, 
+                false, 
+                0
+        );
+        
         if (!sv.inserirObjeto(lote)) {
             GenericaMensagem.warn("Erro", "Não foi possível salvar Lote!");
             sv.desfazerTransacao();
             return;
         }
+        
         Movimento movimento;
         EventoServicoValor esv;
         for (int i = 0; i < listaParcelas.size(); i++) {
@@ -420,7 +441,8 @@ public class VendasCaravanaBean {
 //                return;
 //            }
 //            esv = (EventoServicoValor) listaReserva.get(0).getArgumento6();
-            movimento = new Movimento(-1,
+            movimento = new Movimento(
+                    -1,
                     lote,
                     eventoServico.getServicos().getPlano5(), //esv.getEventoServico().getServicos().getPlano5(),
                     pessoa,
@@ -433,7 +455,7 @@ public class VendasCaravanaBean {
                     String.valueOf(listaParcelas.get(i).getArgumento0()),
                     parcelas,
                     true,
-                    "",
+                    "E",
                     false,
                     pessoa,
                     pessoa,

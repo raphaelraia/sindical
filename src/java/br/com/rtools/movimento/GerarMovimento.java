@@ -221,7 +221,6 @@ public class GerarMovimento extends DB {
 //                GenericaMensagem.info("Gerados...", sizeBoleto + " registros");
 //                PF.update("form_contribuicao_poll");
 //            }
-
             textQry = "INSERT INTO fin_boleto (nr_ctr_boleto, is_ativo, id_conta_cobranca)              \n"
                     + "(    SELECT m.id AS nr_ctr_boleto,                                               \n"
                     + "            true AS is_ativo,                                                    \n"
@@ -442,6 +441,98 @@ public class GerarMovimento extends DB {
                 return "Erro ao salvar boleto, verifique os logs!";
             }
         }
+        return "";
+    }
+
+    public static synchronized String salvarListaAcordoSocial(Acordo acordo, List<Movimento> listaMovimento, List<Movimento> listaAcordados, List<String> listaHistorico) {
+        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+        ContaCobrancaDB dbc = new ContaCobrancaDBToplink();
+        NovoLog log = new NovoLog();
+
+        sv.abrirTransacao();
+        
+        // ACORDO ----
+        acordo.setUsuario((Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuario"));
+        if (sv.inserirObjeto(acordo)) {
+            log.save("Salvar Acordo - ID: " + acordo.getId() + " Usuario: " + acordo.getUsuario().getPessoa().getNome());
+        } else {
+            return "Erro ao salvar acordo, verifique os logs!";
+        }
+
+        for (int i = 0; i < listaMovimento.size(); i++) {
+            ContaCobranca cc = dbc.pesquisaServicoCobranca(listaMovimento.get(i).getServicos().getId(), listaMovimento.get(i).getTipoServico().getId());
+
+            if (cc == null) {
+                return "Conta cobrança não encontrada!";
+            }
+
+            if (listaMovimento.get(i).getId() == -1) {
+                // LOTE ---
+                Lote lote = new Lote();
+                lote.setDepartamento(null);
+                lote.setStatus((FStatus) sv.pesquisaCodigo(1, "FStatus"));
+                lote.setLancamento(DataHoje.data());
+                lote.setAvencerContabil(false);
+                lote.setEmissao(DataHoje.data());
+                lote.setFTipoDocumento((FTipoDocumento) sv.pesquisaCodigo(2, "FTipoDocumento"));
+                lote.setValor(listaMovimento.get(i).getValor());
+                lote.setRotina((Rotina) sv.pesquisaCodigo(118, "Rotina"));
+                lote.setPessoa(listaMovimento.get(i).getPessoa());
+                lote.setCondicaoPagamento((CondicaoPagamento) sv.pesquisaCodigo(1, "CondicaoPagamento"));
+                lote.setFilial((Filial) sv.pesquisaCodigo(1, "Filial"));
+                lote.setPessoaSemCadastro(null);
+                lote.setEvt(null);
+                lote.setPlano5(null);
+                lote.setDocumento("");
+                
+                if (sv.inserirObjeto(lote)) {
+                    log.save("Salvar Lote - ID: " + lote.getId() + " Pessoa: " + lote.getPessoa().getNome() + " Data: " + lote.getEmissao());
+                } else {
+                    sv.desfazerTransacao();
+                    return "Erro ao salvar Lote, verifique os logs!";
+                }
+
+                // MOVIMENTO ----
+                listaMovimento.get(i).setLote(lote);
+                listaMovimento.get(i).setAcordo(acordo);
+                if (sv.inserirObjeto(listaMovimento.get(i))) {
+                    log.save("Salvar Movimento - ID: " + listaMovimento.get(i).getId() + " Pessoa: " + listaMovimento.get(i).getPessoa().getNome() + " Valor: " + listaMovimento.get(i).getValor());
+                } else {
+                    sv.desfazerTransacao();
+                    return "Erro ao salvar movimento, verifique os logs!";
+                }
+
+                // HISTORICO ----
+                Historico his = new Historico();
+
+                his.setMovimento(listaMovimento.get(i));
+                his.setComplemento("");
+                his.setHistorico(listaHistorico.get(i));
+                if (sv.inserirObjeto(his)) {
+                    log.save("Salvar Historico - ID: " + his.getId() + " OBS: " + his.getHistorico() + " ID_MOVIMENTO: " + his.getMovimento().getId());
+                } else {
+                    sv.desfazerTransacao();
+                    return "Erro ao salvar histórico, verifique os logs!";
+                }
+            } else {
+                sv.desfazerTransacao();
+                return "Id do movimento deve ser -1";
+            }
+        }
+        
+        // MOVIMENTO ACORDADOS ----
+        for (int wi = 0; wi < listaAcordados.size(); wi++) {
+            listaAcordados.get(wi).setAcordo(acordo);
+            listaAcordados.get(wi).setAtivo(false);
+            listaAcordados.get(wi).setValorBaixa(0);
+            if (!sv.alterarObjeto(listaAcordados.get(wi))) {
+                sv.desfazerTransacao();
+                return "Erro ao salvar boletos acordados!";
+            }
+        }
+        
+        sv.comitarTransacao();
+        listaAcordados.clear();
         return "";
     }
 
@@ -825,7 +916,7 @@ public class GerarMovimento extends DB {
                             nrCtrBoleto = bol.getNrCtrBoleto();
                         }
                     }
-                    novoLog.delete("Inativação de boleto: ID MOVIMENTO: "+mi.getMovimento().getId()+" - Documento: " + mi.getMovimento().getDocumento() + " - Valor: " + mi.getMovimento().getValorString() + " - Data inativação: " + mi.getData() + " - Pessoa: (" + mi.getMovimento().getPessoa().getId() + ") - " + mi.getMovimento().getPessoa().getNome() + " - CTR Boleto: " + nrCtrBoleto + " - Motivo: " + mi.getHistorico());
+                    novoLog.delete("Inativação de boleto: ID MOVIMENTO: " + mi.getMovimento().getId() + " - Documento: " + mi.getMovimento().getDocumento() + " - Valor: " + mi.getMovimento().getValorString() + " - Data inativação: " + mi.getData() + " - Pessoa: (" + mi.getMovimento().getPessoa().getId() + ") - " + mi.getMovimento().getPessoa().getNome() + " - CTR Boleto: " + nrCtrBoleto + " - Motivo: " + mi.getHistorico());
                 }
             } catch (Exception e) {
                 mensagem = e.getMessage();
