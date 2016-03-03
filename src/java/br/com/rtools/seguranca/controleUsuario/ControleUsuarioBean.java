@@ -171,10 +171,10 @@ public class ControleUsuarioBean implements Serializable {
         if (usuario != null) {
             if (usuario.getId() != 1) {
                 if (usuario.getAutenticado()) {
-                    if(macFilial == null) {
+                    if (macFilial == null) {
                         usuario = new Usuario();
                         GenericaMensagem.warn("Obrigatório uso de MAC Filial! Contate o administrador do sistema.", "Nome do dispositivo diferente do registrado (Registro Computador/Mac Filial)!");
-                        return null;                        
+                        return null;
                     }
                 }
                 try {
@@ -186,7 +186,7 @@ public class ControleUsuarioBean implements Serializable {
 //                        return null;
 //                    }
                 } catch (Exception e) {
-                    
+
                 }
             }
             AtalhoDB dba = new AtalhoDBToplink();
@@ -235,7 +235,7 @@ public class ControleUsuarioBean implements Serializable {
             pagina = "menuPrincipal";
             GenericaSessao.put("sessaoUsuario", usuario);
             GenericaSessao.put("usuarioLogin", usuario.getLogin());
-            GenericaSessao.put("userName", usuario.getLogin());
+            GenericaSessao.put("userName", "LOCAL - " + usuario.getLogin() + " (" + getCliente() + ")");
             GenericaSessao.put("linkClicado", true);
             GenericaSessao.put("acessoCadastro", false);
             login = ((Usuario) GenericaSessao.getObject("sessaoUsuario")).getPessoa().getNome() + " - "

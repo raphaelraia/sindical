@@ -86,7 +86,7 @@ public class FunctionsDao extends DB implements FunctionsDB {
         }
         return 0;
     }
-    
+
     public float valorServicoCheio(Integer servico_id, Date date) {
         String dataString = DataHoje.converteData(date);
         String queryString = "SELECT func_valor_servico_cheio(" + 1 + ", " + servico_id + ", '" + dataString + "') ";
@@ -320,4 +320,4 @@ public class FunctionsDao extends DB implements FunctionsDB {
         }
         return false;
     }
-}
+            }

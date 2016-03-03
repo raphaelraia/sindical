@@ -53,6 +53,9 @@
                                         <p:selectBooleanButton value="#{relatorioContabilidadesBean.filtro[1]}" onLabel="Cidade " offLabel="Cidade " offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;" >
                                             <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio" listener="#{relatorioContabilidadesBean.clear}" />
                                         </p:selectBooleanButton>
+                                        <p:selectBooleanButton value="#{relatorioContabilidadesBean.filtro[3]}" onLabel="Email" offLabel="Email" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;" >
+                                            <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio" listener="#{relatorioContabilidadesBean.clear}" />
+                                        </p:selectBooleanButton>
                                         <p:selectBooleanButton value="#{relatorioContabilidadesBean.filtro[2]}" onLabel="Ordenação" offLabel="Ordenação " offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;" >
                                             <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio" listener="#{relatorioContabilidadesBean.clear}" />
                                         </p:selectBooleanButton>
@@ -70,7 +73,7 @@
                                                 <f:selectItem itemValue="todas"         itemLabel="Todas"/>
                                                 <f:selectItem itemValue="comEmpresas"   itemLabel="Por faixa"/>
                                             </p:selectOneRadio>
-                                            <p:commandButton icon="ui-icon-close" action="#{relatorioContabilidadesBean.close('quantidade_empresas')}" title="Remover filtro" />
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioContabilidadesBean.close('quantidade_empresas')}" title="Remover filtro" styleClass="margin-top-max"/>
                                         </h:panelGrid>
                                         <h:panelGrid id="id_panel_quantidade_empresas" styleClass="sbb margin-top" columns="5">
                                             <p:outputLabel value="Quantidade de "  rendered="#{relatorioContabilidadesBean.ocultaEmpresas}"/>
@@ -108,6 +111,21 @@
                                                         <f:selectItems value="#{relatorioContabilidadesBean.listCidades}"/>
                                                     </p:selectOneMenu>                                
                                                 </h:panelGrid>                                            
+                                            </h:panelGrid>
+                                        </h:column>
+                                    </p:panel>
+                                </p:column>
+                                <p:column rendered="#{relatorioContabilidadesBean.filtro[3]}">
+                                    <p:panel header="Email">
+                                        <h:column>                                        
+                                            <h:panelGrid columns="2">
+                                                    <p:selectOneRadio id="idFiltroEmail" value="#{relatorioContabilidadesBean.radioEmail}" styleClass="margin-top-max" >
+                                                        <p:ajax event="change" update="@this"/>
+                                                        <f:selectItem itemValue="email"  itemLabel="Ignorar"/>
+                                                        <f:selectItem itemValue="email_com"     itemLabel="Com e-mail"/>
+                                                        <f:selectItem itemValue="email_sem"     itemLabel="Sem e-mail"/>
+                                                    </p:selectOneRadio>
+                                                <p:commandButton icon="ui-icon-close" action="#{relatorioContabilidadesBean.close('email')}" title="Remover filtro" styleClass="margin-top-max"/>
                                             </h:panelGrid>
                                         </h:column>
                                     </p:panel>

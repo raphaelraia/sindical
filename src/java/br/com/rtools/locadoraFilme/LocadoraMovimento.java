@@ -197,7 +197,11 @@ public class LocadoraMovimento implements Serializable {
 
     public Float getValorTotal() {
         if (valorTotal == null) {
-            valorTotal = getDiasAtraso() * valorMultaDiaria;
+            if(movimento == null) {
+                valorTotal = getDiasAtraso() * valorMultaDiaria;                
+            } else {
+                valorTotal = movimento.getValor();
+            }
         }
         return valorTotal;
     }

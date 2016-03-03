@@ -3,6 +3,7 @@ package br.com.rtools.utilitarios.dao;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.principal.DB;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.persistence.Query;
 

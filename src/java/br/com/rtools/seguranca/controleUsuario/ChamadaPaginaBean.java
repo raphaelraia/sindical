@@ -392,7 +392,7 @@ public class ChamadaPaginaBean implements Serializable {
     }
 
     public String webContabilidade() {
-        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("webContabilidadeBean"); 
+        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("webContabilidadeBean");
         return metodoGenerico(2, "webContabilidade");
     }
 
@@ -417,6 +417,7 @@ public class ChamadaPaginaBean implements Serializable {
 
     public synchronized String baixaGeral() {
         //if(FacesContext.getCurrentInstance().getExternalContext().getSessionMap().containsKey("baixaGeralBean")){
+        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("baixa_geral_sucesso");
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("baixaGeralBean");
         //}
 //        if (urlAtual.equals("baixaBoleto")) {
@@ -1391,6 +1392,7 @@ public class ChamadaPaginaBean implements Serializable {
 
     public synchronized String menuLocadora() {
         GenericaSessao.put("idModulo", LOCADORA);
+        GenericaSessao.remove("menuLocadoraBean");
         return metodoGenerico(0, "menuLocadora");
     }
 

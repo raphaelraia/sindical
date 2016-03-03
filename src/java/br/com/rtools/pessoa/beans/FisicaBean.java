@@ -346,8 +346,8 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         Dao dao = new Dao();
         dao.openTransaction();
         pessoaUpper();
-        
-        if(fisica.getPessoa().getTelefone3().isEmpty() && !fisica.getPessoa().getTelefone4().isEmpty()) {
+
+        if (fisica.getPessoa().getTelefone3().isEmpty() && !fisica.getPessoa().getTelefone4().isEmpty()) {
             fisica.getPessoa().setTelefone3(fisica.getPessoa().getTelefone4());
             fisica.getPessoa().setTelefone4("");
         }
@@ -853,7 +853,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     public void editarFisicaSocio(Fisica fis) {
         Dao dao = new Dao();
         SociosDB db = new SociosDBToplink();
-        socios = (Socios) dao.rebind(db.pesquisaSocioPorPessoaAtivo(fisica.getPessoa().getId()));
+        socios = db.pesquisaSocioPorPessoaAtivo(fisica.getPessoa().getId());
         if (socios.getId() == -1) {
             //socios = new SociosDBToplink().pesquisaSocioTitularInativoPorPessoa(fisica.getPessoa().getId());
             List<Socios> ls = new SociosDBToplink().pesquisaSocioPorPessoaInativo(fisica.getPessoa().getId());
@@ -862,6 +862,8 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             } else {
                 socios = new Socios();
             }
+        } else {
+            socios = (Socios) dao.rebind(socios);
         }
         listaSocioInativo.clear();
     }

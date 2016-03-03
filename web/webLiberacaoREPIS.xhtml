@@ -40,19 +40,19 @@
                             <h:column>
                                 <h:panelGrid columns="4">
                                     <p:inputMask size="30" value="#{webREPISBean.descricao}" mask="#{webREPISBean.tipoPesquisa eq 'cnpj' ? '99?.999.999/9999-99' : ''}" rendered="#{webREPISBean.tipoPesquisa ne 'tipo' and webREPISBean.tipoPesquisa ne 'status' and webREPISBean.tipoPesquisa ne 'cidade'}" />
-                                    <p:selectOneMenu value="#{webREPISBean.indexCertidaoTipo}" rendered="#{webREPISBean.tipoPesquisa eq 'tipo'}" style="padding-right: 15px;">
+                                    <p:selectOneMenu value="#{webREPISBean.indexCertidaoTipo}" rendered="#{webREPISBean.tipoPesquisa eq 'tipo'}">
                                         <p:ajax update="@this tbl i_panel" event="change" listener="#{webREPISBean.pesquisar()}"/>
                                         <f:selectItems value="#{webREPISBean.listaTipoCertidao}" />
                                     </p:selectOneMenu>
-                                    <p:selectOneMenu value="#{webREPISBean.indexStatus}" rendered="#{webREPISBean.tipoPesquisa eq 'status'}" style="padding-right: 15px;">
+                                    <p:selectOneMenu value="#{webREPISBean.indexStatus}" rendered="#{webREPISBean.tipoPesquisa eq 'status'}">
                                         <p:ajax update="@this tbl i_panel" event="change" listener="#{webREPISBean.pesquisar()}"/>
                                         <f:selectItems value="#{webREPISBean.listaStatus}" />
                                     </p:selectOneMenu>                                    
-                                    <p:selectOneMenu value="#{webREPISBean.indexCidade}" rendered="#{webREPISBean.tipoPesquisa eq 'cidade'}" style="padding-right: 15px;">
+                                    <p:selectOneMenu value="#{webREPISBean.indexCidade}" rendered="#{webREPISBean.tipoPesquisa eq 'cidade'}">
                                         <p:ajax update="@this tbl i_panel" event="change" listener="#{webREPISBean.pesquisar()}"/>
                                         <f:selectItems value="#{webREPISBean.listaCidade}" />
                                     </p:selectOneMenu>                                    
-                                    <p:selectOneMenu value="#{webREPISBean.tipoPesquisa}" style="padding-right: 15px;">
+                                    <p:selectOneMenu value="#{webREPISBean.tipoPesquisa}">
                                         <p:ajax event="change" update="@this :form_libera_repis:" listener="#{webREPISBean.pesquisar()}"/>
                                         <f:selectItem itemLabel="Nome" itemValue="nome"/>
                                         <f:selectItem itemLabel="CNPJ" itemValue="cnpj"/>

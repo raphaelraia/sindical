@@ -374,11 +374,54 @@ public class Dao extends DB implements DaoInterface {
         return object;
     }
 
+    public Object rebindList(Object object) {
+        openTransaction();
+        try {
+            getEntityManager().merge(object);
+            getEntityManager().refresh(object);
+            getEntityManager().flush();
+            commit();
+        } catch (Exception e) {
+            rollback();
+            Logger.getLogger(Dao.class.getName()).log(Level.WARNING, e.getMessage());
+            EXCEPCION = e;
+            if (GenericaSessao.exists("habilitaLog")) {
+                if (Usuario.getUsuario().getId() == 1 && GenericaSessao.getBoolean("habilitaLog")) {
+                    GenericaMensagem.fatal("LOG", "Exceção gerada " + EXCEPCION.getMessage());
+                    PF.update("header:form_log");
+                }
+            }
+        }
+        return object;
+    }
+
     @Override
     public void refresh(Object object) {
         try {
             openTransaction();
             object = find(object);
+            getEntityManager().merge(object);
+            getEntityManager().refresh(object);
+            if (!getEntityManager().getTransaction().isActive()) {
+                return;
+            }
+            getEntityManager().flush();
+            commit();
+        } catch (Exception e) {
+            Logger.getLogger(Dao.class.getName()).log(Level.WARNING, e.getMessage());
+            EXCEPCION = e;
+            if (GenericaSessao.exists("habilitaLog")) {
+                if (Usuario.getUsuario().getId() == 1 && GenericaSessao.getBoolean("habilitaLog")) {
+                    GenericaMensagem.fatal("LOG", "Exceção gerada " + EXCEPCION.getMessage());
+                    PF.update("header:form_log");
+                }
+            }
+        }
+    }
+
+    public void refreshList(Object object) {
+        try {
+            openTransaction();
             getEntityManager().merge(object);
             getEntityManager().refresh(object);
             if (!getEntityManager().getTransaction().isActive()) {
@@ -506,7 +549,7 @@ public class Dao extends DB implements DaoInterface {
         if (!field.isEmpty()) {
             stringCampo = field;
         }
-        List list = new ArrayList<Object>();
+        List list = new ArrayList<>();
         String queryPesquisaString = "";
         for (int i = 0; i < id.length; i++) {
             if (i == 0) {
@@ -515,7 +558,7 @@ public class Dao extends DB implements DaoInterface {
                 queryPesquisaString += ", " + Integer.toString(id[i]);
             }
         }
-        String queryString = "SELECT OB FROM " + className + " OB WHERE OB." + stringCampo + " IN (" + queryPesquisaString + ")";
+        String queryString = "SELECT OB FROM " + className + " OB WHERE OB." + stringCampo + " IN (" + queryPesquisaString + ") ORDER BY OB.id ";
         Query query = getEntityManager().createQuery(queryString);
         list = query.getResultList();
         if (list.isEmpty()) {

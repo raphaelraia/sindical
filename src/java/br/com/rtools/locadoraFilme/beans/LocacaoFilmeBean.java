@@ -18,6 +18,7 @@ import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.db.FunctionsDao;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -317,6 +318,10 @@ public class LocacaoFilmeBean implements Serializable {
     public void add() {
         if (titulo.getId() == null) {
             GenericaMensagem.warn("Validação", "Pesquisar um titulo!");
+            return;
+        }
+        if (new TituloDao().locadoraQuantidadeTituloDisponivel(MacFilial.getAcessoFilial().getFilial().getId(), titulo.getId()) <= 0) {
+            GenericaMensagem.warn("Validação", "Não tem quantidade disponíveis para locação!");
             return;
         }
         locatario.getPessoa().getSocios();

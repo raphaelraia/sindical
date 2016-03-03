@@ -12,5 +12,5 @@ public interface RelatorioContabilidadesDB {
 
     public List pesquisarCnaeContabilidade();
 
-    public List listaRelatorioContabilidades(String pEmpresas, int indexEmp1, int indexEmp2, String tipoPCidade, String cidade, String ordem, int idTipoEndereco);
+    public List listaRelatorioContabilidades(String pEmpresas, int indexEmp1, int indexEmp2, String tipoPCidade, String cidade, String ordem, int idTipoEndereco, String email);
 }

@@ -70,7 +70,7 @@ public class RelatorioContabilidadesDBToplink extends DB implements RelatorioCon
     }
 
     @Override
-    public List listaRelatorioContabilidades(String pEmpresas, int indexEmp1, int indexEmp2, String tipoPCidade, String cidade, String ordem, int idTipoEndereco) {
+    public List listaRelatorioContabilidades(String pEmpresas, int indexEmp1, int indexEmp2, String tipoPCidade, String cidade, String ordem, int idTipoEndereco, String email) {
         String textQueryNativa;
         List list = new ArrayList();
         try {
@@ -105,6 +105,12 @@ public class RelatorioContabilidadesDBToplink extends DB implements RelatorioCon
                 textQueryNativa += " AND PE.id_tipo_endereco = " + idTipoEndereco + " AND E.id_cidade IN (" + Integer.parseInt(cidade) + ") \n";
             } else if (tipoPCidade.equals("outras")) {
                 textQueryNativa += " AND PE.id_tipo_endereco = " + idTipoEndereco + " AND ENDE.cidade <> (SELECT ds_cidade FROM end_cidade WHERE id = " + Integer.parseInt(cidade) + ") \n";
+            }
+            // EMAIL -------------------------------------------------------
+            if (email.equals("email_sem")) {
+                textQueryNativa += " AND P.ds_email1 = '' \n";
+            } else if (email.equals("email_com")) {
+                textQueryNativa += " AND P.ds_email1 <> '' \n";
             }
             // AGRUPAR ------------------------------------------------------------------------
             if (ordem.equals("razao")) {

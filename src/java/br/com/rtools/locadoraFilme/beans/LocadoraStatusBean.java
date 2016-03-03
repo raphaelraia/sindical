@@ -9,6 +9,7 @@ import br.com.rtools.sistema.Semana;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.SelectItemSort;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -72,7 +73,8 @@ public class LocadoraStatusBean implements Serializable {
             if (i == 0) {
                 idLocadoraTaxa = list.get(i).getId();
             }
-            listLocadoraTaxa.add(new SelectItem(list.get(i).getId(), list.get(i).getServicoDiaria().getDescricao() + " (" + list.get(i).getServicoDiaria().getDescricao() + ")"));
+            listLocadoraTaxa.add(new SelectItem(list.get(i).getId(), list.get(i).getServicoDiaria().getDescricao() + "  - [ " + list.get(i).getServicoMultaDiaria().getDescricao() + " ]"));
+            SelectItemSort.sort(listLocadoraTaxa);
         }
     }
 

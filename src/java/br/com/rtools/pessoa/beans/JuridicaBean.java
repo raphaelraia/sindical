@@ -818,7 +818,7 @@ public class JuridicaBean implements Serializable {
 //        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("enderecoNum");
 //        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("enderecoComp");
 //        listaEmpresasPertencentes.clear();
-        GenericaSessao.put("juridicaBean", new JuridicaBean());
+        GenericaSessao.remove("juridicaBean");
         return "pessoaJuridica";
     }
 
@@ -1406,7 +1406,8 @@ public class JuridicaBean implements Serializable {
 
     public void pesquisaContabilidadeI() {
         if (!nomePesquisaContabilidade.isEmpty()) {
-            JuridicaDB db = new JuridicaDBToplink();
+            JuridicaDBToplink db = new JuridicaDBToplink();
+            db.setContabilidade(true);
             listaContabilidade = db.pesquisaPessoa(nomePesquisaContabilidade, "nome", "I");
         } else {
             listaContabilidade = new ArrayList();
@@ -1415,7 +1416,8 @@ public class JuridicaBean implements Serializable {
 
     public void pesquisaContabilidadeP() {
         if (!nomePesquisaContabilidade.isEmpty()) {
-            JuridicaDB db = new JuridicaDBToplink();
+            JuridicaDBToplink db = new JuridicaDBToplink();
+            db.setContabilidade(true);
             listaContabilidade = db.pesquisaPessoa(nomePesquisaContabilidade, "nome", "P");
         } else {
             listaContabilidade = new ArrayList();
@@ -1680,23 +1682,8 @@ public class JuridicaBean implements Serializable {
         }
     }
 
-    public String getColocarMascara() {
-        int i = Integer.parseInt(getListaTipoDocumento().get(idTipoDocumento).getDescription());
-        // 1 cpf, 2 cnpj, 3 cei, 4 nenhum
-        if (i == 1) {
-            mask = "999.999.999-99";
-        }
-        if (i == 2) {
-            mask = "99.999.999/9999-99";
-        }
-        if (i == 3) {
-            //mask = "99.999.99999/99";
-            mask = "";
-        }
-        if (i == 4) {
-            mask = "";
-        }
-        return mask;
+    public String getColocarMascara() {;
+        return Mask.getMascara(getListaTipoDocumento().get(idTipoDocumento).getLabel());
     }
 
     public List<SelectItem> getListaTipoDocumento() {

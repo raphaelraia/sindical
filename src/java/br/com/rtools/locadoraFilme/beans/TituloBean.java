@@ -16,10 +16,13 @@ import br.com.rtools.utilitarios.Diretorio;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.PF;
+import br.com.rtools.utilitarios.SelectItemSort;
 import br.com.rtools.utilitarios.Upload;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
@@ -83,7 +86,7 @@ public class TituloBean {
         fileContent = "";
         file = null;
         imagensTipo = new String[]{"jpg", "jpeg", "png", "gif"};
-        listFilial = new ArrayList<>();
+        listFilial = new ArrayList();
         idFilial = 0;
         listCatalogo = new ArrayList<>();
         habilitaGenero = false;
@@ -247,15 +250,26 @@ public class TituloBean {
     }
 
     public String edit(Titulo t) {
-        titulo = t;
-        GenericaSessao.put("tituloPesquisa", titulo);
+        String urlRetorno = (String) GenericaSessao.getString("urlRetorno");
         GenericaSessao.put("linkClicado", true);
         showImagem();
         listFilial.clear();
         listCatalogo.clear();
+        idFilial = null;
         if (!GenericaSessao.exists("urlRetorno")) {
+            titulo = t;
+            idGenero = t.getGenero().getId();
+            GenericaSessao.put("tituloPesquisa", titulo);
             return "titulo";
         } else {
+            if (urlRetorno.equals("titulo")) {
+                idGenero = t.getGenero().getId();
+            } else if (getQuantidadeDisponivel(t.getId()) == 0) {
+                GenericaMensagem.warn("Validação", "Não há quantidade disponível para locação!");
+                return null;
+            }
+            titulo = t;
+            GenericaSessao.put("tituloPesquisa", titulo);
             return (String) GenericaSessao.getString("urlRetorno");
         }
     }
@@ -358,7 +372,7 @@ public class TituloBean {
 
     public void find() {
         TituloDao tituloDao = new TituloDao();
-        if(GenericaSessao.exists("titulosNotIn")) {
+        if (GenericaSessao.exists("titulosNotIn")) {
             tituloDao.setNot_in(GenericaSessao.getString("titulosNotIn", true));
         }
         if (descricaoPesquisa.equals("")) {
@@ -552,11 +566,9 @@ public class TituloBean {
         if (!fotoTempPerfil.equals("")) {
             f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/temp/locadora/titulo/" + getUsuario().getId() + "/titulo.png"));
             sucesso = f.delete();
-        } else {
-            if (titulo.getId() != null) {
-                f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/Imagens/locadora/titulo/" + titulo.getId() + ".png"));
-                sucesso = f.delete();
-            }
+        } else if (titulo.getId() != null) {
+            f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + getCliente() + "/Imagens/locadora/titulo/" + titulo.getId() + ".png"));
+            sucesso = f.delete();
         }
         if (sucesso) {
             fotoTempPerfil = "";
@@ -664,12 +676,14 @@ public class TituloBean {
             if (listFilial.isEmpty()) {
                 FilialDao filialDao = new FilialDao();
                 List<Filial> list = filialDao.findNotInByTabela("loc_titulo_filial", "id_titulo", "" + titulo.getId());
+
                 for (int i = 0; i < list.size(); i++) {
                     if (i == 0) {
                         idFilial = list.get(i).getId();
                     }
                     listFilial.add(new SelectItem(list.get(i).getId(), list.get(i).getFilial().getPessoa().getNome()));
                 }
+                SelectItemSort.sort(listFilial);
             }
         }
         return listFilial;
@@ -767,11 +781,32 @@ public class TituloBean {
                     t = new TituloDao().findBarras(null, titulo.getBarras());
                 }
                 if (t != null) {
-                    if(!t.getBarras().equals(titulo.getBarras())) {
-                        titulo.setBarras(null);                        
+                    if (!t.getBarras().equals(titulo.getBarras())) {
+                        titulo.setBarras(null);
                     }
                 }
                 break;
         }
     }
+
+    public Integer getQuantidadeEstoqueFilial(Integer titulo_id) {
+        return getQuantidadeEstoqueFilial(MacFilial.getAcessoFilial().getFilial().getId(), titulo_id);
+    }
+
+    public Integer getQuantidadeEstoqueFilial(Integer filial_id, Integer titulo_id) {
+        Catalogo c = new CatalogoDao().find(filial_id, titulo_id);
+        if (c == null) {
+            return 0;
+        }
+        return c.getQuantidade();
+    }
+
+    public Integer getQuantidadeDisponivel(Integer titulo_id) {
+        return getQuantidadeDisponivel(MacFilial.getAcessoFilial().getFilial().getId(), titulo_id);
+    }
+
+    public Integer getQuantidadeDisponivel(Integer filial_id, Integer titulo_id) {
+        return new TituloDao().locadoraQuantidadeTituloDisponivel(filial_id, titulo_id);
+    }
+
 }
