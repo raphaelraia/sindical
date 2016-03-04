@@ -2035,6 +2035,12 @@
             <redirect/>
         </navigation-case>
         
+        <navigation-case>
+            <from-outcome>atualizarBase</from-outcome>
+            <to-view-id>/atualizarBase.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>        
+        
     </navigation-rule>
     
     <lifecycle>
