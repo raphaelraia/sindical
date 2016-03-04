@@ -2041,6 +2041,12 @@
             <redirect/>
         </navigation-case>        
         
+        <navigation-case>
+            <from-outcome>pesquisaAtualizarBase</from-outcome>
+            <to-view-id>/pesquisaAtualizarBase.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>        
+        
     </navigation-rule>
     
     <lifecycle>
