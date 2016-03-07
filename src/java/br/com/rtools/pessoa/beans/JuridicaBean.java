@@ -479,6 +479,15 @@ public class JuridicaBean implements Serializable {
 
             endereco = dbe.enderecoReceita(cep, descricao, bairros);
 
+            if (endereco == null) {                
+                CEPService cEPService = new CEPService();
+                cEPService.setCep(cep);
+                cEPService.procurar();
+                Endereco e = cEPService.getEndereco();
+                if (e.getId() != -1) {
+                    endereco = e;
+                }
+            }
             if (endereco != null) {
                 TipoEnderecoDB dbt = new TipoEnderecoDBToplink();
                 List tiposE = dbt.listaTipoEnderecoParaJuridica();
