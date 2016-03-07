@@ -37,7 +37,20 @@
                 <f:subview id="header">
                     <ui:include src="templates/templatePrime.xhtml"/>
                 </f:subview>
+                
+                
                 <f:view>
+                    <f:metadata>  
+                        <f:event type="preRenderView" listener="#{processoAutomaticoBean.find_progress('atualizar_juridica')}" />
+                        <!-- 
+                        também funciona para este caso
+                        <f:viewAction action="# {processoAutomaticoBean.find_progress('atualizar_juridica')}" /> 
+                        
+                        ex. retirado daqui
+                        http://stackoverflow.com/questions/14153895/view-scoped-bean-prerenderview-method-being-called-multiple-times
+                        -->
+                    </f:metadata>
+                    
                     <h:form id="formMenuPrincipal">
                         <p:panel style="border: 0px; margin: 0 auto; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                             <p:menubar>
@@ -203,6 +216,9 @@
                                         <h:outputLink value="mailto:suporte@rtools.com.br" style="font-weight: bold">suporte@rtools.com.br</h:outputLink>
                                         <h:outputText value=" sua solicitação será respondida após voltarmos." style="font-size: 10pt!important"/>
                                     </p:panel>
+                                    
+                                    <ui:include id="template_processo_automatico" src="templates/templateProcessamentoAutomatico.xhtml" />
+                                    
                                 </p:column>
 
                                 <p:column>
