@@ -67,7 +67,7 @@
                                         <p:menuitem value="Notificações"            action="#{chamadaPaginaBean.pagina('sisNotificacao')}" rendered="#{controleUsuarioBean.clienteString eq 'Rtools'}"/>
                                         <p:menuitem value="Notificações Categoria"  action="#{chamadaPaginaBean.paginaSimples('SisNotificacaoCategoria', 'Notificação Categoria')}" rendered="#{controleUsuarioBean.clienteString eq 'Rtools'}"/>
                                         <p:menuitem value="Processos"               action="#{chamadaPaginaBean.pagina('sisProcesso')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" />
-                                        <p:menuitem value="Class Loader"            action="#{chamadaPaginaBean.pagina('javaClassLoader')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" />
+                                        <p:menuitem value="Atualizar Base"          action="#{chamadaPaginaBean.pagina('atualizarBase')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" />
                                     </p:submenu> 
                                     <p:submenu label="Ordem Serviço" rendered="#{controleUsuarioBean.clienteString eq 'Rtools'}"> 
                                         <p:menuitem value="Ordem Serviço"    />

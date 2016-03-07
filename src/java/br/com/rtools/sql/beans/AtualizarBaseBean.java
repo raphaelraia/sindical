@@ -32,6 +32,7 @@ public class AtualizarBaseBean implements Serializable {
 
     @PostConstruct
     public void init() {
+        listAtualizarBase = new ArrayList<>();
         atualizarBase = new AtualizarBase();
     }
 
@@ -58,21 +59,15 @@ public class AtualizarBaseBean implements Serializable {
                 GenericaMensagem.info("Sucesso", "Registro inserido");
                 loadListAtualizarBase();
                 loadListAtualizarBaseCliente();
-                return;
             } else {
                 GenericaMensagem.warn("Erro", "Ao inserir registro!");
-                return;
             }
+        } else if (dao.update(atualizarBase, true)) {
+            GenericaMensagem.info("Sucesso", "Registro atualizado");
+            loadListAtualizarBase();
+            loadListAtualizarBaseCliente();
         } else {
-            if (dao.update(atualizarBase, true)) {
-                GenericaMensagem.info("Sucesso", "Registro atualizado");
-                loadListAtualizarBase();
-                loadListAtualizarBaseCliente();
-                return;
-            } else {
-                GenericaMensagem.warn("Erro", "Ao atualizar registro!");
-                return;
-            }
+            GenericaMensagem.warn("Erro", "Ao atualizar registro!");
         }
     }
 
@@ -90,9 +85,11 @@ public class AtualizarBaseBean implements Serializable {
         }
     }
 
-    public void edit(AtualizarBase ab) {
+    public String edit(AtualizarBase ab) {
         atualizarBase = (AtualizarBase) new Dao().rebind(ab);
+        GenericaSessao.put("linkClicado", true);
         loadListAtualizarBase();
+        return "atualizarBase";
 
     }
 
@@ -141,7 +138,7 @@ public class AtualizarBaseBean implements Serializable {
     }
 
     public void loadListAtualizarBase() {
-        listAtualizarBase = new ArrayList();
+        listAtualizarBase = new Dao().list(new AtualizarBase());
     }
 
     public void loadListAtualizarBaseCliente() {
@@ -158,6 +155,9 @@ public class AtualizarBaseBean implements Serializable {
     }
 
     public List<AtualizarBase> getListAtualizarBase() {
+        if (listAtualizarBase.isEmpty()) {
+            listAtualizarBase = new Dao().list(new AtualizarBase());
+        }
         return listAtualizarBase;
     }
 

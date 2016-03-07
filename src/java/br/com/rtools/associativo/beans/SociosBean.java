@@ -1026,7 +1026,7 @@ public class SociosBean implements Serializable {
             NovoLog novoLog = new NovoLog();
             novoLog.setTabela("matr_socios");
             novoLog.setCodigo(matriculaSocios.getId());
-            novoLog.update("Inativação de Sócio",
+            novoLog.update("Inativação de Sócio - Motivo: " + matriculaSocios.getMotivo(),
                     " Matrícula: " + socios.getMatriculaSocios().getNrMatricula()
                     + " - Sócio {ID: " + socios.getId() + "}"
                     + " - Titular {ID: " + socios.getMatriculaSocios().getTitular().getId() + " - Nome: " + socios.getMatriculaSocios().getTitular().getNome() + "}"
