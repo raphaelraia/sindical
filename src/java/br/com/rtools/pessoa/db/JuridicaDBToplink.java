@@ -18,6 +18,8 @@ import oracle.toplink.essentials.exceptions.EJBQLException;
 
 public class JuridicaDBToplink extends DB implements JuridicaDB {
 
+    private Boolean contabilidade = false;
+
     @Override
     public Juridica pesquisaCodigo(int id) {
         Juridica result = null;
@@ -78,8 +80,7 @@ public class JuridicaDBToplink extends DB implements JuridicaDB {
         if (por.equals("cpf") || por.equals("cnpj") || por.equals("cei")) {
             field = "p.ds_documento";
         }
-
-        if (offset == null) {
+        if (offset == null && !contabilidade) {
             textQuery = " SELECT COUNT(*) ";
         } else {
             textQuery = " SELECT j.* ";
@@ -101,7 +102,7 @@ public class JuridicaDBToplink extends DB implements JuridicaDB {
         }
 
         if (por.equals("endereco")) {
-            if (offset == null) {
+            if (offset == null && !contabilidade) {
                 textQuery = " SELECT COUNT(*) ";
             } else {
                 textQuery = " SELECT jur.* ";
@@ -140,7 +141,7 @@ public class JuridicaDBToplink extends DB implements JuridicaDB {
             textQuery += " LIMIT " + limit + " OFFSET " + offset;
         }
         Query query;
-        if (offset == null) {
+        if (offset == null && !contabilidade) {
             query = getEntityManager().createNativeQuery(textQuery);
         } else {
             query = getEntityManager().createNativeQuery(textQuery, Juridica.class);
@@ -489,5 +490,13 @@ public class JuridicaDBToplink extends DB implements JuridicaDB {
             e.getMessage();
         }
         return null;
+    }
+
+    public Boolean getContabilidade() {
+        return contabilidade;
+    }
+
+    public void setContabilidade(Boolean contabilidade) {
+        this.contabilidade = contabilidade;
     }
 }

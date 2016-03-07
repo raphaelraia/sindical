@@ -37,7 +37,7 @@
                                 <h:panelGrid columns="4">
                                     <h:column>
                                         <h:outputLabel value="Contribuição" /><br />
-                                        <p:selectOneMenu id="idServicos" value="#{servicoContaCobrancaBean.idServicos}" style="margin-right: 30px; width: 350px">
+                                        <p:selectOneMenu id="idServicos" value="#{servicoContaCobrancaBean.idServicos}" style="margin-right: 30px; width: 350px" filter="true" filterMatchMode="startsWith">
                                             <p:ajax event="change" update="i_msg" />
                                             <f:selectItems value="#{servicoContaCobrancaBean.listaServico}"/>
                                         </p:selectOneMenu>

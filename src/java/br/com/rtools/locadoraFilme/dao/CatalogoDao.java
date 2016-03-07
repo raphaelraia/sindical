@@ -37,7 +37,7 @@ public class CatalogoDao extends DB {
                     + "     WHERE c.filial.id = " + filial.getId() + "    "
                     + "       AND c.titulo.id = " + titulo.getId() + "    "
                     + "  ORDER BY c.titulo.descricao                  ");
-       
+
             result = qry.getResultList();
 
         } catch (Exception e) {
@@ -45,6 +45,19 @@ public class CatalogoDao extends DB {
             result = null;
         }
         return result;
+    }
+
+    public Catalogo find(Integer filial_id, Integer titulo_id) {
+        try {
+            Query qry = getEntityManager().createQuery("            "
+                    + "    SELECT C                                 "
+                    + "      FROM Catalogo C                        "
+                    + "     WHERE C.filial.id = " + filial_id + "   "
+                    + "       AND C.titulo.id = " + titulo_id + "   ");
+            return (Catalogo) qry.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public List findByTitulo(Integer titulo_id) {

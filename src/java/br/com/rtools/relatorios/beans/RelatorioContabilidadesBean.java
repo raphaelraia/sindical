@@ -56,10 +56,11 @@ public class RelatorioContabilidadesBean implements Serializable {
     private boolean ocultaEmpresas;
     private boolean ocultaCidades;
     private Relatorios relatorios;
+    private String radioEmail;
 
     @PostConstruct
     public void init() {
-        filtro = new Boolean[3];
+        filtro = new Boolean[4];
         filtro[0] = true; // Quantidade Empresas
         filtro[1] = false; // Cidade
         filtro[2] = false; // Ordenação
@@ -86,6 +87,7 @@ public class RelatorioContabilidadesBean implements Serializable {
         tipoRelatorio = "Resumo";
         indexAccordion = "Resumo";
         tipo = "todos";
+        radioEmail = "email";
     }
 
     @PreDestroy
@@ -94,7 +96,6 @@ public class RelatorioContabilidadesBean implements Serializable {
         GenericaSessao.remove("jasperBean");
     }
 
-    
     public void print() {
         String cidades = "";
         int inicio = 0;
@@ -131,7 +132,7 @@ public class RelatorioContabilidadesBean implements Serializable {
             cidade = dbPesEnd.pesquisaEndPorPessoaTipo(1, 2).getEndereco().getCidade();
             cidades = Integer.toString(cidade.getId());
         }
-        List list = dbConta.listaRelatorioContabilidades(radioEmpresas, inicio, fim, radioCidades, cidades, radioOrdem, tipoEndereco.getId());
+        List list = dbConta.listaRelatorioContabilidades(radioEmpresas, inicio, fim, radioCidades, cidades, radioOrdem, tipoEndereco.getId(), radioEmail);
         if (list.isEmpty()) {
             GenericaMensagem.info("Sistema", "Não existem registros para o relatório selecionado");
             return;
@@ -459,6 +460,10 @@ public class RelatorioContabilidadesBean implements Serializable {
                 filtro[2] = false;
                 radioOrdem = "razao";
                 break;
+            case "email":
+                filtro[3] = false;
+                radioEmail = "email";
+                break;
         }
         PF.update("form_relatorio:id_panel");
     }
@@ -487,6 +492,10 @@ public class RelatorioContabilidadesBean implements Serializable {
             filtro[2] = false;
             radioOrdem = "razao";
         }
+        if (!filtro[3]) {
+            filtro[3] = false;
+            radioOrdem = "email";
+        }
     }
 
     public List<SelectItem> getListaRelatorioOrdem() {
@@ -499,5 +508,13 @@ public class RelatorioContabilidadesBean implements Serializable {
             }
         }
         return listRelatorioOrdem;
+    }
+
+    public String getRadioEmail() {
+        return radioEmail;
+    }
+
+    public void setRadioEmail(String radioEmail) {
+        this.radioEmail = radioEmail;
     }
 }

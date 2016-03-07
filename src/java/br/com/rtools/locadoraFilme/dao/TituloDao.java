@@ -125,4 +125,17 @@ public class TituloDao extends DB {
         this.not_in = not_in;
     }
 
+    public Integer locadoraQuantidadeTituloDisponivel(Integer filial_id, Integer titulo_id) {
+        try {
+            Query query = getEntityManager().createNativeQuery("SELECT func_loc_titulo_qtde_disponivel(" + titulo_id + "," + filial_id + ")");
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return Integer.parseInt(((List) query.getSingleResult()).get(0).toString());
+            }
+        } catch (Exception e) {
+            return 0;
+        }
+        return 0;
+    }
+
 }

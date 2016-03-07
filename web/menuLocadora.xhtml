@@ -24,7 +24,7 @@
                     <ui:include src="templates/templatePrime.xhtml"/>
                 </f:subview>
                 <f:view>
-                    <h:form id="formMenuLocadora">
+                    <h:form id="form_menu_locadora">
                         <p:panel style="border: 0px; margin: 0 auto;  width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                             <p:menubar>
                                 <p:submenu label="Cadastro" icon="ui-icon-document" style="margin-right: 15px">
@@ -47,7 +47,82 @@
 
                                 </p:submenu>
                             </p:menubar>
+                            <br />
+                            <p:panel style="margin: 0 auto!important; width: 99%" header="Histórico">
+                                <h:panelGrid columns="2" styleClass="margin-top-max" cellpadding="4">
+                                    <p:outputLabel value="Filial: "  />
+                                    <h:column>
+                                        <p:selectOneMenu value="#{menuLocadoraBean.filial_id}" disabled="#{!menuLocadoraBean.liberaAcessaFilial}">
+                                            <p:ajax event="change" update="@this i_history" listener="#{menuLocadoraBean.loadLocadoraMovimento()}" global="false" />
+                                            <f:selectItems value="#{menuLocadoraBean.listFiliais}" />
+                                        </p:selectOneMenu>
+                                    </h:column>                                    
+                                    <p:outputLabel value="Status: " />
+                                    <p:selectOneMenu value="#{menuLocadoraBean.status}">
+                                        <p:ajax event="change" update="@this i_history" listener="#{menuLocadoraBean.loadLocadoraMovimento()}"/>
+                                        <f:selectItem itemValue="pendentes" itemLabel="Pendentes" />
+                                        <f:selectItem itemValue="hoje" itemLabel="Devolvidos Hoje" />
+                                        <f:selectItem itemValue="nao_devolvidos" itemLabel="Atrasados" />
+                                    </p:selectOneMenu>
+                                </h:panelGrid>
+                                <br />
+                                <h:panelGroup id="i_history" styleClass="margin-top-max">
+                                    <p:dataTable emptyMessage="Nenhum registro adicionado!" value="#{menuLocadoraBean.listLocadoraMovimento}" var="locadoraMovimento">
+                                        <p:column style="width:15px">  
+                                            <p:rowToggler />  
+                                        </p:column>
+                                        <p:column styleClass="text-center" width="30">
+                                            <p:commandButton icon="ui-icon-shuffle" style="background: #{locadoraMovimento.diasAtraso == 0 ? '' : '#ffcccc'};" action="#{chamadaPaginaBean.pagina('devolucaoFilme')}" actionListener="#{menuLocadoraBean.put(locadoraMovimento)}" />
+                                        </p:column>
+                                        <p:column headerText="Locatario" styleClass="text-center" filterBy="#{locadoraMovimento.locadoraLote.pessoa.nome}" filterMatchMode="global">#{locadoraMovimento.locadoraLote.pessoa.nome}</p:column>
+                                        <p:column width="30" styleClass="text-center">
+                                            <p:commandButton icon="ui-icon-contact" update=":form_menu_locadora:i_pessoa_fisica_card" onclick="PF('dlg_pessoa_fisica_card').show()" action="#{pessoaCardBean.cardFisica(locadoraMovimento.locadoraLote.pessoa.id)}" title="Ver detalhes" />
+                                        </p:column>                                        
+                                        <p:column headerText="Barras" width="100" styleClass="text-center" filterBy="#{locadoraMovimento.titulo.barras}" filterMatchMode="global">#{locadoraMovimento.titulo.barras}</p:column>
+                                        <p:column headerText="Locação" width="72" styleClass="text-center">#{locadoraMovimento.locadoraLote.dataLocacaoString}</p:column>
+                                        <p:column headerText="Previsão" width="72" styleClass="text-center">#{locadoraMovimento.dataDevolucaoPrevisaoString}</p:column>
+                                        <p:column headerText="Filme" filterBy="#{locadoraMovimento.titulo.descricao}" filterMatchMode="global">#{locadoraMovimento.titulo.descricao}</p:column>
+                                        <p:column headerText="Qtde" width="40" styleClass="text-center">
+                                            <h:outputLabel value="#{tituloBean.getQuantidadeEstoqueFilial(locadoraMovimento.titulo.id)}" />
+                                        </p:column>
+                                        <p:column headerText="Estoque" width="50" styleClass="text-center">
+                                            <h:outputLabel value="#{tituloBean.getQuantidadeDisponivel(locadoraMovimento.titulo.id)}" />
+                                        </p:column>
+                                        <p:column width="2" style="background: white; border-left-color: #ffcccc; border-right-color: #ffcccc; border-left: 1px; border-top: 0; border-bottom: 0"></p:column>
+                                        <p:column headerText="Dias Atraso" width="40" styleClass="text-center">
+                                            <h:outputLabel value="#{locadoraMovimento.diasAtraso}" style="color: #{locadoraMovimento.diasAtraso == 0 ? 'black' : 'red; font-weight: bolder'} ;"/>
+                                        </p:column>
+                                        <p:column headerText="Diária (R$)" width="40" styleClass="text-center">
+                                            <h:outputLabel value="0,00" style="color: #{locadoraMovimento.diasAtraso == 0 ? 'black' : 'red; font-weight: bolder'}; "/>
+                                        </p:column>
+                                        <p:column headerText="Multa Diária (R$)" width="40" styleClass="text-center">
+                                            <h:outputLabel value="#{locadoraMovimento.valorMultaDiariaString}" style="color: #{locadoraMovimento.diasAtraso == 0 ? 'black' : 'red; font-weight: bolder'}; "/>
+                                        </p:column>
+                                        <p:column headerText="Total (R$)" width="40" styleClass="text-center">
+                                            <h:outputLabel value="#{locadoraMovimento.valorTotalString}" style="color: #{locadoraMovimento.diasAtraso == 0 ? 'black' : 'red; font-weight: bolder'}; "/>
+                                        </p:column>
+                                        <p:rowExpansion>
+                                            <p:panelGrid styleClass="no-border" columns="1" style="border: 0">
+                                                <h:column>Autorizado: #{locadoraMovimento.locadoraLote.locadoraAutorizados.nome}</h:column>                                                    
+                                                <h:column>Lote: #{locadoraMovimento.movimento.lote != null ? locadoraMovimento.movimento.lote.id : ''}</h:column>
+                                                <h:column>OPERADOR LOCAÇÃO: #{locadoraMovimento.locadoraLote.usuario.pessoa.nome}</h:column>
+                                                <h:column>OPERADOR DEVOLUÇÃO: #{locadoraMovimento.operadorDevolucao.pessoa.nome}</h:column>
+                                                <h:column>#{locadoraMovimento.titulo.lancamento ? 'LANÇAMENTO' : ''}</h:column>
+                                                <h:column>DATA PAGTO: #{locadoraMovimento.movimento.baixa != null ? locadoraMovimento.movimento.baixa.baixa : ''}</h:column>
+                                                <h:column>VALOR PAGO: #{locadoraMovimento.movimento != null ? locadoraMovimento.movimento.valorBaixaString : ''}</h:column>
+                                            </p:panelGrid>
+                                        </p:rowExpansion>
+                                    </p:dataTable>
+                                </h:panelGroup>
+
+                            </p:panel>
                         </p:panel>
+                        <p:dialog widgetVar="dlg_pessoa_fisica_card" modal="true" resizable="false" height="400" width="400" header="Detalhes">
+                            <p:ajax event="close" listener="#{pessoaCardBean.close}"/>  
+                            <p:panel id="i_pessoa_fisica_card">
+                                <ui:include src="templates/templatePessoaFisicaCard.xhtml" />
+                            </p:panel>
+                        </p:dialog>  
                     </h:form>
                 </f:view>
                 <!-- FINALIZA div wrap main -->

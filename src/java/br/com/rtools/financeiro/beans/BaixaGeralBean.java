@@ -39,14 +39,13 @@ import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Modulo;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
+import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.seguranca.dao.RotinaDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -170,9 +169,7 @@ public class BaixaGeralBean implements Serializable {
         Plano5 pl = dbx.pesquisaPlano5IDContaBanco(Integer.valueOf(listaBancoSaida.get(idBancoSaida).getDescription()));
 
         ChequePag ch = db.pesquisaChequeConta(numeroChequePag, pl.getId());
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-
-        ContaBanco cb = (ContaBanco) sv.pesquisaCodigo(Integer.valueOf(listaBancoSaida.get(idBancoSaida).getDescription()), "ContaBanco");
+        ContaBanco cb = (ContaBanco) new Dao().find(new ContaBanco(), Integer.valueOf(listaBancoSaida.get(idBancoSaida).getDescription()));
         if (ch != null) {
             GenericaMensagem.warn("Erro", "O cheque " + numeroChequePag + " já existe");
             numeroChequePag = String.valueOf(cb.getUCheque() + 1);
@@ -195,6 +192,7 @@ public class BaixaGeralBean implements Serializable {
 
     public String retorno() {
         if (retorna) {
+            GenericaSessao.put("baixa_geral_sucesso", true);
             String url = (String) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("urlRetorno");
             GenericaSessao.put("linkClicado", true);
             if (url.equals("baixaBoleto")) {
@@ -227,6 +225,9 @@ public class BaixaGeralBean implements Serializable {
             } else if (url.equals("conviteMovimento")) {
                 //((ConviteMovimentoBean) GenericaSessao.getObject("conviteMovimentoBean")).setDesabilitaBaixa(true);
                 return "conviteMovimento";
+            } else if (url.equals("devolucaoFilme")) {
+                //((ConviteMovimentoBean) GenericaSessao.getObject("conviteMovimentoBean")).setDesabilitaBaixa(true);
+                return "devolucaoFilme";
             } else {
                 return "menuPrincipal";
             }
@@ -312,9 +313,9 @@ public class BaixaGeralBean implements Serializable {
                 ch_p.setVencimento(vencimento);
 
                 if (tipo.equals("caixa")) {
-                    ch_p.setStatus((FStatus) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(7, "FStatus"));
+                    ch_p.setStatus((FStatus) (new Dao()).find(new FStatus(), 7));
                 } else {
-                    ch_p.setStatus((FStatus) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(8, "FStatus"));
+                    ch_p.setStatus((FStatus) (new Dao()).find(new FStatus(), 8));
                 }
 
                 //lista.add(new DataObject(vencimento, valor, numeroChequePag, tipoPagamento, ch_p, pl));
@@ -327,9 +328,9 @@ public class BaixaGeralBean implements Serializable {
                 ch.setConta(chequeRec.getConta());
                 ch.setEmissao(quitacao);
                 if (tipo.equals("caixa")) {
-                    ch.setStatus((FStatus) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(7, "FStatus"));
+                    ch.setStatus((FStatus) (new Dao()).find(new FStatus(), 7));
                 } else {
-                    ch.setStatus((FStatus) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(8, "FStatus"));
+                    ch.setStatus((FStatus) (new Dao()).find(new FStatus(), 8));
                 }
 
                 ch.setVencimento(vencimento);
@@ -411,28 +412,31 @@ public class BaixaGeralBean implements Serializable {
     public List<SelectItem> getListaTipoPagamento() {
         if (listaTipoPagamento.isEmpty()) {
             FTipoDocumentoDB db = new FTipoDocumentoDBToplink();
-            List<TipoPagamento> select = new ArrayList();
+            Dao dao = new Dao();
+            List<TipoPagamento> select = new ArrayList<>();
             if (!verificaBaixaBoleto()) {
                 if (Moeda.converteUS$(total) != 0) {
                     if (!getEs().isEmpty() && getEs().equals("S")) {
-                        select = db.pesquisaCodigoTipoPagamentoIDS("3,4,5,8,9,10");
+                        // select = db.pesquisaCodigoTipoPagamentoIDS("3,4,5,8,9,10");
+                        select = dao.find("TipoPagamento", new int[]{3, 4, 5, 8, 9, 10});
                         idTipoPagamento = 0;
+                    } else if (tipo.equals("caixa")) {
+                        // select = db.pesquisaCodigoTipoPagamentoIDS("2,3,4,5,6,7,8,9,10,11,13");
+                        select = dao.find("TipoPagamento", new int[]{2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13});
+                        idTipoPagamento = 1;
                     } else {
-                        if (tipo.equals("caixa")) {
-                            select = db.pesquisaCodigoTipoPagamentoIDS("2,3,4,5,6,7,8,9,10,11,13");
-                            idTipoPagamento = 1;
-                        } else {
-                            select = db.pesquisaCodigoTipoPagamentoIDS("2,8,9,10,11,13");
-                            idTipoPagamento = 0;
-                        }
-
+                        //select = db.pesquisaCodigoTipoPagamentoIDS("2,8,9,10,11,13");
+                        select = dao.find("TipoPagamento", new int[]{2, 8, 9, 10, 11, 13});
+                        idTipoPagamento = 0;
                     }
                 } else {
-                    select = db.pesquisaCodigoTipoPagamentoIDS("3");
+                    // select = db.pesquisaCodigoTipoPagamentoIDS("3");
+                    select = dao.find("TipoPagamento", new int[]{3});
                     idTipoPagamento = 0;
                 }
             } else {
-                select = db.pesquisaCodigoTipoPagamentoIDS("2");
+                // select = db.pesquisaCodigoTipoPagamentoIDS("2");
+                select = dao.find("TipoPagamento", new int[]{2});
                 idTipoPagamento = 0;
             }
 
@@ -464,6 +468,7 @@ public class BaixaGeralBean implements Serializable {
 //        if (lista.isEmpty()) {
 //            return mensagem = "Lista esta vazia!";
 //        }
+        GenericaSessao.remove("baixa_geral_sucesso");
         if (listaValores.isEmpty()) {
             return mensagem = "Lista esta vazia!";
         }
@@ -575,7 +580,7 @@ public class BaixaGeralBean implements Serializable {
             } else if (url.equals("movimentosReceberSocial")) {
                 ((MovimentosReceberSocialBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("movimentosReceberSocialBean")).getListaMovimento().clear();
             } else if (url.equals("emissaoGuias") || url.equals("menuPrincipal")) {
-                
+
             } else if (url.equals("lancamentoFinanceiro")) {
                 ((LancamentoFinanceiroBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("lancamentoFinanceiroBean")).getListaParcela().clear();
                 ((LancamentoFinanceiroBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("lancamentoFinanceiroBean")).getListaParcelaSelecionada().clear();
@@ -585,9 +590,9 @@ public class BaixaGeralBean implements Serializable {
                 ((MatriculaAcademiaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("matriculaAcademiaBean")).setDesabilitaDiaVencimento(true);
 
             }
-            
+
             ((EmissaoGuiasBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("emissaoGuiasBean")).atualizarHistorico();
-            
+
             retorna = true;
             mensagem = "Baixa realizada com sucesso!";
             GenericaSessao.put("baixa_sucesso", true);
@@ -680,8 +685,7 @@ public class BaixaGeralBean implements Serializable {
 
     public Modulo getModulo() {
         if (modulo.getId() == -1) {
-            SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-            modulo = (Modulo) sv.pesquisaCodigo(3, "Modulo");
+            modulo = (Modulo) new Dao().find(new Modulo(), 3);
         }
         return modulo;
     }
@@ -763,21 +767,19 @@ public class BaixaGeralBean implements Serializable {
     }
 
     public Plano5 getPlano5() {
-        if (plano5.getId() == -1 && !listaMovimentos.isEmpty()){
+        if (plano5.getId() == -1 && !listaMovimentos.isEmpty()) {
             if (verificaBaixaBoleto()) {
                 plano5 = listaMovimentos.get(0).getPlano5();
+            } else if (tipo.equals("caixa")) {
+                plano5 = (Plano5) new Dao().find(new Plano5(), Integer.parseInt(((SelectItem) getListaConta().get(getIdConta())).getDescription()));
             } else {
-                if (tipo.equals("caixa")) {
-                    plano5 = (Plano5) new Dao().find(new Plano5(), Integer.parseInt(((SelectItem) getListaConta().get(getIdConta())).getDescription()));
-                }else{
-                    MovimentoDB db = new MovimentoDBToplink();
-                    Boleto bol = db.pesquisaBoletos(listaMovimentos.get(0).getNrCtrBoleto());
-                    if (bol == null) {
-                        return plano5;
-                    }
-                    
-                    plano5 = new Plano5DBToplink().pesquisaPlano5IDContaBanco(bol.getContaCobranca().getContaBanco().getId());
+                MovimentoDB db = new MovimentoDBToplink();
+                Boleto bol = db.pesquisaBoletos(listaMovimentos.get(0).getNrCtrBoleto());
+                if (bol == null) {
+                    return plano5;
                 }
+
+                plano5 = new Plano5DBToplink().pesquisaPlano5IDContaBanco(bol.getContaCobranca().getContaBanco().getId());
             }
         }
         return plano5;
@@ -835,7 +837,9 @@ public class BaixaGeralBean implements Serializable {
      * @param tipo (Tipos: caixa)
      */
     public static void listenerTipoCaixaSession(String tipo) {
-        GenericaSessao.put("caixa_banco", tipo);
+        if (tipo != null && !tipo.isEmpty()) {
+            GenericaSessao.put("caixa_banco", tipo);
+        }
     }
 
     public String getBanco() {
@@ -903,9 +907,7 @@ public class BaixaGeralBean implements Serializable {
 
     public List<SelectItem> getListaCartao() {
         if (listaCartao.isEmpty()) {
-
-            SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-            List<Cartao> result = sv.listaObjeto("Cartao");
+            List<Cartao> result = new Dao().list(new Cartao());
             //TipoPagamento tipoPagamento = (TipoPagamento) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(Integer.parseInt(((SelectItem) getListaTipoPagamento().get(idTipoPagamento)).getDescription()), "TipoPagamento");
             int conta = 0;
             if (!result.isEmpty()) {
@@ -1006,9 +1008,7 @@ public class BaixaGeralBean implements Serializable {
         }
 
         if (!getEs().isEmpty() && getEs().equals("S")) {
-            SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-
-            ContaBanco cb = (ContaBanco) sv.pesquisaCodigo(Integer.valueOf(listaBancoSaida.get(idBancoSaida).getDescription()), "ContaBanco");
+            ContaBanco cb = (ContaBanco) new Dao().find(new ContaBanco(), Integer.valueOf(listaBancoSaida.get(idBancoSaida).getDescription()));
 
             numeroChequePag = String.valueOf(cb.getUCheque() + 1);
         }
@@ -1073,6 +1073,40 @@ public class BaixaGeralBean implements Serializable {
 
     public void setTipoPagamento(TipoPagamento tipoPagamento) {
         this.tipoPagamento = tipoPagamento;
+    }
+
+    public static String submitStatic(List<Movimento> list) {
+        if (list == null || list.isEmpty()) {
+            return null;
+        }
+        GenericaSessao.put("listaMovimento", list);
+        return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).baixaGeral();
+    }
+
+    public String submit(List<Movimento> list) {
+        if (list == null || list.isEmpty()) {
+            return null;
+        }
+        GenericaSessao.put("listaMovimento", list);
+        return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).baixaGeral();
+    }
+
+    public static String submitStatic(List<Movimento> list, String tipo) {
+        listenerTipoCaixaSession(tipo);
+        if (list == null || list.isEmpty()) {
+            return null;
+        }
+        GenericaSessao.put("listaMovimento", list);
+        return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).baixaGeral();
+    }
+
+    public String submit(List<Movimento> list, String tipo) {
+        listenerTipoCaixaSession(tipo);
+        if (list == null || list.isEmpty()) {
+            return null;
+        }
+        GenericaSessao.put("listaMovimento", list);
+        return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).baixaGeral();
     }
 }
 

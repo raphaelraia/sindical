@@ -10,7 +10,11 @@ public class ThisNumber implements Converter {
 
     @Override
     public String getAsString(FacesContext context, UIComponent component, Object value) {
-        return (String) value; // Or (value != null) ? value.toString().toUpperCase() : null;
+        try {
+            return (String) value; // Or (value != null) ? value.toString().toUpperCase() : null;            
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     @Override

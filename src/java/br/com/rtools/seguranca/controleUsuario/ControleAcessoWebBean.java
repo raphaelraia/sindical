@@ -842,6 +842,9 @@ public class ControleAcessoWebBean implements Serializable {
                         + pessoa.getDocumento() + " ( "
                         + status + " )";
             }
+            if (pessoa != null) {
+                GenericaSessao.put("userName", "WEB - " + pessoa.getLogin() + " (" + GenericaSessao.getString("sessaoCliente") + ")");
+            }
             pessoa = new Pessoa();
 //           pessoaContribuinte = new Pessoa();
 //           pessoaContabilidade = new Pessoa();
@@ -854,12 +857,12 @@ public class ControleAcessoWebBean implements Serializable {
                 //msgLoginInvalido = "Usuário não Contribuinte, ou Contabilidade sem Empresa!";
                 GenericaMensagem.error("Login Inválido", "Usuário não Contribuinte, ou Contabilidade sem Empresa!");
             }
+            if (pessoa != null) {
+                GenericaSessao.put("userName", "WEB - " + pessoa.getLogin() + " (" + GenericaSessao.getString("sessaoCliente") + ")");
+            }
             pessoa = new Pessoa();
 //           pessoaContribuinte = new Pessoa();
 //           pessoaContabilidade = new Pessoa();
-        }
-        if (pessoa != null) {
-            GenericaSessao.put("userName", pessoa.getLogin());
         }
         return pagina;
     }

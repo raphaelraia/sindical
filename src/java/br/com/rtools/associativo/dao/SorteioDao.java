@@ -15,13 +15,13 @@ public class SorteioDao extends DB {
                 queryString = ""
                         + "SELECT S.*                                               \n"
                         + "  FROM sort_sorteio AS S                                 \n"
-                        + " WHERE S.dt_inicio = CURRENT_DATE                        \n";
+                        + " WHERE S.dt_inicio < CURRENT_DATE                        \n";
             } else {
                 queryString = ""
                         + "SELECT S.*                                               \n"
                         + "  FROM sort_sorteio AS S                                 \n"
                         + " WHERE S.dt_inicio >= CURRENT_DATE                       \n"
-                        + "   AND ( S.dt_fim IS NULL OR  S.dt_fim <= CURRENT_DATE ) \n";
+                        + "    OR ( S.dt_fim IS NULL OR S.dt_fim <= CURRENT_DATE )  \n";
             }
             Query query = getEntityManager().createNativeQuery(queryString, Sorteio.class);
             return query.getResultList();

@@ -2,6 +2,7 @@ package br.com.rtools.sql;
 
 import br.com.rtools.sistema.Configuracao;
 import java.io.Serializable;
+import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -11,6 +12,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = "sql_atualizar_base_cliente")
@@ -26,16 +29,22 @@ public class AtualizarBaseCliente implements Serializable {
     @JoinColumn(name = "id_cliente", referencedColumnName = "id", nullable = false)
     @OneToOne(fetch = FetchType.EAGER)
     private Configuracao cliente;
+    @Column(name = "dt_atualizacao")
+    @Temporal(TemporalType.DATE)
+    private Date dtAtualizacao;
 
     public AtualizarBaseCliente() {
         this.id = null;
         this.atualizarBase = null;
         this.cliente = null;
+        this.dtAtualizacao = null;
     }
 
-    public AtualizarBaseCliente(Integer id, AtualizarBase atualizarBase, Configuracao cliente) {
+    public AtualizarBaseCliente(Integer id, AtualizarBase atualizarBase, Configuracao cliente, Date dtAtualizacao) {
         this.id = id;
+        this.atualizarBase = atualizarBase;
         this.cliente = cliente;
+        this.dtAtualizacao = dtAtualizacao;
     }
 
     public Integer getId() {
@@ -60,6 +69,14 @@ public class AtualizarBaseCliente implements Serializable {
 
     public void setCliente(Configuracao cliente) {
         this.cliente = cliente;
+    }
+
+    public Date getDtAtualizacao() {
+        return dtAtualizacao;
+    }
+
+    public void setDtAtualizacao(Date dtAtualizacao) {
+        this.dtAtualizacao = dtAtualizacao;
     }
 
 }

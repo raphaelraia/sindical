@@ -25,6 +25,7 @@
                     <!-- INICIA DIV wrap e main -->  
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:form id="form_pesquisa_titulo">
+                            <p:messages autoUpdate="true" showDetail="true" showSummary="true" />
                             <h:outputText value="Pesquisa Título" styleClass="fonteHeader" />
                             <div class="clear"></div>
                             <p:panel id="i_panel_pesquisa" styleClass="fundoCinza">
@@ -70,6 +71,12 @@
                                 </p:column>
                                 <p:column headerText="Barras" width="150">
                                     <h:outputText value="#{titulo.barras}"/>
+                                </p:column>
+                                <p:column headerText="Estoque" width="80" styleClass="text-center">
+                                    <h:outputText value="#{tituloBean.getQuantidadeEstoqueFilial(titulo.id)}"/>
+                                </p:column>
+                                <p:column headerText="Disponível" width="80" styleClass="text-center">
+                                    <h:outputText value="#{tituloBean.getQuantidadeDisponivel(titulo.id)}"/>
                                 </p:column>
                             </p:dataTable>
                         </h:form>

@@ -150,8 +150,11 @@
                                 <p:column headerText="Filial">
                                     <h:outputText value="#{catalogo.filial.filial.pessoa.nome}"/>
                                 </p:column>
-                                <p:column headerText="Qtde" styleClass="text-center" width="30">
+                                <p:column headerText="Estoque" styleClass="text-center" width="80" >
                                     <h:outputText value="#{catalogo.quantidade}" />
+                                </p:column>
+                                <p:column headerText="Disponivel" styleClass="text-center" width="80">
+                                    <h:outputText value="#{tituloBean.getQuantidadeDisponivel(catalogo.filial.id, catalogo.titulo.id)}" style="color: #{tituloBean.getQuantidadeDisponivel(catalogo.filial.id, catalogo.titulo.id) eq 0 ? 'red' : 'black' }"/>
                                 </p:column>
                                 <p:column width="25">
                                     <p:commandButton icon="ui-icon-close" action="#{tituloBean.remove(catalogo)}" update=":form_titulo:"  disabled="#{controleAcessoBean.botaoExcluir}" />

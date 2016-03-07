@@ -1,0 +1,68 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Sindical - Configuração Locadora</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
+            .ui-button { padding: 3px!important; }
+            .ui-selectonemenu {padding-right: 25px!important;}
+        </style>
+    </h:head>
+    <h:body>
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                </f:subview>
+                <f:view>
+                    <f:metadata>  
+                        <f:event type="preRenderView" listener="${configuracaoLocadoraBean.load()}"/>  
+                    </f:metadata>   
+
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:outputText value="Configuração Locadora" styleClass="fonteHeader" />
+                        <h:form id="form_configuracao_locadora">
+                            <c:set scope="request" var="object" value="${configuracaoLocadoraBean.configuracaoLocadora}"/>
+                            <div style="clear:both"></div>
+                            <p:messages id="id_messages" showDetail="true" closable="true" autoUpdate="true" />
+                            <p:growl id="id_messages_growl" showDetail="true"  />
+                            <br />
+                            <p:panel styleClass="fundoCinza">
+                                <h:panelGrid columns="2">
+                                    <p:outputLabel value="Serviço: " />
+                                    <p:selectOneMenu value="#{configuracaoLocadoraBean.idServico}" filter="true" filterMatchMode="startsWith">
+                                        <p:ajax event="change" update="@this" />
+                                        <f:selectItems value="#{configuracaoLocadoraBean.listServico}"/>
+                                    </p:selectOneMenu>
+                                </h:panelGrid>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="1">
+                                        <p:commandButton value="Atualizar" action="#{configuracaoLocadoraBean.update()}" update="form_configuracao_locadora"/>
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:panel>
+
+                        </h:form>
+                    </p:panel>
+                </f:view>
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>                
+    </h:body>
+</ui:composition>

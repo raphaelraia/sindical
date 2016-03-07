@@ -1,5 +1,13 @@
 package br.com.rtools.locadoraFilme.beans;
 
+import br.com.rtools.associativo.MatriculaSocios;
+import br.com.rtools.financeiro.CondicaoPagamento;
+import br.com.rtools.financeiro.FStatus;
+import br.com.rtools.financeiro.FTipoDocumento;
+import br.com.rtools.financeiro.Lote;
+import br.com.rtools.financeiro.Movimento;
+import br.com.rtools.financeiro.Servicos;
+import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.locadoraFilme.LocadoraAutorizados;
 import br.com.rtools.locadoraFilme.LocadoraLote;
 import br.com.rtools.locadoraFilme.LocadoraMovimento;
@@ -10,15 +18,20 @@ import br.com.rtools.locadoraFilme.dao.LocadoraLoteDao;
 import br.com.rtools.locadoraFilme.dao.LocadoraMovimentoDao;
 import br.com.rtools.locadoraFilme.dao.LocadoraStatusDao;
 import br.com.rtools.locadoraFilme.dao.TituloDao;
+import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaComplemento;
+import br.com.rtools.seguranca.Departamento;
 import br.com.rtools.seguranca.MacFilial;
+import br.com.rtools.seguranca.Rotina;
+import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
+import br.com.rtools.utilitarios.db.FunctionsDao;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -48,11 +61,13 @@ public class DevolucaoFilmeBean implements Serializable {
     private Integer idLocadoraAutorizado;
     private LocadoraStatus locadoraStatus;
     private String status;
+    private LocadoraMovimento desfazerDevolucao;
 
     @PostConstruct
     public void init() {
         locadoraLote = new LocadoraLote();
         locadoraMovimento = new LocadoraMovimento();
+        desfazerDevolucao = null;
         codigoLocatario = "";
         codigoBarras = "";
         titulo = new Titulo();
@@ -68,7 +83,7 @@ public class DevolucaoFilmeBean implements Serializable {
             locadoraStatus = new LocadoraStatusDao().findByFilialSemana(MacFilial.getAcessoFilial().getFilial().getId());
         }
         dataDevolucaoString = DataHoje.data();
-        status = "nao_devolvidos";
+        status = "pendentes";
         loadLocadoraMovimento();
     }
 
@@ -84,12 +99,30 @@ public class DevolucaoFilmeBean implements Serializable {
         }
     }
 
+    public void load() {
+        if (GenericaSessao.exists("baixa_geral_sucesso")) {
+            if (GenericaSessao.getBoolean("baixa_geral_sucesso", true)) {
+                loadLocadoraMovimento();
+            }
+        }
+    }
+
     public void loadLocadoraMovimento() {
         listLocadoraMovimento.clear();
         listLocadoraMovimento = new LocadoraMovimentoDao().pesquisaHistoricoPorPessoa(status, locatario.getPessoa().getId(), MacFilial.getAcessoFilial().getFilial().getId());
+        if (!listLocadoraMovimento.isEmpty()) {
+            if (GenericaSessao.exists("locadora_movimento")) {
+                LocadoraMovimento lm = (LocadoraMovimento) GenericaSessao.getObject("locadora_movimento", true);
+                for (int i = 0; i < listLocadoraMovimento.size(); i++) {
+                    if (listLocadoraMovimento.get(i).getId().equals(lm.getId())) {
+                        listLocadoraMovimento.get(i).setSelected(true);
+                        break;
+                    }
+                }
+            }
+        }
         listLocadoraHistorico.clear();
         listLocadoraHistorico = new LocadoraMovimentoDao().pesquisaHistoricoPorPessoa("nao_devolvidos", locatario.getPessoa().getId(), MacFilial.getAcessoFilial().getFilial().getId());
-
     }
 
     @PreDestroy
@@ -101,6 +134,7 @@ public class DevolucaoFilmeBean implements Serializable {
         GenericaSessao.remove("tituloPesquisa");
         GenericaSessao.remove("devolucaoFilmeBean");
         GenericaSessao.remove("titulosNotIn");
+        GenericaSessao.remove("baixa_geral_sucesso");
     }
 
     public void save() {
@@ -115,110 +149,173 @@ public class DevolucaoFilmeBean implements Serializable {
             GenericaMensagem.warn("Validação", "Adicione filmes para concluir esta locação!");
             return;
         }
-        Dao dao = new Dao();
-        dao.openTransaction();
-        if (locadoraLote.getId() == null) {
-            locadoraLote.setPessoa(locatario.getPessoa());
-            locadoraLote.setDtLocacao(new Date());
-            if (idLocadoraAutorizado != null) {
-                locadoraLote.setLocadoraAutorizados((LocadoraAutorizados) new Dao().find(new LocadoraAutorizados(), idLocadoraAutorizado));
-            }
-            if (!dao.save(locadoraLote)) {
-                dao.rollback();
-                GenericaMensagem.warn("Erro", "Ao realizar esta locação!");
-                return;
-            } else {
-
-            }
+        Boolean success = false;
+        Servicos servicoLocadora = ConfiguracaoLocadoraBean.get().getServicos();
+        if (ConfiguracaoLocadoraBean.get().getServicos() == null) {
+            GenericaMensagem.warn("Validação", "Informar serviço da locadora! Menu Principal > Segurança > Departamentos");
+            return;
         }
-        Integer quantidade = 0;
-        Integer quantidadeLancamentos = 0;
-//        String valorx;
-//        Servicos se = locadoraStatus.getTaxa().getServicoDiaria();
-//        valorx = Moeda.converteR$Float(new FunctionsDao().valorServico(locatario.getPessoa().getId(), locadoraStatus.getTaxa().getServicoDiaria().getId(), DataHoje.dataHoje(), 0, locatario.getPessoa().getSocios().getMatriculaSocios().getCategoria().getId()));
-//        String valor = Moeda.converteR$(valorx);
-//        List<LocadoraMovimento> lms = new LocadoraMovimentoDao().findAllByPessoa(DataHoje.data(), locatario.getPessoa().getId());
-//        Evt evt = new Evt();
-//        Lote lote = new Lote();
-//        if (!lms.isEmpty()) {
-//            lote = new LoteDBToplink().pesquisaLotePorEvt(lms.get(0).getEvt().getId());
-//            evt = lote.getEvt();
-//        }
-//        if (evt.getId() == -1) {
-//            if (!dao.save(evt)) {
-//                dao.rollback();
-//                GenericaMensagem.warn("Erro", "Ao salvar Evt!");
-//                return;
-//            }
-//        }
-//        Socios s = locatario.getPessoa().getSocios();
-//        if (lote.getId() == -1) {
-//            lote = new Lote(
-//                    -1,
-//                    (Rotina) dao.find(new Rotina().get()),
-//                    "R",
-//                    DataHoje.data(),
-//                    s.getMatriculaSocios().getTitular(),
-//                    locadoraStatus.getTaxa().getServicoDiaria().getPlano5(),
-//                    false,
-//                    "",
-//                    0,
-//                    MacFilial.getAcessoFilial().getFilial(),
-//                    null,
-//                    null,
-//                    "",
-//                    (FTipoDocumento) dao.find(new FTipoDocumento(), 3),
-//                    (CondicaoPagamento) dao.find(new CondicaoPagamento(), 1),
-//                    (FStatus) dao.find(new FStatus(), 1),
-//                    null,
-//                    false,
-//                    0
-//            );
-//            if (!dao.save(lote)) {
-//                dao.rollback();
-//                GenericaMensagem.warn("Erro", "Ao salvar Evt!");
-//                return;
-//            }
-//        }
-        // Movimento movimento = new Movimento();
-        // movimento.setIdInteger(null);
-        if (locadoraLote.getId() != null) {
-            for (int i = 0; i < listLocadoraMovimento.size(); i++) {
-                if (listLocadoraMovimento.get(i).getLocadoraLote() == null) {
-                    listLocadoraMovimento.get(i).setLocadoraLote(locadoraLote);
-                    quantidade++;
-                } else {
-                    quantidade++;
-                }
-                if (listLocadoraMovimento.get(i).getTitulo().isLancamento()) {
-                    quantidadeLancamentos++;
-                }
-                if (listLocadoraMovimento.get(i).getId() == null) {
-                    if (!dao.save(listLocadoraMovimento.get(i))) {
-                        GenericaMensagem.warn("Erro", "Ao inserir locadora movimento!");
+        if (servicoLocadora == null) {
+            GenericaMensagem.warn("Validação", "Informar serviço da locadora!");
+            return;
+        }
+        Dao dao = new Dao();
+        Lote lote = new Lote();
+        Float valorTotal = new Float(0);
+        FTipoDocumento fTipoDocumento = (FTipoDocumento) dao.find(new FTipoDocumento(), 3);
+        Departamento departamento = (Departamento) dao.find(new Departamento(), 19);
+        dao.openTransaction();
+        for (int i = 0; i < listLocadoraMovimento.size(); i++) {
+            if (listLocadoraMovimento.get(i).getSelected()) {
+                if (listLocadoraMovimento.get(i).getDtDevolucao() == null) {
+                    listLocadoraMovimento.get(i).setSelected(false);
+                    listLocadoraMovimento.get(i).setDtDevolucao(DataHoje.dataHoje());
+                    listLocadoraMovimento.get(i).setOperadorDevolucao(Usuario.getUsuario());
+                    listLocadoraMovimento.get(i).setHoraDevolucaoString(DataHoje.hora());
+                    if (listLocadoraMovimento.get(i).getValorTotal() > 0) {
+                        if (listLocadoraMovimento.get(i).getMovimento() == null) {
+                            valorTotal += listLocadoraMovimento.get(i).getValorTotal();
+                            if (lote.getId() == -1) {
+                                lote = new Lote(
+                                        -1,
+                                        new Rotina().get(),
+                                        "R",
+                                        DataHoje.data(),
+                                        listLocadoraMovimento.get(i).getLocadoraLote().getPessoa(),
+                                        servicoLocadora.getPlano5(),
+                                        false,
+                                        "",
+                                        0,
+                                        locadoraStatus.getFilial(),
+                                        departamento,
+                                        null,
+                                        "",
+                                        fTipoDocumento,
+                                        (CondicaoPagamento) dao.find(new CondicaoPagamento(), 1),
+                                        (FStatus) dao.find(new FStatus(), 1),
+                                        null,
+                                        false,
+                                        0
+                                );
+                                if (!dao.save(lote)) {
+                                    dao.rollback();
+                                    GenericaMensagem.warn("Erro", "Ao salvar lote!");
+                                    return;
+                                }
+                            }
+                            String vencimento = listLocadoraMovimento.get(i).getLocadoraLote().getDataLocacaoString();
+                            String referencia;
+                            Pessoa pessoaTitular = listLocadoraMovimento.get(i).getLocadoraLote().getPessoa();
+                            try {
+                                String mes = vencimento.substring(3, 5);
+                                String ano = vencimento.substring(6, 10);
+                                referencia = mes + "/" + ano;
+                                Movimento movimento = new Movimento(
+                                        -1,
+                                        lote,
+                                        servicoLocadora.getPlano5(),
+                                        pessoaTitular,
+                                        servicoLocadora,
+                                        null,
+                                        (TipoServico) dao.find(new TipoServico(), 1),
+                                        null,
+                                        listLocadoraMovimento.get(i).getValorTotal(),
+                                        referencia,
+                                        DataHoje.data(),
+                                        1,
+                                        true,
+                                        "E",
+                                        false,
+                                        pessoaTitular, // TITULAR / RESPONSÁVEL
+                                        pessoaTitular, // BENEFICIÁRIO
+                                        "",
+                                        null,
+                                        vencimento,
+                                        0,
+                                        0,
+                                        0,
+                                        0,
+                                        0,
+                                        0,
+                                        0,
+                                        fTipoDocumento,
+                                        0, new MatriculaSocios()
+                                );
+                                if (!dao.save(movimento)) {
+                                    dao.rollback();
+                                    GenericaMensagem.warn("Erro", "Ao salvar movimento!");
+                                    return;
+                                }
+                                listLocadoraMovimento.get(i).setMovimento(movimento);
+                                if (!dao.update(listLocadoraMovimento.get(i))) {
+                                    dao.rollback();
+                                    GenericaMensagem.warn("Erro", "Ao salvar locadora movimento!");
+                                    return;
+                                }
+                            } catch (Exception e) {
+                                dao.rollback();
+                                GenericaMensagem.warn("Erro", e.getMessage());
+                                return;
+                            }
+                        }
+                    } else if (!dao.update(listLocadoraMovimento.get(i))) {
+                        dao.rollback();
+                        GenericaMensagem.warn("Erro", "Ao salvar locadora movimento!");
                         return;
                     }
-                } else if (!dao.update(listLocadoraMovimento.get(i))) {
-                    dao.rollback();
-                    GenericaMensagem.warn("Erro", "Ao atualizar locadora movimento!");
-                    return;
                 }
             }
-        } else {
-
         }
-        if (quantidade > locadoraStatus.getQtdeLocacao()) {
-            dao.rollback();
-            GenericaMensagem.warn("Validação", "Não é possível locar mais de " + locadoraStatus.getQtdeLocacao() + "!");
-            return;
-        }
-        if (quantidadeLancamentos > locadoraStatus.getQtdeLancamentos()) {
-            dao.rollback();
-            GenericaMensagem.warn("Validação", "Não é possível locar mais de " + locadoraStatus.getQtdeLancamentos() + " lançamentos!");
-            return;
-        }
-        GenericaMensagem.info("Sucesso", "Locação concluída!");
         dao.commit();
+        if (lote.getId() != -1) {
+            lote.setValor(valorTotal);
+            dao.update(lote, true);
+        }
+        GenericaMensagem.info("Sucesso", "Devolução concluída!");
+    }
+
+    public void rollBack() {
+        if (desfazerDevolucao == null) {
+            return;
+        }
+        if (desfazerDevolucao.getMovimento() != null) {
+            if (desfazerDevolucao.getMovimento().getBaixa() != null) {
+                GenericaMensagem.warn("Validação", "Movimento já baixado, faça primeiramente o estorno em Movimentos a Receber!");
+                return;
+            }
+        }
+        Dao dao = new Dao();
+        dao.openTransaction();
+        desfazerDevolucao.setOperadorDevolucao(null);
+        desfazerDevolucao.setDtDevolucao(null);
+        Movimento m = desfazerDevolucao.getMovimento();
+        desfazerDevolucao.setMovimento(null);
+        if (!dao.update(desfazerDevolucao)) {
+            GenericaMensagem.warn("Erro", "Ao realizar cancelamento de devolução!");
+            dao.rollback();
+            desfazerDevolucao = new LocadoraMovimento();
+            return;
+        }
+        if (m != null) {
+            if (!dao.delete(m)) {
+                GenericaMensagem.warn("Erro", "Ao desfazer movimento!");
+                dao.rollback();
+                desfazerDevolucao = new LocadoraMovimento();
+                return;
+            }
+            if (!dao.delete(m.getLote())) {
+                GenericaMensagem.warn("Erro", "Ao desfazer lote!");
+                dao.rollback();
+                desfazerDevolucao = new LocadoraMovimento();
+                return;
+            }
+        }
+        dao.commit();
+        NovoLog novoLog = new NovoLog();
+        novoLog.update("", "Titulo com devolução cancelada -> Locadora Lote (" + desfazerDevolucao.getLocadoraLote().getId() + " - Titulo: " + desfazerDevolucao.getTitulo().getDescricao() + " - Locatário: (" + desfazerDevolucao.getLocadoraLote().getPessoa().getId() + ") " + desfazerDevolucao.getLocadoraLote().getPessoa().getNome());
+        desfazerDevolucao = new LocadoraMovimento();
+        GenericaMensagem.info("Sucesso", "Devolução cancelada");
+        loadLocadoraMovimento();
     }
 
     /**
@@ -473,6 +570,9 @@ public class DevolucaoFilmeBean implements Serializable {
     }
 
     public String getStatus() {
+        if (GenericaSessao.exists("locadora_status")) {
+            status = GenericaSessao.getString("locadora_status", true);
+        }
         return status;
     }
 
@@ -480,11 +580,36 @@ public class DevolucaoFilmeBean implements Serializable {
         this.status = status;
     }
 
+    public Boolean getDevolver() {
+        Boolean devolver = false;
+        for (int i = 0; i < listLocadoraMovimento.size(); i++) {
+            if (listLocadoraMovimento.get(i).getSelected()) {
+                devolver = true;
+                break;
+            }
+        }
+        return devolver;
+    }
+
+    public Boolean getReceber() {
+        Boolean receber = false;
+        for (int i = 0; i < listLocadoraMovimento.size(); i++) {
+            if (listLocadoraMovimento.get(i).getMovimento() != null && listLocadoraMovimento.get(i).getMovimento().getBaixa() == null) {
+                receber = true;
+                break;
+            }
+        }
+        return receber;
+    }
+
     public Float getValorTotalMultaDiaria() {
         Float total = new Float(0);
         for (int i = 0; i < listLocadoraMovimento.size(); i++) {
             if (listLocadoraMovimento.get(i).getSelected()) {
-                total += listLocadoraMovimento.get(i).getValorMultaDiaria();
+                Integer dias = DataHoje.calculoDosDiasInt(listLocadoraMovimento.get(i).getDtDevolucaoPrevisao(), new Date());
+                if (dias > 0) {
+                    total += new FunctionsDao().multaDiariaLocadora(listLocadoraMovimento.get(i).getLocadoraLote().getFilial().getId(), listLocadoraMovimento.get(i).getLocadoraLote().getDtLocacao()) * dias;
+                }
             }
         }
         return total;
@@ -501,7 +626,9 @@ public class DevolucaoFilmeBean implements Serializable {
     public Float getValorTotalReceber() {
         Float total = new Float(0);
         for (int i = 0; i < listLocadoraMovimento.size(); i++) {
-            total += listLocadoraMovimento.get(i).getValorMultaDiaria();
+            if (listLocadoraMovimento.get(i).getDtDevolucao() != null && listLocadoraMovimento.get(i).getMovimento().getBaixa() == null) {
+                total += listLocadoraMovimento.get(i).getMovimento().getValor();
+            }
         }
         return total;
     }
@@ -526,5 +653,26 @@ public class DevolucaoFilmeBean implements Serializable {
             return 0;
         }
         return qtde;
+    }
+
+    public List<Movimento> getListMovimentoPendente() {
+        List<Movimento> listMovimento = new ArrayList<>();
+        for (int i = 0; i < listLocadoraMovimento.size(); i++) {
+            if (listLocadoraMovimento.get(i).getDtDevolucao() != null && listLocadoraMovimento.get(i).getMovimento() != null && listLocadoraMovimento.get(i).getMovimento().getBaixa() == null) {
+                Movimento m = new Movimento();
+                m = listLocadoraMovimento.get(i).getMovimento();
+                m.setValorBaixa(listLocadoraMovimento.get(i).getMovimento().getValor());
+                listMovimento.add(m);
+            }
+        }
+        return listMovimento;
+    }
+
+    public LocadoraMovimento getDesfazerDevolucao() {
+        return desfazerDevolucao;
+    }
+
+    public void setDesfazerDevolucao(LocadoraMovimento desfazerDevolucao) {
+        this.desfazerDevolucao = desfazerDevolucao;
     }
 }
