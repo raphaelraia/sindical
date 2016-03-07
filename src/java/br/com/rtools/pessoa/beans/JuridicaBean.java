@@ -25,6 +25,7 @@ import br.com.rtools.sistema.ConfiguracaoCnpj;
 import br.com.rtools.sistema.Email;
 import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.utilitarios.*;
+import com.google.gson.JsonArray;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
@@ -35,6 +36,7 @@ import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -50,6 +52,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.FilenameUtils;
 import org.primefaces.component.tabview.TabView;
 import org.primefaces.event.TabChangeEvent;
+import org.primefaces.json.JSONArray;
 import org.primefaces.json.JSONException;
 import org.primefaces.json.JSONObject;
 // import knu.ReceitaCNPJ;
@@ -233,75 +236,184 @@ public class JuridicaBean implements Serializable {
                 return;
             }
 
+            int status = -1;
+            Dao dao = new Dao();
+            URL url;
+            Charset charset = Charset.forName("UTF8");
             if (juridicaReceita.getId() == -1) {
-                Dao dao = new Dao();
-                URL url;
-                try {
-                    if (configuracaoCnpj == null) {
-                        url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=" + documento + "&dias=" + configuracaoCnpj.getDias() + "&usuario=rogerio@rtools.com.br&senha=989899");
-                    } else if (configuracaoCnpj.getEmail().isEmpty() || configuracaoCnpj.getSenha().isEmpty()) {
-                        url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=" + documento + "&dias=" + configuracaoCnpj.getDias() + "&usuario=rogerio@rtools.com.br&senha=989899");
-                    } else {
-                        url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=" + documento + "&dias=" + configuracaoCnpj.getDias() + "&usuario=" + configuracaoCnpj.getEmail() + "&senha=" + configuracaoCnpj.getSenha());
+                Integer dias = configuracaoCnpj.getDias();
+                for (int i = 0; i < 20; i++) {
+                    try {
+                        if (configuracaoCnpj == null) {
+                            url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=" + documento + "&dias=" + dias + "&usuario=rogerio@rtools.com.br&senha=989899");
+                        } else if (configuracaoCnpj.getEmail().isEmpty() || configuracaoCnpj.getSenha().isEmpty()) {
+                            url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=" + documento + "&dias=" + dias + "&usuario=rogerio@rtools.com.br&senha=989899");
+                        } else {
+                            url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=" + documento + "&dias=" + dias + "&usuario=" + configuracaoCnpj.getEmail() + "&senha=" + configuracaoCnpj.getSenha());
+                        }
+                        //URL url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=00000000000191&usuario=teste@wooki.com.br&senha=teste");
+                        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                        con.setRequestMethod("GET");
+                        con.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.155 Safari/537.36");
+                        try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream(), charset))) {
+                            String str = in.readLine();
+                            JSONObject obj = new JSONObject(str);
+                            status = obj.getInt("status");
+                            String error = obj.getString("msg");
+
+                            if (status == 6) {
+                                GenericaMensagem.warn("Atenção", "Limite de acessos excedido!");
+                                return;
+                            }
+
+                            if (status == 1) {
+                                if (dias > 360) {
+                                    status = -1;
+                                    in.close();
+                                    break;
+                                } else {
+                                    dias += 30;
+                                    continue;
+                                }
+                            }
+
+                            if (status != 0) {
+                                GenericaMensagem.error("Erro", error);
+                                return;
+                            }
+
+                            if (status == 0) {
+                                juridicaReceita.setNome(obj.getString("nome_empresarial"));
+                                juridicaReceita.setFantasia(obj.getString("titulo_estabelecimento"));
+                                juridicaReceita.setDocumento(documento);
+                                juridicaReceita.setCep(AnaliseString.mascaraCep(obj.getString("cep")));
+                                juridicaReceita.setDescricaoEndereco(obj.getString("logradouro"));
+                                juridicaReceita.setBairro(obj.getString("bairro"));
+                                juridicaReceita.setComplemento(obj.getString("complemento"));
+                                juridicaReceita.setNumero(obj.getString("numero"));
+                                juridicaReceita.setCnae(obj.getString("atividade_principal"));
+                                juridicaReceita.setPessoa(null);
+                                juridicaReceita.setStatus(obj.getString("situacao_cadastral"));
+                                juridicaReceita.setDtAbertura(DataHoje.converte(obj.getString("data_abertura")));
+                                juridicaReceita.setCnaeSegundario(obj.getString("atividades_secundarias"));
+                                juridicaReceita.setCidade(obj.getString("municipio"));
+                                juridicaReceita.setUf(obj.getString("uf"));
+                                juridicaReceita.setEmail(obj.getString("email_rf"));
+                                juridicaReceita.setTelefone(obj.getString("telefone_rf"));
+
+                                dao.openTransaction();
+
+                                if (!dao.save(juridicaReceita)) {
+                                    GenericaMensagem.warn("Erro", "Erro ao Salvar pesquisa!");
+                                    dao.rollback();
+                                    return;
+                                }
+
+                                dao.commit();
+                                in.close();
+                                break;
+                            }
+
+                        }
+                    } catch (IOException | JSONException e) {
+
                     }
-                    //URL url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=00000000000191&usuario=teste@wooki.com.br&senha=teste");
-                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
-                    con.setRequestMethod("GET");
-                    try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
-                        String str = in.readLine();
-                        JSONObject obj = new JSONObject(str);
-                        int status = obj.getInt("status");
-                        String error = obj.getString("msg");
+                }
+            }
 
-                        if (status == 6) {
-                            GenericaMensagem.warn("Atenção", "Limite de acessos excedido!");
-                            return;
+//            if (status == -1) {
+//                return;
+//            }
+            // PESQUISA ALTERNATIVA
+            // SITE: http://receitaws.com.br/
+            try {
+                if (status == -1 && juridicaReceita.getId() == -1) {
+                    String readLine = "";
+                    String append = "";
+                    try {
+                        url = new URL("http://receitaws.com.br/v1/cnpj/" + documento);
+                        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                        con.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.155 Safari/537.36");
+                        con.setRequestMethod("GET");
+                        con.connect();
+                        try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream(), charset))) {
+                            while ((readLine = in.readLine()) != null) {
+                                append += readLine;
+                            }
+                            in.close();
                         }
+                        con.disconnect();
+                    } catch (IOException | JSONException e) {
 
-                        if (status == 1) {
-                            GenericaMensagem.info("Atenção", "Atualizando esse CNPJ na receita, pesquise novamente em 30 segundos!");
-                            return;
-                        }
-
-                        if (status != 0) {
-                            GenericaMensagem.error("Erro", error);
-                            return;
-                        }
-
-                        juridicaReceita.setNome(obj.getString("nome_empresarial"));
-                        juridicaReceita.setFantasia(obj.getString("titulo_estabelecimento"));
+                    }
+                    JSONObject obj = new JSONObject(append);
+                    if (obj.getString("status").equals("ERROR")) {
+                        status = -1;
+                        GenericaMensagem.warn("Atenção", obj.getString("message"));
+                        return;
+                    }
+                    status = 0;
+                    try {
+                        juridicaReceita.setNome(obj.getString("nome"));
+                        juridicaReceita.setFantasia(obj.getString("fantasia"));
                         juridicaReceita.setDocumento(documento);
                         juridicaReceita.setCep(AnaliseString.mascaraCep(obj.getString("cep")));
                         juridicaReceita.setDescricaoEndereco(obj.getString("logradouro"));
                         juridicaReceita.setBairro(obj.getString("bairro"));
                         juridicaReceita.setComplemento(obj.getString("complemento"));
                         juridicaReceita.setNumero(obj.getString("numero"));
-                        juridicaReceita.setCnae(obj.getString("atividade_principal"));
+                        JSONArray cnaeArray = obj.getJSONArray("atividade_principal");
+                        String cnaeString = "";
+                        try {
+                            for (int i = 0; i < cnaeArray.length(); ++i) {
+                                JSONObject rec = cnaeArray.getJSONObject(i);
+                                String code = rec.getString("code").replace(".", "");
+                                code = code.replace("-", "");
+                                cnaeString += rec.getString("text") + " (" + code + ") ";
+                            }
+                        } catch (Exception e) {
+
+                        }
+                        JSONArray cnaeArraySec = obj.getJSONArray("atividades_secundarias");
+                        String cnaeStringSec = "";
+                        try {
+                            for (int i = 0; i < cnaeArraySec.length(); ++i) {
+                                JSONObject rec = cnaeArraySec.getJSONObject(i);
+                                String code = rec.getString("code").replace(".", "");
+                                code = code.replace("-", "");
+                                cnaeStringSec += rec.getString("text") + " (" + code + ") ";
+                            }
+                        } catch (Exception e) {
+
+                        }
+                        juridicaReceita.setCnae(cnaeString);
+                        juridicaReceita.setCnaeSegundario(cnaeStringSec);
                         juridicaReceita.setPessoa(null);
-                        juridicaReceita.setStatus(obj.getString("situacao_cadastral"));
-                        juridicaReceita.setDtAbertura(DataHoje.converte(obj.getString("data_abertura")));
-                        juridicaReceita.setCnaeSegundario(obj.getString("atividades_secundarias"));
+                        juridicaReceita.setStatus(obj.getString("motivo_situacao"));
+                        juridicaReceita.setDtAbertura(DataHoje.converte(obj.getString("abertura")));
                         juridicaReceita.setCidade(obj.getString("municipio"));
                         juridicaReceita.setUf(obj.getString("uf"));
-                        juridicaReceita.setEmail(obj.getString("email_rf"));
-                        juridicaReceita.setTelefone(obj.getString("telefone_rf"));
-
-                        dao.openTransaction();
-
-                        if (!dao.save(juridicaReceita)) {
-                            GenericaMensagem.warn("Erro", "Erro ao Salvar pesquisa!");
-                            dao.rollback();
-                            return;
-                        }
-
-                        dao.commit();
-                        in.close();
+                        juridicaReceita.setEmail(obj.getString("email"));
+                        juridicaReceita.setTelefone(obj.getString("telefone"));
+                    } catch (Exception e) {
+                        GenericaMensagem.warn("Erro", e.getMessage());
+                        return;
                     }
-                } catch (IOException | JSONException e) {
 
+                    dao.openTransaction();
+
+                    if (!dao.save(juridicaReceita)) {
+                        GenericaMensagem.warn("Erro", "Erro ao Salvar pesquisa!");
+                        dao.rollback();
+                        return;
+                    }
+
+                    dao.commit();
                 }
+            } catch (Exception e) {
+                GenericaMensagem.warn("Erro", e.getMessage());
+                return;
             }
-
             juridica.getPessoa().setNome(juridicaReceita.getNome().toUpperCase());
             juridica.setFantasia(juridicaReceita.getFantasia().toUpperCase());
             juridica.setDtAbertura(juridicaReceita.getDtAbertura());
