@@ -55,26 +55,26 @@ public class PessoaEnderecoDao extends DB {
             String or_desc = "", or_bairro = "";
             for (int i = 0; i < descricao.length; i++) {
                 if (descricao.length == 1) {
-                    text_qry += " AND ( UPPER(TRANSLATE(de.ds_descricao)) LIKE UPPER('%" + AnaliseString.normalizeLower(descricao[i]) + "%') )  \n ";
+                    text_qry += " AND ( UPPER(FUNC_TRANSLATE(de.ds_descricao)) LIKE UPPER('%" + AnaliseString.normalizeLower(descricao[i]) + "%') )  \n ";
                     break;
                 } else {
-                    or_desc += " OR UPPER(TRANSLATE(de.ds_descricao)) LIKE UPPER('%" + AnaliseString.normalizeLower(descricao[i]) + "%') \n ";
+                    or_desc += " OR UPPER(FUNC_TRANSLATE(de.ds_descricao)) LIKE UPPER('%" + AnaliseString.normalizeLower(descricao[i]) + "%') \n ";
                 }
             }
             if (descricao.length > 1) {
-                text_qry += " AND ( UPPER(TRANSLATE(de.ds_descricao)) LIKE UPPER('%" + AnaliseString.normalizeLower(descricao[0]) + "%') " + or_desc + ") \n ";
+                text_qry += " AND ( UPPER(FUNC_TRANSLATE(de.ds_descricao)) LIKE UPPER('%" + AnaliseString.normalizeLower(descricao[0]) + "%') " + or_desc + ") \n ";
             }
 
             for (int i = 0; i < bairro.length; i++) {
                 if (bairro.length == 1) {
-                    text_qry += " AND ( UPPER(TRANSLATE(ba.ds_descricao)) LIKE UPPER('%" + AnaliseString.normalizeLower(bairro[i]) + "%') ) \n ";
+                    text_qry += " AND ( UPPER(FUNC_TRANSLATE(ba.ds_descricao)) LIKE UPPER('%" + AnaliseString.normalizeLower(bairro[i]) + "%') ) \n ";
                     break;
                 } else {
-                    or_bairro += " OR UPPER(TRANSLATE(ba.ds_descricao)) LIKE UPPER('%" + AnaliseString.normalizeLower(bairro[i]) + "%') \n ";
+                    or_bairro += " OR UPPER(FUNC_TRANSLATE(ba.ds_descricao)) LIKE UPPER('%" + AnaliseString.normalizeLower(bairro[i]) + "%') \n ";
                 }
             }
             if (bairro.length > 1) {
-                text_qry += " AND ( UPPER(TRANSLATE(ba.ds_descricao)) LIKE UPPER('%" + AnaliseString.normalizeLower(bairro[0]) + "%') " + or_bairro + ") ";
+                text_qry += " AND ( UPPER(FUNC_TRANSLATE(ba.ds_descricao)) LIKE UPPER('%" + AnaliseString.normalizeLower(bairro[0]) + "%') " + or_bairro + ") ";
             }
 
             Query qry = getEntityManager().createNativeQuery(text_qry, Endereco.class);
