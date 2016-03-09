@@ -402,7 +402,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                             + " - Nascimento: " + fisica.getNascimento()
                             + " - CPF: " + fisica.getPessoa().getDocumento()
                             + " - RG: " + fisica.getRg()
-                            + " - Recadastro : " + fisica.getRecadastro());
+                            + " - Recadastro : " + fisica.getPessoa().getRecadastroString());
                     dao.commit();
                     sucesso = true;
                 } else {
@@ -422,7 +422,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                     + " - Nascimento: " + f.getNascimento()
                     + " - CPF: " + f.getPessoa().getDocumento()
                     + " - RG: " + f.getRg()
-                    + " - Recadastro : " + f.getRecadastro();
+                    + " - Recadastro : " + f.getPessoa().getRecadastroString();
             if (fisica.getPessoa().getDocumento().equals("") || fisica.getPessoa().getDocumento().equals("0")) {
                 fisica.getPessoa().setDocumento("0");
             } else {
@@ -463,7 +463,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                         + " - Nascimento: " + f.getNascimento()
                         + " - CPF: " + fisica.getPessoa().getDocumento()
                         + " - RG: " + fisica.getRg()
-                        + " - Recadastro : " + fisica.getRecadastro());
+                        + " - Recadastro : " + fisica.getPessoa().getRecadastroString());
             } else {
                 dao.rollback();
                 return;
@@ -1509,7 +1509,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public String hojeRecadastro() {
-        fisica.setRecadastro(DataHoje.data());
+        fisica.getPessoa().setDtRecadastro(DataHoje.dataHoje());
         return null;
     }
 
@@ -2446,7 +2446,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 ex.getMessage();
             }
         } else if (tCase == 1) {
-            fisica.setDtRecadastro(fisica.getPessoa().getDtCriacao());
+            fisica.getPessoa().setDtRecadastro(fisica.getPessoa().getDtCriacao());
         } else if (tCase == 2) {
             dtRecadastro = DataHoje.dataHoje();
         }
@@ -2567,7 +2567,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public void updateDataRecadastro() {
-        fisica.setDtRecadastro(dtRecadastro);
+        fisica.getPessoa().setDtRecadastro(dtRecadastro);
         if (fisica.getId() != -1) {
             Fisica f = (Fisica) new Dao().find(new Fisica(), fisica.getId());
             String antes = " De: ID - " + fisica.getId()
@@ -2575,7 +2575,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                     + " - Nascimento: " + f.getNascimento()
                     + " - CPF: " + f.getPessoa().getDocumento()
                     + " - RG: " + f.getRg()
-                    + " - Recadastro : " + fisica.getRecadastro();
+                    + " - Recadastro : " + fisica.getPessoa().getRecadastroString();
             PessoaDBToplink pessoaDao = new PessoaDBToplink();
             FisicaDBToplink fisicaDao = new FisicaDBToplink();
             Date date = fisica.getPessoa().getDtAtualizacao();
@@ -2590,7 +2590,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                         + " - Nascimento: " + f.getNascimento()
                         + " - CPF: " + fisica.getPessoa().getDocumento()
                         + " - RG: " + fisica.getRg()
-                        + " - Recadastro : " + fisica.getRecadastro());
+                        + " - Recadastro : " + fisica.getPessoa().getRecadastroString());
                 if (pessoaDao.updateAtualizacao(fisica.getPessoa())) {
                     new Dao().rebind(fisica.getPessoa());
                     GenericaMensagem.info("Sucesso", "Registro atualizado!");
