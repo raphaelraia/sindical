@@ -15,6 +15,7 @@ public class FisicaDBToplink extends DB implements FisicaDB {
 
     private Integer limit = 0;
     private String not_in = "";
+    private Boolean ignore = false;
 
     @Override
     public boolean insert(Fisica fisica) {
@@ -74,6 +75,10 @@ public class FisicaDBToplink extends DB implements FisicaDB {
         }
     }
 
+    public List<Fisica> pesquisaPessoa(String desc, String por, String como) {
+        return pesquisaPessoa(desc, por, como, null, null);
+    }
+
     @Override
     public List<Fisica> pesquisaPessoa(String desc, String por, String como, Integer limit, Integer offset) {
         if (desc.isEmpty()) {
@@ -93,6 +98,23 @@ public class FisicaDBToplink extends DB implements FisicaDB {
                         break;
                     case "P":
                         desc = "%" + desc + "%";
+                        break;
+                }
+            }
+
+            int maxResults = 1000;
+            if (ignore) {
+                switch (desc.length()) {
+                    case 1:
+                        this.limit = 50;
+                        break;
+                    case 2:
+                        this.limit = 150;
+                        break;
+                    case 3:
+                        this.limit = 500;
+                        break;
+                    default:
                         break;
                 }
             }
@@ -117,7 +139,7 @@ public class FisicaDBToplink extends DB implements FisicaDB {
             }
 
             String textSelect = " SELECT F.* ";
-            if (offset == null) {
+            if (offset == null && !ignore) {
                 textSelect = " SELECT COUNT(*) ";
 
             }
@@ -154,9 +176,8 @@ public class FisicaDBToplink extends DB implements FisicaDB {
                             + "  INNER JOIN pes_pessoa AS P ON P.id = F.id_pessoa           "
                             + "  INNER JOIN pes_pessoa_empresa PE ON F.id = PE.id_fisica    "
                             + "       WHERE PE.ds_codigo LIKE '" + desc + "'                ";
-                    if (offset != null) {
-                        textQuery += " ORDER BY P.ds_nome ";
-
+                    if (offset != null || ignore) {
+                        textQuery += "       ORDER BY P.ds_nome ";
                     }
                     break;
                 case "matricula":
@@ -180,8 +201,8 @@ public class FisicaDBToplink extends DB implements FisicaDB {
                             + "                 AND ms.nr_matricula = " + desc.replace("%", "");
                     textQuery += " AND SP.id_pessoa = MS.id_titular ";
                     textQuery += " ) ";
-                    if (offset != null) {
-                        textQuery += "  ORDER BY P.ds_nome ";
+                    if (offset != null || ignore) {
+                        textQuery += "       ORDER BY P.ds_nome ";
                     }
                     break;
                 case "codigo_pessoa":
@@ -193,7 +214,7 @@ public class FisicaDBToplink extends DB implements FisicaDB {
                     if (!not_in.isEmpty()) {
                         textQuery += " AND P.id NOT IN (" + not_in + ")";
                     }
-                    if (offset != null) {
+                    if (offset != null || ignore) {
                         textQuery += "       ORDER BY P.ds_nome ";
                     }
                     break;
@@ -206,7 +227,9 @@ public class FisicaDBToplink extends DB implements FisicaDB {
                     if (!not_in.isEmpty()) {
                         textQuery += " AND P.id NOT IN (" + not_in + ")";
                     }
-                    textQuery += "       ORDER BY P.ds_nome ";
+                    if (offset != null || ignore) {
+                        textQuery += "       ORDER BY P.ds_nome ";
+                    }
                     break;
                 default:
                     textQuery
@@ -217,7 +240,7 @@ public class FisicaDBToplink extends DB implements FisicaDB {
                     if (!not_in.isEmpty()) {
                         textQuery += " AND P.id NOT IN (" + not_in + ")";
                     }
-                    if (offset != null) {
+                    if (offset != null || ignore) {
                         textQuery += "       ORDER BY P.ds_nome ";
                     }
                     break;
@@ -948,5 +971,13 @@ public class FisicaDBToplink extends DB implements FisicaDB {
 
     public void setNot_in(String not_in) {
         this.not_in = not_in;
+    }
+
+    public Boolean getIgnore() {
+        return ignore;
+    }
+
+    public void setIgnore(Boolean ignore) {
+        this.ignore = ignore;
     }
 }
