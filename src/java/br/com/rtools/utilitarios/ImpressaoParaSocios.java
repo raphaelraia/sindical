@@ -422,7 +422,7 @@ public class ImpressaoParaSocios {
             assinatura = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/assinatura.jpg");
         }
         try {
-            String recadastro = DataHoje.converteData(fisica.getDtRecadastro());
+            String recadastro = fisica.getPessoa().getRecadastroString();
             listaSocios.add(new FichaSocial(0,
                     matriculaSocios.getTitular().getId(),
                     matriculaSocios.getNrMatricula(),
@@ -496,7 +496,7 @@ public class ImpressaoParaSocios {
                     sindicato.getPessoa().getTelefone1(),
                     ((ServletContext) faces.getExternalContext().getContext()).getRealPath(pathVerso),
                     dados[29],
-                    fisica.getRecadastro(),
+                    fisica.getPessoa().getRecadastroString(),
                     dados[30],
                     pesEndSindicato.getEndereco().getLogradouro().getDescricao(),
                     dados[31],
@@ -811,7 +811,7 @@ public class ImpressaoParaSocios {
                             sindicato.getPessoa().getTelefone1(),
                             ((ServletContext) faces.getExternalContext().getContext()).getRealPath(pathVerso),
                             dados[29],
-                            fisica.getRecadastro(),
+                            fisica.getPessoa().getRecadastroString(),
                             dados[30],
                             pesEndSindicato.getEndereco().getLogradouro().getDescricao(),
                             dados[31],

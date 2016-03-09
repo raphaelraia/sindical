@@ -248,7 +248,7 @@
 
                                                     <p:column>
                                                         <p:outputLabel value="Atualização de Cadastro" /><br />
-                                                        <p:inputMask id="i_recadastro" size="8" value="#{fisicaBean.fisica.recadastro}" mask="99/99/9999" readonly="true">
+                                                        <p:inputMask id="i_recadastro" size="8" value="#{fisicaBean.fisica.pessoa.recadastroString}" mask="99/99/9999" readonly="true">
                                                             <p:ajax event="change" update="@this" />
                                                         </p:inputMask>
                                                         <p:commandButton icon="ui-icon-close" title="clique limpar" action="#{fisicaBean.clear(1)}" update="i_recadastro"/>

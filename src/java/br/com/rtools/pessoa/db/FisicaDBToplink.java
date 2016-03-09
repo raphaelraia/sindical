@@ -677,13 +677,20 @@ public class FisicaDBToplink extends DB implements FisicaDB {
             documento = "%" + doc + "%";
         }
         try {
-            Query qry = getEntityManager().createQuery("SELECT FIS FROM Fisica AS FIS WHERE FIS.pessoa.documento LIKE :documento");
-            qry.setParameter("documento", documento);
+//            Query qry = getEntityManager().createQuery("SELECT FIS FROM Fisica AS FIS WHERE FIS.pessoa.documento LIKE :documento");
+//            qry.setParameter("documento", documento);
+            Query qry = getEntityManager().createNativeQuery(
+                    " SELECT f.* \n "
+                    + " FROM pes_fisica AS f \n"
+                    + "INNER JOIN pes_pessoa p ON p.id = f.id_pessoa \n"
+                    + "WHERE p.ds_documento LIKE '" + documento + "'", Fisica.class
+            );
             List list = qry.getResultList();
             if (!list.isEmpty()) {
                 return list;
             }
         } catch (Exception e) {
+            e.getMessage();
         }
         return new ArrayList();
     }
@@ -943,7 +950,7 @@ public class FisicaDBToplink extends DB implements FisicaDB {
         Query query;
         try {
             getEntityManager().getTransaction().begin();
-            queryString = "UPDATE pes_fisica SET dt_recadastro = '" + f.getRecadastro() + "' WHERE id = " + f.getId();
+            queryString = "UPDATE pes_fisica SET dt_recadastro = '" + f.getPessoa().getRecadastroString() + "' WHERE id = " + f.getId();
             query = getEntityManager().createNativeQuery(queryString);
             if (query.executeUpdate() == 0) {
                 getEntityManager().getTransaction().rollback();
