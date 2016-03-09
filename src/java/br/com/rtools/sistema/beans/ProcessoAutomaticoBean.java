@@ -39,7 +39,6 @@ public class ProcessoAutomaticoBean implements Serializable {
     private Integer progressValue = 0;
     private Integer progressLabel = 0;
     private Boolean dialogLogOpened = false;
-    private Boolean dialogVerProcesso = false;
     private Integer tentativas = 0;
     private String thread_name = "";
 
@@ -77,7 +76,6 @@ public class ProcessoAutomaticoBean implements Serializable {
         progressValue = 0;
         progressLabel = 0;
         dialogLogOpened = false;
-        dialogVerProcesso = false;
         tentativas = 0;
         thread_name = "";
     }
@@ -107,61 +105,49 @@ public class ProcessoAutomaticoBean implements Serializable {
     }
 
     public void progress() {
-        progress(thread_name, false);
-    }
-
-    public void progress(String thread_name, Boolean ver_processo) {
-        ProcessoAutomaticoDao dao = new ProcessoAutomaticoDao();
-        processoAutomatico = dao.pesquisarProcesso(thread_name, Usuario.getUsuario().getId());
+        if (!thread_name.isEmpty()) {
+            ProcessoAutomaticoDao dao = new ProcessoAutomaticoDao();
+            processoAutomatico = dao.pesquisarProcesso(thread_name, Usuario.getUsuario().getId());
 
         // CONCLUIU O PROCESSAMENTO
-        //concluiuProcessamento();
-        if (processoAutomatico.getId() != -1) {
+            //concluiuProcessamento();
+            if (processoAutomatico.getId() != -1) {
 //            //processoAutomaticoConcluido = processoAutomatico;
 
-            Integer progress = Math.round((processoAutomatico.getNrProgresso().floatValue() / processoAutomatico.getNrProgressoFinal().floatValue()) * 100);
-            if (progressValue.equals(progress)) {
-                tentativas++;
-            } else {
-                tentativas = 0;
-            }
+                Integer progress = Math.round((processoAutomatico.getNrProgresso().floatValue() / processoAutomatico.getNrProgressoFinal().floatValue()) * 100);
+                if (progressValue.equals(progress)) {
+                    tentativas++;
+                } else {
+                    tentativas = 0;
+                }
 
-            progressValue = progress;
-            progressLabel = progressValue;
+                progressValue = progress;
+                progressLabel = progressValue;
 
             // SE VERIFICAR A PROCESSO E ESTE ESTIVER PARADO, FINALIZAR
-            // APENAS NO BANCO DE DADOS
-            // NÃO FUNCIONA PARA STOP A THREAD
-            if (tentativas == 80) {
-                Dao daox = new Dao();
-
-                processoAutomatico.setDataFinal(DataHoje.dataHoje());
-                processoAutomatico.setHoraFinal(DataHoje.hora());
-
-                daox.update(processoAutomatico, true);
-                processoAutomatico = new ProcessoAutomatico();
+                // APENAS NO BANCO DE DADOS
+                // NÃO FUNCIONA PARA STOP A THREAD
+                if (tentativas == 80) {
+//                    Dao daox = new Dao();
+//
+//                    processoAutomatico.setDataFinal(DataHoje.dataHoje());
+//                    processoAutomatico.setHoraFinal(DataHoje.hora());
+//
+//                    daox.update(processoAutomatico, true);
+//                    processoAutomatico = new ProcessoAutomatico();
+                }
+            } else {
+                processoAutomaticoConcluido = dao.pesquisarProcessoConcluidoNaoVisto(thread_name, Usuario.getUsuario().getId());
             }
 
-            dialogVerProcesso = ver_processo;
-        } else {
-            processoAutomaticoConcluido = dao.pesquisarProcessoConcluidoNaoVisto(thread_name, Usuario.getUsuario().getId());
+            if (dialogLogOpened) {
+                loadListaProcessoAutomaticoLog();
+            }
         }
-
-        if (dialogLogOpened) {
-            loadListaProcessoAutomaticoLog();
-        }
-
-//        if (dialogVerProcesso){
-//            PF.openDialog("dlg_ver_processo");
-//        }
     }
 
     public void closeDialogLog() {
         dialogLogOpened = false;
-    }
-
-    public void closeDialogVer() {
-        dialogVerProcesso = false;
     }
 
     public void loadListaProcessoAutomaticoLog() {
@@ -232,13 +218,5 @@ public class ProcessoAutomaticoBean implements Serializable {
 
     public void setPaDetalhe(ProcessoAutomatico paDetalhe) {
         this.paDetalhe = paDetalhe;
-    }
-
-    public Boolean getDialogVerProcesso() {
-        return dialogVerProcesso;
-    }
-
-    public void setDialogVerProcesso(Boolean dialogVerProcesso) {
-        this.dialogVerProcesso = dialogVerProcesso;
     }
 }

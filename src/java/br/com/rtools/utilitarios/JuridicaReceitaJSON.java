@@ -51,48 +51,61 @@ public class JuridicaReceitaJSON {
             String error = "";
             if (tipo.equals("wokki")) {
                 ConfiguracaoCnpj cc = (ConfiguracaoCnpj) new Dao().find(new ConfiguracaoCnpj(), 1);
-                if (cc == null) {
-                    url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=" + documento + "&dias=60&usuario=rogerio@rtools.com.br&senha=989899");
-                } else if (cc.getEmail().isEmpty() || cc.getSenha().isEmpty()) {
-                    url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=" + documento + "&dias=" + cc.getDias() + "&usuario=rogerio@rtools.com.br&senha=989899");
-                } else {
-                    url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=" + documento + "&dias=" + cc.getDias() + "&usuario=" + cc.getEmail() + "&senha=" + cc.getSenha());
-                }
+                Integer dias = cc.getDias();
+                for (int i = 0; i < 20; i++) {
+                    if (cc == null) {
+                        url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=" + documento + "&dias=60&usuario=rogerio@rtools.com.br&senha=989899");
+                    } else if (cc.getEmail().isEmpty() || cc.getSenha().isEmpty()) {
+                        url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=" + documento + "&dias=" + dias + "&usuario=rogerio@rtools.com.br&senha=989899");
+                    } else {
+                        url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=" + documento + "&dias=" + dias + "&usuario=" + cc.getEmail() + "&senha=" + cc.getSenha());
+                    }
 
-                //URL url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=00000000000191&usuario=teste@wooki.com.br&senha=teste");
-                HttpURLConnection con = (HttpURLConnection) url.openConnection();
-                con.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.155 Safari/537.36");
-                con.setRequestMethod("GET");
-                con.connect();
-                try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream(), charset))) {
-                    String str = in.readLine();
-                    JSONObject obj = new JSONObject(str);
-                    status = obj.getInt("status");
-                    error = obj.getString("msg");
+                    //URL url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=00000000000191&usuario=teste@wooki.com.br&senha=teste");
+                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                    con.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.155 Safari/537.36");
+                    con.setRequestMethod("GET");
+                    con.connect();
+                    try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream(), charset))) {
+                        String str = in.readLine();
+                        JSONObject obj = new JSONObject(str);
+                        status = obj.getInt("status");
+                        error = obj.getString("msg");
 
-                    jro = new JuridicaReceitaObject(
-                            status, // status
-                            error, // msg
-                            obj.getString("nome_empresarial"),
-                            obj.getString("titulo_estabelecimento"),
-                            AnaliseString.mascaraCep(obj.getString("cep")),
-                            obj.getString("logradouro"),
-                            obj.getString("bairro"),
-                            obj.getString("complemento"),
-                            obj.getString("numero"),
-                            obj.getString("atividade_principal"),
-                            obj.getString("situacao_cadastral"),
-                            DataHoje.converteData(DataHoje.converte(obj.getString("data_abertura"))),
-                            obj.getString("atividades_secundarias"),
-                            obj.getString("municipio"),
-                            obj.getString("uf"),
-                            obj.getString("email_rf"),
-                            obj.getString("telefone_rf")
-                    );
-                    in.close();
+                        if (status == 1) {
+                            if (dias > 360) {
+                                status = -1;
+                                error = "NÃO CONSEGUIU PESQUISAR EM VÁRIAS TENTATIVAS";
+                            } else {
+                                dias += 30;
+                                con.disconnect();
+                                continue;
+                            }
+                        }
+
+                        jro = new JuridicaReceitaObject(
+                                status, // status
+                                error, // msg
+                                obj.getString("nome_empresarial"),
+                                obj.getString("titulo_estabelecimento"),
+                                AnaliseString.mascaraCep(obj.getString("cep")),
+                                obj.getString("logradouro"),
+                                obj.getString("bairro"),
+                                obj.getString("complemento"),
+                                obj.getString("numero"),
+                                obj.getString("atividade_principal"),
+                                obj.getString("situacao_cadastral"),
+                                DataHoje.converteData(DataHoje.converte(obj.getString("data_abertura"))),
+                                obj.getString("atividades_secundarias"),
+                                obj.getString("municipio"),
+                                obj.getString("uf"),
+                                obj.getString("email_rf"),
+                                obj.getString("telefone_rf")
+                        );
+                        in.close();
+                    }
+                    con.disconnect();
                 }
-                con.disconnect();
-                //return jro;
             } else {
                 String readLine = "";
                 String append = "";
@@ -246,20 +259,20 @@ public class JuridicaReceitaJSON {
                     listpe.add(pe);
                 }
             }
-            
+
             jro.setEmail1(email1);
             jro.setEmail2(email2);
             jro.setEmail3(email3);
-            
+
             jro.setTelefone1(telefone1);
             jro.setTelefone2(telefone2);
             jro.setTelefone3(telefone3);
-            
+
             jro.setLista_cnae(listac);
-            
+
             jro.setEndereco(endereco);
             jro.setPessoaEndereco(listpe);
-            
+
             return jro;
         } catch (IOException | JSONException e) {
             e.getMessage();
@@ -296,10 +309,10 @@ public class JuridicaReceitaJSON {
         private Endereco endereco;
         private List<PessoaEndereco> pessoaEndereco;
 
-        public JuridicaReceitaObject(){
-            
+        public JuridicaReceitaObject() {
+
         }
-        
+
         public JuridicaReceitaObject(Integer status, String msg, String nome_empresarial, String titulo_estabelecimento, String cep, String logradouro, String bairro, String complemento, String numero, String atividade_principal, String situacao_cadastral, String data_abertura, String atividades_secundarias, String municipio, String uf, String email_rf, String telefone_rf) {
             this.status = status;
             this.msg = msg;
