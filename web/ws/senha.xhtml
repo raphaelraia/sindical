@@ -129,7 +129,7 @@
                                     <div class="bg_panel_color border-radius">
                                         <br />
                                         <h1 class="font-color-white">SENHA</h1>
-                                        <span class="pisca">
+                                        <span>
                                             <p class="password" style="color: #{senhaBean.ultimaSenha.sucesso ? 'green' : 'white'}">#{senhaBean.ultimaSenha.senha}</p>
                                         </span>
                                         <br />
@@ -141,7 +141,7 @@
                                     <div class="bg_panel_color border-radius">
                                         <br />
                                         <h1 class="font-color-white">#{senhaBean.tipo}</h1>
-                                        <span class="pisca">
+                                        <span>
                                             <p class="password">#{senhaBean.ultimaSenha.mesa}</p>
                                         </span>                                        
                                         <br />
@@ -199,7 +199,7 @@
                         <p:poll interval="5" update=":form_sound:id_hidden" delay="5" autoStart="false" stop="#{!senhaBean.sound}"/>
                         <h:inputHidden id="id_hidden" value="#{senhaBean.disabledSound}"  />
                         <script>
-                            pisca();
+                            
                         </script>
                     </h:column>
                 </h:form>

@@ -32,7 +32,9 @@ import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.Email;
+import br.com.rtools.sistema.ConfiguracaoDepartamento;
 import br.com.rtools.sistema.EmailPessoa;
+import br.com.rtools.sistema.dao.ConfiguracaoDepartamentoDao;
 import br.com.rtools.utilitarios.*;
 import java.io.File;
 import java.io.IOException;
@@ -399,6 +401,11 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             List<Pessoa> p = new ArrayList();
             p.add(pessoa);
             Mail mail = new Mail();
+            String assinatura = "";
+            ConfiguracaoDepartamento configuracaoDepartamento = new ConfiguracaoDepartamentoDao().findBy(8, MacFilial.getAcessoFilial().getFilial().getId());
+            if (configuracaoDepartamento != null) {
+                mail.setConfiguracaoDepartamento(configuracaoDepartamento);
+            }
             Email email = new Email(
                     -1,
                     DataHoje.dataHoje(),
@@ -421,9 +428,10 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                         + " <h5>Visualize sua planilha de débitos clicando no link abaixo</h5>"
                         + " <br /><br />"
                         + " <a href='" + registro.getUrlPath() + "/Sindical/acessoLinks.jsf?cliente=" + ControleUsuarioBean.getCliente() + "&amp;arquivo=" + nome + "'>Clique aqui para abrir Planilha de Débitos</a><br />"
+                        + assinatura
                 );
             } else {
-                List<File> fls = new ArrayList<File>();
+                List<File> fls = new ArrayList<>();
                 fls.add(new File(imp.getPathPasta() + "/" + nome));
                 mail.setFiles(fls);
                 email.setMensagem(""
@@ -431,10 +439,11 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                         + "     Envio cadastrado para <b>" + pessoa.getNome() + " </b>              "
                         + " </div><br />                                                            "
                         + " <h5>Baixe sua planilha de débitos anexado neste email</h5><br /><br />   "
+                        + assinatura
                 );
             }
             mail.setEmail(email);
-            List<EmailPessoa> emailPessoas = new ArrayList<EmailPessoa>();
+            List<EmailPessoa> emailPessoas = new ArrayList<>();
             EmailPessoa emailPessoa = new EmailPessoa();
             List<Pessoa> pessoas = (List<Pessoa>) p;
             for (Pessoa p1 : pessoas) {

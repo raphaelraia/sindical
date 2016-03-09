@@ -21,8 +21,7 @@ import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.relatorios.dao.RelatorioOrdemDao;
-import br.com.rtools.relatorios.db.RelatorioSociosDB;
-import br.com.rtools.relatorios.db.RelatorioSociosDBToplink;
+import br.com.rtools.relatorios.dao.RelatorioSociosDao;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.AnaliseString;
@@ -470,7 +469,7 @@ public class RelatorioSociosBean implements Serializable {
 //        }
 
         RelatorioDao db = new RelatorioDao();
-        RelatorioSociosDB dbS = new RelatorioSociosDBToplink();
+        RelatorioSociosDao dbS = new RelatorioSociosDao();
         Relatorios relatorios = db.pesquisaRelatorios(Integer.parseInt(getListRelatorios().get(idRelatorio).getDescription()));
         if (!listRelatorioOrdem.isEmpty()) {
             Dao dao = new Dao();
@@ -714,7 +713,7 @@ public class RelatorioSociosBean implements Serializable {
         List<SelectItem> empresas = new ArrayList<SelectItem>();
         if (tipoEmpresas.equals("especificas")) {
             int i = 0;
-            RelatorioSociosDB db = new RelatorioSociosDBToplink();
+            RelatorioSociosDao db = new RelatorioSociosDao();
             List<Juridica> select = db.listaEmpresaDoSocio();
             if (!select.isEmpty()) {
                 while (i < select.size()) {
@@ -759,7 +758,7 @@ public class RelatorioSociosBean implements Serializable {
 
     public List getListaCidadesSocio() {
         if (listaCidadesSocio.isEmpty()) {
-            RelatorioSociosDB db = new RelatorioSociosDBToplink();
+            RelatorioSociosDao db = new RelatorioSociosDao();
             List select = new ArrayList();
             select.addAll(db.listaCidadeDoSocio());
             for (int i = 0; i < select.size(); i++) {
@@ -781,7 +780,7 @@ public class RelatorioSociosBean implements Serializable {
 
     public List getListaCidadesEmpresa() {
         if (listaCidadesEmpresa.isEmpty()) {
-            RelatorioSociosDB db = new RelatorioSociosDBToplink();
+            RelatorioSociosDao db = new RelatorioSociosDao();
             List select = new ArrayList();
             select.addAll(db.listaCidadeDaEmpresa());
             for (int i = 0; i < select.size(); i++) {
@@ -831,7 +830,7 @@ public class RelatorioSociosBean implements Serializable {
 
     public List getListaServicos() {
         if (listaServicos.isEmpty()) {
-            RelatorioSociosDB db = new RelatorioSociosDBToplink();
+            RelatorioSociosDao db = new RelatorioSociosDao();
             List select = new ArrayList();
             if (chkSocios) {
                 select.addAll(db.listaSPSocios());

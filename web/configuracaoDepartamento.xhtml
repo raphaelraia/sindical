@@ -1,0 +1,147 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Configuração Departamento</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
+            .ui-button { padding: 3px!important; }
+            .ui-selectonemenu {padding-right: 25px!important;}
+        </style>
+
+        <script type="text/javascript">
+
+        </script>          
+    </h:head>
+    <h:body>
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                </f:subview>
+                <f:view>
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:outputText value="Configuração Departamento" styleClass="fonteHeader" />
+                        <div class="clear"></div>
+                        <h:form id="form_ed">
+                            <c:set scope="request" var="object" value="${configuracaoDepartamentoBean.configuracaoDepartamento}"/>
+                            <p:messages autoUpdate="true" showDetail="true" closable="true"/>
+                            <p:panel styleClass="fundoCinza">
+                                <h:panelGrid columns="2">
+                                    <p:outputLabel value="Filial: " />
+                                    <p:selectOneMenu value="#{configuracaoDepartamentoBean.idFilial}" filter="true" filterMatchMode="startsWith">
+                                        <p:ajax event="change" update="@this, i_sel_d" listener="#{configuracaoDepartamentoBean.loadListDepartamentos()}"/>
+                                        <f:selectItems var="filial" value="#{configuracaoDepartamentoBean.listFiliais}" />
+                                    </p:selectOneMenu>
+                                    <p:outputLabel value="Departamento: " />
+                                    <p:selectOneMenu id="i_sel_d" value="#{configuracaoDepartamentoBean.idDepartamento}" disabled="#{filialDepartamentoBean.listDepartamentos.size() == 0}"  filter="true" filterMatchMode="startsWith">
+                                        <p:ajax event="change" update="@this" />
+                                        <f:selectItems var="departamento" value="#{configuracaoDepartamentoBean.listDepartamentos}" />
+                                    </p:selectOneMenu>
+                                    <p:outputLabel value="Protocolo: " />
+                                    <p:selectOneMenu value="#{configuracaoDepartamentoBean.idSisEmailProtocolo}"  filter="true" filterMatchMode="startsWith">
+                                        <f:selectItems value="#{configuracaoDepartamentoBean.listSisEmailProtocolo}" />
+                                    </p:selectOneMenu>
+                                    <p:outputLabel value="Email: "/>
+                                    <h:column>
+                                        <p:inputText id="idEmail" size="50" value="#{configuracaoDepartamentoBean.configuracaoDepartamento.email}" autocomplete="off" validatorMessage="Email inválido" required="false" placeholder="Formato: meuemail@provedor.com" title="Não pode ter validação automática">
+                                            <p:ajax event="change" update="i_message_email" />
+                                            <f:validateRegex pattern="[\w\.-]*[a-zA-Z0-9_]@[\w\.-]*[a-zA-Z0-9]\.[a-zA-Z][a-zA-Z\.]*[a-zA-Z]" />
+                                        </p:inputText>                                                
+                                        <p:message for="idEmail" id="i_message_email" />
+                                    </h:column>         
+                                    <p:outputLabel value="Senha: " />
+                                    <h:panelGrid columns="3" cellpadding="3">
+                                        <p:inputText id="idSenha" size="15" value="#{configuracaoDepartamentoBean.configuracaoDepartamento.senha}" autocomplete="off" type="password"/>
+                                        <p:outputLabel value="Confirmar Senha: " />
+                                        <p:inputText id="idConSenha" size="15" value="#{configuracaoDepartamentoBean.configuracaoDepartamento.senhaConfirma}" autocomplete="off" type="password"/>                                        
+                                    </h:panelGrid>
+                                    <p:column />
+                                    <p:column>
+                                        <p:selectBooleanCheckbox id="i_aut" value="#{configuracaoDepartamentoBean.configuracaoDepartamento.autenticado}" itemLabel="Usar email autenticado">
+                                            <p:ajax event="change" update=":form_ed:" global="true"/>
+                                        </p:selectBooleanCheckbox>
+                                    </p:column>                                    
+                                    <p:outputLabel value="Servidor Smtp: " />                                    
+                                    <h:column>
+                                        <h:panelGrid columns="3"  cellpadding="3">
+                                            <p:inputText size="30" value="#{configuracaoDepartamentoBean.configuracaoDepartamento.smtp}" />
+                                            <p:outputLabel value="Porta: " />
+                                            <p:inputText size="3" value="#{configuracaoDepartamentoBean.configuracaoDepartamento.porta}" styleClass="text-center">
+                                                <f:ajax event="change" render="@this" />
+                                            </p:inputText>
+                                        </h:panelGrid>
+                                    </h:column>
+                                    <p:outputLabel value="Email resposta: " />
+                                    <p:column>
+                                        <p:inputText id="idEmailResposta" size="50" value="#{configuracaoDepartamentoBean.configuracaoDepartamento.emailResposta}" autocomplete="off" validatorMessage="Email resposta inválido #{registroEmpresarialBean.registro.sisEmailResposta}" required="false" placeholder="Formato: meuemail@provedor.com">
+                                            <p:ajax event="blur" update="i_message_email_resposta" />
+                                            <f:validateRegex pattern="[\w\.-]*[a-zA-Z0-9_]@[\w\.-]*[a-zA-Z0-9]\.[a-zA-Z][a-zA-Z\.]*[a-zA-Z]" />
+                                        </p:inputText>
+                                        <div class="float-left">
+                                            <p:message for="idEmailResposta" id="i_message_email_resposta"/>
+                                        </div>
+                                    </p:column>                                    
+                                </h:panelGrid>
+                                <p:panel header="Assinatura">
+                                    <p:editor value="#{configuracaoDepartamentoBean.configuracaoDepartamento.assinatura}" maxlength="500">
+
+                                    </p:editor>
+                                </p:panel>
+                                <h:panelGrid styleClass="margin-top-max" columns="2">
+                                    <p:commandButton value="Salvar" action="#{configuracaoDepartamentoBean.save()}" update=":form_ed:" disabled="#{controleAcessoBean.botaoSalvar}"/>
+                                    <p:commandButton value="Novo"  action="#{configuracaoDepartamentoBean.clear()}" update=":form_ed:" />
+                                </h:panelGrid>
+                                <f:facet name="footer">
+                                    <h:outputLabel value="Apelido/aliás dado ao e-mail principal, caso esse seja de um servidor externo." />
+                                </f:facet>
+                            </p:panel>
+                            <h:panelGrid id="i_pg_fd">
+                                <p:dataTable var="configuracaoDepartamento" value="#{configuracaoDepartamentoBean.listConfiguracaoDepartamento}" scrollable="true" scrollHeight="200" rowIndexVar="index" styleClass="margin-top-max" emptyMessage="Nenhum registro encontrado!">
+                                    <p:column width="25">
+                                        <p:commandButton icon="ui-icon-link" action="#{configuracaoDepartamentoBean.edit(configuracaoDepartamento)}" update=":form_ed:" disabled="#{controleAcessoBean.botaoExcluir}" />
+                                    </p:column>
+                                    <p:column headerText="Departamento">
+                                        #{configuracaoDepartamento.departamento.descricao}
+                                    </p:column>
+                                    <p:column headerText="Filial">
+                                        #{configuracaoDepartamento.filial.filial.pessoa.nome}
+                                    </p:column>
+                                    <p:column headerText="Email">
+                                        #{configuracaoDepartamento.email}
+                                    </p:column>
+                                    <p:column headerText="Email de teste">                                        
+                                        <p:inputText id="idEmail#{configuracaoDepartamento.id}" value="#{configuracaoDepartamento.emailTest}" autocomplete="off" validatorMessage="Email inválido" required="false" placeholder="Formato: meuemail@provedor.com" title="Não pode ter validação automática" style="width: 100%">
+                                            <p:ajax event="change" update="@this"/>
+                                        </p:inputText>                                           
+                                    </p:column>
+                                    <p:column width="25">
+                                        <p:commandButton icon="ui-icon-mail-closed" action="#{configuracaoDepartamentoBean.send(configuracaoDepartamento)}" update=":form_ed:" title="Testar envio"/>
+                                    </p:column>
+                                    <p:column width="25">
+                                        <p:commandButton icon="ui-icon-trash" action="#{configuracaoDepartamentoBean.remove(index)}" update=":form_ed:" disabled="#{controleAcessoBean.botaoExcluir}" />
+                                    </p:column>
+                                </p:dataTable>
+                            </h:panelGrid>                            
+                        </h:form>
+                    </p:panel>
+                </f:view>
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>                
+    </h:body>
+</ui:composition>

@@ -8,6 +8,7 @@ import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.sistema.Email;
 import br.com.rtools.sistema.EmailArquivo;
+import br.com.rtools.sistema.ConfiguracaoDepartamento;
 import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.sistema.EmailPrioridade;
 import java.io.File;
@@ -49,6 +50,7 @@ public class Mail extends MailTemplate implements Serializable {
     private String html;
     private String personal;
     private Boolean message_hidden;
+    private ConfiguracaoDepartamento configuracaoDepartamento;
 
     public Mail() {
         email = new Email();
@@ -61,9 +63,10 @@ public class Mail extends MailTemplate implements Serializable {
         emailArquivos = new ArrayList();
         html = "";
         message_hidden = false;
+        configuracaoDepartamento = null;
     }
 
-    public Mail(Email email, Registro registro, List<Email> emails, List<EmailPessoa> emailPessoas, List<File> files, boolean saveFiles, EmailArquivo emailArquivo, List<EmailArquivo> emailArquivos, String html, String personal) {
+    public Mail(Email email, Registro registro, List<Email> emails, List<EmailPessoa> emailPessoas, List<File> files, boolean saveFiles, EmailArquivo emailArquivo, List<EmailArquivo> emailArquivos, String html, String personal, ConfiguracaoDepartamento configuracaoDepartamento) {
         this.email = email;
         this.registro = registro;
         this.emails = emails;
@@ -74,6 +77,7 @@ public class Mail extends MailTemplate implements Serializable {
         this.emailArquivos = emailArquivos;
         this.html = html;
         this.personal = personal;
+        this.configuracaoDepartamento = configuracaoDepartamento;
     }
 
     public String[] send() {
@@ -89,7 +93,7 @@ public class Mail extends MailTemplate implements Serializable {
         DaoInterface di = new Dao();
         ConfiguracaoArrecadacaoBean cab = new ConfiguracaoArrecadacaoBean();
         cab.init();
-        Juridica sindicato =  cab.getConfiguracaoArrecadacao().getFilial().getFilial();
+        Juridica sindicato = cab.getConfiguracaoArrecadacao().getFilial().getFilial();
         //Juridica sindicato = (Juridica) di.find(new Juridica(), 1);
         if (personal == null || personal.isEmpty()) {
             personal = sindicato.getPessoa().getNome();
@@ -99,6 +103,28 @@ public class Mail extends MailTemplate implements Serializable {
                 if (emailArquivos == null) {
                     emailArquivos = new ArrayList();
                 }
+                String xEmail = registro.getEmail();
+                String xSenha = registro.getSenha();
+                String xEmailResposta = registro.getSisEmailResposta();
+                Integer xPorta = registro.getSisEmailPorta();
+                Integer xSisEmailProtocoloId = registro.getSisEmailProtocolo().getId();
+                String xSmtp = registro.getSmtp();
+                Boolean xAutenticado = registro.isEmailAutenticado();
+                String xEmailSindicato = sindicato.getPessoa().getEmail1();
+                String xNome = sindicato.getPessoa().getNome();
+                String xAssinatura = "";
+                if (configuracaoDepartamento != null) {
+                    xEmail = configuracaoDepartamento.getEmail();
+                    xSenha = configuracaoDepartamento.getSenha();
+                    xEmailResposta = configuracaoDepartamento.getEmailResposta();
+                    xPorta = configuracaoDepartamento.getPorta();
+                    xSisEmailProtocoloId = configuracaoDepartamento.getSisEmailProtocolo().getId();
+                    xSmtp = configuracaoDepartamento.getSmtp();
+                    xAutenticado = configuracaoDepartamento.getAutenticado();
+                    xEmailSindicato = configuracaoDepartamento.getEmail();
+                    xNome = configuracaoDepartamento.getFilial().getFilial().getPessoa().getNome() + " <br />Depto " + configuracaoDepartamento.getDepartamento().getDescricao();
+                    xAssinatura = configuracaoDepartamento.getAssinatura();
+                }
                 boolean saveArquivosEmail = false;
                 for (int i = 0; i < emailPessoas.size(); i++) {
                     try {
@@ -106,7 +132,7 @@ public class Mail extends MailTemplate implements Serializable {
                         if (registro.isSisEmailMarketing()) {
                             session = EnviarEmail.configureSession(EmailMarketing.getHOSTNAME(), EmailMarketing.getPORT(), EmailMarketing.getLOGIN(), EmailMarketing.getPASSWORD(), EmailMarketing.isAUTH(), EmailMarketing.getPROTOCOL());
                         } else {
-                            session = EnviarEmail.configureSession(getRegistro().getSmtp(), registro.getSisEmailPorta(), registro.getEmail(), registro.getSenha(), registro.isEmailAutenticado(), registro.getSisEmailProtocolo().getId());
+                            session = EnviarEmail.configureSession(xSmtp, xPorta, xEmail, xSenha, xAutenticado, xSisEmailProtocoloId);
                         }
                         if (session == null) {
                             strings[0] = "Não foi possível realizar autenticação!";
@@ -119,13 +145,11 @@ public class Mail extends MailTemplate implements Serializable {
                                 Address address[] = {new InternetAddress(registro.getSisEmailMarketingResposta())};
                                 msg.setReplyTo(address);
                             }
+                        } else if (!xEmailResposta.isEmpty()) {
+                            internetAddress.setPersonal(xEmailResposta);
+                            msg.setFrom(internetAddress);
                         } else {
-                            if (!registro.getSisEmailResposta().isEmpty()) {
-                                internetAddress.setPersonal(registro.getSisEmailResposta());
-                                msg.setFrom(internetAddress);
-                            } else {
-                                msg.setFrom(new InternetAddress(registro.getEmail()));
-                            }
+                            msg.setFrom(new InternetAddress(xEmail));
                         }
                         String to = "";
                         if (emailPessoas.get(i).getPessoa() != null) {
@@ -147,10 +171,11 @@ public class Mail extends MailTemplate implements Serializable {
                                 htmlString = ""
                                         + "<html>"
                                         + "     <body style='background-color: white'>"
-                                        + "         <h2><b>" + sindicato.getPessoa().getNome() + "</b></h2><br /><br />"
+                                        + "         <h2><b>" + xNome + "</b></h2><br /><br />"
                                         //+ "         <h2><b>" + registro.getFilial().getPessoa().getNome() + "</b></h2><br /><br />"
                                         + "         <p> " + email.getMensagem() + "</p>"
                                         + "         <br /><br />"
+                                        + "         " + xAssinatura
                                         + "     </body>"
                                         + "</html>";
                             } else if (templateHtml.equals("personalizado")) {
@@ -163,17 +188,18 @@ public class Mail extends MailTemplate implements Serializable {
                                         + "<html>"
                                         + "     <body style='background-color: white'>"
                                         + "         <h2>                                                            "
-                                        + "             <b>" + sindicato.getPessoa().getNome() + "</b>   "
+                                        + "             <b>" + xNome + "</b>   "
                                         //+ "             <b>" + registro.getFilial().getPessoa().getNome() + "</b>   "
                                         + "         <h3>                                                            "
                                         + "             A/C                                                         "
                                         + "         </h3><b> " + jur.getContato() + " </b><br /><br />              "
                                         + "         </h2><br /><br />                                               "
                                         + "         <h4> " + email.getMensagem() + "</h4><br /><br />               "
+                                        + "         " + xAssinatura
                                         + "                                                                     ";
-                                if (!sindicato.getPessoa().getEmail1().equals(registro.getSisEmailResposta())) {
-                                //if (!registro.getFilial().getPessoa().getEmail1().equals(registro.getSisEmailResposta())) {
-                                    htmlString += "<h3>Caso queira entrar em contato envie para: <strong>" + sindicato.getPessoa().getEmail1() + "</strong></h3>";
+                                if (!sindicato.getPessoa().getEmail1().equals(xEmailResposta)) {
+                                    //if (!registro.getFilial().getPessoa().getEmail1().equals(registro.getSisEmailResposta())) {
+                                    htmlString += "<h3>Caso queira entrar em contato envie para: <strong>" + xEmailSindicato + "</strong></h3>";
                                     //htmlString += "<h3>Caso queira entrar em contato envie para: <strong>" + registro.getFilial().getPessoa().getEmail1() + "</strong></h3>";
                                 }
                                 htmlString
@@ -291,8 +317,7 @@ public class Mail extends MailTemplate implements Serializable {
 
     public Registro getRegistro() {
         if (registro == null || registro.getId() == -1) {
-            DaoInterface di = new Dao();
-            registro = (Registro) di.find(new Registro(), 1);
+            registro = (Registro) new Dao().find(new Registro(), 1);
         }
         return registro;
     }
@@ -371,5 +396,13 @@ public class Mail extends MailTemplate implements Serializable {
 
     public void setMessage_hidden(Boolean message_hidden) {
         this.message_hidden = message_hidden;
+    }
+
+    public ConfiguracaoDepartamento getConfiguracaoDepartamento() {
+        return configuracaoDepartamento;
+    }
+
+    public void setConfiguracaoDepartamento(ConfiguracaoDepartamento configuracaoDepartamento) {
+        this.configuracaoDepartamento = configuracaoDepartamento;
     }
 }

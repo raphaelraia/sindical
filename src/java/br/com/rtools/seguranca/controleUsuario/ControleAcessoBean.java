@@ -163,7 +163,7 @@ public class ControleAcessoBean implements Serializable {
     }
 
     public boolean verificarPermissaoUsuario() {
-        boolean retorno = true;
+        boolean retorno = false;
         PermissaoUsuarioDao db = new PermissaoUsuarioDao();
         RotinaDao rotinaDao = new RotinaDao();
         if (urlDestino.equals("/Sindical/menuPrincipal.jsf")) {

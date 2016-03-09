@@ -1,5 +1,6 @@
 package br.com.rtools.seguranca;
 
+import br.com.rtools.utilitarios.BaseEntity;
 import java.io.Serializable;
 import javax.persistence.*;
 
@@ -9,12 +10,12 @@ import javax.persistence.*;
     @NamedQuery(name = "SisEmailProtocolo.findAll", query = "SELECT SEP FROM SisEmailProtocolo SEP ORDER BY SEP.descricao ASC "),
     @NamedQuery(name = "SisEmailProtocolo.findName", query = "SELECT SEP FROM SisEmailProtocolo SEP WHERE UPPER(SEP.descricao) LIKE :pdescricao ORDER BY SEP.descricao ASC ")
 })
-public class SisEmailProtocolo implements Serializable {
+public class SisEmailProtocolo implements BaseEntity, Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
     @Column(name = "ds_descricao", length = 50, nullable = false, unique = true)
     private String descricao;
 
@@ -23,16 +24,17 @@ public class SisEmailProtocolo implements Serializable {
         this.descricao = "";
     }
 
-    public SisEmailProtocolo(int id, String descricao) {
+    public SisEmailProtocolo(Integer id, String descricao) {
         this.id = id;
         this.descricao = descricao;
     }
 
-    public int getId() {
+    @Override
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

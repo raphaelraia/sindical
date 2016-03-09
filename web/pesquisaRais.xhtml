@@ -20,7 +20,7 @@
                     <h:outputText value="Pesquisa Rais" styleClass="fonteHeader" />
                     <div class="clear"></div>
                     <p:panel id="i_panel_pesquisa" styleClass="fundoCinza">
-                        <h:panelGrid columns="8">
+                        <h:panelGrid columns="8" cellpadding="5">
                             <p:outputLabel value="Pesquisar: "/>
                             <h:column rendered="#{!raisBean.removeFiltro}">
                                 <p:inputMask mask="#{raisBean.mascara}" value="#{raisBean.descricaoPesquisa}" disabled="#{raisBean.porPesquisa == 'todos'}">
@@ -77,19 +77,19 @@
                         <p:column headerText="Emissão" width="80" styleClass="text-center">
                             #{rais.emissaoString}
                         </p:column>                                    
-                        <p:column headerText="CPF" styleClass="text-center" width="120">
+                        <p:column headerText="CPF" styleClass="text-center" width="120" filterBy="#{rais.sisPessoa.documento}" filterMatchMode="global" >
                             #{rais.sisPessoa.documento}
                         </p:column>                      
-                        <p:column headerText="Nome" >
+                        <p:column headerText="Nome" filterBy="#{rais.sisPessoa.nome}" filterMatchMode="global">
                             #{rais.sisPessoa.nome}
                         </p:column>
-                        <p:column headerText="CNPJ" width="140" styleClass="text-center">
+                        <p:column headerText="CNPJ" width="140" styleClass="text-center" filterBy="#{rais.empresa.pessoa.documento}"  filterMatchMode="global">
                             #{rais.empresa.pessoa.documento}
                         </p:column>                                    
-                        <p:column headerText="Empresa" >
+                        <p:column headerText="Empresa" filterBy="#{rais.empresa.pessoa.nome}" filterMatchMode="global">
                             #{rais.empresa.pessoa.nome}
                         </p:column>
-                        <p:column headerText="Profissão" >
+                        <p:column headerText="Profissão" filterBy="#{rais.profissao.profissao}" filterMatchMode="global">
                             #{rais.profissao.profissao}
                         </p:column>
                     </p:dataTable>

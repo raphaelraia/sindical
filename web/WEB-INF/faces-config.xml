@@ -2047,6 +2047,13 @@
             <redirect/>
         </navigation-case>        
         
+        
+        <navigation-case>
+            <from-outcome>configuracaoDepartamento</from-outcome>
+            <to-view-id>/configuracaoDepartamento.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>        
+        
     </navigation-rule>
     
     <lifecycle>

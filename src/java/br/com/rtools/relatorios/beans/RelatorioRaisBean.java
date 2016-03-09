@@ -724,7 +724,7 @@ public class RelatorioRaisBean implements Serializable {
 
     public Juridica getEmpresa() {
         if (GenericaSessao.exists("juridicaPesquisa") && GenericaSessao.exists("tipoPesquisaPessoaJuridica")) {
-            if (GenericaSessao.getString("tipoPesquisaPessoaJuridica").equals("contribuintes")) {
+            if (GenericaSessao.getString("tipoPesquisaPessoaJuridica").equals("todosecontribuintes")) {
                 GenericaSessao.remove("juridicaBean");
                 GenericaSessao.remove("tipoPesquisaPessoaJuridica");
                 empresa = (Juridica) GenericaSessao.getObject("juridicaPesquisa", true);

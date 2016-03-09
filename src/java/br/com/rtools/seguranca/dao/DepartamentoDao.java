@@ -2,7 +2,6 @@ package br.com.rtools.seguranca.dao;
 
 import br.com.rtools.principal.DB;
 import br.com.rtools.seguranca.Departamento;
-import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.utilitarios.dao.FindDao;
 import java.util.ArrayList;
 import java.util.List;

@@ -23,7 +23,7 @@ import javax.persistence.*;
     @NamedQuery(name = "Filial.pesquisaID", query = "SELECT FIL FROM Filial AS FIL WHERE FIL.id = :pid"),
     @NamedQuery(name = "Filial.findAll", query = "SELECT FIL FROM Filial AS FIL ORDER BY FIL.filial.pessoa.nome ASC ")
 })
-public class Filial implements  Serializable {
+public class Filial implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -56,7 +56,6 @@ public class Filial implements  Serializable {
         this.quantidadeAgendamentosPorEmpresa = quantidadeAgendamentosPorEmpresa;
     }
 
-    
     public Integer getId() {
         return id;
     }
@@ -125,7 +124,7 @@ public class Filial implements  Serializable {
 
     @Override
     public String toString() {
-        return "Filial{" + "id=" + id + ", matriz=" + matriz.getId() + ", filial=" + filial.getId() + ", centroCusto=" + centroCusto + ", quantidadeAgendamentosPorEmpresa=" + quantidadeAgendamentosPorEmpresa + '}';
+        return "Filial{" + "id=" + id + ", matriz=" + matriz + ", filial=" + filial + ", centroCusto=" + centroCusto + ", quantidadeAgendamentosPorEmpresa=" + quantidadeAgendamentosPorEmpresa + '}';
     }
 
     public int getQuantidadeAgendamentosPorEmpresa() {

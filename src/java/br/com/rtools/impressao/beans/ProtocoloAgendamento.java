@@ -8,22 +8,25 @@ import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
+import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.Email;
+import br.com.rtools.sistema.ConfiguracaoDepartamento;
 import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.sistema.Links;
+import br.com.rtools.sistema.dao.ConfiguracaoDepartamentoDao;
 import br.com.rtools.sistema.db.LinksDB;
 import br.com.rtools.sistema.db.LinksDBToplink;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.Diretorio;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.Mail;
-import br.com.rtools.utilitarios.SalvaArquivos;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -34,13 +37,6 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
-import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JasperExportManager;
-import net.sf.jasperreports.engine.JasperFillManager;
-import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.JasperReport;
-import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-import net.sf.jasperreports.engine.util.JRLoader;
 
 @ManagedBean
 @ViewScoped
@@ -62,29 +58,20 @@ public class ProtocoloAgendamento implements Serializable {
             return;
         }
         try {
-            Collection lista = parametroProtocolos(a);
-            File fl = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/PROTOCOLO.jasper"));
-            JasperReport jasperReport = (JasperReport) JRLoader.loadObject(fl);
-            JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(lista);
-            JasperPrint print = JasperFillManager.fillReport(jasperReport, null, dtSource);
-            byte[] arquivo = JasperExportManager.exportReportToPdf(print);
-            String nomeDownload = "envio_protocolo_" + a.getId() + ".pdf";
-            String pathPasta = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/protocolo");
-            if (!new File(pathPasta).exists()) {
-                File fNew = new File(pathPasta);
-                fNew.mkdir();
-            }
-            SalvaArquivos salvaArquivos = new SalvaArquivos(arquivo, nomeDownload, false);
-            salvaArquivos.salvaNaPasta(pathPasta);
+            Jasper.PART_NAME = "" + a.getId();
+            Jasper.PATH = "downloads";
+            Jasper.IGNORE_UUID = true;
+            Jasper.IS_DOWNLOAD = false;
+            Jasper.printReports("/Relatorios/PROTOCOLO.jasper", "envio_protocolo", (Collection) parametroProtocolos(a));
+            String fileEnvioProtocolo = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/envio_protocolo/envio_protocolo_" + a.getId() + ".pdf");
             LinksDB db = new LinksDBToplink();
-            Links link = db.pesquisaNomeArquivo(nomeDownload);
+            Links link = db.pesquisaNomeArquivo("envio_protocolo" + a.getId() + ".pdf");
             Dao dao = new Dao();
             if (link == null) {
                 link = new Links();
-                link.setCaminho("/Sindical/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/protocolo");
-                link.setNomeArquivo(nomeDownload);
+                link.setCaminho("/Sindical/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/envio_protocolo");
+                link.setNomeArquivo("envio_protocolo_" + a.getId() + ".pdf");
                 link.setPessoa(a.getPessoaEmpresa().getFisica().getPessoa());
-
                 dao.openTransaction();
                 if (dao.save(link)) {
                     dao.commit();
@@ -97,6 +84,10 @@ public class ProtocoloAgendamento implements Serializable {
             p.add(a.getPessoaEmpresa().getFisica().getPessoa());
             Registro registro = (Registro) dao.find(new Registro(), 1);
             Mail mail = new Mail();
+            ConfiguracaoDepartamento configuracaoDepartamento = new ConfiguracaoDepartamentoDao().findBy(8, MacFilial.getAcessoFilial().getFilial().getId());
+            if (configuracaoDepartamento != null) {
+                mail.setConfiguracaoDepartamento(configuracaoDepartamento);
+            }
             Email email = new Email(
                     -1,
                     DataHoje.dataHoje(),
@@ -110,17 +101,17 @@ public class ProtocoloAgendamento implements Serializable {
                     false
             );
             if (registro.isEnviarEmailAnexo()) {
-                List<File> fls = new ArrayList<File>();
-                fls.add(new File(pathPasta + "/" + nomeDownload));
+                List<File> fls = new ArrayList<>();
+                fls.add(new File(fileEnvioProtocolo));
                 mail.setFiles(fls);
                 email.setMensagem("<h5>Baixe seu protocolo que esta anexado neste email</5><br /><br />");
             } else {
                 email.setMensagem(" <h5>Visualize seu protocolo clicando no link abaixo</5><br /><br />    "
-                        + " <a href='" + registro.getUrlPath() + "/Sindical/acessoLinks.jsf?cliente=" + ControleUsuarioBean.getCliente() + "&amp;arquivo=" + nomeDownload + "' target='_blank'>Clique aqui para abrir seu protocolo</a><br />"
+                        + " <a href='" + registro.getUrlPath() + "/Sindical/acessoLinks.jsf?cliente=" + ControleUsuarioBean.getCliente() + "&amp;arquivo=envio_protocolo_" + a.getId() + ".pdf" + "' target='_blank'>Clique aqui para abrir seu protocolo</a><br />"
                 );
             }
             mail.setEmail(email);
-            List<EmailPessoa> emailPessoas = new ArrayList<EmailPessoa>();
+            List<EmailPessoa> emailPessoas = new ArrayList<>();
             EmailPessoa emailPessoa = new EmailPessoa();
             List<Pessoa> pessoas = (List<Pessoa>) p;
             for (Pessoa p1 : pessoas) {
@@ -131,6 +122,9 @@ public class ProtocoloAgendamento implements Serializable {
                 mail.setEmailPessoas(emailPessoas);
                 emailPessoa = new EmailPessoa();
             }
+            if (configuracaoDepartamento != null) {
+                mail.setConfiguracaoDepartamento(configuracaoDepartamento);
+            }
             String[] retorno = mail.send("personalizado");
             if (!retorno[1].isEmpty()) {
                 GenericaMensagem.warn("E-mail", retorno[1]);
@@ -138,9 +132,9 @@ public class ProtocoloAgendamento implements Serializable {
                 GenericaMensagem.info("E-mail", retorno[0]);
             }
             if (!mail.getEmailArquivos().isEmpty()) {
-                salvaArquivos.remover();
+                new File(fileEnvioProtocolo).delete();
             }
-        } catch (JRException e) {
+        } catch (Exception e) {
             NovoLog log = new NovoLog();
             log.live("Erro de envio de protocolo por e-mail: Mensagem: " + e.getMessage() + " - Causa: " + e.getCause() + " - Caminho: " + e.getStackTrace().toString());
         }
@@ -171,8 +165,13 @@ public class ProtocoloAgendamento implements Serializable {
             datax = a.getData();
             horario = a.getHorarios().getHora();
         }
+        String email = a.getFilial().getFilial().getPessoa().getEmail1();
+        ConfiguracaoDepartamento configuracaoDepartamento = new ConfiguracaoDepartamentoDao().findBy(8, MacFilial.getAcessoFilial().getFilial().getId());
+        if (configuracaoDepartamento != null) {
+            email = configuracaoDepartamento.getEmail();
+        }
         Registro registro = (Registro) dao.find(new Registro(), 1);
-        Collection lista = new ArrayList<ParametroProtocolo>();
+        Collection lista = new ArrayList<>();
         lista.add(new ParametroProtocolo(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
                 sindicato.getPessoa().getNome(),
                 sindicato.getPessoa().getSite(),
@@ -187,7 +186,7 @@ public class ProtocoloAgendamento implements Serializable {
                 pessoaEndereco.getEndereco().getCidade().getCidade(),
                 pessoaEndereco.getEndereco().getCidade().getUf(),
                 a.getFilial().getFilial().getPessoa().getTelefone1(),
-                a.getFilial().getFilial().getPessoa().getEmail1(),
+                email,
                 String.valueOf(a.getId()),
                 datax,
                 horario,

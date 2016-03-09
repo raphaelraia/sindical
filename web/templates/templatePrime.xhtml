@@ -71,8 +71,9 @@
                     </p:selectBooleanCheckbox>                    
                     <p:menuButton value="Opções" style="float: right">
                         <p:menuitem value="Meu Perfil" action="#{chamadaPaginaBean.usuarioPerfil}" />
-                        <p:menuitem value="Resolução" onclick="PF('dlg_resolucao').show()"/>                        
+                        <p:menuitem value="Resolução" onclick="PF('dlg_resolucao').show()"/>
                         <p:menuitem value="Meus Logs" actionListener="#{pesquisaLogBean.listenerBlockUsuario}" action="#{chamadaPaginaBean.pesquisa('meusLogs')}" />
+                        <p:menuitem value="Informar Bug" onclick="PF('dlg_report_bug').show()" />
                         <p:menuitem ajax="false" value="Trocar Filial" action="#{chamadaPaginaBean.pagina('macFilial')}" immediate="true" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" styleClass="font-color-red" actionListener="#{genericaSessao.putBoolean('back', true)}"/>
                         <p:separator />
                         <p:menuitem value="Sair" action="#{usuarioBean.sairSistema}" icon="ui-icon-extlink"/>
@@ -110,6 +111,20 @@
                         <p:commandButton value="OK" action="#{configuracaoBean.salvarResolucao}"/>
                     </h:column>
                 </h:panelGrid>
+            </h:form>
+        </p:dialog>
+
+        <p:dialog widgetVar="dlg_report_bug" header="Reportar Bug" resizable="false" modal="true" width="640">
+            <h:form id="form_report_bug">
+                <p:messages autoUpdate="true" showDetail="true" showSummary="true" closable="true" />
+                <p:panel>
+                    <p:inputTextarea value="#{reportBugBean.bug}" cols="90" rows="10" placeholder="Informe o problema ocorrido, deve conter mo mínimo 10 caracteres">
+                        <p:ajax event="change" update="@this" />
+                    </p:inputTextarea>
+                    <f:facet name="footer">
+                        <p:commandButton action="#{reportBugBean.report}" value="Enviar" />
+                    </f:facet>                    
+                </p:panel>
             </h:form>
         </p:dialog>
     </f:view>    

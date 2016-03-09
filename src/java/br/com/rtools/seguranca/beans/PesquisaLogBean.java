@@ -54,7 +54,7 @@ public class PesquisaLogBean implements Serializable {
         filtro[2] = false;
         filtro[3] = false;
         filtro[4] = false;
-        filtroEvento = new Boolean[4];
+        filtroEvento = new Boolean[5];
         filtro[0] = false;
         filtro[1] = false;
         filtro[2] = false;
@@ -137,6 +137,7 @@ public class PesquisaLogBean implements Serializable {
             filtroEvento[1] = false;
             filtroEvento[2] = false;
             filtroEvento[3] = false;
+            filtroEvento[4] = false;
         }
         if (!filtro[4]) {
             porPesquisa = "";
@@ -164,6 +165,7 @@ public class PesquisaLogBean implements Serializable {
             filtroEvento[1] = false;
             filtroEvento[2] = false;
             filtroEvento[3] = false;
+            filtroEvento[4] = false;
         } else if (close.equals("descricao")) {
             filtro[4] = false;
             descPesquisa = "";
@@ -250,6 +252,10 @@ public class PesquisaLogBean implements Serializable {
         if (filtroEvento[3]) {
             listIds.add("4");
         }
+        if (filtroEvento[4]) {
+            listIds.clear();
+            listIds.add("live");
+        }
         for (int i = 0; i < listIds.size(); i++) {
             if (i == 0) {
                 ids += listIds.get(i).toString();
@@ -278,6 +284,7 @@ public class PesquisaLogBean implements Serializable {
      * <li>[1](2)Exclusão</li>
      * <li>[2](3)Alteração</li>
      * <li>[3](4)Consulta</li>
+     * <li>[4] Nenhum</li>
      * </ul>
      *
      * @return boolean

@@ -1,16 +1,14 @@
-package br.com.rtools.relatorios.db;
+package br.com.rtools.relatorios.dao;
 
 import br.com.rtools.principal.DB;
 import br.com.rtools.relatorios.Relatorios;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 import javax.persistence.Query;
 import oracle.toplink.essentials.exceptions.EJBQLException;
 
-public class RelatorioSociosDBToplink extends DB implements RelatorioSociosDB {
+public class RelatorioSociosDao extends DB {
 
-    @Override
     public List listaEmpresaDoSocio() {
         List result = new ArrayList();
         try {
@@ -53,7 +51,6 @@ public class RelatorioSociosDBToplink extends DB implements RelatorioSociosDB {
         return result;
     }
 
-    @Override
     public List listaCidadeDaEmpresa() {
         List result = new ArrayList();
         String textQuery = "";
@@ -84,7 +81,6 @@ public class RelatorioSociosDBToplink extends DB implements RelatorioSociosDB {
         return result;
     }
 
-    @Override
     public List listaSPSocios() {
         List result = new ArrayList();
         try {
@@ -113,7 +109,6 @@ public class RelatorioSociosDBToplink extends DB implements RelatorioSociosDB {
         return result;
     }
 
-    @Override
     public List listaSPEscola() {
         List result = new ArrayList();
         try {
@@ -128,7 +123,6 @@ public class RelatorioSociosDBToplink extends DB implements RelatorioSociosDB {
         return result;
     }
 
-    @Override
     public List listaSPConvenioMedico() {
         List result = new ArrayList();
         try {
@@ -143,7 +137,6 @@ public class RelatorioSociosDBToplink extends DB implements RelatorioSociosDB {
         return result;
     }
 
-    @Override
     public List pesquisaSocios(Relatorios relatorio, Integer matricula_inicial, Integer matricula_final, Integer idade_inicial, Integer idade_final, String ids_gc, String ids_c, String tipo_sexo, String ids_parentesco, String tipo_foto, String tipo_carteirinha,
             Boolean booTipoPagamento, String ids_pagamento, Boolean booCidadeSocio, String ids_cidade_socio, Boolean booCidadeEmpresa, String ids_cidade_empresa,
             Boolean booAniversario, String meses_aniversario, String dia_inicial, String dia_final, Boolean ordemAniversario, Boolean booData, String dt_cadastro, String dt_cadastro_fim, String dt_recadastro,
@@ -154,14 +147,20 @@ public class RelatorioSociosDBToplink extends DB implements RelatorioSociosDB {
 
         String p_demissao = "";
         if (booData && !dt_demissao.isEmpty() && !dt_demissao_fim.isEmpty()) {
-            p_demissao = " , pempresa.admissao_empresa_demissionada, \n" + // 79
-                    "   pempresa.demissao_empresa_demissionada, \n" + // 80
-                    "   pempresa.cnpj_empresa_demissionada, \n" + // 81
+            p_demissao = " , pempresa.admissao_empresa_demissionada, \n"
+                    + // 79
+                    "   pempresa.demissao_empresa_demissionada, \n"
+                    + // 80
+                    "   pempresa.cnpj_empresa_demissionada, \n"
+                    + // 81
                     "   pempresa.empresa_demissionada \n "; // 82
         } else {
-            p_demissao = " , null AS admissao_empresa_demissionada, \n" + // 79
-                    "   null AS demissao_empresa_demissionada, \n" + // 80
-                    "   null AS cnpj_empresa_demissionada, \n" + // 81
+            p_demissao = " , null AS admissao_empresa_demissionada, \n"
+                    + // 79
+                    "   null AS demissao_empresa_demissionada, \n"
+                    + // 80
+                    "   null AS cnpj_empresa_demissionada, \n"
+                    + // 81
                     "   null AS empresa_demissionada \n "; // 82
         }
 
@@ -179,18 +178,18 @@ public class RelatorioSociosDBToplink extends DB implements RelatorioSociosDB {
                 + "           '' AS sincidade,                 \n " // 9
                 + "           '' AS sinuF,                     \n " // 10
                 + "           '' AS sindocumento,              \n " // 11
-//                + "                             AS sindLogo,                  \n " // 0
-//                + "           sind.jurSite        AS sindSite,                  \n " // 1
-//                + "           sind.jurNome        AS sinnome,                   \n " // 2
-//                + "           sind.jurEndereco    AS sinendereco,               \n " // 3
-//                + "           sind.jurLogradouro  AS sinlogradouro,             \n " // 4
-//                + "           sind.jurNumero      AS sinnumero,                 \n " // 5
-//                + "           sind.jurComplemento AS sincomplemento,            \n " // 6
-//                + "           sind.jurBairro      AS sinbairro,                 \n " // 7
-//                + "           substring(sind.jurCep,1,5)||'-'||substring(sind.jurCep,6,3)  AS sincep,   \n "
-//                + "           sind.jurCidade      AS sincidade,                 \n " // 9
-//                + "           sind.jurUf          AS sinuF,                     \n " // 10
-//                + "           sind.jurDocumento   AS sindocumento,              \n " // 11
+                //                + "                             AS sindLogo,                  \n " // 0
+                //                + "           sind.jurSite        AS sindSite,                  \n " // 1
+                //                + "           sind.jurNome        AS sinnome,                   \n " // 2
+                //                + "           sind.jurEndereco    AS sinendereco,               \n " // 3
+                //                + "           sind.jurLogradouro  AS sinlogradouro,             \n " // 4
+                //                + "           sind.jurNumero      AS sinnumero,                 \n " // 5
+                //                + "           sind.jurComplemento AS sincomplemento,            \n " // 6
+                //                + "           sind.jurBairro      AS sinbairro,                 \n " // 7
+                //                + "           substring(sind.jurCep,1,5)||'-'||substring(sind.jurCep,6,3)  AS sincep,   \n "
+                //                + "           sind.jurCidade      AS sincidade,                 \n " // 9
+                //                + "           sind.jurUf          AS sinuF,                     \n " // 10
+                //                + "           sind.jurDocumento   AS sindocumento,              \n " // 11
                 + "           p.codigo,                                         \n " // 12
                 + "           p.cadastro,                                       \n " // 13
                 + "           p.nome,                                           \n " // 14
@@ -573,75 +572,127 @@ public class RelatorioSociosDBToplink extends DB implements RelatorioSociosDB {
         }
     }
 
-    @Override
-    public List<Vector> listaSociosInativos(boolean comDependentes, boolean chkInativacao, boolean chkFiliacao, String dt_inativacao_i, String dt_inativacao_f, String dt_filiacao_i, String dt_filiacao_f, int categoria, int grupoCategoria, String ordernarPor
-    ) {
+    public List listaSociosInativos(Boolean comDependentes, String dt_inativacao_i, String dt_inativacao_f, String dt_filiacao_i, String dt_filiacao_f, Integer categoria_id, Integer grupo_categoria_id, String ordernarPor, String status, String in_motivo_inativacao) {
 
-        String select = "", innerjoin = "", textQry = "", and = "", orderby = "", ordem = "";
+        String select, innerjoin = "", textQry, and = "", orderby, ordem = "";
 
-        if (comDependentes) {
-            select = "SELECT p.ds_nome as titular, s.titular as codtitular, s.codsocio, s.nome, s.parentesco, s.matricula, s.categoria, s.filiacao, s.inativacao, s.motivo_inativacao, s.id_categoria, s.id_grupo_categoria ";
-            innerjoin = " INNER JOIN pes_pessoa as p on p.id = s.titular ";
-            orderby = " p.ds_nome, s.titular, s.categoria, s.matricula, s.id_parentesco, s.nome, s.parentesco ";
+        if (comDependentes != null && comDependentes) {
+            select = "  SELECT P.ds_nome AS titular,    \n"
+                    + "        S.titular AS codtitular, \n"
+                    + "        S.codsocio,              \n"
+                    + "        S.nome,                  \n"
+                    + "        S.parentesco,            \n"
+                    + "        S.matricula,             \n"
+                    + "        S.categoria,             \n"
+                    + "        S.filiacao,              \n"
+                    + "        S.inativacao,            \n"
+                    + "        S.motivo_inativacao,     \n"
+                    + "        S.id_categoria,          \n"
+                    + "        S.id_grupo_categoria     \n";
+            innerjoin = " INNER JOIN pes_pessoa AS P ON P.id = S.titular \n";
+            orderby = " P.ds_nome,      \n"
+                    + " S.titular,      \n"
+                    + " S.categoria,    \n"
+                    + " S.matricula,    \n"
+                    + " S.id_parentesco,\n"
+                    + " S.nome,         \n"
+                    + " S.parentesco    \n";
 
-            if (ordernarPor.equals("matricula")) {
-                ordem = "  s.matricula, ";
-            } else if (ordernarPor.equals("categoria")) {
-                ordem = "  s.categoria, ";
-            } else if (ordernarPor.equals("inativacao")) {
-                ordem = "  s.inativacao DESC, ";
-            } else if (ordernarPor.equals("filiacao")) {
-                ordem = "  s.filiacao DESC, ";
+            switch (ordernarPor) {
+                case "matricula":
+                    ordem = " S.matricula, \n";
+                    break;
+                case "categoria":
+                    ordem = " S.categoria, \n";
+                    break;
+                case "inativacao":
+                    ordem = " S.inativacao DESC, \n";
+                    break;
+                case "filiacao":
+                    ordem = " S.filiacao DESC, \n";
+                    break;
+                default:
+                    break;
             }
 
         } else {
-            select = "SELECT s.nome as titular, s.codsocio as codtitular, s.codsocio, s.nome, s.parentesco, s.matricula, s.categoria, s.filiacao, s.inativacao, s.motivo_inativacao, s.id_categoria, s.id_grupo_categoria ";
-            and = " WHERE s.parentesco = 'TITULAR' ";
-            orderby = " s.inativacao DESC ";
+            select = "SELECT S.nome AS titular,         \n"
+                    + "      S.codsocio AS codtitular,  \n"
+                    + "      S.codsocio,                \n"
+                    + "      S.nome,                    \n"
+                    + "      S.parentesco,              \n"
+                    + "      S.matricula,               \n"
+                    + "      S.categoria,               \n"
+                    + "      S.filiacao,                \n"
+                    + "      S.inativacao,              \n"
+                    + "      S.motivo_inativacao,       \n"
+                    + "      S.id_categoria,            \n"
+                    + "      S.id_grupo_categoria       \n";
+            and = "    WHERE S.parentesco = 'TITULAR'   \n";
+            orderby = " S.inativacao DESC ";
 
-            if (ordernarPor.equals("filiacao")) {
-                ordem = " s.filiacao DESC, ";
-            } else if (ordernarPor.equals("nome")) {
-                ordem = " s.nome, ";
-            } else if (ordernarPor.equals("matricula")) {
-                ordem = "  s.matricula, ";
-            } else if (ordernarPor.equals("categoria")) {
-                ordem = "  s.categoria, ";
+            switch (ordernarPor) {
+                case "filiacao":
+                    ordem = " S.filiacao DESC, \n";
+                    break;
+                case "nome":
+                    ordem = " S.nome, \n";
+                    break;
+                case "matricula":
+                    ordem = " S.matricula, \n";
+                    break;
+                case "categoria":
+                    ordem = " S.categoria, \n";
+                    break;
+                default:
+                    break;
             }
         }
 
         orderby = " ORDER BY " + ordem + orderby;
 
-        if (chkInativacao) {
+        if (dt_inativacao_i != null && dt_inativacao_f != null) {
             if (!dt_inativacao_i.isEmpty() && dt_inativacao_f.isEmpty()) {
-                and += " AND s.inativacao >= '" + dt_inativacao_i + "'";
+                and += " AND S.inativacao >= '" + dt_inativacao_i + "'";
             } else if (dt_inativacao_i.isEmpty() && !dt_inativacao_f.isEmpty()) {
-                and += " AND s.inativacao <= '" + dt_inativacao_f + "'";
+                and += " AND S.inativacao <= '" + dt_inativacao_f + "'";
             } else if (!dt_inativacao_i.isEmpty() && !dt_inativacao_f.isEmpty()) {
-                and += " AND s.inativacao >= '" + dt_inativacao_i + "' AND s.inativacao <= '" + dt_inativacao_f + "'";
+                and += " AND S.inativacao >= '" + dt_inativacao_i + "' AND S.inativacao <= '" + dt_inativacao_f + "'";
             }
         }
 
-        if (chkFiliacao) {
+        if (dt_filiacao_i != null && dt_filiacao_f != null) {
             if (!dt_filiacao_i.isEmpty() && dt_filiacao_f.isEmpty()) {
-                and += " AND s.filiacao >= '" + dt_filiacao_i + "'";
+                and += " AND S.filiacao >= '" + dt_filiacao_i + "'";
             } else if (dt_filiacao_i.isEmpty() && !dt_filiacao_f.isEmpty()) {
-                and += " AND s.filiacao <= '" + dt_filiacao_f + "'";
+                and += " AND S.filiacao <= '" + dt_filiacao_f + "'";
             } else if (!dt_filiacao_i.isEmpty() && !dt_filiacao_f.isEmpty()) {
-                and += " AND s.filiacao >= '" + dt_filiacao_i + "' AND s.filiacao <= '" + dt_filiacao_f + "'";
+                and += " AND S.filiacao >= '" + dt_filiacao_i + "' AND S.filiacao <= '" + dt_filiacao_f + "'";
             }
         }
 
-        if (categoria != -1) {
-            and += " AND s.id_categoria = " + categoria;
+        if (categoria_id != null) {
+            and += " AND S.id_categoria = " + categoria_id;
         }
 
-        if (grupoCategoria != -1) {
-            and += " AND s.id_grupo_categoria = " + grupoCategoria;
+        if (grupo_categoria_id != null) {
+            and += " AND S.id_grupo_categoria = " + grupo_categoria_id;
+        }
+
+        if (status != null) {
+            if (status.equals("inativos_hoje_ativos")) {
+                and += " AND S.codsocio IN (SELECT codsocio FROM SOC_SOCIOS_VW ) \n";
+            } else {
+                and += " AND S.codsocio NOT IN (SELECT codsocio FROM SOC_SOCIOS_VW ) \n";
+            }
+        }
+
+        if (in_motivo_inativacao != null) {
+            and += " AND S.id_motivo IN ( " + in_motivo_inativacao + ") \n";
         }
 
         textQry = select
-                + "  FROM soc_socios_inativos_vw s"
+                + "  FROM soc_socios_inativos_vw S"
                 + innerjoin
                 + and
                 + orderby;

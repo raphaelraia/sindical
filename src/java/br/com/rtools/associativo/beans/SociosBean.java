@@ -929,18 +929,22 @@ public class SociosBean implements Serializable {
         }
         db.setNot_in(in);
         db.setLimit(1000);
-        listaFisica = db.pesquisaPessoa(query, "nome", como, null, null);
+        db.setIgnore(true);
+        listaFisica = db.pesquisaPessoa(query, "nome", como);
         if (listaFisica.isEmpty()) {
             if (ValidaDocumentos.isValidoCPF(AnaliseString.extrairNumeros(query))) {
                 db.setLimit(1);
-                listaFisica = db.pesquisaPessoa(query, "cpf", "", null, null);
+                db.setIgnore(true);
+                listaFisica = db.pesquisaPessoa(query, "cpf", "");
             } else if (DataHoje.isDataValida(query)) {
+                db.setIgnore(true);
                 db.setLimit(100);
-                listaFisica = db.pesquisaPessoa(query, "nascimento", "", null, null);
+                listaFisica = db.pesquisaPessoa(query, "nascimento", "");
             }
             if (listaFisica.isEmpty()) {
+                db.setIgnore(true);
                 db.setLimit(2);
-                listaFisica = db.pesquisaPessoa(query, "rg", "", null, null);
+                listaFisica = db.pesquisaPessoa(query, "rg", "");
             }
         }
         return listaFisica;

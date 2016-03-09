@@ -103,9 +103,9 @@
 
 
                                 <p:submenu label="Relatórios">
-                                    <p:menuitem value="Relatório de Sócios"  action="#{chamadaPaginaBean.relatorioSocios}" />
-                                    <p:menuitem value="Rel. Sócios Inativos" action="#{chamadaPaginaBean.relatorioSociosInativos()}" ajax="false"/>
-                                    <p:menuitem value="Rel. Convites"        action="#{chamadaPaginaBean.relatorioConviteClube}"/>
+                                    <p:menuitem value="Sócios"  action="#{chamadaPaginaBean.relatorioSocios}" />
+                                    <p:menuitem value="Sócios Inativos" action="#{chamadaPaginaBean.pagina('relatorioSociosInativos')}" ajax="false"/>
+                                    <p:menuitem value="Convites"        action="#{chamadaPaginaBean.relatorioConviteClube}"/>
                                     <p:menuitem value="Cartão Social"        action="#{chamadaPaginaBean.cartaoSocial}" />
                                     <p:menuitem value="Ficha Social Branco"  action="#{sociosBean.imprimirFichaSocialVazia()}" ajax="false"/>
                                     <p:menuitem value="Carnê Mensalidades"   action="#{chamadaPaginaBean.pagina('carneMensalidades')}" ajax="false"/>

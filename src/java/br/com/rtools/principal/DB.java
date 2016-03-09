@@ -37,7 +37,6 @@ public class DB {
                 try {
                     Map properties = new HashMap();
                     properties.put(TopLinkProperties.CACHE_TYPE_DEFAULT, CacheType.SoftWeak);
-                    //properties.put(TopLinkProperties.CACHE_TYPE_DEFAULT, CacheType.Full);
                     properties.put(TopLinkProperties.JDBC_USER, "postgres");
                     properties.put(TopLinkProperties.TRANSACTION_TYPE, "RESOURCE_LOCAL");
                     properties.put(TopLinkProperties.JDBC_DRIVER, "org.postgresql.Driver");

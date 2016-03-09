@@ -27,23 +27,34 @@ public class RaisDao extends DB {
     }
 
     public List<Rais> pesquisa(String descricaoPesquisa, String tipoPesquisa, String comoPesquisa) {
-
+        Integer limit = null;
         String filtroString = "";
-        if (tipoPesquisa.equals("nome")) {
-            filtroString = " WHERE UPPER(R.sisPessoa.nome) LIKE :descricaoPesquisa ";
-        } else if (tipoPesquisa.equals("cpf")) {
-            filtroString = " WHERE R.sisPessoa.documento LIKE :descricaoPesquisa ";
-        } else if (tipoPesquisa.equals("empresa")) {
-            filtroString = " WHERE UPPER(R.empresa.pessoa.nome) LIKE :descricaoPesquisa ";
-        } else if (tipoPesquisa.equals("cnpj")) {
-            filtroString = " WHERE R.empresa.pessoa.documento LIKE :descricaoPesquisa ";
-        } else if (tipoPesquisa.equals("data")) {
-            filtroString = " WHERE R.emissao = '" + DataHoje.livre(DataHoje.converte(descricaoPesquisa), "yyyy-MM-dd") + "'";
-        } else if (tipoPesquisa.equals("profissao")) {
-            filtroString = " WHERE UPPER(R.profissao.profissao) LIKE :descricaoPesquisa ";
-        } else if (tipoPesquisa.equals("todos")) {
-            DataHoje dh = new DataHoje();
-            filtroString = " WHERE R.emissao >= '" + DataHoje.data() + "' ";
+        switch (tipoPesquisa) {
+            case "nome":
+                filtroString = " WHERE UPPER(R.sisPessoa.nome) LIKE :descricaoPesquisa ";
+                break;
+            case "cpf":
+                filtroString = " WHERE R.sisPessoa.documento LIKE :descricaoPesquisa ";
+                break;
+            case "empresa":
+                filtroString = " WHERE UPPER(R.empresa.pessoa.nome) LIKE :descricaoPesquisa ";
+                limit = 1000;
+                break;
+            case "cnpj":
+                filtroString = " WHERE R.empresa.pessoa.documento LIKE :descricaoPesquisa ";
+                break;
+            case "data":
+                filtroString = " WHERE R.emissao = '" + DataHoje.livre(DataHoje.converte(descricaoPesquisa), "yyyy-MM-dd") + "'";
+                break;
+            case "profissao":
+                filtroString = " WHERE UPPER(R.profissao.profissao) LIKE :descricaoPesquisa ";
+                break;
+            case "todos":
+                filtroString = " WHERE R.emissao >= '" + DataHoje.data() + "' ";
+                limit = 150;
+                break;
+            default:
+                break;
         }
         String queryString = " SELECT R FROM Rais AS R " + (filtroString) + " ORDER BY R.emissao DESC ";
         try {
@@ -55,7 +66,9 @@ public class RaisDao extends DB {
                     qry.setParameter("descricaoPesquisa", "%" + descricaoPesquisa.toUpperCase() + "%");
                 }
             }
-            qry.setMaxResults(150);
+            if (limit != null) {
+                qry.setMaxResults(limit);
+            }
             List list = qry.getResultList();
             if (!list.isEmpty()) {
                 return list;

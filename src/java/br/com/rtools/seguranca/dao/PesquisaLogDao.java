@@ -39,7 +39,11 @@ public class PesquisaLogDao extends DB {
             listWhere.add(" L.rotina.id = " + idRotina);
         }
         if (idInEvento != null) {
-            listWhere.add(" L.evento.id IN( " + idInEvento + ") ");
+            if(idInEvento.equals("live")) {
+                listWhere.add(" L.evento IS NULL ");                
+            } else {
+                listWhere.add(" L.evento.id IN( " + idInEvento + ") ");                
+            }
         }
         if (!descricao.isEmpty()) {
             listWhere.add(" UPPER(L.conteudoOriginal) LIKE '%" + descricao.toUpperCase() + "%' OR UPPER(L.conteudoAlterado) LIKE '%" + descricao.toUpperCase() + "%' ");
