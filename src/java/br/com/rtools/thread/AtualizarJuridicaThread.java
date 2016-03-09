@@ -95,16 +95,16 @@ public class AtualizarJuridicaThread extends ThreadLocal<Object> {
                         "[" + DataHoje.hora() + "] N° " + (i + 1) + "\n"
                         + (!retorno.isEmpty() ? "[" + retorno + "]\n" : " ")
                         + " Juridica ID: " + listaJuridica.get(i).getId() + "\n"
-                        + " Juridica Nome: " + listaJuridica.get(i).getPessoa().getNome()
+                        + " Juridica Nome: " + listaJuridica.get(i).getPessoa().getNome() + "["+retorno+"]"
                 );
 
-                dao.refresh(pa);
-                if ( !(pa).getDataFinalString().isEmpty() ){
-                    pa.setDataFinal(null);
-                    pa.setHoraFinal("");
-                    pa.setVisualizadoFimProcesso(Boolean.FALSE);
-                    dao.update(pa, true);
-                }
+//                dao.refresh(pa);
+//                if ( !(pa).getDataFinalString().isEmpty() ){
+//                    pa.setDataFinal(null);
+//                    pa.setHoraFinal("");
+//                    pa.setVisualizadoFimProcesso(Boolean.FALSE);
+//                    dao.update(pa, true);
+//                }
                 
                 dao.save(pal, true);
                 pa.setNrProgresso(i + 1);
