@@ -540,98 +540,40 @@ public class JuridicaBean implements Serializable {
                 return;
             }
 
-            int status = -1;
             Dao dao = new Dao();
             JuridicaReceitaJSON.JuridicaReceitaObject jro = null;
             if (juridicaReceita.getId() == -1) {
-                Integer dias = configuracaoCnpj.getDias();
-                for (int i = 0; i < 20; i++) {
-                    // tipo = "wokki" = pago / "" = gratis
-                    jro = new JuridicaReceitaJSON(documento, "wokki").pesquisar();
+                // tipo = "wokki" = pago / "" = gratis
+                jro = new JuridicaReceitaJSON(documento, "wokki").pesquisar();
 
-                    if (jro.getStatus() == 6) {
-                        GenericaMensagem.warn("Atenção", "Limite de acessos excedido!");
-                        return;
-                    }
-
-                    if (jro.getStatus() == 1) {
-                        if (dias > 360) {
-                            status = -1;
-                            break;
-                        } else {
-                            dias += 30;
-                            continue;
-                        }
-                    }
-
-                    if (status != 0) {
-                        GenericaMensagem.error("Erro", jro.getMsg());
-                        return;
-                    }
-
-                    if (status == 0) {
-                        juridicaReceita.setNome(jro.getNome_empresarial());
-                        juridicaReceita.setFantasia(jro.getTitulo_estabelecimento());
-                        juridicaReceita.setDocumento(documento);
-                        juridicaReceita.setCep(jro.getCep());
-                        juridicaReceita.setDescricaoEndereco(jro.getLogradouro());
-                        juridicaReceita.setBairro(jro.getBairro());
-                        juridicaReceita.setComplemento(jro.getComplemento());
-                        juridicaReceita.setNumero(jro.getNumero());
-                        juridicaReceita.setCnae(jro.getAtividade_principal());
-                        juridicaReceita.setPessoa(null);
-                        juridicaReceita.setStatus(jro.getSituacao_cadastral());
-                        juridicaReceita.setDtAbertura(DataHoje.converte(jro.getData_abertura()));
-                        juridicaReceita.setCnaeSegundario(jro.getAtividades_secundarias());
-                        juridicaReceita.setCidade(jro.getMunicipio());
-                        juridicaReceita.setUf(jro.getUf());
-                        juridicaReceita.setEmail(jro.getEmail_rf());
-                        juridicaReceita.setTelefone(jro.getTelefone_rf());
-
-                        dao.openTransaction();
-
-                        if (!dao.save(juridicaReceita)) {
-                            GenericaMensagem.warn("Erro", "Erro ao Salvar pesquisa!");
-                            dao.rollback();
-                            return;
-                        }
-
-                        dao.commit();
-                        break;
-                    }
+                if (jro.getStatus() == 6) {
+                    GenericaMensagem.warn("Atenção", "Limite de acessos excedido!");
+                    return;
                 }
-            }
 
-//            if (status == -1) {
-//                return;
-//            }
-            // PESQUISA ALTERNATIVA
-            // SITE: http://receitaws.com.br/
-            try {
-                if (status == -1 && juridicaReceita.getId() == -1) {
-                    jro = new JuridicaReceitaJSON(documento, "").pesquisar();
-                    try {
-                        juridicaReceita.setNome(jro.getNome_empresarial());
-                        juridicaReceita.setFantasia(jro.getTitulo_estabelecimento());
-                        juridicaReceita.setDocumento(documento);
-                        juridicaReceita.setCep(jro.getCep());
-                        juridicaReceita.setDescricaoEndereco(jro.getLogradouro());
-                        juridicaReceita.setBairro(jro.getBairro());
-                        juridicaReceita.setComplemento(jro.getComplemento());
-                        juridicaReceita.setNumero(jro.getNumero());
-                        juridicaReceita.setCnae(jro.getAtividade_principal());
-                        juridicaReceita.setCnaeSegundario(jro.getAtividades_secundarias());
-                        juridicaReceita.setPessoa(null);
-                        juridicaReceita.setStatus(jro.getSituacao_cadastral());
-                        juridicaReceita.setDtAbertura(DataHoje.converte(jro.getData_abertura()));
-                        juridicaReceita.setCidade(jro.getMunicipio());
-                        juridicaReceita.setUf(jro.getUf());
-                        juridicaReceita.setEmail(jro.getEmail_rf());
-                        juridicaReceita.setTelefone(jro.getTelefone_rf());
-                    } catch (Exception e) {
-                        GenericaMensagem.warn("Erro", e.getMessage());
-                        return;
-                    }
+                if (jro.getStatus() != 0 && jro.getStatus() != -1) {
+                    GenericaMensagem.error("Erro", jro.getMsg());
+                    return;
+                }
+
+                if (jro.getStatus() == 0) {
+                    juridicaReceita.setNome(jro.getNome_empresarial());
+                    juridicaReceita.setFantasia(jro.getTitulo_estabelecimento());
+                    juridicaReceita.setDocumento(documento);
+                    juridicaReceita.setCep(jro.getCep());
+                    juridicaReceita.setDescricaoEndereco(jro.getLogradouro());
+                    juridicaReceita.setBairro(jro.getBairro());
+                    juridicaReceita.setComplemento(jro.getComplemento());
+                    juridicaReceita.setNumero(jro.getNumero());
+                    juridicaReceita.setCnae(jro.getAtividade_principal());
+                    juridicaReceita.setPessoa(null);
+                    juridicaReceita.setStatus(jro.getSituacao_cadastral());
+                    juridicaReceita.setDtAbertura(DataHoje.converte(jro.getData_abertura()));
+                    juridicaReceita.setCnaeSegundario(jro.getAtividades_secundarias());
+                    juridicaReceita.setCidade(jro.getMunicipio());
+                    juridicaReceita.setUf(jro.getUf());
+                    juridicaReceita.setEmail(jro.getEmail_rf());
+                    juridicaReceita.setTelefone(jro.getTelefone_rf());
 
                     dao.openTransaction();
 
@@ -643,11 +585,55 @@ public class JuridicaBean implements Serializable {
 
                     dao.commit();
                 }
+            }
+
+//            if (status == -1) {
+//                return;
+//            }
+            // PESQUISA ALTERNATIVA
+            // SITE: http://receitaws.com.br/
+            try {
+                if (juridicaReceita.getId() == -1) {
+                    if (jro.getStatus() == -1) {
+                        jro = new JuridicaReceitaJSON(documento, "").pesquisar();
+                        try {
+                            juridicaReceita.setNome(jro.getNome_empresarial());
+                            juridicaReceita.setFantasia(jro.getTitulo_estabelecimento());
+                            juridicaReceita.setDocumento(documento);
+                            juridicaReceita.setCep(jro.getCep());
+                            juridicaReceita.setDescricaoEndereco(jro.getLogradouro());
+                            juridicaReceita.setBairro(jro.getBairro());
+                            juridicaReceita.setComplemento(jro.getComplemento());
+                            juridicaReceita.setNumero(jro.getNumero());
+                            juridicaReceita.setCnae(jro.getAtividade_principal());
+                            juridicaReceita.setCnaeSegundario(jro.getAtividades_secundarias());
+                            juridicaReceita.setPessoa(null);
+                            juridicaReceita.setStatus(jro.getSituacao_cadastral());
+                            juridicaReceita.setDtAbertura(DataHoje.converte(jro.getData_abertura()));
+                            juridicaReceita.setCidade(jro.getMunicipio());
+                            juridicaReceita.setUf(jro.getUf());
+                            juridicaReceita.setEmail(jro.getEmail_rf());
+                            juridicaReceita.setTelefone(jro.getTelefone_rf());
+                        } catch (Exception e) {
+                            GenericaMensagem.warn("Erro", e.getMessage());
+                            return;
+                        }
+
+                        dao.openTransaction();
+
+                        if (!dao.save(juridicaReceita)) {
+                            GenericaMensagem.warn("Erro", "Erro ao Salvar pesquisa!");
+                            dao.rollback();
+                            return;
+                        }
+                        dao.commit();
+                    }
+                }
             } catch (Exception e) {
                 GenericaMensagem.warn("Erro", e.getMessage());
                 return;
             }
-            
+
             juridica.getPessoa().setNome(juridicaReceita.getNome().toUpperCase());
             juridica.setFantasia(juridicaReceita.getFantasia().toUpperCase());
             juridica.setDtAbertura(juridicaReceita.getDtAbertura());
@@ -692,15 +678,15 @@ public class JuridicaBean implements Serializable {
                     break;
             }
 
-            if (jro == null){
+            if (jro == null) {
                 return;
             }
-            
+
             if (jro.getLista_cnae().isEmpty()) {
                 GenericaMensagem.warn("Erro", "Erro ao pesquisar CNAE");
                 return;
             }
-            
+
             retornaCnaeReceita(jro.getLista_cnae().get(0));
 
             endereco = jro.getEndereco();

@@ -88,7 +88,6 @@ public class AtualizarJuridicaThread extends ThreadLocal<Object> {
 
             for (int i = 0; i < listaJuridica.size(); i++) {
                 String retorno = atualizar(listaJuridica.get(i));
-//                String retorno = "";
 
                 ProcessoAutomaticoLog pal = new ProcessoAutomaticoLog(
                         -1,
@@ -99,6 +98,14 @@ public class AtualizarJuridicaThread extends ThreadLocal<Object> {
                         + " Juridica Nome: " + listaJuridica.get(i).getPessoa().getNome()
                 );
 
+                dao.refresh(pa);
+                if ( !(pa).getDataFinalString().isEmpty() ){
+                    pa.setDataFinal(null);
+                    pa.setHoraFinal("");
+                    pa.setVisualizadoFimProcesso(Boolean.FALSE);
+                    dao.update(pa, true);
+                }
+                
                 dao.save(pal, true);
                 pa.setNrProgresso(i + 1);
 
