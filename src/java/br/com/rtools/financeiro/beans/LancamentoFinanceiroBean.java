@@ -915,7 +915,7 @@ public class LancamentoFinanceiroBean implements Serializable {
                     sv.desfazerTransacao();
                 }
 
-                Fisica fisica = new Fisica(-1, pessoa, "", "", "", "", DataHoje.dataHoje(), "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "");
+                Fisica fisica = new Fisica(-1, pessoa, "", "", "", "", DataHoje.dataHoje(), "", "", "", "", "", "", "", "", "", "", "", "", "", "", "");
                 if (!sv.inserirObjeto(fisica)) {
                     GenericaMensagem.warn("Erro", "Erro ao Salvar Cadastro!");
                     sv.desfazerTransacao();
@@ -994,7 +994,7 @@ public class LancamentoFinanceiroBean implements Serializable {
                 sv.desfazerTransacao();
             }
 
-            Fisica fisica = new Fisica(-1, pessoa, "", "", "", "", DataHoje.dataHoje(), "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "");
+            Fisica fisica = new Fisica(-1, pessoa, "", "", "", "", DataHoje.dataHoje(), "", "", "", "", "", "", "", "", "", "", "", "", "", "", "");
             if (!sv.inserirObjeto(fisica)) {
                 GenericaMensagem.warn("Erro", "Erro ao Salvar Cadastro!");
                 sv.desfazerTransacao();

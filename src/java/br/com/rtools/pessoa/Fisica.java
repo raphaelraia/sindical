@@ -53,9 +53,6 @@ public class Fisica implements java.io.Serializable {
     @Column(name = "dt_aposentadoria")
     private Date dtAposentadoria;
     @Temporal(TemporalType.DATE)
-    @Column(name = "dt_recadastro")
-    private Date dtRecadastro;
-    @Temporal(TemporalType.DATE)
     @Column(name = "dt_foto")
     private Date dtFoto;
     @Column(name = "ds_titulo_eleitor", length = 20)
@@ -85,7 +82,6 @@ public class Fisica implements java.io.Serializable {
         this.nit = "";
         this.pis = "";
         this.setAposentadoria("");
-        this.setRecadastro(DataHoje.data());
         this.setDataFoto("");
         this.tituloEleitor = "";
         this.tituloSecao = "";
@@ -95,7 +91,7 @@ public class Fisica implements java.io.Serializable {
 
     public Fisica(int id, Pessoa pessoa, String rg, String carteira, String serie, String sexo, Date dtNascimento, String nacionalidade,
             String naturalidade, String orgaoEmissaoRG, String ufEmissaoRG, String estadoCivil, String pai, String mae, String nit,
-            String pis, String aposentadoria, String recadastro, String dataFoto, String tituloEleitor, String tituloSecao, String tituloZona, String foto) {
+            String pis, String aposentadoria, String dataFoto, String tituloEleitor, String tituloSecao, String tituloZona, String foto) {
         this.id = id;
         this.pessoa = pessoa;
         this.rg = rg;
@@ -113,7 +109,6 @@ public class Fisica implements java.io.Serializable {
         this.nit = nit;
         this.pis = pis;
         this.setAposentadoria(aposentadoria);
-        this.setRecadastro(recadastro);
         this.setDataFoto(dataFoto);
         this.tituloEleitor = tituloEleitor;
         this.tituloSecao = tituloSecao;
@@ -279,22 +274,6 @@ public class Fisica implements java.io.Serializable {
         this.dtAposentadoria = DataHoje.converte(aposentadoria);
     }
 
-    public Date getDtRecadastro() {
-        return dtRecadastro;
-    }
-
-    public void setDtRecadastro(Date dtRecadastro) {
-        this.dtRecadastro = dtRecadastro;
-    }
-
-    public String getRecadastro() {
-        return DataHoje.converteData(dtRecadastro);
-    }
-
-    public void setRecadastro(String recadastro) {
-        this.dtRecadastro = DataHoje.converte(recadastro);
-    }
-
     public Date getDtFoto() {
         return dtFoto;
     }
@@ -318,7 +297,7 @@ public class Fisica implements java.io.Serializable {
 
     @Override
     public String toString() {
-        return "Fisica{" + "id=" + id + ", pessoa=" + pessoa + ", rg=" + rg + ", carteira=" + carteira + ", serie=" + serie + ", sexo=" + sexo + ", dtNascimento=" + dtNascimento + ", nacionalidade=" + nacionalidade + ", naturalidade=" + naturalidade + ", orgaoEmissaoRG=" + orgaoEmissaoRG + ", ufEmissaoRG=" + ufEmissaoRG + ", estadoCivil=" + estadoCivil + ", pai=" + pai + ", mae=" + mae + ", nit=" + nit + ", pis=" + pis + ", dtAposentadoria=" + dtAposentadoria + ", dtRecadastro=" + dtRecadastro + ", dtFoto=" + dtFoto + '}';
+        return "Fisica{" + "id=" + id + ", pessoa=" + pessoa + ", rg=" + rg + ", carteira=" + carteira + ", serie=" + serie + ", sexo=" + sexo + ", dtNascimento=" + dtNascimento + ", nacionalidade=" + nacionalidade + ", naturalidade=" + naturalidade + ", orgaoEmissaoRG=" + orgaoEmissaoRG + ", ufEmissaoRG=" + ufEmissaoRG + ", estadoCivil=" + estadoCivil + ", pai=" + pai + ", mae=" + mae + ", nit=" + nit + ", pis=" + pis + ", dtAposentadoria=" + dtAposentadoria + ", dtFoto=" + dtFoto + '}';
     }
 
     public String getTituloEleitor() {

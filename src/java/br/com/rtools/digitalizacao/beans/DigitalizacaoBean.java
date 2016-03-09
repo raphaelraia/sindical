@@ -148,11 +148,11 @@ public final class DigitalizacaoBean implements Serializable {
         documento.setPessoa(pessoa);
 
         String save_log
-                = "Data Emissão: " + documento.getDtEmissaoString() + " - "
-                + "Grupo: " + documento.getAssunto().getGrupo().getDescricao() + " - "
-                + "Assunto: " + documento.getAssunto().getDescricao() + " - "
-                + "Titulo: " + documento.getTitulo() + " - "
-                + "Historico: " + documento.getHistorico() + " - "
+                = "Data Emissão: " + documento.getDtEmissaoString() + " \n "
+                + "Grupo: " + documento.getAssunto().getGrupo().getDescricao() + " \n "
+                + "Assunto: " + documento.getAssunto().getDescricao() + " \n "
+                + "Titulo: " + documento.getTitulo() + " \n "
+                + "Historico: " + documento.getHistorico() + " \n "
                 + "Pessoa: " + documento.getPessoa().getNome();
 
         NovoLog novoLog = new NovoLog();
@@ -191,11 +191,11 @@ public final class DigitalizacaoBean implements Serializable {
 
             Documento doc = (Documento) new Dao().find(documento);
             String updade_log
-                    = "Data Emissão: " + doc.getDtEmissaoString() + " - "
-                    + "Grupo: " + doc.getAssunto().getGrupo().getDescricao() + " - "
-                    + "Assunto: " + doc.getAssunto().getDescricao() + " - "
-                    + "Titulo: " + doc.getTitulo() + " - "
-                    + "Historico: " + doc.getHistorico() + " - "
+                    = "Data Emissão: " + doc.getDtEmissaoString() + " \n "
+                    + "Grupo: " + doc.getAssunto().getGrupo().getDescricao() + " \n "
+                    + "Assunto: " + doc.getAssunto().getDescricao() + " \n "
+                    + "Titulo: " + doc.getTitulo() + " \n "
+                    + "Historico: " + doc.getHistorico() + " \n "
                     + "Pessoa: " + doc.getPessoa().getNome();
 
             novoLog.setCodigo(documento.getId());
@@ -253,11 +253,11 @@ public final class DigitalizacaoBean implements Serializable {
         }
 
         String delete_log
-                = "Data Emissão: " + documento.getDtEmissaoString() + " - "
-                + "Grupo: " + documento.getAssunto().getGrupo().getDescricao() + " - "
-                + "Assunto: " + documento.getAssunto().getDescricao() + " - "
-                + "Titulo: " + documento.getTitulo() + " - "
-                + "Historico: " + documento.getHistorico() + " - "
+                = "Data Emissão: " + documento.getDtEmissaoString() + " \n "
+                + "Grupo: " + documento.getAssunto().getGrupo().getDescricao() + " \n "
+                + "Assunto: " + documento.getAssunto().getDescricao() + " \n "
+                + "Titulo: " + documento.getTitulo() + " \n "
+                + "Historico: " + documento.getHistorico() + " \n "
                 + "Pessoa: " + documento.getPessoa().getNome();
 
         NovoLog novoLog = new NovoLog();

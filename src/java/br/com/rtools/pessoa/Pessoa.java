@@ -67,6 +67,9 @@ public class Pessoa implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "dt_atualizacao")
     private Date dtAtualizacao;
+    @Temporal(TemporalType.DATE)
+    @Column(name = "dt_recadastro")
+    private Date dtRecadastro;    
 
     @Transient
     private Boolean isTitular;
@@ -89,10 +92,11 @@ public class Pessoa implements Serializable {
         this.login = "";
         this.senha = "";
         this.dtAtualizacao = null;
+        this.dtRecadastro = DataHoje.dataHoje();
     }
 
     public Pessoa(int id, String nome, TipoDocumento tipoDocumento, String obs, String site, String criacao,
-            String telefone1, String telefone2, String telefone3, String telefone4, String email1, String email2, String email3, String documento, String login, String senha) {
+            String telefone1, String telefone2, String telefone3, String telefone4, String email1, String email2, String email3, String documento, String login, String senha, Date dtRecadastro) {
         this.id = id;
         this.nome = nome;
         this.tipoDocumento = tipoDocumento;
@@ -110,6 +114,7 @@ public class Pessoa implements Serializable {
         this.login = login;
         this.senha = senha;
         this.dtAtualizacao = null;
+        this.dtRecadastro = dtRecadastro;
     }
 
     public int getId() {
@@ -443,4 +448,21 @@ public class Pessoa implements Serializable {
     public void setTelefone4(String telefone4) {
         this.telefone4 = telefone4;
     }
+    
+
+    public Date getDtRecadastro() {
+        return dtRecadastro;
+    }
+
+    public void setDtRecadastro(Date dtRecadastro) {
+        this.dtRecadastro = dtRecadastro;
+    }
+
+    public String getRecadastroString() {
+        return DataHoje.converteData(dtRecadastro);
+    }
+
+    public void setRecadastroString(String recadastroString) {
+        this.dtRecadastro = DataHoje.converte(recadastroString);
+    }    
 }

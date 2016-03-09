@@ -9,6 +9,8 @@ import br.com.rtools.seguranca.*;
 import br.com.rtools.seguranca.db.*;
 import br.com.rtools.sistema.Email;
 import br.com.rtools.sistema.EmailPessoa;
+import br.com.rtools.sistema.ProcessoAutomatico;
+import br.com.rtools.sistema.dao.ProcessoAutomaticoDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.DataHoje;
@@ -357,6 +359,8 @@ public class UsuarioBean implements Serializable {
     }
 
     public void sairSistema() throws IOException {
+        
+
         String retorno = "";
         if (GenericaSessao.exists("sessaoCliente")) {
             retorno = (String) GenericaSessao.getString("sessaoCliente") + "/";
@@ -381,6 +385,13 @@ public class UsuarioBean implements Serializable {
          }else sair = "";
          return sair;*/
         //Contexto da Aplicação
+        ProcessoAutomatico pa = new ProcessoAutomaticoDao().pesquisarProcesso("atualizar_juridica", Usuario.getUsuario().getId());
+
+        // EXISTE UM PROCESSAMENTO, NÃO PODE DESTRUIR A SESSAO
+        if (pa.getId() != -1) {
+            FacesContext.getCurrentInstance().getExternalContext().redirect(retorno);
+            return;
+        }
         FacesContext conext = FacesContext.getCurrentInstance();
         //Verifica a sessao e a grava na variavel
         HttpSession session = (HttpSession) conext.getExternalContext().getSession(false);

@@ -16,6 +16,7 @@ import br.com.rtools.financeiro.db.ServicoPessoaDB;
 import br.com.rtools.financeiro.db.ServicoPessoaDBToplink;
 import br.com.rtools.financeiro.db.ServicoRotinaDB;
 import br.com.rtools.financeiro.db.ServicoRotinaDBToplink;
+import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
@@ -224,19 +225,32 @@ public class LancamentoIndividualBean implements Serializable {
         // CODICAO DE PAGAMENTO
         CondicaoPagamento cp;
 
+        List<String> list_log = new ArrayList();
         if (DataHoje.converteDataParaInteger(((Movimento) listaMovimento.get(0).getArgumento0()).getVencimento()) > DataHoje.converteDataParaInteger(DataHoje.data())) {
             cp = (CondicaoPagamento) sv.pesquisaCodigo(2, "CondicaoPagamento");
         } else {
             cp = (CondicaoPagamento) sv.pesquisaCodigo(1, "CondicaoPagamento");
         }
 
+        list_log.add("Pessoa ID: " + fisica.getPessoa().getId());
+        list_log.add("Pessoa Nome: " + fisica.getPessoa().getNome());
+
+        list_log.add("Responsável ID: " + responsavel.getId());
+        list_log.add("Responsável Nome: " + responsavel.getNome());
+
+        list_log.add("-------------------------------------------------------------------");
+        list_log.add("Condição de Pagamento: " + cp.getDescricao());
         // TIPO DE DOCUMENTO  FTipo_documento 13 - CARTEIRA, 2 - BOLETO
         FTipoDocumento td;
         if (descontoFolha.equals("sim")) {
             td = (FTipoDocumento) sv.pesquisaCodigo(13, "FTipoDocumento");
+            list_log.add("Desconto Folha: SIM");
         } else {
             td = (FTipoDocumento) sv.pesquisaCodigo(2, "FTipoDocumento");
+            list_log.add("Desconto Folha: NÃO");
         }
+
+        list_log.add("Tipo Documento: " + td.getDescricao());
 
         Servicos serv = (Servicos) sv.pesquisaCodigo(Integer.parseInt(listaServicos.get(idServico).getDescription()), "Servicos");
 
@@ -263,6 +277,13 @@ public class LancamentoIndividualBean implements Serializable {
             return null;
         }
 
+        list_log.add("Serviço ID: " + serv.getId());
+        list_log.add("Serviço Nome: " + serv.getDescricao());
+        list_log.add("Total Pagar: " + totalPagar);
+        list_log.add("Parcelas: " + listaMovimento.size());
+        list_log.add("Entrada: " + entrada);
+        list_log.add("Histórico: " + lote.getHistorico());
+
         if (pessoaComplemento.getId() == -1) {
             pessoaComplemento.setCobrancaBancaria(true);
             pessoaComplemento.setNrDiaVencimento(idDia);
@@ -273,7 +294,12 @@ public class LancamentoIndividualBean implements Serializable {
                 sv.desfazerTransacao();
                 return null;
             }
+            list_log.add("-------------------------------------------------------------------");
+            list_log.add("Pessoa Complemento ID: " + pessoaComplemento.getId());
+            list_log.add("Pessoa Complemento Cobrança Bancaria: " + (pessoaComplemento.getCobrancaBancaria() ? "SIM" : "NÃO"));
+            list_log.add("Pessoa Complemento Dia de Vencimento: " + pessoaComplemento.getNrDiaVencimento());
         }
+
         for (int i = 0; i < listaMovimento.size(); i++) {
             ((Movimento) listaMovimento.get(i).getArgumento0()).setLote(lote);
             if (!sv.inserirObjeto((Movimento) listaMovimento.get(i).getArgumento0())) {
@@ -281,6 +307,12 @@ public class LancamentoIndividualBean implements Serializable {
                 sv.desfazerTransacao();
                 return null;
             }
+
+            list_log.add("-------------------------------------------------------------------");
+            list_log.add("Parcela N°: " + (i + 1));
+            list_log.add("Movimento ID: " + ((Movimento) listaMovimento.get(i).getArgumento0()).getId());
+            list_log.add("Movimento Vencimento: " + ((Movimento) listaMovimento.get(i).getArgumento0()).getVencimento());
+            list_log.add("Movimento Valor: " + ((Movimento) listaMovimento.get(i).getArgumento0()).getValorString());
         }
 
         if (empresaConveniada != null) {
@@ -298,8 +330,24 @@ public class LancamentoIndividualBean implements Serializable {
                 sv.desfazerTransacao();
                 return null;
             }
+            list_log.add("-------------------------------------------------------------------");
+            list_log.add("Guia ID: " + guias.getId());
+            list_log.add("Guia Empresa Convênio: " + guias.getPessoa().getNome());
         }
         sv.comitarTransacao();
+
+        String save_log = "";
+
+        for (String string_x : list_log) {
+            save_log += string_x + " \n";
+        }
+
+        NovoLog novoLog = new NovoLog();
+
+        novoLog.save(
+                save_log
+        );
+
         GenericaMensagem.info("OK", "Lançamento efetuado com Sucesso!");
         return null;
     }
@@ -361,7 +409,7 @@ public class LancamentoIndividualBean implements Serializable {
         if (GenericaSessao.exists("fisicaPesquisa")) {
             fisica = (Fisica) GenericaSessao.getObject("fisicaPesquisa");
 
-            Socios s = fisica.getPessoa().getSocios();            
+            Socios s = fisica.getPessoa().getSocios();
             LancamentoIndividualDB dbl = new LancamentoIndividualDBToplink();
             if (!dbl.listaSerasa(fisica.getPessoa().getId()).isEmpty()) {
                 GenericaMensagem.warn("PESSOA", fisica.getPessoa().getNome() + " contém o nome no Serasa!");
@@ -467,144 +515,144 @@ public class LancamentoIndividualBean implements Serializable {
         }
         // NÃO APAGAR COMENTÁRIO
         /*
-        JuridicaDB dbj = new JuridicaDBToplink();
-        FisicaDB dbf = new FisicaDBToplink();
-        LancamentoIndividualDB dbl = new LancamentoIndividualDBToplink();
+         JuridicaDB dbj = new JuridicaDBToplink();
+         FisicaDB dbf = new FisicaDBToplink();
+         LancamentoIndividualDB dbl = new LancamentoIndividualDBToplink();
 
-        if (GenericaSessao.exists("pessoaPesquisa")){
-            responsavel = (Pessoa) GenericaSessao.getObject("pessoaPesquisa");
-            FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("pessoaPesquisa");
+         if (GenericaSessao.exists("pessoaPesquisa")){
+         responsavel = (Pessoa) GenericaSessao.getObject("pessoaPesquisa");
+         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("pessoaPesquisa");
             
-            Juridica jur = dbj.pesquisaJuridicaPorPessoa(responsavel.getId());
+         Juridica jur = dbj.pesquisaJuridicaPorPessoa(responsavel.getId());
             
-            // PESQUISA NA TABELA DO SERASA tanto pessoa fisica quanto juridica ----
-            if (!dbl.listaSerasa(responsavel.getId()).isEmpty()){
-                GenericaMensagem.warn("Atenção", "Esta pessoa contém o nome no Serasa, não poderá ser responsável!");
-                return responsavel = new Pessoa();
-            }
+         // PESQUISA NA TABELA DO SERASA tanto pessoa fisica quanto juridica ----
+         if (!dbl.listaSerasa(responsavel.getId()).isEmpty()){
+         GenericaMensagem.warn("Atenção", "Esta pessoa contém o nome no Serasa, não poderá ser responsável!");
+         return responsavel = new Pessoa();
+         }
             
-            // CASO SEJA PESSOA JURIDICA -------------------
-            if (jur != null){
-                // VERIFICA SE É CONTRIBUINTE --------------
-                List contribuintes = dbl.pesquisaContribuinteLancamento(responsavel.getId());
-                if (!contribuintes.isEmpty()){
-                    GenericaMensagem.warn("Atenção", "Esta empresa foi fechada, não poderá ser responsável!");
-                    return responsavel = new Pessoa();
-                }
+         // CASO SEJA PESSOA JURIDICA -------------------
+         if (jur != null){
+         // VERIFICA SE É CONTRIBUINTE --------------
+         List contribuintes = dbl.pesquisaContribuinteLancamento(responsavel.getId());
+         if (!contribuintes.isEmpty()){
+         GenericaMensagem.warn("Atenção", "Esta empresa foi fechada, não poderá ser responsável!");
+         return responsavel = new Pessoa();
+         }
                 
-                // VERIFICA SE A EMPRESA CONTEM LISTA DE ENDERECO -------
-                List lista_pe = dbj.pesquisarPessoaEnderecoJuridica(responsavel.getId());
-                if (lista_pe.isEmpty()){
-                    GenericaMensagem.warn("Atenção", "Esta empresa não possui endereço cadastrado, não poderá ser responsável!");
-                    return responsavel = new Pessoa();
-                }
+         // VERIFICA SE A EMPRESA CONTEM LISTA DE ENDERECO -------
+         List lista_pe = dbj.pesquisarPessoaEnderecoJuridica(responsavel.getId());
+         if (lista_pe.isEmpty()){
+         GenericaMensagem.warn("Atenção", "Esta empresa não possui endereço cadastrado, não poderá ser responsável!");
+         return responsavel = new Pessoa();
+         }
                 
-                return responsavel = jur.getPessoa();
-            }
+         return responsavel = jur.getPessoa();
+         }
             
-            Fisica fi = dbf.pesquisaFisicaPorPessoa(responsavel.getId());
+         Fisica fi = dbf.pesquisaFisicaPorPessoa(responsavel.getId());
             
-            // CASO SEJA PESSOA FISICA -------------------
-            if (fi != null){
-                // VERIFICA SE TEM MOVIMENTO EM ABERTO (DEVEDORES)
-                List listam = dbl.pesquisaMovimentoFisica(responsavel.getId());
-                if (!listam.isEmpty()){
-                    GenericaMensagem.warn("Atenção", "Esta pessoa possui débitos com o Sindicato, não poderá ser responsável!");
-                    // 817 NÃO BLOQUEAR PESSOAS DEVEDORAS
-                    //return responsavel = new Pessoa();
-                }
+         // CASO SEJA PESSOA FISICA -------------------
+         if (fi != null){
+         // VERIFICA SE TEM MOVIMENTO EM ABERTO (DEVEDORES)
+         List listam = dbl.pesquisaMovimentoFisica(responsavel.getId());
+         if (!listam.isEmpty()){
+         GenericaMensagem.warn("Atenção", "Esta pessoa possui débitos com o Sindicato, não poderá ser responsável!");
+         // 817 NÃO BLOQUEAR PESSOAS DEVEDORAS
+         //return responsavel = new Pessoa();
+         }
                 
                 
-                SociosDB dbs = new SociosDBToplink();
-                Socios soc = dbs.pesquisaSocioPorPessoaAtivo(responsavel.getId());
+         SociosDB dbs = new SociosDBToplink();
+         Socios soc = dbs.pesquisaSocioPorPessoaAtivo(responsavel.getId());
                 
-                // CASO NÃO SEJA SÓCIO ---
-                if (soc.getId() == -1){
-                    DataHoje dh = new DataHoje();
-                    int idade = dh.calcularIdade(fi.getNascimento());
-                    if (idade < 18){
-                        GenericaMensagem.warn("Atenção", "Esta pessoa não é maior de idade, não poderá ser responsável!");
-                        return responsavel = new Pessoa();
-                    }
-                }else{
-                    FunctionsDao dbfunc = new FunctionsDao();
-                    Pessoa p = dbfunc.titularDaPessoa(responsavel.getId());
-                    // CASO SEJA SÓCIO NÃO TITULAR
-                    if (p.getId() != responsavel.getId()){
-                        // VERIFICA SE PESSOA É MAIOR DE IDADE
-                        DataHoje dh = new DataHoje();
-                        int idade = dh.calcularIdade(fi.getNascimento());
-                        if (idade < 18){
-                            GenericaMensagem.warn("Atenção", "Esta pessoa não é maior de idade, não poderá ser responsável!");
-                            return responsavel = new Pessoa();
-                        }
-                    }                    
-                }
+         // CASO NÃO SEJA SÓCIO ---
+         if (soc.getId() == -1){
+         DataHoje dh = new DataHoje();
+         int idade = dh.calcularIdade(fi.getNascimento());
+         if (idade < 18){
+         GenericaMensagem.warn("Atenção", "Esta pessoa não é maior de idade, não poderá ser responsável!");
+         return responsavel = new Pessoa();
+         }
+         }else{
+         FunctionsDao dbfunc = new FunctionsDao();
+         Pessoa p = dbfunc.titularDaPessoa(responsavel.getId());
+         // CASO SEJA SÓCIO NÃO TITULAR
+         if (p.getId() != responsavel.getId()){
+         // VERIFICA SE PESSOA É MAIOR DE IDADE
+         DataHoje dh = new DataHoje();
+         int idade = dh.calcularIdade(fi.getNascimento());
+         if (idade < 18){
+         GenericaMensagem.warn("Atenção", "Esta pessoa não é maior de idade, não poderá ser responsável!");
+         return responsavel = new Pessoa();
+         }
+         }                    
+         }
                 
                 
-                // VERIFICA SE A PESSOA CONTEM LISTA DE ENDERECO -------
-                List lista_pe = dbj.pesquisarPessoaEnderecoJuridica(responsavel.getId());
-                if (lista_pe.isEmpty()){
-                    GenericaMensagem.warn("Atenção", "Esta pessoa não possui endereço cadastrado, não poderá ser responsável!");
-                    return responsavel = new Pessoa();
-                }
+         // VERIFICA SE A PESSOA CONTEM LISTA DE ENDERECO -------
+         List lista_pe = dbj.pesquisarPessoaEnderecoJuridica(responsavel.getId());
+         if (lista_pe.isEmpty()){
+         GenericaMensagem.warn("Atenção", "Esta pessoa não possui endereço cadastrado, não poderá ser responsável!");
+         return responsavel = new Pessoa();
+         }
                 
-                return responsavel = fi.getPessoa();
-            }
-        }
+         return responsavel = fi.getPessoa();
+         }
+         }
         
-        // CASO SEJA PESSOA FISICA -------------------
-        if (fisica.getId() != -1 && responsavel.getId() == -1){
+         // CASO SEJA PESSOA FISICA -------------------
+         if (fisica.getId() != -1 && responsavel.getId() == -1){
             
-            List<Vector> result = dbl.pesquisaResponsavel(fisica.getPessoa().getId(), descontoFolha.equals("sim"));
-            if (!result.isEmpty() && (Integer) result.get(0).get(0) != 0){
-                // VERIFICA SE TEM MOVIMENTO EM ABERTO (DEVEDORES)
-                List listam = dbl.pesquisaMovimentoFisica(fisica.getPessoa().getId());
-                if (!listam.isEmpty()){
-                    GenericaMensagem.warn("Atenção", "Esta pessoa possui débitos com o Sindicato, não poderá ser responsável!");
-                    // 817 NÃO BLOQUEAR PESSOAS DEVEDORAS
-                    //return responsavel = new Pessoa();
-                }
+         List<Vector> result = dbl.pesquisaResponsavel(fisica.getPessoa().getId(), descontoFolha.equals("sim"));
+         if (!result.isEmpty() && (Integer) result.get(0).get(0) != 0){
+         // VERIFICA SE TEM MOVIMENTO EM ABERTO (DEVEDORES)
+         List listam = dbl.pesquisaMovimentoFisica(fisica.getPessoa().getId());
+         if (!listam.isEmpty()){
+         GenericaMensagem.warn("Atenção", "Esta pessoa possui débitos com o Sindicato, não poderá ser responsável!");
+         // 817 NÃO BLOQUEAR PESSOAS DEVEDORAS
+         //return responsavel = new Pessoa();
+         }
                 
 
-                SociosDB dbs = new SociosDBToplink();
-                Socios soc = dbs.pesquisaSocioPorPessoaAtivo(fisica.getPessoa().getId());
+         SociosDB dbs = new SociosDBToplink();
+         Socios soc = dbs.pesquisaSocioPorPessoaAtivo(fisica.getPessoa().getId());
                 
-                // CASO NÃO SEJA SÓCIO ---
-                if (soc.getId() == -1){
-                    DataHoje dh = new DataHoje();
-                    int idade = dh.calcularIdade(fisica.getNascimento());
-                    if (idade < 18){
-                        GenericaMensagem.warn("Atenção", "Esta pessoa não é maior de idade, não poderá ser responsável!");
-                        return responsavel = new Pessoa();
-                    }
-                }else{
-                    FunctionsDao dbfunc = new FunctionsDao();
-                    Pessoa p = dbfunc.titularDaPessoa(fisica.getPessoa().getId());
-                    // CASO SEJA SÓCIO NÃO TITULAR
-                    if (p.getId() != fisica.getPessoa().getId()){
-                        // VERIFICA SE PESSOA É MAIOR DE IDADE
-                        DataHoje dh = new DataHoje();
-                        int idade = dh.calcularIdade(fisica.getNascimento());
-                        if (idade < 18){
-                            GenericaMensagem.warn("Atenção", "Esta pessoa não é maior de idade, não poderá ser responsável!");
-                            return responsavel = new Pessoa();
-                        }
-                    }                    
-                }
+         // CASO NÃO SEJA SÓCIO ---
+         if (soc.getId() == -1){
+         DataHoje dh = new DataHoje();
+         int idade = dh.calcularIdade(fisica.getNascimento());
+         if (idade < 18){
+         GenericaMensagem.warn("Atenção", "Esta pessoa não é maior de idade, não poderá ser responsável!");
+         return responsavel = new Pessoa();
+         }
+         }else{
+         FunctionsDao dbfunc = new FunctionsDao();
+         Pessoa p = dbfunc.titularDaPessoa(fisica.getPessoa().getId());
+         // CASO SEJA SÓCIO NÃO TITULAR
+         if (p.getId() != fisica.getPessoa().getId()){
+         // VERIFICA SE PESSOA É MAIOR DE IDADE
+         DataHoje dh = new DataHoje();
+         int idade = dh.calcularIdade(fisica.getNascimento());
+         if (idade < 18){
+         GenericaMensagem.warn("Atenção", "Esta pessoa não é maior de idade, não poderá ser responsável!");
+         return responsavel = new Pessoa();
+         }
+         }                    
+         }
                 
-                // VERIFICA SE A PESSOA CONTEM LISTA DE ENDERECO -------
-                // NÃO NECESSÁRIAMENTE JURIDICA COMO ESTA NO NOME DO MÉTODO
-                List lista_pe = dbj.pesquisarPessoaEnderecoJuridica(fisica.getPessoa().getId());
-                if (lista_pe.isEmpty()){
-                    GenericaMensagem.warn("Atenção", "Esta pessoa não possui endereço cadastrado, não poderá ser responsável!");
-                    return responsavel = new Pessoa();
-                }
-                return responsavel = fisica.getPessoa();
-            }else{
-                GenericaMensagem.fatal("Atenção", "Responsável não encontrado, erro na função!");
-            }
-        }
+         // VERIFICA SE A PESSOA CONTEM LISTA DE ENDERECO -------
+         // NÃO NECESSÁRIAMENTE JURIDICA COMO ESTA NO NOME DO MÉTODO
+         List lista_pe = dbj.pesquisarPessoaEnderecoJuridica(fisica.getPessoa().getId());
+         if (lista_pe.isEmpty()){
+         GenericaMensagem.warn("Atenção", "Esta pessoa não possui endereço cadastrado, não poderá ser responsável!");
+         return responsavel = new Pessoa();
+         }
+         return responsavel = fisica.getPessoa();
+         }else{
+         GenericaMensagem.fatal("Atenção", "Responsável não encontrado, erro na função!");
+         }
+         }
          */
         return responsavel;
     }

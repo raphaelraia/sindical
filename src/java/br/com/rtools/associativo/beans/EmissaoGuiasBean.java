@@ -33,6 +33,7 @@ import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.db.MovimentoDB;
 import br.com.rtools.financeiro.db.MovimentoDBToplink;
 import br.com.rtools.financeiro.lista.ListMovimentoEmissaoGuias;
+import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Fisica;
@@ -471,6 +472,7 @@ public class EmissaoGuiasBean implements Serializable {
         fisicaNovoCadastro.getPessoa().setTipoDocumento((TipoDocumento) di.find(new TipoDocumento(), 1));
 
         if (fisicaNovoCadastro.getPessoa().getId() == -1 && fisicaNovoCadastro.getId() == -1) {
+            List<String> list_log = new ArrayList();
             di.openTransaction();
             if (!di.save(fisicaNovoCadastro.getPessoa())) {
                 message = "Falha ao salvar Pessoa!";
@@ -502,6 +504,28 @@ public class EmissaoGuiasBean implements Serializable {
             }
             message = "Pessoa salva com Sucesso!";
             di.commit();
+            
+            list_log.add("** SALVAR NOVA PESSOA FÍSICA **");
+            list_log.add("Pessoa ID: " + fisicaNovoCadastro.getPessoa().getId());
+            list_log.add("Pessoa Nome: " + fisicaNovoCadastro.getPessoa().getNome());
+            list_log.add("Pessoa CPF: " + fisicaNovoCadastro.getPessoa().getDocumento());
+            list_log.add("Pessoa Telefone: " + fisicaNovoCadastro.getPessoa().getTelefone1());
+            list_log.add("-------------------------------------------------------------------");
+            list_log.add("Física ID: " + fisicaNovoCadastro.getId());
+            list_log.add("Física RG: " + fisicaNovoCadastro.getRg());
+            list_log.add("Física Nascimento: " + fisicaNovoCadastro.getNascimento());
+            
+            String save_log = "";
+
+            for (String string_x : list_log) {
+                save_log += string_x + " \n";
+            }
+
+            NovoLog novoLog = new NovoLog();
+
+            novoLog.save(
+                    save_log
+            );
 
             selecionarPessoaCadastro();
 
@@ -724,6 +748,7 @@ public class EmissaoGuiasBean implements Serializable {
         DaoInterface di = new Dao();
         Servicos serv = (Servicos) di.find(new Servicos(), Integer.parseInt(getListServicos().get(index[2]).getDescription()));
 
+        List<String> list_log = new ArrayList();
         // CODICAO DE PAGAMENTO
         CondicaoPagamento cp = null;
         if (DataHoje.converteDataParaInteger(listaMovimento.get(0).getMovimento().getVencimento()) > DataHoje.converteDataParaInteger(DataHoje.data())) {
@@ -731,6 +756,8 @@ public class EmissaoGuiasBean implements Serializable {
         } else {
             cp = (CondicaoPagamento) di.find(new CondicaoPagamento(), 1);
         }
+
+        list_log.add("Condição de Pagamento: " + cp.getDescricao());
         // TIPO DE DOCUMENTO  FTipo_documento 13 - CARTEIRA, 2 - BOLETO
         FTipoDocumento td = (FTipoDocumento) di.find(new FTipoDocumento(), 2);
         lote.setEmissao(DataHoje.data());
@@ -756,6 +783,10 @@ public class EmissaoGuiasBean implements Serializable {
             return null;
         }
 
+        list_log.add("Lote ID: " + lote.getId());
+        list_log.add("Pessoa ID: " + listaMovimento.get(0).getMovimento().getPessoa().getId());
+        list_log.add("Pessoa Nome: " + listaMovimento.get(0).getMovimento().getPessoa().getNome());
+
         for (ListMovimentoEmissaoGuias listaMovimento1 : listaMovimento) {
             listaMovimento1.getMovimento().setLote(lote);
             if (!di.save(listaMovimento1.getMovimento())) {
@@ -763,7 +794,15 @@ public class EmissaoGuiasBean implements Serializable {
                 di.rollback();
                 return null;
             }
-            //listaaux.add((Movimento)listaMovimento.get(i).getArgumento0());
+
+            list_log.add("-------------------------------------------------------------------");
+            list_log.add("Serviço ID: " + listaMovimento1.getMovimento().getServicos().getId());
+            list_log.add("Serviço Nome: " + listaMovimento1.getMovimento().getServicos().getDescricao());
+            list_log.add("Movimento ID: " + listaMovimento1.getMovimento().getId());
+            list_log.add("Movimento Quantidade: " + listaMovimento1.getMovimento().getQuantidade());
+            list_log.add("Movimento Valor Unitário: " + listaMovimento1.getValor());
+            list_log.add("Movimento Desconto Unitário: " + listaMovimento1.getDesconto());
+            list_log.add("Movimento Total: " + listaMovimento1.getTotal());
         }
 
         Estoque e;
@@ -784,6 +823,13 @@ public class EmissaoGuiasBean implements Serializable {
                 return null;
             }
             e = new Estoque();
+            list_log.add("-------------------------------------------------------------------");
+            list_log.add("Produto ID: " + listPedido.getProduto().getId());
+            list_log.add("Produto Nome: " + listPedido.getProduto().getDescricao());
+            list_log.add("Produto Quantidade: " + listPedido.getQuantidade());
+            list_log.add("Pedido ID: " + listPedido.getId());
+            list_log.add("Pedido Valor Unitário: " + listPedido.getValorUnitarioString());
+            list_log.add("Pedido Desconto Unitário: " + listPedido.getDescontoUnitarioString());
         }
 
         Juridica empresaConvenio = (Juridica) di.find(new Juridica(), Integer.valueOf(listSelectItem[3].get(index[3]).getDescription()));
@@ -801,6 +847,11 @@ public class EmissaoGuiasBean implements Serializable {
             di.rollback();
             return null;
         }
+        list_log.add("-------------------------------------------------------------------");
+        list_log.add("Guia ID: " + guias.getId());
+        list_log.add("Guia Empresa Convênio: " + guias.getPessoa().getNome());
+        list_log.add("Guia Observação: " + guias.getObservacao());
+
         di.commit();
 
         //List<Movimento> listaaux = new ArrayList();
@@ -842,6 +893,18 @@ public class EmissaoGuiasBean implements Serializable {
                 di.commit();
             }
         }
+
+        String save_log = "";
+
+        for (String string_x : list_log) {
+            save_log += string_x + " \n";
+        }
+
+        NovoLog novoLog = new NovoLog();
+
+        novoLog.save(
+                save_log
+        );
 
         GenericaSessao.put("caixa_banco", "caixa");
         if (valor_soma == 0) {

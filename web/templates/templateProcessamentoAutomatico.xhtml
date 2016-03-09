@@ -1,0 +1,66 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core">
+    <style type="text/css">
+        .colunaCenter1{
+            width: 50%;
+        }
+        .colunaCenter2{
+            width: 50%;
+        }
+    </style>
+    
+    <p:poll global="false" interval="3" listener="#{processoAutomaticoBean.progress()}" stop="#{processoAutomaticoBean.processoAutomaticoConcluido.id ne -1 or (processoAutomaticoBean.processoAutomaticoConcluido.id eq -1 and processoAutomaticoBean.processoAutomatico.id eq -1)}" update="panel_processo_automatico panel_processo_automatico_log"/>
+
+    <h:panelGrid id="panel_processo_automatico" style="width: 100%">
+        <p:panel rendered="#{processoAutomaticoBean.processoAutomatico.id ne -1}">
+            <p:outputLabel value="Processamento em Andamento: " />
+            <p:outputLabel value="ATUALIZAÇÃO DE EMPRESAS"  style="font-weight: bold"/>
+            <p:progressBar value="#{processoAutomaticoBean.progressValue}" labelTemplate="#{processoAutomaticoBean.progressLabel}%" />
+            <p:commandButton value="Ver Detalhes" action="#{processoAutomaticoBean.verLog()}" oncomplete="PF('dlg_processo_automatico_log').show()" update="panel_processo_automatico_log" />
+        </p:panel>
+
+        <p:panel rendered="#{processoAutomaticoBean.processoAutomatico.id eq -1 and processoAutomaticoBean.processoAutomaticoConcluido.id ne -1}" style="text-align: center">
+            <p:outputLabel value="PROCESSAMENTO CONCLUÍDO!" style="font-size: 14pt!important; font-weight: bold"/>
+            <br />
+            <h:panelGrid columns="2" columnClasses="colunaCenter1, colunaCenter2" style="width: 100%;">
+                <h:column><p:commandButton value="Ok" action="#{processoAutomaticoBean.ok()}" update="@form panel_processo_automatico" style="float: right"/></h:column>
+                <h:column><p:commandLink value="Ver Detalhes" action="#{processoAutomaticoBean.verLog()}" oncomplete="PF('dlg_processo_automatico_log').show()" update="panel_processo_automatico_log" style="float: left"/></h:column>
+            </h:panelGrid>
+        </p:panel>
+    </h:panelGrid>
+
+    <p:dialog widgetVar="dlg_processo_automatico_log" modal="true" width="600" height="400" resizable="false">
+        <p:ajax event="close" listener="#{processoAutomaticoBean.closeDialogLog()}"/>
+
+        <h:panelGrid id="panel_processo_automatico_log">
+            <h:panelGrid columns="2">
+                <p:outputLabel value="Processo: " style="font-weight: bold"/>
+                <p:outputLabel value="#{processoAutomaticoBean.paDetalhe.processo}" />
+            </h:panelGrid>
+
+            <h:panelGrid columns="4">
+                <p:outputLabel value="Data Inicio: " style="font-weight: bold"/>
+                <p:outputLabel value="#{processoAutomaticoBean.paDetalhe.dataInicioString}" />
+                <p:outputLabel value="Horário: " style="margin-left: 20px; font-weight: bold"/>
+                <p:outputLabel value="#{processoAutomaticoBean.paDetalhe.horaInicio}" />
+            </h:panelGrid>
+
+            <h:panelGrid columns="1">
+                <p:outputLabel value="Detalhes" style="font-weight: bold"/>
+                <p:dataTable value="#{processoAutomaticoBean.listaProcessoAutomaticoLog}" var="linha_log" scrollHeight="300" scrollable="true" style="width: 100%" emptyMessage="ATUALIZAÇÃO EM ANDAMENTO">
+                    <p:column headerText="ID" style="width: 80px; text-align: center">
+                        <p:outputLabel value="#{linha_log.id}" />
+                    </p:column>
+
+                    <p:column headerText="Detalhe">
+                        <p:outputLabel value="#{linha_log.log}" />
+                    </p:column>
+                </p:dataTable>
+            </h:panelGrid>
+
+        </h:panelGrid>
+    </p:dialog>
+</ui:composition>
