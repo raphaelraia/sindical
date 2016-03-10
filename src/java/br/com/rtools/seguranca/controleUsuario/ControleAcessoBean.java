@@ -168,9 +168,9 @@ public class ControleAcessoBean implements Serializable {
         RotinaDao rotinaDao = new RotinaDao();
         if (urlDestino.equals("/Sindical/menuPrincipal.jsf")) {
             //if (FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("idModulo") == null) {
-                idModulo = 9;
-                modulo = (Modulo) new Dao().find(new Modulo(), 9);
-                GenericaSessao.put("idModulo", 9);
+            idModulo = 9;
+            modulo = (Modulo) new Dao().find(new Modulo(), 9);
+            GenericaSessao.put("idModulo", 9);
             //}
         }
         if (!urlDestino.equals("/Sindical/menuPrincipal.jsf")
@@ -185,13 +185,17 @@ public class ControleAcessoBean implements Serializable {
             }
             //PESQUISA DE ROTINAS-------------------------------------------------------------------------------------------
             try {
-                rotina = rotinaDao.pesquisaRotinaPermissao(urlDestino);                
+                rotina = rotinaDao.pesquisaRotinaPermissao(urlDestino);
             } catch (Exception e) {
                 rotina = null;
             }
 
             if (rotina == null) {
                 rotina = new Rotina();
+            }
+
+            if (!rotina.isAtivo()) {
+                return false;
             }
 
             if (FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("chamadaPaginaSimples") != null) {
