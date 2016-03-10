@@ -38,7 +38,7 @@
                             <h:panelGrid columns="4" style="clear: both;">
                                 <h:column>
                                     <p:outputLabel value="Filtrar por" /><br />
-                                    <p:selectOneMenu value="#{extratoTelaBean.porPesquisa}" rendered="#{controleAcessoBean.listaExtratoTela}" style="margin-right: 20px">
+                                    <p:selectOneMenu value="#{extratoTelaBean.porPesquisa}" rendered="#{!controleAcessoBean.listaExtratoTela}" style="margin-right: 20px">
                                         <p:ajax event="change" update="@this" />
                                         <f:selectItem itemValue="todos"             itemLabel="Todas"/>
                                         <f:selectItem itemValue="recebidas"         itemLabel="Recebidas"/>
@@ -46,7 +46,7 @@
                                         <f:selectItem itemValue="atrasadas"         itemLabel="Atrasadas"/>
                                     </p:selectOneMenu>
 
-                                    <p:selectOneMenu value="#{extratoTelaBean.porPesquisa}" rendered="#{!controleAcessoBean.listaExtratoTela}" style="margin-right: 20px">
+                                    <p:selectOneMenu value="#{extratoTelaBean.porPesquisa}" rendered="#{controleAcessoBean.listaExtratoTela}" style="margin-right: 20px">
                                         <p:ajax event="change" update="@this"/>
                                         <f:selectItem itemValue="naoRecebidas"      itemLabel="Não Recebidas"/>
                                         <f:selectItem itemValue="atrasadas"         itemLabel="Atrasadas"/>

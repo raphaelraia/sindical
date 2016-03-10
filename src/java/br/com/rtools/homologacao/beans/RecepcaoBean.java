@@ -43,6 +43,7 @@ import br.com.rtools.utilitarios.PF;
 import br.com.rtools.utilitarios.SalvarAcumuladoDB;
 import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import br.com.rtools.utilitarios.Upload;
+import br.com.rtools.utilitarios.WSSocket;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -308,6 +309,7 @@ public class RecepcaoBean implements Serializable {
         openDialog = false;
         recepcao = new Recepcao();
         listFiles.clear();
+        WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());
     }
 
     public void gerarSenha() {
@@ -368,6 +370,7 @@ public class RecepcaoBean implements Serializable {
         }
         di.commit();
         loadListHorarios();
+        WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());
     }
 
     public void cancelarHorario() {
@@ -425,6 +428,7 @@ public class RecepcaoBean implements Serializable {
         
         //cancelamento = new Cancelamento();
         loadListHorarios();
+        WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());
     }
 
     public String pesquisarPessoa() {
@@ -453,7 +457,7 @@ public class RecepcaoBean implements Serializable {
             loadListHorarios();
         } else {
             loadListaAtendimentoSimples();
-        }
+        }        
         return null;
     }
 
@@ -525,6 +529,7 @@ public class RecepcaoBean implements Serializable {
         GenericaMensagem.info("Sucesso", "Agendamento atualizado!");
         di.commit();
         loadListHorarios();
+        WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());
     }
 
     public void agendar(DataObject datao) {

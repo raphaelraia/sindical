@@ -114,18 +114,33 @@
             </h:form>
         </p:dialog>
 
-        <p:dialog widgetVar="dlg_report_bug" header="Reportar Bug" resizable="false" modal="true" width="640">
-            <h:form id="form_report_bug">
-                <p:messages autoUpdate="true" showDetail="true" showSummary="true" closable="true" />
+        <h:form id="form_report_bug">
+            <p:dialog widgetVar="dlg_report_bug" header="Reportar Bug" resizable="false" modal="true" width="640">
+                <p:messages id="i_message" showDetail="true" showSummary="true" closable="true" />
                 <p:panel>
-                    <p:inputTextarea value="#{reportBugBean.bug}" cols="90" rows="10" placeholder="Informe o problema ocorrido, deve conter mo mínimo 10 caracteres">
-                        <p:ajax event="change" update="@this" />
+                    <p:inputTextarea value="#{reportBugBean.bug}" cols="90" rows="10" placeholder="Informe o problema ocorrido, deve conter mo mínimo 10 caracteres" id="id_bug">
+                        <p:ajax event="change" update="@this id_report id_anexo" />
                     </p:inputTextarea>
                     <f:facet name="footer">
-                        <p:commandButton action="#{reportBugBean.report}" value="Enviar" />
+                        <h:panelGrid columns="2">                            
+                            <p:commandButton action="#{reportBugBean.report}" value="Enviar" disabled="#{10 > reportBugBean.bug.length()}" id="id_report" update="id_bug id_anexo i_message"/>
+                            <p:commandButton value="#{reportBugBean.fileBug == null ? 'Anexar arquivo' : 'Arquivo anexado' } " onclick="PF('dlg_anexo_bug').show();" type="button" id="id_anexo" disabled="#{10 > reportBugBean.bug.length()}"  />
+                        </h:panelGrid>
                     </f:facet>                    
                 </p:panel>
-            </h:form>
-        </p:dialog>
+            </p:dialog>
+            <p:dialog widgetVar="dlg_anexo_bug" modal="true"  header="Anexar arquivo" closable="true">
+                <p:fileUpload label="Procurar"
+                              cancelLabel="Cancelar"
+                              uploadLabel="Anexar"
+                              mode="advanced"                                          
+                              dragDropSupport="true"
+                              multiple="false"
+                              immediate="true"
+                              update="id_anexo"
+                              fileUploadListener="#{reportBugBean.upload}"
+                              oncomplete="PF('dlg_anexo_bug').hide()" />
+            </p:dialog>
+        </h:form>
     </f:view>    
 </html>

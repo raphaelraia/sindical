@@ -37,6 +37,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import org.primefaces.json.JSONObject;
 
 @ManagedBean
 @SessionScoped
@@ -255,10 +256,18 @@ public class ControleUsuarioBean implements Serializable {
     }
 
     public String getValidacaoIndex() throws IOException {
+        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+        String chamado = request.getParameter("chamado");
+        String co = "";
+        JSONObject jSONObject = null;
+        if (chamado != null && !chamado.isEmpty()) {
+            chamado = chamado.replace("'", "\"");
+            jSONObject = new JSONObject(chamado);
+        }
+
         if (GenericaSessao.exists("sessaoCliente")) {
             GenericaSessao.remove("conexao");
         }
-        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
         String requestCliente;
         if (request.getParameter("cliente") != null && request.getParameter("cliente") != FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoCliente")) {
             requestCliente = request.getParameter("cliente");
@@ -281,6 +290,7 @@ public class ControleUsuarioBean implements Serializable {
                 GenericaSessao.remove("acessoFilial");
             }
         }
+
         return null;
     }
 
@@ -449,6 +459,14 @@ public class ControleUsuarioBean implements Serializable {
         if (GenericaSessao.exists("sessaoCliente")) {
             novoCliente = GenericaSessao.getString("sessaoCliente");
             getExport();
+        }
+        return novoCliente;
+    }
+
+    public String getClienteLowerCaseString() {
+        String novoCliente = "";
+        if (GenericaSessao.exists("sessaoCliente")) {
+            novoCliente = GenericaSessao.getString("sessaoCliente").toLowerCase();
         }
         return novoCliente;
     }

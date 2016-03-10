@@ -184,7 +184,11 @@ public class ControleAcessoBean implements Serializable {
                 }
             }
             //PESQUISA DE ROTINAS-------------------------------------------------------------------------------------------
-            rotina = rotinaDao.pesquisaRotinaPermissao(urlDestino);
+            try {
+                rotina = rotinaDao.pesquisaRotinaPermissao(urlDestino);                
+            } catch (Exception e) {
+                rotina = null;
+            }
 
             if (rotina == null) {
                 rotina = new Rotina();

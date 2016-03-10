@@ -28,8 +28,8 @@ public class ConfiguracaoArrecadacaoBean implements Serializable {
         Dao dao = new Dao();
         configuracaoArrecadacao = (ConfiguracaoArrecadacao) dao.find(new ConfiguracaoArrecadacao(), 1);
         if (configuracaoArrecadacao == null) {
-            configuracaoArrecadacao.setId(1);
             configuracaoArrecadacao = new ConfiguracaoArrecadacao();
+            configuracaoArrecadacao.setId(1);
             configuracaoArrecadacao.setFilial(null);
             dao.save(configuracaoArrecadacao, true);
         }

@@ -7,6 +7,7 @@ import br.com.rtools.homologacao.dao.HorariosDao;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Usuario;
+import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.Semana;
 import br.com.rtools.sistema.SisProcesso;
 import br.com.rtools.utilitarios.Dao;
@@ -14,6 +15,7 @@ import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Tabbed;
+import br.com.rtools.utilitarios.WSSocket;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -190,6 +192,7 @@ public class CancelarHorarioBean implements Serializable {
             GenericaMensagem.info("Sucesso", "Horário cancelado com sucesso.");
             getListaHorariosDisponiveis().clear();
             sisProcesso.finish();
+            WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());
         }
         nrQuantidadeDisponivel = 0;
         nrQuantidadeDisponivelB = 0;
@@ -364,14 +367,12 @@ public class CancelarHorarioBean implements Serializable {
                             erro = true;
                             break;
                         }
+                    } else if (dao.delete(cancelarHorario)) {
+                        cancelarHorario = new CancelarHorario();
+                        erro = false;
                     } else {
-                        if (dao.delete(cancelarHorario)) {
-                            cancelarHorario = new CancelarHorario();
-                            erro = false;
-                        } else {
-                            erro = true;
-                            break;
-                        }
+                        erro = true;
+                        break;
                     }
                     delete = false;
                 }
@@ -388,6 +389,7 @@ public class CancelarHorarioBean implements Serializable {
         cancelarHorario = new CancelarHorario();
         sisProcesso.finish();
         GenericaMensagem.info("Sucesso", "Horários cancelados com sucesso");
+        WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());
         return null;
     }
 
@@ -400,6 +402,7 @@ public class CancelarHorarioBean implements Serializable {
                 if (dao.delete(ch)) {
                     dao.commit();
                     GenericaMensagem.info("Sucesso", "Registro excluído com sucesso.");
+                    WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());
                 } else {
                     dao.rollback();
                     GenericaMensagem.warn("Erro", "Erro ao excluir horário cancelado!");
@@ -754,6 +757,7 @@ public class CancelarHorarioBean implements Serializable {
                     calculaQuantidadeDisponivel();
                     getListaHorariosCancelados().clear();
                     GenericaMensagem.info("Sucesso", "Horarios excluídos com sucesso.");
+                    WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());
                 }
             } catch (Exception e) {
                 dao.rollback();

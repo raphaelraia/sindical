@@ -210,7 +210,9 @@ public class Mail extends MailTemplate implements Serializable {
                         } else {
                             htmlString = html;
                         }
-                        MimeMultipart multipart = new MimeMultipart("related");
+                        // SOLVED http://stackoverflow.com/questions/3902455/smtp-multipart-alternative-vs-multipart-mixed
+                        // MimeMultipart multipart = new MimeMultipart("related");
+                        MimeMultipart multipart = new MimeMultipart("mixed");
                         BodyPart mainPart = new MimeBodyPart();
                         if (!files.isEmpty()) {
                             EmailArquivo emailArquivoS = new EmailArquivo();

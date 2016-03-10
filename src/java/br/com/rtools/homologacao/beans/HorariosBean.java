@@ -4,10 +4,12 @@ import br.com.rtools.homologacao.Horarios;
 import br.com.rtools.homologacao.dao.HorariosDao;
 import br.com.rtools.homologacao.lista.ListaHorarios;
 import br.com.rtools.pessoa.Filial;
+import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.Semana;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.WSSocket;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -127,6 +129,7 @@ public class HorariosBean implements Serializable {
                     horarios.setQuantidade(quantidade);
                     if (dao.save(horarios, true)) {
                         GenericaMensagem.info("Sucesso", "Registro adicionado");
+                        WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());
                     } else {
                         GenericaMensagem.warn("Erro", "Ao adicionar registro");
                     }
@@ -169,6 +172,7 @@ public class HorariosBean implements Serializable {
                 if (dao.update(horarios, true)) {
                     GenericaMensagem.info("Sucesso", "Registro atualizado");
                     horarios = new Horarios();
+                    WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());
                 } else {
                     GenericaMensagem.warn("Erro", "Ao atualizar registro");
                 }
@@ -184,6 +188,7 @@ public class HorariosBean implements Serializable {
             horariosReativar.setAtivo(true);
             if (dao.update(horariosReativar, true)) {
                 GenericaMensagem.info("Sucesso", "Horário reativado");
+                WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());
             } else {
                 GenericaMensagem.warn("Erro", "Ao reativar horário!");
             }
@@ -219,10 +224,12 @@ public class HorariosBean implements Serializable {
         if (h.getId() != -1) {
             if (dao.delete(h, true)) {
                 GenericaMensagem.info("Sucesso", "Registro excluído");
+                WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());
             } else {
                 h.setAtivo(false);
                 if (dao.update(h, true)) {
                     GenericaMensagem.info("Sucesso", "Registro inátivado");
+                    WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());
                 }
             }
             listHorarios.clear();

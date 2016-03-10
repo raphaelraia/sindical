@@ -480,7 +480,7 @@
                                                 <h:outputLabel value="Razão Social" style="font-weight: bold"/><br />
                                                 <h:outputLabel value="#{recepcaoBean.agendamentoEdit.pessoaEmpresa.juridica.pessoa.nome}" />
                                             </h:column>
-                                            
+
                                             <h:column>
                                                 <h:outputLabel value="Convenção" style="font-weight: bold" styleClass="margin-left-max"/><br />
                                                 <h:outputLabel value="#{recepcaoBean.agendamentoEdit.pessoaEmpresa.juridica.cnaeConvencao.convencao.descricao}" styleClass="margin-left-max" />
@@ -568,6 +568,9 @@
                                         <p:commandButton value="Não" onclick="PF('dlg_cancelar').hide()" style="float: left" icon="ui-icon-close"/>  
                                     </h:panelGrid>
                                 </p:dialog>
+                                <!-- <p:commandLink style="width: 0; height: 0" id="update_grid">
+                                    <p:ajax event="click" update="i_panel_tbl" listener="#{recepcaoBean.loadListHorarios()}" />
+                                </p:commandLink> -->
                             </h:form>
                             <h:form id="form_recepcao_upload">
                                 <p:dialog widgetVar="dgl_anexos" modal="true" width="400" height="300" header="Anexos" closable="true" dynamic="true">
@@ -605,7 +608,29 @@
             </div>
         </div>         
         <!-- FINALIZA div wrap main -->
+        <span id="messageGoesHere"></span>
+        <script type="text/javascript">
+            var ws = new WebSocket("ws://#{defaults.URL}#{facesContext.externalContext.requestContextPath}/ws_socket/agendamento_#{controleUsuarioBean.clienteLowerCaseString}");
 
+            ws.onopen = function (event) {
+                console.log("Connected ", event);
+            };
+
+            ws.onmessage = function (event) {
+                if (event.data === "1") {
+                    document.getElementById("formRecepcao:update_grid").click();
+                }
+            };
+
+            ws.onerror = function (event) {
+                console.log("Error ", event);
+            };
+
+            ws.onclose = function (event) {
+                alert(event.data);
+                console.log("Error ", event);
+            };
+        </script>
         <div id="footerx">
             <f:subview id="footer">
                 <ui:include src="templates/templateFooter.xhtml"/>

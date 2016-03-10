@@ -1003,7 +1003,6 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
                 }
             }
         }
-
         if (nrStatus == 2 || nrStatus == 4) {
             agendamento.setStatus((Status) sv.find("Status", nrStatus));
         } else if (nrStatus == 7) {
@@ -1027,6 +1026,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
         } else {
             sv.desfazerTransacao();
         }
+        WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());
     }
 
     public void homologar() {
@@ -1068,6 +1068,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
         pessoaEmpresa = new PessoaEmpresa();
         profissao = new Profissao();
         loadListaHomologacao();
+        WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());
     }
 
     public String cancelarHomologacao() {
@@ -1113,6 +1114,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
         profissao = new Profissao();
         dao.commit();
         loadListaHomologacao();
+        WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());
         return null;
     }
 
