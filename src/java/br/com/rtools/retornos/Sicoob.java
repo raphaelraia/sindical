@@ -67,7 +67,8 @@ public class Sicoob extends ArquivoRetorno {
                             cnpj = ((String) lista.get(i)).substring(3, 17);
 
                             nossoNumero = ((String) lista.get(i)).substring(62, 73).trim();
-                            valorTaxa = ((String) lista.get(i)).substring(95, 100);
+                            //valorTaxa = ((String) lista.get(i)).substring(95, 100); // taxa de desconto
+                            valorTaxa = ((String) lista.get(i)).substring(181, 188); // valor da tarifa
 
                             dataVencimento = ((String) lista.get(i)).substring(146, 150)+"20"+((String) lista.get(i)).substring(150, 152);
                             try {

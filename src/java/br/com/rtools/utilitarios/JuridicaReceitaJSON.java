@@ -226,8 +226,8 @@ public class JuridicaReceitaJSON {
             String cep = jro.getCep();
             cep = cep.replace(".", "").replace("-", "");
 
-            String descricao[] = AnaliseString.removerAcentos(jro.getLogradouro()).split(" ");
-            String bairros[] = AnaliseString.removerAcentos(jro.getBairro()).split(" ");
+            String descricao[] = AnaliseString.removerAcentos(jro.getLogradouro().replace("'", "")).split(" ");
+            String bairros[] = AnaliseString.removerAcentos(jro.getBairro().replace("'", "")).split(" ");
 
             Endereco endereco = dbe.enderecoReceita(cep, descricao, bairros);
 

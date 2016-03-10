@@ -57,7 +57,7 @@ public class AtualizacaoAutomaticaJuridicaDao extends DB {
                 + ")\n"
                 + "GROUP BY j.id\n"
                 + ")\n"
-                + "ORDER BY rtrim(ltrim(p.ds_nome)) limit 1000";
+                + "ORDER BY rtrim(ltrim(p.ds_nome)) limit 10";
         try {
             Query qry = getEntityManager().createNativeQuery(
                     text,

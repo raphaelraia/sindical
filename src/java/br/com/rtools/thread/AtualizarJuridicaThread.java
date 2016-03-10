@@ -70,24 +70,25 @@ public class AtualizarJuridicaThread extends ThreadLocal<Object> {
     }
 
     public Void metodo() {
-        try {
-            //List<Juridica> lista_juridica = new AtualizacaoAutomaticaJuridicaDao().listaJuridicaParaAtualizacao(this.query);
-            Dao dao = new Dao();
-            System.err.println("Começou a thread");
 
-            ProcessoAutomatico pa = new ProcessoAutomatico();
-            pa.setDataInicio(DataHoje.dataHoje());
-            pa.setHoraInicio(DataHoje.hora());
-            pa.setUsuario(Usuario.getUsuario());
-            pa.setTodosUsuarios(false);
-            pa.setNrProgresso(0);
-            pa.setNrProgressoFinal(listaJuridica.size());
-            pa.setProcesso("atualizar_juridica");
+        //List<Juridica> lista_juridica = new AtualizacaoAutomaticaJuridicaDao().listaJuridicaParaAtualizacao(this.query);
+        Dao dao = new Dao();
+        System.err.println("Começou a thread");
 
-            dao.save(pa, true);
+        ProcessoAutomatico pa = new ProcessoAutomatico();
+        pa.setDataInicio(DataHoje.dataHoje());
+        pa.setHoraInicio(DataHoje.hora());
+        pa.setUsuario(Usuario.getUsuario());
+        pa.setTodosUsuarios(false);
+        pa.setNrProgresso(0);
+        pa.setNrProgressoFinal(listaJuridica.size());
+        pa.setProcesso("atualizar_juridica");
 
-            for (int i = 0; i < listaJuridica.size(); i++) {
-                String retorno = atualizar(listaJuridica.get(i));
+        dao.save(pa, true);
+
+        for (int i = 0; i < listaJuridica.size(); i++) {
+            try {
+                String retorno = atualizar(listaJuridica.get(i), pa.getUsuario());
 
                 ProcessoAutomaticoLog pal = new ProcessoAutomaticoLog(
                         -1,
@@ -95,39 +96,32 @@ public class AtualizarJuridicaThread extends ThreadLocal<Object> {
                         "[" + DataHoje.hora() + "] N° " + (i + 1) + "\n"
                         + (!retorno.isEmpty() ? "[" + retorno + "]\n" : " ")
                         + " Juridica ID: " + listaJuridica.get(i).getId() + "\n"
-                        + " Juridica Nome: " + listaJuridica.get(i).getPessoa().getNome() + "["+retorno+"]"
+                        + " Juridica Nome: " + listaJuridica.get(i).getPessoa().getNome()
                 );
 
-//                dao.refresh(pa);
-//                if ( !(pa).getDataFinalString().isEmpty() ){
-//                    pa.setDataFinal(null);
-//                    pa.setHoraFinal("");
-//                    pa.setVisualizadoFimProcesso(Boolean.FALSE);
-//                    dao.update(pa, true);
-//                }
-                
                 dao.save(pal, true);
                 pa.setNrProgresso(i + 1);
 
                 dao.update(pa, true);
 
-                System.err.println("Empresa Atualizada N° " + i + ": " + listaJuridica.get(i).getPessoa().getNome());
+                System.err.println("Empresa Atualizada N° " + i + ": " + listaJuridica.get(i).getPessoa().getNome() + " [" + retorno + "]");
                 // TEM QUE SER 2 SEG. SE NÃO TRAVA
                 Thread.sleep(2000);
+            } catch (Exception e) {
+                System.err.println("[Erro] Empresa Atualizada N° " + i + ": " + listaJuridica.get(i).getPessoa().getNome());
             }
-            System.err.println("Terminou a thread");
-
-            pa.setDataFinal(DataHoje.dataHoje());
-            pa.setHoraFinal(DataHoje.hora());
-
-            dao.update(pa, true);
-        } catch (Exception e) {
-            e.getMessage();
         }
+        System.err.println("Terminou a thread");
+
+        pa.setDataFinal(DataHoje.dataHoje());
+        pa.setHoraFinal(DataHoje.hora());
+
+        dao.update(pa, true);
+
         return null;
     }
 
-    public String atualizar(Juridica juridica) {
+    public String atualizar(Juridica juridica, Usuario usuario) {
         try {
             if (juridica.getPessoa().getDocumento().isEmpty()) {
                 return "Documento Vazio";
@@ -143,7 +137,7 @@ public class AtualizarJuridicaThread extends ThreadLocal<Object> {
             juridica = (Juridica) dao.find(juridica);
 
             // tipo = wokki = pago / '' = gratis
-            JuridicaReceitaJSON.JuridicaReceitaObject jro = new JuridicaReceitaJSON(documento, "").pesquisar();
+            JuridicaReceitaJSON.JuridicaReceitaObject jro = new JuridicaReceitaJSON(documento, "wokki").pesquisar();
 
             if (jro.getStatus() == 6) {
                 return "Limite de acessos excedido!";
@@ -232,6 +226,7 @@ public class AtualizarJuridicaThread extends ThreadLocal<Object> {
 
             dao.commit();
 
+            juridica.getPessoa().setDtRecadastro(DataHoje.dataHoje());
             juridica.getPessoa().setNome(juridicaRA_nova.getNome().toUpperCase());
             juridica.setFantasia(juridicaRA_nova.getFantasia().toUpperCase());
 
@@ -243,23 +238,27 @@ public class AtualizarJuridicaThread extends ThreadLocal<Object> {
             juridica.getPessoa().setTelefone2(jro.getTelefone2());
             juridica.getPessoa().setTelefone3(jro.getTelefone3());
 
+            if (!dao.update(juridica.getPessoa(), true)) {
+                return "Erro ao Salvar Pessoa Receita Antiga!";
+            }
+            
             if (!dao.update(juridica, true)) {
                 return "Erro ao Salvar Juridica Receita Antiga!";
             }
 
             if (!jro.getSituacao_cadastral().toLowerCase().equals("ativo") && !jro.getSituacao_cadastral().toLowerCase().equals("ativa") && !jro.getSituacao_cadastral().isEmpty()) {
-                if (!inativarContribuintes(juridica, jro.getSituacao_cadastral())) {
+                if (!inativarContribuintes(juridica, jro.getSituacao_cadastral(), usuario)) {
                     return "Erro ao Inativar Empresa!";
                 }
             }
         } catch (Exception e) {
-            System.err.println(e.getMessage());
-            return e.getMessage();
+            //System.err.println(e.getMessage());
+            return (e.getMessage() == null) ? "ERRO NA PESQUISA WEB SERVICE" : e.getMessage();
         }
         return "";
     }
 
-    public Boolean inativarContribuintes(Juridica juridica, String obs) {
+    public Boolean inativarContribuintes(Juridica juridica, String obs, Usuario usuario) {
         try {
             Dao dao = new Dao();
 
@@ -274,7 +273,7 @@ public class AtualizarJuridicaThread extends ThreadLocal<Object> {
                     "",
                     DataHoje.data(),
                     (MotivoInativacao) dao.find(new MotivoInativacao(), 1),
-                    Usuario.getUsuario().getPessoa().getNome(),
+                    usuario.getPessoa().getNome(),
                     obs
             );
 

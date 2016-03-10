@@ -32,7 +32,7 @@
         </p:panel>
     </h:panelGrid>
 
-    <p:dialog widgetVar="dlg_processo_automatico_log" modal="true" width="600" height="400" resizable="false">
+    <p:dialog widgetVar="dlg_processo_automatico_log" modal="true" width="600" height="550" resizable="false">
         <p:ajax event="close" listener="#{processoAutomaticoBean.closeDialogLog()}"/>
 
         <h:panelGrid id="panel_processo_automatico_log">
@@ -50,7 +50,7 @@
 
             <h:panelGrid columns="1">
                 <p:outputLabel value="Detalhes" style="font-weight: bold"/>
-                <p:dataTable value="#{processoAutomaticoBean.listaProcessoAutomaticoLog}" var="linha_log" scrollHeight="300" scrollable="true" style="width: 100%" emptyMessage="ATUALIZAÇÃO EM ANDAMENTO">
+                <p:dataTable value="#{processoAutomaticoBean.listaProcessoAutomaticoLog}" var="linha_log" paginator="true" rows="10" style="width: 100%" emptyMessage="ATUALIZAÇÃO EM ANDAMENTO">
                     <p:column headerText="ID" style="width: 80px; text-align: center">
                         <p:outputLabel value="#{linha_log.id}" />
                     </p:column>
