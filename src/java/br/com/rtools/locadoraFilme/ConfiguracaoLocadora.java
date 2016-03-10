@@ -23,15 +23,19 @@ public class ConfiguracaoLocadora implements Serializable {
     @JoinColumn(name = "id_servico", referencedColumnName = "id", nullable = true)
     @ManyToOne
     private Servicos servicos;
+    @Column(name = "ds_obs", nullable = false)
+    private String obs;
 
     public ConfiguracaoLocadora() {
         this.id = -1;
         this.servicos = null;
+        this.obs = "";
     }
 
-    public ConfiguracaoLocadora(Integer id, Servicos servicos) {
+    public ConfiguracaoLocadora(Integer id, Servicos servicos, String obs) {
         this.id = id;
         this.servicos = servicos;
+        this.obs = obs;
     }
 
     public Integer getId() {
@@ -54,9 +58,17 @@ public class ConfiguracaoLocadora implements Serializable {
         return (ConfiguracaoLocadora) new Dao().find(new ConfiguracaoLocadora(), 1);
     }
 
+    public String getObs() {
+        return obs;
+    }
+
+    public void setObs(String obs) {
+        this.obs = obs;
+    }
+
     @Override
     public String toString() {
-        return "ConfiguracaoLocadora{" + "id=" + id + ", servicos=" + servicos + '}';
+        return "ConfiguracaoLocadora{" + "id=" + id + ", servicos=" + servicos + ", obs=" + obs + '}';
     }
 
 }

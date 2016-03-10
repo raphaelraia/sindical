@@ -25,12 +25,12 @@ public class RelatorioDao extends DB {
 
     public Relatorios findByJasper(String relatorio_jasper) {
         try {
-            Query query = getEntityManager().createQuery("SELECT R FROM Relatorios AS R WHERE R.jasper = :relatorio_jasper");
+            Query query = getEntityManager().createQuery("SELECT R FROM Relatorios AS R WHERE R.jasper LIKE :relatorio_jasper");
             query.setParameter("relatorio_jasper", relatorio_jasper);
             return (Relatorios) query.getSingleResult();
         } catch (Exception e) {
+            return null;
         }
-        return null;
     }
 
     public Boolean defineDefault(Relatorios r) {

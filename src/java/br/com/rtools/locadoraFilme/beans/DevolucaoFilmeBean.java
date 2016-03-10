@@ -19,9 +19,12 @@ import br.com.rtools.locadoraFilme.dao.LocadoraMovimentoDao;
 import br.com.rtools.locadoraFilme.dao.LocadoraStatusDao;
 import br.com.rtools.locadoraFilme.dao.TituloDao;
 import br.com.rtools.logSistema.NovoLog;
+import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaComplemento;
+import br.com.rtools.relatorios.Relatorios;
+import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.seguranca.Departamento;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Rotina;
@@ -30,12 +33,16 @@ import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.db.FunctionsDao;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -674,5 +681,120 @@ public class DevolucaoFilmeBean implements Serializable {
 
     public void setDesfazerDevolucao(LocadoraMovimento desfazerDevolucao) {
         this.desfazerDevolucao = desfazerDevolucao;
+    }
+
+    public void print(LocadoraMovimento lm) {
+        Boolean exists = false;
+        LocadoraLote locadoraLote = null;
+        Usuario usuario = null;
+        Filial filial = null;
+        List<ReciboLocadora> listReciboLocadora = new ArrayList<>();
+        for (int i = 0; i < listLocadoraMovimento.size(); i++) {
+            if (lm.getDataDevolucaoString().equals(listLocadoraMovimento.get(i).getDataDevolucaoString()) && listLocadoraMovimento.get(i).getOperadorDevolucao().getId() == lm.getOperadorDevolucao().getId()) {
+                if (locadoraLote == null) {
+                    locadoraLote = listLocadoraMovimento.get(i).getLocadoraLote();
+                }
+                if (usuario == null) {
+                    usuario = lm.getOperadorDevolucao();
+                }
+                listReciboLocadora.add(
+                        new ReciboLocadora(
+                                listLocadoraMovimento.get(i).getTitulo().getBarras(),
+                                listLocadoraMovimento.get(i).getTitulo().getDescricao(),
+                                listLocadoraMovimento.get(i).getDtDevolucao()));
+                exists = true;
+            }
+        }
+        if (exists) {
+            Map map = new HashMap();
+            map.put("operacao", "Aluguel - " + locadoraLote.getId());
+            map.put("funcionario", usuario.getPessoa().getNome());
+            map.put("data_locacao", locadoraLote.getDtLocacao());
+            map.put("cliente", locadoraLote.getPessoa().getNome());
+            map.put("rodape", ConfiguracaoLocadoraBean.get().getObs());
+            Jasper.FILIAL = locadoraLote.getFilial();
+            Jasper.TYPE = "recibo_sem_logo";            
+            List<Relatorios> listRelatorios = new RelatorioDao().findByRotina(new Rotina().get().getId());
+            if (!listRelatorios.isEmpty()) {
+                Jasper.printReports(listRelatorios.get(0).getJasper(), listRelatorios.get(0).getNome(), (Collection) listReciboLocadora, map);
+            }
+        }
+    }
+
+    public void print() {
+        Boolean exists = false;
+        LocadoraLote locadoraLote = null;
+        Usuario usuario = null;
+        Filial filial = null;
+        List<ReciboLocadora> listReciboLocadora = new ArrayList<>();
+        for (int i = 0; i < listLocadoraMovimento.size(); i++) {
+            if (DataHoje.data().equals(listLocadoraMovimento.get(i).getDataDevolucaoString()) && listLocadoraMovimento.get(i).getOperadorDevolucao().getId() == Usuario.getUsuario().getId()) {
+                if (locadoraLote == null) {
+                    locadoraLote = listLocadoraMovimento.get(i).getLocadoraLote();
+                }
+                if (usuario == null) {
+                    usuario = Usuario.getUsuario();
+                }
+                listReciboLocadora.add(
+                        new ReciboLocadora(
+                                listLocadoraMovimento.get(i).getTitulo().getBarras(),
+                                listLocadoraMovimento.get(i).getTitulo().getDescricao(),
+                                listLocadoraMovimento.get(i).getDtDevolucao()));
+                exists = true;
+            }
+        }
+        if (exists) {
+            Map map = new HashMap();
+            map.put("operacao", "Aluguel - " + locadoraLote.getId());
+            map.put("funcionario", usuario.getPessoa().getNome());
+            map.put("data_locacao", locadoraLote.getDtLocacao());
+            map.put("cliente", locadoraLote.getPessoa().getNome());
+            map.put("rodape", ConfiguracaoLocadoraBean.get().getObs());
+            Jasper.FILIAL = locadoraLote.getFilial();
+            Jasper.TYPE = "recibo_sem_logo";            
+            List<Relatorios> listRelatorios = new RelatorioDao().findByRotina(new Rotina().get().getId());
+            if (!listRelatorios.isEmpty()) {
+                Jasper.printReports(listRelatorios.get(0).getJasper(), listRelatorios.get(0).getNome(), (Collection) listReciboLocadora, map);
+            }
+        }
+
+    }
+
+    public class ReciboLocadora {
+
+        private Object titulo_barras;
+        private Object titulo_descricao;
+        private Object data_devolucao;
+
+        public ReciboLocadora(Object titulo_barras, Object titulo_descricao, Object data_devolucao) {
+            this.titulo_barras = titulo_barras;
+            this.titulo_descricao = titulo_descricao;
+            this.data_devolucao = data_devolucao;
+        }
+
+        public Object getTitulo_barras() {
+            return titulo_barras;
+        }
+
+        public void setTitulo_barras(Object titulo_barras) {
+            this.titulo_barras = titulo_barras;
+        }
+
+        public Object getTitulo_descricao() {
+            return titulo_descricao;
+        }
+
+        public void setTitulo_descricao(Object titulo_descricao) {
+            this.titulo_descricao = titulo_descricao;
+        }
+
+        public Object getData_devolucao() {
+            return data_devolucao;
+        }
+
+        public void setData_devolucao(Object data_devolucao) {
+            this.data_devolucao = data_devolucao;
+        }
+
     }
 }

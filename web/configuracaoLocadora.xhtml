@@ -43,6 +43,10 @@
                                         <p:ajax event="change" update="@this" />
                                         <f:selectItems value="#{configuracaoLocadoraBean.listServico}"/>
                                     </p:selectOneMenu>
+                                    <p:outputLabel value="Rodapé do recibo: " />
+                                    <p:inputTextarea value="#{configuracaoLocadoraBean.configuracaoLocadora.obs}" maxlength="150" cols="30" rows="10">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:inputTextarea>
                                 </h:panelGrid>
                                 <f:facet name="footer">
                                     <h:panelGrid columns="1">

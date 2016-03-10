@@ -109,6 +109,11 @@
                                                         <p:commandButton icon="ui-icon-arrowreturnthick-1-w" title="Desfazer devolução (EXCLUIR)" action="#{devolucaoFilmeBean.setDesfazerDevolucao(locadoraMovimento)}" update=":form_devolucao_filmes:i_panel_rollback" rendered="#{locadoraMovimento.movimento ne null ? (locadoraMovimento.movimento.baixa ne null ? false : true) : true}"  disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('dlg_desfazer_devolucao').show()"/>
                                                     </h:column>
                                                 </p:column>
+                                                <p:column styleClass="text-center" width="50">
+                                                    <h:column rendered="#{locadoraMovimento.dtDevolucao ne null}">
+                                                        <h:commandLink value="Recibo" title="Recibo" action="#{devolucaoFilmeBean.print(locadoraMovimento)}" rendered="#{locadoraMovimento.movimento ne null ? (locadoraMovimento.movimento.baixa ne null ? false : true) : true}" />
+                                                    </h:column>
+                                                </p:column>
                                                 <p:rowExpansion>
                                                     <p:panelGrid styleClass="no-border" columns="1" style="border: 0">
                                                         <h:column>Autorizado: #{locadoraMovimento.locadoraLote.locadoraAutorizados.nome}</h:column>                                                    
@@ -160,7 +165,7 @@
                             </p:panel>
                             <h:panelGrid columns="6" styleClass="margin-top-max" id="i_actions">
                                 <p:commandButton value="Receber" action="#{baixaGeralBean.submit(devolucaoFilmeBean.listMovimentoPendente, 'caixa')}" rendered="#{devolucaoFilmeBean.receber}" />
-                                <p:commandButton value="2ª Via Recibo" rendered="#{devolucaoFilmeBean.locatario.id ne -1}" />
+                                <h:commandLink value="Recibo" title="Recibo" rendered="#{devolucaoFilmeBean.locatario.id ne -1}" action="#{devolucaoFilmeBean.print}" />
                                 <p:commandButton value="Novo" action="#{devolucaoFilmeBean.clear}" update=":form_devolucao_filmes:"/>
                                 <h:column rendered="false">
                                     <p:commandButton value="Movimentos a Receber" rendered="#{devolucaoFilmeBean.locatario.id ne -1 and !devolucaoFilmeBean.receber}" action="#{movimentosReceberSocialBean.put(devolucaoFilmeBean.locatario.pessoa)}" immediate="true" icon="ui-icon-transferthick-e-w" />                                    
