@@ -94,10 +94,10 @@ public class ExtratoTelaBean implements Serializable {
         ControleAcessoBean controx = new ControleAcessoBean();
         controx.setModulo((Modulo) new Dao().find(new Modulo(), 3));
 
-        if (!controx.getListaExtratoTela()) {
-            porPesquisa = "naoRecebidas";
-        } else {
+        if (controx.getListaExtratoTela(false)) {
             porPesquisa = "todos";
+        } else {
+            porPesquisa = "naoRecebidas";
         }
     }
 

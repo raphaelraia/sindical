@@ -641,8 +641,12 @@ public class ControleAcessoBean implements Serializable {
     }
 
     public boolean getListaExtratoTela() {
+        return getListaExtratoTela(true);
+    }
+
+    public boolean getListaExtratoTela(Boolean r) {
         //PESQUISA DE PERMISSAO-------------------------------------------------------------------------------------------
-        boolean retorno = true;
+        boolean retorno = r;
         Permissao permissao;
         PermissaoUsuarioDao db = new PermissaoUsuarioDao();
         Usuario user = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuario");
