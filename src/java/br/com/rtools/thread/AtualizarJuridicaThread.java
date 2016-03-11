@@ -142,7 +142,7 @@ public class AtualizarJuridicaThread extends ThreadLocal<Object> {
             juridica = (Juridica) dao.find(juridica);
 
             // tipo = wokki = pago / '' = gratis
-            JuridicaReceitaJSON.JuridicaReceitaObject jro = new JuridicaReceitaJSON(documento, "").pesquisar();
+            JuridicaReceitaJSON.JuridicaReceitaObject jro = new JuridicaReceitaJSON(documento, "wooki").pesquisar();
 
             if (jro.getStatus() == 6) {
                 return "Limite de acessos excedido!";
