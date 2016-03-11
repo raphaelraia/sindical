@@ -55,7 +55,7 @@ import org.primefaces.model.StreamedContent;
 @ManagedBean
 @SessionScoped
 public class AtendimentoBean implements Serializable {
-
+    
     private AteOperacao ateOperacao = new AteOperacao();
     private AteMovimento ateMovimento = new AteMovimento();
     private SisPessoa atePessoa = new SisPessoa();
@@ -70,25 +70,25 @@ public class AtendimentoBean implements Serializable {
     private int idOperacao = 0;
     private List<SelectItem> listaAtendimentoOperacoes = new ArrayList<SelectItem>();
     private List<SelectItem> listaFiliais = new ArrayList<SelectItem>();
-
+    
     private String horaEmissaoString = "";
     private Juridica empresa = new Juridica();
     private Usuario usuario = new Usuario();
-
+    
     private SisPessoa sisPessoa = new SisPessoa();
     private SisPessoa sisPessoaAtualiza = new SisPessoa();
     private StreamedContent fileDownload = null;
     private boolean visibleModal = false;
     private String tipoTelefone = "telefone";
-
+    
     private List<SelectItem> listaUsuarios = new ArrayList<SelectItem>();
     private int index_usuario = 0;
     private boolean chkReserva = false;
-
+    
     public AtendimentoBean() {
         usuario = (Usuario) GenericaSessao.getObject("sessaoUsuario");
     }
-
+    
     public void alterarTipoMascara() {
         if (tipoTelefone.equals("telefone")) {
             tipoTelefone = "celular";
@@ -96,26 +96,28 @@ public class AtendimentoBean implements Serializable {
             tipoTelefone = "telefone";
         }
     }
-
+    
     public SisPessoa getSisPessoa() {
         return sisPessoa;
     }
-
+    
     public void setSisPessoa(SisPessoa sisPessoa) {
         this.sisPessoa = sisPessoa;
     }
-
+    
     public void pesquisaCPFeOPOSICAO() {
         if (sisPessoa.getFisica().getId() == -1) {
             if (sisPessoa.getId() == -1) {
                 if (sisPessoa.getDocumento().isEmpty()) {
                     return;
                 }
-
+                
                 if (!ValidaDocumentos.isValidoCPF(AnaliseString.extrairNumeros(sisPessoa.getDocumento()))) {
+                    sisPessoa.setDocumento("");
+                    GenericaMensagem.warn("Atenção", "Esse documento é Inválido!!");
                     return;
                 }
-
+                
                 FisicaDB fisicaDB = new FisicaDBToplink();
                 List<Fisica> listf = fisicaDB.pesquisaFisicaPorDoc(sisPessoa.getDocumento());
 
@@ -123,7 +125,7 @@ public class AtendimentoBean implements Serializable {
                 if (listf.isEmpty()) {
                     AtendimentoDB atendimentoDB = new AtendimentoDBTopLink();
                     SisPessoa spes = (SisPessoa) atendimentoDB.pessoaDocumento(sisPessoa.getDocumento());
-
+                    
                     if (spes == null) {
                         return;
                     }
@@ -131,9 +133,9 @@ public class AtendimentoBean implements Serializable {
                     verificaPessoaOposicao();
                     return;
                 }
-
+                
                 Fisica fi = (Fisica) listf.get(0);
-
+                
                 sisPessoa.setNome(fi.getPessoa().getNome());
                 sisPessoa.setDocumento(fi.getPessoa().getDocumento());
                 sisPessoa.setTelefone(fi.getPessoa().getTelefone1());
@@ -149,19 +151,19 @@ public class AtendimentoBean implements Serializable {
                 try {
                     sisPessoa.setFisica(fi);
                 } catch (Exception e) {
-
+                    
                 }
             }
         }
     }
-
+    
     public void pesquisaRG() {
         if (sisPessoa.getFisica().getId() == -1) {
             if (sisPessoa.getId() == -1) {
                 if (sisPessoa.getRg().isEmpty()) {
                     return;
                 }
-
+                
                 FisicaDB fisicaDB = new FisicaDBToplink();
                 List<Fisica> listf = fisicaDB.pesquisaFisicaPorDocRG(sisPessoa.getRg());
 
@@ -169,16 +171,16 @@ public class AtendimentoBean implements Serializable {
                 if (listf.isEmpty()) {
                     AtendimentoDB atendimentoDB = new AtendimentoDBTopLink();
                     SisPessoa spes = (SisPessoa) atendimentoDB.pessoaDocumento(sisPessoa.getRg());
-
+                    
                     if (spes == null) {
                         return;
                     }
                     sisPessoa = spes;
                     return;
                 }
-
+                
                 Fisica fi = (Fisica) listf.get(0);
-
+                
                 sisPessoa.setNome(fi.getPessoa().getNome());
                 sisPessoa.setDocumento(fi.getPessoa().getDocumento());
                 sisPessoa.setTelefone(fi.getPessoa().getTelefone1());
@@ -193,16 +195,16 @@ public class AtendimentoBean implements Serializable {
                 try {
                     sisPessoa.setFisica(fi);
                 } catch (Exception e) {
-
+                    
                 }
             }
         }
     }
-
+    
     public void editarSisPessoa() {
         sisPessoaAtualiza = sisPessoa;
     }
-
+    
     public void atualizaSisPessoa() {
         if (!sisPessoaAtualiza.getDocumento().isEmpty()) {
             if (!ValidaDocumentos.isValidoCPF(AnaliseString.extrairNumeros(sisPessoaAtualiza.getDocumento()))) {
@@ -222,29 +224,29 @@ public class AtendimentoBean implements Serializable {
 //            }
             AtendimentoDB atendimentoDB = new AtendimentoDBTopLink();
             SisPessoa spes = (SisPessoa) atendimentoDB.pessoaDocumento(sisPessoaAtualiza.getDocumento());
-
+            
             if (spes != null && spes.getId() != sisPessoaAtualiza.getId()) {
                 GenericaMensagem.warn("Atenção", "Esse documento já existe para outra Pessoa!");
                 return;
             }
         }
-
+        
         Dao dao = new Dao();
-
+        
         dao.openTransaction();
-
+        
         if (!dao.update(sisPessoaAtualiza)) {
             dao.rollback();
             GenericaMensagem.error("Erro", "Não foi possivel atualizar cadastro!");
             return;
         }
-
+        
         sisPessoa = sisPessoaAtualiza;
         sisPessoaAtualiza = new SisPessoa();
         dao.commit();
-
+        
     }
-
+    
     public String verSenha(AteMovimento atendimento) {
         AtendimentoDB db = new AtendimentoDBTopLink();
         Senha senha = db.pesquisaSenha(atendimento.getId());
@@ -255,20 +257,20 @@ public class AtendimentoBean implements Serializable {
                 return String.valueOf(senha.getSenha());
             }
         }
-
+        
         return "Sem Senha";
     }
-
+    
     public String imprimirSenha(AteMovimento atendimento) throws JRException {
-
+        
         AtendimentoDB db = new AtendimentoDBTopLink();
-
+        
         Senha senha = db.pesquisaSenha(atendimento.getId());
-
+        
         Collection lista = new ArrayList<ParametroSenha>();
-
+        
         if (senha.getId() != -1) {
-
+            
             if (senha.getAteMovimento().getJuridica() != null) {
                 lista.add(new ParametroSenha(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
                         senha.getFilial().getFilial().getPessoa().getNome(),
@@ -293,10 +295,10 @@ public class AtendimentoBean implements Serializable {
                         senha.getData(),
                         senha.getHora(),
                         String.valueOf(senha.getSenha())));
-
+                
             }
         }
-
+        
         JasperReport jasperReport = (JasperReport) JRLoader.loadObject(new File((((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/HOM_SENHA.jasper"))));
         JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(lista);
         JasperPrint print = JasperFillManager.fillReport(jasperReport, null, dtSource);
@@ -310,7 +312,7 @@ public class AtendimentoBean implements Serializable {
         }
         SalvaArquivos salvaArquivos = new SalvaArquivos(arquivo, nomeDownload, false);
         salvaArquivos.salvaNaPasta(pathPasta);
-
+        
         InputStream stream = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getResourceAsStream("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/senhas" + "/" + nomeDownload);
         fileDownload = new DefaultStreamedContent(stream, "application/pdf", nomeDownload);
 
@@ -319,41 +321,41 @@ public class AtendimentoBean implements Serializable {
 //        download.remover();
         return "atendimento";
     }
-
+    
     public String novo() {
         GenericaSessao.put("atendimentoBean", new AtendimentoBean());
         return "atendimento";
     }
-
+    
     public void fecharModal() {
         GenericaSessao.put("atendimentoBean", new AtendimentoBean());
     }
-
+    
     public String salvarImprimir() {
         salvar(true);
         visibleModal = true;
         return null;
     }
-
+    
     public void salvar(boolean imprimir) {
-
+        
         if (ateMovimento.getFilial().getId() == -1) {
             GenericaMensagem.error("Erro", "Informe qual a sua Filial!");
             return;
         }
-
+        
         if (!sisPessoa.getDocumento().isEmpty()) {
             if (!ValidaDocumentos.isValidoCPF(AnaliseString.extrairNumeros(sisPessoa.getDocumento()))) {
                 GenericaMensagem.warn("Validação", "Informe um CPF válido!");
                 return;
             }
         }
-
+        
         if (sisPessoa.getDtNascimento() == null) {
             GenericaMensagem.warn("Validação", "Informe data de nascimento!");
             return;
         }
-
+        
         if (sisPessoa.getNome().isEmpty()) {
             GenericaMensagem.warn("Validação", "Digite o NOME da pessoa!");
             return;
@@ -369,10 +371,10 @@ public class AtendimentoBean implements Serializable {
 //            ap = atendimentoDB.pessoaDocumento(ateMovimento.getPessoa().getRg());
 //        }
         Dao dao = new Dao();
-
+        
         sisPessoa.setTipoDocumento((TipoDocumento) dao.find(new TipoDocumento(), 1));
         sisPessoa.setEndereco(null);
-
+        
         dao.openTransaction();
         if (sisPessoa.getId() == -1) {
             if (!dao.save(sisPessoa)) {
@@ -384,7 +386,7 @@ public class AtendimentoBean implements Serializable {
             return;
         }
         dao.commit();
-
+        
         ateMovimento.setHoraEmissao(getHoraEmissaoString());
         ateMovimento.setFilial(filial);
         ateMovimento.setOperacao((AteOperacao) dao.find(new AteOperacao(), Integer.parseInt(listaAtendimentoOperacoes.get(idOperacao).getDescription())));
@@ -392,14 +394,14 @@ public class AtendimentoBean implements Serializable {
         ateMovimento.setJuridica((empresa == null || empresa.getId() == -1) ? null : empresa);
         ateMovimento.setPessoa(sisPessoa);
         ateMovimento.setAtendente(null);
-
+        
         if (chkReserva && !listaUsuarios.isEmpty()) {
             PermissaoUsuario pu = (PermissaoUsuario) dao.find(new PermissaoUsuario(), Integer.valueOf(listaUsuarios.get(index_usuario).getDescription()));
             ateMovimento.setReserva(pu.getUsuario());
         } else {
             ateMovimento.setReserva(null);
         }
-
+        
         dao.openTransaction();
         if (ateMovimento.getId() == -1) {
             ateMovimento.setHoraEmissao(getHoraEmissaoString());
@@ -415,19 +417,19 @@ public class AtendimentoBean implements Serializable {
                 dao.rollback();
                 return;
             }
-
+            
             HomologacaoDB dbh = new HomologacaoDBToplink();
             int ultima_senha = dbh.pesquisaUltimaSenha(filial.getId()) + 1;
             Senha senha = new Senha(-1, null, DataHoje.horaMinuto(), "", 0, usuario, DataHoje.data(), ultima_senha, filial, ateMovimento, null, null);
-
+            
             if (!dao.save(senha)) {
                 GenericaMensagem.error("Erro", "Erro ao Salvar Senha!");
                 dao.rollback();
                 return;
             }
-
+            
             dao.commit();
-
+            
             if (imprimir) {
                 try {
                     imprimirSenha(ateMovimento);
@@ -436,7 +438,7 @@ public class AtendimentoBean implements Serializable {
             } else {
                 GenericaSessao.put("atendimentoBean", new AtendimentoBean());
             }
-
+            
             GenericaMensagem.info("Sucesso", "Atendimento Salvo!");
         } else {
             if (!dao.update(ateMovimento)) {
@@ -444,15 +446,15 @@ public class AtendimentoBean implements Serializable {
                 GenericaMensagem.error("Erro", "Não foi possivel atualizar o Atendimento");
                 return;
             }
-
+            
             dao.commit();
-
+            
             GenericaSessao.put("atendimentoBean", new AtendimentoBean());
             GenericaMensagem.info("Sucesso", "Atendimento Atualizado!");
         }
-
+        
     }
-
+    
     public String editar(AteMovimento am) {
         ateMovimento = am;
         sisPessoa = ateMovimento.getPessoa();
@@ -467,10 +469,10 @@ public class AtendimentoBean implements Serializable {
             }
         }
         empresa = ateMovimento.getJuridica();
-
+        
         setHoraEmissaoString(ateMovimento.getHoraEmissao());
         verificaPessoaOposicao();
-
+        
         chkReserva = ateMovimento.getReserva() != null;
         if (chkReserva) {
             for (int i = 0; i < getListaUsuarios().size(); i++) {
@@ -480,20 +482,20 @@ public class AtendimentoBean implements Serializable {
                 }
             }
         }
-
+        
         return null;
     }
-
+    
     public void excluir() {
         Dao dao = new Dao();
         if (ateMovimento.getId() > 0) {
             AteMovimento ateMov = (AteMovimento) dao.find(new AteMovimento(), ateMovimento.getId());
             AtendimentoDB db = new AtendimentoDBTopLink();
-
+            
             Senha senha = db.pesquisaSenha(ateMovimento.getId());
-
+            
             dao.openTransaction();
-
+            
             if (senha != null) {
                 if (!dao.delete(senha)) {
                     dao.rollback();
@@ -501,7 +503,7 @@ public class AtendimentoBean implements Serializable {
                     return;
                 }
             }
-
+            
             if (dao.delete(ateMov)) {
                 dao.commit();
                 GenericaMensagem.info("Sucesso", "Atendimento Excluido!");
@@ -511,11 +513,11 @@ public class AtendimentoBean implements Serializable {
                 dao.rollback();
                 GenericaMensagem.error("Erro", "Falha ao excluir Atendimento!");
             }
-
+            
         }
         getListaAteMovimento().clear();
     }
-
+    
     public void cancelar() {
         Dao dao = new Dao();
         dao.openTransaction();
@@ -523,14 +525,14 @@ public class AtendimentoBean implements Serializable {
         //AteMovimento ateMov = (AteMovimento) sv.pesquisaObjeto(ateMovimento.getId(), "AteMovimento");
         // status 3 Atendimento Cancelado
         ateMovimento.setStatus((AteStatus) dao.find(new AteStatus(), 3));
-
+        
         if (!dao.update(ateMovimento)) {
             dao.rollback();
         } else {
             dao.commit();
         }
     }
-
+    
     public String retornaOposicaoPessoa(String documento) {
         AtendimentoDB atendimentoDB = new AtendimentoDBTopLink();
         if (atendimentoDB.pessoaOposicao(documento)) {
@@ -539,7 +541,7 @@ public class AtendimentoBean implements Serializable {
             return "";
         }
     }
-
+    
     public void verificaPessoaOposicao() {
         AtendimentoDB atendimentoDB = new AtendimentoDBTopLink();
         if (atendimentoDB.pessoaOposicao(sisPessoa.getDocumento())) {
@@ -630,11 +632,11 @@ public class AtendimentoBean implements Serializable {
         }
         return listaFiliais;
     }
-
+    
     public void setListaFiliais(List<SelectItem> listaFiliais) {
         this.listaFiliais = listaFiliais;
     }
-
+    
     public List<SelectItem> getListaAtendimentoOperacoes() {
         if (listaAtendimentoOperacoes.isEmpty()) {
             Dao dao = new Dao();
@@ -646,19 +648,19 @@ public class AtendimentoBean implements Serializable {
                     i++;
                 }
             }
-
+            
         }
         return listaAtendimentoOperacoes;
     }
-
+    
     public AteOperacao getAteOperacao() {
         return ateOperacao;
     }
-
+    
     public void setAteOperacao(AteOperacao ateOperacao) {
         this.ateOperacao = ateOperacao;
     }
-
+    
     public AteMovimento getAteMovimento() {
         if (FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("acessoFilial") != null) {
             if (filial.getId() == -1) {
@@ -670,35 +672,35 @@ public class AtendimentoBean implements Serializable {
         }
         return ateMovimento;
     }
-
+    
     public void setAteMovimento(AteMovimento ateMovimento) {
         this.ateMovimento = ateMovimento;
     }
-
+    
     public SisPessoa getAtePessoa() {
         return atePessoa;
     }
-
+    
     public void setAtePessoa(SisPessoa atePessoa) {
         this.atePessoa = atePessoa;
     }
-
+    
     public int getIdIndexPessoa() {
         return idIndexPessoa;
     }
-
+    
     public void setIdIndexPessoa(int idIndexPessoa) {
         this.idIndexPessoa = idIndexPessoa;
     }
-
+    
     public int getIdIndexMovimento() {
         return idIndexMovimento;
     }
-
+    
     public void setIdIndexMovimento(int idIndexMovimento) {
         this.idIndexMovimento = idIndexMovimento;
     }
-
+    
     public List<AteMovimento> getListaAteMovimento() {
         if (!sisPessoa.getDocumento().equals("___.___.___-__")) {
             listaAteMovimento.clear();
@@ -708,48 +710,48 @@ public class AtendimentoBean implements Serializable {
             } else {
                 listaAteMovimento = db.listaAteMovimentos("", porPesquisa, filial.getId());
             }
-
+            
         }
-
+        
         return listaAteMovimento;
     }
-
+    
     public void setListaAteMovimento(List<AteMovimento> listaAteMovimento) {
         this.listaAteMovimento = listaAteMovimento;
     }
-
+    
     public List<SisPessoa> getListaAtePessoas() {
         return listaAtePessoas;
     }
-
+    
     public void setListaAtePessoas(List<SisPessoa> listaAtePessoas) {
         this.listaAtePessoas = listaAtePessoas;
     }
-
+    
     public int getIdFilial() {
         return idFilial;
     }
-
+    
     public void setIdFilial(int idFilial) {
         this.idFilial = idFilial;
     }
-
+    
     public int getIdOperacao() {
         return idOperacao;
     }
-
+    
     public void setIdOperacao(int idOperacao) {
         this.idOperacao = idOperacao;
     }
-
+    
     public String getPorPesquisa() {
         return porPesquisa;
     }
-
+    
     public void setPorPesquisa(String porPesquisa) {
         this.porPesquisa = porPesquisa;
     }
-
+    
     public String getHoraEmissaoString() {
         if (!this.horaEmissaoString.equals("")) {
             return this.horaEmissaoString;
@@ -758,27 +760,27 @@ public class AtendimentoBean implements Serializable {
             return DataHoje.livre(date, "HH:mm");
         }
     }
-
+    
     public void setHoraEmissaoString(String horaEmissaoString) {
         this.horaEmissaoString = horaEmissaoString;
     }
-
+    
     public MacFilial getMacFilial() {
         return macFilial;
     }
-
+    
     public void setMacFilial(MacFilial macFilial) {
         this.macFilial = macFilial;
     }
-
+    
     public Filial getFilial(Filial filial) {
         return filial;
     }
-
+    
     public void setFilial(Filial filial) {
         this.filial = filial;
     }
-
+    
     public Juridica getEmpresa() {
         if (GenericaSessao.getObject("juridicaPesquisa") != null) {
             empresa = (Juridica) GenericaSessao.getObject("juridicaPesquisa");
@@ -786,43 +788,43 @@ public class AtendimentoBean implements Serializable {
         }
         return empresa;
     }
-
+    
     public void setEmpresa(Juridica empresa) {
         this.empresa = empresa;
     }
-
+    
     public SisPessoa getSisPessoaAtualiza() {
         return sisPessoaAtualiza;
     }
-
+    
     public void setSisPessoaAtualiza(SisPessoa sisPessoaAtualiza) {
         this.sisPessoaAtualiza = sisPessoaAtualiza;
     }
-
+    
     public StreamedContent getFileDownload() {
         return fileDownload;
     }
-
+    
     public void setFileDownload(StreamedContent fileDownload) {
         this.fileDownload = fileDownload;
     }
-
+    
     public boolean isVisibleModal() {
         return visibleModal;
     }
-
+    
     public void setVisibleModal(boolean visibleModal) {
         this.visibleModal = visibleModal;
     }
-
+    
     public String getTipoTelefone() {
         return tipoTelefone;
     }
-
+    
     public void setTipoTelefone(String tipoTelefone) {
         this.tipoTelefone = tipoTelefone;
     }
-
+    
     public List<SelectItem> getListaUsuarios() {
         if (listaUsuarios.isEmpty()) {
             PermissaoUsuarioDao pud = new PermissaoUsuarioDao();
@@ -831,12 +833,12 @@ public class AtendimentoBean implements Serializable {
 //            AtendimentoDB db = new AtendimentoDBTopLink();
             // DEPARTAMENTO 8 - HOMOLOGAÇÃO ---
             List<PermissaoUsuario> result = pud.listaPermissaoUsuarioDepartamento(8);
-
+            
             if (result.isEmpty()) {
                 listaUsuarios.add(new SelectItem(0, "Nenhum Usuário Encontrado", "0"));
                 return listaUsuarios;
             }
-
+            
             for (int i = 0; i < result.size(); i++) {
                 listaUsuarios.add(new SelectItem(
                         i,
@@ -847,25 +849,25 @@ public class AtendimentoBean implements Serializable {
         }
         return listaUsuarios;
     }
-
+    
     public void setListaUsuarios(List<SelectItem> listaUsuarios) {
         this.listaUsuarios = listaUsuarios;
     }
-
+    
     public int getIndex_usuario() {
         return index_usuario;
     }
-
+    
     public void setIndex_usuario(int index_usuario) {
         this.index_usuario = index_usuario;
     }
-
+    
     public boolean isChkReserva() {
         return chkReserva;
     }
-
+    
     public void setChkReserva(boolean chkReserva) {
         this.chkReserva = chkReserva;
     }
-
+    
 }

@@ -1,5 +1,6 @@
 package br.com.rtools.locadoraFilme.beans;
 
+import br.com.rtools.arrecadacao.ConfiguracaoArrecadacao;
 import br.com.rtools.associativo.MatriculaSocios;
 import br.com.rtools.financeiro.CondicaoPagamento;
 import br.com.rtools.financeiro.FStatus;
@@ -27,8 +28,11 @@ import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.seguranca.Departamento;
 import br.com.rtools.seguranca.MacFilial;
+import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
+import br.com.rtools.sistema.ConfiguracaoDepartamento;
+import br.com.rtools.sistema.dao.ConfiguracaoDepartamentoDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -707,13 +711,17 @@ public class DevolucaoFilmeBean implements Serializable {
         }
         if (exists) {
             Map map = new HashMap();
-            map.put("operacao", "Aluguel - " + locadoraLote.getId());
+            map.put("operacao", "Aluguel");
             map.put("funcionario", usuario.getPessoa().getNome());
-            map.put("data_locacao", locadoraLote.getDtLocacao());
+            map.put("data", locadoraLote.getDtLocacao());
             map.put("cliente", locadoraLote.getPessoa().getNome());
             map.put("rodape", ConfiguracaoLocadoraBean.get().getObs());
+            ConfiguracaoDepartamento configuracaoDepartamento = new ConfiguracaoDepartamentoDao().findBy(19, locadoraLote.getFilial().getId());
+            if(configuracaoDepartamento != null) {
+                map.put("sindicato_email", configuracaoDepartamento.getEmail());
+            }
             Jasper.FILIAL = locadoraLote.getFilial();
-            Jasper.TYPE = "recibo_sem_logo";            
+            Jasper.TYPE = "recibo_com_logo";
             List<Relatorios> listRelatorios = new RelatorioDao().findByRotina(new Rotina().get().getId());
             if (!listRelatorios.isEmpty()) {
                 Jasper.printReports(listRelatorios.get(0).getJasper(), listRelatorios.get(0).getNome(), (Collection) listReciboLocadora, map);
