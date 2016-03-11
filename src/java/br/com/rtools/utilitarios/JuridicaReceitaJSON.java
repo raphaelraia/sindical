@@ -49,7 +49,7 @@ public class JuridicaReceitaJSON {
             Charset charset = Charset.forName("UTF8");
             int status = 0;
             String error = "";
-            if (tipo.equals("wokki")) {
+            if (tipo.equals("wooki")) {
                 ConfiguracaoCnpj cc = (ConfiguracaoCnpj) new Dao().find(new ConfiguracaoCnpj(), 1);
                 Integer dias = cc.getDias();
                 for (int i = 0; i < 20; i++) {

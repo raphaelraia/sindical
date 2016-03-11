@@ -55,6 +55,8 @@ public class ProcessoAutomatico implements Serializable {
     private Boolean todosUsuarios;
     @Column(name = "is_visualizado_fim_processo")
     private Boolean visualizadoFimProcesso;
+    @Column(name = "is_cancelar_processo")
+    private Boolean cancelarProcesso;
 
     public ProcessoAutomatico() {
         this.id = -1;
@@ -68,9 +70,10 @@ public class ProcessoAutomatico implements Serializable {
         this.nrProgressoFinal = 0;
         this.todosUsuarios = false;
         this.visualizadoFimProcesso = false;
+        this.cancelarProcesso = false;
     }
 
-    public ProcessoAutomatico(Integer id, Usuario usuario, String processo, Date dataInicio, Date dataFinal, String horaInicio, String horaFinal, Integer nrProgresso, Integer nrProgressoFinal, Boolean todosUsuarios, Boolean visualizadoFimProcesso) {
+    public ProcessoAutomatico(Integer id, Usuario usuario, String processo, Date dataInicio, Date dataFinal, String horaInicio, String horaFinal, Integer nrProgresso, Integer nrProgressoFinal, Boolean todosUsuarios, Boolean visualizadoFimProcesso, Boolean cancelarProcesso) {
         this.id = id;
         this.usuario = usuario;
         this.processo = processo;
@@ -82,6 +85,7 @@ public class ProcessoAutomatico implements Serializable {
         this.nrProgressoFinal = nrProgressoFinal;
         this.todosUsuarios = todosUsuarios;
         this.visualizadoFimProcesso = visualizadoFimProcesso;
+        this.cancelarProcesso = cancelarProcesso;
     }
 
     public Integer getId() {
@@ -186,6 +190,14 @@ public class ProcessoAutomatico implements Serializable {
 
     public void setVisualizadoFimProcesso(Boolean visualizadoFimProcesso) {
         this.visualizadoFimProcesso = visualizadoFimProcesso;
+    }
+
+    public Boolean getCancelarProcesso() {
+        return cancelarProcesso;
+    }
+
+    public void setCancelarProcesso(Boolean cancelarProcesso) {
+        this.cancelarProcesso = cancelarProcesso;
     }
 
 }

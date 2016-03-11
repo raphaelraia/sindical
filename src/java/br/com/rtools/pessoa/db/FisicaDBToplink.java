@@ -945,25 +945,6 @@ public class FisicaDBToplink extends DB implements FisicaDB {
         return new ArrayList();
     }
 
-    public Boolean updateRecadastro(Fisica f) {
-        String queryString;
-        Query query;
-        try {
-            getEntityManager().getTransaction().begin();
-            queryString = "UPDATE pes_fisica SET dt_recadastro = '" + f.getPessoa().getRecadastroString() + "' WHERE id = " + f.getId();
-            query = getEntityManager().createNativeQuery(queryString);
-            if (query.executeUpdate() == 0) {
-                getEntityManager().getTransaction().rollback();
-                return false;
-            }
-            getEntityManager().getTransaction().commit();
-            return true;
-        } catch (Exception e) {
-            getEntityManager().getTransaction().rollback();
-            return false;
-        }
-    }
-
     public Integer getLimit() {
         return limit;
     }

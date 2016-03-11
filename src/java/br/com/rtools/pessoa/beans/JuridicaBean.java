@@ -25,18 +25,11 @@ import br.com.rtools.sistema.ConfiguracaoCnpj;
 import br.com.rtools.sistema.Email;
 import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.utilitarios.*;
-import com.google.gson.JsonArray;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.Serializable;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -52,9 +45,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.FilenameUtils;
 import org.primefaces.component.tabview.TabView;
 import org.primefaces.event.TabChangeEvent;
-import org.primefaces.json.JSONArray;
-import org.primefaces.json.JSONException;
-import org.primefaces.json.JSONObject;
 // import knu.ReceitaCNPJ;
 // import knu.knu;
 
@@ -156,6 +146,8 @@ public class JuridicaBean implements Serializable {
     private Integer count = 0;
     private Integer limit = 500;
 
+    private Date dtRecadastro = DataHoje.dataHoje();
+
     @PostConstruct
     public void init() {
         disabled = new Boolean[3];
@@ -173,6 +165,53 @@ public class JuridicaBean implements Serializable {
         GenericaSessao.remove("contribuintes");
         GenericaSessao.remove("escritorios");
         GenericaSessao.remove("pessoaBean");
+    }
+
+    public void limparRecadastro() {
+        juridica.getPessoa().setDtRecadastro(juridica.getPessoa().getDtCriacao());
+    }
+
+    public void loadDataRecadastro() {
+        dtRecadastro = DataHoje.dataHoje();
+    }
+
+    public String hojeRecadastro() {
+        juridica.getPessoa().setDtRecadastro(DataHoje.dataHoje());
+        return null;
+    }
+
+    public void updateDataRecadastro() {
+        juridica.getPessoa().setDtRecadastro(dtRecadastro);
+        if (juridica.getId() != -1) {
+            Juridica j = (Juridica) new Dao().find(new Juridica(), juridica.getId());
+            String antes = " De: ID - " + juridica.getId()
+                    + " - Nome: " + j.getPessoa().getNome()
+                    + " - Documento: " + j.getPessoa().getDocumento()
+                    + " - Recadastro : " + juridica.getPessoa().getRecadastroString();
+            PessoaDBToplink pessoaDao = new PessoaDBToplink();
+            
+            Date date = juridica.getPessoa().getDtAtualizacao();
+            juridica.getPessoa().setDtAtualizacao(new Date());
+            new Dao().rebind(juridica);
+            if (pessoaDao.updateRecadastro(juridica.getPessoa())) {
+                NovoLog novoLog = new NovoLog();
+                novoLog.setTabela("pes_juridica");
+                novoLog.setCodigo(juridica.getId());
+                novoLog.update(antes,
+                        " Recadastro > Nome: " + juridica.getPessoa().getNome()
+                        + " - Documento: " + juridica.getPessoa().getDocumento()
+                        + " - Recadastro : " + juridica.getPessoa().getRecadastroString());
+                if (pessoaDao.updateAtualizacao(juridica.getPessoa())) {
+                    new Dao().rebind(juridica.getPessoa());
+                    GenericaMensagem.info("Sucesso", "Registro atualizado!");
+                    return;
+                }
+                GenericaMensagem.info("Sucesso", "Registro atualizado!");
+                return;
+            }
+            juridica.getPessoa().setDtAtualizacao(date);
+            GenericaMensagem.warn("Erro", "Ao atualizar registro!");
+        }
     }
 
     public void loadListaDocumentos() {
@@ -544,7 +583,7 @@ public class JuridicaBean implements Serializable {
             JuridicaReceitaJSON.JuridicaReceitaObject jro = null;
             if (juridicaReceita.getId() == -1) {
                 // tipo = "wokki" = pago / "" = gratis
-                jro = new JuridicaReceitaJSON(documento, "wokki").pesquisar();
+                jro = new JuridicaReceitaJSON(documento, "wooki").pesquisar();
 
                 if (jro.getStatus() == 6) {
                     GenericaMensagem.warn("Atenção", "Limite de acessos excedido!");
@@ -3216,5 +3255,13 @@ public class JuridicaBean implements Serializable {
             result = count;
         }
         return result;
+    }
+
+    public Date getDtRecadastro() {
+        return dtRecadastro;
+    }
+
+    public void setDtRecadastro(Date dtRecadastro) {
+        this.dtRecadastro = dtRecadastro;
     }
 }

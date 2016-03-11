@@ -20,6 +20,7 @@
             <p:outputLabel value="ATUALIZAÇÃO DE EMPRESAS"  style="font-weight: bold"/>
             <p:progressBar value="#{processoAutomaticoBean.progressValue}" labelTemplate="#{processoAutomaticoBean.progressLabel}%" />
             <p:commandButton value="Ver Detalhes" action="#{processoAutomaticoBean.verLog()}" oncomplete="PF('dlg_processo_automatico_log').show()" update="panel_processo_automatico_log" />
+            <p:commandLink value="Cancelar Processo" oncomplete="PF('dlg_cancelar_processo').show()" style="margin-left: 10px"/>
         </p:panel>
 
         <p:panel rendered="#{processoAutomaticoBean.processoAutomatico.id eq -1 and processoAutomaticoBean.processoAutomaticoConcluido.id ne -1}" style="text-align: center">
@@ -32,6 +33,14 @@
         </p:panel>
     </h:panelGrid>
 
+    <p:dialog widgetVar="dlg_cancelar_processo" modal="true" width="500" height="80" resizable="false" header="CANCELAR PROCESSO AUTOMÁTICO">
+        <p:outputLabel value="DESEJA REALMENTE CANCELAR ESTE PROCESSO?" />
+        <br />
+        <br />
+        <p:commandButton value="#{processoAutomaticoBean.processoAutomatico.cancelarProcesso ? 'Cancelando' : 'Sim'}" type="submit" action="#{processoAutomaticoBean.cancelarProcesso()}" update="@this" style="clear: both; float: left" icon="ui-icon-check" oncomplete="PF('dlg_cancelar_processo').hide()" disabled="#{processoAutomaticoBean.processoAutomatico.cancelarProcesso}"/>  
+        <p:commandButton value="Não" type="button" onclick="PF('dlg_cancelar_processo').hide()" style="float: left" icon="ui-icon-close"/>       
+    </p:dialog>
+    
     <p:dialog widgetVar="dlg_processo_automatico_log" modal="true" width="600" height="550" resizable="false">
         <p:ajax event="close" listener="#{processoAutomaticoBean.closeDialogLog()}"/>
 
