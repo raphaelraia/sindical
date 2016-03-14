@@ -55,6 +55,9 @@ public class Senha implements java.io.Serializable {
     private Date dtVerificada;
     @Column(name = "nr_ordem")
     private Integer ordem;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "dt_nova_chamada")
+    private Date dtNovaChamada;
 
     public Senha() {
         this.id = -1;
@@ -69,9 +72,10 @@ public class Senha implements java.io.Serializable {
         this.ateMovimento = null;
         this.dtVerificada = null;
         this.ordem = null;
+        this.dtNovaChamada = null;
     }
 
-    public Senha(int id, Agendamento agendamento, String hora, String horaChamada, int mesa, Usuario usuario, String data, int senha, Filial filial, AteMovimento ateMovimento, Date dtVerificada, Integer ordem) {
+    public Senha(int id, Agendamento agendamento, String hora, String horaChamada, int mesa, Usuario usuario, String data, int senha, Filial filial, AteMovimento ateMovimento, Date dtVerificada, Integer ordem, Date dtNovaChamada) {
         this.id = id;
         this.agendamento = agendamento;
         this.hora = hora;
@@ -84,6 +88,7 @@ public class Senha implements java.io.Serializable {
         this.ateMovimento = ateMovimento;
         this.dtVerificada = dtVerificada;
         this.ordem = ordem;
+        this.dtNovaChamada = dtNovaChamada;
     }
 
     public int getId() {
@@ -208,6 +213,14 @@ public class Senha implements java.io.Serializable {
             return false;
         }
         return false;
+    }
+
+    public Date getDtNovaChamada() {
+        return dtNovaChamada;
+    }
+
+    public void setDtNovaChamada(Date dtNovaChamada) {
+        this.dtNovaChamada = dtNovaChamada;
     }
 
 }

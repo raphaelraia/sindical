@@ -8,6 +8,7 @@
     <h:head>
         <title>Sindical - Senha</title>
         <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <meta http-equiv="refresh" content="500" />
         <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>
         <style>
             body, div:first-of-type { margin: 0 auto;}
@@ -121,7 +122,9 @@
             <div class="container-fluid">
                 <c:set scope="request" var="object" value="${senhaBean.senha}"/>
                 <h:form id="form_senha">
-                    <p:poll id="i_poll_senha" interval="5" update="i_poll_senha i_panel_senha :form_sound:" stop="#{!senhaBean.activePoll}" delay="5" listener="#{senhaBean.loadSenha()}" />
+                    <p:commandLink style="width: 0; height: 0" id="update_grid">
+                        <p:ajax event="click" update="i_panel_senha :form_sound:" listener="#{senhaBean.loadSenha()}" />
+                    </p:commandLink>                    
                     <h:panelGrid style="width: 100%" id="i_panel_senha">
                         <div class="row">
                             <div class="col-xs-6 col-lg-6 col-md-6 col-sm-6">
@@ -188,7 +191,7 @@
                     </h:panelGrid>
                     <center>
                         <span class="ui-icon ui-icon-refresh"></span>
-                        <a href="senha.jsf?client=#{usuarioBean.cliente}&amp;">Atualizar</a>
+                        <!-- <a href="senha.jsf?client=#{usuarioBean.cliente}&amp;">Atualizar</a> -->
                     </center>                    
                 </h:form>
                 <h:form id="form_sound">
@@ -203,7 +206,29 @@
                         </script>
                     </h:column>
                 </h:form>
-            </div>                                        
+            </div>
+            <span id="messageGoesHere"></span>
+            <script type="text/javascript">
+                var ws = new WebSocket("ws://#{defaults.URL}#{facesContext.externalContext.requestContextPath}/ws_socket/senha_homologacao_#{controleUsuarioBean.clienteLowerCaseString}");
+
+                ws.onopen = function (event) {
+                    console.log("Connected ", event);
+                };
+
+                ws.onmessage = function (event) {
+                    if (event.data === "1") {
+                        document.getElementById("form_senha:update_grid").click();
+                    }
+                };
+
+                ws.onerror = function (event) {
+                    console.log("Error ", event);
+                };
+
+                ws.onclose = function (event) {
+                    console.log("Error ", event);
+                };
+            </script>            
             <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
             <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>            
 

@@ -315,6 +315,9 @@ public class Jasper implements Serializable {
                 case "recibo_sem_logo":
                     subreport = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/CABECALHO_RECIBO_SEM_LOGO.jasper");
                     break;
+                case "recibo_com_logo":
+                    subreport = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/CABECALHO_RECIBO_COM_LOGO.jasper");
+                    break;
                 default:
                     IS_HEADER = false;
                     break;
@@ -371,6 +374,10 @@ public class Jasper implements Serializable {
             if (parameters.get("sindicato_logo") == null || parameters.get("companhia_logo") == null) {
                 parameters.put("sindicato_logo", ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));
                 parameters.put("companhia_logo", ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"));
+            }
+            if (parameters.get("sindicato_email") == null || parameters.get("companhia_email") == null) {
+                parameters.put("sindicato_email", juridica.getPessoa().getEmail1());
+                parameters.put("companhia_email", juridica.getPessoa().getEmail1());
             }
             // CORREÇÃO
             // parameters.put("companhia_nome", juridica.getPessoa().getNome());

@@ -327,13 +327,14 @@
                     </p:panel>
 
                     <h:panelGrid id="i_panel_button">
-                        <h:panelGrid columns="6" rendered="#{homologacaoBean.visibleModal}">
+                        <h:panelGrid columns="7" rendered="#{homologacaoBean.visibleModal}">
                             <p:commandButton value="Atualizar" actionListener="#{homologacaoBean.salvar}" disabled="#{controleAcessoBean.botaoSalvar}" update="msg_dialog1 msg_dialog2" />
                             <p:commandButton value="Homologar" actionListener="#{homologacaoBean.homologar}" disabled="#{controleAcessoBean.botaoSalvar}" rendered="#{homologacaoBean.renderHomologar}" update="msg_dialog1 msg_dialog2 i_panel_button"/>
                             <p:commandButton value="Cancelar Homologação" rendered="#{homologacaoBean.renderCancelarHorario}" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('dgl_painel_excluir').show()" type="button" />
                             <p:commandButton value="Excluir Senha" actionListener="#{homologacaoBean.excluirSenha()}" rendered="#{homologacaoBean.registro.senhaHomologacao}" disabled="#{controleAcessoBean.botaoExcluir}" update="msg_dialog1 msg_dialog2 i_panel_button"/>
                             <p:commandButton value="Anexar documentos" type="button" onclick="PF('dgl_upload').show();" id="id_btn_uploads"/>
                             <p:commandButton value="Anexos (#{homologacaoBean.listFiles.size()})" type="button" onclick="PF('dgl_anexos').show();" id="id_btn_anexo" update="id_grid_uploads"/> 
+                            <p:commandButton value="Chamar" action="#{homologacaoBean.novaChamadaSenha()}" rendered="#{homologacaoBean.registro.senhaHomologacao and controleUsuarioBean.macFilial.mesa > 0}" disabled="#{homologacaoBean.agendamento.status.id ne 5}" />
                         </h:panelGrid>
                     </h:panelGrid>                    
                 </p:dialog>

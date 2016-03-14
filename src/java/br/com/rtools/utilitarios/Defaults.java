@@ -2,6 +2,7 @@ package br.com.rtools.utilitarios;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.faces.bean.ManagedBean;
@@ -14,7 +15,7 @@ import org.primefaces.json.JSONObject;
 
 @ManagedBean
 @ViewScoped
-public class Defaults {
+public class Defaults implements Serializable {
 
     private String host;
     private Integer port;
