@@ -118,7 +118,7 @@
             <p:dialog widgetVar="dlg_report_bug" header="Reportar Bug" resizable="false" modal="true" width="640">
                 <p:messages id="i_message" showDetail="true" showSummary="true" closable="true" />
                 <p:panel>
-                    <p:inputTextarea value="#{reportBugBean.bug}" cols="90" rows="10" placeholder="Informe o problema ocorrido, deve conter mo mínimo 10 caracteres" id="id_bug">
+                    <p:inputTextarea value="#{reportBugBean.bug}" cols="90" rows="10" placeholder="Informe o problema ocorrido, deve conter no mínimo 10 caracteres" id="id_bug">
                         <p:ajax event="change" update="@this id_report id_anexo" />
                     </p:inputTextarea>
                     <f:facet name="footer">
