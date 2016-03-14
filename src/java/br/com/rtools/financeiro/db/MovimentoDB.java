@@ -131,6 +131,8 @@ public interface MovimentoDB {
     public List<Movimento> pesquisaAcordoParaExclusao(int idAcordo);
 
     public boolean excluirAcordoIn(String ids, int idAcordo);
+    
+    public boolean excluirAcordoSocialIn(String ids, int idAcordo);
 //    public String gerarContribuicao(List<GGeracao> listaGeracao, List<Servicos> listaServicos, int idRotina);
 
     public List movimentosAbertoComVencimentoOriginal(int idPessoa);

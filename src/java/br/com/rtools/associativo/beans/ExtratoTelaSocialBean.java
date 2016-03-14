@@ -7,6 +7,8 @@ import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
+import br.com.rtools.financeiro.db.MovimentoDB;
+import br.com.rtools.financeiro.db.MovimentoDBToplink;
 import br.com.rtools.financeiro.db.TipoServicoDB;
 import br.com.rtools.financeiro.db.TipoServicoDBToplink;
 import br.com.rtools.movimento.GerarMovimento;
@@ -75,14 +77,14 @@ public class ExtratoTelaSocialBean implements Serializable {
     private ControleAcessoBean cab = new ControleAcessoBean();
 
     private String motivoEstorno = "";
-    
+
     @PostConstruct
     public void init() {
         loadListaServicos();
         loadListaTipoServico();
-        
+
         cab = (ControleAcessoBean) GenericaSessao.getObject("controleAcessoBean");
-        
+
     }
 
     @PreDestroy
@@ -99,14 +101,15 @@ public class ExtratoTelaSocialBean implements Serializable {
         vlTaxa = "0,00";
         vlTotal = "0,00";
         vlLiquido = "0,00";
-        
-        if (dataInicial.isEmpty() && dataFinal.isEmpty() && dataRefInicial.isEmpty() && dataRefFinal.isEmpty() && boletoInicial.isEmpty() && boletoFinal.isEmpty() && pessoa.getId() == -1 && Integer.valueOf(listaServicos.get(idServicos).getDescription()) == 0 && Integer.valueOf(listaTipoServico.get(idTipoServico).getDescription()) == 0){
+
+        if (dataInicial.isEmpty() && dataFinal.isEmpty() && dataRefInicial.isEmpty() && dataRefFinal.isEmpty() && boletoInicial.isEmpty() && boletoFinal.isEmpty() && pessoa.getId() == -1 && Integer.valueOf(listaServicos.get(idServicos).getDescription()) == 0 && Integer.valueOf(listaTipoServico.get(idTipoServico).getDescription()) == 0) {
             GenericaMensagem.warn("Atenção", "Selecione algum filtro para não travar com muitos resultados!");
             return;
         }
-        
-        if (!tipoPessoa.equals("nenhum") && pessoa.getId() == -1)
+
+        if (!tipoPessoa.equals("nenhum") && pessoa.getId() == -1) {
             return;
+        }
 
         List<Vector> result = dao.listaMovimentosSocial(
                 porPesquisa, ordenacao, tipoDataPesquisa, dataInicial, dataFinal, dataRefInicial, dataRefFinal, boletoInicial, boletoFinal, tipoPessoa, pessoa.getId(), Integer.valueOf(listaServicos.get(idServicos).getDescription()), Integer.valueOf(listaTipoServico.get(idTipoServico).getDescription())
@@ -280,20 +283,19 @@ public class ExtratoTelaSocialBean implements Serializable {
             return;
         }
 
-        if (motivoEstorno.isEmpty() || motivoEstorno.length() <= 5){
+        if (motivoEstorno.isEmpty() || motivoEstorno.length() <= 5) {
             GenericaMensagem.error("Atenção", "Motivo de Estorno INVÁLIDO!");
             return;
-        }        
-        
+        }
+
         if (mov.getLote().getRotina() != null && mov.getLote().getRotina().getId() == 132) {
             mov.setAtivo(false);
         }
-        
+
         if (!GerarMovimento.estornarMovimento(mov, motivoEstorno)) {
             est = false;
         }
-        
-        
+
         if (!est) {
             GenericaMensagem.warn("Atenção", "Ocorreu erros ao estornar boletos, verifique o log!");
         } else {
@@ -337,8 +339,8 @@ public class ExtratoTelaSocialBean implements Serializable {
             listab.add(entry.getValue());
         }
 
-        for(Boleto bol : listab){
-         
+        for (Boleto bol : listab) {
+
             try {
                 Registro reg = (Registro) new Dao().find(new Registro(), 1);
 
@@ -348,7 +350,7 @@ public class ExtratoTelaSocialBean implements Serializable {
                 Pessoa pessoa_envio = null;
                 MovimentosReceberSocialDB dbs = new MovimentosReceberSocialDBToplink();
 
-                if (tipoEnvio.equals("responsavel")){
+                if (tipoEnvio.equals("responsavel")) {
                     pessoa_envio = dbs.responsavelBoleto(bol.getNrCtrBoleto());
                 }
 
@@ -362,7 +364,7 @@ public class ExtratoTelaSocialBean implements Serializable {
 //                if (mov.size() == 1) {
 //                    nome_envio = "Boleto " + mov.get(0).getServicos().getDescricao() + " N° " + mov.get(0).getDocumento();
 //                } else {
-                    nome_envio = "Boleto Associativo";
+                nome_envio = "Boleto Associativo";
 //                }
 
                 if (!reg.isEnviarEmailAnexo()) {
@@ -420,7 +422,76 @@ public class ExtratoTelaSocialBean implements Serializable {
     }
 
     public void excluirAcordo() {
+        if (listaMovimento.isEmpty()) {
+            GenericaMensagem.warn("Atenção", "Não existem acordos para serem excluidos!");
+            return;
+        }
 
+        int qnt = 0;
+        Movimento movimento = new Movimento();
+
+        for (DataObject listaMovimento1 : listaMovimento) {
+            if ((Boolean) listaMovimento1.getArgumento0()) {
+                qnt++;
+                movimento = (Movimento) new Dao().find(new Movimento(), listaMovimento1.getArgumento2());
+            }
+        }
+
+        if (qnt == 0) {
+            GenericaMensagem.warn("Atenção", "Nenhum Movimento selecionado!");
+            return;
+        }
+
+        if (qnt > 1) {
+            GenericaMensagem.warn("Erro", "Mais de um movimento foi selecionado!");
+            return;
+        }
+
+        List<Movimento> lista_acordo = new ArrayList();
+        MovimentoDB db = new MovimentoDBToplink();
+
+        if (movimento.getAcordo() != null) {
+            if (movimento.getAcordo().getId() != -1) {
+                lista_acordo.addAll(db.pesquisaAcordoParaExclusao(movimento.getAcordo().getId()));
+            }
+        } else {
+            GenericaMensagem.warn("Atenção", "Não existe acordo para este boleto!");
+            return;
+        }
+
+        for (Movimento lista_acordo1 : lista_acordo) {
+            if (lista_acordo1.getBaixa() != null && lista_acordo1.isAtivo()) {
+                GenericaMensagem.warn("Atenção", "Acordo com parcela já paga não pode ser excluído!");
+                return;
+            }
+        }
+
+        if (!lista_acordo.isEmpty()) {
+            String ids = "";
+            for (int i = 0; i < lista_acordo.size(); i++) {
+                if (ids.length() > 0 && i != lista_acordo.size()) {
+                    ids = ids + ",";
+                }
+                ids = ids + String.valueOf(lista_acordo.get(i).getId());
+            }
+
+            if (ids.isEmpty()) {
+                return;
+            } else {
+                db.excluirAcordoSocialIn(ids, lista_acordo.get(0).getAcordo().getId());
+            }
+
+            //loadListBeta();
+            GenericaMensagem.info("OK", "Acordo Excluído com sucesso!");
+
+            loadLista();
+
+            PF.update("formExtratoTelaSocial");
+            PF.closeDialog("dlg_acordo");
+        } else {
+
+            GenericaMensagem.warn("Atenção", "Nenhum Acordo encontrado!");
+        }
     }
 
     public void loadListaServicos() {

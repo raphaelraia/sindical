@@ -1688,17 +1688,21 @@ public class MatriculaAcademiaBean implements Serializable {
                         trocarMatricula();
                         if (Moeda.converteUS$(valorLiquido) > Moeda.converteUS$(valorLiquidoAntigo)) {
                             Float valor_taxa = Moeda.subtracaoValores(Moeda.converteUS$(valorLiquido), Moeda.converteUS$(valorLiquidoAntigo));
-                            if (!gerarTaxaMovimento(valor_taxa)) {
-                                GenericaMensagem.warn("ATENÇÃO", "Movimento não foi gerado, Tente novamente!");
-                                return null;
+                            if (valor_taxa > 0){
+                                if (!gerarTaxaMovimento(valor_taxa)) {
+                                    GenericaMensagem.warn("ATENÇÃO", "Movimento não foi gerado, Tente novamente!");
+                                    return null;
+                                }
                             }
                         }
                     } else {
                         // TAXA PROPORCIONAL ATÉ O VENCIMENTO
                         // METODO NOVO PARA O CHAMADO 1226
-                        if (!gerarTaxaMovimento(Moeda.converteUS$(valorLiquido))) {
-                            GenericaMensagem.warn("ATENÇÃO", "Movimento não foi gerado, Tente novamente!");
-                            return null;
+                        if (Moeda.converteUS$(valorLiquido) > 0){
+                            if (!gerarTaxaMovimento(Moeda.converteUS$(valorLiquido))) {
+                                GenericaMensagem.warn("ATENÇÃO", "Movimento não foi gerado, Tente novamente!");
+                                return null;
+                            }
                         }
                         // --------------
                     }

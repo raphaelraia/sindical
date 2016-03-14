@@ -413,7 +413,7 @@ public class BaixaGeralBean implements Serializable {
         if (listaTipoPagamento.isEmpty()) {
             FTipoDocumentoDB db = new FTipoDocumentoDBToplink();
             Dao dao = new Dao();
-            List<TipoPagamento> select = new ArrayList<>();
+            List<TipoPagamento> select = new ArrayList();
             if (!verificaBaixaBoleto()) {
                 if (Moeda.converteUS$(total) != 0) {
                     if (!getEs().isEmpty() && getEs().equals("S")) {
@@ -507,12 +507,9 @@ public class BaixaGeralBean implements Serializable {
 
         if (Moeda.converteUS$(valor) > 0) {
             return mensagem = "Complete as parcelas para que o Valor seja zerado!";
-        } else if (Moeda.converteUS$(valor) < 0) {
+        } else if (Moeda.converteUS$(valor) <= 0) {
             return mensagem = "Erro com o campo valor!";
-
         }
-
-        Plano5DB plano5DB = new Plano5DBToplink();
 
         if (!verificaBaixaBoleto()) {
             if (getListaConta().size() == 1 && getListaConta().get(0).getDescription().isEmpty()) {
@@ -563,7 +560,9 @@ public class BaixaGeralBean implements Serializable {
         for (int i = 0; i < listaMovimentos.size(); i++) {
             listaMovimentos.get(i).setTaxa(Moeda.converteUS$(taxa));
         }
+        
         float vl = (!valorTroco.isEmpty()) ? Moeda.converteUS$(valorTroco) : 0;
+        
         if (!GerarMovimento.baixarMovimentoManual(listaMovimentos, usuario, lfp, Moeda.substituiVirgulaFloat(total), quitacao, caixa, vl)) {
             mensagem = "Erro ao atualizar boleto!";
             return null;
@@ -588,7 +587,6 @@ public class BaixaGeralBean implements Serializable {
                 ((MatriculaAcademiaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("matriculaAcademiaBean")).getListaMovimentos().clear();
                 ((MatriculaAcademiaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("matriculaAcademiaBean")).setDesabilitaCamposMovimento(true);
                 ((MatriculaAcademiaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("matriculaAcademiaBean")).setDesabilitaDiaVencimento(true);
-
             }
 
             ((EmissaoGuiasBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("emissaoGuiasBean")).atualizarHistorico();
