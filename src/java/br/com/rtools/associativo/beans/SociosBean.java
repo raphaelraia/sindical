@@ -2187,8 +2187,18 @@ public class SociosBean implements Serializable {
                 if (isAtivo) {
                     try {
                         GenericaMensagem.warn("Erro", "Dependente inativado!");
-                        // listaDependentes.remove(index);
                         listDependentes.remove((int) index);
+                        NovoLog novoLog = new NovoLog();
+                        novoLog.setTabela("fin_servico_pessoa");
+                        novoLog.setCodigo(list.getServicoPessoa().getId());
+                        novoLog.update("Dependente inátivado",
+                                " Serviço Pessoa: (" + list.getServicoPessoa().getId() + ") "
+                                + " - Dependente nome: (" + list.getServicoPessoa().getPessoa().getId() + ") - " + list.getServicoPessoa().getPessoa().getNome()
+                                + " - Titular: (" + socios.getMatriculaSocios().getTitular().getId() + ") - " + socios.getMatriculaSocios().getTitular().getNome()
+                                + " - Matrícula: " + socios.getMatriculaSocios().getNrMatricula()
+                                + " - Categoria: " + socios.getMatriculaSocios().getCategoria().getCategoria()
+                                + " - Parentesco: " + list.getParentesco().getParentesco()
+                        );
                     } catch (Exception e) {
                     }
                 } else {
@@ -2370,8 +2380,10 @@ public class SociosBean implements Serializable {
                         list.get(i).setReferenciaValidade(servicoPessoa.getReferenciaValidade());
                     }
                     dao.update(list.get(i), true);
+                    novoLog.setTabela("fin_servico_pessoa");
+                    novoLog.setCodigo(list.get(i).getId());
                     novoLog.update("Dependente reativado",
-                            " ID:" + list.get(i).getId()
+                            " Serviço Pessoa: (" + list.get(i).getId() + ") "
                             + " - Pessoa: (" + s.getServicoPessoa().getPessoa().getId() + ") - " + s.getServicoPessoa().getPessoa().getNome()
                             + " - Titular: (" + s.getMatriculaSocios().getTitular().getId() + ") - " + s.getMatriculaSocios().getTitular().getNome()
                             + " - Matrícula: " + s.getMatriculaSocios().getNrMatricula()
