@@ -295,6 +295,22 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
         return listaAtendimentoSimples;
     }
 
+    public void novaChamadaSenha() {
+        HomologacaoDBToplink hdbt = new HomologacaoDBToplink();
+        SegurancaUtilitariosBean su = new SegurancaUtilitariosBean();
+        Senha senha = hdbt.pesquisaAtendimentoIniciado(su.getSessaoUsuario().getId(), macFilial.getMesa(), macFilial.getFilial().getId());
+        if (senha.getId() != -1) {
+            Dao dao = new Dao();
+            senha.setDtVerificada(new Date());
+            senha.setDtNovaChamada(new Date());
+            if (!dao.update(senha, true)) {
+                GenericaMensagem.error("Erro", "Não foi possível atualizar Senha!");
+                return;
+            }
+            WSSocket.send("senha_homologacao_" + ControleUsuarioBean.getCliente().toLowerCase());
+        }
+    }
+
     public String retornaSequenciaSenha() {
         HomologacaoDB dbh = new HomologacaoDBToplink();
         SegurancaUtilitariosBean su = new SegurancaUtilitariosBean();
@@ -419,7 +435,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
 
                 PF.update("formConcluirHomologacao");
                 PF.openDialog("dlg_homologacao");
-
+                WSSocket.send("senha_homologacao_" + ControleUsuarioBean.getCliente().toLowerCase());
                 return null;
             }
 
@@ -451,6 +467,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
                         senhaAtendimento = senhax;
                         PF.update(":formHomologacao:tbl_at");
                         PF.openDialog("dlg_atendimento_simples");
+                        WSSocket.send("senha_homologacao_" + ControleUsuarioBean.getCliente().toLowerCase());
                         return null;
                     }
 
@@ -474,11 +491,12 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
                         senhaAtendimento = senhax;
                         PF.update(":formHomologacao:tbl_at");
                         PF.openDialog("dlg_atendimento_simples");
+                        WSSocket.send("senha_homologacao_" + ControleUsuarioBean.getCliente().toLowerCase());
                         return null;
                     }
                 }
             }
-        }
+        }        
         return "homologacao";
     }
 
@@ -645,6 +663,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
         }
         PF.closeDialog("dlg_atendimento_simples");
         listFiles.clear();
+        WSSocket.send("senha_homologacao_" + ControleUsuarioBean.getCliente().toLowerCase());
     }
 
     public List<SelectItem> getListaStatus() {

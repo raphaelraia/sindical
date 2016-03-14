@@ -145,7 +145,7 @@
 
                                 <p:column>
                                     <br />
-                                    <p:commandButton icon="ui-icon-plusthick" actionListener="#{sociosBean.clickSalvarDesconto()}" disabled="#{controleAcessoBean.botaoDescontoSocial}" title="Adicionar um Novo Desconto"/>
+                                    <p:commandButton icon="ui-icon-plusthick" actionListener="#{sociosBean.clickSalvarDesconto()}" disabled="#{controleAcessoBean.verificarPermissao('libera_desconto_social', 1)}" title="Adicionar um Novo Desconto (LIBERA DESCONTO SOCIAL)" />
                                 </p:column>
 
 
@@ -301,7 +301,7 @@
                                     <h:outputLabel value="Este sócio esta inativo desde: #{sociosBean.matriculaSocios.inativo} por #{sociosBean.matriculaSocios.motivoInativacao.descricao}" style="margin-left: 30px; font-size: 10pt; color: white; font-weight: bold"/>
                                     <p:commandLink value=" detalhes " onclick="PF('i_dlg_smi_detalhes').show()" style="margin-left: 10px" rendered="#{sociosBean.matriculaSocios.motivo != ''}"/>
                                     <br />
-                                    <p:commandLink value="CLIQUE AQUI PARA REATIVAR" onclick="PF('i_dlg_re').show();" style="margin-left: 30px; font-size: 8pt; font-weight: bold"/>
+                                    <p:commandLink value="CLIQUE AQUI PARA REATIVAR" onclick="PF('i_dlg_re').show();" style="margin-left: 30px; font-size: 8pt; font-weight: bold" disabled="#{controleAcessoBean.verificarPermissao('linkSocio', 3)}" title="SÓCIO 'ATIVAR' E 'INATIVAR' - BOTÃO (Excluir)"/>
                                 </p:panel>
 
                                 <p:panel style="background-color: #9ccaaa; margin-left:30px" rendered="#{sociosBean.matriculaSocios.motivoInativacao == null}">
@@ -345,7 +345,7 @@
 
                                 <p:dataTable var="listDependentes" id="tbl" value="#{sociosBean.listDependentes}" emptyMessage="Nenhum Dependente Adicionado." rowIndexVar="index" styleClass="margin-top">
                                     <p:column style="width: 30px; text-align: center">
-                                        <p:commandButton icon="ui-icon-close" action="#{sociosBean.excluirDependente(listDependentes, index)}" update=":formSocios:i_panel_dependente" title="Excluir dependente" disabled="#{controleAcessoBean.verificarPermissao('linkDependente', 1)}" />
+                                        <p:commandButton icon="ui-icon-close" action="#{sociosBean.excluirDependente(listDependentes, index)}" update=":formSocios:i_panel_dependente" title="Excluir (DEPENDENTE 'INATIVAR' E 'REATIVAR' - LINK)" disabled="#{controleAcessoBean.verificarPermissao('linkDependente', 2)}" />
                                     </p:column>
 
                                     <p:column style="width: 90px; text-align: center">
@@ -392,7 +392,7 @@
                                 <h:panelGrid id="i_l_d_i">
                                     <p:dataTable value="#{sociosBean.listDependentesInativos}" var="listDependentesInativos" rowIndexVar="index" emptyMessage="Nenhum Dependente Inativo">
                                         <p:column style="text-align: center" width="30">
-                                            <p:commandButton title="Excluir" icon="ui-icon-close" update=":formSocios:i_panel_dependente :formSocios:i_growl :formSocios:i_l_d_i" action="#{sociosBean.excluirDependente(listDependentesInativos, index)}" />
+                                            <p:commandButton title="Excluir (DEPENDENTE 'INATIVAR' E 'REATIVAR' - LINK)" icon="ui-icon-close" update=":formSocios:i_panel_dependente :formSocios:i_growl :formSocios:i_l_d_i" action="#{sociosBean.excluirDependente(listDependentesInativos, index)}" disabled="#{controleAcessoBean.verificarPermissao('linkDependente', 2)}"/>
                                         </p:column>
                                         <p:column headerText="Nome">
                                             <h:outputLabel value="#{listDependentesInativos.fisica.pessoa.nome}" />
@@ -408,7 +408,7 @@
                                             </p:inputMask>
                                         </p:column>
                                         <p:column style="text-align: center" width="100">
-                                            <p:commandButton value="Reativar" icon="ui-icon-check" update=":formSocios:i_panel_dependente :formSocios:i_growl :formSocios:i_l_d_i" action="#{sociosBean.reativarDependente(index)}"/>
+                                            <p:commandButton value="Reativar" icon="ui-icon-check" update=":formSocios:i_panel_dependente :formSocios:i_growl :formSocios:i_l_d_i" action="#{sociosBean.reativarDependente(index)}" disabled="#{controleAcessoBean.verificarPermissao('linkDependente', 3)}" title="DEPENDENTE 'INATIVAR' E 'REATIVAR' - LINK (ALTERAR)"/>
                                         </p:column>
                                     </p:dataTable>
                                 </h:panelGrid>
@@ -425,7 +425,7 @@
                                         <p:commandButton ajax="false" value="Voltar" action="#{sociosBean.editarTitular()}" />
                                         <p:commandButton onclick="PF('i_dlg_s').show()" value="#{sociosBean.lblSocio}" disabled="#{controleAcessoBean.botaoSalvar}" />
                                         <p:commandButton onclick="PF('i_dlg_e').show()" value="EXCLUIR" disabled="#{controleAcessoBean.botaoExcluir}" />
-                                        <p:commandButton onclick="PF('i_dlg_i').show()" value="INATIVAR" rendered="#{sociosBean.matriculaSocios.motivoInativacao == null}" disabled="#{controleAcessoBean.verificarPermissao('linkSocio', 1)}" />
+                                        <p:commandButton onclick="PF('i_dlg_i').show()" value="INATIVAR" rendered="#{sociosBean.matriculaSocios.motivoInativacao == null}" disabled="#{controleAcessoBean.verificarPermissao('linkSocio', 2)}" title="SÓCIO 'ATIVAR' E 'INATIVAR' - BOTÃO (Excluir)"/>
                                     </h:panelGrid>
                                 </h:column>
                                 <h:column>

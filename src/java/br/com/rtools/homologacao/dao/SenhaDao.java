@@ -17,10 +17,34 @@ public class SenhaDao extends DB {
                     + "        AND nr_mesa > 0                      \n"
                     + "        AND ds_hora_chamada IS NOT NULL      \n"
                     + "        AND dt_data = current_date           \n"
-                    + "   ORDER BY nr_ordem DESC, nr_senha DESC     \n"
+                    + "   ORDER BY dt_nova_chamada IS NOT NULL DESC,\n"
+                    + "            nr_ordem DESC,                   \n"
+                    + "            nr_senha DESC                    \n"
                     + "      LIMIT 4                                ";
             Query query = getEntityManager().createNativeQuery(queryString, Senha.class);
-            return query.getResultList();
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                queryString = " SELECT S.* "
+                        + "       FROM hom_senha AS S                   \n"
+                        + "      WHERE id_filial = " + filial_id + "    \n"
+                        + "        AND nr_mesa > 0                      \n"
+                        + "        AND ds_hora_chamada IS NOT NULL      \n"
+                        + "        AND dt_data = current_date           \n"
+                        + "        AND dt_nova_chamada IS NOT NULL      ";
+                query = getEntityManager().createNativeQuery(queryString);
+                List listUpdate = query.getResultList();
+                if (!listUpdate.isEmpty()) {
+                    try {
+                        getEntityManager().getTransaction().begin();
+                        Query queryB = getEntityManager().createNativeQuery("UPDATE hom_senha SET dt_nova_chamada = null WHERE dt_nova_chamada IS NOT NULL");
+                        queryB.executeUpdate();
+                        getEntityManager().getTransaction().commit();
+                    } catch (Exception e) {
+                        getEntityManager().getTransaction().rollback();
+                    }
+                }
+            }
+            return list;
         } catch (Exception e) {
             return new ArrayList<>();
 
@@ -39,7 +63,7 @@ public class SenhaDao extends DB {
                     + "   ORDER BY nr_ordem DESC                    ";
             Query query = getEntityManager().createNativeQuery(queryString, Senha.class);
             Boolean retorno = !query.getResultList().isEmpty();
-            if(retorno) {
+            if (retorno) {
                 try {
                     getEntityManager().getTransaction().begin();
                     Query queryB = getEntityManager().createNativeQuery("UPDATE hom_senha SET dt_verificada = null WHERE dt_verificada IS NOT NULL");
@@ -49,7 +73,7 @@ public class SenhaDao extends DB {
                 } catch (Exception e) {
                     getEntityManager().getTransaction().rollback();
                     return false;
-                }                
+                }
             }
             return retorno;
         } catch (Exception e) {

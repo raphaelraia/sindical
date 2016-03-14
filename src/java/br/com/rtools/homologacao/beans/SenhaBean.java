@@ -11,10 +11,10 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
+import javax.faces.bean.ViewScoped;
 
 @ManagedBean
-@SessionScoped
+@ViewScoped
 public class SenhaBean {
 
     private Senha senha;
@@ -54,8 +54,8 @@ public class SenhaBean {
     }
 
     public void clear() {
-        GenericaSessao.remove("sessaoCliente");
-        GenericaSessao.remove("senhaBean");
+        // GenericaSessao.remove("sessaoCliente");
+        // GenericaSessao.remove("senhaBean");
     }
 
     public void loadSenha() {
