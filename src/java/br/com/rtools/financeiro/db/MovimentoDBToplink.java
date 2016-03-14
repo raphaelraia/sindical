@@ -2004,33 +2004,55 @@ public class MovimentoDBToplink extends DB implements MovimentoDB {
             qry.executeUpdate();
 
             getEntityManager().getTransaction().commit();
+            return true;
+        } catch (Exception e) {
+            getEntityManager().getTransaction().rollback();
+            return false;
+        }
+    }
+    
+    @Override
+    public boolean excluirAcordoSocialIn(String ids, int idAcordo) {
+        try {
+            Query qry = getEntityManager().createQuery("select m.nrCtrBoleto from Movimento m where m.acordo.id = " + idAcordo + " and m.ativo = true and m.nrCtrBoleto <> ''");
 
-//            Query qry = null;
-//            qry = getEntityManager().createNativeQuery("select l.id from fin_lote as l left join fin_movimento as m on m.id_lote = l.id where m.id_lote is null");
-//            
-//            List l = qry.getResultList();
-//            String ids_lote = "";
-//            for (int i = 0; i < l.size(); i++){
-//                if (ids_lote.length() > 0 && i != l.size())
-//                    ids_lote = ids_lote+",";
-//                ids_lote = ids_lote + String.valueOf(l.get(i).toString());
+            List bole = qry.getResultList();
+
+            String ids_boleto = "";
+
+            for (int i = 0; i < bole.size(); i++) {
+                if (ids_boleto.length() > 0 && i != bole.size()) {
+                    ids_boleto += ",'" + bole.get(i).toString() + "'";
+                } else {
+                    ids_boleto = "'" + bole.get(i).toString() + "'";
+                }
+            }
+
+            // SE NÃO TER BOLETO
+//            if (bole.isEmpty()) {
+//                return false;
 //            }
-//            
-//            lista.add("delete from Lote where id in ("+ids_lote+")");
-//            lista.add("delete from Acordo a where a.id = "+idAcordo);            
-//            textQuery = "delete from fin_historico where id_movimento in ( select id from fin_movimento where id in ("+ids+")); "
-//                        + "" +
-//                        "delete from fin_mensagem_cobranca where id_movimento in ( select id from fin_movimento where id in ("+ids+") and id_acordo = "+idAcordo+" and is_ativo is true );"
-//                        + "" +
-//                        "delete from fin_boleto where nr_ctr_boleto in (select nr_ctr_boleto from fin_movimento where id_acordo = "+idAcordo+" and is_ativo is true);"
-//                        + "" +
-//                        "delete from fin_movimento where id_acordo = "+idAcordo+" and is_ativo is true;"
-//                        + "" +
-//                        "update fin_movimento set is_ativo = true, id_acordo = null, nr_multa = 0, nr_juros = 0, nr_correcao = 0 where id_acordo = "+idAcordo+";"
-//                        + "" +
-//                        "delete from fin_lote where id in (select l.id from fin_lote as l left join fin_movimento as m on m.id_lote = l.id where m.id_lote is null);"
-//                        + "" +
-//                        "delete from arr_acordo where id = "+idAcordo+";";
+
+            List lista = new ArrayList();
+            lista.add("delete from Historico h where h.movimento.id in ( " + ids + " )");
+            if (!bole.isEmpty()) lista.add("delete from Boleto b where b.nrCtrBoleto in (" + ids_boleto + ")");
+            lista.add("delete from ImpressaoWeb i where i.movimento.id in (" + ids + ")");
+            lista.add("delete from Impressao i where i.movimento.id in (" + ids + ")");
+            lista.add("delete from Movimento m where m.acordo.id = " + idAcordo + " and m.ativo = true");
+            lista.add("update Movimento m set m.ativo = true, m.acordo = null, m.multa = 0, m.juros = 0, m.correcao = 0 where m.acordo.id = " + idAcordo + "");
+            lista.add("delete from Acordo a where a.id = " + idAcordo);
+
+            getEntityManager().getTransaction().begin();
+
+            for (Object query : lista) {
+                qry = getEntityManager().createQuery(query.toString());
+                qry.executeUpdate();
+            }
+
+            qry = getEntityManager().createNativeQuery("delete from fin_lote where id in (select l.id from fin_lote as l left join fin_movimento as m on m.id_lote = l.id where m.id_lote is null);");
+            qry.executeUpdate();
+
+            getEntityManager().getTransaction().commit();
             return true;
         } catch (Exception e) {
             getEntityManager().getTransaction().rollback();

@@ -258,7 +258,6 @@ public class AcordoSocialBean implements Serializable {
         }
 
         int i = 0;
-        int j = 0;
         List listas = new ArrayList();
         List<Integer> subLista = new ArrayList();
         DataHoje data = new DataHoje();
@@ -283,19 +282,18 @@ public class AcordoSocialBean implements Serializable {
             }
             i++;
         }
+        
         if (!(subLista.isEmpty())) {
             listas.add(subLista);
-            subLista = new ArrayList();
         }
+        
         i = 0;
-        j = 0;
-        String date = null;
-        Servicos servico = null;
+        
         while (i < listas.size()) {
-            j = 0;
+            int j = 0;
+            
             Movimento movimento = (Movimento) listaOperado.get(((List<Integer>) listas.get(i)).get(j)).getArgumento2();
-            date = movimento.getVencimento();
-            servico = movimento.getServicos();
+            String date = movimento.getVencimento();
 
             if (frequencia == 30) {
                 if ((DataHoje.menorData(data.decrementarMeses(1, date), vencimentoOut))
@@ -327,8 +325,10 @@ public class AcordoSocialBean implements Serializable {
 
             i++;
         }
+        
         BubbleSort(listaOperado);
         ordernarPorServico();
+        
         while (i < listaOperado.size()) {
             listaOperado.get(i).setArgumento1(i + 1);
             i++;
@@ -340,8 +340,9 @@ public class AcordoSocialBean implements Serializable {
         if (listaOperado.isEmpty()) {
             return null;
         }
+        
         int i = 0;
-        int j = 0;
+        
         List listas = new ArrayList();
         List<Integer> subLista = new ArrayList();
         DataHoje data = new DataHoje();
@@ -366,19 +367,17 @@ public class AcordoSocialBean implements Serializable {
             }
             i++;
         }
+        
         if (!(subLista.isEmpty())) {
             listas.add(subLista);
-            subLista = new ArrayList();
         }
+        
         i = 0;
-        j = 0;
-        String date = null;
-        Servicos servico = null;
+        
         while (i < listas.size()) {
-            j = 0;
+            int j = 0;
             Movimento movimento = ((Movimento) listaOperado.get(((List<Integer>) listas.get(i)).get(j)).getArgumento2());
-            date = movimento.getVencimento();
-            servico = movimento.getServicos();
+            String date = movimento.getVencimento();
 
             if (frequencia == 30) {
                 if (DataHoje.maiorData(data.incrementarMeses(1, date), ultimaData)) {
@@ -405,14 +404,16 @@ public class AcordoSocialBean implements Serializable {
             }
             i++;
         }
+        
         BubbleSort(listaOperado);
         ordernarPorServico();
+        
         i = 0;
+        
         while (i < listaOperado.size()) {
             listaOperado.get(i).setArgumento1(i + 1);
             i++;
         }
-
         return null;
     }
 

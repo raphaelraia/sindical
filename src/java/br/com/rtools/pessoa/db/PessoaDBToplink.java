@@ -404,10 +404,29 @@ public class PessoaDBToplink extends DB implements PessoaDB {
         try {
             Query query = getEntityManager().createNativeQuery("SELECT EXISTS(SELECT id FROM pes_pessoa WHERE func_translate(ds_login) LIKE func_translate('" + login + "'))");
             query.setMaxResults(1);
-            Boolean b =  (Boolean) ((List) ((List) query.getResultList()).get(0)).get(0);
+            Boolean b = (Boolean) ((List) ((List) query.getResultList()).get(0)).get(0);
             return b;
         } catch (Exception e) {
             return true;
+        }
+    }
+
+    public Boolean updateRecadastro(Pessoa p) {
+        String queryString;
+        Query query;
+        try {
+            getEntityManager().getTransaction().begin();
+            queryString = "UPDATE pes_pessoa SET dt_recadastro = '" + p.getRecadastroString() + "' WHERE id = " + p.getId();
+            query = getEntityManager().createNativeQuery(queryString);
+            if (query.executeUpdate() == 0) {
+                getEntityManager().getTransaction().rollback();
+                return false;
+            }
+            getEntityManager().getTransaction().commit();
+            return true;
+        } catch (Exception e) {
+            getEntityManager().getTransaction().rollback();
+            return false;
         }
     }
 }

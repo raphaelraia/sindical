@@ -107,6 +107,11 @@ public class AtualizarJuridicaThread extends ThreadLocal<Object> {
                 System.err.println("Empresa Atualizada N° " + i + ": " + listaJuridica.get(i).getPessoa().getNome() + " [" + retorno + "]");
                 // TEM QUE SER 2 SEG. SE NÃO TRAVA
                 Thread.sleep(2000);
+                dao.refresh(pa);
+                
+                if (pa.getCancelarProcesso()){
+                    break;
+                }
             } catch (Exception e) {
                 System.err.println("[Erro] Empresa Atualizada N° " + i + ": " + listaJuridica.get(i).getPessoa().getNome());
             }
@@ -137,7 +142,7 @@ public class AtualizarJuridicaThread extends ThreadLocal<Object> {
             juridica = (Juridica) dao.find(juridica);
 
             // tipo = wokki = pago / '' = gratis
-            JuridicaReceitaJSON.JuridicaReceitaObject jro = new JuridicaReceitaJSON(documento, "wokki").pesquisar();
+            JuridicaReceitaJSON.JuridicaReceitaObject jro = new JuridicaReceitaJSON(documento, "").pesquisar();
 
             if (jro.getStatus() == 6) {
                 return "Limite de acessos excedido!";
@@ -227,16 +232,37 @@ public class AtualizarJuridicaThread extends ThreadLocal<Object> {
             dao.commit();
 
             juridica.getPessoa().setDtRecadastro(DataHoje.dataHoje());
-            juridica.getPessoa().setNome(juridicaRA_nova.getNome().toUpperCase());
-            juridica.setFantasia(juridicaRA_nova.getFantasia().toUpperCase());
+            // NOME
+            if (juridica.getPessoa().getNome() == null || juridica.getPessoa().getNome().isEmpty())
+                juridica.getPessoa().setNome(juridicaRA_nova.getNome().toUpperCase());
+            
+            // FANTASIA
+            if (juridica.getFantasia() == null || juridica.getFantasia().isEmpty())
+                juridica.setFantasia(juridicaRA_nova.getFantasia().toUpperCase());
 
-            juridica.getPessoa().setEmail1(jro.getEmail1());
-            juridica.getPessoa().setEmail2(jro.getEmail2());
-            juridica.getPessoa().setEmail3(jro.getEmail3());
+            // EMAIL 1
+            if (juridica.getPessoa().getEmail1() == null || juridica.getPessoa().getEmail1().isEmpty())
+                juridica.getPessoa().setEmail1(jro.getEmail1());
+            
+            // EMAIL 2
+            if (juridica.getPessoa().getEmail2() == null || juridica.getPessoa().getEmail2().isEmpty())
+                juridica.getPessoa().setEmail2(jro.getEmail2());
+            
+            // EMAIL 3
+            if (juridica.getPessoa().getEmail3() == null || juridica.getPessoa().getEmail3().isEmpty())
+                juridica.getPessoa().setEmail3(jro.getEmail3());
 
-            juridica.getPessoa().setTelefone1(jro.getTelefone1());
-            juridica.getPessoa().setTelefone2(jro.getTelefone2());
-            juridica.getPessoa().setTelefone3(jro.getTelefone3());
+            // TELEFONE 1
+            if (juridica.getPessoa().getTelefone1() == null || juridica.getPessoa().getTelefone1().isEmpty())
+                juridica.getPessoa().setTelefone1(jro.getTelefone1());
+            
+            // TELEFONE 2
+            if (juridica.getPessoa().getTelefone2() == null || juridica.getPessoa().getTelefone2().isEmpty())
+                juridica.getPessoa().setTelefone2(jro.getTelefone2());
+            
+            // TELEFONE 3
+            if (juridica.getPessoa().getTelefone3() == null || juridica.getPessoa().getTelefone3().isEmpty())
+                juridica.getPessoa().setTelefone3(jro.getTelefone3());
 
             if (!dao.update(juridica.getPessoa(), true)) {
                 return "Erro ao Salvar Pessoa Receita Antiga!";

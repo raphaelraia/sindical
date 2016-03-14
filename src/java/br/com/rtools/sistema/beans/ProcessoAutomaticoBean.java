@@ -68,6 +68,16 @@ public class ProcessoAutomaticoBean implements Serializable {
         }
     }
 
+    public void cancelarProcesso(){
+        processoAutomatico = new ProcessoAutomaticoDao().pesquisarProcesso(thread_name, Usuario.getUsuario().getId());
+        
+        if (processoAutomatico.getId() != -1){
+            processoAutomatico.setCancelarProcesso(true);
+            
+            new Dao().update(processoAutomatico, true);
+        }
+    }
+    
     public void clearBean() {
         processoAutomatico = new ProcessoAutomatico();
         processoAutomaticoConcluido = new ProcessoAutomatico();

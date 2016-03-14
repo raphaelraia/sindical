@@ -388,10 +388,10 @@ public class UsuarioBean implements Serializable {
         ProcessoAutomatico pa = new ProcessoAutomaticoDao().pesquisarProcesso("atualizar_juridica", Usuario.getUsuario().getId());
 
         // EXISTE UM PROCESSAMENTO, NÃO PODE DESTRUIR A SESSAO
-        if (pa.getId() != -1) {
-            FacesContext.getCurrentInstance().getExternalContext().redirect(retorno);
-            return;
-        }
+//        if (pa.getId() != -1) {
+//            FacesContext.getCurrentInstance().getExternalContext().redirect(retorno);
+//            return;
+//        }
         FacesContext conext = FacesContext.getCurrentInstance();
         //Verifica a sessao e a grava na variavel
         HttpSession session = (HttpSession) conext.getExternalContext().getSession(false);

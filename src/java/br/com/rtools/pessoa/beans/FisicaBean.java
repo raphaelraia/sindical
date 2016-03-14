@@ -2577,11 +2577,10 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                     + " - RG: " + f.getRg()
                     + " - Recadastro : " + fisica.getPessoa().getRecadastroString();
             PessoaDBToplink pessoaDao = new PessoaDBToplink();
-            FisicaDBToplink fisicaDao = new FisicaDBToplink();
             Date date = fisica.getPessoa().getDtAtualizacao();
             fisica.getPessoa().setDtAtualizacao(new Date());
             new Dao().rebind(fisica);
-            if (fisicaDao.updateRecadastro(fisica)) {
+            if (pessoaDao.updateRecadastro(fisica.getPessoa())) {
                 NovoLog novoLog = new NovoLog();
                 novoLog.setTabela("pes_fisica");
                 novoLog.setCodigo(fisica.getId());

@@ -84,11 +84,14 @@
                                 <p:column headerText="Nome">
                                     <p:outputLabel value="#{linha_juridica.pessoa.nome}" />
                                 </p:column>
+                                <f:facet name="footer">
+                                    <p:outputLabel value="Quantidade: #{atualizacaoAutomaticaJuridicaBean.listaJuridica.size()}" />
+                                </f:facet>
                             </p:dataTable>
 
                             <p:commandButton value="Iniciar Atualização" onclick="PF('dlg_iniciar_atualizacao').show()" disabled="#{atualizacaoAutomaticaJuridicaBean.processoIniciado or processoAutomaticoBean.processoAutomatico.id ne -1}"/>
 
-                            <p:dialog widgetVar="dlg_iniciar_atualizacao" width="400" header="EXCLUIR ARQUIVOS" modal="true">
+                            <p:dialog widgetVar="dlg_iniciar_atualizacao" width="400" header="ATUALIZAR JURÍDICAS" modal="true">
                                 <p:outputLabel value="DESEJA REALMENTE INICIAR UMA ATUALIZAÇÃO DE PESSOAS JURÍDICA?" style="font-size: 11pt!important"/><br />
                                 <p:outputLabel value="obs. Isso pode demorar uns minutos" style="font-size: 8pt!important; color: red"/>
                                 <br /><br />
