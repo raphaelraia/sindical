@@ -353,6 +353,9 @@ public class Dao extends DB implements DaoInterface {
 
     @Override
     public Object rebind(Object object) {
+        if (object == null) {
+            return object;
+        }
         openTransaction();
         try {
             object = find(object);
@@ -397,6 +400,9 @@ public class Dao extends DB implements DaoInterface {
 
     @Override
     public void refresh(Object object) {
+        if (object == null) {
+            return;
+        }
         try {
             openTransaction();
             object = find(object);
@@ -525,6 +531,22 @@ public class Dao extends DB implements DaoInterface {
     @Override
     public List find(String className, int id[]) {
         return find(className, id, "");
+    }
+
+    /**
+     * *
+     *
+     * @param className
+     * @param id
+     * @param field
+     * @return
+     */
+    public Object find(String className, int id, String field) {
+        List list = find(className, new int[]{id}, field);
+        if (!list.isEmpty()) {
+            return list.get(0);
+        }
+        return null;
     }
 
     /**

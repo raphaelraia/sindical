@@ -507,7 +507,7 @@ public class BaixaGeralBean implements Serializable {
 
         if (Moeda.converteUS$(valor) > 0) {
             return mensagem = "Complete as parcelas para que o Valor seja zerado!";
-        } else if (Moeda.converteUS$(valor) <= 0) {
+        } else if (Moeda.converteUS$(valor) < 0) {
             return mensagem = "Erro com o campo valor!";
         }
 
@@ -787,7 +787,7 @@ public class BaixaGeralBean implements Serializable {
         this.plano5 = plano5;
     }
 
-    public List<Movimento> getListaMovimentos() {
+    public List<Movimento> getListaMovimentos() { 
         if (listaMovimentos.isEmpty()) {
             if (FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("listaMovimento") != null) {
                 listaMovimentos = (List) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("listaMovimento");

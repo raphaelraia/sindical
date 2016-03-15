@@ -189,7 +189,7 @@ public class JuridicaBean implements Serializable {
                     + " - Documento: " + j.getPessoa().getDocumento()
                     + " - Recadastro : " + juridica.getPessoa().getRecadastroString();
             PessoaDBToplink pessoaDao = new PessoaDBToplink();
-            
+
             Date date = juridica.getPessoa().getDtAtualizacao();
             juridica.getPessoa().setDtAtualizacao(new Date());
             new Dao().rebind(juridica);
@@ -590,9 +590,13 @@ public class JuridicaBean implements Serializable {
                     return;
                 }
 
-                if (jro.getStatus() != 0 && jro.getStatus() != -1) {
+                if (jro.getStatus() != 0 && jro.getStatus() != -1 && jro.getStatus() != 7) {
                     GenericaMensagem.error("Erro", jro.getMsg());
                     return;
+                }
+                
+                if (jro.getStatus() == 7) {
+                    GenericaMensagem.warn("Sistema", jro.getMsg());
                 }
 
                 if (jro.getStatus() == 0) {
@@ -633,7 +637,7 @@ public class JuridicaBean implements Serializable {
             // SITE: http://receitaws.com.br/
             try {
                 if (juridicaReceita.getId() == -1) {
-                    if (jro.getStatus() == -1) {
+                    if (jro.getStatus() == -1 || jro.getStatus() == 7) {
                         jro = new JuridicaReceitaJSON(documento, "").pesquisar();
                         try {
                             juridicaReceita.setNome(jro.getNome_empresarial());
@@ -733,7 +737,7 @@ public class JuridicaBean implements Serializable {
             if (endereco != null) {
                 for (PessoaEndereco pe : jro.getPessoaEndereco()) {
                     pe.setPessoa(juridica.getPessoa());
-                    listaEnd.add(jro.getPessoaEndereco());
+                    listaEnd.add(pe);
                 }
                 pessoaEndereco = new PessoaEndereco();
             } else {

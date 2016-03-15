@@ -254,6 +254,8 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
             senha.getAteMovimento().setStatus((AteStatus) sv.pesquisaCodigo(3, "AteStatus"));
         }
 
+        senha.setDtVerificada(new Date());
+
         if (!sv.alterarObjeto(senha)) {
             sv.desfazerTransacao();
         } else {
@@ -263,6 +265,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
         senhaAtendimento = new Senha();
         loadListaAtendimentoSimples();
         PF.closeDialog("dlg_atendimento_simples");
+        WSSocket.send("senha_homologacao_" + ControleUsuarioBean.getCliente().toLowerCase());
     }
 
     public void excluirSenhaAtendimento() {
@@ -307,8 +310,13 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
                 GenericaMensagem.error("Erro", "Não foi possível atualizar Senha!");
                 return;
             }
-            WSSocket.send("senha_homologacao_" + ControleUsuarioBean.getCliente().toLowerCase());
+        } else {
+//            List<Senha> listax = hdbt.listaAtendimentoIniciadoSimplesUsuario(macFilial.getFilial().getId(), su.getSessaoUsuario().getId());
+//            if (!listax.isEmpty()) {
+//                return;
+//            }
         }
+        WSSocket.send("senha_homologacao_" + ControleUsuarioBean.getCliente().toLowerCase());
     }
 
     public String retornaSequenciaSenha() {
@@ -349,7 +357,6 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
 
             PF.update("formConcluirHomologacao");
             PF.openDialog("dlg_homologacao");
-
             return null;
         }
 
@@ -357,7 +364,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
 
         if (!listax.isEmpty()) {
             senhaAtendimento = listax.get(0);
-            PF.update("formHomologacao:tbl_at");
+            PF.update("form_homologacao:tbl_at");
             PF.openDialog("dlg_atendimento_simples");
             return null;
         }
@@ -465,7 +472,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
 
                         //listaAtendimentoSimples.clear();
                         senhaAtendimento = senhax;
-                        PF.update(":formHomologacao:tbl_at");
+                        PF.update("form_cancelar_data_table:tbl_at");
                         PF.openDialog("dlg_atendimento_simples");
                         WSSocket.send("senha_homologacao_" + ControleUsuarioBean.getCliente().toLowerCase());
                         return null;
@@ -480,23 +487,22 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
 
                         senhax.setHoraChamada(DataHoje.horaMinuto()); // aqui
                         senhax.setMesa(macFilial.getMesa());
-
-                        di.update(senhax);
                         senhax.setDtVerificada(new Date());
+                        di.update(senhax);
                         di.update(senhax.getAteMovimento());
 
                         di.commit();
 
                         //listaAtendimentoSimples.clear();
                         senhaAtendimento = senhax;
-                        PF.update(":formHomologacao:tbl_at");
+                        PF.update("form_cancelar_data_table:tbl_at");
                         PF.openDialog("dlg_atendimento_simples");
                         WSSocket.send("senha_homologacao_" + ControleUsuarioBean.getCliente().toLowerCase());
                         return null;
                     }
                 }
             }
-        }        
+        }
         return "homologacao";
     }
 
@@ -539,7 +545,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
             senhaAtendimento = senhaAtendimentoReserva;
             senhaAtendimento.setDtVerificada(new Date());
             dao.update(senhaAtendimento, true);
-            PF.update(":formHomologacao:tbl_at");
+            PF.update("form_cancelar_data_table:tbl_at");
             PF.openDialog("dlg_atendimento_simples");
             return null;
         }
@@ -564,7 +570,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
             senhaAtendimento = senhaAtendimentox;
             senhaAtendimento.setDtVerificada(new Date());
             dao.update(senhaAtendimento, true);
-            RequestContext.getCurrentInstance().update(":formHomologacao:tbl_at");
+            RequestContext.getCurrentInstance().update("form_cancelar_data_table:tbl_at");
             RequestContext.getCurrentInstance().execute("PF('dlg_atendimento_simples').show();");
             return null;
         } else if (senhaAtendimentox != null && (senhaAtendimentox.getSenha() < senhaHomologacao.getSenha())) {
@@ -586,7 +592,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
             senhaAtendimento = senhaAtendimentox;
             senhaAtendimento.setDtVerificada(new Date());
             dao.update(senhaAtendimento, true);
-            RequestContext.getCurrentInstance().update(":formHomologacao:tbl_at");
+            RequestContext.getCurrentInstance().update("form_cancelar_data_table:tbl_at");
             RequestContext.getCurrentInstance().execute("PF('dlg_atendimento_simples').show();");
             return null;
         }
@@ -650,6 +656,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
             senhaAtendimento.getAteMovimento().setStatus((AteStatus) sv.pesquisaCodigo(1, "AteStatus"));
             senhaAtendimento.getAteMovimento().setAtendente(null);
 
+            senhaAtendimento.setDtVerificada(new Date());
             senhaAtendimento.setHoraChamada("");
             senhaAtendimento.setMesa(0);
 
@@ -1058,26 +1065,30 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
             GenericaMensagem.error("Atenção", "Data de Demissão não pode ser vazio!");
             return;
         }
-
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+        Dao dao = new Dao();
         agendamento.setHomologador((Usuario) GenericaSessao.getObject("sessaoUsuario"));
-        agendamento.setStatus((Status) sv.find(new Status(), 4));
+        agendamento.setStatus((Status) dao.find(new Status(), 4));
         new Cancelamento().getAgendamento().getId();
-        Cancelamento c = (Cancelamento) sv.pesquisaObjeto(agendamento.getId(), "Cancelamento", "agendamento.id");
-        sv.abrirTransacao();
+        Cancelamento c = (Cancelamento) dao.find("Cancelamento", agendamento.getId(), "agendamento.id");
+        dao.openTransaction();
         if (c != null) {
-            if (!sv.deletarObjeto(c)) {
+            if (!dao.delete(c)) {
                 GenericaMensagem.error("Atenção", "Erro ao homologar!");
-                sv.desfazerTransacao();
+                dao.rollback();
                 return;
             }
         }
-        if (sv.alterarObjeto(agendamento) && sv.alterarObjeto(pessoaEmpresa)) {
+        if (dao.update(agendamento) && dao.update(pessoaEmpresa)) {
             GenericaMensagem.info("Sucesso", "Agendamento homologado!");
-            sv.comitarTransacao();
+            dao.commit();
+            HomologacaoDBToplink hd = new HomologacaoDBToplink();
+            Senha senha = hd.pesquisaSenhaAgendamento(agendamento.getId());
+            senha.setDtVerificada(DataHoje.converte("01/01/1900"));
+            dao.update(senha, true);
+            WSSocket.send("senha_homologacao_" + ControleUsuarioBean.getCliente().toLowerCase());
         } else {
             GenericaMensagem.error("Atenção", "Erro ao homologar!");
-            sv.desfazerTransacao();
+            dao.rollback();
         }
         strEndereco = "";
         visibleModal = false;
@@ -1087,10 +1098,9 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
         pessoaEmpresa = new PessoaEmpresa();
         profissao = new Profissao();
         loadListaHomologacao();
-        WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());
     }
 
-    public String cancelarHomologacao() {
+    public String cancelarHomologacao() {      
         if (cancelamento.getMotivo().isEmpty() || cancelamento.getMotivo().length() <= 5) {
             GenericaMensagem.warn("Atenção", "Motivo de cancelamento inválido");
             return null;
@@ -1128,12 +1138,18 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
         visibleModal = false;
         tipoAviso = "true";
         fisica = new Fisica();
-        agendamento = new Agendamento();
         pessoaEmpresa = new PessoaEmpresa();
         profissao = new Profissao();
         dao.commit();
+        HomologacaoDBToplink hd = new HomologacaoDBToplink();
+        Senha senha = hd.pesquisaSenhaAgendamento(agendamento.getId());
+        senha.setDtVerificada(DataHoje.converte("01/01/1900"));          
+        Dao dao2 = new Dao();
+        dao2.update(senha, true);
         loadListaHomologacao();
         WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());
+        WSSocket.send("senha_homologacao_" + ControleUsuarioBean.getCliente().toLowerCase());
+        agendamento = new Agendamento();
         return null;
     }
 

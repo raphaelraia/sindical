@@ -2054,6 +2054,19 @@
             <redirect/>
         </navigation-case>        
         
+        <navigation-case>
+            <from-outcome>cupom</from-outcome>
+            <to-view-id>/cupom.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>        
+        
+        
+        <navigation-case>
+            <from-outcome>cupomMovimento</from-outcome>
+            <to-view-id>/cupomMovimento.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>        
+        
     </navigation-rule>
     
     <lifecycle>

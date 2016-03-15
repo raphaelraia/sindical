@@ -8,7 +8,7 @@ import javax.persistence.Query;
 
 public class SenhaDao extends DB {
 
-    public List ultimasQuatro(Integer filial_id) {
+    public List sequence(Integer filial_id, Integer limit) {
         try {
             String queryString;
             queryString = " SELECT S.* "
@@ -20,7 +20,7 @@ public class SenhaDao extends DB {
                     + "   ORDER BY dt_nova_chamada IS NOT NULL DESC,\n"
                     + "            nr_ordem DESC,                   \n"
                     + "            nr_senha DESC                    \n"
-                    + "      LIMIT 4                                ";
+                    + "      LIMIT " + limit + "                    ";
             Query query = getEntityManager().createNativeQuery(queryString, Senha.class);
             List list = query.getResultList();
             if (!list.isEmpty()) {
@@ -51,35 +51,33 @@ public class SenhaDao extends DB {
         }
     }
 
-    public Boolean novaChamada(Integer filial_id) {
+    public List findRequest(Integer filial_id) {
+        List list;
         try {
             String queryString;
             queryString = " SELECT S.* "
                     + "       FROM hom_senha AS S                   \n"
                     + "      WHERE id_filial = " + filial_id + "    \n"
-                    + "        AND nr_mesa > 0                      \n"
-                    + "        AND ds_hora_chamada IS NOT NULL      \n"
                     + "        AND dt_verificada IS NOT NULL        \n"
-                    + "   ORDER BY nr_ordem DESC                    ";
+                    + "   ORDER BY nr_ordem DESC                    \n";
             Query query = getEntityManager().createNativeQuery(queryString, Senha.class);
-            Boolean retorno = !query.getResultList().isEmpty();
-            if (retorno) {
+            list = query.getResultList();
+            if (!list.isEmpty()) {
                 try {
                     getEntityManager().getTransaction().begin();
                     Query queryB = getEntityManager().createNativeQuery("UPDATE hom_senha SET dt_verificada = null WHERE dt_verificada IS NOT NULL");
                     queryB.executeUpdate();
                     getEntityManager().getTransaction().commit();
-                    return true;
+                    return list;
                 } catch (Exception e) {
                     getEntityManager().getTransaction().rollback();
-                    return false;
+                    return null;
                 }
             }
-            return retorno;
         } catch (Exception e) {
-            return false;
-
+            return new ArrayList();
         }
+        return new ArrayList();
     }
 
 }

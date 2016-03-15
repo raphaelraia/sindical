@@ -4,8 +4,10 @@ import br.com.rtools.homologacao.Senha;
 import br.com.rtools.homologacao.dao.SenhaDao;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.dao.MacFilialDao;
+import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaRequisicao;
 import br.com.rtools.utilitarios.GenericaSessao;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.PostConstruct;
@@ -15,7 +17,7 @@ import javax.faces.bean.ViewScoped;
 
 @ManagedBean
 @ViewScoped
-public class SenhaBean {
+public class SenhaBean implements Serializable {
 
     private Senha senha;
     private List<Senha> listSenha;
@@ -62,13 +64,19 @@ public class SenhaBean {
         if (activePoll) {
             SenhaDao sd = new SenhaDao();
             if (!listSenha.isEmpty()) {
-                if (sd.novaChamada(macFilial.getFilial().getId())) {
-                    sound = true;
+                List<Senha> list = sd.findRequest(macFilial.getFilial().getId());
+                if (!list.isEmpty()) {
+                    for (int i = 0; i < list.size(); i++) {
+                        if (list.get(i).getMesa() > 0 && !list.get(i).getHoraChamada().isEmpty() && !DataHoje.converteData(list.get(i).getDtVerificada()).equals("01/01/1900")) {
+                            sound = true;
+                            break;
+                        }
+                    }
                     listSenha.clear();
                 }
             }
             if (listSenha.isEmpty()) {
-                listSenha = sd.ultimasQuatro(macFilial.getFilial().getId());
+                listSenha = sd.sequence(macFilial.getFilial().getId(), 4);
             }
         }
     }
