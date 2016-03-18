@@ -2067,10 +2067,10 @@
         </navigation-case>
         
         <navigation-case>
-            <from-outcome>pessoa</from-outcome>
-            <to-view-id>/pessoa.jsf</to-view-id>
+            <from-outcome>relatorioFinanceiroEscola</from-outcome>
+            <to-view-id>/relatorioFinanceiroEscola.jsf</to-view-id>
             <redirect/>
-        </navigation-case>
+        </navigation-case>        
         
     </navigation-rule>
     
