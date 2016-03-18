@@ -301,7 +301,8 @@
                                     <h:outputLabel value="Este sócio esta inativo desde: #{sociosBean.matriculaSocios.inativo} por #{sociosBean.matriculaSocios.motivoInativacao.descricao}" style="margin-left: 30px; font-size: 10pt; color: white; font-weight: bold"/>
                                     <p:commandLink value=" detalhes " onclick="PF('i_dlg_smi_detalhes').show()" style="margin-left: 10px" rendered="#{sociosBean.matriculaSocios.motivo != ''}"/>
                                     <br />
-                                    <p:commandLink value="CLIQUE AQUI PARA REATIVAR" onclick="PF('i_dlg_re').show();" style="margin-left: 30px; font-size: 8pt; font-weight: bold" disabled="#{controleAcessoBean.verificarPermissao('linkSocio', 3)}" title="SÓCIO 'ATIVAR' E 'INATIVAR' - BOTÃO (Excluir)"/>
+                                    <p:commandLink value="CLIQUE AQUI PARA REATIVAR" onclick="PF('i_dlg_re').show();" style="margin-left: 30px; font-size: 8pt; font-weight: bold" disabled="#{controleAcessoBean.verificarPermissao('linkSocio', 3)}" title="SÓCIO 'ATIVAR' E 'INATIVAR' - BOTÃO (Excluir/Alterar)" />
+                                    <p:commandButton icon="ui-icon-info" disabled="#{controleAcessoBean.verificarPermissao('linkSocio', 3)}" title="SÓCIO 'ATIVAR' E 'INATIVAR' - BOTÃO (Excluir)" />
                                 </p:panel>
 
                                 <p:panel style="background-color: #9ccaaa; margin-left:30px" rendered="#{sociosBean.matriculaSocios.motivoInativacao == null}">

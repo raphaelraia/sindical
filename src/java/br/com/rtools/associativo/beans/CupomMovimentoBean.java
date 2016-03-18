@@ -5,7 +5,6 @@ import br.com.rtools.associativo.CupomCategoria;
 import br.com.rtools.associativo.CupomMovimento;
 import br.com.rtools.associativo.dao.CupomDao;
 import br.com.rtools.associativo.dao.CupomMovimentoDao;
-import br.com.rtools.associativo.dao.SorteioMovimentoDao;
 import br.com.rtools.associativo.lista.SociosCupomMovimento;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Fisica;
@@ -15,6 +14,7 @@ import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.db.FunctionsDao;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -26,7 +26,7 @@ import javax.faces.model.SelectItem;
 
 @ManagedBean
 @SessionScoped
-public class CupomMovimentoBean {
+public class CupomMovimentoBean implements Serializable {
 
     private CupomMovimento cupomMovimento;
     private Cupom cupom;

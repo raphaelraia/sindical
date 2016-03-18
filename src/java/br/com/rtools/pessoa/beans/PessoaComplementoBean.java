@@ -4,6 +4,7 @@ import br.com.rtools.pessoa.*;
 import br.com.rtools.pessoa.db.PessoaDB;
 import br.com.rtools.pessoa.db.PessoaDBToplink;
 import br.com.rtools.seguranca.Registro;
+import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -50,21 +51,22 @@ public class PessoaComplementoBean extends PesquisarProfissaoBean implements Ser
                     dao.rollback();
                     GenericaMensagem.error("Atenção", "Erro ao salvar Pessoa Complemento!");
                 }
+            } else if (dao.update(pessoaComplemento)) {
+                dao.commit();
+                GenericaMensagem.info("Sucesso", "Pessoa Complemento atualizada!");
             } else {
-                if (dao.update(pessoaComplemento)) {
-                    dao.commit();
-                    GenericaMensagem.info("Sucesso", "Pessoa Complemento atualizada!");
-                } else {
-                    dao.rollback();
-                    GenericaMensagem.error("Atenção", "Erro ao Atualizar Pessoa Complemento!");
-                }
+                dao.rollback();
+                GenericaMensagem.error("Atenção", "Erro ao Atualizar Pessoa Complemento!");
             }
         }
-        ((FisicaBean) GenericaSessao.getObject("fisicaBean")).setPessoaComplemento(pessoaComplemento);
-        switch (ChamadaPaginaBean.getUrl()) {
-            case "pessoaFisica":
-                PF.update("form_pessoa_fisica:id_msg_aviso_block");
-                break;
+        Rotina r = new Rotina().get();
+        if (r.getId() == 71) {
+            ((FisicaBean) GenericaSessao.getObject("fisicaBean")).setPessoaComplemento(pessoaComplemento);
+            PF.update("form_pessoa_fisica:id_msg_aviso_block");
+        }
+        if (r.getId() == 82) {
+            ((JuridicaBean) GenericaSessao.getObject("juridicaBean")).setPessoaComplemento(pessoaComplemento);
+            PF.update("formPessoaJuridica:id_msg_aviso_block");
         }
         return null;
     }

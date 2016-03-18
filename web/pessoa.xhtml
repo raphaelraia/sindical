@@ -260,6 +260,37 @@
                                 </p:panel>
                             </h:panelGroup>
 
+                            <!-- RAIS -->
+
+                            <h:panelGroup layout="block" rendered="#{pessoaBean.selectDetalhes eq 'rais'}">
+                                <p:panel header="Rais" id="i_rais">
+                                    <p:dataTable value="#{raisBean.listRais}" var="rais" emptyMessage="Nenhum registro encontrado!" styleClass="margin" rows="10" paginator="true">
+                                        <p:column headerText="Ano Base" width="80" styleClass="text-center">
+                                            #{rais.anoBase}
+                                        </p:column>
+                                        <p:column headerText="Emissão" width="80" styleClass="text-center">
+                                            #{rais.emissaoString}
+                                        </p:column>
+                                        <p:column headerText="Nome" filterBy="#{rais.sisPessoa.nome}" filterMatchMode="global">
+                                            #{rais.sisPessoa.nome}
+                                        </p:column>
+                                        <p:column headerText="CNPJ" width="140" styleClass="text-center" filterBy="#{rais.empresa.pessoa.documento}"  filterMatchMode="global">
+                                            #{rais.empresa.pessoa.documento}
+                                        </p:column>
+                                        <p:column headerText="Empresa" filterBy="#{rais.empresa.pessoa.nome}" filterMatchMode="global">
+                                            #{rais.empresa.pessoa.nome}
+                                        </p:column>
+                                        <p:column headerText="Profissão" filterBy="#{rais.profissao.profissao}" filterMatchMode="global">
+                                            #{rais.profissao.profissao}
+                                        </p:column>
+                                    </p:dataTable>
+                                    <f:facet name="footer">
+                                        * Consulte mais informações em Menu Arrecadação > Cadastro > RAIS
+                                    </f:facet>
+                                </p:panel>
+                            </h:panelGroup>
+
+
                             <!-- OPOSIÇÕES -->
 
                             <h:panelGroup layout="block" rendered="#{pessoaBean.selectDetalhes eq 'oposicoes'}">

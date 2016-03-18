@@ -68,7 +68,32 @@
                                         </h:panelGrid>
                                     </f:facet>
                                 </p:panel>
-
+                                <p:panel header="Grupo"  rendered="#{rotinaBean.rotina.id != -1}">
+                                    <h:panelGrid columns="1" columnClasses="verticalAlignTop verticalAlignTop" id="i_rotina_grupo">
+                                        <h:column>
+                                            <h:panelGrid columns="3" >
+                                                <p:outputLabel value="Grupo: " />
+                                                <p:selectOneMenu value="#{rotinaBean.rotina_id}" filter="true" filterMatchMode="startsWith">
+                                                    <f:selectItems value="#{rotinaBean.listRotinas}"/>
+                                                </p:selectOneMenu>
+                                                <p:commandButton value="Adicionar ao grupo" disabled="#{controleAcessoBean.botaoSalvar}" action="#{rotinaBean.add}" update="i_rotina_grupo" />
+                                            </h:panelGrid>
+                                        </h:column>
+                                        <h:column>
+                                            <h:panelGroup layout="block" id="tbl_grupo">
+                                                <p:dataTable value="#{rotinaBean.listRotinaGrupo}" var="rotinaGrupo" scrollable="true" scrollHeight="180" emptyMessage="Nenhum registro encontrado">
+                                                    <p:column headerText="Grupo">
+                                                        #{rotinaGrupo.grupo.rotina}
+                                                    </p:column>
+                                                    <p:column width="30">
+                                                        <p:commandButton icon="ui-icon-close" action="#{rotinaBean.remove(rotinaGrupo)}" update=":formRotinasNovo:i_rotina_grupo" disabled="#{controleAcessoBean.botaoExcluir}"/>
+                                                    </p:column>
+                                                </p:dataTable>
+                                            </h:panelGroup>
+                                        </h:column>
+                                    </h:panelGrid>
+                                </p:panel>
+                                
                                 <p:dialog widgetVar="i_dlg_s" header="Salvar esta Rotina?" resizable="false" width="400" modal="true">
                                     <h:panelGrid columns="2">
                                         <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{rotinaBean.save}" oncomplete="PF('i_dlg_s').hide(); PF('i_dlg_mensagem').show()" style="clear: both; float: left; margin-left: 10px;" icon="ui-icon-check" update=":formRotinasNovo: :formRotinas: i_mensagem"/>  

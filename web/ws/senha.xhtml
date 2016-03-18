@@ -202,14 +202,14 @@
                         <p:poll interval="5" update=":form_sound:id_hidden" delay="5" autoStart="false" stop="#{!senhaBean.sound}"/>
                         <h:inputHidden id="id_hidden" value="#{senhaBean.disabledSound}"  />
                         <script>
-                            
+
                         </script>
                     </h:column>
                 </h:form>
             </div>
             <span id="messageGoesHere"></span>
             <script type="text/javascript">
-                var ws = new WebSocket("ws://#{defaults.URL}#{facesContext.externalContext.requestContextPath}/ws_socket/senha_homologacao_#{controleUsuarioBean.clienteLowerCaseString}");
+                var ws = new WebSocket("ws://#{defaults.URLWeb}#{facesContext.externalContext.requestContextPath}/ws_socket/senha_homologacao_#{controleUsuarioBean.clienteLowerCaseString}");
 
                 ws.onopen = function (event) {
                     console.log("Connected ", event);

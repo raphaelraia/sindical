@@ -1,5 +1,6 @@
 package br.com.rtools.pessoa.beans;
 
+import br.com.rtools.arrecadacao.beans.RaisBean;
 import br.com.rtools.arrecadacao.beans.WebREPISBean;
 import br.com.rtools.associativo.beans.CupomMovimentoBean;
 import br.com.rtools.associativo.beans.FrequenciaCatracaBean;
@@ -95,7 +96,8 @@ public class PessoaBean implements Serializable {
         GenericaSessao.remove("digitalizacaoBean");
         GenericaSessao.remove("frequenciaCatracaBean");
         GenericaSessao.remove("spcBean");
-        GenericaSessao.remove("webREPISBean");        
+        GenericaSessao.remove("webREPISBean");
+        GenericaSessao.remove("raisBean");
         switch (selectDetalhes) {
             case "sorteios":
                 SorteioMovimentoBean sorteioMovimentoBean = new SorteioMovimentoBean();
@@ -132,6 +134,18 @@ public class PessoaBean implements Serializable {
                 WebREPISBean webREPISBean = new WebREPISBean();
                 webREPISBean.loadListRepisMovimentoPessoa(pessoa.getId());
                 GenericaSessao.put("webREPISBean", webREPISBean);
+                break;
+            case "rais":
+                RaisBean raisBean = new RaisBean();
+                if (tipoPessoa.equals("pessoaJuridica")) {
+                    raisBean.loadListRaisEmpresa(pessoa.getId());
+                }
+                if (tipoPessoa.equals("pessoaFisica")) {
+                    if (!pessoa.getDocumento().isEmpty()) {
+                        raisBean.loadListRaisPessoa(pessoa.getDocumento());
+                    }
+                }
+                GenericaSessao.put("raisBean", raisBean);
                 break;
         }
     }
@@ -324,18 +338,19 @@ public class PessoaBean implements Serializable {
             listSelectDetalhes.add(new SelectItem("telemarketing", "Telemarketing", "CONSULTA ATENDIMENTOS TELEMARKETING (PESSOA FÍSICA E JURÍDICA)", cab.verificarPermissao("consulta_telemarketing", 4)));
             listSelectDetalhes.add(new SelectItem("documentos", "Documentos", "CONSULTA DOCUMENTOS (PESSOA FÍSICA E JURÍDICA)", cab.verificarPermissao("consulta_documentos", 4)));
             listSelectDetalhes.add(new SelectItem("spc", "SPC", "CONSULTA PESSOA SPC", cab.verificarPermissao("consulta_pessoa_spc", 4)));
+            listSelectDetalhes.add(new SelectItem("rais", "RAIS", "CONSULTA RAIS", false, cab.verificarPermissao("consulta_rais", 4)));
         }
         if (!listSelectDetalhes.isEmpty()) {
             SelectItemSort.sort(listSelectDetalhes);
             int y = 0;
-            for(int i = 0; i < listSelectDetalhes.size(); i++) {
-                if(!listSelectDetalhes.get(i).isDisabled()) {
-                    if(y == 0) {
+            for (int i = 0; i < listSelectDetalhes.size(); i++) {
+                if (!listSelectDetalhes.get(i).isDisabled()) {
+                    if (y == 0) {
                         selectDetalhes = "" + listSelectDetalhes.get(i).getValue();
                         break;
                     }
                 }
-                
+
             }
         }
     }

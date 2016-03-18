@@ -12,6 +12,7 @@ import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -23,7 +24,7 @@ import javax.faces.model.SelectItem;
 
 @ManagedBean
 @SessionScoped
-public class SorteioMovimentoBean {
+public class SorteioMovimentoBean implements Serializable {
 
     private Sorteio sorteio;
     private SorteioStatus sorteioStatus;
@@ -66,19 +67,27 @@ public class SorteioMovimentoBean {
             listSorteio.add(new SelectItem(list.get(i).getId(), descricao));
         }
         loadListSorteioMovimento();
-        sorteioStatus = new SorteioStatusDao().findBySorteio(sorteio.getId());
+        if(sorteio.getId() != null) {
+            sorteioStatus = new SorteioStatusDao().findBySorteio(sorteio.getId());            
+        }
     }
 
     public void loadListSorteioMovimento() {
         listSorteioMovimento = new ArrayList();
-        listSorteioMovimento = new SorteioMovimentoDao().findBySorteio(this.sorteio.getId());
+        if(this.sorteio.getId() != null) {
+            listSorteioMovimento = new SorteioMovimentoDao().findBySorteio(this.sorteio.getId());            
+        }
     }
 
     public void loadSorteio() {
         sorteio = new Sorteio();
-        sorteio = (Sorteio) new Dao().find(new Sorteio(), idSorteio);
+        if(idSorteio != null) {
+            sorteio = (Sorteio) new Dao().find(new Sorteio(), idSorteio);            
+        }
         loadListSorteioMovimento();
-        new SorteioStatusDao().findBySorteio(sorteio.getId());
+        if(sorteio.getId() != null) {
+            new SorteioStatusDao().findBySorteio(sorteio.getId());            
+        }
     }
 
     public Integer getIdSorteio() {

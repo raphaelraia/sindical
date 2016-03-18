@@ -2,7 +2,9 @@ package br.com.rtools.seguranca.beans;
 
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.seguranca.Rotina;
+import br.com.rtools.seguranca.RotinaGrupo;
 import br.com.rtools.seguranca.dao.RotinaDao;
+import br.com.rtools.seguranca.dao.RotinaGrupoDao;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -13,6 +15,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
+import javax.faces.model.SelectItem;
 
 @ManagedBean
 @SessionScoped
@@ -22,7 +25,10 @@ public class RotinaBean implements Serializable {
     private String message;
     private String descricaoPesquisa;
     private List<Rotina> listRotina;
+    private List<RotinaGrupo> listRotinaGrupo;
     private Boolean acao;
+    private List<SelectItem> listRotinas;
+    private Integer rotina_id;
 
     @PostConstruct
     public void init() {
@@ -30,8 +36,10 @@ public class RotinaBean implements Serializable {
         message = "";
         descricaoPesquisa = "";
         listRotina = new ArrayList<>();
+        listRotinas = new ArrayList<>();
+        listRotinaGrupo = new ArrayList<>();
         acao = false;
-        // find();
+        // find();        
     }
 
     @PreDestroy
@@ -78,6 +86,36 @@ public class RotinaBean implements Serializable {
         }
     }
 
+    public void loadRotinaGrupo() {
+        listRotinaGrupo = new ArrayList();
+        listRotinaGrupo = new RotinaGrupoDao().find(rotina.getId());
+    }
+
+    public void add() {
+        RotinaGrupo rotinaGrupo = new RotinaGrupo();
+        rotinaGrupo.setGrupo((Rotina) new Dao().find(new Rotina(), rotina_id));
+        rotinaGrupo.setRotina(rotina);
+        if (new Dao().save(rotinaGrupo, true)) {
+            GenericaMensagem.info("Sucesso", "Registro removido");
+            listRotinas.clear();
+            getListRotinas();
+            loadRotinaGrupo();
+        } else {
+            GenericaMensagem.warn("Validação", "Registro já existe!");
+        }
+    }
+
+    public void remove(RotinaGrupo rg) {
+        if (new Dao().delete(rg, true)) {
+            GenericaMensagem.info("Sucesso", "Registro removido");
+            listRotinas.clear();
+            getListRotinas();
+            loadRotinaGrupo();
+        } else {
+            GenericaMensagem.warn("Erro", "Ao remover registro!");
+        }
+    }
+
     public void clear() {
         GenericaSessao.remove("rotinaBean");
     }
@@ -92,12 +130,13 @@ public class RotinaBean implements Serializable {
                 dao.commit();
                 find();
                 GenericaMensagem.info("Sucesso", "Registro removido");
+                loadRotinaGrupo();
             } else {
                 dao.rollback();
                 GenericaMensagem.warn("Erro", "Ao remover registro!");
             }
         }
-        rotina = new Rotina();
+        rotina = new Rotina();        
     }
 
     public String edit(Rotina r) {
@@ -114,6 +153,8 @@ public class RotinaBean implements Serializable {
         } else {
             return "rotina";
         }
+        loadRotinaGrupo();
+        getListRotinas();
         return null;
     }
 
@@ -168,4 +209,38 @@ public class RotinaBean implements Serializable {
     public void setAcao(Boolean acao) {
         this.acao = acao;
     }
+
+    public List<RotinaGrupo> getListRotinaGrupo() {
+        return listRotinaGrupo;
+    }
+
+    public void setListRotinaGrupo(List<RotinaGrupo> listRotinaGrupo) {
+        this.listRotinaGrupo = listRotinaGrupo;
+    }
+
+    public List<SelectItem> getListRotinas() {
+        if (listRotinas.isEmpty()) {
+            List<Rotina> list = new RotinaDao().findNotInByTabela("seg_rotina_grupo", "id_grupo", "id_rotina", "" + rotina.getId(), true);
+            for (int i = 0; i < list.size(); i++) {
+                if(i == 0) {
+                    rotina_id = list.get(i).getId();
+                }
+                listRotinas.add(new SelectItem(list.get(i).getId(), list.get(i).getRotina()));
+            }
+        }
+        return listRotinas;
+    }
+
+    public void setListRotinas(List<SelectItem> listRotinas) {
+        this.listRotinas = listRotinas;
+    }
+
+    public Integer getRotina_id() {
+        return rotina_id;
+    }
+
+    public void setRotina_id(Integer rotina_id) {
+        this.rotina_id = rotina_id;
+    }
+
 }

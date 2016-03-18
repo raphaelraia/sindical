@@ -408,4 +408,32 @@ public class RaisDao extends DB {
         }
         return null;
     }
+
+    public List<Rais> findByDocumento(String cpf) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT R FROM Rais AS R WHERE R.sisPessoa.documento = :cpf ORDER BY R.emissao DESC ");
+            query.setParameter("cpf", cpf);
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return list;
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
+    }
+
+    public List<Rais> findByEmpresa(Integer pessoa_id) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT R FROM Rais AS R WHERE R.empresa.pessoa.id = :pessoa_id ORDER BY R.emissao DESC ");
+            query.setParameter("pessoa_id", pessoa_id);
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return list;
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
+    }
 }

@@ -323,12 +323,22 @@
                                 <h:outputLabel value="Observação" />
                                 <p:inputTextarea rows="2" value="#{agendamentoBean.agendamento.observacao}" style="width: 100%"/>
                             </h:panelGrid>
-
                             <h:panelGrid>
                                 <p:commandButton value="#{agendamentoBean.juridica.id == -1 ? 'Pesquisar Empresa' : 'Alterar Empresa'}" action="#{chamadaPaginaBean.pesquisaPessoaJuridica}"/>
                             </h:panelGrid>
                             <p:messages id="msg_dialog2" showDetail="true" closable="true"/>
                             <p:panel style="margin-top: 10px" rendered="#{agendamentoBean.juridica.id != -1}">
+                                <h:panelGroup layout="block">
+                                    <p:panel style="background-color: #f05c5c" rendered="#{agendamentoBean.juridica.pessoa.pessoaComplemento.bloqueiaObsAviso}">
+                                        <h:outputLabel value="CADASTRO BLOQUEADO!" style="font-size: 11pt!important; font-weight: bold; color: white" />
+                                    </p:panel>
+                                    <p:panel rendered="#{not empty agendamentoBean.juridica.pessoa.pessoaComplemento.obsAviso}">
+                                        <h:panelGrid columns="2">
+                                            <h:outputLabel value="AVISO!" style="font-weight: bold; color: red; "/>
+                                            <h:outputLabel value="#{agendamentoBean.juridica.pessoa.pessoaComplemento.obsAviso}" style="font-weight: bold; "/>                                            
+                                        </h:panelGrid>
+                                    </p:panel>                                
+                                </h:panelGroup>                                
                                 <h:panelGrid columns="5">
                                     <h:column>
                                         <h:outputText value="Empresa" style="font-weight: bold"/><br />
@@ -590,7 +600,7 @@
         </div>
         <span id="messageGoesHere"></span>
         <script type="text/javascript">
-            var ws = new WebSocket("ws://#{defaults.URL}#{facesContext.externalContext.requestContextPath}/ws_socket/agendamento_#{controleUsuarioBean.clienteLowerCaseString}");
+            var ws = new WebSocket("ws://#{defaults.URLLocal}#{facesContext.externalContext.requestContextPath}/ws_socket/agendamento_#{controleUsuarioBean.clienteLowerCaseString}");
 
             ws.onopen = function (event) {
                 console.log("Connected ", event);

@@ -231,12 +231,10 @@ public class RaisBean extends PesquisarProfissaoBean implements Serializable {
                 di.rollback();
                 return;
             }
-        } else {
-            if (!di.update(rais.getSisPessoa())) {
-                GenericaMensagem.warn("Erro", "Ao atualizar registro!");
-                di.rollback();
-                return;
-            }
+        } else if (!di.update(rais.getSisPessoa())) {
+            GenericaMensagem.warn("Erro", "Ao atualizar registro!");
+            di.rollback();
+            return;
         }
         if (rais.getId() == -1) {
             RaisDao raisDao = new RaisDao();
@@ -252,14 +250,12 @@ public class RaisBean extends PesquisarProfissaoBean implements Serializable {
                 di.rollback();
                 GenericaMensagem.warn("Erro", "Ao adicionar registro!");
             }
+        } else if (di.update(rais)) {
+            di.commit();
+            GenericaMensagem.info("Sucesso", "Registro atualizado");
         } else {
-            if (di.update(rais)) {
-                di.commit();
-                GenericaMensagem.info("Sucesso", "Registro atualizado");
-            } else {
-                di.rollback();
-                GenericaMensagem.warn("Erro", "Ao atualizar registro!");
-            }
+            di.rollback();
+            GenericaMensagem.warn("Erro", "Ao atualizar registro!");
         }
     }
 
@@ -574,15 +570,6 @@ public class RaisBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public List<Rais> getListRais() {
-        if (listRais.isEmpty()) {
-            RaisDao dao = new RaisDao();
-            if (removeFiltro) {
-                if (porPesquisa.equals("todos")) {
-                    return new ArrayList();
-                }
-            }
-            listRais = dao.pesquisa(descricaoPesquisa, porPesquisa, comoPesquisa);
-        }
         return listRais;
     }
 
@@ -802,11 +789,24 @@ public class RaisBean extends PesquisarProfissaoBean implements Serializable {
     public void acaoPesquisaInicial() {
         listRais.clear();
         setComoPesquisa("Inicial");
+        find();
     }
 
     public void acaoPesquisaParcial() {
         listRais.clear();
         setComoPesquisa("Parcial");
+        find();
+    }
+
+    public void find() {
+        listRais = new ArrayList();
+        RaisDao dao = new RaisDao();
+        if (removeFiltro) {
+            if (porPesquisa.equals("todos")) {
+                return;
+            }
+        }
+        listRais = dao.pesquisa(descricaoPesquisa, porPesquisa, comoPesquisa);
     }
 
     public String getPorPesquisa() {
@@ -866,5 +866,13 @@ public class RaisBean extends PesquisarProfissaoBean implements Serializable {
 
     public void setDataEmissao(String dataEmissao) {
         this.dataEmissao = dataEmissao;
+    }
+
+    public void loadListRaisPessoa(String cpf) {
+        listRais = new RaisDao().findByDocumento(cpf);
+    }
+
+    public void loadListRaisEmpresa(Integer pessoa_id) {
+        listRais = new RaisDao().findByEmpresa(pessoa_id);
     }
 }

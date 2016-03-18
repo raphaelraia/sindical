@@ -14,6 +14,7 @@ import br.com.rtools.endereco.Endereco;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.*;
 import br.com.rtools.pessoa.dao.MalaDiretaDao;
+import br.com.rtools.pessoa.dao.PessoaComplementoDao;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.*;
 import br.com.rtools.seguranca.Registro;
@@ -147,6 +148,7 @@ public class JuridicaBean implements Serializable {
     private Integer limit = 500;
 
     private Date dtRecadastro = DataHoje.dataHoje();
+    private PessoaComplemento pessoaComplemento = new PessoaComplemento();
 
     @PostConstruct
     public void init() {
@@ -594,7 +596,7 @@ public class JuridicaBean implements Serializable {
                     GenericaMensagem.error("Erro", jro.getMsg());
                     return;
                 }
-                
+
                 if (jro.getStatus() == 7) {
                     GenericaMensagem.warn("Sistema", jro.getMsg());
                 }
@@ -1289,6 +1291,7 @@ public class JuridicaBean implements Serializable {
     }
 
     public String editar(Juridica j, Boolean completo) {
+        Dao dao = new Dao();
         // listRepisMovimento.clear();
         String url = (String) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("urlRetorno");
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("linkClicado", true);
@@ -1351,6 +1354,12 @@ public class JuridicaBean implements Serializable {
         listaEnd = new ArrayList();
         enderecoCobranca = "NENHUM";
         getListaEnderecos();
+        if (pessoaComplemento.getId() == -1) {
+            pessoaComplemento = (PessoaComplemento) dao.rebind(new PessoaComplementoDao().findByPessoa(juridica.getPessoa().getId()));
+            if (pessoaComplemento == null) {
+                pessoaComplemento = new PessoaComplemento();
+            }
+        }
 
 //        if (contabilidade != null) {
 //            if (contabilidade.getId() != -1) {
@@ -3031,7 +3040,6 @@ public class JuridicaBean implements Serializable {
 //    public void setListRepisMovimento(List<RepisMovimento> listRepisMovimento) {
 //        this.listRepisMovimento = listRepisMovimento;
 //    }
-
     public List<ListaSociosEmpresa> getListSocios() {
         return listSocios;
     }
@@ -3268,4 +3276,13 @@ public class JuridicaBean implements Serializable {
     public void setDtRecadastro(Date dtRecadastro) {
         this.dtRecadastro = dtRecadastro;
     }
+
+    public PessoaComplemento getPessoaComplemento() {
+        return pessoaComplemento;
+    }
+
+    public void setPessoaComplemento(PessoaComplemento pessoaComplemento) {
+        this.pessoaComplemento = pessoaComplemento;
+    }
+
 }

@@ -17,20 +17,23 @@ import org.primefaces.json.JSONObject;
 @ViewScoped
 public class Defaults implements Serializable {
 
-    private String host;
+    private String host_local;
+    private String host_web;
     private Integer port;
     private String url_sistem_master;
     private String email_suport;
 
     public Defaults() {
-        this.host = "";
+        this.host_local = "";
+        this.host_web = "";
         this.port = 0;
         this.url_sistem_master = "";
         this.email_suport = "";
     }
 
-    public Defaults(String host, Integer port, String url_sistem_master, String email_suport) {
-        this.host = host;
+    public Defaults(String host_local, String host_web, Integer port, String url_sistem_master, String email_suport) {
+        this.host_local = host_local;
+        this.host_web = host_web;
         this.port = port;
         this.url_sistem_master = url_sistem_master;
         this.email_suport = email_suport;
@@ -51,7 +54,12 @@ public class Defaults implements Serializable {
             }
             JSONObject jSONObject = new JSONObject(json);
             try {
-                host = jSONObject.getString("host");
+                host_local = jSONObject.getString("host_local");
+            } catch (Exception e) {
+
+            }
+            try {
+                host_web = jSONObject.getString("host_web");
             } catch (Exception e) {
 
             }
@@ -75,14 +83,6 @@ public class Defaults implements Serializable {
         }
     }
 
-    public String getHost() {
-        return host;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
-    }
-
     public Integer getPort() {
         return port;
     }
@@ -91,11 +91,23 @@ public class Defaults implements Serializable {
         this.port = port;
     }
 
-    public String getURL() {
+    public String getURLLocal() {
         loadJson();
         String url = "";
-        if (!host.isEmpty()) {
-            url += host;
+        if (!host_local.isEmpty()) {
+            url += host_local;
+        }
+        if (port > 0 && port != 80) {
+            url += ":" + port;
+        }
+        return url;
+    }
+
+    public String getURLWeb() {
+        loadJson();
+        String url = "";
+        if (!host_web.isEmpty()) {
+            url += host_web;
         }
         if (port > 0 && port != 80) {
             url += ":" + port;
@@ -117,5 +129,21 @@ public class Defaults implements Serializable {
 
     public void setEmail_suport(String email_suport) {
         this.email_suport = email_suport;
+    }
+
+    public String getHost_local() {
+        return host_local;
+    }
+
+    public void setHost_local(String host_local) {
+        this.host_local = host_local;
+    }
+
+    public String getHost_web() {
+        return host_web;
+    }
+
+    public void setHost_web(String host_web) {
+        this.host_web = host_web;
     }
 }
