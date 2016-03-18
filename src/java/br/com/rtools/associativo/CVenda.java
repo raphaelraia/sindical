@@ -1,6 +1,5 @@
 package br.com.rtools.associativo;
 
-import br.com.rtools.financeiro.Evt;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.utilitarios.DataHoje;
 import java.util.Date;
@@ -21,6 +20,7 @@ import javax.persistence.TemporalType;
 @Table(name = "car_venda")
 @NamedQuery(name = "CVenda.pesquisaID", query = "select cv from CVenda cv where cv.id=:pid")
 public class CVenda implements java.io.Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -37,7 +37,7 @@ public class CVenda implements java.io.Serializable {
     private String observacao;
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_emissao")
-    private Date dtEmissao;        
+    private Date dtEmissao;
 
     public CVenda(int id, Pessoa responsavel, AEvento aEvento, int quarto, String observacao, Date dtEmissao) {
         this.id = id;
@@ -104,7 +104,7 @@ public class CVenda implements java.io.Serializable {
     public void setDtEmissao(Date dtEmissao) {
         this.dtEmissao = dtEmissao;
     }
-    
+
     public String getDataEmissaoString() {
         return DataHoje.converteData(dtEmissao);
     }

@@ -93,47 +93,47 @@ public class VendasCaravanaBean {
     private String valorOutras = "0,00";
     private String valorEntrada = "0,00";
     private Registro registro = new Registro();
+    private List<CVenda> listCVenda = new ArrayList();
 
     public void imprimirFichaReserva() {
         List<ParametroFichaReserva> l = new ArrayList();
         DataHoje dh = new DataHoje();
         PessoaEndereco pe = vendas.getResponsavel().getPessoaEndereco();
-        
+
         String empresa_nome = "", empresa_cnpj = "";
-        if (vendas.getResponsavel().getFisica().getId() != -1){
+        if (vendas.getResponsavel().getFisica().getId() != -1) {
             PessoaEmpresa pem = vendas.getResponsavel().getFisica().getPessoaEmpresa();
-            
-            if (pem != null){
+
+            if (pem != null) {
                 empresa_nome = pem.getJuridica().getPessoa().getNome();
                 empresa_cnpj = pem.getJuridica().getPessoa().getDocumento();
             }
         }
-        
+
         Object tipo[] = new Object[6];
         Object quantidade[] = new Object[6];
         Object valor[] = new Object[6];
         Float total = (float) 0;
         VendasCaravanaDB db = new VendasCaravanaDBToplink();
-        
+
         List<Object> result = db.listaTipoAgrupado(vendas.getId());
-        
-        for (int i = 0; i < result.size(); i++){
+
+        for (int i = 0; i < result.size(); i++) {
             List linha = ((List) result.get(i));
             tipo[i] = linha.get(0);
             quantidade[i] = linha.get(1);
             //valor[i] = linha.get(2);
             for (DataObject dob : listaReserva) {
                 Reservas r = (Reservas) dob.getArgumento4();
-                if (linha.get(0).equals(r.getEventoServico().getDescricao())){
-                    if ( (Float) valor[i] == null ){
-                        valor[i] =  Moeda.converteUS$(dob.getArgumento2().toString()) * Integer.parseInt(linha.get(1).toString());
+                if (linha.get(0).equals(r.getEventoServico().getDescricao())) {
+                    if ((Float) valor[i] == null) {
+                        valor[i] = Moeda.converteUS$(dob.getArgumento2().toString()) * Integer.parseInt(linha.get(1).toString());
                         total = total + (Float) valor[i];
                     }
                 }
             }
         }
-        
-        
+
         for (DataObject dob : listaReserva) {
             Fisica f = (Fisica) dob.getArgumento0();
             l.add(
@@ -151,7 +151,7 @@ public class VendasCaravanaBean {
                             vendas.getObservacao(),
                             caravana.getHoraSaida(),
                             caravana.getHoraRetorno(),
-                            "De "+ caravana.getDataSaida()+" à "+ caravana.getDataRetorno(),
+                            "De " + caravana.getDataSaida() + " à " + caravana.getDataRetorno(),
                             DataHoje.calculoDosDias(caravana.getDtSaida(), caravana.getDtRetorno()),
                             vendas.getaEvento().getDescricaoEvento().getDescricao(),
                             DataHoje.dataExtenso(vendas.getDataEmissaoString(), 3), // NÃO TEM EM vendas.getData
@@ -258,13 +258,13 @@ public class VendasCaravanaBean {
         vendas = v;
         CaravanaDB dbc = new CaravanaDBToplink();
         caravana = dbc.pesquisaCaravanaPorEvento(vendas.getaEvento().getId());
-        
-        for(int i = 0; i < listaCaravanaSelect.size(); i++){
-            if (caravana.getId() == Integer.valueOf(listaCaravanaSelect.get(i).getDescription())){
+
+        for (int i = 0; i < listaCaravanaSelect.size(); i++) {
+            if (caravana.getId() == Integer.valueOf(listaCaravanaSelect.get(i).getDescription())) {
                 idCaravana = i;
             }
         }
-        
+
         List<Reservas> lr;
         VendasCaravanaDB db = new VendasCaravanaDBToplink();
         FisicaDB dbf = new FisicaDBToplink();
@@ -384,7 +384,6 @@ public class VendasCaravanaBean {
 //        }
 
         //vendas.setEvt(caravana.getEvt());
-
         if (!sv.inserirObjeto(vendas)) {
             GenericaMensagem.warn("Erro", "Não é possivel salvar venda!");
             return;
@@ -405,33 +404,33 @@ public class VendasCaravanaBean {
         }
 
         Lote lote = new Lote(
-                -1, 
-                (Rotina) sv.find(new Rotina(), 142), 
-                "", 
-                DataHoje.data(), 
-                pessoa, 
-                null, 
-                false, 
-                "", 
-                Moeda.converteUS$(valorTotal), 
+                -1,
+                (Rotina) sv.find(new Rotina(), 142),
+                "",
+                DataHoje.data(),
+                pessoa,
+                null,
+                false,
+                "",
+                Moeda.converteUS$(valorTotal),
                 (Filial) sv.pesquisaObjeto(1, "Filial"),
-                (Departamento) sv.find(new Departamento(), 6), 
-                caravana.getEvt(), 
-                "", 
-                null, 
-                null, 
-                null, 
-                null, 
-                false, 
+                (Departamento) sv.find(new Departamento(), 6),
+                caravana.getEvt(),
+                "",
+                null,
+                null,
+                null,
+                null,
+                false,
                 0
         );
-        
+
         if (!sv.inserirObjeto(lote)) {
             GenericaMensagem.warn("Erro", "Não foi possível salvar Lote!");
             sv.desfazerTransacao();
             return;
         }
-        
+
         Movimento movimento;
         EventoServicoValor esv;
         for (int i = 0; i < listaParcelas.size(); i++) {
@@ -497,31 +496,29 @@ public class VendasCaravanaBean {
         String vencimento = dataVencimento();
         if (parcelas == 1) {
             listaParcelas.add(new DataObject(vencs, Moeda.converteR$(valorTotal), false, null, null, null));
+        } else if (vE > 0) {
+            listaParcelas.add(new DataObject(dataEntrada, Moeda.converteR$(valorEntrada), false, null, null, null));
+            vlEnt = Moeda.converteR$Float(
+                    Moeda.divisaoValores(
+                            Moeda.subtracaoValores(Moeda.substituiVirgulaFloat(valorTotal), Moeda.substituiVirgulaFloat(vlEnt)
+                            //Moeda.substituiVirgulaFloat(valorAPagar), Moeda.substituiVirgulaFloat(vlEnt)
+                            ),
+                            parcelas - 1
+                    ));
+            for (int i = 1; i < parcelas; i++) {
+                if (i > 1) {
+                    vencimento = dh.incrementarMeses(1, vencimento);
+                }
+                listaParcelas.add(new DataObject(vencimento, Moeda.converteR$(vlEnt), false, null, null, null));
+            }
         } else {
-            if (vE > 0) {
-                listaParcelas.add(new DataObject(dataEntrada, Moeda.converteR$(valorEntrada), false, null, null, null));
-                vlEnt = Moeda.converteR$Float(
-                        Moeda.divisaoValores(
-                                Moeda.subtracaoValores(Moeda.substituiVirgulaFloat(valorTotal), Moeda.substituiVirgulaFloat(vlEnt)
-                                //Moeda.substituiVirgulaFloat(valorAPagar), Moeda.substituiVirgulaFloat(vlEnt)
-                                ),
-                                parcelas - 1
-                        ));
-                for (int i = 1; i < parcelas; i++) {
-                    if (i > 1) {
-                        vencimento = dh.incrementarMeses(1, vencimento);
-                    }
-                    listaParcelas.add(new DataObject(vencimento, Moeda.converteR$(vlEnt), false, null, null, null));
+            float vParcela;
+            for (int i = 0; i < parcelas; i++) {
+                vParcela = Moeda.substituiVirgulaFloat(valorTotal) / parcelas;
+                if (i > 0) {
+                    vencimento = dh.incrementarMeses(1, vencimento);
                 }
-            } else {
-                float vParcela;
-                for (int i = 0; i < parcelas; i++) {
-                    vParcela = Moeda.substituiVirgulaFloat(valorTotal) / parcelas;
-                    if (i > 0) {
-                        vencimento = dh.incrementarMeses(1, vencimento);
-                    }
-                    listaParcelas.add(new DataObject(vencimento, Moeda.converteR$("" + vParcela), false, null, null, null));
-                }
+                listaParcelas.add(new DataObject(vencimento, Moeda.converteR$("" + vParcela), false, null, null, null));
             }
         }
 
@@ -1115,6 +1112,18 @@ public class VendasCaravanaBean {
 
     public void setRegistro(Registro registro) {
         this.registro = registro;
+    }
+
+    public List<CVenda> getListCVenda() {
+        return listCVenda;
+    }
+
+    public void setListCVenda(List<CVenda> listCVenda) {
+        this.listCVenda = listCVenda;
+    }
+
+    public void loadListCVenda(Integer pessoa_id) {
+        listCVenda = new VendasCaravanaDBToplink().findByPessoa(pessoa_id);
     }
 
 }

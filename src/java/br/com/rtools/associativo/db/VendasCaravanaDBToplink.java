@@ -102,10 +102,10 @@ public class VendasCaravanaDBToplink extends DB implements VendasCaravanaDB {
         List<Movimento> list = new ArrayList();
         try {
             Query qry = getEntityManager().createQuery("select mov"
-                                                    + "  from Movimento mov"
-                                                    + " where mov.pessoa.id = " + idResponsavel
-                                                    + "   and mov.lote.evt.id = " + idEvt
-                                                    + " order by mov.dtVencimento");
+                    + "  from Movimento mov"
+                    + " where mov.pessoa.id = " + idResponsavel
+                    + "   and mov.lote.evt.id = " + idEvt
+                    + " order by mov.dtVencimento");
             list = qry.getResultList();
             return list;
         } catch (EJBQLException e) {
@@ -128,21 +128,32 @@ public class VendasCaravanaDBToplink extends DB implements VendasCaravanaDB {
             return list;
         }
     }
-    
+
     @Override
     public List<Object> listaTipoAgrupado(Integer id_venda) {
         try {
             Query qry = getEntityManager().createNativeQuery(
-                    "SELECT es.ds_descricao descricao, \n" +
-                    "       count(r.id_pessoa) quantidade_pessoas,\n" +
-                    "       0 valor \n" +
-                    "  FROM car_reservas r\n" +
-                    " INNER JOIN eve_evento_servico es ON es.id = r.id_evento_servico\n" +
-                    " WHERE r.id_cvenda = "+id_venda+"\n" +
-                    " GROUP BY es.ds_descricao\n" +
-                    " ORDER BY es.ds_descricao"
+                    "SELECT es.ds_descricao descricao, \n"
+                    + "       count(r.id_pessoa) quantidade_pessoas,\n"
+                    + "       0 valor \n"
+                    + "  FROM car_reservas r\n"
+                    + " INNER JOIN eve_evento_servico es ON es.id = r.id_evento_servico\n"
+                    + " WHERE r.id_cvenda = " + id_venda + "\n"
+                    + " GROUP BY es.ds_descricao\n"
+                    + " ORDER BY es.ds_descricao"
             );
-            return  qry.getResultList();
+            return qry.getResultList();
+        } catch (Exception e) {
+            e.getMessage();
+            return new ArrayList();
+        }
+    }
+
+    public List<CVenda> findByPessoa(Integer pessoa_id) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT CV FROM CVenda AS CV WHERE CV.responsavel.id = :pessoa_id ORDER BY CV.dtEmissao DESC ");
+            query.setParameter("pessoa_id", pessoa_id);
+            return query.getResultList();
         } catch (Exception e) {
             e.getMessage();
             return new ArrayList();
