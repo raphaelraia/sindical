@@ -2058,14 +2058,19 @@
             <from-outcome>cupom</from-outcome>
             <to-view-id>/cupom.jsf</to-view-id>
             <redirect/>
-        </navigation-case>        
-        
+        </navigation-case>
         
         <navigation-case>
             <from-outcome>cupomMovimento</from-outcome>
             <to-view-id>/cupomMovimento.jsf</to-view-id>
             <redirect/>
-        </navigation-case>        
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>pessoa</from-outcome>
+            <to-view-id>/pessoa.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
         
     </navigation-rule>
     
