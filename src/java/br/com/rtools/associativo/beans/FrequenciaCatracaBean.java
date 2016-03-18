@@ -16,7 +16,6 @@ import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Jasper;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import javax.faces.bean.ManagedBean;
@@ -44,7 +43,8 @@ public class FrequenciaCatracaBean implements Serializable {
     private Pessoa pessoa = new Pessoa();
     private SisPessoa sisPessoa = new SisPessoa();
     private List<ListaFrequenciaCatraca> listaFrequenciaCatraca = new ArrayList();
-    
+    private List<CatracaFrequencia> listCatracaFrequencia = new ArrayList();
+
     private String es = "ES";
 
     public FrequenciaCatracaBean() {
@@ -76,7 +76,7 @@ public class FrequenciaCatracaBean implements Serializable {
     public final void loadListaFrequenciaCatraca() {
         loadListaFrequenciaCatraca(false);
     }
-    
+
     public final void loadListaFrequenciaCatraca(Boolean relatorio) {
         listaFrequenciaCatraca.clear();
 
@@ -234,6 +234,22 @@ public class FrequenciaCatracaBean implements Serializable {
 
     public void setEs(String es) {
         this.es = es;
+    }
+
+    public void loadListByPessoa(Integer pessoa_id) {
+        listCatracaFrequencia = new FrequenciaCatracaDao().findPessoa(pessoa_id);
+    }
+
+    public void loadListBySisPessoa(Integer sis_pessoa_id) {
+        listCatracaFrequencia = new FrequenciaCatracaDao().findSisPessoa(sis_pessoa_id);
+    }
+
+    public List<CatracaFrequencia> getListCatracaFrequencia() {
+        return listCatracaFrequencia;
+    }
+
+    public void setListCatracaFrequencia(List<CatracaFrequencia> listCatracaFrequencia) {
+        this.listCatracaFrequencia = listCatracaFrequencia;
     }
 
     public class ListaFrequenciaCatraca {

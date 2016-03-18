@@ -96,7 +96,7 @@ public class TmktHistoricoBean implements Serializable {
         }
     }
 
-    public void loadList() {        
+    public void loadList() {
         listHistorico = new TmktHistoricoDao().fimd(description, by, as);
     }
 
@@ -284,6 +284,10 @@ public class TmktHistoricoBean implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public void loadListTmktHistorico(Integer pessoa_id) {
+        listHistorico = new TmktHistoricoDao().findByPessoa(pessoa_id);
     }
 
 }

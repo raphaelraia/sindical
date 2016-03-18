@@ -240,20 +240,32 @@ public class FunctionsDao extends DB implements FunctionsDB {
      * @return
      */
     public Boolean inadimplente(Integer id_pessoa) {
+        return inadimplente(id_pessoa, null);
+    }
+
+    /**
+     * Verificar se a pessoa esta inapinplente
+     *
+     * @param id_pessoa
+     * @param nr_carencia_dias
+     * @return
+     */
+    public Boolean inadimplente(Integer id_pessoa, Integer nr_carencia_dias) {
         if (id_pessoa == -1) {
             return false;
         }
-        Integer nr_carencia_dias;
         ConfiguracaoFinanceiro cf = (ConfiguracaoFinanceiro) new Dao().find(new ConfiguracaoFinanceiro(), 1);
         if (cf == null) {
             return true;
         }
-        SociosDBToplink sociosDBToplink = new SociosDBToplink();
-        Socios socios = sociosDBToplink.pesquisaSocioPorPessoaAtivo(id_pessoa);
-        if (socios.getId() == -1) {
-            nr_carencia_dias = cf.getCarenciaDias();
-        } else {
-            nr_carencia_dias = socios.getMatriculaSocios().getCategoria().getNrCarenciaBalcao();
+        if (nr_carencia_dias == null) {
+            SociosDBToplink sociosDBToplink = new SociosDBToplink();
+            Socios socios = sociosDBToplink.pesquisaSocioPorPessoaAtivo(id_pessoa);
+            if (socios.getId() == -1) {
+                nr_carencia_dias = cf.getCarenciaDias();
+            } else {
+                nr_carencia_dias = socios.getMatriculaSocios().getCategoria().getNrCarenciaBalcao();
+            }
         }
         try {
             Query query = getEntityManager().createNativeQuery("SELECT func_inadimplente(" + id_pessoa + ", " + nr_carencia_dias + ")");
@@ -320,4 +332,4 @@ public class FunctionsDao extends DB implements FunctionsDB {
         }
         return false;
     }
-            }
+}

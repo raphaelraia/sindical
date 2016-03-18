@@ -85,6 +85,14 @@ public class CatracaFrequencia implements Serializable {
         this.dtAcesso = dtAcesso;
     }
 
+    public String getAcesso() {
+        return DataHoje.converteData(dtAcesso);
+    }
+
+    public void setAcesso(String acesso) {
+        this.dtAcesso = DataHoje.converte(acesso);
+    }
+
     public String getEs() {
         return es;
     }

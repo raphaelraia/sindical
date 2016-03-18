@@ -8,10 +8,6 @@ import br.com.rtools.associativo.beans.SociosBean;
 import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.associativo.db.SociosDB;
 import br.com.rtools.associativo.db.SociosDBToplink;
-import br.com.rtools.cobranca.TmktHistorico;
-import br.com.rtools.cobranca.dao.TmktHistoricoDao;
-import br.com.rtools.digitalizacao.Documento;
-import br.com.rtools.digitalizacao.dao.DigitalizacaoDao;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.endereco.Endereco;
 import br.com.rtools.endereco.beans.PesquisaEnderecoBean;
@@ -53,7 +49,6 @@ import javax.faces.validator.ValidatorException;
 import javax.servlet.ServletContext;
 import javax.servlet.http.Part;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.primefaces.component.accordionpanel.AccordionPanel;
 import org.primefaces.component.tabview.TabView;
 import org.primefaces.context.RequestContext;
@@ -152,9 +147,9 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     private List<Oposicao> listaOposicao = new ArrayList();
     private String filtroOposicao = "ativas";
 
-    // TAB DOCUMENTOS
-    private List<Documento> listaDocumentos = new ArrayList();
-    private List<LinhaArquivo> listaArquivos = new ArrayList();
+//    // TAB DOCUMENTOS
+//    private List<Documento> listaDocumentos = new ArrayList();
+//    private List<LinhaArquivo> listaArquivos = new ArrayList();
 
     private Integer offset = 0;
     private Integer count = 0;
@@ -164,33 +159,33 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     }
 
-    public void loadListaDocumentos() {
-        listaDocumentos.clear();
+//    public void loadListaDocumentos() {
+//        listaDocumentos.clear();
+//
+//        DigitalizacaoDao dao = new DigitalizacaoDao();
+//
+//        if (fisica.getId() != -1) {
+//            listaDocumentos = dao.listaDocumento(fisica.getPessoa().getId());
+//        }
+//    }
 
-        DigitalizacaoDao dao = new DigitalizacaoDao();
-
-        if (fisica.getId() != -1) {
-            listaDocumentos = dao.listaDocumento(fisica.getPessoa().getId());
-        }
-    }
-
-    public void verDocumentos(Documento linha) {
-        listaArquivos.clear();
-
-        ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
-        String path = servletContext.getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/documentos/" + linha.getPessoa().getId() + "/" + linha.getId() + "/";
-        File file = new File(path);
-
-        File lista_datas[] = file.listFiles();
-
-        if (lista_datas != null) {
-            for (File lista_data : lista_datas) {
-                String ext = FilenameUtils.getExtension(lista_data.getPath()).toUpperCase();
-                String mimeType = servletContext.getMimeType(lista_data.getPath());
-                listaArquivos.add(new LinhaArquivo("fileExtension" + ext + ".png", lista_data.getName(), mimeType, linha));
-            }
-        }
-    }
+//    public void verDocumentos(Documento linha) {
+//        listaArquivos.clear();
+//
+//        ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
+//        String path = servletContext.getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/documentos/" + linha.getPessoa().getId() + "/" + linha.getId() + "/";
+//        File file = new File(path);
+//
+//        File lista_datas[] = file.listFiles();
+//
+//        if (lista_datas != null) {
+//            for (File lista_data : lista_datas) {
+//                String ext = FilenameUtils.getExtension(lista_data.getPath()).toUpperCase();
+//                String mimeType = servletContext.getMimeType(lista_data.getPath());
+//                listaArquivos.add(new LinhaArquivo("fileExtension" + ext + ".png", lista_data.getName(), mimeType, linha));
+//            }
+//        }
+//    }
 
     public void loadListaOposicao() {
         if (fisica.getId() != -1) {
@@ -735,7 +730,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         loadListaOposicao();
         // --
 
-        loadListaDocumentos();
+        // loadListaDocumentos();
         return url;
     }
 
@@ -1853,19 +1848,22 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         offset = 0;
         List list = new ArrayList<>();
         if (!(descPesquisa.trim()).isEmpty()) {
-            FisicaDB db = new FisicaDBToplink();
+            FisicaDBToplink fisicaDBToplink = new FisicaDBToplink();
+            if (GenericaSessao.exists("inCategoriaSocio")) {
+                fisicaDBToplink.setInCategoriaSocio(GenericaSessao.getString("inCategoriaSocio", true));
+            }
             switch (pesquisaPor) {
                 case "socioativo":
-                    list = db.pesquisaPessoaSocio(descPesquisa.trim(), porPesquisa, comoPesquisa, null, null);
+                    list = fisicaDBToplink.pesquisaPessoaSocio(descPesquisa.trim(), porPesquisa, comoPesquisa, null, null);
                     break;
                 case "socio_titular_ativo":
-                    list = db.pesquisaPessoaSocio(descPesquisa.trim(), porPesquisa, comoPesquisa, true, null, null);
+                    list = fisicaDBToplink.pesquisaPessoaSocio(descPesquisa.trim(), porPesquisa, comoPesquisa, true, null, null);
                     break;
                 case "pessoa":
-                    list = db.pesquisaPessoa(descPesquisa.trim(), porPesquisa, comoPesquisa, null, null);
+                    list = fisicaDBToplink.pesquisaPessoa(descPesquisa.trim(), porPesquisa, comoPesquisa, null, null);
                     break;
                 case "socioinativo":
-                    list = db.pesquisaPessoaSocioInativo(descPesquisa.trim(), porPesquisa, comoPesquisa, null, null);
+                    list = fisicaDBToplink.pesquisaPessoaSocioInativo(descPesquisa.trim(), porPesquisa, comoPesquisa, null, null);
                     break;
             }
         }
@@ -1943,7 +1941,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
         // TAB DIGITALIZAÇÃO DE DOCUMENTOS
         if (indexPessoaFisica == 7) {
-            loadListaDocumentos();
+            // loadListaDocumentos();
         }
     }
 
@@ -2729,28 +2727,28 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         this.listaOposicao = listaOposicao;
     }
 
-    public List<Documento> getListaDocumentos() {
-        return listaDocumentos;
-    }
+//    public List<Documento> getListaDocumentos() {
+//        return listaDocumentos;
+//    }
+//
+//    public void setListaDocumentos(List<Documento> listaDocumentos) {
+//        this.listaDocumentos = listaDocumentos;
+//    }
+//
+//    public List<LinhaArquivo> getListaArquivos() {
+//        return listaArquivos;
+//    }
+//
+//    public void setListaArquivos(List<LinhaArquivo> listaArquivos) {
+//        this.listaArquivos = listaArquivos;
+//    }
 
-    public void setListaDocumentos(List<Documento> listaDocumentos) {
-        this.listaDocumentos = listaDocumentos;
-    }
-
-    public List<LinhaArquivo> getListaArquivos() {
-        return listaArquivos;
-    }
-
-    public void setListaArquivos(List<LinhaArquivo> listaArquivos) {
-        this.listaArquivos = listaArquivos;
-    }
-
-    public List<TmktHistorico> getListTelemarketing() {
-        if (fisica.getPessoa().getId() != -1) {
-            return new TmktHistoricoDao().findByPessoa(fisica.getPessoa().getId());
-        }
-        return new ArrayList();
-    }
+//    public List<TmktHistorico> getListTelemarketing() {
+//        if (fisica.getPessoa().getId() != -1) {
+//            return new TmktHistoricoDao().findByPessoa(fisica.getPessoa().getId());
+//        }
+//        return new ArrayList();
+//    }
 
     public String getFiltroOposicao() {
         return filtroOposicao;

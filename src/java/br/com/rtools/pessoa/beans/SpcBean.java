@@ -52,6 +52,20 @@ public class SpcBean {
     public void clear() {
         GenericaSessao.remove("spcBean");
     }
+    
+    public void loadListSPC() {
+        listaSPC = new ArrayList();
+        SpcDB spcdb = new SpcDBToplink();
+        if (descricaoPesquisa.equals("")) {
+            if (spc.getPessoa().getId() != -1) {
+                listaSPC = (List<Spc>) spcdb.lista(spc, true, true);
+            } else {
+                listaSPC = (List<Spc>) spcdb.lista(spc, filtro, false);
+            }
+        } else {
+            listaSPC = (List<Spc>) spcdb.lista(spc, filtro, false, descricaoPesquisa, porPesquisa, comoPesquisa);
+        }       
+    }
 
     public void save() {
         if (spc.getPessoa().getId() == -1) {
@@ -75,7 +89,7 @@ public class SpcBean {
             if (dao.save(spc)) {
                 novoLog.save("ID: " + spc.getId() + " - Entrada: " + spc.getDataEntrada() + " - Saída: " + spc.getDataSaida() + " - Obs: " + spc.getObservacao() + " - Pessoa (" + spc.getPessoa().getId() + ") " + spc.getPessoa().getNome());
                 dao.commit();
-                listaSPC.clear();
+                loadListSPC();
                 GenericaMensagem.info("Sucesso", "Registro inserido");
             } else {
                 dao.rollback();
@@ -89,7 +103,7 @@ public class SpcBean {
             if (dao.update(spc)) {
                 dao.commit();
                 novoLog.update(beforeUpdate, "ID: " + spc.getId() + " - Entrada: " + spc.getDataEntrada() + " - Saída: " + spc.getDataEntrada() + " - Obs: " + spc.getObservacao() + " - Pessoa (" + spc.getPessoa().getId() + ") " + spc.getPessoa().getNome());
-                listaSPC.clear();
+                loadListSPC();
                 GenericaMensagem.info("Sucesso", "Registro atualizado");
             } else {
                 dao.rollback();
@@ -99,7 +113,7 @@ public class SpcBean {
     }
 
     public void edit(Spc s) {
-        listaSPC.clear();
+        loadListSPC();
         descricaoPesquisa = "";
         DaoInterface di = new Dao();
         spc = (Spc) di.rebind(s);
@@ -109,7 +123,7 @@ public class SpcBean {
         if (GenericaSessao.exists("pessoaPesquisa")) {
             Pessoa pessoa = (Pessoa) GenericaSessao.getObject("pessoaPesquisa", true);
             if (pessoa.getId() != spc.getPessoa().getId()) {
-                listaSPC.clear();
+                loadListSPC();
                 spc.setId(-1);
                 spc.setPessoa(pessoa);
                 spc.setObservacao("");
@@ -147,18 +161,6 @@ public class SpcBean {
     }
 
     public List<Spc> getListaSPC() {
-        if (listaSPC.isEmpty()) {
-            SpcDB spcdb = new SpcDBToplink();
-            if (descricaoPesquisa.equals("")) {
-                if (spc.getPessoa().getId() != -1) {
-                    listaSPC = (List<Spc>) spcdb.lista(spc, true, true);
-                } else {
-                    listaSPC = (List<Spc>) spcdb.lista(spc, filtro, false);
-                }
-            } else {
-                listaSPC = (List<Spc>) spcdb.lista(spc, filtro, false, descricaoPesquisa, porPesquisa, comoPesquisa);
-            }
-        }
         return listaSPC;
     }
 
@@ -205,4 +207,9 @@ public class SpcBean {
     public void setPorPesquisa(String porPesquisa) {
         this.porPesquisa = porPesquisa;
     }
+
+    public void loadListByPessoa(Integer pessoa_id) {
+        listaSPC = new SpcDBToplink().findByPessoa(pessoa_id);
+    }
+
 }

@@ -11,25 +11,28 @@ public class AuthorizationListener implements PhaseListener {
 
     @Override
     public void afterPhase(PhaseEvent event) {
-        FacesContext facesContext = event.getFacesContext();
-        String currentPage = facesContext.getViewRoot().getViewId();
-        if(currentPage.contains("ws")) {
-            return;
-        }
+        if(FacesContext.getCurrentInstance().isPostback()) {
+            FacesContext facesContext = event.getFacesContext();
+            String currentPage = facesContext.getViewRoot().getViewId();
+            if(currentPage.contains("ws")) {
+                return;
+            }
 
-        boolean isLoginPage = 
-                (
-                currentPage.lastIndexOf("index.jsf") > -1 ||
-                currentPage.lastIndexOf("index.xhtml") > -1 ||
-                currentPage.lastIndexOf("indexLogin.xhtml") > -1 || 
-                currentPage.lastIndexOf("indexLoginExpirou.xhtml") > -1 ||
-                currentPage.lastIndexOf("indexAcessoWeb.xhtml") > -1
-                );
-        HttpSession session = (HttpSession) facesContext.getExternalContext().getSession(true);
-        Object currentUser = session.getAttribute("userName");
-        if (!isLoginPage && currentUser == null) {
-            NavigationHandler nh = facesContext.getApplication().getNavigationHandler();
-            nh.handleNavigation(facesContext, null, "indexLoginExpirou");
+            boolean isLoginPage = 
+                    (
+                    currentPage.lastIndexOf("index.jsf") > -1 ||
+                    currentPage.lastIndexOf("index.xhtml") > -1 ||
+                    currentPage.lastIndexOf("indexLogin.xhtml") > -1 || 
+                    currentPage.lastIndexOf("indexLoginExpirou.xhtml") > -1 ||
+                    currentPage.lastIndexOf("indexAcessoWeb.xhtml") > -1 ||
+                    currentPage.lastIndexOf("acessoLinks.xhtml") > -1
+                    );
+            HttpSession session = (HttpSession) facesContext.getExternalContext().getSession(true);
+            Object currentUser = session.getAttribute("userName");
+            if (!isLoginPage && currentUser == null) {
+                NavigationHandler nh = facesContext.getApplication().getNavigationHandler();
+                nh.handleNavigation(facesContext, null, "indexLoginExpirou");
+            }            
         }
     }
 

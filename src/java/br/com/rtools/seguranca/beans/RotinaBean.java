@@ -5,6 +5,7 @@ import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.dao.RotinaDao;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Dao;
+import br.com.rtools.utilitarios.GenericaMensagem;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +44,7 @@ public class RotinaBean implements Serializable {
         NovoLog novoLog = new NovoLog();
         if (rotina.getId() == -1) {
             if (rotina.getRotina().equals("")) {
-                message = "Digite uma Rotina!";
+                GenericaMensagem.warn("Validação", "Informe o nome da rotina!");
             } else {
                 RotinaDao rotinaDao = new RotinaDao();
                 if (!rotinaDao.existeRotina(rotina)) {
@@ -51,15 +52,14 @@ public class RotinaBean implements Serializable {
                     if (dao.save(rotina)) {
                         dao.commit();
                         novoLog.save("ID: " + rotina.getId() + " - Rotina: " + rotina.getRotina() + " - Página: " + rotina.getRotina() + " - Ativa: " + rotina.isAtivo());
-                        message = "Registro salvo com sucesso";
-                        listRotina.clear();
-                        descricaoPesquisa = "";
+                        GenericaMensagem.info("Sucesso", "Registro inserido");
+                        find();
                     } else {
                         dao.rollback();
-                        message = "Erro ao inserir registro!";
+                        GenericaMensagem.warn("Erro", "Ao inserir registro!");
                     }
                 } else {
-                    message = "Esta Rotina já existe no Sistema.";
+                    GenericaMensagem.warn("Validação", "Rotina já existe!");
                 }
             }
         } else {
@@ -69,12 +69,11 @@ public class RotinaBean implements Serializable {
             if (dao.update(rotina)) {
                 novoLog.update(beforeUpdate, "ID: " + rotina.getId() + " - Rotina: " + rotina.getRotina() + " - Página: " + rotina.getRotina() + " - Ativa: " + rotina.isAtivo());
                 dao.commit();
-                listRotina.clear();
-                descricaoPesquisa = "";
-                message = "Registro atualizado com sucesso";
+                find();
+                GenericaMensagem.info("Sucesso", "Registro atualizado");
             } else {
                 dao.rollback();
-                message = "Erro ao atualizar registro!";
+                GenericaMensagem.warn("Erro", "Ao atualizar registro!");
             }
         }
     }
@@ -91,18 +90,18 @@ public class RotinaBean implements Serializable {
             if (dao.delete(rotina)) {
                 novoLog.delete("ID: " + rotina.getId() + " - Rotina: " + rotina.getRotina() + " - Página: " + rotina.getRotina() + " - Ativa: " + rotina.isAtivo());
                 dao.commit();
-                descricaoPesquisa = "";
-                listRotina.clear();
-                message = "Registro excluido com sucesso";
+                find();
+                GenericaMensagem.info("Sucesso", "Registro removido");
             } else {
                 dao.rollback();
-                message = "Esta registro não pode ser excluido!";
+                GenericaMensagem.warn("Erro", "Ao remover registro!");
             }
         }
         rotina = new Rotina();
     }
 
     public String edit(Rotina r) {
+        listRotina.remove(r);
         Dao dao = new Dao();
         rotina = new Rotina();
         rotina = (Rotina) dao.rebind(r);
@@ -119,11 +118,7 @@ public class RotinaBean implements Serializable {
     }
 
     public void find() {
-        listRotina.clear();
-//        if (descricaoPesquisa.equals("")) {
-//            listRotina = new Dao().list(new Rotina(), true);
-//        } else {
-//        }
+        listRotina = new ArrayList();
         listRotina = new RotinaDao().pesquisaRotinaPorDescricao(descricaoPesquisa, acao);
     }
 

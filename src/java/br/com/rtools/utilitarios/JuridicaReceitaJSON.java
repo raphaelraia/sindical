@@ -93,6 +93,15 @@ public class JuridicaReceitaJSON {
                             return jro;
                         }
 
+                        if (status == -1) {
+                            jro.setStatus(status);
+                            jro.setMsg(error);
+                            
+                            in.close();
+                            con.disconnect();
+                            return jro;
+                        }
+                        
                         jro = new JuridicaReceitaObject(
                                 status, // status
                                 error, // msg

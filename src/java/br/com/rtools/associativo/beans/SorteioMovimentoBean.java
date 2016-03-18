@@ -151,4 +151,8 @@ public class SorteioMovimentoBean {
         this.historico = historico;
     }
 
+    public void loadListSorteioMovimento(Integer pessoa_id) {
+        listSorteioMovimento = new SorteioMovimentoDao().findByPessoa(pessoa_id);
+    }
+
 }

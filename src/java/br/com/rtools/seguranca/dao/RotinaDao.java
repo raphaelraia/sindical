@@ -139,14 +139,14 @@ public class RotinaDao extends DB {
     public List<Rotina> pesquisaRotinaPorDescricao(String descricaoRotina) {
         return pesquisaRotinaPorDescricao(descricaoRotina, Boolean.FALSE);
     }
-    
+
     public List<Rotina> pesquisaRotinaPorDescricao(String descricaoRotina, Boolean acao) {
         try {
             Query query;
-            if(acao){
-                query = getEntityManager().createQuery("SELECT ROT FROM Rotina AS ROT WHERE (UPPER(ROT.rotina) LIKE '%" + descricaoRotina.toUpperCase() + "%' OR UPPER(ROT.acao) LIKE '%" + descricaoRotina.toUpperCase() + "%') AND ROT.classe = '' AND ROT.acao <> '' ORDER BY ROT.rotina ASC, ROT.pagina ASC ");
+            if (acao) {
+                query = getEntityManager().createNativeQuery("SELECT R.* FROM seg_rotina AS R WHERE (func_translate(UPPER(R.ds_rotina)) LIKE func_translate('%" + descricaoRotina.toUpperCase() + "%') OR func_translate(UPPER(R.ds_acao)) LIKE func_translate('%" + descricaoRotina.toUpperCase() + "%')) AND R.ds_classe = '' AND R.ds_acao <> '' ORDER BY R.ds_rotina ASC, R.ds_nome_pagina ASC ", Rotina.class);
             } else {
-                query = getEntityManager().createQuery("SELECT ROT FROM Rotina AS ROT WHERE (UPPER(ROT.rotina) LIKE '%" + descricaoRotina.toUpperCase() + "%' OR UPPER(ROT.pagina) LIKE '%" + descricaoRotina.toUpperCase() + "%') AND ROT.classe <> '' AND ROT.acao = '' ORDER BY ROT.rotina ASC, ROT.pagina ASC ");
+                query = getEntityManager().createNativeQuery("SELECT R.* FROM seg_rotina AS R WHERE (func_translate(UPPER(R.ds_rotina)) LIKE func_translate('%" + descricaoRotina.toUpperCase() + "%') OR func_translate(UPPER(R.ds_nome_pagina)) LIKE func_translate('%" + descricaoRotina.toUpperCase() + "%')) AND (R.ds_acao = '' OR R.ds_acao IS NULL) ORDER BY R.ds_rotina ASC, R.ds_nome_pagina ASC ", Rotina.class);
             }
             List list = query.getResultList();
             if (!list.isEmpty()) {

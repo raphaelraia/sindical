@@ -233,6 +233,9 @@ public class ChamadaPaginaBean implements Serializable {
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("enderecoComp");
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("cnaePesquisado");
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("pessoaComplementoBean");
+        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("pessoaBean");
+        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("sorteioMovimentoBean");
+        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("cupomMovimentoBean");
         return metodoGenerico(2, "pessoaJuridica");
     }
 
@@ -255,6 +258,9 @@ public class ChamadaPaginaBean implements Serializable {
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("enderecoComp");
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("pessoaComplementoBean");
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("photoCamBean");
+        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("pessoaBean");
+        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("sorteioMovimentoBean");
+        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("cupomMovimentoBean");
         GenericaSessao.remove("fisicaPesquisaList");
         //}
         return metodoGenerico(2, "pessoaFisica");

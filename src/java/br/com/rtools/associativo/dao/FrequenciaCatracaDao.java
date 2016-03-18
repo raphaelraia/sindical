@@ -57,9 +57,9 @@ public class FrequenciaCatracaDao extends DB {
         } else if (hora_inicial.isEmpty() && !hora_final.isEmpty()) {
             list_and.add("cf.ds_hora_acesso <= '" + hora_final + "'");
         }
-        
-        if (!es.equals("ES")){
-            list_and.add("cf.ds_es = '"+es+"'");
+
+        if (!es.equals("ES")) {
+            list_and.add("cf.ds_es = '" + es + "'");
         }
         // ---
 
@@ -80,9 +80,10 @@ public class FrequenciaCatracaDao extends DB {
          * ORDEM ------------
          */
         String ORDER_BY = "ORDER BY cf.dt_acesso, nome ";
-        if (relatorio)
+        if (relatorio) {
             ORDER_BY = "ORDER BY cf.dt_acesso, cf.ds_hora_acesso, nome ";
-        
+        }
+
         QUERY += ORDER_BY;
 
         try {
@@ -92,5 +93,27 @@ public class FrequenciaCatracaDao extends DB {
             e.getMessage();
         }
         return new ArrayList();
+    }
+
+    public List findPessoa(Integer pessoa_id) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT CF FROM CatracaFrequencia AS CF WHERE CF.pessoa.id = :pessoa_id ORDER BY CF.dtAcesso DESC, CF.horaAcesso ASC");
+            query.setParameter("pessoa_id", pessoa_id);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+
+        }
+    }
+
+    public List findSisPessoa(Integer sis_pessoa_id) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT CF FROM CatracaFrequencia AS CF WHERE CF.sisPessoa.id = :sis_pessoa_id ORDER BY CF.dtAcesso DESC, CF.horaAcesso ASC");
+            query.setParameter("sis_pessoa_id", sis_pessoa_id);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+
+        }
     }
 }

@@ -122,7 +122,7 @@ public class JuridicaBean implements Serializable {
     private List<SelectItem> listaTipoDocumento = new ArrayList();
     private List<SelectItem> listaPorte = new ArrayList();
     private List<ContribuintesInativos> listaContribuintesInativos = new ArrayList();
-    private List<RepisMovimento> listRepisMovimento = new ArrayList();
+    // private List<RepisMovimento> listRepisMovimento = new ArrayList();
     private List<SelectItem> listaMotivoInativacao = new ArrayList();
     private String atualiza = "";
     private String tipoFiltro = "todas";
@@ -1289,7 +1289,7 @@ public class JuridicaBean implements Serializable {
     }
 
     public String editar(Juridica j, Boolean completo) {
-        listRepisMovimento.clear();
+        // listRepisMovimento.clear();
         String url = (String) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("urlRetorno");
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("linkClicado", true);
         Boolean clear = false;
@@ -3020,17 +3020,17 @@ public class JuridicaBean implements Serializable {
         this.disabled = disabled;
     }
 
-    public List<RepisMovimento> getListRepisMovimento() {
-        if (listRepisMovimento.isEmpty()) {
-            WebREPISDB webREPISDB = new WebREPISDBToplink();
-            listRepisMovimento = webREPISDB.listRepisPorPessoa(juridica.getPessoa().getId());
-        }
-        return listRepisMovimento;
-    }
-
-    public void setListRepisMovimento(List<RepisMovimento> listRepisMovimento) {
-        this.listRepisMovimento = listRepisMovimento;
-    }
+//    public List<RepisMovimento> getListRepisMovimento() {
+//        if (listRepisMovimento.isEmpty()) {
+//            WebREPISDB webREPISDB = new WebREPISDBToplink();
+//            listRepisMovimento = webREPISDB.listRepisPorPessoa(juridica.getPessoa().getId());
+//        }
+//        return listRepisMovimento;
+//    }
+//
+//    public void setListRepisMovimento(List<RepisMovimento> listRepisMovimento) {
+//        this.listRepisMovimento = listRepisMovimento;
+//    }
 
     public List<ListaSociosEmpresa> getListSocios() {
         return listSocios;

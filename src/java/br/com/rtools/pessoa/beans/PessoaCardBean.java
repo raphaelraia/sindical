@@ -14,8 +14,12 @@ import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
 import br.com.rtools.pessoa.db.PessoaEmpresaDB;
 import br.com.rtools.pessoa.db.PessoaEmpresaDBToplink;
+import br.com.rtools.seguranca.PermissaoUsuario;
 import br.com.rtools.seguranca.Rotina;
+import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
+import br.com.rtools.seguranca.dao.PermissaoUsuarioDao;
+import br.com.rtools.seguranca.db.UsuarioDBToplink;
 import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.sistema.beans.EmailBean;
 import br.com.rtools.utilitarios.Dao;
@@ -24,7 +28,9 @@ import br.com.rtools.utilitarios.GenericaSessao;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
@@ -42,11 +48,25 @@ public class PessoaCardBean implements Serializable {
     private PessoaEndereco pessoaEndereco = new PessoaEndereco();
     private PessoaEmpresa pessoaEmpresa = new PessoaEmpresa();
     private String[] imagensTipo = new String[]{"jpg", "jpeg", "png", "gif"};
+    private Usuario usuario;
+    private List<PermissaoUsuario> listPermissaoUsuario = new ArrayList();
 
     public void cardPessoa(int idPessoa) {
         close();
         Dao dao = new Dao();
         pessoa = (Pessoa) dao.find(new Pessoa(), idPessoa);
+    }
+
+    public void cardUsuario(int idPessoa) {
+        close();
+        FisicaDB fisicaDB = new FisicaDBToplink();
+        fisica = (Fisica) fisicaDB.pesquisaFisicaPorPessoa(idPessoa);
+        pessoa = fisica.getPessoa();
+        usuario = new UsuarioDBToplink().pesquisaUsuarioPorPessoa(pessoa.getId());
+        if (usuario != null) {
+            listPermissaoUsuario = new ArrayList();
+            listPermissaoUsuario = new PermissaoUsuarioDao().pesquisaListaPermissaoPorUsuario(usuario.getId());
+        }
     }
 
     public void cardFisica(int idPessoa) {
@@ -178,6 +198,8 @@ public class PessoaCardBean implements Serializable {
         pessoa = new Pessoa();
         pessoaEndereco = new PessoaEndereco();
         pessoaEmpresa = new PessoaEmpresa();
+        usuario = null;
+        listPermissaoUsuario = new ArrayList();
     }
 
     public PessoaEndereco getPessoaEndereco() {
@@ -300,6 +322,22 @@ public class PessoaCardBean implements Serializable {
             e.getMessage();
         }
         return "ERRO!";
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
+
+    public List<PermissaoUsuario> getListPermissaoUsuario() {
+        return listPermissaoUsuario;
+    }
+
+    public void setListPermissaoUsuario(List<PermissaoUsuario> listPermissaoUsuario) {
+        this.listPermissaoUsuario = listPermissaoUsuario;
     }
 
 }

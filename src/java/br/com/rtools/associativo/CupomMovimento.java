@@ -41,6 +41,8 @@ public class CupomMovimento implements Serializable {
     @JoinColumn(name = "id_operador", referencedColumnName = "id", nullable = false)
     @ManyToOne(fetch = FetchType.EAGER)
     private Usuario operador;
+    @Column(name = "ds_codigo", length = 50)
+    private String codigo;
 
     @Transient
     private Boolean selected;
@@ -51,15 +53,17 @@ public class CupomMovimento implements Serializable {
         this.pessoa = null;
         this.dtEmissao = null;
         this.operador = null;
+        this.codigo = "";
         this.selected = false;
     }
 
-    public CupomMovimento(Integer id, Cupom cupom, Pessoa pessoa, Date dtEmissao, Usuario operador) {
+    public CupomMovimento(Integer id, Cupom cupom, Pessoa pessoa, Date dtEmissao, Usuario operador, String codigo) {
         this.id = id;
         this.cupom = cupom;
         this.pessoa = pessoa;
         this.dtEmissao = dtEmissao;
         this.operador = operador;
+        this.codigo = codigo;
         this.selected = false;
     }
 
@@ -119,9 +123,17 @@ public class CupomMovimento implements Serializable {
         this.selected = selected;
     }
 
+    public String getCodigo() {
+        return codigo;
+    }
+
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
+    }
+
     @Override
     public String toString() {
-        return "CupomMovimento{" + "id=" + id + ", cupom=" + cupom + ", pessoa=" + pessoa + ", dtEmissao=" + dtEmissao + ", operador=" + operador + ", selected=" + selected + '}';
+        return "CupomMovimento{" + "id=" + id + ", cupom=" + cupom + ", pessoa=" + pessoa + ", dtEmissao=" + dtEmissao + ", operador=" + operador + ", codigo=" + codigo + ", selected=" + selected + '}';
     }
 
 }

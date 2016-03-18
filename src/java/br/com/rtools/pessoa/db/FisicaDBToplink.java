@@ -15,6 +15,7 @@ public class FisicaDBToplink extends DB implements FisicaDB {
 
     private Integer limit = 0;
     private String not_in = "";
+    private String inCategoriaSocio = "";
     private Boolean ignore = false;
 
     @Override
@@ -342,6 +343,9 @@ public class FisicaDBToplink extends DB implements FisicaDB {
                     if (titular) {
                         textQuery += " AND SP.id_pessoa = MS.id_titular ";
                     }
+                    if (!inCategoriaSocio.isEmpty()) {
+                        textQuery += " AND C.id_categoria IN (" + inCategoriaSocio + ")";
+                    }
                     textQuery += " ) ";
                     if (offset != null) {
                         textQuery += "  ORDER BY P.ds_nome ";
@@ -369,6 +373,9 @@ public class FisicaDBToplink extends DB implements FisicaDB {
                     if (titular) {
                         textQuery += " AND SP.id_pessoa = MS.id_titular ";
                     }
+                    if (!inCategoriaSocio.isEmpty()) {
+                        textQuery += " AND C.id_categoria IN (" + inCategoriaSocio + ")";
+                    }
                     textQuery += " ) ";
                     if (offset != null) {
                         textQuery += "  ORDER BY P.ds_nome ";
@@ -390,6 +397,9 @@ public class FisicaDBToplink extends DB implements FisicaDB {
                             + "               WHERE SP.is_ativo = TRUE                                              ";
                     if (titular) {
                         textQuery += " AND SP.id_pessoa = MS.id_titular ";
+                    }
+                    if (!inCategoriaSocio.isEmpty()) {
+                        textQuery += " AND C.id_categoria IN (" + inCategoriaSocio + ")";
                     }
                     textQuery += " ) ";
                     if (offset != null) {
@@ -428,6 +438,9 @@ public class FisicaDBToplink extends DB implements FisicaDB {
                     if (titular) {
                         textQuery += " AND SP.id_pessoa = MS.id_titular ";
                     }
+                    if (!inCategoriaSocio.isEmpty()) {
+                        textQuery += " AND C.id_categoria IN (" + inCategoriaSocio + ")";
+                    }
                     textQuery += " ) ";
                     if (offset != null) {
                         textQuery += "  ORDER BY P.ds_nome ";
@@ -452,28 +465,6 @@ public class FisicaDBToplink extends DB implements FisicaDB {
             return new ArrayList();
         }
         return new ArrayList();
-
-//        Query qry = getEntityManager().createNativeQuery(textQuery);
-//
-//        List<Vector> result_list = qry.getResultList();
-//        List<Object> return_list = new ArrayList<Object>();
-//
-//        if (!result_list.isEmpty()) {
-//            if (result_list.size() > 1) {
-//                String listId = "";
-//                for (int i = 0; i < result_list.size(); i++) {
-//                    if (i == 0) {
-//                        listId = result_list.get(i).get(0).toString();
-//                    } else {
-//                        listId += ", " + result_list.get(i).get(0).toString();
-//                    }
-//                }
-//                return getEntityManager().createQuery("SELECT f FROM Fisica f WHERE f.id IN ( " + listId + " )").getResultList();
-//            } else {
-//                return getEntityManager().createQuery("SELECT f FROM Fisica f WHERE f.id = " + (Integer) result_list.get(0).get(0)).getResultList();
-//            }
-//        }
-        // return return_list;
     }
 
     @Override
@@ -967,5 +958,13 @@ public class FisicaDBToplink extends DB implements FisicaDB {
 
     public void setIgnore(Boolean ignore) {
         this.ignore = ignore;
+    }
+
+    public String getInCategoriaSocio() {
+        return inCategoriaSocio;
+    }
+
+    public void setInCategoriaSocio(String inCategoriaSocio) {
+        this.inCategoriaSocio = inCategoriaSocio;
     }
 }

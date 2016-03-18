@@ -12,6 +12,7 @@ import br.com.rtools.associativo.SMotivoInativacao;
 import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.db.SociosDB;
 import br.com.rtools.associativo.db.SociosDBToplink;
+import br.com.rtools.endereco.Endereco;
 import br.com.rtools.financeiro.ServicoPessoa;
 import br.com.rtools.financeiro.dao.ServicoPessoaDao;
 import br.com.rtools.logSistema.NovoLog;
@@ -23,7 +24,6 @@ import br.com.rtools.pessoa.db.JuridicaDBToplink;
 import br.com.rtools.pessoa.db.PessoaDB;
 import br.com.rtools.pessoa.db.PessoaDBToplink;
 import br.com.rtools.seguranca.Usuario;
-import br.com.rtools.sistema.dao.ConfiguracaoDao;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
@@ -58,7 +58,7 @@ public class OposicaoBean implements Serializable {
     private String comoPesquisa;
     private Socios socios;
     private boolean removeFiltro;
-
+    
     @PostConstruct
     public void init() {
         oposicao = new Oposicao();
@@ -99,6 +99,10 @@ public class OposicaoBean implements Serializable {
         setDesabilitaPessoa(false);
         valorPesquisa = "";
         setSexo("M");
+    }
+    
+    public void removerEndereco(){
+        oposicao.getOposicaoPessoa().setEndereco(null);
     }
 
     public void save() {
@@ -532,17 +536,22 @@ public class OposicaoBean implements Serializable {
             oposicao.setJuridica((Juridica) GenericaSessao.getObject("juridicaPesquisa", true));
             mensagemEmpresa = "";
             if (oposicao.getJuridica().getDtFechamento() != null) {
-                mensagemEmpresa = "Empresa está inátiva!";
+                mensagemEmpresa = "Empresa está inativa!";
                 return null;
             }
             listaConvencaoPeriodos.clear();
             convencaoPeriodoConvencaoGrupoCidade();
         }
+        
         if (GenericaSessao.exists("oposicaoPesquisa")) {
             setDesabilitaPessoa(true);
             oposicao = (Oposicao) GenericaSessao.getObject("oposicaoPesquisa", true);
             listaConvencaoPeriodos.clear();
             convencaoPeriodoConvencaoGrupoCidade();
+        }
+        
+        if (GenericaSessao.exists("enderecoPesquisa")){
+            oposicao.getOposicaoPessoa().setEndereco((Endereco) GenericaSessao.getObject("enderecoPesquisa",  true));
         }
         return oposicao;
     }

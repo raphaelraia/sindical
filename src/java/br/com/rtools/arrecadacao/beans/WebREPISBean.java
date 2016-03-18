@@ -27,7 +27,6 @@ import br.com.rtools.pessoa.db.JuridicaDBToplink;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.seguranca.db.UsuarioDB;
 import br.com.rtools.seguranca.db.UsuarioDBToplink;
-import br.com.rtools.seguranca.utilitarios.SegurancaUtilitariosBean;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DaoInterface;
@@ -97,8 +96,10 @@ public class WebREPISBean implements Serializable {
     private String valueLenght = "15";
     private String contato = "";
     private ConfiguracaoArrecadacao configuracaoArrecadacao;
+    private List<RepisMovimento> listRepisMovimentoPessoa;
 
     public WebREPISBean() {
+        listRepisMovimentoPessoa = new ArrayList();
         UsuarioDB db = new UsuarioDBToplink();
         getPessoa();
         pessoaContribuinte = db.ValidaUsuarioContribuinteWeb(pessoa.getId());
@@ -1052,5 +1053,17 @@ public class WebREPISBean implements Serializable {
 
     public void setIndexCidade(int indexCidade) {
         this.indexCidade = indexCidade;
+    }
+    
+    public void loadListRepisMovimentoPessoa(Integer pessoa_id) {
+        listRepisMovimento = new WebREPISDBToplink().listRepisPorPessoa(pessoa_id);
+    }
+
+    public List<RepisMovimento> getListRepisMovimentoPessoa() {
+        return listRepisMovimentoPessoa;
+    }
+
+    public void setListRepisMovimentoPessoa(List<RepisMovimento> listRepisMovimentoPessoa) {
+        this.listRepisMovimentoPessoa = listRepisMovimentoPessoa;
     }
 }

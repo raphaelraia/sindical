@@ -1,8 +1,11 @@
 package br.com.rtools.associativo;
 
+import br.com.rtools.associativo.dao.CupomCategoriaDao;
 import br.com.rtools.utilitarios.DataHoje;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -37,6 +40,9 @@ public class Cupom implements Serializable {
     @Transient
     private Boolean selected;
 
+    @Transient
+    private List listCupomCategoria;
+
     public Cupom() {
         this.id = null;
         this.descricao = "";
@@ -44,6 +50,7 @@ public class Cupom implements Serializable {
         this.carenciaInadimplenciaDias = 0;
         this.ativo = true;
         this.selected = false;
+        this.listCupomCategoria = null;
     }
 
     public Cupom(Integer id, String descricao, Date dtData, Integer carenciaInadimplenciaDias, Boolean ativo) {
@@ -53,6 +60,7 @@ public class Cupom implements Serializable {
         this.carenciaInadimplenciaDias = carenciaInadimplenciaDias;
         this.ativo = ativo;
         this.selected = false;
+        this.listCupomCategoria = null;
     }
 
     public Integer getId() {
@@ -67,8 +75,8 @@ public class Cupom implements Serializable {
         return descricao;
     }
 
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
+    public void setDescricao(String descricao) {        
+        this.descricao = descricao.trim();
     }
 
     public Date getDtData() {
@@ -95,6 +103,14 @@ public class Cupom implements Serializable {
         this.carenciaInadimplenciaDias = carenciaInadimplenciaDias;
     }
 
+    public String getCarenciaInadimplenciaDiasString() {
+        return Integer.toString(carenciaInadimplenciaDias);
+    }
+
+    public void setCarenciaInadimplenciaDiasString(String carenciaInadimplenciaDiasString) {
+        this.carenciaInadimplenciaDias = Integer.parseInt(carenciaInadimplenciaDiasString);
+    }
+
     public Boolean getAtivo() {
         return ativo;
     }
@@ -114,6 +130,20 @@ public class Cupom implements Serializable {
 
     public void setSelected(Boolean selected) {
         this.selected = selected;
+    }
+
+    public List getListCupomCategoria() {
+        if (listCupomCategoria == null) {
+            if (this.id != null) {
+                listCupomCategoria = new ArrayList();
+                listCupomCategoria = new CupomCategoriaDao().find(this.id);
+            }
+        }
+        return listCupomCategoria;
+    }
+
+    public void setListCupomCategoria(List listCupomCategoria) {
+        this.listCupomCategoria = listCupomCategoria;
     }
 
 }

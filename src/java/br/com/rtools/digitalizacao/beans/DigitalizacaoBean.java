@@ -370,7 +370,7 @@ public final class DigitalizacaoBean implements Serializable {
 
         // ATUALIZA LISTA DE DOCUMENTOS COM PESSOA FÍSICA NA SESSÃO
         if (GenericaSessao.exists("fisicaBean")) {
-            ((FisicaBean) GenericaSessao.getObject("fisicaBean")).loadListaDocumentos();
+            // ((FisicaBean) GenericaSessao.getObject("fisicaBean")).loadListaDocumentos();
         }
 
         // ATUALIZA LISTA DE DOCUMENTOS COM PESSOA JURÍDICA NA SESSÃO
@@ -436,6 +436,10 @@ public final class DigitalizacaoBean implements Serializable {
 
     public void setLinhaArquivoExcluir(LinhaArquivo linhaArquivoExcluir) {
         this.linhaArquivoExcluir = linhaArquivoExcluir;
+    }
+
+    public void loadListDocumentos(Integer pessoa_id) {
+        listaDocumentos = new DigitalizacaoDao().listaDocumento(pessoa_id);
     }
 
 }
