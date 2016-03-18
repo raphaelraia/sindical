@@ -363,147 +363,8 @@
                                             </p:column>
                                         </p:dataTable>
                                     </p:tab>
-
-                                    <p:tab title="Certidões">
-                                        <p:dataTable styleClass="margin-top-max" value="#{juridicaBean.listRepisMovimento}" var="repisMovimento" id="tbl" style="width: 100%" emptyMessage="Nenhum registro encontrado!">
-                                            <f:facet name="header">
-                                                Lista de Certidões Solicitadas
-                                            </f:facet> 
-                                            <p:column width="15">  
-                                                <p:rowToggler />  
-                                            </p:column>  
-                                            <p:column headerText="" width="20" styleClass="text-center">
-                                                <h:outputText value="#{repisMovimento.id}" style="font-size: 8pt!important"/>
-                                            </p:column>
-                                            <p:column headerText="CNPJ" width="120" styleClass="text-center">
-                                                <h:outputText value="#{repisMovimento.pessoa.documento}" style="font-size: 8pt!important"/>
-                                            </p:column>
-                                            <p:column headerText="Nome" width="300" >
-                                                <h:outputText value="#{repisMovimento.pessoa.nome}" style="font-size: 8pt!important"/>
-                                            </p:column>
-                                            <p:column headerText="STATUS" styleClass="text-center">
-                                                <h:outputText value="#{repisMovimento.repisStatus.descricao}" style="font-size: 8pt!important"/>
-                                            </p:column>
-                                            <p:column headerText="Emissão" styleClass="text-center" width="70">
-                                                <h:outputText value="#{repisMovimento.dataEmissaoString}" style="font-size: 8pt!important"/>
-                                            </p:column>
-                                            <p:column headerText="Solicitante" styleClass="text-center">
-                                                <h:outputText value="#{repisMovimento.contato}" style="font-size: 8pt!important"/>
-                                            </p:column>
-                                            <p:column headerText="Tipo" styleClass="text-center">
-                                                <h:outputText value="#{repisMovimento.certidaoTipo.descricao}" style="font-size: 8pt!important"/>
-                                            </p:column>
-                                            <p:column headerText="..." width="25" styleClass="text-center">
-                                                <p:commandButton icon="ui-icon-print" action="#{webREPISBean.imprimirCertificado(repisMovimento)}" rendered="#{repisMovimento.repisStatus.id == 3}" ajax="false"/>
-                                            </p:column>
-
-                                            <p:rowExpansion>
-                                                <h:panelGrid columns="5" styleClass="sbb">
-                                                    <p:column rendered="false">
-                                                        <h:outputLabel value="Procolo" style="font-weight: bold"/><br />
-                                                        <h:outputText value="#{repisMovimento.id}" style="margin-left: 20px"/>
-                                                    </p:column>
-                                                    <p:column>
-                                                        <h:outputLabel value="Ano" style="font-weight: bold"/><br />
-                                                        <h:outputText value="#{repisMovimento.ano}" style="margin-left: 20px"/>
-                                                    </p:column>
-                                                </h:panelGrid>
-                                            </p:rowExpansion>
-                                        </p:dataTable>
-                                    </p:tab>
-                                    <p:tab title="Documentos">
-                                        <p:commandLink value="CLIQUE PARA CRIAR NOVA PASTA DE ARQUIVOS" action="#{digitalizacaoBean.novoGeneric(juridicaBean.juridica.pessoa)}" ajax="false" rendered="#{juridicaBean.juridica.id ne -1}"/>
-                                        <br />
-                                        <br />
-                                        <p:dataTable value="#{juridicaBean.listaDocumentos}" var="linha" emptyMessage="Nenhum documento Encontrado!" scrollable="true" scrollHeight="400">
-                                            <p:column style="width:15px">  
-                                                <p:rowToggler />  
-                                            </p:column>  
-
-                                            <p:column headerText="Data" style="width: 80px; text-align: center">
-                                                <p:commandLink value="#{linha.dtEmissaoString}" action="#{digitalizacaoBean.editGeneric(linha)}" title="CLIQUE PARA EDITAR" />
-                                            </p:column>
-
-                                            <p:column headerText="Grupo" style="width: 100px; text-align: center">
-                                                <p:commandLink value="#{linha.assunto.grupo.descricao}" action="#{digitalizacaoBean.editGeneric(linha)}" title="CLIQUE PARA EDITAR" />
-                                            </p:column>
-
-                                            <p:column headerText="Assunto" style="width: 250px;">
-                                                <p:commandLink value="#{linha.assunto.descricao}" action="#{digitalizacaoBean.editGeneric(linha)}" title="CLIQUE PARA EDITAR" />
-                                            </p:column>
-
-                                            <p:column headerText="Título" style="width: 250px;">
-                                                <p:commandLink value="#{linha.titulo}" action="#{digitalizacaoBean.editGeneric(linha)}" title="CLIQUE PARA EDITAR" />
-                                            </p:column>
-
-                                            <p:column headerText="Arq" style="width: 40px; text-align: center">
-                                                <p:commandButton icon="ui-icon-folder-open" action="#{juridicaBean.verDocumentos(linha)}" title="VER ARQUIVOS DESSA PESSOA" oncomplete="PF('dlg_arquivos').show()" update=":formPessoaJuridica:i_tabview_juridica:panel_arquivos"/>
-                                            </p:column>
-
-                                            <p:rowExpansion>
-                                                <h:panelGrid columns="2" style="height: 40px" styleClass="sbb" columnClasses="column01, column02">
-                                                    <p:column rendered="#{linha.historico ne ''}">
-                                                        <p:outputLabel value="HISTÓRICO" style="font-weight: bold"/><br />
-                                                        <p:outputLabel value="#{linha.historico}"/>
-                                                    </p:column>
-                                                </h:panelGrid>
-                                            </p:rowExpansion>
-                                        </p:dataTable>
-
-                                        <p:dialog widgetVar="dlg_arquivos" width="600" header="Arquivos da Pessoa" modal="true">
-                                            <p:ajax event="close" listener="#{juridicaBean.listaArquivos.clear()}" update="@form"/>
-
-                                            <h:panelGrid id="panel_arquivos" style="width: 100%">
-                                                <p:messages showDetail="true" closable="true" />
-                                                <ui:repeat value="#{juridicaBean.listaArquivos}" var="linha_arquivo">
-                                                    <h:panelGrid columns="4" columnClasses="column01, column02, column03, column03">
-                                                        <h:column>
-                                                            <p:graphicImage value="/Imagens/#{linha_arquivo.extensionFile}" width="50" />
-                                                        </h:column>
-
-                                                        <h:column>
-                                                            <p:commandLink value="#{linha_arquivo.nameFile}" title="ABRIR ARQUIVO" action="#{digitalizacaoBean.view(linha_arquivo)}" target="_BLANK" ajax="false" />  
-                                                        </h:column>
-
-                                                        <h:column>
-                                                            <p:commandButton icon="ui-icon-arrowthickstop-1-s" title="BAIXAR ARQUIVO" action="#{digitalizacaoBean.download(linha_arquivo)}" ajax="false" onclick="form.target = '_blank'"/>
-                                                        </h:column>
-                                                    </h:panelGrid>
-                                                    <hr />
-                                                </ui:repeat>
-                                                <p:outputLabel value="NENHUM ARQUIVO ADICIONADO!" rendered="#{juridicaBean.listaArquivos.size() eq 0}" style="font-weight: bold; font-size: 12pt!important; color: red"/>
-                                            </h:panelGrid>
-                                        </p:dialog>                                        
-                                    </p:tab>
-                                    <p:tab title="Telemarketing">
-                                        <p:dataTable value="#{juridicaBean.listTelemarketing}" var="telemarketing" emptyMessage="Nenhum registro encontrado!" scrollHeight="400" scrollable="true" styleClass="margin-top-max">
-                                            <p:column width="15">
-                                                <p:rowToggler />                                                
-                                            </p:column>
-                                            <p:column headerText="Lançamento" width="80" styleClass="text-center">
-                                                #{telemarketing.dataLancamento}
-                                            </p:column>
-                                            <p:column headerText="Hora" width="40" styleClass="text-center">
-                                                #{telemarketing.horaLancamento}
-                                            </p:column>
-                                            <p:column headerText="Natureza" width="120" styleClass="text-center">
-                                                #{telemarketing.natureza.descricao}
-                                            </p:column>
-                                            <p:column headerText="Contato" >
-                                                #{telemarketing.contato.descricao}
-                                            </p:column>
-                                            <p:column headerText="..." >
-                                                #{telemarketing.contatoDescricao}
-                                            </p:column>                                            
-                                            <p:column headerText="Responsável" >
-                                                #{telemarketing.operador.pessoa.nome}
-                                            </p:column>
-                                            <p:rowExpansion>
-                                                Histórico: #{telemarketing.historico}                                                
-                                            </p:rowExpansion>
-                                        </p:dataTable>
-                                    </p:tab>                                    
-
+                                    
+                                    
                                 </p:tabView>
                             </h:panelGrid>
 
@@ -606,13 +467,14 @@
                             </h:panelGrid>
 
 
-                            <h:panelGrid columns="6" style="text-align: left; margin-top: 10px; color: ">
+                            <h:panelGrid columns="7" style="text-align: left; margin-top: 10px; color: ">
                                 <p:commandButton value="Salvar" disabled="#{controleAcessoBean.botaoSalvar}" onclick="PF('dlg_salvar').show()"/>
                                 <p:commandButton value="Novo" action="#{juridicaBean.novo()}" rendered="#{!chamadaPaginaBean.disabled}"/>
                                 <p:commandButton value="Voltar" action="#{chamadaPaginaBean.back}" rendered="#{chamadaPaginaBean.disabled}" />
                                 <p:commandButton value="Excluir" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('dlg_excluir').show()"/>
                                 <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pesquisaPessoaJuridica()}" disabled="#{chamadaPaginaBean.disabled}"/>
                                 <p:commandButton value="Extrato na Tela" action="#{juridicaBean.extratoTela}" disabled="#{juridicaBean.habilitar}" style="width: 150px;" />
+                                <p:commandButton value="INFORMAÇÕES CADASTRAIS" rendered="#{juridicaBean.juridica.id != -1}" action="#{chamadaPaginaBean.pagina('pessoa')}" styleClass="font-color-red bold" icon="ui-icon-plus" actionListener="#{genericaSessao.putString('tipoPessoa', 'pessoaJuridica')}" immediate="true"/>
                             </h:panelGrid>
 
                             <p:dialog widgetVar="dlg_salvar" modal="true" header="Salvar Jurídica" width="400" resizable="false">

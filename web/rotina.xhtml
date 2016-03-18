@@ -37,7 +37,9 @@
                                         <h:column>
                                             <h:panelGrid columns="2" style="border: 0; width: 400px">
                                                 <p:outputLabel value="Rotina: " for="idRotina"/>
-                                                <p:inputText id="idRotina" size="40" value="#{rotinaBean.rotina.rotina}" style="margin-right: 30px"/>
+                                                <p:inputText id="idRotina" size="40" value="#{rotinaBean.rotina.rotina}" converter="#{toUpperCase}">
+                                                    <p:ajax event="change" update="@this" />
+                                                </p:inputText>
                                                 <p:outputLabel value="Página: " for="idPagina"/>
                                                 <p:inputText id="idPagina" size="40" value="#{rotinaBean.rotina.pagina}"/>
                                                 <p:outputLabel value="Ação: " for="idAcao"/>
@@ -68,22 +70,26 @@
                                 </p:panel>
 
                                 <p:dialog widgetVar="i_dlg_s" header="Salvar esta Rotina?" resizable="false" width="400" modal="true">
-                                    <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{rotinaBean.save}" oncomplete="PF('i_dlg_s').hide(); PF('i_dlg_mensagem').show()" style="clear: both; float: left; margin-left: 10px;" icon="ui-icon-check" update=":formRotinasNovo: :formRotinas: i_mensagem"/>  
-                                    <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="P('i_dlg_s').hide()" style="float: left;" icon="ui-icon-close"/>
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{rotinaBean.save}" oncomplete="PF('i_dlg_s').hide(); PF('i_dlg_mensagem').show()" style="clear: both; float: left; margin-left: 10px;" icon="ui-icon-check" update=":formRotinasNovo: :formRotinas: i_mensagem"/>  
+                                        <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="P('i_dlg_s').hide()" style="float: left;" icon="ui-icon-close"/>                                        
+                                    </h:panelGrid>
                                 </p:dialog>
 
                                 <p:dialog widgetVar="i_dlg_e" header="Excluir esta Rotina?" resizable="false" width="400" modal="true">
-                                    <p:commandButton value="Confirmar"  type="submit" styleClass="ui-confirmdialog-yes" action="#{rotinaBean.delete()}" oncomplete="PF('i_dlg_e').hide(); PF('i_dlg_mensagem').show()" update=":formRotinasNovo: :formRotinas:" style="clear: both; float: left" icon="ui-icon-check" />
-                                    <p:commandButton value="Cancelar"   type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_e').hide()" style="float: left;" icon="ui-icon-close"/>
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Confirmar"  type="submit" styleClass="ui-confirmdialog-yes" action="#{rotinaBean.delete()}" oncomplete="PF('i_dlg_e').hide(); PF('i_dlg_mensagem').show()" update=":formRotinasNovo: :formRotinas:" style="clear: both; float: left" icon="ui-icon-check" />
+                                        <p:commandButton value="Cancelar"   type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_e').hide()" style="float: left;" icon="ui-icon-close"/>
+                                    </h:panelGrid>
                                 </p:dialog>
 
                                 <p:dialog widgetVar="i_dlg_mensagem" header="Mensagem" resizable="false" width="400" modal="true">
-                                    <center>
-                                        <h:outputLabel value="#{rotinaBean.message}" id="i_mensagem"/>
-                                        <br />
-                                        <br />
+                                    <h:panelGroup id="i_mensagem">
+                                        <p:messages showDetail="true" closable="false" showSummary="true" />
+                                    </h:panelGroup>
+                                    <f:facet name="footer">
                                         <p:commandButton value="Ok" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_mensagem').hide()"/>
-                                    </center>
+                                    </f:facet>
                                 </p:dialog>
 
                             </h:form>
@@ -104,7 +110,7 @@
                                 <p:panel id="i_panel_grid" style="clear: both; margin-top: 15px;"> 
                                     <p:dataTable value="#{rotinaBean.listRotina}" id="tbl" var="rotina" style="width: 100%;" scrollable="true" scrollHeight="180" emptyMessage="Nenhum registro encontrado">
                                         <p:column width="25" styleClass="text-center">
-                                            <p:commandButton icon="ui-icon-link" title="Editar registro nº #{rotina.id}" action="#{rotinaBean.edit(rotina)}" update=":formRotinasNovo:"/>
+                                            <p:commandButton icon="ui-icon-link" title="Editar registro nº #{rotina.id}" action="#{rotinaBean.edit(rotina)}" update=":formRotinas: :formRotinasNovo:"/>
                                         </p:column>
 
                                         <p:column headerText="Rotina" filterBy="#{rotina.rotina}" filterMatchMode="global" >

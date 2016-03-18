@@ -1,0 +1,134 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Sindical - Cupom</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important;} 
+            .ui-button { padding: 3px!important; }
+            .ui-datatable tr.ui-datatable-even:hover, .ui-datatable tr.ui-datatable-odd:hover {
+                background: #ECF3FE;
+            }            
+        </style>
+    </h:head>
+    <h:body>
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>
+        </f:subview>
+        <f:view>
+            <!-- INICIA DIV wrap e main -->
+            <div id="wrapx">
+                <div id="mainx">
+                    <!-- INICIA DIV wrap e main -->  
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:outputText value="Cupom" styleClass="fonteHeader" />
+                        <div class="clear"></div>
+                        <h:form id="form_cupom">
+                            <c:set scope="request" var="object" value="${cupomBean.cupom}"/>
+                            <p:messages autoUpdate="true" showDetail="true" showSummary="true" />
+                            <p:panel>
+                                <h:panelGrid columns="2" columnClasses="verticalAlignTop, verticalAlignTop" >
+                                    <h:column>
+                                        <h:panelGrid columns="2" cellspacing="5" id="i_grid_cupom">
+                                            <h:outputLabel value="Cupom:" />
+                                            <p:inputText value="#{cupomBean.cupom.descricao}" maxlength="250" converter="#{toUpperCase}">
+                                                <p:ajax event="change" update="@this" />                                            
+                                            </p:inputText>
+                                            <h:outputLabel value="Data:" />
+                                            <p:inputMask value="#{cupomBean.cupom.data}" mask="99/99/9999" converter="#{isDateString}" size="8">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputMask>
+                                            <h:outputLabel value="Carência Inadimplencia Dias:" />
+                                            <p:inputText value="#{cupomBean.cupom.carenciaInadimplenciaDiasString}" converter="#{thisNumber}" size="1" styleClass="text-center">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputText>
+                                            <h:column />
+                                            <p:selectBooleanCheckbox value="#{cupomBean.cupom.ativo}" itemLabel="Ativo" />
+                                        </h:panelGrid>
+                                    </h:column>
+                                    <h:column>
+                                        <h:panelGrid columns="1" id="id_categoria" styleClass="margin-left-max">
+                                            <h:column>
+                                                <h:panelGrid columns="4" cellpadding="5" >
+                                                    <p:outputLabel value="Categoria: " />
+                                                    <p:selectOneMenu value="#{cupomBean.idCategoria}">
+                                                        <p:ajax event="change" update="@this" />
+                                                        <f:selectItems value="#{cupomBean.listCategoria}" />
+                                                    </p:selectOneMenu>                                    
+                                                    <p:commandButton icon="ui-icon-plus" action="#{cupomBean.add}" update="id_categoria" disabled="#{controleAcessoBean.botaoSalvar or empty cupomBean.listCategoria}"/>
+                                                </h:panelGrid>
+                                            </h:column>
+                                            <h:column>
+                                                <p:dataTable value="#{cupomBean.listCupomCategoria}" var="cupomCategoria" emptyMessage="Nenhum registro encontrado!">
+                                                    <p:column width="30">
+                                                        <p:commandButton icon="ui-icon-close" action="#{cupomBean.remove(cupomCategoria)}" update=":form_cupom:id_categoria" disabled="#{controleAcessoBean.botaoExcluir}"/>
+                                                    </p:column>
+                                                    <p:column headerText="Categoria">
+                                                        #{cupomCategoria.categoria.categoria}
+                                                    </p:column>
+                                                </p:dataTable>
+                                            </h:column>
+                                        </h:panelGrid>
+                                    </h:column>
+                                </h:panelGrid>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="3">
+                                        <p:commandButton value="Salvar" disabled="#{controleAcessoBean.botaoSalvar}" onclick="PF('dlg_save').show();" />                                        
+                                        <p:commandButton value="Novo" update=":form_cupom:" action="#{cupomBean.clear}" />
+                                        <p:commandButton value="Excluir" disabled="#{controleAcessoBean.botaoExcluir}"  onclick="PF('dlg_delete').show();" />                                        
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:panel>
+                            <p:panel header="Cupons" id="id_grid_cupons" styleClass="margin-top-max">
+                                <p:dataTable value="#{cupomBean.listCupom}" var="cupom" id="id_grid_cupons_this" emptyMessage="Nenhum registro encontrado!">                                 
+                                    <p:column styleClass="text-center" width="30">
+                                        <p:commandButton icon="ui-icon-link" action="#{cupomBean.edit(cupom)}" update=":form_cupom:" disabled="#{controleAcessoBean.botaoExcluir}" />
+                                    </p:column>
+                                    <p:column headerText="Data da emissão" styleClass="text-center" width="80">
+                                        #{cupom.data}
+                                    </p:column>
+                                    <p:column headerText="Descriçao">
+                                        #{cupom.descricao} 
+                                    </p:column>
+                                    <p:column headerText="Dias de inadimplência">
+                                        #{cupom.carenciaInadimplenciaDias} 
+                                    </p:column>                                    
+                                </p:dataTable>
+                            </p:panel>
+                            <p:dialog widgetVar="dlg_save" header="Deseja salvar este registro?" resizable="false" width="400" modal="true">
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{cupomBean.save()}" oncomplete="PF('dlg_save').hide();PF('dlg_message').show();"  update="i_message :form_cupom:"/> 
+                                        <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_save').hide()" icon="ui-icon-close"/>                                                                            
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_delete" header="Deseja excluir este registro?" resizable="false" width="400" modal="true">
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{cupomBean.delete()}" oncomplete="PF('dlg_delete').hide();PF('dlg_message').show();"  update="i_message :form_cupom:"/> 
+                                        <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_delete').hide()" icon="ui-icon-close"/>
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_message" header="Mensagem" resizable="false" width="400" modal="true" closable="true">
+                                <p:messages autoUpdate="true" showDetail="true" showSummary="true" id="i_message" /> 
+                                <f:facet name="footer">
+                                    <p:commandButton value="OK" type="submit" styleClass="ui-confirmdialog-yes" onclick="PF('dlg_message').hide();"/>
+                                </f:facet>
+                            </p:dialog>                            
+                        </h:form>
+                    </p:panel>
+                    <!-- FINALIZA div wrap main -->
+                </div>
+            </div>
+            <!-- FINALIZA div wrap main -->              
+        </f:view>
+    </h:body>
+</ui:composition>

@@ -15,179 +15,215 @@
         </style>        
     </h:head>
     <h:body>
-        <f:subview id="header">
-            <ui:include src="templates/templatePrime.xhtml"/>
-        </f:subview>
-        <f:view>
-            <ui:include src="templates/templateStatus.xhtml"/>
-            <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
-                <h:form id="form_oposicao">
-                    <c:set scope="request" var="object" value="${oposicaoBean.oposicao}" id="idObject"/>
-                    <h:outputScript name="tradutor_primefaces.js" library="js" /> 
-                    <p:growl id="growl" showDetail="true"/> 
-                    <p:outputLabel value="Cadastro de Oposição" styleClass="fonteHeader"/>
-                    <div class="clear"></div>
-                    <p:messages id="messages" showDetail="true" autoUpdate="true" closable="true"/>
-                    <p:panel id="i_panel_oposicao" styleClass="margin-top">
-                        <h:panelGrid columns="2" columnClasses="verticalAlignTop verticalAlignTop">
-                            <p:outputLabel value="CPF: " />
-                            <h:column>
-                                <p:inputMask mask="999.999.999-99" id="idCPF" value="#{oposicaoBean.oposicao.oposicaoPessoa.cpf}" size="15" readonly="#{oposicaoBean.desabilitaPessoa}" placeholder="999.999.999-99">
-                                    <p:ajax event="change" listener="#{oposicaoBean.consultaPessoa}" update="form_oposicao i_panel_oposicao messages" />
-                                </p:inputMask>
-                            </h:column>                                
-                            <p:commandButton icon="ui-icon-search" action="#{chamadaPaginaBean.pesquisaPessoaJuridica}" immediate="true" title="Pesquisa Pessoa Jurídica" disabled="#{oposicaoBean.desabilitaPessoa}" id="idPesquisaJuridica"/>
-                            <h:column>
-                                <h:column rendered="#{oposicaoBean.oposicao.juridica.pessoa.id != -1}">
-                                    <h:panelGrid columns="5">
-                                        <p:outputLabel value="#{oposicaoBean.oposicao.juridica.pessoa.documento}" style="font-size: 11pt!important"/>
-                                        <p:outputLabel value="#{oposicaoBean.oposicao.juridica.pessoa.nome}" style="font-size: 11pt!important"/>
-                                        <p:outputLabel value="#{oposicaoBean.msgEmpresa}" />
-                                        <p:commandButton icon="ui-icon-contact" update=":form_oposicao:i_pessoa_juridica_card" action="#{pessoaCardBean.cardJuridica(oposicaoBean.oposicao.juridica.pessoa.id)}" oncomplete="PF('dlg_pessoa_juridica_card').show()" title="Ver detalhes" />
-                                    </h:panelGrid>
-                                </h:column>
-                                <h:column rendered="#{oposicaoBean.oposicao.juridica.pessoa.id == -1}">
-                                    <p:outputLabel for="idPesquisaJuridica" value="Pesquisar Pessoa Jurídica" />
-                                </h:column>
-                            </h:column>
-                            <p:outputLabel value="Emissão: " />
-                            <p:inputText value="#{oposicaoBean.oposicao.emissao}" size="8" readonly="#{controleAcessoBean.verificarPermissao('libera_data_emissao_oposicao', 3)}" converter="#{isDateString}">
-                                <p:ajax event="change" update="@this" />
-                            </p:inputText>
-                            <p:outputLabel value="RG: " />
-                            <h:column>
-                                <p:inputText id="idRG"  value="#{oposicaoBean.oposicao.oposicaoPessoa.rg}" maxlength="15" size="15"  rendered="#{oposicaoBean.oposicao.oposicaoPessoa.cpf == ''}" >
-                                    <p:ajax event="change" listener="#{oposicaoBean.consultaPessoa}" update="i_panel_oposicao messages" />
-                                </p:inputText>
-                                <p:inputText id="idRGs"  value="#{oposicaoBean.oposicao.oposicaoPessoa.rg}" maxlength="15" size="15"  rendered="#{oposicaoBean.oposicao.oposicaoPessoa.cpf != ''}"/>
-                            </h:column>
-                            <p:outputLabel value="Nome: " />
-                            <p:inputText id="idNome" value="#{oposicaoBean.oposicao.oposicaoPessoa.nome}" size="50" maxlength="50">
-                                <p:ajax event="change" update="@this" />
-                            </p:inputText>
-                            <p:outputLabel value="Nascimento: " />
-                            <p:inputMask value="#{oposicaoBean.oposicao.oposicaoPessoa.dataNascimentoString}" style="width: 80px" mask="99/99/9999">
-                                <p:ajax event="change" update="@this" />
-                            </p:inputMask>
-                            <p:outputLabel value="Sexo: " />
-                            <p:selectOneRadio value="#{oposicaoBean.sexo}"  id="idSexo" >
-                                <p:ajax event="change" update="@this"/>
-                                <f:selectItem itemValue="M" itemLabel="Masculino"/>
-                                <f:selectItem itemValue="F" itemLabel="Feminino"/>
-                            </p:selectOneRadio>
-                            <p:outputLabel value="Telefone:" />
-                            <h:column>
-                                <h:panelGrid columns="3">
-                                    <p:inputMask value="#{oposicaoBean.oposicao.oposicaoPessoa.telefone1}" size="10" mask="(99) 9999-9999">
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->          
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                </f:subview>
+                <f:view>
+                    <ui:include src="templates/templateStatus.xhtml"/>
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:form id="form_oposicao">
+                            <c:set scope="request" var="object" value="${oposicaoBean.oposicao}" id="idObject"/>
+                            <h:outputScript name="tradutor_primefaces.js" library="js" /> 
+                            <p:growl id="growl" showDetail="true"/> 
+                            <p:outputLabel value="Cadastro de Oposição" styleClass="fonteHeader"/>
+                            <div class="clear"></div>
+                            <p:messages id="messages" showDetail="true" autoUpdate="true" closable="true"/>
+                            <p:panel id="i_panel_oposicao" styleClass="margin-top">
+                                <h:panelGrid columns="2" columnClasses="verticalAlignTop verticalAlignTop">
+                                    <p:outputLabel value="CPF: " />
+                                    <h:column>
+                                        <p:inputMask mask="999.999.999-99" id="idCPF" value="#{oposicaoBean.oposicao.oposicaoPessoa.cpf}" size="15" readonly="#{oposicaoBean.desabilitaPessoa}" placeholder="999.999.999-99">
+                                            <p:ajax event="change" listener="#{oposicaoBean.consultaPessoa}" update="form_oposicao i_panel_oposicao messages" />
+                                        </p:inputMask>
+                                    </h:column>                                
+                                    <p:commandButton icon="ui-icon-search" action="#{chamadaPaginaBean.pesquisaPessoaJuridica}" immediate="true" title="Pesquisa Pessoa Jurídica" disabled="#{oposicaoBean.desabilitaPessoa}" id="idPesquisaJuridica"/>
+                                    <h:column>
+                                        <h:column rendered="#{oposicaoBean.oposicao.juridica.pessoa.id != -1}">
+                                            <h:panelGrid columns="5">
+                                                <p:outputLabel value="#{oposicaoBean.oposicao.juridica.pessoa.documento}" style="font-size: 11pt!important"/>
+                                                <p:outputLabel value="#{oposicaoBean.oposicao.juridica.pessoa.nome}" style="font-size: 11pt!important"/>
+                                                <p:outputLabel value="#{oposicaoBean.msgEmpresa}" />
+                                                <p:commandButton icon="ui-icon-contact" update=":form_oposicao:i_pessoa_juridica_card" action="#{pessoaCardBean.cardJuridica(oposicaoBean.oposicao.juridica.pessoa.id)}" oncomplete="PF('dlg_pessoa_juridica_card').show()" title="Ver detalhes" />
+                                            </h:panelGrid>
+                                        </h:column>
+                                        <h:column rendered="#{oposicaoBean.oposicao.juridica.pessoa.id == -1}">
+                                            <p:outputLabel for="idPesquisaJuridica" value="Pesquisar Pessoa Jurídica" />
+                                        </h:column>
+                                    </h:column>
+                                    <p:outputLabel value="Emissão: " />
+                                    <p:inputText value="#{oposicaoBean.oposicao.emissao}" size="8" readonly="#{controleAcessoBean.verificarPermissao('libera_data_emissao_oposicao', 3)}" converter="#{isDateString}">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:inputText>
+                                    <p:outputLabel value="RG: " />
+                                    <h:column>
+                                        <p:inputText id="idRG"  value="#{oposicaoBean.oposicao.oposicaoPessoa.rg}" maxlength="15" size="15"  rendered="#{oposicaoBean.oposicao.oposicaoPessoa.cpf == ''}" >
+                                            <p:ajax event="change" listener="#{oposicaoBean.consultaPessoa}" update="i_panel_oposicao messages" />
+                                        </p:inputText>
+                                        <p:inputText id="idRGs"  value="#{oposicaoBean.oposicao.oposicaoPessoa.rg}" maxlength="15" size="15"  rendered="#{oposicaoBean.oposicao.oposicaoPessoa.cpf != ''}"/>
+                                    </h:column>
+                                    <p:outputLabel value="Nome: " />
+                                    <p:inputText id="idNome" value="#{oposicaoBean.oposicao.oposicaoPessoa.nome}" size="50" maxlength="50">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:inputText>
+                                    <p:outputLabel value="Nascimento: " />
+                                    <p:inputMask value="#{oposicaoBean.oposicao.oposicaoPessoa.dataNascimentoString}" style="width: 80px" mask="99/99/9999">
                                         <p:ajax event="change" update="@this" />
                                     </p:inputMask>
-                                    <p:outputLabel value="Celular:" />                                    
-                                    <p:inputMask value="#{oposicaoBean.oposicao.oposicaoPessoa.telefone2}" size="12" mask="(99) 99999-9999">
+                                    <p:outputLabel value="Sexo: " />
+                                    <p:selectOneRadio value="#{oposicaoBean.sexo}"  id="idSexo" >
+                                        <p:ajax event="change" update="@this"/>
+                                        <f:selectItem itemValue="M" itemLabel="Masculino"/>
+                                        <f:selectItem itemValue="F" itemLabel="Feminino"/>
+                                    </p:selectOneRadio>
+                                    <p:outputLabel value="Telefone:" />
+                                    <h:column>
+                                        <h:panelGrid columns="3">
+                                            <p:inputMask value="#{oposicaoBean.oposicao.oposicaoPessoa.telefone1}" size="10" mask="(99) 9999-9999">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputMask>
+                                            <p:outputLabel value="Celular:" />                                    
+                                            <p:inputMask value="#{oposicaoBean.oposicao.oposicaoPessoa.telefone2}" size="12" mask="(99) 99999-9999">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputMask>
+                                        </h:panelGrid>
+                                    </h:column>
+                                    <p:outputLabel value="Email:" />
+                                    <p:inputText value="#{oposicaoBean.oposicao.oposicaoPessoa.email1}" size="50" maxlength="100">
                                         <p:ajax event="change" update="@this" />
-                                    </p:inputMask>
+                                    </p:inputText>
+                                    <p:outputLabel value="Carteira:" />
+                                    <p:inputText value="#{oposicaoBean.oposicao.oposicaoPessoa.carteira}" size="30">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:inputText>
+                                    <p:outputLabel value="Série:" />
+                                    <p:inputText value="#{oposicaoBean.oposicao.oposicaoPessoa.serie}" size="20">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:inputText>
+                                    <p:outputLabel value="Endereço:" />
+                                    <h:column>
+                                        <p:inputText readonly="true" value="#{oposicaoBean.oposicao.oposicaoPessoa.endereco.enderecoToString}" size="70" />
+                                        <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pesquisaEndereco()}" />
+                                        <p:commandButton icon="ui-icon-close" action="#{oposicaoBean.removerEndereco()}" title="Remover endereço" update="i_panel_oposicao"/>
+                                    </h:column>
+                                    <p:outputLabel value="Número:" />
+                                    <p:inputText value="#{oposicaoBean.oposicao.oposicaoPessoa.numero}" size="20" maxlength="100">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:inputText>
+                                    <p:outputLabel value="Complemento:" />
+                                    <p:inputText value="#{oposicaoBean.oposicao.oposicaoPessoa.complemento}" size="50" maxlength="100">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:inputText>
+                                    <p:outputLabel value="Observação: " />
+                                    <p:inputTextarea value="#{oposicaoBean.oposicao.observacao}" cols="80" rows="5" placeholder="Digite aqui as observações"></p:inputTextarea>
                                 </h:panelGrid>
-                            </h:column>
-                            <p:outputLabel value="Email:" />
-                            <p:inputText value="#{oposicaoBean.oposicao.oposicaoPessoa.email1}" size="50" maxlength="100">
-                                <p:ajax event="change" update="@this" />
-                            </p:inputText>
-                            <p:outputLabel value="Observação: " />
-                            <p:inputTextarea value="#{oposicaoBean.oposicao.observacao}" cols="80" rows="5" placeholder="Digite aqui as observações"></p:inputTextarea>
-                        </h:panelGrid>
-                        <h:column rendered="#{oposicaoBean.oposicao.convencaoPeriodo.convencao.id != -1}">
-                            <p:panel header="Convenção Período" styleClass="margin-top-max">
-                                <p:panelGrid>
-                                    <f:facet name="header">
-                                        <p:row>
-                                            <p:column colspan="2"></p:column>
-                                            <p:column colspan="2">Referência</p:column>
-                                        </p:row>
-                                        <p:row>
-                                            <p:column>
-                                                <p:outputLabel value="Convenção" />
-                                            </p:column>
-                                            <p:column>
-                                                <p:outputLabel value="Grupo Cidade" title="Grupo Cidade" />
-                                            </p:column>
-                                            <p:column>
-                                                <p:outputLabel value="Inicial" />
-                                            </p:column>
-                                            <p:column>
-                                                <p:outputLabel value="Final"  />                                        
-                                            </p:column>
-                                        </p:row>
-                                    </f:facet>
-                                    <p:row>
-                                        <p:column>
-                                            <p:outputLabel value="#{oposicaoBean.oposicao.convencaoPeriodo.convencao.descricao}" />
-                                        </p:column>
-                                        <p:column>
-                                            <p:outputLabel value="#{oposicaoBean.oposicao.convencaoPeriodo.grupoCidade.descricao}" />
-                                        </p:column>
-                                        <p:column>
-                                            <p:outputLabel value="#{oposicaoBean.oposicao.convencaoPeriodo.referenciaInicial}" />
-                                        </p:column>
-                                        <p:column>
-                                            <p:outputLabel value="#{oposicaoBean.oposicao.convencaoPeriodo.referenciaFinal}" />
-                                        </p:column>
-                                    </p:row>
-                                </p:panelGrid>
+                                <h:column rendered="#{oposicaoBean.oposicao.convencaoPeriodo.convencao.id != -1}">
+                                    <p:panel header="Convenção Período" styleClass="margin-top-max">
+                                        <p:panelGrid>
+                                            <f:facet name="header">
+                                                <p:row>
+                                                    <p:column colspan="2"></p:column>
+                                                    <p:column colspan="2">Referência</p:column>
+                                                </p:row>
+                                                <p:row>
+                                                    <p:column>
+                                                        <p:outputLabel value="Convenção" />
+                                                    </p:column>
+                                                    <p:column>
+                                                        <p:outputLabel value="Grupo Cidade" title="Grupo Cidade" />
+                                                    </p:column>
+                                                    <p:column>
+                                                        <p:outputLabel value="Inicial" />
+                                                    </p:column>
+                                                    <p:column>
+                                                        <p:outputLabel value="Final"  />                                        
+                                                    </p:column>
+                                                </p:row>
+                                            </f:facet>
+                                            <p:row>
+                                                <p:column>
+                                                    <p:outputLabel value="#{oposicaoBean.oposicao.convencaoPeriodo.convencao.descricao}" />
+                                                </p:column>
+                                                <p:column>
+                                                    <p:outputLabel value="#{oposicaoBean.oposicao.convencaoPeriodo.grupoCidade.descricao}" />
+                                                </p:column>
+                                                <p:column>
+                                                    <p:outputLabel value="#{oposicaoBean.oposicao.convencaoPeriodo.referenciaInicial}" />
+                                                </p:column>
+                                                <p:column>
+                                                    <p:outputLabel value="#{oposicaoBean.oposicao.convencaoPeriodo.referenciaFinal}" />
+                                                </p:column>
+                                            </p:row>
+                                        </p:panelGrid>
+                                    </p:panel>
+                                </h:column>
                             </p:panel>
-                        </h:column>
+                            <h:panelGrid columns="6" id="i_panel_acao" styleClass="margin-top-max">
+                                <p:commandButton  value="Salvar" title="Salvar" disabled="#{controleAcessoBean.botaoSalvar or oposicaoBean.oposicao.dtInativacao != null}" onclick="PF('dlg_save').show();"  />
+                                <p:commandButton  value="Novo" title="Novo" action="#{oposicaoBean.destroy()}" update="form_oposicao"/>
+                                <p:commandButton  value="Excluir" title="Excluir" disabled="#{controleAcessoBean.botaoExcluir or oposicaoBean.oposicao.id == -1}" onclick="PF('dlg_delete').show();"/>
+                                <p:commandButton  value="Inativar" title="Inativar Oposição" disabled="#{controleAcessoBean.botaoExcluir or oposicaoBean.oposicao.id == -1 or oposicaoBean.oposicao.dtInativacao != null}" onclick="PF('dlg_inativar').show();"/>
+                                <p:commandButton value="Pesquisar" title="Pesquisar" action="#{chamadaPaginaBean.pesquisaOposicao}"/>                            
+                                <p:outputLabel value="OPOSIÇÃO INATIVADA EM ( #{oposicaoBean.oposicao.inativacaoString} )" style="font-weight: bold; color: red" rendered="#{oposicaoBean.oposicao.dtInativacao != null}"/>
+                            </h:panelGrid>
+                            <p:dialog id="i_panel_salvar" widgetVar="dlg_save" modal="true" header="Deseja salvar este registro?" width="400">
+                                <center>
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Sim" title="Salvar" action="#{oposicaoBean.save}" update=":form_oposicao: out_mensagem" oncomplete="PF('dlg_save').hide(); PF('dlg_message').show();"/>
+                                        <p:commandButton value="Não" title="Cancelar" onclick="PF('dlg_save').hide();"/>
+                                    </h:panelGrid>
+                                </center>
+                            </p:dialog>
+                            <p:dialog id="i_panel_excluir" widgetVar="dlg_delete"  modal="true" resizable="true" header="Deseja excluir este registro?" width="400">
+                                <center>
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Sim" title="Excluir" action="#{oposicaoBean.delete}" update=":form_oposicao: out_mensagem" oncomplete="PF('dlg_delete').hide(); PF('dlg_message').show();"/>
+                                        <p:commandButton value="Não" title="Cancelar" onclick="PF('dlg_delete').hide();"/>
+                                    </h:panelGrid>
+                                </center>
+                            </p:dialog>
+
+                            <p:dialog widgetVar="dlg_inativar"  modal="true" resizable="true" header="Inativar Oposição" width="400">
+
+                                <h:panelGrid columns="1">
+                                    <p:outputLabel value="Deseja realmente inativar esta oposição?" style="font-size: 11pt!important" />
+                                </h:panelGrid>
+
+                                <h:panelGrid columns="2">
+                                    <p:commandButton icon="ui-icon-check" value="Sim" title="Inativar" action="#{oposicaoBean.inativar}" update=":form_oposicao: out_mensagem" oncomplete="PF('dlg_inativar').hide(); PF('dlg_message').show();"/>
+                                    <p:commandButton icon="ui-icon-close" value="Não" title="Cancelar" onclick="PF('dlg_inativar').hide();"/>
+                                </h:panelGrid>
+                            </p:dialog>
+
+                            <p:dialog id="id_panel_mensagem" widgetVar="dlg_message" modal="true" header="Mensagem" width="400">
+                                <h:panelGrid id="out_mensagem">
+                                    <p:outputLabel value="#{oposicaoBean.message}" />
+                                </h:panelGrid>
+                                <f:facet name="footer">
+                                    <p:commandButton value="Ok" title="Ok" onclick="PF('dlg_message').hide();" />                            
+                                </f:facet>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_pessoa_juridica_card" modal="true" resizable="false" height="400" width="600" header="Detalhes">
+                                <p:ajax event="close" listener="#{pessoaCardBean.close}"/>
+                                <p:panel id="i_pessoa_juridica_card">
+                                    <ui:include src="templates/templatePessoaJuridicaCard.xhtml" />
+                                </p:panel>
+                            </p:dialog>                    
+                        </h:form>
                     </p:panel>
-                    <h:panelGrid columns="6" id="i_panel_acao" styleClass="margin-top-max">
-                        <p:commandButton  value="Salvar" title="Salvar" disabled="#{controleAcessoBean.botaoSalvar or oposicaoBean.oposicao.dtInativacao != null}" onclick="PF('dlg_save').show();"  />
-                        <p:commandButton  value="Novo" title="Novo" action="#{oposicaoBean.destroy()}" update="form_oposicao"/>
-                        <p:commandButton  value="Excluir" title="Excluir" disabled="#{controleAcessoBean.botaoExcluir or oposicaoBean.oposicao.id == -1}" onclick="PF('dlg_delete').show();"/>
-                        <p:commandButton  value="Inativar" title="Inativar Oposição" disabled="#{controleAcessoBean.botaoExcluir or oposicaoBean.oposicao.id == -1 or oposicaoBean.oposicao.dtInativacao != null}" onclick="PF('dlg_inativar').show();"/>
-                        <p:commandButton value="Pesquisar" title="Pesquisar" action="#{chamadaPaginaBean.pesquisaOposicao}"/>                            
-                        <p:outputLabel value="OPOSIÇÃO INATIVADA EM ( #{oposicaoBean.oposicao.inativacaoString} )" style="font-weight: bold; color: red" rendered="#{oposicaoBean.oposicao.dtInativacao != null}"/>
-                    </h:panelGrid>
-                    <p:dialog id="i_panel_salvar" widgetVar="dlg_save" modal="true" header="Deseja salvar este registro?" width="400">
-                        <center>
-                            <h:panelGrid columns="2">
-                                <p:commandButton value="Sim" title="Salvar" action="#{oposicaoBean.save}" update=":form_oposicao: out_mensagem" oncomplete="PF('dlg_save').hide(); PF('dlg_message').show();"/>
-                                <p:commandButton value="Não" title="Cancelar" onclick="PF('dlg_save').hide();"/>
-                            </h:panelGrid>
-                        </center>
-                    </p:dialog>
-                    <p:dialog id="i_panel_excluir" widgetVar="dlg_delete"  modal="true" resizable="true" header="Deseja excluir este registro?" width="400">
-                        <center>
-                            <h:panelGrid columns="2">
-                                <p:commandButton value="Sim" title="Excluir" action="#{oposicaoBean.delete}" update=":form_oposicao: out_mensagem" oncomplete="PF('dlg_delete').hide(); PF('dlg_message').show();"/>
-                                <p:commandButton value="Não" title="Cancelar" onclick="PF('dlg_delete').hide();"/>
-                            </h:panelGrid>
-                        </center>
-                    </p:dialog>
+                </f:view>
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
 
-                    <p:dialog widgetVar="dlg_inativar"  modal="true" resizable="true" header="Inativar Oposição" width="400">
-
-                        <h:panelGrid columns="1">
-                            <p:outputLabel value="Deseja realmente inativar esta oposição?" style="font-size: 11pt!important" />
-                        </h:panelGrid>
-
-                        <h:panelGrid columns="2">
-                            <p:commandButton icon="ui-icon-check" value="Sim" title="Inativar" action="#{oposicaoBean.inativar}" update=":form_oposicao: out_mensagem" oncomplete="PF('dlg_inativar').hide(); PF('dlg_message').show();"/>
-                            <p:commandButton icon="ui-icon-close" value="Não" title="Cancelar" onclick="PF('dlg_inativar').hide();"/>
-                        </h:panelGrid>
-                    </p:dialog>
-
-                    <p:dialog id="id_panel_mensagem" widgetVar="dlg_message" modal="true" header="Mensagem" width="400">
-                        <h:panelGrid id="out_mensagem">
-                            <p:outputLabel value="#{oposicaoBean.message}" />
-                        </h:panelGrid>
-                        <f:facet name="footer">
-                            <p:commandButton value="Ok" title="Ok" onclick="PF('dlg_message').hide();" />                            
-                        </f:facet>
-                    </p:dialog>
-                    <p:dialog widgetVar="dlg_pessoa_juridica_card" modal="true" resizable="false" height="400" width="600" header="Detalhes">
-                        <p:ajax event="close" listener="#{pessoaCardBean.close}"/>
-                        <p:panel id="i_pessoa_juridica_card">
-                            <ui:include src="templates/templatePessoaJuridicaCard.xhtml" />
-                        </p:panel>
-                    </p:dialog>                    
-                </h:form>
-            </p:panel>
-        </f:view>
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>                  
     </h:body>
 </ui:composition>

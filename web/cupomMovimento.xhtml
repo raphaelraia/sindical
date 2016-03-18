@@ -27,59 +27,97 @@
                 <div id="mainx">
                     <!-- INICIA DIV wrap e main -->  
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
-                        <h:outputText value="Sorteio" styleClass="fonteHeader" />
+                        <h:outputText value="Cupom" styleClass="fonteHeader" />
                         <div class="clear"></div>
                         <h:form id="form_cupom_movimento">
-                            <c:set scope="request" var="object" value="${sorteioMovimentoBean.sorteio}"/>
+                            <c:set scope="request" var="object" value="${cupomMovimentoBean.cupomMovimento}"/>
                             <p:messages autoUpdate="true" showDetail="true" showSummary="true" />
                             <p:panel>
-                                <h:panelGrid columns="3" cellspacing="5" id="i_grid_sorteio">
-                                    <h:outputLabel value="Sorteio" />
-                                    <p:selectOneMenu value="#{sorteioMovimentoBean.idSorteio}" >
-                                        <p:ajax event="change" update="@this id_grid_sorteados id_sorteio_categoria" listener="#{sorteioMovimentoBean.loadSorteio}"/>
-                                        <f:selectItems value="#{sorteioMovimentoBean.listSorteio}" />
-                                    </p:selectOneMenu>
-                                    <p:selectBooleanCheckbox value="#{sorteioMovimentoBean.historico}" itemLabel="Histórico">
-                                        <p:ajax event="change" update="@this i_grid_sorteio id_grid_sorteados id_sorteio_categoria" listener="#{sorteioMovimentoBean.loadListSorteio()}"/>
-                                    </p:selectBooleanCheckbox>
+                                <h:panelGrid columns="2" cellspacing="5">
+                                    <h:outputLabel value="Cupom:" />
+                                    <h:column>
+                                        <h:panelGrid columns="4" cellpadding="5">
+                                            <p:selectOneMenu value="#{cupomMovimentoBean.idCupom}">
+                                                <p:ajax event="change" update="@this :form_cupom_movimento:" listener="#{cupomMovimentoBean.loadCupom}"/>
+                                                <f:selectItems value="#{cupomMovimentoBean.listCupom}" />
+                                            </p:selectOneMenu>                                            
+                                            <p:outputLabel value="Carência Inadimplencia Dias: " />
+                                            <p:outputLabel value="#{cupomMovimentoBean.cupom.carenciaInadimplenciaDias}" styleClass="bold font-color-red" />
+                                            <p:selectBooleanCheckbox value="#{cupomMovimentoBean.historico}" itemLabel="Histórico">
+                                                <p:ajax event="change" update="@this :form_cupom_movimento:" listener="#{cupomMovimentoBean.loadListCupom()}"/>
+                                            </p:selectBooleanCheckbox>
+                                        </h:panelGrid>
+                                    </h:column>                                    
                                 </h:panelGrid>
-                                <h:panelGrid id="id_sorteio_categoria" width="350">
-                                    <p:outputLabel value="Carência débito: #{sorteioMovimentoBean.sorteio.sorteioStatus.carenciaDebito} dia(s)" />
-                                    <p:dataTable value="#{sorteioMovimentoBean.sorteio.listSorteioCategoria}" var="sorteioCategoria" styleClass="margin-top-max" emptyMessage="Nenhum registro encontrado!">
+                                <h:panelGroup id="id_cupons_categoria">
+                                    <p:dataGrid value="#{cupomMovimentoBean.cupom.listCupomCategoria}" var="cupomCategoria" emptyMessage="Nenhum registro encontrado!" rendered="#{not empty cupomMovimentoBean.cupom}">
+                                        <f:facet name="header">
+                                            <h:outputLabel value="* A pesquisa da pessoa/sócio será realizada apenas para a(s) categoria(s) abaixo." styleClass="font-color-red"/>
+                                        </f:facet>
                                         <p:column headerText="Categoria" styleClass="text-center" width="50">
-                                            #{sorteioCategoria.categoria.categoria}
+                                            #{cupomCategoria.categoria.categoria}
+                                        </p:column>
+                                    </p:dataGrid>
+                                </h:panelGroup>
+                                <h:panelGroup>
+                                    <h:panelGrid columns="2" cellspacing="5" styleClass="margin-top-max" >
+                                        <p:commandButton icon="ui-icon-search" value="Pessoa: " action="#{chamadaPaginaBean.pesquisa('pesquisaSocios')}" title="Pesquisar pessoa" id="idPesquisarPessoa">
+                                            <p:ajax event="click" listener="#{cupomMovimentoBean.putCategoria()}" />
+                                        </p:commandButton>
+                                        <h:column>
+                                            <p:outputLabel value="Pesquisar pessoa" style="border-bottom: 1px dashed #ECF3FE" rendered="#{cupomMovimentoBean.pessoa.id == -1}" />
+                                            <p:commandLink value="#{cupomMovimentoBean.pessoa.nome}" rendered="#{cupomMovimentoBean.pessoa.id != -1}" title="Ver detalhes" onclick="PF('dlg_pessoa_fisica_card').show()" update="i_pessoa_fisica_card" action="#{pessoaCardBean.cardFisica(cupomMovimentoBean.pessoa.id)}"/>
+                                        </h:column>                                    
+                                        <h:column>
+                                        </h:column>
+                                    </h:panelGrid>
+                                    <p:dataTable value="#{cupomMovimentoBean.sociosCupomMovimento}" var="sociosCupomMovimento" emptyMessage="Nenhum registro encontrado!" rendered="#{cupomMovimentoBean.pessoa.id != -1}"> 
+                                        <f:facet name="header">Família</f:facet>
+                                        <p:column width="30" styleClass="text-center">
+                                            <p:selectBooleanCheckbox value="#{sociosCupomMovimento.selected}" disabled="#{sociosCupomMovimento.disabled}">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:selectBooleanCheckbox>
+                                        </p:column>
+                                        <p:column headerText="Nome">
+                                            #{sociosCupomMovimento.pessoa.nome}
+                                        </p:column>
+                                        <p:column headerText="Categoria" styleClass="text-center">
+                                            #{sociosCupomMovimento.pessoa.socios.matriculaSocios.categoria}
+                                        </p:column>
+                                        <p:column headerText="Parentesco" styleClass="text-center">
+                                            #{sociosCupomMovimento.pessoa.socios.parentesco.parentesco}
                                         </p:column>
                                     </p:dataTable>
-                                </h:panelGrid>
+                                </h:panelGroup>                                
                                 <f:facet name="footer">
-                                    <p:commandButton value="Sortear" action="#{sorteioMovimentoBean.process}" update="id_grid_sorteados" disabled="#{controleAcessoBean.botaoSalvar}"/>
+                                    <h:panelGrid columns="3">
+                                        <p:commandButton value="Salvar" disabled="#{controleAcessoBean.botaoSalvar}" onclick="PF('dlg_save').show();" />                                        
+                                        <p:commandButton value="Novo" update=":form_cupom_movimento:" action="#{cupomMovimentoBean.clear}" />
+                                    </h:panelGrid>
                                 </f:facet>
                             </p:panel>
-                            <p:panel header="Sorteados" id="id_grid_sorteados" styleClass="margin-top-max">
-                                <p:dataTable value="#{sorteioMovimentoBean.listSorteioMovimento}" var="sorteioMovimento" id="id_grid_sorteados_this" emptyMessage="Nenhum registro encontrado!">
-                                    <p:column style="width:5%">  
-                                        <p:rowToggler />  
-                                    </p:column>                                      
+                            <p:panel header="Cupons emitidos" id="id_grid_cupons" styleClass="margin-top-max">
+                                <p:dataTable value="#{cupomMovimentoBean.listCupomMovimento}" var="cupomMovimento" id="id_grid_cupons_this" emptyMessage="Nenhum registro encontrado!">
                                     <p:column styleClass="text-center" width="30">
-                                        <p:commandButton icon="ui-icon-close" action="#{sorteioMovimentoBean.delete(sorteioMovimento)}" update="id_grid_sorteados_this" disabled="#{controleAcessoBean.verificarPermissao('sorteio_movimento_excluir', 2)}" title="SORTEIO MOVIMENTO (BOTÃO EXCLUIR)"/>
+                                        <p:commandButton icon="ui-icon-close" action="#{cupomMovimentoBean.delete(cupomMovimento)}" update="id_grid_cupons_this" disabled="#{controleAcessoBean.botaoSalvar}" />
                                     </p:column>
-                                    <p:column headerText="Data do sorteio" styleClass="text-center" width="80">
-                                        #{sorteioMovimento.sorteioString}
+                                    <p:column headerText="Emissão" styleClass="text-center" width="100" filterBy="#{cupomMovimento.emissao}" filterMatchMode="global">
+                                        #{cupomMovimento.emissao}
                                     </p:column>
-                                    <p:column headerText="Horário" styleClass="text-center" width="50">
-                                        #{sorteioMovimento.horario}
+                                    <p:column headerText="Pessoa" filterBy="#{cupomMovimento.pessoa.nome}" filterMatchMode="global">
+                                        #{cupomMovimento.pessoa.nome}
                                     </p:column>
-                                    <p:column headerText="Sorteado">
-                                        #{sorteioMovimento.pessoa.nome}
+                                    <p:column headerText="CPF" styleClass="text-center" filterBy="#{cupomMovimento.pessoa.documento}">
+                                        #{cupomMovimento.pessoa.documento}
                                     </p:column>
-                                    <p:column headerText="CPF">
-                                        #{sorteioMovimento.pessoa.documento}
+                                    <p:column headerText="Categoria" filterBy="#{cupomMovimento.pessoa.socios.matriculaSocios.categoria.categoria}" filterMatchMode="global" styleClass="text-center" >
+                                        #{cupomMovimento.pessoa.socios.matriculaSocios.categoria.categoria}
                                     </p:column>
                                     <p:column headerText="Operador">
-                                        #{sorteioMovimento.operador.pessoa.nome}
+                                        <p:commandLink value="#{cupomMovimento.operador.pessoa.nome}" update=":form_cupom_movimento:i_usuario_card" onclick="PF('dlg_usuario_card').show()" action="#{pessoaCardBean.cardUsuario(cupomMovimento.pessoa.id)}" />
                                     </p:column>
                                     <p:column width="30">
-                                        <p:commandButton icon="ui-icon-contact" update=":form_cupom_movimento:i_pessoa_fisica_card" onclick="PF('dlg_pessoa_fisica_card').show()" action="#{pessoaCardBean.cardFisica(sorteioMovimento.pessoa.id)}" title="Ver detalhes" />
+                                        <p:commandButton icon="ui-icon-contact" update=":form_cupom_movimento:i_pessoa_fisica_card" onclick="PF('dlg_pessoa_fisica_card').show()" action="#{pessoaCardBean.cardFisica(cupomMovimento.pessoa.id)}" title="Ver detalhes" />
                                     </p:column>
                                     <p:rowExpansion>
 
@@ -91,6 +129,26 @@
                                 <p:panel id="i_pessoa_fisica_card">
                                     <ui:include src="templates/templatePessoaFisicaCard.xhtml" />
                                 </p:panel>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_usuario_card" modal="true" resizable="false" height="400" width="400" header="Detalhes">
+                                <p:ajax event="close" listener="#{pessoaCardBean.close}"/>  
+                                <p:panel id="i_usuario_card">
+                                    <ui:include src="templates/templateUsuarioCard.xhtml" />
+                                </p:panel>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_save" header="Deseja salvar este registro?" resizable="false" width="400" modal="true">
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{cupomMovimentoBean.save()}" oncomplete="PF('dlg_save').hide();PF('dlg_message').show();"  update="i_message :form_cupom_movimento:"/> 
+                                        <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_save').hide()" icon="ui-icon-close"/>                                                                            
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_message" header="Mensagem" resizable="false" width="400" modal="true" closable="true">
+                                <p:messages autoUpdate="true" showDetail="true" showSummary="true" id="i_message" /> 
+                                <f:facet name="footer">
+                                    <p:commandButton value="OK" type="submit" styleClass="ui-confirmdialog-yes" onclick="PF('dlg_message').hide();"/>
+                                </f:facet>
                             </p:dialog>                             
                         </h:form>
                     </p:panel>

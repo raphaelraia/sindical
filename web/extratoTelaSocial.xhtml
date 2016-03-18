@@ -344,7 +344,7 @@
                                 <p:outputLabel value="Opções do Acordo" style="font-weight: bold; font-size: 8pt!important"/>
                                 <h:panelGrid columns="3">
                                     <h:column>
-                                        <p:commandButton icon="ui-icon-close" value="Excluir Acordo" style="margin-right: 15px" title="Excluir Acordos Selecionados" onclick="PF('dlg_acordo').show()"/>
+                                        <p:commandButton icon="ui-icon-close" value="Excluir Acordo" style="margin-right: 15px" title="Excluir Acordos Selecionados" onclick="PF('dlg_acordo').show()" disabled="#{extratoTelaSocialBean.cab.verificarPermissao('excluir_acordo_social', 2)}"/>
                                     </h:column>
                                     
                                     <h:column>

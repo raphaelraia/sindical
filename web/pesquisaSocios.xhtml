@@ -127,13 +127,16 @@
                                     <h:panelGrid style="height: 40px" styleClass="sbb">
                                         <h:outputLabel value="Endereço: #{fisica.pessoa.pessoaEndereco.enderecoCompletoString} " styleClass="bold font-color-red"/>
                                     </h:panelGrid>
-                                    <p:panel header="Titular / Dependente(s)">
+                                    <p:panel header="Titular / Dependente(s) - Matrícula: #{fisica.pessoa.socios.matriculaSocios.nrMatricula} - Categoria: #{fisica.pessoa.socios.matriculaSocios.categoria.categoria}" rendered="#{not empty fisicaBean.listaSocios}">
                                         <p:dataTable value="#{fisicaBean.listaSocios}" var="dependentes">
                                             <p:column headerText="Nome">                                                
                                                 <p:commandLink action="#{fisicaBean.editarFisica(dependentes.servicoPessoa.pessoa)}" value="#{dependentes.servicoPessoa.pessoa.nome}" title="Editar pessoa" styleClass="#{dependentes.parentesco.parentesco eq 'TITULAR' ? 'font-color-red bold' : ''}"/>
                                             </p:column>
                                             <p:column headerText="Parentesco" styleClass="#{dependentes.parentesco.parentesco eq 'TITULAR' ? 'font-color-red bold' : ''}">
                                                 #{dependentes.parentesco.parentesco}
+                                            </p:column>
+                                            <p:column width="30">
+                                                <p:commandButton icon="ui-icon-contact" update=":form_pesquisa_pessoa:i_pessoa_fisica_card" onclick="PF('dlg_pessoa_fisica_card').show()" action="#{pessoaCardBean.cardFisica(dependentes.servicoPessoa.pessoa.id)}" title="Ver detalhes" />
                                             </p:column>
                                         </p:dataTable>                                            
                                     </p:panel>

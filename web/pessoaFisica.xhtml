@@ -479,7 +479,7 @@
                                         <h:panelGrid columns="1">
                                             <p:column>
                                                 <p:outputLabel value="Observações"/><br />
-                                                <p:inputTextarea cols="112" rows="3" value="#{fisicaBean.fisica.pessoa.obs}" />
+                                                <p:inputTextarea cols="112" rows="3" maxlength="1000" value="#{fisicaBean.fisica.pessoa.obs}" />
                                             </p:column>
                                         </h:panelGrid>
 
@@ -556,295 +556,13 @@
                                         </h:panelGrid>
 
                                     </p:tab>
-
-                                    <p:tab id="i_historico" title="Histórico">
-                                        <br />
-
-                                        <p:selectBooleanCheckbox value="#{fisicaBean.chkSomenteDestaPessoa}" itemLabel="Somente desta Pessoa" style="float: right">
-                                            <p:ajax event="change" update="i_tbl_servico i_panel_valor_historico" listener="#{fisicaBean.listaServicoPessoa.clear()}"/>
-                                        </p:selectBooleanCheckbox>
-
-                                        <br /><br />
-
-                                        <p:dataTable id="i_tbl_servico" value="#{fisicaBean.listaServicoPessoa}" var="linha" emptyMessage="Nenhum histórico para esta pessoa.">
-                                            <p:column headerText="Emissão" style="width: 80px; text-align: center">
-                                                <p:outputLabel value="#{fisicaBean.converteData(linha.argumento0[0])}" />
-                                            </p:column>
-
-                                            <p:column headerText="Beneficiário">
-                                                <p:outputLabel value="#{linha.argumento0[1]}" />
-                                            </p:column>
-
-                                            <p:column headerText="Desconto em Folha" style="text-align: center; width: 80px">
-                                                <p:outputLabel value="NÃO" rendered="#{!linha.argumento0[2]}"/>
-                                                <p:outputLabel value="SIM" rendered="#{linha.argumento0[2]}"/>
-                                            </p:column>
-
-                                            <p:column headerText="Desconto" style="text-align: center; width: 60px" rendered="false">
-                                                <p:outputLabel value="#{linha.argumento0[3]}" />
-                                            </p:column>
-
-                                            <p:column headerText="Ref. Vigoração" style="text-align: center; width: 60px">
-                                                <p:outputLabel value="#{linha.argumento0[4]}" />
-                                            </p:column>
-
-                                            <p:column headerText="Ref. Validade" style="text-align: center; width: 60px">
-                                                <p:outputLabel value="#{linha.argumento0[5]}" />
-                                            </p:column>
-
-                                            <p:column headerText="Serviço">
-                                                <p:outputLabel value="#{linha.argumento0[6]}" />
-                                            </p:column>
-
-                                            <p:column headerText="Valor" style="width: 80px; text-align: right">
-                                                <p:outputLabel value="#{fisicaBean.converteMoeda(linha.argumento0[7])}" />
-                                            </p:column>
-
-                                            <p:column headerText="Vlr c/ Desconto" style="width: 80px; text-align: right">
-                                                <p:outputLabel value="#{fisicaBean.converteMoeda(linha.argumento0[8])}" />
-                                            </p:column>
-                                        </p:dataTable>
-                                        <br />
-                                        <h:panelGrid id="i_panel_valor_historico" columns="2" style="float: right">
-                                            <p:column>
-                                                <p:outputLabel value="Valor Total: " style="font-size: 11pt!important"/>
-                                            </p:column>
-                                            <p:column>
-                                                <p:outputLabel value="#{fisicaBean.somaValoresHistorico}" style="font-size: 12pt!important; font-weight: bold"/>
-                                            </p:column>
-                                        </h:panelGrid>
-                                        <br /><br />
-                                    </p:tab>
-
+                                    
                                     <p:tab id="idPessoaComplemento" title="Financeiro" >
                                         <ui:include src="pessoaComplemento_1.xhtml" id="idPessoaComplementoX">  
                                             <ui:param name="idPessoa" value="#{fisicaBean.fisica.pessoa.id}" />  
                                         </ui:include>
                                     </p:tab>
-
-                                    <p:tab title="Movimento">
-                                        <p:outputLabel value="Lista de Movimentos" style="font-weight: bold"/>
-                                        <br /><br />
-                                        <h:panelGrid columns="3">
-                                            <p:column>
-                                                <p:outputLabel value="PESSOA SENDO" style="font-weight: bold"/><br />
-                                                <p:selectOneMenu value="#{fisicaBean.tipoPesquisaMovimento}" style="margin-right: 30px; padding-right: 20px">
-                                                    <p:ajax event="change" update="@this tbl_movimento" listener="#{fisicaBean.loadListaMovimento()}"/>
-                                                    <f:selectItem itemValue="responsavel" itemLabel="Responsável"/>
-                                                    <f:selectItem itemValue="titular" itemLabel="Titular"/>
-                                                    <f:selectItem itemValue="beneficiario" itemLabel="Beneficiário"/>
-                                                </p:selectOneMenu>
-                                            </p:column>
-
-                                            <p:column>
-                                                <p:outputLabel value="SITUAÇÃO" style="font-weight: bold"/><br />
-                                                <p:selectOneMenu value="#{fisicaBean.tipoStatusMovimento}" style="margin-right: 30px; padding-right: 20px">
-                                                    <p:ajax event="change" update="@this tbl_movimento" listener="#{fisicaBean.loadListaMovimento()}"/>
-                                                    <f:selectItem itemValue="todos" itemLabel="Todos"/>
-                                                    <f:selectItem itemValue="abertos" itemLabel="Em Aberto"/>
-                                                    <f:selectItem itemValue="quitados" itemLabel="Quitados"/>
-                                                    <f:selectItem itemValue="excluidos" itemLabel="Excluídos"/>
-                                                </p:selectOneMenu>
-                                            </p:column>
-
-                                            <p:column>
-                                                <p:commandButton value="Refazer Movimentos" title="Refazer movimentos selecionados" onclick="PF('dlg_refazer').show()" style="margin-left: 500px" rendered="#{fisicaBean.listaMovimento.size() > 0}"/>
-                                            </p:column>
-                                        </h:panelGrid>
-
-                                        <p:messages id="msg_movimento" autoUpdate="false" closable="true" showDetail="true" />
-
-                                        <p:dataTable id="tbl_movimento" value="#{fisicaBean.listaMovimento}" var="linha" emptyMessage="Nenhum Movimento Encontrado" scrollable="true" scrollHeight="400">
-                                            <p:column style="width:15px" rendered="#{fisicaBean.tipoStatusMovimento.equals('excluidos')}">  
-                                                <p:rowToggler />  
-                                            </p:column>  
-                                            <p:column headerText="Responsável" style="text-align: center" rendered="#{fisicaBean.tipoPesquisaMovimento ne 'responsavel'}">
-                                                <p:outputLabel value="#{linha[1]}" />
-                                            </p:column>
-                                            <p:column headerText="Titular" rendered="#{fisicaBean.tipoPesquisaMovimento ne 'titular'}">
-                                                <p:outputLabel value="#{linha[2]}" />
-                                            </p:column>
-                                            <p:column headerText="Beneficiário" rendered="#{fisicaBean.tipoPesquisaMovimento ne 'beneficiario'}">
-                                                <p:outputLabel value="#{linha[3]}" />
-                                            </p:column>
-                                            <p:column headerText="Ref." style="width: 60px; text-align: center">
-                                                <p:outputLabel value="#{linha[4]}" />
-                                            </p:column>
-                                            <p:column headerText="Vencimento" style="width: 80px; text-align: center">
-                                                <p:outputLabel value="#{fisicaBean.converteData(linha[5])}" />
-                                            </p:column>
-                                            <p:column headerText="Serviço" style="width: 100px;">
-                                                <p:outputLabel value="#{linha[6]}" />
-                                            </p:column>
-                                            <p:column headerText="Tipo" style="width: 60px; text-align: center">
-                                                <p:outputLabel value="#{linha[7]}" />
-                                            </p:column>
-                                            <p:column headerText="Valor" style="width: 80px; text-align: right">
-                                                <p:outputLabel value="R$ #{fisicaBean.converteMoeda(linha[8])}" />
-                                            </p:column>
-                                            <p:column headerText="Pagamento" style="width: 80px; text-align: center">
-                                                <p:outputLabel value="#{fisicaBean.converteData(linha[9])}" />
-                                            </p:column>
-                                            <p:column headerText="Boleto" style="width: 60px; text-align: right">
-                                                <p:outputLabel value="#{linha[10]}" />
-                                            </p:column>
-                                            <p:rowExpansion>
-                                                <h:panelGrid columns="4" style="height: 40px" styleClass="sbb">
-                                                    <p:column>
-                                                        <p:outputLabel value="Data" style="font-weight: bold"/><br />
-                                                        <p:outputLabel value="#{fisicaBean.converteData(linha[13])}"/>
-                                                    </p:column>
-
-                                                    <p:column>
-                                                        <p:outputLabel value="Usuário" style="font-weight: bold"/><br />
-                                                        <p:outputLabel value="#{linha[11]}"/>
-                                                    </p:column>
-
-                                                    <p:column>
-                                                        <p:outputLabel value="Motivo" style="font-weight: bold"/><br />
-                                                        <p:outputLabel value="#{linha[12]}"/>
-                                                    </p:column>
-                                                </h:panelGrid>
-                                            </p:rowExpansion>
-                                        </p:dataTable>
-
-                                        <p:dialog widgetVar="dlg_refazer" header="Refazer Movimentos" resizable="false" width="400" modal="true">
-                                            <h:panelGrid>
-                                                <p:outputLabel value="Deseja realmente REFAZER esses movimentos?" style="font-size: 11pt!important"/>
-                                            </h:panelGrid>
-
-                                            <h:panelGrid columns="2">
-                                                <p:commandButton value="Sim" type="submit" action="#{fisicaBean.refazerMovimentos()}" update="tbl_movimento msg_movimento" onclick="PF('dlg_refazer').hide()" style="clear: both; float: left" icon="ui-icon-check"/>  
-                                                <p:commandButton value="Não" type="button" onclick="PF('dlg_refazer').hide()" style="float: left" icon="ui-icon-close"/>       
-                                            </h:panelGrid>
-                                        </p:dialog>
-                                    </p:tab>
-
-                                    <p:tab title="Oposições" disabled="#{controleAcessoBean.verificarPermissao('ver_oposicao_pessoa_fisica', 4)}">
-                                        <h:panelGrid columns="1">
-                                            <h:column>
-                                                <p:outputLabel value="Filtrar por" /><br />
-                                                <p:selectOneMenu value="#{fisicaBean.filtroOposicao}">
-                                                    <p:ajax event="change" listener="#{fisicaBean.loadListaOposicao()}" update="tbl_oposicoes"/>
-                                                    <f:selectItem itemValue="ativas"     itemLabel="Ativas"/>
-                                                    <f:selectItem itemValue="anteriores" itemLabel="Anteriores"/>
-                                                    <f:selectItem itemValue="todas"      itemLabel="Todas"/>
-                                                </p:selectOneMenu>
-                                            </h:column>
-                                        </h:panelGrid>
-
-                                        <p:dataTable id="tbl_oposicoes" value="#{fisicaBean.listaOposicao}" var="linha" emptyMessage="Nenhuma Oposição Encontrada" scrollable="true" scrollHeight="400">
-                                            <p:column headerText="Emissão" style="width: 80px; text-align: center">
-                                                <p:outputLabel value="#{linha.emissao}" />
-                                            </p:column>
-
-                                            <p:column headerText="Empresa">
-                                                <p:outputLabel value="#{linha.juridica.pessoa.nome}" />
-                                            </p:column>
-
-                                            <p:column headerText="Inativação" style="width: 80px; text-align: center">
-                                                <p:outputLabel value="#{linha.inativacaoString}" />
-                                            </p:column>
-
-                                            <p:column headerText="Observação">
-                                                <p:outputLabel value="#{linha.observacao}" />
-                                            </p:column>
-                                        </p:dataTable>
-                                    </p:tab>
-
-                                    <p:tab title="Documentos">
-                                        <p:commandLink value="CLIQUE PARA CRIAR NOVA PASTA DE ARQUIVOS" action="#{digitalizacaoBean.novoGeneric(fisicaBean.fisica.pessoa)}" ajax="false" rendered="#{fisicaBean.fisica.id ne -1}"/>
-                                        <br />
-                                        <br />                                        
-                                        <p:dataTable value="#{fisicaBean.listaDocumentos}" var="linha" emptyMessage="Nenhum documento Encontrado!" scrollable="true" scrollHeight="400">
-                                            <p:column style="width:15px">  
-                                                <p:rowToggler />  
-                                            </p:column>  
-
-                                            <p:column headerText="Data" style="width: 80px; text-align: center">
-                                                <p:commandLink value="#{linha.dtEmissaoString}" action="#{digitalizacaoBean.editGeneric(linha)}" title="CLIQUE PARA EDITAR" />
-                                            </p:column>
-
-                                            <p:column headerText="Grupo" style="width: 100px; text-align: center">
-                                                <p:commandLink value="#{linha.assunto.grupo.descricao}" action="#{digitalizacaoBean.editGeneric(linha)}" title="CLIQUE PARA EDITAR" />
-                                            </p:column>
-
-                                            <p:column headerText="Assunto" style="width: 250px;">
-                                                <p:commandLink value="#{linha.assunto.descricao}" action="#{digitalizacaoBean.editGeneric(linha)}" title="CLIQUE PARA EDITAR" />
-                                            </p:column>
-
-                                            <p:column headerText="Título" style="width: 250px;">
-                                                <p:commandLink value="#{linha.titulo}" action="#{digitalizacaoBean.editGeneric(linha)}" title="CLIQUE PARA EDITAR" />
-                                            </p:column>
-
-                                            <p:column headerText="Arq" style="width: 40px; text-align: center">
-                                                <p:commandButton icon="ui-icon-folder-open" action="#{fisicaBean.verDocumentos(linha)}" title="VER ARQUIVOS DESSA PESSOA" oncomplete="PF('dlg_arquivos').show()" update=":form_pessoa_fisica:i_tabview_fisica:panel_arquivos"/>
-                                            </p:column>
-
-                                            <p:rowExpansion>
-                                                <h:panelGrid columns="2" style="height: 40px" styleClass="sbb" columnClasses="column01, column02">
-                                                    <p:column rendered="#{linha.historico ne ''}">
-                                                        <p:outputLabel value="HISTÓRICO" style="font-weight: bold"/><br />
-                                                        <p:outputLabel value="#{linha.historico}"/>
-                                                    </p:column>
-                                                </h:panelGrid>
-                                            </p:rowExpansion>
-                                        </p:dataTable>
-
-                                        <p:dialog widgetVar="dlg_arquivos" width="600" header="Arquivos da Pessoa" modal="true">
-                                            <p:ajax event="close" listener="#{fisicaBean.listaArquivos.clear()}" update="@form"/>
-
-                                            <h:panelGrid id="panel_arquivos" style="width: 100%">
-                                                <p:messages showDetail="true" closable="true" />
-                                                <ui:repeat value="#{fisicaBean.listaArquivos}" var="linha_arquivo">
-                                                    <h:panelGrid columns="4" columnClasses="column01, column02, column03, column03">
-                                                        <h:column>
-                                                            <p:graphicImage value="/Imagens/#{linha_arquivo.extensionFile}" width="50" />
-                                                        </h:column>
-
-                                                        <h:column>
-                                                            <p:commandLink value="#{linha_arquivo.nameFile}" title="ABRIR ARQUIVO" action="#{digitalizacaoBean.view(linha_arquivo)}" target="_BLANK" ajax="false" />  
-                                                        </h:column>
-
-                                                        <h:column>
-                                                            <p:commandButton icon="ui-icon-arrowthickstop-1-s" title="BAIXAR ARQUIVO" action="#{digitalizacaoBean.download(linha_arquivo)}" ajax="false" onclick="form.target = '_blank'"/>
-                                                        </h:column>
-                                                    </h:panelGrid>
-                                                    <hr />
-                                                </ui:repeat>
-
-                                                <p:outputLabel value="NENHUM ARQUIVO ADICIONADO!" rendered="#{fisicaBean.listaArquivos.size() eq 0}" style="font-weight: bold; font-size: 12pt!important; color: red"/>
-                                            </h:panelGrid>
-                                        </p:dialog>
-                                    </p:tab>
-                                    <p:tab title="Telemarketing">
-                                        <p:dataTable value="#{fisicaBean.listTelemarketing}" var="telemarketing" emptyMessage="Nenhum registro encontrado!" scrollHeight="400" scrollable="true" styleClass="margin-top-max">
-                                            <p:column width="15">
-                                                <p:rowToggler />                                                
-                                            </p:column>
-                                            <p:column headerText="Lançamento" width="80" styleClass="text-center">
-                                                #{telemarketing.dataLancamento}
-                                            </p:column>
-                                            <p:column headerText="Hora" width="40" styleClass="text-center">
-                                                #{telemarketing.horaLancamento}
-                                            </p:column>
-                                            <p:column headerText="Natureza" width="120" styleClass="text-center">
-                                                #{telemarketing.natureza.descricao}
-                                            </p:column>
-                                            <p:column headerText="Contato" >
-                                                #{telemarketing.contato.descricao}
-                                            </p:column>
-                                            <p:column headerText="..." >
-                                                #{telemarketing.contatoDescricao}
-                                            </p:column>
-                                            <p:column headerText="Responsável" >
-                                                #{telemarketing.operador.pessoa.nome}
-                                            </p:column>
-                                            <p:rowExpansion>
-                                                Histórico: #{telemarketing.historico}                                                
-                                            </p:rowExpansion>
-                                        </p:dataTable>
-                                    </p:tab>  
+                                    
                                 </p:tabView>
 
                                 <!-- ENDEREÇO -->
@@ -951,6 +669,7 @@
                                     <p:commandButton value="Excluir" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('dlg_painel_excluir').show();" rendered="#{fisicaBean.fisica.id != -1}" />
                                     <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pesquisaPessoaFisica}" />
                                     <p:commandButton value="Extrato" rendered="#{fisicaBean.fisica.id != -1}" action="#{fisicaBean.telaMovimentosReceberSocial}" ajax="false"/>
+                                    <p:commandButton value="INFORMAÇÕES CADASTRAIS" rendered="#{fisicaBean.fisica.id != -1}" action="#{chamadaPaginaBean.pagina('pessoa')}" styleClass="font-color-red bold" icon="ui-icon-plus" actionListener="#{genericaSessao.putString('tipoPessoa', 'pessoaFisica')}" immediate="true"/>
                                     <h:column>
                                         <h:panelGrid id="i_app_message">
                                             <h:panelGrid rendered="#{biometriaBean.openBiometria and fisicaBean.fisica.id != -1}" columns="3">
@@ -1098,6 +817,16 @@
                             <f:facet name="footer">
                                 <p:commandButton value="Ok" title="Ok" onclick="PF('dlg_waiting_biometria_erro').hide();" update="i_app_leitor" action="#{biometriaBean.closeModalApp()}"/>
                             </f:facet>                                
+                        </p:dialog>
+                    </h:form>
+                    <h:form id="form_fisica_detalhes">
+                        <p:dialog widgetVar="dlg_sorteios" modal="true" resizable="false" header="Sorteios">
+                            <h:panelGroup id="i_sorteios" layout="block">
+                                <p:dataTable value="#{sorteioMovimentoBean.listSorteioMovimento}" var="sorteioMovimento" emptyMessage="Nenhum resultado encontrado!">
+                                    <p:column headerText="Sorteio">#{sorteioMovimento.sorteio.descricao}</p:column>
+                                    <p:column headerText="Data">#{sorteioMovimento.sorteioString}</p:column>
+                                </p:dataTable>
+                            </h:panelGroup>
                         </p:dialog>
                     </h:form>            
                 </f:view>

@@ -210,13 +210,13 @@
                                         </h:panelGrid>
                                         <h:panelGrid id="tblUsuarioAcesso" styleClass="margin-top-max">
                                             <p:dataTable value="#{usuarioBean.listaUsuarioAcesso}" var="usuarioAcesso" emptyMessage="Nenhum registro encontrado!" scrollable="true" scrollHeight="200">
-                                                <p:column headerText="Módulo">
+                                                <p:column headerText="Módulo" filterBy="#{usuarioAcesso.permissao.modulo.descricao}" filterMatchMode="global">
                                                     <p:outputLabel value="#{usuarioAcesso.permissao.modulo.descricao}" />
                                                 </p:column>
-                                                <p:column headerText="Rotina">
+                                                <p:column headerText="Rotina" filterBy="#{usuarioAcesso.permissao.rotina.rotina}" filterMatchMode="global">
                                                     <p:outputLabel value="#{usuarioAcesso.permissao.rotina.rotina}" />
                                                 </p:column>
-                                                <p:column headerText="Evento">
+                                                <p:column headerText="Evento" filterBy="#{usuarioAcesso.permissao.evento.descricao}" filterMatchMode="global">
                                                     <p:outputLabel value="#{usuarioAcesso.permissao.evento.descricao}" />                                              
                                                 </p:column>
                                                 <p:column width="25" styleClass="text-center">
