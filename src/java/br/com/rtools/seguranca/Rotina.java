@@ -1,6 +1,7 @@
 package br.com.rtools.seguranca;
 
 import br.com.rtools.seguranca.dao.RotinaDao;
+import java.io.Serializable;
 import javax.faces.context.FacesContext;
 import javax.persistence.*;
 import javax.servlet.http.HttpServletRequest;
@@ -11,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
     @NamedQuery(name = "Rotina.pesquisaID", query = "SELECT ROT FROM Rotina AS ROT WHERE ROT.id = :pid"),
     @NamedQuery(name = "Rotina.findAll", query = "SELECT ROT FROM Rotina AS ROT ORDER BY ROT.rotina ASC, ROT.pagina ASC ")
 })
-public class Rotina implements java.io.Serializable {
+public class Rotina implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,6 +28,8 @@ public class Rotina implements java.io.Serializable {
     private String classe;
     @Column(name = "is_ativo")
     private boolean ativo;
+    @Column(name = "ds_funcionamento", length = 5000)
+    private String funcionamento;
 
     public Rotina() {
         this.id = -1;
@@ -35,16 +38,17 @@ public class Rotina implements java.io.Serializable {
         this.acao = "";
         this.classe = "";
         this.ativo = false;
+        this.funcionamento = "";
     }
 
-    public Rotina(int id, String rotina, String pagina, String acao, String classe, boolean ativo) {
+    public Rotina(int id, String rotina, String pagina, String acao, String classe, boolean ativo, String funcionamento) {
         this.id = id;
         this.rotina = rotina;
         this.pagina = pagina;
         this.acao = acao;
         this.classe = classe;
         this.ativo = ativo;
-
+        this.funcionamento = funcionamento;
     }
 
     public int getId() {
@@ -69,7 +73,7 @@ public class Rotina implements java.io.Serializable {
             this.pagina = this.pagina.replace("sindical", "");
             this.pagina = this.pagina.replace("/", "");
             this.pagina = this.pagina.replace("\"", "");
-            this.pagina = this.pagina.replace("_", ""); 
+            this.pagina = this.pagina.replace("_", "");
             this.pagina = this.pagina.replace(".jsf", "");
             this.pagina = this.pagina.replace(".xhml", "");
             return this.pagina;
@@ -110,6 +114,14 @@ public class Rotina implements java.io.Serializable {
         this.acao = acao;
     }
 
+    public String getFuncionamento() {
+        return funcionamento;
+    }
+
+    public void setFuncionamento(String funcionamento) {
+        this.funcionamento = funcionamento;
+    }
+
     public Rotina get() {
         try {
             HttpServletRequest paginaRequerida = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
@@ -122,4 +134,5 @@ public class Rotina implements java.io.Serializable {
     public String converteURL(String urlDest) {
         return urlDest.substring(urlDest.lastIndexOf("/") + 1, urlDest.lastIndexOf("."));
     }
+
 }

@@ -21,13 +21,16 @@ public class RotinaBean implements Serializable {
     private String message;
     private String descricaoPesquisa;
     private List<Rotina> listRotina;
+    private Boolean acao;
 
     @PostConstruct
     public void init() {
         rotina = new Rotina();
         message = "";
         descricaoPesquisa = "";
-        listRotina = new ArrayList<Rotina>();
+        listRotina = new ArrayList<>();
+        acao = false;
+        // find();
     }
 
     @PreDestroy
@@ -115,14 +118,16 @@ public class RotinaBean implements Serializable {
         return null;
     }
 
+    public void find() {
+        listRotina.clear();
+//        if (descricaoPesquisa.equals("")) {
+//            listRotina = new Dao().list(new Rotina(), true);
+//        } else {
+//        }
+        listRotina = new RotinaDao().pesquisaRotinaPorDescricao(descricaoPesquisa, acao);
+    }
+
     public List<Rotina> getListRotina() {
-        if (listRotina.isEmpty()) {
-            if (descricaoPesquisa.equals("")) {
-                listRotina = new Dao().list(new Rotina(), true);
-            } else {
-                listRotina = new RotinaDao().pesquisaRotinaPorDescricao(descricaoPesquisa);
-            }
-        }
         return listRotina;
     }
 
@@ -159,5 +164,13 @@ public class RotinaBean implements Serializable {
 
     public void setDescricaoPesquisa(String descricaoPesquisa) {
         this.descricaoPesquisa = descricaoPesquisa;
+    }
+
+    public Boolean getAcao() {
+        return acao;
+    }
+
+    public void setAcao(Boolean acao) {
+        this.acao = acao;
     }
 }

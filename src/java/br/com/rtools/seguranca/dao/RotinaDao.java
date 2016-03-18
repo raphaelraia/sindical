@@ -137,8 +137,17 @@ public class RotinaDao extends DB {
     }
 
     public List<Rotina> pesquisaRotinaPorDescricao(String descricaoRotina) {
+        return pesquisaRotinaPorDescricao(descricaoRotina, Boolean.FALSE);
+    }
+    
+    public List<Rotina> pesquisaRotinaPorDescricao(String descricaoRotina, Boolean acao) {
         try {
-            Query query = getEntityManager().createQuery("SELECT ROT FROM Rotina AS ROT WHERE UPPER(ROT.rotina) LIKE '%" + descricaoRotina.toUpperCase() + "%' OR UPPER(ROT.pagina) LIKE '%" + descricaoRotina.toUpperCase() + "%' ORDER BY ROT.rotina ASC, ROT.pagina ASC ");
+            Query query;
+            if(acao){
+                query = getEntityManager().createQuery("SELECT ROT FROM Rotina AS ROT WHERE (UPPER(ROT.rotina) LIKE '%" + descricaoRotina.toUpperCase() + "%' OR UPPER(ROT.acao) LIKE '%" + descricaoRotina.toUpperCase() + "%') AND ROT.classe = '' AND ROT.acao <> '' ORDER BY ROT.rotina ASC, ROT.pagina ASC ");
+            } else {
+                query = getEntityManager().createQuery("SELECT ROT FROM Rotina AS ROT WHERE (UPPER(ROT.rotina) LIKE '%" + descricaoRotina.toUpperCase() + "%' OR UPPER(ROT.pagina) LIKE '%" + descricaoRotina.toUpperCase() + "%') AND ROT.classe <> '' AND ROT.acao = '' ORDER BY ROT.rotina ASC, ROT.pagina ASC ");
+            }
             List list = query.getResultList();
             if (!list.isEmpty()) {
                 return list;

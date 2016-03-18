@@ -1229,11 +1229,14 @@ public class RecepcaoBean implements Serializable {
     }
 
     public String estiloLinha(AteMovimento atm) {
-        if (atm.getStatus().getId() == 1) {
-            return "tblListaRecepcaox";
-        } else {
-            return "";
+        if(atm.getStatus() != null) {
+            if (atm.getStatus().getId() == 1) {
+                return "tblListaRecepcaox";
+            } else {
+                return "";
+            }
         }
+        return "";
     }
 
     public List<Senha> getListaAtendimentoSimples() {

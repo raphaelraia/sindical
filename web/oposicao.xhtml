@@ -55,7 +55,9 @@
                                         </h:column>
                                     </h:column>
                                     <p:outputLabel value="Emissão: " />
-                                    <p:inputText value="#{oposicaoBean.oposicao.emissao}" size="8" readonly ="true"/>
+                                    <p:inputText value="#{oposicaoBean.oposicao.emissao}" size="8" readonly="#{controleAcessoBean.verificarPermissao('libera_data_emissao_oposicao', 3)}" converter="#{isDateString}">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:inputText>
                                     <p:outputLabel value="RG: " />
                                     <h:column>
                                         <p:inputText id="idRG"  value="#{oposicaoBean.oposicao.oposicaoPessoa.rg}" maxlength="15" size="15"  rendered="#{oposicaoBean.oposicao.oposicaoPessoa.cpf == ''}" >

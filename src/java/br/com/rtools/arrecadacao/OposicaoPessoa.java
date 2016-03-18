@@ -1,5 +1,6 @@
 package br.com.rtools.arrecadacao;
 
+import br.com.rtools.endereco.Endereco;
 import br.com.rtools.utilitarios.DataHoje;
 import java.util.Date;
 import javax.persistence.Column;
@@ -12,6 +13,8 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import java.io.Serializable;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 @Entity
 @Table(name = "arr_oposicao_pessoa")
@@ -41,11 +44,22 @@ public class OposicaoPessoa implements Serializable {
     private String telefone2;
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_nascimento")
-    private Date dataNascimento;    
+    private Date dataNascimento;
+    @Column(name = "ds_carteira", length = 30)
+    private String carteira;
+    @Column(name = "ds_serie", length = 15)
+    private String serie;
+    @Column(name = "ds_complemento", length = 100)
+    private String complemento;
+    @Column(name = "ds_numero", length = 20)
+    private String numero;
+    @JoinColumn(name = "id_endereco", referencedColumnName = "id", nullable = true)
+    @ManyToOne
+    private Endereco endereco;
 
     public OposicaoPessoa() {
         this.id = -1;
-        setDataCadastroString(DataHoje.data());
+        this.dataCadastro = DataHoje.dataHoje();
         this.nome = "";
         this.cpf = "";
         this.rg = "";
@@ -53,11 +67,16 @@ public class OposicaoPessoa implements Serializable {
         this.telefone1 = "";
         this.telefone2 = "";
         this.dataNascimento = null;
+        this.carteira = "";
+        this.serie = "";
+        this.complemento = "";
+        this.numero = "";
+        this.endereco = null;
     }
 
-    public OposicaoPessoa(Integer id, String dataCadastro, String nome, String cpf, String rg, String observacao, String email1, String telefone1, String telefone2, Date dataNascimento) {
+    public OposicaoPessoa(Integer id, Date dataCadastro, String nome, String cpf, String rg, String observacao, String email1, String telefone1, String telefone2, Date dataNascimento, String carteira, String serie, String complemento, String numero, Endereco endereco) {
         this.id = id;
-        setDataCadastroString(dataCadastro);
+        this.dataCadastro = dataCadastro;
         this.nome = nome;
         this.cpf = cpf;
         this.rg = rg;
@@ -65,6 +84,11 @@ public class OposicaoPessoa implements Serializable {
         this.telefone1 = telefone1;
         this.telefone2 = telefone2;
         this.dataNascimento = dataNascimento;
+        this.carteira = carteira;
+        this.serie = serie;
+        this.complemento = complemento;
+        this.numero = numero;
+        this.endereco = endereco;
     }
 
     public Integer getId() {
@@ -154,12 +178,52 @@ public class OposicaoPessoa implements Serializable {
     public void setDataNascimento(Date dataNascimento) {
         this.dataNascimento = dataNascimento;
     }
-    
+
     public String getDataNascimentoString() {
         return DataHoje.converteData(this.dataNascimento);
     }
 
     public void setDataNascimentoString(String dataNascimentoString) {
         this.dataNascimento = DataHoje.converte(dataNascimentoString);
-    }    
+    }
+
+    public String getCarteira() {
+        return carteira;
+    }
+
+    public void setCarteira(String carteira) {
+        this.carteira = carteira;
+    }
+
+    public String getSerie() {
+        return serie;
+    }
+
+    public void setSerie(String serie) {
+        this.serie = serie;
+    }
+
+    public String getComplemento() {
+        return complemento;
+    }
+
+    public void setComplemento(String complemento) {
+        this.complemento = complemento;
+    }
+
+    public String getNumero() {
+        return numero;
+    }
+
+    public void setNumero(String numero) {
+        this.numero = numero;
+    }
+
+    public Endereco getEndereco() {
+        return endereco;
+    }
+
+    public void setEndereco(Endereco endereco) {
+        this.endereco = endereco;
+    }
 }

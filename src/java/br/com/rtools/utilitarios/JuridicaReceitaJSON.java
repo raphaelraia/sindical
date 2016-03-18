@@ -82,7 +82,26 @@ public class JuridicaReceitaJSON {
                                 continue;
                             }
                         }
+                        
+                        // FALTA DE CRÉDITOS
+                        if (status == 7) {
+                            error = "CONTATE O ADMINISTRADOR DO SISTEMA (STATUS 7)!";
+                            in.close();
+                            con.disconnect();
+                            jro.setStatus(status);
+                            jro.setMsg(error);
+                            return jro;
+                        }
 
+                        if (status == -1) {
+                            jro.setStatus(status);
+                            jro.setMsg(error);
+                            
+                            in.close();
+                            con.disconnect();
+                            return jro;
+                        }
+                        
                         jro = new JuridicaReceitaObject(
                                 status, // status
                                 error, // msg
