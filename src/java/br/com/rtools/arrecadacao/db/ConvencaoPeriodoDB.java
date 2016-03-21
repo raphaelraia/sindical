@@ -15,6 +15,8 @@ public interface ConvencaoPeriodoDB {
     public List<ConvencaoPeriodo> listaConvencaoPeriodo();
 
     public ConvencaoPeriodo convencaoPeriodoConvencaoGrupoCidade(int idConvencao, int idGrupoCidade);
+    
+    public ConvencaoPeriodo convencaoPeriodoConvencaoGrupoCidade(Integer idConvencao, Integer idGrupoCidade, String referencia_hifen);
 
     public ConvencaoPeriodo pesquisaCodigo(int id);
 }

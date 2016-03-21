@@ -154,6 +154,7 @@ public class RotinaBean implements Serializable {
             return "rotina";
         }
         loadRotinaGrupo();
+        listRotinas.clear();
         getListRotinas();
         return null;
     }

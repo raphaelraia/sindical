@@ -1,5 +1,6 @@
 package br.com.rtools.seguranca.controleUsuario;
 
+import br.com.rtools.seguranca.Modulo;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import static br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean.getCliente;
@@ -18,6 +19,8 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
@@ -170,40 +173,117 @@ public class ChamadaPaginaBean implements Serializable {
         if (GenericaSessao.exists("sessaoUsuario")) {
             usuario = (Usuario) GenericaSessao.getObject("sessaoUsuario");
         }
-        if (usuario != null && usuario.getId() != -1) {
-            if (rotina != null) {
-                ContadorAcessos cont = dba.pesquisaContadorAcessos(usuario.getId(), rotina.getId());
-                if (cont == null) {
-                    cont = new ContadorAcessos();
-                    cont.setRotina(rotina);
-                    cont.setUsuario(usuario);
-                    cont.setAcessos(cont.getAcessos() + 1);
-                    dao.save(cont, true);
-                } else {
-                    cont.setAcessos(cont.getAcessos() + 1);
-                    dao.update(cont, true);
+        try {
+            if (usuario != null && usuario.getId() != -1) {
+                if (rotina != null) {
+                    ContadorAcessos cont;
+                    if (GenericaSessao.exists("idModulo")) {
+                        cont = dba.pesquisaContadorAcessos(usuario.getId(), rotina.getId(), GenericaSessao.getInteger("idModulo"));
+                    } else {
+                        cont = dba.pesquisaContadorAcessos(usuario.getId(), rotina.getId());
+                    }
+                    if (cont == null) {
+                        cont = new ContadorAcessos();
+                        cont.setRotina(rotina);
+                        cont.setUsuario(usuario);
+                        cont.setAcessos(cont.getAcessos() + 1);
+                        cont.setModulo(Modulo.get());
+                        dao.save(cont, true);
+                    } else {
+                        cont.setAcessos(cont.getAcessos() + 1);
+                        dao.update(cont, true);
+                    }
                 }
             }
+        } catch (Exception e) {
+
         }
     }
 
     // CHAMADA DE PAGINAS GENERICAS-------------------------------------------------------------------------------
     //------------------------------------------------------------------------------------------------------------
     //------------------------------------------------------------------------------------------------------------
-    public synchronized Object chamadaGenerica(String pagina) {
-        pagina = converteURL(pagina);
+    public synchronized Object chamadaGenerica(ContadorAcessos ca) {
+        String pagina = converteURL(ca.getRotina().getPagina());
         Object object = null;
         try {
             object = this.getClass().getMethod(pagina).invoke(this);
         } catch (IllegalAccessException | IllegalArgumentException | NoSuchMethodException | SecurityException | InvocationTargetException e) {
             //e.printStackTrace();
         }
-        //e.printStackTrace();
-        //e.printStackTrace();
-        //e.printStackTrace();
-        //e.printStackTrace();
-
-        return object;
+        if (ca.getModulo() != null) {
+            GenericaSessao.put("idModulo", ca.getModulo().getId());
+            carregaPg = true;
+            if (ca.getModulo().getId() == 1) {
+                if (pagina.contains("menuFinanceiro")) {
+                    return "menuFinanceiro";
+                }
+                getControleLinks("/Sindical/menuFinanceiro.jsf");
+            }
+            if (ca.getModulo().getId() == 2) {
+                if (pagina.contains("menuSocial")) {
+                    return "menuSocial";
+                }
+                getControleLinks("/Sindical/menuSocial.jsf");
+            }
+            if (ca.getModulo().getId() == 3) {
+                if (pagina.contains("menuArrecadacao")) {
+                    return "menuArrecadacao";
+                }
+                getControleLinks("/Sindical/menuArrecadacao.jsf");
+            }
+            if (ca.getModulo().getId() == 4) {
+                if (pagina.contains("menuArrecadacao")) {
+                    return "menuArrecadacao";
+                }
+                getControleLinks("/Sindical/menuHomologacao.jsf");
+            }
+            if (ca.getModulo().getId() == 6) {
+                if (pagina.contains("menuClube")) {
+                    return "menuClube";
+                }
+                getControleLinks("/Sindical/menuClube.jsf");
+            }
+            if (ca.getModulo().getId() == 7) {
+                if (pagina.contains("menuAcademia")) {
+                    return "menuAcademia";
+                }
+                getControleLinks("/Sindical/menuAcademia.jsf");
+            }
+            if (ca.getModulo().getId() == 8) {
+                if (pagina.contains("menuEscola")) {
+                    return "menuEscola";
+                }
+                getControleLinks("/Sindical/menuEscola.jsf");
+            }
+            if (ca.getModulo().getId() == 9 || ca.getModulo().getId() == 10) {
+                return pagina;
+            }
+            if (ca.getModulo().getId() == 11) {
+                if (pagina.contains("menuLocadora")) {
+                    return "menuLocadora";
+                }
+                getControleLinks("/Sindical/menuLocadora.jsf");
+            }
+            if (ca.getModulo().getId() == 12) {
+                if (pagina.contains("menuAtendimento")) {
+                    return "menuAtendimento";
+                }
+                getControleLinks("/Sindical/menuAtendimento.jsf\"");
+            }
+            if (ca.getModulo().getId() == 13) {
+                if (pagina.contains("menuCobranca")) {
+                    return "menuCobranca";
+                }
+                getControleLinks("/Sindical/menuCobranca.jsf");
+            }
+        }
+        try {
+            return pagina("" + pagina);
+        } catch (IOException ex) {
+            Logger.getLogger(ChamadaPaginaBean.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
 
     public String metodoGenerico(int tipo, String pagina) {
@@ -1707,8 +1787,18 @@ public class ChamadaPaginaBean implements Serializable {
     }
 
     public String getControleLinks() {
+        return getControleLinks(null);
+    }
+
+    public String getControleLinks(String requerida) {
         try {
-            paginaRequerida = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+            String urlDestino = "";
+            if (requerida == null) {
+                paginaRequerida = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+                urlDestino = paginaRequerida.getRequestURI();
+            } else {
+                urlDestino = requerida;
+            }
 
             //URL BROWSER COMPLETA
 //            StringBuffer currentURL = paginaRequerida.getRequestURL();
@@ -1717,7 +1807,6 @@ public class ChamadaPaginaBean implements Serializable {
 //            String currentURLXXX = paginaRequerida.getContextPath();
 //            String currentURLXXXx = String.valueOf(paginaRequerida.getServerPort());
             //Executions.getCurrent().getScheme();
-            String urlDestino = paginaRequerida.getRequestURI();
             String linkAtual = converteURL(urlDestino);
             String linkTeste = (String) GenericaSessao.getString("urlRetorno");
             if (linkTeste == null) {

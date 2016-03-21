@@ -58,7 +58,7 @@ public class OposicaoBean implements Serializable {
     private String comoPesquisa;
     private Socios socios;
     private boolean removeFiltro;
-    
+
     @PostConstruct
     public void init() {
         oposicao = new Oposicao();
@@ -100,8 +100,8 @@ public class OposicaoBean implements Serializable {
         valorPesquisa = "";
         setSexo("M");
     }
-    
-    public void removerEndereco(){
+
+    public void removerEndereco() {
         oposicao.getOposicaoPessoa().setEndereco(null);
     }
 
@@ -159,7 +159,7 @@ public class OposicaoBean implements Serializable {
                     + " - " + o.getConvencaoPeriodo().getReferenciaFinal()
                     + " ]";
         }
-        
+
         if (oposicao.getOposicaoPessoa().getCpf().equals("___.___.___-__") || oposicao.getOposicaoPessoa().getCpf().equals("")) {
             message = "Informar o CPF!";
             return;
@@ -167,8 +167,8 @@ public class OposicaoBean implements Serializable {
         if (!ValidaDocumentos.isValidoCPF(AnaliseString.extrairNumeros(oposicao.getOposicaoPessoa().getCpf()))) {
             message = "CPF inválido!";
             return;
-        }   
-        
+        }
+
         if (!saveOposicaoPessoa()) {
             message = "Falha ao salvar oposição pessoa!";
             return;
@@ -209,34 +209,32 @@ public class OposicaoBean implements Serializable {
                 clear();
                 message = "Falha ao salvar este registro!";
             }
-        } else {
-            if (dao.update(oposicao)) {
-                novoLog.update(beforeUpdate, ""
-                        + "ID: " + oposicao.getId()
-                        + " - Pessoa (Oposição Pessoa): (" + oposicao.getOposicaoPessoa().getId() + ") " + oposicao.getOposicaoPessoa().getNome()
-                        + " - Jurídica: (" + oposicao.getJuridica().getPessoa().getId() + ") " + oposicao.getJuridica().getPessoa().getNome()
-                        + " - Convençao Período: (" + oposicao.getConvencaoPeriodo().getId() + ") "
-                        + " [" + oposicao.getConvencaoPeriodo().getConvencao().getDescricao()
-                        + " - " + oposicao.getConvencaoPeriodo().getGrupoCidade().getDescricao()
-                        + " - Ref: " + oposicao.getConvencaoPeriodo().getReferenciaInicial()
-                        + " - " + oposicao.getConvencaoPeriodo().getReferenciaFinal()
-                        + " ]"
-                );
+        } else if (dao.update(oposicao)) {
+            novoLog.update(beforeUpdate, ""
+                    + "ID: " + oposicao.getId()
+                    + " - Pessoa (Oposição Pessoa): (" + oposicao.getOposicaoPessoa().getId() + ") " + oposicao.getOposicaoPessoa().getNome()
+                    + " - Jurídica: (" + oposicao.getJuridica().getPessoa().getId() + ") " + oposicao.getJuridica().getPessoa().getNome()
+                    + " - Convençao Período: (" + oposicao.getConvencaoPeriodo().getId() + ") "
+                    + " [" + oposicao.getConvencaoPeriodo().getConvencao().getDescricao()
+                    + " - " + oposicao.getConvencaoPeriodo().getGrupoCidade().getDescricao()
+                    + " - Ref: " + oposicao.getConvencaoPeriodo().getReferenciaInicial()
+                    + " - " + oposicao.getConvencaoPeriodo().getReferenciaFinal()
+                    + " ]"
+            );
 
-                if (!inativarSocioOposicao(dao)) {
-                    message = "Erro ao Inativar Sócio";
-                    dao.rollback();
-                    return;
-                }
-
-                dao.commit();
-                clear();
-                setMessage("Registro atualizado com sucesso.");
-            } else {
+            if (!inativarSocioOposicao(dao)) {
+                message = "Erro ao Inativar Sócio";
                 dao.rollback();
-                clear();
-                message = "Falha ao excluir este registro!";
+                return;
             }
+
+            dao.commit();
+            clear();
+            setMessage("Registro atualizado com sucesso.");
+        } else {
+            dao.rollback();
+            clear();
+            message = "Falha ao excluir este registro!";
         }
     }
 
@@ -302,7 +300,7 @@ public class OposicaoBean implements Serializable {
 
     public boolean saveOposicaoPessoa() {
         oposicao.getOposicaoPessoa().setSexo(sexo);
-        
+
         Dao dao = new Dao();
         dao.openTransaction();
         OposicaoDao oposicaoDao = new OposicaoDao();
@@ -318,28 +316,23 @@ public class OposicaoBean implements Serializable {
                     return false;
                 }
             }
-        } else {
-            if (op.getCpf().equals(oposicao.getOposicaoPessoa().getCpf()) 
-                    && op.getRg().equals(oposicao.getOposicaoPessoa().getRg()) 
-                    && op.getNome().equals(oposicao.getOposicaoPessoa().getNome())
-                    && op.getSexo().equals(oposicao.getOposicaoPessoa().getSexo())
-                    && op.getEmail1().equals(oposicao.getOposicaoPessoa().getEmail1())
-                    && op.getTelefone1().equals(oposicao.getOposicaoPessoa().getTelefone1())
-                    && op.getTelefone2().equals(oposicao.getOposicaoPessoa().getTelefone2())
-                    && op.getDataNascimentoString().equals(oposicao.getOposicaoPessoa().getDataNascimentoString())
-                    ) {
+        } else if (op.getCpf().equals(oposicao.getOposicaoPessoa().getCpf())
+                && op.getRg().equals(oposicao.getOposicaoPessoa().getRg())
+                && op.getNome().equals(oposicao.getOposicaoPessoa().getNome())
+                && op.getSexo().equals(oposicao.getOposicaoPessoa().getSexo())
+                && op.getEmail1().equals(oposicao.getOposicaoPessoa().getEmail1())
+                && op.getTelefone1().equals(oposicao.getOposicaoPessoa().getTelefone1())
+                && op.getTelefone2().equals(oposicao.getOposicaoPessoa().getTelefone2())
+                && op.getDataNascimentoString().equals(oposicao.getOposicaoPessoa().getDataNascimentoString())) {
+            return true;
+        } else if (oposicao.getOposicaoPessoa().getId() != -1) {
+            oposicao.getOposicaoPessoa().setId(op.getId());
+            if (dao.update(oposicao.getOposicaoPessoa())) {
+                dao.commit();
                 return true;
             } else {
-                if (oposicao.getOposicaoPessoa().getId() != -1) {
-                    oposicao.getOposicaoPessoa().setId(op.getId());
-                    if (dao.update(oposicao.getOposicaoPessoa())) {
-                        dao.commit();
-                        return true;
-                    } else {
-                        dao.rollback();
-                        return false;
-                    }
-                }
+                dao.rollback();
+                return false;
             }
         }
         return true;
@@ -462,31 +455,29 @@ public class OposicaoBean implements Serializable {
                 oposicao.getOposicaoPessoa().setSexo(pessoaEmpresa.getFisica().getSexo());
                 sexo = pessoaEmpresa.getFisica().getSexo();
             }
-        } else {
-            if (p != null) {
-                oposicaoPessoa = oposicaoDao.pesquisaOposicaoPessoa(oposicao.getOposicaoPessoa().getCpf(), oposicao.getOposicaoPessoa().getRg());
-                if (oposicaoPessoa.getId() != -1) {
-                    oposicao.setOposicaoPessoa(oposicaoPessoa);
-                } else {
-                    oposicao.getOposicaoPessoa().setNome(p.getNome());
-                    oposicao.getOposicaoPessoa().setRg(p.getFisica().getRg());
-                    oposicao.getOposicaoPessoa().setCpf(p.getDocumento());
-                    oposicao.getOposicaoPessoa().setSexo(p.getFisica().getSexo());
-                    sexo = p.getFisica().getSexo();
-                    if (oposicao.getJuridica().getId() != -1 && oposicao.getJuridica().getDtFechamento() == null) {
-                        setDesabilitaPessoa(true);
-                    }
-                }
+        } else if (p != null) {
+            oposicaoPessoa = oposicaoDao.pesquisaOposicaoPessoa(oposicao.getOposicaoPessoa().getCpf(), oposicao.getOposicaoPessoa().getRg());
+            if (oposicaoPessoa.getId() != -1) {
+                oposicao.setOposicaoPessoa(oposicaoPessoa);
             } else {
-                oposicaoPessoa = oposicaoDao.pesquisaOposicaoPessoa(oposicao.getOposicaoPessoa().getCpf(), oposicao.getOposicaoPessoa().getRg());
-                if (oposicaoPessoa.getId() != -1) {
-                    oposicao.setOposicaoPessoa(oposicaoPessoa);
-                } else {
-                    if (oposicao.getJuridica().getId() != -1 && oposicao.getJuridica().getDtFechamento() == null) {
-                        setDesabilitaPessoa(true);
-                    }
-                    oposicao.getOposicaoPessoa().setSexo(sexo);
+                oposicao.getOposicaoPessoa().setNome(p.getNome());
+                oposicao.getOposicaoPessoa().setRg(p.getFisica().getRg());
+                oposicao.getOposicaoPessoa().setCpf(p.getDocumento());
+                oposicao.getOposicaoPessoa().setSexo(p.getFisica().getSexo());
+                sexo = p.getFisica().getSexo();
+                if (oposicao.getJuridica().getId() != -1 && oposicao.getJuridica().getDtFechamento() == null) {
+                    setDesabilitaPessoa(true);
                 }
+            }
+        } else {
+            oposicaoPessoa = oposicaoDao.pesquisaOposicaoPessoa(oposicao.getOposicaoPessoa().getCpf(), oposicao.getOposicaoPessoa().getRg());
+            if (oposicaoPessoa.getId() != -1) {
+                oposicao.setOposicaoPessoa(oposicaoPessoa);
+            } else {
+                if (oposicao.getJuridica().getId() != -1 && oposicao.getJuridica().getDtFechamento() == null) {
+                    setDesabilitaPessoa(true);
+                }
+                oposicao.getOposicaoPessoa().setSexo(sexo);
             }
         }
         listaConvencaoPeriodos.clear();
@@ -514,16 +505,21 @@ public class OposicaoBean implements Serializable {
     public void convencaoPeriodoConvencaoGrupoCidade() {
         if (oposicao.getJuridica().getId() != -1) {
             if (oposicao.getConvencaoPeriodo().getId() == -1) {
-                OposicaoDao oposicaoDao = new OposicaoDao();
-                List list = oposicaoDao.pesquisaPessoaConvencaoGrupoCidade(oposicao.getJuridica().getId());
-                ConvencaoPeriodoDB di = new ConvencaoPeriodoDBTopLink();
-                if (!list.isEmpty()) {
-                    convencaoPeriodo = di.convencaoPeriodoConvencaoGrupoCidade((Integer) list.get(0), (Integer) list.get(1));
-                    if (convencaoPeriodo.getId() == -1) {
-                        convencaoPeriodo = new ConvencaoPeriodo();
-                    } else {
-                        oposicao.setConvencaoPeriodo(convencaoPeriodo);
+                if (!oposicao.getEmissao().isEmpty()) {
+                    OposicaoDao oposicaoDao = new OposicaoDao();
+                    List list = oposicaoDao.pesquisaPessoaConvencaoGrupoCidade(oposicao.getJuridica().getId());
+                    ConvencaoPeriodoDB di = new ConvencaoPeriodoDBTopLink();
+                    if (!list.isEmpty()) {
+                        String referencia_hifen = DataHoje.livre(oposicao.getDtEmissao(), "YYYY-MM");
+                        convencaoPeriodo = di.convencaoPeriodoConvencaoGrupoCidade((Integer) list.get(0), (Integer) list.get(1), referencia_hifen);
+                        if (convencaoPeriodo.getId() == -1) {
+                            convencaoPeriodo = new ConvencaoPeriodo();
+                        } else {
+                            oposicao.setConvencaoPeriodo(convencaoPeriodo);
+                        }
                     }
+                } else {
+                    convencaoPeriodo = oposicao.getConvencaoPeriodo();
                 }
             } else {
                 convencaoPeriodo = oposicao.getConvencaoPeriodo();
@@ -542,16 +538,16 @@ public class OposicaoBean implements Serializable {
             listaConvencaoPeriodos.clear();
             convencaoPeriodoConvencaoGrupoCidade();
         }
-        
+
         if (GenericaSessao.exists("oposicaoPesquisa")) {
             setDesabilitaPessoa(true);
             oposicao = (Oposicao) GenericaSessao.getObject("oposicaoPesquisa", true);
             listaConvencaoPeriodos.clear();
             convencaoPeriodoConvencaoGrupoCidade();
         }
-        
-        if (GenericaSessao.exists("enderecoPesquisa")){
-            oposicao.getOposicaoPessoa().setEndereco((Endereco) GenericaSessao.getObject("enderecoPesquisa",  true));
+
+        if (GenericaSessao.exists("enderecoPesquisa")) {
+            oposicao.getOposicaoPessoa().setEndereco((Endereco) GenericaSessao.getObject("enderecoPesquisa", true));
         }
         return oposicao;
     }
@@ -698,5 +694,16 @@ public class OposicaoBean implements Serializable {
             }
         }
         return "";
+    }
+
+    public void listener(Integer tcase) {
+        switch (tcase) {
+            case 1:
+                oposicao.setConvencaoPeriodo(new ConvencaoPeriodo());
+                convencaoPeriodoConvencaoGrupoCidade();
+                break;
+            default:
+                break;
+        }
     }
 }

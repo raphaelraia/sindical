@@ -61,7 +61,13 @@ public class PessoaCardBean implements Serializable {
         close();
         FisicaDB fisicaDB = new FisicaDBToplink();
         fisica = (Fisica) fisicaDB.pesquisaFisicaPorPessoa(idPessoa);
-        pessoa = fisica.getPessoa();
+        if(fisica == null) {
+            JuridicaDB juridicaDB = new JuridicaDBToplink();
+            juridica = (Juridica) juridicaDB.pesquisaJuridicaPorPessoa(idPessoa);
+            pessoa = juridica.getPessoa();
+        } else {
+            pessoa = fisica.getPessoa();            
+        }
         usuario = new UsuarioDBToplink().pesquisaUsuarioPorPessoa(pessoa.getId());
         if (usuario != null) {
             listPermissaoUsuario = new ArrayList();

@@ -40,12 +40,17 @@
                                 </h:panelGrid>
                                 <h:panelGrid columns="3">
                                     <p:outputLabel value="Mostrar: " />
-                                    <p:selectOneMenu value="#{pessoaBean.selectDetalhes}">
+                                    <p:selectOneMenu value="#{pessoaBean.selectDetalhes}" disabled="#{empty pessoaBean.selectDetalhes}">
                                         <p:ajax event="change" update="@this :form_pessoa:" listener="#{pessoaBean.load}"/>
                                         <f:selectItems value="#{pessoaBean.listSelectDetalhes}" />
                                     </p:selectOneMenu>
                                 </h:panelGrid>
                                 <f:facet name="footer">
+                                    <p:outputLabel value="* Contate o administrador do sistema para liberar as permissões!" rendered="#{empty pessoaBean.selectDetalhes}" styleClass="font-color-red"/>
+                                    <br />
+                                    <br />
+                                    <hr />
+                                    <br />
                                     <h:column>
                                         <p:commandButton action="pessoaFisica" value="Voltar ao cadastro" immediate="true" rendered="#{pessoaBean.tipoPessoa eq 'pessoaFisica'}" actionListener="#{genericaSessao.putBoolean('linkClicado', true)}" />
                                         <p:commandButton action="pessoaJuridica" value="Voltar ao cadastro" immediate="true" rendered="#{pessoaBean.tipoPessoa eq 'pessoaJuridica'}" actionListener="#{genericaSessao.putBoolean('linkClicado', true)}" />

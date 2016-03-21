@@ -15,4 +15,6 @@ public interface AtalhoDB {
     public List<ContadorAcessos> listaAcessosUsuario(int id_usuario);
 
     public ContadorAcessos pesquisaContadorAcessos(int id_usuario, int id_rotina);
+    
+    public ContadorAcessos pesquisaContadorAcessos(int id_usuario, int id_rotina, int id_modulo);
 }

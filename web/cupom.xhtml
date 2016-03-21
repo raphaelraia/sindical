@@ -61,15 +61,19 @@
                                                         <p:ajax event="change" update="@this" />
                                                         <f:selectItems value="#{cupomBean.listCategoria}" />
                                                     </p:selectOneMenu>                                    
-                                                    <p:commandButton icon="ui-icon-plus" action="#{cupomBean.add}" update="id_categoria" disabled="#{controleAcessoBean.botaoSalvar or empty cupomBean.listCategoria}"/>
+                                                    <h:panelGrid columns="2">
+                                                        <p:commandButton icon="ui-icon-plus" action="#{cupomBean.add}" update="id_categoria" disabled="#{controleAcessoBean.botaoSalvar or empty cupomBean.listCategoria}"/>
+                                                        <p:commandButton action="#{cupomBean.addAll}" value="Todas" update="id_categoria" disabled="#{controleAcessoBean.botaoSalvar or empty cupomBean.listCategoria}"/>
+                                                        
+                                                    </h:panelGrid>
                                                 </h:panelGrid>
                                             </h:column>
                                             <h:column>
-                                                <p:dataTable value="#{cupomBean.listCupomCategoria}" var="cupomCategoria" emptyMessage="Nenhum registro encontrado!">
+                                                <p:dataTable value="#{cupomBean.listCupomCategoria}" var="cupomCategoria" emptyMessage="Nenhum registro encontrado!" scrollable="true" scrollHeight="150">
                                                     <p:column width="30">
                                                         <p:commandButton icon="ui-icon-close" action="#{cupomBean.remove(cupomCategoria)}" update=":form_cupom:id_categoria" disabled="#{controleAcessoBean.botaoExcluir}"/>
                                                     </p:column>
-                                                    <p:column headerText="Categoria">
+                                                    <p:column headerText="Categoria" filterBy="#{cupomCategoria.categoria.categoria}" filterMatchMode="global">
                                                         #{cupomCategoria.categoria.categoria}
                                                     </p:column>
                                                 </p:dataTable>

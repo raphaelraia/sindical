@@ -56,8 +56,8 @@ public class PessoaBean implements Serializable {
         maxl = "";
         listaPessoa = new ArrayList();
         listSelectDetalhes = new ArrayList();
+        selectDetalhes = "";
         if (GenericaSessao.exists("tipoPessoa")) {
-            selectDetalhes = null;
             tipoPessoa = GenericaSessao.getString("tipoPessoa", true);
             if (tipoPessoa.equals("pessoaFisica")) {
                 // JURÍDICA BEAN PODE ESTA NA SESSÃO, O LINK VEIO DA FÍSICA
@@ -325,7 +325,7 @@ public class PessoaBean implements Serializable {
             listSelectDetalhes.add(new SelectItem("cupons", "Cupons", "CONSULTA CUPONS (PESSOA FÍSICA)", cab.verificarPermissao("consulta_cupons", 4)));
             listSelectDetalhes.add(new SelectItem("sorteios", "Sorteios", "CONSULTA SORTEIOS (PESSOA FÍSICA)", cab.verificarPermissao("consulta_sorteios", 4)));
             listSelectDetalhes.add(new SelectItem("historico_fisica", "Histórico", "CONSULTA HISTÓRICO (PESSOA FÍSICA)", cab.verificarPermissao("consulta_historico_fisica", 4)));
-            listSelectDetalhes.add(new SelectItem("oposicoes", "Oposições", "VER OPOSIÇÃO EM PESSOA FÍSICA", cab.verificarPermissao("ver_oposicao_pessoa_fisica", 4)));
+            listSelectDetalhes.add(new SelectItem("oposicoes", "Oposições", "CONSULTA OPOSIÇÃO (PESSOA FÍSICA)", cab.verificarPermissao("consulta_oposicao_pessoa_fisica", 4)));
             listSelectDetalhes.add(new SelectItem("movimentos_fisica", "Movimentos", "CONSULTA MOVIMENTOS (PESSOA FÍSICA)", cab.verificarPermissao("consulta_movimentos_fisica", 4)));
             listSelectDetalhes.add(new SelectItem("frequencia_catraca", "Frequência Catraca", "CONSULTA FREQUÊNCIA CATRACA", cab.verificarPermissao("consulta_frequencia_catraca", 4)));
         }
@@ -338,11 +338,12 @@ public class PessoaBean implements Serializable {
             listSelectDetalhes.add(new SelectItem("telemarketing", "Telemarketing", "CONSULTA ATENDIMENTOS TELEMARKETING (PESSOA FÍSICA E JURÍDICA)", cab.verificarPermissao("consulta_telemarketing", 4)));
             listSelectDetalhes.add(new SelectItem("documentos", "Documentos", "CONSULTA DOCUMENTOS (PESSOA FÍSICA E JURÍDICA)", cab.verificarPermissao("consulta_documentos", 4)));
             listSelectDetalhes.add(new SelectItem("spc", "SPC", "CONSULTA PESSOA SPC", cab.verificarPermissao("consulta_pessoa_spc", 4)));
-            listSelectDetalhes.add(new SelectItem("rais", "RAIS", "CONSULTA RAIS", false, cab.verificarPermissao("consulta_rais", 4)));
+            listSelectDetalhes.add(new SelectItem("rais", "RAIS", "CONSULTA RAIS", cab.verificarPermissao("consulta_rais", 4)));
         }
         if (!listSelectDetalhes.isEmpty()) {
             SelectItemSort.sort(listSelectDetalhes);
             int y = 0;
+            selectDetalhes = "";
             for (int i = 0; i < listSelectDetalhes.size(); i++) {
                 if (!listSelectDetalhes.get(i).isDisabled()) {
                     if (y == 0) {

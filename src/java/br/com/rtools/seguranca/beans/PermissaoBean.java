@@ -5,6 +5,7 @@ import br.com.rtools.seguranca.dao.RotinaDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.seguranca.*;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
+import br.com.rtools.seguranca.dao.RotinaGrupoDao;
 import br.com.rtools.seguranca.db.*;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -42,15 +43,19 @@ public class PermissaoBean implements Serializable {
     private List<SelectItem> listaEventos;
     private List<SelectItem> listaDepartamentos;
     private List<SelectItem> listaNiveis;
-    private int idModulo;
-    private int idRotina;
+    private List<SelectItem> listaRotinaGrupo;
+    private Integer idModulo;
+    private Integer idRotina;
     private int idEvento;
     private int idDepartamento;
     private int idNivel;
     private int idIndex;
+    private Integer idRotinaGrupo;
+    private Boolean rotinaGrupo;
 
     @PostConstruct
     public void init() {
+        rotinaGrupo = false;
         permissao = new Permissao();
         modulo = new Modulo();
         rotina = new Rotina();
@@ -61,8 +66,8 @@ public class PermissaoBean implements Serializable {
         indicaTab = "permissao";
         descricaoPesquisa = "";
         tabDisabled = "true";
-        listaPermissoesDisponiveis = new ArrayList<ListaPermissaoDepartamento>();
-        listaPermissoesAdicionadas = new ArrayList<ListaPermissaoDepartamento>();
+        listaPermissoesDisponiveis = new ArrayList();
+        listaPermissoesAdicionadas = new ArrayList();
         listaRotinas = new ArrayList();
         listaModulos = new ArrayList();
         listaEventos = new ArrayList();
@@ -75,6 +80,7 @@ public class PermissaoBean implements Serializable {
         idDepartamento = 0;
         idNivel = 0;
         idIndex = -1;
+        idRotinaGrupo = null;
         ChamadaPaginaBean.setModulo("SEGURANCA");
     }
 
@@ -87,6 +93,20 @@ public class PermissaoBean implements Serializable {
         GenericaSessao.remove("permissaoBean");
     }
 
+    public void loadListRotinaGrupo() {
+        listaRotinaGrupo = new ArrayList();
+        idRotinaGrupo = null;
+        if (rotinaGrupo) {
+            List<Rotina> list = new RotinaGrupoDao().findAll();
+            for (int i = 0; i < list.size(); i++) {
+                if (i == 0) {
+                    idRotinaGrupo = list.get(i).getId();
+                }
+                listaRotinaGrupo.add(new SelectItem(list.get(i).getId(), list.get(i).getRotina()));
+            }
+        }
+    }
+
     // MÓDULO / ROTINA
     public void addPermissao() {
         if (listaRotinas.isEmpty()) {
@@ -95,8 +115,8 @@ public class PermissaoBean implements Serializable {
         }
         PermissaoDao permissaoDao = new PermissaoDao();
         Dao dao = new Dao();
-        modulo = (Modulo) dao.find(new Modulo(), Integer.valueOf(listaModulos.get(idModulo).getDescription()));
-        rotina = (Rotina) dao.find(new Rotina(), Integer.valueOf(listaRotinas.get(idRotina).getDescription()));
+        modulo = (Modulo) dao.find(new Modulo(), idModulo);
+        rotina = (Rotina) dao.find(new Rotina(), idRotina);
         boolean sucesso = false;
         if (permissaoDao.pesquisaPermissaoModRot(modulo.getId(), rotina.getId()).isEmpty()) {
             dao.openTransaction();
@@ -373,19 +393,19 @@ public class PermissaoBean implements Serializable {
         this.msgConfirma = msgConfirma;
     }
 
-    public int getIdModulo() {
+    public Integer getIdModulo() {
         return idModulo;
     }
 
-    public void setIdModulo(int idModulo) {
+    public void setIdModulo(Integer idModulo) {
         this.idModulo = idModulo;
     }
 
-    public int getIdRotina() {
+    public Integer getIdRotina() {
         return idRotina;
     }
 
-    public void setIdRotina(int idRotina) {
+    public void setIdRotina(Integer idRotina) {
         this.idRotina = idRotina;
     }
 
@@ -448,11 +468,12 @@ public class PermissaoBean implements Serializable {
     public List<SelectItem> getListaModulos() {
         if (listaModulos.isEmpty()) {
             Dao dao = new Dao();
-            List modulos = dao.list(new Modulo(), true);
-            for (int i = 0; i < modulos.size(); i++) {
-                listaModulos.add(new SelectItem(i,
-                        ((Modulo) modulos.get(i)).getDescricao(),
-                        Integer.toString(((Modulo) modulos.get(i)).getId())));
+            List<Modulo> list = dao.list(new Modulo(), true);
+            for (int i = 0; i < list.size(); i++) {
+                if (i == 0) {
+                    idModulo = list.get(i).getId();
+                }
+                listaModulos.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
             }
         }
         return listaModulos;
@@ -465,11 +486,28 @@ public class PermissaoBean implements Serializable {
     public List<SelectItem> getListaRotinas() {
         listaRotinas.clear();
         if (listaRotinas.isEmpty()) {
-            List<Rotina> list = new RotinaDao().findNotInByTabela("seg_permissao", "id_modulo", getListaModulos().get(idModulo).getDescription());
-            for (int i = 0; i < list.size(); i++) {
-                listaRotinas.add(new SelectItem(i,
-                        ((Rotina) list.get(i)).getRotina(),
-                        Integer.toString(((Rotina) list.get(i)).getId())));
+            List<Rotina> list = new RotinaDao().findNotInByTabela("seg_permissao", "id_modulo", "" + idModulo);
+            if (rotinaGrupo && idRotinaGrupo != null) {
+                List<RotinaGrupo> listRotinaGrupo = new RotinaGrupoDao().findByGrupo(idRotinaGrupo);
+                int b = 0;
+                for (int y = 0; y < listRotinaGrupo.size(); y++) {
+                    for (int i = 0; i < list.size(); i++) {
+                        if (listRotinaGrupo.get(y).getRotina().getId() == list.get(i).getId()) {
+                            if (b == 0) {
+                                idRotina = list.get(i).getId();
+                            }
+                            listaRotinas.add(new SelectItem(list.get(i).getId(), list.get(i).getRotina()));
+                            break;
+                        }
+                    }
+                }
+            } else {
+                for (int i = 0; i < list.size(); i++) {
+                    if (i == 0) {
+                        idRotina = list.get(i).getId();
+                    }
+                    listaRotinas.add(new SelectItem(list.get(i).getId(), list.get(i).getRotina()));
+                }
             }
         }
         return listaRotinas;
@@ -540,7 +578,7 @@ public class PermissaoBean implements Serializable {
     public List<Permissao> getListaPermissoes() {
         listaPermissoes.clear();
         PermissaoDao permissaoDao = new PermissaoDao();
-        listaPermissoes = permissaoDao.pesquisaTodosAgrupadosPorModulo(Integer.parseInt(listaModulos.get(idModulo).getDescription()));
+        listaPermissoes = permissaoDao.pesquisaTodosAgrupadosPorModulo(idModulo);
         return listaPermissoes;
     }
 
@@ -581,5 +619,29 @@ public class PermissaoBean implements Serializable {
 
     public void setListaPermissoesAdicionadas(List<ListaPermissaoDepartamento> listaPermissoesAdicionadas) {
         this.listaPermissoesAdicionadas = listaPermissoesAdicionadas;
+    }
+
+    public List<SelectItem> getListaRotinaGrupo() {
+        return listaRotinaGrupo;
+    }
+
+    public void setListaRotinaGrupo(List<SelectItem> listaRotinaGrupo) {
+        this.listaRotinaGrupo = listaRotinaGrupo;
+    }
+
+    public Integer getIdRotinaGrupo() {
+        return idRotinaGrupo;
+    }
+
+    public void setIdRotinaGrupo(Integer idRotinaGrupo) {
+        this.idRotinaGrupo = idRotinaGrupo;
+    }
+
+    public Boolean getRotinaGrupo() {
+        return rotinaGrupo;
+    }
+
+    public void setRotinaGrupo(Boolean rotinaGrupo) {
+        this.rotinaGrupo = rotinaGrupo;
     }
 }

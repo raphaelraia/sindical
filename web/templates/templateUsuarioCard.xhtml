@@ -9,10 +9,13 @@
             <f:event type="preRenderView" listener="${sociosCardBean.load(pessoaCardBean.pessoa.id)}"/>  
         </f:metadata>        
         <center>
-            <p:graphicImage name="#{pessoaCardBean.fisica.pessoa.foto}" alt="Sem foto" style="border: 3px solid gray; margin-bottom: 15px" width="150"/>
+            <h:column>
+                <p:graphicImage name="#{pessoaCardBean.pessoa.foto}" alt="Sem foto" style="border: 3px solid gray; margin-bottom: 15px" width="150" />
+                
+            </h:column>
         </center>
         <f:facet name="header">
-            <h:outputLabel value="#{pessoaCardBean.fisica.pessoa.nome}"  />
+            <h:outputLabel value="#{pessoaCardBean.pessoa.nome}"  />
         </f:facet>
         <h:panelGroup layout="block">
             <p:dataTable value="#{pessoaCardBean.listPermissaoUsuario}" var="permissaoUsuario" scrollable="true" scrollHeight="250" emptyMessage="Nenhum registro encontrado!">

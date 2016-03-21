@@ -150,10 +150,11 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 //    // TAB DOCUMENTOS
 //    private List<Documento> listaDocumentos = new ArrayList();
 //    private List<LinhaArquivo> listaArquivos = new ArrayList();
-
     private Integer offset = 0;
     private Integer count = 0;
     private Integer limit = 500;
+
+    private String inCategoriaSocio = null;
 
     public FisicaBean() {
 
@@ -168,7 +169,6 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 //            listaDocumentos = dao.listaDocumento(fisica.getPessoa().getId());
 //        }
 //    }
-
 //    public void verDocumentos(Documento linha) {
 //        listaArquivos.clear();
 //
@@ -186,7 +186,6 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 //            }
 //        }
 //    }
-
     public void loadListaOposicao() {
         if (fisica.getId() != -1) {
             listaOposicao.clear();
@@ -1849,9 +1848,6 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         List list = new ArrayList<>();
         if (!(descPesquisa.trim()).isEmpty()) {
             FisicaDBToplink fisicaDBToplink = new FisicaDBToplink();
-            if (GenericaSessao.exists("inCategoriaSocio")) {
-                fisicaDBToplink.setInCategoriaSocio(GenericaSessao.getString("inCategoriaSocio", true));
-            }
             switch (pesquisaPor) {
                 case "socioativo":
                     list = fisicaDBToplink.pesquisaPessoaSocio(descPesquisa.trim(), porPesquisa, comoPesquisa, null, null);
@@ -1879,7 +1875,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     public void loadList(Integer offset) {
         if (!(descPesquisa.trim()).isEmpty()) {
-            FisicaDB db = new FisicaDBToplink();
+            FisicaDBToplink db = new FisicaDBToplink();
             switch (pesquisaPor) {
                 case "socioativo":
                     listaPessoaFisica = db.pesquisaPessoaSocio(descPesquisa.trim(), porPesquisa, comoPesquisa, limit, offset);
@@ -2418,6 +2414,35 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 }
                 break;
         }
+
+        // CUPOM
+        switch (validacao) {
+            case "cupomMovimento":
+                getInCategoriaSocio();
+                if (inCategoriaSocio != null && !inCategoriaSocio.isEmpty()) {
+                    Socios soc = fisica.getPessoa().getSocios();
+                    if (soc == null) {
+                        count++;
+                        GenericaMensagem.fatal("Mensagem: (" + count + ")", "Necessário ser sócio!");
+                        permite = false;
+                    } else if (soc != null && soc.getId() != -1) {
+                        String[] in = inCategoriaSocio.split(",");
+                        Boolean t = false;
+                        for (int i = 0; i < in.length; i++) {
+                            if (in[i].equals("" + soc.getMatriculaSocios().getCategoria().getId())) {
+                                t = true;
+                                break;
+                            }
+                        }
+                        if (!t) {
+                            count++;
+                            GenericaMensagem.fatal("Mensagem: (" + count + ")", "Sócio não pertence a nenhuma categoria específicada no cupom!");
+                            permite = false;
+                        }
+                    }
+                }
+                break;
+        }
         return permite;
     }
 
@@ -2742,14 +2767,12 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 //    public void setListaArquivos(List<LinhaArquivo> listaArquivos) {
 //        this.listaArquivos = listaArquivos;
 //    }
-
 //    public List<TmktHistorico> getListTelemarketing() {
 //        if (fisica.getPessoa().getId() != -1) {
 //            return new TmktHistoricoDao().findByPessoa(fisica.getPessoa().getId());
 //        }
 //        return new ArrayList();
 //    }
-
     public String getFiltroOposicao() {
         return filtroOposicao;
     }
@@ -2798,5 +2821,16 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             result = count;
         }
         return result;
+    }
+
+    public String getInCategoriaSocio() {
+        if (GenericaSessao.exists("inCategoriaSocio")) {
+            inCategoriaSocio = GenericaSessao.getString("inCategoriaSocio", true);
+        }
+        return inCategoriaSocio;
+    }
+
+    public void setInCategoriaSocio(String inCategoriaSocio) {
+        this.inCategoriaSocio = inCategoriaSocio;
     }
 }

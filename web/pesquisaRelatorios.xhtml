@@ -26,20 +26,20 @@
                             <c:set scope="request" var="object" value="${relatorioBean.relatorio}"/>
                             <h:outputText value="Pesquisar relatório" styleClass="fonteHeader" />
                             <div class="clear"></div>                            
-                            <p:dataTable value="#{relatorioBean.listRelatorio}" var="relatorios" id="tbl" emptyMessage="Nenhum registro encontrado!">
+                            <p:dataTable value="#{relatorioBean.listRelatorio}" var="relatorios" id="tbl" emptyMessage="Nenhum registro encontrado!" rows="10" paginator="true">
                                 <p:column styleClass="text-center" width="30">
                                     <p:commandButton action="#{relatorioBean.edit(relatorios)}" icon="ui-icon-link"/>
                                 </p:column>
 
-                                <p:column headerText="Nome do relatório">
+                                <p:column headerText="Nome do relatório" filterBy="#{relatorios.nome}" filterMatchMode="global"> 
                                     <p:commandLink action="#{relatorioBean.edit(relatorios)}" value="#{relatorios.nome}" />
                                 </p:column>
 
-                                <p:column headerText="Caminho do Jasper">
+                                <p:column headerText="Caminho do Jasper" filterBy="#{relatorios.jasper}" filterMatchMode="global">
                                     <h:outputText value="#{relatorios.jasper}"/>
                                 </p:column>
 
-                                <p:column headerText="Descrição Rotina">
+                                <p:column headerText="Descrição Rotina" filterBy="#{relatorios.rotina.rotina}" filterMatchMode="global">
                                     <h:outputText value="#{relatorios.rotina.rotina}"/>
                                 </p:column>
                             </p:dataTable>

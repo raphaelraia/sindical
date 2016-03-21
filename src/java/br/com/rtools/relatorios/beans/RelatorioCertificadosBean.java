@@ -302,11 +302,11 @@ public class RelatorioCertificadosBean implements Serializable {
         }
         Jasper.IS_HEADER = true;
         Jasper.TYPE = "paisagem";
-        if (relatoriosx.getExcel()) {
-            Jasper.EXCEL_FIELDS = relatoriosx.getCamposExcel();
-        } else {
-            Jasper.EXCEL_FIELDS = "";
-        }
+//        if (relatoriosx.getExcel()) {
+//            Jasper.EXCEL_FIELDS = relatoriosx.getCamposExcel();
+//        } else {
+//            Jasper.EXCEL_FIELDS = "";
+//        }
         Jasper.printReports(relatoriosx.getJasper(), "certificados", (Collection) listParametroCertificados);
     }
 

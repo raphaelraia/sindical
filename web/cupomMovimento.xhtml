@@ -82,7 +82,7 @@
                                             #{sociosCupomMovimento.pessoa.nome}
                                         </p:column>
                                         <p:column headerText="Categoria" styleClass="text-center">
-                                            #{sociosCupomMovimento.pessoa.socios.matriculaSocios.categoria}
+                                            #{sociosCupomMovimento.pessoa.socios.matriculaSocios.categoria.categoria}
                                         </p:column>
                                         <p:column headerText="Parentesco" styleClass="text-center">
                                             #{sociosCupomMovimento.pessoa.socios.parentesco.parentesco}
@@ -97,7 +97,7 @@
                                 </f:facet>
                             </p:panel>
                             <p:panel header="Cupons emitidos" id="id_grid_cupons" styleClass="margin-top-max">
-                                <p:dataTable value="#{cupomMovimentoBean.listCupomMovimento}" var="cupomMovimento" id="id_grid_cupons_this" emptyMessage="Nenhum registro encontrado!">
+                                <p:dataTable value="#{cupomMovimentoBean.listCupomMovimento}" var="cupomMovimento" id="id_grid_cupons_this" emptyMessage="Nenhum registro encontrado!" rows="10" paginator="true">
                                     <p:column styleClass="text-center" width="30">
                                         <p:commandButton icon="ui-icon-close" action="#{cupomMovimentoBean.delete(cupomMovimento)}" update="id_grid_cupons_this" disabled="#{controleAcessoBean.botaoSalvar}" />
                                     </p:column>
@@ -114,7 +114,7 @@
                                         #{cupomMovimento.pessoa.socios.matriculaSocios.categoria.categoria}
                                     </p:column>
                                     <p:column headerText="Operador">
-                                        <p:commandLink value="#{cupomMovimento.operador.pessoa.nome}" update=":form_cupom_movimento:i_usuario_card" onclick="PF('dlg_usuario_card').show()" action="#{pessoaCardBean.cardUsuario(cupomMovimento.pessoa.id)}" />
+                                        <p:commandLink value="#{cupomMovimento.operador.pessoa.nome}" update=":form_cupom_movimento:i_usuario_card" onclick="PF('dlg_usuario_card').show()" action="#{pessoaCardBean.cardUsuario(cupomMovimento.operador.pessoa.id)}" />
                                     </p:column>
                                     <p:column width="30">
                                         <p:commandButton icon="ui-icon-contact" update=":form_cupom_movimento:i_pessoa_fisica_card" onclick="PF('dlg_pessoa_fisica_card').show()" action="#{pessoaCardBean.cardFisica(cupomMovimento.pessoa.id)}" title="Ver detalhes" />

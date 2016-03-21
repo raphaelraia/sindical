@@ -70,4 +70,15 @@ public class AtalhoDBToplink extends DB implements AtalhoDB {
             return null;
         }
     }
+
+    @Override
+    public ContadorAcessos pesquisaContadorAcessos(int id_usuario, int id_rotina, int id_modulo) {
+        try {
+            Query qry = getEntityManager().createQuery(
+                    "select ca from ContadorAcessos ca where ca.usuario.id = " + id_usuario + " and ca.rotina.id = " + id_rotina + " and ca.modulo.id = " + id_modulo);
+            return (ContadorAcessos) qry.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

@@ -84,8 +84,10 @@ public class CupomBean {
 
     public void loadListCupomCategoria() {
         listCupomCategoria = new ArrayList<>();
-        CupomCategoriaDao cupomCategoriaDao = new CupomCategoriaDao();
-        listCupomCategoria = cupomCategoriaDao.find(cupom.getId());
+        if (cupom.getId() != null) {
+            CupomCategoriaDao cupomCategoriaDao = new CupomCategoriaDao();
+            listCupomCategoria = cupomCategoriaDao.find(cupom.getId());
+        }
     }
 
     public void add() {
@@ -106,6 +108,26 @@ public class CupomBean {
         loadListCategoria();
     }
 
+    public void addAll() {
+        Dao dao = new Dao();
+        for (int i = 0; i < listCategoria.size(); i++) {
+            CupomCategoria cupomCategoria = new CupomCategoria();
+            cupomCategoria.setCategoria((Categoria) dao.find(new Categoria(), listCategoria.get(i).getValue()));
+            if (validaCupomCategoria(cupomCategoria)) {
+                GenericaMensagem.warn("Validação", "Categoria já existe!");
+                return;
+            }
+            listCupomCategoria.add(cupomCategoria);
+            if (cupom.getId() != null) {
+                cupomCategoria.setCupom(cupom);
+                saveCupomCategoria();
+                loadListCupomCategoria();
+            }
+        }
+        GenericaMensagem.info("Sucesso", "Categoria adicionada!");
+        loadListCategoria();
+    }
+
     public Boolean validaCupomCategoria(CupomCategoria cc) {
         for (int i = 0; i < listCupomCategoria.size(); i++) {
             if (Objects.equals(listCupomCategoria.get(i).getCategoria().getId(), cc.getCategoria().getId())) {
@@ -117,12 +139,13 @@ public class CupomBean {
     }
 
     public void saveCupomCategoria() {
+        Dao dao = new Dao();
         for (int i = 0; i < listCupomCategoria.size(); i++) {
             if (listCupomCategoria.get(i).getId() == null) {
-                if (listCupomCategoria.get(i).getCupom().getId() == null) {
+                if (listCupomCategoria.get(i).getCupom() == null) {
                     listCupomCategoria.get(i).setCupom(cupom);
                 }
-                new Dao().save(listCupomCategoria.get(i), true);
+                dao.save(listCupomCategoria.get(i), true);
             }
         }
     }
@@ -166,11 +189,11 @@ public class CupomBean {
         }
         if (cupom.getId() == null) {
             if (new Dao().save(cupom, true)) {
-                saveCupomCategoria();
                 GenericaMensagem.info("Sucesso", "Registro inserido");
-                loadListCupom();
                 NovoLog novoLog = new NovoLog();
                 novoLog.save("Cupom: (" + cupom.getId() + ") " + cupom.getDescricao() + " - Data: " + cupom.getData() + " - Carência Inadimplencia Dias: " + cupom.getCarenciaInadimplenciaDias());
+                saveCupomCategoria();
+                loadListCupom();
             } else {
                 GenericaMensagem.warn("Erro", "Registro já existe!");
             }
@@ -185,14 +208,27 @@ public class CupomBean {
     }
 
     public void delete() {
-        if (new Dao().delete(cupom, true)) {
-            GenericaMensagem.warn("Sucesso", "Registro removido!");
-            NovoLog novoLog = new NovoLog();
-            novoLog.delete("Cupom: (" + cupom.getId() + ") " + cupom.getDescricao() + " - Data: " + cupom.getData() + " - Carência Inadimplencia Dias: " + cupom.getCarenciaInadimplenciaDias());
-            loadListCupom();
-        } else {
-            GenericaMensagem.warn("Erro", "Ao remover registro!");
+        Dao dao = new Dao();
+        dao.openTransaction();
+        for (int i = 0; i < listCupomCategoria.size(); i++) {
+            if (!dao.delete(listCupomCategoria.get(i))) {
+                GenericaMensagem.warn("Erro", "Ao remover registro!");
+                dao.rollback();
+                return;
+            }
         }
+        if (!dao.delete(cupom)) {
+            dao.rollback();
+            GenericaMensagem.warn("Erro", "Ao remover registro!");
+            return;
+        }
+        dao.commit();
+        cupom = new Cupom();
+        listCupomCategoria.clear();
+        NovoLog novoLog = new NovoLog();
+        novoLog.delete("Cupom: (" + cupom.getId() + ") " + cupom.getDescricao() + " - Data: " + cupom.getData() + " - Carência Inadimplencia Dias: " + cupom.getCarenciaInadimplenciaDias());
+        GenericaMensagem.info("Sucesso", "Registro removido!");
+        loadListCupom();
     }
 
     public Cupom getCupom() {

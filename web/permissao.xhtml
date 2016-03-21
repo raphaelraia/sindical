@@ -26,30 +26,51 @@
                     <h:outputText value="Permissões" styleClass="fonteHeader"/>
                     <div class="clear"></div>
                     <p:panel styleClass="fundoCinza">
-                        <h:panelGrid columns="3" id="id_painel_permissao" styleClass="sbb fundoCinza">
-                            <p:outputLabel value="Módulo:"/>
-                            <p:outputLabel value="Rotina:"/>
-                            <p:column></p:column>
-                            <p:selectOneMenu value="#{permissaoBean.idModulo}">
-                                <p:ajax event="change" update="id_painel_permissao tbl"/>
-                                <f:selectItems value="#{permissaoBean.listaModulos}"/>
-                            </p:selectOneMenu>
-                            <p:selectOneMenu value="#{permissaoBean.idRotina}" filter="true" filterMatchMode="startsWith">
-                                <f:selectItems value="#{permissaoBean.listaRotinas}"/>
-                            </p:selectOneMenu>
-                            <p:commandButton icon="ui-icon-plus" value="Adicionar" action="#{permissaoBean.addPermissao}" disabled="#{controleAcessoBean.botaoSalvar}" update="id_painel_permissao, tbl" />
-                            <p:column></p:column>
-                            <p:column></p:column>
-                            <p:column></p:column>
+                        <f:facet name="header">
+                            <p:selectBooleanCheckbox value="#{permissaoBean.rotinaGrupo}" itemLabel="Grupo Rotina: ">
+                                <p:ajax event="change" update="@this id_rotina_grupo i_rotinas" listener="#{permissaoBean.loadListRotinaGrupo}" />
+                            </p:selectBooleanCheckbox>
+                        </f:facet>
+                        <h:panelGrid columns="4" id="id_painel_permissao" styleClass="sbb fundoCinza">
+                            <p:column>
+                                <h:panelGrid>
+                                    <p:outputLabel value="Módulo:"/>
+                                    <p:selectOneMenu value="#{permissaoBean.idModulo}">
+                                        <p:ajax event="change" update="id_painel_permissao tbl"/>
+                                        <f:selectItems value="#{permissaoBean.listaModulos}"/>
+                                    </p:selectOneMenu>                                    
+                                </h:panelGrid>
+                            </p:column>
+                            <p:column>
+                                <h:panelGrid id="id_rotina_grupo">
+                                    <p:outputLabel value="Grupo Rotina:" rendered="#{permissaoBean.rotinaGrupo}"/>
+                                    <p:selectOneMenu value="#{permissaoBean.idRotinaGrupo}" rendered="#{permissaoBean.rotinaGrupo}" filter="true" filterMatchMode="startsWith">
+                                        <p:ajax event="change" update="i_rotinas"/>
+                                        <f:selectItems value="#{permissaoBean.listaRotinaGrupo}"/>
+                                    </p:selectOneMenu>                                    
+                                </h:panelGrid>
+                            </p:column>
+                            <p:column>                              
+                                <h:panelGrid id="i_rotinas">
+                                    <p:outputLabel value="Rotina:"/>
+                                    <p:selectOneMenu value="#{permissaoBean.idRotina}" filter="true" filterMatchMode="startsWith">
+                                        <f:selectItems value="#{permissaoBean.listaRotinas}"/>
+                                    </p:selectOneMenu>
+                                </h:panelGrid>
+                            </p:column>
+                            <p:column>
+                                <br />
+                                <p:commandButton icon="ui-icon-plus" value="Adicionar" action="#{permissaoBean.addPermissao}" disabled="#{controleAcessoBean.botaoSalvar}" update="id_painel_permissao, tbl" />                                
+                            </p:column>
                         </h:panelGrid>
                     </p:panel>
                     <p:panel id="tbl" styleClass="margin-top-max">
                         <p:dataTable var="permissao" value="#{permissaoBean.listaPermissoes}" emptyMessage="Nenhum registro encontrado" scrollHeight="400" scrollable="true">
                             <f:facet name="header">Permissões adicionadas</f:facet>
-                            <p:column headerText="Módulo">
+                            <p:column headerText="Módulo" filterBy="#{permissao.modulo.descricao}" filterMatchMode="global">
                                 <p:outputLabel value="#{permissao.modulo.descricao}"/>
                             </p:column>
-                            <p:column headerText="Rotina">
+                            <p:column headerText="Rotina" filterBy="#{permissao.rotina.rotina}" filterMatchMode="global">
                                 <p:outputLabel value="#{permissao.rotina.rotina}"/>
                             </p:column>
                             <p:column headerText="Evento">

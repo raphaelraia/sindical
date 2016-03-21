@@ -2078,6 +2078,12 @@
             <redirect/>
         </navigation-case>        
         
+        <navigation-case>
+            <from-outcome>menuRedirect</from-outcome>
+            <to-view-id>/menuRedirect.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
     </navigation-rule>
     
     <lifecycle>

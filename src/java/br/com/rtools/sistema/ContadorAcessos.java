@@ -1,5 +1,6 @@
 package br.com.rtools.sistema;
 
+import br.com.rtools.seguranca.Modulo;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import javax.persistence.*;
@@ -12,27 +13,32 @@ public class ContadorAcessos implements java.io.Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
     @JoinColumn(name = "id_pessoa", referencedColumnName = "id", nullable = false)
     @ManyToOne
     private Usuario usuario;
     @JoinColumn(name = "id_rotina", referencedColumnName = "id", nullable = false)
     @ManyToOne
     private Rotina rotina;
+    @JoinColumn(name = "id_modulo", referencedColumnName = "id")
+    @ManyToOne
+    private Modulo modulo;
     @Column(name = "nr_acesso")
-    private int acessos;
+    private Integer acessos;
 
     public ContadorAcessos() {
-        this.id = -1;
+        this.id = null;
         this.usuario = new Usuario();
         this.rotina = new Rotina();
+        this.modulo = null;
         this.acessos = 0;
     }
 
-    public ContadorAcessos(int id, Usuario usuario, Rotina rotina, int acessos) {
+    public ContadorAcessos(Integer id, Usuario usuario, Rotina rotina, Modulo modulo, Integer acessos) {
         this.id = id;
         this.usuario = usuario;
         this.rotina = rotina;
+        this.modulo = modulo;
         this.acessos = acessos;
     }
 
@@ -40,7 +46,7 @@ public class ContadorAcessos implements java.io.Serializable {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -60,11 +66,19 @@ public class ContadorAcessos implements java.io.Serializable {
         this.usuario = usuario;
     }
 
-    public int getAcessos() {
+    public Integer getAcessos() {
         return acessos;
     }
 
-    public void setAcessos(int acessos) {
+    public void setAcessos(Integer acessos) {
         this.acessos = acessos;
+    }
+
+    public Modulo getModulo() {
+        return modulo;
+    }
+
+    public void setModulo(Modulo modulo) {
+        this.modulo = modulo;
     }
 }

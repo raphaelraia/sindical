@@ -1,5 +1,7 @@
 package br.com.rtools.seguranca;
 
+import br.com.rtools.utilitarios.Dao;
+import br.com.rtools.utilitarios.GenericaSessao;
 import javax.persistence.*;
 
 @Entity
@@ -42,5 +44,9 @@ public class Modulo implements java.io.Serializable {
 
     public void setDescricao(String descricao) {
         this.descricao = descricao;
+    }
+
+    public static Modulo get() {
+        return (Modulo) new Dao().find(new Modulo(), GenericaSessao.getInteger("idModulo"));
     }
 }

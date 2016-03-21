@@ -118,6 +118,14 @@ public class ControleAcessoBean implements Serializable {
         }
     }
 
+    public void menuRedirect() throws IOException {
+        String redirect = "";
+        if (GenericaSessao.exists("menuRedirect")) {
+            redirect = GenericaSessao.getString("menuRedirect", true);
+            FacesContext.getCurrentInstance().getExternalContext().redirect(redirect + ".jsf");
+        }
+    }
+
     public boolean verificarUsuarioAcessoWeb() {
         UsuarioDB db = new UsuarioDBToplink();
         Pessoa contri = null;

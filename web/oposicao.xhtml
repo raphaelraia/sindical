@@ -55,9 +55,9 @@
                                         </h:column>
                                     </h:column>
                                     <p:outputLabel value="Emissão: " />
-                                    <p:inputText value="#{oposicaoBean.oposicao.emissao}" size="8" readonly="#{controleAcessoBean.verificarPermissao('libera_data_emissao_oposicao', 3)}" converter="#{isDateString}">
-                                        <p:ajax event="change" update="@this" />
-                                    </p:inputText>
+                                    <p:inputMask value="#{oposicaoBean.oposicao.emissao}" size="8" readonly="#{controleAcessoBean.verificarPermissao('libera_data_emissao_oposicao', 3)}" converter="#{isDateString}" mask="99/99/9999">
+                                        <p:ajax event="change" update="@this i_convencao_periodo" listener="#{oposicaoBean.listener(1)}"/>
+                                    </p:inputMask>
                                     <p:outputLabel value="RG: " />
                                     <h:column>
                                         <p:inputText id="idRG"  value="#{oposicaoBean.oposicao.oposicaoPessoa.rg}" maxlength="15" size="15"  rendered="#{oposicaoBean.oposicao.oposicaoPessoa.cpf == ''}" >
@@ -120,46 +120,48 @@
                                     <p:outputLabel value="Observação: " />
                                     <p:inputTextarea value="#{oposicaoBean.oposicao.observacao}" cols="80" rows="5" placeholder="Digite aqui as observações"></p:inputTextarea>
                                 </h:panelGrid>
-                                <h:column rendered="#{oposicaoBean.oposicao.convencaoPeriodo.convencao.id != -1}">
-                                    <p:panel header="Convenção Período" styleClass="margin-top-max">
-                                        <p:panelGrid>
-                                            <f:facet name="header">
+                                <h:panelGroup layout="block" id="i_convencao_periodo">
+                                    <h:column rendered="#{oposicaoBean.oposicao.convencaoPeriodo.convencao.id != -1}">
+                                        <p:panel header="Convenção Período" styleClass="margin-top-max">
+                                            <p:panelGrid>
+                                                <f:facet name="header">
+                                                    <p:row>
+                                                        <p:column colspan="2"></p:column>
+                                                        <p:column colspan="2">Referência</p:column>
+                                                    </p:row>
+                                                    <p:row>
+                                                        <p:column>
+                                                            <p:outputLabel value="Convenção" />
+                                                        </p:column>
+                                                        <p:column>
+                                                            <p:outputLabel value="Grupo Cidade" title="Grupo Cidade" />
+                                                        </p:column>
+                                                        <p:column>
+                                                            <p:outputLabel value="Inicial" />
+                                                        </p:column>
+                                                        <p:column>
+                                                            <p:outputLabel value="Final"  />                                        
+                                                        </p:column>
+                                                    </p:row>
+                                                </f:facet>
                                                 <p:row>
-                                                    <p:column colspan="2"></p:column>
-                                                    <p:column colspan="2">Referência</p:column>
-                                                </p:row>
-                                                <p:row>
                                                     <p:column>
-                                                        <p:outputLabel value="Convenção" />
+                                                        <p:outputLabel value="#{oposicaoBean.oposicao.convencaoPeriodo.convencao.descricao}" />
                                                     </p:column>
                                                     <p:column>
-                                                        <p:outputLabel value="Grupo Cidade" title="Grupo Cidade" />
+                                                        <p:outputLabel value="#{oposicaoBean.oposicao.convencaoPeriodo.grupoCidade.descricao}" />
                                                     </p:column>
                                                     <p:column>
-                                                        <p:outputLabel value="Inicial" />
+                                                        <p:outputLabel value="#{oposicaoBean.oposicao.convencaoPeriodo.referenciaInicial}" />
                                                     </p:column>
                                                     <p:column>
-                                                        <p:outputLabel value="Final"  />                                        
+                                                        <p:outputLabel value="#{oposicaoBean.oposicao.convencaoPeriodo.referenciaFinal}" />
                                                     </p:column>
                                                 </p:row>
-                                            </f:facet>
-                                            <p:row>
-                                                <p:column>
-                                                    <p:outputLabel value="#{oposicaoBean.oposicao.convencaoPeriodo.convencao.descricao}" />
-                                                </p:column>
-                                                <p:column>
-                                                    <p:outputLabel value="#{oposicaoBean.oposicao.convencaoPeriodo.grupoCidade.descricao}" />
-                                                </p:column>
-                                                <p:column>
-                                                    <p:outputLabel value="#{oposicaoBean.oposicao.convencaoPeriodo.referenciaInicial}" />
-                                                </p:column>
-                                                <p:column>
-                                                    <p:outputLabel value="#{oposicaoBean.oposicao.convencaoPeriodo.referenciaFinal}" />
-                                                </p:column>
-                                            </p:row>
-                                        </p:panelGrid>
-                                    </p:panel>
-                                </h:column>
+                                            </p:panelGrid>
+                                        </p:panel>
+                                    </h:column>
+                                </h:panelGroup>
                             </p:panel>
                             <h:panelGrid columns="6" id="i_panel_acao" styleClass="margin-top-max">
                                 <p:commandButton  value="Salvar" title="Salvar" disabled="#{controleAcessoBean.botaoSalvar or oposicaoBean.oposicao.dtInativacao != null}" onclick="PF('dlg_save').show();"  />
