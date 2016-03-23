@@ -890,8 +890,21 @@ public class FisicaDBToplink extends DB implements FisicaDB {
     @Override
     public List<Vector> listaMovimentoFisica(Integer id_pessoa, String status, String tipo_pesquisa) {
         String text
-                = " SELECT m.id, pr.ds_nome, pt.ds_nome, pb.ds_nome, m.ds_referencia, m.dt_vencimento, s.ds_descricao, ts.ds_descricao, func_valor(m.id) as valor, b.dt_baixa, m.ds_documento, pu.ds_nome as nome_usuario, mi.ds_historico, mi.dt_data \n "
-                + "   FROM fin_movimento m "
+                = " SELECT m.id, \n "
+                + "        pr.ds_nome, \n "
+                + "        pt.ds_nome,  \n "
+                + "        pb.ds_nome,  \n "
+                + "        m.ds_referencia,  \n "
+                + "        m.dt_vencimento,  \n "
+                + "        s.ds_descricao,  \n "
+                + "        ts.ds_descricao,  \n "
+                + "        func_valor(m.id) as valor,  \n "
+                + "        b.dt_baixa,  \n "
+                + "        m.ds_documento,  \n "
+                + "        pu.ds_nome as nome_usuario,  \n "
+                + "        mi.ds_historico,  \n "
+                + "        mi.dt_data \n "
+                + "   FROM fin_movimento m  \n "
                 + "  INNER JOIN pes_pessoa pr ON pr.id = m.id_pessoa \n "
                 + "  INNER JOIN pes_pessoa pt ON pt.id = m.id_titular \n "
                 + "  INNER JOIN pes_pessoa pb ON pb.id = m.id_beneficiario \n "
@@ -906,13 +919,14 @@ public class FisicaDBToplink extends DB implements FisicaDB {
 
         switch (tipo_pesquisa) {
             case "responsavel":
-                and += " AND m.id_pessoa = " + id_pessoa;
+                and += " AND m.id_pessoa = " + id_pessoa + " \n ";
                 break;
             case "titular":
-                and += " AND m.id_titular = " + id_pessoa;
+                and += " AND m.id_titular = " + id_pessoa + " \n ";
                 break;
             case "beneficiario":
-                and += " AND m.id_beneficiario = " + id_pessoa;
+                //and += " AND m.id_beneficiario = " + id_pessoa + " \n ";
+                and += " AND m.id_beneficiario = " + id_pessoa + " AND m.id_titular = func_titular_da_pessoa(" + id_pessoa + ") \n ";
                 break;
         }
 
@@ -920,10 +934,10 @@ public class FisicaDBToplink extends DB implements FisicaDB {
             case "todos":
                 break;
             case "abertos":
-                and += " AND m.id_baixa IS NULL";
+                and += " AND m.id_baixa IS NULL \n ";
                 break;
             case "quitados":
-                and += " AND m.id_baixa IS NOT NULL";
+                and += " AND m.id_baixa IS NOT NULL \n ";
                 break;
         }
 
