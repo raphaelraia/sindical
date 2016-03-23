@@ -1056,7 +1056,7 @@ public class WebREPISBean implements Serializable {
     }
     
     public void loadListRepisMovimentoPessoa(Integer pessoa_id) {
-        listRepisMovimento = new WebREPISDBToplink().listRepisPorPessoa(pessoa_id);
+        listRepisMovimentoPessoa = new WebREPISDBToplink().listRepisPorPessoa(pessoa_id);
     }
 
     public List<RepisMovimento> getListRepisMovimentoPessoa() {

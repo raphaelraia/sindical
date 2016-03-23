@@ -78,64 +78,64 @@ public class PessoaBean implements Serializable {
 
     @PreDestroy
     public void destroy() {
-        GenericaSessao.remove("poessoaPesquisa");
+        // GenericaSessao.remove("poessoaPesquisa");
         GenericaSessao.remove("pessoaBean");
-        GenericaSessao.remove("sorteioMovimentoBean");
-        GenericaSessao.remove("cupomMovimentoBean");
-        GenericaSessao.remove("tmktHistoricoBean");
-        GenericaSessao.remove("digitalizacaoBean");
-        GenericaSessao.remove("frequenciaCatracaBean");
-        GenericaSessao.remove("spcBean");
-        GenericaSessao.remove("webREPISBean");
+//        GenericaSessao.remove("sorteioMovimentoBean");
+//        GenericaSessao.remove("cupomMovimentoBean");
+//        GenericaSessao.remove("tmktHistoricoBean");
+//        GenericaSessao.remove("digitalizacaoBean");
+//        GenericaSessao.remove("frequenciaCatracaBean");
+//        GenericaSessao.remove("spcBean");
+//        GenericaSessao.remove("webREPISBean");
     }
 
     public void load() {
-        GenericaSessao.remove("sorteioMovimentoBean");
-        GenericaSessao.remove("cupomMovimentoBean");
-        GenericaSessao.remove("tmktHistoricoBean");
-        GenericaSessao.remove("digitalizacaoBean");
-        GenericaSessao.remove("frequenciaCatracaBean");
-        GenericaSessao.remove("spcBean");
-        GenericaSessao.remove("webREPISBean");
-        GenericaSessao.remove("raisBean");
         switch (selectDetalhes) {
             case "sorteios":
+                GenericaSessao.remove("sorteioMovimentoBean");
                 SorteioMovimentoBean sorteioMovimentoBean = new SorteioMovimentoBean();
                 sorteioMovimentoBean.loadListSorteioMovimento(pessoa.getId());
                 GenericaSessao.put("sorteioMovimentoBean", sorteioMovimentoBean);
                 break;
             case "cupons":
+                GenericaSessao.remove("cupomMovimentoBean");
                 CupomMovimentoBean cupomMovimentoBean = new CupomMovimentoBean();
                 cupomMovimentoBean.loadListCupomMovimento(pessoa.getId());
                 GenericaSessao.put("cupomMovimentoBean", cupomMovimentoBean);
                 break;
             case "telemarketing":
+                GenericaSessao.remove("tmktHistoricoBean");
                 TmktHistoricoBean tmktHistoricoBean = new TmktHistoricoBean();
                 tmktHistoricoBean.loadListTmktHistorico(pessoa.getId());
                 GenericaSessao.put("tmktHistoricoBean", tmktHistoricoBean);
                 break;
             case "documentos":
+                GenericaSessao.remove("digitalizacaoBean");
                 DigitalizacaoBean digitalizacaoBean = new DigitalizacaoBean();
                 digitalizacaoBean.loadListDocumentos(pessoa.getId());
                 GenericaSessao.put("digitalizacaoBean", digitalizacaoBean);
                 break;
             case "frequencia_catraca":
+                GenericaSessao.remove("frequenciaCatracaBean");
                 FrequenciaCatracaBean frequenciaCatracaBean = new FrequenciaCatracaBean();
                 frequenciaCatracaBean.loadListByPessoa(pessoa.getId());
                 GenericaSessao.put("frequenciaCatracaBean", frequenciaCatracaBean);
                 break;
             case "spc":
+                GenericaSessao.remove("spcBean");
                 SpcBean spcBean = new SpcBean();
                 spcBean.setListaSPC(new ArrayList());
                 spcBean.loadListByPessoa(pessoa.getId());
                 GenericaSessao.put("spcBean", spcBean);
                 break;
             case "repis":
+                GenericaSessao.remove("webREPISBean");
                 WebREPISBean webREPISBean = new WebREPISBean();
                 webREPISBean.loadListRepisMovimentoPessoa(pessoa.getId());
                 GenericaSessao.put("webREPISBean", webREPISBean);
                 break;
             case "rais":
+                GenericaSessao.remove("raisBean");
                 RaisBean raisBean = new RaisBean();
                 if (tipoPessoa.equals("pessoaJuridica")) {
                     raisBean.loadListRaisEmpresa(pessoa.getId());

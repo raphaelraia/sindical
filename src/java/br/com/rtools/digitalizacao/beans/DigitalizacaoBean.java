@@ -6,7 +6,6 @@ import br.com.rtools.digitalizacao.dao.DigitalizacaoDao;
 import br.com.rtools.digitalizacao.dao.GrupoDigitalizacaoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Pessoa;
-import br.com.rtools.pessoa.beans.FisicaBean;
 import br.com.rtools.pessoa.beans.JuridicaBean;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
@@ -24,6 +23,8 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
@@ -38,7 +39,7 @@ import org.primefaces.event.FileUploadEvent;
 @ManagedBean
 @SessionScoped
 public final class DigitalizacaoBean implements Serializable {
-
+    
     private Documento documento = new Documento();
     private Pessoa pessoa = new Pessoa();
     private Integer indexGrupo = 0;
@@ -46,17 +47,23 @@ public final class DigitalizacaoBean implements Serializable {
     private List<Documento> listaDocumentos = new ArrayList();
     private List<LinhaArquivo> listaArquivos = new ArrayList();
     private LinhaArquivo linhaArquivoExcluir = new LinhaArquivo();
-
-    public DigitalizacaoBean() {
+    
+    @PostConstruct
+    public void init() {
         loadListaGrupo();
         loadListaDocumentos();
     }
-
+    
+    @PreDestroy
+    public void destroy() {
+        GenericaSessao.remove("digitalizacaoBean");
+    }
+    
     public void view(LinhaArquivo la) throws IOException {
         HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
-
+        
         HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-
+        
         String url = request.getScheme() + "://" + request.getServerName() + ":" + String.valueOf(request.getServerPort()) + "/";
         // CORRIGE URLS COM ACENTUAÇÃO
         // URLEncoder.encode(url, "UTF-8")
@@ -70,51 +77,51 @@ public final class DigitalizacaoBean implements Serializable {
         //url += "Sindical/resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/documentos/" + la.getDocFile().getPessoa().getId() + "/" + la.getDocFile().getId()+"/"+URLEncoder.encode(la.getNameFile(), "UTF-8");
         response.sendRedirect(url);
     }
-
+    
     public void download(LinhaArquivo la) {
         ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
         String path = servletContext.getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/documentos/" + la.getDocFile().getPessoa().getId() + "/" + la.getDocFile().getId();
         Download d = new Download(la.getNameFile(), path, la.getMimeType(), FacesContext.getCurrentInstance());
         d.baixar();
     }
-
+    
     public void clickExcluir(LinhaArquivo la) {
         linhaArquivoExcluir = la;
     }
-
+    
     public void excluirArquivo() {
         ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
         String path = servletContext.getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/documentos/" + linhaArquivoExcluir.getDocFile().getPessoa().getId() + "/" + linhaArquivoExcluir.getDocFile().getId() + "/" + linhaArquivoExcluir.getNameFile();
         File file = new File(path);
-
+        
         if (!FileUtils.deleteQuietly(file)) {
             GenericaMensagem.fatal("Atenção", "NÃO FOI POSSÍVEL EXCLUIR ARQUIVO!");
         }
-
+        
         String delete_log = "Arquivo Excluido:  " + linhaArquivoExcluir.getNameFile();
-
+        
         NovoLog novoLog = new NovoLog();
         novoLog.setTabela("dig_documento");
         novoLog.setCodigo(documento.getId());
-
+        
         novoLog.delete(
                 delete_log
         );
-
+        
         verDocumentos(linhaArquivoExcluir.getDocFile());
         linhaArquivoExcluir = new LinhaArquivo();
         GenericaMensagem.info("Sucesso", "ARQUIVO EXCLUÍDO!");
     }
-
+    
     public void verDocumentos(Documento linha) {
         listaArquivos.clear();
-
+        
         ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
         String path = servletContext.getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/documentos/" + linha.getPessoa().getId() + "/" + linha.getId() + "/";
         File file = new File(path);
-
+        
         File lista_datas[] = file.listFiles();
-
+        
         if (lista_datas != null) {
             for (File lista_data : lista_datas) {
                 String ext = FilenameUtils.getExtension(lista_data.getPath()).toUpperCase();
@@ -123,7 +130,7 @@ public final class DigitalizacaoBean implements Serializable {
             }
         }
     }
-
+    
     public void saveDigitalizacao() {
         /*
         // NÃO É OBRIGATÓRIO
@@ -141,12 +148,12 @@ public final class DigitalizacaoBean implements Serializable {
             GenericaMensagem.fatal("Atenção", "PESQUISE UMA PESSOA!");
             return;
         }
-
+        
         Dao dao = new Dao();
-
+        
         documento.getAssunto().setGrupo((GrupoDigitalizacao) dao.find(new GrupoDigitalizacao(), Integer.valueOf(listaGrupo.get(indexGrupo).getDescription())));
         documento.setPessoa(pessoa);
-
+        
         String save_log
                 = "Data Emissão: " + documento.getDtEmissaoString() + " \n "
                 + "Grupo: " + documento.getAssunto().getGrupo().getDescricao() + " \n "
@@ -154,10 +161,10 @@ public final class DigitalizacaoBean implements Serializable {
                 + "Titulo: " + documento.getTitulo() + " \n "
                 + "Historico: " + documento.getHistorico() + " \n "
                 + "Pessoa: " + documento.getPessoa().getNome();
-
+        
         NovoLog novoLog = new NovoLog();
         novoLog.setTabela("dig_documento");
-
+        
         dao.openTransaction();
         if (documento.getId() == -1) {
             if (!dao.save(documento.getAssunto())) {
@@ -165,13 +172,13 @@ public final class DigitalizacaoBean implements Serializable {
                 GenericaMensagem.fatal("Erro", "NÃO FOI POSSÍVEL SALVAR ASSUNTO!");
                 return;
             }
-
+            
             if (!dao.save(documento)) {
                 dao.rollback();
                 GenericaMensagem.fatal("Erro", "NÃO FOI POSSÍVEL SALVAR DOCUMENTO!");
                 return;
             }
-
+            
             novoLog.setCodigo(documento.getId());
             novoLog.save(
                     save_log
@@ -182,13 +189,13 @@ public final class DigitalizacaoBean implements Serializable {
                 GenericaMensagem.fatal("Erro", "NÃO FOI POSSÍVEL ATUALIZAR ASSUNTO!");
                 return;
             }
-
+            
             if (!dao.update(documento)) {
                 dao.rollback();
                 GenericaMensagem.fatal("Erro", "NÃO FOI POSSÍVEL ATUALIZAR DOCUMENTO!");
                 return;
             }
-
+            
             Documento doc = (Documento) new Dao().find(documento);
             String updade_log
                     = "Data Emissão: " + doc.getDtEmissaoString() + " \n "
@@ -197,61 +204,61 @@ public final class DigitalizacaoBean implements Serializable {
                     + "Titulo: " + doc.getTitulo() + " \n "
                     + "Historico: " + doc.getHistorico() + " \n "
                     + "Pessoa: " + doc.getPessoa().getNome();
-
+            
             novoLog.setCodigo(documento.getId());
             novoLog.update(save_log, updade_log);
         }
-
+        
         if (!Diretorio.criar("documentos/" + pessoa.getId() + "/" + documento.getId(), true)) { // PASTA ex. resources/cliente/sindical/documentos/_id_pessoa/_id_documento
             dao.rollback();
             GenericaMensagem.fatal("Erro", "NÃO FOI POSSÍVEL CRIAR PASTA DE DOCUMENTOS!");
             return;
         }
-
+        
         dao.commit();
         GenericaMensagem.info("Sucesso", "DOCUMENTO SALVO!");
         loadListaDocumentos();
     }
-
+    
     public void novo() {
         documento = new Documento();
         indexGrupo = 0;
         loadListaDocumentos();
         //GenericaSessao.put("digitalizacaoBean", new DigitalizacaoBean());
     }
-
+    
     public void excluir() {
         if (documento.getId() == -1) {
             GenericaMensagem.fatal("Atenção", "NÃO EXISTE DOCUMENTO PARA SER EXCLUÍDO");
             return;
         }
-
+        
         Dao dao = new Dao();
-
+        
         dao.openTransaction();
-
+        
         if (!dao.delete(dao.find(documento))) {
             dao.rollback();
             GenericaMensagem.fatal("Atenção", "NÃO FOI POSSÍVEL EXCLUIR DOCUMENTOS!");
             return;
         }
-
+        
         if (!dao.delete(dao.find(documento.getAssunto()))) {
             dao.rollback();
             GenericaMensagem.fatal("Atenção", "NÃO FOI POSSÍVEL EXCLUIR ASSUNTO!");
             return;
         }
-
+        
         ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
         String path = servletContext.getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/documentos/" + documento.getPessoa().getId() + "/" + documento.getId() + "/";
         File file = new File(path);
-
+        
         if (!FileUtils.deleteQuietly(file)) {
             dao.rollback();
             GenericaMensagem.fatal("Atenção", "NÃO FOI POSSÍVEL EXCLUIR ARQUIVOS!");
             return;
         }
-
+        
         String delete_log
                 = "Data Emissão: " + documento.getDtEmissaoString() + " \n "
                 + "Grupo: " + documento.getAssunto().getGrupo().getDescricao() + " \n "
@@ -259,57 +266,57 @@ public final class DigitalizacaoBean implements Serializable {
                 + "Titulo: " + documento.getTitulo() + " \n "
                 + "Historico: " + documento.getHistorico() + " \n "
                 + "Pessoa: " + documento.getPessoa().getNome();
-
+        
         NovoLog novoLog = new NovoLog();
         novoLog.setTabela("dig_documento");
         novoLog.setCodigo(documento.getId());
-
+        
         novoLog.delete(delete_log);
-
+        
         dao.commit();
         GenericaMensagem.info("Sucesso", "DIGITALIZAÇÃO EXCLUÍDA!");
         documento = new Documento();
         pessoa = new Pessoa();
         loadListaDocumentos();
     }
-
+    
     public void editar(Documento linha) {
         documento = linha;
         pessoa = documento.getPessoa();
-
+        
         for (int i = 0; i < listaGrupo.size(); i++) {
             if (documento.getAssunto().getGrupo().getId() == Integer.valueOf(listaGrupo.get(i).getDescription())) {
                 indexGrupo = i;
             }
         }
-
+        
         loadListaDocumentos();
     }
-
+    
     public String editGeneric(Documento linha) throws IOException {
         String retorno = ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).pagina("digitalizacao");
-
+        
         GenericaSessao.put("digitalizacaoBean", new DigitalizacaoBean());
         DigitalizacaoBean db = (DigitalizacaoBean) GenericaSessao.getObject("digitalizacaoBean");
         db.editar(linha);
         return retorno;
     }
-
+    
     public String novoGeneric(Pessoa pe) throws IOException {
         String retorno = ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).pagina("digitalizacao");
-
+        
         GenericaSessao.put("digitalizacaoBean", new DigitalizacaoBean());
         DigitalizacaoBean db = (DigitalizacaoBean) GenericaSessao.getObject("digitalizacaoBean");
         db.setPessoa(pe);
         db.loadListaDocumentos();
         return retorno;
     }
-
+    
     public void fileUpload(FileUploadEvent event) throws UnsupportedEncodingException {
         if (!Diretorio.criar("documentos/" + pessoa.getId() + "/" + documento.getId(), true)) { // PASTA ex. resources/cliente/sindical/documentos/_id_pessoa/_id_documento
             return;
         }
-
+        
         ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
 
         //String ext = FilenameUtils.getExtension("path");
@@ -319,33 +326,33 @@ public final class DigitalizacaoBean implements Serializable {
         try {
             FileUtils.writeByteArrayToFile(file, event.getFile().getContents());
             String save_log = "Arquivo Enviado:  " + nameFile;
-
+            
             NovoLog novoLog = new NovoLog();
             novoLog.setTabela("dig_documento");
             novoLog.setCodigo(documento.getId());
-
+            
             novoLog.save(
                     save_log
             );
-
+            
         } catch (IOException e) {
             e.getMessage();
         }
-
+        
         GenericaMensagem.info("Sucesso", "ARQUIVOS ENVIADOS!");
     }
-
+    
     public void limparPesquisaPessoa() {
         pessoa = new Pessoa();
         documento = new Documento();
         loadListaDocumentos();
     }
-
+    
     public void loadListaGrupo() {
         listaGrupo.clear();
-
+        
         List<GrupoDigitalizacao> result = new GrupoDigitalizacaoDao().listaGrupo();
-
+        
         for (int i = 0; i < result.size(); i++) {
             listaGrupo.add(
                     new SelectItem(
@@ -356,12 +363,12 @@ public final class DigitalizacaoBean implements Serializable {
             );
         }
     }
-
+    
     public void loadListaDocumentos() {
         listaDocumentos.clear();
-
+        
         DigitalizacaoDao dao = new DigitalizacaoDao();
-
+        
         if (pessoa.getId() == -1) {
             listaDocumentos = dao.listaDocumento();
         } else {
@@ -378,68 +385,70 @@ public final class DigitalizacaoBean implements Serializable {
             ((JuridicaBean) GenericaSessao.getObject("juridicaBean")).loadListaDocumentos();
         }
     }
-
+    
     public Documento getDocumento() {
         return documento;
     }
-
+    
     public void setDocumento(Documento documento) {
         this.documento = documento;
     }
-
+    
     public Pessoa getPessoa() {
         if (GenericaSessao.exists("pessoaPesquisa")) {
             pessoa = (Pessoa) GenericaSessao.getObject("pessoaPesquisa", true);
         }
         return pessoa;
     }
-
+    
     public void setPessoa(Pessoa pessoa) {
         this.pessoa = pessoa;
     }
-
+    
     public Integer getIndexGrupo() {
         return indexGrupo;
     }
-
+    
     public void setIndexGrupo(Integer indexGrupo) {
         this.indexGrupo = indexGrupo;
     }
-
+    
     public List<SelectItem> getListaGrupo() {
         return listaGrupo;
     }
-
+    
     public void setListaGrupo(List<SelectItem> listaGrupo) {
         this.listaGrupo = listaGrupo;
     }
-
+    
     public List<Documento> getListaDocumentos() {
         return listaDocumentos;
     }
-
+    
     public void setListaDocumentos(List<Documento> listaDocumentos) {
         this.listaDocumentos = listaDocumentos;
     }
-
+    
     public List<LinhaArquivo> getListaArquivos() {
         return listaArquivos;
     }
-
+    
     public void setListaArquivos(List<LinhaArquivo> listaArquivos) {
         this.listaArquivos = listaArquivos;
     }
-
+    
     public LinhaArquivo getLinhaArquivoExcluir() {
         return linhaArquivoExcluir;
     }
-
+    
     public void setLinhaArquivoExcluir(LinhaArquivo linhaArquivoExcluir) {
         this.linhaArquivoExcluir = linhaArquivoExcluir;
     }
-
+    
     public void loadListDocumentos(Integer pessoa_id) {
+        loadListaGrupo();
+        pessoa = (Pessoa) new Dao().find(new Pessoa(), pessoa_id);
         listaDocumentos = new DigitalizacaoDao().listaDocumento(pessoa_id);
     }
-
+    
 }
