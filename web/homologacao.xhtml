@@ -142,14 +142,14 @@
 
                         <h:column>
                             <h:outputLabel value="Funcionário" style="color: red; font-weight: bold"/><br />
-                            <p:inputText value="#{homologacaoBean.fisica.pessoa.nome}" size="60" converter="#{toUpperCase}">
+                            <p:inputText value="#{homologacaoBean.fisica.pessoa.nome}" size="60" converter="#{toUpperCase}"readonly="#{homologacaoBean.fisica.id != -1}">
                                 <p:ajax event="change" update="@this" global="false"/>
                             </p:inputText>
                         </h:column>
 
                         <h:column>
                             <h:outputLabel value="Nascimento" /><br />
-                            <p:inputMask value="#{homologacaoBean.fisica.nascimento}" size="8" mask="99/99/9999">
+                            <p:inputMask value="#{homologacaoBean.fisica.nascimento}" size="8" mask="99/99/9999" readonly="#{homologacaoBean.fisica.id != -1}">
                                 <p:ajax event="change" update="@this" global="false"/>
                             </p:inputMask>
 
@@ -157,7 +157,7 @@
 
                         <h:column>
                             <h:outputText value="Sexo"/><br />
-                            <p:selectOneRadio value="#{homologacaoBean.fisica.sexo}" style="width: 200px">
+                            <p:selectOneRadio value="#{homologacaoBean.fisica.sexo}" style="width: 200px" disabled="#{homologacaoBean.fisica.id != -1}">
                                 <p:ajax event="change" update="@this" global="false"/>
                                 <f:selectItem itemValue="F" itemLabel="Feminino"/>
                                 <f:selectItem itemValue="M" itemLabel="Masculino"/>
@@ -168,7 +168,7 @@
                     <h:panelGrid columns="4" style="margin-top: 10px">
                         <h:column>
                             <h:outputText value="Estado Civil"/><br />
-                            <p:selectOneMenu value="#{homologacaoBean.fisica.estadoCivil}">
+                            <p:selectOneMenu value="#{homologacaoBean.fisica.estadoCivil}" disabled="#{homologacaoBean.fisica.id != -1}">
                                 <p:ajax event="change" update="@this" global="false"/>
                                 <f:selectItem itemValue="Amasiado(a)" itemLabel="Amasiado(a)"/>
                                 <f:selectItem itemValue="Casado(a)" itemLabel="Casado(a)"/>

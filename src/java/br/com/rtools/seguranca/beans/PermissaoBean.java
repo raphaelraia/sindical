@@ -10,6 +10,7 @@ import br.com.rtools.seguranca.db.*;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.PF;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,7 @@ public class PermissaoBean implements Serializable {
     private Permissao permissao;
     private Modulo modulo;
     private Rotina rotina;
+    private Rotina rotinaSelected;
     private Evento evento;
     private List<Permissao> listaPermissoes;
     private PermissaoDepartamento permissaoDepartamento;
@@ -52,9 +54,25 @@ public class PermissaoBean implements Serializable {
     private int idIndex;
     private Integer idRotinaGrupo;
     private Boolean rotinaGrupo;
+    private String rotinaDescricao;
+
+    // EVENTOS
+    // 1
+    private Boolean inclusao;
+    // 2
+    private Boolean exclusao;
+    // 3
+    private Boolean alteracao;
+    // 4
+    private Boolean consulta;
 
     @PostConstruct
     public void init() {
+        rotinaDescricao = "";
+        inclusao = false;
+        exclusao = false;
+        alteracao = false;
+        consulta = false;
         rotinaGrupo = false;
         permissao = new Permissao();
         modulo = new Modulo();
@@ -82,6 +100,9 @@ public class PermissaoBean implements Serializable {
         idIndex = -1;
         idRotinaGrupo = null;
         ChamadaPaginaBean.setModulo("SEGURANCA");
+        loadListModulo();
+        loadListRotina();
+        loadListPermissao();
     }
 
     @PreDestroy
@@ -91,6 +112,12 @@ public class PermissaoBean implements Serializable {
 
     public void clear() {
         GenericaSessao.remove("permissaoBean");
+    }
+
+    public void reload() {
+        loadListRotina();
+        loadListPermissao();
+        rotinaDescricao = "";
     }
 
     public void loadListRotinaGrupo() {
@@ -105,10 +132,65 @@ public class PermissaoBean implements Serializable {
                 listaRotinaGrupo.add(new SelectItem(list.get(i).getId(), list.get(i).getRotina()));
             }
         }
+        loadListRotina();
+    }
+
+    public void loadListModulo() {
+        listaModulos = new ArrayList();
+        Dao dao = new Dao();
+        List<Modulo> list = dao.list(new Modulo(), true);
+        for (int i = 0; i < list.size(); i++) {
+            if (i == 0) {
+                idModulo = list.get(i).getId();
+            }
+            listaModulos.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
+        }
+    }
+
+    public void loadListRotina() {
+        rotinaSelected = new Rotina();
+        listaRotinas = new ArrayList();
+        List<Rotina> list = new RotinaDao().findNotInByTabela("seg_permissao", "id_modulo", "" + idModulo);
+        if (rotinaGrupo && idRotinaGrupo != null) {
+            List<RotinaGrupo> listRotinaGrupo = new RotinaGrupoDao().findByGrupo(idRotinaGrupo);
+            int b = 0;
+            for (int y = 0; y < listRotinaGrupo.size(); y++) {
+                for (int i = 0; i < list.size(); i++) {
+                    if (listRotinaGrupo.get(y).getRotina().getId() == list.get(i).getId()) {
+                        if (b == 0) {
+                            idRotina = list.get(i).getId();
+                            rotinaSelected = list.get(i);
+                        }
+                        listaRotinas.add(new SelectItem(list.get(i).getId(), list.get(i).getRotina()));
+                        break;
+                    }
+                }
+            }
+        } else {
+            for (int i = 0; i < list.size(); i++) {
+                if (i == 0) {
+                    idRotina = list.get(i).getId();
+                    rotinaSelected = list.get(i);
+                }
+                listaRotinas.add(new SelectItem(list.get(i).getId(), list.get(i).getRotina()));
+            }
+        }
+    }
+
+    public void loadListPermissao() {
+        listaPermissoes = new ArrayList();
+        PermissaoDao permissaoDao = new PermissaoDao();
+        if (rotinaDescricao.isEmpty()) {
+            listaPermissoes = permissaoDao.findModuloGroup(idModulo);
+        } else {
+            listaPermissoes = permissaoDao.findModuloGroup(idModulo, rotinaDescricao);
+        }
+        rotinaDescricao = "";
     }
 
     // MÓDULO / ROTINA
     public void addPermissao() {
+        rotinaDescricao = "";
         if (listaRotinas.isEmpty()) {
             GenericaMensagem.warn("Sistema", "Não há rotinas disponíveis para serem adicionadas a esse módulo");
             return;
@@ -118,26 +200,66 @@ public class PermissaoBean implements Serializable {
         modulo = (Modulo) dao.find(new Modulo(), idModulo);
         rotina = (Rotina) dao.find(new Rotina(), idRotina);
         boolean sucesso = false;
+        boolean next = false;
         if (permissaoDao.pesquisaPermissaoModRot(modulo.getId(), rotina.getId()).isEmpty()) {
             dao.openTransaction();
             for (int i = 0; i < getListaEventos().size(); i++) {
-                evento = (Evento) dao.find(new Evento(), Integer.valueOf(getListaEventos().get(i).getDescription()));
-                permissao.setModulo(modulo);
-                permissao.setRotina(rotina);
-                permissao.setEvento(evento);
-                if (!dao.save(permissao)) {
-                    sucesso = false;
-                    break;
+                if (inclusao || exclusao || alteracao || consulta) {
+                    if (inclusao && Integer.valueOf(listaEventos.get(i).getDescription()) == 1) {
+                        next = true;
+                        evento = (Evento) dao.find(new Evento(), 1);
+                    }
+                    if (exclusao && Integer.valueOf(listaEventos.get(i).getDescription()) == 2) {
+                        next = true;
+                        evento = (Evento) dao.find(new Evento(), 2);
+                    }
+                    if (alteracao && Integer.valueOf(listaEventos.get(i).getDescription()) == 3) {
+                        next = true;
+                        evento = (Evento) dao.find(new Evento(), 3);
+                    }
+                    if (consulta && Integer.valueOf(listaEventos.get(i).getDescription()) == 4) {
+                        next = true;
+                        evento = (Evento) dao.find(new Evento(), 4);
+                    }
+                } else {
+                    if (rotinaSelected.getInclusao() && Integer.valueOf(listaEventos.get(i).getDescription()) == 1) {
+                        next = true;
+                        evento = (Evento) dao.find(new Evento(), 1);
+                    }
+                    if (rotinaSelected.getExclusao() && Integer.valueOf(listaEventos.get(i).getDescription()) == 2) {
+                        next = true;
+                        evento = (Evento) dao.find(new Evento(), 2);
+                    }
+                    if (rotinaSelected.getAlteracao() && Integer.valueOf(listaEventos.get(i).getDescription()) == 3) {
+                        next = true;
+                        evento = (Evento) dao.find(new Evento(), 3);
+                    }
+                    if (rotinaSelected.getConsulta() && Integer.valueOf(listaEventos.get(i).getDescription()) == 4) {
+                        next = true;
+                        evento = (Evento) dao.find(new Evento(), 4);
+                    }
+
                 }
-                permissao = new Permissao();
-                sucesso = true;
+                if (next) {
+                    permissao.setModulo(modulo);
+                    permissao.setRotina(rotina);
+                    permissao.setEvento(evento);
+                    next = false;
+                    if (!dao.save(permissao)) {
+                        sucesso = false;
+                        break;
+                    }
+                    permissao = new Permissao();
+                    sucesso = true;
+                }
             }
             if (sucesso) {
                 NovoLog novoLog = new NovoLog();
                 novoLog.save("Permissão [" + modulo.getDescricao() + " - " + rotina.getRotina() + "]");
                 dao.commit();
                 GenericaMensagem.info("Sucesso", "Registro adicionado com sucesso");
-                listaRotinas.clear();
+                loadListRotina();
+                loadListPermissao();
             } else {
                 dao.rollback();
                 GenericaMensagem.warn("Erro", "Erro adicionar permissão(s)!");
@@ -145,10 +267,16 @@ public class PermissaoBean implements Serializable {
         } else {
             GenericaMensagem.warn("Sistema", "Permissão já existente!");
         }
+        inclusao = false;
+        exclusao = false;
+        alteracao = false;
+        consulta = false;
         permissao = new Permissao();
+        rotinaDescricao = "";
     }
 
     public void removePermissao(Permissao p) {
+        rotinaDescricao = "";
         PermissaoDao permissaoDao = new PermissaoDao();
         List<Permissao> listaPermissao = (List<Permissao>) permissaoDao.pesquisaPermissaoModRot(p.getModulo().getId(), p.getRotina().getId());
         Dao dao = new Dao();
@@ -168,7 +296,8 @@ public class PermissaoBean implements Serializable {
             novoLog.save("Permissão [" + p.getModulo().getDescricao() + " - " + p.getRotina().getRotina() + "]");
             dao.commit();
             GenericaMensagem.info("Sucesso", "Permissão(s) removida(s) com sucesso");
-            listaRotinas.clear();
+            loadListRotina();
+            loadListPermissao();
         } else {
             dao.rollback();
             GenericaMensagem.warn("Erro", "Erro ao remover permissão(s)!");
@@ -466,16 +595,6 @@ public class PermissaoBean implements Serializable {
     }
 
     public List<SelectItem> getListaModulos() {
-        if (listaModulos.isEmpty()) {
-            Dao dao = new Dao();
-            List<Modulo> list = dao.list(new Modulo(), true);
-            for (int i = 0; i < list.size(); i++) {
-                if (i == 0) {
-                    idModulo = list.get(i).getId();
-                }
-                listaModulos.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
-            }
-        }
         return listaModulos;
     }
 
@@ -484,32 +603,6 @@ public class PermissaoBean implements Serializable {
     }
 
     public List<SelectItem> getListaRotinas() {
-        listaRotinas.clear();
-        if (listaRotinas.isEmpty()) {
-            List<Rotina> list = new RotinaDao().findNotInByTabela("seg_permissao", "id_modulo", "" + idModulo);
-            if (rotinaGrupo && idRotinaGrupo != null) {
-                List<RotinaGrupo> listRotinaGrupo = new RotinaGrupoDao().findByGrupo(idRotinaGrupo);
-                int b = 0;
-                for (int y = 0; y < listRotinaGrupo.size(); y++) {
-                    for (int i = 0; i < list.size(); i++) {
-                        if (listRotinaGrupo.get(y).getRotina().getId() == list.get(i).getId()) {
-                            if (b == 0) {
-                                idRotina = list.get(i).getId();
-                            }
-                            listaRotinas.add(new SelectItem(list.get(i).getId(), list.get(i).getRotina()));
-                            break;
-                        }
-                    }
-                }
-            } else {
-                for (int i = 0; i < list.size(); i++) {
-                    if (i == 0) {
-                        idRotina = list.get(i).getId();
-                    }
-                    listaRotinas.add(new SelectItem(list.get(i).getId(), list.get(i).getRotina()));
-                }
-            }
-        }
         return listaRotinas;
     }
 
@@ -576,9 +669,6 @@ public class PermissaoBean implements Serializable {
     }
 
     public List<Permissao> getListaPermissoes() {
-        listaPermissoes.clear();
-        PermissaoDao permissaoDao = new PermissaoDao();
-        listaPermissoes = permissaoDao.pesquisaTodosAgrupadosPorModulo(idModulo);
         return listaPermissoes;
     }
 
@@ -643,5 +733,135 @@ public class PermissaoBean implements Serializable {
 
     public void setRotinaGrupo(Boolean rotinaGrupo) {
         this.rotinaGrupo = rotinaGrupo;
+    }
+
+    /**
+     * 1
+     *
+     * @return
+     */
+    public Boolean getInclusao() {
+        return inclusao;
+    }
+
+    public void setInclusao(Boolean inclusao) {
+        this.inclusao = inclusao;
+    }
+
+    /**
+     * 2
+     *
+     * @return
+     */
+    public Boolean getExclusao() {
+        return exclusao;
+    }
+
+    public void setExclusao(Boolean exclusao) {
+        this.exclusao = exclusao;
+    }
+
+    /**
+     * 3
+     *
+     * @return
+     */
+    public Boolean getAlteracao() {
+        return alteracao;
+    }
+
+    public void setAlteracao(Boolean alteracao) {
+        this.alteracao = alteracao;
+    }
+
+    /**
+     * 4
+     *
+     * @return
+     */
+    public Boolean getConsulta() {
+        return consulta;
+    }
+
+    public void setConsulta(Boolean consulta) {
+        this.consulta = consulta;
+    }
+
+    public Permissao getPermissao(Permissao p, Integer evento_id) {
+        return new PermissaoDao().pesquisaPermissaoModuloRotinaEvento(p.getModulo().getId(), p.getRotina().getId(), evento_id);
+    }
+
+    public void updateInclusao(int index) {
+        Permissao p1 = listaPermissoes.get(index);
+        updatePermissao(p1, 1);
+    }
+
+    public void updateExclusao(int index) {
+        Permissao p1 = listaPermissoes.get(index);
+        updatePermissao(p1, 2);
+
+    }
+
+    public void updateAlteracao(int index) {
+        Permissao p1 = listaPermissoes.get(index);
+        updatePermissao(p1, 3);
+    }
+
+    public void updateConsulta(int index) {
+        Permissao p1 = listaPermissoes.get(index);
+        updatePermissao(p1, 4);
+    }
+
+    public void updatePermissao(Permissao p, Integer evento_id) {
+        Permissao p2 = new PermissaoDao().pesquisaPermissaoModuloRotinaEvento(p.getModulo().getId(), p.getRotina().getId(), evento_id);
+        Dao dao = new Dao();
+        if (p2.getId() == -1) {
+            p2.setModulo(p.getModulo());
+            p2.setRotina(p.getRotina());
+            p2.setEvento((Evento) dao.find(new Evento(), evento_id));
+            if (dao.save(p2, true)) {
+                GenericaMensagem.info("Sucesso", "Registro atualizado");
+            } else {
+                GenericaMensagem.warn("Erro", "Ao atualizar registro! Possível causa: Permissão já vínculada / existe.");
+            }
+        } else if (dao.delete(p2, true)) {
+            List list = new PermissaoDao().pesquisaPermissaoModRot(p2.getModulo().getId(), p2.getRotina().getId());
+            if (list.isEmpty()) {
+                for (int i = 0; i < listaPermissoes.size(); i++) {
+                    if (p2.getModulo().getId() == listaPermissoes.get(i).getModulo().getId() && p2.getRotina().getId() == listaPermissoes.get(i).getRotina().getId()) {
+                        listaPermissoes.remove(i);
+                        PF.update("form_permissao:tbl");
+                        loadListRotina();
+                        PF.update("form_permissao:i_rotinas");
+                        break;
+                    }
+                }
+            }
+            GenericaMensagem.info("Sucesso", "Registro atualizado");
+        } else {
+            GenericaMensagem.warn("Erro", "Ao atualizar registro! Possível causa: Permissão já vínculada / existe.");
+        }
+    }
+
+    public String getRotinaDescricao() {
+        return rotinaDescricao;
+    }
+
+    public void setRotinaDescricao(String rotinaDescricao) {
+        this.rotinaDescricao = rotinaDescricao;
+    }
+
+    public Rotina getRotinaSelected() {
+        return rotinaSelected;
+    }
+
+    public void setRotinaSelected(Rotina rotinaSelected) {
+        this.rotinaSelected = rotinaSelected;
+    }
+
+    public void loadRotina() {
+        if (idRotina != null) {
+            rotinaSelected = (Rotina) new Dao().find(new Rotina(), idRotina);
+        }
     }
 }

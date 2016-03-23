@@ -181,7 +181,7 @@
 
                             <h:column>
                                 <h:outputText value="Sexo"/><br />
-                                <p:selectOneRadio value="#{webAgendamentoContribuinteBean.fisica.sexo}">
+                                <p:selectOneRadio value="#{webAgendamentoContribuinteBean.fisica.sexo}" disabled="#{webAgendamentoContribuinteBean.fisica.id != -1}">
                                     <p:ajax event="change" update="@this" global="false"/>
                                     <f:selectItem itemValue="F" itemLabel="Feminino"/>
                                     <f:selectItem itemValue="M" itemLabel="Masculino"/>
@@ -192,7 +192,7 @@
                         <h:panelGrid columns="4" style="margin-top: 10px">
                             <h:column>
                                 <h:outputText value="Estado Civil"/><br />
-                                <p:selectOneMenu value="#{webAgendamentoContribuinteBean.fisica.estadoCivil}">
+                                <p:selectOneMenu value="#{webAgendamentoContribuinteBean.fisica.estadoCivil}" disabled="#{webAgendamentoContribuinteBean.fisica.id != -1}">
                                     <p:ajax event="change" update="@this" global="false"/>
                                     <f:selectItem itemValue="Amasiado(a)" itemLabel="Amasiado(a)"/>
                                     <f:selectItem itemValue="Casado(a)" itemLabel="Casado(a)"/>
@@ -242,7 +242,7 @@
                                     <h:outputLabel value="Carteira" rendered="#{webAgendamentoContribuinteBean.configuracaoHomologacao.webValidaCarteira}" styleClass="font-color-red"/>
                                     <h:outputLabel value="Carteira" rendered="#{!webAgendamentoContribuinteBean.configuracaoHomologacao.webValidaCarteira}"/><br />
                                 </h:column>
-                                <p:inputText size="10" value="#{webAgendamentoContribuinteBean.fisica.carteira}">
+                                <p:inputText size="10" value="#{webAgendamentoContribuinteBean.fisica.carteira}" disabled="#{not empty webAgendamentoContribuinteBean.fisica.carteira && webAgendamentoContribuinteBean.fisica.id != -1}">
                                     <p:ajax event="change" update="@this" global="false"/>
                                 </p:inputText>
                             </h:column>
@@ -253,7 +253,7 @@
                                     <h:outputLabel value="Série" rendered="#{!webAgendamentoContribuinteBean.configuracaoHomologacao.webValidaSerie}" />
                                     <br />
                                 </h:column>
-                                <p:inputText size="15" maxlength="15" value="#{webAgendamentoContribuinteBean.fisica.serie}">
+                                <p:inputText size="15" maxlength="15" value="#{webAgendamentoContribuinteBean.fisica.serie}" disabled="#{not empty webAgendamentoContribuinteBean.fisica.serie && webAgendamentoContribuinteBean.fisica.id != -1}">
                                     <p:ajax event="change" update="@this" global="false"/>
                                 </p:inputText>
                             </h:column>

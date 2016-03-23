@@ -75,9 +75,11 @@ public class RelatorioMatriculaEscolaBean implements Serializable {
     private Map<String, String> listMeses;
     private List selectedMesesAniversario;
     private String ano;
+    private String filtrarStatusPor;
 
     @PostConstruct
     public void init() {
+        filtrarStatusPor = "ano";
         horario = new String[2];
         horario[0] = "";
         horario[1] = "";
@@ -87,7 +89,7 @@ public class RelatorioMatriculaEscolaBean implements Serializable {
         filtro = new Boolean[18];
         filtro[0] = false; // FILIAL
         filtro[1] = false; // PERÍODO MATRÍCULA
-        filtro[2] = false; // PERÍODO
+        // filtro[2] = false; // PERÍODO
         filtro[3] = false; // IDADE
         filtro[4] = false; // STATUS
         filtro[5] = false; // MÍDIA
@@ -111,12 +113,10 @@ public class RelatorioMatriculaEscolaBean implements Serializable {
         listSelectItem[4] = new ArrayList<>();
         listSelectItem[5] = new ArrayList<>();
         listSelectItem[6] = new ArrayList<>();
-        dataInicial = DataHoje.dataHoje();
-        dataFinal = DataHoje.dataHoje();
+        dataInicial = null;
+        dataFinal = null;
         dataMatriculaInicial = DataHoje.dataHoje();
         dataMatriculaFinal = null;
-        dataInicial = DataHoje.dataHoje();
-        dataFinal = null;
         idadeInicial = 0;
         idadeFinal = 0;
         tipoIdade = "apartir";
@@ -188,7 +188,6 @@ public class RelatorioMatriculaEscolaBean implements Serializable {
         Integer idVendedor = null;
         String inIdCursoOuTurma = null;
         String dataMatricula[] = new String[]{"", ""};
-        String periodo[] = new String[]{"", ""};
         Integer idade[] = new Integer[]{0, 0};
         String sexoString = null;
         List listDetalhePesquisa = new ArrayList();
@@ -196,15 +195,6 @@ public class RelatorioMatriculaEscolaBean implements Serializable {
             dataMatricula[0] = DataHoje.converteData(dataMatriculaInicial);
             dataMatricula[1] = DataHoje.converteData(dataMatriculaFinal);
             listDetalhePesquisa.add(" Período de matrícula: " + dataMatricula[0] + " e " + dataMatricula[1]);
-        }
-        if (filtro[2]) {
-            periodo[0] = DataHoje.converteData(dataInicial);
-            periodo[1] = DataHoje.converteData(dataFinal);
-            if (ano.isEmpty()) {
-                listDetalhePesquisa.add(" Período do curso: " + periodo[0] + " e " + periodo[1]);
-            } else {
-                listDetalhePesquisa.add(" Ano de : " + ano);
-            }
         }
         if (filtro[3]) {
             idade[0] = idadeInicial;
@@ -260,9 +250,21 @@ public class RelatorioMatriculaEscolaBean implements Serializable {
             idFilial = Integer.parseInt(listSelectItem[1].get(index[1]).getDescription());
             listDetalhePesquisa.add("Filial: " + ((Filial) dao.find(new Filial(), idFilial)).getFilial().getPessoa().getNome());
         }
-        if (index[2] != null) {
-            idStatus = Integer.parseInt(listSelectItem[2].get(index[2]).getDescription());
-            listDetalhePesquisa.add("Status: " + ((Status) dao.find(new Status(), idStatus)).getDescricao());
+        String periodo[] = new String[]{"", ""};
+        if (filtro[4]) {
+            if (index[2] != null) {
+                listDetalhePesquisa.add("Status: " + ((Status) dao.find(new Status(), index[2])).getDescricao());
+                idStatus = index[2];
+            }
+            if (index[2] != 1) {
+                periodo[0] = DataHoje.converteData(dataInicial);
+                periodo[1] = DataHoje.converteData(dataFinal);
+                if (ano.isEmpty()) {
+                    listDetalhePesquisa.add(" Período do curso: " + periodo[0] + " e " + periodo[1]);
+                } else {
+                    listDetalhePesquisa.add(" Ano de : " + ano);
+                }
+            }
         }
         if (index[3] != null) {
             idMidia = Integer.parseInt(listSelectItem[3].get(index[3]).getDescription());
@@ -402,11 +404,13 @@ public class RelatorioMatriculaEscolaBean implements Serializable {
     }
 
     public void selecionaDataInicial(SelectEvent event) {
+        ano = "";
         SimpleDateFormat format = new SimpleDateFormat("d/M/yyyy");
         this.dataInicial = DataHoje.converte(format.format(event.getObject()));
     }
 
     public void selecionaDataFinal(SelectEvent event) {
+        ano = "";
         SimpleDateFormat format = new SimpleDateFormat("d/M/yyyy");
         this.dataFinal = DataHoje.converte(format.format(event.getObject()));
     }
@@ -420,10 +424,10 @@ public class RelatorioMatriculaEscolaBean implements Serializable {
             dataMatriculaInicial = DataHoje.dataHoje();
             dataMatriculaFinal = null;
         }
-        if (!filtro[2]) {
-            dataInicial = DataHoje.dataHoje();
-            dataFinal = null;
-        }
+//        if (!filtro[2]) {
+//            dataInicial = DataHoje.dataHoje();
+//            dataFinal = null;
+//        }
         if (!filtro[3]) {
             idadeInicial = 0;
             idadeFinal = 0;
@@ -432,6 +436,10 @@ public class RelatorioMatriculaEscolaBean implements Serializable {
         if (!filtro[4]) {
             listSelectItem[2] = new ArrayList();
             index[2] = null;
+            dataInicial = null;
+            dataFinal = null;
+            ano = "";
+            filtrarStatusPor = "ano";
         }
         if (!filtro[5]) {
             listSelectItem[3] = new ArrayList();
@@ -518,12 +526,12 @@ public class RelatorioMatriculaEscolaBean implements Serializable {
                 dataMatriculaInicial = DataHoje.dataHoje();
                 dataMatriculaFinal = null;
                 break;
-            case "periodo":
-                filtro[2] = false;
-                dataInicial = DataHoje.dataHoje();
-                dataFinal = null;
-                ano = "";
-                break;
+//            case "periodo":
+//                filtro[2] = false;
+//                dataInicial = DataHoje.dataHoje();
+//                dataFinal = null;
+//                ano = "";
+//                break;
             case "idade":
                 filtro[3] = false;
                 idadeInicial = 0;
@@ -534,6 +542,10 @@ public class RelatorioMatriculaEscolaBean implements Serializable {
                 filtro[4] = false;
                 listSelectItem[2] = new ArrayList();
                 index[2] = null;
+                dataInicial = null;
+                dataFinal = null;
+                ano = "";
+                filtrarStatusPor = "ano";
                 break;
             case "midia":
                 filtro[5] = false;
@@ -746,9 +758,10 @@ public class RelatorioMatriculaEscolaBean implements Serializable {
             Dao dao = new Dao();
             List<EscStatus> list = (List<EscStatus>) dao.list(new EscStatus());
             for (int i = 0; i < list.size(); i++) {
-                listSelectItem[2].add(new SelectItem(i,
-                        list.get(i).getDescricao(),
-                        Integer.toString(list.get(i).getId())));
+                if (i == 0) {
+                    index[2] = list.get(i).getId();
+                }
+                listSelectItem[2].add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
             }
         }
         return listSelectItem[2];
@@ -955,7 +968,19 @@ public class RelatorioMatriculaEscolaBean implements Serializable {
     }
 
     public void setAno(String ano) {
+        if (!ano.isEmpty()) {
+            dataInicial = null;
+            dataFinal = null;
+        }
         this.ano = ano;
+    }
+
+    public String getFiltrarStatusPor() {
+        return filtrarStatusPor;
+    }
+
+    public void setFiltrarStatusPor(String filtrarStatusPor) {
+        this.filtrarStatusPor = filtrarStatusPor;
     }
 
     public class RelatorioEscolaCadastral {
@@ -1096,5 +1121,14 @@ public class RelatorioMatriculaEscolaBean implements Serializable {
             }
         }
         return ids;
+    }
+
+    public void loadFiltroStatus() {
+        ano = "";
+        dataInicial = null;
+        dataFinal = null;
+        if (index[2] == 1) {
+            filtrarStatusPor = "ano";
+        }
     }
 }

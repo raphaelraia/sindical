@@ -43,9 +43,6 @@
                                             <p:selectBooleanButton value="#{relatorioMatriculaEscolaBean.filtro[1]}" onLabel="Período Matrícula" offLabel="Período Matrícula" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;">
                                                 <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio" listener="#{relatorioMatriculaEscolaBean.clear}" />
                                             </p:selectBooleanButton>
-                                            <p:selectBooleanButton value="#{relatorioMatriculaEscolaBean.filtro[2]}" onLabel="Período" offLabel="Período" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;" title="Curso/Turma">
-                                                <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio" listener="#{relatorioMatriculaEscolaBean.clear}" />
-                                            </p:selectBooleanButton>
                                             <p:selectBooleanButton value="#{relatorioMatriculaEscolaBean.filtro[3]}" onLabel="Idade" offLabel="Idade" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;" >
                                                 <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio" listener="#{relatorioMatriculaEscolaBean.clear}" />
                                             </p:selectBooleanButton>
@@ -120,26 +117,6 @@
                                         </h:panelGrid>
                                     </p:panel>
                                 </p:column>
-                                <p:column rendered="#{relatorioMatriculaEscolaBean.filtro[2]}">
-                                    <p:panel header="Período">
-                                        <h:panelGrid columns="6">
-                                            <p:calendar value="#{relatorioMatriculaEscolaBean.dataInicial}" pattern="dd/MM/yyyy" size="10" navigator="true" mask="99/99/9999">
-                                                <p:ajax event="dateSelect" listener="#{relatorioMatriculaEscolaBean.selecionaDataInicial}" />
-                                                <p:ajax event="change" update="@this"/>
-                                            </p:calendar>
-                                            <p:outputLabel value=" até" />
-                                            <p:calendar value="#{relatorioMatriculaEscolaBean.dataFinal}" pattern="dd/MM/yyyy"  size="10" navigator="true" mask="99/99/9999">
-                                                <p:ajax event="dateSelect" listener="#{relatorioMatriculaEscolaBean.selecionaDataFinal}" />
-                                                <p:ajax event="change" update="@this"/>
-                                            </p:calendar>
-                                            <p:outputLabel value="Ano:" styleClass="margin-left-max" />
-                                            <p:inputMask value="#{relatorioMatriculaEscolaBean.ano}" mask="9999">
-                                                <p:ajax event="change" update="@this" />
-                                            </p:inputMask>
-                                            <p:commandButton icon="ui-icon-close" action="#{relatorioMatriculaEscolaBean.close('periodo')}" title="Remover filtro"/>
-                                        </h:panelGrid>
-                                    </p:panel>
-                                </p:column>
                                 <p:column rendered="#{relatorioMatriculaEscolaBean.filtro[3]}">
                                     <p:panel header="Idade">
                                         <h:panelGrid columns="6" id="id_faixa_idade">
@@ -165,7 +142,6 @@
                                 <p:column rendered="#{relatorioMatriculaEscolaBean.filtro[17]}">
                                     <p:panel header="Aniversáriantes">
                                         <h:panelGrid columns="4">
-                                            <p:outputLabel value="Status: " />
                                             <p:selectCheckboxMenu label="Selecionar mês" value="#{relatorioMatriculaEscolaBean.selectedMesesAniversario}" filter="true" filterMatchMode="startsWith">
                                                 <p:ajax event="toggleSelect" global="false"/>
                                                 <p:ajax event="change" global="false"/>
@@ -177,14 +153,46 @@
                                 </p:column>
                                 <p:column rendered="#{relatorioMatriculaEscolaBean.filtro[4]}">
                                     <h:column>
-                                        <h:panelGrid columns="4">
+                                        <h:panelGrid columns="10">
                                             <p:outputLabel value="Status: " />
                                             <p:selectOneMenu label="Selecionar status" value="#{relatorioMatriculaEscolaBean.index[2]}">
-                                                <p:ajax event="change" update="@this"/>
+                                                <p:ajax event="change" update="@this i_periodos i_fps" listener="#{relatorioMatriculaEscolaBean.loadFiltroStatus}"/>
                                                 <f:selectItems value="#{relatorioMatriculaEscolaBean.listStatus}" />
                                             </p:selectOneMenu>
-                                            <p:commandButton icon="ui-icon-close" action="#{relatorioMatriculaEscolaBean.close('status')}" title="Remover filtro"/>
-                                        </h:panelGrid>                                        
+                                            <p:outputLabel value="Filtrar por: "/>
+                                            <h:column>
+                                                <h:panelGroup layout="block"  id="i_fps">
+                                                    <p:selectOneMenu label="Filtrar por " value="#{relatorioMatriculaEscolaBean.filtrarStatusPor}">
+                                                        <p:ajax event="change" update="@this i_periodos" />
+                                                        <f:selectItem itemValue="ano" itemLabel="Ano" />
+                                                        <f:selectItem itemValue="periodo" itemLabel="Período" itemDisabled="#{relatorioMatriculaEscolaBean.index[2] == 1}"/>
+                                                    </p:selectOneMenu>
+                                                </h:panelGroup>
+                                            </h:column>
+                                            <h:column>
+                                                <h:panelGroup layout="block" id="i_periodos">
+                                                    <h:panelGrid columns="6" rendered="#{relatorioMatriculaEscolaBean.filtrarStatusPor eq 'ano'}">
+                                                        <p:inputMask value="#{relatorioMatriculaEscolaBean.ano}" mask="9999" maxlength="4" size="2" styleClass="margin-left-max">
+                                                            <p:ajax event="change" update="@this i_periodos" />
+                                                        </p:inputMask>
+                                                    </h:panelGrid>
+                                                    <h:panelGroup rendered="#{relatorioMatriculaEscolaBean.filtrarStatusPor eq 'periodo'}" layout="block">
+                                                        <h:panelGrid columns="6" rendered="#{relatorioMatriculaEscolaBean.index[2] != 1}">
+                                                            <p:calendar value="#{relatorioMatriculaEscolaBean.dataInicial}" pattern="dd/MM/yyyy" size="10" navigator="true" mask="99/99/9999">
+                                                                <p:ajax event="dateSelect" listener="#{relatorioMatriculaEscolaBean.selecionaDataInicial}" />
+                                                                <p:ajax event="change" update="@this" />
+                                                            </p:calendar>
+                                                            <p:outputLabel value=" até" />
+                                                            <p:calendar value="#{relatorioMatriculaEscolaBean.dataFinal}" pattern="dd/MM/yyyy"  size="10" navigator="true" mask="99/99/9999">
+                                                                <p:ajax event="dateSelect" listener="#{relatorioMatriculaEscolaBean.selecionaDataFinal}" />
+                                                                <p:ajax event="change" update="@this"/>
+                                                            </p:calendar>
+                                                        </h:panelGrid>
+                                                    </h:panelGroup>
+                                                </h:panelGroup>
+                                            </h:column>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioMatriculaEscolaBean.close('status')}" title="Remover filtro" styleClass="margin-left-max" />
+                                        </h:panelGrid>
                                     </h:column>
                                 </p:column>
                                 <p:column rendered="#{relatorioMatriculaEscolaBean.filtro[5]}">

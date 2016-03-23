@@ -1,6 +1,7 @@
 package br.com.rtools.seguranca.dao;
 
 import br.com.rtools.principal.DB;
+import br.com.rtools.seguranca.Evento;
 import br.com.rtools.seguranca.Permissao;
 import br.com.rtools.seguranca.UsuarioAcesso;
 import java.util.ArrayList;
@@ -43,6 +44,59 @@ public class PermissaoDao extends DB {
             return new ArrayList();
         }
         return new ArrayList();
+    }
+
+    public List findModuloGroup(Integer modulo_id) {
+        try {
+            Query qry = getEntityManager().createQuery(
+                    "     SELECT P                              "
+                    + "     FROM Permissao AS P                 "
+                    + "    WHERE P.modulo.id = " + modulo_id
+                    + " ORDER BY P.modulo.descricao ASC,        "
+                    + "          P.rotina.rotina ASC            ");
+            List<Permissao> listPermissao = qry.getResultList();
+            List<Permissao> list = new ArrayList();
+            if (!listPermissao.isEmpty()) {
+                int m = 0;
+                int r = 0;
+                for (int i = 0; i < listPermissao.size(); i++) {
+                    if (listPermissao.get(i).getRotina().getId() != r) {
+                        list.add(listPermissao.get(i));
+                        r = listPermissao.get(i).getRotina().getId();
+                    }
+                }
+            }
+            return list;
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
+    public List findModuloGroup(Integer modulo_id, String rotina_descricao) {
+        try {
+            Query qry = getEntityManager().createQuery(
+                    "     SELECT P                              "
+                    + "     FROM Permissao AS P                 "
+                    + "    WHERE P.modulo.id = " + modulo_id
+                    + "      AND UPPER(P.rotina.rotina) LIKE '%" + rotina_descricao.toUpperCase() + "%' "
+                    + " ORDER BY P.modulo.descricao ASC,        "
+                    + "          P.rotina.rotina ASC            ");
+            List<Permissao> listPermissao = qry.getResultList();
+            List<Permissao> list = new ArrayList();
+            if (!listPermissao.isEmpty()) {
+                int m = 0;
+                int r = 0;
+                for (int i = 0; i < listPermissao.size(); i++) {
+                    if (listPermissao.get(i).getRotina().getId() != r) {
+                        list.add(listPermissao.get(i));
+                        r = listPermissao.get(i).getRotina().getId();
+                    }
+                }
+            }
+            return list;
+        } catch (Exception e) {
+            return new ArrayList();
+        }
     }
 
     public List pesquisaPermissaoModRot(int idModulo, int idRotina) {
@@ -124,24 +178,15 @@ public class PermissaoDao extends DB {
         return new ArrayList();
     }
 
-    public Permissao pesquisaPermissaoModuloRotinaEvento(int idModulo, int idRotina, int idEvento) {
+    public Permissao pesquisaPermissaoModuloRotinaEvento(Integer modulo_id, Integer rotina_id, Integer evento_id) {
         Permissao permissao = new Permissao();
         try {
-//            Query qry = getEntityManager().createQuery(
-//                    " SELECT per                       "
-//                    + "   FROM Permissao per             "
-//                    + "  WHERE per.modulo.id = :idModulo "
-//                    + "    AND per.rotina.id = :idRotina "
-//                    + "    AND per.evento.id = :idEvento");
-//            qry.setParameter("idModulo", idModulo);
-//            qry.setParameter("idRotina", idRotina);
-//            qry.setParameter("idEvento", idEvento);
             Query qry = getEntityManager().createNativeQuery(
-                    " SELECT p.* \n "
-                    + " FROM seg_permissao p \n"
-                    + "WHERE p.id_modulo = " + idModulo
-                    + "  AND p.id_rotina = " + idRotina
-                    + "  AND p.id_evento = " + idEvento,
+                    " SELECT P.* \n "
+                    + " FROM seg_permissao AS P \n"
+                    + "WHERE P.id_modulo = " + modulo_id
+                    + "  AND P.id_rotina = " + rotina_id
+                    + "  AND P.id_evento = " + evento_id,
                     Permissao.class
             );
             if (!qry.getResultList().isEmpty()) {

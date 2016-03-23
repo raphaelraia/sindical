@@ -209,7 +209,7 @@
             </div>
             <span id="messageGoesHere"></span>
             <script type="text/javascript">
-                var ws = new WebSocket("ws://#{defaults.URLWeb}#{facesContext.externalContext.requestContextPath}/ws_socket/senha_homologacao_#{controleUsuarioBean.clienteLowerCaseString}");
+                var ws = new WebSocket("ws://#{defaults.URLLocal}#{facesContext.externalContext.requestContextPath}/ws_socket/senha_homologacao_#{controleUsuarioBean.clienteLowerCaseString}");
 
                 ws.onopen = function (event) {
                     console.log("Connected ", event);

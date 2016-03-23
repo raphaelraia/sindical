@@ -196,7 +196,7 @@
 
                             <h:column>
                                 <h:outputText value="Sexo"/><br />
-                                <p:selectOneRadio value="#{webAgendamentoContabilidadeBean.fisica.sexo}">
+                                <p:selectOneRadio value="#{webAgendamentoContabilidadeBean.fisica.sexo}" disabled="#{webAgendamentoContabilidadeBean.fisica.id != -1 and webAgendamentoContabilidadeBean.fisica.id != -1}">
                                     <p:ajax event="change" update="@this" global="false"/>
                                     <f:selectItem itemValue="F" itemLabel="Feminino"/>
                                     <f:selectItem itemValue="M" itemLabel="Masculino"/>
@@ -207,7 +207,7 @@
                         <h:panelGrid columns="4" style="margin-top: 10px">
                             <h:column>
                                 <h:outputText value="Estado Civil"/><br />
-                                <p:selectOneMenu value="#{webAgendamentoContabilidadeBean.fisica.estadoCivil}">
+                                <p:selectOneMenu value="#{webAgendamentoContabilidadeBean.fisica.estadoCivil}" disabled="#{webAgendamentoContabilidadeBean.fisica.id != -1 and webAgendamentoContabilidadeBean.fisica.id != -1}">
                                     <p:ajax event="change" update="@this" global="false"/>
                                     <f:selectItem itemValue="Amasiado(a)" itemLabel="Amasiado(a)"/>
                                     <f:selectItem itemValue="Casado(a)" itemLabel="Casado(a)"/>
@@ -257,7 +257,7 @@
                                     <h:outputLabel value="Carteira" rendered="#{webAgendamentoContabilidadeBean.configuracaoHomologacao.webValidaCarteira}" styleClass="font-color-red"/>
                                     <h:outputLabel value="Carteira" rendered="#{!webAgendamentoContabilidadeBean.configuracaoHomologacao.webValidaCarteira}"/><br />
                                 </h:column>
-                                <p:inputText size="10" value="#{webAgendamentoContabilidadeBean.fisica.carteira}">
+                                <p:inputText size="10" value="#{webAgendamentoContabilidadeBean.fisica.carteira}" readonly="#{not empty webAgendamentoContabilidadeBean.fisica.carteira and webAgendamentoContabilidadeBean.fisica.id != -1}">
                                     <p:ajax event="change" update="@this" global="false"/>
                                 </p:inputText>
                             </h:column>
@@ -268,7 +268,7 @@
                                     <h:outputLabel value="Série" rendered="#{!webAgendamentoContabilidadeBean.configuracaoHomologacao.webValidaSerie}" />
                                     <br />
                                 </h:column>
-                                <p:inputText size="15" maxlength="15" value="#{webAgendamentoContabilidadeBean.fisica.serie}">
+                                <p:inputText size="15" maxlength="15" value="#{webAgendamentoContabilidadeBean.fisica.serie}" readonly="#{not empty webAgendamentoContabilidadeBean.fisica.serie and webAgendamentoContabilidadeBean.fisica.id != -1}">
                                     <p:ajax event="change" update="@this" global="false"/>
                                 </p:inputText>
                             </h:column>

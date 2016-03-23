@@ -31,6 +31,18 @@ public class Rotina implements Serializable {
     @Column(name = "ds_funcionamento", length = 5000)
     private String funcionamento;
 
+    /**
+     * EVENTOS
+     */
+    @Column(name = "is_inclusao", columnDefinition = "boolean default true", nullable = false)
+    private Boolean inclusao;
+    @Column(name = "is_exclusao", columnDefinition = "boolean default true", nullable = false)
+    private Boolean exclusao;
+    @Column(name = "is_alteracao", columnDefinition = "boolean default true", nullable = false)
+    private Boolean alteracao;
+    @Column(name = "is_consulta", columnDefinition = "boolean default true", nullable = false)
+    private Boolean consulta;
+
     public Rotina() {
         this.id = -1;
         this.rotina = "";
@@ -39,9 +51,13 @@ public class Rotina implements Serializable {
         this.classe = "";
         this.ativo = false;
         this.funcionamento = "";
+        this.inclusao = true;
+        this.exclusao = true;
+        this.alteracao = true;
+        this.consulta = true;
     }
 
-    public Rotina(int id, String rotina, String pagina, String acao, String classe, boolean ativo, String funcionamento) {
+    public Rotina(int id, String rotina, String pagina, String acao, String classe, boolean ativo, String funcionamento, Boolean inclusao, Boolean exclusao, Boolean alteracao, Boolean consulta) {
         this.id = id;
         this.rotina = rotina;
         this.pagina = pagina;
@@ -49,6 +65,10 @@ public class Rotina implements Serializable {
         this.classe = classe;
         this.ativo = ativo;
         this.funcionamento = funcionamento;
+        this.inclusao = inclusao;
+        this.exclusao = exclusao;
+        this.alteracao = alteracao;
+        this.consulta = consulta;
     }
 
     public int getId() {
@@ -120,6 +140,38 @@ public class Rotina implements Serializable {
 
     public void setFuncionamento(String funcionamento) {
         this.funcionamento = funcionamento;
+    }
+
+    public Boolean getInclusao() {
+        return inclusao;
+    }
+
+    public void setInclusao(Boolean inclusao) {
+        this.inclusao = inclusao;
+    }
+
+    public Boolean getExclusao() {
+        return exclusao;
+    }
+
+    public void setExclusao(Boolean exclusao) {
+        this.exclusao = exclusao;
+    }
+
+    public Boolean getAlteracao() {
+        return alteracao;
+    }
+
+    public void setAlteracao(Boolean alteracao) {
+        this.alteracao = alteracao;
+    }
+
+    public Boolean getConsulta() {
+        return consulta;
+    }
+
+    public void setConsulta(Boolean consulta) {
+        this.consulta = consulta;
     }
 
     public Rotina get() {

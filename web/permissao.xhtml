@@ -31,12 +31,12 @@
                                 <p:ajax event="change" update="@this id_rotina_grupo i_rotinas" listener="#{permissaoBean.loadListRotinaGrupo}" />
                             </p:selectBooleanCheckbox>
                         </f:facet>
-                        <h:panelGrid columns="4" id="id_painel_permissao" styleClass="sbb fundoCinza">
+                        <h:panelGrid columns="5" id="id_painel_permissao" styleClass="sbb fundoCinza">
                             <p:column>
                                 <h:panelGrid>
                                     <p:outputLabel value="Módulo:"/>
                                     <p:selectOneMenu value="#{permissaoBean.idModulo}">
-                                        <p:ajax event="change" update="id_painel_permissao tbl"/>
+                                        <p:ajax event="change" update="id_painel_permissao id_rotina_grupo i_rotinas tbl" listener="#{permissaoBean.reload}"/>
                                         <f:selectItems value="#{permissaoBean.listaModulos}"/>
                                     </p:selectOneMenu>                                    
                                 </h:panelGrid>
@@ -45,7 +45,7 @@
                                 <h:panelGrid id="id_rotina_grupo">
                                     <p:outputLabel value="Grupo Rotina:" rendered="#{permissaoBean.rotinaGrupo}"/>
                                     <p:selectOneMenu value="#{permissaoBean.idRotinaGrupo}" rendered="#{permissaoBean.rotinaGrupo}" filter="true" filterMatchMode="startsWith">
-                                        <p:ajax event="change" update="i_rotinas"/>
+                                        <p:ajax event="change" update="i_rotinas" listener="#{permissaoBean.loadListRotina}"/>
                                         <f:selectItems value="#{permissaoBean.listaRotinaGrupo}"/>
                                     </p:selectOneMenu>                                    
                                 </h:panelGrid>
@@ -54,27 +54,67 @@
                                 <h:panelGrid id="i_rotinas">
                                     <p:outputLabel value="Rotina:"/>
                                     <p:selectOneMenu value="#{permissaoBean.idRotina}" filter="true" filterMatchMode="startsWith">
+                                        <p:ajax event="change" update="i_group_events" listener="#{permissaoBean.loadRotina}" />
                                         <f:selectItems value="#{permissaoBean.listaRotinas}"/>
                                     </p:selectOneMenu>
                                 </h:panelGrid>
                             </p:column>
                             <p:column>
                                 <br />
-                                <p:commandButton icon="ui-icon-plus" value="Adicionar" action="#{permissaoBean.addPermissao}" disabled="#{controleAcessoBean.botaoSalvar}" update="id_painel_permissao, tbl" />                                
+                                <p:commandButton icon="ui-icon-plus" value="Adicionar" action="#{permissaoBean.addPermissao}" disabled="#{controleAcessoBean.botaoSalvar}" update="id_painel_permissao, i_group_events, tbl" />                                
                             </p:column>
+                        </h:panelGrid>
+                        <h:panelGrid columns="5" cellpadding="5" id="i_group_events">
+                            <p:outputLabel value="Eventos:"/>
+                            <p:selectBooleanCheckbox value="#{permissaoBean.inclusao}"  itemLabel="Inclusão" disabled="#{!permissaoBean.rotinaSelected.inclusao}">
+                                <p:ajax event="change" update="@this" />
+                            </p:selectBooleanCheckbox>
+                            <p:selectBooleanCheckbox value="#{permissaoBean.exclusao}"  itemLabel="Exclusão" disabled="#{!permissaoBean.rotinaSelected.exclusao}">
+                                <p:ajax event="change" update="@this" />
+                            </p:selectBooleanCheckbox>
+                            <p:selectBooleanCheckbox value="#{permissaoBean.alteracao}" itemLabel="Alteração" disabled="#{!permissaoBean.rotinaSelected.alteracao}">
+                                <p:ajax event="change" update="@this" />
+                            </p:selectBooleanCheckbox>
+                            <p:selectBooleanCheckbox value="#{permissaoBean.consulta}"  itemLabel="Consulta" disabled="#{!permissaoBean.rotinaSelected.consulta}">
+                                <p:ajax event="change" update="@this" />
+                            </p:selectBooleanCheckbox>
                         </h:panelGrid>
                     </p:panel>
                     <p:panel id="tbl" styleClass="margin-top-max">
-                        <p:dataTable var="permissao" value="#{permissaoBean.listaPermissoes}" emptyMessage="Nenhum registro encontrado" scrollHeight="400" scrollable="true">
+                        <h:panelGrid columns="3" id="i_pesquisa_desc">
+                            <p:outputLabel value="PESQUISAR ROTINA: " />
+                            <p:inputText value="#{permissaoBean.rotinaDescricao}">
+                                <p:ajax event="change" update="@this" />
+                            </p:inputText>
+                            <p:commandButton icon="ui-icon-search" action="#{permissaoBean.loadListPermissao()}" update="i_pesquisa_desc tbl" />
+                        </h:panelGrid>
+                        <p:dataTable var="permissao" value="#{permissaoBean.listaPermissoes}" emptyMessage="Nenhum registro encontrado" rows="10" paginator="true" rowIndexVar="index" styleClass="margin-top-max"> 
                             <f:facet name="header">Permissões adicionadas</f:facet>
-                            <p:column headerText="Módulo" filterBy="#{permissao.modulo.descricao}" filterMatchMode="global">
+                            <p:column headerText="Módulo">
                                 <p:outputLabel value="#{permissao.modulo.descricao}"/>
                             </p:column>
-                            <p:column headerText="Rotina" filterBy="#{permissao.rotina.rotina}" filterMatchMode="global">
+                            <p:column headerText="Rotina">
                                 <p:outputLabel value="#{permissao.rotina.rotina}"/>
                             </p:column>
-                            <p:column headerText="Evento">
-                                <p:outputLabel value="Inclusão, Alteração, Exclusão, Consulta"/>
+                            <p:column headerText="I" styleClass="text-center" width="25">
+                                <p:selectBooleanCheckbox value="#{permissao.inclusao}" disabled="#{controleAcessoBean.botaoAlterar}" rendered="#{permissao.rotina.inclusao}">
+                                    <p:ajax event="change" update="@this :form_permissao:id_messages_growl" listener="#{permissaoBean.updateInclusao(index)}" />
+                                </p:selectBooleanCheckbox>
+                            </p:column>
+                            <p:column headerText="E" styleClass="text-center" width="25">
+                                <p:selectBooleanCheckbox value="#{permissao.exclusao}" disabled="#{controleAcessoBean.botaoAlterar}" rendered="#{permissao.rotina.exclusao}">
+                                    <p:ajax event="change" update="@this :form_permissao:id_messages_growl" listener="#{permissaoBean.updateExclusao(index)}" />
+                                </p:selectBooleanCheckbox>
+                            </p:column>
+                            <p:column headerText="A" styleClass="text-center" width="25">
+                                <p:selectBooleanCheckbox value="#{permissao.alteracao}" disabled="#{controleAcessoBean.botaoAlterar}" rendered="#{permissao.rotina.alteracao}">
+                                    <p:ajax event="change" update="@this :form_permissao:id_messages_growl" listener="#{permissaoBean.updateAlteracao(index)}"/>
+                                </p:selectBooleanCheckbox>
+                            </p:column>
+                            <p:column headerText="C" styleClass="text-center" width="25">
+                                <p:selectBooleanCheckbox value="#{permissao.consulta}" disabled="#{controleAcessoBean.botaoAlterar}" rendered="#{permissao.rotina.consulta}">
+                                    <p:ajax event="change" update="@this :form_permissao:id_messages_growl" listener="#{permissaoBean.updateConsulta(index)}" />
+                                </p:selectBooleanCheckbox>
                             </p:column>
                             <p:column width="25" styleClass="text-center">
                                 <p:commandButton icon="ui-icon-trash" action="#{permissaoBean.removePermissao(permissao)}" disabled="#{controleAcessoBean.botaoExcluir}" update=":form_permissao:id_painel_permissao :form_permissao:tbl :form_permissao:id_messages_growl" title="Código: #{permissao.id}"/>

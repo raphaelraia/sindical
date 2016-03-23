@@ -1,5 +1,8 @@
 package br.com.rtools.seguranca;
 
+import br.com.rtools.seguranca.dao.PermissaoDao;
+import br.com.rtools.utilitarios.Dao;
+import br.com.rtools.utilitarios.GenericaMensagem;
 import javax.persistence.*;
 
 @Entity
@@ -65,5 +68,102 @@ public class Permissao implements java.io.Serializable {
 
     public void setEvento(Evento evento) {
         this.evento = evento;
+    }
+
+    // OPERAÇÕES
+    public Boolean getInclusao() {
+        if (this.id != -1) {
+            return new PermissaoDao().pesquisaPermissaoModuloRotinaEvento(this.modulo.getId(), this.rotina.getId(), 1).getId() != -1;
+        }
+        return false;
+    }
+
+    public void setInclusao(Boolean inclusao) {
+//        if (this.id != -1) {
+//            Permissao p2 = new PermissaoDao().pesquisaPermissaoModuloRotinaEvento(this.modulo.getId(), this.rotina.getId(), 1);
+//            if (p2.getId() == -1) {
+//                if (new Dao().save(p2, true)) {
+//                    GenericaMensagem.info("Sucesso", "Registro atualizado");
+//                } else {
+//                    GenericaMensagem.warn("Erro", "Ao atualizar registro! Possível causa: Permissão já vínculada / existe.");
+//                }
+//            } else if (new Dao().delete(p2, true)) {
+//                GenericaMensagem.info("Sucesso", "Registro atualizado");
+//            } else {
+//                GenericaMensagem.warn("Erro", "Ao atualizar registro! Possível causa: Permissão já vínculada / existe.");
+//            }
+//        }
+    }
+
+    public Boolean getExclusao() {
+        if (this.id != -1) {
+            return new PermissaoDao().pesquisaPermissaoModuloRotinaEvento(this.modulo.getId(), this.rotina.getId(), 2).getId() != -1;
+        }
+        return false;
+    }
+
+    public void setExclusao(Boolean exclusao) {
+//        if (this.id != -1) {
+//            Permissao p2 = new PermissaoDao().pesquisaPermissaoModuloRotinaEvento(this.modulo.getId(), this.rotina.getId(), 2);
+//            if (p2.getId() == -1) {
+//                if (new Dao().save(p2, true)) {
+//                    GenericaMensagem.info("Sucesso", "Registro atualizado");
+//                } else {
+//                    GenericaMensagem.warn("Erro", "Ao atualizar registro! Possível causa: Permissão já vínculada / existe.");
+//                }
+//            } else if (new Dao().delete(p2, true)) {
+//                GenericaMensagem.info("Sucesso", "Registro atualizado");
+//            } else {
+//                GenericaMensagem.warn("Erro", "Ao atualizar registro! Possível causa: Permissão já vínculada / existe.");
+//            }
+//        }
+    }
+
+    public Boolean getAlteracao() {
+        if (this.id != -1) {
+            return new PermissaoDao().pesquisaPermissaoModuloRotinaEvento(this.modulo.getId(), this.rotina.getId(), 3).getId() != -1;
+        }
+        return false;
+    }
+
+    public void setAlteracao(Boolean alteracao) {
+//        if (this.id != -1) {
+//            Permissao p2 = new PermissaoDao().pesquisaPermissaoModuloRotinaEvento(this.modulo.getId(), this.rotina.getId(), 3);
+//            if (p2.getId() == -1) {
+//                if (new Dao().save(p2, true)) {
+//                    GenericaMensagem.info("Sucesso", "Registro atualizado");
+//                } else {
+//                    GenericaMensagem.warn("Erro", "Ao atualizar registro! Possível causa: Permissão já vínculada / existe.");
+//                }
+//            } else if (new Dao().delete(p2, true)) {
+//                GenericaMensagem.info("Sucesso", "Registro atualizado");
+//            } else {
+//                GenericaMensagem.warn("Erro", "Ao atualizar registro! Possível causa: Permissão já vínculada / existe.");
+//            }
+//        }
+    }
+
+    public Boolean getConsulta() {
+        if (this.id != -1) {
+            return new PermissaoDao().pesquisaPermissaoModuloRotinaEvento(this.modulo.getId(), this.rotina.getId(), 4).getId() != -1;
+        }
+        return false;
+    }
+
+    public void setConsulta(Boolean consulta) {
+//        if (this.id != -1) {
+//            Permissao p2 = new PermissaoDao().pesquisaPermissaoModuloRotinaEvento(this.modulo.getId(), this.rotina.getId(), 4);
+//            if (p2.getId() == -1) {
+//                if (new Dao().save(p2, true)) {
+//                    GenericaMensagem.info("Sucesso", "Registro atualizado");
+//                } else {
+//                    GenericaMensagem.warn("Erro", "Ao atualizar registro! Possível causa: Permissão já vínculada / existe.");
+//                }
+//            } else if (new Dao().delete(p2, true)) {
+//                GenericaMensagem.info("Sucesso", "Registro atualizado");
+//            } else {
+//                GenericaMensagem.warn("Erro", "Ao atualizar registro! Possível causa: Permissão já vínculada / existe.");
+//            }
+//        }
     }
 }

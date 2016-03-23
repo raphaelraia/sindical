@@ -57,14 +57,18 @@ public class RelatorioMatriculaEscolaDao extends DB {
                 joinString += " INNER JOIN esc_turma AS T ON T.id = MT.id_turma \n";
                 joinString += " INNER JOIN fin_servicos AS S ON S.id = T.id_curso \n";
                 if (inIdTurmaOuCurso == null) {
-                    if (!ano.isEmpty()) {
-                        listQuery.add(ano + " BETWEEN EXTRACT('YEAR' FROM T.dt_inicio) AND EXTRACT('YEAR' FROM T.dt_termino)");
-                    } else if (periodo[1].isEmpty()) {
-                        if (!periodo[0].isEmpty()) {
-                            listQuery.add("T.dt_inicio = '" + periodo[0] + "'");
+                    if (status != 1) {
+                        if (!ano.isEmpty()) {
+                            listQuery.add(ano + " = EXTRACT('YEAR' FROM ME.dt_status) ");
+                        } else if (periodo[1].isEmpty()) {
+                            if (!periodo[0].isEmpty()) {
+                                listQuery.add("ME.dt_status = '" + periodo[0] + "'");
+                            }
+                        } else {
+                            listQuery.add("ME.dt_status BETWEEN '" + periodo[0] + "' AND '" + periodo[1] + "'");
                         }
-                    } else {
-                        listQuery.add("T.dt_inicio >= '" + periodo[0] + "' AND T.dt_termino <= '" + periodo[1] + "'");
+                    } else if (!ano.isEmpty()) {
+                        listQuery.add(ano + " = EXTRACT('YEAR' FROM ME.dt_status) ");
                     }
                     if (horario[1].isEmpty()) {
                         if (!horario[0].isEmpty()) {
@@ -89,14 +93,18 @@ public class RelatorioMatriculaEscolaDao extends DB {
                 if (vendedor != null) {
                     listQuery.add("MI.id_professor = " + professor);
                 }
-                if (!ano.isEmpty()) {
-                    listQuery.add(ano + " BETWEEN EXTRACT('YEAR' FROM MI.dt_inicio) AND EXTRACT('YEAR', MI.dt_termino)");
-                } else if (periodo[1].isEmpty()) {
-                    if (!periodo[0].isEmpty()) {
-                        listQuery.add("MI.dt_inicio = '" + periodo[0] + "'");
+                if (status != 1) {
+                    if (!ano.isEmpty()) {
+                        listQuery.add(ano + " = EXTRACT('YEAR' FROM ME.dt_status) ");
+                    } else if (periodo[1].isEmpty()) {
+                        if (!periodo[0].isEmpty()) {
+                            listQuery.add("ME.dt_status = '" + periodo[0] + "'");
+                        }
+                    } else {
+                        listQuery.add("ME.dt_status BETWEEN '" + periodo[0] + "' AND '" + periodo[1] + "'");
                     }
-                } else {
-                    listQuery.add("MI.dt_inicio >= '" + periodo[0] + "' AND MI.dt_termino <= '" + periodo[1] + "'");
+                } else if (!ano.isEmpty()) {
+                    listQuery.add(ano + " = EXTRACT('YEAR' FROM ME.dt_status) ");
                 }
                 if (horario[1].isEmpty()) {
                     if (!periodo[0].isEmpty()) {
