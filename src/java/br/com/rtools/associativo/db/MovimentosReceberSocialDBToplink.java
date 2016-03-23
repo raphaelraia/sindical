@@ -15,7 +15,7 @@ public class MovimentosReceberSocialDBToplink extends DB implements MovimentosRe
 
     /**
      * <ul>
-     * <li> <strong> RESULT </strong> </li> 
+     * <li> <strong> RESULT </strong> </li>
      * <li> 00 - SERVIÇO -> DESCRIÇÃO; </li>
      * <li> 01 - TIPO SERVIÇO -> DESCRIÇÃO;</li>
      * <li> 02 - MOVIMENTO -> REFERÊNCIA;</li>
@@ -51,6 +51,7 @@ public class MovimentosReceberSocialDBToplink extends DB implements MovimentosRe
      * @param referencia (Referência)
      * @param tipoPessoa (Se é física ou jurídica)
      * @param lote_baixa (Id da baixa)
+     * @param limite_pesquisa (Limite de resultados na lista)
      * @return
      */
     @Override
@@ -105,24 +106,24 @@ public class MovimentosReceberSocialDBToplink extends DB implements MovimentosRe
 
             switch (por_status) {
                 case "todos":
-                    ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL) or m.id_pessoa IN (" + id_pessoa + ")) \n "
-                    // ands = where + " WHERE (m.id_pessoa in (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL)) \n  "
+                    ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL AND m.id_titular = " + id_responsavel + ") OR m.id_pessoa IN (" + id_pessoa + ")) \n "
+                            // ands = where + " WHERE (m.id_pessoa in (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL)) \n  "
                             + "        AND m.is_ativo = true \n"
                             + "        AND m.id_servicos NOT IN(SELECT sr.id_servicos FROM fin_servico_rotina AS sr WHERE id_rotina = 4) \n ";
                     order_by = (tipoPessoa.equals("fisica")) ? " ORDER BY m.dt_vencimento desc, p.ds_nome, t.ds_nome, b.ds_nome, se.ds_descricao \n "
                             : " ORDER BY m.dt_vencimento desc, p.ds_nome, t.ds_nome, b.ds_nome, se.ds_descricao \n ";
                     break;
                 case "abertos":
-                    ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL) or m.id_pessoa IN (" + id_pessoa + ")) \n "
-                    //ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL)) \n "
+                    ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL AND m.id_titular = " + id_responsavel + ") OR m.id_pessoa IN (" + id_pessoa + ")) \n "
+                            //ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL)) \n "
                             + "        AND m.id_baixa IS NULL   \n"
                             + "        AND m.is_ativo = true    \n"
                             + "        AND m.id_servicos NOT IN(SELECT sr.id_servicos FROM fin_servico_rotina AS sr WHERE id_rotina = 4) \n ";
                     order_by = " ORDER BY m.dt_vencimento ASC, p.ds_nome, t.ds_nome, b.ds_nome, se.ds_descricao \n";
                     break;
                 case "quitados":
-                    ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL) or m.id_pessoa IN (" + id_pessoa + ")) \n "
-                    //ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL)) "
+                    ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL AND m.id_titular = " + id_responsavel + ") OR m.id_pessoa IN (" + id_pessoa + ")) \n "
+                            //ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL)) "
                             + "        AND m.id_baixa IS NOT NULL   \n"
                             + "        AND m.is_ativo = true        \n"
                             + "        AND m.id_servicos NOT IN(SELECT sr.id_servicos FROM fin_servico_rotina AS sr WHERE id_rotina = 4) \n";
@@ -130,8 +131,8 @@ public class MovimentosReceberSocialDBToplink extends DB implements MovimentosRe
                             : " ORDER BY bx.dt_baixa DESC, m.dt_vencimento, p.ds_nome, se.ds_descricao \n ";
                     break;
                 case "atrasados":
-                    ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL) or m.id_pessoa IN (" + id_pessoa + ")) \n "
-                    //ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL)) "
+                    ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL AND m.id_titular = " + id_responsavel + ") OR m.id_pessoa IN (" + id_pessoa + ")) \n "
+                            //ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL)) "
                             + "        AND m.id_baixa IS NULL               \n"
                             + "        AND m.is_ativo = true                \n"
                             + "        AND m.dt_vencimento < current_date   \n"
@@ -140,8 +141,8 @@ public class MovimentosReceberSocialDBToplink extends DB implements MovimentosRe
                             : " ORDER BY m.dt_vencimento, p.ds_nome, t.ds_nome, se.ds_descricao \n ";
                     break;
                 case "vencer":
-                    ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL) or m.id_pessoa IN (" + id_pessoa + ")) \n "
-                    //ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL)) "
+                    ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL AND m.id_titular = " + id_responsavel + ") OR m.id_pessoa IN (" + id_pessoa + ")) \n "
+                            //ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL)) "
                             + "        AND m.id_baixa IS NULL               \n"
                             + "        AND m.is_ativo = true                \n"
                             + "        AND m.dt_vencimento > current_date   \n"
@@ -159,13 +160,12 @@ public class MovimentosReceberSocialDBToplink extends DB implements MovimentosRe
                 ands += " AND m.id_baixa = " + lote_baixa + " \n";
             }
 
-            
             textqry += ands + order_by;
-            
-            if (!limite_pesquisa.equals("todos")){
+
+            if (!limite_pesquisa.equals("todos")) {
                 textqry += " LIMIT " + limite_pesquisa;
             }
-            
+
             Query qry = getEntityManager().createNativeQuery(textqry);
 
             return qry.getResultList();
@@ -224,7 +224,7 @@ public class MovimentosReceberSocialDBToplink extends DB implements MovimentosRe
         }
         return pessoa;
     }
-    
+
     @Override
     public float[] pesquisaValorAcrescimo(int id_movimento) {
         float[] valor = new float[2];
