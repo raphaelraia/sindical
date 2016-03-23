@@ -245,10 +245,16 @@ public class ServicosBean implements Serializable {
                             + " - Produto: [" + servicos.isProduto() + "]"
                             + " - Tabela: [" + servicos.isTabela() + "]"
                     );
-                    di.save(servicos);
+                    if (!di.save(servicos)) {
+                        message = "Erro ao inserir registro.";
+                        di.rollback();
+                        return;
+                    }
                     message = "Serviço salvo com Sucesso!";
                 } else {
                     message = "Este serviço já existe no Sistema.";
+                    di.rollback();
+                    return;
                 }
             } else {
                 Servicos s = (Servicos) di.find(servicos);
@@ -283,17 +289,27 @@ public class ServicosBean implements Serializable {
                     message = "Serviço atualizado com sucesso!";
                 } else {
                     message = "Erro na atualização do serviço!";
+                    di.rollback();
+                    return;
                 }
             }
+            di.commit();
+            di.openTransaction();
             for (CategoriaDesconto categoria : listCategoriaDesconto) {
                 if (categoria.getId() == -1) {
-                    if (di.save(categoria)) {
-                        novoLog.save(
-                                "Categoria - Desconto - ID: " + categoria.getId()
-                                + " - Descrição: " + categoria.getCategoria().getCategoria()
-                                + " - Serviços: (" + categoria.getServicoValor().getServicos().getId() + ") " + categoria.getServicoValor().getServicos().getDescricao()
-                                + " - Desconto: " + categoria.getDesconto()
-                        );
+                    if (categoria.getServicoValor().getId() != -1) {
+                        if (di.save(categoria)) {
+                            novoLog.save(
+                                    "Categoria - Desconto - ID: " + categoria.getId()
+                                    + " - Descrição: " + categoria.getCategoria().getCategoria()
+                                    + " - Serviços: (" + categoria.getServicoValor().getServicos().getId() + ") " + categoria.getServicoValor().getServicos().getDescricao()
+                                    + " - Desconto: " + categoria.getDesconto()
+                            );
+                        } else {
+                            message = "Erro ao salvar categoria desconto!";
+                            di.rollback();
+                            return;
+                        }
                     }
                 } else {
                     CategoriaDesconto cd = (CategoriaDesconto) di.find(categoria);
@@ -309,10 +325,13 @@ public class ServicosBean implements Serializable {
                                 + " - Serviços: (" + categoria.getServicoValor().getServicos().getId() + ") " + categoria.getServicoValor().getServicos().getDescricao()
                                 + " - Desconto: " + categoria.getDesconto()
                         );
+                    } else {
+                        di.rollback();
+                        message = "Erro ao atualizar categoria desconto!";
+                        return;
                     }
                 }
             }
-            di.commit();
         } catch (Exception e) {
             di.rollback();
             message = "Erro no cadastro de serviço!";
@@ -511,11 +530,9 @@ public class ServicosBean implements Serializable {
         listServicoValor = servicoValorDB.pesquisaServicoValor(servicos.getId());
         if (listServicoValor == null) {
             listServicoValor = new ArrayList<>();
-        } else {
-            if (!listServicoValor.isEmpty()) {
-                //    servicoValorDetalhe = listServicoValor.get(0);
-                //valorCategoriaDesconto = Moeda.converteR$Float(servicoValorDetalhe.getValor());
-            }
+        } else if (!listServicoValor.isEmpty()) {
+            //    servicoValorDetalhe = listServicoValor.get(0);
+            //valorCategoriaDesconto = Moeda.converteR$Float(servicoValorDetalhe.getValor());
         }
         return listServicoValor;
     }

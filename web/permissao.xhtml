@@ -61,7 +61,7 @@
                             </p:column>
                             <p:column>
                                 <br />
-                                <p:commandButton icon="ui-icon-plus" value="Adicionar" action="#{permissaoBean.addPermissao}" disabled="#{controleAcessoBean.botaoSalvar}" update="id_painel_permissao, i_group_events, tbl" />                                
+                                <p:commandButton icon="ui-icon-plus" value="Adicionar" action="#{permissaoBean.addPermissao}" disabled="#{controleAcessoBean.botaoSalvar or empty permissaoBean.listaRotinas}" update="id_painel_permissao, i_group_events, tbl" />                                
                             </p:column>
                         </h:panelGrid>
                         <h:panelGrid columns="5" cellpadding="5" id="i_group_events">

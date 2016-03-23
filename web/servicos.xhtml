@@ -104,15 +104,33 @@
                                             </h:panelGrid>
 
                                             <p:panelGrid columns="9" styleClass="sbb">
-                                                <p:selectBooleanCheckbox id="idServDebito" value="#{servicosBean.servicos.debito}" itemLabel="Débito"/>
-                                                <p:selectBooleanCheckbox id="idServValor" value="#{servicosBean.servicos.alterarValor}" itemLabel="Alterar valor"/>
-                                                <p:selectBooleanCheckbox id="idServAdmin" value="#{servicosBean.servicos.adm}" itemLabel="ADM"/>
-                                                <p:selectBooleanCheckbox value="#{servicosBean.servicos.tabela}" itemLabel="Tabela"/>
-                                                <p:selectBooleanCheckbox value="#{servicosBean.servicos.eleicao}" itemLabel="Eleição"/>
-                                                <p:selectBooleanCheckbox value="#{servicosBean.servicos.agrupaBoleto}" itemLabel="Agrupa boletos" />
-                                                <p:selectBooleanCheckbox value="#{servicosBean.servicos.produto}" itemLabel="Produto" />
-                                                <p:selectBooleanCheckbox value="#{servicosBean.servicos.valorFixo}" itemLabel="Valor Fixo" />
-                                                <p:selectBooleanCheckbox value="#{servicosBean.servicos.cursoRenovacao}" itemLabel="Renovação Automática Escola" />
+                                                <p:selectBooleanCheckbox id="idServDebito" value="#{servicosBean.servicos.debito}" itemLabel="Débito">
+                                                     <p:ajax event="change" update="@this"/>
+                                                </p:selectBooleanCheckbox>
+                                                <p:selectBooleanCheckbox id="idServValor" value="#{servicosBean.servicos.alterarValor}" itemLabel="Alterar valor">
+                                                     <p:ajax event="change" update="@this"/>
+                                                </p:selectBooleanCheckbox>
+                                                <p:selectBooleanCheckbox id="idServAdmin" value="#{servicosBean.servicos.adm}" itemLabel="ADM">
+                                                     <p:ajax event="change" update="@this"/>
+                                                </p:selectBooleanCheckbox>
+                                                <p:selectBooleanCheckbox value="#{servicosBean.servicos.tabela}" itemLabel="Tabela">
+                                                     <p:ajax event="change" update="@this"/>
+                                                </p:selectBooleanCheckbox>
+                                                <p:selectBooleanCheckbox value="#{servicosBean.servicos.eleicao}" itemLabel="Eleição">
+                                                     <p:ajax event="change" update="@this"/>
+                                                </p:selectBooleanCheckbox>
+                                                <p:selectBooleanCheckbox value="#{servicosBean.servicos.agrupaBoleto}" itemLabel="Agrupa boletos">
+                                                     <p:ajax event="change" update="@this"/>
+                                                </p:selectBooleanCheckbox>
+                                                <p:selectBooleanCheckbox value="#{servicosBean.servicos.produto}" itemLabel="Produto">
+                                                     <p:ajax event="change" update="@this"/>
+                                                </p:selectBooleanCheckbox>
+                                                <p:selectBooleanCheckbox value="#{servicosBean.servicos.valorFixo}" itemLabel="Valor Fixo">
+                                                     <p:ajax event="change" update="@this"/>
+                                                </p:selectBooleanCheckbox>
+                                                <p:selectBooleanCheckbox value="#{servicosBean.servicos.cursoRenovacao}" itemLabel="Renovação Automática Escola">
+                                                     <p:ajax event="change" update="@this"/>
+                                                </p:selectBooleanCheckbox>
                                             </p:panelGrid>
 
                                             <p:separator />
@@ -239,7 +257,8 @@
                                             <p:panel id="tblDesconto" styleClass="no-border">
                                                 <p:dataTable value="#{servicosBean.listServicosCategoriaDesconto}" var="listServicosCategoriaDesconto" scrollHeight="400" scrollable="true" emptyMessage="Não existe(m) registro(s)" styleClass="margin-top-max">
                                                     <p:column headerText="Serviços" width="150">
-                                                        <p:outputLabel value="#{listServicosCategoriaDesconto.categoriaDesconto.servicoValor.servicos.descricao}" title="Código: #{listServicosCategoriaDesconto.categoriaDesconto.id}"/>
+                                                        <p:outputLabel value="INFORMAR VALOR PARA FAIXA ETÁRIA DESTA CATEGORIA" rendered="#{listServicosCategoriaDesconto.categoriaDesconto.servicoValor.id == -1}" styleClass="font-color-red bold"/>
+                                                        <p:outputLabel value="#{listServicosCategoriaDesconto.categoriaDesconto.servicoValor.servicos.descricao}" title="Código: #{listServicosCategoriaDesconto.categoriaDesconto.id}" rendered="#{listServicosCategoriaDesconto.categoriaDesconto.servicoValor.id != -1}"/>
                                                     </p:column>
                                                     <p:column headerText="Categoria" width="200" >
                                                         <p:outputLabel value="#{listServicosCategoriaDesconto.categoriaDesconto.categoria.categoria}" title="Código: #{listServicosCategoriaDesconto.categoriaDesconto.id}"/>
@@ -255,14 +274,14 @@
                                                     
                                                     <p:column headerText="Valor R$" width="100" styleClass="text-center">
                                                         <p:column>
-                                                            <p:inputText value="#{listServicosCategoriaDesconto.valorDescontoString}" styleClass="text-center font-color-red bold" size="5" dir="rtl">
+                                                            <p:inputText value="#{listServicosCategoriaDesconto.valorDescontoString}" styleClass="text-center font-color-red bold" size="5" dir="rtl" disabled="#{listServicosCategoriaDesconto.categoriaDesconto.servicoValor.id == -1}">
                                                                 <p:ajax event="change" update=":form_servicos:id_tab_view:tblDesconto" listener="#{servicosBean.updateDescontoCategoriaValor(listServicosCategoriaDesconto)}" global="false"/>
                                                             </p:inputText>
                                                         </p:column>
                                                     </p:column>
                                                     <p:column headerText="Desconto (%)" width="100" styleClass="text-center">
                                                         <p:column>
-                                                            <p:spinner value="#{listServicosCategoriaDesconto.categoriaDesconto.desconto}" stepFactor="0.1" min="0" max="100" title="Código: #{listServicosCategoriaDesconto.categoriaDesconto.id}" size="8">
+                                                            <p:spinner value="#{listServicosCategoriaDesconto.categoriaDesconto.desconto}" stepFactor="0.1" min="0" max="100" title="Código: #{listServicosCategoriaDesconto.categoriaDesconto.id}" size="8" disabled="#{listServicosCategoriaDesconto.categoriaDesconto.servicoValor.id == -1}">
                                                                 <p:ajax event="change" update=":form_servicos:id_tab_view:tblDesconto" listener="#{servicosBean.updateDescontoCategoriaPercentual(listServicosCategoriaDesconto)}" global="false"/>
                                                             </p:spinner>
                                                         </p:column>
