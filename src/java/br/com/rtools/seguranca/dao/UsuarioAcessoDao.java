@@ -50,4 +50,14 @@ public class UsuarioAcessoDao extends DB {
         }
         return usuarioAcesso;
     }
+
+    public List<UsuarioAcesso> findUsuario(Integer usuario_id) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT UA FROM UsuarioAcesso UA WHERE UA.usuario.id = :usuario_id ");
+            query.setParameter("usuario_id", usuario_id);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
 }

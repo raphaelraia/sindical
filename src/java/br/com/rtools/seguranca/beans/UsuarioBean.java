@@ -64,9 +64,13 @@ public class UsuarioBean implements Serializable {
     private int idModulo;
     private int idNivel;
     private int idRotina;
+    private Boolean importPermissoes;
+    private List<SelectItem> listUsuariosImport;
+    private Integer idUsuarioImport;
 
     @PostConstruct
     public void init() {
+        importPermissoes = false;
         usuario = new Usuario();
         listaPermissaoUsuario = new ArrayList();
         listaUsuario = new ArrayList();
@@ -75,6 +79,8 @@ public class UsuarioBean implements Serializable {
         listaRotinas = new ArrayList();
         listaEventos = new ArrayList();
         listaDepartamentos = new ArrayList();
+        listUsuariosImport = new ArrayList();
+        idUsuarioImport = null;
         listaNiveis = new ArrayList();
         confirmaSenha = "";
         descricaoPesquisa = "";
@@ -359,7 +365,6 @@ public class UsuarioBean implements Serializable {
     }
 
     public void sairSistema() throws IOException {
-        
 
         String retorno = "";
         if (GenericaSessao.exists("sessaoCliente")) {
@@ -676,6 +681,7 @@ public class UsuarioBean implements Serializable {
 
     public void limparListaUsuarioAcessox() {
         listaUsuarioAcesso.clear();
+        listaEventos.clear();
     }
 
     public void setListaUsuarioAcesso(List<UsuarioAcesso> listaUsuarioAcesso) {
@@ -862,5 +868,67 @@ public class UsuarioBean implements Serializable {
         } else {
             GenericaMensagem.info("Sucesso", "Email enviado com sucesso!");
         }
+    }
+
+    public Boolean getImportPermissoes() {
+        return importPermissoes;
+    }
+
+    public void setImportPermissoes(Boolean importPermissoes) {
+        this.importPermissoes = importPermissoes;
+    }
+
+    public Integer getIdUsuarioImport() {
+        return idUsuarioImport;
+    }
+
+    public void setIdUsuarioImport(Integer idUsuarioImport) {
+        this.idUsuarioImport = idUsuarioImport;
+    }
+
+    public List<SelectItem> getListUsuariosImport() {
+        if (listUsuariosImport.isEmpty()) {
+            DaoInterface di = new Dao();
+            List<Usuario> list = (List<Usuario>) di.list(new Usuario(), true);
+
+            listUsuariosImport.add(new SelectItem(0, "Selecione um Usuário", null));
+            int b = 0;
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getAtivo()) {
+                    listUsuariosImport.add(new SelectItem(list.get(i).getId(), list.get(i).getPessoa().getNome()));
+                }
+            }
+        }
+        return listUsuariosImport;
+    }
+
+    public void setListUsuariosImport(List<SelectItem> listUsuariosImport) {
+        this.listUsuariosImport = listUsuariosImport;
+    }
+
+    public void processImport() {
+        if (idUsuarioImport == null) {
+            GenericaMensagem.warn("Erro", "Informar usuário!");
+            return;
+        }
+        if (!listUsuariosImport.isEmpty()) {
+            if (idUsuarioImport != null) {
+                Dao dao = new Dao();
+                UsuarioAcessoDao usuarioAcessoDao = new UsuarioAcessoDao();
+                List<UsuarioAcesso> list = usuarioAcessoDao.findUsuario(idUsuarioImport);
+                for (int i = 0; i < list.size(); i++) {
+                    UsuarioAcesso usuarioAcesso = new UsuarioAcesso();
+                    usuarioAcesso.setPermissao(list.get(i).getPermissao());
+                    usuarioAcesso.setPermite(list.get(i).isPermite());
+                    usuarioAcesso.setUsuario(usuario);
+                    if (usuarioAcessoDao.pesquisaUsuarioAcesso(usuario.getId(), list.get(i).getPermissao().getId()).getId() == -1) {
+                        dao.save(usuarioAcesso, true);
+                    }
+                }
+                GenericaMensagem.info("Sucesso", "Importação realizada");
+                return;
+            }
+        }
+        GenericaMensagem.warn("Erro", "Ao realizar importação!");
     }
 }
