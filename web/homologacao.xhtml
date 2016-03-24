@@ -142,7 +142,7 @@
 
                         <h:column>
                             <h:outputLabel value="Funcionário" style="color: red; font-weight: bold"/><br />
-                            <p:inputText value="#{homologacaoBean.fisica.pessoa.nome}" size="60" converter="#{toUpperCase}"readonly="#{homologacaoBean.fisica.id != -1}">
+                            <p:inputText value="#{homologacaoBean.fisica.pessoa.nome}" size="60" converter="#{toUpperCase}" readonly="#{homologacaoBean.fisica.id != -1}">
                                 <p:ajax event="change" update="@this" global="false"/>
                             </p:inputText>
                         </h:column>

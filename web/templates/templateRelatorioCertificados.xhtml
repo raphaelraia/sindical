@@ -198,8 +198,9 @@
                         </p:selectBooleanCheckbox>
                         <p:selectOneMenu value="#{jasperBean.EXPORT_TYPE}" rendered="#{jasperBean.EXPORT_TO}">
                             <p:ajax event="change" update="@this" />
+                            <f:selectItems value="#{jasperBean.listTypes('pdf')}" />
                             <f:selectItems value="#{jasperBean.listTypes('xls')}" />
-                        </p:selectOneMenu>                         
+                        </p:selectOneMenu>
                     </h:panelGrid>
                 </h:form>
             </p:panel>

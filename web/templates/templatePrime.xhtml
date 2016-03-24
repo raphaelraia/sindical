@@ -100,7 +100,7 @@
                     </h:column>
 
                     <h:column>
-                        <p:selectOneMenu value="#{configuracaoBean.indexTipoResolucao}" style="padding-right: 10px">
+                        <p:selectOneMenu value="#{configuracaoBean.indexTipoResolucao}">
                             <p:ajax event="change" update="@this" global="false"/>
                             <f:selectItems value="#{configuracaoBean.listaTipoResolucao}" />
                         </p:selectOneMenu>

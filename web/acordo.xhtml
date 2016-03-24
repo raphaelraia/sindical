@@ -199,10 +199,6 @@
                                 </h:column>
 
                                 <h:column>
-                                    <p:commandButton disabled="#{acordoBean.imprimir}" value="Imprimir Boletos" action="#{acordoBean.imprimirBoletos}" onclick="this.form.target = '_blank';" ajax="false"/>
-                                </h:column>
-
-                                <h:column>
                                     <p:selectOneMenu value="#{acordoBean.emailPara}" disabled="#{acordoBean.imprimir}" style="margin-left: 20px">
                                         <p:ajax event="change" update="@this"/>
                                         <f:selectItem itemValue="empresa"       itemLabel="Empresa"/>
@@ -219,7 +215,6 @@
                                         <p:selectBooleanCheckbox disabled="#{acordoBean.imprimir}" value="#{acordoBean.imprimir_pro}" itemLabel="Imprime Promissória com Planilha">
                                             <p:ajax event="change" update="@this" />
                                         </p:selectBooleanCheckbox>
-                                        <p:commandButton disabled="#{acordoBean.imprimir}" value="Imprimir Planilha" action="#{acordoBean.imprimirPlanilha}"  onclick="this.form.target = '_blank';" ajax="false"/>
                                     </div>
                                 </h:column>
 
@@ -229,25 +224,25 @@
                                 <h:panelGrid>
                                     <p:outputLabel value="Deseja Atualizar este EMAIL" style="font-size: 11pt!important"/>
                                 </h:panelGrid>
-                                
+
                                 <h:panelGrid id="panel_atualizar_email" columns="2">
                                     <p:column>
                                         <p:outputLabel value="Email Antigo" style="font-weight: bold"/><br />
                                         <p:inputText value="#{acordoBean.emailAntigo}" style="width: 200px"/>
                                     </p:column>
-                                    
+
                                     <p:column>
                                         <p:outputLabel value="Email Novo" style="font-weight: bold"/><br />
                                         <p:inputText value="#{acordoBean.pessoaEnvio.email1}" style="width: 200px"/>
                                     </p:column>
                                 </h:panelGrid>
-                                
+
                                 <h:panelGrid columns="2">
                                     <p:commandButton icon="ui-icon-check" value="SIM atualizar e Enviar" title="Atualizar Email" action="#{acordoBean.alterarEmailEnvio(true)}" update="@form"/>
                                     <p:commandButton icon="ui-icon-close" value="NÃO atualizar e Enviar" title="Não Atualizar" action="#{acordoBean.alterarEmailEnvio(false)}" update="@form"/>
                                 </h:panelGrid>
                             </p:dialog>
-                            
+
                             <p:dialog widgetVar="dlg_salvar" modal="true" header="Geração de Acordo" width="400" resizable="false">
                                 <h:panelGrid>
                                     <p:outputLabel value="Deseja realmente salvar esse ACORDO?" style="font-size: 11pt!important"/>
@@ -257,7 +252,7 @@
                                     <p:commandButton icon="ui-icon-close" value="Não" title="Cancelar" oncomplete="PF('dlg_salvar').hide();"/>
                                 </h:panelGrid>
                             </p:dialog>
-                            
+
                             <p:dialog widgetVar="dlg_enviar_email" modal="true" header="Envio de Acordo por Email" width="400" resizable="false">
                                 <h:panelGrid id="i_panel_enviar_email" style="width: 100%">
                                     <h:panelGrid style="width: 100%">
@@ -274,6 +269,12 @@
                                 </h:panelGrid>
                             </p:dialog>
                         </h:form>
+                        <h:form id="form_print">
+                            <h:panelGrid columns="2">
+                                <p:commandButton disabled="#{acordoBean.imprimir}" value="Imprimir Boletos" action="#{acordoBean.imprimirBoletos}" onclick="this.form.target = '_blank';" ajax="false"/>                                
+                                <p:commandButton disabled="#{acordoBean.imprimir}" value="Imprimir Planilha" action="#{acordoBean.imprimirPlanilha}"  onclick="this.form.target = '_blank';" ajax="false" />                                
+                            </h:panelGrid>
+                        </h:form>                        
                     </p:panel>
                 </f:view>
                 <!-- FINALIZA div wrap main -->

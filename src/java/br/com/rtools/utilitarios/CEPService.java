@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -34,6 +33,9 @@ public class CEPService {
      * http://www.republicavirtual.com.br/cep/exemplos.php
      */
     public void procurar() {
+        if (cep.isEmpty()) {
+            return;
+        }
         EnderecoDao enderecoDB = new EnderecoDao();
         CidadeDao cidadeDB = new CidadeDao();
         List<Endereco> listaEnderecos = (List<Endereco>) enderecoDB.pesquisaEnderecoCep(cep);
@@ -83,41 +85,49 @@ public class CEPService {
                 LogradouroDao logradouroDao = new LogradouroDao();
                 Logradouro logradouro = logradouroDao.pesquisaLogradouroPorDescricao(cepAlias.getTipo_logradouro());
                 if (logradouro == null) {
-                    logradouro = new Logradouro();
-                    logradouro.setDescricao(cepAlias.getTipo_logradouro());
-                    dao.save(logradouro, true);
+                    if (!cepAlias.getTipo_logradouro().isEmpty()) {
+                        logradouro = new Logradouro();
+                        logradouro.setDescricao(cepAlias.getTipo_logradouro());
+                        dao.save(logradouro, true);
+                    }
                 }
                 BairroDao bairroDao = new BairroDao();
                 Bairro bairro = bairroDao.find(cepAlias.getBairro());
                 if (bairro == null) {
-                    bairro = new Bairro();
-                    bairro.setDescricao(cepAlias.getBairro());
-                    dao.save(bairro, true);
+                    if (!cepAlias.getBairro().isEmpty()) {
+                        bairro = new Bairro();
+                        bairro.setDescricao(cepAlias.getBairro());
+                        dao.save(bairro, true);
+                    }
                 }
                 DescricaoEnderecoDao descricaoEnderecoDao = new DescricaoEnderecoDao();
                 DescricaoEndereco descricaoEndereco = descricaoEnderecoDao.find(cepAlias.getLogradouro());
                 if (descricaoEndereco == null) {
-                    descricaoEndereco = new DescricaoEndereco();
-                    descricaoEndereco.setDescricao(cepAlias.getLogradouro());
-                    dao.save(descricaoEndereco, true);
+                    if (!cepAlias.getLogradouro().isEmpty()) {
+                        descricaoEndereco = new DescricaoEndereco();
+                        descricaoEndereco.setDescricao(cepAlias.getLogradouro());
+                        dao.save(descricaoEndereco, true);
+                    }
                 }
-                endereco = new Endereco();
-                endereco.setCep(cep);
-                endereco.setBairro(bairro);
-                endereco.setCidade(cidade);
-                endereco.setDescricaoEndereco(descricaoEndereco);
-                endereco.setLogradouro(logradouro);
-                List list = enderecoDB.pesquisaEndereco(
-                        endereco.getLogradouro().getId(),
-                        endereco.getDescricaoEndereco().getId(),
-                        endereco.getBairro().getId(),
-                        endereco.getCidade().getId()
-                );
-                if (list.isEmpty()) {
-                    dao.save(endereco, true);
-                } else {
+                if (!cep.isEmpty() && bairro != null && logradouro != null && descricaoEndereco != null) {
                     endereco = new Endereco();
-                    list.clear();
+                    endereco.setCep(cep);
+                    endereco.setBairro(bairro);
+                    endereco.setCidade(cidade);
+                    endereco.setDescricaoEndereco(descricaoEndereco);
+                    endereco.setLogradouro(logradouro);
+                    List list = enderecoDB.pesquisaEndereco(
+                            endereco.getLogradouro().getId(),
+                            endereco.getDescricaoEndereco().getId(),
+                            endereco.getBairro().getId(),
+                            endereco.getCidade().getId()
+                    );
+                    if (list.isEmpty()) {
+                        dao.save(endereco, true);
+                    } else {
+                        endereco = new Endereco();
+                        list.clear();
+                    }
                 }
             } catch (IOException e) {
             }

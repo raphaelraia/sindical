@@ -54,6 +54,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Vector;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
@@ -69,99 +71,152 @@ import net.sf.jasperreports.engine.util.JRLoader;
 @ManagedBean
 @SessionScoped
 public class RelatorioMovimentoBean implements Serializable {
-
-    private int idRelatorios = 0;
-    private int idServicos = 0;
-    private int idTipoServico = 0;
-    private int idConvencao = 0;
-    private int idCnae = 0;
-    private int idGrupoCidade = 0;
-    private List<SelectItem> listaTipoRelatorio = new ArrayList<>();
-    private List<SelectItem> listaServicos = new ArrayList<>();
-    private List<SelectItem> listaTipoServico = new ArrayList<>();
-    private List<SelectItem> listaConvencao = new ArrayList<>();
-    private List<SelectItem> listaGrupoCidade = new ArrayList<>();
-    private List<SelectItem> listaCnaes = new ArrayList<>();
-    private String condicao = "todos";
-    private String geradosPelaCaixa = "naoverificar";
-    private String filtrar = "todas";
-    private String tipoDataPesquisa = "vencimento";
-    private String dataInicial = "";
-    private String dataFinal = "";
-    private String dataRefInicial = "";
-    private String dataRefFinal = "";
-    private boolean chkEmpresa = false;
-    private boolean chkContabilidade = false;
-    private boolean chkConvencao = false;
-    private boolean chkServicos = false;
-    private boolean chkTipoServico = false;
-    private boolean chkCidadeBase = false;
-    private boolean chkData = false;
-    private boolean chkOrdemEmpresa = false;
-    private boolean chkCnae = false;
-    private boolean totaliza = false;
-    private Juridica juridica = new Juridica();
-    private List<Juridica> listaContabilidade = new ArrayList();
-    private List<Juridica> listaContabilidadeSelecionada = new ArrayList();
-    private final List<Juridica> listaPesquisa = new ArrayList();
-    private String pesquisaContabil = "";
-    private String radioContabil = "selecionado";
-    private String radioOrdem = "vencimento";
-    private List<Cidade> listaCidadesBase = new ArrayList();
-    private List<Cidade> listaCidadesBaseSelecionado = new ArrayList();
-    private CnaeConvencao[] cnaeConvencaoSelecionado = null;
-    private List<CnaeConvencao> listaCnaeConvencaos = new ArrayList();
-
+    
+    private int idRelatorios;
+    private int idServicos;
+    private int idTipoServico;
+    private int idConvencao;
+    private int idCnae;
+    private int idGrupoCidade;
+    private List<SelectItem> listaTipoRelatorio;
+    private List<SelectItem> listaServicos;
+    private List<SelectItem> listaTipoServico;
+    private List<SelectItem> listaConvencao;
+    private List<SelectItem> listaGrupoCidade;
+    private List<SelectItem> listaCnaes;
+    private String condicao;
+    private String geradosPelaCaixa;
+    private String filtrar;
+    private String tipoDataPesquisa;
+    private String dataInicial;
+    private String dataFinal;
+    private String dataRefInicial;
+    private String dataRefFinal;
+    private boolean chkEmpresa;
+    private boolean chkContabilidade;
+    private boolean chkConvencao;
+    private boolean chkServicos;
+    private boolean chkTipoServico;
+    private boolean chkCidadeBase;
+    private boolean chkData;
+    private boolean chkOrdemEmpresa;
+    private boolean chkCnae;
+    private boolean totaliza;
+    private Juridica juridica;
+    private List<Juridica> listaContabilidade;
+    private List<Juridica> listaContabilidadeSelecionada;
+    private List<Juridica> listaPesquisa;
+    private String pesquisaContabil;
+    private String radioContabil;
+    private String radioOrdem;
+    private List<Cidade> listaCidadesBase;
+    private List<Cidade> listaCidadesBaseSelecionado;
+    private CnaeConvencao[] cnaeConvencaoSelecionado;
+    private List<CnaeConvencao> listaCnaeConvencaos;
+    
+    @PostConstruct
+    public void init() {
+        idRelatorios = 0;
+        idServicos = 0;
+        idTipoServico = 0;
+        idConvencao = 0;
+        idCnae = 0;
+        idGrupoCidade = 0;
+        listaTipoRelatorio = new ArrayList<>();
+        listaServicos = new ArrayList<>();
+        listaTipoServico = new ArrayList<>();
+        listaConvencao = new ArrayList<>();
+        listaGrupoCidade = new ArrayList<>();
+        listaCnaes = new ArrayList<>();
+        condicao = "todos";
+        geradosPelaCaixa = "naoverificar";
+        filtrar = "todas";
+        tipoDataPesquisa = "vencimento";
+        dataInicial = "";
+        dataFinal = "";
+        dataRefInicial = "";
+        dataRefFinal = "";
+        chkEmpresa = false;
+        chkContabilidade = false;
+        chkConvencao = false;
+        chkServicos = false;
+        chkTipoServico = false;
+        chkCidadeBase = false;
+        chkData = false;
+        chkOrdemEmpresa = false;
+        chkCnae = false;
+        totaliza = false;
+        juridica = new Juridica();
+        listaContabilidade = new ArrayList();
+        listaContabilidadeSelecionada = new ArrayList();
+        listaPesquisa = new ArrayList();
+        pesquisaContabil = "";
+        radioContabil = "selecionado";
+        radioOrdem = "vencimento";
+        listaCidadesBase = new ArrayList();
+        listaCidadesBaseSelecionado = new ArrayList();
+        cnaeConvencaoSelecionado = null;
+        listaCnaeConvencaos = new ArrayList();
+    }
+    
+    @PreDestroy
+    public void destroy() {
+        GenericaSessao.remove("relatorioMovimentoBean");
+        GenericaSessao.remove("juridicaPesquisa");
+        Jasper jasper = new Jasper();
+        jasper.init();
+    }
+    
     public void porEmpresa() {
         chkEmpresa = (chkEmpresa != true);
         juridica = new Juridica();
     }
-
+    
     public void porContabilidade() {
         chkContabilidade = (chkContabilidade != true);
         listaContabilidade.clear();
         listaContabilidadeSelecionada.clear();
     }
-
+    
     public void porConvencao() {
         cnaeConvencaoSelecionado = null;
         chkCnae = false;
         chkConvencao = (chkConvencao != true);
     }
-
+    
     public void porServicos() {
         chkServicos = (chkServicos != true);
     }
-
+    
     public void porTipoServico() {
         chkTipoServico = (chkTipoServico != true);
     }
-
+    
     public void porCidadeBase() {
         chkCidadeBase = (chkCidadeBase != true);
         listaCidadesBaseSelecionado.clear();
     }
-
+    
     public void porData() {
         chkData = (chkData != true);
     }
-
+    
     public void porCnae() {
         chkCnae = (chkCnae != true);
     }
-
+    
     public void acaoPesquisaContabil() {
         if (listaPesquisa.isEmpty()) {
             listaPesquisa.addAll(listaContabilidade);
         }
-
+        
         listaContabilidade.clear();
-
+        
         if (pesquisaContabil.length() == 0) {
             listaContabilidade.addAll(listaPesquisa);
             return;
         }
-
+        
         if (!listaPesquisa.isEmpty()) {
             List aux = new ArrayList();
             for (int i = 0; i < listaPesquisa.size(); i++) {
@@ -171,16 +226,16 @@ public class RelatorioMovimentoBean implements Serializable {
                     aux.add(listaPesquisa.get(i));
                 }
             }
-
+            
             if (!aux.isEmpty()) {
                 listaContabilidade.addAll(aux);
             } else {
                 listaContabilidade.addAll(listaPesquisa);
             }
         }
-
+        
     }
-
+    
     public boolean validaLista() {
         if (!chkCidadeBase && !chkContabilidade && !chkConvencao && !chkData && !chkEmpresa && !chkServicos && !chkTipoServico) {
             GenericaMensagem.warn("Validação", "Selecione pelo menos um filtro");
@@ -198,25 +253,25 @@ public class RelatorioMovimentoBean implements Serializable {
                 return false;
             }
         }
-
+        
         if (chkContabilidade && listaContabilidadeSelecionada.isEmpty()) {
             return false;
         }
-
+        
         return !(chkCidadeBase && listaCidadesBaseSelecionado.isEmpty());
     }
-
+    
     public Collection listaPesquisa() {
-
+        
         RelatorioMovimentosDB db_rel = new RelatorioMovimentosDBToplink();
         ConfiguracaoArrecadacaoBean cab = new ConfiguracaoArrecadacaoBean();
         cab.init();
         Juridica sindicato = cab.getConfiguracaoArrecadacao().getFilial().getFilial();
         //Juridica sindicato = (Juridica) (new Dao()).find(new Juridica(), 1);
         PessoaEndereco endSindicato = (new PessoaEnderecoDao()).pesquisaEndPorPessoaTipo(sindicato.getPessoa().getId(), 3);
-
+        
         Relatorios relatorio = (new RelatorioDao()).pesquisaRelatorios(Integer.parseInt(listaTipoRelatorio.get(idRelatorios).getDescription()));
-
+        
         String idsEcs = "";
         if (radioContabil.equals("selecionado")) {
             for (int i = 0; i < listaContabilidadeSelecionada.size(); i++) {
@@ -228,23 +283,23 @@ public class RelatorioMovimentoBean implements Serializable {
         } else {
             idsEcs = radioContabil;
         }
-
+        
         int id_convencao = 0, id_grupo = 0;
         if (chkConvencao) {
             id_convencao = Integer.valueOf(listaConvencao.get(idConvencao).getDescription());
             id_grupo = Integer.valueOf(listaGrupoCidade.get(idGrupoCidade).getDescription());
         }
-
+        
         int id_servico = 0;
         if (chkServicos) {
             id_servico = Integer.valueOf(listaServicos.get(idServicos).getDescription());
         }
-
+        
         int id_tipo_servico = 0;
         if (chkTipoServico) {
             id_tipo_servico = Integer.valueOf(listaTipoServico.get(idTipoServico).getDescription());
         }
-
+        
         String cidade_base = "";
         for (int i = 0; i < listaCidadesBaseSelecionado.size(); i++) {
             if (cidade_base.length() > 0 && i != listaCidadesBaseSelecionado.size()) {
@@ -255,7 +310,7 @@ public class RelatorioMovimentoBean implements Serializable {
                 cidade_base = "0" + cidade_base;
             }
         }
-
+        
         Date dtInicial = null, dtFinal = null;
         if (!tipoDataPesquisa.equals("referencia")) {
             if (!dataInicial.equals("") && (!dataFinal.equals(""))) {
@@ -265,11 +320,9 @@ public class RelatorioMovimentoBean implements Serializable {
                 dtInicial = null;
                 dtFinal = null;
             }
-        } else {
-            if (!dataRefInicial.equals("") && !dataRefFinal.equals("")) {
-            }
+        } else if (!dataRefInicial.equals("") && !dataRefFinal.equals("")) {
         }
-
+        
         String inCnaes = "";
         if (cnaeConvencaoSelecionado != null) {
             for (int i = 0; i < cnaeConvencaoSelecionado.length; i++) {
@@ -280,7 +333,7 @@ public class RelatorioMovimentoBean implements Serializable {
                 }
             }
         }
-
+        
         List<Vector> result = db_rel.listaMovimentos(
                 relatorio,
                 condicao, // CONDIÇÃO -- todos -- ativos -- naoativos
@@ -303,9 +356,9 @@ public class RelatorioMovimentoBean implements Serializable {
                 idsEcs, // IDS DAS CONTABILIDADES SELECIONADAS
                 inCnaes // CNAES
         );
-
+        
         Collection listaParametro = new ArrayList<>();
-
+        
         if (relatorio.getId() == 66 || relatorio.getId() == 68) {
             // RESUMO CONTRIBUICOES - RESUMO CONTRIBUICOES ANALITICO
             for (Vector vresult : result) {
@@ -353,13 +406,13 @@ public class RelatorioMovimentoBean implements Serializable {
                 float valor = Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(6))); // VALOR ORIGINAL     
 
                 String quitacao = "", importacao = "", usuario = "";
-
+                
                 if (((Vector) result.get(i)).get(38) != null) {
                     quitacao = DataHoje.converteData((Date) ((Vector) result.get(i)).get(39));
                     importacao = DataHoje.converteData((Date) ((Vector) result.get(i)).get(40));
                     usuario = getConverteNullString(((Vector) result.get(i)).get(42));
                 }
-
+                
                 String srepasse = getConverteNullString(((Vector) result.get(i)).get(48));
                 float repasse = 0;
                 if (srepasse.isEmpty()) {
@@ -367,9 +420,9 @@ public class RelatorioMovimentoBean implements Serializable {
                 } else {
                     repasse = Moeda.multiplicarValores(Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(47))), Moeda.divisaoValores(Float.parseFloat(srepasse), 100));
                 }
-
+                
                 float valorLiquido = Moeda.subtracaoValores(Moeda.subtracaoValores(Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(47))), Float.valueOf(Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(43))))), repasse);
-
+                
                 listaParametro.add(
                         new ParametroMovimentos(
                                 ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
@@ -439,7 +492,7 @@ public class RelatorioMovimentoBean implements Serializable {
         }
         return listaParametro;
     }
-
+    
     public void visualizar() {
         if (!validaLista()) {
             return;
@@ -455,22 +508,22 @@ public class RelatorioMovimentoBean implements Serializable {
         Jasper.IS_HEADER_PARAMS = true;
         Jasper.printReports(relatorio.getJasper(), relatorio.getNome(), collection);
     }
-
+    
     public void enviarEmail() {
         if (!validaLista()) {
             return;
         }
-
+        
         Collection collection = listaPesquisa();
-
+        
         if (collection.isEmpty()) {
             GenericaMensagem.warn("Erro", "Nenhum movimento foi encontrado nesses valores");
             return;
         }
-
+        
         JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(collection);
         Relatorios relatorio = (new RelatorioDao()).pesquisaRelatorios(Integer.parseInt(listaTipoRelatorio.get(idRelatorios).getDescription()));
-
+        
         String nomeDownload = "", pathPasta = "";
         try {
             JasperPrint print = JasperFillManager.fillReport(
@@ -478,25 +531,25 @@ public class RelatorioMovimentoBean implements Serializable {
                     null,
                     dtSource
             );
-
+            
             byte[] arquivo = JasperExportManager.exportReportToPdf(print);
-
+            
             nomeDownload = "relatorio_movimentos_" + DataHoje.horaMinuto().replace(":", "") + ".pdf";
             SalvaArquivos sa = new SalvaArquivos(arquivo, nomeDownload, false);
-
+            
             pathPasta = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/relatorios");
             sa.salvaNaPasta(pathPasta);
         } catch (Exception e) {
-
+            
         }
-
+        
         Registro registro = (Registro) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(1, "Registro");
         // ENVIO DE EMAIL PARA EMPRESA SELECIONADA
         if (chkEmpresa && juridica.getId() != -1) {
             try {
                 List<Pessoa> pessoas = new ArrayList();
                 pessoas.add(juridica.getPessoa());
-
+                
                 String mensagem = "";
                 List<File> fls = new ArrayList<>();
                 if (!registro.isEnviarEmailAnexo()) {
@@ -510,7 +563,7 @@ public class RelatorioMovimentoBean implements Serializable {
 //                            new ArrayList(),
 //                            "Envio de Relatório");
                 } else {
-
+                    
                     fls.add(new File(pathPasta + "/" + nomeDownload));
                     mensagem = "<h5>Baixe seu relatório Anexado neste email</5><br /><br />";
 //                    ret = EnviarEmail.EnviarEmailPersonalizado(registro,
@@ -519,7 +572,7 @@ public class RelatorioMovimentoBean implements Serializable {
 //                            fls,
 //                            "Envio de Relatório");
                 }
-
+                
                 DaoInterface di = new Dao();
                 Mail mail = new Mail();
                 mail.setFiles(fls);
@@ -537,7 +590,7 @@ public class RelatorioMovimentoBean implements Serializable {
                                 false
                         )
                 );
-
+                
                 List<EmailPessoa> emailPessoas = new ArrayList<>();
                 EmailPessoa emailPessoa = new EmailPessoa();
                 for (Pessoa pe : pessoas) {
@@ -548,11 +601,11 @@ public class RelatorioMovimentoBean implements Serializable {
                     mail.setEmailPessoas(emailPessoas);
                     emailPessoa = new EmailPessoa();
                 }
-
+                
                 String[] retorno = mail.send("personalizado");
-
+                
                 if (!retorno[1].isEmpty()) {
-
+                    
                     GenericaMensagem.warn("Envio para EMPRESA", retorno[1]);
                 } else {
                     GenericaMensagem.info("Envio para EMPRESA", retorno[0]);
@@ -567,7 +620,7 @@ public class RelatorioMovimentoBean implements Serializable {
                 try {
                     List<Pessoa> pessoas = new ArrayList();
                     pessoas.add(listaContabilidadeSelecionada.get(i).getPessoa());
-
+                    
                     String mensagem = "";
                     List<File> fls = new ArrayList<>();
                     if (!registro.isEnviarEmailAnexo()) {
@@ -589,7 +642,7 @@ public class RelatorioMovimentoBean implements Serializable {
 //                                fls,
 //                                "Envio de Relatório");
                     }
-
+                    
                     DaoInterface di = new Dao();
                     Mail mail = new Mail();
                     mail.setFiles(fls);
@@ -607,7 +660,7 @@ public class RelatorioMovimentoBean implements Serializable {
                                     false
                             )
                     );
-
+                    
                     List<EmailPessoa> emailPessoas = new ArrayList<>();
                     EmailPessoa emailPessoa = new EmailPessoa();
                     for (Pessoa pe : pessoas) {
@@ -618,30 +671,30 @@ public class RelatorioMovimentoBean implements Serializable {
                         mail.setEmailPessoas(emailPessoas);
                         emailPessoa = new EmailPessoa();
                     }
-
+                    
                     String[] retorno = mail.send("personalizado");
-
+                    
                     if (!retorno[1].isEmpty()) {
                         GenericaMensagem.warn("Envio para CONTABILIDADE", retorno[1]);
                     } else {
                         GenericaMensagem.info("Envio para CONTABILIDADE", retorno[0]);
                     }
-
+                    
                 } catch (Exception e) {
                 }
             }
         }
-
+        
     }
-
+    
     public int getIdRelatorios() {
         return idRelatorios;
     }
-
+    
     public void setIdRelatorios(int idRelatorios) {
         this.idRelatorios = idRelatorios;
     }
-
+    
     public List<SelectItem> getListaTipoRelatorio() {
         if (listaTipoRelatorio.isEmpty()) {
             RelatorioDao db = new RelatorioDao();
@@ -654,51 +707,51 @@ public class RelatorioMovimentoBean implements Serializable {
         }
         return listaTipoRelatorio;
     }
-
+    
     public void setListaTipoRelatorio(List<SelectItem> listaTipoRelatorio) {
         this.listaTipoRelatorio = listaTipoRelatorio;
     }
-
+    
     public String getCondicao() {
         return condicao;
     }
-
+    
     public void setCondicao(String condicao) {
         this.condicao = condicao;
     }
-
+    
     public String getGeradosPelaCaixa() {
         return geradosPelaCaixa;
     }
-
+    
     public void setGeradosPelaCaixa(String geradosPelaCaixa) {
         this.geradosPelaCaixa = geradosPelaCaixa;
     }
-
+    
     public String getFiltrar() {
         return filtrar;
     }
-
+    
     public void setFiltrar(String filtrar) {
         this.filtrar = filtrar;
     }
-
+    
     public boolean isChkEmpresa() {
         return chkEmpresa;
     }
-
+    
     public void setChkEmpresa(boolean chkEmpresa) {
         this.chkEmpresa = chkEmpresa;
     }
-
+    
     public boolean isChkContabilidade() {
         return chkContabilidade;
     }
-
+    
     public void setChkContabilidade(boolean chkContabilidade) {
         this.chkContabilidade = chkContabilidade;
     }
-
+    
     public String getConverteNullString(Object object) {
         if (object == null) {
             return "";
@@ -706,7 +759,7 @@ public class RelatorioMovimentoBean implements Serializable {
             return String.valueOf(object);
         }
     }
-
+    
     public int getConverteNullInt(Object object) {
         if (object == null) {
             return 0;
@@ -714,15 +767,15 @@ public class RelatorioMovimentoBean implements Serializable {
             return (Integer) object;
         }
     }
-
+    
     public boolean isTotaliza() {
         return totaliza;
     }
-
+    
     public void setTotaliza(boolean totaliza) {
         this.totaliza = totaliza;
     }
-
+    
     public Juridica getJuridica() {
         if (FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("juridicaPesquisa") != null) {
             juridica = (Juridica) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("juridicaPesquisa");
@@ -730,15 +783,15 @@ public class RelatorioMovimentoBean implements Serializable {
         }
         return juridica;
     }
-
+    
     public void setJuridica(Juridica juridica) {
         this.juridica = juridica;
     }
-
+    
     public void removerJuridica() {
         juridica = new Juridica();
     }
-
+    
     public List getListaContabilidade() {
         if (listaContabilidade.isEmpty()) {
             JuridicaDB db = new JuridicaDBToplink();
@@ -746,43 +799,43 @@ public class RelatorioMovimentoBean implements Serializable {
         }
         return listaContabilidade;
     }
-
+    
     public void setListaContabilidade(List listaContabilidade) {
         this.listaContabilidade = listaContabilidade;
     }
-
+    
     public String getPesquisaContabil() {
         return pesquisaContabil;
     }
-
+    
     public void setPesquisaContabil(String pesquisaContabil) {
         this.pesquisaContabil = pesquisaContabil;
     }
-
+    
     public List getListaContabilidadeSelecionada() {
         return listaContabilidadeSelecionada;
     }
-
+    
     public void setListaContabilidadeSelecionada(List listaContabilidadeSelecionada) {
         this.listaContabilidadeSelecionada = listaContabilidadeSelecionada;
     }
-
+    
     public String getRadioContabil() {
         return radioContabil;
     }
-
+    
     public void setRadioContabil(String radioContabil) {
         this.radioContabil = radioContabil;
     }
-
+    
     public boolean isChkConvencao() {
         return chkConvencao;
     }
-
+    
     public void setChkConvencao(boolean chkConvencao) {
         this.chkConvencao = chkConvencao;
     }
-
+    
     public List<SelectItem> getListaServicos() {
         if (listaServicos.isEmpty()) {
             ServicoRotinaDB srdb = new ServicoRotinaDBToplink();
@@ -795,16 +848,16 @@ public class RelatorioMovimentoBean implements Serializable {
                                 Integer.toString(select.get(i).getId())
                         )
                 );
-
+                
             }
         }
         return listaServicos;
     }
-
+    
     public void setListaServicos(List<SelectItem> listaServicos) {
         this.listaServicos = listaServicos;
     }
-
+    
     public List<SelectItem> getListaConvencao() {
         if (listaConvencao.isEmpty()) {
             List<Convencao> select = (new SalvarAcumuladoDBToplink()).listaObjeto("Convencao");
@@ -818,43 +871,43 @@ public class RelatorioMovimentoBean implements Serializable {
         }
         return listaConvencao;
     }
-
+    
     public void setListaConvencao(List<SelectItem> listaConvencao) {
         this.listaConvencao = listaConvencao;
     }
-
+    
     public int getIdTipoServico() {
         return idTipoServico;
     }
-
+    
     public void setIdTipoServico(int idTipoServico) {
         this.idTipoServico = idTipoServico;
     }
-
+    
     public int getIdConvencao() {
         return idConvencao;
     }
-
+    
     public void setIdConvencao(int idConvencao) {
         this.idConvencao = idConvencao;
     }
-
+    
     public int getIdGrupoCidade() {
         return idGrupoCidade;
     }
-
+    
     public void setIdGrupoCidade(int idGrupoCidade) {
         this.idGrupoCidade = idGrupoCidade;
     }
-
+    
     public int getIdServicos() {
         return idServicos;
     }
-
+    
     public void setIdServicos(int idServicos) {
         this.idServicos = idServicos;
     }
-
+    
     public List<SelectItem> getListaTipoServico() {
         if (listaTipoServico.isEmpty()) {
             List<TipoServico> select = (new SalvarAcumuladoDBToplink()).listaObjeto("TipoServico");
@@ -868,11 +921,11 @@ public class RelatorioMovimentoBean implements Serializable {
         }
         return listaTipoServico;
     }
-
+    
     public void setListaTipoServico(List<SelectItem> listaTipoServico) {
         this.listaTipoServico = listaTipoServico;
     }
-
+    
     public List<SelectItem> getListaGrupoCidade() {
         if (!listaConvencao.isEmpty()) {
             listaGrupoCidade.clear();
@@ -888,27 +941,27 @@ public class RelatorioMovimentoBean implements Serializable {
         }
         return listaGrupoCidade;
     }
-
+    
     public void setListaGrupoCidade(List<SelectItem> listaGrupoCidade) {
         this.listaGrupoCidade = listaGrupoCidade;
     }
-
+    
     public boolean isChkServicos() {
         return chkServicos;
     }
-
+    
     public void setChkServicos(boolean chkServicos) {
         this.chkServicos = chkServicos;
     }
-
+    
     public boolean isChkTipoServico() {
         return chkTipoServico;
     }
-
+    
     public void setChkTipoServico(boolean chkTipoServico) {
         this.chkTipoServico = chkTipoServico;
     }
-
+    
     public List<Cidade> getListaCidadesBase() {
         if (listaCidadesBase.isEmpty()) {
             GrupoCidadesDB db = new GrupoCidadesDBToplink();
@@ -916,107 +969,107 @@ public class RelatorioMovimentoBean implements Serializable {
         }
         return listaCidadesBase;
     }
-
+    
     public void setListaCidadesBase(List<Cidade> listaCidadesBase) {
         this.listaCidadesBase = listaCidadesBase;
     }
-
+    
     public List<Cidade> getListaCidadesBaseSelecionado() {
         return listaCidadesBaseSelecionado;
     }
-
+    
     public void setListaCidadesBaseSelecionado(List<Cidade> listaCidadesBaseSelecionado) {
         this.listaCidadesBaseSelecionado = listaCidadesBaseSelecionado;
     }
-
+    
     public boolean isChkCidadeBase() {
         return chkCidadeBase;
     }
-
+    
     public void setChkCidadeBase(boolean chkCidadeBase) {
         this.chkCidadeBase = chkCidadeBase;
     }
-
+    
     public boolean isChkData() {
         return chkData;
     }
-
+    
     public void setChkData(boolean chkData) {
         this.chkData = chkData;
     }
-
+    
     public String getTipoDataPesquisa() {
         return tipoDataPesquisa;
     }
-
+    
     public void setTipoDataPesquisa(String tipoDataPesquisa) {
         this.tipoDataPesquisa = tipoDataPesquisa;
     }
-
+    
     public String getDataInicial() {
         return dataInicial;
     }
-
+    
     public void setDataInicial(String dataInicial) {
         this.dataInicial = dataInicial;
     }
-
+    
     public String getDataFinal() {
         return dataFinal;
     }
-
+    
     public void setDataFinal(String dataFinal) {
         this.dataFinal = dataFinal;
     }
-
+    
     public String getDataRefInicial() {
         return dataRefInicial;
     }
-
+    
     public void setDataRefInicial(String dataRefInicial) {
         this.dataRefInicial = dataRefInicial;
     }
-
+    
     public String getDataRefFinal() {
         return dataRefFinal;
     }
-
+    
     public void setDataRefFinal(String dataRefFinal) {
         this.dataRefFinal = dataRefFinal;
     }
-
+    
     public String getRadioOrdem() {
         return radioOrdem;
     }
-
+    
     public void setRadioOrdem(String radioOrdem) {
         this.radioOrdem = radioOrdem;
     }
-
+    
     public boolean isChkOrdemEmpresa() {
         return chkOrdemEmpresa;
     }
-
+    
     public void setChkOrdemEmpresa(boolean chkOrdemEmpresa) {
         this.chkOrdemEmpresa = chkOrdemEmpresa;
     }
-
+    
     public boolean isChkCnae() {
         return chkCnae;
     }
-
+    
     public void setChkCnae(boolean chkCnae) {
         this.chkCnae = chkCnae;
     }
-
+    
     public int getIdCnae() {
         return idCnae;
     }
-
+    
     public void setIdCnae(int idCnae) {
         this.idCnae = idCnae;
     }
-
+    
     public List<SelectItem> getListaCnaes() {
         listaCnaes.clear();
         CnaeConvencaoDB ccdb = new CnaeConvencaoDBToplink();
@@ -1030,19 +1083,19 @@ public class RelatorioMovimentoBean implements Serializable {
         }
         return listaCnaes;
     }
-
+    
     public void setListaCnaes(List<SelectItem> listaCnaes) {
         this.listaCnaes = listaCnaes;
     }
-
+    
     public CnaeConvencao[] getCnaeConvencaoSelecionado() {
         return cnaeConvencaoSelecionado;
     }
-
+    
     public void setCnaeConvencaoSelecionado(CnaeConvencao[] cnaeConvencaoSelecionado) {
         this.cnaeConvencaoSelecionado = cnaeConvencaoSelecionado;
     }
-
+    
     public List<CnaeConvencao> getListaCnaeConvencaos() {
         if (!listaConvencao.isEmpty()) {
             listaCnaeConvencaos.clear();
@@ -1053,7 +1106,7 @@ public class RelatorioMovimentoBean implements Serializable {
         }
         return listaCnaeConvencaos;
     }
-
+    
     public void setListaCnaeConvencaos(List<CnaeConvencao> listaCnaeConvencaos) {
         this.listaCnaeConvencaos = listaCnaeConvencaos;
     }

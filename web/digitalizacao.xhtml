@@ -51,7 +51,7 @@
                                 <h:panelGrid columns="2">
                                     <h:column>
                                         <p:outputLabel value="Grupo" /><br />
-                                        <p:selectOneMenu value="#{digitalizacaoBean.indexGrupo}">
+                                        <p:selectOneMenu value="#{digitalizacaoBean.idGrupo}">
                                             <p:ajax event="change" update="@this" global="false"/>
                                             <f:selectItems value="#{digitalizacaoBean.listaGrupo}" />
                                         </p:selectOneMenu>
