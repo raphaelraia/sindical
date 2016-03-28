@@ -82,7 +82,9 @@ public class RaisBean extends PesquisarProfissaoBean implements Serializable {
         if (salarioMinimo == null) {
             salarioMinimo = new SalarioMinimo();
         }
-        rais.setResponsavelCadastro(((Usuario) GenericaSessao.getObject("sessaoUsuario")).getPessoa());
+        if(GenericaSessao.exists("sessaoUsuario")) {
+            rais.setResponsavelCadastro(((Usuario) GenericaSessao.getObject("sessaoUsuario")).getPessoa());            
+        }
         listRais = new ArrayList<Rais>();
         listNacionalidade = new ArrayList<SelectItem>();
         listEscolaridade = new ArrayList<SelectItem>();

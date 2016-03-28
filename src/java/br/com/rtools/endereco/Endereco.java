@@ -1,11 +1,14 @@
 package br.com.rtools.endereco;
 
+import br.com.rtools.utilitarios.DataHoje;
+import java.io.Serializable;
+import java.util.Date;
 import javax.persistence.*;
 
 @Entity
 @Table(name = "end_endereco")
 @NamedQuery(name = "Endereco.pesquisaID", query = "select e from Endereco e where e.id=:pid")
-public class Endereco implements java.io.Serializable {
+public class Endereco implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,6 +32,9 @@ public class Endereco implements java.io.Serializable {
     private String faixa;
     @Column(name = "is_ativo", columnDefinition = "boolean default true")
     private Boolean ativo;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "dt_data")
+    private Date dtData;
 
     public Endereco() {
         this.id = -1;
@@ -39,6 +45,7 @@ public class Endereco implements java.io.Serializable {
         this.cep = "";
         this.faixa = "";
         this.ativo = true;
+        this.dtData = new Date();
     }
 
     public Endereco(int id, Cidade cidade, Bairro bairro, Logradouro logradouro, DescricaoEndereco descricaoEndereco, String cep, String faixa, Boolean ativo) {
@@ -49,6 +56,18 @@ public class Endereco implements java.io.Serializable {
         this.descricaoEndereco = descricaoEndereco;
         this.cep = cep;
         this.faixa = faixa;
+        this.ativo = ativo;
+    }
+
+    public Endereco(int id, Cidade cidade, Bairro bairro, Logradouro logradouro, DescricaoEndereco descricaoEndereco, String cep, String faixa, Date dtData, Boolean ativo) {
+        this.id = id;
+        this.cidade = cidade;
+        this.bairro = bairro;
+        this.logradouro = logradouro;
+        this.descricaoEndereco = descricaoEndereco;
+        this.cep = cep;
+        this.faixa = faixa;
+        this.dtData = dtData;
         this.ativo = ativo;
     }
 
@@ -131,7 +150,7 @@ public class Endereco implements java.io.Serializable {
                     + this.getCidade().getUf() + "  ";
         }
     }
-    
+
     public String getEnderecoSimplesToString() {
         if ((this.getLogradouro().getDescricao().equals(""))
                 || (this.getDescricaoEndereco().getDescricao().equals(""))) {
@@ -140,5 +159,21 @@ public class Endereco implements java.io.Serializable {
             return this.getLogradouro().getDescricao() + " "
                     + this.getDescricaoEndereco().getDescricao();
         }
+    }
+
+    public Date getDtData() {
+        return dtData;
+    }
+
+    public void setDtData(Date dtData) {
+        this.dtData = dtData;
+    }
+
+    public String getDataString() {
+        return DataHoje.converteData(dtData);
+    }
+
+    public void setDataString(String data) {
+        this.dtData = DataHoje.converte(data);
     }
 }

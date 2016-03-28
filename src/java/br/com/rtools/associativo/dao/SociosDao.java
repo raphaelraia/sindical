@@ -289,7 +289,6 @@ public class SociosDao extends DB {
      * Mensagem: Constam a mesma pessoa mais de uma vez na mesma matrícula
      * @return
      */
-
     public List listMatriculaAtivaAtivacaoDesordenada() {
         return listMatriculaAtivaAtivacaoDesordenada(true, null);
     }
@@ -298,7 +297,6 @@ public class SociosDao extends DB {
      * Matrícula Ativa com id_servico_pessoa menor que último, favor entrar em contato com nosso suporte técnico.
      * @return
      */
-
     public List listMatriculaAtivaAtivacaoDesordenada(Boolean return_pessoas, Integer limit) {
         try {
             String queryString
@@ -465,6 +463,27 @@ public class SociosDao extends DB {
             return new ArrayList();
         }
         return new ArrayList();
+    }
+
+    public List pesquisaHistoricoDeInativacao(Integer pessoa_id) {
+        String queryString = ""
+                + "    SELECT S.*                                                       \n"
+                + "      FROM soc_socios AS S                                           \n"
+                + "INNER JOIN matr_socios AS MS ON MS.id = S.id_matricula_socios        \n"
+                + "INNER JOIN fin_servico_pessoa AS SP ON SP.id = S.id_servico_pessoa   \n"
+                + "     WHERE MS.dt_inativo IS NOT NULL \n"
+                + "       AND SP.is_ativo = false       \n"
+                + "       AND SP.id_pessoa = ?          \n"
+                + "  ORDER BY MS.dt_inativo DESC,       \n"
+                + "           SP.id DESC                \n"
+                + "     LIMIT 10";
+        try {
+            Query query = getEntityManager().createNativeQuery(queryString, Socios.class);
+            query.setParameter("1", pessoa_id);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
     }
 
 }

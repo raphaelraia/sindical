@@ -2,9 +2,11 @@ package br.com.rtools.pessoa.beans;
 
 import br.com.rtools.arrecadacao.beans.RaisBean;
 import br.com.rtools.arrecadacao.beans.WebREPISBean;
+import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.beans.CupomMovimentoBean;
 import br.com.rtools.associativo.beans.FrequenciaCatracaBean;
 import br.com.rtools.associativo.beans.SorteioMovimentoBean;
+import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.cobranca.beans.TmktHistoricoBean;
 import br.com.rtools.digitalizacao.beans.DigitalizacaoBean;
 import br.com.rtools.pessoa.Fisica;
@@ -43,6 +45,7 @@ public class PessoaBean implements Serializable {
     private List<SelectItem> listSelectDetalhes;
     private String selectDetalhes;
     private String tipoPessoa;
+    private List<Socios> listMatriculasInativas;
 
     @PostConstruct
     public void init() {
@@ -56,6 +59,7 @@ public class PessoaBean implements Serializable {
         maxl = "";
         listaPessoa = new ArrayList();
         listSelectDetalhes = new ArrayList();
+        listMatriculasInativas = new ArrayList();
         selectDetalhes = "";
         if (GenericaSessao.exists("tipoPessoa")) {
             tipoPessoa = GenericaSessao.getString("tipoPessoa", true);
@@ -146,6 +150,10 @@ public class PessoaBean implements Serializable {
                     }
                 }
                 GenericaSessao.put("raisBean", raisBean);
+                break;
+            case "matriculas":
+                listMatriculasInativas = new ArrayList();
+                listMatriculasInativas = new SociosDao().pesquisaHistoricoDeInativacao(pessoa.getId());
                 break;
         }
     }
@@ -328,6 +336,7 @@ public class PessoaBean implements Serializable {
             listSelectDetalhes.add(new SelectItem("oposicoes", "Oposições", "CONSULTA OPOSIÇÃO (PESSOA FÍSICA)", cab.verificarPermissao("consulta_oposicao_pessoa_fisica", 4)));
             listSelectDetalhes.add(new SelectItem("movimentos_fisica", "Movimentos", "CONSULTA MOVIMENTOS (PESSOA FÍSICA)", cab.verificarPermissao("consulta_movimentos_fisica", 4)));
             listSelectDetalhes.add(new SelectItem("frequencia_catraca", "Frequência Catraca", "CONSULTA FREQUÊNCIA CATRACA", cab.verificarPermissao("consulta_frequencia_catraca", 4)));
+            listSelectDetalhes.add(new SelectItem("matriculas", "Matrículas", "CONSULTA MATRÍCULAS", cab.verificarPermissao("consulta_matriculas", 4)));
         }
         // PESSOA JURÍDICA
         if (tipoPessoa.equals("pessoaJuridica")) {
@@ -370,5 +379,13 @@ public class PessoaBean implements Serializable {
 
     public void setTipoPessoa(String tipoPessoa) {
         this.tipoPessoa = tipoPessoa;
+    }
+
+    public List<Socios> getListMatriculasInativas() {
+        return listMatriculasInativas;
+    }
+
+    public void setListMatriculasInativas(List<Socios> listMatriculasInativas) {
+        this.listMatriculasInativas = listMatriculasInativas;
     }
 }

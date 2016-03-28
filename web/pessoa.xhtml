@@ -161,7 +161,7 @@
                                 </p:panel>
                             </h:panelGroup>
 
-                            <!-- FREQUÊNCIA CATRACA -->
+                            <!-- REPIS -->
 
                             <h:panelGroup layout="block" rendered="#{pessoaBean.selectDetalhes eq 'repis'}">
                                 <p:panel id="i_repis" header="Repis - Certidões Solicitadas">
@@ -219,6 +219,27 @@
                                         <p:column headerText="Horário" width="80" styleClass="text-center">#{catracaFrequecia.horaAcesso}</p:column>
                                         <p:column headerText="Departamento" filterBy="#{catracaFrequecia.departamento.descricao}" filterMatchMode="global">#{catracaFrequecia.departamento.descricao}</p:column>
                                         <p:column headerText="E/S" width="100" styleClass="text-center" filterBy="#{catracaFrequecia.es}"><h:outputLabel value="#{catracaFrequecia.es}" style="color: #{catracaFrequecia.es eq 'E' ? 'blue' : 'red'}; font-weight: bold" /></p:column>
+                                    </p:dataTable>
+                                </p:panel>
+                            </h:panelGroup>
+
+                            <!-- MATRÍCULAS -->
+
+                            <h:panelGroup layout="block" rendered="#{pessoaBean.selectDetalhes eq 'matriculas'}">
+                                <p:panel id="i_matriculas" header="Matrículas">
+                                    <p:dataTable value="#{pessoaBean.listMatriculasInativas}" var="socios" emptyMessage="Nenhum resultado encontrado!" rows="10" paginator="true">
+                                        <p:column width="15">
+                                            <p:rowToggler />                                                
+                                        </p:column>                                        
+                                        <p:column headerText="Matrícula" width="100" styleClass="text-center" filterBy="#{socios.matriculaSocios.nrMatricula}" filterMatchMode="global">#{socios.matriculaSocios.nrMatricula}</p:column>
+                                        <p:column headerText="Titular" filterBy="#{socios.matriculaSocios.titular.nome}" filterMatchMode="global">#{socios.matriculaSocios.titular.nome}</p:column>
+                                        <p:column headerText="Parentesco" filterBy="#{socios.parentesco.parentesco}" filterMatchMode="global" styleClass="text-center">#{socios.parentesco.parentesco}</p:column>
+                                        <p:column headerText="Grupo Categoria" filterBy="#{socios.matriculaSocios.categoria.grupoCategoria.grupoCategoria}" filterMatchMode="global" styleClass="text-center">#{socios.matriculaSocios.categoria.grupoCategoria.grupoCategoria}</p:column>
+                                        <p:column headerText="Categoria" filterBy="#{socios.matriculaSocios.categoria.categoria}" filterMatchMode="global" styleClass="text-center">#{socios.matriculaSocios.categoria.categoria}</p:column>
+                                        <p:column headerText="Data inativação" filterBy="#{socios.matriculaSocios.inativo}" filterMatchMode="global" width="100" styleClass="text-center">#{socios.matriculaSocios.inativo}</p:column>
+                                        <p:rowExpansion>
+                                            Motivo: #{socios.matriculaSocios.motivoInativacao.descricao}
+                                        </p:rowExpansion>                                    
                                     </p:dataTable>
                                 </p:panel>
                             </h:panelGroup>
