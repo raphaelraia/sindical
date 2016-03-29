@@ -248,7 +248,7 @@
                                     <p:outputLabel value="Deseja realmente salvar esse ACORDO?" style="font-size: 11pt!important"/>
                                 </h:panelGrid>
                                 <h:panelGrid columns="2">
-                                    <p:commandButton icon="ui-icon-check" value="Sim" title="Salvar" action="#{acordoBean.efetuarAcordo()}" update="formAcordo" />
+                                    <p:commandButton icon="ui-icon-check" value="Sim" title="Salvar" action="#{acordoBean.efetuarAcordo()}" update="formAcordo form_print" />
                                     <p:commandButton icon="ui-icon-close" value="Não" title="Cancelar" oncomplete="PF('dlg_salvar').hide();"/>
                                 </h:panelGrid>
                             </p:dialog>
