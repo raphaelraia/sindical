@@ -58,4 +58,6 @@ public interface FunctionsDB {
     public boolean incluiPessoaComplemento();
     
     public Pessoa titularDaPessoa(int id_pessoa);
+    
+    public Boolean homologacaoPrazo(Boolean trabalhado, Integer id_cidade, String data_demissao);
 }

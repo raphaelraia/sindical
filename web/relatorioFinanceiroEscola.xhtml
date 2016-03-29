@@ -13,6 +13,15 @@
             .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
             .ui-button { padding: 3px!important; }
             .ui-selectonemenu {padding-right: 25px!important;}
+
+            .column01{
+                width: 300px;
+                vertical-align: top;
+            }
+
+            .column02{
+                vertical-align: top;
+            }   
         </style>
 
         <script type="text/javascript">
@@ -51,6 +60,119 @@
                                     </h:column>
                                 </h:panelGrid>
                             </p:panel>
+
+                            <h:panelGrid columns="1" style="width: 100%;">
+                                <p:messages autoUpdate="false" closable="true" showDetail="true"/>
+                            </h:panelGrid>
+                            <h:panelGrid columns="2" style="width: 100%;" columnClasses="column01, column02">
+                                <h:column>
+                                    <p:panel header="Filtros">
+                                        <br />
+                                        <c:forEach items="#{relatorioFinanceiroEscolaBean.listaFiltros}" var="linha" varStatus="loop">
+                                            <p:outputLabel value="#{linha.opcao} - " style="font-weight: bold"/>
+                                            <p:commandLink value="#{(!linha.ativo) ? 'Editar' : 'Remover'}" action="#{relatorioFinanceiroEscolaBean.acao(linha)}" style="#{(!linha.ativo) ? 'color: blue' : 'color: red'} " update="@this panel_filtro"/>
+                                            <br /><br />
+                                        </c:forEach>
+                                    </p:panel>
+                                    <br />
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Imprimir" action="#{relatorioFinanceiroEscolaBean.imprimir}" ajax="false" onclick="form.target = '_blank'"/>
+                                        <p:selectBooleanCheckbox value="#{relatorioFinanceiroEscolaBean.chkExcel}" itemLabel="Excel">
+                                            <p:ajax event="change" update="@this" />
+                                        </p:selectBooleanCheckbox>
+                                    </h:panelGrid>
+                                </h:column>
+
+                                <h:column>
+                                    <h:panelGrid id="panel_filtro" columns="2">
+                                        <!-- TIPO PESSOA -->
+                                        <h:column>
+                                            <h:panelGrid columns="2" rendered="#{relatorioFinanceiroEscolaBean.listaFiltros.get(0).ativo}" style="float: left; margin: 10px ">
+                                                <h:column>
+                                                    <p:outputLabel value="Tipo de Pessoa" />
+                                                </h:column>
+                                                <h:column></h:column>
+                                                <h:column>
+                                                    <h:panelGrid columns="3">
+                                                        <p:selectOneMenu value="#{relatorioFinanceiroEscolaBean.tipoPessoa}" style="padding-right: 20px">
+                                                            <p:ajax event="change" update="@this panel_filtro"/>
+                                                            <f:selectItem itemValue="aluno" itemLabel="Aluno" />
+                                                            <f:selectItem itemValue="responsavel" itemLabel="Responsável" />
+                                                        </p:selectOneMenu>
+                                                        <p:commandButton value="Pesquisar Pessoa" action="#{chamadaPaginaBean.pesquisaPessoaFisica()}" ajax="false"/>
+                                                        <p:outputLabel value="#{relatorioFinanceiroEscolaBean.pessoa.nome}" style="font-size: 12pt!important"/>
+                                                    </h:panelGrid>
+                                                </h:column>
+
+                                            </h:panelGrid>
+                                        </h:column>
+
+                                        <!-- DATAS -->
+                                        <h:column>
+                                            <h:panelGrid columns="10" rendered="#{relatorioFinanceiroEscolaBean.listaFiltros.get(1).ativo}" style="float: left; margin: 10px ">
+                                                <h:column>
+                                                    <p:panel styleClass="fundoCinza">
+                                                        <h:panelGrid columns="1">
+                                                            <p:outputLabel value="Vencimento" style="font-weight: bold"/>
+                                                            <p:inputMask value="#{relatorioFinanceiroEscolaBean.dataVencimento}" style="text-align: center" size="8" mask="99/99/9999">
+                                                                <p:ajax event="change" update="@this"/>
+                                                            </p:inputMask>
+                                                            <p:outputLabel value="até" style="font-weight: bold" />
+                                                            <p:inputMask value="#{relatorioFinanceiroEscolaBean.dataVencimentoFinal}" style="text-align: center" size="8" mask="99/99/9999">
+                                                                <p:ajax event="change" update="@this"/>
+                                                            </p:inputMask>
+                                                        </h:panelGrid>
+                                                    </p:panel>
+                                                </h:column>
+
+                                                <h:column>
+                                                    <p:panel styleClass="fundoCinza">
+                                                        <h:panelGrid columns="1">
+                                                            <p:outputLabel value="Quitação" style="font-weight: bold"/>
+                                                            <p:inputMask value="#{relatorioFinanceiroEscolaBean.dataQuitacao}" style="text-align: center" size="8" mask="99/99/9999">
+                                                                <p:ajax event="change" update="@this"/>
+                                                            </p:inputMask>
+                                                            <p:outputLabel value="até" style="font-weight: bold" />
+                                                            <p:inputMask value="#{relatorioFinanceiroEscolaBean.dataQuitacaoFinal}" style="text-align: center" size="8" mask="99/99/9999">
+                                                                <p:ajax event="change" update="@this"/>
+                                                            </p:inputMask>
+                                                        </h:panelGrid>
+                                                    </p:panel>
+                                                </h:column>
+                                            </h:panelGrid>
+                                        </h:column>
+
+                                        <!-- SERVIÇOS -->
+                                        <h:column>
+                                            <h:panelGrid columns="2" rendered="#{relatorioFinanceiroEscolaBean.listaFiltros.get(2).ativo}" style="float: left; margin: 10px ">
+                                                <h:column>
+                                                    <p:selectBooleanCheckbox value="#{relatorioFinanceiroEscolaBean.chkTodosServicos}" itemLabel="Serviços">
+                                                        <p:ajax event="valueChange" update="@form" listener="#{relatorioFinanceiroEscolaBean.marcarTodosServicos()}"/>
+                                                    </p:selectBooleanCheckbox>
+                                                </h:column>
+                                                <h:column></h:column>
+                                                <h:column>
+                                                    <p:dataTable id="tbl" value="#{relatorioFinanceiroEscolaBean.listaServicos}" var="linha_servico" emptyMessage="Nenhum Plano Encontrado!" scrollable="true" scrollHeight="150">
+                                                        <p:column style="text-align: center; width: 15px">
+                                                            <p:selectBooleanCheckbox value="#{linha_servico.selecionado}">
+                                                                <p:ajax event="change" update="tbl @form" />
+                                                            </p:selectBooleanCheckbox>
+                                                        </p:column>
+
+                                                        <p:column headerText="ID" style="width: 50px; text-align: center">
+                                                            <p:outputLabel value="#{linha_servico.servico.id}" />
+                                                        </p:column>
+
+                                                        <p:column headerText="Descrição">
+                                                            <p:outputLabel value="#{linha_servico.servico.descricao}" />
+                                                        </p:column>
+                                                    </p:dataTable>
+                                                </h:column>
+                                            </h:panelGrid>
+                                        </h:column>                                        
+                                    </h:panelGrid>
+                                </h:column>
+                            </h:panelGrid>             
                         </h:form>
                     </p:panel>
                 </f:view>

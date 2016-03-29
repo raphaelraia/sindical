@@ -57,7 +57,8 @@ public class ConfiguracaoSocial implements Serializable {
     private Boolean liberaConviteDia;
     @Column(name = "is_atualiza_via_carteirinha", columnDefinition = "boolean default false")
     private Boolean atualizaViaCarteirinha;
-    
+    @Column(name = "nr_intervalo_minuto")
+    private Integer intervaloMinuto;
 
     public ConfiguracaoSocial() {
         this.id = -1;
@@ -77,9 +78,10 @@ public class ConfiguracaoSocial implements Serializable {
         this.bloqueiaConviteOposicao = false;
         this.liberaConviteDia = false;
         this.atualizaViaCarteirinha = false;
+        this.intervaloMinuto = 0;
     }
 
-    public ConfiguracaoSocial(Integer id, Integer diasInativaDemissionado, Date dataInativacaoDemissionado, GrupoCategoria grupoCategoriaInativaDemissionado, Boolean inativaDemissionado, Boolean recebeAtrasado, Boolean controlaCartaoFilial, Integer cartaoDigitos, Integer cartaoPosicaoVia, Integer cartaoPosicaoCodigo, String obsDescontoFolha, Integer validadeMesesCartaoAcademia, Integer mesesDebitoInativacao, Boolean inativaOposicao, Boolean bloqueiaConviteOposicao, Boolean liberaConviteDia, Boolean atualizaViaCarteirinha) {
+    public ConfiguracaoSocial(Integer id, Integer diasInativaDemissionado, Date dataInativacaoDemissionado, GrupoCategoria grupoCategoriaInativaDemissionado, Boolean inativaDemissionado, Boolean recebeAtrasado, Boolean controlaCartaoFilial, Integer cartaoDigitos, Integer cartaoPosicaoVia, Integer cartaoPosicaoCodigo, String obsDescontoFolha, Integer validadeMesesCartaoAcademia, Integer mesesDebitoInativacao, Boolean inativaOposicao, Boolean bloqueiaConviteOposicao, Boolean liberaConviteDia, Boolean atualizaViaCarteirinha, Integer intervaloMinuto) {
         this.id = id;
         this.diasInativaDemissionado = diasInativaDemissionado;
         this.dataInativacaoDemissionado = dataInativacaoDemissionado;
@@ -97,6 +99,7 @@ public class ConfiguracaoSocial implements Serializable {
         this.bloqueiaConviteOposicao = bloqueiaConviteOposicao;
         this.liberaConviteDia = liberaConviteDia;
         this.atualizaViaCarteirinha = atualizaViaCarteirinha;
+        this.intervaloMinuto = intervaloMinuto;
     }
 
     public Integer getId() {
@@ -245,5 +248,13 @@ public class ConfiguracaoSocial implements Serializable {
 
     public void setAtualizaViaCarteirinha(Boolean atualizaViaCarteirinha) {
         this.atualizaViaCarteirinha = atualizaViaCarteirinha;
+    }
+
+    public Integer getIntervaloMinuto() {
+        return intervaloMinuto;
+    }
+
+    public void setIntervaloMinuto(Integer intervaloMinuto) {
+        this.intervaloMinuto = intervaloMinuto;
     }
 }

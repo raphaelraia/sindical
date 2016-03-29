@@ -43,6 +43,7 @@
                                     <h:column>
                                         <p:outputLabel value="Nome" /><br />
                                         <p:outputLabel value="#{alterarMovimentoBean.movimento.pessoa.nome}" style="font-weight: bold;"/>
+                                        <p:commandLink value="Alterar" style="font-weight: bold; color: red; margin-left: 10px" action="#{chamadaPaginaBean.pesquisaPessoa()}" actionListener="#{alterarMovimentoBean.tipoPesquisa('responsavel_movimento')}" title="Alterar Responsável deste movimento"/>
                                     </h:column>
 
                                     <h:column rendered="#{alterarMovimentoBean.baixa == null and alterarMovimentoBean.movimento.acordo == null}">
@@ -148,7 +149,7 @@
                                 
                                 <h:column>
                                     <h:outputLabel value="Usuário que Baixou" /><br />
-                                    <p:commandButton value="#{alterarMovimentoBean.baixa.usuario.login}" action="#{chamadaPaginaBean.pesquisaUsuario()}" ajax="false"/> 
+                                    <p:commandButton value="#{alterarMovimentoBean.baixa.usuario.pessoa.nome}" action="#{chamadaPaginaBean.pesquisaUsuario()}" actionListener="#{alterarMovimentoBean.tipoPesquisa('usuario_baixa')}" ajax="false"/> 
                                 </h:column>
                             </h:panelGrid>
 

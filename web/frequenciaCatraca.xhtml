@@ -27,6 +27,7 @@
                 <f:subview id="header">
                     <ui:include src="templates/templatePrime.xhtml"/>
                 </f:subview>
+                
                 <f:view>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Frequência Catraca" styleClass="fonteHeader" />
@@ -133,7 +134,7 @@
                                 </h:panelGrid>
                             </h:panelGrid>
 
-                            <p:dataTable value="#{frequenciaCatracaBean.listaFrequenciaCatraca}" var="linha" scrollable="true" scrollHeight="350" emptyMessage="Nenhum Registro Encontrado!">
+                            <p:dataTable value="#{frequenciaCatracaBean.listaFrequenciaCatraca}" var="linha" emptyMessage="Nenhum Registro Encontrado!" paginator="true" rows="8">
                                 <p:column headerText="Código"  style="width: 80px; text-align: center">
                                     <p:outputLabel value="#{linha.idPessoa}" />
                                 </p:column>

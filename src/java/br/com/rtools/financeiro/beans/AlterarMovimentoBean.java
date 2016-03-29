@@ -15,12 +15,12 @@ import br.com.rtools.financeiro.db.TipoServicoDB;
 import br.com.rtools.financeiro.db.TipoServicoDBToplink;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.pessoa.Pessoa;
-import br.com.rtools.seguranca.db.UsuarioDB;
-import br.com.rtools.seguranca.db.UsuarioDBToplink;
+import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.GenericaMensagem;
+import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.SalvarAcumuladoDB;
 import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.io.Serializable;
@@ -50,6 +50,8 @@ public final class AlterarMovimentoBean implements Serializable {
     private List<CondicaoPagamento> selectCondicao = new ArrayList();
     private List<SelectItem> listaCondicao = new ArrayList();
     private String historico = "";
+    
+    private String tipoPesquisaPessoa = "responsavel_movimento";
 
     public AlterarMovimentoBean() {
         this.getMovimento();
@@ -189,11 +191,15 @@ public final class AlterarMovimentoBean implements Serializable {
             GenericaMensagem.error("Atenção", "Erro ao atualizar Movimento!");
             sv.desfazerTransacao();
         }
-
-        String url = (String) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("urlRetorno");
-        if (url.equals("movimentosReceberSocial")) {
-            ((MovimentosReceberSocialBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("movimentosReceberSocialBean")).getListaMovimento().clear();
+        
+        if (GenericaSessao.exists("movimentosReceberSocialBean")){
+            ((MovimentosReceberSocialBean) GenericaSessao.getObject("movimentosReceberSocialBean")).getListaMovimento().clear();
         }
+
+//        String url = (String) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("urlRetorno");
+//        if (url.equals("movimentosReceberSocial")) {
+//            ((MovimentosReceberSocialBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("movimentosReceberSocialBean")).getListaMovimento().clear();
+//        }
         return null;
     }
 
@@ -237,32 +243,41 @@ public final class AlterarMovimentoBean implements Serializable {
     }
 
     public Movimento getMovimento() {
-        if (FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("listaMovimento") != null) {
+        if (GenericaSessao.exists("listaMovimento")) {
             movimento = new Movimento();
-            SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-            movimento = (Movimento) sv.pesquisaCodigo(((Movimento) ((List) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("listaMovimento")).get(0)).getId(), "Movimento");
+            Dao dao = new Dao();
+            movimento = (Movimento) dao.find(((Movimento) GenericaSessao.getList("listaMovimento", true).get(0)));
 
-            lote = (Lote) sv.pesquisaCodigo(movimento.getLote().getId(), "Lote");
+            lote = (Lote) dao.find(movimento.getLote());
 
             if (movimento.getBaixa() != null) {
-                baixa = (Baixa) sv.pesquisaCodigo(movimento.getBaixa().getId(), "Baixa");
+                baixa = (Baixa) dao.find(movimento.getBaixa());
             }
-
-            FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("listaMovimento");
         }
 
-        if (FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("pessoaPesquisa") != null) {
-            if (baixa != null) {
-                Pessoa p = (Pessoa) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("pessoaPesquisa");
-
-                UsuarioDB db = new UsuarioDBToplink();
-
-                //movimento.getBaixa().setUsuario(db.pesquisaUsuarioPorPessoa(p.getId()));
-                baixa.setUsuario(db.pesquisaUsuarioPorPessoa(p.getId()));
+        if (GenericaSessao.exists("pessoaPesquisa")) {
+            switch (tipoPesquisaPessoa){
+                case "responsavel_movimento":
+                    movimento.setPessoa((Pessoa) GenericaSessao.getObject("pessoaPesquisa", true));
+                    break;
+                case "usuario_baixa":
+                    if (baixa != null) {
+                        baixa.setUsuario((Usuario) GenericaSessao.getObject("usuarioPesquisa", true));
+                        /**
+                          * NA PESQUISA DE USUARIO ESTA SETANDO A SESSÃO pessoaPesquisa
+                          * POR NÃO SABER O MOTIVO E A SESSÃO NÃO FICAR ABERTA ATOA 
+                          * REMOVER SESSÃO
+                        */
+                        GenericaSessao.remove("pessoaPesquisa");
+                    }
+                    break;
             }
-            FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("pessoaPesquisa");
         }
         return movimento;
+    }
+    
+    public void tipoPesquisa(String tipo){
+        tipoPesquisaPessoa = tipo;
     }
 
     public String voltar() {
@@ -328,5 +343,13 @@ public final class AlterarMovimentoBean implements Serializable {
 
     public void setHistorico(String historico) {
         this.historico = historico;
+    }
+
+    public String getTipoPesquisaPessoa() {
+        return tipoPesquisaPessoa;
+    }
+
+    public void setTipoPesquisaPessoa(String tipoPesquisaPessoa) {
+        this.tipoPesquisaPessoa = tipoPesquisaPessoa;
     }
 }

@@ -7,7 +7,6 @@ package br.com.rtools.utilitarios;
 
 import br.com.rtools.endereco.Endereco;
 import br.com.rtools.pessoa.Cnae;
-import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.TipoEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
@@ -47,87 +46,86 @@ public class JuridicaReceitaJSON {
             JuridicaReceitaObject jro = new JuridicaReceitaObject();
             URL url;
             Charset charset = Charset.forName("UTF8");
-            int status = 0;
-            String error = "";
+            Integer status;
+            String error;
             if (tipo.equals("wooki")) {
+                /*
+                 * 0 (zero): requisição feita com sucesso.
+                 * 1: requisição feita com sucesso, porém dados estão sendo atualizados; aguarde o tempo indicado e refaça exatamente a mesma requisição.
+                 * 2: requisição feita com sucesso, porém dado requisitado não existe no site fonte. 
+                 * 3: erro, método inválido. 
+                 * 4: erro, parâmetro inválido; verifique os parâmetros informados. 
+                 * 5: erro, autenticação falhou; informe corretamente o usuário e senha 
+                 * 6: erro, você não possui um plano de acessos para realizar a requisição; adquira mais acessos. 
+                 * 7: erro, você não possui acessos restantes para realizar a requisição; adquira mais acessos. 
+                 * 8: erro, ocorreu um erro ao processar sua requisição; contate o suporte técnico. 
+                 * 9: erro, é necessário realizar todas as requisições utilizando oprotocolo HTTPS.
+                 */
                 ConfiguracaoCnpj cc = (ConfiguracaoCnpj) new Dao().find(new ConfiguracaoCnpj(), 1);
-                Integer dias = cc.getDias();
-                for (int i = 0; i < 20; i++) {
-                    if (cc == null) {
-                        url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=" + documento + "&dias=60&usuario=rogerio@rtools.com.br&senha=989899");
-                    } else if (cc.getEmail().isEmpty() || cc.getSenha().isEmpty()) {
-                        url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=" + documento + "&dias=" + dias + "&usuario=rogerio@rtools.com.br&senha=989899");
-                    } else {
-                        url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=" + documento + "&dias=" + dias + "&usuario=" + cc.getEmail() + "&senha=" + cc.getSenha());
-                    }
-
-                    //URL url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=00000000000191&usuario=teste@wooki.com.br&senha=teste");
-                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
-                    con.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.155 Safari/537.36");
-                    con.setRequestMethod("GET");
-                    con.connect();
-                    try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream(), charset))) {
-                        String str = in.readLine();
-                        JSONObject obj = new JSONObject(str);
-                        status = obj.getInt("status");
-                        error = obj.getString("msg");
-
-                        if (status == 1) {
-                            if (dias > 360) {
-                                status = -1;
-                                error = "NÃO CONSEGUIU PESQUISAR EM VÁRIAS TENTATIVAS";
-                            } else {
-                                dias += 30;
-                                con.disconnect();
-                                continue;
-                            }
-                        }
-                        
-                        // FALTA DE CRÉDITOS
-                        if (status == 7) {
-                            error = "CONTATE O ADMINISTRADOR DO SISTEMA (STATUS 7)!";
-                            in.close();
-                            con.disconnect();
-                            jro.setStatus(status);
-                            jro.setMsg(error);
-                            return jro;
-                        }
-
-                        if (status == -1) {
-                            jro.setStatus(status);
-                            jro.setMsg(error);
-                            
-                            in.close();
-                            con.disconnect();
-                            return jro;
-                        }
-                        
-                        jro = new JuridicaReceitaObject(
-                                status, // status
-                                error, // msg
-                                obj.getString("nome_empresarial"),
-                                obj.getString("titulo_estabelecimento"),
-                                AnaliseString.mascaraCep(obj.getString("cep")),
-                                obj.getString("logradouro"),
-                                obj.getString("bairro"),
-                                obj.getString("complemento"),
-                                obj.getString("numero"),
-                                obj.getString("atividade_principal"),
-                                obj.getString("situacao_cadastral"),
-                                DataHoje.converteData(DataHoje.converte(obj.getString("data_abertura"))),
-                                obj.getString("atividades_secundarias"),
-                                obj.getString("municipio"),
-                                obj.getString("uf"),
-                                obj.getString("email_rf"),
-                                obj.getString("telefone_rf")
-                        );
-                        in.close();
-                    }
-                    con.disconnect();
+                if (cc == null) {
+                    url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=" + documento + "&dias=90&usuario=rogerio@rtools.com.br&senha=989899");
+                } else if (cc.getEmail().isEmpty() || cc.getSenha().isEmpty()) {
+                    url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=" + documento + "&dias=" + cc.getDias() + "&usuario=rogerio@rtools.com.br&senha=989899");
+                } else {
+                    url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=" + documento + "&dias=" + cc.getDias() + "&usuario=" + cc.getEmail() + "&senha=" + cc.getSenha());
                 }
+
+                //URL url = new URL("https://wooki.com.br/api/v1/cnpj/receitafederal?numero=00000000000191&usuario=teste@wooki.com.br&senha=teste");
+                HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                con.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.155 Safari/537.36");
+                con.setRequestMethod("GET");
+                con.connect();
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream(), charset))) {
+                    String str = in.readLine();
+                    JSONObject obj = new JSONObject(str);
+                    status = obj.getInt("status");
+                    error = obj.getString("msg");
+
+                    // ERRO PARA FALTA DE CRÉDITOS
+                    if (status == 7) {
+                        jro.setStatus(-1);
+                        error = "CONTATE O ADMINISTRADOR DO SISTEMA (STATUS 7)!";
+                        jro.setMsg(error);
+
+                        in.close();
+                        con.disconnect();
+                        return jro;
+                    }
+
+                    // ERRO PARA DEMAIS STATUS -- NÃO CONSEGUIU PESQUISAR
+                    if (status != 0) {
+                        jro.setStatus(-1);
+                        jro.setMsg(error.toUpperCase());
+
+                        in.close();
+                        con.disconnect();
+                        return jro;
+                    }
+
+                    jro = new JuridicaReceitaObject(
+                            status, // status
+                            error, // msg
+                            obj.getString("nome_empresarial"),
+                            obj.getString("titulo_estabelecimento"),
+                            AnaliseString.mascaraCep(obj.getString("cep")),
+                            obj.getString("logradouro"),
+                            obj.getString("bairro"),
+                            obj.getString("complemento"),
+                            obj.getString("numero"),
+                            obj.getString("atividade_principal"),
+                            obj.getString("situacao_cadastral"),
+                            DataHoje.converteData(DataHoje.converte(obj.getString("data_abertura"))),
+                            obj.getString("atividades_secundarias"),
+                            obj.getString("municipio"),
+                            obj.getString("uf"),
+                            obj.getString("email_rf"),
+                            obj.getString("telefone_rf")
+                    );
+                    in.close();
+                }
+                con.disconnect();
             } else {
-                String readLine = "";
-                String append = "";
+                String readLine, append = "";
                 try {
                     url = new URL("http://receitaws.com.br/v1/cnpj/" + documento);
                     HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -149,7 +147,16 @@ public class JuridicaReceitaJSON {
                 if (obj.getString("status").equals("ERROR")) {
                     status = -1;
                     error = obj.getString("message");
+
+                    jro.setStatus(status);
+                    jro.setMsg(error);
+                    return jro;
+                }else{
+                    // CONSEGUIU PESQUISAR
+                    status = 0;
+                    error = "";
                 }
+                
                 try {
                     JSONArray cnaeArray = obj.getJSONArray("atividade_principal");
                     String cnaeString = "";
@@ -175,7 +182,7 @@ public class JuridicaReceitaJSON {
                     } catch (Exception e) {
 
                     }
-
+                    
                     jro = new JuridicaReceitaObject(
                             status,
                             error,
@@ -195,9 +202,11 @@ public class JuridicaReceitaJSON {
                             obj.getString("email"),
                             obj.getString("telefone")
                     );
-
                 } catch (Exception e) {
                     GenericaMensagem.warn("Erro", e.getMessage());
+                    jro.setStatus(-1);
+                    jro.setMsg(e.getMessage());
+                    return jro;
                 }
             }
 

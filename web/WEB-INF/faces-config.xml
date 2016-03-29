@@ -2084,6 +2084,12 @@
             <redirect/>
         </navigation-case>
         
+        <navigation-case>
+            <from-outcome>suporte</from-outcome>
+            <to-view-id>/suporte.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
     </navigation-rule>
     
     <lifecycle>

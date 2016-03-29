@@ -172,32 +172,37 @@ public class ProtocoloAgendamento implements Serializable {
         }
         Registro registro = (Registro) dao.find(new Registro(), 1);
         Collection lista = new ArrayList<>();
-        lista.add(new ParametroProtocolo(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
-                sindicato.getPessoa().getNome(),
-                sindicato.getPessoa().getSite(),
-                sindicato.getPessoa().getTipoDocumento().getDescricao(),
-                sindicato.getPessoa().getDocumento(),
-                pessoaEndereco.getEndereco().getDescricaoEndereco().getDescricao(),
-                pessoaEndereco.getEndereco().getLogradouro().getDescricao(),
-                pessoaEndereco.getNumero(),
-                pessoaEndereco.getComplemento(),
-                pessoaEndereco.getEndereco().getBairro().getDescricao(),
-                pessoaEndereco.getEndereco().getCep(),
-                pessoaEndereco.getEndereco().getCidade().getCidade(),
-                pessoaEndereco.getEndereco().getCidade().getUf(),
-                a.getFilial().getFilial().getPessoa().getTelefone1(),
-                email,
-                String.valueOf(a.getId()),
-                datax,
-                horario,
-                a.getPessoaEmpresa().getJuridica().getPessoa().getDocumento(),
-                a.getPessoaEmpresa().getJuridica().getPessoa().getNome(),
-                contabilidade.getPessoa().getNome(),
-                a.getPessoaEmpresa().getFisica().getPessoa().getNome(),
-                a.getPessoaEmpresa().getFisica().getPessoa().getDocumento(),
-                registro.getDocumentoHomologacao(),
-                registro.getFormaPagamentoHomologacao(),
-                a.getEmissao()));
+        lista.add(
+                new ParametroProtocolo(
+                        ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
+                        sindicato.getPessoa().getNome(),
+                        sindicato.getPessoa().getSite(),
+                        sindicato.getPessoa().getTipoDocumento().getDescricao(),
+                        sindicato.getPessoa().getDocumento(),
+                        pessoaEndereco.getEndereco().getDescricaoEndereco().getDescricao(),
+                        pessoaEndereco.getEndereco().getLogradouro().getDescricao(),
+                        pessoaEndereco.getNumero(),
+                        pessoaEndereco.getComplemento(),
+                        pessoaEndereco.getEndereco().getBairro().getDescricao(),
+                        pessoaEndereco.getEndereco().getCep(),
+                        pessoaEndereco.getEndereco().getCidade().getCidade(),
+                        pessoaEndereco.getEndereco().getCidade().getUf(),
+                        a.getFilial().getFilial().getPessoa().getTelefone1(),
+                        email,
+                        String.valueOf(a.getId()),
+                        datax,
+                        horario,
+                        a.getPessoaEmpresa().getJuridica().getPessoa().getDocumento(),
+                        a.getPessoaEmpresa().getJuridica().getPessoa().getNome(),
+                        contabilidade.getPessoa().getNome(),
+                        a.getPessoaEmpresa().getFisica().getPessoa().getNome(),
+                        a.getPessoaEmpresa().getFisica().getPessoa().getDocumento(),
+                        registro.getDocumentoHomologacao(),
+                        registro.getFormaPagamentoHomologacao(),
+                        a.getEmissao(),
+                        (a.isNoPrazo() == false ? "DE ACORDO COM AS INFORMAÇÕES ACIMA PRESTADAS SEU AGENDAMENTO ESTÁ FORA DO PRAZO PREVISTO EM CONVENÇÃO COLETIVA." : "")
+                )
+        );
         return lista;
     }
 }

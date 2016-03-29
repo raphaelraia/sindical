@@ -25,6 +25,7 @@ import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.*;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.utilitarios.*;
+import br.com.rtools.utilitarios.db.FunctionsDao;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -764,6 +765,8 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
         } else {
             Demissao demissaox = (Demissao) dao.find(new Demissao(), Integer.parseInt(((SelectItem) getListaMotivoDemissao().get(idMotivoDemissao)).getDescription()));
             if (agendamento.getId() == -1) {
+                agendamento.setNoPrazo(new FunctionsDao().homologacaoPrazo(pessoaEmpresa.isAvisoTrabalhado(), enderecoEmpresa.getEndereco().getCidade().getId(), pessoaEmpresa.getDemissao()));
+                
                 agendamento.setAgendador(null);
                 agendamento.setRecepcao(null);
                 agendamento.setDemissao(demissaox);
@@ -774,6 +777,9 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
                 if (dao.save(agendamento)) {
                     agendamentoProtocolo = agendamento;
                     GenericaMensagem.info("Sucesso", "Agendamento Salvo!");
+                    if (agendamento.isNoPrazo() == false){
+                        GenericaMensagem.info("Mensagem", "DE ACORDO COM AS INFORMAÇÕES ACIMA PRESTADAS SEU AGENDAMENTO ESTÁ FORA DO PRAZO PREVISTO EM CONVENÇÃO COLETIVA.");
+                    }
                     listaHorarios.clear();
                     loadListHorarios();
                 } else {

@@ -20,6 +20,18 @@
             .column02{
                 width: 0%;
             }
+
+            .column01_panel01{
+                width: 200px;
+            }
+
+            .column02_panel01{
+                width: 200px;
+            }
+
+            .column03_panel01{
+                width: 100%;
+            }
         </style>
 
         <script type="text/javascript">
@@ -41,21 +53,25 @@
                         <h:form id="formBaixaGeral">
                             <h:panelGrid style="clear: both" columns="2" columnClasses="column01, column02">
                                 <p:panel styleClass="fundoCinza" style="height: 150px; ">
-                                    <h:panelGrid columns="2" rendered="#{baixaGeralBean.listaMovimentos.size() > 0}">
+                                    <h:panelGrid id="panel01" columns="3" rendered="#{baixaGeralBean.listaMovimentos.size() > 0}" style="width: 100%" columnClasses="column01_panel01, column02_panel01, column03_panel01">
                                         <p:column>
                                             <h:outputLabel value="Valor total para Baixa" style="font-size: 12pt!important;"/><br />
-                                            <p:inputText value="R$ #{baixaGeralBean.total}" readonly="true" styleClass="input-text-med bg-yellow-ligth no-border bold border-dashed font-color-red font-size-12" />
+                                            <p:inputText value="R$ #{baixaGeralBean.total}" readonly="true" styleClass="bg-yellow-ligth no-border bold border-dashed font-color-red font-size-12" style="width: 190px"/>
                                         </p:column>
 
                                         <p:column>
                                             <h:outputLabel value="Tipo de Recebimento" rendered="#{baixaGeralBean.tipo == 'banco' or baixaGeralBean.tipo == 'caixa'}" style="font-size: 12pt!important;"/><br />
-                                            <p:selectOneMenu style="margin-right: 20px;" value="#{baixaGeralBean.idConta}" disabled="#{baixaGeralBean.desHabilitaConta}" rendered="#{baixaGeralBean.tipo == 'caixa'}">
+                                            <p:selectOneMenu style="width: 150px" value="#{baixaGeralBean.idConta}" disabled="#{baixaGeralBean.desHabilitaConta}" rendered="#{baixaGeralBean.tipo == 'caixa'}">
                                                 <f:selectItems value="#{baixaGeralBean.listaConta}"/>
                                             </p:selectOneMenu>
                                             <br />
                                             <h:outputLabel value="#{baixaGeralBean.banco}" rendered="#{baixaGeralBean.tipo == 'banco'}" style="font-size: 11pt!important; font-weight: bold; margin-right: 20px"/>
                                         </p:column>
 
+                                        <p:column>
+                                            <h:outputLabel value="Caixa" style="font-size: 12pt!important;"/><br />
+                                            <p:inputText value="#{baixaGeralBean.caixa.descricao}" style="font-size: 11pt!important; font-weight: bold; width: 100%; opacity: 11; background: transparent" disabled="true"/>
+                                        </p:column>
                                     </h:panelGrid>
 
                                     <h:panelGrid id="i_recebimento" columns="8" style="margin-top: 10px;">
@@ -68,7 +84,7 @@
 
                                         <p:column>
                                             <h:outputLabel value="Tipo de Pagamento" /><br />
-                                            <p:selectOneMenu value="#{baixaGeralBean.idTipoPagamento}" style="margin-right: 10px; padding-right: 20px">
+                                            <p:selectOneMenu value="#{baixaGeralBean.idTipoPagamento}" style="margin-right: 10px; width: 125px">
                                                 <p:ajax event="change" listener="#{baixaGeralBean.atualizaTipo}" update="@this i_recebimento i_cheque i_cartao"/>
                                                 <f:selectItems value="#{baixaGeralBean.listaTipoPagamento}" />
                                             </p:selectOneMenu>
@@ -168,16 +184,16 @@
                                 <p:panel styleClass="fundoCinza">
                                     <h:outputLabel value="TIPOS DE PAGAMENTO" style="font-size: 12pt!important; font-weight: bold"/>
                                 </p:panel>
-                                
+
                                 <p:dataTable var="linha" id="tbl_confirmar" value="#{baixaGeralBean.listaValores}" emptyMessage="Nenhum valor adicionado.">
                                     <p:column headerText="Pagamento">
                                         <h:outputText value="#{linha.tipoPagamento.descricao}" style="font-size: 11pt!important; color: red; font-weight: bold"/>
                                     </p:column>
-                                    
+
                                     <p:column headerText="Valor R$" style="text-align: right; width: 80px">
                                         <h:outputText value="#{linha.valor}" style="font-size: 11pt!important"/>
                                     </p:column>
-                                    
+
                                     <p:column headerText="Valor Digitado R$" style="text-align: right; width: 80px">
                                         <h:outputText value="#{linha.valorDigitado}" style="font-size: 11pt!important"/>
                                     </p:column>
@@ -186,7 +202,7 @@
                                         <h:outputText value="#{linha.numeroCheque}" style="font-size: 11pt!important"/>
                                     </p:column>
                                 </p:dataTable>
-                                
+
                                 <h:panelGrid columns="2">
                                     <p:commandButton icon="ui-icon-circle-check" value="Sim" action="#{baixaGeralBean.baixar}" title="Concluir Baixa" oncomplete="PF('i_dlg_s').show(); PF('dlg_confirmar').hide(); " update="i_mensagem"/>
                                     <p:commandButton icon="ui-icon-circle-close" value="Não" title="Cancelar Baixa" onclick="PF('dlg_confirmar').hide()" global="false"/>

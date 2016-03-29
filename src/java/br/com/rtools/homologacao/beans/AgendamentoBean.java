@@ -36,6 +36,7 @@ import br.com.rtools.sistema.ConfiguracaoDepartamento;
 import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.sistema.dao.ConfiguracaoDepartamentoDao;
 import br.com.rtools.utilitarios.*;
+import br.com.rtools.utilitarios.db.FunctionsDao;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -50,7 +51,7 @@ import javax.faces.model.SelectItem;
 @ManagedBean
 @SessionScoped
 public class AgendamentoBean extends PesquisarProfissaoBean implements Serializable {
-    
+
     private int idStatus = 0;
     private int idMotivoDemissao = 0;
     private int idHorarioTransferencia = 0;
@@ -90,14 +91,14 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     private boolean imprimirPro = false;
     private ConfiguracaoHomologacao configuracaoHomologacao = new ConfiguracaoHomologacao();
     private int counter = 0;
-    
+
     private Registro registro = new Registro();
     private boolean visibleModal = false;
     private String tipoTelefone = "telefone";
     private Cancelamento cancelamento = new Cancelamento();
     private String documentoFisica = "";
     private Date polling;
-    
+
     public AgendamentoBean() {
         macFilial = (MacFilial) GenericaSessao.getObject("acessoFilial");
         Dao dao = new Dao();
@@ -111,46 +112,46 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         }
         GlobalSync.load();
     }
-    
+
     public boolean validaAdmissao() {
         if (fisica.getId() != -1 && juridica.getId() != -1 && !pessoaEmpresa.getAdmissao().isEmpty() && pessoaEmpresa.getId() == -1) {
             HomologacaoDB db = new HomologacaoDBToplink();
-            
+
             PessoaEmpresa pe = db.pesquisaPessoaEmpresaAdmissao(fisica.getId(), juridica.getId(), pessoaEmpresa.getAdmissao());
-            
+
             if (pe != null) {
                 int[] ids = new int[2];
                 ids[0] = 2;
                 ids[1] = 4;
                 Agendamento a = db.pesquisaAgendamentoPorPessoaEmpresa(pe.getId(), ids);
-                
+
                 if (a != null) {
                     GenericaMensagem.fatal("Atenção", "Esse agendamento já foi " + a.getStatus().getDescricao() + "!");
                     return false;
                 }
-                
+
                 pessoaEmpresa = pe;
             }
         }
         return true;
     }
-    
+
     public void actionValidaAdmissao() {
         validaAdmissao();
     }
-    
+
     public boolean validaDemissao() {
         if (fisica.getId() != -1 && juridica.getId() != -1 && !pessoaEmpresa.getDemissao().isEmpty() && pessoaEmpresa.getId() == -1) {
             HomologacaoDB db = new HomologacaoDBToplink();
-            
+
             PessoaEmpresa pe = db.pesquisaPessoaEmpresaDemissao(fisica.getId(), juridica.getId(), pessoaEmpresa.getDemissao());
-            
+
             if (pe != null) {
                 int[] ids = new int[2];
                 ids[0] = 2;
                 ids[1] = 4;
                 Agendamento a = db.pesquisaAgendamentoPorPessoaEmpresa(pe.getId(), ids);
-                
+
                 if (a != null) {
                     GenericaMensagem.fatal("Atenção", "Esse agendamento já foi " + a.getStatus().getDescricao() + "!");
                     return false;
@@ -160,11 +161,11 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         }
         return true;
     }
-    
+
     public void actionValidaDemissao() {
         validaDemissao();
     }
-    
+
     public void alterarTipoMascara() {
         if (tipoTelefone.equals("telefone")) {
             tipoTelefone = "celular";
@@ -173,11 +174,11 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         }
         agendamento.setTelefone("");
     }
-    
+
     public final void loadListaHorariosTransferencia() {
         listaHorarioTransferencia.clear();
         idHorarioTransferencia = 0;
-        
+
         HomologacaoDB db = new HomologacaoDBToplink();
         int idDiaSemana = DataHoje.diaDaSemana(dataTransferencia);
         List<Horarios> select = db.pesquisaTodosHorariosDisponiveis(macFilial.getFilial().getId(), idDiaSemana);
@@ -185,7 +186,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             listaHorarioTransferencia.add(new SelectItem(0, "Nenhum horário encontrado", "0"));
             return;
         }
-        
+
         int qnt;
         int j = 0;
         for (Horarios listh : select) {
@@ -199,16 +200,16 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 j++;
             }
         }
-        
+
         if (listaHorarioTransferencia.isEmpty()) {
             listaHorarioTransferencia.add(new SelectItem(0, "Nenhum horário encontrado", "0"));
         }
     }
-    
+
     public final void loadListaHorarios() {
         loadListaHorarios(stop());
     }
-    
+
     public final void loadListaHorarios(Boolean stop) {
         if (stop) {
             return;
@@ -217,7 +218,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         if (macFilial == null) {
             return;
         }
-        
+
         int idNrStatus = Integer.parseInt(((SelectItem) getListaStatus().get(idStatus)).getDescription());
         int diaDaSemana = DataHoje.diaDaSemana(data);
         renderedDisponivel = idNrStatus != 2 && idNrStatus != 3 && idNrStatus != 4 && idNrStatus != 5 && idNrStatus != 6 && idNrStatus != 7;
@@ -250,23 +251,23 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 ListaAgendamento listaAgendamento = new ListaAgendamento();
                 Usuario u = new Usuario();
                 listaAgendamento.setAgendamento(agenda);
-                
+
                 if (agenda.getAgendador() == null) {
                     listaAgendamento.setUsuarioAgendador("** Web User **");
                 } else {
                     listaAgendamento.setUsuarioAgendador(agenda.getAgendador().getPessoa().getNome());
                 }
-                
+
                 AtendimentoDB dbat = new AtendimentoDBTopLink();
                 if (dbat.pessoaOposicao(listaAgendamento.getAgendamento().getPessoaEmpresa().getFisica().getPessoa().getDocumento())) {
                     listaAgendamento.setTblEstilo("tblAgendamentoOposicaox");
                 }
-                
+
                 listaHorarios.add(listaAgendamento);
             }
         }
     }
-    
+
     public void salvarTransferencia() {
         Agendamento a = (Agendamento) new Dao().find(agendamento);
         String beforeUpdate = ""
@@ -286,24 +287,24 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             GenericaMensagem.warn("Atenção", "Data anterior ao dia de hoje!");
             return;
         }
-        
+
         if (DataHoje.converteDataParaInteger(((new DataHoje()).incrementarMeses(registro.getHomolocaoLimiteMeses(), DataHoje.data())))
                 < DataHoje.converteDataParaInteger(DataHoje.converteData(getDataTransferencia()))) {
             GenericaMensagem.warn("Atenção", "Data maior que " + registro.getHomolocaoLimiteMeses() + " meses!");
             return;
         }
-        
+
         Dao dao = new Dao();
         agendamento.setDtData(dataTransferencia);
         if (listaHorarioTransferencia.isEmpty()) {
             GenericaMensagem.warn("Atenção", "Não existem horários para esse dia da semana!");
             return;
         }
-        
+
         NovoLog novoLog = new NovoLog();
         Horarios h = (Horarios) dao.find(new Horarios(), Integer.valueOf(listaHorarioTransferencia.get(idHorarioTransferencia).getDescription()));
         agendamento.setHorarios(h);
-        
+
         dao.openTransaction();
         agendamento.setAgendador((Usuario) GenericaSessao.getObject("sessaoUsuario"));
         if (!dao.update(agendamento)) {
@@ -328,7 +329,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         loadListaHorarios();
         PF.closeDialog("dlg_transferir_horario");
     }
-    
+
     public String imprimirPlanilha() {
         if (listaMovimento.isEmpty()) {
             return null;
@@ -348,7 +349,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         }
         return null;
     }
-    
+
     public String enviarPlanilha() {
         if (listaMovimento.isEmpty()) {
             return null;
@@ -362,11 +363,11 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             lista.add(m);
             listaValores.add(m.getValor());
         }
-        
+
         if (!lista.isEmpty()) {
             imp.imprimirPlanilha(lista, listaValores, false, false);
         }
-        
+
         try {
             Dao di = new Dao();
             Pessoa pessoa = new Pessoa();
@@ -375,7 +376,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                     GenericaMensagem.warn("Atenção", "Empresa sem Contabilidade!");
                     return null;
                 }
-                
+
                 pessoa = (Pessoa) di.find(juridica.getContabilidade().getPessoa());
                 if (emailEmpresa.isEmpty()) {
                     if (pessoa.getEmail1().isEmpty()) {
@@ -396,7 +397,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                     pessoa.setEmail1(emailEmpresa);
                 }
             }
-            
+
             String nome = imp.criarLink(pessoa, registro.getUrlPath() + "/Sindical/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/boletos");
             List<Pessoa> p = new ArrayList();
             p.add(pessoa);
@@ -418,7 +419,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                     false,
                     false
             );
-            
+
             if (!registro.isEnviarEmailAnexo()) {
                 email.setMensagem(""
                         + " <div style='background:#00ccff; padding: 15px; font-size:13pt'>"
@@ -455,7 +456,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 emailPessoa = new EmailPessoa();
             }
             String[] retorno = mail.send("personalizado");
-            
+
             if (!retorno[1].isEmpty()) {
                 GenericaMensagem.error("Erro", retorno[1]);
             } else {
@@ -463,15 +464,15 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             }
         } catch (Exception erro) {
             System.err.println("O arquivo não foi gerado corretamente! Erro: " + erro.getMessage());
-            
+
         }
         return null;
     }
-    
+
     public String atualizar() {
         return "agendamento";
     }
-    
+
     public List<SelectItem> getListaStatus() {
         if (listaStatus.isEmpty()) {
             Dao dao = new Dao();
@@ -482,7 +483,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         }
         return listaStatus;
     }
-    
+
     public List<SelectItem> getListaDemissao() {
         if (listaDemissao.isEmpty()) {
             List<Demissao> list = (List<Demissao>) new Dao().list(new Demissao());
@@ -492,11 +493,11 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         }
         return listaDemissao;
     }
-    
+
     public List<SelectItem> getListaHorarioTransferencia() {
         return listaHorarioTransferencia;
     }
-    
+
     public boolean pesquisarFeriado() {
         FeriadosDao feriadosDao = new FeriadosDao();
         if (macFilial.getFilial().getFilial().getId() != -1) {
@@ -515,18 +516,18 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             }
         }
         return false;
-        
+
     }
-    
+
     public void agendar(Agendamento a) {
         limpar();
         loadListaHorariosTransferencia();
-        
+
         if (getData().getDay() == 6 || getData().getDay() == 0) {
             GenericaMensagem.warn("Atenção", "Fins de semana não permitido!");
             return;
         }
-        
+
         emailEmpresa = "";
         idMotivoDemissao = 0;
         int nrAgendamentoRetroativo = DataHoje.converteDataParaInteger(DataHoje.converteData(registro.getAgendamentoRetroativo()));
@@ -540,7 +541,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         } else {
             GenericaMensagem.info("Informação", "Agendamento retroativo liberado até dia " + registro.getAgendamentoRetroativoString());
         }
-        
+
         if (DataHoje.converteDataParaInteger(((new DataHoje()).incrementarMeses(registro.getHomolocaoLimiteMeses(), DataHoje.data()))) < nrData) {
             GenericaMensagem.warn("Atenção", "Data maior que " + registro.getHomolocaoLimiteMeses() + " meses!");
             return;
@@ -550,7 +551,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             profissao = (Profissao) new Dao().find(new Profissao(), 0);
             profissao.setProfissao("");
         }
-        
+
         switch (Integer.parseInt(((SelectItem) getListaStatus().get(idStatus)).getDescription())) {
             case 1: {
                 HorarioReservaDao hrd = new HorarioReservaDao();
@@ -639,26 +640,26 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                         agendamento.setHorarios(a.getHorarios());
                     }
                 }
-                
+
                 visibleModal = true;
                 PF.openDialog("dlg_agendamento");
                 break;
             }
         }
-        
+
         if (agendamento.getTelefone().length() > 14) {
             tipoTelefone = "celular";
         } else {
             tipoTelefone = "telefone";
         }
     }
-    
+
     public void save() {
         NovoLog novoLog = new NovoLog();
         if (!validaAdmissao()) {
             return;
         }
-        
+
         if (!validaDemissao()) {
             return;
         }
@@ -670,46 +671,46 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 return;
             }
         }
-        
+
         if (configuracaoHomologacao.getValidaDataNascimento()) {
             if (fisica.getNascimento().isEmpty()) {
                 GenericaMensagem.warn("Validação", "Informar data de nascimento!");
                 return;
             }
         }
-        
+
         if (configuracaoHomologacao.getValidaFuncao()) {
             if (profissao.getId() == -1 || profissao.getId() == 0) {
                 GenericaMensagem.warn("Atenção", "Informar a Função!");
                 return;
             }
         }
-        
+
         if (configuracaoHomologacao.getValidaCarteira()) {
             if (fisica.getCarteira().isEmpty()) {
                 GenericaMensagem.warn("Atenção", "Informar a Carteira!");
                 return;
             }
         }
-        
+
         if (configuracaoHomologacao.getValidaSerie()) {
             if (fisica.getSerie().isEmpty()) {
                 GenericaMensagem.warn("Atenção", "Informar a Série!");
                 return;
             }
         }
-        
+
         if (!getStrContribuinte().isEmpty()) {
             GenericaMensagem.error("Atenção", getStrContribuinte());
             return;
         }
-        
+
         FisicaDB dbFis = new FisicaDBToplink();
         List listDocumento;
         imprimirPro = false;
         DataHoje dataH = new DataHoje();
         Demissao demissao = (Demissao) dao.find(new Demissao(), Integer.parseInt(((SelectItem) getListaDemissao().get(idMotivoDemissao)).getDescription()));
-        
+
         if (!pessoaEmpresa.getAdmissao().isEmpty() && pessoaEmpresa.getAdmissao() != null) {
             if (DataHoje.converteDataParaInteger(pessoaEmpresa.getAdmissao())
                     > DataHoje.converteDataParaInteger(pessoaEmpresa.getDemissao())) {
@@ -720,7 +721,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             GenericaMensagem.warn("Atenção", "Data de Admissão é obrigatória!");
             return;
         }
-        
+
         if (!pessoaEmpresa.getDemissao().isEmpty() && pessoaEmpresa.getDemissao() != null) {
             if (demissao.getId() == 1) {
                 if (DataHoje.converteDataParaInteger(pessoaEmpresa.getDemissao())
@@ -752,7 +753,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             GenericaMensagem.warn("Atenção", "Documento Inválido!");
             return;
         }
-        
+
         dao.openTransaction();
         Fisica f = (Fisica) dao.find(new Fisica(), fisica.getId());
         if (f == null) {
@@ -772,7 +773,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 GenericaMensagem.warn("Atenção", "Documento já existente!");
                 return;
             }
-            
+
             if (dao.save(fisica.getPessoa())) {
                 dao.save(fisica);
             } else {
@@ -821,15 +822,15 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             GenericaMensagem.warn("Atenção", "Pessoa já foi agendada, na data " + age.getData());
             return;
         }
-        
+
         boolean isOposicao = false;
         AtendimentoDB dbat = new AtendimentoDBTopLink();
         if (dbat.pessoaOposicao(fisica.getPessoa().getDocumento())) {
             isOposicao = true;
         }
-        
+
         PessoaEnderecoDao dbp = new PessoaEnderecoDao();
-        
+
         if (enderecoFisica.getId() == -1) {
             if (enderecoFisica.getEndereco().getId() != -1) {
                 enderecoFisica.setPessoa(fisica.getPessoa());
@@ -869,7 +870,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             profissao = (Profissao) new Dao().find(new Profissao(), 0);
             profissao.setProfissao("");
         }
-        
+
         switch (idStatusI) {
             case 1: {
                 pessoaEmpresa.setFisica(fisica);
@@ -936,7 +937,9 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 return;
             }
         }
+
         if (agendamento.getId() == -1) {
+            agendamento.setNoPrazo(new FunctionsDao().homologacaoPrazo(pessoaEmpresa.isAvisoTrabalhado(), enderecoEmpresa.getEndereco().getCidade().getId(), pessoaEmpresa.getDemissao()));
             if (idStatusI == 1) {
                 if (!dba.existeHorarioDisponivel(agendamento.getDtData(), agendamento.getHorarios())) {
                     dao.rollback();
@@ -954,6 +957,9 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 dao.commit();
 //                msgConfirma = "Para imprimir Protocolo clique aqui! ";
                 GenericaMensagem.info("Sucesso", "Agendamento Concluído!");
+                if (agendamento.isNoPrazo() == false) {
+                    GenericaMensagem.info("Mensagem", "DE ACORDO COM AS INFORMAÇÕES ACIMA PRESTADAS SEU AGENDAMENTO ESTÁ FORA DO PRAZO PREVISTO EM CONVENÇÃO COLETIVA.");
+                }
                 novoLog.setTabela("hom_agendamento");
                 novoLog.setCodigo(agendamento.getId());
                 novoLog.save(
@@ -980,7 +986,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                     + " - Demissão: " + a.getPessoaEmpresa().getDemissao()
                     + " - Data da homologação: " + a.getData()
                     + " - Horário: " + a.getHorarios().getHora();
-            
+
             if (dao.update(agendamento)) {
                 dao.commit();
                 novoLog.setTabela("hom_agendamento");
@@ -1007,7 +1013,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 dao.rollback();
             }
         }
-        
+
         renderCancelarHorario = true;
         loadListaHorariosTransferencia();
         GlobalSync.load();
@@ -1017,12 +1023,12 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         imprimirPro = true;
         WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());
     }
-    
+
     public String salvarMais() {
-        
+
         return null;
     }
-    
+
     public String cancelar() {
         strEndereco = "";
         //tipoAviso = "true";
@@ -1041,7 +1047,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         emailEmpresa = "";
         return "agendamento";
     }
-    
+
     public String cancelarHorario() {
         PessoaEmpresaDB dbPesEmp = new PessoaEmpresaDBToplink();
         Dao dao = new Dao();
@@ -1062,7 +1068,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         }
         GenericaMensagem.info("Sucesso", "Agendamento Cancelado!");
         dao.commit();
-        
+
         NovoLog novoLog = new NovoLog();
         novoLog.setTabela("hom_cancelamento");
         novoLog.setCodigo(cancelamento.getId());
@@ -1073,12 +1079,12 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 + " - Funcionário { " + agendamento.getPessoaEmpresa().getFisica().getPessoa().getId() + " - Nome: " + agendamento.getPessoaEmpresa().getFisica().getPessoa().getNome() + " } "
                 + " - Data do cancelamento: " + cancelamento.getData()
                 + " - Motivo: " + cancelamento.getMotivo());
-        
+
         cancelamento = new Cancelamento();
         pessoaEmpresa.setDtDemissao(null);
-        
+
         PessoaEmpresa pem = dbPesEmp.pesquisaPessoaEmpresaPorFisica(pessoaEmpresa.getFisica().getId());
-        
+
         if (pem.getId() == -1) {
             pessoaEmpresa.setPrincipal(true);
         }
@@ -1095,14 +1101,14 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         juridica = new Juridica();
         listaMovimento.clear();
         enderecoFisica = new PessoaEndereco();
-        
+
         setVisibleModal(false);
         GlobalSync.load();
         loadListaHorarios();
         loadListaHorariosTransferencia();
         return "agendamento";
     }
-    
+
     public void limpar() {
         strEndereco = "";
         //tipoAviso = "true";
@@ -1116,7 +1122,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         protocolo = 0;
         enderecoFisica = new PessoaEndereco();
     }
-    
+
     public void limparMais() {
         strEndereco = "";
         //tipoAviso = "true";
@@ -1128,40 +1134,40 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         protocolo = 0;
         enderecoFisica = new PessoaEndereco();
     }
-    
+
     public void pesquisarFuncionarioCPF() throws IOException {
         if (agendamento.getId() == -1) {
             styleDestaque = "";
-            
+
             if (documentoFisica.isEmpty()) {
                 GenericaMensagem.warn("Atenção", "Informar CPF!");
                 return;
             }
-            
+
             if (!documentoFisica.isEmpty() && documentoFisica.equals("___.___.___-__")) {
                 GenericaMensagem.warn("Atenção", "Informar CPF!");
                 return;
             }
-            
+
             if (!ValidaDocumentos.isValidoCPF(AnaliseString.extrairNumeros(documentoFisica))) {
                 GenericaMensagem.warn("Atenção", "Documento Inválido!");
                 return;
             }
-            
+
             if (fisica.getId() != -1 && fisica.getPessoa().getDocumento().equals(documentoFisica)) {
                 return;
             }
-            
+
             fisica.getPessoa().setDocumento(documentoFisica);
             //fisica = new Fisica();
             FisicaDB dbFis = new FisicaDBToplink();
             HomologacaoDB db = new HomologacaoDBToplink();
             PessoaEnderecoDao dbe = new PessoaEnderecoDao();
-            
+
             String documento = documentoFisica;
-            
+
             List<Fisica> listFisica = dbFis.pesquisaFisicaPorDocSemLike(documento);
-            
+
             if (listFisica.isEmpty()) {
                 if (!fisica.getPessoa().getNome().isEmpty() && !fisica.getNascimento().isEmpty()) {
                     Fisica f = (Fisica) dbFis.pesquisaFisicaPorNomeNascimento(fisica.getPessoa().getNome().trim(), fisica.getDtNascimento());
@@ -1170,10 +1176,10 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                     }
                 }
             }
-            
+
             List<Oposicao> listao = db.pesquisaFisicaOposicaoSemEmpresa(documento);
             PessoaEmpresa pem = db.pesquisaPessoaEmpresaPertencente(documento);
-            
+
             if (!listFisica.isEmpty()) {
                 // AQUI
                 //                Agendamento age = db.pesquisaFisicaAgendada(listFisica.get(0).getId());
@@ -1190,14 +1196,14 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 // SEM PESSOA FISICA E COM OPOSICAO    
             } else if (listFisica.isEmpty() && !listao.isEmpty()) {
                 GenericaMensagem.warn("Atenção", "CPF cadastrado em oposição data: " + listao.get(0).getEmissao());
-                
+
                 styleDestaque = "color: red; font-size: 14pt; font-weight:bold";
                 fisica.getPessoa().setNome(listao.get(0).getOposicaoPessoa().getNome());
                 fisica.setRg(listao.get(0).getOposicaoPessoa().getRg());
                 fisica.setSexo(listao.get(0).getOposicaoPessoa().getSexo());
                 fisica.getPessoa().setDocumento(documento);
                 juridica = listao.get(0).getJuridica();
-                
+
                 PF.openDialog("dlg_oposicao");
                 // COM FISICA, COM PESSOA EMPRESA E SEM OPOSICAO    
             } else if (!listFisica.isEmpty() && pem != null && listao.isEmpty()) {
@@ -1221,7 +1227,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 // COM FISICA, COM PESSOA EMPRESA COM OPOSICAO
             } else if (!listFisica.isEmpty() && pem != null && !listao.isEmpty()) {
                 GenericaMensagem.warn("Atenção", "CPF cadastrado em oposição data: " + listao.get(0).getEmissao());
-                
+
                 styleDestaque = "color: red; font-size: 14pt; font-weight:bold";
                 pessoaEmpresa = pem;
                 fisica = pessoaEmpresa.getFisica();
@@ -1257,7 +1263,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             }
         }
     }
-    
+
     public String pesquisarProtocolo() {
         HomologacaoDB db = new HomologacaoDBToplink();
         if (protocolo > 0) {
@@ -1285,13 +1291,13 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         }
         return "agendamento";
     }
-    
+
     public String enviarEmailProtocolo() {
         ProtocoloAgendamento protocoloAgendamento = new ProtocoloAgendamento();
         protocoloAgendamento.enviar(agendamento);
         return null;
     }
-    
+
     public void pesquisaEndereco() {
         EnderecoDao db = new EnderecoDao();
         listaEnderecos.clear();
@@ -1299,27 +1305,27 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             listaEnderecos = db.pesquisaEnderecoCep(cepEndereco);
         }
     }
-    
+
     public void limparPesquisaEndereco() {
         listaEnderecos.clear();
     }
-    
+
     public void editarEndereco(Endereco e) {
         enderecoFisica.setEndereco(e);
     }
-    
+
     public int getIdStatus() {
         return idStatus;
     }
-    
+
     public void setIdStatus(int idStatus) {
         this.idStatus = idStatus;
     }
-    
+
     public void refreshForm() {
-        
+
     }
-    
+
     public Juridica getJuridica() {
         if (GenericaSessao.exists("juridicaPesquisa")) {
             juridica = (Juridica) GenericaSessao.getObject("juridicaPesquisa", true);
@@ -1328,14 +1334,14 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             if (juridica.getContabilidade() != null && agendamento.getId() == -1) {
                 agendamento.setTelefone(juridica.getContabilidade().getPessoa().getTelefone1());
             }
-            
+
             if (fisica.getId() != -1) {
                 PessoaEmpresaDB db = new PessoaEmpresaDBToplink();
                 List<PessoaEmpresa> list_pe = db.listaPessoaEmpresaPorFisicaEmpresaDemissao(fisica.getId(), juridica.getId());
-                
+
                 if (!list_pe.isEmpty()) {
                     pessoaEmpresa = list_pe.get(0);
-                    
+
                     if (pessoaEmpresa.getFuncao() != null) {
                         profissao = pessoaEmpresa.getFuncao();
                     }
@@ -1347,19 +1353,19 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         }
         return juridica;
     }
-    
+
     public void setJuridica(Juridica juridica) {
         this.juridica = juridica;
     }
-    
+
     public PessoaEndereco getEnderecoEmpresa() {
         return enderecoEmpresa;
     }
-    
+
     public void setEnderecoEmpresa(PessoaEndereco enderecoEmpresa) {
         this.enderecoEmpresa = enderecoEmpresa;
     }
-    
+
     public String getStrEndereco() {
         PessoaEnderecoDao pessoaEnderecoDB = new PessoaEnderecoDao();
         if (juridica.getId() != -1) {
@@ -1371,7 +1377,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 } else {
                     strCompl = " ( " + enderecoEmpresa.getComplemento() + " ) ";
                 }
-                
+
                 strEndereco = enderecoEmpresa.getEndereco().getLogradouro().getDescricao() + " "
                         + enderecoEmpresa.getEndereco().getDescricaoEndereco().getDescricao() + ", " + enderecoEmpresa.getNumero() + " " + enderecoEmpresa.getEndereco().getBairro().getDescricao() + ","
                         + strCompl + enderecoEmpresa.getEndereco().getCidade().getCidade() + " - " + enderecoEmpresa.getEndereco().getCidade().getUf() + " - " + AnaliseString.mascaraCep(enderecoEmpresa.getEndereco().getCep());
@@ -1384,39 +1390,39 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         }
         return strEndereco;
     }
-    
+
     public void setStrEndereco(String strEndereco) {
         this.strEndereco = strEndereco;
     }
-    
+
     public Date getData() {
         return data;
     }
-    
+
     public void setData(Date data) {
         this.data = data;
     }
-    
+
     public Agendamento getAgendamento() {
         return agendamento;
     }
-    
+
     public void setAgendamento(Agendamento agendamento) {
         this.agendamento = agendamento;
     }
-    
+
     public Fisica getFisica() {
         return fisica;
     }
-    
+
     public void setFisica(Fisica fisica) {
         this.fisica = fisica;
     }
-    
+
     public int getIdMotivoDemissao() {
         return idMotivoDemissao;
     }
-    
+
     public void setIdMotivoDemissao(int idMotivoDemissao) {
         this.idMotivoDemissao = idMotivoDemissao;
     }
@@ -1432,27 +1438,27 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     public PessoaEmpresa getPessoaEmpresa() {
         return pessoaEmpresa;
     }
-    
+
     public void setPessoaEmpresa(PessoaEmpresa pessoaEmpresa) {
         this.pessoaEmpresa = pessoaEmpresa;
     }
-    
+
     public boolean isRenderCancelarHorario() {
         return renderCancelarHorario;
     }
-    
+
     public void setRenderCancelarHorario(boolean renderCancelarHorario) {
         this.renderCancelarHorario = renderCancelarHorario;
     }
-    
+
     public boolean isRenderCancelar() {
         return renderCancelar;
     }
-    
+
     public void setRenderCancelar(boolean renderCancelar) {
         this.renderCancelar = renderCancelar;
     }
-    
+
     public String getStatusEmpresa() {
         HomologacaoDB db = new HomologacaoDBToplink();
         if (juridica.getId() != -1 && listaMovimento.isEmpty()) {
@@ -1465,27 +1471,27 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         }
         return statusEmpresa;
     }
-    
+
     public void setStatusEmpresa(String statusEmpresa) {
         this.statusEmpresa = statusEmpresa;
     }
-    
+
     public int getProtocolo() {
         return protocolo;
     }
-    
+
     public void setProtocolo(int protocolo) {
         this.protocolo = protocolo;
     }
-    
+
     public String getCepEndereco() {
         return cepEndereco;
     }
-    
+
     public void setCepEndereco(String cepEndereco) {
         this.cepEndereco = cepEndereco;
     }
-    
+
     public List<Endereco> getListaEnderecos() {
         if (listaEnderecos.isEmpty()) {
             if (!cepEndereco.equals("")) {
@@ -1495,43 +1501,43 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         }
         return listaEnderecos;
     }
-    
+
     public void setListaEnderecos(List listaEnderecos) {
         this.listaEnderecos = listaEnderecos;
     }
-    
+
     public PessoaEndereco getEnderecoFisica() {
         if (enderecoFisica == null) {
             enderecoFisica = new PessoaEndereco();
         }
         return enderecoFisica;
     }
-    
+
     public void setEnderecoFisica(PessoaEndereco enderecoFisica) {
         this.enderecoFisica = enderecoFisica;
     }
-    
+
     public int getIdIndex() {
         return idIndex;
     }
-    
+
     public void setIdIndex(int idIndex) {
         this.idIndex = idIndex;
     }
-    
+
     public int getIdIndexEndereco() {
         return idIndexEndereco;
     }
-    
+
     public void setIdIndexEndereco(int idIndexEndereco) {
         this.idIndexEndereco = idIndexEndereco;
     }
-    
+
     public String extratoTela() {
         GenericaSessao.put("pessoaPesquisa", juridica.getPessoa());
         return ((ChamadaPaginaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("chamadaPaginaBean")).extratoTela();
     }
-    
+
     public String getStrContribuinte() {
         if (juridica.getId() != -1) {
             JuridicaDB db = new JuridicaDBToplink();
@@ -1546,35 +1552,35 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         }
         return strContribuinte = "Empresa não contribuinte, não poderá efetuar um agendamento!";
     }
-    
+
     public void setStrContribuinte(String strContribuinte) {
         this.strContribuinte = strContribuinte;
     }
-    
+
     public int getIdHorarioTransferencia() {
         return idHorarioTransferencia;
     }
-    
+
     public void setIdHorarioTransferencia(int idHorarioTransferencia) {
         this.idHorarioTransferencia = idHorarioTransferencia;
     }
-    
+
     public Date getDataTransferencia() {
         return dataTransferencia;
     }
-    
+
     public void setDataTransferencia(Date dataTransferencia) {
         this.dataTransferencia = dataTransferencia;
     }
-    
+
     public String getEnviarPara() {
         return enviarPara;
     }
-    
+
     public void setEnviarPara(String enviarPara) {
         this.enviarPara = enviarPara;
     }
-    
+
     public PessoaEndereco getEnderecoFilial() {
         PessoaEnderecoDao pessoaEnderecoDB = new PessoaEnderecoDao();
         if (enderecoFilial.getId() == -1) {
@@ -1582,27 +1588,27 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         }
         return enderecoFilial;
     }
-    
+
     public void setEnderecoFilial(PessoaEndereco enderecoFilial) {
         this.enderecoFilial = enderecoFilial;
     }
-    
+
     public boolean isImprimirPro() {
         return imprimirPro;
     }
-    
+
     public void setImprimirPro(boolean imprimirPro) {
         this.imprimirPro = imprimirPro;
     }
-    
+
     public boolean isRenderedDisponivel() {
         return renderedDisponivel;
     }
-    
+
     public void setRenderedDisponivel(boolean renderedDisponivel) {
         this.renderedDisponivel = renderedDisponivel;
     }
-    
+
     public void mensagemAgendamento() {
         FeriadosDao feriadosDao = new FeriadosDao();
         if (macFilial.getFilial().getFilial().getId() != -1) {
@@ -1622,25 +1628,25 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             }
         }
     }
-    
+
     public int getIdHorarioAlternativo() {
         return idHorarioAlternativo;
     }
-    
+
     public void setIdHorarioAlternativo(int idHorarioAlternativo) {
         this.idHorarioAlternativo = idHorarioAlternativo;
     }
-    
+
     public void adicionarHorarioAlternativo() {
         agendamento.setHorarios((Horarios) new Dao().find(new Horarios(), Integer.parseInt(listaHorarioTransferencia.get(idHorarioAlternativo).getDescription())));
         setOcultarHorarioAlternativo(true);
         loadListaHorariosTransferencia();
     }
-    
+
     public boolean isOcultarHorarioAlternativo() {
         return ocultarHorarioAlternativo;
     }
-    
+
     public void setOcultarHorarioAlternativo(boolean ocultarHorarioAlternativo) {
         this.ocultarHorarioAlternativo = ocultarHorarioAlternativo;
     }
@@ -1650,7 +1656,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         HomologacaoDB homologacaoDB = new HomologacaoDBToplink();
         homologacaoDB.verificaNaoAtendidosSegRegistroAgendamento();
     }
-    
+
     public String getEstiloTabela() {
         return "";
     }
@@ -1664,49 +1670,49 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     public List<ListaAgendamento> getListaHorarios() {
         return listaHorarios;
     }
-    
+
     public String getEmailEmpresa() {
         return emailEmpresa;
     }
-    
+
     public void setEmailEmpresa(String emailEmpresa) {
         this.emailEmpresa = emailEmpresa;
     }
-    
+
     public String getStyleDestaque() {
         return styleDestaque;
     }
-    
+
     public void setStyleDestaque(String styleDestaque) {
         this.styleDestaque = styleDestaque;
     }
-    
+
     public ConfiguracaoHomologacao getConfiguracaoHomologacao() {
         if (configuracaoHomologacao.getId() == null) {
             configuracaoHomologacao = (ConfiguracaoHomologacao) new Dao().find(new ConfiguracaoHomologacao(), 1);
         }
         return configuracaoHomologacao;
     }
-    
+
     public void setConfiguracaoHomologacao(ConfiguracaoHomologacao configuracaoHomologacao) {
         this.configuracaoHomologacao = configuracaoHomologacao;
     }
-    
+
     public int getCounter() {
         return counter;
     }
-    
+
     public void increment() {
         counter--;
         if (counter == -1) {
             counter = configuracaoHomologacao.getTempoRefreshAgendamento();
         }
     }
-    
+
     public boolean isVisibleModal() {
         return visibleModal;
     }
-    
+
     public void setVisibleModal(boolean visibleModal) {
         if (!visibleModal) {
             HorarioReservaDao hrd = new HorarioReservaDao();
@@ -1717,31 +1723,31 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         }
         this.visibleModal = visibleModal;
     }
-    
+
     public String getTipoTelefone() {
         return tipoTelefone;
     }
-    
+
     public void setTipoTelefone(String tipoTelefone) {
         this.tipoTelefone = tipoTelefone;
     }
-    
+
     public Cancelamento getCancelamento() {
         return cancelamento;
     }
-    
+
     public void setCancelamento(Cancelamento cancelamento) {
         this.cancelamento = cancelamento;
     }
-    
+
     public String getDocumentoFisica() {
         return documentoFisica;
     }
-    
+
     public void setDocumentoFisica(String documentoFisica) {
         this.documentoFisica = documentoFisica;
     }
-    
+
     public boolean stop() {
         if (GlobalSync.getStaticDate() != null) {
             if (polling != null) {
@@ -1756,5 +1762,5 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         }
         return false;
     }
-    
+
 }

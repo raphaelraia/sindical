@@ -99,6 +99,7 @@ public class BaixaGeralBean implements Serializable {
     private String valorTroco = "";
     private String valorEditavel = "";
     private TipoPagamento tipoPagamento;
+    private Caixa caixa = new Caixa();
 
     @PostConstruct
     public void init() {
@@ -107,6 +108,9 @@ public class BaixaGeralBean implements Serializable {
         getTipo();
         getPlano5();
         tipoPagamento = (TipoPagamento) new Dao().find(new TipoPagamento(), Integer.valueOf(getListaTipoPagamento().get(idTipoPagamento).getDescription()));
+        caixa = new Caixa();
+        
+        retornaCaixa();
     }
 
     public void verificaValorDigitado() {
@@ -472,39 +476,16 @@ public class BaixaGeralBean implements Serializable {
         if (listaValores.isEmpty()) {
             return mensagem = "Lista esta vazia!";
         }
+        
         MacFilial macFilial = (MacFilial) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("acessoFilial");
-        Caixa caixa = null;
         Usuario usuario = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuario");
-
-        Filial filial;
-        Departamento departamento = new Departamento();
-
-        try {
-            filial = macFilial.getFilial();
-            departamento = macFilial.getDepartamento();
-        } catch (Exception e) {
-            return mensagem = "Não é foi possível encontrar a filial no sistema!";
+        Filial filial = macFilial.getFilial();
+        
+        String m = retornaCaixa();
+        if (!m.isEmpty()){
+            return m;
         }
-
-        if (!macFilial.isCaixaOperador()) {
-            if (tipo.equals("caixa")) {
-                if (macFilial.getCaixa() == null) {
-                    return mensagem = "Não é possivel salvar baixa sem um caixa definido para esta estação!";
-                }
-
-                caixa = macFilial.getCaixa();
-            }
-        } else {
-            FinanceiroDB db = new FinanceiroDBToplink();
-            caixa = db.pesquisaCaixaUsuario(usuario.getId(), filial.getId());
-
-            if (tipo.equals("caixa")) {
-                if (caixa == null) {
-                    return mensagem = "Não é possivel salvar baixa sem um caixa/operador definido!";
-                }
-            }
-        }
-
+        
         if (Moeda.converteUS$(valor) > 0) {
             return mensagem = "Complete as parcelas para que o Valor seja zerado!";
         } else if (Moeda.converteUS$(valor) < 0) {
@@ -607,6 +588,44 @@ public class BaixaGeralBean implements Serializable {
 //        return retorno();
 //    }
 //    
+    
+    public String retornaCaixa(){
+        MacFilial macFilial = (MacFilial) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("acessoFilial");
+        Usuario usuario = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuario");
+
+        Filial filial;
+        //Departamento departamento;
+
+        try {
+            filial = macFilial.getFilial();
+            //departamento = macFilial.getDepartamento();
+        } catch (Exception e) {
+            return mensagem = "Não é foi possível encontrar a filial no sistema!";
+        }
+
+        if (!macFilial.isCaixaOperador()) {
+            if (tipo.equals("caixa")) {
+                if (macFilial.getCaixa() == null) {
+                    caixa = new Caixa();
+                    return mensagem = "Não é possivel salvar baixa sem um caixa definido para esta estação!";
+                }
+
+                caixa = macFilial.getCaixa();
+            }
+        } else {
+            FinanceiroDB db = new FinanceiroDBToplink();
+            caixa = db.pesquisaCaixaUsuario(usuario.getId(), filial.getId());
+
+            if (tipo.equals("caixa")) {
+                if (caixa == null) {
+                    caixa = new Caixa();
+                    return mensagem = "Não é possivel salvar baixa sem um caixa/operador definido!";
+                }
+            }
+        }
+        
+        return "";
+    }
     public void imprimirRecibo() {
         if (!listaMovimentos.isEmpty()) {
             ImprimirRecibo ir = new ImprimirRecibo();
@@ -1105,6 +1124,14 @@ public class BaixaGeralBean implements Serializable {
         }
         GenericaSessao.put("listaMovimento", list);
         return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).baixaGeral();
+    }
+
+    public Caixa getCaixa() {
+        return caixa;
+    }
+
+    public void setCaixa(Caixa caixa) {
+        this.caixa = caixa;
     }
 }
 

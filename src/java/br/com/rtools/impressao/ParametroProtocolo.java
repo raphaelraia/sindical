@@ -31,8 +31,9 @@ public class ParametroProtocolo {
     private String documentos; //(documentosHomologacao em seg_registro)
     private String formasPagto; //(formasPagtoHomologacao em seg_registro)
     private String dataHoje;
+    private String mensagem_prazo;
 
-    public ParametroProtocolo(String sinLogo, String sinNome, String sinSite, String sinTipoDocumento, String sinDocumento, String sinEndereco, String sinLogradouro, String sinNumero, String sinComplemento, String sinBairro, String sinCep, String sinCidade, String sinUF, String sinTelefone, String sinEmail, String protocolo, String dataHomologacao, String hora, String cnpjEmpresa, String empresa, String escritorio, String funcionario, String cpfFuncionario, String documentos, String formasPagto, String dataHoje) {
+    public ParametroProtocolo(String sinLogo, String sinNome, String sinSite, String sinTipoDocumento, String sinDocumento, String sinEndereco, String sinLogradouro, String sinNumero, String sinComplemento, String sinBairro, String sinCep, String sinCidade, String sinUF, String sinTelefone, String sinEmail, String protocolo, String dataHomologacao, String hora, String cnpjEmpresa, String empresa, String escritorio, String funcionario, String cpfFuncionario, String documentos, String formasPagto, String dataHoje, String mensagem_prazo) {
         this.sinLogo = sinLogo;
         this.sinNome = sinNome;
         this.sinSite = sinSite;
@@ -59,6 +60,7 @@ public class ParametroProtocolo {
         this.documentos = documentos;
         this.formasPagto = formasPagto;
         this.dataHoje = dataHoje;
+        this.mensagem_prazo = mensagem_prazo;
     }
 
     public String getSinLogo() {
@@ -267,5 +269,13 @@ public class ParametroProtocolo {
 
     public void setDataHoje(String dataHoje) {
         this.dataHoje = dataHoje;
+    }
+
+    public String getMensagem_prazo() {
+        return mensagem_prazo;
+    }
+
+    public void setMensagem_prazo(String mensagem_prazo) {
+        this.mensagem_prazo = mensagem_prazo;
     }
 }

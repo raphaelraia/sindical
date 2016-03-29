@@ -138,6 +138,12 @@
                                         <br />
                                         <p:selectBooleanCheckbox value="#{configuracaoSocialBean.configuracaoSocial.bloqueiaConviteOposicao}" style="margin-right: 20px" itemLabel="Bloqueia Convite com Oposição?"/>
                                     </h:column>
+                                    
+                                    <h:column>
+                                        <p:outputLabel value="Minutos bloqueado após uso do cartão" /><br />
+                                        <p:inputText value="#{configuracaoSocialBean.configuracaoSocial.intervaloMinuto}" style="width: 50px"/>
+                                    </h:column>
+                                    
                                 </h:panelGrid>
                             </p:panel>
 

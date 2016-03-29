@@ -69,6 +69,8 @@ public class Agendamento implements Serializable {
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_emissao")
     private Date dtEmissao;
+    @Column(name = "is_no_prazo")
+    private boolean noPrazo;
 
     public Agendamento() {
         this.id = -1;
@@ -86,9 +88,10 @@ public class Agendamento implements Serializable {
         this.recepcao = null;
         this.observacao = "";
         this.dtEmissao = null;
+        this.noPrazo = true;
     }
 
-    public Agendamento(int id, String data, Horarios horarios, Status status, PessoaEmpresa pessoaEmpresa, Usuario agendador, Usuario homologador, Demissao demissao, String contato, String telefone, String email, Filial filial, Recepcao recepcao, String observacao, String emissao) {
+    public Agendamento(int id, String data, Horarios horarios, Status status, PessoaEmpresa pessoaEmpresa, Usuario agendador, Usuario homologador, Demissao demissao, String contato, String telefone, String email, Filial filial, Recepcao recepcao, String observacao, String emissao, Boolean noPrazo) {
         this.id = id;
         this.setData(data);
         this.horarios = horarios;
@@ -104,6 +107,7 @@ public class Agendamento implements Serializable {
         this.recepcao = recepcao;
         this.observacao = observacao;
         this.setEmissao(data);
+        this.noPrazo = noPrazo;
     }
 
     public int getId() {
@@ -262,5 +266,13 @@ public class Agendamento implements Serializable {
     public void selectioData(SelectEvent selectEvent) {
         ScheduleEvent event = new DefaultScheduleEvent("", (Date) selectEvent.getObject(), (Date) selectEvent.getObject());
         setDtData(event.getStartDate());
+    }
+
+    public boolean isNoPrazo() {
+        return noPrazo;
+    }
+
+    public void setNoPrazo(boolean noPrazo) {
+        this.noPrazo = noPrazo;
     }
 }

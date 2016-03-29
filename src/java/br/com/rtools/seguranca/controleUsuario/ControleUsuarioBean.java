@@ -3,6 +3,9 @@ package br.com.rtools.seguranca.controleUsuario;
 import br.com.rtools.seguranca.dao.MacFilialDao;
 import br.com.rtools.associativo.ConfiguracaoSocial;
 import br.com.rtools.associativo.beans.ConfiguracaoSocialBean;
+import br.com.rtools.financeiro.Caixa;
+import br.com.rtools.financeiro.db.FinanceiroDB;
+import br.com.rtools.financeiro.db.FinanceiroDBToplink;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.principal.DBExternal;
 import br.com.rtools.seguranca.MacFilial;
@@ -144,12 +147,7 @@ public class ControleUsuarioBean implements Serializable {
                 filial += " - Guiche: " + macFilial.getMesa();
             }
             if (macFilial.getDescricao() != null && !macFilial.getDescricao().isEmpty()) {
-                filial += " - " + macFilial.getDescricao();
-            }
-            if (macFilial.getCaixa() != null) {
-                if (macFilial.getCaixa().getCaixa() > 0) {
-                    filial += " - Caixa: " + macFilial.getCaixa().getCaixa();
-                }
+                filial += " - Computador: " + macFilial.getDescricao();
             }
         } else {
             GenericaSessao.put("acessoFilial");
@@ -171,6 +169,29 @@ public class ControleUsuarioBean implements Serializable {
         usuario = db.ValidaUsuario(usuario.getLogin(), usuario.getSenha());
         if (usuario != null) {
             if (usuario.getId() != 1) {
+
+                if (macFilial != null && macFilial.getCaixa() != null) {
+                    if (!macFilial.isCaixaOperador()) {
+                        if (macFilial.getCaixa() != null) {
+                            if (filial.isEmpty()) {
+                                filial += "Caixa: " + macFilial.getCaixa().getDescricao();
+                            } else {
+                                filial += " - Caixa: " + macFilial.getCaixa().getDescricao();
+                            }
+                        }
+                    } else {
+                        FinanceiroDB dbf = new FinanceiroDBToplink();
+                        Caixa caixa = dbf.pesquisaCaixaUsuario(usuario.getId(), macFilial.getFilial().getId());
+                        if (caixa != null) {
+                            if (filial.isEmpty()) {
+                                filial += "Caixa: " + caixa.getDescricao();
+                            } else {
+                                filial += " - Caixa: " + caixa.getDescricao();
+                            }
+                        }
+                    }
+                }
+
                 if (usuario.getAutenticado()) {
                     if (macFilial == null) {
                         usuario = new Usuario();
