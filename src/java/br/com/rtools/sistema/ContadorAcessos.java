@@ -42,7 +42,7 @@ public class ContadorAcessos implements java.io.Serializable {
         this.acessos = acessos;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
