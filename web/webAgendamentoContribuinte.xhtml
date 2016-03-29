@@ -242,7 +242,7 @@
                                     <h:outputLabel value="Carteira" rendered="#{webAgendamentoContribuinteBean.configuracaoHomologacao.webValidaCarteira}" styleClass="font-color-red"/>
                                     <h:outputLabel value="Carteira" rendered="#{!webAgendamentoContribuinteBean.configuracaoHomologacao.webValidaCarteira}"/><br />
                                 </h:column>
-                                <p:inputText size="10" value="#{webAgendamentoContribuinteBean.fisica.carteira}" disabled="#{not empty webAgendamentoContribuinteBean.fisica.carteira && webAgendamentoContribuinteBean.fisica.id != -1}">
+                                <p:inputText size="10" value="#{webAgendamentoContribuinteBean.fisica.carteira}" disabled="#{not empty webAgendamentoContribuinteBean.fisica.carteira and webAgendamentoContribuinteBean.fisica.id != -1}">
                                     <p:ajax event="change" update="@this" global="false"/>
                                 </p:inputText>
                             </h:column>
@@ -253,7 +253,7 @@
                                     <h:outputLabel value="Série" rendered="#{!webAgendamentoContribuinteBean.configuracaoHomologacao.webValidaSerie}" />
                                     <br />
                                 </h:column>
-                                <p:inputText size="15" maxlength="15" value="#{webAgendamentoContribuinteBean.fisica.serie}" disabled="#{not empty webAgendamentoContribuinteBean.fisica.serie && webAgendamentoContribuinteBean.fisica.id != -1}">
+                                <p:inputText size="15" maxlength="15" value="#{webAgendamentoContribuinteBean.fisica.serie}" disabled="#{not empty webAgendamentoContribuinteBean.fisica.serie and webAgendamentoContribuinteBean.fisica.id != -1}">
                                     <p:ajax event="change" update="@this" global="false"/>
                                 </p:inputText>
                             </h:column>
