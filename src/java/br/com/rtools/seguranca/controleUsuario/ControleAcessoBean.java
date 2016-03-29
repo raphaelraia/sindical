@@ -226,7 +226,7 @@ public class ControleAcessoBean implements Serializable {
                     Dao dao = new Dao();
                     dao.openTransaction();
 
-                    if (cont.getId() == -1) {
+                    if (cont.getId() == null || cont.getId() == -1) {
                         if (dao.save(cont)) {
                             dao.commit();
                         } else {

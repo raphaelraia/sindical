@@ -70,6 +70,7 @@ public class ChamadaPaginaBean implements Serializable {
     private boolean render8 = false;
     private boolean render9 = false;
     private boolean renderPesquisa = true;
+    private Boolean atalho = false;
     private List<Rotina> listaRotina = new ArrayList();
 
     @PreDestroy
@@ -2612,5 +2613,13 @@ public class ChamadaPaginaBean implements Serializable {
             default:
                 break;
         }
+    }
+
+    public Boolean getAtalho() {
+        return atalho;
+    }
+
+    public void setAtalho(Boolean atalho) {
+        this.atalho = atalho;
     }
 }
