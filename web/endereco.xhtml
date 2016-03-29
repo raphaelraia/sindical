@@ -43,7 +43,7 @@
                                         </p:selectOneMenu>
                                     </h:column>                            
                                     <h:column>
-                                        <p:commandButton id="idEndereco" value="Descrição" icon="ui-icon-search" action="#{chamadaPaginaBean.descricaoEndereco}" style="width: 120px"/> :
+                                        <p:commandButton id="idEndereco" value="Descrição" icon="ui-icon-search" action="#{chamadaPaginaBean.simples('DescricaoEndereco', 'Descrição do Endereço')}" style="width: 120px"/>:
                                     </h:column>
                                     <h:column>
                                         <p:outputLabel value="Pesquisar Descrição Endereço *" title="Pesquisar Descrição Endereço" for="idEndereco" rendered="#{(enderecoBean.endereco.descricaoEndereco.id) == -1}" style="font-weight: bold; border-bottom: 1px dashed #ECF3FE"/>
@@ -57,7 +57,7 @@
                                         <p:outputLabel value="#{enderecoBean.endereco.cidade.cidade}" rendered="#{(enderecoBean.endereco.cidade.id) != -1}"/>
                                     </h:column>
                                     <h:column>
-                                        <p:commandButton id="idBairro" icon="ui-icon-search" value="Bairro" action="#{chamadaPaginaBean.bairro}" title="Pesquisa Bairro" style="width: 120px"/> :
+                                        <p:commandButton id="idBairro" icon="ui-icon-search" value="Bairro" action="#{chamadaPaginaBean.simples('Bairro', 'Bairro')}" title="Pesquisa Bairro" style="width: 120px"/> :
                                     </h:column>
                                     <h:column>
                                         <p:outputLabel value="Pesquisar Bairro *" title="Pesquisar Bairro" for="idBairro" rendered="#{enderecoBean.endereco.bairro.id == -1}" style="font-weight: bold; border-bottom: 1px dashed #ECF3FE"/>
