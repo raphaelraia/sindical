@@ -141,7 +141,7 @@ public class CaixaBean implements Serializable {
         
         if (c.getFilial() != null){
             for (int i = 0; i < listaFiliais.size(); i++) {
-                if (listaFiliais.get(i).getDescription() != null && Integer.valueOf(listaFiliais.get(i).getDescription()) == c.getFilial().getId()){
+                if (listaFiliais.get(i).getDescription() != null && Integer.valueOf(listaFiliais.get(i).getDescription()).equals(c.getFilial().getId())){
                     idFilial = i;
                 }
             }
@@ -151,7 +151,7 @@ public class CaixaBean implements Serializable {
         
         if (caixa.getUsuario() != null){
             for (int i = 0; i < listaUsuarios.size(); i++) {
-                if (listaUsuarios.get(i).getDescription() != null && Integer.valueOf(listaUsuarios.get(i).getDescription()) == c.getUsuario().getId()){
+                if (listaUsuarios.get(i).getDescription() != null && Integer.valueOf(listaUsuarios.get(i).getDescription()).equals(c.getUsuario().getId())){
                     idUsuario = i;
                 }
             }

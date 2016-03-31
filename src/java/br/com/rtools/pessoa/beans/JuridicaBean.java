@@ -587,9 +587,21 @@ public class JuridicaBean implements Serializable {
                 // tipo = "wokki" = pago / "" = gratis
                 jro = new JuridicaReceitaJSON(documento, "wooki").pesquisar();
 
+                // NULL É PORQUE DEU ERRO DESCONHECIDO
+                if (jro == null){
+                    GenericaMensagem.warn("Atenção", "Erro na pesquisa WOOKI, contate o administrador");
+                    return;
+                }
+                
                 // SE NÃO ENCONTRAR NA WOOKI
                 if (jro.getStatus() == -1){
                     jro = new JuridicaReceitaJSON(documento, "").pesquisar();    
+                }
+                
+                // NULL É PORQUE DEU ERRO DESCONHECIDO
+                if (jro == null){
+                    GenericaMensagem.warn("Atenção", "Erro nas pesquisas WOOKI 2, contate o administrador");
+                    return;
                 }
                 
                 // SE NÃO ENCONTRAR NO SITE GRATUÍTO RETORNA VAZIO

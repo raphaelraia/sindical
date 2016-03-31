@@ -6,6 +6,7 @@ import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.seguranca.Departamento;
 import br.com.rtools.seguranca.MacFilial;
+import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.seguranca.dao.MacFilialDao;
@@ -322,14 +323,8 @@ public class MacFilialBean implements Serializable {
     public String selecionaFilial(MacFilial mf, boolean sair) {
         GenericaSessao.remove("acessoFilial");
         ((ControleUsuarioBean) GenericaSessao.getObject("controleUsuarioBean")).setMacFilial(mf);
-        String s = "Filial: ( " + mf.getFilial().getFilial().getPessoa().getNome() + " / " + mf.getDepartamento().getDescricao() + " )";
-        if (mf.getMesa() > 0) {
-            s += " - Guiche: " + mf.getMesa();
-        }
-        if (mf.getDescricao() != null && !mf.getDescricao().isEmpty()) {
-            s += " - " + mf.getDescricao();
-        }
-        ((ControleUsuarioBean) GenericaSessao.getObject("controleUsuarioBean")).setFilial(s);
+        ((ControleUsuarioBean) GenericaSessao.getObject("controleUsuarioBean")).setFilial(ControleUsuarioBean.retornaStringFilial(mf, Usuario.getUsuario()));
+        
         GenericaSessao.put("acessoFilial", mf);
         GenericaSessao.put("linkClicado", true);
         if (GenericaSessao.exists("back")) {

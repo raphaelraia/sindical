@@ -106,7 +106,7 @@ public class MovimentosReceberSocialDBToplink extends DB implements MovimentosRe
 
             switch (por_status) {
                 case "todos":
-                    ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL AND m.id_titular = " + id_responsavel + ") OR m.id_pessoa IN (" + id_pessoa + ")) \n "
+                    ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL AND m.id_titular in (" + id_responsavel + ")) OR m.id_pessoa IN (" + id_pessoa + ")) \n "
                             // ands = where + " WHERE (m.id_pessoa in (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL)) \n  "
                             + "        AND m.is_ativo = true \n"
                             + "        AND m.id_servicos NOT IN(SELECT sr.id_servicos FROM fin_servico_rotina AS sr WHERE id_rotina = 4) \n ";
@@ -114,7 +114,7 @@ public class MovimentosReceberSocialDBToplink extends DB implements MovimentosRe
                             : " ORDER BY m.dt_vencimento desc, p.ds_nome, t.ds_nome, b.ds_nome, se.ds_descricao \n ";
                     break;
                 case "abertos":
-                    ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL AND m.id_titular = " + id_responsavel + ") OR m.id_pessoa IN (" + id_pessoa + ")) \n "
+                    ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL AND m.id_titular in (" + id_responsavel + ")) OR m.id_pessoa IN (" + id_pessoa + ")) \n "
                             //ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL)) \n "
                             + "        AND m.id_baixa IS NULL   \n"
                             + "        AND m.is_ativo = true    \n"
@@ -122,7 +122,7 @@ public class MovimentosReceberSocialDBToplink extends DB implements MovimentosRe
                     order_by = " ORDER BY m.dt_vencimento ASC, p.ds_nome, t.ds_nome, b.ds_nome, se.ds_descricao \n";
                     break;
                 case "quitados":
-                    ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL AND m.id_titular = " + id_responsavel + ") OR m.id_pessoa IN (" + id_pessoa + ")) \n "
+                    ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL AND m.id_titular in (" + id_responsavel + ")) OR m.id_pessoa IN (" + id_pessoa + ")) \n "
                             //ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL)) "
                             + "        AND m.id_baixa IS NOT NULL   \n"
                             + "        AND m.is_ativo = true        \n"
@@ -131,7 +131,7 @@ public class MovimentosReceberSocialDBToplink extends DB implements MovimentosRe
                             : " ORDER BY bx.dt_baixa DESC, m.dt_vencimento, p.ds_nome, se.ds_descricao \n ";
                     break;
                 case "atrasados":
-                    ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL AND m.id_titular = " + id_responsavel + ") OR m.id_pessoa IN (" + id_pessoa + ")) \n "
+                    ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL AND m.id_titular in (" + id_responsavel + ")) OR m.id_pessoa IN (" + id_pessoa + ")) \n "
                             //ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL)) "
                             + "        AND m.id_baixa IS NULL               \n"
                             + "        AND m.is_ativo = true                \n"
@@ -141,7 +141,7 @@ public class MovimentosReceberSocialDBToplink extends DB implements MovimentosRe
                             : " ORDER BY m.dt_vencimento, p.ds_nome, t.ds_nome, se.ds_descricao \n ";
                     break;
                 case "vencer":
-                    ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL AND m.id_titular = " + id_responsavel + ") OR m.id_pessoa IN (" + id_pessoa + ")) \n "
+                    ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL AND m.id_titular in (" + id_responsavel + ")) OR m.id_pessoa IN (" + id_pessoa + ")) \n "
                             //ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL)) "
                             + "        AND m.id_baixa IS NULL               \n"
                             + "        AND m.is_ativo = true                \n"

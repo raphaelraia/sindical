@@ -8,6 +8,7 @@ import br.com.rtools.utilitarios.GenericaSessao;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -41,7 +42,7 @@ public class ConfiguracaoSocialBean implements Serializable {
             idGrupoCategoria = 0;
         } else {
             for (int i = 0; i < listaGrupoCategoria.size(); i++) {
-                if (configuracaoSocial.getGrupoCategoriaInativaDemissionado().getId() == Integer.valueOf(listaGrupoCategoria.get(i).getDescription())) {
+                if (Objects.equals(configuracaoSocial.getGrupoCategoriaInativaDemissionado().getId(), Integer.valueOf(listaGrupoCategoria.get(i).getDescription()))) {
                     idGrupoCategoria = i;
                 }
             }

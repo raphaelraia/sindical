@@ -30,6 +30,8 @@ import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoPagamento;
 import br.com.rtools.financeiro.TipoServico;
+import br.com.rtools.financeiro.db.FinanceiroDB;
+import br.com.rtools.financeiro.db.FinanceiroDBToplink;
 import br.com.rtools.financeiro.db.MovimentoDB;
 import br.com.rtools.financeiro.db.MovimentoDBToplink;
 import br.com.rtools.financeiro.lista.ListMovimentoEmissaoGuias;
@@ -504,7 +506,7 @@ public class EmissaoGuiasBean implements Serializable {
             }
             message = "Pessoa salva com Sucesso!";
             di.commit();
-            
+
             list_log.add("** SALVAR NOVA PESSOA FÍSICA **");
             list_log.add("Pessoa ID: " + fisicaNovoCadastro.getPessoa().getId());
             list_log.add("Pessoa Nome: " + fisicaNovoCadastro.getPessoa().getNome());
@@ -514,7 +516,7 @@ public class EmissaoGuiasBean implements Serializable {
             list_log.add("Física ID: " + fisicaNovoCadastro.getId());
             list_log.add("Física RG: " + fisicaNovoCadastro.getRg());
             list_log.add("Física Nascimento: " + fisicaNovoCadastro.getNascimento());
-            
+
             String save_log = "";
 
             for (String string_x : list_log) {
@@ -932,7 +934,30 @@ public class EmissaoGuiasBean implements Serializable {
                     )
             );
 
-            Caixa caixa = MacFilial.getAcessoFilial().getCaixa();
+            Caixa caixa;//MacFilial.getAcessoFilial().getCaixa();
+            MacFilial mf = MacFilial.getAcessoFilial();
+            if (mf == null){
+                message = "Mac Filial não configurado!";
+                return null;
+            }
+            
+            if (!mf.isCaixaOperador()) {
+                caixa = mf.getCaixa();
+                
+                if (caixa == null) {
+                    message = "Caixa não configurado!";
+                    return null;
+                }
+            } else {
+                FinanceiroDB dbf = new FinanceiroDBToplink();
+                caixa = dbf.pesquisaCaixaUsuario(Usuario.getUsuario().getId(), mf.getFilial().getId());
+                
+                if (caixa == null){
+                    message = "Caixa POR OPERADOR não configurado!";
+                    return null;
+                }
+            }
+            
             if (!GerarMovimento.baixarMovimentoManual(listaMovimentoAuxiliar, new SegurancaUtilitariosBean().getSessaoUsuario(), lf, valor_soma, DataHoje.data(), caixa, 0)) {
                 message = "Erro ao baixar Guias";
                 return null;

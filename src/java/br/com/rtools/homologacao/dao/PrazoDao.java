@@ -17,7 +17,7 @@ import javax.persistence.Query;
  *
  * @author Claudemir Rtools
  */
-public class SuporteDao extends DB {
+public class PrazoDao extends DB {
     
     public List<Convencao> listaConvencao(){
         try {

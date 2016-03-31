@@ -5,6 +5,7 @@ import br.com.rtools.homologacao.Senha;
 import br.com.rtools.homologacao.db.HomologacaoDB;
 import br.com.rtools.homologacao.db.HomologacaoDBToplink;
 import br.com.rtools.impressao.ParametroSenha;
+import br.com.rtools.seguranca.Departamento;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
@@ -64,7 +65,7 @@ public class SenhaHomologacao implements Serializable {
         if (a.getId() == -1) {
             return null;
         }
-        Collection lista = new ArrayList<ParametroSenha>();
+        Collection lista = new ArrayList();
         HomologacaoDB db = new HomologacaoDBToplink();
         Senha senha = db.pesquisaSenhaAgendamento(a.getId());
         MacFilial mc = MacFilial.getAcessoFilial();
@@ -75,6 +76,8 @@ public class SenhaHomologacao implements Serializable {
             senha.setUsuario(((Usuario) GenericaSessao.getObject("sessaoUsuario")));
             senha.setFilial(mc.getFilial());
             senha.setSenha(db.pesquisaUltimaSenha(mc.getFilial().getId()) + 1);
+            // default DEPARTAMENTO 8 para o caso de HOMOLOGAÇÃO
+            senha.setDepartamento((Departamento) dao.find(new Departamento(), 8));
             if (!dao.save(senha)) {
                 return null;
             }

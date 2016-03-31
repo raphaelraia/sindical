@@ -301,7 +301,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
     public void novaChamadaSenha() {
         HomologacaoDBToplink hdbt = new HomologacaoDBToplink();
         SegurancaUtilitariosBean su = new SegurancaUtilitariosBean();
-        Senha senha = hdbt.pesquisaAtendimentoIniciado(su.getSessaoUsuario().getId(), macFilial.getMesa(), macFilial.getFilial().getId());
+        Senha senha = hdbt.pesquisaAtendimentoIniciado(su.getSessaoUsuario().getId(), macFilial.getMesa(), macFilial.getFilial().getId(), macFilial.getDepartamento().getId());
         if (senha.getId() != -1) {
             Dao dao = new Dao();
             senha.setDtVerificada(new Date());
@@ -325,7 +325,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
         Dao di = new Dao();
 
         // SENHA COM HOMOLOGAÇÃO INICIADA -----
-        Senha senha = dbh.pesquisaAtendimentoIniciado(su.getSessaoUsuario().getId(), macFilial.getMesa(), macFilial.getFilial().getId());
+        Senha senha = dbh.pesquisaAtendimentoIniciado(su.getSessaoUsuario().getId(), macFilial.getMesa(), macFilial.getFilial().getId(), macFilial.getDepartamento().getId());
         if (senha.getId() != -1) {
             agendamento = senha.getAgendamento();
             if (agendamento.getTelefone().length() > 14) {
@@ -360,7 +360,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
             return null;
         }
 
-        List<Senha> listax = dbh.listaAtendimentoIniciadoSimplesUsuario(macFilial.getFilial().getId(), su.getSessaoUsuario().getId());
+        List<Senha> listax = dbh.listaAtendimentoIniciadoSimplesUsuario(macFilial.getFilial().getId(), su.getSessaoUsuario().getId(), macFilial.getDepartamento().getId());
 
         if (!listax.isEmpty()) {
             senhaAtendimento = listax.get(0);
@@ -375,7 +375,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
 //            return senhaAtendimentoIniciado;
 //        }
 
-        List<Senha> listaSenha = dbh.listaSequenciaSenha(macFilial.getFilial().getId());
+        List<Senha> listaSenha = dbh.listaSequenciaSenha(macFilial.getFilial().getId(), macFilial.getDepartamento().getId());
 
         if (listaSenha.isEmpty()) {
             return null;
@@ -598,7 +598,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
         }
 
         // SENHA PADRÃO DE HOMOLOGAÇÃO
-        Senha senhaHomologacaoI = homologacaoDB.pesquisaAtendimentoIniciado(su.getSessaoUsuario().getId(), macFilial.getMesa(), macFilial.getFilial().getId());
+        Senha senhaHomologacaoI = homologacaoDB.pesquisaAtendimentoIniciado(su.getSessaoUsuario().getId(), macFilial.getMesa(), macFilial.getFilial().getId(), macFilial.getDepartamento().getId());
         if (senhaHomologacaoI.getId() != -1) {
             senhaHomologacao = senhaHomologacaoI;
         }
@@ -794,7 +794,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
         if (nrStatus == 4) {
             if (!desabilitaEdicao(agendamento.getDtData(), 30) && !hc) {
                 GenericaMensagem.warn("Atenção", "Não é possível realizar alterações com datas superiores a 30 dias a data de hoje. Contate o administrador do sistema para habilitar a correção de homologações pendentes!");
-                PF.update("form_homologacao:i_msg");
+                PF.update("form_cancelar_data_table:i_msg");
 //                msgConfirma = "Não é possível realizar alterações com datas superiores a 30 dias a data de hoje. Contate o administrador do sistema para habilitar a correção de homologações pendentes!";
 //                PF.update("form_homologacao:i_painel_mensagem");
 //                PF.openDialog("dgl_painel_mensagem");
@@ -803,7 +803,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
         } else if (nrStatus == 3 || nrStatus == 5) {
             if (!desabilitaEdicao(agendamento.getDtData(), 30) && !hc) {
                 GenericaMensagem.warn("Atenção", "Não é possível realizar alterações com datas superiores a 30 dias a data de hoje. Contate o administrador do sistema para habilitar a correção de homologações pendentes!");
-                PF.update("form_homologacao:i_msg");
+                PF.update("form_cancelar_data_table:i_msg");
 //                msgConfirma = "Não é possível realizar alterações com datas superiores a 30 dias a data de hoje. Contate o administrador do sistema para habilitar a correção de homologações pendentes!";
 //                PF.update("form_homologacao:i_painel_mensagem");
 //                PF.openDialog("dgl_painel_mensagem");
@@ -815,7 +815,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
                 if (senha.getId() == -1) {
 //                        msgConfirma = "Não há senha definida!";
                     GenericaMensagem.warn("Atenção", "Não existe uma senha para essa Homologação!");
-                    PF.update("form_homologacao:i_msg");
+                    PF.update("form_cancelar_data_table:i_msg");
                     //PF.openDialog("dgl_painel_mensagem");
                     return null;
                 }

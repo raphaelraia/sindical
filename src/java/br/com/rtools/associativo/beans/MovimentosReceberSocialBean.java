@@ -1097,6 +1097,7 @@ public class MovimentosReceberSocialBean implements Serializable {
             mov.setAtivo(false);
         }
 
+        Integer id_baixa_estornada = mov.getBaixa().getId();
         if (!GerarMovimento.estornarMovimento(mov, motivoEstorno)) {
             est = false;
         }
@@ -1116,7 +1117,7 @@ public class MovimentosReceberSocialBean implements Serializable {
                     + " - Valor: " + mov.getValor()
                     + " - Responsável: (" + mov.getPessoa().getId() + ") " + mov.getPessoa().getNome()
                     + " - Motivo: " + motivoEstorno
-                    + " - Número da Baixa: " + mov.getBaixa().getId()
+                    + " - Número da Baixa: " + id_baixa_estornada
             );
             GenericaMensagem.info("Sucesso", msgConfirma);
         }

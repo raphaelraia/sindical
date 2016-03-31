@@ -6,7 +6,7 @@
                 xmlns:p="http://primefaces.org/ui">
 
     <h:head>
-        <title>Suporte</title>
+        <title>Prazo</title>
         <meta http-equiv="X-UA-Compatible" content="IE=9" />
         <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
         <style type="text/css">
@@ -29,7 +29,7 @@
                 </f:subview>
                 <f:view>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
-                        <h:outputText value="Suporte" styleClass="fonteHeader" />
+                        <h:outputText value="Prazo" styleClass="fonteHeader" />
                         <div style="clear: both"></div>
                         <h:form id="formSuporte">
                             <p:panel styleClass="fundoCinza">
@@ -37,24 +37,24 @@
                                     <h:column>
                                         <br />
                                         <h:panelGrid columns="2">
-                                            <p:commandButton rendered="#{suporteBean.prazo.cidade.id eq -1}" icon="ui-icon-search" value="Pesquisar Cidade" action="#{chamadaPaginaBean.cidade()}"/>
-                                            <p:commandLink value="#{suporteBean.prazo.cidade.cidadeToString}" action="#{chamadaPaginaBean.cidade()}" style="font-size: 14pt!important"/>
+                                            <p:commandButton rendered="#{prazoBean.prazo.cidade.id eq -1}" icon="ui-icon-search" value="Pesquisar Cidade" action="#{chamadaPaginaBean.cidade()}"/>
+                                            <p:commandLink value="#{prazoBean.prazo.cidade.cidadeToString}" action="#{chamadaPaginaBean.cidade()}" style="font-size: 14pt!important"/>
                                         </h:panelGrid>
                                     </h:column>
 
                                     <h:column>
                                         <p:outputLabel value="Convenção" /><br />
-                                        <p:selectOneMenu value="#{suporteBean.indexConvencao}">
+                                        <p:selectOneMenu value="#{prazoBean.indexConvencao}">
                                             <p:ajax event="change" update="@this" />
-                                            <f:selectItems value="#{suporteBean.listaConvencao}" />
+                                            <f:selectItems value="#{prazoBean.listaConvencao}" />
                                         </p:selectOneMenu>
                                     </h:column>
 
                                     <h:column>
                                         <p:outputLabel value="Grupo Cidade" /><br />
-                                        <p:selectOneMenu value="#{suporteBean.indexGrupoCidade}">
+                                        <p:selectOneMenu value="#{prazoBean.indexGrupoCidade}">
                                             <p:ajax event="change" update="@this" />
-                                            <f:selectItems value="#{suporteBean.listaGrupoCidade}" />
+                                            <f:selectItems value="#{prazoBean.listaGrupoCidade}" />
                                         </p:selectOneMenu>
                                     </h:column>
                                 </h:panelGrid>
@@ -63,42 +63,42 @@
                             <h:panelGrid columns="4">
                                 <h:column>
                                     <p:outputLabel value="Prazo dias Trabalhado" /><br />
-                                    <p:inputText value="#{suporteBean.prazo.prazoDiasTrabalhado}" />
+                                    <p:inputText value="#{prazoBean.prazo.prazoDiasTrabalhado}" />
                                 </h:column>
                                 
                                 <h:column>
                                     <p:outputLabel value="Prazo dias Indenizado" /><br />
-                                    <p:inputText value="#{suporteBean.prazo.prazoDiasIndenizado}" />
+                                    <p:inputText value="#{prazoBean.prazo.prazoDiasIndenizado}" />
                                 </h:column>
                                 
                                 <h:column>
                                     <br />
-                                    <p:commandButton value="#{suporteBean.prazo.id eq -1 ? 'Adicionar' : 'Alterar'}" action="#{suporteBean.adicionar()}" update="@form"/>
+                                    <p:commandButton value="#{prazoBean.prazo.id eq -1 ? 'Adicionar' : 'Alterar'}" action="#{prazoBean.adicionar()}" update="@form"/>
                                 </h:column>
                                 
                                 <h:column>
                                     <br />
-                                    <p:commandButton rendered="#{suporteBean.prazo.id ne -1}" value="Excluir" action="#{suporteBean.excluir()}" update="@form"/>
+                                    <p:commandButton rendered="#{prazoBean.prazo.id ne -1}" value="Excluir" action="#{prazoBean.excluir()}" update="@form"/>
                                 </h:column>
                             </h:panelGrid>
                             
                             <p:messages showDetail="true" closable="true"/>
                             
-                            <p:dataTable value="#{suporteBean.listaPrazo}" var="linha_prazo" emptyMessage="Nenhum Registro Encontrado!">
+                            <p:dataTable value="#{prazoBean.listaPrazo}" var="linha_prazo" emptyMessage="Nenhum Registro Encontrado!">
                                 <p:column headerText="ID" style="width: 50px">
-                                    <p:commandLink value="#{linha_prazo.id}" action="#{suporteBean.editar(linha_prazo)}" update="@form"/>
+                                    <p:commandLink value="#{linha_prazo.id}" action="#{prazoBean.editar(linha_prazo)}" update="@form"/>
                                 </p:column>
                                 
                                 <p:column headerText="Cidade">
-                                    <p:commandLink value="#{linha_prazo.cidade.cidadeToString}" action="#{suporteBean.editar(linha_prazo)}" update="@form"/>
+                                    <p:commandLink value="#{linha_prazo.cidade.cidadeToString}" action="#{prazoBean.editar(linha_prazo)}" update="@form"/>
                                 </p:column>
                                 
                                 <p:column headerText="Convenção" style="width: 200px">
-                                    <p:commandLink value="#{linha_prazo.convencao.descricao}" action="#{suporteBean.editar(linha_prazo)}" update="@form"/>
+                                    <p:commandLink value="#{linha_prazo.convencao.descricao}" action="#{prazoBean.editar(linha_prazo)}" update="@form"/>
                                 </p:column>
                                 
                                 <p:column headerText="Grupo Cidade" style="width: 200px">
-                                    <p:commandLink value="#{linha_prazo.grupoCidade.descricao}" action="#{suporteBean.editar(linha_prazo)}" update="@form"/>
+                                    <p:commandLink value="#{linha_prazo.grupoCidade.descricao}" action="#{prazoBean.editar(linha_prazo)}" update="@form"/>
                                 </p:column>
                                 
                                 <p:column headerText="Prazo Trabalhado" style="width: 80px">

@@ -9,7 +9,7 @@ import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.GrupoCidade;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.homologacao.Prazo;
-import br.com.rtools.homologacao.dao.SuporteDao;
+import br.com.rtools.homologacao.dao.PrazoDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
@@ -26,7 +26,7 @@ import javax.faces.model.SelectItem;
  */
 @ManagedBean
 @SessionScoped
-public class SuporteBean implements Serializable {
+public class PrazoBean implements Serializable {
 
     private List<SelectItem> listaConvencao = new ArrayList();
     private List<SelectItem> listaGrupoCidade = new ArrayList();
@@ -35,7 +35,7 @@ public class SuporteBean implements Serializable {
     private Prazo prazo = new Prazo();
     private List<Prazo> listaPrazo = new ArrayList();
 
-    public SuporteBean() {
+    public PrazoBean() {
         loadListaConvencao();
         loadListaGrupoCidade();
         loadListaPrazo();
@@ -71,11 +71,24 @@ public class SuporteBean implements Serializable {
         
         dao.commit();
         prazo = new Prazo();
+        indexConvencao = 0;
+        indexGrupoCidade = 0;
         loadListaPrazo();
     }
 
     public void editar(Prazo p) {
         prazo = p;
+        for (int i = 0; i < listaConvencao.size(); i++){
+            if (prazo.getConvencao().getId() == Integer.valueOf(listaConvencao.get(i).getDescription()) ){
+                indexConvencao = i;
+            }
+        }
+        
+        for (int i = 0; i < listaGrupoCidade.size(); i++){
+            if (prazo.getGrupoCidade().getId() == Integer.valueOf(listaGrupoCidade.get(i).getDescription()) ){
+                indexGrupoCidade = i;
+            }
+        }
     }
 
     public void excluir(){
@@ -100,7 +113,7 @@ public class SuporteBean implements Serializable {
         listaConvencao.clear();
         indexConvencao = 0;
 
-        List<Convencao> result = new SuporteDao().listaConvencao();
+        List<Convencao> result = new PrazoDao().listaConvencao();
 
         for (int i = 0; i < result.size(); i++) {
             listaConvencao.add(
@@ -117,7 +130,7 @@ public class SuporteBean implements Serializable {
         listaGrupoCidade.clear();
         indexGrupoCidade = 0;
 
-        List<GrupoCidade> result = new SuporteDao().listaGrupoCidade();
+        List<GrupoCidade> result = new PrazoDao().listaGrupoCidade();
 
         for (int i = 0; i < result.size(); i++) {
             listaGrupoCidade.add(
@@ -133,7 +146,7 @@ public class SuporteBean implements Serializable {
     public final void loadListaPrazo() {
         listaPrazo.clear();
 
-        listaPrazo = new SuporteDao().listaPrazo();
+        listaPrazo = new PrazoDao().listaPrazo();
     }
 
     public List<SelectItem> getListaConvencao() {

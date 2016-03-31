@@ -5,7 +5,9 @@ import br.com.rtools.atendimento.AteOperacao;
 import br.com.rtools.atendimento.AteStatus;
 import br.com.rtools.atendimento.db.AtendimentoDB;
 import br.com.rtools.atendimento.db.AtendimentoDBTopLink;
+import br.com.rtools.homologacao.OperacaoDepartamento;
 import br.com.rtools.homologacao.Senha;
+import br.com.rtools.homologacao.dao.OperacaoDao;
 import br.com.rtools.homologacao.db.HomologacaoDB;
 import br.com.rtools.homologacao.db.HomologacaoDBToplink;
 import br.com.rtools.impressao.ParametroSenha;
@@ -15,6 +17,7 @@ import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.TipoDocumento;
 import br.com.rtools.pessoa.db.FisicaDB;
 import br.com.rtools.pessoa.db.FisicaDBToplink;
+import br.com.rtools.seguranca.Departamento;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.PermissaoUsuario;
 import br.com.rtools.seguranca.Usuario;
@@ -267,12 +270,12 @@ public class AtendimentoBean implements Serializable {
         
         Senha senha = db.pesquisaSenha(atendimento.getId());
         
-        Collection lista = new ArrayList<ParametroSenha>();
+        Collection lista = new ArrayList();
         
         if (senha.getId() != -1) {
-            
+            String logo_cliente = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png");
             if (senha.getAteMovimento().getJuridica() != null) {
-                lista.add(new ParametroSenha(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
+                lista.add(new ParametroSenha(logo_cliente,
                         senha.getFilial().getFilial().getPessoa().getNome(),
                         senha.getFilial().getFilial().getPessoa().getDocumento(),
                         senha.getAteMovimento().getJuridica().getPessoa().getNome(),
@@ -284,7 +287,7 @@ public class AtendimentoBean implements Serializable {
                         senha.getHora(),
                         String.valueOf(senha.getSenha())));
             } else {
-                lista.add(new ParametroSenha(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
+                lista.add(new ParametroSenha(logo_cliente,
                         senha.getFilial().getFilial().getPessoa().getNome(),
                         senha.getFilial().getFilial().getPessoa().getDocumento(),
                         "", // NOME EMPRESA
@@ -418,9 +421,19 @@ public class AtendimentoBean implements Serializable {
                 return;
             }
             
+            OperacaoDepartamento od = new OperacaoDao().pesquisaOperacaoDepartamento(ateMovimento.getFilial().getId(), ateMovimento.getOperacao().getId());
+            Departamento dep;
+            if (od != null){
+                dep = od.getDepartamento();
+            }else{
+                // CHAMADO 1363
+                // caso não tenha definido uma Operação Departamento então setar o Departamento padrão (8) HOMOLOGAÇÃO
+                // que já estava funcionando antes das alterações
+                dep = (Departamento) dao.find(new Departamento(), 8);
+            }
             HomologacaoDB dbh = new HomologacaoDBToplink();
             int ultima_senha = dbh.pesquisaUltimaSenha(filial.getId()) + 1;
-            Senha senha = new Senha(-1, null, DataHoje.horaMinuto(), "", 0, usuario, DataHoje.data(), ultima_senha, filial, ateMovimento, null, null, null);
+            Senha senha = new Senha(-1, null, DataHoje.horaMinuto(), "", 0, usuario, DataHoje.data(), ultima_senha, filial, ateMovimento, null, null, null, dep);
             
             if (!dao.save(senha)) {
                 GenericaMensagem.error("Erro", "Erro ao Salvar Senha!");
@@ -664,9 +677,9 @@ public class AtendimentoBean implements Serializable {
     public AteMovimento getAteMovimento() {
         if (FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("acessoFilial") != null) {
             if (filial.getId() == -1) {
-                setMacFilial((MacFilial) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("acessoFilial"));
+                macFilial = (MacFilial) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("acessoFilial");
                 Dao dao = new Dao();
-                filial = (Filial) dao.find(new Filial(), getMacFilial().getFilial().getId());
+                filial = (Filial) dao.find(new Filial(), macFilial.getFilial().getId());
                 ateMovimento.setFilial(filial);
             }
         }

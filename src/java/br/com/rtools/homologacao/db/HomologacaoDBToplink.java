@@ -745,7 +745,7 @@ public class HomologacaoDBToplink extends DB implements HomologacaoDB {
     }
 
     @Override
-    public Senha pesquisaAtendimentoIniciado(int id_usuario, int nr_mesa, int id_filial) {
+    public Senha pesquisaAtendimentoIniciado(int id_usuario, int nr_mesa, int id_filial, Integer id_departamento) {
         Senha result = new Senha();
         try {
             Query qry = getEntityManager().createQuery(
@@ -755,11 +755,13 @@ public class HomologacaoDBToplink extends DB implements HomologacaoDB {
                     + "   AND S.agendamento.homologador.id = :id_usuario "
                     + "   AND S.ateMovimento IS NULL "
                     + "   AND S.dtData = :data"
-                    + "   AND S.agendamento.status.id = 5 and S.filial.id = :id_filial");
+                    + "   AND S.agendamento.status.id = 5 and S.filial.id = :id_filial"
+                    + "   AND S.departamento.id = :id_departamento");
             qry.setParameter("data", DataHoje.dataHoje());
             qry.setParameter("nr_mesa", nr_mesa);
             qry.setParameter("id_usuario", id_usuario);
             qry.setParameter("id_filial", id_filial);
+            qry.setParameter("id_departamento", id_departamento);
             if (!qry.getResultList().isEmpty()) {
                 result = (Senha) qry.getSingleResult();
             }
@@ -976,7 +978,7 @@ public class HomologacaoDBToplink extends DB implements HomologacaoDB {
     }
 
     @Override
-    public List<Senha> listaAtendimentoIniciadoSimplesUsuario(int id_filial, int id_usuario) {
+    public List<Senha> listaAtendimentoIniciadoSimplesUsuario(int id_filial, int id_usuario, int id_departamento) {
         List<Senha> result = new ArrayList();
         try {
 //            Query qry = getEntityManager().createQuery(
@@ -1002,6 +1004,7 @@ public class HomologacaoDBToplink extends DB implements HomologacaoDB {
                     + "   AND s.id_filial = " + id_filial
                     + "   AND a.id_atendente = " + id_usuario
                     + "   AND (a.id_reserva IS NULL OR a.id_reserva = " + id_usuario + ")"
+                    + "   AND s.id_departamento = " + id_departamento
                     + " ORDER BY s.nr_senha, s.dt_data",
                     Senha.class);
 
@@ -1036,7 +1039,7 @@ public class HomologacaoDBToplink extends DB implements HomologacaoDB {
     }
 
     @Override
-    public List<Senha> listaSequenciaSenha(int id_filial) {
+    public List<Senha> listaSequenciaSenha(int id_filial, int id_departamento) {
         try {
             Query qry = getEntityManager().createQuery(
                     "SELECT s "
@@ -1044,11 +1047,13 @@ public class HomologacaoDBToplink extends DB implements HomologacaoDB {
                     + " WHERE s.dtData = :pdata"
                     + "   AND s.filial.id = :pfilial"
                     + "   AND (s.horaChamada = '' OR s.horaChamada is null)"
+                    + "   AND s.departamento.id = :pdepartamento"
                     + " ORDER BY s.senha ASC"
             );
 
             qry.setParameter("pdata", DataHoje.dataHoje());
             qry.setParameter("pfilial", id_filial);
+            qry.setParameter("pdepartamento", id_departamento);
 
             return qry.getResultList();
         } catch (Exception e) {

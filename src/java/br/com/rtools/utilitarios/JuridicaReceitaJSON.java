@@ -140,7 +140,12 @@ public class JuridicaReceitaJSON {
                     }
                     con.disconnect();
                 } catch (IOException | JSONException e) {
+                    status = -1;
+                    error = e.getMessage();
 
+                    jro.setStatus(status);
+                    jro.setMsg(error);
+                    return jro;
                 }
 
                 JSONObject obj = new JSONObject(append);

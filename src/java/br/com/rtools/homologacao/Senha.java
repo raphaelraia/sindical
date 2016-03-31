@@ -2,6 +2,7 @@ package br.com.rtools.homologacao;
 
 import br.com.rtools.atendimento.AteMovimento;
 import br.com.rtools.pessoa.Filial;
+import br.com.rtools.seguranca.Departamento;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.DataHoje;
 import java.util.Date;
@@ -58,6 +59,9 @@ public class Senha implements java.io.Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "dt_nova_chamada")
     private Date dtNovaChamada;
+    @JoinColumn(name = "id_departamento", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Departamento departamento;
 
     public Senha() {
         this.id = -1;
@@ -73,9 +77,10 @@ public class Senha implements java.io.Serializable {
         this.dtVerificada = null;
         this.ordem = null;
         this.dtNovaChamada = null;
+        this.departamento = null;
     }
 
-    public Senha(int id, Agendamento agendamento, String hora, String horaChamada, int mesa, Usuario usuario, String data, int senha, Filial filial, AteMovimento ateMovimento, Date dtVerificada, Integer ordem, Date dtNovaChamada) {
+    public Senha(int id, Agendamento agendamento, String hora, String horaChamada, int mesa, Usuario usuario, String data, int senha, Filial filial, AteMovimento ateMovimento, Date dtVerificada, Integer ordem, Date dtNovaChamada, Departamento departamento) {
         this.id = id;
         this.agendamento = agendamento;
         this.hora = hora;
@@ -89,6 +94,7 @@ public class Senha implements java.io.Serializable {
         this.dtVerificada = dtVerificada;
         this.ordem = ordem;
         this.dtNovaChamada = dtNovaChamada;
+        this.departamento = departamento;
     }
 
     public int getId() {
@@ -221,6 +227,14 @@ public class Senha implements java.io.Serializable {
 
     public void setDtNovaChamada(Date dtNovaChamada) {
         this.dtNovaChamada = dtNovaChamada;
+    }
+
+    public Departamento getDepartamento() {
+        return departamento;
+    }
+
+    public void setDepartamento(Departamento departamento) {
+        this.departamento = departamento;
     }
 
 }

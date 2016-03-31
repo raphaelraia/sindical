@@ -135,23 +135,12 @@ public class ControleUsuarioBean implements Serializable {
             GenericaMensagem.warn("Sistema. Entre em contato com nosso suporte técnico. (16) 3964-6117", "Entre em contato com nosso suporte técnico.");
             return null;
         }
+
         String pagina = null;
-        NovoLog log = new NovoLog();
         if (macFilial != null) {
-            Object objs[] = new Object[2];
-            objs[0] = macFilial.getFilial();
-            objs[1] = macFilial.getDepartamento();
             GenericaSessao.put("acessoFilial", macFilial);
-            filial = "Filial: ( " + macFilial.getFilial().getFilial().getPessoa().getNome() + " / " + macFilial.getDepartamento().getDescricao() + " )";
-            if (macFilial.getMesa() > 0) {
-                filial += " - Guiche: " + macFilial.getMesa();
-            }
-            if (macFilial.getDescricao() != null && !macFilial.getDescricao().isEmpty()) {
-                filial += " - Computador: " + macFilial.getDescricao();
-            }
         } else {
             GenericaSessao.put("acessoFilial");
-            filial = "";
         }
         GenericaSessao.put("indicaAcesso", "local");
         UsuarioDB db = new UsuarioDBToplink();
@@ -170,27 +159,7 @@ public class ControleUsuarioBean implements Serializable {
         if (usuario != null) {
             if (usuario.getId() != 1) {
 
-                if (macFilial != null && macFilial.getCaixa() != null) {
-                    if (!macFilial.isCaixaOperador()) {
-                        if (macFilial.getCaixa() != null) {
-                            if (filial.isEmpty()) {
-                                filial += "Caixa: " + macFilial.getCaixa().getDescricao();
-                            } else {
-                                filial += " - Caixa: " + macFilial.getCaixa().getDescricao();
-                            }
-                        }
-                    } else {
-                        FinanceiroDB dbf = new FinanceiroDBToplink();
-                        Caixa caixa = dbf.pesquisaCaixaUsuario(usuario.getId(), macFilial.getFilial().getId());
-                        if (caixa != null) {
-                            if (filial.isEmpty()) {
-                                filial += "Caixa: " + caixa.getDescricao();
-                            } else {
-                                filial += " - Caixa: " + caixa.getDescricao();
-                            }
-                        }
-                    }
-                }
+                filial = retornaStringFilial(macFilial, usuario);
 
                 if (usuario.getAutenticado()) {
                     if (macFilial == null) {
@@ -274,6 +243,47 @@ public class ControleUsuarioBean implements Serializable {
             GenericaMensagem.warn("Validação", msgErro);
         }
         return pagina;
+    }
+
+    public static String retornaStringFilial(MacFilial mf, Usuario u) {
+        if (mf == null) {
+            return "";
+        }
+
+        String string_filial = "";
+        string_filial = "Filial: ( " + mf.getFilial().getFilial().getPessoa().getNome() + " / " + mf.getDepartamento().getDescricao() + " )";
+
+        if (mf.getMesa() > 0) {
+            string_filial += " - Guiche: " + mf.getMesa();
+        }
+        if (mf.getDescricao() != null && !mf.getDescricao().isEmpty()) {
+            string_filial += " - Computador: " + mf.getDescricao();
+        }
+
+        if (!mf.isCaixaOperador()) {
+            if (mf.getCaixa() != null) {
+                if (string_filial.isEmpty()) {
+                    string_filial = "Caixa: " + mf.getCaixa().getDescricao();
+                } else {
+                    string_filial += " - Caixa: " + mf.getCaixa().getDescricao();
+                }
+            } else {
+                string_filial += " - Caixa: NENHUM DEFINIDO";
+            }
+        } else {
+            FinanceiroDB dbf = new FinanceiroDBToplink();
+            Caixa caixa = dbf.pesquisaCaixaUsuario(u.getId(), mf.getFilial().getId());
+            if (caixa != null) {
+                if (string_filial.isEmpty()) {
+                    string_filial = "Caixa: " + caixa.getDescricao();
+                } else {
+                    string_filial += " - Caixa: " + caixa.getDescricao();
+                }
+            } else {
+                string_filial += " - Caixa: NENHUM DEFINIDO";
+            }
+        }
+        return string_filial;
     }
 
     public String getValidacaoIndex() throws IOException {
@@ -422,9 +432,9 @@ public class ControleUsuarioBean implements Serializable {
         }
         if (filialDep != null) {
             MacFilialDao macFilialDao = new MacFilialDao();
-            setMacFilial(macFilialDao.pesquisaMac(filialDep));
-            if (getMacFilial() != null) {
-                filialDep = getMacFilial().getFilial().getFilial().getPessoa().getNome();
+            macFilial = macFilialDao.pesquisaMac(filialDep);
+            if (macFilial != null) {
+                filialDep = macFilial.getFilial().getFilial().getPessoa().getNome();
             } else {
                 filialDep = "Filial sem Registro";
             }

@@ -1,5 +1,6 @@
 package br.com.rtools.seguranca.utilitarios;
 
+import br.com.rtools.financeiro.Caixa;
 import br.com.rtools.financeiro.db.FinanceiroDB;
 import br.com.rtools.financeiro.db.FinanceiroDBToplink;
 import br.com.rtools.seguranca.MacFilial;
@@ -32,7 +33,7 @@ public class SegurancaUtilitariosBean implements Serializable {
         paginaBloqueada = "";
     }
 
-    public String verPaginaBloqueada(){
+    public String verPaginaBloqueada() {
         GenericaSessao.put("linkClicado", true);
         try {
             return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).pagina(paginaBloqueada);
@@ -40,38 +41,49 @@ public class SegurancaUtilitariosBean implements Serializable {
             e.getMessage();
         }
         return null;
-    } 
-    
+    }
+
     public boolean getExisteBloqueio() {
         HttpServletRequest paginaRequerida = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
         String paginaAtual = paginaRequerida.getRequestURI().substring(paginaRequerida.getRequestURI().lastIndexOf("/") + 1, paginaRequerida.getRequestURI().lastIndexOf("."));
-        
-        if (paginaAtual.equals("gerarBoleto") || paginaAtual.equals("servicos")){
+
+        if (paginaAtual.equals("gerarBoleto") || paginaAtual.equals("servicos")) {
             FinanceiroDB db = new FinanceiroDBToplink();
             List<Vector> listaServicoSemCobranca = db.listaServicosSemCobranca();
-            if (!listaServicoSemCobranca.isEmpty()){
+            if (!listaServicoSemCobranca.isEmpty()) {
                 mensagem = "Definir Conta Cobrança para os seguintes Serviços <br /> <br />";
-                for (Vector linha : listaServicoSemCobranca){
+                for (Vector linha : listaServicoSemCobranca) {
                     mensagem += "Serviço / Tipo: " + linha.get(1).toString() + " - " + linha.get(3).toString() + " <br /> ";
                 }
-                
+
                 paginaBloqueada = "servicoContaCobranca";
                 return true;
             }
         }
         return false;
     }
-    
+
     public boolean getExisteMacFilial() {
         return MacFilial.getAcessoFilial().getId() != -1;
     }
-    
+
     public boolean getExisteMacFilialComCaixa() {
         MacFilial macFilial = MacFilial.getAcessoFilial();
-        if(macFilial.getId() != -1 && macFilial.getCaixa() != null) {
-            return true;
+        if (macFilial.getId() != -1) {
+            if (!macFilial.isCaixaOperador()) {
+                if (macFilial.getCaixa() != null) {
+                    return true;
+                }
+            } else {
+                FinanceiroDB db = new FinanceiroDBToplink();
+                Caixa caixa = db.pesquisaCaixaUsuario(Usuario.getUsuario().getId(), macFilial.getFilial().getId());
+
+                if (caixa != null) {
+                    return true;
+                }
+            }
         }
-        return false;            
+        return false;
     }
 
     public Usuario getSessaoUsuario() {

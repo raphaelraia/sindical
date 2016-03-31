@@ -57,7 +57,7 @@ public interface HomologacaoDB {
 
     public Senha pesquisaSenhaAtendimento(int id_filial);
 
-    public Senha pesquisaAtendimentoIniciado(int id_usuario, int nr_mesa, int id_filial);
+    public Senha pesquisaAtendimentoIniciado(int id_usuario, int nr_mesa, int id_filial, Integer id_departamento);
 
     public Senha pesquisaAtendimentoIniciadoSimples(int id_filial);
 
@@ -73,11 +73,11 @@ public interface HomologacaoDB {
 
     public List<Senha> listaAtendimentoIniciadoSimplesPesquisa(int id_filial, int id_usuario, int id_status, String tipoData, String dataInicial, String dataFinal, int id_pessoa, String descricaoFisica, String tipoPesquisaFisica);
 
-    public List<Senha> listaAtendimentoIniciadoSimplesUsuario(int id_filial, int id_usuario);
+    public List<Senha> listaAtendimentoIniciadoSimplesUsuario(int id_filial, int id_usuario, int id_departamento);
 
     public Senha pesquisaAtendimentoReserva(int id_filial, int id_usuario);
 
-    public List<Senha> listaSequenciaSenha(int id_filial);
+    public List<Senha> listaSequenciaSenha(int id_filial, int id_departamento);
 
     public PessoaEmpresa pesquisaPessoaEmpresaAdmissao(int id_fisica, int id_juridica, String dataAdmissao);
 

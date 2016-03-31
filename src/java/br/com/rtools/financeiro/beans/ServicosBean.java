@@ -293,7 +293,15 @@ public class ServicosBean implements Serializable {
                     return;
                 }
             }
+
             di.commit();
+        } catch (Exception e) {
+            di.rollback();
+            message = "Erro no cadastro de serviço!";
+            return;
+        }
+        
+        if (!listCategoriaDesconto.isEmpty()) {
             di.openTransaction();
             for (CategoriaDesconto categoria : listCategoriaDesconto) {
                 if (categoria.getId() == -1) {
@@ -332,9 +340,8 @@ public class ServicosBean implements Serializable {
                     }
                 }
             }
-        } catch (Exception e) {
-            di.rollback();
-            message = "Erro no cadastro de serviço!";
+
+            di.commit();
         }
     }
 

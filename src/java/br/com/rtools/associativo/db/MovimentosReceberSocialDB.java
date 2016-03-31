@@ -46,6 +46,7 @@ public interface MovimentosReceberSocialDB {
      * @param referencia (Referência)
      * @param tipoPessoa (Se é física ou jurídica)
      * @param lote_baixa (Id da baixa)
+     * @param limite_pesquisa
      * @return
      */
     public List pesquisaListaMovimentos(String id_pessoa, String id_responsavel, String por_status, String referencia, String tipoPessoa, String lote_baixa, String limite_pesquisa);
