@@ -15,7 +15,6 @@ import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
-import br.com.rtools.pessoa.db.FilialCidadeDB;
 import br.com.rtools.pessoa.db.FilialCidadeDBToplink;
 import br.com.rtools.pessoa.db.FisicaDB;
 import br.com.rtools.pessoa.db.FisicaDBToplink;
@@ -92,7 +91,7 @@ public class SocioCarteirinhaJSFBean {
 
     public List<Socios> getListaSocios() {
         SocioCarteirinhaDB db = new SocioCarteirinhaDBToplink();
-        FilialCidadeDB dbC = new FilialCidadeDBToplink();
+        FilialCidadeDBToplink dbC = new FilialCidadeDBToplink();
         PessoaEnderecoDao dbE = new PessoaEnderecoDao();
         FilialCidade filCidade;
         SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
@@ -107,7 +106,7 @@ public class SocioCarteirinhaJSFBean {
             for (int i = 0; i < result.size(); i++) {
                 PessoaEndereco pesEnde = dbE.pesquisaEndPorPessoaTipo(((Socios) result.get(i)).getServicoPessoa().getPessoa().getId(), 1);
                 if (pesEnde != null) {
-                    filCidade = dbC.pesquisaFilialPorCidade(pesEnde.getEndereco().getCidade().getId());
+                    filCidade = dbC.findPrincipal(pesEnde.getEndereco().getCidade().getId());
                 } else {
                     filCidade = new FilialCidade();
                 }
@@ -130,12 +129,12 @@ public class SocioCarteirinhaJSFBean {
                 return "emissaoCarteirinha";
             }
         }
-        FilialCidadeDB dbC = new FilialCidadeDBToplink();
+        FilialCidadeDBToplink dbC = new FilialCidadeDBToplink();
         PessoaEnderecoDao dbE = new PessoaEnderecoDao();
         PessoaEndereco pesEnde = dbE.pesquisaEndPorPessoaTipo(socioCarteirinha.getPessoa().getId(), 1);
         FilialCidade filCidade;
         if (pesEnde != null) {
-            filCidade = dbC.pesquisaFilialPorCidade(pesEnde.getEndereco().getCidade().getId());
+            filCidade = dbC.findPrincipal(pesEnde.getEndereco().getCidade().getId());
         } else {
             filCidade = new FilialCidade();
         }

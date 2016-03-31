@@ -311,4 +311,31 @@ public class FilialDao extends DB implements FilialDB {
         return new FindDao().findNotInByTabela(Filial.class, "pes_filial", new String[]{"id_filial"}, table, column, colum_filter_key, colum_filter_value, "");
     }
 
+    public List findFilialNotInFilialCidade() {
+        try {
+            String queryString = ""
+                    + "SELECT F.*                                               \n"
+                    + "FROM pes_filial AS F                                     \n"
+                    + "INNER JOIN pes_juridica AS J ON J.id = F.id_filial       \n"
+                    + "INNER JOIN pes_pessoa AS P ON P.id = J.id_pessoa         \n"
+                    + "WHERE F.id NOT IN (SELECT id_filial FROM pes_filial_cidade WHERE is_principal = false)\n"
+                    + "ORDER BY P.ds_nome ASC";
+            Query query = getEntityManager().createNativeQuery(queryString, Filial.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+
+        }
+    }
+
+    public Filial findByJuridica(Integer juridica_id) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT F FROM Filial AS F WHERE F.filial.id = :juridica_id");
+            query.setParameter("juridica_id", juridica_id);
+            return (Filial) query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 }

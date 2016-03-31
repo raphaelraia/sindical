@@ -5,7 +5,6 @@ import br.com.rtools.academia.dao.AcademiaDao;
 import br.com.rtools.associativo.Categoria;
 import br.com.rtools.associativo.GrupoCategoria;
 import br.com.rtools.associativo.db.CategoriaDao;
-import br.com.rtools.impressao.ParametroAcademiaCadastral;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.relatorios.Relatorios;
@@ -30,6 +29,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -71,14 +71,20 @@ public class RelatorioAcademiaBean implements Serializable {
     private Float descontoFinal;
     private Boolean situacao;
     private String situacaoString;
+    private String situacaoFinanceira;
     private Integer carenciaDias;
     private String tipoCarencia;
     private String matricula_situacao;
     private Boolean mostrarDataInativacao;
+    private Rotina rotina;
+    private String vencimentoInicial;
+    private String vencimentoFinal;
+    private String quitacaoInicial;
+    private String quitacaoFinal;
 
     @PostConstruct
     public void init() {
-        filtro = new Boolean[14];
+        filtro = new Boolean[17];
         filtro[0] = false; // MODALIDADE
         filtro[1] = false; // PERÍODO EMISSÃO / INATIVAÇÃO
         filtro[2] = false; // RESPONSÁVEL
@@ -93,6 +99,9 @@ public class RelatorioAcademiaBean implements Serializable {
         filtro[11] = false; // CONVÊNIO EMPRESA
         filtro[12] = false; // FAIXA DESCONTO
         filtro[13] = false; // SITUAÇÃO
+        filtro[14] = false; // SITUAÇÃO FINANCEIRA
+        filtro[15] = false; // FAIXA VENCIMENTO
+        filtro[16] = false; // FAIXA QUITAÇÃO
         listSelectItem = new ArrayList[2];
         listSelectItem[0] = new ArrayList<>();
         listSelectItem[1] = new ArrayList<>();
@@ -121,10 +130,16 @@ public class RelatorioAcademiaBean implements Serializable {
         desconto = new Float(0);
         descontoFinal = new Float(0);
         situacaoString = null;
+        situacaoFinanceira = null;
         situacao = false;
         carenciaDias = null;
         tipoCarencia = "todos";
         mostrarDataInativacao = false;
+        rotina = new Rotina().get();
+        vencimentoInicial = "";
+        vencimentoFinal = "";
+        quitacaoInicial = "";
+        quitacaoFinal = "";
     }
 
     @PreDestroy
@@ -141,7 +156,6 @@ public class RelatorioAcademiaBean implements Serializable {
     }
 
     public void print(int tcase) throws FileNotFoundException {
-        Relatorios relatorios = null;
         if (!getListTipoRelatorios().isEmpty()) {
             RelatorioDao rgdb = new RelatorioDao();
             relatorios = rgdb.pesquisaRelatorios(index[0]);
@@ -157,6 +171,10 @@ public class RelatorioAcademiaBean implements Serializable {
         Integer idAluno = null;
         String pIStringI = "";
         String pFStringI = "";
+        String vIStringI = "";
+        String vFStringI = "";
+        String qIStringI = "";
+        String qFStringI = "";
         String sexoString = "";
         String dReferencia = "";
         String inIdModalidades = inIdModalidades();
@@ -236,8 +254,13 @@ public class RelatorioAcademiaBean implements Serializable {
             desconto_final = descontoFinal;
         }
 
-        List list = new RelatorioAcademiaDao().find(
-                relatorios,
+        RelatorioAcademiaDao rad = new RelatorioAcademiaDao();
+        rad.setRelatorios(relatorios);
+        if(relatorios.getId() == 32) {
+            relatorios.setQueryString("PA.nome, MV.dt_vencimento");
+            order = "PA.nome, MV.dt_vencimento";
+        }
+        List list = rad.find(
                 pIStringI,
                 pFStringI,
                 idResponsavel,
@@ -257,6 +280,11 @@ public class RelatorioAcademiaBean implements Serializable {
                 tipoCarencia,
                 carenciaDias,
                 situacaoString,
+                situacaoFinanceira,
+                vencimentoInicial,
+                vencimentoFinal,
+                quitacaoInicial,
+                quitacaoFinal,
                 order
         );
         if (list.isEmpty()) {
@@ -280,42 +308,51 @@ public class RelatorioAcademiaBean implements Serializable {
         String emissao = "";
         String inativacao = "";
         List<ParametroAcademiaCadastral> pacs = new ArrayList<>();
-        ParametroAcademiaCadastral pac;
+        ParametroAcademiaCadastral pac = new ParametroAcademiaCadastral();
         for (Object list1 : list) {
-            nascimento = AnaliseString.converteNullString(((List) list1).get(2));
-            if (!nascimento.isEmpty()) {
-                nascimento = DataHoje.converteData(DataHoje.converteDateSqlToDate(nascimento));
+            List o = (List) list1;
+            if (relatorios.getId() == 31) {
+                pac = new ParametroAcademiaCadastral(
+                        o.get(0),
+                        o.get(1),
+                        o.get(2),
+                        o.get(3),
+                        o.get(4),
+                        o.get(6),
+                        o.get(7),
+                        o.get(5),
+                        o.get(8),
+                        o.get(9)
+                );
+            } else if (relatorios.getId() == 32) {
+                pac = new ParametroAcademiaCadastral(
+                        o.get(0),
+                        o.get(1),
+                        o.get(2),
+                        o.get(3),
+                        o.get(4),
+                        o.get(6),
+                        o.get(7),
+                        o.get(5),
+                        o.get(8),
+                        o.get(9),
+                        o.get(10),
+                        o.get(11),
+                        o.get(12),
+                        o.get(13)
+                );
             }
-            emissao = AnaliseString.converteNullString(((List) list1).get(8));
-            if (!emissao.isEmpty()) {
-                emissao = DataHoje.converteData(DataHoje.converteDateSqlToDate(emissao));
-            }
-            inativacao = AnaliseString.converteNullString(((List) list1).get(9));
-            if (!inativacao.isEmpty()) {
-                inativacao = DataHoje.converteData(DataHoje.converteDateSqlToDate(inativacao));
-            }
-            pac = new ParametroAcademiaCadastral(
-                    detalheRelatorio,
-                    AnaliseString.converteNullString(((List) list1).get(0)),
-                    AnaliseString.converteNullString(((List) list1).get(1)),
-                    nascimento,
-                    AnaliseString.converteNullString(((List) list1).get(3)),
-                    AnaliseString.converteNullString(((List) list1).get(4)),
-                    AnaliseString.converteNullString(((List) list1).get(6)),
-                    AnaliseString.converteNullString(((List) list1).get(7)),
-                    AnaliseString.converteNullString(((List) list1).get(5)),
-                    emissao,
-                    inativacao
-            );
             pacs.add(pac);
         }
         if (!pacs.isEmpty()) {
+            Jasper.TITLE = relatorios.getNome();
             if (relatorios.getExcel()) {
                 Jasper.EXCEL_FIELDS = relatorios.getCamposExcel();
             } else {
                 Jasper.EXCEL_FIELDS = "";
             }
             Map map = new HashMap();
+            map.put("detalhes_relatorio", detalheRelatorio);
             if (mostrarDataInativacao && matricula_situacao.equals("inativos")) {
                 map.put("matricula_situacao", matricula_situacao);
             } else {
@@ -330,7 +367,7 @@ public class RelatorioAcademiaBean implements Serializable {
     public List<SelectItem> getListTipoRelatorios() {
         if (listSelectItem[0].isEmpty()) {
             RelatorioDao db = new RelatorioDao();
-            List<Relatorios> list = (List<Relatorios>) db.pesquisaTipoRelatorio(new Rotina().get().getId());
+            List<Relatorios> list = (List<Relatorios>) db.pesquisaTipoRelatorio(rotina.getId());
             for (int i = 0; i < list.size(); i++) {
                 if (i == 0) {
                     index[0] = list.get(i).getId();
@@ -417,6 +454,17 @@ public class RelatorioAcademiaBean implements Serializable {
             carenciaDias = null;
             tipoCarencia = "todos";
         }
+        if (!filtro[14]) {
+            situacaoFinanceira = null;
+        }
+        if (!filtro[15]) {
+            vencimentoInicial = "";
+            vencimentoFinal = "";
+        }
+        if (!filtro[16]) {
+            quitacaoInicial = "";
+            quitacaoFinal = "";
+        }
     }
 
     public void clear(Integer tcase) {
@@ -489,6 +537,20 @@ public class RelatorioAcademiaBean implements Serializable {
                 tipoCarencia = "todos";
                 filtro[13] = false;
                 break;
+            case "situacao_financeira":
+                situacaoFinanceira = null;
+                filtro[14] = false;
+                break;
+            case "vencimento":
+                vencimentoInicial = "";
+                vencimentoFinal = "";
+                filtro[15] = false;
+                break;
+            case "quitacao":
+                quitacaoInicial = "";
+                quitacaoFinal = "";
+                filtro[16] = false;
+                break;
         }
         PF.update("form_relatorio:id_panel");
     }
@@ -559,6 +621,9 @@ public class RelatorioAcademiaBean implements Serializable {
      * <li>[11] CONVÊNIO EMPRESA </li>
      * <li>[12] FAIXA DESCONTO </li>
      * <li>[13] SITUAÇÃO </li>
+     * <li>[14] SITUAÇÃO FINANCEIRA</li>
+     * <li>[15] FAIXA VENCIMENTO</li>
+     * <li>[16] FAIXA QUITAÇÃO</li>
      * </ul>
      *
      * @return boolean
@@ -712,7 +777,7 @@ public class RelatorioAcademiaBean implements Serializable {
 
     public Relatorios getRelatorios() {
         try {
-            if (relatorios.getId() != index[0]) {
+            if (!Objects.equals(relatorios.getId(), index[0])) {
                 Jasper.EXPORT_TO = false;
             }
             relatorios = (Relatorios) new Dao().find(new Relatorios(), index[0]);
@@ -964,5 +1029,268 @@ public class RelatorioAcademiaBean implements Serializable {
 
     public void setMostrarDataInativacao(Boolean mostrarDataInativacao) {
         this.mostrarDataInativacao = mostrarDataInativacao;
+    }
+
+    public Rotina getRotina() {
+        return rotina;
+    }
+
+    public void setRotina(Rotina rotina) {
+        this.rotina = rotina;
+    }
+
+    public String getSituacaoFinanceira() {
+        return situacaoFinanceira;
+    }
+
+    public void setSituacaoFinanceira(String situacaoFinanceira) {
+        this.situacaoFinanceira = situacaoFinanceira;
+    }
+
+    public String getVencimentoInicial() {
+        return vencimentoInicial;
+    }
+
+    public void setVencimentoInicial(String vencimentoInicial) {
+        this.vencimentoInicial = vencimentoInicial;
+    }
+
+    public String getVencimentoFinal() {
+        return vencimentoFinal;
+    }
+
+    public void setVencimentoFinal(String vencimentoFinal) {
+        this.vencimentoFinal = vencimentoFinal;
+    }
+
+    public String getQuitacaoInicial() {
+        return quitacaoInicial;
+    }
+
+    public void setQuitacaoInicial(String quitacaoInicial) {
+        this.quitacaoInicial = quitacaoInicial;
+    }
+
+    public String getQuitacaoFinal() {
+        return quitacaoFinal;
+    }
+
+    public void setQuitacaoFinal(String quitacaoFinal) {
+        this.quitacaoFinal = quitacaoFinal;
+    }
+
+    public class ParametroAcademiaCadastral {
+
+        private Object aluno_nome;
+        private Object aluno_idade;
+        private Object aluno_nascimento;
+        private Object aluno_sexo;
+        private Object aluno_cidade;
+        private Object servico;
+        private Object periodo;
+        private Object responsavel_nome;
+        private Object emissao;
+        private Object inativacao;
+        private Object data_vencimento;
+        private Object data_baixa;
+        private Object valor;
+        private Object valor_baixa;
+
+        public ParametroAcademiaCadastral() {
+            this.aluno_nome = null;
+            this.aluno_idade = null;
+            this.aluno_nascimento = null;
+            this.aluno_sexo = null;
+            this.aluno_cidade = null;
+            this.servico = null;
+            this.periodo = null;
+            this.responsavel_nome = null;
+            this.emissao = null;
+            this.inativacao = null;
+            this.data_vencimento = null;
+            this.data_baixa = null;
+            this.valor = null;
+            this.valor_baixa = null;
+        }
+
+        /**
+         *
+         * @param aluno_nome
+         * @param aluno_idade
+         * @param aluno_nascimento
+         * @param aluno_sexo
+         * @param aluno_cidade
+         * @param servico
+         * @param periodo
+         * @param responsavel_nome
+         * @param emissao
+         * @param inativacao
+         */
+        public ParametroAcademiaCadastral(Object aluno_nome, Object aluno_idade, Object aluno_nascimento, Object aluno_sexo, Object aluno_cidade, Object servico, Object periodo, Object responsavel_nome, Object emissao, Object inativacao) {
+            this.aluno_nome = aluno_nome;
+            this.aluno_idade = aluno_idade;
+            this.aluno_nascimento = aluno_nascimento;
+            this.aluno_sexo = aluno_sexo;
+            this.aluno_cidade = aluno_cidade;
+            this.servico = servico;
+            this.periodo = periodo;
+            this.responsavel_nome = responsavel_nome;
+            this.emissao = emissao;
+            this.inativacao = inativacao;
+        }
+
+        /**
+         *
+         * @param aluno_nome
+         * @param aluno_idade
+         * @param aluno_nascimento
+         * @param aluno_sexo
+         * @param aluno_cidade
+         * @param servico
+         * @param periodo
+         * @param responsavel_nome
+         * @param emissao
+         * @param inativacao
+         * @param data_vencimento
+         * @param data_baixa
+         * @param valor
+         * @param valor_baixa
+         */
+        public ParametroAcademiaCadastral(Object aluno_nome, Object aluno_idade, Object aluno_nascimento, Object aluno_sexo, Object aluno_cidade, Object servico, Object periodo, Object responsavel_nome, Object emissao, Object inativacao, Object data_vencimento, Object data_baixa, Object valor, Object valor_baixa) {
+            this.aluno_nome = aluno_nome;
+            this.aluno_idade = aluno_idade;
+            this.aluno_nascimento = aluno_nascimento;
+            this.aluno_sexo = aluno_sexo;
+            this.aluno_cidade = aluno_cidade;
+            this.servico = servico;
+            this.periodo = periodo;
+            this.responsavel_nome = responsavel_nome;
+            this.emissao = emissao;
+            this.inativacao = inativacao;
+            this.data_vencimento = data_vencimento;
+            this.data_baixa = data_baixa;
+            this.valor = valor;
+            this.valor_baixa = valor_baixa;
+        }
+
+        /**
+         * Nome
+         *
+         * @see aaaa
+         * @return
+         */
+        // ALUNO
+        public Object getAluno_nome() {
+            return aluno_nome;
+        }
+
+        // ALUNO
+        public void setAluno_nome(Object aluno_nome) {
+            this.aluno_nome = aluno_nome;
+        }
+
+        public Object getAluno_idade() {
+            return aluno_idade;
+        }
+
+        public void setAluno_idade(Object aluno_idade) {
+            this.aluno_idade = aluno_idade;
+        }
+
+        public Object getAluno_nascimento() {
+            return aluno_nascimento;
+        }
+
+        public void setAluno_nascimento(Object aluno_nascimento) {
+            this.aluno_nascimento = aluno_nascimento;
+        }
+
+        public Object getAluno_sexo() {
+            return aluno_sexo;
+        }
+
+        public void setAluno_sexo(Object aluno_sexo) {
+            this.aluno_sexo = aluno_sexo;
+        }
+
+        public Object getAluno_cidade() {
+            return aluno_cidade;
+        }
+
+        public void setAluno_cidade(Object aluno_cidade) {
+            this.aluno_cidade = aluno_cidade;
+        }
+
+        public Object getServico() {
+            return servico;
+        }
+
+        public void setServico(Object servico) {
+            this.servico = servico;
+        }
+
+        public Object getPeriodo() {
+            return periodo;
+        }
+
+        public void Object(Object periodo) {
+            this.periodo = periodo;
+        }
+
+        public Object getResponsavel_nome() {
+            return responsavel_nome;
+        }
+
+        public void setResponsavel_nome(Object responsavel_nome) {
+            this.responsavel_nome = responsavel_nome;
+        }
+
+        public Object getEmissao() {
+            return emissao;
+        }
+
+        public void setEmissao(Object emissao) {
+            this.emissao = emissao;
+        }
+
+        public Object getInativacao() {
+            return inativacao;
+        }
+
+        public void setInativacao(Object inativacao) {
+            this.inativacao = inativacao;
+        }
+
+        public Object getData_vencimento() {
+            return data_vencimento;
+        }
+
+        public void setData_vencimento(Object data_vencimento) {
+            this.data_vencimento = data_vencimento;
+        }
+
+        public Object getData_baixa() {
+            return data_baixa;
+        }
+
+        public void setData_baixa(Object data_baixa) {
+            this.data_baixa = data_baixa;
+        }
+
+        public Object getValor() {
+            return valor;
+        }
+
+        public void setValor(Object valor) {
+            this.valor = valor;
+        }
+
+        public Object getValor_baixa() {
+            return valor_baixa;
+        }
+
+        public void setValor_baixa(Object valor_baixa) {
+            this.valor_baixa = valor_baixa;
+        }
     }
 }

@@ -1,10 +1,10 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:ui="http://java.sun.com/jsf/facelets"
-      xmlns:h="http://java.sun.com/jsf/html"
-      xmlns:f="http://java.sun.com/jsf/core"
-      xmlns:c="http://java.sun.com/jsp/jstl/core"
-      xmlns:p="http://primefaces.org/ui">
-    
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
     <h:head>
         <title>Filial</title>
         <meta http-equiv="X-UA-Compatible" content="IE=9" />
@@ -16,83 +16,131 @@
     </h:head>
     <h:body>
         <!-- INICIA DIV wrap e main -->
-	<div id="wrapx">
-        <div id="mainx">
-        <!-- INICIA DIV wrap e main -->  
-        <f:subview id="header">
-            <ui:include src="templates/templatePrime.xhtml"/>
-        </f:subview>
-        
-        <f:view>
-            <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
-                <h:form id="form_filial">
-                    <p:growl id="i_msg" showDetail="true" />  
-                    <c:set scope="request" var="object" value="${filialBean.filial}"/>
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                </f:subview>
 
-                    <h:outputText value="Cadastro de Filiais" styleClass="fonteHeader" />
-                    <p:panel styleClass="fundoCinza" style="clear: both">
-                        <h:panelGrid id="i_panel_novo" style="width: 100%" columns="1">
-                            <h:column>
-                                <p:commandButton value="Adicionar uma Filial" rendered="#{filialBean.filial.filial.pessoa.id == -1}" action="#{chamadaPaginaBean.pesquisaPessoaJuridica}"/>
-                                <h:outputText value="#{filialBean.filial.filial.pessoa.documento} - #{filialBean.filial.filial.pessoa.nome}" styleClass="fontePadraoNegrito" rendered="#{filialBean.filial.filial.pessoa.id != -1}"/>
-                                <p:commandButton icon="ui-icon-close" rendered="#{filialBean.filial.filial.pessoa.id != -1}" action="#{filialBean.removerFilial}" update="form_filial"/>
-                            </h:column>
-                        </h:panelGrid>
-                        
-                        <h:panelGrid columns="2" rendered="#{filialBean.filial.filial.pessoa.id != -1}">
-                            <h:column>
-                                <p:outputLabel value="Quantidade de Agendamentos por Empresa"/><br />
-                                <p:inputText value="#{filialBean.filial.quantidadeAgendamentosPorEmpresa}" style="width: 250px; text-align: right"/>
-                            </h:column>
-                            <h:column>
-                                <br />
-                                <p:commandButton value="Salvar" action="#{filialBean.btnAddFilial}" title="Adicionar esta empresa como Filial" style="margin-left: 20px" update=":form_filial:"/>
-                            </h:column>
-                        </h:panelGrid>
+                <f:view>
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:form id="form_filial">
+                            <p:growl id="i_msg" showDetail="true" />  
+                            <c:set scope="request" var="object" value="${filialBean.filial}"/>
+
+                            <h:outputText value="Cadastro de Filiais" styleClass="fonteHeader" />
+                            <p:panel styleClass="fundoCinza" style="clear: both">
+                                <h:panelGrid id="i_panel_novo" style="width: 100%" columns="1">
+                                    <h:column>
+                                        <p:commandButton value="Adicionar uma Filial" rendered="#{filialBean.filial.filial.pessoa.id == -1}" action="#{chamadaPaginaBean.pesquisaPessoaJuridica}"/>
+                                        <h:outputText value="#{filialBean.filial.filial.pessoa.documento} - #{filialBean.filial.filial.pessoa.nome}" styleClass="fontePadraoNegrito" rendered="#{filialBean.filial.filial.pessoa.id != -1}"/>
+                                        <p:commandButton icon="ui-icon-close" rendered="#{filialBean.filial.filial.pessoa.id != -1}" action="#{filialBean.removerFilial}" update="form_filial"/>
+                                    </h:column>
+                                </h:panelGrid>
+
+                                <h:panelGrid columns="2" rendered="#{filialBean.filial.filial.pessoa.id != -1}">
+                                    <h:column>
+                                        <p:outputLabel value="Quantidade de Agendamentos por Empresa"/><br />
+                                        <p:inputText value="#{filialBean.filial.quantidadeAgendamentosPorEmpresa}" style="width: 250px; text-align: right"/>
+                                    </h:column>
+                                    <h:column>
+                                        <br />
+                                        <p:commandButton value="Salvar" action="#{filialBean.btnAddFilial}" title="Adicionar esta empresa como Filial" style="margin-left: 20px" update=":form_filial:"/>
+                                    </h:column>
+                                </h:panelGrid>
+                            </p:panel>
+
+                            <h:panelGrid id="i_panel_grid" style="float: left; margin-top: 15px; width: 100%" columns="1">
+                                <p:dataTable value="#{filialBean.listaFilialSemMatriz}" var="filial" id="tbl" editable="true" editMode="cell">
+                                    <p:ajax event="cellEdit" listener="#{filialBean.onCellEdit}" update="form_filial:i_msg"/>
+
+                                    <p:column styleClass="text-center" width="25">
+                                        <p:commandButton icon="ui-icon-trash" action="#{filialBean.delete(filial)}" update=":form_filial:"/>
+                                    </p:column>
+
+                                    <p:column headerText="Doc / Filial">
+                                        <h:outputText value="#{filial.filial.pessoa.documento} - #{filial.filial.pessoa.nome}"/>
+                                    </p:column>
+
+                                    <p:column headerText="Qnt. Agendamentos" width="100" styleClass="text-center">
+                                        <p:cellEditor>
+                                            <f:facet name="output"><h:outputText value="#{filial.quantidadeAgendamentosPorEmpresa}" /></f:facet>
+                                            <f:facet name="input"><p:inputText value="#{filial.quantidadeAgendamentosPorEmpresa}" style="width:96%" label="Qnt. Agendamentos"/></f:facet>
+                                        </p:cellEditor>
+                                    </p:column>
+                                </p:dataTable>
+                            </h:panelGrid>   
+
+                            <h:panelGrid style="float: left; margin-top: 15px; width: 100%" columns="1" id="i_panel">
+                                <p:dataTable value="#{filialBean.listCidadesAux}" var="filialCidade" id="tbl2">
+                                    
+                                    <p:column style="width:15px">  
+                                        <p:rowToggler />  
+                                    </p:column>                                     
+                                    
+                                    <p:column headerText="Cidade/UF" width="250">
+                                        <h:outputText value="#{filialCidade.cidade.cidade}"/>
+                                    </p:column>
+
+                                    <p:column headerText="Filial">
+                                        <p:selectOneMenu id="cbSelectFilial" value="#{filialCidade.index}" style="width: 95%">
+                                            <p:ajax event="change" listener="#{filialBean.saveCidadeFilial(filialCidade.cidade, filialCidade.index)}" update=":form_filial:"/>
+                                            <f:selectItems value="#{filialBean.listFilialSelectItem}" />
+                                        </p:selectOneMenu>
+                                    </p:column>
+
+                                    <p:column headerText="Subsede Cidade" width="50" styleClass="text-center">
+                                        <p:commandButton onclick="PF('dlg_subsede').show()" update=":form_subsede:" icon="ui-icon-link" action="#{filialBean.openModal(filialCidade.cidade)}" title="Adicionar outras filiais a esta cidade"/>
+                                    </p:column>
+                                    
+                                    <p:rowExpansion>
+                                        <p:panel header="Outras filiais desta cidade">
+                                            <p:dataTable value="#{filialCidade.listFilialCidade}" var="fc" emptyMessage="Nenhum registro encontrado!">
+                                                <p:column headerText="Doc / Filial">
+                                                    <h:outputText value="#{fc.filial.filial.pessoa.documento} - #{fc.filial.filial.pessoa.nome}"/>
+                                                </p:column>
+                                            </p:dataTable>                                            
+                                        </p:panel>
+                                    </p:rowExpansion>
+                                </p:dataTable>                        
+                            </h:panelGrid>
+
+                        </h:form>
                     </p:panel>
-                    
-                    <h:panelGrid id="i_panel_grid" style="float: left; margin-top: 15px; width: 100%" columns="1">
-                        <p:dataTable value="#{filialBean.listaFilialSemMatriz}" var="filial" id="tbl" editable="true" editMode="cell">
-                            <p:ajax event="cellEdit" listener="#{filialBean.onCellEdit}" update="form_filial:i_msg"/>
-                            
-                            <p:column styleClass="text-center" width="25">
-                                <p:commandButton icon="ui-icon-trash" action="#{filialBean.delete(filial)}" update=":form_filial:"/>
-                            </p:column>
+                    <h:form id="form_subsede">                        
+                        <p:dialog widgetVar="dlg_subsede" width="800" visible="#{filialBean.showModal}" header="ADICIONAR FILIAL(S) À CIDADE DE #{filialBean.selectedCidade.cidadeToString}" modal="true" height="400" styleClass="margin-top-max" position="top">
+                            <p:ajax event="close" listener="#{filialBean.closeModal()}" />
+                            <p:messages autoUpdate="true" showDetail="true" showSummary="true" closable="false" />
+                            <h:panelGroup layout="block" id="i_subsede">
+                                <h:panelGrid columns="3" cellpadding="5">
+                                    <p:outputLabel value="Filial: " />
+                                    <p:selectOneMenu value="#{filialBean.idFilialSub}">
+                                        <p:ajax event="change" update="@this"/>
+                                        <f:selectItems value="#{filialBean.listFilialSelectItemSub}" />
+                                    </p:selectOneMenu>
+                                    <p:commandButton value="Adicionar" action="#{filialBean.saveSubsede()}" update=":form_subsede: :form_filial:" />
+                                </h:panelGrid>
+                                <p:dataTable value="#{filialBean.listFilialCidade}" var="filialCidade" styleClass="margin-top-max" emptyMessage="Nenhum registro encontrado!">
+                                    <p:column headerText="Doc / Filial">
+                                        <h:outputText value="#{filialCidade.filial.filial.pessoa.documento} - #{filialCidade.filial.filial.pessoa.nome}"/>
+                                    </p:column>
+                                    <p:column width="30" styleClass="text-center">
+                                        <p:commandButton icon="ui-icon-close" action="#{filialBean.deleteSubsede(filialCidade)}" update=":form_subsede: :form_filial:" title="Remover"/>
+                                    </p:column>
+                                </p:dataTable>
+                            </h:panelGroup>
+                            <f:facet name="footer">
+                                <h:panelGrid columns="2">                                    
+                                    <p:commandButton value="Cancelar" action="#{filialBean.closeModal}" update=":form_subsede:" />                                    
+                                </h:panelGrid>
+                            </f:facet>
+                        </p:dialog>
+                    </h:form>
+                </f:view>
 
-                            <p:column headerText="Doc / Filial">
-                                <h:outputText value="#{filial.filial.pessoa.documento} - #{filial.filial.pessoa.nome}"/>
-                            </p:column>
-                            
-                            <p:column headerText="Qnt. Agendamentos" style="width: 100px; text-align: right">
-                                <p:cellEditor>
-                                    <f:facet name="output"><h:outputText value="#{filial.quantidadeAgendamentosPorEmpresa}" /></f:facet>
-                                    <f:facet name="input"><p:inputText value="#{filial.quantidadeAgendamentosPorEmpresa}" style="width:96%" label="Qnt. Agendamentos"/></f:facet>
-                                </p:cellEditor>
-                            </p:column>
-                        </p:dataTable>         
-                    </h:panelGrid>   
-                    
-                    <h:panelGrid style="float: left; margin-top: 15px; width: 100%" columns="1" id="i_panel">
-                        <p:dataTable value="#{filialBean.listaCidade}" var="filialCidade" id="tbl2">
-                            <p:column headerText="Cidade/UF" width="300">
-                                <h:outputText value="#{filialCidade.argumento0.cidade}"/>
-                            </p:column>
-
-                            <p:column headerText="Filial">
-                                <p:selectOneMenu id="cbSelectFilial" value="#{filialCidade.argumento1}" style="width: 95%">
-                                    <p:ajax event="change" listener="#{filialBean.saveCidadeFilial(filialCidade.argumento0, filialCidade.argumento1)}" update=":form_filial:"/>
-                                    <f:selectItems value="#{filialBean.result}" />
-                                </p:selectOneMenu>
-                            </p:column>
-                        </p:dataTable>                        
-                    </h:panelGrid>
-                    
-                </h:form>
-            </p:panel>
-        </f:view>
-                
-        <!-- FINALIZA div wrap main -->
-        </div>
+                <!-- FINALIZA div wrap main -->
+            </div>
         </div>
         <!-- FINALIZA div wrap main -->
         <div id="footerx">

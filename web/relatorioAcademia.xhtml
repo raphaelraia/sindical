@@ -5,7 +5,7 @@
                 xmlns:c="http://java.sun.com/jsp/jstl/core"
                 xmlns:p="http://primefaces.org/ui">
     <h:head>
-        <title>Relatório Academia</title>
+        <title>#{relatorioAcademiaBean.rotina.rotina}</title>
         <meta http-equiv="X-UA-Compatible" content="IE=9" />
     </h:head>
     <h:body class="divMenu">
@@ -17,12 +17,12 @@
                 <h:outputScript name="tradutor_primefaces.js" library="js" />
                 <h:form id="form_relatorio">            
                     <p:growl id="id_messages_growl" showDetail="true" showSummary="true" />
-                    <h:outputText value="Relatório Academia" styleClass="fonteHeader" />
+                    <h:outputText value="#{relatorioAcademiaBean.rotina.rotina}" styleClass="fonteHeader" />
                     <div class="clear"></div>
                     <p:panel styleClass="fundoCinza">
                         <h:panelGrid  cellpadding="5" columns="2">
                             <p:outputLabel value="Tipo de Relatório: " />
-                            <p:selectOneMenu id="id_tipo_relatorio" value="#{relatorioAcademiaBean.index[0]}" style="padding-right: 10px;">
+                            <p:selectOneMenu id="id_tipo_relatorio" value="#{relatorioAcademiaBean.index[0]}">
                                 <p:ajax event="change" update="@this i_btns" global="false"/>
                                 <f:selectItems value="#{relatorioAcademiaBean.listTipoRelatorios}"/>
                             </p:selectOneMenu>
@@ -70,9 +70,6 @@
                                             <p:selectBooleanButton value="#{relatorioAcademiaBean.filtro[12]}" onLabel="Faixa de Desconto - Edição" offLabel="Faixa de Desconto - Edição" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;">
                                                 <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio :form_relatorio:id_panel_relatorio" listener="#{relatorioAcademiaBean.clear}" />
                                             </p:selectBooleanButton>
-                                            <p:selectBooleanButton value="#{relatorioAcademiaBean.filtro[13]}" onLabel="Financeiro" offLabel="Financeiro" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;">
-                                                <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio :form_relatorio:id_panel_relatorio" listener="#{relatorioAcademiaBean.clear(1)}" />
-                                            </p:selectBooleanButton>
                                         </h:panelGrid>
                                         <h:panelGrid columns="1" styleClass="text-left">
                                             <f:facet name="header">
@@ -84,6 +81,23 @@
                                             <h:column>
                                                 <br />
                                             </h:column>                                        
+                                        </h:panelGrid>
+                                        <h:panelGrid columns="1" styleClass="text-left" rendered="#{relatorioAcademiaBean.rotina.id == 393}">
+                                            <f:facet name="header">
+                                                <h:outputLabel value="Financeiro" style="text-decoration: underline;"/>
+                                            </f:facet>
+                                            <p:selectBooleanButton value="#{relatorioAcademiaBean.filtro[13]}" onLabel="Financeiro" offLabel="Financeiro" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;">
+                                                <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio :form_relatorio:id_panel_relatorio" listener="#{relatorioAcademiaBean.clear(1)}" />
+                                            </p:selectBooleanButton>
+                                            <p:selectBooleanButton value="#{relatorioAcademiaBean.filtro[14]}" onLabel="Situação" offLabel="Situação" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;" >
+                                                <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio :form_relatorio:id_panel_relatorio" listener="#{relatorioAcademiaBean.clear}" />
+                                            </p:selectBooleanButton>
+                                            <p:selectBooleanButton value="#{relatorioAcademiaBean.filtro[15]}" onLabel="Vencimento" offLabel="Vencimento" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;" >
+                                                <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio :form_relatorio:id_panel_relatorio" listener="#{relatorioAcademiaBean.clear}" />
+                                            </p:selectBooleanButton>
+                                            <p:selectBooleanButton value="#{relatorioAcademiaBean.filtro[16]}" onLabel="Quitação" offLabel="Quitação" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;" >
+                                                <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio :form_relatorio:id_panel_relatorio" listener="#{relatorioAcademiaBean.clear}" />
+                                            </p:selectBooleanButton>
                                         </h:panelGrid>
                                         <p:selectBooleanButton value="#{relatorioAcademiaBean.filtro[5]}" onLabel="Ordernação" offLabel="Ordernação" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;" >
                                             <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio :form_relatorio:id_panel_relatorio" listener="#{relatorioAcademiaBean.clear}" />
@@ -285,6 +299,52 @@
                                             <h:column>
                                                 <p:commandButton icon="ui-icon-close" action="#{relatorioAcademiaBean.close('situacao')}" title="Remover filtro" styleClass="margin-left-max"/>
                                             </h:column>
+                                        </h:panelGrid>
+                                    </p:panel>
+                                </p:column>
+                                
+                                <p:column rendered="#{relatorioAcademiaBean.filtro[14]}">
+                                    <p:panel header="Situação Financeira" styleClass="margin-top-max">
+                                        <h:panelGrid columns="2">
+                                            <h:column>
+                                                <p:selectOneMenu value="#{relatorioAcademiaBean.situacaoFinanceira}">
+                                                    <p:ajax event="change" update="@this" global="false"/>
+                                                    <f:selectItem itemValue="nao_quitados" itemLabel="Não quitados"  />
+                                                    <f:selectItem itemValue="atrasados" itemLabel="Atrasados"  />
+                                                    <f:selectItem itemValue="ativo" itemLabel="Ativos"  />
+                                                </p:selectOneMenu>                                            
+                                            </h:column>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioAcademiaBean.close('situacao_financeira')}" title="Remover filtro"/>
+                                        </h:panelGrid>
+                                    </p:panel>
+                                </p:column>
+                                
+                                <p:column rendered="#{relatorioAcademiaBean.filtro[15]}">
+                                    <p:panel header="Vencimento" styleClass="margin-top-max">
+                                        <h:panelGrid columns="5">
+                                            <p:inputMask value="#{relatorioAcademiaBean.vencimentoInicial}" size="10" mask="99/99/9999">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputMask>
+                                            <p:outputLabel value=" até" />
+                                            <p:inputMask value="#{relatorioAcademiaBean.vencimentoFinal}" size="10" mask="99/99/9999">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputMask>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioAcademiaBean.close('vencimento')}" title="Remover filtro"/>
+                                        </h:panelGrid>
+                                    </p:panel>
+                                </p:column>
+                                
+                                <p:column rendered="#{relatorioAcademiaBean.filtro[16]}">
+                                    <p:panel header="Quitação" styleClass="margin-top-max">
+                                        <h:panelGrid columns="5">
+                                            <p:inputMask value="#{relatorioAcademiaBean.quitacaoInicial}" size="10" mask="99/99/9999">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputMask>
+                                            <p:outputLabel value=" até" />
+                                            <p:inputMask value="#{relatorioAcademiaBean.quitacaoFinal}" size="10" mask="99/99/9999">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputMask>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioAcademiaBean.close('quitacao')}" title="Remover filtro"/>
                                         </h:panelGrid>
                                     </p:panel>
                                 </p:column>

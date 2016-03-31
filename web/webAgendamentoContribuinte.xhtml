@@ -55,8 +55,13 @@
                     <p:messages autoUpdate="true" closable="true" showDetail="true"/>
                 </h:panelGrid>
 
-                <h:panelGrid style="margin: 0 auto; width: 1024px">
-                    <p:dataTable value="#{webAgendamentoContribuinteBean.listaHorarios}" var="linha" id="tbl" emptyMessage="Nenhum horário para esta data!">
+                <h:panelGroup layout="block" style="margin: 0 auto; width: 1024px" id="tbl" >
+                    <h:panelGrid columns="2">
+                        <p:outputLabel value="LOCAL: #{webAgendamentoContribuinteBean.filialLocal.filial.fantasia}" />
+                        <p:commandLink value="(Alterar)" onclick="PF('dlg_local').show()" update="i_filial" global="false" rendered="#{webAgendamentoContribuinteBean.listFilial.size() > 1}"/>
+                        
+                    </h:panelGrid>
+                    <p:dataTable value="#{webAgendamentoContribuinteBean.listaHorarios}" var="linha" emptyMessage="Nenhum horário para esta data!" styleClass="margin-top-max">
                         <p:column width="15">  
                             <p:rowToggler />  
                         </p:column> 
@@ -114,11 +119,11 @@
                             </h:panelGrid>
                         </p:rowExpansion>
                     </p:dataTable>
-                </h:panelGrid>
+                </h:panelGroup>
 
                 <p:commandLink styleClass="idNovo iLink" style="width: 200px;" value="Agendar sem Horário" action="#{webAgendamentoContribuinteBean.novoProtocolo}" rendered="#{webAgendamentoContribuinteBean.registro.agendarSemHorarioWeb}"/>
 
-                <p:dialog widgetVar="dlg_agendamento" resizable="false" modal="true" height="550" width="870" visible="#{webAgendamentoContribuinteBean.visibleModal}" closeOnEscape="true">
+                <p:dialog widgetVar="dlg_agendamento" resizable="false" modal="true" height="550" width="900" visible="#{webAgendamentoContribuinteBean.visibleModal}" closeOnEscape="true">
                     <f:facet name="header">
                         <h:outputLabel value="Agendamento de Homologação" /><br />
                         <p:messages autoUpdate="true" showDetail="true" closable="true"/>
@@ -174,7 +179,7 @@
 
                             <h:column>
                                 <h:outputLabel value="Nascimento"  styleClass="#{agendamentoBean.configuracaoHomologacao.webValidaDataNascimento ? 'font-color-red' : ''}"/><br />
-                                <p:inputMask value="#{webAgendamentoContribuinteBean.fisica.nascimento}" readonly="#{webAgendamentoContribuinteBean.fisica.id != -1}" size="8" mask="99/99/9999">
+                                <p:inputMask value="#{webAgendamentoContribuinteBean.fisica.nascimento}" readonly="#{webAgendamentoContribuinteBean.fisica.id != -1 and webAgendamentoContribuinteBean.fisica.nascimento ne '01/01/1900'}" size="8" mask="99/99/9999">
                                     <p:ajax event="change" update="@this" global="false"/>
                                 </p:inputMask>
                             </h:column>
@@ -479,6 +484,19 @@
                             </p:dataTable>
                         </h:panelGrid>
                     </h:panelGrid>
+                </p:dialog>
+
+                <p:dialog widgetVar="dlg_local" header="Local da Homologação" resizable="false" modal="true" width="800" visible="#{webAgendamentoContribuinteBean.showFilial}">
+                    <f:ajax event="close" listener="#{webAgendamentoContribuinteBean.setShowFilial(false)}" />
+                    <h:panelGroup layout="block" id="i_filial">
+                        <p:selectOneRadio value="#{webAgendamentoContribuinteBean.idFilial}" columns="1" layout="grid">
+                            <p:ajax event="change" update="@this tbl" listener="#{webAgendamentoContribuinteBean.clearHorarios()}" global="false"/>
+                            <f:selectItems value="#{webAgendamentoContribuinteBean.listFilial}" />
+                        </p:selectOneRadio>
+                    </h:panelGroup>
+                    <f:facet name="footer">
+                        <p:commandButton value="OK" onclick="PF('dlg_local').hide()" type="button" action="#{webAgendamentoContribuinteBean.setShowFilial(false)}" global="false"/>
+                    </f:facet>
                 </p:dialog>
             </h:form>
         </f:view>

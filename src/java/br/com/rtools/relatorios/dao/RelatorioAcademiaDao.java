@@ -1,6 +1,7 @@
 package br.com.rtools.relatorios.dao;
 
 import br.com.rtools.principal.DB;
+import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,11 +9,13 @@ import javax.persistence.Query;
 
 public class RelatorioAcademiaDao extends DB {
 
+    private Relatorios relatorios;
+    private RelatorioOrdem relatorioOrdem;
+
     /**
      * 0 - NOME 1 - IDADE 2 - NASCIMENTO 3 - SEXO 4 - CIDADE 5 - RESPONSÁVEL 6 -
      * SERVIÇO 7 - PERÍODO - 8 EMISSÃO
      *
-     * @param r
      * @param emissaoInicial
      * @param emissaoFinal
      * @param idResponsavel
@@ -31,40 +34,87 @@ public class RelatorioAcademiaDao extends DB {
      * @param desconto
      * @param desconto_final
      * @param tipoCarencia
+     * @param situacaoFinanceira
+     * @param vencimentoInicial
+     * @param vencimentoFinal
+     * @param quitacaoInicial
      * @param carenciaDias
+     * @param quitacaoFinal
      * @param situacao
      * @return
      */
-    public List find(Relatorios r, String emissaoInicial, String emissaoFinal, Integer idResponsavel, Integer idAluno, String inModalidade, String inIdPeriodos, String inSexo, String periodo, String matricula_situacao, Integer[] idade, String in_grupo_categoria, String in_categoria, Boolean nao_socio, Boolean convenio_empresa, Float desconto, Float desconto_final, String tipoCarencia, Integer carenciaDias, String situacao, String order) {
+    public List find(String emissaoInicial, String emissaoFinal, Integer idResponsavel, Integer idAluno, String inModalidade, String inIdPeriodos, String inSexo, String periodo, String matricula_situacao, Integer[] idade, String in_grupo_categoria, String in_categoria, Boolean nao_socio, Boolean convenio_empresa, Float desconto, Float desconto_final, String tipoCarencia, Integer carenciaDias, String situacao, String situacaoFinanceira, String vencimentoInicial, String vencimentoFinal, String quitacaoInicial, String quitacaoFinal, String order) {
         List listWhere = new ArrayList();
-        String queryString = " -- RelatorioAcademiaDao->find()                                \n"
-                + "     SELECT PA.nome,                                                       \n" // 0 - NOME
-                + "            func_idade(PA.dt_nascimento, current_date)  AS idade,          \n" // 1 - IDADE
-                + "            PA.dt_nascimento                            AS nascimento,     \n" // 2 - NASCIMENTO
-                + "            PA.sexo,                                                       \n" // 3 - SEXO
-                + "            PA.cidade,                                                     \n" // 4 - CIDADE
-                + "            PR.ds_nome                                  AS responsavel,    \n" // 5 - RESPONSÁVEL
-                + "            S.ds_descricao                              AS servico,        \n" // 6 - SERVIÇO
-                + "            P.ds_descricao                              AS periodo,        \n" // 7 - PERÍODO
-                + "            SP.dt_emissao                               AS emissao,        \n" // 8 - EMISSÃO
-                + "            A.dt_inativo                                AS inativacao      \n" // 9 - INATIVAÇÃO
-                + "       FROM matr_academia AS A                                             \n"
-                + " INNER JOIN fin_servico_pessoa   AS SP  ON SP.id         = A.id_servico_pessoa   \n"
-                + " INNER JOIN aca_servico_valor    AS ASV ON ASV.id        = A.id_servico_valor    \n"
-                + " INNER JOIN fin_servicos         AS S   ON S.id          = ASV.id_servico        \n"
-                + " INNER JOIN sis_periodo          AS P   ON P.id          = ASV.id_periodo        \n"
-                + " INNER JOIN pes_fisica_vw        AS PA  ON PA.codigo     = SP.id_pessoa          \n"
-                + " INNER JOIN pes_pessoa           AS PR  ON PR.id         = SP.id_cobranca        \n"
-                + "  LEFT JOIN soc_socios_vw        AS SOC ON SOC.codsocio  = SP.id_pessoa          \n"
-                + "  LEFT JOIN                                                                      \n"
-                + "  (SELECT SP.id_pessoa, id_servico                                               \n"
-                + "      FROM fin_servico_pessoa    AS SP                                           \n"
-                + " INNER JOIN matr_academia        AS M    ON M.id_servico_pessoa = SP.id          \n"
-                + "     WHERE SP.is_ativo = true                                                    \n"
-                + " ) AS MA ON MA.id_pessoa = SP.id_pessoa AND MA.id_servico = SP.id_servico        \n";
-        if (convenio_empresa != null && convenio_empresa) {
-            queryString += " INNER JOIN fin_desconto_servico_empresa AS FDSE ON FDSE.id_juridica = PA.id_juridica AND FDSE.id_servico = SP.id_servico ";
-            listWhere.add("SP.id_pessoa NOT IN (SELECT SOCVW.codsocio FROM soc_socios_vw AS SOCVW GROUP BY SOCVW.codsocio )");
+        String queryString = "";
+        if (relatorios.getId().equals(31)) {
+            queryString = " -- RelatorioAcademiaDao->find(Cadastral)                                \n"
+                    + "     SELECT PA.nome AS aluno_nome,                                           \n" // 0 - NOME
+                    + "            func_idade(PA.dt_nascimento, current_date)  AS idade,            \n" // 1 - IDADE
+                    + "            PA.dt_nascimento                            AS nascimento,       \n" // 2 - NASCIMENTO
+                    + "            PA.sexo,                                                         \n" // 3 - SEXO
+                    + "            PA.cidade,                                                       \n" // 4 - CIDADE
+                    + "            PR.ds_nome                                  AS responsavel_nome, \n" // 5 - RESPONSÁVEL
+                    + "            S.ds_descricao                              AS servico,          \n" // 6 - SERVIÇO
+                    + "            P.ds_descricao                              AS periodo,          \n" // 7 - PERÍODO
+                    + "            SP.dt_emissao                               AS emissao,          \n" // 8 - EMISSÃO
+                    + "            A.dt_inativo                                AS inativacao        \n" // 9 - INATIVAÇÃO
+                    + "       FROM matr_academia AS A                                               \n"
+                    + " INNER JOIN fin_servico_pessoa   AS SP  ON SP.id         = A.id_servico_pessoa   \n"
+                    + " INNER JOIN aca_servico_valor    AS ASV ON ASV.id        = A.id_servico_valor    \n"
+                    + " INNER JOIN fin_servicos         AS S   ON S.id          = ASV.id_servico        \n"
+                    + " INNER JOIN sis_periodo          AS P   ON P.id          = ASV.id_periodo        \n"
+                    + " INNER JOIN pes_fisica_vw        AS PA  ON PA.codigo     = SP.id_pessoa          \n"
+                    + " INNER JOIN pes_pessoa           AS PR  ON PR.id         = SP.id_cobranca        \n"
+                    + "  LEFT JOIN soc_socios_vw        AS SOC ON SOC.codsocio  = SP.id_pessoa          \n"
+                    + "  LEFT JOIN                                                                      \n"
+                    + "  (SELECT SP.id_pessoa, id_servico                                               \n"
+                    + "      FROM fin_servico_pessoa    AS SP                                           \n"
+                    + " INNER JOIN matr_academia        AS M    ON M.id_servico_pessoa = SP.id          \n"
+                    + "     WHERE SP.is_ativo = true                                                    \n"
+                    + " ) AS MA ON MA.id_pessoa = SP.id_pessoa AND MA.id_servico = SP.id_servico        \n";
+            if (convenio_empresa != null && convenio_empresa) {
+                queryString += " INNER JOIN fin_desconto_servico_empresa AS FDSE ON FDSE.id_juridica = PA.id_juridica AND FDSE.id_servico = SP.id_servico ";
+                listWhere.add("SP.id_pessoa NOT IN (SELECT SOCVW.codsocio FROM soc_socios_vw AS SOCVW GROUP BY SOCVW.codsocio )");
+            }
+        } else if (relatorios.getId().equals(32)) {
+            queryString = " -- RelatorioAcademiaDao->find(Financeiro)                               \n"
+                    + "     SELECT PA.nome AS anulo_nome,                                           \n" // 0 - NOME
+                    + "            func_idade(PA.dt_nascimento, current_date)  AS idade,            \n" // 1 - IDADE
+                    + "            PA.dt_nascimento                            AS nascimento,       \n" // 2 - NASCIMENTO
+                    + "            PA.sexo,                                                         \n" // 3 - SEXO
+                    + "            PA.cidade,                                                       \n" // 4 - CIDADE
+                    + "            PR.ds_nome                                  AS responsavel_nome, \n" // 5 - RESPONSÁVEL
+                    + "            S.ds_descricao                              AS servico,          \n" // 6 - SERVIÇO
+                    + "            P.ds_descricao                              AS periodo,          \n" // 7 - PERÍODO
+                    + "            SP.dt_emissao                               AS emissao,          \n" // 8 - EMISSÃO
+                    + "            A.dt_inativo                                AS inativacao,       \n" // 9 - INATIVAÇÃO
+                    + "            MV.dt_vencimento                            AS data_vencimento,  \n" // 10 - DATA VENCIMENTO
+                    + "            B.dt_baixa                                  AS data_baixa,       \n" // 11 - DATA BAIXA
+                    + "            MV.nr_valor                                 AS valor,            \n" // 12 - VALOR
+                    + "            MV.nr_valor_baixa                           AS valor_baixa       \n" // 13 - VALOR BAIXA
+                    + "       FROM fin_movimento AS MV                                              \n"
+                    + "  LEFT JOIN fin_baixa            AS B   ON B.id          = MV.id_baixa       \n"
+                    + " INNER JOIN fin_servico_pessoa   AS SP  ON SP.id_pessoa  = MV.id_pessoa          \n"
+                    + "                                           AND SP.id_servico = MV.id_servicos    \n"
+                    + "                                           AND SP.is_ativo = true                \n"
+                    + "                                           AND MV.is_ativo                       \n"
+                    + " INNER JOIN matr_academia        AS A   ON A.id_servico_pessoa = SP.id           \n"
+                    + " INNER JOIN aca_servico_valor    AS ASV ON ASV.id        = A.id_servico_valor    \n"
+                    + " INNER JOIN fin_servicos         AS S   ON S.id          = ASV.id_servico        \n"
+                    + " INNER JOIN sis_periodo          AS P   ON P.id          = ASV.id_periodo        \n"
+                    + " INNER JOIN pes_fisica_vw        AS PA  ON PA.codigo     = SP.id_pessoa          \n"
+                    + " INNER JOIN pes_pessoa           AS PR  ON PR.id         = SP.id_cobranca        \n"
+                    + "  LEFT JOIN soc_socios_vw        AS SOC ON SOC.codsocio  = SP.id_pessoa          \n"
+                    + "  LEFT JOIN                                                                      \n"
+                    + "  (SELECT SP.id_pessoa, id_servico                                               \n"
+                    + "      FROM fin_servico_pessoa    AS SP                                           \n"
+                    + " INNER JOIN matr_academia        AS M    ON M.id_servico_pessoa = SP.id          \n"
+                    + "     WHERE SP.is_ativo = true                                                    \n"
+                    + " ) AS MA ON MA.id_pessoa = SP.id_pessoa AND MA.id_servico = SP.id_servico        \n";
+            if (convenio_empresa != null && convenio_empresa) {
+                queryString += " INNER JOIN fin_desconto_servico_empresa AS FDSE ON FDSE.id_juridica = PA.id_juridica AND FDSE.id_servico = SP.id_servico ";
+                listWhere.add("SP.id_pessoa NOT IN (SELECT SOCVW.codsocio FROM soc_socios_vw AS SOCVW GROUP BY SOCVW.codsocio )");
+            }
         }
         String emissaoInativacaoString = "";
         if (periodo != null) {
@@ -143,13 +193,11 @@ public class RelatorioAcademiaDao extends DB {
         }
         if (nao_socio != null && nao_socio) {
             listWhere.add("SP.id_pessoa NOT IN (SELECT SOCVW.codsocio FROM soc_socios_vw AS SOCVW GROUP BY SOCVW.codsocio)");
-        } else {
-            if ((in_grupo_categoria != null && !in_grupo_categoria.isEmpty()) || (in_categoria != null && !in_categoria.isEmpty())) {
-                if (in_categoria != null && !in_categoria.isEmpty()) {
-                    listWhere.add("SOC.id_categoria IN (" + in_categoria + ")");
-                } else if (in_grupo_categoria != null && !in_grupo_categoria.isEmpty()) {
-                    listWhere.add("SOC.id_grupo_categoria IN (" + in_grupo_categoria + ")");
-                }
+        } else if ((in_grupo_categoria != null && !in_grupo_categoria.isEmpty()) || (in_categoria != null && !in_categoria.isEmpty())) {
+            if (in_categoria != null && !in_categoria.isEmpty()) {
+                listWhere.add("SOC.id_categoria IN (" + in_categoria + ")");
+            } else if (in_grupo_categoria != null && !in_grupo_categoria.isEmpty()) {
+                listWhere.add("SOC.id_grupo_categoria IN (" + in_grupo_categoria + ")");
             }
         }
 
@@ -171,6 +219,36 @@ public class RelatorioAcademiaDao extends DB {
             }
         }
 
+        if (situacaoFinanceira != null) {
+            switch (situacaoFinanceira) {
+                case "nao_quitados":
+                    listWhere.add(" MV.id_baixa IS NULL ");
+                    break;
+                case "atrasados":
+                    listWhere.add(" MV.dt_vencimento IS NULL AND MV.dt_vencimento < current_date  ");
+                    break;
+                case "ativo":
+                    listWhere.add(" SP.is_ativo = true ");
+                    break;
+            }
+        }
+
+        if (!vencimentoInicial.isEmpty() || !vencimentoFinal.isEmpty()) {
+            if (!vencimentoInicial.isEmpty() && !vencimentoFinal.isEmpty()) {
+                listWhere.add(" MV.dt_vencimento  BETWEEN '" + vencimentoInicial + "' AND '" + vencimentoFinal + "'");
+            } else if (!vencimentoInicial.isEmpty() && vencimentoFinal.isEmpty()) {
+                listWhere.add(" MV.dt_vencimento  = '" + vencimentoInicial + "'");
+            }
+        }
+
+        if (!quitacaoInicial.isEmpty() || !quitacaoFinal.isEmpty()) {
+            if (!quitacaoInicial.isEmpty() && !quitacaoFinal.isEmpty()) {
+                listWhere.add(" B.dt_baixa BETWEEN '" + quitacaoInicial + "' AND '" + quitacaoFinal + "'");
+            } else if (!quitacaoInicial.isEmpty() && quitacaoFinal.isEmpty()) {
+                listWhere.add(" B.dt_baixa = '" + quitacaoInicial + "'");
+            }
+        }
+
         if (desconto != null && desconto_final != null) {
             listWhere.add("SP.nr_desconto BETWEEN " + desconto + " AND " + desconto_final);
         } else if (desconto != null && desconto_final == null) {
@@ -189,9 +267,9 @@ public class RelatorioAcademiaDao extends DB {
 
             }
         }
-        if (r != null && order.isEmpty()) {
-            if (!r.getQryOrdem().isEmpty()) {
-                queryString += " ORDER BY " + r.getQryOrdem();
+        if (relatorios != null && order.isEmpty()) {
+            if (!relatorios.getQryOrdem().isEmpty()) {
+                queryString += " ORDER BY " + relatorios.getQryOrdem();
             }
         } else if (!order.isEmpty()) {
             queryString += " ORDER BY " + order;
@@ -208,5 +286,13 @@ public class RelatorioAcademiaDao extends DB {
         }
 
         return new ArrayList<>();
+    }
+
+    public Relatorios getRelatorios() {
+        return relatorios;
+    }
+
+    public void setRelatorios(Relatorios relatorios) {
+        this.relatorios = relatorios;
     }
 }

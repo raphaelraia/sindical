@@ -64,6 +64,7 @@ public class RelatorioContabilidadesBean implements Serializable {
         filtro[0] = true; // Quantidade Empresas
         filtro[1] = false; // Cidade
         filtro[2] = false; // Ordenação
+        filtro[3] = false; // Email
         index = new Integer[6];
         index[0] = 0;
         index[1] = 0;
@@ -87,7 +88,9 @@ public class RelatorioContabilidadesBean implements Serializable {
         tipoRelatorio = "Resumo";
         indexAccordion = "Resumo";
         tipo = "todos";
-        radioEmail = "email";
+        radioEmail = "";
+        Jasper jasper = new Jasper();
+        jasper.init();
     }
 
     @PreDestroy
@@ -462,7 +465,7 @@ public class RelatorioContabilidadesBean implements Serializable {
                 break;
             case "email":
                 filtro[3] = false;
-                radioEmail = "email";
+                radioEmail = "";
                 break;
         }
         PF.update("form_relatorio:id_panel");
@@ -494,7 +497,7 @@ public class RelatorioContabilidadesBean implements Serializable {
         }
         if (!filtro[3]) {
             filtro[3] = false;
-            radioOrdem = "email";
+            radioEmail = "";
         }
     }
 

@@ -58,7 +58,7 @@
                 <h:panelGrid style="margin: 0 auto; width: 1024px;">
                     <h:panelGroup style="overflow:auto; height:150px" layout="block">
                         <p:selectOneRadio layout="grid" value="#{webAgendamentoContabilidadeBean.idSelectRadio}" columns="1">
-                            <p:ajax event="change" update="tbl id_msg_web" listener="#{webAgendamentoContabilidadeBean.clearHorarios()}"/>
+                            <p:ajax event="change" update="tbl id_msg_web i_filial" listener="#{webAgendamentoContabilidadeBean.clearHorarios()}" />
                             <f:selectItems value="#{webAgendamentoContabilidadeBean.listaEmpresas}"/>
                         </p:selectOneRadio>
                     </h:panelGroup>
@@ -70,8 +70,9 @@
                     <p:messages  id="id_msg_web" closable="true" showDetail="true"/>
                 </h:panelGrid>
 
-                <h:panelGrid style="margin: 0 auto; width: 1024px" id="tbl">
-                    <p:dataTable value="#{webAgendamentoContabilidadeBean.listaHorarios}" var="linha" emptyMessage="Nenhum horário para esta data!">
+                <h:panelGroup style="margin: 0 auto; width: 1024px" id="tbl" layout="block" styleClass="margin-top-max">
+                    <p:outputLabel value="LOCAL: #{webAgendamentoContabilidadeBean.filialLocal.filial.fantasia}" />
+                    <p:dataTable value="#{webAgendamentoContabilidadeBean.listaHorarios}" var="linha" emptyMessage="Nenhum horário para esta data!" styleClass="margin-top-max">
                         <p:column width="15">  
                             <p:rowToggler />  
                         </p:column> 
@@ -129,7 +130,7 @@
                             </h:panelGrid>
                         </p:rowExpansion>
                     </p:dataTable>
-                </h:panelGrid>
+                </h:panelGroup>
 
                 <p:commandLink styleClass="idNovo iLink" style="width: 200px;" value="Agendar sem Horário" action="#{webAgendamentoContabilidadeBean.novoProtocolo()}" rendered="#{webAgendamentoContabilidadeBean.registro.agendarSemHorarioWeb}"/>
 
@@ -189,7 +190,7 @@
 
                             <h:column>
                                 <h:outputLabel value="Nascimento"  styleClass="#{agendamentoBean.configuracaoHomologacao.webValidaDataNascimento ? 'font-color-red' : ''}"/><br />
-                                <p:inputMask value="#{webAgendamentoContabilidadeBean.fisica.nascimento}" readonly="#{webAgendamentoContabilidadeBean.fisica.id != -1}" size="8" mask="99/99/9999">
+                                <p:inputMask value="#{webAgendamentoContabilidadeBean.fisica.nascimento}" readonly="#{webAgendamentoContabilidadeBean.fisica.id != -1 and webAgendamentoContabilidadeBean.fisica.nascimento ne '01/01/1900'}" size="8" mask="99/99/9999">
                                     <p:ajax event="change" update="@this" global="false"/>
                                 </p:inputMask>
                             </h:column>
@@ -435,6 +436,18 @@
                             </p:dataTable>
                         </h:panelGrid>   
                     </h:panelGrid>
+                </p:dialog>
+
+                <p:dialog widgetVar="dlg_local" header="Local da Homologação" resizable="false" modal="true" width="800">
+                    <h:panelGroup layout="block" id="i_filial">
+                        <p:selectOneRadio value="#{webAgendamentoContabilidadeBean.idFilial}" columns="1" layout="grid">
+                            <p:ajax event="change" update="@this tbl id_msg_web" listener="#{webAgendamentoContabilidadeBean.clearHorarios(2)}"/>
+                            <f:selectItems value="#{webAgendamentoContabilidadeBean.listFilial}" />
+                        </p:selectOneRadio>
+                    </h:panelGroup>
+                    <f:facet name="footer">
+                        <p:commandButton value="OK" onclick="PF('dlg_local').hide()" type="button"/>
+                    </f:facet>
                 </p:dialog>
 
                 <p:dialog widgetVar="dlg_profissao" header="Pesquisar Profissão" resizable="false" modal="true" width="455">
