@@ -5,8 +5,6 @@ import br.com.rtools.arrecadacao.Oposicao;
 import br.com.rtools.arrecadacao.dao.OposicaoDao;
 import br.com.rtools.arrecadacao.db.WebContabilidadeDB;
 import br.com.rtools.arrecadacao.db.WebContabilidadeDBToplink;
-import br.com.rtools.atendimento.db.AtendimentoDB;
-import br.com.rtools.atendimento.db.AtendimentoDBTopLink;
 import br.com.rtools.endereco.Endereco;
 import br.com.rtools.endereco.dao.EnderecoDao;
 import br.com.rtools.financeiro.Movimento;
@@ -74,6 +72,8 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
     private boolean visibleModal = false;
     private String tipoAviso = null;
     private Date polling;
+    private List<SelectItem> listFilial = new ArrayList<>();
+    private Integer idFilial = null;
 
     public WebAgendamentoContabilidadeBean() {
         Dao dao = new Dao();
@@ -84,6 +84,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
             new Dao().save(configuracaoHomologacao, true);
         }
         this.loadListEmpresa();
+        this.loadListFiliais();
         HorarioReservaDao horarioReservaDao = new HorarioReservaDao();
         horarioReservaDao.begin();
         horarioReservaDao.clear();
@@ -171,9 +172,47 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
         }
     }
 
+    public void loadListFiliais() {
+        listFilial = new ArrayList();
+        Dao dao = new Dao();
+        PessoaEnderecoDao dbe = new PessoaEnderecoDao();
+        empresa = (Juridica) dao.find(new Juridica(), Integer.parseInt(listaEmpresas.get(idSelectRadio).getDescription()));
+        enderecoEmpresa = dbe.pesquisaEndPorPessoaTipo(empresa.getPessoa().getId(), 5);
+
+        // sindicatoFilial = new FilialCidade();
+        // FILIAL DA EMPRESA
+        if (empresa.getId() != -1 && enderecoEmpresa.getId() != -1) {
+            FilialCidadeDBToplink filialCidadeDao = new FilialCidadeDBToplink();
+            List<FilialCidade> list = filialCidadeDao.findListBy(enderecoEmpresa.getEndereco().getCidade().getId());
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getPrincipal()) {
+                    idFilial = list.get(i).getFilial().getId();
+                }
+                listFilial.add(new SelectItem(list.get(i).getFilial().getId(), list.get(i).getFilial().getFilial().getFantasia()));
+            }
+        }
+    }
+
     public void clearHorarios() {
-        loadListHorarios(false);
-        lock(true);
+        clearHorarios(1);
+    }
+
+    public void clearHorarios(Integer tcase) {
+        if (null != tcase) switch (tcase) {
+            case 1:
+                loadListFiliais();
+                if(!listFilial.isEmpty() && listFilial.size() > 1) {
+                    PF.openDialog("dlg_local");
+                }   loadListHorarios(false);
+                lock(true);
+                break;
+            case 2:
+                loadListHorarios(false);
+                lock(true);
+                break;
+            default:
+                break;
+        }
     }
 
     public Boolean lock() {
@@ -211,23 +250,10 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
             GenericaMensagem.warn("Atenção", "Nenhuma Empresa Encontrada!");
             return;
         }
-        Dao dao = new Dao();
-        PessoaEnderecoDao dbe = new PessoaEnderecoDao();
-
-        empresa = (Juridica) dao.find(new Juridica(), Integer.parseInt(listaEmpresas.get(idSelectRadio).getDescription()));
-        enderecoEmpresa = dbe.pesquisaEndPorPessoaTipo(empresa.getPessoa().getId(), 5);
-
-        sindicatoFilial = new FilialCidade();
-        // FILIAL DA EMPRESA
-        if (empresa.getId() != -1 && enderecoEmpresa.getId() != -1) {
-            FilialCidadeDB db = new FilialCidadeDBToplink();
-            sindicatoFilial = db.pesquisaFilialPorCidade(enderecoEmpresa.getEndereco().getCidade().getId());
-        }
-        if (sindicatoFilial.getId() == -1) {
+        if (listFilial.isEmpty()) {
             GenericaMensagem.warn("Atenção", "Filial não encontrada, não é possível visualizar horários!");
             return;
         }
-
         List<Agendamento> ag = new ArrayList();
         List<Horarios> horario;
 
@@ -241,11 +267,11 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
                     return;
                 }
                 int idDiaSemana = DataHoje.diaDaSemana(data);
-                horario = (List<Horarios>) db.pesquisaTodosHorariosDisponiveis(getSindicatoFilial().getFilial().getId(), idDiaSemana, true);
+                horario = (List<Horarios>) db.pesquisaTodosHorariosDisponiveis(idFilial, idDiaSemana, true);
 
                 int qnt;
                 for (int i = 0; i < horario.size(); i++) {
-                    qnt = db.pesquisaQntdDisponivel(getSindicatoFilial().getFilial().getId(), horario.get(i), data);
+                    qnt = db.pesquisaQntdDisponivel(idFilial, horario.get(i), data);
                     if (qnt == -1) {
                         GenericaMensagem.error("Erro", "Não foi possivel encontrar horários disponíveis, contate seu Sindicato!");
                         break;
@@ -271,12 +297,12 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
             // STATUS AGENDADO -----------------------------------------------------------------------------------------------
             case 2: {
                 if (filtraPor.equals("selecionado")) {
-                    ag = db.pesquisaAgendadoPorEmpresaSemHorario(getSindicatoFilial().getFilial().getId(), data, empresa.getPessoa().getId());
+                    ag = db.pesquisaAgendadoPorEmpresaSemHorario(idFilial, data, empresa.getPessoa().getId());
                 } else {
                     WebContabilidadeDB dbw = new WebContabilidadeDBToplink();
                     List<Juridica> result = dbw.listaEmpresasPertContabilidade(juridica.getId());
                     for (int w = 0; w < listaEmpresas.size(); w++) {
-                        ag.addAll(db.pesquisaAgendadoPorEmpresaSemHorario(sindicatoFilial.getFilial().getId(), data, result.get(w).getPessoa().getId()));
+                        ag.addAll(db.pesquisaAgendadoPorEmpresaSemHorario(idFilial, data, result.get(w).getPessoa().getId()));
                     }
                 }
                 for (int i = 0; i < ag.size(); i++) {
@@ -367,7 +393,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
         empresa = (Juridica) dao.find(new Juridica(), Integer.parseInt(((SelectItem) listaEmpresas.get(idSelectRadio)).getDescription()));
         agendamento.setDtData(null);
         agendamento.setHorarios(null);
-        agendamento.setFilial(getSindicatoFilial().getFilial());
+        agendamento.setFilial((Filial) dao.find(new Filial(), idFilial));
         agendamentoProtocolo = agendamento;
         if (empresa.getContabilidade() != null) {
             agendamento.setTelefone(empresa.getContabilidade().getPessoa().getTelefone1());
@@ -382,7 +408,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
 
         empresa = new Juridica();
         enderecoEmpresa = new PessoaEndereco();
-        sindicatoFilial = new FilialCidade();
+        // sindicatoFilial = new FilialCidade();
         agendamento = new Agendamento();
         pessoaEmpresa = new PessoaEmpresa();
         fisica = new Fisica();
@@ -392,6 +418,10 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
 
         if (listaEmpresas.isEmpty()) {
             GenericaMensagem.warn("Atenção", "Nenhuma empresa encontrada para Agendar!");
+            return;
+        }
+        if (listFilial.isEmpty()) {
+            GenericaMensagem.warn("Atenção", "Nenhuma filial encontrada para Agendar!");
             return;
         }
 
@@ -415,12 +445,8 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
         } else {
             strEndereco = "";
         }
-
-        // FILIAL DA EMPRESA
-        if (empresa.getId() != -1 && enderecoEmpresa.getId() != -1) {
-            FilialCidadeDB db = new FilialCidadeDBToplink();
-            sindicatoFilial = db.pesquisaFilialPorCidade(enderecoEmpresa.getEndereco().getCidade().getId());
-        }
+        
+        Filial f = (Filial) dao.find(new Filial(), idFilial);
 
         switch (Integer.parseInt(((SelectItem) getListaStatus().get(idStatus)).getDescription())) {
             case 1: {
@@ -430,7 +456,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
                 HomologacaoDB dba = new HomologacaoDBToplink();
                 hrd.exists(nrDataHoje);
                 int quantidade_reservada = hrd.count(((Horarios) datao.getArgumento0()).getId());
-                int quantidade = dba.pesquisaQntdDisponivel(getSindicatoFilial().getFilial().getId(), ((Horarios) datao.getArgumento0()), getData());
+                int quantidade = dba.pesquisaQntdDisponivel(f.getId(), ((Horarios) datao.getArgumento0()), getData());
                 int quantidade_resultado = quantidade - quantidade_reservada;
                 if (quantidade == -1) {
                     GenericaMensagem.error("Sistema", "Este horário não esta mais disponivel! (reservado ou já agendado)");
@@ -441,9 +467,9 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
                     return;
                 }
                 hrd.begin();
-                List<Agendamento> list_a = db.pesquisaAgendadoPorEmpresaSemHorario(getSindicatoFilial().getFilial().getId(), data, empresa.getPessoa().getId());
-                if (list_a.size() >= sindicatoFilial.getFilial().getQuantidadeAgendamentosPorEmpresa()) {
-                    GenericaMensagem.warn("Atenção", "Limite de Agendamentos para hoje é de " + sindicatoFilial.getFilial().getQuantidadeAgendamentosPorEmpresa());
+                List<Agendamento> list_a = db.pesquisaAgendadoPorEmpresaSemHorario(f.getId(), data, empresa.getPessoa().getId());
+                if (list_a.size() >= f.getQuantidadeAgendamentosPorEmpresa()) {
+                    GenericaMensagem.warn("Atenção", "Limite de Agendamentos para hoje é de " + f.getQuantidadeAgendamentosPorEmpresa());
                     return;
                 }
 
@@ -484,7 +510,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
 
                     agendamento.setData(DataHoje.converteData(data));
                     agendamento.setHorarios((Horarios) datao.getArgumento0());
-                    agendamento.setFilial(sindicatoFilial.getFilial());
+                    agendamento.setFilial(f);
                     agendamentoProtocolo = agendamento;
                     visibleModal = true;
                     hrd.reserve(((Horarios) datao.getArgumento0()).getId());
@@ -517,14 +543,15 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
     }
 
     public boolean pesquisarFeriado() {
+        Filial f = (Filial) new Dao().find(new Filial(), idFilial);
         FeriadosDao feriadosDao = new FeriadosDao();
-        List<Feriados> listFeriados = feriadosDao.pesquisarPorDataFilialEData(DataHoje.converteData(getData()), sindicatoFilial.getFilial());
+        List<Feriados> listFeriados = feriadosDao.pesquisarPorDataFilialEData(DataHoje.converteData(getData()), f);
         if (!listFeriados.isEmpty()) {
             GenericaMensagem.info("Feriado", listFeriados.get(0).getNome());
             return true;
         } else {
             listFeriados = feriadosDao.pesquisarPorData(DataHoje.converteData(getData()));
-            PessoaEndereco pe = ((PessoaEndereco) ((List) new PessoaEnderecoDao().pesquisaEndPorPessoa(sindicatoFilial.getFilial().getFilial().getPessoa().getId())).get(0));
+            PessoaEndereco pe = ((PessoaEndereco) ((List) new PessoaEnderecoDao().pesquisaEndPorPessoa(f.getFilial().getPessoa().getId())).get(0));
             if (!listFeriados.isEmpty()) {
                 for (int i = 0; i < listFeriados.size(); i++) {
                     if (listFeriados.get(i).getCidade() == null) {
@@ -766,7 +793,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
             Demissao demissaox = (Demissao) dao.find(new Demissao(), Integer.parseInt(((SelectItem) getListaMotivoDemissao().get(idMotivoDemissao)).getDescription()));
             if (agendamento.getId() == -1) {
                 agendamento.setNoPrazo(new FunctionsDao().homologacaoPrazo(pessoaEmpresa.isAvisoTrabalhado(), enderecoEmpresa.getEndereco().getCidade().getId(), pessoaEmpresa.getDemissao()));
-                
+
                 agendamento.setAgendador(null);
                 agendamento.setRecepcao(null);
                 agendamento.setDemissao(demissaox);
@@ -777,7 +804,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
                 if (dao.save(agendamento)) {
                     agendamentoProtocolo = agendamento;
                     GenericaMensagem.info("Sucesso", "Agendamento Salvo!");
-                    if (agendamento.isNoPrazo() == false){
+                    if (agendamento.isNoPrazo() == false) {
                         GenericaMensagem.info("Mensagem", "DE ACORDO COM AS INFORMAÇÕES ACIMA PRESTADAS SEU AGENDAMENTO ESTÁ FORA DO PRAZO PREVISTO EM CONVENÇÃO COLETIVA.");
                     }
                     listaHorarios.clear();
@@ -837,7 +864,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
 
         agendamento.setData(datax);
         agendamento.setHorarios(horario);
-        agendamento.setFilial(sindicatoFilial.getFilial());
+        agendamento.setFilial((Filial) new Dao().find(new Filial(), idFilial));
     }
 
     public void pesquisarFuncionarioCPF() throws IOException {
@@ -1109,8 +1136,9 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
 
     public PessoaEndereco getEnderecoFilial() {
         PessoaEnderecoDao pessoaEnderecoDB = new PessoaEnderecoDao();
+        Filial f = (Filial) new Dao().find(new Filial(), idFilial);
         if (enderecoFilial.getId() == -1) {
-            enderecoFilial = pessoaEnderecoDB.pesquisaEndPorPessoaTipo(sindicatoFilial.getFilial().getFilial().getPessoa().getId(), 2);
+            enderecoFilial = pessoaEnderecoDB.pesquisaEndPorPessoaTipo(f.getFilial().getPessoa().getId(), 2);
         }
         return enderecoFilial;
     }
@@ -1203,5 +1231,25 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
             }
         }
         return false;
+    }
+
+    public List<SelectItem> getListFilial() {
+        return listFilial;
+    }
+
+    public void setListFilial(List<SelectItem> listFilial) {
+        this.listFilial = listFilial;
+    }
+
+    public Integer getIdFilial() {
+        return idFilial;
+    }
+
+    public void setIdFilial(Integer idFilial) {
+        this.idFilial = idFilial;
+    }
+    
+    public Filial getFilialLocal() {
+        return (Filial) new Dao().find(new Filial(), idFilial);
     }
 }

@@ -2096,6 +2096,12 @@
             <redirect/>
         </navigation-case>
         
+        <navigation-case>
+            <from-outcome>relatorioAcademiaFinanceiro</from-outcome>
+            <to-view-id>/relatorioAcademiaFinanceiro.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
     </navigation-rule>
     
     <lifecycle>

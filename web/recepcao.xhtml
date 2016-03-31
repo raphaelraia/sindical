@@ -46,7 +46,7 @@
                                     <p:poll global="false" interval="1" update=":formRecepcao:i_tabview:i_progress_update" listener="#{recepcaoBean.progress()}" autoStart="#{recepcaoBean.startPooling}" delay="10" stop="#{recepcaoBean.openDialog}" ignoreAutoUpdate="true"/>
                                 </h:panelGrid>
 
-                                <p:tabView id="i_tabview" style="width: 1000px" activeIndex="#{recepcaoBean.indexTab}">
+                                <p:tabView id="i_tabview" style="width: 1000px;" activeIndex="#{recepcaoBean.indexTab}">
                                     <p:ajax event="tabChange" update=":formRecepcao" global="false"/>
                                     <p:tab title="Homologações">
                                         <p:panel styleClass="fundoCinza">
@@ -72,11 +72,11 @@
                                                     <br />
                                                     <p:inputText value="#{recepcaoBean.dataInicialString}" rendered="#{!recepcaoBean.ocultaDatapesquisa}" readonly="true" style="font-weight: bold; text-align: center" size="8"/>
                                                     <p:inputMask value="#{recepcaoBean.dataInicialString}" rendered="#{recepcaoBean.ocultaDatapesquisa}" style="font-weight: bold; text-align: center" size="8" mask="99/99/9999" converter="#{isDateString}">
-                                                        <p:ajax event="blur" update="i_panel_tbl" listener="#{recepcaoBean.loadListHorarios()}" global="false"/>
+                                                        <p:ajax event="change" update="@this i_panel_tbl" listener="#{recepcaoBean.loadListHorarios()}" global="false"/>
                                                     </p:inputMask>
                                                     <h:outputLabel value=" até " rendered="#{recepcaoBean.ocultaDatapesquisa}" />
                                                     <p:inputMask value="#{recepcaoBean.dataFinalString}" rendered="#{recepcaoBean.ocultaDatapesquisa}" style="font-weight: bold; text-align: center" size="8" mask="99/99/9999" converter="#{isDateString}">
-                                                        <p:ajax event="blur" update="i_panel_tbl" listener="#{recepcaoBean.loadListHorarios()}" global="false"/>
+                                                        <p:ajax event="change" update="@this i_panel_tbl" listener="#{recepcaoBean.loadListHorarios()}" global="false"/>
                                                     </p:inputMask>
                                                 </h:column>
 

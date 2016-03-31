@@ -495,16 +495,22 @@
 
                             <p:dialog widgetVar="dlg_salvar" modal="true" header="Salvar Jurídica" width="400" resizable="false">
                                 <h:outputLabel value="Deseja realmente SALVAR essa Pessoa Jurídica?" />
-                                <br /><br />
-                                <p:commandButton value="Sim" type="submit" styleClass="ui-confirmdialog-yes" action="#{juridicaBean.salvar()}" update=":formPessoaJuridica:" oncomplete="PF('dlg_salvar').hide()" style="clear: both; float: left" icon="ui-icon-check"/>  
-                                <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_salvar').hide()" style="float: left" icon="ui-icon-close"/>    
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Sim" type="submit" styleClass="ui-confirmdialog-yes" action="#{juridicaBean.salvar()}" update=":formPessoaJuridica:" oncomplete="PF('dlg_salvar').hide()" icon="ui-icon-check"/>  
+                                        <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_salvar').hide()" icon="ui-icon-close"/>
+                                    </h:panelGrid>
+                                </f:facet>
                             </p:dialog>
 
                             <p:dialog widgetVar="dlg_excluir" modal="true" header="Excluir Jurídica" width="400" resizable="false">
                                 <h:outputLabel value="Deseja realmente EXCLUIR essa Pessoa Jurídica?" />
-                                <br /><br />
-                                <p:commandButton value="Sim" type="submit" styleClass="ui-confirmdialog-yes" action="#{juridicaBean.excluir()}" ajax="false" style="clear: both; float: left" icon="ui-icon-check"/>  
-                                <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_excluir').hide()" style="float: left" icon="ui-icon-close"/>    
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Sim" type="submit" styleClass="ui-confirmdialog-yes" action="#{juridicaBean.excluir()}" ajax="false" icon="ui-icon-check"/>
+                                        <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_excluir').hide()" icon="ui-icon-close"/>
+                                    </h:panelGrid>
+                                </f:facet>
                             </p:dialog>
 
 
