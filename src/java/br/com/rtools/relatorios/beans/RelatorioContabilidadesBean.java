@@ -89,6 +89,8 @@ public class RelatorioContabilidadesBean implements Serializable {
         indexAccordion = "Resumo";
         tipo = "todos";
         radioEmail = "";
+        Jasper jasper = new Jasper();
+        jasper.init();
     }
 
     @PreDestroy
