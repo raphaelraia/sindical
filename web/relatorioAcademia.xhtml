@@ -197,15 +197,13 @@
                                         </h:column>
                                         <h:column>
                                             <h:panelGrid columns="5" id="i_t">
-                                                <p:calendar value="#{relatorioAcademiaBean.dataInicial}" pattern="dd/MM/yyyy" size="10" navigator="true" mask="99/99/9999">
-                                                    <p:ajax event="dateSelect" listener="#{relatorioAcademiaBean.selecionaDataInicial}" />
-                                                    <p:ajax event="change" listener="#{relatorioAcademiaBean.selecionaDataInicial}" />
-                                                </p:calendar>
+                                                <p:inputMask value="#{relatorioAcademiaBean.dataInicialString}" size="10" mask="99/99/9999" converter="#{isDateString}">
+                                                    <p:ajax event="change" update="@this" />
+                                                </p:inputMask>
                                                 <p:outputLabel value=" até" />
-                                                <p:calendar value="#{relatorioAcademiaBean.dataFinal}" pattern="dd/MM/yyyy"  size="10" navigator="true" mask="99/99/9999">
-                                                    <p:ajax event="dateSelect" listener="#{relatorioAcademiaBean.selecionaDataFinal}" />
-                                                    <p:ajax event="change" listener="#{relatorioAcademiaBean.selecionaDataFinal}" />
-                                                </p:calendar>
+                                                <p:inputMask value="#{relatorioAcademiaBean.dataFinalString}" size="10" mask="99/99/9999" converter="#{isDateString}">
+                                                    <p:ajax event="change" update="@this" />
+                                                </p:inputMask>
                                                 <p:commandButton icon="ui-icon-close" action="#{relatorioAcademiaBean.close('emissao_inativacao')}" title="Remover filtro"/>
                                             </h:panelGrid>
                                         </h:column>
@@ -302,7 +300,7 @@
                                         </h:panelGrid>
                                     </p:panel>
                                 </p:column>
-                                
+
                                 <p:column rendered="#{relatorioAcademiaBean.filtro[14]}">
                                     <p:panel header="Situação Financeira" styleClass="margin-top-max">
                                         <h:panelGrid columns="2">
@@ -318,30 +316,30 @@
                                         </h:panelGrid>
                                     </p:panel>
                                 </p:column>
-                                
+
                                 <p:column rendered="#{relatorioAcademiaBean.filtro[15]}">
                                     <p:panel header="Vencimento" styleClass="margin-top-max">
                                         <h:panelGrid columns="5">
-                                            <p:inputMask value="#{relatorioAcademiaBean.vencimentoInicial}" size="10" mask="99/99/9999">
+                                            <p:inputMask value="#{relatorioAcademiaBean.vencimentoInicial}" size="10" mask="99/99/9999" converter="#{isDateString}">
                                                 <p:ajax event="change" update="@this" />
                                             </p:inputMask>
                                             <p:outputLabel value=" até" />
-                                            <p:inputMask value="#{relatorioAcademiaBean.vencimentoFinal}" size="10" mask="99/99/9999">
+                                            <p:inputMask value="#{relatorioAcademiaBean.vencimentoFinal}" size="10" mask="99/99/9999" converter="#{isDateString}">
                                                 <p:ajax event="change" update="@this" />
                                             </p:inputMask>
                                             <p:commandButton icon="ui-icon-close" action="#{relatorioAcademiaBean.close('vencimento')}" title="Remover filtro"/>
                                         </h:panelGrid>
                                     </p:panel>
                                 </p:column>
-                                
+
                                 <p:column rendered="#{relatorioAcademiaBean.filtro[16]}">
                                     <p:panel header="Quitação" styleClass="margin-top-max">
                                         <h:panelGrid columns="5">
-                                            <p:inputMask value="#{relatorioAcademiaBean.quitacaoInicial}" size="10" mask="99/99/9999">
+                                            <p:inputMask value="#{relatorioAcademiaBean.quitacaoInicial}" size="10" mask="99/99/9999" converter="#{isDateString}">
                                                 <p:ajax event="change" update="@this" />
                                             </p:inputMask>
                                             <p:outputLabel value=" até" />
-                                            <p:inputMask value="#{relatorioAcademiaBean.quitacaoFinal}" size="10" mask="99/99/9999">
+                                            <p:inputMask value="#{relatorioAcademiaBean.quitacaoFinal}" size="10" mask="99/99/9999" converter="#{isDateString}">
                                                 <p:ajax event="change" update="@this" />
                                             </p:inputMask>
                                             <p:commandButton icon="ui-icon-close" action="#{relatorioAcademiaBean.close('quitacao')}" title="Remover filtro"/>
