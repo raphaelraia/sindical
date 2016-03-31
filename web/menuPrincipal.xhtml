@@ -181,7 +181,7 @@
                                                 <p:outputLabel value="#{sNotificacao.categoria}" style="color: #{sNotificacao.destaque ? 'blue' : 'black'}" />
                                             </p:column>
                                             <p:column>
-                                                #{sNotificacao.observacao}
+                                                <p:inputTextarea value="#{sNotificacao.observacao}" style="border: 0; width: 100%" />
                                             </p:column>
                                             <p:column width="30" styleClass="text-center">
                                                 <p:commandButton icon="ui-icon-star" rendered="#{sNotificacao.destaque}" />                                                                 
