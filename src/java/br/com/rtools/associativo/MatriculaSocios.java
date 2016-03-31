@@ -38,7 +38,7 @@ public class MatriculaSocios implements java.io.Serializable {
     @JoinColumn(name = "id_cidade", referencedColumnName = "id", nullable = true)
     @ManyToOne(fetch = FetchType.EAGER)
     private Cidade cidade;
-    @Column(name = "ds_observacao", length = 100, nullable = true)
+    @Column(name = "ds_observacao", length = 1000, nullable = true)
     private String observacao;
     @Column(name = "ds_observacao_aviso", length = 100, nullable = true)
     private String observacaoAviso;
