@@ -2085,8 +2085,14 @@
         </navigation-case>
         
         <navigation-case>
-            <from-outcome>suporte</from-outcome>
-            <to-view-id>/suporte.jsf</to-view-id>
+            <from-outcome>prazo</from-outcome>
+            <to-view-id>/prazo.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>operacao</from-outcome>
+            <to-view-id>/operacao.jsf</to-view-id>
             <redirect/>
         </navigation-case>
         
