@@ -12,6 +12,8 @@ import br.com.rtools.relatorios.dao.RelatorioAcademiaDao;
 import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.sistema.Periodo;
+import br.com.rtools.sistema.SisProcesso;
+import br.com.rtools.sistema.beans.SisProcessoBean;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
@@ -156,6 +158,8 @@ public class RelatorioAcademiaBean implements Serializable {
     }
 
     public void print(int tcase) throws FileNotFoundException {
+        SisProcesso sisProcesso = new SisProcesso();
+        sisProcesso.start();
         if (!getListTipoRelatorios().isEmpty()) {
             RelatorioDao rgdb = new RelatorioDao();
             relatorios = rgdb.pesquisaRelatorios(index[0]);
@@ -193,7 +197,9 @@ public class RelatorioAcademiaBean implements Serializable {
         }
         if (!filtro[8]) {
             idade[0] = 0;
-            idade[0] = 0;
+            idade[1] = 0;
+        } else {
+            listDetalhePesquisa.add(" Idade de " + idade[0] + " - " + idade[1]);            
         }
         if (filtro[4]) {
             switch (sexo) {
@@ -226,7 +232,7 @@ public class RelatorioAcademiaBean implements Serializable {
         if (responsavel.getId() != -1) {
             idResponsavel = responsavel.getId();
             listDetalhePesquisa.add(" Responsável: " + responsavel.getDocumento() + " - " + responsavel.getNome());
-        }
+        }        
         if (order == null) {
             order = "";
         }
@@ -260,6 +266,7 @@ public class RelatorioAcademiaBean implements Serializable {
             relatorios.setQueryString("PA.nome, MV.dt_vencimento");
             order = "PA.nome, MV.dt_vencimento";
         }
+        sisProcesso.startQuery();
         List list = rad.find(
                 pIStringI,
                 pFStringI,
@@ -287,6 +294,7 @@ public class RelatorioAcademiaBean implements Serializable {
                 quitacaoFinal,
                 order
         );
+        sisProcesso.finishQuery();
         if (list.isEmpty()) {
             GenericaMensagem.info("Sistema", "Não existem registros para o relatório selecionado");
             return;
@@ -361,7 +369,7 @@ public class RelatorioAcademiaBean implements Serializable {
             Jasper.printReports(relatorios.getJasper(), "academia", (Collection) pacs, map);
 
         }
-
+        sisProcesso.finish();
     }
 
     public List<SelectItem> getListTipoRelatorios() {
@@ -570,6 +578,14 @@ public class RelatorioAcademiaBean implements Serializable {
     public void setDataInicial(Date dataInicial) {
         this.dataInicial = dataInicial;
     }
+    
+    public String getDataInicialString() {
+        return DataHoje.converteData(dataInicial);
+    }
+
+    public void setDataInicialString(String dataInicialString) {
+        this.dataInicial = DataHoje.converte(dataInicialString);
+    }
 
     public Date getDataFinal() {
         return dataFinal;
@@ -577,6 +593,14 @@ public class RelatorioAcademiaBean implements Serializable {
 
     public void setDataFinal(Date dataFinal) {
         this.dataFinal = dataFinal;
+    }
+
+    public String getDataFinalString() {
+        return DataHoje.converteData(dataFinal);
+    }
+
+    public void setDataFinalString(String dataFinalString) {
+        this.dataFinal = DataHoje.converte(dataFinalString);
     }
 
     public List<SelectItem>[] getListSelectItem() {
