@@ -81,31 +81,7 @@
               80% { opacity: 0.0; }
             }            
 
-        </style>
-        <!-- <script type="text/javascript">
-            var clock = 5;
-            var countdownId = 0;
-
-            function start() {
-                countdownId = setInterval("countdown()", 1000);
-                countdownId = setInterval("countdown()", 1000);
-                countdownId = setInterval("countdown()", 1000);
-            }
-
-            function pisca() {
-                if (clock > 0) {
-                    clock = clock - 1;
-                    if ($(".pisca").css("opacity") === "0.5") {
-                        $(".pisca").css("opacity", "1");
-                    } else if ($(".pisca").css("opacity") === "1") {
-                        $(".pisca").css("opacity", "0.5");
-                    }
-                } else {
-                    // Stop timer
-                    clearInterval(countdownId);
-                }
-            }
-        </script> -->
+        </style>        
         <!-- Bootstrap -->
         <!-- Latest compiled and minified CSS -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="rtools" />
@@ -200,7 +176,6 @@
                     </h:panelGrid>
                     <center>
                         <span class="ui-icon ui-icon-refresh"></span>
-                        <!-- <a href="senha.jsf?client=#{usuarioBean.cliente}&amp;">Atualizar</a> -->
                     </center>                    
                 </h:form>
                 <h:form id="form_sound">
@@ -210,9 +185,6 @@
                         </audio>
                         <p:poll interval="5" update=":form_sound:id_hidden" delay="5" autoStart="false" stop="#{!senhaBean.sound}"/>
                         <h:inputHidden id="id_hidden" value="#{senhaBean.disabledSound}"  />
-                        <script>
-
-                        </script>
                     </h:column>
                 </h:form>
             </div>
