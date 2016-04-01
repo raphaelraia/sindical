@@ -357,6 +357,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
 
             PF.update("formConcluirHomologacao");
             PF.openDialog("dlg_homologacao");
+            WSSocket.send("senha_homologacao_" + ControleUsuarioBean.getCliente().toLowerCase());
             return null;
         }
 
@@ -1048,7 +1049,6 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
             sv.comitarTransacao();
             msgConfirma = "Registro atualizado com Sucesso!";
             limpar();
-            sv.comitarTransacao();
         } else {
             sv.desfazerTransacao();
         }

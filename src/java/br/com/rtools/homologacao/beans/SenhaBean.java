@@ -25,10 +25,14 @@ public class SenhaBean implements Serializable {
     private Boolean activePoll;
     private Boolean sound;
     private String tipo;
+    private String firstCall;
+    private Integer recallId;
+    private String recallColor;
 
     @PostConstruct
     public void init() {
         sound = false;
+        recallId = -1;
         macFilial = new MacFilial();
         listSenha = new ArrayList();
         activePoll = false;
@@ -61,6 +65,7 @@ public class SenhaBean implements Serializable {
     }
 
     public void loadSenha() {
+        recallId = -1;
         if (activePoll) {
             SenhaDao sd = new SenhaDao();
             if (!listSenha.isEmpty()) {
@@ -68,6 +73,7 @@ public class SenhaBean implements Serializable {
                 if (!list.isEmpty()) {
                     for (int i = 0; i < list.size(); i++) {
                         if (list.get(i).getMesa() > 0 && !list.get(i).getHoraChamada().isEmpty() && !DataHoje.converteData(list.get(i).getDtVerificada()).equals("01/01/1900")) {
+                            recallId = list.get(i).getId();
                             sound = true;
                             break;
                         }
@@ -77,6 +83,15 @@ public class SenhaBean implements Serializable {
             }
             if (listSenha.isEmpty()) {
                 listSenha = sd.sequence(macFilial.getFilial().getId(), 4);
+                if ((firstCall == null || !firstCall.equals(DataHoje.data())) && !listSenha.isEmpty() && listSenha.size() == 1) {
+                    recallId = listSenha.get(0).getId();
+                    firstCall = DataHoje.data();
+                    sound = true;
+                } else {
+                    if(recallId == -1) {
+                        recallId = listSenha.get(0).getId();                        
+                    }
+                }
             }
         }
     }
@@ -144,6 +159,22 @@ public class SenhaBean implements Serializable {
 
     public void setTipo(String tipo) {
         this.tipo = tipo;
+    }
+
+    public String getRecallColor() {
+        return recallColor;
+    }
+
+    public void setRecallColor(String recallColor) {
+        this.recallColor = recallColor;
+    }
+
+    public Integer getRecallId() {
+        return recallId;
+    }
+
+    public void setRecallId(Integer recallId) {
+        this.recallId = recallId;
     }
 
 }

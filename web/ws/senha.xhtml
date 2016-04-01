@@ -73,6 +73,13 @@
                 .password {font-size: 220pt!important;}
                 .min-password {font-size: 64pt!important;}
             }
+            .blink_me {
+              animation: blinker 1s linear 3;
+            }
+
+            @keyframes blinker {  
+              80% { opacity: 0.0; }
+            }            
 
         </style>
         <!-- <script type="text/javascript">
@@ -133,7 +140,7 @@
                                         <br />
                                         <h1 class="font-color-white">SENHA</h1>
                                         <span>
-                                            <p class="password" style="color: #{senhaBean.ultimaSenha.sucesso ? 'green' : 'white'}">#{senhaBean.ultimaSenha.senha}</p>
+                                            <p class="password" style="color: #{senhaBean.ultimaSenha.sucesso ? 'green' : 'white'}"><span class="#{senhaBean.ultimaSenha.id eq senhaBean.recallId ? 'blink_me' : ''}">#{senhaBean.ultimaSenha.senha}</span></p>
                                         </span>
                                         <br />
                                     </div>
@@ -145,7 +152,7 @@
                                         <br />
                                         <h1 class="font-color-white">#{senhaBean.tipo}</h1>
                                         <span>
-                                            <p class="password">#{senhaBean.ultimaSenha.mesa}</p>
+                                            <p class="password"><span class="#{senhaBean.ultimaSenha.id eq senhaBean.recallId ? 'blink_me' : ''}">#{senhaBean.ultimaSenha.mesa}</span></p>
                                         </span>                                        
                                         <br />
                                     </div>
@@ -153,7 +160,9 @@
                             </div>                            
                         </div>
                         <div class="row">
-                            <h3>SENHAS ANTERIORES</h3>
+                            <h:panelGroup layout="block" rendered="#{not empty senhaBean.listUltimasChamadas}">
+                                <h3>SENHAS ANTERIORES</h3>
+                            </h:panelGroup>
                             <div class="col-lg-12">
                                 <div class="row">
                                     <ui:repeat var="senha" value="#{senhaBean.listUltimasChamadas}" varStatus="index">
@@ -164,7 +173,7 @@
                                                         <br />
                                                         <h2 class="font-color-white">SENHA</h2>
                                                         <span>
-                                                            <p class="min-password" style="color: #{senha.sucesso ? 'green' : 'white'}">#{senha.senha}</p>
+                                                            <p class="min-password" style="color: #{senha.sucesso ? 'green' : 'white'}"><span class="#{senha.id eq senhaBean.recallId ? 'blink_me' : ''}">#{senha.senha}</span></p>
                                                         </span>                                                        
                                                         <br />
                                                     </div>
@@ -177,7 +186,7 @@
                                                         <br />
                                                         <h2 class="font-color-white">#{senhaBean.tipo}</h2>
                                                         <span>
-                                                            <p class="min-password">#{senha.mesa}</p>
+                                                            <p class="min-password"><span class="#{senha.id eq senhaBean.recallId ? 'blink_me' : ''}">#{senha.mesa}</span></p>
                                                         </span>
                                                         <br />
                                                     </div>
