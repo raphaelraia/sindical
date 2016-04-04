@@ -88,6 +88,11 @@
                                         <p:column headerText="Estoque" width="50" styleClass="text-center">
                                             <h:outputLabel value="#{tituloBean.getQuantidadeDisponivel(locadoraMovimento.titulo.id)}" />
                                         </p:column>
+                                        <p:column styleClass="text-center" width="30">
+                                            <h:commandLink title="Recibo" action="#{locacaoFilmeBean.print(locadoraMovimento)}" >
+                                                <p:commandButton icon="ui-icon-print" />
+                                            </h:commandLink>
+                                        </p:column>                                        
                                         <p:column width="2" style="background: white; border-left-color: #ffcccc; border-right-color: #ffcccc; border-left: 1px; border-top: 0; border-bottom: 0"></p:column>
                                         <p:column headerText="Dias Atraso" width="40" styleClass="text-center">
                                             <h:outputLabel value="#{locadoraMovimento.diasAtraso}" style="color: #{locadoraMovimento.diasAtraso == 0 ? 'black' : 'red; font-weight: bolder'} ;"/>

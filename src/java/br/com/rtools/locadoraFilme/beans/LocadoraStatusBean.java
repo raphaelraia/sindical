@@ -90,8 +90,16 @@ public class LocadoraStatusBean implements Serializable {
 
     public void loadLocadoraStatus() {
         listLocadoraStatus.clear();
-        listLocadoraStatus.addAll(new LocadoraStatusDao().findAllByFilialData(idFilial));
-        listLocadoraStatus.addAll(new LocadoraStatusDao().findAllByFilialSemana(idFilial));
+        List<LocadoraStatus> lses = new ArrayList();
+        lses = new LocadoraStatusDao().findAllByFilialData(idFilial);
+        if(!lses.isEmpty()) {
+            listLocadoraStatus.addAll(lses);
+        }
+        lses = new ArrayList();
+        lses = new LocadoraStatusDao().findAllByFilialSemana(idFilial);
+        if(!lses.isEmpty()) {
+            listLocadoraStatus.addAll(lses);            
+        }
     }
 
     public void save() {

@@ -78,7 +78,7 @@ public class PessoaDBToplink extends DB implements PessoaDB {
     @Override
     public List pesquisaTodosSemLogin() {
         try {
-            Query qry = getEntityManager().createQuery("select pes from Pessoa pes where pes.login is null and pes.id > 0 order by pes.nome");
+            Query qry = getEntityManager().createNativeQuery("SELECT P.* FROM pes_pessoa P WHERE (P.ds_login IS NULL OR P.ds_login = '') AND P.id > 0 ORDER BY P.ds_nome", Pessoa.class);
             return (qry.getResultList());
         } catch (Exception e) {
             return null;

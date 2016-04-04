@@ -2188,15 +2188,17 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public String getStrEndereco() {
-        if(fisica.getId() == -1) {
-            if (!listaPessoaEndereco.isEmpty()) {
+        if (!listaPessoaEndereco.isEmpty()) {
+            if(listaPessoaEndereco.size() == 1) {
+                strEndereco = "CADASTRAR TODOS OS ENDEREÇOS!";
+            } else {
                 strEndereco
                         = listaPessoaEndereco.get(1).getEndereco().getLogradouro().getDescricao() + " "
                         + listaPessoaEndereco.get(1).getEndereco().getDescricaoEndereco().getDescricao() + " " + listaPessoaEndereco.get(1).getNumero() + ", "
                         + listaPessoaEndereco.get(1).getEndereco().getBairro().getDescricao() + ", " + listaPessoaEndereco.get(1).getComplemento() + " "
                         + listaPessoaEndereco.get(1).getEndereco().getCidade().getCidade() + "  -  "
-                        + listaPessoaEndereco.get(1).getEndereco().getCidade().getUf() + " / CEP: " + AnaliseString.mascaraCep(listaPessoaEndereco.get(1).getEndereco().getCep());
-            }            
+                        + listaPessoaEndereco.get(1).getEndereco().getCidade().getUf() + " / CEP: " + AnaliseString.mascaraCep(listaPessoaEndereco.get(1).getEndereco().getCep());                
+            }
         }
         return strEndereco;
     }

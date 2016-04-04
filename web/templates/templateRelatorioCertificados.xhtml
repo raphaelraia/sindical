@@ -196,6 +196,9 @@
                         <p:selectBooleanCheckbox itemLabel="Exportar Excel" value="#{jasperBean.EXPORT_TO}">
                             <p:ajax event="change" update="@this i_acoes" />
                         </p:selectBooleanCheckbox>
+                        <p:selectBooleanCheckbox itemLabel="Cabeçalho" value="#{jasperBean.IS_HEADER}">
+                            <p:ajax event="change" update="@this i_acoes" />
+                        </p:selectBooleanCheckbox>
                         <p:selectOneMenu value="#{jasperBean.EXPORT_TYPE}" rendered="#{jasperBean.EXPORT_TO}">
                             <p:ajax event="change" update="@this" />
                             <f:selectItems value="#{jasperBean.listTypes('pdf')}" />

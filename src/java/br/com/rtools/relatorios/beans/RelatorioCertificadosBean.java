@@ -300,7 +300,6 @@ public class RelatorioCertificadosBean implements Serializable {
             GenericaMensagem.info("Sistema", "Não existem registros para o relatório selecionado");
             return;
         }
-        Jasper.IS_HEADER = true;
         Jasper.TYPE = "paisagem";
 //        if (relatoriosx.getExcel()) {
 //            Jasper.EXCEL_FIELDS = relatoriosx.getCamposExcel();
