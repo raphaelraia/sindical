@@ -20,6 +20,7 @@ import br.com.rtools.utilitarios.SelectItemSort;
 import br.com.rtools.utilitarios.Upload;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -39,7 +40,7 @@ import org.primefaces.event.FileUploadEvent;
 
 @ManagedBean
 @SessionScoped
-public class TituloBean {
+public class TituloBean implements Serializable {
 
     private Titulo titulo;
     private Catalogo catalogo;

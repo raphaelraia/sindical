@@ -53,7 +53,7 @@ public class MenuLocadoraBean implements Serializable {
         if (locadoraStatus == null) {
             locadoraStatus = new LocadoraStatusDao().findByFilialSemana(filial_id);
         }
-        status = "pendentes";
+        status = "nao_devolvidos";
         getListFiliais();
         loadLocadoraMovimento();
     }

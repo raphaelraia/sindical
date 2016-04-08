@@ -182,4 +182,22 @@ public class LocadoraMovimentoDao extends DB {
         }
         return new ArrayList();
     }
+
+    public List findByLote(Integer locadora_lote_id) {
+        try {
+            String queryString = ""
+                    + "     SELECT LM                                           \n"
+                    + "       FROM LocadoraMovimento AS LM                      \n"
+                    + "      WHERE LM.locadoraLote.id = " + locadora_lote_id + "\n"
+                    + " ORDER BY LM.locadoraLote.dtLocacao ASC";
+            Query query = getEntityManager().createQuery(queryString);
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return list;
+            }
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+        return new ArrayList();
+    }
 }

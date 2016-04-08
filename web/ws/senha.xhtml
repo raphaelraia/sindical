@@ -73,32 +73,15 @@
                 .password {font-size: 220pt!important;}
                 .min-password {font-size: 64pt!important;}
             }
-
-        </style>
-        <!-- <script type="text/javascript">
-            var clock = 5;
-            var countdownId = 0;
-
-            function start() {
-                countdownId = setInterval("countdown()", 1000);
-                countdownId = setInterval("countdown()", 1000);
-                countdownId = setInterval("countdown()", 1000);
+            .blink_me {
+              animation: blinker 1s linear 3;
             }
 
-            function pisca() {
-                if (clock > 0) {
-                    clock = clock - 1;
-                    if ($(".pisca").css("opacity") === "0.5") {
-                        $(".pisca").css("opacity", "1");
-                    } else if ($(".pisca").css("opacity") === "1") {
-                        $(".pisca").css("opacity", "0.5");
-                    }
-                } else {
-                    // Stop timer
-                    clearInterval(countdownId);
-                }
-            }
-        </script> -->
+            @keyframes blinker {  
+              80% { opacity: 0.0; }
+            }            
+
+        </style>        
         <!-- Bootstrap -->
         <!-- Latest compiled and minified CSS -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="rtools" />
@@ -133,7 +116,7 @@
                                         <br />
                                         <h1 class="font-color-white">SENHA</h1>
                                         <span>
-                                            <p class="password" style="color: #{senhaBean.ultimaSenha.sucesso ? 'green' : 'white'}">#{senhaBean.ultimaSenha.senha}</p>
+                                            <p class="password" style="color: #{senhaBean.ultimaSenha.sucesso ? 'green' : 'white'}"><span class="#{senhaBean.ultimaSenha.id eq senhaBean.recallId ? 'blink_me' : ''}">#{senhaBean.ultimaSenha.senha}</span></p>
                                         </span>
                                         <br />
                                     </div>
@@ -145,7 +128,7 @@
                                         <br />
                                         <h1 class="font-color-white">#{senhaBean.tipo}</h1>
                                         <span>
-                                            <p class="password">#{senhaBean.ultimaSenha.mesa}</p>
+                                            <p class="password"><span class="#{senhaBean.ultimaSenha.id eq senhaBean.recallId ? 'blink_me' : ''}">#{senhaBean.ultimaSenha.mesa}</span></p>
                                         </span>                                        
                                         <br />
                                     </div>
@@ -153,7 +136,9 @@
                             </div>                            
                         </div>
                         <div class="row">
-                            <h3>SENHAS ANTERIORES</h3>
+                            <h:panelGroup layout="block" rendered="#{not empty senhaBean.listUltimasChamadas}">
+                                <h3>SENHAS ANTERIORES</h3>
+                            </h:panelGroup>
                             <div class="col-lg-12">
                                 <div class="row">
                                     <ui:repeat var="senha" value="#{senhaBean.listUltimasChamadas}" varStatus="index">
@@ -164,7 +149,7 @@
                                                         <br />
                                                         <h2 class="font-color-white">SENHA</h2>
                                                         <span>
-                                                            <p class="min-password" style="color: #{senha.sucesso ? 'green' : 'white'}">#{senha.senha}</p>
+                                                            <p class="min-password" style="color: #{senha.sucesso ? 'green' : 'white'}"><span class="#{senha.id eq senhaBean.recallId ? 'blink_me' : ''}">#{senha.senha}</span></p>
                                                         </span>                                                        
                                                         <br />
                                                     </div>
@@ -177,7 +162,7 @@
                                                         <br />
                                                         <h2 class="font-color-white">#{senhaBean.tipo}</h2>
                                                         <span>
-                                                            <p class="min-password">#{senha.mesa}</p>
+                                                            <p class="min-password"><span class="#{senha.id eq senhaBean.recallId ? 'blink_me' : ''}">#{senha.mesa}</span></p>
                                                         </span>
                                                         <br />
                                                     </div>
@@ -191,7 +176,6 @@
                     </h:panelGrid>
                     <center>
                         <span class="ui-icon ui-icon-refresh"></span>
-                        <!-- <a href="senha.jsf?client=#{usuarioBean.cliente}&amp;">Atualizar</a> -->
                     </center>                    
                 </h:form>
                 <h:form id="form_sound">
@@ -201,9 +185,6 @@
                         </audio>
                         <p:poll interval="5" update=":form_sound:id_hidden" delay="5" autoStart="false" stop="#{!senhaBean.sound}"/>
                         <h:inputHidden id="id_hidden" value="#{senhaBean.disabledSound}"  />
-                        <script>
-
-                        </script>
                     </h:column>
                 </h:form>
             </div>
@@ -228,13 +209,13 @@
                 ws.onclose = function (event) {
                     console.log("Error ", event);
                 };
-            </script>            
+            </script>
             <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-            <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>            
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 
 
             <!-- Latest compiled and minified JavaScript -->
-            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="rtools"></script>            
+            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="rtools"></script>
         </f:view>
     </h:body>
 </ui:composition>

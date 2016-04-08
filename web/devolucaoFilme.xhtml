@@ -62,7 +62,7 @@
                                         <h:column>
                                             <h:panelGrid columns="4">
                                                 <h:column>
-                                                    <p:commandButton action="#{chamadaPaginaBean.pesquisa('pesquisaSocios')}" title="Pesquisar" icon="ui-icon-search" rendered="#{empty devolucaoFilmeBean.codigoLocatario}" actionListener="#{fisicaBean.listernerTipoPesquisa('socioativo')}"/>
+                                                    <p:commandButton action="#{chamadaPaginaBean.pesquisa('pesquisaPessoaFisica')}" title="Pesquisar" icon="ui-icon-search" rendered="#{empty devolucaoFilmeBean.codigoLocatario}" actionListener="#{fisicaBean.listernerTipoPesquisa('socioativo')}"/>
                                                     <p:commandButton action="#{devolucaoFilmeBean.listener(1)}" title="Pesquisar" icon="ui-icon-search" rendered="#{not empty devolucaoFilmeBean.codigoLocatario}" update="i_panel_locatario"/>
                                                 </h:column>
                                                 <p:outputLabel value="#{devolucaoFilmeBean.locatario.pessoa.nome}" styleClass="bold" />
@@ -102,17 +102,17 @@
                                                 <p:column headerText="Diária (R$)" styleClass="text-center">0,00</p:column>
                                                 <p:column headerText="Multa Diária (R$)" styleClass="text-center">#{locadoraMovimento.valorMultaDiariaString}</p:column>
                                                 <p:column headerText="Total (R$)" styleClass="text-center">#{locadoraMovimento.valorTotalString}</p:column>
-                                                <p:column headerText="Pagto" styleClass="text-center">#{locadoraMovimento.movimento.baixa != null ? locadoraMovimento.movimento.baixa.baixa : ''}</p:column>
+                                                <p:column headerText="Pagto" styleClass="text-center" width="80" >#{locadoraMovimento.movimento.baixa != null ? locadoraMovimento.movimento.baixa.baixa : ''}</p:column>
                                                 <p:column headerText="Vl. Pago" styleClass="text-center">#{locadoraMovimento.movimento != null ? locadoraMovimento.movimento.valorBaixaString : ''}</p:column>
                                                 <p:column styleClass="text-center" width="30">
                                                     <h:column rendered="#{locadoraMovimento.dtDevolucao ne null}">
                                                         <p:commandButton icon="ui-icon-arrowreturnthick-1-w" title="Desfazer devolução (EXCLUIR)" action="#{devolucaoFilmeBean.setDesfazerDevolucao(locadoraMovimento)}" update=":form_devolucao_filmes:i_panel_rollback" rendered="#{locadoraMovimento.movimento ne null ? (locadoraMovimento.movimento.baixa ne null ? false : true) : true}"  disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('dlg_desfazer_devolucao').show()"/>
                                                     </h:column>
                                                 </p:column>
-                                                <p:column styleClass="text-center" width="50">
-                                                    <h:column rendered="#{locadoraMovimento.dtDevolucao ne null}">
-                                                        <h:commandLink value="Recibo" title="Recibo" action="#{devolucaoFilmeBean.print(locadoraMovimento)}" rendered="#{locadoraMovimento.movimento ne null ? (locadoraMovimento.movimento.baixa ne null ? false : true) : true}" />
-                                                    </h:column>
+                                                <p:column styleClass="text-center" width="30">
+                                                    <h:commandLink title="Comprovante de locação" action="#{locacaoFilmeBean.print(locadoraMovimento)}">
+                                                        <p:commandButton icon="ui-icon-print" />
+                                                    </h:commandLink>
                                                 </p:column>
                                                 <p:rowExpansion>
                                                     <p:panelGrid styleClass="no-border" columns="1" style="border: 0">
@@ -139,13 +139,13 @@
                                                     <h:column>
                                                         <h:panelGrid columns="1">
                                                             <p:outputLabel value="DEVOLVER" styleClass="bold" rendered="#{devolucaoFilmeBean.status ne 'devolvidos'}"/>
-                                                            <p:inputText value="#{devolucaoFilmeBean.listLocadoraMovimento.size()}" styleClass="input-text-max text-center font-size-16 bold" readonly="true" size="3" rendered="#{devolucaoFilmeBean.status ne 'devolvidos'}"/>
+                                                            <p:inputText value="#{devolucaoFilmeBean.quantidadeParaDevolver}" styleClass="input-text-max text-center font-size-16 bold" readonly="true" size="3" rendered="#{devolucaoFilmeBean.status ne 'devolvidos'}"/>
                                                         </h:panelGrid>
                                                     </h:column>
-                                                    <h:column rendered="#{devolucaoFilmeBean.status eq 'nao_devolvidos' or devolucaoFilmeBean.status eq 'todos'}">
+                                                    <h:column rendered="#{devolucaoFilmeBean.status eq 'nao_devolvidos' or devolucaoFilmeBean.status eq 'todos' or devolucaoFilmeBean.status eq 'pendentes' }">
                                                         <h:panelGrid columns="1">
                                                             <p:outputLabel value="Qtde de Devoluções" styleClass="bold"/>
-                                                            <p:inputText value="#{devolucaoFilmeBean.quantidadeDevolucaoes}" styleClass="input-text-max text-center font-size-16 bold" readonly="true" size="3"/>
+                                                            <p:inputText value="#{devolucaoFilmeBean.quantidadeDevolucoes}" styleClass="input-text-max text-center font-size-16 bold" readonly="true" size="3"/>
                                                         </h:panelGrid>
                                                     </h:column>
                                                     <h:column>
@@ -164,8 +164,7 @@
                                 </f:facet>
                             </p:panel>
                             <h:panelGrid columns="6" styleClass="margin-top-max" id="i_actions">
-                                <p:commandButton value="Receber" action="#{baixaGeralBean.submit(devolucaoFilmeBean.listMovimentoPendente, 'caixa')}" rendered="#{devolucaoFilmeBean.receber}" />
-                                <h:commandLink value="Recibo" title="Recibo" rendered="#{devolucaoFilmeBean.locatario.id ne -1}" action="#{devolucaoFilmeBean.print}" />
+                                <p:commandButton value="Receber" action="#{baixaGeralBean.submit(devolucaoFilmeBean.listMovimentoPendente, 'caixa')}" rendered="#{devolucaoFilmeBean.receber}" />                                
                                 <p:commandButton value="Novo" action="#{devolucaoFilmeBean.clear}" update=":form_devolucao_filmes:"/>
                                 <h:column rendered="false">
                                     <p:commandButton value="Movimentos a Receber" rendered="#{devolucaoFilmeBean.locatario.id ne -1 and !devolucaoFilmeBean.receber}" action="#{movimentosReceberSocialBean.put(devolucaoFilmeBean.locatario.pessoa)}" immediate="true" icon="ui-icon-transferthick-e-w" />                                    

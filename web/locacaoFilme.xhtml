@@ -30,9 +30,11 @@
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Locação de Filmes" styleClass="fonteHeader" />
                         <div class="clear"></div>
+                        <h:outputScript name="block_submit.js" library="js" />
                         <h:form id="form_locacao_filmes" onsubmit="return false;">
                             <c:set scope="request" var="object" value="${locacaoFilmeBean.locadoraLote}"/>
                             <p:messages autoUpdate="true" showDetail="true" showSummary="true" />
+                            <p:growl autoUpdate="true" showDetail="true" showSummary="true" />
                             <h:panelGrid id="id_msg_aviso_block" style="width: 100%" rendered="#{locacaoFilmeBean.pessoaComplemento ne null}" >
                                 <p:panel style="border: 1px solid #ff9999" styleClass="margin-top">
                                     <f:facet name="header">
@@ -78,8 +80,8 @@
                                 <p:panel header="Filme(s)" styleClass="margin-top-max" id="i_panel_filme" rendered="#{locacaoFilmeBean.locatario.id ne -1}">
                                     <h:panelGrid columns="2">
                                         <h:column>
-                                            <h:panelGrid columns="3">
-                                                <p:inputText size="5" maxlength="10" value="#{locacaoFilmeBean.codigoBarras}" styleClass="font-size-14 input-text-med bg-yellow-ligth text-center"  placeholder="Código">
+                                            <h:panelGrid columns="5">
+                                                <p:inputText size="15" maxlength="10" value="#{locacaoFilmeBean.codigoBarras}" styleClass="font-size-14 input-text-med bg-yellow-ligth text-center" onkeypress="return event.keyCode !== 13;" placeholder="Código" id="barcode">
                                                     <p:ajax event="change" update="@this i_panel_filme" listener="#{locacaoFilmeBean.listener(2)}" />
                                                 </p:inputText>
                                                 <h:column>
@@ -87,9 +89,10 @@
                                                 </h:column>
                                             </h:panelGrid>
                                         </h:column>
-                                        <h:panelGrid columns="3">
+                                        <h:panelGrid columns="6">                                            
                                             <p:outputLabel value="#{locacaoFilmeBean.titulo.descricao}" styleClass="bold" />
-                                            <p:commandButton icon="ui-icon-info" onclick="PF('dlg_detalhes_filme').show();"  title="Detalhes" update=":form_locacao_filmes:i_detalhes_filme :form_locacao_filmes:i_detalhes_filme_t" styleClass="margin-left" rendered="#{locacaoFilmeBean.titulo.id ne null}"/>
+                                            <p:outputLabel value="(Lançamento)" styleClass="bold font-color-red" rendered="#{locacaoFilmeBean.titulo.id ne null and locacaoFilmeBean.titulo.lancamento}"/>
+                                            <p:commandButton type="button" icon="ui-icon-info" onclick="PF('dlg_detalhes_filme').show();"  title="Detalhes" update=":form_locacao_filmes:i_detalhes_filme :form_locacao_filmes:i_detalhes_filme_t" styleClass="margin-left" rendered="#{locacaoFilmeBean.titulo.id ne null}"/>
                                             <p:commandButton icon="ui-icon-close" action="#{locacaoFilmeBean.listener(5)}"  title="Limpar" update=":form_locacao_filmes:" styleClass="margin-left-max" rendered="#{locacaoFilmeBean.titulo.id ne null}"/>
                                         </h:panelGrid>
                                     </h:panelGrid>
@@ -113,11 +116,14 @@
                                     </h:panelGrid>
                                 </p:panel>
                             </p:panel>
-                            <h:panelGrid columns="6" styleClass="margin-top-max">
+                            <h:panelGrid columns="8" styleClass="margin-top-max">
                                 <p:commandButton onclick="PF('dlg_save').show();" value="Concluir" disabled="#{controleAcessoBean.botaoSalvar or locacaoFilmeBean.locatario.id eq -1}" title="Concluir locação"/>
                                 <p:commandButton value="Novo" action="#{locacaoFilmeBean.clear}" update=":form_locacao_filmes:"/>
                                 <p:commandButton onclick="PF('dlg_delete').show();" value="Desfazer" disabled="#{controleAcessoBean.botaoExcluir}" title="Excluir" rendered="#{locacaoFilmeBean.locadoraLote.id ne null}"/>
                                 <p:commandButton onclick="PF('dlg_locacoes').show();" value="Histórico" title="Histórico" update="i_history_pending" rendered="#{locacaoFilmeBean.locatario.id ne -1}" action="#{locacaoFilmeBean.listener(8)}"/>
+                                <h:commandLink title="Comprovante de locação" rendered="#{locacaoFilmeBean.locadoraLote.id ne null}" action="#{locacaoFilmeBean.print(null)}">
+                                    <p:commandButton icon="ui-icon-print" value="Comprovante"  />
+                                </h:commandLink>
                                 <h:column>
                                     <p:outputLabel value="Pendentes (#{locacaoFilmeBean.pendentes})" rendered="#{locacaoFilmeBean.locatario.id ne -1}" styleClass="font-color-blue font-size-12"/>                                        
                                 </h:column>
@@ -168,10 +174,11 @@
                                     </h:panelGrid>
                                 </f:facet>
                             </p:dialog>
-                            <p:dialog widgetVar="dlg_detalhes_filme" resizable="false" width="400" modal="true">
+                            <p:dialog widgetVar="dlg_detalhes_filme" width="600" modal="true" resizable="false">
                                 <f:facet name="header">
-                                    <h:panelGrid id="i_detalhes_filme_t">
-                                        #{locacaoFilmeBean.titulo.descricao}                                        
+                                    <h:panelGrid id="i_detalhes_filme_t" columns="2">
+                                        #{locacaoFilmeBean.titulo.descricao}
+                                        <p:outputLabel value="(Lançamento)" styleClass="bold font-color-red" rendered="#{locacaoFilmeBean.titulo.id ne null and locacaoFilmeBean.titulo.lancamento}"/>
                                     </h:panelGrid>
                                 </f:facet>
                                 <h:panelGrid columns="2" id="i_detalhes_filme">
@@ -200,7 +207,8 @@
                                 <p:messages autoUpdate="true" showDetail="true" showSummary="true" id="i_message" /> 
                                 <f:facet name="footer">
                                     <h:panelGrid>
-                                        <p:commandButton value="OK" type="submit" styleClass="ui-confirmdialog-yes" onclick="PF('dlg_message').hide();"/>                                        
+                                        <p:commandButton value="OK" type="submit" styleClass="ui-confirmdialog-yes" onclick="PF('dlg_message').hide()
+                                                        ;"/>                                        
                                     </h:panelGrid>
                                 </f:facet>
                             </p:dialog>
