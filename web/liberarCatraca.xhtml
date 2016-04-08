@@ -1,0 +1,108 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Liberar Catraca</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
+            .ui-button { padding: 3px!important; }
+            .ui-selectonemenu {padding-right: 25px!important;}
+
+            .column01 {
+                padding-right: 20px;
+            }
+
+            .column02{
+                padding-right: 20px;
+            }
+        </style>
+
+        <script type="text/javascript">
+
+        </script>
+    </h:head>
+    <h:body>
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                    <ui:include src="templates/templateAcessoFilial.xhtml"/>
+                </f:subview>
+                <f:view>
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:outputText value="Liberar Catraca" styleClass="fonteHeader" />
+                        <div style="clear: both"></div>
+                        <h:form id="formLiberarCatraca">
+                            <p:panel styleClass="fundoCinza">
+                                <h:panelGrid columns="3" columnClasses="column01, column02">
+                                    <h:column>
+                                        <p:outputLabel value="Usuário" style="font-size: 10pt!important"/><br />
+                                        <p:outputLabel value="#{liberarCatracaBean.usuario.pessoa.nome}" style="font-size: 13pt!important; font-weight: bold" />
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="Filial" style="font-size: 10pt!important"/><br />
+                                        <p:outputLabel value="#{liberarCatracaBean.macFilial.filial.filial.pessoa.nome}" style="font-size: 13pt!important; font-weight: bold" />
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="Departamento" style="font-size: 10pt!important"/><br />
+                                        <p:outputLabel value="#{liberarCatracaBean.macFilial.departamento.descricao}" style="font-size: 13pt!important; font-weight: bold" />
+                                    </h:column>
+                                </h:panelGrid>
+                            </p:panel>
+
+                            <br />
+                            <p:messages showDetail="true" closable="true" />
+                            <br />
+
+                            <p:dataTable value="#{liberarCatracaBean.listaCatraca}" var="linha_catraca" emptyMessage="Nenhuma Catraca Registrada.">
+                                <f:facet name="header">
+                                    <p:outputLabel value="Lista de Catracas" />
+                                </f:facet>
+                                <p:column headerText="Número" style="width: 50px; text-align: center">
+                                    <p:outputLabel value="#{linha_catraca.numero}" />
+                                </p:column>
+
+                                <p:column headerText="IP">
+                                    <p:outputLabel value="#{linha_catraca.ip}" />
+                                </p:column>
+
+                                <p:column headerText="" style="width: 50px; text-align: center">
+                                    <p:commandLink oncomplete="PF('dlg_liberar_catraca').show()" value="Liberar" action="#{liberarCatracaBean.selecionarCatraca(linha_catraca)}"/>
+                                </p:column>
+                            </p:dataTable>
+                            
+                            <p:dialog widgetVar="dlg_liberar_catraca" modal="true" header="Liberar Catraca" width="400" resizable="false">
+                                <h:panelGrid columns="1">
+                                    <p:outputLabel value="Deseja realmente liberar esta Catraca?" style="font-size: 14pt!important"/>
+                                </h:panelGrid>
+
+                                <h:panelGrid columns="2">
+                                    <p:commandButton icon="ui-icon-check" value="Liberar" title="Liberar Catraca Selecionada" action="#{liberarCatracaBean.liberar()}" update="@form" />
+                                    <p:commandButton icon="ui-icon-close" value="Cancelar" title="Cancelar Liberação" oncomplete="PF('dlg_liberar_catraca').hide();"/>
+                                </h:panelGrid>
+                            </p:dialog>                               
+                        </h:form>
+                    </p:panel>
+                </f:view>
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>                
+    </h:body>
+</ui:composition>

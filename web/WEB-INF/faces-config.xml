@@ -2102,6 +2102,24 @@
             <redirect/>
         </navigation-case>
         
+        <navigation-case>
+            <from-outcome>liberarCatraca</from-outcome>
+            <to-view-id>/liberarCatraca.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>consultarLiberacaoCatraca</from-outcome>
+            <to-view-id>/consultarLiberacaoCatraca.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>catraca</from-outcome>
+            <to-view-id>/catraca.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
     </navigation-rule>
     
     <lifecycle>

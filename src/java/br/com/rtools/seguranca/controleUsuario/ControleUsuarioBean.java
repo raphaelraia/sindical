@@ -157,10 +157,8 @@ public class ControleUsuarioBean implements Serializable {
         }
         usuario = db.ValidaUsuario(usuario.getLogin(), usuario.getSenha());
         if (usuario != null) {
+            filial = retornaStringFilial(macFilial, usuario);
             if (usuario.getId() != 1) {
-
-                filial = retornaStringFilial(macFilial, usuario);
-
                 if (usuario.getAutenticado()) {
                     if (macFilial == null) {
                         usuario = new Usuario();

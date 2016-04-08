@@ -1,0 +1,118 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Consulta Liberação da Catraca</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
+            .ui-button { padding: 3px!important; }
+            .ui-selectonemenu {padding-right: 25px!important;}
+        </style>
+
+        <script type="text/javascript">
+
+        </script>
+    </h:head>
+    <h:body>
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                </f:subview>
+                <f:view>
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:outputText value="Consultar Liberação Catraca" styleClass="fonteHeader" />
+                        <div style="clear: both"></div>
+                        <h:form id="formConsultarLiberacaoCatraca">
+                            <p:panel styleClass="fundoCinza">
+                                <h:panelGrid columns="6">
+                                    <h:column>
+                                        <p:outputLabel value="Data" /><br />
+                                        <h:panelGrid columns="3">
+                                            <p:inputMask value="#{consultarLiberacaoCatracaBean.dataInicio}" mask="99/99/9999" style="width: 80px"/>
+                                            <p:outputLabel value="até" />
+                                            <p:inputMask value="#{consultarLiberacaoCatracaBean.dataFinal}" mask="99/99/9999" style="width: 80px"/>
+                                        </h:panelGrid>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="Usuário" /><br />
+                                        <p:commandButton value="#{consultarLiberacaoCatracaBean.usuario.id eq -1 ? 'Pesquisar Usuário' : consultarLiberacaoCatracaBean.usuario.pessoa.nome}" action="#{chamadaPaginaBean.pesquisaUsuario()}" />
+                                    </h:column>
+                                    
+                                    <h:column>
+                                        <br />
+                                        <p:commandButton icon="ui-icon-close" action="#{consultarLiberacaoCatracaBean.removerUsuario()}" update="@form" rendered="#{consultarLiberacaoCatracaBean.usuario.id ne -1}"/>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="Departamento" /><br />
+                                        <p:selectOneMenu value="#{consultarLiberacaoCatracaBean.indexDepartamento}" style="width: 200px">
+                                            <p:ajax event="change" update="@this"/>
+                                            <f:selectItems value="#{consultarLiberacaoCatracaBean.listaDepartamento}" />
+                                        </p:selectOneMenu>
+                                    </h:column>
+                                    
+                                    <h:column>
+                                        <br />
+                                        <p:commandButton value="FILTRAR" action="#{consultarLiberacaoCatracaBean.loadListaCatracaLiberaAcesso()}" update="tbl"/>
+                                    </h:column>
+                                </h:panelGrid>
+                            </p:panel>
+                            
+                            <p:dataTable id="tbl" value="#{consultarLiberacaoCatracaBean.listaCatracaLiberaAcesso}" var="linha_lista" emptyMessage="Nenhum Registro Encontrado.">
+                                <f:facet name="header">
+                                    <p:outputLabel value="Lista de Liberações" />
+                                </f:facet>
+                                
+                                <p:column headerText="Data" style="text-align: center; width: 70px">
+                                    <p:outputLabel value="#{linha_lista.dtLiberacaoString}" />
+                                </p:column>
+                                
+                                <p:column headerText="Hora" style="text-align: center; width: 50px">
+                                    <p:outputLabel value="#{linha_lista.horaLiberacao}" />
+                                </p:column>
+                                
+                                <p:column headerText="Catraca" style="text-align: center; width: 50px">
+                                    <p:outputLabel value="#{linha_lista.catraca.numero}" />
+                                </p:column>
+
+                                <p:column headerText="IP" style="width: 100px; text-align: center">
+                                    <p:outputLabel value="#{linha_lista.catraca.ip}" />
+                                </p:column>
+                                
+                                <p:column headerText="Operador">
+                                    <p:outputLabel value="#{linha_lista.pessoa.nome}" />
+                                </p:column>
+                                
+                                <p:column headerText="Departamento" style="width: 150px">
+                                    <p:outputLabel value="#{linha_lista.departamento.descricao}" />
+                                </p:column>
+                                
+                                <p:column headerText="Observação" style="width: 200px">
+                                    <p:outputLabel value="#{linha_lista.observacao}" />
+                                </p:column>
+                            </p:dataTable>
+                        </h:form>
+                    </p:panel>
+                </f:view>
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>                
+    </h:body>
+</ui:composition>

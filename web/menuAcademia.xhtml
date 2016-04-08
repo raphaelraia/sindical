@@ -42,6 +42,7 @@
                                     </p:submenu>                            
                                     <p:menuitem value="Validade Exame Médico"       action="#{chamadaPaginaBean.pagina('validadeExameMedico')}" title="Validade Exame Médico"/>
                                     <p:menuitem value="Exame Médico"                action="#{chamadaPaginaBean.pagina('exameMedico')}" title="Exame Médico"/>
+                                    <p:menuitem value="Catraca"                     action="#{chamadaPaginaBean.pagina('catraca')}"/>
                                 </p:submenu>
                                 <p:submenu label="Movimento" icon="ui-icon-document" style="margin-right: 15px">  
                                     <p:menuitem value="Movimentos a Receber" action="#{chamadaPaginaBean.movimentosReceberSocial()}" />
@@ -49,6 +50,10 @@
                                     <p:menuitem value="Emissão de Guias"     action="#{chamadaPaginaBean.pagina('emissaoGuias')}" />
                                     <p:menuitem value="Lançamento Individual" action="#{chamadaPaginaBean.lancamentoIndividual}" />
                                     <p:menuitem value="Fechamento de Caixa"   action="#{chamadaPaginaBean.fechamentoCaixa()}"/>
+                                    <p:submenu label="Liberar Catraca">
+                                        <p:menuitem value="Liberar"            action="#{chamadaPaginaBean.pagina('liberarCatraca')}"/>
+                                        <p:menuitem value="Consultar"          action="#{chamadaPaginaBean.pagina('consultarLiberacaoCatraca')}"/>
+                                    </p:submenu>
                                 </p:submenu>
                                 <p:submenu label="Relatório" icon="ui-icon-document" style="margin-right: 15px">  
                                     <p:menuitem value="Academia"          action="#{chamadaPaginaBean.pagina('relatorioAcademia')}"/>
