@@ -30,16 +30,13 @@ public class Prazo implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
     @JoinColumn(name = "id_cidade", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.EAGER)
     private Cidade cidade;
     @JoinColumn(name = "id_convencao", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.EAGER)
     private Convencao convencao;
-    @JoinColumn(name = "id_grupo_cidade", referencedColumnName = "id")
-    @ManyToOne(fetch = FetchType.EAGER)
-    private GrupoCidade grupoCidade;
     @Column(name = "nr_prazo_dias_trabalhado")
     private Integer prazoDiasTrabalhado;
     @Column(name = "nr_prazo_dias_indenizado")
@@ -49,25 +46,23 @@ public class Prazo implements Serializable {
         this.id = -1;
         this.cidade = new Cidade();
         this.convencao = new Convencao();
-        this.grupoCidade = new GrupoCidade();
         this.prazoDiasTrabalhado = 0;
         this.prazoDiasIndenizado = 0;
     }
 
-    public Prazo(int id, Cidade cidade, Convencao convencao, GrupoCidade grupoCidade, Integer prazoDiasTrabalhado, Integer prazoDiasIndenizado) {
+    public Prazo(Integer id, Cidade cidade, Convencao convencao, Integer prazoDiasTrabalhado, Integer prazoDiasIndenizado) {
         this.id = id;
         this.cidade = cidade;
         this.convencao = convencao;
-        this.grupoCidade = grupoCidade;
         this.prazoDiasTrabalhado = prazoDiasTrabalhado;
         this.prazoDiasIndenizado = prazoDiasIndenizado;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -87,14 +82,6 @@ public class Prazo implements Serializable {
         this.convencao = convencao;
     }
 
-    public GrupoCidade getGrupoCidade() {
-        return grupoCidade;
-    }
-
-    public void setGrupoCidade(GrupoCidade grupoCidade) {
-        this.grupoCidade = grupoCidade;
-    }
-
     public Integer getPrazoDiasTrabalhado() {
         return prazoDiasTrabalhado;
     }
@@ -103,12 +90,28 @@ public class Prazo implements Serializable {
         this.prazoDiasTrabalhado = prazoDiasTrabalhado;
     }
 
+    public String getPrazoDiasTrabalhadoString() {
+        return Integer.toString(prazoDiasTrabalhado);
+    }
+
+    public void setPrazoDiasTrabalhadoString(String prazoDiasTrabalhadoString) {
+        this.prazoDiasTrabalhado = Integer.parseInt(prazoDiasTrabalhadoString);
+    }
+
     public Integer getPrazoDiasIndenizado() {
         return prazoDiasIndenizado;
     }
 
     public void setPrazoDiasIndenizado(Integer prazoDiasIndenizado) {
         this.prazoDiasIndenizado = prazoDiasIndenizado;
+    }
+
+    public String getPrazoDiasIndenizadoString() {
+        return Integer.toString(prazoDiasIndenizado);
+    }
+
+    public void setPrazoDiasIndenizadoString(String prazoDiasIndenizadoString) {
+        this.prazoDiasIndenizado = Integer.parseInt(prazoDiasIndenizadoString);
     }
 
 }

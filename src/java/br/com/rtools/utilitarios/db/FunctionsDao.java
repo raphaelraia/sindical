@@ -333,20 +333,21 @@ public class FunctionsDao extends DB implements FunctionsDB {
         return false;
     }
 
-    public Boolean homologacaoPrazo(Boolean trabalhado, Integer id_cidade, String data_demissao) {
+    @Override
+    public Boolean homologacaoPrazo(Boolean trabalhado, Integer id_cidade, String data_demissao, Integer convencao_id) {
         try {
             Query query = getEntityManager().createNativeQuery(
-                    "SELECT func_homologacao_prazo(" + trabalhado + ", " + id_cidade + ", '" + data_demissao + "');"
+                    "SELECT func_homologacao_prazo(" + trabalhado + ", " + id_cidade + ", '" + data_demissao + "', " + convencao_id + ");"
             );
             List list = query.getResultList();
-            
+
             if (!list.isEmpty()) {
                 return (Boolean) ((List) query.getSingleResult()).get(0);
             }
         } catch (Exception e) {
             e.getMessage();
-            return null;
+            return true;
         }
-        return null;
+        return true;
     }
 }

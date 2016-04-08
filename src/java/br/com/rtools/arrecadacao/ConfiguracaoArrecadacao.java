@@ -26,19 +26,23 @@ public class ConfiguracaoArrecadacao implements Serializable {
     private Boolean certificadoFaturementoBrutoAnual;
     @Column(name = "nr_dias_acordo", nullable = false)
     private Integer nrDiasAcordo;
+    @Column(name = "is_bloqueia_oposicao", columnDefinition = "boolean default false", nullable = false)
+    private Boolean bloqueiaOposição;
 
     public ConfiguracaoArrecadacao() {
         this.id = -1;
         this.filial = new Filial();
         this.certificadoFaturementoBrutoAnual = false;
         this.nrDiasAcordo = 0;
+        this.bloqueiaOposição = false;
     }
 
-    public ConfiguracaoArrecadacao(Integer id, Filial filial, Boolean certificadoFaturementoBrutoAnual, Integer nrDiasAcordo) {
+    public ConfiguracaoArrecadacao(Integer id, Filial filial, Boolean certificadoFaturementoBrutoAnual, Integer nrDiasAcordo, Boolean bloqueiaOposição) {
         this.id = id;
         this.filial = filial;
         this.certificadoFaturementoBrutoAnual = certificadoFaturementoBrutoAnual;
         this.nrDiasAcordo = nrDiasAcordo;
+        this.bloqueiaOposição = bloqueiaOposição;
     }
 
     public Integer getId() {
@@ -71,6 +75,14 @@ public class ConfiguracaoArrecadacao implements Serializable {
 
     public void setNrDiasAcordo(Integer nrDiasAcordo) {
         this.nrDiasAcordo = nrDiasAcordo;
+    }
+
+    public Boolean getBloqueiaOposição() {
+        return bloqueiaOposição;
+    }
+
+    public void setBloqueiaOposição(Boolean bloqueiaOposição) {
+        this.bloqueiaOposição = bloqueiaOposição;
     }
 
 }

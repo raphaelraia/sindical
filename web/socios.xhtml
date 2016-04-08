@@ -314,15 +314,15 @@
                             <p:dialog widgetVar="i_dlg_matricula" header="Editar Matrícula" resizable="false" width="400" modal="true">
                                 <h:panelGrid columns="2">
                                     <p:column>
-                                        <h:outputLabel value="Matrícula"/><br />
+                                        <h:outputLabel value="Matrícula: "/>
                                         <p:inputText value="#{sociosBean.matriculaSocios.nrMatricula}" style="font-size: 10pt!important; text-align: center" size="5"/>    
                                     </p:column>
-
-                                    <p:column>
-                                        <br />
-                                        <p:commandButton value="Sair" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_matricula').hide()" style="float: left" icon="ui-icon-check" update="i_panel_tipo"/>
-                                    </p:column>
                                 </h:panelGrid>
+                                <f:facet name="footer">
+                                    <h:panelGrid>
+                                        <p:commandButton value="Sair" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_matricula').hide()" icon="ui-icon-check" update="i_panel_tipo"/>
+                                    </h:panelGrid>
+                                </f:facet>
                             </p:dialog>
 
                             <h:panelGrid columns="2" style="width: 100%">
@@ -504,12 +504,15 @@
 
                             <p:dialog widgetVar="i_dlg_re" header="Deseja REATIVAR este Sócio" resizable="false" width="400" modal="true">
                                 <h:panelGrid columns="2">
-                                    <h:outputLabel value="Data de reativação" /><br />
+                                    <h:outputLabel value="Data de reativação: " />
                                     <p:inputMask value="#{sociosBean.dataReativacao}" size="8" maxlength="10" mask="99/99/9999"/>
                                 </h:panelGrid>
-
-                                <p:commandButton value="Sim"      type="submit" styleClass="ui-confirmdialog-yes" action="#{sociosBean.reativarSocio()}" update="formSocios" onclick="PF('i_dlg_re').hide()" style="clear: both; float: left" icon="ui-icon-check" oncomplete="PF('i_dlg_c').show()"/>  
-                                <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_re').hide()" style="float: left" icon="ui-icon-close"/>       
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Sim"      type="submit" styleClass="ui-confirmdialog-yes" action="#{sociosBean.reativarSocio()}" update="formSocios" onclick="PF('i_dlg_re').hide()" style="clear: both; float: left" icon="ui-icon-check" oncomplete="PF('i_dlg_c').show()"/>  
+                                        <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_re').hide()" style="float: left" icon="ui-icon-close"/>                                               
+                                    </h:panelGrid>
+                                </f:facet>
                             </p:dialog>
 
                             <p:dialog widgetVar="dlg_validade_carteirinha" header="Carteirinha Vencida" resizable="false" width="400" modal="true">
@@ -719,8 +722,10 @@
                                     </h:column>
                                 </h:panelGrid>
 
-                                <p:commandButton value="Salvar" action="#{sociosBean.salvarDesconto()}" icon="ui-icon-check"/>
                             </h:panelGrid>
+                            <f:facet name="footer">
+                                <p:commandButton value="Salvar" action="#{sociosBean.salvarDesconto()}" icon="ui-icon-check"/>                                
+                            </f:facet>
                         </p:dialog>
 
                         <p:dialog widgetVar="dlg_alterar_desconto" modal="true" header="Alterar Desconto" resizable="false"  width="400">

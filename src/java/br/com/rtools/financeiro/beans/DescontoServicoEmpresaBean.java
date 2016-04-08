@@ -1,11 +1,11 @@
 package br.com.rtools.financeiro.beans;
 
 import br.com.rtools.financeiro.DescontoServicoEmpresa;
+import br.com.rtools.financeiro.DescontoServicoEmpresaGrupo;
 import br.com.rtools.financeiro.GrupoFinanceiro;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.SubGrupoFinanceiro;
-import br.com.rtools.financeiro.db.DescontoServicoEmpresaDB;
-import br.com.rtools.financeiro.db.DescontoServicoEmpresaDBTopLink;
+import br.com.rtools.financeiro.dao.DescontoServicoEmpresaDao;
 import br.com.rtools.financeiro.db.FinanceiroDB;
 import br.com.rtools.financeiro.db.FinanceiroDBToplink;
 import br.com.rtools.logSistema.NovoLog;
@@ -26,7 +26,7 @@ import org.primefaces.event.RowEditEvent;
 @ManagedBean
 @SessionScoped
 public class DescontoServicoEmpresaBean implements Serializable {
-
+    
     private DescontoServicoEmpresa descontoServicoEmpresa;
     private List<Servicos> listServicos;
     private List<DescontoServicoEmpresa> listDescontoServicoEmpresa;
@@ -34,8 +34,10 @@ public class DescontoServicoEmpresaBean implements Serializable {
     private List<DescontoServicoEmpresa> listDSEPorEmpresa;
     private List<SelectItem> listGrupoFinanceiro;
     private List<SelectItem> listSubGrupoFinanceiro;
+    private List<SelectItem> listGrupo;
     private Integer idServicos;
     private Integer idGrupoFinanceiro;
+    private Integer idGrupo;
     private Integer idSubGrupoFinanceiro;
     private String descricaoPesquisaNome;
     private String descricaoPesquisaCNPJ;
@@ -45,7 +47,7 @@ public class DescontoServicoEmpresaBean implements Serializable {
     private boolean desabilitaPesquisaNome;
     private boolean desabilitaPesquisaCNPJ;
     private Boolean habilitaSubGrupo;
-
+    
     @PostConstruct
     public void init() {
         descontoServicoEmpresa = new DescontoServicoEmpresa();
@@ -55,6 +57,7 @@ public class DescontoServicoEmpresaBean implements Serializable {
         listServicos = new ArrayList<>();
         listGrupoFinanceiro = new ArrayList<>();
         listSubGrupoFinanceiro = new ArrayList<>();
+        listGrupo = new ArrayList<>();
         listDescontoServicoEmpresa = new ArrayList<>();
         listDSEPorEmpresa = new ArrayList<>();
         descricaoPesquisaNome = "";
@@ -67,19 +70,20 @@ public class DescontoServicoEmpresaBean implements Serializable {
         selectedServicos = null;
         habilitaSubGrupo = false;
         loadGrupoFinanceiro();
+        loadGrupo();
     }
-
+    
     @PreDestroy
     public void destroy() {
         GenericaSessao.remove("descontoServicoEmpresaBean");
         GenericaSessao.remove("descontoServicoEmpresaPesquisa");
         GenericaSessao.remove("juridicaPesquisa");
     }
-
+    
     public void clear() {
         GenericaSessao.remove("descontoServicoEmpresaBean");
     }
-
+    
     public void clear(Integer tcase) {
         if (tcase == 0) {
             descontoServicoEmpresa = new DescontoServicoEmpresa();
@@ -104,7 +108,7 @@ public class DescontoServicoEmpresaBean implements Serializable {
             loadServicos();
         }
     }
-
+    
     public void save() {
         if (descontoServicoEmpresa.getJuridica().getId() == -1) {
             message = "Pesquisar pessoa jurídica!";
@@ -126,8 +130,12 @@ public class DescontoServicoEmpresaBean implements Serializable {
             GenericaMensagem.warn("Validação", message);
             return;
         }
-        // descontoServicoEmpresa.setDesconto(Moeda.converteUS$(desconto));
         Dao dao = new Dao();
+        if (idGrupo != null && idGrupo != -1) {
+            descontoServicoEmpresa.setGrupo((DescontoServicoEmpresaGrupo) dao.find(new DescontoServicoEmpresaGrupo(), idGrupo));
+        } else {
+            descontoServicoEmpresa.setGrupo(null);
+        }
         int idServicoAntes = -1;
         if (descontoServicoEmpresa.getId() != -1) {
             idServicoAntes = descontoServicoEmpresa.getServicos().getId();
@@ -139,10 +147,11 @@ public class DescontoServicoEmpresaBean implements Serializable {
         for (int i = 0; i < selectedServicos.size(); i++) {
             dse.setServicos(selectedServicos.get(i));
             dse.setJuridica(descontoServicoEmpresa.getJuridica());
-            DescontoServicoEmpresaDB descontoServicoEmpresaDB = new DescontoServicoEmpresaDBTopLink();
+            DescontoServicoEmpresaDao descontoServicoEmpresaDao = new DescontoServicoEmpresaDao();
             NovoLog novoLog = new NovoLog();
             dse.setDescontoString(descontoServicoEmpresa.getDescontoString());
-            if (descontoServicoEmpresaDB.existeDescontoServicoEmpresa(descontoServicoEmpresa)) {
+            dse.setGrupo(descontoServicoEmpresa.getGrupo());
+            if (descontoServicoEmpresaDao.existeDescontoServicoEmpresa(descontoServicoEmpresa)) {
                 message = "Desconto já cadastrado para essa empresa!";
                 GenericaMensagem.warn("Validação", message);
                 dao.rollback();
@@ -196,10 +205,11 @@ public class DescontoServicoEmpresaBean implements Serializable {
             listDSEPorEmpresa.clear();
             selectedServicos.clear();
             listServicos.clear();
+            loadServicos();
         }
         descontoServicoEmpresa.setJuridica(juridica);
     }
-
+    
     public void update(RowEditEvent event) {
         DescontoServicoEmpresa dse = (DescontoServicoEmpresa) event.getObject();
         if (dse.getId() != -1) {
@@ -287,11 +297,11 @@ public class DescontoServicoEmpresaBean implements Serializable {
             GenericaMensagem.warn("Erro", message);
         }
     }
-
+    
     public void remove(RowEditEvent event) {
         remove((DescontoServicoEmpresa) event.getObject());
     }
-
+    
     public void remove(DescontoServicoEmpresa dse) {
         if (dse.getId() != -1) {
             Dao dao = new Dao();
@@ -309,6 +319,7 @@ public class DescontoServicoEmpresaBean implements Serializable {
                 GenericaMensagem.info("Sucesso", message);
                 listDSEPorEmpresa.clear();
                 listServicos.clear();
+                loadServicos();
             } else {
                 dao.rollback();
                 message = "Erro ao excluir registro!";
@@ -316,32 +327,30 @@ public class DescontoServicoEmpresaBean implements Serializable {
             }
         }
     }
-
+    
     public List<DescontoServicoEmpresa> getListDescontoServicoEmpresa() {
         return listDescontoServicoEmpresa;
     }
-
+    
     public List<DescontoServicoEmpresa> getListDSEPorEmpresa() {
         if (listDSEPorEmpresa.isEmpty()) {
             if (descontoServicoEmpresa.getJuridica().getId() != -1) {
-                DescontoServicoEmpresaDB descontoServicoEmpresaDB = new DescontoServicoEmpresaDBTopLink();
-                listDSEPorEmpresa = descontoServicoEmpresaDB.listaTodosPorEmpresa(descontoServicoEmpresa.getJuridica().getId());
+                DescontoServicoEmpresaDao descontoServicoEmpresaDao = new DescontoServicoEmpresaDao();
+                listDSEPorEmpresa = descontoServicoEmpresaDao.listaTodosPorEmpresa(descontoServicoEmpresa.getJuridica().getId());
             }
         }
         return listDSEPorEmpresa;
     }
-
+    
     public DescontoServicoEmpresa getDescontoServicoEmpresa() {
         if (GenericaSessao.exists("juridicaPesquisa")) {
             Juridica juridica = (Juridica) GenericaSessao.getObject("juridicaPesquisa", true);
             if (descontoServicoEmpresa.getId() == -1) {
                 descontoServicoEmpresa.setJuridica(juridica);
-            } else {
-                if (descontoServicoEmpresa.getJuridica().getId() != juridica.getId()) {
-                    listDSEPorEmpresa.clear();
-                    descontoServicoEmpresa.setId(-1);
-                    descontoServicoEmpresa.setJuridica(juridica);
-                }
+            } else if (descontoServicoEmpresa.getJuridica().getId() != juridica.getId()) {
+                listDSEPorEmpresa.clear();
+                descontoServicoEmpresa.setId(-1);
+                descontoServicoEmpresa.setJuridica(juridica);
             }
             loadServicos();
         }
@@ -351,22 +360,22 @@ public class DescontoServicoEmpresaBean implements Serializable {
         }
         return descontoServicoEmpresa;
     }
-
+    
     public void setDescontoServicoEmpresa(DescontoServicoEmpresa descontoServicoEmpresa) {
         this.descontoServicoEmpresa = descontoServicoEmpresa;
     }
-
+    
     public Integer getIdServicos() {
         return idServicos;
     }
-
+    
     public void setIdServicos(Integer idServicos) {
         this.idServicos = idServicos;
     }
-
+    
     public final void loadServicos() {
         if (descontoServicoEmpresa.getJuridica().getId() != -1) {
-            DescontoServicoEmpresaDB dsedb = new DescontoServicoEmpresaDBTopLink();
+            DescontoServicoEmpresaDao dsedb = new DescontoServicoEmpresaDao();
             if (habilitaSubGrupo) {
                 listServicos = dsedb.listaTodosServicosDisponiveis(descontoServicoEmpresa.getJuridica().getId(), Integer.parseInt(listSubGrupoFinanceiro.get(idSubGrupoFinanceiro).getDescription()));
             } else {
@@ -374,47 +383,47 @@ public class DescontoServicoEmpresaBean implements Serializable {
             }
         }
     }
-
+    
     public List<Servicos> getListServicos() {
         return listServicos;
     }
-
+    
     public void setListServicos(List<Servicos> listServicos) {
         this.listServicos = listServicos;
     }
-
+    
     public String getDescricaoPesquisaNome() {
         return descricaoPesquisaNome;
     }
-
+    
     public void setDescricaoPesquisaNome(String descricaoPesquisaNome) {
         this.descricaoPesquisaNome = descricaoPesquisaNome;
     }
-
+    
     public String getDescricaoPesquisaCNPJ() {
         return descricaoPesquisaCNPJ;
     }
-
+    
     public void setDescricaoPesquisaCNPJ(String descricaoPesquisaCNPJ) {
         this.descricaoPesquisaCNPJ = descricaoPesquisaCNPJ;
     }
-
+    
     public boolean isDesabilitaPesquisaNome() {
         return desabilitaPesquisaNome;
     }
-
+    
     public void setDesabilitaPesquisaNome(boolean desabilitaPesquisaNome) {
         this.desabilitaPesquisaNome = desabilitaPesquisaNome;
     }
-
+    
     public boolean isDesabilitaPesquisaCNPJ() {
         return desabilitaPesquisaCNPJ;
     }
-
+    
     public void setDesabilitaPesquisaCNPJ(boolean desabilitaPesquisaCNPJ) {
         this.desabilitaPesquisaCNPJ = desabilitaPesquisaCNPJ;
     }
-
+    
     public void tipoPesquisa() {
         if (!descricaoPesquisaNome.equals("")) {
             desabilitaPesquisaCNPJ = true;
@@ -428,55 +437,55 @@ public class DescontoServicoEmpresaBean implements Serializable {
             descricaoPesquisaNome = "";
             descricaoPesquisaCNPJ = "";
         }
-
+        
     }
-
+    
     public void acaoPesquisaInicial() {
         comoPesquisa = "I";
         find();
     }
-
+    
     public void acaoPesquisaParcial() {
         comoPesquisa = "P";
         find();
     }
-
+    
     public void find() {
         listDescontoServicoEmpresa.clear();
-        DescontoServicoEmpresaDB descontoServicoEmpresaDB = new DescontoServicoEmpresaDBTopLink();
+        DescontoServicoEmpresaDao descontoServicoEmpresaDao = new DescontoServicoEmpresaDao();
         if (desabilitaPesquisaCNPJ && !descricaoPesquisaNome.equals("")) {
-            listDescontoServicoEmpresa = descontoServicoEmpresaDB.pesquisaDescontoServicoEmpresas("nome", descricaoPesquisaNome, comoPesquisa);
+            listDescontoServicoEmpresa = descontoServicoEmpresaDao.pesquisaDescontoServicoEmpresas("nome", descricaoPesquisaNome, comoPesquisa);
         } else if (desabilitaPesquisaNome && !descricaoPesquisaCNPJ.equals("")) {
-            listDescontoServicoEmpresa = descontoServicoEmpresaDB.pesquisaDescontoServicoEmpresas("cnpj", descricaoPesquisaCNPJ, comoPesquisa);
+            listDescontoServicoEmpresa = descontoServicoEmpresaDao.pesquisaDescontoServicoEmpresas("cnpj", descricaoPesquisaCNPJ, comoPesquisa);
         } else {
-            listDescontoServicoEmpresa = descontoServicoEmpresaDB.listaTodos();
+            listDescontoServicoEmpresa = descontoServicoEmpresaDao.listaTodos();
         }
     }
-
+    
     public String getComoPesquisa() {
         return comoPesquisa;
     }
-
+    
     public void setComoPesquisa(String comoPesquisa) {
         this.comoPesquisa = comoPesquisa;
     }
-
+    
     public String getPorPesquisa() {
         return porPesquisa;
     }
-
+    
     public void setPorPesquisa(String porPesquisa) {
         this.porPesquisa = porPesquisa;
     }
-
+    
     public String getMessage() {
         return message;
     }
-
+    
     public void setMessage(String message) {
         this.message = message;
     }
-
+    
     public final void loadGrupoFinanceiro() {
         List<GrupoFinanceiro> list = new Dao().list(new GrupoFinanceiro(), true);
         for (int i = 0; i < list.size(); i++) {
@@ -486,23 +495,7 @@ public class DescontoServicoEmpresaBean implements Serializable {
             listGrupoFinanceiro.add(new SelectItem(i, list.get(i).getDescricao(), "" + list.get(i).getId()));
         }
     }
-
-    public List<SelectItem> getListGrupoFinanceiro() {
-        return listGrupoFinanceiro;
-    }
-
-    public void setListGrupoFinanceiro(List<SelectItem> listGrupoFinanceiro) {
-        this.listGrupoFinanceiro = listGrupoFinanceiro;
-    }
-
-    public Integer getIdGrupoFinanceiro() {
-        return idGrupoFinanceiro;
-    }
-
-    public void setIdGrupoFinanceiro(Integer idGrupoFinanceiro) {
-        this.idGrupoFinanceiro = idGrupoFinanceiro;
-    }
-
+    
     public final void loadSubGrupoFinanceiro() {
         if (!listGrupoFinanceiro.isEmpty() && habilitaSubGrupo) {
             FinanceiroDB financeiroDB = new FinanceiroDBToplink();
@@ -515,35 +508,77 @@ public class DescontoServicoEmpresaBean implements Serializable {
             }
         }
     }
-
+    
+    public final void loadGrupo() {
+        listGrupo = new ArrayList();
+        List<DescontoServicoEmpresaGrupo> list = new Dao().list(new DescontoServicoEmpresaGrupo(), true);
+        listGrupo.add(new SelectItem(-1, "NENHUM"));
+        idGrupo = -1;
+        for (int i = 0; i < list.size(); i++) {
+            listGrupo.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
+        }
+    }
+    
+    public List<SelectItem> getListGrupoFinanceiro() {
+        return listGrupoFinanceiro;
+    }
+    
+    public void setListGrupoFinanceiro(List<SelectItem> listGrupoFinanceiro) {
+        this.listGrupoFinanceiro = listGrupoFinanceiro;
+    }
+    
+    public Integer getIdGrupoFinanceiro() {
+        return idGrupoFinanceiro;
+    }
+    
+    public void setIdGrupoFinanceiro(Integer idGrupoFinanceiro) {
+        this.idGrupoFinanceiro = idGrupoFinanceiro;
+    }
+    
     public List<SelectItem> getListSubGrupoFinanceiro() {
         return listSubGrupoFinanceiro;
     }
-
+    
     public void setListSubGrupoFinanceiro(List<SelectItem> listSubGrupoFinanceiro) {
         this.listSubGrupoFinanceiro = listSubGrupoFinanceiro;
     }
-
+    
     public Integer getIdSubGrupoFinanceiro() {
         return idSubGrupoFinanceiro;
     }
-
+    
     public void setIdSubGrupoFinanceiro(Integer idSubGrupoFinanceiro) {
         this.idSubGrupoFinanceiro = idSubGrupoFinanceiro;
     }
-
+    
+    public List<SelectItem> getListGrupo() {
+        return listGrupo;
+    }
+    
+    public void setListGrupo(List<SelectItem> listGrupo) {
+        this.listGrupo = listGrupo;
+    }
+    
+    public Integer getIdGrupo() {
+        return idGrupo;
+    }
+    
+    public void setIdGrupo(Integer idGrupo) {
+        this.idGrupo = idGrupo;
+    }
+    
     public List<Servicos> getSelectedServicos() {
         return selectedServicos;
     }
-
+    
     public void setSelectedServicos(List<Servicos> selectedServicos) {
         this.selectedServicos = selectedServicos;
     }
-
+    
     public Boolean getHabilitaSubGrupo() {
         return habilitaSubGrupo;
     }
-
+    
     public void setHabilitaSubGrupo(Boolean habilitaSubGrupo) {
         this.habilitaSubGrupo = habilitaSubGrupo;
     }

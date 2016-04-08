@@ -1,7 +1,9 @@
 package br.com.rtools.homologacao.beans;
 
+import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.pessoa.beans.PesquisarProfissaoBean;
 import br.com.rtools.arrecadacao.Oposicao;
+import br.com.rtools.arrecadacao.db.ConvencaoDBToplink;
 import br.com.rtools.atendimento.db.AtendimentoDB;
 import br.com.rtools.atendimento.db.AtendimentoDBTopLink;
 import br.com.rtools.endereco.Endereco;
@@ -680,7 +682,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         }
 
         if (configuracaoHomologacao.getValidaFuncao()) {
-            if (profissao.getId() == -1 || profissao.getId() == 0) {
+            if (profissao.getId().equals(-1) || profissao.getId().equals(0)) {
                 GenericaMensagem.warn("Atenção", "Informar a Função!");
                 return;
             }
@@ -939,7 +941,16 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         }
 
         if (agendamento.getId() == -1) {
-            agendamento.setNoPrazo(new FunctionsDao().homologacaoPrazo(pessoaEmpresa.isAvisoTrabalhado(), enderecoEmpresa.getEndereco().getCidade().getId(), pessoaEmpresa.getDemissao()));
+            
+            ConvencaoDBToplink convencaoDao = new ConvencaoDBToplink();
+            Convencao convencao = convencaoDao.findByEmpresa(pessoaEmpresa.getJuridica().getPessoa().getId());
+            if(convencao == null) {
+                GenericaMensagem.warn("Mensagem", "NENHUMA CONVENÇÃO ENCONTRADA PARA ESTA EMPRESA!");
+                dao.rollback();
+                return;
+            }            
+            
+            agendamento.setNoPrazo(new FunctionsDao().homologacaoPrazo(pessoaEmpresa.isAvisoTrabalhado(), enderecoEmpresa.getEndereco().getCidade().getId(), pessoaEmpresa.getDemissao(), convencao.getId()));
             if (idStatusI == 1) {
                 if (!dba.existeHorarioDisponivel(agendamento.getDtData(), agendamento.getHorarios())) {
                     dao.rollback();

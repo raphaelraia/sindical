@@ -275,7 +275,7 @@
                             <h:panelGrid columns="4">
                                 <h:column>
                                     <h:outputLabel value="Profissão"/><br />
-                                    <p:commandButton value="Função" onclick="PF('dlg_profissao').show()" global="false"/>
+                                    <p:commandButton value="Função" onclick="PF('dlg_profissao').show()" global="false" style="#{webAgendamentoContribuinteBean.configuracaoHomologacao.webValidaFuncao ? 'color: red; font-weight: bold' : ''}"/>
                                 </h:column>
 
                                 <h:column>
@@ -410,9 +410,12 @@
 
                 <p:dialog widgetVar="dlg_protocolo" header="Imprimir Protocolo de Homologação" resizable="false" modal="true" width="300">
                     <h:outputLabel value="IMPRIMIR ESSE PROTOCOLO?" />
-                    <br /><br />
-                    <p:commandButton value="Sim" action="#{protocoloAgendamento.imprimir(webAgendamentoContribuinteBean.agendamento)}" onclick="PF('dlg_protocolo').hide()" style="clear: both; float: left" icon="ui-icon-check" ajax="false"/>  
-                    <p:commandButton value="Não" onclick="PF('dlg_protocolo').hide()" style="float: left" icon="ui-icon-close"/>    
+                    <f:facet name="footer">
+                        <h:panelGrid columns="2">
+                            <p:commandButton value="Sim" action="#{protocoloAgendamento.imprimir(webAgendamentoContribuinteBean.agendamento)}" onclick="PF('dlg_protocolo').hide()" icon="ui-icon-check" ajax="false"/>
+                            <p:commandButton value="Não" onclick="PF('dlg_protocolo').hide()" icon="ui-icon-close"/>
+                        </h:panelGrid>
+                    </f:facet>
                 </p:dialog>
 
                 <p:dialog widgetVar="dlg_endereco" header="Endereço" resizable="false" modal="true" width="400">

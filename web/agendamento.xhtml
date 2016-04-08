@@ -215,7 +215,7 @@
                                 </h:column>
 
                                 <h:column>
-                                    <h:outputLabel value="Nascimento"  styleClass="#{agendamentoBean.configuracaoHomologacao.validaDataNascimento ? 'font-color-red' : ''}"/><br />
+                                    <h:outputLabel value="Nascimento"  styleClass="#{agendamentoBean.configuracaoHomologacao.validaDataNascimento ? 'font-color-red bold' : ''}"/><br />
                                     <p:inputMask value="#{agendamentoBean.fisica.nascimento}" size="8" mask="99/99/9999" readonly="#{agendamentoBean.fisica.id != -1 and agendamentoBean.fisica.nascimento ne '01/01/1900'}">
                                         <p:ajax event="change" update="@this formConcluirAgendamento" listener="#{agendamentoBean.pesquisarFuncionarioCPF}"/>
                                     </p:inputMask>
@@ -298,7 +298,7 @@
                                     <h:column>
                                         <h:panelGrid styleClass="margin-top-max">
                                             <h:outputLabel/>
-                                            <p:commandButton value="Função" onclick="PF('dlg_profissao').show()" global="false" icon="ui-icon-search" styleClass="#{agendamentoBean.configuracaoHomologacao.validaFuncao ? 'font-color-red' : ''}"/>
+                                            <p:commandButton value="Função" onclick="PF('dlg_profissao').show()" global="false" icon="ui-icon-search" styleClass="#{agendamentoBean.configuracaoHomologacao.validaFuncao ? 'font-color-red bold' : ''}"/>
                                         </h:panelGrid>
                                     </h:column>
 
@@ -336,17 +336,8 @@
                             <p:commandButton value="#{agendamentoBean.juridica.id == -1 ? 'Pesquisar Empresa' : 'Alterar Empresa'}" action="#{chamadaPaginaBean.pesquisaPessoaJuridica}"/>
                             <p:messages id="msg_dialog2" showDetail="true" closable="true"/>
                             <p:panel style="margin-top: 10px" rendered="#{agendamentoBean.juridica.id != -1}">
-                                <h:panelGroup layout="block">
-                                    <p:panel style="background-color: #f05c5c" rendered="#{agendamentoBean.juridica.pessoa.pessoaComplemento.bloqueiaObsAviso}">
-                                        <h:outputLabel value="CADASTRO BLOQUEADO!" style="font-size: 11pt!important; font-weight: bold; color: white" />
-                                    </p:panel>
-                                    <p:panel rendered="#{not empty agendamentoBean.juridica.pessoa.pessoaComplemento.obsAviso}">
-                                        <h:panelGrid columns="2">
-                                            <h:outputLabel value="AVISO!" style="font-weight: bold; color: red; "/>
-                                            <h:outputLabel value="#{agendamentoBean.juridica.pessoa.pessoaComplemento.obsAviso}" style="font-weight: bold; "/>                                            
-                                        </h:panelGrid>
-                                    </p:panel>                                
-                                </h:panelGroup>                                
+                                <h:outputText value="#{genericaMensagem.getHtmlMessage('error', 'CADASTRO BLOQUEADO')}" rendered="#{agendamentoBean.juridica.pessoa.pessoaComplemento.bloqueiaObsAviso}" escape="false" />
+                                <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', 'AVISO', agendamentoBean.juridica.pessoa.pessoaComplemento.obsAviso)}" rendered="#{not empty agendamentoBean.juridica.pessoa.pessoaComplemento.obsAviso}" escape="false" />
                                 <h:panelGrid columns="5">
                                     <h:column>
                                         <h:outputText value="Empresa" style="font-weight: bold"/><br />

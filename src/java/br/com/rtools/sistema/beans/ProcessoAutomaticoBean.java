@@ -44,27 +44,31 @@ public class ProcessoAutomaticoBean implements Serializable {
 
     // SEMPRE MANTER NO preRenderView DA TELA QUE TEM O PROCESSO
     public void find_progress(String nome_do_processo) {
-        // METODO EXECUTADO TODA VEZ QUE INICIA A TELA
-        // VERIFICA SE A REQUISIÇÃO É AJAX OU POST, PARA O CASO DE RECARREGAR A PÁGINA
-        // ex. fonte http://stackoverflow.com/questions/14153895/view-scoped-bean-prerenderview-method-being-called-multiple-times
-        if (!FacesContext.getCurrentInstance().isPostback()) {
-            // LIMPA TODO O bean PARA PESQUISAR UM NOVO PROCESSO
-            clearBean();
+        try {
+            // METODO EXECUTADO TODA VEZ QUE INICIA A TELA
+            // VERIFICA SE A REQUISIÇÃO É AJAX OU POST, PARA O CASO DE RECARREGAR A PÁGINA
+            // ex. fonte http://stackoverflow.com/questions/14153895/view-scoped-bean-prerenderview-method-being-called-multiple-times
+            if (!FacesContext.getCurrentInstance().isPostback()) {
+                // LIMPA TODO O bean PARA PESQUISAR UM NOVO PROCESSO
+                clearBean();
 
-            thread_name = nome_do_processo;
-            ProcessoAutomaticoDao dao = new ProcessoAutomaticoDao();
-            processoAutomatico = dao.pesquisarProcesso(thread_name, Usuario.getUsuario().getId());
-            if (processoAutomatico.getId() != -1) {
-                // CONCLUIU O PROCESSAMENTO
-                //concluiuProcessamento();
+                thread_name = nome_do_processo;
+                ProcessoAutomaticoDao dao = new ProcessoAutomaticoDao();
+                processoAutomatico = dao.pesquisarProcesso(thread_name, Usuario.getUsuario().getId());
+                if (processoAutomatico.getId() != -1) {
+                    // CONCLUIU O PROCESSAMENTO
+                    //concluiuProcessamento();
 
-                // INCREMENTA A PROGRESSÃO DA BARRA DE STATUS
-                Integer progress = Math.round((processoAutomatico.getNrProgresso().floatValue() / processoAutomatico.getNrProgressoFinal().floatValue()) * 100);
-                progressValue = progress;
-                progressLabel = progressValue;
-            } else {
-                processoAutomaticoConcluido = dao.pesquisarProcessoConcluidoNaoVisto(thread_name, Usuario.getUsuario().getId());
-            }
+                    // INCREMENTA A PROGRESSÃO DA BARRA DE STATUS
+                    Integer progress = Math.round((processoAutomatico.getNrProgresso().floatValue() / processoAutomatico.getNrProgressoFinal().floatValue()) * 100);
+                    progressValue = progress;
+                    progressLabel = progressValue;
+                } else {
+                    processoAutomaticoConcluido = dao.pesquisarProcessoConcluidoNaoVisto(thread_name, Usuario.getUsuario().getId());
+                }
+            }            
+        } catch (Exception e) {
+            
         }
     }
 

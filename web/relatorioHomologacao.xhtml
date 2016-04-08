@@ -55,8 +55,14 @@
                                     </h:column>
                                 </p:column>
                                 <p:column rendered="#{relatorioHomologacaoBean.listFilters[1].active}">
-                                    <p:panel header="Data agendamento">
+                                    <p:panel>
                                         <h:panelGrid columns="5">
+                                            <p:selectOneMenu value="#{relatorioHomologacaoBean.tipoPeriodo}" label="Período" styleClass="margin-left-max">
+                                                <p:ajax event="change" update="@this" global="false" />
+                                                <f:selectItem itemValue="emissao" itemLabel="Emissão" />
+                                                <f:selectItem itemValue="agendamento" itemLabel="Agendamento" />
+                                                <f:selectItem itemValue="demissao" itemLabel="Demissão"  />
+                                            </p:selectOneMenu>                                            
                                             <p:calendar value="#{relatorioHomologacaoBean.dataInicial}" pattern="dd/MM/yyyy" size="10" navigator="true" mask="99/99/9999">
                                                 <p:ajax event="dateSelect" listener="#{relatorioHomologacaoBean.selecionaDataInicial}" />
                                             </p:calendar>
@@ -123,7 +129,7 @@
                                         <h:panelGrid id="i_funcionarios">
                                             <p:dataTable value="#{relatorioHomologacaoBean.listFuncionario}" var="funcionario" id="i_f_tbl" emptyMessage="Nenhum registro encontrado!">
                                                 <p:column width="30">
-                                                    <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.remove(funcionario)}" title="Remover empresa" update="i_f_tbl"/>
+                                                    <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.remove(funcionario)}" title="Remover empresa" update="i_f_tbl" />
                                                 </p:column>
                                                 <p:column>
                                                     #{funcionario.pessoa.documento}                                                  
@@ -189,33 +195,19 @@
                                             <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close(relatorioHomologacaoBean.listFilters[8])}" title="Remover listFilters"/>
                                         </h:panelGrid>                                        
                                     </h:column>
-                                </p:column>
-                                <p:column rendered="#{relatorioHomologacaoBean.listFilters[9].active}">
-                                    <p:panel header="Data demissão" styleClass="margin-top-max">
-                                        <h:panelGrid columns="5">
-                                            <p:calendar value="#{relatorioHomologacaoBean.dataInicial}" pattern="dd/MM/yyyy" size="10" navigator="true" mask="99/99/9999">
-                                                <p:ajax event="dateSelect" listener="#{relatorioHomologacaoBean.selecionaDataInicial}" />
-                                            </p:calendar>
-                                            <p:outputLabel value=" até" />
-                                            <p:calendar value="#{relatorioHomologacaoBean.dataFinal}" pattern="dd/MM/yyyy"  size="10" navigator="true" mask="99/99/9999">
-                                                <p:ajax event="dateSelect" listener="#{relatorioHomologacaoBean.selecionaDataFinal}" />
-                                            </p:calendar>
-                                            <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close(relatorioHomologacaoBean.listFilters[9])}" title="Remover listFilters"/>
-                                        </h:panelGrid>
-                                    </p:panel>
-                                </p:column>                                
-                                <p:column rendered="#{relatorioHomologacaoBean.listFilters[11].active}">
+                                </p:column>                               
+                                <p:column rendered="#{relatorioHomologacaoBean.listFilters[10].active}">
                                     <h:panelGrid columns="4">
                                         <p:outputLabel value="Convenção:" />
                                         <p:selectOneMenu value="#{relatorioHomologacaoBean.index[5]}">
                                             <p:ajax event="change" update="@this" />
                                             <f:selectItems value="#{relatorioHomologacaoBean.listConvencao}"/>
                                         </p:selectOneMenu>
-                                        <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close(relatorioHomologacaoBean.listFilters[11])}" title="Remover listFilters"/>
+                                        <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close(relatorioHomologacaoBean.listFilters[10])}" title="Remover listFilters"/>
                                     </h:panelGrid>
                                 </p:column>
 
-                                <p:column rendered="#{relatorioHomologacaoBean.listFilters[10].active}">
+                                <p:column rendered="#{relatorioHomologacaoBean.listFilters[9].active}">
                                     <h:column>
                                         <h:panelGrid columns="4">
                                             <p:outputLabel value="Ordenar por: " />
@@ -227,7 +219,7 @@
                                                 <f:selectItem itemValue="funcionario" itemLabel="Funcionário"  />
                                                 <f:selectItem itemValue="homologador" itemLabel="Homologador"  />
                                             </p:selectOneMenu>
-                                            <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close(relatorioHomologacaoBean.listFilters[10])}" title="Remover listFilters"/>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close(relatorioHomologacaoBean.listFilters[9])}" title="Remover listFilters"/>
                                         </h:panelGrid>                                        
                                     </h:column>
                                 </p:column>

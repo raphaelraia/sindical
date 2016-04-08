@@ -62,11 +62,11 @@
                                             <p:ajax event="page" global="false"/>
 
                                             <p:column style="text-align: center;" width="30">
-                                                <p:commandButton icon="ui-icon-link" title="Selecionar este registro nº#{linha.id}" action="#{simplesBean.selecionar(linha)}" global="false" />
+                                                <p:commandButton icon="ui-icon-arrowreturnthick-1-w" title="Selecionar este registro nº#{linha.id}" action="#{simplesBean.selecionar(linha)}" global="false" />
                                             </p:column>
 
                                             <p:column style="text-align: center;" width="30">
-                                                <p:commandButton icon="ui-icon-search" title="Editar registro nº#{linha.id}" >
+                                                <p:commandButton icon="ui-icon-pencil" title="Editar registro nº#{linha.id}" >
                                                     <p:ajax listener="#{simplesBean.editar(linha)}" update=":formCadastroSimplesNovo:" oncomplete="jQuery('.iDescricaoc').focus()" />
                                                 </p:commandButton>
                                             </p:column>

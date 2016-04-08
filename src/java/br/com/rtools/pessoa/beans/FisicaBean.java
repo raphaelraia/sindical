@@ -778,7 +778,6 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             if (success) {
                 RequestContext.getCurrentInstance().update("form_pessoa_fisica:i_panel_pessoa_fisica");
                 RequestContext.getCurrentInstance().update("form_pessoa_fisica:i_end_rendered");
-                RequestContext.getCurrentInstance().update("form_pessoa_fisica:id_msg_aviso_block");
             }
         }
     }

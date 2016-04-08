@@ -322,7 +322,8 @@ public class LancamentoIndividualBean implements Serializable {
                     empresaConveniada,
                     null,
                     false,
-                    ""
+                    "",
+                    null
             );
 
             if (!sv.inserirObjeto(guias)) {

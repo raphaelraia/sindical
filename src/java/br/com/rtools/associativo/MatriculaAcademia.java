@@ -3,6 +3,7 @@ package br.com.rtools.associativo;
 import br.com.rtools.academia.AcademiaServicoValor;
 import br.com.rtools.financeiro.Evt;
 import br.com.rtools.financeiro.ServicoPessoa;
+import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.DataHoje;
 import java.text.SimpleDateFormat;
@@ -25,6 +26,7 @@ import org.primefaces.event.SelectEvent;
 @Table(name = "matr_academia")
 @NamedQuery(name = "MatriculaAcademia.pesquisaID", query = "select ma from MatriculaAcademia ma where ma.id=:pid")
 public class MatriculaAcademia implements java.io.Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

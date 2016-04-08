@@ -142,7 +142,9 @@ public class JuridicaReceitaJSON {
                 } catch (IOException | JSONException e) {
                     status = -1;
                     error = e.getMessage();
-
+                    if(error.contains("504")) {
+                        error = "Tente novamente mais tarde, serviço temporariamente indisponível!";
+                    }
                     jro.setStatus(status);
                     jro.setMsg(error);
                     return jro;

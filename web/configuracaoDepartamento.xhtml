@@ -106,7 +106,7 @@
                             <h:panelGrid id="i_pg_fd">
                                 <p:dataTable var="configuracaoDepartamento" value="#{configuracaoDepartamentoBean.listConfiguracaoDepartamento}" scrollable="true" scrollHeight="200" rowIndexVar="index" styleClass="margin-top-max" emptyMessage="Nenhum registro encontrado!">
                                     <p:column width="25">
-                                        <p:commandButton icon="ui-icon-link" action="#{configuracaoDepartamentoBean.edit(configuracaoDepartamento)}" update=":form_ed:" disabled="#{controleAcessoBean.botaoExcluir}" />
+                                        <p:commandButton icon="ui-icon-pencil" action="#{configuracaoDepartamentoBean.edit(configuracaoDepartamento)}" update=":form_ed:" disabled="#{controleAcessoBean.botaoExcluir}" />
                                     </p:column>
                                     <p:column headerText="Departamento">
                                         #{configuracaoDepartamento.departamento.descricao}
@@ -126,7 +126,7 @@
                                         <p:commandButton icon="ui-icon-mail-closed" action="#{configuracaoDepartamentoBean.send(configuracaoDepartamento)}" update=":form_ed:" title="Testar envio"/>
                                     </p:column>
                                     <p:column width="25">
-                                        <p:commandButton icon="ui-icon-trash" action="#{configuracaoDepartamentoBean.remove(index)}" update=":form_ed:" disabled="#{controleAcessoBean.botaoExcluir}" />
+                                        <p:commandButton icon="ui-icon-trash" action="#{configuracaoDepartamentoBean.remove(configuracaoDepartamento)}" update=":form_ed:" disabled="#{controleAcessoBean.botaoExcluir}" />
                                     </p:column>
                                 </p:dataTable>
                             </h:panelGrid>                            

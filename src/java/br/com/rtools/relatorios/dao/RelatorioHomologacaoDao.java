@@ -57,53 +57,53 @@ public class RelatorioHomologacaoDao extends DB {
      * @param idConvencao
      * @return 
      */
-    public List find(String inIdEmpresas, String inIdFuncionarios, String tipoUsuarioOperacional, Integer usuarioOperacional, String inIdStatus, Integer filial, Integer tCase, String dateStart, String dateFinish, Integer motivoDemissao, Boolean tipoAviso, String tipoAgendador, String sexo, Boolean webAgendamento, Integer idConvencao) {
+    public List find(String inIdEmpresas, String inIdFuncionarios, String tipoUsuarioOperacional, Integer usuarioOperacional, String inIdStatus, Integer filial, String tCase, String dateStart, String dateFinish, Integer motivoDemissao, Boolean tipoAviso, String tipoAgendador, String sexo, Boolean webAgendamento, Integer idConvencao) {
         List listQuery = new ArrayList();
         String queryString = ""
                 + " -- RelatorioHomologacaoDao->find() \n\n "
                 + " SELECT ";
-        if (relatorios.getId() == 70) {
-
-            queryString += " PPE.ds_documento AS cnpj,                          \n" /*  00 - Empresa - CNPJ                 */
-                    + "      PPE.ds_nome      AS empresa,                       \n" /*  01 - Empresa  Nome                  */
-                    + "      S.ds_descricao   AS status,                        \n" /*  02 - Status                         */
-                    + "      count(*)         AS quantidade_status              \n";
-            /* 03 - Quantidade por status          */
-        } else if (relatorios.getId() == 81) {
-            queryString += " A.id               AS codigo,      \n" // 00 - ID Agendamento
-                    + "      A.dt_data          AS data,        \n" // 01 - Data Agendamento
-                    + "      CONTR.ds_descricao AS convencao,   \n" // 02 - Convenção
-                    + "      PPE.ds_documento   AS cnpj,        \n" // 03 - CNPJ Empresa
-                    + "      PPE.ds_nome        AS empresa,     \n" // 04 - Nome Empresa
-                    + "      FUNC.ds_documento  AS cpf,         \n" // 05 - CPF Funcionário
-                    + "      FUNC.ds_nome       AS funcionario, \n" // 06 - Nome Funcionário
-                    + "      PE.dt_admissao     AS admissao,    \n" // 07 - Data de Admissão
-                    + "      PE.dt_demissao     AS demissao,    \n" // 08 - Data de Demissão
-                    + "      D.ds_descricao     AS dispensa,    \n" // 09 - Motivo Demissão
-                    + "      PROF.ds_profissao  AS funcao,      \n" // 10 - Profissão
-                    + "      S.ds_descricao     AS status       \n"; // 11 - Status
-        } else {
-            queryString += "A.dt_data        AS data_inicial,                   \n" /*  00 - Data Inicial                   */
-                    + "     A.dt_data        AS data_final,                     \n" /*  01 - Data Final                     */
-                    + "     A.dt_data        AS data,                           \n" /*  02 - Data                           */
-                    + "     H.ds_hora        AS hora,                           \n" /*  03 - Hora                           */
-                    + "     PPE.ds_documento AS cnpj,                           \n" /*  04 - Empresa - CNPJ                 */
-                    + "     PPE.ds_nome      AS empresa,                        \n" /*  05 - Empresa  Nome                  */
-                    + "     FUNC.ds_nome     AS funcionario,                    \n" /*  06 - Funcionário - Nome             */
-                    + "     A.ds_contato     AS contato,                        \n" /*  07 - Contato                        */
-                    + "     A.ds_telefone    AS telefone,                       \n";/*  08 - Telefone                       */
-
-            if (tipoUsuarioOperacional != null) {
-                queryString += " UO.ds_nome AS usuario_operacional, \n " /*                 09 - OPERADOR */;
-            } else {
-                queryString += " '' AS usuario_operacional, \n " /*                         09 - OPERADOR */;
-            }
-
-            queryString += "       A.ds_obs         AS obs,                         \n" /*  10 - Observações                    */
-                    + "            S.ds_descricao   AS status,                      \n" /*  11 - Status                         */
-                    + "            C.dt_data        AS cancelamento_data,           \n" /*  12 - Cancelamento - Data            */
-                    + "            CPU.ds_nome      AS cancelamento_usuario_nome,   \n" /*  13 - Cancelamento - Usuário - Nome  */
-                    + "            C.ds_motivo      AS cancelamento_motivo          \n" /*  14 - Cancelamento - Motivo          */;
+        if (null != relatorios.getId()) switch (relatorios.getId()) {
+            case 70:
+                queryString += " PPE.ds_documento AS cnpj,                          \n" /*  00 - Empresa - CNPJ                 */
+                        + "      PPE.ds_nome      AS empresa,                       \n" /*  01 - Empresa  Nome                  */
+                        + "      S.ds_descricao   AS status,                        \n" /*  02 - Status                         */
+                        + "      count(*)         AS quantidade_status              \n";
+                /* 03 - Quantidade por status          */
+                break;
+            case 81:
+                queryString += " A.id               AS codigo,      \n" // 00 - ID Agendamento
+                        + "      A.dt_data          AS data,        \n" // 01 - Data Agendamento
+                        + "      CONTR.ds_descricao AS convencao,   \n" // 02 - Convenção
+                        + "      PPE.ds_documento   AS cnpj,        \n" // 03 - CNPJ Empresa
+                        + "      PPE.ds_nome        AS empresa,     \n" // 04 - Nome Empresa
+                        + "      FUNC.ds_documento  AS cpf,         \n" // 05 - CPF Funcionário
+                        + "      FUNC.ds_nome       AS funcionario, \n" // 06 - Nome Funcionário
+                        + "      PE.dt_admissao     AS admissao,    \n" // 07 - Data de Admissão
+                        + "      PE.dt_demissao     AS demissao,    \n" // 08 - Data de Demissão
+                        + "      D.ds_descricao     AS dispensa,    \n" // 09 - Motivo Demissão
+                        + "      PROF.ds_profissao  AS funcao,      \n" // 10 - Profissão
+                        + "      S.ds_descricao     AS status       \n"; // 11 - Status
+                break;
+            default:
+                queryString += "A.dt_data        AS data_inicial,                   \n" /*  00 - Data Inicial                   */
+                        + "     A.dt_data        AS data_final,                     \n" /*  01 - Data Final                     */
+                        + "     A.dt_data        AS data,                           \n" /*  02 - Data                           */
+                        + "     H.ds_hora        AS hora,                           \n" /*  03 - Hora                           */
+                        + "     PPE.ds_documento AS cnpj,                           \n" /*  04 - Empresa - CNPJ                 */
+                        + "     PPE.ds_nome      AS empresa,                        \n" /*  05 - Empresa  Nome                  */
+                        + "     FUNC.ds_nome     AS funcionario,                    \n" /*  06 - Funcionário - Nome             */
+                        + "     A.ds_contato     AS contato,                        \n" /*  07 - Contato                        */
+                        + "     A.ds_telefone    AS telefone,                       \n";/*  08 - Telefone                       */
+                if (tipoUsuarioOperacional != null) {
+                    queryString += " UO.ds_nome AS usuario_operacional, \n " /*                 09 - OPERADOR */;
+                } else {
+                    queryString += " '' AS usuario_operacional, \n " /*                         09 - OPERADOR */;
+                }   queryString += "       A.ds_obs         AS obs,                         \n" /*  10 - Observações                    */
+                        + "            S.ds_descricao   AS status,                      \n" /*  11 - Status                         */
+                        + "            C.dt_data        AS cancelamento_data,           \n" /*  12 - Cancelamento - Data            */
+                        + "            CPU.ds_nome      AS cancelamento_usuario_nome,   \n" /*  13 - Cancelamento - Usuário - Nome  */
+                        + "            C.ds_motivo      AS cancelamento_motivo          \n" /*  14 - Cancelamento - Motivo          */;
+                break;
         }
         queryString += "       FROM hom_agendamento                  AS A                    \n"
                 + " INNER JOIN hom_horarios       AS H       ON H.id    = A.id_horario  \n"
@@ -133,24 +133,36 @@ public class RelatorioHomologacaoDao extends DB {
 
         if (relatorios.getQry() == null || relatorios.getQry().isEmpty()) {
             if (tCase != null) {
-                if (tCase == 1) {
-                    // DATA DE AGENDAMENTO ---------------
-                    if (!dateStart.isEmpty() && !dateFinish.isEmpty()) {
-                        listQuery.add(" A.dt_data >= '" + dateStart + "' AND A.dt_data <= '" + dateFinish + "'");
-                    } else if (!dateStart.isEmpty()) {
-                        listQuery.add(" A.dt_data = '" + dateStart + "'");
-                    } else {
-                        listQuery.add(" A.dt_data >= '01/01/1900' AND A.dt_data <= '01/01/2030'");
-                    }
-                } else // DATA DE DEMISSÃO ---------------
-                {
-                    if (!dateStart.isEmpty() && !dateFinish.isEmpty()) {
-                        listQuery.add(" PE.dt_demissao >= '" + dateStart + "' AND PE.dt_demissao <= '" + dateFinish + "'");
-                    } else if (!dateStart.isEmpty()) {
-                        listQuery.add(" PE.dt_demissao = '" + dateStart + "'");
-                    } else {
-                        listQuery.add(" PE.dt_demissao >= '01/01/1900' AND PE.dt_demissao <= '01/01/2030'");
-                    }
+                switch (tCase) {
+                    case "agendamento":
+                        // DATA DE AGENDAMENTO ---------------
+                        if (!dateStart.isEmpty() && !dateFinish.isEmpty()) {
+                            listQuery.add(" A.dt_data >= '" + dateStart + "' AND A.dt_data <= '" + dateFinish + "'");
+                        } else if (!dateStart.isEmpty()) {
+                            listQuery.add(" A.dt_data = '" + dateStart + "'");
+                        } else {
+                            // listQuery.add(" A.dt_data >= '01/01/1900' AND A.dt_data <= '01/01/2030'");
+                        }   break;
+                    case "emissao":
+                        // DATA DE DEMISSÃO ---------------
+                        if (!dateStart.isEmpty() && !dateFinish.isEmpty()) {
+                            listQuery.add(" A.dt_emissao >= '" + dateStart + "' AND A.dt_emissao <= '" + dateFinish + "'");
+                        } else if (!dateStart.isEmpty()) {
+                            listQuery.add(" A.dt_emissao = '" + dateStart + "'");
+                        } else {
+                            // listQuery.add(" A.dt_emissao >= '01/01/1900' AND A.dt_emissao <= '01/01/2030'");
+                        }   break;
+                    case "demissao":
+                        // DATA DE DEMISSÃO ---------------
+                        if (!dateStart.isEmpty() && !dateFinish.isEmpty()) {
+                            listQuery.add(" PE.dt_demissao >= '" + dateStart + "' AND PE.dt_demissao <= '" + dateFinish + "'");
+                        } else if (!dateStart.isEmpty()) {
+                            listQuery.add(" PE.dt_demissao = '" + dateStart + "'");
+                        } else {
+                            // listQuery.add(" PE.dt_demissao >= '01/01/1900' AND PE.dt_demissao <= '01/01/2030'");
+                        }   break;
+                    default:
+                        break;
                 }
             }
             if (inIdEmpresas != null) {

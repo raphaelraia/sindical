@@ -37,7 +37,7 @@
                                 <p:commandButton icon="ui-icon-close" action="#{movimentosReceberBean.removerPesquisa}" rendered="#{movimentosReceberBean.pessoa.id != -1}" update=":form_movimento_receber:" />
                             </h:panelGrid>
                             <h:panelGrid rendered="#{movimentosReceberBean.bloqueioRotina != null}">
-                                <p:outputLabel value="Acordo bloqueado por: #{movimentosReceberBean.bloqueioRotina.usuario.pessoa.nome} - Empresa: #{movimentosReceberBean.bloqueioRotina.pessoa.nome}" style="color: red;" styleClass="bold"/>
+                                <h:outputText value="#{genericaMensagem.getHtmlMessage('block', 'ACORDO BLOQUEADO POR:', movimentosReceberBean.bloqueioRotina.usuario.pessoa.nome.concat(' - Empresa: ').concat(movimentosReceberBean.bloqueioRotina.pessoa.nome))}" escape="false" />
                                 <p:commandButton value="Desbloquear" action="#{movimentosReceberBean.removeBloqueioRotina}" rendered="#{movimentosReceberBean.unlock}" update=":form_movimento_receber:" style="color: red;"/>
                             </h:panelGrid>
                             <h:panelGrid id="tbl" styleClass="margin-top-max no-border">

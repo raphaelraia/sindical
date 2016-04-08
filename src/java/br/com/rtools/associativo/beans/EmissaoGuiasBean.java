@@ -1,5 +1,6 @@
 package br.com.rtools.associativo.beans;
 
+import br.com.rtools.academia.AcademiaServicoValor;
 import br.com.rtools.associativo.GrupoConvenio;
 import br.com.rtools.associativo.HistoricoEmissaoGuias;
 import br.com.rtools.associativo.MatriculaSocios;
@@ -20,6 +21,7 @@ import br.com.rtools.estoque.Produto;
 import br.com.rtools.estoque.dao.ProdutoDao;
 import br.com.rtools.financeiro.Caixa;
 import br.com.rtools.financeiro.CondicaoPagamento;
+import br.com.rtools.financeiro.DescontoServicoEmpresa;
 import br.com.rtools.financeiro.FStatus;
 import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.FormaPagamento;
@@ -30,6 +32,7 @@ import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoPagamento;
 import br.com.rtools.financeiro.TipoServico;
+import br.com.rtools.financeiro.dao.DescontoServicoEmpresaDao;
 import br.com.rtools.financeiro.db.FinanceiroDB;
 import br.com.rtools.financeiro.db.FinanceiroDBToplink;
 import br.com.rtools.financeiro.db.MovimentoDB;
@@ -134,6 +137,9 @@ public class EmissaoGuiasBean implements Serializable {
     private String novoDesconto = "0,00";
     private String observacao = "";
 
+    private List<SelectItem> listParceiro;
+    private Integer idParceiro;
+
     @PostConstruct
     public void init() {
         estoque = new Estoque();
@@ -165,9 +171,11 @@ public class EmissaoGuiasBean implements Serializable {
             new ArrayList(),
             new ArrayList()
         };
+        listParceiro = new ArrayList();
         //enabledItensPedido = false;
         index = new Integer[]{0, 0, 0, 0};
         var = new String[]{"", "", "", "", ""};
+        idParceiro = -1;
 
         getListGrupo();
         getListSubGrupo();
@@ -344,7 +352,9 @@ public class EmissaoGuiasBean implements Serializable {
     public List<HistoricoEmissaoGuias> getListHistoricoEmissaoGuias() {
         MovimentoDB db = new MovimentoDBToplink();
         Usuario usuario = (Usuario) GenericaSessao.getObject("sessaoUsuario");
-        listHistoricoEmissaoGuias = db.pesquisaHistoricoEmissaoGuias(usuario.getId());
+        if (usuario != null) {
+            listHistoricoEmissaoGuias = db.pesquisaHistoricoEmissaoGuias(usuario.getId());
+        }
         return listHistoricoEmissaoGuias;
     }
 
@@ -604,23 +614,21 @@ public class EmissaoGuiasBean implements Serializable {
                         listaMovimentosEmitidos.clear();
                     }
                     // SOCIO ---
-                } else {
-                    if (!servicos.isValidadeGuiasVigente()) {
-                        listaMovimentosEmitidos = db.listaMovimentoBeneficiarioServicoPeriodoAtivo(socios.getMatriculaSocios().getId(), servicos.getId(), servicos.getPeriodo().getDias(), true);
+                } else if (!servicos.isValidadeGuiasVigente()) {
+                    listaMovimentosEmitidos = db.listaMovimentoBeneficiarioServicoPeriodoAtivo(socios.getMatriculaSocios().getId(), servicos.getId(), servicos.getPeriodo().getDias(), true);
 
-                        if (listaMovimentosEmitidos.size() >= servicos.getQuantidadePeriodo() && valorx == 0) {
-                            GenericaMensagem.error("Atenção", "Excedido o limite de utilização deste serviço no periodo determinado! " + ((!listaMovimentosEmitidos.isEmpty()) ? " Liberação a partir de " + dh.incrementarDias(servicos.getPeriodo().getDias(), listaMovimentosEmitidos.get(0).getLote().getEmissao()) : ""));
-                            return;
-                        }
-                        listaMovimentosEmitidos.clear();
-                    } else {
-                        listaMovimentosEmitidos = db.listaMovimentoBeneficiarioServicoMesVigente(socios.getMatriculaSocios().getId(), servicos.getId(), true);
-                        if (listaMovimentosEmitidos.size() >= servicos.getQuantidadePeriodo() && valorx == 0) {
-                            GenericaMensagem.error("Atenção", "Excedido o limite de utilização deste serviço no periodo determinado! Liberação a partir de " + DataHoje.alterDay(1, dh.incrementarMeses(1, DataHoje.data())));
-                            return;
-                        }
-                        listaMovimentosEmitidos.clear();
+                    if (listaMovimentosEmitidos.size() >= servicos.getQuantidadePeriodo() && valorx == 0) {
+                        GenericaMensagem.error("Atenção", "Excedido o limite de utilização deste serviço no periodo determinado! " + ((!listaMovimentosEmitidos.isEmpty()) ? " Liberação a partir de " + dh.incrementarDias(servicos.getPeriodo().getDias(), listaMovimentosEmitidos.get(0).getLote().getEmissao()) : ""));
+                        return;
                     }
+                    listaMovimentosEmitidos.clear();
+                } else {
+                    listaMovimentosEmitidos = db.listaMovimentoBeneficiarioServicoMesVigente(socios.getMatriculaSocios().getId(), servicos.getId(), true);
+                    if (listaMovimentosEmitidos.size() >= servicos.getQuantidadePeriodo() && valorx == 0) {
+                        GenericaMensagem.error("Atenção", "Excedido o limite de utilização deste serviço no periodo determinado! Liberação a partir de " + DataHoje.alterDay(1, dh.incrementarMeses(1, DataHoje.data())));
+                        return;
+                    }
+                    listaMovimentosEmitidos.clear();
                 }
             }
         }
@@ -835,13 +843,18 @@ public class EmissaoGuiasBean implements Serializable {
         }
 
         Juridica empresaConvenio = (Juridica) di.find(new Juridica(), Integer.valueOf(listSelectItem[3].get(index[3]).getDescription()));
+        Pessoa parceiro = null;
+        if(idParceiro != null && idParceiro != -1) {
+            parceiro = (Pessoa) di.find(new Pessoa(), idParceiro);
+        }
         Guia guias = new Guia(
                 -1,
                 lote,
                 empresaConvenio.getPessoa(),
                 (SubGrupoConvenio) di.find(new SubGrupoConvenio(), Integer.parseInt(getListSubGrupo().get(index[1]).getDescription())),
                 false,
-                observacao
+                observacao,
+                parceiro
         );
 
         if (!di.save(guias)) {
@@ -936,14 +949,14 @@ public class EmissaoGuiasBean implements Serializable {
 
             Caixa caixa;//MacFilial.getAcessoFilial().getCaixa();
             MacFilial mf = MacFilial.getAcessoFilial();
-            if (mf == null){
+            if (mf == null) {
                 message = "Mac Filial não configurado!";
                 return null;
             }
-            
+
             if (!mf.isCaixaOperador()) {
                 caixa = mf.getCaixa();
-                
+
                 if (caixa == null) {
                     message = "Caixa não configurado!";
                     return null;
@@ -951,22 +964,20 @@ public class EmissaoGuiasBean implements Serializable {
             } else {
                 FinanceiroDB dbf = new FinanceiroDBToplink();
                 caixa = dbf.pesquisaCaixaUsuario(Usuario.getUsuario().getId(), mf.getFilial().getId());
-                
-                if (caixa == null){
+
+                if (caixa == null) {
                     message = "Caixa POR OPERADOR não configurado!";
                     return null;
                 }
             }
-            
+
             if (!GerarMovimento.baixarMovimentoManual(listaMovimentoAuxiliar, new SegurancaUtilitariosBean().getSessaoUsuario(), lf, valor_soma, DataHoje.data(), caixa, 0)) {
                 message = "Erro ao baixar Guias";
                 return null;
             }
-        } else {
-            if (!listaMovimentoAuxiliar.isEmpty()) {
-                GenericaSessao.put("listaMovimento", listaMovimentoAuxiliar);
-                return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).baixaGeral();
-            }
+        } else if (!listaMovimentoAuxiliar.isEmpty()) {
+            GenericaSessao.put("listaMovimento", listaMovimentoAuxiliar);
+            return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).baixaGeral();
         }
         message = " Lançamento efetuado com Sucesso!";
         return null;
@@ -1360,16 +1371,14 @@ public class EmissaoGuiasBean implements Serializable {
             if (estoque == null) {
                 GenericaMensagem.warn("Validação", "Produto indisponível para esta filial!");
                 PF.update(":form_eg:i_message_pedido");
-            } else {
-                if (estoque.getEstoqueTipo().getId() == 3) {
-                    pedido.setProduto(estoque.getProduto());
-                    if (estoque.getEstoque() == 0) {
-                        GenericaMensagem.warn("Validação", "Quantidade indisponível!");
-                    }
-                    valorUnitarioPedido = pedido.getProduto().getValorString();
-                } else {
-                    GenericaMensagem.warn("Validação", "Tipo de produto estoque " + estoque.getEstoqueTipo().getDescricao() + " não é permitido!");
+            } else if (estoque.getEstoqueTipo().getId() == 3) {
+                pedido.setProduto(estoque.getProduto());
+                if (estoque.getEstoque() == 0) {
+                    GenericaMensagem.warn("Validação", "Quantidade indisponível!");
                 }
+                valorUnitarioPedido = pedido.getProduto().getValorString();
+            } else {
+                GenericaMensagem.warn("Validação", "Tipo de produto estoque " + estoque.getEstoqueTipo().getDescricao() + " não é permitido!");
             }
         }
     }
@@ -1389,6 +1398,12 @@ public class EmissaoGuiasBean implements Serializable {
 //    public void setEnabledItensPedido(boolean enabledItensPedido) {
 //        this.enabledItensPedido = enabledItensPedido;
 //    }
+    public void listenerEnabledItensPedidoListener() {
+        loadListParceiro();
+        listenerEnabledItensPedido();
+
+    }
+
     public void listenerEnabledItensPedido() {
         if (!getListServicos().isEmpty() && !listSelectItem[2].get(index[2]).getDescription().equals("0")) {
             DaoInterface di = new Dao();
@@ -1402,6 +1417,13 @@ public class EmissaoGuiasBean implements Serializable {
                     if (!valorx.isEmpty()) {
                         float vl = Float.valueOf(((Double) valorx.get(0).get(0)).toString());
                         valor = Moeda.converteR$Float(vl);
+                        if (idParceiro != null && idParceiro != -1) {
+                            DescontoServicoEmpresaDao dsed = new DescontoServicoEmpresaDao();
+                            DescontoServicoEmpresa dse = dsed.findByGrupo(2, Integer.parseInt(getListServicos().get(index[2]).getDescription()), idParceiro);
+                            if (dse != null) {
+                                valor = Moeda.converteR$Float(Moeda.converteUS$(Moeda.valorDoPercentual(valor, dse.getDescontoString())));
+                            }
+                        }
                     } else {
                         valor = "0,00";
                         GenericaMensagem.fatal("Atenção", "Valor do Serviço não encontrado");
@@ -1509,4 +1531,39 @@ public class EmissaoGuiasBean implements Serializable {
     public void setObservacao(String observacao) {
         this.observacao = observacao;
     }
+
+    private void loadListParceiro() {
+        if (socios.getId() == -1 && pessoa.getId() != -1) {
+            Integer servido_id = Integer.parseInt(getListServicos().get(index[2]).getDescription());
+            listParceiro = new ArrayList();
+            DescontoServicoEmpresaDao dsed = new DescontoServicoEmpresaDao();
+            List<DescontoServicoEmpresa> list = dsed.findByGrupo(2, servido_id);
+            listParceiro.add(new SelectItem(-1, "NENHUM"));
+            idParceiro = -1;
+            Integer pessoa_id = null;
+            for (int i = 0; i < list.size(); i++) {
+                if (pessoa_id == null || pessoa_id != list.get(i).getJuridica().getPessoa().getId()) {
+                    listParceiro.add(new SelectItem(list.get(i).getJuridica().getPessoa().getId(), list.get(i).getJuridica().getPessoa().getNome()));
+                    pessoa_id = list.get(i).getJuridica().getPessoa().getId();
+                }
+            }
+        }
+    }
+
+    public List<SelectItem> getListParceiro() {
+        return listParceiro;
+    }
+
+    public void setListParceiro(List<SelectItem> listParceiro) {
+        this.listParceiro = listParceiro;
+    }
+
+    public Integer getIdParceiro() {
+        return idParceiro;
+    }
+
+    public void setIdParceiro(Integer idParceiro) {
+        this.idParceiro = idParceiro;
+    }
+
 }

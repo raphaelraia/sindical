@@ -56,7 +56,10 @@ public class ServicoPessoa implements java.io.Serializable {
     @JoinColumn(name = "id_evt", referencedColumnName = "id", nullable = false)
     @ManyToOne(fetch = FetchType.EAGER)
     private Evt evt;
-    
+    @JoinColumn(name = "id_parceiro", referencedColumnName = "id")
+    @ManyToOne
+    private Pessoa parceiro;
+
     public ServicoPessoa() {
         this.id = -1;
         this.setEmissao(DataHoje.data());
@@ -75,10 +78,11 @@ public class ServicoPessoa implements java.io.Serializable {
         this.descontoSocial = null;
         this.cobrancaMovimento = null;
         this.evt = null;
+        this.parceiro = null;
     }
 
     public ServicoPessoa(int id, String emissao, Pessoa pessoa, boolean descontoFolha, Servicos servicos, float nr_desconto, String referenciaVigoracao,
-            String referenciaValidade, int nrDiaVencimento, FTipoDocumento tipoDocumento, Pessoa cobranca, boolean ativo, boolean banco, float nrValorFixo, DescontoSocial descontoSocial, Pessoa cobrancaMovimento, Evt evt) {
+            String referenciaValidade, int nrDiaVencimento, FTipoDocumento tipoDocumento, Pessoa cobranca, boolean ativo, boolean banco, float nrValorFixo, DescontoSocial descontoSocial, Pessoa cobrancaMovimento, Evt evt, Pessoa parceiro) {
         this.id = id;
         this.setEmissao(emissao);
         this.pessoa = pessoa;
@@ -96,6 +100,7 @@ public class ServicoPessoa implements java.io.Serializable {
         this.descontoSocial = descontoSocial;
         this.cobrancaMovimento = cobrancaMovimento;
         this.evt = evt;
+        this.parceiro = parceiro;
     }
 
     public int getId() {
@@ -151,9 +156,9 @@ public class ServicoPessoa implements java.io.Serializable {
     }
 
     public void setNrDescontoString(String nrDescontoString) {
-        try{
+        try {
             this.nrDesconto = Float.valueOf(nrDescontoString.replace(",", "."));
-        }catch(Exception e){
+        } catch (Exception e) {
             this.nrDesconto = 0;
         }
     }
@@ -243,7 +248,7 @@ public class ServicoPessoa implements java.io.Serializable {
     public void setDescontoSocial(DescontoSocial descontoSocial) {
         this.descontoSocial = descontoSocial;
     }
-    
+
     public Pessoa getCobrancaMovimento() {
         return cobrancaMovimento;
     }
@@ -258,5 +263,13 @@ public class ServicoPessoa implements java.io.Serializable {
 
     public void setEvt(Evt evt) {
         this.evt = evt;
+    }
+
+    public Pessoa getParceiro() {
+        return parceiro;
+    }
+
+    public void setParceiro(Pessoa parceiro) {
+        this.parceiro = parceiro;
     }
 }

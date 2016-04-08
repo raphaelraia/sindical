@@ -32,16 +32,7 @@
                         <h:form id="formLancamentoIndividual">                            
                         <h:outputText value="Lançamento Individual" styleClass="fonteHeader" />
                             <div class="clear"></div>
-                            <p:panel style="border: 1px solid #ff9999; " rendered="#{not empty lancamentoIndividualBean.fisica.pessoa.pessoaComplemento.obsAviso}" styleClass="margin-top">
-                                <f:facet name="header">
-                                    <h:outputLabel value="! MENSAGEM DE BLOQUEIO" style="font-weight: bold; color: red; "/>                                            
-                                </f:facet>
-                                <h:panelGrid columns="1">
-                                    <h:column>
-                                        <h:outputLabel value="#{lancamentoIndividualBean.fisica.pessoa.pessoaComplemento.obsAviso}" style="color: black; font-weight: bold;"/>                                        
-                                    </h:column>
-                                </h:panelGrid>
-                            </p:panel>                             
+                            <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', 'MENSAGEM DE BLOQUEIO', lancamentoIndividualBean.fisica.pessoa.pessoaComplemento.obsAviso)}" escape="false" rendered="#{not empty lancamentoIndividualBean.fisica.pessoa.pessoaComplemento.obsAviso}" />
                             <p:panel id="i_panel_pessoa" styleClass="fundoCinza">
                                 <h:panelGrid columns="2">
                                     <p:column>

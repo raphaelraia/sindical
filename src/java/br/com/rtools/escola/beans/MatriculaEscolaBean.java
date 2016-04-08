@@ -13,6 +13,7 @@ import br.com.rtools.escola.dao.TurmaDao;
 import br.com.rtools.escola.lista.ListaMatriculaEscola;
 import br.com.rtools.financeiro.Caixa;
 import br.com.rtools.financeiro.CondicaoPagamento;
+import br.com.rtools.financeiro.DescontoServicoEmpresa;
 import br.com.rtools.financeiro.Evt;
 import br.com.rtools.financeiro.FStatus;
 import br.com.rtools.financeiro.FTipoDocumento;
@@ -23,6 +24,7 @@ import br.com.rtools.financeiro.ServicoPessoa;
 import br.com.rtools.financeiro.ServicoValor;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
+import br.com.rtools.financeiro.dao.DescontoServicoEmpresaDao;
 import br.com.rtools.financeiro.db.FinanceiroDB;
 import br.com.rtools.financeiro.db.FinanceiroDBToplink;
 import br.com.rtools.financeiro.db.MovimentoDB;
@@ -116,6 +118,7 @@ public class MatriculaEscolaBean implements Serializable {
     private List<SelectItem> listaIndividual;
     private List<SelectItem> listaMesVencimento;
     private List<SelectItem> listFiliais;
+    private List<SelectItem> listParceiro;
     //private List<SelectItem> listaDiaParcela;
     private List<Turma> listaTurma;
     //private List<Movimento> listaMovimentos;
@@ -142,6 +145,7 @@ public class MatriculaEscolaBean implements Serializable {
     private int vagasDisponiveis;
     private Integer filial_id;
     private Integer filial_id_2;
+    private Integer idParceiro;
     private float vTaxa;
     private boolean alterarPessoaComplemento;
     private boolean desabilitaTurma;
@@ -179,7 +183,10 @@ public class MatriculaEscolaBean implements Serializable {
     private int numeroParcelas;
     private String valorTotal;
 
-    private Date dataEntrada = DataHoje.dataHoje();
+    private Date dataEntrada;
+
+    private Float descontoServicoEmpresa;
+    private String descontoServicoEmpresaString;
 
     @PostConstruct
     public void init() {
@@ -222,8 +229,10 @@ public class MatriculaEscolaBean implements Serializable {
         listaEscolaAutorizadas = new ArrayList();
         listaMatriculaEscolas = new ArrayList();
         listFiliais = new ArrayList();
+        listParceiro = new ArrayList();
 //        diaVencimento = 0;
         idDiaVencimento = 0;
+        idParceiro = -1;
         //idDiaVencimentoPessoa = 0;
         idDataTaxa = 0;
         idMesVencimento = 0;
@@ -279,6 +288,8 @@ public class MatriculaEscolaBean implements Serializable {
         filial_id_2 = 0;
         loadDiaVencimento();
         loadLiberaAcessaFilial();
+        dataEntrada = DataHoje.dataHoje();
+        loadListParceiro();
     }
 
     /* chamado quando outra view for chamada através do UIViewRoot.setViewId(String viewId) */
@@ -1110,6 +1121,9 @@ public class MatriculaEscolaBean implements Serializable {
                 dao.rollback();
                 return;
             }
+            if(idParceiro != null && idParceiro != -1) {
+                servicoPessoa.setParceiro((Pessoa) dao.find(new Pessoa(), idParceiro));
+            }
             matriculaEscola.setServicoPessoa(servicoPessoa);
             matriculaEscola.setEscStatus((EscStatus) dao.find(new EscStatus(), 1));
             MatriculaEscolaDao med = new MatriculaEscolaDao();
@@ -1375,9 +1389,16 @@ public class MatriculaEscolaBean implements Serializable {
             getResponsavel();
             verificaSocio();
         }
+        
+
         pegarIdServico();
         //atualizaValor();
         calculaValorLiquido();
+        
+        loadListParceiro();
+
+        idParceiro = matriculaEscola.getServicoPessoa().getParceiro() != null ? matriculaEscola.getServicoPessoa().getParceiro().getId() : -1;
+        
 
         listaMesVencimento.clear();
 
@@ -1618,8 +1639,18 @@ public class MatriculaEscolaBean implements Serializable {
 //        }
     }
 
+    public void updateGridParceiro() {
+        pegarIdServico();
+        dse();
+        calculoValor();
+        calculoDesconto();
+        updateData();
+    }
+
     public void updateGrid() {
         pegarIdServico();
+        loadListParceiro();
+        dse();
         calculoValor();
         calculoDesconto();
         updateData();
@@ -1984,6 +2015,7 @@ public class MatriculaEscolaBean implements Serializable {
 
             servicoPessoa.setPessoa(aluno.getPessoa());
             GenericaSessao.remove("pesquisaFisicaTipo");
+            loadListParceiro();
         } else if (tipoFisica.equals("responsavel")) {
             verificaSocio();
             if (socios != null && socios.getId() != -1) {
@@ -3477,4 +3509,68 @@ public class MatriculaEscolaBean implements Serializable {
         }
     }
 
+    public Integer getIdParceiro() {
+        return idParceiro;
+    }
+
+    public void setIdParceiro(Integer idParceiro) {
+        this.idParceiro = idParceiro;
+    }
+
+    public List<SelectItem> getListParceiro() {
+        return listParceiro;
+    }
+
+    public void setListParceiro(List<SelectItem> listParceiro) {
+        this.listParceiro = listParceiro;
+    }
+
+    public Float getDescontoServicoEmpresa() {
+        return descontoServicoEmpresa;
+    }
+
+    public void setDescontoServicoEmpresa(Float descontoServicoEmpresa) {
+        this.descontoServicoEmpresa = descontoServicoEmpresa;
+    }
+
+    private void loadListParceiro() {
+        if (socios.getId() == -1 && aluno.getId() != -1) {
+            listParceiro = new ArrayList();
+            DescontoServicoEmpresaDao dsed = new DescontoServicoEmpresaDao();
+            Servicos s = new Servicos();
+            if (tipoMatricula.equals("Individual")) {
+            } else {
+                s = turma.getCursos();
+            }
+            List<DescontoServicoEmpresa> list = dsed.findByGrupo(2, idServico);
+            listParceiro.add(new SelectItem(-1, "NENHUM"));
+            idParceiro = -1;
+            Integer pessoa_id = null;
+            descontoServicoEmpresa = new Float(0);
+            descontoServicoEmpresaString = "0";
+            for (int i = 0; i < list.size(); i++) {
+                if (pessoa_id == null || pessoa_id != list.get(i).getJuridica().getPessoa().getId()) {
+                    listParceiro.add(new SelectItem(list.get(i).getJuridica().getPessoa().getId(), list.get(i).getJuridica().getPessoa().getNome()));
+                    pessoa_id = list.get(i).getJuridica().getPessoa().getId();
+                }
+            }
+        }
+    }
+
+    /**
+     * Desconto Serviço Empresa
+     */
+    public void dse() {
+        if (idParceiro != null && idParceiro != -1) {
+            Servicos s;
+            s = (Servicos) new Dao().find(new Servicos(), idServico);
+            DescontoServicoEmpresaDao dsed = new DescontoServicoEmpresaDao();
+            DescontoServicoEmpresa dse = dsed.findByGrupo(2, s.getId(), idParceiro);
+            if (dse != null) {
+                descontoServicoEmpresa = dse.getDesconto();
+            }
+        } else {
+            descontoServicoEmpresa = new Float(0);
+        }
+    }
 }

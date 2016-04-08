@@ -1,9 +1,12 @@
 package br.com.rtools.homologacao.beans;
 
+import br.com.rtools.arrecadacao.ConfiguracaoArrecadacao;
+import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.pessoa.beans.PesquisarProfissaoBean;
 import br.com.rtools.arrecadacao.Oposicao;
 import br.com.rtools.arrecadacao.OposicaoPessoa;
 import br.com.rtools.arrecadacao.dao.OposicaoDao;
+import br.com.rtools.arrecadacao.db.ConvencaoDBToplink;
 import br.com.rtools.endereco.Endereco;
 import br.com.rtools.endereco.dao.EnderecoDao;
 import br.com.rtools.financeiro.Movimento;
@@ -38,7 +41,7 @@ import org.primefaces.context.RequestContext;
 public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean implements Serializable {
 
     private String strEndereco = "";
-    private String statusEmpresa = "REGULAR";
+    private String statusEmpresa = "";
     private Date data = DataHoje.converte(new DataHoje().incrementarDias(1, DataHoje.data()));
     private int idStatus = 0;
     private int idMotivoDemissao = 0;
@@ -69,6 +72,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
     private List<SelectItem> listFilial = new ArrayList<>();
     private Integer idFilial = null;
     private Boolean showFilial = false;
+    private ConfiguracaoArrecadacao configuracaoArrecadacao;
 
     public WebAgendamentoContribuinteBean() {
         if (GenericaSessao.exists("sessaoUsuarioAcessoWeb")) {
@@ -86,6 +90,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
                 configuracaoHomologacao = new ConfiguracaoHomologacao();
                 new Dao().save(configuracaoHomologacao, true);
             }
+            configuracaoArrecadacao = (ConfiguracaoArrecadacao) new Dao().find(new ConfiguracaoArrecadacao(), 1);
             loadListFiliais();
             if (!listFilial.isEmpty() && listFilial.size() > 1) {
                 showFilial = true;
@@ -363,7 +368,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
             }
         }
         if (configuracaoHomologacao.getValidaFuncao()) {
-            if (profissao.getId() == -1) {
+            if (profissao.getId().equals(-1) || profissao.getId().equals(0)) {
                 GenericaMensagem.warn("Validação", "Informar a função/profissão!");
                 return;
             }
@@ -549,8 +554,13 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
             dao.commit();
             return;
         }
-
-        if (new OposicaoDao().existsPorPessoaEmpresa(fisica.getPessoa().getDocumento(), juridica.getId())) {
+        Boolean bloqueiaOposicao = new OposicaoDao().existsPorPessoaEmpresa(fisica.getPessoa().getDocumento(), juridica.getId());
+        if (bloqueiaOposicao) {
+            if (configuracaoArrecadacao != null) {
+                bloqueiaOposicao = configuracaoArrecadacao.getBloqueiaOposição();
+            }
+        }
+        if (bloqueiaOposicao) {
             if (!updatePessoaEmpresa(dao)) {
                 GenericaMensagem.error("Erro", "Não foi possível atualizar Pessoa Empresa!");
                 dao.rollback();
@@ -560,8 +570,15 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
             dao.commit();
         } else {
             if (agendamento.getId() == -1) {
-                agendamento.setNoPrazo(new FunctionsDao().homologacaoPrazo(pessoaEmpresa.isAvisoTrabalhado(), enderecoEmpresa.getEndereco().getCidade().getId(), pessoaEmpresa.getDemissao()));
-
+                
+                ConvencaoDBToplink convencaoDao = new ConvencaoDBToplink();
+                Convencao convencao = convencaoDao.findByEmpresa(pessoaEmpresa.getJuridica().getPessoa().getId());
+                if(convencao == null) {
+                    GenericaMensagem.warn("Mensagem", "NENHUMA CONVENÇÃO ENCONTRADA PARA ESTA EMPRESA!");
+                    dao.rollback();
+                    return;
+                }
+                agendamento.setNoPrazo(new FunctionsDao().homologacaoPrazo(pessoaEmpresa.isAvisoTrabalhado(), enderecoEmpresa.getEndereco().getCidade().getId(), pessoaEmpresa.getDemissao(), convencao.getId()));
                 agendamento.setAgendador(null);
                 agendamento.setRecepcao(null);
                 agendamento.setDtEmissao(DataHoje.dataHoje());
@@ -1010,7 +1027,8 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
         if (!listaEmDebito.isEmpty()) {
             statusEmpresa = "EM DÉBITO";
         } else {
-            statusEmpresa = "REGULAR";
+            // statusEmpresa = "REGULAR";
+            statusEmpresa = "";
         }
         //}
         return statusEmpresa;

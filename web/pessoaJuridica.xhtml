@@ -63,22 +63,9 @@
                             <p:growl id="i_msg" autoUpdate="true" showDetail="true"/>
                             <c:set scope="request" var="object" value="${juridicaBean.juridica}"/> 
                             <div class="clear"></div>
-                            <h:panelGrid id="id_msg_aviso_block" style="width: 100%">
-                                <p:panel style="background-color: #f05c5c" rendered="#{juridicaBean.pessoaComplemento.bloqueiaObsAviso}">
-                                    <h:outputLabel value="CADASTRO BLOQUEADO!" style="font-size: 11pt!important; font-weight: bold; color: white" />
-                                </p:panel>
-                                <p:panel style="border: 1px solid #ff9999" rendered="#{not empty juridicaBean.pessoaComplemento.obsAviso}" styleClass="margin-top">
-                                    <f:facet name="header">
-                                        <h:outputLabel value="AVISO!" style="font-weight: bold; color: red; "/>
-                                    </f:facet>
-                                    <h:panelGrid columns="1">
-                                        <h:column>
-                                            <h:outputLabel value="#{juridicaBean.pessoaComplemento.obsAviso}" style="color: black; font-weight: bold;"/>                                        
-                                        </h:column>
-                                    </h:panelGrid>
-                                </p:panel>                                
-                            </h:panelGrid>                            
                             <h:panelGrid id="i_panel_pessoa_fisica" style="clear: both; width: 100%">
+                                <h:outputText value="#{genericaMensagem.getHtmlMessage('error', 'CADASTRO BLOQUEADO!')}" escape="false" rendered="#{juridicaBean.pessoaComplemento.bloqueiaObsAviso}" />
+                                <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', 'AVISO:', juridicaBean.pessoaComplemento.obsAviso)}" escape="false" rendered="#{not empty juridicaBean.pessoaComplemento.obsAviso}" />
                                 <p:messages id="i_msg_m" autoUpdate="true" showDetail="true" closable="true"/>
                                 <p:tabView id="i_tabview_juridica" style="width: 100%" activeIndex="#{juridicaBean.indicaTab}">
                                     <p:ajax event="tabChange" listener="#{juridicaBean.accordion}" update="@this"/> 
