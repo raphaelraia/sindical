@@ -376,8 +376,10 @@ public class ContaOperacaoBean implements Serializable {
     public List<ContaOperacao> getListContaOperacao() {
         if (!getListOperacoes().isEmpty()) {
             try {
-                ContaOperacaoDao cod = new ContaOperacaoDao();
-                listContaOperacao = (List<ContaOperacao>) cod.listContaOperacaoPorOperacao(Integer.parseInt(getListOperacoes().get(index[0]).getDescription()), Integer.parseInt(getListPlano4Group().get(index[3]).getDescription()));
+                if (!getListOperacoes().isEmpty() && !getListPlano4Group().isEmpty()) {
+                    ContaOperacaoDao cod = new ContaOperacaoDao();
+                    listContaOperacao = (List<ContaOperacao>) cod.listContaOperacaoPorOperacao(Integer.parseInt(getListOperacoes().get(index[0]).getDescription()), Integer.parseInt(getListPlano4Group().get(index[3]).getDescription()));
+                }
             } catch (NumberFormatException e) {
                 listContaOperacao.clear();
                 return new ArrayList();
@@ -392,8 +394,10 @@ public class ContaOperacaoBean implements Serializable {
 
     public List<Plano5> getListPlano5() {
         if (listPlano5.isEmpty()) {
-            ContaOperacaoDao cod = new ContaOperacaoDao();
-            listPlano5 = (List<Plano5>) cod.findPlano5ByPlano4NotInContaOperacao(Integer.parseInt(getListPlano4Group().get(index[3]).getDescription()), Integer.parseInt(getListOperacoes().get(index[0]).getDescription()));
+            if (!getListOperacoes().isEmpty()) {
+                ContaOperacaoDao cod = new ContaOperacaoDao();
+                listPlano5 = (List<Plano5>) cod.findPlano5ByPlano4NotInContaOperacao(Integer.parseInt(getListPlano4Group().get(index[3]).getDescription()), Integer.parseInt(getListOperacoes().get(index[0]).getDescription()));
+            }
         }
         return listPlano5;
     }

@@ -28,7 +28,7 @@ public class CentroCustoContabilSub implements Serializable {
     @Column(name = "id")
     private int id;
     @Column(name = "nr_codigo")
-    private int codigo;
+    private Integer codigo;
     @Column(name = "ds_descricao")
     private String descricao;
     @JoinColumn(name = "id_centro_custo_contabil", referencedColumnName = "id")
@@ -42,7 +42,7 @@ public class CentroCustoContabilSub implements Serializable {
         this.centroCustoContabil = new CentroCustoContabil();
     }
 
-    public CentroCustoContabilSub(int id, int codigo, String descricao, CentroCustoContabil centroCustoContabil) {
+    public CentroCustoContabilSub(int id, Integer codigo, String descricao, CentroCustoContabil centroCustoContabil) {
         this.id = id;
         this.codigo = codigo;
         this.descricao = descricao;
@@ -57,12 +57,20 @@ public class CentroCustoContabilSub implements Serializable {
         this.id = id;
     }
 
-    public int getCodigo() {
+    public Integer getCodigo() {
         return codigo;
     }
 
-    public void setCodigo(int codigo) {
+    public void setCodigo(Integer codigo) {
         this.codigo = codigo;
+    }
+
+    public String getCodigoString() {
+        return Integer.toString(codigo);
+    }
+
+    public void setCodigoString(String codigoString) {
+        this.codigo = Integer.parseInt(codigoString);
     }
 
     public String getDescricao() {
