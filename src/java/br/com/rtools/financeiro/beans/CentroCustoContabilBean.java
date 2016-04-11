@@ -48,6 +48,7 @@ public class CentroCustoContabilBean {
             GenericaMensagem.warn("Validação", "INFORMAR DESCRIÇÃO!");
             return;
         }
+        centroCustoContabil.setDescricao(centroCustoContabil.getDescricao().trim());
         if(centroCustoContabil.getCodigo() <= 0) {
             GenericaMensagem.warn("Validação", "INFORMAR CÓDIGO!");
             return;
@@ -86,15 +87,13 @@ public class CentroCustoContabilBean {
     public void remove(CentroCustoContabil ccc) {
         Dao dao = new Dao();
         NovoLog novoLog = new NovoLog();
-        if (ccc.getId() == -1) {
-            if (dao.delete(dao, true)) {
-                GenericaMensagem.info("Sucesso", "REGISTRO REMODIVO");
-                novoLog.delete("ID: " + ccc.getId() + " - Descrição: " + ccc.getDescricao() + " - Código: " + ccc.getCodigo());
-                GenericaSessao.remove("centroCustoContabilBean");
-                loadListCentroCustoContabil();
-            } else {
-                GenericaMensagem.warn("Erro", "AO REMOVER REGISTRO!");
-            }
+        if (dao.delete(ccc, true)) {
+            GenericaMensagem.info("Sucesso", "REGISTRO REMODIVO");
+            novoLog.delete("ID: " + ccc.getId() + " - Descrição: " + ccc.getDescricao() + " - Código: " + ccc.getCodigo());
+            GenericaSessao.remove("centroCustoContabilBean");
+            loadListCentroCustoContabil();
+        } else {
+            GenericaMensagem.warn("Erro", "AO REMOVER REGISTRO!");
         }
     }
     

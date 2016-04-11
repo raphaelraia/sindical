@@ -108,9 +108,9 @@ public class LancamentoFinanceiroBean implements Serializable {
     private DataObject linhaDO = new DataObject();
     private int indexDO = 0;
     private int indexAcrescimo = -1;
-    
+
     private String motivoEstorno = "";
-    
+
     public LancamentoFinanceiroBean() {
         lote.setEmissao(DataHoje.data());
     }
@@ -294,8 +294,9 @@ public class LancamentoFinanceiroBean implements Serializable {
     public void setPedido(Pedido pedido) {
         this.pedido = pedido;
     }
+
     /* FIM PRODUTOS --------------------------------------------------------- */
-    
+
     public void delete() {
         // PARCELAS BAIXADAS
         Movimento movimento = new Movimento();
@@ -358,12 +359,11 @@ public class LancamentoFinanceiroBean implements Serializable {
         // PARCELAS PARA SEREM ESTORNADAS
         Movimento movimento = new Movimento();
 
-
-        if (motivoEstorno.isEmpty() || motivoEstorno.length() <= 5){
+        if (motivoEstorno.isEmpty() || motivoEstorno.length() <= 5) {
             GenericaMensagem.error("Atenção", "Motivo de Estorno INVÁLIDO!");
             return;
-        }        
-        
+        }
+
         boolean reverse = false;
         for (DataObject linha : listaParcelaSelecionada) {
             movimento = (Movimento) linha.getArgumento1();
@@ -445,25 +445,26 @@ public class LancamentoFinanceiroBean implements Serializable {
             movimento = (Movimento) linha.getArgumento1();
 
             //movimento = db.pesquisaCodigo(Integer.parseInt(String.valueOf(listaMovimento.get(i).getArgumento1())));
-            movimento.setMulta(Moeda.converteUS$( linha.getArgumento12().toString()) );
-            movimento.setJuros(Moeda.converteUS$( linha.getArgumento13().toString()) );
-            movimento.setCorrecao(Moeda.converteUS$( linha.getArgumento14().toString()) );
-            movimento.setDesconto(Moeda.converteUS$( linha.getArgumento5().toString()) );
-            
+            movimento.setMulta(Moeda.converteUS$(linha.getArgumento12().toString()));
+            movimento.setJuros(Moeda.converteUS$(linha.getArgumento13().toString()));
+            movimento.setCorrecao(Moeda.converteUS$(linha.getArgumento14().toString()));
+            movimento.setDesconto(Moeda.converteUS$(linha.getArgumento5().toString()));
+
             float valor_baixa = Moeda.somaValores(movimento.getValor(), Moeda.converteUS$(linha.getArgumento4().toString()));
             valor_baixa = Moeda.subtracaoValores(valor_baixa, movimento.getDesconto());
             //movimento.setValor(Moeda.converteUS$(listaMovimento.get(i).getArgumento6().toString()));
-            
-            movimento.setValorBaixa( valor_baixa );
+
+            movimento.setValorBaixa(valor_baixa);
 
             lista.add(movimento);
         }
 
         if (!lista.isEmpty()) {
             FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("listaMovimento", lista);
-            if (es.equals("S")) 
+            if (es.equals("S")) {
                 FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("esMovimento", "S");
-            
+            }
+
             return ((ChamadaPaginaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("chamadaPaginaBean")).baixaGeral();
         }
         return null;
@@ -598,160 +599,163 @@ public class LancamentoFinanceiroBean implements Serializable {
     }
 
     public void salvar() {
-        if (listaParcela.isEmpty()) {
-            GenericaMensagem.warn("Erro", "ADICIONE UMA PARCELA para salvar este lançamento!");
-            return;
-        }
-        float soma = 0;
-        for (DataObject dox : listaParcela) {
-            Movimento movimento = (Movimento) dox.getArgumento1();
-
-            soma = Moeda.somaValores(soma, movimento.getValor());
-        }
-
-        if (soma < Moeda.converteUS$(total)) {
-            GenericaMensagem.warn("Erro", "Valor das Parcelas é MENOR que soma Total!");
-            return;
-        } else if (soma > Moeda.converteUS$(total)) {
-            GenericaMensagem.warn("Erro", "Valor das Parcelas é MAIOR que soma Total!");
-            return;
-        }
-        ContaOperacao co = (ContaOperacao) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(Integer.valueOf(listaContaOperacao.get(idContaOperacao).getDescription()), "ContaOperacao");
-        FTipoDocumento td = (FTipoDocumento) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(Integer.valueOf(listaFTipo.get(idFTipo).getDescription()), "FTipoDocumento");
-        Filial filial = (Filial) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(Integer.valueOf(listaFilial.get(idFilial).getDescription()), "Filial");
-        CondicaoPagamento cp = null;
-        if (condicao.equals("vista")) {
-            cp = (CondicaoPagamento) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(1, "CondicaoPagamento");
-        } else {
-            cp = (CondicaoPagamento) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(2, "CondicaoPagamento");
-        }
-
-        lote.setValor(Moeda.converteUS$(total));
-        lote.setPlano5(co.getPlano5());
-        lote.setFTipoDocumento(td);
-        lote.setFilial(filial);
-        lote.setCondicaoPagamento(cp);
-        lote.setDepartamento(null);
-        lote.setRotina((Rotina) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(231, "Rotina"));
-        lote.setStatus(null);
-        lote.setEvt(null);
-        lote.setPessoa(pessoa);
-        lote.setPessoaSemCadastro(null);
-        if (es.equals("E")) {
-            lote.setPagRec("R");
-        } else {
-            lote.setPagRec("P");
-        }
-
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-
-        sv.abrirTransacao();
-
-        if (lote.getId() == -1) {
-            if (!sv.inserirObjeto(lote)) {
-                GenericaMensagem.warn("Erro", "Erro ao Salvar Lote!");
-                sv.desfazerTransacao();
+        Dao dao = new Dao();
+        try {            
+            if (listaParcela.isEmpty()) {
+                GenericaMensagem.warn("Erro", "ADICIONE UMA PARCELA para salvar este lançamento!");
                 return;
             }
-        } else {
-            if (!sv.alterarObjeto(lote)) {
-                GenericaMensagem.warn("Erro", "Erro ao Atualizar Lote!");
-                sv.desfazerTransacao();
+            float soma = 0;
+            for (DataObject dox : listaParcela) {
+                Movimento movimento = (Movimento) dox.getArgumento1();
+
+                soma = Moeda.somaValores(soma, movimento.getValor());
+            }
+
+            if (soma < Moeda.converteUS$(total)) {
+                GenericaMensagem.warn("Erro", "Valor das Parcelas é MENOR que soma Total!");
+                return;
+            } else if (soma > Moeda.converteUS$(total)) {
+                GenericaMensagem.warn("Erro", "Valor das Parcelas é MAIOR que soma Total!");
                 return;
             }
-        }
-        LancamentoFinanceiroDB db = new LancamentoFinanceiroDBToplink();
-        for (DataObject parcela : listaParcela) {
-            Movimento movimento = (Movimento) parcela.getArgumento1();
-            movimento.setLote(lote);
-            if (movimento.getId() == -1) {
-                if (!sv.inserirObjeto(movimento)) {
-                    GenericaMensagem.warn("Erro", "Erro ao Salvar Lançamento!");
-                    sv.desfazerTransacao();
+            dao.openTransaction();
+            ContaOperacao co = (ContaOperacao) dao.find(new ContaOperacao(), Integer.parseInt(listaContaOperacao.get(idContaOperacao).getDescription()));
+            FTipoDocumento td = (FTipoDocumento) dao.find(new FTipoDocumento(), Integer.parseInt(listaFTipo.get(idFTipo).getDescription()));
+            Filial filial = (Filial) dao.find(new Filial(), Integer.parseInt(listaFilial.get(idFilial).getDescription()));
+            CondicaoPagamento cp = null;
+            if (condicao.equals("vista")) {
+                cp = (CondicaoPagamento) dao.find(new CondicaoPagamento(), 1);
+            } else {
+                cp = (CondicaoPagamento) dao.find(new CondicaoPagamento(), 2);
+            }
+
+            lote.setValor(Moeda.converteUS$(total));
+            lote.setPlano5(co.getPlano5());
+            lote.setFTipoDocumento(td);
+            lote.setFilial(filial);
+            lote.setCondicaoPagamento(cp);
+            lote.setDepartamento(null);
+            lote.setRotina((Rotina) dao.find(new Rotina(), 231));
+            lote.setStatus(null);
+            lote.setEvt(null);
+            lote.setPessoa(pessoa);
+            lote.setPessoaSemCadastro(null);
+            if (es.equals("E")) {
+                lote.setPagRec("R");
+            } else {
+                lote.setPagRec("P");
+            }
+            LancamentoFinanceiroDB db = new LancamentoFinanceiroDBToplink();
+            FiltroLancamento fl = new FiltroLancamento();
+            if(lote.getId() != -1) {
+                fl = db.pesquisaFiltroLancamento(lote.getId());
+            }
+            if (lote.getId() == -1) {
+                if (!dao.save(lote)) {
+                    GenericaMensagem.warn("Erro", "Erro ao Salvar Lote!");
+                    dao.rollback();
+                    return;
+                }
+            } else {                 
+                if(!dao.update(lote)) { 
+                    GenericaMensagem.warn("Erro", "Erro ao Atualizar Lote!");
+                    dao.rollback();
+                    return;
+                }
+            }            
+            for (DataObject parcela : listaParcela) {
+                Movimento movimento = (Movimento) parcela.getArgumento1();
+                movimento.setLote(lote);
+                if (movimento.getId() == -1) {
+                    if (!dao.save(movimento)) {
+                        GenericaMensagem.warn("Erro", "Erro ao Salvar Lançamento!");
+                        dao.rollback();
+                        return;
+                    }
+                } else {
+                    movimento.setPessoa(pessoa);
+                    movimento.setTitular(pessoa);
+                    movimento.setBeneficiario(pessoa);
+
+                    movimento.setMulta(Moeda.converteUS$(parcela.getArgumento12().toString()));
+                    movimento.setJuros(Moeda.converteUS$(parcela.getArgumento13().toString()));
+                    movimento.setCorrecao(Moeda.converteUS$(parcela.getArgumento14().toString()));
+
+                    movimento.setDesconto(Moeda.converteUS$(parcela.getArgumento5().toString()));
+                    List<ContaTipoPlano5> select = db.listaContaTipoPlano5(movimento.getPlano5().getId(), 1);
+                    if (select.isEmpty()) {
+                        movimento.setPlano5(lote.getPlano5());
+                    }
+
+                    if (!dao.update(movimento)) {
+                        GenericaMensagem.warn("Erro", "Erro ao Salvar Lançamento!");
+                        dao.rollback();
+                        return;
+                    }
+                }
+            }
+            CentroCusto cc = null;
+            CentroCustoContabilSub cs = null;
+            Usuario us = (Usuario) dao.find((Usuario) GenericaSessao.getObject("sessaoUsuario"));
+            if (!listaCentroCusto.isEmpty()) {
+                cc = (CentroCusto) dao.find(new CentroCusto(), Integer.parseInt(listaCentroCusto.get(idCentroCusto).getDescription()));
+            }
+            if (!listaTipoCentroCusto.isEmpty()) {
+                cs = (CentroCustoContabilSub) dao.find(new CentroCustoContabilSub(), Integer.parseInt(listaTipoCentroCusto.get(idTipoCentroCusto).getDescription()));
+            }
+            if (fl.getId() == -1) {
+                fl = new FiltroLancamento(-1, lote, (Operacao) dao.find(operacao), cc, cs, co, us);
+                if (!dao.save(fl)) {
+                    GenericaMensagem.warn("Erro", "Erro ao Salvar FILTRO LANÇAMENTO!");
+                    dao.rollback();
                     return;
                 }
             } else {
-                movimento.setPessoa(pessoa);
-                movimento.setTitular(pessoa);
-                movimento.setBeneficiario(pessoa);
-                
-                movimento.setMulta(Moeda.converteUS$(parcela.getArgumento12().toString()));
-                movimento.setJuros(Moeda.converteUS$(parcela.getArgumento13().toString()));
-                movimento.setCorrecao(Moeda.converteUS$(parcela.getArgumento14().toString()));
-                
-                movimento.setDesconto(Moeda.converteUS$(parcela.getArgumento5().toString()));
-                List<ContaTipoPlano5> select = db.listaContaTipoPlano5(movimento.getPlano5().getId(), 1);
-                if (select.isEmpty()) {
-                    movimento.setPlano5(lote.getPlano5());
-                }
+                fl = (FiltroLancamento) dao.find(new FiltroLancamento(), fl.getId());
+                fl.setLote(lote);
+                fl.setOperacao(operacao);
+                fl.setCentroCusto(cc);
+                fl.setTipoCentroCusto(cs);
+                fl.setContaOperacao(co);
 
-                if (!sv.alterarObjeto(movimento)) {
-                    GenericaMensagem.warn("Erro", "Erro ao Salvar Lançamento!");
-                    sv.desfazerTransacao();
+                if (!dao.update(fl)) {
+                    GenericaMensagem.warn("Erro", "Erro ao Atualizar FILTRO LANÇAMENTO!");
+                    dao.rollback();
                     return;
                 }
             }
-        }
-        CentroCusto cc = null;
-        CentroCustoContabilSub cs = null;
-        Usuario us = (Usuario) GenericaSessao.getObject("sessaoUsuario");
-        if (!listaCentroCusto.isEmpty()) {
-            cc = (CentroCusto) sv.pesquisaCodigo(Integer.valueOf(listaCentroCusto.get(idCentroCusto).getDescription()), "CentroCusto");
-        }
-        if (!listaTipoCentroCusto.isEmpty()) {
-            cs = (CentroCustoContabilSub) sv.pesquisaCodigo(Integer.valueOf(listaTipoCentroCusto.get(idTipoCentroCusto).getDescription()), "CentroCustoContabilSub");
-        }
 
-        FiltroLancamento fl = db.pesquisaFiltroLancamento(lote.getId());
-        if (fl.getId() == -1) {
-            fl = new FiltroLancamento(-1, lote, operacao, cc, cs, co, us);
-            if (!sv.inserirObjeto(fl)) {
-                GenericaMensagem.warn("Erro", "Erro ao Salvar FILTRO LANÇAMENTO!");
-                sv.desfazerTransacao();
-                return;
-            }
-        } else {
-            fl = (FiltroLancamento) sv.pesquisaCodigo(fl.getId(), "FiltroLancamento");
-            fl.setLote(lote);
-            fl.setOperacao(operacao);
-            fl.setCentroCusto(cc);
-            fl.setTipoCentroCusto(cs);
-            fl.setContaOperacao(co);
-
-            if (!sv.alterarObjeto(fl)) {
-                GenericaMensagem.warn("Erro", "Erro ao Atualizar FILTRO LANÇAMENTO!");
-                sv.desfazerTransacao();
-                return;
-            }
-        }
-
-        for (Pedido pedidox : listaPedidos) {
-            if (pedidox.getId() == -1) {
-                pedidox.setLote(lote);
-                if (!sv.inserirObjeto(pedidox)) {
-                    GenericaMensagem.warn("Erro", "Erro ao Salvar Pedidos");
-                    sv.desfazerTransacao();
-                    return;
-                }
-            } else {
-                if (!sv.alterarObjeto(pedidox)) {
+            for (Pedido pedidox : listaPedidos) {
+                if (pedidox.getId() == -1) {
+                    pedidox.setLote(lote);
+                    if (!dao.save(pedidox)) {
+                        GenericaMensagem.warn("Erro", "Erro ao Salvar Pedidos");
+                        dao.rollback();
+                        return;
+                    }
+                } else if (!dao.update(pedidox)) {
                     GenericaMensagem.warn("Erro", "Erro ao Alterar Pedidos");
-                    sv.desfazerTransacao();
+                    dao.rollback();
                     return;
                 }
             }
-        }
 
-        GenericaMensagem.info("OK", "Lançamento SALVO com Sucesso!");
-        sv.comitarTransacao();
-        telaSalva = true;
-        listaLancamento.clear();
+            GenericaMensagem.info("OK", "Lançamento SALVO com Sucesso!");
+            dao.commit();
+            telaSalva = true;
+            listaLancamento.clear();
+        } catch (Exception e) {
+            GenericaMensagem.error("ERROR", e.getMessage());
+            dao.rollback();
+        }
     }
 
     public void openExcluirParcela(DataObject linha, int index) {
         linhaDO = linha;
         indexDO = index;
     }
+
     public void excluirParcela() {
         if (((Movimento) linhaDO.getArgumento1()).getId() == -1) {
             listaParcela.remove(indexDO);
@@ -856,7 +860,7 @@ public class LancamentoFinanceiroBean implements Serializable {
                 Moeda.converteR$Float(movimento.getCorrecao()),
                 null
         ));
-        
+
         openModalAcrescimo();
         desconto = "0,00";
         chkImposto = false;
@@ -1069,16 +1073,16 @@ public class LancamentoFinanceiroBean implements Serializable {
     }
 
     public void fechaModal() {
-        if (lote.getId() == -1){
+        if (lote.getId() == -1) {
             modalVisivel = false;
             telaSalva = true;
             return;
         }
-        
+
         float soma = 0;
         for (DataObject dox : listaParcela) {
             Movimento movimento = (Movimento) dox.getArgumento1();
-               soma = Moeda.somaValores(soma, movimento.getValor());
+            soma = Moeda.somaValores(soma, movimento.getValor());
         }
 
         if (soma < Moeda.converteUS$(total)) {
@@ -1092,8 +1096,8 @@ public class LancamentoFinanceiroBean implements Serializable {
             telaSalva = false;
             return;
         }
-        
-        if (!telaSalva){
+
+        if (!telaSalva) {
             GenericaMensagem.fatal("Erro", "Lançamento alterado SALVE este formulário antes de FECHAR!");
             modalVisivel = true;
             return;
@@ -1139,92 +1143,93 @@ public class LancamentoFinanceiroBean implements Serializable {
         idContaOperacao = 0;
     }
 
-    public String alterarDesconto(int index){
+    public String alterarDesconto(int index) {
 //        float acre = Moeda.somaValores(
 //                Moeda.somaValores(Moeda.converteUS$(listaParcela.get(index).getArgumento12().toString()), 
 //                Moeda.converteUS$(listaParcela.get(index).getArgumento13().toString())), 
 //                Moeda.converteUS$(listaParcela.get(index).getArgumento14().toString())
 //        );
         float acre = Moeda.converteUS$(listaParcela.get(index).getArgumento4().toString());
-        
-        float desc = Moeda.converteUS$(listaParcela.get(index).getArgumento5().toString());        
-        float valor_p = Moeda.converteUS$(listaParcela.get(index).getArgumento3().toString());        
+
+        float desc = Moeda.converteUS$(listaParcela.get(index).getArgumento5().toString());
+        float valor_p = Moeda.converteUS$(listaParcela.get(index).getArgumento3().toString());
         float soma = Moeda.subtracaoValores(Moeda.somaValores(acre, valor_p), desc);
-        
+
         listaParcela.get(index).setArgumento5(Moeda.converteR$(String.valueOf(listaParcela.get(index).getArgumento5())));
         listaParcela.get(index).setArgumento6(Moeda.converteR$Float(soma));
-        
+
         telaSalva = false;
         return null;
     }
-    
-    public String alterarAcrescimo(int index){
+
+    public String alterarAcrescimo(int index) {
         listaParcela.get(index).setArgumento6(Moeda.converteR$(String.valueOf(listaParcela.get(index).getArgumento6())));
-        
+
         multa = Moeda.converteR$(listaParcela.get(index).getArgumento12().toString());
         juros = Moeda.converteR$(listaParcela.get(index).getArgumento13().toString());
         correcao = Moeda.converteR$(listaParcela.get(index).getArgumento14().toString());
         indexAcrescimo = index;
         return null;
     }
-    
-    public String adicionarAcrescimo(){
+
+    public String adicionarAcrescimo() {
         float acre = Moeda.somaValores(Moeda.somaValores(Moeda.converteUS$(multa), Moeda.converteUS$(juros)), Moeda.converteUS$(correcao));
-        
-        if (indexAcrescimo == -1){
+
+        if (indexAcrescimo == -1) {
             acrescimo = Moeda.converteR$Float(acre);
-        }else{
+        } else {
             listaParcela.get(indexAcrescimo).setArgumento4(Moeda.converteR$Float(acre));
             listaParcela.get(indexAcrescimo).setArgumento12(Moeda.converteR$(multa));
             listaParcela.get(indexAcrescimo).setArgumento13(Moeda.converteR$(juros));
             listaParcela.get(indexAcrescimo).setArgumento14(Moeda.converteR$(correcao));
-            
+
             float desc = Moeda.converteUS$(listaParcela.get(indexAcrescimo).getArgumento5().toString());
             float valor_p = Moeda.somaValores(Moeda.converteUS$(listaParcela.get(indexAcrescimo).getArgumento3().toString()), acre);
-            
+
             listaParcela.get(indexAcrescimo).setArgumento6(Moeda.converteR$Float(Moeda.subtracaoValores(valor_p, desc)));
         }
-        
+
         telaSalva = false;
         indexAcrescimo = -1;
         return null;
     }
 
-    public void openModalAcrescimo(){
+    public void openModalAcrescimo() {
         multa = "0,00";
         juros = "0,00";
         correcao = "0,00";
         acrescimo = "0,00";
     }
-    
-    public void alterarListaLancamento(Usuario linha){
-        if (linha != null){
+
+    public void alterarListaLancamento(Usuario linha) {
+        if (linha != null) {
             usuarioSelecionado = linha;
-            
-            if (((Usuario) GenericaSessao.getObject("sessaoUsuario")).getId() == linha.getId())
+
+            if (((Usuario) GenericaSessao.getObject("sessaoUsuario")).getId() == linha.getId()) {
                 strVisualizando = "os Meus Lançamentos";
-            else
-                strVisualizando = "os Lançamentos de "+linha.getPessoa().getNome();
-        }else{
+            } else {
+                strVisualizando = "os Lançamentos de " + linha.getPessoa().getNome();
+            }
+        } else {
             usuarioSelecionado = new Usuario();
             strVisualizando = "TODOS Lançamentos";
         }
-        
+
         listaLancamento.clear();
     }
-    
+
     public List<DataObject> getListaLancamento() {
         if (listaLancamento.isEmpty()) {
             LancamentoFinanceiroDB db = new LancamentoFinanceiroDBToplink();
 
             List<FiltroLancamento> select = new ArrayList<FiltroLancamento>();
             //((Usuario) GenericaSessao.getObject("sessaoUsuario")).getId()
-            
-            if (usuarioSelecionado.getId() == -1)    
+
+            if (usuarioSelecionado.getId() == -1) {
                 select = db.listaLancamento(-1, porPesquisa, description);
-            else
+            } else {
                 select = db.listaLancamento(usuarioSelecionado.getId(), porPesquisa, description);
-             
+            }
 
             for (FiltroLancamento flx : select) {
                 listaLancamento.add(new DataObject(flx, Moeda.converteR$Float(flx.getLote().getValor())));
@@ -1448,7 +1453,7 @@ public class LancamentoFinanceiroBean implements Serializable {
             for (Movimento mov : selectMovimento) {
                 acrescimo = Moeda.somaValores(Moeda.somaValores(mov.getMulta(), mov.getJuros()), mov.getCorrecao());
                 desconto = mov.getDesconto();
-                
+
                 if (mov.getBaixa() != null) {
                     valor_quitado = mov.getValorBaixa();
                     data_quitacao = mov.getBaixa().getBaixa();
@@ -1479,7 +1484,6 @@ public class LancamentoFinanceiroBean implements Serializable {
                         null
                 ));
 
-                
             }
         }
         return listaParcela;
@@ -1506,8 +1510,8 @@ public class LancamentoFinanceiroBean implements Serializable {
             } else {
                 select = (new LancamentoFinanceiroDBToplink()).listaOperacao("2, 3, 4, 5");
             }
-            
-            if (!select.isEmpty()){
+
+            if (!select.isEmpty()) {
                 for (int i = 0; i < select.size(); i++) {
                     listaOperacao.add(new SelectItem(
                             i,
@@ -1515,7 +1519,7 @@ public class LancamentoFinanceiroBean implements Serializable {
                             Integer.toString(select.get(i).getId()))
                     );
                 }
-            }else{
+            } else {
                 listaOperacao.add(new SelectItem(0, "Nenhuma Operação Encontrada", "0"));
             }
         }
@@ -1624,12 +1628,12 @@ public class LancamentoFinanceiroBean implements Serializable {
 
     public List<SelectItem> getListaTipoCentroCusto() {
         if (listaTipoCentroCusto.isEmpty()) {
-            if (Integer.valueOf(getListaCentroCusto().get(idCentroCusto).getDescription()) == 0){
+            if (Integer.valueOf(getListaCentroCusto().get(idCentroCusto).getDescription()) == 0) {
                 GenericaMensagem.error("Erro", "Cadastre um Centro de Custo para fazer um Lançamento!");
                 listaTipoCentroCusto.add(new SelectItem(0, "Nenhum Tipo Encontrado", "0"));
                 return listaTipoCentroCusto;
             }
-            
+
             CentroCusto centroCusto = (CentroCusto) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(Integer.valueOf(getListaCentroCusto().get(idCentroCusto).getDescription()), "CentroCusto");
             List<CentroCustoContabilSub> listaCentroContabil = (new LancamentoFinanceiroDBToplink()).listaTipoCentroCusto(centroCusto.getCentroCustoContabil().getId(), es);
             if (!listaCentroContabil.isEmpty()) {
@@ -1875,7 +1879,7 @@ public class LancamentoFinanceiroBean implements Serializable {
     public String getDesconto() {
         return Moeda.converteR$(desconto);
     }
-    
+
     public void setDesconto(String desconto) {
         this.desconto = Moeda.substituiVirgula(desconto);
     }
@@ -1889,7 +1893,7 @@ public class LancamentoFinanceiroBean implements Serializable {
     }
 
     public List<Usuario> getListaUsuarioLancamento() {
-        if(listaUsuarioLancamento.isEmpty()){
+        if (listaUsuarioLancamento.isEmpty()) {
             SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
             listaUsuarioLancamento = sv.listaObjeto("Usuario", true);
         }

@@ -113,15 +113,13 @@ public class CentroCustoSubcontabilBean {
     public void remove(CentroCustoContabilSub cccs) {
         Dao dao = new Dao();
         NovoLog novoLog = new NovoLog();
-        if (cccs.getId() == -1) {
-            if (dao.delete(dao, true)) {
-                GenericaMensagem.info("Sucesso", "REGISTRO REMODIVO");
-                novoLog.delete("ID: " + cccs.getId() + " - Descrição: " + cccs.getDescricao() + " - Código: " + cccs.getCodigo());
-                GenericaSessao.remove("centroCustoContabilSubBean");
-                loadListCentroCustoContabilSub();
-            } else {
-                GenericaMensagem.warn("Erro", "AO REMOVER REGISTRO!");
-            }
+        if (dao.delete(cccs, true)) {
+            GenericaMensagem.info("Sucesso", "REGISTRO REMODIVO");
+            novoLog.delete("ID: " + cccs.getId() + " - Descrição: " + cccs.getDescricao() + " - Código: " + cccs.getCodigo());
+            GenericaSessao.remove("centroCustoSubcontabilBean");
+            loadListCentroCustoContabilSub();
+        } else {
+            GenericaMensagem.warn("Erro", "AO REMOVER REGISTRO!");
         }
     }
 

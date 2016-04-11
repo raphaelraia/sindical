@@ -29,19 +29,21 @@
                             <c:set scope="request" var="object" value="${centroCustoContabilBean.centroCustoContabil}"/>
                             <h:outputText value="Centro de Custo Contábil" styleClass="fonteHeader" />
                             <div class="clear"></div>
-                            <p:messages autoUpdate="true" closable="true" showDetail="true"/>  
+                            <p:messages autoUpdate="true" closable="false" showDetail="true"/>
                             <p:panel styleClass="fundoCinza margin-top-max">
-                                <h:outputLabel value="Descrição: "/>
-                                <p:inputText value="#{centroCustoContabilBean.centroCustoContabil.descricao}" converter="#{toUpperCase}">
-                                    <p:ajax event="change" update="@this" />
-                                </p:inputText>
-                                <h:outputLabel value="Número: "/>
-                                <p:inputText value="#{centroCustoContabilBean.centroCustoContabil.codigoString}" converter="#{thisNumber}">
-                                    <p:ajax event="change" update="@this" />
-                                </p:inputText>
+                                <h:panelGrid columns="4">
+                                    <h:outputLabel value="Descrição: "/>
+                                    <p:inputText value="#{centroCustoContabilBean.centroCustoContabil.descricao}" converter="#{toUpperCase}">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:inputText>
+                                    <h:outputLabel value="Número: "/>
+                                    <p:inputText value="#{centroCustoContabilBean.centroCustoContabil.codigoString}" converter="#{thisNumber}">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:inputText>
+                                </h:panelGrid>
                                 <f:facet name="footer">
                                     <h:panelGrid columns="2">
-                                        <p:commandButton value="Salvar" onclick="PF('dlg_save').show()" disabled="#{controleAcessoBean.botaoSalvar}" />
+                                        <p:commandButton value="#{centroCustoContabilBean.centroCustoContabil.id == -1 ? 'Salvar' : 'Alterar'}" onclick="PF('dlg_save').show()" disabled="#{controleAcessoBean.botaoSalvar}" />
                                         <p:commandButton value="Novo" title="Novo registro / Limpar" action="#{centroCustoContabilBean.clear}" update=":form_ccc:"/>
                                     </h:panelGrid>                                    
                                 </f:facet>
@@ -50,13 +52,13 @@
                                 <p:column width="30">
                                     <p:commandButton icon="ui-icon-pencil" action="#{centroCustoContabilBean.edit(ccc)}" update=":form_ccc:" disabled="#{controleAcessoBean.botaoAlterar}" />
                                 </p:column>
-                                <p:column>#{ccc.descricao}</p:column>
-                                <p:column>#{ccc.codigo}</p:column>
+                                <p:column headerText="Descrição">#{ccc.descricao}</p:column>
+                                <p:column headerText="Número" styleClass="text-center" width="150">#{ccc.codigo}</p:column>
                                 <p:column width="30">
                                     <p:commandButton icon="ui-icon-close" action="#{centroCustoContabilBean.remove(ccc)}" update=":form_ccc:" disabled="#{controleAcessoBean.botaoExcluir}" />
                                 </p:column>
                             </p:dataTable>
-                            <p:dialog widgetVar="dlg_save" header="Deseja salvar este registro?" resizable="false" width="400" modal="true">
+                            <p:dialog widgetVar="dlg_save" header="Deseja #{centroCustoContabilBean.centroCustoContabil.id == -1 ? 'salvar' : 'alterar'} este registro?" resizable="false" width="400" modal="true">
                                 <f:facet name="footer">
                                     <h:panelGrid columns="2">
                                         <p:commandButton value="Sim"   type="submit" styleClass="ui-confirmdialog-yes" action="#{centroCustoContabilBean.save()}" update=":form_ccc:" onclick="PF('dlg_save').hide()" />

@@ -51,8 +51,21 @@
                             </p:panel>
                             <h:panelGrid columns="3" columnClasses="verticalAlignTop, verticalAlignTop, verticalAlignTop">
                                 <h:column>
-                                    <h:panelGrid columns="1">
-                                        <p:dataTable var="plano5" value="#{contaOperacaoBean.listPlano5}" scrollHeight="250" scrollable="true" emptyMessage="Nenhum registro encontrado!">
+                                    <p:panel>
+                                        <f:facet name="header">
+                                            <h:panelGroup layout="block" id="i_habilita_todos">
+                                                <h:panelGrid columns="2" cellspacing="5">
+                                                    <p:commandButton action="#{contaOperacaoBean.clear(7)}" update=":form_co:id_tbl i_habilita_todos" value="Todos"  rendered="#{not empty contaOperacaoBean.listPlano5}"/>
+                                                    <p:commandButton onclick="PF('dlg_co_todos').show()" rendered="#{contaOperacaoBean.habilitaTodos}" value="Adicionar selecionados" action="#{contaOperacaoBean.clear(5)}" update=":form_co:i_panel_co_todos"/>
+                                                </h:panelGrid>
+                                            </h:panelGroup>
+                                        </f:facet>
+                                        <p:dataTable var="plano5" value="#{contaOperacaoBean.listPlano5}" scrollHeight="250" scrollable="true" emptyMessage="Nenhum registro encontrado!" id="id_tbl">
+                                            <p:column width="25">
+                                                <p:selectBooleanCheckbox value="#{plano5.selected}">
+                                                    <p:ajax event="change" update="@this :form_co:i_habilita_todos" />
+                                                </p:selectBooleanCheckbox>
+                                            </p:column>
                                             <p:column headerText="Conta (Plano 5)">
                                                 #{plano5.conta}
                                             </p:column>
@@ -63,7 +76,7 @@
                                                 <p:commandButton icon="ui-icon-plus" action="#{contaOperacaoBean.setItem(plano5)}" disabled="#{controleAcessoBean.botaoSalvar}"/>
                                             </p:column>
                                         </p:dataTable>                                        
-                                    </h:panelGrid>
+                                    </p:panel>
                                 </h:column>
                                 <h:column>
                                     <h:panelGrid columns="1" >
@@ -82,15 +95,15 @@
                                             <p:ajax event="toggleSelect" />
                                             <p:column selectionMode="multiple" width="20" styleClass="text-center"/>                                    
                                             <p:column width="25" styleClass="text-center">
-                                                <p:commandButton icon="ui-icon-link" action="#{contaOperacaoBean.editItem(contaOperacao)}" disabled="#{controleAcessoBean.botaoSalvar}" title="Editar"/>
+                                                <p:commandButton icon="ui-icon-pencil" action="#{contaOperacaoBean.editItem(contaOperacao)}" disabled="#{controleAcessoBean.botaoSalvar}" title="Editar"/>
                                             </p:column>                                    
                                             <p:column headerText="Plano 5">
                                                 #{contaOperacao.plano5.conta} - #{contaOperacao.plano5.numero}
                                             </p:column>
-                                            <p:column headerText="E/S" width="25" styleClass="text-center">
+                                            <p:column headerText="E/S" width="23" styleClass="text-center">
                                                 #{contaOperacao.es}
                                             </p:column>
-                                            <p:column headerText="C.F." width="25" styleClass="text-center">
+                                            <p:column headerText="C.F." width="23" styleClass="text-center">
                                                 <p:selectBooleanCheckbox value="#{contaOperacao.contaFixa}" disabled="#{controleAcessoBean.botaoSalvar}">
                                                     <p:ajax event="change" listener="#{contaOperacaoBean.updateContaOperacao(contaOperacao)}" />
                                                 </p:selectBooleanCheckbox>
@@ -148,7 +161,42 @@
                                     <p:commandButton value="Sair" action="#{contaOperacaoBean.clear(4)}" />
                                 </h:panelGrid>
                             </f:facet>
-                        </p:dialog>                        
+                        </p:dialog>
+                        <!-- ADICIONA TODAS AS SELECIONADAS -->
+                        <p:dialog widgetVar="dlg_co_todos" width="1024" modal="true" closable="false" header="Conta Operação" dynamic="true">
+                            <p:messages showDetail="true" showSummary="true" autoUpdate="true" closable="true" id="i_message_co_todos"  />
+                            <h:panelGrid columns="2" id="i_panel_co_todos">
+                                <p:outputLabel value="Tipo (E/S):" />
+                                <p:selectOneMenu value="#{contaOperacaoBean.es}">
+                                    <f:selectItem itemValue="E" itemLabel="Entrada" />
+                                    <f:selectItem itemValue="S" itemLabel="Saída" />
+                                </p:selectOneMenu>
+                                <h:column>
+                                    <h:panelGrid columns="3" rendered="#{contaOperacaoBean.hidden[0]}">
+                                        <p:selectOneMenu value="#{contaOperacaoBean.index[1]}">
+                                            <p:ajax event="change" update="i_cccs_todos" listener="#{contaOperacaoBean.listCentroCustoContabilSub.clear()}"/>
+                                            <f:selectItem itemValue="" itemLabel="Selecionar" />
+                                            <f:selectItems value="#{contaOperacaoBean.listCentroCustoContabil}" />
+                                        </p:selectOneMenu>
+                                        <p:outputLabel value="C. Custo Contábil:" title="Centro de Custo Contábil Sub" />
+                                        <p:selectOneMenu value="#{contaOperacaoBean.index[2]}" id="i_cccs_todos">
+                                            <f:selectItem itemValue="" itemLabel="Selecionar" />
+                                            <f:selectItems value="#{contaOperacaoBean.listCentroCustoContabilSub}" />
+                                        </p:selectOneMenu>
+                                    </h:panelGrid>
+                                </h:column>
+                                <h:column>
+                                </h:column>
+                                <p:selectBooleanCheckbox value="#{contaOperacaoBean.contaFixa}" itemLabel="Conta Fixa" />
+                            </h:panelGrid>
+                            <f:facet name="footer">
+                                <p>Ex: Conta fixa -> Água luz, telefone, etc.</p>
+                                <h:panelGrid columns="3">
+                                    <p:commandButton value="Salvar todas selecionadas" action="#{contaOperacaoBean.saveAll(false)}" />
+                                    <p:commandButton value="Sair" action="#{contaOperacaoBean.clear(4)}" />
+                                </h:panelGrid>
+                            </f:facet>
+                        </p:dialog>
                     </h:form>
                 </f:view>
                 <!-- FINALIZA div wrap main -->

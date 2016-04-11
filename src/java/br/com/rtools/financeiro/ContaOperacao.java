@@ -10,6 +10,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 @Entity
@@ -21,6 +22,7 @@ public class ContaOperacao implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private int id;
     @JoinColumn(name = "id_plano5", referencedColumnName = "id")
     @ManyToOne
@@ -36,6 +38,9 @@ public class ContaOperacao implements Serializable {
     @Column(name = "is_conta_fixa", columnDefinition = "boolean default false")
     private boolean contaFixa;
 
+    @Transient
+    private Boolean selected;
+
     public ContaOperacao() {
         this.id = -1;
         this.plano5 = new Plano5();
@@ -43,6 +48,7 @@ public class ContaOperacao implements Serializable {
         this.operacao = new Operacao();
         this.es = "";
         this.contaFixa = false;
+        this.selected = false;
     }
 
     public ContaOperacao(int id, Plano5 plano5, CentroCustoContabilSub centroCustoContabilSub, Operacao operacao, String es, boolean contaFixa) {
@@ -52,6 +58,7 @@ public class ContaOperacao implements Serializable {
         this.operacao = operacao;
         this.es = es;
         this.contaFixa = contaFixa;
+        this.selected = false;
     }
 
     public int getId() {
@@ -100,6 +107,14 @@ public class ContaOperacao implements Serializable {
 
     public void setContaFixa(boolean contaFixa) {
         this.contaFixa = contaFixa;
+    }
+
+    public Boolean getSelected() {
+        return selected;
+    }
+
+    public void setSelected(Boolean selected) {
+        this.selected = selected;
     }
 
     @Override

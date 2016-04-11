@@ -32,6 +32,9 @@ public class ContaOperacaoBean implements Serializable {
     private List<Plano5> listPlano5;
     private Plano5[] selectedPlano5;
     private Boolean[] hidden;
+    private String es;
+    private Boolean contaFixa;
+    private Boolean selectedAll;
     /**
      * [0] Operação | [1] Centro Custo Contábil | [2] Centro Custo Contábil Sub
      * | [3] Plano de Contas 5 - Agrupado
@@ -54,6 +57,9 @@ public class ContaOperacaoBean implements Serializable {
         };
         index = new Integer[]{0, 0, 0, 0};
         hidden = new Boolean[]{false};
+        es = "E";
+        contaFixa = false;
+        selectedAll = false;
     }
 
     @PreDestroy
@@ -68,6 +74,7 @@ public class ContaOperacaoBean implements Serializable {
     public void clear(int type) {
         hidden[0] = false;
         if (type == 1) {
+            selectedAll = false;
             index[1] = 0;
             index[2] = 0;
             index[3] = 0;
@@ -84,10 +91,29 @@ public class ContaOperacaoBean implements Serializable {
                 PF.update("form_co");
             }
         } else if (type == 2) {
+            selectedAll = false;
             getListPlano5().clear();
             getListContaOperacao().clear();
         } else if (type == 3) {
             getListContaOperacao().clear();
+        } else if (type == 5) {
+            index[1] = 0;
+            index[2] = 0;
+            es = "E";
+            contaFixa = false;
+        } else if (type == 6) {
+            Operacao o = (Operacao) new Dao().find(new Operacao(), Integer.parseInt(getListOperacoes().get(index[0]).getDescription()));
+            if (o.getId() == 1 || o.getId() == 2) {
+                hidden[0] = true;
+            } else {
+                hidden[0] = false;
+            }
+        } else if (type == 7) {
+            Boolean sa = false;
+            selectedAll = !selectedAll;
+            for (int i = 0; i < listPlano5.size(); i++) {
+                listPlano5.get(i).setSelected(selectedAll);
+            }
         }
     }
 
@@ -158,6 +184,41 @@ public class ContaOperacaoBean implements Serializable {
         }
     }
 
+    public void saveAll(Boolean selected) {
+        Dao dao = new Dao();
+        ContaOperacao cc = new ContaOperacao();
+        CentroCustoContabilSub cccs = null;
+        Operacao o = (Operacao) dao.find(new Operacao(), Integer.parseInt(getListOperacoes().get(index[0]).getDescription()));
+        if (o.getId() == 1 || o.getId() == 2) {
+            if (getListCentroCustoContabil().isEmpty()) {
+                GenericaMensagem.warn("Validação", "Cadastrar Centro de Custo Contábil");
+                PF.update("form_co:i_message_co_todos");
+                return;
+            }
+            if (getListCentroCustoContabilSub().isEmpty()) {
+                GenericaMensagem.warn("Validação", "Cadastrar Centro de Custo Contábil Sub");
+                PF.update("form_co:i_message_co_todos");
+                return;
+            }
+            cccs = (CentroCustoContabilSub) dao.find(new CentroCustoContabilSub(), Integer.parseInt(getListCentroCustoContabilSub().get(index[2]).getDescription()));
+        }
+        for (int i = 0; i < listPlano5.size(); i++) {
+            if (listPlano5.get(i).getSelected() || selected) {
+                cc.setCentroCustoContabilSub(cccs);
+                cc.setPlano5(listPlano5.get(i));
+                cc.setOperacao(o);
+                cc.setContaFixa(contaFixa);
+                cc.setEs(es);
+                dao.save(cc, true);
+                cc = new ContaOperacao();
+            }
+        }
+        PF.update("form_co:i_panel_co_todos");
+        PF.update("form_co:i_message_co_todos");
+        PF.update("form_co:i_tbl_co");
+        GenericaMensagem.info("Sucesso", "REGISTRO INSERIDO");
+    }
+
     public void editItem(ContaOperacao co) {
         contaOperacao = co;
         DaoInterface di = new Dao();
@@ -177,7 +238,7 @@ public class ContaOperacaoBean implements Serializable {
                 }
             }
         }
-        PF.openDialog("dlg_co");
+        PF.openDialog("dlg_co_todos");
         PF.update("form_co:i_panel_co");
     }
 
@@ -343,7 +404,7 @@ public class ContaOperacaoBean implements Serializable {
     public List<SelectItem> getListPlano4Group() {
         if (listSelectItem[3].isEmpty()) {
             index[3] = 0;
-            if (!getListOperacoes().isEmpty()) {
+            if (!getListOperacoes().isEmpty() && index[0] != null) {
                 ContaOperacaoDao cod = new ContaOperacaoDao();
                 List list = cod.listPlano4AgrupadoPlanoVwNotInContaOperacao(Integer.parseInt(getListOperacoes().get(index[0]).getDescription()));
                 for (int i = 0; i < list.size(); i++) {
@@ -394,10 +455,13 @@ public class ContaOperacaoBean implements Serializable {
 
     public List<Plano5> getListPlano5() {
         if (listPlano5.isEmpty()) {
-            if (!getListOperacoes().isEmpty()) {
+            if (!getListOperacoes().isEmpty() && index[0] != null && index[3] != null) {
                 ContaOperacaoDao cod = new ContaOperacaoDao();
                 listPlano5 = (List<Plano5>) cod.findPlano5ByPlano4NotInContaOperacao(Integer.parseInt(getListPlano4Group().get(index[3]).getDescription()), Integer.parseInt(getListOperacoes().get(index[0]).getDescription()));
             }
+        }
+        if (listPlano5.isEmpty()) {
+            selectedAll = false;
         }
         return listPlano5;
     }
@@ -429,4 +493,38 @@ public class ContaOperacaoBean implements Serializable {
     public void setHidden(Boolean[] hidden) {
         this.hidden = hidden;
     }
+
+    public Boolean getHabilitaTodos() {
+        for (int i = 0; i < listPlano5.size(); i++) {
+            if (listPlano5.get(i).getSelected()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public String getEs() {
+        return es;
+    }
+
+    public void setEs(String es) {
+        this.es = es;
+    }
+
+    public Boolean getContaFixa() {
+        return contaFixa;
+    }
+
+    public void setContaFixa(Boolean contaFixa) {
+        this.contaFixa = contaFixa;
+    }
+
+    public Boolean getSelectedAll() {
+        return selectedAll;
+    }
+
+    public void setSelectedAll(Boolean selectedAll) {
+        this.selectedAll = selectedAll;
+    }
+
 }
