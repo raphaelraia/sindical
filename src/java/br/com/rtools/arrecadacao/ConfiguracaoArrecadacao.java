@@ -26,7 +26,7 @@ public class ConfiguracaoArrecadacao implements Serializable {
     private Boolean certificadoFaturementoBrutoAnual;
     @Column(name = "nr_dias_acordo", nullable = false)
     private Integer nrDiasAcordo;
-    @Column(name = "is_bloqueia_oposicao", columnDefinition = "boolean default false", nullable = false)
+    @Column(name = "is_bloqueia_oposicao", columnDefinition = "boolean default true", nullable = true)
     private Boolean bloqueiaOposição;
 
     public ConfiguracaoArrecadacao() {
