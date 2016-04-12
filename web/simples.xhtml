@@ -65,7 +65,7 @@
                                                 <p:commandButton icon="ui-icon-arrowreturnthick-1-w" title="Selecionar este registro nº#{linha.id}" action="#{simplesBean.selecionar(linha)}" global="false" />
                                             </p:column>
 
-                                            <p:column style="text-align: center;" width="30">
+                                            <p:column style="text-align: center;" width="30" rendered="#{!simplesBean.disabledAlter}">
                                                 <p:commandButton icon="ui-icon-pencil" title="Editar registro nº#{linha.id}" >
                                                     <p:ajax listener="#{simplesBean.editar(linha)}" update=":formCadastroSimplesNovo:" oncomplete="jQuery('.iDescricaoc').focus()" />
                                                 </p:commandButton>
@@ -75,7 +75,7 @@
                                                 <p:outputLabel value="#{linha.descricao}" />
                                             </p:column>
 
-                                            <p:column style="text-align: center;" width="30">
+                                            <p:column style="text-align: center;" width="30" rendered="#{!simplesBean.disabledDelete}">
                                                 <p:commandButton icon="ui-icon-trash" action="#{simplesBean.excluir(linha)}" update=":formCadastroSimples:i_panel_simples"/>
                                             </p:column>
                                         </p:dataTable>
@@ -89,7 +89,7 @@
                             </h:column>
                             <h:column>
                                 <h:form id="formCadastroSimplesNovo">
-                                    <p:panel id="i_panel" style="margin-left: 15px; width: 350px;" header="Novo" >
+                                    <p:panel id="i_panel" style="margin-left: 15px; width: 350px;" header="Novo" rendered="#{!simplesBean.disabledSave}">
                                         <p:growl autoUpdate="true" id="i_msg" showDetail="true" />  
                                         <h:panelGrid columns="1" columnClasses="coluna1, coluna2">
                                             <h:column>

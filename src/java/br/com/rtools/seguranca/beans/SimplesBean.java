@@ -28,6 +28,7 @@ import br.com.rtools.pessoa.TipoDocumento;
 import br.com.rtools.pessoa.TipoEndereco;
 import br.com.rtools.pessoa.dao.MalaDiretaGrupoDao;
 import br.com.rtools.seguranca.*;
+import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
 import br.com.rtools.sistema.Cor;
 import br.com.rtools.sistema.SisNotificacaoCategoria;
 import br.com.rtools.suporte.ProStatus;
@@ -36,8 +37,6 @@ import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import br.com.rtools.utilitarios.Tables;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -68,6 +67,10 @@ public class SimplesBean implements Serializable {
     private int id;
     private int idRotina;
     private boolean linkRetorno;
+    private Boolean disabledSave;
+    private Boolean disabledAlter;
+    private Boolean disabledDelete;
+    private Boolean view;
 
     public SimplesBean() {
         rotina = new Rotina();
@@ -84,6 +87,10 @@ public class SimplesBean implements Serializable {
         id = -1;
         linkRetorno = false;
         ativo = null;
+        disabledSave = true;
+        disabledAlter = true;
+        disabledDelete = true;
+        view = false;
     }
 
     public List<SelectItem> getListaRotinaCombo() {
@@ -99,8 +106,7 @@ public class SimplesBean implements Serializable {
     }
 
     public void salvar() {
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-        DaoInterface di = new Dao();
+        Dao dao = new Dao();
         NovoLog log = new NovoLog();
         log.setCadastroSimples(true);
         if (sessoes != null) {
@@ -111,13 +117,13 @@ public class SimplesBean implements Serializable {
             }
             if (id == -1) {
                 converteObjeto(sessoes[0]);
-                if (sv.descricaoExiste(descricao, "descricao", objeto.getClass().getSimpleName())) {
+                if (dao.existsDescription(descricao, "descricao", objeto.getClass().getSimpleName())) {
                     mensagem = "Descrição já existe " + nomeRotina + " !";
                     GenericaMensagem.info("Sucesso", mensagem);
                     return;
 
                 }
-                if (di.save(objeto, true)) {
+                if (dao.save(objeto, true)) {
                     editaObjeto(objeto);
                     log.save("ID: " + id + " - DESCRICAO: " + descricao);
                     mensagem = "Registro salvo com sucesso";
@@ -131,9 +137,9 @@ public class SimplesBean implements Serializable {
                     GenericaMensagem.warn("Erro", mensagem);
                 }
             } else {
-                Object o = di.find(objeto);
+                Object o = dao.find(objeto);
                 atualizaObjeto(sessoes[0]);
-                if (di.update(objeto, true)) {
+                if (dao.update(objeto, true)) {
                     log.update(o.toString(), "ID: " + id + " - DESCRICAO: " + descricao);
                     mensagem = "Registro atualizado com sucesso";
                     GenericaMensagem.info("Sucesso", mensagem);
@@ -269,6 +275,11 @@ public class SimplesBean implements Serializable {
             GenericaSessao.put("chamadaPaginaSimples", sessoes);
             GenericaSessao.remove("cadastroSimples");
             habilitaAtivo();
+            ControleAcessoBean cab = new ControleAcessoBean();
+            disabledSave = cab.verificaPermissao(sessoes[0], 1);
+            disabledDelete = cab.verificaPermissao(sessoes[0], 2);
+            disabledAlter = cab.verificaPermissao(sessoes[0], 3);
+            view = cab.verificaPermissao(sessoes[0], 4);
         }
         return sessoes;
     }
@@ -977,6 +988,38 @@ public class SimplesBean implements Serializable {
         if (object.equals("MalaDiretaGrupo")) {
             new MalaDiretaGrupoDao().inative(((MalaDiretaGrupo) object).getId());
         }
+    }
+
+    public Boolean getDisabledSave() {
+        return disabledSave;
+    }
+
+    public void setDisabledSave(Boolean disabledSave) {
+        this.disabledSave = disabledSave;
+    }
+
+    public Boolean getDisabledAlter() {
+        return disabledAlter;
+    }
+
+    public void setDisabledAlter(Boolean disabledAlter) {
+        this.disabledAlter = disabledAlter;
+    }
+
+    public Boolean getDisabledDelete() {
+        return disabledDelete;
+    }
+
+    public void setDisabledDelete(Boolean disabledDelete) {
+        this.disabledDelete = disabledDelete;
+    }
+
+    public Boolean getView() {
+        return view;
+    }
+
+    public void setView(Boolean view) {
+        this.view = view;
     }
 
 }

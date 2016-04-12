@@ -1274,6 +1274,9 @@ public class ControleAcessoBean implements Serializable {
         Rotina r = rotinaDao.pesquisaRotinaPorPagina(pagina);
         if (r == null) {
             r = rotinaDao.pesquisaRotinaPorAcao(pagina);
+            if (r == null) {
+                r = rotinaDao.pesquisaRotinaPermissaoPorClasse(pageName);
+            }
         }
         if (r == null) {
             return false;

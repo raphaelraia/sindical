@@ -175,9 +175,9 @@ public class RotinaDao extends DB {
                     + "  from Rotina ro "
                     + " where ro.classe like '" + dsClasse + "'");
             return (Rotina) (qry.getSingleResult());
-        } catch (EJBQLException e) {
+        } catch (Exception e) {
+            return null;
         }
-        return null;
     }
 
     /**

@@ -106,7 +106,7 @@
                                 </p:column>
                             </h:panelGrid>
                             <p:messages id="i_msg" showDetail="true" closable="true" />  
-                            <p:dataTable  value="#{correcaoBean.listaCorrecao}" var="correcao" id="tbl" emptyMessage="Nenhuma Correção foi encontrada!" styleClass="margin-top-max" scrollHeight="250" scrollable="true">
+                            <p:dataTable  value="#{correcaoBean.listaCorrecao}" var="correcao" id="tbl" emptyMessage="Nenhuma Correção foi encontrada!" styleClass="margin-top-max" paginator="true" rows="10">
                                 <p:column headerText="Serviço" sortBy="#{correcao.servicos.descricao}" width="250">
                                     <p:commandLink action="#{correcaoBean.edit(correcao)}" value="#{correcao.servicos.descricao}" update=":formCorrecao:i_panelgrid_edit"/>
                                 </p:column>
