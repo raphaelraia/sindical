@@ -36,6 +36,20 @@ public class CupomDao extends DB {
             return new ArrayList();
         }
     }
+    
+    public List findAll() {
+        String queryString;
+        try {
+            queryString = ""
+                    + "SELECT C.*                                           \n"
+                    + "  FROM eve_cupom AS C                                \n"
+                    + " ORDER BY C.dt_data                                  \n";
+            Query query = getEntityManager().createNativeQuery(queryString, Cupom.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
 
     public Sorteio find(String descricao, String data) {
         try {
