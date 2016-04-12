@@ -22,19 +22,24 @@ public class DescontoServicoEmpresa implements Serializable {
     private Servicos servicos;
     @Column(name = "nr_desconto")
     private float desconto;
+    @JoinColumn(name = "id_grupo ", referencedColumnName = "id")
+    @ManyToOne
+    private DescontoServicoEmpresaGrupo grupo;
 
     public DescontoServicoEmpresa() {
         this.id = -1;
         this.juridica = new Juridica();
         this.servicos = new Servicos();
         this.desconto = 0;
+        this.grupo = null;
     }
 
-    public DescontoServicoEmpresa(int id, Juridica juridica, Servicos servicos, float desconto) {
+    public DescontoServicoEmpresa(int id, Juridica juridica, Servicos servicos, float desconto, DescontoServicoEmpresaGrupo grupo) {
         this.id = id;
         this.juridica = juridica;
         this.servicos = servicos;
         this.desconto = desconto;
+        this.grupo = grupo;
     }
 
     public int getId() {
@@ -75,5 +80,13 @@ public class DescontoServicoEmpresa implements Serializable {
 
     public void setDescontoString(String desconto) {
         this.desconto = Float.parseFloat(Moeda.substituiVirgula(desconto));
+    }
+
+    public DescontoServicoEmpresaGrupo getGrupo() {
+        return grupo;
+    }
+
+    public void setGrupo(DescontoServicoEmpresaGrupo grupo) {
+        this.grupo = grupo;
     }
 }

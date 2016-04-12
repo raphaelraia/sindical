@@ -20,6 +20,9 @@ public class ThisNumber implements Converter {
     @Override
     public Object getAsObject(FacesContext context, UIComponent component, String value) {
         value = (value != null) ? value.replaceAll("[^0-9]", "") : null;
+        if(value == null || value.isEmpty()) {
+            value = "0";
+        }
         return value;
     }
 

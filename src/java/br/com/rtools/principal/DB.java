@@ -25,8 +25,12 @@ public class DB {
                 Configuracao configuracao = servidor(cliente.replace("/", ""));
                 DataBase dataBase = new DataBase();
                 dataBase.loadJson();
+                Integer port = 5432;
                 if (!dataBase.getHost().isEmpty()) {
                     configuracao.setHost(dataBase.getHost());
+                }
+                if (dataBase.getPort() != null && dataBase.getPort() != 0) {
+                    port = dataBase.getPort();
                 }
                 if (!dataBase.getDatabase().isEmpty()) {
                     configuracao.setPersistence(dataBase.getDatabase());
@@ -41,7 +45,7 @@ public class DB {
                     properties.put(TopLinkProperties.TRANSACTION_TYPE, "RESOURCE_LOCAL");
                     properties.put(TopLinkProperties.JDBC_DRIVER, "org.postgresql.Driver");
                     properties.put(TopLinkProperties.JDBC_PASSWORD, configuracao.getSenha());
-                    properties.put(TopLinkProperties.JDBC_URL, "jdbc:postgresql://" + configuracao.getHost() + ":5432/" + configuracao.getPersistence());
+                    properties.put(TopLinkProperties.JDBC_URL, "jdbc:postgresql://" + configuracao.getHost() + ":" + port + "/" + configuracao.getPersistence());
                     EntityManagerFactory emf = Persistence.createEntityManagerFactory(configuracao.getPersistence(), properties);
                     String createTable = GenericaString.converterNullToString(GenericaRequisicao.getParametro("createTable"));
                     if (createTable.equals("criar")) {

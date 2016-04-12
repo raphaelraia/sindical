@@ -31,42 +31,16 @@
                 <p:growl id="id_mensagem_growl" showDetail="true" showSummary="true"/> 
                 <h:form id="form_matricula_academia">                  
                     <c:set scope="request" var="object" value="${matriculaAcademiaBean.matriculaAcademia}"/>
-                    <p:panel style="border: 1px solid #ff9999; margin-bottom: 15px!important" rendered="#{not empty matriculaAcademiaBean.aluno.pessoa.pessoaComplemento.obsAviso}" styleClass="margin-top" >
-                        <f:facet name="header">
-                            <h:outputLabel value="! MENSAGEM DE BLOQUEIO (Aluno)" style="font-weight: bold; color: red; "/>                                            
-                        </f:facet>
-                        <h:panelGrid columns="1">
-                            <h:column>
-                                <h:outputLabel value="#{matriculaAcademiaBean.aluno.pessoa.pessoaComplemento.obsAviso}" style="color: black; font-weight: bold;"/>                                        
-                            </h:column>
-                        </h:panelGrid>
-                    </p:panel>
-                    <p:panel style="border: 1px solid #ff9999; margin-bottom: 15px!important" rendered="#{not empty matriculaAcademiaBean.matriculaAcademia.servicoPessoa.cobranca.pessoaComplemento.obsAviso}" styleClass="margin-top" >
-                        <f:facet name="header">
-                            <h:outputLabel value="! MENSAGEM DE BLOQUEIO (Responsável)" style="font-weight: bold; color: red; "/>                                            
-                        </f:facet>
-                        <h:panelGrid columns="1">
-                            <h:column>
-                                <h:outputLabel value="#{matriculaAcademiaBean.matriculaAcademia.servicoPessoa.cobranca.pessoaComplemento.obsAviso}" style="color: black; font-weight: bold;"/>                                        
-                            </h:column>
-                        </h:panelGrid>
-                    </p:panel>
-
-
-
-                    <h:column rendered="#{!matriculaAcademiaBean.matriculaAcademia.servicoPessoa.ativo}">
-                        <div class="ui-widget margin-bottom-max">
-                            <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
-                                <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
-                                    <strong>IMPORTANTE:</strong> CADASTRO INATIVO </p>
-                            </div>
-                        </div>                        
-                    </h:column>                    
+                    <h:outputText value="#{genericaMensagem.getHtmlMessage('warn', 'IMPORTANTE:', 'CADASTRO INATIVO')}" escape="false" rendered="#{!matriculaAcademiaBean.matriculaAcademia.servicoPessoa.ativo}"/>
+                    <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', 'MENSAGEM DE BLOQUEIO (Aluno):', matriculaAcademiaBean.aluno.pessoa.pessoaComplemento.obsAviso)}" escape="false" rendered="#{not empty matriculaAcademiaBean.aluno.pessoa.pessoaComplemento.obsAviso}" />
+                    <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', 'MENSAGEM DE BLOQUEIO (Responsável):', matriculaAcademiaBean.matriculaAcademia.servicoPessoa.cobranca.pessoaComplemento.obsAviso)}" escape="false" rendered="#{not empty matriculaAcademiaBean.matriculaAcademia.servicoPessoa.cobranca.pessoaComplemento.obsAviso}" />
+                    <h:panelGrid columns="3" style="width: 100%">
+                    </h:panelGrid>
                     <p:panel id="id_panel_cadastro">
                         <h:panelGrid>
                             <h:column>
                                 <p:messages closable="true" showDetail="true"/>
-                                
+
                                 <p:panel style="border: 1px solid #ff9999; margin-bottom: 15px!important" rendered="#{matriculaAcademiaBean.matriculaAcademiaAntiga.id ne -1}" styleClass="margin-top" >
                                     <f:facet name="header">
                                         <h:outputLabel value="TROCA DE MODALIDADE" style="font-weight: bold; color: red; "/>                                            
@@ -84,7 +58,7 @@
                                             <h:outputLabel value="#{matriculaAcademiaBean.matriculaAcademiaAntiga.servicoPessoa.servicos.descricao}" style="color: black; font-weight: bold;"/>                                        
                                         </h:column>
                                     </h:panelGrid>
-                                    
+
                                     <h:panelGrid columns="1">
                                         <h:column>
                                             <h:outputLabel value="Valor Liquido Anterior" style="color: black;"/><br />
@@ -98,7 +72,7 @@
                                         </h:column>
                                     </h:panelGrid>
                                 </p:panel>
-                                
+
                                 <h:panelGrid columns="2" cellpadding="3" width="830" columnClasses="verticalAlignTop,verticalAlignTop">
                                     <h:column>
                                         <h:panelGrid columns="2" cellpadding="3" width="820">
@@ -175,13 +149,13 @@
                                                 <p:commandLink value="#{matriculaAcademiaBean.aluno.pessoa.nome}" rendered="#{matriculaAcademiaBean.aluno.pessoa.id != -1}" title="Ver detalhes" onclick="PF('dlg_pessoa_fisica_card').show()" update="i_pessoa_fisica_card" action="#{pessoaCardBean.cardFisica(matriculaAcademiaBean.aluno.pessoa.id)}"/>
                                             </h:column>
                                             <h:column />
-                                            <h:column>
-                                                <p:panel rendered="#{matriculaAcademiaBean.socios.id != -1}" style="background: #ccffcc;" styleClass="no-border">
-                                                    <h:panelGrid columns="4">
-                                                        <h:outputText value="Categoria: #{matriculaAcademiaBean.socios.matriculaSocios.categoria.categoria} - Matrícula: #{matriculaAcademiaBean.socios.matriculaSocios.nrMatricula} - Parentesco:  #{matriculaAcademiaBean.socios.parentesco.parentesco}" style="font-weight: bold;"/>
-                                                    </h:panelGrid>
-                                                </p:panel>
-                                            </h:column>
+                                        </h:panelGrid>
+                                        <h:panelGroup layout="block" rendered="#{matriculaAcademiaBean.socios.id != -1}">
+                                            <p:panel style="background: #ccffcc;" styleClass="no-border">
+                                                <h:outputText value="Categoria: #{matriculaAcademiaBean.socios.matriculaSocios.categoria.categoria} - Matrícula: #{matriculaAcademiaBean.socios.matriculaSocios.nrMatricula} - Parentesco:  #{matriculaAcademiaBean.socios.parentesco.parentesco}" styleClass="bold"/>
+                                            </p:panel>
+                                        </h:panelGroup>
+                                        <h:panelGrid columns="2" cellpadding="3" width="820">
                                             <p:outputLabel value="Responsável:" />
                                             <h:column>
                                                 <h:panelGrid columns="3">
@@ -189,16 +163,28 @@
                                                     <p:commandButton value="Pesquisar / Alterar Responsável" onclick="PF('dlg_painel_trocar_responsavel').show();" type="button" icon="ui-icon-search" rendered="false" styleClass="margin-left-max" disabled="#{matriculaAcademiaBean.desabilitaCamposMovimento}" />
                                                     <p:commandButton value="Pesquisar / Alterar Responsável" action="#{chamadaPaginaBean.pesquisaPessoa()}" icon="ui-icon-search" rendered="#{matriculaAcademiaBean.matriculaAcademia.servicoPessoa.pessoa.id != -1 and matriculaAcademiaBean.socio == ''}" styleClass="margin-left-max" disabled="#{matriculaAcademiaBean.desabilitaCamposMovimento}" actionListener="#{matriculaAcademiaBean.pesquisaFisica('responsavel')}"/>
                                                     <h:column rendered="#{matriculaAcademiaBean.sociosCobranca.id != -1}">
-                                                        <!-- <p:selectBooleanCheckbox value="# {matriculaAcademiaBean.matriculaAcademia.servicoPessoa.descontoFolha}" styleClass="margin-left-max" itemLabel="Desconto em folha" disabled="# {matriculaAcademiaBean.desabilitaCamposMovimento}" /> -->
                                                         <p:selectBooleanCheckbox value="#{matriculaAcademiaBean.matriculaAcademia.servicoPessoa.descontoFolha}" styleClass="margin-left-max" itemLabel="Desconto em folha" />
                                                     </h:column>
                                                 </h:panelGrid>
                                             </h:column>
                                             <p:outputLabel value="Modalidade:" />
                                             <p:selectOneMenu value="#{matriculaAcademiaBean.idModalidade}" disabled="#{matriculaAcademiaBean.desabilitaCamposMovimento}" style="width: 690px">
-                                                <p:ajax event="change" update="@this id_panel_grid_calcula id_grid_periodo_grade i_panel_dia_vencimento" listener="#{matriculaAcademiaBean.recalcular1()}"/>
+                                                <p:ajax event="change" update="@this id_panel_grid_calcula id_grid_periodo_grade i_panel_dia_vencimento i_parceiros" listener="#{matriculaAcademiaBean.listener('recalcular1')}"/>
                                                 <f:selectItems value="#{matriculaAcademiaBean.listaModalidades}"/>
                                             </p:selectOneMenu>
+                                            <h:column>
+                                                <h:panelGroup layout="block" rendered="#{matriculaAcademiaBean.socios.id == -1 and matriculaAcademiaBean.aluno.pessoa.id ne -1}">
+                                                    <p:outputLabel value="Parceiro: " />
+                                                </h:panelGroup>
+                                            </h:column>
+                                            <h:column>
+                                                <h:panelGroup layout="block" rendered="#{matriculaAcademiaBean.socios.id == -1 and matriculaAcademiaBean.aluno.pessoa.id ne -1}" id="i_parceiros">
+                                                    <p:selectOneMenu value="#{matriculaAcademiaBean.idParceiro}" style="width: 690px" filter="true" filterMatchMode="startsWith" disabled="#{matriculaAcademiaBean.listParceiro.size() == 1 or matriculaAcademiaBean.desabilitaCamposMovimento}">
+                                                        <p:ajax event="change" update="@this id_panel_grid_calcula id_grid_periodo_grade i_panel_dia_vencimento" listener="#{matriculaAcademiaBean.listener('descontoServicoEmpresa')}"/>
+                                                        <f:selectItems value="#{matriculaAcademiaBean.listParceiro}"/>
+                                                    </p:selectOneMenu>
+                                                </h:panelGroup>
+                                            </h:column>
                                         </h:panelGrid>
                                     </h:column>
                                     <h:column>
@@ -212,7 +198,7 @@
                                         </p:panel>
                                     </h:column>
                                 </h:panelGrid>
-                                <h:panelGrid width="990">
+                                <h:panelGroup layout="block">
                                     <p:messages closable="true" showDetail="true"/>
                                     <p:panel header="Período / Grade">
                                         <h:panelGrid columns="3" id="id_grid_periodo_grade">
@@ -222,50 +208,84 @@
                                             </p:selectOneMenu>                                            
                                         </h:panelGrid>                                        
                                         <h:panelGrid columns="5" styleClass="margin-top-max" id="id_grid_validade">
-                                            <p:outputLabel value="Validade:" rendered="#{!matriculaAcademiaBean.dataValidade.equals('')}" />
+                                            <p:outputLabel value="Validade:" rendered="#{not empty matriculaAcademiaBean.dataValidade}" />
                                             <p:inputText value="#{matriculaAcademiaBean.dataValidade}" readonly="true" styleClass="input-text-min text-center font-size-12 bold bg-yellow-ligth" rendered="#{!matriculaAcademiaBean.dataValidade.equals('')}" />
                                             <p:outputLabel value="Número parcelas: " style="font-weight: bold;" rendered="false"/>
                                             <p:column rendered="false">
                                                 <p:spinner value="#{matriculaAcademiaBean.matriculaAcademia.numeroParcelas}"  min="0" max="#{matriculaAcademiaBean.matriculaAcademia.academiaServicoValor.numeroParcelas}" disabled="#{matriculaAcademiaBean.desabilitaCamposMovimento}" rendered="#{!matriculaAcademiaBean.ocultaParcelas}" />
                                                 <p:outputLabel value="0" rendered="#{matriculaAcademiaBean.ocultaParcelas}" />
                                             </p:column>
-                                            <p:selectBooleanCheckbox value="#{matriculaAcademiaBean.taxa}" itemLabel="Cobrar taxa" disabled="#{matriculaAcademiaBean.desabilitaCamposMovimento}" >
-                                                <p:ajax event="change" update="id_panel_grid_calcula" />
-                                            </p:selectBooleanCheckbox>
                                         </h:panelGrid>
                                     </p:panel>
-                                </h:panelGrid>
-                                <h:panelGrid columns="2" cellpadding="3" width="950">
-                                    <h:column></h:column>
-                                    <h:column>
-                                    </h:column>
-                                    <h:column></h:column>
-                                    <p:selectBooleanCheckbox rendered="#{!matriculaAcademiaBean.ocultaBotaoTarifaCartao}" value="#{matriculaAcademiaBean.taxaCartao}" itemLabel="Cartão social (Taxa)" disabled="#{matriculaAcademiaBean.desabilitaCamposMovimento}">
-                                        <p:ajax event="change" update="id_panel_grid_calcula" />
-                                    </p:selectBooleanCheckbox>
-                                    <p:column rendered="#{!matriculaAcademiaBean.ocultaBotaoTarifaCartao}"></p:column>
-                                    <p:column>
-                                        <h:panelGrid id="id_panel_grid_calcula" columns="10" >
-                                            <p:outputLabel value="Valor (R$):" />
-                                            <p:inputText value="#{matriculaAcademiaBean.valor}" readonly="true" size="8"/>
-                                            <p:outputLabel value="Desconto (R$):" styleClass="margin-left-max"/>
-                                            <p:inputText value="#{matriculaAcademiaBean.descontoString}" size="8" readonly="#{matriculaAcademiaBean.listaMovimentos.size() > 0}" converter="#{toCurrency}">
-                                                <p:ajax event="blur" listener="#{matriculaAcademiaBean.calculoDesconto()}" update="@this, id_panel_grid_calcula" />
-                                            </p:inputText>                                            
-                                            <p:outputLabel value="Valor líquido (R$):" styleClass="margin-left-max"/>
-                                            <p:inputText value="#{matriculaAcademiaBean.valorLiquido}" readonly="true" size="8" id="id_valor_liquido"/>
-                                            <p:outputLabel value="Taxa (R$):" rendered="#{matriculaAcademiaBean.taxa}"/>
-                                            <p:inputText value="#{matriculaAcademiaBean.valorTaxa}" rendered="#{matriculaAcademiaBean.taxa}" readonly="true" size="5"/>
-                                            <p:outputLabel value="Taxa cartão (R$):" rendered="#{matriculaAcademiaBean.taxaCartao}"/>
-                                            <p:inputText value="#{matriculaAcademiaBean.valorCartao}" rendered="#{matriculaAcademiaBean.taxaCartao}" readonly="true" size="5"/>
-                                            <p:outputLabel value="Dia do Vencimento: " styleClass="margin-left-max" />
-                                            <!-- <p:selectOneMenu value="# {matriculaAcademiaBean.idDiaParcela}" style="padding-right: 10px" disabled="# {matriculaAcademiaBean.desabilitaCamposMovimento}"> -->
-                                            <p:selectOneMenu value="#{matriculaAcademiaBean.idDiaParcela}">
-                                                <f:selectItems value="#{matriculaAcademiaBean.listaDiaParcela}" />
-                                            </p:selectOneMenu>
+                                </h:panelGroup>
+                                <h:panelGroup id="id_panel_grid_calcula" layout="block" styleClass="margin-top">
+                                    <p:panel>
+                                        <f:facet name="header">
+                                            <h:panelGrid columns="2" cellpadding="5">
+                                                <h:column>
+                                                    <p:selectBooleanCheckbox value="#{matriculaAcademiaBean.taxa}" itemLabel="Cobrar taxa" disabled="#{matriculaAcademiaBean.desabilitaCamposMovimento}" >
+                                                        <p:ajax event="change" update="id_panel_grid_calcula" />
+                                                    </p:selectBooleanCheckbox>                                                    
+                                                </h:column>
+                                                <h:column>
+                                                    <p:selectBooleanCheckbox rendered="#{!matriculaAcademiaBean.ocultaBotaoTarifaCartao}" value="#{matriculaAcademiaBean.taxaCartao}" itemLabel="Cartão Social (Taxa)" disabled="#{matriculaAcademiaBean.desabilitaCamposMovimento}">
+                                                        <p:ajax event="change" update="id_panel_grid_calcula" />
+                                                    </p:selectBooleanCheckbox>
+                                                </h:column>
+                                            </h:panelGrid>                                                    
+                                        </f:facet>
+                                        <h:panelGrid columns="1">
+                                            <h:column>
+                                                <h:panelGrid columns="12" cellpadding="1">
+                                                    <h:column>
+                                                        <h:panelGrid>
+                                                            <p:outputLabel value="Valor (R$):" styleClass="margin-top-max"/>
+                                                            <p:inputText value="#{matriculaAcademiaBean.valor}" readonly="true" size="8"  styleClass="text-right"/>
+                                                        </h:panelGrid>
+                                                    </h:column>
+                                                    <h:column>
+                                                        <h:panelGrid>
+                                                            <p:outputLabel value="Desconto (R$):" />
+                                                            <p:inputText value="#{matriculaAcademiaBean.descontoString}" size="8" readonly="#{matriculaAcademiaBean.listaMovimentos.size() > 0}" converter="#{toCurrency}"  styleClass="text-right">
+                                                                <p:ajax event="blur" listener="#{matriculaAcademiaBean.calculoDesconto()}" update="@this, id_panel_grid_calcula" />
+                                                            </p:inputText>
+                                                        </h:panelGrid>
+                                                    </h:column>
+                                                    <h:column>
+                                                        <h:panelGrid>
+                                                            <p:outputLabel value="Taxa (R$):" rendered="#{matriculaAcademiaBean.taxa}"/>
+                                                            <p:inputText value="#{matriculaAcademiaBean.valorTaxa}" rendered="#{matriculaAcademiaBean.taxa}" readonly="true" size="5"/>
+                                                        </h:panelGrid>
+                                                    </h:column>
+                                                    <h:column rendered="#{matriculaAcademiaBean.taxaCartao}">
+                                                        <h:panelGrid>
+                                                            <h:column>
+                                                                <p:outputLabel value="Taxa cartão (R$)" />
+                                                            </h:column>
+                                                            <h:column>
+                                                                <p:inputText value="#{matriculaAcademiaBean.valorCartao}" readonly="true" size="5"/>
+                                                            </h:column>
+                                                        </h:panelGrid>
+                                                    </h:column>                                                                
+                                                    <h:column>                                                                
+                                                        <h:panelGrid>
+                                                            <p:outputLabel value="Dia do Vencimento: " />
+                                                            <p:selectOneMenu value="#{matriculaAcademiaBean.idDiaParcela}">
+                                                                <f:selectItems value="#{matriculaAcademiaBean.listaDiaParcela}" />
+                                                            </p:selectOneMenu>
+                                                        </h:panelGrid>                                                
+                                                    </h:column>                                                                
+                                                </h:panelGrid>
+                                            </h:column>
                                         </h:panelGrid>
-                                    </p:column>
-                                </h:panelGrid>
+                                        <f:facet name="footer">
+                                            <h:panelGrid columns="2" cellpadding="1">
+                                                <p:outputLabel value="Valor líquido (R$):" styleClass="font-size-12"/>
+                                                <p:inputText value="#{matriculaAcademiaBean.valorLiquido}" readonly="true" id="id_valor_liquido" styleClass="input-text-med text-center font-size-12 bold bg-yellow-ligth" />
+                                            </h:panelGrid>
+                                        </f:facet>
+                                    </p:panel>
+                                </h:panelGroup>
                                 <h:panelGrid id="id_panel_grid_movimento" styleClass="margin-top-max" rendered="#{matriculaAcademiaBean.listaMovimentos.size() != 0}">
                                     <p:dataTable value="#{matriculaAcademiaBean.listaMovimentos}" var="linha" rendered="#{matriculaAcademiaBean.matriculaAcademia.id != -1}" emptyMessage="Nenhum movimento gerado">
                                         <f:facet name="header">Movimentos gerados</f:facet>
@@ -334,34 +354,44 @@
                         </h:column>
 
                         <h:panelGrid columns="3" rendered="#{matriculaAcademiaBean.matriculaAcademia.id != -1}">
-                            <!-- <p:commandLink type="button" value="Gerar Contrato" title="Gerar Contrato" action="# {matriculaAcademiaBean.gerarContrato}" target="# {matriculaAcademiaBean.target}" rendered="# {matriculaAcademiaBean.desabilitaGeracaoContrato}" disabled="# {controleAcessoBean.botaoSalvar}" /> -->
-                            <!-- <p:commandButton value="Gerar Contrato" title="Gerar Contrato" action="# {matriculaAcademiaBean.gerarContrato}" rendered="# {!matriculaAcademiaBean.desabilitaGeracaoContrato}" disabled="# {controleAcessoBean.botaoSalvar}" /> -->
                             <p:commandLink type="button" value="Carnê" title="Carnê" action="#{matriculaAcademiaBean.gerarCarne}" target="#{matriculaAcademiaBean.target}" rendered="#{matriculaAcademiaBean.desabilitaGeracaoContrato}" disabled="#{controleAcessoBean.botaoSalvar}" />
                         </h:panelGrid>
                     </h:panelGrid>
 
                     <p:dialog widgetVar="dlg_save" header="Deseja salvar este registro?" resizable="false" width="400" modal="true">
-                        <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{matriculaAcademiaBean.save()}" onclick="PF('dlg_save').hide();
-                                PF('dlg_message').show();" style="clear: both; float: left; margin-left: 10px;" update="id_mensagem  id_panel_cadastro id_acao"/> 
-                        <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_save').hide()" style="float: left;" icon="ui-icon-close"/>
+                        <f:facet name="footer">
+                        <h:panelGrid columns="2">
+                            <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{matriculaAcademiaBean.save()}" onclick="PF('dlg_save').hide();PF('dlg_message').show();" style="clear: both; float: left; margin-left: 10px;" update="id_mensagem  id_panel_cadastro id_acao"/> 
+                            <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_save').hide()" style="float: left;" icon="ui-icon-close"/>                            
+                        </h:panelGrid>
+                        </f:facet>
                     </p:dialog>
 
                     <p:dialog widgetVar="dlg_delete" header="Deseja excluir este registro?" resizable="false" width="400" modal="true">
-                        <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{matriculaAcademiaBean.delete()}" onclick="PF('dlg_delete').hide();
-                                PF('dlg_message').show();" style="clear: both; float: left; margin-left: 10px;" update="id_mensagem id_panel_cadastro id_acao"/> 
-                        <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_delete').hide()" style="float: left;" icon="ui-icon-close"/>
+                        <f:facet name="footer">
+                            <h:panelGrid columns="2">
+                                <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{matriculaAcademiaBean.delete()}" onclick="PF('dlg_delete').hide();PF('dlg_message').show();" style="clear: both; float: left; margin-left: 10px;" update="id_mensagem id_panel_cadastro id_acao"/> 
+                                <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_delete').hide()" style="float: left;" icon="ui-icon-close"/>                            
+                            </h:panelGrid>
+                        </f:facet>
                     </p:dialog>
 
                     <p:dialog widgetVar="dlg_save_movimento" header="Deseja salvar este movimento?" resizable="false" width="400" modal="true">
-                        <h:panelGrid columns="2">
-                            <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{matriculaAcademiaBean.gerarMovimento()}" onclick="PF('dlg_save_movimento').hide();" style="clear: both; float: left; margin-left: 10px;" update="id_mensagem_growl id_acao id_panel_cadastro"/> 
-                            <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_save_movimento').hide()" style="float: left;" icon="ui-icon-close"/>
-                        </h:panelGrid>
+                        <f:facet name="footer">
+                            <h:panelGrid columns="2">
+                                <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{matriculaAcademiaBean.gerarMovimento()}" onclick="PF('dlg_save_movimento').hide();" style="clear: both; float: left; margin-left: 10px;" update="id_mensagem_growl id_acao id_panel_cadastro"/> 
+                                <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_save_movimento').hide()" style="float: left;" icon="ui-icon-close"/>
+                            </h:panelGrid>
+                        </f:facet>
                     </p:dialog>
 
                     <p:dialog widgetVar="dlg_delete_movimento" header="Deseja excluir este movimento?" resizable="false" width="400" modal="true">
-                        <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{matriculaAcademiaBean.desfazerMovimento()}" onclick="PF('dlg_delete_movimento').hide();" style="clear: both; float: left; margin-left: 10px;" update="id_mensagem_growl id_acao id_panel_cadastro"/> 
-                        <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_delete_movimento').hide()" style="float: left;" icon="ui-icon-close"/>
+                        <f:facet name="footer">
+                            <h:panelGrid columns="2">
+                                <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{matriculaAcademiaBean.desfazerMovimento()}" onclick="PF('dlg_delete_movimento').hide();" style="clear: both; float: left; margin-left: 10px;" update="id_mensagem_growl id_acao id_panel_cadastro"/> 
+                                <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_delete_movimento').hide()" style="float: left;" icon="ui-icon-close"/>
+                            </h:panelGrid>
+                        </f:facet>
                     </p:dialog>
 
                     <p:dialog widgetVar="dlg_message" header="Mensagem" resizable="false" width="400" modal="true" closable="true">

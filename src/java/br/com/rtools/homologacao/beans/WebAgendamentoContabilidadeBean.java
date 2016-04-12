@@ -1,8 +1,11 @@
 package br.com.rtools.homologacao.beans;
 
+import br.com.rtools.arrecadacao.ConfiguracaoArrecadacao;
+import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.pessoa.beans.PesquisarProfissaoBean;
 import br.com.rtools.arrecadacao.Oposicao;
 import br.com.rtools.arrecadacao.dao.OposicaoDao;
+import br.com.rtools.arrecadacao.db.ConvencaoDBToplink;
 import br.com.rtools.arrecadacao.db.WebContabilidadeDB;
 import br.com.rtools.arrecadacao.db.WebContabilidadeDBToplink;
 import br.com.rtools.endereco.Endereco;
@@ -45,7 +48,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
     private int idStatus = 0;
     private int idMotivoDemissao = 0;
     private int idSelectRadio = 0;
-    private String statusEmpresa = "REGULAR";
+    private String statusEmpresa = "";
     private String strEndereco = "";
     private String filtraPor = "todos";
     private boolean chkFiltrar = true;
@@ -69,6 +72,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
     public List<SelectItem> listaMotivoDemissao = new ArrayList<>();
     private String tipoTelefone = "telefone";
     private ConfiguracaoHomologacao configuracaoHomologacao;
+    private ConfiguracaoArrecadacao configuracaoArrecadacao;
     private boolean visibleModal = false;
     private String tipoAviso = null;
     private Date polling;
@@ -79,6 +83,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
         Dao dao = new Dao();
         registro = (Registro) dao.find(new Registro(), 1);
         configuracaoHomologacao = (ConfiguracaoHomologacao) new Dao().find(new ConfiguracaoHomologacao(), 1);
+        configuracaoArrecadacao = (ConfiguracaoArrecadacao) new Dao().find(new ConfiguracaoArrecadacao(), 1);
         if (configuracaoHomologacao == null) {
             configuracaoHomologacao = new ConfiguracaoHomologacao();
             new Dao().save(configuracaoHomologacao, true);
@@ -198,20 +203,23 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
     }
 
     public void clearHorarios(Integer tcase) {
-        if (null != tcase) switch (tcase) {
-            case 1:
-                loadListFiliais();
-                if(!listFilial.isEmpty() && listFilial.size() > 1) {
-                    PF.openDialog("dlg_local");
-                }   loadListHorarios(false);
-                lock(true);
-                break;
-            case 2:
-                loadListHorarios(false);
-                lock(true);
-                break;
-            default:
-                break;
+        if (null != tcase) {
+            switch (tcase) {
+                case 1:
+                    loadListFiliais();
+                    if (!listFilial.isEmpty() && listFilial.size() > 1) {
+                        PF.openDialog("dlg_local");
+                    }
+                    loadListHorarios(false);
+                    lock(true);
+                    break;
+                case 2:
+                    loadListHorarios(false);
+                    lock(true);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -445,7 +453,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
         } else {
             strEndereco = "";
         }
-        
+
         Filial f = (Filial) dao.find(new Filial(), idFilial);
 
         switch (Integer.parseInt(((SelectItem) getListaStatus().get(idStatus)).getDescription())) {
@@ -597,7 +605,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
         }
 
         if (configuracaoHomologacao.getWebValidaFuncao()) {
-            if (profissao.getId() == -1) {
+            if (profissao.getId().equals(-1) || profissao.getId().equals(0)) {
                 GenericaMensagem.warn("Validação", "Informar a função/profissão!");
                 return;
             }
@@ -781,7 +789,13 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
             dao.commit();
             return;
         }
-        if (new OposicaoDao().existsPorPessoaEmpresa(fisica.getPessoa().getDocumento(), juridica.getId())) {
+        Boolean bloqueiaOposicao = new OposicaoDao().existsPorPessoaEmpresa(fisica.getPessoa().getDocumento(), juridica.getId());
+        if (bloqueiaOposicao) {
+            if (configuracaoArrecadacao != null) {
+                bloqueiaOposicao = configuracaoArrecadacao.getBloqueiaOposição();
+            }
+        }
+        if (bloqueiaOposicao) {
             if (!updatePessoaEmpresa(dao)) {
                 GenericaMensagem.error("Erro", "Não foi possível atualizar Pessoa Empresa!");
                 dao.rollback();
@@ -792,7 +806,15 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
         } else {
             Demissao demissaox = (Demissao) dao.find(new Demissao(), Integer.parseInt(((SelectItem) getListaMotivoDemissao().get(idMotivoDemissao)).getDescription()));
             if (agendamento.getId() == -1) {
-                agendamento.setNoPrazo(new FunctionsDao().homologacaoPrazo(pessoaEmpresa.isAvisoTrabalhado(), enderecoEmpresa.getEndereco().getCidade().getId(), pessoaEmpresa.getDemissao()));
+
+                ConvencaoDBToplink convencaoDao = new ConvencaoDBToplink();
+                Convencao convencao = convencaoDao.findByEmpresa(pessoaEmpresa.getJuridica().getPessoa().getId());
+                if (convencao == null) {
+                    GenericaMensagem.warn("Mensagem", "NENHUMA CONVENÇÃO ENCONTRADA PARA ESTA EMPRESA!");
+                    dao.rollback();
+                    return;
+                }
+                agendamento.setNoPrazo(new FunctionsDao().homologacaoPrazo(pessoaEmpresa.isAvisoTrabalhado(), enderecoEmpresa.getEndereco().getCidade().getId(), pessoaEmpresa.getDemissao(), convencao.getId()));
 
                 agendamento.setAgendador(null);
                 agendamento.setRecepcao(null);
@@ -805,7 +827,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
                     agendamentoProtocolo = agendamento;
                     GenericaMensagem.info("Sucesso", "Agendamento Salvo!");
                     if (agendamento.isNoPrazo() == false) {
-                        GenericaMensagem.info("Mensagem", "DE ACORDO COM AS INFORMAÇÕES ACIMA PRESTADAS SEU AGENDAMENTO ESTÁ FORA DO PRAZO PREVISTO EM CONVENÇÃO COLETIVA.");
+                        GenericaMensagem.warn("Mensagem", "DE ACORDO COM AS INFORMAÇÕES ACIMA PRESTADAS SEU AGENDAMENTO ESTÁ FORA DO PRAZO PREVISTO EM CONVENÇÃO COLETIVA.");
                     }
                     listaHorarios.clear();
                     loadListHorarios();
@@ -999,7 +1021,8 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
         if (!listaEmDebito.isEmpty()) {
             statusEmpresa = "EM DÉBITO";
         } else {
-            statusEmpresa = "REGULAR";
+            // statusEmpresa = "REGULAR";
+            statusEmpresa = "";
         }
         return statusEmpresa;
     }
@@ -1248,7 +1271,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
     public void setIdFilial(Integer idFilial) {
         this.idFilial = idFilial;
     }
-    
+
     public Filial getFilialLocal() {
         return (Filial) new Dao().find(new Filial(), idFilial);
     }

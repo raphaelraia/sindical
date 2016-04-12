@@ -40,20 +40,9 @@
                         <div class="clear"></div>
                         <h:outputScript name="script_primefaces.js" library="js" />
                         <h:form id="form_eg">
-
-                            <p:panel style="border: 1px solid #ff9999; " rendered="#{not empty emissaoGuiasBean.pessoa.pessoaComplemento.obsAviso}" styleClass="margin-top">
-                                <f:facet name="header">
-                                    <h:outputLabel value="! MENSAGEM DE BLOQUEIO" style="font-weight: bold; color: red; "/>                                            
-                                </f:facet>
-                                <h:panelGrid columns="1">
-                                    <h:column>
-                                        <h:outputLabel value="#{emissaoGuiasBean.pessoa.pessoaComplemento.obsAviso}" style="color: black; font-weight: bold;"/>                                        
-                                    </h:column>
-                                </h:panelGrid>
-                            </p:panel> 
-
+                            <h:outputText value="#{genericaMensagem.getHtmlMessage('error', 'CADASTRO BLOQUEADO')}" escape="false" rendered="#{emissaoGuiasBean.pessoa.pessoaComplemento.bloqueiaObsAviso}" />
+                            <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', 'AVISO', emissaoGuiasBean.pessoa.pessoaComplemento.obsAviso)}" escape="false" rendered="#{not empty emissaoGuiasBean.pessoa.pessoaComplemento.obsAviso}" />                            
                             <p:messages autoUpdate="true" showDetail="true" showSummary="true" closable="true" id="i_message" />
-
                             <p:panel header="Beneficiário" styleClass="margin-top-max">
                                 <h:panelGrid columns="5">
                                     <p:outputLabel value="Nome: " />
@@ -112,9 +101,25 @@
                             <p:panel header="Serviços" id="i_panel_servicos" styleClass="margin-top-max">
                                 <h:panelGrid>
                                     <p:selectOneMenu id="idServicos" value="#{emissaoGuiasBean.index[2]}" disabled="#{emissaoGuiasBean.lote.id != -1}" filter="true" filterMatchMode="startsWith">
-                                        <p:ajax event="change" update="i_panel_servicos" listener="#{emissaoGuiasBean.listenerEnabledItensPedido}"/>
-                                        <f:selectItems value="#{emissaoGuiasBean.listServicos}"/>
+                                        <p:ajax event="change" update="i_panel_servicos i_parceiros" listener="#{emissaoGuiasBean.listenerEnabledItensPedidoListener}"/>
+                                        <f:selectItems value="#{emissaoGuiasBean.listServicos}" />
                                     </p:selectOneMenu>
+                                </h:panelGrid>
+                                
+                                <h:panelGrid>
+                                    <h:column>
+                                        <h:panelGroup layout="block" rendered="#{emissaoGuiasBean.socios.id == -1 and emissaoGuiasBean.pessoa.id ne -1}">
+                                            <p:outputLabel value="Parceiro: " />
+                                        </h:panelGroup>
+                                    </h:column>
+                                    <h:column>
+                                        <h:panelGroup layout="block" rendered="#{emissaoGuiasBean.socios.id == -1 and emissaoGuiasBean.pessoa.id ne -1}" id="i_parceiros">
+                                            <p:selectOneMenu value="#{emissaoGuiasBean.idParceiro}" style="width: 690px" filter="true" filterMatchMode="startsWith" disabled="#{empty emissaoGuiasBean.listParceiro or emissaoGuiasBean.listParceiro.size() == 1 or emissaoGuiasBean.lote.id != -1}">
+                                                <p:ajax event="change" update="i_panel_servicos" listener="#{emissaoGuiasBean.listenerEnabledItensPedido}" />
+                                                <f:selectItems value="#{emissaoGuiasBean.listParceiro}"/>
+                                            </p:selectOneMenu>
+                                        </h:panelGroup>
+                                    </h:column>
                                 </h:panelGrid>
 
                                 <h:panelGrid id="i_panel_add_servicos" columns="4" styleClass="margin-top-max">

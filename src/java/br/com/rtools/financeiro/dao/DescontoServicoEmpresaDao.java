@@ -1,4 +1,4 @@
-package br.com.rtools.financeiro.db;
+package br.com.rtools.financeiro.dao;
 
 import br.com.rtools.financeiro.DescontoServicoEmpresa;
 import br.com.rtools.financeiro.Servicos;
@@ -7,9 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.*;
 
-public class DescontoServicoEmpresaDBTopLink extends DB implements DescontoServicoEmpresaDB {
+public class DescontoServicoEmpresaDao extends DB {
 
-    @Override
     public boolean existeDescontoServicoEmpresa(DescontoServicoEmpresa descontoServicoEmpresa) {
         try {
             Query query = getEntityManager().createQuery(" SELECT DSE FROM DescontoServicoEmpresa AS DSE WHERE DSE.juridica.id = :idJuridica AND DSE.servicos.id = :idServicos ");
@@ -25,7 +24,6 @@ public class DescontoServicoEmpresaDBTopLink extends DB implements DescontoServi
         return false;
     }
 
-    @Override
     public List<DescontoServicoEmpresa> listaTodos() {
         try {
             Query query = getEntityManager().createQuery(" SELECT DSE FROM DescontoServicoEmpresa AS DSE ORDER BY DSE.juridica.pessoa.nome ASC, DSE.servicos.descricao ASC ");
@@ -39,7 +37,6 @@ public class DescontoServicoEmpresaDBTopLink extends DB implements DescontoServi
         return new ArrayList();
     }
 
-    @Override
     public List<DescontoServicoEmpresa> listaTodosPorEmpresa(int idJuridica) {
         try {
             Query query = getEntityManager().createQuery(" SELECT DSE FROM DescontoServicoEmpresa AS DSE WHERE DSE.juridica.id = :idJuridica ORDER BY DSE.juridica.pessoa.nome ASC, DSE.servicos.descricao ASC ");
@@ -54,7 +51,6 @@ public class DescontoServicoEmpresaDBTopLink extends DB implements DescontoServi
         return new ArrayList();
     }
 
-    @Override
     public List<DescontoServicoEmpresa> pesquisaDescontoServicoEmpresas(String pesquisaPor, String descricao, String comoPesquisa) {
         Query query;
         if (pesquisaPor.equals("nome")) {
@@ -81,7 +77,6 @@ public class DescontoServicoEmpresaDBTopLink extends DB implements DescontoServi
         return new ArrayList();
     }
 
-    @Override
     public DescontoServicoEmpresa pesquisaDescontoServicoEmpresa(DescontoServicoEmpresa descontoServicoEmpresa) {
         try {
             Query query = getEntityManager().createQuery(" SELECT DSE FROM DescontoServicoEmpresa AS DSE WHERE DSE.juridica.id = :idJuridica AND DSE.servicos.id = :idServicos ");
@@ -97,12 +92,10 @@ public class DescontoServicoEmpresaDBTopLink extends DB implements DescontoServi
         return descontoServicoEmpresa;
     }
 
-    @Override
     public List<Servicos> listaTodosServicosDisponiveis(Integer id_empresa, Integer id_subgrupo_financeiro) {
         return listaTodosServicosDisponiveis(id_empresa, null, id_subgrupo_financeiro);
     }
 
-    @Override
     public List<Servicos> listaTodosServicosDisponiveis(Integer id_empresa, Integer id_grupo_financeiro, Integer id_subgrupo_financeiro) {
         try {
             Query query;
@@ -121,5 +114,50 @@ public class DescontoServicoEmpresaDBTopLink extends DB implements DescontoServi
         } catch (Exception e) {
         }
         return new ArrayList();
+    }
+
+    public List<DescontoServicoEmpresa> findByGrupo(Integer grupo_id) {
+        try {
+            Query query = getEntityManager().createQuery(" SELECT DSE FROM DescontoServicoEmpresa AS DSE WHERE DSE.grupo.id = :grupo_id ORDER BY DSE.juridica.pessoa.nome ASC, DSE.servicos.descricao ASC ");
+            query.setParameter("grupo_id", grupo_id);
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return list;
+            }
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+        return new ArrayList();
+    }
+
+    public List<DescontoServicoEmpresa> findByGrupo(Integer grupo_id, Integer servico_id) {
+        try {
+            Query query = getEntityManager().createQuery(" SELECT DSE FROM DescontoServicoEmpresa AS DSE WHERE DSE.grupo.id = :grupo_id AND DSE.servicos.id = :servico_id ORDER BY DSE.juridica.pessoa.nome ASC, DSE.servicos.descricao ASC ");
+            query.setParameter("grupo_id", grupo_id);
+            query.setParameter("servico_id", servico_id);
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return list;
+            }
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+        return new ArrayList();
+    }
+
+    public DescontoServicoEmpresa findByGrupo(Integer grupo_id, Integer servico_id, Integer empresa_id) {
+        try {
+            Query query = getEntityManager().createQuery(" SELECT DSE FROM DescontoServicoEmpresa AS DSE WHERE DSE.grupo.id = :grupo_id AND DSE.servicos.id = :servico_id AND DSE.juridica.pessoa.id = :empresa_id ");
+            query.setParameter("grupo_id", grupo_id);
+            query.setParameter("servico_id", servico_id);
+            query.setParameter("empresa_id", empresa_id);
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return (DescontoServicoEmpresa) list.get(0);
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
     }
 }

@@ -25,15 +25,19 @@ public class Guia implements java.io.Serializable {
     @Column(name = "is_encaminhamento", nullable = true)
     private boolean encaminhamento;
     @Column(name = "ds_observacao", length = 1000)
-    private String observacao;    
+    private String observacao;
+    @JoinColumn(name = "id_parceiro", referencedColumnName = "id")
+    @ManyToOne
+    private Pessoa parceiro;
 
-    public Guia(int id, Lote lote, Pessoa pessoa, SubGrupoConvenio subGrupoConvenio, boolean encaminhamento, String observacao) {
+    public Guia(int id, Lote lote, Pessoa pessoa, SubGrupoConvenio subGrupoConvenio, boolean encaminhamento, String observacao, Pessoa parceiro) {
         this.id = id;
         this.lote = lote;
         this.pessoa = pessoa;
         this.subGrupoConvenio = subGrupoConvenio;
         this.encaminhamento = encaminhamento;
         this.observacao = observacao;
+        this.parceiro = parceiro;
     }
 
     public Guia() {
@@ -43,6 +47,7 @@ public class Guia implements java.io.Serializable {
         this.subGrupoConvenio = new SubGrupoConvenio();
         this.encaminhamento = false;
         this.observacao = "";
+        this.parceiro = null;
     }
 
     public int getId() {
@@ -91,5 +96,13 @@ public class Guia implements java.io.Serializable {
 
     public void setObservacao(String observacao) {
         this.observacao = observacao;
+    }
+
+    public Pessoa getParceiro() {
+        return parceiro;
+    }
+
+    public void setParceiro(Pessoa parceiro) {
+        this.parceiro = parceiro;
     }
 }

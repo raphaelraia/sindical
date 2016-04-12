@@ -286,7 +286,7 @@
                             <h:panelGrid columns="4">
                                 <h:column>
                                     <h:outputLabel value="Profissão"/><br />
-                                    <p:commandButton value="Função" onclick="PF('dlg_profissao').show()" global="false"/>
+                                    <p:commandButton value="Função" onclick="PF('dlg_profissao').show()" global="false" style="#{webAgendamentoContabilidadeBean.configuracaoHomologacao.webValidaFuncao ? 'color: red; font-weight: bold' : ''}"/>
                                 </h:column>
 
                                 <h:column>

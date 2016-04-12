@@ -96,8 +96,12 @@
                                 <p:dataTable value="#{cidadeBean.listCidade}" var="cidade" id="tbl" emptyMessage="Nenhuma cidade encontrada" rows="20" paginator="true">
                                     <p:ajax event="page" global="false"/>
 
+                                    <p:column width="30">
+                                        <p:commandButton icon="ui-icon-arrowreturnthick-1-w"  action="#{cidadeBean.edit(cidade)}" />
+                                    </p:column>
+                                    
                                     <p:column headerText="Editar" styleClass="text-center" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" width="50">
-                                        <p:commandButton icon="ui-icon-search"  action="#{cidadeBean.editPagina(cidade)}" update=":formCidadeSalvar:i_panel_novo" onclick="PF('dlg_save').show()" title="Clique para editar esta Cidade" />
+                                        <p:commandButton icon="ui-icon-pencil"  action="#{cidadeBean.editPagina(cidade)}" update=":formCidadeSalvar:i_panel_novo" onclick="PF('dlg_save').show()" title="Clique para editar esta Cidade" />
                                     </p:column>
 
                                     <p:column headerText="ID" style="text-align: center" width="40">

@@ -49,26 +49,23 @@
                                             <f:selectItems value="#{prazoBean.listaConvencao}" />
                                         </p:selectOneMenu>
                                     </h:column>
-
-                                    <h:column>
-                                        <p:outputLabel value="Grupo Cidade" /><br />
-                                        <p:selectOneMenu value="#{prazoBean.indexGrupoCidade}">
-                                            <p:ajax event="change" update="@this" />
-                                            <f:selectItems value="#{prazoBean.listaGrupoCidade}" />
-                                        </p:selectOneMenu>
-                                    </h:column>
+                                    
                                 </h:panelGrid>
                             </p:panel>
 
                             <h:panelGrid columns="4">
                                 <h:column>
                                     <p:outputLabel value="Prazo dias Trabalhado" /><br />
-                                    <p:inputText value="#{prazoBean.prazo.prazoDiasTrabalhado}" />
+                                    <p:inputText value="#{prazoBean.prazo.prazoDiasTrabalhadoString}" converter="#{thisNumber}">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:inputText>
                                 </h:column>
                                 
                                 <h:column>
                                     <p:outputLabel value="Prazo dias Indenizado" /><br />
-                                    <p:inputText value="#{prazoBean.prazo.prazoDiasIndenizado}" />
+                                    <p:inputText value="#{prazoBean.prazo.prazoDiasIndenizadoString}" converter="#{thisNumber}">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:inputText>
                                 </h:column>
                                 
                                 <h:column>
@@ -95,10 +92,6 @@
                                 
                                 <p:column headerText="Convenção" style="width: 200px">
                                     <p:commandLink value="#{linha_prazo.convencao.descricao}" action="#{prazoBean.editar(linha_prazo)}" update="@form"/>
-                                </p:column>
-                                
-                                <p:column headerText="Grupo Cidade" style="width: 200px">
-                                    <p:commandLink value="#{linha_prazo.grupoCidade.descricao}" action="#{prazoBean.editar(linha_prazo)}" update="@form"/>
                                 </p:column>
                                 
                                 <p:column headerText="Prazo Trabalhado" style="width: 80px">

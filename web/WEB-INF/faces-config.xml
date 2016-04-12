@@ -2120,6 +2120,18 @@
             <redirect/>
         </navigation-case>
         
+        <navigation-case>
+            <from-outcome>centroCustoContabil</from-outcome>
+            <to-view-id>/centroCustoContabil.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>centroCustoSubcontabil</from-outcome>
+            <to-view-id>/centroCustoSubcontabil.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
     </navigation-rule>
     
     <lifecycle>

@@ -19,6 +19,7 @@ import br.com.rtools.associativo.db.SociosDB;
 import br.com.rtools.associativo.db.SociosDBToplink;
 import br.com.rtools.escola.dao.MatriculaEscolaDao;
 import br.com.rtools.financeiro.CondicaoPagamento;
+import br.com.rtools.financeiro.DescontoServicoEmpresa;
 import br.com.rtools.financeiro.Evt;
 import br.com.rtools.financeiro.FStatus;
 import br.com.rtools.financeiro.FTipoDocumento;
@@ -28,6 +29,7 @@ import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.ServicoValor;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
+import br.com.rtools.financeiro.dao.DescontoServicoEmpresaDao;
 import br.com.rtools.financeiro.db.LoteDB;
 import br.com.rtools.financeiro.db.LoteDBToplink;
 import br.com.rtools.financeiro.db.MovimentoDB;
@@ -124,6 +126,7 @@ public class MatriculaAcademiaBean implements Serializable {
     private List<SelectItem> listaModalidades;
     private List<SelectItem> listaPeriodosGrade;
     private List<SelectItem> listaDiaParcela;
+    private List<SelectItem> listParceiro;
     private boolean taxa;
     private boolean ocultaBotaoSalvar;
     private boolean socio;
@@ -144,6 +147,7 @@ public class MatriculaAcademiaBean implements Serializable {
     private int idDiaVencimentoPessoa;
     private int idFTipoDocumento;
     private int idDiaParcela;
+    private Integer idParceiro;
     private Integer filial_id;
     private Integer filial_id_2;
     private float vTaxa;
@@ -157,6 +161,8 @@ public class MatriculaAcademiaBean implements Serializable {
 
     private MatriculaAcademia matriculaAcademiaAntiga;
     private String valorLiquidoAntigo;
+    private Float descontoServicoEmpresa;
+    private String descontoServicoEmpresaString;
 
     @PostConstruct
     public void init() {
@@ -213,6 +219,7 @@ public class MatriculaAcademiaBean implements Serializable {
         valorCartao = 0;
         idDiaParcela = 0;
         dataValidade = "";
+        descontoServicoEmpresa = new Float(0);
         matriculaAcademia.getServicoPessoa().setReferenciaVigoracao(DataHoje.livre(matriculaAcademia.getServicoPessoa().getDtEmissao(), "MM/yyyy"));
         getRegistro();
         disabled = false;
@@ -367,6 +374,9 @@ public class MatriculaAcademiaBean implements Serializable {
             } else {
                 valorLiquido = Moeda.converteR$Float(Moeda.subtracaoValores(Moeda.converteUS$(valor), desconto));
             }
+            if (descontoServicoEmpresa != null && !descontoServicoEmpresa.equals(0)) {
+                valorLiquido =  Moeda.converteR$Float(Moeda.subtracaoValores(Moeda.converteUS$(valorLiquido), Moeda.converteUS$(getDescontoServicoEmpresaString())));
+            }
         }
     }
 
@@ -472,7 +482,11 @@ public class MatriculaAcademiaBean implements Serializable {
             matriculaAcademia.getServicoPessoa().setCobranca(responsavel);
         }
         NovoLog novoLog = new NovoLog();
-
+        if (idParceiro != null && idParceiro != -1) {
+            matriculaAcademia.getServicoPessoa().setParceiro((Pessoa) di.find(new Pessoa(), idParceiro));
+        } else {
+            matriculaAcademia.getServicoPessoa().setParceiro(null);
+        }
         if (matriculaAcademia.getId() == -1) {
             AcademiaDao academiaDao = new AcademiaDao();
             if (academiaDao.existeAlunoModalidade(matriculaAcademia.getServicoPessoa().getPessoa().getId(), matriculaAcademia.getAcademiaServicoValor().getServicos().getId(), matriculaAcademia.getServicoPessoa().getDtEmissao())) {
@@ -800,6 +814,11 @@ public class MatriculaAcademiaBean implements Serializable {
             valorx = Moeda.converteR$Float(new FunctionsDao().valorServico(aluno.getPessoa().getId(), matriculaAcademia.getServicoPessoa().getServicos().getId(), DataHoje.dataHoje(), 0, aluno.getPessoa().getSocios().getMatriculaSocios().getCategoria().getId()));
         } else {
             valorx = Moeda.converteR$Float(new FunctionsDao().valorServico(aluno.getPessoa().getId(), matriculaAcademia.getServicoPessoa().getServicos().getId(), DataHoje.dataHoje(), 0, null));
+            loadListParceiro();
+            idParceiro = matriculaAcademia.getServicoPessoa().getParceiro() != null ? matriculaAcademia.getServicoPessoa().getParceiro().getId() : -1;
+            if (idParceiro != -1) {
+                dse();
+            }
         }
         String valorx_cheio = Moeda.converteR$Float(new FunctionsDao().valorServicoCheio(aluno.getPessoa().getId(), matriculaAcademia.getAcademiaServicoValor().getServicos().getId(), DataHoje.dataHoje()));
 
@@ -857,8 +876,8 @@ public class MatriculaAcademiaBean implements Serializable {
             NovoLog novoLog = new NovoLog();
             novoLog.setTabela("matr_academia");
             novoLog.setCodigo(matriculaAcademia.getId());
-            novoLog.update("** TROCA DE MATRÍCULA ** \n"+
-                    "ID: " + matriculaAcademiaAntiga.getId() + " \n"
+            novoLog.update("** TROCA DE MATRÍCULA ** \n"
+                    + "ID: " + matriculaAcademiaAntiga.getId() + " \n"
                     + " - Pessoa: (" + matriculaAcademiaAntiga.getServicoPessoa().getPessoa().getId() + ") " + matriculaAcademiaAntiga.getServicoPessoa().getPessoa().getNome() + " \n"
                     + " - Cobrança: (" + matriculaAcademiaAntiga.getServicoPessoa().getCobranca().getId() + ") " + matriculaAcademiaAntiga.getServicoPessoa().getCobranca().getNome() + " \n"
                     + " - Serviço: (" + matriculaAcademiaAntiga.getAcademiaServicoValor().getServicos().getId() + ") " + matriculaAcademiaAntiga.getAcademiaServicoValor().getServicos().getDescricao() + " \n"
@@ -1138,6 +1157,7 @@ public class MatriculaAcademiaBean implements Serializable {
             } else {
                 // PESSOA NÁO ASSOCIADA
                 matriculaAcademia.getServicoPessoa().setCobranca(retornaResponsavel(aluno.getPessoa().getId(), false));
+                loadListParceiro();
             }
 
             matriculaAcademia.getServicoPessoa().setPessoa(aluno.getPessoa());
@@ -1458,6 +1478,22 @@ public class MatriculaAcademiaBean implements Serializable {
         this.valorTaxa = valorTaxa;
     }
 
+    public Float getDescontoServicoEmpresa() {
+        return descontoServicoEmpresa;
+    }
+
+    public void setDescontoServicoEmpresa(Float descontoServicoEmpresa) {
+        this.descontoServicoEmpresa = descontoServicoEmpresa;
+    }
+
+    public String getDescontoServicoEmpresaString() {
+        try {
+            return Moeda.converteR$Float(Moeda.subtracaoValores(Moeda.converteUS$(getValor()), Moeda.converteUS$(Moeda.valorDoPercentual(getValor(), Moeda.converteR$Float(descontoServicoEmpresa)))));
+        } catch (Exception e) {
+            return "0";
+        }
+    }
+
     public String getValorTaxaString() {
         return Moeda.substituiVirgula(valorTaxa);
     }
@@ -1480,6 +1516,33 @@ public class MatriculaAcademiaBean implements Serializable {
 
     public void setIdDiaVencimentoPessoa(int idDiaVencimentoPessoa) {
         this.idDiaVencimentoPessoa = idDiaVencimentoPessoa;
+    }
+
+    public void listener(String tcase) {
+        if (tcase.equals("recalcular1")) {
+            recalcular1();
+            loadListParceiro();
+        }
+        if (tcase.equals("descontoServicoEmpresa")) {
+            dse();
+            recalcular1();
+        }
+    }
+
+    /**
+     * Desconto Serviço Empresa
+     */
+    public void dse() {
+        if (idParceiro != null && idParceiro != -1) {
+            AcademiaServicoValor asv = (AcademiaServicoValor) new Dao().find(new AcademiaServicoValor(), Integer.parseInt(listaModalidades.get(idModalidade).getDescription()));
+            DescontoServicoEmpresaDao dsed = new DescontoServicoEmpresaDao();
+            DescontoServicoEmpresa dse = dsed.findByGrupo(2, asv.getServicos().getId(), idParceiro);
+            if (dse != null) {
+                descontoServicoEmpresa = dse.getDesconto();
+            }
+        } else {
+            descontoServicoEmpresa = new Float(0);
+        }
     }
 
     public void recalcular1() {
@@ -1688,25 +1751,23 @@ public class MatriculaAcademiaBean implements Serializable {
                         trocarMatricula();
                         if (Moeda.converteUS$(valorLiquido) > Moeda.converteUS$(valorLiquidoAntigo)) {
                             Float valor_taxa = Moeda.subtracaoValores(Moeda.converteUS$(valorLiquido), Moeda.converteUS$(valorLiquidoAntigo));
-                            if (valor_taxa > 0){
+                            if (valor_taxa > 0) {
                                 if (!gerarTaxaMovimento(valor_taxa)) {
                                     GenericaMensagem.warn("ATENÇÃO", "Movimento não foi gerado, Tente novamente!");
                                     return null;
                                 }
                             }
                         }
-                    } else {
-                        // TAXA PROPORCIONAL ATÉ O VENCIMENTO
-                        // METODO NOVO PARA O CHAMADO 1226
-                        if (Moeda.converteUS$(valorLiquido) > 0){
+                    } else // TAXA PROPORCIONAL ATÉ O VENCIMENTO
+                    // METODO NOVO PARA O CHAMADO 1226
+                    {
+                        if (Moeda.converteUS$(valorLiquido) > 0) {
                             if (!gerarTaxaMovimento(Moeda.converteUS$(valorLiquido))) {
                                 GenericaMensagem.warn("ATENÇÃO", "Movimento não foi gerado, Tente novamente!");
                                 return null;
                             }
-                        }
-                        // --------------
+                        } // --------------
                     }
-
                     new FunctionsDao().gerarMensalidades(matriculaAcademia.getServicoPessoa().getPessoa().getId(), retornaReferenciaGeracao());
                     if (!matriculaAcademia.isTaxa()) {
                         desabilitaCamposMovimento = true;
@@ -2932,6 +2993,43 @@ public class MatriculaAcademiaBean implements Serializable {
 
     public void setValorLiquidoAntigo(String valorLiquidoAntigo) {
         this.valorLiquidoAntigo = valorLiquidoAntigo;
+    }
+
+    public List<SelectItem> getListParceiro() {
+        return listParceiro;
+    }
+
+    public void setListParceiro(List<SelectItem> listParceiro) {
+        this.listParceiro = listParceiro;
+    }
+
+    public Integer getIdParceiro() {
+        return idParceiro;
+    }
+
+    public void setIdParceiro(Integer idParceiro) {
+        this.idParceiro = idParceiro;
+    }
+
+    private void loadListParceiro() {
+        if(socios.getId() == -1 && aluno.getId() != -1) {
+            listParceiro = new ArrayList();
+            DescontoServicoEmpresaDao dsed = new DescontoServicoEmpresaDao();
+            // List<DescontoServicoEmpresa> list = dsed.findByGrupo(2);
+            AcademiaServicoValor asv = (AcademiaServicoValor) new Dao().find(new AcademiaServicoValor(), Integer.parseInt(listaModalidades.get(idModalidade).getDescription()));
+            List<DescontoServicoEmpresa> list = dsed.findByGrupo(2, asv.getServicos().getId());
+            listParceiro.add(new SelectItem(-1, "NENHUM"));
+            idParceiro = -1;
+            Integer pessoa_id = null;
+            descontoServicoEmpresa = new Float(0);
+            descontoServicoEmpresaString = "0";
+            for (int i = 0; i < list.size(); i++) {
+                if (pessoa_id == null || pessoa_id != list.get(i).getJuridica().getPessoa().getId()) {
+                    listParceiro.add(new SelectItem(list.get(i).getJuridica().getPessoa().getId(), list.get(i).getJuridica().getPessoa().getNome()));
+                    pessoa_id = list.get(i).getJuridica().getPessoa().getId();
+                }
+            }            
+        }
     }
 
 }

@@ -34,16 +34,27 @@
                                 <h:outputText value="Ex. 10.6 / 100 / 33" styleClass="margin-left-max"/>
                             </p:column>
                         </h:panelGrid>
-                        <h:panelGrid columns="2" styleClass="margin-top-max">
-                            <p:outputLabel value="Grupo Financeiro:" rendered="#{not empty descontoServicoEmpresaBean.listGrupoFinanceiro}" />
+                        <h:panelGrid columns="3" styleClass="margin-top-max" cellpadding="5">
+                            <h:column>
+                                <p:outputLabel value="Grupo Desconto" />
+                            </h:column>
+                            <h:column>
+                                <p:outputLabel value="Grupo Financeiro" rendered="#{not empty descontoServicoEmpresaBean.listGrupoFinanceiro}" />
+                            </h:column>
                             <h:column>
                                 <h:panelGrid columns="2">
-                                    <p:outputLabel value="SubGrupo Financeiro:" rendered="#{not empty descontoServicoEmpresaBean.listGrupoFinanceiro}" />
+                                    <p:outputLabel value="SubGrupo Financeiro" rendered="#{not empty descontoServicoEmpresaBean.listGrupoFinanceiro}" />
                                     <p:selectBooleanCheckbox value="#{descontoServicoEmpresaBean.habilitaSubGrupo}">
                                         <p:ajax event="change" update="@this form_desconto" listener="#{descontoServicoEmpresaBean.clear(1)}"/>
                                     </p:selectBooleanCheckbox>                                    
                                 </h:panelGrid>
                             </h:column>
+                            <h:column>
+                                <p:selectOneMenu value="#{descontoServicoEmpresaBean.idGrupo}" filter="true" filterMatchMode="startsWith">
+                                    <p:ajax event="change" update="@this" />
+                                    <f:selectItems value="#{descontoServicoEmpresaBean.listGrupo}" />
+                                </p:selectOneMenu>                            
+                            </h:column>                            
                             <p:selectOneMenu value="#{descontoServicoEmpresaBean.idGrupoFinanceiro}" rendered="#{not empty descontoServicoEmpresaBean.listGrupoFinanceiro}" filter="true" filterMatchMode="startsWith">
                                 <p:ajax event="change" update="@this form_desconto" listener="#{descontoServicoEmpresaBean.clear(1)}"/>
                                 <f:selectItem itemValue="" itemLabel="Selecionar" />
@@ -83,6 +94,9 @@
                             <p:panel id="id_desconto_filtro" header="Serviços com desconto adicionados" styleClass="margin-left-max">
                                 <p:dataTable id="id_data_table" value="#{descontoServicoEmpresaBean.listDSEPorEmpresa}" var="dse" emptyMessage="Não existem registros" scrollHeight="300"  scrollable="true" editable="true" >
                                     <p:ajax event="rowEdit" listener="#{descontoServicoEmpresaBean.update}" update=":form_desconto:growl id_data_table" disabled="#{controleAcessoBean.botaoSalvar}" />
+                                    <p:column style="width:15px">  
+                                        <p:rowToggler />  
+                                    </p:column>                                     
                                     <p:column headerText="Serviço" filterBy="#{dse.servicos.descricao}" filterMatchMode="global">
                                         #{dse.servicos.descricao}                                
                                     </p:column>
@@ -102,6 +116,9 @@
                                     <p:column width="30">
                                         <p:commandButton icon="ui-icon-close" action="#{descontoServicoEmpresaBean.remove(dse)}" update=":form_desconto:" disabled="#{controleAcessoBean.botaoExcluir}"/>
                                     </p:column>
+                                    <p:rowExpansion>
+                                        Grupo Desconto: #{dse.grupo.descricao}
+                                    </p:rowExpansion>
                                     <f:facet name="footer">Desc. (%) Percentual de desconto</f:facet>
                                 </p:dataTable>
                             </p:panel>

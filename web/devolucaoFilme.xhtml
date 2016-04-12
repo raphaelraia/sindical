@@ -36,18 +36,7 @@
                         <h:form id="form_devolucao_filmes" onsubmit="return false;">
                             <c:set scope="request" var="object" value="${devolucaoFilmeBean.locadoraLote}"/>
                             <p:messages autoUpdate="true" showDetail="true" showSummary="true" />
-                            <h:panelGrid id="id_msg_aviso_block" style="width: 100%" rendered="#{devolucaoFilmeBean.pessoaComplemento ne null}" >
-                                <p:panel style="border: 1px solid #ff9999" styleClass="margin-top">
-                                    <f:facet name="header">
-                                        <h:outputLabel value="! MENSAGEM DE BLOQUEIO" style="font-weight: bold; color: red; "/>                                            
-                                    </f:facet>
-                                    <h:panelGrid columns="1">
-                                        <h:column>
-                                            <h:outputLabel value="#{devolucaoFilmeBean.pessoaComplemento.obsAviso}" style="color: black; font-weight: bold;"/>                                        
-                                        </h:column>
-                                    </h:panelGrid>
-                                </p:panel>                                
-                            </h:panelGrid>
+                            <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', 'MENSAGEM DE BLOQUEIO', devolucaoFilmeBean.pessoaComplemento.obsAviso)}" escape="false" rendered="#{not empty devolucaoFilmeBean.pessoaComplemento.obsAviso}" />
                             <p:panel>
                                 <f:facet name="header">
                                     <h:panelGrid columns="2">

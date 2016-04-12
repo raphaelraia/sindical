@@ -3,6 +3,7 @@ package br.com.rtools.escola;
 import br.com.rtools.associativo.Midia;
 import br.com.rtools.financeiro.ServicoPessoa;
 import br.com.rtools.pessoa.Filial;
+import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.utilitarios.DataHoje;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;

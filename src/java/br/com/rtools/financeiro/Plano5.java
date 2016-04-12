@@ -29,6 +29,9 @@ public class Plano5 implements java.io.Serializable {
     @Column(name = "ds_classificador", length = 20)
     private String classificador;
 
+    @Transient
+    private Boolean selected;
+
     public Plano5() {
         this.id = -1;
         this.plano4 = new Plano4();
@@ -38,6 +41,7 @@ public class Plano5 implements java.io.Serializable {
         this.plano5ContraPartida = null;
         this.acesso = "";
         this.classificador = "";
+        this.selected = false;
     }
 
     public Plano5(int id, String numero, String conta, Plano4 plano4, ContaBanco contaBanco, Plano5 plano5ContraPartida, String acesso, String classificador) {
@@ -49,6 +53,7 @@ public class Plano5 implements java.io.Serializable {
         this.plano5ContraPartida = plano5ContraPartida;
         this.acesso = acesso;
         this.classificador = classificador;
+        this.selected = false;
     }
 
     public int getId() {
@@ -113,5 +118,13 @@ public class Plano5 implements java.io.Serializable {
 
     public void setClassificador(String classificador) {
         this.classificador = classificador;
+    }
+
+    public Boolean getSelected() {
+        return selected;
+    }
+
+    public void setSelected(Boolean selected) {
+        this.selected = selected;
     }
 }

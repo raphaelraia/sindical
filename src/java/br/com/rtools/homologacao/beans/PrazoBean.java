@@ -29,15 +29,12 @@ import javax.faces.model.SelectItem;
 public class PrazoBean implements Serializable {
 
     private List<SelectItem> listaConvencao = new ArrayList();
-    private List<SelectItem> listaGrupoCidade = new ArrayList();
     private Integer indexConvencao = 0;
-    private Integer indexGrupoCidade = 0;
     private Prazo prazo = new Prazo();
     private List<Prazo> listaPrazo = new ArrayList();
 
     public PrazoBean() {
         loadListaConvencao();
-        loadListaGrupoCidade();
         loadListaPrazo();
     }
 
@@ -49,7 +46,6 @@ public class PrazoBean implements Serializable {
         Dao dao = new Dao();
 
         prazo.setConvencao((Convencao) dao.find(new Convencao(), Integer.valueOf(listaConvencao.get(indexConvencao).getDescription())));
-        prazo.setGrupoCidade((GrupoCidade) dao.find(new GrupoCidade(), Integer.valueOf(listaGrupoCidade.get(indexGrupoCidade).getDescription())));
 
         dao.openTransaction();
 
@@ -59,56 +55,47 @@ public class PrazoBean implements Serializable {
                 dao.rollback();
                 return;
             }
-        } else {
-            if (!dao.update(prazo)) {
-                GenericaMensagem.error("ATENÇÃO", "Erro ao Alterar Prazo!");
-                dao.rollback();
-                return;
-            }
+        } else if (!dao.update(prazo)) {
+            GenericaMensagem.error("ATENÇÃO", "Erro ao Alterar Prazo!");
+            dao.rollback();
+            return;
         }
 
         GenericaMensagem.info("SUCESSO", "Registro Salvo!");
-        
+
         dao.commit();
         prazo = new Prazo();
         indexConvencao = 0;
-        indexGrupoCidade = 0;
         loadListaPrazo();
     }
 
     public void editar(Prazo p) {
         prazo = p;
-        for (int i = 0; i < listaConvencao.size(); i++){
-            if (prazo.getConvencao().getId() == Integer.valueOf(listaConvencao.get(i).getDescription()) ){
+        for (int i = 0; i < listaConvencao.size(); i++) {
+            if (prazo.getConvencao().getId() == Integer.valueOf(listaConvencao.get(i).getDescription())) {
                 indexConvencao = i;
-            }
-        }
-        
-        for (int i = 0; i < listaGrupoCidade.size(); i++){
-            if (prazo.getGrupoCidade().getId() == Integer.valueOf(listaGrupoCidade.get(i).getDescription()) ){
-                indexGrupoCidade = i;
             }
         }
     }
 
-    public void excluir(){
+    public void excluir() {
         Dao dao = new Dao();
-        
+
         dao.openTransaction();
-        
+
         if (!dao.delete(dao.find(prazo))) {
             GenericaMensagem.error("ATENÇÃO", "Não foi possível excluir Registro!");
             dao.rollback();
             return;
-        } 
+        }
         GenericaMensagem.info("SUCESSO", "Registro Excluído!");
-        
+
         dao.commit();
         prazo = new Prazo();
         loadListaPrazo();
-        
+
     }
-    
+
     public final void loadListaConvencao() {
         listaConvencao.clear();
         indexConvencao = 0;
@@ -117,23 +104,6 @@ public class PrazoBean implements Serializable {
 
         for (int i = 0; i < result.size(); i++) {
             listaConvencao.add(
-                    new SelectItem(
-                            i,
-                            result.get(i).getDescricao(),
-                            "" + result.get(i).getId()
-                    )
-            );
-        }
-    }
-
-    public final void loadListaGrupoCidade() {
-        listaGrupoCidade.clear();
-        indexGrupoCidade = 0;
-
-        List<GrupoCidade> result = new PrazoDao().listaGrupoCidade();
-
-        for (int i = 0; i < result.size(); i++) {
-            listaGrupoCidade.add(
                     new SelectItem(
                             i,
                             result.get(i).getDescricao(),
@@ -157,28 +127,12 @@ public class PrazoBean implements Serializable {
         this.listaConvencao = listaConvencao;
     }
 
-    public List<SelectItem> getListaGrupoCidade() {
-        return listaGrupoCidade;
-    }
-
-    public void setListaGrupoCidade(List<SelectItem> listaGrupoCidade) {
-        this.listaGrupoCidade = listaGrupoCidade;
-    }
-
     public Integer getIndexConvencao() {
         return indexConvencao;
     }
 
     public void setIndexConvencao(Integer indexConvencao) {
         this.indexConvencao = indexConvencao;
-    }
-
-    public Integer getIndexGrupoCidade() {
-        return indexGrupoCidade;
-    }
-
-    public void setIndexGrupoCidade(Integer indexGrupoCidade) {
-        this.indexGrupoCidade = indexGrupoCidade;
     }
 
     public Prazo getPrazo() {

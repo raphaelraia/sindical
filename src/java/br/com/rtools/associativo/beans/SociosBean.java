@@ -1434,6 +1434,7 @@ public class SociosBean implements Serializable {
                                 0,
                                 servicoPessoa.getDescontoSocial(),
                                 null,
+                                null,
                                 null
                         );
                         if (!dao.save(servicoPessoaDependente)) {

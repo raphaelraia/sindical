@@ -28,4 +28,13 @@ public class ConvencaoDBToplink extends DB implements ConvencaoDB {
         }
         return result;
     }
+    
+    public Convencao findByEmpresa(Integer pessoa_id) {
+        try {
+            Query query = getEntityManager().createNativeQuery("select c.* from arr_convencao c where c.id = (select id_convencao from arr_contribuintes_vw where id_pessoa = " + pessoa_id + ")", Convencao.class);
+            return (Convencao) query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

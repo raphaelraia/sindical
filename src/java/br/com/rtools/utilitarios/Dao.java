@@ -926,4 +926,17 @@ public class Dao extends DB implements DaoInterface {
     public void close() {
         getEntityManager().close();
     }
+    
+    public boolean existsDescription(String description, String field, String object) {
+        try {
+            Query qry = getEntityManager().createNativeQuery("SELECT OB FROM " + object + " OB WHERE UPPER(OB." + field + ") = :description");
+            qry.setParameter("description", description.toUpperCase());
+            if (!qry.getResultList().isEmpty()) {
+                return true;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return false;
+    }    
 }

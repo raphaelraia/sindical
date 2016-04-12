@@ -59,5 +59,5 @@ public interface FunctionsDB {
     
     public Pessoa titularDaPessoa(int id_pessoa);
     
-    public Boolean homologacaoPrazo(Boolean trabalhado, Integer id_cidade, String data_demissao);
+    public Boolean homologacaoPrazo(Boolean trabalhado, Integer id_cidade, String data_demissao, Integer convencao_id);
 }
