@@ -22,14 +22,14 @@
             }
 
             .column01_panel01{
+                width: 100%;
+            }
+            
+            .column01_panel02{
                 width: 200px;
             }
 
-            .column02_panel01{
-                width: 200px;
-            }
-
-            .column03_panel01{
+            .column02_panel02{
                 width: 100%;
             }
         </style>
@@ -52,8 +52,15 @@
                         <h:outputText value="Baixa Geral" styleClass="fonteHeader" />
                         <h:form id="formBaixaGeral">
                             <h:panelGrid style="clear: both" columns="2" columnClasses="column01, column02">
-                                <p:panel styleClass="fundoCinza" style="height: 150px; ">
-                                    <h:panelGrid id="panel01" columns="3" rendered="#{baixaGeralBean.listaMovimentos.size() > 0}" style="width: 100%" columnClasses="column01_panel01, column02_panel01, column03_panel01">
+                                <p:panel styleClass="fundoCinza" style="height: 200px; ">
+                                    <h:panelGrid id="panel01" columns="1" rendered="#{baixaGeralBean.listaMovimentos.size() > 0}" style="width: 100%" columnClasses="column01_panel01">
+                                        <p:column>
+                                            <h:outputLabel value="Caixa" style="font-size: 12pt!important;"/><br />
+                                            <p:inputText value="#{baixaGeralBean.caixa.descricao}" style="font-size: 11pt!important; font-weight: bold; width: 100%; opacity: 11; background: transparent" disabled="true"/>
+                                        </p:column>
+                                    </h:panelGrid>
+                                    
+                                    <h:panelGrid id="panel02" columns="2" rendered="#{baixaGeralBean.listaMovimentos.size() > 0}" style="width: 100%" columnClasses="column01_panel02, column02_panel02">
                                         <p:column>
                                             <h:outputLabel value="Valor total para Baixa" style="font-size: 12pt!important;"/><br />
                                             <p:inputText value="R$ #{baixaGeralBean.total}" readonly="true" styleClass="bg-yellow-ligth no-border bold border-dashed font-color-red font-size-12" style="width: 190px"/>
@@ -66,11 +73,6 @@
                                             </p:selectOneMenu>
                                             <br />
                                             <h:outputLabel value="#{baixaGeralBean.banco}" rendered="#{baixaGeralBean.tipo == 'banco'}" style="font-size: 11pt!important; font-weight: bold; margin-right: 20px"/>
-                                        </p:column>
-
-                                        <p:column>
-                                            <h:outputLabel value="Caixa" style="font-size: 12pt!important;"/><br />
-                                            <p:inputText value="#{baixaGeralBean.caixa.descricao}" style="font-size: 11pt!important; font-weight: bold; width: 100%; opacity: 11; background: transparent" disabled="true"/>
                                         </p:column>
                                     </h:panelGrid>
 
@@ -138,7 +140,7 @@
 
                                 <h:panelGrid>
                                     <p:column id="i_panel_troco">
-                                        <p:panel style="width: 200px; height: 150px" rendered="#{baixaGeralBean.valorTroco != ''}">
+                                        <p:panel style="width: 200px; height: 200px" rendered="#{baixaGeralBean.valorTroco != ''}">
                                             <p:outputLabel value="TROCO" style="font-size: 16pt!important" /><br />
                                             <p:outputLabel value="R$ #{baixaGeralBean.valorTroco}" style="color: #5361fe; font-size: 18pt!important; font-weight: bold;" />
                                         </p:panel>
