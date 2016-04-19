@@ -570,10 +570,10 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
             dao.commit();
         } else {
             if (agendamento.getId() == -1) {
-                
+
                 ConvencaoDBToplink convencaoDao = new ConvencaoDBToplink();
                 Convencao convencao = convencaoDao.findByEmpresa(pessoaEmpresa.getJuridica().getPessoa().getId());
-                if(convencao == null) {
+                if (convencao == null) {
                     GenericaMensagem.warn("Mensagem", "NENHUMA CONVENÇÃO ENCONTRADA PARA ESTA EMPRESA!");
                     dao.rollback();
                     return;
@@ -674,7 +674,12 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
                     GenericaMensagem.warn("Atenção", "Data anterior ao dia de hoje!");
                     return;
                 }
-                if (DataHoje.converteDataParaInteger(((new DataHoje()).incrementarMeses(3, DataHoje.data()))) < DataHoje.converteDataParaInteger(DataHoje.converteData(getData()))) {
+                if (registro.getHomolocaoLimiteMeses() > 0) {
+                    if (DataHoje.converteDataParaInteger(((new DataHoje()).incrementarMeses(registro.getHomolocaoLimiteMeses(), DataHoje.data()))) < DataHoje.converteDataParaInteger(DataHoje.converteData(getData()))) {
+                        GenericaMensagem.warn("Atenção", "NÃO É POSSÍVEL REALIZAR AGENDAMENTO COM SUPEIOR MAIOR À " + registro.getHomolocaoLimiteMeses() + " MESES!");
+                        return;
+                    }
+                } else if (DataHoje.converteDataParaInteger(((new DataHoje()).incrementarMeses(registro.getHomolocaoLimiteMeses(), DataHoje.data()))) < DataHoje.converteDataParaInteger(DataHoje.converteData(getData()))) {
                     GenericaMensagem.warn("Atenção", "Data maior que 3 meses!");
                     return;
                 }

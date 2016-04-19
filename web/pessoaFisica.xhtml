@@ -69,13 +69,15 @@
                             <c:set scope="request" var="object" value="${fisicaBean.fisica}"/>
                             <div class="clear"></div>
                             <h:panelGrid id="i_panel_pessoa_fisica" style="clear: both; width: 100%">
-                                <h:outputText value="#{genericaMensagem.getHtmlMessage('error', 'CADASTRO BLOQUEADO')}" escape="false" rendered="#{fisicaBean.pessoaComplemento.bloqueiaObsAviso}" />
-                                <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', 'MENSAGEM DE BLOQUEIO', fisicaBean.pessoaComplemento.obsAviso)}" escape="false" rendered="#{not empty fisicaBean.pessoaComplemento.obsAviso}" />
+                                <h:panelGroup layout="block" id="id_msg_aviso_block">
+                                    <h:outputText value="#{genericaMensagem.getHtmlMessage('error', 'CADASTRO BLOQUEADO')}" escape="false" rendered="#{fisicaBean.pessoaComplemento.bloqueiaObsAviso}" />
+                                    <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', 'MENSAGEM DE BLOQUEIO', fisicaBean.pessoaComplemento.obsAviso)}" escape="false" rendered="#{not empty fisicaBean.pessoaComplemento.obsAviso}" />
+                                </h:panelGroup>
                                 <p:tabView id="i_tabview_fisica" activeIndex="#{fisicaBean.indexPessoaFisica}" style="width: 100%">
                                     <p:ajax event="tabChange" listener="#{fisicaBean.accordion}" update=":form_pessoa_fisica:i_end_rendered i_tabview_fisica"/> 
                                     <p:tab title="Cadastro Pessoal">                            
                                         <h:outputScript name="script_primefaces.js" library="js" />
-                                        <h:outputText value="#{genericaMensagem.getHtmlMessage('block', 'PESSOA CADASTRADA EM OPOSIÇÃO', 'aaa', true)}" escape="false" rendered="#{fisicaBean.pessoaOposicao}" />
+                                        <h:outputText value="#{genericaMensagem.getHtmlMessage('error', 'PESSOA CADASTRADA EM OPOSIÇÃO', 'aaa')}" escape="false" rendered="#{fisicaBean.pessoaOposicao}" />
                                         <p:messages id="id_valida_documento" autoUpdate="true" showSummary="true" showDetail="true"  closable="true"/>
                                         <h:panelGrid id="i_panel_dados" columns="2" style="height: 400px; width: 100%">
                                             <p:column>

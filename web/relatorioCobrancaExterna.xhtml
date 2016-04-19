@@ -22,7 +22,7 @@
                     <p:panel styleClass="fundoCinza">
                         <h:panelGrid  cellpadding="4" columns="5" id="id_pg_relatorios">
                             <p:outputLabel value="Tipo de Relatório: " />
-                            <p:selectOneMenu id="id_tipo_relatorio" value="#{relatorioCobrancaExternaBean.idRelatorio}" style="padding-right: 10px;">
+                            <p:selectOneMenu id="id_tipo_relatorio" value="#{relatorioCobrancaExternaBean.idRelatorio}">
                                 <p:ajax event="change" update="@this id_panel form_relatorio:i_panel_avancado" global="false" listener="#{relatorioCobrancaExternaBean.load}"/>
                                 <f:selectItems value="#{relatorioCobrancaExternaBean.listRelatorios}"/>
                             </p:selectOneMenu>

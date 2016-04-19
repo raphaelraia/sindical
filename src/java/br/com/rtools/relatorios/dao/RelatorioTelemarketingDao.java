@@ -131,7 +131,7 @@ public class RelatorioTelemarketingDao extends DB {
             }
             // OPERADOR
             if (inOperador != null && !inOperador.isEmpty()) {
-                listWhere.add(" O.id IN (" + inOperador + ")");
+                listWhere.add(" H.id_operador IN (" + inOperador + ")");
             }
             // NATUREZA
             if (inNatureza != null && !inNatureza.isEmpty()) {

@@ -22,7 +22,7 @@ public class RelatorioCobrancaDao extends DB {
         this.relatorioOrdem = relatorioOrdem;
     }
 
-    public List find(String inGrupoFinanceiro, String inSubGrupoFinanceiro, String inServicos, String tipoSocio, String tipoPessoa, String tipoMesesDebito, String monthS, String monthF, String tipoMesesDebitoData, String dtS, String dtF) {
+    public List find(String inGrupoFinanceiro, String inSubGrupoFinanceiro, String inServicos, String inTipoServico, String tipoSocio, String tipoPessoa, String tipoMesesDebito, String monthS, String monthF, String tipoMesesDebitoData, String dtS, String dtF) {
         // CHAMADOS 1192
         try {
             String queryString = "";
@@ -72,6 +72,9 @@ public class RelatorioCobrancaDao extends DB {
             // SERVIÇOS
             if (inServicos != null && !inServicos.isEmpty()) {
                 queryString += " AND SE.id IN (" + inServicos + ") \n";
+            }
+            if (inTipoServico != null && !inTipoServico.isEmpty()) {
+                queryString += " AND M.id_tipo_servico IN (" + inTipoServico + ") \n";
             }
             switch (tipoMesesDebitoData) {
                 case "igual":
