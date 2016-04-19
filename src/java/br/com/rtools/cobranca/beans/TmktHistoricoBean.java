@@ -60,7 +60,7 @@ public class TmktHistoricoBean implements Serializable {
     @PreDestroy
     public void destroy() {
         GenericaSessao.remove("tmktHistoricoBean");
-        GenericaSessao.remove("pessoaPesquisa");
+        // GenericaSessao.remove("pessoaPesquisa");
     }
 
     public void loadListContato() {

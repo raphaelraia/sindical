@@ -129,17 +129,17 @@ div.wrapper { width: 1024px; margin: 0 auto;}
 
 /* RTOOLS MESSAGES */
 
-.ui-rt-messages {border-radius: 5px; padding: 1px; padding-left: 10px; margin-top: 2px; margin-bottom: 2px;}
+.ui-rt-messages {border-radius: 5px!important; padding: 1px!important; padding-left: 10px!important; margin-top: 2px!important; margin-bottom: 2px!important;}
 .ui-rt-messages-p {margin: 10px!important;}
-.ui-rt-messages-span {font-weight: normal; padding-left: 15px;}
-.ui-rt-messages-success {background: #ccffcc; color: #009933; font-weight: bold; border: 1px solid #bce8f1}
-.ui-rt-messages-info {background: #d9edf7; color: #3a87ad;  font-weight: bold; border: 1px solid #bce8f1}
-.ui-rt-messages-warn {background: #ffffcc; color: #c09853;  font-weight: bold; border: 1px solid #f3da68}
-.ui-rt-messages-fatal {background: #f2dede; color: #b94a48;  font-weight: bold; border: 1px solid #eed3d7;}
-.ui-rt-messages-error {background: #ff3333; color: white;  font-weight: bold}
-.ui-rt-messages-alert {background: #ffcc00; color: white; font-weight: bold; border: 1px solid #ffc202;}
-.ui-rt-messages-block {background: red; color: white;  font-weight: bold; border: 1px dashed white;}
-.ui-rt-messages-tag {background: #ffffcc; color: #333333; font-weight: bold; border: 2px dashed gray;}
+.ui-rt-messages-span {font-weight: normal; padding-left: 15px!important;}
+.ui-rt-messages-success {background: #ccffcc!important; color: #009933!important; font-weight: bold!important; border: 1px solid #bce8f1!important}
+.ui-rt-messages-info {background: #d9edf7!important; color: #3a87ad!important;  font-weight: bold!important; border: 1px solid #bce8f1!important}
+.ui-rt-messages-warn {background: #ffffcc!important; color: #c09853!important;  font-weight: bold!important; border: 1px solid #f3da68!important}
+.ui-rt-messages-fatal {background: #f2dede!important; color: #b94a48!important;  font-weight: bold!important; border: 1px solid #eed3d7!important;}
+.ui-rt-messages-error {background: #ff3333!important; color: white!important;  font-weight: bold!important}
+.ui-rt-messages-alert {background: #ffcc00!important; color: white!important; font-weight: bold!important; border: 1px solid #ffc202!important;}
+.ui-rt-messages-block {background: red!important; color: white!important;  font-weight: bold!important; border: 1px dashed white!important;}
+.ui-rt-messages-tag {background: #ffffcc!important; color: #333333!important; font-weight: bold!important; border: 2px dashed gray!important;}
 
 .ui-rt-blink {animation: rt-blinker 1s linear 3;}
 

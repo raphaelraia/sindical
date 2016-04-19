@@ -337,7 +337,7 @@
                                                     <p:ajax event="change" listener="#{registroEmpresarialBean.salvarSemSenha}" update=":form_registro_empresarial:id_messages"/>
                                                 </p:selectBooleanCheckbox>
                                                 <p:selectBooleanCheckbox value="#{registroEmpresarialBean.registro.bloquearHomologacao}" itemLabel="Permitir agendamento para empresas em débito">
-                                                    <p:ajax event="change" listener="#{registroEmpresarialBean.salvarSemSenha}" update=":form_registro_empresarial:id_messages i_per"/>
+                                                    <p:ajax event="change" listener="#{registroEmpresarialBean.salvarSemSenha}" update=":form_registro_empresarial:id_messages :form_registro_empresarial:i_per"/>
                                                 </p:selectBooleanCheckbox>
                                                 <p:column>
                                                     <p:spinner id="i_per" size="2" maxlength="2" value="#{registroEmpresarialBean.registro.mesesInadimplentesAgenda}" disabled="#{!registroEmpresarialBean.registro.bloquearHomologacao}" title="Para habilitar este campo permita o agendamento para empresas em débito" min="0" max="24" valueChangeListener="#{registroEmpresarialBean.salvarSemSenha}"/>
@@ -362,7 +362,7 @@
                             <p:tab title="Dispositivos">
                                 <h:panelGrid columns="2">
                                     <p:selectBooleanCheckbox value="#{registroEmpresarialBean.registro.biometria}" itemLabel="Habilitar biometria">
-                                        <p:ajax event="change" listener="#{registroEmpresarialBean.salvarSemSenha}" update=":form_registro_empresarial:id_messages i_per"/>
+                                        <p:ajax event="change" listener="#{registroEmpresarialBean.salvarSemSenha}" update=":form_registro_empresarial:id_messages"/>
                                     </p:selectBooleanCheckbox>                                        
                                 </h:panelGrid>
                             </p:tab>                                

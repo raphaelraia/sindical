@@ -92,7 +92,7 @@
                             <p:panel header="Cupons" id="id_grid_cupons" styleClass="margin-top-max">
                                 <p:dataTable value="#{cupomBean.listCupom}" var="cupom" id="id_grid_cupons_this" emptyMessage="Nenhum registro encontrado!">                                 
                                     <p:column styleClass="text-center" width="30">
-                                        <p:commandButton icon="ui-icon-link" action="#{cupomBean.edit(cupom)}" update=":form_cupom:" disabled="#{controleAcessoBean.botaoExcluir}" />
+                                        <p:commandButton icon="ui-icon-pencil" action="#{cupomBean.edit(cupom)}" update=":form_cupom:" disabled="#{controleAcessoBean.botaoExcluir}" />
                                     </p:column>
                                     <p:column headerText="Data da emissão" styleClass="text-center" width="80">
                                         #{cupom.data}

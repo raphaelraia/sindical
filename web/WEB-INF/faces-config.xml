@@ -2138,6 +2138,12 @@
             <redirect/>
         </navigation-case>
         
+        <navigation-case>
+            <from-outcome>relatorioBoletosBaixados</from-outcome>
+            <to-view-id>/relatorioBoletosBaixados.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
     </navigation-rule>
     
     <lifecycle>

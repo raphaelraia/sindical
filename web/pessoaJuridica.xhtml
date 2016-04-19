@@ -64,8 +64,10 @@
                             <c:set scope="request" var="object" value="${juridicaBean.juridica}"/> 
                             <div class="clear"></div>
                             <h:panelGrid id="i_panel_pessoa_fisica" style="clear: both; width: 100%">
-                                <h:outputText value="#{genericaMensagem.getHtmlMessage('error', 'CADASTRO BLOQUEADO!')}" escape="false" rendered="#{juridicaBean.pessoaComplemento.bloqueiaObsAviso}" />
-                                <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', 'AVISO:', juridicaBean.pessoaComplemento.obsAviso)}" escape="false" rendered="#{not empty juridicaBean.pessoaComplemento.obsAviso}" />
+                                <h:panelGroup layout="block" id="id_msg_aviso_block">
+                                    <h:outputText value="#{genericaMensagem.getHtmlMessage('error', 'CADASTRO BLOQUEADO!')}" escape="false" rendered="#{juridicaBean.pessoaComplemento.bloqueiaObsAviso}" />
+                                    <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', 'AVISO:', juridicaBean.pessoaComplemento.obsAviso)}" escape="false" rendered="#{not empty juridicaBean.pessoaComplemento.obsAviso}" />                                    
+                                </h:panelGroup>
                                 <p:messages id="i_msg_m" autoUpdate="true" showDetail="true" closable="true"/>
                                 <p:tabView id="i_tabview_juridica" style="width: 100%" activeIndex="#{juridicaBean.indicaTab}">
                                     <p:ajax event="tabChange" listener="#{juridicaBean.accordion}" update="@this"/> 

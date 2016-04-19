@@ -2369,7 +2369,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             case "matriculaAcademia":
             case "convenioMedico":
             case "locacaoFilme":
-            case "associarFisica":
+            // case "associarFisica":
                 if (!p.getDocumento().isEmpty()) {
                     OposicaoDao odbt = new OposicaoDao();
                     if (odbt.existPessoaDocumentoPeriodo(p.getDocumento())) {

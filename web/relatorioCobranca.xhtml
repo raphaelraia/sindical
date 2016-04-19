@@ -69,7 +69,7 @@
                                             <p:commandButton icon="ui-icon-close" action="#{relatorioCobrancaBean.close(relatorioCobrancaBean.listFilters[0])}" title="Remover filtro" update="form_relatorio"/>
                                         </h:panelGrid>                                        
                                     </p:panel>
-                                </p:column>
+                                </p:column>                               
                                 <p:column>
                                     <h:panelGrid id="id_servicos" style="width: 100%!important">
                                         <p:panel header="Serviços" style="width: 100%!important" rendered="#{relatorioCobrancaBean.listFilters[2].active}" >
@@ -79,6 +79,12 @@
                                                     <p:ajax event="change" global="false"/>
                                                     <f:selectItems value="#{relatorioCobrancaBean.listServicos}" />
                                                 </p:selectCheckboxMenu>
+                                                <h:outputLabel value="Tipo de Serviço:" />
+                                                <p:selectCheckboxMenu label="Selecionar tipo de serviço" value="#{relatorioCobrancaBean.selectedTipoServico}" filter="true" filterMatchMode="startsWith">
+                                                    <p:ajax event="toggleSelect" global="false"/>
+                                                    <p:ajax event="change" global="false"/>
+                                                    <f:selectItems value="#{relatorioCobrancaBean.listTipoServico}" />
+                                                </p:selectCheckboxMenu>                                                
                                                 <p:commandButton icon="ui-icon-close" action="#{relatorioCobrancaBean.close(relatorioCobrancaBean.listFilters[2])}" title="Remover filtro" update="form_relatorio"/>
                                             </h:panelGrid>                                        
                                         </p:panel>

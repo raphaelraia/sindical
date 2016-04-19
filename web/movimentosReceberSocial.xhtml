@@ -53,7 +53,7 @@
                         <h:form id="formMovimentosReceberPesquisa">
                             <h:panelGrid columns="2" styleClass="float-right" rendered="#{movimentosReceberSocialBean.pessoa.id != -1}">
                                 <p:outputLabel value="Atalho:" />
-                                <p:commandLink value="Telemarketing" action="#{chamadaPaginaBean.pagina('telemarketing')}" immediate="true" styleClass="font-size-14 font-color-blue" actionListener="#{genericaSessao.putObject('pessoaPesquisa', movimentosReceberSocialBean.pessoa)}" />
+                                <p:commandLink value="Telemarketing" action="#{chamadaPaginaBean.pagina('telemarketing', 'tmktHistoricoBean')}" immediate="true" styleClass="font-size-14 font-color-blue" actionListener="#{genericaSessao.putObject('pessoaPesquisa', movimentosReceberSocialBean.pessoa)}" />
                             </h:panelGrid>
                             <div class="clear"></div>
                             <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', 'MENSAGEM DE BLOQUEIO', movimentosReceberSocialBean.pessoa.pessoaComplemento.obsAviso)}" escape="false" rendered="#{not empty movimentosReceberSocialBean.pessoa.pessoaComplemento.obsAviso}" />

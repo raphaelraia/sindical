@@ -58,22 +58,22 @@
                                         <p:menuitem value="Caravanas"           action="#{chamadaPaginaBean.caravana}" />
                                     </p:submenu>
 
-                                    <p:menuitem value="Desc. Serviço Empresa"   action="#{chamadaPaginaBean.descontoServicoEmpresa}" />
+                                    <p:menuitem value="Desc. Serviço Empresa"   action="#{chamadaPaginaBean.pagina('descontoServicoEmpresa')}" />
 
                                     <p:menuitem value="Autorizar Carteirinha"   action="#{chamadaPaginaBean.autorizaCarteirinha()}"/>
-                                    <p:menuitem value="Modelo de Carteirinha"   action="#{chamadaPaginaBean.modeloCarteirinha()}"/>
+                                    <p:menuitem value="Modelo de Carteirinha"   action="#{chamadaPaginaBean.pagina('modeloCarteirinha')}"/>
                                     <p:menuitem value="Administradora"          action="#{chamadaPaginaBean.pagina('administradora')}" />
                                     <p:menuitem value="Cupom"                   action="#{chamadaPaginaBean.pagina('cupom')}" />
 
                                     <p:submenu label="Suporte">
                                         <p:menuitem value="Feriados"             action="#{chamadaPaginaBean.pagina('feriados')}" />
                                         <p:menuitem value="Validade Cartão"      action="#{chamadaPaginaBean.pagina('validadeCartao')}" />
-                                        <p:menuitem value="Descrição Eventos"    action="#{chamadaPaginaBean.descricaoEvento}" />
-                                        <p:menuitem value="Grupo Evento"         action="#{chamadaPaginaBean.grupoEvento}" rendered="false"/>
-                                        <p:menuitem value="Categoria do Sócio"   action="#{chamadaPaginaBean.categoria}" />
+                                        <p:menuitem value="Descrição Eventos"    action="#{chamadaPaginaBean.pagina('descricaoEvento')}" />
+                                        <p:menuitem value="Grupo Evento"         action="#{chamadaPaginaBean.paginaSimples('GrupoEvento', 'GRUPO EVENTO')}" rendered="false"/>
+                                        <p:menuitem value="Categoria do Sócio"   action="#{chamadaPaginaBean.pagina('categoria')}" />
                                         <p:menuitem value="Grupo Categoria"      action="#{chamadaPaginaBean.pagina('grupoCategoria')}" />
-                                        <p:menuitem value="Parentesco"           action="#{chamadaPaginaBean.parentesco}" />
-                                        <p:menuitem value="Registro Empresarial" action="#{chamadaPaginaBean.registroEmpresarial}" />
+                                        <p:menuitem value="Parentesco"           action="#{chamadaPaginaBean.pagina('parentesco')}" />
+                                        <p:menuitem value="Registro Empresarial" action="#{chamadaPaginaBean.pagina('registroEmpresarial')}" />
                                         <p:menuitem value="Sorteio Categoria"    disabled="true"/>
                                         <p:menuitem value="Sorteio Status"       disabled="true"/>
                                     </p:submenu>
@@ -81,45 +81,54 @@
 
                                 <p:submenu label="Movimento" style="margin-right: 15px">
                                     <p:menuitem value="Movimentos a Receber"   action="#{chamadaPaginaBean.movimentosReceberSocial()}" />
-                                    <p:menuitem value="Geração Mensal"         action="#{chamadaPaginaBean.gerarBoleto()}" />
-                                    <p:menuitem value="Impressão Mensal"       action="#{chamadaPaginaBean.impressaoBoletoSocial()}" />
                                     <p:menuitem value="Lançamento Individual"  action="#{chamadaPaginaBean.lancamentoIndividual}" />
                                     <p:menuitem value="Emissão de Guias"       action="#{chamadaPaginaBean.pagina('emissaoGuias')}" />
                                     <p:menuitem value="Extrato Tela Social"    action="#{chamadaPaginaBean.pagina('extratoTelaSocial')}"/>
-                                    <p:menuitem value="Retorno Banco (Social)" action="#{chamadaPaginaBean.retornoSocial()}" />
-                                    <p:submenu label="Vendas">
+                                    <p:submenu label="Eventos">
+                                        <p:menuitem value="Convite Clube"           action="#{chamadaPaginaBean.conviteMovimento}"/>
                                         <p:menuitem value="Caravana"        action="#{chamadaPaginaBean.vendasCaravana}" />
                                         <p:menuitem value="Baile"           action="#{chamadaPaginaBean.vendasBaile}" />
+                                        <p:menuitem value="Sorteio"             action="#{chamadaPaginaBean.pagina('sorteioMovimento')}" />
+                                        <p:menuitem value="Cupom"                   action="#{chamadaPaginaBean.pagina('cupomMovimento')}" />
                                     </p:submenu>
-                                    <p:menuitem value="Transf. Entre Caixas" onclick="i_dlg_t.show()"/>
-                                    <p:menuitem value="Fechamento de Caixa" action="#{chamadaPaginaBean.fechamentoCaixa()}"/>
-                                    <p:menuitem value="Ag. Cobrança Mensal" action="#{chamadaPaginaBean.cobrancaMensal()}" />
-                                    <p:menuitem value="Sorteio"             action="#{chamadaPaginaBean.pagina('sorteioMovimento')}" />
+                                    <p:submenu label="Operações">
+                                        <p:menuitem value="Transf. Entre Caixas" onclick="i_dlg_t.show()"/>
+                                        <p:menuitem value="Fechamento de Caixa" action="#{chamadaPaginaBean.fechamentoCaixa()}"/>                                        
+                                        <p:menuitem value="Agendamento Valor Fixo" action="#{chamadaPaginaBean.cobrancaMensal()}" title="Agendamento Valor Fixo Mensal"/>
+                                    </p:submenu>
                                     <p:submenu label="Boletos">
+                                        <p:menuitem value="Geração Mensal"         action="#{chamadaPaginaBean.gerarBoleto()}" />
+                                        <p:menuitem value="Impressão Mensal"       action="#{chamadaPaginaBean.impressaoBoletoSocial()}" />
                                         <p:menuitem value="Pesquisa Boletos"     action="#{chamadaPaginaBean.pagina('pesquisaBoletosSocial')}" />
                                         <p:menuitem value="Boletos Não Baixados" action="#{chamadaPaginaBean.pagina('boletoNaoBaixado')}" />
+                                        <p:menuitem value="Retorno Banco (Social)" action="#{chamadaPaginaBean.retornoSocial()}" />
                                     </p:submenu>
-                                    <p:menuitem value="Convite Clube"           action="#{chamadaPaginaBean.conviteMovimento}"/>
-                                    <p:menuitem value="Cupom"                   action="#{chamadaPaginaBean.pagina('cupomMovimento')}" />
                                 </p:submenu>    
 
 
                                 <p:submenu label="Relatórios">
-                                    <p:menuitem value="Sócios"  action="#{chamadaPaginaBean.relatorioSocios}" />
-                                    <p:menuitem value="Sócios Inativos" action="#{chamadaPaginaBean.pagina('relatorioSociosInativos')}" ajax="false"/>
-                                    <p:menuitem value="Convites"        action="#{chamadaPaginaBean.relatorioConviteClube}"/>
-                                    <p:menuitem value="Cartão Social"        action="#{chamadaPaginaBean.cartaoSocial}" />
-                                    <p:menuitem value="Ficha Social Branco"  action="#{sociosBean.imprimirFichaSocialVazia()}" ajax="false"/>
-                                    <p:menuitem value="Carnê Mensalidades"   action="#{chamadaPaginaBean.pagina('carneMensalidades')}" ajax="false"/>
-                                    <p:menuitem value="Convênio Médico"      action="#{chamadaPaginaBean.pagina('relatorioConvenioMedico')}" ajax="false"/>
-                                    <p:menuitem value="Fechamento Guias"     action="#{chamadaPaginaBean.pagina('relatorioFechamentoGuias')}" ajax="false"/>
-                                    <p:menuitem value="Fechamento Baile"     action="#{chamadaPaginaBean.pagina('relatorioFechamentoBaile')}" ajax="false"/>
-                                    <p:menuitem value="Movimentos"           action="#{chamadaPaginaBean.pagina('relatorioFinanceiroSocial')}" ajax="false"/>
-                                    <p:menuitem value="Cobrança Externa"     action="#{chamadaPaginaBean.pagina('relatorioCobrancaExterna')}" ajax="false"/>
-                                    <p:menuitem value="Desconto em Folha"    action="#{chamadaPaginaBean.pagina('relatorioDescontoFolha')}" ajax="false"/>
-                                    <p:menuitem value="Mala Direta"          action="#{chamadaPaginaBean.pagina('relatorioMalaDireta')}" ajax="false"/>
-                                    <p:menuitem value="Frequência Catraca"   action="#{chamadaPaginaBean.pagina('frequenciaCatraca')}" ajax="false"/>
-                                    <p:menuitem value="Cupom"                action="#{chamadaPaginaBean.pagina('relatorioCupom')}" ajax="false"/>
+                                    <p:submenu label="Cadastral">
+                                        <p:menuitem value="Sócios"               action="#{chamadaPaginaBean.relatorioSocios}" />
+                                        <p:menuitem value="Sócios Inativos"      action="#{chamadaPaginaBean.pagina('relatorioSociosInativos')}" ajax="false"/>
+                                        <p:menuitem value="Convites"             action="#{chamadaPaginaBean.relatorioConviteClube}"/>
+                                        <p:menuitem value="Ficha Social Branco"  action="#{sociosBean.imprimirFichaSocialVazia()}" ajax="false"/>
+                                        <p:menuitem value="Convênio Médico"      action="#{chamadaPaginaBean.pagina('relatorioConvenioMedico')}" ajax="false"/>                                        
+                                        <p:menuitem value="Mala Direta"          action="#{chamadaPaginaBean.pagina('relatorioMalaDireta')}" ajax="false"/>
+                                        <p:menuitem value="Cupom"                action="#{chamadaPaginaBean.pagina('relatorioCupom')}" ajax="false"/>
+                                        <p:menuitem value="Frequência Catraca"   action="#{chamadaPaginaBean.pagina('frequenciaCatraca')}" ajax="false"/>
+                                    </p:submenu>
+                                    <p:submenu label="Rotina">
+                                        <p:menuitem value="Cartão Social"        action="#{chamadaPaginaBean.cartaoSocial}" />
+                                        <p:menuitem value="Carnê Mensalidades"   action="#{chamadaPaginaBean.pagina('carneMensalidades')}" ajax="false"/>                                        
+                                    </p:submenu>
+                                    <p:submenu label="Financeiro">
+                                        <p:menuitem value="Movimentos"           action="#{chamadaPaginaBean.pagina('relatorioFinanceiroSocial')}" ajax="false"/>
+                                        <p:menuitem value="Fechamento Guias"     action="#{chamadaPaginaBean.pagina('relatorioFechamentoGuias')}" ajax="false"/>
+                                        <p:menuitem value="Fechamento Baile"     action="#{chamadaPaginaBean.pagina('relatorioFechamentoBaile')}" ajax="false"/>
+                                        <p:menuitem value="Cobrança Externa"     action="#{chamadaPaginaBean.pagina('relatorioCobrancaExterna')}" ajax="false"/>
+                                        <p:menuitem value="Desconto em Folha"    action="#{chamadaPaginaBean.pagina('relatorioDescontoFolha')}" ajax="false"/>                                        
+                                        <p:menuitem value="Boletos Baixados (banco)"     action="#{chamadaPaginaBean.pagina('relatorioBoletosBaixados')}" ajax="false"/>
+                                    </p:submenu>
                                 </p:submenu>                            
                             </p:menubar> 
                             <p:panel styleClass="margin-top-max">

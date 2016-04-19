@@ -3,6 +3,7 @@ package br.com.rtools.relatorios.beans;
 import br.com.rtools.financeiro.GrupoFinanceiro;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.SubGrupoFinanceiro;
+import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.financeiro.db.FinanceiroDBToplink;
 import br.com.rtools.impressao.Etiquetas;
@@ -48,6 +49,9 @@ public class RelatorioCobrancaBean implements Serializable {
     private Map<String, Integer> listServicos;
     private List selectedServicos;
 
+    private Map<String, Integer> listTipoServico;
+    private List selectedTipoServico;
+
     private Map<String, Integer> listGrupoFinanceiro;
     private List selectedGrupoFinanceiro;
 
@@ -86,6 +90,18 @@ public class RelatorioCobrancaBean implements Serializable {
 
         dtS = "";
         dtF = "";
+
+        listServicos = new LinkedHashMap<>();
+        selectedServicos = new ArrayList();
+
+        listTipoServico = new LinkedHashMap<>();
+        selectedTipoServico = new ArrayList();
+
+        listGrupoFinanceiro = new LinkedHashMap<>();
+        selectedGrupoFinanceiro = new ArrayList();
+
+        listSubGrupoFinanceiro = new LinkedHashMap<>();
+        selectedSubGrupoFinanceiro = new ArrayList();
 
         loadFilters();
         loadRelatorio();
@@ -134,7 +150,7 @@ public class RelatorioCobrancaBean implements Serializable {
         RelatorioCobrancaDao rcd = new RelatorioCobrancaDao();
         rcd.setRelatorioOrdem((RelatorioOrdem) new Dao().find(new RelatorioOrdem(), idRelatorioOrdem));
         rcd.setRelatorios(r);
-        List list = rcd.find(inIdGrupoFinanceiro(), inIdSubGrupoFinanceiro(), inIdServicos(), tipoSocio, tipoPessoa, tipoMesesDebito, monthS, monthF, tipoMesesDebitoData, dtS, dtF);
+        List list = rcd.find(inIdGrupoFinanceiro(), inIdSubGrupoFinanceiro(), inIdServicos(), inIdTipoServico(), tipoSocio, tipoPessoa, tipoMesesDebito, monthS, monthF, tipoMesesDebitoData, dtS, dtF);
         sisProcesso.finishQuery();
         for (int i = 0; i < list.size(); i++) {
             List o = (List) list.get(i);
@@ -267,10 +283,15 @@ public class RelatorioCobrancaBean implements Serializable {
             case "servicos":
                 if (filter.getActive()) {
                     loadServicos();
+                    loadTipoServico();
                 } else {
                     listServicos = new LinkedHashMap<>();
                     selectedServicos = new ArrayList<>();
+                    listTipoServico = new LinkedHashMap<>();
+                    selectedTipoServico = new ArrayList<>();
                 }
+                break;
+            case "tipo_servico":
                 break;
             case "socios":
                 if (filter.getActive()) {
@@ -331,7 +352,7 @@ public class RelatorioCobrancaBean implements Serializable {
 
     /**
      * 0 grupo finançeiro; 1 subgrupo finançeiro; 2 serviços; 3 sócios; 4 tipo
-     * de pessoa; 5 meses débito
+     * de pessoa; 5 meses débito; 6 Tipo de Serviço;
      *
      * @return
      */
@@ -442,6 +463,15 @@ public class RelatorioCobrancaBean implements Serializable {
         }
     }
 
+    public void loadTipoServico() {
+        listTipoServico = new LinkedHashMap<>();
+        selectedTipoServico = new ArrayList<>();
+        List<TipoServico> list = new Dao().list(new TipoServico(), true);
+        for (int i = 0; i < list.size(); i++) {
+            listTipoServico.put(list.get(i).getDescricao(), list.get(i).getId());
+        }
+    }
+
     // TRATAMENTO
     public String inIdSubGrupoFinanceiro() {
         String ids = null;
@@ -484,6 +514,22 @@ public class RelatorioCobrancaBean implements Serializable {
                         ids = "" + selectedServicos.get(i);
                     } else {
                         ids += "," + selectedServicos.get(i);
+                    }
+                }
+            }
+        }
+        return ids;
+    }
+
+    public String inIdTipoServico() {
+        String ids = null;
+        if (selectedTipoServico != null) {
+            for (int i = 0; i < selectedTipoServico.size(); i++) {
+                if (selectedTipoServico.get(i) != null) {
+                    if (ids == null) {
+                        ids = "" + selectedTipoServico.get(i);
+                    } else {
+                        ids += "," + selectedTipoServico.get(i);
                     }
                 }
             }
@@ -585,6 +631,22 @@ public class RelatorioCobrancaBean implements Serializable {
 
     public void setDtF(String dtF) {
         this.dtF = dtF;
+    }
+
+    public Map<String, Integer> getListTipoServico() {
+        return listTipoServico;
+    }
+
+    public void setListTipoServico(Map<String, Integer> listTipoServico) {
+        this.listTipoServico = listTipoServico;
+    }
+
+    public List getSelectedTipoServico() {
+        return selectedTipoServico;
+    }
+
+    public void setSelectedTipoServico(List selectedTipoServico) {
+        this.selectedTipoServico = selectedTipoServico;
     }
 
     public class Cobranca {
