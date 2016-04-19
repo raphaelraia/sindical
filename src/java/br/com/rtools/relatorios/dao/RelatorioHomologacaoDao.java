@@ -84,6 +84,20 @@ public class RelatorioHomologacaoDao extends DB {
                         + "      PROF.ds_profissao  AS funcao,      \n" // 10 - Profissão
                         + "      S.ds_descricao     AS status       \n"; // 11 - Status
                 break;
+            case 89:
+                queryString += " A.dt_emissao       AS emissao,     \n" // 00 - Data Emissão
+                        + "      A.dt_data          AS data,        \n" // 01 - Data Agendamento
+                        + "      H.ds_hora          AS hora,        \n" // 02 - hora
+                        + "      PPE.ds_documento   AS cnpj,        \n" // 03 - CNPJ Empresa
+                        + "      PPE.ds_nome        AS empresa,     \n" // 04 - Nome Empresa
+                        + "      PC.ds_nome         AS escritorio,  \n" // 05 - Escritório
+                        + "      PPE.ds_telefone1   AS empresa_telefone, \n" // 06 - Empresa Telefone
+                        + "      PC.ds_telefone1    AS escritorio_telefone, \n" // 07 - Escritório Telefone
+                        + "      PC.ds_email1       AS escritorio_email, \n" // 08 - Escritório Email
+                        + "      FUNC.ds_nome       AS funcionario, \n" // 09 - Nome Funcionário
+                        + "      PROF.ds_profissao  AS funcao,      \n" // 10 - Profissão
+                        + "      A.ds_contato       AS contato     \n"; // 11 - Contato
+                break;
             default:
                 queryString += "A.dt_data        AS data_inicial,                   \n" /*  00 - Data Inicial                   */
                         + "     A.dt_data        AS data_final,                     \n" /*  01 - Data Final                     */
@@ -120,7 +134,9 @@ public class RelatorioHomologacaoDao extends DB {
                 + " INNER JOIN pes_pessoa         AS PPE     ON PPE.id  = J.id_pessoa    \n"
                 + "  LEFT JOIN hom_cancelamento   AS C       ON C.id_agendamento  = A.id \n"
                 + "  LEFT JOIN seg_usuario        AS CU      ON CU.id   = C.id_usuario   \n"
-                + "  LEFT JOIN pes_pessoa         AS CPU     ON CPU.id  = CU.id_pessoa   \n";
+                + "  LEFT JOIN pes_pessoa         AS CPU     ON CPU.id  = CU.id_pessoa   \n"
+                + "  LEFT JOIN pes_juridica       AS JC      ON JC.id  = J.id_contabilidade \n"
+                + "  LEFT JOIN pes_pessoa         AS PC      ON PC.id  = JC.id_pessoa \n";
 
         if (idConvencao != null) {
             queryString += " INNER JOIN arr_contribuintes_vw AS CONTR      ON CONTR.id_juridica   = J.id AND CONTR.dt_inativacao IS NULL \n";

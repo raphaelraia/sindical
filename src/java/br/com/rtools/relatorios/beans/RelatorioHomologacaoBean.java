@@ -320,6 +320,7 @@ public class RelatorioHomologacaoBean implements Serializable {
             }
         }
         List<ParametroHomologacao> phs = new ArrayList<>();
+        List<ParametroHomologacaoPorEscritorio> ph_por_escritorio = new ArrayList<>();
         String operadorString = "";
         for (Object list1 : list) {
             List o = (List) list1;
@@ -330,6 +331,10 @@ public class RelatorioHomologacaoBean implements Serializable {
                         break;
                     case 81:
                         phs.add(new ParametroHomologacao(o.get(0), o.get(1), o.get(2), o.get(3), o.get(4), o.get(5), o.get(6), o.get(7), o.get(8), o.get(9), o.get(10), o.get(11)));
+                        Jasper.IS_HEADER_PARAMS = true;
+                        break;
+                    case 89:
+                        ph_por_escritorio.add(new ParametroHomologacaoPorEscritorio(o.get(0), o.get(1), o.get(2), o.get(3), o.get(4), o.get(5), o.get(6), o.get(7), o.get(8), o.get(9), o.get(10), o.get(11)));
                         Jasper.IS_HEADER_PARAMS = true;
                         break;
                     default:
@@ -346,7 +351,8 @@ public class RelatorioHomologacaoBean implements Serializable {
                 }
             }
         }
-        if (!phs.isEmpty()) {
+
+        if (!phs.isEmpty() || !ph_por_escritorio.isEmpty()) {
             Jasper.EXPORT_TO = exportExcel;
             Jasper.EXPORT_TYPE = (exportExcel ? "xls" : "pdf");
             Jasper.TYPE = "paisagem";
@@ -355,7 +361,14 @@ public class RelatorioHomologacaoBean implements Serializable {
             map.put("operador_header", operadorHeader);
             map.put("detalhes_relatorio", detalheRelatorio);
             Jasper.TITLE = relatorios.getNome();
-            Jasper.printReports(relatorios.getJasper(), relatorios.getNome(), (Collection) phs, map);
+
+            if (!phs.isEmpty()) {
+                Jasper.printReports(relatorios.getJasper(), relatorios.getNome(), (Collection) phs, map);
+            }
+
+            if (!ph_por_escritorio.isEmpty()) {
+                Jasper.printReports(relatorios.getJasper(), relatorios.getNome(), (Collection) ph_por_escritorio, map);
+            }
             new Jasper();
         }
     }
@@ -1034,6 +1047,133 @@ public class RelatorioHomologacaoBean implements Serializable {
 
         public void setDispensa(Object dispensa) {
             this.dispensa = dispensa;
+        }
+
+        public Object getFuncao() {
+            return funcao;
+        }
+
+        public void setFuncao(Object funcao) {
+            this.funcao = funcao;
+        }
+    }
+
+    public class ParametroHomologacaoPorEscritorio {
+
+        private Object emissao;
+        private Object data;
+        private Object hora;
+        private Object cnpj;
+        private Object empresa;
+        private Object escritorio;
+        private Object empresa_telefone;
+        private Object escritorio_telefone;
+        private Object escritorio_email;
+        private Object funcionario;
+        private Object funcao;
+        private Object contato;
+
+        public ParametroHomologacaoPorEscritorio(Object emissao, Object data, Object hora, Object cnpj, Object empresa, Object escritorio, Object empresa_telefone, Object escritorio_telefone, Object escritorio_email, Object funcionario, Object funcao, Object contato) {
+            this.emissao = emissao;
+            this.data = data;
+            this.hora = hora;
+            this.cnpj = cnpj;
+            this.empresa = empresa;
+            this.escritorio = escritorio;
+            this.empresa_telefone = empresa_telefone;
+            this.escritorio_telefone = escritorio_telefone;
+            this.escritorio_email = escritorio_email;
+            this.funcionario = funcionario;
+            this.funcao = funcao;
+            this.contato = contato;
+        }
+
+        public Object getEmissao() {
+            return emissao;
+        }
+
+        public void setEmissao(Object emissao) {
+            this.emissao = emissao;
+        }
+
+        public Object getData() {
+            return data;
+        }
+
+        public void setData(Object data) {
+            this.data = data;
+        }
+
+        public Object getHora() {
+            return hora;
+        }
+
+        public void setHora(Object hora) {
+            this.hora = hora;
+        }
+
+        public Object getCnpj() {
+            return cnpj;
+        }
+
+        public void setCnpj(Object cnpj) {
+            this.cnpj = cnpj;
+        }
+
+        public Object getEmpresa() {
+            return empresa;
+        }
+
+        public void setEmpresa(Object empresa) {
+            this.empresa = empresa;
+        }
+
+        public Object getEscritorio() {
+            return escritorio;
+        }
+
+        public void setEscritorio(Object escritorio) {
+            this.escritorio = escritorio;
+        }
+
+        public Object getEmpresa_telefone() {
+            return empresa_telefone;
+        }
+
+        public void setEmpresa_telefone(Object empresa_telefone) {
+            this.empresa_telefone = empresa_telefone;
+        }
+
+        public Object getEscritorio_telefone() {
+            return escritorio_telefone;
+        }
+
+        public void setEscritorio_telefone(Object escritorio_telefone) {
+            this.escritorio_telefone = escritorio_telefone;
+        }
+
+        public Object getEscritorio_email() {
+            return escritorio_email;
+        }
+
+        public void setEscritorio_email(Object escritorio_email) {
+            this.escritorio_email = escritorio_email;
+        }
+
+        public Object getFuncionario() {
+            return funcionario;
+        }
+
+        public void setFuncionario(Object funcionario) {
+            this.funcionario = funcionario;
+        }
+
+        public Object getContato() {
+            return contato;
+        }
+
+        public void setContato(Object contato) {
+            this.contato = contato;
         }
 
         public Object getFuncao() {
