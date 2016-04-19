@@ -320,29 +320,20 @@
                                                     </p:column>
 
                                                     <p:column>
-                                                        <h:panelGrid columns="2" style="float: right;">
+                                                        <h:panelGrid columns="1" style="float: right;" styleClass="text-center"> 
+                                                            <p:column rendered="#{fisicaBean.tipoCadastro != 3}">
+                                                                <p:commandLink value="Ver Lista de Inativações" onclick="PF('i_dlg_inativos').show()" rendered="#{fisicaBean.listaSocioInativo.size() != 0}" />
+                                                                <br /> 
+                                                                <br /> 
+                                                            </p:column>
+
                                                             <p:column>
                                                                 <p:commandButton  title="Ver Cadastro / Associar" value="#{fisicaBean.lblSocio}" action="#{fisicaBean.associarFisica}" immediate="true"/>
                                                             </p:column>
 
-                                                            <p:column rendered="#{fisicaBean.tipoCadastro != 3}">
-                                                                <p:commandLink value="Ver Lista de Inativações" onclick="PF('i_dlg_inativos').show()" rendered="#{fisicaBean.listaSocioInativo.size() != 0}" style="margin-left: 15px"/>
-                                                            </p:column>
                                                         </h:panelGrid>
                                                     </p:column>
                                                 </h:panelGrid>
-
-                                                <p:dialog widgetVar="i_dlg_inativos" header="Lista de Inativações" resizable="false" width="400" modal="true">
-                                                    <p:dataGrid value="#{fisicaBean.listaSocioInativo}" var="linha" rowIndexVar="index" columns="1" emptyMessage="Clique para adicionar MAIS VENCIMENTO">
-                                                        <p:commandLink ajax="false" value="#{linha.matriculaSocios.inativo} - #{linha.matriculaSocios.motivoInativacao.descricao}" action="#{fisicaBean.associarFisica(linha.servicoPessoa.pessoa)}" disabled="#{linha.matriculaSocios.id != fisicaBean.socios.matriculaSocios.id or controleAcessoBean.verificarPermissao('link_reativar_titular', 3)}"/>
-                                                    </p:dataGrid>
-                                                    <f:facet name="footer">
-                                                        <h:outputLabel value="* Clique no item da lista para reativar" styleClass="font-color-red"  />
-                                                        <br />
-                                                        <br />
-                                                        <p:commandButton value="Sair" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_inativos').hide()" icon="ui-icon-close"/>                                                        
-                                                    </f:facet>
-                                                </p:dialog>
 
                                                 <h:panelGrid rendered="#{fisicaBean.tipoCadastro == 2 or fisicaBean.tipoCadastro == 3 or fisicaBean.tipoCadastro == 4 or fisicaBean.tipoCadastro == 5}" columns="9" style="width: 60%">
                                                     <p:column>
@@ -360,6 +351,29 @@
                                                         <p:outputLabel value="#{fisicaBean.socios.matriculaSocios.categoria.categoria}" style="font-weight: bold; font-size: 10pt!important"/>
                                                     </p:column>
                                                 </h:panelGrid>
+
+                                                <p:dialog widgetVar="i_dlg_inativos" header="Lista de Inativações" resizable="false" width="600" modal="true">
+                                                    <p:dataTable value="#{fisicaBean.listaSocioInativo}" var="linha" rowIndexVar="index" emptyMessage="Clique para adicionar MAIS VENCIMENTO">
+                                                        <p:column width="15">  
+                                                            <p:rowToggler rendered="#{not empty linha.matriculaSocios.motivo}"/>  
+                                                        </p:column> 
+                                                        <p:column headerText="Data" width="80" styleClass="text-center">
+                                                            <p:commandLink ajax="false" value="#{linha.matriculaSocios.inativo}" action="#{fisicaBean.associarFisica(linha.servicoPessoa.pessoa)}" disabled="#{linha.matriculaSocios.id != fisicaBean.socios.matriculaSocios.id or controleAcessoBean.verificarPermissao('link_reativar_titular', 3)}"/>
+                                                        </p:column>
+                                                        <p:column headerText="Motivo">
+                                                            <p:commandLink ajax="false" value="#{linha.matriculaSocios.motivoInativacao.descricao}" action="#{fisicaBean.associarFisica(linha.servicoPessoa.pessoa)}" disabled="#{linha.matriculaSocios.id != fisicaBean.socios.matriculaSocios.id or controleAcessoBean.verificarPermissao('link_reativar_titular', 3)}"/>                                                            
+                                                        </p:column>
+                                                        <p:rowExpansion>
+                                                            #{linha.matriculaSocios.motivo}
+                                                        </p:rowExpansion>
+                                                    </p:dataTable>
+                                                    <f:facet name="footer">
+                                                        <h:outputLabel value="* Clique no item da lista para reativar" styleClass="font-color-red"  />
+                                                        <br />
+                                                        <br />
+                                                        <p:commandButton value="Sair" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_inativos').hide()" icon="ui-icon-close"/>                                                        
+                                                    </f:facet>
+                                                </p:dialog>                                                
                                             </p:panel>
                                         </h:column>
                                     </p:tab>
@@ -541,13 +555,13 @@
                                         </h:panelGrid>
 
                                     </p:tab>
-                                    
+
                                     <p:tab id="idPessoaComplemento" title="Financeiro" >
                                         <ui:include src="pessoaComplemento_1.xhtml" id="idPessoaComplementoX">  
                                             <ui:param name="idPessoa" value="#{fisicaBean.fisica.pessoa.id}" />  
                                         </ui:include>
                                     </p:tab>
-                                    
+
                                 </p:tabView>
 
                                 <!-- ENDEREÇO -->

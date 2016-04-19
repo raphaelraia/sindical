@@ -1047,6 +1047,7 @@ public class SociosBean implements Serializable {
         if (smi.getId() == 6 && (matriculaSocios.getMotivo().isEmpty() || matriculaSocios.getMotivo().length() < 3)) {
             PF.openDialog("i_dlg_smi");
         } else {
+            matriculaSocios.setMotivo("");
             inativarSocio();
         }
     }
