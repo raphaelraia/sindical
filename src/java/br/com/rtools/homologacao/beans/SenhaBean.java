@@ -88,8 +88,10 @@ public class SenhaBean implements Serializable {
                     firstCall = DataHoje.data();
                     sound = true;
                 } else {
-                    if(recallId == -1) {
-                        recallId = listSenha.get(0).getId();                        
+                    if(recallId.equals(-1)) {
+                        if(!listSenha.isEmpty()) {
+                            recallId = listSenha.get(0).getId();
+                        }
                     }
                 }
             }
