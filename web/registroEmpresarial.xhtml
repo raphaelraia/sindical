@@ -26,7 +26,7 @@
                     <div style="clear: both;"></div>
                     <p:panel styleClass="margin-top-max">
                         <f:facet name="header">Nome Empresa: #{registroEmpresarialBean.registro.filial.pessoa.nome}</f:facet>
-                        <p:tabView>
+                        <p:tabView prependId="false">
                             <p:ajax event="tabChange" listener="#{registroEmpresarialBean.onChange}"/>                            
                             <c:if test="#{registroEmpresarialBean.codigoModulo == 0}">
                                 <p:tab title="Cadastro">
