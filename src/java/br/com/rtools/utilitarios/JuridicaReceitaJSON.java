@@ -7,6 +7,7 @@ package br.com.rtools.utilitarios;
 
 import br.com.rtools.endereco.Endereco;
 import br.com.rtools.pessoa.Cnae;
+import br.com.rtools.pessoa.JuridicaReceita;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.TipoEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
@@ -35,10 +36,18 @@ public class JuridicaReceitaJSON {
 
     private final String documento;
     private final String tipo;
+    private final JuridicaReceita juridicaReceita;
 
     public JuridicaReceitaJSON(String documento, String tipo) {
+        this.juridicaReceita = null;
         this.documento = documento;
         this.tipo = tipo;
+    }
+
+    public JuridicaReceitaJSON(JuridicaReceita juridicaReceita) {
+        this.juridicaReceita = juridicaReceita;
+        this.documento = "";
+        this.tipo = "";
     }
 
     public JuridicaReceitaObject pesquisar() {
@@ -142,7 +151,7 @@ public class JuridicaReceitaJSON {
                 } catch (IOException | JSONException e) {
                     status = -1;
                     error = e.getMessage();
-                    if(error.contains("504")) {
+                    if (error.contains("504")) {
                         error = "Tente novamente mais tarde, serviço temporariamente indisponível!";
                     }
                     jro.setStatus(status);
@@ -158,12 +167,12 @@ public class JuridicaReceitaJSON {
                     jro.setStatus(status);
                     jro.setMsg(error);
                     return jro;
-                }else{
+                } else {
                     // CONSEGUIU PESQUISAR
                     status = 0;
                     error = "";
                 }
-                
+
                 try {
                     JSONArray cnaeArray = obj.getJSONArray("atividade_principal");
                     String cnaeString = "";
@@ -189,7 +198,7 @@ public class JuridicaReceitaJSON {
                     } catch (Exception e) {
 
                     }
-                    
+
                     jro = new JuridicaReceitaObject(
                             status,
                             error,
@@ -315,6 +324,120 @@ public class JuridicaReceitaJSON {
         return null;
     }
 
+    public JuridicaReceitaObject load() {
+        JuridicaReceitaObject jro = new JuridicaReceitaObject(
+                0,
+                "",
+                juridicaReceita.getNome(),
+                juridicaReceita.getFantasia(),
+                juridicaReceita.getCep(),
+                juridicaReceita.getDescricaoEndereco(),
+                juridicaReceita.getBairro(),
+                juridicaReceita.getComplemento(),
+                juridicaReceita.getNumero(),
+                juridicaReceita.getCnae(),
+                juridicaReceita.getStatus(),
+                DataHoje.converteData(juridicaReceita.getDtAbertura()),
+                juridicaReceita.getCnaeSegundario(),
+                juridicaReceita.getCidade(),
+                juridicaReceita.getUf(),
+                juridicaReceita.getEmail(),
+                juridicaReceita.getTelefone()
+        );
+
+        String[] emails = (jro.getEmail_rf() == null || jro.getEmail_rf().isEmpty()) ? "".split("") : jro.getEmail_rf().toLowerCase().split(" ");
+        String[] telefones = (jro.getTelefone_rf() == null || jro.getTelefone_rf().isEmpty()) ? "".split("") : jro.getTelefone_rf().toLowerCase().split(" / ");
+        String email1 = "", email2 = "", email3 = "";
+        String telefone1 = "", telefone2 = "", telefone3 = "";
+
+        switch (emails.length) {
+            case 1:
+                email1 = emails[0];
+                break;
+            case 2:
+                email1 = emails[0];
+                email2 = emails[1];
+                break;
+            case 3:
+                email1 = emails[0];
+                email2 = emails[1];
+                email3 = emails[2];
+                break;
+        }
+
+        switch (telefones.length) {
+            case 1:
+                telefone1 = telefones[0];
+                break;
+            case 2:
+                telefone1 = telefones[0];
+                telefone2 = telefones[1];
+                break;
+            case 3:
+                telefone1 = telefones[0];
+                telefone2 = telefones[1];
+                telefone3 = telefones[2];
+                break;
+        }
+
+        String result[] = (jro.getAtividade_principal() == null || jro.getAtividade_principal().isEmpty()) ? "".split("") : jro.getAtividade_principal().toLowerCase().split(" ");
+        CnaeDB dbc = new CnaeDBToplink();
+        String cnaex = result[result.length - 1].replace("(", "").replace(")", "");
+        List<Cnae> listac = dbc.pesquisaCnae(cnaex, "cnae", "I");
+
+        PessoaEnderecoDao dbe = new PessoaEnderecoDao();
+        String cep = jro.getCep();
+        cep = cep.replace(".", "").replace("-", "");
+
+        String descricao[] = AnaliseString.removerAcentos(jro.getLogradouro().replace("'", "")).split(" ");
+        String bairros[] = AnaliseString.removerAcentos(jro.getBairro().replace("'", "")).split(" ");
+
+        Endereco endereco = dbe.enderecoReceita(cep, descricao, bairros);
+
+        if (endereco == null) {
+            CEPService cEPService = new CEPService();
+            cEPService.setCep(cep);
+            cEPService.procurar();
+            Endereco e = cEPService.getEndereco();
+            if (e.getId() != -1) {
+                endereco = e;
+            }
+        }
+
+        List<PessoaEndereco> listpe = new ArrayList();
+
+        if (endereco != null) {
+            TipoEnderecoDB dbt = new TipoEnderecoDBToplink();
+            List tiposE = dbt.listaTipoEnderecoParaJuridica();
+            for (Object tiposE1 : tiposE) {
+                PessoaEndereco pe = new PessoaEndereco(
+                        -1,
+                        endereco,
+                        (TipoEndereco) tiposE1,
+                        null,
+                        jro.getNumero(),
+                        jro.getComplemento()
+                );
+
+                listpe.add(pe);
+            }
+        }
+
+        jro.setEmail1(email1);
+        jro.setEmail2(email2);
+        jro.setEmail3(email3);
+
+        jro.setTelefone1(telefone1);
+        jro.setTelefone2(telefone2);
+        jro.setTelefone3(telefone3);
+
+        jro.setLista_cnae(listac);
+
+        jro.setEndereco(endereco);
+        jro.setPessoaEndereco(listpe);
+        return jro;
+    }
+
     public class JuridicaReceitaObject {
 
         private Integer status;
@@ -345,7 +468,23 @@ public class JuridicaReceitaJSON {
         private List<PessoaEndereco> pessoaEndereco;
 
         public JuridicaReceitaObject() {
-
+//            this.status = -1;
+//            this.msg = "";
+//            this.nome_empresarial = "";
+//            this.titulo_estabelecimento = "";
+//            this.cep = "";
+//            this.logradouro = "";
+//            this.bairro = "";
+//            this.complemento = "";
+//            this.numero = "";
+//            this.atividade_principal = "";
+//            this.situacao_cadastral = "";
+//            this.data_abertura = "";
+//            this.atividades_secundarias = "";
+//            this.municipio = "";
+//            this.uf = "";
+//            this.email_rf = "";
+//            this.telefone_rf = "";
         }
 
         public JuridicaReceitaObject(Integer status, String msg, String nome_empresarial, String titulo_estabelecimento, String cep, String logradouro, String bairro, String complemento, String numero, String atividade_principal, String situacao_cadastral, String data_abertura, String atividades_secundarias, String municipio, String uf, String email_rf, String telefone_rf) {

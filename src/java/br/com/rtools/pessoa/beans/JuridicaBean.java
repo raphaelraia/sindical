@@ -639,55 +639,35 @@ public class JuridicaBean implements Serializable {
 
                     dao.commit();
                 }
+            }else{
+                // recarrego o jro porque no Object JuridicaReceita não contem os campos email1, email2, email3, telefone1, telefone2, telefone3, listaCnae e Endereco 
+                jro = new JuridicaReceitaJSON(juridicaReceita).load();
+                
             }
             
             juridica.getPessoa().setNome(juridicaReceita.getNome().toUpperCase());
             juridica.setFantasia(juridicaReceita.getFantasia().toUpperCase());
             juridica.setDtAbertura(juridicaReceita.getDtAbertura());
 
-            String emails[] = (juridicaReceita.getEmail() == null) ? "".split("") : juridicaReceita.getEmail().toLowerCase().split(" ");
-            String telefones[] = (juridicaReceita.getTelefone() == null) ? "".split("") : juridicaReceita.getTelefone().split(" / ");
+            
+            if (jro == null) {
+                return;
+            }
 
-            if (!emails[0].isEmpty()) {
-                juridica.setContabilidade(dbj.pesquisaContabilidadePorEmail(emails[0]));
+            if (!jro.getEmail1().isEmpty()) {
+                juridica.setContabilidade(dbj.pesquisaContabilidadePorEmail(jro.getEmail1()));
                 if (juridica.getContabilidade() != null) {
                     nomeContabilidade = juridica.getContabilidade().getPessoa().getNome();
                 }
             }
 
-            switch (emails.length) {
-                case 1:
-                    juridica.getPessoa().setEmail1(emails[0]);
-                    break;
-                case 2:
-                    juridica.getPessoa().setEmail1(emails[0]);
-                    juridica.getPessoa().setEmail2(emails[1]);
-                    break;
-                case 3:
-                    juridica.getPessoa().setEmail1(emails[0]);
-                    juridica.getPessoa().setEmail2(emails[1]);
-                    juridica.getPessoa().setEmail3(emails[2]);
-                    break;
-            }
+            juridica.getPessoa().setEmail1(jro.getEmail1());
+            juridica.getPessoa().setEmail2(jro.getEmail2());
+            juridica.getPessoa().setEmail3(jro.getEmail3());
 
-            switch (telefones.length) {
-                case 1:
-                    juridica.getPessoa().setTelefone1(telefones[0]);
-                    break;
-                case 2:
-                    juridica.getPessoa().setTelefone1(telefones[0]);
-                    juridica.getPessoa().setTelefone2(telefones[1]);
-                    break;
-                case 3:
-                    juridica.getPessoa().setTelefone1(telefones[0]);
-                    juridica.getPessoa().setTelefone2(telefones[1]);
-                    juridica.getPessoa().setTelefone3(telefones[2]);
-                    break;
-            }
-
-            if (jro == null) {
-                return;
-            }
+            juridica.getPessoa().setTelefone1(jro.getTelefone1());
+            juridica.getPessoa().setTelefone2(jro.getTelefone2());
+            juridica.getPessoa().setTelefone3(jro.getTelefone3());
 
             if (jro.getLista_cnae().isEmpty()) {
                 GenericaMensagem.warn("Erro", "Erro ao pesquisar CNAE");

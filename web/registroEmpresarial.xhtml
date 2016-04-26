@@ -121,12 +121,27 @@
                                             <p:outputLabel value=" meses de atraso." />                                            
                                         </p:column>                                        
                                         <p:column>
+                                            <p:outputLabel value="Tipo Empresa" />
+                                        </p:column>                                        
+                                        <p:column>
+                                            <p:selectOneMenu value="#{registroEmpresarialBean.registro.tipoEmpresa}" styleClass="text-center">
+                                                <p:ajax event="change" listener="#{registroEmpresarialBean.salvarSemSenha}" update=":form_registro_empresarial:id_messages" />
+                                                <f:selectItem itemValue="E" itemLabel="Empregado"/>
+                                                <f:selectItem itemValue="P" itemLabel="Patronal"/>
+                                            </p:selectOneMenu>
+                                        </p:column>                                        
+                                        <p:column>
+                                            <p:outputLabel value="Tipo Entidade" />
+                                        </p:column>                                        
+                                        <p:column>
                                             <p:selectOneMenu value="#{registroEmpresarialBean.registro.tipoEntidade}" styleClass="text-center">
                                                 <p:ajax event="change" listener="#{registroEmpresarialBean.salvarSemSenha}" update=":form_registro_empresarial:id_messages" />
                                                 <f:selectItem itemValue="S" itemLabel="Sindicato"/>
                                                 <f:selectItem itemValue="F" itemLabel="Federação"/>
                                                 <f:selectItem itemValue="C" itemLabel="Confederação"/>
                                             </p:selectOneMenu>
+                                        </p:column>                                        
+                                        <p:column>
                                         </p:column>                                        
                                         <p:column>
                                             <p:selectBooleanCheckbox value="#{registroEmpresarialBean.registro.baixaVencimento}" itemLabel="Baixar por vencimento">

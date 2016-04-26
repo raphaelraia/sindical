@@ -91,12 +91,11 @@ public class RelatorioHomologacaoDao extends DB {
                         + "      PPE.ds_documento   AS cnpj,        \n" // 03 - CNPJ Empresa
                         + "      PPE.ds_nome        AS empresa,     \n" // 04 - Nome Empresa
                         + "      PC.ds_nome         AS escritorio,  \n" // 05 - Escritório
-                        + "      PPE.ds_telefone1   AS empresa_telefone, \n" // 06 - Empresa Telefone
-                        + "      PC.ds_telefone1    AS escritorio_telefone, \n" // 07 - Escritório Telefone
-                        + "      PC.ds_email1       AS escritorio_email, \n" // 08 - Escritório Email
-                        + "      FUNC.ds_nome       AS funcionario, \n" // 09 - Nome Funcionário
-                        + "      PROF.ds_profissao  AS funcao,      \n" // 10 - Profissão
-                        + "      A.ds_contato       AS contato     \n"; // 11 - Contato
+                        + "      A.ds_telefone      AS telefone,    \n" // 06 - Contato Telefone
+                        + "      A.ds_email         AS email,       \n" // 07 - Contato Email
+                        + "      FUNC.ds_nome       AS funcionario, \n" // 08 - Nome Funcionário
+                        + "      PROF.ds_profissao  AS funcao,      \n" // 09 - Profissão
+                        + "      A.ds_contato       AS contato      \n"; // 10 - Contato
                 break;
             default:
                 queryString += "A.dt_data        AS data_inicial,                   \n" /*  00 - Data Inicial                   */
