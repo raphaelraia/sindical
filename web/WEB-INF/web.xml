@@ -30,10 +30,10 @@
     </filter>
     
     <!-- ATUALIZA AS PÁGINAS JSF -->
-    <context-param>
+    <!-- <context-param>
         <param-name>javax.faces.FACELETS_REFRESH_PERIOD</param-name>
         <param-value>5</param-value>
-    </context-param>
+    </context-param> -->
     
     <filter-mapping>
         <filter-name>UrlRewriteFilter</filter-name>
