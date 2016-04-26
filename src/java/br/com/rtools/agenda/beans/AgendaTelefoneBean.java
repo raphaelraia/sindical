@@ -22,6 +22,7 @@ import br.com.rtools.utilitarios.PF;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -339,7 +340,7 @@ public class AgendaTelefoneBean implements Serializable {
                 listSelectItem[1].add(new SelectItem(i, list.get(i).getDescricao(), "" + list.get(i).getId()));
             }
             if (listSelectItem[1].isEmpty()) {
-                listSelectItem[1] = new ArrayList<SelectItem>();
+                listSelectItem[1] = new ArrayList<>();
             }
         }
         return listSelectItem[1];
@@ -423,9 +424,10 @@ public class AgendaTelefoneBean implements Serializable {
         agenda = a;
         pessoa = new Pessoa();
         endereco = new Endereco();
+        List<SelectItem> list = getListGrupoAgendas();
         if (agenda.getGrupoAgenda() != null) {
-            for (int i = 0; i < getListGrupoAgendas().size(); i++) {
-                if (Integer.valueOf(getListGrupoAgendas().get(i).getDescription()) == agenda.getGrupoAgenda().getId()) {
+            for (int i = 0; i < list.size(); i++) {
+                if (Objects.equals(Integer.valueOf(list.get(i).getDescription()), agenda.getGrupoAgenda().getId())) {
                     indice[2] = i;
                     break;
                 }
@@ -544,7 +546,7 @@ public class AgendaTelefoneBean implements Serializable {
     public String editAgendaTelefone(AgendaTelefone at) {
         agendaTelefone = at;
         for (int i = 0; i < getListTipoTelefones().size(); i++) {
-            if (Integer.valueOf(getListTipoTelefones().get(i).getDescription()) == agendaTelefone.getTipoTelefone().getId()) {
+            if (Objects.equals(Integer.valueOf(getListTipoTelefones().get(i).getDescription()), agendaTelefone.getTipoTelefone().getId())) {
                 indice[1] = i;
                 break;
             }

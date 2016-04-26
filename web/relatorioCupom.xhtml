@@ -130,6 +130,18 @@
                                         </h:panelGrid>                                        
                                     </p:panel>
                                 </p:column>                                                            
+                                <p:column>
+                                    <p:panel header="Cidade da Empresa do Sócio" style="width: 100%!important" rendered="#{relatorioCupomBean.listFilters[5].active}" >
+                                        <h:panelGrid columns="4">
+                                            <p:selectCheckboxMenu label="Selecionar cidade" value="#{relatorioCupomBean.selectedCidade}" filter="true" filterMatchMode="startsWith">
+                                                <p:ajax event="toggleSelect" global="false"/>
+                                                <p:ajax event="change" global="false"/>
+                                                <f:selectItems value="#{relatorioCupomBean.listCidade}" />
+                                            </p:selectCheckboxMenu>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioCupomBean.close(relatorioCupomBean.listFilters[5])}" title="Remover filtro" update="form_relatorio"/>
+                                        </h:panelGrid>                                        
+                                    </p:panel>
+                                </p:column>                                                            
                             </h:panelGrid>
                         </h:column>
                     </h:panelGrid>

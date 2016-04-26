@@ -54,7 +54,7 @@
                     <p:panel styleClass="margin-top-max" id="id_lista" header="Contatos">
                         <p:dataTable value="#{agendaTelefoneBean.listAgendas}" var="agendaTelefone" scrollable="true" scrollHeight="300" emptyMessage="Nenhum resultado encontrado" paginator="true" rows="15">
                             <p:column styleClass="text-center" width="25">
-                                <p:commandButton icon="ui-icon-link" action="#{agendaTelefoneBean.edit(agendaTelefone.agenda)}"  />
+                                <p:commandButton icon="ui-icon-pencil" action="#{agendaTelefoneBean.edit(agendaTelefone.agenda)}"  />
                             </p:column>
                             <p:column styleClass="text-center" headerText="Grupo Agenda">
                                 <p:commandLink action="#{agendaTelefoneBean.edit(agendaTelefone.agenda)}" value="#{agendaTelefone.agenda.grupoAgenda.descricao}"  style="text-transform: uppercase; "/>

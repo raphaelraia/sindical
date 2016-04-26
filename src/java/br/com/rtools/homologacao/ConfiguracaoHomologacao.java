@@ -104,6 +104,9 @@ public class ConfiguracaoHomologacao implements Serializable {
     private Date webDesabilitaFinal;
     @Column(name = "web_desabilita_obs", length = 1000)
     private String webDesabilitaObs;
+    
+    @Column(name = "nr_inicio_dias_agendamento", columnDefinition = "integer default 0", nullable = false)
+    private Integer inicioDiasAgendamento;
 
     public ConfiguracaoHomologacao() {
         this.id = null;
@@ -143,9 +146,10 @@ public class ConfiguracaoHomologacao implements Serializable {
         this.webDesabilitaInicial = null;
         this.webDesabilitaFinal = null;
         this.webDesabilitaObs = "";
+        this.inicioDiasAgendamento = 0;
     }
 
-    public ConfiguracaoHomologacao(Integer id, Date homolocaoHabilitaCorrecao, Integer tempoRefreshAgendamento, Integer tempoRefreshWebAgendamento, Integer tempoRefreshRecepcao, Integer tempoRefreshHomologacao, Integer tempoRefreshAtendimento, Integer limiteMeses, Date limiteAgendamentoRetroativo, Date dataAtualizaHomologacao, Boolean validaCpf, Boolean validaNome, Boolean validaEndereco, Boolean validaCarteira, Boolean validaSerie, Boolean validaFuncao, Boolean validaAdmissao, Boolean validaDemissao, Boolean validaContato, Boolean validaEmail, Boolean validaTelefone, Boolean validaDataNascimento, Boolean webValidaCpf, Boolean webValidaNome, Boolean webValidaEndereco, Boolean webValidaCarteira, Boolean webValidaSerie, Boolean webValidaFuncao, Boolean webValidaAdmissao, Boolean webValidaDemissao, Boolean webValidaContato, Boolean webValidaEmail, Boolean webValidaTelefone, Boolean webValidaDataNascimento, Date webDesabilitaInicial, Date webDesabilitaFinal, String webDesabilitaObs) {
+    public ConfiguracaoHomologacao(Integer id, Date homolocaoHabilitaCorrecao, Integer tempoRefreshAgendamento, Integer tempoRefreshWebAgendamento, Integer tempoRefreshRecepcao, Integer tempoRefreshHomologacao, Integer tempoRefreshAtendimento, Integer limiteMeses, Date limiteAgendamentoRetroativo, Date dataAtualizaHomologacao, Boolean validaCpf, Boolean validaNome, Boolean validaEndereco, Boolean validaCarteira, Boolean validaSerie, Boolean validaFuncao, Boolean validaAdmissao, Boolean validaDemissao, Boolean validaContato, Boolean validaEmail, Boolean validaTelefone, Boolean validaDataNascimento, Boolean webValidaCpf, Boolean webValidaNome, Boolean webValidaEndereco, Boolean webValidaCarteira, Boolean webValidaSerie, Boolean webValidaFuncao, Boolean webValidaAdmissao, Boolean webValidaDemissao, Boolean webValidaContato, Boolean webValidaEmail, Boolean webValidaTelefone, Boolean webValidaDataNascimento, Date webDesabilitaInicial, Date webDesabilitaFinal, String webDesabilitaObs, Integer inicioDiasAgendamento) {
         this.id = id;
         this.homolocaoHabilitaCorrecao = homolocaoHabilitaCorrecao;
         this.tempoRefreshAgendamento = tempoRefreshAgendamento;
@@ -183,6 +187,7 @@ public class ConfiguracaoHomologacao implements Serializable {
         this.webDesabilitaInicial = webDesabilitaInicial;
         this.webDesabilitaFinal = webDesabilitaFinal;
         this.webDesabilitaObs = webDesabilitaObs;
+        this.inicioDiasAgendamento = inicioDiasAgendamento;
     }
 
     public Integer getId() {
@@ -510,6 +515,14 @@ public class ConfiguracaoHomologacao implements Serializable {
 
     public void setWebDesabilitaObs(String webDesabilitaObs) {
         this.webDesabilitaObs = webDesabilitaObs;
+    }
+
+    public Integer getInicioDiasAgendamento() {
+        return inicioDiasAgendamento;
+    }
+
+    public void setInicioDiasAgendamento(Integer inicioDiasAgendamento) {
+        this.inicioDiasAgendamento = inicioDiasAgendamento;
     }
 
 }

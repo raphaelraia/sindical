@@ -4,6 +4,7 @@ import br.com.rtools.associativo.LoteBoleto;
 import br.com.rtools.associativo.beans.ImpressaoBoletoSocialBean;
 import br.com.rtools.financeiro.db.FinanceiroDB;
 import br.com.rtools.financeiro.db.FinanceiroDBToplink;
+import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.utilitarios.DataHoje;
@@ -22,37 +23,38 @@ import javax.faces.bean.SessionScoped;
 @ManagedBean
 @SessionScoped
 public class GerarBoletoBean {
+
     private Pessoa pessoa = new Pessoa();
     private List<Pessoa> listaPessoa = new ArrayList();
     private List<DataObject> listaGerados = new ArrayList();
     private List<DataObject> listaGeradosSelecionado = new ArrayList();
     private boolean imprimeVerso = true;
-    
+
     private String ano;
     private String mes;
     private List listaData = new ArrayList();
-    
+
     private List<Vector> listaServicoSemCobranca = new ArrayList();
     private List<Vector> listaPessoaSemComplemento = new ArrayList();
-    
+
     private List<Vector> listaPessoaFisicaSemEndereco = new ArrayList();
     private List<Vector> listaPessoaJuridicaSemEndereco = new ArrayList();
-    
-    public GerarBoletoBean(){
+
+    public GerarBoletoBean() {
         DataHoje dh = new DataHoje();
-        
+
         ano = DataHoje.DataToArrayString(DataHoje.data())[2];
         mes = DataHoje.DataToArrayString(dh.incrementarMeses(1, DataHoje.data()))[1];
-        
+
         getListaServicoSemCobranca();
         getListaPessoaSemComplemento();
-        
+
         new FunctionsDao().incluiPessoaComplemento();
 //        NAO USA --- EXCLUIR DEPOIS DE 01/04/2015
 //        getListaPessoaFisicaSemEndereco();
 //        getListaPessoaJuridicaSemEndereco();
     }
-    
+
 //        NAO USA --- EXCLUIR DEPOIS DE 01/04/2015
 //    public void atualizarListaNotificacao(){
 //        listaPessoaFisicaSemEndereco.clear();
@@ -60,31 +62,29 @@ public class GerarBoletoBean {
 //        listaPessoaJuridicaSemEndereco.clear();
 //        getListaPessoaJuridicaSemEndereco();
 //    }
-    
-    public String imprimirLote(LoteBoleto lb){
+    public String imprimirLote(LoteBoleto lb) {
         ChamadaPaginaBean cp = (ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean");
         String pagina = cp.impressaoBoletoSocial();
-        
+
         //GenericaSessao.put("linkClicado", true);
-        
         ImpressaoBoletoSocialBean ibs = new ImpressaoBoletoSocialBean();
         ibs.setStrData(lb.getProcessamento());
-        ibs.setStrLote(""+lb.getId());
+        ibs.setStrLote("" + lb.getId());
         ibs.loadLista();
         GenericaSessao.put("impressaoBoletoSocialBean", ibs);
-        
+
         return pagina;
     }
-    
-    public void gerarTodos(){
-        if (!listaServicoSemCobranca.isEmpty()){
+
+    public void gerarTodos() {
+        if (!listaServicoSemCobranca.isEmpty()) {
             GenericaMensagem.warn("Atenção", "Não é possível gerar mensalidade, verifique os Serviços e Conta Cobrança!");
             listaServicoSemCobranca.clear();
             getListaServicoSemCobranca();
             return;
         }
-        
-        if (!listaPessoaSemComplemento.isEmpty()){
+
+        if (!listaPessoaSemComplemento.isEmpty()) {
             GenericaMensagem.warn("Atenção", "Não é possível gerar mensalidade, verifique as Pessoa Complemento!");
             listaPessoaSemComplemento.clear();
             getListaPessoaSemComplemento();
@@ -107,56 +107,66 @@ public class GerarBoletoBean {
 //        
         SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
         sv.abrirTransacao();
-
-        if (listaData.isEmpty()){
+        NovoLog novoLog = new NovoLog();
+        novoLog.saveList();
+        if (listaData.isEmpty()) {
             if (sv.executeQueryObject("select func_geramensalidades(null, '" + mes + "/" + ano + "')")) {
                 sv.comitarTransacao();
                 listaGerados.clear();
                 GenericaMensagem.info("Sucesso", "Geração de Mensalidades concluída!");
+                novoLog.save("Referência: " + mes + "/" + ano);
             } else {
                 sv.desfazerTransacao();
+                novoLog.cancelList();
                 GenericaMensagem.warn("Erro", "Erro ao gerar Mensalidades!");
             }
-        }else{
+        } else {
             for (Object listaDatax : listaData) {
                 String vencto = listaDatax.toString().substring(0, 2) + "/" + listaDatax.toString().substring(3, 7);
                 if (sv.executeQueryObject("select func_geramensalidades(null, '" + vencto + "')")) {
                     listaGerados.clear();
                     GenericaMensagem.info("Sucesso", "Geração de Mensalidades " + vencto + " concluída!");
+                    novoLog.save("Referência: " + vencto);
                 } else {
+                    novoLog.cancelList();
                     sv.desfazerTransacao();
                     GenericaMensagem.warn("Erro", "Erro ao gerar Mensalidades!");
                     return;
                 }
             }
-            
+
             sv.comitarTransacao();
         }
+        novoLog.saveList();
     }
-    
-    public void gerarLista(){
-        if (!listaServicoSemCobranca.isEmpty()){
+
+    public void gerarLista() {
+        if (!listaServicoSemCobranca.isEmpty()) {
             GenericaMensagem.warn("Atenção", "Não é possível gerar mensalidade, verifique os Serviços e Conta Cobrança!");
             return;
         }
-        
+
         SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
         sv.abrirTransacao();
         boolean erro = false;
-        
-        for (Pessoa pe : listaPessoa){
-            if (listaData.isEmpty()){
-                if (sv.executeQueryObject("select func_geramensalidades("+pe.getId()+", '" + mes + "/" + ano + "')")) {
+
+        NovoLog novoLog = new NovoLog();
+        novoLog.saveList();
+        for (Pessoa pe : listaPessoa) {
+            if (listaData.isEmpty()) {
+                if (sv.executeQueryObject("select func_geramensalidades(" + pe.getId() + ", '" + mes + "/" + ano + "')")) {
                     GenericaMensagem.info("Sucesso", "Geração de Mensalidades concluída!");
+                    novoLog.save("Referência: " + mes + "/" + ano + " - Pessoa: (" + pe.getId() + ") " + pe.getNome());
                 } else {
                     erro = true;
                     GenericaMensagem.warn("Erro", "Erro ao gerar Mensalidades!");
                 }
-            }else{
+            } else {
                 for (Object listaDatax : listaData) {
                     String vencto = listaDatax.toString().substring(0, 2) + "/" + listaDatax.toString().substring(3, 7);
-                    if (sv.executeQueryObject("select func_geramensalidades("+pe.getId()+", '" + vencto + "')")) {
-                        GenericaMensagem.info("Sucesso", "Geração de Mensalidades "+ vencto + " concluída!");
+                    if (sv.executeQueryObject("select func_geramensalidades(" + pe.getId() + ", '" + vencto + "')")) {
+                        GenericaMensagem.info("Sucesso", "Geração de Mensalidades " + vencto + " concluída!");
+                        novoLog.save("Referência: " + vencto + " - Pessoa: (" + pe.getId() + ") " + pe.getNome());
                     } else {
                         erro = true;
                         GenericaMensagem.warn("Erro", "Erro ao gerar Mensalidades!");
@@ -164,75 +174,77 @@ public class GerarBoletoBean {
                 }
             }
         }
-        
-        if (erro){
+
+        if (erro) {
             sv.desfazerTransacao();
-        }else{
+            novoLog.cancelList();
+        } else {
+            novoLog.saveList();
             sv.comitarTransacao();
             listaGerados.clear();
         }
     }
-    
+
     public void adicionarPessoa() {
         listaPessoa.add(pessoa);
         pessoa = new Pessoa();
     }
-    
+
     public void removerPessoaLista(int index) {
         listaPessoa.remove(index);
     }
-    
-    public void adicionarData(){
-        if (!listaData.isEmpty()){
+
+    public void adicionarData() {
+        if (!listaData.isEmpty()) {
             boolean existe = false;
-            for (int i = 0; i < listaData.size(); i++){
-                if (listaData.get(i).toString().equals(mes+"/"+ano)){
+            for (int i = 0; i < listaData.size(); i++) {
+                if (listaData.get(i).toString().equals(mes + "/" + ano)) {
                     existe = true;
                 }
             }
-            if (!existe)
-                listaData.add(mes+"/"+ano);
-                
-        }else{
-            listaData.add(mes+"/"+ano);
+            if (!existe) {
+                listaData.add(mes + "/" + ano);
+            }
+
+        } else {
+            listaData.add(mes + "/" + ano);
         }
-    }    
-    
-    public void adicionarTodasData(){
-        if (!listaData.isEmpty()){
+    }
+
+    public void adicionarTodasData() {
+        if (!listaData.isEmpty()) {
             boolean existe = false;
-            for (int w = 1; w <= 12; w++){
-                String mesx = (w < 10) ? "0"+w : ""+w;
-                for (int i = 0; i < listaData.size(); i++){
-                    if (listaData.get(i).toString().equals(mesx+"/"+ano)){
+            for (int w = 1; w <= 12; w++) {
+                String mesx = (w < 10) ? "0" + w : "" + w;
+                for (int i = 0; i < listaData.size(); i++) {
+                    if (listaData.get(i).toString().equals(mesx + "/" + ano)) {
                         existe = true;
                         break;
                     }
                 }
-                if (!existe){
-                    listaData.add(mesx+"/"+ano);
+                if (!existe) {
+                    listaData.add(mesx + "/" + ano);
                 }
                 existe = false;
             }
-        }else{
-            for (int w = 1; w <= 12; w++){
-                String mesx = (w < 10) ? "0"+w : ""+w;
-                listaData.add(mesx+"/"+ano);
+        } else {
+            for (int w = 1; w <= 12; w++) {
+                String mesx = (w < 10) ? "0" + w : "" + w;
+                listaData.add(mesx + "/" + ano);
             }
         }
-    }    
-    
+    }
+
     public void removerDataLista(int index) {
         listaData.remove(index);
     }
-    
-        
-    public void removerPessoa(){
+
+    public void removerPessoa() {
         pessoa = new Pessoa();
     }
-    
+
     public Pessoa getPessoa() {
-        if (GenericaSessao.getObject("pessoaPesquisa") != null){
+        if (GenericaSessao.getObject("pessoaPesquisa") != null) {
             pessoa = (Pessoa) GenericaSessao.getObject("pessoaPesquisa");
             GenericaSessao.remove("pessoaPesquisa");
             adicionarPessoa();
@@ -253,11 +265,11 @@ public class GerarBoletoBean {
     }
 
     public List<DataObject> getListaGerados() {
-        if (listaGerados.isEmpty()){
+        if (listaGerados.isEmpty()) {
             FinanceiroDB db = new FinanceiroDBToplink();
             //List<LoteBoleto> lista = (new SalvarAcumuladoDBToplink()).listaObjeto("LoteBoleto");
             List<LoteBoleto> lista = db.listaLoteBoleto();
-            for (LoteBoleto lb : lista){
+            for (LoteBoleto lb : lista) {
                 listaGerados.add(new DataObject(lb, null));
             }
         }
@@ -310,16 +322,16 @@ public class GerarBoletoBean {
     public void setListaData(List listaData) {
         this.listaData = listaData;
     }
-    
+
     public List<Vector> getListaServicoSemCobranca() {
-        if (listaServicoSemCobranca.isEmpty()){
+        if (listaServicoSemCobranca.isEmpty()) {
             FinanceiroDB db = new FinanceiroDBToplink();
-            
+
             listaServicoSemCobranca = db.listaServicosSemCobranca();
-            
-            if (!listaServicoSemCobranca.isEmpty()){
+
+            if (!listaServicoSemCobranca.isEmpty()) {
                 GenericaMensagem.fatal("Atenção", "Não é possível gerar mensalidades sem antes definir Conta Cobrança para os seguintes Serviços:");
-                for (Vector linha : listaServicoSemCobranca){
+                for (Vector linha : listaServicoSemCobranca) {
                     GenericaMensagem.info("Serviço / Tipo: ", linha.get(1).toString() + " - " + linha.get(3).toString());
                 }
             }
@@ -332,20 +344,20 @@ public class GerarBoletoBean {
     }
 
     public List<Vector> getListaPessoaSemComplemento() {
-        if (listaPessoaSemComplemento.isEmpty()){
+        if (listaPessoaSemComplemento.isEmpty()) {
             FinanceiroDB db = new FinanceiroDBToplink();
-            
-            if (listaData.isEmpty()){
-                listaPessoaSemComplemento = db.listaPessoaSemComplemento(mes+"/"+ano);
-            }else{
-                for(Object data : listaData){
+
+            if (listaData.isEmpty()) {
+                listaPessoaSemComplemento = db.listaPessoaSemComplemento(mes + "/" + ano);
+            } else {
+                for (Object data : listaData) {
                     listaPessoaSemComplemento.addAll(db.listaPessoaSemComplemento(data.toString()));
                 }
             }
-            
-            if (!listaPessoaSemComplemento.isEmpty()){
+
+            if (!listaPessoaSemComplemento.isEmpty()) {
                 GenericaMensagem.fatal("Atenção", "Pessoas não contém dia de vencimento: ");
-                for (Vector linha : listaPessoaSemComplemento){
+                for (Vector linha : listaPessoaSemComplemento) {
                     GenericaMensagem.info("ID / Nome: ", linha.get(0).toString() + " - " + linha.get(1).toString());
                 }
             }
@@ -356,7 +368,7 @@ public class GerarBoletoBean {
     public void setListaPessoaSemComplemento(List<Vector> listaPessoaSemComplemento) {
         this.listaPessoaSemComplemento = listaPessoaSemComplemento;
     }
-    
+
 //        NAO USA --- EXCLUIR DEPOIS DE 01/04/2015    
 //
 //    public List<Vector> getListaPessoaFisicaSemEndereco() {

@@ -48,12 +48,12 @@
                             </p:panel>
                             <br />
                             <h:panelGrid id="i_panel_grid" style="width: 100%">
-                                <p:dataTable value="#{juridicaBean.listaCnae}" var="linha" emptyMessage="Nenhum CNAE encontrado">
-                                    <p:column headerText="ID">
-                                        <p:commandLink action="#{juridicaBean.retornaCnae(linha)}" value="#{linha.id}" />
+                                <p:dataTable value="#{juridicaBean.listaCnae}" var="linha" emptyMessage="Nenhum CNAE encontrado" rows="10" paginator="true">
+                                    <p:column width="30" styleClass="text-center">
+                                        <p:commandButton icon="ui-icon-arrowreturnthick-1-w" action="#{juridicaBean.retornaCnae(linha)}" title="Editar registro n°#{linha.id}" />
                                     </p:column>
 
-                                    <p:column headerText="Número">
+                                    <p:column headerText="Número" width="100" styleClass="text-center">
                                         <h:outputText value="#{linha.numero}"/>
                                     </p:column>
 

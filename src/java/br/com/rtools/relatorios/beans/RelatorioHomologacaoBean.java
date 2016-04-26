@@ -142,8 +142,8 @@ public class RelatorioHomologacaoBean implements Serializable {
         for (int i = 0; i < list.size(); i++) {
             for (Map.Entry<String, Integer> entry : listStatus.entrySet()) {
                 if (selectedStatus.isEmpty()) {
-                    if (entry.getValue() == 3) {
-                        selectedStatus.add(entry.getValue());
+                    if (entry.getValue().equals(3)) {
+                        // selectedStatus.add(entry.getValue());
                         break;
                     }
                 }
@@ -486,6 +486,7 @@ public class RelatorioHomologacaoBean implements Serializable {
                 PF.update("form_relatorio:i_panel_accordion:i_panel_avancado");
                 break;
             case "status":
+                selectedStatus = new ArrayList();
                 loadListStatus();
                 break;
             case "empresa":
@@ -850,9 +851,9 @@ public class RelatorioHomologacaoBean implements Serializable {
             try {
                 this.quantidade_status = Integer.parseInt(quantidade_status.toString());
             } catch (Exception e) {
+                this.quantidade_status = 0;
                 e.getMessage();
             }
-            this.quantidade_status = 0;
         }
 
         public ParametroHomologacao(Object data_final, Object data, Object hora, Object cnpj, Object empresa, Object funcionario, Object contato, Object telefone, Object operador, Object obs, Object status, Object cancelamento_data, Object cancelamento_usuario_nome, Object cancelamento_motivo) {

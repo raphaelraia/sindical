@@ -16,11 +16,15 @@ import br.com.rtools.associativo.db.SociosDB;
 import br.com.rtools.associativo.db.SociosDBToplink;
 import br.com.rtools.associativo.db.VendasCaravanaDB;
 import br.com.rtools.associativo.db.VendasCaravanaDBToplink;
+import br.com.rtools.financeiro.CondicaoPagamento;
 import br.com.rtools.financeiro.Evt;
+import br.com.rtools.financeiro.FStatus;
+import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.impressao.ParametroFichaReserva;
+import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
@@ -331,30 +335,30 @@ public class VendasCaravanaBean {
 
     public void salvar() {
         if (vendas.getId() != -1) {
-            SalvarAcumuladoDB sadb = new SalvarAcumuladoDBToplink();
-            sadb.abrirTransacao();
-            if (sadb.alterarObjeto(vendas)) {
-                sadb.comitarTransacao();
+            Dao dao = new Dao();
+            dao.openTransaction();
+            if (dao.update(vendas)) {
+                dao.commit();
                 GenericaMensagem.info("Sucesso", "Venda atualizada com sucesso!");
             } else {
-                sadb.desfazerTransacao();
+                dao.rollback();
                 GenericaMensagem.warn("Erro", "Erro ao atualizar esta venda!");
             }
             return;
         }
 
         if (pessoa.getId() == -1) {
-            GenericaMensagem.warn("Erro", "Pesquise um responsável!");
+            GenericaMensagem.warn("Validação", "Pesquise um responsável!");
             return;
         }
 
         if (listaReserva.isEmpty()) {
-            GenericaMensagem.warn("Erro", "Não é possivel concluir nenhuma Reserva!");
+            GenericaMensagem.warn("Validação", "Não é possivel concluir nenhuma Reserva!");
             return;
         }
 
         if (listaParcelas.isEmpty()) {
-            GenericaMensagem.warn("Erro", "Não é possivel concluir sem parcelas!");
+            GenericaMensagem.warn("Validação", "Não é possivel concluir sem parcelas!");
             return;
         }
         float soma = 0;
@@ -364,28 +368,20 @@ public class VendasCaravanaBean {
         }
 
         if (soma < Moeda.converteUS$(valorTotal)) {
-            GenericaMensagem.warn("Erro", "Valor das parcelas é MENOR que o valor total");
+            GenericaMensagem.warn("Validação", "Valor das parcelas é MENOR que o valor total!");
             return;
         }
 
         if (soma > Moeda.converteUS$(valorTotal)) {
-            GenericaMensagem.warn("Erro", "Valor das parcelas é MAIOR que o valor total");
+            GenericaMensagem.warn("Validação", "Valor das parcelas é MAIOR que o valor total!");
             return;
         }
 
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-        sv.abrirTransacao();
-//        Evt evt = new Evt();
-//        evt.setDescricao("Vendas Caravana");
-//        if (!sv.inserirObjeto(evt)) {
-//            GenericaMensagem.warn("Erro", "Não foi possível salvar EVT!");
-//            sv.desfazerTransacao();
-//            return;
-//        }
-
-        //vendas.setEvt(caravana.getEvt());
-        if (!sv.inserirObjeto(vendas)) {
+        Dao dao = new Dao();
+        dao.openTransaction();
+        if (!dao.save(vendas)) {
             GenericaMensagem.warn("Erro", "Não é possivel salvar venda!");
+            dao.rollback();
             return;
         }
 
@@ -396,50 +392,51 @@ public class VendasCaravanaBean {
                     Integer.valueOf(listaReserva1.getArgumento1().toString()),
                     Moeda.converteUS$(listaReserva1.getArgumento3().toString()),
                     ((Reservas) listaReserva1.getArgumento4()).getEventoServico());
-            if (!sv.inserirObjeto(res)) {
+            if (!dao.save(res)) {
+                dao.rollback();
                 GenericaMensagem.warn("Erro", "Não é possivel salvar venda!");
                 return;
             }
             listaReserva1.setArgumento4(res);
         }
 
+        CondicaoPagamento condicaoPagamento;
+        if (listaParcelas.size() == 1 && dataEntrada.equals(DataHoje.data())) {
+            condicaoPagamento = (CondicaoPagamento) dao.find(new CondicaoPagamento(), 1);
+        } else {
+            condicaoPagamento = (CondicaoPagamento) dao.find(new CondicaoPagamento(), 2);
+        }
         Lote lote = new Lote(
                 -1,
-                (Rotina) sv.find(new Rotina(), 142),
-                "",
+                (Rotina) dao.find(new Rotina(), 142),
+                "R",
                 DataHoje.data(),
                 pessoa,
-                null,
+                eventoServico.getServicos().getPlano5(),
                 false,
                 "",
                 Moeda.converteUS$(valorTotal),
-                (Filial) sv.pesquisaObjeto(1, "Filial"),
-                (Departamento) sv.find(new Departamento(), 6),
+                (Filial) dao.find(new Filial(), 1),
+                (Departamento) dao.find(new Departamento(), 6),
                 caravana.getEvt(),
                 "",
-                null,
-                null,
-                null,
+                (FTipoDocumento) dao.find(new FTipoDocumento(), 13),
+                condicaoPagamento,
+                (FStatus) dao.find(new FStatus(), 1),
                 null,
                 false,
                 0
         );
 
-        if (!sv.inserirObjeto(lote)) {
+        if (!dao.save(lote)) {
             GenericaMensagem.warn("Erro", "Não foi possível salvar Lote!");
-            sv.desfazerTransacao();
+            dao.rollback();
             return;
         }
 
         Movimento movimento;
         EventoServicoValor esv;
         for (int i = 0; i < listaParcelas.size(); i++) {
-//            if(listaReserva.get(i).getArgumento6() == null) {
-//                GenericaMensagem.warn("Erro", "Não foi possível salvar parcela nº"+ i+1 + " deste movimento!");
-//                sv.desfazerTransacao();
-//                return;
-//            }
-//            esv = (EventoServicoValor) listaReserva.get(0).getArgumento6();
             movimento = new Movimento(
                     -1,
                     lote,
@@ -447,7 +444,7 @@ public class VendasCaravanaBean {
                     pessoa,
                     eventoServico.getServicos(), //esv.getEventoServico().getServicos(),
                     null,
-                    (TipoServico) sv.find(new TipoServico(), 1),
+                    (TipoServico) dao.find(new TipoServico(), 1),
                     null,
                     Moeda.converteUS$(String.valueOf(listaParcelas.get(i).getArgumento1())),
                     DataHoje.dataReferencia(String.valueOf(listaParcelas.get(i).getArgumento0())),
@@ -473,14 +470,17 @@ public class VendasCaravanaBean {
                     new MatriculaSocios()
             );
 
-            if (!sv.inserirObjeto(movimento)) {
+            if (!dao.save(movimento)) {
+                dao.rollback();
                 GenericaMensagem.warn("Erro", "Não é possivel salvar movimento!");
                 return;
             }
         }
 
+        NovoLog novoLog = new NovoLog();
+        novoLog.save("ID: " + vendas.getId() + " - Responsável: " + vendas.getResponsavel().getNome() + " - Evento: (" + vendas.getaEvento().getId() + ") - " + vendas.getaEvento().getDescricaoEvento().getDescricao() + " - Quarto: " + vendas.getQuarto() + " - Serviço : (" + eventoServico.getServicos().getId() + ") " + eventoServico.getServicos().getDescricao());
         GenericaMensagem.info("Sucesso", "Reserva concluída com Sucesso!");
-        sv.comitarTransacao();
+        dao.commit();
     }
 
     public void gerarParcelas() {

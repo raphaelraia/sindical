@@ -1401,8 +1401,6 @@ public class RecepcaoBean implements Serializable {
         listFiles.remove(index);
         listFiles.clear();
         getListFiles();
-        PF.update("formConcluirHomolocagao:id_grid_uploads");
-        PF.update("formConcluirHomolocagao:id_btn_anexo");
         PF.update("form_recepcao_upload:id_grid_uploads");
         PF.update("formRecepcao:id_btn_anexo");
     }

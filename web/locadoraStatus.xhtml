@@ -81,7 +81,7 @@
                             <h:panelGrid id="i_pg_fd">
                                 <p:dataTable var="locadoraStatus" value="#{locadoraStatusBean.listLocadoraStatus}" scrollable="true" scrollHeight="200" styleClass="margin-top-max" emptyMessage="Nenhum registro encontrado!">
                                     <p:column width="25">
-                                        <p:commandButton icon="ui-icon-link" action="#{locadoraStatusBean.edit(locadoraStatus)}" update=":form_locadora_status:" />
+                                        <p:commandButton icon="ui-icon-pencil" action="#{locadoraStatusBean.edit(locadoraStatus)}" update=":form_locadora_status:" />
                                     </p:column>
                                     <p:column headerText="Data" width="80">
                                         #{locadoraStatus.dataString}

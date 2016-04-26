@@ -812,50 +812,54 @@ public class ImpressaoBoletosBean implements Serializable {
         int id_contabil = 0, id_empresa = 0, id_compara = 0;
 
         for (int i = 0; i < listaMovGridSelecionada.size(); i++) {
-            id_contabil = (Integer) listaMovGridSelecionada.get(i).getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getValor();
-            id_empresa = (Integer) listaMovGridSelecionada.get(i).getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getValor();
+            try {
+                
+                id_contabil = (Integer) listaMovGridSelecionada.get(i).getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getValor();
+                id_empresa = (Integer) listaMovGridSelecionada.get(i).getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getValor();
 
-            /* ENVIO PARA CONTABILIDADE */
-            movimento = dbM.pesquisaCodigo((Integer) listaMovGridSelecionada.get(i).getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getValor());
-            juridica = dbj.pesquisaCodigo(id_empresa);
+                /* ENVIO PARA CONTABILIDADE */
+                movimento = dbM.pesquisaCodigo((Integer) listaMovGridSelecionada.get(i).getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getValor());
+                juridica = dbj.pesquisaCodigo(id_empresa);
 
-            if (id_contabil != 0 && juridica.isEmailEscritorio()) {
-                movadd.add(movimento);
-                listaValores.add(movimento.getValor());
-                listaVencimentos.add(movimento.getVencimento());
+                if (id_contabil != 0 && juridica.isEmailEscritorio()) {
+                    movadd.add(movimento);
+                    listaValores.add(movimento.getValor());
+                    listaVencimentos.add(movimento.getVencimento());
 
-                juridica = dbj.pesquisaJuridicaPorPessoa(id_contabil);
+                    juridica = dbj.pesquisaJuridicaPorPessoa(id_contabil);
 
-                try {
-                    id_compara = (Integer) listaMovGridSelecionada.get(i + 1).getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getValor();
-                    if (id_contabil != id_compara) {
+                    try {
+                        id_compara = (Integer) listaMovGridSelecionada.get(i + 1).getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getValor();
+                        if (id_contabil != id_compara) {
+                            enviar = true;
+                        }
+                    } catch (Exception e) {
                         enviar = true;
                     }
-                } catch (Exception e) {
-                    enviar = true;
-                }
-                /* ENVIO PARA EMPRESA */
-            } else {
-                movadd.add(movimento);
-                listaValores.add(movimento.getValor());
-                listaVencimentos.add(movimento.getVencimento());
+                    /* ENVIO PARA EMPRESA */
+                } else {
+                    movadd.add(movimento);
+                    listaValores.add(movimento.getValor());
+                    listaVencimentos.add(movimento.getVencimento());
 
-                try {
-                    id_compara = (Integer) listaMovGridSelecionada.get(i + 1).getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getValor();
-                    if (id_empresa != id_compara) {
+                    try {
+                        id_compara = (Integer) listaMovGridSelecionada.get(i + 1).getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getValor();
+                        if (id_empresa != id_compara) {
+                            enviar = true;
+                        }
+                    } catch (Exception e) {
                         enviar = true;
                     }
-                } catch (Exception e) {
-                    enviar = true;
                 }
-            }
 
-            if (enviar) {
-                enviar(movadd, listaValores, listaVencimentos, juridica);
-                enviar = false;
-                movadd.clear();
-                listaValores.clear();
-                listaVencimentos.clear();
+                if (enviar) {
+                    enviar(movadd, listaValores, listaVencimentos, juridica);
+                    enviar = false;
+                    movadd.clear();
+                    listaValores.clear();
+                    listaVencimentos.clear();
+                }                
+            } catch (Exception ex) {
             }
         }
     }
