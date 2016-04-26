@@ -1316,6 +1316,8 @@ public class JuridicaBean implements Serializable {
         listaEnd = new ArrayList();
         enderecoCobranca = "NENHUM";
         getListaEnderecos();
+        pessoaComplemento = new PessoaComplemento();
+        pessoaComplemento = juridica.getPessoa().getPessoaComplemento();
         if (pessoaComplemento.getId() == -1) {
             pessoaComplemento = (PessoaComplemento) dao.rebind(new PessoaComplementoDao().findByPessoa(juridica.getPessoa().getId()));
             if (pessoaComplemento == null) {
