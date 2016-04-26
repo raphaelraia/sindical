@@ -1452,8 +1452,8 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
         listFiles.remove(index);
         listFiles.clear();
         getListFiles();
-        PF.update("formConcluirHomolocagao:id_grid_uploads");
-        PF.update("formConcluirHomolocagao:id_btn_anexo");
+        PF.update("formConcluirHomologacao:id_grid_uploads");
+        PF.update("formConcluirHomologacao:id_btn_anexo");
     }
 
 }
