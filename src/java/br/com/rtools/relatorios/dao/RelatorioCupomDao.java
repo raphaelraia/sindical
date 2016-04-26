@@ -23,7 +23,7 @@ public class RelatorioCupomDao extends DB {
         this.relatorioOrdem = relatorioOrdem;
     }
 
-    public List find(Integer cupom_id, String tipoDataEmissao, String dataEmissaoInicial, String dataEmissaoFinal, String idadeInicial, String idadeFinal, String sexo, String inOperador, String inParentesco) {
+    public List find(Integer cupom_id, String tipoDataEmissao, String dataEmissaoInicial, String dataEmissaoFinal, String idadeInicial, String idadeFinal, String sexo, String inOperador, String inParentesco, String inCidade) {
         // CHAMADOS 1192
         if (relatorios == null || relatorios.getId() == null) {
             return new ArrayList();
@@ -48,6 +48,7 @@ public class RelatorioCupomDao extends DB {
                     + "INNER JOIN seg_usuario           AS U  ON U.id           = CM.id_operador \n"
                     + "INNER JOIN pes_pessoa            AS PO ON PO.id          = U.id_pessoa    \n"
                     + " LEFT JOIN soc_socios_vw         AS S  ON S.codsocio     = P.id           \n"
+                    + " LEFT JOIN pes_pessoa_vw         AS PVW ON PVW.codigo    = s.titular      \n"
                     + "-- ORDER BY dt_data, cm.dt_emissao\n"
                     + "-- ORDER BY dt_data, p.ds_nome\n"
                     + "-- ORDER BY p.ds_nome\n";
@@ -65,7 +66,7 @@ public class RelatorioCupomDao extends DB {
                             listWhere.add(" CM.dt_emissao <= '" + dataEmissaoInicial + "'");
                             break;
                         case "faixa":
-                            if (dataEmissaoFinal != null && !dataEmissaoFinal.isEmpty()) {
+                            if (!dataEmissaoFinal.isEmpty()) {
                                 listWhere.add(" CM.dt_emissao BETWEEN '" + dataEmissaoInicial + "' AND '" + dataEmissaoFinal + "'");
                             }
                             break;
@@ -95,6 +96,10 @@ public class RelatorioCupomDao extends DB {
             if (inParentesco != null && !inParentesco.isEmpty()) {
                 listWhere.add(" S.id_parentesco IN (" + inParentesco + ")");
             }
+            // PARENTESCO
+            if (inCidade != null && !inCidade.isEmpty()) {
+                listWhere.add(" PVW.id_cidade IN (" + inCidade + ")");
+            }
             for (int i = 0; i < listWhere.size(); i++) {
                 if (i == 0) {
                     queryString += " WHERE " + listWhere.get(i).toString() + " \n";
@@ -104,7 +109,8 @@ public class RelatorioCupomDao extends DB {
             }
             if (relatorioOrdem != null) {
                 queryString += " ORDER BY " + relatorioOrdem.getQuery();
-
+            } else {
+                queryString += " ORDER BY p.ds_nome, CM.dt_emissao";
             }
             Query query = getEntityManager().createNativeQuery(queryString);
             return query.getResultList();

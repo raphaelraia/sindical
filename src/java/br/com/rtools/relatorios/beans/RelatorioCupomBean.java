@@ -3,14 +3,18 @@ package br.com.rtools.relatorios.beans;
 import br.com.rtools.associativo.Cupom;
 import br.com.rtools.associativo.Parentesco;
 import br.com.rtools.associativo.dao.CupomDao;
+import br.com.rtools.endereco.Cidade;
+import br.com.rtools.endereco.dao.CidadeDao;
 import br.com.rtools.impressao.Etiquetas;
 import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioCupomDao;
 import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.relatorios.dao.RelatorioOrdemDao;
+import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
+import br.com.rtools.seguranca.utilitarios.SegurancaUtilitariosBean;
 import br.com.rtools.sistema.SisProcesso;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.Filters;
@@ -46,6 +50,9 @@ public class RelatorioCupomBean implements Serializable {
     private Map<String, Integer> listParentesco;
     private List selectedParentesco;
 
+    private Map<String, Integer> listCidade;
+    private List selectedCidade;
+
     private List<SelectItem> listRelatorioOrdem;
     private Integer idRelatorioOrdem;
 
@@ -75,7 +82,7 @@ public class RelatorioCupomBean implements Serializable {
 
         idadeInicial = "";
         idadeFinal = "";
-        
+
         tipoDataEmissao = "";
 
         sexo = "";
@@ -116,7 +123,7 @@ public class RelatorioCupomBean implements Serializable {
             }
         }
         rcd.setRelatorios(r);
-        List list = rcd.find(idCupom, tipoDataEmissao, dataEmissaoInicial, dataEmissaoFinal, idadeInicial, idadeFinal, sexo, inIdOperador(), inIdParentesco());
+        List list = rcd.find(idCupom, tipoDataEmissao, dataEmissaoInicial, dataEmissaoFinal, idadeInicial, idadeFinal, sexo, inIdOperador(), inIdParentesco(), inIdCidade());
         sisProcesso.finishQuery();
         for (int i = 0; i < list.size(); i++) {
             List o = (List) list.get(i);
@@ -192,6 +199,7 @@ public class RelatorioCupomBean implements Serializable {
         listFilters.add(new Filters("parentesco", "Parentesco", false, false));
         listFilters.add(new Filters("idade", "Idade", false, false));
         listFilters.add(new Filters("operador", "Operador", false, false));
+        listFilters.add(new Filters("cidade_socio", "Cidade da Empresa do Sócio", false, false));
     }
 
     // LISTENER
@@ -232,6 +240,14 @@ public class RelatorioCupomBean implements Serializable {
                 } else {
                     listOperador = new LinkedHashMap<>();
                     selectedOperador = new ArrayList<>();
+                }
+                break;
+            case "cidade_socio":
+                if (filter.getActive()) {
+                    loadListCidade();
+                } else {
+                    listCidade = new LinkedHashMap<>();
+                    selectedCidade = new ArrayList<>();
                 }
                 break;
         }
@@ -328,6 +344,18 @@ public class RelatorioCupomBean implements Serializable {
         }
     }
 
+    public void loadListCidade() {
+        listCidade = new LinkedHashMap<>();
+        selectedCidade = new ArrayList<>();
+        CidadeDao cidadeDao = new CidadeDao();
+        List<Cidade> list = cidadeDao.pesquisaCidadeObj(Registro.get().getFilial().getPessoa().getPessoaEndereco().getEndereco().getCidade().getUf());
+        if (list != null) {
+            for (int i = 0; i < list.size(); i++) {
+                listCidade.put(list.get(i).getCidade(), list.get(i).getId());
+            }
+        }
+    }
+
     // TRATAMENTO
     public String inIdParentesco() {
         String ids = null;
@@ -351,6 +379,20 @@ public class RelatorioCupomBean implements Serializable {
                     ids = "" + selectedOperador.get(i);
                 } else {
                     ids += "," + selectedOperador.get(i);
+                }
+            }
+        }
+        return ids;
+    }
+
+    public String inIdCidade() {
+        String ids = null;
+        if (selectedCidade != null) {
+            for (int i = 0; i < selectedCidade.size(); i++) {
+                if (ids == null) {
+                    ids = "" + selectedCidade.get(i);
+                } else {
+                    ids += "," + selectedCidade.get(i);
                 }
             }
         }
@@ -451,6 +493,22 @@ public class RelatorioCupomBean implements Serializable {
 
     public void setTipoDataEmissao(String tipoDataEmissao) {
         this.tipoDataEmissao = tipoDataEmissao;
+    }
+
+    public Map<String, Integer> getListCidade() {
+        return listCidade;
+    }
+
+    public void setListCidade(Map<String, Integer> listCidade) {
+        this.listCidade = listCidade;
+    }
+
+    public List getSelectedCidade() {
+        return selectedCidade;
+    }
+
+    public void setSelectedCidade(List selectedCidade) {
+        this.selectedCidade = selectedCidade;
     }
 
     public class ObjectJasper {

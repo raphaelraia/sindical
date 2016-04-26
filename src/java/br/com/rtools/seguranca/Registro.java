@@ -696,4 +696,8 @@ public class Registro implements Serializable {
     public void setBiometria(boolean biometria) {
         this.biometria = biometria;
     }
+
+    public static Registro get() {
+        return (Registro) new Dao().find(new Registro(), 1);
+    }
 }
