@@ -1,6 +1,6 @@
 {
-    "host_local": "localhost",
-    "host_web": "localhost",
+    "host_local": "192.168.1.160",
+    "host_web": "192.168.1.160",
     "port": 8080,
     "email_suport": "suporte@rtools.com.br",
     "url_sistem_master": "http://sindical.rtools.com.br:7070/Sindical/"
