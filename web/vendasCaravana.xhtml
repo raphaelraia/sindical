@@ -132,19 +132,19 @@
                                     <p:commandButton ajax="false" icon="ui-icon-search" action="#{vendasCaravanaBean.pesquisaPassageiro(it)}" disabled="#{vendasCaravanaBean.vendas.id != -1}"/>
                                     <h:outputLabel value="#{linha.argumento0.pessoa.nome}" style="margin-left: 10px "/>
                                 </p:column>
-                                
+
                                 <p:column headerText="Poltrona" style="text-align: center; width: 60px" >
                                     <p:selectOneMenu value="#{linha.argumento1}" style="padding-right: 20px" rendered="#{vendasCaravanaBean.vendas.id == -1}">
                                         <f:selectItems value="#{vendasCaravanaBean.listaPoltrona}" />
                                     </p:selectOneMenu>                                    
                                     <h:outputLabel value="#{linha.argumento4.poltrona}" style="margin-left: 10px; font-weight: bold; font-size: 12pt!important" rendered="#{vendasCaravanaBean.vendas.id != -1}"/>
                                 </p:column>
-                                
+
                                 <p:column headerText="Valor" style="text-align: center; width: 100px">
                                     <h:outputLabel value="R$ " />
                                     <h:outputText value="#{linha.argumento2}" style="font-weight: bold"/>
                                 </p:column>
-                                
+
                                 <p:column headerText="Desconto" style="text-align: center; width: 100px">
                                     <h:outputLabel value="R$ " />
                                     <p:inputText value="#{linha.argumento3}" rendered="#{vendasCaravanaBean.vendas.id == -1}" style="width: 70px; text-align: right">
@@ -226,12 +226,20 @@
                                     <f:selectItems value="#{vendasCaravanaBean.listaMesVencimento}" />
                                 </h:selectOneMenu>                                 
                             </h:panelGrid>
-                            <p:commandButton value="Salvar"   type="submit" styleClass="ui-confirmdialog-yes" action="#{vendasCaravanaBean.salvar()}" onclick="PF('i_dlg_s').hide()" style="clear: both; float: left" icon="ui-icon-check" update="i_msg formVendasCaravana"/>  
-                            <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_s').hide()" style="float: left" icon="ui-icon-close"/>       
+                            <f:facet name="footer">
+                                <h:panelGrid columns="2">
+                                    <p:commandButton value="Salvar"   type="submit" styleClass="ui-confirmdialog-yes" action="#{vendasCaravanaBean.salvar()}" onclick="PF('i_dlg_s').hide()" icon="ui-icon-check" update="i_msg formVendasCaravana"/>
+                                    <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_s').hide()" icon="ui-icon-close"/>                                    
+                                </h:panelGrid>
+                            </f:facet>
                         </p:dialog>                        
                         <p:dialog widgetVar="i_dlg_e" header="Deseja Excluir esta Venda" resizable="false" width="400" modal="true">
-                            <p:commandButton value="Excluir"   type="submit" styleClass="ui-confirmdialog-yes" action="#{vendasCaravanaBean.excluir()}" onclick="PF('i_dlg_e').hide()" style="clear: both; float: left" icon="ui-icon-closethick" update="i_msg formVendasCaravana"/>  
-                            <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_e').hide()" style="float: left" icon="ui-icon-close"/>       
+                            <f:facet name="footer">
+                                <h:panelGrid columns="2">
+                                    <p:commandButton value="Excluir"   type="submit" styleClass="ui-confirmdialog-yes" action="#{vendasCaravanaBean.excluir()}" onclick="PF('i_dlg_e').hide()" icon="ui-icon-closethick" update="i_msg formVendasCaravana"/>
+                                    <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_e').hide()" icon="ui-icon-close"/>
+                                </h:panelGrid>
+                            </f:facet>
                         </p:dialog>
                         <p:dialog id="id_alterar_dia_vencto"  widgetVar="dgl_alterar_dia_vencto" modal="true" header="Selecione o dia" resizable="false">
                             <h:panelGrid columns="2" id="i_alterar_dia_vencto">

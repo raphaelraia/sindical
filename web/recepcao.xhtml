@@ -407,7 +407,7 @@
                                     </p:tab>
                                 </p:tabView>
 
-                                <p:dialog widgetVar="dlg_recepcao" header="Dados da Homologação" resizable="false" modal="true" visible="#{recepcaoBean.openDialog}">
+                                <p:dialog widgetVar="dlg_recepcao" header="Dados da Homologação" resizable="false" modal="true" visible="#{recepcaoBean.openDialog}" closeOnEscape="true">
                                     <p:ajax event="close" listener="#{recepcaoBean.fecharModal()}" update="formRecepcao"/>  
                                     <p:messages showDetail="true" closable="true"/>
                                     <h:panelGrid id="i_panel_homologacao">
@@ -573,7 +573,7 @@
                                 </p:commandLink> -->
                             </h:form>
                             <h:form id="form_recepcao_upload">
-                                <p:dialog widgetVar="dgl_anexos" modal="true" width="400" height="300" header="Anexos" closable="true" dynamic="true">
+                                <p:dialog widgetVar="dgl_anexos" modal="true" width="400" height="300" header="Anexos" closable="true" dynamic="true" closeOnEscape="true">
                                     <h:panelGrid id="id_grid_uploads" style="width: 350px">
                                         <p:dataTable value="#{recepcaoBean.listFiles}" var="lista" emptyMessage="Nenhum arquivo encontrado">
                                             <f:facet name="header">Documentos anexados (#{recepcaoBean.listFiles.size()})</f:facet>
@@ -592,7 +592,7 @@
                         </h:panelGrid>
                     </p:panel>
                     <h:form id="form_recepcao_files" enctype="multipart/form-data" acceptcharset="UTF-8">
-                        <p:dialog id="id_dgl_anexos" widgetVar="dgl_upload" modal="true" width="500" height="400" header="Anexar arquivos" closable="true">
+                        <p:dialog id="id_dgl_anexos" widgetVar="dgl_upload" modal="true" width="500" height="400" header="Anexar arquivos" closable="true" closeOnEscape="true">
                             <p:fileUpload label="Procurar"
                                           cancelLabel="Cancelar"
                                           uploadLabel="Anexar"
