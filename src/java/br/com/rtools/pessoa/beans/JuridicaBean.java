@@ -584,8 +584,8 @@ public class JuridicaBean implements Serializable {
             Dao dao = new Dao();
             JuridicaReceitaJSON.JuridicaReceitaObject jro = null;
             if (juridicaReceita.getId() == -1) {
-                // tipo = "wokki" = pago / "" = gratis
-                jro = new JuridicaReceitaJSON(documento, "wokki").pesquisar();
+                // tipo = "wooki" = pago / "" = gratis
+                jro = new JuridicaReceitaJSON(documento, "wooki").pesquisar();
 
                 // NULL É PORQUE DEU ERRO DESCONHECIDO
                 if (jro == null){
