@@ -32,6 +32,15 @@
                             <p:growl id="id_messages_growl" showDetail="true"  />
                             <div style="clear: both;"></div>
                             <p:panel styleClass="margin-top-max">
+                                <h:panelGrid cellpadding="5" columns="2">
+                                    <h:outputLabel value="Liberar a agenda a partir de " />
+                                    <p:column>
+                                        <p:spinner value="#{configuracaoHomologacaoBean.configuracaoHomologacao.inicioDiasAgendamento}" max="120" min="0" size="5" stepFactor="0"  style="width: 80px">
+                                            <p:ajax event="change" listener="#{configuracaoHomologacaoBean.update}" update=":form_ch:"/>
+                                        </p:spinner>
+                                        <h:outputLabel value="dia(s)" styleClass="margin-left-med" />
+                                    </p:column>
+                                </h:panelGrid>
                                 <f:facet name="header">Nome Empresa: #{configuracaoHomologacaoBean.registro.filial.pessoa.nome}</f:facet>
                                 <p:tabView>
                                     <p:ajax event="tabChange" listener="#{configuracaoHomologacaoBean.onChange}"/>                            
@@ -42,13 +51,6 @@
                                                 <p:spinner value="#{configuracaoHomologacaoBean.configuracaoHomologacao.tempoRefreshAgendamento}" max="120" min="5" size="5" stepFactor="0"  style="width: 80px">
                                                     <p:ajax event="change" listener="#{configuracaoHomologacaoBean.update}" update=":form_ch:"/>
                                                 </p:spinner>
-                                            </p:column>                                        
-                                            <h:outputLabel value="Liberar a agenda a partir de " />
-                                            <p:column>
-                                                <p:spinner value="#{configuracaoHomologacaoBean.configuracaoHomologacao.inicioDiasAgendamento}" max="120" min="0" size="5" stepFactor="0"  style="width: 80px">
-                                                    <p:ajax event="change" listener="#{configuracaoHomologacaoBean.update}" update=":form_ch:"/>
-                                                </p:spinner>
-                                                <h:outputLabel value="dia(s)" styleClass="margin-left-med" />
                                             </p:column>                                        
                                         </h:panelGrid>
                                         <p:panel header="Campos obrigatórios - Agendamento">

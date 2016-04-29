@@ -87,6 +87,9 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
         if (configuracaoHomologacao == null) {
             configuracaoHomologacao = new ConfiguracaoHomologacao();
             new Dao().save(configuracaoHomologacao, true);
+        } else if (configuracaoHomologacao.getId() != null && configuracaoHomologacao.getInicioDiasAgendamento() > 0) {
+            DataHoje dh = new DataHoje();
+            data = DataHoje.converte(dh.incrementarDias(configuracaoHomologacao.getInicioDiasAgendamento() + 1, DataHoje.converteData(DataHoje.dataHoje())));
         }
         this.loadListEmpresa();
         this.loadListFiliais();
@@ -198,6 +201,14 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
         }
     }
 
+    public final void clearHorariosStatus() {
+        if (idStatus == 0 && configuracaoHomologacao.getInicioDiasAgendamento() > 0) {
+            DataHoje dh = new DataHoje();
+            data = DataHoje.converte(dh.incrementarDias(configuracaoHomologacao.getInicioDiasAgendamento() + 1, DataHoje.converteData(data)));
+        }
+        clearHorarios(1);
+    }
+
     public void clearHorarios() {
         clearHorarios(1);
     }
@@ -253,6 +264,16 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
             return;
         }
         listaHorarios.clear();
+
+        if (!getMindate().isEmpty() && idStatus == 0) {
+            DataHoje dh = new DataHoje();
+            if (!DataHoje.maiorData(data, DataHoje.converte(dh.incrementarDias(configuracaoHomologacao.getInicioDiasAgendamento(), DataHoje.data())))) {
+                data = DataHoje.dataHoje();
+                GenericaMensagem.warn("Validação", "Data não disponível para agendamento!");
+                return;
+            }
+        }
+
         // ENDEREÇO DA EMPRESA SELECIONADA PARA PESQUISAR OS HORÁRIOS
         if (listaEmpresas.isEmpty()) {
             GenericaMensagem.warn("Atenção", "Nenhuma Empresa Encontrada!");
@@ -1285,5 +1306,44 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
 
     public Filial getFilialLocal() {
         return (Filial) new Dao().find(new Filial(), idFilial);
+    }
+
+    public String getMindate() {
+        if (idStatus == 0) {
+            if (registro.getAgendamentoRetroativo() != null && (DataHoje.maiorData(registro.getAgendamentoRetroativo(), DataHoje.dataHoje()) || DataHoje.converteData(registro.getAgendamentoRetroativo()).equals(DataHoje.data()))) {
+                return "";
+            }
+            DataHoje dh = new DataHoje();
+            if (configuracaoHomologacao.getInicioDiasAgendamento() > 0) {
+                return DataHoje.converteData(DataHoje.converte(dh.incrementarDias(configuracaoHomologacao.getInicioDiasAgendamento() + 1, DataHoje.data())));
+            } else {
+                return DataHoje.converteData(DataHoje.data());
+
+            }
+        }
+        return "";
+    }
+
+    public String getMaxdate() {
+        if (idStatus == 0) {
+            if (DataHoje.maiorData(data, DataHoje.dataHoje())) {
+                if (registro.getHomolocaoLimiteMeses() <= 0) {
+                    return new DataHoje().incrementarMeses(3, DataHoje.data());
+                } else {
+                    DataHoje dh = new DataHoje();
+                    if (configuracaoHomologacao.getInicioDiasAgendamento() > 0) {
+                        return new DataHoje().incrementarMeses(registro.getHomolocaoLimiteMeses(), DataHoje.data());
+                    } else {
+                        return new DataHoje().incrementarMeses(registro.getHomolocaoLimiteMeses(), DataHoje.data());
+                    }
+
+                }
+            } else if (registro.getHomolocaoLimiteMeses() <= 0) {
+                return new DataHoje().incrementarMeses(3, DataHoje.data());
+            } else {
+                return new DataHoje().incrementarMeses(registro.getHomolocaoLimiteMeses(), DataHoje.data());
+            }
+        }
+        return "";
     }
 }

@@ -102,6 +102,13 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     private Date polling;
 
     public AgendamentoBean() {
+        if (configuracaoHomologacao.getId() == null) {
+            configuracaoHomologacao = (ConfiguracaoHomologacao) new Dao().find(new ConfiguracaoHomologacao(), 1);
+        }
+        if (configuracaoHomologacao.getInicioDiasAgendamento() > 0) {
+            DataHoje dh = new DataHoje();
+            data = DataHoje.converte(dh.incrementarDias(configuracaoHomologacao.getInicioDiasAgendamento() + 1, DataHoje.converteData(data)));
+        }
         macFilial = (MacFilial) GenericaSessao.getObject("acessoFilial");
         Dao dao = new Dao();
         registro = (Registro) dao.find(new Registro(), 1);
@@ -212,13 +219,35 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         loadListaHorarios(stop());
     }
 
+    public final void loadListaHorariosStatus(Boolean stop) {
+        if (configuracaoHomologacao.getInicioDiasAgendamento() > 0 && idStatus == 0) {
+            DataHoje dh = new DataHoje();
+            data = DataHoje.converte(dh.incrementarDias(configuracaoHomologacao.getInicioDiasAgendamento() + 1, DataHoje.data()));
+        }
+        loadListaHorarios(stop);
+    }
+
     public final void loadListaHorarios(Boolean stop) {
+
         if (stop) {
             return;
         }
+
         listaHorarios.clear();
+
         if (macFilial == null) {
             return;
+        }
+
+        if (!getMindate().isEmpty() && idStatus == 0) {
+            if(configuracaoHomologacao.getInicioDiasAgendamento() > 0) {
+                DataHoje dh = new DataHoje();
+                if (!DataHoje.maiorData(data, DataHoje.converte(dh.incrementarDias(configuracaoHomologacao.getInicioDiasAgendamento(), DataHoje.data())))) {
+                    // data = DataHoje.dataHoje();
+                    GenericaMensagem.warn("Validação", "Data não disponível para agendamento!");
+                    return;
+                }                
+            }
         }
 
         int idNrStatus = Integer.parseInt(((SelectItem) getListaStatus().get(idStatus)).getDescription());
@@ -941,15 +970,15 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         }
 
         if (agendamento.getId() == -1) {
-            
+
             ConvencaoDBToplink convencaoDao = new ConvencaoDBToplink();
             Convencao convencao = convencaoDao.findByEmpresa(pessoaEmpresa.getJuridica().getPessoa().getId());
-            if(convencao == null) {
+            if (convencao == null) {
                 GenericaMensagem.warn("Mensagem", "NENHUMA CONVENÇÃO ENCONTRADA PARA ESTA EMPRESA!");
                 dao.rollback();
                 return;
-            }            
-            
+            }
+
             agendamento.setNoPrazo(new FunctionsDao().homologacaoPrazo(pessoaEmpresa.isAvisoTrabalhado(), enderecoEmpresa.getEndereco().getCidade().getId(), pessoaEmpresa.getDemissao(), convencao.getId()));
             if (idStatusI == 1) {
                 if (!dba.existeHorarioDisponivel(agendamento.getDtData(), agendamento.getHorarios())) {
@@ -1699,9 +1728,6 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     }
 
     public ConfiguracaoHomologacao getConfiguracaoHomologacao() {
-        if (configuracaoHomologacao.getId() == null) {
-            configuracaoHomologacao = (ConfiguracaoHomologacao) new Dao().find(new ConfiguracaoHomologacao(), 1);
-        }
         return configuracaoHomologacao;
     }
 
@@ -1772,6 +1798,53 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             }
         }
         return false;
+    }
+
+    public Registro getRegistro() {
+        return registro;
+    }
+
+    public void setRegistro(Registro registro) {
+        this.registro = registro;
+    }
+
+    public String getMindate() {
+        if (idStatus == 0) {
+            if (registro.getAgendamentoRetroativo() != null && (DataHoje.maiorData(registro.getAgendamentoRetroativo(), DataHoje.dataHoje()) || DataHoje.converteData(registro.getAgendamentoRetroativo()).equals(DataHoje.data()))) {
+                return "";
+            }
+            DataHoje dh = new DataHoje();
+            if (configuracaoHomologacao.getInicioDiasAgendamento() > 0) {
+                return DataHoje.converteData(DataHoje.converte(dh.incrementarDias(configuracaoHomologacao.getInicioDiasAgendamento() + 1, DataHoje.data())));
+            } else {
+                return DataHoje.data();
+
+            }
+        }
+        return "";
+    }
+
+    public String getMaxdate() {
+        if (idStatus == 0) {
+            if (DataHoje.maiorData(data, DataHoje.dataHoje())) {
+                if (registro.getHomolocaoLimiteMeses() <= 0) {
+                    return new DataHoje().incrementarMeses(3, DataHoje.data());
+                } else {
+                    DataHoje dh = new DataHoje();
+                    if (configuracaoHomologacao.getInicioDiasAgendamento() > 0) {
+                        return new DataHoje().incrementarMeses(registro.getHomolocaoLimiteMeses(), DataHoje.data());
+                    } else {
+                        return new DataHoje().incrementarMeses(registro.getHomolocaoLimiteMeses(), DataHoje.data());
+                    }
+
+                }
+            } else if (registro.getHomolocaoLimiteMeses() <= 0) {
+                return new DataHoje().incrementarMeses(3, DataHoje.data());
+            } else {
+                return new DataHoje().incrementarMeses(registro.getHomolocaoLimiteMeses(), DataHoje.data());
+            }
+        }
+        return "";
     }
 
 }
