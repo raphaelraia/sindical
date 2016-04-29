@@ -89,6 +89,12 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
             if (configuracaoHomologacao == null) {
                 configuracaoHomologacao = new ConfiguracaoHomologacao();
                 new Dao().save(configuracaoHomologacao, true);
+            } else {
+
+            }
+            if (configuracaoHomologacao.getId() != null && configuracaoHomologacao.getInicioDiasAgendamento() > 0) {
+                DataHoje dh = new DataHoje();
+                data = DataHoje.converte(dh.incrementarDias(configuracaoHomologacao.getInicioDiasAgendamento() + 1, DataHoje.converteData(DataHoje.dataHoje())));
             }
             configuracaoArrecadacao = (ConfiguracaoArrecadacao) new Dao().find(new ConfiguracaoArrecadacao(), 1);
             loadListFiliais();
@@ -117,6 +123,14 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
                 }
             }
         }
+    }
+
+    public final void clearHorariosStatus() {
+        if (idStatus == 0 && configuracaoHomologacao.getInicioDiasAgendamento() > 0) {
+            DataHoje dh = new DataHoje();
+            data = DataHoje.converte(dh.incrementarDias(configuracaoHomologacao.getInicioDiasAgendamento() + 1, DataHoje.converteData(data)));
+        }
+        clearHorarios(0);
     }
 
     public final void clearHorarios() {
@@ -249,6 +263,16 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
             return;
         }
         listaHorarios.clear();
+
+        if (!getMindate().isEmpty() && idStatus == 0) {
+            DataHoje dh = new DataHoje();
+            if (!DataHoje.maiorData(data, DataHoje.converte(dh.incrementarDias(configuracaoHomologacao.getInicioDiasAgendamento(), DataHoje.data())))) {
+                data = DataHoje.dataHoje();
+                GenericaMensagem.warn("Validação", "Data não disponível para agendamento!");
+                return;
+            }
+        }
+
         List<Agendamento> ag;
         List<Horarios> horario;
         HomologacaoDB db = new HomologacaoDBToplink();
@@ -1147,9 +1171,6 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
     }
 
     public ConfiguracaoHomologacao getConfiguracaoHomologacao() {
-        if (configuracaoHomologacao.getId() == null) {
-            configuracaoHomologacao = (ConfiguracaoHomologacao) new Dao().find(new ConfiguracaoHomologacao(), 1);
-        }
         return configuracaoHomologacao;
     }
 
@@ -1230,5 +1251,44 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
 
     public void setShowFilial(Boolean showFilial) {
         this.showFilial = showFilial;
+    }
+
+    public String getMindate() {
+        if (idStatus == 0) {
+            if (registro.getAgendamentoRetroativo() != null && (DataHoje.maiorData(registro.getAgendamentoRetroativo(), DataHoje.dataHoje()) || DataHoje.converteData(registro.getAgendamentoRetroativo()).equals(DataHoje.data()))) {
+                return "";
+            }
+            DataHoje dh = new DataHoje();
+            if (configuracaoHomologacao.getInicioDiasAgendamento() > 0) {
+                return DataHoje.converteData(DataHoje.converte(dh.incrementarDias(configuracaoHomologacao.getInicioDiasAgendamento() + 1, DataHoje.data())));
+            } else {
+                return DataHoje.converteData(DataHoje.data());
+
+            }
+        }
+        return "";
+    }
+    
+    public String getMaxdate() {
+        if (idStatus == 0) {
+            if (DataHoje.maiorData(data, DataHoje.dataHoje())) {
+                if (registro.getHomolocaoLimiteMeses() <= 0) {
+                    return new DataHoje().incrementarMeses(3, DataHoje.data());
+                } else {
+                    DataHoje dh = new DataHoje();
+                    if (configuracaoHomologacao.getInicioDiasAgendamento() > 0) {
+                        return new DataHoje().incrementarMeses(registro.getHomolocaoLimiteMeses(), DataHoje.data());
+                    } else {
+                        return new DataHoje().incrementarMeses(registro.getHomolocaoLimiteMeses(), DataHoje.data());
+                    }
+
+                }
+            } else if (registro.getHomolocaoLimiteMeses() <= 0) {
+                return new DataHoje().incrementarMeses(3, DataHoje.data());
+            } else {
+                return new DataHoje().incrementarMeses(registro.getHomolocaoLimiteMeses(), DataHoje.data());
+            }
+        }
+        return "";
     }
 }
