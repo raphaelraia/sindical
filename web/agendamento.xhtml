@@ -37,13 +37,15 @@
                             <h:panelGrid style="margin: 0 auto; width: 100%; clear: both">
                                 <p:panel styleClass="fundoCinza">
                                     <h:panelGrid columns="3">
-                                        <p:calendar size="8" value="#{agendamentoBean.data}" pattern="dd/MM/yyyy" navigator="true" yearRange="c-1:c+1" mask="99/99/9999" locale="pt_BR">
-                                            <p:ajax event="dateSelect" update="id_count tbl" listener="#{agendamentoBean.loadListaHorarios(false)}"/>
-                                            <p:ajax event="change" update="id_count tbl" listener="#{agendamentoBean.loadListaHorarios(false)}"/>
-                                        </p:calendar>
+                                        <h:panelGroup id="i_dates" layout="block">
+                                            <p:calendar size="8" value="#{agendamentoBean.data}" pattern="dd/MM/yyyy" navigator="true" yearRange="c-1:c+1" mask="99/99/9999" locale="pt_BR" mindate="#{agendamentoBean.mindate}" maxdate="#{agendamentoBean.maxdate}">
+                                                <p:ajax event="dateSelect" update="id_count tbl" listener="#{agendamentoBean.loadListaHorarios(false)}"/>
+                                                <p:ajax event="change" update="id_count tbl i_dates" listener="#{agendamentoBean.loadListaHorarios(false)}"/>
+                                            </p:calendar>                                            
+                                        </h:panelGroup>
 
                                         <p:selectOneMenu value="#{agendamentoBean.idStatus}" style="width: 200px">
-                                            <p:ajax event="change" update="@this id_count tbl" listener="#{agendamentoBean.loadListaHorarios(false)}" />
+                                            <p:ajax event="change" update="@this i_dates id_count tbl" listener="#{agendamentoBean.loadListaHorariosStatus(false)}" />
                                             <f:selectItems value="#{agendamentoBean.listaStatus}"/>
                                         </p:selectOneMenu>
 
