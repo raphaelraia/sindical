@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.Query;
+import javax.persistence.TemporalType;
 
 public class HomologacaoDBToplink extends DB implements HomologacaoDB {
 
@@ -772,6 +773,34 @@ public class HomologacaoDBToplink extends DB implements HomologacaoDB {
     }
 
     @Override
+    public Senha pesquisaAtendimentoSimplesIniciado(Integer usuario_id, Integer nr_mesa, Integer filial_id, Integer departamento_id) {
+        Senha result = new Senha();
+        try {
+            Query qry = getEntityManager().createQuery(
+                    "  SELECT S "
+                    + "  FROM Senha AS S "
+                    + " WHERE S.mesa = :nr_mesa "
+                    + "   AND S.ateMovimento.atendente.id = :usuario_id "
+                    + "   AND S.agendamento IS NULL "
+                    + "   AND S.dtData = :data"
+                    + "   AND S.ateMovimento.status.id = 4 "
+                    + "   AND S.filial.id = :filial_id"
+                    + "   AND S.departamento.id = :departamento_id");
+            qry.setParameter("data", DataHoje.dataHoje());
+            qry.setParameter("nr_mesa", nr_mesa);
+            qry.setParameter("usuario_id", usuario_id);
+            qry.setParameter("filial_id", filial_id);
+            qry.setParameter("departamento_id", departamento_id);
+            if (!qry.getResultList().isEmpty()) {
+                result = (Senha) qry.getSingleResult();
+            }
+        } catch (Exception e) {
+            // e.printStackTrace();
+        }
+        return result;
+    }
+
+    @Override
     public Senha pesquisaAtendimentoIniciadoSimples(int id_filial) {
         Senha result = null;
         try {
@@ -784,7 +813,7 @@ public class HomologacaoDBToplink extends DB implements HomologacaoDB {
                     + "   AND S.ateMovimento.reserva IS NULL"
                     + " ORDER BY S.senha");
 
-            qry.setParameter("data", DataHoje.dataHoje());
+            qry.setParameter("data", DataHoje.dataHoje(), TemporalType.DATE);
             qry.setParameter("id_filial", id_filial);
             qry.setMaxResults(1);
             if (!qry.getResultList().isEmpty()) {
@@ -1005,7 +1034,7 @@ public class HomologacaoDBToplink extends DB implements HomologacaoDB {
                     + "   AND a.id_atendente = " + id_usuario
                     + "   AND (a.id_reserva IS NULL OR a.id_reserva = " + id_usuario + ")"
                     + "   AND s.id_departamento = " + id_departamento
-                    + " ORDER BY s.nr_senha, s.dt_data",
+                    + " ORDER BY s.nr_senha DESC, s.dt_data",
                     Senha.class);
 
             if (!qry.getResultList().isEmpty()) {
