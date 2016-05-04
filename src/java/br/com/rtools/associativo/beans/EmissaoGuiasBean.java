@@ -844,7 +844,7 @@ public class EmissaoGuiasBean implements Serializable {
 
         Juridica empresaConvenio = (Juridica) di.find(new Juridica(), Integer.valueOf(listSelectItem[3].get(index[3]).getDescription()));
         Pessoa parceiro = null;
-        if(idParceiro != null && idParceiro != -1) {
+        if (idParceiro != null && idParceiro != -1) {
             parceiro = (Pessoa) di.find(new Pessoa(), idParceiro);
         }
         Guia guias = new Guia(
@@ -977,6 +977,7 @@ public class EmissaoGuiasBean implements Serializable {
             }
         } else if (!listaMovimentoAuxiliar.isEmpty()) {
             GenericaSessao.put("listaMovimento", listaMovimentoAuxiliar);
+            GenericaSessao.put("mensagem_recibo", observacao);
             return ((ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean")).baixaGeral();
         }
         message = " Lançamento efetuado com Sucesso!";

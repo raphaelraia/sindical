@@ -23,6 +23,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
@@ -33,10 +34,15 @@ import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.util.JRLoader;
+import org.apache.commons.collections.map.HashedMap;
 
 public class ImprimirRecibo {
 
-    public String recibo(int id_movimento) {
+    public String recibo(Integer id_movimento) {
+        return recibo(id_movimento, null);
+    }
+
+    public String recibo(Integer id_movimento, Map parameter) {
         MovimentoDB db = new MovimentoDBToplink();
         Movimento movimento = db.pesquisaCodigo(id_movimento);
         try {
@@ -65,7 +71,7 @@ public class ImprimirRecibo {
                         soma_dinheiro = soma_dinheiro + fp.get(i).getValor();
                     }
                 }
-                
+
                 if (fp.get(i).getTipoPagamento().getId() != 3) {
                     soma_outros = soma_outros + fp.get(i).getValor();
                 }
@@ -154,10 +160,13 @@ public class ImprimirRecibo {
             JasperReport jasper = (JasperReport) JRLoader.loadObject(fl);
 
             JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(vetor);
-            JasperPrint print = JasperFillManager.fillReport(jasper, null, dtSource);
-            
+            if (parameter == null) {
+                parameter = new HashedMap();
+            }
+            JasperPrint print = JasperFillManager.fillReport(jasper, parameter, dtSource);
+
             boolean printPdf = true;
-            
+
             if (printPdf) {
                 byte[] arquivo = JasperExportManager.exportReportToPdf(print);
                 salvarRecibo(arquivo, lista.get(0).getBaixa());
@@ -168,12 +177,12 @@ public class ImprimirRecibo {
                 res.getCharacterEncoding();
 
                 FacesContext.getCurrentInstance().responseComplete();
-            }else{
+            } else {
                 // CASO QUEIRA IMPRIMIR EM HTML HTMLPRINT PRINTHTML IMPRIMIRRECIBOHTML TOHTML
                 if (lista.get(0).getBaixa().getCaixa() == null) {
                     return null;
                 }
-                
+
                 String caminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/" + "Arquivos/recibo/" + lista.get(0).getBaixa().getCaixa().getCaixa() + "/" + DataHoje.converteData(lista.get(0).getBaixa().getDtBaixa()).replace("/", "-"));
                 Diretorio.criar("Arquivos/recibo/" + lista.get(0).getBaixa().getCaixa().getCaixa() + "/" + DataHoje.converteData(lista.get(0).getBaixa().getDtBaixa()).replace("/", "-"));
 
@@ -186,10 +195,10 @@ public class ImprimirRecibo {
                     n = String.valueOf(lista.get(0).getBaixa().getUsuario().getId()) + "_" + String.valueOf(lista.get(0).getBaixa().getId()) + "_(2).html";
                 }
                 JasperExportManager.exportReportToHtmlFile(print, path_arquivo);
-                
+
                 Download download = new Download(n, caminho, "text/html", FacesContext.getCurrentInstance());
                 download.baixar();
-                
+
 //                String reportPath =JasperRunManager.runReportToHtmlFile(fl.getPath(), null, dtSource);
 //                File reportHtmlFile = new File(reportPath);
 //                FileInputStream fis = new FileInputStream(reportHtmlFile);
@@ -203,13 +212,10 @@ public class ImprimirRecibo {
 //                res.getCharacterEncoding();
 //                
 //                FacesContext.getCurrentInstance().responseComplete();
-                
-                                
 //                FacesContext.getCurrentInstance().responseComplete();
 //                HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
 //                response.sendRedirect("http://localhost:8080/Sindical/Cliente/Sindical/Arquivos/recibo/0/16-06-2015/1_683382.html");
                 //FacesContext.getCurrentInstance().getExternalContext().redirect("/Sindical/baixaGeral.jsf");
-
             }
 
         } catch (JRException | IOException ex) {
