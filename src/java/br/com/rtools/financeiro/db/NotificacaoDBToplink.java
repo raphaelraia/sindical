@@ -55,14 +55,14 @@ public class NotificacaoDBToplink extends DB implements NotificacaoDB {
             }
 
             String text_select0 = "SELECT t.id_pessoa, t.ds_nome, count(*), null AS lote_cobranca, null AS lote_envio, MAX(t.dt_emissao) FROM \n (";
-            String text_select = 
-                    "SELECT c.id_pessoa, \n "
+            String text_select
+                    = "SELECT c.id_pessoa, \n "
                     + "     c.ds_nome, \n "
                     + "     m.id AS movimento, \n "
                     + "     max(ce.dt_emissao) as dt_emissao \n ";
 
-            String text_from = 
-                    " FROM arr_contribuintes_vw AS c \n "
+            String text_from
+                    = " FROM arr_contribuintes_vw AS c \n "
                     + " INNER JOIN fin_movimento AS m ON m.id_pessoa = c.id_pessoa \n"
                     + "  LEFT JOIN fin_cobranca  AS fc ON fc.id_movimento = m.id \n"
                     + "  LEFT JOIN fin_cobranca_envio AS ce ON ce.id_lote = fc.id_lote \n"
@@ -78,11 +78,11 @@ public class NotificacaoDBToplink extends DB implements NotificacaoDB {
                     + "   AND pee.id_tipo_endereco = 5 \n "
                     + filtro_empresa + filtro_contabil + filtro_lote + filtro_cidade + filtro_com_sem + filtro_servicos + filtro_tipo_servico;
 
-            String text_from0 = 
-                    ") AS t \n "
+            String text_from0
+                    = ") AS t \n "
                     + " GROUP BY t.id_pessoa, t.ds_nome \n "
                     + " ORDER BY ds_nome, id_pessoa ";
-            
+
             String text_group_by = " GROUP BY c.id_pessoa, c.ds_nome, m.id \n ";
             //String text_order_by = " ORDER BY c.ds_nome, c.id_pessoa \n ";
 
@@ -101,8 +101,8 @@ public class NotificacaoDBToplink extends DB implements NotificacaoDB {
     public List listaNotificado(int id_movimento) {
         List<Vector> result = null;
         try {
-            String textQry = 
-                    "  SELECT fc.id, \n "
+            String textQry
+                    = "  SELECT fc.id, \n "
                     + "       cl.dt_emissao \n "
                     + "  FROM fin_cobranca AS fc "
                     + " INNER JOIN fin_cobranca_lote AS cl ON cl.id = fc.id_lote "

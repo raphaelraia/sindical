@@ -1317,7 +1317,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
             if (configuracaoHomologacao.getInicioDiasAgendamento() > 0) {
                 return DataHoje.converteData(DataHoje.converte(dh.incrementarDias(configuracaoHomologacao.getInicioDiasAgendamento() + 1, DataHoje.data())));
             } else {
-                return DataHoje.converteData(DataHoje.data());
+                return DataHoje.data();
 
             }
         }

@@ -547,8 +547,9 @@ public class NotificacaoBean implements Serializable {
             return;
         }
         Juridica sindicato = (Juridica) new Dao().find(new Juridica(), 1);
-        if (ca == null)
+        if (ca == null) {
             ca = (ConfiguracaoArrecadacao) new Dao().find(new ConfiguracaoArrecadacao(), 1);
+        }
         String documentox = (ca.getFilial().getFilial().getPessoa().getDocumento().isEmpty() || ca.getFilial().getFilial().getPessoa().getDocumento().equals("0")) ? sindicato.getPessoa().getDocumento() : ca.getFilial().getFilial().getPessoa().getDocumento();
 
         HashMap params = new LinkedHashMap();
@@ -684,10 +685,9 @@ public class NotificacaoBean implements Serializable {
                             }
 
                             JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(listax);
-                            JasperReport jasperx = null;
 
                             File fl = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/" + jasper));
-                            jasperx = (JasperReport) JRLoader.loadObject(fl);
+                            JasperReport jasperx = (JasperReport) JRLoader.loadObject(fl);
                             String nomeArq = "notificacao_";
 
                             JasperPrint print = JasperFillManager.fillReport(jasperx, params, dtSource);
@@ -737,7 +737,8 @@ public class NotificacaoBean implements Serializable {
                             }
                             atual++;
                         }
-                    } catch (Exception e) {
+                    } catch (JRException | InterruptedException e) {
+                        System.err.println(e.getMessage());
                     }
                     enviar = false;
                     listax.clear();
@@ -784,7 +785,7 @@ public class NotificacaoBean implements Serializable {
                 JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(listax);
                 String nomeArq = "notificacao_";
                 try {
-                    File fl = null;
+                    File fl;
                     if (ct.getId() == 1) {
                         id_compara = getConverteNullInt(result.get(i).get(26)); // ID_JURIDICA
                         fl = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/NOTIFICACAO_ARRECADACAO_ESCRITORIO.jasper"));
@@ -842,15 +843,13 @@ public class NotificacaoBean implements Serializable {
                             return;
                         }
 
-//                        Download download = new Download(nomeDownload, pathPasta, "application/pdf", FacesContext.getCurrentInstance());
-//                        download.baixar();
                         imprimir = false;
                         atual = 0;
                         listax.clear();
                     }
 
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } catch (JRException | InterruptedException e) {
+                    System.err.println(e.getMessage());
                 }
                 atual++;
             }
@@ -872,8 +871,8 @@ public class NotificacaoBean implements Serializable {
             pes_add.add(link.getPessoa());
             String pathPasta = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/notificacao/" + lote.getId());
 
-            List<File> fls = new ArrayList<File>();
-            String mensagem = "";
+            List<File> fls = new ArrayList();
+            String mensagem;
 
             if (!registro.isEnviarEmailAnexo()) {
                 mensagem = " <h5> Visualize sua notificação clicando no link abaixo </5> <br /><br />"
@@ -900,7 +899,7 @@ public class NotificacaoBean implements Serializable {
                             false
                     )
             );
-            List<EmailPessoa> emailPessoas = new ArrayList<EmailPessoa>();
+            List<EmailPessoa> emailPessoas = new ArrayList();
             EmailPessoa emailPessoa = new EmailPessoa();
 
             for (Pessoa pe : pes_add) {
@@ -925,11 +924,10 @@ public class NotificacaoBean implements Serializable {
 
     public String enviarEmail(Pessoa pessoa, List<ParametroNotificacao> lista, SalvarAcumuladoDB sv, String nomeJasper, HashMap params) {
         JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(lista);
-        JasperReport jasper = null;
         String nomeArq = "notificacao_";
         try {
             File fl = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/" + nomeJasper));
-            jasper = (JasperReport) JRLoader.loadObject(fl);
+            JasperReport jasper = (JasperReport) JRLoader.loadObject(fl);
             JasperPrint print = JasperFillManager.fillReport(jasper, params, dtSource);
 
             byte[] arquivo = new byte[0];
@@ -962,7 +960,7 @@ public class NotificacaoBean implements Serializable {
             pes_add.add(pessoa);
 
             List<File> fls = new ArrayList();
-            String mensagem = "";
+            String mensagem;
 
             if (!registro.isEnviarEmailAnexo()) {
                 mensagem = " <h5> Visualize sua notificação clicando no link abaixo </5> <br /><br />"
@@ -1009,6 +1007,7 @@ public class NotificacaoBean implements Serializable {
                 GenericaMensagem.info("Sucesso", retorno[0]);
             }
         } catch (Exception e) {
+            e.getMessage();
         }
         return null;
     }
