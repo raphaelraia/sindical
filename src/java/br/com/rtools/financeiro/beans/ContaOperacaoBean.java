@@ -101,6 +101,12 @@ public class ContaOperacaoBean implements Serializable {
             index[2] = 0;
             es = "E";
             contaFixa = false;
+            Operacao o = (Operacao) new Dao().find(new Operacao(), Integer.parseInt(getListOperacoes().get(index[0]).getDescription()));
+            if (o.getId() == 1 || o.getId() == 2) {
+                hidden[0] = true;
+            } else {
+                hidden[0] = false;
+            }
         } else if (type == 6) {
             Operacao o = (Operacao) new Dao().find(new Operacao(), Integer.parseInt(getListOperacoes().get(index[0]).getDescription()));
             if (o.getId() == 1 || o.getId() == 2) {

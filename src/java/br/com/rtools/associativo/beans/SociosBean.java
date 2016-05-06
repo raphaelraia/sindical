@@ -2743,28 +2743,30 @@ public class SociosBean implements Serializable {
                     }
                 }
                 Socios socioDependente = db.pesquisaSocioPorPessoaAtivo(ld.getFisica().getPessoa().getId());
-                SocioCarteirinha sc = dbc.pesquisaCarteirinhaPessoa(socioDependente.getServicoPessoa().getPessoa().getId(), modeloc.getId());
+                if(socioDependente.getMatriculaSocios().getCategoria().isCartaoDependente()) {
+                    SocioCarteirinha sc = dbc.pesquisaCarteirinhaPessoa(socioDependente.getServicoPessoa().getPessoa().getId(), modeloc.getId());
 
-                if (sc != null && sc.getDtEmissao() == null) {
-                    sc.setDtEmissao(DataHoje.dataHoje());
-                    if (!dao.update(sc)) {
-                        GenericaMensagem.warn("Erro", "Não foi possivel alterar data de emissão do dependente!");
-                        dao.rollback();
-                        return null;
+                    if (sc != null && sc.getDtEmissao() == null) {
+                        sc.setDtEmissao(DataHoje.dataHoje());
+                        if (!dao.update(sc)) {
+                            GenericaMensagem.warn("Erro", "Não foi possivel alterar data de emissão do dependente!");
+                            dao.rollback();
+                            return null;
+                        }
+
+                        HistoricoCarteirinha hc = new HistoricoCarteirinha();
+
+                        hc.setCarteirinha(sc);
+                        hc.setDescricao("Impressão de Carteirinha Dependente");
+
+                        if (!dao.save(hc)) {
+                            GenericaMensagem.warn("Erro", "Não foi possivel salvar histórico da carteirinha do dependente!");
+                            dao.rollback();
+                            return null;
+                        }
                     }
-
-                    HistoricoCarteirinha hc = new HistoricoCarteirinha();
-
-                    hc.setCarteirinha(sc);
-                    hc.setDescricao("Impressão de Carteirinha Dependente");
-
-                    if (!dao.save(hc)) {
-                        GenericaMensagem.warn("Erro", "Não foi possivel salvar histórico da carteirinha do dependente!");
-                        dao.rollback();
-                        return null;
-                    }
+                    listaAux.addAll(dbc.filtroCartao(socioDependente.getServicoPessoa().getPessoa().getId()));                    
                 }
-                listaAux.addAll(dbc.filtroCartao(socioDependente.getServicoPessoa().getPessoa().getId()));
             }
             dao.commit();
         }

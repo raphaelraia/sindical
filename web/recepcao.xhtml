@@ -375,6 +375,10 @@
                                             <p:column headerText="Senha" width="40" style="text-align: center">
                                                 <h:outputLabel value="#{(linha.senha ge 10) ? linha.senha : ('0').concat(linha.senha)}"/>
                                             </p:column>
+                                            
+                                            <p:column headerText="Oposição" style="text-align: center" width="80" styleClass="#{linha.ateMovimento.existOposicao ? 'tblAgendamentoOposicaox' : ''}">
+                                                #{linha.ateMovimento.existOposicao ? 'SIM' : ''}
+                                            </p:column>
 
                                             <p:rowExpansion>
                                                 <h:panelGrid columns="3" styleClass="sbb">
@@ -532,7 +536,7 @@
                                         <h:panelGrid columns="8">
                                             <p:commandButton value="Atualizar" action="#{recepcaoBean.salvar}" disabled="#{controleAcessoBean.botaoSalvar}" rendered="#{recepcaoBean.agendamentoEdit.status.id != 3 and recepcaoBean.agendamentoEdit.status.id != 4 and recepcaoBean.agendamentoEdit.status.id != 7}" update="formRecepcao" />
                                             <p:commandButton value="Gerar Senha" onclick="PF('dlg_gerar_senha').show()" rendered="#{recepcaoBean.agendamentoEdit.status.id != 3 and recepcaoBean.agendamentoEdit.status.id != 4 and recepcaoBean.agendamentoEdit.status.id != 7 and recepcaoBean.registro.senhaHomologacao}" disabled="#{controleAcessoBean.botaoSalvar}" />
-                                            <p:commandButton value="Cancelar Agendamento" onclick="PF('dlg_cancelar').show()" rendered="#{recepcaoBean.agendamentoEdit.status.id != 3 and recepcaoBean.agendamentoEdit.status.id != 4 and recepcaoBean.agendamentoEdit.status.id != 7}" disabled="#{controleAcessoBean.botaoExcluir}" />
+                                            <p:commandButton value="Cancelar Agendamento" onclick="PF('dlg_cancelar').show()" rendered="#{recepcaoBean.agendamentoEdit.status.id != 3 and recepcaoBean.agendamentoEdit.status.id != 4 and recepcaoBean.agendamentoEdit.status.id != 7}" disabled="#{controleAcessoBean.botaoExcluir or recepcaoBean.agendamentoEdit.status.id == 3}" />
                                             <p:commandButton value="Voltar" action="#{recepcaoBean.fecharModal()}" oncomplete="PF('dlg_recepcao').hide()" global="false" />
                                             <p:commandButton value="Anexar documentos" type="button" onclick="PF('dgl_upload').show();" id="id_btn_uploads"/>
                                             <p:commandButton value="Anexos (#{recepcaoBean.listFiles.size()})" oncomplete="PF('dgl_anexos').show();" id="id_btn_anexo" update=":form_recepcao_upload:" />                                            
@@ -561,7 +565,7 @@
                                     <h:outputLabel value="Digite o motivo para o cancelamento" style="color: red"/>
                                     <br />
 
-                                    <p:inputTextarea value="#{recepcaoBean.cancelamento.motivo}" rows="3" style="width: 100%"/>
+                                    <p:inputTextarea value="#{recepcaoBean.cancelamento.motivo}" rows="3" style="width: 100%" maxlength="200"/>  
 
                                     <h:panelGrid style="clear: both" columns="2">
                                         <p:commandButton value="Sim" oncomplete="PF('dlg_cancelar').hide()" action="#{recepcaoBean.cancelarHorario()}" update="formRecepcao" title="Gerar a Senha" style="float: left" icon="ui-icon-check"/>

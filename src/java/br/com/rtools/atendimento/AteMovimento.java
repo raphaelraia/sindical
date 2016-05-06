@@ -1,5 +1,6 @@
 package br.com.rtools.atendimento;
 
+import br.com.rtools.atendimento.db.AtendimentoDBTopLink;
 import br.com.rtools.sistema.SisPessoa;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Juridica;
@@ -12,6 +13,7 @@ import javax.persistence.*;
 @Table(name = "ate_movimento")
 @NamedQuery(name = "AteMovimento.pesquisaID", query = "select amov from AteMovimento amov where amov.id=:pid")
 public class AteMovimento implements java.io.Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -44,7 +46,7 @@ public class AteMovimento implements java.io.Serializable {
     @JoinColumn(name = "id_reserva", referencedColumnName = "id")
     @ManyToOne
     private Usuario reserva;
-    
+
     public AteMovimento() {
         this.id = -1;
         this.pessoa = new SisPessoa();
@@ -168,5 +170,17 @@ public class AteMovimento implements java.io.Serializable {
 
     public void setReserva(Usuario reserva) {
         this.reserva = reserva;
+    }
+
+    public Boolean getExistOposicao() {
+        AtendimentoDBTopLink atendimentoDao = new AtendimentoDBTopLink();
+        try {
+            if (!this.getPessoa().getDocumento().isEmpty()) {
+                return atendimentoDao.pessoaOposicao(this.getPessoa().getDocumento());
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return false;
     }
 }

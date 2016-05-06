@@ -8,7 +8,7 @@
     <h:head>
         <title>Sindical - Senha</title>
         <meta http-equiv="X-UA-Compatible" content="IE=9" />
-        <meta http-equiv="refresh" content="500" />
+        <meta http-equiv="refresh" content="1000" />
         <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>
         <style>
             body, div:first-of-type { margin: 0 auto;}
@@ -114,9 +114,9 @@
                                 <div class="panel">
                                     <div class="bg_panel_color border-radius">
                                         <br />
-                                        <h1 class="font-color-white">SENHA</h1>
+                                        <h1 class="font-color-white" style="font-size: 40pt">SENHA</h1>
                                         <span>
-                                            <p class="password" style="color: #{senhaBean.ultimaSenha.sucesso ? 'green' : 'white'}"><span class="#{senhaBean.ultimaSenha.id eq senhaBean.recallId ? 'blink_me' : ''}">#{senhaBean.ultimaSenha.senha}</span></p>
+                                            <p class="password" style="color: #{senhaBean.ultimaSenha.sucesso ? '#66ff00' : 'white'}"><span class="#{senhaBean.ultimaSenha.id eq senhaBean.recallId ? 'blink_me' : ''}">#{senhaBean.ultimaSenha.senha}</span></p>
                                         </span>
                                         <br />
                                     </div>
@@ -126,7 +126,7 @@
                                 <div class="panel">
                                     <div class="bg_panel_color border-radius">
                                         <br />
-                                        <h1 class="font-color-white">#{senhaBean.tipo}</h1>
+                                        <h1 class="font-color-white" style="font-size: 40pt">#{senhaBean.tipo}</h1>
                                         <span>
                                             <p class="password"><span class="#{senhaBean.ultimaSenha.id eq senhaBean.recallId ? 'blink_me' : ''}">#{senhaBean.ultimaSenha.mesa}</span></p>
                                         </span>                                        
@@ -147,9 +147,9 @@
                                                 <div class="col-lg-6 col-md-6 col-sm-6">
                                                     <div class="panel" style="background: none">
                                                         <br />
-                                                        <h2 class="font-color-white">SENHA</h2>
+                                                        <h1 class="font-color-white">SENHA</h1>
                                                         <span>
-                                                            <p class="min-password" style="color: #{senha.sucesso ? 'green' : 'white'}"><span class="#{senha.id eq senhaBean.recallId ? 'blink_me' : ''}">#{senha.senha}</span></p>
+                                                            <p class="min-password" style="color: #{senha.sucesso ? '#66ff00' : 'white'}"><span class="#{senha.id eq senhaBean.recallId ? 'blink_me' : ''}">#{senha.senha}</span></p>
                                                         </span>                                                        
                                                         <br />
                                                     </div>
@@ -160,7 +160,7 @@
                                                 <div class="col-lg-6 col-md-6 col-sm-6 border-white">
                                                     <div class="panel" style="background: none">
                                                         <br />
-                                                        <h2 class="font-color-white">#{senhaBean.tipo}</h2>
+                                                        <h1 class="font-color-white">#{senhaBean.tipo}</h1>
                                                         <span>
                                                             <p class="min-password"><span class="#{senha.id eq senhaBean.recallId ? 'blink_me' : ''}">#{senha.mesa}</span></p>
                                                         </span>
@@ -183,7 +183,7 @@
                         <audio controls="controls" autoplay="autoplay" preload="auto" style="width: 0; height: 0">
                             <source src="#{facesContext.externalContext.requestContextPath}/resources/sound/senha.mp3" type="audio/mpeg"></source>                                      
                         </audio>
-                        <p:poll interval="5" update=":form_sound:id_hidden" delay="5" autoStart="false" stop="#{!senhaBean.sound}"/>
+                        <p:poll interval="10" update=":form_sound:id_hidden" autoStart="false" stop="#{!senhaBean.sound}"/>
                         <h:inputHidden id="id_hidden" value="#{senhaBean.disabledSound}"  />
                     </h:column>
                 </h:form>

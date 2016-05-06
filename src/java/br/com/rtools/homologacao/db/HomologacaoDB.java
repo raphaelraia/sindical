@@ -58,6 +58,8 @@ public interface HomologacaoDB {
     public Senha pesquisaSenhaAtendimento(int id_filial);
 
     public Senha pesquisaAtendimentoIniciado(int id_usuario, int nr_mesa, int id_filial, Integer id_departamento);
+    
+    public Senha pesquisaAtendimentoSimplesIniciado(Integer usuario_id, Integer nr_mesa, Integer filial_id, Integer departamento_id);
 
     public Senha pesquisaAtendimentoIniciadoSimples(int id_filial);
 

@@ -34,7 +34,6 @@ import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.movimento.ImprimirRecibo;
 import br.com.rtools.pessoa.Filial;
-import br.com.rtools.seguranca.Departamento;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Modulo;
 import br.com.rtools.seguranca.Rotina;
@@ -48,7 +47,9 @@ import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
@@ -100,6 +101,7 @@ public class BaixaGeralBean implements Serializable {
     private String valorEditavel = "";
     private TipoPagamento tipoPagamento;
     private Caixa caixa = new Caixa();
+    private String obs;
 
     @PostConstruct
     public void init() {
@@ -109,7 +111,8 @@ public class BaixaGeralBean implements Serializable {
         getPlano5();
         tipoPagamento = (TipoPagamento) new Dao().find(new TipoPagamento(), Integer.valueOf(getListaTipoPagamento().get(idTipoPagamento).getDescription()));
         caixa = new Caixa();
-        
+        obs = "";
+
         retornaCaixa();
     }
 
@@ -476,16 +479,16 @@ public class BaixaGeralBean implements Serializable {
         if (listaValores.isEmpty()) {
             return mensagem = "Lista esta vazia!";
         }
-        
+
         MacFilial macFilial = (MacFilial) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("acessoFilial");
         Usuario usuario = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuario");
         Filial filial = macFilial.getFilial();
-        
+
         String m = retornaCaixa();
-        if (!m.isEmpty()){
+        if (!m.isEmpty()) {
             return m;
         }
-        
+
         if (Moeda.converteUS$(valor) > 0) {
             return mensagem = "Complete as parcelas para que o Valor seja zerado!";
         } else if (Moeda.converteUS$(valor) < 0) {
@@ -541,9 +544,9 @@ public class BaixaGeralBean implements Serializable {
         for (int i = 0; i < listaMovimentos.size(); i++) {
             listaMovimentos.get(i).setTaxa(Moeda.converteUS$(taxa));
         }
-        
+
         float vl = (!valorTroco.isEmpty()) ? Moeda.converteUS$(valorTroco) : 0;
-        
+
         if (!GerarMovimento.baixarMovimentoManual(listaMovimentos, usuario, lfp, Moeda.substituiVirgulaFloat(total), quitacao, caixa, vl)) {
             mensagem = "Erro ao atualizar boleto!";
             return null;
@@ -588,8 +591,7 @@ public class BaixaGeralBean implements Serializable {
 //        return retorno();
 //    }
 //    
-    
-    public String retornaCaixa(){
+    public String retornaCaixa() {
         MacFilial macFilial = (MacFilial) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("acessoFilial");
         Usuario usuario = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuario");
 
@@ -623,13 +625,18 @@ public class BaixaGeralBean implements Serializable {
                 }
             }
         }
-        
+
         return "";
     }
+
     public void imprimirRecibo() {
         if (!listaMovimentos.isEmpty()) {
             ImprimirRecibo ir = new ImprimirRecibo();
-            ir.recibo(listaMovimentos.get(0).getId());
+            Map map = new HashMap();
+            if (!getObs().isEmpty()) {
+                map.put("obs", obs);
+            }
+            ir.recibo(listaMovimentos.get(0).getId(), map);
         }
     }
 
@@ -806,7 +813,7 @@ public class BaixaGeralBean implements Serializable {
         this.plano5 = plano5;
     }
 
-    public List<Movimento> getListaMovimentos() { 
+    public List<Movimento> getListaMovimentos() {
         if (listaMovimentos.isEmpty()) {
             if (FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("listaMovimento") != null) {
                 listaMovimentos = (List) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("listaMovimento");
@@ -1132,6 +1139,17 @@ public class BaixaGeralBean implements Serializable {
 
     public void setCaixa(Caixa caixa) {
         this.caixa = caixa;
+    }
+
+    public String getObs() {
+        if (GenericaSessao.exists("mensagem_recibo")) {
+            obs = GenericaSessao.getString("mensagem_recibo", true);
+        }
+        return obs;
+    }
+
+    public void setObs(String obs) {
+        this.obs = obs;
     }
 }
 

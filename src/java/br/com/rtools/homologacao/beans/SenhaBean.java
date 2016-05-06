@@ -14,6 +14,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
+import javax.faces.context.FacesContext;
 
 @ManagedBean
 @ViewScoped
@@ -65,7 +66,9 @@ public class SenhaBean implements Serializable {
     }
 
     public void loadSenha() {
-        recallId = -1;
+        if (!GenericaSessao.exists("recallId")) {
+            GenericaSessao.put("recallId", recallId);
+        }
         if (activePoll) {
             SenhaDao sd = new SenhaDao();
             if (!listSenha.isEmpty()) {
@@ -73,25 +76,38 @@ public class SenhaBean implements Serializable {
                 if (!list.isEmpty()) {
                     for (int i = 0; i < list.size(); i++) {
                         if (list.get(i).getMesa() > 0 && !list.get(i).getHoraChamada().isEmpty() && !DataHoje.converteData(list.get(i).getDtVerificada()).equals("01/01/1900")) {
-                            recallId = list.get(i).getId();
+                            GenericaSessao.put("recallId", list.get(i).getId());
                             sound = true;
                             break;
                         }
                     }
                     listSenha.clear();
                 }
+            } else {
+                if(FacesContext.getCurrentInstance().isPostback()) {
+                    sound = true;                    
+                }
             }
             if (listSenha.isEmpty()) {
                 listSenha = sd.sequence(macFilial.getFilial().getId(), 4);
-                if ((firstCall == null || !firstCall.equals(DataHoje.data())) && !listSenha.isEmpty() && listSenha.size() == 1) {
-                    recallId = listSenha.get(0).getId();
-                    firstCall = DataHoje.data();
-                    sound = true;
-                } else {
-                    if(recallId.equals(-1)) {
-                        if(!listSenha.isEmpty()) {
-                            recallId = listSenha.get(0).getId();
+                if(!listSenha.isEmpty()) {
+                    if (GenericaSessao.exists("firstCall")) {
+                        try {
+                            firstCall = GenericaSessao.getString("firstCall");                        
+                        } catch (Exception e) {
+
                         }
+                    }
+                }
+                if ((firstCall == null || firstCall.equals("") || !firstCall.equals(DataHoje.data())) && !listSenha.isEmpty() && listSenha.size() == 1) {
+                    GenericaSessao.put("recallId", listSenha.get(0).getId());
+                    firstCall = DataHoje.data();
+                    GenericaSessao.put("firstCall", DataHoje.data());
+                    sound = true;
+                } else if (getRecallId().equals(-1)) {
+                    if (!listSenha.isEmpty()) {
+                        GenericaSessao.put("recallId", listSenha.get(0).getId());
+                        sound = true;
                     }
                 }
             }
@@ -172,6 +188,9 @@ public class SenhaBean implements Serializable {
     }
 
     public Integer getRecallId() {
+        if (GenericaSessao.exists("recallId")) {
+            recallId = GenericaSessao.getInteger("recallId");
+        }
         return recallId;
     }
 

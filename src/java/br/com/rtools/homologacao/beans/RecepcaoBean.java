@@ -398,6 +398,7 @@ public class RecepcaoBean implements Serializable {
 
         if (!di.update(agendamentoEdit.getPessoaEmpresa())) {
             di.rollback();
+            cancelamento = new Cancelamento();
             GenericaMensagem.error("Erro", "Erro ao atualizar Pessoa Empresa");
             return;
         }
@@ -407,6 +408,7 @@ public class RecepcaoBean implements Serializable {
         cancelamento.setUsuario(((Usuario) GenericaSessao.getObject("sessaoUsuario")));
 
         if (!di.save(cancelamento)) {
+            cancelamento = new Cancelamento();
             di.rollback();
             GenericaMensagem.error("Erro", "Erro ao salvar Cancelamento");
             return;
