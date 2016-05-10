@@ -535,6 +535,7 @@ public class RecepcaoBean implements Serializable {
     }
 
     public void agendar(DataObject datao) {
+        cancelamento = new Cancelamento();
         if (getData() != null) {
             if (DataHoje.converteDataParaInteger(DataHoje.converteData(getData()))
                     < DataHoje.converteDataParaInteger(DataHoje.converteData(DataHoje.dataHoje()))) {
@@ -1154,10 +1155,12 @@ public class RecepcaoBean implements Serializable {
             Senha senha = db.pesquisaSenhaAgendamento(ag.get(i).getId());
             String senhaId = "";
             String senhaString = "";
+            String oposicaoString = "";
             boolean isOposicao = false;
             AtendimentoDB dbat = new AtendimentoDBTopLink();
             if (dbat.pessoaOposicao(ag.get(i).getPessoaEmpresa().getFisica().getPessoa().getDocumento())) {
                 isOposicao = true;
+                oposicaoString = "tblAgendamentoOposicaox";
             }
 
             if (senha != null && senha.getId() != -1) {
@@ -1165,13 +1168,12 @@ public class RecepcaoBean implements Serializable {
                 senhaString = (senhaString.length() == 1) ? "0" + senhaString : senhaString;
             }
 
+            Cancelamento can = (Cancelamento) db.pesquisaCancelamentoPorAgendanto(ag.get(i).getId());
+            if (senha != null && senha.getId() != -1 && can == null) {
+                senhaId = "tblListaRecepcaox";
+            }
             if (!isOposicao) {
-                Cancelamento can = (Cancelamento) db.pesquisaCancelamentoPorAgendanto(ag.get(i).getId());
-                if (senha != null && senha.getId() != -1 && can == null) {
-                    senhaId = "tblListaRecepcaox";
-                }
             } else {
-                senhaId = "tblAgendamentoOposicaox";
 
             }
 
@@ -1191,7 +1193,7 @@ public class RecepcaoBean implements Serializable {
                     ag.get(i).getStatus().getId(), // ARG 12 STATUS ID
                     ag.get(i).getStatus().getDescricao(), // ARG 13 STATUS DESCRIÇÃO
                     contabilidade, //ARG 14 CONTABILIDADE
-                    null)
+                    oposicaoString)
             );
         }
     }

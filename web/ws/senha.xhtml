@@ -74,7 +74,7 @@
                 .min-password {font-size: 64pt!important;}
             }
             .blink_me {
-              animation: blinker 1s linear 3;
+              /* animation: blinker 1s linear 3; */
             }
 
             @keyframes blinker {  
@@ -147,7 +147,7 @@
                                                 <div class="col-lg-6 col-md-6 col-sm-6">
                                                     <div class="panel" style="background: none">
                                                         <br />
-                                                        <h1 class="font-color-white">SENHA</h1>
+                                                        <h2 class="font-color-white">SENHA</h2>
                                                         <span>
                                                             <p class="min-password" style="color: #{senha.sucesso ? '#66ff00' : 'white'}"><span class="#{senha.id eq senhaBean.recallId ? 'blink_me' : ''}">#{senha.senha}</span></p>
                                                         </span>                                                        
@@ -160,7 +160,7 @@
                                                 <div class="col-lg-6 col-md-6 col-sm-6 border-white">
                                                     <div class="panel" style="background: none">
                                                         <br />
-                                                        <h1 class="font-color-white">#{senhaBean.tipo}</h1>
+                                                        <h2 class="font-color-white">#{senhaBean.tipo}</h2>
                                                         <span>
                                                             <p class="min-password"><span class="#{senha.id eq senhaBean.recallId ? 'blink_me' : ''}">#{senha.mesa}</span></p>
                                                         </span>

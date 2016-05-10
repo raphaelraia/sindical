@@ -4,14 +4,10 @@ import br.com.rtools.arrecadacao.Acordo;
 import br.com.rtools.arrecadacao.db.AcordoComissaoDB;
 import br.com.rtools.arrecadacao.db.AcordoComissaoDBToplink;
 import br.com.rtools.impressao.ParametroAcordoAnalitico;
-import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.DataHoje;
-import br.com.rtools.utilitarios.Download;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Jasper;
-import br.com.rtools.utilitarios.SalvaArquivos;
-import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,15 +17,8 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
-import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
-import javax.servlet.ServletContext;
-import net.sf.jasperreports.engine.JasperExportManager;
-import net.sf.jasperreports.engine.JasperFillManager;
-import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
-import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-import net.sf.jasperreports.engine.util.JRLoader;
 
 @ManagedBean
 @SessionScoped
@@ -120,50 +109,9 @@ public class FechamentoComissaoAcordoBean {
                         )
                 );
             }
-            
+
             Jasper.IS_HEADER = true;
             Jasper.printReports("/Relatorios/ACORDO_ANALITICO.jasper", "Acordo Analítico", lista);
-//            
-//            String patch = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos");
-//            File fileA = new File(patch + "/downloads");
-//            if (!fileA.exists()) {
-//                fileA.mkdir();
-//            }
-//            File fileB = new File(patch + "/downloads/relatorios");
-//            if (!fileB.exists()) {
-//                fileB.mkdir();
-//            }
-//            try {
-//                String patchRelatorio = "/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/ACORDO_ANALITICO.jasper";
-//                byte[] arquivo = new byte[0];
-//                if (!new File(FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/ACORDO_ANALITICO.jasper")).exists()) {
-//                    patchRelatorio = "/Relatorios/ACORDO_ANALITICO.jasper";
-//                }
-//
-//                File fl = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(patchRelatorio));
-//                jasper = (JasperReport) JRLoader.loadObject(fl);
-//                JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(lista);
-//                JasperPrint print = JasperFillManager.fillReport(
-//                        jasper,
-//                        null,
-//                        dtSource);
-//                arquivo = JasperExportManager.exportReportToPdf(print);
-//
-//                String nomeDownload = "acordo_analitico_" + DataHoje.horaMinuto().replace(":", "") + ".pdf";
-//
-//                SalvaArquivos sa = new SalvaArquivos(arquivo, nomeDownload, false);
-//                String pathPasta = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/relatorios");
-//
-//                sa.salvaNaPasta(pathPasta);
-//
-//                Download download = new Download(nomeDownload,
-//                        pathPasta,
-//                        "application/pdf",
-//                        FacesContext.getCurrentInstance());
-//                download.baixar();
-//                download.remover();
-//            } catch (Exception e) {
-//            }
         }
     }
 
@@ -193,13 +141,6 @@ public class FechamentoComissaoAcordoBean {
         this.idDataFechamento = idDataFechamento;
     }
 
-//    public String getMensagem() {
-//        return mensagem;
-//    }
-//
-//    public void setMensagem(String mensagem) {
-//        this.mensagem = mensagem;
-//    }
     public Acordo getAcordo() {
         return acordo;
     }

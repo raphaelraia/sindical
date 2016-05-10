@@ -11,6 +11,7 @@ import br.com.rtools.homologacao.Demissao;
 import br.com.rtools.homologacao.ListaAgendamento;
 import br.com.rtools.homologacao.Senha;
 import br.com.rtools.homologacao.Status;
+import br.com.rtools.homologacao.dao.CancelamentoDao;
 import br.com.rtools.homologacao.dao.HomologacaoDao;
 import br.com.rtools.homologacao.db.*;
 import br.com.rtools.pessoa.*;
@@ -808,7 +809,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
 //    }
     public String agendar(Agendamento a) {
         HomologacaoDB db = new HomologacaoDBToplink();
-        SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
+        Dao dao = new Dao();
         agendamento = a;
         cancelamento = new Cancelamento();
         int nrStatus = Integer.parseInt(((SelectItem) getListaStatus().get(idStatus)).getDescription());
@@ -865,26 +866,30 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
                 case 2: {
                     renderHomologar = true;
                     renderCancelarHorario = true;
-                    agendamento.setStatus((Status) salvarAcumuladoDB.pesquisaObjeto(5, "Status"));
+                    agendamento.setStatus((Status) dao.find(new Status(), 5));
                     agendamento.setHomologador((Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuario"));
-                    salvarAcumuladoDB.abrirTransacao();
-                    if (salvarAcumuladoDB.alterarObjeto(agendamento)) {
-                        salvarAcumuladoDB.comitarTransacao();
+                    dao.openTransaction();
+                    if (dao.update(agendamento)) {
+                        dao.commit();
                     } else {
-                        salvarAcumuladoDB.desfazerTransacao();
+                        dao.rollback();
                     }
                     break;
                 }
                 case 3: {
                     renderHomologar = true;
                     renderCancelarHorario = false;
-                    agendamento.setStatus((Status) salvarAcumuladoDB.pesquisaObjeto(5, "Status"));
+                    // agendamento.setStatus((Status) dao.find(new Status(), 5));
+                    cancelamento = new CancelamentoDao().findByAgendamento(agendamento.getId());
+                    if (cancelamento == null) {
+                        cancelamento = new Cancelamento();
+                    }
                     agendamento.setHomologador((Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuario"));
-                    salvarAcumuladoDB.abrirTransacao();
-                    if (salvarAcumuladoDB.alterarObjeto(agendamento)) {
-                        salvarAcumuladoDB.comitarTransacao();
+                    dao.openTransaction();
+                    if (dao.update(agendamento)) {
+                        dao.commit();
                     } else {
-                        salvarAcumuladoDB.desfazerTransacao();
+                        dao.rollback();
                     }
                     break;
                 }

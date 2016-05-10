@@ -71,113 +71,113 @@ public class RelatorioFinanceiroDao extends DB {
 
         // CONTA CONTABIL ---
         if (!ids_contabil.isEmpty()) {
-            list_where.add(" m.id_conta IN (" + ids_contabil + ") \n ");
+            list_where.add(" m.id_conta IN (" + ids_contabil + ") ");
         }
 
         // GRUPO ---
         if (id_grupo != null) {
-            list_where.add(" m.id_grupo = " + id_grupo + " \n ");
+            list_where.add(" m.id_grupo = " + id_grupo + " ");
         }
 
         // SUB GRUPO ---
         if (id_sub_grupo != null) {
-            list_where.add(" m.id_subgrupo = " + id_sub_grupo + " \n ");
+            list_where.add(" m.id_subgrupo = " + id_sub_grupo + " ");
         }
 
         // SERVICOS ---
         if (id_servicos != null) {
-            list_where.add(" m.id_servico = " + id_servicos + " \n ");
+            list_where.add(" m.id_servico = " + id_servicos + " ");
         }
 
         // DATA EMISSAO ---
         if (!dataEmissao.isEmpty() && !dataEmissaoFinal.isEmpty()) {
-            list_where.add(" m.emissao BETWEEN '" + dataEmissao + "' and '" + dataEmissaoFinal + "' \n ");
+            list_where.add(" m.emissao BETWEEN '" + dataEmissao + "' AND '" + dataEmissaoFinal + "' ");
         } else if (!dataEmissao.isEmpty() && dataEmissaoFinal.isEmpty()) {
-            list_where.add(" m.emissao >= '" + dataEmissao + "' \n ");
+            list_where.add(" m.emissao >= '" + dataEmissao + "' ");
         } else if (dataEmissao.isEmpty() && !dataEmissaoFinal.isEmpty()) {
-            list_where.add(" m.emissao <= '" + dataEmissaoFinal + "' \n ");
+            list_where.add(" m.emissao <= '" + dataEmissaoFinal + "' ");
         }
 
         // DATA VENCIMENTO ---
         if (!dataVencimento.isEmpty() && !dataVencimentoFinal.isEmpty()) {
-            list_where.add(" m.vencimento BETWEEN '" + dataVencimento + "' and '" + dataVencimentoFinal + "' \n ");
+            list_where.add(" m.vencimento BETWEEN '" + dataVencimento + "' AND '" + dataVencimentoFinal + "' ");
         } else if (!dataVencimento.isEmpty() && dataVencimentoFinal.isEmpty()) {
-            list_where.add(" m.vencimento >= '" + dataVencimento + "' \n ");
+            list_where.add(" m.vencimento >= '" + dataVencimento + "' ");
         } else if (dataVencimento.isEmpty() && !dataVencimentoFinal.isEmpty()) {
-            list_where.add(" m.vencimento <= '" + dataVencimentoFinal + "' \n ");
+            list_where.add(" m.vencimento <= '" + dataVencimentoFinal + "' ");
         }
 
         // DATA QUITAÇÃO ---
         if (!dataQuitacao.isEmpty() && !dataQuitacaoFinal.isEmpty()) {
-            list_where.add(" m.baixa BETWEEN '" + dataQuitacao + "' and '" + dataQuitacaoFinal + "' \n ");
+            list_where.add(" m.baixa BETWEEN '" + dataQuitacao + "' AND '" + dataQuitacaoFinal + "' ");
         } else if (!dataQuitacao.isEmpty() && dataQuitacaoFinal.isEmpty()) {
-            list_where.add(" m.baixa >= '" + dataQuitacao + "' \n ");
+            list_where.add(" m.baixa >= '" + dataQuitacao + "' ");
         } else if (dataQuitacao.isEmpty() && !dataQuitacaoFinal.isEmpty()) {
-            list_where.add(" m.baixa <= '" + dataQuitacaoFinal + "' \n ");
+            list_where.add(" m.baixa <= '" + dataQuitacaoFinal + "' ");
         }
 
         // DATA IMPORTACAO ---
         if (!dataImportacao.isEmpty() && !dataImportacaoFinal.isEmpty()) {
-            list_where.add(" m.importacao BETWEEN '" + dataImportacao + "' and '" + dataImportacaoFinal + "' \n ");
+            list_where.add(" m.importacao BETWEEN '" + dataImportacao + "' AND '" + dataImportacaoFinal + "' ");
         } else if (!dataImportacao.isEmpty() && dataImportacaoFinal.isEmpty()) {
-            list_where.add(" m.importacao >= '" + dataImportacao + "' \n ");
+            list_where.add(" m.importacao >= '" + dataImportacao + "' ");
         } else if (dataImportacao.isEmpty() && !dataImportacaoFinal.isEmpty()) {
-            list_where.add(" m.importacao <= '" + dataImportacaoFinal + "' \n ");
+            list_where.add(" m.importacao <= '" + dataImportacaoFinal + "' ");
         }
 
         // DATA CREDITO ---
         if (!dataCredito.isEmpty() && !dataCreditoFinal.isEmpty()) {
-            list_where.add(" m.dt_credito BETWEEN '" + dataCredito + "' and '" + dataCreditoFinal + "' \n ");
+            list_where.add(" m.dt_credito BETWEEN '" + dataCredito + "' AND '" + dataCreditoFinal + "' ");
         } else if (!dataCredito.isEmpty() && dataCreditoFinal.isEmpty()) {
-            list_where.add(" m.dt_credito >= '" + dataCredito + "' \n ");
+            list_where.add(" m.dt_credito >= '" + dataCredito + "' ");
         } else if (dataCredito.isEmpty() && !dataCreditoFinal.isEmpty()) {
-            list_where.add(" m.dt_credito <= '" + dataCreditoFinal + "' \n ");
+            list_where.add(" m.dt_credito <= '" + dataCreditoFinal + "' ");
         }
 
         // DATA FECHAMENTO CAIXA---
         if (!dataFechamentoCaixa.isEmpty() && !dataFechamentoCaixaFinal.isEmpty()) {
-            list_where.add(" m.fechamento_caixa BETWEEN '" + dataFechamentoCaixa + "' and '" + dataFechamentoCaixaFinal + "' \n ");
+            list_where.add(" m.fechamento_caixa BETWEEN '" + dataFechamentoCaixa + "' AND '" + dataFechamentoCaixaFinal + "' ");
         } else if (!dataFechamentoCaixa.isEmpty() && dataFechamentoCaixaFinal.isEmpty()) {
-            list_where.add(" m.fechamento_caixa >= '" + dataFechamentoCaixa + "' \n ");
+            list_where.add(" m.fechamento_caixa >= '" + dataFechamentoCaixa + "' ");
         } else if (dataFechamentoCaixa.isEmpty() && !dataFechamentoCaixaFinal.isEmpty()) {
-            list_where.add(" m.fechamento_caixa <= '" + dataFechamentoCaixaFinal + "' \n ");
+            list_where.add(" m.fechamento_caixa <= '" + dataFechamentoCaixaFinal + "' ");
         }
 
         // CAIXA / BANCO ---
         if (id_caixa_banco != null) {
-            list_where.add(" m.id_caixa_banco = " + id_caixa_banco + " \n ");
+            list_where.add(" m.id_caixa_banco = " + id_caixa_banco + " ");
         }
 
         // CAIXA ---
         if (!tipo_caixa.isEmpty()) {
             if (tipo_caixa.equals("com") && id_caixa != null) {
-                list_where.add(" m.id_caixa = " + id_caixa + " \n ");
+                list_where.add(" m.id_caixa = " + id_caixa + " ");
             } else {
-                list_where.add(" m.id_caixa IS NULL \n ");
+                list_where.add(" m.id_caixa IS NULL ");
             }
         }
 
         // OPERADOR ---
         if (id_operador != null) {
-            list_where.add(" m.id_usuario_baixa = " + id_operador + " \n ");
+            list_where.add(" m.id_usuario_baixa = " + id_operador + " ");
         }
 
         // TIPO QUITAÇÃO ---
         if (id_tipo_quitacao != null) {
-            list_where.add(" m.id_tipo_pagamento = " + id_tipo_quitacao + " \n ");
+            list_where.add(" m.id_tipo_pagamento = " + id_tipo_quitacao + " ");
         }
 
         // TIPO DEPARTAMENTO ---
         if (!tipo_departamento.isEmpty()) {
             switch (tipo_departamento) {
                 case "outros":
-                    list_where.add(" m.id_rotina <> 4 \n ");
+                    list_where.add(" m.id_rotina <> 4 ");
                     break;
                 case "todos":
                     break;
                 default:
                     // ARRECADAÇÃO
-                    list_where.add(" m.id_rotina = 4 \n ");
+                    list_where.add(" m.id_rotina = 4  ");
                     break;
             }
         }
@@ -186,10 +186,10 @@ public class RelatorioFinanceiroDao extends DB {
         if (!tipo_es.isEmpty()) {
             switch (tipo_es) {
                 case "E":
-                    list_where.add(" m.es = 'E' \n ");
+                    list_where.add(" m.es = 'E' ");
                     break;
                 case "S":
-                    list_where.add(" m.es = 'S' \n ");
+                    list_where.add(" m.es = 'S' ");
                     break;
             }
         }
@@ -210,14 +210,14 @@ public class RelatorioFinanceiroDao extends DB {
         if (!tipo_situacao.isEmpty()) {
             switch (tipo_situacao) {
                 case "atrasado":
-                    list_where.add(" m.baixa IS NULL AND m.vencimento < CURRENT_DATE \n ");
+                    list_where.add(" m.baixa IS NULL AND m.vencimento < CURRENT_DATE ");
                     break;
                 case "baixado":
-                    list_where.add(" m.baixa IS NOT NULL \n ");
+                    list_where.add(" m.baixa IS NOT NULL ");
                     break;
                 // aberto
                 default:
-                    list_where.add(" m.baixa IS NULL \n ");
+                    list_where.add(" m.baixa IS NULL ");
                     break;
             }
         }
@@ -230,9 +230,9 @@ public class RelatorioFinanceiroDao extends DB {
 
         for (String linha : list_where) {
             if (where.isEmpty()) {
-                where = " WHERE " + linha;
+                where = " WHERE " + linha + " \n";
             } else {
-                where += " AND " + linha;
+                where += " AND " + linha + " \n";
             }
         }
 
