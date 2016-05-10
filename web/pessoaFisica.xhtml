@@ -523,7 +523,9 @@
 
                                             <p:column>
                                                 <p:outputLabel value="Data de Aposentadoria"/><br />
-                                                <p:inputMask value="#{fisicaBean.fisica.aposentadoria}" mask="99/99/9999" size="10" />                                    
+                                                <p:inputMask value="#{fisicaBean.fisica.aposentadoria}" mask="99/99/9999" size="10" converter="#{isDateString}">
+                                                    <p:ajax event="change" update="@this" />
+                                                </p:inputMask>                                    
                                             </p:column>
                                         </h:panelGrid>
 
