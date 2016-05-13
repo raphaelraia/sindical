@@ -15,6 +15,7 @@ import javax.persistence.Table;
 @Table(name = "eve_evento_servico_valor")
 @NamedQuery(name = "EventoServicoValor.pesquisaID", query = "select es from EventoServicoValor es where es.id=:pid")
 public class EventoServicoValor implements java.io.Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -95,6 +96,22 @@ public class EventoServicoValor implements java.io.Serializable {
 
     public void setIdadeFinal(int idadeFinal) {
         this.idadeFinal = idadeFinal;
+    }
+
+    public String getIdadeInicialString() {
+        return Integer.toString(idadeInicial);
+    }
+
+    public void setIdadeInicialString(String idadeInicialString) {
+        this.idadeInicial = Integer.parseInt(idadeInicialString);
+    }
+
+    public String getIdadeFinalString() {
+        return Integer.toString(idadeFinal);
+    }
+
+    public void setIdadeFinalString(String idadeFinalString) {
+        this.idadeFinal = Integer.parseInt(idadeFinalString);
     }
 
     public String getSexo() {

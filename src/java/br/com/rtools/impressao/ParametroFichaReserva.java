@@ -38,8 +38,10 @@ public class ParametroFichaReserva {
     private Object valor5;
     private Object valor6;
     private Object total;
+    private Object lista_parcelas;
+    private Object lista_parcelas2;
 
-    public ParametroFichaReserva(Object responsavel_nome, Object responsavel_endereco, Object empresa_nome, Object empresa_cnpj, Object nome, Object cpf, Object categoria, Object sexo, Object idade, Object data, Object observacao, Object entrada, Object saida, Object periodo, Object dias, Object local, Object lancamento_extenso, Object impressao_extenso, Object tipo1, Object tipo2, Object tipo3, Object tipo4, Object tipo5, Object tipo6, Object pessoa1, Object pessoa2, Object pessoa3, Object pessoa4, Object pessoa5, Object pessoa6, Object valor1, Object valor2, Object valor3, Object valor4, Object valor5, Object valor6, Object total) {
+    public ParametroFichaReserva(Object responsavel_nome, Object responsavel_endereco, Object empresa_nome, Object empresa_cnpj, Object nome, Object cpf, Object categoria, Object sexo, Object idade, Object data, Object observacao, Object entrada, Object saida, Object periodo, Object dias, Object local, Object lancamento_extenso, Object impressao_extenso, Object tipo1, Object tipo2, Object tipo3, Object tipo4, Object tipo5, Object tipo6, Object pessoa1, Object pessoa2, Object pessoa3, Object pessoa4, Object pessoa5, Object pessoa6, Object valor1, Object valor2, Object valor3, Object valor4, Object valor5, Object valor6, Object total, Object lista_parcelas, Object lista_parcelas2) {
         this.responsavel_nome = responsavel_nome;
         this.responsavel_endereco = responsavel_endereco;
         this.empresa_nome = empresa_nome;
@@ -77,6 +79,8 @@ public class ParametroFichaReserva {
         this.valor5 = valor5;
         this.valor6 = valor6;
         this.total = total;
+        this.lista_parcelas = lista_parcelas;
+        this.lista_parcelas2 = lista_parcelas2;
     }
 
 
@@ -377,5 +381,21 @@ public class ParametroFichaReserva {
 
     public void setTotal(Object total) {
         this.total = total;
+    }
+
+    public Object getLista_parcelas() {
+        return lista_parcelas;
+    }
+
+    public void setLista_parcelas(Object lista_parcelas) {
+        this.lista_parcelas = lista_parcelas;
+    }
+
+    public Object getLista_parcelas2() {
+        return lista_parcelas2;
+    }
+
+    public void setLista_parcelas2(Object lista_parcelas2) {
+        this.lista_parcelas2 = lista_parcelas2;
     }
 }

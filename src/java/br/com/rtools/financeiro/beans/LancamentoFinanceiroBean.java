@@ -6,6 +6,8 @@ import br.com.rtools.estoque.Produto;
 import br.com.rtools.financeiro.*;
 import br.com.rtools.financeiro.db.FTipoDocumentoDB;
 import br.com.rtools.financeiro.db.FTipoDocumentoDBToplink;
+import br.com.rtools.financeiro.db.FinanceiroDB;
+import br.com.rtools.financeiro.db.FinanceiroDBToplink;
 import br.com.rtools.financeiro.db.LancamentoFinanceiroDB;
 import br.com.rtools.financeiro.db.LancamentoFinanceiroDBToplink;
 import br.com.rtools.movimento.GerarMovimento;
@@ -30,6 +32,7 @@ import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Mask;
 import br.com.rtools.utilitarios.Moeda;
+import br.com.rtools.utilitarios.PF;
 import br.com.rtools.utilitarios.SalvarAcumuladoDB;
 import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import br.com.rtools.utilitarios.ValidaDocumentos;
@@ -296,7 +299,6 @@ public class LancamentoFinanceiroBean implements Serializable {
     }
 
     /* FIM PRODUTOS --------------------------------------------------------- */
-
     public void delete() {
         // PARCELAS BAIXADAS
         Movimento movimento = new Movimento();
@@ -414,9 +416,19 @@ public class LancamentoFinanceiroBean implements Serializable {
             return null;
         }
 
-        if (macFilial.getCaixa() == null) {
-            GenericaMensagem.warn("Erro", "Configurar CAIXA nesta estação de trabalho!");
-            return null;
+        if (!macFilial.isCaixaOperador()) {
+            if (macFilial.getCaixa() == null) {
+                GenericaMensagem.warn("Erro", "Configurar CAIXA nesta estação de trabalho!");
+                return null;
+            }
+        } else {
+            FinanceiroDB dbf = new FinanceiroDBToplink();
+            Caixa caixax = dbf.pesquisaCaixaUsuario(((Usuario) GenericaSessao.getObject("sessaoUsuario")).getId(), macFilial.getFilial().getId());
+
+            if (caixax == null) {
+                GenericaMensagem.warn("Erro", "Configurar CAIXA para este operador!");
+                return null;
+            }
         }
 
         Movimento movimento = new Movimento();
@@ -600,7 +612,7 @@ public class LancamentoFinanceiroBean implements Serializable {
 
     public void salvar() {
         Dao dao = new Dao();
-        try {            
+        try {
             if (listaParcela.isEmpty()) {
                 GenericaMensagem.warn("Erro", "ADICIONE UMA PARCELA para salvar este lançamento!");
                 return;
@@ -648,7 +660,7 @@ public class LancamentoFinanceiroBean implements Serializable {
             }
             LancamentoFinanceiroDB db = new LancamentoFinanceiroDBToplink();
             FiltroLancamento fl = new FiltroLancamento();
-            if(lote.getId() != -1) {
+            if (lote.getId() != -1) {
                 fl = db.pesquisaFiltroLancamento(lote.getId());
             }
             if (lote.getId() == -1) {
@@ -657,13 +669,11 @@ public class LancamentoFinanceiroBean implements Serializable {
                     dao.rollback();
                     return;
                 }
-            } else {                 
-                if(!dao.update(lote)) { 
-                    GenericaMensagem.warn("Erro", "Erro ao Atualizar Lote!");
-                    dao.rollback();
-                    return;
-                }
-            }            
+            } else if (!dao.update(lote)) {
+                GenericaMensagem.warn("Erro", "Erro ao Atualizar Lote!");
+                dao.rollback();
+                return;
+            }
             for (DataObject parcela : listaParcela) {
                 Movimento movimento = (Movimento) parcela.getArgumento1();
                 movimento.setLote(lote);
@@ -787,6 +797,7 @@ public class LancamentoFinanceiroBean implements Serializable {
 //            return;
 //        }
 
+
         if (pessoa.getId() == -1) {
             GenericaMensagem.warn("Erro", "PESQUISE ou CADASTRE uma pessoa para adicionar uma parcela!");
             return;
@@ -796,6 +807,17 @@ public class LancamentoFinanceiroBean implements Serializable {
             GenericaMensagem.warn("Erro", "Selecione uma CONTA PRIMÁRIA para adicionar parcela!");
             return;
         }
+        
+        if (vencimento.isEmpty()) {
+            GenericaMensagem.warn("Validação", "INFORMAR A DATA DE VENCIMENTO!");
+            return;
+        }
+        
+        if (valor.equals("0,00") || valor.equals("0.00")) {
+            GenericaMensagem.warn("Validação", "O VALOR NÃO PODE SER 0,00!");
+            return;
+        }
+        
 
         ContaOperacao co = (ContaOperacao) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(Integer.valueOf(listaContaOperacao.get(idContaOperacao).getDescription()), "ContaOperacao");
         FTipoDocumento td = (FTipoDocumento) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(Integer.valueOf(listaFTipoMovimento.get(idFTipoMovimento).getDescription()), "FTipoDocumento");

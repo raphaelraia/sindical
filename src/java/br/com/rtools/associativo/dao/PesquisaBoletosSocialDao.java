@@ -1,6 +1,5 @@
 package br.com.rtools.associativo.dao;
 
-import br.com.rtools.financeiro.MovimentoBoleto;
 import br.com.rtools.principal.DB;
 import br.com.rtools.utilitarios.AnaliseString;
 import java.util.ArrayList;
