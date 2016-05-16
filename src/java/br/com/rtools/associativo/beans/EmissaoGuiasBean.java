@@ -1,6 +1,5 @@
 package br.com.rtools.associativo.beans;
 
-import br.com.rtools.academia.AcademiaServicoValor;
 import br.com.rtools.associativo.GrupoConvenio;
 import br.com.rtools.associativo.HistoricoEmissaoGuias;
 import br.com.rtools.associativo.MatriculaSocios;

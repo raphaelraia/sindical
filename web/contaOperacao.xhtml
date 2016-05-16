@@ -34,18 +34,29 @@
                             <div class="clear"></div>
                             <p:messages showDetail="true" showSummary="true" autoUpdate="true" closable="true"/>
                             <p:panel styleClass="fundoCinza margin-top-med">
-                                <h:panelGrid columns="4">
-                                    <p:outputLabel value="Operação:" />
+                                <f:facet name="header" >
+                                    <h:panelGrid columns="2">
+                                        <p:outputLabel value="FILIAL:" />
+                                        <p:selectOneMenu value="#{contaOperacaoBean.index[2]}" style="width: 600px" filter="true" filterMatchMode="startsWith">
+                                            <p:ajax event="change" update=":form_co:" listener="#{contaOperacaoBean.clear(8)}"/>
+                                            <f:selectItems value="#{contaOperacaoBean.listFilial}" />
+                                        </p:selectOneMenu>
+                                    </h:panelGrid>
+                                </f:facet>
+                                <h:panelGrid columns="6" cellspacing="5">
+                                    <p:outputLabel value="OPERAÇÃO:" />
                                     <p:selectOneMenu value="#{contaOperacaoBean.index[0]}">
                                         <p:ajax event="change" update=":form_co:" listener="#{contaOperacaoBean.clear(1)}"/>
-                                        <f:selectItem itemValue="" itemLabel="Selecionar" />
                                         <f:selectItems value="#{contaOperacaoBean.listOperacoes}" />
                                     </p:selectOneMenu>
-                                    <p:outputLabel value="Plano de Conta:" />
+                                    <p:outputLabel value="PLANO DE CONTA:" />
                                     <p:selectOneMenu value="#{contaOperacaoBean.index[3]}">
                                         <p:ajax event="change" update=":form_co:" listener="#{contaOperacaoBean.clear(2)}"/>
-                                        <f:selectItem itemValue="" itemLabel="Selecionar" />
                                         <f:selectItems value="#{contaOperacaoBean.listPlano4Group}" />
+                                    </p:selectOneMenu>
+                                    <p:outputLabel value="CENTRO DE CUSTO:" rendered="#{not empty contaOperacaoBean.listCentroCusto}"/>
+                                    <p:selectOneMenu value="#{contaOperacaoBean.index[1]}" rendered="#{not empty contaOperacaoBean.listCentroCusto}">
+                                        <f:selectItems value="#{contaOperacaoBean.listCentroCusto}" />
                                     </p:selectOneMenu>
                                 </h:panelGrid>
                             </p:panel>
@@ -101,7 +112,7 @@
                                                 #{contaOperacao.plano5.conta} - #{contaOperacao.plano5.numero}
                                             </p:column>
                                             <p:column headerText="E/S" width="23" styleClass="text-center">
-                                                #{contaOperacao.es}
+                                                #{contaOperacao.operacao.es}
                                             </p:column>
                                             <p:column headerText="C.F." width="23" styleClass="text-center">
                                                 <p:selectBooleanCheckbox value="#{contaOperacao.contaFixa}" disabled="#{controleAcessoBean.botaoSalvar}">
@@ -124,34 +135,11 @@
                             <h:panelGrid columns="2" id="i_panel_co">
                                 <p:outputLabel value="Operação:" />
                                 <p:outputLabel value="#{contaOperacaoBean.contaOperacao.operacao.descricao}" />
+                                <p:outputLabel value="Tipo (E/S:)" />
+                                <p:outputLabel value="#{contaOperacaoBean.contaOperacao.operacao.es}" />
                                 <p:outputLabel value="Plano 5:" />
                                 <p:outputLabel value="#{contaOperacaoBean.contaOperacao.plano5.conta} - #{contaOperacaoBean.contaOperacao.plano5.classificador}" />
-                                <p:outputLabel value="Tipo (E/S):" />
-                                <p:selectOneMenu value="#{contaOperacaoBean.contaOperacao.es}">
-                                    <f:selectItem itemValue="E" itemLabel="Entrada" />
-                                    <f:selectItem itemValue="S" itemLabel="Saída" />
-                                </p:selectOneMenu>
-                                <h:column>
-                                    <h:panelGrid rendered="#{contaOperacaoBean.hidden[0]}">
-                                        <p:outputLabel value="C. Custo Contábil:" title="Centro de Custo Contábil" />
-                                    </h:panelGrid>
-                                </h:column>
-                                <h:column>
-                                    <h:panelGrid columns="3" rendered="#{contaOperacaoBean.hidden[0]}">
-                                        <p:selectOneMenu value="#{contaOperacaoBean.index[1]}">
-                                            <p:ajax event="change" update="i_cccs" listener="#{contaOperacaoBean.listCentroCustoContabilSub.clear()}"/>
-                                            <f:selectItem itemValue="" itemLabel="Selecionar" />
-                                            <f:selectItems value="#{contaOperacaoBean.listCentroCustoContabil}" />
-                                        </p:selectOneMenu>
-                                        <p:outputLabel value="C. Custo Contábil:" title="Centro de Custo Contábil Sub" />
-                                        <p:selectOneMenu value="#{contaOperacaoBean.index[2]}" id="i_cccs">
-                                            <f:selectItem itemValue="" itemLabel="Selecionar" />
-                                            <f:selectItems value="#{contaOperacaoBean.listCentroCustoContabilSub}" />
-                                        </p:selectOneMenu>
-                                    </h:panelGrid>
-                                </h:column>
-                                <h:column>
-                                </h:column>
+                                <h:column />
                                 <p:selectBooleanCheckbox value="#{contaOperacaoBean.contaOperacao.contaFixa}" itemLabel="Conta Fixa" />
                             </h:panelGrid>
                             <f:facet name="footer">
@@ -167,24 +155,8 @@
                             <p:messages showDetail="true" showSummary="true" autoUpdate="true" closable="true" id="i_message_co_todos"  />
                             <h:panelGroup layout="block" id="i_panel_co_todos">
                                 <h:panelGrid columns="2" >
-                                    <p:outputLabel value="Tipo (E/S):" />
-                                    <p:selectOneMenu value="#{contaOperacaoBean.es}">
-                                        <f:selectItem itemValue="E" itemLabel="Entrada" />
-                                        <f:selectItem itemValue="S" itemLabel="Saída" />
-                                    </p:selectOneMenu>
-                                </h:panelGrid>
-                                <h:panelGrid columns="2" rendered="#{contaOperacaoBean.hidden[0]}">
-                                    <p:outputLabel value="Centro de Custo" title="Centro de Custo Contábil" />
-                                    <p:selectOneMenu value="#{contaOperacaoBean.index[1]}">
-                                        <p:ajax event="change" update="i_cccs_todos" listener="#{contaOperacaoBean.listCentroCustoContabilSub.clear()}"/>
-                                        <f:selectItem itemValue="" itemLabel="Selecionar" />
-                                        <f:selectItems value="#{contaOperacaoBean.listCentroCustoContabil}" />
-                                    </p:selectOneMenu>
-                                    <p:outputLabel value="C. Custo Contábil Sub:" title="Centro de Custo Contábil Sub" />
-                                    <p:selectOneMenu value="#{contaOperacaoBean.index[2]}" id="i_cccs_todos">
-                                        <f:selectItem itemValue="" itemLabel="Selecionar" />
-                                        <f:selectItems value="#{contaOperacaoBean.listCentroCustoContabilSub}" />
-                                    </p:selectOneMenu>
+                                    <p:outputLabel value="Tipo (E/S:)" />
+                                    <p:outputLabel value="#{contaOperacaoBean.contaOperacao.operacao.es}" />
                                 </h:panelGrid>
                                 <p:selectBooleanCheckbox value="#{contaOperacaoBean.contaFixa}" itemLabel="Conta Fixa" />
                             </h:panelGroup>

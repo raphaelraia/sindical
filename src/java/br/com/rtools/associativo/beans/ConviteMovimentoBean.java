@@ -369,21 +369,19 @@ public class ConviteMovimentoBean implements Serializable {
                 GenericaMensagem.warn("ATENÇÃO", "Limite de convites excedido para convidado! Este convidado tem direito a " + r.getConviteQuantidadeConvidado() + " a cada " + r.getConviteDiasConvidado() + "dia(s)");
                 return false;
             }
-            
+
             SociosDB sociosDB = new SociosDBToplink();
             Socios socio_convidado = sociosDB.pesquisaSocioPorPessoaAtivoDocumento(conviteMovimento.getSisPessoa().getDocumento());
             if (socio_convidado.getId() != -1) {
                 Categoria c = cdb.pesquisaCategoriaTodosDiasClube(socio_convidado.getMatriculaSocios().getCategoria().getId());
-                if (c != null){
+                if (c != null) {
                     GenericaMensagem.warn("ATENÇÃO", "CONVIDADO NÃO PODE SER SÓCIO ATIVO!");
                     return false;
                 }
-            }            
-        } else {
-            if (Moeda.converteUS$(valorString) <= 0 && conviteMovimento.getDesconto() != 0) {
-                GenericaMensagem.warn("ATENÇÃO", "INFORMAR O VALOR DO SERVIÇO, FAIXA ETÁRIA NÃO POSSUI VALOR DO SERVIÇO!");
-                return false;
             }
+        } else if (Moeda.converteUS$(valorString) <= 0 && conviteMovimento.getDesconto() != 0) {
+            GenericaMensagem.warn("ATENÇÃO", "INFORMAR O VALOR DO SERVIÇO, FAIXA ETÁRIA NÃO POSSUI VALOR DO SERVIÇO!");
+            return false;
         }
 
         if (idadeConvidado >= 16) {
@@ -1155,7 +1153,11 @@ public class ConviteMovimentoBean implements Serializable {
                     (FStatus) dao.find(new FStatus(), 1),
                     null,
                     false,
-                    0
+                    0,
+                    null,
+                    null,
+                    null,
+                    false
             );
             try {
                 String nrCtrBoletoResp = "";

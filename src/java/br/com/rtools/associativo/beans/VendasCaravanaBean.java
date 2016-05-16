@@ -374,7 +374,7 @@ public class VendasCaravanaBean {
 
     public void atualizaValoresParcela(int index) {
         String s = getCalculaValorMovimentoAlterado();
-        if(!s.isEmpty()) {
+        if (!s.isEmpty()) {
             GenericaMensagem.fatal("Validação", s);
         }
 
@@ -497,7 +497,11 @@ public class VendasCaravanaBean {
                 (FStatus) dao.find(new FStatus(), 1),
                 null,
                 false,
-                0
+                0,
+                null,
+                null,
+                null,
+                false
         );
 
         if (!dao.save(lote)) {
@@ -596,7 +600,7 @@ public class VendasCaravanaBean {
         }
 
         listaDataEntrada.clear();
-        
+
         atualizaValoresParcela(0);
     }
 
@@ -1218,11 +1222,11 @@ public class VendasCaravanaBean {
                 if (!v.equals(Moeda.converteUS$(valorTotal))) {
                     disabledSave = true;
                     if (vn > 0) {
-                        if(vn > Moeda.converteUS$(valorTotal)) {
+                        if (vn > Moeda.converteUS$(valorTotal)) {
                             diff = vn - Moeda.converteUS$(valorTotal);
                             return "Existe uma difereça na soma das parcelas: Remover R$ " + Moeda.converteR$Float(diff) + ".  Corrigir para concluir.";
                         } else {
-                            diff = Moeda.converteUS$(valorTotal) - vn;                            
+                            diff = Moeda.converteUS$(valorTotal) - vn;
                             return "Existe uma difereça na soma das parcelas: Acrescentar R$ " + Moeda.converteR$Float(diff) + ".  Corrigir para concluir.";
                         }
                     } else if (vn < 0) {

@@ -93,10 +93,10 @@ public class VendaBaileBean implements Serializable {
 
     private EventoBaileMapa ebmTroca = new EventoBaileMapa();
     private EventoBaileMapa ebmTrocaSelecionada = new EventoBaileMapa();
-    
+
     private EventoBaileConvite ebcTroca = new EventoBaileConvite();
     private EventoBaileConvite ebcTrocaSelecionada = new EventoBaileConvite();
-    
+
     @PostConstruct
     public void init() {
         loadListaEventoBaile();
@@ -112,8 +112,8 @@ public class VendaBaileBean implements Serializable {
 
     public void trocarMesa(Vector linha) {
         ebmTroca = (EventoBaileMapa) new Dao().find(new EventoBaileMapa(), (Integer) linha.get(9));
-        if (Usuario.getUsuario().getId() != 1){
-            if (ebmTroca.getbVenda().getUsuario().getId() != Usuario.getUsuario().getId() && cab.verificaPermissao("trocar_mesa_convite", 3)){
+        if (Usuario.getUsuario().getId() != 1) {
+            if (ebmTroca.getbVenda().getUsuario().getId() != Usuario.getUsuario().getId() && cab.verificaPermissao("trocar_mesa_convite", 3)) {
                 GenericaMensagem.fatal("ATENÇÃO", "USUÁRIO SEM PERMISSÃO PARA TROCAR ESTA MESA!");
                 PF.update("formPesquisaVendasBaile:message_mesa");
                 return;
@@ -180,17 +180,17 @@ public class VendaBaileBean implements Serializable {
             PF.update("formPesquisaVendasBaile:table_mesa");
         }
     }
-    
+
     public void trocarConvite(Vector linha) {
         ebcTroca = (EventoBaileConvite) new Dao().find(new EventoBaileConvite(), (Integer) linha.get(9));
-        if (Usuario.getUsuario().getId() != 1){
-            if (ebcTroca.getbVenda().getUsuario().getId() != Usuario.getUsuario().getId() && cab.verificaPermissao("trocar_mesa_convite", 3)){
+        if (Usuario.getUsuario().getId() != 1) {
+            if (ebcTroca.getbVenda().getUsuario().getId() != Usuario.getUsuario().getId() && cab.verificaPermissao("trocar_mesa_convite", 3)) {
                 GenericaMensagem.fatal("ATENÇÃO", "USUÁRIO SEM PERMISSÃO PARA TROCAR ESTE CONVITE!");
                 PF.update("formPesquisaVendasBaile:message_convite");
                 return;
             }
         }
-                
+
         ebcTrocaSelecionada = new EventoBaileConvite();
         //Pessoa pv = bv.getPessoa();
         //Pessoa rv = new FunctionsDao().titularDaPessoa(pv.getId());
@@ -209,7 +209,7 @@ public class VendaBaileBean implements Serializable {
             PF.update("formPesquisaVendasBaile:panel_trocar_convite");
             return;
         }
-        
+
         if (ebcTroca.getId() != -1) {
             Movimento m = ebcTroca.getMovimento();
             BVenda v = ebcTroca.getbVenda();
@@ -391,13 +391,11 @@ public class VendaBaileBean implements Serializable {
                     } else {
                         id_servicos = 12;
                     }
+                } else if (chkCortesia) {
+                    id_servicos = 15;
+                    id_categoria = null;
                 } else {
-                    if (chkCortesia) {
-                        id_servicos = 15;
-                        id_categoria = null;
-                    } else {
-                        id_servicos = 14;
-                    }
+                    id_servicos = 14;
                 }
 
                 eventoServicoValor = dao.pesquisaEventoServicoValor(
@@ -501,22 +499,18 @@ public class VendaBaileBean implements Serializable {
             if (venda.getId() == -1) {
                 listaTipoVenda.add(new SelectItem("venda", "VENDA"));
                 listaTipoVenda.add(new SelectItem("reserva", "RESERVA"));
-            } else {
-                if (venda.getStatus().getId() == 2) {
-                    listaTipoVenda.add(new SelectItem("reservado", "RESERVADO"));
-                    tipoVenda = "reservado";
-                } else {
-                    listaTipoVenda.add(new SelectItem("vendido", "VENDIDO"));
-                    tipoVenda = "vendido";
-                }
-            }
-        } else {
-            if (venda.getId() == -1) {
-                listaTipoVenda.add(new SelectItem("venda", "VENDA"));
+            } else if (venda.getStatus().getId() == 2) {
+                listaTipoVenda.add(new SelectItem("reservado", "RESERVADO"));
+                tipoVenda = "reservado";
             } else {
                 listaTipoVenda.add(new SelectItem("vendido", "VENDIDO"));
                 tipoVenda = "vendido";
             }
+        } else if (venda.getId() == -1) {
+            listaTipoVenda.add(new SelectItem("venda", "VENDA"));
+        } else {
+            listaTipoVenda.add(new SelectItem("vendido", "VENDIDO"));
+            tipoVenda = "vendido";
         }
     }
 
@@ -1016,7 +1010,11 @@ public class VendaBaileBean implements Serializable {
                 (FStatus) new Dao().find(new FStatus(), 1),
                 null,
                 false,
-                0
+                0,
+                null,
+                null,
+                null,
+                false
         );
 
         if (!dao.save(l)) {
@@ -1257,12 +1255,10 @@ public class VendaBaileBean implements Serializable {
             } else {
                 quantidade = 0;
             }
+        } else if (listaConviteBaileSelecionado != null) {
+            quantidade = listaConviteBaileSelecionado.size();
         } else {
-            if (listaConviteBaileSelecionado != null) {
-                quantidade = listaConviteBaileSelecionado.size();
-            } else {
-                quantidade = 0;
-            }
+            quantidade = 0;
         }
         return quantidade;
     }

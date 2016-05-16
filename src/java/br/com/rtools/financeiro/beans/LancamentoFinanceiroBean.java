@@ -4,12 +4,18 @@ import br.com.rtools.estoque.EstoqueTipo;
 import br.com.rtools.estoque.Pedido;
 import br.com.rtools.estoque.Produto;
 import br.com.rtools.financeiro.*;
+import br.com.rtools.financeiro.dao.CentroCustoDao;
+import br.com.rtools.financeiro.dao.ContaOperacaoDao;
+import br.com.rtools.financeiro.dao.LoteDao;
+import br.com.rtools.financeiro.dao.PedidoDao;
 import br.com.rtools.financeiro.db.FTipoDocumentoDB;
 import br.com.rtools.financeiro.db.FTipoDocumentoDBToplink;
 import br.com.rtools.financeiro.db.FinanceiroDB;
 import br.com.rtools.financeiro.db.FinanceiroDBToplink;
 import br.com.rtools.financeiro.db.LancamentoFinanceiroDB;
 import br.com.rtools.financeiro.db.LancamentoFinanceiroDBToplink;
+import br.com.rtools.financeiro.db.MovimentoDBToplink;
+import br.com.rtools.homologacao.dao.OperacaoDao;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Fisica;
@@ -27,19 +33,16 @@ import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
-import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Mask;
 import br.com.rtools.utilitarios.Moeda;
-import br.com.rtools.utilitarios.PF;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import br.com.rtools.utilitarios.ValidaDocumentos;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
@@ -49,73 +52,136 @@ import javax.faces.model.SelectItem;
 @SessionScoped
 public class LancamentoFinanceiroBean implements Serializable {
 
-    private List<DataObject> listaLancamento = new ArrayList();
-    private List<DataObject> listaParcela = new ArrayList();
-    private List<DataObject> listaParcelaSelecionada = new ArrayList();
-    private DataObject linhaSelecionada = new DataObject();
+    private List<Lote> listaLancamento;
+    private List<Parcela> listaParcela;
+    private List<Parcela> listaParcelaSelecionada;
+    private Integer idFilial;
+    private Integer idTipoDocumento;
+    private Integer idFTipo;
+    private Integer idFTipoMovimento;
+    private Integer idOperacao;
+    private Integer idContaOperacao;
+    private Integer idCentroCusto;
+    private Integer idContaTipoPlano5;
+    private List<SelectItem> listaFilial;
+    private List<SelectItem> listaTipoDocumento;
+    private List<SelectItem> listaFTipo;
+    private List<SelectItem> listaFTipoMovimento;
+    private List<SelectItem> listaOperacao;
+    private List<SelectItem> listaContaOperacao;
+    private List<SelectItem> listaCentroCusto;
+    private List<SelectItem> listaContaTipoPlano5;
+    private String descricao;
+    private String mascara;
+    private String es;
+    private String esLancamento;
+    private String condicao;
+    private String total;
+    private String valor;
+    private String opcaoCadastro;
+    private String vencimento;
+    private String strConta;
+    private String documentoMovimento;
+    private String porPesquisa;
+    private String maskSearch;
+    private String description;
+    private String acrescimo;
+    private String multa;
+    private String juros;
+    private String correcao;
+    private String desconto;
+    private String strVisualizando;
+    private boolean modalVisivel;
+    private boolean chkImposto;
+    private boolean disabledConta;
+    private boolean telaSalva;
+    private Pessoa pessoa;
+    private Operacao operacao;
+    private Lote lote;
+    private ContaTipoPlano5 contaTipoPlano;
+    private List<Usuario> listaUsuarioLancamento;
+    private Usuario usuarioSelecionado;
+    private Parcela parcela;
+    private int indexParcela;
+    private int indexAcrescimo;
+    private String motivoEstorno;
 
-    private int idFilial = 0;
-    private int idTipoDocumento = 0;
-    private int idFTipo = 0;
-    private int idFTipoMovimento = 0;
-    private int idOperacao = 0;
-    private int idContaOperacao = 0;
-    private int idCentroCusto = 0;
-    private int idTipoCentroCusto = 0;
-    private int idContaTipoPlano5 = 0;
+    @PostConstruct
+    public void init() {
+        load();
+    }
 
-    private List<SelectItem> listaFilial = new ArrayList();
-    private List<SelectItem> listaTipoDocumento = new ArrayList();
+    public void load() {
 
-    private List<SelectItem> listaFTipo = new ArrayList();
-    private List<SelectItem> listaFTipoMovimento = new ArrayList();
-
-    private List<SelectItem> listaOperacao = new ArrayList();
-    private List<SelectItem> listaContaOperacao = new ArrayList();
-    private List<SelectItem> listaCentroCusto = new ArrayList();
-    private List<SelectItem> listaTipoCentroCusto = new ArrayList();
-
-    private List<SelectItem> listaContaTipoPlano5 = new ArrayList();
-
-    private String descricao = "";
-    private String mascara = "";
-    private String es = "E";
-    private String condicao = "vista";
-    private String total = "";
-    private String valor = "";
-    private String opcaoCadastro = "";
-    private String vencimento = DataHoje.data();
-    private String strConta = "";
-    private String documentoMovimento = "";
-    private String porPesquisa = "todos";
-    private String maskSearch = "todos";
-    private String description = "";
-    private String acrescimo = "0";
-    private String multa = "0";
-    private String juros = "0";
-    private String correcao = "0";
-    private String desconto = "0";
-    private String strVisualizando = "os Meus Lançamentos";
-
-    private boolean modalVisivel = false;
-    private boolean chkImposto = false;
-    private boolean disabledConta = false;
-    private boolean telaSalva = true;
-
-    private Pessoa pessoa = new Pessoa();
-    private Operacao operacao = new Operacao();
-    private Lote lote = new Lote();
-    private ContaTipoPlano5 contaTipoPlano = new ContaTipoPlano5();
-    private List<Usuario> listaUsuarioLancamento = new ArrayList<Usuario>();
-    private Usuario usuarioSelecionado = new Usuario();
-    private DataObject linhaDO = new DataObject();
-    private int indexDO = 0;
-    private int indexAcrescimo = -1;
-
-    private String motivoEstorno = "";
-
-    public LancamentoFinanceiroBean() {
+        listaLancamento = new ArrayList();
+        listaParcela = new ArrayList();
+        listaParcelaSelecionada = new ArrayList();
+        idFilial = 0;
+        idTipoDocumento = 0;
+        idFTipo = 0;
+        idFTipoMovimento = 0;
+        idOperacao = 0;
+        idContaOperacao = 0;
+        idCentroCusto = 0;
+        idContaTipoPlano5 = 0;
+        listaFilial = new ArrayList();
+        listaTipoDocumento = new ArrayList();
+        listaFTipo = new ArrayList();
+        listaFTipoMovimento = new ArrayList();
+        listaOperacao = new ArrayList();
+        listaContaOperacao = new ArrayList();
+        listaCentroCusto = new ArrayList();
+        listaContaTipoPlano5 = new ArrayList();
+        descricao = "";
+        mascara = "";
+        es = "E";
+        esLancamento = "E";
+        condicao = "vista";
+        total = "";
+        valor = "";
+        opcaoCadastro = "";
+        vencimento = DataHoje.data();
+        strConta = "";
+        documentoMovimento = "";
+        porPesquisa = "todos";
+        maskSearch = "todos";
+        description = "";
+        acrescimo = "0";
+        multa = "0";
+        juros = "0";
+        correcao = "0";
+        desconto = "0";
+        strVisualizando = "os Meus Lançamentos";
+        modalVisivel = false;
+        chkImposto = false;
+        disabledConta = false;
+        telaSalva = true;
+        pessoa = new Pessoa();
+        operacao = new Operacao();
+        lote = new Lote();
+        contaTipoPlano = new ContaTipoPlano5();
+        listaUsuarioLancamento = new ArrayList<>();
+        usuarioSelecionado = new Usuario();
+        parcela = new Parcela();
+        indexParcela = 0;
+        indexAcrescimo = -1;
+        motivoEstorno = "";
         lote.setEmissao(DataHoje.data());
+        loadListaFilial();
+        loadListaTipoDocumento();
+        loadListaFTipo();
+        loadListaFTipoMovimento();
+        loadListaOperacao();
+        loadListaCentroCusto();
+        loadListaContaOperacao();
+        usuarioSelecionado = (Usuario) GenericaSessao.getObject("sessaoUsuario");
+    }
+
+    @PreDestroy
+    public void destroy() {
+        GenericaSessao.remove("lancamentoFinanceiroBean");
+        GenericaSessao.remove("fisicaPesquisa");
+        GenericaSessao.remove("juridicaPesquisa");
     }
 
     /* PRODUTOS ------------------------------------------------------------- */
@@ -205,7 +271,7 @@ public class LancamentoFinanceiroBean implements Serializable {
 
     public void novoPedido() {
         pedido = new Pedido();
-        listaPedidos = new ArrayList<Pedido>();
+        listaPedidos = new ArrayList<>();
         descontoUnitarioPedido = "0,00";
         valorUnitarioPedido = "0,00";
         quantidadePedido = 0;
@@ -301,10 +367,8 @@ public class LancamentoFinanceiroBean implements Serializable {
     /* FIM PRODUTOS --------------------------------------------------------- */
     public void delete() {
         // PARCELAS BAIXADAS
-        Movimento movimento = new Movimento();
-        for (DataObject linha : listaParcela) {
-            movimento = (Movimento) linha.getArgumento1();
-            if (movimento.getBaixa() != null) {
+        for (Parcela p : listaParcela) {
+            if (p.getMovimento().getBaixa() != null) {
                 GenericaMensagem.warn("Erro", "Existem parcelas baixadas, ESTORNE elas antes de excluir este lançamento!");
                 return;
             }
@@ -313,23 +377,12 @@ public class LancamentoFinanceiroBean implements Serializable {
         Dao dao = new Dao();
 
         dao.openTransaction();
-        for (DataObject linha : listaParcela) {
-            movimento = (Movimento) linha.getArgumento1();
-
-            if (!dao.delete(dao.find(movimento))) {
+        for (Parcela p : listaParcela) {
+            if (!dao.delete(p.getMovimento())) {
                 GenericaMensagem.warn("Erro", "Movimento não pode ser Excluído!");
                 dao.rollback();
                 return;
             }
-        }
-
-        LancamentoFinanceiroDB db = new LancamentoFinanceiroDBToplink();
-        FiltroLancamento fl = db.pesquisaFiltroLancamento(lote.getId());
-
-        if (!dao.delete(dao.find(fl))) {
-            GenericaMensagem.warn("Erro", "Filtro Lançamento não pode ser Excluído!");
-            dao.rollback();
-            return;
         }
 
         for (Pedido pedidox : listaPedidos) {
@@ -367,27 +420,10 @@ public class LancamentoFinanceiroBean implements Serializable {
         }
 
         boolean reverse = false;
-        for (DataObject linha : listaParcelaSelecionada) {
-            movimento = (Movimento) linha.getArgumento1();
-            if (movimento.getBaixa() == null) {
+        for (Parcela p : listaParcelaSelecionada) {
+            if (p.getMovimento().getBaixa() == null) {
                 continue;
             }
-//            Baixa baixa = (Baixa)sv.pesquisaCodigo(movimento.getBaixa().getId(), "Baixa");
-//            
-//            movimento.setBaixa(null);
-//            movimento.setValorBaixa(0);
-//            
-//            if (!sv.alterarObjeto(movimento)){
-//                GenericaMensagem.warn("Erro", "Erro ao alterar Movimento!");
-//                sv.desfazerTransacao();
-//                return;
-//            }
-//            
-//            if (!sv.deletarObjeto(baixa)){
-//                GenericaMensagem.warn("Erro", "Erro ao deletar Baixa!");
-//                sv.desfazerTransacao();
-//                return;
-//            }
 
             if (GerarMovimento.estornarMovimento(movimento, motivoEstorno)) {
                 reverse = true;
@@ -436,8 +472,8 @@ public class LancamentoFinanceiroBean implements Serializable {
         List<Movimento> lista = new ArrayList();
 
         // PARCELAS BAIXADAS
-        for (DataObject linha : listaParcelaSelecionada) {
-            movimento = (Movimento) linha.getArgumento1();
+        for (Parcela p : listaParcelaSelecionada) {
+            movimento = (Movimento) p.getMovimento();
             if (movimento.getBaixa() != null) {
                 GenericaMensagem.warn("Erro", "Parcelas que JÁ FORAM BAIXADAS não podem ser selecionadas!");
                 return null;
@@ -445,24 +481,24 @@ public class LancamentoFinanceiroBean implements Serializable {
         }
 
         // PARCELAS COM VALOR ZERADO
-        for (DataObject linha : listaParcelaSelecionada) {
-            movimento = (Movimento) linha.getArgumento1();
+        for (Parcela p : listaParcelaSelecionada) {
+            movimento = (Movimento) p.getMovimento();
             if (movimento.getValor() <= 0) {
                 GenericaMensagem.warn("Erro", "Adicione um VALOR as parcelas adicionadas!");
                 return null;
             }
         }
 
-        for (DataObject linha : listaParcelaSelecionada) {
-            movimento = (Movimento) linha.getArgumento1();
+        for (Parcela p : listaParcelaSelecionada) {
+            movimento = (Movimento) p.getMovimento();
 
             //movimento = db.pesquisaCodigo(Integer.parseInt(String.valueOf(listaMovimento.get(i).getArgumento1())));
-            movimento.setMulta(Moeda.converteUS$(linha.getArgumento12().toString()));
-            movimento.setJuros(Moeda.converteUS$(linha.getArgumento13().toString()));
-            movimento.setCorrecao(Moeda.converteUS$(linha.getArgumento14().toString()));
-            movimento.setDesconto(Moeda.converteUS$(linha.getArgumento5().toString()));
+            movimento.setMulta(Moeda.converteUS$(p.getMulta()));
+            movimento.setJuros(Moeda.converteUS$(p.getJuros()));
+            movimento.setCorrecao(Moeda.converteUS$(p.getCorrecao()));
+            movimento.setDesconto(Moeda.converteUS$(p.getDesconto()));
 
-            float valor_baixa = Moeda.somaValores(movimento.getValor(), Moeda.converteUS$(linha.getArgumento4().toString()));
+            float valor_baixa = Moeda.somaValores(movimento.getValor(), Moeda.converteUS$(p.getAcrescimo()));
             valor_baixa = Moeda.subtracaoValores(valor_baixa, movimento.getDesconto());
             //movimento.setValor(Moeda.converteUS$(listaMovimento.get(i).getArgumento6().toString()));
 
@@ -482,22 +518,15 @@ public class LancamentoFinanceiroBean implements Serializable {
         return null;
     }
 
-    public void editar(DataObject linha) {
-        LancamentoFinanceiroDB db = new LancamentoFinanceiroDBToplink();
-        lote = ((FiltroLancamento) linha.getArgumento0()).getLote();
+    public void edit(Lote l) {
+        lote = l;
         pessoa = lote.getPessoa();
         descricao = pessoa.getDocumento();
         modalVisivel = true;
         total = Moeda.converteR$Float(lote.getValor());
-        //FiltroLancamento filtroLancamento = db.pesquisaFiltroLancamento(lote.getId());
-        FiltroLancamento filtroLancamento = (FiltroLancamento) linha.getArgumento0();
 
         // FILIAL --
-        for (int i = 0; i < listaFilial.size(); i++) {
-            if (Objects.equals(Integer.valueOf(listaFilial.get(i).getDescription()), lote.getFilial().getId())) {
-                idFilial = i;
-            }
-        }
+        idFilial = lote.getFilial().getId();
 
         if (lote.getPagRec().equals("R")) {
             es = "E";
@@ -511,98 +540,61 @@ public class LancamentoFinanceiroBean implements Serializable {
         }
 
         // FTIPO DOCUMENTO
-        for (int i = 0; i < listaFTipo.size(); i++) {
-            if (Integer.valueOf(listaFTipo.get(i).getDescription()) == lote.getFtipoDocumento().getId()) {
-                idFTipo = i;
-            }
-        }
+        idFTipo = lote.getFtipoDocumento().getId();
 
         // OPERACAO
-        getListaOperacao().clear();
-        if (!getListaOperacao().isEmpty()) {
-            for (int i = 0; i < listaOperacao.size(); i++) {
-                if (Integer.valueOf(listaOperacao.get(i).getDescription()) == filtroLancamento.getOperacao().getId()) {
-                    idOperacao = i;
-                }
-            }
-        }
+        loadListaOperacao();
+        idOperacao = lote.getOperacao().getId();
 
         // CENTRO CUSTO
-        getListaCentroCusto().clear();
-        if (!getListaCentroCusto().isEmpty() && filtroLancamento.getCentroCusto() != null) {
-            for (int i = 0; i < listaCentroCusto.size(); i++) {
-                if (Integer.valueOf(listaCentroCusto.get(i).getDescription()) == filtroLancamento.getCentroCusto().getId()) {
-                    idCentroCusto = i;
-                }
-            }
-        }
-
-        // TIPO CENTRO CUSTO
-        getListaTipoCentroCusto().clear();
-        if (!getListaTipoCentroCusto().isEmpty() && filtroLancamento.getTipoCentroCusto() != null) {
-            for (int i = 0; i < listaTipoCentroCusto.size(); i++) {
-                if (Integer.valueOf(listaTipoCentroCusto.get(i).getDescription()) == filtroLancamento.getTipoCentroCusto().getId()) {
-                    idTipoCentroCusto = i;
-                }
-            }
+        loadListaCentroCusto();
+        if (!listaCentroCusto.isEmpty() && lote.getCentroCusto() != null) {
+            idCentroCusto = lote.getCentroCusto().getId();
         }
 
         // OPERACAO
-        getListaContaOperacao().clear();
-        if (!getListaContaOperacao().isEmpty()) {
-            for (int i = 0; i < listaContaOperacao.size(); i++) {
-                if (Integer.valueOf(listaContaOperacao.get(i).getDescription()) == filtroLancamento.getContaOperacao().getId()) {
-                    idContaOperacao = i;
-                }
-            }
-        }
-
+        loadListaContaOperacao();
         // TIPO DOCUMENTO -- CNPJ -- CPF -- SEM DOCUMENTO
-        for (int i = 0; i < listaTipoDocumento.size(); i++) {
-            if (Integer.valueOf(listaTipoDocumento.get(i).getDescription()) == pessoa.getTipoDocumento().getId()) {
-                idTipoDocumento = i;
-            }
-        }
-
+        idTipoDocumento = pessoa.getTipoDocumento().getId();
         listaParcela.clear();
         listaParcelaSelecionada.clear();
-//        List<Movimento> selectMovimento = db.listaParcelaLote(lote.getId());
-//        float acrescimo = 0, valor_quitado = 0;
-//        String data_quitacao = "";
-//        String caixa = "NÃO BAIXADO";
-//        String loteBaixa = "NÃO BAIXADO";
-//        for (Movimento mov : selectMovimento) {
-//            acrescimo = Moeda.somaValores(Moeda.somaValores(mov.getMulta(), mov.getJuros()), mov.getCorrecao());
-//            
-//            if (mov.getBaixa() != null){
-//                valor_quitado = mov.getValorBaixa();
-//                data_quitacao = mov.getBaixa().getBaixa();
-//                caixa = mov.getBaixa().getCaixa() != null ? mov.getBaixa().getCaixa().getCaixa()+"" : "NÃO BAIXADO";
-//                loteBaixa = mov.getBaixa() != null ? mov.getBaixa().getId()+"" : "NÃO BAIXADO";
-//            }lis
-//            
-//            listaParcela.add(new DataObject(
-//                    listaParcela.size(), 
-//                    mov, 
-//                    DataHoje.converteData(mov.getDtVencimento()), 
-//                    Moeda.converteR$Float(mov.getValor()), 
-//                    Moeda.converteR$Float(acrescimo), 
-//                    Moeda.converteR$Float(mov.getDesconto()),
-//                    Moeda.converteR$Float(valor_quitado),
-//                    data_quitacao,
-//                    filtroLancamento,
-//                    filtroLancamento.getUsuario().getPessoa().getNome().length() >= 30 ? filtroLancamento.getUsuario().getPessoa().getNome().substring(0, 30)+"..." : filtroLancamento.getUsuario().getPessoa().getNome(),
-//                    caixa,
-//                    loteBaixa
-//                    
-//            ));
-//        }
+        MovimentoDBToplink movimentoDao = new MovimentoDBToplink();
+        List<Movimento> selectMovimento = movimentoDao.listaMovimentosDoLote(lote.getId());
+        float acre, valor_quitado = 0;
+        String data_quitacao = "";
+        String caixa = "NÃO BAIXADO";
+        String loteBaixa = "NÃO BAIXADO";
+        for (Movimento mov : selectMovimento) {
+            acre = Moeda.somaValores(Moeda.somaValores(mov.getMulta(), mov.getJuros()), mov.getCorrecao());
 
-        List<ContaTipoPlano5> select = db.listaContaTipoPlano5(lote.getPlano5().getId(), 2);
+            if (mov.getBaixa() != null) {
+                valor_quitado = mov.getValorBaixa();
+                data_quitacao = mov.getBaixa().getBaixa();
+                caixa = mov.getBaixa().getCaixa() != null ? mov.getBaixa().getCaixa().getCaixa() + "" : "NÃO BAIXADO";
+                loteBaixa = mov.getBaixa() != null ? mov.getBaixa().getId() + "" : "NÃO BAIXADO";
+            }
+
+            listaParcela.add(new Parcela(
+                    listaParcela.size(),
+                    mov,
+                    DataHoje.converteData(mov.getDtVencimento()),
+                    Moeda.converteR$Float(mov.getValor()),
+                    Moeda.converteR$Float(acre),
+                    Moeda.converteR$Float(mov.getDesconto()),
+                    Moeda.converteR$Float(valor_quitado),
+                    data_quitacao,
+                    lote.getUsuario().getPessoa().getNome().length() >= 30 ? lote.getUsuario().getPessoa().getNome().substring(0, 30) + "..." : lote.getUsuario().getPessoa().getNome(),
+                    caixa,
+                    loteBaixa,
+                    false
+            ));
+        }
+
+        List<ContaTipoPlano5> select = new ContaTipoPlano5Dao().find(lote.getPlano5().getId(), 2);
 
         if (!select.isEmpty()) {
             contaTipoPlano = select.get(0);
-            listaPedidos = db.listaPedido(lote.getId());
+            listaPedidos = new PedidoDao().findByLote(lote.getId());
         } else {
             contaTipoPlano = new ContaTipoPlano5();
             listaPedidos.clear();
@@ -610,7 +602,7 @@ public class LancamentoFinanceiroBean implements Serializable {
 
     }
 
-    public void salvar() {
+    public void save() {
         Dao dao = new Dao();
         try {
             if (listaParcela.isEmpty()) {
@@ -618,10 +610,9 @@ public class LancamentoFinanceiroBean implements Serializable {
                 return;
             }
             float soma = 0;
-            for (DataObject dox : listaParcela) {
-                Movimento movimento = (Movimento) dox.getArgumento1();
+            for (Parcela p : listaParcela) {
 
-                soma = Moeda.somaValores(soma, movimento.getValor());
+                soma = Moeda.somaValores(soma, p.getMovimento().getValor());
             }
 
             if (soma < Moeda.converteUS$(total)) {
@@ -632,17 +623,23 @@ public class LancamentoFinanceiroBean implements Serializable {
                 return;
             }
             dao.openTransaction();
-            ContaOperacao co = (ContaOperacao) dao.find(new ContaOperacao(), Integer.parseInt(listaContaOperacao.get(idContaOperacao).getDescription()));
-            FTipoDocumento td = (FTipoDocumento) dao.find(new FTipoDocumento(), Integer.parseInt(listaFTipo.get(idFTipo).getDescription()));
-            Filial filial = (Filial) dao.find(new Filial(), Integer.parseInt(listaFilial.get(idFilial).getDescription()));
-            CondicaoPagamento cp = null;
+            ContaOperacao co = (ContaOperacao) dao.find(new ContaOperacao(), idContaOperacao);
+            FTipoDocumento td = (FTipoDocumento) dao.find(new FTipoDocumento(), idFTipo);
+            Filial filial = (Filial) dao.find(new Filial(), idFilial);
+            CondicaoPagamento cp;
             if (condicao.equals("vista")) {
                 cp = (CondicaoPagamento) dao.find(new CondicaoPagamento(), 1);
             } else {
                 cp = (CondicaoPagamento) dao.find(new CondicaoPagamento(), 2);
             }
+            CentroCusto cc = null;
+            if (!listaCentroCusto.isEmpty()) {
+                cc = (CentroCusto) dao.find(new CentroCusto(), idCentroCusto);
+            }
+            Usuario us = (Usuario) dao.find((Usuario) GenericaSessao.getObject("sessaoUsuario"));
 
             lote.setValor(Moeda.converteUS$(total));
+            lote.setContaFixa(co.isContaFixa());
             lote.setPlano5(co.getPlano5());
             lote.setFTipoDocumento(td);
             lote.setFilial(filial);
@@ -653,15 +650,13 @@ public class LancamentoFinanceiroBean implements Serializable {
             lote.setEvt(null);
             lote.setPessoa(pessoa);
             lote.setPessoaSemCadastro(null);
+            lote.setUsuario(us);
+            lote.setOperacao(operacao);
+            lote.setCentroCusto(cc);
             if (es.equals("E")) {
                 lote.setPagRec("R");
             } else {
                 lote.setPagRec("P");
-            }
-            LancamentoFinanceiroDB db = new LancamentoFinanceiroDBToplink();
-            FiltroLancamento fl = new FiltroLancamento();
-            if (lote.getId() != -1) {
-                fl = db.pesquisaFiltroLancamento(lote.getId());
             }
             if (lote.getId() == -1) {
                 if (!dao.save(lote)) {
@@ -674,8 +669,8 @@ public class LancamentoFinanceiroBean implements Serializable {
                 dao.rollback();
                 return;
             }
-            for (DataObject parcela : listaParcela) {
-                Movimento movimento = (Movimento) parcela.getArgumento1();
+            for (Parcela p : listaParcela) {
+                Movimento movimento = (Movimento) p.getMovimento();
                 movimento.setLote(lote);
                 if (movimento.getId() == -1) {
                     if (!dao.save(movimento)) {
@@ -687,13 +682,12 @@ public class LancamentoFinanceiroBean implements Serializable {
                     movimento.setPessoa(pessoa);
                     movimento.setTitular(pessoa);
                     movimento.setBeneficiario(pessoa);
-
-                    movimento.setMulta(Moeda.converteUS$(parcela.getArgumento12().toString()));
-                    movimento.setJuros(Moeda.converteUS$(parcela.getArgumento13().toString()));
-                    movimento.setCorrecao(Moeda.converteUS$(parcela.getArgumento14().toString()));
-
-                    movimento.setDesconto(Moeda.converteUS$(parcela.getArgumento5().toString()));
-                    List<ContaTipoPlano5> select = db.listaContaTipoPlano5(movimento.getPlano5().getId(), 1);
+                    movimento.setEs(esLancamento);
+                    movimento.setMulta(Moeda.converteUS$(p.getMulta()));
+                    movimento.setJuros(Moeda.converteUS$(p.getJuros()));
+                    movimento.setCorrecao(Moeda.converteUS$(p.getCorrecao()));
+                    movimento.setDesconto(Moeda.converteUS$(p.getDesconto()));
+                    List<ContaTipoPlano5> select = new ContaTipoPlano5Dao().find(movimento.getPlano5().getId(), 1);
                     if (select.isEmpty()) {
                         movimento.setPlano5(lote.getPlano5());
                     }
@@ -703,36 +697,6 @@ public class LancamentoFinanceiroBean implements Serializable {
                         dao.rollback();
                         return;
                     }
-                }
-            }
-            CentroCusto cc = null;
-            CentroCustoContabilSub cs = null;
-            Usuario us = (Usuario) dao.find((Usuario) GenericaSessao.getObject("sessaoUsuario"));
-            if (!listaCentroCusto.isEmpty()) {
-                cc = (CentroCusto) dao.find(new CentroCusto(), Integer.parseInt(listaCentroCusto.get(idCentroCusto).getDescription()));
-            }
-            if (!listaTipoCentroCusto.isEmpty()) {
-                cs = (CentroCustoContabilSub) dao.find(new CentroCustoContabilSub(), Integer.parseInt(listaTipoCentroCusto.get(idTipoCentroCusto).getDescription()));
-            }
-            if (fl.getId() == -1) {
-                fl = new FiltroLancamento(-1, lote, (Operacao) dao.find(operacao), cc, cs, co, us);
-                if (!dao.save(fl)) {
-                    GenericaMensagem.warn("Erro", "Erro ao Salvar FILTRO LANÇAMENTO!");
-                    dao.rollback();
-                    return;
-                }
-            } else {
-                fl = (FiltroLancamento) dao.find(new FiltroLancamento(), fl.getId());
-                fl.setLote(lote);
-                fl.setOperacao(operacao);
-                fl.setCentroCusto(cc);
-                fl.setTipoCentroCusto(cs);
-                fl.setContaOperacao(co);
-
-                if (!dao.update(fl)) {
-                    GenericaMensagem.warn("Erro", "Erro ao Atualizar FILTRO LANÇAMENTO!");
-                    dao.rollback();
-                    return;
                 }
             }
 
@@ -754,77 +718,72 @@ public class LancamentoFinanceiroBean implements Serializable {
             GenericaMensagem.info("OK", "Lançamento SALVO com Sucesso!");
             dao.commit();
             telaSalva = true;
-            listaLancamento.clear();
+            loadListaLancamento();
         } catch (Exception e) {
             GenericaMensagem.error("ERROR", e.getMessage());
             dao.rollback();
         }
     }
 
-    public void openExcluirParcela(DataObject linha, int index) {
-        linhaDO = linha;
-        indexDO = index;
+    public void openExcluirParcela(Parcela p, int index) {
+        parcela = p;
+        indexParcela = index;
     }
 
     public void excluirParcela() {
-        if (((Movimento) linhaDO.getArgumento1()).getId() == -1) {
-            listaParcela.remove(indexDO);
+        if (parcela.getMovimento().getId() == -1) {
+            listaParcela.remove(indexParcela);
             GenericaMensagem.info("Sucesso", "Item removido!");
         } else {
-            if (((Movimento) linhaDO.getArgumento1()).getBaixa() != null) {
+            if (parcela.getMovimento().getBaixa() != null) {
                 GenericaMensagem.warn("Erro", "Não é possivel excluir parcela BAIXADA, para fazer isso ESTORNE os lançamentos!");
                 return;
             }
-
-            SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-            Movimento mov = (Movimento) sv.pesquisaCodigo(((Movimento) linhaDO.getArgumento1()).getId(), "Movimento");
-
-            sv.abrirTransacao();
-            if (!sv.deletarObjeto(mov)) {
-                sv.desfazerTransacao();
-                GenericaMensagem.warn("Erro", "Não foi possivel excluir este Movimento!");
-            } else {
-                sv.comitarTransacao();
+            Dao dao = new Dao();
+            dao.openTransaction();
+            if (dao.delete((parcela.getMovimento()))) {
+                dao.commit();
                 GenericaMensagem.info("Sucesso", "Item removido!");
-                listaParcela.remove(indexDO);
+                listaParcela.remove(indexParcela);
+            } else {
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "Não foi possivel excluir este Movimento!");
             }
         }
     }
 
     public void adicionarParcela() {
-//        if (Moeda.converteUS$(total) <= 0.0){
-//            GenericaMensagem.warn("Erro", "Não existe mais total para ser adicionado!");
-//            return;
-//        }
-
 
         if (pessoa.getId() == -1) {
             GenericaMensagem.warn("Erro", "PESQUISE ou CADASTRE uma pessoa para adicionar uma parcela!");
             return;
         }
 
-        if (!listaContaOperacao.isEmpty() && listaContaOperacao.get(0).getDescription().equals("0")) {
+        if (!listaContaOperacao.isEmpty() && idContaOperacao.equals(0)) {
             GenericaMensagem.warn("Erro", "Selecione uma CONTA PRIMÁRIA para adicionar parcela!");
             return;
         }
-        
+
         if (vencimento.isEmpty()) {
             GenericaMensagem.warn("Validação", "INFORMAR A DATA DE VENCIMENTO!");
             return;
         }
-        
+
         if (valor.equals("0,00") || valor.equals("0.00")) {
             GenericaMensagem.warn("Validação", "O VALOR NÃO PODE SER 0,00!");
             return;
         }
-        
 
-        ContaOperacao co = (ContaOperacao) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(Integer.valueOf(listaContaOperacao.get(idContaOperacao).getDescription()), "ContaOperacao");
-        FTipoDocumento td = (FTipoDocumento) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(Integer.valueOf(listaFTipoMovimento.get(idFTipoMovimento).getDescription()), "FTipoDocumento");
-
+        Dao dao = new Dao();
+        ContaOperacao co = (ContaOperacao) dao.find(new ContaOperacao(), idContaOperacao);
+        if (co == null) {
+            GenericaMensagem.warn("Validação", "NÃO EXISTE CONTA OPERACAÇÃO CADASTRADA (FILIAL + OPERAÇÃO)!");
+            return;
+        }
+        FTipoDocumento td = (FTipoDocumento) dao.find(new FTipoDocumento(), idFTipoMovimento);
         Plano5 pl5 = null;
         if (chkImposto) {
-            pl5 = ((ContaTipoPlano5) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(Integer.valueOf(listaContaTipoPlano5.get(idContaTipoPlano5).getDescription()), "ContaTipoPlano5")).getPlano5();
+            pl5 = ((ContaTipoPlano5) dao.find(new ContaTipoPlano5(), idContaTipoPlano5)).getPlano5();
         } else {
             pl5 = co.getPlano5();
         }
@@ -864,7 +823,7 @@ public class LancamentoFinanceiroBean implements Serializable {
 
         Usuario user = (Usuario) GenericaSessao.getObject("sessaoUsuario");
         float valor_t = Moeda.subtracaoValores(Moeda.somaValores(movimento.getValor(), Moeda.converteUS$(acrescimo)), movimento.getDesconto());
-        listaParcela.add(new DataObject(
+        listaParcela.add(new Parcela(
                 listaParcela.size(),
                 movimento,
                 DataHoje.converteData(movimento.getDtVencimento()),
@@ -873,14 +832,13 @@ public class LancamentoFinanceiroBean implements Serializable {
                 Moeda.converteR$Float(movimento.getDesconto()), // DESCONTO
                 Moeda.converteR$Float(valor_t), // VALOR PAGAMENTO
                 "", // DATA PAGAMENTO
-                new FiltroLancamento(),
                 user.getPessoa().getNome().length() >= 30 ? user.getPessoa().getNome().substring(0, 30) + "..." : user.getPessoa().getNome(),
                 "NÃO BAIXADO",
                 "NÃO BAIXADO",
                 Moeda.converteR$Float(movimento.getMulta()),
                 Moeda.converteR$Float(movimento.getJuros()),
                 Moeda.converteR$Float(movimento.getCorrecao()),
-                null
+                false
         ));
 
         openModalAcrescimo();
@@ -896,152 +854,154 @@ public class LancamentoFinanceiroBean implements Serializable {
     }
 
     public void salvarPessoa() {
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-        if (listaTipoDocumento.get(idTipoDocumento).getLabel().toLowerCase().equals("sem documento")) {
-            if (opcaoCadastro.equals("juridica")) {
+        Dao dao = new Dao();
+        TipoDocumento td = (TipoDocumento) dao.find(new TipoDocumento(), idTipoDocumento);
+        switch (td.getDescricao().toLowerCase()) {
+            case "sem documento":
+                if (opcaoCadastro.equals("juridica")) {
+                    if (pessoa.getNome().isEmpty()) {
+                        GenericaMensagem.warn("Erro", "Digite um NOME para EMPRESA!");
+                        return;
+                    }
+
+                    dao.openTransaction();
+
+                    pessoa.setTipoDocumento((TipoDocumento) dao.find(new TipoDocumento(), 4));
+                    pessoa.setDocumento("0");
+                    pessoa.setNome(pessoa.getNome().toUpperCase());
+
+                    if (!dao.save(pessoa)) {
+                        GenericaMensagem.warn("Erro", "Erro ao Salvar Pessoa!");
+                        dao.rollback();
+                        return;
+                    }
+
+                    Juridica juridica = new Juridica(-1, pessoa, pessoa.getNome().toUpperCase(), null, null, "", "", "", "", (Porte) dao.find(new Porte(), 1), "", "", true, false, "");
+                    if (!dao.save(juridica)) {
+                        GenericaMensagem.warn("Erro", "Erro ao Salvar Empresa!");
+                        dao.rollback();
+                        return;
+                    }
+
+                    dao.commit();
+                    GenericaMensagem.info("Sucesso", "Cadastro concluído!");
+                    opcaoCadastro = "";
+                } else {
+                    if (pessoa.getNome().isEmpty()) {
+                        GenericaMensagem.warn("Erro", "Digite um NOME para PESSOA!");
+                        return;
+                    }
+
+                    dao.openTransaction();
+
+                    pessoa.setTipoDocumento((TipoDocumento) dao.find(new TipoDocumento(), 4));
+                    pessoa.setDocumento("0");
+                    pessoa.setNome(pessoa.getNome().toUpperCase());
+
+                    if (!dao.save(pessoa)) {
+                        GenericaMensagem.warn("Erro", "Erro ao Salvar Pessoa!");
+                        dao.rollback();
+                        return;
+                    }
+
+                    Fisica fisica = new Fisica(-1, pessoa, "", "", "", "", DataHoje.dataHoje(), "", "", "", "", "", "", "", "", "", "", "", "", "", "", "");
+                    if (!dao.save(fisica)) {
+                        GenericaMensagem.warn("Erro", "Erro ao Salvar Cadastro!");
+                        dao.rollback();
+                        return;
+                    }
+
+                    dao.commit();
+                    GenericaMensagem.info("Sucesso", "Cadastro concluído!");
+                    opcaoCadastro = "";
+                }
+                break;
+            case "cnpj": {
+                if (!ValidaDocumentos.isValidoCNPJ(descricao.replace(".", "").replace("/", "").replace("-", ""))) {
+                    GenericaMensagem.warn("Erro", "Este CNPJ não é válido!");
+                    return;
+                }
+                JuridicaDB dbj = new JuridicaDBToplink();
+                List listDocumento = dbj.pesquisaJuridicaPorDoc(descricao);
+                for (int i = 0; i < listDocumento.size(); i++) {
+                    if (!listDocumento.isEmpty()) {
+                        GenericaMensagem.warn("Erro", "Empresa já esta cadastrada no Sistema!");
+                        return;
+                    }
+                }
                 if (pessoa.getNome().isEmpty()) {
                     GenericaMensagem.warn("Erro", "Digite um NOME para EMPRESA!");
                     return;
                 }
-
-                sv.abrirTransacao();
-
-                pessoa.setTipoDocumento((TipoDocumento) sv.pesquisaCodigo(4, "TipoDocumento"));
-                pessoa.setDocumento("0");
+                dao.openTransaction();
+                pessoa.setTipoDocumento((TipoDocumento) dao.find(new TipoDocumento(), 2));
+                pessoa.setDocumento(descricao);
                 pessoa.setNome(pessoa.getNome().toUpperCase());
-
-                if (!sv.inserirObjeto(pessoa)) {
+                if (!dao.save(pessoa)) {
                     GenericaMensagem.warn("Erro", "Erro ao Salvar Pessoa!");
-                    sv.desfazerTransacao();
+                    dao.rollback();
+                    return;
                 }
-
-                Juridica juridica = new Juridica(-1, pessoa, pessoa.getNome().toUpperCase(), null, null, "", "", "", "", (Porte) sv.pesquisaCodigo(1, "Porte"), "", "", true, false, "");
-                if (!sv.inserirObjeto(juridica)) {
+                Juridica juridica = new Juridica(-1, pessoa, pessoa.getNome().toUpperCase(), null, null, "", "", "", "", (Porte) dao.find(new Porte(), 1), "", "", true, false, "");
+                if (!dao.save(juridica)) {
                     GenericaMensagem.warn("Erro", "Erro ao Salvar Empresa!");
-                    sv.desfazerTransacao();
+                    dao.rollback();
                 }
-
-                sv.comitarTransacao();
+                dao.commit();
                 GenericaMensagem.info("Sucesso", "Cadastro concluído!");
                 opcaoCadastro = "";
-            } else {
+                break;
+            }
+            default: {
+                if (!ValidaDocumentos.isValidoCPF(descricao.replace(".", "").replace("/", "").replace("-", ""))) {
+                    GenericaMensagem.warn("Erro", "Este CPF não é válido!");
+                    return;
+                }
+                FisicaDB db = new FisicaDBToplink();
+                List listDocumento = db.pesquisaFisicaPorDoc(descricao);
+                if (!listDocumento.isEmpty()) {
+                    GenericaMensagem.warn("Erro", "CPF já esta cadastrada no Sistema!");
+                    return;
+                }
                 if (pessoa.getNome().isEmpty()) {
                     GenericaMensagem.warn("Erro", "Digite um NOME para PESSOA!");
                     return;
                 }
-
-                sv.abrirTransacao();
-
-                pessoa.setTipoDocumento((TipoDocumento) sv.pesquisaCodigo(4, "TipoDocumento"));
-                pessoa.setDocumento("0");
+                dao.openTransaction();
+                pessoa.setTipoDocumento((TipoDocumento) dao.find(new TipoDocumento(), 1));
+                pessoa.setDocumento(descricao);
                 pessoa.setNome(pessoa.getNome().toUpperCase());
-
-                if (!sv.inserirObjeto(pessoa)) {
+                if (!dao.save(pessoa)) {
                     GenericaMensagem.warn("Erro", "Erro ao Salvar Pessoa!");
-                    sv.desfazerTransacao();
+                    dao.rollback();
                 }
-
                 Fisica fisica = new Fisica(-1, pessoa, "", "", "", "", DataHoje.dataHoje(), "", "", "", "", "", "", "", "", "", "", "", "", "", "", "");
-                if (!sv.inserirObjeto(fisica)) {
+                if (!dao.save(fisica)) {
                     GenericaMensagem.warn("Erro", "Erro ao Salvar Cadastro!");
-                    sv.desfazerTransacao();
+                    dao.rollback();
                 }
-
-                sv.comitarTransacao();
+                dao.commit();
                 GenericaMensagem.info("Sucesso", "Cadastro concluído!");
                 opcaoCadastro = "";
+                break;
             }
-        } else if (listaTipoDocumento.get(idTipoDocumento).getLabel().toLowerCase().equals("cnpj")) {
-            if (!ValidaDocumentos.isValidoCNPJ(descricao.replace(".", "").replace("/", "").replace("-", ""))) {
-                GenericaMensagem.warn("Erro", "Este CNPJ não é válido!");
-                return;
-            }
-
-            JuridicaDB dbj = new JuridicaDBToplink();
-            List listDocumento = dbj.pesquisaJuridicaPorDoc(descricao);
-            for (int i = 0; i < listDocumento.size(); i++) {
-                if (!listDocumento.isEmpty()) {
-                    GenericaMensagem.warn("Erro", "Empresa já esta cadastrada no Sistema!");
-                    return;
-                }
-            }
-
-            if (pessoa.getNome().isEmpty()) {
-                GenericaMensagem.warn("Erro", "Digite um NOME para EMPRESA!");
-                return;
-            }
-
-            sv.abrirTransacao();
-
-            pessoa.setTipoDocumento((TipoDocumento) sv.pesquisaCodigo(2, "TipoDocumento"));
-            pessoa.setDocumento(descricao);
-            pessoa.setNome(pessoa.getNome().toUpperCase());
-
-            if (!sv.inserirObjeto(pessoa)) {
-                GenericaMensagem.warn("Erro", "Erro ao Salvar Pessoa!");
-                sv.desfazerTransacao();
-            }
-
-            Juridica juridica = new Juridica(-1, pessoa, pessoa.getNome().toUpperCase(), null, null, "", "", "", "", (Porte) sv.pesquisaCodigo(1, "Porte"), "", "", true, false, "");
-            if (!sv.inserirObjeto(juridica)) {
-                GenericaMensagem.warn("Erro", "Erro ao Salvar Empresa!");
-                sv.desfazerTransacao();
-            }
-
-            sv.comitarTransacao();
-            GenericaMensagem.info("Sucesso", "Cadastro concluído!");
-            opcaoCadastro = "";
-        } else {
-            if (!ValidaDocumentos.isValidoCPF(descricao.replace(".", "").replace("/", "").replace("-", ""))) {
-                GenericaMensagem.warn("Erro", "Este CPF não é válido!");
-                return;
-            }
-
-            FisicaDB db = new FisicaDBToplink();
-            List listDocumento = db.pesquisaFisicaPorDoc(descricao);
-            if (!listDocumento.isEmpty()) {
-                GenericaMensagem.warn("Erro", "CPF já esta cadastrada no Sistema!");
-                return;
-            }
-
-            if (pessoa.getNome().isEmpty()) {
-                GenericaMensagem.warn("Erro", "Digite um NOME para PESSOA!");
-                return;
-            }
-
-            sv.abrirTransacao();
-
-            pessoa.setTipoDocumento((TipoDocumento) sv.pesquisaCodigo(1, "TipoDocumento"));
-            pessoa.setDocumento(descricao);
-            pessoa.setNome(pessoa.getNome().toUpperCase());
-
-            if (!sv.inserirObjeto(pessoa)) {
-                GenericaMensagem.warn("Erro", "Erro ao Salvar Pessoa!");
-                sv.desfazerTransacao();
-            }
-
-            Fisica fisica = new Fisica(-1, pessoa, "", "", "", "", DataHoje.dataHoje(), "", "", "", "", "", "", "", "", "", "", "", "", "", "", "");
-            if (!sv.inserirObjeto(fisica)) {
-                GenericaMensagem.warn("Erro", "Erro ao Salvar Cadastro!");
-                sv.desfazerTransacao();
-            }
-
-            sv.comitarTransacao();
-            GenericaMensagem.info("Sucesso", "Cadastro concluído!");
-            opcaoCadastro = "";
         }
     }
 
     public void cadastrarPessoa(String param) {
         pessoa = new Pessoa();
-
+        TipoDocumento td = (TipoDocumento) new Dao().find(new TipoDocumento(), idTipoDocumento);
         if (param.isEmpty()) {
-            if (listaTipoDocumento.get(idTipoDocumento).getLabel().toLowerCase().equals("cnpj")) {
-                opcaoCadastro = "juridica";
-            } else if (listaTipoDocumento.get(idTipoDocumento).getLabel().toLowerCase().equals("cpf")) {
-                opcaoCadastro = "fisica";
-            } else {
-                opcaoCadastro = "juridica";
+            switch (td.getDescricao().toLowerCase()) {
+                case "cnpj":
+                    opcaoCadastro = "juridica";
+                    break;
+                case "cpf":
+                    opcaoCadastro = "fisica";
+                    break;
+                default:
+                    opcaoCadastro = "juridica";
+                    break;
             }
         } else {
             opcaoCadastro = param;
@@ -1057,12 +1017,13 @@ public class LancamentoFinanceiroBean implements Serializable {
             return;
         }
 
-        if (listaTipoDocumento.get(idTipoDocumento).getLabel().toLowerCase().equals("sem documento")) {
+        TipoDocumento td = (TipoDocumento) new Dao().find(new TipoDocumento(), idTipoDocumento);
+        if (td.getDescricao().toLowerCase().equals("sem documento")) {
             return;
         }
 
         LancamentoFinanceiroDB db = new LancamentoFinanceiroDBToplink();
-        if (listaTipoDocumento.get(idTipoDocumento).getLabel().toLowerCase().equals("cnpj")) {
+        if (td.getDescricao().toLowerCase().equals("cnpj")) {
             Juridica juridica = db.pesquisaJuridica(descricao);
             if (juridica != null) {
                 pessoa = juridica.getPessoa();
@@ -1088,23 +1049,24 @@ public class LancamentoFinanceiroBean implements Serializable {
     }
 
     public void abreModal() {
-        //modalVisivel = true;
         LancamentoFinanceiroBean la = new LancamentoFinanceiroBean();
+        la.load();
         la.setModalVisivel(true);
-        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("lancamentoFinanceiroBean", la);
+        GenericaSessao.put("lancamentoFinanceiroBean", la);
     }
 
     public void fechaModal() {
         if (lote.getId() == -1) {
             modalVisivel = false;
             telaSalva = true;
+            chkImposto = false;
+            loadListaLancamento();
             return;
         }
 
         float soma = 0;
-        for (DataObject dox : listaParcela) {
-            Movimento movimento = (Movimento) dox.getArgumento1();
-            soma = Moeda.somaValores(soma, movimento.getValor());
+        for (Parcela p : listaParcela) {
+            soma = Moeda.somaValores(soma, p.getMovimento().getValor());
         }
 
         if (soma < Moeda.converteUS$(total)) {
@@ -1128,36 +1090,27 @@ public class LancamentoFinanceiroBean implements Serializable {
     }
 
     public void atualizaComboES() {
-        listaOperacao.clear();
+        loadListaOperacao();
         idOperacao = 0;
 
-        listaCentroCusto.clear();
+        loadListaCentroCusto();
         idCentroCusto = 0;
 
-        listaTipoCentroCusto.clear();
-        idTipoCentroCusto = 0;
-
+        // listaTipoCentroCusto.clear();
+        // idTipoCentroCusto = 0;
         listaContaOperacao.clear();
         idContaOperacao = 0;
+
+        esLancamento = es;
     }
 
     public void atualizaComboOperacao() {
-        listaCentroCusto.clear();
-        idCentroCusto = 0;
-
-        listaTipoCentroCusto.clear();
-        idTipoCentroCusto = 0;
-
-        listaContaOperacao.clear();
-        idContaOperacao = 0;
+        loadListaCentroCusto();
+        loadListaContaOperacao();
     }
 
     public void atualizaComboCentroCusto() {
-        listaTipoCentroCusto.clear();
-        idTipoCentroCusto = 0;
-
-        listaContaOperacao.clear();
-        idContaOperacao = 0;
+        loadListaContaOperacao();
     }
 
     public void atualizaComboTipoCentroCusto() {
@@ -1166,30 +1119,23 @@ public class LancamentoFinanceiroBean implements Serializable {
     }
 
     public String alterarDesconto(int index) {
-//        float acre = Moeda.somaValores(
-//                Moeda.somaValores(Moeda.converteUS$(listaParcela.get(index).getArgumento12().toString()), 
-//                Moeda.converteUS$(listaParcela.get(index).getArgumento13().toString())), 
-//                Moeda.converteUS$(listaParcela.get(index).getArgumento14().toString())
-//        );
-        float acre = Moeda.converteUS$(listaParcela.get(index).getArgumento4().toString());
-
-        float desc = Moeda.converteUS$(listaParcela.get(index).getArgumento5().toString());
-        float valor_p = Moeda.converteUS$(listaParcela.get(index).getArgumento3().toString());
+        float acre = Moeda.converteUS$(listaParcela.get(index).getAcrescimo());
+        float desc = Moeda.converteUS$(listaParcela.get(index).getDesconto());
+        float valor_p = Moeda.converteUS$(listaParcela.get(index).getValor());
         float soma = Moeda.subtracaoValores(Moeda.somaValores(acre, valor_p), desc);
 
-        listaParcela.get(index).setArgumento5(Moeda.converteR$(String.valueOf(listaParcela.get(index).getArgumento5())));
-        listaParcela.get(index).setArgumento6(Moeda.converteR$Float(soma));
+        listaParcela.get(index).setDesconto(Moeda.converteR$(String.valueOf(listaParcela.get(index).getDesconto())));
+        listaParcela.get(index).setValorQuitado(Moeda.converteR$Float(soma));
 
         telaSalva = false;
         return null;
     }
 
     public String alterarAcrescimo(int index) {
-        listaParcela.get(index).setArgumento6(Moeda.converteR$(String.valueOf(listaParcela.get(index).getArgumento6())));
-
-        multa = Moeda.converteR$(listaParcela.get(index).getArgumento12().toString());
-        juros = Moeda.converteR$(listaParcela.get(index).getArgumento13().toString());
-        correcao = Moeda.converteR$(listaParcela.get(index).getArgumento14().toString());
+        listaParcela.get(index).setValorQuitado(Moeda.converteR$(String.valueOf(listaParcela.get(index).getValorQuitado())));
+        multa = Moeda.converteR$(listaParcela.get(index).getMulta());
+        juros = Moeda.converteR$(listaParcela.get(index).getJuros());
+        correcao = Moeda.converteR$(listaParcela.get(index).getCorrecao());
         indexAcrescimo = index;
         return null;
     }
@@ -1200,15 +1146,15 @@ public class LancamentoFinanceiroBean implements Serializable {
         if (indexAcrescimo == -1) {
             acrescimo = Moeda.converteR$Float(acre);
         } else {
-            listaParcela.get(indexAcrescimo).setArgumento4(Moeda.converteR$Float(acre));
-            listaParcela.get(indexAcrescimo).setArgumento12(Moeda.converteR$(multa));
-            listaParcela.get(indexAcrescimo).setArgumento13(Moeda.converteR$(juros));
-            listaParcela.get(indexAcrescimo).setArgumento14(Moeda.converteR$(correcao));
+            listaParcela.get(indexAcrescimo).setAcrescimo(Moeda.converteR$Float(acre));
+            listaParcela.get(indexAcrescimo).setMulta(Moeda.converteR$(multa));
+            listaParcela.get(indexAcrescimo).setJuros(Moeda.converteR$(juros));
+            listaParcela.get(indexAcrescimo).setCorrecao(Moeda.converteR$(correcao));
 
-            float desc = Moeda.converteUS$(listaParcela.get(indexAcrescimo).getArgumento5().toString());
-            float valor_p = Moeda.somaValores(Moeda.converteUS$(listaParcela.get(indexAcrescimo).getArgumento3().toString()), acre);
+            float desc = Moeda.converteUS$(listaParcela.get(indexAcrescimo).getDesconto());
+            float valor_p = Moeda.somaValores(Moeda.converteUS$(listaParcela.get(indexAcrescimo).getValor()), acre);
 
-            listaParcela.get(indexAcrescimo).setArgumento6(Moeda.converteR$Float(Moeda.subtracaoValores(valor_p, desc)));
+            listaParcela.get(indexAcrescimo).setValorQuitado(Moeda.converteR$Float(Moeda.subtracaoValores(valor_p, desc)));
         }
 
         telaSalva = false;
@@ -1223,84 +1169,90 @@ public class LancamentoFinanceiroBean implements Serializable {
         acrescimo = "0,00";
     }
 
-    public void alterarListaLancamento(Usuario linha) {
-        if (linha != null) {
-            usuarioSelecionado = linha;
+    public void alterarListaLancamento(Usuario u) {
+        if (u != null) {
+            usuarioSelecionado = u;
 
-            if (((Usuario) GenericaSessao.getObject("sessaoUsuario")).getId() == linha.getId()) {
+            if (((Usuario) GenericaSessao.getObject("sessaoUsuario")).getId() == u.getId()) {
                 strVisualizando = "os Meus Lançamentos";
             } else {
-                strVisualizando = "os Lançamentos de " + linha.getPessoa().getNome();
+                strVisualizando = "os Lançamentos de " + u.getPessoa().getNome();
             }
         } else {
             usuarioSelecionado = new Usuario();
             strVisualizando = "TODOS Lançamentos";
         }
 
-        listaLancamento.clear();
+        loadListaLancamento();
     }
 
-    public List<DataObject> getListaLancamento() {
-        if (listaLancamento.isEmpty()) {
-            LancamentoFinanceiroDB db = new LancamentoFinanceiroDBToplink();
-
-            List<FiltroLancamento> select = new ArrayList<FiltroLancamento>();
-            //((Usuario) GenericaSessao.getObject("sessaoUsuario")).getId()
-
-            if (usuarioSelecionado.getId() == -1) {
-                select = db.listaLancamento(-1, porPesquisa, description);
-            } else {
-                select = db.listaLancamento(usuarioSelecionado.getId(), porPesquisa, description);
-            }
-
-            for (FiltroLancamento flx : select) {
-                listaLancamento.add(new DataObject(flx, Moeda.converteR$Float(flx.getLote().getValor())));
-            }
+    public void loadListaLancamento() {
+        listaLancamento = new ArrayList();
+        LoteDao loteDao = new LoteDao();
+        if (usuarioSelecionado.getId() == -1) {
+            listaLancamento = loteDao.find(-1, porPesquisa, description);
+        } else {
+            listaLancamento = loteDao.find(usuarioSelecionado.getId(), porPesquisa, description);
         }
+    }
+
+    public List<Lote> getListaLancamento() {
         return listaLancamento;
     }
 
-    public void setListaLancamento(List<DataObject> listaLancamento) {
+    public void setListaLancamento(List<Lote> listaLancamento) {
         this.listaLancamento = listaLancamento;
     }
 
-    public int getIdFilial() {
+    public Integer getIdFilial() {
         return idFilial;
     }
 
-    public void setIdFilial(int idFilial) {
+    public void setIdFilial(Integer idFilial) {
         this.idFilial = idFilial;
     }
 
     public List<SelectItem> getListaFilial() {
-        if (listaFilial.isEmpty()) {
-            SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
-            List<Filial> list = (List<Filial>) salvarAcumuladoDB.listaObjeto("Filial", true);
-            for (int i = 0; i < list.size(); i++) {
-                listaFilial.add(new SelectItem(new Integer(i),
-                        list.get(i).getFilial().getPessoa().getDocumento() + " / " + list.get(i).getFilial().getPessoa().getNome(),
-                        Integer.toString(list.get(i).getId())));
-            }
-        }
         return listaFilial;
+    }
+
+    public void loadListaFilial() {
+        listaFilial = new ArrayList();
+        List<Filial> list = (List<Filial>) new Dao().list(new Filial(), true);
+        for (int i = 0; i < list.size(); i++) {
+            if (i == 0) {
+                idFilial = list.get(i).getId();
+            }
+            listaFilial.add(
+                    new SelectItem(
+                            list.get(i).getId(),
+                            list.get(i).getFilial().getPessoa().getDocumento() + " / " + list.get(i).getFilial().getPessoa().getNome()
+                    )
+            );
+        }
     }
 
     public void setListaFilial(List<SelectItem> listaFilial) {
         this.listaFilial = listaFilial;
     }
 
-    public List<SelectItem> getListaTipoDocumento() {
-        if (listaTipoDocumento.isEmpty()) {
-            List<TipoDocumento> result = (new LancamentoFinanceiroDBToplink()).listaTipoDocumento();
-            for (int i = 0; i < result.size(); i++) {
-                listaTipoDocumento.add(
-                        new SelectItem(i,
-                                result.get(i).getDescricao(),
-                                Integer.toString(result.get(i).getId())
-                        )
-                );
+    public void loadListaTipoDocumento() {
+        listaTipoDocumento = new ArrayList();
+        List<TipoDocumento> list = (new LancamentoFinanceiroDBToplink()).listaTipoDocumento();
+        for (int i = 0; i < list.size(); i++) {
+            if (i == 0) {
+                idTipoDocumento = list.get(i).getId();
             }
+            listaTipoDocumento.add(
+                    new SelectItem(
+                            list.get(i).getId(),
+                            list.get(i).getDescricao()
+                    )
+            );
         }
+    }
+
+    public List<SelectItem> getListaTipoDocumento() {
         return listaTipoDocumento;
     }
 
@@ -1308,11 +1260,11 @@ public class LancamentoFinanceiroBean implements Serializable {
         this.listaTipoDocumento = listaTipoDocumento;
     }
 
-    public int getIdTipoDocumento() {
+    public Integer getIdTipoDocumento() {
         return idTipoDocumento;
     }
 
-    public void setIdTipoDocumento(int idTipoDocumento) {
+    public void setIdTipoDocumento(Integer idTipoDocumento) {
         this.idTipoDocumento = idTipoDocumento;
     }
 
@@ -1325,7 +1277,7 @@ public class LancamentoFinanceiroBean implements Serializable {
     }
 
     public String getMascara() {
-        return mascara = Mask.getMascaraPesquisa(listaTipoDocumento.get(idTipoDocumento).getLabel().toLowerCase(), true);
+        return mascara = Mask.getMascaraPesquisa(((TipoDocumento) new Dao().find(new TipoDocumento(), idTipoDocumento)).getDescricao(), true);
     }
 
     public void setMascara(String mascara) {
@@ -1338,6 +1290,14 @@ public class LancamentoFinanceiroBean implements Serializable {
 
     public void setEs(String es) {
         this.es = es;
+    }
+
+    public String getEsLancamento() {
+        return esLancamento;
+    }
+
+    public void setEsLancamento(String esLancamento) {
+        this.esLancamento = esLancamento;
     }
 
     public int getIdFTipo() {
@@ -1356,18 +1316,22 @@ public class LancamentoFinanceiroBean implements Serializable {
         this.idFTipoMovimento = idFTipoMovimento;
     }
 
-    public List<SelectItem> getListaFTipo() {
-        if (listaFTipo.isEmpty()) {
-            FTipoDocumentoDB db = new FTipoDocumentoDBToplink();
-            List<FTipoDocumento> select = db.pesquisaCodigoTipoDocumentoIDS("1,12,24,25");
-            for (int i = 0; i < select.size(); i++) {
-                listaFTipo.add(new SelectItem(
-                        i,
-                        select.get(i).getDescricao(),
-                        Integer.toString(select.get(i).getId()))
-                );
+    public void loadListaFTipo() {
+        listaFTipo = new ArrayList();
+        FTipoDocumentoDB db = new FTipoDocumentoDBToplink();
+        List<FTipoDocumento> list = db.pesquisaCodigoTipoDocumentoIDS("1,12,24,25");
+        for (int i = 0; i < list.size(); i++) {
+            if (i == 0) {
+                idFTipo = list.get(i).getId();
             }
+            listaFTipo.add(new SelectItem(
+                    list.get(i).getId(),
+                    list.get(i).getDescricao()
+            ));
         }
+    }
+
+    public List<SelectItem> getListaFTipo() {
         return listaFTipo;
     }
 
@@ -1375,18 +1339,22 @@ public class LancamentoFinanceiroBean implements Serializable {
         this.listaFTipo = listaFTipo;
     }
 
-    public List<SelectItem> getListaFTipoMovimento() {
-        if (listaFTipoMovimento.isEmpty()) {
-            FTipoDocumentoDB db = new FTipoDocumentoDBToplink();
-            List<FTipoDocumento> select = db.pesquisaCodigoTipoDocumentoIDS("1,2,12,24,25");
-            for (int i = 0; i < select.size(); i++) {
-                listaFTipoMovimento.add(new SelectItem(
-                        i,
-                        select.get(i).getDescricao(),
-                        Integer.toString(select.get(i).getId())
-                ));
+    public void loadListaFTipoMovimento() {
+        listaFTipoMovimento = new ArrayList();
+        FTipoDocumentoDB db = new FTipoDocumentoDBToplink();
+        List<FTipoDocumento> list = db.pesquisaCodigoTipoDocumentoIDS("1,2,12,24,25");
+        for (int i = 0; i < list.size(); i++) {
+            if (i == 0) {
+                idFTipoMovimento = list.get(i).getId();
             }
+            listaFTipoMovimento.add(new SelectItem(
+                    list.get(i).getId(),
+                    list.get(i).getDescricao()
+            ));
         }
+    }
+
+    public List<SelectItem> getListaFTipoMovimento() {
         return listaFTipoMovimento;
     }
 
@@ -1407,24 +1375,40 @@ public class LancamentoFinanceiroBean implements Serializable {
             pessoa = ((Juridica) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("juridicaPesquisa")).getPessoa();
             FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("juridicaPesquisa");
             descricao = pessoa.getDocumento();
-            if (pessoa.getTipoDocumento().getId() == 1) {
-                idTipoDocumento = 0;
-            } else if (pessoa.getTipoDocumento().getId() == 2) {
-                idTipoDocumento = 1;
-            } else if (pessoa.getTipoDocumento().getId() == 4) {
-                idTipoDocumento = 2;
+            if (null != pessoa.getTipoDocumento().getId()) {
+                switch (pessoa.getTipoDocumento().getId()) {
+                    case 1:
+                        idTipoDocumento = 0;
+                        break;
+                    case 2:
+                        idTipoDocumento = 1;
+                        break;
+                    case 4:
+                        idTipoDocumento = 2;
+                        break;
+                    default:
+                        break;
+                }
             }
             opcaoCadastro = "";
         } else if (FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("fisicaPesquisa") != null) {
             pessoa = ((Fisica) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("fisicaPesquisa")).getPessoa();
             FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("fisicaPesquisa");
             descricao = pessoa.getDocumento();
-            if (pessoa.getTipoDocumento().getId() == 1) {
-                idTipoDocumento = 0;
-            } else if (pessoa.getTipoDocumento().getId() == 2) {
-                idTipoDocumento = 1;
-            } else if (pessoa.getTipoDocumento().getId() == 4) {
-                idTipoDocumento = 2;
+            if (null != pessoa.getTipoDocumento().getId()) {
+                switch (pessoa.getTipoDocumento().getId()) {
+                    case 1:
+                        idTipoDocumento = 0;
+                        break;
+                    case 2:
+                        idTipoDocumento = 1;
+                        break;
+                    case 4:
+                        idTipoDocumento = 2;
+                        break;
+                    default:
+                        break;
+                }
             }
             opcaoCadastro = "";
         }
@@ -1463,18 +1447,16 @@ public class LancamentoFinanceiroBean implements Serializable {
         this.opcaoCadastro = opcaoCadastro;
     }
 
-    public List getListaParcela() {
+    public List<Parcela> getListaParcela() {
         if (listaParcela.isEmpty() && lote.getId() != -1) {
-            LancamentoFinanceiroDB db = new LancamentoFinanceiroDBToplink();
-            FiltroLancamento filtroLancamento = db.pesquisaFiltroLancamento(lote.getId());
-            List<Movimento> selectMovimento = db.listaParcelaLote(lote.getId());
-            float acrescimo = 0, desconto = 0, valor_quitado = 0;
-            String data_quitacao = "";
-            String caixa = "NÃO BAIXADO";
-            String loteBaixa = "NÃO BAIXADO";
+            List<Movimento> selectMovimento = new MovimentoDBToplink().listaMovimentosDoLote(lote.getId());
+            float acre, desc, valor_quitado;
+            String data_quitacao;
+            String caixa;
+            String loteBaixa;
             for (Movimento mov : selectMovimento) {
-                acrescimo = Moeda.somaValores(Moeda.somaValores(mov.getMulta(), mov.getJuros()), mov.getCorrecao());
-                desconto = mov.getDesconto();
+                acre = Moeda.somaValores(Moeda.somaValores(mov.getMulta(), mov.getJuros()), mov.getCorrecao());
+                desc = mov.getDesconto();
 
                 if (mov.getBaixa() != null) {
                     valor_quitado = mov.getValorBaixa();
@@ -1482,28 +1464,27 @@ public class LancamentoFinanceiroBean implements Serializable {
                     caixa = mov.getBaixa().getCaixa() != null ? mov.getBaixa().getCaixa().getCaixa() + "" : "NÃO BAIXADO";
                     loteBaixa = mov.getBaixa() != null ? mov.getBaixa().getId() + "" : "NÃO BAIXADO";
                 } else {
-                    valor_quitado = Moeda.subtracaoValores(Moeda.somaValores(mov.getValor(), acrescimo), desconto);
+                    valor_quitado = Moeda.subtracaoValores(Moeda.somaValores(mov.getValor(), acre), desc);
                     data_quitacao = "";
                     caixa = "NÃO BAIXADO";
                     loteBaixa = "NÃO BAIXADO";
                 }
-                listaParcela.add(new DataObject(
+                listaParcela.add(new Parcela(
                         listaParcela.size(),
                         mov,
                         DataHoje.converteData(mov.getDtVencimento()),
                         Moeda.converteR$Float(mov.getValor()),
-                        Moeda.converteR$Float(acrescimo),
+                        Moeda.converteR$Float(acre),
                         Moeda.converteR$Float(mov.getDesconto()),
                         Moeda.converteR$Float(valor_quitado),
                         data_quitacao,
-                        filtroLancamento,
-                        filtroLancamento.getUsuario().getPessoa().getNome().length() >= 30 ? filtroLancamento.getUsuario().getPessoa().getNome().substring(0, 30) + "..." : filtroLancamento.getUsuario().getPessoa().getNome(),
+                        lote.getUsuario().getPessoa().getNome().length() >= 30 ? lote.getUsuario().getPessoa().getNome().substring(0, 30) + "..." : lote.getUsuario().getPessoa().getNome(),
                         caixa,
                         loteBaixa,
-                        Moeda.converteR$Float(mov.getMulta()), // 12
-                        Moeda.converteR$Float(mov.getJuros()), // 13
-                        Moeda.converteR$Float(mov.getCorrecao()), // 14
-                        null
+                        Moeda.converteR$Float(mov.getMulta()),
+                        Moeda.converteR$Float(mov.getJuros()),
+                        Moeda.converteR$Float(mov.getCorrecao()),
+                        false
                 ));
 
             }
@@ -1511,7 +1492,7 @@ public class LancamentoFinanceiroBean implements Serializable {
         return listaParcela;
     }
 
-    public void setListaParcela(List listaParcela) {
+    public void setListaParcela(List<Parcela> listaParcela) {
         this.listaParcela = listaParcela;
     }
 
@@ -1523,28 +1504,28 @@ public class LancamentoFinanceiroBean implements Serializable {
         this.modalVisivel = modalVisivel;
     }
 
-    public List<SelectItem> getListaOperacao() {
-        if (listaOperacao.isEmpty()) {
-            //List<Operacao> select = (new SalvarAcumuladoDBToplink()).listaObjeto("Operacao");
-            List<Operacao> select = new ArrayList();
-            if (es.equals("E")) {
-                select = (new LancamentoFinanceiroDBToplink()).listaOperacao("1, 3");
-            } else {
-                select = (new LancamentoFinanceiroDBToplink()).listaOperacao("2, 3, 4, 5");
-            }
-
-            if (!select.isEmpty()) {
-                for (int i = 0; i < select.size(); i++) {
-                    listaOperacao.add(new SelectItem(
-                            i,
-                            select.get(i).getDescricao(),
-                            Integer.toString(select.get(i).getId()))
-                    );
+    public void loadListaOperacao() {
+        listaOperacao = new ArrayList();
+        List<Operacao> list = new OperacaoDao().findByEs(es);
+        if (!list.isEmpty()) {
+            for (int i = 0; i < list.size(); i++) {
+                if (i == 0) {
+                    idOperacao = list.get(i).getId();
                 }
-            } else {
-                listaOperacao.add(new SelectItem(0, "Nenhuma Operação Encontrada", "0"));
+                listaOperacao.add(
+                        new SelectItem(
+                                list.get(i).getId(),
+                                list.get(i).getDescricao()
+                        )
+                );
             }
+        } else {
+            idOperacao = 0;
+            listaOperacao.add(new SelectItem(0, "Nenhuma Operação Encontrada"));
         }
+    }
+
+    public List<SelectItem> getListaOperacao() {
         return listaOperacao;
     }
 
@@ -1552,11 +1533,11 @@ public class LancamentoFinanceiroBean implements Serializable {
         this.listaOperacao = listaOperacao;
     }
 
-    public int getIdOperacao() {
+    public Integer getIdOperacao() {
         return idOperacao;
     }
 
-    public void setIdOperacao(int idOperacao) {
+    public void setIdOperacao(Integer idOperacao) {
         this.idOperacao = idOperacao;
     }
 
@@ -1568,40 +1549,39 @@ public class LancamentoFinanceiroBean implements Serializable {
         this.lote = lote;
     }
 
-    public int getIdContaOperacao() {
+    public Integer getIdContaOperacao() {
         return idContaOperacao;
     }
 
-    public void setIdContaOperacao(int idContaOperacao) {
+    public void setIdContaOperacao(Integer idContaOperacao) {
         this.idContaOperacao = idContaOperacao;
     }
 
-    public List<SelectItem> getListaContaOperacao() {
-        if (listaOperacao.size() == 1 && listaOperacao.get(0).getDescription().equals("0")) {
-            listaContaOperacao.add(new SelectItem(0, "Nenhuma Conta Encontrada", "0"));
-            return listaContaOperacao;
+    public void loadListaContaOperacao() {
+        listaContaOperacao = new ArrayList();
+        List<ContaOperacao> listaConta = new ContaOperacaoDao().findByFilialOperacao(idFilial, idOperacao);
+        if (!listaConta.isEmpty()) {
+            for (int i = 0; i < listaConta.size(); i++) {
+                if (i == 0) {
+                    idContaOperacao = listaConta.get(i).getId();
+                }
+                listaContaOperacao.add(
+                        new SelectItem(
+                                listaConta.get(i).getId(),
+                                listaConta.get(i).getPlano5().getConta()
+                        )
+                );
+            }
+        } else {
+            listaContaOperacao.add(new SelectItem(0, "Nenhuma Conta Encontrada"));
         }
-        if (listaContaOperacao.isEmpty()) {
-            LancamentoFinanceiroDB db = new LancamentoFinanceiroDBToplink();
-            List<ContaOperacao> listaConta = new ArrayList();
-            if (Integer.valueOf(listaOperacao.get(idOperacao).getDescription()) == 1 || Integer.valueOf(listaOperacao.get(idOperacao).getDescription()) == 2) {
-                if (!listaTipoCentroCusto.isEmpty()) {
-                    listaConta = db.listaContaOperacaoContabil(Integer.valueOf(getListaTipoCentroCusto().get(idTipoCentroCusto).getDescription()));
-                }
-            } else {
-                listaConta = db.listaContaOperacao(Integer.valueOf(listaOperacao.get(idOperacao).getDescription()));
-            }
-            if (!listaConta.isEmpty()) {
-                for (int i = 0; i < listaConta.size(); i++) {
-                    listaContaOperacao.add(new SelectItem(
-                            i,
-                            listaConta.get(i).getPlano5().getConta(),
-                            Integer.toString(listaConta.get(i).getId()))
-                    );
-                }
-            } else {
-                listaContaOperacao.add(new SelectItem(0, "Nenhuma Conta Encontrada", "0"));
-            }
+    }
+
+    public List<SelectItem> getListaContaOperacao() {
+        if (listaContaOperacao.isEmpty() || listaOperacao.size() == 1) {
+            listaContaOperacao = new ArrayList();
+            listaContaOperacao.add(new SelectItem(0, "Nenhuma Conta Encontrada"));
+            return listaContaOperacao;
         }
         return listaContaOperacao;
     }
@@ -1610,37 +1590,36 @@ public class LancamentoFinanceiroBean implements Serializable {
         this.listaContaOperacao = listaContaOperacao;
     }
 
-    public int getIdCentroCusto() {
+    public Integer getIdCentroCusto() {
         return idCentroCusto;
     }
 
-    public void setIdCentroCusto(int idCentroCusto) {
+    public void setIdCentroCusto(Integer idCentroCusto) {
         this.idCentroCusto = idCentroCusto;
     }
 
-    public int getIdTipoCentroCusto() {
-        return idTipoCentroCusto;
-    }
-
-    public void setIdTipoCentroCusto(int idTipoCentroCusto) {
-        this.idTipoCentroCusto = idTipoCentroCusto;
+    public void loadListaCentroCusto() {
+        listaCentroCusto = new ArrayList();
+        List<CentroCusto> listaCentro = new CentroCustoDao().findByFilial(idFilial);
+        if (!listaCentro.isEmpty()) {
+            for (int i = 0; i < listaCentro.size(); i++) {
+                if (i == 0) {
+                    idCentroCusto = listaCentro.get(i).getId();
+                }
+                listaCentroCusto.add(
+                        new SelectItem(
+                                listaCentro.get(i).getId(),
+                                listaCentro.get(i).getDescricao()
+                        )
+                );
+            }
+        } else {
+            idCentroCusto = 0;
+            listaCentroCusto.add(new SelectItem(0, "Nenhum Centro Custo Encontrado"));
+        }
     }
 
     public List<SelectItem> getListaCentroCusto() {
-        if (listaCentroCusto.isEmpty()) {
-            List<CentroCusto> listaCentro = (new LancamentoFinanceiroDBToplink()).listaCentroCusto(Integer.valueOf(listaFilial.get(idFilial).getDescription()));
-            if (!listaCentro.isEmpty()) {
-                for (int i = 0; i < listaCentro.size(); i++) {
-                    listaCentroCusto.add(new SelectItem(
-                            i,
-                            listaCentro.get(i).getDescricao(),
-                            Integer.toString(listaCentro.get(i).getId()))
-                    );
-                }
-            } else {
-                listaCentroCusto.add(new SelectItem(0, "Nenhum Centro Custo Encontrado", "0"));
-            }
-        }
         return listaCentroCusto;
     }
 
@@ -1648,39 +1627,38 @@ public class LancamentoFinanceiroBean implements Serializable {
         this.listaCentroCusto = listaCentroCusto;
     }
 
-    public List<SelectItem> getListaTipoCentroCusto() {
-        if (listaTipoCentroCusto.isEmpty()) {
-            if (Integer.valueOf(getListaCentroCusto().get(idCentroCusto).getDescription()) == 0) {
-                GenericaMensagem.error("Erro", "Cadastre um Centro de Custo para fazer um Lançamento!");
-                listaTipoCentroCusto.add(new SelectItem(0, "Nenhum Tipo Encontrado", "0"));
-                return listaTipoCentroCusto;
-            }
-
-            CentroCusto centroCusto = (CentroCusto) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(Integer.valueOf(getListaCentroCusto().get(idCentroCusto).getDescription()), "CentroCusto");
-            List<CentroCustoContabilSub> listaCentroContabil = (new LancamentoFinanceiroDBToplink()).listaTipoCentroCusto(centroCusto.getCentroCustoContabil().getId(), es);
-            if (!listaCentroContabil.isEmpty()) {
-                for (int i = 0; i < listaCentroContabil.size(); i++) {
-                    listaTipoCentroCusto.add(new SelectItem(
-                            i,
-                            listaCentroContabil.get(i).getDescricao(),
-                            Integer.toString(listaCentroContabil.get(i).getId()))
-                    );
-                }
-            } else {
-                listaTipoCentroCusto.add(new SelectItem(0, "Nenhum Tipo Encontrado", "0"));
-            }
-        }
-        return listaTipoCentroCusto;
-    }
-
-    public void setListaTipoCentroCusto(List<SelectItem> listaTipoCentroCusto) {
-        this.listaTipoCentroCusto = listaTipoCentroCusto;
-    }
-
+//    public List<SelectItem> getListaTipoCentroCusto() {
+//        if (listaTipoCentroCusto.isEmpty()) {
+//            if (idCentroCusto == 0) {
+//                GenericaMensagem.error("Erro", "Cadastre um Centro de Custo para fazer um Lançamento!");
+//                listaTipoCentroCusto.add(new SelectItem(0, "Nenhum Tipo Encontrado", "0"));
+//                return listaTipoCentroCusto;
+//            }
+//
+//            CentroCusto centroCusto = (CentroCusto) new Dao().find(new CentroCusto(), idCentroCusto);
+////            List<CentroCustoContabilSub> listaCentroContabil = (new LancamentoFinanceiroDBToplink()).listaTipoCentroCusto(centroCusto.getCentroCustoContabil().getId(), es);
+////            if (!listaCentroContabil.isEmpty()) {
+////                for (int i = 0; i < listaCentroContabil.size(); i++) {
+////                    listaTipoCentroCusto.add(new SelectItem(
+////                            i,
+////                            listaCentroContabil.get(i).getDescricao(),
+////                            Integer.toString(listaCentroContabil.get(i).getId()))
+////                    );
+////                }
+////            } else {
+////                listaTipoCentroCusto.add(new SelectItem(0, "Nenhum Tipo Encontrado", "0"));
+////            }
+//        }
+//        return listaTipoCentroCusto;
+//    }
+//
+//    public void setListaTipoCentroCusto(List<SelectItem> listaTipoCentroCusto) {
+//        this.listaTipoCentroCusto = listaTipoCentroCusto;
+//    }
     public Operacao getOperacao() {
-        if (listaOperacao.size() != 1 && !listaOperacao.get(0).getDescription().equals("0")) {
-            if (Integer.valueOf(listaOperacao.get(idOperacao).getDescription()) != operacao.getId()) {
-                operacao = (Operacao) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(Integer.valueOf(listaOperacao.get(idOperacao).getDescription()), "Operacao");
+        if (listaOperacao.size() != 1 && !idOperacao.equals(0)) {
+            if (!idOperacao.equals(operacao.getId())) {
+                operacao = (Operacao) new Dao().find(new Operacao(), idOperacao);
             }
         }
         return operacao;
@@ -1698,14 +1676,6 @@ public class LancamentoFinanceiroBean implements Serializable {
         this.vencimento = vencimento;
     }
 
-    public DataObject getLinhaSelecionada() {
-        return linhaSelecionada;
-    }
-
-    public void setLinhaSelecionada(DataObject linhaSelecionada) {
-        this.linhaSelecionada = linhaSelecionada;
-    }
-
     public boolean isChkImposto() {
         if (chkImposto) {
             listaContaTipoPlano5.clear();
@@ -1719,20 +1689,21 @@ public class LancamentoFinanceiroBean implements Serializable {
 
     public List<SelectItem> getListaContaTipoPlano5() {
         if (listaContaTipoPlano5.isEmpty()) {
-            //List<ContaTipoPlano5> select = (new SalvarAcumuladoDBToplink()).listaObjeto("ContaTipoPlano5");
-            LancamentoFinanceiroDB db = new LancamentoFinanceiroDBToplink();
-
-            List<ContaTipoPlano5> select = db.listaContaTipoPlano5(-1, 1);
-            if (!select.isEmpty()) {
-                for (int i = 0; i < select.size(); i++) {
-                    listaContaTipoPlano5.add(new SelectItem(
-                            i,
-                            select.get(i).getPlano5().getConta(),
-                            Integer.toString(select.get(i).getId()))
+            List<ContaTipoPlano5> list = new ContaTipoPlano5Dao().find(-1, 1);
+            if (!list.isEmpty()) {
+                for (int i = 0; i < list.size(); i++) {
+                    if (i == 0) {
+                        idContaTipoPlano5 = list.get(i).getId();
+                    }
+                    listaContaTipoPlano5.add(
+                            new SelectItem(
+                                    list.get(i).getId(),
+                                    list.get(i).getPlano5().getConta()
+                            )
                     );
                 }
             } else {
-                listaContaTipoPlano5.add(new SelectItem(0, "Nenhuma Conta Encontrada", "0"));
+                listaContaTipoPlano5.add(new SelectItem(0, "Nenhuma Conta Encontrada"));
             }
         }
         return listaContaTipoPlano5;
@@ -1742,22 +1713,28 @@ public class LancamentoFinanceiroBean implements Serializable {
         this.listaContaTipoPlano5 = listaContaTipoPlano5;
     }
 
-    public int getIdContaTipoPlano5() {
+    public Integer getIdContaTipoPlano5() {
         return idContaTipoPlano5;
     }
 
-    public void setIdContaTipoPlano5(int idContaTipoPlano5) {
+    public void setIdContaTipoPlano5(Integer idContaTipoPlano5) {
         this.idContaTipoPlano5 = idContaTipoPlano5;
     }
 
     public String getStrConta() {
-        if (!listaContaOperacao.isEmpty() && !chkImposto) {
-            strConta = listaContaOperacao.get(idContaOperacao).getLabel();
-        } else if (!listaContaTipoPlano5.isEmpty() && chkImposto) {
-            strConta = listaContaTipoPlano5.get(idContaTipoPlano5).getLabel();
-        } else {
-            //strConta = "SEM CONTA SELECIONADA.";
-            strConta = getListaContaTipoPlano5().get(idContaTipoPlano5).getLabel();
+        try {
+            if (!listaContaOperacao.isEmpty() && !chkImposto) {
+                ContaOperacao co = (ContaOperacao) new Dao().find(new ContaOperacao(), idContaOperacao);
+                strConta = co.getPlano5().getConta();
+            } else if (!listaContaTipoPlano5.isEmpty() && chkImposto) {
+                ContaTipoPlano5 ctp = (ContaTipoPlano5) new Dao().find(new ContaTipoPlano5(), idContaTipoPlano5);
+                strConta = ctp.getPlano5().getConta();
+            } else {
+                //strConta = "SEM CONTA SELECIONADA.";
+                strConta = "";
+            }
+        } catch (Exception e) {
+            strConta = "";
         }
         return strConta;
     }
@@ -1784,11 +1761,9 @@ public class LancamentoFinanceiroBean implements Serializable {
 
     public ContaTipoPlano5 getContaTipoPlano() {
         if (!listaContaOperacao.isEmpty()) {
-            ContaOperacao co = (ContaOperacao) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(Integer.valueOf(listaContaOperacao.get(idContaOperacao).getDescription()), "ContaOperacao");
-
+            ContaOperacao co = (ContaOperacao) new Dao().find(new ContaOperacao(), idContaOperacao);
             if (co != null) {
-                LancamentoFinanceiroDB db = new LancamentoFinanceiroDBToplink();
-                List<ContaTipoPlano5> select = db.listaContaTipoPlano5(co.getPlano5().getId(), 2);
+                List<ContaTipoPlano5> select = new ContaTipoPlano5Dao().find(co.getPlano5().getId(), 2);
                 if (!select.isEmpty()) {
                     contaTipoPlano = select.get(0);
                 } else {
@@ -1812,19 +1787,28 @@ public class LancamentoFinanceiroBean implements Serializable {
     }
 
     public String getMaskSearch() {
-        if (porPesquisa.equals("emissao")) {
-            maskSearch = "99/99/9999";
-        } else if (porPesquisa.equals("documento")) {
-            if (idTipoDocumento == 0) {
-                maskSearch = "999.999.999-99";
-            } else if (idTipoDocumento == 1) {
-                maskSearch = "99.999.999/9999-99";
-            } else {
+        switch (porPesquisa) {
+            case "emissao":
+                maskSearch = "99/99/9999";
+                break;
+            case "documento":
+                if (null != idTipoDocumento) {
+                    switch (idTipoDocumento) {
+                        case 0:
+                            maskSearch = "999.999.999-99";
+                            break;
+                        case 1:
+                            maskSearch = "99.999.999/9999-99";
+                            break;
+                        default:
+                            maskSearch = "";
+                            break;
+                    }
+                }
+                break;
+            default:
                 maskSearch = "";
-            }
-
-        } else {
-            maskSearch = "";
+                break;
         }
 
         return maskSearch;
@@ -1842,28 +1826,20 @@ public class LancamentoFinanceiroBean implements Serializable {
         this.description = description;
     }
 
-    public List<DataObject> getListaParcelaSelecionada() {
+    public List<Parcela> getListaParcelaSelecionada() {
         return listaParcelaSelecionada;
     }
 
-    public void setListaParcelaSelecionada(List<DataObject> listaParcelaSelecionada) {
+    public void setListaParcelaSelecionada(List<Parcela> listaParcelaSelecionada) {
         this.listaParcelaSelecionada = listaParcelaSelecionada;
     }
 
-    public DataObject getLinhaDO() {
-        return linhaDO;
+    public int getIndexParcela() {
+        return indexParcela;
     }
 
-    public void setLinhaDO(DataObject linhaDO) {
-        this.linhaDO = linhaDO;
-    }
-
-    public int getIndexDO() {
-        return indexDO;
-    }
-
-    public void setIndexDO(int indexDO) {
-        this.indexDO = indexDO;
+    public void setIndexParcela(int indexParcela) {
+        this.indexParcela = indexParcela;
     }
 
     public String getAcrescimo() {
@@ -1916,8 +1892,7 @@ public class LancamentoFinanceiroBean implements Serializable {
 
     public List<Usuario> getListaUsuarioLancamento() {
         if (listaUsuarioLancamento.isEmpty()) {
-            SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-            listaUsuarioLancamento = sv.listaObjeto("Usuario", true);
+            listaUsuarioLancamento = new Dao().list(new Usuario(), true);
         }
         return listaUsuarioLancamento;
     }
@@ -1934,4 +1909,215 @@ public class LancamentoFinanceiroBean implements Serializable {
         this.motivoEstorno = motivoEstorno;
     }
 
+    public Parcela getParcela() {
+        return parcela;
+    }
+
+    public void setParcela(Parcela parcela) {
+        this.parcela = parcela;
+    }
+
+    public class Parcela {
+
+        private Integer parcela;
+        private Movimento movimento;
+        private String vencimento;
+        private String valor;
+        private String acrescimo;
+        private String desconto;
+        private String valorQuitado;
+        private String dataQuitacao;
+        private String usuarioNome;
+        private String caixa;
+        private String loteBaixa;
+        private String juros;
+        private String multa;
+        private String correcao;
+        private Boolean selected;
+
+        public Parcela() {
+            this.parcela = 0;
+            this.movimento = null;
+            this.vencimento = "";
+            this.valor = "0,00";
+            this.acrescimo = "0,00";
+            this.desconto = "0,00";
+            this.valorQuitado = "0,00";
+            this.dataQuitacao = "";
+            this.usuarioNome = "";
+            this.caixa = "";
+            this.loteBaixa = "";
+            this.selected = false;
+        }
+
+        public Parcela(Integer parcela, Movimento movimento, String vencimento, String valor, String acrescimo, String desconto, String valorQuitado, String dataQuitacao, String usuarioNome, String caixa, String loteBaixa, Boolean selected) {
+            this.parcela = parcela;
+            this.movimento = movimento;
+            this.vencimento = vencimento;
+            this.valor = valor;
+            this.acrescimo = acrescimo;
+            this.desconto = desconto;
+            this.valorQuitado = valorQuitado;
+            this.dataQuitacao = dataQuitacao;
+            this.usuarioNome = usuarioNome;
+            this.caixa = caixa;
+            this.loteBaixa = loteBaixa;
+            this.selected = selected;
+        }
+
+        public Parcela(Integer parcela, Movimento movimento, String vencimento, String valor, String acrescimo, String desconto, String valorQuitado, String dataQuitacao, String usuarioNome, String caixa, String loteBaixa, String juros, String multa, String correcao, Boolean selected) {
+            this.parcela = parcela;
+            this.movimento = movimento;
+            this.vencimento = vencimento;
+            this.valor = valor;
+            this.acrescimo = acrescimo;
+            this.desconto = desconto;
+            this.valorQuitado = valorQuitado;
+            this.dataQuitacao = dataQuitacao;
+            this.usuarioNome = usuarioNome;
+            this.caixa = caixa;
+            this.loteBaixa = loteBaixa;
+            this.juros = juros;
+            this.multa = multa;
+            this.correcao = correcao;
+            this.selected = selected;
+        }
+
+        public Integer getParcela() {
+            return parcela;
+        }
+
+        public void setParcela(Integer parcela) {
+            this.parcela = parcela;
+        }
+
+        public Movimento getMovimento() {
+            return movimento;
+        }
+
+        public void setMovimento(Movimento movimento) {
+            this.movimento = movimento;
+        }
+
+        public String getVencimento() {
+            return vencimento;
+        }
+
+        public void setVencimento(String vencimento) {
+            this.vencimento = vencimento;
+        }
+
+        public String getValor() {
+            return valor;
+        }
+
+        public void setValor(String valor) {
+            this.valor = valor;
+        }
+
+        public String getAcrescimo() {
+            return acrescimo;
+        }
+
+        public void setAcrescimo(String acrescimo) {
+            this.acrescimo = acrescimo;
+        }
+
+        public String getDesconto() {
+            return desconto;
+        }
+
+        public void setDesconto(String desconto) {
+            this.desconto = desconto;
+        }
+
+        public String getValorQuitado() {
+            return valorQuitado;
+        }
+
+        public void setValorQuitado(String valorQuitado) {
+            this.valorQuitado = valorQuitado;
+        }
+
+        public String getDataQuitacao() {
+            return dataQuitacao;
+        }
+
+        public void setDataQuitacao(String dataQuitacao) {
+            this.dataQuitacao = dataQuitacao;
+        }
+
+        public String getUsuarioNome() {
+            return usuarioNome;
+        }
+
+        public void setUsuarioNome(String usuarioNome) {
+            this.usuarioNome = usuarioNome;
+        }
+
+        public String getCaixa() {
+            return caixa;
+        }
+
+        public void setCaixa(String caixa) {
+            this.caixa = caixa;
+        }
+
+        public String getLoteBaixa() {
+            return loteBaixa;
+        }
+
+        public void setLoteBaixa(String loteBaixa) {
+            this.loteBaixa = loteBaixa;
+        }
+
+        public String getJuros() {
+            return juros;
+        }
+
+        public void setJuros(String juros) {
+            this.juros = juros;
+        }
+
+        public String getMulta() {
+            return multa;
+        }
+
+        public void setMulta(String multa) {
+            this.multa = multa;
+        }
+
+        public String getCorrecao() {
+            return correcao;
+        }
+
+        public void setCorrecao(String correcao) {
+            this.correcao = correcao;
+        }
+
+        public Boolean getSelected() {
+            return selected;
+        }
+
+        public void setSelected(Boolean selected) {
+            this.selected = selected;
+        }
+    }
+
+//                0 - listaParcela.size(),
+//                1 - movimento,
+//                2 - DataHoje.converteData(movimento.getDtVencimento()),
+//                3 - Moeda.converteR$Float(movimento.getValor()),
+//                4 - Moeda.converteR$(acrescimo), // ACRESCIMO
+//                5 - Moeda.converteR$Float(movimento.getDesconto()), // DESCONTO
+//                6 - Moeda.converteR$Float(valor_t), // VALOR PAGAMENTO
+//                7 - "", // DATA PAGAMENTO
+//                8 - new FiltroLancamento(),
+//                9 - user.getPessoa().getNome().length() >= 30 ? user.getPessoa().getNome().substring(0, 30) + "..." : user.getPessoa().getNome(),
+//                10 - "NÃO BAIXADO",
+//                11 - "NÃO BAIXADO",
+//                12 - Moeda.converteR$Float(movimento.getMulta()),
+//                13 - Moeda.converteR$Float(movimento.getJuros()),
+//                14 - Moeda.converteR$Float(movimento.getCorrecao()),
+//                15 - null.   
 }

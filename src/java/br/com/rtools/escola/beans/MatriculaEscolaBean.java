@@ -434,7 +434,12 @@ public class MatriculaEscolaBean implements Serializable {
                         (CondicaoPagamento) new Dao().find(new CondicaoPagamento(), 1),
                         (FStatus) new Dao().find(new FStatus(), 1),
                         null,
-                        servicoPessoa.isDescontoFolha(), 0
+                        servicoPessoa.isDescontoFolha(),
+                        0,
+                        null,
+                        null,
+                        null,
+                        false
                 )
         );
 
@@ -1121,7 +1126,7 @@ public class MatriculaEscolaBean implements Serializable {
                 dao.rollback();
                 return;
             }
-            if(idParceiro != null && idParceiro != -1) {
+            if (idParceiro != null && idParceiro != -1) {
                 servicoPessoa.setParceiro((Pessoa) dao.find(new Pessoa(), idParceiro));
             }
             matriculaEscola.setServicoPessoa(servicoPessoa);
@@ -1389,16 +1394,14 @@ public class MatriculaEscolaBean implements Serializable {
             getResponsavel();
             verificaSocio();
         }
-        
 
         pegarIdServico();
         //atualizaValor();
         calculaValorLiquido();
-        
+
         loadListParceiro();
 
         idParceiro = matriculaEscola.getServicoPessoa().getParceiro() != null ? matriculaEscola.getServicoPessoa().getParceiro().getId() : -1;
-        
 
         listaMesVencimento.clear();
 

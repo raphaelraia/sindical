@@ -375,7 +375,7 @@ public class MatriculaAcademiaBean implements Serializable {
                 valorLiquido = Moeda.converteR$Float(Moeda.subtracaoValores(Moeda.converteUS$(valor), desconto));
             }
             if (descontoServicoEmpresa != null && !descontoServicoEmpresa.equals(0)) {
-                valorLiquido =  Moeda.converteR$Float(Moeda.subtracaoValores(Moeda.converteUS$(valorLiquido), Moeda.converteUS$(getDescontoServicoEmpresaString())));
+                valorLiquido = Moeda.converteR$Float(Moeda.subtracaoValores(Moeda.converteUS$(valorLiquido), Moeda.converteUS$(getDescontoServicoEmpresaString())));
             }
         }
     }
@@ -1760,14 +1760,12 @@ public class MatriculaAcademiaBean implements Serializable {
                         }
                     } else // TAXA PROPORCIONAL ATÉ O VENCIMENTO
                     // METODO NOVO PARA O CHAMADO 1226
-                    {
-                        if (Moeda.converteUS$(valorLiquido) > 0) {
+                     if (Moeda.converteUS$(valorLiquido) > 0) {
                             if (!gerarTaxaMovimento(Moeda.converteUS$(valorLiquido))) {
                                 GenericaMensagem.warn("ATENÇÃO", "Movimento não foi gerado, Tente novamente!");
                                 return null;
                             }
                         } // --------------
-                    }
                     new FunctionsDao().gerarMensalidades(matriculaAcademia.getServicoPessoa().getPessoa().getId(), retornaReferenciaGeracao());
                     if (!matriculaAcademia.isTaxa()) {
                         desabilitaCamposMovimento = true;
@@ -1825,7 +1823,13 @@ public class MatriculaAcademiaBean implements Serializable {
                                 (CondicaoPagamento) di.find(new CondicaoPagamento(), idCondicaoPagto),
                                 (FStatus) di.find(new FStatus(), 1),
                                 null,
-                                matriculaAcademia.getServicoPessoa().isDescontoFolha(), 0));
+                                matriculaAcademia.getServicoPessoa().isDescontoFolha(), 0,
+                                null,
+                                null,
+                                null,
+                                false
+                        )
+                );
                 di.openTransaction();
                 try {
 
@@ -2057,7 +2061,12 @@ public class MatriculaAcademiaBean implements Serializable {
                         (CondicaoPagamento) dao.find(new CondicaoPagamento(), 1),
                         (FStatus) dao.find(new FStatus(), 1),
                         null,
-                        matriculaAcademia.getServicoPessoa().isDescontoFolha(), 0
+                        matriculaAcademia.getServicoPessoa().isDescontoFolha(),
+                        0,
+                        null,
+                        null,
+                        null,
+                        false
                 );
 
         if (!dao.save(lote_taxa)) {
@@ -3012,7 +3021,7 @@ public class MatriculaAcademiaBean implements Serializable {
     }
 
     private void loadListParceiro() {
-        if(socios.getId() == -1 && aluno.getId() != -1) {
+        if (socios.getId() == -1 && aluno.getId() != -1) {
             listParceiro = new ArrayList();
             DescontoServicoEmpresaDao dsed = new DescontoServicoEmpresaDao();
             // List<DescontoServicoEmpresa> list = dsed.findByGrupo(2);
@@ -3028,7 +3037,7 @@ public class MatriculaAcademiaBean implements Serializable {
                     listParceiro.add(new SelectItem(list.get(i).getJuridica().getPessoa().getId(), list.get(i).getJuridica().getPessoa().getNome()));
                     pessoa_id = list.get(i).getJuridica().getPessoa().getId();
                 }
-            }            
+            }
         }
     }
 

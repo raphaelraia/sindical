@@ -1,5 +1,6 @@
 package br.com.rtools.financeiro.dao;
 
+import br.com.rtools.financeiro.ContaOperacao;
 import br.com.rtools.financeiro.Operacao;
 import br.com.rtools.principal.DB;
 import br.com.rtools.utilitarios.Dao;
@@ -12,14 +13,14 @@ public class ContaOperacaoDao extends DB {
 
     public List listPlano4AgrupadoPlanoVwNotInContaOperacao(Integer idOperacao) {
         DaoInterface di = new Dao();
-        Operacao o = (Operacao) di.find(new Operacao(), idOperacao);        
+        Operacao o = (Operacao) di.find(new Operacao(), idOperacao);
         String queryString = " "
                 + "     SELECT id_p4,                                           \n"
                 + "            CONCAT(conta1 ||' - '|| conta3 ||' - '|| conta4) \n"
                 + "       FROM plano_vw                                         \n";
-        if(idOperacao == 1) {
+        if (idOperacao == 1) {
             queryString += " WHERE replace(upper(ltrim(rtrim(conta1))), ' ','') LIKE '%RECEITA%' \n";
-        } else if(idOperacao == 2) {
+        } else if (idOperacao == 2) {
             queryString += " WHERE replace(upper(ltrim(rtrim(conta1))), ' ','') LIKE '%DESPESA%' \n";
         } else {
             queryString += "WHERE NOT REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%DESPESA%' \n AND "
@@ -70,5 +71,26 @@ public class ContaOperacaoDao extends DB {
 
         }
         return new ArrayList();
+    }
+
+    public List findByOperacao(Integer operacao_id) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT CO FROM ContaOperacao CO WHERE CO.operacao.id = :operacao_id");
+            query.setParameter("operacao_id", operacao_id);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
+    public List findByFilialOperacao(Integer filial_id, Integer operacao_id) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT CO FROM ContaOperacao CO WHERE CO.operacao.id = :operacao_id AND CO.filial.id = :filial_id");
+            query.setParameter("operacao_id", operacao_id);
+            query.setParameter("filial_id", filial_id);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
     }
 }
