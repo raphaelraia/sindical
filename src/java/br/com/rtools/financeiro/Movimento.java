@@ -93,6 +93,9 @@ public class Movimento implements Serializable {
     @ManyToOne(fetch = FetchType.EAGER)
     private MatriculaSocios matriculaSocios;
 
+    @Transient
+    private Boolean selected;
+
     /**
      * <p>
      * <strong>Inserir Matricula Sócio</strong>
@@ -134,6 +137,7 @@ public class Movimento implements Serializable {
         this.repasseAutomatico = 0;
         this.tipoDocumento = new FTipoDocumento();
         this.matriculaSocios = null;
+        this.selected = false;
     }
 
     /**
@@ -235,6 +239,7 @@ public class Movimento implements Serializable {
         this.repasseAutomatico = repasseAutomatico;
         this.tipoDocumento = tipoDocumento;
         this.setMatriculaSocios(matriculaSocios);
+        this.selected = false;
     }
 
     public int getId() {
@@ -539,6 +544,14 @@ public class Movimento implements Serializable {
 
     public void setValorBaixaString(String valorBaixaString) {
         this.valorBaixa = Moeda.converteUS$(valorBaixaString);
+    }
+
+    public Boolean getSelected() {
+        return selected;
+    }
+
+    public void setSelected(Boolean selected) {
+        this.selected = selected;
     }
 
 }

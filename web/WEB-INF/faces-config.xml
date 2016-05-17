@@ -2144,6 +2144,12 @@
             <redirect/>
         </navigation-case>
         
+        <navigation-case>
+            <from-outcome>relatorioContasPagar</from-outcome>
+            <to-view-id>/relatorioContasPagar.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
     </navigation-rule>
     
     <lifecycle>

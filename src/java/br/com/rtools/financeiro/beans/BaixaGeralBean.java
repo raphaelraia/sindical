@@ -635,6 +635,8 @@ public class BaixaGeralBean implements Serializable {
             Map map = new HashMap();
             if (!getObs().isEmpty()) {
                 map.put("obs", obs);
+            } else {
+                map.put("obs", "");
             }
             ir.recibo(listaMovimentos.get(0).getId(), map);
         }

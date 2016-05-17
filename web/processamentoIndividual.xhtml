@@ -49,14 +49,14 @@
                             <h:panelGrid id="i_panel_dados" columns="6" style="margin-top: 10px; width: 100%">
                                 <h:column>
                                     <h:outputLabel value="Referência"/><br />
-                                    <p:inputMask disabled="#{processamentoIndividualBean.marcarReferencia}" size="5" value="#{processamentoIndividualBean.strReferencia}"  mask="99/9999" style="font-weight: bold">
+                                    <p:inputMask disabled="#{processamentoIndividualBean.marcarReferencia}" size="5" value="#{processamentoIndividualBean.strReferencia}" mask="99/9999" styleClass="text-center bold">
                                         <p:ajax event="change" listener="#{processamentoIndividualBean.filtrarReferencia}" update="i_panel_dados" global="false"/>
                                     </p:inputMask>
                                 </h:column>
 
                                 <h:column>
                                     <h:outputLabel value="Contribuição" /><br />
-                                    <p:selectOneMenu value="#{processamentoIndividualBean.idServicos}" style="padding-right: 20px">
+                                    <p:selectOneMenu value="#{processamentoIndividualBean.idServicos}">
                                         <p:ajax event="change" listener="#{processamentoIndividualBean.filtrarReferencia}" update="i_panel_dados" />
                                         <f:selectItems value="#{processamentoIndividualBean.listaServico}" />
                                     </p:selectOneMenu>
@@ -64,7 +64,7 @@
 
                                 <h:column>
                                     <h:outputLabel value="Tipo" /><br />
-                                    <p:selectOneMenu value="#{processamentoIndividualBean.idTipoServico}" style="padding-right: 20px">
+                                    <p:selectOneMenu value="#{processamentoIndividualBean.idTipoServico}">
                                         <p:ajax event="change" listener="#{processamentoIndividualBean.filtrarReferencia}" update="i_panel_dados" />
                                         <f:selectItems value="#{processamentoIndividualBean.listaTipoServico}" />
                                     </p:selectOneMenu>

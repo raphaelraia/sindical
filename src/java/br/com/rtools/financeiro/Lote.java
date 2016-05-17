@@ -5,6 +5,7 @@ import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaSemCadastro;
 import br.com.rtools.seguranca.Departamento;
 import br.com.rtools.seguranca.Rotina;
+import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.DataHoje;
 import java.util.Date;
 import javax.persistence.*;
@@ -68,6 +69,17 @@ public class Lote implements java.io.Serializable {
     private boolean descontoFolha;
     @Column(name = "nr_desconto", length = 10)
     private float desconto;
+    @JoinColumn(name = "id_usuario", referencedColumnName = "id")
+    @OneToOne
+    private Usuario usuario;
+    @JoinColumn(name = "id_centro_custo", referencedColumnName = "id")
+    @OneToOne
+    private CentroCusto centroCusto;
+    @JoinColumn(name = "id_operacao", referencedColumnName = "id")
+    @OneToOne
+    private Operacao operacao;
+    @Column(name = "is_conta_fixa", columnDefinition = "boolean default false")
+    private Boolean contaFixa;
 
     public Lote() {
         this.id = -1;
@@ -90,9 +102,13 @@ public class Lote implements java.io.Serializable {
         this.pessoaSemCadastro = new PessoaSemCadastro();
         this.descontoFolha = false;
         this.desconto = 0;
+        this.usuario = null;
+        this.centroCusto = null;
+        this.operacao = null;
+        this.contaFixa = false;
     }
 
-    public Lote(int id, Rotina rotina, String pagRec, String dtLancamento, Pessoa pessoa, Plano5 plano5, boolean avencerContabil, String documento, float valor, Filial filial, Departamento departamento, Evt evt, String historico, FTipoDocumento ftipoDocumento, CondicaoPagamento condicaoPagamento, FStatus status, PessoaSemCadastro pessoaSemCadastro, boolean descontoFolha, float desconto) {
+    public Lote(int id, Rotina rotina, String pagRec, String dtLancamento, Pessoa pessoa, Plano5 plano5, boolean avencerContabil, String documento, float valor, Filial filial, Departamento departamento, Evt evt, String historico, FTipoDocumento ftipoDocumento, CondicaoPagamento condicaoPagamento, FStatus status, PessoaSemCadastro pessoaSemCadastro, boolean descontoFolha, float desconto, Usuario usuario, CentroCusto centroCusto, Operacao operacao, Boolean contaFixa) {
         this.id = id;
         this.rotina = rotina;
         this.pagRec = pagRec;
@@ -113,6 +129,10 @@ public class Lote implements java.io.Serializable {
         this.pessoaSemCadastro = pessoaSemCadastro;
         this.descontoFolha = descontoFolha;
         this.desconto = desconto;
+        this.usuario = usuario;
+        this.centroCusto = centroCusto;
+        this.operacao = operacao;
+        this.contaFixa = contaFixa;
     }
 
     public int getId() {
@@ -289,5 +309,37 @@ public class Lote implements java.io.Serializable {
 
     public void setDesconto(float desconto) {
         this.desconto = desconto;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
+
+    public CentroCusto getCentroCusto() {
+        return centroCusto;
+    }
+
+    public void setCentroCusto(CentroCusto centroCusto) {
+        this.centroCusto = centroCusto;
+    }
+
+    public Operacao getOperacao() {
+        return operacao;
+    }
+
+    public void setOperacao(Operacao operacao) {
+        this.operacao = operacao;
+    }
+
+    public Boolean getContaFixa() {
+        return contaFixa;
+    }
+
+    public void setContaFixa(Boolean contaFixa) {
+        this.contaFixa = contaFixa;
     }
 }

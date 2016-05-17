@@ -17,7 +17,7 @@
         <script type="text/javascript">
             // BLOQUEIA ENTER
             // DESABILITA ENTER
-            // DISABLED ENTER
+            // DISABLED ENTERCentro Custo
             // VERIFICA SE OQ ESTOU DIGITANDO É STRING
             function stopRKey(evt) {
                 var evt = (evt) ? evt : ((event) ? event : null);
@@ -38,29 +38,15 @@
                 <!-- INICIA DIV wrap e main -->  
                 <f:subview id="header">
                     <ui:include src="templates/templatePrime.xhtml"/>
+                    <ui:include src="templates/templateStatus.xhtml"/>
                 </f:subview>
                 <f:view>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Lançamento Financeiro" styleClass="fonteHeader" />
-                        <h:form id="formLancamentoFinanceiro">
-                            <p:ajaxStatus id="i_status" onstart="PF('i_dlg_modal').show();" onsuccess="PF('i_dlg_modal').hide();" />
-                            <p:dialog modal="true" widgetVar="i_dlg_modal" header="Status" draggable="false" closable="false">  
-                                <h:outputLabel value="Aguarde ..." />
-                            </p:dialog>
+                        <div class="clear"></div>
+                        <h:form id="form_lf">    
 
-                            <p:dialog modal="true" widgetVar="i_dlg_visualizar" header="Mudar Lista de Lançamento" width="300" height="300">  
-                                <h:panelGrid>
-                                    <p:commandLink value="VER TODOS OS LANÇAMENTOS" action="#{lancamentoFinanceiroBean.alterarListaLancamento(linha)}" update=":formLancamentoFinanceiro:i_panel_search :formLancamentoFinanceiro:tbl" oncomplete="PF('i_dlg_visualizar').hide()" style="font-weight: bold; margin-bottom: 10px"/>
-                                </h:panelGrid>
-
-                                <h:panelGrid>
-                                    <p:dataList value="#{lancamentoFinanceiroBean.listaUsuarioLancamento}" var="linha" type="definition"  style="height: 100px; border: 10px">
-                                        <p:commandLink value="#{linha.pessoa.nome}" action="#{lancamentoFinanceiroBean.alterarListaLancamento(linha)}" update=":formLancamentoFinanceiro:i_panel_search :formLancamentoFinanceiro:tbl" oncomplete="PF('i_dlg_visualizar').hide()"/><br /><br />
-                                    </p:dataList>  
-                                </h:panelGrid>
-                            </p:dialog>
-
-                            <p:panel id="i_panel_lancamento" styleClass="fundoCinza" style="clear: both">
+                            <p:panel id="i_panel_lancamento" styleClass="fundoCinza">
 
                                 <h:panelGrid id="i_panel_search" columns="5" style="width: 100%">
                                     <p:column>
@@ -69,7 +55,7 @@
 
                                     <p:column>
                                         <p:selectOneMenu value="#{lancamentoFinanceiroBean.porPesquisa}" style="width: 155px; margin-left: 60px">
-                                            <p:ajax event="change" update="tbl i_pesquisa i_panel_search" listener="#{lancamentoFinanceiroBean.listaLancamento.clear()}"/>
+                                            <p:ajax event="change" update="tbl i_pesquisa i_panel_search" listener="#{lancamentoFinanceiroBean.loadListaLancamento}"/>
                                             <f:selectItem itemLabel="Todos"           itemValue="todos"/>
                                             <f:selectItem itemLabel="Últimos 60 Dias" itemValue="dias"/>
                                             <f:selectItem itemLabel="Emissão"         itemValue="emissao"/>
@@ -89,7 +75,7 @@
                                     <p:column>
                                         <p:inputMask id="i_pesquisa" style="margin-left: 20px" mask="#{lancamentoFinanceiroBean.maskSearch}" size="30" value="#{lancamentoFinanceiroBean.description}" 
                                                      rendered="#{(lancamentoFinanceiroBean.porPesquisa != 'dias' and lancamentoFinanceiroBean.porPesquisa != 'todos')}">
-                                            <p:ajax event="blur" update="@this tbl i_panel_search" listener="#{lancamentoFinanceiroBean.listaLancamento.clear()}"/>
+                                            <p:ajax event="change" update="@this tbl i_panel_search" listener="#{lancamentoFinanceiroBean.loadListaLancamento}"/>
                                         </p:inputMask>
                                         <p:watermark for="i_pesquisa" value="Digite sua Pesquisa"/>
                                     </p:column>
@@ -99,351 +85,448 @@
                                         <p:commandLink value="#{lancamentoFinanceiroBean.strVisualizando}" onclick="PF('i_dlg_visualizar').show()" style="font-weight: bold; margin-left: 5px"/>
                                     </p:column>
                                 </h:panelGrid>
-                                <p:dialog id="i_dlg" widgetVar="i_dlg_novo" header="Novo Lançamento" resizable="false" modal="true" width="850" height="720" visible="#{lancamentoFinanceiroBean.modalVisivel}">
-                                    <p:ajax event="close" listener="#{lancamentoFinanceiroBean.fechaModal()}" update="formLancamentoFinanceiro"/>  
-                                    <h:outputText value="Filial" /><br />
-                                    <p:selectOneMenu value="#{lancamentoFinanceiroBean.idFilial}" style="width: 800px">
-                                        <p:ajax event="change" update="@this i_grupo i_para_conta i_valor" listener="#{lancamentoFinanceiroBean.atualizaComboOperacao()}"/>
-                                        <f:selectItems value="#{lancamentoFinanceiroBean.listaFilial}"/>
-                                    </p:selectOneMenu>
+                            </p:panel>
 
-                                    <h:panelGrid id="i_tipo" columns="7" style="margin-top: 15px">
+
+                            <h:panelGroup id="tbl" layout="block">
+                                <p:dataTable var="lote" value="#{lancamentoFinanceiroBean.listaLancamento}" emptyMessage="Nenhum Lançamento Emitido!">
+                                    <p:column width="30" styleClass="text-center">
+                                        <p:commandButton icon="ui-icon-pencil" title="Ver detalhes deste Lançamento" action="#{lancamentoFinanceiroBean.edit(lote)}" update=":form_lf:" oncomplete="PF('i_dlg_novo').show()" />
+                                    </p:column>
+
+                                    <p:column width="15">  
+                                        <p:rowToggler />  
+                                    </p:column> 
+
+                                    <p:column headerText="Lançamento" width="80" styleClass="text-center">
+                                        <h:outputLabel value="#{lote.lancamento}" title="Ver detalhes deste Lançamento" styleClass="bold"/>
+                                    </p:column>
+
+                                    <p:column headerText="Emissão"  width="80" styleClass="text-center">
+                                        <h:outputLabel  value="#{lote.emissao}" title="Ver detalhes deste Lançamento" styleClass="bold"/>
+                                    </p:column>
+
+                                    <p:column headerText="Documento" width="150" styleClass="text-center">
+                                        <h:outputLabel  value="#{lote.documento}" title="Ver detalhes deste Lançamento" styleClass="bold"/>
+                                    </p:column>
+
+                                    <p:column headerText="Pessoa">
+                                        <h:outputLabel  value="#{lote.pessoa.nome}" title="Ver detalhes deste Lançamento" styleClass="bold"/>
+                                    </p:column>
+
+                                    <p:column headerText="Valor (R$)"  width="80" styleClass="text-center">
+                                        <h:outputLabel value="#{lote.valor}" style="float: right"/>
+                                    </p:column>
+
+
+                                    <p:rowExpansion>
+                                        <h:panelGrid columns="4" style="height: 40px" styleClass="sbb">
+                                            <p:column>
+                                                <h:panelGrid>
+                                                    <h:outputText value="Nr Lote" style="font-weight: bold"/>
+                                                    <h:outputLabel value="#{lote.id}"/>
+                                                </h:panelGrid>
+                                            </p:column>
+                                            <p:column>
+                                                <h:panelGrid>
+                                                    <h:outputText value="Usuário" style="font-weight: bold"/>
+                                                    <h:outputLabel value="#{lote.usuario.pessoa.nome}" />                                                
+                                                </h:panelGrid>
+                                            </p:column>
+                                            <p:column>
+                                                <h:panelGrid>
+                                                    <h:outputText value="Filial" style="font-weight: bold"/><br />
+                                                    <h:outputLabel value="#{lote.filial.filial.pessoa.nome}" />
+                                                </h:panelGrid>
+                                            </p:column>
+                                        </h:panelGrid>
+                                    </p:rowExpansion>
+                                </p:dataTable>
+                            </h:panelGroup>
+
+
+                            <p:dialog modal="true" widgetVar="i_dlg_visualizar" header="Mudar Lista de Lançamento" width="300" height="300">
+                                <h:panelGrid>
+                                    <p:commandLink value="VER TODOS OS LANÇAMENTOS" action="#{lancamentoFinanceiroBean.alterarListaLancamento(usuario)}" update=":form_lf:i_panel_search :form_lf:tbl" oncomplete="PF('i_dlg_visualizar').hide()" style="font-weight: bold; margin-bottom: 10px"/>
+                                </h:panelGrid>
+
+                                <h:panelGrid>
+                                    <p:dataList value="#{lancamentoFinanceiroBean.listaUsuarioLancamento}" var="usuario" type="definition"  style="height: 100px; border: 10px">
+                                        <p:commandLink value="#{usuario.pessoa.nome}" action="#{lancamentoFinanceiroBean.alterarListaLancamento(usuario)}" update=":form_lf:i_panel_search :form_lf:tbl" oncomplete="PF('i_dlg_visualizar').hide()"/><br /><br />
+                                    </p:dataList>  
+                                </h:panelGrid>
+                            </p:dialog>                            
+
+                            <p:dialog id="i_dlg" widgetVar="i_dlg_novo" header="Lançamento" resizable="false" modal="true" width="950" height="600" visible="#{lancamentoFinanceiroBean.modalVisivel}" responsive="true" draggable="false" closeOnEscape="true" maximizable="true">
+                                <p:ajax event="close" listener="#{lancamentoFinanceiroBean.fechaModal()}" update="form_lf"/>  
+
+                                <p:panel styleClass="fundoCinza">
+                                    <h:panelGrid>
+                                        <h:outputText value="Filial" />
+                                        <p:selectOneMenu value="#{lancamentoFinanceiroBean.idFilial}" style="width: 800px">
+                                            <p:ajax event="change" update="@this i_grupo i_para_conta i_valor i_msg" listener="#{lancamentoFinanceiroBean.atualizaComboOperacao()}"/>
+                                            <f:selectItems value="#{lancamentoFinanceiroBean.listaFilial}"/>
+                                        </p:selectOneMenu>                                        
+                                    </h:panelGrid>                                        
+                                </p:panel>
+                                <h:panelGroup id="i_tipo" layout="block">
+                                    <h:panelGrid columns="7" styleClass="margin-top-max">
                                         <h:column>
-                                            <h:outputText value="Pag / Rec" /><br />
-                                            <p:selectOneMenu value="#{lancamentoFinanceiroBean.es}" style="padding-right: 20px; width: 70px">
-                                                <p:ajax event="change" update="i_tipo i_grupo i_para_conta i_valor" listener="#{lancamentoFinanceiroBean.atualizaComboES()}"/>
-                                                <f:selectItem itemValue="E" itemLabel="Entrada"/>
-                                                <f:selectItem itemValue="S" itemLabel="Saida"/>
-                                            </p:selectOneMenu>
+                                            <h:panelGrid>
+                                                <h:outputText value="Perfil" />
+                                                <p:selectOneMenu value="#{lancamentoFinanceiroBean.es}" style="width: 70px">
+                                                    <p:ajax event="change" update="i_tipo i_grupo i_para_conta i_valor i_msg" listener="#{lancamentoFinanceiroBean.atualizaComboES()}" global="false"/>
+                                                    <f:selectItem itemValue="E" itemLabel="Entrada"/>
+                                                    <f:selectItem itemValue="S" itemLabel="Saida"/>
+                                                </p:selectOneMenu>                                                
+                                            </h:panelGrid>
                                         </h:column>
 
                                         <h:column>
-                                            <h:outputText value="Lançamento" /><br />
-                                            <p:inputMask value="#{lancamentoFinanceiroBean.lote.lancamento}" mask="99/99/9999" size="8" readonly="true" />
+                                            <h:panelGrid id="i_es_lanc">
+                                                <h:outputText value="Perfil do Lançamento" />
+                                                <p:selectOneMenu value="#{lancamentoFinanceiroBean.esLancamento}" style="width: 70px">
+                                                    <p:ajax event="change" update="@this" global="false"/>
+                                                    <f:selectItem itemValue="E" itemLabel="Entrada"/>
+                                                    <f:selectItem itemValue="S" itemLabel="Saida"/>
+                                                </p:selectOneMenu>                                                
+                                            </h:panelGrid>
                                         </h:column>
 
                                         <h:column>
-                                            <h:outputText value="Emissão" /><br />
-                                            <p:inputMask value="#{lancamentoFinanceiroBean.lote.emissao}" mask="99/99/9999" size="8" />
+                                            <h:panelGrid>
+                                                <h:outputText value="Lançamento" />
+                                                <p:inputMask value="#{lancamentoFinanceiroBean.lote.lancamento}" mask="99/99/9999" size="8" readonly="true">
+                                                    <p:ajax event="change" update="@this" global="false" />
+                                                </p:inputMask>
+                                            </h:panelGrid>
+                                        </h:column>
+
+                                        <h:column>
+                                            <h:panelGrid>
+                                                <h:outputText value="Emissão" />
+                                                <p:inputMask value="#{lancamentoFinanceiroBean.lote.emissao}" mask="99/99/9999" size="8" converter="#{isDateString}">
+                                                    <p:ajax event="change" update="@this" global="false" />
+                                                </p:inputMask>
+                                            </h:panelGrid>
                                         </h:column>
 
                                         <p:column>
-                                            <h:outputText value="Condição"/><br />
-                                            <p:selectOneMenu value="#{lancamentoFinanceiroBean.condicao}" style="padding-right: 20px;">
-                                                <p:ajax event="change" update="@this" />
-                                                <f:selectItem itemValue="vista" itemLabel="A Vista"/>
-                                                <f:selectItem itemValue="prazo" itemLabel="A Prazo"/>
-                                            </p:selectOneMenu>
+                                            <h:panelGrid>
+                                                <h:outputText value="Condição"/>
+                                                <p:selectOneMenu value="#{lancamentoFinanceiroBean.condicao}">
+                                                    <p:ajax event="change" update="@this" global="false"/>
+                                                    <f:selectItem itemValue="vista" itemLabel="A Vista"/>
+                                                    <f:selectItem itemValue="prazo" itemLabel="A Prazo"/>
+                                                </p:selectOneMenu>                                                
+                                            </h:panelGrid>
                                         </p:column>                                        
 
                                         <h:column>
-                                            <h:outputText value="Número Doc." /><br />
-                                            <p:inputText value="#{lancamentoFinanceiroBean.lote.documento}" style="width: 125px">
-                                                <p:ajax event="blur" update="@this" global="false"/>
-                                            </p:inputText>
+                                            <h:panelGrid>
+                                                <h:outputText value="Número Doc." />
+                                                <p:inputText value="#{lancamentoFinanceiroBean.lote.documento}" style="width: 125px">
+                                                    <p:ajax event="change" update="@this" global="false"/>
+                                                </p:inputText>                                                
+                                            </h:panelGrid>
                                         </h:column>
 
                                         <h:column>
-                                            <h:outputText value="Tipo" /><br />
-                                            <p:selectOneMenu value="#{lancamentoFinanceiroBean.idFTipo}" style="width: 155px">
-                                                <p:ajax event="change" update="@this" />
-                                                <f:selectItems value="#{lancamentoFinanceiroBean.listaFTipo}"/>
-                                            </p:selectOneMenu>
+                                            <h:panelGrid>
+                                                <h:outputText value="Tipo" />
+                                                <p:selectOneMenu value="#{lancamentoFinanceiroBean.idFTipo}" style="width: 100px">
+                                                    <p:ajax event="change" update="@this" global="false"/>
+                                                    <f:selectItems value="#{lancamentoFinanceiroBean.listaFTipo}"/>
+                                                </p:selectOneMenu>                                                
+                                            </h:panelGrid>
                                         </h:column>
 
                                         <h:column>
-                                            <h:outputText value="Operação" /><br />
-                                            <p:selectOneMenu value="#{lancamentoFinanceiroBean.idOperacao}" style="width: 130px">
-                                                <p:ajax event="change" update="i_grupo i_para_conta i_valor" listener="#{lancamentoFinanceiroBean.atualizaComboOperacao()}"/>
-                                                <f:selectItems value="#{lancamentoFinanceiroBean.listaOperacao}"/>
-                                            </p:selectOneMenu>
                                         </h:column>                                        
+
                                     </h:panelGrid>
 
-                                    <h:panelGrid id="i_grupo">
-                                        <h:panelGrid columns="2" rendered="#{lancamentoFinanceiroBean.operacao.id == 1 or lancamentoFinanceiroBean.operacao.id == 2}">
-                                            <p:column>
-                                                <h:outputText value="Centro Custo" /><br />
-                                                <p:selectOneMenu value="#{lancamentoFinanceiroBean.idCentroCusto}" style="margin-right: 15px; width: 386px">
-                                                    <p:ajax event="change" update="i_grupo i_para_conta i_valor" listener="#{lancamentoFinanceiroBean.atualizaComboCentroCusto()}"/>
-                                                    <f:selectItems value="#{lancamentoFinanceiroBean.listaCentroCusto}"/>
-                                                </p:selectOneMenu>
-                                            </p:column>
-
-                                            <p:column>
-                                                <h:outputText value="Tipo do Centro Custo" /><br />
-                                                <p:selectOneMenu value="#{lancamentoFinanceiroBean.idTipoCentroCusto}" style="margin-right: 10px; width: 386px">
-                                                    <p:ajax event="change" update="i_grupo i_para_conta i_valor" listener="#{lancamentoFinanceiroBean.atualizaComboTipoCentroCusto()}"/>
-                                                    <f:selectItems value="#{lancamentoFinanceiroBean.listaTipoCentroCusto}"/>
-                                                </p:selectOneMenu>
-                                            </p:column>
-                                        </h:panelGrid>
-
-                                        <h:panelGrid>
-                                            <h:column>
-                                                <h:outputText value="Conta" style="font-weight: bold; margin-bottom: 40px"/><br />
-                                                <p:selectOneMenu value="#{lancamentoFinanceiroBean.idContaOperacao}" style="margin-right: 15px; width: 795px">
-                                                    <p:ajax event="change" update="@this i_para_conta i_valor" />
-                                                    <f:selectItems value="#{lancamentoFinanceiroBean.listaContaOperacao}"/>
-                                                </p:selectOneMenu>
-                                            </h:column>                                        
-                                        </h:panelGrid>
+                                    <h:panelGrid>
+                                        <h:outputText value="Operação" styleClass="font-color-red bold" />
+                                        <p:selectOneMenu value="#{lancamentoFinanceiroBean.idOperacao}">
+                                            <p:ajax event="change" update="i_grupo i_para_conta i_valor" listener="#{lancamentoFinanceiroBean.atualizaComboOperacao()}" global="false"/>
+                                            <f:selectItems value="#{lancamentoFinanceiroBean.listaOperacao}"/>
+                                        </p:selectOneMenu>
                                     </h:panelGrid>
-                                    <hr />
-                                    <h:panelGrid id="i_panel_cadastro" columns="3">
+                                </h:panelGroup>
+
+                                <h:panelGrid id="i_grupo">
+                                    <h:panelGrid columns="2" rendered="#{lancamentoFinanceiroBean.operacao.id == 1 or lancamentoFinanceiroBean.operacao.id == 2}">
                                         <p:column>
-                                            <br />
-                                            <p:selectOneMenu value="#{lancamentoFinanceiroBean.idTipoDocumento}" style="padding-right: 20px;">
-                                                <p:ajax event="change" listener="#{lancamentoFinanceiroBean.cancelarCadastro()}" update="i_panel_cadastro i_panel_pessoa"/>
-                                                <f:selectItems value="#{lancamentoFinanceiroBean.listaTipoDocumento}" />
+                                            <h:outputText value="Centro Custo" /><br />
+                                            <p:selectOneMenu value="#{lancamentoFinanceiroBean.idCentroCusto}" style="margin-right: 15px; width: 386px">
+                                                <p:ajax event="change" update="i_grupo i_para_conta i_valor" listener="#{lancamentoFinanceiroBean.atualizaComboCentroCusto()}"/>
+                                                <f:selectItems value="#{lancamentoFinanceiroBean.listaCentroCusto}"/>
                                             </p:selectOneMenu>
                                         </p:column>
-
-                                        <p:column>
-                                            <br />
-                                            <p:inputMask id="i_documento" value="#{lancamentoFinanceiroBean.descricao}" size="20" mask="#{lancamentoFinanceiroBean.mascara}" disabled="#{lancamentoFinanceiroBean.idTipoDocumento == 2}">
-                                                <p:ajax event="blur" listener="#{lancamentoFinanceiroBean.pesquisarPessoa()}" update="i_panel_pessoa i_panel_cadastro" />
-                                            </p:inputMask>
-
-                                            <p:watermark value="Documento" for="i_documento" />
-                                        </p:column>
-
-                                        <p:column>
-                                            <br />
-                                            <p:commandLink value="Não encontrou na pesquisa? Cadastre uma nova pessoa aqui" style="margin-left: 20px" rendered="#{lancamentoFinanceiroBean.pessoa.id == -1}">
-                                                <p:ajax event="click" listener="#{lancamentoFinanceiroBean.cadastrarPessoa('')}" update="i_panel_pessoa i_msg i_dlg" />
-                                            </p:commandLink>
-                                        </p:column>
                                     </h:panelGrid>
 
-                                    <p:messages id="i_msg" showDetail="true" closable="true"/>  
-
-                                    <h:panelGrid id="i_panel_pessoa" columns="2">
-                                        <h:column rendered="#{lancamentoFinanceiroBean.pessoa.id != -1}">
-                                            <h:panelGrid columns="3">
-                                                <h:outputText value="Credor / Devedor:" style="font-weight: bold"/>
-                                                <h:outputText value="#{lancamentoFinanceiroBean.pessoa.nome}"/>
-
-                                                <p:commandLink value="Limpar tudo e começar de Novo" action="#{lancamentoFinanceiroBean.limpar()}" update="formLancamentoFinanceiro" style="margin-left: 150px" oncomplete="PF('i_dlg_novo').show()"/>
-                                            </h:panelGrid>
-                                        </h:column>
-
-                                        <h:column rendered="#{lancamentoFinanceiroBean.opcaoCadastro != '' and lancamentoFinanceiroBean.opcaoCadastro == 'juridica'}">
-                                            <h:panelGrid columns="3">
-                                                <h:outputText value="Cadastro de Empresa" style="font-weight: bold"/>
-                                                <p:commandLink ajax="false" value="Ir para cadastro completo" action="#{chamadaPaginaBean.pessoaJuridica()}" style="margin-left: 20px"/>
-                                                <p:commandLink ajax="true" value="Quero cadastrar uma PESSOA FÍSICA" action="#{lancamentoFinanceiroBean.cadastrarPessoa('fisica')}" update="i_panel_pessoa" rendered="#{lancamentoFinanceiroBean.idTipoDocumento == 2}" style="margin-left: 50px"/>
-                                            </h:panelGrid><br />
-                                            <h:panelGrid columns="4">
-                                                <p:inputText id="i_nome_empresa" value="#{lancamentoFinanceiroBean.pessoa.nome}" style="margin-right: 15px;" size="50">
-                                                    <p:ajax event="change" update="@this" />
-                                                </p:inputText>
-                                                <p:watermark value="Nome da Empresa" for="i_nome_empresa"/>
-                                                <p:commandButton value="Salvar" action="#{lancamentoFinanceiroBean.salvarPessoa}" update="i_panel_pessoa i_panel_cadastro i_msg" />
-                                                <p:commandButton action="#{lancamentoFinanceiroBean.cancelarCadastro()}" update="i_panel_pessoa i_panel_cadastro" icon="ui-icon-close" />  
-                                            </h:panelGrid>
-                                        </h:column>
-
-                                        <h:column rendered="#{lancamentoFinanceiroBean.opcaoCadastro != '' and lancamentoFinanceiroBean.opcaoCadastro == 'fisica'}">
-                                            <h:panelGrid columns="3">
-                                                <h:outputText value="Cadastro de Pessoa Física" style="font-weight: bold"/>
-                                                <p:commandLink ajax="false" value="Ir para cadastro completo" action="#{chamadaPaginaBean.pessoaFisica()}" style="margin-left: 20px"/>
-                                                <p:commandLink ajax="true" value="Quero cadastrar uma PESSOA JURÍDICA" action="#{lancamentoFinanceiroBean.cadastrarPessoa('juridica')}" update="i_panel_pessoa" rendered="#{lancamentoFinanceiroBean.idTipoDocumento == 2}" style="margin-left: 50px"/>
-                                            </h:panelGrid><br />
-                                            <h:panelGrid columns="4">
-                                                <p:inputText id="i_nome_fisica" value="#{lancamentoFinanceiroBean.pessoa.nome}" style="margin-right: 15px;" size="50">
-                                                    <p:ajax event="change" update="@this" />
-                                                </p:inputText>
-                                                <p:watermark value="Nome da Pessoa" for="i_nome_fisica"/>
-                                                <p:commandButton value="Salvar" action="#{lancamentoFinanceiroBean.salvarPessoa}" update="i_panel_pessoa i_panel_cadastro i_msg" />
-                                                <p:commandButton action="#{lancamentoFinanceiroBean.cancelarCadastro()}" update="i_panel_pessoa i_panel_cadastro" icon="ui-icon-close" />  
-                                            </h:panelGrid>
-                                        </h:column>
+                                    <h:panelGrid>
+                                        <h:outputText value="Conta" style="font-weight: bold; margin-bottom: 40px"/>
+                                        <p:selectOneMenu value="#{lancamentoFinanceiroBean.idContaOperacao}" style="width: 800px;">
+                                            <p:ajax event="change" update="@this i_para_conta i_valor" />
+                                            <f:selectItems value="#{lancamentoFinanceiroBean.listaContaOperacao}"/>
+                                        </p:selectOneMenu>
                                     </h:panelGrid>
+                                </h:panelGrid>
+                                <hr />
+                                <h:panelGroup layout="block">
+                                    <p:panel header="Credor/Devedor">
+                                        <h:panelGrid columns="3" id="i_panel_cadastro" >
+                                            <p:column>
+                                                <p:selectOneMenu value="#{lancamentoFinanceiroBean.idTipoDocumento}" disabled="#{lancamentoFinanceiroBean.pessoa.id != -1}">
+                                                    <p:ajax event="change" listener="#{lancamentoFinanceiroBean.cancelarCadastro()}" update="i_panel_cadastro i_panel_pessoa" global="false"/>
+                                                    <f:selectItems value="#{lancamentoFinanceiroBean.listaTipoDocumento}" />
+                                                </p:selectOneMenu>
+                                            </p:column>
 
-                                    <p:panel styleClass="fundoCinza" style="clear: both; margin-top: 10px; width: 800px">
+                                            <p:column>
+                                                <p:inputMask id="i_documento" value="#{lancamentoFinanceiroBean.descricao}" size="20" mask="#{lancamentoFinanceiroBean.mascara}" disabled="#{lancamentoFinanceiroBean.idTipoDocumento == 2}" readonly="#{lancamentoFinanceiroBean.pessoa.id != -1}">
+                                                    <p:ajax event="change" listener="#{lancamentoFinanceiroBean.pesquisarPessoa()}" update="i_panel_pessoa i_panel_cadastro" />
+                                                </p:inputMask>
+
+                                                <p:watermark value="Documento" for="i_documento" />
+                                            </p:column>
+
+                                            <p:column>
+                                                <p:commandLink value="Não encontrou na pesquisa? Cadastre uma nova pessoa aqui" style="margin-left: 20px" rendered="#{lancamentoFinanceiroBean.pessoa.id == -1}">
+                                                    <p:ajax event="click" listener="#{lancamentoFinanceiroBean.cadastrarPessoa('')}" update="i_panel_pessoa i_msg i_dlg" />
+                                                </p:commandLink>
+                                            </p:column>
+                                        </h:panelGrid>
+                                        <h:panelGrid id="i_panel_pessoa" columns="2">
+                                            <h:column rendered="#{lancamentoFinanceiroBean.pessoa.id != -1}">
+                                                <h:panelGrid columns="3">
+                                                    <h:outputText value="Nome:" style="font-weight: bold"/>
+                                                    <h:outputText value="#{lancamentoFinanceiroBean.pessoa.nome}"/>
+
+                                                    <p:commandLink value="Limpar tudo e começar de Novo" action="#{lancamentoFinanceiroBean.limpar()}" update="form_lf" style="margin-left: 150px" oncomplete="PF('i_dlg_novo').show()"/>
+                                                </h:panelGrid>
+                                            </h:column>
+
+                                            <h:column rendered="#{lancamentoFinanceiroBean.opcaoCadastro != '' and lancamentoFinanceiroBean.opcaoCadastro == 'juridica'}">
+                                                <h:panelGrid columns="3">
+                                                    <h:outputText value="Cadastro de Empresa" style="font-weight: bold"/>
+                                                    <p:commandLink ajax="false" value="Ir para cadastro completo" action="#{chamadaPaginaBean.pessoaJuridica()}" style="margin-left: 20px"/>
+                                                    <p:commandLink ajax="true" value="Quero cadastrar uma PESSOA FÍSICA" action="#{lancamentoFinanceiroBean.cadastrarPessoa('fisica')}" update="i_panel_pessoa" rendered="#{lancamentoFinanceiroBean.idTipoDocumento == 2}" style="margin-left: 50px"/>
+                                                </h:panelGrid><br />
+                                                <h:panelGrid columns="4">
+                                                    <p:inputText id="i_nome_empresa" value="#{lancamentoFinanceiroBean.pessoa.nome}" style="margin-right: 15px;" size="50">
+                                                        <p:ajax event="change" update="@this" />
+                                                    </p:inputText>
+                                                    <p:watermark value="Nome da Empresa" for="i_nome_empresa"/>
+                                                    <p:commandButton value="Salvar" action="#{lancamentoFinanceiroBean.salvarPessoa}" update="i_panel_pessoa i_panel_cadastro i_msg" />
+                                                    <p:commandButton action="#{lancamentoFinanceiroBean.cancelarCadastro()}" update="i_panel_pessoa i_panel_cadastro" icon="ui-icon-close" />  
+                                                </h:panelGrid>
+                                            </h:column>
+
+                                            <h:column rendered="#{lancamentoFinanceiroBean.opcaoCadastro != '' and lancamentoFinanceiroBean.opcaoCadastro == 'fisica'}">
+                                                <h:panelGrid columns="3">
+                                                    <h:outputText value="Cadastro de Pessoa Física" style="font-weight: bold"/>
+                                                    <p:commandLink ajax="false" value="Ir para cadastro completo" action="#{chamadaPaginaBean.pessoaFisica()}" style="margin-left: 20px"/>
+                                                    <p:commandLink ajax="true" value="Quero cadastrar uma PESSOA JURÍDICA" action="#{lancamentoFinanceiroBean.cadastrarPessoa('juridica')}" update="i_panel_pessoa" rendered="#{lancamentoFinanceiroBean.idTipoDocumento == 2}" style="margin-left: 50px"/>
+                                                </h:panelGrid><br />
+                                                <h:panelGrid columns="4">
+                                                    <p:inputText id="i_nome_fisica" value="#{lancamentoFinanceiroBean.pessoa.nome}" style="margin-right: 15px;" size="50">
+                                                        <p:ajax event="change" update="@this" />
+                                                    </p:inputText>
+                                                    <p:watermark value="Nome da Pessoa" for="i_nome_fisica"/>
+                                                    <p:commandButton value="Salvar" action="#{lancamentoFinanceiroBean.salvarPessoa}" update="i_panel_pessoa i_panel_cadastro i_msg" />
+                                                    <p:commandButton action="#{lancamentoFinanceiroBean.cancelarCadastro()}" update="i_panel_pessoa i_panel_cadastro" icon="ui-icon-close" />  
+                                                </h:panelGrid>
+                                            </h:column>
+                                        </h:panelGrid>
+                                    </p:panel>
+                                </h:panelGroup>
+
+                                <p:messages id="i_msg" showDetail="true" closable="true"/>  
+
+
+                                <p:panel styleClass="fundoCinza margin-top-max">
+                                    <f:facet name="header">
                                         <h:panelGrid id="i_para_conta" columns="3">
                                             <h:outputLabel value="Lançamento para Conta " />
                                             <h:outputLabel value="#{lancamentoFinanceiroBean.strConta}" style="font-weight: bold"/>
 
                                             <p:selectBooleanCheckbox value="#{lancamentoFinanceiroBean.chkImposto}" itemLabel="Imposto" onchange="">
-                                                <p:ajax event="change" update="i_dlg_conta i_para_conta" onsuccess="PF('i_dlg_conta').show()"/>
+                                                <p:ajax event="change" update="i_dlg_conta i_para_conta" onsuccess="PF('i_dlg_conta').show()" />
                                             </p:selectBooleanCheckbox>
                                         </h:panelGrid>
-                                        <br />
-                                        <h:panelGrid id="i_valor" columns="9">
-                                            <p:column>
-                                                <h:outputText value="Total" style="font-weight: bold"/><br />
-                                                <h:column rendered="#{lancamentoFinanceiroBean.contaTipoPlano.id == -1}">
-                                                    <p:inputText value="#{lancamentoFinanceiroBean.total}" size="8" style="text-align: right">
-                                                        <p:ajax event="change" update="@this" />
-                                                    </p:inputText>
-                                                </h:column>
-                                                <h:column rendered="#{lancamentoFinanceiroBean.contaTipoPlano.id != -1}">
-                                                    <p:commandButton value="R$ #{lancamentoFinanceiroBean.total}" action="#{lancamentoFinanceiroBean.openModalPedido()}" oncomplete="PF('dlg_pedido').show();" style="font-weight: bold" update=":formLancamentoFinanceiro:dlg_pedido"/>
-                                                </h:column>
-                                            </p:column>
-
-                                            <p:column>
-                                                <h:outputText value="Vencimento" style="font-weight: bold"/><br />
-                                                <p:inputMask value="#{lancamentoFinanceiroBean.vencimento}" mask="99/99/9999" size="8" />
-                                            </p:column>
-
-                                            <h:column>
-                                                <h:outputLabel value="Número Doc." /><br />
-                                                <p:inputText value="#{lancamentoFinanceiroBean.documentoMovimento}" size="10">
-                                                    <p:ajax event="blur" update="@this" global="false"/>
-                                                </p:inputText>
-                                            </h:column>
-
-                                            <h:column>
-                                                <h:outputText value="Tipo Documento" /><br />
-                                                <p:selectOneMenu value="#{lancamentoFinanceiroBean.idFTipoMovimento}" style="width: 130px">
-                                                    <p:ajax event="change" update="@this" />
-                                                    <f:selectItems value="#{lancamentoFinanceiroBean.listaFTipoMovimento}"/>
-                                                </p:selectOneMenu>
-                                            </h:column>
-
-                                            <p:column>
-                                                <h:outputText value=" Acréscimo"/><br />
-                                                <p:commandButton value="#{lancamentoFinanceiroBean.acrescimo}" action="#{lancamentoFinanceiroBean.openModalAcrescimo()}" update=":formLancamentoFinanceiro:i_panel_acrescimo" oncomplete="PF('i_dlg_acrescimo').show()"/>
-                                            </p:column>
-
-                                            <p:column>
-                                                <h:outputText value="Desconto" /><br />
-                                                <p:inputText value="#{lancamentoFinanceiroBean.desconto}" size="7" style="text-align: right">
-                                                    <p:ajax event="change" update="@this" global="false"/>
-                                                </p:inputText>
-                                            </p:column>
-
-                                            <p:column>
-                                                <h:outputText value="Valor" style="font-weight: bold"/><br />
-                                                <p:inputText value="#{lancamentoFinanceiroBean.valor}" size="8" style="text-align: right">
-                                                    <p:ajax event="change" update="@this" global="false"/>
-                                                </p:inputText>
-                                            </p:column>
-
-                                            <p:column>
-                                                <br />
-                                                <p:commandButton value="Adicionar" action="#{lancamentoFinanceiroBean.adicionarParcela()}" update="i_valor tbl_p i_msg i_para_conta :formLancamentoFinanceiro:i_panel_acrescimo"/>
-                                            </p:column>
-                                        </h:panelGrid>
-
-                                        <p:inputTextarea id="i_historico" style="width: 100%;" rows="2">
-
-                                        </p:inputTextarea>
-                                        <p:watermark value="Digite o Histórico" for="i_historico" />
-                                    </p:panel>
-
-                                    <p:dataTable var="linha" id="tbl_p" value="#{lancamentoFinanceiroBean.listaParcela}" selection="#{lancamentoFinanceiroBean.listaParcelaSelecionada}" rowKey="#{linha.argumento0}" style="width: 805px" rowIndexVar="index" emptyMessage="Adicionar Parcela!" scrollable="true" scrollHeight="110" editable="#{lancamentoFinanceiroBean.lote.id == -1}" editMode="cell">
-                                        <p:column selectionMode="multiple" style="text-align: center; width: 15px"/>
-
-                                        <p:column style="width:5%">  
-                                            <p:rowToggler />  
-                                        </p:column>  
-
-                                        <p:column style="text-align: center; width: 20px">
-                                            <p:commandButton action="#{lancamentoFinanceiroBean.openExcluirParcela(linha, index)}" oncomplete="PF('i_dlg_ex_movimento').show()" title="Excluir Movimento" icon="ui-icon-close" style="width: 20px; height: 20px"/>
-                                        </p:column>
-
-                                        <p:column headerText="Vencimento" style="text-align: center; width: 80px">
-                                            <h:outputLabel value="#{linha.argumento2}" />
-                                        </p:column>
-
-                                        <p:column headerText="Valor" style="text-align: right; width: 100px">
-                                            <h:outputLabel value="R$ #{linha.argumento3}" style="font-weight: bold"/>
-                                        </p:column>
-
-                                        <p:column headerText="Acréscimo" style="width: 80px">
-                                            <h:outputText value="R$ "/>
-                                            <p:commandLink value="#{linha.argumento4}" style="float: right; font-size: 10pt!important; font-weight: bold" oncomplete="PF('i_dlg_acrescimo').show()" rendered="#{lancamentoFinanceiroBean.lote.id == -1}">
-                                                <p:ajax event="click" update=":formLancamentoFinanceiro:i_panel_acrescimo" listener="#{lancamentoFinanceiroBean.alterarAcrescimo(index)}" />
-                                            </p:commandLink>
-                                            <h:outputLabel value="#{linha.argumento4}" style="float: right;" rendered="#{lancamentoFinanceiroBean.lote.id != -1}"/>
-                                        </p:column>
-
-                                        <p:column headerText="Desconto" style="width: 80px">
-                                            <p:cellEditor>  
-                                                <f:facet name="output">
-                                                    <h:outputText value="R$ "/>
-                                                    <h:outputText value="#{linha.argumento5}" style="float: right"/>
-                                                </f:facet>  
-                                                <f:facet name="input">
-                                                    <p:inputText value="#{linha.argumento5}" style="width:96%" label="Desconto">
-                                                        <p:ajax event="change" update="tbl_p" listener="#{lancamentoFinanceiroBean.alterarDesconto(index)}" global="false"/>
-                                                    </p:inputText>
-                                                </f:facet>  
-                                            </p:cellEditor>  
-                                        </p:column>
-
-
-                                        <p:column headerText="Vl Pagamento" style="width: 100px">
-                                            <h:outputText value="R$ "/>
-                                            <h:outputText value="#{linha.argumento6}" style="float: right"/>
-                                        </p:column>
-
-                                        <p:column headerText="Dt Pagamento" style="width: 75px">
-                                            <h:outputText value="#{linha.argumento7}"/>
-                                        </p:column>
-
-
-                                        <p:rowExpansion>
-                                            <h:panelGrid columns="4" style="height: 40px" styleClass="sbb">
-                                                <p:column>
-                                                    <h:outputText value="Conta" style="font-weight: bold"/><br />
-                                                    <h:outputLabel value="#{linha.argumento1.plano5.conta}" />
-                                                </p:column>
-
-                                                <p:column>
-                                                    <h:outputText value="Lote Baixa" style="font-weight: bold"/><br />
-                                                    <h:outputLabel value="#{linha.argumento11}" />
-                                                </p:column>
-
-                                                <p:column>
-                                                    <h:outputText value="Usuário" style="font-weight: bold"/><br />
-                                                    <h:outputLabel value="#{linha.argumento9}" />
-                                                </p:column>
-
-                                                <p:column>
-                                                    <h:outputText value="Caixa" style="font-weight: bold"/><br />
-                                                    <h:outputLabel value="#{linha.argumento10}" />
-                                                </p:column>
-                                            </h:panelGrid>
-                                        </p:rowExpansion>
-
-                                        <!--
-                                        <p:column headerText="Nome">
-                                            <h:commandLink value="# {linha.argumento1.pessoa.nome} *" style="font-size: 7pt!important" title="Clique aqui para alterar a Pessoa" />
-                                        </p:column> -->
-                                    </p:dataTable>
-
-                                    <p:commandButton value="Salvar" onclick="PF('i_dlg_salvar').show()" title="Salvar este Lançamento" />
-                                    <p:commandButton value="Novo" action="#{lancamentoFinanceiroBean.limpar()}" update="formLancamentoFinanceiro" title="Limpar tudo e começar de Novo" />
-                                    <p:commandButton ajax="false" value="Baixar" action="#{lancamentoFinanceiroBean.telaBaixa()}" update="tbl_p" rendered="#{lancamentoFinanceiroBean.lote.id != -1}" title="Baixar este Lançamento" />
-                                    <p:commandButton value="Estornar" onclick="PF('i_dlg_estornar').show()" rendered="#{lancamentoFinanceiroBean.lote.id != -1}" title="Estornar este Lançamento" />
-                                    <p:commandButton value="Excluir este Lançamento" onclick="PF('i_dlg_ex_lancamento').show()" rendered="#{lancamentoFinanceiroBean.lote.id != -1}" title="Excluir este Lançamento" />
-                                    <p:commandButton value="Fechar esta Janela" action="#{lancamentoFinanceiroBean.fechaModal()}" onclick="PF('i_dlg_novo').hide();"/>
-                                    <br />
-                                </p:dialog>
-
-                                <p:dialog id="i_dlg_conta" widgetVar="i_dlg_conta" header="Conta Obrigação" modal="true" resizable="false" width="300" height="70" visible="#{lancamentoFinanceiroBean.chkImposto}" closable="false">
-
-                                    <h:panelGrid columns="2">
+                                    </f:facet>
+                                    <h:panelGrid id="i_valor" columns="9">
                                         <p:column>
-                                            <h:outputText value="Conta" style="font-weight: bold; margin-bottom: 40px"/><br />
-                                            <p:selectOneMenu value="#{lancamentoFinanceiroBean.idContaTipoPlano5}" style="margin-right: 15px; width: 200px">
-                                                <p:ajax event="change" update="@this" />
-                                                <f:selectItems value="#{lancamentoFinanceiroBean.listaContaTipoPlano5}"/>
+                                            <h:outputText value="Total" style="font-weight: bold"/><br />
+                                            <h:column rendered="#{lancamentoFinanceiroBean.contaTipoPlano.id == -1}">
+                                                <p:inputText value="#{lancamentoFinanceiroBean.total}" size="8" style="text-align: right" converter="#{toCurrency}">
+                                                    <p:ajax event="change" update="@this" global="false"/>
+                                                </p:inputText>
+                                            </h:column>
+                                            <h:column rendered="#{lancamentoFinanceiroBean.contaTipoPlano.id != -1}">
+                                                <p:commandButton value="R$ #{lancamentoFinanceiroBean.total}" action="#{lancamentoFinanceiroBean.openModalPedido()}" oncomplete="PF('dlg_pedido').show();" style="font-weight: bold" update=":form_lf:dlg_pedido"/>
+                                            </h:column>
+                                        </p:column>
+
+                                        <p:column>
+                                            <h:outputText value="Vencimento" style="font-weight: bold"/><br />
+                                            <p:inputMask value="#{lancamentoFinanceiroBean.vencimento}" mask="99/99/9999" size="8" converter="#{isDateString}">
+                                                <p:ajax event="change" update="@this" global="false"/>
+                                            </p:inputMask>
+                                        </p:column>
+
+                                        <h:column>
+                                            <h:outputLabel value="Número Doc." /><br />
+                                            <p:inputText value="#{lancamentoFinanceiroBean.documentoMovimento}" size="10">
+                                                <p:ajax event="change" update="@this" global="false"/>
+                                            </p:inputText>
+                                        </h:column>
+
+                                        <h:column>
+                                            <h:outputText value="Tipo Documento" /><br />
+                                            <p:selectOneMenu value="#{lancamentoFinanceiroBean.idFTipoMovimento}" style="width: 130px">
+                                                <p:ajax event="change" update="@this" global="false"/>
+                                                <f:selectItems value="#{lancamentoFinanceiroBean.listaFTipoMovimento}"/>
                                             </p:selectOneMenu>
+                                        </h:column>
+
+                                        <p:column>
+                                            <h:outputText value=" Acréscimo"/><br />
+                                            <p:commandButton value="#{lancamentoFinanceiroBean.acrescimo}" action="#{lancamentoFinanceiroBean.openModalAcrescimo()}" update=":form_lf:i_panel_acrescimo" oncomplete="PF('i_dlg_acrescimo').show()"/>
+                                        </p:column>
+
+                                        <p:column>
+                                            <h:outputText value="Desconto" /><br />
+                                            <p:inputText value="#{lancamentoFinanceiroBean.desconto}" size="7" style="text-align: right" converter="#{toCurrency}">
+                                                <p:ajax event="change" update="@this" global="false"/>
+                                            </p:inputText>
+                                        </p:column>
+
+                                        <p:column>
+                                            <h:outputText value="Valor" style="font-weight: bold"/><br />
+                                            <p:inputText value="#{lancamentoFinanceiroBean.valor}" size="8" style="text-align: right" converter="#{toCurrency}">
+                                                <p:ajax event="change" update="@this" global="false"/>
+                                            </p:inputText>
                                         </p:column>
 
                                         <p:column>
                                             <br />
-                                            <p:commandButton value="OK" update="i_para_conta i_valor" onclick="PF('i_dlg_conta').hide()" />
+                                            <p:commandButton title="Adicionar" icon="ui-icon-plus" action="#{lancamentoFinanceiroBean.adicionarParcela()}" update="i_valor tbl_p i_msg i_para_conta :form_lf:i_panel_acrescimo"/>
                                         </p:column>
                                     </h:panelGrid>
-                                </p:dialog>
-                            </p:panel>
+
+                                    <p:inputTextarea id="i_historico" style="width: 100%;" rows="2">
+
+                                    </p:inputTextarea>
+                                    <p:watermark value="Digite o Histórico" for="i_historico" />
+                                </p:panel>
+
+                                <p:dataTable var="parcela" id="tbl_p" value="#{lancamentoFinanceiroBean.listaParcela}" selection="#{lancamentoFinanceiroBean.listaParcelaSelecionada}" rowKey="#{parcela.parcela}" rowIndexVar="index" emptyMessage="Adicionar Parcela!" scrollable="true" scrollHeight="110" editable="#{lancamentoFinanceiroBean.lote.id == -1}" editMode="cell" styleClass="margin-top-max">
+
+                                    <p:column width="15">  
+                                        <p:rowToggler />  
+                                    </p:column>
+
+                                    <p:column width="15">
+                                        <p:commandButton action="#{lancamentoFinanceiroBean.openExcluirParcela(parcela, index)}" oncomplete="PF('i_dlg_ex_movimento').show()" title="Excluir Movimento" icon="ui-icon-close" style="width: 20px; height: 20px"/>
+                                    </p:column>
+
+                                    <p:column headerText="Vencimento" styleClass="text-center" width="80">
+                                        <h:outputLabel value="#{parcela.vencimento}" />
+                                    </p:column>
+
+                                    <p:column headerText="Valor" styleClass="text-right" width="100">
+                                        <h:outputLabel value="R$ #{parcela.valor}" style="font-weight: bold"/>
+                                    </p:column>
+
+                                    <p:column headerText="Acréscimo" width="80">
+                                        <h:outputText value="R$ "/>
+                                        <p:commandLink value="#{parcela.acrescimo}" style="float: right; font-size: 10pt!important; font-weight: bold" oncomplete="PF('i_dlg_acrescimo').show()" rendered="#{lancamentoFinanceiroBean.lote.id == -1}">
+                                            <p:ajax event="click" update=":form_lf:i_panel_acrescimo" listener="#{lancamentoFinanceiroBean.alterarAcrescimo(index)}" />
+                                        </p:commandLink>
+                                        <h:outputLabel value="#{parcela.acrescimo}" style="float: right;" rendered="#{lancamentoFinanceiroBean.lote.id != -1}"/>
+                                    </p:column>
+
+                                    <p:column headerText="Desconto" width="80">
+                                        <p:cellEditor>  
+                                            <f:facet name="output">
+                                                <h:outputText value="R$ "/>
+                                                <h:outputText value="#{parcela.desconto}" style="float: right"/>
+                                            </f:facet>  
+                                            <f:facet name="input">
+                                                <p:inputText value="#{parcela.desconto}" style="width:96%" label="Desconto">
+                                                    <p:ajax event="change" update="tbl_p" listener="#{lancamentoFinanceiroBean.alterarDesconto(index)}" global="false"/>
+                                                </p:inputText>
+                                            </f:facet>  
+                                        </p:cellEditor>  
+                                    </p:column>
+
+
+                                    <p:column headerText="Vl Pagamento" width="100">
+                                        <h:outputText value="R$ "/>
+                                        <h:outputText value="#{parcela.valorQuitado}" style="float: right"/>
+                                    </p:column>
+
+                                    <p:column headerText="Dt Pagamento" width="75">
+                                        <h:outputText value="#{parcela.dataQuitacao}"/>
+                                    </p:column>
+
+
+                                    <p:rowExpansion>
+                                        <h:panelGrid columns="4" style="height: 40px" styleClass="sbb">
+                                            <p:column>
+                                                <h:outputText value="Conta" style="font-weight: bold"/><br />
+                                                <h:outputLabel value="#{parcela.movimento.plano5.conta}" />
+                                            </p:column>
+
+                                            <p:column>
+                                                <h:outputText value="Lote Baixa" style="font-weight: bold"/><br />
+                                                <h:outputLabel value="#{parcela.loteBaixa}" />
+                                            </p:column>
+
+                                            <p:column>
+                                                <h:outputText value="Usuário" style="font-weight: bold"/><br />
+                                                <h:outputLabel value="#{parcela.usuarioNome}" />
+                                            </p:column>
+
+                                            <p:column>
+                                                <h:outputText value="Caixa" style="font-weight: bold"/><br />
+                                                <h:outputLabel value="#{parcela.caixa}" />
+                                            </p:column>
+                                        </h:panelGrid>
+                                    </p:rowExpansion>
+                                </p:dataTable>
+                                <br />
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="8">
+                                        <p:commandButton value="Salvar" onclick="PF('i_dlg_salvar').show()" title="Salvar este Lançamento" />
+                                        <p:commandButton value="Novo" action="#{lancamentoFinanceiroBean.limpar()}" update="form_lf" title="Limpar tudo e começar de Novo" />
+                                        <p:commandButton ajax="false" value="Baixar" action="#{lancamentoFinanceiroBean.telaBaixa()}" update="tbl_p" rendered="#{lancamentoFinanceiroBean.lote.id != -1}" title="Baixar este Lançamento" />
+                                        <p:commandButton value="Estornar" onclick="PF('i_dlg_estornar').show()" rendered="#{lancamentoFinanceiroBean.lote.id != -1}" title="Estornar este Lançamento" />
+                                        <p:commandButton value="Excluir este Lançamento" onclick="PF('i_dlg_ex_lancamento').show()" rendered="#{lancamentoFinanceiroBean.lote.id != -1}" title="Excluir este Lançamento" />
+                                        <p:commandButton value="Fechar esta Janela" action="#{lancamentoFinanceiroBean.fechaModal()}" onclick="PF('i_dlg_novo').hide();"/>                                            
+                                    </h:panelGrid>
+
+                                </f:facet>
+                            </p:dialog>
+
+                            <p:dialog id="i_dlg_conta" widgetVar="i_dlg_conta" header="Conta Obrigação" modal="true" resizable="false" width="600" height="70" visible="#{lancamentoFinanceiroBean.chkImposto}" closable="false" draggable="false">
+                                <h:panelGrid>
+                                    <h:outputText value="Conta" styleClass="bold"/>
+                                    <p:selectOneMenu value="#{lancamentoFinanceiroBean.idContaTipoPlano5}">
+                                        <p:ajax event="change" update="@this" />
+                                        <f:selectItems value="#{lancamentoFinanceiroBean.listaContaTipoPlano5}"/>
+                                    </p:selectOneMenu>                                                
+                                </h:panelGrid>
+                                <f:facet name="footer">
+                                    <h:panelGrid>
+                                        <p:commandButton value="OK" update="i_para_conta i_valor" onclick="PF('i_dlg_conta').hide()" />                                            
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>                            
 
                             <p:dialog id="dlg_pedido" widgetVar="dlg_pedido" width="800" resizable="false" modal="true" visible="#{lancamentoFinanceiroBean.modalPedido}" header="Itens da nota">
                                 <p:ajax event="close" listener="#{lancamentoFinanceiroBean.closeModalPedido()}" update="@this i_valor"/>
@@ -459,21 +542,21 @@
                                         <p:column>
                                             <p:outputLabel value="Quantidade" /><br />
                                             <p:inputText value="#{lancamentoFinanceiroBean.quantidadePedido}" size="5" style="margin-right: 15px">
-                                                <p:ajax event="blur" update="@this" />
+                                                <p:ajax event="change" update="@this" />
                                             </p:inputText>
                                         </p:column>
 
                                         <p:column>
                                             <p:outputLabel value="Valor Unitário" /><br />
                                             <p:inputText value="#{lancamentoFinanceiroBean.valorUnitarioPedido}" size="8" dir="rtl" style="margin-right: 15px">
-                                                <p:ajax event="blur" update="@this" />
+                                                <p:ajax event="change" update="@this" />
                                             </p:inputText>
                                         </p:column>
 
                                         <p:column>
                                             <p:outputLabel value="Desconto Unitário" /><br />
                                             <p:inputText value="#{lancamentoFinanceiroBean.descontoUnitarioPedido}" size="12" dir="rtl">
-                                                <p:ajax event="blur" update="@this" />
+                                                <p:ajax event="change" update="@this" />
                                             </p:inputText>
                                         </p:column>    
 
@@ -489,7 +572,7 @@
 
                                     <p:dataTable value="#{lancamentoFinanceiroBean.listaPedidos}" style="width: 770px" var="pedido" scrollable="true" scrollHeight="150" emptyMessage="Nenhum registro encontrado!" rowIndexVar="index" >
                                         <!-- <p:column styleClass="text-center" style="width: 10px">
-                                            <p:commandButton icon="ui-icon-link" action="# {lancamentoFinanceiroBean.editarItemPedido(index)}" update=":formLancamentoFinanceiro:i_grid_pedido" title="Editar registro"/>
+                                            <p:commandButton icon="ui-icon-link" action="# {lancamentoFinanceiroBean.editarItemPedido(index)}" update=":form_lf:i_grid_pedido" title="Editar registro"/>
                                         </p:column> -->
                                         <p:column headerText="Produto" style="width: 100px">
                                             #{pedido.produto.descricao}
@@ -507,7 +590,7 @@
                                             <h:outputText value="#{lancamentoFinanceiroBean.valorTotalGrid(pedido)}" />
                                         </p:column>                                
                                         <p:column styleClass="text-center" style="width: 15px">
-                                            <p:commandButton icon="ui-icon-trash" action="#{lancamentoFinanceiroBean.removeItemPedido(index)}" update=":formLancamentoFinanceiro:dlg_pedido" title="Remover registro"/>
+                                            <p:commandButton icon="ui-icon-trash" action="#{lancamentoFinanceiroBean.removeItemPedido(index)}" update=":form_lf:dlg_pedido" title="Remover registro"/>
                                         </p:column>
                                         <f:facet name="footer">                                    
                                             Valor Total: #{lancamentoFinanceiroBean.valorTotal}
@@ -532,119 +615,83 @@
 
                             </p:dialog>                             
 
-                            <p:dialog widgetVar="i_dlg_salvar" header="Salvar" resizable="false" modal="true">
-                                <h:outputLabel value="Deseja realmente SALVAR este lançamento? " />
-                                <h:panelGrid style="clear: both" columns="2">
-                                    <p:commandButton value="Sim" onclick="PF('i_dlg_salvar').hide()" action="#{lancamentoFinanceiroBean.salvar()}" update="formLancamentoFinanceiro" title="Salvar este Lançamento" style="float: left" icon="ui-icon-check"/>  
-                                    <p:commandButton value="Não" onclick="PF('i_dlg_salvar').hide()" style="float: left" icon="ui-icon-close"/>  
-                                </h:panelGrid>
+                            <p:dialog widgetVar="i_dlg_salvar" header="Deseja realmente SALVAR este lançamento?" resizable="false" modal="true">
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Sim" onclick="PF('i_dlg_salvar').hide()" action="#{lancamentoFinanceiroBean.save}" update="form_lf" title="Salvar este Lançamento" icon="ui-icon-check"/>  
+                                        <p:commandButton value="Não" onclick="PF('i_dlg_salvar').hide()" icon="ui-icon-close"/>  
+                                    </h:panelGrid>                                    
+                                </f:facet>
                             </p:dialog>
 
-                            <p:dialog widgetVar="i_dlg_estornar" header="Estornar Lançamento" resizable="false" modal="true">
-                                <h:outputLabel value="Deseja realmente ESTORNAR este lançamento? " />
-                                <h:panelGrid style="width: 100%">
-                                    <p:outputLabel value="Digite um motivo para o Estorno" /><br />
-                                    <p:inputTextarea value="#{lancamentoFinanceiroBean.motivoEstorno}" style="width: 100%" rows="2"/>
+                            <p:dialog widgetVar="i_dlg_estornar" header="Deseja realmente ESTORNAR este lançamento?" resizable="false" modal="true">
+                                <h:panelGrid>
+                                    <p:outputLabel value="Motivo" />
+                                    <p:inputTextarea value="#{lancamentoFinanceiroBean.motivoEstorno}" cols="70" rows="2" placeholder="Digite um motivo para o Estorno"/>
                                 </h:panelGrid>
-                                <br />
-                                <h:panelGrid style="clear: both" columns="2">
-                                    <p:commandButton value="Sim" onclick="PF('i_dlg_estornar').hide()" action="#{lancamentoFinanceiroBean.reverse()}" update="tbl_p i_msg" title="Estornar este Lançamento" style="float: left" icon="ui-icon-check"/>  
-                                    <p:commandButton value="Não" onclick="PF('i_dlg_estornar').hide()" style="float: left" icon="ui-icon-close"/>  
-                                </h:panelGrid>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Sim" onclick="PF('i_dlg_estornar').hide()" action="#{lancamentoFinanceiroBean.reverse()}" update="tbl_p i_msg" title="Estornar este Lançamento" icon="ui-icon-check"/>  
+                                        <p:commandButton value="Não" onclick="PF('i_dlg_estornar').hide()" icon="ui-icon-close"/>                                          
+                                    </h:panelGrid>
+                                </f:facet>
                             </p:dialog>
 
-                            <p:dialog widgetVar="i_dlg_ex_lancamento" header="Excluir este Lançamento" resizable="false" modal="true">
-                                <h:outputLabel value="Deseja EXCLUIR DEFINITIVAMENTE este lançamento?" /><br /><br />
-                                <h:outputLabel value="(Atenção) Após a exclusão este lançamento não poderá ser retornado!" style="font-size: 8pt!important; color: red"/>
-                                <h:panelGrid style="clear: both" columns="2">
-                                    <p:commandButton value="Sim" onclick="PF('i_dlg_ex_lancamento').hide()" action="#{lancamentoFinanceiroBean.delete()}" update="formLancamentoFinanceiro"  title="Excluir este Lançamento" style="float: left" icon="ui-icon-check"/>  
-                                    <p:commandButton value="Não" onclick="PF('i_dlg_ex_lancamento').hide()" style="float: left" icon="ui-icon-close"/>  
-                                </h:panelGrid>
+                            <p:dialog widgetVar="i_dlg_ex_lancamento" header="Deseja EXCLUIR DEFINITIVAMENTE este lançamento?" resizable="false" modal="true">
+                                <h:outputLabel value="(Atenção) Após a exclusão este lançamento não poderá ser retornado!" style="font-size: 10pt!important; color: red"/>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Sim" onclick="PF('i_dlg_ex_lancamento').hide()" action="#{lancamentoFinanceiroBean.delete()}" update="form_lf"  title="Excluir este Lançamento" icon="ui-icon-check"/>  
+                                        <p:commandButton value="Não" onclick="PF('i_dlg_ex_lancamento').hide()" icon="ui-icon-close"/>  
+                                    </h:panelGrid>                                    
+                                </f:facet>
                             </p:dialog>
 
                             <p:dialog widgetVar="i_dlg_ex_movimento" header="Excluir esta linha do Lançamento" resizable="false" modal="true">
-                                <h:outputLabel value="Deseja EXCLUIR este Movimento?" /><br /><br />
-                                <h:panelGrid style="clear: both" columns="2">
-                                    <p:commandButton value="Sim" onclick="PF('i_dlg_ex_movimento').hide()" action="#{lancamentoFinanceiroBean.excluirParcela()}" update="formLancamentoFinanceiro"  title="Excluir este Lançamento" style="float: left" icon="ui-icon-check"/>  
-                                    <p:commandButton value="Não" onclick="PF('i_dlg_ex_movimento').hide()" style="float: left" icon="ui-icon-close"/>  
-                                </h:panelGrid>
+                                <h:outputLabel value="Deseja EXCLUIR este Movimento?" />
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Sim" onclick="PF('i_dlg_ex_movimento').hide()" action="#{lancamentoFinanceiroBean.excluirParcela()}" update="form_lf"  title="Excluir este Lançamento" icon="ui-icon-check"/>  
+                                        <p:commandButton value="Não" onclick="PF('i_dlg_ex_movimento').hide()" icon="ui-icon-close"/>  
+                                    </h:panelGrid>                                    
+                                </f:facet>
                             </p:dialog>
 
-                            <p:dialog widgetVar="i_dlg_acrescimo" header="Lançar Acréscimo" resizable="false" modal="true">
-                                <h:panelGrid id="i_panel_acrescimo" style="clear: both" columns="3">
+                            <p:dialog widgetVar="i_dlg_acrescimo" header="Lançar Acréscimo" resizable="false" modal="true" draggable="false">
+                                <h:panelGrid id="i_panel_acrescimo" columns="3">
                                     <p:column>
-                                        <h:outputText value="Multa" /><br />
-                                        <p:inputText value="#{lancamentoFinanceiroBean.multa}" size="8" style="text-align: right">
-                                            <p:ajax event="change" update="@this" global="false"/>
-                                        </p:inputText>
+                                        <h:panelGrid>
+                                            <h:outputText value="Multa" />
+                                            <p:inputText value="#{lancamentoFinanceiroBean.multa}" size="8" styleClass="text-right" converter="#{toCurrency}">
+                                                <p:ajax event="change" update="@this" global="false"/>
+                                            </p:inputText>                                            
+                                        </h:panelGrid>
                                     </p:column>
                                     <p:column>
-                                        <h:outputText value="Juros" /><br />
-                                        <p:inputText value="#{lancamentoFinanceiroBean.juros}" size="8" style="text-align: right">
-                                            <p:ajax event="change" update="@this" global="false"/>
-                                        </p:inputText>
+                                        <h:panelGrid>
+                                            <h:outputText value="Juros" />
+                                            <p:inputText value="#{lancamentoFinanceiroBean.juros}" size="8" styleClass="text-right" converter="#{toCurrency}">
+                                                <p:ajax event="change" update="@this" global="false"/>
+                                            </p:inputText>
+                                        </h:panelGrid>
                                     </p:column>
                                     <p:column>
-                                        <h:outputText value="Correção" /><br />
-                                        <p:inputText value="#{lancamentoFinanceiroBean.correcao}" size="8" style="text-align: right">
-                                            <p:ajax event="change" update="@this" global="false"/>
-                                        </p:inputText>
+                                        <h:panelGrid>
+                                            <h:outputText value="Correção" />
+                                            <p:inputText value="#{lancamentoFinanceiroBean.correcao}" size="8" styleClass="text-right" converter="#{toCurrency}">
+                                                <p:ajax event="change" update="@this" global="false"/>
+                                            </p:inputText>
+                                        </h:panelGrid>
                                     </p:column>
                                 </h:panelGrid>
 
-                                <h:panelGrid style="clear: both" columns="2">
-                                    <p:commandButton value="Adicionar" onclick="PF('i_dlg_acrescimo').hide()" action="#{lancamentoFinanceiroBean.adicionarAcrescimo()}" update="formLancamentoFinanceiro"  title="Excluir este Lançamento" style="float: left" icon="ui-icon-check"/>  
-                                    <p:commandButton value="Cancelar" onclick="PF('i_dlg_acrescimo').hide()" style="float: left" icon="ui-icon-close"/>  
-                                </h:panelGrid>
-                            </p:dialog>                            
-
-                            <p:dataTable var="linha" id="tbl" value="#{lancamentoFinanceiroBean.listaLancamento}" emptyMessage="Nenhum Lançamento Emitido!">
-                                <p:column style="width:2%">  
-                                    <p:rowToggler />  
-                                </p:column>  
-
-                                <p:column headerText="Lançamento" style="text-align: center">
-                                    <p:commandLink value="#{linha.argumento0.lote.lancamento}" title="Ver detalhes deste Lançamento" action="#{lancamentoFinanceiroBean.editar(linha)}" update=":formLancamentoFinanceiro:" oncomplete="PF('i_dlg_novo').show()" style="font-weight: bold"/>
-                                </p:column>
-
-                                <p:column headerText="Emissão" style="text-align: center">
-                                    <p:commandLink value="#{linha.argumento0.lote.emissao}" title="Ver detalhes deste Lançamento" action="#{lancamentoFinanceiroBean.editar(linha)}" update=":formLancamentoFinanceiro:" oncomplete="PF('i_dlg_novo').show()" style="font-weight: bold"/>
-                                </p:column>
-
-                                <p:column headerText="Documento" style="text-align: center">
-                                    <p:commandLink value="#{linha.argumento0.lote.documento}" title="Ver detalhes deste Lançamento" action="#{lancamentoFinanceiroBean.editar(linha)}" update=":formLancamentoFinanceiro:" oncomplete="PF('i_dlg_novo').show()" style="font-weight: bold"/>
-                                </p:column>
-
-                                <p:column headerText="Pessoa">
-                                    <p:commandLink value="#{linha.argumento0.lote.pessoa.nome}" title="Ver detalhes deste Lançamento" action="#{lancamentoFinanceiroBean.editar(linha)}" update=":formLancamentoFinanceiro:" oncomplete="PF('i_dlg_novo').show()" style="font-weight: bold"/>
-                                </p:column>
-
-                                <p:column headerText="Valor">
-                                    <h:outputText value="R$ "/>
-                                    <h:outputText value="#{linha.argumento1}" style="float: right"/>
-                                </p:column>
-
-
-                                <p:rowExpansion>
-                                    <h:panelGrid columns="4" style="height: 40px" styleClass="sbb">
-                                        <p:column>
-                                            <h:outputText value="Nr Lote" style="font-weight: bold"/><br />
-                                            <h:outputLabel value="#{linha.argumento0.lote.id}"/>
-                                        </p:column>
-
-                                        <p:column>
-                                            <h:outputText value="Usuário" style="font-weight: bold"/><br />
-                                            <h:outputLabel value="#{linha.argumento0.usuario.pessoa.nome}" />
-                                        </p:column>
-
-                                        <p:column>
-                                            <h:outputText value="Filial" style="font-weight: bold"/><br />
-                                            <h:outputLabel value="#{linha.argumento0.lote.filial.filial.pessoa.nome}" />
-                                        </p:column>
-
-                                    </h:panelGrid>
-                                </p:rowExpansion>
-                            </p:dataTable>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Adicionar" onclick="PF('i_dlg_acrescimo').hide()" action="#{lancamentoFinanceiroBean.adicionarAcrescimo()}" update="form_lf"  title="Excluir este Lançamento" icon="ui-icon-check"/>  
+                                        <p:commandButton value="Cancelar" onclick="PF('i_dlg_acrescimo').hide()" icon="ui-icon-close"/>  
+                                    </h:panelGrid>                                    
+                                </f:facet>
+                            </p:dialog>
                         </h:form>
                     </p:panel>
                 </f:view>

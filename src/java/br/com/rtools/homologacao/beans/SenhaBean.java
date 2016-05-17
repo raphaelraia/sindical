@@ -16,6 +16,13 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 
+/**
+ * "host_local": "localhost", "host_web": "www.hostexternal.com" (add param in
+ * url -> host_web=true), "port": 80, "email_suport": "suport@business.com",
+ * "url_sistem_master": "http://www.hostexternal.com/Context/"
+ *
+ * @author rtools2
+ */
 @ManagedBean
 @ViewScoped
 public class SenhaBean implements Serializable {
@@ -29,6 +36,7 @@ public class SenhaBean implements Serializable {
     private String firstCall;
     private Integer recallId;
     private String recallColor;
+    private Boolean host_web;
 
     @PostConstruct
     public void init() {
@@ -40,6 +48,12 @@ public class SenhaBean implements Serializable {
         String client = GenericaRequisicao.getParametro("client");
         String mac = GenericaRequisicao.getParametro("mac");
         tipo = GenericaRequisicao.getParametro("tipo");
+        host_web = false;
+        try {
+            host_web = Boolean.valueOf(GenericaRequisicao.getParametro("host_web"));
+        } catch (Exception e) {
+            host_web = false;
+        }
         if (tipo == null || tipo.isEmpty()) {
             tipo = "MESA";
         }
@@ -83,17 +97,15 @@ public class SenhaBean implements Serializable {
                     }
                     listSenha.clear();
                 }
-            } else {
-                if(FacesContext.getCurrentInstance().isPostback()) {
-                    sound = true;                    
-                }
+            } else if (FacesContext.getCurrentInstance().isPostback()) {
+                sound = true;
             }
             if (listSenha.isEmpty()) {
                 listSenha = sd.sequence(macFilial.getFilial().getId(), 4);
-                if(!listSenha.isEmpty()) {
+                if (!listSenha.isEmpty()) {
                     if (GenericaSessao.exists("firstCall")) {
                         try {
-                            firstCall = GenericaSessao.getString("firstCall");                        
+                            firstCall = GenericaSessao.getString("firstCall");
                         } catch (Exception e) {
 
                         }
@@ -196,6 +208,14 @@ public class SenhaBean implements Serializable {
 
     public void setRecallId(Integer recallId) {
         this.recallId = recallId;
+    }
+
+    public Boolean getHost_web() {
+        return host_web;
+    }
+
+    public void setHost_web(Boolean host_web) {
+        this.host_web = host_web;
     }
 
 }

@@ -1,14 +1,14 @@
 package br.com.rtools.financeiro.beans;
 
-import br.com.rtools.financeiro.CentroCustoContabil;
-import br.com.rtools.financeiro.CentroCustoContabilSub;
+import br.com.rtools.financeiro.CentroCusto;
 import br.com.rtools.financeiro.ContaOperacao;
 import br.com.rtools.financeiro.Operacao;
 import br.com.rtools.financeiro.Plano5;
+import br.com.rtools.financeiro.dao.CentroCustoDao;
 import br.com.rtools.financeiro.dao.ContaOperacaoDao;
 import br.com.rtools.logSistema.NovoLog;
+import br.com.rtools.pessoa.Filial;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.PF;
@@ -31,7 +31,6 @@ public class ContaOperacaoBean implements Serializable {
     private List<ContaOperacao> listContaOperacao;
     private List<Plano5> listPlano5;
     private Plano5[] selectedPlano5;
-    private Boolean[] hidden;
     private String es;
     private Boolean contaFixa;
     private Boolean selectedAll;
@@ -46,17 +45,16 @@ public class ContaOperacaoBean implements Serializable {
     public void init() {
         contaOperacao = new ContaOperacao();
         selectedContaOperacao = null;
-        listContaOperacao = new ArrayList<ContaOperacao>();
-        listPlano5 = new ArrayList<Plano5>();
+        listContaOperacao = new ArrayList<>();
+        listPlano5 = new ArrayList<>();
         selectedPlano5 = null;
         listSelectItem = new ArrayList[]{
-            new ArrayList<SelectItem>(),
-            new ArrayList<SelectItem>(),
-            new ArrayList<SelectItem>(),
-            new ArrayList<SelectItem>()
+            new ArrayList<>(),
+            new ArrayList<>(),
+            new ArrayList<>(),
+            new ArrayList<>()
         };
         index = new Integer[]{0, 0, 0, 0};
-        hidden = new Boolean[]{false};
         es = "E";
         contaFixa = false;
         selectedAll = false;
@@ -71,54 +69,58 @@ public class ContaOperacaoBean implements Serializable {
         GenericaSessao.remove("contaOperacaoBean");
     }
 
-    public void clear(int type) {
-        hidden[0] = false;
-        if (type == 1) {
-            selectedAll = false;
-            index[1] = 0;
-            index[2] = 0;
-            index[3] = 0;
-            listSelectItem[3] = new ArrayList();
-            listPlano5.clear();
-            listContaOperacao.clear();
-        } else if (type == 4) {
-            if (type == 4) {
-                listPlano5.clear();
-                listContaOperacao.clear();
+    public void clear(Integer type) {
+        if (null != type) {
+            switch (type) {
+                case 1:
+                    selectedAll = false;
+                    index[1] = 0;
+                    index[3] = 0;
+                    listSelectItem[1] = new ArrayList();
+                    listSelectItem[3] = new ArrayList();
+                    listPlano5.clear();
+                    listContaOperacao.clear();
+                    break;
+                case 4:
+                    if (type == 4) {
+                        listPlano5.clear();
+                        listContaOperacao.clear();
 
-                contaOperacao = new ContaOperacao();
-                PF.closeDialog("dlg_co");
-                PF.update("form_co");
-            }
-        } else if (type == 2) {
-            selectedAll = false;
-            getListPlano5().clear();
-            getListContaOperacao().clear();
-        } else if (type == 3) {
-            getListContaOperacao().clear();
-        } else if (type == 5) {
-            index[1] = 0;
-            index[2] = 0;
-            es = "E";
-            contaFixa = false;
-            Operacao o = (Operacao) new Dao().find(new Operacao(), Integer.parseInt(getListOperacoes().get(index[0]).getDescription()));
-            if (o.getId() == 1 || o.getId() == 2) {
-                hidden[0] = true;
-            } else {
-                hidden[0] = false;
-            }
-        } else if (type == 6) {
-            Operacao o = (Operacao) new Dao().find(new Operacao(), Integer.parseInt(getListOperacoes().get(index[0]).getDescription()));
-            if (o.getId() == 1 || o.getId() == 2) {
-                hidden[0] = true;
-            } else {
-                hidden[0] = false;
-            }
-        } else if (type == 7) {
-            Boolean sa = false;
-            selectedAll = !selectedAll;
-            for (int i = 0; i < listPlano5.size(); i++) {
-                listPlano5.get(i).setSelected(selectedAll);
+                        contaOperacao = new ContaOperacao();
+                        PF.closeDialog("dlg_co");
+                        PF.update("form_co");
+                    }
+                    break;
+                case 2:
+                    selectedAll = false;
+                    getListPlano5().clear();
+                    getListContaOperacao().clear();
+                    break;
+                case 3:
+                    getListContaOperacao().clear();
+                    break;
+                case 5:
+                    index[1] = 0;
+                    index[2] = 0;
+                    Dao dao = new Dao();
+                    contaOperacao.setOperacao((Operacao) dao.find(new Operacao(), Integer.parseInt(getListOperacoes().get(index[0]).getDescription())));
+                    contaFixa = false;
+                    break;
+                case 6:
+                    break;
+                case 7:
+                    Boolean sa = false;
+                    selectedAll = !selectedAll;
+                    for (int i = 0; i < listPlano5.size(); i++) {
+                        listPlano5.get(i).setSelected(selectedAll);
+                    }
+                    break;
+                case 8:
+                    index[1] = 0;
+                    listSelectItem[1].clear();
+                    break;
+                default:
+                    break;
             }
         }
     }
@@ -126,66 +128,57 @@ public class ContaOperacaoBean implements Serializable {
     public void setItem(Plano5 p) {
         contaOperacao = new ContaOperacao();
         contaOperacao.setPlano5(p);
-        DaoInterface di = new Dao();
-        contaOperacao.setOperacao((Operacao) di.find(new Operacao(), Integer.parseInt(getListOperacoes().get(index[0]).getDescription())));
-        if (contaOperacao.getOperacao().getId() == 1 || contaOperacao.getOperacao().getId() == 2) {
-            hidden[0] = true;
-        } else {
-            hidden[0] = false;
-        }
+        Dao dao = new Dao();
+        contaOperacao.setOperacao((Operacao) dao.find(new Operacao(), Integer.parseInt(getListOperacoes().get(index[0]).getDescription())));
         PF.openDialog("dlg_co");
         PF.update("form_co:i_panel_co");
     }
 
     public void save() {
-        DaoInterface di = new Dao();
+        Dao dao = new Dao();
         NovoLog novoLog = new NovoLog();
-        if (contaOperacao.getOperacao().getId() == 1 || contaOperacao.getOperacao().getId() == 2) {
-            if (getListCentroCustoContabil().isEmpty()) {
-                GenericaMensagem.warn("Validação", "Cadastrar Centro de Custo Contábil");
-                PF.update("form_co:i_message_co");
-                return;
-            }
-            if (getListCentroCustoContabilSub().isEmpty()) {
-                GenericaMensagem.warn("Validação", "Cadastrar Centro de Custo Contábil Sub");
-                PF.update("form_co:i_message_co");
-                return;
-            }
-            contaOperacao.setCentroCustoContabilSub((CentroCustoContabilSub) di.find(new CentroCustoContabilSub(), Integer.parseInt(getListCentroCustoContabilSub().get(index[2]).getDescription())));
-        } else {
-            contaOperacao.setCentroCustoContabilSub(null);
+        if (getListFilial().isEmpty()) {
+            GenericaMensagem.warn("Validação", "Cadastrar Filial");
+            PF.update("form_co:i_message_co");
+            return;
         }
-        di.openTransaction();
+        contaOperacao.setFilial((Filial) dao.find(new Filial(), Integer.parseInt(getListFilial().get(index[2]).getDescription())));
+        if (getListCentroCusto().isEmpty()) {
+            contaOperacao.setCentroCusto(null);
+        } else {
+            contaOperacao.setCentroCusto((CentroCusto) dao.find(new CentroCusto(), Integer.parseInt(getListCentroCusto().get(index[1]).getDescription())));
+        }
+        dao.openTransaction();
         if (contaOperacao.getId() == -1) {
-            if (di.save(contaOperacao)) {
-                di.commit();
+            if (dao.save(contaOperacao)) {
+                dao.commit();
                 GenericaMensagem.info("Sucesso", "Registro adicionado com sucesso");
                 clear(2);
                 PF.update("form_co:i_panel_co");
                 PF.update("form_co:i_message_co");
                 PF.update("form_co:i_tbl_co");
-                //novoLog.save(""+contaOperacao);
+                novoLog.save("" + contaOperacao.toString());
             } else {
                 GenericaMensagem.warn("Erro", "Ao adicionar registro!");
                 PF.update("form_co:i_panel_co");
                 PF.update("form_co:i_message_co");
-                di.rollback();
+                dao.rollback();
             }
         } else {
-            ContaOperacao co = (ContaOperacao) di.find(contaOperacao);
-            if (di.update(contaOperacao)) {
-                di.commit();
+            ContaOperacao co = (ContaOperacao) dao.find(contaOperacao);
+            if (dao.update(contaOperacao)) {
+                dao.commit();
                 GenericaMensagem.info("Sucesso", "Registro atualizado com sucesso");
                 clear(2);
                 PF.update("form_co:i_panel_co");
                 PF.update("form_co:i_message_co");
                 PF.update("form_co:i_tbl_co");
-                //novoLog.update(contaOperacao.toString(), co.toString());
+                novoLog.update(contaOperacao.toString(), co.toString());
             } else {
                 GenericaMensagem.warn("Erro", "Ao atualizado registro!");
                 PF.update("form_co:i_panel_co");
                 PF.update("form_co:i_message_co");
-                di.rollback();
+                dao.rollback();
             }
         }
     }
@@ -193,28 +186,31 @@ public class ContaOperacaoBean implements Serializable {
     public void saveAll(Boolean selected) {
         Dao dao = new Dao();
         ContaOperacao cc = new ContaOperacao();
-        CentroCustoContabilSub cccs = null;
         Operacao o = (Operacao) dao.find(new Operacao(), Integer.parseInt(getListOperacoes().get(index[0]).getDescription()));
         if (o.getId() == 1 || o.getId() == 2) {
-            if (getListCentroCustoContabil().isEmpty()) {
+            if (getListCentroCusto().isEmpty()) {
                 GenericaMensagem.warn("Validação", "Cadastrar Centro de Custo Contábil");
                 PF.update("form_co:i_message_co_todos");
                 return;
             }
-            if (getListCentroCustoContabilSub().isEmpty()) {
+            if (getListFilial().isEmpty()) {
                 GenericaMensagem.warn("Validação", "Cadastrar Centro de Custo Contábil Sub");
                 PF.update("form_co:i_message_co_todos");
                 return;
             }
-            cccs = (CentroCustoContabilSub) dao.find(new CentroCustoContabilSub(), Integer.parseInt(getListCentroCustoContabilSub().get(index[2]).getDescription()));
+        }
+        CentroCusto centroCusto = null;
+        Filial f = (Filial) dao.find(new Filial(), Integer.parseInt(getListFilial().get(index[2]).getDescription()));
+        if (!getListCentroCusto().isEmpty()) {
+            centroCusto = (CentroCusto) dao.find(new CentroCusto(), Integer.parseInt(getListCentroCusto().get(index[1]).getDescription()));
         }
         for (int i = 0; i < listPlano5.size(); i++) {
             if (listPlano5.get(i).getSelected() || selected) {
-                cc.setCentroCustoContabilSub(cccs);
                 cc.setPlano5(listPlano5.get(i));
                 cc.setOperacao(o);
+                cc.setFilial(f);
+                cc.setCentroCusto(centroCusto);
                 cc.setContaFixa(contaFixa);
-                cc.setEs(es);
                 dao.save(cc, true);
                 cc = new ContaOperacao();
             }
@@ -227,22 +223,8 @@ public class ContaOperacaoBean implements Serializable {
 
     public void editItem(ContaOperacao co) {
         contaOperacao = co;
-        DaoInterface di = new Dao();
+        Dao dao = new Dao();
         if (contaOperacao.getOperacao().getId() == 1 || contaOperacao.getOperacao().getId() == 2) {
-            for (int i = 0; i < getListCentroCustoContabil().size(); i++) {
-                if (contaOperacao.getCentroCustoContabilSub().getCentroCustoContabil().getId() == Integer.parseInt(getListCentroCustoContabil().get(i).getDescription())) {
-                    index[1] = i;
-                    break;
-                }
-            }
-            index[2] = 0;
-            listSelectItem[2].clear();
-            for (int i = 0; i < getListCentroCustoContabilSub().size(); i++) {
-                if (contaOperacao.getCentroCustoContabilSub().getId() == Integer.parseInt(getListCentroCustoContabilSub().get(i).getDescription())) {
-                    index[2] = i;
-                    break;
-                }
-            }
         }
         PF.openDialog("dlg_co_todos");
         PF.update("form_co:i_panel_co");
@@ -258,12 +240,12 @@ public class ContaOperacaoBean implements Serializable {
             GenericaMensagem.warn("Validação", "Nenhum item selecionado!");
             return;
         }
-        DaoInterface di = new Dao();
-        di.openTransaction();
+        Dao dao = new Dao();
+        dao.openTransaction();
         for (int i = 0; i < selectedContaOperacao.length; i++) {
             for (int j = 0; j < listContaOperacao.size(); j++) {
                 if (listContaOperacao.get(j).getId() == selectedContaOperacao[i].getId()) {
-                    if (!di.delete(di.find(listContaOperacao.get(j)))) {
+                    if (!dao.delete(listContaOperacao.get(j))) {
                         err = true;
                         break;
                     }
@@ -275,34 +257,34 @@ public class ContaOperacaoBean implements Serializable {
         }
         if (err) {
             GenericaMensagem.warn("Erro", "Ao excluir registros selecionados!");
-            di.rollback();
+            dao.rollback();
         } else {
             GenericaMensagem.info("Sucesso", "Registro(s) excluídos com sucesso");
             clear(2);
             PF.update("form_co");
-            di.commit();
+            dao.commit();
         }
     }
 
     public void removeAllItens() {
-        DaoInterface di = new Dao();
-        di.openTransaction();
+        Dao dao = new Dao();
+        dao.openTransaction();
         boolean err = false;
         for (int i = 0; i < listContaOperacao.size(); i++) {
-            if (!di.delete(di.find(listContaOperacao.get(i)))) {
+            if (!dao.delete(listContaOperacao.get(i))) {
                 err = true;
                 break;
             }
         }
         if (err) {
             GenericaMensagem.warn("Erro", "Ao excluir registros selecionados!");
-            di.rollback();
+            dao.rollback();
         } else {
             GenericaMensagem.info("Sucesso", "Registro(s) excluídos com sucesso");
             selectedContaOperacao = null;
             clear(2);
             PF.update("form_co");
-            di.commit();
+            dao.commit();
         }
     }
 
@@ -312,8 +294,8 @@ public class ContaOperacaoBean implements Serializable {
         } else {
             co.setContaFixa(true);
         }
-        DaoInterface di = new Dao();
-        if (di.update(co, true)) {
+        Dao dao = new Dao();
+        if (dao.update(co, true)) {
             clear(2);
             PF.update("form_co");
             GenericaMensagem.info("Sucesso", "Registro atualizado");
@@ -323,8 +305,8 @@ public class ContaOperacaoBean implements Serializable {
     }
 
     public void removeItem(ContaOperacao co) {
-        DaoInterface di = new Dao();
-        if (di.delete(co, true)) {
+        Dao dao = new Dao();
+        if (dao.delete(co, true)) {
             clear(2);
             PF.update("form_co");
             GenericaMensagem.info("Sucesso", "Registro excluído");
@@ -340,13 +322,12 @@ public class ContaOperacaoBean implements Serializable {
      */
     public List<SelectItem> getListOperacoes() {
         if (listSelectItem[0].isEmpty()) {
-            DaoInterface di = new Dao();
-            List<Operacao> list = (List<Operacao>) di.list(new Operacao());
+            List<Operacao> list = (List<Operacao>) new Dao().list(new Operacao(), true);
             for (int i = 0; i < list.size(); i++) {
                 listSelectItem[0].add(new SelectItem(i, list.get(i).getDescricao(), "" + list.get(i).getId()));
             }
             if (listSelectItem[0].isEmpty()) {
-                listSelectItem[0] = new ArrayList<SelectItem>();
+                listSelectItem[0] = new ArrayList<>();
             }
         }
         return listSelectItem[0];
@@ -357,19 +338,22 @@ public class ContaOperacaoBean implements Serializable {
      *
      * @return
      */
-    public List<SelectItem> getListCentroCustoContabil() {
-        if (contaOperacao.getCentroCustoContabilSub() == null) {
-            listSelectItem[1].clear();
-            return listSelectItem[1];
-        }
+    public List<SelectItem> getListCentroCusto() {
         if (listSelectItem[1].isEmpty()) {
-            DaoInterface di = new Dao();
-            List<CentroCustoContabil> list = (List<CentroCustoContabil>) di.list(new CentroCustoContabil(), true);
-            for (int i = 0; i < list.size(); i++) {
-                listSelectItem[1].add(new SelectItem(i, list.get(i).getDescricao() + " - " + list.get(i).getCodigo(), "" + list.get(i).getId()));
-            }
-            if (listSelectItem[1].isEmpty()) {
-                listSelectItem[1] = new ArrayList<SelectItem>();
+            try {
+                Integer operacao_id = Integer.parseInt(listSelectItem[0].get(index[0]).getDescription());
+                Operacao o = (Operacao) new Dao().find(new Operacao(), operacao_id);
+                if (o.getCentroCusto()) {
+                    Integer filial_id = Integer.parseInt(listSelectItem[2].get(index[2]).getDescription());
+                    new Dao().find(new CentroCusto());
+                    List<CentroCusto> list = new CentroCustoDao().findByFilial(filial_id);
+                    index[1] = 0;
+                    for (int i = 0; i < list.size(); i++) {
+                        listSelectItem[1].add(new SelectItem(i, list.get(i).getDescricao(), "" + list.get(i).getId()));
+                    }
+                }
+            } catch (Exception e) {
+
             }
         }
         return listSelectItem[1];
@@ -380,24 +364,16 @@ public class ContaOperacaoBean implements Serializable {
      *
      * @return
      */
-    public List<SelectItem> getListCentroCustoContabilSub() {
-        if (contaOperacao.getCentroCustoContabilSub() == null) {
-            listSelectItem[1].clear();
-            return listSelectItem[1];
-        }
+    public List<SelectItem> getListFilial() {
         if (listSelectItem[2].isEmpty()) {
-            index[2] = 0;
-            if (!getListCentroCustoContabil().isEmpty()) {
-                DaoInterface di = new Dao();
-                int id = Integer.parseInt(getListCentroCustoContabil().get(index[1]).getDescription());
-                List<CentroCustoContabilSub> list = (List<CentroCustoContabilSub>) di.listQuery(new CentroCustoContabilSub(), "findByCCC", new Object[]{id});
-                for (int i = 0; i < list.size(); i++) {
-                    listSelectItem[2].add(new SelectItem(i, list.get(i).getDescricao() + " - " + list.get(i).getCodigo(), "" + list.get(i).getId()));
-                }
+            List<Filial> list = (List<Filial>) new Dao().list(new Filial(), true);
+            for (int i = 0; i < list.size(); i++) {
+                listSelectItem[2].add(new SelectItem(i, list.get(i).getFilial().getPessoa().getNome(), "" + list.get(i).getId()));
             }
             if (listSelectItem[2].isEmpty()) {
-                listSelectItem[2] = new ArrayList<SelectItem>();
+                listSelectItem[2] = new ArrayList<>();
             }
+            index[2] = 0;
         }
         return listSelectItem[2];
     }
@@ -490,14 +466,6 @@ public class ContaOperacaoBean implements Serializable {
 
     public void setIndex(Integer[] index) {
         this.index = index;
-    }
-
-    public Boolean[] getHidden() {
-        return hidden;
-    }
-
-    public void setHidden(Boolean[] hidden) {
-        this.hidden = hidden;
     }
 
     public Boolean getHabilitaTodos() {

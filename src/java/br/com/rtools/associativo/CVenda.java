@@ -88,6 +88,14 @@ public class CVenda implements java.io.Serializable {
     public void setQuarto(int quarto) {
         this.quarto = quarto;
     }
+    
+    public String getQuartoString() {
+        return Integer.toString(quarto);
+    }
+
+    public void setQuartoString(String quartoString) {
+        this.quarto = Integer.parseInt(quartoString);
+    }
 
     public String getObservacao() {
         return observacao;

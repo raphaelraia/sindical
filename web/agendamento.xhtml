@@ -437,17 +437,15 @@
                                     </h:column>
                                 </h:panelGrid>
                             </p:panel>
-
-                            <hr />
-
-                            <h:panelGrid columns="5">
-                                <p:commandButton value="#{agendamentoBean.agendamento.id == -1 ? 'Agendar' : 'Alterar'}" action="#{agendamentoBean.save()}" disabled="#{controleAcessoBean.botaoSalvar}" update="formConcluirAgendamento" />
-                                <p:commandButton value="Voltar" actionListener="#{agendamentoBean.setVisibleModal(false)}" update="formConcluirAgendamento" onclick="PF('dlg_agendamento').hide()"/>
-                                <p:commandButton value="Extrato na Tela" action="#{agendamentoBean.extratoTela}" />
-                                <p:commandButton value="Cancelar Horário" onclick="PF('dlg_cancelar').show()" rendered="#{agendamentoBean.renderCancelarHorario}" disabled="#{controleAcessoBean.botaoExcluir}" />
-                                <p:commandButton value="Imprimir Protocolo" action="#{protocoloAgendamento.imprimir(agendamentoBean.agendamento)}" rendered="#{agendamentoBean.agendamento.id != -1}" icon="ui-icon-print" ajax="false"/>
-                            </h:panelGrid>
-                            <!-- </p:scrollPanel> -->
+                            <f:facet name="footer">
+                                <h:panelGrid columns="5">
+                                    <p:commandButton value="#{agendamentoBean.agendamento.id == -1 ? 'Agendar' : 'Alterar'}" action="#{agendamentoBean.save()}" disabled="#{controleAcessoBean.botaoSalvar}" update="formConcluirAgendamento" />
+                                    <p:commandButton value="Voltar" actionListener="#{agendamentoBean.setVisibleModal(false)}" update="formConcluirAgendamento" onclick="PF('dlg_agendamento').hide()"/>
+                                    <p:commandButton value="Extrato na Tela" action="#{agendamentoBean.extratoTela}" />
+                                    <p:commandButton value="Cancelar Horário" onclick="PF('dlg_cancelar').show()" rendered="#{agendamentoBean.renderCancelarHorario}" disabled="#{controleAcessoBean.botaoExcluir}" />
+                                    <p:commandButton value="Imprimir Protocolo" action="#{protocoloAgendamento.imprimir(agendamentoBean.agendamento)}" rendered="#{agendamentoBean.agendamento.id != -1}" icon="ui-icon-print" ajax="false"/>
+                                </h:panelGrid>                                
+                            </f:facet>
                         </p:dialog>
 
                         <p:dialog widgetVar="dlg_cancelar" header="Deseja realmente CANCELAR essa Homologação?" resizable="false" modal="true">
@@ -475,11 +473,12 @@
                                     <f:selectItems value="#{agendamentoBean.listaHorarioTransferencia}"/>
                                 </p:selectOneMenu>
                             </h:panelGrid>
-                            <br />
-                            <h:panelGrid columns="2">
-                                <p:commandButton value="Alterar" action="#{agendamentoBean.salvarTransferencia()}" update="i_panel_agendamento :formAgendamento:tbl" style="clear: both; float: left" icon="ui-icon-check"/>  
-                                <p:commandButton value="Cancelar" onclick="PF('dlg_transferir_horario').hide()" style="float: left" icon="ui-icon-close"/>    
-                            </h:panelGrid>
+                            <f:facet name="footer">
+                                <h:panelGrid columns="2">
+                                    <p:commandButton value="Alterar" action="#{agendamentoBean.salvarTransferencia()}" update="i_panel_agendamento :formAgendamento:tbl" icon="ui-icon-check"/>
+                                    <p:commandButton value="Cancelar" onclick="PF('dlg_transferir_horario').hide()" icon="ui-icon-close"/>
+                                </h:panelGrid>                                
+                            </f:facet>
                         </p:dialog>
 
                         <p:dialog widgetVar="dlg_endereco" header="Endereço" resizable="false" modal="true" width="400">

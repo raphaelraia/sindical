@@ -19,6 +19,7 @@ import javax.persistence.TemporalType;
 @Table(name = "car_caravana")
 @NamedQuery(name = "Caravana.pesquisaID", query = "select c from Caravana c where c.id = :pid")
 public class Caravana implements java.io.Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -55,7 +56,7 @@ public class Caravana implements java.io.Serializable {
     private String observacao;
     @JoinColumn(name = "id_evt", referencedColumnName = "id")
     @ManyToOne
-    private Evt evt;    
+    private Evt evt;
 
     public Caravana(int id, AEvento aEvento, String dataSaida, String dataRetorno, String dataChegada, String horaSaida, String horaRetorno,
             String horaChegada, boolean isCafe, boolean isAlmoco, boolean isJantar, int quantidadePoltronas,
@@ -197,6 +198,22 @@ public class Caravana implements java.io.Serializable {
 
     public void setGuiaRecolhimento(int guiaRecolhimento) {
         this.guiaRecolhimento = guiaRecolhimento;
+    }
+
+    public String getQuantidadePoltronasString() {
+        return Integer.toString(quantidadePoltronas);
+    }
+
+    public void setQuantidadePoltronasString(String quantidadePoltronasString) {
+        this.quantidadePoltronas = Integer.parseInt(quantidadePoltronasString);
+    }
+
+    public String getGuiaRecolhimentoString() {
+        return Integer.toString(guiaRecolhimento);
+    }
+
+    public void setGuiaRecolhimentoString(String guiaRecolhimentoString) {
+        this.guiaRecolhimento = Integer.parseInt(guiaRecolhimentoString);
     }
 
     public String getObservacao() {

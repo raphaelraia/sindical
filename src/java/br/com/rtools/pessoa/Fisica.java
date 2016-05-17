@@ -291,8 +291,12 @@ public class Fisica implements java.io.Serializable {
     }
 
     public void selecionaDataNascimento(SelectEvent event) {
-        SimpleDateFormat format = new SimpleDateFormat("d/M/yyyy");
-        this.dtNascimento = DataHoje.converte(format.format(event.getObject()));
+        try {
+            SimpleDateFormat format = new SimpleDateFormat("d/M/yyyy");
+            this.dtNascimento = DataHoje.converte(format.format(event.getObject()));
+        } catch (Exception e) {
+            this.dtNascimento = null;
+        }
     }
 
     @Override

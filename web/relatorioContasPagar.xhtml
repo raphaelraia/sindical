@@ -1,0 +1,215 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>Relatório Contas a Pagar</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+    </h:head>
+    <h:body class="divMenu">
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>            
+        </f:subview>
+        <f:view>
+            <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}" footer="Tempo médio estimado: #{sisProcessoBean.tempoMedio()} ms">
+                <h:outputScript name="tradutor_primefaces.js" library="js" />
+                <h:form id="form_relatorio">            
+                    <p:growl id="id_messages_growl" showDetail="true" showSummary="true" />
+                    <h:outputText value="Relatório Contas a Pagar" styleClass="fonteHeader" />
+                    <div class="clear"></div>
+                    <p:panel styleClass="fundoCinza">
+                        <h:panelGrid  cellpadding="4" columns="5" id="id_pg_relatorios">
+                            <p:outputLabel value="Tipo de Relatório: " />
+                            <p:selectOneMenu id="id_tipo_relatorio" value="#{relatorioContasPagarBean.idRelatorio}">
+                                <p:ajax event="change" update="@this id_panel form_relatorio:i_panel_avancado" global="false" listener="#{relatorioContasPagarBean.listener(1)}"/>
+                                <f:selectItems value="#{relatorioContasPagarBean.listRelatorios}"/>
+                            </p:selectOneMenu>
+                            <p:outputLabel value="Ordenação: " rendered="#{not empty relatorioContasPagarBean.listRelatorioOrdem}"/>
+                            <p:selectOneMenu value="#{relatorioContasPagarBean.idRelatorioOrdem}" rendered="#{not empty relatorioContasPagarBean.listRelatorioOrdem}">
+                                <p:ajax event="change" update="@this"/>
+                                <f:selectItems value="#{relatorioContasPagarBean.listRelatorioOrdem}"/>
+                            </p:selectOneMenu>                            
+                        </h:panelGrid>
+                    </p:panel>                  
+                    <h:panelGrid columns="2" id="id_panel" columnClasses="verticalAlignTop, verticalAlignTop" styleClass="margin-top-max">
+                        <h:column>
+                            <p:panel header="Editar" style="width: 225px;" id="i_panel_avancado">
+                                <h:panelGrid>
+                                    <c:forEach items="#{relatorioContasPagarBean.listFilters}" var="filter" varStatus="loop" id="i_foreach">                                            
+                                        <p:selectBooleanButton value="#{filter.active}" onLabel="#{filter.value}" offLabel="#{filter.value}" style="width: 200px; text-align: left" rendered="#{!filter.disabled}">
+                                            <p:ajax event="change" update="@this form_relatorio:i_panel_avancado_2" listener="#{relatorioContasPagarBean.load(relatorioContasPagarBean.listFilters[loop.index])}" />
+                                        </p:selectBooleanButton>
+                                    </c:forEach>                                
+                                </h:panelGrid>
+                            </p:panel>
+                        </h:column>
+                        <h:column>
+                            <h:panelGrid id="i_panel_avancado_2" style="width: 800px">
+                                <p:column>
+                                    <p:panel header="Vencimento" style="width: 100%!important" id="i_panel_v" rendered="#{relatorioContasPagarBean.listFilters[0].active}">
+                                        <h:panelGrid columns="8" cellpadding="5 ">
+                                            <p:selectOneMenu label="Meses" value="#{relatorioContasPagarBean.tipoDataVencimento}" filter="true" filterMatchMode="startsWith">
+                                                <p:ajax event="change" global="false" update="@this i_panel_v"/>
+                                                <f:selectItem itemValue="todos" itemLabel="Todos" />
+                                                <f:selectItem itemValue="igual" itemLabel="Igual" />
+                                                <f:selectItem itemValue="apartir" itemLabel="A partir" />
+                                                <f:selectItem itemValue="ate" itemLabel="Até" />
+                                                <f:selectItem itemValue="faixa" itemLabel="Faixa" />
+                                            </p:selectOneMenu>
+                                            <p:inputMask value="#{relatorioContasPagarBean.dtVI}" converter="#{isDateString}" rendered="#{relatorioContasPagarBean.tipoDataVencimento eq 'igual' or relatorioContasPagarBean.tipoDataVencimento eq 'apartir' or relatorioContasPagarBean.tipoDataVencimento eq 'ate' or relatorioContasPagarBean.tipoDataVencimento eq 'faixa'}" size="10" mask="99/99/9999">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputMask>
+                                            <p:outputLabel value="até" rendered="#{relatorioContasPagarBean.tipoDataVencimento eq 'faixa'}"/>
+                                            <p:inputMask value="#{relatorioContasPagarBean.dtVF}" converter="#{isDateString}" rendered="#{relatorioContasPagarBean.tipoDataVencimento eq 'faixa'}" size="10" mask="99/99/9999">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputMask>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioContasPagarBean.close(relatorioContasPagarBean.listFilters[0])}" title="Remover filtro" update="form_relatorio"/>
+                                        </h:panelGrid>                                        
+                                    </p:panel>
+                                </p:column>
+                                <p:column>
+                                    <p:panel header="Pagamento" style="width: 100%!important" id="i_panel_p" rendered="#{relatorioContasPagarBean.listFilters[1].active}">
+                                        <h:panelGrid columns="8" cellpadding="5 ">
+                                            <p:selectOneMenu label="Meses" value="#{relatorioContasPagarBean.tipoDataPagamento}" filter="true" filterMatchMode="startsWith">
+                                                <p:ajax event="change" global="false" update="@this i_panel_p"/>
+                                                <f:selectItem itemValue="todos" itemLabel="Todos" />
+                                                <f:selectItem itemValue="igual" itemLabel="Igual" />
+                                                <f:selectItem itemValue="apartir" itemLabel="A partir" />
+                                                <f:selectItem itemValue="ate" itemLabel="Até" />
+                                                <f:selectItem itemValue="faixa" itemLabel="Faixa" />
+                                            </p:selectOneMenu>
+                                            <p:inputMask value="#{relatorioContasPagarBean.dtPI}" converter="#{isDateString}" rendered="#{relatorioContasPagarBean.tipoDataPagamento eq 'igual' or relatorioContasPagarBean.tipoDataPagamento eq 'apartir' or relatorioContasPagarBean.tipoDataPagamento eq 'ate' or relatorioContasPagarBean.tipoDataPagamento eq 'faixa'}" size="10" mask="99/99/9999">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputMask>
+                                            <p:outputLabel value="até" rendered="#{relatorioContasPagarBean.tipoDataPagamento eq 'faixa'}"/>
+                                            <p:inputMask value="#{relatorioContasPagarBean.dtPF}" converter="#{isDateString}" rendered="#{relatorioContasPagarBean.tipoDataPagamento eq 'faixa'}" size="10" mask="99/99/9999">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputMask>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioContasPagarBean.close(relatorioContasPagarBean.listFilters[1])}" title="Remover filtro" update="form_relatorio"/>
+                                        </h:panelGrid>                                        
+                                    </p:panel>
+                                </p:column>
+                                <p:column>
+                                    <p:panel header="Emissão" style="width: 100%!important" id="i_panel_e" rendered="#{relatorioContasPagarBean.listFilters[2].active}">
+                                        <h:panelGrid columns="8" cellpadding="5 ">
+                                            <p:selectOneMenu label="Meses" value="#{relatorioContasPagarBean.tipoDataEmissao}" filter="true" filterMatchMode="startsWith">
+                                                <p:ajax event="change" global="false" update="@this i_panel_e"/>
+                                                <f:selectItem itemValue="todos" itemLabel="Todos" />
+                                                <f:selectItem itemValue="igual" itemLabel="Igual" />
+                                                <f:selectItem itemValue="apartir" itemLabel="A partir" />
+                                                <f:selectItem itemValue="ate" itemLabel="Até" />
+                                                <f:selectItem itemValue="faixa" itemLabel="Faixa" />
+                                            </p:selectOneMenu>
+                                            <p:inputMask value="#{relatorioContasPagarBean.dtEI}" converter="#{isDateString}" rendered="#{relatorioContasPagarBean.tipoDataEmissao eq 'igual' or relatorioContasPagarBean.tipoDataEmissao eq 'apartir' or relatorioContasPagarBean.tipoDataEmissao eq 'ate' or relatorioContasPagarBean.tipoDataEmissao eq 'faixa'}" size="10" mask="99/99/9999">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputMask>
+                                            <p:outputLabel value="até" rendered="#{relatorioContasPagarBean.tipoDataEmissao eq 'faixa'}"/>
+                                            <p:inputMask value="#{relatorioContasPagarBean.dtEF}" converter="#{isDateString}" rendered="#{relatorioContasPagarBean.tipoDataEmissao eq 'faixa'}" size="10" mask="99/99/9999">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputMask>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioContasPagarBean.close(relatorioContasPagarBean.listFilters[2])}" title="Remover filtro" update="form_relatorio"/>
+                                        </h:panelGrid>                                        
+                                    </p:panel>
+                                </p:column>
+                                <p:column>
+                                    <p:panel header="Pessoa" style="width: 100%!important"  rendered="#{relatorioContasPagarBean.listFilters[3].active}">
+                                        <h:panelGrid columns="5">
+                                            <p:commandButton action="#{chamadaPaginaBean.pesquisa('pesquisaPessoa', 'pessoaBean')}" icon="ui-icon-search" title="Pesquisa pessoa"/>
+                                            <p:outputLabel value="#{relatorioContasPagarBean.credor.nome}" />
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioContasPagarBean.close(relatorioContasPagarBean.listFilters[3])}" title="Remover filtro" update="form_relatorio"/>
+                                        </h:panelGrid>                                        
+                                    </p:panel>
+                                </p:column>
+                                <p:column>
+                                    <p:panel header="Filiais" style="width: 100%!important" rendered="#{relatorioContasPagarBean.listFilters[4].active}" >
+                                        <h:panelGrid columns="4">
+                                            <p:selectCheckboxMenu label="Selecionar filiais" value="#{relatorioContasPagarBean.selectedFiliais}" filter="true" filterMatchMode="startsWith">
+                                                <p:ajax event="toggleSelect" global="false"/>
+                                                <p:ajax event="change" global="false"/>
+                                                <f:selectItems value="#{relatorioContasPagarBean.listFiliais}" />
+                                            </p:selectCheckboxMenu>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioContasPagarBean.close(relatorioContasPagarBean.listFilters[4])}" title="Remover filtro" update="form_relatorio"/>
+                                        </h:panelGrid>                                        
+                                    </p:panel>
+                                </p:column>                                
+                                <p:column>
+                                    <p:panel header="Contas" style="width: 100%!important" rendered="#{relatorioContasPagarBean.listFilters[5].active}" >
+                                        <h:panelGrid columns="4">
+                                            <p:selectCheckboxMenu label="Selecionar conta cobrança" value="#{relatorioContasPagarBean.selectedContaCobranca}" filter="true" filterMatchMode="startsWith">
+                                                <p:ajax event="toggleSelect" global="false" update="i_contas" listener="#{relatorioContasPagarBean.loadListContas}"/>
+                                                <p:ajax event="change" global="false" update="i_contas" listener="#{relatorioContasPagarBean.loadListContas}"/>
+                                                <f:selectItems value="#{relatorioContasPagarBean.listContaCobranca}" />
+                                            </p:selectCheckboxMenu>
+                                            <h:column>
+                                                <h:panelGroup layout="block" id="i_contas">
+                                                    <p:selectCheckboxMenu label="Selecionar contas" value="#{relatorioContasPagarBean.selectedContas}" filter="true" filterMatchMode="startsWith">
+                                                        <p:ajax event="toggleSelect" global="false"/>
+                                                        <p:ajax event="change" global="false"/>
+                                                        <f:selectItems value="#{relatorioContasPagarBean.listContas}" />
+                                                    </p:selectCheckboxMenu>                                                
+                                                </h:panelGroup>                                                
+                                            </h:column>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioContasPagarBean.close(relatorioContasPagarBean.listFilters[5])}" title="Remover filtro" update="form_relatorio"/>
+                                        </h:panelGrid>                                        
+                                    </p:panel>
+                                </p:column>                                
+                            </h:panelGrid>
+                        </h:column>
+                    </h:panelGrid>
+                    <p:panel styleClass="fundoCinza margin-top-max">
+                        <h:panelGrid columns="5" id="i_btns" cellpadding="3">
+                            <h:column>
+                                <h:panelGrid columns="2">
+                                    <p:commandButton value="Imprimir" icon="ui-icon-print" title="Imprimir" action="#{relatorioContasPagarBean.print()}" ajax="false" update="id_messages_growl" disabled="#{empty relatorioContasPagarBean.listRelatorios}"/>
+                                </h:panelGrid>
+                            </h:column>
+                            <p:selectBooleanCheckbox itemLabel="Cabeçalho" value="#{jasperBean.IS_HEADER}">
+                                <p:ajax event="change" update="@this" />
+                            </p:selectBooleanCheckbox>
+                            <h:column>
+                                <h:panelGrid columns="2">
+                                    <p:outputLabel value="Exportar para " />
+                                    <p:selectOneMenu label="Meses" value="#{jasperBean.EXPORT_TYPE}">
+                                        <p:ajax event="change" global="false" update="@this"/>
+                                        <f:selectItem itemValue="pdf" itemLabel="PDF" />
+                                        <f:selectItem itemValue="xls" itemLabel="Excel" />
+                                    </p:selectOneMenu>
+                                </h:panelGrid>
+                            </h:column>
+                            <h:column>
+                                <p:commandButton value="ALIAS para ordenar" title="Uso exclusivo do administrador" icon="ui-icon-close" onclick="PF('dlg_alias').show();" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
+                            </h:column>
+                        </h:panelGrid>                        
+                    </p:panel>
+                    <p:dialog widgetVar="dlg_alias" modal="true" width="330" header="ALIAS para ordenar">
+                        <h:panelGrid columns="1">
+                            <h:column>
+                                M.vencimento
+                            </h:column>
+                            <h:column>
+                                M.baixa
+                            </h:column>
+                            <h:column>
+                                FO.credor
+                            </h:column>
+                            <h:column>
+                                FO.filial
+                            </h:column>
+                            <h:column>
+                                M.emissao
+                            </h:column>
+                            <h:column>
+                                M.valor
+                            </h:column>                            
+                            <h:column>
+                                M.conta
+                            </h:column>                            
+                        </h:panelGrid>
+                    </p:dialog>
+                </h:form>               
+            </p:panel>
+        </f:view>
+    </h:body>
+</ui:composition>

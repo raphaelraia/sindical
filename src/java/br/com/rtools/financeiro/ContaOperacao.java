@@ -1,5 +1,6 @@
 package br.com.rtools.financeiro;
 
+import br.com.rtools.pessoa.Filial;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -27,16 +28,17 @@ public class ContaOperacao implements Serializable {
     @JoinColumn(name = "id_plano5", referencedColumnName = "id")
     @ManyToOne
     private Plano5 plano5;
-    @JoinColumn(name = "id_centro_custo_contabil_sub", referencedColumnName = "id", nullable = true)
-    @ManyToOne
-    private CentroCustoContabilSub centroCustoContabilSub;
     @JoinColumn(name = "id_operacao", referencedColumnName = "id")
     @ManyToOne
     private Operacao operacao;
-    @Column(name = "ds_es")
-    private String es;
     @Column(name = "is_conta_fixa", columnDefinition = "boolean default false")
     private boolean contaFixa;
+    @JoinColumn(name = "id_centro_custo", referencedColumnName = "id")
+    @ManyToOne
+    private CentroCusto centroCusto;
+    @JoinColumn(name = "id_filial", referencedColumnName = "id")
+    @ManyToOne
+    private Filial filial;
 
     @Transient
     private Boolean selected;
@@ -44,20 +46,20 @@ public class ContaOperacao implements Serializable {
     public ContaOperacao() {
         this.id = -1;
         this.plano5 = new Plano5();
-        this.centroCustoContabilSub = new CentroCustoContabilSub();
         this.operacao = new Operacao();
-        this.es = "";
         this.contaFixa = false;
+        this.filial = null;
         this.selected = false;
+        this.centroCusto = null;
     }
 
-    public ContaOperacao(int id, Plano5 plano5, CentroCustoContabilSub centroCustoContabilSub, Operacao operacao, String es, boolean contaFixa) {
+    public ContaOperacao(int id, Plano5 plano5, Operacao operacao, boolean contaFixa, CentroCusto centroCusto, Filial filial) {
         this.id = id;
         this.plano5 = plano5;
-        this.centroCustoContabilSub = centroCustoContabilSub;
         this.operacao = operacao;
-        this.es = es;
         this.contaFixa = contaFixa;
+        this.centroCusto = centroCusto;
+        this.filial = filial;
         this.selected = false;
     }
 
@@ -77,28 +79,12 @@ public class ContaOperacao implements Serializable {
         this.plano5 = plano5;
     }
 
-    public CentroCustoContabilSub getCentroCustoContabilSub() {
-        return centroCustoContabilSub;
-    }
-
-    public void setCentroCustoContabilSub(CentroCustoContabilSub centroCustoContabilSub) {
-        this.centroCustoContabilSub = centroCustoContabilSub;
-    }
-
     public Operacao getOperacao() {
         return operacao;
     }
 
     public void setOperacao(Operacao operacao) {
         this.operacao = operacao;
-    }
-
-    public String getEs() {
-        return es;
-    }
-
-    public void setEs(String es) {
-        this.es = es;
     }
 
     public boolean isContaFixa() {
@@ -117,9 +103,25 @@ public class ContaOperacao implements Serializable {
         this.selected = selected;
     }
 
+    public CentroCusto getCentroCusto() {
+        return centroCusto;
+    }
+
+    public void setCentroCusto(CentroCusto centroCusto) {
+        this.centroCusto = centroCusto;
+    }
+
+    public Filial getFilial() {
+        return filial;
+    }
+
+    public void setFilial(Filial filial) {
+        this.filial = filial;
+    }
+
     @Override
     public String toString() {
-        return "ContaOperacao{" + "id=" + id + ", plano5.id=" + plano5.getId() + ", centroCustoContabilSub.id=" + centroCustoContabilSub.getId() + ", operacao.id=" + operacao.getId() + ", es=" + es + ", contaFixa=" + contaFixa + '}';
+        return "ContaOperacao{" + "id=" + id + ", plano5=" + plano5 + ", operacao=" + operacao + ", contaFixa=" + contaFixa + ", centroCusto=" + centroCusto + ", filial=" + filial + ", selected=" + selected + '}';
     }
 
 }

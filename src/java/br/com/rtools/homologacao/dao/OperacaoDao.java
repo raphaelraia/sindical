@@ -39,7 +39,7 @@ public class OperacaoDao extends DB {
         }
         return new ArrayList();
     }
-    
+
     public OperacaoDepartamento pesquisaOperacaoDepartamento(Integer id_filial, Integer id_operacao) {
         try {
             Query qry = getEntityManager().createQuery("SELECT od FROM OperacaoDepartamento od WHERE od.filial.id = " + id_filial + " AND od.operacao.id = " + id_operacao);
@@ -50,7 +50,7 @@ public class OperacaoDao extends DB {
         }
         return null;
     }
-    
+
     public List<OperacaoDepartamento> listaExisteOperacaoDepartamento(Integer id_operacao, Integer id_filial, Integer id_departamento) {
         try {
             Query qry = getEntityManager().createQuery("SELECT od FROM OperacaoDepartamento od WHERE od.departamento.id = " + id_departamento + " AND od.filial.id = " + id_filial + " AND od.operacao.id = " + id_operacao);
@@ -59,6 +59,16 @@ public class OperacaoDao extends DB {
             e.getMessage();
         }
         return null;
+    }
+
+    public List findByEs(String es) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT O FROM Operacao O WHERE O.es = :es ORDER BY O.descricao");
+            query.setParameter("es", es);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
     }
 
 }

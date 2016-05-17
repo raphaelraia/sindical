@@ -75,7 +75,7 @@
                                 </h:panelGroup>
                                 <p:tabView id="i_tabview_fisica" activeIndex="#{fisicaBean.indexPessoaFisica}" style="width: 100%">
                                     <p:ajax event="tabChange" listener="#{fisicaBean.accordion}" update=":form_pessoa_fisica:i_end_rendered i_tabview_fisica"/> 
-                                    <p:tab title="Cadastro Pessoal">                            
+                                    <p:tab title="Cadastro Pessoal">
                                         <h:outputScript name="script_primefaces.js" library="js" />
                                         <h:outputText value="#{genericaMensagem.getHtmlMessage('error', 'PESSOA CADASTRADA EM OPOSIÇÃO', 'aaa')}" escape="false" rendered="#{fisicaBean.pessoaOposicao}" />
                                         <p:messages id="id_valida_documento" autoUpdate="true" showSummary="true" showDetail="true"  closable="true"/>
@@ -353,25 +353,27 @@
                                                 </h:panelGrid>
 
                                                 <p:dialog widgetVar="i_dlg_inativos" header="Lista de Inativações" resizable="false" width="600" modal="true">
-                                                    <p:dataTable value="#{fisicaBean.listaSocioInativo}" var="linha" rowIndexVar="index" emptyMessage="Clique para adicionar MAIS VENCIMENTO">
-                                                        <p:column width="15">  
-                                                            <p:rowToggler rendered="#{not empty linha.matriculaSocios.motivo}"/>  
-                                                        </p:column> 
-                                                        <p:column headerText="Data" width="80" styleClass="text-center">
-                                                            <p:commandLink ajax="false" value="#{linha.matriculaSocios.inativo}" action="#{fisicaBean.associarFisica(linha.servicoPessoa.pessoa)}" disabled="#{linha.matriculaSocios.id != fisicaBean.socios.matriculaSocios.id or controleAcessoBean.verificarPermissao('link_reativar_titular', 3)}"/>
-                                                        </p:column>
-                                                        <p:column headerText="Motivo">
-                                                            <p:commandLink ajax="false" value="#{linha.matriculaSocios.motivoInativacao.descricao}" action="#{fisicaBean.associarFisica(linha.servicoPessoa.pessoa)}" disabled="#{linha.matriculaSocios.id != fisicaBean.socios.matriculaSocios.id or controleAcessoBean.verificarPermissao('link_reativar_titular', 3)}"/>                                                            
-                                                        </p:column>
-                                                        <p:rowExpansion>
-                                                            #{linha.matriculaSocios.motivo}
-                                                        </p:rowExpansion>
-                                                    </p:dataTable>
+                                                    <h:panelGroup layout="block">
+                                                        <p:dataTable value="#{fisicaBean.listaSocioInativo}" var="linha" rowIndexVar="index" emptyMessage="Clique para adicionar MAIS VENCIMENTO">
+                                                            <p:column width="15">  
+                                                                <p:rowToggler rendered="#{not empty linha.matriculaSocios.motivo}"/>  
+                                                            </p:column> 
+                                                            <p:column headerText="Data" width="80" styleClass="text-center">
+                                                                <p:commandLink ajax="false" value="#{linha.matriculaSocios.inativo}" action="#{fisicaBean.associarFisica(linha.servicoPessoa.pessoa)}" disabled="#{linha.matriculaSocios.id != fisicaBean.socios.matriculaSocios.id or controleAcessoBean.verificarPermissao('link_reativar_titular', 3)}" title="TITULAR 'REATIVAR' - LINK  (Alteração)"/>
+                                                            </p:column>
+                                                            <p:column headerText="Motivo">
+                                                                <p:commandLink ajax="false" value="#{linha.matriculaSocios.motivoInativacao.descricao}" action="#{fisicaBean.associarFisica(linha.servicoPessoa.pessoa)}" disabled="#{linha.matriculaSocios.id != fisicaBean.socios.matriculaSocios.id or controleAcessoBean.verificarPermissao('link_reativar_titular', 3)}" title="TITULAR 'REATIVAR' - LINK (Alteração)"/>
+                                                            </p:column>
+                                                            <p:rowExpansion>
+                                                                #{linha.matriculaSocios.motivo}
+                                                            </p:rowExpansion>
+                                                        </p:dataTable>
+                                                    </h:panelGroup>
+                                                    <br />
+                                                    <br />
+                                                    <h:outputLabel value="* Clique no item da lista para reativar" styleClass="font-color-red"  />
                                                     <f:facet name="footer">
-                                                        <h:outputLabel value="* Clique no item da lista para reativar" styleClass="font-color-red"  />
-                                                        <br />
-                                                        <br />
-                                                        <p:commandButton value="Sair" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_inativos').hide()" icon="ui-icon-close"/>                                                        
+                                                        <p:commandButton value="Sair" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_inativos').hide()" icon="ui-icon-close"/>
                                                     </f:facet>
                                                 </p:dialog>                                                
                                             </p:panel>
@@ -521,7 +523,9 @@
 
                                             <p:column>
                                                 <p:outputLabel value="Data de Aposentadoria"/><br />
-                                                <p:inputMask value="#{fisicaBean.fisica.aposentadoria}" mask="99/99/9999" size="10" />                                    
+                                                <p:inputMask value="#{fisicaBean.fisica.aposentadoria}" mask="99/99/9999" size="10" converter="#{isDateString}">
+                                                    <p:ajax event="change" update="@this" />
+                                                </p:inputMask>                                    
                                             </p:column>
                                         </h:panelGrid>
 
@@ -630,7 +634,7 @@
                                     </p:accordionPanel>
                                 </h:panelGrid>
 
-                                <p:dialog id="i_panel_editar_endereco" widgetVar="i_dlg_editar_endereco" header="Editar Endereço de #{fisicaBean.pessoaEndereco.tipoEndereco.descricao.toUpperCase()}" resizable="false" width="400" modal="true" visible="#{fisicaBean.visibleEditarEndereco}">
+                                <p:dialog id="i_panel_editar_endereco" widgetVar="i_dlg_editar_endereco" header="Editar Endereço de #{fisicaBean.pessoaEndereco.tipoEndereco.descricao.toUpperCase()}" resizable="false" width="600" modal="true" visible="#{fisicaBean.visibleEditarEndereco}">
                                     <h:panelGrid>
                                         <h:panelGrid columns="1">
                                             <p:commandLink value="#{fisicaBean.pessoaEndereco.endereco.logradouro.descricao} 
@@ -650,13 +654,14 @@
                                                 <p:inputText size="35" value="#{fisicaBean.pessoaEndereco.complemento}" />
                                             </p:column>
                                         </h:panelGrid>
-
-                                        <h:panelGrid columns="3">
-                                            <p:commandButton value="Alterar"  type="submit" styleClass="ui-confirmdialog-yes" action="#{fisicaBean.alterarEndereco}" update="i_acc_tab_endereco" onclick="PF('i_dlg_editar_endereco').hide()" style="clear: both; float: left" icon="ui-icon-check"/>  
-                                            <p:commandButton value="Alterar Todos"  type="submit" styleClass="ui-confirmdialog-yes" action="#{fisicaBean.alterarTodosEndereco()}" update="i_acc_tab_endereco" onclick="PF('i_dlg_editar_endereco').hide()" style="clear: both; float: left" icon="ui-icon-check"/>  
-                                            <p:commandButton value="Cancelar" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_editar_endereco').hide()" style="float: left" icon="ui-icon-close" action="#{fisicaBean.setVisibleEditarEndereco(false)}"/>
-                                        </h:panelGrid>
                                     </h:panelGrid>
+                                    <f:facet name="footer">
+                                        <h:panelGrid columns="3">
+                                            <p:commandButton value="Alterar"  type="submit" styleClass="ui-confirmdialog-yes" action="#{fisicaBean.alterarEndereco}" update="i_acc_tab_endereco" onclick="PF('i_dlg_editar_endereco').hide()"  icon="ui-icon-check"/>  
+                                            <p:commandButton value="Alterar Todos"  type="submit" styleClass="ui-confirmdialog-yes" action="#{fisicaBean.alterarTodosEndereco()}" update="i_acc_tab_endereco" onclick="PF('i_dlg_editar_endereco').hide()"  icon="ui-icon-check"/>  
+                                            <p:commandButton value="Cancelar" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_editar_endereco').hide()"  icon="ui-icon-close" action="#{fisicaBean.setVisibleEditarEndereco(false)}"/>
+                                        </h:panelGrid>                                            
+                                    </f:facet>
                                 </p:dialog>
 
                                 <h:panelGrid columns="8">
@@ -687,9 +692,11 @@
                                         <h:outputLabel value="#{fisicaBean.mensagemAviso}" style="font-size: 12pt!important"/>
                                     </h:panelGrid>
 
-                                    <h:panelGrid columns="2">
-                                        <p:commandButton icon="ui-icon-check" value="OK" title="Ok e Fechar" action="#{fisicaBean.closeMensagemAviso()}" update="form_pessoa_fisica" oncomplete="PF('dlg_mensagem_aviso').hide()" />
-                                    </h:panelGrid>
+                                    <f:facet name="footer">
+                                        <h:panelGrid columns="3">
+                                            <p:commandButton icon="ui-icon-check" value="OK" title="Ok e Fechar" action="#{fisicaBean.closeMensagemAviso()}" update="form_pessoa_fisica" oncomplete="PF('dlg_mensagem_aviso').hide()" />
+                                        </h:panelGrid>
+                                    </f:facet>
                                 </p:dialog>
 
                                 <!-- PESQUISAR PROFISSAO -->
@@ -789,8 +796,10 @@
                                     </p:calendar>
                                 </h:panelGrid>
                                 <f:facet name="footer">
-                                    <p:commandButton value="Confirmar" title="Confirmar" onclick="PF('dlg_recadastro').hide();" update=":form_pessoa_fisica:i_tabview_fisica" action="#{fisicaBean.updateDataRecadastro}"/>
-                                    <p:commandButton value="Cancelar" title="Cancelar" onclick="PF('dlg_recadastro').hide();" action="#{fisicaBean.clear(2)}" />
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Confirmar" title="Confirmar" onclick="PF('dlg_recadastro').hide();" update=":form_pessoa_fisica:i_tabview_fisica" action="#{fisicaBean.updateDataRecadastro}"/>
+                                        <p:commandButton value="Cancelar" title="Cancelar" onclick="PF('dlg_recadastro').hide();" action="#{fisicaBean.clear(2)}" />                                        
+                                    </h:panelGrid>
                                 </f:facet>
                             </p:dialog>
                         </h:form>

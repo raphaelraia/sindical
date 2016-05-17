@@ -115,7 +115,7 @@ public class RescisaoContratoBean implements Serializable {
     public void destroy() {
         /* chamado quando outra view for chamada através do UIViewRoot.setViewId(String viewId) */
     }
-    
+
     public void inativarMovimentos() {
         if (motivoInativacao.isEmpty()) {
             GenericaMensagem.warn("Atenção", "Digite um motivo para exclusão!");
@@ -152,18 +152,17 @@ public class RescisaoContratoBean implements Serializable {
         }
 
         dao.commit();
-        
+
         listaMovimento.clear();
         pesquisaMovimentosPorMatricula();
     }
-
 
     public void marcarTodos() {
         for (ListaMovimentoCheck lmc : listaMovimento) {
             lmc.setCheck(chkSeleciona);
         }
     }
-    
+
     public void loadLiberaAcessaFilial() {
         if (new ControleAcessoBean().permissaoValida("libera_acesso_filiais", 4)) {
             liberaAcessaFilial = true;
@@ -207,9 +206,9 @@ public class RescisaoContratoBean implements Serializable {
     public MatriculaEscola getMatriculaEscola() {
         if (GenericaSessao.exists("matriculaEscolaPesquisa")) {
             matriculaEscola = (MatriculaEscola) GenericaSessao.getObject("matriculaEscolaPesquisa", true);
-            
+
             listaMovimento.clear();
-            
+
             if (matriculaEscola.getServicoPessoa().getEvt() != null) {
                 this.idEvt = matriculaEscola.getServicoPessoa().getEvt().getId();
                 titular = matriculaEscola.getServicoPessoa().getCobranca();
@@ -275,7 +274,7 @@ public class RescisaoContratoBean implements Serializable {
             List<Movimento> l = new RescisaoContratoDao().listaMovimentoPagos(idEvt);
             Integer parcelas_pagas = l.size();
             parcelasRestantes = parcelasRestantes - parcelas_pagas;
-                // ------------------
+            // ------------------
 
             // VALOR RESTANTE
             float valor_parcela;
@@ -450,7 +449,11 @@ public class RescisaoContratoBean implements Serializable {
                     (FStatus) new Dao().find(new FStatus(), 1),
                     null,
                     false,
-                    0
+                    0,
+                    null,
+                    null,
+                    null,
+                    false
             );
 
             if (!dao.save(l)) {

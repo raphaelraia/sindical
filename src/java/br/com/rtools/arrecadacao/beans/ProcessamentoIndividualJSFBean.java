@@ -36,6 +36,7 @@ import br.com.rtools.utilitarios.Mail;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.SalvarAcumuladoDB;
 import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
+import br.com.rtools.utilitarios.SelectItemSort;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -1026,7 +1027,7 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
         int i = 0;
         ServicosDB db = new ServicosDBToplink();
         List select = db.pesquisaTodos(4);
-        if (select.size() != 0) {
+        if (!select.isEmpty()) {
             while (i < select.size()) {
                 servicos.add(new SelectItem(
                         new Integer(i),

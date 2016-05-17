@@ -48,11 +48,8 @@ public class ServicosDBToplink extends DB implements ServicosDB {
     @Override
     public List pesquisaTodos(int idRotina) {
         try {
-            Query qry = getEntityManager().createQuery(
-                    "SELECT S.servicos "
-                    + "  FROM ServicoRotina AS S"
-                    + " WHERE S.rotina.id = :r");
-            qry.setParameter("r", idRotina);
+            Query qry = getEntityManager().createQuery("SELECT S.servicos FROM ServicoRotina AS S WHERE S.rotina.id = :rotina ORDER BY S.servicos.descricao ASC");
+            qry.setParameter("rotina", idRotina);
             return (qry.getResultList());
         } catch (Exception e) {
             System.out.println(e.getMessage());

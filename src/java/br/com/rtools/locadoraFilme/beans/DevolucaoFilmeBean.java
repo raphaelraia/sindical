@@ -206,7 +206,11 @@ public class DevolucaoFilmeBean implements Serializable {
                                         (FStatus) dao.find(new FStatus(), 1),
                                         null,
                                         false,
-                                        0
+                                        0,
+                                        null,
+                                        null,
+                                        null,
+                                        false
                                 );
                                 if (!dao.save(lote)) {
                                     dao.rollback();

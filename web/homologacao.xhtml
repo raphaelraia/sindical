@@ -79,13 +79,17 @@
                         </h:panelGrid>
                     </p:dialog>  
 
-                    <p:dialog id="i_painel_excluir" modal="true" header="Deseja cancelar essa homologação?" width="500" closable="true" widgetVar="dgl_painel_excluir">
-                        <p:outputLabel value="Digite o motivo para o cancelamento" /><br />
-                        <p:inputTextarea value="#{homologacaoBean.cancelamento.motivo}" rows="4" style="resize: none; width: 100%" />
-                        <h:panelGrid columns="2">
-                            <p:commandButton value="Sim" title="Cancelar essa Homologação" action="#{homologacaoBean.cancelarHomologacao()}" oncomplete="PF('dgl_painel_excluir').hide()" update=":formConcluirHomologacao" icon="ui-icon-check"/>
-                            <p:commandButton value="Não" title="Desfazer" oncomplete="PF('dgl_painel_excluir').hide()" icon="ui-icon-close"/>
+                    <p:dialog id="i_painel_excluir" modal="true" header="Deseja cancelar essa homologação?" width="500" closable="true" widgetVar="dgl_painel_excluir" resizable="false">
+                        <h:panelGrid columns="1" style="width: 100%">
+                            <p:outputLabel value="Digite o motivo para o cancelamento" />
+                            <p:inputTextarea value="#{homologacaoBean.cancelamento.motivo}" rows="4" style="resize: none; width: 100%" />                            
                         </h:panelGrid>
+                        <f:facet name="footer">
+                            <h:panelGrid columns="2">
+                                <p:commandButton value="Sim" title="Cancelar essa Homologação" action="#{homologacaoBean.cancelarHomologacao()}" oncomplete="PF('dgl_painel_excluir').hide()" update=":formConcluirHomologacao" icon="ui-icon-check"/>
+                                <p:commandButton value="Não" title="Desfazer" oncomplete="PF('dgl_painel_excluir').hide()" icon="ui-icon-close"/>
+                            </h:panelGrid>                            
+                        </f:facet>
                     </p:dialog>
                 </h:form>
 
@@ -93,11 +97,14 @@
                     <p:dialog widgetVar="dlg_homologacao" header="Agendamento de Homologação" resizable="false" modal="true" visible="#{homologacaoBean.visibleModal}" height="550" width="900">
                         <p:ajax event="close" listener="#{homologacaoBean.closeModal()}" update=":form_cancelar_data_table"/>  
 
-                        <p:outputLabel value="Empresa: " style="font-weight: bold" rendered="#{homologacaoBean.juridica.pessoa.nome != ''}"/>
-                        <p:outputLabel value="#{homologacaoBean.juridica.pessoa.nome}" />
                         <p:messages id="msg_dialog1" showDetail="true" closable="true"/>
+                        
+                        <h:panelGroup styleClass="margin-top" layout="block">
+                            <p:outputLabel value="Empresa: " style="font-weight: bold" rendered="#{homologacaoBean.juridica.pessoa.nome != ''}"/>
+                            <p:outputLabel value="#{homologacaoBean.juridica.pessoa.nome}" />
+                        </h:panelGroup>
 
-                        <h:panelGrid id="i_panel_agendamento">
+                        <h:panelGroup id="i_panel_agendamento" layout="block">
                             <p:panel styleClass="fundoCinza" style="width: 850px; margin-top: 10px">
                                 <h:panelGrid columns="5">
                                     <h:column>
@@ -128,7 +135,7 @@
                                     </h:column>
                                 </h:panelGrid>
                             </p:panel>                            
-                        </h:panelGrid>
+                        </h:panelGroup>
 
                         <h:panelGrid id="i_panel_funcionario" columns="4" style="margin-top: 20px; width: 820px">
                             <h:column>
@@ -309,7 +316,7 @@
                                         </p:inputMask>
                                     </h:panelGrid>
 
-                                    <h:panelGrid rendered="#{homologacaoBean.tipoTelefone.equals('celular')}">
+                                    <h:panelGrid rendered="#{homologacaoBean.tipoTelefone eq 'celular'}">
                                         <h:outputLabel value="Telefone (Celular)"/>
                                         <p:inputMask value="#{homologacaoBean.agendamento.telefone}" style="text-align: center" mask="(99) 99999-9999" size="14">
                                             <p:ajax event="change" update="@this" global="false"/>
@@ -322,19 +329,31 @@
                                     <p:commandButton icon="ui-icon-help" title="Alterar Máscara do Telefone" action="#{homologacaoBean.alterarTipoMascara()}" update="i_panel_contato" global="false"/>
                                 </h:column>
                             </h:panelGrid>
+                            
+                            
                         </p:panel>
 
-                        <h:panelGrid id="i_panel_button">
-                            <h:panelGrid columns="7" rendered="#{homologacaoBean.visibleModal}">
-                                <p:commandButton value="Atualizar" actionListener="#{homologacaoBean.salvar}" disabled="#{controleAcessoBean.botaoSalvar}" update="msg_dialog1 msg_dialog2" />
-                                <p:commandButton value="Homologar" actionListener="#{homologacaoBean.homologar}" disabled="#{controleAcessoBean.botaoSalvar}" rendered="#{homologacaoBean.renderHomologar}" update="msg_dialog1 msg_dialog2 i_panel_button"/>
-                                <p:commandButton value="Cancelar Homologação" rendered="#{homologacaoBean.renderCancelarHorario}" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('dgl_painel_excluir').show()" type="button" />
-                                <p:commandButton value="Excluir Senha" actionListener="#{homologacaoBean.excluirSenha()}" rendered="#{homologacaoBean.registro.senhaHomologacao}" disabled="#{controleAcessoBean.botaoExcluir}" update="msg_dialog1 msg_dialog2 i_panel_button"/>
-                                <p:commandButton value="Anexar documentos" type="button" onclick="PF('dgl_upload').show();" id="id_btn_uploads"/>
-                                <p:commandButton value="Anexos (#{homologacaoBean.listFiles.size()})" type="button" onclick="PF('dgl_anexos').show();" id="id_btn_anexo" update="id_grid_uploads"/> 
-                                <p:commandButton value="Chamar" action="#{homologacaoBean.novaChamadaSenha()}" rendered="#{homologacaoBean.registro.senhaHomologacao and controleUsuarioBean.macFilial.mesa > 0}" disabled="#{homologacaoBean.agendamento.status.id ne 5}" />
+                        <p:panel header="MOTIVO CANCELAMENTO" rendered="#{homologacaoBean.cancelamento.id != -1}" styleClass="margin-top-max">
+                            <h:panelGrid columns="1">
+                                <p:outputLabel value="Data: #{homologacaoBean.cancelamento.data}" />                                                
+                                <p:outputLabel value="Usuário: #{homologacaoBean.cancelamento.usuario.login}" />
+                                <p:outputLabel value="Motivo: #{homologacaoBean.cancelamento.motivo}" />
                             </h:panelGrid>
-                        </h:panelGrid>                    
+                        </p:panel>                            
+                        
+                        <f:facet name="footer">
+                            <h:panelGroup id="i_panel_button" layout="block">
+                                <h:panelGrid columns="7" rendered="#{homologacaoBean.visibleModal}">
+                                    <p:commandButton value="Atualizar" actionListener="#{homologacaoBean.salvar}" disabled="#{controleAcessoBean.botaoSalvar}" update="msg_dialog1 msg_dialog2" />
+                                    <p:commandButton value="Homologar" actionListener="#{homologacaoBean.homologar}" disabled="#{controleAcessoBean.botaoSalvar}" rendered="#{homologacaoBean.renderHomologar}" update="msg_dialog1 msg_dialog2 i_panel_button"/>
+                                    <p:commandButton value="Cancelar Homologação" rendered="#{homologacaoBean.renderCancelarHorario}" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('dgl_painel_excluir').show()" type="button" />
+                                    <p:commandButton value="Excluir Senha" actionListener="#{homologacaoBean.excluirSenha()}" rendered="#{homologacaoBean.registro.senhaHomologacao}" disabled="#{controleAcessoBean.botaoExcluir}" update="msg_dialog1 msg_dialog2 i_panel_button"/>
+                                    <p:commandButton value="Anexar documentos" type="button" onclick="PF('dgl_upload').show();" id="id_btn_uploads"/>
+                                    <p:commandButton value="Anexos (#{homologacaoBean.listFiles.size()})" type="button" onclick="PF('dgl_anexos').show();" id="id_btn_anexo" update="id_grid_uploads"/> 
+                                    <p:commandButton value="Chamar" action="#{homologacaoBean.novaChamadaSenha()}" rendered="#{homologacaoBean.registro.senhaHomologacao and controleUsuarioBean.macFilial.mesa > 0}" disabled="#{homologacaoBean.agendamento.status.id ne 5}" />
+                                </h:panelGrid>
+                            </h:panelGroup>                            
+                        </f:facet>
                     </p:dialog>
                     <p:dialog widgetVar="dgl_anexos" modal="true" width="400" height="300" header="Anexos" closable="true" >
                         <h:panelGrid id="id_grid_uploads" style="width: 350px">
