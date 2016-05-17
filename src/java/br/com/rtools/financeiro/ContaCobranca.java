@@ -63,6 +63,8 @@ public class ContaCobranca implements java.io.Serializable {
     private String mensagemAssociativo;
     @Column(name = "nr_boleto_atual")
     private Integer boletoAtual;
+    @Column(name = "is_cobranca_registrada", nullable = false, columnDefinition = "boolean default false")
+    private boolean cobrancaRegistrada;
 
     public ContaCobranca() {
         this.id = -1;
@@ -91,9 +93,10 @@ public class ContaCobranca implements java.io.Serializable {
         this.associativo = false;
         this.mensagemAssociativo = "";
         this.boletoAtual = 0;
+        this.cobrancaRegistrada = false;
     }
 
-    public ContaCobranca(int id, ContaBanco contaBanco, String codCedente, String localPagamento, float repasse, String boletoInicial, String categoriaSindical, String arrecadacaoSindical, String febranSindical, String segmentoSindical, String sicasSindical, String codigoSindical, String moeda, String especieMoeda, String especieDoc, String carteira, String aceite, String cedente, Layout layout, String caminhoRetorno, boolean ativo, String apelido, boolean arrecadacao, boolean associativo, String mensagemAssociativo, Integer boletoAtual) {
+    public ContaCobranca(int id, ContaBanco contaBanco, String codCedente, String localPagamento, float repasse, String boletoInicial, String categoriaSindical, String arrecadacaoSindical, String febranSindical, String segmentoSindical, String sicasSindical, String codigoSindical, String moeda, String especieMoeda, String especieDoc, String carteira, String aceite, String cedente, Layout layout, String caminhoRetorno, boolean ativo, String apelido, boolean arrecadacao, boolean associativo, String mensagemAssociativo, Integer boletoAtual, boolean cobrancaRegistrada) {
         this.id = id;
         this.contaBanco = contaBanco;
         this.codCedente = codCedente;
@@ -120,6 +123,7 @@ public class ContaCobranca implements java.io.Serializable {
         this.associativo = associativo;
         this.mensagemAssociativo = mensagemAssociativo;
         this.boletoAtual = boletoAtual;
+        this.cobrancaRegistrada = cobrancaRegistrada;
     }
 
     public int getId() {
@@ -328,5 +332,13 @@ public class ContaCobranca implements java.io.Serializable {
 
     public void setBoletoAtual(Integer boletoAtual) {
         this.boletoAtual = boletoAtual;
+    }
+
+    public boolean isCobrancaRegistrada() {
+        return cobrancaRegistrada;
+    }
+
+    public void setCobrancaRegistrada(boolean cobrancaRegistrada) {
+        this.cobrancaRegistrada = cobrancaRegistrada;
     }
 }

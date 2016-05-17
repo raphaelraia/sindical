@@ -7,6 +7,7 @@ import br.com.rtools.utilitarios.Moeda;
 import java.util.Date;
 
 public class Sicoob extends Cobranca {
+
     public Sicoob(Integer id_pessoa, Float valor, Date vencimento, Boleto boleto) {
         super(id_pessoa, valor, vencimento, boleto);
     }
@@ -71,30 +72,38 @@ public class Sicoob extends Cobranca {
     public String codigoBarras() {
         String iniCodigoBarras = "", fimCodigoBarras = "";
         iniCodigoBarras = boleto.getContaCobranca().getContaBanco().getBanco().getNumero() + boleto.getContaCobranca().getMoeda(); // banco + moeda
-        
+
         //fimCodigoBarras += fatorVencimento(movimento.getDtVencimento());   // fator de vencimento
         fimCodigoBarras += fatorVencimentoSicoob(vencimento);   // fator de vencimento
-        
+
         int tam = Moeda.limparPonto(Moeda.converteR$Float(valor)).length();
-        
-        fimCodigoBarras += "0000000000".substring(0, 10-tam) + Moeda.limparPonto(Moeda.converteR$Float(valor)); // valor
-        
+
+        fimCodigoBarras += "0000000000".substring(0, 10 - tam) + Moeda.limparPonto(Moeda.converteR$Float(valor)); // valor
+
         fimCodigoBarras += boleto.getContaCobranca().getCarteira();       // carteira
-        
+
         fimCodigoBarras += boleto.getContaCobranca().getContaBanco().getAgencia();
-        
-        fimCodigoBarras += "02";        // modalidade -- 01 com registro no banco // -- 02 sem registro no banco
+        if (boleto.getContaCobranca().isCobrancaRegistrada()) {
+            fimCodigoBarras += "01";        // modalidade -- 01 com registro no banco // -- 01 sem registro no banco
+        } else {
+            fimCodigoBarras += "02";        // modalidade -- 02 com registro no banco // -- 02 sem registro no banco
+        }
         
         String cedente = "0000000".substring(0, 7 - boleto.getContaCobranca().getCodCedente().length()) + boleto.getContaCobranca().getCodCedente();        // codigo cedente
         fimCodigoBarras += cedente;
-        
-        String nossoNumero = boleto.getBoletoComposto() + calculoConstante();
-        
+
+        String nossoNumero = "";
+        if (boleto.getContaCobranca().isCobrancaRegistrada() && boleto.getDtCobrancaRegistrada() != null) {
+            nossoNumero = boleto.getBoletoComposto();
+        } else {
+            nossoNumero = boleto.getBoletoComposto() + calculoConstante();
+        }
+
         fimCodigoBarras += "00000000".substring(0, 8 - nossoNumero.length()) + nossoNumero;       // nosso numero
-        
+
         fimCodigoBarras += "001";       // numero da parcela
-        
-        return iniCodigoBarras + this.moduloOnze(iniCodigoBarras+fimCodigoBarras) + fimCodigoBarras;
+
+        return iniCodigoBarras + this.moduloOnze(iniCodigoBarras + fimCodigoBarras) + fimCodigoBarras;
     }
 
     @Override
@@ -110,7 +119,7 @@ public class Sicoob extends Cobranca {
         repNumerica += codigoBarras.substring(34, 44);
         repNumerica += moduloDez(codigoBarras.substring(34, 44));
         repNumerica += codigoBarras.substring(4, 5);
-        
+
         swap += codigoBarras.substring(5, 19);
         i = 0;
         while (i < (15 - swap.length())) {
@@ -129,43 +138,44 @@ public class Sicoob extends Cobranca {
         return repNumerica;
     }
 
-    public String calculoConstante(){
+    public String calculoConstante() {
         String agencia = boleto.getContaCobranca().getContaBanco().getAgencia();
         String cedente = "0000000".substring(0, 7 - boleto.getContaCobranca().getCodCedente().length()) + boleto.getContaCobranca().getCodCedente();
-        String composicao = agencia+("0000000000".substring(0, 10- cedente.length()) + cedente) + "0000000".substring(0, 7 - boleto.getBoletoComposto().length()) + boleto.getBoletoComposto();
+        String composicao = agencia + ("0000000000".substring(0, 10 - cedente.length()) + cedente) + "0000000".substring(0, 7 - boleto.getBoletoComposto().length()) + boleto.getBoletoComposto();
         //String composicao = "000100000000190000021";
-        
-        if (!composicao.isEmpty()){
+
+        if (!composicao.isEmpty()) {
             int soma = 0;
-            
+
             int peso = 0;
             String constante[] = new String[4];
             constante[0] = "3";
             constante[1] = "1";
             constante[2] = "9";
             constante[3] = "7";
-            
+
             String quebra[] = composicao.split("");
-            
+
             for (String quebra1 : quebra) {
                 if (!quebra1.isEmpty()) {
                     if (Integer.valueOf(quebra1) != 0) {
                         int um = Integer.valueOf(quebra1);
                         int vezes = Integer.valueOf(constante[peso]);
-                        soma = (um * vezes) + soma; 
+                        soma = (um * vezes) + soma;
                     }
-                    if (peso < 3)
+                    if (peso < 3) {
                         peso = peso + 1;
-                    else
-                        peso = 0; 
+                    } else {
+                        peso = 0;
+                    }
                 }
             }
-            if ((soma % 11) == 0 || (soma % 11) == 1){
+            if ((soma % 11) == 0 || (soma % 11) == 1) {
                 composicao = "0";
-            }else{
+            } else {
                 composicao = Integer.toString(11 - (soma % 11));
             }
-            
+
 //            if ((11 - (soma % 11)) == 0 || (11 - (soma % 11)) == 1 || (11 - (soma % 11)) > 9) {
 //                // NO MANUAL NÃO FALA DO CASO DE SER MAIOR QUE 9, PORÉM EM UM TESTE CAIU ESSE CASO
 //            //if ((11 - (soma % 11)) == 0 || (11 - (soma % 11)) == 1) {
@@ -176,10 +186,14 @@ public class Sicoob extends Cobranca {
         }
         return composicao;
     }
-        
+
     @Override
     public String getNossoNumeroFormatado() {
-        return boleto.getBoletoComposto() + "-" + calculoConstante();
+        if (boleto.getContaCobranca().isCobrancaRegistrada() && boleto.getDtCobrancaRegistrada() != null) {
+            return boleto.getBoletoComposto();
+        } else {
+            return boleto.getBoletoComposto() + "-" + calculoConstante();
+        }
     }
 
     @Override
@@ -191,8 +205,7 @@ public class Sicoob extends Cobranca {
     public String codigoBanco() {
         return "756";
     }
-    
-    
+
     public String fatorVencimentoSicoob(Date vencimento) {
         if (vencimento != null) {
             Date dataModel = DataHoje.converte("03/07/2000");
@@ -201,7 +214,7 @@ public class Sicoob extends Cobranca {
             long total = (dias + 3600000) / 86400000;
             //long total = (dias) / 86400000;
             total = total + 1000;
-            
+
             //long totalx = (dias) / 86400000;
             //totalx = totalx + 1000;
             return Long.toString(total);

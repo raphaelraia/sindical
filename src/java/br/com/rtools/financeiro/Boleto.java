@@ -32,7 +32,10 @@ public class Boleto implements java.io.Serializable {
     private Date dtVencimentoOriginal;
     @Column(name = "ds_mensagem", length = 1000)
     private String mensagem;
-
+    @Temporal(TemporalType.DATE)
+    @Column(name = "dt_cobranca_registrada")
+    private Date dtCobrancaRegistrada;
+    
     public Boleto() {
         this.id = -1;
         this.contaCobranca = new ContaCobranca();
@@ -43,10 +46,10 @@ public class Boleto implements java.io.Serializable {
         this.dtVencimento = null;
         this.dtVencimentoOriginal = null;
         this.mensagem = "";
-        
+        this.dtCobrancaRegistrada = null;
     }
 
-    public Boleto(int id, ContaCobranca contaCobranca, int nrBoleto, String boletoComposto, String nrCtrBoleto, boolean ativo, String vencimento, String vencimentoOriginal, String mensagem) {
+    public Boleto(int id, ContaCobranca contaCobranca, int nrBoleto, String boletoComposto, String nrCtrBoleto, boolean ativo, String vencimento, String vencimentoOriginal, String mensagem, Date dtCobrancaRegistrada) {
         this.id = id;
         this.contaCobranca = contaCobranca;
         this.nrBoleto = nrBoleto;
@@ -56,6 +59,7 @@ public class Boleto implements java.io.Serializable {
         this.dtVencimento = DataHoje.converte(vencimento);
         this.dtVencimentoOriginal = DataHoje.converte(vencimentoOriginal);
         this.mensagem = mensagem;
+        this.dtCobrancaRegistrada = dtCobrancaRegistrada;
     }
 
     public int getId() {
@@ -144,5 +148,13 @@ public class Boleto implements java.io.Serializable {
 
     public void setMensagem(String mensagem) {
         this.mensagem = mensagem;
+    }
+
+    public Date getDtCobrancaRegistrada() {
+        return dtCobrancaRegistrada;
+    }
+
+    public void setDtCobrancaRegistrada(Date dtCobrancaRegistrada) {
+        this.dtCobrancaRegistrada = dtCobrancaRegistrada;
     }
 }

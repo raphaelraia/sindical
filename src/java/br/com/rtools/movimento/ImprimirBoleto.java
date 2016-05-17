@@ -46,17 +46,18 @@ import br.com.rtools.pessoa.db.FisicaDB;
 import br.com.rtools.pessoa.db.FisicaDBToplink;
 import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
-import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.Links;
 import br.com.rtools.utilitarios.*;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -78,24 +79,219 @@ import net.sf.jasperreports.engine.util.JRLoader;
 import net.sf.jasperreports.export.SimpleExporterInput;
 import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
 import net.sf.jasperreports.export.SimplePdfExporterConfiguration;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
+import org.primefaces.json.JSONObject;
 
 public class ImprimirBoleto {
 
     private String pathPasta = "";
     private byte[] arquivo = new byte[0];
 
+    public HashMap registrarMovimentos(List<Movimento> lista, List<Float> listaValores, List<String> listaVencimentos) {
+        MovimentoDB dbm = new MovimentoDBToplink();
+
+        List<Movimento> listaAdd = new ArrayList();
+
+        HashMap hash = new LinkedHashMap();
+        for (int i = 0; i < lista.size(); i++) {
+            Boleto bol = dbm.pesquisaBoletos(lista.get(i).getNrCtrBoleto());
+            if (bol == null) {
+                hash.put("lista", new ArrayList());
+                hash.put("mensagem", "Boleto para o Movimento ID " + lista.get(i).getId() + " não encontrado, contate o Administrador.");
+                return hash;
+            }
+
+            if (!bol.getContaCobranca().isCobrancaRegistrada() || bol.getDtCobrancaRegistrada() != null) {
+                listaAdd.add(lista.get(i));
+                continue;
+            }
+            
+            if (listaValores.get(i) < 1){
+                hash.put("lista", new ArrayList());
+                hash.put("mensagem", "Valor dos Boleto Registrados não podem ser menores que R$ 1,00, Boleto: ("+bol.getNrBoleto()+")");
+                return hash;
+            }
+            try {
+                CloseableHttpClient httpclient = HttpClients.createDefault();
+                //HttpPost httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/123hg2132sdfg3716dwsdjkas/pesquisar_contribuinte");
+                HttpPost httppost = new HttpPost("http://localhost:8084/webservice/cliente/123hg2132sdfg3716dwsdjkas/pesquisar_contribuinte");
+                List<NameValuePair> params = new ArrayList(2);
+                params.add(new BasicNameValuePair("codigo", "" + lista.get(i).getPessoa().getId()));
+                httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+                HttpResponse response = httpclient.execute(httppost);
+                HttpEntity entity = response.getEntity();
+
+                // SE FOR IGUAL A NULL CADASTRAR CONTRIBUINTE
+                if (entity == null) {
+                    System.out.println("Cadastrar Contribuinte!");
+                    httpclient.close();
+                    httppost.abort();
+
+                    httpclient = HttpClients.createDefault();
+                    //httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/123hg2132sdfg3716dwsdjkas/salvar_contribuinte");
+                    httppost = new HttpPost("http://localhost:8084/webservice/cliente/123hg2132sdfg3716dwsdjkas/salvar_contribuinte");
+                    params = new ArrayList(2);
+                    params.add(new BasicNameValuePair("codigo", "" + lista.get(i).getPessoa().getId()));
+                    params.add(new BasicNameValuePair("documento", lista.get(i).getPessoa().getDocumento()));
+                    params.add(new BasicNameValuePair("nome", lista.get(i).getPessoa().getNome()));
+                    params.add(new BasicNameValuePair("endereco", lista.get(i).getPessoa().getPessoaEndereco().getEndereco().getLogradouro().getDescricao() + " " + lista.get(i).getPessoa().getPessoaEndereco().getEndereco().getDescricaoEndereco().getDescricao()));
+                    params.add(new BasicNameValuePair("bairro", lista.get(i).getPessoa().getPessoaEndereco().getEndereco().getBairro().getDescricao()));
+                    params.add(new BasicNameValuePair("cidade", lista.get(i).getPessoa().getPessoaEndereco().getEndereco().getCidade().getCidade()));
+                    params.add(new BasicNameValuePair("uf", lista.get(i).getPessoa().getPessoaEndereco().getEndereco().getCidade().getUf()));
+                    params.add(new BasicNameValuePair("cep", lista.get(i).getPessoa().getPessoaEndereco().getEndereco().getCep()));
+
+                    httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+                    response = httpclient.execute(httppost);
+                    entity = response.getEntity();
+
+                    if (entity != null) {
+                        String msg = EntityUtils.toString(entity);
+                        JSONObject jSONObject = new JSONObject(msg);
+                        boolean result = jSONObject.getBoolean("status");
+
+                        if (!result) {
+                            String mens = jSONObject.getString("mensagem");
+
+                            hash.put("lista", new ArrayList());
+                            hash.put("mensagem", mens);
+                            return hash;
+                        }
+                    }
+                }
+
+                httpclient = HttpClients.createDefault();
+                // PESQUISAR BOLETO
+                //httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/123hg2132sdfg3716dwsdjkas/pesquisar_boleto");
+                httppost = new HttpPost("http://localhost:8084/webservice/cliente/123hg2132sdfg3716dwsdjkas/pesquisar_boleto");
+
+                params = new ArrayList(2);
+                params.add(new BasicNameValuePair("nosso_numero", "" + bol.getNrBoleto()));
+
+                httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+
+                response = httpclient.execute(httppost);
+                entity = response.getEntity();
+
+                // SE NÃO EXISTIR BOLETO, CRIAR
+                httpclient.close();
+                httppost.abort();
+                httpclient = HttpClients.createDefault();
+
+                if (entity == null) {
+                    //httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/123hg2132sdfg3716dwsdjkas/criar_boleto");
+                    httppost = new HttpPost("http://localhost:8084/webservice/cliente/123hg2132sdfg3716dwsdjkas/criar_boleto");
+                } else {
+                    //httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/123hg2132sdfg3716dwsdjkas/alterar_boleto");
+                    httppost = new HttpPost("http://localhost:8084/webservice/cliente/123hg2132sdfg3716dwsdjkas/alterar_boleto");
+                }
+
+                params = new ArrayList(2);
+                params.add(new BasicNameValuePair("codigo_contribuinte", "" + lista.get(i).getPessoa().getId()));
+                params.add(new BasicNameValuePair("nosso_numero", "" + bol.getNrBoleto()));
+                params.add(new BasicNameValuePair("numero_banco", "" + bol.getContaCobranca().getContaBanco().getBanco().getNumero()));
+                params.add(new BasicNameValuePair("conta", "" + bol.getContaCobranca().getContaBanco().getConta()));
+                params.add(new BasicNameValuePair("agencia", "" + bol.getContaCobranca().getContaBanco().getAgencia()));
+                params.add(new BasicNameValuePair("codigo_cedente", "" + bol.getContaCobranca().getCodCedente()));
+                params.add(new BasicNameValuePair("especie_documento", "DM"));
+                params.add(new BasicNameValuePair("layout", "1"));
+                //params.add(new BasicNameValuePair("data_vencimento", lista.get(i).getVencimento().substring(0, 2) +  lista.get(i).getVencimento().substring(3, 5) + lista.get(i).getVencimento().substring(6, 10)));
+                params.add(new BasicNameValuePair("data_vencimento", listaVencimentos.get(i).substring(0, 2) + listaVencimentos.get(i).substring(3, 5) + listaVencimentos.get(i).substring(6, 10)));
+                params.add(new BasicNameValuePair("referencia", lista.get(i).getReferencia().replace("/", "")));
+                params.add(new BasicNameValuePair("valor", Moeda.converteR$Float(listaValores.get(i)).replace(".", "").replace(",", ".")));
+
+                httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+
+                response = httpclient.execute(httppost);
+                entity = response.getEntity();
+
+                if (entity != null) {
+                    String msg = EntityUtils.toString(entity);
+                    JSONObject jSONObject = new JSONObject(msg);
+                    if (!jSONObject.getBoolean("status")) {
+                        hash.put("lista", new ArrayList());
+                        //hash.put("mensagem", "Erro criação ou alteração do Boleto" + bol.getNrBoleto() + ", contate o Administrador.");
+                        hash.put("mensagem", jSONObject.getBoolean("mensagem"));
+                        return hash;
+                    }
+                }
+
+                httpclient.close();
+                httppost.abort();
+
+                httpclient = HttpClients.createDefault();
+
+                //httppost = new HttpPost("http://sindical.rtools.com.br:7076/webservice/cliente/123hg2132sdfg3716dwsdjkas/imprimir_boleto");
+                httppost = new HttpPost("http://localhost:8084/webservice/cliente/123hg2132sdfg3716dwsdjkas/imprimir_boleto");
+
+                params = new ArrayList(2);
+                params.add(new BasicNameValuePair("nosso_numero", "" + bol.getNrBoleto()));
+
+                httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+
+                response = httpclient.execute(httppost);
+                entity = response.getEntity();
+
+                if (entity != null) {
+                    String msg = EntityUtils.toString(entity);
+                    JSONObject jSONObject = new JSONObject(msg);
+                    if (jSONObject.getBoolean("status")) {
+                        Integer index = 0;
+                        int pos1 = msg.indexOf("75691.44111", index);
+                        msg = msg.substring(pos1, pos1 + 58);
+                        msg = msg.replace(" ", "").replace(".", "");
+
+                        String nb = Integer.valueOf(msg.subSequence(21, 28).toString()).toString();
+
+                        bol.setBoletoComposto(nb);
+                        bol.setNrBoleto(Integer.valueOf(nb));
+
+                        bol.setDtCobrancaRegistrada(DataHoje.dataHoje());
+                        new Dao().update(bol, true);
+
+                        lista.get(i).setDocumento(nb);
+                        new Dao().update(lista.get(i), true);
+
+                        listaAdd.add(lista.get(i));
+                    } else {
+                        hash.put("lista", new ArrayList());
+                        hash.put("mensagem", "Erro ao Registrar Boleto " + bol.getNrBoleto() + ", contate o Administrador.");
+                        return hash;
+                    }
+                } else {
+                    hash.put("lista", new ArrayList());
+                    hash.put("mensagem", "Erro ao Registrar Boleto " + bol.getNrBoleto() + ", contate o Administrador.");
+                    return hash;
+                }
+            } catch (IOException | UnsupportedOperationException e) {
+                hash.put("lista", new ArrayList());
+                hash.put("mensagem", e.getMessage());
+                return hash;
+            }
+        }
+
+        hash.put("lista", listaAdd);
+        hash.put("mensagem", "");
+        return hash;
+    }
+
     public List<Movimento> atualizaContaCobrancaMovimento(List<Movimento> lista) {
-        ServicoContaCobranca scc = new ServicoContaCobranca();
         ServicoContaCobrancaDB db = new ServicoContaCobrancaDBToplink();
         ContaCobrancaDB dbc = new ContaCobrancaDBToplink();
         MovimentoDB dbm = new MovimentoDBToplink();
         SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
 
         List<Movimento> listaAdd = new ArrayList();
-        Boleto bol = new Boleto();
 
         for (int i = 0; i < lista.size(); i++) {
-            bol = dbm.pesquisaBoletos(lista.get(i).getNrCtrBoleto());
+            Boleto bol = dbm.pesquisaBoletos(lista.get(i).getNrCtrBoleto());
             if (bol == null) {
                 ContaCobranca cc = dbc.pesquisaServicoCobranca(lista.get(i).getServicos().getId(), lista.get(i).getTipoServico().getId());
                 int id_boleto = dbm.inserirBoletoNativo(cc.getId());
@@ -110,19 +306,16 @@ public class ImprimirBoleto {
                 } else {
                     sv.desfazerTransacao();
                 }
-
                 continue;
             }
 
-            scc = db.pesquisaServPorIdServIdTipoServIdContCobranca(lista.get(i).getServicos().getId(), lista.get(i).getTipoServico().getId(), bol.getContaCobranca().getId());
+            ServicoContaCobranca scc = db.pesquisaServPorIdServIdTipoServIdContCobranca(lista.get(i).getServicos().getId(), lista.get(i).getTipoServico().getId(), bol.getContaCobranca().getId());
             if (scc == null) {
-                //return lista; // ALTEREI PORQUE NÃO ESTAVA ATUALIZANDO A LISTA DE MOVIMENTOS A RECEBER (VESTUARIO LIMEIRA) -- EXCLUIR DEPOIS DE 01/12/2014
                 continue;
             }
 
-            Movimento mov = new Movimento();
             if (scc.getTipoServico().getId() == 4) {
-                mov = new Movimento(-1,
+                Movimento mov = new Movimento(-1,
                         null,
                         scc.getServicos().getPlano5(),
                         lista.get(i).getPessoa(),
@@ -150,9 +343,8 @@ public class ImprimirBoleto {
                 listaAdd.add(mov);
 
                 Historico his = new Historico();
-                Historico his_pesquisa = new Historico();
                 AcordoDB dba = new AcordoDBToplink();
-                his_pesquisa = dba.pesquisaHistoricoMov(bol.getContaCobranca().getId(), lista.get(i).getId());
+                Historico his_pesquisa = dba.pesquisaHistoricoMov(bol.getContaCobranca().getId(), lista.get(i).getId());
 
                 if (his_pesquisa != null) {
                     his.setMovimento(mov);
@@ -167,7 +359,7 @@ public class ImprimirBoleto {
                     sv.desfazerTransacao();
                 }
             } else {
-                mov = new Movimento(-1,
+                Movimento mov = new Movimento(-1,
                         null,
                         scc.getServicos().getPlano5(),
                         lista.get(i).getPessoa(),
@@ -204,6 +396,13 @@ public class ImprimirBoleto {
     }
 
     public byte[] imprimirBoleto(List<Movimento> lista, List<Float> listaValores, List<String> listaVencimentos, boolean imprimeVerso) {
+        HashMap hash = registrarMovimentos(lista, listaValores, listaVencimentos);
+
+        if (((ArrayList) hash.get("lista")).isEmpty() || ((ArrayList) hash.get("lista")).size() != listaValores.size()) {
+            GenericaMensagem.error("Erro", hash.get("mensagem").toString());
+            return new byte[0];
+        }
+
         int i = 0;
         String mensagemErroMovimento = "Movimento(s) sem mensagem: ";
         try {
@@ -401,7 +600,6 @@ public class ImprimirBoleto {
                 valor = new BigDecimal(listaValores.get(i));
                 if (valor.toString().equals("0")) {
                     valor = null;
-                    //valor = new BigDecimal(0.0);
                 }
 
                 ConvencaoCidadeDB dbCon = new ConvencaoCidadeDBToplink();

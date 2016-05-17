@@ -22,6 +22,7 @@
                 <!-- INICIA DIV wrap e main -->  
                 <f:subview id="header">
                     <ui:include src="templates/templatePrime.xhtml"/>
+                    <ui:include src="templates/templateStatus.xhtml"/>
                 </f:subview>
                 <f:view>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
@@ -80,7 +81,9 @@
                                     </h:column>
                                 </h:panelGrid>
                             </p:panel>
-    
+                            
+                            <p:messages showDetail="true" closable="true" />
+                            
                             <p:panel id="i_panel" style="width: 200px; float: left">
                                 <p:dataTable value="#{impressaoBoletosBean.listaConvencao}" selection="#{impressaoBoletosBean.listaConvencaoSelecionada}" var="linha" rowKey="#{linha.id}" emptyMessage="Nenhuma convenção foi encontrada!">
                                     <p:ajax event="rowSelect" listener="#{impressaoBoletosBean.limpaGrupoCidade()}" update=":formImpressaoBoletos:i_panel"/>
@@ -88,34 +91,34 @@
                                     <p:ajax event="rowUnselect" listener="#{impressaoBoletosBean.limpaGrupoCidade()}" update=":formImpressaoBoletos:i_panel"/>
                                     <p:ajax event="rowUnselectCheckbox" listener="#{impressaoBoletosBean.limpaGrupoCidade()}" update=":formImpressaoBoletos:i_panel"/>
                                     <p:ajax event="toggleSelect" listener="#{impressaoBoletosBean.limpaGrupoCidade()}" update=":formImpressaoBoletos:i_panel"/>
-                                    
+
                                     <p:column selectionMode="multiple" style="width: 20px"/>
 
                                     <p:column  headerText="Convenção">
                                         <h:outputText style="font-size:8pt" value="#{linha.descricao}"/>
                                     </p:column>
                                 </p:dataTable>
-                                
+
                                 <p:dataTable value="#{impressaoBoletosBean.listaGrupoCidade}" selection="#{impressaoBoletosBean.listaGrupoSelecionada}" rowKey="#{linha.id}" var="linha" style="clear: both; margin-top: 20px"  emptyMessage="Selecione uma Convenção">
                                     <p:column selectionMode="multiple" style="width: 20px"/>  
-                                    
+
                                     <p:column  headerText="Grupo Cidade">
-                                       <h:outputText style="font-size:8pt" value="#{linha.descricao}"/>
+                                        <h:outputText style="font-size:8pt" value="#{linha.descricao}"/>
                                     </p:column>
-                               </p:dataTable>
-                                
+                                </p:dataTable>
+
                                 <p:commandButton action="#{impressaoBoletosBean.filtrar}" value="Filtrar Vencimento" update=":formImpressaoBoletos:tbMovimento i_panel_mais" onstart="PF('i_dlg_modal').show()" oncomplete="PF('i_dlg_modal').hide()" style="clear: both; margin-top: 20px"/>
-                                
+
                                 <p:dataTable value="#{impressaoBoletosBean.listaData}" var="linha" rowKey="#{linha}" selection="#{impressaoBoletosBean.listaDataSelecionada}" style="clear: both; margin-top: 20px" emptyMessage="Nenhuma vencimento foi encontrado!">
                                     <p:column selectionMode="multiple" style="text-align: center; width: 20px"/>
-                                    
+
                                     <p:column style="text-align: center" headerText="Vencimento">
                                         <h:outputText style="font-size:8pt" value="#{linha}"/>
                                     </p:column>
                                 </p:dataTable>
-                                
+
                             </p:panel>
-                        
+
                             <p:panel style="float: left; width: #{configuracaoBean.resolucao.tipoResolucao.id > 2 ? '962px' : '785px'}">
                                 <h:outputText value="Escritório" style="font-weight: bold; margin-left: 20px;"/>
                                 <h:panelGrid columns="3" style="margin-left: 20px;">
@@ -124,18 +127,18 @@
                                     <p:commandButton icon="ui-icon-circle-close" action="#{impressaoBoletosBean.removerContabilidade}" title="Remover pesquisa por Escritório" rendered="#{impressaoBoletosBean.contabilidade.id != -1}"/>
                                 </h:panelGrid>        
                             </p:panel>
-                            
-                            
-                            <p:dataTable value="#{impressaoBoletosBean.listaMovGrid}" selection="#{impressaoBoletosBean.listaMovGridSelecionada}" id="tbMovimento" var="linha" rowKey="#{linha.coluna.valor}" paginator="true" rows="11" style="float: left; width: #{configuracaoBean.resolucao.tipoResolucao.id > 2 ? '968px' : '792px'}"  emptyMessage="Nenhum boleto foi encontrado!">
+
+
+                            <p:dataTable value="#{impressaoBoletosBean.listaMovGrid}" selection="#{impressaoBoletosBean.listaMovGridSelecionada}" id="tbMovimento" var="linha" rowKey="#{linha.coluna.valor}" paginator="true" rows="11" style="float: left; width: #{configuracaoBean.resolucao.tipoResolucao.id > 2 ? '968px' : '792px'};"  emptyMessage="Nenhum boleto foi encontrado!">
                                 <p:column selectionMode="multiple" style="text-align: center; width: 20px"/>
                                 <p:ajax event="rowSelect" update=":formImpressaoBoletos:i_panel_mais"/>
                                 <p:ajax event="rowSelectCheckbox" update=":formImpressaoBoletos:i_panel_mais"/>
                                 <p:ajax event="rowUnselect" update=":formImpressaoBoletos:i_panel_mais"/>
                                 <p:ajax event="rowUnselectCheckbox" update=":formImpressaoBoletos:i_panel_mais"/>
                                 <p:ajax event="toggleSelect" update=":formImpressaoBoletos:i_panel_mais"/>
-                                    
-                                <p:column headerText="...">
-                                    <h:outputLabel value="#{linha.coluna.valor}°"/>
+
+                                <p:column headerText="" style="width: 40px; text-align: center">
+                                    <h:outputLabel value="#{linha.coluna.valor}°" style="font-size: 8pt!important"/>
                                 </p:column>
 
                                 <!-- <p:column headerText="Boleto">
@@ -143,32 +146,36 @@
                                 </p:column> -->
 
                                 <p:column headerText="Razão">
-                                    <h:outputText value="#{linha.coluna.coluna.coluna.valor}"/>
+                                    <h:outputText value="#{linha.coluna.coluna.coluna.valor}" style="font-size: 8pt!important"/>
                                 </p:column>
 
-                                <p:column headerText="CNPJ">
-                                    <h:outputText value="#{linha.coluna.coluna.coluna.coluna.valor}"/>
+                                <p:column headerText="CNPJ" style="width: 130px;text-align: center">
+                                    <h:outputText value="#{linha.coluna.coluna.coluna.coluna.valor eq '0' ? '' : linha.coluna.coluna.coluna.coluna.valor}" style="font-size: 8pt!important"/>
                                 </p:column>
 
                                 <p:column headerText="Escritório">
-                                    <h:outputText value="#{linha.coluna.coluna.coluna.coluna.coluna.valor}"/>
+                                    <h:outputText value="#{linha.coluna.coluna.coluna.coluna.coluna.valor}" style="font-size: 8pt!important"/>
                                 </p:column>
 
                                 <p:column headerText="Contr / Tipo">
-                                    <h:outputText value="#{linha.coluna.coluna.coluna.coluna.coluna.coluna.valor} - #{linha.coluna.coluna.coluna.coluna.coluna.coluna.coluna.valor}"/>
+                                    <h:outputText value="#{linha.coluna.coluna.coluna.coluna.coluna.coluna.valor} - #{linha.coluna.coluna.coluna.coluna.coluna.coluna.coluna.valor}" style="font-size: 8pt!important"/>
                                 </p:column>
 
                                 <p:column headerText="Ref. / Vencimento">
-                                    <h:outputText value="#{linha.coluna.coluna.coluna.coluna.coluna.coluna.coluna.coluna.coluna.valor} - #{linha.coluna.coluna.coluna.coluna.coluna.coluna.coluna.coluna.valor}"/>
+                                    <h:outputText value="#{linha.coluna.coluna.coluna.coluna.coluna.coluna.coluna.coluna.coluna.valor} - #{linha.coluna.coluna.coluna.coluna.coluna.coluna.coluna.coluna.valor}" style="font-size: 8pt!important"/>
+                                </p:column>
+                                
+                                <p:column headerText="Reg." style="width: 30px; text-align: center">
+                                    <h:outputText value="N" style="font-weight: bold; font-size: 8pt!important" />
                                 </p:column>
                             </p:dataTable>
-                            
-                            <p:panelGrid styleClass="sbb" columns="5" style="float: left">
+
+                            <p:panelGrid styleClass="sbb" columns="6" style="float: left">
                                 <h:column>
                                     <h:outputText value="Quantidade" styleClass="fonteRederencia"/><br />
                                     <p:inputText value="#{impressaoBoletosBean.quantidade}" size="5" />
                                 </h:column>
-                                
+
                                 <p:column style="margin-left: 20px">
                                     <h:outputText value="Inicio" styleClass="fonteRederencia"/><br />
                                     <p:inputText value="#{impressaoBoletosBean.fInicio}" size="5" />
@@ -183,40 +190,46 @@
                                     <br />
                                     <p:commandButton value="Selecionar" action="#{impressaoBoletosBean.controleMovimentos}" update="tbMovimento i_panel_mais"/>
                                 </h:column>
+
                                 <h:column>
                                     <br />
                                     <p:commandButton value="Limpar Seleção" action="#{impressaoBoletosBean.limparSelecao()}" update="tbMovimento i_panel_mais"/>
                                 </h:column>
+
+                                <h:column>
+                                    <br />
+                                    <p:commandButton value="Registrar Boletos Selecionados" onclick="PF('dlg_registrar_boleto').show()" update="tbMovimento i_panel_mais" style="font-weight: bold" icon="ui-icon-notice" rendered="false"/>
+                                </h:column>
                             </p:panelGrid>
-                            
+
                             <p:panel id="i_panel_mais" style="float: left; width: #{configuracaoBean.resolucao.tipoResolucao.id > 2 ? '962px' : '785px'}" styleClass="fundoCinza">
                                 <h:column>
                                     <p:selectBooleanCheckbox value="#{impressaoBoletosBean.imprimeVerso}" itemLabel="Imprimir Verso"/>
                                 </h:column>
-                                
+
                                 <br /><br />
-                                
+
                                 <h:column>
                                     <h:outputLabel value="Boletos " />
                                     <h:outputLabel value="#{impressaoBoletosBean.totalBoletos}" style="font-weight: bold; font-size: 15pt!important"/>
                                 </h:column>
-                                
+
                                 <h:column>
                                     <h:outputLabel value="Marcados " style="margin-left: 25px"/>
                                     <h:outputLabel value="#{impressaoBoletosBean.listaMovGridSelecionada.size()}" style="font-weight: bold; font-size: 15pt!important"/>
                                 </h:column>
-                                
+
                                 <h:column>
                                     <h:outputLabel value="Empresas " style="margin-left: 25px"/>
                                     <h:outputLabel value="#{impressaoBoletosBean.totalEmpresas}" style="font-weight: bold; font-size: 15pt!important"/>
                                 </h:column>
-                                
+
                                 <h:column>
                                     <h:outputLabel value="Escritórios " style="margin-left: 25px"/>
                                     <h:outputLabel value="#{impressaoBoletosBean.totalEscritorios}" style="font-weight: bold; font-size: 15pt!important"/>
                                 </h:column>
                             </p:panel>
-                            
+
                             <h:panelGrid id="i_panel_botao" columns="5" style="float: left">
                                 <h:column>
                                     <p:commandButton ajax="false" id="i_imprimir" value="Visualizar" rendered="#{!impressaoBoletosBean.desabilitaVi}" action="#{impressaoBoletosBean.imprimirBoleto}" />
@@ -237,16 +250,29 @@
                                     <p:commandButton icon="ui-icon-mail-open" action="#{chamadaPaginaBean.pesquisa('email')}" title="Ver emails enviados" actionListener="#{emailBean.showEmailRotina(90)}" />
                                 </h:column>
                             </h:panelGrid>
-                            
+
                             <!-- <p:ajaxStatus id="i_status" onstart="i_dlg_modal.show();" onsuccess="i_dlg_modal.hide();" /> -->
-                            
+
                             <p:dialog modal="true" widgetVar="i_dlg_modal" header="Status" draggable="false" closable="false">  
                                 <h:outputLabel value="... Aguarde ..." />
                             </p:dialog> 
-                            
+
                             <p:dialog modal="true" widgetVar="i_dlg_confirma" header="Confirmação!" draggable="false" closable="false" style="text-align: center">  
                                 <h:outputLabel value="E-mails enviados com Sucesso!" /><br /><br />
                                 <p:commandButton value="OK" onclick="PF('i_dlg_confirma').hide()" />
+                            </p:dialog> 
+
+                            <p:dialog modal="true" widgetVar="dlg_registrar_boleto" header="Registrar Boleto Selecionados!" draggable="false">
+                                <h:panelGrid>
+                                    <h:outputLabel value="Atenção, após registrar o boleto só poderá ser impresso após confirmação do Banco!" style="font-weight: bold; font-size: 11pt!important; color: red"/>
+                                </h:panelGrid>
+                                
+                                <br /><br />
+                                
+                                <h:panelGrid columns="2">
+                                    <p:commandButton value="Registrar" icon="ui-icon-check" action="#{impressaoBoletosBean.registrarBoletos}" style="font-weight: bold" update="@form" onclick="PF('dlg_registrar_boleto').hide()" />
+                                    <p:commandButton value="Cancelar" icon="ui-icon-close" onclick="PF('dlg_registrar_boleto').hide()"/>
+                                </h:panelGrid>
                             </p:dialog> 
                         </h:form>
                     </p:panel>
