@@ -115,6 +115,21 @@
                                                 <h:commandLink rendered="#{juridicaBean.strArquivo}" action="#{juridicaBean.abrirPDFConvencao}" value="( abrir arquivo com Convenções )" style="text-decoration: underline; margin-left: 10px" target="_blank"/>
                                             </p:column>
                                         </h:panelGrid>
+                                        
+                                        <h:panelGrid columns="2" id="i_panel_cnae_secundario" rendered="#{juridicaBean.listaCnaeReceita.size() ne 0 and juridicaBean.juridica.id eq -1}">
+                                            <h:column>
+                                                <h:outputLabel value="Cnae Secundário" style="color: red; font-weight: bold" /><br />
+                                                <p:selectOneMenu value="#{juridicaBean.idCnaeReceita}">
+                                                    <p:ajax event="change" update="@this" global="false"/>
+                                                    <f:selectItems value="#{juridicaBean.listaCnaeReceita}"/>
+                                                </p:selectOneMenu>
+                                            </h:column>
+
+                                            <h:column>
+                                                <br />
+                                                <p:commandButton value="Alterar Cnae Principal" action="#{juridicaBean.alterarCnaeSecundario}" update="i_panel_cnae i_panel_convencao"/>
+                                            </h:column>
+                                        </h:panelGrid>
 
                                         <p:panel id="i_panel_dados" styleClass="fundoCinza">
                                             <h:panelGrid columns="8" style="width: 100%">
@@ -481,6 +496,28 @@
                                 <p:commandButton value="Extrato na Tela" action="#{juridicaBean.extratoTela}" disabled="#{juridicaBean.habilitar}" style="width: 150px;" />
                                 <p:commandButton value="INFORMAÇÕES CADASTRAIS" rendered="#{juridicaBean.juridica.id != -1}" action="#{chamadaPaginaBean.pagina('pessoa')}" styleClass="font-color-red bold" icon="ui-icon-plus" actionListener="#{genericaSessao.putString('tipoPessoa', 'pessoaJuridica')}" immediate="true"/>
                             </h:panelGrid>
+
+                            <p:dialog id="dlg_confirma_pesquisa_cpnj" widgetVar="dlg_confirma_pesquisa_cpnj" modal="true" header="Pesquisar CNPJ na Receita" width="400" resizable="false">
+                                <p:focus context="dlg_confirma_pesquisa_cpnj"/>
+
+                                <h:outputLabel value="Digite o Captcha?" />
+                                <br />
+                                <h:graphicImage value="#{juridicaBean.pesquisaCNPJ.caminhoImagem}" alt="IMAGEM CAPTCHA"/>
+                                <br />
+                                <h:panelGrid columns="2">
+                                    <p:inputText value="#{juridicaBean.pesquisaCNPJ.captcha}" rendered="#{juridicaBean.pesquisaCNPJ.caminhoImagem ne ''}">
+                                        <p:ajax event="change" update="@this" global="false"/>
+                                    </p:inputText>
+                                    <p:commandLink value="Outra Imagem" action="#{juridicaBean.acaoPesquisarCNPJ()}" update="dlg_confirma_pesquisa_cpnj"/>
+                                </h:panelGrid>
+
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Validar" type="submit" styleClass="ui-confirmdialog-yes" action="#{juridicaBean.pesquisaCnpjPadrao()}" update=":formPessoaJuridica:" oncomplete="PF('dlg_confirma_pesquisa_cpnj').hide()" icon="ui-icon-check" style="font-weight: bold"/>  
+                                        <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_confirma_pesquisa_cpnj').hide()" icon="ui-icon-close"/>
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>
 
                             <p:dialog widgetVar="dlg_salvar" modal="true" header="Salvar Jurídica" width="400" resizable="false">
                                 <h:outputLabel value="Deseja realmente SALVAR essa Pessoa Jurídica?" />

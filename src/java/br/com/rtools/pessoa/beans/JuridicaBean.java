@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -115,11 +116,11 @@ public class JuridicaBean implements Serializable {
     private List<Cnae> listaCnae = new ArrayList();
     private List<Juridica> listaJuridica = new ArrayList();
     private List<Juridica> listaContabilidade = new ArrayList();
-    private List<DataObject> listaEmpresasPertencentes = new ArrayList();
-    private List<SelectItem> listaTipoDocumento = new ArrayList();
+    private final List<DataObject> listaEmpresasPertencentes = new ArrayList();
+    private final List<SelectItem> listaTipoDocumento = new ArrayList();
     private List<SelectItem> listaPorte = new ArrayList();
     private List<ContribuintesInativos> listaContribuintesInativos = new ArrayList();
-    private List<SelectItem> listaMotivoInativacao = new ArrayList();
+    private final List<SelectItem> listaMotivoInativacao = new ArrayList();
     private String atualiza = "";
     private String tipoFiltro = "todas";
     private JuridicaReceita juridicaReceita = new JuridicaReceita();
@@ -144,6 +145,10 @@ public class JuridicaBean implements Serializable {
 
     private Date dtRecadastro = DataHoje.dataHoje();
     private PessoaComplemento pessoaComplemento = new PessoaComplemento();
+
+    private PesquisaCNPJ pesquisaCNPJ = new PesquisaCNPJ();
+    private List<SelectItem> listaCnaeReceita = new ArrayList();
+    private Integer idCnaeReceita = 1;
 
     @PostConstruct
     public void init() {
@@ -239,13 +244,42 @@ public class JuridicaBean implements Serializable {
         }
     }
 
+    public void alterarCnaeSecundario(){
+        retornaCnaeReceita((Cnae) new Dao().find(new Cnae(), Integer.valueOf(listaCnaeReceita.get(idCnaeReceita).getDescription())) );
+    }
+    
+    public void acaoPesquisarCNPJ() {
+        try {
+            pesquisaCNPJ.setCaptcha("");
+            HashMap hash = pesquisaCNPJ.pesquisar();
+            if ((Boolean) hash.get("status")) {
+                PF.openDialog("dlg_confirma_pesquisa_cpnj");
+                PF.update(":formPessoaJuridica:dlg_confirma_pesquisa_cpnj");
+            } else {
+                GenericaMensagem.error("Erro", hash.get("mensagem").toString());
+            }
+        } catch (Exception e) {
+            GenericaMensagem.error("Erro", "Não foi possível Pesquisar CNPJ, contate o administrador!");
+        }
+    }
+
+    public void pesquisaCnpjPadrao() {
+        this.pesquisaCnpjXML(true);
+    }
+
     public void pesquisaCnpjXML() {
+        this.pesquisaCnpjXML(false);
+    }
+
+    public void pesquisaCnpjXML(Boolean confirmar) {
+        Boolean pesquisa_pelo_sistema = true;
         if (configuracaoCnpj == null || configuracaoCnpj.getLocal()) {
             if (juridica.getId() != -1) {
                 return;
             }
 
             if (juridica.getPessoa().getDocumento().isEmpty()) {
+                GenericaMensagem.warn("Atenção", "Documento Inválido!");
                 return;
             }
 
@@ -254,13 +288,16 @@ public class JuridicaBean implements Serializable {
             if (!validaTipoDocumento(2, documento)) {
                 msgDocumento = "Documento inválido!";
                 GenericaMensagem.warn("Atenção", "Documento Inválido!");
+                PF.update("formPessoaJuridica");
                 return;
             }
+
             JuridicaDB dbj = new JuridicaDBToplink();
             List listDocumento = dbj.pesquisaJuridicaPorDoc(juridica.getPessoa().getDocumento());
             for (int i = 0; i < listDocumento.size(); i++) {
                 if (!listDocumento.isEmpty()) {
                     GenericaMensagem.warn("Atenção", "Empresa já esta cadastrada no Sistema!");
+                    PF.update("formPessoaJuridica");
                     return;
                 }
             }
@@ -270,41 +307,51 @@ public class JuridicaBean implements Serializable {
             juridicaReceita = db.pesquisaJuridicaReceita(documento);
             if (juridicaReceita.getPessoa() != null && juridicaReceita.getPessoa().getId() != -1) {
                 GenericaMensagem.warn("Atenção", "Pessoa já cadastrada no Sistema!");
+                PF.update("formPessoaJuridica");
+                return;
+            }
+
+            pesquisaCNPJ.setCnpj(documento);
+
+            if (pesquisa_pelo_sistema && !confirmar && juridicaReceita.getId() == -1) {
+                acaoPesquisarCNPJ();
                 return;
             }
 
             Dao dao = new Dao();
-            JuridicaReceitaJSON.JuridicaReceitaObject jro = null;
+            JuridicaReceitaJSON.JuridicaReceitaObject jro;
             if (juridicaReceita.getId() == -1) {
-                // tipo = "wooki" = pago / "" = gratis
-                jro = new JuridicaReceitaJSON(documento, "wooki").pesquisar();
+                // tipo = "wooki" = pago / "gratis" = gratis / "padrao" = desenvolvido pelo sistema
+                // tipo = "wooki" e "gratis" (pesquisaCNPJ) = NULL, "padrao" passar o PesquisaCNPJ com o retorno do método pesquisar = true
+                if (pesquisa_pelo_sistema && confirmar) {
+                    jro = new JuridicaReceitaJSON(pesquisaCNPJ).pesquisar();
+                    // ERRO AO PROCESSAR CAPTCHA
+                    if (jro.getStatus() == -2) {
+                        GenericaMensagem.warn("Atenção", "Erro ao Pesquisar, contate o administrador: " + jro.getMsg());
+                        return;
+                    }
+                    
+                    if (jro.getStatus() == -3) {
+                        GenericaMensagem.warn("Atenção", jro.getMsg());
+                        return;
+                    }
+                } else {
+                    jro = new JuridicaReceitaJSON(documento, "wooki").pesquisar();
+                }
 
                 // NULL É PORQUE DEU ERRO DESCONHECIDO
                 if (jro == null) {
-                    GenericaMensagem.warn("Atenção", "Erro na pesquisa WOOKI, contate o administrador");
+                    GenericaMensagem.warn("Atenção", "Erro ao Pesquisar, contate o administrador");
                     return;
                 }
 
                 // SE NÃO ENCONTRAR NA WOOKI
                 if (jro.getStatus() == -1) {
                     // desabilitado por demostrar falhas
-                    //jro = new JuridicaReceitaJSON(documento, "").pesquisar();    
                     GenericaMensagem.warn("Atenção", "Erro ao Pesquisar, contate o administrador: " + jro.getMsg());
                     return;
                 }
 
-                // NULL É PORQUE DEU ERRO DESCONHECIDO
-                // QUANDO VOLTAR MÉTODO GRÁTIS 
-//                if (jro == null) {
-//                    GenericaMensagem.warn("Atenção", "Erro nas pesquisas WOOKI 2, contate o administrador");
-//                    return;
-//                }
-                // SE NÃO ENCONTRAR NO SITE GRATUÍTO RETORNA VAZIO
-                // QUANDO VOLTAR MÉTODO GRÁTIS 
-//                if (jro.getStatus() == -1) {
-//                    GenericaMensagem.warn("Atenção", jro.getMsg());
-//                    return;
-//                }
                 if (jro.getStatus() == 0) {
                     juridicaReceita.setNome(jro.getNome_empresarial());
                     juridicaReceita.setFantasia(jro.getTitulo_estabelecimento());
@@ -368,8 +415,12 @@ public class JuridicaBean implements Serializable {
                 return;
             }
 
-            retornaCnaeReceita(jro.getLista_cnae().get(0));
-
+            if (jro.getLista_cnae_secundario().isEmpty()) {
+                retornaCnaeReceita(jro.getLista_cnae().get(0));
+            } else {
+                retornaCnaeListReceita(jro.getLista_cnae().get(0), jro.getLista_cnae_secundario());
+            }
+            
             endereco = jro.getEndereco();
 
             if (endereco != null) {
@@ -1615,6 +1666,17 @@ public class JuridicaBean implements Serializable {
             cnaeContribuinte = " este cnae não está na convenção!";
             colorContri = "red";
         }
+    }
+    public void retornaCnaeListReceita(Cnae cn, List<Cnae> list_cn) {
+        idCnaeReceita = 1;
+        listaCnaeReceita.clear();
+        
+        listaCnaeReceita.add(new SelectItem(0, cn.getNumero() + " " + cn.getCnae() + " ( Principal na Receita )", "" + cn.getId()));
+        for (int i = 0; i < list_cn.size(); i++){
+            listaCnaeReceita.add(new SelectItem(i+1, list_cn.get(i).getNumero() + " " + list_cn.get(i).getCnae(), "" + list_cn.get(i).getId()));
+        }
+        
+        retornaCnaeReceita(cn);
     }
 
     public String retornaCnae(Cnae cn) {
@@ -2921,6 +2983,30 @@ public class JuridicaBean implements Serializable {
 
     public void setPessoaComplemento(PessoaComplemento pessoaComplemento) {
         this.pessoaComplemento = pessoaComplemento;
+    }
+
+    public PesquisaCNPJ getPesquisaCNPJ() {
+        return pesquisaCNPJ;
+    }
+
+    public void setPesquisaCNPJ(PesquisaCNPJ pesquisaCNPJ) {
+        this.pesquisaCNPJ = pesquisaCNPJ;
+    }
+
+    public List<SelectItem> getListaCnaeReceita() {
+        return listaCnaeReceita;
+    }
+
+    public void setListaCnaeReceita(List<SelectItem> listaCnaeReceita) {
+        this.listaCnaeReceita = listaCnaeReceita;
+    }
+
+    public Integer getIdCnaeReceita() {
+        return idCnaeReceita;
+    }
+
+    public void setIdCnaeReceita(Integer idCnaeReceita) {
+        this.idCnaeReceita = idCnaeReceita;
     }
 
 }
