@@ -117,7 +117,7 @@
                                     </p:column>
                                 </h:panelGrid>
                                 
-                                <h:panelGrid style="margin-top: 10px" columns="6">
+                                <h:panelGrid style="margin-top: 10px" columns="7">
                                     <p:column>
                                         <h:outputLabel value="Layout:" />
                                     </p:column>
@@ -143,6 +143,10 @@
                                     
                                     <p:column>
                                         <p:selectBooleanCheckbox value="#{contaCobrancaBean.contaCobranca.associativo}" itemLabel="Baixa Associativo" style="margin-left: 20px"/>
+                                    </p:column>
+                                    
+                                    <p:column>
+                                        <p:selectBooleanCheckbox value="#{contaCobrancaBean.contaCobranca.cobrancaRegistrada}" itemLabel="! Cobranca Registrada" style="margin-left: 20px; font-weight: bold"/>
                                     </p:column>
                                 </h:panelGrid>
                                 

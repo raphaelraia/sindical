@@ -1236,11 +1236,12 @@ public class MovimentoDBToplink extends DB implements MovimentoDB {
                     + "    CASE WHEN ( x.idcontabilidade > 0 ) THEN p_contabil.id ELSE 0 END AS idContabilidade,     \n"
                     + "              contr.id_juridica AS idJuridica,                                                       \n"
                     //+ "  30/09/2015  CASE WHEN pj.is_cobranca_escritorio = true THEN x.qtde ELSE 0 END AS qtde                        \n"
-                    + "    CASE WHEN ( x.idcontabilidade > 0 ) THEN x.qtde ELSE 0 END AS qtde                        \n"
+                    + "    CASE WHEN ( x.idcontabilidade > 0 ) THEN x.qtde ELSE 0 END AS qtde,                        \n"
                     // + " p.ds_email1 email_empresa,p_contabil.ds_email1 email_contabil,pj.is_email_escritorio,length(rtrim(p.ds_email1))
                     // ADICIONEI LOTE AQUI -- CASO FICAR PESADO TIRAR --
                     //+ " inner join fin_lote as l on (l.id = m.id_lote)  "
 
+                    + "    bo.dt_cobranca_registrada AS data_cobranca_registrada                                    \n"
                     + "         FROM fin_movimento              AS m                                                    \n"
                     + " INNER JOIN arr_contribuintes_vw         AS contr      ON m.id_pessoa = contr.id_pessoa          \n"
                     + " INNER JOIN pes_pessoa                   AS p          ON p.id = contr.id_pessoa                 \n"

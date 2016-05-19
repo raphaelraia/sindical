@@ -498,6 +498,16 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
                             + " - Vencimento: " + movimentoBefore.getVencimento();
 
                     movim.setValor(Moeda.substituiVirgulaFloat((String) listMovimentos.get(i).getArgumento3()));
+                    // SE ALTERAR O VENCIMENTO E FOR COBRANÇA REGISTRADA, ENTÃO ALTERAR A DATA DE REGISTRO PARA QUANDO IMPRIMIR REGISTRAR NOVAMENTE
+                    if (!movimentoBefore.getVencimento().equals(movim.getVencimento())) {
+                        Boleto bol = finDB.pesquisaBoletos(movim.getNrCtrBoleto());
+                        if (bol != null) {
+                            if (bol.getContaCobranca().isCobrancaRegistrada()) {
+                                bol.setDtCobrancaRegistrada(null);
+                                new Dao().update(bol, true);
+                            }
+                        }
+                    }
                     if (GerarMovimento.alterarUmMovimento(movim)) {
                         novoLog.update(beforeUpdate,
                                 " Movimento: (" + movim.getId() + ") "

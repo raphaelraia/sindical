@@ -6,6 +6,7 @@ import br.com.rtools.arrecadacao.db.DescontoEmpregadoDB;
 import br.com.rtools.arrecadacao.db.DescontoEmpregadoDBToplink;
 import br.com.rtools.arrecadacao.db.FolhaEmpresaDB;
 import br.com.rtools.arrecadacao.db.FolhaEmpresaDBToplink;
+import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.db.FinanceiroDB;
@@ -40,7 +41,7 @@ public abstract class MovimentoValorBean {
     }
 
     public abstract void carregarFolha();
-    
+
     public abstract void carregarFolha(DataObject valor);
 
     public abstract void atualizaValorGrid(String tipo);
@@ -66,12 +67,12 @@ public abstract class MovimentoValorBean {
         if (((Float) valorFloat[0]) != 0) {
             return Moeda.converteFloatR$Float(
                     Moeda.somaValores(
-                    Moeda.multiplicarValores(
-                    ((Float) valorFloat[0]),
-                    (((Float) valorFloat[1]) / 100)),
-                    Moeda.multiplicarValores(
-                    folha.getNumFuncionarios(),
-                    desEmpregado.getValorEmpregado())));
+                            Moeda.multiplicarValores(
+                                    ((Float) valorFloat[0]),
+                                    (((Float) valorFloat[1]) / 100)),
+                            Moeda.multiplicarValores(
+                                    folha.getNumFuncionarios(),
+                                    desEmpregado.getValorEmpregado())));
         } else {
             return (float) 0.0;
         }
@@ -118,7 +119,7 @@ public abstract class MovimentoValorBean {
                 setQtdFuncionario(0);
             }
         }
-        
+
         setValorBoleto(Moeda.converteR$Float(movimento.getValor()));
         return true;
     }
@@ -144,7 +145,7 @@ public abstract class MovimentoValorBean {
     public void setValor(String valor) {
         this.valor = Moeda.substituiVirgula(valor);
     }
-    
+
     public String getValorBoleto() {
         return Moeda.converteR$(valorBoleto);
     }
@@ -160,26 +161,26 @@ public abstract class MovimentoValorBean {
         try {
             float valorMes = Float.parseFloat(valor);
             float valorGuia = Float.parseFloat(valorBoleto);
-            
-            if (tipo.equals("valor")){
+
+            if (tipo.equals("valor")) {
                 JuridicaDB jurDB = new JuridicaDBToplink();
                 SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
                 sv.abrirTransacao();
 
-                if (descontoEmpregado != null && descontoEmpregado.getId() != -1){
-                    valorMes = 
-                            Moeda.converteFloatR$Float(
-                            Moeda.somaValores(
-                            Moeda.divisaoValores(
-                            valorGuia,
-                            (descontoEmpregado.getPercentual() / 100)),
-                            Moeda.divisaoValores(
-                            folhaEmpresa.getNumFuncionarios(),
-                            descontoEmpregado.getValorEmpregado())));
-                }else{
+                if (descontoEmpregado != null && descontoEmpregado.getId() != -1) {
+                    valorMes
+                            = Moeda.converteFloatR$Float(
+                                    Moeda.somaValores(
+                                            Moeda.divisaoValores(
+                                                    valorGuia,
+                                                    (descontoEmpregado.getPercentual() / 100)),
+                                            Moeda.divisaoValores(
+                                                    folhaEmpresa.getNumFuncionarios(),
+                                                    descontoEmpregado.getValorEmpregado())));
+                } else {
                     valorMes = 0;
                 }
-                
+
                 if (folhaEmpresa.getId() == -1) {
                     folhaEmpresa.setValorMes(valorMes);
                     folhaEmpresa.setNumFuncionarios(qtdFuncionario);
@@ -194,28 +195,35 @@ public abstract class MovimentoValorBean {
                     sv.alterarObjeto(folhaEmpresa);
                 }
                 movimento.setValor(valorGuia);
-                
-                if (salvar){
+
+                if (salvar) {
                     if (movimento.getId() == -1) {
                         //sv.inserirObjeto(movimento);
                     } else {
+                        // SE ALTERAR O VENCIMENTO E FOR COBRANÇA REGISTRADA, ENTÃO ALTERAR A DATA DE REGISTRO PARA QUANDO IMPRIMIR REGISTRAR NOVAMENTE
+                        MovimentoDB dbm = new MovimentoDBToplink();
+                        Boleto bol = dbm.pesquisaBoletos(movimento.getNrCtrBoleto());
+                        if (bol != null) {
+                            if (bol.getContaCobranca().isCobrancaRegistrada()) {
+                                bol.setDtCobrancaRegistrada(null);
+                                sv.alterarObjeto(bol);
+                            }
+                        }
 
-                        
                         sv.alterarObjeto(movimento);
                         Lote lote = (Lote) sv.pesquisaCodigo(movimento.getLote().getId(), "Lote");
                         lote.setValor(movimento.getValor());
                         sv.alterarObjeto(lote);
-                        
                     }
                 }
                 sv.comitarTransacao();
-            }else{
+            } else {
                 if (valorMes != 0) {
                     JuridicaDB jurDB = new JuridicaDBToplink();
                     //FolhaEmpresaDB dbFolha = new FolhaEmpresaDBToplink();
                     SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
                     sv.abrirTransacao();
-                    
+
                     if (folhaEmpresa.getId() == -1) {
                         folhaEmpresa.setValorMes(valorMes);
                         folhaEmpresa.setNumFuncionarios(qtdFuncionario);
@@ -237,34 +245,41 @@ public abstract class MovimentoValorBean {
                     }
                     movimento.setValor(
                             Moeda.converteFloatR$Float(
-                            Moeda.somaValores(
-                            Moeda.multiplicarValores(
-                            valorMes,
-                            (descontoEmpregado.getPercentual() / 100)),
-                            Moeda.multiplicarValores(
-                            folhaEmpresa.getNumFuncionarios(),
-                            descontoEmpregado.getValorEmpregado()))));
+                                    Moeda.somaValores(
+                                            Moeda.multiplicarValores(
+                                                    valorMes,
+                                                    (descontoEmpregado.getPercentual() / 100)),
+                                            Moeda.multiplicarValores(
+                                                    folhaEmpresa.getNumFuncionarios(),
+                                                    descontoEmpregado.getValorEmpregado()))));
                     if (salvar) {
                         if (movimento.getId() == -1) {
                             //sv.inserirObjeto(movimento);
                         } else {
+                            // SE ALTERAR O VENCIMENTO E FOR COBRANÇA REGISTRADA, ENTÃO ALTERAR A DATA DE REGISTRO PARA QUANDO IMPRIMIR REGISTRAR NOVAMENTE
+                            MovimentoDB dbm = new MovimentoDBToplink();
+                            Boleto bol = dbm.pesquisaBoletos(movimento.getNrCtrBoleto());
+                            if (bol != null) {
+                                if (bol.getContaCobranca().isCobrancaRegistrada()){
+                                    bol.setDtCobrancaRegistrada(null);
+                                    sv.alterarObjeto(bol);
+                                }
+                            }
+
                             sv.alterarObjeto(movimento);
                             Lote lote = (Lote) sv.pesquisaCodigo(movimento.getLote().getId(), "Lote");
                             lote.setValor(movimento.getValor());
                             sv.alterarObjeto(lote);
-                            
+
                         }
-    //                    salvar(movimento, movimento.getId());
-    //                    movimento.getLote().setValor(movimento.getValor());
-    //                    salvar(movimento.getLote(), movimento.getLote().getId());
                     }
                     sv.comitarTransacao();
-                    
+
                     folhaEmpresa = new FolhaEmpresa();
                     descontoEmpregado = new DescontoEmpregado();
                 }
             }
-            
+
             esconder();
             return Moeda.converteR$Float(movimento.getValor());
         } catch (Exception e) {
