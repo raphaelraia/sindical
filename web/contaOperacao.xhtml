@@ -98,13 +98,16 @@
                                 </h:column>
                                 <h:column>
                                     <h:panelGrid id="i_tbl_co">
-                                        <p:dataTable var="contaOperacao" value="#{contaOperacaoBean.listContaOperacao}" scrollHeight="250" scrollable="true" selection="#{contaOperacaoBean.selectedContaOperacao}" rowKey="#{contaOperacao.id}" emptyMessage="Nenhum registro encontrado!">
+                                        <p:dataTable var="contaOperacao" value="#{contaOperacaoBean.listContaOperacao}" scrollable="true" selection="#{contaOperacaoBean.selectedContaOperacao}" rowKey="#{contaOperacao.id}" emptyMessage="Nenhum registro encontrado!" paginator="true" rows="10">
                                             <p:ajax event="rowSelect" />
                                             <p:ajax event="rowSelectCheckbox" />
                                             <p:ajax event="rowUnselect" />
                                             <p:ajax event="rowUnselectCheckbox" />
                                             <p:ajax event="toggleSelect" />
                                             <p:column selectionMode="multiple" width="20" styleClass="text-center"/>                                    
+                                            <p:column width="15">
+                                                <p:rowToggler />
+                                            </p:column>                                        
                                             <p:column width="25" styleClass="text-center">
                                                 <p:commandButton icon="ui-icon-pencil" action="#{contaOperacaoBean.editItem(contaOperacao)}" disabled="#{controleAcessoBean.botaoSalvar}" title="Editar"/>
                                             </p:column>                                    
@@ -122,6 +125,9 @@
                                             <p:column width="25" styleClass="text-center">
                                                 <p:commandButton icon="ui-icon-close" action="#{contaOperacaoBean.removeItem(contaOperacao)}" disabled="#{controleAcessoBean.botaoExcluir}" title="Remover item"/>
                                             </p:column>                                    
+                                            <p:rowExpansion>
+                                                    Centro de Custo: #{contaOperacao.centroCusto.descricao}
+                                            </p:rowExpansion>
                                             <f:facet name="footer">
                                                 C.F.: Conta Fixa
                                             </f:facet>
@@ -139,6 +145,10 @@
                                 <p:outputLabel value="#{contaOperacaoBean.contaOperacao.operacao.es}" />
                                 <p:outputLabel value="Plano 5:" />
                                 <p:outputLabel value="#{contaOperacaoBean.contaOperacao.plano5.conta} - #{contaOperacaoBean.contaOperacao.plano5.classificador}" />
+                                <p:outputLabel value="CENTRO DE CUSTO:" rendered="#{not empty contaOperacaoBean.listCentroCusto}"/>
+                                <p:selectOneMenu value="#{contaOperacaoBean.index[1]}" rendered="#{not empty contaOperacaoBean.listCentroCusto}">
+                                    <f:selectItems value="#{contaOperacaoBean.listCentroCusto}" />
+                                </p:selectOneMenu>                                
                                 <h:column />
                                 <p:selectBooleanCheckbox value="#{contaOperacaoBean.contaOperacao.contaFixa}" itemLabel="Conta Fixa" />
                             </h:panelGrid>

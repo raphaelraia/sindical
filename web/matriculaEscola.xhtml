@@ -210,13 +210,13 @@
                                                 <p:outputLabel value="Data Inicío:"  for="idDataInicio"/>
                                                 <h:column>
                                                     <h:panelGrid columns="3" id="i_panel_indeterminado">
-                                                        <p:inputMask id="idDataInicio" size="8" maxlength="10" value="#{matriculaEscolaBean.matriculaIndividual.dataInicioString}" disabled="#{matriculaEscolaBean.desabilitaIndividual}" mask="99/99/9999">
+                                                        <p:inputMask id="idDataInicio" size="8" maxlength="10" value="#{matriculaEscolaBean.matriculaIndividual.dataInicioString}" disabled="#{matriculaEscolaBean.desabilitaIndividual}" mask="99/99/9999"  converter="#{isDateString}">
                                                             <p:ajax event="change" listener="#{matriculaEscolaBean.updateData()}" update="@this :form_matricula_escola:" global="false"/>
                                                         </p:inputMask>
                                                         <p:outputLabel value="Data Término: "  for="idDataTermino"/>
                                                         <h:column>
                                                             <p:outputLabel value="Indeterminado" rendered="#{matriculaEscolaBean.servicoIndividual.cursoRenovacao}" styleClass="font-color-red" />
-                                                            <p:inputMask id="idDataTermino" size="8" maxlength="10" value="#{matriculaEscolaBean.matriculaIndividual.dataTerminoString}" disabled="#{matriculaEscolaBean.desabilitaIndividual}" mask="99/99/9999" rendered="#{!matriculaEscolaBean.servicoIndividual.cursoRenovacao}">
+                                                            <p:inputMask id="idDataTermino" size="8" maxlength="10" value="#{matriculaEscolaBean.matriculaIndividual.dataTerminoString}" disabled="#{matriculaEscolaBean.desabilitaIndividual}" mask="99/99/9999" rendered="#{!matriculaEscolaBean.servicoIndividual.cursoRenovacao}" converter="#{isDateString}">
                                                                 <p:ajax event="change" listener="#{matriculaEscolaBean.updateData()}" update="@this :form_matricula_escola:" global="false" />
                                                             </p:inputMask>                                                        
                                                         </h:column>
@@ -224,12 +224,12 @@
                                                 </h:column>
                                                 <p:outputLabel value="Horário:" />
                                                 <h:column>
-                                                    <p:inputMask mask="99:99" id="idHoraInicio"  value="#{matriculaEscolaBean.matriculaIndividual.inicio}" size="4" maxlength="5" disabled="#{matriculaEscolaBean.desabilitaIndividual}">
-                                                        <p:ajax event="blur" listener="#{matriculaEscolaBean.validaHoraInicio}" update="@this" global="false"/>
+                                                    <p:inputMask mask="99:99" id="idHoraInicio"  value="#{matriculaEscolaBean.matriculaIndividual.inicio}" size="4" maxlength="5" disabled="#{matriculaEscolaBean.desabilitaIndividual}" converter="#{isValidTimeString}">
+                                                        <p:ajax event="change" listener="#{matriculaEscolaBean.validaHoraInicio}" update="@this" global="false"/>
                                                     </p:inputMask>
                                                     <p:outputLabel value=" às " />
-                                                    <p:inputMask mask="99:99" id="idHoraTermino"  value="#{matriculaEscolaBean.matriculaIndividual.termino}" size="4" maxlength="5" disabled="#{matriculaEscolaBean.desabilitaIndividual}">
-                                                        <p:ajax event="blur" listener="#{matriculaEscolaBean.validaHoraInicio}" update="@this" global="false"/>
+                                                    <p:inputMask mask="99:99" id="idHoraTermino"  value="#{matriculaEscolaBean.matriculaIndividual.termino}" size="4" maxlength="5" disabled="#{matriculaEscolaBean.desabilitaIndividual}" converter="#{isValidTimeString}">
+                                                        <p:ajax event="change" listener="#{matriculaEscolaBean.validaHoraInicio}" update="@this" global="false"/>
                                                     </p:inputMask>
                                                     <p:outputLabel value=" horas " />
                                                 </h:column>
@@ -289,7 +289,7 @@
                                             </f:facet>
                                             <p:row>
                                                 <p:column>
-                                                    <p:inputText id="idValor" style="text-align: right; width: 100px" maxlength="10" value="#{matriculaEscolaBean.valorString}" styleClass="real" disabled="#{controleAcessoBean.verificarPermissao('alterar_valor_matricula_escola', 3)}" title="ALTERAR VALOR MATRICULA ESCOLA">
+                                                    <p:inputText id="idValor" style="text-align: right; width: 100px" maxlength="10" value="#{matriculaEscolaBean.valorString}" styleClass="real" disabled="#{controleAcessoBean.verificarPermissao('alterar_valor_matricula_escola', 3)}" title="ALTERAR VALOR MATRICULA ESCOLA" converter="#{toCurrency}">
                                                         <p:ajax event="blur" listener="#{matriculaEscolaBean.calculoDesconto()}" update="@this panel_calculo" />
                                                     </p:inputText>
                                                 </p:column>
@@ -305,14 +305,14 @@
                                                 </p:column>
 
                                                 <p:column>
-                                                    <p:inputMask value="#{matriculaEscolaBean.servicoPessoa.referenciaVigoracao}" mask="99/9999" style="text-align: right; width: 80px; text-align: center">
-                                                        <p:ajax event="blur" update="form_matricula_escola" listener="#{matriculaEscolaBean.validaDataVigoracaoValidade()}"/>
+                                                    <p:inputMask value="#{matriculaEscolaBean.servicoPessoa.referenciaVigoracao}" mask="99/9999" style="text-align: right; width: 80px; text-align: center" converter="#{isDateReference}">
+                                                        <p:ajax event="change" update="form_matricula_escola" listener="#{matriculaEscolaBean.validaDataVigoracaoValidade()}" global="false"/>
                                                     </p:inputMask>
                                                 </p:column>
 
                                                 <p:column rendered="#{!matriculaEscolaBean.servicoIndividual.cursoRenovacao}">
                                                     <p:inputMask value="#{matriculaEscolaBean.servicoPessoa.referenciaValidade}" mask="99/9999" style="text-align: right; width: 80px; text-align: center">
-                                                        <p:ajax event="blur" update="form_matricula_escola" listener="#{matriculaEscolaBean.validaDataVigoracaoValidade()}"/>
+                                                        <p:ajax event="change" update="form_matricula_escola" listener="#{matriculaEscolaBean.validaDataVigoracaoValidade()}" global="false"/>
                                                     </p:inputMask>
                                                 </p:column>
                                             </p:row>

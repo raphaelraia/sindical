@@ -35,6 +35,12 @@
                                 <h:panelGrid columns="2" columnClasses="verticalAlignTop, verticalAlignTop">
                                     <h:column>
                                         <h:panelGrid columns="2" style="width:750px">
+                                            <p:outputLabel value="Código:" rendered="#{tituloBean.titulo.id ne null}"/>
+                                            <p:inputText value="#{tituloBean.titulo.id}" size="6" rendered="#{tituloBean.titulo.id ne null}" readonly="true"/>
+                                            <p:outputLabel value="Código de Barras:" />
+                                            <p:inputText value="#{tituloBean.titulo.barras}" maxlength="15" size="16">
+                                                <p:ajax event="change" update="@this :form_titulo:" listener="#{tituloBean.listener(1)}"/>                                            
+                                            </p:inputText>                                            
                                             <p:outputLabel value="Data Cadastro:" />
                                             <p:inputMask value="#{tituloBean.titulo.dataString}" maxlength="10" size="6" readonly="readonly" mask="99/99/9999" converter="#{isDateString}">
                                                 <p:ajax update="@this" event="change" />
@@ -54,14 +60,13 @@
                                                 <f:selectItem itemValue="" itemLabel="Selecionar" />
                                                 <f:selectItems value="#{tituloBean.listGenero}" />
                                             </p:selectOneMenu>
-                                            <p:outputLabel value="Código de Barras:" />
-                                            <p:inputText value="#{tituloBean.titulo.barras}" maxlength="15" size="16">
-                                                <p:ajax event="change" update="@this" listener="#{tituloBean.listener(1)}"/>                                            
-                                            </p:inputText>
                                             <p:outputLabel value="Duração:" />
-                                            <p:inputMask id="idDuracao" size="2" value="#{tituloBean.titulo.duracao}" mask="99:99" >
-                                                <p:ajax event="change" update="@this" />
-                                            </p:inputMask>
+                                            <h:column>
+                                                <p:inputText id="idDuracao" value="#{tituloBean.titulo.duracao}" size="3" converter="#{thisNumber}" styleClass="text-center">
+                                                    <p:ajax event="change" update="@this" />
+                                                </p:inputText>                                                
+                                                <p:outputLabel value="minuto(s)" style="margin-left: 5px!important" />
+                                            </h:column>
                                             <p:outputLabel value="Ano de Lançamento:" />
                                             <p:inputMask id="idAnoDeLancamento" value="#{tituloBean.titulo.anoLancamentoString}" mask="9999" size="2"/>
                                             <p:outputLabel value="Legenda:"  />

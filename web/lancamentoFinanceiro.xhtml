@@ -98,15 +98,15 @@
                                         <p:rowToggler />  
                                     </p:column> 
 
-                                    <p:column headerText="Lançamento" width="80" styleClass="text-center">
+                                    <p:column headerText="Lançamento" width="90" styleClass="text-center">
                                         <h:outputLabel value="#{lote.lancamento}" title="Ver detalhes deste Lançamento" styleClass="bold"/>
                                     </p:column>
 
-                                    <p:column headerText="Emissão"  width="80" styleClass="text-center">
+                                    <p:column headerText="Emissão" width="90" styleClass="text-center">
                                         <h:outputLabel  value="#{lote.emissao}" title="Ver detalhes deste Lançamento" styleClass="bold"/>
                                     </p:column>
 
-                                    <p:column headerText="Documento" width="150" styleClass="text-center">
+                                    <p:column headerText="Documento" width="130" styleClass="text-center">
                                         <h:outputLabel  value="#{lote.documento}" title="Ver detalhes deste Lançamento" styleClass="bold"/>
                                     </p:column>
 
@@ -115,7 +115,7 @@
                                     </p:column>
 
                                     <p:column headerText="Valor (R$)"  width="80" styleClass="text-center">
-                                        <h:outputLabel value="#{lote.valor}" style="float: right"/>
+                                        <h:outputLabel value="#{lote.valorString}" style="float: right"/>
                                     </p:column>
 
 
@@ -123,19 +123,19 @@
                                         <h:panelGrid columns="4" style="height: 40px" styleClass="sbb">
                                             <p:column>
                                                 <h:panelGrid>
-                                                    <h:outputText value="Nr Lote" style="font-weight: bold"/>
+                                                    <h:outputText value="Nr Lote" styleClass="bold"/>
                                                     <h:outputLabel value="#{lote.id}"/>
                                                 </h:panelGrid>
                                             </p:column>
                                             <p:column>
                                                 <h:panelGrid>
-                                                    <h:outputText value="Usuário" style="font-weight: bold"/>
+                                                    <h:outputText value="Usuário" styleClass="bold"/>
                                                     <h:outputLabel value="#{lote.usuario.pessoa.nome}" />                                                
                                                 </h:panelGrid>
                                             </p:column>
                                             <p:column>
                                                 <h:panelGrid>
-                                                    <h:outputText value="Filial" style="font-weight: bold"/><br />
+                                                    <h:outputText value="Filial" styleClass="bold"/>
                                                     <h:outputLabel value="#{lote.filial.filial.pessoa.nome}" />
                                                 </h:panelGrid>
                                             </p:column>
@@ -157,14 +157,16 @@
                                 </h:panelGrid>
                             </p:dialog>                            
 
-                            <p:dialog id="i_dlg" widgetVar="i_dlg_novo" header="Lançamento" resizable="false" modal="true" width="950" height="600" visible="#{lancamentoFinanceiroBean.modalVisivel}" responsive="true" draggable="false" closeOnEscape="true" maximizable="true">
+                            <p:dialog id="i_dlg" widgetVar="i_dlg_novo" header="Lançamento" resizable="false" modal="true" width="950" height="500" minHeight="600" visible="#{lancamentoFinanceiroBean.modalVisivel}" responsive="true" draggable="false" closeOnEscape="true" maximizable="true">
                                 <p:ajax event="close" listener="#{lancamentoFinanceiroBean.fechaModal()}" update="form_lf"/>  
-
+                                <h:panelGroup layout="block" id="i_validations">
+                                    <h:outputText value="#{genericaMensagem.getHtmlMessage('error', 'CADATRAR CONTAS')}" escape="false" rendered="#{lancamentoFinanceiroBean.idContaOperacao eq 0}" />
+                                </h:panelGroup>
                                 <p:panel styleClass="fundoCinza">
                                     <h:panelGrid>
                                         <h:outputText value="Filial" />
                                         <p:selectOneMenu value="#{lancamentoFinanceiroBean.idFilial}" style="width: 800px">
-                                            <p:ajax event="change" update="@this i_grupo i_para_conta i_valor i_msg" listener="#{lancamentoFinanceiroBean.atualizaComboOperacao()}"/>
+                                            <p:ajax event="change" update="@this i_grupo i_para_conta i_valor i_msg i_validations i_actions" listener="#{lancamentoFinanceiroBean.atualizaComboOperacao()}"/>
                                             <f:selectItems value="#{lancamentoFinanceiroBean.listaFilial}"/>
                                         </p:selectOneMenu>                                        
                                     </h:panelGrid>                                        
@@ -175,7 +177,7 @@
                                             <h:panelGrid>
                                                 <h:outputText value="Perfil" />
                                                 <p:selectOneMenu value="#{lancamentoFinanceiroBean.es}" style="width: 70px">
-                                                    <p:ajax event="change" update="i_tipo i_grupo i_para_conta i_valor i_msg" listener="#{lancamentoFinanceiroBean.atualizaComboES()}" global="false"/>
+                                                    <p:ajax event="change" update="i_tipo i_grupo i_para_conta i_valor i_msg i_validations i_actions" listener="#{lancamentoFinanceiroBean.atualizaComboES()}" global="false"/>
                                                     <f:selectItem itemValue="E" itemLabel="Entrada"/>
                                                     <f:selectItem itemValue="S" itemLabel="Saida"/>
                                                 </p:selectOneMenu>                                                
@@ -245,35 +247,44 @@
                                         </h:column>                                        
 
                                     </h:panelGrid>
+                                    <h:panelGrid columns="7">
+                                        <h:column>
+                                            <h:panelGrid>
+                                                <h:outputText value="Operação" styleClass="font-color-red bold" />
+                                                <p:selectOneMenu value="#{lancamentoFinanceiroBean.idOperacao}">
+                                                    <p:ajax event="change" update="i_grupo i_para_conta i_valor i_validations i_actions" listener="#{lancamentoFinanceiroBean.atualizaComboOperacao()}" global="false"/>
+                                                    <f:selectItems value="#{lancamentoFinanceiroBean.listaOperacao}"/>
+                                                </p:selectOneMenu>
+                                            </h:panelGrid>
+                                        </h:column>
 
-                                    <h:panelGrid>
-                                        <h:outputText value="Operação" styleClass="font-color-red bold" />
-                                        <p:selectOneMenu value="#{lancamentoFinanceiroBean.idOperacao}">
-                                            <p:ajax event="change" update="i_grupo i_para_conta i_valor" listener="#{lancamentoFinanceiroBean.atualizaComboOperacao()}" global="false"/>
-                                            <f:selectItems value="#{lancamentoFinanceiroBean.listaOperacao}"/>
-                                        </p:selectOneMenu>
-                                    </h:panelGrid>
-                                </h:panelGroup>
-
-                                <h:panelGrid id="i_grupo">
-                                    <h:panelGrid columns="2" rendered="#{lancamentoFinanceiroBean.operacao.id == 1 or lancamentoFinanceiroBean.operacao.id == 2}">
                                         <p:column>
-                                            <h:outputText value="Centro Custo" /><br />
-                                            <p:selectOneMenu value="#{lancamentoFinanceiroBean.idCentroCusto}" style="margin-right: 15px; width: 386px">
-                                                <p:ajax event="change" update="i_grupo i_para_conta i_valor" listener="#{lancamentoFinanceiroBean.atualizaComboCentroCusto()}"/>
-                                                <f:selectItems value="#{lancamentoFinanceiroBean.listaCentroCusto}"/>
-                                            </p:selectOneMenu>
+                                            <h:panelGroup layout="block" id="i_grupo">
+                                                <h:panelGrid columns="2">
+                                                    <h:column>
+                                                        <h:panelGrid>
+                                                            <h:outputText value="Centro Custo" styleClass="font-color-red bold"/>
+                                                            <p:selectOneMenu value="#{lancamentoFinanceiroBean.idCentroCusto}"  disabled="#{lancamentoFinanceiroBean.idCentroCusto eq 0}">
+                                                                <p:ajax event="change" update="i_grupo i_para_conta i_valor i_validations i_actions" listener="#{lancamentoFinanceiroBean.atualizaComboCentroCusto()}"/>
+                                                                <f:selectItems value="#{lancamentoFinanceiroBean.listaCentroCusto}"/>
+                                                            </p:selectOneMenu>
+                                                        </h:panelGrid>
+                                                    </h:column>
+                                                    <h:column>
+                                                        <h:panelGrid>
+                                                            <h:outputText value="Conta" styleClass="font-color-red bold"/>
+                                                            <p:selectOneMenu value="#{lancamentoFinanceiroBean.idContaOperacao}" disabled="#{lancamentoFinanceiroBean.idContaOperacao eq 0}">
+                                                                <p:ajax event="change" update="@this i_para_conta i_valor" />
+                                                                <f:selectItems value="#{lancamentoFinanceiroBean.listaContaOperacao}"/>
+                                                            </p:selectOneMenu>
+                                                        </h:panelGrid>
+                                                    </h:column>
+                                                </h:panelGrid>
+                                            </h:panelGroup>
                                         </p:column>
-                                    </h:panelGrid>
 
-                                    <h:panelGrid>
-                                        <h:outputText value="Conta" style="font-weight: bold; margin-bottom: 40px"/>
-                                        <p:selectOneMenu value="#{lancamentoFinanceiroBean.idContaOperacao}" style="width: 800px;">
-                                            <p:ajax event="change" update="@this i_para_conta i_valor" />
-                                            <f:selectItems value="#{lancamentoFinanceiroBean.listaContaOperacao}"/>
-                                        </p:selectOneMenu>
                                     </h:panelGrid>
-                                </h:panelGrid>
+                                </h:panelGroup>                                
                                 <hr />
                                 <h:panelGroup layout="block">
                                     <p:panel header="Credor/Devedor">
@@ -286,7 +297,7 @@
                                             </p:column>
 
                                             <p:column>
-                                                <p:inputMask id="i_documento" value="#{lancamentoFinanceiroBean.descricao}" size="20" mask="#{lancamentoFinanceiroBean.mascara}" disabled="#{lancamentoFinanceiroBean.idTipoDocumento == 2}" readonly="#{lancamentoFinanceiroBean.pessoa.id != -1}">
+                                                <p:inputMask id="i_documento" value="#{lancamentoFinanceiroBean.descricao}" size="20" mask="#{lancamentoFinanceiroBean.mascara}" disabled="#{lancamentoFinanceiroBean.idTipoDocumento == 2}" readonly="#{lancamentoFinanceiroBean.pessoa.id != -1}" styleClass="text-center">
                                                     <p:ajax event="change" listener="#{lancamentoFinanceiroBean.pesquisarPessoa()}" update="i_panel_pessoa i_panel_cadastro" />
                                                 </p:inputMask>
 
@@ -354,78 +365,97 @@
                                             <h:outputLabel value="#{lancamentoFinanceiroBean.strConta}" style="font-weight: bold"/>
 
                                             <p:selectBooleanCheckbox value="#{lancamentoFinanceiroBean.chkImposto}" itemLabel="Imposto" onchange="">
-                                                <p:ajax event="change" update="i_dlg_conta i_para_conta" onsuccess="PF('i_dlg_conta').show()" />
+                                                <p:ajax event="change" update="i_dlg_conta i_para_conta" onsuccess="PF('i_dlg_conta').show()" listener="#{lancamentoFinanceiroBean.listaContaTipoPlano5.clear()}"/>
                                             </p:selectBooleanCheckbox>
                                         </h:panelGrid>
                                     </f:facet>
                                     <h:panelGrid id="i_valor" columns="9">
                                         <p:column>
-                                            <h:outputText value="Total" style="font-weight: bold"/><br />
-                                            <h:column rendered="#{lancamentoFinanceiroBean.contaTipoPlano.id == -1}">
-                                                <p:inputText value="#{lancamentoFinanceiroBean.total}" size="8" style="text-align: right" converter="#{toCurrency}">
+                                            <h:panelGrid>
+                                                <h:outputText value="Total" style="font-weight: bold"/>
+                                                <h:column>
+                                                    <h:column rendered="#{lancamentoFinanceiroBean.contaTipoPlano.id == -1}">
+                                                        <p:inputText value="#{lancamentoFinanceiroBean.total}" size="8" style="text-align: right" converter="#{toCurrency}">
+                                                            <p:ajax event="change" update="@this" global="false"/>
+                                                        </p:inputText>
+                                                    </h:column>
+                                                    <h:column rendered="#{lancamentoFinanceiroBean.contaTipoPlano.id != -1}">
+                                                        <p:commandButton value="R$ #{lancamentoFinanceiroBean.total}" action="#{lancamentoFinanceiroBean.openModalPedido()}" oncomplete="PF('dlg_pedido').show();" style="font-weight: bold" update=":form_lf:dlg_pedido"/>
+                                                    </h:column>
+                                                </h:column>
+                                            </h:panelGrid>
+                                        </p:column>
+
+                                        <p:column>
+                                            <h:panelGrid>
+                                                <h:outputText value="Vencimento" style="font-weight: bold"/>
+                                                <p:inputMask value="#{lancamentoFinanceiroBean.vencimento}" mask="99/99/9999" size="8" converter="#{isDateString}" styleClass="text-center">
+                                                    <p:ajax event="change" update="@this" global="false"/>
+                                                </p:inputMask>
+                                            </h:panelGrid>
+                                        </p:column>
+
+                                        <h:column>
+                                            <h:panelGrid>
+                                                <h:outputLabel value="Número Doc." />
+                                                <p:inputText value="#{lancamentoFinanceiroBean.documentoMovimento}" size="10">
                                                     <p:ajax event="change" update="@this" global="false"/>
                                                 </p:inputText>
-                                            </h:column>
-                                            <h:column rendered="#{lancamentoFinanceiroBean.contaTipoPlano.id != -1}">
-                                                <p:commandButton value="R$ #{lancamentoFinanceiroBean.total}" action="#{lancamentoFinanceiroBean.openModalPedido()}" oncomplete="PF('dlg_pedido').show();" style="font-weight: bold" update=":form_lf:dlg_pedido"/>
-                                            </h:column>
-                                        </p:column>
-
-                                        <p:column>
-                                            <h:outputText value="Vencimento" style="font-weight: bold"/><br />
-                                            <p:inputMask value="#{lancamentoFinanceiroBean.vencimento}" mask="99/99/9999" size="8" converter="#{isDateString}">
-                                                <p:ajax event="change" update="@this" global="false"/>
-                                            </p:inputMask>
-                                        </p:column>
-
-                                        <h:column>
-                                            <h:outputLabel value="Número Doc." /><br />
-                                            <p:inputText value="#{lancamentoFinanceiroBean.documentoMovimento}" size="10">
-                                                <p:ajax event="change" update="@this" global="false"/>
-                                            </p:inputText>
+                                            </h:panelGrid>
                                         </h:column>
 
                                         <h:column>
-                                            <h:outputText value="Tipo Documento" /><br />
-                                            <p:selectOneMenu value="#{lancamentoFinanceiroBean.idFTipoMovimento}" style="width: 130px">
-                                                <p:ajax event="change" update="@this" global="false"/>
-                                                <f:selectItems value="#{lancamentoFinanceiroBean.listaFTipoMovimento}"/>
-                                            </p:selectOneMenu>
+                                            <h:panelGrid>
+                                                <h:outputText value="Tipo Documento" />
+                                                <p:selectOneMenu value="#{lancamentoFinanceiroBean.idFTipoMovimento}" style="width: 130px">
+                                                    <p:ajax event="change" update="@this" global="false"/>
+                                                    <f:selectItems value="#{lancamentoFinanceiroBean.listaFTipoMovimento}"/>
+                                                </p:selectOneMenu>
+                                            </h:panelGrid>
                                         </h:column>
 
                                         <p:column>
-                                            <h:outputText value=" Acréscimo"/><br />
-                                            <p:commandButton value="#{lancamentoFinanceiroBean.acrescimo}" action="#{lancamentoFinanceiroBean.openModalAcrescimo()}" update=":form_lf:i_panel_acrescimo" oncomplete="PF('i_dlg_acrescimo').show()"/>
+                                            <h:panelGrid>
+                                                <h:outputText value=" Acréscimo"/>
+                                                <p:commandButton value="#{lancamentoFinanceiroBean.acrescimo}" action="#{lancamentoFinanceiroBean.openModalAcrescimo()}" update=":form_lf:i_panel_acrescimo" oncomplete="PF('i_dlg_acrescimo').show()"/>
+                                            </h:panelGrid>
                                         </p:column>
 
                                         <p:column>
-                                            <h:outputText value="Desconto" /><br />
-                                            <p:inputText value="#{lancamentoFinanceiroBean.desconto}" size="7" style="text-align: right" converter="#{toCurrency}">
-                                                <p:ajax event="change" update="@this" global="false"/>
-                                            </p:inputText>
+                                            <h:panelGrid>
+                                                <h:outputText value="Desconto" />
+                                                <p:inputText value="#{lancamentoFinanceiroBean.desconto}" size="7" style="text-align: right" converter="#{toCurrency}">
+                                                    <p:ajax event="change" update="@this" global="false"/>
+                                                </p:inputText>
+                                            </h:panelGrid>
                                         </p:column>
 
                                         <p:column>
-                                            <h:outputText value="Valor" style="font-weight: bold"/><br />
-                                            <p:inputText value="#{lancamentoFinanceiroBean.valor}" size="8" style="text-align: right" converter="#{toCurrency}">
-                                                <p:ajax event="change" update="@this" global="false"/>
-                                            </p:inputText>
+                                            <h:panelGrid>
+                                                <h:outputText value="Valor" style="font-weight: bold"/>
+                                                <p:inputText value="#{lancamentoFinanceiroBean.valor}" size="8" style="text-align: right" converter="#{toCurrency}">
+                                                    <p:ajax event="change" update="@this" global="false"/>
+                                                </p:inputText>
+                                            </h:panelGrid>
                                         </p:column>
 
                                         <p:column>
-                                            <br />
-                                            <p:commandButton title="Adicionar" icon="ui-icon-plus" action="#{lancamentoFinanceiroBean.adicionarParcela()}" update="i_valor tbl_p i_msg i_para_conta :form_lf:i_panel_acrescimo"/>
+                                            <h:panelGrid>
+                                                <h:column>
+                                                    <br />
+                                                </h:column>
+                                                <p:commandButton title="Adicionar" icon="ui-icon-plus" action="#{lancamentoFinanceiroBean.adicionarParcela()}" update="i_valor tbl_p i_msg i_para_conta :form_lf:i_panel_acrescimo"/>
+                                            </h:panelGrid>
                                         </p:column>
                                     </h:panelGrid>
 
-                                    <p:inputTextarea id="i_historico" style="width: 100%;" rows="2">
+                                    <p:inputTextarea id="i_historico" style="width: 100%;" rows="2" maxlength="2000" value="#{lancamentoFinanceiroBean.historico}" placeholder="Digite o Histórico" autoResize="true">
 
                                     </p:inputTextarea>
-                                    <p:watermark value="Digite o Histórico" for="i_historico" />
                                 </p:panel>
 
                                 <p:dataTable var="parcela" id="tbl_p" value="#{lancamentoFinanceiroBean.listaParcela}" selection="#{lancamentoFinanceiroBean.listaParcelaSelecionada}" rowKey="#{parcela.parcela}" rowIndexVar="index" emptyMessage="Adicionar Parcela!" scrollable="true" scrollHeight="110" editable="#{lancamentoFinanceiroBean.lote.id == -1}" editMode="cell" styleClass="margin-top-max">
-
+                                    <p:column selectionMode="multiple" width="15" styleClass="text-center"/>
                                     <p:column width="15">  
                                         <p:rowToggler />  
                                     </p:column>
@@ -434,15 +464,21 @@
                                         <p:commandButton action="#{lancamentoFinanceiroBean.openExcluirParcela(parcela, index)}" oncomplete="PF('i_dlg_ex_movimento').show()" title="Excluir Movimento" icon="ui-icon-close" style="width: 20px; height: 20px"/>
                                     </p:column>
 
-                                    <p:column headerText="Vencimento" styleClass="text-center" width="80">
+                                    <p:column headerText="Vencto" styleClass="text-center">
                                         <h:outputLabel value="#{parcela.vencimento}" />
                                     </p:column>
 
-                                    <p:column headerText="Valor" styleClass="text-right" width="100">
+                                    <p:column headerText="Referência" styleClass="text-center">
+                                        <p:inputMask mask="99/9999" value="#{parcela.referencia}" placeholder="__/____" converter="#{isDateReference}" size="8" styleClass="text-center">
+                                            <p:ajax event="change" update="@this" />
+                                        </p:inputMask>
+                                    </p:column>
+
+                                    <p:column headerText="Valor" styleClass="text-right">
                                         <h:outputLabel value="R$ #{parcela.valor}" style="font-weight: bold"/>
                                     </p:column>
 
-                                    <p:column headerText="Acréscimo" width="80">
+                                    <p:column headerText="Acréscimo">
                                         <h:outputText value="R$ "/>
                                         <p:commandLink value="#{parcela.acrescimo}" style="float: right; font-size: 10pt!important; font-weight: bold" oncomplete="PF('i_dlg_acrescimo').show()" rendered="#{lancamentoFinanceiroBean.lote.id == -1}">
                                             <p:ajax event="click" update=":form_lf:i_panel_acrescimo" listener="#{lancamentoFinanceiroBean.alterarAcrescimo(index)}" />
@@ -450,7 +486,7 @@
                                         <h:outputLabel value="#{parcela.acrescimo}" style="float: right;" rendered="#{lancamentoFinanceiroBean.lote.id != -1}"/>
                                     </p:column>
 
-                                    <p:column headerText="Desconto" width="80">
+                                    <p:column headerText="Desconto">
                                         <p:cellEditor>  
                                             <f:facet name="output">
                                                 <h:outputText value="R$ "/>
@@ -465,12 +501,12 @@
                                     </p:column>
 
 
-                                    <p:column headerText="Vl Pagamento" width="100">
+                                    <p:column headerText="Vl Pagto">
                                         <h:outputText value="R$ "/>
                                         <h:outputText value="#{parcela.valorQuitado}" style="float: right"/>
                                     </p:column>
 
-                                    <p:column headerText="Dt Pagamento" width="75">
+                                    <p:column headerText="Data Pagto" styleClass="text-center">
                                         <h:outputText value="#{parcela.dataQuitacao}"/>
                                     </p:column>
 
@@ -501,8 +537,8 @@
                                 </p:dataTable>
                                 <br />
                                 <f:facet name="footer">
-                                    <h:panelGrid columns="8">
-                                        <p:commandButton value="Salvar" onclick="PF('i_dlg_salvar').show()" title="Salvar este Lançamento" />
+                                    <h:panelGrid columns="8" id="i_actions">
+                                        <p:commandButton value="Salvar" onclick="PF('i_dlg_salvar').show()" title="Salvar este Lançamento" disabled="#{lancamentoFinanceiroBean.idContaOperacao eq 0}"/>
                                         <p:commandButton value="Novo" action="#{lancamentoFinanceiroBean.limpar()}" update="form_lf" title="Limpar tudo e começar de Novo" />
                                         <p:commandButton ajax="false" value="Baixar" action="#{lancamentoFinanceiroBean.telaBaixa()}" update="tbl_p" rendered="#{lancamentoFinanceiroBean.lote.id != -1}" title="Baixar este Lançamento" />
                                         <p:commandButton value="Estornar" onclick="PF('i_dlg_estornar').show()" rendered="#{lancamentoFinanceiroBean.lote.id != -1}" title="Estornar este Lançamento" />
@@ -534,35 +570,45 @@
                                     <!-- TELA CADASTRO -->
                                     <p:messages autoUpdate="true" showSummary="true" showDetail="true" id="i_message_pedido"/>
                                     <h:panelGrid columns="2">
-                                        <p:commandButton value="Pesquisar" icon="ui-icon-search" title="Pesquisar Produto" action="#{chamadaPaginaBean.pesquisaProduto()}" />
-                                        <p:outputLabel value="#{lancamentoFinanceiroBean.pedido.produto.descricao} -  Marca: #{lancamentoFinanceiroBean.pedido.produto.marca} - #{lancamentoFinanceiroBean.pedido.produto.fabricante}" />
+                                        <p:commandButton value="Pesquisar" icon="ui-icon-search" title="Pesquisar Produto" action="#{chamadaPaginaBean.pesquisaProduto()}" actionListener="#{genericaSessao.putString('type', 'all')}"/>
+                                        <p:outputLabel value="#{lancamentoFinanceiroBean.pedido.produto.descricao} #{lancamentoFinanceiroBean.pedido.produto.marca} #{lancamentoFinanceiroBean.pedido.produto.medida} (#{lancamentoFinanceiroBean.pedido.produto.produtoUnidade.descricao})" />
                                     </h:panelGrid>
 
                                     <h:panelGrid columns="4">
                                         <p:column>
-                                            <p:outputLabel value="Quantidade" /><br />
-                                            <p:inputText value="#{lancamentoFinanceiroBean.quantidadePedido}" size="5" style="margin-right: 15px">
-                                                <p:ajax event="change" update="@this" />
-                                            </p:inputText>
+                                            <h:panelGrid>
+                                                <p:outputLabel value="Quantidade" />
+                                                <p:inputText value="#{lancamentoFinanceiroBean.quantidadePedidoString}" size="5" style="margin-right: 15px" converter="#{thisNumber}">
+                                                    <p:ajax event="change" update="@this" />
+                                                </p:inputText>
+                                            </h:panelGrid>
                                         </p:column>
 
                                         <p:column>
-                                            <p:outputLabel value="Valor Unitário" /><br />
-                                            <p:inputText value="#{lancamentoFinanceiroBean.valorUnitarioPedido}" size="8" dir="rtl" style="margin-right: 15px">
-                                                <p:ajax event="change" update="@this" />
-                                            </p:inputText>
+                                            <h:panelGrid>
+                                                <p:outputLabel value="Valor Unitário" />
+                                                <p:inputText value="#{lancamentoFinanceiroBean.valorUnitarioPedido}" size="8" style="margin-right: 15px" converter="#{toCurrency}" styleClass="text-right">
+                                                    <p:ajax event="change" update="@this" />
+                                                </p:inputText>
+                                            </h:panelGrid>
                                         </p:column>
 
                                         <p:column>
-                                            <p:outputLabel value="Desconto Unitário" /><br />
-                                            <p:inputText value="#{lancamentoFinanceiroBean.descontoUnitarioPedido}" size="12" dir="rtl">
-                                                <p:ajax event="change" update="@this" />
-                                            </p:inputText>
+                                            <h:panelGrid>
+                                                <p:outputLabel value="Desconto Unitário" />
+                                                <p:inputText value="#{lancamentoFinanceiroBean.descontoUnitarioPedido}" size="12" converter="#{toCurrency}" styleClass="text-right">
+                                                    <p:ajax event="change" update="@this" />
+                                                </p:inputText>
+                                            </h:panelGrid>
                                         </p:column>    
 
                                         <p:column>    
-                                            <br />
-                                            <p:commandButton value="Adicionar" icon="ui-icon-plus" action="#{lancamentoFinanceiroBean.addItemPedido()}" update="i_grid_pedido i_message_pedido"/>
+                                            <h:panelGrid>
+                                                <h:column>
+                                                    <br />                                                    
+                                                </h:column>
+                                                <p:commandButton value="Adicionar" icon="ui-icon-plus" action="#{lancamentoFinanceiroBean.addItemPedido()}" update="i_grid_pedido i_message_pedido"/>
+                                            </h:panelGrid>
                                         </p:column>    
                                     </h:panelGrid>
 

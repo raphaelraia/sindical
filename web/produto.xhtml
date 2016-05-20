@@ -34,7 +34,7 @@
                             <div class="clear"></div>
                             <h:panelGrid columns="2">
                                 <p:outputLabel value="Descrição:" />
-                                <p:inputText value="#{produtoBean.produto.descricao}" converter="#{toUpperCase}">
+                                <p:inputText value="#{produtoBean.produto.descricao}" converter="#{toUpperCase}" size="100">
                                     <p:ajax event="change" update="@this" />
                                 </p:inputText>
                                 <h:column>
@@ -234,7 +234,7 @@
                                 <p:commandButton value="Salvar" onclick="PF('dlg_salvar').show()" disabled="#{controleAcessoBean.botaoSalvar}" />
                                 <p:commandButton value="Novo" action="#{produtoBean.clear()}" update=":form_produto:" />
                                 <p:commandButton value="Excluir" type="button" onclick="PF('dlg_excluir').show()" disabled="#{controleAcessoBean.botaoExcluir}" />
-                                <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pesquisaProduto()}"/>
+                                <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pesquisaProduto()}" actionListener="#{genericaSessao.putString('type', 'tproduto')}" />
                             </h:panelGrid>
 
                             <p:dialog widgetVar="dlg_salvar" modal="true" width="400" header="Deseja salvar este registro?">

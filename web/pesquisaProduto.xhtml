@@ -23,18 +23,30 @@
                     <h:outputText value="Pesquisar Produtos" styleClass="fonteHeader" />
                     <div class="clear"></div>
                     <p:panel id="i_panel_pesquisa" styleClass="fundoCinza">
-                        <h:panelGrid columns="2">
+                        <h:panelGrid columns="6" id="i_panel_grid_1" cellspacing="5">
                             <p:outputLabel value="Filial Estoque: "  />
                             <h:column>
                                 <p:selectOneMenu value="#{produtoBean.filial_id}" disabled="#{!produtoBean.liberaAcessaFilial}">
                                     <p:ajax event="change" update="@this i_tbl" listener="#{produtoBean.listener(1)}" />
                                     <f:selectItems value="#{produtoBean.listFiliaisPesquisa}" />
                                 </p:selectOneMenu>
-                            </h:column>                            
-                        </h:panelGrid>                        
+                            </h:column>        
+                            <p:outputLabel value="Grupo:" />
+                            <p:selectOneMenu value="#{produtoBean.indices[6]}" >
+                                <p:ajax event="change" update="@this i_panel_grid_1" listener="#{produtoBean.listaSubGruposPesquisa.clear()}" />
+                                <f:selectItems value="#{produtoBean.listaGruposPesquisa}" />
+                            </p:selectOneMenu>
+                            <p:outputLabel value="SubGrupo:" />
+                            <h:column rendered="#{produtoBean.listaSubGruposPesquisa.size() > 0}">
+                                <p:selectOneMenu value="#{produtoBean.indices[7]}">
+                                    <p:ajax event="change" update="@this" />
+                                    <f:selectItems value="#{produtoBean.listaSubGruposPesquisa}" />
+                                </p:selectOneMenu>
+                            </h:column>                                                        
+                        </h:panelGrid>
                         <h:panelGrid columns="8" styleClass="margin-top-max">
                             <p:outputLabel value="Pesquisar: "/>
-                            <p:inputText value="#{produtoBean.produtoPesquisa.descricao}">
+                            <p:inputText value="#{produtoBean.descricaoPesquisa}">
                                 <p:ajax event="change" update="@this" />
                             </p:inputText>
                             <h:outputLabel value="Por: " rendered="false"/>
@@ -51,24 +63,24 @@
                 </p:panel>
                 <p:panel id="i_tbl" styleClass="wrapper no-border" style="width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                     <p:dataTable value="#{produtoBean.listaProdutos}" var="produto" scrollable="true" scrollHeight="400" emptyMessage="Nenhum registro encontrado!" styleClass="margin" rows="100" paginator="true">
+                        <p:column width="30">
+                            <p:commandButton icon="ui-icon-arrowreturnthick-1-w" action="#{produtoBean.edit(produto)}" />
+                        </p:column>
                         <p:column headerText="Descrição" width="200">
-                            <p:commandLink action="#{produtoBean.edit(produto)}" value="#{produto.descricao}"  />
-                        </p:column>                                    
-                        <p:column headerText="Marca" width="60" styleClass="text-center">
-                            <h:commandLink action="#{produtoBean.edit(produto)}" value="#{produto.marca}"  />
-                        </p:column>                                    
+                            <p:outputLabel value="#{produto.descricao} #{produto.marca} #{produto.medida} #{produto.sabor} #{produto.modelo}" />
+                        </p:column>
+                        <p:column headerText="Unidade" styleClass="text-center" width="100">
+                            <p:outputLabel value="#{produto.produtoUnidade.descricao}" />
+                        </p:column>
                         <p:column headerText="Fabricante" rendered="false">
-                            <h:commandLink action="#{produtoBean.edit(produto)}" value="#{produto.fabricante}" />
+                            <p:outputLabel value="#{produto.fabricante}" />
                         </p:column>
                         <p:column headerText="Grupo" styleClass="text-center">
-                            <h:commandLink action="#{produtoBean.edit(produto)}" value="#{produto.produtoGrupo.descricao}"  />
+                            <p:outputLabel value="#{produto.produtoGrupo.descricao}" />
                         </p:column>                                    
                         <p:column headerText="SubGrupo" styleClass="text-center">
-                            <h:commandLink action="#{produtoBean.edit(produto)}" value="#{produto.produtoSubGrupo.descricao}"  />
+                            <p:outputLabel value="#{produto.produtoSubGrupo.descricao}" />
                         </p:column>
-                        <p:column headerText="Cor" styleClass="text-center">
-                            <h:commandLink action="#{produtoBean.edit(produto)}" value="#{produto.cor.descricao}"  />
-                        </p:column>                        
                     </p:dataTable>
                 </p:panel>
 
