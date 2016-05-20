@@ -1,4 +1,4 @@
-package br.com.rtools.relatorios.db;
+package br.com.rtools.relatorios.dao;
 
 import br.com.rtools.principal.DB;
 import br.com.rtools.relatorios.Relatorios;
@@ -8,9 +8,8 @@ import java.util.Date;
 import java.util.List;
 import javax.persistence.Query;
 
-public class RelatorioMovimentosDBToplink extends DB implements RelatorioMovimentosDB {
+public class RelatorioMovimentosDao extends DB {
 
-    @Override
     public List listaMovimentos(Relatorios relatorios, String condicao, int idServico, int idTipoServico, int idJuridica, boolean data,
             String tipoData, Date dtInicial, Date dtFinal, String dtRefInicial, String dtRefFinal,
             String ordem, boolean chkPesEmpresa, String porPesquisa, String filtroEmpresa,
@@ -311,16 +310,16 @@ public class RelatorioMovimentosDBToplink extends DB implements RelatorioMovimen
             // RESUMO CONTRIBUICOES CIDADE
             select = "-- RelatorioMovimentosDBToplink - listaMovimentos;           \n\n"
                     + "SELECT pes_cidade.ds_cidade as cidade, \n"
-                    +        mes + " as mes, \n "
-                    +        ano + " as ano, \n "
+                    + mes + " as mes, \n "
+                    + ano + " as ano, \n "
                     + "      se.ds_descricao as contribuicao, \n "
                     + "      sum(mov.nr_valor_baixa) as valor_recebido, \n "
                     + "      sum(mov.nr_taxa) as taxa, \n "
                     + "      sum(mov.nr_valor_baixa - (mov.nr_valor_baixa*(cc.nr_repasse/100)))-sum(mov.nr_taxa) as valor_liquido \n ";
 
-            group = " pes_cidade.ds_cidade, "+mes+", " + ano + ", se.ds_descricao ";
+            group = " pes_cidade.ds_cidade, " + mes + ", " + ano + ", se.ds_descricao ";
 
-            order = " se.ds_descricao, pes_cidade.ds_cidade, "+mes+", " + ano;
+            order = " se.ds_descricao, pes_cidade.ds_cidade, " + mes + ", " + ano;
         } else {
             // OUTROS RELATORIOS
             select = ""

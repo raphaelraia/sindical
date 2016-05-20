@@ -1,4 +1,4 @@
-package br.com.rtools.financeiro.db;
+package br.com.rtools.financeiro.dao;
 
 import br.com.rtools.financeiro.Banco;
 import br.com.rtools.financeiro.ContaBanco;
@@ -7,77 +7,8 @@ import java.util.List;
 import java.util.Vector;
 import javax.persistence.Query;
 
-public class ContaBancoDBToplink extends DB implements ContaBancoDB {
+public class ContaBancoDao extends DB {
 
-    @Override
-    public boolean insert(ContaBanco contaBanco) {
-        try {
-            getEntityManager().getTransaction().begin();
-            getEntityManager().persist(contaBanco);
-            getEntityManager().flush();
-            getEntityManager().getTransaction().commit();
-            return true;
-        } catch (Exception e) {
-            getEntityManager().getTransaction().rollback();
-            return false;
-        }
-    }
-
-    @Override
-    public boolean update(ContaBanco contaBanco) {
-        try {
-            getEntityManager().merge(contaBanco);
-            getEntityManager().flush();
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    @Override
-    public boolean delete(ContaBanco contaBanco) {
-        try {
-            getEntityManager().remove(contaBanco);
-            getEntityManager().flush();
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    @Override
-    public ContaBanco pesquisaCodigo(int id) {
-        ContaBanco result = null;
-        try {
-            Query qry = getEntityManager().createNamedQuery("ContaBanco.pesquisaID");
-            qry.setParameter("pid", id);
-            result = (ContaBanco) qry.getSingleResult();
-        } catch (Exception e) {
-        }
-        return result;
-    }
-
-    @Override
-    public List pesquisaTodos() {
-        try {
-            Query qry = getEntityManager().createQuery("select cb from ContaBanco cb order by cb.banco.banco");
-            return (qry.getResultList());
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    @Override
-    public List pesquisaTodosBancos() {
-        try {
-            Query qry = getEntityManager().createQuery("select b from Banco b ");
-            return (qry.getResultList());
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    @Override
     public Banco pesquisaBancoNumero(String num) {
         String query = "select b from Banco b where b.numero like '%" + num + "%' ";
         try {
@@ -88,7 +19,6 @@ public class ContaBancoDBToplink extends DB implements ContaBancoDB {
         }
     }
 
-    @Override
     public Banco pesquisaBancoID(int id) {
         String query = "select b from Banco b where b.id = " + id;
         try {
@@ -99,7 +29,6 @@ public class ContaBancoDBToplink extends DB implements ContaBancoDB {
         }
     }
 
-    @Override
     public List pesquisaContaBanco(String desc, String por, String como) {
         List lista = new Vector<Object>();
         String textQuery = null;
@@ -133,7 +62,6 @@ public class ContaBancoDBToplink extends DB implements ContaBancoDB {
         return lista;
     }
 
-    @Override
     public List pesquisaPlano5Conta() {
         String query = "";
         query = "select pl5"
@@ -152,7 +80,6 @@ public class ContaBancoDBToplink extends DB implements ContaBancoDB {
         }
     }
 
-    @Override
     public List pesquisaPlano5ContaComID(int id) {
         String query = "";
         query = "select pl5"
@@ -170,7 +97,6 @@ public class ContaBancoDBToplink extends DB implements ContaBancoDB {
         }
     }
 
-    @Override
     public ContaBanco idContaBanco(ContaBanco des_contaBanco) {
         ContaBanco result = null;
         try {

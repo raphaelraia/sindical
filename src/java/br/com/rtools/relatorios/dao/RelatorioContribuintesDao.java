@@ -1,4 +1,4 @@
-package br.com.rtools.relatorios.db;
+package br.com.rtools.relatorios.dao;
 
 import br.com.rtools.principal.DB;
 import br.com.rtools.relatorios.Relatorios;
@@ -8,9 +8,8 @@ import java.util.Vector;
 import javax.persistence.Query;
 import oracle.toplink.essentials.exceptions.EJBQLException;
 
-public class RelatorioContribuintesDBToplink extends DB implements RelatorioContribuintesDB {
+public class RelatorioContribuintesDao extends DB {
 
-    @Override
     public List pesquisaContabilidades() {
         List result = new ArrayList();
         try {
@@ -24,7 +23,6 @@ public class RelatorioContribuintesDBToplink extends DB implements RelatorioCont
         return result;
     }
 
-    @Override
     public List pesquisarCnaeConvencaoPorConvencao(String ids) {
         List result = new ArrayList();
         try {
@@ -37,7 +35,6 @@ public class RelatorioContribuintesDBToplink extends DB implements RelatorioCont
         return result;
     }
 
-    @Override
     public List pesquisarGrupoPorConvencao(String ids) {
         List result = new ArrayList();
         try {
@@ -50,7 +47,6 @@ public class RelatorioContribuintesDBToplink extends DB implements RelatorioCont
         return result;
     }
 
-    @Override
     public List listaRelatorioContribuintes(Relatorios relatorios, String emails, String condicao, String escritorio, String tipoPCidade, String cidade, String ordem, String cnaes,
             int idTipoEndereco, String idEndereco, String cTipo, String inCentroComercial, String dsNumero, String idGrupos, String bairros, String convencoes,
             String dataCadastroInicial, String dataCadastroFinal) {
@@ -58,36 +54,66 @@ public class RelatorioContribuintesDBToplink extends DB implements RelatorioCont
         String textQuery = "";
         try {
             textQuery = " -- RelatorioContribuintesDBToplink->listaRelatorioContribuintes() \n"
-                    + "select j.id                     as idJuridica," +//0
-                    "       p.ds_nome                as nome," +//1
-                    "       p.ds_documento           as documento," +//2
-                    "       l.ds_descricao           as logradouro," +//3
-                    "       de.ds_descricao          as descricaoEndereco," +//4
-                    "       c.ds_cidade              as cidade," +//5
-                    "       c.ds_uf                  as uf," +//6
-                    "       pe.ds_numero             as numero," +//7
-                    "       pe.ds_complemento        as complemento," +//8
-                    "       e.ds_cep                 as cep," +//9
-                    "       conpes.ds_nome           as nomeContabilidade," +//10
-                    "       b.ds_descricao           as bairro," +//11
-                    "       p.ds_telefone1           as telefone," +//12
-                    "       p.ds_email1              as email," +//13
-                    "       t.ds_descricao           as tdocumento," +//14
-                    "       cn.id                    as idCnae," +//15
-                    "       cn.ds_numero             as numero," +//16
-                    "       cn.ds_cnae               as descricao," +//17
-                    "       con.id                   as idContabilidade," +//18
-                    "       lcon.ds_descricao        as conLogradouro," +//19
-                    "       decon.ds_descricao as conDescricaoEndereco," +//20
-                    "       bcon.ds_descricao        as conBairro," +//21
-                    "       ccon.ds_cidade           as conCidade," +//22
-                    "       ccon.ds_uf               as conUf," +//23
-                    "       pecon.ds_numero          as conNumero," +//24
-                    "       pecon.ds_complemento     as conComplemento," +//25
-                    "       econ.ds_cep              as conCep," +//26
-                    "       conpes.ds_telefone1      as contelefone1," +//27
-                    "       conpes.ds_email1         as conemal1," +//28
-                    "       p.id                     as idPessoa" +//29
+                    + "select j.id                     as idJuridica,"
+                    +//0
+                    "       p.ds_nome                as nome,"
+                    +//1
+                    "       p.ds_documento           as documento,"
+                    +//2
+                    "       l.ds_descricao           as logradouro,"
+                    +//3
+                    "       de.ds_descricao          as descricaoEndereco,"
+                    +//4
+                    "       c.ds_cidade              as cidade,"
+                    +//5
+                    "       c.ds_uf                  as uf,"
+                    +//6
+                    "       pe.ds_numero             as numero,"
+                    +//7
+                    "       pe.ds_complemento        as complemento,"
+                    +//8
+                    "       e.ds_cep                 as cep,"
+                    +//9
+                    "       conpes.ds_nome           as nomeContabilidade,"
+                    +//10
+                    "       b.ds_descricao           as bairro,"
+                    +//11
+                    "       p.ds_telefone1           as telefone,"
+                    +//12
+                    "       p.ds_email1              as email,"
+                    +//13
+                    "       t.ds_descricao           as tdocumento,"
+                    +//14
+                    "       cn.id                    as idCnae,"
+                    +//15
+                    "       cn.ds_numero             as numero,"
+                    +//16
+                    "       cn.ds_cnae               as descricao,"
+                    +//17
+                    "       con.id                   as idContabilidade,"
+                    +//18
+                    "       lcon.ds_descricao        as conLogradouro,"
+                    +//19
+                    "       decon.ds_descricao as conDescricaoEndereco,"
+                    +//20
+                    "       bcon.ds_descricao        as conBairro,"
+                    +//21
+                    "       ccon.ds_cidade           as conCidade,"
+                    +//22
+                    "       ccon.ds_uf               as conUf,"
+                    +//23
+                    "       pecon.ds_numero          as conNumero,"
+                    +//24
+                    "       pecon.ds_complemento     as conComplemento,"
+                    +//25
+                    "       econ.ds_cep              as conCep,"
+                    +//26
+                    "       conpes.ds_telefone1      as contelefone1,"
+                    +//27
+                    "       conpes.ds_email1         as conemal1,"
+                    +//28
+                    "       p.id                     as idPessoa"
+                    +//29
                     "  from pes_juridica j"
                     + "   left join pes_pessoa_endereco    as pe on pe.id_pessoa = j.id_pessoa"
                     + "   left join end_endereco           as e on e.id = pe.id_endereco"
@@ -239,7 +265,6 @@ public class RelatorioContribuintesDBToplink extends DB implements RelatorioCont
         return result;
     }
 
-    @Override
     public List listaCentros(String ids) {
         List result = new ArrayList();
         String textQuery = "select pe2.id_endereco, pe2.ds_numero"
@@ -257,7 +282,6 @@ public class RelatorioContribuintesDBToplink extends DB implements RelatorioCont
         return result;
     }
 
-    @Override
     public List listaRelatorioContribuintesPorJuridica(String condicao, String escritorio, String tipoPCidade, String cidade, String ordem, String cnaes, int idTipoEndereco, String idsJuridica) {
         List result = new ArrayList();
         String textQuery = "";

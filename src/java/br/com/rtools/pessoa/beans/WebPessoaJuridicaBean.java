@@ -1,5 +1,6 @@
 package br.com.rtools.pessoa.beans;
 
+import br.com.rtools.pessoa.dao.TipoEnderecoDao;
 import br.com.rtools.arrecadacao.CnaeConvencao;
 import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.GrupoCidade;
@@ -239,7 +240,7 @@ public class WebPessoaJuridicaBean implements Serializable {
 
             Endereco endereco = dbe.enderecoReceita(cep, descricao, bairros);
             if (endereco != null) {
-                TipoEnderecoDB dbt = new TipoEnderecoDBToplink();
+                TipoEnderecoDao dbt = new TipoEnderecoDao();
                 List tiposE = dbt.listaTipoEnderecoParaJuridica();
                 for (Object tiposE1 : tiposE) {
                     pessoaEndereco.setEndereco(endereco);

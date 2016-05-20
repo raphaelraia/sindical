@@ -1,12 +1,11 @@
-package br.com.rtools.sistema.db;
+package br.com.rtools.sistema.dao;
 
 import br.com.rtools.principal.DB;
 import br.com.rtools.sistema.Links;
 import javax.persistence.Query;
 
-public class LinksDBToplink extends DB implements LinksDB {
+public class LinksDao extends DB  {
 
-    @Override
     public Links pesquisaNomeArquivo(String arquivo) {
         try {
             Query qry = getEntityManager().createQuery(

@@ -24,8 +24,7 @@ import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.Email;
 import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.sistema.Links;
-import br.com.rtools.sistema.db.LinksDB;
-import br.com.rtools.sistema.db.LinksDBToplink;
+import br.com.rtools.sistema.dao.LinksDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.DataHoje;
@@ -36,7 +35,6 @@ import br.com.rtools.utilitarios.Mail;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.SalvarAcumuladoDB;
 import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
-import br.com.rtools.utilitarios.SelectItemSort;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -216,7 +214,7 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
             GenericaMensagem.warn("Erro", msgConfirmaTela);
             return null;
         }
-        FTipoDocumentoDB dbft = new FTipoDocumentoDBToplink();
+        Dao dao = new Dao();
         ContaCobrancaDB ctaCobraDB = new ContaCobrancaDBToplink();
         MensagemConvencaoDB menDB = new MensagemConvencaoDBToplink();
         Servicos servicos = new Servicos();
@@ -282,7 +280,7 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
                             "",
                             vencimento,
                             0,
-                            0, 0, 0, 0, 0, 0, dbft.pesquisaCodigo(2), 0, null);
+                            0, 0, 0, 0, 0, 0, (FTipoDocumento) dao.find(new FTipoDocumento(), 2), 0, null);
                     listaMovAdd.add(movi);
                 } else {
                     int tamList = listMovimentos.size();
@@ -317,7 +315,7 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
                                 "",
                                 vencimento,
                                 0,
-                                0, 0, 0, 0, 0, 0, dbft.pesquisaCodigo(2), 0, null);
+                                0, 0, 0, 0, 0, 0, (FTipoDocumento) dao.find(new FTipoDocumento(), 2), 0, null);
                         listaMovAdd.add(movi);
                         if (((Movimento) listMovimentos.get(0).getArgumento1()).getPessoa().getId() != juridica.getPessoa().getId()) {
                             outrasEmpresas = true;
@@ -986,7 +984,7 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
         HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
         linkAcesso = request.getParameter("arquivo");
         if (!linkAcesso.isEmpty()) {
-            LinksDB db = new LinksDBToplink();
+            LinksDao db = new LinksDao();
             Links link = db.pesquisaNomeArquivo(linkAcesso);
             if (link != null) {
                 DataHoje dt = new DataHoje();

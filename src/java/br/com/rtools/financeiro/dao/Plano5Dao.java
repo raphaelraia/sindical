@@ -1,4 +1,4 @@
-package br.com.rtools.financeiro.db;
+package br.com.rtools.financeiro.dao;
 
 import br.com.rtools.financeiro.ContaBanco;
 import br.com.rtools.financeiro.Plano4;
@@ -8,9 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 
-public class Plano5DBToplink extends DB implements Plano5DB {
+public class Plano5Dao extends DB  {
 
-    @Override
     public List<String> pesquisaPlano5(int id) {
         List<String> result = null;
         try {
@@ -25,7 +24,6 @@ public class Plano5DBToplink extends DB implements Plano5DB {
         return result;
     }
 
-    @Override
     public Plano5 pesquisaPlano5IDContaBanco(int id) {
         Plano5 result = null;
         try {
@@ -37,7 +35,6 @@ public class Plano5DBToplink extends DB implements Plano5DB {
         return result;
     }
 
-    @Override
     public List pesquisaCaixaBanco() {
         List result = null;
         try {
@@ -51,7 +48,6 @@ public class Plano5DBToplink extends DB implements Plano5DB {
         return result;
     }
 
-    @Override
     public List<String> pesquisaPlano5(String des_plano4, String des_plano5) {
         List<String> result = null;
         try {
@@ -68,7 +64,6 @@ public class Plano5DBToplink extends DB implements Plano5DB {
         return result;
     }
 
-    @Override
     public Plano5 idPlano5(Plano5 des_plano5) {
         Plano5 result = null;
         try {
@@ -80,7 +75,6 @@ public class Plano5DBToplink extends DB implements Plano5DB {
         return result;
     }
 
-    @Override
     public Plano5 pesquisaPlano5PorDesc(String desc, String desc4) {
         Plano5 result = null;
         try {
@@ -97,7 +91,6 @@ public class Plano5DBToplink extends DB implements Plano5DB {
         return result;
     }
 
-    @Override
     public Plano5 pesquisaPlano5PorDesc(String desc) {
         Plano5 result = null;
         try {
@@ -112,7 +105,6 @@ public class Plano5DBToplink extends DB implements Plano5DB {
         return result;
     }
 
-    @Override
     public Plano4 pesquisaPl4PorString(String desc, String p4) {
         Plano4 result = null;
         try {
@@ -129,7 +121,6 @@ public class Plano5DBToplink extends DB implements Plano5DB {
         return result;
     }
 
-    @Override
     public ContaBanco pesquisaUltimoCheque(int pid) {
         ContaBanco result = null;
         try {
@@ -144,7 +135,6 @@ public class Plano5DBToplink extends DB implements Plano5DB {
         return result;
     }
 
-    @Override
     public List listPlano4AgrupadoPlanoVw() {
         String queryString = " "
                 + "     SELECT id_p4,                                           "
@@ -167,7 +157,6 @@ public class Plano5DBToplink extends DB implements Plano5DB {
         return new ArrayList();
     }
 
-    @Override
     public List findPlano5ByPlano4(int idPlano4) {
         try {
             Query query = getEntityManager().createQuery("SELECT P5 FROM Plano5 AS P5 WHERE P5.plano4.id = :p1 ORDER BY P5.classificador");
@@ -181,4 +170,22 @@ public class Plano5DBToplink extends DB implements Plano5DB {
         }
         return new ArrayList();
     }
+    
+    public List<Plano5> find(Integer plano5_id, Integer tipo_id) {
+        try {
+            String queryString = "SELECT CT FROM ContaTipoPlano5 CT WHERE CT.contaTipo.id = :tipo_id ";
+            if (plano5_id != -1) {
+                queryString += " AND CT.plano5.id = :plano5_id ";
+            }
+            Query query = getEntityManager().createQuery(queryString);
+            query.setParameter("tipo_id", tipo_id);
+            if (plano5_id != -1) {
+                query.setParameter("plano5_id", plano5_id);
+
+            }
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }    
 }

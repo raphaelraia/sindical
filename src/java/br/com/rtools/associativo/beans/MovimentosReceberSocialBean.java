@@ -688,7 +688,7 @@ public class MovimentosReceberSocialBean implements Serializable {
     }
 
     public void pesquisaBoleto() {
-        if (descPesquisaBoleto.isEmpty()) {
+        if (descPesquisaBoleto.isEmpty() || descPesquisaBoleto.equals("0")) {
             if (pessoa.getId() != -1) {
                 porPesquisa = "todos";
                 listaMovimento.clear();

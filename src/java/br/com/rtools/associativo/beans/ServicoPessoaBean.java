@@ -1,5 +1,6 @@
 package br.com.rtools.associativo.beans;
 
+import br.com.rtools.financeiro.dao.FTipoDocumentoDao;
 import br.com.rtools.associativo.DescontoSocial;
 import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.db.SociosDB;
@@ -187,11 +188,11 @@ public class ServicoPessoaBean implements Serializable {
 
     public List<SelectItem> getListaTipoDocumento() {
         if (listaTipoDocumento.isEmpty()) {
-            FTipoDocumentoDB db = new FTipoDocumentoDBToplink();
             List<FTipoDocumento> select = new ArrayList();
             if (isChkContaCobranca()) {
-                select.add(db.pesquisaCodigo(2));
+                select.add((FTipoDocumento) new Dao().find(new FTipoDocumento(), 2));
             } else {
+                FTipoDocumentoDao db = new FTipoDocumentoDao();
                 select = db.pesquisaListaTipoExtrato();
             }
             for (int i = 0; i < select.size(); i++) {
@@ -224,7 +225,6 @@ public class ServicoPessoaBean implements Serializable {
 
     public String salvarServicoPessoa(Servicos servico, SalvarAcumuladoDB dbSalvar) {
         ServicoContaCobrancaDB dbSCB = new ServicoContaCobrancaDBToplink();
-        FTipoDocumentoDB dbFTipo = new FTipoDocumentoDBToplink();
         servicoPessoa.setDescontoSocial((DescontoSocial) new Dao().find(new DescontoSocial(), 1));
         // --------------------------------------------
         if (getListaServicos().isEmpty()) {
@@ -236,9 +236,9 @@ public class ServicoPessoaBean implements Serializable {
             servicoPessoa.setServicos((Servicos) new Dao().find(new Servicos(), servico.getId()));
         }
         try {
-            servicoPessoa.setTipoDocumento(dbFTipo.pesquisaCodigo(Integer.parseInt(getListaTipoDocumento().get(idTipoDocumento).getDescription())));
+            servicoPessoa.setTipoDocumento((FTipoDocumento) new Dao().find(new FTipoDocumento(), Integer.parseInt(getListaTipoDocumento().get(idTipoDocumento).getDescription())));
         } catch (Exception e) {
-            servicoPessoa.setTipoDocumento(dbFTipo.pesquisaCodigo(Integer.parseInt(getListaTipoDocumento().get(0).getDescription())));
+            servicoPessoa.setTipoDocumento((FTipoDocumento) new Dao().find(new FTipoDocumento(), Integer.parseInt(getListaTipoDocumento().get(0).getDescription())));
         }
 
         if (chkContaCobranca) {
@@ -286,8 +286,6 @@ public class ServicoPessoaBean implements Serializable {
 
     public String atualizarServicoPessoa(Servicos servico, SalvarAcumuladoDB dbSalvar) {
         ServicoContaCobrancaDB dbSCB = new ServicoContaCobrancaDBToplink();
-        FTipoDocumentoDB dbFTipo = new FTipoDocumentoDBToplink();
-
         if (servico == null) {
             servicoPessoa.setServicos((Servicos) new Dao().find(new Servicos(), Integer.parseInt(getListaServicos().get(idServico).getDescription())));
         } else {
@@ -295,9 +293,9 @@ public class ServicoPessoaBean implements Serializable {
         }
         // --------------------------------------------
         try {
-            servicoPessoa.setTipoDocumento(dbFTipo.pesquisaCodigo(Integer.parseInt(getListaTipoDocumento().get(idTipoDocumento).getDescription())));
+            servicoPessoa.setTipoDocumento((FTipoDocumento) new Dao().find(new FTipoDocumento(), Integer.parseInt(getListaTipoDocumento().get(idTipoDocumento).getDescription())));
         } catch (Exception e) {
-            servicoPessoa.setTipoDocumento(dbFTipo.pesquisaCodigo(Integer.parseInt(getListaTipoDocumento().get(0).getDescription())));
+            servicoPessoa.setTipoDocumento((FTipoDocumento) new Dao().find(new FTipoDocumento(), Integer.parseInt(getListaTipoDocumento().get(0).getDescription())));
         }
 
         if (chkContaCobranca) {

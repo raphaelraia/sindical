@@ -5,10 +5,8 @@ import br.com.rtools.financeiro.Banco;
 import br.com.rtools.financeiro.ContaBanco;
 import br.com.rtools.financeiro.Indice;
 import br.com.rtools.financeiro.Plano5;
-import br.com.rtools.financeiro.db.ContaBancoDB;
-import br.com.rtools.financeiro.db.ContaBancoDBToplink;
-import br.com.rtools.financeiro.db.Plano5DB;
-import br.com.rtools.financeiro.db.Plano5DBToplink;
+import br.com.rtools.financeiro.dao.ContaBancoDao;
+import br.com.rtools.financeiro.dao.Plano5Dao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.utilitarios.Dao;
@@ -219,8 +217,7 @@ public class ContaBancoBean implements Serializable {
 
     public List<ContaBanco> getListaContaBanco() {
         if (listaContaBanco.isEmpty()) {
-            ContaBancoDB db = new ContaBancoDBToplink();
-            listaContaBanco = db.pesquisaTodos();
+            listaContaBanco = new Dao().list(new ContaBanco(), true);
         }
         return listaContaBanco;
     }
@@ -231,7 +228,7 @@ public class ContaBancoBean implements Serializable {
 
     public String editar(ContaBanco cb) {
         contaBanco = cb;
-        Plano5DB db = new Plano5DBToplink();
+        Plano5Dao db = new Plano5Dao();
         plano5 = db.pesquisaPlano5IDContaBanco(contaBanco.getId());
 
         if (plano5 != null && plano5.getId() != -1) {
@@ -299,7 +296,7 @@ public class ContaBancoBean implements Serializable {
     }
 
     public List<SelectItem> getListaPlano5Conta() {
-        ContaBancoDB contaBancoDB = new ContaBancoDBToplink();
+        ContaBancoDao contaBancoDB = new ContaBancoDao();
         List<SelectItem> result = new ArrayList();
         List planoContas;
         if ((contaBanco != null) && (contaBanco.getId() != -1) && salvar == false) {

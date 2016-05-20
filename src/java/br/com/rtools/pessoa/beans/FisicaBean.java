@@ -1,5 +1,7 @@
 package br.com.rtools.pessoa.beans;
 
+import br.com.rtools.pessoa.dao.TipoEnderecoDao;
+import br.com.rtools.pessoa.dao.TipoDocumentoDao;
 import br.com.rtools.arrecadacao.Oposicao;
 import br.com.rtools.arrecadacao.dao.OposicaoDao;
 import br.com.rtools.associativo.Socios;
@@ -962,14 +964,14 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     public List<String> BuscaTipoEndereco(Object object) {
         String txtDigitado = object.toString().toLowerCase().toUpperCase();
-        TipoEnderecoDB db = new TipoEnderecoDBToplink();
+        TipoEnderecoDao db = new TipoEnderecoDao();
         List<String> list = db.pesquisaTipoEnderecoParaFisica('%' + txtDigitado + '%');
         return list;
     }
 
     public List<String> BuscaTipoDocumento(Object object) {
         String txtDigitado = object.toString().toLowerCase().toUpperCase();
-        TipoDocumentoDB db = new TipoDocumentoDBToplink();
+        TipoDocumentoDao db = new TipoDocumentoDao();
         List<String> list = db.pesquisaTipoDocumento('%' + txtDigitado + '%');
         return list;
     }

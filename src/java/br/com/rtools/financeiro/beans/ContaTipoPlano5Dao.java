@@ -15,9 +15,9 @@ public class ContaTipoPlano5Dao extends DB {
                 queryString += " AND CT.plano5.id = :plano5_id ";
             }
             Query query = getEntityManager().createQuery(queryString);
-            query.setParameter("tipo_id", "tipo_id");
+            query.setParameter("tipo_id", tipo_id);
             if (plano5_id != -1) {
-                query.setParameter("plano5_id", "plano5_id");
+                query.setParameter("plano5_id", plano5_id);
 
             }
             return query.getResultList();

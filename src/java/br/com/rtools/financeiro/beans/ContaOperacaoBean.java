@@ -35,8 +35,8 @@ public class ContaOperacaoBean implements Serializable {
     private Boolean contaFixa;
     private Boolean selectedAll;
     /**
-     * [0] Operação | [1] Centro Custo Contábil | [2] Centro Custo Contábil Sub
-     * | [3] Plano de Contas 5 - Agrupado
+     * [0] Operação | [1] Centro de Custo | [2] Filial
+     * | [3] Plano de Contas 5 - Agrupado | [4] Centro de Custo (Edit) 
      */
     private List<SelectItem>[] listSelectItem;
     private Integer[] index;
@@ -54,7 +54,7 @@ public class ContaOperacaoBean implements Serializable {
             new ArrayList<>(),
             new ArrayList<>()
         };
-        index = new Integer[]{0, 0, 0, 0};
+        index = new Integer[]{0, 0, 0, 0, 0};
         es = "E";
         contaFixa = false;
         selectedAll = false;
@@ -116,8 +116,14 @@ public class ContaOperacaoBean implements Serializable {
                     }
                     break;
                 case 8:
+                    index[0] = 0;
                     index[1] = 0;
-                    listSelectItem[1].clear();
+                    index[3] = 0;
+                    listSelectItem[0] = new ArrayList();
+                    listSelectItem[1] = new ArrayList();
+                    listSelectItem[3] = new ArrayList();
+                    listPlano5.clear();
+                    listContaOperacao.clear();
                     break;
                 default:
                     break;
@@ -146,7 +152,11 @@ public class ContaOperacaoBean implements Serializable {
         if (getListCentroCusto().isEmpty()) {
             contaOperacao.setCentroCusto(null);
         } else {
-            contaOperacao.setCentroCusto((CentroCusto) dao.find(new CentroCusto(), Integer.parseInt(getListCentroCusto().get(index[1]).getDescription())));
+            if(contaOperacao.getId() == -1) {
+                contaOperacao.setCentroCusto((CentroCusto) dao.find(new CentroCusto(), Integer.parseInt(getListCentroCusto().get(index[1]).getDescription())));
+            } else {
+                contaOperacao.setCentroCusto((CentroCusto) dao.find(new CentroCusto(), Integer.parseInt(getListCentroCusto().get(index[4]).getDescription())));
+            }
         }
         dao.openTransaction();
         if (contaOperacao.getId() == -1) {
@@ -222,11 +232,18 @@ public class ContaOperacaoBean implements Serializable {
     }
 
     public void editItem(ContaOperacao co) {
+        getListCentroCusto().clear();
+        index[4] = 0;
         contaOperacao = co;
-        Dao dao = new Dao();
-        if (contaOperacao.getOperacao().getId() == 1 || contaOperacao.getOperacao().getId() == 2) {
+        if(co.getCentroCusto() != null) {
+            for(int i = 0; i < getListCentroCusto().size(); i++) {
+                if(Integer.parseInt(getListCentroCusto().get(i).getDescription()) == co.getCentroCusto().getId()) {
+                    index[4] = i;
+                    break;
+                }
+            }
         }
-        PF.openDialog("dlg_co_todos");
+        PF.openDialog("dlg_co");
         PF.update("form_co:i_panel_co");
     }
 
@@ -324,6 +341,9 @@ public class ContaOperacaoBean implements Serializable {
         if (listSelectItem[0].isEmpty()) {
             List<Operacao> list = (List<Operacao>) new Dao().list(new Operacao(), true);
             for (int i = 0; i < list.size(); i++) {
+                if (i == 0) {
+                    index[0] = i;
+                }
                 listSelectItem[0].add(new SelectItem(i, list.get(i).getDescricao(), "" + list.get(i).getId()));
             }
             if (listSelectItem[0].isEmpty()) {
@@ -345,7 +365,6 @@ public class ContaOperacaoBean implements Serializable {
                 Operacao o = (Operacao) new Dao().find(new Operacao(), operacao_id);
                 if (o.getCentroCusto()) {
                     Integer filial_id = Integer.parseInt(listSelectItem[2].get(index[2]).getDescription());
-                    new Dao().find(new CentroCusto());
                     List<CentroCusto> list = new CentroCustoDao().findByFilial(filial_id);
                     index[1] = 0;
                     for (int i = 0; i < list.size(); i++) {
@@ -394,7 +413,7 @@ public class ContaOperacaoBean implements Serializable {
                 }
             }
             if (listSelectItem[3].isEmpty()) {
-                listSelectItem[3] = new ArrayList<SelectItem>();
+                listSelectItem[3] = new ArrayList<>();
             }
         }
         return listSelectItem[3];
@@ -421,7 +440,7 @@ public class ContaOperacaoBean implements Serializable {
             try {
                 if (!getListOperacoes().isEmpty() && !getListPlano4Group().isEmpty()) {
                     ContaOperacaoDao cod = new ContaOperacaoDao();
-                    listContaOperacao = (List<ContaOperacao>) cod.listContaOperacaoPorOperacao(Integer.parseInt(getListOperacoes().get(index[0]).getDescription()), Integer.parseInt(getListPlano4Group().get(index[3]).getDescription()));
+                    listContaOperacao = (List<ContaOperacao>) cod.findByContaOperacao(Integer.parseInt(getListFilial().get(index[2]).getDescription()), Integer.parseInt(getListOperacoes().get(index[0]).getDescription()), Integer.parseInt(getListPlano4Group().get(index[3]).getDescription()));
                 }
             } catch (NumberFormatException e) {
                 listContaOperacao.clear();
@@ -439,7 +458,7 @@ public class ContaOperacaoBean implements Serializable {
         if (listPlano5.isEmpty()) {
             if (!getListOperacoes().isEmpty() && index[0] != null && index[3] != null) {
                 ContaOperacaoDao cod = new ContaOperacaoDao();
-                listPlano5 = (List<Plano5>) cod.findPlano5ByPlano4NotInContaOperacao(Integer.parseInt(getListPlano4Group().get(index[3]).getDescription()), Integer.parseInt(getListOperacoes().get(index[0]).getDescription()));
+                listPlano5 = (List<Plano5>) cod.findPlano5ByPlano4NotInContaOperacao(Integer.parseInt(getListFilial().get(index[2]).getDescription()), Integer.parseInt(getListOperacoes().get(index[0]).getDescription()), Integer.parseInt(getListPlano4Group().get(index[3]).getDescription()));
             }
         }
         if (listPlano5.isEmpty()) {

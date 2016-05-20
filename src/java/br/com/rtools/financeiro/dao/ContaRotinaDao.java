@@ -1,4 +1,4 @@
-package br.com.rtools.financeiro.db;
+package br.com.rtools.financeiro.dao;
 
 import br.com.rtools.financeiro.ContaRotina;
 import br.com.rtools.financeiro.Plano4;
@@ -6,9 +6,8 @@ import br.com.rtools.principal.DB;
 import java.util.List;
 import javax.persistence.Query;
 
-public class ContaRotinaDBToplink extends DB implements ContaRotinaDB {
+public class ContaRotinaDao extends DB {
 
-    @Override
     public ContaRotina pesquisaCodigo(int id) {
         ContaRotina result = null;
         try {
@@ -20,7 +19,6 @@ public class ContaRotinaDBToplink extends DB implements ContaRotinaDB {
         return result;
     }
 
-    @Override
     public List pesquisaTodos() {
         try {
             Query qry = getEntityManager().createQuery("select p from ContaRotina p ");
@@ -30,7 +28,6 @@ public class ContaRotinaDBToplink extends DB implements ContaRotinaDB {
         }
     }
 
-    @Override
     public List pesquisaPlano5Partida(int rotina) {
         List result = null;
         try {
@@ -47,7 +44,6 @@ public class ContaRotinaDBToplink extends DB implements ContaRotinaDB {
         return result;
     }
 
-    @Override
     public List pesquisaContasPorRotina(int rotina) {
         List result = null;
         try {
@@ -64,7 +60,6 @@ public class ContaRotinaDBToplink extends DB implements ContaRotinaDB {
         return result;
     }
 
-    @Override
     public List pesquisaContasPorRotina() {
         List result = null;
         try {
@@ -80,7 +75,6 @@ public class ContaRotinaDBToplink extends DB implements ContaRotinaDB {
         return result;
     }
 
-    @Override
     public List pesquisaPlano4Grupo(int rotina, String pagRec) {
         List result = null;
         try {
@@ -98,7 +92,6 @@ public class ContaRotinaDBToplink extends DB implements ContaRotinaDB {
         return result;
     }
 
-    @Override
     public List pesquisaPlano5(int p4, int rotina) {
         List result = null;
         try {
@@ -116,7 +109,6 @@ public class ContaRotinaDBToplink extends DB implements ContaRotinaDB {
         return result;
     }
 
-    @Override
     public Plano4 pesquisaPlano4PorDescricao(String desc) {
         Plano4 result = null;
         try {
@@ -131,7 +123,6 @@ public class ContaRotinaDBToplink extends DB implements ContaRotinaDB {
         return result;
     }
 
-    @Override
     public ContaRotina pesquisaContaRotina(int id, int rot) {
         ContaRotina result = null;
         try {
@@ -148,7 +139,6 @@ public class ContaRotinaDBToplink extends DB implements ContaRotinaDB {
         return result;
     }
 
-    @Override
     public int pesquisaRotina(int id_plano4) {
         int result = -1;
         try {
@@ -163,7 +153,6 @@ public class ContaRotinaDBToplink extends DB implements ContaRotinaDB {
         return result;
     }
 
-    @Override
     public int verificaRotinaParaConta(int id_plano5) {
         int result = 0;
         try {

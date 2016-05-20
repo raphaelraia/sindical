@@ -1,5 +1,6 @@
 package br.com.rtools.utilitarios;
 
+import java.io.Serializable;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
@@ -7,7 +8,7 @@ import javax.faces.context.FacesContext;
 
 @ManagedBean
 @ViewScoped
-public class GenericaMensagem {
+public class GenericaMensagem implements Serializable {
 
     public static void error(String title, String description) {
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, title, description));

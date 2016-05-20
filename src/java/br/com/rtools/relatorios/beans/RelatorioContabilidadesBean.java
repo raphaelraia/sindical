@@ -9,8 +9,7 @@ import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioOrdemDao;
-import br.com.rtools.relatorios.db.RelatorioContabilidadesDB;
-import br.com.rtools.relatorios.db.RelatorioContabilidadesDBToplink;
+import br.com.rtools.relatorios.dao.RelatorioContabilidadesDao;
 import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -105,7 +104,7 @@ public class RelatorioContabilidadesBean implements Serializable {
         int fim = 0;
 
         RelatorioDao db = new RelatorioDao();
-        RelatorioContabilidadesDB dbConta = new RelatorioContabilidadesDBToplink();
+        RelatorioContabilidadesDao dbConta = new RelatorioContabilidadesDao();
         PessoaEnderecoDao dbPesEnd = new PessoaEnderecoDao();
         Cidade cidade;
         Dao dao = new Dao();
@@ -254,7 +253,7 @@ public class RelatorioContabilidadesBean implements Serializable {
 
     public void quantidadeEmpresas() {
         if (quantidadeEmpresas <= 0) {
-            RelatorioContabilidadesDB db = new RelatorioContabilidadesDBToplink();
+            RelatorioContabilidadesDao db = new RelatorioContabilidadesDao();
             quantidadeEmpresas = db.quantidadeEmpresas();
         }
     }
@@ -263,7 +262,7 @@ public class RelatorioContabilidadesBean implements Serializable {
 //        if (qntEmpresas.isEmpty()) {
 //            qntEmpresas = new ArrayList<SelectItem>();
 //            int i = 0;
-//            RelatorioContabilidadesDB db = new RelatorioContabilidadesDBToplink();
+//            RelatorioContabilidadesDB db = new RelatorioContabilidadesDao();
 //            List contabilidades = db.pesquisaContabilidades();
 //            JuridicaDB dbJur = new JuridicaDBToplink();
 ////            Juridica contabil = new Juridica();

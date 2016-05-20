@@ -148,9 +148,9 @@ public class TituloBean implements Serializable {
             GenericaMensagem.warn("Validação", "Informar o tempo de duração!");
             return;
         }
-        int hora = Integer.parseInt(titulo.getDuracao().substring(0, 2));
-        if (hora > 8) {
-            GenericaMensagem.warn("Validação", "O tempo de duração deve ser inferior ou igual a 8 horas!");
+        int hora = Integer.parseInt(titulo.getDuracao());
+        if (hora <= 0) {
+            GenericaMensagem.warn("Validação", "O tempo de duração deve ser superior a 0!");
             return;
         }
         int anoParametro = 1895;
@@ -775,15 +775,20 @@ public class TituloBean implements Serializable {
     public void listener(Integer tcase) {
         switch (tcase) {
             case 1:
-                Titulo t;
-                if (habilitaPesquisaFilial) {
-                    t = new TituloDao().findBarras(idFilial, titulo.getBarras());
-                } else {
-                    t = new TituloDao().findBarras(null, titulo.getBarras());
-                }
-                if (t != null) {
-                    if (!t.getBarras().equals(titulo.getBarras())) {
-                        titulo.setBarras(null);
+                if(titulo.getId() == null) {
+                    Titulo t;
+                    if (habilitaPesquisaFilial) {
+                        t = new TituloDao().findBarras(idFilial, titulo.getBarras());
+                    } else {
+                        t = new TituloDao().findBarras(null, titulo.getBarras());
+                    }
+                    if (t != null) {
+                        if (!t.getBarras().equals(titulo.getBarras())) {
+                            titulo.setBarras(null);
+                        }
+                        titulo = t;
+                        listCatalogo.clear();
+                        getListCatalogo();
                     }
                 }
                 break;

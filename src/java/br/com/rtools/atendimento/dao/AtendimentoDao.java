@@ -5,7 +5,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.com.rtools.atendimento.db;
+package br.com.rtools.atendimento.dao;
 
 import br.com.rtools.atendimento.AteMovimento;
 import br.com.rtools.homologacao.Senha;
@@ -19,7 +19,7 @@ import java.util.Date;
 import java.util.List;
 import javax.persistence.Query;
 
-public class AtendimentoDBTopLink extends DB implements AtendimentoDB {
+public class AtendimentoDao extends DB  {
 
     public AteMovimento pesquisaCodigoAteMovimento(int id) {
         AteMovimento ate = new AteMovimento();
@@ -32,7 +32,7 @@ public class AtendimentoDBTopLink extends DB implements AtendimentoDB {
         return ate;
     }
 
-    @Override
+    
     public boolean pessoaOposicao(String cpf) {
         try {
             String data = DataHoje.livre(new Date(), "yyyyMM");
@@ -53,7 +53,7 @@ public class AtendimentoDBTopLink extends DB implements AtendimentoDB {
         return false;
     }
 
-    @Override
+    
     public SisPessoa pessoaDocumento(String valor) {
         List list;
         SalvarAcumuladoDB dB = new SalvarAcumuladoDBToplink();
@@ -78,7 +78,7 @@ public class AtendimentoDBTopLink extends DB implements AtendimentoDB {
         }
     }
 
-    @Override
+    
     public boolean existeAtendimento(AteMovimento ateMovimento) {
         try {
             Query query = getEntityManager().createQuery(" SELECT mov FROM AteMovimento mov WHERE mov.pessoa.id = :pessoa AND mov.dataEmissao = :dataEmissao AND mov.operacao.id = :operacao AND mov.filial.id = :filial ");
@@ -95,7 +95,7 @@ public class AtendimentoDBTopLink extends DB implements AtendimentoDB {
         }
     }
 
-    @Override
+    
     public List<AteMovimento> listaAteMovimento(String cpf, String por) {
         String strQuery;
         List result;
@@ -120,7 +120,7 @@ public class AtendimentoDBTopLink extends DB implements AtendimentoDB {
         }
     }
 
-    @Override
+    
     public List listaAteMovimentos(String cpf, String por, int id_filial) {
         String porStr = "";
         String innerPes = "";
@@ -171,7 +171,7 @@ public class AtendimentoDBTopLink extends DB implements AtendimentoDB {
         return result;
     }
     
-    @Override
+    
     public Senha pesquisaSenha(int id_atendimento) {
         String text_qry = "SELECT se"
                         + "  FROM Senha se"

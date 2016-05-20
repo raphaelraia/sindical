@@ -1,10 +1,7 @@
 package br.com.rtools.financeiro.beans;
 
 import br.com.rtools.financeiro.*;
-import br.com.rtools.financeiro.db.ContaBancoDB;
-import br.com.rtools.financeiro.db.ContaBancoDBToplink;
-import br.com.rtools.financeiro.db.PlanoDB;
-import br.com.rtools.financeiro.db.PlanoDBToplink;
+import br.com.rtools.financeiro.dao.PlanoDao;
 import br.com.rtools.financeiro.lista.ListPlanoConta;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -443,7 +440,7 @@ public class PlanoBean {
     }
 
     public List<ListPlanoConta> getListaPlanoContas() {
-        PlanoDB db = new PlanoDBToplink();
+        PlanoDao db = new PlanoDao();
         List listaAuxiliar;
         ListPlanoConta listPlanoConta = new ListPlanoConta();
         Plano5 p5 = new Plano5();
@@ -572,10 +569,9 @@ public class PlanoBean {
     }
 
     public List<SelectItem> getListaContaBanco() {
-        ContaBancoDB db = new ContaBancoDBToplink();
         if (listaContaBanco.isEmpty()) {
             int i = 0;
-            List select = db.pesquisaTodos();
+            List select = new Dao().list(new ContaBanco(), true);
             while (i < select.size()) {
                 listaContaBanco.add(new SelectItem(i, (String) ((ContaBanco) select.get(i)).getBanco().getBanco() + " - " + ((ContaBanco) select.get(i)).getAgencia() + " - " + ((ContaBanco) select.get(i)).getConta(), Integer.toString(((ContaBanco) select.get(i)).getId())));
                 i++;
@@ -622,7 +618,7 @@ public class PlanoBean {
 
     public List<Plano5> getListaPlanoPorPesquisa() {
         if (listaPlanoContasPorPesquisa.isEmpty()) {
-            PlanoDB db = new PlanoDBToplink();
+            PlanoDao db = new PlanoDao();
             String tipoPlano = "Plano5";
             if (selectedPlano == 1) {
                 tipoPlano = "Plano";

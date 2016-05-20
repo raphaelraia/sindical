@@ -1,4 +1,4 @@
-package br.com.rtools.financeiro.db;
+package br.com.rtools.financeiro.dao;
 
 import br.com.rtools.financeiro.Correcao;
 import br.com.rtools.financeiro.Servicos;
@@ -7,9 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 
-public class CorrecaoDao extends DB implements CorrecaoDB {
+public class CorrecaoDao extends DB {
 
-    @Override
     public List pesquisaRefValida(Servicos servicos, String refInicial, String refFinal) {
         String d1 = refInicial.substring(3, 7) + refInicial.substring(0, 2);
         String d2 = refFinal.substring(3, 7) + refFinal.substring(0, 2);
@@ -28,7 +27,6 @@ public class CorrecaoDao extends DB implements CorrecaoDB {
         }
     }
 
-    @Override
     public Correcao pesquisaCorrecao(Servicos servicos, String referencia) {
         Correcao correcao = null;
         referencia = referencia.substring(3, 7) + referencia.substring(0, 2);

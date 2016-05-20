@@ -5,10 +5,8 @@ import br.com.rtools.financeiro.FStatus;
 import br.com.rtools.financeiro.db.FinanceiroDBToplink;
 import br.com.rtools.impressao.ParametroChequesRecebidos;
 import br.com.rtools.pessoa.Filial;
-import br.com.rtools.relatorios.db.RelatorioFinanceiroDB;
-import br.com.rtools.relatorios.db.RelatorioFinanceiroDBToplink;
+import br.com.rtools.relatorios.dao.RelatorioFinanceiroDao;
 import br.com.rtools.utilitarios.DataHoje;
-import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.io.File;
 import java.io.Serializable;
@@ -106,7 +104,7 @@ public class RelatorioChequesRecebidosBean implements Serializable {
         
         Collection lista = new ArrayList();
 
-        RelatorioFinanceiroDB db = new RelatorioFinanceiroDBToplink();
+        RelatorioFinanceiroDao db = new RelatorioFinanceiroDao();
         
         List<Vector> result = db.listaChequesRecebidos(ids_filial, ids_caixa, tipo, d_i, d_f, id_status);
         
@@ -252,7 +250,7 @@ public class RelatorioChequesRecebidosBean implements Serializable {
 
     public List<SelectItem> getListaStatus() {
         if (listaStatus.isEmpty()){
-            RelatorioFinanceiroDB db = new RelatorioFinanceiroDBToplink();
+            RelatorioFinanceiroDao db = new RelatorioFinanceiroDao();
             
             List<FStatus> select = db.listaStatusCheque("7,8,9,10,11");
             

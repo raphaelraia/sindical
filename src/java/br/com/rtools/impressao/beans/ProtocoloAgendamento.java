@@ -18,11 +18,9 @@ import br.com.rtools.sistema.ConfiguracaoDepartamento;
 import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.sistema.Links;
 import br.com.rtools.sistema.dao.ConfiguracaoDepartamentoDao;
-import br.com.rtools.sistema.db.LinksDB;
-import br.com.rtools.sistema.db.LinksDBToplink;
+import br.com.rtools.sistema.dao.LinksDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
-import br.com.rtools.utilitarios.Diretorio;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Jasper;
@@ -64,7 +62,7 @@ public class ProtocoloAgendamento implements Serializable {
             Jasper.IS_DOWNLOAD = false;
             Jasper.printReports("/Relatorios/PROTOCOLO.jasper", "envio_protocolo", (Collection) parametroProtocolos(a));
             String fileEnvioProtocolo = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/envio_protocolo/envio_protocolo_" + a.getId() + ".pdf");
-            LinksDB db = new LinksDBToplink();
+            LinksDao db = new LinksDao();
             Links link = db.pesquisaNomeArquivo("envio_protocolo" + a.getId() + ".pdf");
             Dao dao = new Dao();
             if (link == null) {

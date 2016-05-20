@@ -2,8 +2,7 @@ package br.com.rtools.homologacao.beans;
 
 import br.com.rtools.atendimento.AteMovimento;
 import br.com.rtools.atendimento.AteStatus;
-import br.com.rtools.atendimento.db.AtendimentoDB;
-import br.com.rtools.atendimento.db.AtendimentoDBTopLink;
+import br.com.rtools.atendimento.dao.AtendimentoDao;
 import br.com.rtools.homologacao.Agendamento;
 import br.com.rtools.homologacao.Cancelamento;
 import br.com.rtools.homologacao.Demissao;
@@ -1157,7 +1156,7 @@ public class RecepcaoBean implements Serializable {
             String senhaString = "";
             String oposicaoString = "";
             boolean isOposicao = false;
-            AtendimentoDB dbat = new AtendimentoDBTopLink();
+            AtendimentoDao dbat = new AtendimentoDao();
             if (dbat.pessoaOposicao(ag.get(i).getPessoaEmpresa().getFisica().getPessoa().getDocumento())) {
                 isOposicao = true;
                 oposicaoString = "tblAgendamentoOposicaox";

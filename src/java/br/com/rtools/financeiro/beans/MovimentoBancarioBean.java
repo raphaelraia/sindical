@@ -14,8 +14,7 @@ import br.com.rtools.financeiro.TipoPagamento;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.db.FinanceiroDB;
 import br.com.rtools.financeiro.db.FinanceiroDBToplink;
-import br.com.rtools.financeiro.db.Plano5DB;
-import br.com.rtools.financeiro.db.Plano5DBToplink;
+import br.com.rtools.financeiro.dao.Plano5Dao;
 import br.com.rtools.financeiro.db.ServicosDB;
 import br.com.rtools.financeiro.db.ServicosDBToplink;
 import br.com.rtools.pessoa.Filial;
@@ -298,7 +297,7 @@ public class MovimentoBancarioBean implements Serializable {
 
     public List<SelectItem> getListaConta() {
         if (listaConta.isEmpty()) {
-            Plano5DB db = new Plano5DBToplink();
+            Plano5Dao db = new Plano5Dao();
 
             List<Plano5> result = db.pesquisaCaixaBanco();
             for (int i = 0; i < result.size(); i++) {

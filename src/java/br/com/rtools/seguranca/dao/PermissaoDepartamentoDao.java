@@ -1,4 +1,4 @@
-package br.com.rtools.seguranca.db;
+package br.com.rtools.seguranca.dao;
 
 import br.com.rtools.principal.DB;
 import br.com.rtools.seguranca.Permissao;
@@ -7,19 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 
-public class PermissaoDepartamentoDBToplink extends DB implements PermissaoDepartamentoDB {
+public class PermissaoDepartamentoDao extends DB {
 
-    @Override
-    public List pesquisaTodos() {
-        try {
-            Query qry = getEntityManager().createQuery("select pd from PermissaoDepartamento pd ");
-            return (qry.getResultList());
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    @Override
     public List pesquisaPermissaoDptoIdEvento(int id) {
         try {
             Query qry = getEntityManager().createQuery("select pd from PermissaoDepartamento pd "
@@ -30,7 +19,6 @@ public class PermissaoDepartamentoDBToplink extends DB implements PermissaoDepar
         }
     }
 
-    @Override
     public List pesquisaPermissaDisponivel(String ids) {
         String textQuery = "";
         try {
@@ -55,7 +43,6 @@ public class PermissaoDepartamentoDBToplink extends DB implements PermissaoDepar
         }
     }
 
-    @Override
     public List pesquisaPermissaoAdc(int idDepto, int idNivel) {
         try {
             Query qry = getEntityManager().createQuery("select pd "
@@ -72,7 +59,6 @@ public class PermissaoDepartamentoDBToplink extends DB implements PermissaoDepar
         }
     }
 
-    @Override
     public List pesquisaPermissaDepto(String ids) {
         String textQuery = "";
         try {
@@ -86,7 +72,6 @@ public class PermissaoDepartamentoDBToplink extends DB implements PermissaoDepar
         }
     }
 
-    @Override
     public List<Permissao> listaPermissaoDepartamentoDisponivel(int idDepartamento, int idNivel, String descricaoPesquisa) {
         String queryFiltro = "";
         if (!descricaoPesquisa.equals("")) {
@@ -105,7 +90,6 @@ public class PermissaoDepartamentoDBToplink extends DB implements PermissaoDepar
 
     }
 
-    @Override
     public List<PermissaoDepartamento> listaPermissaoDepartamentoAdicionada(int idDepartamento, int idNivel, String descricaoPesquisa) {
         String queryFiltro = "";
         if (!descricaoPesquisa.equals("")) {

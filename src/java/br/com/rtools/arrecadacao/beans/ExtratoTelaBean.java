@@ -79,7 +79,8 @@ public class ExtratoTelaBean implements Serializable {
 
     private boolean movimentosDasEmpresas = false;
     private List<Juridica> listaEmpresasPertencentes = new ArrayList();
-    private boolean dcData = false; /* dc = defaultCollapsed */
+    private boolean dcData = false;
+    /* dc = defaultCollapsed */
 
     private boolean dcBoleto = false;
     private final List<SelectItem> listaTipoServico = new ArrayList();
@@ -103,27 +104,27 @@ public class ExtratoTelaBean implements Serializable {
 
     public void alterarMovimento(Integer id) {
         movimentoAlterar = (Movimento) new Dao().find(new Movimento(), id);
-        
-        for(int i = 0; i < listaTipoServicoAlterar.size(); i++){
-            if (movimentoAlterar.getTipoServico().getId() == Integer.valueOf(listaTipoServicoAlterar.get(i).getDescription()) ){
+
+        for (int i = 0; i < listaTipoServicoAlterar.size(); i++) {
+            if (movimentoAlterar.getTipoServico().getId() == Integer.valueOf(listaTipoServicoAlterar.get(i).getDescription())) {
                 idTipoServicoAlterar = i;
             }
         }
         PF.openDialog("dlg_alterar_movimento");
         PF.update("formExtratoTela:panel_alterar_movimento");
     }
-    
-    public void salvarAlterarMovimento(){
-        if (movimentoAlterar.getId() != -1){
+
+    public void salvarAlterarMovimento() {
+        if (movimentoAlterar.getId() != -1) {
             Dao dao = new Dao();
-            
+
             dao.openTransaction();
-            movimentoAlterar.setTipoServico( (TipoServico) dao.find(new TipoServico(), Integer.valueOf(listaTipoServicoAlterar.get(idTipoServicoAlterar).getDescription())) );
-            if (!dao.update(movimentoAlterar)){
+            movimentoAlterar.setTipoServico((TipoServico) dao.find(new TipoServico(), Integer.valueOf(listaTipoServicoAlterar.get(idTipoServicoAlterar).getDescription())));
+            if (!dao.update(movimentoAlterar)) {
                 GenericaMensagem.error("Erro", "Não foi possível alterar Movimento");
                 return;
             }
-            
+
             dao.commit();
             movimentoAlterar = new Movimento();
             GenericaMensagem.info("Sucesso", "Movimento Alterado com Sucesso!");
@@ -183,10 +184,8 @@ public class ExtratoTelaBean implements Serializable {
             if (dataInicial.isEmpty() || dataFinal.isEmpty()) {
                 chkData = false;
             }
-        } else {
-            if (dataRefInicial.isEmpty() || dataRefFinal.isEmpty()) {
-                chkData = false;
-            }
+        } else if (dataRefInicial.isEmpty() || dataRefFinal.isEmpty()) {
+            chkData = false;
         }
         if (pessoa == null) {
             pessoa = new Pessoa();
@@ -246,7 +245,7 @@ public class ExtratoTelaBean implements Serializable {
             float valor_baixa = Float.parseFloat(Double.toString((Double) linha_list.get(21))),
                     valor = Float.parseFloat(Double.toString((Double) linha_list.get(8))),
                     taxa = Float.parseFloat(Double.toString((Double) linha_list.get(9)));
-            
+
             somaValores = Moeda.subtracaoValores(Moeda.somaValores(
                     Moeda.somaValores(
                             Moeda.somaValores(
@@ -256,12 +255,11 @@ public class ExtratoTelaBean implements Serializable {
                             Float.parseFloat(Double.toString((Double) linha_list.get(15)))//correcao
                     ), Float.parseFloat(Double.toString((Double) linha_list.get(13))) //multa
             ), Float.parseFloat(Double.toString((Double) linha_list.get(16))));// desconto
-            
+
             // ROGÉRIO PEDIU PARA ESSE CALCULO SER PELO VALOR BAIXA, SENDO QUE EM UM CASO DE TESTE NÃO BATEU, APENAS COM O VALOR (somaValores)
             somaRepasse = Moeda.multiplicarValores(valor_baixa,
                     Moeda.divisaoValores(
                             Float.parseFloat(Double.toString((Double) linha_list.get(17))), 100));
-            
 
 // ALTERADO PARA BATER COM O RELATÓRIO RESUMO DE CONTRIBUIÇÕES > Menu Financeiro > Relatório > Movimento
 //            somaRepasse = Moeda.multiplicarValores(
@@ -269,7 +267,6 @@ public class ExtratoTelaBean implements Serializable {
 //                    Moeda.divisaoValores(
 //                            Float.parseFloat(Double.toString((Double) linha_list.get(17))), 100)
 //            );
-
             if (linha_list.get(12) == null
                     && ((String) linha_list.get(11)).equals("Acordo")) {
                 habData = true;
@@ -282,7 +279,6 @@ public class ExtratoTelaBean implements Serializable {
             } else {
                 classTbl = "";
             }
-
 
             listaMovimentos.add(new DataObject(
                     false,
@@ -356,10 +352,8 @@ public class ExtratoTelaBean implements Serializable {
             if (dataInicial.isEmpty() || dataFinal.isEmpty()) {
                 chkData = false;
             }
-        } else {
-            if (dataRefInicial.isEmpty() || dataRefFinal.isEmpty()) {
-                chkData = false;
-            }
+        } else if (dataRefInicial.isEmpty() || dataRefFinal.isEmpty()) {
+            chkData = false;
         }
         if (pessoa == null) {
             pessoa = new Pessoa();
@@ -1713,6 +1707,42 @@ public class ExtratoTelaBean implements Serializable {
             }
         }
         return listaTipoServicoAlterar;
+    }
+
+    public String vencimentoOritinal() {
+        movimentoVencimento.setVencimento(movimentoVencimento.getVencimentoOriginal());
+        Dao di = new Dao();
+
+        di.openTransaction();
+
+        if (!di.update(movimentoVencimento)) {
+            di.rollback();
+            GenericaMensagem.error("Erro", "Não foi possível alterar o movimento, tente novamente!");
+            return null;
+        }
+
+        di.commit();
+
+        loadListBeta();
+        GenericaMensagem.info("OK", "Data alterada com sucesso!");
+
+        movimentoVencimento = new Movimento();
+
+        PF.update("formExtratoTela:i_msg");
+        PF.update("formExtratoTela:tbl");
+        PF.update("formExtratoTelaAlteraVencimento:i_msg_vencimento");
+        PF.update("formExtratoTelaAlteraVencimento:i_vo");
+
+        PF.closeDialog("dlg_alterar_vencimento");
+        return null;
+    }
+
+    public Movimento getMovimentoVencimento() {
+        return movimentoVencimento;
+    }
+
+    public void setMovimentoVencimento(Movimento movimentoVencimento) {
+        this.movimentoVencimento = movimentoVencimento;
     }
 
 }

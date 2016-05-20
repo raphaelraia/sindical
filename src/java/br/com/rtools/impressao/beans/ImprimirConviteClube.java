@@ -12,8 +12,7 @@ import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.Links;
-import br.com.rtools.sistema.db.LinksDB;
-import br.com.rtools.sistema.db.LinksDBToplink;
+import br.com.rtools.sistema.dao.LinksDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Diretorio;
@@ -89,7 +88,7 @@ public class ImprimirConviteClube implements Serializable {
             Diretorio.criar("Arquivos/downloads/convite");
             SalvaArquivos salvaArquivos = new SalvaArquivos(arquivo, nomeDownload, false);
             salvaArquivos.salvaNaPasta(pathPasta);
-            LinksDB db = new LinksDBToplink();
+            LinksDao db = new LinksDao();
             Links link = db.pesquisaNomeArquivo(nomeDownload);
             SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
             if (link == null) {

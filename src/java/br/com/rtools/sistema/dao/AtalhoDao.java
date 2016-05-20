@@ -1,4 +1,4 @@
-package br.com.rtools.sistema.db;
+package br.com.rtools.sistema.dao;
 
 import br.com.rtools.principal.DB;
 import br.com.rtools.sistema.Atalhos;
@@ -7,9 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 
-public class AtalhoDBToplink extends DB implements AtalhoDB {
+public class AtalhoDao extends DB {
 
-    @Override
     public List<Atalhos> listaTodos(int id_pessoa) {
         try {
             Query qry = getEntityManager().createQuery(
@@ -22,7 +21,6 @@ public class AtalhoDBToplink extends DB implements AtalhoDB {
         }
     }
 
-    @Override
     public Atalhos pesquisaPorSigla(String sigla) {
         try {
             Query qry = getEntityManager().createQuery(
@@ -35,7 +33,6 @@ public class AtalhoDBToplink extends DB implements AtalhoDB {
         }
     }
 
-    @Override
     public Atalhos pesquisaPorRotina(int id_rotina) {
         try {
             Query qry = getEntityManager().createQuery(
@@ -48,7 +45,6 @@ public class AtalhoDBToplink extends DB implements AtalhoDB {
         }
     }
 
-    @Override
     public List<ContadorAcessos> listaAcessosUsuario(int id_usuario) {
         try {
             Query qry = getEntityManager().createQuery(
@@ -60,7 +56,6 @@ public class AtalhoDBToplink extends DB implements AtalhoDB {
         }
     }
 
-    @Override
     public ContadorAcessos pesquisaContadorAcessos(int id_usuario, int id_rotina) {
         try {
             Query qry = getEntityManager().createQuery(
@@ -71,7 +66,6 @@ public class AtalhoDBToplink extends DB implements AtalhoDB {
         }
     }
 
-    @Override
     public ContadorAcessos pesquisaContadorAcessos(int id_usuario, int id_rotina, int id_modulo) {
         try {
             Query qry = getEntityManager().createQuery(

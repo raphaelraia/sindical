@@ -34,7 +34,7 @@ import javax.faces.model.SelectItem;
 public class ProdutoBean implements Serializable {
 
     private Produto produto;
-    private Produto produtoPesquisa;
+    private String descricaoPesquisa;
     private Estoque estoque;
     private ProdutoGrupo produtoGrupo;
     private ProdutoSubGrupo produtoSubGrupo;
@@ -52,11 +52,12 @@ public class ProdutoBean implements Serializable {
     private String custoMedio;
     private String valor;
     private Boolean liberaAcessaFilial;
+    private String type;
 
     @PostConstruct
     public void init() {
         produto = new Produto();
-        produtoPesquisa = new Produto();
+        descricaoPesquisa = "";
         estoque = new Estoque();
         produtoGrupo = new ProdutoGrupo();
         produtoSubGrupo = new ProdutoSubGrupo();
@@ -64,23 +65,27 @@ public class ProdutoBean implements Serializable {
         cor = new Cor();
         mensagem = "";
         comoPesquisa = "";
-        listaSelectItem = new ArrayList[6];
+        listaSelectItem = new ArrayList[8];
         listaSelectItem[0] = new ArrayList<>();
         listaSelectItem[1] = new ArrayList<>();
         listaSelectItem[2] = new ArrayList<>();
         listaSelectItem[3] = new ArrayList<>();
         listaSelectItem[4] = new ArrayList<>();
         listaSelectItem[5] = new ArrayList<>();
+        listaSelectItem[6] = new ArrayList<>();
+        listaSelectItem[7] = new ArrayList<>();
         listaProdutos = new ArrayList<>();
         listaEstoque = new ArrayList<>();
         listFiliaisPesquisa = new ArrayList<>();
-        indices = new Integer[6];
+        indices = new Integer[8];
         indices[0] = 0;
         indices[1] = 0;
         indices[2] = 0;
         indices[3] = 0;
         indices[4] = 0;
         indices[5] = 0;
+        indices[6] = 0;
+        indices[7] = 0;
         custoMedio = "0";
         valor = "0";
         liberaAcessaFilial = false;
@@ -244,6 +249,22 @@ public class ProdutoBean implements Serializable {
         }
     }
 
+    public List<SelectItem> getListaGruposPesquisa() {
+        if (listaSelectItem[6].isEmpty()) {
+            Dao dao = new Dao();
+            List<ProdutoGrupo> list = (List<ProdutoGrupo>) dao.list(new ProdutoGrupo(), true);
+            listaSelectItem[6].add(new SelectItem(-1, "-- TODOS --"));
+            for (int i = 0; i < list.size(); i++) {
+                listaSelectItem[6].add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
+            }
+        }
+        if (!listaSelectItem[6].isEmpty()) {
+            return listaSelectItem[6];
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
     public List<SelectItem> getListaSubGrupos() {
         if (!listaSelectItem[0].isEmpty()) {
             if (listaSelectItem[1].isEmpty()) {
@@ -256,6 +277,24 @@ public class ProdutoBean implements Serializable {
         }
         if (!listaSelectItem[1].isEmpty()) {
             return listaSelectItem[1];
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public List<SelectItem> getListaSubGruposPesquisa() {
+        if (!listaSelectItem[6].isEmpty() && listaSelectItem[6].size() != 1) {
+            if (listaSelectItem[7].isEmpty()) {
+                Dao dao = new Dao();
+                listaSelectItem[7].add(new SelectItem(-1, "-- TODOS --"));
+                List<ProdutoSubGrupo> list = (List<ProdutoSubGrupo>) dao.listQuery(new ProdutoSubGrupo(), "findGrupo", new Object[]{indices[6]});
+                for (int i = 0; i < list.size(); i++) {
+                    listaSelectItem[7].add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
+                }
+            }
+        }
+        if (!listaSelectItem[7].isEmpty()) {
+            return listaSelectItem[7];
         } else {
             return new ArrayList<>();
         }
@@ -577,14 +616,6 @@ public class ProdutoBean implements Serializable {
         this.listaProdutos = listaProdutos;
     }
 
-    public Produto getProdutoPesquisa() {
-        return produtoPesquisa;
-    }
-
-    public void setProdutoPesquisa(Produto produtoPesquisa) {
-        this.produtoPesquisa = produtoPesquisa;
-    }
-
     public void acaoPesquisaInicial() {
         listaProdutos.clear();
         comoPesquisa = "Inicial";
@@ -598,27 +629,25 @@ public class ProdutoBean implements Serializable {
     }
 
     public void load() {
-        if(listaProdutos.isEmpty()) {
+        if (listaProdutos.isEmpty()) {
             if (!getListFiliaisPesquisa().isEmpty()) {
                 ProdutoDao produtoDao = new ProdutoDao();
                 Filial filial = (Filial) new Dao().find(new Filial(), Integer.parseInt(getListFiliaisPesquisa().get(filial_id).getDescription()));
                 if (filial.getId() != -1) {
                     List<Produto> listap;
-                    if (produtoPesquisa.getDescricao().isEmpty()) {
-                        listap = (List<Produto>) new Dao().list(new Produto());
-                    } else {
-                        listap = (List<Produto>) produtoDao.pesquisaProduto(produtoPesquisa, 0, comoPesquisa);
-                    }
-
+                    listap = (List<Produto>) produtoDao.pesquisaProduto(descricaoPesquisa, 0, comoPesquisa, indices[6], indices[7]);
                     for (Produto prod : listap) {
-                        Estoque es = produtoDao.listaEstoquePorProdutoFilial(prod, filial);
-
-                        if (es != null) {
+                        if (getType().equals("tproduto")) {
                             listaProdutos.add(prod);
+                        } else {
+                            Estoque es = produtoDao.listaEstoquePorProdutoFilial(prod, filial);
+                            if (es != null) {
+                                listaProdutos.add(prod);
+                            }
                         }
                     }
                 } else {
-                    listaProdutos = (List<Produto>) produtoDao.pesquisaProduto(produtoPesquisa, 0, comoPesquisa);
+                    listaProdutos = (List<Produto>) produtoDao.pesquisaProduto(descricaoPesquisa, 0, comoPesquisa, indices[6], indices[7]);
                 }
             }
         }
@@ -732,5 +761,24 @@ public class ProdutoBean implements Serializable {
                 listaProdutos.clear();
                 break;
         }
+    }
+
+    public String getDescricaoPesquisa() {
+        return descricaoPesquisa;
+    }
+
+    public void setDescricaoPesquisa(String descricaoPesquisa) {
+        this.descricaoPesquisa = descricaoPesquisa;
+    }
+
+    public String getType() {
+        if (GenericaSessao.exists("type")) {
+            type = GenericaSessao.getString("type", true);
+        }
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

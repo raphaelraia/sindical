@@ -13,8 +13,7 @@ import br.com.rtools.pessoa.TipoEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.CnaeDB;
 import br.com.rtools.pessoa.db.CnaeDBToplink;
-import br.com.rtools.pessoa.db.TipoEnderecoDB;
-import br.com.rtools.pessoa.db.TipoEnderecoDBToplink;
+import br.com.rtools.pessoa.dao.TipoEnderecoDao;
 import br.com.rtools.sistema.ConfiguracaoCnpj;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -392,7 +391,7 @@ public class JuridicaReceitaJSON {
                 }
 
                 if (endereco != null) {
-                    TipoEnderecoDB dbt = new TipoEnderecoDBToplink();
+                    TipoEnderecoDao dbt = new TipoEnderecoDao();
                     List tiposE = dbt.listaTipoEnderecoParaJuridica();
                     for (Object tiposE1 : tiposE) {
                         PessoaEndereco pe = new PessoaEndereco(
@@ -547,7 +546,7 @@ public class JuridicaReceitaJSON {
             }
 
             if (endereco != null) {
-                TipoEnderecoDB dbt = new TipoEnderecoDBToplink();
+                TipoEnderecoDao dbt = new TipoEnderecoDao();
                 List tiposE = dbt.listaTipoEnderecoParaJuridica();
                 for (Object tiposE1 : tiposE) {
                     PessoaEndereco pe = new PessoaEndereco(

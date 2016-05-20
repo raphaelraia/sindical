@@ -4,6 +4,7 @@ import br.com.rtools.arrecadacao.Acordo;
 import static br.com.rtools.arrecadacao.beans.AcordoBean.BubbleSort;
 import static br.com.rtools.arrecadacao.beans.AcordoBean.BubbleSortServico;
 import br.com.rtools.financeiro.ContaCobranca;
+import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.Historico;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Servicos;
@@ -11,8 +12,6 @@ import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.beans.MovimentosReceberBean;
 import br.com.rtools.financeiro.db.ContaCobrancaDB;
 import br.com.rtools.financeiro.db.ContaCobrancaDBToplink;
-import br.com.rtools.financeiro.db.FTipoDocumentoDB;
-import br.com.rtools.financeiro.db.FTipoDocumentoDBToplink;
 import br.com.rtools.financeiro.db.MovimentoDB;
 import br.com.rtools.financeiro.db.MovimentoDBToplink;
 import br.com.rtools.financeiro.db.TipoServicoDB;
@@ -139,7 +138,6 @@ public class AcordoSocialBean implements Serializable {
         try {
             TipoServicoDB dbTipoServico = new TipoServicoDBToplink();
             ContaCobrancaDB ctaCobraDB = new ContaCobrancaDBToplink();
-            FTipoDocumentoDB dbft = new FTipoDocumentoDBToplink();
             TipoServico tipoServico = dbTipoServico.pesquisaCodigo(4);
             DataHoje data = new DataHoje();
             int j = 0, k = 0;
@@ -213,7 +211,7 @@ public class AcordoSocialBean implements Serializable {
                                 "",
                                 ultimoVencimento,
                                 0,
-                                0, 0, 0, 0, 0, 0, dbft.pesquisaCodigo(2), 0, null
+                                0, 0, 0, 0, 0, 0, (FTipoDocumento) new Dao().find(new FTipoDocumento(), 2), 0, null
                         );
 
                         listaOperado.add(new DataObject(false, ++k, mov, (String) listaVizualizado.get(i).getArgumento3(), null, null));
@@ -282,16 +280,16 @@ public class AcordoSocialBean implements Serializable {
             }
             i++;
         }
-        
+
         if (!(subLista.isEmpty())) {
             listas.add(subLista);
         }
-        
+
         i = 0;
-        
+
         while (i < listas.size()) {
             int j = 0;
-            
+
             Movimento movimento = (Movimento) listaOperado.get(((List<Integer>) listas.get(i)).get(j)).getArgumento2();
             String date = movimento.getVencimento();
 
@@ -325,10 +323,10 @@ public class AcordoSocialBean implements Serializable {
 
             i++;
         }
-        
+
         BubbleSort(listaOperado);
         ordernarPorServico();
-        
+
         while (i < listaOperado.size()) {
             listaOperado.get(i).setArgumento1(i + 1);
             i++;
@@ -340,9 +338,9 @@ public class AcordoSocialBean implements Serializable {
         if (listaOperado.isEmpty()) {
             return null;
         }
-        
+
         int i = 0;
-        
+
         List listas = new ArrayList();
         List<Integer> subLista = new ArrayList();
         DataHoje data = new DataHoje();
@@ -367,13 +365,13 @@ public class AcordoSocialBean implements Serializable {
             }
             i++;
         }
-        
+
         if (!(subLista.isEmpty())) {
             listas.add(subLista);
         }
-        
+
         i = 0;
-        
+
         while (i < listas.size()) {
             int j = 0;
             Movimento movimento = ((Movimento) listaOperado.get(((List<Integer>) listas.get(i)).get(j)).getArgumento2());
@@ -404,12 +402,12 @@ public class AcordoSocialBean implements Serializable {
             }
             i++;
         }
-        
+
         BubbleSort(listaOperado);
         ordernarPorServico();
-        
+
         i = 0;
-        
+
         while (i < listaOperado.size()) {
             listaOperado.get(i).setArgumento1(i + 1);
             i++;
@@ -491,7 +489,6 @@ public class AcordoSocialBean implements Serializable {
 //        }
     }
 
-    
     public void imprimirPlanilha() {
         ImprimirBoleto imp = new ImprimirBoleto();
         List listaImp = new ArrayList();
@@ -504,7 +501,7 @@ public class AcordoSocialBean implements Serializable {
         }
 
     }
-    
+
     public String referencia(String data) {
         if (data.length() == 10) {
             String ref = data.substring(3);
@@ -618,15 +615,13 @@ public class AcordoSocialBean implements Serializable {
                 valorEntrada = Moeda.converteR$Float(valorTmp2);
                 return valorEntrada;
             }
+        } else if (valorTmp > (Moeda.multiplicarValores(totalOutra, (float) 0.05))
+                && valorTmp < (Moeda.multiplicarValores(totalOutra, (float) 0.8))) {
+            return Moeda.converteR$(valorEntrada);
         } else {
-            if (valorTmp > (Moeda.multiplicarValores(totalOutra, (float) 0.05))
-                    && valorTmp < (Moeda.multiplicarValores(totalOutra, (float) 0.8))) {
-                return Moeda.converteR$(valorEntrada);
-            } else {
-                float valorTmp2 = Moeda.divisaoValores(totalOutra, parcela);
-                if (parcela > 1) {
-                    valorEntrada = Moeda.converteR$Float(valorTmp2);
-                }
+            float valorTmp2 = Moeda.divisaoValores(totalOutra, parcela);
+            if (parcela > 1) {
+                valorEntrada = Moeda.converteR$Float(valorTmp2);
             }
         }
         return Moeda.converteR$(valorEntrada);

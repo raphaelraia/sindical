@@ -1,13 +1,12 @@
-package br.com.rtools.pessoa.db;
+package br.com.rtools.pessoa.dao;
 
 import br.com.rtools.pessoa.TipoEndereco;
 import br.com.rtools.principal.DB;
 import java.util.List;
 import javax.persistence.Query;
 
-public class TipoEnderecoDBToplink extends DB implements TipoEnderecoDB {
+public class TipoEnderecoDao extends DB {
 
-    @Override
     public List<String> pesquisaTipoEndereco(String des_tipo) {
         List<String> result = null;
         try {
@@ -19,7 +18,6 @@ public class TipoEnderecoDBToplink extends DB implements TipoEnderecoDB {
         return result;
     }
 
-    @Override
     public TipoEndereco idTipoEndereco(TipoEndereco des_tipo) {
         TipoEndereco result = null;
         try {
@@ -31,7 +29,6 @@ public class TipoEnderecoDBToplink extends DB implements TipoEnderecoDB {
         return result;
     }
 
-    @Override
     public List<String> pesquisaTipoEnderecoParaJuridica(String des_tipo) {
         List<String> result = null;
         try {
@@ -49,7 +46,6 @@ public class TipoEnderecoDBToplink extends DB implements TipoEnderecoDB {
         return result;
     }
 
-    @Override
     public List<String> pesquisaTipoEnderecoParaFisica(String des_tipo) {
         List<String> result = null;
         try {
@@ -66,7 +62,6 @@ public class TipoEnderecoDBToplink extends DB implements TipoEnderecoDB {
         return result;
     }
 
-    @Override
     public List<String> listaTipoEnderecoParaJuridica() {
         List<String> result = null;
         try {
@@ -82,7 +77,6 @@ public class TipoEnderecoDBToplink extends DB implements TipoEnderecoDB {
         return result;
     }
 
-    @Override
     public List<String> listaTipoEnderecoParaFisica() {
         List<String> result = null;
         try {

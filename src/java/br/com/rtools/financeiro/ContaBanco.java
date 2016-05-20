@@ -6,7 +6,10 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "fin_conta_banco")
-@NamedQuery(name = "ContaBanco.pesquisaID", query = "select o from ContaBanco o where o.id=:pid")
+@NamedQueries({
+    @NamedQuery(name = "ContaBanco.pesquisaID", query = "SELECT CB FROM ContaBanco CB WHERE CB.id=:pid"),    
+    @NamedQuery(name = "ContaBanco.findAll", query = "SELECT CB FROM ContaBanco CB ORDER BY CB.banco.banco")
+})
 public class ContaBanco implements java.io.Serializable {
 
     @Id

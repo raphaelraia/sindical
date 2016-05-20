@@ -1,4 +1,4 @@
-package br.com.rtools.relatorios.db;
+package br.com.rtools.relatorios.dao;
 
 import br.com.rtools.principal.DB;
 import java.util.ArrayList;
@@ -6,9 +6,8 @@ import java.util.List;
 import javax.persistence.Query;
 import oracle.toplink.essentials.exceptions.EJBQLException;
 
-public class RelatorioContabilidadesDBToplink extends DB implements RelatorioContabilidadesDB {
+public class RelatorioContabilidadesDao extends DB {
 
-    @Override
     public List pesquisaContabilidades() {
         List result = new ArrayList();
         try {
@@ -22,7 +21,6 @@ public class RelatorioContabilidadesDBToplink extends DB implements RelatorioCon
         return result;
     }
 
-    @Override
     public List pesquisaQntEmpresas(int id_contabilidade) {
         List result = new ArrayList();
         try {
@@ -35,7 +33,6 @@ public class RelatorioContabilidadesDBToplink extends DB implements RelatorioCon
         return result;
     }
 
-    @Override
     public int quantidadeEmpresas() {
         int quantidade = 0;
         try {
@@ -55,7 +52,6 @@ public class RelatorioContabilidadesDBToplink extends DB implements RelatorioCon
         return quantidade;
     }
 
-    @Override
     public List pesquisarCnaeContabilidade() {
         List result = new ArrayList();
         try {
@@ -69,7 +65,6 @@ public class RelatorioContabilidadesDBToplink extends DB implements RelatorioCon
         return result;
     }
 
-    @Override
     public List listaRelatorioContabilidades(String pEmpresas, int indexEmp1, int indexEmp2, String tipoPCidade, String cidade, String ordem, int idTipoEndereco, String email) {
         String textQueryNativa;
         List list = new ArrayList();

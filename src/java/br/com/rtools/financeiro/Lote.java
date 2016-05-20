@@ -7,6 +7,7 @@ import br.com.rtools.seguranca.Departamento;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.Moeda;
 import java.util.Date;
 import javax.persistence.*;
 
@@ -229,6 +230,14 @@ public class Lote implements java.io.Serializable {
 
     public void setValor(float valor) {
         this.valor = valor;
+    }
+
+    public String getValorString() {
+        return Moeda.converteR$Float(valor);
+    }
+
+    public void setValorString(String valorString) {
+        this.valor = Moeda.converteUS$(valorString);
     }
 
     public Filial getFilial() {

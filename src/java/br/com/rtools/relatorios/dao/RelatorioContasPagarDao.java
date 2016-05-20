@@ -39,7 +39,7 @@ public class RelatorioContasPagarDao extends DB {
                     + "            M.conta          AS conta,       \n"
                     + "            M.valor*-1       AS valor,       \n"
                     + "            M.vencimento     AS vencimento,  \n"
-                    + "            M.valorp*-1      AS valor_pago,  \n"
+                    + "            M.valor_baixa*-1 AS valor_pago,  \n"
                     + "            M.baixa          AS baixa        \n"
                     + "       FROM movimentos_vw    AS M            \n"
                     + " INNER JOIN pes_pessoa       AS FO ON FO.id = M.id_pessoa        \n"

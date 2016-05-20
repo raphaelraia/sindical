@@ -12,8 +12,7 @@ import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.TipoEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.relatorios.Relatorios;
-import br.com.rtools.relatorios.db.RelatorioContribuintesDB;
-import br.com.rtools.relatorios.db.RelatorioContribuintesDBToplink;
+import br.com.rtools.relatorios.dao.RelatorioContribuintesDao;
 import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.Dao;
@@ -119,7 +118,7 @@ public class RelatorioContribuintesBean implements Serializable {
         String bairros = "";
 
         RelatorioDao db = new RelatorioDao();
-        RelatorioContribuintesDB dbContri = new RelatorioContribuintesDBToplink();
+        RelatorioContribuintesDao dbContri = new RelatorioContribuintesDao();
         PessoaEnderecoDao dbPesEnd = new PessoaEnderecoDao();
         Cidade cidade;
         Juridica contabilidade;
@@ -390,7 +389,7 @@ public class RelatorioContribuintesBean implements Serializable {
     public List<SelectItem> getListaContabilidades() {
         List<SelectItem> contabilidades = new ArrayList<>();
         int i = 0;
-        RelatorioContribuintesDB db = new RelatorioContribuintesDBToplink();
+        RelatorioContribuintesDao db = new RelatorioContribuintesDao();
         List select = db.pesquisaContabilidades();
         while (i < select.size()) {
             contabilidades.add(new SelectItem(i,
@@ -418,7 +417,7 @@ public class RelatorioContribuintesBean implements Serializable {
 
     public List getListaCnaeConvencaox() {
         if (carregaCnaeConvencao) {
-            RelatorioContribuintesDB db = new RelatorioContribuintesDBToplink();
+            RelatorioContribuintesDao db = new RelatorioContribuintesDao();
             resultCnaeConvencao = new ArrayList();
             DataObject dtObject;
             String ids = "";
@@ -642,7 +641,7 @@ public class RelatorioContribuintesBean implements Serializable {
 
     public List<DataObject> getListaGrupox() {
         if (carregaGrupo) {
-            RelatorioContribuintesDB db = new RelatorioContribuintesDBToplink();
+            RelatorioContribuintesDao db = new RelatorioContribuintesDao();
             listaGrupo = new ArrayList();
             String ids = "";
             for (int i = 0; i < resultConvencao.size(); i++) {
@@ -718,7 +717,7 @@ public class RelatorioContribuintesBean implements Serializable {
                 }
                 i++;
             }
-            RelatorioContribuintesDB db = new RelatorioContribuintesDBToplink();
+            RelatorioContribuintesDao db = new RelatorioContribuintesDao();
             listaGrupoCidades = db.pesquisarGrupoPorConvencao(ids);
         }
         return listaGrupoCidades;
@@ -770,7 +769,7 @@ public class RelatorioContribuintesBean implements Serializable {
                 }
                 i++;
             }
-            RelatorioContribuintesDB db = new RelatorioContribuintesDBToplink();
+            RelatorioContribuintesDao db = new RelatorioContribuintesDao();
             listaCnaeConvencaos = db.pesquisarCnaeConvencaoPorConvencao(ids);
         }
         return listaCnaeConvencaos;

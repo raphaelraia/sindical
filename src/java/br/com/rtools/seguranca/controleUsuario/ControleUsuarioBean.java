@@ -6,14 +6,12 @@ import br.com.rtools.associativo.beans.ConfiguracaoSocialBean;
 import br.com.rtools.financeiro.Caixa;
 import br.com.rtools.financeiro.db.FinanceiroDB;
 import br.com.rtools.financeiro.db.FinanceiroDBToplink;
-import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.principal.DBExternal;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.db.*;
 import br.com.rtools.sistema.ContadorAcessos;
-import br.com.rtools.sistema.db.AtalhoDB;
-import br.com.rtools.sistema.db.AtalhoDBToplink;
+import br.com.rtools.sistema.dao.AtalhoDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Diretorio;
@@ -27,7 +25,6 @@ import br.com.rtools.utilitarios.db.FunctionsDB;
 import br.com.rtools.utilitarios.db.FunctionsDao;
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.InetAddress;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -178,7 +175,7 @@ public class ControleUsuarioBean implements Serializable {
 
                 }
             }
-            AtalhoDB dba = new AtalhoDBToplink();
+            AtalhoDao dba = new AtalhoDao();
             if (dba.listaAcessosUsuario(usuario.getId()).isEmpty()) {
                 Diretorio.criar("");
                 Diretorio.criar("Relatorios");
@@ -464,7 +461,7 @@ public class ControleUsuarioBean implements Serializable {
         if (GenericaSessao.exists("sessaoUsuario")) {
             Usuario usu = ((Usuario) GenericaSessao.getObject("sessaoUsuario"));
 //            RotinaDB db = new RotinaDBToplink();
-            AtalhoDB dba = new AtalhoDBToplink();
+            AtalhoDao dba = new AtalhoDao();
             listaContador.clear();
             //listaRotina = db.pesquisaAcessosOrdem();
             listaContador = dba.listaAcessosUsuario(usu.getId());

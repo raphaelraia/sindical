@@ -1,6 +1,6 @@
 package br.com.rtools.atendimento;
 
-import br.com.rtools.atendimento.db.AtendimentoDBTopLink;
+import br.com.rtools.atendimento.dao.AtendimentoDao;
 import br.com.rtools.sistema.SisPessoa;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Juridica;
@@ -173,7 +173,7 @@ public class AteMovimento implements java.io.Serializable {
     }
 
     public Boolean getExistOposicao() {
-        AtendimentoDBTopLink atendimentoDao = new AtendimentoDBTopLink();
+        AtendimentoDao atendimentoDao = new AtendimentoDao();
         try {
             if (!this.getPessoa().getDocumento().isEmpty()) {
                 return atendimentoDao.pessoaOposicao(this.getPessoa().getDocumento());

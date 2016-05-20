@@ -6,6 +6,7 @@ import br.com.rtools.arrecadacao.db.MensagemConvencaoDBToplink;
 import br.com.rtools.arrecadacao.db.WebContabilidadeDB;
 import br.com.rtools.arrecadacao.db.WebContabilidadeDBToplink;
 import br.com.rtools.financeiro.ContaCobranca;
+import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.ImpressaoWeb;
 import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.Movimento;
@@ -14,8 +15,7 @@ import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.beans.MovimentoValorBean;
 import br.com.rtools.financeiro.db.ContaCobrancaDB;
 import br.com.rtools.financeiro.db.ContaCobrancaDBToplink;
-import br.com.rtools.financeiro.db.FTipoDocumentoDB;
-import br.com.rtools.financeiro.db.FTipoDocumentoDBToplink;
+import br.com.rtools.financeiro.dao.FTipoDocumentoDao;
 import br.com.rtools.financeiro.db.MovimentoDB;
 import br.com.rtools.financeiro.db.MovimentoDBToplink;
 import br.com.rtools.financeiro.db.ServicosDB;
@@ -189,12 +189,10 @@ public class WebContabilidadeBean extends MovimentoValorBean {
                 GenericaMensagem.warn("Atenção", "Selecione uma empresa para gerar Boletos!");
                 return;
             }
-
+            Dao dao = new Dao();
             MensagemConvencao mc = new MensagemConvencao();
             MensagemConvencaoDB menDB = new MensagemConvencaoDBToplink();
-            ServicosDB dbSer = new ServicosDBToplink();
             TipoServicoDB dbTipo = new TipoServicoDBToplink();
-            FTipoDocumentoDB dbFTipoDocumento = new FTipoDocumentoDBToplink();
 
             ContaCobrancaDB ctaCobraDB = new ContaCobrancaDBToplink();
             ContaCobranca contaCob = new ContaCobranca();
@@ -273,7 +271,7 @@ public class WebContabilidadeBean extends MovimentoValorBean {
                                 "",
                                 strVencimento,
                                 0,
-                                0, 0, 0, 0, 0, 0, dbFTipoDocumento.pesquisaCodigo(2), 0, null);
+                                0, 0, 0, 0, 0, 0, (FTipoDocumento) dao.find(new FTipoDocumento(), 2), 0, null);
 
                         GerarMovimento.salvarUmMovimento(new Lote(), movi);
                     } else {

@@ -1,5 +1,7 @@
 package br.com.rtools.pessoa.beans;
 
+import br.com.rtools.pessoa.dao.TipoEnderecoDao;
+import br.com.rtools.pessoa.dao.TipoDocumentoDao;
 import br.com.rtools.arrecadacao.dao.OposicaoDao;
 import br.com.rtools.arrecadacao.*;
 import br.com.rtools.arrecadacao.beans.OposicaoBean;
@@ -712,7 +714,7 @@ public class JuridicaBean implements Serializable {
     public String salvar() {
         SalvarAcumuladoDB dbSalvar = new SalvarAcumuladoDBToplink();
         JuridicaDB db = new JuridicaDBToplink();
-        TipoDocumentoDB dbDoc = new TipoDocumentoDBToplink();
+        TipoDocumentoDao dbDoc = new TipoDocumentoDao();
         Pessoa pessoa = getJuridica().getPessoa();
         List listDocumento;
         if (listaEnd.isEmpty() || pessoa.getId() == -1) {
@@ -1225,7 +1227,7 @@ public class JuridicaBean implements Serializable {
 //   }
     public String adicionarEnderecos() {
         // List tiposE = new ArrayList();
-        TipoEnderecoDB db_tipoEndereco = new TipoEnderecoDBToplink();
+        TipoEnderecoDao db_tipoEndereco = new TipoEnderecoDao();
         PessoaEnderecoDao db_pesEnd = new PessoaEnderecoDao();
         endereco = new Endereco();
         String num;
@@ -1544,7 +1546,7 @@ public class JuridicaBean implements Serializable {
     public List<String> BuscaTipoEndereco(Object event) {
         //List<String> result = new Vector<String>();
         String txtDigitado = event.toString().toLowerCase().toUpperCase();
-        TipoEnderecoDB db = new TipoEnderecoDBToplink();
+        TipoEnderecoDao db = new TipoEnderecoDao();
         List<String> result = db.pesquisaTipoEnderecoParaJuridica('%' + txtDigitado + '%');
         return (result);
     }
@@ -1552,7 +1554,7 @@ public class JuridicaBean implements Serializable {
     public List<String> BuscaTipoDocumento(Object event) {
         //List<String> result = new Vector<String>();
         String txtDigitado = event.toString().toLowerCase().toUpperCase();
-        TipoDocumentoDB db = new TipoDocumentoDBToplink();
+        TipoDocumentoDao db = new TipoDocumentoDao();
         List<String> result = db.pesquisaTipoDocumento('%' + txtDigitado + '%');
         return (result);
     }

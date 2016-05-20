@@ -3,8 +3,7 @@ package br.com.rtools.atendimento.beans;
 import br.com.rtools.atendimento.AteMovimento;
 import br.com.rtools.atendimento.AteOperacao;
 import br.com.rtools.atendimento.AteStatus;
-import br.com.rtools.atendimento.db.AtendimentoDB;
-import br.com.rtools.atendimento.db.AtendimentoDBTopLink;
+import br.com.rtools.atendimento.dao.AtendimentoDao;
 import br.com.rtools.homologacao.OperacaoDepartamento;
 import br.com.rtools.homologacao.Senha;
 import br.com.rtools.homologacao.dao.OperacaoDao;
@@ -126,7 +125,7 @@ public class AtendimentoBean implements Serializable {
 
                 // SE NÃO ACHAR PESSOA FÍSICA, PESQUISAR EM SIS_PESSOA
                 if (listf.isEmpty()) {
-                    AtendimentoDB atendimentoDB = new AtendimentoDBTopLink();
+                    AtendimentoDao atendimentoDB = new AtendimentoDao();
                     SisPessoa spes = (SisPessoa) atendimentoDB.pessoaDocumento(sisPessoa.getDocumento());
                     
                     if (spes == null) {
@@ -172,7 +171,7 @@ public class AtendimentoBean implements Serializable {
 
                 // SE NÃO ACHAR PESSOA FÍSICA, PESQUISAR EM SIS_PESSOA
                 if (listf.isEmpty()) {
-                    AtendimentoDB atendimentoDB = new AtendimentoDBTopLink();
+                    AtendimentoDao atendimentoDB = new AtendimentoDao();
                     SisPessoa spes = (SisPessoa) atendimentoDB.pessoaDocumento(sisPessoa.getRg());
                     
                     if (spes == null) {
@@ -225,7 +224,7 @@ public class AtendimentoBean implements Serializable {
 //                    return;
 //                }
 //            }
-            AtendimentoDB atendimentoDB = new AtendimentoDBTopLink();
+            AtendimentoDao atendimentoDB = new AtendimentoDao();
             SisPessoa spes = (SisPessoa) atendimentoDB.pessoaDocumento(sisPessoaAtualiza.getDocumento());
             
             if (spes != null && spes.getId() != sisPessoaAtualiza.getId()) {
@@ -251,7 +250,7 @@ public class AtendimentoBean implements Serializable {
     }
     
     public String verSenha(AteMovimento atendimento) {
-        AtendimentoDB db = new AtendimentoDBTopLink();
+        AtendimentoDao db = new AtendimentoDao();
         Senha senha = db.pesquisaSenha(atendimento.getId());
         if (senha != null) {
             if (senha.getSenha() < 10) {
@@ -266,7 +265,7 @@ public class AtendimentoBean implements Serializable {
     
     public String imprimirSenha(AteMovimento atendimento) throws JRException {
         
-        AtendimentoDB db = new AtendimentoDBTopLink();
+        AtendimentoDao db = new AtendimentoDao();
         
         Senha senha = db.pesquisaSenha(atendimento.getId());
         
@@ -503,7 +502,7 @@ public class AtendimentoBean implements Serializable {
         Dao dao = new Dao();
         if (ateMovimento.getId() > 0) {
             AteMovimento ateMov = (AteMovimento) dao.find(new AteMovimento(), ateMovimento.getId());
-            AtendimentoDB db = new AtendimentoDBTopLink();
+            AtendimentoDao db = new AtendimentoDao();
             
             Senha senha = db.pesquisaSenha(ateMovimento.getId());
             
@@ -547,7 +546,7 @@ public class AtendimentoBean implements Serializable {
     }
     
     public String retornaOposicaoPessoa(String documento) {
-        AtendimentoDB atendimentoDB = new AtendimentoDBTopLink();
+        AtendimentoDao atendimentoDB = new AtendimentoDao();
         if (atendimentoDB.pessoaOposicao(documento)) {
             return "tblOposicaox";
         } else {
@@ -556,7 +555,7 @@ public class AtendimentoBean implements Serializable {
     }
     
     public void verificaPessoaOposicao() {
-        AtendimentoDB atendimentoDB = new AtendimentoDBTopLink();
+        AtendimentoDao atendimentoDB = new AtendimentoDao();
         if (atendimentoDB.pessoaOposicao(sisPessoa.getDocumento())) {
             RequestContext.getCurrentInstance().execute("PF('dlg_mensagem_oposicao').show();");
         }
@@ -618,7 +617,7 @@ public class AtendimentoBean implements Serializable {
 //                empresa = pe.getJuridica();
 //            }
 //        } else {
-//            AtendimentoDB atendimentoDB = new AtendimentoDBTopLink();
+//            AtendimentoDao atendimentoDB = new AtendimentoDao();
 //            SisPessoa atePessoaB = (SisPessoa) atendimentoDB.pessoaDocumento(valorPesquisa);
 //            //setMsgCPF("");
 //            if (ateMovimento == null || (atePessoaB == null || atePessoaB.getId() == -1)) {
@@ -717,7 +716,7 @@ public class AtendimentoBean implements Serializable {
     public List<AteMovimento> getListaAteMovimento() {
         if (!sisPessoa.getDocumento().equals("___.___.___-__")) {
             listaAteMovimento.clear();
-            AtendimentoDB db = new AtendimentoDBTopLink();
+            AtendimentoDao db = new AtendimentoDao();
             if (!sisPessoa.getDocumento().isEmpty()) {
                 listaAteMovimento = db.listaAteMovimentos(sisPessoa.getDocumento(), porPesquisa, filial.getId());
             } else {
@@ -843,7 +842,7 @@ public class AtendimentoBean implements Serializable {
             PermissaoUsuarioDao pud = new PermissaoUsuarioDao();
 //            Permissao permissao = db.pesquisaPermissao(4, 114, 4);
 
-//            AtendimentoDB db = new AtendimentoDBTopLink();
+//            AtendimentoDao db = new AtendimentoDao();
             // DEPARTAMENTO 8 - HOMOLOGAÇÃO ---
             List<PermissaoUsuario> result = pud.listaPermissaoUsuarioDepartamento(8);
             

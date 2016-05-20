@@ -1,13 +1,12 @@
-package br.com.rtools.pessoa.db;
+package br.com.rtools.pessoa.dao;
 
 import br.com.rtools.principal.DB;
 import java.util.List;
 import javax.persistence.Query;
 
-public class TipoDocumentoDBToplink extends DB implements TipoDocumentoDB {
+public class TipoDocumentoDao extends DB {
 
-    @Override
-    public List<String> pesquisaTipoDocumento(String des_tipo) {
+     public List<String> pesquisaTipoDocumento(String des_tipo) {
         List<String> result = null;
         try {
             Query qry = getEntityManager().createQuery("SELECT TIPO.descricao FROM TipoDocumento AS TIPO WHERE TIPO.descricao LIKE :texto");

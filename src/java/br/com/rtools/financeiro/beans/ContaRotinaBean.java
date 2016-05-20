@@ -2,8 +2,7 @@ package br.com.rtools.financeiro.beans;
 
 import br.com.rtools.financeiro.ContaRotina;
 import br.com.rtools.financeiro.Plano4;
-import br.com.rtools.financeiro.db.Plano4DB;
-import br.com.rtools.financeiro.db.Plano4DBToplink;
+import br.com.rtools.financeiro.dao.Plano4Dao;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -122,7 +121,7 @@ public class ContaRotinaBean implements Serializable {
 
     public List<SelectItem> getListaPlano4() {
         if (listaPlano4.isEmpty()){
-            Plano4DB db = new Plano4DBToplink();
+            Plano4Dao db = new Plano4Dao();
             
             List<Plano4> result = db.listaPlano4ContaRotina();
             
