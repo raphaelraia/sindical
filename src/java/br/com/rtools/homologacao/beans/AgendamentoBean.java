@@ -37,7 +37,7 @@ import br.com.rtools.sistema.ConfiguracaoDepartamento;
 import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.sistema.dao.ConfiguracaoDepartamentoDao;
 import br.com.rtools.utilitarios.*;
-import br.com.rtools.utilitarios.db.FunctionsDao;
+import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;

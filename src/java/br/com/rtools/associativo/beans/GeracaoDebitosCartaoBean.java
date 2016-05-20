@@ -27,7 +27,7 @@ import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.ImageConverter;
-import br.com.rtools.utilitarios.db.FunctionsDao;
+import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;

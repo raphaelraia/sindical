@@ -1,5 +1,6 @@
 package br.com.rtools.escola.beans;
 
+import br.com.rtools.utilitarios.dao.FunctionsDao;
 import br.com.rtools.associativo.DescontoSocial;
 import br.com.rtools.associativo.MatriculaSocios;
 import br.com.rtools.associativo.Midia;
@@ -40,7 +41,6 @@ import br.com.rtools.pessoa.PessoaComplemento;
 import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
-import br.com.rtools.pessoa.db.FilialDao;
 import br.com.rtools.pessoa.db.FisicaDB;
 import br.com.rtools.pessoa.db.FisicaDBToplink;
 import br.com.rtools.pessoa.db.JuridicaDB;
@@ -61,7 +61,6 @@ import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.seguranca.dao.FilialRotinaDao;
 import br.com.rtools.utilitarios.*;
-import br.com.rtools.utilitarios.db.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -1132,7 +1131,7 @@ public class MatriculaEscolaBean implements Serializable {
             matriculaEscola.setServicoPessoa(servicoPessoa);
             matriculaEscola.setEscStatus((EscStatus) dao.find(new EscStatus(), 1));
             MatriculaEscolaDao med = new MatriculaEscolaDao();
-            FunctionsDB functionsDB = new FunctionsDao();
+            FunctionsDao functionsDB = new FunctionsDao();
             int idNumeroVagas = functionsDB.vagasEscolaTurma(matriculaTurma.getTurma().getId());
             if (idNumeroVagas == 0 && !tipoMatricula.equals("Individual")) {
                 matriculaEscola.setId(-1);
@@ -2957,7 +2956,7 @@ public class MatriculaEscolaBean implements Serializable {
     }
 
     public Juridica getEmpresa() {
-        FunctionsDB functionsDB = new FunctionsDao();
+        FunctionsDao functionsDB = new FunctionsDao();
         int titular = functionsDB.responsavel(servicoPessoa.getCobranca().getId(), true);
         if (titular > 0) {
             JuridicaDB juridicaDB = new JuridicaDBToplink();
@@ -2984,7 +2983,7 @@ public class MatriculaEscolaBean implements Serializable {
 
     public int getVagasDisponiveis() {
         if (turma.getId() != -1) {
-            FunctionsDB functionsDB = new FunctionsDao();
+            FunctionsDao functionsDB = new FunctionsDao();
             setVagasDisponiveis(functionsDB.vagasEscolaTurma(turma.getId()));
         }
         return vagasDisponiveis;
@@ -3022,7 +3021,7 @@ public class MatriculaEscolaBean implements Serializable {
 
     public int getIdadeAluno() {
         if (servicoPessoa.getPessoa().getId() != -1) {
-            FunctionsDB fdb = new FunctionsDao();
+            FunctionsDao fdb = new FunctionsDao();
             idadeAluno = fdb.idade("dt_nascimento", "current_date", servicoPessoa.getPessoa().getId());
         }
         return idadeAluno;

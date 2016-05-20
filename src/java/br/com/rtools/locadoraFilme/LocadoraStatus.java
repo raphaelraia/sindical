@@ -3,7 +3,7 @@ package br.com.rtools.locadoraFilme;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.sistema.Semana;
 import br.com.rtools.utilitarios.DataHoje;
-import br.com.rtools.utilitarios.db.FunctionsDao;
+import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Column;

@@ -13,7 +13,7 @@ import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.SalvarAcumuladoDB;
 import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
-import br.com.rtools.utilitarios.db.FunctionsDao;
+import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;

@@ -13,7 +13,7 @@ import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
-import br.com.rtools.utilitarios.db.FunctionsDao;
+import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;

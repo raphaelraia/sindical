@@ -54,8 +54,7 @@ import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.PF;
-import br.com.rtools.utilitarios.db.FunctionsDB;
-import br.com.rtools.utilitarios.db.FunctionsDao;
+import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -1515,7 +1514,7 @@ public class MovimentosReceberSocialBean implements Serializable {
 
             FisicaDB dbf = new FisicaDBToplink();
             JuridicaDB dbj = new JuridicaDBToplink();
-            FunctionsDB dbfunc = new FunctionsDao();
+            FunctionsDao dbfunc = new FunctionsDao();
             PessoaComplementoDao pcd = new PessoaComplementoDao();
             List<Pessoa> listaPessoaQry = new ArrayList();
             for (Pessoa pe : listaPessoa) {

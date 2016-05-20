@@ -1,4 +1,4 @@
-package br.com.rtools.utilitarios.db;
+package br.com.rtools.utilitarios.dao;
 
 import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.db.SociosDBToplink;
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Vector;
 import javax.persistence.Query;
 
-public class FunctionsDao extends DB implements FunctionsDB {
+public class FunctionsDao extends DB {
 
     /**
      * Trazer o responsável
@@ -22,7 +22,6 @@ public class FunctionsDao extends DB implements FunctionsDB {
      * @param decontoFolha
      * @return
      */
-    @Override
     public int responsavel(int idPessoa, boolean decontoFolha) {
         Integer idResponsavel = -1;
         try {
@@ -51,7 +50,6 @@ public class FunctionsDao extends DB implements FunctionsDB {
      * @param id_categoria
      * @return float valor
      */
-    @Override
     public float valorServico(int idPessoa, int idServico, Date date, int tipo, Integer id_categoria) {
         String dataString = DataHoje.converteData(date);
         String queryString = "SELECT func_valor_servico(" + idPessoa + ", " + idServico + ", '" + dataString + "', " + tipo + ", " + id_categoria + ") ";
@@ -69,7 +67,6 @@ public class FunctionsDao extends DB implements FunctionsDB {
         return 0;
     }
 
-    @Override
     public float valorServicoCheio(int idPessoa, int idServico, Date date) {
         String dataString = DataHoje.converteData(date);
         String queryString = "SELECT func_valor_servico_cheio(" + idPessoa + ", " + idServico + ", '" + dataString + "') ";
@@ -129,7 +126,6 @@ public class FunctionsDao extends DB implements FunctionsDB {
      * @param idPessoa
      * @return
      */
-    @Override
     public int idade(String campoData, String dataString, int idPessoa) {
         int idade = 0;
         try {
@@ -150,7 +146,6 @@ public class FunctionsDao extends DB implements FunctionsDB {
      * @param script --> Nome da linha de comando
      * @return
      */
-    @Override
     public String scriptSimples(String script) {
         String retorno = "";
         try {
@@ -171,7 +166,6 @@ public class FunctionsDao extends DB implements FunctionsDB {
      * @param turma ID da turma
      * @return int
      */
-    @Override
     public int vagasEscolaTurma(int turma) {
         int vagas = 0;
         try {
@@ -186,7 +180,6 @@ public class FunctionsDao extends DB implements FunctionsDB {
         return vagas;
     }
 
-    @Override
     public boolean demissionaSocios(int id_grupo_cidade, int nr_quantidade_dias) {
         try {
             Query query = getEntityManager().createNativeQuery(
@@ -202,7 +195,6 @@ public class FunctionsDao extends DB implements FunctionsDB {
         return true;
     }
 
-    @Override
     public boolean incluiPessoaComplemento() {
         try {
             Query query = getEntityManager().createNativeQuery(
@@ -219,7 +211,6 @@ public class FunctionsDao extends DB implements FunctionsDB {
         return true;
     }
 
-    @Override
     public Pessoa titularDaPessoa(int id_pessoa) {
         try {
             Query query = getEntityManager().createNativeQuery("SELECT func_titular_da_pessoa(" + id_pessoa + ");");
@@ -333,7 +324,6 @@ public class FunctionsDao extends DB implements FunctionsDB {
         return false;
     }
 
-    @Override
     public Boolean homologacaoPrazo(Boolean trabalhado, Integer id_cidade, String data_demissao, Integer convencao_id) {
         try {
             Query query = getEntityManager().createNativeQuery(

@@ -6,7 +6,7 @@ import br.com.rtools.pessoa.Filial;
 import br.com.rtools.seguranca.Departamento;
 import br.com.rtools.sistema.Periodo;
 import br.com.rtools.utilitarios.Moeda;
-import br.com.rtools.utilitarios.db.FunctionsDao;
+import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.util.Date;
 import javax.persistence.*;
 
