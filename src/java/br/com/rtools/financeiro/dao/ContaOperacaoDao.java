@@ -128,7 +128,7 @@ public class ContaOperacaoDao extends DB {
 
     public List findByContaOperacao(Integer filial_id, Integer operacao_id, Integer plano4_id) {
         try {
-            Query query = getEntityManager().createQuery("SELECT CO FROM ContaOperacao CO WHERE CO.operacao.id = :operacao_id AND CO.filial.id = :filial_id AND CO.plano5.plano4.id = :plano4_id");
+            Query query = getEntityManager().createQuery("SELECT CO FROM ContaOperacao CO WHERE CO.operacao.id = :operacao_id AND CO.filial.id = :filial_id AND CO.plano5.plano4.id = :plano4_id ORDER BY CO.plano5.conta ASC");
             query.setParameter("operacao_id", operacao_id);
             query.setParameter("filial_id", filial_id);
             query.setParameter("plano4_id", plano4_id);

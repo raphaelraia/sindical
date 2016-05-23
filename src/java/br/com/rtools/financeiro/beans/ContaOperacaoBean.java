@@ -2,6 +2,7 @@ package br.com.rtools.financeiro.beans;
 
 import br.com.rtools.financeiro.CentroCusto;
 import br.com.rtools.financeiro.ContaOperacao;
+import br.com.rtools.financeiro.ContaTipo;
 import br.com.rtools.financeiro.Operacao;
 import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.dao.CentroCustoDao;
@@ -35,11 +36,15 @@ public class ContaOperacaoBean implements Serializable {
     private Boolean contaFixa;
     private Boolean selectedAll;
     /**
-     * [0] Operação | [1] Centro de Custo | [2] Filial
-     * | [3] Plano de Contas 5 - Agrupado | [4] Centro de Custo (Edit) 
+     * [0] Operação | [1] Centro de Custo | [2] Filial | [3] Plano de Contas 5 -
+     * Agrupado | [4] Centro de Custo (Edit)
      */
     private List<SelectItem>[] listSelectItem;
     private Integer[] index;
+    private Plano5 plano5;
+    private Boolean visiblePlano5;
+    private List<SelectItem> listContaTipo;
+    private Integer idContaTipo;
 
     @PostConstruct
     public void init() {
@@ -57,7 +62,11 @@ public class ContaOperacaoBean implements Serializable {
         index = new Integer[]{0, 0, 0, 0, 0};
         es = "E";
         contaFixa = false;
+        plano5 = null;
         selectedAll = false;
+        visiblePlano5 = false;
+        listContaTipo = new ArrayList();
+        idContaTipo = 0;
     }
 
     @PreDestroy
@@ -140,6 +149,37 @@ public class ContaOperacaoBean implements Serializable {
         PF.update("form_co:i_panel_co");
     }
 
+    public void editPlano5(Plano5 p) {
+        plano5 = p;
+        visiblePlano5 = true;
+        loadContaTipo();
+        if (p.getContaTipo() == null) {
+            idContaTipo = -1;
+        } else {
+            idContaTipo = p.getContaTipo().getId();
+        }
+    }
+
+    public void closePlano5() {
+        plano5 = null;
+        idContaTipo = 0;
+        listContaTipo = new ArrayList();
+        visiblePlano5 = false;
+    }
+
+    public void updatePlano5() {
+        if (idContaTipo == -1) {
+            plano5.setContaTipo(null);
+        } else {
+            plano5.setContaTipo((ContaTipo) new Dao().find(new ContaTipo(), idContaTipo));
+        }
+        if (new Dao().update(plano5, true)) {
+            GenericaMensagem.info("Sucesso", "Registro atualizado");
+        } else {
+            GenericaMensagem.warn("Erro", "Ao atualizar registro!");
+        }
+    }
+
     public void save() {
         Dao dao = new Dao();
         NovoLog novoLog = new NovoLog();
@@ -151,12 +191,10 @@ public class ContaOperacaoBean implements Serializable {
         contaOperacao.setFilial((Filial) dao.find(new Filial(), Integer.parseInt(getListFilial().get(index[2]).getDescription())));
         if (getListCentroCusto().isEmpty()) {
             contaOperacao.setCentroCusto(null);
+        } else if (contaOperacao.getId() == -1) {
+            contaOperacao.setCentroCusto((CentroCusto) dao.find(new CentroCusto(), Integer.parseInt(getListCentroCusto().get(index[1]).getDescription())));
         } else {
-            if(contaOperacao.getId() == -1) {
-                contaOperacao.setCentroCusto((CentroCusto) dao.find(new CentroCusto(), Integer.parseInt(getListCentroCusto().get(index[1]).getDescription())));
-            } else {
-                contaOperacao.setCentroCusto((CentroCusto) dao.find(new CentroCusto(), Integer.parseInt(getListCentroCusto().get(index[4]).getDescription())));
-            }
+            contaOperacao.setCentroCusto((CentroCusto) dao.find(new CentroCusto(), Integer.parseInt(getListCentroCusto().get(index[4]).getDescription())));
         }
         dao.openTransaction();
         if (contaOperacao.getId() == -1) {
@@ -235,9 +273,9 @@ public class ContaOperacaoBean implements Serializable {
         getListCentroCusto().clear();
         index[4] = 0;
         contaOperacao = co;
-        if(co.getCentroCusto() != null) {
-            for(int i = 0; i < getListCentroCusto().size(); i++) {
-                if(Integer.parseInt(getListCentroCusto().get(i).getDescription()) == co.getCentroCusto().getId()) {
+        if (co.getCentroCusto() != null) {
+            for (int i = 0; i < getListCentroCusto().size(); i++) {
+                if (Integer.parseInt(getListCentroCusto().get(i).getDescription()) == co.getCentroCusto().getId()) {
                     index[4] = i;
                     break;
                 }
@@ -518,6 +556,48 @@ public class ContaOperacaoBean implements Serializable {
 
     public void setSelectedAll(Boolean selectedAll) {
         this.selectedAll = selectedAll;
+    }
+
+    public Plano5 getPlano5() {
+        return plano5;
+    }
+
+    public void setPlano5(Plano5 plano5) {
+        this.plano5 = plano5;
+    }
+
+    public Boolean getVisiblePlano5() {
+        return visiblePlano5;
+    }
+
+    public void setVisiblePlano5(Boolean visiblePlano5) {
+        this.visiblePlano5 = visiblePlano5;
+    }
+
+    public void loadContaTipo() {
+        List<ContaTipo> list = new Dao().list(new ContaTipo(), true);
+        listContaTipo = new ArrayList();
+        idContaTipo = -1;
+        listContaTipo.add(new SelectItem(-1, "NENHUM TIPO"));
+        for (int i = 0; i < list.size(); i++) {
+            listContaTipo.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
+        }
+    }
+
+    public List<SelectItem> getListContaTipo() {
+        return listContaTipo;
+    }
+
+    public void setListContaTipo(List<SelectItem> listContaTipo) {
+        this.listContaTipo = listContaTipo;
+    }
+
+    public Integer getIdContaTipo() {
+        return idContaTipo;
+    }
+
+    public void setIdContaTipo(Integer idContaTipo) {
+        this.idContaTipo = idContaTipo;
     }
 
 }

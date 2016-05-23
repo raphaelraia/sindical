@@ -173,9 +173,9 @@ public class Plano5Dao extends DB  {
     
     public List<Plano5> find(Integer plano5_id, Integer tipo_id) {
         try {
-            String queryString = "SELECT CT FROM ContaTipoPlano5 CT WHERE CT.contaTipo.id = :tipo_id ";
+            String queryString = "SELECT P5 FROM Plano5 P5 WHERE P5.contaTipo.id = :tipo_id ";
             if (plano5_id != -1) {
-                queryString += " AND CT.plano5.id = :plano5_id ";
+                queryString += " AND P5.id = :plano5_id ";
             }
             Query query = getEntityManager().createQuery(queryString);
             query.setParameter("tipo_id", tipo_id);
@@ -187,5 +187,5 @@ public class Plano5Dao extends DB  {
         } catch (Exception e) {
             return new ArrayList();
         }
-    }    
+    }
 }

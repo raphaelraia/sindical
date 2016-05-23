@@ -1,23 +1,28 @@
 package br.com.rtools.financeiro;
 
+import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "fin_conta_tipo")
-@NamedQuery(name = "ContaTipo.pesquisaID", query = "select ct from ContaTipo ct where ct.id = :pid")
-public class ContaTipo implements java.io.Serializable {
+@NamedQueries({
+    @NamedQuery(name = "ContaTipo.pesquisaID", query = "SELECT CT FROM ContaTipo CT WHERE CT.id = :pid"),
+    @NamedQuery(name = "ContaTipo.findAll", query = "SELECT CT FROM ContaTipo CT ORDER BY CT.descricao")
+})
+public class ContaTipo implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
-    @Column(name = "ds_descricao", length = 50)
+    @Column(name = "ds_descricao", length = 50, unique = true, nullable = false)
     private String descricao;
 
     public ContaTipo() {

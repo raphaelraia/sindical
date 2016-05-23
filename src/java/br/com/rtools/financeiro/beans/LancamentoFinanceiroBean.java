@@ -8,10 +8,10 @@ import br.com.rtools.financeiro.dao.CentroCustoDao;
 import br.com.rtools.financeiro.dao.ContaOperacaoDao;
 import br.com.rtools.financeiro.dao.LoteDao;
 import br.com.rtools.financeiro.dao.PedidoDao;
+import br.com.rtools.financeiro.dao.Plano5Dao;
 import br.com.rtools.financeiro.db.FinanceiroDB;
 import br.com.rtools.financeiro.db.FinanceiroDBToplink;
-import br.com.rtools.financeiro.db.LancamentoFinanceiroDB;
-import br.com.rtools.financeiro.db.LancamentoFinanceiroDBToplink;
+import br.com.rtools.financeiro.dao.LancamentoFinanceiroDao;
 import br.com.rtools.financeiro.db.MovimentoDBToplink;
 import br.com.rtools.homologacao.dao.OperacaoDao;
 import br.com.rtools.movimento.GerarMovimento;
@@ -60,7 +60,7 @@ public class LancamentoFinanceiroBean implements Serializable {
     private Integer idOperacao;
     private Integer idContaOperacao;
     private Integer idCentroCusto;
-    private Integer idContaTipoPlano5;
+    private Integer idPlano5;
     private List<SelectItem> listaFilial;
     private List<SelectItem> listaTipoDocumento;
     private List<SelectItem> listaFTipo;
@@ -68,7 +68,7 @@ public class LancamentoFinanceiroBean implements Serializable {
     private List<SelectItem> listaOperacao;
     private List<SelectItem> listaContaOperacao;
     private List<SelectItem> listaCentroCusto;
-    private List<SelectItem> listaContaTipoPlano5;
+    private List<SelectItem> listaPlano5;
     private String descricao;
     private String mascara;
     private String es;
@@ -97,7 +97,7 @@ public class LancamentoFinanceiroBean implements Serializable {
     private Pessoa pessoa;
     private Operacao operacao;
     private Lote lote;
-    private ContaTipoPlano5 contaTipoPlano;
+    private Plano5 plano;
     private List<Usuario> listaUsuarioLancamento;
     private Usuario usuarioSelecionado;
     private Parcela parcela;
@@ -113,6 +113,7 @@ public class LancamentoFinanceiroBean implements Serializable {
     private String descontoUnitarioPedido;
     private List<Pedido> listaPedidos;
     private String valorTotal;
+    private Boolean produtos;
 
     @PostConstruct
     public void init() {
@@ -131,7 +132,7 @@ public class LancamentoFinanceiroBean implements Serializable {
         idOperacao = 0;
         idContaOperacao = 0;
         idCentroCusto = 0;
-        idContaTipoPlano5 = 0;
+        idPlano5 = 0;
         listaFilial = new ArrayList();
         listaTipoDocumento = new ArrayList();
         listaFTipo = new ArrayList();
@@ -139,7 +140,7 @@ public class LancamentoFinanceiroBean implements Serializable {
         listaOperacao = new ArrayList();
         listaContaOperacao = new ArrayList();
         listaCentroCusto = new ArrayList();
-        listaContaTipoPlano5 = new ArrayList();
+        listaPlano5 = new ArrayList();
         descricao = "";
         mascara = "";
         es = "E";
@@ -168,7 +169,7 @@ public class LancamentoFinanceiroBean implements Serializable {
         pessoa = new Pessoa();
         operacao = new Operacao();
         lote = new Lote();
-        contaTipoPlano = new ContaTipoPlano5();
+        plano = new Plano5();
         listaUsuarioLancamento = new ArrayList<>();
         usuarioSelecionado = new Usuario();
         parcela = new Parcela();
@@ -182,6 +183,7 @@ public class LancamentoFinanceiroBean implements Serializable {
         quantidadePedido = 1;
         pedido = new Pedido();
         modalPedido = false;
+        produtos = true;
         lote.setEmissao(DataHoje.data());
         loadListaFilial();
         loadListaTipoDocumento();
@@ -573,7 +575,12 @@ public class LancamentoFinanceiroBean implements Serializable {
         // OPERACAO
         loadListaContaOperacao();
         if (lote.getPlano5() != null) {
-            idContaOperacao = lote.getPlano5().getId();
+            for(int i = 0; i < listaContaOperacao.size(); i++) {
+                if(Integer.parseInt(listaContaOperacao.get(i).getDescription()) == lote.getPlano5().getId()) {
+                    idContaOperacao = Integer.parseInt(listaContaOperacao.get(i).getValue().toString());
+                    break;
+                }
+            }
         }
         // TIPO DOCUMENTO -- CNPJ -- CPF -- SEM DOCUMENTO
         idTipoDocumento = pessoa.getTipoDocumento().getId();
@@ -612,14 +619,19 @@ public class LancamentoFinanceiroBean implements Serializable {
             ));
         }
 
-        List<ContaTipoPlano5> select = new ContaTipoPlano5Dao().find(lote.getPlano5().getId(), 2);
+        List<Plano5> select = new Plano5Dao().find(lote.getPlano5().getId(), 2);
 
         if (!select.isEmpty()) {
-            contaTipoPlano = select.get(0);
+            plano = select.get(0);
             listaPedidos = new PedidoDao().findByLote(lote.getId());
         } else {
-            contaTipoPlano = new ContaTipoPlano5();
+            plano = new Plano5();
             listaPedidos.clear();
+        }
+        produtos = false;
+        if (!listaPedidos.isEmpty()) {
+            produtos = true;
+
         }
 
     }
@@ -715,7 +727,7 @@ public class LancamentoFinanceiroBean implements Serializable {
                         p.setReferencia(DataHoje.converteDataParaReferencia(movimento.getVencimento()));
                     }
                     movimento.setReferencia(p.getReferencia());
-                    List<ContaTipoPlano5> select = new ContaTipoPlano5Dao().find(movimento.getPlano5().getId(), 1);
+                    List<Plano5> select = new Plano5Dao().find(movimento.getPlano5().getId(), 1);
                     if (select.isEmpty()) {
                         movimento.setPlano5(lote.getPlano5());
                     }
@@ -811,7 +823,7 @@ public class LancamentoFinanceiroBean implements Serializable {
         FTipoDocumento td = (FTipoDocumento) dao.find(new FTipoDocumento(), idFTipoMovimento);
         Plano5 pl5 = null;
         if (chkImposto) {
-            pl5 = ((ContaTipoPlano5) dao.find(new ContaTipoPlano5(), idContaTipoPlano5)).getPlano5();
+            pl5 = ((Plano5) dao.find(new Plano5(), idPlano5));
         } else {
             pl5 = co.getPlano5();
         }
@@ -1051,7 +1063,7 @@ public class LancamentoFinanceiroBean implements Serializable {
             return;
         }
 
-        LancamentoFinanceiroDB db = new LancamentoFinanceiroDBToplink();
+        LancamentoFinanceiroDao db = new LancamentoFinanceiroDao();
         if (td.getDescricao().toLowerCase().equals("cnpj")) {
             Juridica juridica = db.pesquisaJuridica(descricao);
             if (juridica != null) {
@@ -1081,6 +1093,7 @@ public class LancamentoFinanceiroBean implements Serializable {
         LancamentoFinanceiroBean la = new LancamentoFinanceiroBean();
         la.load();
         la.setModalVisivel(true);
+        la.setProdutos(true);
         GenericaSessao.put("lancamentoFinanceiroBean", la);
     }
 
@@ -1104,10 +1117,12 @@ public class LancamentoFinanceiroBean implements Serializable {
             telaSalva = false;
             return;
         } else if (soma > Moeda.converteUS$(total)) {
-            GenericaMensagem.warn("Erro", "Valor das Parcelas é MAIOR que soma Total!");
-            modalVisivel = true;
-            telaSalva = false;
-            return;
+            if(lote.getId() == -1) {
+                GenericaMensagem.warn("Erro", "Valor das Parcelas é MAIOR que soma Total!");
+                modalVisivel = true;
+                telaSalva = false;
+                return;                
+            }
         }
 
         if (!telaSalva) {
@@ -1259,7 +1274,7 @@ public class LancamentoFinanceiroBean implements Serializable {
 
     public void loadListaTipoDocumento() {
         listaTipoDocumento = new ArrayList();
-        List<TipoDocumento> list = (new LancamentoFinanceiroDBToplink()).listaTipoDocumento();
+        List<TipoDocumento> list = (new LancamentoFinanceiroDao()).listaTipoDocumento();
         for (int i = 0; i < list.size(); i++) {
             if (i == 0) {
                 idTipoDocumento = list.get(i).getId();
@@ -1439,7 +1454,7 @@ public class LancamentoFinanceiroBean implements Serializable {
     }
 
     public String getTotal() {
-        if (contaTipoPlano.getId() != -1) {
+        if (plano.getId() != -1 && produtos) {
             return total = getValorTotal();
         } else {
             return total = Moeda.converteR$(total);
@@ -1659,7 +1674,7 @@ public class LancamentoFinanceiroBean implements Serializable {
 //            }
 //
 //            CentroCusto centroCusto = (CentroCusto) new Dao().find(new CentroCusto(), idCentroCusto);
-////            List<CentroCustoContabilSub> listaCentroContabil = (new LancamentoFinanceiroDBToplink()).listaTipoCentroCusto(centroCusto.getCentroCustoContabil().getId(), es);
+////            List<CentroCustoContabilSub> listaCentroContabil = (new LancamentoFinanceiroDao()).listaTipoCentroCusto(centroCusto.getCentroCustoContabil().getId(), es);
 ////            if (!listaCentroContabil.isEmpty()) {
 ////                for (int i = 0; i < listaCentroContabil.size(); i++) {
 ////                    listaTipoCentroCusto.add(new SelectItem(
@@ -1701,7 +1716,7 @@ public class LancamentoFinanceiroBean implements Serializable {
 
     public boolean isChkImposto() {
         if (chkImposto) {
-            listaContaTipoPlano5.clear();
+            listaPlano5.clear();
         }
         return chkImposto;
     }
@@ -1710,39 +1725,39 @@ public class LancamentoFinanceiroBean implements Serializable {
         this.chkImposto = chkImposto;
     }
 
-    public List<SelectItem> getListaContaTipoPlano5() {
-        if (listaContaTipoPlano5.isEmpty()) {
-            List<ContaTipoPlano5> list = new ContaTipoPlano5Dao().find(-1, 1);
+    public List<SelectItem> getListaPlano5() {
+        if (listaPlano5.isEmpty()) {
+            List<Plano5> list = new Plano5Dao().find(-1, 1);
             if (!list.isEmpty()) {
                 for (int i = 0; i < list.size(); i++) {
                     if (i == 0) {
-                        idContaTipoPlano5 = list.get(i).getId();
+                        idPlano5 = list.get(i).getId();
                     }
-                    listaContaTipoPlano5.add(
+                    listaPlano5.add(
                             new SelectItem(
                                     list.get(i).getId(),
-                                    list.get(i).getPlano5().getConta()
+                                    list.get(i).getConta()
                             )
                     );
                 }
             } else {
-                idContaTipoPlano5 = 0;
-                listaContaTipoPlano5.add(new SelectItem(0, "Nenhuma Conta Encontrada"));
+                idPlano5 = 0;
+                listaPlano5.add(new SelectItem(0, "Nenhuma Conta Encontrada"));
             }
         }
-        return listaContaTipoPlano5;
+        return listaPlano5;
     }
 
-    public void setListaContaTipoPlano5(List<SelectItem> listaContaTipoPlano5) {
-        this.listaContaTipoPlano5 = listaContaTipoPlano5;
+    public void setListaPlano5(List<SelectItem> listaContaTipoPlano5) {
+        this.listaPlano5 = listaContaTipoPlano5;
     }
 
-    public Integer getIdContaTipoPlano5() {
-        return idContaTipoPlano5;
+    public Integer getIdPlano5() {
+        return idPlano5;
     }
 
-    public void setIdContaTipoPlano5(Integer idContaTipoPlano5) {
-        this.idContaTipoPlano5 = idContaTipoPlano5;
+    public void setIdPlano5(Integer idPlano5) {
+        this.idPlano5 = idPlano5;
     }
 
     public String getStrConta() {
@@ -1750,9 +1765,9 @@ public class LancamentoFinanceiroBean implements Serializable {
             if (!listaContaOperacao.isEmpty() && !chkImposto) {
                 ContaOperacao co = (ContaOperacao) new Dao().find(new ContaOperacao(), idContaOperacao);
                 strConta = co.getPlano5().getConta();
-            } else if (!listaContaTipoPlano5.isEmpty() && chkImposto) {
-                ContaTipoPlano5 ctp = (ContaTipoPlano5) new Dao().find(new ContaTipoPlano5(), idContaTipoPlano5);
-                strConta = ctp.getPlano5().getConta();
+            } else if (!listaPlano5.isEmpty() && chkImposto) {
+                Plano5 p = (Plano5) new Dao().find(new Plano5(), idPlano5);
+                strConta = p.getConta();
             } else {
                 //strConta = "SEM CONTA SELECIONADA.";
                 strConta = "";
@@ -1783,25 +1798,25 @@ public class LancamentoFinanceiroBean implements Serializable {
         this.documentoMovimento = documentoMovimento;
     }
 
-    public ContaTipoPlano5 getContaTipoPlano() {
+    public Plano5 getPlano() {
         if (modalVisivel) {
             if (!listaContaOperacao.isEmpty()) {
                 ContaOperacao co = (ContaOperacao) new Dao().find(new ContaOperacao(), idContaOperacao);
                 if (co != null) {
-                    List<ContaTipoPlano5> select = new ContaTipoPlano5Dao().find(co.getPlano5().getId(), 2);
+                    List<Plano5> select = new Plano5Dao().find(co.getPlano5().getId(), 2);
                     if (!select.isEmpty()) {
-                        contaTipoPlano = select.get(0);
+                        plano = select.get(0);
                     } else {
-                        contaTipoPlano = new ContaTipoPlano5();
+                        plano = new Plano5();
                     }
                 }
             }
         }
-        return contaTipoPlano;
+        return plano;
     }
 
-    public void setContaTipoPlano(ContaTipoPlano5 contaTipoPlano) {
-        this.contaTipoPlano = contaTipoPlano;
+    public void setPlano(Plano5 plano) {
+        this.plano = plano;
     }
 
     public String getPorPesquisa() {
@@ -1949,6 +1964,14 @@ public class LancamentoFinanceiroBean implements Serializable {
 
     public void setHistorico(String historico) {
         this.historico = historico;
+    }
+
+    public Boolean getProdutos() {
+        return produtos;
+    }
+
+    public void setProdutos(Boolean produtos) {
+        this.produtos = produtos;
     }
 
     public class Parcela {

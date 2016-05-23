@@ -1281,7 +1281,7 @@ public class ExtratoTelaBean implements Serializable {
 
         List<Movimento> listaC = new ArrayList();
         MovimentoDB db = new MovimentoDBToplink();
-        Movimento movimento = new Movimento();
+        Dao dao = new Dao();
         if (bltSelecionados() != true) {
             msgConfirma = "Nenhum Boleto Selecionado!";
             GenericaMensagem.warn("Atenção", "Nenhum Boleto Selecionado!");
@@ -1296,10 +1296,10 @@ public class ExtratoTelaBean implements Serializable {
                     GenericaMensagem.warn("Atenção", "Somente um acordo pode ser selecionado!");
                     return null;
                 }
-                movimento = db.pesquisaCodigo((Integer) listaMovimentos.get(i).getArgumento1());
-                if (movimento.getAcordo() != null) {
-                    if (movimento.getAcordo().getId() != -1) {
-                        listaC.addAll(db.pesquisaAcordoParaExclusao(movimento.getAcordo().getId()));
+                Movimento m = (Movimento) dao.find(new Movimento(), (Integer) listaMovimentos.get(i).getArgumento1());
+                if (m != null && m.getAcordo() != null) {
+                    if (m.getAcordo().getId() != -1) {
+                        listaC.addAll(db.pesquisaAcordoParaExclusao(m.getAcordo().getId()));
                     }
                 } else {
                     msgConfirma = "Não existe acordo para este boleto!";

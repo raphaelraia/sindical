@@ -1,4 +1,4 @@
-package br.com.rtools.financeiro.db;
+package br.com.rtools.financeiro.dao;
 
 import br.com.rtools.financeiro.Indice;
 import br.com.rtools.financeiro.IndiceMensal;
@@ -7,61 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 
-public class IndiceMensalDBToplink extends DB implements IndiceMensalDB {
+public class IndiceMensalDao extends DB {
 
-    @Override
-    public boolean insert(IndiceMensal indiceMensal) {
-        try {
-            getEntityManager().getTransaction().begin();
-            getEntityManager().persist(indiceMensal);
-            getEntityManager().flush();
-            getEntityManager().getTransaction().commit();
-            return true;
-        } catch (Exception e) {
-            getEntityManager().getTransaction().rollback();
-            return false;
-        }
-    }
-
-    @Override
-    public boolean update(IndiceMensal indiceMensal) {
-        try {
-            getEntityManager().getTransaction().begin();
-            getEntityManager().merge(indiceMensal);
-            getEntityManager().flush();
-            getEntityManager().getTransaction().commit();
-            return true;
-        } catch (Exception e) {
-            getEntityManager().getTransaction().rollback();
-            return false;
-        }
-    }
-
-    @Override
-    public boolean delete(IndiceMensal indiceMensal) {
-        try {
-            getEntityManager().getTransaction().begin();
-            getEntityManager().remove(indiceMensal);
-            getEntityManager().flush();
-            getEntityManager().getTransaction().commit();
-            return true;
-        } catch (Exception e) {
-            getEntityManager().getTransaction().rollback();
-            return false;
-        }
-    }
-
-    @Override
-    public List pesquisaTodos() {
-        try {
-            Query qry = getEntityManager().createQuery("select im from IndiceMensal im");
-            return (qry.getResultList());
-        } catch (Exception e) {
-            return new ArrayList();
-        }
-    }
-
-    @Override
     public List pesquisaIndMensalExistente(int idIndice, int ano, int mes) {
         List result;
         Query qry = getEntityManager().createQuery("select im from IndiceMensal im "
@@ -76,7 +23,6 @@ public class IndiceMensalDBToplink extends DB implements IndiceMensalDB {
         }
     }
 
-    @Override
     public List pesquisaTodosIndices() {
         try {
             Query qry = getEntityManager().createQuery("select i from Indice i order by i.descricao");
@@ -86,7 +32,6 @@ public class IndiceMensalDBToplink extends DB implements IndiceMensalDB {
         }
     }
 
-    @Override
     public List pesquisaIndiceMensalPorIDIndice(int idIndice) {
         try {
             Query qry = getEntityManager().createQuery("select im from IndiceMensal im where im.indice.id = " + idIndice
@@ -97,7 +42,6 @@ public class IndiceMensalDBToplink extends DB implements IndiceMensalDB {
         }
     }
 
-    @Override
     public IndiceMensal pesquisaCodigo(int id) {
         IndiceMensal result = null;
         try {
@@ -109,7 +53,6 @@ public class IndiceMensalDBToplink extends DB implements IndiceMensalDB {
         return result;
     }
 
-    @Override
     public Indice pesquisaCodigoIndice(int id) {
         Indice result = null;
         try {

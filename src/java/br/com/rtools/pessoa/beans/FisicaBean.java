@@ -1261,6 +1261,9 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             ProfissaoDB db = new ProfissaoDBToplink();
             List<Profissao> lista = (List<Profissao>) db.pesquisaTodos();
             for (int i = 0; i < lista.size(); i++) {
+                if(lista.get(i).getId() == 0) {
+                    idProfissao = i;
+                }
                 listaProfissoes.add(new SelectItem(i, lista.get(i).getProfissao(), "" + lista.get(i).getId()));
             }
         }

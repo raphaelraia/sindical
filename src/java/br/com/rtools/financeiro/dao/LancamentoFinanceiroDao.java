@@ -1,4 +1,4 @@
-package br.com.rtools.financeiro.db;
+package br.com.rtools.financeiro.dao;
 
 import br.com.rtools.financeiro.CentroCusto;
 import br.com.rtools.financeiro.ChequePag;
@@ -12,9 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 
-public class LancamentoFinanceiroDBToplink extends DB implements LancamentoFinanceiroDB {
+public class LancamentoFinanceiroDao extends DB {
 
-    @Override
     public List<TipoDocumento> listaTipoDocumento() {
         try {
             Query qry = getEntityManager().createQuery(
@@ -26,11 +25,9 @@ public class LancamentoFinanceiroDBToplink extends DB implements LancamentoFinan
         } catch (Exception e) {
 
         }
-        return new ArrayList<TipoDocumento>();
+        return new ArrayList<>();
     }
 
-
-    @Override
     public Juridica pesquisaJuridica(String documento) {
         try {
             Query qry = getEntityManager().createQuery(
@@ -45,7 +42,6 @@ public class LancamentoFinanceiroDBToplink extends DB implements LancamentoFinan
         return null;
     }
 
-    @Override
     public Fisica pesquisaFisica(String documento) {
         try {
             Query qry = getEntityManager().createQuery(
@@ -60,7 +56,6 @@ public class LancamentoFinanceiroDBToplink extends DB implements LancamentoFinan
         return null;
     }
 
-    @Override
     public List<CentroCusto> listaCentroCusto(int id_filial) {
         try {
             Query qry = getEntityManager().createQuery(
@@ -72,10 +67,9 @@ public class LancamentoFinanceiroDBToplink extends DB implements LancamentoFinan
         } catch (Exception e) {
 
         }
-        return new ArrayList<CentroCusto>();
+        return new ArrayList<>();
     }
 
-    @Override
     public List<Plano5> listaComboPagamentoBaixa() {
         try {
             Query qry = getEntityManager().createQuery(
@@ -87,7 +81,6 @@ public class LancamentoFinanceiroDBToplink extends DB implements LancamentoFinan
         return new ArrayList();
     }
 
-    @Override
     public ChequePag pesquisaChequeConta(String numero, int id_plano) {
         try {
             Query qry = getEntityManager().createQuery(
@@ -98,8 +91,8 @@ public class LancamentoFinanceiroDBToplink extends DB implements LancamentoFinan
         }
         return null;
     }
-    
-//    @Override
+
+//   
 //    public List<ContaOperacao> listaContaOperacaoContabil(int id_centro_custo_contabil_sub) {
 //        try {
 //            Query qry = getEntityManager().createQuery(
@@ -113,5 +106,4 @@ public class LancamentoFinanceiroDBToplink extends DB implements LancamentoFinan
 //        }
 //        return new ArrayList<ContaOperacao>();
 //    }    
-
 }

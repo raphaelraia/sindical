@@ -19,8 +19,7 @@ import br.com.rtools.financeiro.TipoPagamento;
 import br.com.rtools.financeiro.dao.ContaRotinaDao;
 import br.com.rtools.financeiro.db.FinanceiroDB;
 import br.com.rtools.financeiro.db.FinanceiroDBToplink;
-import br.com.rtools.financeiro.db.LancamentoFinanceiroDB;
-import br.com.rtools.financeiro.db.LancamentoFinanceiroDBToplink;
+import br.com.rtools.financeiro.dao.LancamentoFinanceiroDao;
 import br.com.rtools.financeiro.db.MovimentoDB;
 import br.com.rtools.financeiro.db.MovimentoDBToplink;
 import br.com.rtools.financeiro.dao.Plano5Dao;
@@ -161,7 +160,7 @@ public class BaixaGeralBean implements Serializable {
     }
 
     public void alteraNumeroChequeConta() {
-        LancamentoFinanceiroDB db = new LancamentoFinanceiroDBToplink();
+        LancamentoFinanceiroDao db = new LancamentoFinanceiroDao();
         Plano5Dao dbx = new Plano5Dao();
         if (listaBancoSaida.size() == 1 && listaBancoSaida.get(0).getDescription().isEmpty()) {
             GenericaMensagem.error("Erro", "Nenhum Banco para Saida Encontrado");
