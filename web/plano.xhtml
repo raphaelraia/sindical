@@ -47,7 +47,7 @@
                                 <p:ajax event="page" global="false"/>
                                 <!-- PLANO 5 -->                                        
                                 <p:column styleClass="text-center" headerText="Plano 5" sortBy="#{listaPlanoContas.plano5.conta}" rendered="#{planoBean.visible[4]}">
-                                    <p:commandLink value="#{listaPlanoContas.plano5.numero} - #{listaPlanoContas.plano5.conta}" action="#{planoBean.edit(listaPlanoContas.plano5)}" update=":form_plano:" />
+                                    <p:commandLink value="#{listaPlanoContas.plano5.numero} - #{listaPlanoContas.plano5.conta} #{listaPlanoContas.plano5.contaTipo ne null ? '('.concat(listaPlanoContas.plano5.contaTipo.descricao).concat(')') : ''}" action="#{planoBean.edit(listaPlanoContas.plano5)}" update=":form_plano:" />
                                 </p:column>
                                 <!-- PLANO 4 -->
                                 <p:column styleClass="text-center" headerText="Plano 4" sortBy="#{listaPlanoContas.plano5.plano4.conta}" rendered="#{planoBean.visible[3]}">
@@ -159,6 +159,10 @@
                                 <p:inputText size="50" value="#{planoBean.plano5.acesso}" maxlength="200" title="Acesso" />
                                 <p:outputLabel value="Classificador: "  />
                                 <p:inputText size="50" value="#{planoBean.plano5.classificador}" maxlength="200" title="Conta" />
+                                <p:outputLabel value="Conta Tipo:"  />
+                                <p:selectOneMenu value="#{planoBean.idContaTipo}">
+                                    <f:selectItems value="#{planoBean.listContaTipo}" />
+                                </p:selectOneMenu>                                
                             </h:panelGrid>                                
                             <f:facet name="footer">
                                 <h:panelGrid columns="2">

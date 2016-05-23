@@ -158,7 +158,7 @@
                             </p:dialog>                            
 
                             <p:dialog id="i_dlg" widgetVar="i_dlg_novo" header="Lançamento" resizable="false" modal="true" width="950" height="500" minHeight="600" visible="#{lancamentoFinanceiroBean.modalVisivel}" responsive="true" draggable="false" closeOnEscape="true" maximizable="true">
-                                <p:ajax event="close" listener="#{lancamentoFinanceiroBean.fechaModal()}" update="form_lf"/>  
+                                <p:ajax event="close" listener="#{lancamentoFinanceiroBean.fechaModal()}" update=":form_lf:"/>  
                                 <h:panelGroup layout="block" id="i_validations">
                                     <h:outputText value="#{genericaMensagem.getHtmlMessage('error', 'CADATRAR CONTAS')}" escape="false" rendered="#{lancamentoFinanceiroBean.idContaOperacao eq 0}" />
                                 </h:panelGroup>
@@ -177,10 +177,10 @@
                                             <h:panelGrid>
                                                 <h:outputText value="Perfil" />
                                                 <p:selectOneMenu value="#{lancamentoFinanceiroBean.es}" style="width: 70px">
-                                                    <p:ajax event="change" update="i_tipo i_grupo i_para_conta i_valor i_msg i_validations i_actions" listener="#{lancamentoFinanceiroBean.atualizaComboES()}" global="false"/>
+                                                    <p:ajax event="change" update="i_tipo i_grupo i_para_conta i_valor i_msg i_validations i_actions i_chk_produtos" listener="#{lancamentoFinanceiroBean.atualizaComboES()}" global="false"/>
                                                     <f:selectItem itemValue="E" itemLabel="Entrada"/>
                                                     <f:selectItem itemValue="S" itemLabel="Saida"/>
-                                                </p:selectOneMenu>                                                
+                                                </p:selectOneMenu>           
                                             </h:panelGrid>
                                         </h:column>
 
@@ -252,7 +252,7 @@
                                             <h:panelGrid>
                                                 <h:outputText value="Operação" styleClass="font-color-red bold" />
                                                 <p:selectOneMenu value="#{lancamentoFinanceiroBean.idOperacao}">
-                                                    <p:ajax event="change" update="i_grupo i_para_conta i_valor i_validations i_actions" listener="#{lancamentoFinanceiroBean.atualizaComboOperacao()}" global="false"/>
+                                                    <p:ajax event="change" update="i_grupo i_para_conta i_valor i_validations i_actions i_chk_produtos" listener="#{lancamentoFinanceiroBean.atualizaComboOperacao()}" global="false"/>
                                                     <f:selectItems value="#{lancamentoFinanceiroBean.listaOperacao}"/>
                                                 </p:selectOneMenu>
                                             </h:panelGrid>
@@ -260,12 +260,12 @@
 
                                         <p:column>
                                             <h:panelGroup layout="block" id="i_grupo">
-                                                <h:panelGrid columns="2">
+                                                <h:panelGrid columns="3">
                                                     <h:column>
                                                         <h:panelGrid>
                                                             <h:outputText value="Centro Custo" styleClass="font-color-red bold"/>
                                                             <p:selectOneMenu value="#{lancamentoFinanceiroBean.idCentroCusto}"  disabled="#{lancamentoFinanceiroBean.idCentroCusto eq 0}">
-                                                                <p:ajax event="change" update="i_grupo i_para_conta i_valor i_validations i_actions" listener="#{lancamentoFinanceiroBean.atualizaComboCentroCusto()}"/>
+                                                                <p:ajax event="change" update="i_grupo i_para_conta i_valor i_validations i_actions i_chk_produtos" listener="#{lancamentoFinanceiroBean.atualizaComboCentroCusto()}"/>
                                                                 <f:selectItems value="#{lancamentoFinanceiroBean.listaCentroCusto}"/>
                                                             </p:selectOneMenu>
                                                         </h:panelGrid>
@@ -274,10 +274,17 @@
                                                         <h:panelGrid>
                                                             <h:outputText value="Conta" styleClass="font-color-red bold"/>
                                                             <p:selectOneMenu value="#{lancamentoFinanceiroBean.idContaOperacao}" disabled="#{lancamentoFinanceiroBean.idContaOperacao eq 0}">
-                                                                <p:ajax event="change" update="@this i_para_conta i_valor" />
+                                                                <p:ajax event="change" update="@this i_para_conta i_valor i_chk_produtos" />
                                                                 <f:selectItems value="#{lancamentoFinanceiroBean.listaContaOperacao}"/>
                                                             </p:selectOneMenu>
                                                         </h:panelGrid>
+                                                    </h:column>
+                                                    <h:column>
+                                                        <h:panelGroup id="i_chk_produtos" layout="block">
+                                                            <p:selectBooleanCheckbox value="#{lancamentoFinanceiroBean.produtos}" rendered="#{lancamentoFinanceiroBean.plano.id != -1}" itemLabel="Produto">
+                                                                <p:ajax event="change" update="@this i_valor" />
+                                                            </p:selectBooleanCheckbox>
+                                                        </h:panelGroup>
                                                     </h:column>
                                                 </h:panelGrid>
                                             </h:panelGroup>
@@ -365,7 +372,7 @@
                                             <h:outputLabel value="#{lancamentoFinanceiroBean.strConta}" style="font-weight: bold"/>
 
                                             <p:selectBooleanCheckbox value="#{lancamentoFinanceiroBean.chkImposto}" itemLabel="Imposto" onchange="">
-                                                <p:ajax event="change" update="i_dlg_conta i_para_conta" onsuccess="PF('i_dlg_conta').show()" listener="#{lancamentoFinanceiroBean.listaContaTipoPlano5.clear()}"/>
+                                                <p:ajax event="change" update="i_dlg_conta i_para_conta" onsuccess="PF('i_dlg_conta').show()" listener="#{lancamentoFinanceiroBean.listaPlano5.clear()}"/>
                                             </p:selectBooleanCheckbox>
                                         </h:panelGrid>
                                     </f:facet>
@@ -374,13 +381,16 @@
                                             <h:panelGrid>
                                                 <h:outputText value="Total" style="font-weight: bold"/>
                                                 <h:column>
-                                                    <h:column rendered="#{lancamentoFinanceiroBean.contaTipoPlano.id == -1}">
+                                                    <h:column rendered="#{lancamentoFinanceiroBean.plano.id == -1}">
                                                         <p:inputText value="#{lancamentoFinanceiroBean.total}" size="8" style="text-align: right" converter="#{toCurrency}">
                                                             <p:ajax event="change" update="@this" global="false"/>
                                                         </p:inputText>
                                                     </h:column>
-                                                    <h:column rendered="#{lancamentoFinanceiroBean.contaTipoPlano.id != -1}">
-                                                        <p:commandButton value="R$ #{lancamentoFinanceiroBean.total}" action="#{lancamentoFinanceiroBean.openModalPedido()}" oncomplete="PF('dlg_pedido').show();" style="font-weight: bold" update=":form_lf:dlg_pedido"/>
+                                                    <h:column rendered="#{lancamentoFinanceiroBean.plano.id != -1}">
+                                                        <p:inputText value="#{lancamentoFinanceiroBean.total}" size="8" style="text-align: right" converter="#{toCurrency}" rendered="#{!lancamentoFinanceiroBean.produtos}">
+                                                            <p:ajax event="change" update="@this" global="false"/>
+                                                        </p:inputText>                                                        
+                                                        <p:commandButton value="R$ #{lancamentoFinanceiroBean.total}" action="#{lancamentoFinanceiroBean.openModalPedido()}" oncomplete="PF('dlg_pedido').show();" style="font-weight: bold" update=":form_lf:dlg_pedido" rendered="#{lancamentoFinanceiroBean.produtos}"/>
                                                     </h:column>
                                                 </h:column>
                                             </h:panelGrid>
@@ -543,7 +553,7 @@
                                         <p:commandButton ajax="false" value="Baixar" action="#{lancamentoFinanceiroBean.telaBaixa()}" update="tbl_p" rendered="#{lancamentoFinanceiroBean.lote.id != -1}" title="Baixar este Lançamento" />
                                         <p:commandButton value="Estornar" onclick="PF('i_dlg_estornar').show()" rendered="#{lancamentoFinanceiroBean.lote.id != -1}" title="Estornar este Lançamento" />
                                         <p:commandButton value="Excluir este Lançamento" onclick="PF('i_dlg_ex_lancamento').show()" rendered="#{lancamentoFinanceiroBean.lote.id != -1}" title="Excluir este Lançamento" />
-                                        <p:commandButton value="Fechar esta Janela" action="#{lancamentoFinanceiroBean.fechaModal()}" onclick="PF('i_dlg_novo').hide();"/>                                            
+                                        <p:commandButton value="Fechar esta Janela" action="#{lancamentoFinanceiroBean.fechaModal()}" onclick="PF('i_dlg_novo').hide();" update=":form_lf:"/>
                                     </h:panelGrid>
 
                                 </f:facet>
@@ -552,9 +562,9 @@
                             <p:dialog id="i_dlg_conta" widgetVar="i_dlg_conta" header="Conta Obrigação" modal="true" resizable="false" width="600" height="70" visible="#{lancamentoFinanceiroBean.chkImposto}" closable="false" draggable="false">
                                 <h:panelGrid>
                                     <h:outputText value="Conta" styleClass="bold"/>
-                                    <p:selectOneMenu value="#{lancamentoFinanceiroBean.idContaTipoPlano5}">
+                                    <p:selectOneMenu value="#{lancamentoFinanceiroBean.idPlano5}">
                                         <p:ajax event="change" update="@this" />
-                                        <f:selectItems value="#{lancamentoFinanceiroBean.listaContaTipoPlano5}"/>
+                                        <f:selectItems value="#{lancamentoFinanceiroBean.listaPlano5}"/>
                                     </p:selectOneMenu>                                                
                                 </h:panelGrid>
                                 <f:facet name="footer">
