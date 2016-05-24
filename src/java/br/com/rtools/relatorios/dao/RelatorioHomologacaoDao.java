@@ -261,6 +261,9 @@ public class RelatorioHomologacaoDao extends DB {
                     case "homologador":
                         queryString += " ORDER BY UO.ds_nome ";
                         break;
+                    case "emissao":
+                        queryString += " ORDER BY A.dt_emissao, PPE.ds_nome ";
+                        break;
                 }
             }
         } else {

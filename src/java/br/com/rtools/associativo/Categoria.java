@@ -12,9 +12,12 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "soc_categoria")
+@Table(name = "soc_categoria",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"id_grupo_categoria"})
+)
 @NamedQueries({
     @NamedQuery(name = "Categoria.pesquisaID", query = "SELECT C FROM Categoria AS C WHERE C.id=:pid"),
     @NamedQuery(name = "Categoria.findAll", query = "SELECT C FROM Categoria AS C ORDER BY C.grupoCategoria.grupoCategoria ASC, C.categoria ASC")
@@ -53,10 +56,12 @@ public class Categoria implements Serializable {
     private boolean usaClubeSabado;
     @Column(name = "usa_clube_domingo", nullable = true)
     private boolean usaClubeDomingo;
-    @Column(name = "is_cartao_titular", nullable = true, columnDefinition = "BOOLEAN DEFAULT TRUE")
+    @Column(name = "is_cartao_titular", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private boolean cartaoTitular;
-    @Column(name = "is_cartao_dependente", nullable = true, columnDefinition = "BOOLEAN DEFAULT TRUE")
+    @Column(name = "is_cartao_dependente", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private boolean cartaoDependente;
+    @Column(name = "is_bloqueia_meses", nullable = false, columnDefinition = "boolean default false")
+    private Boolean bloqueiaMeses;
 
     @Transient
     private Boolean selected;
@@ -78,12 +83,13 @@ public class Categoria implements Serializable {
         this.usaClubeDomingo = false;
         this.cartaoTitular = true;
         this.cartaoDependente = true;
+        this.bloqueiaMeses = false;
         this.selected = false;
     }
 
     public Categoria(Integer id, String categoria, GrupoCategoria grupoCategoria, Integer nrCarenciaBalcao, Integer nrCarenciaDescFolha,
             boolean empresaObrigatoria, boolean votante, boolean usaClubeSegunda, boolean usaClubeTerca, boolean usaClubeQuarta,
-            boolean usaClubeQuinta, boolean usaClubeSexta, boolean usaClubeSabado, boolean usaClubeDomingo, boolean cartaoTitular, boolean cartaoDependente) {
+            boolean usaClubeQuinta, boolean usaClubeSexta, boolean usaClubeSabado, boolean usaClubeDomingo, boolean cartaoTitular, boolean cartaoDependente, Boolean bloqueiaMeses) {
         this.id = id;
         this.categoria = categoria;
         this.grupoCategoria = grupoCategoria;
@@ -100,6 +106,7 @@ public class Categoria implements Serializable {
         this.usaClubeDomingo = usaClubeDomingo;
         this.cartaoTitular = cartaoTitular;
         this.cartaoDependente = cartaoDependente;
+        this.bloqueiaMeses = bloqueiaMeses;
         this.selected = false;
     }
 
@@ -261,6 +268,19 @@ public class Categoria implements Serializable {
 
     public void setSelected(Boolean selected) {
         this.selected = selected;
+    }
+
+    public Boolean getBloqueiaMeses() {
+        return bloqueiaMeses;
+    }
+
+    public void setBloqueiaMeses(Boolean bloqueiaMeses) {
+        this.bloqueiaMeses = bloqueiaMeses;
+    }
+
+    @Override
+    public String toString() {
+        return "Categoria{" + "id=" + id + ", categoria=" + categoria + ", grupoCategoria=" + grupoCategoria + ", nrCarenciaBalcao=" + nrCarenciaBalcao + ", nrCarenciaDescFolha=" + nrCarenciaDescFolha + ", empresaObrigatoria=" + empresaObrigatoria + ", votante=" + votante + ", usaClubeSegunda=" + usaClubeSegunda + ", usaClubeTerca=" + usaClubeTerca + ", usaClubeQuarta=" + usaClubeQuarta + ", usaClubeQuinta=" + usaClubeQuinta + ", usaClubeSexta=" + usaClubeSexta + ", usaClubeSabado=" + usaClubeSabado + ", usaClubeDomingo=" + usaClubeDomingo + ", cartaoTitular=" + cartaoTitular + ", cartaoDependente=" + cartaoDependente + ", bloqueiaMeses=" + bloqueiaMeses + ", selected=" + selected + '}';
     }
 
 }
