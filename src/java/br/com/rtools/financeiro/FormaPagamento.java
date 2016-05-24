@@ -14,32 +14,32 @@ public class FormaPagamento implements java.io.Serializable {
     @Column(name = "id")
     private int id;
     @JoinColumn(name = "id_baixa", referencedColumnName = "id")
-    @OneToOne
+    @ManyToOne
     private Baixa baixa;
     @JoinColumn(name = "id_cheque_rec", referencedColumnName = "id")
-    @OneToOne
+    @ManyToOne
     private ChequeRec chequeRec;
     @JoinColumn(name = "id_cheque_pag", referencedColumnName = "id")
-    @OneToOne
+    @ManyToOne
     private ChequePag chequePag;
     @Column(name = "nr_valorp", length = 10)
     private float valorP;
     @Column(name = "nr_valor", length = 10)
     private float valor;
     @JoinColumn(name = "id_filial", referencedColumnName = "id")
-    @OneToOne
+    @ManyToOne
     private Filial filial;
     @JoinColumn(name = "id_plano5", referencedColumnName = "id")
     @ManyToOne
     private Plano5 plano5;
     @JoinColumn(name = "id_cartao_pag", referencedColumnName = "id")
-    @OneToOne
+    @ManyToOne
     private CartaoPag cartaoPag;
     @JoinColumn(name = "id_cartao_rec", referencedColumnName = "id")
-    @OneToOne
+    @ManyToOne
     private CartaoRec cartaoRec;
     @JoinColumn(name = "id_tipo_pagamento", referencedColumnName = "id")
-    @OneToOne
+    @ManyToOne
     private TipoPagamento tipoPagamento;
     @Column(name = "nr_valor_liquido", length = 10)
     private float valorLiquido;
@@ -63,7 +63,7 @@ public class FormaPagamento implements java.io.Serializable {
         this.tipoPagamento = new TipoPagamento();
         this.valorLiquido = 0;
         this.dtCredito = null;
-        this.taxa = taxa;
+        this.taxa = 0;
     }
 
     public FormaPagamento(int id,

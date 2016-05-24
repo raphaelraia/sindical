@@ -5,7 +5,7 @@ import java.util.Date;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "fin_chque_pag")
+@Table(name = "fin_cheque_pag")
 @NamedQuery(name = "ChequePag.pesquisaID", query = "select cp from ChequePag cp where cp.id=:pid")
 public class ChequePag implements java.io.Serializable {
 
@@ -22,10 +22,10 @@ public class ChequePag implements java.io.Serializable {
     @Column(name = "dt_vencimento")
     private Date dtVencimento;
     @JoinColumn(name = "id_plano5", referencedColumnName = "id")
-    @OneToOne
+    @ManyToOne
     private Plano5 plano5;
     @JoinColumn(name = "id_status", referencedColumnName = "id")
-    @OneToOne
+    @ManyToOne
     private FStatus status;
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_cancelamento")

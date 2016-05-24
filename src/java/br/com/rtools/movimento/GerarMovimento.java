@@ -18,7 +18,6 @@ import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
-import br.com.rtools.utilitarios.PF;
 import br.com.rtools.utilitarios.SalvarAcumuladoDB;
 import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.util.ArrayList;
@@ -451,7 +450,7 @@ public class GerarMovimento extends DB {
         NovoLog log = new NovoLog();
 
         sv.abrirTransacao();
-        
+
         // ACORDO ----
         acordo.setUsuario((Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuario"));
         if (sv.inserirObjeto(acordo)) {
@@ -485,7 +484,7 @@ public class GerarMovimento extends DB {
                 lote.setEvt(null);
                 lote.setPlano5(null);
                 lote.setDocumento("");
-                
+
                 if (sv.inserirObjeto(lote)) {
                     log.save("Salvar Lote - ID: " + lote.getId() + " Pessoa: " + lote.getPessoa().getNome() + " Data: " + lote.getEmissao());
                 } else {
@@ -520,7 +519,7 @@ public class GerarMovimento extends DB {
                 return "Id do movimento deve ser -1";
             }
         }
-        
+
         // MOVIMENTO ACORDADOS ----
         for (int wi = 0; wi < listaAcordados.size(); wi++) {
             listaAcordados.get(wi).setAcordo(acordo);
@@ -531,7 +530,7 @@ public class GerarMovimento extends DB {
                 return "Erro ao salvar boletos acordados!";
             }
         }
-        
+
         sv.comitarTransacao();
         listaAcordados.clear();
         return "";
