@@ -22,10 +22,10 @@ public class ServicoPessoaBloqueio implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
-    @JoinColumn(name = "id_servico", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "id_mes", referencedColumnName = "id", nullable = false)
     @ManyToOne
     private Mes mes;
-    @JoinColumn(name = "id_servico", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "id_servico_pessoa", referencedColumnName = "id", nullable = false)
     @ManyToOne
     private ServicoPessoa servicoPessoa;
 

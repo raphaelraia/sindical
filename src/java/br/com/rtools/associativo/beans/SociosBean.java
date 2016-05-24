@@ -10,6 +10,8 @@ import br.com.rtools.associativo.lista.ListaDependentes;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.ServicoPessoa;
+import br.com.rtools.financeiro.ServicoPessoaBloqueio;
+import br.com.rtools.financeiro.dao.ServicoPessoaBloqueioDao;
 import br.com.rtools.financeiro.db.*;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Filial;
@@ -28,6 +30,7 @@ import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import static br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean.getCliente;
+import br.com.rtools.sistema.Mes;
 import br.com.rtools.utilitarios.*;
 import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.File;
@@ -112,8 +115,10 @@ public class SociosBean implements Serializable {
     private List<ListaDependentes> listDependentes;
     private List<ListaDependentes> listDependentesAtivos;
     private List<ListaDependentes> listDependentesInativos;
+    private Bloqueio bloqueio;
 
     public SociosBean() {
+        bloqueio = new Bloqueio();
         servicoPessoa = new ServicoPessoa();
         servicoCategoria = new ServicoCategoria();
         socios = new Socios();
@@ -437,6 +442,8 @@ public class SociosBean implements Serializable {
 
         atualizarListaDependenteAtivo();
         atualizarListaDependenteInativo();
+
+        loadBloqueio();
     }
 
     public final void loadGrupoCategoria() {
@@ -1128,6 +1135,7 @@ public class SociosBean implements Serializable {
         if (!validaSalvar()) {
             return null;
         }
+        Boolean save = false;
         Dao dao = new Dao();
         MatriculaSocios msMemoria = new MatriculaSocios();
         dao.openTransaction();
@@ -1153,6 +1161,8 @@ public class SociosBean implements Serializable {
                 return null;
             }
             matriculaSocios.setMotivoInativacao(null);
+            save = true;
+
         } else {
             // ATUALIZA REGISTRO -------------------
 
@@ -1175,33 +1185,41 @@ public class SociosBean implements Serializable {
 //        }
         MatriculaSociosDB dbMat = new MatriculaSociosDBToplink();
         ValidadeCartaoDao validadeCartaoDao = new ValidadeCartaoDao();
+
         matriculaSocios.setCategoria(servicoCategoria.getCategoria());
         matriculaSocios.setTitular(servicoPessoa.getPessoa());
-        if (matriculaSocios.getNrMatricula() <= 0) {
+        if (matriculaSocios.getNrMatricula()
+                <= 0) {
             // MATRICULA MENOR QUE ZERO 
             matriculaSocios.setNrMatricula(grupoCategoria.getNrProximaMatricula());
             grupoCategoria.setNrProximaMatricula(matriculaSocios.getNrMatricula() + 1);
 
-        } else if (matriculaSocios.getNrMatricula() > grupoCategoria.getNrProximaMatricula()) {
+        } else if (matriculaSocios.getNrMatricula()
+                > grupoCategoria.getNrProximaMatricula()) {
             // MATRICULA MAIOR QUE A PROXIMA DA CATEGORIA 
             matriculaSocios.setNrMatricula(grupoCategoria.getNrProximaMatricula());
             grupoCategoria.setNrProximaMatricula(matriculaSocios.getNrMatricula() + 1);
 
-        } else if (matriculaSocios.getNrMatricula() < grupoCategoria.getNrProximaMatricula()
+        } else if (matriculaSocios.getNrMatricula()
+                < grupoCategoria.getNrProximaMatricula()
                 && // MATRICULA MENOR QUE A PROXIMA DA CATEGORIA E NÃO EXISTIR UMA IGUAL 
                 dbMat.pesquisaPorNrMatricula(matriculaSocios.getNrMatricula(), servicoCategoria.getCategoria().getId()) != null) {
             matriculaSocios.setNrMatricula(grupoCategoria.getNrProximaMatricula());
             grupoCategoria.setNrProximaMatricula(matriculaSocios.getNrMatricula() + 1);
 
-        } else if (matriculaSocios.getNrMatricula() < grupoCategoria.getNrProximaMatricula()
+        } else if (matriculaSocios.getNrMatricula()
+                < grupoCategoria.getNrProximaMatricula()
                 && dbMat.pesquisaPorNrMatricula(matriculaSocios.getNrMatricula(), servicoCategoria.getCategoria().getId()) == null) {
             // MATRICULA MENOR QUE A PROXIMA DA CATEGORIA E NÃO EXISTIR
             //////////////////////////////////// NAO FAZ NADA
         }
-        if (matriculaSocios.getId() != -1) {
+        if (matriculaSocios.getId()
+                != -1) {
             msMemoria = (MatriculaSocios) dao.find(new MatriculaSocios(), matriculaSocios.getId());
         }
-        if (msMemoria.getNrMatricula() != matriculaSocios.getNrMatricula() || matriculaSocios.getNrMatricula() == 0) {
+
+        if (msMemoria.getNrMatricula()
+                != matriculaSocios.getNrMatricula() || matriculaSocios.getNrMatricula() == 0) {
             List list = dbMat.listaMatriculaPorGrupoNrMatricula(matriculaSocios.getCategoria().getGrupoCategoria().getId(), matriculaSocios.getNrMatricula());
             if (!list.isEmpty()) {
                 GenericaMensagem.error("Erro", "Matrícula já existe!");
@@ -1209,7 +1227,9 @@ public class SociosBean implements Serializable {
                 return null;
             }
         }
-        if (matriculaSocios.getId() == -1) {
+
+        if (matriculaSocios.getId()
+                == -1) {
             if (MacFilial.getAcessoFilial().getId() == -1) {
                 matriculaSocios.setFilial((Filial) new Dao().find(new Filial(), 1));
             } else {
@@ -1236,16 +1256,21 @@ public class SociosBean implements Serializable {
         }
 
         socios.setMatriculaSocios(matriculaSocios);
-        socios.setParentesco((Parentesco) dao.find(new Parentesco(), 1));
+
+        socios.setParentesco(
+                (Parentesco) dao.find(new Parentesco(), 1));
         socios.setServicoPessoa(servicoPessoa);
-        socios.setNrViaCarteirinha(1);
+
+        socios.setNrViaCarteirinha(
+                1);
 
         DataHoje dh = new DataHoje();
         SociosDB db = new SociosDBToplink();
         SocioCarteirinhaDB dbc = new SocioCarteirinhaDBToplink();
         ModeloCarteirinha modeloc = dbc.pesquisaModeloCarteirinha(Integer.valueOf(listaCategoria.get(idCategoria).getDescription()), 170);
 
-        if (modeloc == null) {
+        if (modeloc
+                == null) {
             GenericaMensagem.error("Erro", "Não existe modelo de carteirinha para esta categoria " + listaCategoria.get(idCategoria).getLabel() + " do sócio!");
             dao.rollback();
             return null;
@@ -1253,6 +1278,7 @@ public class SociosBean implements Serializable {
 
         List<SocioCarteirinha> list_carteirinha_socio = db.pesquisaCarteirinhasPorPessoa(socios.getServicoPessoa().getPessoa().getId(), modeloc.getId());
         // VERIFICA SE SÓCIO TEM CARTEIRINHA -- SE TIVER NÃO ADICIONAR --
+
         if (list_carteirinha_socio.isEmpty()) {
             //Date validadeCarteirinha = DataHoje.converte(dh.incrementarMeses(grupoCategoria.getNrValidadeMesCartao(), DataHoje.data()));
             ValidadeCartao vc = validadeCartaoDao.findByCategoriaParentesco(Integer.parseInt(listaCategoria.get(idCategoria).getDescription()), socios.getParentesco().getId());
@@ -1295,6 +1321,7 @@ public class SociosBean implements Serializable {
         // 0 = Save / 1 - Update
         Socios s;
         NovoLog novoLog = new NovoLog();
+
         novoLog.startList();
         String beforeUpdate = "";
         String saveString = "ID: " + socios.getId()
@@ -1303,7 +1330,9 @@ public class SociosBean implements Serializable {
                 + " - Categoria: " + socios.getMatriculaSocios().getCategoria().getCategoria()
                 + " - Filiação: " + socios.getMatriculaSocios().getEmissao()
                 + " - Serviço Pessoa (Desconto em folha: " + socios.getServicoPessoa().isDescontoFolha() + " - Dia de Vencimento: " + socios.getServicoPessoa().getNrDiaVencimento() + ") ";
-        if (socios.getId() == -1) {
+
+        if (socios.getId()
+                == -1) {
             novoLog.save(saveString);
             if (!dao.save(socios)) {
                 GenericaMensagem.error("Erro", "Erro ao Salvar Sócio!");
@@ -1580,9 +1609,28 @@ public class SociosBean implements Serializable {
 
         ((FisicaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("fisicaBean")).setSocios(socios);
         dao.commit();
+
         novoLog.saveList();
+
         atualizarListaDependenteAtivo();
+
         atualizarListaDependenteInativo();
+
+        if (socios.getMatriculaSocios().getCategoria().getBloqueiaMeses()) {
+            List<ServicoPessoaBloqueio> spbs = new ServicoPessoaBloqueioDao().findByServicoPessoa(socios.getServicoPessoa().getId()); 
+            if(spbs.isEmpty()) {
+                saveBloqueio();
+            }
+        } else if (!socios.getMatriculaSocios().getCategoria().getBloqueiaMeses()) {
+            List<ServicoPessoaBloqueio> spbs = new ServicoPessoaBloqueioDao().findByServicoPessoa(socios.getServicoPessoa().getId());
+            if(!spbs.isEmpty()) {
+                for (int i = 0; i < spbs.size(); i++) {
+                    new Dao().delete(spbs.get(i), true);
+                }
+                bloqueio = new Bloqueio();
+            }
+        }
+
         return null;
     }
 
@@ -2024,13 +2072,22 @@ public class SociosBean implements Serializable {
             RequestContext.getCurrentInstance().execute("i_dlg_c.show()");
             return null;
         }
-
+        List<ServicoPessoaBloqueio> spbs = new ServicoPessoaBloqueioDao().findByServicoPessoa(socios.getServicoPessoa().getId());
         //Dao dao = new Dao();
         SociosDB db = new SociosDBToplink();
 
         Dao di = new Dao();
         // DELETAR DEPENDENTES -----
         di.openTransaction();
+
+        for (int i = 0; i < spbs.size(); i++) {
+            if (!di.delete(spbs.get(i))) {
+                di.rollback();
+                GenericaMensagem.error("Erro", "Erro ao Excluir Serviço Pessoa Bloqueio!");
+                PF.openDialog("i_dlg_c");
+                return null;
+            }
+        }
 
         for (ListaDependentes ld : listDependentes) {
             Socios soc = db.pesquisaSocioPorPessoa(ld.getFisica().getPessoa().getId());
@@ -2147,6 +2204,7 @@ public class SociosBean implements Serializable {
         //fizx.setSocios(new Socios());
         ((FisicaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("fisicaBean")).setSocios(new Socios());
         //FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("socioPesquisa",socios);
+
         return "pessoaFisica";
     }
 
@@ -2738,12 +2796,14 @@ public class SociosBean implements Serializable {
             for (ListaDependentes ld : listDependentes) {
                 if (registro.isFotoCartao()) {
                     if (ld.getServicoPessoa().getPessoa().getFisica().getFoto() == null || ld.getServicoPessoa().getPessoa().getFisica().getFoto().isEmpty()) {
-                        dependentesSemFotos = true;
-                        break;
+                        if(!dependentesSemFotos) {
+                            dependentesSemFotos = true;
+                        }
+                        continue;
                     }
                 }
                 Socios socioDependente = db.pesquisaSocioPorPessoaAtivo(ld.getFisica().getPessoa().getId());
-                if(socioDependente.getMatriculaSocios().getCategoria().isCartaoDependente()) {
+                if (socioDependente.getMatriculaSocios().getCategoria().isCartaoDependente()) {
                     SocioCarteirinha sc = dbc.pesquisaCarteirinhaPessoa(socioDependente.getServicoPessoa().getPessoa().getId(), modeloc.getId());
 
                     if (sc != null && sc.getDtEmissao() == null) {
@@ -2765,7 +2825,7 @@ public class SociosBean implements Serializable {
                             return null;
                         }
                     }
-                    listaAux.addAll(dbc.filtroCartao(socioDependente.getServicoPessoa().getPessoa().getId()));                    
+                    listaAux.addAll(dbc.filtroCartao(socioDependente.getServicoPessoa().getPessoa().getId()));
                 }
             }
             dao.commit();
@@ -3456,74 +3516,315 @@ public class SociosBean implements Serializable {
             return "Imagens/Fotos";
         }
     }
-}
 
-//    public void editarGenerico(Pessoa sessao, boolean reativar) {
-//        CategoriaDB dbCat = new CategoriaDBToplink();
-//        SociosDB db = new SociosDBToplink();
-//        SocioCarteirinhaDB dbc = new SocioCarteirinhaDBToplink();
-//        //FisicaDB dbf = new FisicaDBToplink();
-//
-//        //socSessao = db.pesquisaSocioPorPessoaAtivo(sessao.getId());
-//        Socios socSessao = db.pesquisaSocioPorPessoa(sessao.getId());
-//        if (socSessao.getId() != -1 && reativar) {
-//            socios = socSessao;
-//        } else {
-//            return;
-//        }
-//        
-//        if (FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("urlRetorno").equals("emissaoCarteirinha")) {
-//            return;
-//        }
-//
-//        //Socios soc = db.pesquisaSocioDoDependente(socios.getId());
-//        // SOCIO DIFERENTE PARA TRAZER NA TELA O TITULAR
-//        if (socios.getMatriculaSocios().getTitular().getId() != servicoPessoa.getPessoa().getId()) {
-//            socios = db.pesquisaSocioPorPessoa(socios.getMatriculaSocios().getTitular().getId());
-//        }
-//
-//        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("linkClicado", true);
-//
-//        ModeloCarteirinha modeloc = dbc.pesquisaModeloCarteirinha(socios.getMatriculaSocios().getCategoria().getId(), 170);
-//        List<SocioCarteirinha> listsc = new ArrayList();
-//
-//        if (modeloc != null) {
-//            listsc = db.pesquisaCarteirinhasPorPessoa(socios.getServicoPessoa().getPessoa().getId(), modeloc.getId());
-//            if (!listsc.isEmpty()) {
-//                socCarteirinha = listsc.get(0);
-//            } else {
-//                GenericaMensagem.warn("Ateção", "Sócio sem modelo de Carteirinha!");
-//            }
-//        }
-//
-//        servicoPessoa = socios.getServicoPessoa();
-//        descontoSocial = servicoPessoa.getDescontoSocial();
-//        
-//        matriculaSocios = socios.getMatriculaSocios();
-//
-//        GrupoCategoria gpCat = dbCat.pesquisaGrupoPorCategoria(socios.getMatriculaSocios().getCategoria().getId());
-//        for (int i = 0; i < getListaGrupoCategoria().size(); i++) {
-//            if (Integer.parseInt((String) getListaGrupoCategoria().get(i).getDescription()) == gpCat.getId()) {
-//                idGrupoCategoria = i;
-//                break;
-//            }
-//        }
-//        int qntCategoria = getListaCategoria().size();
-//        for (int i = 0; i < qntCategoria; i++) {
-//            if (Integer.parseInt((String) getListaCategoria().get(i).getDescription()) == socios.getMatriculaSocios().getCategoria().getId()) {
-//                idCategoria = i;
-//                break;
-//            }
-//        }
-//
-//        for (int i = 0; i < getListaTipoDocumento().size(); i++) {
-//            if (Integer.parseInt((String) listaTipoDocumento.get(i).getDescription()) == servicoPessoa.getTipoDocumento().getId()) {
-//                idTipoDocumento = i;
-//                break;
-//            }
-//        }
-//
-//        atualizarListaDependenteAtivo();
-//        atualizarListaDependenteInativo();
-//
-//    }
+    public Categoria getCategoria() {
+        return (Categoria) new Dao().find(new Categoria(), Integer.parseInt(listaCategoria.get(idCategoria).getDescription()));
+    }
+
+    public void loadBloqueio() {
+        List<Mes> list = new Dao().list(new Mes(), true);
+        bloqueio = new Bloqueio();
+        List<ServicoPessoaBloqueio> spbs = new ServicoPessoaBloqueioDao().findByServicoPessoa(socios.getServicoPessoa().getId());
+        if (!spbs.isEmpty()) {
+            for (int i = 0; i < list.size(); i++) {
+                Boolean status = false;
+                for (int y = 0; y < spbs.size(); y++) {
+                    if (list.get(i).getId() == spbs.get(y).getMes().getId()) {
+                        status = true;
+                    }
+                }
+                switch (list.get(i).getId()) {
+                    case 1:
+                        bloqueio.setJan(status);
+                        break;
+                    case 2:
+                        bloqueio.setFev(status);
+                        break;
+                    case 3:
+                        bloqueio.setMar(status);
+                        break;
+                    case 4:
+                        bloqueio.setAbr(status);
+                        break;
+                    case 5:
+                        bloqueio.setMai(status);
+                        break;
+                    case 6:
+                        bloqueio.setJun(status);
+                        break;
+                    case 7:
+                        bloqueio.setJul(status);
+                        break;
+                    case 8:
+                        bloqueio.setAgo(status);
+                        break;
+                    case 9:
+                        bloqueio.setSet(status);
+                        break;
+                    case 10:
+                        bloqueio.setOut(status);
+                        break;
+                    case 11:
+                        bloqueio.setNov(status);
+                        break;
+                    case 12:
+                        bloqueio.setDez(status);
+                        break;
+                }
+            }
+        }
+    }
+
+    public Bloqueio getBloqueio() {
+        return bloqueio;
+    }
+
+    public void setBloqueio(Bloqueio bloqueio) {
+        this.bloqueio = bloqueio;
+    }
+
+    public void saveBloqueio() {
+        listenerBloqueio(true, null, null);
+    }
+
+    public void listenerBloqueio(Integer servico_pessoa_id, Integer mes_id) {
+        listenerBloqueio(null, servico_pessoa_id, mes_id);
+    }
+
+    public void listenerBloqueio(Boolean save, Integer servico_pessoa_id, Integer mes_id) {
+        try {
+            Dao dao = new Dao();
+            if (save != null && save) {
+                ServicoPessoaBloqueio spb;
+                if (bloqueio.getJan()) {
+                    spb = new ServicoPessoaBloqueio();
+                    spb.setServicoPessoa(servicoPessoa);
+                    spb.setMes((Mes) dao.find(new Mes(), 1));
+                    dao.save(spb, true);
+                }
+                if (bloqueio.getFev()) {
+                    spb = new ServicoPessoaBloqueio();
+                    spb.setServicoPessoa(servicoPessoa);
+                    spb.setMes((Mes) dao.find(new Mes(), 2));
+                    dao.save(spb, true);
+                }
+                if (bloqueio.getMar()) {
+                    spb = new ServicoPessoaBloqueio();
+                    spb.setServicoPessoa(servicoPessoa);
+                    spb.setMes((Mes) dao.find(new Mes(), 3));
+                    dao.save(spb, true);
+                }
+                if (bloqueio.getAbr()) {
+                    spb = new ServicoPessoaBloqueio();
+                    spb.setServicoPessoa(servicoPessoa);
+                    spb.setMes((Mes) dao.find(new Mes(), 4));
+                    dao.save(spb, true);
+                }
+                if (bloqueio.getMai()) {
+                    spb = new ServicoPessoaBloqueio();
+                    spb.setServicoPessoa(servicoPessoa);
+                    spb.setMes((Mes) dao.find(new Mes(), 5));
+                    dao.save(spb, true);
+                }
+                if (bloqueio.getJun()) {
+                    spb = new ServicoPessoaBloqueio();
+                    spb.setServicoPessoa(servicoPessoa);
+                    spb.setMes((Mes) dao.find(new Mes(), 6));
+                    dao.save(spb, true);
+                }
+                if (bloqueio.getJul()) {
+                    spb = new ServicoPessoaBloqueio();
+                    spb.setServicoPessoa(servicoPessoa);
+                    spb.setMes((Mes) dao.find(new Mes(), 7));
+                    dao.save(spb, true);
+                }
+                if (bloqueio.getAgo()) {
+                    spb = new ServicoPessoaBloqueio();
+                    spb.setServicoPessoa(servicoPessoa);
+                    spb.setMes((Mes) dao.find(new Mes(), 8));
+                    dao.save(spb, true);
+                }
+                if (bloqueio.getSet()) {
+                    spb = new ServicoPessoaBloqueio();
+                    spb.setServicoPessoa(servicoPessoa);
+                    spb.setMes((Mes) dao.find(new Mes(), 9));
+                    dao.save(spb, true);
+                }
+                if (bloqueio.getOut()) {
+                    spb = new ServicoPessoaBloqueio();
+                    spb.setServicoPessoa(servicoPessoa);
+                    spb.setMes((Mes) dao.find(new Mes(), 10));
+                    dao.save(spb, true);
+                }
+                if (bloqueio.getNov()) {
+                    spb = new ServicoPessoaBloqueio();
+                    spb.setServicoPessoa(servicoPessoa);
+                    spb.setMes((Mes) dao.find(new Mes(), 11));
+                    dao.save(spb, true);
+                }
+                if (bloqueio.getDez()) {
+                    spb = new ServicoPessoaBloqueio();
+                    spb.setServicoPessoa(servicoPessoa);
+                    spb.setMes((Mes) dao.find(new Mes(), 12));
+                    dao.save(spb, true);
+                }
+            } else if (socios.getId() != -1) {
+                ServicoPessoaBloqueio spb = new ServicoPessoaBloqueioDao().find(servico_pessoa_id, mes_id);
+                if (spb == null) {
+                    spb = new ServicoPessoaBloqueio();
+                    spb.setServicoPessoa(socios.getServicoPessoa());
+                    spb.setMes((Mes) dao.find(new Mes(), mes_id));
+                    dao.save(spb, true);
+                } else {
+                    dao.delete(spb, true);
+                }
+                GenericaMensagem.info("Sucesso", "Bloqueio atualizado com sucesso!");
+            }
+        } catch (Exception e) {
+            e.getMessage();
+        }
+    }
+
+    public class Bloqueio {
+
+        private Boolean jan;
+        private Boolean fev;
+        private Boolean mar;
+        private Boolean abr;
+        private Boolean mai;
+        private Boolean jun;
+        private Boolean jul;
+        private Boolean ago;
+        private Boolean set;
+        private Boolean out;
+        private Boolean nov;
+        private Boolean dez;
+
+        public Bloqueio() {
+            this.jan = true;
+            this.fev = true;
+            this.mar = true;
+            this.abr = true;
+            this.mai = true;
+            this.jun = true;
+            this.jul = true;
+            this.ago = true;
+            this.set = true;
+            this.out = true;
+            this.nov = true;
+            this.dez = true;
+        }
+
+        public Bloqueio(Boolean jan, Boolean fev, Boolean mar, Boolean abr, Boolean mai, Boolean jun, Boolean jul, Boolean ago, Boolean set, Boolean out, Boolean nov, Boolean dez) {
+            this.jan = jan;
+            this.fev = fev;
+            this.mar = mar;
+            this.abr = abr;
+            this.mai = mai;
+            this.jun = jun;
+            this.jul = jul;
+            this.ago = ago;
+            this.set = set;
+            this.out = out;
+            this.nov = nov;
+            this.dez = dez;
+        }
+
+        public Boolean getJan() {
+            return jan;
+        }
+
+        public void setJan(Boolean jan) {
+            this.jan = jan;
+        }
+
+        public Boolean getFev() {
+            return fev;
+        }
+
+        public void setFev(Boolean fev) {
+            this.fev = fev;
+        }
+
+        public Boolean getMar() {
+            return mar;
+        }
+
+        public void setMar(Boolean mar) {
+            this.mar = mar;
+        }
+
+        public Boolean getAbr() {
+            return abr;
+        }
+
+        public void setAbr(Boolean abr) {
+            this.abr = abr;
+        }
+
+        public Boolean getMai() {
+            return mai;
+        }
+
+        public void setMai(Boolean mai) {
+            this.mai = mai;
+        }
+
+        public Boolean getJun() {
+            return jun;
+        }
+
+        public void setJun(Boolean jun) {
+            this.jun = jun;
+        }
+
+        public Boolean getJul() {
+            return jul;
+        }
+
+        public void setJul(Boolean jul) {
+            this.jul = jul;
+        }
+
+        public Boolean getAgo() {
+            return ago;
+        }
+
+        public void setAgo(Boolean ago) {
+            this.ago = ago;
+        }
+
+        public Boolean getSet() {
+            return set;
+        }
+
+        public void setSet(Boolean set) {
+            this.set = set;
+        }
+
+        public Boolean getOut() {
+            return out;
+        }
+
+        public void setOut(Boolean out) {
+            this.out = out;
+        }
+
+        public Boolean getNov() {
+            return nov;
+        }
+
+        public void setNov(Boolean nov) {
+            this.nov = nov;
+        }
+
+        public Boolean getDez() {
+            return dez;
+        }
+
+        public void setDez(Boolean dez) {
+            this.dez = dez;
+        }
+
+    }
+}
