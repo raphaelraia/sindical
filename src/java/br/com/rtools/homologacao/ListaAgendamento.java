@@ -1,7 +1,6 @@
 package br.com.rtools.homologacao;
 
-import br.com.rtools.homologacao.db.HomologacaoDB;
-import br.com.rtools.homologacao.db.HomologacaoDBToplink;
+import br.com.rtools.homologacao.dao.HomologacaoDao;
 
 public class ListaAgendamento {
 
@@ -49,8 +48,8 @@ public class ListaAgendamento {
     public Senha mostrarSenha() {
         Senha senha2 = null;
         if (agendamento.getId() != -1) {
-            HomologacaoDB db = new HomologacaoDBToplink();
-            senha2 = db.pesquisaSenhaAgendamento(agendamento.getId());
+            HomologacaoDao dao = new HomologacaoDao();
+            senha2 = dao.pesquisaSenhaAgendamento(agendamento.getId());
         }
         return senha2;
     }

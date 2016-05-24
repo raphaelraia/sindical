@@ -19,8 +19,7 @@ import br.com.rtools.financeiro.dao.ServicoPessoaDao;
 import br.com.rtools.financeiro.db.MovimentoDB;
 import br.com.rtools.financeiro.db.MovimentoDBToplink;
 import br.com.rtools.homologacao.Agendamento;
-import br.com.rtools.homologacao.db.HomologacaoDB;
-import br.com.rtools.homologacao.db.HomologacaoDBToplink;
+import br.com.rtools.homologacao.dao.HomologacaoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.pessoa.*;
@@ -1340,7 +1339,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 //
 //    }
     public String excluirEmpresaAnterior(PessoaEmpresa pe) {
-        HomologacaoDB dbAge = new HomologacaoDBToplink();
+        HomologacaoDao dbAge = new HomologacaoDao();
         List<Agendamento> agendas = dbAge.pesquisaAgendamentoPorPessoaEmpresa(pe.getId());
         // CHAMADO 1262
         if (!agendas.isEmpty()) {

@@ -12,7 +12,7 @@ import br.com.rtools.homologacao.Senha;
 import br.com.rtools.homologacao.Status;
 import br.com.rtools.homologacao.dao.CancelamentoDao;
 import br.com.rtools.homologacao.dao.HomologacaoDao;
-import br.com.rtools.homologacao.db.*;
+import br.com.rtools.homologacao.dao.*;
 import br.com.rtools.pessoa.*;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.*;
@@ -115,7 +115,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
             return;
         }
 
-        HomologacaoDB db = new HomologacaoDBToplink();
+        HomologacaoDao db = new HomologacaoDao();
         Usuario us = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuario");
         int idUsuario;
         int idCaso = Integer.parseInt(((SelectItem) getListaStatus().get(idStatus)).getDescription());
@@ -173,7 +173,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
         listaAtendimentoSimples.clear();
 
         if (macFilial != null) {
-            HomologacaoDB db = new HomologacaoDBToplink();
+            HomologacaoDao db = new HomologacaoDao();
             SegurancaUtilitariosBean su = new SegurancaUtilitariosBean();
 
             listaAtendimentoSimples = db.listaAtendimentoIniciadoSimples(macFilial.getFilial().getId(), su.getSessaoUsuario().getId());
@@ -211,7 +211,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
     }
 
     public String excluirSenha() {
-        HomologacaoDB homologacaoDB = new HomologacaoDBToplink();
+        HomologacaoDao homologacaoDB = new HomologacaoDao();
         Senha senha = homologacaoDB.pesquisaSenhaAgendamento(agendamento.getId());
         if (senha.getId() == -1) {
             GenericaMensagem.warn("Atenção", "Não existe senha para ser excluida!");
@@ -299,7 +299,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
     }
 
     public void novaChamadaSenha() {
-        HomologacaoDBToplink hdbt = new HomologacaoDBToplink();
+        HomologacaoDao hdbt = new HomologacaoDao();
         SegurancaUtilitariosBean su = new SegurancaUtilitariosBean();
         Senha senha = hdbt.pesquisaAtendimentoIniciado(su.getSessaoUsuario().getId(), macFilial.getMesa(), macFilial.getFilial().getId(), macFilial.getDepartamento().getId());
         if (senha.getId() == -1) {
@@ -332,7 +332,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
     }
 
     public String retornaSequenciaSenha() {
-        HomologacaoDB dbh = new HomologacaoDBToplink();
+        HomologacaoDao dbh = new HomologacaoDao();
         SegurancaUtilitariosBean su = new SegurancaUtilitariosBean();
         Dao di = new Dao();
 
@@ -541,7 +541,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
         if (1 == 1) {
             return null;
         }
-        HomologacaoDB homologacaoDB = new HomologacaoDBToplink();
+        HomologacaoDao homologacaoDB = new HomologacaoDao();
         SegurancaUtilitariosBean su = new SegurancaUtilitariosBean();
         Dao dao = new Dao();
         Senha senhaAtendimentoReserva = homologacaoDB.pesquisaAtendimentoReserva(macFilial.getFilial().getId(), su.getSessaoUsuario().getId());
@@ -730,7 +730,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
 ////        listaGrid.clear();
 ////        listaGrid = new ArrayList();
 //        List<Agendamento> ag;
-//        HomologacaoDB db = new HomologacaoDBToplink();
+//        HomologacaoDao db = new HomologacaoDao();
 //        String agendador;
 //        String homologador;
 //        DataObject dtObj;
@@ -807,7 +807,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
 //        return listaGrid;
 //    }
     public String agendar(Agendamento a) {
-        HomologacaoDB db = new HomologacaoDBToplink();
+        HomologacaoDao db = new HomologacaoDao();
         Dao dao = new Dao();
         agendamento = a;
         cancelamento = new Cancelamento();
@@ -1004,7 +1004,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
         }
         agendamento.setDemissao((Demissao) sv.find("Demissao", Integer.parseInt(((SelectItem) getListaDemissao().get(idMotivoDemissao)).getDescription())));
         agendamento.setPessoaEmpresa(pessoaEmpresa);
-        HomologacaoDB homologacaoDB = new HomologacaoDBToplink();
+        HomologacaoDao homologacaoDB = new HomologacaoDao();
         int nrStatus = Integer.parseInt(((SelectItem) getListaStatus().get(idStatus)).getDescription());
         if (registro.isSenhaHomologacao()) {
             if (nrStatus != 4 && nrStatus != 7) {
@@ -1042,7 +1042,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
     }
 
     public void closeModal() {
-        HomologacaoDB db = new HomologacaoDBToplink();
+        HomologacaoDao db = new HomologacaoDao();
         SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
         int nrStatus = Integer.parseInt(((SelectItem) getListaStatus().get(idStatus)).getDescription());
         sv.abrirTransacao();
@@ -1109,7 +1109,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
         if (dao.update(agendamento) && dao.update(pessoaEmpresa)) {
             GenericaMensagem.info("Sucesso", "Agendamento homologado!");
             dao.commit();
-            HomologacaoDBToplink hd = new HomologacaoDBToplink();
+            HomologacaoDao hd = new HomologacaoDao();
             Senha senha = hd.pesquisaSenhaAgendamento(agendamento.getId());
             senha.setDtVerificada(DataHoje.converte("01/01/1900"));
             dao.update(senha, true);
@@ -1169,7 +1169,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
         pessoaEmpresa = new PessoaEmpresa();
         profissao = new Profissao();
         dao.commit();
-        HomologacaoDBToplink hd = new HomologacaoDBToplink();
+        HomologacaoDao hd = new HomologacaoDao();
         Senha senha = hd.pesquisaSenhaAgendamento(agendamento.getId());
         senha.setDtVerificada(DataHoje.converte("01/01/1900"));
         Dao dao2 = new Dao();
@@ -1192,7 +1192,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
     }
 
     public String pesquisarFuncionarioCPF() {
-        HomologacaoDB db = new HomologacaoDBToplink();
+        HomologacaoDao db = new HomologacaoDao();
         FisicaDB dbFis = new FisicaDBToplink();
         SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
         fisica.getPessoa().setTipoDocumento((TipoDocumento) salvarAcumuladoDB.find("TipoDocumento", 1));
@@ -1367,7 +1367,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
     }
 
     public String getStatusEmpresa() {
-        HomologacaoDB db = new HomologacaoDBToplink();
+        HomologacaoDao db = new HomologacaoDao();
         List lista = new ArrayList();
         if (juridica.getId() != -1) {
             lista = db.pesquisaPessoaDebito(juridica.getPessoa().getId(), DataHoje.data());
@@ -1401,7 +1401,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
     }
 
     public int senhaHomologacao(int id) {
-        HomologacaoDB db = new HomologacaoDBToplink();
+        HomologacaoDao db = new HomologacaoDao();
         Senha senha = db.pesquisaSenhaAgendamento(id);
         return senha.getSenha();
     }

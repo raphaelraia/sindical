@@ -13,7 +13,7 @@ import javax.faces.bean.SessionScoped;
 @SessionScoped
 public class StatusAtendimentoBean implements Serializable {
     private AteStatus status = new AteStatus();
-    private List<AteStatus> listAteStatus = new ArrayList<AteStatus>();
+    private List<AteStatus> listAteStatus = new ArrayList<>();
     
     public void save(){
         Dao dao = new Dao();

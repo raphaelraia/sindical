@@ -11,15 +11,6 @@ import javax.persistence.Query;
 
 public class AgendaTelefoneDao extends DB {
 
-    public List pesquisaTodos() {
-        try {
-            Query qry = getEntityManager().createQuery(" SELECT age FROM Agenda age ");
-            return (qry.getResultList());
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
     public List<AgendaTelefone> listaAgendaTelefone(int idAgenda) {
         List list = new ArrayList();
         try {

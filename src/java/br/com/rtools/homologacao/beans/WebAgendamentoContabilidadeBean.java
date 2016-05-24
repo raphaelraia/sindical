@@ -19,7 +19,7 @@ import br.com.rtools.homologacao.Horarios;
 import br.com.rtools.homologacao.Status;
 import br.com.rtools.homologacao.dao.FeriadosDao;
 import br.com.rtools.homologacao.dao.HorarioReservaDao;
-import br.com.rtools.homologacao.db.*;
+import br.com.rtools.homologacao.dao.*;
 import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.pessoa.*;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
@@ -102,7 +102,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
 
     public boolean validaAdmissao() {
         if (fisica.getId() != -1 && empresa.getId() != -1 && !pessoaEmpresa.getAdmissao().isEmpty() && pessoaEmpresa.getId() == -1) {
-            HomologacaoDB db = new HomologacaoDBToplink();
+            HomologacaoDao db = new HomologacaoDao();
 
             PessoaEmpresa pe = db.pesquisaPessoaEmpresaAdmissao(fisica.getId(), empresa.getId(), pessoaEmpresa.getAdmissao());
 
@@ -129,7 +129,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
 
     public boolean validaDemissao() {
         if (fisica.getId() != -1 && empresa.getId() != -1 && !pessoaEmpresa.getDemissao().isEmpty() && pessoaEmpresa.getId() == -1) {
-            HomologacaoDB db = new HomologacaoDBToplink();
+            HomologacaoDao db = new HomologacaoDao();
 
             PessoaEmpresa pe = db.pesquisaPessoaEmpresaDemissao(fisica.getId(), empresa.getId(), pessoaEmpresa.getDemissao());
 
@@ -286,7 +286,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
         List<Agendamento> ag = new ArrayList();
         List<Horarios> horario;
 
-        HomologacaoDB db = new HomologacaoDBToplink();
+        HomologacaoDao db = new HomologacaoDao();
         String agendador;
         String homologador;
         switch (Integer.parseInt(((SelectItem) getListaStatus().get(idStatus)).getDescription())) {
@@ -479,13 +479,12 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
 
         switch (Integer.parseInt(((SelectItem) getListaStatus().get(idStatus)).getDescription())) {
             case 1: {
-                HomologacaoDB db = new HomologacaoDBToplink();
+                HomologacaoDao db = new HomologacaoDao();
                 int nrDataHoje = DataHoje.converteDataParaInteger(DataHoje.converteData(DataHoje.dataHoje()));
                 HorarioReservaDao hrd = new HorarioReservaDao();
-                HomologacaoDB dba = new HomologacaoDBToplink();
                 hrd.exists(nrDataHoje);
                 int quantidade_reservada = hrd.count(((Horarios) datao.getArgumento0()).getId());
-                int quantidade = dba.pesquisaQntdDisponivel(f.getId(), ((Horarios) datao.getArgumento0()), getData());
+                int quantidade = db.pesquisaQntdDisponivel(f.getId(), ((Horarios) datao.getArgumento0()), getData());
                 int quantidade_resultado = quantidade - quantidade_reservada;
                 if (quantidade == -1) {
                     GenericaMensagem.error("Sistema", "Este horário não esta mais disponivel! (reservado ou já agendado)");
@@ -730,7 +729,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
             }
         }
 
-        HomologacaoDB dba = new HomologacaoDBToplink();
+        HomologacaoDao dba = new HomologacaoDao();
         Agendamento age = dba.pesquisaFisicaAgendada(fisica.getId(), empresa.getId());
         if (age != null) {
             GenericaMensagem.warn("Atenção", "Pessoa já foi agendada para empresa " + age.getPessoaEmpresa().getJuridica().getPessoa().getNome());
@@ -927,7 +926,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
             Dao dao = new Dao();
             FisicaDB dbFis = new FisicaDBToplink();
             PessoaEnderecoDao dbp = new PessoaEnderecoDao();
-            HomologacaoDB db = new HomologacaoDBToplink();
+            HomologacaoDao db = new HomologacaoDao();
             fisica.getPessoa().setTipoDocumento((TipoDocumento) dao.find(new TipoDocumento(), 1));
             PessoaEmpresa pe = db.pesquisaPessoaEmpresaPertencente(documento);
 
@@ -1046,7 +1045,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
     }
 
     public String getStatusEmpresa() {
-        HomologacaoDB db = new HomologacaoDBToplink();
+        HomologacaoDao db = new HomologacaoDao();
         if (empresa.getId() != -1) {
             listaEmDebito = db.pesquisaPessoaDebito(empresa.getPessoa().getId(), DataHoje.data());
         }

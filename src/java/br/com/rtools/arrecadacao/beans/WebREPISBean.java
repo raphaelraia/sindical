@@ -15,8 +15,7 @@ import br.com.rtools.arrecadacao.db.WebREPISDBToplink;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.endereco.Endereco;
 import br.com.rtools.endereco.dao.CidadeDao;
-import br.com.rtools.homologacao.db.HomologacaoDB;
-import br.com.rtools.homologacao.db.HomologacaoDBToplink;
+import br.com.rtools.homologacao.dao.HomologacaoDao;
 import br.com.rtools.impressao.ParametroCertificado;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
@@ -269,7 +268,7 @@ public class WebREPISBean implements Serializable {
             return;
         }
 
-        HomologacaoDB db = new HomologacaoDBToplink();
+        HomologacaoDao db = new HomologacaoDao();
         setShowProtocolo(false);
 
         if (!db.pesquisaPessoaDebito(pessoaSolicitante.getId(), DataHoje.data()).isEmpty()) {

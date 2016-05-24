@@ -2,8 +2,7 @@ package br.com.rtools.impressao.beans;
 
 import br.com.rtools.homologacao.Agendamento;
 import br.com.rtools.homologacao.Senha;
-import br.com.rtools.homologacao.db.HomologacaoDB;
-import br.com.rtools.homologacao.db.HomologacaoDBToplink;
+import br.com.rtools.homologacao.dao.HomologacaoDao;
 import br.com.rtools.impressao.ParametroSenha;
 import br.com.rtools.seguranca.Departamento;
 import br.com.rtools.seguranca.MacFilial;
@@ -66,7 +65,7 @@ public class SenhaHomologacao implements Serializable {
             return null;
         }
         Collection lista = new ArrayList();
-        HomologacaoDB db = new HomologacaoDBToplink();
+        HomologacaoDao db = new HomologacaoDao();
         Senha senha = db.pesquisaSenhaAgendamento(a.getId());
         MacFilial mc = MacFilial.getAcessoFilial();
         if (senha.getId() == -1) {

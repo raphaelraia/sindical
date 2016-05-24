@@ -8,7 +8,6 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "age_agenda")
-@NamedQuery(name = "Agenda.pesquisaID", query = "SELECT a FROM Agenda a WHERE a.id=:pid")
 public class Agenda implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

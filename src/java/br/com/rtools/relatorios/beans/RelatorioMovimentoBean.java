@@ -4,10 +4,9 @@ import br.com.rtools.arrecadacao.CnaeConvencao;
 import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.ConvencaoCidade;
 import br.com.rtools.arrecadacao.beans.ConfiguracaoArrecadacaoBean;
+import br.com.rtools.arrecadacao.dao.ConvencaoCidadeDao;
 import br.com.rtools.arrecadacao.db.CnaeConvencaoDB;
 import br.com.rtools.arrecadacao.db.CnaeConvencaoDBToplink;
-import br.com.rtools.arrecadacao.db.GrupoCidadeDB;
-import br.com.rtools.arrecadacao.db.GrupoCidadeDBToplink;
 import br.com.rtools.arrecadacao.db.GrupoCidadesDB;
 import br.com.rtools.arrecadacao.db.GrupoCidadesDBToplink;
 import br.com.rtools.endereco.Cidade;
@@ -927,7 +926,7 @@ public class RelatorioMovimentoBean implements Serializable {
     public List<SelectItem> getListaGrupoCidade() {
         if (!listaConvencao.isEmpty()) {
             listaGrupoCidade.clear();
-            GrupoCidadeDB db = new GrupoCidadeDBToplink();
+            ConvencaoCidadeDao db = new ConvencaoCidadeDao();
             List<ConvencaoCidade> select = db.pesquisaGrupoPorConvencao(Integer.parseInt(getListaConvencao().get(idConvencao).getDescription()));
             for (int i = 0; i < select.size(); i++) {
                 listaGrupoCidade.add(new SelectItem(

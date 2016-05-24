@@ -18,7 +18,7 @@ import br.com.rtools.homologacao.ListaAgendamento;
 import br.com.rtools.homologacao.Status;
 import br.com.rtools.homologacao.dao.FeriadosDao;
 import br.com.rtools.homologacao.dao.HorarioReservaDao;
-import br.com.rtools.homologacao.db.*;
+import br.com.rtools.homologacao.dao.*;
 import br.com.rtools.impressao.beans.ProtocoloAgendamento;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.movimento.ImprimirBoleto;
@@ -123,7 +123,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
 
     public boolean validaAdmissao() {
         if (fisica.getId() != -1 && juridica.getId() != -1 && !pessoaEmpresa.getAdmissao().isEmpty() && pessoaEmpresa.getId() == -1) {
-            HomologacaoDB db = new HomologacaoDBToplink();
+            HomologacaoDao db = new HomologacaoDao();
 
             PessoaEmpresa pe = db.pesquisaPessoaEmpresaAdmissao(fisica.getId(), juridica.getId(), pessoaEmpresa.getAdmissao());
 
@@ -150,7 +150,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
 
     public boolean validaDemissao() {
         if (fisica.getId() != -1 && juridica.getId() != -1 && !pessoaEmpresa.getDemissao().isEmpty() && pessoaEmpresa.getId() == -1) {
-            HomologacaoDB db = new HomologacaoDBToplink();
+            HomologacaoDao db = new HomologacaoDao();
 
             PessoaEmpresa pe = db.pesquisaPessoaEmpresaDemissao(fisica.getId(), juridica.getId(), pessoaEmpresa.getDemissao());
 
@@ -187,7 +187,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         listaHorarioTransferencia.clear();
         idHorarioTransferencia = 0;
 
-        HomologacaoDB db = new HomologacaoDBToplink();
+        HomologacaoDao db = new HomologacaoDao();
         int idDiaSemana = DataHoje.diaDaSemana(dataTransferencia);
         List<Horarios> select = db.pesquisaTodosHorariosDisponiveis(macFilial.getFilial().getId(), idDiaSemana);
         if (select.isEmpty()) {
@@ -252,7 +252,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         int idNrStatus = Integer.parseInt(((SelectItem) getListaStatus().get(idStatus)).getDescription());
         int diaDaSemana = DataHoje.diaDaSemana(data);
         renderedDisponivel = idNrStatus != 2 && idNrStatus != 3 && idNrStatus != 4 && idNrStatus != 5 && idNrStatus != 6 && idNrStatus != 7;
-        HomologacaoDB homologacaoDB = new HomologacaoDBToplink();
+        HomologacaoDao homologacaoDB = new HomologacaoDao();
         List<Agendamento> agendamentos;
         List<Horarios> horarios;
         if (idNrStatus == 1 || idNrStatus == 6) {
@@ -585,7 +585,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         switch (Integer.parseInt(((SelectItem) getListaStatus().get(idStatus)).getDescription())) {
             case 1: {
                 HorarioReservaDao hrd = new HorarioReservaDao();
-                HomologacaoDB dba = new HomologacaoDBToplink();
+                HomologacaoDao dba = new HomologacaoDao();
                 hrd.exists(nrDataHoje);
                 int quantidade_reservada = hrd.count(a.getHorarios().getId());
                 int quantidade = dba.pesquisaQntdDisponivel(macFilial.getFilial().getId(), a.getHorarios(), getData());
@@ -845,7 +845,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 return;
             }
         }
-        HomologacaoDB dba = new HomologacaoDBToplink();
+        HomologacaoDao dba = new HomologacaoDao();
         Agendamento age = dba.pesquisaFisicaAgendada(fisica.getId(), juridica.getId());
         if (age != null && agendamento.getId() == -1) {
             dao.rollback();
@@ -1200,7 +1200,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             fisica.getPessoa().setDocumento(documentoFisica);
             //fisica = new Fisica();
             FisicaDB dbFis = new FisicaDBToplink();
-            HomologacaoDB db = new HomologacaoDBToplink();
+            HomologacaoDao db = new HomologacaoDao();
             PessoaEnderecoDao dbe = new PessoaEnderecoDao();
 
             String documento = documentoFisica;
@@ -1304,7 +1304,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     }
 
     public String pesquisarProtocolo() {
-        HomologacaoDB db = new HomologacaoDBToplink();
+        HomologacaoDao db = new HomologacaoDao();
         if (protocolo > 0) {
             Agendamento age = new Agendamento();
             age.setData(agendamento.getData());
@@ -1499,7 +1499,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     }
 
     public String getStatusEmpresa() {
-        HomologacaoDB db = new HomologacaoDBToplink();
+        HomologacaoDao db = new HomologacaoDao();
         if (juridica.getId() != -1 && listaMovimento.isEmpty()) {
             listaMovimento = db.pesquisaPessoaDebito(juridica.getPessoa().getId(), DataHoje.data());
         }
@@ -1692,7 +1692,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
 
     // Verifica os agendamentos que não foram atendidos no menu principal;
     public void verificaNaoAtendidos() {
-        HomologacaoDB homologacaoDB = new HomologacaoDBToplink();
+        HomologacaoDao homologacaoDB = new HomologacaoDao();
         homologacaoDB.verificaNaoAtendidosSegRegistroAgendamento();
     }
 

@@ -7,8 +7,7 @@ import br.com.rtools.atendimento.dao.AtendimentoDao;
 import br.com.rtools.homologacao.OperacaoDepartamento;
 import br.com.rtools.homologacao.Senha;
 import br.com.rtools.homologacao.dao.OperacaoDao;
-import br.com.rtools.homologacao.db.HomologacaoDB;
-import br.com.rtools.homologacao.db.HomologacaoDBToplink;
+import br.com.rtools.homologacao.dao.HomologacaoDao;
 import br.com.rtools.impressao.ParametroSenha;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Fisica;
@@ -430,7 +429,7 @@ public class AtendimentoBean implements Serializable {
                 // que já estava funcionando antes das alterações
                 dep = (Departamento) dao.find(new Departamento(), 8);
             }
-            HomologacaoDB dbh = new HomologacaoDBToplink();
+            HomologacaoDao dbh = new HomologacaoDao();
             int ultima_senha = dbh.pesquisaUltimaSenha(filial.getId()) + 1;
             Senha senha = new Senha(-1, null, DataHoje.horaMinuto(), "", 0, usuario, DataHoje.data(), ultima_senha, filial, ateMovimento, null, null, null, dep);
             

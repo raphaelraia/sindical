@@ -7,8 +7,7 @@ import br.com.rtools.escola.MatriculaTurma;
 import br.com.rtools.escola.Turma;
 import br.com.rtools.escola.dao.MatriculaEscolaDao;
 import br.com.rtools.escola.lista.ListaMatriculaEscola;
-import br.com.rtools.homologacao.db.HomologacaoDB;
-import br.com.rtools.homologacao.db.HomologacaoDBToplink;
+import br.com.rtools.homologacao.dao.HomologacaoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
@@ -66,7 +65,7 @@ public class ConclusaoMatriculaBean implements Serializable {
     }
 
     public void save() {
-        HomologacaoDB hdb = new HomologacaoDBToplink();
+        HomologacaoDao hdb = new HomologacaoDao();
         List list = hdb.pesquisaPessoaDebito(matriculaEscola.getServicoPessoa().getCobranca().getId(), DataHoje.data());
         if (!list.isEmpty()) {
             mensagem = "Responsável possui débitos!";
@@ -138,7 +137,7 @@ public class ConclusaoMatriculaBean implements Serializable {
             mensagem = "Nenhuma matrícula selecionada!";
             return;
         }
-        HomologacaoDB hdb = new HomologacaoDBToplink();
+        HomologacaoDao hdb = new HomologacaoDao();
         int dataHoje = DataHoje.converteDataParaInteger(DataHoje.data());
         int dataConclusao;
         Dao dao = new Dao();

@@ -10,8 +10,7 @@ import br.com.rtools.homologacao.ListaAgendamento;
 import br.com.rtools.homologacao.Recepcao;
 import br.com.rtools.homologacao.Senha;
 import br.com.rtools.homologacao.Status;
-import br.com.rtools.homologacao.db.HomologacaoDB;
-import br.com.rtools.homologacao.db.HomologacaoDBToplink;
+import br.com.rtools.homologacao.dao.HomologacaoDao;
 import br.com.rtools.impressao.ParametroSenha;
 import br.com.rtools.impressao.beans.SenhaHomologacao;
 import br.com.rtools.logSistema.NovoLog;
@@ -576,7 +575,7 @@ public class RecepcaoBean implements Serializable {
             }
         }
 
-        HomologacaoDB dB = new HomologacaoDBToplink();
+        HomologacaoDao dB = new HomologacaoDao();
         cancelamento = (Cancelamento) dB.pesquisaCancelamentoPorAgendanto(agendamentoEdit.getId());
         if (cancelamento == null) {
             cancelamento = new Cancelamento();
@@ -676,7 +675,7 @@ public class RecepcaoBean implements Serializable {
     public String getStatusEmpresa() {
         List lista = new ArrayList();
         if (juridica.getId() != -1) {
-            HomologacaoDB db = new HomologacaoDBToplink();
+            HomologacaoDao db = new HomologacaoDao();
             lista = db.pesquisaPessoaDebito(juridica.getPessoa().getId(), DataHoje.data());
         }
         if (!lista.isEmpty()) {
@@ -1029,7 +1028,7 @@ public class RecepcaoBean implements Serializable {
             desabilitaPesquisaProtocolo = false;
         }
 
-        HomologacaoDB db = new HomologacaoDBToplink();
+        HomologacaoDao db = new HomologacaoDao();
         List<Agendamento> ag;
         setData(DataHoje.dataHoje());
         String agendador;
@@ -1200,7 +1199,7 @@ public class RecepcaoBean implements Serializable {
     public void loadListaAtendimentoSimples() {
         listaAtendimentoSimples.clear();
         if (macFilial != null) {
-            HomologacaoDB db = new HomologacaoDBToplink();
+            HomologacaoDao db = new HomologacaoDao();
             SegurancaUtilitariosBean su = new SegurancaUtilitariosBean();
 
             listaAtendimentoSimples = db.listaAtendimentoIniciadoSimplesPesquisa(
@@ -1486,7 +1485,7 @@ public class RecepcaoBean implements Serializable {
 //
 //        SenhaHomologacao senhaHomologacao = new SenhaHomologacao();
 //        Collection lista = new ArrayList<ParametroSenha>();
-//        HomologacaoDB hdb = new HomologacaoDBToplink();
+//        HomologacaoDB hdb = new HomologacaoDao();
 //        Senha senha = hdb.pesquisaSenhaAgendamento(agendamentoEdit.getId());
 //        MacFilial mc = MacFilial.getAcessoFilial();
 //        if (senha.getId() == -1) {

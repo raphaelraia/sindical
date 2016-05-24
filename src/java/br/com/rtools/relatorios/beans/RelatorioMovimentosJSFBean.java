@@ -2,6 +2,7 @@ package br.com.rtools.relatorios.beans;
 
 import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.ConvencaoCidade;
+import br.com.rtools.arrecadacao.dao.ConvencaoCidadeDao;
 import br.com.rtools.arrecadacao.db.*;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.financeiro.Servicos;
@@ -353,7 +354,7 @@ public class RelatorioMovimentosJSFBean extends MovimentoValorBean {
         List<SelectItem> grupoCidade = new Vector<SelectItem>();
         if (chkConvencao) {
             int i = 0;
-            GrupoCidadeDB db = new GrupoCidadeDBToplink();
+            ConvencaoCidadeDao db = new ConvencaoCidadeDao();
             List select = db.pesquisaGrupoPorConvencao(Integer.parseInt(getListaConvencao().get(idConvencao).getDescription()));
             while (i < select.size()) {
                 grupoCidade.add(new SelectItem(new Integer(i),

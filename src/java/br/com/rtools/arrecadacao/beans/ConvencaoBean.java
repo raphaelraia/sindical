@@ -6,6 +6,7 @@ import br.com.rtools.arrecadacao.GrupoCidade;
 import br.com.rtools.arrecadacao.db.*;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
+import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.SalvarAcumuladoDB;
@@ -384,13 +385,11 @@ public class ConvencaoBean implements Serializable {
     }
 
     public List<SelectItem> getListaGrupoCidade() {
-        List<SelectItem> result = new Vector<SelectItem>();
+        List<SelectItem> result = new ArrayList<>();
         int i = 0;
-        GrupoCidadeDB db = new GrupoCidadeDBToplink();
-        List select = null;
-        select = db.pesquisaTodos();
+        List select = new Dao().list(new GrupoCidade(), true);
         while (i < select.size()) {
-            result.add(new SelectItem(new Integer(i),
+            result.add(new SelectItem(i,
                     ((GrupoCidade) select.get(i)).getDescricao(),
                     Integer.toString(((GrupoCidade) select.get(i)).getId())));
             i++;

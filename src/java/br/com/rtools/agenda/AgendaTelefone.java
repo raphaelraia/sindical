@@ -4,9 +4,11 @@ import java.io.Serializable;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "age_telefone")
-@NamedQuery(name = "AgendaTelefone.pesquisaID", query = "SELECT at FROM AgendaTelefone at WHERE at.id=:pid")
+@Table(name = "age_telefone",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"id_agenda", "id_tipo_telefone", "ds_telefone"})
+)
 public class AgendaTelefone implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -19,9 +21,9 @@ public class AgendaTelefone implements Serializable {
     private TipoTelefone tipoTelefone;
     @Column(name = "ds_ddi", length = 5)
     private String ddi;
-    @Column(name = "ds_ddd", length = 2)
+    @Column(name = "ds_ddd", length = 2, nullable = false)
     private String ddd;
-    @Column(name = "ds_telefone", length = 20)
+    @Column(name = "ds_telefone", length = 20, nullable = false)
     private String telefone;
     @Column(name = "ds_contato", length = 50)
     private String contato;
