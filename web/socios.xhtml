@@ -56,7 +56,7 @@
                             </p:dialog>
 
                             <div class="clear"></div>
-                            
+
                             <p:panel styleClass="fundoCinza">
                                 <h:panelGrid columns="2">
                                     <h:outputLabel value="Dados da Pessoa " style="font-weight: bold"/><br />
@@ -67,8 +67,8 @@
                                     </p:tooltip>
                                 </h:panelGrid>
                             </p:panel>
-                            
-                            
+
+
                             <p:panel rendered="#{sociosBean.matriculaSocios.id != -1 and sociosBean.matriculaSocios.motivoInativacao != null and sociosBean.matriculaSocios.motivoInativacao.id != -1}" styleClass="margin-top-max ui-rt-messages-fatal"> 
                                 <h:panelGrid>
                                     <h:outputLabel value="ESTE SÓCIO ESTA INÁTIVO DESDE: #{sociosBean.matriculaSocios.inativo}" style="font-size: 12pt!important" styleClass="bold"/>
@@ -90,29 +90,84 @@
                                 </h:panelGrid>
                             </p:panel>
 
-                            <h:panelGrid id="i_panel_tipo" columns="4" style="margin-top: 10px; width: 100%">
-                                <p:column>
-                                    <h:outputLabel value="Grupo Categoria"/><br />
-                                    <p:selectOneMenu value="#{sociosBean.idGrupoCategoria}" style="width: 380px" disabled="#{sociosBean.socios.matriculaSocios.id != -1}">
-                                        <p:ajax event="change" update="@this i_panel_tipo i_panel_servicos i_panel_dependente" listener="#{sociosBean.atualizarCategoria()}"/>
-                                        <f:selectItems value="#{sociosBean.listaGrupoCategoria}"/>
-                                    </p:selectOneMenu>
-                                </p:column>
+                            <h:panelGroup id="i_panel_tipo" layout="block">
+                                <h:panelGrid columns="4" style="margin-top: 10px; width: 100%">
+                                    <p:column>
+                                        <h:outputLabel value="Grupo Categoria"/><br />
+                                        <p:selectOneMenu value="#{sociosBean.idGrupoCategoria}" style="width: 380px" disabled="#{sociosBean.socios.matriculaSocios.id != -1}">
+                                            <p:ajax event="change" update="@this i_panel_tipo i_panel_servicos i_panel_dependente" listener="#{sociosBean.atualizarCategoria()}"/>
+                                            <f:selectItems value="#{sociosBean.listaGrupoCategoria}"/>
+                                        </p:selectOneMenu>
+                                    </p:column>
 
-                                <p:column>
-                                    <h:outputLabel value="Categoria" style="margin-left: 30px"/><br />
-                                    <p:selectOneMenu value="#{sociosBean.idCategoria}" style="margin-left: 30px; width: 380px" valueChangeListener="#{sociosBean.atualizarListaCategoria()}">
-                                        <p:ajax event="change" update="@this i_panel_tipo i_panel_servicos i_panel_dependente" listener="#{sociosBean.atualizarListaCategoria()}"/> 
-                                        <f:selectItems value="#{sociosBean.listaCategoria}"/>
-                                    </p:selectOneMenu>
-                                </p:column>
+                                    <p:column>
+                                        <h:outputLabel value="Categoria" style="margin-left: 30px"/><br />
+                                        <p:selectOneMenu value="#{sociosBean.idCategoria}" style="margin-left: 30px; width: 380px" valueChangeListener="#{sociosBean.atualizarListaCategoria()}">
+                                            <p:ajax event="change" update="@this i_panel_tipo i_panel_servicos i_panel_dependente" listener="#{sociosBean.atualizarListaCategoria()}"/> 
+                                            <f:selectItems value="#{sociosBean.listaCategoria}"/>
+                                        </p:selectOneMenu>
+                                    </p:column>
 
-                                <p:column>
-                                    <h:outputLabel value="NÚMERO DA MATRÍCULA" style="margin-left: 30px"/><br />
-                                    <p:inputText value="#{sociosBean.matriculaSocios.nrMatricula}" onclick="PF('i_dlg_matricula').show();" size="17" readonly="true" style="margin-left: 30px; font-weight: bold; font-size: 10pt!important; cursor: pointer; background: #9ccaaa; text-align: center"/>
-                                </p:column>
-                            </h:panelGrid>
-
+                                    <p:column>
+                                        <h:outputLabel value="NÚMERO DA MATRÍCULA" style="margin-left: 30px"/><br />
+                                        <p:inputText value="#{sociosBean.matriculaSocios.nrMatricula}" onclick="PF('i_dlg_matricula').show();" size="17" readonly="true" style="margin-left: 30px; font-weight: bold; font-size: 10pt!important; cursor: pointer; background: #9ccaaa; text-align: center"/>
+                                    </p:column>
+                                </h:panelGrid>
+                                <h:panelGroup layout="block" rendered="#{sociosBean.categoria != null and sociosBean.categoria.bloqueiaMeses}">
+                                    <p:panel header="Geração de Mensalidades: Bloquear meses" styleClass="margin-top">
+                                        <h:panelGrid columns="12">
+                                            <h:outputLabel value="Jan" />
+                                            <h:outputLabel value="Fev" />
+                                            <h:outputLabel value="Mar" />
+                                            <h:outputLabel value="Abr" />
+                                            <h:outputLabel value="Mai" />
+                                            <h:outputLabel value="Jun" />
+                                            <h:outputLabel value="Jul" />
+                                            <h:outputLabel value="Ago" />
+                                            <h:outputLabel value="Set" />
+                                            <h:outputLabel value="Out" />
+                                            <h:outputLabel value="Nov" />
+                                            <h:outputLabel value="Dez" />
+                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.jan}">
+                                                <p:ajax event="change" update="@this i_growl" listener="#{sociosBean.listenerBloqueio(sociosBean.servicoPessoa.id, 1)}" global="false"/>
+                                            </p:selectBooleanCheckbox>
+                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.fev}">
+                                                <p:ajax event="change" update="@this i_growl" listener="#{sociosBean.listenerBloqueio(sociosBean.servicoPessoa.id, 2)}" global="false"/>
+                                            </p:selectBooleanCheckbox>
+                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.mar}">
+                                                <p:ajax event="change" update="@this i_growl" listener="#{sociosBean.listenerBloqueio(sociosBean.servicoPessoa.id, 3)}" global="false"/>
+                                            </p:selectBooleanCheckbox>
+                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.abr}">
+                                                <p:ajax event="change" update="@this i_growl" listener="#{sociosBean.listenerBloqueio(sociosBean.servicoPessoa.id, 4)}" global="false"/>
+                                            </p:selectBooleanCheckbox>
+                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.mai}">
+                                                <p:ajax event="change" update="@this i_growl" listener="#{sociosBean.listenerBloqueio(sociosBean.servicoPessoa.id, 5)}" global="false"/>
+                                            </p:selectBooleanCheckbox>
+                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.jun}">
+                                                <p:ajax event="change" update="@this i_growl" listener="#{sociosBean.listenerBloqueio(sociosBean.servicoPessoa.id, 6)}" global="false"/>
+                                            </p:selectBooleanCheckbox>
+                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.jul}">
+                                                <p:ajax event="change" update="@this i_growl" listener="#{sociosBean.listenerBloqueio(sociosBean.servicoPessoa.id, 7)}" global="false"/>
+                                            </p:selectBooleanCheckbox>
+                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.ago}">
+                                                <p:ajax event="change" update="@this i_growl" listener="#{sociosBean.listenerBloqueio(sociosBean.servicoPessoa.id, 8)}" global="false"/>
+                                            </p:selectBooleanCheckbox>
+                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.set}">
+                                                <p:ajax event="change" update="@this i_growl" listener="#{sociosBean.listenerBloqueio(sociosBean.servicoPessoa.id, 9)}" global="false"/>
+                                            </p:selectBooleanCheckbox>
+                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.out}">
+                                                <p:ajax event="change" update="@this i_growl" listener="#{sociosBean.listenerBloqueio(sociosBean.servicoPessoa.id, 10)}" global="false"/>
+                                            </p:selectBooleanCheckbox>
+                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.nov}">
+                                                <p:ajax event="change" update="@this i_growl" listener="#{sociosBean.listenerBloqueio(sociosBean.servicoPessoa.id, 11)}" global="false"/>
+                                            </p:selectBooleanCheckbox>
+                                            <p:selectBooleanCheckbox value="#{sociosBean.bloqueio.dez}">
+                                                <p:ajax event="change" update="@this i_growl" listener="#{sociosBean.listenerBloqueio(sociosBean.servicoPessoa.id, 12)}" global="false"/>
+                                            </p:selectBooleanCheckbox>
+                                        </h:panelGrid>
+                                    </p:panel>
+                                </h:panelGroup>                                
+                            </h:panelGroup>
                             <hr />
 
                             <h:panelGrid id="i_panel_servicos" columns="9" style="margin-top: 5px">
@@ -281,7 +336,7 @@
                                     <h:outputLabel value="Validade Carteirinha" style="margin-left: 20px"/><br />
                                     <p:inputMask value="#{sociosBean.socCarteirinha.validadeCarteirinha}" size="13" mask="99/99/9999" style="margin-left: 20px; text-align: center" readonly="true"/>
                                 </p:column>
-                                
+
                                 <p:column>
                                     <h:outputLabel value="Via" style="margin-left: 20px"/><br />
                                     <p:inputText value="#{(sociosBean.socCarteirinha.via lt 10) ? '0'.concat(sociosBean.socCarteirinha.via) : sociosBean.socCarteirinha.via}" size="5" style="margin-left: 20px; text-align: center" readonly="true"/>

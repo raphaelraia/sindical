@@ -62,6 +62,10 @@
                                                     </p:selectBooleanCheckbox>                                                    
                                                 </p:outputPanel>
                                             </h:column>
+                                            <p:selectBooleanCheckbox value="#{categoriaBean.categoria.bloqueiaMeses}" itemLabel="Bloqueia Meses">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:selectBooleanCheckbox>
+                                            <h:column />
                                         </h:panelGrid>                                        
                                     </h:column>
                                 </h:panelGrid>
