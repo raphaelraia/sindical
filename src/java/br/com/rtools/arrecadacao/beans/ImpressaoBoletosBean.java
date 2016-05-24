@@ -22,8 +22,7 @@ import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
-import br.com.rtools.relatorios.db.RelatorioContribuintesDB;
-import br.com.rtools.relatorios.db.RelatorioContribuintesDBToplink;
+import br.com.rtools.relatorios.dao.RelatorioContribuintesDao;
 import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
@@ -627,7 +626,7 @@ public class ImpressaoBoletosBean implements Serializable {
 
     public String etiquetaEmpresa() {
         String cnaes = "";
-        RelatorioContribuintesDB dbContri = new RelatorioContribuintesDBToplink();
+        RelatorioContribuintesDao dbContri = new RelatorioContribuintesDao();
         PessoaEnderecoDao pessoaEnderecoDao = new PessoaEnderecoDao();
         List listaCnaes = new ArrayList();
         // CNAES DO RELATORIO -----------------------------------------------------------
@@ -702,7 +701,7 @@ public class ImpressaoBoletosBean implements Serializable {
         String cnaes = "";
 
         RelatorioDao db = new RelatorioDao();
-        RelatorioContribuintesDB dbContri = new RelatorioContribuintesDBToplink();
+        RelatorioContribuintesDao dbContri = new RelatorioContribuintesDao();
         JuridicaDB dbJur = new JuridicaDBToplink();
         PessoaEnderecoDao dao = new PessoaEnderecoDao();
         ConvencaoDB dbConv = new ConvencaoDBToplink();

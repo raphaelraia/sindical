@@ -56,7 +56,7 @@ import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.PF;
 import br.com.rtools.utilitarios.PhotoCapture;
 import br.com.rtools.utilitarios.ValidaDocumentos;
-import br.com.rtools.utilitarios.db.FunctionsDao;
+import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

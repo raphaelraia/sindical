@@ -1,7 +1,6 @@
 package br.com.rtools.seguranca.controleUsuario;
 
-import br.com.rtools.financeiro.db.ContaBancoDB;
-import br.com.rtools.financeiro.db.ContaBancoDBToplink;
+import br.com.rtools.financeiro.ContaBanco;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.seguranca.*;
 import br.com.rtools.seguranca.dao.PermissaoDao;
@@ -11,8 +10,7 @@ import br.com.rtools.seguranca.dao.UsuarioAcessoDao;
 import br.com.rtools.seguranca.db.UsuarioDB;
 import br.com.rtools.seguranca.db.UsuarioDBToplink;
 import br.com.rtools.sistema.ContadorAcessos;
-import br.com.rtools.sistema.db.AtalhoDB;
-import br.com.rtools.sistema.db.AtalhoDBToplink;
+import br.com.rtools.sistema.dao.AtalhoDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaSessao;
 import java.io.IOException;
@@ -211,7 +209,7 @@ public class ControleAcessoBean implements Serializable {
                 FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("chamadaPaginaSimples");
                 Rotina r = rotinaDao.pesquisaRotinaPermissaoPorClasse(lista[0]);
                 if (r != null) {
-                    AtalhoDB dba = new AtalhoDBToplink();
+                    AtalhoDao dba = new AtalhoDao();
                     rotina = new Rotina();
                     rotina = r;
 
@@ -1168,8 +1166,7 @@ public class ControleAcessoBean implements Serializable {
     }
 
     public boolean verificarContaBanco() {
-        ContaBancoDB db = new ContaBancoDBToplink();
-        List contas = db.pesquisaTodos();
+        List contas = new Dao().list(new ContaBanco(), true);
         if (!contas.isEmpty()) {
             return true;
         } else {

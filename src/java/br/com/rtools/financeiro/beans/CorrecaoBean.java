@@ -3,8 +3,7 @@ package br.com.rtools.financeiro.beans;
 import br.com.rtools.financeiro.Correcao;
 import br.com.rtools.financeiro.Indice;
 import br.com.rtools.financeiro.Servicos;
-import br.com.rtools.financeiro.db.CorrecaoDB;
-import br.com.rtools.financeiro.db.CorrecaoDao;
+import br.com.rtools.financeiro.dao.CorrecaoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DaoInterface;
@@ -47,7 +46,7 @@ public class CorrecaoBean implements Serializable {
     }
 
     public void save() {
-        CorrecaoDB db = new CorrecaoDao();
+        CorrecaoDao db = new CorrecaoDao();
         Dao dao = new Dao();
         NovoLog novoLog = new NovoLog();
         Servicos servico = (Servicos) dao.find(new Servicos(), Integer.parseInt(getListServicos().get(idServicos).getDescription()));

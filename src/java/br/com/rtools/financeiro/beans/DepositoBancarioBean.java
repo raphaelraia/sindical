@@ -13,8 +13,7 @@ import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.db.FinanceiroDB;
 import br.com.rtools.financeiro.db.FinanceiroDBToplink;
-import br.com.rtools.financeiro.db.Plano5DB;
-import br.com.rtools.financeiro.db.Plano5DBToplink;
+import br.com.rtools.financeiro.dao.Plano5Dao;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.seguranca.Rotina;
@@ -267,7 +266,7 @@ public class DepositoBancarioBean implements Serializable {
     public List<SelectItem> getListaConta() {
         if (listaConta.isEmpty()) {
             //SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-            Plano5DB db = new Plano5DBToplink();
+            Plano5Dao db = new Plano5Dao();
 
             List<Plano5> result = db.pesquisaCaixaBanco();
             //List<ContaBanco> select = sv.listaObjeto("ContaBanco");

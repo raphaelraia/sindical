@@ -25,11 +25,9 @@ import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
 import br.com.rtools.relatorios.Relatorios;
-import br.com.rtools.relatorios.db.RelatorioContribuintesDB;
-import br.com.rtools.relatorios.db.RelatorioContribuintesDBToplink;
+import br.com.rtools.relatorios.dao.RelatorioContribuintesDao;
 import br.com.rtools.relatorios.dao.RelatorioDao;
-import br.com.rtools.relatorios.db.RelatorioMovimentosDB;
-import br.com.rtools.relatorios.db.RelatorioMovimentosDBToplink;
+import br.com.rtools.relatorios.dao.RelatorioMovimentosDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
@@ -263,7 +261,7 @@ public class RelatorioMovimentoBean implements Serializable {
     
     public Collection listaPesquisa() {
         
-        RelatorioMovimentosDB db_rel = new RelatorioMovimentosDBToplink();
+        RelatorioMovimentosDao db_rel = new RelatorioMovimentosDao();
         ConfiguracaoArrecadacaoBean cab = new ConfiguracaoArrecadacaoBean();
         cab.init();
         Juridica sindicato = cab.getConfiguracaoArrecadacao().getFilial().getFilial();
@@ -1101,7 +1099,7 @@ public class RelatorioMovimentoBean implements Serializable {
             listaCnaeConvencaos.clear();
             int i = 0;
             String ids = "";
-            RelatorioContribuintesDB db = new RelatorioContribuintesDBToplink();
+            RelatorioContribuintesDao db = new RelatorioContribuintesDao();
             listaCnaeConvencaos = db.pesquisarCnaeConvencaoPorConvencao(listaConvencao.get(idConvencao).getDescription());
         }
         return listaCnaeConvencaos;

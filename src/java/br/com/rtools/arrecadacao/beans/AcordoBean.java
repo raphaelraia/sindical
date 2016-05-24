@@ -5,6 +5,7 @@ import br.com.rtools.arrecadacao.db.AcordoDB;
 import br.com.rtools.arrecadacao.db.AcordoDBToplink;
 import br.com.rtools.associativo.beans.MovimentosReceberSocialBean;
 import br.com.rtools.financeiro.ContaCobranca;
+import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.Historico;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Servicos;
@@ -12,8 +13,7 @@ import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.beans.MovimentosReceberBean;
 import br.com.rtools.financeiro.db.ContaCobrancaDB;
 import br.com.rtools.financeiro.db.ContaCobrancaDBToplink;
-import br.com.rtools.financeiro.db.FTipoDocumentoDB;
-import br.com.rtools.financeiro.db.FTipoDocumentoDBToplink;
+import br.com.rtools.financeiro.dao.FTipoDocumentoDao;
 import br.com.rtools.financeiro.db.MovimentoDB;
 import br.com.rtools.financeiro.db.MovimentoDBToplink;
 import br.com.rtools.financeiro.db.TipoServicoDB;
@@ -28,6 +28,7 @@ import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
+import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.EnviarEmail;
@@ -699,10 +700,10 @@ public class AcordoBean implements Serializable {
 
     public synchronized void adicionarParcela() {
         try {
-            FilialDB dbFil = new FilialDao();
+            Dao dao = new Dao();
             TipoServicoDB dbTipoServico = new TipoServicoDBToplink();
             ContaCobrancaDB ctaCobraDB = new ContaCobrancaDBToplink();
-            FTipoDocumentoDB dbft = new FTipoDocumentoDBToplink();
+            FTipoDocumentoDao dbft = new FTipoDocumentoDao();
             TipoServico tipoServico = dbTipoServico.pesquisaCodigo(4);
             DataHoje data = new DataHoje();
             int j = 0, k = 0;
@@ -776,7 +777,7 @@ public class AcordoBean implements Serializable {
                                     "",
                                     ultimoVencimento,
                                     0,
-                                    0, 0, 0, 0, 0, 0, dbft.pesquisaCodigo(2), 0, null);
+                                    0, 0, 0, 0, 0, 0, (FTipoDocumento) dao.find(new FTipoDocumento(), 2), 0, null);
 
                             listaOperado.add(new DataObject(false, ++k, mov, (String) listaVizualizado.get(i).getArgumento3(), null, null));
 
@@ -818,7 +819,7 @@ public class AcordoBean implements Serializable {
                                 "",
                                 ultimoVencimentoSind,
                                 0,
-                                0, 0, 0, 0, 0, 0, dbft.pesquisaCodigo(2), 0, null);
+                                0, 0, 0, 0, 0, 0, (FTipoDocumento) dao.find(new FTipoDocumento(), 2), 0, null);
 
                         listaOperado.add(new DataObject(false, ++k, mov, (String) listaVizualizado.get(i).getArgumento3(), null, null));
 

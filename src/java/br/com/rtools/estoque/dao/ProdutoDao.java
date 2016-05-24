@@ -5,17 +5,13 @@ import br.com.rtools.estoque.EstoqueSaidaConsumo;
 import br.com.rtools.estoque.Produto;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.principal.DB;
-import br.com.rtools.utilitarios.QueryString;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 
 public class ProdutoDao extends DB {
 
-    public List pesquisaProduto(Produto produto, Integer tipoPesquisa, String porPesquisa) {
-        if (produto.getDescricao().isEmpty()) {
-            return new ArrayList();
-        }
+    public List pesquisaProduto(String descricaoPesquisa, Integer tipoPesquisa, String porPesquisa, Integer grupo_id, Integer subgrupo_id) {
         try {
             String por;
             if (porPesquisa.equals("Inicial")) {
@@ -23,20 +19,38 @@ public class ProdutoDao extends DB {
             } else {
                 por = "%";
             }
-            String descricao = por + produto.getDescricao() + "%";
-            String queryString = ""
-                    + "SELECT P.*                                                                                               \n"
-                    + "  FROM est_produto AS P                                                                                  \n"
-                    + " WHERE trim(UPPER(func_translate(P.ds_descricao))) LIKE trim(UPPER(func_translate('" + descricao + "'))) \n"
-                    + "   OR (                                                                                                  \n"
-                    + "     trim(UPPER(func_translate(P.ds_modelo))) LIKE trim(UPPER(func_translate('" + produto.getDescricao() + "')))         \n"
-                    + "     OR trim(UPPER(func_translate(P.ds_marca))) LIKE trim(UPPER(func_translate('" + produto.getDescricao() + "')))       \n"
-                    + "     OR trim(UPPER(func_translate(P.ds_fabricante))) LIKE trim(UPPER(func_translate('" + produto.getDescricao() + "')))  \n"
-                    + ")                                                                                                        \n"
-                    + "ORDER BY P.ds_descricao                                                                                  \n"
-                    + "   ";
+            List listWhere = new ArrayList<>();
+            String queryString = " SELECT P.* FROM est_produto AS P \n";
 
-            Query query = getEntityManager().createNativeQuery(queryString, Produto.class);
+            if (!descricaoPesquisa.isEmpty()) {
+                String descricao = por + descricaoPesquisa + "%";
+                listWhere.add(" (trim(UPPER(func_translate(P.ds_descricao))) LIKE trim(UPPER(func_translate('" + descricao + "')))               \n"
+                        + "   OR (                                                                                                              \n"
+                        + "     trim(UPPER(func_translate(P.ds_modelo))) LIKE trim(UPPER(func_translate('" + descricaoPesquisa + "')))          \n"
+                        + "     OR trim(UPPER(func_translate(P.ds_marca))) LIKE trim(UPPER(func_translate('" + descricaoPesquisa + "')))        \n"
+                        + "     OR trim(UPPER(func_translate(P.ds_fabricante))) LIKE trim(UPPER(func_translate('" + descricaoPesquisa + "')))   \n"
+                        + ") )");
+            }
+            if (grupo_id != -1 && subgrupo_id == -1) {
+                listWhere.add("P.id_grupo = " + grupo_id + " ");
+            }
+            if (subgrupo_id != -1) {
+                listWhere.add("P.id_subgrupo = " + subgrupo_id + " ");
+            }
+            for (int i = 0; i < listWhere.size(); i++) {
+                if (i == 0) {
+                    queryString += " WHERE " + listWhere.get(i).toString() + " \n";
+                } else {
+                    queryString += " AND " + listWhere.get(i).toString() + " \n";
+                }
+            }
+            queryString += " ORDER BY P.ds_descricao \n";
+            if(listWhere.isEmpty()) {
+                queryString += " LIMIT 250 \n";
+                
+            }   
+            Query query;
+            query = getEntityManager().createNativeQuery(queryString, Produto.class);
             List list = query.getResultList();
             if (!list.isEmpty()) {
                 return list;

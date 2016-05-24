@@ -122,7 +122,7 @@
                                 <p:outputLabel value="#{vendaBaileBean.descricaoServico}" style="font-size: 12pt!important; font-weight: bold; color: blue" />
                             </h:panelGrid>
 
-                            <p:dataTable value="#{vendaBaileBean.listaConviteBaile}" var="convite" id="tblConvite" emptyMessage="Nenhum convite Encontrado!" styleClass="margin-top-max" selection="#{vendaBaileBean.listaConviteBaileSelecionado}" rowKey="#{convite.id}" scrollable="true" scrollHeight="200" style="width: 200px; float: right" rendered="#{vendaBaileBean.mesaConvite eq 'convite'}">
+                            <p:dataTable value="#{vendaBaileBean.listaConviteBaile}" var="convite" id="tblConvite" emptyMessage="Nenhum convite Encontrado!" styleClass="margin-top-max" selection="#{vendaBaileBean.listaConviteBaileSelecionado}" rowKey="#{convite.id}" scrollable="true" scrollHeight="200" style="width: 260px; float: right" rendered="#{vendaBaileBean.mesaConvite eq 'convite'}">
                                 <p:ajax event="rowSelect"           update="formVendasBaileTbl:panelValores" listener="#{vendaBaileBean.somaValor()}" />
                                 <p:ajax event="rowSelectCheckbox"   update="formVendasBaileTbl:panelValores" listener="#{vendaBaileBean.somaValor()}" />
                                 <p:ajax event="rowUnselect"         update="formVendasBaileTbl:panelValores" listener="#{vendaBaileBean.somaValor()}" />
@@ -133,6 +133,10 @@
                                 <p:column headerText="CONVITES" style="text-align: center; width: 80px">
                                     <h:outputLabel value="#{convite.convite}" />
                                 </p:column>
+                                
+                                <p:column headerText="" style="text-align: center; width: 100px">
+                                    <p:commandButton value="CONVITE" action="#{vendaBaileBean.imprimirConviteIndividual(convite)}" ajax="false" rendered="#{vendaBaileBean.venda.id != -1}" style="font-weight: bold"/>
+                                </p:column>
 
                                 <f:facet name="footer">
                                     <p:commandButton icon="ui-icon-check" value="Convites Selecionados" rendered="false"/>
@@ -140,7 +144,7 @@
                             </p:dataTable>
 
 
-                            <p:dataTable value="#{vendaBaileBean.listaMesasBaile}" var="mesa" id="tblMesa" emptyMessage="Nenhuma mesa Encontrada!" styleClass="margin-top-max" selection="#{vendaBaileBean.listaMesasBaileSelecionada}" rowKey="#{mesa.id}" scrollable="true" scrollHeight="200" style="width: 200px; float: right" rendered="#{vendaBaileBean.mesaConvite eq 'mesa'}" disabledSelection="#{vendaBaileBean.venda.id != -1}">
+                            <p:dataTable value="#{vendaBaileBean.listaMesasBaile}" var="mesa" id="tblMesa" emptyMessage="Nenhuma mesa Encontrada!" styleClass="margin-top-max" selection="#{vendaBaileBean.listaMesasBaileSelecionada}" rowKey="#{mesa.id}" scrollable="true" scrollHeight="200" style="width: 260px; float: right" rendered="#{vendaBaileBean.mesaConvite eq 'mesa'}" disabledSelection="#{vendaBaileBean.venda.id != -1}">
                                 <p:ajax event="rowSelect"           update="formVendasBaileTbl:panelValores" listener="#{vendaBaileBean.somaValor()}" />
                                 <p:ajax event="rowSelectCheckbox"   update="formVendasBaileTbl:panelValores" listener="#{vendaBaileBean.somaValor()}" />
                                 <p:ajax event="rowUnselect"         update="formVendasBaileTbl:panelValores" listener="#{vendaBaileBean.somaValor()}" />
@@ -152,6 +156,10 @@
                                     <h:outputLabel value="#{mesa.mesa}" />
                                 </p:column>
 
+                                <p:column headerText="" style="text-align: center; width: 100px">
+                                    <p:commandButton value="CONVITE" action="#{vendaBaileBean.imprimirConviteMesa(mesa)}" ajax="false" rendered="#{vendaBaileBean.venda.id != -1}" style="font-weight: bold" disabled="#{!vendaBaileBean.cab.verificarPermissao('reimprimir_convite_baile', 4)}"/>
+                                </p:column>
+                                
                                 <f:facet name="footer">
                                     <p:commandButton icon="ui-icon-check" value="Mesas Selecionadas" rendered="false"/>
                                 </f:facet>

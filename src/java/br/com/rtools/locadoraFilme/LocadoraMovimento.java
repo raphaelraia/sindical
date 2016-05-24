@@ -5,7 +5,7 @@ import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Moeda;
-import br.com.rtools.utilitarios.db.FunctionsDao;
+import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Column;

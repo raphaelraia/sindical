@@ -1,8 +1,6 @@
 //package br.com.rtools.pessoa.beans;
 //
 //import br.com.rtools.pessoa.TipoDocumento;
-import br.com.rtools.pessoa.db.TipoDocumentoDB;
-import br.com.rtools.pessoa.db.TipoDocumentoDBToplink;
 //import java.util.List;
 //import javax.faces.context.FacesContext;
 //
@@ -29,7 +27,7 @@ import br.com.rtools.pessoa.db.TipoDocumentoDBToplink;
 //    }
 //
 //    public String salvar() {
-//        TipoDocumentoDB db = new TipoDocumentoDBToplink();
+//        TipoDocumentoDB db = new TipoDocumentoDao();
 //        if (tipoDocumento.getId() == -1) {
 //            if (db.insert(tipoDocumento)) {
 //                msgConfirma = "Tipo de Documento Salvo com Sucesso!";
@@ -55,7 +53,7 @@ import br.com.rtools.pessoa.db.TipoDocumentoDBToplink;
 //    }
 //
 //    public String excluir() {
-//        TipoDocumentoDB db = new TipoDocumentoDBToplink();
+//        TipoDocumentoDB db = new TipoDocumentoDao();
 //        if (tipoDocumento.getId() != -1) {
 //            db.getEntityManager().getTransaction().begin();
 //            tipoDocumento = db.pesquisaCodigo(tipoDocumento.getId());
@@ -79,7 +77,7 @@ import br.com.rtools.pessoa.db.TipoDocumentoDBToplink;
 //
 //    public List getListaTipoDocumento() {
 //        List result = null;
-//        TipoDocumentoDB db = new TipoDocumentoDBToplink();
+//        TipoDocumentoDB db = new TipoDocumentoDao();
 //        result = db.pesquisaTodos();
 //        return result;
 //    }

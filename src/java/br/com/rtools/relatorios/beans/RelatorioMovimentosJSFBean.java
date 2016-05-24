@@ -16,8 +16,7 @@ import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.*;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioDao;
-import br.com.rtools.relatorios.db.RelatorioMovimentosDB;
-import br.com.rtools.relatorios.db.RelatorioMovimentosDBToplink;
+import br.com.rtools.relatorios.dao.RelatorioMovimentosDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.*;
@@ -80,7 +79,7 @@ public class RelatorioMovimentosJSFBean extends MovimentoValorBean {
         Date dtFinal = null;
 
         RelatorioDao db = new RelatorioDao();
-        RelatorioMovimentosDB dbMov = new RelatorioMovimentosDBToplink();
+        RelatorioMovimentosDao dbMov = new RelatorioMovimentosDao();
 
         Relatorios relatorios = new Relatorios();
         relatorios = db.pesquisaRelatorios(Integer.parseInt(getListaTipoRelatorios().get(idRelatorios).getDescription()));
@@ -378,7 +377,7 @@ public class RelatorioMovimentosJSFBean extends MovimentoValorBean {
         Date dtFinal = null;
 
         RelatorioDao db = new RelatorioDao();
-        RelatorioMovimentosDB dbMov = new RelatorioMovimentosDBToplink();
+        RelatorioMovimentosDao dbMov = new RelatorioMovimentosDao();
 
         Relatorios relatorios = new Relatorios();
         relatorios = db.pesquisaRelatorios(Integer.parseInt(getListaTipoRelatorios().get(idRelatorios).getDescription()));

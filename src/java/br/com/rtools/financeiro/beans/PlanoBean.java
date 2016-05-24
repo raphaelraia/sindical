@@ -1,10 +1,7 @@
 package br.com.rtools.financeiro.beans;
 
 import br.com.rtools.financeiro.*;
-import br.com.rtools.financeiro.db.ContaBancoDB;
-import br.com.rtools.financeiro.db.ContaBancoDBToplink;
-import br.com.rtools.financeiro.db.PlanoDB;
-import br.com.rtools.financeiro.db.PlanoDBToplink;
+import br.com.rtools.financeiro.dao.PlanoDao;
 import br.com.rtools.financeiro.lista.ListPlanoConta;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -31,7 +28,7 @@ public class PlanoBean {
     private List<ListPlanoConta> listaPlanoContas;
     private boolean limpar;
     private int idPlanoConta;
-    private List<SelectItem> listaContaBanco; 
+    private List<SelectItem> listaContaBanco;
     private List<Plano5> listaPlanoContasPorPesquisa;
     private String descPesquisa;
     private String porPesquisa;
@@ -40,6 +37,8 @@ public class PlanoBean {
     private int deletePlano;
     private Boolean[] visible;
     private String textNewPlano;
+    private List<SelectItem> listContaTipo;
+    private Integer idContaTipo;
 
     @PostConstruct
     public void init() {
@@ -66,6 +65,9 @@ public class PlanoBean {
         porPesquisa = "conta";
         comoPesquisa = "";
         selectedPlano = 1;
+        listContaTipo = new ArrayList();
+        idContaTipo = 0;
+
     }
 
     @PreDestroy
@@ -229,6 +231,12 @@ public class PlanoBean {
             PF.update("form_plano:i_panel_plano4");
         } else if (className.equals("Plano5") && selectedPlano == 5) {
             plano5 = (Plano5) o;
+            loadContaTipo();
+            if (plano5.getContaTipo() == null) {
+                idContaTipo = -1;
+            } else {
+                idContaTipo = plano5.getContaTipo().getId();
+            }
             PF.openDialog("dlg_plano5");
             PF.update("form_plano:i_panel_plano5");
         }
@@ -250,13 +258,11 @@ public class PlanoBean {
                 GenericaMensagem.warn("Erro", "Ao adicionar plano 1!");
                 return false;
             }
+        } else if (dao.update(plano)) {
+            GenericaMensagem.info("Sucesso", "Plano 1 atualizado");
         } else {
-            if (dao.update(plano)) {
-                GenericaMensagem.info("Sucesso", "Plano 1 atualizado");
-            } else {
-                GenericaMensagem.warn("Erro", "Ao atualizar plano 1!");
-                return false;
-            }
+            GenericaMensagem.warn("Erro", "Ao atualizar plano 1!");
+            return false;
         }
         return true;
     }
@@ -283,13 +289,11 @@ public class PlanoBean {
                 GenericaMensagem.warn("Erro", "Ao inserir plano 2!");
                 return false;
             }
+        } else if (dao.update(plano2)) {
+            GenericaMensagem.info("Sucesso", "Plano 2 atualizado");
         } else {
-            if (dao.update(plano2)) {
-                GenericaMensagem.info("Sucesso", "Plano 2 atualizado");
-            } else {
-                GenericaMensagem.warn("Erro", "Ao atualizad plano 2!");
-                return false;
-            }
+            GenericaMensagem.warn("Erro", "Ao atualizad plano 2!");
+            return false;
         }
         //plano2 = new Plano2();
         return true;
@@ -317,13 +321,11 @@ public class PlanoBean {
                 GenericaMensagem.warn("Erro", "Ao inserir plano 3!");
                 return false;
             }
+        } else if (dao.update(plano3)) {
+            GenericaMensagem.info("Sucesso", "Plano 3 atualizado");
         } else {
-            if (dao.update(plano3)) {
-                GenericaMensagem.info("Sucesso", "Plano 3 atualizado");
-            } else {
-                GenericaMensagem.warn("Erro", "Ao atualizad plano 3!");
-                return false;
-            }
+            GenericaMensagem.warn("Erro", "Ao atualizad plano 3!");
+            return false;
         }
         return true;
     }
@@ -350,14 +352,11 @@ public class PlanoBean {
                 GenericaMensagem.warn("Erro", "Ao inserir plano 4!");
                 return false;
             }
+        } else if (dao.update(plano4)) {
+            GenericaMensagem.info("Sucesso", "Plano 4 atualizado");
         } else {
-            if (dao.update(plano4)) {
-                GenericaMensagem.info("Sucesso", "Plano 4 atualizado");
-            } else {
-                GenericaMensagem.warn("Erro", "Ao atualizad plano 4!");
-                return false;
-            }
-
+            GenericaMensagem.warn("Erro", "Ao atualizad plano 4!");
+            return false;
         }
         return true;
     }
@@ -376,6 +375,11 @@ public class PlanoBean {
     }
 
     public boolean savePlano5(Dao dao) {
+        if (idContaTipo == -1) {
+            plano5.setContaTipo(null);
+        } else {
+            plano5.setContaTipo((ContaTipo) dao.find(new ContaTipo(), idContaTipo));
+        }
         if (plano5.getId() == -1) {
             plano5.setContaBanco(null);
             if (dao.save(plano5)) {
@@ -384,13 +388,11 @@ public class PlanoBean {
                 GenericaMensagem.warn("Erro", "Ao inserir plano 5!");
                 return false;
             }
+        } else if (dao.update(plano5)) {
+            GenericaMensagem.info("Sucesso", "Plano 5 atualizado");
         } else {
-            if (dao.update(plano5)) {
-                GenericaMensagem.warn("Sucesso", "Plano 5 atualizado");
-            } else {
-                GenericaMensagem.warn("Erro", "Ao atualizar plano 5!");
-                return false;
-            }
+            GenericaMensagem.warn("Erro", "Ao atualizar plano 5!");
+            return false;
         }
         return true;
     }
@@ -438,12 +440,13 @@ public class PlanoBean {
             plano5.setPlano4(plano4);
             PF.openDialog("dlg_plano5");
         } else if (selectedPlano == 5) {
+            loadContaTipo();
             plano5 = (Plano5) listaPlanoContas.get(indexRow).getPlano5();
         }
     }
 
     public List<ListPlanoConta> getListaPlanoContas() {
-        PlanoDB db = new PlanoDBToplink();
+        PlanoDao db = new PlanoDao();
         List listaAuxiliar;
         ListPlanoConta listPlanoConta = new ListPlanoConta();
         Plano5 p5 = new Plano5();
@@ -572,10 +575,9 @@ public class PlanoBean {
     }
 
     public List<SelectItem> getListaContaBanco() {
-        ContaBancoDB db = new ContaBancoDBToplink();
         if (listaContaBanco.isEmpty()) {
             int i = 0;
-            List select = db.pesquisaTodos();
+            List select = new Dao().list(new ContaBanco(), true);
             while (i < select.size()) {
                 listaContaBanco.add(new SelectItem(i, (String) ((ContaBanco) select.get(i)).getBanco().getBanco() + " - " + ((ContaBanco) select.get(i)).getAgencia() + " - " + ((ContaBanco) select.get(i)).getConta(), Integer.toString(((ContaBanco) select.get(i)).getId())));
                 i++;
@@ -622,7 +624,7 @@ public class PlanoBean {
 
     public List<Plano5> getListaPlanoPorPesquisa() {
         if (listaPlanoContasPorPesquisa.isEmpty()) {
-            PlanoDB db = new PlanoDBToplink();
+            PlanoDao db = new PlanoDao();
             String tipoPlano = "Plano5";
             if (selectedPlano == 1) {
                 tipoPlano = "Plano";
@@ -667,5 +669,31 @@ public class PlanoBean {
 
     public void selectedDeletePlano(int tcase) {
         deletePlano = tcase;
+    }
+
+    public List<SelectItem> getListContaTipo() {
+        return listContaTipo;
+    }
+
+    public void setListContaTipo(List<SelectItem> listContaTipo) {
+        this.listContaTipo = listContaTipo;
+    }
+
+    public Integer getIdContaTipo() {
+        return idContaTipo;
+    }
+
+    public void setIdContaTipo(Integer idContaTipo) {
+        this.idContaTipo = idContaTipo;
+    }
+
+    public void loadContaTipo() {
+        List<ContaTipo> list = new Dao().list(new ContaTipo(), true);
+        listContaTipo = new ArrayList();
+        idContaTipo = -1;
+        listContaTipo.add(new SelectItem(-1, "NENHUM TIPO"));
+        for (int i = 0; i < list.size(); i++) {
+            listContaTipo.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
+        }
     }
 }

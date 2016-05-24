@@ -1,7 +1,6 @@
 //package br.com.rtools.pessoa.beans;
 //
 //import br.com.rtools.pessoa.TipoEndereco;
-import br.com.rtools.pessoa.db.TipoEnderecoDB;
 //import br.com.rtools.pessoa.db.TipoEnderecoDBToplink;
 //import java.util.List;
 //import javax.faces.context.FacesContext;

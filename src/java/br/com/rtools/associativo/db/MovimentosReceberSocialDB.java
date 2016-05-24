@@ -59,7 +59,7 @@ public interface MovimentosReceberSocialDB {
 
     public List<Vector> listaBoletosAbertosAgrupado(int id_pessoa, boolean atrasados);
 
-    public List<Movimento> listaMovimentosAbertosAnexarAgrupado(int id_pessoa);
+    public List<Movimento> listaMovimentosAbertosAnexarAgrupado(int id_pessoa, int id_responsavel);
 
     public List<Movimento> listaMovimentosPorNrCtrBoleto(String nr_ctr_boleto);
 

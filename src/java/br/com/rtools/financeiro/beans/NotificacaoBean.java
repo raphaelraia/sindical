@@ -29,8 +29,7 @@ import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.Email;
 import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.sistema.Links;
-import br.com.rtools.sistema.db.LinksDB;
-import br.com.rtools.sistema.db.LinksDBToplink;
+import br.com.rtools.sistema.dao.LinksDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.DataHoje;
@@ -297,7 +296,7 @@ public class NotificacaoBean implements Serializable {
             return null;
         }
 
-        LinksDB db = new LinksDBToplink();
+        LinksDao db = new LinksDao();
         try {
             String caminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/notificacao/" + lote.getId());
             File files = new File(caminho);
@@ -1274,7 +1273,7 @@ public class NotificacaoBean implements Serializable {
             listaArquivo.clear();
         }
         if (listaArquivo.isEmpty()) {
-            LinksDB db = new LinksDBToplink();
+            LinksDao db = new LinksDao();
             try {
                 String caminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/notificacao/" + lote.getId());
                 File files = new File(caminho);

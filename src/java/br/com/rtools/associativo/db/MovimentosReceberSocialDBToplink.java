@@ -269,14 +269,16 @@ public class MovimentosReceberSocialDBToplink extends DB implements MovimentosRe
     }
 
     @Override
-    public List<Movimento> listaMovimentosAbertosAnexarAgrupado(int id_pessoa) {
+    public List<Movimento> listaMovimentosAbertosAnexarAgrupado(int id_pessoa, int id_responsavel) {
         String textqry
                 = " SELECT m.* \n"
                 + "  FROM fin_movimento m \n"
                 + "  LEFT JOIN fin_boleto b ON m.nr_ctr_boleto = b.nr_ctr_boleto \n"
                 + " INNER JOIN pes_pessoa pt ON pt.id = m.id_titular \n"
                 + " INNER JOIN pes_pessoa pb ON pb.id = m.id_beneficiario \n"
-                + " WHERE m.id_pessoa = " + id_pessoa + " \n"
+                + "  LEFT JOIN pes_juridica j ON j.id_pessoa = m.id_pessoa \n"
+                //+ " WHERE m.id_pessoa = " + id_pessoa + " \n"
+                + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL AND m.id_titular in (" + id_responsavel + ")) OR m.id_pessoa IN (" + id_pessoa + ")) \n"
                 + "   AND m.is_ativo = true \n"
                 + "   AND (m.ds_documento IS NULL OR m.ds_documento = '') \n"
                 + "   AND (m.nr_ctr_boleto IS NULL OR m.nr_ctr_boleto = '') \n"

@@ -44,7 +44,7 @@ import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.PF;
-import br.com.rtools.utilitarios.db.FunctionsDao;
+import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;

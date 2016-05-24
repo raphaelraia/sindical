@@ -12,8 +12,7 @@ import br.com.rtools.financeiro.GrupoFinanceiro;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.SubGrupoFinanceiro;
 import br.com.rtools.financeiro.dao.ServicosDao;
-import br.com.rtools.financeiro.db.FTipoDocumentoDB;
-import br.com.rtools.financeiro.db.FTipoDocumentoDBToplink;
+import br.com.rtools.financeiro.dao.FTipoDocumentoDao;
 import br.com.rtools.financeiro.db.FinanceiroDBToplink;
 import br.com.rtools.impressao.ParametroSocios;
 import br.com.rtools.pessoa.Juridica;
@@ -729,9 +728,9 @@ public class RelatorioSociosBean implements Serializable {
 
     public List<DataObject> getListaTipoCobranca() {
         if (listaTipoCobranca.isEmpty()) {
-            FTipoDocumentoDB db = new FTipoDocumentoDBToplink();
+            FTipoDocumentoDao db = new FTipoDocumentoDao();
             List select = new ArrayList();
-            select.add(db.pesquisaCodigo(2));
+            select.add(new Dao().find(new FTipoDocumento(), 2));
             select.addAll(db.pesquisaListaTipoExtrato());
             for (int i = 0; i < select.size(); i++) {
                 listaTipoCobranca.add(new DataObject(false, (FTipoDocumento) select.get(i)));

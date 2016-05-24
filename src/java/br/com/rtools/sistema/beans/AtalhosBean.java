@@ -3,8 +3,7 @@ package br.com.rtools.sistema.beans;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.sistema.Atalhos;
-import br.com.rtools.sistema.db.AtalhoDB;
-import br.com.rtools.sistema.db.AtalhoDBToplink;
+import br.com.rtools.sistema.dao.AtalhoDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.GenericaSessao;
@@ -26,7 +25,7 @@ public class AtalhosBean implements Serializable {
 
     public String adicionar() {
         DaoInterface di = new Dao();
-        AtalhoDB db = new AtalhoDBToplink();
+        AtalhoDao db = new AtalhoDao();
         atalhos.setRotina((Rotina) di.find(new Rotina(), Integer.parseInt(listaRotina.get(idRotina).getDescription())));
         if (atalhos.getSigla().isEmpty() || db.pesquisaPorSigla(atalhos.getSigla()) != null || db.pesquisaPorRotina(atalhos.getRotina().getId()) != null) {
             return null;
@@ -58,7 +57,7 @@ public class AtalhosBean implements Serializable {
 
     public List<Atalhos> getListaAtalhos() {
         if (listaAtalhos.isEmpty() && GenericaSessao.exists("sessaoUsuario")) {
-            AtalhoDB db = new AtalhoDBToplink();
+            AtalhoDao db = new AtalhoDao();
             listaAtalhos = db.listaTodos(((Usuario) GenericaSessao.getObject("sessaoUsuario")).getPessoa().getId());
             for (int i = 0; i < listaAtalhos.size(); i++) {
                 if (listaAtalhos.get(i).getRotina().getRotina().length() > 16) {

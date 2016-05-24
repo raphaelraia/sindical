@@ -1,6 +1,8 @@
 package br.com.rtools.utilitarios;
 
+import br.com.rtools.financeiro.dao.FTipoDocumentoDao;
 import br.com.rtools.financeiro.ContaCobranca;
+import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Servicos;
@@ -12,7 +14,6 @@ import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.db.*;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Usuario;
-import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,7 +69,7 @@ public abstract class ArquivoRetorno {
         MovimentoDB db = new MovimentoDBToplink();
         JuridicaDB dbJur = new JuridicaDBToplink();
         PessoaDB dbPes = new PessoaDBToplink();
-        FTipoDocumentoDB dbft = new FTipoDocumentoDBToplink();
+        FTipoDocumentoDao dbft = new FTipoDocumentoDao();
         List<Movimento> movimento = new ArrayList();
         SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
         File fl = new File(caminho + "/pendentes/");
@@ -165,7 +166,8 @@ public abstract class ArquivoRetorno {
                                 0, 0, 0, 0, 0,
                                 Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorTaxa())), 100),
                                 Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorPago())), 100),
-                                dbft.pesquisaCodigo(2), 0, null);
+                                (FTipoDocumento) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(2, "FTipoDocumento"),
+                                0, null);
 
                         if (GerarMovimento.salvarUmMovimentoBaixa(new Lote(), movi)) {
                             float valor_liquido = Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorCredito())), 100);
@@ -268,7 +270,7 @@ public abstract class ArquivoRetorno {
                             0, 0, 0, 0, 0,
                             Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorTaxa())), 100),
                             Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorPago())), 100),
-                            dbft.pesquisaCodigo(2),
+                            (FTipoDocumento) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(2, "FTipoDocumento"),
                             0,
                             null);
 
@@ -310,7 +312,7 @@ public abstract class ArquivoRetorno {
                             0, 0, 0, 0, 0,
                             Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorTaxa())), 100),
                             Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorPago())), 100),
-                            dbft.pesquisaCodigo(2), 0, null);
+                            (FTipoDocumento) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(2, "FTipoDocumento"), 0, null);
 
                     if (GerarMovimento.salvarUmMovimentoBaixa(new Lote(), movi)) {
                         float valor_liquido = Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorCredito())), 100);

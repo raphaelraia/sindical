@@ -1,5 +1,6 @@
 package br.com.rtools.seguranca.beans;
 
+import br.com.rtools.seguranca.dao.PermissaoDepartamentoDao;
 import br.com.rtools.seguranca.dao.PermissaoDao;
 import br.com.rtools.seguranca.dao.RotinaDao;
 import br.com.rtools.logSistema.NovoLog;
@@ -501,8 +502,7 @@ public class PermissaoBean implements Serializable {
     }
 
     public List getListaPermissaoDpto() {
-        PermissaoDepartamentoDB db = new PermissaoDepartamentoDBToplink();
-        List result = db.pesquisaTodos();
+        List result = new Dao().list(new PermissaoDepartamento());
         return result;
     }
 
@@ -679,7 +679,7 @@ public class PermissaoBean implements Serializable {
     public List<ListaPermissaoDepartamento> getListaPermissoesDisponiveis() {
         if (listaPermissoesDisponiveis.isEmpty()) {
             //listaPermissoesDisponiveis.clear();
-            PermissaoDepartamentoDB permissaoDepartamentoDB = new PermissaoDepartamentoDBToplink();
+            PermissaoDepartamentoDao permissaoDepartamentoDB = new PermissaoDepartamentoDao();
             int idDepto = Integer.parseInt(listaDepartamentos.get(idDepartamento).getDescription());
             int idNiv = Integer.parseInt(listaNiveis.get(idNivel).getDescription());
             List<Permissao> list = permissaoDepartamentoDB.listaPermissaoDepartamentoDisponivel(idDepto, idNiv, descricaoPesquisa);
@@ -696,7 +696,7 @@ public class PermissaoBean implements Serializable {
 
     public List<ListaPermissaoDepartamento> getListaPermissoesAdicionadas() {
         if (listaPermissoesAdicionadas.isEmpty()) {
-            PermissaoDepartamentoDB permissaoDepartamentoDB = new PermissaoDepartamentoDBToplink();
+            PermissaoDepartamentoDao permissaoDepartamentoDB = new PermissaoDepartamentoDao();
             int idDepto = Integer.parseInt(listaDepartamentos.get(idDepartamento).getDescription());
             int idNiv = Integer.parseInt(listaNiveis.get(idNivel).getDescription());
             List<PermissaoDepartamento> list = permissaoDepartamentoDB.listaPermissaoDepartamentoAdicionada(idDepto, idNiv, descricaoPesquisa);

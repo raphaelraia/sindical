@@ -80,7 +80,7 @@
 
                                     <p:column>
                                         <h:outputLabel value="Nome do Evento" style="margin-left: 30px"/><br />
-                                        <p:selectOneMenu value="#{baileBean.idDescricaoEvento}" style="margin-left: 30px; padding-right: 20px">
+                                        <p:selectOneMenu value="#{baileBean.idDescricaoEvento}" style="margin-left: 30px;">
                                             <f:selectItems value="#{baileBean.listaComboDescricaoEvento}" />
                                         </p:selectOneMenu>
                                     </p:column>
@@ -108,6 +108,11 @@
                                     </p:column>
                                 </h:panelGrid>
 
+                                <h:panelGrid id="i_panel_local" columns="3" style="clear: both; border: 0px;">
+                                    <p:outputLabel value="Local"/><br />
+                                    <p:inputText value="#{baileBean.eventoBaile.local}" style="width: 400px" placeholder="LOCAL DO EVENTO"/>
+                                </h:panelGrid>
+                                    
                                 <h:panelGrid id="i_panel_endereco" columns="5" style="clear: both; border: 0px;">
                                     <p:commandButton action="#{chamadaPaginaBean.pesquisaEndereco}" value="Adicionar um endereço" title="Pesquisa de Endereços" rendered="#{(baileBean.endereco.endereco.enderecoToString) == ''}"/>
 

@@ -77,8 +77,8 @@
                                                     <p:ajax event="change" update="@this :form_co:i_habilita_todos" />
                                                 </p:selectBooleanCheckbox>
                                             </p:column>
-                                            <p:column headerText="Conta (Plano 5)">
-                                                #{plano5.conta}
+                                            <p:column headerText="Conta (Plano 5)">                                                
+                                                <p:commandLink action="#{contaOperacaoBean.editPlano5(plano5)}" value="#{plano5.conta}  #{plano5.contaTipo ne null ? ' ('.concat(plano5.contaTipo.descricao).concat(') ') : ''}" disabled="#{controleAcessoBean.botaoSalvar}" update=":form_co:"/>
                                             </p:column>
                                             <p:column headerText="Classificador" width="120">
                                                 #{plano5.classificador}
@@ -98,18 +98,21 @@
                                 </h:column>
                                 <h:column>
                                     <h:panelGrid id="i_tbl_co">
-                                        <p:dataTable var="contaOperacao" value="#{contaOperacaoBean.listContaOperacao}" scrollHeight="250" scrollable="true" selection="#{contaOperacaoBean.selectedContaOperacao}" rowKey="#{contaOperacao.id}" emptyMessage="Nenhum registro encontrado!">
+                                        <p:dataTable var="contaOperacao" value="#{contaOperacaoBean.listContaOperacao}" scrollable="true" selection="#{contaOperacaoBean.selectedContaOperacao}" rowKey="#{contaOperacao.id}" emptyMessage="Nenhum registro encontrado!" paginator="true" rows="10">
                                             <p:ajax event="rowSelect" />
                                             <p:ajax event="rowSelectCheckbox" />
                                             <p:ajax event="rowUnselect" />
                                             <p:ajax event="rowUnselectCheckbox" />
                                             <p:ajax event="toggleSelect" />
                                             <p:column selectionMode="multiple" width="20" styleClass="text-center"/>                                    
+                                            <p:column width="15">
+                                                <p:rowToggler />
+                                            </p:column>                                        
                                             <p:column width="25" styleClass="text-center">
                                                 <p:commandButton icon="ui-icon-pencil" action="#{contaOperacaoBean.editItem(contaOperacao)}" disabled="#{controleAcessoBean.botaoSalvar}" title="Editar"/>
                                             </p:column>                                    
-                                            <p:column headerText="Plano 5">
-                                                #{contaOperacao.plano5.conta} - #{contaOperacao.plano5.numero}
+                                            <p:column headerText="Plano 5">                                                
+                                                <p:commandLink action="#{contaOperacaoBean.editPlano5(contaOperacao.plano5)}" value="#{contaOperacao.plano5.conta} - #{contaOperacao.plano5.numero} #{contaOperacao.plano5.contaTipo ne null ? '('.concat(contaOperacao.plano5.contaTipo.descricao).concat(')') : ''}" disabled="#{controleAcessoBean.botaoSalvar}" update=":form_co:"/>
                                             </p:column>
                                             <p:column headerText="E/S" width="23" styleClass="text-center">
                                                 #{contaOperacao.operacao.es}
@@ -122,6 +125,9 @@
                                             <p:column width="25" styleClass="text-center">
                                                 <p:commandButton icon="ui-icon-close" action="#{contaOperacaoBean.removeItem(contaOperacao)}" disabled="#{controleAcessoBean.botaoExcluir}" title="Remover item"/>
                                             </p:column>                                    
+                                            <p:rowExpansion>
+                                                Centro de Custo: #{contaOperacao.centroCusto.descricao}
+                                            </p:rowExpansion>
                                             <f:facet name="footer">
                                                 C.F.: Conta Fixa
                                             </f:facet>
@@ -139,6 +145,10 @@
                                 <p:outputLabel value="#{contaOperacaoBean.contaOperacao.operacao.es}" />
                                 <p:outputLabel value="Plano 5:" />
                                 <p:outputLabel value="#{contaOperacaoBean.contaOperacao.plano5.conta} - #{contaOperacaoBean.contaOperacao.plano5.classificador}" />
+                                <p:outputLabel value="CENTRO DE CUSTO:" rendered="#{not empty contaOperacaoBean.listCentroCusto}"/>
+                                <p:selectOneMenu value="#{contaOperacaoBean.index[4]}" rendered="#{not empty contaOperacaoBean.listCentroCusto}">
+                                    <f:selectItems value="#{contaOperacaoBean.listCentroCusto}" />
+                                </p:selectOneMenu>                                
                                 <h:column />
                                 <p:selectBooleanCheckbox value="#{contaOperacaoBean.contaOperacao.contaFixa}" itemLabel="Conta Fixa" />
                             </h:panelGrid>
@@ -168,6 +178,34 @@
                                 </h:panelGrid>
                             </f:facet>
                         </p:dialog>
+
+                        <!-- PLANO 5 -->
+                        <p:dialog widgetVar="dlg_plano5" modal="true" closable="true" width="600" header="Plano 5" visible="#{contaOperacaoBean.visiblePlano5}">
+                            <p:ajax event="close" update=":form_co:" listener="#{contaOperacaoBean.closePlano5}" />
+                            <h:panelGroup id="i_panel_plano5" layout="block" rendered="#{contaOperacaoBean.plano5 ne null}">
+                                <p:messages showDetail="true" showSummary="true" autoUpdate="true" closable="true" />
+                                <h:panelGrid columns="2">
+                                    <p:outputLabel value="Número: " />
+                                    <p:inputText size="50" value="#{contaOperacaoBean.plano5.numero}" maxlength="100" title="Número" />
+                                    <p:outputLabel value="Conta: "  />
+                                    <p:inputText size="50" value="#{contaOperacaoBean.plano5.conta}" maxlength="200" title="Conta" />
+                                    <p:outputLabel value="Acesso: "  />
+                                    <p:inputText size="50" value="#{contaOperacaoBean.plano5.acesso}" maxlength="200" title="Acesso" />
+                                    <p:outputLabel value="Classificador: "  />
+                                    <p:inputText size="50" value="#{contaOperacaoBean.plano5.classificador}" maxlength="200" title="Conta" />
+                                    <p:outputLabel value="Conta Tipo:"  />
+                                    <p:selectOneMenu value="#{contaOperacaoBean.idContaTipo}">
+                                        <f:selectItems value="#{contaOperacaoBean.listContaTipo}" />
+                                    </p:selectOneMenu>
+                                </h:panelGrid>                                
+                            </h:panelGroup>                                
+                            <f:facet name="footer">
+                                <h:panelGrid columns="2">
+                                    <p:commandButton value="Salvar" title="Salvar" action="#{contaOperacaoBean.updatePlano5}" update=":form_co:" disabled="#{controleAcessoBean.botaoSalvar}"/>
+                                    <p:commandButton value="Sair" title="Sair" action="#{contaOperacaoBean.closePlano5}" update=":form_co:" />
+                                </h:panelGrid>
+                            </f:facet>                                
+                        </p:dialog>                        
                     </h:form>
                 </f:view>
                 <!-- FINALIZA div wrap main -->

@@ -54,8 +54,7 @@ import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.PF;
-import br.com.rtools.utilitarios.db.FunctionsDB;
-import br.com.rtools.utilitarios.db.FunctionsDao;
+import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -362,7 +361,7 @@ public class MovimentosReceberSocialBean implements Serializable {
 
         MovimentosReceberSocialDB db = new MovimentosReceberSocialDBToplink();
         // PESQUISA RESPONSAVEL DA PESSOA
-        FunctionsDB dbfunc = new FunctionsDao();
+        FunctionsDao dbfunc = new FunctionsDao();
         Pessoa t = dbfunc.titularDaPessoa(pessoa.getId());
         
         listaMovimentosAnexo = db.listaMovimentosAbertosAnexarAgrupado(pessoa.getId(), t.getId());
@@ -691,7 +690,7 @@ public class MovimentosReceberSocialBean implements Serializable {
     }
 
     public void pesquisaBoleto() {
-        if (descPesquisaBoleto.isEmpty()) {
+        if (descPesquisaBoleto.isEmpty() || descPesquisaBoleto.equals("0")) {
             if (pessoa.getId() != -1) {
                 porPesquisa = "todos";
                 listaMovimento.clear();
@@ -1518,7 +1517,7 @@ public class MovimentosReceberSocialBean implements Serializable {
 
             FisicaDB dbf = new FisicaDBToplink();
             JuridicaDB dbj = new JuridicaDBToplink();
-            FunctionsDB dbfunc = new FunctionsDao();
+            FunctionsDao dbfunc = new FunctionsDao();
             PessoaComplementoDao pcd = new PessoaComplementoDao();
             List<Pessoa> listaPessoaQry = new ArrayList();
             for (Pessoa pe : listaPessoa) {

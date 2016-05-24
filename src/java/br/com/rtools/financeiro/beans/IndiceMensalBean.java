@@ -2,8 +2,7 @@ package br.com.rtools.financeiro.beans;
 
 import br.com.rtools.financeiro.Indice;
 import br.com.rtools.financeiro.IndiceMensal;
-import br.com.rtools.financeiro.db.IndiceMensalDB;
-import br.com.rtools.financeiro.db.IndiceMensalDBToplink;
+import br.com.rtools.financeiro.dao.IndiceMensalDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DaoInterface;
@@ -41,7 +40,7 @@ public class IndiceMensalBean implements Serializable {
     public List<SelectItem> getListaIndices() {
         List<SelectItem> result = new ArrayList<SelectItem>();
         int i = 0;
-        IndiceMensalDB db = new IndiceMensalDBToplink();
+        IndiceMensalDao db = new IndiceMensalDao();
         List select = null;
         select = db.pesquisaTodosIndices();
         while (i < select.size()) {
@@ -63,7 +62,7 @@ public class IndiceMensalBean implements Serializable {
             return null;
         }
 
-        IndiceMensalDB imdb = new IndiceMensalDBToplink();
+        IndiceMensalDao imdb = new IndiceMensalDao();
         //Indice indice = db.pesquisaCodigoIndice(Integer.valueOf(getListaIndices().get(idIndice).getDescription()));
         NovoLog novoLog = new NovoLog();
         DaoInterface di = new Dao();
@@ -143,7 +142,7 @@ public class IndiceMensalBean implements Serializable {
     }
 
     public List<IndiceMensal> getListaIndiceMensal() {
-        IndiceMensalDB db = new IndiceMensalDBToplink();
+        IndiceMensalDao db = new IndiceMensalDao();
         listaIndiceMensal = db.pesquisaIndiceMensalPorIDIndice(Integer.valueOf(getListaIndices().get(idIndice).getDescription()));
         return listaIndiceMensal;
     }

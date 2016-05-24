@@ -1,5 +1,6 @@
 package br.com.rtools.pessoa.beans;
 
+import br.com.rtools.pessoa.dao.TipoEnderecoDao;
 import br.com.rtools.endereco.Endereco;
 import br.com.rtools.endereco.dao.CidadeDao;
 import br.com.rtools.endereco.dao.EnderecoDao;
@@ -41,7 +42,7 @@ public class PessoaEnderecoBean implements Serializable {
     public String salvar() {
         Dao dao = new Dao();
         if (pessoaEndereco.getId() == -1) {
-            TipoEnderecoDB db_tipoEndereco = new TipoEnderecoDBToplink();
+            TipoEnderecoDao db_tipoEndereco = new TipoEnderecoDao();
             pessoaEndereco.setTipoEndereco(db_tipoEndereco.idTipoEndereco(pessoaEndereco.getTipoEndereco()));
             dao.openTransaction();
             if (dao.save(pessoaEndereco)) {
@@ -94,7 +95,7 @@ public class PessoaEnderecoBean implements Serializable {
     public List<String> BuscaTipoEndereco(Object event) {
         List<String> result = new Vector<String>();
         String txtDigitado = event.toString().toLowerCase().toUpperCase();
-        TipoEnderecoDB db = new TipoEnderecoDBToplink();
+        TipoEnderecoDao db = new TipoEnderecoDao();
         result = db.pesquisaTipoEndereco('%' + txtDigitado + '%');
         return (result);
     }

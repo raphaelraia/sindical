@@ -2,6 +2,7 @@ package br.com.rtools.associativo.db;
 
 import br.com.rtools.associativo.AEndereco;
 import br.com.rtools.associativo.EventoBaileConvite;
+import br.com.rtools.associativo.EventoBaileImpressaoConvite;
 import br.com.rtools.associativo.EventoBaileMapa;
 import br.com.rtools.principal.DB;
 import java.util.ArrayList;
@@ -188,6 +189,25 @@ public class EventoBaileDBToplink extends DB implements EventoBaileDB {
             return (EventoBaileConvite) qry.getSingleResult();
         } catch (Exception e) {
             return new EventoBaileConvite();
+        }
+    }
+
+    @Override
+    public List<EventoBaileImpressaoConvite> listaEventoBaileImpressaoConvite(int id_evento_baile, String tipo) {
+        String textQuery
+                = "SELECT ebic.* \n "
+                + "  FROM eve_evento_baile_impressao_convite ebic \n ";
+        if (tipo.equals("mesa")){
+            textQuery += " WHERE ebic.id_evento_baile_mapa = " + id_evento_baile;
+        }else{
+            textQuery += " WHERE ebic.id_evento_baile_convite = " + id_evento_baile;
+        }
+        
+        try {
+            Query qry = getEntityManager().createNativeQuery(textQuery, EventoBaileImpressaoConvite.class);
+            return qry.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
         }
     }
 }

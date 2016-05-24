@@ -153,7 +153,7 @@ public class FilialDepartamentoBean {
     public List<Filial> getListFiliais() {
         if (listFiliais.isEmpty()) {
             Dao dao = new Dao();
-            listFiliais = (List<Filial>) dao.list("Filial", true);
+            listFiliais = (List<Filial>) dao.list(new Filial(), true);
         }
         return listFiliais;
     }

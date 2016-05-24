@@ -34,44 +34,53 @@
                 <f:view>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Extrato Tela" styleClass="fonteHeader" />
+                        <div class="clear"></div>
                         <h:form id="formExtratoTela">
-                            <h:panelGrid columns="4" style="clear: both;">
+                            <h:panelGrid columns="4" cellspacing="5">
                                 <h:column>
-                                    <p:outputLabel value="Filtrar por" /><br />
-                                    <p:selectOneMenu value="#{extratoTelaBean.porPesquisa}" rendered="#{controleAcessoBean.getListaExtratoTela(false)}" style="margin-right: 20px">
-                                        <p:ajax event="change" update="@this" />
-                                        <f:selectItem itemValue="todos"             itemLabel="Todas"/>
-                                        <f:selectItem itemValue="recebidas"         itemLabel="Recebidas"/>
-                                        <f:selectItem itemValue="naoRecebidas"      itemLabel="Não Recebidas"/>
-                                        <f:selectItem itemValue="atrasadas"         itemLabel="Atrasadas"/>
-                                    </p:selectOneMenu>
+                                    <h:panelGrid>
+                                        <p:outputLabel value="Filtrar por" />
+                                        <h:column>
+                                            <p:selectOneMenu value="#{extratoTelaBean.porPesquisa}" rendered="#{controleAcessoBean.getListaExtratoTela(false)}">
+                                                <p:ajax event="change" update="@this" global="false"/>
+                                                <f:selectItem itemValue="todos"             itemLabel="Todas"/>
+                                                <f:selectItem itemValue="recebidas"         itemLabel="Recebidas"/>
+                                                <f:selectItem itemValue="naoRecebidas"      itemLabel="Não Recebidas"/>
+                                                <f:selectItem itemValue="atrasadas"         itemLabel="Atrasadas"/>
+                                            </p:selectOneMenu>
 
-                                    <p:selectOneMenu value="#{extratoTelaBean.porPesquisa}" rendered="#{!controleAcessoBean.getListaExtratoTela(false)}" style="margin-right: 20px">
-                                        <p:ajax event="change" update="@this"/>
-                                        <f:selectItem itemValue="naoRecebidas"      itemLabel="Não Recebidas"/>
-                                        <f:selectItem itemValue="atrasadas"         itemLabel="Atrasadas"/>
-                                    </p:selectOneMenu>
+                                            <p:selectOneMenu value="#{extratoTelaBean.porPesquisa}" rendered="#{!controleAcessoBean.getListaExtratoTela(false)}">
+                                                <p:ajax event="change" update="@this" global="false"/>
+                                                <f:selectItem itemValue="naoRecebidas"      itemLabel="Não Recebidas"/>
+                                                <f:selectItem itemValue="atrasadas"         itemLabel="Atrasadas"/>
+                                            </p:selectOneMenu>
+                                        </h:column>
+                                    </h:panelGrid>
                                 </h:column>
 
                                 <h:column>
-                                    <p:outputLabel value="Gerados pela Caixa"/><br />
-                                    <p:selectOneMenu value="#{extratoTelaBean.geraPesquisa}" style="margin-right: 20px">
-                                        <p:ajax event="change" update="@this"/>
-                                        <f:selectItem itemValue="sim"               itemLabel="Sim"/>
-                                        <f:selectItem itemValue="nao"               itemLabel="Não"/>
-                                        <f:selectItem itemValue="naoVerificar"      itemLabel="Não Verificar"/>
-                                    </p:selectOneMenu>
+                                    <h:panelGrid>
+                                        <p:outputLabel value="Gerados pela Caixa"/>
+                                        <p:selectOneMenu value="#{extratoTelaBean.geraPesquisa}">
+                                            <p:ajax event="change" update="@this" global="false"/>
+                                            <f:selectItem itemValue="sim"               itemLabel="Sim"/>
+                                            <f:selectItem itemValue="nao"               itemLabel="Não"/>
+                                            <f:selectItem itemValue="naoVerificar"      itemLabel="Não Verificar"/>
+                                        </p:selectOneMenu>
+                                    </h:panelGrid>
                                 </h:column>
 
                                 <h:column>
-                                    <p:outputLabel value="Ordenação" /><br />
-                                    <p:selectOneMenu value="#{extratoTelaBean.ordenacao}">
-                                        <p:ajax event="change" update="@this"/>
-                                        <f:selectItem itemValue="referencia"        itemLabel="Referência"/>
-                                        <f:selectItem itemValue="vencimento"        itemLabel="Vencimento"/>
-                                        <f:selectItem itemValue="quitacao"          itemLabel="Quitação"/>
-                                        <f:selectItem itemValue="importacao"        itemLabel="Importação"/>
-                                    </p:selectOneMenu>
+                                    <h:panelGrid>                                    
+                                        <p:outputLabel value="Ordenação" />
+                                        <p:selectOneMenu value="#{extratoTelaBean.ordenacao}">
+                                            <p:ajax event="change" update="@this" global="false"/>
+                                            <f:selectItem itemValue="referencia"        itemLabel="Referência"/>
+                                            <f:selectItem itemValue="vencimento"        itemLabel="Vencimento"/>
+                                            <f:selectItem itemValue="quitacao"          itemLabel="Quitação"/>
+                                            <f:selectItem itemValue="importacao"        itemLabel="Importação"/>
+                                        </p:selectOneMenu>
+                                    </h:panelGrid>
                                 </h:column>
 
                                 <h:column>
@@ -85,37 +94,42 @@
                                     <h:column>
                                         <p:fieldset id="i_fieldset_data" legend="Data" toggleable="false" toggleSpeed="500" style="height: 150px">
                                             <p:ajax event="toggle" update="@this" />
+                                            <h:panelGrid>
+                                                <h:column>
+                                                    <p:selectOneMenu value="#{extratoTelaBean.tipoDataPesquisa}" style="width: 200px">
+                                                        <p:ajax event="change" update="i_fieldset_data" global="false" listener="#{extratoTelaBean.limparDatas}"/>
+                                                        <f:selectItem itemValue="importacao"  itemLabel="Faixa de Importação"/>
+                                                        <f:selectItem itemValue="recebimento" itemLabel="Faixa de Recebimento"/>
+                                                        <f:selectItem itemValue="vencimento"  itemLabel="Faixa de Vencimento"/>
+                                                        <f:selectItem itemValue="referencia"  itemLabel="Faixa de Referência"/>
+                                                    </p:selectOneMenu>
+                                                </h:column>
+                                                <h:column>
+                                                    <h:panelGrid columns="2" rendered="#{extratoTelaBean.tipoDataPesquisa ne 'referencia'}" style="width: 100%">
+                                                        <p:outputLabel value="Data Inicial:" style="font-weight: bold"/>
+                                                        <p:inputMask value="#{extratoTelaBean.dataInicial}" mask="99/99/9999" style="width: 100px; text-align: center; font-size: 10pt!important; float: right" placeholder="__/__/____" converter="#{isDateString}">
+                                                            <p:ajax event="change" update="@this" global="false"/>
+                                                        </p:inputMask>
 
-                                            <p:selectOneMenu value="#{extratoTelaBean.tipoDataPesquisa}" style="width: 200px">
-                                                <p:ajax event="change" update="i_fieldset_data" global="false" listener="#{extratoTelaBean.limparDatas}"/>
-                                                <f:selectItem itemValue="importacao"  itemLabel="Faixa de Importação"/>
-                                                <f:selectItem itemValue="recebimento" itemLabel="Faixa de Recebimento"/>
-                                                <f:selectItem itemValue="vencimento"  itemLabel="Faixa de Vencimento"/>
-                                                <f:selectItem itemValue="referencia"  itemLabel="Faixa de Referência"/>
-                                            </p:selectOneMenu>
+                                                        <p:outputLabel value="Data Final:" style="font-weight: bold"/>
+                                                        <p:inputMask value="#{extratoTelaBean.dataFinal}" mask="99/99/9999" style="width: 100px; text-align: center; font-size: 10pt!important; float: right" placeholder="__/__/____" converter="#{isDateString}">
+                                                            <p:ajax event="change" update="@this" global="false"/>
+                                                        </p:inputMask>
+                                                    </h:panelGrid>
+                                                </h:column>
+                                                <h:column>
+                                                    <h:panelGrid columns="2" rendered="#{extratoTelaBean.tipoDataPesquisa eq 'referencia'}" style="width: 100%">
+                                                        <p:outputLabel value="Mês/Ano Inicial:" style="font-weight: bold"/>
+                                                        <p:inputMask value="#{extratoTelaBean.dataRefInicial}" mask="99/9999" style="width: 100px; text-align: center; font-size: 10pt!important; float: right" placeholder="__/____" converter="#{isDateReference}">
+                                                            <p:ajax event="change" update="@this" global="false"/>
+                                                        </p:inputMask>
 
-                                            <h:panelGrid columns="2" rendered="#{extratoTelaBean.tipoDataPesquisa != 'referencia'}" style="width: 100%">
-                                                <p:outputLabel value="Data Inicial:" style="font-weight: bold"/>
-                                                <p:inputMask value="#{extratoTelaBean.dataInicial}" mask="99/99/9999" style="width: 100px; text-align: center; font-size: 10pt!important; float: right" placeholder="__/__/____">
-                                                    <p:ajax event="change" update="@this" global="false"/>
-                                                </p:inputMask>
-
-                                                <p:outputLabel value="Data Final:" style="font-weight: bold"/>
-                                                <p:inputMask value="#{extratoTelaBean.dataFinal}" mask="99/99/9999" style="width: 100px; text-align: center; font-size: 10pt!important; float: right" placeholder="__/__/____">
-                                                    <p:ajax event="change" update="@this" global="false"/>
-                                                </p:inputMask>
-                                            </h:panelGrid>
-
-                                            <h:panelGrid columns="2" rendered="#{extratoTelaBean.tipoDataPesquisa == 'referencia'}" style="width: 100%">
-                                                <p:outputLabel value="Mês/Ano Inicial:" style="font-weight: bold"/>
-                                                <p:inputMask value="#{extratoTelaBean.dataRefInicial}" mask="99/9999" style="width: 100px; text-align: center; font-size: 10pt!important; float: right" placeholder="__/____">
-                                                    <p:ajax event="change" update="@this" global="false"/>
-                                                </p:inputMask>
-
-                                                <p:outputLabel value="Mês/Ano Final:" style="font-weight: bold"/>
-                                                <p:inputMask value="#{extratoTelaBean.dataRefFinal}" mask="99/9999" style="width: 100px; text-align: center; font-size: 10pt!important; float: right" placeholder="__/____">
-                                                    <p:ajax event="change" update="@this" global="false"/>
-                                                </p:inputMask>
+                                                        <p:outputLabel value="Mês/Ano Final:" style="font-weight: bold"/>
+                                                        <p:inputMask value="#{extratoTelaBean.dataRefFinal}" mask="99/9999" style="width: 100px; text-align: center; font-size: 10pt!important; float: right" placeholder="__/____" converter="#{isDateReference}">
+                                                            <p:ajax event="change" update="@this" global="false"/>
+                                                        </p:inputMask>
+                                                    </h:panelGrid>
+                                                </h:column>
                                             </h:panelGrid>
                                         </p:fieldset>
                                     </h:column>
@@ -126,14 +140,14 @@
 
                                             <h:panelGrid>
                                                 <p:outputLabel value="Boleto Inicial" style="font-weight: bold"/>
-                                                <p:inputText value="#{extratoTelaBean.boletoInicial}" style="text-align: right">
+                                                <p:inputText value="#{extratoTelaBean.boletoInicial}" style="text-align: right" converter="#{thisNumber}">
                                                     <p:ajax event="change" update="@this" global="false"/>
                                                 </p:inputText>
                                             </h:panelGrid>
 
                                             <h:panelGrid>
                                                 <p:outputLabel value="Boleto Final" style="font-weight: bold"/>
-                                                <p:inputText value="#{extratoTelaBean.boletoFinal}" style="text-align: right">
+                                                <p:inputText value="#{extratoTelaBean.boletoFinal}" style="text-align: right" converter="#{thisNumber}">
                                                     <p:ajax event="change" update="@this" global="false"/>
                                                 </p:inputText>
                                             </h:panelGrid>
@@ -164,11 +178,15 @@
 
                                             <h:panelGrid columns="3">
                                                 <h:column>
-                                                    <p:outputLabel value="Pessoa" style="font-weight: bold"/><br />
-                                                    <p:inputText value="#{extratoTelaBean.pessoa.documento}" disabled="true" style="width: 130px; font-weight: bold"/>
-                                                    <p:inputText value="#{extratoTelaBean.pessoa.nome}" disabled="true" style="width: #{(configuracaoBean.resolucao.tipoResolucao.tamanho == '1200' || configuracaoBean.resolucao.tipoResolucao.tamanho == '') ? '445px' : '260px'}; font-weight: bold"/>
-                                                    <p:commandButton icon="ui-icon-search" alt="Pesquisar Pessoa" action="#{chamadaPaginaBean.pesquisaPessoa}" />
-                                                    <p:commandButton icon="ui-icon-close" alt="Excluir Pessoa" action="#{extratoTelaBean.limparPesquisaPessoa}" update="i_fieldset_pessoa" />
+                                                    <h:panelGrid>
+                                                        <p:outputLabel value="Pessoa" styleClass="bold"/>                                                        
+                                                    </h:panelGrid>
+                                                    <h:panelGrid columns="4">
+                                                        <p:inputText value="#{extratoTelaBean.pessoa.documento}" readonly="true" style="width: 120px; font-weight: bold" styleClass="text-center"/>
+                                                        <p:inputText value="#{extratoTelaBean.pessoa.nome}" readonly="true" style="width: #{(configuracaoBean.resolucao.tipoResolucao.tamanho eq '1200' || empty configuracaoBean.resolucao.tipoResolucao.tamanho) ? '445px' : '260px'}; font-weight: bold"/>
+                                                        <p:commandButton icon="ui-icon-search" alt="Pesquisar Pessoa" action="#{chamadaPaginaBean.pesquisaPessoa}" />
+                                                        <p:commandButton icon="ui-icon-close" alt="Excluir Pessoa" action="#{extratoTelaBean.limparPesquisaPessoa}" update="i_fieldset_pessoa" />                                                        
+                                                    </h:panelGrid>
                                                 </h:column>
                                             </h:panelGrid>
 
@@ -289,50 +307,54 @@
                                             <p:outputLabel value="#{movimentos.argumento10}"/>
                                         </p:column>
                                     </h:panelGrid>
+                                    <h:panelGrid columns="4" style="height: 40px" styleClass="sbb">                                        
+                                        <p:column>
+                                            <p:outputLabel value="Vencto Original" style="font-weight: bold"/><br />
+                                            <p:outputLabel value="#{movimentos.argumento1.vencimentoOriginal}"/>
+                                        </p:column>
+                                    </h:panelGrid>
                                 </p:rowExpansion>                                
                             </p:dataTable>
 
                             <h:panelGrid id="i_panel_valores" columns="7" style="margin-top: 10px">
                                 <h:column>
                                     <p:outputLabel value="Núm de Boletos" for="idQntBoletos"/><br />
-                                    <h:inputText id="idQntBoletos" size="10" value="#{extratoTelaBean.qntBoletos}" readonly="true" style="font-weight:bold; text-align:center; margin-right: 15px"/>
+                                    <p:inputText id="idQntBoletos" size="10" value="#{extratoTelaBean.qntBoletos}" readonly="true" style="font-weight:bold; text-align:center; margin-right: 15px"/>
                                 </h:column>
 
                                 <h:column rendered="#{controleAcessoBean.totalValorExtratoTela}">
                                     <p:outputLabel value="Total Recebido " styleClass="fonteExtratoTela" for="idSomarVlRecebido"/> <br />
-                                    <h:inputText id="idSomarVlRecebido" size="15" value="#{extratoTelaBean.vlRecebido}" readonly="true" style="font-weight:bold; text-align: right; margin-right: 15px"/>
+                                    <p:inputText id="idSomarVlRecebido" size="15" value="#{extratoTelaBean.vlRecebido}" readonly="true" style="font-weight:bold; text-align: right; margin-right: 15px"/>
                                 </h:column>
 
                                 <h:column rendered="#{controleAcessoBean.totalValorExtratoTela}">
                                     <p:outputLabel value="Total NÃO Recebido" styleClass="fonteExtratoTela" for="idSomarVlNaoRecebido"/> <br />
-                                    <h:inputText id="idSomarVlNaoRecebido" size="15" value="#{extratoTelaBean.vlNaoRecebido}" readonly="true" style="font-weight:bold; text-align: right; margin-right: 15px"/>
+                                    <p:inputText id="idSomarVlNaoRecebido" size="15" value="#{extratoTelaBean.vlNaoRecebido}" readonly="true" style="font-weight:bold; text-align: right; margin-right: 15px"/>
                                 </h:column>
 
                                 <h:column rendered="#{controleAcessoBean.totalValorExtratoTela}">
                                     <p:outputLabel value="Total Valor" /> <br />
-                                    <h:inputText id="idSomarVlTotal" size="15" value="#{extratoTelaBean.vlTotal}" readonly="true" style="font-weight:bold; text-align: right; margin-right: 15px" />
+                                    <p:inputText id="idSomarVlTotal" size="15" value="#{extratoTelaBean.vlTotal}" readonly="true" style="font-weight:bold; text-align: right; margin-right: 15px" />
                                 </h:column>
 
                                 <h:column>
                                     <p:outputLabel value="Total Taxa" for="idSomarTaxa"/> <br />
-                                    <h:inputText id="idSomarTaxa" size="10" value="#{extratoTelaBean.vlTaxa}" readonly="true" style="font-weight:bold; text-align: right; margin-right: 15px" />
+                                    <p:inputText id="idSomarTaxa" size="10" value="#{extratoTelaBean.vlTaxa}" readonly="true" style="font-weight:bold; text-align: right; margin-right: 15px" />
                                 </h:column>
 
                                 <h:column>
                                     <p:outputLabel value="Total Liquido" for="idSomarVlLiquido"/> <br />
-                                    <h:inputText id="idSomarVlLiquido" size="15" value="#{extratoTelaBean.vlLiquido}" readonly="true" style="font-weight:bold; text-align: right; margin-right: 15px" />
+                                    <p:inputText id="idSomarVlLiquido" size="15" value="#{extratoTelaBean.vlLiquido}" readonly="true" style="font-weight:bold; text-align: right; margin-right: 15px" />
                                 </h:column>
 
                                 <h:column>
                                     <p:outputLabel value="Liquido - Repasse" for="idSomarVlLiquidoRepasse"/> <br />
-                                    <h:inputText id="idSomarVlLiquidoRepasse" size="12" value="#{extratoTelaBean.vlRepasse}" readonly="true" style="font-weight:bold; text-align: right" />
+                                    <p:inputText id="idSomarVlLiquidoRepasse" size="12" value="#{extratoTelaBean.vlRepasse}" readonly="true" style="font-weight:bold; text-align: right" />
                                 </h:column>
                             </h:panelGrid>
 
-                            <p:dialog widgetVar="dlg_alterar_movimento" header="Alterar dados do Movimento" resizable="false" modal="true" width="400">
+                            <p:dialog widgetVar="dlg_alterar_movimento" header="Deseja realmente ALTERAR esse movimento?" resizable="false" modal="true" width="500">
                                 <h:panelGrid id="panel_alterar_movimento">
-                                    <p:outputLabel value="Deseja realmente ALTERAR esse movimento?" style="font-weight: bold; font-size: 12pt!important"/>
-
                                     <h:panelGrid columns="3">
                                         <h:column>
                                             <p:outputLabel value="Tipo" /><br />
@@ -344,20 +366,25 @@
 
                                         <h:column>
                                             <p:outputLabel value="Referência" /><br />
-                                            <p:inputMask value="#{extratoTelaBean.movimentoAlterar.referencia}" mask="99/9999" style="text-align: center; width: 70px"/>
+                                            <p:inputMask value="#{extratoTelaBean.movimentoAlterar.referencia}" mask="99/9999" style="text-align: center; width: 70px" converter="#{isDateReference}">
+                                                <p:ajax event="change" update="@this" global="false"/>
+                                            </p:inputMask>
                                         </h:column>
 
                                         <h:column>
                                             <p:outputLabel value="Vencimento" /><br />
-                                            <p:inputMask value="#{extratoTelaBean.movimentoAlterar.vencimento}" mask="99/99/9999" style="text-align: center; width: 100px"/>
+                                            <p:inputMask value="#{extratoTelaBean.movimentoAlterar.vencimento}" mask="99/99/9999" style="text-align: center; width: 100px"  converter="#{isDateString}">
+                                                <p:ajax event="change" update="@this" global="false"/>
+                                            </p:inputMask>
                                         </h:column>
                                     </h:panelGrid>
                                 </h:panelGrid>
-
-                                <h:panelGrid columns="2">
-                                    <p:commandButton icon="ui-icon-circle-check" value="Alterar" action="#{extratoTelaBean.salvarAlterarMovimento()}" title="Confirma salvar Alteração" update="@form"/>
-                                    <p:commandButton icon="ui-icon-circle-close" value="Cancelar" title="Cancelar Alteração" onclick="PF('dlg_alterar_movimento').hide()" global="false"/>
-                                </h:panelGrid>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton icon="ui-icon-circle-check" value="Alterar" action="#{extratoTelaBean.salvarAlterarMovimento()}" title="Confirma salvar Alteração" update="@form"/>
+                                        <p:commandButton icon="ui-icon-circle-close" value="Cancelar" title="Cancelar Alteração" onclick="PF('dlg_alterar_movimento').hide()" global="false"/>
+                                    </h:panelGrid>
+                                </f:facet>
                             </p:dialog>
 
                             <p:dialog widgetVar="dlg_ultima_impressao" header="Últimas Impressões desse movimento" resizable="false" modal="true" width="700">
@@ -389,45 +416,43 @@
                         </h:form>
 
                         <h:form id="formExtratoTelaOpcoes">
-                            <p:panel styleClass="fundoCinza">
-                                <p:outputLabel value="Opções do Boleto" style="font-weight: bold; font-size: 8pt!important"/>
-                                <h:panelGrid columns="7" style="width: 850px">
+                            <p:panel styleClass="fundoCinza" header="Opções do Boleto">
+                                <h:panelGrid columns="8">
                                     <h:column>
-                                        <p:selectBooleanCheckbox value="#{extratoTelaBean.imprimirVerso}" itemLabel="Imprimir Verso" style="margin-right: 20px"/>
+                                        <p:selectBooleanCheckbox value="#{extratoTelaBean.imprimirVerso}" itemLabel="Imprimir Verso" />
                                     </h:column>
 
                                     <h:column>
-                                        <p:commandLink action="#{extratoTelaBean.imprimir}" title="Imprimir Boletos Selecionados" ajax="false" target="_BLANK">
-                                            <p:commandButton icon="ui-icon-print" value="Imprimir" title="Imprimir Boletos Selecionados" ajax="false" style="margin-right: 20px"/>
+                                        <p:commandLink action="#{extratoTelaBean.imprimir}" title="Imprimir Boletos Selecionados" ajax="false" target="_BLANK" styleClass="margin-left-max">
+                                            <p:commandButton icon="ui-icon-print" value="Imprimir" title="Imprimir Boletos Selecionados" ajax="false"/>
                                         </p:commandLink>
                                     </h:column>
 
                                     <h:column>
-                                        <p:commandButton icon="ui-icon-close" value="Excluir" title="Excluir Boletos Selecionados" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('dlg_excluir').show()" style="margin-right: 20px"/>
+                                        <p:commandButton icon="ui-icon-close" value="Excluir" title="Excluir Boletos Selecionados" disabled="#{controleAcessoBean.botaoExcluir}" onclick="PF('dlg_excluir').show()" styleClass="margin-left-max"/>
                                     </h:column>
 
                                     <h:column>
-                                        <p:commandButton icon="ui-icon-arrowreturnthick-1-w" value="Estornar" title="Estornar Boletos Selecionados (Apenas Pagos)" disabled="#{controleAcessoBean.botaoEstornarBoleto}" onclick="PF('dlg_estornar').show()" style="margin-right: 20px"/>
+                                        <p:commandButton icon="ui-icon-arrowreturnthick-1-w" value="Estornar" title="Estornar Boletos Selecionados (Apenas Pagos)" disabled="#{controleAcessoBean.botaoEstornarBoleto}" onclick="PF('dlg_estornar').show()" styleClass="margin-left-max"/>
                                     </h:column>
 
                                     <h:column>
-                                        <p:commandButton icon="ui-icon-mail-closed" value="Enviar por Email" title="Enviar movimentos por Email (das respectivas empresas)" onclick="PF('dlg_enviar_email').show()"/>
-                                    </h:column>
-                                    <h:column>
-                                        <p:outputLabel value=" para " styleClass="fontePadrao" />
-                                    </h:column>
-
-                                    <h:column>
-                                        <p:selectOneMenu value="#{extratoTelaBean.tipoEnvio}">
-                                            <p:ajax event="change" update="@this" global="false"/>
-                                            <f:selectItem itemValue="empresa"       itemLabel="Empresa"/>
-                                            <f:selectItem itemValue="contabilidade" itemLabel="Contabilidade"/>
-                                        </p:selectOneMenu>                                        
+                                        <p:panel styleClass="margin-left-max">
+                                            <h:panelGrid columns="3">
+                                                <p:commandButton icon="ui-icon-mail-closed" value="Enviar por Email" title="Enviar movimentos por Email (das respectivas empresas)" onclick="PF('dlg_enviar_email').show()"/>
+                                                <p:outputLabel value=" para " styleClass="fontePadrao" />
+                                                <p:selectOneMenu value="#{extratoTelaBean.tipoEnvio}">
+                                                    <p:ajax event="change" update="@this" global="false"/>
+                                                    <f:selectItem itemValue="empresa"       itemLabel="Empresa"/>
+                                                    <f:selectItem itemValue="contabilidade" itemLabel="Contabilidade"/>
+                                                </p:selectOneMenu>                                                                                    
+                                            </h:panelGrid>
+                                        </p:panel>
                                     </h:column>
                                 </h:panelGrid>
                             </p:panel>
 
-                            <p:panel styleClass="fundoCinza" style="margin-top: 10px">
+                            <p:panel styleClass="fundoCinza margin-top-max" header="Opções do Acordo">
                                 <p:outputLabel value="Opções do Acordo" style="font-weight: bold; font-size: 8pt!important"/>
                                 <h:panelGrid columns="3">
                                     <h:column>
@@ -512,13 +537,13 @@
                     </p:panel>
 
 
+                    <h:form id="formExtratoTelaAlteraVencimento">
                     <p:dialog widgetVar="dlg_alterar_vencimento" header="Alterar data de Vencimento" resizable="false" modal="true" width="400">
-                        <h:form id="formExtratoTelaAlteraVencimento">
                             <h:panelGrid>
                                 <p:outputLabel value="Confirma alteração do vencimento deste acordo?" style="font-weight: bold; font-size: 12pt!important"/>
                             </h:panelGrid>
                             <p:messages id="i_msg_vencimento" closable="true" showDetail="true"/>
-                            <h:panelGrid style="margin-top: 20px; clear: both" columns="2">
+                            <h:panelGrid style="margin-top: 20px; clear: both" columns="2" id="i_vo">
                                 <h:column>
                                     <p:outputLabel value="Vencimento Anterior"/><br />
                                     <p:inputText value="#{extratoTelaBean.dataAntiga}" readonly="true" style="margin-right: 50px; width: 100px; font-weight: bold; text-align: center"/>
@@ -526,15 +551,21 @@
 
                                 <h:column>
                                     <p:outputLabel value="Digite o novo Vencimento" /><br />
-                                    <p:inputMask id="i_nova_data" value="#{extratoTelaBean.dataNova}" mask="99/99/9999" style="width: 100px; text-align: center">
+                                    <p:inputMask id="i_nova_data" value="#{extratoTelaBean.dataNova}" mask="99/99/9999" style="width: 100px; text-align: center" converter="#{isDateString}">
                                         <p:ajax event="change" update="@this" global="false"/>
                                     </p:inputMask>
-                                    <p:commandButton value="OK" action="#{extratoTelaBean.atualizarData}" update="i_msg_vencimento"/>
                                     <p:focus for="i_nova_data" />
                                 </h:column>
                             </h:panelGrid>
-                        </h:form>
-                    </p:dialog>
+                            <f:facet name="footer">                                
+                                <h:panelGrid columns="3" cellspacing="5">
+                                    <p:commandButton value="OK" action="#{extratoTelaBean.atualizarData}" update="i_msg_vencimento"/>
+                                    <p:commandButton value="Vencto Original: " title="Voltar Vencimento Original" icon="ui-icon-arrowreturnthick-1-w" action="#{extratoTelaBean.vencimentoOritinal}" update="i_msg_vencimento"/>
+                                    <h:outputLabel value="#{extratoTelaBean.movimentoVencimento.vencimentoOriginal}" styleClass="font-color-red bold"/>
+                                </h:panelGrid>
+                            </f:facet>
+                        </p:dialog>
+                    </h:form>
                 </f:view>
                 <!-- FINALIZA div wrap main -->
             </div>

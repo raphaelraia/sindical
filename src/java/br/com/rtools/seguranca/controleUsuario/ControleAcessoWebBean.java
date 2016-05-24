@@ -24,8 +24,7 @@ import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
 import br.com.rtools.pessoa.db.PessoaDB;
 import br.com.rtools.pessoa.db.PessoaDBToplink;
-import br.com.rtools.pessoa.db.TipoEnderecoDB;
-import br.com.rtools.pessoa.db.TipoEnderecoDBToplink;
+import br.com.rtools.pessoa.dao.TipoEnderecoDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
@@ -337,7 +336,7 @@ public class ControleAcessoWebBean implements Serializable {
 //        }
 //        
 //        if (endereco != null) {
-//            TipoEnderecoDB dbt = new TipoEnderecoDBToplink();
+//            TipoEnderecoDB dbt = new TipoEnderecoDao();
 //            List tiposE = dbt.listaTipoEnderecoParaJuridica();
 //            for (int i = 0; i < tiposE.size(); i++) {
 //                PessoaEndereco pessoaEndereco = new PessoaEndereco();
@@ -616,7 +615,7 @@ public class ControleAcessoWebBean implements Serializable {
         }
 
         if (endereco != null) {
-            TipoEnderecoDB dbt = new TipoEnderecoDBToplink();
+            TipoEnderecoDao dbt = new TipoEnderecoDao();
             List tiposE = dbt.listaTipoEnderecoParaJuridica();
             for (int i = 0; i < tiposE.size(); i++) {
                 PessoaEndereco pessoaEndereco = new PessoaEndereco();

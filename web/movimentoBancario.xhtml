@@ -19,7 +19,7 @@
 
         <script type="text/javascript">
 
-        </script>s
+        </script>
     </h:head>
     <h:body>
         <!-- INICIA DIV wrap e main -->
@@ -46,7 +46,7 @@
 
                                     <p:column rendered="false">
                                         <h:outputLabel value="Serviços" /><br />
-                                        <p:selectOneMenu value="#{movimentoBancarioBean.idServicos}" style="padding-right: 20px; margin-right: 15px;">
+                                        <p:selectOneMenu value="#{movimentoBancarioBean.idServicos}" style="padding-right: 20px; margin-right: 15px;" title="Serviço Rotina">
                                             <f:selectItems value="#{movimentoBancarioBean.listaServicos}"/>
                                         </p:selectOneMenu>
                                     </p:column>

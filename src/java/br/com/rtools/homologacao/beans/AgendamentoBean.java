@@ -4,8 +4,7 @@ import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.pessoa.beans.PesquisarProfissaoBean;
 import br.com.rtools.arrecadacao.Oposicao;
 import br.com.rtools.arrecadacao.db.ConvencaoDBToplink;
-import br.com.rtools.atendimento.db.AtendimentoDB;
-import br.com.rtools.atendimento.db.AtendimentoDBTopLink;
+import br.com.rtools.atendimento.dao.AtendimentoDao;
 import br.com.rtools.endereco.Endereco;
 import br.com.rtools.endereco.dao.EnderecoDao;
 import br.com.rtools.financeiro.Movimento;
@@ -38,7 +37,7 @@ import br.com.rtools.sistema.ConfiguracaoDepartamento;
 import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.sistema.dao.ConfiguracaoDepartamentoDao;
 import br.com.rtools.utilitarios.*;
-import br.com.rtools.utilitarios.db.FunctionsDao;
+import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -289,7 +288,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                     listaAgendamento.setUsuarioAgendador(agenda.getAgendador().getPessoa().getNome());
                 }
 
-                AtendimentoDB dbat = new AtendimentoDBTopLink();
+                AtendimentoDao dbat = new AtendimentoDao();
                 if (dbat.pessoaOposicao(listaAgendamento.getAgendamento().getPessoaEmpresa().getFisica().getPessoa().getDocumento())) {
                     listaAgendamento.setTblEstilo("tblAgendamentoOposicaox");
                 }
@@ -855,7 +854,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         }
 
         boolean isOposicao = false;
-        AtendimentoDB dbat = new AtendimentoDBTopLink();
+        AtendimentoDao dbat = new AtendimentoDao();
         if (dbat.pessoaOposicao(fisica.getPessoa().getDocumento())) {
             isOposicao = true;
         }

@@ -700,11 +700,14 @@ public final class FechamentoCaixaBean implements Serializable {
     }
 
     public List<SelectItem> getListaCaixaDestino() {
-        if (listaCaixaDestino.isEmpty() && (!listaCaixa.isEmpty() && Integer.valueOf(listaCaixa.get(idCaixa).getDescription()) != 0)) {
+        if ((listaCaixaDestino == null || listaCaixaDestino.isEmpty()) && (!listaCaixa.isEmpty() && Integer.valueOf(listaCaixa.get(idCaixa).getDescription()) != 0)) {
             List<Caixa> list = (new SalvarAcumuladoDBToplink()).listaObjeto("Caixa");
             Caixa caixa = (Caixa) (new SalvarAcumuladoDBToplink().pesquisaCodigo(Integer.valueOf(listaCaixa.get(idCaixa).getDescription()), "Caixa"));
             
-            if (!list.isEmpty()){
+            if (!list.isEmpty() && caixa != null){
+                if (listaCaixaDestino == null){
+                    listaCaixaDestino = new ArrayList();
+                }
                 for (int i = 0; i < list.size(); i++) {
                     listaCaixaDestino.add(new SelectItem(i,
                             list.get(i).getCaixa() + " - " + list.get(i).getDescricao(),

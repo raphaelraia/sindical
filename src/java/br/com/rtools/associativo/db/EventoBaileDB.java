@@ -2,6 +2,7 @@ package br.com.rtools.associativo.db;
 
 import br.com.rtools.associativo.AEndereco;
 import br.com.rtools.associativo.EventoBaileConvite;
+import br.com.rtools.associativo.EventoBaileImpressaoConvite;
 import br.com.rtools.associativo.EventoBaileMapa;
 import java.util.Date;
 import java.util.List;
@@ -27,4 +28,6 @@ public interface EventoBaileDB {
     public List<EventoBaileMapa> listaBaileMapaDisponiveis(int id_baile, Integer id_status, Integer id_pessoa, Integer id_venda);
     
     public List<EventoBaileConvite> listaBaileConviteDisponiveis(int id_baile, Integer id_status, Integer id_pessoa, Integer id_venda);
+    
+    public List<EventoBaileImpressaoConvite> listaEventoBaileImpressaoConvite(int id_evento_baile, String tipo);
 }

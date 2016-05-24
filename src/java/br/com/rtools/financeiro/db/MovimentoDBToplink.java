@@ -506,14 +506,22 @@ public class MovimentoDBToplink extends DB implements MovimentoDB {
                 qry_pessoa = " and m.id_pessoa = " + id_pessoa + " \n ";
             }
         }
-
-        if (!boleto_inicial.isEmpty() && boleto_final.isEmpty()) {
-            qry_boleto = " and b.ds_boleto >= '" + boleto_inicial + "' \n ";
-        } else if (!boleto_inicial.isEmpty() && !boleto_final.isEmpty()) {
-            qry_boleto = " and b.ds_boleto >= '" + boleto_inicial + "' \n "
-                    + " and b.ds_boleto <= '" + boleto_final + "' \n ";
-        } else if (boleto_inicial.isEmpty() && !boleto_final.isEmpty()) {
-            qry_boleto = " and b.ds_boleto <= '" + boleto_final + "' \n ";
+        
+        if (!boleto_inicial.isEmpty() || !boleto_final.isEmpty()) {
+            if(boleto_inicial.equals("0")) {
+                boleto_inicial = "";
+            }
+            if(boleto_final.equals("0")) {
+                boleto_final = "";
+            }
+            if (!boleto_inicial.isEmpty() && boleto_final.isEmpty()) {
+                qry_boleto = " and b.ds_boleto >= '" + boleto_inicial + "' \n ";
+            } else if (!boleto_inicial.isEmpty() && !boleto_final.isEmpty()) {
+                qry_boleto = " and b.ds_boleto >= '" + boleto_inicial + "' \n "
+                        + " and b.ds_boleto <= '" + boleto_final + "' \n ";
+            } else if (boleto_inicial.isEmpty() && !boleto_final.isEmpty()) {
+                qry_boleto = " and b.ds_boleto <= '" + boleto_final + "' \n ";
+            }
         }
 
         switch (tipo) {

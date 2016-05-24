@@ -30,6 +30,8 @@ public class EventoBaile implements java.io.Serializable {
     @JoinColumn(name = "id_evt", referencedColumnName = "id", nullable = false)
     @ManyToOne(fetch = FetchType.EAGER)
     private Evt evt;
+    @Column(name = "ds_local")
+    private String local;
 
     public EventoBaile() {
         this.id = -1;
@@ -40,9 +42,10 @@ public class EventoBaile implements java.io.Serializable {
         this.horaFim = "";
         this.quantidadeConvites = 0;
         this.evt = null;
+        this.local= "";
     }
 
-    public EventoBaile(int id, AEvento evento, int quantidadeMesas, Date data, String horaInicio, String horaFim, int quantidadeConvites, Evt evt) {
+    public EventoBaile(int id, AEvento evento, int quantidadeMesas, Date data, String horaInicio, String horaFim, int quantidadeConvites, Evt evt, String local) {
         this.id = id;
         this.evento = evento;
         this.quantidadeMesas = quantidadeMesas;
@@ -51,6 +54,7 @@ public class EventoBaile implements java.io.Serializable {
         this.horaFim = horaFim;
         this.quantidadeConvites = quantidadeConvites;
         this.evt = evt;
+        this.local = local;
     }
 
     public int getId() {
@@ -129,5 +133,13 @@ public class EventoBaile implements java.io.Serializable {
 
     public void setEvt(Evt evt) {
         this.evt = evt;
+    }
+
+    public String getLocal() {
+        return local;
+    }
+
+    public void setLocal(String local) {
+        this.local = local;
     }
 }

@@ -6,8 +6,7 @@ import br.com.rtools.seguranca.Usuario;
 import static br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean.getCliente;
 import br.com.rtools.seguranca.dao.RotinaDao;
 import br.com.rtools.sistema.ContadorAcessos;
-import br.com.rtools.sistema.db.AtalhoDB;
-import br.com.rtools.sistema.db.AtalhoDBToplink;
+import br.com.rtools.sistema.dao.AtalhoDao;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataObject;
@@ -167,7 +166,7 @@ public class ChamadaPaginaBean implements Serializable {
 
     public void atualizaAcessos(String url) {
         RotinaDao rotinaDao = new RotinaDao();
-        AtalhoDB dba = new AtalhoDBToplink();
+        AtalhoDao dba = new AtalhoDao();
         Rotina rotina = rotinaDao.pesquisaAcesso(url);
         Usuario usuario = new Usuario();
         Dao dao = new Dao();

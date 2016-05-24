@@ -1,5 +1,6 @@
 package br.com.rtools.movimento;
 
+import br.com.rtools.financeiro.dao.Plano5Dao;
 import br.com.rtools.arrecadacao.Acordo;
 import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.MensagemConvencao;
@@ -1096,7 +1097,7 @@ public class GerarMovimento extends DB {
 
         Boleto bol = db.pesquisaBoletos(movimento.getNrCtrBoleto());
 
-        Plano5DB plano5DB = new Plano5DBToplink();
+        Plano5Dao plano5DB = new Plano5Dao();
         Plano5 plano5 = plano5DB.pesquisaPlano5IDContaBanco(bol.getContaCobranca().getContaBanco().getId());
 
         FormaPagamento fp = new FormaPagamento(
@@ -1278,7 +1279,7 @@ public class GerarMovimento extends DB {
 
         Boleto bol = db.pesquisaBoletos(lista_movimento.get(0).getNrCtrBoleto());
 
-        Plano5DB plano5DB = new Plano5DBToplink();
+        Plano5Dao plano5DB = new Plano5Dao();
         Plano5 plano5 = plano5DB.pesquisaPlano5IDContaBanco(bol.getContaCobranca().getContaBanco().getId());
 
         FormaPagamento fp = new FormaPagamento(

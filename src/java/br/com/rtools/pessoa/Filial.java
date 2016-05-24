@@ -2,6 +2,7 @@ package br.com.rtools.pessoa;
 
 import br.com.rtools.utilitarios.BaseEntity;
 import java.io.Serializable;
+import java.util.Objects;
 import javax.persistence.*;
 
 /**
@@ -23,7 +24,7 @@ import javax.persistence.*;
     @NamedQuery(name = "Filial.pesquisaID", query = "SELECT FIL FROM Filial AS FIL WHERE FIL.id = :pid"),
     @NamedQuery(name = "Filial.findAll", query = "SELECT FIL FROM Filial AS FIL ORDER BY FIL.filial.pessoa.nome ASC ")
 })
-public class Filial implements Serializable {
+public class Filial implements Serializable, BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,9 +37,9 @@ public class Filial implements Serializable {
     @ManyToOne(fetch = FetchType.EAGER)
     private Juridica filial;
     @Column(name = "nr_centro_custo")
-    private int centroCusto;
+    private Integer centroCusto;
     @Column(name = "nr_quantidade_agendamentos_por_empresa")
-    private int quantidadeAgendamentosPorEmpresa;
+    private Integer quantidadeAgendamentosPorEmpresa;
 
     public Filial() {
         this.id = -1;
@@ -48,7 +49,7 @@ public class Filial implements Serializable {
         this.quantidadeAgendamentosPorEmpresa = 50;
     }
 
-    public Filial(Integer id, Juridica matriz, Juridica filial, int centroCusto, int quantidadeAgendamentosPorEmpresa) {
+    public Filial(Integer id, Juridica matriz, Juridica filial, Integer centroCusto, Integer quantidadeAgendamentosPorEmpresa) {
         this.id = id;
         this.matriz = matriz;
         this.filial = filial;
@@ -56,6 +57,7 @@ public class Filial implements Serializable {
         this.quantidadeAgendamentosPorEmpresa = quantidadeAgendamentosPorEmpresa;
     }
 
+    @Override
     public Integer getId() {
         return id;
     }
@@ -80,26 +82,30 @@ public class Filial implements Serializable {
         this.filial = filial;
     }
 
-    public int getCentroCusto() {
+    public Integer getCentroCusto() {
         return centroCusto;
     }
 
-    public void setCentroCusto(int centroCusto) {
+    public void setCentroCusto(Integer centroCusto) {
         this.centroCusto = centroCusto;
     }
 
     @Override
     public int hashCode() {
-        int hash = 3;
-        hash = 29 * hash + this.id;
-        hash = 29 * hash + (this.matriz != null ? this.matriz.hashCode() : 0);
-        hash = 29 * hash + (this.filial != null ? this.filial.hashCode() : 0);
-        hash = 29 * hash + this.centroCusto;
+        int hash = 5;
+        hash = 97 * hash + Objects.hashCode(this.id);
+        hash = 97 * hash + Objects.hashCode(this.matriz);
+        hash = 97 * hash + Objects.hashCode(this.filial);
+        hash = 97 * hash + Objects.hashCode(this.centroCusto);
+        hash = 97 * hash + Objects.hashCode(this.quantidadeAgendamentosPorEmpresa);
         return hash;
     }
 
     @Override
     public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
         if (obj == null) {
             return false;
         }
@@ -107,19 +113,30 @@ public class Filial implements Serializable {
             return false;
         }
         final Filial other = (Filial) obj;
-        if (this.id != other.id) {
+        if (!Objects.equals(this.id, other.id)) {
             return false;
         }
-        if (this.matriz != other.matriz && (this.matriz == null || !this.matriz.equals(other.matriz))) {
+        if (!Objects.equals(this.matriz, other.matriz)) {
             return false;
         }
-        if (this.filial != other.filial && (this.filial == null || !this.filial.equals(other.filial))) {
+        if (!Objects.equals(this.filial, other.filial)) {
             return false;
         }
-        if (this.centroCusto != other.centroCusto) {
+        if (!Objects.equals(this.centroCusto, other.centroCusto)) {
+            return false;
+        }
+        if (!Objects.equals(this.quantidadeAgendamentosPorEmpresa, other.quantidadeAgendamentosPorEmpresa)) {
             return false;
         }
         return true;
+    }
+
+    public Integer getQuantidadeAgendamentosPorEmpresa() {
+        return quantidadeAgendamentosPorEmpresa;
+    }
+
+    public void setQuantidadeAgendamentosPorEmpresa(Integer quantidadeAgendamentosPorEmpresa) {
+        this.quantidadeAgendamentosPorEmpresa = quantidadeAgendamentosPorEmpresa;
     }
 
     @Override
@@ -127,11 +144,4 @@ public class Filial implements Serializable {
         return "Filial{" + "id=" + id + ", matriz=" + matriz + ", filial=" + filial + ", centroCusto=" + centroCusto + ", quantidadeAgendamentosPorEmpresa=" + quantidadeAgendamentosPorEmpresa + '}';
     }
 
-    public int getQuantidadeAgendamentosPorEmpresa() {
-        return quantidadeAgendamentosPorEmpresa;
-    }
-
-    public void setQuantidadeAgendamentosPorEmpresa(int quantidadeAgendamentosPorEmpresa) {
-        this.quantidadeAgendamentosPorEmpresa = quantidadeAgendamentosPorEmpresa;
-    }
 }

@@ -16,19 +16,13 @@ import br.com.rtools.financeiro.FormaPagamento;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.TipoPagamento;
-import br.com.rtools.financeiro.db.ContaBancoDBToplink;
-import br.com.rtools.financeiro.db.ContaRotinaDB;
-import br.com.rtools.financeiro.db.ContaRotinaDBToplink;
-import br.com.rtools.financeiro.db.FTipoDocumentoDB;
-import br.com.rtools.financeiro.db.FTipoDocumentoDBToplink;
+import br.com.rtools.financeiro.dao.ContaRotinaDao;
 import br.com.rtools.financeiro.db.FinanceiroDB;
 import br.com.rtools.financeiro.db.FinanceiroDBToplink;
-import br.com.rtools.financeiro.db.LancamentoFinanceiroDB;
-import br.com.rtools.financeiro.db.LancamentoFinanceiroDBToplink;
+import br.com.rtools.financeiro.dao.LancamentoFinanceiroDao;
 import br.com.rtools.financeiro.db.MovimentoDB;
 import br.com.rtools.financeiro.db.MovimentoDBToplink;
-import br.com.rtools.financeiro.db.Plano5DB;
-import br.com.rtools.financeiro.db.Plano5DBToplink;
+import br.com.rtools.financeiro.dao.Plano5Dao;
 import br.com.rtools.financeiro.lista.ListValoresBaixaGeral;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.movimento.ImprimirBoleto;
@@ -166,8 +160,8 @@ public class BaixaGeralBean implements Serializable {
     }
 
     public void alteraNumeroChequeConta() {
-        LancamentoFinanceiroDB db = new LancamentoFinanceiroDBToplink();
-        Plano5DB dbx = new Plano5DBToplink();
+        LancamentoFinanceiroDao db = new LancamentoFinanceiroDao();
+        Plano5Dao dbx = new Plano5Dao();
         if (listaBancoSaida.size() == 1 && listaBancoSaida.get(0).getDescription().isEmpty()) {
             GenericaMensagem.error("Erro", "Nenhum Banco para Saida Encontrado");
             return;
@@ -297,7 +291,7 @@ public class BaixaGeralBean implements Serializable {
         // CHEQUE
         if (tipoPagamento.getId() == 4 || tipoPagamento.getId() == 5) {
             if (!getEs().isEmpty() && getEs().equals("S")) {
-                Plano5DB db = new Plano5DBToplink();
+                Plano5Dao db = new Plano5Dao();
                 if (listaBancoSaida.size() == 1 && listaBancoSaida.get(0).getDescription().isEmpty()) {
                     GenericaMensagem.error("Erro", "Nenhum Banco saida Encontrado!");
                     return;
@@ -354,7 +348,7 @@ public class BaixaGeralBean implements Serializable {
                 listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, null, (Cartao) new Dao().find(new Cartao(), Integer.valueOf(listaCartao.get(idCartao).getDescription())), Moeda.converteR$Float(valorDigitado)));
             }
         } else if (tipoPagamento.getId() == 2 || tipoPagamento.getId() == 8 || tipoPagamento.getId() == 9 || tipoPagamento.getId() == 10 || tipoPagamento.getId() == 13) {
-            Plano5DB db = new Plano5DBToplink();
+            Plano5Dao db = new Plano5Dao();
             if (listaBanco.size() == 1 && listaBanco.get(0).getDescription().isEmpty()) {
                 GenericaMensagem.error("Erro", "Nenhum Banco Encontrado!");
                 return;
@@ -394,7 +388,7 @@ public class BaixaGeralBean implements Serializable {
 
     public List<SelectItem> getListaConta() {
         if (listaConta.isEmpty()) {
-            ContaRotinaDB db = new ContaRotinaDBToplink();
+            ContaRotinaDao db = new ContaRotinaDao();
             List select;
             if (!verificaBaixaBoleto()) {
                 select = db.pesquisaContasPorRotina(1);
@@ -418,7 +412,6 @@ public class BaixaGeralBean implements Serializable {
 
     public List<SelectItem> getListaTipoPagamento() {
         if (listaTipoPagamento.isEmpty()) {
-            FTipoDocumentoDB db = new FTipoDocumentoDBToplink();
             Dao dao = new Dao();
             List<TipoPagamento> select = new ArrayList();
             if (!verificaBaixaBoleto()) {
@@ -805,7 +798,7 @@ public class BaixaGeralBean implements Serializable {
                     return plano5;
                 }
 
-                plano5 = new Plano5DBToplink().pesquisaPlano5IDContaBanco(bol.getContaCobranca().getContaBanco().getId());
+                plano5 = new Plano5Dao().pesquisaPlano5IDContaBanco(bol.getContaCobranca().getContaBanco().getId());
             }
         }
         return plano5;
@@ -974,7 +967,7 @@ public class BaixaGeralBean implements Serializable {
                 Boleto bol = db.pesquisaBoletos(listaMovimentos.get(0).getNrCtrBoleto());
                 result.add(bol.getContaCobranca().getContaBanco());
             } else {
-                result = (new ContaBancoDBToplink()).pesquisaTodos();
+                result = new Dao().list(new ContaBanco(), true);
             }
 
             if (!result.isEmpty()) {
@@ -1022,7 +1015,7 @@ public class BaixaGeralBean implements Serializable {
 
     public List<SelectItem> getListaBancoSaida() {
         if (listaBancoSaida.isEmpty()) {
-            List<ContaBanco> result = (new ContaBancoDBToplink()).pesquisaTodos();
+            List<ContaBanco> result = new Dao().list(new ContaBanco(), true);
 
             if (!result.isEmpty()) {
                 for (int i = 0; i < result.size(); i++) {

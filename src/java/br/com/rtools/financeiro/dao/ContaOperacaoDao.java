@@ -1,10 +1,6 @@
 package br.com.rtools.financeiro.dao;
 
-import br.com.rtools.financeiro.ContaOperacao;
-import br.com.rtools.financeiro.Operacao;
 import br.com.rtools.principal.DB;
-import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
@@ -12,20 +8,25 @@ import javax.persistence.Query;
 public class ContaOperacaoDao extends DB {
 
     public List listPlano4AgrupadoPlanoVwNotInContaOperacao(Integer idOperacao) {
-        DaoInterface di = new Dao();
-        Operacao o = (Operacao) di.find(new Operacao(), idOperacao);
         String queryString = " "
                 + "     SELECT id_p4,                                           \n"
                 + "            CONCAT(conta1 ||' - '|| conta3 ||' - '|| conta4) \n"
                 + "       FROM plano_vw                                         \n";
-        if (idOperacao == 1 || idOperacao == 7) {
-            queryString += " WHERE replace(upper(ltrim(rtrim(conta1))), ' ','') LIKE '%RECEITA%' \n";
-        } else if (idOperacao == 2 || idOperacao == 8) {
-            queryString += " WHERE replace(upper(ltrim(rtrim(conta1))), ' ','') LIKE '%DESPESA%' \n";
-        } else {
-            queryString
-                    += " WHERE NOT REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%DESPESA%' \n AND "
-                    + "           NOT REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','')  LIKE '%RECEITA%' \n ";
+        if (null != idOperacao) {
+            switch (idOperacao) {
+                case 1:
+                case 7:
+                    queryString += " WHERE replace(upper(ltrim(rtrim(conta1))), ' ','') LIKE '%RECEITA%' \n";
+                    break;
+                case 2:
+                case 8:
+                    queryString += " WHERE replace(upper(ltrim(rtrim(conta1))), ' ','') LIKE '%DESPESA%' \n";
+                    break;
+                default:
+                    queryString += "WHERE NOT REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%DESPESA%' \n AND "
+                            + "           NOT REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','')  LIKE '%RECEITA%' \n ";
+                    break;
+            }
         }
         queryString += " GROUP BY conta1,           \n"
                 + "               conta3,           \n"
@@ -74,6 +75,22 @@ public class ContaOperacaoDao extends DB {
         return new ArrayList();
     }
 
+    public List findPlano5ByPlano4NotInContaOperacao(Integer filial_id, Integer operacao_id, Integer plano4_id) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT P5 FROM Plano5 AS P5 WHERE P5.plano4.id = :plano4_id AND P5.id NOT IN(SELECT CO.plano5.id FROM ContaOperacao AS CO WHERE CO.operacao.id = :operacao_id AND CO.filial.id = :filial_id) ORDER BY P5.classificador");
+            query.setParameter("filial_id", filial_id);
+            query.setParameter("operacao_id", operacao_id);
+            query.setParameter("plano4_id", plano4_id);
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return list;
+            }
+        } catch (Exception e) {
+
+        }
+        return new ArrayList();
+    }
+
     public List findByOperacao(Integer operacao_id) {
         try {
             Query query = getEntityManager().createQuery("SELECT CO FROM ContaOperacao CO WHERE CO.operacao.id = :operacao_id");
@@ -94,19 +111,28 @@ public class ContaOperacaoDao extends DB {
             return new ArrayList();
         }
     }
-
-    public List<ContaOperacao> listaContaOperacao(Integer id_operacao) {
+    
+    public List findByFilialOperacao(Integer filial_id, Integer operacao_id, Integer centro_custo_id) {
         try {
-            Query query = getEntityManager().createNativeQuery(
-                    "SELECT co.* \n"
-                    + "  FROM fin_conta_operacao AS co \n"
-                    + " WHERE co.id_operacao = " + id_operacao, ContaOperacao.class
-            );
-            
+            Query query = getEntityManager().createQuery("SELECT CO FROM ContaOperacao CO WHERE CO.operacao.id = :operacao_id AND CO.filial.id = :filial_id AND CO.centroCusto.id = :centro_custo_id");
+            query.setParameter("operacao_id", operacao_id);
+            query.setParameter("filial_id", filial_id);
+            query.setParameter("centro_custo_id", centro_custo_id);
             return query.getResultList();
         } catch (Exception e) {
-            e.getMessage();
+            return new ArrayList();
         }
-        return new ArrayList();
+    }
+
+    public List findByContaOperacao(Integer filial_id, Integer operacao_id, Integer plano4_id) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT CO FROM ContaOperacao CO WHERE CO.operacao.id = :operacao_id AND CO.filial.id = :filial_id AND CO.plano5.plano4.id = :plano4_id ORDER BY CO.plano5.conta ASC");
+            query.setParameter("operacao_id", operacao_id);
+            query.setParameter("filial_id", filial_id);
+            query.setParameter("plano4_id", plano4_id);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
     }
 }
