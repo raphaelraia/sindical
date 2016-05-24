@@ -575,8 +575,8 @@ public class LancamentoFinanceiroBean implements Serializable {
         // OPERACAO
         loadListaContaOperacao();
         if (lote.getPlano5() != null) {
-            for(int i = 0; i < listaContaOperacao.size(); i++) {
-                if(Integer.parseInt(listaContaOperacao.get(i).getDescription()) == lote.getPlano5().getId()) {
+            for (int i = 0; i < listaContaOperacao.size(); i++) {
+                if (Integer.parseInt(listaContaOperacao.get(i).getDescription()) == lote.getPlano5().getId()) {
                     idContaOperacao = Integer.parseInt(listaContaOperacao.get(i).getValue().toString());
                     break;
                 }
@@ -684,7 +684,7 @@ public class LancamentoFinanceiroBean implements Serializable {
             lote.setRotina((Rotina) dao.find(new Rotina(), 231));
             lote.setEvt(null);
             lote.setPessoa(pessoa);
-            lote.setHistorico(historico);
+            lote.setHistoricoContabil(historico);
             lote.setPessoaSemCadastro(null);
             lote.setUsuario(us);
             lote.setOperacao(operacao);
@@ -1117,11 +1117,11 @@ public class LancamentoFinanceiroBean implements Serializable {
             telaSalva = false;
             return;
         } else if (soma > Moeda.converteUS$(total)) {
-            if(lote.getId() == -1) {
+            if (lote.getId() == -1) {
                 GenericaMensagem.warn("Erro", "Valor das Parcelas é MAIOR que soma Total!");
                 modalVisivel = true;
                 telaSalva = false;
-                return;                
+                return;
             }
         }
 

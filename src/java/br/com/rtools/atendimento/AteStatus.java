@@ -14,19 +14,15 @@ public class AteStatus implements Serializable {
     private int id;
     @Column(name = "ds_descricao", length = 50, nullable = false, unique = true)
     private String descricao;
-    @Column(name = "is_reserva", columnDefinition = "boolean default false")
-    private Boolean reserva;
 
     public AteStatus() {
         this.id = -1;
         this.descricao = "";
-        this.reserva = false;
     }
 
     public AteStatus(int id, String descricao, Boolean reserva) {
         this.id = id;
         this.descricao = descricao;
-        this.reserva = reserva;
     }
 
     public int getId() {
@@ -45,17 +41,9 @@ public class AteStatus implements Serializable {
         this.descricao = descricao;
     }
 
-    public Boolean getReserva() {
-        return reserva;
-    }
-
-    public void setReserva(Boolean reserva) {
-        this.reserva = reserva;
-    }
-
     @Override
     public String toString() {
-        return "AteStatus{" + "id=" + id + ", descricao=" + descricao + ", reserva=" + reserva + '}';
+        return "AteStatus{" + "id=" + id + ", descricao=" + descricao + '}';
     }
 
 }

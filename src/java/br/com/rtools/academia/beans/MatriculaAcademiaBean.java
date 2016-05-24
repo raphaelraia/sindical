@@ -1759,12 +1759,14 @@ public class MatriculaAcademiaBean implements Serializable {
                         }
                     } else // TAXA PROPORCIONAL ATÉ O VENCIMENTO
                     // METODO NOVO PARA O CHAMADO 1226
-                     if (Moeda.converteUS$(valorLiquido) > 0) {
+                    {
+                        if (Moeda.converteUS$(valorLiquido) > 0) {
                             if (!gerarTaxaMovimento(Moeda.converteUS$(valorLiquido))) {
                                 GenericaMensagem.warn("ATENÇÃO", "Movimento não foi gerado, Tente novamente!");
                                 return null;
                             }
                         } // --------------
+                    }
                     new FunctionsDao().gerarMensalidades(matriculaAcademia.getServicoPessoa().getPessoa().getId(), retornaReferenciaGeracao());
                     if (!matriculaAcademia.isTaxa()) {
                         desabilitaCamposMovimento = true;
@@ -1826,7 +1828,8 @@ public class MatriculaAcademiaBean implements Serializable {
                                 null,
                                 null,
                                 null,
-                                false
+                                false,
+                                ""
                         )
                 );
                 di.openTransaction();
@@ -2065,7 +2068,8 @@ public class MatriculaAcademiaBean implements Serializable {
                         null,
                         null,
                         null,
-                        false
+                        false,
+                        ""
                 );
 
         if (!dao.save(lote_taxa)) {

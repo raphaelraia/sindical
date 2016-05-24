@@ -81,6 +81,8 @@ public class Lote implements java.io.Serializable {
     private Operacao operacao;
     @Column(name = "is_conta_fixa", columnDefinition = "boolean default false")
     private Boolean contaFixa;
+    @Column(name = "ds_historico_contabil", length = 2000, nullable = false)
+    private String historicoContabil;
 
     public Lote() {
         this.id = -1;
@@ -107,9 +109,10 @@ public class Lote implements java.io.Serializable {
         this.centroCusto = null;
         this.operacao = null;
         this.contaFixa = false;
+        this.historicoContabil = "";
     }
 
-    public Lote(int id, Rotina rotina, String pagRec, String dtLancamento, Pessoa pessoa, Plano5 plano5, boolean avencerContabil, String documento, float valor, Filial filial, Departamento departamento, Evt evt, String historico, FTipoDocumento ftipoDocumento, CondicaoPagamento condicaoPagamento, FStatus status, PessoaSemCadastro pessoaSemCadastro, boolean descontoFolha, float desconto, Usuario usuario, CentroCusto centroCusto, Operacao operacao, Boolean contaFixa) {
+    public Lote(int id, Rotina rotina, String pagRec, String dtLancamento, Pessoa pessoa, Plano5 plano5, boolean avencerContabil, String documento, float valor, Filial filial, Departamento departamento, Evt evt, String historico, FTipoDocumento ftipoDocumento, CondicaoPagamento condicaoPagamento, FStatus status, PessoaSemCadastro pessoaSemCadastro, boolean descontoFolha, float desconto, Usuario usuario, CentroCusto centroCusto, Operacao operacao, Boolean contaFixa, String historicoContabil) {
         this.id = id;
         this.rotina = rotina;
         this.pagRec = pagRec;
@@ -134,6 +137,7 @@ public class Lote implements java.io.Serializable {
         this.centroCusto = centroCusto;
         this.operacao = operacao;
         this.contaFixa = contaFixa;
+        this.historicoContabil = historicoContabil;
     }
 
     public int getId() {
@@ -350,5 +354,13 @@ public class Lote implements java.io.Serializable {
 
     public void setContaFixa(Boolean contaFixa) {
         this.contaFixa = contaFixa;
+    }
+
+    public String getHistoricoContabil() {
+        return historicoContabil;
+    }
+
+    public void setHistoricoContabil(String historicoContabil) {
+        this.historicoContabil = historicoContabil;
     }
 }

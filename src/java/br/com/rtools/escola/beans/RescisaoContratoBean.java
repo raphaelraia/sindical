@@ -453,7 +453,8 @@ public class RescisaoContratoBean implements Serializable {
                     null,
                     null,
                     null,
-                    false
+                    false,
+                    ""
             );
 
             if (!dao.save(l)) {
