@@ -1,14 +1,20 @@
 package br.com.rtools.associativo.beans;
 
+import br.com.rtools.associativo.AEndereco;
 import br.com.rtools.associativo.AStatus;
 import br.com.rtools.associativo.BVenda;
 import br.com.rtools.associativo.EventoBaile;
 import br.com.rtools.associativo.EventoBaileConvite;
+import br.com.rtools.associativo.EventoBaileImpressaoConvite;
 import br.com.rtools.associativo.EventoBaileMapa;
+import br.com.rtools.associativo.EventoBanda;
 import br.com.rtools.associativo.EventoServicoValor;
+import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.dao.VendaBaileDao;
 import br.com.rtools.associativo.db.EventoBaileDB;
 import br.com.rtools.associativo.db.EventoBaileDBToplink;
+import br.com.rtools.associativo.db.EventoBandaDB;
+import br.com.rtools.associativo.db.EventoBandaDBToplink;
 import br.com.rtools.financeiro.Caixa;
 import br.com.rtools.financeiro.CondicaoPagamento;
 import br.com.rtools.financeiro.FStatus;
@@ -18,6 +24,7 @@ import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.db.FinanceiroDB;
 import br.com.rtools.financeiro.db.FinanceiroDBToplink;
+import br.com.rtools.impressao.ParametroConviteBaile;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.pessoa.Filial;
@@ -34,6 +41,7 @@ import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.PF;
 import br.com.rtools.utilitarios.db.FunctionsDao;
@@ -41,6 +49,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Vector;
 import javax.annotation.PostConstruct;
@@ -108,6 +118,172 @@ public class VendaBaileBean implements Serializable {
         GenericaSessao.remove("fisicaPesquisa");
 
         cab = (ControleAcessoBean) GenericaSessao.getObject("controleAcessoBean");
+    }
+
+    public void imprimirConviteIndividual(EventoBaileConvite ebc) {
+        EventoBaileDB ebdb = new EventoBaileDBToplink();
+        // FALSE = tem permissão
+        // TRUE = não tem permissão
+        // cab.verificaPermissao("reimprimir_convite_baile", 4)
+        if (!ebdb.listaEventoBaileImpressaoConvite(ebc.getId(), "convite").isEmpty() && cab.verificaPermissao("reimprimir_convite_baile", 4)) {
+            GenericaMensagem.error("Atenção", "Usuário sem permissão para reimprimir este convite!");
+            return;
+        }
+
+        String tipo = "Individual", tipo_descricao, numero = "" + ebc.getConvite();
+
+        Boolean chk_c = (ebc.getbVenda().getEventoServico().getServicos().getId() == 13 || ebc.getbVenda().getEventoServico().getServicos().getId() == 13);
+        if (chk_c) {
+            tipo_descricao = "CONVITE CORTESIA INDIVIDUAL";
+        } else {
+            tipo_descricao = "CONVITE INDIVIDUAL";
+        }
+
+        String descricao = ebc.getEventoBaile().getEvento().getDescricaoEvento().getDescricao();
+        Date data = ebc.getEventoBaile().getData();
+        String hora_inicial = ebc.getEventoBaile().getHoraInicio();
+        String hora_final = ebc.getEventoBaile().getHoraFim();
+
+        EventoBandaDB db = new EventoBandaDBToplink();
+        List<EventoBanda> listaEventoBanda = db.pesquisaBandasDoEvento(ebc.getbVenda().getEvento().getId());
+
+        String banda = "";
+        for (EventoBanda eb : listaEventoBanda) {
+            banda += eb.getBanda().getDescricao() + " \n ";
+        }
+
+        Pessoa p = ebc.getbVenda().getPessoa();
+        Pessoa resp = new FunctionsDao().titularDaPessoa(p.getId());
+
+        Socios s = resp.getSocios();
+
+        String nome_socio = "", categoria = "";
+        if (s != null) {
+            nome_socio = resp.getNome();
+            categoria = s.getMatriculaSocios().getCategoria().getCategoria();
+        }
+
+        AEndereco endereco = ebdb.pesquisaEnderecoEvento(ebc.getEventoBaile().getEvento().getId());
+        String local = ebc.getEventoBaile().getLocal(), endereco_string = endereco.getEndereco().getEnderecoToString() + ", " + endereco.getNumero() + endereco.getComplemento();
+
+        EventoBaileImpressaoConvite ebic = new EventoBaileImpressaoConvite(
+                -1, 
+                ebc,
+                null, 
+                Usuario.getUsuario(),
+                DataHoje.dataHoje(), 
+                DataHoje.horaMinuto()
+        );        
+        
+        if (!new Dao().save(ebic, true)){
+            GenericaMensagem.error("Erro", "Não foi possível salvar Registro de Impressão!");
+            return;
+        }
+        
+        imprimirConvite(tipo, tipo_descricao, numero, descricao, data, hora_inicial, hora_final, banda, nome_socio, categoria, local, endereco_string);
+    }
+
+    public void imprimirConviteMesa(EventoBaileMapa ebm) {
+        EventoBaileDB ebdb = new EventoBaileDBToplink();
+        // FALSE = tem permissão
+        // TRUE = não tem permissão
+        // cab.verificaPermissao("reimprimir_convite_baile", 4)
+        if (!ebdb.listaEventoBaileImpressaoConvite(ebm.getId(), "mesa").isEmpty() && cab.verificaPermissao("reimprimir_convite_baile", 4)) {
+            GenericaMensagem.error("Atenção", "Usuário sem permissão para reimprimir este convite!");
+            return;
+        }
+
+        String tipo = "Mesa", tipo_descricao, numero = "" + ebm.getMesa();
+
+        Boolean chk_c = (ebm.getbVenda().getEventoServico().getServicos().getId() == 13 || ebm.getbVenda().getEventoServico().getServicos().getId() == 13);
+        if (chk_c) {
+            tipo_descricao = "CONVITE CORTESIA MESA";
+        } else {
+            tipo_descricao = "CONVITE MESA";
+        }
+
+        String descricao = ebm.getEventoBaile().getEvento().getDescricaoEvento().getDescricao();
+        Date data = ebm.getEventoBaile().getData();
+        String hora_inicial = ebm.getEventoBaile().getHoraInicio();
+        String hora_final = ebm.getEventoBaile().getHoraFim();
+
+        EventoBandaDB db = new EventoBandaDBToplink();
+        List<EventoBanda> listaEventoBanda = db.pesquisaBandasDoEvento(ebm.getbVenda().getEvento().getId());
+
+        String banda = "";
+        for (EventoBanda eb : listaEventoBanda) {
+            banda += eb.getBanda().getDescricao() + " \n ";
+        }
+
+        Pessoa p = ebm.getbVenda().getPessoa();
+        Pessoa resp = new FunctionsDao().titularDaPessoa(p.getId());
+
+        Socios s = resp.getSocios();
+
+        String nome_socio = "", categoria = "";
+        if (s != null) {
+            nome_socio = resp.getNome();
+            categoria = s.getMatriculaSocios().getCategoria().getCategoria();
+        }
+
+        EventoBaileDB eventoBaileDB = new EventoBaileDBToplink();
+        AEndereco endereco = eventoBaileDB.pesquisaEnderecoEvento(ebm.getEventoBaile().getEvento().getId());
+        String local = ebm.getEventoBaile().getLocal(), endereco_string = endereco.getEndereco().getEnderecoToString() + ", " + endereco.getNumero() + endereco.getComplemento();
+
+        EventoBaileImpressaoConvite ebic = new EventoBaileImpressaoConvite(
+                -1, 
+                null,
+                ebm, 
+                Usuario.getUsuario(),
+                DataHoje.dataHoje(), 
+                DataHoje.horaMinuto()
+        );        
+        
+        if (!new Dao().save(ebic, true)){
+            GenericaMensagem.error("Erro", "Não foi possível salvar Registro de Impressão!");
+            return;
+        }
+        
+        imprimirConvite(tipo, tipo_descricao, numero, descricao, data, hora_inicial, hora_final, banda, nome_socio, categoria, local, endereco_string);
+    }
+
+    public void imprimirConvite(String tipo, String tipo_descricao, String numero, String descricao, Date data, String hora_inicial, String hora_final, String banda, String nome_socio, String categoria, String local, String endereco_string) {
+        HashMap params = new LinkedHashMap();
+        params.put("tipo", tipo);
+        params.put("tipo_descricao", tipo_descricao);
+        params.put("descricao", descricao);
+        params.put("numero", numero);
+        params.put("data", data);
+        params.put("hora_inicial", hora_inicial);
+        params.put("hora_final", hora_final);
+        params.put("banda", banda);
+        params.put("nome_socio", nome_socio);
+        params.put("categoria", categoria);
+        params.put("local", local);
+        params.put("endereco", endereco_string);
+        params.put("emissao", DataHoje.dataHoje());
+        params.put("hora_emissao", DataHoje.horaMinuto());
+
+        List<ParametroConviteBaile> lista = new ArrayList();
+
+        // PARA MESA - QUANTIDADE DE CADEIRAS
+        if (mesaConvite.equals("mesa")) {
+            for (int i = 0; i < 4; i++) {
+                lista.add(
+                        new ParametroConviteBaile(
+                                i + 1
+                        )
+                );
+            }
+        } else {
+            lista.add(
+                    new ParametroConviteBaile(
+                            -1
+                    )
+            );
+        }
+
+        Jasper.printReports("CONVITE_BAILE.jasper", "Convite Baile", lista, params);
     }
 
     public void trocarMesa(Vector linha) {

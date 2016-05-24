@@ -18,12 +18,13 @@ public class ContaOperacaoDao extends DB {
                 + "     SELECT id_p4,                                           \n"
                 + "            CONCAT(conta1 ||' - '|| conta3 ||' - '|| conta4) \n"
                 + "       FROM plano_vw                                         \n";
-        if (idOperacao == 1) {
+        if (idOperacao == 1 || idOperacao == 7) {
             queryString += " WHERE replace(upper(ltrim(rtrim(conta1))), ' ','') LIKE '%RECEITA%' \n";
-        } else if (idOperacao == 2) {
+        } else if (idOperacao == 2 || idOperacao == 8) {
             queryString += " WHERE replace(upper(ltrim(rtrim(conta1))), ' ','') LIKE '%DESPESA%' \n";
         } else {
-            queryString += "WHERE NOT REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%DESPESA%' \n AND "
+            queryString
+                    += " WHERE NOT REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%DESPESA%' \n AND "
                     + "           NOT REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','')  LIKE '%RECEITA%' \n ";
         }
         queryString += " GROUP BY conta1,           \n"
@@ -92,5 +93,20 @@ public class ContaOperacaoDao extends DB {
         } catch (Exception e) {
             return new ArrayList();
         }
+    }
+
+    public List<ContaOperacao> listaContaOperacao(Integer id_operacao) {
+        try {
+            Query query = getEntityManager().createNativeQuery(
+                    "SELECT co.* \n"
+                    + "  FROM fin_conta_operacao AS co \n"
+                    + " WHERE co.id_operacao = " + id_operacao, ContaOperacao.class
+            );
+            
+            return query.getResultList();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return new ArrayList();
     }
 }

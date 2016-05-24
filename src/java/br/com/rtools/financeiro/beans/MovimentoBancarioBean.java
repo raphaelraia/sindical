@@ -3,6 +3,7 @@ package br.com.rtools.financeiro.beans;
 import br.com.rtools.financeiro.Baixa;
 import br.com.rtools.financeiro.ChequeRec;
 import br.com.rtools.financeiro.CondicaoPagamento;
+import br.com.rtools.financeiro.ContaOperacao;
 import br.com.rtools.financeiro.FStatus;
 import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.FormaPagamento;
@@ -12,6 +13,7 @@ import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoPagamento;
 import br.com.rtools.financeiro.TipoServico;
+import br.com.rtools.financeiro.dao.ContaOperacaoDao;
 import br.com.rtools.financeiro.db.FinanceiroDB;
 import br.com.rtools.financeiro.db.FinanceiroDBToplink;
 import br.com.rtools.financeiro.db.Plano5DB;
@@ -29,7 +31,6 @@ import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.SalvarAcumuladoDB;
 import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -45,22 +46,47 @@ public class MovimentoBancarioBean implements Serializable {
 
     private int idConta = 0;
     private int idServicos = 0;
-    private List<SelectItem> listaConta = new ArrayList<SelectItem>();
-    private List<SelectItem> listaServicos = new ArrayList<SelectItem>();
+    private final List<SelectItem> listaConta = new ArrayList();
+    private final List<SelectItem> listaServicos = new ArrayList();
     private String valor = "";
-    private String tipo = "";
-    private List<DataObject> listaMovimento = new ArrayList<DataObject>();
+    private String tipo = "saida";
+    private List<ObjectMovimentoBancario> listaMovimento = new ArrayList();
+
+    private int idContaOperacao = 0;
+    private List<SelectItem> listaContaOperacao = new ArrayList();
+
+    public MovimentoBancarioBean() {
+        loadListaContaOperacao();
+    }
+
+    public final void loadListaContaOperacao() {
+        listaContaOperacao.clear();
+
+        getListaConta();
+        List<ContaOperacao> result = new ContaOperacaoDao().listaContaOperacao(Integer.valueOf(listaConta.get(idConta).getDescription()));
+        if (!result.isEmpty()) {
+            for (int i = 0; i < result.size(); i++) {
+                listaContaOperacao.add(
+                        new SelectItem(
+                                i,
+                                result.get(i).getPlano5().getConta(),
+                                "" + result.get(i).getId()
+                        )
+                );
+            }
+        }
+    }
 
     public void salvar() {
         SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
 
-        Lote lote = null;
-        Movimento movimento = null;
-        Baixa baixa = null;
-        FormaPagamento forma_pagamento = null;
+        Lote lote;
+        Movimento movimento;
+        Baixa baixa;
+        FormaPagamento forma_pagamento;
         Plano5 plano = (Plano5) sv.pesquisaCodigo(Integer.valueOf(listaConta.get(idConta).getDescription()), "Plano5");
 
-        if (tipo.equals("debito")) {
+        if (tipo.equals("saida")) {
             baixa = novaBaixa();
             lote = novoLote(sv, "P", plano, Moeda.converteUS$(valor));
             movimento = novoMovimento(sv, lote, baixa, "S");
@@ -177,7 +203,7 @@ public class MovimentoBancarioBean implements Serializable {
                 plano,
                 null,
                 null,
-                (TipoPagamento) sv.pesquisaCodigo(8, "TipoPagamento"),
+                (TipoPagamento) sv.pesquisaCodigo(3, "TipoPagamento"),
                 0,
                 DataHoje.dataHoje(),
                 0
@@ -266,22 +292,6 @@ public class MovimentoBancarioBean implements Serializable {
                 return;
             }
 
-//            Baixa baixa = (Baixa)sv.pesquisaCodigo((Integer) ((Vector)linha.getArgumento0()).get(1), "Baixa");
-//            Lote lote = novoLote(sv, "P", plano, valor);
-//            Movimento movimento = novoMovimento(sv, lote, baixa, "S");
-//            
-//            if (!sv.inserirObjeto(lote)){
-//                GenericaMensagem.warn("Erro", "Não foi possivel salvar lote saida!");
-//                sv.desfazerTransacao();
-//            }
-//            
-//            if (!sv.inserirObjeto(movimento)){
-//                GenericaMensagem.warn("Erro", "Não foi possivel salvar movimento saida!");
-//                sv.desfazerTransacao();
-//                return;
-//            }
-            //listaCheques.clear();
-            //listaSelecionado.clear();
             listaMovimento.clear();
             sv.comitarTransacao();
 
@@ -291,9 +301,12 @@ public class MovimentoBancarioBean implements Serializable {
             } else {
                 // SUSTADO
                 GenericaMensagem.info("Sucesso", "Cheque SUSTADO concluído!");
-
             }
         }
+    }
+
+    public Boolean liberaAlteracao() {
+        return true;
     }
 
     public List<SelectItem> getListaConta() {
@@ -302,10 +315,12 @@ public class MovimentoBancarioBean implements Serializable {
 
             List<Plano5> result = db.pesquisaCaixaBanco();
             for (int i = 0; i < result.size(); i++) {
-                listaConta.add(new SelectItem(
-                        new Integer(i),
-                        result.get(i).getContaBanco().getBanco().getBanco() + " - " + result.get(i).getContaBanco().getAgencia() + " - " + result.get(i).getContaBanco().getConta(),
-                        Integer.toString((result.get(i).getId())))
+                listaConta.add(
+                        new SelectItem(
+                                i,
+                                result.get(i).getContaBanco().getBanco().getBanco() + " - " + result.get(i).getContaBanco().getAgencia() + " - " + result.get(i).getContaBanco().getConta(),
+                                Integer.toString((result.get(i).getId()))
+                        )
                 );
             }
         }
@@ -315,14 +330,15 @@ public class MovimentoBancarioBean implements Serializable {
     public List<SelectItem> getListaServicos() {
         if (listaServicos.isEmpty()) {
             ServicosDB db = new ServicosDBToplink();
-            List select = db.pesquisaTodos(225);
+            List<Servicos> select = db.pesquisaTodos(225);
             if (!select.isEmpty()) {
                 for (int i = 0; i < select.size(); i++) {
-                    listaServicos.add(new SelectItem(
-                            new Integer(i),
-                            (String) ((Servicos) select.get(i)).getDescricao(),
-                            Integer.toString(((Servicos) select.get(i)).getId())
-                    )
+                    listaServicos.add(
+                            new SelectItem(
+                                    i,
+                                    select.get(i).getDescricao(),
+                                    Integer.toString(select.get(i).getId())
+                            )
                     );
                 }
             }
@@ -362,7 +378,7 @@ public class MovimentoBancarioBean implements Serializable {
         this.tipo = tipo;
     }
 
-    public List<DataObject> getListaMovimento() {
+    public List<ObjectMovimentoBancario> getListaMovimento() {
         if (listaMovimento.isEmpty()) {
             FinanceiroDB db = new FinanceiroDBToplink();
             SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
@@ -373,29 +389,217 @@ public class MovimentoBancarioBean implements Serializable {
             }
 
             Plano5 plano = (Plano5) sv.pesquisaCodigo(Integer.valueOf(listaConta.get(idConta).getDescription()), "Plano5");
+            if (plano == null) {
+                GenericaMensagem.fatal("Erro", "Plano de Contas não encontrado!");
+                return new ArrayList();
+            }
+
             List<Vector> result = db.listaMovimentoBancario(plano.getId());
+
             for (int i = 0; i < result.size(); i++) {
                 ChequeRec cheque = null;
                 if (result.get(i).get(10) != null) {
                     cheque = (ChequeRec) sv.pesquisaCodigo((Integer) result.get(i).get(10), "ChequeRec");
                 }
-
+//DISTINCT f.id id_forma, b.id id_baixa, b.dt_baixa as data, '' as documento, '' as historico, f.nr_valor, m.ds_es, 0.0 as saldo, ds_descricao as status, f.id_tipo_pagamento, ch.id
                 listaMovimento.add(
-                        new DataObject(
-                                result.get(i),
-                                DataHoje.converteData((Date) result.get(i).get(2)),
-                                Moeda.converteR$Float(Float.parseFloat(Double.toString((Double) result.get(i).get(5)))),
-                                Moeda.converteR$Float(((BigDecimal) result.get(i).get(7)).floatValue()),
-                                0,
-                                cheque
+                        new ObjectMovimentoBancario(
+                                (Integer) result.get(i).get(0), // ID FORMA PAGAMENTO
+                                (Integer) result.get(i).get(1), // ID BAIXA
+                                (Date) result.get(i).get(2), // DATA BAIXA
+                                (String) result.get(i).get(3), // DOCUMENTO
+                                (String) result.get(i).get(4), // HISTORICO 
+                                Moeda.converteUS$(Moeda.converteR$Double((Double) result.get(i).get(5))), // VALOR
+                                (String) result.get(i).get(6), // E / S
+                                Moeda.converteUS$(Moeda.converteR$Double((Double) result.get(i).get(7))), // SALDO
+                                (String) result.get(i).get(8), // STATUS
+                                (Integer) result.get(i).get(9), // ID TIPO PAGAMENTO
+                                (Integer) result.get(i).get(10), // ID CHEQUE REC
+                                0 // INDEX STATUS
                         )
+                //                        new DataObject(
+                //                                result.get(i),
+                //                                DataHoje.converteData((Date) result.get(i).get(2)),
+                //                                Moeda.converteR$Float(Float.parseFloat(Double.toString((Double) result.get(i).get(5)))),
+                //                                Moeda.converteR$Float(((BigDecimal) result.get(i).get(7)).floatValue()),
+                //                                0,
+                //                                cheque
+                //                        )
                 );
             }
         }
         return listaMovimento;
     }
 
-    public void setListaMovimento(List<DataObject> listaMovimento) {
+    public void setListaMovimento(List<ObjectMovimentoBancario> listaMovimento) {
         this.listaMovimento = listaMovimento;
+    }
+
+    public int getIdContaOperacao() {
+        return idContaOperacao;
+    }
+
+    public void setIdContaOperacao(int idContaOperacao) {
+        this.idContaOperacao = idContaOperacao;
+    }
+
+    public List<SelectItem> getListaContaOperacao() {
+        return listaContaOperacao;
+    }
+
+    public void setListaContaOperacao(List<SelectItem> listaContaOperacao) {
+        this.listaContaOperacao = listaContaOperacao;
+    }
+
+    public class ObjectMovimentoBancario {
+
+        private Integer idFormaPagamento;
+        private Integer idBaixa;
+        private Date dataBaixa;
+        private String documento;
+        private String historico;
+        private Float valor;
+        private String es;
+        private Float saldo;
+        private String status;
+        private Integer idTipoPagamento;
+        private Integer idChequeRec;
+        private Integer indexStatus;
+
+        public ObjectMovimentoBancario(Integer idFormaPagamento, Integer idBaixa, Date dataBaixa, String documento, String historico, Float valor, String es, Float saldo, String status, Integer idTipoPagamento, Integer idChequeRec, Integer indexStatus) {
+            this.idFormaPagamento = idFormaPagamento;
+            this.idBaixa = idBaixa;
+            this.dataBaixa = dataBaixa;
+            this.documento = documento;
+            this.historico = historico;
+            this.valor = valor;
+            this.es = es;
+            this.saldo = saldo;
+            this.status = status;
+            this.idTipoPagamento = idTipoPagamento;
+            this.idChequeRec = idChequeRec;
+            this.indexStatus = indexStatus;
+        }
+
+        public Integer getIdFormaPagamento() {
+            return idFormaPagamento;
+        }
+
+        public void setIdFormaPagamento(Integer idFormaPagamento) {
+            this.idFormaPagamento = idFormaPagamento;
+        }
+
+        public Integer getIdBaixa() {
+            return idBaixa;
+        }
+
+        public void setIdBaixa(Integer idBaixa) {
+            this.idBaixa = idBaixa;
+        }
+
+        public Date getDataBaixa() {
+            return dataBaixa;
+        }
+
+        public void setDataBaixa(Date dataBaixa) {
+            this.dataBaixa = dataBaixa;
+        }
+
+        public String getDataBaixaString() {
+            return DataHoje.converteData(dataBaixa);
+        }
+
+        public void setDataBaixaString(String dataBaixaString) {
+            this.dataBaixa = DataHoje.converte(dataBaixaString);
+        }
+
+        public String getDocumento() {
+            return documento;
+        }
+
+        public void setDocumento(String documento) {
+            this.documento = documento;
+        }
+
+        public String getHistorico() {
+            return historico;
+        }
+
+        public void setHistorico(String historico) {
+            this.historico = historico;
+        }
+
+        public Float getValor() {
+            return valor;
+        }
+
+        public void setValor(Float valor) {
+            this.valor = valor;
+        }
+
+        public String getValorString() {
+            return Moeda.converteR$Float(valor);
+        }
+
+        public void setValorString(String valorString) {
+            this.valor = Moeda.converteUS$(valorString);
+        }
+
+        public String getEs() {
+            return es;
+        }
+
+        public void setEs(String es) {
+            this.es = es;
+        }
+
+        public Float getSaldo() {
+            return saldo;
+        }
+
+        public void setSaldo(Float saldo) {
+            this.saldo = saldo;
+        }
+
+        public String getSaldoString() {
+            return Moeda.converteR$Float(saldo);
+        }
+
+        public void setSaldoString(String saldoString) {
+            this.saldo = Moeda.converteUS$(saldoString);
+        }
+
+        public String getStatus() {
+            return status;
+        }
+
+        public void setStatus(String status) {
+            this.status = status;
+        }
+
+        public Integer getIdTipoPagamento() {
+            return idTipoPagamento;
+        }
+
+        public void setIdTipoPagamento(Integer idTipoPagamento) {
+            this.idTipoPagamento = idTipoPagamento;
+        }
+
+        public Integer getIdChequeRec() {
+            return idChequeRec;
+        }
+
+        public void setIdChequeRec(Integer idChequeRec) {
+            this.idChequeRec = idChequeRec;
+        }
+
+        public Integer getIndexStatus() {
+            return indexStatus;
+        }
+
+        public void setIndexStatus(Integer indexStatus) {
+            this.indexStatus = indexStatus;
+        }
+
     }
 }

@@ -361,8 +361,11 @@ public class MovimentosReceberSocialBean implements Serializable {
         listaMovimentosAnexoSelecionados.clear();
 
         MovimentosReceberSocialDB db = new MovimentosReceberSocialDBToplink();
-
-        listaMovimentosAnexo = db.listaMovimentosAbertosAnexarAgrupado(pessoa.getId());
+        // PESQUISA RESPONSAVEL DA PESSOA
+        FunctionsDB dbfunc = new FunctionsDao();
+        Pessoa t = dbfunc.titularDaPessoa(pessoa.getId());
+        
+        listaMovimentosAnexo = db.listaMovimentosAbertosAnexarAgrupado(pessoa.getId(), t.getId());
     }
 
     public void clickRemoverMovimentos(Movimento movimento) {
