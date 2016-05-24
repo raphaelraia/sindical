@@ -69,8 +69,7 @@ import br.com.rtools.utilitarios.ImageConverter;
 import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.Mask;
 import br.com.rtools.utilitarios.Moeda;
-import br.com.rtools.utilitarios.db.FunctionsDB;
-import br.com.rtools.utilitarios.db.FunctionsDao;
+import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -900,7 +899,7 @@ public class MatriculaAcademiaBean implements Serializable {
         }
         if (cobranca == null) {
             Dao di = new Dao();
-            FunctionsDB functionsDB = new FunctionsDao();
+            FunctionsDao functionsDB = new FunctionsDao();
             if (matriculaAcademia.getServicoPessoa().isDescontoFolha()) {
                 int idResponsavel = functionsDB.responsavel(matriculaAcademia.getServicoPessoa().getPessoa().getId(), matriculaAcademia.getServicoPessoa().isDescontoFolha());
                 if (idResponsavel != -1) {
@@ -1340,7 +1339,7 @@ public class MatriculaAcademiaBean implements Serializable {
 
     public Pessoa getResponsavel() {
         if (aluno.getId() != -1) {
-            FunctionsDB functionsDB = new FunctionsDao();
+            FunctionsDao functionsDB = new FunctionsDao();
             int titularResponsavel = functionsDB.responsavel(aluno.getPessoa().getId(), matriculaAcademia.getServicoPessoa().isDescontoFolha());
             if (titularResponsavel > -1 && titularResponsavel > 0) {
                 Dao di = new Dao();
