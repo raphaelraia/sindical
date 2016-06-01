@@ -167,19 +167,19 @@ public class VendaBaileBean implements Serializable {
         String local = ebc.getEventoBaile().getLocal(), endereco_string = endereco.getEndereco().getEnderecoToString() + ", " + endereco.getNumero() + endereco.getComplemento();
 
         EventoBaileImpressaoConvite ebic = new EventoBaileImpressaoConvite(
-                -1, 
+                -1,
                 ebc,
-                null, 
+                null,
                 Usuario.getUsuario(),
-                DataHoje.dataHoje(), 
+                DataHoje.dataHoje(),
                 DataHoje.horaMinuto()
-        );        
-        
-        if (!new Dao().save(ebic, true)){
+        );
+
+        if (!new Dao().save(ebic, true)) {
             GenericaMensagem.error("Erro", "Não foi possível salvar Registro de Impressão!");
             return;
         }
-        
+
         imprimirConvite(tipo, tipo_descricao, numero, descricao, data, hora_inicial, hora_final, banda, nome_socio, categoria, local, endereco_string);
     }
 
@@ -231,19 +231,19 @@ public class VendaBaileBean implements Serializable {
         String local = ebm.getEventoBaile().getLocal(), endereco_string = endereco.getEndereco().getEnderecoToString() + ", " + endereco.getNumero() + endereco.getComplemento();
 
         EventoBaileImpressaoConvite ebic = new EventoBaileImpressaoConvite(
-                -1, 
+                -1,
                 null,
-                ebm, 
+                ebm,
                 Usuario.getUsuario(),
-                DataHoje.dataHoje(), 
+                DataHoje.dataHoje(),
                 DataHoje.horaMinuto()
-        );        
-        
-        if (!new Dao().save(ebic, true)){
+        );
+
+        if (!new Dao().save(ebic, true)) {
             GenericaMensagem.error("Erro", "Não foi possível salvar Registro de Impressão!");
             return;
         }
-        
+
         imprimirConvite(tipo, tipo_descricao, numero, descricao, data, hora_inicial, hora_final, banda, nome_socio, categoria, local, endereco_string);
     }
 
@@ -1190,7 +1190,8 @@ public class VendaBaileBean implements Serializable {
                 null,
                 null,
                 null,
-                false
+                false,
+                ""
         );
 
         if (!dao.save(l)) {

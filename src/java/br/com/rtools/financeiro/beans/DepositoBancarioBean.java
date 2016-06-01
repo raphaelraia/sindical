@@ -193,7 +193,8 @@ public class DepositoBancarioBean implements Serializable {
                 null,
                 null,
                 null,
-                false
+                false,
+                ""
         );
     }
 

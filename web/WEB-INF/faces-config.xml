@@ -2150,6 +2150,12 @@
             <redirect/>
         </navigation-case>
         
+        <navigation-case>
+            <from-outcome>relatorioProdutos</from-outcome>
+            <to-view-id>/relatorioProdutos.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
     </navigation-rule>
     
     <lifecycle>

@@ -501,7 +501,8 @@ public class VendasCaravanaBean {
                 null,
                 null,
                 null,
-                false
+                false,
+                ""
         );
 
         if (!dao.save(lote)) {

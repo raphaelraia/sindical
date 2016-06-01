@@ -3,6 +3,7 @@ package br.com.rtools.relatorios.dao;
 import br.com.rtools.principal.DB;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.Moeda;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -13,7 +14,7 @@ public class RelatorioMovimentosDao extends DB {
     public List listaMovimentos(Relatorios relatorios, String condicao, int idServico, int idTipoServico, int idJuridica, boolean data,
             String tipoData, Date dtInicial, Date dtFinal, String dtRefInicial, String dtRefFinal,
             String ordem, boolean chkPesEmpresa, String porPesquisa, String filtroEmpresa,
-            int idConvencao, int idGrupoCidade, String idsCidades, String idsEsc, String inCnaes) {
+            int idConvencao, int idGrupoCidade, String idsCidades, String idsEsc, String inCnaes, String valorBaixaInicial, String valorBaixaFinal) {
         List result;
 
         String textQuery
@@ -171,6 +172,12 @@ public class RelatorioMovimentosDao extends DB {
                 data_mes = "cast(substring(mov.ds_referencia, 0, 3) as double precision)";
                 data_ano = "cast(substring(mov.ds_referencia, 4, 8) as double precision)";
             }
+        }
+
+        if (!valorBaixaInicial.isEmpty() && !valorBaixaFinal.isEmpty() && Moeda.converteUS$(valorBaixaInicial) >= 0 && Moeda.converteUS$(valorBaixaFinal) > 0) {
+            textQuery += " AND mov.nr_valor_baixa BETWEEN " + Moeda.converteUS$(valorBaixaInicial) + " AND " + Moeda.converteUS$(valorBaixaFinal) + " \n ";
+        } else if (!valorBaixaInicial.isEmpty() && Moeda.converteUS$(valorBaixaInicial) > 0) {
+            textQuery += " AND mov.nr_valor_baixa >= " + Moeda.converteUS$(valorBaixaInicial) + " \n ";
         }
 
         // CONVENCAO DO RELATORIO ------------------------------------------------------------------------------------

@@ -13,7 +13,7 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "fin_servico_pessoa",
+@Table(name = "fin_servico_pessoa_bloqueio",
         uniqueConstraints = @UniqueConstraint(columnNames = {"id_mes", "id_servico_pessoa"})
 )
 public class ServicoPessoaBloqueio implements Serializable {

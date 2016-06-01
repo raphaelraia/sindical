@@ -1,6 +1,5 @@
 package br.com.rtools.locadoraFilme.beans;
 
-import br.com.rtools.arrecadacao.ConfiguracaoArrecadacao;
 import br.com.rtools.associativo.MatriculaSocios;
 import br.com.rtools.financeiro.CondicaoPagamento;
 import br.com.rtools.financeiro.FStatus;
@@ -20,33 +19,23 @@ import br.com.rtools.locadoraFilme.dao.LocadoraMovimentoDao;
 import br.com.rtools.locadoraFilme.dao.LocadoraStatusDao;
 import br.com.rtools.locadoraFilme.dao.TituloDao;
 import br.com.rtools.logSistema.NovoLog;
-import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaComplemento;
-import br.com.rtools.relatorios.Relatorios;
-import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.seguranca.Departamento;
 import br.com.rtools.seguranca.MacFilial;
-import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
-import br.com.rtools.sistema.ConfiguracaoDepartamento;
-import br.com.rtools.sistema.dao.ConfiguracaoDepartamentoDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
-import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -210,7 +199,8 @@ public class DevolucaoFilmeBean implements Serializable {
                                         null,
                                         null,
                                         null,
-                                        false
+                                        false,
+                                        ""
                                 );
                                 if (!dao.save(lote)) {
                                     dao.rollback();

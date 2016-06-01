@@ -536,10 +536,11 @@
                                         </p:column>
                                     </p:dataTable>
                                 </h:panelGrid>
-
-                                <p:commandButton value="Anexar" onclick="PF('dlg_confirma_anexar').show()" style="clear: both; float: left" icon="ui-icon-check" />  
-                                <p:commandButton value="Criar novo Boleto" onclick="PF('dlg_confirma_criar_novo_boleto').show()" style="float: left" icon="ui-icon-document" />
-                                <p:commandButton value="Fechar" type="button"  onclick="PF('dlg_anexar_boletos').hide()" style="float: left" icon="ui-icon-close" />       
+                                <h:panelGrid columns="3">
+                                    <p:commandButton value="Anexar" onclick="PF('dlg_confirma_anexar').show()" icon="ui-icon-check" />
+                                    <p:commandButton value="Criar novo Boleto" onclick="PF('dlg_confirma_criar_novo_boleto').show()" icon="ui-icon-document" />
+                                    <p:commandButton value="Fechar" type="button"  onclick="PF('dlg_anexar_boletos').hide()" icon="ui-icon-close" />
+                                </h:panelGrid>
                             </p:dialog>
 
                             <p:dialog widgetVar="dlg_movimentos_do_boleto" header="Movimentos do Boleto" resizable="false" width="1000" modal="true">

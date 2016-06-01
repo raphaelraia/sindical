@@ -25,10 +25,13 @@ import br.com.rtools.pessoa.db.FisicaDB;
 import br.com.rtools.pessoa.db.FisicaDBToplink;
 import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
+import br.com.rtools.seguranca.FilialRotina;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
+import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
+import br.com.rtools.seguranca.dao.FilialRotinaDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -39,6 +42,7 @@ import br.com.rtools.utilitarios.ValidaDocumentos;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -114,6 +118,7 @@ public class LancamentoFinanceiroBean implements Serializable {
     private List<Pedido> listaPedidos;
     private String valorTotal;
     private Boolean produtos;
+    private Boolean liberaAcessaFilial;
 
     @PostConstruct
     public void init() {
@@ -143,8 +148,8 @@ public class LancamentoFinanceiroBean implements Serializable {
         listaPlano5 = new ArrayList();
         descricao = "";
         mascara = "";
-        es = "E";
-        esLancamento = "E";
+        es = "S";
+        esLancamento = "S";
         condicao = "vista";
         total = "";
         valor = "";
@@ -184,6 +189,7 @@ public class LancamentoFinanceiroBean implements Serializable {
         pedido = new Pedido();
         modalPedido = false;
         produtos = true;
+        loadLiberaAcessaFilial();
         lote.setEmissao(DataHoje.data());
         loadListaFilial();
         loadListaTipoDocumento();
@@ -484,7 +490,7 @@ public class LancamentoFinanceiroBean implements Serializable {
             }
         }
 
-        Movimento movimento = new Movimento();
+        Movimento movimento;
 
         List<Movimento> lista = new ArrayList();
 
@@ -570,13 +576,13 @@ public class LancamentoFinanceiroBean implements Serializable {
             idCentroCusto = lote.getCentroCusto().getId();
         }
 
-        historico = lote.getHistorico();
+        historico = lote.getHistoricoContabil();
 
         // OPERACAO
         loadListaContaOperacao();
         if (lote.getPlano5() != null) {
-            for(int i = 0; i < listaContaOperacao.size(); i++) {
-                if(Integer.parseInt(listaContaOperacao.get(i).getDescription()) == lote.getPlano5().getId()) {
+            for (int i = 0; i < listaContaOperacao.size(); i++) {
+                if (Integer.parseInt(listaContaOperacao.get(i).getDescription()) == lote.getPlano5().getId()) {
                     idContaOperacao = Integer.parseInt(listaContaOperacao.get(i).getValue().toString());
                     break;
                 }
@@ -684,7 +690,7 @@ public class LancamentoFinanceiroBean implements Serializable {
             lote.setRotina((Rotina) dao.find(new Rotina(), 231));
             lote.setEvt(null);
             lote.setPessoa(pessoa);
-            lote.setHistorico(historico);
+            lote.setHistoricoContabil(historico);
             lote.setPessoaSemCadastro(null);
             lote.setUsuario(us);
             lote.setOperacao(operacao);
@@ -706,9 +712,15 @@ public class LancamentoFinanceiroBean implements Serializable {
                 dao.rollback();
                 return;
             }
+            Boolean bloqueiaTipoCondicao = true;
             for (Parcela p : listaParcela) {
                 Movimento movimento = (Movimento) p.getMovimento();
                 movimento.setLote(lote);
+                if (condicao.equals("prazo")) {
+                    if (DataHoje.maiorData(movimento.getVencimento(), lote.getEmissao())) {
+                        bloqueiaTipoCondicao = false;
+                    }
+                }
                 if (movimento.getId() == -1) {
                     if (!dao.save(movimento)) {
                         GenericaMensagem.warn("Erro", "Erro ao Salvar Lançamento!");
@@ -738,6 +750,12 @@ public class LancamentoFinanceiroBean implements Serializable {
                         return;
                     }
                 }
+            }
+
+            if (bloqueiaTipoCondicao) {
+                GenericaMensagem.warn("Validação", "Na condição de patgo a PRAZO é necessário ter parcelas com datas superiores nas parcelas!");
+                dao.rollback();
+                return;
             }
 
             for (Pedido pedidox : listaPedidos) {
@@ -821,7 +839,7 @@ public class LancamentoFinanceiroBean implements Serializable {
             return;
         }
         FTipoDocumento td = (FTipoDocumento) dao.find(new FTipoDocumento(), idFTipoMovimento);
-        Plano5 pl5 = null;
+        Plano5 pl5;
         if (chkImposto) {
             pl5 = ((Plano5) dao.find(new Plano5(), idPlano5));
         } else {
@@ -863,6 +881,12 @@ public class LancamentoFinanceiroBean implements Serializable {
 
         Usuario user = (Usuario) GenericaSessao.getObject("sessaoUsuario");
         float valor_t = Moeda.subtracaoValores(Moeda.somaValores(movimento.getValor(), Moeda.converteUS$(acrescimo)), movimento.getDesconto());
+        if (condicao.equals("vista")) {
+            if (listaParcela.size() == 1 && !chkImposto) {
+                GenericaMensagem.warn("Validação", "Condição a vista, só é possível adicionar uma parcela!");
+                return;
+            }
+        }
         listaParcela.add(new Parcela(
                 listaParcela.size(),
                 movimento,
@@ -885,13 +909,18 @@ public class LancamentoFinanceiroBean implements Serializable {
         openModalAcrescimo();
         desconto = "0,00";
         chkImposto = false;
+        if (condicao.equals("vista")) {
+            vencimento = DataHoje.data();
+        }
         GenericaMensagem.info("Sucesso", "Parcela adicionada!");
     }
 
     public void limpar() {
         LancamentoFinanceiroBean la = new LancamentoFinanceiroBean();
+        la.load();
         la.setModalVisivel(true);
-        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("lancamentoFinanceiroBean", la);
+        la.setProdutos(true);
+        GenericaSessao.put("lancamentoFinanceiroBean", la);
     }
 
     public void salvarPessoa() {
@@ -1117,11 +1146,11 @@ public class LancamentoFinanceiroBean implements Serializable {
             telaSalva = false;
             return;
         } else if (soma > Moeda.converteUS$(total)) {
-            if(lote.getId() == -1) {
+            if (lote.getId() == -1) {
                 GenericaMensagem.warn("Erro", "Valor das Parcelas é MAIOR que soma Total!");
                 modalVisivel = true;
                 telaSalva = false;
-                return;                
+                return;
             }
         }
 
@@ -1248,24 +1277,65 @@ public class LancamentoFinanceiroBean implements Serializable {
         this.idFilial = idFilial;
     }
 
-    public List<SelectItem> getListaFilial() {
-        return listaFilial;
+    public void loadLiberaAcessaFilial() {
+        if (!new ControleAcessoBean().permissaoValida("libera_acesso_filiais", 4)) {
+            liberaAcessaFilial = true;
+        }
+    }
+
+    public Boolean getLiberaAcessaFilial() {
+        return liberaAcessaFilial;
+    }
+
+    public void setLiberaAcessaFilial(Boolean liberaAcessaFilial) {
+        this.liberaAcessaFilial = liberaAcessaFilial;
     }
 
     public void loadListaFilial() {
-        listaFilial = new ArrayList();
-        List<Filial> list = (List<Filial>) new Dao().list(new Filial(), true);
-        for (int i = 0; i < list.size(); i++) {
-            if (i == 0) {
-                idFilial = list.get(i).getId();
+        Filial f = MacFilial.getAcessoFilial().getFilial();
+        if (f.getId() != -1) {
+            if (liberaAcessaFilial || Usuario.getUsuario().getId() == 1) {
+                liberaAcessaFilial = true;
+                // ROTINA MATRÍCULA ESCOLA
+                List<FilialRotina> list = new FilialRotinaDao().findByRotina(new Rotina().get().getId());
+                // ID DA FILIAL
+                if (!list.isEmpty()) {
+                    for (int i = 0; i < list.size(); i++) {
+                        if (i == 0) {
+                            idFilial = list.get(i).getFilial().getId();
+                        }
+                        if (Objects.equals(f.getId(), list.get(i).getFilial().getId())) {
+                            idFilial = list.get(i).getFilial().getId();
+                        }
+                        listaFilial.add(new SelectItem(list.get(i).getFilial().getId(), list.get(i).getFilial().getFilial().getPessoa().getDocumento() + " / " + list.get(i).getFilial().getFilial().getPessoa().getNome()));
+                    }
+                } else {
+                    List<Filial> listFilial = new Dao().list(new Filial(), true);
+                    if (!listFilial.isEmpty()) {
+                        for (int i = 0; i < listFilial.size(); i++) {
+                            if (i == 0) {
+                                idFilial = listFilial.get(i).getId();
+                            }
+                            if (Objects.equals(f.getId(), listFilial.get(i).getId())) {
+                                idFilial = listFilial.get(i).getId();
+                            }
+                            listaFilial.add(new SelectItem(listFilial.get(i).getId(), listFilial.get(i).getFilial().getPessoa().getDocumento() + " / " + listFilial.get(i).getFilial().getPessoa().getNome()));
+                        }
+                    } else {
+                        idFilial = f.getId();
+                        listaFilial.add(new SelectItem(f.getId(), f.getFilial().getPessoa().getDocumento() + " / " + f.getFilial().getPessoa().getNome()));
+                    }
+                }
+            } else {
+                idFilial = f.getId();
+                listaFilial.add(new SelectItem(f.getId(), f.getFilial().getPessoa().getDocumento() + " / " + f.getFilial().getPessoa().getNome()));
             }
-            listaFilial.add(
-                    new SelectItem(
-                            list.get(i).getId(),
-                            list.get(i).getFilial().getPessoa().getDocumento() + " / " + list.get(i).getFilial().getPessoa().getNome()
-                    )
-            );
         }
+
+    }
+
+    public List<SelectItem> getListaFilial() {
+        return listaFilial;
     }
 
     public void setListaFilial(List<SelectItem> listaFilial) {
@@ -1313,7 +1383,11 @@ public class LancamentoFinanceiroBean implements Serializable {
     }
 
     public String getMascara() {
-        return mascara = Mask.getMascaraPesquisa(((TipoDocumento) new Dao().find(new TipoDocumento(), idTipoDocumento)).getDescricao(), true);
+        try {
+            return mascara = Mask.getMascaraPesquisa(((TipoDocumento) new Dao().find(new TipoDocumento(), idTipoDocumento)).getDescricao(), true);
+        } catch (Exception e) {
+            return mascara = "";
+        }
     }
 
     public void setMascara(String mascara) {
@@ -1405,9 +1479,8 @@ public class LancamentoFinanceiroBean implements Serializable {
     }
 
     public Pessoa getPessoa() {
-        if (FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("juridicaPesquisa") != null) {
-            pessoa = ((Juridica) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("juridicaPesquisa")).getPessoa();
-            FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("juridicaPesquisa");
+        if (GenericaSessao.exists("juridicaPesquisa")) {
+            pessoa = ((Juridica) GenericaSessao.getObject("juridicaPesquisa", true)).getPessoa();
             descricao = pessoa.getDocumento();
             if (null != pessoa.getTipoDocumento().getId()) {
                 switch (pessoa.getTipoDocumento().getId()) {
@@ -1425,9 +1498,27 @@ public class LancamentoFinanceiroBean implements Serializable {
                 }
             }
             opcaoCadastro = "";
-        } else if (FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("fisicaPesquisa") != null) {
-            pessoa = ((Fisica) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("fisicaPesquisa")).getPessoa();
-            FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("fisicaPesquisa");
+        } else if (GenericaSessao.exists("fisicaPesquisa")) {
+            pessoa = ((Fisica) GenericaSessao.getObject("fisicaPesquisa", true)).getPessoa();
+            descricao = pessoa.getDocumento();
+            if (null != pessoa.getTipoDocumento().getId()) {
+                switch (pessoa.getTipoDocumento().getId()) {
+                    case 1:
+                        idTipoDocumento = 0;
+                        break;
+                    case 2:
+                        idTipoDocumento = 1;
+                        break;
+                    case 4:
+                        idTipoDocumento = 2;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            opcaoCadastro = "";
+        } else if (GenericaSessao.exists("pessoaPesquisa")) {
+            pessoa = (Pessoa) GenericaSessao.getObject("pessoaPesquisa", true);
             descricao = pessoa.getDocumento();
             if (null != pessoa.getTipoDocumento().getId()) {
                 switch (pessoa.getTipoDocumento().getId()) {
@@ -1542,17 +1633,28 @@ public class LancamentoFinanceiroBean implements Serializable {
     public void loadListaOperacao() {
         listaOperacao = new ArrayList();
         List<Operacao> list = new OperacaoDao().findByEs(es);
+        idOperacao = null;
         if (!list.isEmpty()) {
             for (int i = 0; i < list.size(); i++) {
-                if (i == 0) {
-                    idOperacao = list.get(i).getId();
+                if (list.get(i).getId() != 7 && list.get(i).getId() != 8) {
+                    if (list.get(i).getId() == 2) {
+                        idOperacao = list.get(i).getId();
+                    }
+                    listaOperacao.add(
+                            new SelectItem(
+                                    list.get(i).getId(),
+                                    list.get(i).getDescricao()
+                            )
+                    );
                 }
-                listaOperacao.add(
-                        new SelectItem(
-                                list.get(i).getId(),
-                                list.get(i).getDescricao()
-                        )
-                );
+            }
+            if (idOperacao == null) {
+                for (int i = 0; i < list.size(); i++) {
+                    if (i == 0) {
+                        idOperacao = list.get(i).getId();
+                        break;
+                    }
+                }
             }
         } else {
             idOperacao = 0;
@@ -1933,7 +2035,8 @@ public class LancamentoFinanceiroBean implements Serializable {
 
     public List<Usuario> getListaUsuarioLancamento() {
         if (listaUsuarioLancamento.isEmpty()) {
-            listaUsuarioLancamento = new Dao().list(new Usuario(), true);
+            listaUsuarioLancamento.add(Usuario.getUsuario());
+            listaUsuarioLancamento.addAll(new Dao().list(new Usuario(), true));
         }
         return listaUsuarioLancamento;
     }
@@ -1972,6 +2075,12 @@ public class LancamentoFinanceiroBean implements Serializable {
 
     public void setProdutos(Boolean produtos) {
         this.produtos = produtos;
+    }
+
+    public void loadVencimento() {
+        if (condicao.equals("vista")) {
+            vencimento = DataHoje.data();
+        }
     }
 
     public class Parcela {

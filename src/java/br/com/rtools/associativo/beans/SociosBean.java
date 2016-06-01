@@ -3527,10 +3527,11 @@ public class SociosBean implements Serializable {
         List<ServicoPessoaBloqueio> spbs = new ServicoPessoaBloqueioDao().findByServicoPessoa(socios.getServicoPessoa().getId());
         if (!spbs.isEmpty()) {
             for (int i = 0; i < list.size(); i++) {
-                Boolean status = false;
+                Boolean status = true;
                 for (int y = 0; y < spbs.size(); y++) {
                     if (list.get(i).getId() == spbs.get(y).getMes().getId()) {
-                        status = true;
+                        status = false;
+                        break;
                     }
                 }
                 switch (list.get(i).getId()) {
@@ -3596,73 +3597,73 @@ public class SociosBean implements Serializable {
             Dao dao = new Dao();
             if (save != null && save) {
                 ServicoPessoaBloqueio spb;
-                if (bloqueio.getJan()) {
+                if (!bloqueio.getJan()) {
                     spb = new ServicoPessoaBloqueio();
                     spb.setServicoPessoa(servicoPessoa);
                     spb.setMes((Mes) dao.find(new Mes(), 1));
                     dao.save(spb, true);
                 }
-                if (bloqueio.getFev()) {
+                if (!bloqueio.getFev()) {
                     spb = new ServicoPessoaBloqueio();
                     spb.setServicoPessoa(servicoPessoa);
                     spb.setMes((Mes) dao.find(new Mes(), 2));
                     dao.save(spb, true);
                 }
-                if (bloqueio.getMar()) {
+                if (!bloqueio.getMar()) {
                     spb = new ServicoPessoaBloqueio();
                     spb.setServicoPessoa(servicoPessoa);
                     spb.setMes((Mes) dao.find(new Mes(), 3));
                     dao.save(spb, true);
                 }
-                if (bloqueio.getAbr()) {
+                if (!bloqueio.getAbr()) {
                     spb = new ServicoPessoaBloqueio();
                     spb.setServicoPessoa(servicoPessoa);
                     spb.setMes((Mes) dao.find(new Mes(), 4));
                     dao.save(spb, true);
                 }
-                if (bloqueio.getMai()) {
+                if (!bloqueio.getMai()) {
                     spb = new ServicoPessoaBloqueio();
                     spb.setServicoPessoa(servicoPessoa);
                     spb.setMes((Mes) dao.find(new Mes(), 5));
                     dao.save(spb, true);
                 }
-                if (bloqueio.getJun()) {
+                if (!bloqueio.getJun()) {
                     spb = new ServicoPessoaBloqueio();
                     spb.setServicoPessoa(servicoPessoa);
                     spb.setMes((Mes) dao.find(new Mes(), 6));
                     dao.save(spb, true);
                 }
-                if (bloqueio.getJul()) {
+                if (!bloqueio.getJul()) {
                     spb = new ServicoPessoaBloqueio();
                     spb.setServicoPessoa(servicoPessoa);
                     spb.setMes((Mes) dao.find(new Mes(), 7));
                     dao.save(spb, true);
                 }
-                if (bloqueio.getAgo()) {
+                if (!bloqueio.getAgo()) {
                     spb = new ServicoPessoaBloqueio();
                     spb.setServicoPessoa(servicoPessoa);
                     spb.setMes((Mes) dao.find(new Mes(), 8));
                     dao.save(spb, true);
                 }
-                if (bloqueio.getSet()) {
+                if (!bloqueio.getSet()) {
                     spb = new ServicoPessoaBloqueio();
                     spb.setServicoPessoa(servicoPessoa);
                     spb.setMes((Mes) dao.find(new Mes(), 9));
                     dao.save(spb, true);
                 }
-                if (bloqueio.getOut()) {
+                if (!bloqueio.getOut()) {
                     spb = new ServicoPessoaBloqueio();
                     spb.setServicoPessoa(servicoPessoa);
                     spb.setMes((Mes) dao.find(new Mes(), 10));
                     dao.save(spb, true);
                 }
-                if (bloqueio.getNov()) {
+                if (!bloqueio.getNov()) {
                     spb = new ServicoPessoaBloqueio();
                     spb.setServicoPessoa(servicoPessoa);
                     spb.setMes((Mes) dao.find(new Mes(), 11));
                     dao.save(spb, true);
                 }
-                if (bloqueio.getDez()) {
+                if (!bloqueio.getDez()) {
                     spb = new ServicoPessoaBloqueio();
                     spb.setServicoPessoa(servicoPessoa);
                     spb.setMes((Mes) dao.find(new Mes(), 12));
@@ -3672,7 +3673,7 @@ public class SociosBean implements Serializable {
                 ServicoPessoaBloqueio spb = new ServicoPessoaBloqueioDao().find(servico_pessoa_id, mes_id);
                 if (spb == null) {
                     spb = new ServicoPessoaBloqueio();
-                    spb.setServicoPessoa(socios.getServicoPessoa());
+                    spb.setServicoPessoa((ServicoPessoa) dao.find(new ServicoPessoa(), socios.getServicoPessoa().getId()));
                     spb.setMes((Mes) dao.find(new Mes(), mes_id));
                     dao.save(spb, true);
                 } else {

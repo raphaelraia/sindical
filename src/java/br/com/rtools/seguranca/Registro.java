@@ -4,8 +4,6 @@ import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.*;

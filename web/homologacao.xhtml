@@ -623,9 +623,10 @@
                                   oncomplete="PF('dgl_upload').hide()" />
                 </p:dialog>
             </h:form>
+            <!-- 
             <span id="messageGoesHere"></span>
             <script type="text/javascript">
-                var ws = new WebSocket("ws://#{defaults.URLLocal}#{facesContext.externalContext.requestContextPath}/ws_socket/agendamento_#{controleUsuarioBean.clienteLowerCaseString}");
+                var ws = new WebSocket("ws://# { defaults.URLLocal}# { facesContext.externalContext.requestContextPath}/ws_socket/agendamento_# {controleUsuarioBean.clienteLowerCaseString}");
 
                 ws.onopen = function (event) {
                     console.log("Connected ", event);
@@ -644,7 +645,7 @@
                 ws.onclose = function (event) {
                     console.log("Error ", event);
                 };
-            </script>
+            </script> -->
         </f:view>
     </h:body>
 </ui:composition>
