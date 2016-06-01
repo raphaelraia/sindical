@@ -5,6 +5,7 @@ import br.com.rtools.financeiro.Baixa;
 import br.com.rtools.financeiro.BloqueiaServicoPessoa;
 import br.com.rtools.financeiro.Caixa;
 import br.com.rtools.financeiro.ContaSaldo;
+import br.com.rtools.financeiro.FStatus;
 import br.com.rtools.financeiro.FormaPagamento;
 import br.com.rtools.financeiro.Historico;
 import br.com.rtools.financeiro.Lote;
@@ -84,7 +85,9 @@ public interface FinanceiroDB {
 
     public List<Vector> listaDeCheques(int id_status);
 
-    public List<Vector> listaMovimentoBancario(int id_plano5);
+    public List<Object> listaMovimentoBancario(int id_plano5);
+    
+    public List<Object> listaDetalheMovimentoBancario(int id_baixa);
 
     public List<TransferenciaCaixa> listaTransferenciaDinheiro(int id_fechamento_caixa, int id_caixa);
 
@@ -133,8 +136,6 @@ public interface FinanceiroDB {
     public String dataFechamentoCaixa(Integer id_caixa);
 
     public List<SubGrupoFinanceiro> listaSubGrupo(String id_grupo);
-
-//        NAO USA --- EXCLUIR DEPOIS DE 01/04/2015    
-//    public List<Vector> listaPessoaFisicaSemEndereco(int mes, int ano);
-//    public List<Vector> listaPessoaJuridicaSemEndereco(int mes, int ano);
+    
+    public List<FStatus> listaFStatusIn(String ids);
 }

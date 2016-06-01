@@ -1,6 +1,7 @@
 package br.com.rtools.financeiro;
 
 import br.com.rtools.pessoa.Filial;
+import br.com.rtools.utilitarios.Moeda;
 import java.util.Date;
 import javax.persistence.*;
 
@@ -144,6 +145,14 @@ public class FormaPagamento implements java.io.Serializable {
         this.valor = valor;
     }
 
+    public String getValorString() {
+        return Moeda.converteR$Float(valor);
+    }
+
+    public void setValorString(String valorString) {
+        this.valor = Moeda.converteUS$(valorString);
+    }
+
     public Filial getFilial() {
         return filial;
     }
@@ -190,6 +199,14 @@ public class FormaPagamento implements java.io.Serializable {
 
     public void setValorLiquido(float valorLiquido) {
         this.valorLiquido = valorLiquido;
+    }
+
+    public String getValorLiquidoString() {
+        return Moeda.converteR$Float(valorLiquido);
+    }
+
+    public void setValorLiquidoString(String valorLiquidoString) {
+        this.valorLiquido = Moeda.converteUS$(valorLiquidoString);
     }
 
     public Date getDtCredito() {

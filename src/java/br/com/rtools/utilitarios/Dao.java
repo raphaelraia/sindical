@@ -939,4 +939,14 @@ public class Dao extends DB implements DaoInterface {
         }
         return false;
     }    
+    
+    public Boolean executeQuery(String textQuery) {
+        try {
+            int valor = getEntityManager().createNativeQuery(textQuery).executeUpdate();
+            return valor > 0;
+            
+        } catch (Exception e) {
+            return false;
+        }
+    }    
 }

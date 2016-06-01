@@ -7,6 +7,7 @@ import br.com.rtools.financeiro.Baixa;
 import br.com.rtools.financeiro.BloqueiaServicoPessoa;
 import br.com.rtools.financeiro.Caixa;
 import br.com.rtools.financeiro.ContaSaldo;
+import br.com.rtools.financeiro.FStatus;
 import br.com.rtools.financeiro.FormaPagamento;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.SubGrupoFinanceiro;
@@ -497,27 +498,44 @@ public class FinanceiroDBToplink extends DB implements FinanceiroDB {
     }
 
     @Override
-    public List<Vector> listaMovimentoBancario(int id_plano5) {
+    public List<Object> listaMovimentoBancario(int id_plano5) {
         try {
             Query qry = getEntityManager().createNativeQuery(
-                    "SELECT DISTINCT f.id id_forma, b.id id_baixa, b.dt_baixa as data, '' as documento, '' as historico, f.nr_valor, m.ds_es, cast(0.0 as double precision) as saldo, s.ds_descricao as status, f.id_tipo_pagamento, ch.id"
-                    + "  FROM fin_lote as l "
-                    + " INNER JOIN fin_movimento as m ON m.id_lote = l.id "
-                    + " INNER JOIN fin_baixa as b ON b.id = m.id_baixa "
-                    + " INNER JOIN fin_forma_pagamento as f ON f.id_baixa = b.id "
-                    + "  LEFT JOIN fin_cheque_rec as ch ON ch.id = f.id_cheque_rec "
-                    + "  LEFT JOIN fin_status as s ON s.id = ch.id_status "
-                    + " WHERE f.id_plano5 = " + id_plano5 + " AND b.dt_baixa >= CURRENT_DATE - 30 "
-                    + " ORDER BY 3 desc "
-            //                    "SELECT b.dt_baixa as data, l.ds_documento, l.ds_historico, f.nr_valor, m.ds_es, 0.0 as saldo, ds_descricao as status " +
-            //                    "  FROM fin_lote as l" +
-            //                    " INNER JOIN fin_movimento as m on m.id_lote = l.id" +
-            //                    " INNER JOIN fin_baixa as b on b.id = m.id_baixa" +
-            //                    " INNER JOIN fin_forma_pagamento as f on f.id_baixa = b.id" +
-            //                    "  LEFT JOIN fin_cheque_rec as ch on ch.id = f.id_cheque_rec" +
-            //                    "  LEFT JOIN fin_status as s on s.id = ch.id_status" +
-            //                    " WHERE f.id_plano5 = " +id_plano5+
-            //                    " ORDER BY dt_baixa"
+                    "SELECT DISTINCT f.id AS f_id, \n"
+                    + "       b.id AS b_id, \n"
+                    + "       func_documento_baixa(f.id) AS documento, \n"
+                    + "       '' AS historico, \n"
+                    + "       m.id AS id_movimento, \n"
+                    + "       CAST(0.0 AS DOUBLE PRECISION) AS saldo, \n"
+                    + "       f.id_tipo_pagamento AS id_tipo_pagamento, \n"
+                    + "       f.id_cheque_rec AS id_cheque_rec,\n"
+                    + "       f.id_cheque_pag AS id_cheque_pag,\n"
+                    + "       b.dt_baixa AS data_baixa \n"
+                    + "  FROM fin_lote AS l \n"
+                    + " INNER JOIN fin_movimento AS m ON m.id_lote = l.id \n"
+                    + " INNER JOIN fin_baixa AS b ON b.id = m.id_baixa \n"
+                    + " INNER JOIN fin_forma_pagamento AS f ON f.id_baixa = b.id \n"
+                    + " WHERE f.id_plano5 = " + id_plano5 + "  AND b.dt_baixa >= CURRENT_DATE - 30 AND m.is_ativo = TRUE \n"
+                    + " ORDER BY 10 desc "
+            );
+            return qry.getResultList();
+
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
+    @Override
+    public List<Object> listaDetalheMovimentoBancario(int id_baixa) {
+        try {
+            Query qry = getEntityManager().createNativeQuery(
+                    "SELECT RTRIM(LTRIM(p.conta5||' '||func_nullstring(se.ds_descricao))) AS conta, \n"
+                    + "       SUM(nr_valor_baixa) AS valor \n"
+                    + "  FROM fin_movimento AS m \n"
+                    + "  LEFT JOIN fin_servicos AS se ON se.id = m.id_servicos \n"
+                    + " INNER JOIN plano_vw AS p ON p.id_p5 = m.id_plano5 \n"
+                    + " WHERE m.id_baixa = " + id_baixa + " \n"
+                    + " GROUP BY p.conta5, se.ds_descricao"
             );
             return qry.getResultList();
 
@@ -1342,5 +1360,18 @@ public class FinanceiroDBToplink extends DB implements FinanceiroDB {
             e.getMessage();
         }
         return "";
+    }
+
+    @Override
+    public List<FStatus> listaFStatusIn(String ids) {
+        try {
+            Query qry = getEntityManager().createQuery(
+                    "SELECT s FROM FStatus s WHERE s.id IN (" + ids + ")"
+            );
+            return qry.getResultList();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return new ArrayList();
     }
 }

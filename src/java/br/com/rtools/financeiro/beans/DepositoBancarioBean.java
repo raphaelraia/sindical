@@ -10,6 +10,7 @@ import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.Servicos;
+import br.com.rtools.financeiro.TipoPagamento;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.db.FinanceiroDB;
 import br.com.rtools.financeiro.db.FinanceiroDBToplink;
@@ -18,12 +19,11 @@ import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
+import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.Moeda;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,9 +39,9 @@ import javax.faces.model.SelectItem;
 public class DepositoBancarioBean implements Serializable {
 
     private int idConta = 0;
-    private List<SelectItem> listaConta = new ArrayList<SelectItem>();
-    private List<DataObject> listaCheques = new ArrayList<DataObject>();
-    private List<DataObject> listaSelecionado = new ArrayList<DataObject>();
+    private List<SelectItem> listaConta = new ArrayList();
+    private final List<DataObject> listaCheques = new ArrayList();
+    private List<DataObject> listaSelecionado = new ArrayList();
 
     public void depositar() {
         if (listaSelecionado.isEmpty()) {
@@ -49,9 +49,9 @@ public class DepositoBancarioBean implements Serializable {
             return;
         }
 
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+        Dao dao = new Dao();
 
-        sv.abrirTransacao();
+        dao.openTransaction();
 
         //Baixa baixa = (Baixa) sv.pesquisaCodigo((Integer) ((Vector)listaSelecionado.get(i).getArgumento0()).get(1), "Baixa");
         // MOVIMENTO SAIDA -----------------------------------------------------
@@ -63,9 +63,9 @@ public class DepositoBancarioBean implements Serializable {
         for (int i = 0; i < listaSelecionado.size(); i++) {
             if (baixa_saida == null) {
                 baixa_saida = novaBaixa();
-                if (!sv.inserirObjeto(baixa_saida)) {
+                if (!dao.save(baixa_saida)) {
                     GenericaMensagem.warn("Erro", "Não foi possivel salvar Baixa Saida!");
-                    sv.desfazerTransacao();
+                    dao.rollback();
                     return;
                 }
             }
@@ -78,28 +78,29 @@ public class DepositoBancarioBean implements Serializable {
 
             float valor = Moeda.converteUS$(listaSelecionado.get(i).getArgumento3().toString());
 
-            Plano5 plano = (Plano5) sv.pesquisaCodigo(1, "Plano5");
+            Plano5 plano = (Plano5) dao.find(new Plano5(), Integer.valueOf(listaConta.get(idConta).getDescription()));
             if (lote_saida == null) {
-                lote_saida = novoLote(sv, "P", plano, cheque, valor);
-                if (!sv.inserirObjeto(lote_saida)) {
+                lote_saida = novoLote(dao, "P", plano, cheque, valor, (FStatus) dao.find(new FStatus(), 1));
+                if (!dao.save(lote_saida)) {
                     GenericaMensagem.warn("Erro", "Não foi possivel salvar Lote Saida!");
-                    sv.desfazerTransacao();
+                    dao.rollback();
                     return;
                 }
             }
 
             if (movimento_saida == null) {
-                movimento_saida = novoMovimento(sv, lote_saida, baixa_saida, "S");
-                if (!sv.inserirObjeto(movimento_saida)) {
+                movimento_saida = novoMovimento(dao, lote_saida, baixa_saida, "S");
+                if (!dao.save(movimento_saida)) {
                     GenericaMensagem.warn("Erro", "Não foi possivel salvar Movimento Saida!");
-                    sv.desfazerTransacao();
+                    dao.rollback();
                     return;
                 }
             }
-
-            if (!sv.inserirObjeto(novaFormaPagamento(sv, baixa_saida, valor, plano, cheque))) {
+            
+            Plano5 plano_forma = (Plano5) dao.find(new Plano5(), 1);
+            if (!dao.save(novaFormaPagamento(dao, baixa_saida, valor, plano_forma, cheque))) {
                 GenericaMensagem.warn("Erro", "Não foi possivel salvar Forma de Pagamento Saida!");
-                sv.desfazerTransacao();
+                dao.rollback();
                 return;
             }
         }
@@ -113,9 +114,9 @@ public class DepositoBancarioBean implements Serializable {
         for (int i = 0; i < listaSelecionado.size(); i++) {
             if (baixa_entrada == null) {
                 baixa_entrada = novaBaixa();
-                if (!sv.inserirObjeto(baixa_entrada)) {
+                if (!dao.save(baixa_entrada)) {
                     GenericaMensagem.warn("Erro", "Não foi possivel salvar Baixa Entrada!");
-                    sv.desfazerTransacao();
+                    dao.rollback();
                     return;
                 }
             }
@@ -128,62 +129,64 @@ public class DepositoBancarioBean implements Serializable {
 
             float valor = Moeda.converteUS$(listaSelecionado.get(i).getArgumento3().toString());
 
-            Plano5 plano = (Plano5) sv.pesquisaCodigo(Integer.valueOf(listaConta.get(idConta).getDescription()), "Plano5");
-
+            Plano5 plano = (Plano5) dao.find(new Plano5(), 1);
+            
             if (lote_entrada == null) {
-                lote_entrada = novoLote(sv, "R", plano, cheque, valor);
-                if (!sv.inserirObjeto(lote_entrada)) {
+                lote_entrada = novoLote(dao, "R", plano, cheque, valor, (FStatus) dao.find(new FStatus(), 14));
+                if (!dao.save(lote_entrada)) {
                     GenericaMensagem.warn("Erro", "Não foi possivel salvar Lote Entrada!");
-                    sv.desfazerTransacao();
+                    dao.rollback();
                     return;
                 }
             }
 
-            movimento_entrada = novoMovimento(sv, lote_entrada, baixa_entrada, "E");
-            if (!sv.inserirObjeto(movimento_entrada)) {
+            movimento_entrada = novoMovimento(dao, lote_entrada, baixa_entrada, "E");
+            if (!dao.save(movimento_entrada)) {
                 GenericaMensagem.warn("Erro", "Não foi possivel salvar Movimento Entrada!");
-                sv.desfazerTransacao();
+                dao.rollback();
                 return;
             }
 
-            cheque.setStatus((FStatus) sv.pesquisaCodigo(8, "FStatus"));
-            if (!sv.alterarObjeto(cheque)) {
+            cheque.setStatus((FStatus) dao.find(new FStatus(), 8));
+            if (!dao.update(cheque)) {
                 GenericaMensagem.warn("Erro", "Não foi possivel atualizar cheque!");
-                sv.desfazerTransacao();
+                dao.rollback();
                 return;
             }
 
-            if (!sv.inserirObjeto(novaFormaPagamento(sv, baixa_entrada, valor, plano, cheque))) {
+            Plano5 plano_forma = (Plano5) dao.find(new Plano5(), Integer.valueOf(listaConta.get(idConta).getDescription()));
+            if (!dao.save(novaFormaPagamento(dao, baixa_entrada, valor, plano_forma, cheque))) {
                 GenericaMensagem.warn("Erro", "Não foi possivel salvar Forma de Pagamento Saida!");
-                sv.desfazerTransacao();
+                dao.rollback();
                 return;
             }
         }
 
         listaCheques.clear();
         listaSelecionado.clear();
-        sv.comitarTransacao();
+        dao.commit();
         GenericaMensagem.info("Sucesso", "Cheques depositados com Sucesso!");
     }
 
-    public Lote novoLote(SalvarAcumuladoDB sv, String pag_rec, Plano5 plano, ChequeRec cheque, float valor) {
+    public Lote novoLote(Dao dao, String pag_rec, Plano5 plano, ChequeRec cheque, float valor, FStatus fstatus) {
         return new Lote(
                 -1,
-                (Rotina) sv.pesquisaCodigo(224, "Rotina"), // ROTINA
+                (Rotina) dao.find(new Rotina(), 224), // ROTINA
                 pag_rec, // PAG REC
                 DataHoje.data(), // LANCAMENTO
-                (Pessoa) sv.pesquisaCodigo(0, "Pessoa"), // PESSOA
+                (Pessoa) dao.find(new Pessoa(), 0), // PESSOA
                 plano, // PLANO 5
                 false,// VENCER CONTABIL
                 cheque.getCheque(), // DOCUMENTO
                 valor, // VALOR
-                (Filial) sv.pesquisaCodigo(1, "Filial"), // FILIAL
+                (Filial) dao.find(new Filial(), 1), // FILIAL
                 null, // DEPARTAMENTO
                 null, // EVT
                 "Deposito bancário para a conta ??", // HISTORICO
-                (FTipoDocumento) sv.pesquisaCodigo(4, "FTipoDocumento"), // 4 - CHEQUE / 5 - CHEQUE PRE
-                (CondicaoPagamento) sv.pesquisaCodigo(1, "CondicaoPagamento"), // 1 - A VISTA / 2 - PRAZO
-                (FStatus) sv.pesquisaCodigo(1, "FStatus"), // 1 - EFETIVO // 8 - DEPOSITADO
+                (FTipoDocumento) dao.find(new FTipoDocumento(), 4), // 4 - CHEQUE / 5 - CHEQUE PRE
+                (CondicaoPagamento) dao.find(new CondicaoPagamento(), 1), // 1 - A VISTA / 2 - PRAZO
+                //(FStatus) dao.find(new FStatus(), 1), // 1 - EFETIVO // 8 - DEPOSITADO
+                fstatus, // 1 - EFETIVO // 8 - DEPOSITADO // 14 - NÃO CONTABILIZAR
                 null, // PESSOA SEM CADASTRO
                 false, // DESCONTO FOLHA
                 0, // DESCONTO
@@ -194,15 +197,15 @@ public class DepositoBancarioBean implements Serializable {
         );
     }
 
-    public Movimento novoMovimento(SalvarAcumuladoDB sv, Lote lote, Baixa baixa, String e_s) {
+    public Movimento novoMovimento(Dao dao, Lote lote, Baixa baixa, String e_s) {
         return new Movimento(
                 -1,
                 lote,
                 lote.getPlano5(), // PLANO 5
                 lote.getPessoa(), // PESSOA
-                (Servicos) sv.pesquisaCodigo(50, "Servicos"), // SERVICO
+                (Servicos) dao.find(new Servicos(), 50), // SERVICO
                 baixa, // BAIXA
-                (TipoServico) sv.pesquisaCodigo(1, "TipoServico"), // TIPO SERVICO
+                (TipoServico) dao.find(new TipoServico(), 1), // TIPO SERVICO
                 null, // ACORDO
                 lote.getValor(), // VALOR
                 "", // REFERENCIA
@@ -244,7 +247,7 @@ public class DepositoBancarioBean implements Serializable {
         );
     }
 
-    public FormaPagamento novaFormaPagamento(SalvarAcumuladoDB sv, Baixa baixa, float valor, Plano5 plano, ChequeRec cheque) {
+    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, float valor, Plano5 plano, ChequeRec cheque) {
         return new FormaPagamento(
                 -1,
                 baixa,
@@ -252,11 +255,11 @@ public class DepositoBancarioBean implements Serializable {
                 null,
                 100,
                 valor,
-                (Filial) sv.pesquisaCodigo(1, "Filial"),
+                (Filial) dao.find(new Filial(), 1),
                 plano,
                 null,
                 null,
-                null,
+                (TipoPagamento) dao.find(new TipoPagamento(), 4), // 4 - CHEQUE / 5 - CHEQUE PRE
                 0,
                 DataHoje.dataHoje(),
                 0
@@ -265,16 +268,16 @@ public class DepositoBancarioBean implements Serializable {
 
     public List<SelectItem> getListaConta() {
         if (listaConta.isEmpty()) {
-            //SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
             Plano5Dao db = new Plano5Dao();
 
             List<Plano5> result = db.pesquisaCaixaBanco();
-            //List<ContaBanco> select = sv.listaObjeto("ContaBanco");
             for (int i = 0; i < result.size(); i++) {
-                listaConta.add(new SelectItem(
-                        new Integer(i),
-                        result.get(i).getContaBanco().getBanco().getBanco() + " - " + result.get(i).getContaBanco().getAgencia() + " - " + result.get(i).getContaBanco().getConta(),
-                        Integer.toString((result.get(i).getId())))
+                listaConta.add(
+                        new SelectItem(
+                                i,
+                                result.get(i).getContaBanco().getBanco().getBanco() + " - " + result.get(i).getContaBanco().getAgencia() + " - " + result.get(i).getContaBanco().getConta(),
+                                Integer.toString((result.get(i).getId()))
+                        )
                 );
             }
         }
@@ -313,12 +316,12 @@ public class DepositoBancarioBean implements Serializable {
     public List<DataObject> getListaCheques() {
         if (listaCheques.isEmpty()) {
             FinanceiroDB db = new FinanceiroDBToplink();
-            SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+            Dao dao = new Dao();
 
             List<Vector> result = db.listaDeCheques(7);
 
             for (int i = 0; i < result.size(); i++) {
-                ChequeRec cheque = (ChequeRec) sv.pesquisaCodigo((Integer) result.get(i).get(0), "ChequeRec");
+                ChequeRec cheque = (ChequeRec) dao.find(new ChequeRec(), (Integer) result.get(i).get(0));
                 listaCheques.add(
                         new DataObject(
                                 result.get(i), // QUERY CHEQUES
@@ -337,12 +340,12 @@ public class DepositoBancarioBean implements Serializable {
     public List<DataObject> getListaSelecionado() {
         if (listaCheques.isEmpty()) {
             FinanceiroDB db = new FinanceiroDBToplink();
-            SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+            Dao dao = new Dao();
 
             List<Vector> result = db.listaDeCheques(7);
 
             for (int i = 0; i < result.size(); i++) {
-                ChequeRec cheque = (ChequeRec) sv.pesquisaCodigo((Integer) result.get(i).get(0), "ChequeRec");
+                ChequeRec cheque = (ChequeRec) dao.find(new ChequeRec(), (Integer) result.get(i).get(0));
                 if (cheque.getStatus().getId() == 7) {
                     listaSelecionado.add(
                             new DataObject(

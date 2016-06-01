@@ -38,7 +38,7 @@
                                 <h:panelGrid columns="4">
                                     <p:column>
                                         <h:outputLabel value="Contas Bancárias" /><br />
-                                        <p:selectOneMenu value="#{movimentoBancarioBean.idConta}" style="margin-right: 15px; width: 480px">
+                                        <p:selectOneMenu value="#{movimentoBancarioBean.idConta}" style="margin-right: 15px; width: 480px" disabled="#{movimentoBancarioBean.formaPagamentoEditar.id ne -1}">
                                             <p:ajax event="change" listener="#{movimentoBancarioBean.listaMovimento.clear()}" update="tbl"/>
                                             <f:selectItems value="#{movimentoBancarioBean.listaConta}"/>
                                         </p:selectOneMenu>
@@ -46,14 +46,15 @@
 
                                     <p:column rendered="false">
                                         <h:outputLabel value="Serviços" /><br />
-                                        <p:selectOneMenu value="#{movimentoBancarioBean.idServicos}" style="padding-right: 20px; margin-right: 15px;" title="Serviço Rotina">
+                                        <p:selectOneMenu value="#{movimentoBancarioBean.idServicos}" style="padding-right: 20px; margin-right: 15px;" title="Serviço Rotina" disabled="#{movimentoBancarioBean.formaPagamentoEditar.id ne -1}">
                                             <f:selectItems value="#{movimentoBancarioBean.listaServicos}"/>
                                         </p:selectOneMenu>
                                     </p:column>
 
                                     <p:column>
                                         <h:outputLabel value="Tipo" /><br />
-                                        <p:selectOneMenu value="#{movimentoBancarioBean.tipo}" style="margin-right: 15px;">
+                                        <p:selectOneMenu value="#{movimentoBancarioBean.tipo}" style="margin-right: 15px;" disabled="#{movimentoBancarioBean.formaPagamentoEditar.id ne -1}">
+                                            <p:ajax event="change" update="panel_receita_despesa" listener="#{movimentoBancarioBean.loadListaContaOperacao()}" global="false"/>
                                             <f:selectItem itemLabel="Entrada" itemValue="entrada"/>
                                             <f:selectItem itemLabel="Saída" itemValue="saida"/>
                                         </p:selectOneMenu>
@@ -67,17 +68,27 @@
                                     </p:column>
                                 </h:panelGrid>
 
-                                <h:panelGrid id="panel_receita_despesa" columns="2">
+                                <h:panelGrid id="panel_receita_despesa" columns="4">
                                     <p:column>
-                                        <h:outputLabel value="#{movimentoBancarioBean.tipo eq 'entrada' ? 'Receita' : 'Despesa'}" /><br />
-                                        <p:selectOneMenu value="#{movimentoBancarioBean.idContaOperacao}" style="margin-right: 15px; width: 480px">
+                                        <h:outputLabel value="#{movimentoBancarioBean.tipo eq 'entrada' ? 'Receita' : 'Despesa'}" style="font-weight: bold"/><br />
+                                        <p:selectOneMenu value="#{movimentoBancarioBean.idContaOperacao}" style="margin-right: 15px; width: 480px" disabled="#{movimentoBancarioBean.formaPagamentoEditar.id ne -1}">
                                             <f:selectItems value="#{movimentoBancarioBean.listaContaOperacao}"/>
                                         </p:selectOneMenu>
                                     </p:column>
 
                                     <p:column>
                                         <br />
-                                        <p:commandButton value="Salvar" onclick="PF('i_dlg_s').show()"/>
+                                        <p:commandButton value="#{movimentoBancarioBean.formaPagamentoEditar.id eq -1 ? 'SALVAR' : 'ATUALIZAR'}" onclick="PF('dlg_salvar').show()" style="font-weight: bold;"/>
+                                    </p:column>
+
+                                    <p:column>
+                                        <br />
+                                        <p:commandButton value="EXCLUIR" onclick="PF('dlg_excluir').show()" rendered="#{movimentoBancarioBean.formaPagamentoEditar.id ne -1}"/>
+                                    </p:column>
+
+                                    <p:column>
+                                        <br />
+                                        <p:commandButton value="NOVO" action="#{movimentoBancarioBean.novo()}" update="@form"/>
                                     </p:column>
                                 </h:panelGrid>
                             </p:panel>
@@ -85,52 +96,90 @@
                             <p:messages id="i_msg" showDetail="true" closable="true" />  
 
                             <p:dataTable var="linha" id="tbl" value="#{movimentoBancarioBean.listaMovimento}" emptyMessage="Nenhum movimento encontrado!" paginator="true" rows="20">
-                                <p:column headerText="Data" style="text-align: center">
-                                    <p:commandLink value="#{linha.dataBaixaString}" />
+                                <p:column style="width:15px">  
+                                    <p:rowToggler />  
+                                </p:column>  
+
+                                <p:column headerText="Data" style="width:80px; text-align: center">
+                                    <p:commandLink value="#{linha.baixa.baixa}" action="#{movimentoBancarioBean.editar(linha)}" update="@form" rendered="#{linha.movimento.lote.rotina.id eq 225}"/>
+                                    <p:outputLabel value="#{linha.baixa.baixa}" rendered="#{linha.movimento.lote.rotina.id ne 225}"/>
                                 </p:column>
 
-                                <p:column headerText="Documento">
-                                    <p:commandLink value="#{linha.documento}" />
+                                <p:column headerText="Documento"  style="width:150px; text-align: center">
+                                    <p:commandLink value="#{linha.documento}" action="#{movimentoBancarioBean.editar(linha)}" update="@form" rendered="#{linha.movimento.lote.rotina.id eq 225}"/>
+                                    <p:outputLabel value="#{linha.documento}" rendered="#{linha.movimento.lote.rotina.id ne 225}"/>
                                 </p:column>
 
                                 <p:column headerText="Histórico">
-                                    <p:commandLink value="#{linha.historico}"/>
+                                    <p:commandLink value="#{linha.historico}" action="#{movimentoBancarioBean.editar(linha)}" update="@form" rendered="#{linha.movimento.lote.rotina.id eq 225}"/>
+                                    <p:outputLabel value="#{linha.historico}" rendered="#{linha.movimento.lote.rotina.id ne 225}"/>
                                 </p:column>
 
-                                <p:column headerText="Valor">
+                                <p:column headerText="Valor" style="width:90px">
                                     <h:outputText value="R$ "/>
-                                    <p:commandLink value="#{linha.valorString}" style="float: right"/>
+                                    <p:commandLink value="#{linha.formaPagamento.valorString}" style="float: right" action="#{movimentoBancarioBean.editar(linha)}" update="@form" rendered="#{linha.movimento.lote.rotina.id eq 225}"/>
+                                    <p:outputLabel value="#{linha.formaPagamento.valorString}" style="float: right" rendered="#{linha.movimento.lote.rotina.id ne 225}"/>
                                 </p:column>
 
-                                <p:column headerText="Saldo">
+                                <p:column headerText="Saldo" style="width:90px">
                                     <h:outputText value="R$ "/>
-                                    <p:commandLink value="#{linha.saldoString}" style="float: right"/>
+                                    <p:commandLink value="#{linha.saldoString}" style="float: right" action="#{movimentoBancarioBean.editar(linha)}" update="@form" rendered="#{linha.movimento.lote.rotina.id eq 225}"/>
+                                    <p:outputLabel value="#{linha.saldoString}" style="float: right" rendered="#{linha.movimento.lote.rotina.id ne 225}"/>
                                 </p:column>
 
-                                <p:column headerText="E/S" style="text-align: center">
-                                    <p:commandLink value="#{linha.es}"/>
+                                <p:column headerText="E/S" style="width:30px; text-align: center">
+                                    <p:commandLink value="#{linha.movimento.es}" action="#{movimentoBancarioBean.editar(linha)}" update="@form" rendered="#{linha.movimento.lote.rotina.id eq 225}"/>
+                                    <p:outputLabel value="#{linha.movimento.es}" rendered="#{linha.movimento.lote.rotina.id ne 225}"/>
                                 </p:column>
 
-                                <p:column headerText="Status" style="text-align: center">
-                                    <h:panelGrid columns="2" rendered="#{linha.status == 'DEPOSITADO'}" styleClass="sbb">
-                                        <p:selectOneMenu value="#{linha.indexStatus}" style="padding-right: 15px">
-                                            <f:selectItem itemLabel="Liquidado" itemValue="0"/>
-                                            <f:selectItem itemLabel="Devolvido" itemValue="1"/>
-                                            <f:selectItem itemLabel="Sustado"   itemValue="2"/>
-                                        </p:selectOneMenu>
-                                        <p:commandButton value="Salvar" styleClass="ui-confirmdialog-yes" icon="ui-icon-disk" action="#{movimentoBancarioBean.atualizarStatus(linha)}" update=":formMovimentoBancario" title="Salvar status do cheque"/>       
-                                    </h:panelGrid>
-
-                                    <h:outputLabel value="A DEPOSITAR" style="font-size: 11pt!important; color: black; font-weight: bold" rendered="#{linha.status == 'A DEPOSITAR'}"/>
-                                    <h:outputLabel value="LIQUIDADO" style="font-size: 11pt!important; color: black; font-weight: bold" rendered="#{linha.status == 'LIQUIDADO'}"/>
-                                    <h:outputLabel value="DEVOLVIDO" style="font-size: 11pt!important; color: red; font-weight: bold" rendered="#{linha.status == 'DEVOLVIDO'}"/>
-                                    <h:outputLabel value="SUSTADO" style="font-size: 11pt!important; color: red; font-weight: bold" rendered="#{linha.status == 'SUSTADO'}"/>
+                                <p:column headerText="Status" style="width:120px; text-align: center">
+                                    <p:commandLink value="#{movimentoBancarioBean.statusCheque(linha).get('status')}" action="#{movimentoBancarioBean.selecionaStatus(linha)}" style="font-size: 11pt!important; font-weight: bold; #{movimentoBancarioBean.statusCheque(linha).get('cor')}" rendered="#{movimentoBancarioBean.mostraStatus(linha)}" onclick="PF('dlg_alterar_status_cheque').show()" update="formMovimentoBancario:panel_alterar_status_cheque" disabled="#{movimentoBancarioBean.desabilitaStatus(linha)}"/>
                                 </p:column>
+
+                                <p:rowExpansion>
+                                    <p:dataTable var="linha_detalhe" value="#{linha.listDetalheMovimento}" emptyMessage="Sem Detalhes!">
+                                        <p:column headerText="Conta">
+                                            <p:outputLabel value="#{linha_detalhe.conta}" />
+                                        </p:column>
+
+                                        <p:column headerText="Valor" style="width:90px">
+                                            <h:outputText value="R$ "/>
+                                            <p:commandLink value="#{linha_detalhe.valorString}" style="float: right"/>
+                                        </p:column>
+                                    </p:dataTable>
+                                </p:rowExpansion>
                             </p:dataTable>
 
-                            <p:dialog widgetVar="i_dlg_s" header="Deseja realmente salvar este movimento" resizable="false" width="400" modal="true">
-                                <p:commandButton value="Sim" type="submit" styleClass="ui-confirmdialog-yes" action="#{movimentoBancarioBean.salvar()}" update="formMovimentoBancario" onclick="PF('i_dlg_s').hide()" style="clear: both; float: left" icon="ui-icon-check" />  
-                                <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_s').hide()" style="float: left" icon="ui-icon-close"/>       
+                            <p:dialog widgetVar="dlg_salvar" header="Deseja realmente salvar este movimento" resizable="false" width="400" modal="true">
+                                <h:panelGrid>
+                                    <p:outputLabel value="Deseja realmente SALVAR este movimento?" style="font-size: 11pt!important"/>
+                                </h:panelGrid>
+                                <br />
+                                <p:commandButton value="Salvar" type="submit" styleClass="ui-confirmdialog-yes" action="#{movimentoBancarioBean.salvar()}" update="formMovimentoBancario" onclick="PF('dlg_salvar').hide()" style="clear: both; float: left; font-weight: bold" icon="ui-icon-check" />  
+                                <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_salvar').hide()" style="float: left" icon="ui-icon-close"/>       
+                            </p:dialog>
+
+                            <p:dialog widgetVar="dlg_excluir" header="Excluir Movimento" resizable="false" width="400" modal="true">
+                                <h:panelGrid>
+                                    <p:outputLabel value="Deseja realmente EXCLUIR este movimento?" style="font-size: 11pt!important; color: red"/>
+                                </h:panelGrid>
+                                <br />
+                                <p:commandButton value="Excluir" type="submit" styleClass="ui-confirmdialog-yes" action="#{movimentoBancarioBean.excluir()}" update="formMovimentoBancario" onclick="PF('dlg_excluir').hide()" style="clear: both; float: left; font-weight: bold" icon="ui-icon-check" />  
+                                <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_excluir').hide()" style="float: left" icon="ui-icon-close"/>       
+                            </p:dialog>
+
+                            <p:dialog widgetVar="dlg_alterar_status_cheque" header="Alterar Status do Cheque" resizable="false" width="400" modal="true">
+                                <h:panelGrid id="panel_alterar_status_cheque">
+                                    <p:outputLabel value="Deseja realmente alterar o status deste cheque?" style="font-size: 11pt!important; color: red"/>
+                                    <br />
+                                    <p:selectOneRadio value="#{movimentoBancarioBean.indexStatus}" layout="grid" columns="1">
+                                        <f:selectItems value="#{movimentoBancarioBean.listaStatus}" />
+                                    </p:selectOneRadio>
+                                </h:panelGrid>
+
+                                <br />
+                                <p:commandButton value="Sim" type="submit" styleClass="ui-confirmdialog-yes" action="#{movimentoBancarioBean.atualizarStatus()}" update="formMovimentoBancario" onclick="PF('dlg_alterar_status_cheque').hide()" style="clear: both; float: left; font-weight: bold" icon="ui-icon-check" />  
+                                <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_alterar_status_cheque').hide()" style="float: left" icon="ui-icon-close"/>       
                             </p:dialog>
                         </h:form>
                     </p:panel>

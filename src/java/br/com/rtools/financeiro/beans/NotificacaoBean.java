@@ -39,8 +39,6 @@ import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Mail;
 import br.com.rtools.utilitarios.SalvaArquivos;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -99,8 +97,7 @@ public class NotificacaoBean implements Serializable {
     private ConfiguracaoArrecadacao ca = new ConfiguracaoArrecadacao();
 
     public NotificacaoBean() {
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-        registro = (Registro) sv.pesquisaCodigo(1, "Registro");
+        registro = (Registro) new Dao().find(new Registro(), 1);
         ca = (ConfiguracaoArrecadacao) new Dao().find(new ConfiguracaoArrecadacao(), 1);
 
     }
@@ -287,12 +284,12 @@ public class NotificacaoBean implements Serializable {
     }
 
     public String salvar() {
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-        sv.abrirTransacao();
+        Dao dao = new Dao();
+        dao.openTransaction();
 
-        if (!sv.alterarObjeto(lote)) {
+        if (!dao.update(lote)) {
             GenericaMensagem.warn("Erro", "Erro ao atualizar Mensagem");
-            sv.desfazerTransacao();
+            dao.rollback();
             return null;
         }
 
@@ -308,7 +305,7 @@ public class NotificacaoBean implements Serializable {
                     continue;
                 }
 
-                if (sv.deletarObjeto(sv.pesquisaCodigo(link.getId(), "Links"))) {
+                if (dao.delete(link)) {
                     File f_delete = new File(caminho + "/" + listFile[i].getName());
                     if (f_delete.exists()) {
                         f_delete.delete();
@@ -321,7 +318,7 @@ public class NotificacaoBean implements Serializable {
             //return null;
         }
 
-        sv.comitarTransacao();
+        dao.commit();
         GenericaMensagem.info("Sucesso", "Notificação atualizada!");
         return null;
     }
@@ -345,34 +342,27 @@ public class NotificacaoBean implements Serializable {
 //            return null;
 //        }
 
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-        sv.abrirTransacao();
-        if (!sv.inserirObjeto(lote)) {
+        Dao dao = new Dao();
+        dao.openTransaction();
+        if (!dao.save(lote)) {
             GenericaMensagem.warn("Erro", "Erro ao Gerar Lote");
-            sv.desfazerTransacao();
+            dao.rollback();
             return null;
         }
-        sv.comitarTransacao();
+        
+        dao.commit();
 
-        sv.abrirTransacao();
-        //for (int i = 0; i < listaNotificacao.size(); i++) {
-        //if (!sv.executeQuery("insert into fin_cobranca (id_movimento,id_lote) (select m.id, " + lote.getId() + query + " and fc.id_lote is null order by c.ds_nome, c.id_pessoa)")) {
-        if (!sv.executeQuery("INSERT INTO fin_cobranca (id_movimento,id_lote) (select m.id, " + lote.getId() + query + " GROUP BY m.id)")) {
-//            if ((Boolean) listaNotificacao.get(i).getArgumento0()) {
-//                if (!sv.inserirQuery("insert into fin_cobranca (id_movimento,id_lote) values (" + ((Vector) listaNotificacao.get(i).getArgumento1()).get(0) + "," + lote.getId() + ")")) {
-            GenericaMensagem.warn("Erro", "Erro ao inserir Cobrança");
-            sv.desfazerTransacao();
-
-            sv.abrirTransacao();
-            sv.deletarObjeto(sv.pesquisaCodigo(lote.getId(), "CobrancaLote"));
-            sv.comitarTransacao();
+        dao.openTransaction();
+        if (!dao.executeQuery("INSERT INTO fin_cobranca (id_movimento,id_lote) (select m.id, " + lote.getId() + query + " GROUP BY m.id)")) {
+            dao.rollback();
+            dao.openTransaction();
+            dao.delete(lote.getId());
+            dao.commit();
             lote = new CobrancaLote();
             return null;
-//                }
-//            }
         }
 
-        sv.comitarTransacao();
+        dao.openTransaction();
         GenericaMensagem.info("Sucesso", "Gerado com sucesso!");
         itensLista.clear();
 
@@ -385,8 +375,8 @@ public class NotificacaoBean implements Serializable {
     }
 
     public String gerarEtiquetas() {
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-        CobrancaTipo ct = (CobrancaTipo) sv.pesquisaCodigo(Integer.valueOf(listaTipoEnvio.get(idTipoEnvio).getDescription()), "CobrancaTipo");
+        Dao dao = new Dao();
+        CobrancaTipo ct = (CobrancaTipo) dao.find(new CobrancaTipo(), Integer.valueOf(listaTipoEnvio.get(idTipoEnvio).getDescription()));
         JuridicaDB dbJur = new JuridicaDBToplink();
         PessoaEnderecoDao dbPesEnd = new PessoaEnderecoDao();
         NotificacaoDB db = new NotificacaoDBToplink();
@@ -470,26 +460,26 @@ public class NotificacaoBean implements Serializable {
 
     public synchronized void enviarPeloMenu() {
         NotificacaoDB db = new NotificacaoDBToplink();
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+        Dao dao = new Dao();
         boolean erro = false;
         Usuario usu = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuario");
         if (usu.getId() == -1) {
             return;
         }
-        Registro reg = (Registro) sv.pesquisaCodigo(1, "Registro");
+        Registro reg = (Registro) dao.find(new Registro(), 1);
 
         List<Vector> lista = db.pollingEmail(reg.getLimiteEnvios(), usu.getId());
         if (!lista.isEmpty()) {
-            sv.abrirTransacao();
+            dao.openTransaction();
 
             for (int i = 0; i < lista.size(); i++) {
-                PollingEmail pe = (PollingEmail) sv.pesquisaCodigo((Integer) lista.get(i).get(0), "PollingEmail");
+                PollingEmail pe = (PollingEmail) dao.find(new PollingEmail(), (Integer) lista.get(i).get(0));
 
                 enviarEmailPolling(pe.getLinks());
 
                 pe.setAtivo(false);
                 pe.setEnvio(DataHoje.data());
-                if (!sv.alterarObjeto(pe)) {
+                if (!dao.update(pe)) {
                     erro = true;
                     break;
                 }
@@ -497,15 +487,15 @@ public class NotificacaoBean implements Serializable {
         }
 
         if (!erro) {
-            sv.comitarTransacao();
+            dao.commit();
             habilitaNot = false;
         } else {
-            sv.desfazerTransacao();
+            dao.rollback();
             habilitaNot = true;
             return;
         }
 
-        sv.abrirTransacao();
+        dao.openTransaction();
         lista.clear();
         lista = db.pollingEmail(reg.getLimiteEnvios(), usu.getId());
         if (lista.isEmpty()) {
@@ -513,12 +503,12 @@ public class NotificacaoBean implements Serializable {
             if (!lista.isEmpty()) {
                 String ph = DataHoje.incrementarHora(DataHoje.horaMinuto(), reg.getIntervaloEnvios());
                 for (int i = 0; i < lista.size(); i++) {
-                    PollingEmail pe = (PollingEmail) sv.pesquisaCodigo((Integer) lista.get(i).get(0), "PollingEmail");
+                    PollingEmail pe = (PollingEmail) dao.find(new PollingEmail(), (Integer) lista.get(i).get(0));
                     pe.setAtivo(true);
                     pe.setEmissao(DataHoje.data());
                     pe.setHora(ph);
 
-                    if (!sv.alterarObjeto(pe)) {
+                    if (!dao.update(pe)) {
                         erro = true;
                         break;
                     }
@@ -528,10 +518,10 @@ public class NotificacaoBean implements Serializable {
         }
 
         if (!erro) {
-            sv.comitarTransacao();
+            dao.commit();
             habilitaNot = false;
         } else {
-            sv.desfazerTransacao();
+            dao.rollback();
             habilitaNot = true;
         }
     }
@@ -568,8 +558,8 @@ public class NotificacaoBean implements Serializable {
         params.put("sindicato_telefone", ca.getFilial().getFilial().getPessoa().getTelefone1());
         params.put("sindicato_email", ca.getFilial().getFilial().getPessoa().getEmail1());
 
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-        CobrancaTipo ct = (CobrancaTipo) sv.pesquisaCodigo(Integer.valueOf(listaTipoEnvio.get(idTipoEnvio).getDescription()), "CobrancaTipo");
+        Dao dao = new Dao();
+        CobrancaTipo ct = (CobrancaTipo) dao.find(new CobrancaTipo(), Integer.valueOf(listaTipoEnvio.get(idTipoEnvio).getDescription()));
 
         NotificacaoDB db = new NotificacaoDBToplink();
         List<Vector> result = db.listaNotificacaoEnvio(ct.getId(), lote.getId());
@@ -582,16 +572,16 @@ public class NotificacaoBean implements Serializable {
         List<ParametroNotificacao> listax = new ArrayList();
         CobrancaEnvio ce = db.pesquisaCobrancaEnvio(lote.getId());
 
-        sv.abrirTransacao();
+        dao.openTransaction();
         if (ce.getId() == -1) {
             ce.setDtEmissao(DataHoje.dataHoje());
             ce.setHora(DataHoje.horaMinuto());
             ce.setLote(lote);
             ce.setUsuario(((Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuario")));
             ce.setTipoCobranca(ct);
-            if (!sv.inserirObjeto(ce)) {
+            if (!dao.save(ce)) {
                 GenericaMensagem.warn("Erro", "Erro ao salvar Cobrança Envio");
-                sv.desfazerTransacao();
+                dao.rollback();
                 return;
             }
         }
@@ -600,7 +590,7 @@ public class NotificacaoBean implements Serializable {
             List<Vector> lista = db.pollingEmailTrue();
             if (!lista.isEmpty()) {
                 GenericaMensagem.warn("Erro", "Existem notificações às " + lista.get(0).get(1) + " para serem enviadas, conclua o envio antes de notificar mais!");
-                sv.desfazerTransacao();
+                dao.rollback();
                 return;
             }
 
@@ -650,22 +640,21 @@ public class NotificacaoBean implements Serializable {
                         id_compara = getConverteNullInt(result.get(i).get(26)); // ID_JURIDICA
                         if (id_compara != getConverteNullInt(result.get(i + 1).get(26))) {
                             enviar = true;
-                            pes = ((Juridica) sv.pesquisaCodigo(id_compara, "Juridica")).getPessoa();
+                            pes = ((Juridica) dao.find(new Juridica(), id_compara)).getPessoa();
                         }
                     } else {
                         jasper = "NOTIFICACAO_ARRECADACAO_EMPRESA.jasper";
                         id_compara = getConverteNullInt(result.get(i).get(27)); // ID_PESSOA
                         if (id_compara != getConverteNullInt(result.get(i + 1).get(27))) {
                             enviar = true;
-                            pes = (Pessoa) sv.pesquisaCodigo(id_compara, "Pessoa");
-                            //pes = ((Juridica)sv.pesquisaCodigo(id_compara, "Juridica")).getPessoa();
+                            pes = (Pessoa) dao.find(new Pessoa(), id_compara);
                         }
                     }
                 } catch (Exception e) {
                     if (ct.getId() == 4) {
-                        pes = ((Juridica) sv.pesquisaCodigo(id_compara, "Juridica")).getPessoa();
+                        pes = ((Juridica) dao.find(new Juridica(), id_compara)).getPessoa();
                     } else {
-                        pes = (Pessoa) sv.pesquisaCodigo(id_compara, "Pessoa");
+                        pes = (Pessoa) dao.find(new Pessoa(), id_compara);
                     }
                     enviar = true;
                 }
@@ -674,7 +663,7 @@ public class NotificacaoBean implements Serializable {
                     try {
                         if (atual <= registro.getLimiteEnvios() && ph.isEmpty()) {
                             if (!pes.getEmail1().isEmpty()) {
-                                enviarEmail(pes, listax, sv, jasper, params);
+                                enviarEmail(pes, listax, dao, jasper, params);
                                 atual++;
                             }
                         } else {
@@ -711,9 +700,9 @@ public class NotificacaoBean implements Serializable {
                             link.setPessoa(pes);
                             link.setDescricao(listaTipoEnvio.get(idTipoEnvio).getLabel());
 
-                            if (!sv.inserirObjeto(link)) {
+                            if (!dao.save(link)) {
                                 GenericaMensagem.warn("Erro", "Erro ao salvar Link de envio!");
-                                sv.desfazerTransacao();
+                                dao.rollback();
                                 return;
                             }
 
@@ -729,9 +718,9 @@ public class NotificacaoBean implements Serializable {
                                 pe.setAtivo(false);
                             }
 
-                            if (!sv.inserirObjeto(pe)) {
+                            if (!dao.save(pe)) {
                                 GenericaMensagem.warn("Erro", "Erro ao salvar Polling de envio!");
-                                sv.desfazerTransacao();
+                                dao.rollback();
                                 return;
                             }
                             atual++;
@@ -836,9 +825,9 @@ public class NotificacaoBean implements Serializable {
                         link.setPessoa(null);
                         link.setDescricao(listaTipoEnvio.get(idTipoEnvio).getLabel());
 
-                        if (!sv.inserirObjeto(link)) {
+                        if (!dao.save(link)) {
                             GenericaMensagem.warn("Erro", "Erro ao salvar Link de envio!");
-                            sv.desfazerTransacao();
+                            dao.rollback();
                             return;
                         }
 
@@ -855,7 +844,7 @@ public class NotificacaoBean implements Serializable {
         }
 
         if (!result.isEmpty()) {
-            sv.comitarTransacao();
+            dao.commit();
         }
 
         listaNotificacao.clear();
@@ -921,7 +910,7 @@ public class NotificacaoBean implements Serializable {
         return null;
     }
 
-    public String enviarEmail(Pessoa pessoa, List<ParametroNotificacao> lista, SalvarAcumuladoDB sv, String nomeJasper, HashMap params) {
+    public String enviarEmail(Pessoa pessoa, List<ParametroNotificacao> lista, Dao dao, String nomeJasper, HashMap params) {
         JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(lista);
         String nomeArq = "notificacao_";
         try {
@@ -949,9 +938,9 @@ public class NotificacaoBean implements Serializable {
             link.setPessoa(pessoa);
             link.setDescricao(listaTipoEnvio.get(idTipoEnvio).getLabel());
 
-            if (!sv.inserirObjeto(link)) {
+            if (!dao.save(link)) {
                 GenericaMensagem.warn("Erro", "Erro ao salvar Link de envio!");
-                sv.desfazerTransacao();
+                dao.rollback();
                 return null;
             }
 
@@ -1013,11 +1002,10 @@ public class NotificacaoBean implements Serializable {
 
     public void alteraCombo() {
         if (!itensLista.isEmpty()) {
-            SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
             if (Integer.valueOf(itensLista.get(idLista).getDescription()) == -1) {
                 lote = new CobrancaLote();
             } else {
-                lote = (CobrancaLote) sv.pesquisaCodigo(Integer.valueOf(itensLista.get(idLista).getDescription()), "CobrancaLote");
+                lote = (CobrancaLote) new Dao().find(new CobrancaLote(), Integer.valueOf(itensLista.get(idLista).getDescription()));
             }
         }
         listaNotificacao.clear();
@@ -1171,10 +1159,8 @@ public class NotificacaoBean implements Serializable {
 
     public boolean isHabilitaNot() {
         NotificacaoDB db = new NotificacaoDBToplink();
-        Registro reg = (Registro) new SalvarAcumuladoDBToplink().pesquisaCodigo(1, "Registro");
-//        if (registro == null){
-//            registro = (Registro) new SalvarAcumuladoDBToplink().pesquisaCodigo(1, "Registro");
-//        }
+        Registro reg = (Registro) new Dao().find(new Registro(), 1);
+
         Usuario usu = (Usuario) GenericaSessao.getObject("sessaoUsuario");
         if (usu == null || (usu != null && usu.getId() == -1)) {
             return false;

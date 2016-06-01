@@ -248,7 +248,6 @@ public class BaixaGeralBean implements Serializable {
     }
 
     public void inserir() {
-
         if (Moeda.converteUS$(valor) < 0) {
             GenericaMensagem.error("Atenção", "Valor negativo não é permitido!");
             return;
@@ -291,11 +290,17 @@ public class BaixaGeralBean implements Serializable {
         // CHEQUE
         if (tipoPagamento.getId() == 4 || tipoPagamento.getId() == 5) {
             if (!getEs().isEmpty() && getEs().equals("S")) {
+                if (numeroChequePag.isEmpty()) {
+                    GenericaMensagem.warn("Atenção", "Digite um número para o Cheque!");
+                    return;
+                }
+
                 Plano5Dao db = new Plano5Dao();
                 if (listaBancoSaida.size() == 1 && listaBancoSaida.get(0).getDescription().isEmpty()) {
                     GenericaMensagem.error("Erro", "Nenhum Banco saida Encontrado!");
                     return;
                 }
+
                 Plano5 pl = db.pesquisaPlano5IDContaBanco(Integer.valueOf(listaBancoSaida.get(idBancoSaida).getDescription()));
 
                 for (int i = 0; i < listaValores.size(); i++) {
@@ -322,6 +327,16 @@ public class BaixaGeralBean implements Serializable {
                 //lista.add(new DataObject(vencimento, valor, numeroChequePag, tipoPagamento, ch_p, pl));
                 listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numeroChequePag, tipoPagamento, ch_p, null, pl, null, Moeda.converteR$Float(valorDigitado)));
             } else {
+                if (numero.isEmpty()) {
+                    GenericaMensagem.warn("Atenção", "Digite um número para o Cheque!");
+                    return;
+                }
+
+                if (chequeRec.getAgencia().isEmpty() || chequeRec.getBanco().isEmpty() || chequeRec.getConta().isEmpty()) {
+                    GenericaMensagem.warn("Atenção", "Agência, Conta e Banco não podem estar vazios!");
+                    return;
+                }
+
                 ChequeRec ch = new ChequeRec();
                 ch.setAgencia(chequeRec.getAgencia());
                 ch.setBanco(chequeRec.getBanco());
@@ -338,13 +353,13 @@ public class BaixaGeralBean implements Serializable {
                 //lista.add(new DataObject(vencimento, valor, numero, tipoPagamento, ch, null));
                 listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, ch, plano5, null, Moeda.converteR$Float(valorDigitado)));
             }
+
             numero = "";
             numeroChequePag = "";
             chequeRec = new ChequeRec();
         } else if (tipoPagamento.getId() == 6 || tipoPagamento.getId() == 7) {
             // CARTAO
-            if (listaCartao.size() == 1 && !listaCartao.get(0).getDescription().isEmpty()) //lista.add(new DataObject(vencimento, valor, numero, tipoPagamento, null, (new SalvarAcumuladoDBToplink()).pesquisaCodigo(Integer.valueOf(listaCartao.get(idCartao).getDescription()), "Cartao")));
-            {
+            if (listaCartao.size() == 1 && !listaCartao.get(0).getDescription().isEmpty()) { //lista.add(new DataObject(vencimento, valor, numero, tipoPagamento, null, (new SalvarAcumuladoDBToplink()).pesquisaCodigo(Integer.valueOf(listaCartao.get(idCartao).getDescription()), "Cartao")));
                 listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, null, (Cartao) new Dao().find(new Cartao(), Integer.valueOf(listaCartao.get(idCartao).getDescription())), Moeda.converteR$Float(valorDigitado)));
             }
         } else if (tipoPagamento.getId() == 2 || tipoPagamento.getId() == 8 || tipoPagamento.getId() == 9 || tipoPagamento.getId() == 10 || tipoPagamento.getId() == 13) {
