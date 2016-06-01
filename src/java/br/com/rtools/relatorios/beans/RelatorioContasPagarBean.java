@@ -4,7 +4,6 @@ import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
-import br.com.rtools.relatorios.dao.RelatorioBoletosBaixadosDao;
 import br.com.rtools.relatorios.dao.RelatorioContasPagarDao;
 import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.relatorios.dao.RelatorioOrdemDao;
@@ -116,13 +115,13 @@ public class RelatorioContasPagarBean implements Serializable {
             rcpd.setRelatorioOrdem((RelatorioOrdem) new Dao().find(new RelatorioOrdem(), idRelatorioOrdem));
         }
         if (!dtVI.isEmpty()) {
-            listDetalhePesquisa.add("Período de vencimento entre " + dtVI + " e " + dtVF);
+            listDetalhePesquisa.add("Período de vencimento " + dtVI + (!dtVF.isEmpty() ? " até ".concat(dtVF) : ""));
         }
         if (!dtPI.isEmpty()) {
-            listDetalhePesquisa.add("Período de pagamento entre " + dtPI + " e " + dtPF);
+            listDetalhePesquisa.add("Período de pagamento " + dtPI + (!dtPF.isEmpty() ? " até ".concat(dtPF) : ""));
         }
         if (!dtEI.isEmpty()) {
-            listDetalhePesquisa.add("Período de emissao entre " + dtEI + " e " + dtEF);
+            listDetalhePesquisa.add("Período de emissão " + dtEI + (!dtEF.isEmpty() ? " até ".concat(dtEF) : ""));
         }
         rcpd.setRelatorios(r);
         String in_credores = null;

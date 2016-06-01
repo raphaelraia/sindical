@@ -12,7 +12,6 @@ import br.com.rtools.homologacao.Senha;
 import br.com.rtools.homologacao.Status;
 import br.com.rtools.homologacao.dao.CancelamentoDao;
 import br.com.rtools.homologacao.dao.HomologacaoDao;
-import br.com.rtools.homologacao.dao.*;
 import br.com.rtools.pessoa.*;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.*;
@@ -71,9 +70,8 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
     private String tipoTelefone = "telefone";
 
     public HomologacaoBean() {
-        macFilial = (MacFilial) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("acessoFilial");
-        registro = (Registro) new SalvarAcumuladoDBToplink().find("Registro", 1);
-
+        macFilial = (MacFilial) GenericaSessao.getObject("acessoFilial");
+        registro = (Registro) new Dao().find(new Registro(), 1);
         if (macFilial != null) {
             this.loadListaHomologacao();
             this.loadListaAtendimentoSimples();
@@ -217,21 +215,22 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
             GenericaMensagem.warn("Atenção", "Não existe senha para ser excluida!");
             return null;
         }
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-        sv.abrirTransacao();
-        if (!sv.deletarObjeto(sv.find("Senha", senha.getId()))) {
+        Dao dao = new Dao();
+        dao.openTransaction();
+        if (!dao.delete(senha)) {
+            dao.rollback();
             GenericaMensagem.error("Atenção", "Erro ao excluir senha!");
             return null;
         }
-        agendamento.setStatus((Status) sv.find("Status", 2));
+        agendamento.setStatus((Status) dao.find(new Status(), 2));
         agendamento.setHomologador(null);
-        if (!sv.alterarObjeto(agendamento)) {
-            //msgHomologacao = "Erro ao atualizar Agendamento";
+        if (!dao.update(agendamento)) {
+            dao.rollback();
             GenericaMensagem.error("Erro", "Não foi possível atualizar Agendamento!");
             return null;
         }
+        dao.commit();
         GenericaMensagem.info("Sucesso", "Senha Excluída !");
-        sv.comitarTransacao();
         strEndereco = "";
         visibleModal = false;
         tipoAviso = "true";
@@ -244,22 +243,20 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
     }
 
     public void atualizarSenhaSimples(String tipo) {
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-
-        sv.abrirTransacao();
-        Senha senha = (Senha) sv.pesquisaCodigo(senhaAtendimento.getId(), "Senha");
+        Dao dao = new Dao();
+        dao.openTransaction();
+        Senha senha = (Senha) dao.find(new Senha(), senhaAtendimento.getId());
         if (tipo.equals("atendido")) {
-            senha.getAteMovimento().setStatus((AteStatus) sv.pesquisaCodigo(2, "AteStatus"));
+            senha.getAteMovimento().setStatus((AteStatus) dao.find(new AteStatus(), 2));
         } else {
-            senha.getAteMovimento().setStatus((AteStatus) sv.pesquisaCodigo(3, "AteStatus"));
+            senha.getAteMovimento().setStatus((AteStatus) dao.find(new AteStatus(), 3));
         }
-
         senha.setDtVerificada(new Date());
 
-        if (!sv.alterarObjeto(senha)) {
-            sv.desfazerTransacao();
+        if (dao.update(senha)) {
+            dao.commit();
         } else {
-            sv.comitarTransacao();
+            dao.rollback();
         }
 
         senhaAtendimento = new Senha();
@@ -269,25 +266,25 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
     }
 
     public void excluirSenhaAtendimento() {
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+        Dao dao = new Dao();
 
-        sv.abrirTransacao();
-        Senha senha = (Senha) sv.pesquisaCodigo(senhaAtendimento.getId(), "Senha");
-        AteMovimento at = (AteMovimento) sv.pesquisaCodigo(senhaAtendimento.getAteMovimento().getId(), "AteMovimento");
+        dao.openTransaction();
+        Senha senha = (Senha) dao.find(new Senha(), senhaAtendimento.getId());
+        AteMovimento at = (AteMovimento) dao.find(new AteMovimento(), senhaAtendimento.getAteMovimento().getId());
 
         // DELETA A SENHA
-        if (!sv.deletarObjeto(senha)) {
-            sv.desfazerTransacao();
+        if (!dao.delete(senha)) {
+            dao.rollback();
             return;
         }
 
         // DELETA TAMBEM O ATENDIMENTO
-        if (!sv.deletarObjeto(at)) {
-            sv.desfazerTransacao();
+        if (!dao.delete(at)) {
+            dao.rollback();
             return;
         }
 
-        sv.comitarTransacao();
+        dao.commit();
         senhaAtendimento = new Senha();
 
         loadListaAtendimentoSimples();
@@ -334,7 +331,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
     public String retornaSequenciaSenha() {
         HomologacaoDao dbh = new HomologacaoDao();
         SegurancaUtilitariosBean su = new SegurancaUtilitariosBean();
-        Dao di = new Dao();
+        Dao dao = new Dao();
 
         // SENHA COM HOMOLOGAÇÃO INICIADA -----
         Senha senha = dbh.pesquisaAtendimentoIniciado(su.getSessaoUsuario().getId(), macFilial.getMesa(), macFilial.getFilial().getId(), macFilial.getDepartamento().getId());
@@ -364,7 +361,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
             }
 
             tipoAviso = String.valueOf(pessoaEmpresa.isAvisoTrabalhado());
-            agendamento.setStatus((Status) di.find(new Status(), 5));
+            agendamento.setStatus((Status) dao.find(new Status(), 5));
             agendamento.setHomologador(su.getSessaoUsuario());
 
             PF.update("formConcluirHomologacao");
@@ -379,7 +376,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
             senhaAtendimento = listax.get(0);
             senhaAtendimento.setDtVerificada(new Date());
             senhaAtendimento.setDtNovaChamada(new Date());
-            if (!di.update(senhaAtendimento, true)) {
+            if (!dao.update(senhaAtendimento, true)) {
                 GenericaMensagem.error("Erro", "Não foi possível atualizar Senha!");
                 return null;
             }
@@ -388,31 +385,12 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
             PF.openDialog("dlg_atendimento_simples");
             return null;
         }
-//        
-//        // SENHA COM ATENDIMENTO INICIADO -----
-//        Senha senhaAtendimentoIniciado = dbh.pesquisaAtendimentoIniciadoSimples(macFilial.getFilial().getId());
-//        if (senhaAtendimentoIniciado.getId() != -1){
-//            return senhaAtendimentoIniciado;
-//        }
-
         List<Senha> listaSenha = dbh.listaSequenciaSenha(macFilial.getFilial().getId(), macFilial.getDepartamento().getId());
-
         if (listaSenha.isEmpty()) {
             WSSocket.send("senha_homologacao_" + ControleUsuarioBean.getCliente().toLowerCase());
             return null;
         }
-
         for (Senha senhax : listaSenha) {
-//            // SENHA DE ATENDIMENTO INICIADO -----
-//            if (senhax.getAteMovimento() != null && senhax.getAteMovimento().getAtendente() != null){
-//                if (senhax.getAteMovimento().getAtendente().getId() == su.getSessaoUsuario().getId() && senhax.getAteMovimento().getStatus().getId() == 4){
-//                    senhaAtendimento = senhax;
-//                    PF.update(":form_cancelar_data_table:tbl_at");
-//                    PF.openDialog("dlg_atendimento_simples");
-//                    return null;
-//                }
-//            }
-
             // SENHA DE HOMOLOGAÇÃO --------------------------------------------------------------------------------------------------------------------------
             if (senhax.getAgendamento() != null) {
                 if (senhax.getAgendamento().getStatus().getId() != 2) {
@@ -444,10 +422,11 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
                 }
 
                 tipoAviso = String.valueOf(pessoaEmpresa.isAvisoTrabalhado());
-                agendamento.setStatus((Status) di.find(new Status(), 5));
+                agendamento.setStatus((Status) dao.find(new Status(), 5));
                 agendamento.setHomologador(su.getSessaoUsuario());
-                di.openTransaction();
-                if (!di.update(agendamento)) {
+                dao.openTransaction();
+                if (!dao.update(agendamento)) {
+                    dao.rollback();
                     GenericaMensagem.error("Erro", "Não foi possível atualizar Agendamento!");
                     return null;
                 }
@@ -455,20 +434,19 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
                 senhax.setMesa(macFilial.getMesa());
                 senhax.setHoraChamada(DataHoje.horaMinuto());
                 senhax.setDtVerificada(new Date());
-                if (!di.update(senhax)) {
+                if (!dao.update(senhax)) {
+                    dao.rollback();
                     GenericaMensagem.error("Erro", "Não foi possível atualizar Senha!");
                     return null;
                 }
-                di.commit();
+                dao.commit();
 
                 PF.update("formConcluirHomologacao");
                 PF.openDialog("dlg_homologacao");
                 WSSocket.send("senha_homologacao_" + ControleUsuarioBean.getCliente().toLowerCase());
                 return null;
-            }
-
-            // SENHA DE ATENDIMENTO --------------------------------------------------------------------------------------------------------------------------
-            if (senhax.getAteMovimento() != null) {
+            } else if (senhax.getAteMovimento() != null) {
+                // SENHA DE ATENDIMENTO --------------------------------------------------------------------------------------------------------------------------
                 // STATUS 1 - AGUARDANDO
                 if (senhax.getAteMovimento().getStatus().getId() == 1) {
                     // OPERAÇÃO 8 - DSR - OBRIGATORIO SENHA TER RESERVADA ----
@@ -478,18 +456,21 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
 
                     // RESERVADO PARA O USUÁRIO ------
                     if (senhax.getAteMovimento().getReserva() != null && (senhax.getAteMovimento().getReserva().getId() == su.getSessaoUsuario().getId())) {
-                        di.openTransaction();
+                        dao.openTransaction();
 
-                        senhax.getAteMovimento().setStatus((AteStatus) di.find(new AteStatus(), 4));
+                        senhax.getAteMovimento().setStatus((AteStatus) dao.find(new AteStatus(), 4));
                         senhax.getAteMovimento().setAtendente(su.getSessaoUsuario());
 
                         senhax.setHoraChamada(DataHoje.horaMinuto());
                         senhax.setMesa(macFilial.getMesa());
                         senhax.setDtVerificada(new Date());
-                        di.update(senhax);
-                        di.update(senhax.getAteMovimento());
+                        if (!dao.update(senhax) || !dao.update(senhax.getAteMovimento())) {
+                            dao.rollback();
+                            GenericaMensagem.error("Erro", "Não foi possível atualizar Senha!");
+                            return null;
+                        }
 
-                        di.commit();
+                        dao.commit();
 
                         //listaAtendimentoSimples.clear();
                         senhaAtendimento = senhax;
@@ -501,20 +482,21 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
 
                     // NÃO É RESERVA ----
                     if (senhax.getAteMovimento().getReserva() == null) {
-                        di.openTransaction();
+                        dao.openTransaction();
 
-                        senhax.getAteMovimento().setStatus((AteStatus) di.find(new AteStatus(), 4));
+                        senhax.getAteMovimento().setStatus((AteStatus) dao.find(new AteStatus(), 4));
                         senhax.getAteMovimento().setAtendente(su.getSessaoUsuario());
 
                         senhax.setHoraChamada(DataHoje.horaMinuto()); // aqui
                         senhax.setMesa(macFilial.getMesa());
                         senhax.setDtVerificada(new Date());
                         senhax.setDtNovaChamada(new Date());
-                        if (di.update(senhax) && di.update(senhax.getAteMovimento())) {
-                            di.commit();
-                        } else {
-                            di.rollback();
+                        if (!dao.update(senhax) || !dao.update(senhax.getAteMovimento())) {
+                            dao.rollback();
+                            GenericaMensagem.error("Erro", "Não foi possível atualizar Senha!");
+                            return null;
                         }
+                        dao.commit();
 
                         //listaAtendimentoSimples.clear();
                         senhaAtendimento = senhax;
@@ -558,9 +540,11 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
             senhaAtendimentoReserva.setHoraChamada(DataHoje.horaMinuto());
             senhaAtendimentoReserva.setMesa(macFilial.getMesa());
 
-            dao.update(senhaAtendimentoReserva);
-            dao.update(senhaAtendimentoReserva.getAteMovimento());
-
+            if (!dao.update(senhaAtendimentoReserva) || !dao.update(senhaAtendimentoReserva.getAteMovimento())) {
+                dao.rollback();
+                GenericaMensagem.error("Erro", "Não foi possível atualizar Senha!");
+                return null;
+            }
             dao.commit();
 
             listaAtendimentoSimples.clear();
@@ -583,11 +567,12 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
             senhaAtendimentox.setHoraChamada(DataHoje.horaMinuto());
             senhaAtendimentox.setMesa(macFilial.getMesa());
 
-            dao.update(senhaAtendimentox);
-            dao.update(senhaAtendimentox.getAteMovimento());
-
+            if (!dao.update(senhaAtendimentox) || !dao.update(senhaAtendimentox.getAteMovimento())) {
+                dao.rollback();
+                GenericaMensagem.error("Erro", "Não foi possível atualizar Senha!");
+                return null;
+            }
             dao.commit();
-
             listaAtendimentoSimples.clear();
 
             senhaAtendimento = senhaAtendimentox;
@@ -605,9 +590,11 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
             senhaAtendimentox.setHoraChamada(DataHoje.horaMinuto());
             senhaAtendimentox.setMesa(macFilial.getMesa());
 
-            dao.update(senhaAtendimentox);
-            dao.update(senhaAtendimentox.getAteMovimento());
-
+            if (!dao.update(senhaAtendimentox) || !dao.update(senhaAtendimentox.getAteMovimento())) {
+                dao.rollback();
+                GenericaMensagem.error("Erro", "Não foi possível atualizar Senha!");
+                return null;
+            }
             dao.commit();
 
             listaAtendimentoSimples.clear();
@@ -649,19 +636,20 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
                 break;
             }
         }
+        dao = new Dao();
         tipoAviso = String.valueOf(pessoaEmpresa.isAvisoTrabalhado());
         agendamento.setStatus((Status) dao.find(new Status(), 5));
         agendamento.setHomologador(su.getSessaoUsuario());
         dao.openTransaction();
         if (!dao.update(agendamento)) {
-            //msgHomologacao = "Erro ao atualizar Agendamento";
+            dao.rollback();
             GenericaMensagem.error("Erro", "Não foi possível atualizar Agendamento!");
             return "homologacao";
         }
         senhaHomologacao.setMesa(macFilial.getMesa());
         senhaHomologacao.setHoraChamada(DataHoje.horaMinuto());
         if (!dao.update(senhaHomologacao)) {
-            //msgHomologacao = "Erro ao atualizar Senha";
+            dao.rollback();
             GenericaMensagem.error("Erro", "Não foi possível atualizar Senha!");
             return "homologacao";
         }
@@ -700,8 +688,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
 
     public List<SelectItem> getListaStatus() {
         if (listaStatus.isEmpty()) {
-            SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
-            List<Status> list = (List<Status>) salvarAcumuladoDB.pesquisaObjeto(new int[]{2, 3, 4, 5, 7}, "Status");
+            List<Status> list = (List<Status>) new Dao().find("Status", new int[]{2, 3, 4, 5, 7});
             for (int i = 0; i < list.size(); i++) {
                 listaStatus.add(new SelectItem(i, list.get(i).getDescricao(), Integer.toString(list.get(i).getId())));
             }
@@ -711,8 +698,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
 
     public List<SelectItem> getListaDemissao() {
         if (listaDemissao.isEmpty()) {
-            SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
-            List<Demissao> list = (List<Demissao>) salvarAcumuladoDB.listaObjeto("Demissao", true);
+            List<Demissao> list = (List<Demissao>) new Dao().list(new Demissao(), true);
             for (int i = 0; i < list.size(); i++) {
                 listaDemissao.add(new SelectItem(i, list.get(i).getDescricao(), Integer.toString(list.get(i).getId())));
             }
@@ -720,92 +706,6 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
         return listaDemissao;
     }
 
-//    public synchronized List getListaHorarios() {
-//        if (DataHoje.converteDataParaInteger(DataHoje.converteData(data)) > DataHoje.converteDataParaInteger(DataHoje.converteData(DataHoje.dataHoje()))) {
-//            return new ArrayList();
-//        }
-//        if (macFilial == null) {
-//            return new ArrayList();
-//        }
-////        listaGrid.clear();
-////        listaGrid = new ArrayList();
-//        List<Agendamento> ag;
-//        HomologacaoDao db = new HomologacaoDao();
-//        String agendador;
-//        String homologador;
-//        DataObject dtObj;
-//        Usuario us = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuario");
-//        Registro reg = (Registro) new SalvarAcumuladoDBToplink().find("Registro", 1);
-//        int idUsuario;
-//        int idCaso = Integer.parseInt(((SelectItem) listaStatus.get(idStatus)).getDescription());
-//        if (idCaso <= 0) {
-//            return new ArrayList();
-//        }
-//        if (idCaso == 2 || idCaso == 7) {
-//            idUsuario = 0;
-//        } else {
-//            idUsuario = us.getId();
-//        }
-//        ag = db.pesquisaAgendamento(idCaso, macFilial.getFilial().getId(), data, null, idUsuario, 0, 0);
-//        for (int i = 0; i < ag.size(); i++) {
-//            Senha senha = db.pesquisaSenhaAgendamento(ag.get(i).getId());
-//            if (ag.get(i).getAgendador() != null) {
-//                agendador = ag.get(i).getAgendador().getPessoa().getNome();
-//            } else {
-//                agendador = "** Web User **";
-//            }
-//            if (ag.get(i).getHomologador() != null) {
-//                homologador = ag.get(i).getHomologador().getPessoa().getNome();
-//            } else {
-//                homologador = "";
-//            }
-//            boolean isHabilitaAlteracao = false;
-//            if (reg.isSenhaHomologacao()) {
-//                if (DataHoje.converteDataParaInteger(DataHoje.converteData(ag.get(i).getDtData())) == DataHoje.converteDataParaInteger(DataHoje.converteData(DataHoje.dataHoje()))) {
-//                    if (ag.get(i).getStatus().getId() == 2) {
-//                        isHabilitaAlteracao = true;
-//                    } else {
-//                        isHabilitaAlteracao = false;
-//                    }
-//                }
-//                if (senha.getId() == -1) {
-//                    if (ag.get(i).getStatus().getId() != 7
-//                            && ag.get(i).getStatus().getId() != 3
-//                            && ag.get(i).getStatus().getId() != 4
-//                            && ag.get(i).getStatus().getId() != 5) {
-//                        continue;
-//                    }
-//                }
-//            } else {
-//                if (DataHoje.converteDataParaInteger(DataHoje.converteData(ag.get(i).getDtData())) == DataHoje.converteDataParaInteger(DataHoje.converteData(DataHoje.dataHoje()))) {
-//                    isHabilitaAlteracao = false;
-//                }
-//            }
-//            if (DataHoje.converteDataParaInteger(DataHoje.converteData(DataHoje.dataHoje())) > DataHoje.converteDataParaInteger(DataHoje.converteData(ag.get(i).getDtData()))) {
-//                isHabilitaAlteracao = false;
-//            }
-//            dtObj = new DataObject(ag.get(i).getHorarios(), // ARG 0 HORA
-//                    ag.get(i).getPessoaEmpresa().getJuridica().getPessoa().getDocumento(), // ARG 1 CNPJ
-//                    ag.get(i).getPessoaEmpresa().getJuridica().getPessoa().getNome(), //ARG 2 NOME
-//                    homologador, //ARG 3 HOMOLOGADOR
-//                    ag.get(i).getContato(), // ARG 4 CONTATO
-//                    ag.get(i).getTelefone(), // ARG 5 TELEFONE
-//                    agendador, // ARG 6 USUARIO
-//                    ag.get(i).getPessoaEmpresa(), // ARG 7 PESSOA EMPRESA
-//                    null, // ARG 8
-//                    ag.get(i), // ARG 9 AGENDAMENTO
-//                    senha.getId() == -1 ? null : senha.getSenha(), // ARG 10 SENHA PARA ATENDIMENTO
-//                    null,
-//                    null,
-//                    null,
-//                    null,
-//                    isHabilitaAlteracao // ARG 15 HABILITA ALTERAÇÃO DO STATUS
-//            );
-//
-//            listaGrid.add(dtObj);
-//        }
-//        return listaGrid;
-//    }
     public String agendar(Agendamento a) {
         HomologacaoDao db = new HomologacaoDao();
         Dao dao = new Dao();
@@ -935,16 +835,17 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
             return;
         }
         // SALVAR FISICA -----------------------------------------------
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-        fisica.getPessoa().setTipoDocumento((TipoDocumento) sv.find("TipoDocumento", 1));
+        Dao dao = new Dao();
+        fisica.getPessoa().setTipoDocumento((TipoDocumento) dao.find(new TipoDocumento(), 1));
         if (!ValidaDocumentos.isValidoCPF(AnaliseString.extrairNumeros(fisica.getPessoa().getDocumento()))) {
             GenericaMensagem.error("Atenção", "Documento Inválido!");
             return;
         }
         FisicaDB fisicaDB = new FisicaDBToplink();
-        sv.abrirTransacao();
+        dao.openTransaction();
         if (fisica.getId() == -1) {
             if (!fisicaDB.pesquisaFisicaPorNomeNascRG(fisica.getPessoa().getNome(), fisica.getDtNascimento(), fisica.getRg()).isEmpty()) {
+                dao.rollback();
                 GenericaMensagem.error("Atenção", "Esta pessoa já esta cadastrada!");
                 return;
             }
@@ -953,17 +854,22 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
                 GenericaMensagem.error("Atenção", "Documento já existente!");
                 return;
             }
-            if (sv.inserirObjeto(fisica.getPessoa())) {
-                sv.inserirObjeto(fisica);
-            } else {
+            if (!dao.save(fisica.getPessoa())) {
                 GenericaMensagem.error("Atenção", "Erro ao Inserir pessoa!");
-                sv.desfazerTransacao();
+                dao.rollback();
                 return;
+            }
+            if (!dao.save(fisica)) {
+                GenericaMensagem.error("Atenção", "Erro ao Inserir pessoa física!");
+                dao.rollback();
+                return;
+
             }
         } else {
             listDocumento = fisicaDB.pesquisaFisicaPorDoc(fisica.getPessoa().getDocumento());
             for (Object listDocumento1 : listDocumento) {
                 if (!listDocumento.isEmpty() && ((Fisica) listDocumento1).getId() != fisica.getId()) {
+                    dao.rollback();
                     GenericaMensagem.error("Atenção", "Documento já existente!");
                     return;
                 }
@@ -972,21 +878,20 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
             if (!fisi.isEmpty()) {
                 for (Fisica fisi1 : fisi) {
                     if (fisi1.getId() != fisica.getId()) {
+                        dao.rollback();
                         GenericaMensagem.error("Atenção", "Esta pessoa já esta cadastrada!");
                         return;
                     }
                 }
             }
-            if (sv.alterarObjeto(fisica.getPessoa())) {
-                if (sv.alterarObjeto(fisica)) {
-                } else {
-                    GenericaMensagem.error("Atenção", "Erro ao alterar Física!");
-                    sv.desfazerTransacao();
-                    return;
-                }
-            } else {
-                GenericaMensagem.error("Atenção", "Erro ao alterar Pessoa!");
-                sv.desfazerTransacao();
+            if (!dao.update(fisica.getPessoa())) {
+                dao.rollback();
+                GenericaMensagem.error("Atenção", "Erro ao alterar pessoa!");
+                return;
+            }
+            if (!dao.update(fisica)) {
+                dao.rollback();
+                GenericaMensagem.error("Atenção", "Erro ao alterar Física!");
                 return;
             }
         }
@@ -997,12 +902,12 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
         } else {
             pessoaEmpresa.setFuncao(this.profissao);
         }
-        if (!sv.alterarObjeto(pessoaEmpresa)) {
+        if (!dao.update(pessoaEmpresa)) {
             GenericaMensagem.error("Atenção", "Erro ao alterar Pessoa Empresa!");
-            sv.desfazerTransacao();
+            dao.rollback();
             return;
         }
-        agendamento.setDemissao((Demissao) sv.find("Demissao", Integer.parseInt(((SelectItem) getListaDemissao().get(idMotivoDemissao)).getDescription())));
+        agendamento.setDemissao((Demissao) dao.find(new Demissao(), Integer.parseInt(((SelectItem) getListaDemissao().get(idMotivoDemissao)).getDescription())));
         agendamento.setPessoaEmpresa(pessoaEmpresa);
         HomologacaoDao homologacaoDB = new HomologacaoDao();
         int nrStatus = Integer.parseInt(((SelectItem) getListaStatus().get(idStatus)).getDescription());
@@ -1011,76 +916,94 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
                 Senha senha = homologacaoDB.pesquisaSenhaAgendamento(agendamento.getId());
                 senha.setMesa(0);
                 senha.setHoraChamada("");
-                if (!sv.alterarObjeto(senha)) {
+                if (!dao.update(senha)) {
                     GenericaMensagem.error("Atenção", "Erro ao atualizar Senha!");
                     return;
                 }
             }
         }
-        int intDataHoje = DataHoje.converteDataParaInteger(DataHoje.data());
-        int intDataRetroativa = DataHoje.converteDataParaInteger(registro.getAgendamentoRetroativoString());
-        if (nrStatus == 2 || nrStatus == 4) {
-            agendamento.setStatus((Status) sv.find("Status", nrStatus));
-        } else if (nrStatus == 7) {
-            agendamento.setStatus((Status) sv.find("Status", nrStatus));
-            agendamento.setHomologador(null);
-        } else if (nrStatus == 5) {
-            if (DataHoje.converteDataParaInteger(agendamento.getData()) == DataHoje.converteDataParaInteger(DataHoje.converteData(DataHoje.dataHoje()))) {
-                agendamento.setStatus((Status) sv.find("Status", 2));
+        switch (nrStatus) {
+            case 2:
+            case 4:
+                agendamento.setStatus((Status) dao.find(new Status(), nrStatus));
+                break;
+            case 7:
+                agendamento.setStatus((Status) dao.find(new Status(), nrStatus));
                 agendamento.setHomologador(null);
-            } else {
-                agendamento.setStatus((Status) sv.find("Status", 2));
-                agendamento.setHomologador(null);
-            }
+                break;
+            case 5:
+                if (DataHoje.converteDataParaInteger(agendamento.getData()) == DataHoje.converteDataParaInteger(DataHoje.converteData(DataHoje.dataHoje()))) {
+                    agendamento.setStatus((Status) dao.find(new Status(), 2));
+                    agendamento.setHomologador(null);
+                } else {
+                    agendamento.setStatus((Status) dao.find(new Status(), 2));
+                    agendamento.setHomologador(null);
+                }
+                break;
+            default:
+                break;
         }
-        if (sv.alterarObjeto(agendamento)) {
-            sv.comitarTransacao();
-            GenericaMensagem.info("Sucesso", "Registro atualizado!");
-            //limpar();
+        if (!dao.update(agendamento)) {
+            dao.rollback();
+            GenericaMensagem.warn("Erro", "AO ATUALIZAR AGENDAMENTO!");
+            return;
         }
+        dao.commit();
+        GenericaMensagem.info("Sucesso", "REGISTRO ATUALIZADO");
         loadListaHomologacao();
     }
 
     public void closeModal() {
         HomologacaoDao db = new HomologacaoDao();
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+        Dao dao = new Dao();
         int nrStatus = Integer.parseInt(((SelectItem) getListaStatus().get(idStatus)).getDescription());
-        sv.abrirTransacao();
+        dao.openTransaction();
         if (registro.isSenhaHomologacao()) {
             if (nrStatus != 4 && nrStatus != 7) {
                 Senha senha = db.pesquisaSenhaAgendamento(agendamento.getId());
-                senha.setMesa(0);
-                senha.setHoraChamada("");
-                if (!sv.alterarObjeto(senha)) {
-                    msgConfirma = "Erro ao atualizar Senha!";
-                    sv.desfazerTransacao();
-                    return;
+                if (senha.getId() != -1) {
+                    senha.setMesa(0);
+                    senha.setHoraChamada("");
+                    if (!dao.update(senha)) {
+                        msgConfirma = "Erro ao atualizar Senha!";
+                        GenericaMensagem.warn("Erro", "Erro ao atualizar Senha!");
+                        dao.rollback();
+                        return;
+                    }
                 }
             }
         }
-        if (nrStatus == 2 || nrStatus == 4) {
-            agendamento.setStatus((Status) sv.find("Status", nrStatus));
-        } else if (nrStatus == 7) {
-            agendamento.setStatus((Status) sv.find("Status", nrStatus));
-            agendamento.setHomologador(null);
-        } else if (nrStatus == 5) {
-            if (DataHoje.converteDataParaInteger(agendamento.getData()) == DataHoje.converteDataParaInteger(DataHoje.converteData(DataHoje.dataHoje()))) {
-                agendamento.setStatus((Status) sv.find("Status", 2));
+        switch (nrStatus) {
+            case 2:
+            case 4:
+                agendamento.setStatus((Status) dao.find(new Status(), nrStatus));
+                break;
+            case 7:
+                agendamento.setStatus((Status) dao.find(new Status(), nrStatus));
                 agendamento.setHomologador(null);
-            } else {
-                agendamento.setStatus((Status) sv.find("Status", 2));
-                agendamento.setHomologador(null);
-            }
+                break;
+            case 5:
+                if (DataHoje.converteDataParaInteger(agendamento.getData()) == DataHoje.converteDataParaInteger(DataHoje.converteData(DataHoje.dataHoje()))) {
+                    agendamento.setStatus((Status) dao.find(new Status(), 2));
+                    agendamento.setHomologador(null);
+                } else {
+                    agendamento.setStatus((Status) dao.find(new Status(), 2));
+                    agendamento.setHomologador(null);
+                }
+                break;
+            default:
+                break;
         }
 
-        if (sv.alterarObjeto(agendamento)) {
-            sv.comitarTransacao();
+        if (dao.update(agendamento)) {
+            dao.commit();
             msgConfirma = "Registro atualizado com Sucesso!";
+            GenericaMensagem.info("Sucesso", "Registro atualizado");
             limpar();
+            // WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());
         } else {
-            sv.desfazerTransacao();
+            dao.rollback();
         }
-        WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());
     }
 
     public void homologar() {
@@ -1175,7 +1098,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
         Dao dao2 = new Dao();
         dao2.update(senha, true);
         loadListaHomologacao();
-        WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());
+        // WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());
         WSSocket.send("senha_homologacao_" + ControleUsuarioBean.getCliente().toLowerCase());
         agendamento = new Agendamento();
         return null;
@@ -1194,8 +1117,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
     public String pesquisarFuncionarioCPF() {
         HomologacaoDao db = new HomologacaoDao();
         FisicaDB dbFis = new FisicaDBToplink();
-        SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
-        fisica.getPessoa().setTipoDocumento((TipoDocumento) salvarAcumuladoDB.find("TipoDocumento", 1));
+        fisica.getPessoa().setTipoDocumento((TipoDocumento) new Dao().find(new TipoDocumento(), 1));
         PessoaEmpresa pe = db.pesquisaPessoaEmpresaPertencente(fisica.getPessoa().getDocumento());
         if (pe.getId() != -1) {
             pessoaEmpresa = pe;

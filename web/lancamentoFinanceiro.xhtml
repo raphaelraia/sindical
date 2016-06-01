@@ -3,7 +3,8 @@
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:c="http://java.sun.com/jsp/jstl/core"
-                xmlns:p="http://primefaces.org/ui">
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:pe="http://primefaces.org/ui/extensions">
 
     <h:head>
         <title>Sindical - Lançamento Financeiro</title>
@@ -35,6 +36,7 @@
         <!-- INICIA DIV wrap e main -->
         <div id="wrapx">
             <div id="mainx">
+                <ui:include src="templates/templateAcessoFilial.xhtml"/>
                 <!-- INICIA DIV wrap e main -->  
                 <f:subview id="header">
                     <ui:include src="templates/templatePrime.xhtml"/>
@@ -82,7 +84,7 @@
 
                                     <p:column>
                                         <h:outputLabel value="Estou visualizando"/>
-                                        <p:commandLink value="#{lancamentoFinanceiroBean.strVisualizando}" onclick="PF('i_dlg_visualizar').show()" style="font-weight: bold; margin-left: 5px"/>
+                                        <p:commandLink value="#{lancamentoFinanceiroBean.strVisualizando}" onclick="PF('i_dlg_visualizar').show()" style="font-weight: bold; margin-left: 5px" update="i_visualizar_lancamentos"/>
                                     </p:column>
                                 </h:panelGrid>
                             </p:panel>
@@ -146,15 +148,17 @@
 
 
                             <p:dialog modal="true" widgetVar="i_dlg_visualizar" header="Mudar Lista de Lançamento" width="300" height="300">
-                                <h:panelGrid>
-                                    <p:commandLink value="VER TODOS OS LANÇAMENTOS" action="#{lancamentoFinanceiroBean.alterarListaLancamento(usuario)}" update=":form_lf:i_panel_search :form_lf:tbl" oncomplete="PF('i_dlg_visualizar').hide()" style="font-weight: bold; margin-bottom: 10px"/>
-                                </h:panelGrid>
+                                <h:panelGroup id="i_visualizar_lancamentos" layout="block">
+                                    <h:panelGrid>
+                                        <p:commandLink value="VER TODOS OS LANÇAMENTOS" action="#{lancamentoFinanceiroBean.alterarListaLancamento(usuario)}" update=":form_lf:i_panel_search :form_lf:tbl" oncomplete="PF('i_dlg_visualizar').hide()" style="font-weight: bold; margin-bottom: 10px"/>
+                                    </h:panelGrid>
 
-                                <h:panelGrid>
-                                    <p:dataList value="#{lancamentoFinanceiroBean.listaUsuarioLancamento}" var="usuario" type="definition"  style="height: 100px; border: 10px">
-                                        <p:commandLink value="#{usuario.pessoa.nome}" action="#{lancamentoFinanceiroBean.alterarListaLancamento(usuario)}" update=":form_lf:i_panel_search :form_lf:tbl" oncomplete="PF('i_dlg_visualizar').hide()"/><br /><br />
-                                    </p:dataList>  
-                                </h:panelGrid>
+                                    <h:panelGrid>
+                                        <p:dataList value="#{lancamentoFinanceiroBean.listaUsuarioLancamento}" var="usuario" type="definition"  style="height: 100px; border: 10px">
+                                            <p:commandLink value="#{segurancaUtilitariosBean.sessaoUsuario.id == usuario.id ? 'MEUS LANÇAMENTOS' : usuario.pessoa.nome}" action="#{lancamentoFinanceiroBean.alterarListaLancamento(usuario)}" update=":form_lf:i_panel_search :form_lf:tbl" oncomplete="PF('i_dlg_visualizar').hide()"/><br /><br />
+                                        </p:dataList>  
+                                    </h:panelGrid>
+                                </h:panelGroup>
                             </p:dialog>                            
 
                             <p:dialog id="i_dlg" widgetVar="i_dlg_novo" header="Lançamento" resizable="false" modal="true" width="950" height="500" minHeight="600" visible="#{lancamentoFinanceiroBean.modalVisivel}" responsive="true" draggable="false" closeOnEscape="true" maximizable="true">
@@ -216,8 +220,8 @@
                                         <p:column>
                                             <h:panelGrid>
                                                 <h:outputText value="Condição"/>
-                                                <p:selectOneMenu value="#{lancamentoFinanceiroBean.condicao}">
-                                                    <p:ajax event="change" update="@this" global="false"/>
+                                                <p:selectOneMenu value="#{lancamentoFinanceiroBean.condicao}" disabled="#{lancamentoFinanceiroBean.lote.id != -1 and not empty lancamentoFinanceiroBean.listaParcela}">
+                                                    <p:ajax event="change" update="@this i_vencimento" global="false" listener="#{lancamentoFinanceiroBean.loadVencimento}"/>
                                                     <f:selectItem itemValue="vista" itemLabel="A Vista"/>
                                                     <f:selectItem itemValue="prazo" itemLabel="A Prazo"/>
                                                 </p:selectOneMenu>                                                
@@ -297,14 +301,21 @@
                                     <p:panel header="Credor/Devedor">
                                         <h:panelGrid columns="3" id="i_panel_cadastro" >
                                             <p:column>
-                                                <p:selectOneMenu value="#{lancamentoFinanceiroBean.idTipoDocumento}" disabled="#{lancamentoFinanceiroBean.pessoa.id != -1}">
-                                                    <p:ajax event="change" listener="#{lancamentoFinanceiroBean.cancelarCadastro()}" update="i_panel_cadastro i_panel_pessoa" global="false"/>
-                                                    <f:selectItems value="#{lancamentoFinanceiroBean.listaTipoDocumento}" />
-                                                </p:selectOneMenu>
+                                                <h:panelGrid columns="2">
+                                                    <h:column>
+                                                        <p:commandButton action="#{chamadaPaginaBean.pesquisa('pesquisaPessoaFisica')}" icon="ui-icon-search" rendered="#{lancamentoFinanceiroBean.idTipoDocumento == 1 and lancamentoFinanceiroBean.pessoa.id == -1}"/>
+                                                        <p:commandButton action="#{chamadaPaginaBean.pesquisa('pesquisaPessoaJuridica')}" icon="ui-icon-search" rendered="#{lancamentoFinanceiroBean.idTipoDocumento == 2 and lancamentoFinanceiroBean.pessoa.id == -1}"/>
+                                                        <p:commandButton action="#{chamadaPaginaBean.pesquisa('pesquisaPessoa')}" icon="ui-icon-search" rendered="#{lancamentoFinanceiroBean.idTipoDocumento == 4 and lancamentoFinanceiroBean.pessoa.id == -1}" />
+                                                    </h:column>
+                                                    <p:selectOneMenu value="#{lancamentoFinanceiroBean.idTipoDocumento}" disabled="#{lancamentoFinanceiroBean.pessoa.id != -1}">
+                                                        <p:ajax event="change" listener="#{lancamentoFinanceiroBean.cancelarCadastro()}" update="i_panel_cadastro i_panel_pessoa" global="false"/>
+                                                        <f:selectItems value="#{lancamentoFinanceiroBean.listaTipoDocumento}" />
+                                                    </p:selectOneMenu>
+                                                </h:panelGrid>
                                             </p:column>
 
                                             <p:column>
-                                                <p:inputMask id="i_documento" value="#{lancamentoFinanceiroBean.descricao}" size="20" mask="#{lancamentoFinanceiroBean.mascara}" disabled="#{lancamentoFinanceiroBean.idTipoDocumento == 2}" readonly="#{lancamentoFinanceiroBean.pessoa.id != -1}" styleClass="text-center">
+                                                <p:inputMask id="i_documento" value="#{lancamentoFinanceiroBean.descricao}" size="20" mask="#{lancamentoFinanceiroBean.mascara}" readonly="#{lancamentoFinanceiroBean.pessoa.id != -1}" styleClass="text-center" disabled="#{lancamentoFinanceiroBean.idTipoDocumento == 4}" >
                                                     <p:ajax event="change" listener="#{lancamentoFinanceiroBean.pesquisarPessoa()}" update="i_panel_pessoa i_panel_cadastro" />
                                                 </p:inputMask>
 
@@ -313,7 +324,7 @@
 
                                             <p:column>
                                                 <p:commandLink value="Não encontrou na pesquisa? Cadastre uma nova pessoa aqui" style="margin-left: 20px" rendered="#{lancamentoFinanceiroBean.pessoa.id == -1}">
-                                                    <p:ajax event="click" listener="#{lancamentoFinanceiroBean.cadastrarPessoa('')}" update="i_panel_pessoa i_msg i_dlg" />
+                                                    <p:ajax event="click" listener="#{lancamentoFinanceiroBean.cadastrarPessoa('')}" update="i_panel_pessoa i_msg " />
                                                 </p:commandLink>
                                             </p:column>
                                         </h:panelGrid>
@@ -323,7 +334,7 @@
                                                     <h:outputText value="Nome:" style="font-weight: bold"/>
                                                     <h:outputText value="#{lancamentoFinanceiroBean.pessoa.nome}"/>
 
-                                                    <p:commandLink value="Limpar tudo e começar de Novo" action="#{lancamentoFinanceiroBean.limpar()}" update="form_lf" style="margin-left: 150px" oncomplete="PF('i_dlg_novo').show()"/>
+                                                    <p:commandLink value="Limpar tudo e começar de Novo" action="#{lancamentoFinanceiroBean.limpar()}" update="form_lf" style="margin-left: 150px" />
                                                 </h:panelGrid>
                                             </h:column>
 
@@ -372,7 +383,7 @@
                                             <h:outputLabel value="#{lancamentoFinanceiroBean.strConta}" style="font-weight: bold"/>
 
                                             <p:selectBooleanCheckbox value="#{lancamentoFinanceiroBean.chkImposto}" itemLabel="Imposto" onchange="">
-                                                <p:ajax event="change" update="i_dlg_conta i_para_conta" onsuccess="PF('i_dlg_conta').show()" listener="#{lancamentoFinanceiroBean.listaPlano5.clear()}"/>
+                                                <p:ajax event="change" update="i_dlg_conta i_para_conta i_vencimento" onsuccess="PF('i_dlg_conta').show()" listener="#{lancamentoFinanceiroBean.listaPlano5.clear()}"/>
                                             </p:selectBooleanCheckbox>
                                         </h:panelGrid>
                                     </f:facet>
@@ -397,9 +408,9 @@
                                         </p:column>
 
                                         <p:column>
-                                            <h:panelGrid>
+                                            <h:panelGrid id="i_vencimento">
                                                 <h:outputText value="Vencimento" style="font-weight: bold"/>
-                                                <p:inputMask value="#{lancamentoFinanceiroBean.vencimento}" mask="99/99/9999" size="8" converter="#{isDateString}" styleClass="text-center">
+                                                <p:inputMask value="#{lancamentoFinanceiroBean.vencimento}" mask="99/99/9999" size="8" converter="#{isDateString}" styleClass="text-center" readonly="#{lancamentoFinanceiroBean.condicao eq 'vista' and lancamentoFinanceiroBean.listaParcela.size() eq 1 and !lancamentoFinanceiroBean.chkImposto}">
                                                     <p:ajax event="change" update="@this" global="false"/>
                                                 </p:inputMask>
                                             </h:panelGrid>
@@ -542,6 +553,17 @@
                                                 <h:outputText value="Caixa" style="font-weight: bold"/><br />
                                                 <h:outputLabel value="#{parcela.caixa}" />
                                             </p:column>
+                                        </h:panelGrid>
+                                        <h:panelGrid columns="4" style="height: 40px" styleClass="sbb">
+                                            <p:column>
+                                                <h:outputText value="Tipo de Documento" style="font-weight: bold"/><br />
+                                                <h:outputLabel value="#{parcela.movimento.tipoDocumento.descricao}" />
+                                            </p:column>
+
+                                            <p:column>
+                                                <h:outputText value="Documento" style="font-weight: bold"/><br />
+                                                <h:outputLabel value="#{parcela.movimento.documento}" />
+                                            </p:column>                                            
                                         </h:panelGrid>
                                     </p:rowExpansion>
                                 </p:dataTable>

@@ -624,14 +624,13 @@ public class BaixaGeralBean implements Serializable {
 
     public void imprimirRecibo() {
         if (!listaMovimentos.isEmpty()) {
-            ImprimirRecibo ir = new ImprimirRecibo();
             Map map = new HashMap();
             if (!getObs().isEmpty()) {
                 map.put("obs", obs);
             } else {
                 map.put("obs", "");
             }
-            ir.recibo(listaMovimentos.get(0).getId(), map);
+            new ImprimirRecibo().recibo(listaMovimentos.get(0).getId(), map);
         }
     }
 

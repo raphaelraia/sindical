@@ -81,6 +81,7 @@
                                     <p:menuitem value="Tipo Serviço" action="#{relatorioMovimentoBean.porTipoServico()}" update="i_opcoes i_panel" style="#{relatorioMovimentoBean.chkTipoServico == true ? 'background: #dbeaeb; font-weight: bold' : ''}"/>  
                                     <p:menuitem value="Cidades Base" action="#{relatorioMovimentoBean.porCidadeBase()}" update="i_opcoes i_panel" style="#{relatorioMovimentoBean.chkCidadeBase == true ? 'background: #dbeaeb; font-weight: bold' : ''}"/>  
                                     <p:menuitem value="Data" action="#{relatorioMovimentoBean.porData()}" update="i_opcoes i_panel" style="#{relatorioMovimentoBean.chkData == true ? 'background: #dbeaeb; font-weight: bold' : ''}"/>  
+                                    <p:menuitem value="Valor Baixa" action="#{relatorioMovimentoBean.porFaixaValor()}" update="i_opcoes i_panel" style="#{relatorioMovimentoBean.chkFaixaValor == true ? 'background: #dbeaeb; font-weight: bold' : ''}"/>  
                                 </p:menu> 
 
                             </h:panelGrid>
@@ -92,6 +93,7 @@
                                                          !relatorioMovimentoBean.chkServicos and
                                                          !relatorioMovimentoBean.chkTipoServico and
                                                          !relatorioMovimentoBean.chkCidadeBase and
+                                                         !relatorioMovimentoBean.chkFaixaValor and
                                                          !relatorioMovimentoBean.chkData}">
                                     <h:outputLabel value="Listar todos Movimentos" style="font-size: 14pt!important"/>
                                 </h:panelGrid>
@@ -217,6 +219,19 @@
                                                 <h:outputText value="#{linha.uf}"/>
                                             </p:column>
                                         </p:dataTable>
+                                    </h:panelGrid>
+
+                                    <div class="clear"></div>
+                                    <h:panelGrid rendered="#{relatorioMovimentoBean.chkFaixaValor}">
+                                        <h:panelGrid columns="3">
+                                            <p:inputText value="#{relatorioMovimentoBean.valorBaixaInicial}" converter="#{toCurrency}">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputText>
+                                            <h:column>até</h:column>
+                                            <p:inputText value="#{relatorioMovimentoBean.valorBaixaFinal}" converter="#{toCurrency}">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputText>
+                                        </h:panelGrid>                                        
                                     </h:panelGrid>
                                 </h:panelGrid>
                             </h:panelGrid>

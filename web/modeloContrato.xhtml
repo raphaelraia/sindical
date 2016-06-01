@@ -14,7 +14,88 @@
             <ui:include src="templates/templatePrime.xhtml"/>
         </f:subview>
         <f:view>
-            <p:panel styleClass="wrapper no-border">                
+            <h:column rendered="false">
+
+                <table style="width: 100%">
+                    <tr>
+                        <td>
+                            <table>
+                                <tr>
+                                    <td style="text-align: center">_____________________________________</td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: center">CONTRATANTE</td>
+                                </tr>
+                                <tr>
+                                    <td><br /><br /><br /><br /><br /></td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: center">_____________________________________</td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: center">TESTEMUNHA</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <table>
+                                            <tr>
+                                                <td>NOME: </td>
+                                            </tr>
+                                            <tr>
+                                                <td>ENDEREÇO: </td>
+                                            </tr>
+                                            <tr>
+                                                <td>RG: </td>
+                                            </tr>
+                                            <tr>
+                                                <td>CPF: </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td>
+                            <table>
+                                <tr>
+                                    <td style="text-align: center">_____________________________________</td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: center">CONTRATADA</td>
+                                </tr>
+                                <tr>
+                                    <td><br /><br /><br /><br /><br /></td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: center">_____________________________________</td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: center">TESTEMUNHA</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <table>
+                                            <tr>
+                                                <td>NOME: </td>
+                                            </tr>
+                                            <tr>
+                                                <td>ENDEREÇO: </td>
+                                            </tr>
+                                            <tr>
+                                                <td>RG: </td>
+                                            </tr>
+                                            <tr>
+                                                <td>CPF: </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>                
+            </h:column>
+            <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                 <h:form id="form_contrato">                    
                     <c:set scope="request" var="object" value="${modeloContratoBean.matriculaContrato}"/>
                     <p:dialog  widgetVar="dgl_anexos" modal="true" width="400" height="300" header="Anexos" closable="true" closeOnEscape="true">
@@ -36,7 +117,8 @@
                             <p:outputLabel value="Título" />
                             <p:inputText value="#{modeloContratoBean.matriculaContrato.titulo}" size="50"/>
                         </h:panelGrid>
-                        <p:editor value="#{modeloContratoBean.matriculaContrato.descricao}" styleClass="margin-top-max" height="500"/>
+                        <p:editor value="#{modeloContratoBean.matriculaContrato.descricao}" styleClass="margin-top-max" height="1122" width="793" style="float: left"/>
+                        <div class="clear"></div>
                         <h:panelGrid columns="4" columnClasses="coluna1, coluna2" styleClass="margin-top-max">
                             <h:outputLabel value="Cadastro:" />
                             <h:outputLabel value="#{modeloContratoBean.matriculaContrato.dataCadastro} -" />
@@ -94,19 +176,31 @@
                         </h:panelGrid>
                     </p:panel>
                     <p:dialog widgetVar="dlg_save" header="Deseja salvar este registro?" resizable="false" width="400" modal="true">
-                        <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{modeloContratoBean.save()}" onclick="PF('dlg_save').hide();
-                                PF('dlg_message').show();" style="clear: both; float: left; margin-left: 10px;" update="id_mensagem  id_form_contrato"/> 
-                        <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_save').hide()" style="float: left;" icon="ui-icon-close"/>
+                        <f:facet name="footer">
+                            <h:panelGrid columns="2">
+                                <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{modeloContratoBean.save()}" onclick="PF('dlg_save').hide();
+                                        PF('dlg_message').show();" style="clear: both; float: left; margin-left: 10px;" update="id_mensagem  id_form_contrato"/> 
+                                <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_save').hide()" style="float: left;" icon="ui-icon-close"/>                            
+                            </h:panelGrid>                           
+                        </f:facet>
                     </p:dialog>
                     <p:dialog widgetVar="dlg_delete" header="Deseja excluir este registro?" resizable="false" width="400" modal="true">
-                        <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{modeloContratoBean.delete()}" onclick="PF('dlg_delete').hide();
-                                PF('dlg_message').show();" style="clear: both; float: left; margin-left: 10px;" update="id_mensagem id_form_contrato"/> 
-                        <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_delete').hide()" style="float: left;" icon="ui-icon-close"/>
+                        <f:facet name="footer">
+                            <h:panelGrid columns="2">
+                                <p:commandButton value="Confirmar" type="submit" styleClass="ui-confirmdialog-yes" action="#{modeloContratoBean.delete()}" onclick="PF('dlg_delete').hide();
+                                        PF('dlg_message').show();" style="clear: both; float: left; margin-left: 10px;" update="id_mensagem id_form_contrato"/> 
+                                <p:commandButton value="Cancelar"  type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_delete').hide()" style="float: left;" icon="ui-icon-close"/>
+                            </h:panelGrid>
+                        </f:facet>
                     </p:dialog>
                     <p:dialog widgetVar="dlg_message" header="Mensagem" resizable="false" width="400" modal="true" closable="true">
                         <p:outputLabel value="#{modeloContratoBean.mensagem}" id="id_mensagem" /> 
                         <div class="clear"></div>
-                        <p:commandButton value="OK" type="submit" styleClass="ui-confirmdialog-yes" onclick="PF('dlg_message').hide();"/>
+                        <f:facet name="footer">
+                            <h:panelGrid columns="2">
+                                <p:commandButton value="OK" type="submit" styleClass="ui-confirmdialog-yes" onclick="PF('dlg_message').hide();"/>
+                            </h:panelGrid>
+                        </f:facet>
                     </p:dialog>                     
                 </h:form>
                 <h:form id="form_modelo_upload" enctype="multipart/form-data" acceptcharset="UTF-8">
@@ -121,7 +215,7 @@
                                       fileUploadListener="#{uploadFilesBean.upload}"
                                       oncomplete="PF('dgl_upload').hide()" />
                     </p:dialog>
-                </h:form>                
+                </h:form>                                
             </p:panel>
         </f:view>
     </h:body>
