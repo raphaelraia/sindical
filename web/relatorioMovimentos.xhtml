@@ -6,17 +6,13 @@
                 xmlns:p="http://primefaces.org/ui">
 
     <h:head>
-        <title>Sindical - Relatório de Movimentos</title>
+        <title>Sindical - Relatório Movimentoss</title>
         <meta http-equiv="X-UA-Compatible" content="IE=9" />
         <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
         <style type="text/css">
             .ui-widget-content .ui-inputfield{ padding: 8px!important;} 
             .ui-button { padding: 3px!important; }            
         </style>
-
-        <script type="text/javascript">
-
-        </script>
     </h:head>
     <h:body>
         <!-- INICIA DIV wrap e main -->
@@ -27,283 +23,307 @@
                     <ui:include src="templates/templatePrime.xhtml"/>
                 </f:subview>
                 <f:view>
-                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
-                        <h:outputText value="Relatório de Movimentos" styleClass="fonteHeader" />
-                        <h:form id="formRelatorioMovimento">
-                            <p:panel styleClass="fundoCinza" style="clear: both">
-                                <h:panelGrid columns="4">
-                                    <p:column>
-                                        <h:outputLabel value="Tipo de Relatório" /><br />
-                                        <p:selectOneMenu value="#{relatorioMovimentoBean.idRelatorios}" style="width: 300px; margin-right: 15px">
-                                            <f:selectItems value="#{relatorioMovimentoBean.listaTipoRelatorio}"/>
-                                        </p:selectOneMenu>
-                                    </p:column>
-
-                                    <p:column>
-                                        <h:outputLabel value="Condição" /><br />
-                                        <p:selectOneMenu value="#{relatorioMovimentoBean.condicao}" style="padding-right: 20px; margin-right: 15px">
-                                            <f:selectItem itemValue="todos"            itemLabel="Todos"/>
-                                            <f:selectItem itemValue="ativos"           itemLabel="Ativos"/>
-                                            <f:selectItem itemValue="inativos"         itemLabel="Inativos"/>
-                                            <f:selectItem itemValue="naoContribuintes" itemLabel="Não Contribuintes"/>
-                                        </p:selectOneMenu>
-                                    </p:column>
-
-                                    <p:column>
-                                        <h:outputLabel value="Gerados Pela Caixa" /><br />
-                                        <p:selectOneMenu value="#{relatorioMovimentoBean.geradosPelaCaixa}" style="padding-right: 20px; margin-right: 15px">
-                                            <f:selectItem itemValue="sim"           itemLabel="Sim"/>
-                                            <f:selectItem itemValue="nao"           itemLabel="Não"/>
-                                            <f:selectItem itemValue="naoverificar"  itemLabel="Não Verificar"/>
-                                        </p:selectOneMenu>
-                                    </p:column>
-
-                                    <p:column>
-                                        <h:outputText value="Filtrar Por" /><br />
-                                        <p:selectOneMenu value="#{relatorioMovimentoBean.filtrar}" style="width: 140px">
-                                            <f:selectItem itemValue="todas"         itemLabel="Todas"/>
-                                            <f:selectItem itemValue="recebidas"     itemLabel="Recebidas"/>
-                                            <f:selectItem itemValue="naorecebidas"  itemLabel="Não Recebidas"/>
-                                            <f:selectItem itemValue="atrasadas"     itemLabel="Atrasadas"/>
-                                            <f:selectItem itemValue="atrasadas_quitadas"     itemLabel="Atrasadas Quitadas"/>
-                                        </p:selectOneMenu>
-                                    </p:column>
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}" footer="Tempo médio estimado: #{sisProcessoBean.tempoMedio()} ms">
+                        <h:outputScript name="tradutor_primefaces.js" library="js" />
+                        <h:form id="form_relatorio">            
+                            <p:growl id="id_messages_growl" showDetail="true" showSummary="true" />
+                            <h:outputText value="Relatório Movimentos" styleClass="fonteHeader" />
+                            <div class="clear"></div>
+                            <p:panel styleClass="fundoCinza">
+                                <h:panelGrid  cellpadding="4" columns="5" id="id_pg_relatorios">
+                                    <p:outputLabel value="Tipo de Relatório: " />
+                                    <p:selectOneMenu id="id_tipo_relatorio" value="#{relatorioMovimentoBean.idRelatorio}">
+                                        <p:ajax event="change" update="@this form_relatorio:i_panel_avancado id_pg_relatorios" global="false" listener="#{relatorioMovimentoBean.loadRelatorioOrdem}"/>
+                                        <f:selectItems value="#{relatorioMovimentoBean.listRelatorios}"/>
+                                    </p:selectOneMenu>
+                                    <p:outputLabel value="Ordenação: " rendered="#{not empty relatorioMovimentoBean.listRelatorioOrdem}"/>
+                                    <p:selectOneMenu value="#{relatorioMovimentoBean.idRelatorioOrdem}" rendered="#{not empty relatorioMovimentoBean.listRelatorioOrdem}">
+                                        <p:ajax event="change" update="@this"/>
+                                        <f:selectItems value="#{relatorioMovimentoBean.listRelatorioOrdem}"/>
+                                    </p:selectOneMenu>                            
                                 </h:panelGrid>
-                            </p:panel>
-                            <p:messages id="i_msg" showDetail="true" closable="true" autoUpdate="true" /> 
-                            <h:panelGrid id="i_opcoes" style="margin-top: 10px; float: left; width: 200px">
-                                <p:menu>  
-                                    <p:menuitem value="Empresa" action="#{relatorioMovimentoBean.porEmpresa()}" update="i_opcoes i_panel i_email_para_e i_email_para_c i_panel_b" style="#{relatorioMovimentoBean.chkEmpresa == true ? 'background: #dbeaeb; font-weight: bold' : ''}" />  
-                                    <p:menuitem value="Contabilidade" action="#{relatorioMovimentoBean.porContabilidade()}" update="i_opcoes i_panel i_email_para_c i_email_para_e i_panel_b" style="#{relatorioMovimentoBean.chkContabilidade == true ? 'background: #dbeaeb; font-weight: bold' : ''}"/>  
-                                    <p:menuitem value="Convenção" action="#{relatorioMovimentoBean.porConvencao()}" update="i_opcoes i_panel" style="#{relatorioMovimentoBean.chkConvencao == true ? 'background: #dbeaeb; font-weight: bold' : ''}"/>  
-                                    <p:menuitem value="- Cnae" action="#{relatorioMovimentoBean.porCnae}" update="i_opcoes i_panel" style="#{relatorioMovimentoBean.chkCnae == true ? 'background: #dbeaeb; font-weight: bold' : ''}; margin-left: 10px" rendered="#{relatorioMovimentoBean.chkConvencao}"/>
-                                    <p:menuitem value="Serviços" action="#{relatorioMovimentoBean.porServicos()}" update="i_opcoes i_panel" style="#{relatorioMovimentoBean.chkServicos == true ? 'background: #dbeaeb; font-weight: bold' : ''}"/>  
-                                    <p:menuitem value="Tipo Serviço" action="#{relatorioMovimentoBean.porTipoServico()}" update="i_opcoes i_panel" style="#{relatorioMovimentoBean.chkTipoServico == true ? 'background: #dbeaeb; font-weight: bold' : ''}"/>  
-                                    <p:menuitem value="Cidades Base" action="#{relatorioMovimentoBean.porCidadeBase()}" update="i_opcoes i_panel" style="#{relatorioMovimentoBean.chkCidadeBase == true ? 'background: #dbeaeb; font-weight: bold' : ''}"/>  
-                                    <p:menuitem value="Data" action="#{relatorioMovimentoBean.porData()}" update="i_opcoes i_panel" style="#{relatorioMovimentoBean.chkData == true ? 'background: #dbeaeb; font-weight: bold' : ''}"/>  
-                                    <p:menuitem value="Valor Baixa" action="#{relatorioMovimentoBean.porFaixaValor()}" update="i_opcoes i_panel" style="#{relatorioMovimentoBean.chkFaixaValor == true ? 'background: #dbeaeb; font-weight: bold' : ''}"/>  
-                                </p:menu> 
-
-                            </h:panelGrid>
-
-                            <h:panelGrid id="i_panel" style="margin-top: 10px; float: left; width: 800px">
-                                <h:panelGrid rendered="#{!relatorioMovimentoBean.chkEmpresa and 
-                                                         !relatorioMovimentoBean.chkContabilidade and 
-                                                         !relatorioMovimentoBean.chkConvencao and
-                                                         !relatorioMovimentoBean.chkServicos and
-                                                         !relatorioMovimentoBean.chkTipoServico and
-                                                         !relatorioMovimentoBean.chkCidadeBase and
-                                                         !relatorioMovimentoBean.chkFaixaValor and
-                                                         !relatorioMovimentoBean.chkData}">
-                                    <h:outputLabel value="Listar todos Movimentos" style="font-size: 14pt!important"/>
-                                </h:panelGrid>
-
-                                <h:panelGrid rendered="#{relatorioMovimentoBean.chkEmpresa}" columns="2" style="float: left">
+                                <h:panelGrid  columns="5" styleClass="margin-top-max">
                                     <p:column>
-                                        <p:commandButton value="Adicionar Empresa" action="#{chamadaPaginaBean.pesquisaPessoaJuridica()}" ajax="false" rendered="#{relatorioMovimentoBean.juridica.id == -1}"/>
-                                    </p:column>
-
-                                    <p:column>
-                                        <h:outputLabel value="#{relatorioMovimentoBean.juridica.pessoa.nome}" rendered="#{relatorioMovimentoBean.juridica.id != -1}" style="font-weight: bold; margin-right: 10px"/>
-                                        <h:outputLabel value="( Visualização e Envio de Email sempre relacionado a essa empresa )" rendered="#{relatorioMovimentoBean.juridica.id != -1}" style="font-size: 8pt!important; margin-right: 10px"/>
-                                        <p:commandButton icon="ui-icon-trash" action="#{relatorioMovimentoBean.removerJuridica()}" update="i_panel" rendered="#{relatorioMovimentoBean.juridica.id != -1}"/>
-                                    </p:column>
-                                </h:panelGrid>
-
-                                <h:panelGrid columns="3">
-                                    <p:column>
-                                        <h:panelGrid rendered="#{relatorioMovimentoBean.chkConvencao}" columns="2" style="float: left">
-                                            <p:selectOneMenu value="#{relatorioMovimentoBean.idConvencao}" style="padding-right: 20px; margin-right: 10px">
-                                                <p:ajax event="change" update="i_grupo tbl_cnae_convencaos" />
-                                                <f:selectItems value="#{relatorioMovimentoBean.listaConvencao}"/>
-                                            </p:selectOneMenu>
-
-                                            <p:selectOneMenu id="i_grupo" value="#{relatorioMovimentoBean.idGrupoCidade}" style="padding-right: 20px; margin-right: 10px">
-                                                <f:selectItems value="#{relatorioMovimentoBean.listaGrupoCidade}"/>
+                                        <h:panelGrid>
+                                            <h:outputLabel value="Condição" />
+                                            <p:selectOneMenu value="#{relatorioMovimentoBean.condicao}" style="width: 150px">
+                                                <f:selectItem itemValue="todos"            itemLabel="Todos"/>
+                                                <f:selectItem itemValue="ativos"           itemLabel="Ativos"/>
+                                                <f:selectItem itemValue="inativos"         itemLabel="Inativos"/>
+                                                <f:selectItem itemValue="naoContribuintes" itemLabel="Não Contribuintes"/>
                                             </p:selectOneMenu>
                                         </h:panelGrid>
-                                        <div class="clear"></div>
-                                        <p:panel header="Cnaes Convenção" styleClass="margin-top-max" rendered="#{relatorioMovimentoBean.chkCnae}">
-                                            <h:panelGrid columns="1" id="tbl_cnae_convencaos" style="height: 150px;">
-                                                <p:dataTable value="#{relatorioMovimentoBean.listaCnaeConvencaos}" var="cnaeConvencao" scrollHeight="150" scrollable="true" emptyMessage="Nenhum registro encontrado" selection="#{relatorioMovimentoBean.cnaeConvencaoSelecionado}" rowKey="#{cnaeConvencao.id}">
-                                                    <p:column selectionMode="multiple" width="20" styleClass="text-center" />
-                                                    <p:column headerText="Nº" width="80" styleClass="text-center">
-                                                        <p:outputLabel value="#{cnaeConvencao.cnae.numero}"/>
+                                    </p:column>
+
+                                    <p:column>
+                                        <h:panelGrid>
+                                            <h:outputLabel value="Gerados Pela Caixa" />
+                                            <p:selectOneMenu value="#{relatorioMovimentoBean.geradosCaixa}" style="width: 100px">
+                                                <f:selectItem itemValue="sim"           itemLabel="Sim"/>
+                                                <f:selectItem itemValue="nao"           itemLabel="Não"/>
+                                                <f:selectItem itemValue="naoverificar"  itemLabel="Não Verificar"/>
+                                            </p:selectOneMenu>
+                                        </h:panelGrid>
+                                    </p:column>
+
+                                    <p:column>
+                                        <h:panelGrid>
+                                            <h:outputText value="Filtrar Por" />
+                                            <p:selectOneMenu value="#{relatorioMovimentoBean.situacao}" style="width: 100px">
+                                                <f:selectItem itemValue="todas"         itemLabel="Todas"/>
+                                                <f:selectItem itemValue="recebidas"     itemLabel="Recebidas"/>
+                                                <f:selectItem itemValue="naorecebidas"  itemLabel="Não Recebidas"/>
+                                                <f:selectItem itemValue="atrasadas"     itemLabel="Atrasadas"/>
+                                                <f:selectItem itemValue="atrasadas_quitadas"     itemLabel="Atrasadas Quitadas"/>
+                                            </p:selectOneMenu>
+                                        </h:panelGrid>
+                                    </p:column>                                    
+                                </h:panelGrid>
+                            </p:panel>                  
+                            <h:panelGrid columns="2" id="id_panel" columnClasses="verticalAlignTop, verticalAlignTop" styleClass="margin-top-max">
+                                <h:column>
+                                    <p:panel header="Editar" style="width: 225px;" id="i_panel_avancado">
+                                        <h:panelGrid>
+                                            <c:forEach items="#{relatorioMovimentoBean.listFilters}" var="filter" varStatus="loop" id="i_foreach">                                            
+                                                <p:selectBooleanButton value="#{filter.active}" onLabel="#{filter.value}" offLabel="#{filter.value}" style="width: 200px; text-align: left" rendered="#{!filter.disabled}">
+                                                    <p:ajax event="change" update="@this form_relatorio:i_panel_avancado_2 :form_relatorio:i_btns" listener="#{relatorioMovimentoBean.load(relatorioMovimentoBean.listFilters[loop.index])}" />
+                                                </p:selectBooleanButton>
+                                            </c:forEach>                                
+                                        </h:panelGrid>
+                                    </p:panel>
+                                </h:column>
+                                <h:column>
+                                    <h:panelGrid id="i_panel_avancado_2" style="width: 800px">
+                                        <p:column>
+                                            <p:panel header="Empresa" style="width: 100%!important" rendered="#{relatorioMovimentoBean.listFilters[0].active}">
+                                                <h:panelGrid columns="8" cellpadding="5" id="i_empresa">
+                                                    <p:commandButton icon="ui-icon-search" value="Empresa" action="#{chamadaPaginaBean.pesquisa('pesquisaPessoaJuridica')}" ajax="false" rendered="#{relatorioMovimentoBean.empresa eq null}"/>
+                                                    <h:outputLabel value="#{relatorioMovimentoBean.empresa.pessoa.nome}" rendered="#{relatorioMovimentoBean.empresa ne null}" />
+                                                    <p:commandButton icon="ui-icon-trash" action="#{relatorioMovimentoBean.clear('empresa')}" update="i_empresa" rendered="#{relatorioMovimentoBean.empresa ne null}" title="Remover empresa"/>
+                                                    <p:commandButton icon="ui-icon-close" action="#{relatorioMovimentoBean.close(relatorioMovimentoBean.listFilters[0])}" title="Remover filtro" update="form_relatorio"/>
+                                                </h:panelGrid> 
+                                                <f:facet name="footer">
+                                                    <h:outputLabel value="( Visualização e Envio de Email sempre relacionado a essa empresa )" rendered="#{relatorioMovimentoBean.empresa ne null}"/>                                                    
+                                                </f:facet>
+                                            </p:panel>
+                                        </p:column>
+                                        <p:column>
+                                            <p:panel header="Contabilidade" style="width: 100%!important" rendered="#{relatorioMovimentoBean.listFilters[1].active}">
+                                                <h:panelGrid cellpadding="5" id="i_contabilidade">                                                    
+                                                    <p:column>
+                                                        <h:panelGrid columns="2">
+                                                            <h:column>
+                                                                <p:selectOneRadio value="#{relatorioMovimentoBean.radioContabilidade}">  
+                                                                    <f:selectItem itemValue="selecionado" itemLabel="Apenas os selecionados" />  
+                                                                    <f:selectItem itemValue="com" itemLabel="Com Contabilidade" />  
+                                                                    <f:selectItem itemValue="sem" itemLabel="Sem Contabilidade" />  
+                                                                </p:selectOneRadio>                                                                                                                            
+                                                            </h:column>
+                                                            <p:column>
+                                                                <p:commandButton icon="ui-icon-close" action="#{relatorioMovimentoBean.close(relatorioMovimentoBean.listFilters[1])}" title="Remover filtro" update="form_relatorio" styleClass="margin-left-max"/>
+                                                            </p:column>                                                            
+                                                        </h:panelGrid>
                                                     </p:column>
-                                                    <p:column headerText="Cnae">
-                                                        <p:outputLabel value="#{cnaeConvencao.cnae.cnae}"/>
+                                                    <p:column>
+                                                        <h:panelGrid columns="2">
+                                                            <p:inputText value="#{relatorioMovimentoBean.descricaoPesquisaContabilidade}" size="85" onkeypress="return event.keyCode !== 13;" placeholder="Digite sua pesquisa por CONTABILIDADE aqui ...">
+                                                                <p:ajax event="change" listener="#{relatorioMovimentoBean.findContabilidade}" global="false" update="i_contabilidade"/>
+                                                            </p:inputText>                                                        
+                                                            <p:commandButton icon="ui-icon-search" />
+                                                        </h:panelGrid>
+                                                    </p:column>
+                                                    <p:column>
+                                                        <p:dataTable id="tbl_contabil" value="#{relatorioMovimentoBean.listContabilidade}" var="contabilidade" selection="#{relatorioMovimentoBean.selectedContabilidade}" rowKey="#{contabilidade.id}" emptyMessage="Nenhuma Contabilidade foi encontrada!" paginator="true" rows="10">
+                                                            <p:column selectionMode="multiple" style="width: 20px" />  
+
+                                                            <p:column headerText="CNPJ" width="100">
+                                                                <h:outputText value="#{contabilidade.pessoa.documento}"/>
+                                                            </p:column>
+
+                                                            <p:column headerText="Nome">
+                                                                <h:outputText value="#{contabilidade.pessoa.nome}"/>
+                                                            </p:column>
+                                                        </p:dataTable>                                                        
+                                                    </p:column>
+                                                </h:panelGrid>                                        
+                                            </p:panel>
+                                        </p:column>
+                                        <p:column>
+                                            <p:panel header="Convenção" style="width: 100%!important" rendered="#{relatorioMovimentoBean.listFilters[2].active}" >
+                                                <h:panelGrid columns="4" id="i_convencao" cellspacing="8">
+                                                    <p:selectOneMenu value="#{relatorioMovimentoBean.idConvencao}">
+                                                        <p:ajax event="change" update="@this i_convencao i_cnaes" global="false" listener="#{relatorioMovimentoBean.loadListGrupoCidade}"/>
+                                                        <f:selectItems value="#{relatorioMovimentoBean.listConvencao}"/>
+                                                    </p:selectOneMenu>                                                    
+                                                    <p:outputLabel value="Grupo de Cidades: " />
+                                                    <p:selectCheckboxMenu label="Selecionar grupos" value="#{relatorioMovimentoBean.selectedGrupoCidade}" filter="true" filterMatchMode="startsWith">
+                                                        <p:ajax event="toggleSelect" global="false"/>
+                                                        <p:ajax event="change" global="false"/>
+                                                        <f:selectItems value="#{relatorioMovimentoBean.listGrupoCidade}" />
+                                                    </p:selectCheckboxMenu>
+                                                    <p:commandButton icon="ui-icon-close" action="#{relatorioMovimentoBean.close(relatorioMovimentoBean.listFilters[2])}" title="Remover filtro" update="form_relatorio" styleClass="margin-left-max"/>
+                                                </h:panelGrid>
+                                                <h:panelGrid styleClass="margin-top-max">
+                                                    <p:selectBooleanCheckbox value="#{relatorioMovimentoBean.cnae}" itemLabel="Cnaes">
+                                                        <p:ajax event="change" update="@this i_cnaes" listener="#{relatorioMovimentoBean.loadListCnaeConvencao}" />
+                                                    </p:selectBooleanCheckbox>                                                                                                        
+                                                </h:panelGrid>
+                                                <h:panelGroup id="i_cnaes" layout="block">
+                                                    <p:panel header="Cnaes Convenção" styleClass="margin-top-max" rendered="#{relatorioMovimentoBean.cnae}">
+                                                        <h:panelGrid columns="1" id="tbl_cnae_convencaos" style="height: 150px;">
+                                                            <p:dataTable value="#{relatorioMovimentoBean.listCnaeConvencao}" var="cnaeConvencao" scrollHeight="150" scrollable="true" emptyMessage="Nenhum registro encontrado" selection="#{relatorioMovimentoBean.selectedCnaeConvencao}" rowKey="#{cnaeConvencao.id}">
+                                                                <p:column selectionMode="multiple" width="20" styleClass="text-center" />
+                                                                <p:column headerText="Nº" width="80" styleClass="text-center">
+                                                                    <p:outputLabel value="#{cnaeConvencao.cnae.numero}"/>
+                                                                </p:column>
+                                                                <p:column headerText="Cnae">
+                                                                    <p:outputLabel value="#{cnaeConvencao.cnae.cnae}"/>
+                                                                </p:column>
+                                                            </p:dataTable>
+                                                        </h:panelGrid>
+                                                    </p:panel> 
+                                                </h:panelGroup>
+                                            </p:panel>
+                                        </p:column>                                                    
+                                        <p:column>
+                                            <p:panel header="Serviços" style="width: 100%!important" rendered="#{relatorioMovimentoBean.listFilters[3].active}" >
+                                                <h:panelGrid columns="4">
+                                                    <p:selectCheckboxMenu label="Selecionar serviços" value="#{relatorioMovimentoBean.selectedServicos}" filter="true" filterMatchMode="startsWith">
+                                                        <p:ajax event="toggleSelect" global="false"/>
+                                                        <p:ajax event="change" global="false"/>
+                                                        <f:selectItems value="#{relatorioMovimentoBean.listServicos}" />
+                                                    </p:selectCheckboxMenu>
+                                                    <p:commandButton icon="ui-icon-close" action="#{relatorioMovimentoBean.close(relatorioMovimentoBean.listFilters[3])}" title="Remover filtro" update="form_relatorio"/>
+                                                </h:panelGrid>                                        
+                                            </p:panel>
+                                        </p:column>                                        
+                                        <p:column>
+                                            <p:panel header="Tipo de Serviço" style="width: 100%!important" rendered="#{relatorioMovimentoBean.listFilters[4].active}" >
+                                                <h:panelGrid columns="4">
+                                                    <p:selectCheckboxMenu label="Selecionar tipos de serviço" value="#{relatorioMovimentoBean.selectedTipoServico}" filter="true" filterMatchMode="startsWith">
+                                                        <p:ajax event="toggleSelect" global="false"/>
+                                                        <p:ajax event="change" global="false"/>
+                                                        <f:selectItems value="#{relatorioMovimentoBean.listTipoServico}" />
+                                                    </p:selectCheckboxMenu>
+                                                    <p:commandButton icon="ui-icon-close" action="#{relatorioMovimentoBean.close(relatorioMovimentoBean.listFilters[4])}" title="Remover filtro" update="form_relatorio"/>
+                                                </h:panelGrid>                                        
+                                            </p:panel>
+                                        </p:column>                                        
+                                        <p:column>
+                                            <p:panel header="Cidades Base" style="width: 100%!important" rendered="#{relatorioMovimentoBean.listFilters[5].active}" >
+                                                <f:facet name="header">
+                                                    <p:commandButton icon="ui-icon-close" action="#{relatorioMovimentoBean.close(relatorioMovimentoBean.listFilters[5])}" title="Remover filtro" update="form_relatorio"/>
+                                                </f:facet>
+                                                <p:dataTable value="#{relatorioMovimentoBean.listCidadesBase}" var="cidadesBase" selection="#{relatorioMovimentoBean.selectedCidadesBase}" rowKey="#{cidadesBase.id}" emptyMessage="Nenhuma Cidade foi encontrada!" scrollable="true" scrollHeight="150">
+                                                    <p:column selectionMode="multiple" width="15"/>  
+                                                    <p:column headerText="Cidade" >
+                                                        <h:outputText value="#{cidadesBase.cidade}"/>
+                                                    </p:column>
+                                                    <p:column headerText="UF" width="15" >
+                                                        <h:outputText value="#{cidadesBase.uf}"/>
                                                     </p:column>
                                                 </p:dataTable>
-                                            </h:panelGrid>
-                                        </p:panel>                                        
-                                    </p:column>
-
-                                    <p:column>
-                                        <h:panelGrid rendered="#{relatorioMovimentoBean.chkServicos}" style="padding-right: 20px">
-                                            <p:selectOneMenu value="#{relatorioMovimentoBean.idServicos}">
-                                                <f:selectItems value="#{relatorioMovimentoBean.listaServicos}"/>
-                                            </p:selectOneMenu>
-                                        </h:panelGrid>
-                                    </p:column>
-
-                                    <p:column>
-                                        <h:panelGrid rendered="#{relatorioMovimentoBean.chkTipoServico}" style="padding-right: 20px">
-                                            <p:selectOneMenu value="#{relatorioMovimentoBean.idTipoServico}">
-                                                <f:selectItems value="#{relatorioMovimentoBean.listaTipoServico}"/>
-                                            </p:selectOneMenu>
-                                        </h:panelGrid>
-                                    </p:column>
-                                </h:panelGrid>
-
-                                <h:panelGrid rendered="#{relatorioMovimentoBean.chkData}" columns="2" style="float: left">
-                                    <p:column>
-                                        <h:outputLabel value="Data por" /><br />
-                                        <p:selectOneMenu value="#{relatorioMovimentoBean.tipoDataPesquisa}" style="padding-right: 20px; margin-right: 10px">
-                                            <p:ajax event="change" update="i_datas"/>
-                                            <f:selectItem itemValue="importacao"  itemLabel="Faixa de Importação"/>
-                                            <f:selectItem itemValue="recebimento" itemLabel="Faixa de Recebimento"/>
-                                            <f:selectItem itemValue="vencimento"  itemLabel="Faixa de Vencimento"/>
-                                            <f:selectItem itemValue="referencia"  itemLabel="Faixa de Referência"/>
-                                        </p:selectOneMenu>
-                                    </p:column>
-
-                                    <p:column>
-                                        <br />
-                                        <h:panelGrid id="i_datas" columns="3">
-                                            <p:inputMask value="#{relatorioMovimentoBean.dataInicial}" mask="99/99/9999" size="8" rendered="#{relatorioMovimentoBean.tipoDataPesquisa != 'referencia'}"/>
-                                            <p:inputMask value="#{relatorioMovimentoBean.dataRefInicial}" mask="99/9999" size="5" rendered="#{relatorioMovimentoBean.tipoDataPesquisa == 'referencia'}"/>
-                                            <h:outputLabel value="à" style="padding: 10px"/>
-                                            <p:inputMask value="#{relatorioMovimentoBean.dataFinal}" mask="99/99/9999" size="8" rendered="#{relatorioMovimentoBean.tipoDataPesquisa != 'referencia'}"/>
-                                            <p:inputMask value="#{relatorioMovimentoBean.dataRefFinal}" mask="99/9999" size="5" rendered="#{relatorioMovimentoBean.tipoDataPesquisa == 'referencia'}"/>
-                                        </h:panelGrid>
-                                    </p:column>
-                                </h:panelGrid>
-
-                                <h:panelGrid columns="2">
-                                    <h:panelGrid rendered="#{relatorioMovimentoBean.chkContabilidade}" style="height: 350px!important">
-                                        <p:inputText id="i_pesquisa_contabil" value="#{relatorioMovimentoBean.pesquisaContabil}" size="85" onkeypress="return event.keyCode !== 13;" placeholder="Digite sua pesquisa por CONTABILIDADE aqui ...">
-                                            <p:ajax event="change" listener="#{relatorioMovimentoBean.acaoPesquisaContabil}" global="false" update="tbl_contabil"/>
-                                        </p:inputText>
-
-                                        <p:selectOneRadio value="#{relatorioMovimentoBean.radioContabil}">  
-                                            <f:selectItem itemLabel="Apenas os selecionados"      itemValue="selecionado" />  
-                                            <f:selectItem itemLabel="Com Contabilidade" itemValue="com" />  
-                                            <f:selectItem itemLabel="Sem Contabilidade" itemValue="sem" />  
-                                        </p:selectOneRadio>  
-
-                                        <p:dataTable id="tbl_contabil" value="#{relatorioMovimentoBean.listaContabilidade}" var="linha" selection="#{relatorioMovimentoBean.listaContabilidadeSelecionada}" rowKey="#{linha.id}" emptyMessage="Nenhuma Contabilidade foi encontrada!" scrollable="true" scrollHeight="300">
-                                            <p:column selectionMode="multiple" style="width: 20px" />  
-
-                                            <p:column headerText="CNPJ">
-                                                <h:outputText value="#{linha.pessoa.documento}"/>
-                                            </p:column>
-
-                                            <p:column headerText="Nome" filterBy="#{linha.pessoa.nome}" filterMatchMode="global">
-                                                <h:outputText value="#{linha.pessoa.nome}"/>
-                                            </p:column>
-                                        </p:dataTable>
+                                            </p:panel>
+                                        </p:column>
+                                        <p:column>
+                                            <p:panel header="Data" style="width: 100%!important" rendered="#{relatorioMovimentoBean.listFilters[6].active}">
+                                                <h:panelGrid columns="8" cellpadding="5" id="i_data">
+                                                    <p:selectOneMenu label="Por" value="#{relatorioMovimentoBean.porData}" filter="true" filterMatchMode="startsWith">
+                                                        <p:ajax event="change" global="false" update="@this i_data"/>
+                                                        <f:selectItem itemValue="importacao"  itemLabel="Importação"/>
+                                                        <f:selectItem itemValue="recebimento" itemLabel="Recebimento"/>
+                                                        <f:selectItem itemValue="vencimento"  itemLabel="Vencimento"/>
+                                                        <f:selectItem itemValue="referencia"  itemLabel="Referência"/>
+                                                    </p:selectOneMenu>
+                                                    <p:selectOneMenu label="Meses" value="#{relatorioMovimentoBean.tipoData}" filter="true" filterMatchMode="startsWith">
+                                                        <p:ajax event="change" global="false" update="@this i_data"/>
+                                                        <f:selectItem itemValue="todos" itemLabel="todos" />
+                                                        <f:selectItem itemValue="igual" itemLabel="igual à" />
+                                                        <f:selectItem itemValue="apartir" itemLabel="a partir de" />
+                                                        <f:selectItem itemValue="ate" itemLabel="até" />
+                                                        <f:selectItem itemValue="faixa" itemLabel="por faixa" />
+                                                    </p:selectOneMenu>
+                                                    <p:inputMask value="#{relatorioMovimentoBean.dataInicial}" rendered="#{relatorioMovimentoBean.tipoData eq 'igual' or relatorioMovimentoBean.tipoData eq 'apartir' or relatorioMovimentoBean.tipoData eq 'ate' or relatorioMovimentoBean.tipoData eq 'faixa'}" size="10" mask="#{relatorioMovimentoBean.porData eq 'referencia' ? '99/9999' : '99/99/9999'}" converter="#{relatorioMovimentoBean.porData eq 'referencia' ?  isDateReference : isDateString}" styleClass="text-center">
+                                                        <p:ajax event="change" update="@this" />
+                                                    </p:inputMask>
+                                                    <p:outputLabel value="até" rendered="#{relatorioMovimentoBean.tipoData eq 'faixa'}"/>
+                                                    <p:inputMask value="#{relatorioMovimentoBean.dataFinal}" rendered="#{relatorioMovimentoBean.tipoData eq 'faixa'}" size="10" mask="#{relatorioMovimentoBean.porData eq 'referencia' ? '99/9999' : '99/99/9999'}" converter="#{relatorioMovimentoBean.porData eq 'referencia' ?  isDateReference : isDateString}" styleClass="text-center">
+                                                        <p:ajax event="change" update="@this" />
+                                                    </p:inputMask>
+                                                    <p:commandButton icon="ui-icon-close" action="#{relatorioMovimentoBean.close(relatorioMovimentoBean.listFilters[6])}" title="Remover filtro" update="form_relatorio"/>
+                                                </h:panelGrid>                                        
+                                            </p:panel>
+                                        </p:column>
+                                        <p:column>
+                                            <p:panel header="Valor Baixa" style="width: 100%!important" rendered="#{relatorioMovimentoBean.listFilters[7].active}" >
+                                                <h:panelGrid columns="4">
+                                                    <h:panelGrid columns="3">
+                                                        <p:inputText value="#{relatorioMovimentoBean.valorBaixaInicial}" converter="#{toCurrency}">
+                                                            <p:ajax event="change" update="@this" />
+                                                        </p:inputText>
+                                                        <h:column>até</h:column>
+                                                        <p:inputText value="#{relatorioMovimentoBean.valorBaixaFinal}" converter="#{toCurrency}">
+                                                            <p:ajax event="change" update="@this" />
+                                                        </p:inputText>
+                                                    </h:panelGrid> 
+                                                    <p:commandButton icon="ui-icon-close" action="#{relatorioMovimentoBean.close(relatorioMovimentoBean.listFilters[7])}" title="Remover filtro" update="form_relatorio"/>
+                                                </h:panelGrid>                                        
+                                            </p:panel>
+                                        </p:column>                                
                                     </h:panelGrid>
-
-                                    <div class="clear"></div>
-                                    <h:panelGrid rendered="#{relatorioMovimentoBean.chkCidadeBase}">
-                                        <br /><br /><br />
-                                        <h:outputLabel value="Cidades da Base" style="font-size: 12pt!important"/>
-                                        <p:dataTable id="tbl_cidade" value="#{relatorioMovimentoBean.listaCidadesBase}" var="linha" selection="#{relatorioMovimentoBean.listaCidadesBaseSelecionado}" rowKey="#{linha.id}" emptyMessage="Nenhuma Cidade foi encontrada!" scrollable="true" scrollHeight="300">
-                                            <p:column selectionMode="multiple" style="width: 20px" />  
-
-                                            <p:column headerText="Cidade" filterBy="#{linha.cidade}" filterMatchMode="global">
-                                                <h:outputText value="#{linha.cidade}"/>
-                                            </p:column>
-
-                                            <p:column headerText="UF" width="15"  filterBy="#{linha.uf}">
-                                                <h:outputText value="#{linha.uf}"/>
-                                            </p:column>
-                                        </p:dataTable>
-                                    </h:panelGrid>
-
-                                    <div class="clear"></div>
-                                    <h:panelGrid rendered="#{relatorioMovimentoBean.chkFaixaValor}">
-                                        <h:panelGrid columns="3">
-                                            <p:inputText value="#{relatorioMovimentoBean.valorBaixaInicial}" converter="#{toCurrency}">
-                                                <p:ajax event="change" update="@this" />
-                                            </p:inputText>
-                                            <h:column>até</h:column>
-                                            <p:inputText value="#{relatorioMovimentoBean.valorBaixaFinal}" converter="#{toCurrency}">
-                                                <p:ajax event="change" update="@this" />
-                                            </p:inputText>
-                                        </h:panelGrid>                                        
-                                    </h:panelGrid>
-                                </h:panelGrid>
+                                </h:column>
                             </h:panelGrid>
-
-                            <p:panel styleClass="fundoCinza" style="clear: both">
-                                <h:panelGrid id="i_panel_b" columns="4" style="width: 100%">
-                                    <p:column>
-                                        <h:outputLabel value="Ordem do Relatório" style="font-size: 12pt!important; margin-right: 20px"/>
-                                        <p:selectBooleanCheckbox value="#{relatorioMovimentoBean.chkOrdemEmpresa}" itemLabel="Ordenar por empresa também"/><br />
-
-                                        <p:selectOneRadio value="#{relatorioMovimentoBean.radioOrdem}">
-                                            <f:selectItem itemValue="vencimento" itemLabel="Vencimento"/>
-                                            <f:selectItem itemValue="quitacao"   itemLabel="Quitação"/>
-                                            <f:selectItem itemValue="importacao" itemLabel="Importação"/>
-                                            <f:selectItem itemValue="referencia" itemLabel="Referência"/>
-                                        </p:selectOneRadio>
-                                    </p:column>
-
-                                    <p:column>
-                                        <br />
-                                        <p:selectBooleanCheckbox value="#{relatorioMovimentoBean.totaliza}" itemLabel="Totaliza"/>
-                                    </p:column>
-
-                                    <p:column>
-                                        <br />
-                                        <p:commandButton ajax="false" value="Visualizar" action="#{relatorioMovimentoBean.visualizar()}" />
-                                    </p:column>
-
-                                    <p:column>
-                                        <br />
-                                        <p:commandButton value="Enviar Email" onclick="PF('i_dlg_email').show()" rendered="#{(relatorioMovimentoBean.chkEmpresa and relatorioMovimentoBean.juridica.id != -1) or relatorioMovimentoBean.chkContabilidade}"/>
-                                    </p:column>
-                                </h:panelGrid>
-                                <h:panelGrid id="i_acoes">
-                                    <p:selectBooleanCheckbox itemLabel="Exportar Excel" value="#{jasperBean.EXPORT_TO}">
-                                        <p:ajax event="change" update="@this i_acoes" />
-                                    </p:selectBooleanCheckbox>
-                                    <p:selectOneMenu value="#{jasperBean.EXPORT_TYPE}" rendered="#{jasperBean.EXPORT_TO}">
+                            <p:panel styleClass="fundoCinza margin-top-max">
+                                <h:panelGrid columns="5" id="i_btns" cellpadding="3">
+                                    <h:column>
+                                        <h:panelGrid columns="2">
+                                            <p:commandButton value="Imprimir" icon="ui-icon-print" title="Imprimir" action="#{relatorioMovimentoBean.print()}" ajax="false" update="id_messages_growl" disabled="#{empty relatorioMovimentoBean.listRelatorios}"/>
+                                        </h:panelGrid>
+                                    </h:column>
+                                    <p:selectBooleanCheckbox itemLabel="Cabeçalho" value="#{jasperBean.IS_HEADER}">
                                         <p:ajax event="change" update="@this" />
-                                        <f:selectItems value="#{jasperBean.listTypes('pdf')}" />
-                                        <f:selectItems value="#{jasperBean.listTypes('xls')}" />
-                                    </p:selectOneMenu>                                    
-                                </h:panelGrid>
+                                    </p:selectBooleanCheckbox>
+                                    <h:column>
+                                        <h:panelGrid columns="2">
+                                            <p:outputLabel value="Exportar para " />
+                                            <p:selectOneMenu label="Meses" value="#{jasperBean.EXPORT_TYPE}">
+                                                <p:ajax event="change" global="false" update="@this"/>
+                                                <f:selectItem itemValue="pdf" itemLabel="PDF" />
+                                                <f:selectItem itemValue="xls" itemLabel="Excel" />
+                                            </p:selectOneMenu>
+                                        </h:panelGrid>
+                                    </h:column>
+                                    <h:column>
+                                        <p:selectBooleanCheckbox value="#{relatorioMovimentoBean.totaliza}" itemLabel="Totaliza"/>
+                                    </h:column>
+                                    <h:column>
+                                        <p:commandButton value="Enviar Email" onclick="PF('i_dlg_email').show()" rendered="#{relatorioMovimentoBean.empresa ne null or relatorioMovimentoBean.listFilters[2].active}"/>
+                                    </h:column>
+                                </h:panelGrid>                        
                             </p:panel>
-
                             <p:dialog widgetVar="i_dlg_email" header="Envio de Email" resizable="false" modal="true">
-
                                 <h:panelGrid id="i_email_para_e" style="width: 100%" columns="1">
                                     <p:column>
-                                        <h:outputText value="Confirma envio de Email para " rendered="#{relatorioMovimentoBean.chkEmpresa and relatorioMovimentoBean.juridica.id != -1}"/>
-                                        <h:outputText value="#{relatorioMovimentoBean.juridica.pessoa.nome}" style="font-weight: bold" rendered="#{relatorioMovimentoBean.chkEmpresa and relatorioMovimentoBean.juridica.id != -1}"/>
+                                        <h:outputText value="Confirma envio de Email para " rendered="#{relatorioMovimentoBean.empresa ne null}"/>
+                                        <h:outputText value="#{relatorioMovimentoBean.empresa.pessoa.nome}" style="font-weight: bold" rendered="#{relatorioMovimentoBean.empresa ne null}"/>
                                     </p:column>
                                 </h:panelGrid>
                                 <br />
                                 <h:panelGrid id="i_email_para_c" style="width: 100%" columns="1">
                                     <p:column>
-                                        <h:outputText value="Confirma envio de Email para " rendered="#{relatorioMovimentoBean.chkContabilidade}"/>
-                                        <h:outputText value="Contabilidades Selecionadas?" style="font-weight: bold" rendered="#{relatorioMovimentoBean.chkContabilidade}"/>
+                                        <h:outputText value="Confirma envio de Email para " rendered="#{relatorioMovimentoBean.listFilters[1].active}"/>
+                                        <h:outputText value="Contabilidades Selecionadas?" style="font-weight: bold" rendered="#{relatorioMovimentoBean.listFilters[1].active}"/>
                                     </p:column>
                                 </h:panelGrid>
                                 <br />    
-                                <h:panelGrid columns="2">
-                                    <p:commandButton value="Enviar"   type="submit" styleClass="ui-confirmdialog-yes" action="#{relatorioMovimentoBean.enviarEmail()}" update="formRelatorioMovimento" onclick="PF('i_dlg_email').hide()" style="clear: both; float: left" icon="ui-icon-check"/>  
-                                    <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_email').hide()" style="float: left" icon="ui-icon-close"/>       
-                                </h:panelGrid>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Enviar"   type="submit" styleClass="ui-confirmdialog-yes" action="#{relatorioMovimentoBean.enviarEmail}" update="form_relatorio" onclick="PF('i_dlg_email').hide()" icon="ui-icon-check"/>
+                                        <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_email').hide()" icon="ui-icon-close"/>       
+                                    </h:panelGrid>                                    
+                                </f:facet>
                             </p:dialog>
-                        </h:form>
-
-                        <p:ajaxStatus id="i_status" onstart="PF('i_dlg_modal').show();" onsuccess="PF('i_dlg_modal').hide();" />
-                        <p:dialog modal="true" widgetVar="i_dlg_modal" header="Status" draggable="false" closable="false">  
-                            <h:outputLabel value="Aguarde ..." />
-                        </p:dialog>
+                        </h:form>               
                     </p:panel>
                 </f:view>
                 <!-- FINALIZA div wrap main -->

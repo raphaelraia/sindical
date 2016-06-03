@@ -2,8 +2,7 @@ package br.com.rtools.financeiro.beans;
 
 import br.com.rtools.arrecadacao.DescontoEmpregado;
 import br.com.rtools.arrecadacao.FolhaEmpresa;
-import br.com.rtools.arrecadacao.db.DescontoEmpregadoDB;
-import br.com.rtools.arrecadacao.db.DescontoEmpregadoDBToplink;
+import br.com.rtools.arrecadacao.dao.DescontoEmpregadoDao;
 import br.com.rtools.arrecadacao.db.FolhaEmpresaDB;
 import br.com.rtools.arrecadacao.db.FolhaEmpresaDBToplink;
 import br.com.rtools.financeiro.Boleto;
@@ -51,7 +50,7 @@ public abstract class MovimentoValorBean {
         Object[] valorFloat = movDB.pesquisaValorFolha(idServico, idTipo, ref, idPessoa);
         this.idTipoServico = idTipo;
         FolhaEmpresa folha = null;
-        DescontoEmpregadoDB desDB = new DescontoEmpregadoDBToplink();
+        DescontoEmpregadoDao desDB = new DescontoEmpregadoDao();
         DescontoEmpregado desEmpregado = desDB.pesquisaEntreReferencias(
                 ref,
                 idServico,
@@ -85,7 +84,7 @@ public abstract class MovimentoValorBean {
             return false;
         }
         this.movimento = movimento;
-        DescontoEmpregadoDB desDB = new DescontoEmpregadoDBToplink();
+        DescontoEmpregadoDao desDB = new DescontoEmpregadoDao();
         descontoEmpregado = desDB.pesquisaEntreReferencias(
                 movimento.getReferencia(),
                 movimento.getServicos().getId(),

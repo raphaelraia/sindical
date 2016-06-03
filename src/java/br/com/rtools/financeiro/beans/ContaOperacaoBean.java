@@ -235,17 +235,10 @@ public class ContaOperacaoBean implements Serializable {
         Dao dao = new Dao();
         ContaOperacao cc = new ContaOperacao();
         Operacao o = (Operacao) dao.find(new Operacao(), Integer.parseInt(getListOperacoes().get(index[0]).getDescription()));
-        if (o.getId() == 1 || o.getId() == 2) {
-            if (getListCentroCusto().isEmpty()) {
-                GenericaMensagem.warn("Validação", "Cadastrar Centro de Custo Contábil");
-                PF.update("form_co:i_message_co_todos");
-                return;
-            }
-            if (getListFilial().isEmpty()) {
-                GenericaMensagem.warn("Validação", "Cadastrar Centro de Custo Contábil Sub");
-                PF.update("form_co:i_message_co_todos");
-                return;
-            }
+        if (getListFilial().isEmpty()) {
+            GenericaMensagem.warn("Validação", "Cadastrar Filial");
+            PF.update("form_co:i_message_co_todos");
+            return;
         }
         CentroCusto centroCusto = null;
         Filial f = (Filial) dao.find(new Filial(), Integer.parseInt(getListFilial().get(index[2]).getDescription()));

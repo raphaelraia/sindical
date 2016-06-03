@@ -1,5 +1,6 @@
 package br.com.rtools.arrecadacao.beans;
 
+import br.com.rtools.arrecadacao.dao.DescontoEmpregadoDao;
 import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.DescontoEmpregado;
 import br.com.rtools.arrecadacao.GrupoCidade;
@@ -8,11 +9,10 @@ import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.db.ServicosDB;
 import br.com.rtools.financeiro.db.ServicosDBToplink;
 import br.com.rtools.logSistema.NovoLog;
+import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.Moeda;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,9 +31,9 @@ public class DescontoEmpregadoBean implements Serializable {
     private String msgConfirma = "";
     private String percentual = "0.0";
     private String valor = "0";
-    private List<SelectItem> listaServicos = new ArrayList<SelectItem>();
-    private List<SelectItem> listaGrupoCidade = new ArrayList<SelectItem>();
-    private List<SelectItem> listaConvencao = new ArrayList<SelectItem>();
+    private List<SelectItem> listaServicos = new ArrayList<>();
+    private List<SelectItem> listaGrupoCidade = new ArrayList<>();
+    private List<SelectItem> listaConvencao = new ArrayList<>();
     private List<DescontoEmpregado> listaDescontoEmpregado = new ArrayList();
     private int idIndex = -1;
     private boolean limpar = false;
@@ -91,16 +91,12 @@ public class DescontoEmpregadoBean implements Serializable {
     }
 
     public String salvar() {
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-        DescontoEmpregadoDB db = new DescontoEmpregadoDBToplink();
-        Servicos servicos = new Servicos();
-        GrupoCidade grupoCidade = new GrupoCidade();
-        Convencao convencao = new Convencao();
+        Dao dao = new Dao();
         NovoLog log = new NovoLog();
-        sv.abrirTransacao();
-        servicos = (Servicos) sv.pesquisaCodigo(Integer.parseInt(listaServicos.get(idServicos).getDescription()), "Servicos");
-        grupoCidade = (GrupoCidade) sv.pesquisaCodigo(Integer.parseInt(listaGrupoCidade.get(idGrupoCidade).getDescription()), "GrupoCidade");
-        convencao = (Convencao) sv.pesquisaCodigo(Integer.parseInt(listaConvencao.get(idConvencao).getDescription()), "Convencao");
+        dao.openTransaction();
+        Servicos servicos = (Servicos) dao.find(new Servicos(), Integer.parseInt(listaServicos.get(idServicos).getDescription()));
+        GrupoCidade grupoCidade = (GrupoCidade) dao.find(new GrupoCidade(), Integer.parseInt(listaGrupoCidade.get(idGrupoCidade).getDescription()));
+        Convencao convencao = (Convencao) dao.find(new Convencao(), Integer.parseInt(listaConvencao.get(idConvencao).getDescription()));
         if (percentual.isEmpty()) {
             percentual = "0.0";
         }
@@ -121,8 +117,8 @@ public class DescontoEmpregadoBean implements Serializable {
                 descontoEmpregado.setServicos(servicos);
                 descontoEmpregado.setGrupoCidade(grupoCidade);
                 descontoEmpregado.setConvencao(convencao);
-                if (sv.inserirObjeto(descontoEmpregado)) {
-                    sv.comitarTransacao();
+                if (dao.save(descontoEmpregado)) {
+                    dao.commit();
                     msgConfirma = "Desconto salvo com Sucesso!";
                     GenericaMensagem.info("Sucesso", msgConfirma);
                     log.save(
@@ -133,17 +129,17 @@ public class DescontoEmpregadoBean implements Serializable {
                             + " - Convencao: (" + descontoEmpregado.getConvencao().getId() + ") " + descontoEmpregado.getConvencao().getDescricao()
                     );
                 } else {
-                    sv.desfazerTransacao();
+                    dao.rollback();
                     msgConfirma = "Erro ao salvar Desconto!";
                     GenericaMensagem.warn("Erro", msgConfirma);
                 }
             } else {
-                sv.desfazerTransacao();
+                dao.rollback();
                 msgConfirma = "Referência incorreta!";
                 GenericaMensagem.warn("Erro", msgConfirma);
             }
         } else {
-            DescontoEmpregado d = (DescontoEmpregado) sv.pesquisaCodigo(descontoEmpregado.getId(), "DescontoEmpregado");
+            DescontoEmpregado d = (DescontoEmpregado) dao.find(new DescontoEmpregado(), descontoEmpregado.getId());
             String beforeUpdate
                     = "ID: " + d.getId()
                     + " - Servico: (" + d.getServicos().getId() + ") " + d.getServicos().getDescricao()
@@ -153,8 +149,8 @@ public class DescontoEmpregadoBean implements Serializable {
             descontoEmpregado.setServicos(servicos);
             descontoEmpregado.setGrupoCidade(grupoCidade);
             descontoEmpregado.setConvencao(convencao);
-            if (sv.alterarObjeto(descontoEmpregado)) {
-                sv.comitarTransacao();
+            if (dao.update(descontoEmpregado)) {
+                dao.commit();
                 msgConfirma = "Desconto atualizado com Sucesso!";
                 GenericaMensagem.info("Sucesso", msgConfirma);
                 log.update(beforeUpdate,
@@ -165,7 +161,7 @@ public class DescontoEmpregadoBean implements Serializable {
                         + " - Convencao: (" + descontoEmpregado.getConvencao().getId() + ") " + descontoEmpregado.getConvencao().getDescricao()
                 );
             } else {
-                sv.desfazerTransacao();
+                dao.rollback();
             }
         }
         return null;
@@ -173,10 +169,9 @@ public class DescontoEmpregadoBean implements Serializable {
 
     public String btnExcluir(DescontoEmpregado de) {
         NovoLog log = new NovoLog();
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-        sv.abrirTransacao();
-        descontoEmpregado = (DescontoEmpregado) sv.pesquisaCodigo(de.getId(), "DescontoEmpregado");
-        if (sv.deletarObjeto(descontoEmpregado)) {
+        Dao dao = new Dao();
+        dao.openTransaction();
+        if (dao.delete(descontoEmpregado)) {
             limpar = true;
             msgConfirma = "Desconto Excluido com Sucesso!";
             GenericaMensagem.info("Sucesso", msgConfirma);
@@ -187,11 +182,11 @@ public class DescontoEmpregadoBean implements Serializable {
                     + " - Grupo Cidade: (" + descontoEmpregado.getGrupoCidade().getId() + ") " + descontoEmpregado.getGrupoCidade().getDescricao()
                     + " - Convencao: (" + descontoEmpregado.getConvencao().getId() + ") " + descontoEmpregado.getConvencao().getDescricao()
             );
-            sv.comitarTransacao();
+            dao.commit();
         } else {
             msgConfirma = "Desconto não pode ser Excluido!";
             GenericaMensagem.warn("Erro", msgConfirma);
-            sv.desfazerTransacao();
+            dao.rollback();
         }
         return null;
     }
@@ -199,9 +194,8 @@ public class DescontoEmpregadoBean implements Serializable {
     public String editar(DescontoEmpregado de) {
         descontoEmpregado = de;//(DescontoEmpregado) listaDescontoEmpregado.get(idIndex);
         if (descontoEmpregado != null) {
-            int i = 0;
             if (descontoEmpregado.getServicos().getId() != -1) {
-                for (i = 0; i < listaServicos.size(); i++) {
+                for (int i = 0; i < listaServicos.size(); i++) {
                     if (Integer.parseInt(listaServicos.get(i).getDescription()) == descontoEmpregado.getServicos().getId()) {
                         setIdServicos(i);
                         break;
@@ -209,7 +203,7 @@ public class DescontoEmpregadoBean implements Serializable {
                 }
             }
             if (descontoEmpregado.getGrupoCidade().getId() != -1) {
-                for (i = 0; i < listaGrupoCidade.size(); i++) {
+                for (int i = 0; i < listaGrupoCidade.size(); i++) {
                     if (Integer.parseInt(listaGrupoCidade.get(i).getDescription()) == descontoEmpregado.getGrupoCidade().getId()) {
                         setIdGrupoCidade(i);
                         break;
@@ -217,7 +211,7 @@ public class DescontoEmpregadoBean implements Serializable {
                 }
             }
             if (descontoEmpregado.getConvencao().getId() != -1) {
-                for (i = 0; i < listaConvencao.size(); i++) {
+                for (int i = 0; i < listaConvencao.size(); i++) {
                     if (Integer.parseInt(listaConvencao.get(i).getDescription()) == descontoEmpregado.getConvencao().getId()) {
                         setIdConvencao(i);
                         break;
@@ -236,7 +230,7 @@ public class DescontoEmpregadoBean implements Serializable {
             ServicosDB db = new ServicosDBToplink();
             List select = db.pesquisaTodos(4);
             while (i < select.size()) {
-                listaServicos.add(new SelectItem(new Integer(i),
+                listaServicos.add(new SelectItem(i,
                         (String) ((Servicos) select.get(i)).getDescricao(),
                         Integer.toString(((Servicos) select.get(i)).getId())));
                 i++;
@@ -251,7 +245,7 @@ public class DescontoEmpregadoBean implements Serializable {
         ConvencaoCidadeDB db = new ConvencaoCidadeDBToplink();
         List select = db.pesquisarGruposPorConvencao(Integer.parseInt(getListaConvencao().get(idConvencao).getDescription()));
         while (i < select.size()) {
-            listaGrupoCidade.add(new SelectItem(new Integer(i),
+            listaGrupoCidade.add(new SelectItem(i,
                     (String) ((GrupoCidade) select.get(i)).getDescricao(),
                     Integer.toString(((GrupoCidade) select.get(i)).getId())));
             i++;
@@ -261,14 +255,11 @@ public class DescontoEmpregadoBean implements Serializable {
 
     public List<SelectItem> getListaConvencao() {
         if (listaConvencao.isEmpty()) {
-            int i = 0;
-            ConvencaoDB db = new ConvencaoDBToplink();
-            List select = db.pesquisaTodos();
-            while (i < select.size()) {
-                listaConvencao.add(new SelectItem(new Integer(i),
-                        (String) ((Convencao) select.get(i)).getDescricao(),
-                        Integer.toString(((Convencao) select.get(i)).getId())));
-                i++;
+            List<Convencao> list = new Dao().list(new Convencao(), true);
+            for (int i = 0; i < list.size(); i++) {
+                listaConvencao.add(new SelectItem(i,
+                        list.get(i).getDescricao(),
+                        Integer.toString(list.get(i).getId())));
             }
         }
 
@@ -276,7 +267,7 @@ public class DescontoEmpregadoBean implements Serializable {
     }
 
     public List<DescontoEmpregado> getListaDescontoEmpregado() {
-        DescontoEmpregadoDB db = new DescontoEmpregadoDBToplink();
+        DescontoEmpregadoDao db = new DescontoEmpregadoDao();
         listaDescontoEmpregado = db.pesquisaTodos();
         return listaDescontoEmpregado;
     }
