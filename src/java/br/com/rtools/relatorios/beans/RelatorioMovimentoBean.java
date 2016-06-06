@@ -232,7 +232,7 @@ public class RelatorioMovimentoBean implements Serializable {
                 dataInicial,
                 dataFinal,
                 (idConvencao != null ? Integer.toString(idConvencao) : null),
-                inIdCidadesBase(),
+                inIdGrupoCidade(),
                 inIdCidadesBase(),
                 inIdCnaeConvencao(),
                 valorBaixaInicial, // V.I.
@@ -624,6 +624,7 @@ public class RelatorioMovimentoBean implements Serializable {
                     listContabilidadePesquisa = new ArrayList();
                     descricaoPesquisaContabilidade = "";
                 } else {
+                    listContabilidadePesquisa = new ArrayList();
                     descricaoPesquisaContabilidade = "";
                     loadListContabilidade();
                 }
@@ -761,6 +762,9 @@ public class RelatorioMovimentoBean implements Serializable {
     }
 
     public void findContabilidade() {
+        if (listContabilidadePesquisa == null) {
+            listContabilidadePesquisa = new ArrayList();
+        }
         if (listContabilidadePesquisa.isEmpty()) {
             listContabilidadePesquisa.addAll(listContabilidade);
         }
@@ -853,6 +857,21 @@ public class RelatorioMovimentoBean implements Serializable {
                     ids += "" + selectedCnaeConvencao[i].getCnae().getId();
                 } else {
                     ids += ", " + selectedCnaeConvencao[i].getCnae().getId();
+                }
+            }
+        }
+        return ids;
+    }
+
+    public String inIdGrupoCidade() {
+        String ids = null;
+        if (selectedGrupoCidade != null) {
+            ids = "";
+            for (int i = 0; i < selectedGrupoCidade.size(); i++) {
+                if (i == 0) {
+                    ids = "" + selectedGrupoCidade.get(i);
+                } else {
+                    ids += "," + selectedGrupoCidade.get(i);
                 }
             }
         }
