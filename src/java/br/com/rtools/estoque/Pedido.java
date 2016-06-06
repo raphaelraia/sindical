@@ -3,6 +3,8 @@ package br.com.rtools.estoque;
 import br.com.rtools.financeiro.Lote;
 import br.com.rtools.utilitarios.Moeda;
 import java.io.Serializable;
+import java.math.MathContext;
+import java.text.DecimalFormat;
 import javax.persistence.*;
 
 @Entity
@@ -107,7 +109,18 @@ public class Pedido implements Serializable {
     }
 
     public String getValorUnitarioString() {
-        return Moeda.converteR$Float(valorUnitario);
+        try {
+            Float f = valorUnitario;
+            String[] splitter = f.toString().split("\\.");
+            if (splitter[1].length() == 1 || splitter[1].length() == 2) {
+                return Moeda.converteR$Float(valorUnitario);
+            } else {
+                return Moeda.converteR$Float(valorUnitario, 4);
+            }
+        } catch (Exception e) {
+
+        }
+        return "0,00";
     }
 
     public void setValorUnitarioString(String valorUnitarioString) {

@@ -2156,6 +2156,12 @@
             <redirect/>
         </navigation-case>
         
+        <navigation-case>
+            <from-outcome>relatorioMovimentoDiario</from-outcome>
+            <to-view-id>/relatorioMovimentoDiario.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
     </navigation-rule>
     
     <lifecycle>

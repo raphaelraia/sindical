@@ -1,0 +1,113 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>Relatório Movimento Diário</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+    </h:head>
+    <h:body class="divMenu">
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>            
+        </f:subview>
+        <f:view>
+            <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}" footer="Tempo médio estimado: #{sisProcessoBean.tempoMedio()} ms">
+                <h:outputScript name="tradutor_primefaces.js" library="js" />
+                <h:form id="form_relatorio">            
+                    <p:growl id="id_messages_growl" showDetail="true" showSummary="true" />
+                    <h:outputText value="Relatório Movimento Diário" styleClass="fonteHeader" />
+                    <div class="clear"></div>
+                    <p:panel styleClass="fundoCinza">
+                        <h:panelGrid  cellpadding="4" columns="5" id="id_pg_relatorios">
+                            <p:outputLabel value="Tipo de Relatório: " />
+                            <p:selectOneMenu id="id_tipo_relatorio" value="#{relatorioMovimentoDiarioBean.idRelatorio}">
+                                <p:ajax event="change" update="@this id_panel form_relatorio:i_panel_avancado" global="false" listener="#{relatorioMovimentoDiarioBean.listener(1)}"/>
+                                <f:selectItems value="#{relatorioMovimentoDiarioBean.listRelatorios}"/>
+                            </p:selectOneMenu>
+                            <p:outputLabel value="Ordenação: " rendered="#{not empty relatorioMovimentoDiarioBean.listRelatorioOrdem}"/>
+                            <p:selectOneMenu value="#{relatorioMovimentoDiarioBean.idRelatorioOrdem}" rendered="#{not empty relatorioMovimentoDiarioBean.listRelatorioOrdem}">
+                                <p:ajax event="change" update="@this"/>
+                                <f:selectItems value="#{relatorioMovimentoDiarioBean.listRelatorioOrdem}"/>
+                            </p:selectOneMenu>                            
+                        </h:panelGrid>
+                    </p:panel>                  
+                    <h:panelGrid columns="2" id="id_panel" columnClasses="verticalAlignTop, verticalAlignTop" styleClass="margin-top-max">
+                        <h:column>
+                            <p:panel header="Editar" style="width: 225px;" id="i_panel_avancado">
+                                <h:panelGrid>
+                                    <c:forEach items="#{relatorioMovimentoDiarioBean.listFilters}" var="filter" varStatus="loop" id="i_foreach">                                            
+                                        <p:selectBooleanButton value="#{filter.active}" onLabel="#{filter.value}" offLabel="#{filter.value}" style="width: 200px; text-align: left" rendered="#{!filter.disabled}">
+                                            <p:ajax event="change" update="@this form_relatorio:i_panel_avancado_2" listener="#{relatorioMovimentoDiarioBean.load(relatorioMovimentoDiarioBean.listFilters[loop.index])}" />
+                                        </p:selectBooleanButton>
+                                    </c:forEach>                                
+                                </h:panelGrid>
+                            </p:panel>
+                        </h:column>
+                        <h:column>
+                            <h:panelGrid id="i_panel_avancado_2" style="width: 800px">
+                                <p:column>
+                                    <p:panel header="Caixa/banco" style="width: 100%!important" rendered="#{relatorioMovimentoDiarioBean.listFilters[0].active}" >
+                                        <h:panelGrid columns="4">
+                                            <p:selectCheckboxMenu label="Selecionar" value="#{relatorioMovimentoDiarioBean.selectedCaixaBanco}" filter="true" filterMatchMode="startsWith">
+                                                <p:ajax event="toggleSelect" global="false"/>
+                                                <p:ajax event="change" global="false"/>
+                                                <f:selectItems value="#{relatorioMovimentoDiarioBean.listCaixaBanco}" />
+                                            </p:selectCheckboxMenu>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioMovimentoDiarioBean.close(relatorioMovimentoDiarioBean.listFilters[0])}" title="Remover filtro" update="form_relatorio"/>
+                                        </h:panelGrid>                                        
+                                    </p:panel>
+                                </p:column>                                
+                                <p:column>
+                                    <p:panel header="Data" style="width: 100%!important" id="i_panel_v" rendered="#{relatorioMovimentoDiarioBean.listFilters[1].active}">
+                                        <h:panelGrid columns="8" cellpadding="5 ">
+                                            <p:selectOneMenu label="Meses" value="#{relatorioMovimentoDiarioBean.tipoData}" filter="true" filterMatchMode="startsWith">
+                                                <p:ajax event="change" global="false" update="@this i_panel_v"/>
+                                                <f:selectItem itemValue="todos" itemLabel="Todos" />
+                                                <f:selectItem itemValue="igual" itemLabel="Igual" />
+                                                <f:selectItem itemValue="apartir" itemLabel="A partir" />
+                                                <f:selectItem itemValue="ate" itemLabel="Até" />
+                                                <f:selectItem itemValue="faixa" itemLabel="Faixa" />
+                                            </p:selectOneMenu>
+                                            <p:inputMask value="#{relatorioMovimentoDiarioBean.dataInicial}" converter="#{isDateString}" rendered="#{relatorioMovimentoDiarioBean.tipoData eq 'igual' or relatorioMovimentoDiarioBean.tipoData eq 'apartir' or relatorioMovimentoDiarioBean.tipoData eq 'ate' or relatorioMovimentoDiarioBean.tipoData eq 'faixa'}" size="10" mask="99/99/9999">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputMask>
+                                            <p:outputLabel value="até" rendered="#{relatorioMovimentoDiarioBean.tipoData eq 'faixa'}"/>
+                                            <p:inputMask value="#{relatorioMovimentoDiarioBean.dataFinal}" converter="#{isDateString}" rendered="#{relatorioMovimentoDiarioBean.tipoData eq 'faixa'}" size="10" mask="99/99/9999">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputMask>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioMovimentoDiarioBean.close(relatorioMovimentoDiarioBean.listFilters[1])}" title="Remover filtro" update="form_relatorio"/>
+                                        </h:panelGrid>                                        
+                                    </p:panel>
+                                </p:column>                                                                                 
+                            </h:panelGrid>
+                        </h:column>
+                    </h:panelGrid>
+                    <p:panel styleClass="fundoCinza margin-top-max">
+                        <h:panelGrid columns="5" id="i_btns" cellpadding="3">
+                            <h:column>
+                                <h:panelGrid columns="2">
+                                    <p:commandButton value="Imprimir" icon="ui-icon-print" title="Imprimir" action="#{relatorioMovimentoDiarioBean.print()}" ajax="false" update="id_messages_growl" disabled="#{empty relatorioMovimentoDiarioBean.listRelatorios}"/>
+                                </h:panelGrid>
+                            </h:column>
+                            <p:selectBooleanCheckbox itemLabel="Cabeçalho" value="#{jasperBean.IS_HEADER}">
+                                <p:ajax event="change" update="@this" />
+                            </p:selectBooleanCheckbox>
+                            <h:column>
+                                <h:panelGrid columns="2">
+                                    <p:outputLabel value="Exportar para " />
+                                    <p:selectOneMenu label="Meses" value="#{jasperBean.EXPORT_TYPE}">
+                                        <p:ajax event="change" global="false" update="@this"/>
+                                        <f:selectItem itemValue="pdf" itemLabel="PDF" />
+                                        <f:selectItem itemValue="xls" itemLabel="Excel" />
+                                    </p:selectOneMenu>
+                                </h:panelGrid>
+                            </h:column>
+                        </h:panelGrid>                        
+                    </p:panel>                    
+                </h:form>               
+            </p:panel>
+        </f:view>
+    </h:body>
+</ui:composition>

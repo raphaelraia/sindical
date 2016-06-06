@@ -60,17 +60,42 @@ public final class Moeda {
 
     //Converte Campo Real para campo Dolar
     public static float converteUS$(String $dolar) {
-        if ($dolar == null || $dolar.isEmpty()) {
-            $dolar = "0,00";
-        }
-        if ($dolar.length() >= 3) {
-            String wponto = $dolar.substring($dolar.trim().length() - 3, $dolar.trim().length() - 2);
-            if (wponto.equals(",")) {
-                $dolar = $dolar.replace(".", "");
-                $dolar = $dolar.replace(",", ".");
+        return converteUS$($dolar, null);
+    }
+
+    public static float converteUS$(String $dolar, Integer decimal) {
+        try {
+            if ($dolar == null || $dolar.isEmpty()) {
+                $dolar = "0,00";
             }
+            if (decimal != null && decimal > 2) {
+                if ($dolar.length() >= 3) {
+                    String[] splitter = $dolar.split("\\.");
+                    if (splitter.length == 1) {
+                        splitter = $dolar.split("\\,");
+                    }
+                    String wponto = "";
+                    if (splitter[1].length() == 3) {
+                        wponto = $dolar.substring($dolar.trim().length() - 3, $dolar.trim().length() - 2);
+                    } else {
+                        wponto = $dolar.substring($dolar.trim().length() - 5, $dolar.trim().length() - 4);
+                    }
+                    if (wponto.equals(",")) {
+                        $dolar = $dolar.replace(".", "");
+                        $dolar = $dolar.replace(",", ".");
+                    }
+                }
+            } else if ($dolar.length() >= 3) {
+                String wponto = $dolar.substring($dolar.trim().length() - 3, $dolar.trim().length() - 2);
+                if (wponto.equals(",")) {
+                    $dolar = $dolar.replace(".", "");
+                    $dolar = $dolar.replace(",", ".");
+                }
+            }
+            return Float.parseFloat($dolar);
+        } catch (Exception e) {
+            return converteUS$($dolar, 4);
         }
-        return Float.parseFloat($dolar);
     }
 
     public static String converteR$(String $dolar) {
@@ -80,6 +105,33 @@ public final class Moeda {
         }
         $dolar = Moeda.substituiVirgula($dolar);
         if ($dolar.length() >= 3) {
+            String wponto = $dolar.substring($dolar.trim().length() - 3, $dolar.trim().length() - 2);
+            if (!wponto.equals(",")) {
+                $dolar = Moeda.mascaraDinheiro(Float.parseFloat($dolar), Moeda.DINHEIRO_REAL);
+            }
+        } else {
+            $dolar = Moeda.mascaraDinheiro(Float.parseFloat($dolar), Moeda.DINHEIRO_REAL);
+        }
+        return converteR$($dolar, 0);
+    }
+
+    public static String converteR$(String $dolar, Integer decimal) {
+        //$dolar = $dolar.replaceAll("[^0-9]", "");
+        if ($dolar == null || $dolar.isEmpty()) {
+            return "0,00";
+        }
+        $dolar = Moeda.substituiVirgula($dolar);
+        if (decimal != null && decimal > 2) {
+            DecimalFormat df = new DecimalFormat("###,###,##0.0000", REAL);
+            if ($dolar.length() >= 3) {
+                String wponto = $dolar.substring($dolar.trim().length() - 3, $dolar.trim().length() - 2);
+                if (!wponto.equals(",")) {
+                    $dolar = Moeda.mascaraDinheiro(Float.parseFloat($dolar), df);
+                }
+            } else {
+                $dolar = Moeda.mascaraDinheiro(Float.parseFloat($dolar), df);
+            }
+        } else if ($dolar.length() >= 3) {
             String wponto = $dolar.substring($dolar.trim().length() - 3, $dolar.trim().length() - 2);
             if (!wponto.equals(",")) {
                 $dolar = Moeda.mascaraDinheiro(Float.parseFloat($dolar), Moeda.DINHEIRO_REAL);
@@ -108,12 +160,26 @@ public final class Moeda {
     }
 
     public static String converteR$Float(float valor) {
+        return converteR$Float(valor, null);
+    }
+
+    public static String converteR$Float(float valor, Integer decimal) {
         String $dolar = Float.toString(valor);
         if ($dolar == null || $dolar.isEmpty()) {
             return "0,00";
         }
         $dolar = Moeda.substituiVirgula($dolar);
-        if ($dolar.length() >= 3) {
+        if (decimal != null && decimal > 2) {
+            DecimalFormat df = new DecimalFormat("###,###,##0.0000", REAL);
+            if ($dolar.length() >= 3) {
+                String wponto = $dolar.substring($dolar.trim().length() - 3, $dolar.trim().length() - 2);
+                if (!wponto.equals(",")) {
+                    $dolar = Moeda.mascaraDinheiro(Float.parseFloat($dolar), df);
+                }
+            } else {
+                $dolar = Moeda.mascaraDinheiro(Float.parseFloat($dolar), df);
+            }
+        } else if ($dolar.length() >= 3) {
             String wponto = $dolar.substring($dolar.trim().length() - 3, $dolar.trim().length() - 2);
             if (!wponto.equals(",")) {
                 $dolar = Moeda.mascaraDinheiro(Float.parseFloat($dolar), Moeda.DINHEIRO_REAL);
