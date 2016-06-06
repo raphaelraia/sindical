@@ -351,6 +351,10 @@ public class BaixaGeralBean implements Serializable {
 
                 ch.setVencimento(vencimento);
                 //lista.add(new DataObject(vencimento, valor, numero, tipoPagamento, ch, null));
+                if (plano5.getId() == -1) {
+                    GenericaMensagem.error("Erro", "Nenhum Plano5 Encontrado!");
+                    return;
+                }
                 listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, ch, plano5, null, Moeda.converteR$Float(valorDigitado)));
             }
 
@@ -369,12 +373,14 @@ public class BaixaGeralBean implements Serializable {
                 return;
             }
             Plano5 pl = db.pesquisaPlano5IDContaBanco(Integer.valueOf(listaBanco.get(idBanco).getDescription()));
-            //lista.add(new DataObject(vencimento, valor, numero, tipoPagamento, null, pl));
             listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, pl, null, Moeda.converteR$Float(valorDigitado)));
 
             numero = "";
         } else {
-            //lista.add(new DataObject(vencimento, valor, numero, tipoPagamento, null, null));
+            if (plano5.getId() == -1) {
+                GenericaMensagem.error("Erro", "Nenhum Plano5 Encontrado!");
+                return;
+            }
             listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, plano5, null, Moeda.converteR$Float(valorDigitado)));
         }
         desHabilitaConta = true;

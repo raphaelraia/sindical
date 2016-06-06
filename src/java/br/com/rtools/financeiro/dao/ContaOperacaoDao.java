@@ -103,7 +103,7 @@ public class ContaOperacaoDao extends DB {
 
     public List findByFilialOperacao(Integer filial_id, Integer operacao_id) {
         try {
-            Query query = getEntityManager().createQuery("SELECT CO FROM ContaOperacao CO WHERE CO.operacao.id = :operacao_id AND CO.filial.id = :filial_id");
+            Query query = getEntityManager().createQuery("SELECT CO FROM ContaOperacao CO WHERE CO.operacao.id = :operacao_id AND CO.filial.id = :filial_id ORDER BY CO.plano5.conta ASC");
             query.setParameter("operacao_id", operacao_id);
             query.setParameter("filial_id", filial_id);
             return query.getResultList();
@@ -114,7 +114,7 @@ public class ContaOperacaoDao extends DB {
     
     public List findByFilialOperacao(Integer filial_id, Integer operacao_id, Integer centro_custo_id) {
         try {
-            Query query = getEntityManager().createQuery("SELECT CO FROM ContaOperacao CO WHERE CO.operacao.id = :operacao_id AND CO.filial.id = :filial_id AND CO.centroCusto.id = :centro_custo_id");
+            Query query = getEntityManager().createQuery("SELECT CO FROM ContaOperacao CO WHERE CO.operacao.id = :operacao_id AND CO.filial.id = :filial_id AND CO.centroCusto.id = :centro_custo_id ORDER BY CO.plano5.conta ASC");
             query.setParameter("operacao_id", operacao_id);
             query.setParameter("filial_id", filial_id);
             query.setParameter("centro_custo_id", centro_custo_id);

@@ -95,7 +95,7 @@ public class RelatorioProdutosBean implements Serializable {
 
     @PreDestroy
     public void destroy() {
-        GenericaSessao.remove("relatorioContasPagarBean");
+        GenericaSessao.remove("relatorioProdutosBean");
         GenericaSessao.remove("pessoaPesquisa");
     }
 
@@ -122,7 +122,6 @@ public class RelatorioProdutosBean implements Serializable {
             listDetalhePesquisa.add("Período de vencimento " + dtCI + (!dtCF.isEmpty() ? " até ".concat(dtCF) : ""));
         }
         rpd.setRelatorios(r);
-        String in_credores = null;
         String in_filiais = inIdFiliais();
         String in_tipos = inIdTipos();
         String in_grupos = inIdGrupos();

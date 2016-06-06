@@ -7,7 +7,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 
 @ManagedBean
-public class ToCurrency implements Converter {
+public class ToCurrency4 implements Converter {
 
     @Override
     public String getAsString(FacesContext context, UIComponent component, Object value) {
@@ -28,7 +28,7 @@ public class ToCurrency implements Converter {
             if (value.isEmpty()) {
                 return null;
             }
-            return Moeda.converteR$(value, 2);
+            return Moeda.converteR$(value, 4);
         }
         return null;
     }

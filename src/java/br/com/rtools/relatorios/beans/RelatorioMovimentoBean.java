@@ -5,52 +5,51 @@ import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.ConvencaoCidade;
 import br.com.rtools.arrecadacao.beans.ConfiguracaoArrecadacaoBean;
 import br.com.rtools.arrecadacao.dao.ConvencaoCidadeDao;
-import br.com.rtools.arrecadacao.db.CnaeConvencaoDB;
-import br.com.rtools.arrecadacao.db.CnaeConvencaoDBToplink;
-import br.com.rtools.arrecadacao.db.GrupoCidadesDB;
 import br.com.rtools.arrecadacao.db.GrupoCidadesDBToplink;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
-import br.com.rtools.financeiro.db.ServicoRotinaDB;
 import br.com.rtools.financeiro.db.ServicoRotinaDBToplink;
 import br.com.rtools.impressao.ParametroMovimentos;
-import br.com.rtools.impressao.ParametroMovimentosResumo;
-import br.com.rtools.pessoa.Cnae;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
-import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
+import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioContribuintesDao;
 import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.relatorios.dao.RelatorioMovimentosDao;
+import br.com.rtools.relatorios.dao.RelatorioOrdemDao;
+import br.com.rtools.relatorios.dao.RelatorioProdutosDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.Email;
 import br.com.rtools.sistema.EmailPessoa;
+import br.com.rtools.sistema.SisProcesso;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.Filters;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import static br.com.rtools.utilitarios.ImpressaoParaSocios.getConverteNullString;
 import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.Mail;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.SalvaArquivos;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.io.File;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Vector;
+import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -69,463 +68,330 @@ import net.sf.jasperreports.engine.util.JRLoader;
 @SessionScoped
 public class RelatorioMovimentoBean implements Serializable {
 
-    private int idRelatorios;
-    private int idServicos;
-    private int idTipoServico;
-    private int idConvencao;
-    private int idCnae;
-    private int idGrupoCidade;
-    private List<SelectItem> listaTipoRelatorio;
-    private List<SelectItem> listaServicos;
-    private List<SelectItem> listaTipoServico;
-    private List<SelectItem> listaConvencao;
-    private List<SelectItem> listaGrupoCidade;
-    private List<SelectItem> listaCnaes;
-    private String condicao;
-    private String geradosPelaCaixa;
-    private String filtrar;
-    private String tipoDataPesquisa;
+    private List<Filters> listFilters;
+
+    private List<SelectItem> listRelatorio;
+    private Integer idRelatorio;
+
+    private List<SelectItem> listRelatorioOrdem;
+    private Integer idRelatorioOrdem;
+
+    private List<SelectItem> listConvencao;
+    private Integer idConvencao;
+
+    private String porData;
+    private String tipoData;
     private String dataInicial;
     private String dataFinal;
-    private String dataRefInicial;
-    private String dataRefFinal;
-    private boolean chkEmpresa;
-    private boolean chkContabilidade;
-    private boolean chkConvencao;
-    private boolean chkServicos;
-    private boolean chkTipoServico;
-    private boolean chkCidadeBase;
-    private boolean chkData;
-    private boolean chkOrdemEmpresa;
-    private boolean chkCnae;
-    private boolean chkFaixaValor;
-    private boolean totaliza;
-    private Juridica juridica;
-    private List<Juridica> listaContabilidade;
-    private List<Juridica> listaContabilidadeSelecionada;
-    private List<Juridica> listaPesquisa;
-    private String pesquisaContabil;
-    private String radioContabil;
-    private String radioOrdem;
-    private List<Cidade> listaCidadesBase;
-    private List<Cidade> listaCidadesBaseSelecionado;
-    private CnaeConvencao[] cnaeConvencaoSelecionado;
-    private List<CnaeConvencao> listaCnaeConvencaos;
+
+    private Map<String, Integer> listServicos;
+    private List selectedServicos;
+
+    private Map<String, Integer> listTipoServico;
+    private List selectedTipoServico;
+
+    private Map<String, Integer> listGrupoCidade;
+    private List selectedGrupoCidade;
+
+    private String condicao;
+    private String geradosCaixa;
+    private String situacao;
+    private String radioContabilidade;
+
+    private Juridica empresa;
+
+    private List<Juridica> listContabilidade;
+    private List<Juridica> selectedContabilidade;
+    private List<Juridica> listContabilidadePesquisa;
+    private String descricaoPesquisaContabilidade;
+
+    private CnaeConvencao[] selectedCnaeConvencao;
+    private List<CnaeConvencao> listCnaeConvencao;
+
+    private List<Cidade> listCidadesBase;
+    private List<Cidade> selectedCidadesBase;
+
+    private Boolean cnae;
+    private Boolean totaliza;
     private String valorBaixaInicial;
     private String valorBaixaFinal;
 
     @PostConstruct
     public void init() {
-        idRelatorios = 0;
-        idServicos = 0;
-        idTipoServico = 0;
-        idConvencao = 0;
-        idCnae = 0;
-        idGrupoCidade = 0;
-        listaTipoRelatorio = new ArrayList<>();
-        listaServicos = new ArrayList<>();
-        listaTipoServico = new ArrayList<>();
-        listaConvencao = new ArrayList<>();
-        listaGrupoCidade = new ArrayList<>();
-        listaCnaes = new ArrayList<>();
-        condicao = "todos";
-        geradosPelaCaixa = "naoverificar";
-        filtrar = "todas";
-        tipoDataPesquisa = "vencimento";
+        new Jasper().init();
+        situacao = "A";
+        listFilters = new ArrayList();
+        listRelatorio = new ArrayList<>();
+        idRelatorio = null;
+        porData = "";
+        tipoData = "";
+        descricaoPesquisaContabilidade = "";
         dataInicial = "";
         dataFinal = "";
-        dataRefInicial = "";
-        dataRefFinal = "";
-        chkEmpresa = false;
-        chkContabilidade = false;
-        chkConvencao = false;
-        chkServicos = false;
-        chkTipoServico = false;
-        chkCidadeBase = false;
-        chkData = false;
-        chkOrdemEmpresa = false;
-        chkCnae = false;
-        chkFaixaValor = false;
+        empresa = null;
+        valorBaixaInicial = "";
+        valorBaixaFinal = "";
+        cnae = false;
         totaliza = false;
-        juridica = new Juridica();
-        listaContabilidade = new ArrayList();
-        listaContabilidadeSelecionada = new ArrayList();
-        listaPesquisa = new ArrayList();
-        pesquisaContabil = "";
-        radioContabil = "selecionado";
-        radioOrdem = "vencimento";
-        listaCidadesBase = new ArrayList();
-        listaCidadesBaseSelecionado = new ArrayList();
-        cnaeConvencaoSelecionado = null;
-        listaCnaeConvencaos = new ArrayList();
-        valorBaixaInicial = "0,00";
-        valorBaixaFinal = "0,00";
+        loadRelatorio();
+        loadFilters();
+        loadRelatorioOrdem();
     }
 
     @PreDestroy
     public void destroy() {
         GenericaSessao.remove("relatorioMovimentoBean");
-        GenericaSessao.remove("juridicaPesquisa");
-        Jasper jasper = new Jasper();
-        jasper.init();
+        GenericaSessao.remove("pessoaPesquisa");
     }
 
-    public void porEmpresa() {
-        chkEmpresa = (chkEmpresa != true);
-        juridica = new Juridica();
+    public void print() {
+        print(false);
     }
 
-    public void porContabilidade() {
-        chkContabilidade = (chkContabilidade != true);
-        listaContabilidade.clear();
-        listaContabilidadeSelecionada.clear();
-    }
-
-    public void porConvencao() {
-        cnaeConvencaoSelecionado = null;
-        chkCnae = false;
-        chkConvencao = (chkConvencao != true);
-    }
-
-    public void porServicos() {
-        chkServicos = (chkServicos != true);
-    }
-
-    public void porTipoServico() {
-        chkTipoServico = (chkTipoServico != true);
-    }
-
-    public void porCidadeBase() {
-        chkCidadeBase = (chkCidadeBase != true);
-        listaCidadesBaseSelecionado.clear();
-    }
-
-    public void porFaixaValor() {
-        chkFaixaValor = (chkFaixaValor != true);
-        valorBaixaInicial = "0,00";
-        valorBaixaFinal = "0,00";
-    }
-
-    public void porData() {
-        chkData = (chkData != true);
-    }
-
-    public void porCnae() {
-        chkCnae = (chkCnae != true);
-    }
-
-    public void acaoPesquisaContabil() {
-        if (listaPesquisa.isEmpty()) {
-            listaPesquisa.addAll(listaContabilidade);
-        }
-
-        listaContabilidade.clear();
-
-        if (pesquisaContabil.length() == 0) {
-            listaContabilidade.addAll(listaPesquisa);
+    public void print(Boolean tags) {
+        if (!lock()) {
+            GenericaMensagem.warn("Mensagem", "Selecione pelo menos um filtro!");
             return;
         }
-
-        if (!listaPesquisa.isEmpty()) {
-            List aux = new ArrayList();
-            for (int i = 0; i < listaPesquisa.size(); i++) {
-                if (listaPesquisa.get(i).getPessoa().getNome().toUpperCase().contains(pesquisaContabil.toUpperCase())) {
-                    aux.add(listaPesquisa.get(i));
-                } else if (listaPesquisa.get(i).getPessoa().getDocumento().contains(pesquisaContabil)) {
-                    aux.add(listaPesquisa.get(i));
+        SisProcesso sisProcesso = new SisProcesso();
+        sisProcesso.start();
+        Relatorios r = getRelatorios();
+        if (r == null) {
+            return;
+        }
+        List listDetalhePesquisa = new ArrayList();
+        sisProcesso.startQuery();
+        RelatorioProdutosDao rpd = new RelatorioProdutosDao();
+        Collection list = listaPesquisa();
+        sisProcesso.finishQuery();
+        if (list.isEmpty()) {
+            GenericaMensagem.warn("Mensagem", "Nenhum registro encontrado!");
+            return;
+        }
+        String detalheRelatorio = "";
+        if (listDetalhePesquisa.isEmpty()) {
+            detalheRelatorio += "Pesquisar todos registros!";
+        } else {
+            detalheRelatorio += "";
+            for (int i = 0; i < listDetalhePesquisa.size(); i++) {
+                if (i == 0) {
+                    detalheRelatorio += "Detalhes: " + listDetalhePesquisa.get(i).toString();
+                } else {
+                    detalheRelatorio += "; " + listDetalhePesquisa.get(i).toString();
                 }
             }
-
-            if (!aux.isEmpty()) {
-                listaContabilidade.addAll(aux);
-            } else {
-                listaContabilidade.addAll(listaPesquisa);
-            }
         }
-
-    }
-
-    public boolean validaLista() {
-        if (!chkCidadeBase && !chkContabilidade && !chkConvencao && !chkData && !chkEmpresa && !chkServicos && !chkTipoServico && !chkFaixaValor) {
-            GenericaMensagem.warn("Validação", "Selecione pelo menos um filtro");
-            return false;
-        }
-        if (filtrar.equals("todas")) {
-            if (chkEmpresa && juridica.getId() == -1 && !chkData) {
-                GenericaMensagem.warn("Validação", "Selecione uma empresa ou período");
-                return false;
-            } else if (chkData && dataInicial.isEmpty() && dataFinal.isEmpty() && dataRefInicial.isEmpty() && dataRefFinal.isEmpty()) {
-                GenericaMensagem.warn("Validação", "Selecione um período válido!");
-                return false;
-            } else if (chkData && dataInicial.isEmpty() && dataRefInicial.isEmpty()) {
-                GenericaMensagem.warn("Validação", "Selecione um período válido!");
-                return false;
-            }
-        }
-
-        if (chkContabilidade && listaContabilidadeSelecionada.isEmpty()) {
-            return false;
-        }
-
-        return !(chkCidadeBase && listaCidadesBaseSelecionado.isEmpty());
+        Jasper.EXPORT_TO = true;
+        Jasper.TITLE = "RELATÓRIO " + r.getNome().toUpperCase();
+        Jasper.TYPE = "default";
+        Map map = new HashMap();
+        map.put("detalhes_relatorio", detalheRelatorio);
+        Jasper.printReports(r.getJasper(), r.getNome(), list, map);
+        sisProcesso.setProcesso(r.getNome());
+        sisProcesso.finish();
     }
 
     public Collection listaPesquisa() {
 
-        RelatorioMovimentosDao db_rel = new RelatorioMovimentosDao();
+        RelatorioMovimentosDao rpd = new RelatorioMovimentosDao();
         ConfiguracaoArrecadacaoBean cab = new ConfiguracaoArrecadacaoBean();
         cab.init();
         Juridica sindicato = cab.getConfiguracaoArrecadacao().getFilial().getFilial();
         //Juridica sindicato = (Juridica) (new Dao()).find(new Juridica(), 1);
         PessoaEndereco endSindicato = (new PessoaEnderecoDao()).pesquisaEndPorPessoaTipo(sindicato.getPessoa().getId(), 3);
 
-        Relatorios relatorio = (new RelatorioDao()).pesquisaRelatorios(Integer.parseInt(listaTipoRelatorio.get(idRelatorios).getDescription()));
-
-        String idsEcs = "";
-        if (radioContabil.equals("selecionado")) {
-            for (int i = 0; i < listaContabilidadeSelecionada.size(); i++) {
-                if (idsEcs.length() > 0 && i != listaContabilidadeSelecionada.size()) {
-                    idsEcs += ",";
-                }
-                idsEcs += listaContabilidadeSelecionada.get(i).getId();
-            }
-        } else {
-            idsEcs = radioContabil;
-        }
-
-        int id_convencao = 0, id_grupo = 0;
-        if (chkConvencao) {
-            id_convencao = Integer.valueOf(listaConvencao.get(idConvencao).getDescription());
-            id_grupo = Integer.valueOf(listaGrupoCidade.get(idGrupoCidade).getDescription());
-        }
-
-        int id_servico = 0;
-        if (chkServicos) {
-            id_servico = Integer.valueOf(listaServicos.get(idServicos).getDescription());
-        }
-
-        int id_tipo_servico = 0;
-        if (chkTipoServico) {
-            id_tipo_servico = Integer.valueOf(listaTipoServico.get(idTipoServico).getDescription());
-        }
-
-        String cidade_base = "";
-        for (int i = 0; i < listaCidadesBaseSelecionado.size(); i++) {
-            if (cidade_base.length() > 0 && i != listaCidadesBaseSelecionado.size()) {
-                cidade_base += ",";
-            }
-            cidade_base += listaCidadesBaseSelecionado.get(i).getId();
-            if (cidade_base.length() == 1) {
-                cidade_base = "0" + cidade_base;
-            }
-        }
-
-        Date dtInicial = null, dtFinal = null;
-        if (!tipoDataPesquisa.equals("referencia")) {
-            if (!dataInicial.equals("") && (!dataFinal.equals(""))) {
-                dtInicial = DataHoje.converte(dataInicial);
-                dtFinal = DataHoje.converte(dataFinal);
+        String contabilidades = "";
+        if (radioContabilidade != null) {
+            if (radioContabilidade.equals("selecionado")) {
+                contabilidades = inIdContabilidade();
             } else {
-                dtInicial = null;
-                dtFinal = null;
-            }
-        } else if (!dataRefInicial.equals("") && !dataRefFinal.equals("")) {
-        }
-
-        String inCnaes = "";
-        if (cnaeConvencaoSelecionado != null) {
-            for (int i = 0; i < cnaeConvencaoSelecionado.length; i++) {
-                if (i == 0) {
-                    inCnaes += "" + cnaeConvencaoSelecionado[i].getCnae().getId();
-                } else {
-                    inCnaes += ", " + cnaeConvencaoSelecionado[i].getCnae().getId();
-                }
+                contabilidades = radioContabilidade;
             }
         }
-
-        if (chkFaixaValor) {
-
+        rpd.setRelatorios(getRelatorios());
+        if (idRelatorioOrdem != null) {
+            RelatorioOrdem ro = (RelatorioOrdem) new Dao().find(new RelatorioOrdem(), idRelatorioOrdem);
+            if (ro != null) {
+                rpd.setRelatorioOrdem(ro);
+            } else {
+                ro = new RelatorioOrdem();
+                ro.setQuery("" + idRelatorioOrdem);
+                rpd.setRelatorioOrdem(ro);
+            }
         }
-
-        List<Vector> result = db_rel.listaMovimentos(
-                relatorio,
-                condicao, // CONDIÇÃO -- todos -- ativos -- naoativos
-                id_servico, // ID SERVICOS
-                id_tipo_servico, // ID TIPO SERVICO
-                (juridica.getId() != -1) ? juridica.getId() : 0, // ID JURIDICA -- EMPRESA
-                chkData, // DATA
-                tipoDataPesquisa, // TIPO DATA -- importacao -- recebimento -- vencimento -- referencia
-                dtInicial, // DATA INICIAL
-                dtFinal, // DATA FINAL
-                dataRefInicial, // REFERENCIA INICIAL
-                dataRefFinal, // REFERENCIA FINAL
-                "vencimento", // ORDEM -- vencimento -- quitacao -- importacao -- referencia
-                chkOrdemEmpresa, // ORDEM POR EMPRESA
-                filtrar, // FILTRAR POR -- todas -- recebidas -- naorecebidas -- atrasadas
-                "empresa", // CASO PESQUISA POR EMPRESA / OU CONTABILIDADE  -- nao usa mais isso
-                id_convencao, // ID CONVENCAO
-                id_grupo, // ID GRUPO CIDADE
-                cidade_base, // IDS DAS CIDADES DA BASE SELECIONADAS
-                idsEcs, // IDS DAS CONTABILIDADES SELECIONADAS
-                inCnaes, // CNAES
+        rpd.setRelatorios(getRelatorios());
+        List list = rpd.find(
+                condicao,
+                situacao,
+                inIdServicos(),
+                inIdTipoServico(),
+                (empresa != null ? Integer.toString(empresa.getId()) : null),
+                contabilidades,
+                porData,
+                tipoData,
+                dataInicial,
+                dataFinal,
+                (idConvencao != null ? Integer.toString(idConvencao) : null),
+                inIdGrupoCidade(),
+                inIdCidadesBase(),
+                inIdCnaeConvencao(),
                 valorBaixaInicial, // V.I.
                 valorBaixaFinal // V.F.
         );
 
         Collection listaParametro = new ArrayList<>();
 
-        if (relatorio.getId() == 66 || relatorio.getId() == 68) {
-            // RESUMO CONTRIBUICOES - RESUMO CONTRIBUICOES ANALITICO
-            for (Vector vresult : result) {
-                listaParametro.add(new ParametroMovimentosResumo(
-                        vresult.get(0) != null ? String.valueOf(((Double) vresult.get(0)).intValue()) : "",
-                        vresult.get(0) != null ? String.valueOf(((Double) vresult.get(1)).intValue()) : "",
-                        String.valueOf(vresult.get(2)),
-                        Float.parseFloat(String.valueOf(vresult.get(3))),
-                        Float.parseFloat(String.valueOf(vresult.get(4))),
-                        Float.parseFloat(String.valueOf(vresult.get(5)))
-                )
-                );
-            }
-        } else if (relatorio.getId() == 67) {
-            // RESUMO CONTRIBUICOES POR EMPRESA
-            for (Vector vresult : result) {
-                listaParametro.add(new ParametroMovimentosResumo(
-                        vresult.get(0) != null ? String.valueOf(((Double) vresult.get(0)).intValue()) : "",
-                        vresult.get(0) != null ? String.valueOf(((Double) vresult.get(1)).intValue()) : "",
-                        String.valueOf(vresult.get(2)),
-                        String.valueOf(vresult.get(3)),
-                        String.valueOf(vresult.get(4)),
-                        Float.parseFloat(String.valueOf(vresult.get(5))),
-                        Float.parseFloat(String.valueOf(vresult.get(6))),
-                        Float.parseFloat(String.valueOf(vresult.get(7)))
-                )
-                );
-            }
-        } else if (relatorio.getId() == 78) {
-            // RESUMO CONTRIBUICOES POR CIDADE
-            for (Vector vresult : result) {
-                listaParametro.add(new ParametroMovimentosResumo(
-                        String.valueOf(vresult.get(0)),
-                        vresult.get(1) != null ? String.valueOf(((Double) vresult.get(1)).intValue()) : "",
-                        vresult.get(1) != null ? String.valueOf(((Double) vresult.get(2)).intValue()) : "",
-                        String.valueOf(vresult.get(3)),
-                        Float.parseFloat(String.valueOf(vresult.get(4))),
-                        Float.parseFloat(String.valueOf(vresult.get(5))),
-                        Float.parseFloat(String.valueOf(vresult.get(6)))
-                )
-                );
-            }
-        } else {
-            for (int i = 0; i < result.size(); i++) {
-                float valor = Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(6))); // VALOR ORIGINAL     
+        if (null != idRelatorio) {
+            switch (idRelatorio) {
+                case 66:
+                case 68:
+                    // RESUMO CONTRIBUICOES - RESUMO CONTRIBUICOES ANALITICO
+                    for (Object l : list) {
+                        List o = (List) l;
+                        listaParametro.add(
+                                new ObjectMovimentosResumo(
+                                        o.get(0),
+                                        o.get(1),
+                                        o.get(2),
+                                        o.get(3),
+                                        o.get(4),
+                                        o.get(5)
+                                )
+                        );
+                    }
+                    break;
+                case 67:
+                    // RESUMO CONTRIBUICOES POR EMPRESA
+                    for (Object l : list) {
+                        List o = (List) l;
+                        listaParametro.add(
+                                new ObjectMovimentosResumo(
+                                        o.get(0),
+                                        o.get(1),
+                                        o.get(2),
+                                        o.get(3),
+                                        o.get(4),
+                                        o.get(5),
+                                        o.get(6),
+                                        o.get(7)
+                                )
+                        );
+                    }
+                    break;
+                case 78:
+                    // RESUMO CONTRIBUICOES POR CIDADE
+                    for (Object l : list) {
+                        List o = (List) l;
+                        listaParametro.add(
+                                new ObjectMovimentosResumo(
+                                        o.get(0),
+                                        o.get(1),
+                                        o.get(2),
+                                        o.get(3),
+                                        o.get(4),
+                                        o.get(5),
+                                        o.get(6)
+                                )
+                        );
+                    }
+                    break;
+                default:
+                    for (Object l : list) {
+                        List o = (List) l;
+                        float valor = Float.parseFloat(getConverteNullString(o.get(6))); // VALOR ORIGINAL
 
-                String quitacao = "", importacao = "", usuario = "";
+                        String quitacao = "", importacao = "", usuario = "";
 
-                if (((Vector) result.get(i)).get(38) != null) {
-                    quitacao = DataHoje.converteData((Date) ((Vector) result.get(i)).get(39));
-                    importacao = DataHoje.converteData((Date) ((Vector) result.get(i)).get(40));
-                    usuario = getConverteNullString(((Vector) result.get(i)).get(42));
-                }
+                        if (o.get(38) != null) {
+                            quitacao = DataHoje.converteData((Date) o.get(39));
+                            importacao = DataHoje.converteData((Date) o.get(40));
+                            usuario = getConverteNullString(o.get(42));
+                        }
 
-                String srepasse = getConverteNullString(((Vector) result.get(i)).get(48));
-                float repasse = 0;
-                if (srepasse.isEmpty()) {
-                    repasse = Moeda.multiplicarValores(Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(47))), Moeda.divisaoValores(0, 100));
-                } else {
-                    repasse = Moeda.multiplicarValores(Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(47))), Moeda.divisaoValores(Float.parseFloat(srepasse), 100));
-                }
+                        String srepasse = getConverteNullString(o.get(48));
+                        float repasse = 0;
+                        if (srepasse.isEmpty()) {
+                            repasse = Moeda.multiplicarValores(Float.parseFloat(getConverteNullString(o.get(47))), Moeda.divisaoValores(0, 100));
+                        } else {
+                            repasse = Moeda.multiplicarValores(Float.parseFloat(getConverteNullString(o.get(47))), Moeda.divisaoValores(Float.parseFloat(srepasse), 100));
+                        }
 
-                float valorLiquido = Moeda.subtracaoValores(Moeda.subtracaoValores(Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(47))), Float.valueOf(Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(43))))), repasse);
+                        float valorLiquido = Moeda.subtracaoValores(Moeda.subtracaoValores(Float.parseFloat(getConverteNullString(o.get(47))), Float.valueOf(Float.parseFloat(getConverteNullString(o.get(43))))), repasse);
 
-                listaParametro.add(
-                        new ParametroMovimentos(
-                                ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
-                                sindicato.getPessoa().getNome(),
-                                endSindicato.getEndereco().getDescricaoEndereco().getDescricao(),
-                                endSindicato.getEndereco().getLogradouro().getDescricao(),
-                                endSindicato.getNumero(),
-                                endSindicato.getComplemento(),
-                                endSindicato.getEndereco().getBairro().getDescricao(),
-                                endSindicato.getEndereco().getCep(),
-                                endSindicato.getEndereco().getCidade().getCidade(),
-                                endSindicato.getEndereco().getCidade().getUf(),
-                                sindicato.getPessoa().getTelefone1(),
-                                sindicato.getPessoa().getEmail1(),
-                                sindicato.getPessoa().getSite(),
-                                sindicato.getPessoa().getTipoDocumento().getDescricao(),
-                                sindicato.getPessoa().getDocumento(),
-                                getConverteNullInt(((Vector) result.get(i)).get(41)), // ID JURIDICA
-                                getConverteNullString(((Vector) result.get(i)).get(10)), // NOME PESSOA
-                                getConverteNullString(((Vector) result.get(i)).get(11)), // ENDERECO PESSOA
-                                getConverteNullString(((Vector) result.get(i)).get(12)), // LOGRADOURO PESSOA
-                                getConverteNullString(((Vector) result.get(i)).get(13)), // NUMERO ENDERECO PESSOA
-                                getConverteNullString(((Vector) result.get(i)).get(14)), // COMPLEMENTO PESSOA
-                                getConverteNullString(((Vector) result.get(i)).get(15)), // BAIRRO PESSOA
-                                getConverteNullString(((Vector) result.get(i)).get(16)), // CEP PESSOA
-                                getConverteNullString(((Vector) result.get(i)).get(17)), // CIDADE PESSOA
-                                getConverteNullString(((Vector) result.get(i)).get(18)), // UF PESSOA
-                                getConverteNullString(((Vector) result.get(i)).get(19)), // TELEFONE PESSOA
-                                getConverteNullString(((Vector) result.get(i)).get(20)), // EMAIL PESSOA
-                                getConverteNullString(((Vector) result.get(i)).get(21)), // TIPO DOC PESSOA
-                                getConverteNullString(((Vector) result.get(i)).get(22)), // DOCUMENTO PESSOA
-                                getConverteNullInt(((Vector) result.get(i)).get(23)), // ID CNAE
-                                getConverteNullString(((Vector) result.get(i)).get(24)), // NUMERO CNAE
-                                getConverteNullString(((Vector) result.get(i)).get(25)), // NOME CNAE
-                                getConverteNullInt(((Vector) result.get(i)).get(26)), // ID CONTABILIDADE
-                                getConverteNullString(((Vector) result.get(i)).get(27)), // NOME CONTABILIDADE
-                                getConverteNullString(((Vector) result.get(i)).get(28)), // ENDERECO CONTABIL
-                                getConverteNullString(((Vector) result.get(i)).get(29)), // LOGRADOURO CONTABIL
-                                getConverteNullString(((Vector) result.get(i)).get(30)), // NUMERO CONTABIL
-                                getConverteNullString(((Vector) result.get(i)).get(31)), // COMPLEMENTO CONTABIL
-                                getConverteNullString(((Vector) result.get(i)).get(32)), // BAIRRO CONTABIL
-                                getConverteNullString(((Vector) result.get(i)).get(33)), // CEP CONTABIL
-                                getConverteNullString(((Vector) result.get(i)).get(34)), // CIDADE CONTABIL
-                                getConverteNullString(((Vector) result.get(i)).get(35)), // UF CONTABIL
-                                getConverteNullString(((Vector) result.get(i)).get(36)), // TELEFONE CONTABIL
-                                getConverteNullString(((Vector) result.get(i)).get(37)), // EMAIL CONTABIL
-                                getConverteNullString(((Vector) result.get(i)).get(1)), // NUMERO BOLETO
-                                getConverteNullString(((Vector) result.get(i)).get(2)), // SERVICO
-                                getConverteNullString(((Vector) result.get(i)).get(3)), // TIPO SERVICO
-                                getConverteNullString(((Vector) result.get(i)).get(4)), // REFERENCIA
-                                DataHoje.converteData((Date) ((Vector) result.get(i)).get(5)), // VENCIMENTO
-                                quitacao, //result.get(i).getLoteBaixa().getQuitacao(),
-                                new BigDecimal(Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(47)))), // VALOR BAIXA
-                                new BigDecimal(Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(43)))),// TAXA
-                                importacao, //result.get(i).getLoteBaixa().getImportacao(),
-                                usuario,// result.get(i).getLoteBaixa().getUsuario().getPessoa().getNome()
-                                new BigDecimal(Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(44)))),// MULTA,
-                                new BigDecimal(Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(45)))),// JUROS,
-                                new BigDecimal(Float.parseFloat(getConverteNullString(((Vector) result.get(i)).get(46)))),// CORRECAO,
-                                new BigDecimal(valor), // VALOR TOTAL
-                                new BigDecimal(repasse), // REPASSE
-                                new BigDecimal(valorLiquido), // VALOR LIQUIDO
-                                totaliza
-                        )
-                );
+                        listaParametro.add(
+                                new ParametroMovimentos(
+                                        ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
+                                        sindicato.getPessoa().getNome(),
+                                        endSindicato.getEndereco().getDescricaoEndereco().getDescricao(),
+                                        endSindicato.getEndereco().getLogradouro().getDescricao(),
+                                        endSindicato.getNumero(),
+                                        endSindicato.getComplemento(),
+                                        endSindicato.getEndereco().getBairro().getDescricao(),
+                                        endSindicato.getEndereco().getCep(),
+                                        endSindicato.getEndereco().getCidade().getCidade(),
+                                        endSindicato.getEndereco().getCidade().getUf(),
+                                        sindicato.getPessoa().getTelefone1(),
+                                        sindicato.getPessoa().getEmail1(),
+                                        sindicato.getPessoa().getSite(),
+                                        sindicato.getPessoa().getTipoDocumento().getDescricao(),
+                                        sindicato.getPessoa().getDocumento(),
+                                        getConverteNullInt(o.get(41)), // ID JURIDICA
+                                        getConverteNullString(o.get(10)), // NOME PESSOA
+                                        getConverteNullString(o.get(11)), // ENDERECO PESSOA
+                                        getConverteNullString(o.get(12)), // LOGRADOURO PESSOA
+                                        getConverteNullString(o.get(13)), // NUMERO ENDERECO PESSOA
+                                        getConverteNullString(o.get(14)), // COMPLEMENTO PESSOA
+                                        getConverteNullString(o.get(15)), // BAIRRO PESSOA
+                                        getConverteNullString(o.get(16)), // CEP PESSOA
+                                        getConverteNullString(o.get(17)), // CIDADE PESSOA
+                                        getConverteNullString(o.get(18)), // UF PESSOA
+                                        getConverteNullString(o.get(19)), // TELEFONE PESSOA
+                                        getConverteNullString(o.get(20)), // EMAIL PESSOA
+                                        getConverteNullString(o.get(21)), // TIPO DOC PESSOA
+                                        getConverteNullString(o.get(22)), // DOCUMENTO PESSOA
+                                        getConverteNullInt(o.get(23)), // ID CNAE
+                                        getConverteNullString(o.get(24)), // NUMERO CNAE
+                                        getConverteNullString(o.get(25)), // NOME CNAE
+                                        getConverteNullInt(o.get(26)), // ID CONTABILIDADE
+                                        getConverteNullString(o.get(27)), // NOME CONTABILIDADE
+                                        getConverteNullString(o.get(28)), // ENDERECO CONTABIL
+                                        getConverteNullString(o.get(29)), // LOGRADOURO CONTABIL
+                                        getConverteNullString(o.get(30)), // NUMERO CONTABIL
+                                        getConverteNullString(o.get(31)), // COMPLEMENTO CONTABIL
+                                        getConverteNullString(o.get(32)), // BAIRRO CONTABIL
+                                        getConverteNullString(o.get(33)), // CEP CONTABIL
+                                        getConverteNullString(o.get(34)), // CIDADE CONTABIL
+                                        getConverteNullString(o.get(35)), // UF CONTABIL
+                                        getConverteNullString(o.get(36)), // TELEFONE CONTABIL
+                                        getConverteNullString(o.get(37)), // EMAIL CONTABIL
+                                        getConverteNullString(o.get(1)), // NUMERO BOLETO
+                                        getConverteNullString(o.get(2)), // SERVICO
+                                        getConverteNullString(o.get(3)), // TIPO SERVICO
+                                        getConverteNullString(o.get(4)), // REFERENCIA
+                                        DataHoje.converteData((Date) o.get(5)), // VENCIMENTO
+                                        quitacao, //result.get(i).getLoteBaixa().getQuitacao(),
+                                        new BigDecimal(Float.parseFloat(getConverteNullString(o.get(47)))), // VALOR BAIXA
+                                        new BigDecimal(Float.parseFloat(getConverteNullString(o.get(43)))),// TAXA
+                                        importacao, //result.get(i).getLoteBaixa().getImportacao(),
+                                        usuario,// result.get(i).getLoteBaixa().getUsuario().getPessoa().getNome()
+                                        new BigDecimal(Float.parseFloat(getConverteNullString(o.get(44)))),// MULTA,
+                                        new BigDecimal(Float.parseFloat(getConverteNullString(o.get(45)))),// JUROS,
+                                        new BigDecimal(Float.parseFloat(getConverteNullString(o.get(46)))),// CORRECAO,
+                                        new BigDecimal(valor), // VALOR TOTAL
+                                        new BigDecimal(repasse), // REPASSE
+                                        new BigDecimal(valorLiquido), // VALOR LIQUIDO
+                                        totaliza
+                                )
+                        );
+                    }
+                    break;
             }
         }
         return listaParametro;
     }
 
-    public void visualizar() {
-        if (!validaLista()) {
-            return;
-        }
-        Collection collection = listaPesquisa();
-        if (collection.isEmpty()) {
-            GenericaMensagem.warn("Sistema", "Nenhum registro encontrado!");
-            return;
-        }
-        JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(collection);
-        Relatorios relatorio = (new RelatorioDao()).pesquisaRelatorios(Integer.parseInt(listaTipoRelatorio.get(idRelatorios).getDescription()));
-        GenericaMensagem.warn("Sucesso", "Relatório Gerado!");
-        Jasper.IS_HEADER_PARAMS = true;
-        Jasper.printReports(relatorio.getJasper(), relatorio.getNome(), collection);
-    }
-
     public void enviarEmail() {
-        if (!validaLista()) {
+        if (!lock()) {
             return;
         }
 
@@ -537,7 +403,7 @@ public class RelatorioMovimentoBean implements Serializable {
         }
 
         JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(collection);
-        Relatorios relatorio = (new RelatorioDao()).pesquisaRelatorios(Integer.parseInt(listaTipoRelatorio.get(idRelatorios).getDescription()));
+        Relatorios relatorio = getRelatorios();
 
         String nomeDownload = "", pathPasta = "";
         try {
@@ -554,41 +420,28 @@ public class RelatorioMovimentoBean implements Serializable {
 
             pathPasta = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/relatorios");
             sa.salvaNaPasta(pathPasta);
+
         } catch (Exception e) {
 
         }
 
-        Registro registro = (Registro) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(1, "Registro");
+        Registro registro = Registro.get();
         // ENVIO DE EMAIL PARA EMPRESA SELECIONADA
-        if (chkEmpresa && juridica.getId() != -1) {
+        if (empresa != null) {
             try {
                 List<Pessoa> pessoas = new ArrayList();
-                pessoas.add(juridica.getPessoa());
+                pessoas.add(empresa.getPessoa());
 
                 String mensagem = "";
                 List<File> fls = new ArrayList<>();
                 if (!registro.isEnviarEmailAnexo()) {
                     mensagem = " <h5>Visualize seu relatório clicando no link abaixo</5><br /><br />"
                             + " <a href='" + registro.getUrlPath() + "/Sindical/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/relatorios/" + nomeDownload + "' target='_blank'>Clique aqui para abrir relatório</a><br />";
-//                    
-//                    ret = EnviarEmail.EnviarEmailPersonalizado(registro,
-//                            p,
-//                            " <h5>Visualize seu relatório clicando no link abaixo</5><br /><br />"
-//                            + " <a href='" + registro.getUrlPath() + "/Sindical/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/relatorios/" + nomeDownload + "' target='_blank'>Clique aqui para abrir relatório</a><br />",
-//                            new ArrayList(),
-//                            "Envio de Relatório");
                 } else {
 
                     fls.add(new File(pathPasta + "/" + nomeDownload));
                     mensagem = "<h5>Baixe seu relatório Anexado neste email</5><br /><br />";
-//                    ret = EnviarEmail.EnviarEmailPersonalizado(registro,
-//                            p,
-//                            " <h5>Baixe seu relatório Anexado neste email</5><br /><br />",
-//                            fls,
-//                            "Envio de Relatório");
                 }
-
-                DaoInterface di = new Dao();
                 Mail mail = new Mail();
                 mail.setFiles(fls);
                 mail.setEmail(
@@ -597,7 +450,7 @@ public class RelatorioMovimentoBean implements Serializable {
                                 DataHoje.dataHoje(),
                                 DataHoje.livre(new Date(), "HH:mm"),
                                 (Usuario) GenericaSessao.getObject("sessaoUsuario"),
-                                (Rotina) di.find(new Rotina(), 110),
+                                new Rotina().get(),
                                 null,
                                 "Envio de Relatório",
                                 mensagem,
@@ -630,35 +483,21 @@ public class RelatorioMovimentoBean implements Serializable {
         }
         // ENVIO DE EMAIL PARA CONTABILIDADE SELECIONADA
 
-        if (chkContabilidade && !listaContabilidadeSelecionada.isEmpty()) {
-            for (int i = 0; i < listaContabilidadeSelecionada.size(); i++) {
+        if (!selectedContabilidade.isEmpty()) {
+            for (int i = 0; i < selectedContabilidade.size(); i++) {
                 try {
                     List<Pessoa> pessoas = new ArrayList();
-                    pessoas.add(listaContabilidadeSelecionada.get(i).getPessoa());
+                    pessoas.add(selectedContabilidade.get(i).getPessoa());
 
                     String mensagem = "";
                     List<File> fls = new ArrayList<>();
                     if (!registro.isEnviarEmailAnexo()) {
                         mensagem = " <h5>Visualize seu relatório clicando no link abaixo</5><br /><br />"
                                 + " <a href='" + registro.getUrlPath() + "/Sindical/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/relatorios/" + nomeDownload + "' target='_blank'>Clique aqui para abrir relatório</a><br />";
-//                        ret = EnviarEmail.EnviarEmailPersonalizado(registro,
-//                                p,
-//                                " <h5>Visualize seu relatório clicando no link abaixo</5><br /><br />"
-//                                + " <a href='" + registro.getUrlPath() + "/Sindical/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/relatorios/" + nomeDownload + "' target='_blank'>Clique aqui para abrir relatório</a><br />",
-//                                new ArrayList(),
-//                                "Envio de Relatório");
                     } else {
                         fls.add(new File(pathPasta + "/" + nomeDownload));
                         mensagem = "<h5>Baixe seu relatório Anexado neste email</5><br /><br />";
-
-//                        ret = EnviarEmail.EnviarEmailPersonalizado(registro,
-//                                p,
-//                                " <h5>Baixe seu relatório Anexado neste email</5><br /><br />",
-//                                fls,
-//                                "Envio de Relatório");
                     }
-
-                    DaoInterface di = new Dao();
                     Mail mail = new Mail();
                     mail.setFiles(fls);
                     mail.setEmail(
@@ -667,7 +506,7 @@ public class RelatorioMovimentoBean implements Serializable {
                                     DataHoje.dataHoje(),
                                     DataHoje.livre(new Date(), "HH:mm"),
                                     (Usuario) GenericaSessao.getObject("sessaoUsuario"),
-                                    (Rotina) di.find(new Rotina(), 110),
+                                    new Rotina().get(),
                                     null,
                                     "Envio de Relatório",
                                     mensagem,
@@ -702,29 +541,436 @@ public class RelatorioMovimentoBean implements Serializable {
 
     }
 
-    public int getIdRelatorios() {
-        return idRelatorios;
+    // LOAD
+    public void loadRelatorio() {
+        listRelatorio = new ArrayList();
+        if (listRelatorio.isEmpty()) {
+            Rotina r = new Rotina().get();
+            List<Relatorios> list = new ArrayList<>();
+            if (r != null) {
+                list = (List<Relatorios>) new RelatorioDao().pesquisaTipoRelatorio(110);
+            }
+            if (!list.isEmpty()) {
+                idRelatorio = list.get(0).getId();
+            }
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getPrincipal()) {
+                    idRelatorio = list.get(i).getId();
+                }
+                listRelatorio.add(new SelectItem(list.get(i).getId(), list.get(i).getNome()));
+            }
+            loadRelatorioOrdem();
+        }
     }
 
-    public void setIdRelatorios(int idRelatorios) {
-        this.idRelatorios = idRelatorios;
-    }
-
-    public List<SelectItem> getListaTipoRelatorio() {
-        if (listaTipoRelatorio.isEmpty()) {
-            RelatorioDao db = new RelatorioDao();
-            List select = db.pesquisaTipoRelatorio(110);
-            for (int i = 0; i < select.size(); i++) {
-                listaTipoRelatorio.add(new SelectItem(i,
-                        (String) ((Relatorios) select.get(i)).getNome(),
-                        Integer.toString(((Relatorios) select.get(i)).getId())));
+    public void loadRelatorioOrdem() {
+        listRelatorioOrdem = new ArrayList();
+        if (idRelatorio != null) {
+            RelatorioOrdemDao relatorioOrdemDao = new RelatorioOrdemDao();
+            List<RelatorioOrdem> list = relatorioOrdemDao.findAllByRelatorio(idRelatorio);
+            listRelatorioOrdem.add(new SelectItem(-1, "Vencimento"));
+            listRelatorioOrdem.add(new SelectItem(-2, "Quitação"));
+            listRelatorioOrdem.add(new SelectItem(-3, "Importação"));
+            listRelatorioOrdem.add(new SelectItem(-4, "Referência"));
+            idRelatorioOrdem = -1;
+            for (int i = 0; i < list.size(); i++) {
+                listRelatorioOrdem.add(new SelectItem(list.get(i).getId(), list.get(i).getNome()));
             }
         }
-        return listaTipoRelatorio;
     }
 
-    public void setListaTipoRelatorio(List<SelectItem> listaTipoRelatorio) {
-        this.listaTipoRelatorio = listaTipoRelatorio;
+    public void load() {
+        // loadListaFiltro();
+        loadRelatorioOrdem();
+    }
+
+    public void loadFilters() {
+        listFilters = new ArrayList<>();
+        listFilters.add(new Filters("empresa", "Empresa", false, false));
+        listFilters.add(new Filters("contabilidade", "Contabilidade", false, false));
+        listFilters.add(new Filters("convencao", "Convenção", false, false));
+        listFilters.add(new Filters("servicos", "Serviços", false, false));
+        listFilters.add(new Filters("tipo_servico", "Tipo de Serviço", false, false));
+        listFilters.add(new Filters("cidades_base", "Cidades da Base", false, false));
+        listFilters.add(new Filters("data", "Data", false, false));
+        listFilters.add(new Filters("valor_baixa", "Valor Baixa", false, false));
+
+    }
+
+    // LISTENER
+    public void listener(Integer tcase) {
+        switch (tcase) {
+            case 1:
+                loadFilters();
+                break;
+            case 2:
+                break;
+        }
+    }
+
+    // LOAD
+    public void load(Filters filter) {
+        switch (filter.getKey()) {
+            case "empresa":
+                if (!filter.getActive()) {
+                    empresa = null;
+                }
+                break;
+            case "contabilidade":
+                radioContabilidade = "selecionado";
+                if (!filter.getActive()) {
+                    listContabilidade = new ArrayList();
+                    selectedContabilidade = new ArrayList();
+                    listContabilidadePesquisa = new ArrayList();
+                    descricaoPesquisaContabilidade = "";
+                } else {
+                    listContabilidadePesquisa = new ArrayList();
+                    descricaoPesquisaContabilidade = "";
+                    loadListContabilidade();
+                }
+                break;
+            case "convencao":
+                if (!filter.getActive()) {
+                    listConvencao = new ArrayList();
+                    idConvencao = null;
+                    listGrupoCidade = new LinkedHashMap<>();
+                    selectedGrupoCidade = new ArrayList();
+                    selectedCnaeConvencao = null;
+                    listCnaeConvencao = new ArrayList();
+                    cnae = false;
+                } else {
+                    loadListConvencao();
+                    loadListGrupoCidade();
+                }
+                break;
+            case "cidades_base":
+                if (!filter.getActive()) {
+                    listCidadesBase = new ArrayList();
+                    selectedCidadesBase = new ArrayList();
+                } else {
+                    loadListCidadesBase();
+                }
+                break;
+            case "servicos":
+                if (!filter.getActive()) {
+                    listServicos = new LinkedHashMap<>();
+                    selectedServicos = new ArrayList<>();
+                } else {
+                    loadListServicos();
+                }
+                break;
+            case "tipo_servico":
+                if (!filter.getActive()) {
+                    listTipoServico = new LinkedHashMap<>();
+                    selectedTipoServico = new ArrayList<>();
+                } else {
+                    loadListTipoServico();
+                }
+                break;
+            case "data":
+                if (!filter.getActive()) {
+                    porData = "";
+                    tipoData = "";
+                    dataInicial = "";
+                    dataFinal = "";
+                } else {
+                    porData = "vencimento";
+                    tipoData = "faixa";
+                    dataInicial = "";
+                    dataFinal = "";
+                }
+                break;
+            case "valor_baixa":
+                if (!filter.getActive()) {
+                    valorBaixaInicial = "";
+                    valorBaixaFinal = "";
+                }
+                break;
+        }
+    }
+
+    public void close(Filters filter) {
+        filter.setActive(!filter.getActive());
+        load(filter);
+    }
+
+    public void loadListServicos() {
+        listServicos = new LinkedHashMap<>();
+        selectedServicos = new ArrayList<>();
+
+        ServicoRotinaDBToplink srdao = new ServicoRotinaDBToplink();
+        List<Servicos> list = srdao.pesquisaTodosServicosComRotinas(4);
+        if (list != null) {
+            for (int i = 0; i < list.size(); i++) {
+                listServicos.put(list.get(i).getDescricao().toUpperCase(), list.get(i).getId());
+
+            }
+        }
+    }
+
+    public void loadListTipoServico() {
+        listTipoServico = new LinkedHashMap<>();
+        selectedTipoServico = new ArrayList<>();
+        List<TipoServico> list = new Dao().list(new TipoServico(), true);
+        if (list != null) {
+            for (int i = 0; i < list.size(); i++) {
+                listTipoServico.put(list.get(i).getDescricao().toUpperCase(), list.get(i).getId());
+            }
+        }
+    }
+
+    public void loadListConvencao() {
+        listConvencao = new ArrayList();
+        List<Convencao> list = new Dao().list(new Convencao(), true);
+        if (list != null) {
+            for (int i = 0; i < list.size(); i++) {
+                if (i == 0) {
+                    idConvencao = list.get(i).getId();
+                }
+                listConvencao.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao().toUpperCase()));
+            }
+        }
+    }
+
+    public void loadListGrupoCidade() {
+        listGrupoCidade = new LinkedHashMap<>();
+        selectedGrupoCidade = new ArrayList<>();
+        ConvencaoCidadeDao convencaoCidadeDao = new ConvencaoCidadeDao();
+        List<ConvencaoCidade> list = convencaoCidadeDao.pesquisaGrupoPorConvencao(idConvencao);
+        if (list != null) {
+            for (int i = 0; i < list.size(); i++) {
+                listGrupoCidade.put(list.get(i).getGrupoCidade().getDescricao().toUpperCase(), list.get(i).getId());
+            }
+        }
+        loadListCnaeConvencao();
+    }
+
+    public void loadListCnaeConvencao() {
+        listCnaeConvencao = new ArrayList();
+        selectedCnaeConvencao = null;
+        if (cnae) {
+            RelatorioContribuintesDao relatorioContribuintesDao = new RelatorioContribuintesDao();
+            listCnaeConvencao = relatorioContribuintesDao.pesquisarCnaeConvencaoPorConvencao("" + idConvencao);
+        }
+    }
+
+    public void loadListContabilidade() {
+        listContabilidade = new ArrayList<>();
+        selectedContabilidade = new ArrayList<>();
+        JuridicaDBToplink juridicaDao = new JuridicaDBToplink();
+        listContabilidade = juridicaDao.pesquisaContabilidade();
+    }
+
+    public void findContabilidade() {
+        if (listContabilidadePesquisa == null) {
+            listContabilidadePesquisa = new ArrayList();
+        }
+        if (listContabilidadePesquisa.isEmpty()) {
+            listContabilidadePesquisa.addAll(listContabilidade);
+        }
+
+        listContabilidade.clear();
+
+        if (descricaoPesquisaContabilidade.length() == 0) {
+            listContabilidade.addAll(listContabilidadePesquisa);
+            return;
+        }
+
+        if (!listContabilidadePesquisa.isEmpty()) {
+            List aux = new ArrayList();
+            for (int i = 0; i < listContabilidadePesquisa.size(); i++) {
+                if (listContabilidadePesquisa.get(i).getPessoa().getNome().toUpperCase().contains(descricaoPesquisaContabilidade.toUpperCase())) {
+                    aux.add(listContabilidadePesquisa.get(i));
+                } else if (listContabilidadePesquisa.get(i).getPessoa().getDocumento().contains(descricaoPesquisaContabilidade)) {
+                    aux.add(listContabilidadePesquisa.get(i));
+                }
+            }
+
+            if (!aux.isEmpty()) {
+                listContabilidade.addAll(aux);
+            } else {
+                listContabilidade.addAll(listContabilidadePesquisa);
+            }
+        }
+
+    }
+
+    public void loadListCidadesBase() {
+        listCidadesBase = new ArrayList();
+        selectedCidadesBase = new ArrayList();
+        GrupoCidadesDBToplink grupoCidadesDao = new GrupoCidadesDBToplink();
+        listCidadesBase = grupoCidadesDao.pesquisaCidadesBase();
+    }
+
+    // TRATAMENTO
+    public String inIdServicos() {
+        String ids = null;
+        if (selectedServicos != null) {
+            ids = "";
+            for (int i = 0; i < selectedServicos.size(); i++) {
+                if (i == 0) {
+                    ids = "" + selectedServicos.get(i);
+                } else {
+                    ids += "," + selectedServicos.get(i);
+                }
+            }
+        }
+        return ids;
+    }
+
+    public String inIdTipoServico() {
+        String ids = null;
+        if (selectedTipoServico != null) {
+            ids = "";
+            for (int i = 0; i < selectedTipoServico.size(); i++) {
+                if (i == 0) {
+                    ids = "" + selectedTipoServico.get(i);
+                } else {
+                    ids += "," + selectedTipoServico.get(i);
+                }
+            }
+        }
+        return ids;
+    }
+
+    public String inIdContabilidade() {
+        String ids = null;
+        if (selectedContabilidade != null) {
+            ids = "";
+            for (int i = 0; i < selectedContabilidade.size(); i++) {
+                if (i == 0) {
+                    ids = "" + selectedContabilidade.get(i).getId();
+                } else {
+                    ids += "," + selectedContabilidade.get(i).getId();
+                }
+            }
+        }
+        return ids;
+    }
+
+    public String inIdCnaeConvencao() {
+        String ids = null;
+        if (selectedCnaeConvencao != null) {
+            ids = "";
+            for (int i = 0; i < selectedCnaeConvencao.length; i++) {
+                if (i == 0) {
+                    ids += "" + selectedCnaeConvencao[i].getCnae().getId();
+                } else {
+                    ids += ", " + selectedCnaeConvencao[i].getCnae().getId();
+                }
+            }
+        }
+        return ids;
+    }
+
+    public String inIdGrupoCidade() {
+        String ids = null;
+        if (selectedGrupoCidade != null) {
+            ids = "";
+            for (int i = 0; i < selectedGrupoCidade.size(); i++) {
+                if (i == 0) {
+                    ids = "" + selectedGrupoCidade.get(i);
+                } else {
+                    ids += "," + selectedGrupoCidade.get(i);
+                }
+            }
+        }
+        return ids;
+    }
+
+    public String inIdCidadesBase() {
+        String ids = null;
+        if (selectedCidadesBase != null) {
+            ids = "";
+            for (int i = 0; i < selectedCidadesBase.size(); i++) {
+                if (i == 0) {
+                    ids = "" + selectedCidadesBase.get(i).getId();
+                } else {
+                    ids += "," + selectedCidadesBase.get(i).getId();
+                }
+            }
+        }
+        return ids;
+    }
+
+    // GETTERS AND SETTERS
+    public List<SelectItem> getListRelatorios() {
+        return listRelatorio;
+    }
+
+    public void setListRelatorios(List<SelectItem> listRelatorio) {
+        this.listRelatorio = listRelatorio;
+    }
+
+    public List<SelectItem> getListRelatorioOrdem() {
+        return listRelatorioOrdem;
+    }
+
+    public void setListRelatorioOrdem(List<SelectItem> listRelatorioOrdem) {
+        this.listRelatorioOrdem = listRelatorioOrdem;
+    }
+
+    /**
+     * 0 grupo finançeiro; 1 subgrupo finançeiro; 2 serviços; 3 sócios; 4 tipo
+     * de pessoa; 5 meses débito
+     *
+     * @return
+     */
+    public List<Filters> getListFilters() {
+        return listFilters;
+    }
+
+    public void setListFilters(List<Filters> listFilters) {
+        this.listFilters = listFilters;
+    }
+
+    public List<SelectItem> getListRelatorio() {
+        return listRelatorio;
+    }
+
+    public void setListRelatorio(List<SelectItem> listRelatorio) {
+        this.listRelatorio = listRelatorio;
+    }
+
+    public Integer getIdRelatorio() {
+        return idRelatorio;
+    }
+
+    public void setIdRelatorio(Integer idRelatorio) {
+        this.idRelatorio = idRelatorio;
+    }
+
+    public Integer getIdRelatorioOrdem() {
+        return idRelatorioOrdem;
+    }
+
+    public void setIdRelatorioOrdem(Integer idRelatorioOrdem) {
+        this.idRelatorioOrdem = idRelatorioOrdem;
+    }
+
+    public Relatorios getRelatorios() {
+        Relatorios r = null;
+        if (!listRelatorio.isEmpty()) {
+            RelatorioDao rgdb = new RelatorioDao();
+            r = rgdb.pesquisaRelatorios(idRelatorio);
+        }
+        return r;
+    }
+
+    public String getSituacao() {
+        return situacao;
+    }
+
+    public void setSituacao(String situacao) {
+        this.situacao = situacao;
+    }
+
+    public void clear(String tCase) {
+        switch (tCase) {
+            case "empresa":
+                empresa = null;
+                break;
+        }
     }
 
     public String getCondicao() {
@@ -735,290 +981,79 @@ public class RelatorioMovimentoBean implements Serializable {
         this.condicao = condicao;
     }
 
-    public String getGeradosPelaCaixa() {
-        return geradosPelaCaixa;
+    public String getGeradosCaixa() {
+        return geradosCaixa;
     }
 
-    public void setGeradosPelaCaixa(String geradosPelaCaixa) {
-        this.geradosPelaCaixa = geradosPelaCaixa;
+    public void setGeradosCaixa(String geradosCaixa) {
+        this.geradosCaixa = geradosCaixa;
     }
 
-    public String getFiltrar() {
-        return filtrar;
-    }
-
-    public void setFiltrar(String filtrar) {
-        this.filtrar = filtrar;
-    }
-
-    public boolean isChkEmpresa() {
-        return chkEmpresa;
-    }
-
-    public void setChkEmpresa(boolean chkEmpresa) {
-        this.chkEmpresa = chkEmpresa;
-    }
-
-    public boolean isChkContabilidade() {
-        return chkContabilidade;
-    }
-
-    public void setChkContabilidade(boolean chkContabilidade) {
-        this.chkContabilidade = chkContabilidade;
-    }
-
-    public String getConverteNullString(Object object) {
-        if (object == null) {
-            return "";
-        } else {
-            return String.valueOf(object);
+    public Juridica getEmpresa() {
+        if (GenericaSessao.exists("juridicaPesquisa")) {
+            empresa = (Juridica) GenericaSessao.getObject("juridicaPesquisa", true);
         }
+        return empresa;
     }
 
-    public int getConverteNullInt(Object object) {
-        if (object == null) {
-            return 0;
-        } else {
-            return (Integer) object;
-        }
+    public void setEmpresa(Juridica empresa) {
+        this.empresa = empresa;
     }
 
-    public boolean isTotaliza() {
-        return totaliza;
+    public List<Juridica> getListContabilidade() {
+        return listContabilidade;
     }
 
-    public void setTotaliza(boolean totaliza) {
-        this.totaliza = totaliza;
+    public void setListContabilidade(List<Juridica> listContabilidade) {
+        this.listContabilidade = listContabilidade;
     }
 
-    public Juridica getJuridica() {
-        if (FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("juridicaPesquisa") != null) {
-            juridica = (Juridica) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("juridicaPesquisa");
-            FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("juridicaPesquisa");
-        }
-        return juridica;
+    public Map<String, Integer> getListServicos() {
+        return listServicos;
     }
 
-    public void setJuridica(Juridica juridica) {
-        this.juridica = juridica;
+    public void setListServicos(Map<String, Integer> listServicos) {
+        this.listServicos = listServicos;
     }
 
-    public void removerJuridica() {
-        juridica = new Juridica();
+    public List getSelectedServicos() {
+        return selectedServicos;
     }
 
-    public List getListaContabilidade() {
-        if (listaContabilidade.isEmpty()) {
-            JuridicaDB db = new JuridicaDBToplink();
-            listaContabilidade.addAll(db.pesquisaContabilidade());
-        }
-        return listaContabilidade;
+    public void setSelectedServicos(List selectedServicos) {
+        this.selectedServicos = selectedServicos;
     }
 
-    public void setListaContabilidade(List listaContabilidade) {
-        this.listaContabilidade = listaContabilidade;
+    public Map<String, Integer> getListTipoServico() {
+        return listTipoServico;
     }
 
-    public String getPesquisaContabil() {
-        return pesquisaContabil;
+    public void setListTipoServico(Map<String, Integer> listTipoServico) {
+        this.listTipoServico = listTipoServico;
     }
 
-    public void setPesquisaContabil(String pesquisaContabil) {
-        this.pesquisaContabil = pesquisaContabil;
+    public List getSelectedTipoServico() {
+        return selectedTipoServico;
     }
 
-    public List getListaContabilidadeSelecionada() {
-        return listaContabilidadeSelecionada;
+    public void setSelectedTipoServico(List selectedTipoServico) {
+        this.selectedTipoServico = selectedTipoServico;
     }
 
-    public void setListaContabilidadeSelecionada(List listaContabilidadeSelecionada) {
-        this.listaContabilidadeSelecionada = listaContabilidadeSelecionada;
+    public String getPorData() {
+        return porData;
     }
 
-    public String getRadioContabil() {
-        return radioContabil;
+    public void setPorData(String porData) {
+        this.porData = porData;
     }
 
-    public void setRadioContabil(String radioContabil) {
-        this.radioContabil = radioContabil;
+    public String getTipoData() {
+        return tipoData;
     }
 
-    public boolean isChkConvencao() {
-        return chkConvencao;
-    }
-
-    public void setChkConvencao(boolean chkConvencao) {
-        this.chkConvencao = chkConvencao;
-    }
-
-    public List<SelectItem> getListaServicos() {
-        if (listaServicos.isEmpty()) {
-            ServicoRotinaDB srdb = new ServicoRotinaDBToplink();
-            List<Servicos> select = srdb.pesquisaTodosServicosComRotinas(4);
-            for (int i = 0; i < select.size(); i++) {
-                listaServicos.add(
-                        new SelectItem(
-                                i,
-                                select.get(i).getDescricao(),
-                                Integer.toString(select.get(i).getId())
-                        )
-                );
-
-            }
-        }
-        return listaServicos;
-    }
-
-    public void setListaServicos(List<SelectItem> listaServicos) {
-        this.listaServicos = listaServicos;
-    }
-
-    public List<SelectItem> getListaConvencao() {
-        if (listaConvencao.isEmpty()) {
-            List<Convencao> select = (new SalvarAcumuladoDBToplink()).listaObjeto("Convencao");
-            for (int i = 0; i < select.size(); i++) {
-                listaConvencao.add(new SelectItem(
-                        i,
-                        select.get(i).getDescricao(),
-                        Integer.toString(select.get(i).getId())
-                ));
-            }
-        }
-        return listaConvencao;
-    }
-
-    public void setListaConvencao(List<SelectItem> listaConvencao) {
-        this.listaConvencao = listaConvencao;
-    }
-
-    public int getIdTipoServico() {
-        return idTipoServico;
-    }
-
-    public void setIdTipoServico(int idTipoServico) {
-        this.idTipoServico = idTipoServico;
-    }
-
-    public int getIdConvencao() {
-        return idConvencao;
-    }
-
-    public void setIdConvencao(int idConvencao) {
-        this.idConvencao = idConvencao;
-    }
-
-    public int getIdGrupoCidade() {
-        return idGrupoCidade;
-    }
-
-    public void setIdGrupoCidade(int idGrupoCidade) {
-        this.idGrupoCidade = idGrupoCidade;
-    }
-
-    public int getIdServicos() {
-        return idServicos;
-    }
-
-    public void setIdServicos(int idServicos) {
-        this.idServicos = idServicos;
-    }
-
-    public List<SelectItem> getListaTipoServico() {
-        if (listaTipoServico.isEmpty()) {
-            List<TipoServico> select = (new SalvarAcumuladoDBToplink()).listaObjeto("TipoServico");
-            for (int i = 0; i < select.size(); i++) {
-                listaTipoServico.add(new SelectItem(
-                        i,
-                        select.get(i).getDescricao(),
-                        Integer.toString(select.get(i).getId()))
-                );
-            }
-        }
-        return listaTipoServico;
-    }
-
-    public void setListaTipoServico(List<SelectItem> listaTipoServico) {
-        this.listaTipoServico = listaTipoServico;
-    }
-
-    public List<SelectItem> getListaGrupoCidade() {
-        if (!listaConvencao.isEmpty()) {
-            listaGrupoCidade.clear();
-            ConvencaoCidadeDao db = new ConvencaoCidadeDao();
-            List<ConvencaoCidade> select = db.pesquisaGrupoPorConvencao(Integer.parseInt(getListaConvencao().get(idConvencao).getDescription()));
-            for (int i = 0; i < select.size(); i++) {
-                listaGrupoCidade.add(new SelectItem(
-                        new Integer(i),
-                        select.get(i).getGrupoCidade().getDescricao(),
-                        Integer.toString(select.get(i).getGrupoCidade().getId()))
-                );
-            }
-        }
-        return listaGrupoCidade;
-    }
-
-    public void setListaGrupoCidade(List<SelectItem> listaGrupoCidade) {
-        this.listaGrupoCidade = listaGrupoCidade;
-    }
-
-    public boolean isChkServicos() {
-        return chkServicos;
-    }
-
-    public void setChkServicos(boolean chkServicos) {
-        this.chkServicos = chkServicos;
-    }
-
-    public boolean isChkTipoServico() {
-        return chkTipoServico;
-    }
-
-    public void setChkTipoServico(boolean chkTipoServico) {
-        this.chkTipoServico = chkTipoServico;
-    }
-
-    public List<Cidade> getListaCidadesBase() {
-        if (listaCidadesBase.isEmpty()) {
-            GrupoCidadesDB db = new GrupoCidadesDBToplink();
-            listaCidadesBase.addAll(db.pesquisaCidadesBase());
-        }
-        return listaCidadesBase;
-    }
-
-    public void setListaCidadesBase(List<Cidade> listaCidadesBase) {
-        this.listaCidadesBase = listaCidadesBase;
-    }
-
-    public List<Cidade> getListaCidadesBaseSelecionado() {
-        return listaCidadesBaseSelecionado;
-    }
-
-    public void setListaCidadesBaseSelecionado(List<Cidade> listaCidadesBaseSelecionado) {
-        this.listaCidadesBaseSelecionado = listaCidadesBaseSelecionado;
-    }
-
-    public boolean isChkCidadeBase() {
-        return chkCidadeBase;
-    }
-
-    public void setChkCidadeBase(boolean chkCidadeBase) {
-        this.chkCidadeBase = chkCidadeBase;
-    }
-
-    public boolean isChkData() {
-        return chkData;
-    }
-
-    public void setChkData(boolean chkData) {
-        this.chkData = chkData;
-    }
-
-    public String getTipoDataPesquisa() {
-        return tipoDataPesquisa;
-    }
-
-    public void setTipoDataPesquisa(String tipoDataPesquisa) {
-        this.tipoDataPesquisa = tipoDataPesquisa;
+    public void setTipoData(String tipoData) {
+        this.tipoData = tipoData;
     }
 
     public String getDataInicial() {
@@ -1037,101 +1072,108 @@ public class RelatorioMovimentoBean implements Serializable {
         this.dataFinal = dataFinal;
     }
 
-    public String getDataRefInicial() {
-        return dataRefInicial;
+    public void setSelectedContabilidade(List<Juridica> selectedContabilidade) {
+        this.selectedContabilidade = selectedContabilidade;
     }
 
-    public void setDataRefInicial(String dataRefInicial) {
-        this.dataRefInicial = dataRefInicial;
+    public String getRadioContabilidade() {
+        return radioContabilidade;
     }
 
-    public String getDataRefFinal() {
-        return dataRefFinal;
+    public void setRadioContabilidade(String radioContabilidade) {
+        this.radioContabilidade = radioContabilidade;
     }
 
-    public void setDataRefFinal(String dataRefFinal) {
-        this.dataRefFinal = dataRefFinal;
+    public List<Juridica> getSelectedContabilidade() {
+        return selectedContabilidade;
     }
 
-    public String getRadioOrdem() {
-        return radioOrdem;
+    public List<Juridica> getListContabilidadePesquisa() {
+        return listContabilidadePesquisa;
     }
 
-    public void setRadioOrdem(String radioOrdem) {
-        this.radioOrdem = radioOrdem;
+    public void setListContabilidadePesquisa(List<Juridica> listContabilidadePesquisa) {
+        this.listContabilidadePesquisa = listContabilidadePesquisa;
     }
 
-    public boolean isChkOrdemEmpresa() {
-        return chkOrdemEmpresa;
+    public String getDescricaoPesquisaContabilidade() {
+        return descricaoPesquisaContabilidade;
     }
 
-    public void setChkOrdemEmpresa(boolean chkOrdemEmpresa) {
-        this.chkOrdemEmpresa = chkOrdemEmpresa;
+    public void setDescricaoPesquisaContabilidade(String descricaoPesquisaContabilidade) {
+        this.descricaoPesquisaContabilidade = descricaoPesquisaContabilidade;
     }
 
-    public boolean isChkCnae() {
-        return chkCnae;
+    public Map<String, Integer> getListGrupoCidade() {
+        return listGrupoCidade;
     }
 
-    public void setChkCnae(boolean chkCnae) {
-        this.chkCnae = chkCnae;
+    public void setListGrupoCidade(Map<String, Integer> listGrupoCidade) {
+        this.listGrupoCidade = listGrupoCidade;
     }
 
-    public int getIdCnae() {
-        return idCnae;
+    public List getSelectedGrupoCidade() {
+        return selectedGrupoCidade;
     }
 
-    public void setIdCnae(int idCnae) {
-        this.idCnae = idCnae;
+    public void setSelectedGrupoCidade(List selectedGrupoCidade) {
+        this.selectedGrupoCidade = selectedGrupoCidade;
     }
 
-    public List<SelectItem> getListaCnaes() {
-        listaCnaes.clear();
-        CnaeConvencaoDB ccdb = new CnaeConvencaoDBToplink();
-        List<Cnae> select = ccdb.listaCnaePorConvencao(Integer.parseInt(listaConvencao.get(idConvencao).getDescription()));
-        for (int i = 0; i < select.size(); i++) {
-            listaCnaes.add(new SelectItem(
-                    i,
-                    select.get(i).getCnae() + " - " + select.get(i).getCnae(),
-                    Integer.toString(select.get(i).getId()))
-            );
-        }
-        return listaCnaes;
+    public List<SelectItem> getListConvencao() {
+        return listConvencao;
     }
 
-    public void setListaCnaes(List<SelectItem> listaCnaes) {
-        this.listaCnaes = listaCnaes;
+    public void setListConvencao(List<SelectItem> listConvencao) {
+        this.listConvencao = listConvencao;
     }
 
-    public CnaeConvencao[] getCnaeConvencaoSelecionado() {
-        return cnaeConvencaoSelecionado;
+    public Integer getIdConvencao() {
+        return idConvencao;
     }
 
-    public void setCnaeConvencaoSelecionado(CnaeConvencao[] cnaeConvencaoSelecionado) {
-        this.cnaeConvencaoSelecionado = cnaeConvencaoSelecionado;
+    public void setIdConvencao(Integer idConvencao) {
+        this.idConvencao = idConvencao;
     }
 
-    public List<CnaeConvencao> getListaCnaeConvencaos() {
-        if (!listaConvencao.isEmpty()) {
-            listaCnaeConvencaos.clear();
-            int i = 0;
-            String ids = "";
-            RelatorioContribuintesDao db = new RelatorioContribuintesDao();
-            listaCnaeConvencaos = db.pesquisarCnaeConvencaoPorConvencao(listaConvencao.get(idConvencao).getDescription());
-        }
-        return listaCnaeConvencaos;
+    public Boolean getCnae() {
+        return cnae;
     }
 
-    public void setListaCnaeConvencaos(List<CnaeConvencao> listaCnaeConvencaos) {
-        this.listaCnaeConvencaos = listaCnaeConvencaos;
+    public void setCnae(Boolean cnae) {
+        this.cnae = cnae;
     }
 
-    public boolean isChkFaixaValor() {
-        return chkFaixaValor;
+    public CnaeConvencao[] getSelectedCnaeConvencao() {
+        return selectedCnaeConvencao;
     }
 
-    public void setChkFaixaValor(boolean chkFaixaValor) {
-        this.chkFaixaValor = chkFaixaValor;
+    public void setSelectedCnaeConvencao(CnaeConvencao[] selectedCnaeConvencao) {
+        this.selectedCnaeConvencao = selectedCnaeConvencao;
+    }
+
+    public List<CnaeConvencao> getListCnaeConvencao() {
+        return listCnaeConvencao;
+    }
+
+    public void setListCnaeConvencao(List<CnaeConvencao> listCnaeConvencao) {
+        this.listCnaeConvencao = listCnaeConvencao;
+    }
+
+    public List<Cidade> getListCidadesBase() {
+        return listCidadesBase;
+    }
+
+    public void setListCidadesBase(List<Cidade> listCidadesBase) {
+        this.listCidadesBase = listCidadesBase;
+    }
+
+    public List<Cidade> getSelectedCidadesBase() {
+        return selectedCidadesBase;
+    }
+
+    public void setSelectedCidadesBase(List<Cidade> selectedCidadesBase) {
+        this.selectedCidadesBase = selectedCidadesBase;
     }
 
     public String getValorBaixaInicial() {
@@ -1149,4 +1191,145 @@ public class RelatorioMovimentoBean implements Serializable {
     public void setValorBaixaFinal(String valorBaixaFinal) {
         this.valorBaixaFinal = valorBaixaFinal;
     }
+
+    public Boolean getTotaliza() {
+        return totaliza;
+    }
+
+    public void setTotaliza(Boolean totaliza) {
+        this.totaliza = totaliza;
+    }
+
+    public int getConverteNullInt(Object object) {
+        if (object == null) {
+            return 0;
+        } else {
+            return (Integer) object;
+        }
+    }
+
+    public Boolean lock() {
+        for (int i = 0; i < listFilters.size(); i++) {
+            if (listFilters.get(i).getActive()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public class ObjectMovimentosResumo {
+
+        private Object mes;
+        private Object ano;
+        private Object empresa_cnpj;
+        private Object empresa_nome;
+        private Object contribuicao;
+        private Object valor;
+        private Object taxa;
+        private Object liquido;
+        private Object cidade;
+
+        public ObjectMovimentosResumo(Object mes, Object ano, Object contribuicao, Object valor, Object taxa, Object liquido) {
+            this.mes = mes;
+            this.ano = ano;
+            this.contribuicao = contribuicao;
+            this.valor = valor;
+            this.taxa = taxa;
+            this.liquido = liquido;
+        }
+
+        public ObjectMovimentosResumo(Object mes, Object ano, Object empresa_cnpj, Object empresa_nome, Object contribuicao, Object valor, Object taxa, Object liquido) {
+            this.mes = mes;
+            this.ano = ano;
+            this.empresa_cnpj = empresa_cnpj;
+            this.empresa_nome = empresa_nome;
+            this.contribuicao = contribuicao;
+            this.valor = valor;
+            this.taxa = taxa;
+            this.liquido = liquido;
+        }
+
+        public ObjectMovimentosResumo(Object cidade, Object mes, Object ano, Object contribuicao, Object valor, Object taxa, Object liquido) {
+            this.cidade = cidade;
+            this.mes = mes;
+            this.ano = ano;
+            this.contribuicao = contribuicao;
+            this.valor = valor;
+            this.taxa = taxa;
+            this.liquido = liquido;
+        }
+
+        public Object getMes() {
+            return mes;
+        }
+
+        public void setMes(Object mes) {
+            this.mes = mes;
+        }
+
+        public Object getAno() {
+            return ano;
+        }
+
+        public void setAno(Object ano) {
+            this.ano = ano;
+        }
+
+        public Object getEmpresa_cnpj() {
+            return empresa_cnpj;
+        }
+
+        public void setEmpresa_cnpj(Object empresa_cnpj) {
+            this.empresa_cnpj = empresa_cnpj;
+        }
+
+        public Object getEmpresa_nome() {
+            return empresa_nome;
+        }
+
+        public void setEmpresa_nome(Object empresa_nome) {
+            this.empresa_nome = empresa_nome;
+        }
+
+        public Object getContribuicao() {
+            return contribuicao;
+        }
+
+        public void setContribuicao(Object contribuicao) {
+            this.contribuicao = contribuicao;
+        }
+
+        public Object getValor() {
+            return valor;
+        }
+
+        public void setValor(Object valor) {
+            this.valor = valor;
+        }
+
+        public Object getTaxa() {
+            return taxa;
+        }
+
+        public void setTaxa(Object taxa) {
+            this.taxa = taxa;
+        }
+
+        public Object getLiquido() {
+            return liquido;
+        }
+
+        public void setLiquido(Object liquido) {
+            this.liquido = liquido;
+        }
+
+        public Object getCidade() {
+            return cidade;
+        }
+
+        public void setCidade(Object cidade) {
+            this.cidade = cidade;
+        }
+    }
+
 }

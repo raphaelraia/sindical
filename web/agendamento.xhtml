@@ -333,7 +333,7 @@
 
                             <h:panelGrid style="width: 100%">
                                 <h:outputLabel value="Observação" />
-                                <p:inputTextarea rows="2" value="#{agendamentoBean.agendamento.observacao}" style="width: 100%" styleClass="bold"/>
+                                <p:inputTextarea rows="2" value="#{agendamentoBean.agendamento.observacao}" style="width: 100%; color: red;" styleClass="bold"/>
                             </h:panelGrid>
                             <p:commandButton value="#{agendamentoBean.juridica.id == -1 ? 'Pesquisar Empresa' : 'Alterar Empresa'}" action="#{chamadaPaginaBean.pesquisaPessoaJuridica}"/>
                             <p:messages id="msg_dialog2" showDetail="true" closable="true"/>

@@ -151,6 +151,7 @@ public class LancamentoFinanceiroBean implements Serializable {
         es = "S";
         esLancamento = "S";
         condicao = "vista";
+        liberaAcessaFilial = false;
         total = "";
         valor = "";
         opcaoCadastro = "";
@@ -447,7 +448,7 @@ public class LancamentoFinanceiroBean implements Serializable {
             if (p.getMovimento().getBaixa() == null) {
                 continue;
             }
-
+            movimento = p.getMovimento();
             if (GerarMovimento.estornarMovimento(movimento, motivoEstorno)) {
                 reverse = true;
             }
@@ -535,7 +536,7 @@ public class LancamentoFinanceiroBean implements Serializable {
             if (es.equals("S")) {
                 FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("esMovimento", "S");
             }
-
+            FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("caixa_banco", "caixa");
             return ((ChamadaPaginaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("chamadaPaginaBean")).baixaGeral();
         }
         return null;
@@ -713,14 +714,22 @@ public class LancamentoFinanceiroBean implements Serializable {
                 return;
             }
             Boolean bloqueiaTipoCondicao = true;
+            int i = 0;
             for (Parcela p : listaParcela) {
                 Movimento movimento = (Movimento) p.getMovimento();
                 movimento.setLote(lote);
-                if (condicao.equals("prazo")) {
-                    if (DataHoje.maiorData(movimento.getVencimento(), lote.getEmissao())) {
-                        bloqueiaTipoCondicao = false;
+                if (condicao.equals("prazo") && bloqueiaTipoCondicao) {
+                    if (listaParcela.size() == 1) {
+                        if (DataHoje.maiorData(movimento.getVencimento(), lote.getEmissao())) {
+                            bloqueiaTipoCondicao = false;
+                        }
+                    } else if (i > 0) {
+                        if (DataHoje.maiorData(movimento.getVencimento(), lote.getEmissao())) {
+                            bloqueiaTipoCondicao = false;
+                        }
                     }
                 }
+                i++;
                 if (movimento.getId() == -1) {
                     if (!dao.save(movimento)) {
                         GenericaMensagem.warn("Erro", "Erro ao Salvar Lançamento!");
@@ -752,10 +761,22 @@ public class LancamentoFinanceiroBean implements Serializable {
                 }
             }
 
-            if (bloqueiaTipoCondicao) {
-                GenericaMensagem.warn("Validação", "Na condição de patgo a PRAZO é necessário ter parcelas com datas superiores nas parcelas!");
-                dao.rollback();
-                return;
+            if (condicao.equals("prazo")) {
+                if (bloqueiaTipoCondicao) {
+                    if (lote.getId() == -1) {
+                        for (Parcela p : listaParcela) {
+                            Movimento m = (Movimento) dao.find(p.getMovimento());
+                            if (m == null) {
+                                m = p.getMovimento();
+                                m.setId(-1);
+                                p.getMovimento();
+                            }
+                        }
+                    }
+                    GenericaMensagem.warn("Validação", "Na condição de patgo a PRAZO é necessário ter parcelas com datas superiores nas parcelas!");
+                    dao.rollback();
+                    return;
+                }
             }
 
             for (Pedido pedidox : listaPedidos) {
@@ -798,6 +819,11 @@ public class LancamentoFinanceiroBean implements Serializable {
                 return;
             }
             Dao dao = new Dao();
+            if (dao.find(new Movimento(), parcela.getMovimento().getId()) == null) {
+                GenericaMensagem.info("Sucesso", "Item removido!");
+                listaParcela.remove(indexParcela);
+                return;
+            }
             dao.openTransaction();
             if (dao.delete((parcela.getMovimento()))) {
                 dao.commit();
@@ -1548,7 +1574,7 @@ public class LancamentoFinanceiroBean implements Serializable {
         if (plano.getId() != -1 && produtos) {
             return total = getValorTotal();
         } else {
-            return total = Moeda.converteR$(total);
+            return total = Moeda.converteR$(total, null);
         }
     }
 
@@ -1557,7 +1583,7 @@ public class LancamentoFinanceiroBean implements Serializable {
     }
 
     public String getValor() {
-        return Moeda.converteR$(valor);
+        return Moeda.converteR$(valor, null);
     }
 
     public void setValor(String valor) {
@@ -1697,6 +1723,9 @@ public class LancamentoFinanceiroBean implements Serializable {
     public void loadListaContaOperacao() {
         listaContaOperacao = new ArrayList();
         List<ContaOperacao> listaConta = new ContaOperacaoDao().findByFilialOperacao(idFilial, idOperacao, idCentroCusto);
+        if (listaConta.isEmpty()) {
+            listaConta = new ContaOperacaoDao().findByFilialOperacao(idFilial, idOperacao);
+        }
         if (!listaConta.isEmpty()) {
             for (int i = 0; i < listaConta.size(); i++) {
                 if (i == 0) {
@@ -1740,18 +1769,24 @@ public class LancamentoFinanceiroBean implements Serializable {
 
     public void loadListaCentroCusto() {
         listaCentroCusto = new ArrayList();
-        List<CentroCusto> listaCentro = new CentroCustoDao().findByFilial(idFilial);
-        if (!listaCentro.isEmpty()) {
-            for (int i = 0; i < listaCentro.size(); i++) {
-                if (i == 0) {
-                    idCentroCusto = listaCentro.get(i).getId();
+        Operacao o = getOperacao();
+        if (o.getCentroCusto()) {
+            List<CentroCusto> listaCentro = new CentroCustoDao().findByFilial(idFilial);
+            if (!listaCentro.isEmpty()) {
+                for (int i = 0; i < listaCentro.size(); i++) {
+                    if (i == 0) {
+                        idCentroCusto = listaCentro.get(i).getId();
+                    }
+                    listaCentroCusto.add(
+                            new SelectItem(
+                                    listaCentro.get(i).getId(),
+                                    listaCentro.get(i).getDescricao()
+                            )
+                    );
                 }
-                listaCentroCusto.add(
-                        new SelectItem(
-                                listaCentro.get(i).getId(),
-                                listaCentro.get(i).getDescricao()
-                        )
-                );
+            } else {
+                idCentroCusto = 0;
+                listaCentroCusto.add(new SelectItem(0, "Nenhum Centro Custo Encontrado"));
             }
         } else {
             idCentroCusto = 0;

@@ -475,14 +475,14 @@
                                     </p:inputTextarea>
                                 </p:panel>
 
-                                <p:dataTable var="parcela" id="tbl_p" value="#{lancamentoFinanceiroBean.listaParcela}" selection="#{lancamentoFinanceiroBean.listaParcelaSelecionada}" rowKey="#{parcela.parcela}" rowIndexVar="index" emptyMessage="Adicionar Parcela!" scrollable="true" scrollHeight="110" editable="#{lancamentoFinanceiroBean.lote.id == -1}" editMode="cell" styleClass="margin-top-max">
-                                    <p:column selectionMode="multiple" width="15" styleClass="text-center"/>
+                                <p:dataTable var="parcela" id="tbl_p" value="#{lancamentoFinanceiroBean.listaParcela}" selection="#{lancamentoFinanceiroBean.listaParcelaSelecionada}" rowKey="#{parcela.parcela}" rowIndexVar="index" emptyMessage="Adicionar Parcela!" scrollable="true" scrollHeight="110" editable="#{lancamentoFinanceiroBean.lote.id == -1}" editMode="cell" styleClass="margin-top-max" disabledSelection="#{not empty parcela.dataQuitacao}">
+                                    <p:column selectionMode="multiple" width="15" styleClass="text-center" />
                                     <p:column width="15">  
                                         <p:rowToggler />  
                                     </p:column>
 
                                     <p:column width="15">
-                                        <p:commandButton action="#{lancamentoFinanceiroBean.openExcluirParcela(parcela, index)}" oncomplete="PF('i_dlg_ex_movimento').show()" title="Excluir Movimento" icon="ui-icon-close" style="width: 20px; height: 20px"/>
+                                        <p:commandButton action="#{lancamentoFinanceiroBean.openExcluirParcela(parcela, index)}" oncomplete="PF('i_dlg_ex_movimento').show()" title="Excluir Movimento" icon="ui-icon-close" style="width: 20px; height: 20px" disabled="#{not empty parcela.dataQuitacao}"/>
                                     </p:column>
 
                                     <p:column headerText="Vencto" styleClass="text-center">
@@ -490,7 +490,7 @@
                                     </p:column>
 
                                     <p:column headerText="Referência" styleClass="text-center">
-                                        <p:inputMask mask="99/9999" value="#{parcela.referencia}" placeholder="__/____" converter="#{isDateReference}" size="8" styleClass="text-center">
+                                        <p:inputMask mask="99/9999" value="#{parcela.referencia}" placeholder="__/____" converter="#{isDateReference}" size="8" styleClass="text-center" readonly="#{not empty parcela.dataQuitacao}">
                                             <p:ajax event="change" update="@this" />
                                         </p:inputMask>
                                     </p:column>
@@ -619,7 +619,7 @@
                                         <p:column>
                                             <h:panelGrid>
                                                 <p:outputLabel value="Valor Unitário" />
-                                                <p:inputText value="#{lancamentoFinanceiroBean.valorUnitarioPedido}" size="8" style="margin-right: 15px" converter="#{toCurrency}" styleClass="text-right">
+                                                <p:inputText value="#{lancamentoFinanceiroBean.valorUnitarioPedido}" size="8" style="margin-right: 15px" converter="#{toCurrency4}" styleClass="text-right">
                                                     <p:ajax event="change" update="@this" />
                                                 </p:inputText>
                                             </h:panelGrid>
