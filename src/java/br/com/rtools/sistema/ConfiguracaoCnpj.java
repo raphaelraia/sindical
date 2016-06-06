@@ -8,6 +8,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -36,6 +38,9 @@ public class ConfiguracaoCnpj implements Serializable {
     private Boolean local;
     @Column(name = "is_web", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean web;
+    @JoinColumn(name = "id_tipo_pesquisa_cnpj", referencedColumnName = "id", nullable = false)
+    @ManyToOne
+    private TipoPesquisaCnpj tipoPesquisaCnpj;
 
     public ConfiguracaoCnpj() {
         this.id = -1;
@@ -46,9 +51,10 @@ public class ConfiguracaoCnpj implements Serializable {
         this.dias = 0;
         this.local = false;
         this.web = false;
+        this.tipoPesquisaCnpj = new TipoPesquisaCnpj();
     }
 
-    public ConfiguracaoCnpj(Integer id, Date dataCadastro, Date dataAtualizacao, String email, String senha, Integer dias, Boolean local, Boolean web) {
+    public ConfiguracaoCnpj(Integer id, Date dataCadastro, Date dataAtualizacao, String email, String senha, Integer dias, Boolean local, Boolean web, TipoPesquisaCnpj tipoPesquisaCnpj) {
         this.id = id;
         this.dataCadastro = dataCadastro;
         this.dataAtualizacao = dataAtualizacao;
@@ -57,6 +63,7 @@ public class ConfiguracaoCnpj implements Serializable {
         this.dias = dias;
         this.local = local;
         this.web = web;
+        this.tipoPesquisaCnpj = tipoPesquisaCnpj;
     }
 
     public Integer getId() {
@@ -168,6 +175,14 @@ public class ConfiguracaoCnpj implements Serializable {
     @Override
     public String toString() {
         return "ConfiguracaoCnpj{" + "id=" + id + ", dataCadastro=" + dataCadastro + ", dataAtualizacao=" + dataAtualizacao + ", email=" + email + ", senha=" + senha + ", dias=" + dias + ", local=" + local + ", web=" + web + '}';
+    }
+
+    public TipoPesquisaCnpj getTipoPesquisaCnpj() {
+        return tipoPesquisaCnpj;
+    }
+
+    public void setTipoPesquisaCnpj(TipoPesquisaCnpj tipoPesquisaCnpj) {
+        this.tipoPesquisaCnpj = tipoPesquisaCnpj;
     }
 
 }

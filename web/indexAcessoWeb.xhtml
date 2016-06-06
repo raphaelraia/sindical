@@ -1,10 +1,10 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:ui="http://java.sun.com/jsf/facelets"
-      xmlns:h="http://java.sun.com/jsf/html"
-      xmlns:f="http://java.sun.com/jsf/core"
-      xmlns:c="http://java.sun.com/jsp/jstl/core"
-      xmlns:p="http://primefaces.org/ui">
-    
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
     <h:head>
         <title>Sindical - Acesso Web</title>
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" charset="UTF-8"/>
@@ -18,28 +18,28 @@
 
         <!-- Latest compiled and minified JavaScript -->
         <!-- <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script> -->
-        
+
         <!-- <link rel="shortcut icon" href="# {facesContext.externalContext.requestContextPath}/resourses/css/foundation/foundation.css"/>  -->
-        
+
         <style type="text/css">
             .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
             .ui-button { padding: 3px!important; }
-            
+
             .ui-selectonemenu-trigger ui-state-default ui-corner-right{
                 width: 50px;
             }
-            
+
             .ui-panel{
                 padding: 15px;
             }
-            
+
             .ui-panel-title, .ui-panel-titlebar {
                 text-align: center !important;
                 background: #0066cc;
                 color: white;
                 font-weight: normal;
             }
-            
+
             .link-esqueci-senha{
                 float: right; margin-top: 20px; text-decoration: none; font-size: 10pt!important;
             }
@@ -53,17 +53,17 @@
             <ui:include src="templates/templateStatus.xhtml" />
             <h:form id="formLogin">
                 <input type="hidden" value="#{controleUsuarioBean.validaIndex}" />
-                
+
                 <h:panelGrid style="margin: 0 auto; margin-top: 100px">
                     <h:graphicImage url="/Cliente/#{controleUsuarioBean.clienteString}/Imagens/LogoCliente.png" width="300"/>
                 </h:panelGrid>
-                
+
                 <p:panel header="FAÇA O LOGIN NO SISTEMA" style="width: 350px; margin: 0 auto; margin-top: 10px">
                     <p:messages showDetail="true" style="font-size: 10pt!important" autoUpdate="true" closable="true"/>
                     <h:panelGrid style="margin-top: 30px; width: 100%" rendered="#{!controleAcessoWebBean.registro.acessoWebDocumento}">
                         <p:outputLabel value="LOGIN" style="font-weight: bold; font-size: 10pt" for="i_login"/>
                         <p:inputText id="i_login" value="#{controleAcessoWebBean.pessoa.login}" placeholder="Digite seu Login" style="width: 100%" autocomplete="off"/>
-                        
+
                         <p:outputLabel value="SENHA" style="font-weight: bold; font-size: 10pt" for="i_senha"/>
                         <p:password id="i_senha" value="#{controleAcessoWebBean.pessoa.senha}" placeholder="Digite sua Senha" style="width: 100%" autocomplete="off"/>
 
@@ -71,27 +71,49 @@
 
                         <p:commandLink value="Esqueci a Senha" onclick="PF('dlg_esqueci_senha').show()" styleClass="link-esqueci-senha" />
                     </h:panelGrid>
-                    
+
                     <h:panelGrid style="margin-top: 30px; width: 100%" rendered="#{controleAcessoWebBean.registro.acessoWebDocumento}">
                         <p:outputLabel value="CNPJ" style="font-weight: bold; font-size: 10pt" for="i_cnpj"/>
                         <p:inputMask id="i_cnpj" value="#{controleAcessoWebBean.documento}" placeholder="Digite seu CNPJ" style="width: 100%; text-align: center" autocomplete="off" mask="99.999.999/9999-99"/>
-                        
-                        <p:commandButton value="Entrar" style="width: 100%; margin-top: 20px" action="#{controleAcessoWebBean.validacaoDocumento()}" update=":i_form_empregado"/>
+
+                        <p:commandButton value="Entrar" style="width: 100%; margin-top: 20px" action="#{controleAcessoWebBean.validacaoDocumento(false)}" />
                     </h:panelGrid>
                 </p:panel>
+
+                <p:dialog id="dlg_confirma_pesquisa_cpnj" widgetVar="dlg_confirma_pesquisa_cpnj" modal="true" header="Pesquisar CNPJ na Receita" width="400" resizable="false">
+                    <p:focus context="dlg_confirma_pesquisa_cpnj"/>
+
+                    <h:outputLabel value="Digite o Captcha?" />
+                    <br />
+                    <h:graphicImage value="#{controleAcessoWebBean.pesquisaCNPJ.caminhoImagem}" alt="IMAGEM CAPTCHA"/>
+                    <br />
+                    <h:panelGrid columns="2">
+                        <p:inputText value="#{controleAcessoWebBean.pesquisaCNPJ.captcha}" rendered="#{controleAcessoWebBean.pesquisaCNPJ.caminhoImagem ne ''}">
+                            <p:ajax event="change" update="@this" global="false"/>
+                        </p:inputText>
+                        <p:commandLink value="Outra Imagem" action="#{controleAcessoWebBean.acaoPesquisarCNPJ()}" update="dlg_confirma_pesquisa_cpnj"/>
+                    </h:panelGrid>
+
+                    <f:facet name="footer">
+                        <h:panelGrid columns="2">
+                            <p:commandButton value="Validar" type="submit" styleClass="ui-confirmdialog-yes" action="#{controleAcessoWebBean.validacaoDocumento(true)}" update="formLogin" oncomplete="PF('dlg_confirma_pesquisa_cpnj').hide()" icon="ui-icon-check" style="font-weight: bold"/>  
+                            <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_confirma_pesquisa_cpnj').hide()" icon="ui-icon-close"/>
+                        </h:panelGrid>
+                    </f:facet>
+                </p:dialog>                
             </h:form>
-            
+
             <h:form id="i_form_esqueci_senha">
                 <p:dialog widgetVar="dlg_esqueci_senha" modal="true" header="Recuperar minha Senha" resizable="false" style="width: 460px">
                     <p:messages showDetail="true" style="font-size: 10pt!important" autoUpdate="true"/>
                     <h:panelGrid>
                         <p:outputLabel value="DIGITE SEU EMAIL E PESQUISE SUA EMPRESA." for="i_digite_email"/>
                     </h:panelGrid>
-                        
+
                     <h:panelGrid style="margin-top: 10px; width: 100%">
                         <p:inputText id="i_digite_email" value="#{controleAcessoWebBean.email}" placeholder="Digite seu EMAIL" style="width: 100%"/>
                     </h:panelGrid>
-                    
+
                     <h:panelGrid id="i_div_tipo" columns="2" style="margin-top: 20px; width: 100%" styleClass="fundoCinza">
                         <h:column>
                             <h:outputLabel value="Por" /><br />
@@ -109,12 +131,12 @@
                             <p:inputText value="#{controleAcessoWebBean.descPesquisa}" style="width: 220px"/>
                             <p:commandButton value="Pesquisar" action="#{controleAcessoWebBean.parcial}" update="i_lista_empresa"/>
                         </h:column>
-                            
+
                         <h:column rendered="#{controleAcessoWebBean.strTipoPesquisa == 'cnpj'}">
                             <h:outputLabel value="CNPJ da Empresa" />
                             <p:inputMask value="#{controleAcessoWebBean.descPesquisa}" mask="99.999.999/9999-99" style="text-align: center; width: 100%"/>
                         </h:column>
-                            
+
                         <h:column rendered="#{controleAcessoWebBean.strTipoPesquisa == 'cpf'}">
                             <h:outputLabel value="CPF da Empresa" />
                             <p:inputMask value="#{controleAcessoWebBean.descPesquisa}" mask="999.999.999-99" style="text-align: center; width: 100%"/>
@@ -125,7 +147,7 @@
                             <p:inputText value="#{controleAcessoWebBean.descPesquisa}" style="text-align: center; width: 100%"/>
                         </h:column>
                     </h:panelGrid>
-                    
+
                     <h:panelGrid id="i_lista_empresa">
                         <h:column rendered="#{controleAcessoWebBean.strTipoPesquisa == 'nome' and controleAcessoWebBean.listaEmpresa.size() > 0}">
                             <p:outputLabel value="Empresas" /><br />
@@ -135,27 +157,27 @@
                             </p:selectOneMenu>
                         </h:column>
                     </h:panelGrid>
-                    
+
                     <h:panelGrid>
                         <p:commandButton value="Enviar pedido de recuperação de Senha" action="#{controleAcessoWebBean.enviarEmail}" style="font-weight: bold; font-size: 10pt!important"/>
                     </h:panelGrid>
                 </p:dialog>
             </h:form>
-            
+
             <h:form id="i_form_empregado">
                 <p:dialog id="i_d" widgetVar="dlg_empregados" modal="true" header="Dados da Empresa" resizable="false" style="width: 460px">
                     <h:outputScript name="script_primefaces.js" library="js" />
                     <h:panelGrid style="width: 100%">
                         <p:messages id="i_msg_empregados" showDetail="true"/>
                     </h:panelGrid>
-                    
+
                     <h:panelGrid style="width: 100%">
                         <p:outputLabel value="Quantidade de empregados para este mês" />
                         <p:inputMask id="i_quantidade" value="#{controleAcessoWebBean.empregados.quantidade}" style="text-align: right; width: 100%" mask="9?9999999999999" >
                             <p:ajax event="change" update="@this i_panel_quantidade" global="false"/>
                         </p:inputMask>
                     </h:panelGrid>
-                        
+
                     <br />
                     <h:panelGrid style="width: 100%">
                         <p:outputLabel value="Email da Empresa" />
@@ -163,7 +185,7 @@
                             <p:ajax event="change" update="@this i_panel_quantidade" global="false"/>
                         </p:inputText>
                     </h:panelGrid>
-                    
+
                     <br />
                     <h:panelGrid style="width: 100%">
                         <p:outputLabel value="Telefone da Empresa" />
@@ -175,7 +197,7 @@
                     <p:commandButton value="Salvar" update="i_msg_empregados" action="#{controleAcessoWebBean.validaEmpregados()}"/>
                     <p:commandButton value="Cancelar" onclick="PF('dlg_empregados').hide()"/>
                 </p:dialog>
-                
+
                 <p:dialog widgetVar="dlg_empregados_confirma" modal="true" header="Confirmação de Dados" resizable="false" style="width: 200px">
                     <h:panelGrid id="i_panel_quantidade">
                         <h:panelGrid  columns="3">
@@ -201,7 +223,7 @@
                     <p:commandButton value="Não, alterar dados" onclick="PF('dlg_empregados_confirma').hide()"/>
                 </p:dialog>
             </h:form>
-            
+
             <h:form id="i_form_login_patronal">
                 <p:dialog id="i_d" widgetVar="dlg_patronal" modal="true" header="" resizable="false" style="width: 460px">
                     <p:panel header="FAÇA O LOGIN NO SISTEMA" style="width: 350px; margin: 0 auto; margin-top: 10px">
@@ -220,7 +242,7 @@
                     </p:panel>
                 </p:dialog>
             </h:form>
-            
+
             <h:panelGrid style="margin: 0 auto;">
                 <p:outputLabel value="Navegadores Compatíveis (Clique no ícone para download)" style="font-size: 8pt!important"/>
             </h:panelGrid>
@@ -244,13 +266,13 @@
                 <h:outputLink value="https://www.microsoft.com/pt-br/windows/microsoft-edge" target="_blank" title="Microsoft Edge">
                     <h:graphicImage url="/Imagens/iconEdge.gif" alt="Microsoft Edge" />
                 </h:outputLink>
-                
+
                 <h:outputLink value="http://windows.microsoft.com/pt-BR/internet-explorer/products/ie/home" target="_blank" title="Internet Explorer">
                     <h:graphicImage url="/Imagens/iconOffIE.gif" alt="Internet Explorer" />
                 </h:outputLink>
-                
+
             </h:panelGrid>
-            
+
             <h:panelGrid style="margin: 0 auto; margin-top: 100px">
                 <h:panelGrid columns="2">
                     <p:outputLabel value="Direitos reservados R'tools Desenvolvimento de Sistemas LTDA | " style="font-size: 8pt!important"/>

@@ -274,7 +274,6 @@ public class JuridicaBean implements Serializable {
     }
 
     public void pesquisaCnpjXML(Boolean confirmar) {
-        Boolean pesquisa_pelo_sistema = true;
         if (configuracaoCnpj == null || configuracaoCnpj.getLocal()) {
             if (juridica.getId() != -1) {
                 return;
@@ -315,7 +314,7 @@ public class JuridicaBean implements Serializable {
 
             pesquisaCNPJ.setCnpj(documento);
 
-            if (pesquisa_pelo_sistema && !confirmar && juridicaReceita.getId() == -1) {
+            if (configuracaoCnpj.getTipoPesquisaCnpj().getId() == 3 && !confirmar && juridicaReceita.getId() == -1) {
                 acaoPesquisarCNPJ();
                 return;
             }
@@ -325,7 +324,7 @@ public class JuridicaBean implements Serializable {
             if (juridicaReceita.getId() == -1) {
                 // tipo = "wooki" = pago / "gratis" = gratis / "padrao" = desenvolvido pelo sistema
                 // tipo = "wooki" e "gratis" (pesquisaCNPJ) = NULL, "padrao" passar o PesquisaCNPJ com o retorno do método pesquisar = true
-                if (pesquisa_pelo_sistema && confirmar) {
+                if (configuracaoCnpj.getTipoPesquisaCnpj().getId() == 3 && confirmar) {
                     jro = new JuridicaReceitaJSON(pesquisaCNPJ).pesquisar();
                     // ERRO AO PROCESSAR CAPTCHA
                     if (jro.getStatus() == -2) {
@@ -337,8 +336,10 @@ public class JuridicaBean implements Serializable {
                         GenericaMensagem.warn("Atenção", jro.getMsg());
                         return;
                     }
-                } else {
+                } else if (configuracaoCnpj.getTipoPesquisaCnpj().getId() == 1){
                     jro = new JuridicaReceitaJSON(documento, "wooki").pesquisar();
+                }else {
+                    jro = new JuridicaReceitaJSON(documento, "gratis").pesquisar();
                 }
 
                 // NULL É PORQUE DEU ERRO DESCONHECIDO

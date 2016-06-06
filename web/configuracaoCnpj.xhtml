@@ -41,6 +41,17 @@
                                         </p:spinner>
                                     </p:column>                                        
                                 </h:panelGrid>
+
+                                <h:panelGrid>
+                                    <p:column>
+                                        <p:outputLabel value="Sistema de Pesquisa" /><br />
+                                        <p:selectOneMenu value="#{configuracaoCnpjBean.indexTipoPesquisa}" style="width: 100px">
+                                            <p:ajax event="change" update="@this"/>
+                                            <f:selectItems value="#{configuracaoCnpjBean.listaTipoPesquisa}"/>
+                                        </p:selectOneMenu>
+                                    </p:column>
+                                </h:panelGrid>
+                                
                                 <h:panelGrid cellpadding="5" columns="2">
                                     <p:selectBooleanCheckbox value="#{configuracaoCnpjBean.configuracaoCnpj.local}" itemLabel="Libera Consulta Sistema">
                                         <p:ajax event="change" update="@this form_cnpj" listener="#{configuracaoCnpjBean.update}"/>
@@ -51,6 +62,7 @@
                                 </h:panelGrid>
                             </p:tab>                            
                         </p:tabView>
+                        
                         <f:facet name="footer">
                             <p:commandButton value="Atualizar" action="#{configuracaoCnpjBean.update()}" update=":form_cnpj:"/>
                         </f:facet>

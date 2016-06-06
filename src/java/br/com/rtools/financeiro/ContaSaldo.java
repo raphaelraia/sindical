@@ -3,6 +3,7 @@ package br.com.rtools.financeiro;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.Moeda;
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.*;
@@ -76,6 +77,14 @@ public class ContaSaldo implements Serializable {
 
     public void setSaldo(float saldo) {
         this.saldo = saldo;
+    }
+    
+    public String getSaldoString() {
+        return Moeda.converteR$Float(saldo);
+    }
+
+    public void setSaldoString(String saldoString) {
+        this.saldo = Moeda.converteUS$(saldoString);
     }
 
     public Plano5 getPlano5() {
