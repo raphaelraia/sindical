@@ -506,12 +506,12 @@ public class MovimentoDBToplink extends DB implements MovimentoDB {
                 qry_pessoa = " and m.id_pessoa = " + id_pessoa + " \n ";
             }
         }
-        
+
         if (!boleto_inicial.isEmpty() || !boleto_final.isEmpty()) {
-            if(boleto_inicial.equals("0")) {
+            if (boleto_inicial.equals("0")) {
                 boleto_inicial = "";
             }
-            if(boleto_final.equals("0")) {
+            if (boleto_final.equals("0")) {
                 boleto_final = "";
             }
             if (!boleto_inicial.isEmpty() && boleto_final.isEmpty()) {
@@ -1451,7 +1451,8 @@ public class MovimentoDBToplink extends DB implements MovimentoDB {
                     + "             replace('0000000000'||pes.ds_documento,'/',''),'-',''),'.',''))),0,16) = '" + tipoDocumento + "' "
                     + "   and mov.id_baixa is null "
                     + //"   and mov.id_conta_cobranca = " + idContaCobranca +
-                    "   and mov.id_servicos = 1 " + // ------- FIXO
+                    "   and mov.id_servicos = 1 "
+                    + // ------- FIXO
                     "   and mov.ds_referencia = '" + ref + "' "
                     + "   and mov.id_tipo_servico = " + tipoServico.getId();
             Query qry = getEntityManager().createNativeQuery(textQuery);
@@ -1491,7 +1492,8 @@ public class MovimentoDBToplink extends DB implements MovimentoDB {
                     + "   and mov.id_baixa is not null "
                     + //"   and mov.id_conta_cobranca = " + idContaCobranca +
                     "   and bol.id_conta_cobranca = " + idContaCobranca
-                    + "   and mov.id_servicos = 1 " + // ------- FIXO
+                    + "   and mov.id_servicos = 1 "
+                    + // ------- FIXO
                     "   and mov.ds_referencia = '" + ref + "' "
                     + "   and mov.is_ativo is true "
                     + "   and mov.id_tipo_servico = " + tipoServico.getId();
@@ -1558,15 +1560,13 @@ public class MovimentoDBToplink extends DB implements MovimentoDB {
                 + "       SUBSTRING('000000000000000'||b.ds_boleto, LENGTH('000000000000000'||b.ds_boleto) - 16, LENGTH('000000000000000'||b.ds_boleto))";
         if (!reg.isBaixaVencimento()) {
             textQuery += " AND b.id_conta_cobranca = " + idContaCobranca;
+        } else if (DataHoje.converteData(vencimento).equals("11/11/1111")) {
+            textQuery
+                    += " AND b.id_conta_cobranca = " + idContaCobranca;
         } else {
-            if (DataHoje.converteData(vencimento).equals("11/11/1111")) {
-                textQuery 
-                        += " AND b.id_conta_cobranca = " + idContaCobranca;
-            } else {
-                textQuery
-                        += " AND b.id_conta_cobranca  = " + idContaCobranca
-                        + "  AND b.dt_vencimento = '" + DataHoje.converteData(vencimento) + "'";
-            }
+            textQuery
+                    += " AND b.id_conta_cobranca  = " + idContaCobranca
+                    + "  AND b.dt_vencimento = '" + DataHoje.converteData(vencimento) + "'";
         }
         try {
             Query qry = getEntityManager().createNativeQuery(textQuery, Movimento.class);
@@ -1933,6 +1933,36 @@ public class MovimentoDBToplink extends DB implements MovimentoDB {
         return result;
     }
 
+    public List<Movimento> pesquisaAcordoPorMovimento(Integer movimento_id) {
+        try {
+            String queryString
+                    = "     SELECT M.*                                          \n"
+                    //                    + "            M.id_acordo AS acordo_id,\n"
+                    //                    + "            M.ds_referencia AS referencia,\n"
+                    //                    + "            SE.ds_descricao AS servico_descricao,\n"
+                    //                    + "            M.nr_valor AS valor,\n"
+                    //                    + "            M.nr_multa AS multa,\n"
+                    //                    + "            M.nr_juros AS juros,\n"
+                    //                    + "            M.nr_correcao AS correcao,\n"
+                    //                    + "            M.nr_desconto AS desconto,\n"
+                    //                    + "            M.nr_valor + M.nr_multa + M.nr_juros + M.nr_correcao - M.nr_desconto AS total\n"
+                    + "       FROM fin_movimento AS M                           \n"
+                    + "INNER JOIN fin_servicos SE ON SE.id = M.id_servicos      \n"
+                    + "     WHERE M.id_acordo IN (SELECT id_acordo              \n"
+                    + "                             FROM fin_movimento          \n"
+                    + "                            WHERE id = " + movimento_id + ")   \n"
+                    + "       AND M.id_tipo_servico <> 4                        \n"
+                    + "  ORDER BY SE.ds_descricao,                              \n"
+                    + "           RIGHT (M.ds_referencia, 4),                   \n"
+                    + "           LEFT(M.ds_referencia, 2);                     \n";
+            Query query = getEntityManager().createNativeQuery(queryString, Movimento.class);
+            List list = query.getResultList();
+            return list;
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
     @Override
     public List<Movimento> pesquisaAcordoTodos(int idAcordo) {
         // TANTO PARA ACORDO DE ARRECADAÇÃO QUANTO SOCIAL
@@ -2020,7 +2050,7 @@ public class MovimentoDBToplink extends DB implements MovimentoDB {
             return false;
         }
     }
-    
+
     @Override
     public boolean excluirAcordoSocialIn(String ids, int idAcordo) {
         try {
@@ -2042,10 +2072,11 @@ public class MovimentoDBToplink extends DB implements MovimentoDB {
 //            if (bole.isEmpty()) {
 //                return false;
 //            }
-
             List lista = new ArrayList();
             lista.add("delete from Historico h where h.movimento.id in ( " + ids + " )");
-            if (!bole.isEmpty()) lista.add("delete from Boleto b where b.nrCtrBoleto in (" + ids_boleto + ")");
+            if (!bole.isEmpty()) {
+                lista.add("delete from Boleto b where b.nrCtrBoleto in (" + ids_boleto + ")");
+            }
             lista.add("delete from ImpressaoWeb i where i.movimento.id in (" + ids + ")");
             lista.add("delete from Impressao i where i.movimento.id in (" + ids + ")");
             lista.add("delete from Movimento m where m.acordo.id = " + idAcordo + " and m.ativo = true");

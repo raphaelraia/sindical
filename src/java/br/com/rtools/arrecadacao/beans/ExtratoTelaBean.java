@@ -90,6 +90,7 @@ public class ExtratoTelaBean implements Serializable {
 
     private String motivoEstorno = "";
     private Movimento movimentoAlterar = new Movimento();
+    private List<Movimento> listMovimentosAcordo = new ArrayList();
 
     public ExtratoTelaBean() {
         ControleAcessoBean controx = new ControleAcessoBean();
@@ -220,6 +221,8 @@ public class ExtratoTelaBean implements Serializable {
                 porPesquisa, tipoDataPesquisa, dataInicial, dataFinal, dataRefInicial, dataRefFinal, boletoInicial, boletoFinal, ic, its, pessoa.getId(), ordenacao, movimentosDasEmpresas
         );
 
+        MovimentoDBToplink movimentosDao = new MovimentoDBToplink();
+
         for (Vector linha_list : listax) {
             if ((linha_list.get(21)) == null) {
                 linha_list.set(21, 0.0);
@@ -280,6 +283,12 @@ public class ExtratoTelaBean implements Serializable {
                 classTbl = "";
             }
 
+            List<Movimento> listMovimentoAcordo = new ArrayList();
+
+            if (linha_list.get(11).toString().toUpperCase().equals("ACORDO")) {
+                listMovimentoAcordo = movimentosDao.pesquisaAcordoPorMovimento(((Integer) linha_list.get(0)));
+            }
+
             listaMovimentos.add(new DataObject(
                     false,
                     ((Integer) linha_list.get(0)), //ARG 1 id
@@ -308,7 +317,7 @@ public class ExtratoTelaBean implements Serializable {
                     linha_list.get(20), // ARG 24 filial
                     Moeda.converteR$Float(valor_baixa), // ARG 25 valor_baixa
                     classTbl, // ARG 26 null
-                    null, // ARG 27 null
+                    listMovimentoAcordo, // ARG 27 MOVIMENTOS ACORDO
                     null // ARG 28 null
             )
             );
@@ -1743,6 +1752,14 @@ public class ExtratoTelaBean implements Serializable {
 
     public void setMovimentoVencimento(Movimento movimentoVencimento) {
         this.movimentoVencimento = movimentoVencimento;
+    }
+
+    public List<Movimento> getListMovimentosAcordo() {
+        return listMovimentosAcordo;
+    }
+
+    public void setListMovimentosAcordo(List<Movimento> listMovimentosAcordo) {
+        this.listMovimentosAcordo = listMovimentosAcordo;
     }
 
 }

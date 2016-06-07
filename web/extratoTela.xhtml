@@ -306,6 +306,11 @@
                                             <p:outputLabel value="Importação" style="font-weight: bold"/><br />
                                             <p:outputLabel value="#{movimentos.argumento10}"/>
                                         </p:column>
+
+                                        <p:column>
+                                            <p:outputLabel value="Acordo" style="font-weight: bold" rendered="#{not empty movimentos.argumento27}" /><br />
+                                            <p:commandLink value="#{movimentos.argumento27[0].acordo.id} (Visualizar)" rendered="#{not empty movimentos.argumento27}"  action="#{extratoTelaBean.setListMovimentosAcordo(movimentos.argumento27)}" onclick="PF('dlg_acordos').show()" update=":formExtratoTelaOpcoes:i_m_a" styleClass="bold font-color-blue" title="Visualizar esta lista"/>
+                                        </p:column>
                                     </h:panelGrid>
                                     <h:panelGrid columns="4" style="height: 40px" styleClass="sbb">                                        
                                         <p:column>
@@ -532,13 +537,44 @@
                                     <p:commandButton icon="ui-icon-circle-close" value="Não" title="Cancelar exclusão de Acordos" onclick="PF('dlg_acordo').hide()" global="false"/>
                                 </h:panelGrid>
                             </p:dialog>
+
+                            <p:dialog widgetVar="dlg_acordos" header="Lista de acordos" resizable="false" modal="true" width="800" height="300">
+                                <h:panelGroup id="i_m_a" layout="block">
+                                    <p:dataTable value="#{extratoTelaBean.listMovimentosAcordo}" var="movimentoAcordo" scrollHeight="250" scrollable="true">
+                                        <p:column headerText="Referência" styleClass="text-center">
+                                            #{movimentoAcordo.referencia}
+                                        </p:column>
+                                        <p:column headerText="Valor" styleClass="text-center">
+                                            #{movimentoAcordo.valorString}
+                                        </p:column>
+                                        <p:column headerText="Multa" styleClass="text-center">
+                                            #{movimentoAcordo.multaString}
+                                        </p:column>
+                                        <p:column headerText="Juros" styleClass="text-center">
+                                            #{movimentoAcordo.jurosString}
+                                        </p:column>
+                                        <p:column headerText="Correção" styleClass="text-center">
+                                            #{movimentoAcordo.correcaoString}
+                                        </p:column>
+                                        <p:column headerText="Desconto" styleClass="text-center">
+                                            #{movimentoAcordo.descontoString}
+                                        </p:column>
+                                        <p:column headerText="Total" styleClass="text-center">
+                                            #{movimentoAcordo.totalString}
+                                        </p:column>
+                                    </p:dataTable>
+                                </h:panelGroup>
+                                <f:facet name="footer">
+                                    <p:commandButton icon="ui-icon-circle-close" value="Fechar" title="Fechar" onclick="PF('dlg_acordos').hide()" global="false"/>                                    
+                                </f:facet>
+                            </p:dialog>
                         </h:form>
 
                     </p:panel>
 
 
                     <h:form id="formExtratoTelaAlteraVencimento">
-                    <p:dialog widgetVar="dlg_alterar_vencimento" header="Alterar data de Vencimento" resizable="false" modal="true" width="400">
+                        <p:dialog widgetVar="dlg_alterar_vencimento" header="Alterar data de Vencimento" resizable="false" modal="true" width="400">
                             <h:panelGrid>
                                 <p:outputLabel value="Confirma alteração do vencimento deste acordo?" style="font-weight: bold; font-size: 12pt!important"/>
                             </h:panelGrid>

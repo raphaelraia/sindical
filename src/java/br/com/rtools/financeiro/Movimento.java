@@ -306,6 +306,14 @@ public class Movimento implements Serializable {
         this.valor = valor;
     }
 
+    public String getValorString() {
+        return Moeda.converteR$Float(valor);
+    }
+
+    public void setValorString(String valorString) {
+        this.valor = Moeda.converteUS$(valorString);
+    }
+
     public String getReferencia() {
         return referencia;
     }
@@ -426,12 +434,28 @@ public class Movimento implements Serializable {
         this.correcao = correcao;
     }
 
+    public String getCorrecaoString() {
+        return Moeda.converteR$Float(correcao);
+    }
+
+    public void setCorrecaoString(String correcaoString) {
+        this.correcao = Moeda.converteUS$(correcaoString);
+    }
+
     public float getJuros() {
         return juros;
     }
 
     public void setJuros(float juros) {
         this.juros = juros;
+    }
+
+    public String getJurosString() {
+        return Moeda.converteR$Float(juros);
+    }
+
+    public void setJurosString(String jurosString) {
+        this.juros = Moeda.converteUS$(jurosString);
     }
 
     public float getMulta() {
@@ -442,12 +466,28 @@ public class Movimento implements Serializable {
         this.multa = multa;
     }
 
+    public String getMultaString() {
+        return Moeda.converteR$Float(multa);
+    }
+
+    public void setMultaString(String multaString) {
+        this.juros = Moeda.converteUS$(multaString);
+    }
+
     public float getDesconto() {
         return desconto;
     }
 
     public void setDesconto(float desconto) {
         this.desconto = desconto;
+    }
+
+    public String getDescontoString() {
+        return Moeda.converteR$Float(desconto);
+    }
+
+    public void setDescontoString(String descontoString) {
+        this.desconto = Moeda.converteUS$(descontoString);
     }
 
     public float getTaxa() {
@@ -464,6 +504,14 @@ public class Movimento implements Serializable {
 
     public void setValorBaixa(float valorBaixa) {
         this.valorBaixa = valorBaixa;
+    }
+
+    public String getValorBaixaString() {
+        return Moeda.converteR$Float(valorBaixa);
+    }
+
+    public void setValorBaixaString(String valorBaixaString) {
+        this.valorBaixa = Moeda.converteUS$(valorBaixaString);
     }
 
     public float getRepasseAutomatico() {
@@ -488,6 +536,30 @@ public class Movimento implements Serializable {
 
     public void setFTipoDocumento(FTipoDocumento fTipoDocumento) {
         this.tipoDocumento = fTipoDocumento;
+    }
+
+    public Float getTotal() {
+        try {
+            if (this.id == -1) {
+                return new Float(0);
+            } else {
+                return this.valor + this.multa + this.juros + correcao - desconto;
+            }
+        } catch (Exception e) {
+            return new Float(0);
+        }
+    }
+
+    public String getTotalString() {
+        try {
+            if (this.id == -1) {
+                return "0,00";
+            } else {
+                return Moeda.converteR$Float(this.valor + this.multa + this.juros + this.correcao - this.desconto);
+            }
+        } catch (Exception e) {
+            return "0,00";
+        }
     }
 
     /**
@@ -528,22 +600,6 @@ public class Movimento implements Serializable {
             }
         }
         this.matriculaSocios = matriculaSocios;
-    }
-
-    public String getValorString() {
-        return Moeda.converteR$Float(valor);
-    }
-
-    public void setValorString(String valorString) {
-        this.valor = Moeda.converteUS$(valorString);
-    }
-
-    public String getValorBaixaString() {
-        return Moeda.converteR$Float(valorBaixa);
-    }
-
-    public void setValorBaixaString(String valorBaixaString) {
-        this.valorBaixa = Moeda.converteUS$(valorBaixaString);
     }
 
     public Boolean getSelected() {
