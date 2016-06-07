@@ -38,7 +38,7 @@
                             <p:panel header="Editar" style="width: 225px;" id="i_panel_avancado">
                                 <h:panelGrid>
                                     <c:forEach items="#{relatorioMovimentoDiarioBean.listFilters}" var="filter" varStatus="loop" id="i_foreach">                                            
-                                        <p:selectBooleanButton value="#{filter.active}" onLabel="#{filter.value}" offLabel="#{filter.value}" style="width: 200px; text-align: left" rendered="#{!filter.disabled}">
+                                        <p:selectBooleanButton value="#{filter.active}" onLabel="#{filter.value}" offLabel="#{filter.value}" style="width: 200px; text-align: left" disabled="#{filter.disabled}">
                                             <p:ajax event="change" update="@this form_relatorio:i_panel_avancado_2" listener="#{relatorioMovimentoDiarioBean.load(relatorioMovimentoDiarioBean.listFilters[loop.index])}" />
                                         </p:selectBooleanButton>
                                     </c:forEach>                                
@@ -48,13 +48,12 @@
                         <h:column>
                             <h:panelGrid id="i_panel_avancado_2" style="width: 800px">
                                 <p:column>
-                                    <p:panel header="Caixa/banco" style="width: 100%!important" rendered="#{relatorioMovimentoDiarioBean.listFilters[0].active}" >
+                                    <p:panel header="Caixa / Banco" style="width: 100%!important" rendered="#{relatorioMovimentoDiarioBean.listFilters[0].active}" >
                                         <h:panelGrid columns="4">
-                                            <p:selectCheckboxMenu label="Selecionar" value="#{relatorioMovimentoDiarioBean.selectedCaixaBanco}" filter="true" filterMatchMode="startsWith">
-                                                <p:ajax event="toggleSelect" global="false"/>
-                                                <p:ajax event="change" global="false"/>
-                                                <f:selectItems value="#{relatorioMovimentoDiarioBean.listCaixaBanco}" />
-                                            </p:selectCheckboxMenu>
+                                            <p:selectOneMenu value="#{relatorioMovimentoDiarioBean.idCaixaBanco}">
+                                                <p:ajax event="change" update="@this form_relatorio:id_panel" global="false" listener="#{relatorioMovimentoDiarioBean.loadListDatas()}"/>
+                                                <f:selectItems value="#{relatorioMovimentoDiarioBean.listCaixaBanco}"/>
+                                            </p:selectOneMenu>
                                             <p:commandButton icon="ui-icon-close" action="#{relatorioMovimentoDiarioBean.close(relatorioMovimentoDiarioBean.listFilters[0])}" title="Remover filtro" update="form_relatorio"/>
                                         </h:panelGrid>                                        
                                     </p:panel>
@@ -62,22 +61,12 @@
                                 <p:column>
                                     <p:panel header="Data" style="width: 100%!important" id="i_panel_v" rendered="#{relatorioMovimentoDiarioBean.listFilters[1].active}">
                                         <h:panelGrid columns="8" cellpadding="5 ">
-                                            <p:selectOneMenu label="Meses" value="#{relatorioMovimentoDiarioBean.tipoData}" filter="true" filterMatchMode="startsWith">
-                                                <p:ajax event="change" global="false" update="@this i_panel_v"/>
-                                                <f:selectItem itemValue="todos" itemLabel="Todos" />
-                                                <f:selectItem itemValue="igual" itemLabel="Igual" />
-                                                <f:selectItem itemValue="apartir" itemLabel="A partir" />
-                                                <f:selectItem itemValue="ate" itemLabel="Até" />
-                                                <f:selectItem itemValue="faixa" itemLabel="Faixa" />
+                                            <p:selectOneMenu value="#{relatorioMovimentoDiarioBean.data}" filter="true" filterMatchMode="startsWith">
+                                                <p:ajax event="change" update="@this" global="false" />
+                                                <f:selectItems value="#{relatorioMovimentoDiarioBean.listDatas}"/>
                                             </p:selectOneMenu>
-                                            <p:inputMask value="#{relatorioMovimentoDiarioBean.dataInicial}" converter="#{isDateString}" rendered="#{relatorioMovimentoDiarioBean.tipoData eq 'igual' or relatorioMovimentoDiarioBean.tipoData eq 'apartir' or relatorioMovimentoDiarioBean.tipoData eq 'ate' or relatorioMovimentoDiarioBean.tipoData eq 'faixa'}" size="10" mask="99/99/9999">
-                                                <p:ajax event="change" update="@this" />
-                                            </p:inputMask>
-                                            <p:outputLabel value="até" rendered="#{relatorioMovimentoDiarioBean.tipoData eq 'faixa'}"/>
-                                            <p:inputMask value="#{relatorioMovimentoDiarioBean.dataFinal}" converter="#{isDateString}" rendered="#{relatorioMovimentoDiarioBean.tipoData eq 'faixa'}" size="10" mask="99/99/9999">
-                                                <p:ajax event="change" update="@this" />
-                                            </p:inputMask>
-                                            <p:commandButton icon="ui-icon-close" action="#{relatorioMovimentoDiarioBean.close(relatorioMovimentoDiarioBean.listFilters[1])}" title="Remover filtro" update="form_relatorio"/>
+                                            <p:commandButton icon="ui-icon-refresh" action="#{relatorioMovimentoDiarioBean.listener(2)}" value="Data Inicial" title="Data inicial" update="form_relatorio"/>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioMovimentoDiarioBean.close(relatorioMovimentoDiarioBean.listFilters[1])}" title="Remover filtro" update="form_relatorio" disabled="true"/>
                                         </h:panelGrid>                                        
                                     </p:panel>
                                 </p:column>                                                                                 

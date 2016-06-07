@@ -1,5 +1,7 @@
 package br.com.rtools.homologacao.beans;
 
+import br.com.rtools.arrecadacao.Oposicao;
+import br.com.rtools.arrecadacao.dao.OposicaoDao;
 import br.com.rtools.atendimento.AteMovimento;
 import br.com.rtools.atendimento.AteStatus;
 import br.com.rtools.atendimento.dao.AtendimentoDao;
@@ -339,12 +341,10 @@ public class RecepcaoBean implements Serializable {
                     di.rollback();
                     return;
                 }
-            } else {
-                if (!di.update(recepcao)) {
-                    GenericaMensagem.error("Erro", "Não foi possível ATUALIZAR Recepção!");
-                    di.rollback();
-                    return;
-                }
+            } else if (!di.update(recepcao)) {
+                GenericaMensagem.error("Erro", "Não foi possível ATUALIZAR Recepção!");
+                di.rollback();
+                return;
             }
             agendamentoEdit.setRecepcao(recepcao);
         }
@@ -414,7 +414,7 @@ public class RecepcaoBean implements Serializable {
 
         GenericaMensagem.info("Sucesso", "Homologação Cancelada!");
         di.commit();
-        
+
         NovoLog novoLog = new NovoLog();
         novoLog.setTabela("hom_cancelamento");
         novoLog.setCodigo(cancelamento.getId());
@@ -425,7 +425,7 @@ public class RecepcaoBean implements Serializable {
                 + " - Funcionário { " + agendamento.getPessoaEmpresa().getFisica().getPessoa().getId() + " - Nome: " + agendamento.getPessoaEmpresa().getFisica().getPessoa().getNome() + " } "
                 + " - Data do cancelamento: " + cancelamento.getData()
                 + " - Motivo: " + cancelamento.getMotivo());
-        
+
         //cancelamento = new Cancelamento();
         loadListHorarios();
         WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());
@@ -457,7 +457,7 @@ public class RecepcaoBean implements Serializable {
             loadListHorarios();
         } else {
             loadListaAtendimentoSimples();
-        }        
+        }
         return null;
     }
 
@@ -508,12 +508,10 @@ public class RecepcaoBean implements Serializable {
                     di.rollback();
                     return;
                 }
-            } else {
-                if (!di.update(recepcao)) {
-                    GenericaMensagem.error("Erro", "Erro ao atualizar Recepção!");
-                    di.rollback();
-                    return;
-                }
+            } else if (!di.update(recepcao)) {
+                GenericaMensagem.error("Erro", "Erro ao atualizar Recepção!");
+                di.rollback();
+                return;
             }
             agendamentoEdit.setRecepcao(recepcao);
             //}
@@ -1231,7 +1229,7 @@ public class RecepcaoBean implements Serializable {
     }
 
     public String estiloLinha(AteMovimento atm) {
-        if(atm.getStatus() != null) {
+        if (atm.getStatus() != null) {
             if (atm.getStatus().getId() == 1) {
                 return "tblListaRecepcaox";
             } else {
@@ -1406,155 +1404,12 @@ public class RecepcaoBean implements Serializable {
         PF.update("form_recepcao_upload:id_grid_uploads");
         PF.update("formRecepcao:id_btn_anexo");
     }
+
+    public Boolean getExisteOposicao() {
+        if (agendamentoEdit.getId() != -1) {
+            OposicaoDao oposicaoDao = new OposicaoDao();
+            return oposicaoDao.existPessoaOposicao(agendamentoEdit.getPessoaEmpresa().getFisica().getPessoa().getDocumento());
+        }
+        return false;
+    }
 }
-
-//    public void gerarSenha() {
-//        // parei aqui.. testar o gerar senha e alterar a variavel recepcao para agendamentoEdit.recepcao
-//        DB db = new DB();
-//        EntityManager em = db.getEntityManager();
-//        em.getTransaction().begin();
-//        if (registro.isSenhaHomologacao()) {
-//            if (!recepcao.getPreposto().isEmpty()) {
-//                //msgConfirma = "Informar o nome do preposto!";
-////                GenericaMensagem.warn("Atenção", "Informar o NOME DO PREPOSTO!");
-////                return;
-//                if (recepcao.getHoraInicialPreposto().isEmpty()) {
-//                    GenericaMensagem.warn("Atenção", "Informar o HORÁRIO que o preposto chegou!");
-//                    em.getTransaction().rollback();
-//                    return;
-//                }
-//            }
-//
-////            if (agendamentoEdit.getRecepcao().getHoraInicialPreposto().isEmpty()) {
-////                //msgConfirma = "Preposto ainda não esta presente, aguarde sua chegada!";
-////                GenericaMensagem.warn("Atenção", "PREPOSTO ainda não esta presente, aguarde sua chegada!");
-////                return;
-////            }
-//            if (recepcao.getHoraInicialFuncionario().isEmpty()) {
-//                //msgConfirma = "Funcionário ainda não esta presente, aguarde sua chegada!";
-//                GenericaMensagem.warn("Atenção", "FUNCIONÁRIO ainda não esta presente, aguarde sua chegada!");
-//                em.getTransaction().rollback();
-//                return;
-//            }
-//
-//            boolean sucesso = true;
-//            if (recepcao.getId() == -1) {
-//                try {
-//                    em.persist(recepcao);
-//                    em.flush();
-//                } catch (Exception e) {
-//                    //msgConfirma = "Erro ao atualizar recepção!";
-//                    sucesso = false;
-//                    GenericaMensagem.error("Erro", "Não foi possível SALVAR Recepção!");
-//                    em.getTransaction().rollback();
-//                    return;
-//                }
-//            } else {
-//                try {
-//                    em.merge(recepcao);
-//                    em.flush();
-//                } catch (Exception e) {
-//                    //msgConfirma = "Erro ao atualizar recepção!";
-//                    sucesso = false;
-//                    GenericaMensagem.error("Erro", "Não foi possível ATUALIZAR Recepção!");
-//                    em.getTransaction().rollback();
-//                    return;
-//                }
-//            }
-////            if (recepcao == null || recepcao.getId() == -1) {
-////                //msgConfirma = "Agendamento ainda não possui cadastro de preposto!";
-////                GenericaMensagem.warn("Atenção", "Agendamento ainda não possui cadastro de preposto!");
-////                return;
-////            }
-//        }
-//
-////        if (recepcao.getId() == -1)
-////            agendamentoEdit.setRecepcao(null);
-//        agendamentoEdit.setRecepcao(recepcao);
-//        if (recepcao.getId() == -1) {
-//            try {
-//                em.merge(agendamentoEdit);
-//                em.flush();
-//            } catch (Exception e) {
-//                //msgConfirma = "Erro ao atualizar agendamento!";
-//                GenericaMensagem.error("Erro", "Não foi possível ATUALIZAR Agendamento!");
-//                em.getTransaction().rollback();
-//                return;
-//            }
-//        }
-//
-//        SenhaHomologacao senhaHomologacao = new SenhaHomologacao();
-//        Collection lista = new ArrayList<ParametroSenha>();
-//        HomologacaoDB hdb = new HomologacaoDao();
-//        Senha senha = hdb.pesquisaSenhaAgendamento(agendamentoEdit.getId());
-//        MacFilial mc = MacFilial.getAcessoFilial();
-//        if (senha.getId() == -1) {
-//            senha.setAgendamento(agendamentoEdit);
-//            senha.setDtData(DataHoje.dataHoje());
-//            senha.setHora(DataHoje.horaMinuto());
-//            senha.setUsuario(((Usuario) GenericaSessao.getObject("sessaoUsuario")));
-//            senha.setFilial(mc.getFilial());
-//            senha.setSenha(hdb.pesquisaUltimaSenha(mc.getFilial().getId()) + 1);
-//            try {
-//                em.persist(senha);
-//                em.flush();
-//            } catch (Exception e) {
-//                //msgConfirma = "Erro ao atualizar agendamento!";
-//                GenericaMensagem.error("Erro", "Não foi possível ATUALIZAR Agendamento!");
-//                em.getTransaction().rollback();
-//                return;
-//            }
-//        } else {
-//            try {
-//                em.merge(senha);
-//                em.flush();
-//            } catch (Exception e) {
-//                //msgConfirma = "Erro ao atualizar recepção!";
-//                GenericaMensagem.error("Erro", "Não foi possível ATUALIZAR Recepção!");
-//                em.getTransaction().rollback();
-//                return;
-//            }
-//        }
-//        try {
-//            if (senha.getId() != -1) {
-//                lista.add(new ParametroSenha(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
-//                        senha.getFilial().getFilial().getPessoa().getNome(),
-//                        senha.getFilial().getFilial().getPessoa().getDocumento(),
-//                        senha.getAgendamento().getPessoaEmpresa().getJuridica().getPessoa().getNome(),
-//                        senha.getAgendamento().getPessoaEmpresa().getJuridica().getPessoa().getDocumento(),
-//                        (senha.getAgendamento().getRecepcao() == null) ? "" : senha.getAgendamento().getRecepcao().getPreposto(),
-//                        senha.getAgendamento().getPessoaEmpresa().getFisica().getPessoa().getNome(),
-//                        senha.getUsuario().getPessoa().getNome(),
-//                        senha.getData(),
-//                        senha.getHora(),
-//                        String.valueOf(senha.getSenha())));
-//            }
-//        } catch (Exception e) {
-//            em.getTransaction().rollback();
-//            return;
-//        }
-//        
-//        em.getTransaction().commit();
-//        
-//        try {
-//            JasperReport jasperReport = (JasperReport) JRLoader.loadObject(new File((((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/HOM_SENHA.jasper"))));
-//            JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(lista);
-//            JasperPrint print = JasperFillManager.fillReport(jasperReport, null, dtSource);
-//            byte[] arquivo = JasperExportManager.exportReportToPdf(print);
-//            String nomeDownload = "senha_" + DataHoje.hora().replace(":", "") + ".pdf";
-//            String pathPasta = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/senhas");
-//            Diretorio.criar("Arquivos/senhas");
-//            if (!new File(pathPasta).exists()) {
-//                File file = new File(pathPasta);
-//                file.mkdir();
-//            }
-//            SalvaArquivos salvaArquivos = new SalvaArquivos(arquivo, nomeDownload, false);
-//            salvaArquivos.salvaNaPasta(pathPasta);
-//            Download download = new Download(nomeDownload, pathPasta, "application/pdf", FacesContext.getCurrentInstance());
-//            download.baixar();
-//            download.remover();
-//        } catch (JRException e) {
-//        }        
-//        return;
-//    }   
-

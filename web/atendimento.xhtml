@@ -71,65 +71,95 @@
 
                             <h:panelGrid columns="3" style="margin-top: 15px">
                                 <h:column>
-                                    <p:outputLabel value="Data Emissão" /><br />
-                                    <p:inputMask value="#{atendimentoBean.ateMovimento.dataEmissaoString}" mask="99/99/9999" size="8" style="margin-right: 20px"/>
+                                    <h:panelGrid>
+                                        <p:outputLabel value="Data Emissão" />
+                                        <p:inputMask value="#{atendimentoBean.ateMovimento.dataEmissaoString}" mask="99/99/9999" size="8" style="margin-right: 20px"  converter="#{isDateString}">
+                                            <p:ajax event="change" update="@this" global="false" />
+                                        </p:inputMask>
+                                    </h:panelGrid>
                                 </h:column>
                                 <h:column>
-                                    <p:outputLabel value="Horário" /><br />
-                                    <p:inputMask value="#{atendimentoBean.horaEmissaoString}" mask="99:99" size="5" style="margin-right: 20px; text-align: center"/>
+                                    <h:panelGrid>
+                                        <p:outputLabel value="Horário" />
+                                        <p:inputMask value="#{atendimentoBean.horaEmissaoString}" mask="99:99" size="5" style="margin-right: 20px; text-align: center" converter="#{isValidTimeString}">
+                                            <p:ajax event="change" update="@this" global="false" />
+                                        </p:inputMask>
+                                    </h:panelGrid>
                                 </h:column>
                                 <h:column>
-                                    <p:outputLabel value="Operações" /><br />
-                                    <p:selectOneMenu value="#{atendimentoBean.idOperacao}">
-                                        <p:ajax event="change" update="@this" />
-                                        <f:selectItems value="#{atendimentoBean.listaAtendimentoOperacoes}"/>
-                                    </p:selectOneMenu>
+                                    <h:panelGrid>
+                                        <p:outputLabel value="Operações" />
+                                        <p:selectOneMenu value="#{atendimentoBean.idOperacao}">
+                                            <p:ajax event="change" update="@this" />
+                                            <f:selectItems value="#{atendimentoBean.listaAtendimentoOperacoes}"/>
+                                        </p:selectOneMenu>
+                                    </h:panelGrid>
                                 </h:column>
                             </h:panelGrid>
 
                             <p:messages autoUpdate="true" showDetail="true" closable="true" />
 
                             <p:panel styleClass="fundoCinza" style="margin-top: 10px;" >
-                                <h:panelGrid id="i_panel_dados" columns="5">
+                                <h:panelGrid id="i_panel_dados" columns="5" cellspacing="10">
                                     <h:column>
-                                        <p:outputLabel value="CPF" style="font-weight: bold"/><br />
-                                        <p:inputMask value="#{atendimentoBean.sisPessoa.documento}" mask="999.999.999-99" size="12" style="margin-right: 20px;" readonly="#{atendimentoBean.sisPessoa.id != -1}">
-                                            <p:ajax event="change" update="i_panel_dados" listener="#{atendimentoBean.pesquisaCPFeOPOSICAO()}"/>
-                                        </p:inputMask>
+                                        <h:panelGrid>
+                                            <p:outputLabel value="CPF"  styleClass="bold"/>
+                                            <p:inputMask value="#{atendimentoBean.sisPessoa.documento}" mask="999.999.999-99" size="12" readonly="#{atendimentoBean.sisPessoa.id != -1}">
+                                                <p:ajax event="change" update="i_panel_dados" listener="#{atendimentoBean.pesquisaCPFeOPOSICAO()}"/>
+                                            </p:inputMask>
+                                        </h:panelGrid>
                                     </h:column>
                                     <h:column>
-                                        <p:outputLabel value="RG" style="font-weight: bold"/><br />
-                                        <p:inputText value="#{atendimentoBean.sisPessoa.rg}" size="10" style="margin-right: 20px;" readonly="#{atendimentoBean.sisPessoa.id != -1}">
-                                            <p:ajax event="change" update="i_panel_dados" listener="#{atendimentoBean.pesquisaRG()}"/>
-                                        </p:inputText>
+                                        <h:panelGrid>
+                                            <p:outputLabel value="RG" style="font-weight: bold"/>
+                                            <p:inputText value="#{atendimentoBean.sisPessoa.rg}" size="10" readonly="#{atendimentoBean.sisPessoa.id != -1}">
+                                                <p:ajax event="change" update="i_panel_dados" listener="#{atendimentoBean.pesquisaRG()}"/>
+                                            </p:inputText>
+                                        </h:panelGrid>
                                     </h:column>
                                     <h:column>
-                                        <p:outputLabel value="Nome" style="font-weight: bold"/>
-                                        <p:commandLink value="Alterar Pessoa" action="#{atendimentoBean.editarSisPessoa()}" style="margin-left: 390px" update="i_dlg_alterar_pessoa" onclick="PF('dlg_alterar_pessoa').show()" disabled="#{atendimentoBean.sisPessoa.id == -1}"/><br />
-                                        <p:inputText value="#{atendimentoBean.sisPessoa.nome}" style="margin-right: 20px; width: 510px" converter="#{toUpperCase}">
-                                            <p:ajax event="change" update="@this"/>
-                                        </p:inputText>
+                                        <h:panelGrid> 
+                                            <h:column>
+                                                <h:panelGrid columns="2">
+                                                    <p:outputLabel value="NOME"  styleClass="bold font-color-red"/>
+                                                    <p:commandLink value="Alterar Pessoa" action="#{atendimentoBean.editarSisPessoa()}" update="i_dlg_alterar_pessoa" onclick="PF('dlg_alterar_pessoa').show()" disabled="#{atendimentoBean.sisPessoa.id == -1}"/>                                                    
+                                                </h:panelGrid> 
+                                            </h:column>
+                                            <p:inputText value="#{atendimentoBean.sisPessoa.nome}" style="width: 510px" converter="#{toUpperCase}" maxlength="200">
+                                                <p:ajax event="change" update="@this"/>
+                                            </p:inputText>
+                                        </h:panelGrid>
                                     </h:column>
                                     <h:column>
-                                        <p:outputLabel value="Nascimento" style="font-weight: bold"/><br />
-                                        <p:inputMask value="#{atendimentoBean.sisPessoa.nascimento}" converter="#{isDateString}" mask="99/99/9999" size="8" style="margin-right: 20px;">
-                                            <p:ajax event="change" update="@this"/>
-                                        </p:inputMask>
+                                        <h:panelGrid>
+                                            <p:outputLabel value="NASCIMENTO" styleClass="bold font-color-red"/>
+                                            <p:inputMask value="#{atendimentoBean.sisPessoa.nascimento}" converter="#{isDateString}" mask="99/99/9999" size="8" styleClass="text-center">
+                                                <p:ajax event="change" update="@this"/>
+                                            </p:inputMask>
+                                        </h:panelGrid>
                                     </h:column>
                                     <h:column>
                                         <h:column rendered="#{atendimentoBean.tipoTelefone eq 'telefone'}">
-                                            <p:outputLabel value="Telefone" style="font-weight: bold"/><br />
-                                            <p:inputMask value="#{atendimentoBean.sisPessoa.telefone}" readonly="#{atendimentoBean.sisPessoa.id != -1}" style="text-align: center" mask="(99) 9999-9999" size="13">
-                                                <p:ajax event="change" update="@this"/>
-                                            </p:inputMask>
-                                            <p:commandButton icon="ui-icon-help" title="Usar mascara de Celular SP" action="#{atendimentoBean.alterarTipoMascara()}" update="i_panel_dados" disabled="#{atendimentoBean.sisPessoa.id != -1}"/>
+                                            <p:outputLabel value="TELEFONE" styleClass="bold"/>
+                                            <h:column>
+                                                <h:panelGrid columns="2">
+                                                    <p:inputMask value="#{atendimentoBean.sisPessoa.telefone}" readonly="#{atendimentoBean.sisPessoa.id != -1}" style="text-align: center" mask="(99) 9999-9999" size="13">
+                                                        <p:ajax event="change" update="@this"/>
+                                                    </p:inputMask>
+                                                    <p:commandButton icon="ui-icon-help" title="Usar mascara de Celular" action="#{atendimentoBean.alterarTipoMascara()}" update="i_panel_dados" disabled="#{atendimentoBean.sisPessoa.id != -1}"/>
+                                                </h:panelGrid>
+                                            </h:column>
                                         </h:column>
                                         <h:column rendered="#{atendimentoBean.tipoTelefone eq 'celular'}">
-                                            <p:outputLabel value="Telefone (Celular)" style="font-weight: bold"/><br />
-                                            <p:inputMask value="#{atendimentoBean.sisPessoa.telefone}" readonly="#{atendimentoBean.sisPessoa.id != -1}" style="text-align: center" mask="(99) 99999-9999" size="13">
-                                                <p:ajax event="change" update="@this"/>
-                                            </p:inputMask>
-                                            <p:commandButton icon="ui-icon-help" title="Usar mascara de Telefone Comum" action="#{atendimentoBean.alterarTipoMascara()}" update="i_panel_dados" disabled="#{atendimentoBean.sisPessoa.id != -1}"/>
+                                            <p:outputLabel value="TELEFONE (Celular)" styleClass="bold"/>
+                                            <h:column>
+                                                <h:panelGrid columns="2">
+                                                    <p:inputMask value="#{atendimentoBean.sisPessoa.telefone}" readonly="#{atendimentoBean.sisPessoa.id != -1}" styleClass="text-center" mask="(99) 99999-9999" size="13">
+                                                        <p:ajax event="change" update="@this"/>
+                                                    </p:inputMask>
+                                                    <p:commandButton icon="ui-icon-help" title="Usar mascara de Telefone Comum" action="#{atendimentoBean.alterarTipoMascara()}" update="i_panel_dados" disabled="#{atendimentoBean.sisPessoa.id != -1}"/>
+                                                </h:panelGrid>
+                                            </h:column>
                                         </h:column>
                                     </h:column>
                                 </h:panelGrid>
@@ -137,9 +167,11 @@
 
                             <h:panelGrid id="i_panel_e_u" columns="2" style="margin-top: 10px; width: 100%">
                                 <h:column>
-                                    <p:outputLabel value="Empresa" /><br />
-                                    <p:commandLink value="#{atendimentoBean.empresa.pessoa.nome}" action="#{chamadaPaginaBean.pesquisaPessoaJuridica()}" rendered="#{atendimentoBean.empresa.id != -1}" style="font-weight: bold; font-size: 11pt!important"/>
-                                    <p:commandButton value="Adicionar uma Empresa" action="#{chamadaPaginaBean.pesquisaPessoaJuridica()}" rendered="#{atendimentoBean.empresa == null or atendimentoBean.empresa.id == -1}" ajax="false"/>
+                                    <h:panelGrid>
+                                        <p:outputLabel value="Empresa" />
+                                        <p:commandLink value="#{atendimentoBean.empresa.pessoa.nome}" action="#{chamadaPaginaBean.pesquisaPessoaJuridica()}" rendered="#{atendimentoBean.empresa.id != -1}" style="font-weight: bold; font-size: 11pt!important"/>
+                                        <p:commandButton value="Adicionar uma Empresa" action="#{chamadaPaginaBean.pesquisaPessoaJuridica()}" rendered="#{atendimentoBean.empresa == null or atendimentoBean.empresa.id == -1}" ajax="false"/>
+                                    </h:panelGrid>
                                 </h:column>
 
                                 <h:column>
@@ -155,17 +187,15 @@
                             </h:panelGrid>
 
                             <h:panelGrid columns="1" style="margin-top: 10px; width: 100%">
-                                <h:column>
-                                    <p:outputLabel value="Histórico" /><br />
-                                    <p:inputTextarea value="#{atendimentoBean.ateMovimento.historico}" rows="3" style="width: 100%">
-                                        <p:ajax event="change" update="@this" />
-                                    </p:inputTextarea>
-                                </h:column>
+                                <p:outputLabel value="Histórico" />
+                                <p:inputTextarea value="#{atendimentoBean.ateMovimento.historico}" rows="3" style="width: 100%" maxlength="500">
+                                    <p:ajax event="change" update="@this" />
+                                </p:inputTextarea>
                             </h:panelGrid>
 
                             <h:panelGrid columns="5" style="margin-top: 10px">
                                 <p:column>
-                                    <p:commandButton value="Salvar" title="Salvar Atendimento" onclick="PF('dlg_salvar').show()" disabled="#{controleAcessoBean.botaoSalvar}" rendered="#{atendimentoBean.ateMovimento.id == -1}"/>
+                                    <p:commandButton value="Salvar" title="Salvar Atendimento" onclick="PF('dlg_salvar').show()" disabled="#{controleAcessoBean.botaoSalvar}" rendered="#{atendimentoBean.ateMovimento.id == -1}" update="i_save"/>
                                     <p:commandButton value="Alterar" title="Alterar Atendimento" onclick="PF('dlg_alterar').show()" disabled="#{controleAcessoBean.botaoSalvar}" rendered="#{atendimentoBean.ateMovimento.id != -1}"/>
                                 </p:column>
                                 <h:column>
@@ -205,7 +235,7 @@
                                         <p:commandLink action="#{atendimentoBean.editar(linha)}" value="#{linha.dataEmissaoString}" update=":formAtendimentoPessoa"/>
                                     </p:column>
 
-                                    <p:column headerText="Horário" style="text-align: center; width: 50px">
+                                    <p:column headerText="Horário" style="text-align: center; width: 50px" >
                                         <p:outputLabel value="#{linha.horaEmissao}"/>
                                     </p:column>
 
@@ -278,14 +308,20 @@
                                 <p:ajax event="close" update="formAtendimentoPessoa" listener="#{atendimentoBean.fecharModal()}"/>  
                                 <h:outputLabel value="Deseja realmente SALVAR esse Atendimento?" />
                                 <br /><br />
-                                <h:panelGrid columns="3">
-                                    <p:commandButton value="Salvar e Imprimir Senha" ajax="false" actionListener="#{atendimentoBean.salvarImprimir()}" styleClass="ui-confirmdialog-yes" style="clear: both; float: left" icon="ui-icon-check">
-                                        <p:fileDownload value="#{atendimentoBean.fileDownload}" />
-                                    </p:commandButton>
-
-                                    <p:commandButton value="Apenas Salvar" action="#{atendimentoBean.salvar(false)}" update="formAtendimentoPessoa" styleClass="ui-confirmdialog-yes" style="clear: both; float: left" icon="ui-icon-check"/>
-
-                                    <p:commandButton value="Fechar" type="button" update=":formAtendimentoPessoa" styleClass="ui-confirmdialog-no" onclick="PF('dlg_salvar').hide()" style="float: left" icon="ui-icon-close"/>    
+                                <h:panelGrid columns="3" id="i_save">
+                                    <p:messages autoUpdate="true" showDetail="true" closable="true" />
+                                    <f:facet name="footer">
+                                        <h:panelGrid columns="3">
+                                            <h:column>
+                                                <p:commandButton value="Salvar e Imprimir Senha" ajax="false" actionListener="#{atendimentoBean.salvarImprimir()}" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" rendered="#{not empty atendimentoBean.sisPessoa.nome and not empty atendimentoBean.sisPessoa.nascimento}">
+                                                    <p:fileDownload value="#{atendimentoBean.fileDownload}" />
+                                                </p:commandButton>
+                                                <p:commandButton value="Salvar e Imprimir Senha" action="#{atendimentoBean.salvar(false)}" update="formAtendimentoPessoa" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" rendered="#{empty atendimentoBean.sisPessoa.nome or empty atendimentoBean.sisPessoa.nascimento}"/>
+                                            </h:column>
+                                            <p:commandButton value="Apenas Salvar" action="#{atendimentoBean.salvar(false)}" update="formAtendimentoPessoa" styleClass="ui-confirmdialog-yes" icon="ui-icon-check"/>
+                                            <p:commandButton value="Fechar" type="button" update=":formAtendimentoPessoa" styleClass="ui-confirmdialog-no" onclick="PF('dlg_salvar').hide()" icon="ui-icon-close"/>
+                                        </h:panelGrid>
+                                    </f:facet>
                                 </h:panelGrid>
                             </p:dialog>
 
@@ -294,9 +330,10 @@
                                 <h:outputLabel value="Deseja realmente ALTERAR esse Atendimento?" />
                                 <br /><br />
                                 <h:panelGrid columns="3">
-                                    <p:commandButton value="Alterar" action="#{atendimentoBean.salvar(false)}" update="formAtendimentoPessoa" styleClass="ui-confirmdialog-yes" style="clear: both; float: left" icon="ui-icon-check"/>
-
-                                    <p:commandButton value="Fechar" type="button" update=":formAtendimentoPessoa" styleClass="ui-confirmdialog-no" onclick="PF('dlg_alterar').hide()" style="float: left" icon="ui-icon-close"/>    
+                                    <h:panelGrid columns="3">
+                                        <p:commandButton value="Alterar" action="#{atendimentoBean.salvar(false)}" update="formAtendimentoPessoa" styleClass="ui-confirmdialog-yes" icon="ui-icon-check"/>
+                                        <p:commandButton value="Fechar" type="button" update=":formAtendimentoPessoa" styleClass="ui-confirmdialog-no" onclick="PF('dlg_alterar').hide()" icon="ui-icon-close"/>    
+                                    </h:panelGrid>
                                 </h:panelGrid>
                             </p:dialog>
 

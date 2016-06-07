@@ -19,6 +19,12 @@ public class DataHoje {
         Date dateTime = new Date();
         return dateTime;
     }
+    
+    public static java.sql.Date dataHojeSQL() {
+        Date dateTime = new Date();
+        java.sql.Date sqlDate = new java.sql.Date(dateTime.getTime());
+        return sqlDate;
+    }
 
     public static String data() {
         Date dateTime = new Date();

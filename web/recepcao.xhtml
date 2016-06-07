@@ -412,8 +412,9 @@
                                     </p:tab>
                                 </p:tabView>
 
-                                <p:dialog widgetVar="dlg_recepcao" header="Dados da Homologação" resizable="false" modal="true" visible="#{recepcaoBean.openDialog}" closeOnEscape="true" height="600" width="890" >
+                                <p:dialog widgetVar="dlg_recepcao" header="Dados da Homologação" resizable="false" modal="true" visible="#{recepcaoBean.openDialog}" closeOnEscape="true" height="550" width="920" >
                                     <p:ajax event="close" listener="#{recepcaoBean.fecharModal()}" update="formRecepcao"/>  
+                                    <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', 'POSSUÍ OPOSIÇÃO CADASTRADA')}" escape="false" rendered="#{recepcaoBean.existeOposicao}" />
                                     <p:messages showDetail="true" closable="true"/>
                                     <h:panelGrid id="i_panel_homologacao">
                                         <p:panel styleClass="fundoCinza">
@@ -425,107 +426,140 @@
                                             </h:panelGrid>
                                         </p:panel>
 
-                                        <p:panel header="FUNCIONÁRIO" styleClass="margin-top-max">
+                                        <p:panel header="FUNCIONÁRIO" styleClass="margin-top">                                            
                                             <h:panelGrid columns="5">
                                                 <h:column>
-                                                    <h:outputLabel value="CPF" /><br />
-                                                    <p:inputText value="#{recepcaoBean.agendamentoEdit.pessoaEmpresa.fisica.pessoa.documento}" size="13" readonly="true" styleClass="bold text-center"/>
+                                                    <h:panelGrid>
+                                                        <h:outputLabel value="CPF" />
+                                                        <p:inputText value="#{recepcaoBean.agendamentoEdit.pessoaEmpresa.fisica.pessoa.documento}" size="12" readonly="true" styleClass="bold text-center"/>
+                                                    </h:panelGrid>
                                                 </h:column>
                                                 <h:column>
-                                                    <h:outputLabel value="NOME" /><br />
-                                                    <p:inputText value="#{recepcaoBean.agendamentoEdit.pessoaEmpresa.fisica.pessoa.nome}" size="30" readonly="true" styleClass="bold" />
+                                                    <h:panelGrid>
+                                                        <h:outputLabel value="NOME" />
+                                                        <p:inputText value="#{recepcaoBean.agendamentoEdit.pessoaEmpresa.fisica.pessoa.nome}" size="30" readonly="true" styleClass="bold #{recepcaoBean.existeOposicao ? 'font-color-red' : ''}" />
+                                                    </h:panelGrid>
                                                 </h:column>
                                                 <h:column>
-                                                    <h:outputLabel value="NASCIMENTO" /><br />
-                                                    <p:inputText value="#{recepcaoBean.agendamentoEdit.pessoaEmpresa.fisica.nascimento}" size="8" readonly="true" styleClass="bold text-center"/>
+                                                    <h:panelGrid>
+                                                        <h:outputLabel value="NASCIMENTO" />
+                                                        <p:inputText value="#{recepcaoBean.agendamentoEdit.pessoaEmpresa.fisica.nascimento}" size="8" readonly="true" styleClass="bold text-center"/>
+                                                    </h:panelGrid>
                                                 </h:column>
                                                 <h:column>
-                                                    <h:outputLabel value="Motivo da Demissão" /><br />
-                                                    <p:selectOneMenu value="#{recepcaoBean.idMotivoDemissao}" disabled="true">
-                                                        <f:selectItems value="#{recepcaoBean.listaMotivoDemissao}"/>
-                                                    </p:selectOneMenu>
+                                                    <h:panelGrid>
+                                                        <h:outputLabel value="Motivo da Demissão" />
+                                                        <p:selectOneMenu value="#{recepcaoBean.idMotivoDemissao}" disabled="true">
+                                                            <f:selectItems value="#{recepcaoBean.listaMotivoDemissao}"/>
+                                                        </p:selectOneMenu>
+                                                    </h:panelGrid>
                                                 </h:column>     
                                                 <h:column rendered="#{recepcaoBean.registro.senhaHomologacao}">
-                                                    <h:outputLabel value="Horário de Chegada"  style="color: red"/><br />
-                                                    <p:inputMask value="#{recepcaoBean.recepcao.horaInicialFuncionario}" size="13" mask="99:99" style="text-align: center"/>
+                                                    <h:panelGrid>
+                                                        <h:outputLabel value="H. CHEGADA"  styleClass="font-color-red bold" />
+                                                        <p:inputMask value="#{recepcaoBean.recepcao.horaInicialFuncionario}" size="8" mask="99:99" style="text-align: center" title="Horário de chegada" converter="#{isValidTimeString}">
+                                                            <p:ajax event="change" update="@this" global="false"/>
+                                                        </p:inputMask>
+                                                    </h:panelGrid>
                                                 </h:column>
                                             </h:panelGrid>
-
-                                            <h:panelGrid columns="1" style="width: 100%">
-                                                <h:column>
-                                                    <h:outputLabel value="Observação" /><br />
-                                                    <p:inputTextarea rows="2" value="#{recepcaoBean.agendamentoEdit.observacao}" style="width: 100%; color: red" styleClass="bold"/>
-                                                </h:column>
+                                            <h:panelGrid>
+                                                <h:outputLabel value="OBSERVAÇÃO" styleClass="font-color-red bold"/>
+                                                <p:inputTextarea rows="2" value="#{recepcaoBean.agendamentoEdit.observacao}" cols="100" styleClass="bold font-color-red" maxlength="2000" placeholder="Informe uma observação..."/>
                                             </h:panelGrid>
-
-                                            <p:panel styleClass="fundoCinza" rendered="#{recepcaoBean.registro.senhaHomologacao}">
-                                                <h:panelGrid columns="3">
+                                            <f:facet name="footer" rendered="#{recepcaoBean.registro.senhaHomologacao}">
+                                                <h:panelGrid columns="2">
                                                     <h:column>
-                                                        <h:outputLabel value="Preposto"  style="color: red"/><br />
-                                                        <p:inputText value="#{recepcaoBean.recepcao.preposto}" converter="#{toUpperCase}" size="40">
-                                                            <p:ajax event="change" update="@this" global="false" />
-                                                        </p:inputText>
+                                                        <h:panelGrid>
+                                                            <h:outputLabel value="PREPOSTO" styleClass="font-color-red bold"/>
+                                                            <p:inputText value="#{recepcaoBean.recepcao.preposto}" converter="#{toUpperCase}" size="60" maxlength="200">
+                                                                <p:ajax event="change" update="@this" global="false" />
+                                                            </p:inputText>                                                            
+                                                        </h:panelGrid>
                                                     </h:column>
                                                     <h:column>
-                                                        <h:outputLabel value="Horário de Chegada"  style="color: red;"/><br />
-                                                        <p:inputMask value="#{recepcaoBean.recepcao.horaInicialPreposto}" size="13" mask="99:99" style="text-align: center"/>
+                                                        <h:panelGrid>
+                                                            <h:outputLabel value="HORÁRIO DE CHEGADA" styleClass="font-color-red bold"/>
+                                                            <p:inputMask value="#{recepcaoBean.recepcao.horaInicialPreposto}" size="18" mask="99:99" style="text-align: center" converter="#{isValidTimeString}">
+                                                                <p:ajax event="change" update="@this" global="false"/>
+                                                            </p:inputMask>
+                                                        </h:panelGrid>
                                                     </h:column>
-                                                </h:panelGrid>
-                                            </p:panel>
+                                                </h:panelGrid>                                              
+                                            </f:facet>
                                         </p:panel>
 
-                                        <p:panel header="EMPRESA" styleClass="margin-top-max">
+
+                                        <p:panel header="EMPRESA" styleClass="margin-top">
                                             <h:panelGrid columns="2">
                                                 <h:column>
-                                                    <h:outputLabel value="Razão Social" style="font-weight: bold"/><br />
-                                                    <h:outputLabel value="#{recepcaoBean.agendamentoEdit.pessoaEmpresa.juridica.pessoa.nome}" />
+                                                    <h:panelGrid>
+                                                        <h:outputLabel value="Razão Social" styleClass="bold"/>
+                                                        <h:outputLabel value="#{recepcaoBean.agendamentoEdit.pessoaEmpresa.juridica.pessoa.nome}" />
+                                                    </h:panelGrid>
                                                 </h:column>
 
                                                 <h:column>
-                                                    <h:outputLabel value="Convenção" style="font-weight: bold" styleClass="margin-left-max"/><br />
-                                                    <h:outputLabel value="#{recepcaoBean.agendamentoEdit.pessoaEmpresa.juridica.cnaeConvencao.convencao.descricao}" styleClass="margin-left-max" />
+                                                    <h:panelGrid>
+                                                        <h:outputLabel value="Convenção" styleClass="bold margin-left-max"/>
+                                                        <h:outputLabel value="#{recepcaoBean.agendamentoEdit.pessoaEmpresa.juridica.cnaeConvencao.convencao.descricao}" styleClass="margin-left-max" />
+                                                    </h:panelGrid>
                                                 </h:column>
 
                                                 <h:column rendered="#{recepcaoBean.agendamentoEdit.pessoaEmpresa.juridica.pessoa.telefone1 != '' or recepcaoBean.agendamentoEdit.pessoaEmpresa.juridica.pessoa.telefone2 != ''}">
-                                                    <h:outputLabel value="Telefone" style="font-weight: bold;"/><br />
-                                                    <h:outputLabel value="#{recepcaoBean.agendamentoEdit.pessoaEmpresa.juridica.pessoa.telefone1} / #{recepcaoBean.agendamentoEdit.pessoaEmpresa.juridica.pessoa.telefone2}" />
+                                                    <h:panelGrid>
+                                                        <h:outputLabel value="Telefone" styleClass="bold"/>
+                                                        <h:outputLabel value="#{recepcaoBean.agendamentoEdit.pessoaEmpresa.juridica.pessoa.telefone1} / #{recepcaoBean.agendamentoEdit.pessoaEmpresa.juridica.pessoa.telefone2}" />
+                                                    </h:panelGrid>
                                                 </h:column>
                                             </h:panelGrid>
 
                                             <h:panelGrid columns="1">
                                                 <h:column>
-                                                    <h:outputLabel value="Endereço da Empresa" style="font-weight: bold"/><br />
-                                                    <h:outputLabel value="#{recepcaoBean.strEndereco}" />
+                                                    <h:panelGrid>
+                                                        <h:outputLabel value="Endereço da Empresa" styleClass="bold"/>
+                                                        <h:outputLabel value="#{recepcaoBean.strEndereco}" />
+                                                    </h:panelGrid>
                                                 </h:column>
                                             </h:panelGrid>
 
                                             <h:panelGrid columns="2">
                                                 <h:column>
-                                                    <h:outputLabel value="Escritório" style="font-weight: bold"/><br />
-                                                    <h:outputLabel value="#{recepcaoBean.agendamentoEdit.pessoaEmpresa.juridica.contabilidade.pessoa.nome}" />
+                                                    <h:panelGrid>
+                                                        <h:outputLabel value="Escritório" style="font-weight: bold"/>
+                                                        <h:outputLabel value="#{recepcaoBean.agendamentoEdit.pessoaEmpresa.juridica.contabilidade.pessoa.nome}" />
+                                                    </h:panelGrid>
                                                 </h:column>
 
                                                 <h:column>
-                                                    <h:outputLabel value="Telefone" style="font-weight: bold; margin-left: 20px"/><br />
-                                                    <h:outputLabel value="#{recepcaoBean.agendamentoEdit.pessoaEmpresa.juridica.contabilidade.pessoa.telefone1} / #{recepcaoBean.agendamentoEdit.pessoaEmpresa.juridica.contabilidade.pessoa.telefone2}" style="margin-left: 20px"/>
+                                                    <h:panelGrid>
+                                                        <h:outputLabel value="Telefone" style="font-weight: bold; margin-left: 20px"/>
+                                                        <h:outputLabel value="#{recepcaoBean.agendamentoEdit.pessoaEmpresa.juridica.contabilidade.pessoa.telefone1} / #{recepcaoBean.agendamentoEdit.pessoaEmpresa.juridica.contabilidade.pessoa.telefone2}" style="margin-left: 20px"/>
+                                                    </h:panelGrid>
                                                 </h:column>
                                             </h:panelGrid>
 
                                             <h:panelGrid columns="3">
                                                 <h:column>
-                                                    <h:outputLabel value="Contato" style="font-weight: bold"/><br />
-                                                    <h:outputLabel value="#{recepcaoBean.agendamentoEdit.contato}" />
+                                                    <h:panelGrid>
+                                                        <h:outputLabel value="Contato" style="font-weight: bold"/>
+                                                        <h:outputLabel value="#{recepcaoBean.agendamentoEdit.contato}" />
+                                                    </h:panelGrid>
                                                 </h:column>
 
                                                 <h:column>
-                                                    <h:outputLabel value="Email" style="font-weight: bold; margin-left: 20px"/><br />
-                                                    <h:outputLabel value="#{recepcaoBean.agendamentoEdit.email}" style="margin-left: 20px" rendered="#{recepcaoBean.agendamentoEdit.email ne ''}"/>
-                                                    <h:outputLabel value="NENHUM" style="margin-left: 20px" rendered="#{recepcaoBean.agendamentoEdit.email eq ''}"/>
+                                                    <h:panelGrid>
+                                                        <h:outputLabel value="Email" style="font-weight: bold; margin-left: 20px"/>
+                                                        <h:outputLabel value="#{recepcaoBean.agendamentoEdit.email}" style="margin-left: 20px" rendered="#{recepcaoBean.agendamentoEdit.email ne ''}"/>
+                                                        <h:outputLabel value="NENHUM" style="margin-left: 20px" rendered="#{recepcaoBean.agendamentoEdit.email eq ''}"/>
+                                                    </h:panelGrid>
                                                 </h:column>
 
                                                 <h:column>
-                                                    <h:outputLabel value="Telefone" style="font-weight: bold; margin-left: 20px"/><br />
-                                                    <h:outputLabel value="#{recepcaoBean.agendamentoEdit.telefone}" style="margin-left: 20px"/>
+                                                    <h:panelGrid>
+                                                        <h:outputLabel value="Telefone" style="font-weight: bold; margin-left: 20px"/>
+                                                        <h:outputLabel value="#{recepcaoBean.agendamentoEdit.telefone}" style="margin-left: 20px"/>
+                                                    </h:panelGrid>
                                                 </h:column>
                                             </h:panelGrid>
                                         </p:panel>

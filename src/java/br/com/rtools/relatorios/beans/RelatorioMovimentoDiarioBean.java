@@ -17,8 +17,8 @@ import br.com.rtools.utilitarios.Jasper;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.PostConstruct;
@@ -39,12 +39,11 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
     private List<SelectItem> listRelatorioOrdem;
     private Integer idRelatorioOrdem;
 
-    private String tipoData;
-    private String dataInicial;
-    private String dataFinal;
+    private List<SelectItem> listCaixaBanco;
+    private Integer idCaixaBanco;
 
-    private Map<String, Integer> listCaixaBanco;
-    private List selectedCaixaBanco;
+    private List<SelectItem> listDatas;
+    private String data;
 
     @PostConstruct
     public void init() {
@@ -52,9 +51,7 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
         listFilters = new ArrayList();
         listRelatorio = new ArrayList<>();
         idRelatorio = null;
-        tipoData = "todos";
-        dataInicial = "";
-        dataFinal = "";
+        listDatas = new ArrayList<>();
         loadRelatorio();
         loadFilters();
         loadRelatorioOrdem();
@@ -62,7 +59,7 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
 
     @PreDestroy
     public void destroy() {
-        GenericaSessao.remove("relatorioMovimentoDiario");
+        GenericaSessao.remove("relatorioMovimentoDiarioBean");
         GenericaSessao.remove("pessoaPesquisa");
     }
 
@@ -73,6 +70,10 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
     public void print(Boolean tags) {
         if (look()) {
             GenericaMensagem.warn("Validação", "Selecione um filtro!");
+            return;
+        }
+        if (data.isEmpty()) {
+            GenericaMensagem.warn("Validação", "Informar uma data!");
             return;
         }
         SisProcesso sisProcesso = new SisProcesso();
@@ -89,15 +90,23 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
             RelatorioOrdem ro = (RelatorioOrdem) new Dao().find(new RelatorioOrdem(), idRelatorioOrdem);
             rpd.setRelatorioOrdem(ro);
         }
-        if (!dataInicial.isEmpty()) {
-            listDetalhePesquisa.add("Período de vencimento " + dataInicial + (!dataFinal.isEmpty() ? " até ".concat(dataFinal) : ""));
-        }
         rpd.setRelatorios(r);
-        List list = rpd.find(inIdCaixaBanco(), tipoData, dataInicial, dataFinal);
+        List list = rpd.find(idCaixaBanco, data);
         sisProcesso.finishQuery();
+        Double saldo = new Double(0);
+        Double saldo_anterior = rpd.findSaldoAnterior(data, idCaixaBanco);
+        if (saldo_anterior == null) {
+            saldo_anterior = new Double(0);
+        }
+        oj.add(new ObjectJasper(DataHoje.dataHojeSQL(), "SALDO ANTERIOR", "", saldo_anterior > 0 ? saldo_anterior : 0, saldo_anterior < 0 ? saldo_anterior : 0, saldo_anterior));
         for (int i = 0; i < list.size(); i++) {
             List o = (List) list.get(i);
-            oj.add(new ObjectJasper(o.get(0), o.get(1), o.get(2), o.get(3), o.get(4), o.get(5)));
+            if (i == 0) {
+                saldo = saldo_anterior + Double.parseDouble(o.get(3).toString()) + (Double.parseDouble(o.get(4).toString()));
+            } else {
+                saldo = saldo + Double.parseDouble(o.get(3).toString()) + (Double.parseDouble(o.get(4).toString()));
+            }
+            oj.add(new ObjectJasper(o.get(0), o.get(1), o.get(2), o.get(3), o.get(4), saldo));
         }
         if (list.isEmpty()) {
             GenericaMensagem.warn("Mensagem", "Nenhum registro encontrado!");
@@ -120,7 +129,13 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
         Jasper.TITLE = "RELATÓRIO " + r.getNome().toUpperCase();
         Jasper.TYPE = "default";
         Map map = new HashMap();
+        map.put("saldo_anterior", saldo_anterior);
         map.put("detalhes_relatorio", detalheRelatorio);
+        map.put("caixa_banco", "CAIXA / BANCO");
+        if (idCaixaBanco != null) {
+            Plano5 p = (Plano5) new Dao().find(new Plano5(), idCaixaBanco);
+            map.put("caixa_banco", p.getConta());
+        }
         Jasper.printReports(r.getJasper(), r.getNome(), (Collection) oj, map);
         sisProcesso.setProcesso(r.getNome());
         sisProcesso.finish();
@@ -168,8 +183,9 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
 
     public void loadFilters() {
         listFilters = new ArrayList<>();
-        listFilters.add(new Filters("caixa_banco", "Caixa Banco", false, false));
-        listFilters.add(new Filters("data", "Data", false, false));
+        listFilters.add(new Filters("caixa_banco", "Caixa Banco", false));
+        listFilters.add(new Filters("data", "Data", true, true));
+        load(listFilters.get(1));
 
     }
 
@@ -189,6 +205,9 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
                 loadFilters();
                 break;
             case 2:
+                // List o = (List) list.get(0);
+                // DataHoje.converteData((Date) o.get(0))                
+                loadListDatas();
                 break;
         }
     }
@@ -197,56 +216,66 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
     public void load(Filters filter) {
         switch (filter.getKey()) {
             case "caixa_banco":
+                idCaixaBanco = null;
                 if (!filter.getActive()) {
-                    listCaixaBanco = new LinkedHashMap<>();
-                    selectedCaixaBanco = new ArrayList<>();
+                    listCaixaBanco = new ArrayList<>();
                 } else {
                     loadListCaixaBanco();
                 }
+                loadListDatas();
                 break;
             case "data":
+                data = "";
                 if (!filter.getActive()) {
-                    tipoData = "";
-                    dataInicial = "";
-                    dataFinal = "";
+                    listDatas = new ArrayList<>();
                 } else {
-                    tipoData = "igual";
-                    dataInicial = DataHoje.data();
-                    dataFinal = "";
+                    loadListDatas();
                 }
                 break;
+        }
+    }
+
+    public void loadListCaixaBanco() {
+        listCaixaBanco = new ArrayList();
+        idCaixaBanco = null;
+        List<Plano5> list = new RelatorioMovimentoDiarioDao().findPlano5();
+        if (list != null) {
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getConta().toUpperCase().equals("CAIXA")) {
+                    idCaixaBanco = list.get(i).getId();
+                }
+                listCaixaBanco.add(new SelectItem(list.get(i).getId(), list.get(i).getConta()));
+            }
+            if (idCaixaBanco == null) {
+                for (int i = 0; i < list.size(); i++) {
+                    if (i == 0) {
+                        idCaixaBanco = list.get(i).getId();
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    public void loadListDatas() {
+        listDatas = new ArrayList();
+        data = null;
+        List list = new RelatorioMovimentoDiarioDao().findMaxDates(idCaixaBanco);
+        if (list != null) {
+            for (int i = 0; i < list.size(); i++) {
+                List o = (List) list.get(i);
+                String d = DataHoje.converteData((Date) o.get(0));
+                if (i == 0) {
+                    data = d;
+                }
+                listDatas.add(new SelectItem(d, d));
+            }
         }
     }
 
     public void close(Filters filter) {
         filter.setActive(!filter.getActive());
         load(filter);
-    }
-
-    public void loadListCaixaBanco() {
-        listCaixaBanco = new LinkedHashMap<>();
-        selectedCaixaBanco = new ArrayList<>();
-        List<Plano5> list = new RelatorioMovimentoDiarioDao().findPlano5();
-        if (list != null) {
-            for (int i = 0; i < list.size(); i++) {
-                listCaixaBanco.put(list.get(i).getConta(), list.get(i).getId());
-            }
-        }
-    }
-
-    // TRATAMENTO
-    public String inIdCaixaBanco() {
-        String ids = null;
-        if (selectedCaixaBanco != null) {
-            for (int i = 0; i < selectedCaixaBanco.size(); i++) {
-                if (ids == null) {
-                    ids = "" + selectedCaixaBanco.get(i);
-                } else {
-                    ids += "," + selectedCaixaBanco.get(i);
-                }
-            }
-        }
-        return ids;
     }
 
     // GETTERS AND SETTERS
@@ -267,8 +296,7 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
     }
 
     /**
-     * 0 grupo finançeiro; 1 subgrupo finançeiro; 2 serviços; 3 sócios; 4 tipo
-     * de pessoa; 5 meses débito
+     * 0 CAIXA / BANCO; 1 Data
      *
      * @return
      */
@@ -313,44 +341,36 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
         return r;
     }
 
-    public Map<String, Integer> getListCaixaBanco() {
+    public List<SelectItem> getListDatas() {
+        return listDatas;
+    }
+
+    public void setListDatas(List<SelectItem> listDatas) {
+        this.listDatas = listDatas;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
+
+    public List<SelectItem> getListCaixaBanco() {
         return listCaixaBanco;
     }
 
-    public void setListCaixaBanco(Map<String, Integer> listCaixaBanco) {
+    public void setListCaixaBanco(List<SelectItem> listCaixaBanco) {
         this.listCaixaBanco = listCaixaBanco;
     }
 
-    public List getSelectedCaixaBanco() {
-        return selectedCaixaBanco;
+    public Integer getIdCaixaBanco() {
+        return idCaixaBanco;
     }
 
-    public void setSelectedCaixaBanco(List selectedCaixaBanco) {
-        this.selectedCaixaBanco = selectedCaixaBanco;
-    }
-
-    public String getTipoData() {
-        return tipoData;
-    }
-
-    public void setTipoData(String tipoData) {
-        this.tipoData = tipoData;
-    }
-
-    public String getDataInicial() {
-        return dataInicial;
-    }
-
-    public void setDataInicial(String dataInicial) {
-        this.dataInicial = dataInicial;
-    }
-
-    public String getDataFinal() {
-        return dataFinal;
-    }
-
-    public void setDataFinal(String dataFinal) {
-        this.dataFinal = dataFinal;
+    public void setIdCaixaBanco(Integer idCaixaBanco) {
+        this.idCaixaBanco = idCaixaBanco;
     }
 
     public class ObjectJasper {

@@ -82,6 +82,27 @@ public class OposicaoDao extends DB {
             return null;
         }
     }
+    
+    public boolean existPessoaOposicao(String cpf) {
+        try {
+            String data = DataHoje.livre(new Date(), "yyyyMM");
+            Query qry = getEntityManager().createNativeQuery(""
+                    + "     SELECT * "
+                    + "       FROM arr_oposicao opo "
+                    + " INNER JOIN arr_oposicao_pessoa pes on pes.id = opo.id_oposicao_pessoa "
+                    + " INNER JOIN arr_convencao_periodo per on per.id = opo.id_convencao_periodo "
+                    + "      WHERE pes.ds_cpf = '" + cpf + "' "
+                    + "        AND '" + data + "' >= (substring(per.ds_referencia_inicial,4,4)||substring(per.ds_referencia_inicial,1,2)) "
+                    + "        AND '" + data + "' <= (substring(per.ds_referencia_final,4,4)||substring(per.ds_referencia_final,1,2)) "
+                    + "        AND opo.dt_inativacao IS NULL");
+            if (!qry.getResultList().isEmpty()) {
+                return true;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return false;
+    }    
 
     public List pesquisaListaPorPessoa(String cpf) {
         return pesquisaListaPorPessoaEmpresa(cpf, null);

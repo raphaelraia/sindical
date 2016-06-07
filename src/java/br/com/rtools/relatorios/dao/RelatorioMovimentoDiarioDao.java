@@ -4,8 +4,10 @@ import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.principal.DB;
 import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
+import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.QueryString;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.Query;
 
@@ -24,7 +26,7 @@ public class RelatorioMovimentoDiarioDao extends DB {
         this.relatorioOrdem = relatorioOrdem;
     }
 
-    public List find(String in_plano5, String tipoData, String data_inicial, String data_final) {
+    public List find(Integer plano5_id, String data) {
         if (relatorios == null) {
             return new ArrayList();
         }
@@ -50,27 +52,12 @@ public class RelatorioMovimentoDiarioDao extends DB {
             List listWhere = new ArrayList<>();
             // SITUAÇÃO
             // UNIDADE
-            if (in_plano5 != null) {
-                listWhere.add("M.id_plano5 IN (" + in_plano5 + ")");
+            if (plano5_id != null) {
+                listWhere.add("M.id_caixa_banco = " + plano5_id);
             }
             // DATA CADASTRO
-            if (!data_inicial.isEmpty() || !data_final.isEmpty()) {
-                switch (tipoData) {
-                    case "igual":
-                        listWhere.add("baixa = '" + data_inicial + "'");
-                        break;
-                    case "apartir":
-                        listWhere.add("baixa >= '" + data_inicial + "'");
-                        break;
-                    case "ate":
-                        listWhere.add("baixa <= '" + data_inicial + "'");
-                        break;
-                    case "faixa":
-                        listWhere.add("baixa BETWEEN '" + data_inicial + "' AND '" + data_final + "'");
-                        break;
-                    default:
-                        break;
-                }
+            if (data != null && !data.isEmpty()) {
+                listWhere.add("baixa = '" + data + "'");
             }
             for (int i = 0; i < listWhere.size(); i++) {
                 if (i == 0) {
@@ -88,7 +75,7 @@ public class RelatorioMovimentoDiarioDao extends DB {
             if (relatorioOrdem != null) {
                 queryString += " ORDER BY  " + relatorioOrdem.getQuery() + " \n";
             } else {
-                queryString += " ORDER BY data, operacao";
+                queryString += " ORDER BY data, operacao ";
             }
             Query query = getEntityManager().createNativeQuery(queryString);
             return query.getResultList();
@@ -120,12 +107,53 @@ public class RelatorioMovimentoDiarioDao extends DB {
                     + "       FROM fin_plano5 AS P                                      \n"
                     + " INNER JOIN fin_conta_rotina AS CR ON CR.id_plano4 = P.id_plano4 \n"
                     + "      WHERE id_rotina IN(1,2)                                    \n"
-                    + "   ORDER BY P.id,                                                \n"
-                    + "            P.ds_conta ";
+                    + "   ORDER BY P.ds_conta ";
             Query query = getEntityManager().createNativeQuery(queryString, Plano5.class);
             return query.getResultList();
         } catch (Exception e) {
             return new ArrayList();
         }
+    }
+
+    public List findMaxDates(Integer plano5_id) {
+        try {
+            String queryString = " SELECT dt_data FROM fin_conta_saldo ";
+            if (plano5_id != null) {
+                queryString += " WHERE id_plano5 = " + plano5_id;
+            }
+            queryString += " GROUP BY dt_data ORDER BY dt_data DESC";
+            Query query = getEntityManager().createNativeQuery(queryString);
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return list;
+            }
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+        return new ArrayList();
+    }
+
+    public Double findSaldoAnterior(String date, Integer plano5_id) {
+        if (date == null || date.isEmpty()) {
+            return new Double(0);
+        }
+        try {
+            String queryString = " "
+                    + "     SELECT sum(nr_saldo)    \n"
+                    + "       FROM fin_conta_saldo  \n"
+                    + "      WHERE dt_data=(cast('" + date + "' as date)) - 1 \n";
+            if (plano5_id != null) {
+                queryString += " AND id_plano5 = " + plano5_id;
+            }
+            Query query = getEntityManager().createNativeQuery(queryString);
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                List o = (List) list.get(0);
+                return new Double(o.get(0).toString());
+            }
+        } catch (Exception e) {
+            return new Double(0);
+        }
+        return new Double(0);
     }
 }
