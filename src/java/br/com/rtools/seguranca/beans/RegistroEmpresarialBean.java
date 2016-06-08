@@ -17,8 +17,6 @@ import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -63,8 +61,8 @@ public class RegistroEmpresarialBean implements Serializable {
         idSisEmailProtocolo = 0;
         listaDataVencimento = new ArrayList<SelectItem>();
         if (registro.getId() == -1) {
-            SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-            registro = (Registro) sv.find(new Registro(), 1);
+            Dao dao = new Dao();
+            registro = (Registro) dao.find(new Registro(), 1);
             senha = registro.getSenha();
             if (registro.getServicos() != null) {
                 codigoServico = registro.getServicos().getId();
@@ -100,15 +98,15 @@ public class RegistroEmpresarialBean implements Serializable {
                 registro.setSenha(senha);
             }
         }
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-        sv.abrirTransacao();
+        Dao dao = new Dao();
+        dao.openTransaction();
         Servicos servicos;
         if (codigoServico <= 0) {
             servicos = null;
         } else {
-            servicos = (Servicos) sv.pesquisaObjeto(codigoServico, "Servicos");
+            servicos = (Servicos) dao.find(new Servicos(), codigoServico);
         }
-        registro.setSisEmailProtocolo((SisEmailProtocolo) sv.find(new SisEmailProtocolo(), Integer.parseInt(getListaSisEmailProtocolo().get(idSisEmailProtocolo).getDescription())));
+        registro.setSisEmailProtocolo((SisEmailProtocolo) dao.find(new SisEmailProtocolo(), Integer.parseInt(getListaSisEmailProtocolo().get(idSisEmailProtocolo).getDescription())));
         registro.setFinDiaVencimentoCobranca(idDiaVencimento);
         registro.setServicos(servicos);
         if (habilitaCorrecao) {
@@ -117,23 +115,23 @@ public class RegistroEmpresarialBean implements Serializable {
             registro.setHomolocaoHabilitaCorrecao(null);
 
         }
-        if (sv.alterarObjeto(registro)) {
-            sv.comitarTransacao();
+        if (dao.update(registro)) {
+            dao.commit();
             GenericaMensagem.info("Sucesso", "Registro atualizado");
         } else {
-            sv.desfazerTransacao();
+            dao.rollback();
             GenericaMensagem.warn("Erro", "Ao atualizar registro!");
         }
     }
 
     public void salvarSemSenha() {
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-        sv.abrirTransacao();
-        if (sv.alterarObjeto(registro)) {
-            sv.comitarTransacao();
+        Dao dao = new Dao();
+        dao.openTransaction();
+        if (dao.update(registro)) {
+            dao.commit();
             GenericaMensagem.info("Sucesso", "Registro atualizado");
         } else {
-            sv.desfazerTransacao();
+            dao.rollback();
             GenericaMensagem.warn("Erro", "Ao atualizar registro!");
         }
     }
@@ -184,12 +182,12 @@ public class RegistroEmpresarialBean implements Serializable {
         String login = nome.substring(nome.length() - 6, nome.length());
         pessoa.setLogin(login);
         pessoa.setSenha(senhaInicial);
-        SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
-        salvarAcumuladoDB.abrirTransacao();
-        if (salvarAcumuladoDB.alterarObjeto(pessoa)) {
-            salvarAcumuladoDB.comitarTransacao();
+        Dao dao = new Dao();
+        dao.openTransaction();
+        if (dao.update(pessoa)) {
+            dao.commit();
         } else {
-            salvarAcumuladoDB.desfazerTransacao();
+            dao.rollback();
         }
         return senhaInicial;
     }
@@ -289,8 +287,7 @@ public class RegistroEmpresarialBean implements Serializable {
 
     public List<SelectItem> getListaSisEmailProtocolo() {
         List<SelectItem> selectItems = new ArrayList();
-        SalvarAcumuladoDB sadb = new SalvarAcumuladoDBToplink();
-        List<SisEmailProtocolo> seps = (List<SisEmailProtocolo>) sadb.listaObjeto("SisEmailProtocolo");
+        List<SisEmailProtocolo> seps = (List<SisEmailProtocolo>) new Dao().list(new SisEmailProtocolo());
         for (int i = 0; i < seps.size(); i++) {
             selectItems.add(new SelectItem(i, seps.get(i).getDescricao(), "" + seps.get(i).getId()));
         }
@@ -318,7 +315,7 @@ public class RegistroEmpresarialBean implements Serializable {
                         false
                 )
         );
-        List<EmailPessoa> emailPessoas = new ArrayList<EmailPessoa>();
+        List<EmailPessoa> emailPessoas = new ArrayList<>();
         EmailPessoa emailPessoa = new EmailPessoa();
         emailPessoa.setDestinatario(emailTeste);
         emailPessoa.setPessoa(null);
@@ -331,15 +328,6 @@ public class RegistroEmpresarialBean implements Serializable {
         } else {
             GenericaMensagem.info("Sucesso", "Email enviado com sucesso!");
         }
-//        SalvarAcumuladoDB sadb = new SalvarAcumuladoDBToplink();
-//        Juridica juridica = (Juridica) sadb.find(new Juridica(), 1);
-//        juridica.getPessoa().setEmail1(emailTeste);
-//        String msgEmail = EnviarEmail.EnviarEmailTeste(emailTeste);
-//        if (msgEmail.isEmpty()) {
-//            GenericaMensagem.warn("Validação", "Erro ao enviar mensagem!");
-//            return;
-//        }
-        //GenericaMensagem.info("Sucesso", msgEmail);
     }
 
     public String getEmailTeste() {

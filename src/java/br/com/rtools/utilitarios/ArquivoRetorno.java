@@ -46,11 +46,11 @@ public abstract class ArquivoRetorno {
     public abstract String darBaixaSindical(String caminho, Usuario usuario);
 
     public abstract String darBaixaPadrao(Usuario usuario);
-    
+
     public abstract String darBaixaSicobSocial(String caminho, Usuario usuario);
 
     public abstract String darBaixaSigCBSocial(String caminho, Usuario usuario);
-    
+
     protected ArquivoRetorno(ContaCobranca contaCobranca) {
         this.contaCobranca = contaCobranca;
 //        this.pendentes = pendentes;
@@ -69,58 +69,53 @@ public abstract class ArquivoRetorno {
         MovimentoDB db = new MovimentoDBToplink();
         JuridicaDB dbJur = new JuridicaDBToplink();
         PessoaDB dbPes = new PessoaDBToplink();
-        FTipoDocumentoDao dbft = new FTipoDocumentoDao();
         List<Movimento> movimento = new ArrayList();
-        SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
+        Dao dao = new Dao();
         File fl = new File(caminho + "/pendentes/");
         File listFls[] = fl.listFiles();
         File flDes = new File(destino); // 0 DIA, 1 MES, 2 ANO
         flDes.mkdir();
-
-        TipoServicoDB dbTipo = new TipoServicoDBToplink();
         TipoServico tipoServico = new TipoServico();
         // LAYOUT 2 = SINDICAL
         if (this.getContaCobranca().getLayout().getId() == 2) {
             for (int u = 0; u < listaParametros.size(); u++) {
                 // VERIFICA O TIPO DA EMPRESA -------------------------------------------------------------------------------------------------
                 // ----------------------------------------------------------------------------------------------------------------------------
-                if ( ((Registro) salvarAcumuladoDB.pesquisaCodigo(1, "Registro")).getTipoEmpresa().equals("E")) {
+                if (((Registro) dao.find(new Registro(), 1)).getTipoEmpresa().equals("E")) {
                     // VERIFICA O ANO QUE VEIO NO ARQUIVO MENOR QUE ANO 2000 -------------------------------------------------------
                     // -------------------------------------------------------------------------------------------------------------
                     if (Integer.parseInt(listaParametros.get(u).getDataVencimento().substring(4, 8)) < 2000) {
                         referencia = DataHoje.dataReferencia(DataHoje.colocarBarras(listaParametros.get(u).getDataPagamento()));
                         dataVencto = DataHoje.colocarBarras(listaParametros.get(u).getDataPagamento());
                         if (referencia.substring(0, 2).equals("03")) {
-                            tipoServico = dbTipo.pesquisaCodigo(1);
+                            tipoServico = (TipoServico) dao.find(new TipoServico(), 1);
                         } else {
-                            tipoServico = dbTipo.pesquisaCodigo(2);
+                            tipoServico = (TipoServico) dao.find(new TipoServico(), 2);
                         }
                     } else {
                         referencia = DataHoje.dataReferencia(DataHoje.colocarBarras(listaParametros.get(u).getDataVencimento()));
                         dataVencto = DataHoje.colocarBarras(listaParametros.get(u).getDataVencimento());
                         if (referencia.substring(0, 2).equals("03")) {
-                            tipoServico = dbTipo.pesquisaCodigo(1);
+                            tipoServico = (TipoServico) dao.find(new TipoServico(), 1);
                         } else {
-                            tipoServico = dbTipo.pesquisaCodigo(2);
+                            tipoServico = (TipoServico) dao.find(new TipoServico(), 2);
                         }
                     }
-                } else {
-                    if (Integer.parseInt(listaParametros.get(u).getDataVencimento().substring(4, 8)) < 2000) {
-                        referencia = DataHoje.dataReferencia(DataHoje.colocarBarras(listaParametros.get(u).getDataPagamento()));
-                        dataVencto = DataHoje.colocarBarras(listaParametros.get(u).getDataPagamento());
-                        if (referencia.substring(0, 2).equals("01")) {
-                            tipoServico = dbTipo.pesquisaCodigo(1);
-                        } else {
-                            tipoServico = dbTipo.pesquisaCodigo(2);
-                        }
+                } else if (Integer.parseInt(listaParametros.get(u).getDataVencimento().substring(4, 8)) < 2000) {
+                    referencia = DataHoje.dataReferencia(DataHoje.colocarBarras(listaParametros.get(u).getDataPagamento()));
+                    dataVencto = DataHoje.colocarBarras(listaParametros.get(u).getDataPagamento());
+                    if (referencia.substring(0, 2).equals("01")) {
+                        tipoServico = (TipoServico) dao.find(new TipoServico(), 1);
                     } else {
-                        referencia = DataHoje.dataReferencia(DataHoje.colocarBarras(listaParametros.get(u).getDataVencimento()));
-                        dataVencto = DataHoje.colocarBarras(listaParametros.get(u).getDataVencimento());
-                        if (referencia.substring(0, 2).equals("01")) {
-                            tipoServico = dbTipo.pesquisaCodigo(1);
-                        } else {
-                            tipoServico = dbTipo.pesquisaCodigo(2);
-                        }
+                        tipoServico = (TipoServico) dao.find(new TipoServico(), 2);
+                    }
+                } else {
+                    referencia = DataHoje.dataReferencia(DataHoje.colocarBarras(listaParametros.get(u).getDataVencimento()));
+                    dataVencto = DataHoje.colocarBarras(listaParametros.get(u).getDataVencimento());
+                    if (referencia.substring(0, 2).equals("01")) {
+                        tipoServico = (TipoServico) dao.find(new TipoServico(), 1);
+                    } else {
+                        tipoServico = (TipoServico) dao.find(new TipoServico(), 2);
                     }
                 }
                 // ----------------------------------------------------------------------------------------------------------------------------
@@ -128,7 +123,6 @@ public abstract class ArquivoRetorno {
 
                 // 1 caso VERIFICA SE EXISTE BOLETO PELO NUMERO DO BOLETO JA BAIXADO -------------------------------------------------------------------
                 // -------------------------------------------------------------------------------------------------------------------
-
                 String numeroComposto = listaParametros.get(u).getNossoNumero()
                         + listaParametros.get(u).getDataPagamento()
                         + listaParametros.get(u).getValorPago().substring(5, listaParametros.get(u).getValorPago().length());
@@ -139,7 +133,7 @@ public abstract class ArquivoRetorno {
                     // EXISTE O BOLETO  MAS CONTEM VALORES DIFERENTES --------------
                     Movimento mov2 = movimento.get(0);
 
-                    Servicos servicos = (Servicos) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(1, "Servicos");
+                    Servicos servicos = (Servicos) (new Dao()).find(new Servicos(), 1);
 
                     movimento = db.pesquisaMovPorNumPessoaListBaixado(numeroComposto, this.getContaCobranca().getId());
                     if (movimento.isEmpty()) {
@@ -166,7 +160,7 @@ public abstract class ArquivoRetorno {
                                 0, 0, 0, 0, 0,
                                 Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorTaxa())), 100),
                                 Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorPago())), 100),
-                                (FTipoDocumento) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(2, "FTipoDocumento"),
+                                (FTipoDocumento) (new Dao()).find(new FTipoDocumento(), 2),
                                 0, null);
 
                         if (GerarMovimento.salvarUmMovimentoBaixa(new Lote(), movi)) {
@@ -179,17 +173,14 @@ public abstract class ArquivoRetorno {
                                     DataHoje.converte(DataHoje.colocarBarras(listaParametros.get(u).getDataCredito())),
                                     numeroComposto, nrSequencia);
                         }
-                    } else {
-                        if (movimento.get(0).getBaixa().getSequenciaBaixa() == 0) {
-                            movimento.get(0).getBaixa().setSequenciaBaixa(nrSequencia);
-
-                            SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-                            sv.abrirTransacao();
-                            if (sv.alterarObjeto(movimento.get(0).getBaixa())) {
-                                sv.comitarTransacao();
-                            } else {
-                                sv.desfazerTransacao();
-                            }
+                    } else if (movimento.get(0).getBaixa().getSequenciaBaixa() == 0) {
+                        movimento.get(0).getBaixa().setSequenciaBaixa(nrSequencia);
+                        dao = new Dao();
+                        dao.openTransaction();
+                        if (dao.update(movimento.get(0).getBaixa())) {
+                            dao.commit();
+                        } else {
+                            dao.rollback();
                         }
                     }
                     movimento.clear();
@@ -244,7 +235,7 @@ public abstract class ArquivoRetorno {
                         continue;
                     }
 
-                    Servicos servicos = (Servicos) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(1, "Servicos");
+                    Servicos servicos = (Servicos) (new Dao()).find(new Servicos(), 1);
                     Movimento movi = new Movimento(-1,
                             null,
                             servicos.getPlano5(),
@@ -270,7 +261,7 @@ public abstract class ArquivoRetorno {
                             0, 0, 0, 0, 0,
                             Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorTaxa())), 100),
                             Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorPago())), 100),
-                            (FTipoDocumento) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(2, "FTipoDocumento"),
+                            (FTipoDocumento) (new Dao()).find(new FTipoDocumento(), 2),
                             0,
                             null);
 
@@ -286,7 +277,7 @@ public abstract class ArquivoRetorno {
                     }
                 } else {
 
-                    Servicos servicos = (Servicos) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(1, "Servicos");
+                    Servicos servicos = (Servicos) (new Dao()).find(new Servicos(), 1);
                     Movimento movi = new Movimento(-1,
                             null,
                             servicos.getPlano5(),
@@ -312,22 +303,26 @@ public abstract class ArquivoRetorno {
                             0, 0, 0, 0, 0,
                             Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorTaxa())), 100),
                             Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorPago())), 100),
-                            (FTipoDocumento) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(2, "FTipoDocumento"), 0, null);
+                            (FTipoDocumento) (new Dao()).find(new FTipoDocumento(), 2), 0, null);
 
                     if (GerarMovimento.salvarUmMovimentoBaixa(new Lote(), movi)) {
                         float valor_liquido = Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorCredito())), 100);
-                        
+
                         DocumentoInvalidoDB dbDocInv = new DocumentoInvalidoDBToplink();
                         List<DocumentoInvalido> listaDI = dbDocInv.pesquisaNumeroBoleto(listaParametros.get(u).getNossoNumero());
-                        
-                        if (listaDI.isEmpty()){
-                            SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+
+                        if (listaDI.isEmpty()) {
+                            dao = new Dao();
                             DocumentoInvalido di = new DocumentoInvalido(-1, listaParametros.get(u).getNossoNumero(), false, DataHoje.data());
 
-                            sv.abrirTransacao();
-                            if (sv.inserirObjeto(di)) sv.comitarTransacao(); else sv.desfazerTransacao();
+                            dao.openTransaction();
+                            if (dao.save(di)) {
+                                dao.commit();
+                            } else {
+                                dao.rollback();
+                            }
                         }
-                        
+
                         GerarMovimento.baixarMovimento(
                                 movi,
                                 usuario,
@@ -378,46 +373,7 @@ public abstract class ArquivoRetorno {
                         result = " Erro ao mover arquivo!";
                     }
                 }
-            } 
-//            else if (this.pendentes && !moverArquivo) {
-//                
-//            } else if (moverArquivo) {
-//                for (int i = 0; i < listFls.length; i++) {
-//                    try {
-//                        fl = new File(path + "/" + listFls[i].getName());
-//                        flDes = new File(destino + "/" + listFls[i].getName());
-//                        if (flDes.exists()) {
-//                            flDes.delete();
-//                        }
-//
-//                        if (!fl.renameTo(flDes)) {
-//                            result = " Erro ao mover arquivo!";
-//                        }
-//                    } catch (Exception e) {
-//                        continue;
-//                    }
-//                }
-//            } else {
-//                for (int i = 0; i < listFls.length; i++) {
-//                    try {
-//                        flDes = new File(caminho + "/pendentes"); // 0 DIA, 1 MES, 2 ANO
-//                        flDes.mkdir();
-//
-//                        fl = new File(path + "/" + listFls[i].getName());
-//
-//                        flDes = new File(caminho + "/pendentes/" + listFls[i].getName());
-//                        if (flDes.exists()) {
-//                            flDes.delete();
-//                        }
-//
-//                        if (!fl.renameTo(flDes)) {
-//                            result = " Erro ao mover arquivo!";
-//                        }
-//                    } catch (Exception e) {
-//                        continue;
-//                    }
-//                }
-//            }
+            }
         }
         return result;
     }
@@ -425,7 +381,7 @@ public abstract class ArquivoRetorno {
     protected String baixarArquivoPadrao(List<GenericaRetorno> listaParametros, Usuario usuario) {
         return "Processo Concluido []";
     }
-    
+
     protected String baixarArquivoSocial(List<GenericaRetorno> listaParametros, String caminho, Usuario usuario) {
         String cnpj = "";
         String result = "";
@@ -452,14 +408,13 @@ public abstract class ArquivoRetorno {
                         errors.add(" Documento não Existe no Sistema! " + listaParametros.get(u).getCnpj());
                     }
                 }
-                
+
                 lista_movimento = db.pesquisaMovPorNumDocumentoListBaixadoAss(listaParametros.get(u).getNossoNumero(), this.getContaCobranca().getId());
-                if (lista_movimento.isEmpty()){
+                if (lista_movimento.isEmpty()) {
                     lista_movimento = db.pesquisaMovPorNumDocumentoListAss(listaParametros.get(u).getNossoNumero(), this.getContaCobranca().getId());
                     if (!lista_movimento.isEmpty()) {
                         //movimento.get(0).setValorBaixa(Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorPago())), 100));
                         //movimento.get(0).setTaxa(Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorTaxa())), 100));
-
 
                         // logs de mensagens ---
                         // 0 - ERRO AO INSERIR BAIXA - [1] obj Baixa
@@ -472,34 +427,33 @@ public abstract class ArquivoRetorno {
                         // 7 - VALOR DA BAIXA MAIOR - [1] obj Lista Movimento
                         // 8 - BOLETO NÃO ENCONTRADO - [1] string Número do Boleto
                         // 9 - ERRO AO ALTERAR MOVIMENTO COM VALOR BAIXA CORRETO- [1] obj Movimento
-
                         Object[] log = GerarMovimento.baixarMovimentoSocial(
                                 lista_movimento, // lista de movimentos
                                 usuario, // usuario que esta baixando
-                                DataHoje.colocarBarras(listaParametros.get(u).getDataPagamento()),  // data do pagamento
+                                DataHoje.colocarBarras(listaParametros.get(u).getDataPagamento()), // data do pagamento
                                 Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorPago())), 100), // valor liquido ( total pago )
                                 Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorTaxa())), 100) // valor taxa
                         );
 
                         lista_logs.add(log);
-                    }else{
+                    } else {
                         Object[] log = new Object[3];
 
                         log[0] = 8;
                         log[1] = listaParametros.get(u).getNossoNumero();
-                        log[2] = "Boleto não Encontrado - "+ listaParametros.get(u).getNossoNumero() + 
-                                 " - Data de Vencimento: "+DataHoje.colocarBarras(listaParametros.get(u).getDataVencimento())+
-                                 " - Data de Pagamento: "+DataHoje.colocarBarras(listaParametros.get(u).getDataPagamento())+
-                                 " - Valor Pago: "+Moeda.converteR$Float(Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(((GenericaRetorno)listaParametros.get(u)).getValorPago())), 100));
+                        log[2] = "Boleto não Encontrado - " + listaParametros.get(u).getNossoNumero()
+                                + " - Data de Vencimento: " + DataHoje.colocarBarras(listaParametros.get(u).getDataVencimento())
+                                + " - Data de Pagamento: " + DataHoje.colocarBarras(listaParametros.get(u).getDataPagamento())
+                                + " - Valor Pago: " + Moeda.converteR$Float(Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(((GenericaRetorno) listaParametros.get(u)).getValorPago())), 100));
                         lista_logs.add(log);
                     }
                 }
                 lista_movimento.clear();
             }
         }
-        
+
         GenericaSessao.put("logsRetornoSocial", lista_logs);
-        
+
         if (listFls != null) {
             if (moverArquivo) {
                 for (int i = 0; i < listFls.length; i++) {
@@ -514,7 +468,7 @@ public abstract class ArquivoRetorno {
                         result = " Erro ao mover arquivo!";
                     }
                 }
-            } 
+            }
         }
         return result;
     }
