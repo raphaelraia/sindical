@@ -40,8 +40,6 @@ import br.com.rtools.utilitarios.Diretorio;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.PF;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import br.com.rtools.utilitarios.Upload;
 import br.com.rtools.utilitarios.WSSocket;
 import java.io.File;
@@ -463,8 +461,7 @@ public class RecepcaoBean implements Serializable {
 
     public List<SelectItem> getListaStatus() {
         if (listaStatus.isEmpty()) {
-            SalvarAcumuladoDB sadb = new SalvarAcumuladoDBToplink();
-            List<Status> list = (List<Status>) sadb.pesquisaObjeto(new int[]{2, 3, 4, 5, 7}, "Status");
+            List<Status> list = (List<Status>) new Dao().find("Status", new int[]{2, 3, 4, 5, 7});
             if (!list.isEmpty()) {
                 int i = 0;
                 for (i = 0; i < list.size(); i++) {

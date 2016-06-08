@@ -7,7 +7,6 @@ import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -73,28 +72,26 @@ public class PedidoBean implements Serializable {
         modalPedido = false;
     }
 
-    public boolean salvarPedido(SalvarAcumuladoDB sadb) {
+    public boolean salvarPedido(Dao dao) {
         if (!listaPedidos.isEmpty()) {
             for (Pedido listaPedido : listaPedidos) {
                 if (listaPedido.getId() == -1) {
-                    if (!sadb.inserirObjeto(listaPedido)) {
+                    if (!dao.save(listaPedido)) {
                         return false;
                     }
-                } else {
-                    if (!sadb.alterarObjeto(listaPedido)) {
-                        return false;
-                    }
+                } else if (!dao.update(listaPedido)) {
+                    return false;
                 }
             }
         }
         return true;
     }
 
-    public boolean deletarPedido(SalvarAcumuladoDB sadb) {
+    public boolean deletarPedido(Dao dao) {
         if (!listaPedidos.isEmpty()) {
             for (Pedido listaPedido : listaPedidos) {
                 if (listaPedido.getId() != -1) {
-                    if (!sadb.deletarObjeto(sadb.find(listaPedido))) {
+                    if (!dao.delete(dao.find(listaPedido))) {
                         return false;
                     }
                 }
