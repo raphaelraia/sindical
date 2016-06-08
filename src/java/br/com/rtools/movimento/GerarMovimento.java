@@ -306,7 +306,7 @@ public class GerarMovimento extends DB {
     public static synchronized String salvarListaAcordo(Acordo acordo, List<Movimento> listaMovimento, List<Movimento> listaAcordados, List<String> listaHistorico) {
         Dao dao = new Dao();
         CnaeConvencaoDB dbco = new CnaeConvencaoDBToplink();
-        GrupoCidadesDB dbgc = new GrupoCidadesDao();
+        GrupoCidadesDao dbgc = new GrupoCidadesDao();
         ContaCobrancaDB dbc = new ContaCobrancaDBToplink();
         NovoLog log = new NovoLog();
         Boleto boleto = new Boleto();
@@ -626,7 +626,7 @@ public class GerarMovimento extends DB {
     public static boolean salvarUmMovimento(Lote lote, Movimento movimento) {
         Dao dao = new Dao();
         CnaeConvencaoDB dbco = new CnaeConvencaoDBToplink();
-        GrupoCidadesDB dbgc = new GrupoCidadesDao();
+        GrupoCidadesDao dbgc = new GrupoCidadesDao();
         ContaCobrancaDB dbc = new ContaCobrancaDBToplink();
         NovoLog log = new NovoLog();
         Boleto boleto = new Boleto();
