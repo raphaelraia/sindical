@@ -773,7 +773,7 @@ public class JuridicaBean implements Serializable {
 
                 if (juridicaReceita.getId() != -1) {
                     juridicaReceita.setPessoa(pessoa);
-                    if (!dao.save(juridicaReceita)) {
+                    if (!dao.update(juridicaReceita)) {
                         GenericaMensagem.error("Erro", "Erro ao Salvar Dados!");
                         dao.rollback();
                         return null;
