@@ -1058,7 +1058,7 @@ public class ExtratoTelaBean implements Serializable {
 
         for (int i = 0; i < listaMovimentos.size(); i++) {
             if ((Boolean) listaMovimentos.get(i).getArgumento0()) {
-                Movimento mo = (Movimento) new SalvarAcumuladoDBToplink().pesquisaCodigo((Integer) listaMovimentos.get(i).getArgumento1(), "Movimento");
+                Movimento mo = (Movimento) new Dao().find(new Movimento(), (Integer) listaMovimentos.get(i).getArgumento1());
                 if (mo.getBaixa() != null) {
                     msgConfirma = "Não pode enviar email de boletos quitados!";
                     GenericaMensagem.error("Atenção", "Não pode enviar email de boletos quitados! - Boleto: " + mo.getDocumento());
@@ -1144,7 +1144,7 @@ public class ExtratoTelaBean implements Serializable {
         try {
 
             Registro reg = new Registro();
-            reg = (Registro) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(1, "Registro");
+            reg = Registro.get();
 
             ImprimirBoleto imp = new ImprimirBoleto();
             imp.imprimirBoleto(mov, listaValores, listaVencimentos, false);

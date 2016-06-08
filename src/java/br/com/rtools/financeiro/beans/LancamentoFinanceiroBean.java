@@ -1734,7 +1734,7 @@ public class LancamentoFinanceiroBean implements Serializable {
                 listaContaOperacao.add(
                         new SelectItem(
                                 listaConta.get(i).getId(),
-                                listaConta.get(i).getPlano5().getConta(),
+                                listaConta.get(i).getPlano5().getConta() + " (" + listaConta.get(i).getPlano5().getPlano4().getConta() + ")",
                                 "" + listaConta.get(i).getPlano5().getId()
                         )
                 );

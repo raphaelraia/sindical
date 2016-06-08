@@ -277,7 +277,7 @@
                                                     <h:column>
                                                         <h:panelGrid>
                                                             <h:outputText value="Conta" styleClass="font-color-red bold"/>
-                                                            <p:selectOneMenu value="#{lancamentoFinanceiroBean.idContaOperacao}" disabled="#{lancamentoFinanceiroBean.idContaOperacao eq 0}">
+                                                            <p:selectOneMenu value="#{lancamentoFinanceiroBean.idContaOperacao}" disabled="#{lancamentoFinanceiroBean.idContaOperacao eq 0}" filter="true" filterMatchMode="startsWith">
                                                                 <p:ajax event="change" update="@this i_para_conta i_valor i_chk_produtos" />
                                                                 <f:selectItems value="#{lancamentoFinanceiroBean.listaContaOperacao}"/>
                                                             </p:selectOneMenu>

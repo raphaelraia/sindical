@@ -109,7 +109,7 @@ public class ImprimirConviteClube implements Serializable {
             List<Pessoa> p = new ArrayList();
             p.add(pessoa);
             String[] ret;
-            Registro registro = (Registro) new SalvarAcumuladoDBToplink().pesquisaCodigo(1, "Registro");
+            Registro registro = Registro.get();
             if (registro.isEnviarEmailAnexo()) {
                 List<File> fls = new ArrayList<File>();
                 fls.add(new File(pathPasta + "/" + nomeDownload));

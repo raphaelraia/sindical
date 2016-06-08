@@ -605,7 +605,7 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
         String empresasSemEmail = "";
 
         Registro reg = new Registro();
-        reg = (Registro) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(1, "Registro");
+        reg = Registro.get();
         msgConfirma = "";
         if (tipoEnvio.equals("empresa")) {
             if (!listMovimentos.isEmpty()) {
@@ -903,7 +903,7 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
 
         if (!listMovimentos.isEmpty()) {
             Registro reg = new Registro();
-            reg = (Registro) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(1, "Registro");
+            reg = Registro.get();
             for (int i = 0; i < listMovimentos.size(); i++) {
                 ((Movimento) listMovimentos.get(i).getArgumento1()).setValor(Moeda.substituiVirgulaFloat((String) listMovimentos.get(i).getArgumento3()));
                 movs.add((Movimento) listMovimentos.get(i).getArgumento1());

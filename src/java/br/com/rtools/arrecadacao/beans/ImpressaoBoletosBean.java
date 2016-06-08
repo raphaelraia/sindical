@@ -889,7 +889,7 @@ public class ImpressaoBoletosBean implements Serializable {
         try {
 
             Registro reg = new Registro();
-            reg = (Registro) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(1, "Registro");
+            reg = Registro.get();
 
             ImprimirBoleto imp = new ImprimirBoleto();
             imp.imprimirBoleto(mov, listaValores, listaVencimentos, false);

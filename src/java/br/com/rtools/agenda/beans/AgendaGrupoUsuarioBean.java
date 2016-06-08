@@ -5,7 +5,6 @@ import br.com.rtools.agenda.GrupoAgenda;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import java.io.Serializable;
@@ -53,7 +52,7 @@ public class AgendaGrupoUsuarioBean implements Serializable {
             GenericaMensagem.warn("Validação", "Cadastrar grupos!");
             return;
         }
-        DaoInterface dao = new Dao();
+        Dao dao = new Dao();
         agp.setGrupoAgenda(grupoAgenda);
         agp.setUsuario(usuario);
         for (int i = 0; i < agendaGrupoUsuarios.size(); i++) {
@@ -75,7 +74,7 @@ public class AgendaGrupoUsuarioBean implements Serializable {
     }
 
     public void remove(AgendaGrupoUsuario agp) {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         if (di.delete(agp, true)) {
             NovoLog novoLog = new NovoLog();
             novoLog.delete("ID: " + agp.getId() + " - Grupo Agenda: " + agp.getGrupoAgenda().getDescricao() + " - Usuário: (" + agp.getUsuario().getId() + ") " + agp.getUsuario().getLogin());
@@ -90,7 +89,7 @@ public class AgendaGrupoUsuarioBean implements Serializable {
     public List<AgendaGrupoUsuario> getAgendaGrupoUsuarios() {
         if (agendaGrupoUsuarios.isEmpty()) {
             if (!getListGrupoAgenda().isEmpty()) {
-                DaoInterface di = new Dao();
+                Dao di = new Dao();
                 if (grupoAgenda != null) {
                     if (grupoAgenda.getId() != -1) {
                         agendaGrupoUsuarios = (List<AgendaGrupoUsuario>) di.listQuery("AgendaGrupoUsuario", "findGrupoAgenda", new Object[]{grupoAgenda.getId()});
@@ -118,9 +117,9 @@ public class AgendaGrupoUsuarioBean implements Serializable {
 
     public List<GrupoAgenda> getListGrupoAgenda() {
         if (listGrupoAgenda.isEmpty()) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             listGrupoAgenda = di.list(new GrupoAgenda(), true);
-            if(listGrupoAgenda.isEmpty()) {
+            if (listGrupoAgenda.isEmpty()) {
                 grupoAgenda = listGrupoAgenda.get(0);
             }
         }

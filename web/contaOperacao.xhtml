@@ -50,7 +50,7 @@
                                         <f:selectItems value="#{contaOperacaoBean.listOperacoes}" />
                                     </p:selectOneMenu>
                                     <p:outputLabel value="PLANO DE CONTA:" />
-                                    <p:selectOneMenu value="#{contaOperacaoBean.index[3]}">
+                                    <p:selectOneMenu value="#{contaOperacaoBean.index[3]}" filter="true" filterMatchMode="startsWith">
                                         <p:ajax event="change" update=":form_co:" listener="#{contaOperacaoBean.clear(2)}"/>
                                         <f:selectItems value="#{contaOperacaoBean.listPlano4Group}" />
                                     </p:selectOneMenu>

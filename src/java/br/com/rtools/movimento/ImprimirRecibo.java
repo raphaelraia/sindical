@@ -12,6 +12,7 @@ import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
+import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Diretorio;
 import br.com.rtools.utilitarios.Download;
@@ -48,7 +49,7 @@ public class ImprimirRecibo {
         Movimento movimento = db.pesquisaCodigo(id_movimento);
         try {
             Collection vetor = new ArrayList();
-            Juridica sindicato = (Juridica) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(1, "Juridica");
+            Juridica sindicato = (Juridica) (new Dao()).find(new Juridica(), 1);
             PessoaEnderecoDao dbp = new PessoaEnderecoDao();
             //MovimentosReceberSocialDB dbs = new MovimentosReceberSocialDBToplink();
 
