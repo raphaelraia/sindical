@@ -7,7 +7,6 @@ import br.com.rtools.seguranca.dao.UsuarioAcessoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.seguranca.*;
-import br.com.rtools.seguranca.db.*;
 import br.com.rtools.sistema.Email;
 import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.sistema.ProcessoAutomatico;
