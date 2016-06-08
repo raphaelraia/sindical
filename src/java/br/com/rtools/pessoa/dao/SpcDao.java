@@ -1,4 +1,4 @@
-package br.com.rtools.pessoa.db;
+package br.com.rtools.pessoa.dao;
 
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.Spc;
@@ -7,14 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 
-public class SpcDBToplink extends DB implements SpcDB {
+public class SpcDao extends DB {
 
-    @Override
     public List<Spc> lista(Spc spc, boolean filtro, boolean fitroPorPessoa) {
         return lista(spc, filtro, fitroPorPessoa, "", "", "");
     }
 
-    @Override
     public List<Spc> lista(Spc spc, boolean filtro, boolean fitroPorPessoa, String descricaoPesquisa, String porPesquisa, String comoPesquisa) {
         List list = new ArrayList();
         Query query;
@@ -66,7 +64,6 @@ public class SpcDBToplink extends DB implements SpcDB {
         return list;
     }
 
-    @Override
     public boolean existeCadastroSPC(Spc spc) {
         try {
             Query query = getEntityManager().createQuery(" SELECT S FROM Spc AS S WHERE S.pessoa.id = :idPessoa AND S.dtEntrada = :dataEntrada");
@@ -92,7 +89,6 @@ public class SpcDBToplink extends DB implements SpcDB {
      * @param pessoa
      * @return true / false
      */
-    @Override
     public boolean existeRegistroPessoaSPC(Pessoa pessoa) {
         try {
             Query query = getEntityManager().createQuery(" SELECT S FROM Spc AS S WHERE S.pessoa.id = :idPessoa AND S.dtSaida IS NULL ");

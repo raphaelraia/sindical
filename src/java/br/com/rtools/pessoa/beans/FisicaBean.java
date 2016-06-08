@@ -1257,10 +1257,9 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     public List<SelectItem> getListaProfissoes() {
         if (listaProfissoes.isEmpty()) {
-            ProfissaoDB db = new ProfissaoDBToplink();
-            List<Profissao> lista = (List<Profissao>) db.pesquisaTodos();
+            List<Profissao> lista = (List<Profissao>) new Dao().list(new Profissao());
             for (int i = 0; i < lista.size(); i++) {
-                if(lista.get(i).getId() == 0) {
+                if (lista.get(i).getId() == 0) {
                     idProfissao = i;
                 }
                 listaProfissoes.add(new SelectItem(i, lista.get(i).getProfissao(), "" + lista.get(i).getId()));
@@ -2127,8 +2126,8 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         if (fisica.getId() != -1 && listaPessoaEndereco.isEmpty()) {
             PessoaEnderecoDao db = new PessoaEnderecoDao();
             listaPessoaEndereco = db.pesquisaEndPorPessoa(fisica.getPessoa().getId());
-            if(listaPessoaEndereco.size() == 1) {
-                
+            if (listaPessoaEndereco.size() == 1) {
+
             }
         }
         return listaPessoaEndereco;
@@ -2192,7 +2191,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     public String getStrEndereco() {
         if (!listaPessoaEndereco.isEmpty()) {
-            if(listaPessoaEndereco.size() == 1) {
+            if (listaPessoaEndereco.size() == 1) {
                 strEndereco = "CADASTRAR TODOS OS ENDEREÇOS!";
             } else {
                 strEndereco
@@ -2200,7 +2199,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                         + listaPessoaEndereco.get(1).getEndereco().getDescricaoEndereco().getDescricao() + " " + listaPessoaEndereco.get(1).getNumero() + ", "
                         + listaPessoaEndereco.get(1).getEndereco().getBairro().getDescricao() + ", " + listaPessoaEndereco.get(1).getComplemento() + " "
                         + listaPessoaEndereco.get(1).getEndereco().getCidade().getCidade() + "  -  "
-                        + listaPessoaEndereco.get(1).getEndereco().getCidade().getUf() + " / CEP: " + AnaliseString.mascaraCep(listaPessoaEndereco.get(1).getEndereco().getCep());                
+                        + listaPessoaEndereco.get(1).getEndereco().getCidade().getUf() + " / CEP: " + AnaliseString.mascaraCep(listaPessoaEndereco.get(1).getEndereco().getCep());
             }
         }
         return strEndereco;
@@ -2373,7 +2372,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             case "matriculaAcademia":
             case "convenioMedico":
             case "locacaoFilme":
-            // case "associarFisica":
+                // case "associarFisica":
                 if (!p.getDocumento().isEmpty()) {
                     OposicaoDao odbt = new OposicaoDao();
                     if (odbt.existPessoaDocumentoPeriodo(p.getDocumento())) {

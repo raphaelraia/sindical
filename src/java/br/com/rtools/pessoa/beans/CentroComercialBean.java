@@ -4,8 +4,7 @@ import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.CentroComercial;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.TipoCentroComercial;
-import br.com.rtools.pessoa.db.CentroComercialDB;
-import br.com.rtools.pessoa.db.CentroComercialDBToplink;
+import br.com.rtools.pessoa.dao.CentroComercialDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -42,7 +41,7 @@ public class CentroComercialBean {
     public void save() {
         DaoInterface di = new Dao();
         NovoLog novoLog = new NovoLog();
-        CentroComercialDB db = new CentroComercialDBToplink();
+        CentroComercialDao db = new CentroComercialDao();
         if (centroComercial.getJuridica().getId() == -1) {
             GenericaMensagem.warn("Validação", "Pesquise uma empresa antes de salvar!");
             return;

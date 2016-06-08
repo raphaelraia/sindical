@@ -49,8 +49,7 @@ import br.com.rtools.pessoa.db.PessoaDB;
 import br.com.rtools.pessoa.db.PessoaDBToplink;
 import br.com.rtools.pessoa.db.PessoaEmpresaDB;
 import br.com.rtools.pessoa.db.PessoaEmpresaDBToplink;
-import br.com.rtools.pessoa.db.SpcDB;
-import br.com.rtools.pessoa.db.SpcDBToplink;
+import br.com.rtools.pessoa.dao.SpcDao;
 import br.com.rtools.seguranca.FilialRotina;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Registro;
@@ -987,7 +986,7 @@ public class MatriculaEscolaBean implements Serializable {
             GenericaMensagem.warn("Atenção", "Empresa inativa!");
             return;
         }
-        SpcDB spcDB = new SpcDBToplink();
+        SpcDao spcDB = new SpcDao();
         if (spcDB.existeRegistroPessoaSPC(servicoPessoa.getCobranca())) {
             GenericaMensagem.warn("Atenção", "Responsável possui cadastro SERASA/SPC!");
             return;

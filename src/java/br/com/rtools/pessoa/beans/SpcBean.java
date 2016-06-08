@@ -3,8 +3,7 @@ package br.com.rtools.pessoa.beans;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.Spc;
-import br.com.rtools.pessoa.db.SpcDB;
-import br.com.rtools.pessoa.db.SpcDBToplink;
+import br.com.rtools.pessoa.dao.SpcDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -56,7 +55,7 @@ public class SpcBean implements Serializable {
     
     public void loadListSPC() {
         listaSPC = new ArrayList();
-        SpcDB spcdb = new SpcDBToplink();
+        SpcDao spcdb = new SpcDao();
         if (descricaoPesquisa.equals("")) {
             if (spc.getPessoa().getId() != -1) {
                 listaSPC = (List<Spc>) spcdb.lista(spc, true, true);
@@ -81,7 +80,7 @@ public class SpcBean implements Serializable {
         Dao dao = new Dao();
         NovoLog novoLog = new NovoLog();
         if (spc.getId() == -1) {
-            SpcDB spcdb = new SpcDBToplink();
+            SpcDao spcdb = new SpcDao();
             if (spcdb.existeCadastroSPC(spc)) {
                 GenericaMensagem.warn("Validação", "Pessoa já existe para data específicada");
                 return;
@@ -210,7 +209,7 @@ public class SpcBean implements Serializable {
     }
 
     public void loadListByPessoa(Integer pessoa_id) {
-        listaSPC = new SpcDBToplink().findByPessoa(pessoa_id);
+        listaSPC = new SpcDao().findByPessoa(pessoa_id);
     }
 
 }

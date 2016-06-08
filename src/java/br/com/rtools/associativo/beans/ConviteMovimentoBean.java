@@ -37,8 +37,7 @@ import br.com.rtools.pessoa.TipoDocumento;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.FisicaDB;
 import br.com.rtools.pessoa.db.FisicaDBToplink;
-import br.com.rtools.pessoa.db.SpcDB;
-import br.com.rtools.pessoa.db.SpcDBToplink;
+import br.com.rtools.pessoa.dao.SpcDao;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
@@ -307,7 +306,7 @@ public class ConviteMovimentoBean implements Serializable {
     public boolean validaSaveConvite() {
         // VALIDAÇÃO SÓCIO
         // -------------------------------
-        SpcDB spcDB = new SpcDBToplink();
+        SpcDao spcDB = new SpcDao();
         if (spcDB.existeRegistroPessoaSPC(conviteMovimento.getPessoa())) {
             //message = "Existem débitos com o sindicato (SPC)!";
             GenericaMensagem.warn("ATENÇÃO", "EXISTEM DÉBITOS COM O SINDICATO (SPC)!");

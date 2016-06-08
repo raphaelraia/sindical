@@ -6,8 +6,7 @@ import br.com.rtools.financeiro.Layout;
 import br.com.rtools.financeiro.db.ContaCobrancaDB;
 import br.com.rtools.financeiro.db.ContaCobrancaDBToplink;
 import br.com.rtools.logSistema.NovoLog;
-import br.com.rtools.pessoa.db.FilialDB;
-import br.com.rtools.pessoa.db.FilialDao;
+import br.com.rtools.pessoa.dao.FilialDao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.SalvarAcumuladoDB;
@@ -136,7 +135,7 @@ public class ContaCobrancaBean {
     private void atualizarSicas() {
         String codigoSindical = "";
         try {
-            FilialDB filialDB = new FilialDao();
+            FilialDao filialDB = new FilialDao();
             String entidade = filialDB.pesquisaRegistroPorFilial(1).getTipoEntidade();
             codigoSindical = contaCobranca.getCodigoSindical();
             if (entidade.equals("S")) {

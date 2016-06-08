@@ -4,13 +4,10 @@ import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.GrupoCidade;
 import br.com.rtools.arrecadacao.Patronal;
 import br.com.rtools.arrecadacao.PatronalConvencao;
-import br.com.rtools.financeiro.SalarioMinimo;
-import br.com.rtools.financeiro.dao.SalarioMinimoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
-import br.com.rtools.pessoa.db.FilialDB;
-import br.com.rtools.pessoa.db.FilialDao;
+import br.com.rtools.pessoa.dao.FilialDao;
 import br.com.rtools.sistema.ConfiguracaoUpload;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DaoInterface;
@@ -140,7 +137,7 @@ public class RegistroPatronalBean implements Serializable {
     }
 
     public List validaPatronalConvencao(int idPessoa, int idConvencao, int idGCidade) {
-        FilialDB db = new FilialDao();
+        FilialDao db = new FilialDao();
         List result = db.pesquisaPessoaConvencaoGCidade(idPessoa, idConvencao, idGCidade);
         return result;
     }
@@ -318,7 +315,7 @@ public class RegistroPatronalBean implements Serializable {
 
     public List<Patronal> getListaPatronal() {
         if (listaPatronal.isEmpty()) {
-            FilialDB db = new FilialDao();
+            FilialDao db = new FilialDao();
             String por = porPesquisa;
             if (porPesquisa.equals("cnpj")) {
                 por = "documento";

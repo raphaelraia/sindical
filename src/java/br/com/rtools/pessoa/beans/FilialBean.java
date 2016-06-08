@@ -6,10 +6,8 @@ import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.FilialCidade;
 import br.com.rtools.pessoa.Juridica;
-import br.com.rtools.pessoa.db.FilialCidadeDB;
 import br.com.rtools.pessoa.db.FilialCidadeDBToplink;
-import br.com.rtools.pessoa.db.FilialDB;
-import br.com.rtools.pessoa.db.FilialDao;
+import br.com.rtools.pessoa.dao.FilialDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DaoInterface;
@@ -123,7 +121,7 @@ public class FilialBean {
 
     public void btnAddFilial() {
 
-        FilialDB db = new FilialDao();
+        FilialDao db = new FilialDao();
 
         if (!db.pesquisaFilialExiste(filial.getFilial().getId()).isEmpty()) {
             GenericaMensagem.warn("Erro", "Filial já existe!");

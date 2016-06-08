@@ -1,4 +1,4 @@
-package br.com.rtools.pessoa.db;
+package br.com.rtools.pessoa.dao;
 
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.principal.DB;
@@ -8,9 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 
-public class FilialDao extends DB implements FilialDB {
+public class FilialDao extends DB {
 
-    @Override
     public Registro pesquisaRegistroPorFilial(int id) {
         Registro result = null;
         try {
@@ -25,7 +24,6 @@ public class FilialDao extends DB implements FilialDB {
         return result;
     }
 
-    @Override
     public List pesquisaFilialExiste(int idFilial) {
         try {
             Query qry = getEntityManager().createQuery(
@@ -39,7 +37,6 @@ public class FilialDao extends DB implements FilialDB {
         }
     }
 
-    @Override
     public List pesquisaRazao(int idMatriz) {
         try {
             Query qry = getEntityManager().createQuery(
@@ -53,7 +50,6 @@ public class FilialDao extends DB implements FilialDB {
         }
     }
 
-    @Override
     public List pesquisaJuridicaFilial(int idMatriz) {
         try {
             Query qry = getEntityManager().createQuery(
@@ -68,7 +64,6 @@ public class FilialDao extends DB implements FilialDB {
         }
     }
 
-    @Override
     public Filial pesquisaFilialPertencente(int idMatriz, int idFilial) {
         Filial result = null;
         try {
@@ -85,7 +80,6 @@ public class FilialDao extends DB implements FilialDB {
         return result;
     }
 
-    @Override
     public List pesquisaFilial(String desc, String por, String como, int idmatriz) {
         List result = null;
         if (por.equals("todos")) {
@@ -200,7 +194,6 @@ public class FilialDao extends DB implements FilialDB {
         return result;
     }
 
-    @Override
     public List pesquisaPessoaConvencaoGCidade(int idPessoa, int idConvencao, int idGCidade) {
         List result = null;
         try {
@@ -220,7 +213,6 @@ public class FilialDao extends DB implements FilialDB {
         return result;
     }
 
-    @Override
     public List pesquisaPessoaPatronal(String desc, String por, String como) {
         if (como.equals("I")) {
             desc = desc.toLowerCase().toUpperCase() + "%";

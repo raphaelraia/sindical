@@ -1,5 +1,6 @@
 package br.com.rtools.arrecadacao.beans;
 
+import br.com.rtools.pessoa.dao.DocumentoInvalidoDao;
 import br.com.rtools.cobranca.BancoDoBrasil;
 import br.com.rtools.cobranca.CaixaFederalSicob;
 import br.com.rtools.cobranca.Cobranca;
@@ -118,7 +119,7 @@ public final class ArquivoBancoBean implements Serializable {
         String documento = "", digito = "";
         boolean encontrado = false;
 
-        DocumentoInvalidoDB dbDocInv = new DocumentoInvalidoDBToplink();
+        DocumentoInvalidoDao dbDocInv = new DocumentoInvalidoDao();
         List<DocumentoInvalido> listaDoc = new ArrayList();
         List<DocumentoInvalido> listaDocCadastrado = new ArrayList();
 

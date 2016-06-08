@@ -3,8 +3,6 @@ package br.com.rtools.utilitarios;
 import br.com.rtools.pessoa.EnvioEmails;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
-import br.com.rtools.pessoa.db.EnvioEmailsDB;
-import br.com.rtools.pessoa.db.EnvioEmailsDBToplink;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
@@ -490,15 +488,13 @@ public class EnviarEmail {
 
     public static void gerarHistorico(Juridica empresa, String historico, String tipo) {
         EnvioEmails envioEmails;
-        EnvioEmailsDB envioEmailsDB = new EnvioEmailsDBToplink();
         envioEmails = new EnvioEmails(
                 -1,
                 empresa.getPessoa(),
                 empresa.getPessoa().getEmail1(),
                 historico,
                 tipo);
-        envioEmailsDB.insert(envioEmails);
-
+        new Dao().save(envioEmails, true);
     }
 
     public static Session configureSession(String host, int port, final String email, final String password, boolean auth, int protocol) {

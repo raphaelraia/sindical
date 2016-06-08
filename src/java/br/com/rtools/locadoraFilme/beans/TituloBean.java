@@ -7,7 +7,7 @@ import br.com.rtools.locadoraFilme.dao.CatalogoDao;
 import br.com.rtools.locadoraFilme.dao.TituloDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Filial;
-import br.com.rtools.pessoa.db.FilialDao;
+import br.com.rtools.pessoa.dao.FilialDao;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.sistema.ConfiguracaoUpload;

@@ -1,8 +1,7 @@
 package br.com.rtools.pessoa.beans;
 
 import br.com.rtools.pessoa.Profissao;
-import br.com.rtools.pessoa.db.ProfissaoDB;
-import br.com.rtools.pessoa.db.ProfissaoDBToplink;
+import br.com.rtools.pessoa.dao.ProfissaoDao;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +29,7 @@ public class PesquisarProfissaoBean implements Serializable {
 
     public List<Profissao> getListaProfissao() {
         if (listaProfissao.isEmpty() && !por.isEmpty()) {
-            ProfissaoDB db = new ProfissaoDBToplink();
+            ProfissaoDao db = new ProfissaoDao();
             if (!descricaoProfissao.isEmpty()) 
                 listaProfissao = (List<Profissao>) db.pesquisaProfParametros(por, combo, descricaoProfissao);
             else

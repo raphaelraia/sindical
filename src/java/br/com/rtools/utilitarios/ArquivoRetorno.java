@@ -1,5 +1,6 @@
 package br.com.rtools.utilitarios;
 
+import br.com.rtools.pessoa.dao.DocumentoInvalidoDao;
 import br.com.rtools.financeiro.dao.FTipoDocumentoDao;
 import br.com.rtools.financeiro.ContaCobranca;
 import br.com.rtools.financeiro.FTipoDocumento;
@@ -308,7 +309,7 @@ public abstract class ArquivoRetorno {
                     if (GerarMovimento.salvarUmMovimentoBaixa(new Lote(), movi)) {
                         float valor_liquido = Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorCredito())), 100);
 
-                        DocumentoInvalidoDB dbDocInv = new DocumentoInvalidoDBToplink();
+                        DocumentoInvalidoDao dbDocInv = new DocumentoInvalidoDao();
                         List<DocumentoInvalido> listaDI = dbDocInv.pesquisaNumeroBoleto(listaParametros.get(u).getNossoNumero());
 
                         if (listaDI.isEmpty()) {

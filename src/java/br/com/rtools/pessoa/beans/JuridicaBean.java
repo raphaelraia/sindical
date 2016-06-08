@@ -1,5 +1,7 @@
 package br.com.rtools.pessoa.beans;
 
+import br.com.rtools.pessoa.dao.FilialDao;
+import br.com.rtools.pessoa.dao.EnvioEmailsDao;
 import br.com.rtools.pessoa.dao.TipoEnderecoDao;
 import br.com.rtools.pessoa.dao.TipoDocumentoDao;
 import br.com.rtools.arrecadacao.dao.OposicaoDao;
@@ -963,7 +965,7 @@ public class JuridicaBean implements Serializable {
         }
 
         //  EXCLUIR OS EMAILS ENVIADOS PESSOA --------------------------------------------------------------
-        EnvioEmailsDB db = new EnvioEmailsDBToplink();
+        EnvioEmailsDao db = new EnvioEmailsDao();
         List<EnvioEmails> listE = db.pesquisaTodosPorPessoa(juridica.getPessoa().getId());
 
         for (int i = 0; i < listE.size(); i++) {
@@ -1732,14 +1734,14 @@ public class JuridicaBean implements Serializable {
 
     public List getPesquisaJuridicaFilial() {
         //List result = null;
-        FilialDB db = new FilialDao();
+        FilialDao db = new FilialDao();
         List result = db.pesquisaJuridicaFilial(juridica.getId());
         return result;
     }
 
     public void excluirFilial() {
 
-        FilialDB db = new FilialDao();
+        FilialDao db = new FilialDao();
         filial = db.pesquisaFilialPertencente(juridica.getId(), filial.getFilial().getId());
 
         if (new Dao().delete(filial)) {
@@ -1752,7 +1754,7 @@ public class JuridicaBean implements Serializable {
 
     public List getPesquisaFilial() {
         //List result = null;
-        FilialDB db = new FilialDao();
+        FilialDao db = new FilialDao();
         List result = db.pesquisaFilial(descPesquisa, porPesquisa, comoPesquisa, juridica.getId());
         return result;
     }

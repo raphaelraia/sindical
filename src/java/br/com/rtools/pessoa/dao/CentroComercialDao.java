@@ -1,13 +1,12 @@
-package br.com.rtools.pessoa.db;
+package br.com.rtools.pessoa.dao;
 
 import br.com.rtools.principal.DB;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 
-public class CentroComercialDBToplink extends DB implements CentroComercialDB {
+public class CentroComercialDao extends DB {
 
-    @Override
     public List listaCentroComercial(int idTipoCentroComercial, int idJuridica) {
         try {
             Query qry = getEntityManager().createQuery(""
