@@ -2113,28 +2113,28 @@ public class JuridicaBean implements Serializable {
         return enderecoDeletado;
     }
 
-    public void setPessoaEndereco(PessoaEndereco pessoaEndereco) {
-        this.pessoaEndereco = pessoaEndereco;
-    }
-
     public PessoaEndereco getPessoaEndereco() {
         return pessoaEndereco;
     }
 
-    public void setEnderecoCompleto(String enderecoCompleto) {
-        this.enderecoCompleto = enderecoCompleto;
+    public void setPessoaEndereco(PessoaEndereco pessoaEndereco) {
+        this.pessoaEndereco = pessoaEndereco;
     }
 
     public String getEnderecoCompleto() {
         return enderecoCompleto;
     }
 
-    public void setIndicaTab(int indicaTab) {
-        this.indicaTab = indicaTab;
+    public void setEnderecoCompleto(String enderecoCompleto) {
+        this.enderecoCompleto = enderecoCompleto;
     }
 
     public int getIndicaTab() {
         return indicaTab;
+    }
+
+    public void setIndicaTab(int indicaTab) {
+        this.indicaTab = indicaTab;
     }
 
     public Juridica getJuridica() {

@@ -115,7 +115,7 @@
                                                 <h:commandLink rendered="#{juridicaBean.strArquivo}" action="#{juridicaBean.abrirPDFConvencao}" value="( abrir arquivo com Convenções )" style="text-decoration: underline; margin-left: 10px" target="_blank"/>
                                             </p:column>
                                         </h:panelGrid>
-                                        
+
                                         <h:panelGrid columns="2" id="i_panel_cnae_secundario" rendered="#{juridicaBean.listaCnaeReceita.size() ne 0 and juridicaBean.juridica.id eq -1}">
                                             <h:column>
                                                 <h:outputLabel value="Cnae Secundário" style="color: red; font-weight: bold" /><br />
@@ -591,29 +591,29 @@
 
                             <p:dialog widgetVar="i_dlg_inativacoes" header="Lista de Inativações" resizable="false" height="300" width="600" modal="true">
                                 <p:messages id="i_msg_inativacoes" showDetail="true" closable="true" />
-                                <p:dataTable var="linha" value="#{juridicaBean.listaContribuintesInativos}" id="tbl_inativacoes">
+                                <p:dataTable var="contribuintesInativos" value="#{juridicaBean.listaContribuintesInativos}" id="tbl_inativacoes">
                                     <p:column headerText="Data de Ativação">
-                                        <h:outputText value="#{linha.ativacao}"/>
+                                        <h:outputText value="#{contribuintesInativos.ativacao}"/>
                                     </p:column>
 
                                     <p:column headerText="Data de Inativação">
-                                        <h:outputText value="#{linha.inativacao}"/>
+                                        <h:outputText value="#{contribuintesInativos.inativacao}"/>
                                     </p:column>
 
                                     <p:column headerText="Solicitante">
-                                        <h:outputText value="#{linha.solicitante}"/>
+                                        <h:outputText value="#{contribuintesInativos.solicitante}"/>
                                     </p:column>
 
                                     <p:column headerText="Observação">
-                                        <h:outputText value="#{linha.observacao}"/>
+                                        <h:outputText value="#{contribuintesInativos.observacao}"/>
                                     </p:column>
 
                                     <p:column headerText="Motivo da Inativação">
-                                        <h:outputText value="#{linha.motivoInativacao.descricao}"/>
+                                        <h:outputText value="#{contribuintesInativos.motivoInativacao.descricao}"/>
                                     </p:column>
 
                                     <p:column headerText="Excluir" style="text-align:center;">
-                                        <p:commandButton icon="ui-icon-close" action="#{juridicaBean.btnExcluirMotivoInativacao(linha)}" update=":formPessoaJuridica:i_msg :formPessoaJuridica:i_msg_m :formPessoaJuridica:i_msg_inativacoes tbl_inativacoes"/>
+                                        <p:commandButton icon="ui-icon-close" action="#{juridicaBean.btnExcluirMotivoInativacao(contribuintesInativos)}" update=":formPessoaJuridica:i_msg :formPessoaJuridica:i_msg_m :formPessoaJuridica:i_msg_inativacoes tbl_inativacoes"/>
                                     </p:column>
                                 </p:dataTable>
                             </p:dialog>
