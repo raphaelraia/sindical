@@ -7,7 +7,6 @@ import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.seguranca.*;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.seguranca.dao.RotinaGrupoDao;
-import br.com.rtools.seguranca.db.*;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;

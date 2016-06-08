@@ -10,9 +10,7 @@ import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.db.LoteDB;
 import br.com.rtools.financeiro.db.LoteDBToplink;
 import br.com.rtools.principal.DB;
-import br.com.rtools.relatorios.Relatorios;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
+import br.com.rtools.utilitarios.Dao;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -177,41 +175,41 @@ public class AcademiaDao extends DB {
         if (lote.getId() == -1) {
             return false;
         }
-        SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
+        Dao dao = new Dao();
         try {
             Query queryMovimentos = getEntityManager().createQuery("SELECT M FROM Movimento AS M WHERE M.lote.evt.id = " + ma.getEvt().getId());
             List<Movimento> listMovimentos = (List<Movimento>) queryMovimentos.getResultList();
-            salvarAcumuladoDB.abrirTransacao();
+            dao.openTransaction();
             for (int i = 0; i < listMovimentos.size(); i++) {
-                if (!salvarAcumuladoDB.deletarObjeto((Movimento) salvarAcumuladoDB.pesquisaCodigo(listMovimentos.get(i).getId(), "Movimento"))) {
-                    salvarAcumuladoDB.desfazerTransacao();
+                if (!dao.delete((Movimento) dao.find(new Movimento(), listMovimentos.get(i).getId()))) {
+                    dao.rollback();
                     return false;
                 }
             }
             if (lote.getId() != -1) {
-                if (!salvarAcumuladoDB.deletarObjeto((Lote) salvarAcumuladoDB.pesquisaCodigo(lote.getId(), "Lote"))) {
-                    salvarAcumuladoDB.desfazerTransacao();
+                if (!dao.delete((Lote) dao.find(new Lote(), lote.getId()))) {
+                    dao.rollback();
                     return false;
                 }
             }
             int idEvt = ma.getEvt().getId();
             ma.setEvt(null);
-            if (!salvarAcumuladoDB.alterarObjeto(ma)) {
-                salvarAcumuladoDB.desfazerTransacao();
+            if (!dao.update(ma)) {
+                dao.rollback();
                 return false;
             }
-            if (!salvarAcumuladoDB.deletarObjeto((Evt) salvarAcumuladoDB.pesquisaCodigo(idEvt, "Evt"))) {
-                salvarAcumuladoDB.desfazerTransacao();
+            if (!dao.delete((Evt) dao.find(new Evt(), idEvt))) {
+                dao.rollback();
                 return false;
             }
-            salvarAcumuladoDB.comitarTransacao();
+            dao.rollback();
             return true;
         } catch (Exception e) {
-            salvarAcumuladoDB.desfazerTransacao();
+            dao.rollback();
             return false;
         }
     }
-    
+
     public List<Movimento> listaRefazerMovimento(MatriculaAcademia ma) {
 //        LoteDB loteDB = new LoteDBToplink();
 //        Lote lote = (Lote) loteDB.pesquisaLotePorEvt(ma.getEvt());
@@ -223,11 +221,11 @@ public class AcademiaDao extends DB {
 //        if (lote.getId() == -1) {
 //            return new ArrayList();
 //        }
-        
+
         try {
-            Query queryMovimentos = getEntityManager().createQuery("SELECT M FROM Movimento AS M WHERE M.servicos.id = " + ma.getServicoPessoa().getServicos().getId() + " AND M.baixa IS NULL AND M.ativo = TRUE AND M.pessoa.id = "+ma.getServicoPessoa().getPessoa().getId());
+            Query queryMovimentos = getEntityManager().createQuery("SELECT M FROM Movimento AS M WHERE M.servicos.id = " + ma.getServicoPessoa().getServicos().getId() + " AND M.baixa IS NULL AND M.ativo = TRUE AND M.pessoa.id = " + ma.getServicoPessoa().getPessoa().getId());
             List<Movimento> listMovimentos = (List<Movimento>) queryMovimentos.getResultList();
-            
+
             return listMovimentos;
         } catch (Exception e) {
             e.getMessage();
@@ -244,12 +242,10 @@ public class AcademiaDao extends DB {
             } else {
                 queryString = " UPPER(MATR.servicoPessoa.pessoa.documento) LIKE '%" + descricao.toUpperCase() + "%'";
             }
+        } else if (como.equals("I")) {
+            queryString = " UPPER(MATR.servicoPessoa.pessoa.nome) LIKE '" + descricao.toUpperCase() + "%'";
         } else {
-            if (como.equals("I")) {
-                queryString = " UPPER(MATR.servicoPessoa.pessoa.nome) LIKE '" + descricao.toUpperCase() + "%'";
-            } else {
-                queryString = " UPPER(MATR.servicoPessoa.pessoa.nome) LIKE '%" + descricao.toUpperCase() + "%'";
-            }
+            queryString = " UPPER(MATR.servicoPessoa.pessoa.nome) LIKE '%" + descricao.toUpperCase() + "%'";
         }
         if (!queryString.isEmpty()) {
             queryString += " AND ";

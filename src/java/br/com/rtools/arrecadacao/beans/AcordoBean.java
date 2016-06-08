@@ -2,7 +2,6 @@ package br.com.rtools.arrecadacao.beans;
 
 import br.com.rtools.arrecadacao.Acordo;
 import br.com.rtools.arrecadacao.FolhaEmpresa;
-import br.com.rtools.arrecadacao.dao.AcordoDao;
 import br.com.rtools.associativo.beans.MovimentosReceberSocialBean;
 import br.com.rtools.financeiro.ContaCobranca;
 import br.com.rtools.financeiro.FTipoDocumento;
@@ -22,8 +21,6 @@ import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
-import br.com.rtools.pessoa.db.FilialDB;
-import br.com.rtools.pessoa.db.FilialDao;
 import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
 import br.com.rtools.seguranca.Registro;
@@ -36,8 +33,6 @@ import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.PF;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -92,32 +87,17 @@ public class AcordoBean implements Serializable {
             JuridicaDB db = new JuridicaDBToplink();
             Juridica jur = db.pesquisaJuridicaPorPessoa(pessoa.getId());
 
+            Dao dao = new Dao();
             if (emailPara.equals("contabilidade")) {
-                SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
                 if (!jur.getContabilidade().getPessoa().getEmail1().equals(pessoaEnvio.getEmail1())) {
 
                 }
                 jur.getContabilidade().getPessoa().setEmail1(pessoaEnvio.getEmail1());
-                sv.abrirTransacao();
-
-                if (sv.alterarObjeto(jur.getContabilidade().getPessoa())) {
-                    sv.comitarTransacao();
-                } else {
-                    sv.desfazerTransacao();
-                }
-
+                dao.update(jur.getContabilidade().getPessoa(), true);
                 pessoaEnvio = jur.getContabilidade().getPessoa();
             } else {
-                SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
                 jur.getPessoa().setEmail1(pessoaEnvio.getEmail1());
-                sv.abrirTransacao();
-
-                if (sv.alterarObjeto(jur.getPessoa())) {
-                    sv.comitarTransacao();
-                } else {
-                    sv.desfazerTransacao();
-                }
-
+                dao.update(jur.getPessoa(), true);
                 pessoaEnvio = jur.getPessoa();
             }
         }
@@ -282,7 +262,7 @@ public class AcordoBean implements Serializable {
                 }
                 String nome = imp.criarLink(listaImp.get(i).getPessoa(), reg.getUrlPath() + "/Sindical/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/boletos");
 
-                reg = (Registro) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(1, "Registro");
+                reg = Registro.get();
                 List<Pessoa> p = new ArrayList();
                 p.add(pessoaEnvio);
 
