@@ -10,7 +10,6 @@ import br.com.rtools.financeiro.db.FinanceiroDBToplink;
 import br.com.rtools.principal.DBExternal;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Usuario;
-import br.com.rtools.seguranca.db.*;
 import br.com.rtools.sistema.ContadorAcessos;
 import br.com.rtools.sistema.dao.AtalhoDao;
 import br.com.rtools.utilitarios.Dao;
@@ -140,7 +139,7 @@ public class ControleUsuarioBean implements Serializable {
             GenericaSessao.put("acessoFilial");
         }
         GenericaSessao.put("indicaAcesso", "local");
-        UsuarioDB db = new UsuarioDao();
+        UsuarioDao db = new UsuarioDao();
         String user = usuario.getLogin(), senh = usuario.getSenha();
         if (usuario.getLogin().equals("") || usuario.getLogin().equals("Usuario")) {
             msgErro = "@ Informar nome do usuário!";
