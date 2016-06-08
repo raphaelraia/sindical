@@ -28,8 +28,7 @@ import br.com.rtools.pessoa.dao.TipoEnderecoDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
-import br.com.rtools.seguranca.db.UsuarioDB;
-import br.com.rtools.seguranca.db.UsuarioDBToplink;
+import br.com.rtools.seguranca.dao.UsuarioDao;
 import br.com.rtools.sistema.ConfiguracaoCnpj;
 import br.com.rtools.sistema.Email;
 import br.com.rtools.sistema.EmailPessoa;
@@ -711,7 +710,7 @@ public class ControleAcessoWebBean implements Serializable {
         }
 
         Juridica juridica = null;
-        UsuarioDB dbu = new UsuarioDBToplink();
+        UsuarioDao dbu = new UsuarioDao();
 
         // SE TER CADASTRO NO SISTEMA
         if (!listDocumento.isEmpty()) {
@@ -795,7 +794,7 @@ public class ControleAcessoWebBean implements Serializable {
 
         String pagina = null;
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("indicaAcesso", "web");
-        UsuarioDB db = new UsuarioDBToplink();
+        UsuarioDao db = new UsuarioDao();
         pessoa = db.ValidaUsuarioWeb(pessoa.getLogin(), pessoa.getSenha());
         if (pessoa != null) {
             pessoaContribuinte = db.ValidaUsuarioContribuinteWeb(pessoa.getId());

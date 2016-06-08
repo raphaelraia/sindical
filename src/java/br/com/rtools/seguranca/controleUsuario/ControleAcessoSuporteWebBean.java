@@ -2,8 +2,7 @@ package br.com.rtools.seguranca.controleUsuario;
 
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.seguranca.Usuario;
-import br.com.rtools.seguranca.db.UsuarioDB;
-import br.com.rtools.seguranca.db.UsuarioDBToplink;
+import br.com.rtools.seguranca.dao.UsuarioDao;
 import java.io.IOException;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
@@ -47,7 +46,7 @@ public class ControleAcessoSuporteWebBean {
     public String validacao() throws IOException {
         String pagina = null;
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("indicaAcesso", "suporteWeb");
-        UsuarioDB db = new UsuarioDBToplink();
+        UsuarioDao db = new UsuarioDao();
         usuario = (db.ValidaUsuarioSuporteWeb(usuario.getLogin(), usuario.getSenha()));
         if ((getUsuario() != null)) {
             pagina = "menuPrincipalSuporteWeb";

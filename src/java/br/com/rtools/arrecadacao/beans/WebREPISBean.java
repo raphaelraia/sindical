@@ -23,8 +23,7 @@ import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
-import br.com.rtools.seguranca.db.UsuarioDB;
-import br.com.rtools.seguranca.db.UsuarioDBToplink;
+import br.com.rtools.seguranca.dao.UsuarioDao;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DaoInterface;
@@ -98,7 +97,7 @@ public class WebREPISBean implements Serializable {
 
     public WebREPISBean() {
         listRepisMovimentoPessoa = new ArrayList();
-        UsuarioDB db = new UsuarioDBToplink();
+        UsuarioDao db = new UsuarioDao();
         getPessoa();
         pessoaContribuinte = db.ValidaUsuarioContribuinteWeb(pessoa.getId());
         pessoaContabilidade = db.ValidaUsuarioContabilidadeWeb(pessoa.getId());

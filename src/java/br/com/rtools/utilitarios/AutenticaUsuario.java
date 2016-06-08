@@ -2,8 +2,7 @@ package br.com.rtools.utilitarios;
 
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
-import br.com.rtools.seguranca.db.UsuarioDB;
-import br.com.rtools.seguranca.db.UsuarioDBToplink;
+import br.com.rtools.seguranca.dao.UsuarioDao;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import javax.annotation.PostConstruct;
@@ -146,7 +145,7 @@ public class AutenticaUsuario {
             return false;
         }
         
-        UsuarioDB db = new UsuarioDBToplink();
+        UsuarioDao db = new UsuarioDao();
         usuario = db.ValidaUsuario(login, senha);
         if (usuario != null){
             // se TRUE NÃO tem permissão

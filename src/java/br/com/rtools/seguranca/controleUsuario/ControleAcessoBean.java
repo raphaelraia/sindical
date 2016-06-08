@@ -7,8 +7,7 @@ import br.com.rtools.seguranca.dao.PermissaoDao;
 import br.com.rtools.seguranca.dao.PermissaoUsuarioDao;
 import br.com.rtools.seguranca.dao.RotinaDao;
 import br.com.rtools.seguranca.dao.UsuarioAcessoDao;
-import br.com.rtools.seguranca.db.UsuarioDB;
-import br.com.rtools.seguranca.db.UsuarioDBToplink;
+import br.com.rtools.seguranca.dao.UsuarioDao;
 import br.com.rtools.sistema.ContadorAcessos;
 import br.com.rtools.sistema.dao.AtalhoDao;
 import br.com.rtools.utilitarios.Dao;
@@ -125,7 +124,7 @@ public class ControleAcessoBean implements Serializable {
     }
 
     public boolean verificarUsuarioAcessoWeb() {
-        UsuarioDB db = new UsuarioDBToplink();
+        UsuarioDao db = new UsuarioDao();
         Pessoa contri = null;
         Pessoa conta = null;
         if (FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuarioAcessoWeb") != null) {

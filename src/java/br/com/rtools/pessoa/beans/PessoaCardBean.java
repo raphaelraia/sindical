@@ -19,7 +19,7 @@ import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.seguranca.dao.PermissaoUsuarioDao;
-import br.com.rtools.seguranca.db.UsuarioDBToplink;
+import br.com.rtools.seguranca.dao.UsuarioDao;
 import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.sistema.beans.EmailBean;
 import br.com.rtools.utilitarios.Dao;
@@ -68,7 +68,7 @@ public class PessoaCardBean implements Serializable {
         } else {
             pessoa = fisica.getPessoa();            
         }
-        usuario = new UsuarioDBToplink().pesquisaUsuarioPorPessoa(pessoa.getId());
+        usuario = new UsuarioDao().pesquisaUsuarioPorPessoa(pessoa.getId());
         if (usuario != null) {
             listPermissaoUsuario = new ArrayList();
             listPermissaoUsuario = new PermissaoUsuarioDao().pesquisaListaPermissaoPorUsuario(usuario.getId());

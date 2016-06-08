@@ -1,4 +1,4 @@
-package br.com.rtools.seguranca.db;
+package br.com.rtools.seguranca.dao;
 
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.principal.DB;
@@ -7,9 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 
-public class UsuarioDBToplink extends DB implements UsuarioDB {
+public class UsuarioDao extends DB {
 
-    @Override
     public List<Usuario> pesquisaTodosPorDescricao(String descricaoPesquisa) {
         try {
             Query qry = getEntityManager().createQuery("SELECT usu FROM Usuario AS USU WHERE UPPER(USU.pessoa.nome) LIKE '%" + descricaoPesquisa.toUpperCase() + "%' OR UPPER(USU.login) LIKE '%" + descricaoPesquisa.toUpperCase() + "%' ORDER BY USU.pessoa.nome ASC ");
@@ -22,7 +21,6 @@ public class UsuarioDBToplink extends DB implements UsuarioDB {
         return new ArrayList();
     }
 
-    @Override
     public Pessoa ValidaUsuarioWeb(String login, String senha) {
         try {
             Query qry = getEntityManager().createQuery(
@@ -41,7 +39,6 @@ public class UsuarioDBToplink extends DB implements UsuarioDB {
         return null;
     }
 
-    @Override
     public Usuario ValidaUsuario(String login, String senha) {
         try {
             Query qry = getEntityManager().createQuery(
@@ -64,7 +61,6 @@ public class UsuarioDBToplink extends DB implements UsuarioDB {
         return null;
     }
 
-    @Override
     public Usuario ValidaUsuarioSuporteWeb(String login, String senha) {
         Usuario result = null;
         try {
@@ -82,7 +78,6 @@ public class UsuarioDBToplink extends DB implements UsuarioDB {
         return result;
     }
 
-    @Override
     public List pesquisaLogin(String login, int idPessoa) {
         List result = new ArrayList();
         String descricao = login.toLowerCase().toUpperCase();
@@ -98,7 +93,6 @@ public class UsuarioDBToplink extends DB implements UsuarioDB {
         return result;
     }
 
-    @Override
     public Pessoa ValidaUsuarioContribuinteWeb(int idPessoa) {
         Pessoa result = null;
         try {
@@ -117,7 +111,6 @@ public class UsuarioDBToplink extends DB implements UsuarioDB {
         return result;
     }
 
-    @Override
     public Pessoa ValidaUsuarioContabilidadeWeb(int idPessoa) {
         Pessoa result = null;
         try {
@@ -135,7 +128,6 @@ public class UsuarioDBToplink extends DB implements UsuarioDB {
         return result;
     }
 
-    @Override
     public Pessoa ValidaUsuarioPatronalWeb(int idPessoa) {
         Pessoa result = null;
         try {
@@ -150,7 +142,6 @@ public class UsuarioDBToplink extends DB implements UsuarioDB {
         return result;
     }
 
-    @Override
     public Usuario ValidaUsuarioContribuinte(int idUsuario) {
         Usuario result = null;
         try {
@@ -171,7 +162,6 @@ public class UsuarioDBToplink extends DB implements UsuarioDB {
         return result;
     }
 
-    @Override
     public Usuario ValidaUsuarioContabilidade(int idUsuario) {
         try {
             Query qry = getEntityManager().createQuery(
@@ -192,7 +182,6 @@ public class UsuarioDBToplink extends DB implements UsuarioDB {
         }
     }
 
-    @Override
     public void updateAcordoMovimento() {
         try {
             Query qry = getEntityManager().createNativeQuery("update fin_movimento set nr_ativo=0, nr_acordado=1 where nr_ativo = 1 and id_acordo > 0 and id_tipo_servico <> 4");
@@ -204,7 +193,6 @@ public class UsuarioDBToplink extends DB implements UsuarioDB {
         }
     }
 
-    @Override
     public Usuario pesquisaUsuarioPorPessoa(int id_pessoa) {
         try {
             Query qry = getEntityManager().createQuery(

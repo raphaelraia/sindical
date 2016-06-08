@@ -17,8 +17,7 @@ import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
-import br.com.rtools.seguranca.db.UsuarioDB;
-import br.com.rtools.seguranca.db.UsuarioDBToplink;
+import br.com.rtools.seguranca.dao.UsuarioDao;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.SalvarAcumuladoDB;
 import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
@@ -152,7 +151,7 @@ public class PessoaUtilitarios implements Serializable {
     public Usuario usuario() {
         Usuario usuario1 = new Usuario();
         if (this.pessoa.getId() != -1) {
-            UsuarioDB usuarioDB = new UsuarioDBToplink();
+            UsuarioDao usuarioDB = new UsuarioDao();
             usuarioDB.pesquisaUsuarioPorPessoa(this.pessoa.getId());
         }
         return usuario1;

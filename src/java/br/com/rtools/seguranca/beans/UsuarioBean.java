@@ -1,5 +1,6 @@
 package br.com.rtools.seguranca.beans;
 
+import br.com.rtools.seguranca.dao.UsuarioDao;
 import br.com.rtools.seguranca.dao.PermissaoDao;
 import br.com.rtools.seguranca.dao.PermissaoUsuarioDao;
 import br.com.rtools.seguranca.dao.UsuarioAcessoDao;
@@ -139,7 +140,7 @@ public class UsuarioBean implements Serializable {
         DaoInterface di = new Dao();
         di.openTransaction();
 
-        UsuarioDB db = new UsuarioDBToplink();
+        UsuarioDao db = new UsuarioDao();
 
         if (usuario.getLogin().equals("")) {
             mensagem = "Campo login não pode ser nulo!";
@@ -313,7 +314,7 @@ public class UsuarioBean implements Serializable {
                 DaoInterface di = new Dao();
                 listaUsuario = di.list(new Usuario(), true);
             } else {
-                UsuarioDB db = new UsuarioDBToplink();
+                UsuarioDao db = new UsuarioDao();
                 listaUsuario = db.pesquisaTodosPorDescricao(descricaoPesquisa);
             }
             List<Usuario> list = new ArrayList<Usuario>();

@@ -1,5 +1,6 @@
 package br.com.rtools.seguranca.controleUsuario;
 
+import br.com.rtools.seguranca.dao.UsuarioDao;
 import br.com.rtools.seguranca.dao.MacFilialDao;
 import br.com.rtools.associativo.ConfiguracaoSocial;
 import br.com.rtools.associativo.beans.ConfiguracaoSocialBean;
@@ -139,7 +140,7 @@ public class ControleUsuarioBean implements Serializable {
             GenericaSessao.put("acessoFilial");
         }
         GenericaSessao.put("indicaAcesso", "local");
-        UsuarioDB db = new UsuarioDBToplink();
+        UsuarioDB db = new UsuarioDao();
         String user = usuario.getLogin(), senh = usuario.getSenha();
         if (usuario.getLogin().equals("") || usuario.getLogin().equals("Usuario")) {
             msgErro = "@ Informar nome do usuário!";
