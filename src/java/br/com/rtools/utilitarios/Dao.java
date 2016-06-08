@@ -1,7 +1,6 @@
 package br.com.rtools.utilitarios;
 
 import br.com.rtools.principal.DB;
-import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Usuario;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -926,7 +925,7 @@ public class Dao extends DB implements DaoInterface {
     public void close() {
         getEntityManager().close();
     }
-    
+
     public boolean existsDescription(String description, String field, String object) {
         try {
             Query qry = getEntityManager().createNativeQuery("SELECT OB FROM " + object + " OB WHERE UPPER(OB." + field + ") = :description");
@@ -938,15 +937,15 @@ public class Dao extends DB implements DaoInterface {
             return false;
         }
         return false;
-    }    
-    
+    }
+
     public Boolean executeQuery(String textQuery) {
         try {
             int valor = getEntityManager().createNativeQuery(textQuery).executeUpdate();
             return valor > 0;
-            
+
         } catch (Exception e) {
             return false;
         }
-    }    
+    }
 }
