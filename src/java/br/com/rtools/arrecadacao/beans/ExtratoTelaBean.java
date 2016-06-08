@@ -1,8 +1,7 @@
 package br.com.rtools.arrecadacao.beans;
 
 import br.com.rtools.arrecadacao.Acordo;
-import br.com.rtools.arrecadacao.db.AcordoDB;
-import br.com.rtools.arrecadacao.db.AcordoDBToplink;
+import br.com.rtools.arrecadacao.dao.AcordoDao;
 import br.com.rtools.financeiro.*;
 import br.com.rtools.financeiro.db.*;
 import br.com.rtools.movimento.GerarMovimento;
@@ -929,8 +928,9 @@ public class ExtratoTelaBean implements Serializable {
         MovimentoDB db = new MovimentoDBToplink();
         Movimento movimento = new Movimento();
         Acordo acordo = new Acordo();
-        AcordoDB dbAc = new AcordoDBToplink();
+        AcordoDao dbAc = new AcordoDao();
         Historico historico = new Historico();
+        Dao dao = new Dao();
         if (bltSelecionados() != true) {
             msgConfirma = "Nenhum Boleto Selecionado!";
             GenericaMensagem.warn("Atenção", "Nenhum Boleto Selecionado!");
@@ -948,7 +948,7 @@ public class ExtratoTelaBean implements Serializable {
                 }
                 movimento = db.pesquisaCodigo((Integer) listaMovimentos.get(i).getArgumento1());
                 if (movimento.getAcordo() != null) {
-                    acordo = dbAc.pesquisaCodigo(movimento.getAcordo().getId());
+                    acordo = (Acordo) dao.find(new Acordo(), movimento.getAcordo().getId());
                     if (acordo != null) {
                         listaC.addAll(db.pesquisaAcordoAberto(acordo.getId()));
                     }
@@ -1220,7 +1220,8 @@ public class ExtratoTelaBean implements Serializable {
         MovimentoDB db = new MovimentoDBToplink();
         Movimento movimento = new Movimento();
         Acordo acordo = new Acordo();
-        AcordoDB dbAc = new AcordoDBToplink();
+        Dao dao = new Dao();
+        AcordoDao dbAc = new AcordoDao();
         if (bltSelecionados() != true) {
             msgConfirma = "Nenhum Boleto Selecionado!";
             GenericaMensagem.warn("Atenção", "Nenhum Boleto Selecionado!");
@@ -1237,7 +1238,7 @@ public class ExtratoTelaBean implements Serializable {
                 }
                 movimento = db.pesquisaCodigo((Integer) listaMovimentos.get(i).getArgumento1());
                 if (movimento.getAcordo() != null) {
-                    acordo = dbAc.pesquisaCodigo(movimento.getAcordo().getId());
+                    acordo = (Acordo) dao.find(new Acordo(), movimento.getAcordo().getId());
                     if (acordo != null) {
                         listaC.addAll(db.pesquisaAcordoTodos(acordo.getId()));
                     }

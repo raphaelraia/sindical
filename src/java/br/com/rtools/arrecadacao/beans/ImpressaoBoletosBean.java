@@ -5,8 +5,6 @@ import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.GrupoCidade;
 import br.com.rtools.arrecadacao.db.ConvencaoCidadeDB;
 import br.com.rtools.arrecadacao.db.ConvencaoCidadeDBToplink;
-import br.com.rtools.arrecadacao.db.ConvencaoDB;
-import br.com.rtools.arrecadacao.db.ConvencaoDBToplink;
 import br.com.rtools.financeiro.Impressao;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.ServicoContaCobranca;
@@ -388,12 +386,10 @@ public class ImpressaoBoletosBean implements Serializable {
                             contaCobranca.getContaCobranca().getId());
                 }
 
-            } else {
-                if (idData == -2) {
-                    idData = -1;
-                    listaData.clear();
-                    lista = db.datasMovimento();
-                }
+            } else if (idData == -2) {
+                idData = -1;
+                listaData.clear();
+                lista = db.datasMovimento();
             }
 
             if (lista == null) {
@@ -630,7 +626,7 @@ public class ImpressaoBoletosBean implements Serializable {
         PessoaEnderecoDao pessoaEnderecoDao = new PessoaEnderecoDao();
         List listaCnaes = new ArrayList();
         // CNAES DO RELATORIO -----------------------------------------------------------
-        List<Convencao> resultConvencoes = new ConvencaoDBToplink().pesquisaTodos();
+        List<Convencao> resultConvencoes = new Dao().list(new Convencao(), true);
         String ids = "", idsJuridica = "";
         for (int i = 0; i < resultConvencoes.size(); i++) {
             if (ids.length() > 0 && i != resultConvencoes.size()) {
@@ -704,7 +700,6 @@ public class ImpressaoBoletosBean implements Serializable {
         RelatorioContribuintesDao dbContri = new RelatorioContribuintesDao();
         JuridicaDB dbJur = new JuridicaDBToplink();
         PessoaEnderecoDao dao = new PessoaEnderecoDao();
-        ConvencaoDB dbConv = new ConvencaoDBToplink();
         PessoaEndereco endEscritorio = new PessoaEndereco();
         List listaCnaes = new ArrayList();
         // CONDICAO DO RELATORIO -----------------------------------------------------------
@@ -720,7 +715,7 @@ public class ImpressaoBoletosBean implements Serializable {
         ordem = "escritorio";
 
         // CNAES DO RELATORIO -----------------------------------------------------------
-        List<Convencao> resultConvencoes = dbConv.pesquisaTodos();
+        List<Convencao> resultConvencoes = new Dao().list(new Convencao(), true);
         String ids = "", idsJuridica = "";
         for (int i = 0; i < resultConvencoes.size(); i++) {
             if (ids.length() > 0 && i != resultConvencoes.size()) {
@@ -993,8 +988,7 @@ public class ImpressaoBoletosBean implements Serializable {
 
     public List<Convencao> getListaConvencao() {
         if (listaConvencao.isEmpty()) {
-            ConvencaoDB convencaoDB = new ConvencaoDBToplink();
-            listaConvencao = convencaoDB.pesquisaTodos();
+            listaConvencao = new Dao().list(new Convencao(), true);
         }
         return listaConvencao;
     }

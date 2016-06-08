@@ -2,8 +2,7 @@ package br.com.rtools.relatorios.beans;
 
 import br.com.rtools.arrecadacao.CertidaoTipo;
 import br.com.rtools.arrecadacao.RepisStatus;
-import br.com.rtools.arrecadacao.db.GrupoCidadesDB;
-import br.com.rtools.arrecadacao.db.GrupoCidadesDBToplink;
+import br.com.rtools.arrecadacao.dao.GrupoCidadesDao;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.impressao.ParametroCertificados;
 import br.com.rtools.pessoa.Juridica;
@@ -665,7 +664,7 @@ public class RelatorioCertificadosBean implements Serializable {
     public Map<String, Integer> getListCidadeBase() {
         if (listCidadeBase == null || listCidadeBase.isEmpty()) {
             listCidadeBase = new LinkedHashMap<>();
-            GrupoCidadesDB grupoCidadesDB = new GrupoCidadesDBToplink();
+            GrupoCidadesDao grupoCidadesDB = new GrupoCidadesDao();
             List<Cidade> list = grupoCidadesDB.pesquisaCidadesBase();
             int id = -1;
             for (int i = 0; i < list.size(); i++) {

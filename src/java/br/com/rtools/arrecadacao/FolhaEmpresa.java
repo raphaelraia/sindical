@@ -7,8 +7,11 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "arr_faturamento_folha_empresa")
-@NamedQuery(name = "FolhaEmpresa.pesquisaID", query = "select c from FolhaEmpresa c where c.id = :pid")
+@NamedQueries({
+    @NamedQuery(name = "FolhaEmpresa.pesquisaID", query = "SELECT FE FROM FolhaEmpresa AS FE WHERE FE.id = :pid"),
+    @NamedQuery(name = "FolhaEmpresa.findAll", query = "SELECT FE FROM FolhaEmpresa AS FE "),})
 public class FolhaEmpresa implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

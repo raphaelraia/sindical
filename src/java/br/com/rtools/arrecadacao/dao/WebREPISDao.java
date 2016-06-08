@@ -1,4 +1,4 @@
-package br.com.rtools.arrecadacao.db;
+package br.com.rtools.arrecadacao.dao;
 
 import br.com.rtools.arrecadacao.CertidaoDisponivel;
 import br.com.rtools.arrecadacao.CertidaoMensagem;
@@ -19,9 +19,8 @@ import java.util.List;
 import java.util.Vector;
 import javax.persistence.Query;
 
-public class WebREPISDBToplink extends DB implements WebREPISDB {
+public class WebREPISDao extends DB {
 
-    @Override
     public RepisMovimento pesquisaCodigoRepisMovimento(int id) {
         RepisMovimento repis = new RepisMovimento();
         try {
@@ -33,7 +32,6 @@ public class WebREPISDBToplink extends DB implements WebREPISDB {
         return repis;
     }
 
-    @Override
     public List listaContribuinteWeb() {
         List result = new ArrayList();
         try {
@@ -50,7 +48,6 @@ public class WebREPISDBToplink extends DB implements WebREPISDB {
         return result;
     }
 
-    @Override
     public List listaContabilidadeWeb() {
         List result = new ArrayList();
         try {
@@ -66,7 +63,6 @@ public class WebREPISDBToplink extends DB implements WebREPISDB {
         return result;
     }
 
-    @Override
     public List validaPessoaRepisAno(int idPessoa, int ano) {
         List result = new ArrayList();
         try {
@@ -84,7 +80,6 @@ public class WebREPISDBToplink extends DB implements WebREPISDB {
         }
     }
 
-    @Override
     public List validaPessoaRepisAnoTipoPatronal(int idPessoa, int ano, int id_tipo_certidao, int id_patronal) {
         List result = new ArrayList();
         try {
@@ -107,7 +102,6 @@ public class WebREPISDBToplink extends DB implements WebREPISDB {
         }
     }
 
-    @Override
     public List listaProtocolosPorContabilidade(int idPessoa, int ano) {
         List result = new ArrayList();
         try {
@@ -130,7 +124,6 @@ public class WebREPISDBToplink extends DB implements WebREPISDB {
         }
     }
 
-    @Override
     public List listaProtocolosPorPatronal(int idConvencao, int idGrupoCidade) {
         List<RepisMovimento> result = new ArrayList();
         List vetor;
@@ -169,7 +162,6 @@ public class WebREPISDBToplink extends DB implements WebREPISDB {
      * @param id_patronal
      * @return
      */
-    @Override
     public List listaProtocolosPorPatronalCnae(int id_patronal) {
         List<RepisMovimento> result = new ArrayList();
         List vetor;
@@ -198,7 +190,6 @@ public class WebREPISDBToplink extends DB implements WebREPISDB {
         }
     }
 
-    @Override
     public List<RepisMovimento> listaProtocolosPorPatronal(int idPatronal) {
         try {
             Query query = getEntityManager().createQuery("SELECT RM FROM RepisMovimento AS RM WHERE RM.patronal.id = :p1 ORDER BY RM.dataEmissao DESC");
@@ -212,7 +203,6 @@ public class WebREPISDBToplink extends DB implements WebREPISDB {
         return new ArrayList();
     }
 
-    @Override
     public Patronal pesquisaPatronalPorPessoa(int idPessoa) {
         Patronal patronal = new Patronal();
         try {
@@ -223,7 +213,6 @@ public class WebREPISDBToplink extends DB implements WebREPISDB {
         return patronal;
     }
 
-    @Override
     public Patronal pesquisaPatronalPorConvGrupo(int id_convencao, int id_grupo_cidade) {
         Patronal patronal = new Patronal();
         try {
@@ -234,7 +223,6 @@ public class WebREPISDBToplink extends DB implements WebREPISDB {
         return patronal;
     }
 
-    @Override
     public PisoSalarialLote pesquisaPisoSalarial(int ano, int id_patronal, int id_porte) {
         PisoSalarialLote ps = new PisoSalarialLote();
         try {
@@ -251,7 +239,6 @@ public class WebREPISDBToplink extends DB implements WebREPISDB {
         return ps;
     }
 
-    @Override
     public List<PisoSalarial> listaPisoSalarialLote(int id_piso_lote) {
         List<PisoSalarial> lista = new ArrayList();
         try {
@@ -262,7 +249,6 @@ public class WebREPISDBToplink extends DB implements WebREPISDB {
         return lista;
     }
 
-    @Override
     public boolean pesquisaCnaePermitido(int id_cnae, int id_grupo_cidade) {
         List vetor;
         try {
@@ -296,7 +282,6 @@ public class WebREPISDBToplink extends DB implements WebREPISDB {
         return result;
     }
 
-    @Override
     public Juridica pesquisaEscritorioDaEmpresa(int id_pessoa) {
         try {
             Query qry = getEntityManager().createQuery("SELECT j.contabilidade FROM Juridica j where j.pessoa.id = " + id_pessoa);
@@ -307,7 +292,6 @@ public class WebREPISDBToplink extends DB implements WebREPISDB {
         }
     }
 
-    @Override
     public List<Movimento> listaAcordoAberto(int id_pessoa) {
         try {
             Query qry = getEntityManager().createQuery("SELECT m FROM Movimento m WHERE m.tipoServico.id = 4 AND m.baixa IS NULL AND m.pessoa.id = " + id_pessoa);
@@ -318,7 +302,6 @@ public class WebREPISDBToplink extends DB implements WebREPISDB {
         }
     }
 
-    @Override
     public Patronal pesquisaPatronalPorSolicitante(int id_solicitante) {
         try {
             Query queryNative = getEntityManager().createNativeQuery(""
@@ -342,7 +325,6 @@ public class WebREPISDBToplink extends DB implements WebREPISDB {
         return null;
     }
 
-    @Override
     public List<CertidaoTipo> listaCertidaoTipo() {
         try {
             Query qry = getEntityManager().createQuery(
@@ -359,7 +341,6 @@ public class WebREPISDBToplink extends DB implements WebREPISDB {
         return new ArrayList();
     }
 
-    @Override
     public List<CertidaoDisponivel> listaCertidaoDisponivel(int id_cidade, int id_convencao) {
         try {
             Query qry = getEntityManager().createQuery(
@@ -376,7 +357,6 @@ public class WebREPISDBToplink extends DB implements WebREPISDB {
         return new ArrayList();
     }
 
-    @Override
     public List<ConvencaoPeriodo> listaConvencaoPeriodo(int id_cidade, int id_convencao) {
         try {
             String referencia = DataHoje.DataToArray(DataHoje.data())[2] + DataHoje.DataToArray(DataHoje.data())[1];
@@ -396,7 +376,6 @@ public class WebREPISDBToplink extends DB implements WebREPISDB {
         return new ArrayList<>();
     }
 
-    @Override
     public List<ConvencaoPeriodo> listaConvencaoPeriodoData(int id_cidade, int id_convencao, String referencia) {
         try {
             Query qry = getEntityManager().createNativeQuery(
@@ -414,7 +393,6 @@ public class WebREPISDBToplink extends DB implements WebREPISDB {
         return new ArrayList<>();
     }
 
-    @Override
     public List<RepisMovimento> pesquisarListaLiberacao(String por, String descricao, int id_patronal, String quantidade) {
         descricao = Normalizer.normalize(descricao, Normalizer.Form.NFD);
         descricao = descricao.toLowerCase().replaceAll("[^\\p{ASCII}]", "");
@@ -536,7 +514,6 @@ public class WebREPISDBToplink extends DB implements WebREPISDB {
 //        }
 //        return new ArrayList();
 //    }
-    @Override
     public List<RepisMovimento> pesquisarListaSolicitacao(String por, String descricao, int id_pessoa, int id_contabilidade) {
         descricao = Normalizer.normalize(descricao, Normalizer.Form.NFD);
         descricao = descricao.toLowerCase().replaceAll("[^\\p{ASCII}]", "");
@@ -596,7 +573,6 @@ public class WebREPISDBToplink extends DB implements WebREPISDB {
         return new ArrayList();
     }
 
-    @Override
     public CertidaoMensagem pesquisaCertidaoMensagem(int id_cidade, int id_certidao_tipo) {
         String textQry = ("  SELECT cm "
                 + "  FROM CertidaoMensagem cm "
@@ -615,7 +591,6 @@ public class WebREPISDBToplink extends DB implements WebREPISDB {
         return null;
     }
 
-    @Override
     public List listRepisPorPessoa(int idPessoa) {
 
         try {

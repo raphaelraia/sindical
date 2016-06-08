@@ -3,8 +3,7 @@ package br.com.rtools.arrecadacao.beans;
 import br.com.rtools.arrecadacao.GrupoCidade;
 import br.com.rtools.arrecadacao.GrupoCidades;
 import br.com.rtools.arrecadacao.MensagemConvencao;
-import br.com.rtools.arrecadacao.db.GrupoCidadesDB;
-import br.com.rtools.arrecadacao.db.GrupoCidadesDBToplink;
+import br.com.rtools.arrecadacao.dao.GrupoCidadesDao;
 import br.com.rtools.arrecadacao.db.MensagemConvencaoDB;
 import br.com.rtools.arrecadacao.db.MensagemConvencaoDBToplink;
 import br.com.rtools.endereco.Cidade;
@@ -63,7 +62,7 @@ public class GrupoCidadesBean implements Serializable {
     }
 
     public List<GrupoCidades> getListCidade() {
-        GrupoCidadesDB dbGC = new GrupoCidadesDBToplink();
+        GrupoCidadesDao dbGC = new GrupoCidadesDao();
         if (listCidade.isEmpty()) {
             if (getGrupoCidades().getGrupoCidade().getId() != -1) {
                 listCidade = dbGC.pesquisaPorGrupo(getGrupoCidades().getGrupoCidade().getId());
@@ -215,7 +214,7 @@ public class GrupoCidadesBean implements Serializable {
     }
 
     public String delete() {
-//        GrupoCidadesDB db = new GrupoCidadesDBToplink();
+//        GrupoCidadesDB db = new GrupoCidadesDao();
 //        NovoLog log = new NovoLog();
 //        if(grupoCidades.getId()!=-1){
 //            db.getEntityManager().getTransaction().begin();
@@ -249,7 +248,7 @@ public class GrupoCidadesBean implements Serializable {
     }
 
     public void addCidade() {
-        //GrupoCidadesDB db = new GrupoCidadesDBToplink();
+        //GrupoCidadesDB db = new GrupoCidadesDao();
         if (grupoCidades.getGrupoCidade().getId() == -1) {
             msgGrupoCidade = "Pesquise um grupo Cidades";
             GenericaMensagem.warn("Erro", msgGrupoCidade);

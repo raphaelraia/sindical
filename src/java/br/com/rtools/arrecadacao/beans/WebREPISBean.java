@@ -10,8 +10,7 @@ import br.com.rtools.arrecadacao.PisoSalarial;
 import br.com.rtools.arrecadacao.PisoSalarialLote;
 import br.com.rtools.arrecadacao.RepisMovimento;
 import br.com.rtools.arrecadacao.RepisStatus;
-import br.com.rtools.arrecadacao.db.WebREPISDB;
-import br.com.rtools.arrecadacao.db.WebREPISDBToplink;
+import br.com.rtools.arrecadacao.dao.WebREPISDao;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.endereco.Endereco;
 import br.com.rtools.endereco.dao.CidadeDao;
@@ -174,7 +173,7 @@ public class WebREPISBean implements Serializable {
     }
 
     public void pesquisar() {
-        WebREPISDB db = new WebREPISDBToplink();
+        WebREPISDao db = new WebREPISDao();
         listRepisMovimentoPatronal.clear();
         listRepisMovimentoPatronalSelecionado.clear();
         Patronal patro = db.pesquisaPatronalPorPessoa(pessoa.getId());
@@ -196,7 +195,7 @@ public class WebREPISBean implements Serializable {
     }
 
     public String pesquisarPorSolicitante() {
-        WebREPISDB db = new WebREPISDBToplink();
+        WebREPISDao db = new WebREPISDao();
         listRepisMovimento.clear();
         Patronal patro = db.pesquisaPatronalPorPessoa(pessoa.getId());
         if (renderEmpresa) {
@@ -231,7 +230,7 @@ public class WebREPISBean implements Serializable {
     }
 
     public List listPessoaRepisAno() {
-        WebREPISDB wsrepisdb = new WebREPISDBToplink();
+        WebREPISDao wsrepisdb = new WebREPISDao();
         List<RepisMovimento> result = new ArrayList();
         if (renderEmpresa) {
             result = wsrepisdb.pesquisarListaSolicitacao("", "", pessoa.getId(), -1);
@@ -243,7 +242,7 @@ public class WebREPISBean implements Serializable {
     }
 
     public boolean showAndamentoProtocolo(int idPessoa, int idPatronal) {
-        WebREPISDB wsrepisdb = new WebREPISDBToplink();
+        WebREPISDao wsrepisdb = new WebREPISDao();
         CertidaoDisponivel cd = (CertidaoDisponivel) new Dao().find(new CertidaoDisponivel(), Integer.valueOf(listComboCertidaoDisponivel.get(indexCertidaoDisponivel).getDescription()));
         if (wsrepisdb.validaPessoaRepisAnoTipoPatronal(idPessoa, getAnoConvencao(), cd.getCertidaoTipo().getId(), idPatronal).size() > 0) {
             return true;
@@ -262,7 +261,7 @@ public class WebREPISBean implements Serializable {
         } else {
             setPessoaSolicitante(getPessoa());
         }
-        WebREPISDB dbr = new WebREPISDBToplink();
+        WebREPISDao dbr = new WebREPISDao();
         if (!dbr.listaAcordoAberto(pessoaSolicitante.getId()).isEmpty()) {
             GenericaMensagem.warn("Atenção", "Não foi possível concluir sua solicitação. Consulte o sindicato!" + detalhes);
             return;
@@ -387,7 +386,7 @@ public class WebREPISBean implements Serializable {
                 setIdRepisStatus(i);
             }
         }
-        WebREPISDB dbw = new WebREPISDBToplink();
+        WebREPISDao dbw = new WebREPISDao();
         Juridica jur = dbw.pesquisaEscritorioDaEmpresa(repisMovimento.getPessoa().getId());
         if (jur != null) {
             escritorio = jur.getPessoa();
@@ -403,7 +402,7 @@ public class WebREPISBean implements Serializable {
 
     public String imprimirCertificado(List<RepisMovimento> listam) {
         JuridicaDB dbj = new JuridicaDBToplink();
-        WebREPISDB dbw = new WebREPISDBToplink();
+        WebREPISDao dbw = new WebREPISDao();
         List<JasperPrint> lista_jasper = new ArrayList();
 
         if (listam.isEmpty()) {
@@ -661,7 +660,7 @@ public class WebREPISBean implements Serializable {
     }
 
     public int getAnoConvencao() {
-        WebREPISDB wsrepisdb = new WebREPISDBToplink();
+        WebREPISDao wsrepisdb = new WebREPISDao();
         CertidaoDisponivel cd = (CertidaoDisponivel) new Dao().find(new CertidaoDisponivel(), Integer.valueOf(listComboCertidaoDisponivel.get(indexCertidaoDisponivel).getDescription()));
         List<ConvencaoPeriodo> result = wsrepisdb.listaConvencaoPeriodo(cd.getCidade().getId(), cd.getConvencao().getId());
         if (result.isEmpty()) {
@@ -771,7 +770,7 @@ public class WebREPISBean implements Serializable {
 
     public List<RepisMovimento> getListRepisMovimentoPatronal() {
         if (listRepisMovimentoPatronal.isEmpty()) {
-            WebREPISDB wsrepisdb = new WebREPISDBToplink();
+            WebREPISDao wsrepisdb = new WebREPISDao();
             Patronal patro = wsrepisdb.pesquisaPatronalPorPessoa(pessoa.getId());
             if (tipoPesquisa.equals("status")) {
                 listRepisMovimentoPatronal = wsrepisdb.pesquisarListaLiberacao("status", listaStatus.get(indexStatus).getDescription(), patro.getId(), valueLenght);
@@ -888,7 +887,7 @@ public class WebREPISBean implements Serializable {
 
     public List<SelectItem> getListComboCertidaoDisponivel() {
         if (listComboCertidaoDisponivel.isEmpty()) {
-            WebREPISDB db = new WebREPISDBToplink();
+            WebREPISDao db = new WebREPISDao();
             JuridicaDB dbj = new JuridicaDBToplink();
 
             Juridica juridica = null;
@@ -1055,7 +1054,7 @@ public class WebREPISBean implements Serializable {
     }
     
     public void loadListRepisMovimentoPessoa(Integer pessoa_id) {
-        listRepisMovimentoPessoa = new WebREPISDBToplink().listRepisPorPessoa(pessoa_id);
+        listRepisMovimentoPessoa = new WebREPISDao().listRepisPorPessoa(pessoa_id);
     }
 
     public List<RepisMovimento> getListRepisMovimentoPessoa() {

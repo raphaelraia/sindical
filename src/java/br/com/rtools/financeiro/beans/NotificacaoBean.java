@@ -1,8 +1,7 @@
 package br.com.rtools.financeiro.beans;
 
 import br.com.rtools.arrecadacao.ConfiguracaoArrecadacao;
-import br.com.rtools.arrecadacao.db.GrupoCidadesDB;
-import br.com.rtools.arrecadacao.db.GrupoCidadesDBToplink;
+import br.com.rtools.arrecadacao.dao.GrupoCidadesDao;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.financeiro.CobrancaEnvio;
 import br.com.rtools.financeiro.CobrancaLote;
@@ -1191,7 +1190,7 @@ public class NotificacaoBean implements Serializable {
 
     public List<DataObject> getListaCidadesBase() {
         if (listaCidadesBase.isEmpty()) {
-            GrupoCidadesDB db = new GrupoCidadesDBToplink();
+            GrupoCidadesDao db = new GrupoCidadesDao();
             List select = new ArrayList();
             select.addAll(db.pesquisaCidadesBase());
             for (int i = 0; i < select.size(); i++) {

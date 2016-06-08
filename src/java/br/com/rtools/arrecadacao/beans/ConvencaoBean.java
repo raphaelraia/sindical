@@ -1,5 +1,6 @@
 package br.com.rtools.arrecadacao.beans;
 
+import br.com.rtools.arrecadacao.dao.ConvencaoDao;
 import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.ConvencaoCidade;
 import br.com.rtools.arrecadacao.GrupoCidade;
@@ -9,8 +10,6 @@ import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.GenericaMensagem;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -61,14 +60,15 @@ public class ConvencaoBean implements Serializable {
             dolinha.setArgumento1(String.valueOf(gc.getId()) + "_" + convencao.getId());
             cc.setCaminho(String.valueOf(gc.getId()) + "_" + convencao.getId());
 
-            SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+            Dao dao = new Dao();
 
-            sv.abrirTransacao();
-            if (!sv.alterarObjeto(cc)) {
-                sv.desfazerTransacao();
+            dao.openTransaction();
+            if (!dao.update(cc)) {
+                dao.rollback();
                 GenericaMensagem.warn("Erro", "Erro ao alterar Convenção Cidade!");
                 return;
             }
+            dao.commit();
 
             String destino = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/convencao/" + String.valueOf(gc.getId()) + "_" + convencao.getId() + ".pdf");
             File fl_destino = new File(destino);
@@ -110,8 +110,8 @@ public class ConvencaoBean implements Serializable {
     }
 
     public String salvar() {
-        ConvencaoDB db = new ConvencaoDBToplink();
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+        ConvencaoDao db = new ConvencaoDao();
+        Dao dao = new Dao();
 
         if (convencao.getId() == -1 && db.pesquisaConvencaoDesc(convencao.getDescricao()) != null) {
             GenericaMensagem.warn("Erro", "Esta convenção já existe no Sistema");
@@ -123,11 +123,11 @@ public class ConvencaoBean implements Serializable {
         }
 
         NovoLog novoLog = new NovoLog();
-        sv.abrirTransacao();
+        dao.openTransaction();
         if (convencao.getId() == -1) {
 
-            if (!sv.inserirObjeto(convencao)) {
-                sv.desfazerTransacao();
+            if (!dao.save(convencao)) {
+                dao.rollback();
                 GenericaMensagem.warn("Erro", "Erro ao salvar Convenção!");
                 return null;
             }
@@ -138,12 +138,12 @@ public class ConvencaoBean implements Serializable {
                     + " - Descrição: " + convencao.getDescricao()
             );
         } else {
-            Convencao c = (Convencao) sv.pesquisaObjeto(convencao.getId(), "Convencao");
+            Convencao c = (Convencao) dao.find(new Convencao(), convencao.getId());
             String beforeUpdate
                     = "ID: " + c.getId()
                     + " - Descrição: " + c.getDescricao();
-            if (!sv.alterarObjeto(convencao)) {
-                sv.desfazerTransacao();
+            if (!dao.update(convencao)) {
+                dao.rollback();
                 GenericaMensagem.warn("Erro", "Erro ao atualizar convenção!");
                 return null;
             }
@@ -154,7 +154,7 @@ public class ConvencaoBean implements Serializable {
             GenericaMensagem.info("Sucesso", "Convenção atualizado com Sucesso!");
         }
         listaGpCidade = new ArrayList();
-        sv.comitarTransacao();
+        dao.commit();
         return null;
     }
 
@@ -165,8 +165,8 @@ public class ConvencaoBean implements Serializable {
         }
 
         ConvencaoCidadeDB dbCC = new ConvencaoCidadeDBToplink();
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-        GrupoCidade gpCid = (GrupoCidade) sv.pesquisaCodigo(Integer.valueOf(getListaGrupoCidade().get(idGrupoCidade).getDescription()), "GrupoCidade");
+        Dao dao = new Dao();
+        GrupoCidade gpCid = (GrupoCidade) dao.find(new GrupoCidade(), Integer.valueOf(getListaGrupoCidade().get(idGrupoCidade).getDescription()));
 
         List listaCidades = dbCC.ListaCidadesConvencao(convencao.getId(), gpCid.getId());
         if (!listaCidades.isEmpty()) {
@@ -174,19 +174,21 @@ public class ConvencaoBean implements Serializable {
             return;
         }
 
-        sv.abrirTransacao();
+        dao.openTransaction();
 
         conCidade.setConvencao(convencao);
         conCidade.setGrupoCidade(gpCid);
 
         if (convencao.getId() == -1) {
-            if (!sv.inserirObjeto(convencao)) {
+            if (!dao.save(convencao)) {
+                dao.rollback();
                 GenericaMensagem.warn("Erro", "Erro ao salvar Convenção!");
                 return;
             }
         }
 
-        if (!sv.inserirObjeto(conCidade)) {
+        if (!dao.save(conCidade)) {
+            dao.rollback();
             GenericaMensagem.warn("Erro", "Erro ao salvar Convenção Cidade!");
             return;
         }
@@ -195,7 +197,7 @@ public class ConvencaoBean implements Serializable {
         listaGpCidade.clear();
 
         GenericaMensagem.info("Sucesso", "Grupo Cidade adicionado!");
-        sv.comitarTransacao();
+        dao.commit();
 //        List li = dbCC.pesquisarGruposPorConvencao(convencao.getId());
 //        listaGpCidade.clear();
 //        for (int i = 0; i < li.size(); i++) {
@@ -217,15 +219,15 @@ public class ConvencaoBean implements Serializable {
             }
         }
 
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+        Dao dao = new Dao();
 
-        sv.abrirTransacao();
-        if (!sv.deletarObjeto(sv.pesquisaCodigo(cc.getId(), "ConvencaoCidade"))) {
+        dao.openTransaction();
+        if (!dao.delete(dao.find(new ConvencaoCidade(), cc.getId()))) {
             GenericaMensagem.warn("Erro", "Não foi possível excluir Convenção Cidade");
-            sv.desfazerTransacao();
+            dao.rollback();
         }
         listaGpCidade.clear();
-        sv.comitarTransacao();
+        dao.commit();
     }
 
     public boolean excluirPDF(ConvencaoCidade cc) {
@@ -253,16 +255,16 @@ public class ConvencaoBean implements Serializable {
             GenericaMensagem.warn("Erro", "Não foi possível excluir Arquivo PDF!");
         }
 
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-        sv.abrirTransacao();
+        Dao dao = new Dao();
+        dao.openTransaction();
 
         cc.setCaminho("");
-        if (!sv.alterarObjeto(cc)) {
+        if (!dao.update(cc)) {
             GenericaMensagem.warn("Erro", "Não foi possível alterar Convenção Cidade");
-            sv.desfazerTransacao();
+            dao.rollback();
         }
         listaGpCidade.clear();
-        sv.comitarTransacao();
+        dao.commit();
     }
 
     public List getListaGpCidadeParaConvencao() {
@@ -340,28 +342,28 @@ public class ConvencaoBean implements Serializable {
 
     public String excluir() {
         if (convencao.getId() != -1) {
-            SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+            Dao dao = new Dao();
 
-            convencao = (Convencao) sv.pesquisaCodigo(convencao.getId(), "Convencao");
+            convencao = (Convencao) dao.find(new Convencao(), convencao.getId());
 
             //ConvencaoCidadeDB db = new ConvencaoCidadeDBToplink();
             //List<GrupoCidade> result = db.pesquisarGruposPorConvencao(convencao.getId());
-            sv.abrirTransacao();
+            dao.openTransaction();
             for (int i = 0; i < listaGpCidade.size(); i++) {
                 if (!excluirPDF((ConvencaoCidade) listaGpCidade.get(i).getArgumento1())) {
                     GenericaMensagem.warn("Erro", "Erro ao excluir Arquivos PDF!");
                     return null;
                 }
 
-                if (!sv.deletarObjeto(sv.pesquisaCodigo(((ConvencaoCidade) listaGpCidade.get(i).getArgumento1()).getId(), "ConvencaoCidade"))) {
+                if (!dao.delete(dao.find(new ConvencaoCidade(), ((ConvencaoCidade) listaGpCidade.get(i).getArgumento1()).getId()))) {
                     GenericaMensagem.warn("Erro", "Convenção Cidade não pode ser excluida!");
                     return null;
                 }
             }
 
-            if (!sv.deletarObjeto(convencao)) {
+            if (!dao.delete(convencao)) {
                 GenericaMensagem.warn("Erro", "Convenção não pode ser excluida!");
-                sv.desfazerTransacao();
+                dao.rollback();
             }
             NovoLog novoLog = new NovoLog();
             novoLog.delete(
@@ -371,7 +373,7 @@ public class ConvencaoBean implements Serializable {
             GenericaMensagem.info("Sucesso", "Convenção excluida com Sucesso!");
             convencao = new Convencao();
             listaGpCidade.clear();
-            sv.comitarTransacao();
+            dao.commit();
         } else {
             GenericaMensagem.warn("Erro", "Pesquise uma Convenção para ser excluida!");
         }
@@ -379,8 +381,7 @@ public class ConvencaoBean implements Serializable {
     }
 
     public List<Convencao> getListaConvencao() {
-        ConvencaoDB db = new ConvencaoDBToplink();
-        listaConvencao = db.pesquisaTodos();
+        listaConvencao = new Dao().list(new Convencao(), true);
         return listaConvencao;
     }
 

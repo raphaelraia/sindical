@@ -5,8 +5,7 @@ import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.ConvencaoServico;
 import br.com.rtools.arrecadacao.beans.ConfiguracaoArrecadacaoBean;
 import br.com.rtools.arrecadacao.dao.ConvencaoServicoDao;
-import br.com.rtools.arrecadacao.db.AcordoDB;
-import br.com.rtools.arrecadacao.db.AcordoDBToplink;
+import br.com.rtools.arrecadacao.dao.AcordoDao;
 import br.com.rtools.arrecadacao.db.CnaeConvencaoDB;
 import br.com.rtools.arrecadacao.db.CnaeConvencaoDBToplink;
 import br.com.rtools.arrecadacao.db.ConvencaoCidadeDB;
@@ -343,7 +342,7 @@ public class ImprimirBoleto {
                 listaAdd.add(mov);
 
                 Historico his = new Historico();
-                AcordoDB dba = new AcordoDBToplink();
+                AcordoDao dba = new AcordoDao();
                 Historico his_pesquisa = dba.pesquisaHistoricoMov(bol.getContaCobranca().getId(), lista.get(i).getId());
 
                 if (his_pesquisa != null) {

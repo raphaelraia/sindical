@@ -1,4 +1,4 @@
-package br.com.rtools.arrecadacao.db;
+package br.com.rtools.arrecadacao.dao;
 
 import br.com.rtools.arrecadacao.GrupoCidade;
 import br.com.rtools.arrecadacao.GrupoCidades;
@@ -9,9 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 
-public class GrupoCidadesDBToplink extends DB implements GrupoCidadesDB {
+public class GrupoCidadesDao extends DB {
 
-    @Override
     public List pesquisaTodosCidadeAgrupada() {
         try {
             Query qry = getEntityManager().createQuery(" SELECT GC.cidade FROM GrupoCidades GC GROUP BY GC.cidade ORDER BY GC.cidade.uf ASC, GC.cidade.cidade ASC ");
@@ -21,7 +20,6 @@ public class GrupoCidadesDBToplink extends DB implements GrupoCidadesDB {
         }
     }
 
-    @Override
     public List pesquisaCidadesBase() {
         try {
             Query qry = getEntityManager().createQuery("SELECT cont.cidade  FROM GrupoCidades cont GROUP BY cont.cidade ORDER BY cont.cidade.cidade ASC");
@@ -31,7 +29,6 @@ public class GrupoCidadesDBToplink extends DB implements GrupoCidadesDB {
         }
     }
 
-    @Override
     public GrupoCidades idGrupoCidades(GrupoCidades des_grupoCidade) {
         GrupoCidades result = null;
         String descricao = des_grupoCidade.getGrupoCidade().getDescricao().toLowerCase().toUpperCase();
@@ -44,7 +41,6 @@ public class GrupoCidadesDBToplink extends DB implements GrupoCidadesDB {
         return result;
     }
 
-    @Override
     public GrupoCidade grupoCidadesPorPessoa(int idPessoa, int idConvencao) {
         PessoaEnderecoDao dao = new PessoaEnderecoDao();
         PessoaEndereco pes = dao.pesquisaEndPorPessoaTipo(idPessoa, 5);
@@ -65,7 +61,6 @@ public class GrupoCidadesDBToplink extends DB implements GrupoCidadesDB {
         return result;
     }
 
-    @Override
     public List pesquisaPorGrupo(int idGrupoCidade) {
         try {
             Query qry = getEntityManager().createQuery(
@@ -80,7 +75,6 @@ public class GrupoCidadesDBToplink extends DB implements GrupoCidadesDB {
         }
     }
 
-    @Override
     public List pesquisaPorCidade(int idCidade) {
         try {
             Query qry = getEntityManager().createQuery("select gc "

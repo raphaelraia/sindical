@@ -1,67 +1,16 @@
-package br.com.rtools.arrecadacao.db;
+package br.com.rtools.arrecadacao.dao;
 
-import br.com.rtools.arrecadacao.Acordo;
 import br.com.rtools.financeiro.Historico;
 import br.com.rtools.principal.DB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
+import br.com.rtools.utilitarios.Dao;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 import javax.persistence.Query;
 
-public class AcordoDBToplink extends DB implements AcordoDB {
+public class AcordoDao extends DB {
 
-    @Override
-    public boolean insert(Acordo acordo) {
-        try {
-            getEntityManager().getTransaction().begin();
-            getEntityManager().persist(acordo);
-            getEntityManager().flush();
-            getEntityManager().getTransaction().commit();
-            return true;
-        } catch (Exception e) {
-            getEntityManager().getTransaction().rollback();
-            return false;
-        }
-    }
-
-    @Override
-    public boolean update(Acordo acordo) {
-        try {
-            getEntityManager().merge(acordo);
-            getEntityManager().flush();
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    @Override
-    public boolean delete(Acordo acordo) {
-        try {
-            getEntityManager().remove(acordo);
-            getEntityManager().flush();
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    @Override
-    public Acordo pesquisaCodigo(int id) {
-        Acordo result = null;
-        try {
-            Query qry = getEntityManager().createNamedQuery("Acordo.pesquisaID");
-            qry.setParameter("pid", id);
-            result = (Acordo) qry.getSingleResult();
-        } catch (Exception e) {
-        }
-        return result;
-    }
-
-    @Override
-    public Historico pesquisaHistorico(int id) {
+    public Historico pesquisaHistorico(Integer id) {
         Historico result = null;
         try {
             Query qry = getEntityManager().createQuery("select h from Historico h where h.movimento.id = :pid");
@@ -72,7 +21,6 @@ public class AcordoDBToplink extends DB implements AcordoDB {
         return result;
     }
 
-    @Override
     public Historico pesquisaHistoricoBaixado(int idContaCobranca, String nrBoleto, int idServico) {
         Historico result = null;
         try {
@@ -105,13 +53,11 @@ public class AcordoDBToplink extends DB implements AcordoDB {
 //        }
 //        return result;
 //    }
-    @Override
     public Historico pesquisaHistoricoMov(int idContaCobranca, int idMovimento) {
         Historico result = null;
         String textQuery = "";
         List vetor;
         List<Historico> list = new ArrayList();
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
         try {
             textQuery = "select h.id ids     "
                     + "  from fin_historico h "
@@ -123,7 +69,7 @@ public class AcordoDBToplink extends DB implements AcordoDB {
             vetor = qry.getResultList();
             if (!vetor.isEmpty()) {
                 for (int i = 0; i < vetor.size(); i++) {
-                    list.add((Historico) sv.pesquisaCodigo((Integer) ((Vector) vetor.get(i)).get(0), "Historico"));
+                    list.add((Historico) new Dao().find(new Historico(), (Integer) ((Vector) vetor.get(i)).get(0)));
                 }
             }
             if (!list.isEmpty()) {
@@ -135,27 +81,15 @@ public class AcordoDBToplink extends DB implements AcordoDB {
         return result;
     }
 
-    @Override
-    public List pesquisaTodos() {
-        try {
-            Query qry = getEntityManager().createQuery("select p from Acordo p ");
-            return (qry.getResultList());
-        } catch (Exception e) {
-            return null;
-        }
-    }
+//    public List pesquisaTodasFolhas() {
+//        try {
+//            Query qry = getEntityManager().createQuery("select p from FolhaEmpresa p ");
+//            return (qry.getResultList());
+//        } catch (Exception e) {
+//            return null;
+//        }
+//    }
 
-    @Override
-    public List pesquisaTodasFolhas() {
-        try {
-            Query qry = getEntityManager().createQuery("select p from FolhaEmpresa p ");
-            return (qry.getResultList());
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    @Override
     public List listaHistoricoAgrupado(int id_acordo) {
         try {
             Query qry = getEntityManager().createQuery(

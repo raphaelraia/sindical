@@ -1,8 +1,8 @@
 package br.com.rtools.arrecadacao.beans;
 
 import br.com.rtools.arrecadacao.Acordo;
-import br.com.rtools.arrecadacao.db.AcordoDB;
-import br.com.rtools.arrecadacao.db.AcordoDBToplink;
+import br.com.rtools.arrecadacao.FolhaEmpresa;
+import br.com.rtools.arrecadacao.dao.AcordoDao;
 import br.com.rtools.associativo.beans.MovimentosReceberSocialBean;
 import br.com.rtools.financeiro.ContaCobranca;
 import br.com.rtools.financeiro.FTipoDocumento;
@@ -86,15 +86,15 @@ public class AcordoBean implements Serializable {
     public String converteValorString(String valor) {
         return Moeda.converteR$(valor);
     }
-    
-    public void alterarEmailEnvio(Boolean alterarEmail){
-        if (alterarEmail){
+
+    public void alterarEmailEnvio(Boolean alterarEmail) {
+        if (alterarEmail) {
             JuridicaDB db = new JuridicaDBToplink();
             Juridica jur = db.pesquisaJuridicaPorPessoa(pessoa.getId());
 
             if (emailPara.equals("contabilidade")) {
                 SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-                if (!jur.getContabilidade().getPessoa().getEmail1().equals(pessoaEnvio.getEmail1())){
+                if (!jur.getContabilidade().getPessoa().getEmail1().equals(pessoaEnvio.getEmail1())) {
 
                 }
                 jur.getContabilidade().getPessoa().setEmail1(pessoaEnvio.getEmail1());
@@ -121,7 +121,7 @@ public class AcordoBean implements Serializable {
                 pessoaEnvio = jur.getPessoa();
             }
         }
-        
+
         enviarEmail();
         PF.update("formAcordo");
     }
@@ -137,20 +137,17 @@ public class AcordoBean implements Serializable {
         Juridica jur = db.pesquisaJuridicaPorPessoa(pessoa.getId());
 
         if (emailPara.equals("contabilidade")) {
-            if (!jur.getContabilidade().getPessoa().getEmail1().equals(pessoaEnvio.getEmail1())){
+            if (!jur.getContabilidade().getPessoa().getEmail1().equals(pessoaEnvio.getEmail1())) {
                 emailAntigo = jur.getContabilidade().getPessoa().getEmail1();
                 PF.openDialog("dlg_atualizar_email");
                 PF.update("formAcordo:panel_atualizar_email");
                 return;
             }
-        } else {
-            if (!jur.getPessoa().getEmail1().equals(pessoaEnvio.getEmail1())){
-                emailAntigo = jur.getPessoa().getEmail1();
-                PF.openDialog("dlg_atualizar_email");
-                PF.update("formAcordo:panel_atualizar_email");
-                return;
-            }
-
+        } else if (!jur.getPessoa().getEmail1().equals(pessoaEnvio.getEmail1())) {
+            emailAntigo = jur.getPessoa().getEmail1();
+            PF.openDialog("dlg_atualizar_email");
+            PF.update("formAcordo:panel_atualizar_email");
+            return;
         }
         enviarEmail();
         PF.update("formAcordo");
@@ -358,10 +355,7 @@ public class AcordoBean implements Serializable {
     }
 
     public List getListaFolha() {
-        AcordoDB dbac = new AcordoDBToplink();
-        List listaFolha = new ArrayList();
-        listaFolha = dbac.pesquisaTodasFolhas();
-        return listaFolha;
+        return new Dao().list(new FolhaEmpresa());
     }
 
     public void refreshForm() {
@@ -560,26 +554,24 @@ public class AcordoBean implements Serializable {
                     dataPrincipal = data.decrementarSemanas(1, dataPrincipal);
                     referencia = data.decrementarSemanas(1, dataPrincipal);// AQUI
                 }
-            } else {
-                if (frequencia == 30) {
-                    if ((DataHoje.menorData(data.decrementarMeses(1, date), vencimentoOut))
-                            && (!DataHoje.igualdadeData(data.decrementarMeses(1, date), vencimentoOut))) {
-                        i++;
-                        continue;
-                    }
-                    dataPrincipal = movimento.getVencimento();
-                    dataPrincipal = data.decrementarMeses(1, dataPrincipal);
-                    referencia = data.decrementarMeses(1, dataPrincipal);
-                } else if (frequencia == 7) {
-                    if ((DataHoje.menorData(data.decrementarSemanas(1, date), vencimentoOut))
-                            && (!DataHoje.igualdadeData(data.decrementarSemanas(1, date), vencimentoOut))) {
-                        i++;
-                        continue;
-                    }
-                    dataPrincipal = movimento.getVencimento();
-                    dataPrincipal = data.decrementarSemanas(1, dataPrincipal);
-                    referencia = data.decrementarSemanas(1, dataPrincipal);
+            } else if (frequencia == 30) {
+                if ((DataHoje.menorData(data.decrementarMeses(1, date), vencimentoOut))
+                        && (!DataHoje.igualdadeData(data.decrementarMeses(1, date), vencimentoOut))) {
+                    i++;
+                    continue;
                 }
+                dataPrincipal = movimento.getVencimento();
+                dataPrincipal = data.decrementarMeses(1, dataPrincipal);
+                referencia = data.decrementarMeses(1, dataPrincipal);
+            } else if (frequencia == 7) {
+                if ((DataHoje.menorData(data.decrementarSemanas(1, date), vencimentoOut))
+                        && (!DataHoje.igualdadeData(data.decrementarSemanas(1, date), vencimentoOut))) {
+                    i++;
+                    continue;
+                }
+                dataPrincipal = movimento.getVencimento();
+                dataPrincipal = data.decrementarSemanas(1, dataPrincipal);
+                referencia = data.decrementarSemanas(1, dataPrincipal);
             }
 
             while (j < ((List<Integer>) listas.get(i)).size()) {
@@ -661,22 +653,20 @@ public class AcordoBean implements Serializable {
                     referencia = movimento.getVencimento();// AQUI
                     dataPrincipal = data.incrementarSemanas(1, referencia);
                 }
-            } else {
-                if (frequencia == 30) {
-                    if (DataHoje.maiorData(data.incrementarMeses(1, date), ultimaData)) {
-                        i++;
-                        continue;
-                    }
-                    referencia = movimento.getVencimento();
-                    dataPrincipal = data.incrementarMeses(1, referencia);
-                } else if (frequencia == 7) {
-                    if (DataHoje.maiorData(data.incrementarSemanas(1, date), ultimaData)) {
-                        i++;
-                        continue;
-                    }
-                    referencia = movimento.getVencimento();
-                    dataPrincipal = data.incrementarSemanas(1, referencia);
+            } else if (frequencia == 30) {
+                if (DataHoje.maiorData(data.incrementarMeses(1, date), ultimaData)) {
+                    i++;
+                    continue;
                 }
+                referencia = movimento.getVencimento();
+                dataPrincipal = data.incrementarMeses(1, referencia);
+            } else if (frequencia == 7) {
+                if (DataHoje.maiorData(data.incrementarSemanas(1, date), ultimaData)) {
+                    i++;
+                    continue;
+                }
+                referencia = movimento.getVencimento();
+                dataPrincipal = data.incrementarSemanas(1, referencia);
             }
             while (j < ((List<Integer>) listas.get(i)).size()) {
                 ((Movimento) listaOperado.get(((List<Integer>) listas.get(i)).get(j)).getArgumento2()).setVencimento(dataPrincipal);
@@ -948,16 +938,14 @@ public class AcordoBean implements Serializable {
                 valorEntrada = Moeda.converteR$Float(valorTmp2);
                 return valorEntrada;
             }
+        } else if (valorTmp > (Moeda.multiplicarValores(totalOutra, (float) 0.05))
+                && valorTmp < (Moeda.multiplicarValores(totalOutra, (float) 0.8))) {
+            return Moeda.converteR$(valorEntrada);
         } else {
-            if (valorTmp > (Moeda.multiplicarValores(totalOutra, (float) 0.05))
-                    && valorTmp < (Moeda.multiplicarValores(totalOutra, (float) 0.8))) {
-                return Moeda.converteR$(valorEntrada);
-            } else {
-                float valorTmp2 = Moeda.divisaoValores(totalOutra, parcela);
-                if (parcela > 1) {
-                    valorEntrada = Moeda.converteR$Float(valorTmp2);
+            float valorTmp2 = Moeda.divisaoValores(totalOutra, parcela);
+            if (parcela > 1) {
+                valorEntrada = Moeda.converteR$Float(valorTmp2);
 //                    return Moeda.converteR$(valorEntrada);
-                }
             }
         }
         return Moeda.converteR$(valorEntrada);

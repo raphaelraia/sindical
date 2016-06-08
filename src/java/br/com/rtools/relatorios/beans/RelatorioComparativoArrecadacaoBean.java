@@ -3,8 +3,7 @@ package br.com.rtools.relatorios.beans;
 import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.ConvencaoPeriodo;
 import br.com.rtools.arrecadacao.GrupoCidade;
-import br.com.rtools.arrecadacao.db.GrupoCidadesDB;
-import br.com.rtools.arrecadacao.db.GrupoCidadesDBToplink;
+import br.com.rtools.arrecadacao.dao.GrupoCidadesDao;
 import br.com.rtools.arrecadacao.dao.OposicaoDao;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.financeiro.Servicos;
@@ -612,7 +611,7 @@ public class RelatorioComparativoArrecadacaoBean implements Serializable {
     public Map<String, Integer> getListCidadeBase() {
         if (listCidadeBase == null || listCidadeBase.isEmpty()) {
             listCidadeBase = new LinkedHashMap<>();
-            GrupoCidadesDB grupoCidadesDB = new GrupoCidadesDBToplink();
+            GrupoCidadesDao grupoCidadesDB = new GrupoCidadesDao();
             List<Cidade> list = grupoCidadesDB.pesquisaCidadesBase();
             for (int i = 0; i < list.size(); i++) {
                 listCidadeBase.put(list.get(i).getCidade(), list.get(i).getId());

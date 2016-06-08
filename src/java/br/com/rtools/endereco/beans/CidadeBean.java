@@ -1,7 +1,6 @@
 package br.com.rtools.endereco.beans;
 
-import br.com.rtools.arrecadacao.db.GrupoCidadesDB;
-import br.com.rtools.arrecadacao.db.GrupoCidadesDBToplink;
+import br.com.rtools.arrecadacao.dao.GrupoCidadesDao;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.endereco.dao.CidadeDao;
 import br.com.rtools.logSistema.NovoLog;
@@ -169,7 +168,7 @@ public class CidadeBean implements Serializable {
     public List<Cidade> getListCidade() {
         if (listCidade.isEmpty()) {
             CidadeDao db = new CidadeDao();
-            GrupoCidadesDB dbCids = new GrupoCidadesDBToplink();
+            GrupoCidadesDao dbCids = new GrupoCidadesDao();
             if (cidade.getCidade().isEmpty()) {
                 List lgc = dbCids.pesquisaCidadesBase();
                 if (!lgc.isEmpty()) {

@@ -5,7 +5,7 @@ import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.pessoa.beans.PesquisarProfissaoBean;
 import br.com.rtools.arrecadacao.Oposicao;
 import br.com.rtools.arrecadacao.dao.OposicaoDao;
-import br.com.rtools.arrecadacao.db.ConvencaoDBToplink;
+import br.com.rtools.arrecadacao.dao.ConvencaoDao;
 import br.com.rtools.arrecadacao.db.WebContabilidadeDB;
 import br.com.rtools.arrecadacao.db.WebContabilidadeDBToplink;
 import br.com.rtools.endereco.Endereco;
@@ -838,7 +838,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
             Demissao demissaox = (Demissao) dao.find(new Demissao(), Integer.parseInt(((SelectItem) getListaMotivoDemissao().get(idMotivoDemissao)).getDescription()));
             if (agendamento.getId() == -1) {
 
-                ConvencaoDBToplink convencaoDao = new ConvencaoDBToplink();
+                ConvencaoDao convencaoDao = new ConvencaoDao();
                 Convencao convencao = convencaoDao.findByEmpresa(pessoaEmpresa.getJuridica().getPessoa().getId());
                 if (convencao == null) {
                     GenericaMensagem.warn("Mensagem", "NENHUMA CONVENÇÃO ENCONTRADA PARA ESTA EMPRESA!");

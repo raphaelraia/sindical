@@ -1,4 +1,4 @@
-package br.com.rtools.arrecadacao.db;
+package br.com.rtools.arrecadacao.dao;
 
 import br.com.rtools.arrecadacao.ConvencaoCidade;
 import br.com.rtools.arrecadacao.ConvencaoPeriodo;
@@ -6,27 +6,11 @@ import br.com.rtools.principal.DB;
 import br.com.rtools.utilitarios.SalvarAcumuladoDB;
 import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import javax.persistence.Query;
 
-public class ConvencaoPeriodoDBTopLink extends DB implements ConvencaoPeriodoDB {
+public class ConvencaoPeriodoDao extends DB {
 
-    @Override
-    public ConvencaoPeriodo pesquisaCodigo(int id) {
-        ConvencaoPeriodo convencaoPeriodo = new ConvencaoPeriodo();
-        try {
-            Query qry = getEntityManager().createQuery(" select cp from ConvencaoPeriodo cp where cp.id = :id ");
-            qry.setParameter("id", id);
-            if (!qry.getResultList().isEmpty()) {
-                convencaoPeriodo = (ConvencaoPeriodo) qry.getSingleResult();
-            }
-        } catch (Exception e) {
-        }
-        return convencaoPeriodo;
-    }
-
-    @Override
     public List listaGrupoCidadePorConvencao(int idConvencao) {
         List<ConvencaoCidade> lista;
         try {
@@ -45,7 +29,6 @@ public class ConvencaoPeriodoDBTopLink extends DB implements ConvencaoPeriodoDB 
         return new ArrayList();
     }
 
-    @Override
     public boolean convencaoPeriodoExiste(ConvencaoPeriodo convencaoPeriodo) {
         try {
             Query query = getEntityManager().createQuery("                      "
@@ -67,7 +50,6 @@ public class ConvencaoPeriodoDBTopLink extends DB implements ConvencaoPeriodoDB 
         return false;
     }
 
-    @Override
     public List<ConvencaoPeriodo> listaConvencaoPeriodo() {
         try {
             Query query = getEntityManager().createQuery("      "
@@ -82,7 +64,6 @@ public class ConvencaoPeriodoDBTopLink extends DB implements ConvencaoPeriodoDB 
         return new ArrayList();
     }
 
-    @Override
     public ConvencaoPeriodo convencaoPeriodoConvencaoGrupoCidade(int idConvencao, int idGrupoCidade) {
         String queryString = "";
         if (idConvencao > 0 && idGrupoCidade > 0) {
@@ -109,7 +90,6 @@ public class ConvencaoPeriodoDBTopLink extends DB implements ConvencaoPeriodoDB 
         return new ConvencaoPeriodo();
     }
 
-    @Override
     public ConvencaoPeriodo convencaoPeriodoConvencaoGrupoCidade(Integer idConvencao, Integer idGrupoCidade, String referencia_hifen) {
         ConvencaoPeriodo convencaoPeriodo = new ConvencaoPeriodo();
         SalvarAcumuladoDB dB = new SalvarAcumuladoDBToplink();

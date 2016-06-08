@@ -3,7 +3,7 @@ package br.com.rtools.homologacao.beans;
 import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.pessoa.beans.PesquisarProfissaoBean;
 import br.com.rtools.arrecadacao.Oposicao;
-import br.com.rtools.arrecadacao.db.ConvencaoDBToplink;
+import br.com.rtools.arrecadacao.dao.ConvencaoDao;
 import br.com.rtools.atendimento.dao.AtendimentoDao;
 import br.com.rtools.endereco.Endereco;
 import br.com.rtools.endereco.dao.EnderecoDao;
@@ -970,7 +970,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
 
         if (agendamento.getId() == -1) {
 
-            ConvencaoDBToplink convencaoDao = new ConvencaoDBToplink();
+            ConvencaoDao convencaoDao = new ConvencaoDao();
             Convencao convencao = convencaoDao.findByEmpresa(pessoaEmpresa.getJuridica().getPessoa().getId());
             if (convencao == null) {
                 GenericaMensagem.warn("Mensagem", "NENHUMA CONVENÇÃO ENCONTRADA PARA ESTA EMPRESA!");

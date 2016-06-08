@@ -1,7 +1,6 @@
 package br.com.rtools.pessoa.beans;
 
-import br.com.rtools.arrecadacao.db.GrupoCidadesDB;
-import br.com.rtools.arrecadacao.db.GrupoCidadesDBToplink;
+import br.com.rtools.arrecadacao.dao.GrupoCidadesDao;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Filial;
@@ -281,7 +280,7 @@ public class FilialBean {
 //
 //    public List<DataObject> getListaCidade() {
 //        if (listaCidade.isEmpty()) {
-//            GrupoCidadesDB dbCids = new GrupoCidadesDBToplink();
+//            GrupoCidadesDB dbCids = new GrupoCidadesDao();
 //            //List<GrupoCidades> lis = dbCids.pesquisaTodos();
 //            List<Cidade> lis = dbCids.pesquisaCidadesBase();
 //
@@ -469,7 +468,7 @@ public class FilialBean {
 
     public List<CidadesAux> getListCidadesAux() {
         if (listCidadesAux.isEmpty()) {
-            GrupoCidadesDB dbCids = new GrupoCidadesDBToplink();
+            GrupoCidadesDao dbCids = new GrupoCidadesDao();
             //List<GrupoCidades> lis = dbCids.pesquisaTodos();
             List<Cidade> lis = dbCids.pesquisaCidadesBase();
 

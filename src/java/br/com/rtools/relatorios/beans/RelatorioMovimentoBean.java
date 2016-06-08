@@ -5,7 +5,7 @@ import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.ConvencaoCidade;
 import br.com.rtools.arrecadacao.beans.ConfiguracaoArrecadacaoBean;
 import br.com.rtools.arrecadacao.dao.ConvencaoCidadeDao;
-import br.com.rtools.arrecadacao.db.GrupoCidadesDBToplink;
+import br.com.rtools.arrecadacao.dao.GrupoCidadesDao;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
@@ -798,7 +798,7 @@ public class RelatorioMovimentoBean implements Serializable {
     public void loadListCidadesBase() {
         listCidadesBase = new ArrayList();
         selectedCidadesBase = new ArrayList();
-        GrupoCidadesDBToplink grupoCidadesDao = new GrupoCidadesDBToplink();
+        GrupoCidadesDao grupoCidadesDao = new GrupoCidadesDao();
         listCidadesBase = grupoCidadesDao.pesquisaCidadesBase();
     }
 

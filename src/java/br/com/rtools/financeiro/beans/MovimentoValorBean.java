@@ -3,8 +3,7 @@ package br.com.rtools.financeiro.beans;
 import br.com.rtools.arrecadacao.DescontoEmpregado;
 import br.com.rtools.arrecadacao.FolhaEmpresa;
 import br.com.rtools.arrecadacao.dao.DescontoEmpregadoDao;
-import br.com.rtools.arrecadacao.db.FolhaEmpresaDB;
-import br.com.rtools.arrecadacao.db.FolhaEmpresaDBToplink;
+import br.com.rtools.arrecadacao.dao.FolhaEmpresaDao;
 import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.Movimento;
@@ -14,6 +13,7 @@ import br.com.rtools.financeiro.db.MovimentoDB;
 import br.com.rtools.financeiro.db.MovimentoDBToplink;
 import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
+import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.SalvarAcumuladoDB;
@@ -24,6 +24,7 @@ import javax.faces.bean.SessionScoped;
 @ManagedBean
 @SessionScoped
 public abstract class MovimentoValorBean {
+
     private DescontoEmpregado descontoEmpregado = new DescontoEmpregado();
     private FolhaEmpresa folhaEmpresa = new FolhaEmpresa();
     private String valor = "0";
@@ -55,7 +56,7 @@ public abstract class MovimentoValorBean {
                 ref,
                 idServico,
                 idPessoa);
-        FolhaEmpresaDB dbFolha = new FolhaEmpresaDBToplink();
+        FolhaEmpresaDao dbFolha = new FolhaEmpresaDao();
         folha = dbFolha.pesquisaPorPessoa(
                 idPessoa,
                 idTipo,
@@ -216,67 +217,65 @@ public abstract class MovimentoValorBean {
                     }
                 }
                 sv.comitarTransacao();
-            } else {
-                if (valorMes != 0) {
-                    JuridicaDB jurDB = new JuridicaDBToplink();
-                    //FolhaEmpresaDB dbFolha = new FolhaEmpresaDBToplink();
-                    SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-                    sv.abrirTransacao();
+            } else if (valorMes != 0) {
+                JuridicaDB jurDB = new JuridicaDBToplink();
+                //FolhaEmpresaDB dbFolha = new FolhaEmpresaDao();
+                SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+                sv.abrirTransacao();
 
-                    if (folhaEmpresa.getId() == -1) {
-                        folhaEmpresa.setValorMes(valorMes);
-                        folhaEmpresa.setNumFuncionarios(qtdFuncionario);
-                        folhaEmpresa.setJuridica(jurDB.pesquisaJuridicaPorPessoa(movimento.getPessoa().getId()));
-                        folhaEmpresa.setReferencia(movimento.getReferencia());
-                        folhaEmpresa.setTipoServico(movimento.getTipoServico());
-                        //salvar(folhaEmpresa);
-                        sv.inserirObjeto(folhaEmpresa);
-                    } else {
-                        folhaEmpresa.setValorMes(valorMes);
-                        folhaEmpresa.setAlteracoes(folhaEmpresa.getAlteracoes() + 1);
-                        folhaEmpresa.setNumFuncionarios(qtdFuncionario);
-                        //salvar(folhaEmpresa);
-                        sv.alterarObjeto(folhaEmpresa);
-                    }
-
-                    if (valorMes == 0) {
-                        return "";
-                    }
-                    movimento.setValor(
-                            Moeda.converteFloatR$Float(
-                                    Moeda.somaValores(
-                                            Moeda.multiplicarValores(
-                                                    valorMes,
-                                                    (descontoEmpregado.getPercentual() / 100)),
-                                            Moeda.multiplicarValores(
-                                                    folhaEmpresa.getNumFuncionarios(),
-                                                    descontoEmpregado.getValorEmpregado()))));
-                    if (salvar) {
-                        if (movimento.getId() == -1) {
-                            //sv.inserirObjeto(movimento);
-                        } else {
-                            // SE ALTERAR O VENCIMENTO E FOR COBRANÇA REGISTRADA, ENTÃO ALTERAR A DATA DE REGISTRO PARA QUANDO IMPRIMIR REGISTRAR NOVAMENTE
-                            MovimentoDB dbm = new MovimentoDBToplink();
-                            Boleto bol = dbm.pesquisaBoletos(movimento.getNrCtrBoleto());
-                            if (bol != null) {
-                                if (bol.getContaCobranca().isCobrancaRegistrada()){
-                                    bol.setDtCobrancaRegistrada(null);
-                                    sv.alterarObjeto(bol);
-                                }
-                            }
-
-                            sv.alterarObjeto(movimento);
-                            Lote lote = (Lote) sv.pesquisaCodigo(movimento.getLote().getId(), "Lote");
-                            lote.setValor(movimento.getValor());
-                            sv.alterarObjeto(lote);
-
-                        }
-                    }
-                    sv.comitarTransacao();
-
-                    folhaEmpresa = new FolhaEmpresa();
-                    descontoEmpregado = new DescontoEmpregado();
+                if (folhaEmpresa.getId() == -1) {
+                    folhaEmpresa.setValorMes(valorMes);
+                    folhaEmpresa.setNumFuncionarios(qtdFuncionario);
+                    folhaEmpresa.setJuridica(jurDB.pesquisaJuridicaPorPessoa(movimento.getPessoa().getId()));
+                    folhaEmpresa.setReferencia(movimento.getReferencia());
+                    folhaEmpresa.setTipoServico(movimento.getTipoServico());
+                    //salvar(folhaEmpresa);
+                    sv.inserirObjeto(folhaEmpresa);
+                } else {
+                    folhaEmpresa.setValorMes(valorMes);
+                    folhaEmpresa.setAlteracoes(folhaEmpresa.getAlteracoes() + 1);
+                    folhaEmpresa.setNumFuncionarios(qtdFuncionario);
+                    //salvar(folhaEmpresa);
+                    sv.alterarObjeto(folhaEmpresa);
                 }
+
+                if (valorMes == 0) {
+                    return "";
+                }
+                movimento.setValor(
+                        Moeda.converteFloatR$Float(
+                                Moeda.somaValores(
+                                        Moeda.multiplicarValores(
+                                                valorMes,
+                                                (descontoEmpregado.getPercentual() / 100)),
+                                        Moeda.multiplicarValores(
+                                                folhaEmpresa.getNumFuncionarios(),
+                                                descontoEmpregado.getValorEmpregado()))));
+                if (salvar) {
+                    if (movimento.getId() == -1) {
+                        //sv.inserirObjeto(movimento);
+                    } else {
+                        // SE ALTERAR O VENCIMENTO E FOR COBRANÇA REGISTRADA, ENTÃO ALTERAR A DATA DE REGISTRO PARA QUANDO IMPRIMIR REGISTRAR NOVAMENTE
+                        MovimentoDB dbm = new MovimentoDBToplink();
+                        Boleto bol = dbm.pesquisaBoletos(movimento.getNrCtrBoleto());
+                        if (bol != null) {
+                            if (bol.getContaCobranca().isCobrancaRegistrada()) {
+                                bol.setDtCobrancaRegistrada(null);
+                                sv.alterarObjeto(bol);
+                            }
+                        }
+
+                        sv.alterarObjeto(movimento);
+                        Lote lote = (Lote) sv.pesquisaCodigo(movimento.getLote().getId(), "Lote");
+                        lote.setValor(movimento.getValor());
+                        sv.alterarObjeto(lote);
+
+                    }
+                }
+                sv.comitarTransacao();
+
+                folhaEmpresa = new FolhaEmpresa();
+                descontoEmpregado = new DescontoEmpregado();
             }
 
             esconder();
@@ -291,7 +290,7 @@ public abstract class MovimentoValorBean {
 
     protected FolhaEmpresa pesquisaFolhaEmpresa(int idPessoa, int idTipoServico, String referencia) {
         FolhaEmpresa result = null;
-        FolhaEmpresaDB dbFolha = new FolhaEmpresaDBToplink();
+        FolhaEmpresaDao dbFolha = new FolhaEmpresaDao();
         result = dbFolha.pesquisaPorPessoa(idPessoa, idTipoServico, referencia);
         if (result != null) {
             return result;
@@ -301,31 +300,21 @@ public abstract class MovimentoValorBean {
     }
 
     public String salvar(Object object, int id) {
-        FinanceiroDB db = new FinanceiroDBToplink();
+        Dao dao = new Dao();
         if (id == -1) {
-            db.insert(object);
+            dao.save(object, true);
         } else {
-            db.getEntityManager().getTransaction().begin();
-            if (db.update(object)) {
-                db.getEntityManager().getTransaction().commit();
-            } else {
-                db.getEntityManager().getTransaction().rollback();
-            }
+            dao.update(object, true);
         }
         return null;
     }
 
     public String salvar(FolhaEmpresa object) {
-        FolhaEmpresaDB db = new FolhaEmpresaDBToplink();
+        Dao dao = new Dao();
         if (object.getId() == -1) {
-            db.insert(object);
+            dao.save(object, true);
         } else {
-            db.getEntityManager().getTransaction().begin();
-            if (db.update(object)) {
-                db.getEntityManager().getTransaction().commit();
-            } else {
-                db.getEntityManager().getTransaction().rollback();
-            }
+            dao.update(object, true);
         }
         return null;
     }

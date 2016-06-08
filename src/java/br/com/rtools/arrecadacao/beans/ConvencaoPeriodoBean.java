@@ -3,8 +3,7 @@ package br.com.rtools.arrecadacao.beans;
 import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.ConvencaoCidade;
 import br.com.rtools.arrecadacao.ConvencaoPeriodo;
-import br.com.rtools.arrecadacao.db.ConvencaoPeriodoDB;
-import br.com.rtools.arrecadacao.db.ConvencaoPeriodoDBTopLink;
+import br.com.rtools.arrecadacao.dao.ConvencaoPeriodoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DaoInterface;
@@ -67,7 +66,7 @@ public class ConvencaoPeriodoBean {
     }
 
     public void save() {
-        ConvencaoPeriodoDB convencaoPeriodoDB = new ConvencaoPeriodoDBTopLink();
+        ConvencaoPeriodoDao convencaoPeriodoDB = new ConvencaoPeriodoDao();
         if (getConvencaoPeriodo().getReferenciaInicial().equals("__/____") || getConvencaoPeriodo().getReferenciaInicial().equals("")) {
             setMessage("Informar a referência inicial!");
             GenericaMensagem.warn("Sistema", "Informar a referência inicial!");
@@ -177,7 +176,7 @@ public class ConvencaoPeriodoBean {
 
     public List<SelectItem> getListGrupoCidade() {
         listGrupoCidade.clear();
-        ConvencaoPeriodoDB db = new ConvencaoPeriodoDBTopLink();
+        ConvencaoPeriodoDao db = new ConvencaoPeriodoDao();
         List<ConvencaoCidade> list = db.listaGrupoCidadePorConvencao(Integer.parseInt(listConvencao.get(idConvencao).getDescription()));
         for (int i = 0; i < list.size(); i++) {
             listGrupoCidade.add(new SelectItem(i,
@@ -217,7 +216,7 @@ public class ConvencaoPeriodoBean {
 
     public List<ConvencaoPeriodo> getListConvencaoPeriodos() {
         if (listConvencaoPeriodos.isEmpty()) {
-            ConvencaoPeriodoDB db = new ConvencaoPeriodoDBTopLink();
+            ConvencaoPeriodoDao db = new ConvencaoPeriodoDao();
             setListConvencaoPeriodos((List<ConvencaoPeriodo>) db.listaConvencaoPeriodo());
         }
         return listConvencaoPeriodos;

@@ -3,8 +3,7 @@ package br.com.rtools.arrecadacao.beans;
 import br.com.rtools.arrecadacao.Patronal;
 import br.com.rtools.arrecadacao.PisoSalarial;
 import br.com.rtools.arrecadacao.PisoSalarialLote;
-import br.com.rtools.arrecadacao.db.WebREPISDB;
-import br.com.rtools.arrecadacao.db.WebREPISDBToplink;
+import br.com.rtools.arrecadacao.dao.WebREPISDao;
 import br.com.rtools.financeiro.SalarioMinimo;
 import br.com.rtools.financeiro.dao.SalarioMinimoDao;
 import br.com.rtools.logSistema.NovoLog;
@@ -292,7 +291,7 @@ public class PisoSalarialBean implements Serializable {
 
     public String edit(PisoSalarialLote psl) {
         pisoSalarialLote = psl;
-        listPisoSalarial = new WebREPISDBToplink().listaPisoSalarialLote(pisoSalarialLote.getId());
+        listPisoSalarial = new WebREPISDao().listaPisoSalarialLote(pisoSalarialLote.getId());
         ano = String.valueOf(pisoSalarialLote.getAno());
         for (int i = 0; i < listComboPorte.size(); i++) {
             if (pisoSalarialLote.getPorte().getId() == Integer.parseInt(listComboPorte.get(i).getDescription())) {
@@ -337,7 +336,7 @@ public class PisoSalarialBean implements Serializable {
 
     public List<PisoSalarial> getListPisoSalarial() {
         if (listPisoSalarial.isEmpty() && pisoSalarialLote.getId() != -1) {
-            WebREPISDB di = new WebREPISDBToplink();
+            WebREPISDao di = new WebREPISDao();
             listPisoSalarial = di.listaPisoSalarialLote(pisoSalarialLote.getId());
         }
         return listPisoSalarial;

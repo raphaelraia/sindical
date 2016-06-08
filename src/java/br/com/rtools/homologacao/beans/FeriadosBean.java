@@ -1,7 +1,6 @@
 package br.com.rtools.homologacao.beans;
 
-import br.com.rtools.arrecadacao.db.GrupoCidadesDB;
-import br.com.rtools.arrecadacao.db.GrupoCidadesDBToplink;
+import br.com.rtools.arrecadacao.dao.GrupoCidadesDao;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.homologacao.Feriados;
 import br.com.rtools.homologacao.dao.FeriadosDao;
@@ -225,7 +224,7 @@ public class FeriadosBean implements Serializable {
     public List<SelectItem> getListCidade() {
         if (chkCidades) {
             if (listCidade.isEmpty()) {
-                GrupoCidadesDB db = new GrupoCidadesDBToplink();
+                GrupoCidadesDao db = new GrupoCidadesDao();
                 List<Cidade> listaCidades = db.pesquisaTodosCidadeAgrupada();
                 for (int i = 0; i < listaCidades.size(); i++) {
                     listCidade.add(new SelectItem(i,

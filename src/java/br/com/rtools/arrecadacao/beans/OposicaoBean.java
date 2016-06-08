@@ -3,8 +3,7 @@ package br.com.rtools.arrecadacao.beans;
 import br.com.rtools.arrecadacao.ConvencaoPeriodo;
 import br.com.rtools.arrecadacao.Oposicao;
 import br.com.rtools.arrecadacao.OposicaoPessoa;
-import br.com.rtools.arrecadacao.db.ConvencaoPeriodoDB;
-import br.com.rtools.arrecadacao.db.ConvencaoPeriodoDBTopLink;
+import br.com.rtools.arrecadacao.dao.ConvencaoPeriodoDao;
 import br.com.rtools.arrecadacao.dao.OposicaoDao;
 import br.com.rtools.associativo.ConfiguracaoSocial;
 import br.com.rtools.associativo.MatriculaSocios;
@@ -508,7 +507,7 @@ public class OposicaoBean implements Serializable {
                 if (!oposicao.getEmissao().isEmpty()) {
                     OposicaoDao oposicaoDao = new OposicaoDao();
                     List list = oposicaoDao.pesquisaPessoaConvencaoGrupoCidade(oposicao.getJuridica().getId());
-                    ConvencaoPeriodoDB di = new ConvencaoPeriodoDBTopLink();
+                    ConvencaoPeriodoDao di = new ConvencaoPeriodoDao();
                     if (!list.isEmpty()) {
                         String referencia_hifen = DataHoje.livre(oposicao.getDtEmissao(), "YYYY-MM");
                         convencaoPeriodo = di.convencaoPeriodoConvencaoGrupoCidade((Integer) list.get(0), (Integer) list.get(1), referencia_hifen);
