@@ -20,10 +20,6 @@
                 background-color: #ff9999!important;
             }
         </style>
-
-        <script type="text/javascript">
-
-        </script>
     </h:head>
     <h:body>
         <!-- INICIA DIV wrap e main -->
@@ -41,11 +37,9 @@
                         <h:panelGrid style="clear: both;">
                             <h:form id="formRecepcao">
                                 <c:set scope="request" var="object" value="${recepcaoBean.agendamento}"/>
-                                <!-- <p:poll global="false" interval="10" update=":formRecepcao:i_tabview:i_status :formRecepcao:i_tabview:i_panel_tbl" autoStart="# {recepcaoBean.startPooling}"/> -->
                                 <h:panelGrid id="i_polling">
                                     <p:poll global="false" interval="1" update=":formRecepcao:i_tabview:i_progress_update" listener="#{recepcaoBean.progress()}" autoStart="#{recepcaoBean.startPooling}" delay="10" stop="#{recepcaoBean.openDialog}" ignoreAutoUpdate="true"/>
                                 </h:panelGrid>
-
                                 <p:tabView id="i_tabview" style="width: 1000px;" activeIndex="#{recepcaoBean.indexTab}">
                                     <p:ajax event="tabChange" update=":formRecepcao" global="false"/>
                                     <p:tab title="Homologações">
@@ -413,16 +407,18 @@
                                 </p:tabView>
 
                                 <p:dialog widgetVar="dlg_recepcao" header="Dados da Homologação" resizable="false" modal="true" visible="#{recepcaoBean.openDialog}" closeOnEscape="true" height="550" width="920" >
-                                    <p:ajax event="close" listener="#{recepcaoBean.fecharModal()}" update="formRecepcao"/>  
-                                    <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', 'POSSUÍ OPOSIÇÃO CADASTRADA')}" escape="false" rendered="#{recepcaoBean.existeOposicao}" />
+                                    <p:ajax event="close" listener="#{recepcaoBean.fecharModal()}" update="formRecepcao"/>
+                                    <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', 'POSSUÍ OPOSIÇÃO CADASTRADA')}" escape="false" rendered="#{recepcaoBean.existeOposicao}" />                                        
                                     <p:messages showDetail="true" closable="true"/>
                                     <h:panelGrid id="i_panel_homologacao">
                                         <p:panel styleClass="fundoCinza">
-                                            <h:panelGrid columns="4">
+                                            <h:panelGrid columns="6">
                                                 <h:outputLabel value="DATA: " />
                                                 <p:inputText value=" #{recepcaoBean.agendamentoEdit.data}" styleClass="bold text-center font-size-12" readonly="true" size="8"/>
                                                 <h:outputLabel value="HORÁRIO: " style="margin-left: 30px; "/>
                                                 <p:inputText value="#{recepcaoBean.agendamentoEdit.horarios.hora}" readonly="true" size="3" styleClass="bold text-center font-size-12"/>
+                                                <h:outputLabel value="SENHA: " style="margin-left: 30px; "/>
+                                                <p:inputText value="#{recepcaoBean.agendamentoEdit.senha.senha}" readonly="true" size="3" styleClass="bold text-center font-size-12 bg-yellow-ligth"/>
                                             </h:panelGrid>
                                         </p:panel>
 
@@ -573,9 +569,10 @@
                                         </p:panel>
                                     </h:panelGrid>
                                     <f:facet name="footer">
-                                        <h:panelGrid columns="8">
+                                        <h:panelGrid columns="9">
                                             <p:commandButton value="Atualizar" action="#{recepcaoBean.salvar}" disabled="#{controleAcessoBean.botaoSalvar}" rendered="#{recepcaoBean.agendamentoEdit.status.id != 3 and recepcaoBean.agendamentoEdit.status.id != 4 and recepcaoBean.agendamentoEdit.status.id != 7}" update="formRecepcao" />
                                             <p:commandButton value="Gerar Senha" onclick="PF('dlg_gerar_senha').show()" rendered="#{recepcaoBean.agendamentoEdit.status.id != 3 and recepcaoBean.agendamentoEdit.status.id != 4 and recepcaoBean.agendamentoEdit.status.id != 7 and recepcaoBean.registro.senhaHomologacao}" disabled="#{controleAcessoBean.botaoSalvar}" />
+                                            <p:commandButton value="Cancelar Senha" onclick="PF('dlg_desfazer_senha').show()" rendered="#{recepcaoBean.agendamentoEdit.status.id != 3 and recepcaoBean.agendamentoEdit.status.id != 4 and recepcaoBean.agendamentoEdit.status.id != 7 and recepcaoBean.registro.senhaHomologacao and recepcaoBean.agendamentoEdit.senha.id != -1}"  disabled="#{controleAcessoBean.botaoExcluir}" />
                                             <p:commandButton value="Cancelar Agendamento" onclick="PF('dlg_cancelar').show()" rendered="#{recepcaoBean.agendamentoEdit.status.id != 3 and recepcaoBean.agendamentoEdit.status.id != 4 and recepcaoBean.agendamentoEdit.status.id != 7}" disabled="#{controleAcessoBean.botaoExcluir or recepcaoBean.agendamentoEdit.status.id == 3}" />
                                             <p:commandButton value="Voltar" action="#{recepcaoBean.fecharModal()}" oncomplete="PF('dlg_recepcao').hide()" global="false" />
                                             <p:commandButton value="Anexar documentos" type="button" onclick="PF('dgl_upload').show();" id="id_btn_uploads"/>
@@ -594,6 +591,16 @@
                                     </f:facet>
                                 </p:dialog>
 
+                                <p:dialog widgetVar="dlg_desfazer_senha" header="Desfazer Senha" resizable="false" modal="true">
+                                    <h:outputLabel value="Deseja realmente DESFAZER esta senha? " />
+                                    <f:facet name="footer">
+                                        <h:panelGrid style="clear: both" columns="2">
+                                            <p:commandButton value="Sim" onclick="PF('dlg_desfazer_senha').hide()" action="#{recepcaoBean.desfazerSenha()}" update="formRecepcao" title="Gerar a Senha" icon="ui-icon-check" />
+                                            <p:commandButton value="Fechar" onclick="PF('dlg_desfazer_senha').hide()" icon="ui-icon-close"/>  
+                                        </h:panelGrid>                                        
+                                    </f:facet>
+                                </p:dialog>
+
                                 <p:dialog widgetVar="dlg_cancelar" header="Deseja realmente CANCELAR essa Homologação?" resizable="false" modal="true">
                                     <h:panelGrid columns="1" style="width: 100%">
                                         <h:outputLabel value="Digite o motivo para o cancelamento" style="color: red"/>
@@ -606,9 +613,6 @@
                                         </h:panelGrid>                                        
                                     </f:facet>
                                 </p:dialog>
-                                <!-- <p:commandLink style="width: 0; height: 0" id="update_grid">
-                                    <p:ajax event="click" update="i_panel_tbl" listener="#{recepcaoBean.loadListHorarios()}" />
-                                </p:commandLink> -->
                             </h:form>
                             <h:form id="form_recepcao_upload">
                                 <p:dialog widgetVar="dgl_anexos" modal="true" width="400" height="300" header="Anexos" closable="true" dynamic="true" closeOnEscape="true">

@@ -1160,4 +1160,32 @@ public class HomologacaoDao extends DB {
         }
         return null;
     }
+
+    public List pesquisaPorFuncionario(Integer pessoa_id) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT A FROM Agendamento AS A WHERE A.pessoaEmpresa.fisica.pessoa.id = :pessoa_id ORDER BY A.dtData DESC ");
+            query.setParameter("pessoa_id", pessoa_id);
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return list;
+            }
+        } catch (Exception e) {
+
+        }
+        return null;
+    }
+
+    public List pesquisaPorEmpresa(Integer pessoa_id) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT A FROM Agendamento AS A WHERE A.pessoaEmpresa.juridica.pessoa.id = :pessoa_id ORDER BY A.dtData DESC ");
+            query.setParameter("pessoa_id", pessoa_id);
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return list;
+            }
+        } catch (Exception e) {
+
+        }
+        return null;
+    }
 }

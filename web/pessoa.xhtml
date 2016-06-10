@@ -316,6 +316,64 @@
                                 </p:panel>
                             </h:panelGroup>
 
+                            <!-- HOMOLOGAÇÃO -->
+
+                            <h:panelGroup layout="block" rendered="#{pessoaBean.selectDetalhes eq 'homologacao_funcionario' or pessoaBean.selectDetalhes eq 'homologacao_empresa'}">
+                                <p:panel header="Homologaçao" id="i_homologacao">
+                                    <p:dataTable value="#{pessoaBean.listHomologacao}" var="homologacao" emptyMessage="Nenhum registro encontrado!" styleClass="margin" rows="10" paginator="true">
+                                        <p:column width="15">
+                                            <p:rowToggler />                                                
+                                        </p:column>                                        
+                                        <p:column headerText="Emissão" width="80" styleClass="text-center">
+                                            #{homologacao.emissao}
+                                        </p:column>
+                                        <p:column headerText="Data" width="80" styleClass="text-center">
+                                            #{homologacao.data}
+                                        </p:column>
+                                        <p:column headerText="Hora" width="35" styleClass="text-center">
+                                            #{homologacao.horarios.hora}
+                                        </p:column>
+                                        <p:column headerText="CPF" width="140" styleClass="text-center" rendered="#{pessoaBean.selectDetalhes eq 'homologacao_empresa'}">
+                                            #{homologacao.pessoaEmpresa.fisica.pessoa.documento}
+                                        </p:column>
+                                        <p:column headerText="Nome" rendered="#{pessoaBean.selectDetalhes eq 'homologacao_empresa'}">
+                                            #{homologacao.pessoaEmpresa.fisica.pessoa.nome}
+                                        </p:column>
+                                        <p:column headerText="CNPJ" width="140" styleClass="text-center" rendered="#{pessoaBean.selectDetalhes eq 'homologacao_funcionario'}">
+                                            #{homologacao.pessoaEmpresa.juridica.pessoa.documento}
+                                        </p:column>
+                                        <p:column headerText="Empresa" rendered="#{pessoaBean.selectDetalhes eq 'homologacao_funcionario'}">
+                                            #{homologacao.pessoaEmpresa.juridica.pessoa.nome}
+                                        </p:column>
+                                        <p:column width="30" styleClass="text-center" rendered="#{pessoaBean.selectDetalhes eq 'homologacao_funcionario'}">
+                                            <p:commandButton icon="ui-icon-contact" update=":form_pessoa:i_pessoa_juridica_card" onclick="PF('dlg_pessoa_juridica_card').show()" action="#{pessoaCardBean.cardJuridica(homologacao.pessoaEmpresa.juridica.pessoa.id)}" title="Ver detalhes" />
+                                        </p:column>
+                                        <p:column width="30" styleClass="text-center" rendered="#{pessoaBean.selectDetalhes eq 'homologacao_empresa'}">
+                                            <p:commandButton icon="ui-icon-contact" update=":form_pessoa:i_pessoa_fisica_card" onclick="PF('dlg_pessoa_fisica_card').show()" action="#{pessoaCardBean.cardFisica(homologacao.pessoaEmpresa.fisica.pessoa.id)}" title="Ver detalhes" />
+                                        </p:column>
+                                        <p:column  width="60" styleClass="text-center #{homologacao.pessoaEmpresa.fisica.pessoa.socios.id != -1 ? 'bold' : ''}" rendered="#{pessoaBean.selectDetalhes eq 'homologacao_empresa'}">
+                                            #{homologacao.pessoaEmpresa.fisica.pessoa.socios.id != -1 ? 'SÓCIO' : ''}
+                                        </p:column>                                        
+                                        <p:column headerText="Status" width="80" styleClass="text-center">
+                                            #{homologacao.status.descricao}
+                                        </p:column>
+                                        <p:rowExpansion>
+                                            <br />
+                                            <strong>Função:</strong> #{homologacao.pessoaEmpresa.funcao.profissao} <br /><br />
+                                            <strong>Motivo Demissão:</strong> #{homologacao.demissao.descricao} <br /><br />
+                                            <strong>Data Admissão:</strong> #{homologacao.pessoaEmpresa.admissao} <br /><br />
+                                            <strong>Data Demissão:</strong> #{homologacao.pessoaEmpresa.demissao} <br /><br />
+                                            <strong>Local da Homologação:</strong> #{homologacao.filial.filial.pessoa.nome} <br /><br />
+                                            <strong>Agendador:</strong> #{homologacao.agendador.pessoa.nome} <br /><br />
+                                            <strong>Homologador:</strong> #{homologacao.homologador.pessoa.nome} <br /><br />
+                                        </p:rowExpansion>                                        
+                                    </p:dataTable>
+                                    <f:facet name="footer">
+                                        * Consulte mais informações em Menu Homologação > Movimento > Recepção
+                                    </f:facet>
+                                </p:panel>
+                            </h:panelGroup>
+
 
                             <!-- OPOSIÇÕES -->
 

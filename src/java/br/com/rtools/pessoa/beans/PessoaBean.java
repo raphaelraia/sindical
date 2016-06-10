@@ -9,6 +9,8 @@ import br.com.rtools.associativo.beans.SorteioMovimentoBean;
 import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.cobranca.beans.TmktHistoricoBean;
 import br.com.rtools.digitalizacao.beans.DigitalizacaoBean;
+import br.com.rtools.homologacao.Agendamento;
+import br.com.rtools.homologacao.dao.HomologacaoDao;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
@@ -46,6 +48,7 @@ public class PessoaBean implements Serializable {
     private String selectDetalhes;
     private String tipoPessoa;
     private List<Socios> listMatriculasInativas;
+    private List<Agendamento> listHomologacao;
 
     @PostConstruct
     public void init() {
@@ -60,6 +63,7 @@ public class PessoaBean implements Serializable {
         listaPessoa = new ArrayList();
         listSelectDetalhes = new ArrayList();
         listMatriculasInativas = new ArrayList();
+        listHomologacao = new ArrayList();
         selectDetalhes = "";
         if (GenericaSessao.exists("tipoPessoa")) {
             tipoPessoa = GenericaSessao.getString("tipoPessoa", true);
@@ -154,6 +158,14 @@ public class PessoaBean implements Serializable {
             case "matriculas":
                 listMatriculasInativas = new ArrayList();
                 listMatriculasInativas = new SociosDao().pesquisaHistoricoDeInativacao(pessoa.getId());
+                break;
+            case "homologacao_funcionario":
+                listHomologacao = new ArrayList();
+                listHomologacao = new HomologacaoDao().pesquisaPorFuncionario(pessoa.getId());
+                break;
+            case "homologacao_empresa":
+                listHomologacao = new ArrayList();
+                listHomologacao = new HomologacaoDao().pesquisaPorEmpresa(pessoa.getId());
                 break;
         }
     }
@@ -336,11 +348,12 @@ public class PessoaBean implements Serializable {
             listSelectDetalhes.add(new SelectItem("oposicoes", "Oposições", "CONSULTA OPOSIÇÃO (PESSOA FÍSICA)", cab.verificarPermissao("consulta_oposicao_pessoa_fisica", 4)));
             listSelectDetalhes.add(new SelectItem("movimentos_fisica", "Movimentos", "CONSULTA MOVIMENTOS (PESSOA FÍSICA)", cab.verificarPermissao("consulta_movimentos_fisica", 4)));
             listSelectDetalhes.add(new SelectItem("frequencia_catraca", "Frequência Catraca", "CONSULTA FREQUÊNCIA CATRACA", cab.verificarPermissao("consulta_frequencia_catraca", 4)));
-            listSelectDetalhes.add(new SelectItem("matriculas", "Matrículas", "CONSULTA MATRÍCULAS", cab.verificarPermissao("consulta_matriculas", 4)));
+            listSelectDetalhes.add(new SelectItem("homologacao_funcionario", "Homologação", "CONSULTA HOMOLOGAÇÃO", cab.verificarPermissao("homologacao_funcionario", 4)));
         }
         // PESSOA JURÍDICA
         if (tipoPessoa.equals("pessoaJuridica")) {
             listSelectDetalhes.add(new SelectItem("repis", "Repis", "CONSULTA REPIS (PESSOA JURÍDICA)", cab.verificarPermissao("consulta_repis", 4)));
+            listSelectDetalhes.add(new SelectItem("homologacao_empresa", "Homologação", "CONSULTA HOMOLOGAÇÃO", cab.verificarPermissao("homologacao_empresa", 4)));
         }
         // PESSOA FÍSICA E JURÍDICA
         if (tipoPessoa.equals("pessoaFisica") || tipoPessoa.equals("pessoaJuridica")) {
@@ -387,5 +400,13 @@ public class PessoaBean implements Serializable {
 
     public void setListMatriculasInativas(List<Socios> listMatriculasInativas) {
         this.listMatriculasInativas = listMatriculasInativas;
+    }
+
+    public List<Agendamento> getListHomologacao() {
+        return listHomologacao;
+    }
+
+    public void setListHomologacao(List<Agendamento> listHomologacao) {
+        this.listHomologacao = listHomologacao;
     }
 }
