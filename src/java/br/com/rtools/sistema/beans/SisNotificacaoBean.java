@@ -108,6 +108,10 @@ public class SisNotificacaoBean implements Serializable {
 
     public void save() {
         Dao dao = new Dao();
+        if(listSisNotificacaoCategoria.isEmpty()) {
+            GenericaMensagem.warn("Validação", "Cadastrar categorias!");
+            return;
+        }
         if (sisNotificacao.getDtInicial() == null) {
             GenericaMensagem.warn("Validação", "Informar data de expiração!");
             return;

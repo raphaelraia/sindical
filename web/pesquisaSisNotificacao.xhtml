@@ -44,7 +44,7 @@
                                 #{sisNotificacao.sisNotificacaoCategoria.descricao}
                             </p:column>
                             <p:column headerText="Titulo">
-                                #{sisNotificacao.titulo}
+                                <h:outputText escape="false" value="#{sisNotificacao.observacao}" style="border: 0; width: 100%; " />
                             </p:column>
                         </p:dataTable>
                     </h:panelGrid>

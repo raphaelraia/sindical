@@ -175,10 +175,11 @@
                                                 <p:commandLink value="Cadastrar Módulo/Rotina" action="#{chamadaPaginaBean.permissao()}" styleClass="font-color-red"/>                                    
                                             </h:panelGrid>
                                         </f:facet>
-                                        <h:panelGrid columns="4" styleClass="margin-top-max" id="idRenderTabela">
+                                        <h:panelGrid columns="5" styleClass="margin-top-max" id="idRenderTabela">
                                             <p:outputLabel value="Módulo" />
                                             <p:outputLabel value="Rotina" />
                                             <p:outputLabel value="Evento" id="idFiltroEvento" />
+                                            <p:outputLabel value="Expira em?"  />
                                             <h:column></h:column>
                                             <p:selectOneMenu value="#{usuarioBean.idModulo}" id="idModulo">
                                                 <p:ajax event="change" listener="#{usuarioBean.limparListaUsuarioAcesso}" update="idRenderTabela tblUsuarioAcesso" />
@@ -192,6 +193,9 @@
                                                 <p:ajax event="change" listener="#{usuarioBean.limparListaUsuarioAcessox}" update="idRenderTabela tblUsuarioAcesso" />
                                                 <f:selectItems value="#{usuarioBean.listaEventos}"/>
                                             </p:selectOneMenu>
+                                            <p:inputMask value="#{usuarioBean.dataExpiraUsuarioAcesso}" converter="#{isDateString}" mask="99/99/9999" size="10" styleClass="text-center">
+                                                <p:ajax event="change" update="@this"/>
+                                            </p:inputMask>
                                             <p:commandButton icon="ui-icon-plus" action="#{usuarioBean.addUsuarioAcesso()}" update="idRenderTabela tblUsuarioAcesso" styleClass="no-margin" title="Adicionar permissão personalizada" rendered="#{usuarioBean.usuario.pessoa.id != -1}" disabled="#{controleAcessoBean.botaoSalvar}" />
                                             <h:column>
                                                 <p:selectBooleanCheckbox id="idFiltroModulo"  value="#{usuarioBean.filtrarPorModulo}" itemLabel="Filtrar">
@@ -211,7 +215,7 @@
                                             <h:column></h:column>
                                         </h:panelGrid>
                                         <h:panelGrid id="tblUsuarioAcesso" styleClass="margin-top-max">
-                                            <p:dataTable value="#{usuarioBean.listaUsuarioAcesso}" var="usuarioAcesso" emptyMessage="Nenhum registro encontrado!" scrollable="true" scrollHeight="200">
+                                            <p:dataTable value="#{usuarioBean.listaUsuarioAcesso}" var="usuarioAcesso" emptyMessage="Nenhum registro encontrado!" paginator="true" rows="10">
                                                 <p:column headerText="Módulo" filterBy="#{usuarioAcesso.permissao.modulo.descricao}" filterMatchMode="global">
                                                     <p:outputLabel value="#{usuarioAcesso.permissao.modulo.descricao}" />
                                                 </p:column>
@@ -220,6 +224,9 @@
                                                 </p:column>
                                                 <p:column headerText="Evento" filterBy="#{usuarioAcesso.permissao.evento.descricao}" filterMatchMode="global">
                                                     <p:outputLabel value="#{usuarioAcesso.permissao.evento.descricao}" />                                              
+                                                </p:column>
+                                                <p:column headerText="Expira" styleClass="text-center">
+                                                    <p:outputLabel value="#{usuarioAcesso.expira}" />
                                                 </p:column>
                                                 <p:column width="25" styleClass="text-center">
                                                     <p:selectBooleanCheckbox value="#{usuarioAcesso.permite}">

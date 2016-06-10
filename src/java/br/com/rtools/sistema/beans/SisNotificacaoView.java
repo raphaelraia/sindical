@@ -1,7 +1,9 @@
 package br.com.rtools.sistema.beans;
 
 import br.com.rtools.principal.DBExternal;
-import br.com.rtools.utilitarios.GenericaMensagem;
+import br.com.rtools.sistema.SisNotificacao;
+import br.com.rtools.sistema.dao.SisNotificacaoClienteDao;
+import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaSessao;
 import java.io.Serializable;
 import java.sql.ResultSet;
@@ -27,6 +29,7 @@ public class SisNotificacaoView implements Serializable {
         listNotificacao = new ArrayList<>();
         try {
             loadNotificacao();
+            loadNotificacaoLocal();
         } catch (SQLException ex) {
             Logger.getLogger(SisNotificacaoView.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -35,7 +38,6 @@ public class SisNotificacaoView implements Serializable {
     public final void loadNotificacao() throws SQLException {
         if (!GenericaSessao.getString("sessaoCliente").equals("ComercioLimeira") && !GenericaSessao.getString("sessaoCliente").equals("Sindical")) {
             try {
-
                 DBExternal dbe = new DBExternal();
                 if (dbe.getConnection() != null) {
                     try {
@@ -83,24 +85,24 @@ public class SisNotificacaoView implements Serializable {
                             } catch (Exception e) {
 
                             }
-                            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                            if (sNotificacao.getHoraInicial() != null && !sNotificacao.getHoraInicial().isEmpty() && sNotificacao.getHoraFinal() != null && sNotificacao.getHoraFinal().isEmpty()) {
-                                String data_inicial = dateFormat.format(sNotificacao.getDataInicial() + " " + sNotificacao.getHoraInicial());
-                                String data_final = dateFormat.format(sNotificacao.getDataFinal() + " " + sNotificacao.getHoraFinal());
-                                try {
-                                    dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                                    Date dtInicial = dateFormat.parse(data_inicial);
-                                } catch (ParseException e) {
-
-                                }
-                                try {
-                                    dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                                    Date dtFinal = dateFormat.parse(data_final);
-                                } catch (ParseException e) {
-
-                                }
-                            } else {
-                            }
+//                            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//                            if (sNotificacao.getHoraInicial() != null && !sNotificacao.getHoraInicial().isEmpty() && sNotificacao.getHoraFinal() != null && sNotificacao.getHoraFinal().isEmpty()) {
+//                                String data_inicial = dateFormat.format(sNotificacao.getDataInicial() + " " + sNotificacao.getHoraInicial());
+//                                String data_final = dateFormat.format(sNotificacao.getDataFinal() + " " + sNotificacao.getHoraFinal());
+//                                try {
+//                                    dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//                                    Date dtInicial = dateFormat.parse(data_inicial);
+//                                } catch (ParseException e) {
+//
+//                                }
+//                                try {
+//                                    dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//                                    Date dtFinal = dateFormat.parse(data_final);
+//                                } catch (ParseException e) {
+//
+//                                }
+//                            } else {
+//                            }
                             listNotificacao.add(sNotificacao);
                         }
                     } catch (SQLException exception) {
@@ -111,6 +113,31 @@ public class SisNotificacaoView implements Serializable {
             } catch (Exception e) {
 
             }
+        }
+    }
+
+    public final void loadNotificacaoLocal() throws SQLException {
+        try {
+            SisNotificacaoClienteDao sncd = new SisNotificacaoClienteDao();
+            List<SisNotificacao> list = sncd.findAll();
+            for (int i = 0; i < list.size(); i++) {
+                SNotificacao sNotificacao = new SNotificacao();
+                sNotificacao.setId(list.get(i).getId());
+                sNotificacao.setCategoria(list.get(i).getSisNotificacaoCategoria().getDescricao());
+                sNotificacao.setDataCadastro(list.get(i).getCadastroString());
+                sNotificacao.setHoraCadastro(DataHoje.livre(list.get(i).getDtCadastro(), "HH:mm"));
+                sNotificacao.setDataInicial(list.get(i).getInicialString());
+                sNotificacao.setDataFinal(list.get(i).getFinalString());
+                sNotificacao.setHoraInicial(list.get(i).getHoraInicial());
+                sNotificacao.setHoraFinal(list.get(i).getHoraFinal());
+                sNotificacao.setTitulo(list.get(i).getTitulo());
+                sNotificacao.setObservacao(list.get(i).getObservacao());
+                sNotificacao.setAtivo(list.get(i).getAtivo());
+                sNotificacao.setDestaque(list.get(i).getDestaque());
+                listNotificacao.add(sNotificacao);
+            }
+        } catch (Exception e) {
+
         }
     }
 

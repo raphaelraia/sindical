@@ -529,7 +529,7 @@ public class Dao extends DB implements DaoInterface {
      */
     @Override
     public List find(String className, int id[]) {
-        return find(className, id, "");
+        return find(className, id, "", null);
     }
 
     /**
@@ -541,7 +541,7 @@ public class Dao extends DB implements DaoInterface {
      * @return
      */
     public Object find(String className, int id, String field) {
-        List list = find(className, new int[]{id}, field);
+        List list = find(className, new int[]{id}, field, null);
         if (!list.isEmpty()) {
             return list.get(0);
         }
@@ -566,11 +566,34 @@ public class Dao extends DB implements DaoInterface {
      */
     @Override
     public List find(String className, int id[], String field) {
+        return find(className, id, field, "");
+    }
+
+    /**
+     * <p>
+     * <strong>Find Object</strong></p>
+     * <p>
+     * <strong>Exemplo:</strong>find("User", new int[]{1,2,3,4,5}, "id_people");
+     * </p>
+     *
+     * @param id (Lista de ids)
+     * @param className (Nome da classe)
+     * @param field (Faz a consulta utilizando outro campo que não id como
+     * parâmetro)
+     *
+     * @author Bruno
+     * @param order (Use Alias OB.column_name)
+     *
+     * @return List
+     */
+    public List find(String className, int id[], String field, String order) {
         String stringCampo = "id";
-        if (!field.isEmpty()) {
+        if (field != null && !field.isEmpty()) {
             stringCampo = field;
         }
-        List list = new ArrayList<>();
+        if (order == null || order.isEmpty()) {
+            order = "OB.id";
+        }
         String queryPesquisaString = "";
         for (int i = 0; i < id.length; i++) {
             if (i == 0) {
@@ -579,9 +602,9 @@ public class Dao extends DB implements DaoInterface {
                 queryPesquisaString += ", " + Integer.toString(id[i]);
             }
         }
-        String queryString = "SELECT OB FROM " + className + " OB WHERE OB." + stringCampo + " IN (" + queryPesquisaString + ") ORDER BY OB.id ";
+        String queryString = "SELECT OB FROM " + className + " OB WHERE OB." + stringCampo + " IN (" + queryPesquisaString + ") ORDER BY " + order;
         Query query = getEntityManager().createQuery(queryString);
-        list = query.getResultList();
+        List list = query.getResultList();
         if (list.isEmpty()) {
             return list;
         }

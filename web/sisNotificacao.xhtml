@@ -70,9 +70,9 @@
                                         </h:panelGrid>
                                     </h:column>
                                     <p:outputLabel value="Observação:" />
-                                    <p:inputTextarea value="#{sisNotificacaoBean.sisNotificacao.observacao}" cols="150" rows="10" maxlength="5000">
-                                        <p:ajax event="change" update="@this" />
-                                    </p:inputTextarea>
+                                    <h:column>
+                                        <p:editor value="#{sisNotificacaoBean.sisNotificacao.observacao}" maxlength="5000"  />
+                                    </h:column>
                                     <h:column />
                                     <p:selectBooleanCheckbox value="#{sisNotificacaoBean.sisNotificacao.destaque}" itemLabel="Destaque">
                                         <p:ajax event="change" update="@this" />
@@ -82,25 +82,27 @@
                                         <p:ajax event="change" update="@this" />
                                     </p:selectBooleanCheckbox>
                                 </h:panelGrid>
-                                <p:panel header="Clientes" rendered="#{sisNotificacaoBean.sisNotificacao.id ne null}" styleClass="margin-top-max">
-                                    <p:messages autoUpdate="true" showDetail="true" showSummary="true" /> 
-                                    <h:panelGrid columns="5" rendered="#{not empty sisNotificacaoBean.listClientes}">
-                                        <p:selectOneMenu value="#{sisNotificacaoBean.idClientes}" filter="true" filterMatchMode="startsWith">
-                                            <p:ajax event="change" update="@this" />
-                                            <f:selectItems value="#{sisNotificacaoBean.listClientes}" />
-                                        </p:selectOneMenu>                                            
-                                        <p:commandButton action="#{sisNotificacaoBean.add()}" value="Adicionar" disabled="#{controleAcessoBean.botaoSalvar}" update=":form_sis_notificacao:"/>
-                                        <p:commandButton action="#{sisNotificacaoBean.addAll()}" value="Todos" disabled="#{controleAcessoBean.botaoSalvar}" update=":form_sis_notificacao:"/>
-                                    </h:panelGrid>
-                                    <p:dataTable value="#{sisNotificacaoBean.listSisNotificacaoCliente}" var="sisNotificacaoCliente" scrollable="true" scrollHeight="200" emptyMessage="Nenhum registro encontrado!" styleClass="margin-top-max">
-                                        <p:column headerText="Identificador">
-                                            #{sisNotificacaoCliente.configuracao.identifica}
-                                        </p:column>
-                                        <p:column width="30" styleClass="text-center">
-                                            <p:commandButton action="#{sisNotificacaoBean.delete(sisNotificacaoCliente)}" icon="ui-icon-close" disabled="#{controleAcessoBean.botaoExcluir}" update=":form_sis_notificacao:"/>
-                                        </p:column>
-                                    </p:dataTable>
-                                </p:panel>
+                                <h:panelGroup rendered="#{controleUsuarioBean.clienteString eq 'Rtools'}" layout="block">
+                                    <p:panel header="Clientes" rendered="#{sisNotificacaoBean.sisNotificacao.id ne null}" styleClass="margin-top-max">
+                                        <p:messages autoUpdate="true" showDetail="true" showSummary="true" /> 
+                                        <h:panelGrid columns="5" rendered="#{not empty sisNotificacaoBean.listClientes}">
+                                            <p:selectOneMenu value="#{sisNotificacaoBean.idClientes}" filter="true" filterMatchMode="startsWith">
+                                                <p:ajax event="change" update="@this" />
+                                                <f:selectItems value="#{sisNotificacaoBean.listClientes}" />
+                                            </p:selectOneMenu>                                            
+                                            <p:commandButton action="#{sisNotificacaoBean.add()}" value="Adicionar" disabled="#{controleAcessoBean.botaoSalvar}" update=":form_sis_notificacao:"/>
+                                            <p:commandButton action="#{sisNotificacaoBean.addAll()}" value="Todos" disabled="#{controleAcessoBean.botaoSalvar}" update=":form_sis_notificacao:"/>
+                                        </h:panelGrid>
+                                        <p:dataTable value="#{sisNotificacaoBean.listSisNotificacaoCliente}" var="sisNotificacaoCliente" scrollable="true" scrollHeight="200" emptyMessage="Nenhum registro encontrado!" styleClass="margin-top-max">
+                                            <p:column headerText="Identificador">
+                                                #{sisNotificacaoCliente.configuracao.identifica}
+                                            </p:column>
+                                            <p:column width="30" styleClass="text-center">
+                                                <p:commandButton action="#{sisNotificacaoBean.delete(sisNotificacaoCliente)}" icon="ui-icon-close" disabled="#{controleAcessoBean.botaoExcluir}" update=":form_sis_notificacao:"/>
+                                            </p:column>
+                                        </p:dataTable>
+                                    </p:panel>
+                                </h:panelGroup>
                             </p:panel>
                             <h:panelGrid columns="5" styleClass="margin-top-max">
                                 <p:commandButton onclick="PF('dlg_save').show();" value="Concluir" disabled="#{controleAcessoBean.botaoSalvar}" title="Salvar"/>

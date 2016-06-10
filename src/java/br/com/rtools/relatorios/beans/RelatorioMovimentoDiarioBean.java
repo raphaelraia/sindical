@@ -1,5 +1,6 @@
 package br.com.rtools.relatorios.beans;
 
+import br.com.rtools.financeiro.FStatus;
 import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.PostConstruct;
@@ -41,6 +43,9 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
 
     private List<SelectItem> listCaixaBanco;
     private Integer idCaixaBanco;
+
+    private Map<String, Integer> listFStatus;
+    private List selectedFStatus;
 
     private List<SelectItem> listDatas;
     private String data;
@@ -91,14 +96,14 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
             rpd.setRelatorioOrdem(ro);
         }
         rpd.setRelatorios(r);
-        List list = rpd.find(idCaixaBanco, data);
+        List list = rpd.find(idCaixaBanco, inIdFStatus(), data);
         sisProcesso.finishQuery();
         Double saldo = new Double(0);
         Double saldo_anterior = rpd.findSaldoAnterior(data, idCaixaBanco);
         if (saldo_anterior == null) {
             saldo_anterior = new Double(0);
         }
-        oj.add(new ObjectJasper(DataHoje.dataHojeSQL(), "SALDO ANTERIOR", "", saldo_anterior > 0 ? saldo_anterior : 0, saldo_anterior < 0 ? saldo_anterior : 0, saldo_anterior));
+        oj.add(new ObjectJasper(DataHoje.dataHojeSQL(), "SALDO ANTERIOR", "", saldo_anterior > 0 ? saldo_anterior : 0, saldo_anterior < 0 ? saldo_anterior : 0, saldo_anterior, "", -1));
         for (int i = 0; i < list.size(); i++) {
             List o = (List) list.get(i);
             if (i == 0) {
@@ -106,7 +111,7 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
             } else {
                 saldo = saldo + Double.parseDouble(o.get(3).toString()) + (Double.parseDouble(o.get(4).toString()));
             }
-            oj.add(new ObjectJasper(o.get(0), o.get(1), o.get(2), o.get(3), o.get(4), saldo));
+            oj.add(new ObjectJasper(o.get(0), o.get(1), o.get(2), o.get(3), o.get(4), saldo, o.get(6), o.get(7)));
         }
         if (list.isEmpty()) {
             GenericaMensagem.warn("Mensagem", "Nenhum registro encontrado!");
@@ -185,6 +190,7 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
         listFilters = new ArrayList<>();
         listFilters.add(new Filters("caixa_banco", "Caixa Banco", false));
         listFilters.add(new Filters("data", "Data", true, true));
+        listFilters.add(new Filters("fstatus", "Status", false));
         load(listFilters.get(1));
 
     }
@@ -212,6 +218,11 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
         }
     }
 
+    public void close(Filters filter) {
+        filter.setActive(!filter.getActive());
+        load(filter);
+    }
+
     // LOAD
     public void load(Filters filter) {
         switch (filter.getKey()) {
@@ -230,6 +241,14 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
                     listDatas = new ArrayList<>();
                 } else {
                     loadListDatas();
+                }
+                break;
+            case "fstatus":
+                if (!filter.getActive()) {
+                    listFStatus = new LinkedHashMap<>();
+                    selectedFStatus = new ArrayList<>();
+                } else {
+                    loadListFStatus();
                 }
                 break;
         }
@@ -273,9 +292,30 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
         }
     }
 
-    public void close(Filters filter) {
-        filter.setActive(!filter.getActive());
-        load(filter);
+    public void loadListFStatus() {
+        listFStatus = new LinkedHashMap<>();
+        selectedFStatus = new ArrayList<>();
+        List<FStatus> list = new Dao().find("FStatus", new int[]{7, 8, 9, 10, 11}, "", "OB.descricao");
+        if (list != null) {
+            for (int i = 0; i < list.size(); i++) {
+                listFStatus.put(list.get(i).getDescricao(), list.get(i).getId());
+            }
+        }
+    }
+
+    // TRATAMENTO
+    public String inIdFStatus() {
+        String ids = null;
+        if (selectedFStatus != null) {
+            for (int i = 0; i < selectedFStatus.size(); i++) {
+                if (ids == null) {
+                    ids = "" + selectedFStatus.get(i);
+                } else {
+                    ids += "," + selectedFStatus.get(i);
+                }
+            }
+        }
+        return ids;
     }
 
     // GETTERS AND SETTERS
@@ -373,6 +413,22 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
         this.idCaixaBanco = idCaixaBanco;
     }
 
+    public Map<String, Integer> getListFStatus() {
+        return listFStatus;
+    }
+
+    public void setListFStatus(Map<String, Integer> listFStatus) {
+        this.listFStatus = listFStatus;
+    }
+
+    public List getSelectedFStatus() {
+        return selectedFStatus;
+    }
+
+    public void setSelectedFStatus(List selectedFStatus) {
+        this.selectedFStatus = selectedFStatus;
+    }
+
     public class ObjectJasper {
 
         private Object data;
@@ -381,6 +437,8 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
         private Object entrada;
         private Object saida;
         private Object saldo_acumulado;
+        private Object fstatus;
+        private Object fstatus_id;
 
         public ObjectJasper() {
             this.data = null;
@@ -389,15 +447,19 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
             this.entrada = null;
             this.saida = null;
             this.saldo_acumulado = null;
+            this.fstatus = null;
+            this.fstatus_id = null;
         }
 
-        public ObjectJasper(Object data, Object operacao, Object historico, Object entrada, Object saida, Object saldo_acumulado) {
+        public ObjectJasper(Object data, Object operacao, Object historico, Object entrada, Object saida, Object saldo_acumulado, Object fstatus, Object fstatus_id) {
             this.data = data;
             this.operacao = operacao;
             this.historico = historico;
             this.entrada = entrada;
             this.saida = saida;
             this.saldo_acumulado = saldo_acumulado;
+            this.fstatus = fstatus;
+            this.fstatus_id = fstatus_id;
         }
 
         public Object getOperacao() {
@@ -446,6 +508,22 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
 
         public void setData(Object data) {
             this.data = data;
+        }
+
+        public Object getFstatus() {
+            return fstatus;
+        }
+
+        public void setFstatus(Object fstatus) {
+            this.fstatus = fstatus;
+        }
+
+        public Object getFstatus_id() {
+            return fstatus_id;
+        }
+
+        public void setFstatus_id(Object fstatus_id) {
+            this.fstatus_id = fstatus_id;
         }
 
     }

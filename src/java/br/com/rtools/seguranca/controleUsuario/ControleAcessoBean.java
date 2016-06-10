@@ -11,6 +11,7 @@ import br.com.rtools.seguranca.dao.UsuarioDao;
 import br.com.rtools.sistema.ContadorAcessos;
 import br.com.rtools.sistema.dao.AtalhoDao;
 import br.com.rtools.utilitarios.Dao;
+import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaSessao;
 import java.io.IOException;
 import java.io.Serializable;
@@ -272,8 +273,14 @@ public class ControleAcessoBean implements Serializable {
                     }
                     //if (retorno) {
                     UsuarioAcesso usuarioAcesso = new UsuarioAcessoDao().pesquisaUsuarioAcesso(user.getId(), permissao.getId());
-                    if (usuarioAcesso.getId() != -1) {
-                        if (usuarioAcesso.isPermite()) {
+                    if (usuarioAcesso.getId() != null) {
+                        if (usuarioAcesso.getDtExpira() != null) {
+                            if (DataHoje.maiorData(DataHoje.data(), usuarioAcesso.getExpira()) || DataHoje.data().equals(usuarioAcesso.getExpira())) {
+                                new Dao().delete(usuarioAcesso, true);
+                                usuarioAcesso = new UsuarioAcesso();
+                            }
+                        }
+                        if (usuarioAcesso.getPermite()) {
                             retorno = true;
                         } else {
                             retorno = false;
@@ -354,8 +361,14 @@ public class ControleAcessoBean implements Serializable {
             }
 //                    if (!retorno) {
             UsuarioAcesso usuarioAcesso = new UsuarioAcessoDao().pesquisaUsuarioAcesso(user.getId(), permissao.getId());
-            if (usuarioAcesso.getId() != -1) {
-                if (usuarioAcesso.isPermite()) {
+            if (usuarioAcesso.getId() != null) {
+                if (usuarioAcesso.getDtExpira() != null) {
+                    if (DataHoje.maiorData(DataHoje.data(), usuarioAcesso.getExpira()) || DataHoje.data().equals(usuarioAcesso.getExpira())) {
+                        new Dao().delete(usuarioAcesso, true);
+                        usuarioAcesso = new UsuarioAcesso();
+                    }
+                }
+                if (usuarioAcesso.getPermite()) {
                     retorno = false;
                 } else {
                     retorno = true;
@@ -434,8 +447,14 @@ public class ControleAcessoBean implements Serializable {
                 }
             }
             UsuarioAcesso usuarioAcesso = new UsuarioAcessoDao().pesquisaUsuarioAcesso(user.getId(), permissao.getId());
-            if (usuarioAcesso.getId() != -1) {
-                if (usuarioAcesso.isPermite()) {
+            if (usuarioAcesso.getId() != null) {
+                if (usuarioAcesso.getDtExpira() != null) {
+                    if (DataHoje.maiorData(DataHoje.data(), usuarioAcesso.getExpira()) || DataHoje.data().equals(usuarioAcesso.getExpira())) {
+                        new Dao().delete(usuarioAcesso, true);
+                        usuarioAcesso = new UsuarioAcesso();
+                    }
+                }
+                if (usuarioAcesso.getPermite()) {
                     retorno = false;
                 } else {
                     retorno = true;
@@ -481,8 +500,14 @@ public class ControleAcessoBean implements Serializable {
             }
 
             UsuarioAcesso usuarioAcesso = new UsuarioAcessoDao().pesquisaUsuarioAcesso(user.getId(), permissao.getId());
-            if (usuarioAcesso.getId() != -1) {
-                if (usuarioAcesso.isPermite()) {
+            if (usuarioAcesso.getId() != null) {
+                if (usuarioAcesso.getDtExpira() != null) {
+                    if (DataHoje.maiorData(DataHoje.data(), usuarioAcesso.getExpira()) || DataHoje.data().equals(usuarioAcesso.getExpira())) {
+                        new Dao().delete(usuarioAcesso, true);
+                        usuarioAcesso = new UsuarioAcesso();
+                    }
+                }
+                if (usuarioAcesso.getPermite()) {
                     retorno = false;
                 } else {
                     retorno = true;
@@ -535,8 +560,14 @@ public class ControleAcessoBean implements Serializable {
                 }
             }
             UsuarioAcesso usuarioAcesso = new UsuarioAcessoDao().pesquisaUsuarioAcesso(user.getId(), permissao.getId());
-            if (usuarioAcesso.getId() != -1) {
-                if (usuarioAcesso.isPermite()) {
+            if (usuarioAcesso.getId() != null) {
+                if (usuarioAcesso.getDtExpira() != null) {
+                    if (DataHoje.maiorData(DataHoje.data(), usuarioAcesso.getExpira()) || DataHoje.data().equals(usuarioAcesso.getExpira())) {
+                        new Dao().delete(usuarioAcesso, true);
+                        usuarioAcesso = new UsuarioAcesso();
+                    }
+                }
+                if (usuarioAcesso.getPermite()) {
                     retorno = false;
                 } else {
                     retorno = true;
@@ -583,8 +614,14 @@ public class ControleAcessoBean implements Serializable {
             }
 //                if (!retorno) {
             UsuarioAcesso usuarioAcesso = new UsuarioAcessoDao().pesquisaUsuarioAcesso(user.getId(), permissao.getId());
-            if (usuarioAcesso.getId() != -1) {
-                if (usuarioAcesso.isPermite()) {
+            if (usuarioAcesso.getId() != null) {
+                if (usuarioAcesso.getDtExpira() != null) {
+                    if (DataHoje.maiorData(DataHoje.data(), usuarioAcesso.getExpira()) || DataHoje.data().equals(usuarioAcesso.getExpira())) {
+                        new Dao().delete(usuarioAcesso, true);
+                        usuarioAcesso = new UsuarioAcesso();
+                    }
+                }
+                if (usuarioAcesso.getPermite()) {
                     retorno = false;
                 } else {
                     retorno = true;
@@ -631,8 +668,14 @@ public class ControleAcessoBean implements Serializable {
             }
 //                if (!retorno) {
             UsuarioAcesso usuarioAcesso = new UsuarioAcessoDao().pesquisaUsuarioAcesso(user.getId(), permissao.getId());
-            if (usuarioAcesso.getId() != -1) {
-                if (usuarioAcesso.isPermite()) {
+            if (usuarioAcesso.getId() != null) {
+                if (usuarioAcesso.getDtExpira() != null) {
+                    if (DataHoje.maiorData(DataHoje.data(), usuarioAcesso.getExpira()) || DataHoje.data().equals(usuarioAcesso.getExpira())) {
+                        new Dao().delete(usuarioAcesso, true);
+                        usuarioAcesso = new UsuarioAcesso();
+                    }
+                }
+                if (usuarioAcesso.getPermite()) {
                     retorno = false;
                 } else {
                     retorno = true;
@@ -680,8 +723,14 @@ public class ControleAcessoBean implements Serializable {
             }
 //                if (retorno) {
             UsuarioAcesso usuarioAcesso = new UsuarioAcessoDao().pesquisaUsuarioAcesso(user.getId(), permissao.getId());
-            if (usuarioAcesso.getId() != -1) {
-                if (usuarioAcesso.isPermite()) {
+            if (usuarioAcesso.getId() != null) {
+                if (usuarioAcesso.getDtExpira() != null) {
+                    if (DataHoje.maiorData(DataHoje.data(), usuarioAcesso.getExpira()) || DataHoje.data().equals(usuarioAcesso.getExpira())) {
+                        new Dao().delete(usuarioAcesso, true);
+                        usuarioAcesso = new UsuarioAcesso();
+                    }
+                }
+                if (usuarioAcesso.getPermite()) {
                     retorno = true;
                 } else {
                     retorno = false;
@@ -728,8 +777,14 @@ public class ControleAcessoBean implements Serializable {
             }
 //                if (retorno) {
             UsuarioAcesso usuarioAcesso = new UsuarioAcessoDao().pesquisaUsuarioAcesso(user.getId(), permissao.getId());
-            if (usuarioAcesso.getId() != -1) {
-                if (usuarioAcesso.isPermite()) {
+            if (usuarioAcesso.getId() != null) {
+                if (usuarioAcesso.getDtExpira() != null) {
+                    if (DataHoje.maiorData(DataHoje.data(), usuarioAcesso.getExpira()) || DataHoje.data().equals(usuarioAcesso.getExpira())) {
+                        new Dao().delete(usuarioAcesso, true);
+                        usuarioAcesso = new UsuarioAcesso();
+                    }
+                }
+                if (usuarioAcesso.getPermite()) {
                     retorno = true;
                 } else {
                     retorno = false;
@@ -775,8 +830,14 @@ public class ControleAcessoBean implements Serializable {
             }
 //                if (!retorno) {
             UsuarioAcesso usuarioAcesso = new UsuarioAcessoDao().pesquisaUsuarioAcesso(user.getId(), permissao.getId());
-            if (usuarioAcesso.getId() != -1) {
-                if (usuarioAcesso.isPermite()) {
+            if (usuarioAcesso.getId() != null) {
+                if (usuarioAcesso.getDtExpira() != null) {
+                    if (DataHoje.maiorData(DataHoje.data(), usuarioAcesso.getExpira()) || DataHoje.data().equals(usuarioAcesso.getExpira())) {
+                        new Dao().delete(usuarioAcesso, true);
+                        usuarioAcesso = new UsuarioAcesso();
+                    }
+                }
+                if (usuarioAcesso.getPermite()) {
                     retorno = false;
                 } else {
                     retorno = true;
@@ -822,8 +883,14 @@ public class ControleAcessoBean implements Serializable {
             }
 //                if (retorno) {
             UsuarioAcesso usuarioAcesso = new UsuarioAcessoDao().pesquisaUsuarioAcesso(user.getId(), permissao.getId());
-            if (usuarioAcesso.getId() != -1) {
-                if (usuarioAcesso.isPermite()) {
+            if (usuarioAcesso.getId() != null) {
+                if (usuarioAcesso.getDtExpira() != null) {
+                    if (DataHoje.maiorData(DataHoje.data(), usuarioAcesso.getExpira()) || DataHoje.data().equals(usuarioAcesso.getExpira())) {
+                        new Dao().delete(usuarioAcesso, true);
+                        usuarioAcesso = new UsuarioAcesso();
+                    }
+                }
+                if (usuarioAcesso.getPermite()) {
                     retorno = false;
                 } else {
                     retorno = true;
@@ -869,8 +936,14 @@ public class ControleAcessoBean implements Serializable {
             }
 //                if (retorno) {
             UsuarioAcesso usuarioAcesso = new UsuarioAcessoDao().pesquisaUsuarioAcesso(user.getId(), permissao.getId());
-            if (usuarioAcesso.getId() != -1) {
-                if (usuarioAcesso.isPermite()) {
+            if (usuarioAcesso.getId() != null) {
+                if (usuarioAcesso.getDtExpira() != null) {
+                    if (DataHoje.maiorData(DataHoje.data(), usuarioAcesso.getExpira()) || DataHoje.data().equals(usuarioAcesso.getExpira())) {
+                        new Dao().delete(usuarioAcesso, true);
+                        usuarioAcesso = new UsuarioAcesso();
+                    }
+                }
+                if (usuarioAcesso.getPermite()) {
                     retorno = false;
                 } else {
                     retorno = true;
@@ -916,8 +989,14 @@ public class ControleAcessoBean implements Serializable {
             }
 //                if (retorno) {
             UsuarioAcesso usuarioAcesso = new UsuarioAcessoDao().pesquisaUsuarioAcesso(user.getId(), permissao.getId());
-            if (usuarioAcesso.getId() != -1) {
-                if (usuarioAcesso.isPermite()) {
+            if (usuarioAcesso.getId() != null) {
+                if (usuarioAcesso.getDtExpira() != null) {
+                    if (DataHoje.maiorData(DataHoje.data(), usuarioAcesso.getExpira()) || DataHoje.data().equals(usuarioAcesso.getExpira())) {
+                        new Dao().delete(usuarioAcesso, true);
+                        usuarioAcesso = new UsuarioAcesso();
+                    }
+                }
+                if (usuarioAcesso.getPermite()) {
                     retorno = false;
                 } else {
                     retorno = true;
@@ -959,8 +1038,14 @@ public class ControleAcessoBean implements Serializable {
                 }
             }
             UsuarioAcesso usuarioAcesso = new UsuarioAcessoDao().pesquisaUsuarioAcesso(user.getId(), permissao.getId());
-            if (usuarioAcesso.getId() != -1) {
-                if (usuarioAcesso.isPermite()) {
+            if (usuarioAcesso.getId() != null) {
+                if (usuarioAcesso.getDtExpira() != null) {
+                    if (DataHoje.maiorData(DataHoje.data(), usuarioAcesso.getExpira()) || DataHoje.data().equals(usuarioAcesso.getExpira())) {
+                        new Dao().delete(usuarioAcesso, true);
+                        usuarioAcesso = new UsuarioAcesso();
+                    }
+                }
+                if (usuarioAcesso.getPermite()) {
                     retorno = false;
                 } else {
                     retorno = true;
@@ -1001,8 +1086,14 @@ public class ControleAcessoBean implements Serializable {
                 }
             }
             UsuarioAcesso usuarioAcesso = new UsuarioAcessoDao().pesquisaUsuarioAcesso(user.getId(), permissao.getId());
-            if (usuarioAcesso.getId() != -1) {
-                if (usuarioAcesso.isPermite()) {
+            if (usuarioAcesso.getId() != null) {
+                if (usuarioAcesso.getDtExpira() != null) {
+                    if (DataHoje.maiorData(DataHoje.data(), usuarioAcesso.getExpira()) || DataHoje.data().equals(usuarioAcesso.getExpira())) {
+                        new Dao().delete(usuarioAcesso, true);
+                        usuarioAcesso = new UsuarioAcesso();
+                    }
+                }
+                if (usuarioAcesso.getPermite()) {
                     retorno = false;
                 } else {
                     retorno = true;
@@ -1047,8 +1138,14 @@ public class ControleAcessoBean implements Serializable {
                 }
             }
             UsuarioAcesso usuarioAcesso = new UsuarioAcessoDao().pesquisaUsuarioAcesso(user.getId(), permissao.getId());
-            if (usuarioAcesso.getId() != -1) {
-                if (usuarioAcesso.isPermite()) {
+            if (usuarioAcesso.getId() != null) {
+                if (usuarioAcesso.getDtExpira() != null) {
+                    if (DataHoje.maiorData(DataHoje.data(), usuarioAcesso.getExpira()) || DataHoje.data().equals(usuarioAcesso.getExpira())) {
+                        new Dao().delete(usuarioAcesso, true);
+                        usuarioAcesso = new UsuarioAcesso();
+                    }
+                }
+                if (usuarioAcesso.getPermite()) {
                     retorno = false;
                 } else {
                     retorno = true;
@@ -1093,8 +1190,14 @@ public class ControleAcessoBean implements Serializable {
                 }
             }
             UsuarioAcesso usuarioAcesso = new UsuarioAcessoDao().pesquisaUsuarioAcesso(user.getId(), permissao.getId());
-            if (usuarioAcesso.getId() != -1) {
-                if (usuarioAcesso.isPermite()) {
+            if (usuarioAcesso.getId() != null) {
+                if (usuarioAcesso.getDtExpira() != null) {
+                    if (DataHoje.maiorData(DataHoje.data(), usuarioAcesso.getExpira()) || DataHoje.data().equals(usuarioAcesso.getExpira())) {
+                        new Dao().delete(usuarioAcesso, true);
+                        usuarioAcesso = new UsuarioAcesso();
+                    }
+                }
+                if (usuarioAcesso.getPermite()) {
                     retorno = false;
                 } else {
                     retorno = true;
@@ -1138,8 +1241,14 @@ public class ControleAcessoBean implements Serializable {
                 }
             }
             UsuarioAcesso usuarioAcesso = new UsuarioAcessoDao().pesquisaUsuarioAcesso(user.getId(), permissao.getId());
-            if (usuarioAcesso.getId() != -1) {
-                if (usuarioAcesso.isPermite()) {
+            if (usuarioAcesso.getId() != null) {
+                if (usuarioAcesso.getDtExpira() != null) {
+                    if (DataHoje.maiorData(DataHoje.data(), usuarioAcesso.getExpira()) || DataHoje.data().equals(usuarioAcesso.getExpira())) {
+                        new Dao().delete(usuarioAcesso, true);
+                        usuarioAcesso = new UsuarioAcesso();
+                    }
+                }
+                if (usuarioAcesso.getPermite()) {
                     retorno = false;
                 } else {
                     retorno = true;
@@ -1341,8 +1450,8 @@ public class ControleAcessoBean implements Serializable {
                         }
                     }
                     UsuarioAcesso usuarioAcesso = new UsuarioAcessoDao().pesquisaUsuarioAcesso(user.getId(), permissao.getId());
-                    if (usuarioAcesso.getId() != -1) {
-                        if (usuarioAcesso.isPermite()) {
+                    if (usuarioAcesso.getId() != null) {
+                        if (usuarioAcesso.getPermite()) {
                             retorno = false;
                         } else {
                             retorno = true;
@@ -1385,8 +1494,8 @@ public class ControleAcessoBean implements Serializable {
                     }
                 }
                 UsuarioAcesso usuarioAcesso = new UsuarioAcessoDao().pesquisaUsuarioAcesso(usuario.getId(), permissao.getId());
-                if (usuarioAcesso.getId() != -1) {
-                    if (usuarioAcesso.isPermite()) {
+                if (usuarioAcesso.getId() != null) {
+                    if (usuarioAcesso.getPermite()) {
                         retorno = false;
                     } else {
                         retorno = true;

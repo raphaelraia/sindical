@@ -2167,6 +2167,12 @@
             <to-view-id>/relatorioMovimentoDiario.jsf</to-view-id>
             <redirect/>
         </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>acrescentarHorario</from-outcome>
+            <to-view-id>/acrescentarHorario.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
     </navigation-rule>
     
     <lifecycle>

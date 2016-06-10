@@ -437,13 +437,21 @@ public class HomologacaoDao extends DB {
                     + "               AND id_status = 2                         \n"
                     + "          )                                              \n"
                     + "     )) -                                                \n"
-                    // INICIO TRECHO NOVO
                     + "    ( SELECT func_nullInteger (                          \n"
                     + "          ( SELECT CAST(count(*) AS INT)                 \n"
                     + "              FROM hom_horario_reserva                   \n"
                     + "             WHERE id_horario = " + horarios.getId() + " \n"
                     + "          )                                              \n"
-                    + "     ) )                                                 \n"
+                    + "     ) ) +                                               \n"
+                    // INICIO TRECHO NOVO
+                    + "      ( SELECT func_nullInteger (                        \n"
+                    + "          ( SELECT nr_quantidade                         \n"
+                    + "              FROM hom_acrescentar_horario               \n"
+                    + "             WHERE id_horarios = " + horarios.getId() + "\n"
+                    + "               AND dt_data = '" + data + "'              \n"
+                    + "          )                                              \n"
+                    + "        )                                                \n"
+                    + "      )                                                  \n"
                     // FIM TRECHO NOVO
                     + "  IS NULL THEN 0 ELSE                                    \n"
                     + "      ( SELECT                                           \n"
@@ -468,13 +476,21 @@ public class HomologacaoDao extends DB {
                     + "          )                                              \n"
                     + "     )                                                   \n"
                     + "     ) -                                                 \n"
-                    // INICIO TRECHO NOVO
                     + "    ( SELECT func_nullInteger (                          \n"
                     + "          ( SELECT CAST(COUNT(*) AS INT)                 \n"
                     + "              FROM hom_horario_reserva                   \n"
                     + "             WHERE id_horario = " + horarios.getId() + " \n"
                     + "          )                                              \n"
-                    + "     ))                                                  \n"
+                    + "     )) +                                                 \n"
+                    // INICIO TRECHO NOVO
+                    + "      ( SELECT func_nullInteger (                        \n"
+                    + "          ( SELECT nr_quantidade                         \n"
+                    + "              FROM hom_acrescentar_horario               \n"
+                    + "             WHERE id_horarios = " + horarios.getId() + "\n"
+                    + "               AND dt_data = '" + data + "'              \n"
+                    + "          )                                              \n"
+                    + "        )                                                \n"
+                    + "      )                                                  \n"
                     // FIM TRECHO NOVO
                     + ") END;                                                   \n";
             Query qry = getEntityManager().createNativeQuery(text);

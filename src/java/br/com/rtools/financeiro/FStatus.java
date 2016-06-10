@@ -1,11 +1,14 @@
 package br.com.rtools.financeiro;
 
+import java.io.Serializable;
 import javax.persistence.*;
 
 @Entity
 @Table(name = "fin_status")
-@NamedQuery(name = "FStatus.pesquisaID", query = "select s from FStatus s where s.id=:pid")
-public class FStatus implements java.io.Serializable {
+@NamedQueries({
+    @NamedQuery(name = "FStatus.findAll", query = "SELECT FS FROM FStatus AS FS ORDER BY FS.descricao ASC ")
+})
+public class FStatus implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

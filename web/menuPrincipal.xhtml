@@ -79,8 +79,8 @@
                                     <p:menuitem value="Pesquisar Logs"              action="#{chamadaPaginaBean.pagina('pesquisaLog')}" title="Registro de atividades"  />
                                     <p:submenu label="Sistema">
                                         <p:menuitem value="Configurações"           action="#{chamadaPaginaBean.pagina('configuracao')}" rendered="#{controleUsuarioBean.clienteString eq 'Rtools'}"/>
-                                        <p:menuitem value="Notificações"            action="#{chamadaPaginaBean.pagina('sisNotificacao')}" rendered="#{controleUsuarioBean.clienteString eq 'Rtools'}"/>
-                                        <p:menuitem value="Notificações Categoria"  action="#{chamadaPaginaBean.paginaSimples('SisNotificacaoCategoria', 'Notificação Categoria')}" rendered="#{controleUsuarioBean.clienteString eq 'Rtools'}"/>
+                                        <p:menuitem value="Notificações"            action="#{chamadaPaginaBean.pagina('sisNotificacao')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
+                                        <p:menuitem value="Notificações Categoria"  action="#{chamadaPaginaBean.paginaSimples('SisNotificacaoCategoria', 'Notificação Categoria')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
                                         <p:menuitem value="Processos"               action="#{chamadaPaginaBean.pagina('sisProcesso')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" />
                                         <p:menuitem value="Atualizar Base"          action="#{chamadaPaginaBean.pagina('atualizarBase')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1 and controleUsuarioBean.clienteString eq 'Rtools'}" />
                                     </p:submenu> 
@@ -182,7 +182,7 @@
                                                 <p:outputLabel value="#{sNotificacao.categoria}" style="color: #{sNotificacao.destaque ? 'blue' : 'black'}" />
                                             </p:column>
                                             <p:column>
-                                                <p:inputTextarea value="#{sNotificacao.observacao}" style="border: 0; width: 100%" />
+                                                <h:outputText escape="false" value="#{sNotificacao.observacao}" style="border: 0; width: 100%; " />
                                             </p:column>
                                             <p:column width="30" styleClass="text-center">
                                                 <p:commandButton icon="ui-icon-star" rendered="#{sNotificacao.destaque}" />                                                                 

@@ -69,7 +69,19 @@
                                             <p:commandButton icon="ui-icon-close" action="#{relatorioMovimentoDiarioBean.close(relatorioMovimentoDiarioBean.listFilters[1])}" title="Remover filtro" update="form_relatorio" disabled="true"/>
                                         </h:panelGrid>                                        
                                     </p:panel>
-                                </p:column>                                                                                 
+                                </p:column>
+                                <p:column>
+                                    <p:panel header="Status" style="width: 100%!important" rendered="#{relatorioMovimentoDiarioBean.listFilters[2].active}" >
+                                        <h:panelGrid columns="4">
+                                            <p:selectCheckboxMenu label="Selecionar status" value="#{relatorioMovimentoDiarioBean.selectedFStatus}" filter="true" filterMatchMode="startsWith">
+                                                <p:ajax event="toggleSelect" global="false"/>
+                                                <p:ajax event="change" global="false"/>
+                                                <f:selectItems value="#{relatorioMovimentoDiarioBean.listFStatus}" />
+                                            </p:selectCheckboxMenu>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioMovimentoDiarioBean.close(relatorioMovimentoDiarioBean.listFilters[2])}" title="Remover filtro" update="form_relatorio"/>
+                                        </h:panelGrid>                                        
+                                    </p:panel>
+                                </p:column>                                
                             </h:panelGrid>
                         </h:column>
                     </h:panelGrid>

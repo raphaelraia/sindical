@@ -67,6 +67,7 @@ public class UsuarioBean implements Serializable {
     private Boolean importPermissoes;
     private List<SelectItem> listUsuariosImport;
     private Integer idUsuarioImport;
+    private String dataExpiraUsuarioAcesso;
 
     @PostConstruct
     public void init() {
@@ -87,6 +88,7 @@ public class UsuarioBean implements Serializable {
         mensagem = "";
         senhaNova = "";
         senhaAntiga = "";
+        dataExpiraUsuarioAcesso = "";
         userLogado = "";
         adicionado = false;
         disSenha = false;
@@ -624,27 +626,29 @@ public class UsuarioBean implements Serializable {
         int idR = Integer.parseInt(listaRotinas.get(idRotina).getDescription());
         int idE = Integer.parseInt(listaEventos.get(idEvento).getDescription());
         if (usuario.getId() != -1) {
-            if (((UsuarioAcesso) (usuarioAcessoDao.pesquisaUsuarioAcessoModuloRotinaEvento(usuario.getId(), idM, idR, idE))).getId() == -1) {
+            if (((UsuarioAcesso) (usuarioAcessoDao.pesquisaUsuarioAcessoModuloRotinaEvento(usuario.getId(), idM, idR, idE))).getId() == null) {
                 Permissao permissao = permissaoDao.pesquisaPermissaoModuloRotinaEvento(idM, idR, idE);
                 UsuarioAcesso usuarioAcesso = new UsuarioAcesso();
-                DaoInterface di = new Dao();
+                Dao dao = new Dao();
                 usuarioAcesso.setUsuario(usuario);
                 usuarioAcesso.setPermissao(permissao);
-                di.openTransaction();
+                usuarioAcesso.setDtExpira(DataHoje.converte(dataExpiraUsuarioAcesso));
+                dao.openTransaction();
                 usuarioAcesso.setPermite(true);
-                if (di.save(usuarioAcesso)) {
-                    di.commit();
+                if (dao.save(usuarioAcesso)) {
+                    dao.commit();
                     NovoLog novoLog = new NovoLog();
                     novoLog.save("Usuário Acesso - ID: " + usuarioAcesso.getId() + " - Usuário (" + usuarioAcesso.getUsuario().getId() + ") " + usuarioAcesso.getUsuario().getLogin() + " - Permissão (" + usuarioAcesso.getPermissao().getId() + ") [Módulo: " + usuarioAcesso.getPermissao().getModulo().getDescricao() + " - Rotina: " + usuarioAcesso.getPermissao().getRotina().getRotina() + " - Evento: " + usuarioAcesso.getPermissao().getEvento().getDescricao() + "]");
                     GenericaMensagem.info("Sucesso", "Permissão adicionada");
                 } else {
-                    di.rollback();
+                    dao.rollback();
                     GenericaMensagem.warn("Erro", "Erro ao adicionar permissão!");
                 }
             } else {
                 GenericaMensagem.warn("Sistema", "Permissão já existe!");
             }
         }
+        dataExpiraUsuarioAcesso = "";
         listaUsuarioAcesso.clear();
     }
 
@@ -689,20 +693,20 @@ public class UsuarioBean implements Serializable {
     }
 
     public void updateUsuarioAcesso(UsuarioAcesso ua) {
-        if (ua.getId() == -1) {
+        if (ua.getId() == null) {
             return;
         }
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         di.openTransaction();
         NovoLog novoLog = new NovoLog();
-        String beforeUpdate = "Usuário Acesso - ID: " + ua.getId() + " - Usuário (" + ua.getUsuario().getId() + ") " + ua.getUsuario().getLogin() + " - Permissão (" + ua.getPermissao().getId() + ") [Módulo: " + ua.getPermissao().getModulo().getDescricao() + " - Rotina: " + ua.getPermissao().getRotina().getRotina() + " - Evento: " + ua.getPermissao().getEvento().getDescricao() + "] - Permite:" + ua.isPermite();
-        if (ua.isPermite()) {
+        String beforeUpdate = "Usuário Acesso - ID: " + ua.getId() + " - Usuário (" + ua.getUsuario().getId() + ") " + ua.getUsuario().getLogin() + " - Permissão (" + ua.getPermissao().getId() + ") [Módulo: " + ua.getPermissao().getModulo().getDescricao() + " - Rotina: " + ua.getPermissao().getRotina().getRotina() + " - Evento: " + ua.getPermissao().getEvento().getDescricao() + "] - Permite:" + ua.getPermite();
+        if (ua.getPermite()) {
             ua.setPermite(false);
         } else {
             ua.setPermite(true);
         }
         if (di.update(ua)) {
-            novoLog.update(beforeUpdate, "Usuário Acesso - ID: " + ua.getId() + " - Usuário (" + ua.getUsuario().getId() + ") " + ua.getUsuario().getLogin() + " - Permissão (" + ua.getPermissao().getId() + ") [Módulo: " + ua.getPermissao().getModulo().getDescricao() + " - Rotina: " + ua.getPermissao().getRotina().getRotina() + " - Evento: " + ua.getPermissao().getEvento().getDescricao() + "] - Permite:" + ua.isPermite());
+            novoLog.update(beforeUpdate, "Usuário Acesso - ID: " + ua.getId() + " - Usuário (" + ua.getUsuario().getId() + ") " + ua.getUsuario().getLogin() + " - Permissão (" + ua.getPermissao().getId() + ") [Módulo: " + ua.getPermissao().getModulo().getDescricao() + " - Rotina: " + ua.getPermissao().getRotina().getRotina() + " - Evento: " + ua.getPermissao().getEvento().getDescricao() + "] - Permite:" + ua.getPermite());
             di.commit();
             GenericaMensagem.info("Sucesso", "Permissão de acesso atualizada");
             listaUsuarioAcesso.clear();
@@ -713,7 +717,7 @@ public class UsuarioBean implements Serializable {
     }
 
     public void removeUsuarioAcesso(UsuarioAcesso ua) {
-        if (ua.getId() == -1) {
+        if (ua.getId() == null) {
             return;
         }
         DaoInterface di = new Dao();
@@ -919,7 +923,7 @@ public class UsuarioBean implements Serializable {
                 for (int i = 0; i < list.size(); i++) {
                     UsuarioAcesso usuarioAcesso = new UsuarioAcesso();
                     usuarioAcesso.setPermissao(list.get(i).getPermissao());
-                    usuarioAcesso.setPermite(list.get(i).isPermite());
+                    usuarioAcesso.setPermite(list.get(i).getPermite());
                     usuarioAcesso.setUsuario(usuario);
                     if (usuarioAcessoDao.pesquisaUsuarioAcesso(usuario.getId(), list.get(i).getPermissao().getId()).getId() == -1) {
                         dao.save(usuarioAcesso, true);
@@ -930,5 +934,13 @@ public class UsuarioBean implements Serializable {
             }
         }
         GenericaMensagem.warn("Erro", "Ao realizar importação!");
+    }
+
+    public String getDataExpiraUsuarioAcesso() {
+        return dataExpiraUsuarioAcesso;
+    }
+
+    public void setDataExpiraUsuarioAcesso(String dataExpiraUsuarioAcesso) {
+        this.dataExpiraUsuarioAcesso = dataExpiraUsuarioAcesso;
     }
 }

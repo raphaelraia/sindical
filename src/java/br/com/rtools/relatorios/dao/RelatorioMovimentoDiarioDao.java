@@ -26,7 +26,7 @@ public class RelatorioMovimentoDiarioDao extends DB {
         this.relatorioOrdem = relatorioOrdem;
     }
 
-    public List find(Integer plano5_id, String data) {
+    public List find(Integer plano5_id, String in_status, String data) {
         if (relatorios == null) {
             return new ArrayList();
         }
@@ -39,21 +39,29 @@ public class RelatorioMovimentoDiarioDao extends DB {
                     + "             historico,                                  \n"
                     + "             sum(entrada)         AS entrada,            \n"
                     + "             sum(saida)           AS saida,              \n"
-                    + "             sum(saldo_acumulado) AS saldo_acumulado     \n"
+                    + "             sum(saldo_acumulado) AS saldo_acumulado,    \n"
+                    + "             fstatus,                                    \n"
+                    + "             fstatus_id                                  \n"
                     + "        FROM (                                           \n"
                     + "                  SELECT baixa AS DATA,                  \n"
                     + "                         CASE WHEN servico IS NOT NULL THEN UPPER(servico) ELSE UPPER(conta) END AS operacao, \n"
-                    + "                         ds_historico AS historico,                                  \n"
+                    + "                         M.ds_historico AS historico,                                \n"
                     + "                         CASE WHEN es='E' THEN M.valor_baixa ELSE 0 END AS ENTRADA,  \n"
                     + "                         CASE WHEN es='S' THEN M.valor_baixa ELSE 0 END AS SAIDA,    \n"
-                    + "                         0 AS saldo_acumulado            \n"
-                    + "                    FROM movimentos_vw AS M              \n";
+                    + "                         0               AS saldo_acumulado, \n"
+                    + "                         ST.ds_descricao AS FSTATUS,         \n"
+                    + "                         ST.id           AS FSTATUS_ID       \n"
+                    + "                    FROM movimentos_vw AS M                  \n"
+                    + "               LEFT JOIN fin_status    AS ST ON ST.id = m.id_baixa_status \n";
 
             List listWhere = new ArrayList<>();
             // SITUAÇÃO
-            // UNIDADE
             if (plano5_id != null) {
                 listWhere.add("M.id_caixa_banco = " + plano5_id);
+            }
+            // STATUS
+            if (in_status != null && !in_status.isEmpty()) {
+                listWhere.add("M.id_baixa_status IN (" + in_status + ") ");
             }
             // DATA CADASTRO
             if (data != null && !data.isEmpty()) {
@@ -70,7 +78,9 @@ public class RelatorioMovimentoDiarioDao extends DB {
                     += "         ) AS X \n"
                     + "    GROUP BY data,       \n"
                     + "             operacao,   \n"
-                    + "             historico   \n"
+                    + "             historico,  \n"
+                    + "             fstatus,    \n"
+                    + "             fstatus_id  \n"
                     + "            \n";
             if (relatorioOrdem != null) {
                 queryString += " ORDER BY  " + relatorioOrdem.getQuery() + " \n";
