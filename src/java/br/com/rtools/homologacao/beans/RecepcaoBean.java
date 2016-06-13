@@ -1,6 +1,5 @@
 package br.com.rtools.homologacao.beans;
 
-import br.com.rtools.arrecadacao.Oposicao;
 import br.com.rtools.arrecadacao.dao.OposicaoDao;
 import br.com.rtools.atendimento.AteMovimento;
 import br.com.rtools.atendimento.AteStatus;
@@ -291,14 +290,7 @@ public class RecepcaoBean implements Serializable {
             progressUpdate = 100;
             progressLabel = 10;
             loadListHorarios();
-            //PF.update(":formRecepcao:i_tabview:i_status");
-            //PF.update(":formRecepcao:i_tabview:i_panel_tbl");
             PF.update("formRecepcao:i_tabview:i_panel_tbl");
-//            try {
-//                FacesContext.getCurrentInstance().getExternalContext().redirect("");
-//            } catch (IOException ex) {
-//                Logger.getLogger(RecepcaoBean.class.getName()).log(Level.SEVERE, null, ex);
-//            }
         }
     }
 
@@ -364,6 +356,47 @@ public class RecepcaoBean implements Serializable {
             GenericaMensagem.error("Erro", "Não foi possível GERAR SENHA!");
             return;
         }
+        di.commit();
+        loadListHorarios();
+        WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());
+    }
+
+    public void desfazerSenha() {
+        Dao di = new Dao();
+        di.openTransaction();
+
+        if (!di.update(agendamentoEdit.getRecepcao())) {
+            GenericaMensagem.error("Erro", "Não foi possível EXCLUIR Recepção Senha!");
+            di.rollback();
+            return;
+        }
+
+        agendamentoEdit.setRecepcao(null);
+        recepcao = new Recepcao();
+
+        if (!di.update(agendamentoEdit)) {
+            GenericaMensagem.error("Erro", "Não foi possível EXCLUIR Senha!");
+            di.rollback();
+            return;
+        }
+
+        if (!di.delete(agendamentoEdit.getSenha())) {
+            GenericaMensagem.error("Erro", "Não foi possível EXCLUIR Senha!");
+            di.rollback();
+            return;
+        }
+
+        NovoLog novoLog = new NovoLog();
+        novoLog.setTabela("hom_cancelamento");
+        novoLog.setCodigo(cancelamento.getId());
+        novoLog.delete(
+                "Exclusão da senha (Recepção): "
+                + " - ID do cancelamento: " + cancelamento.getId()
+                + " - Agendamento {ID: " + cancelamento.getAgendamento().getId() + "} "
+                + " - Funcionário { " + agendamento.getPessoaEmpresa().getFisica().getPessoa().getId() + " - Nome: " + agendamento.getPessoaEmpresa().getFisica().getPessoa().getNome() + " } "
+        );
+
+        GenericaMensagem.info("Sucesso", "Senha removida");
         di.commit();
         loadListHorarios();
         WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());

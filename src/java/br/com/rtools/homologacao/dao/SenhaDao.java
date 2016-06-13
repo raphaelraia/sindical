@@ -8,6 +8,16 @@ import javax.persistence.Query;
 
 public class SenhaDao extends DB {
 
+    public Senha find(Integer agendamento_id) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT S FROM Senha AS S WHERE S.agendamento.id = :agendamento_id");
+            query.setParameter("agendamento_id", agendamento_id);
+            return (Senha) query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public List sequence(Integer filial_id, Integer limit) {
         try {
             String queryString;

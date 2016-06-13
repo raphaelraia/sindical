@@ -1,5 +1,6 @@
 package br.com.rtools.homologacao;
 
+import br.com.rtools.homologacao.dao.SenhaDao;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.seguranca.Usuario;
@@ -274,5 +275,17 @@ public class Agendamento implements Serializable {
 
     public void setNoPrazo(boolean noPrazo) {
         this.noPrazo = noPrazo;
+    }
+
+    public Senha getSenha() {
+        Senha senha = new Senha();
+        if (this.id != -1) {
+            SenhaDao senhaDao = new SenhaDao();
+            senha = senhaDao.find(this.id);
+            if (senha == null) {
+                senha = new Senha();
+            }
+        }
+        return senha;
     }
 }

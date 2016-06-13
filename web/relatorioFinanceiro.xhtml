@@ -86,7 +86,7 @@
                                     <h:panelGrid id="panel_filtro" columns="2">
                                         <!-- CONTA CONTABIL -->
                                         <h:column>
-                                            <h:panelGrid columns="2" rendered="#{relatorioFinanceiroBean.listaFiltros.get(0).ativo}" style="float: left; margin: 10px ">
+                                            <h:panelGrid columns="2" rendered="#{relatorioFinanceiroBean.listaFiltros[0].ativo}" style="float: left; margin: 10px ">
                                                 <h:column>
                                                     <p:selectBooleanCheckbox value="#{relatorioFinanceiroBean.chkTodos}" itemLabel="Conta Contábil">
                                                         <p:ajax event="valueChange" update="@form" listener="#{relatorioFinanceiroBean.marcarTodos()}"/>
