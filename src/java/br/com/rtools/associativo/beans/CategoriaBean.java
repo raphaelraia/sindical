@@ -1,5 +1,6 @@
 package br.com.rtools.associativo.beans;
 
+import br.com.rtools.associativo.dao.ParentescoDao;
 import br.com.rtools.associativo.Categoria;
 import br.com.rtools.associativo.GrupoCategoria;
 import br.com.rtools.associativo.Parentesco;
@@ -8,8 +9,6 @@ import br.com.rtools.associativo.db.*;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.db.ServicoRotinaDB;
 import br.com.rtools.financeiro.db.ServicoRotinaDBToplink;
-import br.com.rtools.financeiro.db.ServicosDB;
-import br.com.rtools.financeiro.db.ServicosDBToplink;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataObject;
@@ -42,7 +41,7 @@ public class CategoriaBean implements Serializable {
         categoria = new Categoria();
         idGrupoCategoria = 0;
         listCategoria = new ArrayList();
-        listGrupoCategoria = new ArrayList<SelectItem>();
+        listGrupoCategoria = new ArrayList();
         limpar = false;
         list = new ArrayList();
         listServicos = new ArrayList();
@@ -61,12 +60,11 @@ public class CategoriaBean implements Serializable {
         }
         ServicoCategoriaDB dbSeC = new ServicoCategoriaDBToplink();
         ServicoCategoria servicoCategoria = new ServicoCategoria();
-        CategoriaDB db = new CategoriaDBToplink();
         Dao dao = new Dao();
         NovoLog novoLog = new NovoLog();
         if (categoria.getId() == -1) {
             categoria.setGrupoCategoria((GrupoCategoria) dao.find(new GrupoCategoria(), Integer.parseInt(getListGrupoCategoria().get(idGrupoCategoria).getDescription())));
-            if (db.insert(categoria)) {
+            if (dao.save(categoria, true)) {
                 novoLog.save(
                         "ID: " + categoria.getId()
                         + " - Categoria: " + categoria.getCategoria()
@@ -115,7 +113,7 @@ public class CategoriaBean implements Serializable {
                     + "[Qui][" + c.isUsaClubeQuinta() + "]"
                     + "[Sex][" + c.isUsaClubeSexta() + "]"
                     + "[Sab][" + c.isUsaClubeSabado() + "]";
-            if (db.update(categoria)) {
+            if (dao.update(categoria, true)) {
                 novoLog.update(beforeUpdate,
                         "ID: " + categoria.getId()
                         + " - Categoria: " + categoria.getCategoria()
@@ -249,7 +247,7 @@ public class CategoriaBean implements Serializable {
             int i = 0;
             ServicoRotinaDB db = new ServicoRotinaDBToplink();
             List select = db.pesquisaTodosServicosComRotinas(130);
-            listServicos.add(new SelectItem(new Integer(i),
+            listServicos.add(new SelectItem(i,
                     " -- NENHUM -- ",
                     "-1"));
             while (i < select.size()) {
@@ -265,10 +263,9 @@ public class CategoriaBean implements Serializable {
     public List getListParentescos() {
         if (list.isEmpty()) {
             DataObject dtObj = null;
-            ParentescoDB db = new ParentescoDao();
             ServicoCategoriaDB dbSeC = new ServicoCategoriaDBToplink();
             List<ServicoCategoria> listaSerCat = dbSeC.pesquisaServCatPorId(categoria.getId());
-            List<Parentesco> listaPar = db.pesquisaTodos();
+            List<Parentesco> listaPar = new Dao().list(new Parentesco(), true);
             if (listaSerCat.isEmpty()) {
                 for (int i = 0; i < listaPar.size(); i++) {
                     dtObj = new DataObject(listaPar.get(i), 0, new ServicoCategoria(), null, null, null);
@@ -279,7 +276,7 @@ public class CategoriaBean implements Serializable {
                 boolean temServico = false;
                 for (int i = 0; i < listaPar.size(); i++) {
                     for (int x = 0; x < listaSerCat.size(); x++) {
-                        if (listaPar.get(i).getId() == listaSerCat.get(x).getParentesco().getId()) {
+                        if (Objects.equals(listaPar.get(i).getId(), listaSerCat.get(x).getParentesco().getId())) {
                             for (int w = 0; w < listServicos.size(); w++) {
                                 if (listaSerCat.get(x).getServicos().getId() == (Integer.parseInt(listServicos.get(w).getDescription()))) {
                                     index = w;

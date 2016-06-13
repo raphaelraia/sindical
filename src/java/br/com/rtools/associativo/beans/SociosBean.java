@@ -1,5 +1,7 @@
 package br.com.rtools.associativo.beans;
 
+import br.com.rtools.associativo.dao.ParentescoDao;
+import br.com.rtools.associativo.dao.CategoriaDao;
 import br.com.rtools.arrecadacao.GrupoCidades;
 import br.com.rtools.associativo.*;
 import br.com.rtools.associativo.dao.SocioCarteirinhaDao;
@@ -452,7 +454,7 @@ public class SociosBean implements Serializable {
 
         //SalvarAcumuladoDB sadb = new Dao();
         //List<GrupoCategoria> grupoCategorias = (List<GrupoCategoria>) sadb.listaObjeto("GrupoCategoria");
-        CategoriaDB db = new CategoriaDBToplink();
+        CategoriaDao db = new CategoriaDao();
         List<GrupoCategoria> grupoCategorias = db.pesquisaGrupoCategoriaOrdenada();
 
         if (!grupoCategorias.isEmpty()) {
@@ -468,7 +470,7 @@ public class SociosBean implements Serializable {
         listaCategoria.clear();
         idCategoria = 0;
         if (!listaGrupoCategoria.isEmpty()) {
-            CategoriaDB db = new CategoriaDBToplink();
+            CategoriaDao db = new CategoriaDao();
             List<Categoria> select = db.pesquisaCategoriaPorGrupo(Integer.parseInt(listaGrupoCategoria.get(idGrupoCategoria).getDescription()));
             if (!select.isEmpty()) {
                 for (int i = 0; i < select.size(); i++) {
@@ -1370,7 +1372,7 @@ public class SociosBean implements Serializable {
             ServicoCategoriaDB dbSCat = new ServicoCategoriaDBToplink();
             SocioCarteirinha sc;
             SociosDao sociosDao = new SociosDao();
-            ParentescoDB dbPar = new ParentescoDao();
+            ParentescoDao dbPar = new ParentescoDao();
             boolean message = true;
             for (int i = 0; i < listDependentes.size(); i++) {
                 if (listDependentes.get(i).getFisica().getId() != -1) {
@@ -1378,7 +1380,7 @@ public class SociosBean implements Serializable {
                     Fisica fisicaDependente = listDependentes.get(i).getFisica();
 
                     List<SelectItem> lista_si = (ArrayList<SelectItem>) listDependentes.get(i).getListParentesco();
-                    Parentesco parentesco = dbPar.pesquisaCodigo(Integer.valueOf(lista_si.get(Integer.valueOf(Integer.toString(listDependentes.get(i).getIdParentesco()))).getDescription()));
+                    Parentesco parentesco = (Parentesco) dao.find(new Parentesco(), Integer.valueOf(lista_si.get(Integer.valueOf(Integer.toString(listDependentes.get(i).getIdParentesco()))).getDescription()));
                     sc = socioCarteirinhaDao.pesquisaPorPessoaModelo(fisicaDependente.getPessoa().getId(), modeloc.getId());
                     ValidadeCartao vc = validadeCartaoDao.findByCategoriaParentesco(Integer.valueOf(listaCategoria.get(idCategoria).getDescription()), parentesco.getId());
                     if (vc == null) {
@@ -1617,13 +1619,13 @@ public class SociosBean implements Serializable {
         atualizarListaDependenteInativo();
 
         if (socios.getMatriculaSocios().getCategoria().getBloqueiaMeses()) {
-            List<ServicoPessoaBloqueio> spbs = new ServicoPessoaBloqueioDao().findByServicoPessoa(socios.getServicoPessoa().getId()); 
-            if(spbs.isEmpty()) {
+            List<ServicoPessoaBloqueio> spbs = new ServicoPessoaBloqueioDao().findByServicoPessoa(socios.getServicoPessoa().getId());
+            if (spbs.isEmpty()) {
                 saveBloqueio();
             }
         } else if (!socios.getMatriculaSocios().getCategoria().getBloqueiaMeses()) {
             List<ServicoPessoaBloqueio> spbs = new ServicoPessoaBloqueioDao().findByServicoPessoa(socios.getServicoPessoa().getId());
-            if(!spbs.isEmpty()) {
+            if (!spbs.isEmpty()) {
                 for (int i = 0; i < spbs.size(); i++) {
                     new Dao().delete(spbs.get(i), true);
                 }
@@ -1993,8 +1995,7 @@ public class SociosBean implements Serializable {
         Fisica fisica = new Fisica();
         DataHoje dh = new DataHoje();
 
-        CategoriaDB dbCat = new CategoriaDBToplink();
-        GrupoCategoria gpCat = dbCat.pesquisaGrupoPorCategoria(Integer.valueOf(listaCategoria.get(idCategoria).getDescription()));
+        CategoriaDao dbCat = new CategoriaDao();
 
         Date validadeCarteirinha = DataHoje.converte(dh.incrementarMeses(0, DataHoje.data()));
         if (GenericaSessao.getString("sessaoCliente").equals("ServidoresRP")) {
@@ -2573,7 +2574,7 @@ public class SociosBean implements Serializable {
                 Fisica fisica = dbf.pesquisaFisicaPorPessoa(listaDepsInativo.get(i).getServicoPessoa().getPessoa().getId());
 
                 List<Parentesco> listap = getListaParentesco(fisica.getSexo());
-                ParentescoDB dbp = new ParentescoDao();
+                ParentescoDao dbp = new ParentescoDao();
                 List<SelectItem> lista_si = new ArrayList<>();
                 for (int w = 0; w < listap.size(); w++) {
                     if (listaDepsInativo.get(i).getParentesco().getId() == listap.get(w).getId()) {
@@ -2659,27 +2660,18 @@ public class SociosBean implements Serializable {
     }
 
     public void atualizaValidadeTela(int index) {
-        ParentescoDB db = new ParentescoDao();
-
-        // Fisica fisica = (Fisica) ((DataObject) listaDependentes.get(index)).getArgumento0();
         Fisica fisica = listDependentes.get(index).getFisica();
-
         List<Parentesco> listap = getListaParentesco(fisica.getSexo());
         List<SelectItem> lista_si = new ArrayList();
         for (int w = 0; w < listap.size(); w++) {
             lista_si.add(new SelectItem(w, listap.get(w).getParentesco(), Integer.toString(listap.get(w).getId())));
         }
-
         listDependentes.get(index).setListParentesco(lista_si);
         int index_pa = Integer.valueOf(listDependentes.get(index).getParentescoString());
-
-        Parentesco par = db.pesquisaCodigo(Integer.valueOf(lista_si.get(index_pa).getDescription()));
-
+        Parentesco par = (Parentesco) new Dao().find(new Parentesco(), Integer.valueOf(lista_si.get(index_pa).getDescription()));
         listDependentes.get(index).setValidadeCarteirinha(atualizaValidadeCarteirinha(par, fisica));
         listDependentes.get(index).setValidadeDependente(atualizaValidade(par, fisica));
-
         ServicoCategoriaDB dbSCat = new ServicoCategoriaDBToplink();
-
         ServicoCategoria servicoCategoriaDep = dbSCat.pesquisaPorParECat(par.getId(), servicoCategoria.getCategoria().getId());
         listDependentes.get(index).getServicoPessoa().setServicos(servicoCategoriaDep.getServicos());
 
@@ -2796,7 +2788,7 @@ public class SociosBean implements Serializable {
             for (ListaDependentes ld : listDependentes) {
                 if (registro.isFotoCartao()) {
                     if (ld.getServicoPessoa().getPessoa().getFisica().getFoto() == null || ld.getServicoPessoa().getPessoa().getFisica().getFoto().isEmpty()) {
-                        if(!dependentesSemFotos) {
+                        if (!dependentesSemFotos) {
                             dependentesSemFotos = true;
                         }
                         continue;
@@ -3069,7 +3061,7 @@ public class SociosBean implements Serializable {
 //    }
     public List<Parentesco> getListaParentesco(String sexo) {
         if (!listaCategoria.isEmpty()) {
-            ParentescoDB db = new ParentescoDao();
+            ParentescoDao db = new ParentescoDao();
             if (Integer.valueOf(listaCategoria.get(idCategoria).getDescription()) == 0) {
                 return new ArrayList<>();
             }

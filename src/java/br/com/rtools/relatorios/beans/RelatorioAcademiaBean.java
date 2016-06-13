@@ -4,7 +4,7 @@ import br.com.rtools.academia.AcademiaServicoValor;
 import br.com.rtools.academia.dao.AcademiaDao;
 import br.com.rtools.associativo.Categoria;
 import br.com.rtools.associativo.GrupoCategoria;
-import br.com.rtools.associativo.db.CategoriaDao;
+import br.com.rtools.associativo.dao.CategoriaDao;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.relatorios.Relatorios;
@@ -13,8 +13,6 @@ import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.sistema.Periodo;
 import br.com.rtools.sistema.SisProcesso;
-import br.com.rtools.sistema.beans.SisProcessoBean;
-import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -199,7 +197,7 @@ public class RelatorioAcademiaBean implements Serializable {
             idade[0] = 0;
             idade[1] = 0;
         } else {
-            listDetalhePesquisa.add(" Idade de " + idade[0] + " - " + idade[1]);            
+            listDetalhePesquisa.add(" Idade de " + idade[0] + " - " + idade[1]);
         }
         if (filtro[4]) {
             switch (sexo) {
@@ -232,7 +230,7 @@ public class RelatorioAcademiaBean implements Serializable {
         if (responsavel.getId() != -1) {
             idResponsavel = responsavel.getId();
             listDetalhePesquisa.add(" Responsável: " + responsavel.getDocumento() + " - " + responsavel.getNome());
-        }        
+        }
         if (order == null) {
             order = "";
         }
@@ -262,7 +260,7 @@ public class RelatorioAcademiaBean implements Serializable {
 
         RelatorioAcademiaDao rad = new RelatorioAcademiaDao();
         rad.setRelatorios(relatorios);
-        if(relatorios.getId() == 32) {
+        if (relatorios.getId() == 32) {
             relatorios.setQueryString("PA.nome, MV.dt_vencimento");
             order = "PA.nome, MV.dt_vencimento";
         }
@@ -578,7 +576,7 @@ public class RelatorioAcademiaBean implements Serializable {
     public void setDataInicial(Date dataInicial) {
         this.dataInicial = dataInicial;
     }
-    
+
     public String getDataInicialString() {
         return DataHoje.converteData(dataInicial);
     }

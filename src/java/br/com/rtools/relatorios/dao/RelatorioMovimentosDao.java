@@ -214,8 +214,18 @@ public class RelatorioMovimentosDao extends DB {
                     data_ano = "extract(year from mov.dt_vencimento)";
                     break;
                 case "referencia":
-                    String ini = data_inicial.substring(3, 7) + data_inicial.substring(0, 2);
-                    String fin = data_final.substring(3, 7) + data_final.substring(0, 2);
+                    String ini = "";
+                    try {
+                        ini = data_inicial.substring(3, 7) + data_inicial.substring(0, 2);
+                    } catch (Exception e) {
+
+                    }
+                    String fin = "";
+                    try {
+                        fin = data_final.substring(3, 7) + data_final.substring(0, 2);
+                    } catch (Exception e) {
+
+                    }
 
                     if (!data_inicial.isEmpty() || !data_final.isEmpty()) {
                         switch (tipo_data) {
@@ -229,7 +239,7 @@ public class RelatorioMovimentosDao extends DB {
                                 listWhere.add("concatenar(substring(mov.ds_referencia, 4, 8), substring(mov.ds_referencia, 0, 3)) <= '" + ini + "'");
                                 break;
                             case "faixa":
-                                listWhere.add("concatenar(substring(mov.ds_referencia, 4, 8), substring(mov.ds_referencia, 0, 3)) '" + ini + "' AND '" + fin + "'");
+                                listWhere.add("concatenar(substring(mov.ds_referencia, 4, 8), substring(mov.ds_referencia, 0, 3)) BETWEEN '" + ini + "' AND '" + fin + "'");
                                 break;
                             default:
                                 break;

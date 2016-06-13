@@ -9,8 +9,7 @@ import br.com.rtools.associativo.SocioCarteirinha;
 import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.ValidadeCartao;
 import br.com.rtools.associativo.dao.ValidadeCartaoDao;
-import br.com.rtools.associativo.db.CategoriaDB;
-import br.com.rtools.associativo.db.CategoriaDBToplink;
+import br.com.rtools.associativo.dao.CategoriaDao;
 import br.com.rtools.associativo.db.SocioCarteirinhaDB;
 import br.com.rtools.associativo.db.SocioCarteirinhaDBToplink;
 import br.com.rtools.associativo.db.SociosDB;
@@ -26,7 +25,6 @@ import br.com.rtools.pessoa.db.FisicaDBToplink;
 import br.com.rtools.pessoa.db.PessoaEmpresaDB;
 import br.com.rtools.pessoa.db.PessoaEmpresaDBToplink;
 import br.com.rtools.seguranca.MacFilial;
-import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
@@ -379,8 +377,7 @@ public class CartaoSocialBean implements Serializable {
         SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
 
         if (!listaSelecionado.isEmpty()) {
-            SocioCarteirinhaDB db = new SocioCarteirinhaDBToplink();
-            CategoriaDB dbCat = new CategoriaDBToplink();
+            CategoriaDao dbCat = new CategoriaDao();
             DataHoje dh = new DataHoje();
             SociosDB dbs = new SociosDBToplink();
 

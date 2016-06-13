@@ -1,7 +1,7 @@
 package br.com.rtools.locadoraFilme.beans;
 
 import br.com.rtools.associativo.Parentesco;
-import br.com.rtools.associativo.db.ParentescoDao;
+import br.com.rtools.associativo.dao.ParentescoDao;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.locadoraFilme.LocadoraAutorizados;

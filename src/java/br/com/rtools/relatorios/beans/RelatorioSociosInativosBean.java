@@ -4,8 +4,7 @@ import br.com.rtools.associativo.Categoria;
 import br.com.rtools.associativo.GrupoCategoria;
 import br.com.rtools.associativo.SMotivoInativacao;
 import br.com.rtools.associativo.Socios;
-import br.com.rtools.associativo.db.CategoriaDB;
-import br.com.rtools.associativo.db.CategoriaDBToplink;
+import br.com.rtools.associativo.dao.CategoriaDao;
 import br.com.rtools.impressao.ParametroSociosInativos;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.PessoaEndereco;
@@ -235,9 +234,6 @@ public class RelatorioSociosInativosBean implements Serializable {
 
     public final void loadListCategoria() {
         listCategoria.clear();
-        Dao di = new Dao();
-        CategoriaDB db = new CategoriaDBToplink();
-        //List<Categoria> select = di.list(new Categoria());
         List<Categoria> list = new Dao().list(new Categoria(), true);
         for (int i = 0; i < list.size(); i++) {
             if (i == 0) {

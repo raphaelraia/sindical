@@ -1,11 +1,8 @@
 package br.com.rtools.associativo.beans;
 
 import br.com.rtools.associativo.Parentesco;
-import br.com.rtools.associativo.db.ParentescoDB;
-import br.com.rtools.associativo.db.ParentescoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +21,7 @@ public class ParentescoBean {
     private boolean limpar = false;
 
     public String salvar() {
-        ParentescoDB db = new ParentescoDao();
+        Dao dao = new Dao();
         NovoLog novoLog = new NovoLog();
         if (getParentesco().getParentesco().equals("") || getParentesco().getParentesco() == null) {
             setMsgConfirma("Digite um nome para o parentesco!");
@@ -32,7 +29,7 @@ public class ParentescoBean {
             return null;
         }
         if (getParentesco().getId() == -1) {
-            if (db.insert(getParentesco())) {
+            if (dao.save(getParentesco(), true)) {
                 setLimpar(false);
                 setMsgConfirma("Parentesco salvo com sucesso.");
                 GenericaMensagem.info("Sucesso", msgConfirma);
@@ -50,17 +47,15 @@ public class ParentescoBean {
                 GenericaMensagem.warn("Erro", msgConfirma);
             }
         } else {
-            DaoInterface di = new Dao();
-            Parentesco p = (Parentesco) di.find(parentesco);
-            String beforeUpdate = 
-                "ID: " + p.getId()
-                + " - Parentesco: " + p.getParentesco()
-                + " - Sexo: " + p.getSexo()
-                + " - Com Validade?: " + p.isValidade()
-                + " - Validade: " + p.getNrValidade()
-                + " - Ativo: " + p.isAtivo()
-            ;                
-            if (db.update(getParentesco())) {
+            Parentesco p = (Parentesco) dao.find(parentesco);
+            String beforeUpdate
+                    = "ID: " + p.getId()
+                    + " - Parentesco: " + p.getParentesco()
+                    + " - Sexo: " + p.getSexo()
+                    + " - Com Validade?: " + p.isValidade()
+                    + " - Validade: " + p.getNrValidade()
+                    + " - Ativo: " + p.isAtivo();
+            if (dao.update(getParentesco(), true)) {
                 novoLog.update(beforeUpdate,
                         "ID: " + parentesco.getId()
                         + " - Parentesco: " + parentesco.getParentesco()
@@ -68,7 +63,7 @@ public class ParentescoBean {
                         + " - Com Validade?: " + parentesco.isValidade()
                         + " - Validade: " + parentesco.getNrValidade()
                         + " - Ativo: " + parentesco.isAtivo()
-                );                
+                );
                 setMsgConfirma("Parentesco atualizado com sucesso.");
                 GenericaMensagem.info("Sucesso", msgConfirma);
                 parentesco = new Parentesco();
@@ -81,14 +76,14 @@ public class ParentescoBean {
     }
 
     public String excluir() {
-        ParentescoDB db = new ParentescoDao();
+        Dao dao = new Dao();
         NovoLog novoLog = new NovoLog();
         if (parentesco.getId() == -1) {
             msgConfirma = "Selecione um parentesco para ser excluído!";
             GenericaMensagem.warn("Erro", msgConfirma);
             return null;
         }
-        if (db.delete(db.pesquisaCodigo(parentesco.getId()))) {
+        if (dao.delete(dao.find(new Parentesco(), parentesco.getId()))) {
             novoLog.delete(
                     "ID: " + parentesco.getId()
                     + " - Parentesco: " + parentesco.getParentesco()
@@ -96,7 +91,7 @@ public class ParentescoBean {
                     + " - Com Validade?: " + parentesco.isValidade()
                     + " - Validade: " + parentesco.getNrValidade()
                     + " - Ativo: " + parentesco.isAtivo()
-            );            
+            );
             setLimpar(true);
             msgConfirma = "Parentesco deletado com sucesso!";
             GenericaMensagem.info("Sucesso", msgConfirma);
@@ -151,8 +146,7 @@ public class ParentescoBean {
     }
 
     public List<Parentesco> getListaParentesco() {
-        ParentescoDB db = new ParentescoDao();
-        listaParentesco = db.pesquisaTodos();
+        listaParentesco = new Dao().list(new Parentesco(), true);
         for (int i = 0; i < listaParentesco.size(); i++) {
             if (listaParentesco.get(i).isAtivo() == true) {
                 getListaImagem().add("iconTrue.gif");

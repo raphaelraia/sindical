@@ -1,12 +1,10 @@
 package br.com.rtools.associativo.beans;
 
 import br.com.rtools.associativo.Suspencao;
-import br.com.rtools.associativo.db.SuspencaoDB;
-import br.com.rtools.associativo.db.SuspencaoDBToplink;
+import br.com.rtools.associativo.dao.SuspencaoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaSessao;
 import java.util.ArrayList;
@@ -28,7 +26,7 @@ public class SuspencaoBean {
     public void init() {
         suspencao = new Suspencao();
         message = "";
-        listSuspencao = new ArrayList<Suspencao>();
+        listSuspencao = new ArrayList();
     }
 
     @PreDestroy
@@ -59,18 +57,18 @@ public class SuspencaoBean {
             message = "Digite um motivo de Suspensão!";
             return;
         }
-        SuspencaoDB suspencaoDB = new SuspencaoDBToplink();
+        SuspencaoDao suspencaoDB = new SuspencaoDao();
         if (suspencaoDB.existeSuspensaoSocio(suspencao)) {
             message = "Sócio já encontra-se suspenso!";
             return;
         }
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         NovoLog novoLog = new NovoLog();
         if (suspencao.getId() == -1) {
             if (di.save(suspencao, true)) {
                 novoLog.save(
                         "ID: " + suspencao.getId()
-                        + " - Pessoa: (" + suspencao.getPessoa().getId()+ ") " + suspencao.getPessoa().getNome()
+                        + " - Pessoa: (" + suspencao.getPessoa().getId() + ") " + suspencao.getPessoa().getNome()
                         + " - Período: " + suspencao.getDataInicial() + " até " + suspencao.getDataFinal()
                         + " - Motivo: " + suspencao.getMotivo()
                 );
@@ -80,16 +78,15 @@ public class SuspencaoBean {
             }
         } else {
             Suspencao s = (Suspencao) di.find(suspencao);
-            String beforeUpdate = 
-                    "ID: " + s.getId()
-                    + " - Pessoa: (" + s.getPessoa().getId()+ ") " + s.getPessoa().getNome()
+            String beforeUpdate
+                    = "ID: " + s.getId()
+                    + " - Pessoa: (" + s.getPessoa().getId() + ") " + s.getPessoa().getNome()
                     + " - Período: " + s.getDataInicial() + " até " + s.getDataFinal()
-                    + " - Motivo: " + s.getMotivo()
-            ;
+                    + " - Motivo: " + s.getMotivo();
             if (di.update(suspencao, true)) {
                 novoLog.update(beforeUpdate,
                         "ID: " + suspencao.getId()
-                        + " - Pessoa: (" + suspencao.getPessoa().getId()+ ") " + suspencao.getPessoa().getNome()
+                        + " - Pessoa: (" + suspencao.getPessoa().getId() + ") " + suspencao.getPessoa().getNome()
                         + " - Período: " + suspencao.getDataInicial() + " até " + suspencao.getDataFinal()
                         + " - Motivo: " + suspencao.getMotivo()
                 );
@@ -105,15 +102,15 @@ public class SuspencaoBean {
             message = "Selecione uma suspensão para ser excluída!";
             return;
         }
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         NovoLog novoLog = new NovoLog();
         if (di.delete(suspencao, true)) {
             novoLog.delete(
                     "ID: " + suspencao.getId()
-                    + " - Pessoa: (" + suspencao.getPessoa().getId()+ ") " + suspencao.getPessoa().getNome()
+                    + " - Pessoa: (" + suspencao.getPessoa().getId() + ") " + suspencao.getPessoa().getNome()
                     + " - Período: " + suspencao.getDataInicial() + " até " + suspencao.getDataFinal()
                     + " - Motivo: " + suspencao.getMotivo()
-            );            
+            );
             suspencao = new Suspencao();
             message = "Suspensão deletada com sucesso!";
             listSuspencao.clear();
@@ -128,7 +125,7 @@ public class SuspencaoBean {
     }
 
     public String edit(Suspencao s) {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         suspencao = (Suspencao) di.rebind(s);
         GenericaSessao.put("pessoaPesquisa", suspencao.getPessoa());
         GenericaSessao.put("linkClicado", true);
@@ -137,8 +134,7 @@ public class SuspencaoBean {
 
     public List<Suspencao> getListSuspencao() {
         if (listSuspencao.isEmpty()) {
-            DaoInterface di = new Dao();
-            listSuspencao = (List<Suspencao>) di.list(new Suspencao(), true);
+            listSuspencao = (List<Suspencao>) new Dao().list(new Suspencao(), true);
         }
         return listSuspencao;
     }

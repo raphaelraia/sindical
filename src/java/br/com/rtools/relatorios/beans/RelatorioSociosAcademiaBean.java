@@ -4,7 +4,7 @@ import br.com.rtools.academia.AcademiaServicoValor;
 import br.com.rtools.academia.dao.AcademiaDao;
 import br.com.rtools.associativo.Categoria;
 import br.com.rtools.associativo.GrupoCategoria;
-import br.com.rtools.associativo.db.CategoriaDao;
+import br.com.rtools.associativo.dao.CategoriaDao;
 import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioDao;
@@ -103,8 +103,8 @@ public class RelatorioSociosAcademiaBean implements Serializable {
                     }
                     listRelatorio.add(new SelectItem(list.get(i).getId(), list.get(i).getNome()));
                 }
-                if(idRelatorio == null) {
-                    if(!listRelatorio.isEmpty()) {
+                if (idRelatorio == null) {
+                    if (!listRelatorio.isEmpty()) {
                         idRelatorio = list.get(0).getId();
                     }
                 }
@@ -190,7 +190,7 @@ public class RelatorioSociosAcademiaBean implements Serializable {
         RelatorioSociosAcademiaDao rsad = new RelatorioSociosAcademiaDao();
         rsad.setRelatorios(getRelatorios());
         RelatorioOrdem ro = null;
-        if(idRelatorioOrdem != null) {
+        if (idRelatorioOrdem != null) {
             ro = (RelatorioOrdem) new Dao().find(new RelatorioOrdem(), idRelatorioOrdem);
         }
         rsad.setRelatorioOrdem(ro);

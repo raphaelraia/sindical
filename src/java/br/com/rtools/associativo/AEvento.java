@@ -4,7 +4,9 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "eve_evento")
-@NamedQuery(name = "AEvento.pesquisaID", query = "select s from AEvento s where s.id=:pid")
+@NamedQueries({
+    @NamedQuery(name = "AEvento.pesquisaID", query = "SELECT AE FROM AEvento AS AE WHERE AE.id = :pid")
+})
 public class AEvento implements java.io.Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

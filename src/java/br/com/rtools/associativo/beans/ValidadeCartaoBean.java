@@ -4,7 +4,7 @@ import br.com.rtools.associativo.Categoria;
 import br.com.rtools.associativo.Parentesco;
 import br.com.rtools.associativo.ValidadeCartao;
 import br.com.rtools.associativo.dao.ValidadeCartaoDao;
-import br.com.rtools.associativo.db.ParentescoDao;
+import br.com.rtools.associativo.dao.ParentescoDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;

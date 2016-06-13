@@ -5,10 +5,8 @@ import br.com.rtools.associativo.CategoriaDesconto;
 import br.com.rtools.associativo.CategoriaDescontoDependente;
 import br.com.rtools.associativo.ModeloCarteirinha;
 import br.com.rtools.associativo.Parentesco;
-import br.com.rtools.associativo.db.CategoriaDescontoDB;
-import br.com.rtools.associativo.db.CategoriaDescontoDBToplink;
-import br.com.rtools.associativo.db.ParentescoDB;
-import br.com.rtools.associativo.db.ParentescoDao;
+import br.com.rtools.associativo.dao.CategoriaDescontoDao;
+import br.com.rtools.associativo.dao.ParentescoDao;
 import br.com.rtools.financeiro.GrupoFinanceiro;
 import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.ServicoContaCobranca;
@@ -615,7 +613,7 @@ public class ServicosBean implements Serializable {
                             + " - Idade: " + servicoValor.getIdadeIni() + " - " + servicoValor.getIdadeFim()
                     );
                     List<Categoria> listc = new Dao().list(new Categoria());
-                    CategoriaDescontoDB db = new CategoriaDescontoDBToplink();
+                    CategoriaDescontoDao db = new CategoriaDescontoDao();
 
                     for (Categoria c : listc) {
                         if (db.listaCategoriaDescontoCategoriaServicoValor(c.getId(), servicoValor.getId()).isEmpty()) {
@@ -678,7 +676,7 @@ public class ServicosBean implements Serializable {
         NovoLog novoLog = new NovoLog();
         textoBtnServico = "Adicionar";
         if (servicoValor.getId() != -1) {
-            CategoriaDescontoDB db = new CategoriaDescontoDBToplink();
+            CategoriaDescontoDao db = new CategoriaDescontoDao();
             List<CategoriaDesconto> listc = db.listaCategoriaDescontoServicoValor(servicoValor.getId());
 
             for (CategoriaDesconto cd : listc) {
@@ -807,7 +805,7 @@ public class ServicosBean implements Serializable {
     }
 
     public List<CategoriaDesconto> getListCategoriaDesconto() {
-        CategoriaDescontoDB categoriaDescontoDB = new CategoriaDescontoDBToplink();
+        CategoriaDescontoDao categoriaDescontoDB = new CategoriaDescontoDao();
         List<Categoria> listaCategoria = categoriaDescontoDB.pesquisaCategoriasSemServico(servicos.getId());
         listCategoriaDesconto = categoriaDescontoDB.pesquisaTodosPorServico(servicos.getId());
         if (listCategoriaDesconto == null) {
@@ -1074,7 +1072,7 @@ public class ServicosBean implements Serializable {
 
     public List<SelectItem> getListaParentesco() {
         if (listaParentesco.isEmpty()) {
-            ParentescoDB db = new ParentescoDao();
+            ParentescoDao db = new ParentescoDao();
             //List<Parentesco> select = db.pesquisaTodosSemTitularCategoria(Integer.valueOf(listaCategoria.get(idCategoria).getDescription()));
             List<Parentesco> select = db.pesquisaTodosComTitularCategoriaSemDesconto(id_categoria, categoriaDesconto.getId());
             //List<Parentesco> select = db.pesquisaTodosSemTitular();
@@ -1130,7 +1128,7 @@ public class ServicosBean implements Serializable {
         }
         Parentesco par = (Parentesco) di.find(new Parentesco(), Integer.valueOf(listaParentesco.get(indexParentesco).getDescription()));
         if (!listaDescontoDependente.isEmpty()) {
-            CategoriaDescontoDB db = new CategoriaDescontoDBToplink();
+            CategoriaDescontoDao db = new CategoriaDescontoDao();
             if (db.pesquisaDescontoDependentePorCategoria(par.getId(), categoriaDesconto.getId()) != null) {
                 GenericaMensagem.warn("Atenção", "Esse parentesco já existe para esta categoria!");
                 return;
@@ -1169,7 +1167,7 @@ public class ServicosBean implements Serializable {
         for (SelectItem si : listaParentesco) {
             Parentesco par = (Parentesco) di.find(new Parentesco(), Integer.valueOf(si.getDescription()));
             if (par != null) {
-                CategoriaDescontoDB db = new CategoriaDescontoDBToplink();
+                CategoriaDescontoDao db = new CategoriaDescontoDao();
 
                 if (db.pesquisaDescontoDependentePorCategoria(par.getId(), categoriaDesconto.getId()) == null) {
                     descontoDepentende.setParentesco(par);
@@ -1257,7 +1255,7 @@ public class ServicosBean implements Serializable {
 
     public List<CategoriaDescontoDependente> getListaDescontoDependente() {
         if (listaDescontoDependente.isEmpty() && categoriaDesconto.getId() != -1) {
-            CategoriaDescontoDB db = new CategoriaDescontoDBToplink();
+            CategoriaDescontoDao db = new CategoriaDescontoDao();
             listaDescontoDependente = db.listaDescontoDependentePorCategoria(categoriaDesconto.getId());
         }
         return listaDescontoDependente;

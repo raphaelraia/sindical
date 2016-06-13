@@ -1,5 +1,6 @@
 package br.com.rtools.associativo.beans;
 
+import br.com.rtools.associativo.dao.EventoServicoDao;
 import br.com.rtools.associativo.*;
 import br.com.rtools.associativo.db.*;
 import br.com.rtools.financeiro.Evt;
@@ -429,7 +430,7 @@ public class CaravanaBean implements Serializable {
     }
 
     public List<DataObject> getListaServicosAdd() {
-        EventoServicoDB dbE = new EventoServicoDBToplink();
+        EventoServicoDao dbE = new EventoServicoDao();
         EventoServicoValorDB dbEv = new EventoServicoValorDBToplink();
         if (caravana.getId() != -1) {
             listaServicosAdd.clear();

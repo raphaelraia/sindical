@@ -12,12 +12,16 @@ import javax.persistence.JoinColumn;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = "car_caravana")
-@NamedQuery(name = "Caravana.pesquisaID", query = "select c from Caravana c where c.id = :pid")
+@NamedQueries({
+    @NamedQuery(name = "Caravana.pesquisaID", query = "SELECT C FROM Caravana AS C WHERE C.id = :pid"),
+    @NamedQuery(name = "Caravana.findAll", query = "SELECT C FROM Caravana AS C ORDER BY C.dtSaida DESC, C.horaSaida ASC")
+})
 public class Caravana implements java.io.Serializable {
 
     @Id

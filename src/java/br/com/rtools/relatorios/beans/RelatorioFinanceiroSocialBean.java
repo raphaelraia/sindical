@@ -4,16 +4,13 @@ import br.com.rtools.associativo.Categoria;
 import br.com.rtools.associativo.DescontoSocial;
 import br.com.rtools.associativo.GrupoCategoria;
 import br.com.rtools.associativo.Parentesco;
-import br.com.rtools.associativo.db.CategoriaDB;
-import br.com.rtools.associativo.db.CategoriaDBToplink;
-import br.com.rtools.associativo.db.ParentescoDB;
-import br.com.rtools.associativo.db.ParentescoDao;
+import br.com.rtools.associativo.dao.CategoriaDao;
+import br.com.rtools.associativo.dao.ParentescoDao;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.GrupoFinanceiro;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.SubGrupoFinanceiro;
-import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.financeiro.db.FinanceiroDB;
 import br.com.rtools.financeiro.db.FinanceiroDBToplink;
 import br.com.rtools.pessoa.Pessoa;
@@ -295,7 +292,7 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
         listaGrupoCategoria.clear();
         idGrupoCategoria = 0;
 
-        CategoriaDB db = new CategoriaDBToplink();
+        CategoriaDao db = new CategoriaDao();
         List<GrupoCategoria> grupoCategorias = db.pesquisaGrupoCategoriaOrdenada();
 
         if (!grupoCategorias.isEmpty()) {
@@ -313,7 +310,7 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
         listaCategoria.clear();
         idCategoria = 0;
         if (!listaGrupoCategoria.isEmpty()) {
-            CategoriaDB db = new CategoriaDBToplink();
+            CategoriaDao db = new CategoriaDao();
             List<Categoria> select = db.pesquisaCategoriaPorGrupo(Integer.parseInt(listaGrupoCategoria.get(idGrupoCategoria).getDescription()));
             if (!select.isEmpty()) {
                 for (int i = 0; i < select.size(); i++) {
@@ -335,7 +332,7 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
         idParentesco = 0;
         listaParentesco.clear();
 
-        ParentescoDB db = new ParentescoDao();
+        ParentescoDao db = new ParentescoDao();
 
         List<Parentesco> select;
 

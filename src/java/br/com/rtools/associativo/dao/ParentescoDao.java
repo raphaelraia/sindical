@@ -1,4 +1,4 @@
-package br.com.rtools.associativo.db;
+package br.com.rtools.associativo.dao;
 
 import br.com.rtools.associativo.Parentesco;
 import br.com.rtools.principal.DB;
@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 
-public class ParentescoDao extends DB implements ParentescoDB {
+public class ParentescoDao extends DB {
 
     private String sexo;
     private String not_in;
@@ -17,72 +17,6 @@ public class ParentescoDao extends DB implements ParentescoDB {
         not_in = "";
     }
 
-    @Override
-    public boolean insert(Parentesco parentesco) {
-        try {
-            getEntityManager().getTransaction().begin();
-            getEntityManager().persist(parentesco);
-            getEntityManager().flush();
-            getEntityManager().getTransaction().commit();
-            return true;
-        } catch (Exception e) {
-            getEntityManager().getTransaction().rollback();
-            return false;
-        }
-    }
-
-    @Override
-    public boolean update(Parentesco parentesco) {
-        try {
-            getEntityManager().getTransaction().begin();
-            getEntityManager().merge(parentesco);
-            getEntityManager().flush();
-            getEntityManager().getTransaction().commit();
-            return true;
-        } catch (Exception e) {
-            getEntityManager().getTransaction().rollback();
-            return false;
-        }
-    }
-
-    @Override
-    public boolean delete(Parentesco parentesco) {
-        try {
-            getEntityManager().getTransaction().begin();
-            getEntityManager().remove(parentesco);
-            getEntityManager().flush();
-            getEntityManager().getTransaction().commit();
-            return true;
-        } catch (Exception e) {
-            getEntityManager().getTransaction().rollback();
-            return false;
-        }
-    }
-
-    @Override
-    public Parentesco pesquisaCodigo(int id) {
-        Parentesco result = null;
-        try {
-            Query qry = getEntityManager().createNamedQuery("Parentesco.pesquisaID");
-            qry.setParameter("pid", id);
-            result = (Parentesco) qry.getSingleResult();
-        } catch (Exception e) {
-            e.getMessage();
-        }
-        return result;
-    }
-
-    @Override
-    public List pesquisaTodos() {
-        try {
-            Query qry = getEntityManager().createQuery("select p from Parentesco p order by p.id asc");
-            return (qry.getResultList());
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    @Override
     public List pesquisaTodosSemTitular() {
         try {
             Query qry = getEntityManager().createQuery("select p from Parentesco p "
@@ -95,7 +29,6 @@ public class ParentescoDao extends DB implements ParentescoDB {
         }
     }
 
-    @Override
     public List<Parentesco> pesquisaTodosSemTitularCategoria(int id_categoria) {
         try {
             Query qry = getEntityManager().createQuery(
@@ -112,7 +45,6 @@ public class ParentescoDao extends DB implements ParentescoDB {
         }
     }
 
-    @Override
     public List<Parentesco> pesquisaTodosSemTitularCategoriaSemDesconto(int id_categoria, int id_categoria_desconto) {
         try {
             Query qry = getEntityManager().createQuery(
@@ -130,7 +62,6 @@ public class ParentescoDao extends DB implements ParentescoDB {
         }
     }
 
-    @Override
     public List<Parentesco> pesquisaTodosComTitularCategoriaSemDesconto(int id_categoria, int id_categoria_desconto) {
         try {
             Query qry = getEntityManager().createQuery(
@@ -146,7 +77,6 @@ public class ParentescoDao extends DB implements ParentescoDB {
         }
     }
 
-    @Override
     public List<Parentesco> pesquisaTodosSemTitularCategoriaSexo(int id_categoria, String sexo) {
         try {
             Query query = getEntityManager().createQuery(

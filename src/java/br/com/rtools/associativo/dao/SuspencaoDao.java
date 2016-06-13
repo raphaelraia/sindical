@@ -1,13 +1,12 @@
-package br.com.rtools.associativo.db;
+package br.com.rtools.associativo.dao;
 
 import br.com.rtools.associativo.Suspencao;
 import br.com.rtools.principal.DB;
 import java.util.List;
 import javax.persistence.Query;
 
-public class SuspencaoDBToplink extends DB implements SuspencaoDB {
+public class SuspencaoDao extends DB {
 
-    @Override
     public boolean existeSuspensaoSocio(Suspencao suspencao) {
         try {
             Query query = getEntityManager().createQuery("SELECT S FROM Suspencao AS S WHERE S.pessoa.id = :pessoa AND S.dtFinal < CURRENT_DATE");
