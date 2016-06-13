@@ -1,6 +1,8 @@
 package br.com.rtools.financeiro.lista;
 
 import br.com.rtools.financeiro.Cartao;
+import br.com.rtools.financeiro.CartaoPag;
+import br.com.rtools.financeiro.CartaoRec;
 import br.com.rtools.financeiro.ChequePag;
 import br.com.rtools.financeiro.ChequeRec;
 import br.com.rtools.financeiro.Plano5;
@@ -15,9 +17,11 @@ public class ListValoresBaixaGeral {
     private ChequeRec chequeRec;
     private Plano5 plano5;
     private Cartao cartao;
+    private CartaoPag cartaoPag;
+    private CartaoRec cartaoRec;
     private String valorDigitado;
 
-    public ListValoresBaixaGeral(String vencimento, String valor, String numeroCheque, TipoPagamento tipoPagamento, ChequePag chequePag, ChequeRec chequeRec, Plano5 plano5, Cartao cartao, String valorDigitado) {
+    public ListValoresBaixaGeral(String vencimento, String valor, String numeroCheque, TipoPagamento tipoPagamento, ChequePag chequePag, ChequeRec chequeRec, Plano5 plano5, Cartao cartao, CartaoPag cartaoPag, CartaoRec cartaoRec, String valorDigitado) {
         this.vencimento = vencimento;
         this.valor = valor;
         this.numeroCheque = numeroCheque;
@@ -26,6 +30,8 @@ public class ListValoresBaixaGeral {
         this.chequeRec = chequeRec;
         this.plano5 = plano5;
         this.cartao = cartao;
+        this.cartaoPag = cartaoPag;
+        this.cartaoRec = cartaoRec;
         this.valorDigitado = valorDigitado;
     }
     
@@ -99,5 +105,21 @@ public class ListValoresBaixaGeral {
 
     public void setValorDigitado(String valorDigitado) {
         this.valorDigitado = valorDigitado;
+    }
+
+    public CartaoPag getCartaoPag() {
+        return cartaoPag;
+    }
+
+    public void setCartaoPag(CartaoPag cartaoPag) {
+        this.cartaoPag = cartaoPag;
+    }
+
+    public CartaoRec getCartaoRec() {
+        return cartaoRec;
+    }
+
+    public void setCartaoRec(CartaoRec cartaoRec) {
+        this.cartaoRec = cartaoRec;
     }
 }

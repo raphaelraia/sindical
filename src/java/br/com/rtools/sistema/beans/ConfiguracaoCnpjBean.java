@@ -31,9 +31,9 @@ public class ConfiguracaoCnpjBean implements Serializable {
     public void init() {
         Dao dao = new Dao();
         loadListaTipoPesquisa();
-        
+
         configuracaoCnpj = (ConfiguracaoCnpj) dao.find(new ConfiguracaoCnpj(), 1);
-        
+
         if (configuracaoCnpj == null) {
             configuracaoCnpj = new ConfiguracaoCnpj();
             configuracaoCnpj.setTipoPesquisaCnpj((TipoPesquisaCnpj) new Dao().find(new TipoPesquisaCnpj(), Integer.valueOf(listaTipoPesquisa.get(indexTipoPesquisa).getDescription())));
@@ -41,7 +41,7 @@ public class ConfiguracaoCnpjBean implements Serializable {
         }
 
         for (int i = 0; i < listaTipoPesquisa.size(); i++) {
-            if (configuracaoCnpj.getTipoPesquisaCnpj().getId().equals(Integer.valueOf(listaTipoPesquisa.get(i).getDescription()))){
+            if (configuracaoCnpj.getTipoPesquisaCnpj().getId().equals(Integer.valueOf(listaTipoPesquisa.get(i).getDescription()))) {
                 indexTipoPesquisa = i;
             }
         }

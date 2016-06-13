@@ -52,6 +52,10 @@ public class DepositoBancarioBean implements Serializable {
         Dao dao = new Dao();
 
         dao.openTransaction();
+        Plano5 plano_combo = (Plano5) dao.find(new Plano5(), Integer.valueOf(listaConta.get(idConta).getDescription()));
+        Plano5 plano_caixa = (Plano5) dao.find(new Plano5(), 1);
+
+        String historico_contabil = "Deposito bancário para a conta " + plano_combo.getConta();
 
         //Baixa baixa = (Baixa) sv.pesquisaCodigo((Integer) ((Vector)listaSelecionado.get(i).getArgumento0()).get(1), "Baixa");
         // MOVIMENTO SAIDA -----------------------------------------------------
@@ -78,9 +82,8 @@ public class DepositoBancarioBean implements Serializable {
 
             float valor = Moeda.converteUS$(listaSelecionado.get(i).getArgumento3().toString());
 
-            Plano5 plano = (Plano5) dao.find(new Plano5(), Integer.valueOf(listaConta.get(idConta).getDescription()));
             if (lote_saida == null) {
-                lote_saida = novoLote(dao, "P", plano, cheque, valor, (FStatus) dao.find(new FStatus(), 1));
+                lote_saida = novoLote(dao, "P", plano_combo, cheque, valor, (FStatus) dao.find(new FStatus(), 1), historico_contabil);
                 if (!dao.save(lote_saida)) {
                     GenericaMensagem.warn("Erro", "Não foi possivel salvar Lote Saida!");
                     dao.rollback();
@@ -96,8 +99,8 @@ public class DepositoBancarioBean implements Serializable {
                     return;
                 }
             }
-            
-            Plano5 plano_forma = (Plano5) dao.find(new Plano5(), 1);
+
+            Plano5 plano_forma = plano_caixa;
             if (!dao.save(novaFormaPagamento(dao, baixa_saida, valor, plano_forma, cheque))) {
                 GenericaMensagem.warn("Erro", "Não foi possivel salvar Forma de Pagamento Saida!");
                 dao.rollback();
@@ -129,10 +132,10 @@ public class DepositoBancarioBean implements Serializable {
 
             float valor = Moeda.converteUS$(listaSelecionado.get(i).getArgumento3().toString());
 
-            Plano5 plano = (Plano5) dao.find(new Plano5(), 1);
-            
+            Plano5 plano = plano_caixa;
+
             if (lote_entrada == null) {
-                lote_entrada = novoLote(dao, "R", plano, cheque, valor, (FStatus) dao.find(new FStatus(), 14));
+                lote_entrada = novoLote(dao, "R", plano, cheque, valor, (FStatus) dao.find(new FStatus(), 14), historico_contabil);
                 if (!dao.save(lote_entrada)) {
                     GenericaMensagem.warn("Erro", "Não foi possivel salvar Lote Entrada!");
                     dao.rollback();
@@ -154,7 +157,7 @@ public class DepositoBancarioBean implements Serializable {
                 return;
             }
 
-            Plano5 plano_forma = (Plano5) dao.find(new Plano5(), Integer.valueOf(listaConta.get(idConta).getDescription()));
+            Plano5 plano_forma = plano_combo;
             if (!dao.save(novaFormaPagamento(dao, baixa_entrada, valor, plano_forma, cheque))) {
                 GenericaMensagem.warn("Erro", "Não foi possivel salvar Forma de Pagamento Saida!");
                 dao.rollback();
@@ -168,7 +171,7 @@ public class DepositoBancarioBean implements Serializable {
         GenericaMensagem.info("Sucesso", "Cheques depositados com Sucesso!");
     }
 
-    public Lote novoLote(Dao dao, String pag_rec, Plano5 plano, ChequeRec cheque, float valor, FStatus fstatus) {
+    public Lote novoLote(Dao dao, String pag_rec, Plano5 plano, ChequeRec cheque, float valor, FStatus fstatus, String historico_contabil) {
         return new Lote(
                 -1,
                 (Rotina) dao.find(new Rotina(), 224), // ROTINA
@@ -182,7 +185,7 @@ public class DepositoBancarioBean implements Serializable {
                 (Filial) dao.find(new Filial(), 1), // FILIAL
                 null, // DEPARTAMENTO
                 null, // EVT
-                "Deposito bancário para a conta ??", // HISTORICO
+                "Deposito bancário para a conta " + plano.getConta(), // HISTÓRICO
                 (FTipoDocumento) dao.find(new FTipoDocumento(), 4), // 4 - CHEQUE / 5 - CHEQUE PRE
                 (CondicaoPagamento) dao.find(new CondicaoPagamento(), 1), // 1 - A VISTA / 2 - PRAZO
                 //(FStatus) dao.find(new FStatus(), 1), // 1 - EFETIVO // 8 - DEPOSITADO
@@ -194,7 +197,7 @@ public class DepositoBancarioBean implements Serializable {
                 null,
                 null,
                 false,
-                ""
+                "Deposito bancário para a conta " + plano.getConta() // HISTÓRICO CONTÁBIL
         );
     }
 
@@ -260,7 +263,7 @@ public class DepositoBancarioBean implements Serializable {
                 plano,
                 null,
                 null,
-                (TipoPagamento) dao.find(new TipoPagamento(), 4), // 4 - CHEQUE / 5 - CHEQUE PRE
+                (TipoPagamento) dao.find(new TipoPagamento(), 8), // 4 - CHEQUE / 5 - CHEQUE PRE / 8 - Depósito Bancário
                 0,
                 DataHoje.dataHoje(),
                 0

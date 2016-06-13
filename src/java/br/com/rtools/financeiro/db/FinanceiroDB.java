@@ -85,10 +85,6 @@ public interface FinanceiroDB {
 
     public List<Vector> listaDeCheques(int id_status);
 
-    public List<Object> listaMovimentoBancario(int id_plano5);
-    
-    public List<Object> listaDetalheMovimentoBancario(int id_baixa);
-
     public List<TransferenciaCaixa> listaTransferenciaDinheiro(int id_fechamento_caixa, int id_caixa);
 
     public List<TransferenciaCaixa> listaTransferenciaDinheiroEntrada(int id_fechamento_caixa, int id_caixa);
@@ -138,4 +134,8 @@ public interface FinanceiroDB {
     public List<SubGrupoFinanceiro> listaSubGrupo(String id_grupo);
     
     public List<FStatus> listaFStatusIn(String ids);
+    
+    public Object listaQuantidadeCaixasAberto(String data_fechamento);
+    
+    public List<Object> listaContasParaTransferencia(Integer id_conta);
 }

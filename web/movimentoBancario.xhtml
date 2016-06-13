@@ -39,7 +39,7 @@
                                     <p:column>
                                         <h:outputLabel value="Contas Bancárias" /><br />
                                         <p:selectOneMenu value="#{movimentoBancarioBean.idConta}" style="margin-right: 15px; width: 480px" disabled="#{movimentoBancarioBean.formaPagamentoEditar.id ne -1}">
-                                            <p:ajax event="change" listener="#{movimentoBancarioBean.listaMovimento.clear()}" update="tbl"/>
+                                            <p:ajax event="change" listener="#{movimentoBancarioBean.loadListaMovimento()}" update="formMovimentoBancario"/>
                                             <f:selectItems value="#{movimentoBancarioBean.listaConta}"/>
                                         </p:selectOneMenu>
                                     </p:column>
@@ -94,6 +94,22 @@
                             </p:panel>
 
                             <p:messages id="i_msg" showDetail="true" closable="true" />  
+                            <h:panelGrid style="width: 100%" columns="2">
+                                <h:panelGrid columns="5" style="float: left;">
+                                    <p:commandLink value="FILTRAR MOVIMENTOS" onclick="PF('dlg_filtro_movimentos').show()" style="text-decoration: underline" update="formMovimentoBancario:panel_filtro_movimentos"/>
+                                    
+                                    <p:outputLabel value="#{movimentoBancarioBean.esFiltro eq 'E' ? '[ Entrada ]' : '[ Saída ]'}" rendered="#{movimentoBancarioBean.esFiltro ne 'todos'}" style="margin-left: 20px; font-weight: bold"/>
+                                    <p:outputLabel value="[ #{movimentoBancarioBean.tipoPagamentoFiltro} ]" rendered="#{movimentoBancarioBean.tipoPagamentoFiltro ne 'todos'}" style="margin-left: 20px; font-weight: bold"/>
+                                    <p:outputLabel value="[ #{movimentoBancarioBean.statusFiltro} ]" rendered="#{movimentoBancarioBean.statusFiltro ne 'todos'}" style="margin-left: 20px; font-weight: bold"/>
+                                    
+                                    <p:commandLink value="[x] Limpar" action="#{movimentoBancarioBean.limparFiltro()}"  update="@form" rendered="#{movimentoBancarioBean.temFiltro() eq true}"/>
+                                </h:panelGrid>
+
+                                <h:panelGrid columns="2" style="float: right" rendered="#{movimentoBancarioBean.temFiltro() eq false}">
+                                    <p:outputLabel value="SALDO ANTERIOR R$: " style="font-weight: bold; font-size: 12pt!important"/>
+                                    <p:outputLabel value="#{movimentoBancarioBean.contaSaldo.saldoString}" style="font-weight: bold; font-size: 12pt!important; color: blue"/>
+                                </h:panelGrid>
+                            </h:panelGrid>
 
                             <p:dataTable var="linha" id="tbl" value="#{movimentoBancarioBean.listaMovimento}" emptyMessage="Nenhum movimento encontrado!" paginator="true" rows="20">
                                 <p:column style="width:15px">  
@@ -105,7 +121,12 @@
                                     <p:outputLabel value="#{linha.baixa.baixa}" rendered="#{linha.movimento.lote.rotina.id ne 225}"/>
                                 </p:column>
 
-                                <p:column headerText="Documento"  style="width:150px; text-align: center">
+                                <p:column headerText="Operação"  style="width:100px; text-align: center">
+                                    <p:commandLink value="#{linha.formaPagamento.tipoPagamento.descricao}" action="#{movimentoBancarioBean.editar(linha)}" update="@form" rendered="#{linha.movimento.lote.rotina.id eq 225}"/>
+                                    <p:outputLabel value="#{linha.formaPagamento.tipoPagamento.descricao}" rendered="#{linha.movimento.lote.rotina.id ne 225}"/>
+                                </p:column>
+
+                                <p:column headerText="Documento"  style="width:120px; text-align: center">
                                     <p:commandLink value="#{linha.documento}" action="#{movimentoBancarioBean.editar(linha)}" update="@form" rendered="#{linha.movimento.lote.rotina.id eq 225}"/>
                                     <p:outputLabel value="#{linha.documento}" rendered="#{linha.movimento.lote.rotina.id ne 225}"/>
                                 </p:column>
@@ -113,6 +134,11 @@
                                 <p:column headerText="Histórico">
                                     <p:commandLink value="#{linha.historico}" action="#{movimentoBancarioBean.editar(linha)}" update="@form" rendered="#{linha.movimento.lote.rotina.id eq 225}"/>
                                     <p:outputLabel value="#{linha.historico}" rendered="#{linha.movimento.lote.rotina.id ne 225}"/>
+                                </p:column>
+
+                                <p:column headerText="E/S" style="width:30px; text-align: center">
+                                    <p:commandLink value="#{linha.movimento.es}" action="#{movimentoBancarioBean.editar(linha)}" update="@form" rendered="#{linha.movimento.lote.rotina.id eq 225}" style="#{linha.movimento.es eq 'E' ? 'font-weight: bold; color: blue; background: #bdcfff' : 'font-weight: bold; color: red; background: #f5b2b2'}; padding: 20px;"/>
+                                    <p:commandLink value="#{linha.movimento.es}" rendered="#{linha.movimento.lote.rotina.id ne 225}" style="#{linha.movimento.es eq 'E' ? 'font-weight: bold; color: blue; background: #bdcfff' : 'font-weight: bold; color: red; background: #f5b2b2'}; padding: 20px;" global="false"/>
                                 </p:column>
 
                                 <p:column headerText="Valor" style="width:90px">
@@ -125,11 +151,6 @@
                                     <h:outputText value="R$ "/>
                                     <p:commandLink value="#{linha.saldoString}" style="float: right" action="#{movimentoBancarioBean.editar(linha)}" update="@form" rendered="#{linha.movimento.lote.rotina.id eq 225}"/>
                                     <p:outputLabel value="#{linha.saldoString}" style="float: right" rendered="#{linha.movimento.lote.rotina.id ne 225}"/>
-                                </p:column>
-
-                                <p:column headerText="E/S" style="width:30px; text-align: center">
-                                    <p:commandLink value="#{linha.movimento.es}" action="#{movimentoBancarioBean.editar(linha)}" update="@form" rendered="#{linha.movimento.lote.rotina.id eq 225}"/>
-                                    <p:outputLabel value="#{linha.movimento.es}" rendered="#{linha.movimento.lote.rotina.id ne 225}"/>
                                 </p:column>
 
                                 <p:column headerText="Status" style="width:120px; text-align: center">
@@ -149,6 +170,28 @@
                                     </p:dataTable>
                                 </p:rowExpansion>
                             </p:dataTable>
+
+                            <h:panelGrid style="width: 100%">
+                                <h:panelGrid columns="2" style="float: right">
+                                    <p:outputLabel value="SALDO FINAL R$: " style="font-weight: bold; font-size: 12pt!important"/>
+                                    <p:outputLabel value="#{movimentoBancarioBean.saldoFinalString}" style="font-weight: bold; font-size: 12pt!important; color: blue"/>
+                                </h:panelGrid>
+
+                                <h:panelGrid columns="2" style="float: right">
+                                    <p:outputLabel value="SALDO DE ENTRADA BLOQUEADO R$: " style="font-weight: bold; font-size: 12pt!important"/>
+                                    <p:outputLabel value="#{movimentoBancarioBean.saldoEntradaBloqueadoString}" style="font-weight: bold; font-size: 12pt!important; color: blue"/>
+                                </h:panelGrid>
+
+                                <h:panelGrid columns="2" style="float: right">
+                                    <p:outputLabel value="SALDO DE SAÍDA BLOQUEADO R$: " style="font-weight: bold; font-size: 12pt!important"/>
+                                    <p:outputLabel value="#{movimentoBancarioBean.saldoSaidaBloqueadoString}" style="font-weight: bold; font-size: 12pt!important; color: blue"/>
+                                </h:panelGrid>
+
+                                <h:panelGrid columns="2" style="float: right">
+                                    <p:outputLabel value="SALDO DISPONÍVEL R$: " style="font-weight: bold; font-size: 12pt!important"/>
+                                    <p:outputLabel value="#{movimentoBancarioBean.saldoDisponivelString}" style="font-weight: bold; font-size: 12pt!important; color: blue"/>
+                                </h:panelGrid>
+                            </h:panelGrid>
 
                             <p:dialog widgetVar="dlg_salvar" header="Deseja realmente salvar este movimento" resizable="false" width="400" modal="true">
                                 <h:panelGrid>
@@ -180,6 +223,49 @@
                                 <br />
                                 <p:commandButton value="Sim" type="submit" styleClass="ui-confirmdialog-yes" action="#{movimentoBancarioBean.atualizarStatus()}" update="formMovimentoBancario" onclick="PF('dlg_alterar_status_cheque').hide()" style="clear: both; float: left; font-weight: bold" icon="ui-icon-check" />  
                                 <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_alterar_status_cheque').hide()" style="float: left" icon="ui-icon-close"/>       
+                            </p:dialog>
+
+                            <p:dialog widgetVar="dlg_filtro_movimentos" header="Filtrar Movimentos" resizable="false" width="800" modal="true">
+                                <h:panelGrid id="panel_filtro_movimentos">
+                                    <h:panelGrid columns="3">
+                                        <h:column>
+                                            <p:outputLabel value="Tipo" /><br />
+                                            <p:selectOneMenu value="#{movimentoBancarioBean.esFiltro}">
+                                                <p:ajax event="change" update="@this" global="false"/>
+                                                <f:selectItem itemLabel="Todos" itemValue="todos"/>
+                                                <f:selectItem itemLabel="Entrada" itemValue="E"/>
+                                                <f:selectItem itemLabel="Saída" itemValue="S"/>
+                                            </p:selectOneMenu>
+                                        </h:column>
+                                        
+                                        <h:column>
+                                            <p:outputLabel value="Operação" /><br />
+                                            <p:selectOneMenu value="#{movimentoBancarioBean.tipoPagamentoFiltro}">
+                                                <p:ajax event="change" update="@this" global="false"/>
+                                                <f:selectItem itemLabel="Todos" itemValue="todos"/>
+                                                <f:selectItem itemLabel="Cheque" itemValue="cheque"/>
+                                                <f:selectItem itemLabel="Cartão de Crédito" itemValue="cartao_credito"/>
+                                                <f:selectItem itemLabel="Cartão de Débito" itemValue="cartao_debito"/>
+                                                <f:selectItem itemLabel="Depósito Bancário" itemValue="deposito_bancario"/>
+                                                <f:selectItem itemLabel="Doc Bancário" itemValue="doc_bancario"/>
+                                            </p:selectOneMenu>
+                                        </h:column>
+                                        
+                                        <h:column>
+                                            <p:outputLabel value="Status" /><br />
+                                            <p:selectOneMenu value="#{movimentoBancarioBean.statusFiltro}">
+                                                <p:ajax event="change" update="@this" global="false"/>
+                                                <f:selectItem itemLabel="Todos" itemValue="todos"/>
+                                                <f:selectItem itemLabel="A Compensar" itemValue="a_compensar"/>
+                                                <f:selectItem itemLabel="Compensados" itemValue="compensados"/>
+                                            </p:selectOneMenu>
+                                        </h:column>
+                                    </h:panelGrid>
+                                    
+                                    <h:panelGrid>
+                                        <p:commandButton value="Filtrar" action="#{movimentoBancarioBean.loadListaMovimento()}" update="@form"/>
+                                    </h:panelGrid>
+                                </h:panelGrid>
                             </p:dialog>
                         </h:form>
                     </p:panel>

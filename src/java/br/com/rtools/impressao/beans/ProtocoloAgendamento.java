@@ -45,7 +45,7 @@ public class ProtocoloAgendamento implements Serializable {
             Jasper.PART_NAME = "" + a.getId();
             Jasper.PATH = "downloads";
             Jasper.IGNORE_UUID = true;
-            Jasper.printReports("/Relatorios/PROTOCOLO.jasper", "protocolo", (Collection) parametroProtocolos(a));
+            Jasper.printReports("PROTOCOLO.jasper", "protocolo", (Collection) parametroProtocolos(a));
         } catch (Exception e) {
         }
     }
@@ -60,7 +60,7 @@ public class ProtocoloAgendamento implements Serializable {
             Jasper.PATH = "downloads";
             Jasper.IGNORE_UUID = true;
             Jasper.IS_DOWNLOAD = false;
-            Jasper.printReports("/Relatorios/PROTOCOLO.jasper", "envio_protocolo", (Collection) parametroProtocolos(a));
+            Jasper.printReports("PROTOCOLO.jasper", "envio_protocolo", (Collection) parametroProtocolos(a));
             String fileEnvioProtocolo = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/envio_protocolo/envio_protocolo_" + a.getId() + ".pdf");
             LinksDao db = new LinksDao();
             Links link = db.pesquisaNomeArquivo("envio_protocolo" + a.getId() + ".pdf");

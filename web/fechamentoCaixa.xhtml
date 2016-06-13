@@ -94,7 +94,7 @@
                             <p:messages autoUpdate="false" showDetail="true" closable="true"/>  
                             <p:growl autoUpdate="false" showDetail="true" />
                             
-                            <p:dataTable var="linha" id="tbl" value="#{fechamentoCaixaBean.listaFechamento}" emptyMessage="Nenhum fechamento para este caixa!" scrollable="true" scrollHeight="500">
+                            <p:dataTable var="linha" id="tbl" value="#{fechamentoCaixaBean.listaFechamento}" emptyMessage="Nenhum fechamento para este caixa!" paginator="true" rows="15">
                                 
                                 <p:column headerText="Data / Hora" style="text-align: center">
                                     <h:outputText value="#{linha.argumento1} - #{linha.argumento2}"/>

@@ -42,8 +42,14 @@ public class FechamentoDiarioBean implements Serializable {
             return;
         }
 
-        if (dataFechamento.equals(DataHoje.data())) {
+        Date data = fdao.ultimaDataContaSaldo();
+        if (DataHoje.converteData(data).equals(DataHoje.data())) {
             GenericaMensagem.warn("Atenção", "Fechamento já foi concluído para o dia de hoje!");
+            return;
+        }
+        
+        if (DataHoje.maiorData(data, DataHoje.dataHoje())) {
+            GenericaMensagem.warn("Atenção", "Não existe dia para ser fechado!");
             return;
         }
 
