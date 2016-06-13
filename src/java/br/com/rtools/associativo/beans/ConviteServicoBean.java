@@ -1,8 +1,7 @@
 package br.com.rtools.associativo.beans;
 
 import br.com.rtools.associativo.ConviteServico;
-import br.com.rtools.associativo.db.ConviteDB;
-import br.com.rtools.associativo.db.ConviteDBToplink;
+import br.com.rtools.associativo.dao.ConviteDao;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.db.ServicosDB;
 import br.com.rtools.financeiro.db.ServicosDBToplink;
@@ -54,7 +53,7 @@ public class ConviteServicoBean implements Serializable {
             return;
         }
         
-        ConviteDB db = new ConviteDBToplink();
+        ConviteDao db = new ConviteDao();
         if (!db.listaConviteServico(Integer.parseInt(listServicos.get(idServicos).getDescription())).isEmpty()){
             message = "Esse serviço já foi adicionado!";
             return;

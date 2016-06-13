@@ -11,10 +11,8 @@ import br.com.rtools.associativo.EventoBanda;
 import br.com.rtools.associativo.EventoServicoValor;
 import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.dao.VendaBaileDao;
-import br.com.rtools.associativo.db.EventoBaileDB;
-import br.com.rtools.associativo.db.EventoBaileDBToplink;
-import br.com.rtools.associativo.db.EventoBandaDB;
-import br.com.rtools.associativo.db.EventoBandaDBToplink;
+import br.com.rtools.associativo.dao.EventoBaileDao;
+import br.com.rtools.associativo.dao.EventoBandaDao;
 import br.com.rtools.financeiro.Caixa;
 import br.com.rtools.financeiro.CondicaoPagamento;
 import br.com.rtools.financeiro.FStatus;
@@ -121,7 +119,7 @@ public class VendaBaileBean implements Serializable {
     }
 
     public void imprimirConviteIndividual(EventoBaileConvite ebc) {
-        EventoBaileDB ebdb = new EventoBaileDBToplink();
+        EventoBaileDao ebdb = new EventoBaileDao();
         // FALSE = tem permissão
         // TRUE = não tem permissão
         // cab.verificaPermissao("reimprimir_convite_baile", 4)
@@ -144,7 +142,7 @@ public class VendaBaileBean implements Serializable {
         String hora_inicial = ebc.getEventoBaile().getHoraInicio();
         String hora_final = ebc.getEventoBaile().getHoraFim();
 
-        EventoBandaDB db = new EventoBandaDBToplink();
+        EventoBandaDao db = new EventoBandaDao();
         List<EventoBanda> listaEventoBanda = db.pesquisaBandasDoEvento(ebc.getbVenda().getEvento().getId());
 
         String banda = "";
@@ -184,7 +182,7 @@ public class VendaBaileBean implements Serializable {
     }
 
     public void imprimirConviteMesa(EventoBaileMapa ebm) {
-        EventoBaileDB ebdb = new EventoBaileDBToplink();
+        EventoBaileDao ebdb = new EventoBaileDao();
         // FALSE = tem permissão
         // TRUE = não tem permissão
         // cab.verificaPermissao("reimprimir_convite_baile", 4)
@@ -207,7 +205,7 @@ public class VendaBaileBean implements Serializable {
         String hora_inicial = ebm.getEventoBaile().getHoraInicio();
         String hora_final = ebm.getEventoBaile().getHoraFim();
 
-        EventoBandaDB db = new EventoBandaDBToplink();
+        EventoBandaDao db = new EventoBandaDao();
         List<EventoBanda> listaEventoBanda = db.pesquisaBandasDoEvento(ebm.getbVenda().getEvento().getId());
 
         String banda = "";
@@ -226,7 +224,7 @@ public class VendaBaileBean implements Serializable {
             categoria = s.getMatriculaSocios().getCategoria().getCategoria();
         }
 
-        EventoBaileDB eventoBaileDB = new EventoBaileDBToplink();
+        EventoBaileDao eventoBaileDB = new EventoBaileDao();
         AEndereco endereco = eventoBaileDB.pesquisaEnderecoEvento(ebm.getEventoBaile().getEvento().getId());
         String local = ebm.getEventoBaile().getLocal(), endereco_string = endereco.getEndereco().getEnderecoToString() + ", " + endereco.getNumero() + endereco.getComplemento();
 
@@ -619,7 +617,7 @@ public class VendaBaileBean implements Serializable {
         listaMesasBaile.clear();
         listaMesasBaileSelecionada = (listaMesasBaileSelecionada == null ? new ArrayList() : new ArrayList());
         if (!listaEventoBaile.isEmpty()) {
-            EventoBaileDB eventoBaileDB = new EventoBaileDBToplink();
+            EventoBaileDao eventoBaileDB = new EventoBaileDao();
             if (tipoVenda.equals("venda") || tipoVenda.equals("reserva") && venda.getId() == -1) {
                 listaMesasBaile = (List<EventoBaileMapa>) eventoBaileDB.listaBaileMapaDisponiveis(Integer.parseInt(listaEventoBaile.get(indexEventoBaile).getDescription()), 1, null, null);
             } else if (tipoVenda.equals("reservado")) {
@@ -636,7 +634,7 @@ public class VendaBaileBean implements Serializable {
         listaConviteBaile.clear();
         listaConviteBaileSelecionado = (listaConviteBaileSelecionado == null ? new ArrayList() : new ArrayList());
         if (!listaEventoBaile.isEmpty()) {
-            EventoBaileDB eventoBaileDB = new EventoBaileDBToplink();
+            EventoBaileDao eventoBaileDB = new EventoBaileDao();
             if (venda.getId() == -1) {
                 listaConviteBaile = (List<EventoBaileConvite>) eventoBaileDB.listaBaileConviteDisponiveis(Integer.parseInt(listaEventoBaile.get(indexEventoBaile).getDescription()), 1, null, null);
             } else {

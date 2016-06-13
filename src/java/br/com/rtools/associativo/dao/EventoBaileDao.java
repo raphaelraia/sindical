@@ -1,4 +1,4 @@
-package br.com.rtools.associativo.db;
+package br.com.rtools.associativo.dao;
 
 import br.com.rtools.associativo.AEndereco;
 import br.com.rtools.associativo.EventoBaileConvite;
@@ -11,9 +11,8 @@ import java.util.List;
 import javax.persistence.Query;
 import oracle.toplink.essentials.exceptions.EJBQLException;
 
-public class EventoBaileDBToplink extends DB implements EventoBaileDB {
+public class EventoBaileDao extends DB {
 
-    @Override
     public List pesquisaTodosAtuais(Date data) {
         try {
             Query qry = getEntityManager().createQuery(
@@ -26,7 +25,6 @@ public class EventoBaileDBToplink extends DB implements EventoBaileDB {
         }
     }
 
-    @Override
     public String excluirBaile(int idEvento) {
         try {
             Query qry = getEntityManager().createNativeQuery(
@@ -43,7 +41,6 @@ public class EventoBaileDBToplink extends DB implements EventoBaileDB {
         return null;
     }
 
-    @Override
     public AEndereco pesquisaEnderecoEvento(int idEvento) {
         AEndereco aEndereco;
         try {
@@ -59,7 +56,6 @@ public class EventoBaileDBToplink extends DB implements EventoBaileDB {
         return aEndereco;
     }
 
-    @Override
     public List pesquisaEventoDescricao(String desc, String como) {
         List lista;
         String textQuery = null;
@@ -84,7 +80,6 @@ public class EventoBaileDBToplink extends DB implements EventoBaileDB {
         return lista;
     }
 
-    @Override
     public List listaBaileMapa(int id_baile) {
         String textQuery = "select ebm from EventoBaileMapa ebm where ebm.eventoBaile.id = " + id_baile + " order by ebm.mesa";
         try {
@@ -95,7 +90,6 @@ public class EventoBaileDBToplink extends DB implements EventoBaileDB {
         }
     }
 
-    @Override
     public List listaBaileConvite(int id_baile) {
         String textQuery = "select ebc from EventoBaileConvite ebc where ebc.eventoBaile.id = " + id_baile + " order by ebc.convite";
         try {
@@ -106,7 +100,6 @@ public class EventoBaileDBToplink extends DB implements EventoBaileDB {
         }
     }
 
-    @Override
     public List<EventoBaileMapa> listaBaileMapaDisponiveis(int id_baile, Integer id_status, Integer id_pessoa, Integer id_venda) {
         String textQuery
                 = "SELECT ebm.* \n"
@@ -140,7 +133,6 @@ public class EventoBaileDBToplink extends DB implements EventoBaileDB {
         }
     }
 
-    @Override
     public List<EventoBaileConvite> listaBaileConviteDisponiveis(int id_baile, Integer id_status, Integer id_pessoa, Integer id_venda) {
         String textQuery
                 = "SELECT ebc.* "
@@ -170,7 +162,6 @@ public class EventoBaileDBToplink extends DB implements EventoBaileDB {
         }
     }
 
-    @Override
     public EventoBaileMapa pesquisaMesaBaile(int id_baile, int mesa) {
         String textQuery = "SELECT EBM FROM EventoBaileMapa AS EBM WHERE EBM.eventoBaile.id = " + id_baile + " AND EBM.mesa = " + mesa;
         try {
@@ -181,7 +172,6 @@ public class EventoBaileDBToplink extends DB implements EventoBaileDB {
         }
     }
 
-    @Override
     public EventoBaileConvite pesquisaConviteBaile(int id_baile, int convite) {
         String textQuery = "SELECT EBC FROM EventoBaileConvite AS EBC WHERE EBC.eventoBaile.id = " + id_baile + " AND EBC.convite = " + convite;
         try {
@@ -192,17 +182,16 @@ public class EventoBaileDBToplink extends DB implements EventoBaileDB {
         }
     }
 
-    @Override
     public List<EventoBaileImpressaoConvite> listaEventoBaileImpressaoConvite(int id_evento_baile, String tipo) {
         String textQuery
                 = "SELECT ebic.* \n "
                 + "  FROM eve_evento_baile_impressao_convite ebic \n ";
-        if (tipo.equals("mesa")){
+        if (tipo.equals("mesa")) {
             textQuery += " WHERE ebic.id_evento_baile_mapa = " + id_evento_baile;
-        }else{
+        } else {
             textQuery += " WHERE ebic.id_evento_baile_convite = " + id_evento_baile;
         }
-        
+
         try {
             Query qry = getEntityManager().createNativeQuery(textQuery, EventoBaileImpressaoConvite.class);
             return qry.getResultList();

@@ -2,8 +2,7 @@ package br.com.rtools.associativo.beans;
 
 import br.com.rtools.associativo.ConviteMotivoSuspencao;
 import br.com.rtools.associativo.ConviteSuspencao;
-import br.com.rtools.associativo.db.ConviteDB;
-import br.com.rtools.associativo.db.ConviteDBToplink;
+import br.com.rtools.associativo.dao.ConviteDao;
 import br.com.rtools.sistema.SisPessoa;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -28,8 +27,8 @@ public class ConviteSuspencaoBean implements Serializable {
     private String descricaoPesquisa = "";
     private boolean filtro = false;
     private boolean filtroPorPessoa = false;
-    private List<ConviteSuspencao> listaPessoasSuspencas = new ArrayList<ConviteSuspencao>();
-    private List<SelectItem> listaMotivoSuspencao = new ArrayList<SelectItem>();
+    private List<ConviteSuspencao> listaPessoasSuspencas = new ArrayList<>();
+    private List<SelectItem> listaMotivoSuspencao = new ArrayList<>();
     private int idSuspencao = 0;
 
     public void novo() {
@@ -68,7 +67,7 @@ public class ConviteSuspencaoBean implements Serializable {
         }
         mensagem = "";
         if (conviteSuspencao.getId() == -1) {
-            ConviteDB conviteDB = new ConviteDBToplink();
+            ConviteDao conviteDB = new ConviteDao();
             if (conviteDB.existeSisPessoaSuspensa(conviteSuspencao)) {
                 mensagem = "Pessoa já existe para data específicada";
                 return;
@@ -192,7 +191,7 @@ public class ConviteSuspencaoBean implements Serializable {
 
     public List<ConviteSuspencao> getListaPessoasSuspencas() {
         if (listaPessoasSuspencas.isEmpty()) {
-            ConviteDB conviteDB = new ConviteDBToplink();
+            ConviteDao conviteDB = new ConviteDao();
             if (descricaoPesquisa.equals("")) {
                 if (conviteSuspencao.getSisPessoa().getId() != -1) {
                     listaPessoasSuspencas = (List<ConviteSuspencao>) conviteDB.listaPessoasSuspensas(conviteSuspencao, true, true);

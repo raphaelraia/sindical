@@ -1,4 +1,4 @@
-package br.com.rtools.associativo.db;
+package br.com.rtools.associativo.dao;
 
 import br.com.rtools.associativo.Categoria;
 import br.com.rtools.associativo.ConviteAutorizaCortesia;
@@ -17,9 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 
-public class ConviteDBToplink extends DB implements ConviteDB {
+public class ConviteDao extends DB {
 
-    @Override
     public List<ConviteServico> conviteServicoExiste(ConviteServico cs) {
         try {
             Query query = getEntityManager().createQuery("SELECT C FROM ConviteServico AS C WHERE C.servicos.id = :servicos AND C.domingo = :domingo AND C.segunda = :segunda AND C.terca = :terca AND C.quarta = :quarta AND C.quinta = :quinta AND C.sexta = :sexta AND C.sabado = :sabado AND C.feriado = :feriado");
@@ -41,7 +40,6 @@ public class ConviteDBToplink extends DB implements ConviteDB {
         return new ArrayList();
     }
 
-    @Override
     public boolean existeSisPessoaSuspensa(ConviteSuspencao cs) {
         try {
             String queryString = "SELECT * FROM conv_suspencao WHERE id_sis_pessoa = " + cs.getSisPessoa().getId() + " AND dt_fim >= CURRENT_DATE ";
@@ -55,12 +53,10 @@ public class ConviteDBToplink extends DB implements ConviteDB {
         return false;
     }
 
-    @Override
     public List<ConviteSuspencao> listaPessoasSuspensas(ConviteSuspencao cs, boolean filtro, boolean fitroPorPessoa) {
         return listaPessoasSuspensas(cs, filtro, fitroPorPessoa, "", "", "");
     }
 
-    @Override
     public List<ConviteSuspencao> listaPessoasSuspensas(ConviteSuspencao cs, boolean filtro, boolean fitroPorPessoa, String descricaoPesquisa, String porPesquisa, String comoPesquisa) {
         List list = new ArrayList();
         Query query;
@@ -98,12 +94,10 @@ public class ConviteDBToplink extends DB implements ConviteDB {
             try {
                 if (!filtro) {
                     queryString = " SELECT CS FROM ConviteSuspencao AS CS " + filtroQueryPessoa + " ORDER BY CS.sisPessoa.nome ASC, CS.dtInicio DESC ";
+                } else if (fitroPorPessoa) {
+                    queryString = " SELECT CS FROM ConviteSuspencao AS CS " + filtroQueryPessoa + " ORDER BY CS.sisPessoa.nome ASC, CS.dtInicio DESC ";
                 } else {
-                    if (fitroPorPessoa) {
-                        queryString = " SELECT CS FROM ConviteSuspencao AS CS " + filtroQueryPessoa + " ORDER BY CS.sisPessoa.nome ASC, CS.dtInicio DESC ";
-                    } else {
-                        queryString = " SELECT CS FROM ConviteSuspencao AS CS WHERE CS.dtFim IS NULL " + filtroQueryPessoa + " ORDER BY CS.sisPessoa.nome ASC, CS.dtInicio DESC ";
-                    }
+                    queryString = " SELECT CS FROM ConviteSuspencao AS CS WHERE CS.dtFim IS NULL " + filtroQueryPessoa + " ORDER BY CS.sisPessoa.nome ASC, CS.dtInicio DESC ";
                 }
                 query = getEntityManager().createQuery(queryString);
                 list = query.getResultList();
@@ -143,7 +137,6 @@ public class ConviteDBToplink extends DB implements ConviteDB {
         return false;
     }
 
-    @Override
     public List pesquisaConviteMovimento(String descricaoPesquisa, String porPesquisa, String comoPesquisa, String dataInicial, String dataFinal) {
         return pesquisaConviteMovimento(descricaoPesquisa, porPesquisa, comoPesquisa, dataInicial, dataFinal, true);
     }
@@ -246,7 +239,6 @@ public class ConviteDBToplink extends DB implements ConviteDB {
         return new ArrayList();
     }
 
-    @Override
     public boolean limiteConvitePorSocio(int quantidadeConvites, int quantidadeDias, int idPessoaSocio) {
         try {
             String queryString = ""
@@ -269,7 +261,6 @@ public class ConviteDBToplink extends DB implements ConviteDB {
         return true;
     }
 
-    @Override
     public boolean limiteConviteConvidado(int quantidadeConvites, int quantidadeDias, int idSisPessoa) {
         try {
             String queryString = ""
@@ -292,7 +283,6 @@ public class ConviteDBToplink extends DB implements ConviteDB {
         return true;
     }
 
-    @Override
     public boolean socio(SisPessoa s) {
         return (socioObject(s) != null);
     }
@@ -335,7 +325,6 @@ public class ConviteDBToplink extends DB implements ConviteDB {
         return null;
     }
 
-    @Override
     public List<Usuario> listaUsuariosDisponiveis() {
         try {
             Query query = getEntityManager().createQuery("SELECT CM.usuario FROM ConviteMovimento AS CM GROUP BY CM.usuario ");
@@ -350,7 +339,6 @@ public class ConviteDBToplink extends DB implements ConviteDB {
 
     }
 
-    @Override
     public List filtroRelatorio(
             int idSisPessoa,
             int idPessoa,
@@ -479,7 +467,6 @@ public class ConviteDBToplink extends DB implements ConviteDB {
 
     }
 
-    @Override
     public List<ConviteAutorizaCortesia> listaConviteAutorizaCortesia(boolean is_ativo) {
         try {
             String text = "";
@@ -498,7 +485,6 @@ public class ConviteDBToplink extends DB implements ConviteDB {
         return new ArrayList();
     }
 
-    @Override
     public List<ConviteServico> listaConviteServico(Integer id_servico) {
         try {
             Query query = getEntityManager().createQuery("SELECT cs FROM ConviteServico cs WHERE cs.cortesia = false AND cs.servicos.id = " + id_servico);
@@ -509,7 +495,6 @@ public class ConviteDBToplink extends DB implements ConviteDB {
         return new ArrayList();
     }
 
-    @Override
     public List<ConviteServico> listaConviteServicoCortesia(Boolean cortesia) {
         try {
             String text = "";

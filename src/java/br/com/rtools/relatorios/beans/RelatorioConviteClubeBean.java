@@ -2,8 +2,7 @@ package br.com.rtools.relatorios.beans;
 
 import br.com.rtools.associativo.ConviteAutorizaCortesia;
 import br.com.rtools.associativo.ConviteMovimento;
-import br.com.rtools.associativo.db.ConviteDB;
-import br.com.rtools.associativo.db.ConviteDBToplink;
+import br.com.rtools.associativo.dao.ConviteDao;
 import br.com.rtools.impressao.ParametroConviteClube;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.relatorios.Relatorios;
@@ -72,7 +71,7 @@ public class RelatorioConviteClubeBean implements Serializable {
             return;
         }
         if (parametroConviteClubes.isEmpty()) {
-            ConviteDB conviteDB = new ConviteDBToplink();
+            ConviteDao conviteDB = new ConviteDao();
             int pSisPessoaI = 0;
             int pPessoaI = 0;
             int pDiretorI = 0;
@@ -372,7 +371,7 @@ public class RelatorioConviteClubeBean implements Serializable {
 
     public List<SelectItem> getListaOperadores() {
         if (listaOperadores.isEmpty()) {
-            ConviteDB cdb = new ConviteDBToplink();
+            ConviteDao cdb = new ConviteDao();
             List<Usuario> list = (List<Usuario>) cdb.listaUsuariosDisponiveis();
             for (int i = 0; i < list.size(); i++) {
                 listaOperadores.add(new SelectItem(i, list.get(i).getPessoa().getNome(), "" + list.get(i).getId()));

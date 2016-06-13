@@ -1,5 +1,8 @@
 package br.com.rtools.associativo.beans;
 
+import br.com.rtools.associativo.dao.EventoBaileDao;
+import br.com.rtools.associativo.dao.EventoBandaDao;
+import br.com.rtools.associativo.dao.DescricaoEventoDao;
 import br.com.rtools.associativo.*;
 import br.com.rtools.associativo.dao.BaileDao;
 import br.com.rtools.associativo.db.*;
@@ -11,8 +14,6 @@ import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -139,36 +140,36 @@ public class BaileBean implements Serializable {
     }
 
     public void excluirMesa(EventoBaileMapa ebm) {
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-        sv.abrirTransacao();
-        if (!sv.deletarObjeto(sv.find("EventoBaileMapa", ebm.getId()))) {
-            sv.desfazerTransacao();
+        Dao dao = new Dao();
+        dao.openTransaction();
+        if (!dao.delete(dao.find(new EventoBaileMapa(), ebm.getId()))) {
+            dao.rollback();
             GenericaMensagem.warn("Erro!", "Não foi possível excluir esta mesa!");
         } else {
             GenericaMensagem.info("Sucesso!", "Mesa excluída com sucesso!");
-            sv.comitarTransacao();
+            dao.commit();
         }
         listaMesas.clear();
     }
 
     public void excluirConvite(EventoBaileConvite ebc) {
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-        sv.abrirTransacao();
-        if (!sv.deletarObjeto(sv.find("EventoBaileConvite", ebc.getId()))) {
-            sv.desfazerTransacao();
+        Dao dao = new Dao();
+        dao.openTransaction();
+        if (!dao.delete(dao.find(new EventoBaileConvite(), ebc.getId()))) {
+            dao.rollback();
             GenericaMensagem.warn("Erro!", "Não foi possível excluir este Convite!");
         } else {
             GenericaMensagem.info("Sucesso!", "Convite excluída com sucesso!");
-            sv.comitarTransacao();
+            dao.commit();
         }
         listaConvites.clear();
     }
 
     public void salvarMesa(boolean all) {
         if (eventoBaile.getId() != -1) {
-            SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-            EventoBaileDB eventoBaileDB = new EventoBaileDBToplink();
-            sv.abrirTransacao();
+            Dao dao = new Dao();
+            EventoBaileDao eventoBaileDB = new EventoBaileDao();
+            dao.openTransaction();
             if (all) {
                 boolean err = false;
                 for (SelectItem listaMesasDisponivei : listaMesasDisponiveis) {
@@ -181,17 +182,17 @@ public class BaileBean implements Serializable {
                                 null,
                                 null
                         );
-                        if (!sv.inserirObjeto(ebm)) {
+                        if (!dao.save(ebm)) {
                             err = true;
                             break;
                         }
                     }
                 }
                 if (err) {
-                    sv.desfazerTransacao();
+                    dao.rollback();
                     GenericaMensagem.error("Erro", "Não foi possível adicionar Mesas!");
                 } else {
-                    sv.comitarTransacao();
+                    dao.commit();
                     idNrMesa = 0;
                     nrMesa = 0;
                     listaMesasDisponiveis.clear();
@@ -205,9 +206,9 @@ public class BaileBean implements Serializable {
 
     public void salvarConvite(boolean all) {
         if (eventoBaile.getId() != -1) {
-            SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-            EventoBaileDB eventoBaileDB = new EventoBaileDBToplink();
-            sv.abrirTransacao();
+            Dao dao = new Dao();
+            EventoBaileDao eventoBaileDB = new EventoBaileDao();
+            dao.openTransaction();
             if (all) {
                 boolean err = false;
                 for (SelectItem conviteDisponivel : listaConvitesDisponiveis) {
@@ -219,17 +220,17 @@ public class BaileBean implements Serializable {
                                 null,
                                 null
                         );
-                        if (!sv.inserirObjeto(ebc)) {
+                        if (!dao.save(ebc)) {
                             err = true;
                             break;
                         }
                     }
                 }
                 if (err) {
-                    sv.desfazerTransacao();
+                    dao.rollback();
                     GenericaMensagem.error("Erro", "Não foi possível adicionar Convite!");
                 } else {
-                    sv.comitarTransacao();
+                    dao.commit();
                     idNrConvite = 0;
                     listaConvitesDisponiveis.clear();
                     listaConvites.clear();
@@ -243,7 +244,7 @@ public class BaileBean implements Serializable {
     public List<EventoBaileMapa> getListaMesas() {
         if (listaMesas.isEmpty()) {
             if (eventoBaile.getId() != -1) {
-                EventoBaileDB db = new EventoBaileDBToplink();
+                EventoBaileDao db = new EventoBaileDao();
                 listaMesas = db.listaBaileMapa(eventoBaile.getId());
             }
         }
@@ -257,8 +258,7 @@ public class BaileBean implements Serializable {
     public List<EventoBaileConvite> getListaConvites() {
         if (listaConvites.isEmpty()) {
             if (eventoBaile.getId() != -1) {
-                EventoBaileDB db = new EventoBaileDBToplink();
-                listaConvites = db.listaBaileConvite(eventoBaile.getId());
+                listaConvites = new EventoBaileDao().listaBaileConvite(eventoBaile.getId());
             }
         }
         return listaConvites;
@@ -272,15 +272,15 @@ public class BaileBean implements Serializable {
         if (endereco.getId() == -1) {
             endereco = new AEndereco();
         } else {
-            SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-            sv.abrirTransacao();
-            if (!sv.deletarObjeto(sv.find("AEndereco", endereco.getId()))) {
+            Dao dao = new Dao();
+            dao.openTransaction();
+            if (!dao.delete(dao.find(new AEndereco(), endereco.getId()))) {
                 GenericaMensagem.warn("Erro", "Não foi possível excluir este endereço!");
-                sv.desfazerTransacao();
+                dao.rollback();
                 return;
             }
             endereco = new AEndereco();
-            sv.comitarTransacao();
+            dao.commit();
         }
     }
 
@@ -351,10 +351,9 @@ public class BaileBean implements Serializable {
             return null;
         }
 
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-
-        evento.setDescricaoEvento(((DescricaoEvento) sv.find("DescricaoEvento", Integer.parseInt(listaComboDescricaoEvento.get(idDescricaoEvento).getDescription()))));
-        sv.abrirTransacao();
+        Dao dao = new Dao();
+        evento.setDescricaoEvento(((DescricaoEvento) dao.find(new DescricaoEvento(), Integer.parseInt(listaComboDescricaoEvento.get(idDescricaoEvento).getDescription()))));
+        dao.openTransaction();
 
         if (evento.getId() == -1) {
             if (!DataHoje.maiorData(eventoBaile.getDataString(), DataHoje.converteData(DataHoje.dataHoje()))) {
@@ -363,16 +362,16 @@ public class BaileBean implements Serializable {
                 return null;
             }
 
-            if (!sv.inserirObjeto(evento)) {
-                sv.desfazerTransacao();
+            if (!dao.save(evento)) {
+                dao.rollback();
                 msgConfirma = "Falha ao inserir Evento!";
                 GenericaMensagem.warn("Erro", msgConfirma);
                 return null;
             }
 
             Evt evt = new Evt();
-            if (!sv.inserirObjeto(evt)) {
-                sv.desfazerTransacao();
+            if (!dao.save(evt)) {
+                dao.rollback();
                 msgConfirma = "Falha ao inserir EVT!";
                 GenericaMensagem.warn("Erro", msgConfirma);
                 return null;
@@ -382,15 +381,15 @@ public class BaileBean implements Serializable {
             eventoBaile.setEvento(evento);
             endereco.setEvento(evento);
 
-            if (!sv.inserirObjeto(eventoBaile)) {
-                sv.desfazerTransacao();
+            if (!dao.save(eventoBaile)) {
+                dao.rollback();
                 msgConfirma = "Falha ao inserir Evento Baile!";
                 GenericaMensagem.warn("Erro", msgConfirma);
                 return null;
             }
 
-            if (!sv.inserirObjeto(endereco)) {
-                sv.desfazerTransacao();
+            if (!dao.save(endereco)) {
+                dao.rollback();
                 msgConfirma = "Falha ao inserir o endereço!";
                 GenericaMensagem.warn("Erro", msgConfirma);
                 return null;
@@ -399,10 +398,10 @@ public class BaileBean implements Serializable {
             listaMesas.clear();
             msgConfirma = "Registro inserido com sucesso";
             GenericaMensagem.info("Sucesso", msgConfirma);
-            sv.comitarTransacao();
+            dao.commit();
         } else {
-            if (!sv.alterarObjeto(evento)) {
-                sv.desfazerTransacao();
+            if (!dao.update(evento)) {
+                dao.rollback();
                 msgConfirma = "Falha ao atualizar Evento";
                 GenericaMensagem.warn("Erro", msgConfirma);
                 return null;
@@ -410,8 +409,8 @@ public class BaileBean implements Serializable {
 
             if (eventoBaile.getEvt() == null) {
                 Evt evt = new Evt();
-                if (!sv.inserirObjeto(evt)) {
-                    sv.desfazerTransacao();
+                if (!dao.save(evt)) {
+                    dao.rollback();
                     msgConfirma = "Falha ao inserir EVT!";
                     GenericaMensagem.warn("Erro", msgConfirma);
                     return null;
@@ -419,24 +418,24 @@ public class BaileBean implements Serializable {
                 eventoBaile.setEvt(evt);
             }
 
-            if (!sv.alterarObjeto(eventoBaile)) {
-                sv.desfazerTransacao();
+            if (!dao.update(eventoBaile)) {
+                dao.rollback();
                 msgConfirma = "Falha ao atualizar Evento Baile";
                 GenericaMensagem.warn("Erro", msgConfirma);
                 return null;
             }
 
             if (endereco.getId() != -1) {
-                if (!sv.alterarObjeto(endereco)) {
-                    sv.desfazerTransacao();
+                if (!dao.update(endereco)) {
+                    dao.rollback();
                     msgConfirma = "Falha ao atualizar o Endereço!";
                     GenericaMensagem.warn("Erro", msgConfirma);
                     return null;
                 }
             } else {
                 endereco.setEvento(evento);
-                if (!sv.inserirObjeto(endereco)) {
-                    sv.desfazerTransacao();
+                if (!dao.save(endereco)) {
+                    dao.rollback();
                     msgConfirma = "Falha ao atualizar o Endereço!";
                     GenericaMensagem.warn("Erro", msgConfirma);
                     return null;
@@ -446,7 +445,7 @@ public class BaileBean implements Serializable {
             listaMesas.clear();
             msgConfirma = "Registro atualizado com sucesso!";
             GenericaMensagem.info("Sucesso", msgConfirma);
-            sv.comitarTransacao();
+            dao.commit();
         }
         return null;
     }
@@ -455,7 +454,7 @@ public class BaileBean implements Serializable {
         eventoBaile = eve;
         GenericaSessao.put("eventoBandaPesquisa", eventoBaile);
         descPesquisa = "";
-        EventoBaileDB eventoBaileDB = new EventoBaileDBToplink();
+        EventoBaileDao eventoBaileDB = new EventoBaileDao();
         evento = eventoBaile.getEvento();
         endereco = eventoBaileDB.pesquisaEnderecoEvento(eventoBaile.getEvento().getId());
         loadCategoria();
@@ -480,75 +479,75 @@ public class BaileBean implements Serializable {
             return null;
         }
 
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-        sv.abrirTransacao();
+        Dao dao = new Dao();
+        dao.openTransaction();
 
         // EXCLUIR EVENTO BANDA
         for (EventoBanda listaEventoBanda1 : listaEventoBanda) {
-            if (!excluirBanda(listaEventoBanda1.getId(), sv)) {
+            if (!excluirBanda(listaEventoBanda1.getId(), dao)) {
                 msgConfirma = "Banda do Evento não podem ser excluídas!";
                 GenericaMensagem.warn("Erro", msgConfirma);
-                sv.desfazerTransacao();
+                dao.rollback();
                 return null;
             }
         }
 
         // EXCLUIR EVENTO SERVIÇO VALOR
         for (EventoServicoValor listaEventoServicoValor1 : listaEventoServicoValor) {
-            if (!excluirEventoServico(listaEventoServicoValor1.getId(), sv)) {
+            if (!excluirEventoServico(listaEventoServicoValor1.getId(), dao)) {
                 msgConfirma = "Serviços de Valores não podem ser excluídos!";
                 GenericaMensagem.warn("Erro", msgConfirma);
-                sv.desfazerTransacao();
+                dao.rollback();
                 return null;
             }
         }
 
         // EXCLUIR EVENTO BAILE MAPA
         for (EventoBaileMapa mesas : listaMesas) {
-            if (!sv.deletarObjeto(sv.pesquisaCodigo(mesas.getId(), "EventoBaileMapa"))) {
+            if (!dao.delete(dao.find(new EventoBaileMapa(), mesas.getId()))) {
                 msgConfirma = "Evento Baile Mapa não podem ser excluídos!";
                 GenericaMensagem.warn("Erro", msgConfirma);
-                sv.desfazerTransacao();
+                dao.rollback();
                 return null;
             }
         }
 
         // EXCLUIR EVENTO BAILE CONVITE
         for (EventoBaileConvite convites : listaConvites) {
-            if (!sv.deletarObjeto(sv.pesquisaCodigo(convites.getId(), "EventoBaileConvite"))) {
+            if (!dao.delete(dao.find(new EventoBaileConvite(), convites.getId()))) {
                 msgConfirma = "Evento Baile Convite não podem ser excluídos!";
                 GenericaMensagem.warn("Erro", msgConfirma);
-                sv.desfazerTransacao();
+                dao.rollback();
                 return null;
             }
         }
 
-        endereco = (AEndereco) sv.find(endereco);
-        if (!sv.deletarObjeto(endereco)) {
+        endereco = (AEndereco) dao.find(endereco);
+        if (!dao.delete(endereco)) {
             msgConfirma = "Endereço Baile não pode ser excluído!";
             GenericaMensagem.warn("Erro", msgConfirma);
-            sv.desfazerTransacao();
+            dao.rollback();
             return null;
         }
-        eventoBaile = (EventoBaile) sv.find(eventoBaile);
-        if (!sv.deletarObjeto(eventoBaile)) {
+        eventoBaile = (EventoBaile) dao.find(eventoBaile);
+        if (!dao.delete(eventoBaile)) {
             msgConfirma = "Evento Baile não pode ser excluído! ";
             GenericaMensagem.warn("Erro", msgConfirma);
-            sv.desfazerTransacao();
+            dao.rollback();
             return null;
         }
 
-        evento = (AEvento) sv.find(evento);
-        if (!sv.deletarObjeto(evento)) {
+        evento = (AEvento) dao.find(evento);
+        if (!dao.delete(evento)) {
             msgConfirma = "Evento não pode ser excluído! ";
             GenericaMensagem.warn("Erro", msgConfirma);
-            sv.desfazerTransacao();
+            dao.rollback();
             return null;
         }
 
         msgConfirma = "Evento excluído com sucesso!";
         GenericaMensagem.info("Sucesso", msgConfirma);
-        sv.comitarTransacao();
+        dao.commit();
         GenericaSessao.remove("baileBean");
         return null;
     }
@@ -589,9 +588,9 @@ public class BaileBean implements Serializable {
             return;
         }
 
-        BaileDao dao = new BaileDao();
+        BaileDao baileDao = new BaileDao();
 
-        if (dao.pesquisaEventoServico(Integer.valueOf(listaComboServicos.get(idServicos).getDescription()),
+        if (baileDao.pesquisaEventoServico(Integer.valueOf(listaComboServicos.get(idServicos).getDescription()),
                 (eventoServico.isSocio()) ? Integer.valueOf(listaCategoria.get(idCategoria).getDescription()) : null, evento.getId(),
                 eventoServicoValor.getIdadeInicial(),
                 eventoServicoValor.getIdadeFinal(),
@@ -601,12 +600,12 @@ public class BaileBean implements Serializable {
             return;
         }
 
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+        Dao dao = new Dao();
 
-        eventoServico.setServicos(((Servicos) sv.find("Servicos", Integer.parseInt(listaComboServicos.get(idServicos).getDescription()))));
+        eventoServico.setServicos(((Servicos) dao.find(new Servicos(), Integer.parseInt(listaComboServicos.get(idServicos).getDescription()))));
 
         if (eventoServico.isSocio()) {
-            eventoServico.setCategoria((Categoria) sv.pesquisaCodigo(Integer.valueOf(listaCategoria.get(idCategoria).getDescription()), "Categoria"));
+            eventoServico.setCategoria((Categoria) dao.find(new Categoria(), Integer.valueOf(listaCategoria.get(idCategoria).getDescription())));
         } else {
             eventoServico.setCategoria(null);
         }
@@ -615,13 +614,13 @@ public class BaileBean implements Serializable {
         eventoServico.setId(-1);
 
         if (eventoServicoValor.getId() == -1) {
-            sv.abrirTransacao();
+            dao.openTransaction();
             eventoServico.setaEvento(evento);
 
-            if (!sv.inserirObjeto(eventoServico)) {
+            if (!dao.save(eventoServico)) {
                 msgConfirma = "Serviço não pode ser adicionado!";
                 GenericaMensagem.warn("Erro", msgConfirma);
-                sv.desfazerTransacao();
+                dao.rollback();
             }
 
             if (eventoServico.isMesa()) {
@@ -629,17 +628,17 @@ public class BaileBean implements Serializable {
             }
 
             eventoServicoValor.setEventoServico(eventoServico);
-            if (!sv.inserirObjeto(eventoServicoValor)) {
+            if (!dao.save(eventoServicoValor)) {
                 msgConfirma = "Serviço Valor não pode ser adicionado!";
                 GenericaMensagem.warn("Erro", msgConfirma);
-                sv.desfazerTransacao();
+                dao.rollback();
             }
 
             msgConfirma = "Serviço Adicionado!";
             GenericaMensagem.info("Sucesso", msgConfirma);
             listaEventoServicoValor.clear();
 
-            sv.comitarTransacao();
+            dao.commit();
 
             loadCategoria();
 
@@ -647,28 +646,28 @@ public class BaileBean implements Serializable {
     }
 
     public String removerEventoServico(EventoServicoValor esv) {
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-        sv.abrirTransacao();
-        if (excluirEventoServico(esv.getId(), sv)) {
+        Dao dao = new Dao();
+        dao.openTransaction();
+        if (excluirEventoServico(esv.getId(), dao)) {
             listaEventoServicoValor.clear();
             eventoServicoValor = new EventoServicoValor();
             msgConfirma = "Serviço removida com sucesso";
-            sv.comitarTransacao();
+            dao.commit();
 
             loadCategoria();
         } else {
             msgConfirma = "Serviço não pode ser removido!";
-            sv.desfazerTransacao();
+            dao.rollback();
         }
         return null;
     }
 
-    public boolean excluirEventoServico(int id, SalvarAcumuladoDB sv) {
-        eventoServicoValor = (EventoServicoValor) sv.find("EventoServicoValor", id);
+    public boolean excluirEventoServico(Integer id, Dao dao) {
+        eventoServicoValor = (EventoServicoValor) dao.find(new EventoServicoValor(), id);
         if (eventoServicoValor.getId() != -1) {
-            if (sv.deletarObjeto(eventoServicoValor)) {
-                eventoServico = (EventoServico) sv.find("EventoServico", eventoServicoValor.getEventoServico().getId());
-                if (sv.deletarObjeto(eventoServico)) {
+            if (dao.delete(eventoServicoValor)) {
+                eventoServico = (EventoServico) dao.find(new EventoServico(), eventoServicoValor.getEventoServico().getId());
+                if (dao.delete(eventoServico)) {
                     return true;
                 } else {
                     return false;
@@ -714,23 +713,23 @@ public class BaileBean implements Serializable {
     }
 
     public void removerBanda(EventoBanda linha) {
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-        sv.abrirTransacao();
-        if (!excluirBanda(linha.getId(), sv)) {
+        Dao dao = new Dao();
+        dao.openTransaction();
+        if (!excluirBanda(linha.getId(), dao)) {
             GenericaMensagem.error("Error", "Não foi possível remover Banda!");
-            sv.desfazerTransacao();
+            dao.rollback();
             return;
         }
-        sv.comitarTransacao();
+        dao.commit();
 
         GenericaMensagem.info("Sucesso", "Banda Excluída!");
         listaEventoBanda.clear();
     }
 
-    public boolean excluirBanda(int id, SalvarAcumuladoDB sv) {
-        EventoBanda eb = (EventoBanda) sv.find("EventoBanda", id);
+    public boolean excluirBanda(Integer id, Dao dao) {
+        EventoBanda eb = (EventoBanda) dao.find(new EventoBanda(), id);
         if (eb.getId() != -1) {
-            return sv.deletarObjeto(eb);
+            return dao.delete(eb);
         }
         return false;
     }
@@ -805,7 +804,7 @@ public class BaileBean implements Serializable {
 
     public List<EventoBanda> getListaEventoBanda() {
         if (listaEventoBanda.isEmpty()) {
-            EventoBandaDB db = new EventoBandaDBToplink();
+            EventoBandaDao db = new EventoBandaDao();
             listaEventoBanda = db.pesquisaBandasDoEvento(eventoBaile.getEvento().getId());
         }
         return listaEventoBanda;
@@ -817,8 +816,7 @@ public class BaileBean implements Serializable {
 
     public List<SelectItem> getListaComboBanda() {
         if (listaComboBanda.isEmpty()) {
-            SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-            List<Banda> list = sv.listaObjeto("Banda");
+            List<Banda> list = new Dao().list(new Banda(), true);
             if (!list.isEmpty()) {
                 for (int i = 0; i < list.size(); i++) {
                     listaComboBanda.add(new SelectItem(i, list.get(i).getDescricao(), Integer.toString(list.get(i).getId())));
@@ -842,7 +840,7 @@ public class BaileBean implements Serializable {
 
     public List<SelectItem> getListaComboDescricaoEvento() {
         if (listaComboDescricaoEvento.isEmpty()) {
-            DescricaoEventoDB db = new DescricaoEventoDBToplink();
+            DescricaoEventoDao db = new DescricaoEventoDao();
             List<DescricaoEvento> list = db.pesquisaDescricaoPorGrupo(1);
             if (!list.isEmpty()) {
                 for (int i = 0; i < list.size(); i++) {
@@ -894,7 +892,7 @@ public class BaileBean implements Serializable {
     }
 
     public List<EventoBaile> getListaEventoBaile() {
-        EventoBaileDB db = new EventoBaileDBToplink();
+        EventoBaileDao db = new EventoBaileDao();
         listaEventoBaile = db.pesquisaEventoDescricao(descPesquisa, comoPesquisa);
         return listaEventoBaile;
     }

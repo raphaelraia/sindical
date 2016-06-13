@@ -9,8 +9,7 @@ import br.com.rtools.associativo.ConviteServico;
 import br.com.rtools.associativo.ConviteSuspencao;
 import br.com.rtools.associativo.MatriculaSocios;
 import br.com.rtools.associativo.Socios;
-import br.com.rtools.associativo.db.ConviteDB;
-import br.com.rtools.associativo.db.ConviteDBToplink;
+import br.com.rtools.associativo.dao.ConviteDao;
 import br.com.rtools.associativo.db.SociosDB;
 import br.com.rtools.associativo.db.SociosDBToplink;
 import br.com.rtools.endereco.Endereco;
@@ -357,7 +356,7 @@ public class ConviteMovimentoBean implements Serializable {
         // -------------------------------
         Dao dao = new Dao();
         Registro r = (Registro) dao.find(new Registro(), 1);
-        ConviteDB cdb = new ConviteDBToplink();
+        ConviteDao cdb = new ConviteDao();
         if (conviteMovimento.isCortesia()) {
             if (cdb.limiteConvitePorSocio(r.getConviteQuantidadeSocio(), r.getConviteDiasSocio(), conviteMovimento.getPessoa().getId())) {
                 GenericaMensagem.warn("ATENÇÃO", "Limite de convites excedido para este sócio! Este sócio tem direito a disponibilizar " + r.getConviteQuantidadeSocio() + " convite(s) a cada " + r.getConviteDiasSocio() + "dia(s)");
@@ -837,7 +836,7 @@ public class ConviteMovimentoBean implements Serializable {
             if (porPesquisa.equals("todos")) {
                 descricaoPesquisa = "";
             }
-            conviteMovimentos = (List<ConviteMovimento>) new ConviteDBToplink().pesquisaConviteMovimento(descricaoPesquisa, porPesquisa, comoPesquisa, dataInicial, dataFinal);
+            conviteMovimentos = (List<ConviteMovimento>) new ConviteDao().pesquisaConviteMovimento(descricaoPesquisa, porPesquisa, comoPesquisa, dataInicial, dataFinal);
         }
         return conviteMovimentos;
     }
@@ -904,7 +903,7 @@ public class ConviteMovimentoBean implements Serializable {
     public List<SelectItem> getConviteServicos() {
         if (conviteServicos.isEmpty()) {
             Dao dao = new Dao();
-            List<ConviteServico> list = new ConviteDBToplink().listaConviteServicoCortesia(conviteMovimento.isCortesia());
+            List<ConviteServico> list = new ConviteDao().listaConviteServicoCortesia(conviteMovimento.isCortesia());
             int i = 0;
             for (ConviteServico cs : list) {
                 List listSemana = new ArrayList();
@@ -1036,7 +1035,7 @@ public class ConviteMovimentoBean implements Serializable {
 
     public List<SelectItem> getListPessoaAutoriza() {
         if (listPessoaAutoriza.isEmpty()) {
-            ConviteDB db = new ConviteDBToplink();
+            ConviteDao db = new ConviteDao();
             List<ConviteAutorizaCortesia> list = db.listaConviteAutorizaCortesia(conviteMovimento.getId() == -1);
 
             int i = 0;

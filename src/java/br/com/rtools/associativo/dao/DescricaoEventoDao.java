@@ -1,4 +1,4 @@
-package br.com.rtools.associativo.db;
+package br.com.rtools.associativo.dao;
 
 import br.com.rtools.associativo.AEvento;
 import br.com.rtools.associativo.DescricaoEvento;
@@ -7,9 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 
-public class DescricaoEventoDBToplink extends DB implements DescricaoEventoDB {
+public class DescricaoEventoDao extends DB {
 
-    @Override
     public List<DescricaoEvento> pesquisaDescricaoPorGrupo(int idGrupoEvento) {
         List<DescricaoEvento> result = new ArrayList();
         try {
@@ -22,7 +21,6 @@ public class DescricaoEventoDBToplink extends DB implements DescricaoEventoDB {
         return result;
     }
 
-    @Override
     public List<AEvento> listaEventoPorDescricao(int idDescEvento) {
         List<AEvento> list;
         try {
@@ -35,7 +33,6 @@ public class DescricaoEventoDBToplink extends DB implements DescricaoEventoDB {
         return list;
     }
 
-    @Override
     public boolean existeDescricaoEvento(DescricaoEvento de) {
         try {
             Query query = getEntityManager().createQuery("SELECT DE FROM DescricaoEvento AS DE WHERE DE.grupoEvento.id = :grupoEvento AND DE.descricao = :descricao");
@@ -45,7 +42,8 @@ public class DescricaoEventoDBToplink extends DB implements DescricaoEventoDB {
             if (!list.isEmpty()) {
                 return true;
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
         return false;
     }
 }

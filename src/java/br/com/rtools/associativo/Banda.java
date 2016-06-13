@@ -1,17 +1,23 @@
 package br.com.rtools.associativo;
 
+import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "eve_banda")
-@NamedQuery(name = "Banda.pesquisaID", query = "select s from Banda s where s.id=:pid")
-public class Banda implements java.io.Serializable {
+@NamedQueries({
+    @NamedQuery(name = "Banda.pesquisaID", query = "SELECT B FROM Banda AS B WHERE B.id = :pid"),
+    @NamedQuery(name = "Banda.findAll", query = "SELECT B FROM Banda AS B ORDER BY B.descricao ASC")
+})
+public class Banda implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

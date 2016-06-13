@@ -8,8 +8,7 @@ import br.com.rtools.associativo.MatriculaSocios;
 import br.com.rtools.associativo.Reservas;
 import br.com.rtools.associativo.dao.CaravanaDao;
 import br.com.rtools.associativo.dao.EventoServicoDao;
-import br.com.rtools.associativo.db.EventoServicoValorDB;
-import br.com.rtools.associativo.db.EventoServicoValorDBToplink;
+import br.com.rtools.associativo.dao.EventoServicoValorDao;
 import br.com.rtools.associativo.db.SociosDB;
 import br.com.rtools.associativo.db.SociosDBToplink;
 import br.com.rtools.associativo.db.VendasCaravanaDB;
@@ -338,7 +337,7 @@ public class VendasCaravanaBean {
         List<Reservas> lr;
         VendasCaravanaDB db = new VendasCaravanaDBToplink();
         FisicaDB dbf = new FisicaDBToplink();
-        EventoServicoValorDB dbe = new EventoServicoValorDBToplink();
+        EventoServicoValorDao dbe = new EventoServicoValorDao();
         SociosDB dbs = new SociosDBToplink();
         float valor;
         lr = db.listaReservasVenda(vendas.getId());
@@ -759,7 +758,7 @@ public class VendasCaravanaBean {
             if (listaTipo.isEmpty() && listaCaravana.get(idCaravana).getId() != -1) {
                 List<EventoServico> select;
                 EventoServicoDao db = new EventoServicoDao();
-                EventoServicoValorDB dbE = new EventoServicoValorDBToplink();
+                EventoServicoValorDao dbE = new EventoServicoValorDao();
                 if (listaCaravana.get(idCaravana).getId() != -1) {
                     select = db.listaEventoServico(listaCaravana.get(idCaravana).getaEvento().getId());
                     for (int i = 0; i < select.size(); i++) {

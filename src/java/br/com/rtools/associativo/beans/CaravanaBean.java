@@ -1,5 +1,7 @@
 package br.com.rtools.associativo.beans;
 
+import br.com.rtools.associativo.dao.EventoServicoValorDao;
+import br.com.rtools.associativo.dao.DescricaoEventoDao;
 import br.com.rtools.associativo.dao.EventoServicoDao;
 import br.com.rtools.associativo.*;
 import br.com.rtools.associativo.db.*;
@@ -108,9 +110,9 @@ public class CaravanaBean implements Serializable {
             return;
         }
 
-//        DescricaoEventoDB db = new DescricaoEventoDBToplink();
+//        DescricaoEventoDB db = new DescricaoEventoDao();
 //        List<DescricaoEvento> select = db.pesquisaDescricaoPorGrupo(Integer.parseInt(listaGrupoEvento.get(idGrupoEvento).getDescription()));
-        DescricaoEventoDB db = new DescricaoEventoDBToplink();
+        DescricaoEventoDao db = new DescricaoEventoDao();
         List<DescricaoEvento> select = db.pesquisaDescricaoPorGrupo(2);
         for (int i = 0; i < select.size(); i++) {
             listaDescricaoEvento.add(
@@ -256,39 +258,35 @@ public class CaravanaBean implements Serializable {
         servicos = (Servicos) dao.find(new Servicos(), Integer.parseInt(getListaServicos().get(idServicos).getDescription()));
         float vl = 0;
         eventoServico.setServicos(servicos);
-        if(eventoServico.getId() == -1) {
+        if (eventoServico.getId() == -1) {
             eventoServico.setaEvento(caravana.getaEvento());
             if (!dao.save(eventoServico)) {
                 msgConfirma = "Erro ao inserir Evento Serviço!";
                 GenericaMensagem.warn("Erro", msgConfirma);
                 dao.rollback();
                 return null;
-            }            
-        } else {            
-            if (!dao.update(eventoServico)) {
-                msgConfirma = "Erro ao atualizar Evento Serviço!";
-                GenericaMensagem.warn("Erro", msgConfirma);
-                dao.rollback();
-                return null;
-            }            
+            }
+        } else if (!dao.update(eventoServico)) {
+            msgConfirma = "Erro ao atualizar Evento Serviço!";
+            GenericaMensagem.warn("Erro", msgConfirma);
+            dao.rollback();
+            return null;
         }
         eventoServicoValor.setEventoServico(eventoServico);
         vl = Float.valueOf(valor);
         eventoServicoValor.setValor(vl);
-        if(eventoServicoValor.getId() == -1) {
+        if (eventoServicoValor.getId() == -1) {
             if (!dao.save(eventoServicoValor)) {
                 msgConfirma = "Erro ao inserir Evento Serviço Valor!";
                 GenericaMensagem.warn("Erro", msgConfirma);
                 dao.rollback();
                 return null;
-            }            
-        } else {
-            if (!dao.update(eventoServicoValor)) {
-                msgConfirma = "Erro ao atualizar Evento Serviço Valor!";
-                GenericaMensagem.warn("Erro", msgConfirma);
-                dao.rollback();
-                return null;
             }
+        } else if (!dao.update(eventoServicoValor)) {
+            msgConfirma = "Erro ao atualizar Evento Serviço Valor!";
+            GenericaMensagem.warn("Erro", msgConfirma);
+            dao.rollback();
+            return null;
         }
 
         dao.commit();
@@ -431,7 +429,7 @@ public class CaravanaBean implements Serializable {
 
     public List<DataObject> getListaServicosAdd() {
         EventoServicoDao dbE = new EventoServicoDao();
-        EventoServicoValorDB dbEv = new EventoServicoValorDBToplink();
+        EventoServicoValorDao dbEv = new EventoServicoValorDao();
         if (caravana.getId() != -1) {
             listaServicosAdd.clear();
             List<EventoServico> evs;
