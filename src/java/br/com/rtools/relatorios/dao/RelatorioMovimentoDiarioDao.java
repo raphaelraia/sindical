@@ -55,8 +55,6 @@ public class RelatorioMovimentoDiarioDao extends DB {
             // CONTA OU BANCO
             if (plano5_id != null) {
                 listWhere.add("M.id_caixa_banco = " + plano5_id);
-            } else {
-                listWhere.add("M.id_plano5 IN ( SELECT id_plano5 FROM caixa_banco_vw )");
             }
             // STATUS
             if (in_status != null && !in_status.isEmpty()) {
@@ -153,6 +151,8 @@ public class RelatorioMovimentoDiarioDao extends DB {
                     + "      WHERE dt_data=(cast('" + date + "' as date)) - 1 \n";
             if (plano5_id != null) {
                 queryString += " AND id_plano5 = " + plano5_id;
+            } else {
+                queryString += "M.id_plano5 IN ( SELECT id_plano5 FROM caixa_banco_vw )";
             }
             Query query = getEntityManager().createNativeQuery(queryString);
             List list = query.getResultList();
