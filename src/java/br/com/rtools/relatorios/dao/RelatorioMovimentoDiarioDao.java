@@ -4,10 +4,7 @@ import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.principal.DB;
 import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
-import br.com.rtools.utilitarios.DataHoje;
-import br.com.rtools.utilitarios.QueryString;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import javax.persistence.Query;
 
@@ -55,9 +52,11 @@ public class RelatorioMovimentoDiarioDao extends DB {
                     + "               LEFT JOIN fin_status    AS ST ON ST.id = m.id_baixa_status \n";
 
             List listWhere = new ArrayList<>();
-            // SITUAÇÃO
+            // CONTA OU BANCO
             if (plano5_id != null) {
                 listWhere.add("M.id_caixa_banco = " + plano5_id);
+            } else {
+                listWhere.add("M.id_plano5 IN ( SELECT id_plano5 FROM caixa_banco_vw )");
             }
             // STATUS
             if (in_status != null && !in_status.isEmpty()) {

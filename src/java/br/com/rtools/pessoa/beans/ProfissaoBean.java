@@ -3,11 +3,8 @@ package br.com.rtools.pessoa.beans;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Profissao;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.io.Serializable;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -40,8 +37,7 @@ public class ProfissaoBean extends PesquisarProfissaoBean implements Serializabl
     }
 
     public void editProfissao(Profissao pr) {
-        //prof = (Profissao) super.getListaProfissao().get(super.getIdIndexProf());
-        prof = pr;//(Profissao) super.getListaProfissao().get(super.getIdIndexProf());
+        prof = pr;
         super.getListaProfissao().clear();
     }
 
@@ -52,21 +48,20 @@ public class ProfissaoBean extends PesquisarProfissaoBean implements Serializabl
             return;
         }
         NovoLog novoLog = new NovoLog();
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-        DaoInterface di = new Dao();
-        di.openTransaction();
+        Dao dao = new Dao();
+        dao.openTransaction();
         if (prof.getId() == -1) {
-            if (sv.descricaoExiste(prof.getProfissao(), "profissao", "Profissao")) {
+            if (dao.existsDescription(prof.getProfissao(), "profissao", "Profissao")) {
                 GenericaMensagem.warn("Validação", "Profissão já cadastrada!");
                 return;
             }
             if (!prof.getCbo().isEmpty()) {
-                if (sv.descricaoExiste(prof.getCbo(), "cbo", "Profissao")) {
+                if (dao.existsDescription(prof.getCbo(), "cbo", "Profissao")) {
                     GenericaMensagem.warn("Validação", "CBO já existe!");
                     return;
                 }
             }
-            if (di.save(prof)) {
+            if (dao.save(prof)) {
                 GenericaMensagem.info("Sucesso!", "Profissão salva com sucesso");
                 novoLog.save(
                         "ID: " + prof.getId()
@@ -75,16 +70,16 @@ public class ProfissaoBean extends PesquisarProfissaoBean implements Serializabl
                 );
             } else {
                 GenericaMensagem.warn("Erro", "Erro ao salvar profissão!");
-                sv.desfazerTransacao();
+                dao.rollback();
                 return;
             }
         } else {
-            Profissao p = (Profissao) di.find(prof);
+            Profissao p = (Profissao) dao.find(prof);
             String beforeUpdate
                     = "ID: " + p.getId()
                     + " - Profissão: " + p.getProfissao()
                     + " - CBO: " + p.getCbo();
-            if (di.update(prof)) {
+            if (dao.update(prof)) {
                 novoLog.update(beforeUpdate,
                         "ID: " + prof.getId()
                         + " - Profissão: " + prof.getProfissao()
@@ -93,11 +88,11 @@ public class ProfissaoBean extends PesquisarProfissaoBean implements Serializabl
                 GenericaMensagem.info("Sucesso!", "Profissão atualizada com sucesso");
             } else {
                 GenericaMensagem.warn("Erro", "Erro ao atualizar profissão!");
-                sv.desfazerTransacao();
+                dao.rollback();
                 return;
             }
         }
-        di.commit();
+        dao.commit();
         super.getListaProfissao().clear();
         prof = new Profissao();
     }
@@ -107,9 +102,9 @@ public class ProfissaoBean extends PesquisarProfissaoBean implements Serializabl
             GenericaMensagem.warn("Erro", "Selecione uma profissão para ser excluída!");
             return;
         }
-        DaoInterface di = new Dao();
-        di.openTransaction();
-        if (di.delete(prof)) {
+        Dao dao = new Dao();
+        dao.openTransaction();
+        if (dao.delete(prof)) {
             NovoLog novoLog = new NovoLog();
             novoLog.delete(
                     "ID: " + prof.getId()
@@ -117,10 +112,10 @@ public class ProfissaoBean extends PesquisarProfissaoBean implements Serializabl
                     + " - CBO: " + prof.getCbo()
             );
             GenericaMensagem.info("Sucesso!", "Profissão deletada com sucesso!");
-            di.commit();
+            dao.commit();
         } else {
             GenericaMensagem.warn("Erro", "Erro ao deletar profissão!");
-            di.rollback();
+            dao.rollback();
         }
         super.getListaProfissao().clear();
         prof = new Profissao();

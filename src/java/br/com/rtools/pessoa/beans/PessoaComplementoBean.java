@@ -5,13 +5,10 @@ import br.com.rtools.pessoa.db.PessoaDB;
 import br.com.rtools.pessoa.db.PessoaDBToplink;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
-import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.PF;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -121,8 +118,7 @@ public class PessoaComplementoBean extends PesquisarProfissaoBean implements Ser
 
     public Registro getRegistro() {
         if (registro == null || registro.getId() == -1) {
-            SalvarAcumuladoDB sadb = new SalvarAcumuladoDBToplink();
-            registro = (Registro) sadb.pesquisaObjeto(1, "Registro");
+            registro = (Registro) Registro.get();
         }
         return registro;
     }

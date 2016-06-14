@@ -883,35 +883,6 @@ public class SimplesBean implements Serializable {
         }
     }
 
-//    public synchronized List getLista() throws ClassNotFoundException {
-//        if (sessoes != null) {
-//            SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-//            if (!pesquisaLista.isEmpty()) {
-//                String table_name = "", string_class = pacoteDaClasse(sessoes[0]);
-//
-//                if (!string_class.isEmpty()) {
-//                    Class cls = Class.forName(string_class);
-//
-////                    for (Annotation ann : cls.getAnnotations()) {
-////                        if(!ann.annotationType().equals(javax.persistence.Table.class)) continue;
-////
-////                        javax.persistence.Table t = (javax.persistence.Table) ann;
-////                        table_name  = t.name();
-////                    }
-//                    SelectTranslate st = new SelectTranslate();
-//                    String value = "%" + pesquisaLista + "%";
-//                    try {
-//                        return lista = st.select(cls.newInstance()).where("descricao", value).find();
-//                    } catch (InstantiationException ex) {
-//                        Logger.getLogger(SimplesBean.class.getName()).log(Level.SEVERE, null, ex);
-//                    } catch (IllegalAccessException ex) {
-//                        Logger.getLogger(SimplesBean.class.getName()).log(Level.SEVERE, null, ex);
-//                    }
-//                }
-//            }
-//        }
-//        return lista;
-//    }
     public String pacoteDaClasse(String classe) {
         List<String> list_class = new ArrayList();
 

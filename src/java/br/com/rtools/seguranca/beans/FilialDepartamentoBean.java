@@ -28,9 +28,9 @@ public class FilialDepartamentoBean {
     @PostConstruct
     public void init() {
         filialDepartamento = new FilialDepartamento();
-        listFilialDepartamentos = new ArrayList<FilialDepartamento>();
-        listFiliais = new ArrayList<Filial>();
-        listDepartamentos = new ArrayList<Departamento>();
+        listFilialDepartamentos = new ArrayList<>();
+        listFiliais = new ArrayList<>();
+        listDepartamentos = new ArrayList<>();
         filial = new Filial();
         departamento = new Departamento();
     }
