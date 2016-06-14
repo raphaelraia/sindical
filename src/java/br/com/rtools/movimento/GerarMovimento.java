@@ -1,5 +1,6 @@
 package br.com.rtools.movimento;
 
+import br.com.rtools.arrecadacao.dao.CnaeConvencaoDao;
 import br.com.rtools.arrecadacao.dao.GrupoCidadesDao;
 import br.com.rtools.financeiro.dao.Plano5Dao;
 import br.com.rtools.arrecadacao.Acordo;
@@ -305,7 +306,7 @@ public class GerarMovimento extends DB {
 
     public static synchronized String salvarListaAcordo(Acordo acordo, List<Movimento> listaMovimento, List<Movimento> listaAcordados, List<String> listaHistorico) {
         Dao dao = new Dao();
-        CnaeConvencaoDB dbco = new CnaeConvencaoDBToplink();
+        CnaeConvencaoDao dbco = new CnaeConvencaoDao();
         GrupoCidadesDao dbgc = new GrupoCidadesDao();
         ContaCobrancaDB dbc = new ContaCobrancaDBToplink();
         NovoLog log = new NovoLog();
@@ -625,7 +626,7 @@ public class GerarMovimento extends DB {
 
     public static boolean salvarUmMovimento(Lote lote, Movimento movimento) {
         Dao dao = new Dao();
-        CnaeConvencaoDB dbco = new CnaeConvencaoDBToplink();
+        CnaeConvencaoDao dbco = new CnaeConvencaoDao();
         GrupoCidadesDao dbgc = new GrupoCidadesDao();
         ContaCobrancaDB dbc = new ContaCobrancaDBToplink();
         NovoLog log = new NovoLog();

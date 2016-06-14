@@ -1,9 +1,11 @@
 package br.com.rtools.arrecadacao.beans;
 
+import br.com.rtools.arrecadacao.dao.CnaeConvencaoDao;
 import br.com.rtools.pessoa.dao.FilialDao;
 import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.GrupoCidade;
 import br.com.rtools.arrecadacao.MensagemConvencao;
+import br.com.rtools.arrecadacao.dao.ConvencaoCidadeDao;
 import br.com.rtools.arrecadacao.db.*;
 import br.com.rtools.financeiro.*;
 import br.com.rtools.financeiro.beans.MovimentoValorBean;
@@ -339,8 +341,8 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
     }
 
     public String chamarMensagem() {
-        CnaeConvencaoDB cnaeConvencaoDB = new CnaeConvencaoDBToplink();
-        ConvencaoCidadeDB convencaoCidade = new ConvencaoCidadeDBToplink();
+        CnaeConvencaoDao cnaeConvencaoDB = new CnaeConvencaoDao();
+        ConvencaoCidadeDao convencaoCidade = new ConvencaoCidadeDao();
         Convencao convencao = cnaeConvencaoDB.pesquisarCnaeConvencao(juridica.getId());
         PessoaEnderecoDao dao = new PessoaEnderecoDao();
         GrupoCidade grupoCidade = null;

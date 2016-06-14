@@ -1,10 +1,10 @@
 package br.com.rtools.arrecadacao.beans;
 
 import br.com.rtools.arrecadacao.dao.DescontoEmpregadoDao;
+import br.com.rtools.arrecadacao.dao.ConvencaoCidadeDao;
 import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.DescontoEmpregado;
 import br.com.rtools.arrecadacao.GrupoCidade;
-import br.com.rtools.arrecadacao.db.*;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.db.ServicosDB;
 import br.com.rtools.financeiro.db.ServicosDBToplink;
@@ -242,7 +242,7 @@ public class DescontoEmpregadoBean implements Serializable {
     public List<SelectItem> getListaGrupoCidade() {
         listaGrupoCidade = new ArrayList();
         int i = 0;
-        ConvencaoCidadeDB db = new ConvencaoCidadeDBToplink();
+        ConvencaoCidadeDao db = new ConvencaoCidadeDao();
         List select = db.pesquisarGruposPorConvencao(Integer.parseInt(getListaConvencao().get(idConvencao).getDescription()));
         while (i < select.size()) {
             listaGrupoCidade.add(new SelectItem(i,

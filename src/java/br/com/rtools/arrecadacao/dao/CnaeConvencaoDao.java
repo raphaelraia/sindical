@@ -1,4 +1,4 @@
-package br.com.rtools.arrecadacao.db;
+package br.com.rtools.arrecadacao.dao;
 
 import br.com.rtools.arrecadacao.CnaeConvencao;
 import br.com.rtools.arrecadacao.Convencao;
@@ -10,9 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 
-public class CnaeConvencaoDBToplink extends DB implements CnaeConvencaoDB {
+public class CnaeConvencaoDao extends DB {
 
-    @Override
     public CnaeConvencao pesquisaCnaeComConvencao(int idCnae) {
         try {
             Query qry = getEntityManager().createQuery("select cc from CnaeConvencao cc "
@@ -25,7 +24,6 @@ public class CnaeConvencaoDBToplink extends DB implements CnaeConvencaoDB {
         }
     }
 
-    @Override
     public Convencao pesquisarCnaeConvencao(int idJuridica) {
         Convencao result;
         result = null;
@@ -43,7 +41,6 @@ public class CnaeConvencaoDBToplink extends DB implements CnaeConvencaoDB {
         return result;
     }
 
-    @Override
     public Convencao pesquisarCnaeConvencaoPorPessoa(int idPessoa) {
         Convencao result;
         result = null;
@@ -61,7 +58,6 @@ public class CnaeConvencaoDBToplink extends DB implements CnaeConvencaoDB {
         return result;
     }
 
-    @Override
     public List pesquisarCnaeConvencaoPorConvencao(int id) {
         List result;
         result = null;
@@ -76,7 +72,6 @@ public class CnaeConvencaoDBToplink extends DB implements CnaeConvencaoDB {
         return result;
     }
 
-    @Override
     public List<Juridica> pesquisarJuridicaPorCnae(int idCnae) {
         List<Juridica> result = new ArrayList<Juridica>();
         try {
@@ -89,7 +84,6 @@ public class CnaeConvencaoDBToplink extends DB implements CnaeConvencaoDB {
         return result;
     }
 
-    @Override
     public List<Cnae> listaCnaePorConvencao(int id_convencao) {
         List<Cnae> result = new ArrayList();
         try {
@@ -101,7 +95,6 @@ public class CnaeConvencaoDBToplink extends DB implements CnaeConvencaoDB {
         return result;
     }
 
-    @Override
     public List<PatronalCnae> listaCnaePorPatronal(int id_patronal) {
         List<PatronalCnae> result = new ArrayList();
         try {

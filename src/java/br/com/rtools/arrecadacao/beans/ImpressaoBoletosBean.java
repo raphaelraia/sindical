@@ -3,8 +3,7 @@ package br.com.rtools.arrecadacao.beans;
 import br.com.rtools.arrecadacao.CnaeConvencao;
 import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.GrupoCidade;
-import br.com.rtools.arrecadacao.db.ConvencaoCidadeDB;
-import br.com.rtools.arrecadacao.db.ConvencaoCidadeDBToplink;
+import br.com.rtools.arrecadacao.dao.ConvencaoCidadeDao;
 import br.com.rtools.financeiro.Impressao;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.ServicoContaCobranca;
@@ -996,7 +995,7 @@ public class ImpressaoBoletosBean implements Serializable {
     public List<GrupoCidade> getListaGrupoCidade() {
         if (listaGrupoCidade.isEmpty()) {
             if (!listaConvencaoSelecionada.isEmpty()) {
-                ConvencaoCidadeDB convencaoCidadeDB = new ConvencaoCidadeDBToplink();
+                ConvencaoCidadeDao convencaoCidadeDB = new ConvencaoCidadeDao();
                 List<Integer> listInt = new ArrayList();
 
                 for (int i = 0; i < listaConvencaoSelecionada.size(); i++) {

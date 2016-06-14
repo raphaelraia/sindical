@@ -34,14 +34,15 @@ public class ReportBugBean implements Serializable {
     private String bug = "";
 
     private File fileBug = null;
+    private Boolean success = false;
 
     public void report() {
         if (bug.isEmpty()) {
-            GenericaMensagem.warn("Validação", "Informar o Bug");
+            GenericaMensagem.warn("Validação", "Informar o Bug!");
             return;
         }
         if (bug.length() < 10) {
-            GenericaMensagem.warn("Validação", "Deve conter no mínimo 10 caracteres");
+            GenericaMensagem.warn("Validação", "Deve conter no mínimo 10 caracteres!");
             return;
         }
         String bug_message = bug;
@@ -125,11 +126,15 @@ public class ReportBugBean implements Serializable {
         emailPessoas.add(emailPessoa);
         mail.setEmailPessoas(emailPessoas);
         List<File> listFiles = new ArrayList<>();
-        if(fileBug != null) {
-            if(fileBug.exists()) {
-                listFiles.add(fileBug);            
-                mail.setFiles(listFiles);                
+        try {
+            if (fileBug != null) {
+                if (fileBug.exists()) {
+                    listFiles.add(fileBug);
+                    mail.setFiles(listFiles);
+                }
             }
+        } catch (Exception e) {
+
         }
         String[] string = mail.send();
         if (string[0].isEmpty()) {
@@ -138,9 +143,16 @@ public class ReportBugBean implements Serializable {
             NovoLog novoLog = new NovoLog();
             novoLog.live(bug);
             GenericaMensagem.info("Sucesso", "Bug reportado com sucesso!");
+            success = true;
         }
         bug = "";
-        fileBug.delete();
+        try {
+            if (fileBug.exists()) {
+                fileBug.delete();
+            }
+        } catch (Exception e) {
+
+        }
         fileBug = null;
     }
 
@@ -177,6 +189,14 @@ public class ReportBugBean implements Serializable {
 
     public void setFileBug(File fileBug) {
         this.fileBug = fileBug;
+    }
+
+    public Boolean getSuccess() {
+        return success;
+    }
+
+    public void setSuccess(Boolean success) {
+        this.success = success;
     }
 
 }

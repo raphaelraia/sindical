@@ -1,10 +1,10 @@
 package br.com.rtools.arrecadacao.beans;
 
 import br.com.rtools.arrecadacao.dao.ConvencaoDao;
+import br.com.rtools.arrecadacao.dao.ConvencaoCidadeDao;
 import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.ConvencaoCidade;
 import br.com.rtools.arrecadacao.GrupoCidade;
-import br.com.rtools.arrecadacao.db.*;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.Dao;
@@ -18,7 +18,6 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
@@ -53,10 +52,10 @@ public class ConvencaoBean implements Serializable {
             //    FacesContext context = FacesContext.getCurrentInstance();
             //String caminho = ((ServletContext) context.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/convencao/arqTemp.pdf");
             //File fl = new File(caminho);
-            ConvencaoCidadeDB db = new ConvencaoCidadeDBToplink();
+            ConvencaoCidadeDao ccdbt = new ConvencaoCidadeDao();
             GrupoCidade gc = (GrupoCidade) dolinha.getArgumento0();
 
-            ConvencaoCidade cc = db.pesquisarConvencao(convencao.getId(), gc.getId());
+            ConvencaoCidade cc = ccdbt.pesquisarConvencao(convencao.getId(), gc.getId());
             dolinha.setArgumento1(String.valueOf(gc.getId()) + "_" + convencao.getId());
             cc.setCaminho(String.valueOf(gc.getId()) + "_" + convencao.getId());
 
@@ -164,7 +163,7 @@ public class ConvencaoBean implements Serializable {
             return;
         }
 
-        ConvencaoCidadeDB dbCC = new ConvencaoCidadeDBToplink();
+        ConvencaoCidadeDao dbCC = new ConvencaoCidadeDao();
         Dao dao = new Dao();
         GrupoCidade gpCid = (GrupoCidade) dao.find(new GrupoCidade(), Integer.valueOf(getListaGrupoCidade().get(idGrupoCidade).getDescription()));
 
@@ -206,7 +205,7 @@ public class ConvencaoBean implements Serializable {
     }
 
     public void btnExcluir(DataObject linha) {
-        ConvencaoCidadeDB db = new ConvencaoCidadeDBToplink();
+        ConvencaoCidadeDao db = new ConvencaoCidadeDao();
         ConvencaoCidade cc = db.pesquisarConvencao(convencao.getId(), ((GrupoCidade) linha.getArgumento0()).getId());
 
         if (cc == null) {
@@ -272,18 +271,19 @@ public class ConvencaoBean implements Serializable {
         String caminho = ((ServletContext) context.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/convencao/arqTemp.pdf");
         File fl = new File(caminho);
         if (convencao.getId() != -1 && !listaGpCidade.isEmpty()) {
-            ConvencaoCidadeDB db = new ConvencaoCidadeDBToplink();
+            ConvencaoCidadeDao ccdbt = new ConvencaoCidadeDao();
+            Dao dao = new Dao();
             try {
                 if (fl.exists()) {
                     //GrupoCidade gc = (GrupoCidade) listaGpCidade.get(idIndex).getArgumento0(); AQUI
                     GrupoCidade gc = null;
 
-                    ConvencaoCidade cc = db.pesquisarConvencao(convencao.getId(), gc.getId());
+                    ConvencaoCidade cc = ccdbt.pesquisarConvencao(convencao.getId(), gc.getId());
                     //listaGpCidade.get(idIndex).setArgumento1(String.valueOf(gc.getId()) + "_" + convencao.getId()); AQUI
                     cc.setCaminho(String.valueOf(gc.getId()) + "_" + convencao.getId());
-                    db.getEntityManager().getTransaction().begin();
-                    if (!db.update(cc)) {
-                        db.getEntityManager().getTransaction().rollback();
+                    dao.openTransaction();
+                    if (!dao.update(cc)) {
+                        dao.rollback();
                         return listaGpCidade;
                     }
 
@@ -305,10 +305,10 @@ public class ConvencaoBean implements Serializable {
                     caminho = ((ServletContext) context.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/convencao/arqTemp.pdf");
                     fl = new File(caminho);
                     fl.delete();
-                    db.getEntityManager().getTransaction().commit();
+                    dao.commit();
                 }
             } catch (Exception e) {
-                db.getEntityManager().getTransaction().rollback();
+                dao.rollback();
                 System.out.println(e);
             }
         } else if (fl.exists()) {
@@ -319,7 +319,7 @@ public class ConvencaoBean implements Serializable {
 
     public List<DataObject> getListaGpCidade() {
         if (listaGpCidade.isEmpty() && convencao.getId() != -1) {
-            ConvencaoCidadeDB db = new ConvencaoCidadeDBToplink();
+            ConvencaoCidadeDao db = new ConvencaoCidadeDao();
             List<GrupoCidade> result = db.pesquisarGruposPorConvencao(convencao.getId());
 
             for (int i = 0; i < result.size(); i++) {
@@ -346,7 +346,7 @@ public class ConvencaoBean implements Serializable {
 
             convencao = (Convencao) dao.find(new Convencao(), convencao.getId());
 
-            //ConvencaoCidadeDB db = new ConvencaoCidadeDBToplink();
+            //ConvencaoCidadeDB db = new ConvencaoCidadeDao();
             //List<GrupoCidade> result = db.pesquisarGruposPorConvencao(convencao.getId());
             dao.openTransaction();
             for (int i = 0; i < listaGpCidade.size(); i++) {
@@ -402,7 +402,7 @@ public class ConvencaoBean implements Serializable {
     }
 
     public String editar(Convencao c) {
-//        ConvencaoCidadeDB db = new ConvencaoCidadeDBToplink();
+//        ConvencaoCidadeDB db = new ConvencaoCidadeDao();
         convencao = c;
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("convencaoPesquisa", convencao);
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("linkClicado", true);

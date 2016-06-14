@@ -2,8 +2,7 @@ package br.com.rtools.arrecadacao.beans;
 
 import br.com.rtools.arrecadacao.CnaeConvencao;
 import br.com.rtools.arrecadacao.Convencao;
-import br.com.rtools.arrecadacao.db.CnaeConvencaoDB;
-import br.com.rtools.arrecadacao.db.CnaeConvencaoDBToplink;
+import br.com.rtools.arrecadacao.dao.CnaeConvencaoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Cnae;
 import br.com.rtools.pessoa.db.CnaeDB;
@@ -192,7 +191,7 @@ public class CnaeConvencaoBean implements Serializable {
 
     public List<CnaeConvencao> getListCnaesConvencao() {
         if (listCnaesConvencao.isEmpty()) {
-            CnaeConvencaoDB db = new CnaeConvencaoDBToplink();
+            CnaeConvencaoDao db = new CnaeConvencaoDao();
             int iConvencao = Integer.parseInt(getListConvencao().get(idConvencao).getDescription());
             listCnaesConvencao = db.pesquisarCnaeConvencaoPorConvencao(iConvencao);
         }

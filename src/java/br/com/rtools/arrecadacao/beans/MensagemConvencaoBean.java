@@ -3,6 +3,7 @@ package br.com.rtools.arrecadacao.beans;
 import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.GrupoCidade;
 import br.com.rtools.arrecadacao.MensagemConvencao;
+import br.com.rtools.arrecadacao.dao.ConvencaoCidadeDao;
 import br.com.rtools.arrecadacao.db.*;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
@@ -15,8 +16,6 @@ import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
-//import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-//import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -173,7 +172,7 @@ public class MensagemConvencaoBean {
 
     public synchronized String salvar() {
         MensagemConvencaoDB db = new MensagemConvencaoDBToplink();
-        ConvencaoCidadeDB dbc = new ConvencaoCidadeDBToplink();
+        ConvencaoCidadeDao dbc = new ConvencaoCidadeDao();
         DataHoje dataHoje = new DataHoje();
         mensagemConvencao.setVencimento(vencimento);
 
@@ -602,7 +601,7 @@ public class MensagemConvencaoBean {
 
     public List<SelectItem> getListaGrupoCidade() {
         List<SelectItem> grupo = new ArrayList<SelectItem>();
-        ConvencaoCidadeDB convencaoCidadeDB = new ConvencaoCidadeDBToplink();
+        ConvencaoCidadeDao convencaoCidadeDB = new ConvencaoCidadeDao();
         Dao dao = new Dao();
         Convencao convencao = (Convencao) dao.find(new Convencao(), Integer.parseInt(((SelectItem) getListaConvencoes().get(idConvencao)).getDescription()));
         if (convencao == null) {

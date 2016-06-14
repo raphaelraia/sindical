@@ -1,5 +1,7 @@
 package br.com.rtools.pessoa.beans;
 
+import br.com.rtools.arrecadacao.dao.CnaeConvencaoDao;
+import br.com.rtools.arrecadacao.dao.ConvencaoCidadeDao;
 import br.com.rtools.pessoa.dao.FilialDao;
 import br.com.rtools.pessoa.dao.EnvioEmailsDao;
 import br.com.rtools.pessoa.dao.TipoEnderecoDao;
@@ -494,7 +496,7 @@ public class JuridicaBean implements Serializable {
             }
         }
         if (juridica.getCnae() != null && juridica.getCnae().getId() != -1) {
-            CnaeConvencaoDB dbCnaeCon = new CnaeConvencaoDBToplink();
+            CnaeConvencaoDao dbCnaeCon = new CnaeConvencaoDao();
             if (dbCnaeCon.pesquisaCnaeComConvencao(juridica.getCnae().getId()) != null) {
                 //cnaeContribuinte = " cnae contribuinte!";
                 cnaeContribuinte = " ";
@@ -1674,7 +1676,7 @@ public class JuridicaBean implements Serializable {
 
     public void retornaCnaeReceita(Cnae cn) {
         juridica.setCnae(cn);
-        CnaeConvencaoDB dbCnaeCon = new CnaeConvencaoDBToplink();
+        CnaeConvencaoDao dbCnaeCon = new CnaeConvencaoDao();
         if (dbCnaeCon.pesquisaCnaeComConvencao(juridica.getCnae().getId()) != null) {
             cnaeContribuinte = " cnae contribuinte!";
             colorContri = "blue";
@@ -1705,7 +1707,7 @@ public class JuridicaBean implements Serializable {
         descPesquisaCnae = "";
         if (((String) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("urlRetorno")).equals("pessoaJuridica")) {
             juridica.setCnae(tcnae);
-            CnaeConvencaoDB dbCnaeCon = new CnaeConvencaoDBToplink();
+            CnaeConvencaoDao dbCnaeCon = new CnaeConvencaoDao();
             if (dbCnaeCon.pesquisaCnaeComConvencao(juridica.getCnae().getId()) != null) {
                 cnaeContribuinte = " cnae contribuinte!";
                 colorContri = "blue";
@@ -1793,7 +1795,7 @@ public class JuridicaBean implements Serializable {
     }
 
     public CnaeConvencao retornarCnaeConvencao() {
-        CnaeConvencaoDB dbCnae = new CnaeConvencaoDBToplink();
+        CnaeConvencaoDao dbCnae = new CnaeConvencaoDao();
         if (juridica.getCnae() != null && juridica.getCnae().getId() != -1) {
             cnaeConvencao = dbCnae.pesquisaCnaeComConvencao(juridica.getCnae().getId());
         } else {
@@ -2149,7 +2151,7 @@ public class JuridicaBean implements Serializable {
     }
 
     public String getStrGrupoCidade() {
-        ConvencaoCidadeDB dbCon = new ConvencaoCidadeDBToplink();
+        ConvencaoCidadeDao dbCon = new ConvencaoCidadeDao();
         if (convencao.getId() != -1 && !listaEnd.isEmpty()) {
             gruCids = dbCon.pesquisaGrupoCidadeJuridica(convencao.getId(), ((PessoaEndereco) listaEnd.get(3)).getEndereco().getCidade().getId());
             if (gruCids != null) {
@@ -2228,7 +2230,7 @@ public class JuridicaBean implements Serializable {
     public String abrirPDFConvencao() {
 //        ImprimirBoleto imp = new ImprimirBoleto();
 //        ConvencaoCidade conv = new ConvencaoCidade();
-        ConvencaoCidadeDB db = new ConvencaoCidadeDBToplink();
+        ConvencaoCidadeDao db = new ConvencaoCidadeDao();
         ConvencaoCidade conv = db.pesquisarConvencao(convencao.getId(), gruCids.getId());
         try {
             if (conv != null) {
@@ -2528,7 +2530,7 @@ public class JuridicaBean implements Serializable {
 
     public String getStrArquivo() {
         //ConvencaoCidade conv = new ConvencaoCidade();
-        ConvencaoCidadeDB db = new ConvencaoCidadeDBToplink();
+        ConvencaoCidadeDao db = new ConvencaoCidadeDao();
         ConvencaoCidade conv = db.pesquisarConvencao(convencao.getId(), gruCids.getId());
         if (!strGrupoCidade.isEmpty()) {
             if (conv != null) {

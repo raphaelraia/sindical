@@ -1,4 +1,4 @@
-package br.com.rtools.arrecadacao.db;
+package br.com.rtools.arrecadacao.dao;
 
 import br.com.rtools.arrecadacao.AcordoComissao;
 import br.com.rtools.principal.DB;
@@ -9,58 +9,8 @@ import java.util.List;
 import java.util.Vector;
 import javax.persistence.Query;
 
-public class AcordoComissaoDBToplink extends DB implements AcordoComissaoDB {
+public class AcordoComissaoDao extends DB {
 
-    @Override
-    public boolean insert(AcordoComissao acordoComissao) {
-        try {
-            getEntityManager().getTransaction().begin();
-            getEntityManager().persist(acordoComissao);
-            getEntityManager().flush();
-            getEntityManager().getTransaction().commit();
-            return true;
-        } catch (Exception e) {
-            getEntityManager().getTransaction().rollback();
-            return false;
-        }
-    }
-
-    @Override
-    public boolean update(AcordoComissao acordoComissao) {
-        try {
-            getEntityManager().merge(acordoComissao);
-            getEntityManager().flush();
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    @Override
-    public boolean delete(AcordoComissao acordoComissao) {
-        try {
-            getEntityManager().remove(acordoComissao);
-            getEntityManager().flush();
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    @Override
-    public AcordoComissao pesquisaCodigo(int id) {
-        AcordoComissao result = null;
-        try {
-            Query qry = getEntityManager().createNamedQuery("AcordoComissao.pesquisaID");
-            qry.setParameter("pid", id);
-            result = (AcordoComissao) qry.getSingleResult();
-        } catch (Exception e) {
-            e.getMessage();
-        }
-        return result;
-    }
-
-    @Override
     public List<AcordoComissao> pesquisaData(String data) {
         List<AcordoComissao> result = new ArrayList();
         try {
@@ -76,7 +26,6 @@ public class AcordoComissaoDBToplink extends DB implements AcordoComissaoDB {
         return result;
     }
 
-    @Override
     public List pesquisaTodos() {
         try {
             Query qry = getEntityManager().createQuery("select a from AcordoComissao a ");
@@ -87,7 +36,6 @@ public class AcordoComissaoDBToplink extends DB implements AcordoComissaoDB {
         }
     }
 
-    @Override
     public List<Date> pesquisaTodosFechamento() {
         try {
             Query qry = getEntityManager().createQuery(
@@ -102,7 +50,6 @@ public class AcordoComissaoDBToplink extends DB implements AcordoComissaoDB {
         }
     }
 
-    @Override
     public boolean inserirAcordoComissao() {
         try {
             getEntityManager().getTransaction().begin();
@@ -142,7 +89,6 @@ public class AcordoComissaoDBToplink extends DB implements AcordoComissaoDB {
         }
     }
 
-    @Override
     public boolean estornarAcordoComissao(String data) {
         try {
             getEntityManager().getTransaction().begin();
@@ -159,32 +105,31 @@ public class AcordoComissaoDBToplink extends DB implements AcordoComissaoDB {
         }
     }
 
-    @Override
     public List<Vector> listaAcordoComissao(String data) {
         try {
             String textQuery
                     = "SELECT \n"
                     + "   DISTINCT ON (bo.id_conta_cobranca,m.ds_documento,p.ds_nome) \n"
-                    + "   p.ds_documento AS CNPJ, \n"           // 0
-                    + "   p.ds_nome AS EMPRESA, \n"             // 1
-                    + "   m.id_acordo AS ACORDO, \n"            // 2
-                    + "   m.ds_documento AS BOLETO, \n"         // 3
-                    + "   se.ds_descricao AS CONTRIBUICAO, \n"  // 4
-                    + "   lb.dt_importacao AS IMPORTACAO, \n"   // 5
-                    + "   lb.dt_baixa AS RECEBTO, \n"           // 6
-                    + "   m.dt_vencimento AS VENCIMENTO, \n"    // 7
-                    + "   acc.dt_inicio AS DT_INICIO, \n"       // 8
-                    + "   m.nr_valor_baixa AS VLRECEB, \n"      // 9
-                    + "   m.nr_taxa AS TAXA, \n"                // 10
-                    + "   cc.nr_repasse AS REPASSE, \n"          // 11
-                    + "   l.dt_emissao AS EMISSAO \n"          // 12
+                    + "   p.ds_documento AS CNPJ, \n" // 0
+                    + "   p.ds_nome AS EMPRESA, \n" // 1
+                    + "   m.id_acordo AS ACORDO, \n" // 2
+                    + "   m.ds_documento AS BOLETO, \n" // 3
+                    + "   se.ds_descricao AS CONTRIBUICAO, \n" // 4
+                    + "   lb.dt_importacao AS IMPORTACAO, \n" // 5
+                    + "   lb.dt_baixa AS RECEBTO, \n" // 6
+                    + "   m.dt_vencimento AS VENCIMENTO, \n" // 7
+                    + "   acc.dt_inicio AS DT_INICIO, \n" // 8
+                    + "   m.nr_valor_baixa AS VLRECEB, \n" // 9
+                    + "   m.nr_taxa AS TAXA, \n" // 10
+                    + "   cc.nr_repasse AS REPASSE, \n" // 11
+                    + "   l.dt_emissao AS EMISSAO \n" // 12
                     + "  FROM fin_movimento AS m \n"
                     + " INNER JOIN pes_pessoa AS p ON p.id = m.id_pessoa \n"
                     + " INNER JOIN fin_baixa AS lb ON lb.id = m.id_baixa \n"
                     + " INNER JOIN fin_servicos AS se ON se.id = m.id_servicos \n"
                     + " INNER JOIN fin_boleto AS bo ON bo.nr_ctr_boleto = m.nr_ctr_boleto \n"
                     + " INNER JOIN fin_conta_cobranca AS cc ON cc.id = bo.id_conta_cobranca \n"
-                    + " INNER JOIN arr_acordo_comissao AS acc ON bo.id_conta_cobranca = acc.id_conta_cobranca AND m.ds_documento = acc.nr_num_documento AND dt_fechamento = '"+data+"' \n"
+                    + " INNER JOIN arr_acordo_comissao AS acc ON bo.id_conta_cobranca = acc.id_conta_cobranca AND m.ds_documento = acc.nr_num_documento AND dt_fechamento = '" + data + "' \n"
                     + " INNER JOIN fin_lote AS l ON l.id = m.id_lote \n"
                     + " WHERE m.id_tipo_servico = 4 \n"
                     + "   AND m.id_servicos <> 8 \n"

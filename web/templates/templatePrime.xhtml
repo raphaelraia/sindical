@@ -37,13 +37,11 @@
                               oncomplete="PF('dlg_logo').hide()" />
             </p:dialog>
         </h:form>         
-        <h:form id="formTemplateLinks" onsubmit="#{chamadaPaginaBean.controleLinks}"> 
-            <!-- <h:form id="formTemplateLinks" onsubmit="# {chamadaPaginaBean.controleLinksX} ">-->
+        <h:form id="formTemplateLinks" onsubmit="#{chamadaPaginaBean.controleLinks}">
             <!-- TELA COM 1200px -->
             <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                 <h:graphicImage id="i_logo_update" value="/Cliente/#{controleUsuarioBean.clienteString}/Imagens/LogoCliente.png" width="120px" style="float: left; cursor: pointer; border: 2px dashed gray;" onclick="PF('dlg_logo').show();" title="Alterar imagem" alt="Pesquisar uma imagem" rendered="#{configuracaoBean.usuario.id == 1}"/>
                 <h:graphicImage id="i_logo" value="/Cliente/#{controleUsuarioBean.clienteString}/Imagens/LogoCliente.png" width="120px" style="float: left" rendered="#{configuracaoBean.usuario.id != 1}"/>
-
                 <p:panel style="float: right; border: 0px; top:0px">
                     <h:outputLabel value="Bem vindo " style="float: left; font-size: 10pt; margin-left: 50px"/>
                     <h:outputLabel value="#{controleUsuarioBean.login}" style="float: left; margin-left: 5px; font-size: 10pt; font-weight: bold;"/>
@@ -98,32 +96,29 @@
                     <h:column>
                         <p:outputLabel value="Resolução: " style="font-size: 11pt!important"/>
                     </h:column>
-
                     <h:column>
                         <p:selectOneMenu value="#{configuracaoBean.indexTipoResolucao}">
                             <p:ajax event="change" update="@this" global="false"/>
                             <f:selectItems value="#{configuracaoBean.listaTipoResolucao}" />
                         </p:selectOneMenu>
                     </h:column>
-
                     <h:column>
                         <p:commandButton value="OK" action="#{configuracaoBean.salvarResolucao}"/>
                     </h:column>
                 </h:panelGrid>
             </h:form>
         </p:dialog>
-
         <h:form id="form_report_bug">
             <p:dialog widgetVar="dlg_report_bug" header="Reportar Bug" resizable="false" modal="true" width="640">
                 <p:messages id="i_message" showDetail="true" showSummary="true" closable="true" />
                 <p:panel>
-                    <p:inputTextarea value="#{reportBugBean.bug}" cols="90" rows="10" placeholder="Informe o problema ocorrido, deve conter no mínimo 10 caracteres" id="id_bug">
+                    <p:inputTextarea value="#{reportBugBean.bug}" cols="90" rows="10" placeholder="Informe o problema ocorrido, deve conter no mínimo 10 caracteres" id="id_bug" disabled="#{reportBugBean.success}">
                         <p:ajax event="change" update="@this id_report id_anexo" />
                     </p:inputTextarea>
                     <f:facet name="footer">
-                        <h:panelGrid columns="2">                            
-                            <p:commandButton action="#{reportBugBean.report}" value="Enviar" disabled="#{10 > reportBugBean.bug.length()}" id="id_report" update="id_bug id_anexo i_message"/>
-                            <p:commandButton value="#{reportBugBean.fileBug == null ? 'Anexar arquivo' : 'Arquivo anexado' } " onclick="PF('dlg_anexo_bug').show();" type="button" id="id_anexo" disabled="#{10 > reportBugBean.bug.length()}"  />
+                        <h:panelGrid columns="2" id="id_anexo">
+                            <p:commandButton action="#{reportBugBean.report}" value="Enviar" id="id_report" update="id_bug id_anexo i_message" disabled="#{reportBugBean.success}"/>
+                            <p:commandButton value="#{reportBugBean.fileBug == null ? 'Anexar arquivo' : 'Arquivo anexado' } " onclick="PF('dlg_anexo_bug').show();" type="button" disabled="#{10 > reportBugBean.bug.length() or reportBugBean.success}" />
                         </h:panelGrid>
                     </f:facet>                    
                 </p:panel>

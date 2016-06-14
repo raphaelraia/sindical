@@ -2,8 +2,6 @@ package br.com.rtools.arrecadacao.beans;
 
 import br.com.rtools.arrecadacao.ConvencaoCidade;
 import br.com.rtools.arrecadacao.MensagemConvencao;
-import br.com.rtools.arrecadacao.db.ConvencaoCidadeDB;
-import br.com.rtools.arrecadacao.db.ConvencaoCidadeDBToplink;
 import br.com.rtools.arrecadacao.db.MensagemConvencaoDB;
 import br.com.rtools.arrecadacao.db.MensagemConvencaoDBToplink;
 import br.com.rtools.arrecadacao.lista.ListaContribuicao;
@@ -12,6 +10,7 @@ import br.com.rtools.financeiro.db.ServicosDB;
 import br.com.rtools.financeiro.db.ServicosDBToplink;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.movimento.GerarMovimento;
+import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -136,7 +135,7 @@ public class ContribuicaoBean {
 //            if ((new DataHoje()).integridadeReferencia(referencia)) {
 //                MensagemConvencaoDB mensagemConvencaoDB = new MensagemConvencaoDBToplink();
 //                MensagemConvencao mensagemConvencao;
-//                ConvencaoCidadeDB conDB = new ConvencaoCidadeDBToplink();
+//                ConvencaoCidadeDB conDB = new ConvencaoCidadeDao();
 //                List<ConvencaoCidade> listaConvencaoCidade = conDB.pesquisaTodos();
 //                if (listaConvencaoCidade == null) {
 //                    listaConvencaoCidade = new ArrayList();
@@ -341,29 +340,26 @@ public class ContribuicaoBean {
     public List<ListaContribuicao> getListaContribuicoes() {
         if (!listaContribuicoes.isEmpty()) {
             return listaContribuicoes;
-        } else {
-            if ((new DataHoje()).integridadeReferencia(referencia)) {
-                MensagemConvencaoDB mensagemConvencaoDB = new MensagemConvencaoDBToplink();
-                MensagemConvencao mensagemConvencao;
-                ConvencaoCidadeDB conDB = new ConvencaoCidadeDBToplink();
-                List<ConvencaoCidade> listaConvencaoCidade = conDB.pesquisaTodos();
-                if (listaConvencaoCidade == null) {
-                    listaConvencaoCidade = new ArrayList();
+        } else if ((new DataHoje()).integridadeReferencia(referencia)) {
+            MensagemConvencaoDB mensagemConvencaoDB = new MensagemConvencaoDBToplink();
+            MensagemConvencao mensagemConvencao;
+            List<ConvencaoCidade> listaConvencaoCidade = new Dao().list(new ConvencaoCidade(), true);
+            if (listaConvencaoCidade == null) {
+                listaConvencaoCidade = new ArrayList();
+            }
+            for (int i = 0; i < listaConvencaoCidade.size(); i++) {
+                mensagemConvencao = mensagemConvencaoDB.verificaMensagem(
+                        listaConvencaoCidade.get(i).getConvencao().getId(),
+                        listServicos.get(idContribuicao).getId(),
+                        1,
+                        listaConvencaoCidade.get(i).getGrupoCidade().getId(),
+                        referencia);
+                if (mensagemConvencao != null && mensagemConvencao.getId() != -1) {
+                    vencimento = mensagemConvencao.getVencimento();
+                } else {
+                    vencimento = null;
                 }
-                for (int i = 0; i < listaConvencaoCidade.size(); i++) {
-                    mensagemConvencao = mensagemConvencaoDB.verificaMensagem(
-                            listaConvencaoCidade.get(i).getConvencao().getId(),
-                            listServicos.get(idContribuicao).getId(),
-                            1,
-                            listaConvencaoCidade.get(i).getGrupoCidade().getId(),
-                            referencia);
-                    if (mensagemConvencao != null && mensagemConvencao.getId() != -1) {
-                        vencimento = mensagemConvencao.getVencimento();
-                    } else {
-                        vencimento = null;
-                    }
-                    listaContribuicoes.add(new ListaContribuicao(i, listaConvencaoCidade.get(i), vencimento, referencia, idContribuicao));
-                }
+                listaContribuicoes.add(new ListaContribuicao(i, listaConvencaoCidade.get(i), vencimento, referencia, idContribuicao));
             }
         }
         return listaContribuicoes;

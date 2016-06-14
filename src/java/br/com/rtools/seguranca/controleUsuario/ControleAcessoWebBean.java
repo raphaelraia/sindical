@@ -1,8 +1,7 @@
 package br.com.rtools.seguranca.controleUsuario;
 
 import br.com.rtools.arrecadacao.Empregados;
-import br.com.rtools.arrecadacao.db.CnaeConvencaoDB;
-import br.com.rtools.arrecadacao.db.CnaeConvencaoDBToplink;
+import br.com.rtools.arrecadacao.dao.CnaeConvencaoDao;
 import br.com.rtools.endereco.Bairro;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.endereco.DescricaoEndereco;
@@ -324,7 +323,7 @@ public class ControleAcessoWebBean implements Serializable {
         if (1 == 1) {
             juridica.setCnae(jro.getLista_cnae().get(0));
 
-            CnaeConvencaoDB dbCnaeCon = new CnaeConvencaoDBToplink();
+            CnaeConvencaoDao dbCnaeCon = new CnaeConvencaoDao();
             if (dbCnaeCon.pesquisaCnaeComConvencao(juridica.getCnae().getId()) != null) {
                 // CNAE CONTRIBUINTE
             } else {
@@ -521,7 +520,7 @@ public class ControleAcessoWebBean implements Serializable {
             }
         }
 
-        CnaeConvencaoDB dbCnaeCon = new CnaeConvencaoDBToplink();
+        CnaeConvencaoDao dbCnaeCon = new CnaeConvencaoDao();
         if (dbCnaeCon.pesquisaCnaeComConvencao(((Cnae) listac.get(0)).getId()) != null) {
             juridica.setCnae((Cnae) listac.get(0));
             // CNAE CONTRIBUINTE

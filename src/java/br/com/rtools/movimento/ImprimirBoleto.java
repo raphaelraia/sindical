@@ -6,10 +6,8 @@ import br.com.rtools.arrecadacao.ConvencaoServico;
 import br.com.rtools.arrecadacao.beans.ConfiguracaoArrecadacaoBean;
 import br.com.rtools.arrecadacao.dao.ConvencaoServicoDao;
 import br.com.rtools.arrecadacao.dao.AcordoDao;
-import br.com.rtools.arrecadacao.db.CnaeConvencaoDB;
-import br.com.rtools.arrecadacao.db.CnaeConvencaoDBToplink;
-import br.com.rtools.arrecadacao.db.ConvencaoCidadeDB;
-import br.com.rtools.arrecadacao.db.ConvencaoCidadeDBToplink;
+import br.com.rtools.arrecadacao.dao.CnaeConvencaoDao;
+import br.com.rtools.arrecadacao.dao.ConvencaoCidadeDao;
 import br.com.rtools.associativo.db.MovimentosReceberSocialDB;
 import br.com.rtools.associativo.db.MovimentosReceberSocialDBToplink;
 import br.com.rtools.cobranca.*;
@@ -412,7 +410,7 @@ public class ImprimirBoleto {
             PessoaEndereco pe = null;
             MovimentoDB movDB = new MovimentoDBToplink();
 
-            CnaeConvencaoDB cnaeConv = new CnaeConvencaoDBToplink();
+            CnaeConvencaoDao cnaeConv = new CnaeConvencaoDao();
             Cobranca cobranca = null;
             BigDecimal valor;
             String mensagem = "";
@@ -600,7 +598,7 @@ public class ImprimirBoleto {
                     valor = null;
                 }
 
-                ConvencaoCidadeDB dbCon = new ConvencaoCidadeDBToplink();
+                ConvencaoCidadeDao dbCon = new ConvencaoCidadeDao();
                 if (lista.get(i).getTipoServico().getId() != 4) {
                     mensagemCobranca = movDB.pesquisaMensagemCobranca(lista.get(i).getId());
                     mensagem = mensagemCobranca.getMensagemConvencao().getMensagemContribuinte();//mensagem

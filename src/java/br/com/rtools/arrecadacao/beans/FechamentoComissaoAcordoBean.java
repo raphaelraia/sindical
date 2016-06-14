@@ -1,8 +1,7 @@
 package br.com.rtools.arrecadacao.beans;
 
 import br.com.rtools.arrecadacao.Acordo;
-import br.com.rtools.arrecadacao.db.AcordoComissaoDB;
-import br.com.rtools.arrecadacao.db.AcordoComissaoDBToplink;
+import br.com.rtools.arrecadacao.dao.AcordoComissaoDao;
 import br.com.rtools.impressao.ParametroAcordoAnalitico;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -44,7 +43,7 @@ public class FechamentoComissaoAcordoBean {
     public List<SelectItem> getListaData() {
         if (listaData.isEmpty()) {
             int i = 0;
-            AcordoComissaoDB db = new AcordoComissaoDBToplink();
+            AcordoComissaoDao db = new AcordoComissaoDao();
             List<Date> select = db.pesquisaTodosFechamento();
             if (select != null) {
                 while (i < select.size()) {
@@ -57,7 +56,7 @@ public class FechamentoComissaoAcordoBean {
     }
 
     public synchronized void processar() {
-        AcordoComissaoDB acordoComissaoDB = new AcordoComissaoDBToplink();
+        AcordoComissaoDao acordoComissaoDB = new AcordoComissaoDao();
         if (acordoComissaoDB.inserirAcordoComissao()) {
             listaData.clear();
             GenericaMensagem.info("Sucesso", "Concluído com sucesso");
@@ -69,7 +68,7 @@ public class FechamentoComissaoAcordoBean {
 
     public void visualizar() {
         if (!listaData.isEmpty()) {
-            AcordoComissaoDB db = new AcordoComissaoDBToplink();
+            AcordoComissaoDao db = new AcordoComissaoDao();
             List result = db.listaAcordoComissao(listaData.get(idDataFechamento).getLabel());
 
             JasperReport jasper = null;
@@ -117,7 +116,7 @@ public class FechamentoComissaoAcordoBean {
 
     public void estornar() {
         if (!listaData.isEmpty()) {
-            AcordoComissaoDB acordoComissaoDB = new AcordoComissaoDBToplink();
+            AcordoComissaoDao acordoComissaoDB = new AcordoComissaoDao();
             if (acordoComissaoDB.estornarAcordoComissao(listaData.get(idDataFechamento).getLabel())) {
                 GenericaMensagem.info("Sucesso", "Fechamento de acordo estornado");
             } else {
