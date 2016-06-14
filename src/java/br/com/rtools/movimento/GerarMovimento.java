@@ -308,7 +308,7 @@ public class GerarMovimento extends DB {
         Dao dao = new Dao();
         CnaeConvencaoDao dbco = new CnaeConvencaoDao();
         GrupoCidadesDao dbgc = new GrupoCidadesDao();
-        ContaCobrancaDB dbc = new ContaCobrancaDBToplink();
+        ContaCobrancaDBToplink dbc = new ContaCobrancaDBToplink();
         NovoLog log = new NovoLog();
         Boleto boleto = new Boleto();
         MensagemConvencao mc = new MensagemConvencao();
@@ -452,7 +452,7 @@ public class GerarMovimento extends DB {
 
     public static synchronized String salvarListaAcordoSocial(Acordo acordo, List<Movimento> listaMovimento, List<Movimento> listaAcordados, List<String> listaHistorico) {
         Dao dao = new Dao();
-        ContaCobrancaDB dbc = new ContaCobrancaDBToplink();
+        ContaCobrancaDBToplink dbc = new ContaCobrancaDBToplink();
         NovoLog log = new NovoLog();
 
         dao.openTransaction();
@@ -544,7 +544,7 @@ public class GerarMovimento extends DB {
 
     public static boolean salvarUmMovimentoBaixa(Lote lote, Movimento movimento) {
         Dao dao = new Dao();
-        ContaCobrancaDB dbc = new ContaCobrancaDBToplink();
+        ContaCobrancaDBToplink dbc = new ContaCobrancaDBToplink();
         NovoLog log = new NovoLog();
         Boleto boleto = new Boleto();
         MovimentoDB db = new MovimentoDBToplink();
@@ -628,7 +628,7 @@ public class GerarMovimento extends DB {
         Dao dao = new Dao();
         CnaeConvencaoDao dbco = new CnaeConvencaoDao();
         GrupoCidadesDao dbgc = new GrupoCidadesDao();
-        ContaCobrancaDB dbc = new ContaCobrancaDBToplink();
+        ContaCobrancaDBToplink dbc = new ContaCobrancaDBToplink();
         NovoLog log = new NovoLog();
         Boleto boleto = new Boleto();
         MensagemConvencao mc = new MensagemConvencao();

@@ -945,6 +945,54 @@ public class Dao extends DB implements DaoInterface {
         return null;
     }
 
+    public boolean executeQueryObject(String textQuery) {
+        try {
+            Object xvalor = getEntityManager().createNativeQuery(textQuery).getSingleResult();
+            if (xvalor != null) {
+                return true;
+            } else {
+                if (Usuario.getUsuario().getId() == 1 && GenericaSessao.getBoolean("habilitaLog")) {
+                    GenericaMensagem.fatal("LOG", "Exception - Message: Erro ao executar: " + textQuery);
+                    PF.update("form_log:i_messages");
+                }
+                return false;
+            }
+        } catch (Exception e) {
+            EXCEPCION = e;
+            if (GenericaSessao.exists("habilitaLog")) {
+                if (Usuario.getUsuario().getId() == 1 && GenericaSessao.getBoolean("habilitaLog")) {
+                    GenericaMensagem.fatal("LOG", EXCEPCION.getMessage());
+                    PF.update("form_log:i_messages");
+                }
+            }
+            return false;
+        }
+    }
+
+    public boolean executeQueryVetor(String textQuery) {
+        try {
+            List<List> valor = getEntityManager().createNativeQuery(textQuery).getResultList();
+            if ((Integer) valor.get(0).get(0) > 0) {
+                return true;
+            } else {
+                if (Usuario.getUsuario().getId() == 1 && GenericaSessao.getBoolean("habilitaLog")) {
+                    GenericaMensagem.fatal("LOG", "Exception - Message: Erro ao executar: " + textQuery);
+                    PF.update("form_log:i_messages");
+                }
+                return false;
+            }
+        } catch (Exception e) {
+            EXCEPCION = e;
+            if (GenericaSessao.exists("habilitaLog")) {
+                if (Usuario.getUsuario().getId() == 1 && GenericaSessao.getBoolean("habilitaLog")) {
+                    GenericaMensagem.fatal("LOG", EXCEPCION.getMessage());
+                    PF.update("form_log:i_messages");
+                }
+            }
+            return false;
+        }
+    }
+
     public void close() {
         getEntityManager().close();
     }

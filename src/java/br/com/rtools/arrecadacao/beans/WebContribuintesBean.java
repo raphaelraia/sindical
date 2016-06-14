@@ -13,7 +13,6 @@ import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.beans.MovimentoValorBean;
-import br.com.rtools.financeiro.db.ContaCobrancaDB;
 import br.com.rtools.financeiro.db.ContaCobrancaDBToplink;
 import br.com.rtools.financeiro.db.MovimentoDB;
 import br.com.rtools.financeiro.db.MovimentoDBToplink;
@@ -34,8 +33,6 @@ import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.Moeda;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -80,7 +77,7 @@ public class WebContribuintesBean extends MovimentoValorBean {
     public void loadList() {
         listaMovimento.clear();
         WebContribuintesDB db = new WebContribuintesDBToplink();
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+        Dao dao = new Dao();
         JuridicaDB dbJur = new JuridicaDBToplink();
         juridica = dbJur.pesquisaJuridicaPorPessoa(pessoa.getId());
 
@@ -138,8 +135,8 @@ public class WebContribuintesBean extends MovimentoValorBean {
             listaMovimento.add(new DataObject(
                     false,
                     ((Vector) lista.get(i)).get(0), // boleto
-                    sv.pesquisaCodigo((Integer) ((Vector) lista.get(i)).get(1), "Servicos"), // servico
-                    sv.pesquisaCodigo((Integer) ((Vector) lista.get(i)).get(2), "TipoServico"), // tipo
+                    dao.find(new Servicos(), (Integer) ((Vector) lista.get(i)).get(1)), // servico
+                    dao.find(new TipoServico(), (Integer) ((Vector) lista.get(i)).get(2)), // tipo
                     ((Vector) lista.get(i)).get(3), // referencia
                     DataHoje.converteData((Date) ((Vector) lista.get(i)).get(4)), // vencimento
                     Moeda.converteR$(Double.toString((Double) ((Vector) lista.get(i)).get(5))), // valor_mov
@@ -279,9 +276,9 @@ public class WebContribuintesBean extends MovimentoValorBean {
         ImpressaoWeb impressaoWeb;
         Movimento movimento;
         String data = "";
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+        Dao dao = new Dao();
 
-        sv.abrirTransacao();
+        dao.openTransaction();
 
         String dataValida = "";
         DataHoje dh = new DataHoje();
@@ -304,7 +301,7 @@ public class WebContribuintesBean extends MovimentoValorBean {
         }
 
         for (DataObject listMovimento : listaMovimentoSelecionado) {
-            movimento = ((Movimento) sv.pesquisaCodigo((Integer) listMovimento.getArgumento16(), "Movimento"));
+            movimento = ((Movimento) dao.find(new Movimento(), (Integer) listMovimento.getArgumento16()));
             // COM VALOR ALTERADO ---------
             if (Moeda.substituiVirgulaFloat((String) listMovimento.getArgumento12()) != 0) {
                 listaValores.add(Moeda.substituiVirgulaFloat((String) listMovimento.getArgumento12()));
@@ -327,13 +324,13 @@ public class WebContribuintesBean extends MovimentoValorBean {
                     movimento,
                     pessoa,
                     DataHoje.dataHoje(), DataHoje.hora());
-            if (!sv.inserirObjeto(impressaoWeb)) {
+            if (!dao.save(impressaoWeb)) {
                 GenericaMensagem.error("Erro", "Erro ao salvar Impressão Web, tente novamente!");
-                sv.desfazerTransacao();
+                dao.rollback();
                 return;
             }
         }
-        sv.comitarTransacao();
+        dao.commit();
 
         ImprimirBoleto imp = new ImprimirBoleto();
         lista = imp.atualizaContaCobrancaMovimento(lista);
@@ -382,7 +379,7 @@ public class WebContribuintesBean extends MovimentoValorBean {
             Dao dao = new Dao();
             MensagemConvencaoDB dbCon = new MensagemConvencaoDBToplink();
             TipoServicoDB dbTipo = new TipoServicoDBToplink();
-            ContaCobrancaDB ctaCobraDB = new ContaCobrancaDBToplink();
+            ContaCobrancaDBToplink ctaCobraDB = new ContaCobrancaDBToplink();
             ContaCobranca contaCob = new ContaCobranca();
             String dataValida = "";
             DataHoje dh = new DataHoje();

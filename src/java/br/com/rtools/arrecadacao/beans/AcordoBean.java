@@ -10,7 +10,6 @@ import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.beans.MovimentosReceberBean;
-import br.com.rtools.financeiro.db.ContaCobrancaDB;
 import br.com.rtools.financeiro.db.ContaCobrancaDBToplink;
 import br.com.rtools.financeiro.dao.FTipoDocumentoDao;
 import br.com.rtools.financeiro.db.MovimentoDB;
@@ -159,80 +158,6 @@ public class AcordoBean implements Serializable {
 
             PF.openDialog("dlg_enviar_email");
         }
-
-//        if (emailPara.equals("contabilidade")) {
-//            if (jur.getContabilidade() == null) {
-//                GenericaMensagem.warn("Atenção", "Empresa sem contabilidade vinculada!");
-//                pessoaEnvio = new Pessoa();
-//                return;
-//            }
-//
-//            if (!jur.getContabilidade().getPessoa().getEmail1().isEmpty() && !pessoaEnvio.getEmail1().isEmpty()) {
-//                if (jur.getContabilidade().getPessoa().getEmail1().equals(pessoaEnvio.getEmail1())) {
-//                    // SE CONTABILIDADE TEM EMAIL E É IGUAL AO DIGITADO
-//                    pessoaEnvio = jur.getContabilidade().getPessoa();
-//                } else {
-//                    // SE CONTABILIDADE TEM EMAIL E É DIFERENTE DO DIGITADO
-//                    emailAntigo = jur.getContabilidade().getPessoa().getEmail1();
-//                    PF.openDialog("formAcordo:panel_atualizar_email");
-//                    PF.openDialog("dlg_atualizar_email");
-//                    return;
-//                }
-//            } else if (!jur.getContabilidade().getPessoa().getEmail1().isEmpty()) {
-//                // SE CONTABILIDADE TEM EMAIL
-//                pessoaEnvio = jur.getContabilidade().getPessoa();
-//            } else if (!pessoaEnvio.getEmail1().isEmpty()) {
-//                // SE CONTABILIDADE NÃO TEM EMAIL >> ATUALIZAR COM EMAIL DIGITADO ---
-//                SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-//                jur.getContabilidade().getPessoa().setEmail1(pessoaEnvio.getEmail1());
-//                sv.abrirTransacao();
-//
-//                if (sv.alterarObjeto(jur.getContabilidade().getPessoa())) {
-//                    sv.comitarTransacao();
-//                } else {
-//                    sv.desfazerTransacao();
-//                }
-//
-//                pessoaEnvio = jur.getContabilidade().getPessoa();
-//            } else {
-//                GenericaMensagem.warn("Atenção", "Digite um email válido!");
-//                pessoaEnvio = new Pessoa();
-//                return;
-//            }
-//        } else {
-//            if (!jur.getPessoa().getEmail1().isEmpty() && !pessoaEnvio.getEmail1().isEmpty()) {
-//                if (jur.getPessoa().getEmail1().equals(pessoaEnvio.getEmail1())) {
-//                    // SE EMPRESA TEM EMAIL E É IGUAL AO DIGITADO ---
-//                    pessoaEnvio = jur.getPessoa();
-//                } else {
-//                    // SE EMPRESA TEM EMAIL E É DIFERENTE DO DIGITADO ---
-//                    PF.openDialog("formAcordo:panel_atualizar_email");
-//                    PF.openDialog("dlg_atualizar_email");
-//                    return;
-//                }
-//            } else if (!jur.getPessoa().getEmail1().isEmpty()) {
-//                // SE EMPRESA TEM EMAIL
-//                pessoaEnvio = jur.getPessoa();
-//            } else if (!pessoaEnvio.getEmail1().isEmpty()) {
-//                // SE EMPRESA NÃO TEM EMAIL >> ATUALIZAR COM EMAIL DIGITADO ---
-//                SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-//                jur.getPessoa().setEmail1(pessoaEnvio.getEmail1());
-//                sv.abrirTransacao();
-//
-//                if (sv.alterarObjeto(jur.getPessoa())) {
-//                    sv.comitarTransacao();
-//                } else {
-//                    sv.desfazerTransacao();
-//                }
-//
-//                pessoaEnvio = jur.getPessoa();
-//            } else {
-//                GenericaMensagem.warn("Atenção", "Digite um email válido!");
-//                pessoaEnvio = new Pessoa();
-//                return;
-//            }
-//        }
-//        PF.openDialog("dlg_enviar_email");
     }
 
     public String enviarEmail() {
@@ -246,7 +171,6 @@ public class AcordoBean implements Serializable {
             listaValores.add(((Movimento) listaOperado.get(i).getArgumento2()).getValor());
             listaVencimentos.add(((Movimento) listaOperado.get(i).getArgumento2()).getVencimento());
         }
-        //verificaEmail();
         if (!listaImp.isEmpty() && pessoaEnvio.getId() != -1) {
             for (int i = 0; i < listaImp.size(); i++) {
                 ImprimirBoleto imp = new ImprimirBoleto();
@@ -672,7 +596,7 @@ public class AcordoBean implements Serializable {
         try {
             Dao dao = new Dao();
             TipoServicoDB dbTipoServico = new TipoServicoDBToplink();
-            ContaCobrancaDB ctaCobraDB = new ContaCobrancaDBToplink();
+            ContaCobrancaDBToplink ctaCobraDB = new ContaCobrancaDBToplink();
             FTipoDocumentoDao dbft = new FTipoDocumentoDao();
             TipoServico tipoServico = dbTipoServico.pesquisaCodigo(4);
             DataHoje data = new DataHoje();

@@ -46,7 +46,7 @@ public class RetornoPadrao extends ArquivoRetorno {
         //Servicos servico = new Servicos();
         ServicosDB dbS = new ServicosDBToplink();
         ContaCobranca contaCobranca = new ContaCobranca();
-        ContaCobrancaDB dbC = new ContaCobrancaDBToplink();
+        ContaCobrancaDBToplink dbC = new ContaCobrancaDBToplink();
         List<Movimento> movimento = new ArrayList();
         MovimentoDB db = new MovimentoDBToplink();
         List<String> errors = new ArrayList<String>();
@@ -152,7 +152,7 @@ public class RetornoPadrao extends ArquivoRetorno {
         String mensagem = "NÃO EXISTE IMPLEMENTAÇÃO PARA ESTE TIPO!";
         return mensagem;
     }
-    
+
     @Override
     public String darBaixaSigCBSocial(String caminho, Usuario usuario) {
         String mensagem = "NÃO EXISTE IMPLEMENTAÇÃO PARA ESTE TIPO!";
@@ -164,7 +164,7 @@ public class RetornoPadrao extends ArquivoRetorno {
         String mensagem = "NÃO EXISTE IMPLEMENTAÇÃO PARA ESTE TIPO!";
         return mensagem;
     }
-    
+
     @Override
     public String darBaixaSicobSocial(String caminho, Usuario usuario) {
         String mensagem = "NÃO EXISTE IMPLEMENTAÇÃO PARA ESTE TIPO!";

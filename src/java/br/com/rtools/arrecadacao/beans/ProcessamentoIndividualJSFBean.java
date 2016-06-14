@@ -218,7 +218,7 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
             return null;
         }
         Dao dao = new Dao();
-        ContaCobrancaDB ctaCobraDB = new ContaCobrancaDBToplink();
+        ContaCobrancaDBToplink ctaCobraDB = new ContaCobrancaDBToplink();
         MensagemConvencaoDB menDB = new MensagemConvencaoDBToplink();
         Servicos servicos = new Servicos();
         TipoServico tipoServico = new TipoServico();

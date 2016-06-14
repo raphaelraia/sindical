@@ -9,8 +9,6 @@ import br.com.rtools.financeiro.ContaCobranca;
 import br.com.rtools.financeiro.MensagemCobranca;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.RemessaBanco;
-import br.com.rtools.financeiro.db.FinanceiroDB;
-import br.com.rtools.financeiro.db.FinanceiroDBToplink;
 import br.com.rtools.financeiro.db.MovimentoDB;
 import br.com.rtools.financeiro.db.MovimentoDBToplink;
 import br.com.rtools.financeiro.db.RemessaBancoDB;
@@ -273,8 +271,7 @@ public final class ArquivoBancoBean implements Serializable {
             }
 
             if (!listaServicos.isEmpty()) {
-                SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-                contaCobranca = (ContaCobranca) sv.pesquisaCodigo(Integer.parseInt(((SelectItem) listaServicos.get(index_contribuicao)).getDescription()), "ContaCobranca");
+                contaCobranca = (ContaCobranca) new Dao().find(new ContaCobranca(), Integer.parseInt(((SelectItem) listaServicos.get(index_contribuicao)).getDescription()));
             }
         }
         return listaServicos;
@@ -303,8 +300,7 @@ public final class ArquivoBancoBean implements Serializable {
 
     public void atualizaContaCobranca() {
         if (!listaServicos.isEmpty()) {
-            SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-            contaCobranca = (ContaCobranca) sv.pesquisaCodigo(Integer.parseInt(((SelectItem) listaServicos.get(index_contribuicao)).getDescription()), "ContaCobranca");
+            contaCobranca = (ContaCobranca) new Dao().find(new ContaCobranca(), Integer.parseInt(((SelectItem) listaServicos.get(index_contribuicao)).getDescription()));
         }
 
         loadListaArquivosBaixar();
@@ -329,9 +325,7 @@ public final class ArquivoBancoBean implements Serializable {
     }
 
     public String criarDataArquivo() {
-        MovimentoDB dbMov = new MovimentoDBToplink();
-        List movi = null;
-        movi = dbMov.pesquisaTodos();
+        List movi = new MovimentoDBToplink().pesquisaTodos();
         try {
             criarArquivoTXT(movi);
         } catch (Exception e) {
@@ -341,11 +335,10 @@ public final class ArquivoBancoBean implements Serializable {
     }
 
     public boolean criarArquivoTXT(List<Movimento> movs) {
-        PessoaEnderecoDao dao = new PessoaEnderecoDao();
-        FinanceiroDB dbfin = new FinanceiroDBToplink();
+        PessoaEnderecoDao ped = new PessoaEnderecoDao();
         MovimentoDB dbmov = new MovimentoDBToplink();
         RemessaBancoDB rbd = new RemessaBancoDBToplink();
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+        Dao dao = new Dao();
         Boleto boleto = new Boleto();
         try {
             String patch = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos");
@@ -457,7 +450,7 @@ public final class ArquivoBancoBean implements Serializable {
             buffWriter.newLine();
 
             // Lista Movimento
-            sv.abrirTransacao();
+            dao.openTransaction();
             for (int i = 0; i < movs.size(); i++) {
                 // FIM DE HEADER DE ARQUIVO
                 // SEGUIMENTO P ----------------
@@ -554,7 +547,7 @@ public final class ArquivoBancoBean implements Serializable {
 
                 conteudoRemessa += (AnaliseString.removerAcentos(movs.get(i).getPessoa().getNome()).toUpperCase() + "                                        ").substring(0, 40);
 
-                pessoaEndereco = dao.pesquisaEndPorPessoaTipo(movs.get(i).getPessoa().getId(), 3);
+                pessoaEndereco = ped.pesquisaEndPorPessoaTipo(movs.get(i).getPessoa().getId(), 3);
 
                 if (pessoaEndereco != null) {
                     descricaoEndereco = pessoaEndereco.getEndereco().getDescricaoEndereco().getDescricao();
@@ -627,8 +620,10 @@ public final class ArquivoBancoBean implements Serializable {
                 }
 
                 rb.setMovimento(movs.get(i));
-
-                sv.inserirObjeto(rb);
+                if (!dao.save(rb)) {
+                    dao.rollback();
+                    return false;
+                }
 
             }
             /* TRAILER DE LOTE --------------------- */
@@ -652,20 +647,20 @@ public final class ArquivoBancoBean implements Serializable {
             buffWriter.newLine();
             /* ------------------------------------ */
 
-            /* TRAILER DE ARQUIVO --------------------- */
+ /* TRAILER DE ARQUIVO --------------------- */
             //qntBoletos += Integer.toString(Integer.parseInt(qntBoletos) * 3) ;
             qntLinhas = qntLinhas.substring(0, 6 - Integer.toString(((movs.size() * 3) + 4)).length()) + ((movs.size() * 3) + 4);
             String qntLote = ("000000").substring(0, 6 - Integer.toString(rb.getLote()).length()) + rb.getLote();
             conteudoRemessa = "10499999         " + qntLote + qntLinhas + "                                                                                                                                                                                                                   ";
             buffWriter.write(conteudoRemessa);
             /* -------------------------------------- */
-            sv.comitarTransacao();
+            dao.commit();
             buffWriter.flush();
             buffWriter.close();
 
             return true;
         } catch (Exception e) {
-            sv.desfazerTransacao();
+            dao.rollback();
             System.out.println(e);
             return false;
         }
@@ -1166,7 +1161,6 @@ public final class ArquivoBancoBean implements Serializable {
                     HttpServletResponse response = (HttpServletResponse) faces.getExternalContext().getResponse();
                     byte[] arquivo = new byte[0];
                     JasperReport jasper = null;
-                    Collection listaComp = new ArrayList<ComparaMovimentos>();
 
                     File fl = new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/COMPARATIVO_MOVIMENTO.jasper"));
                     jasper = (JasperReport) JRLoader.loadObject(fl);
@@ -1214,22 +1208,22 @@ public final class ArquivoBancoBean implements Serializable {
         List<Juridica> l_juridicax = new ArrayList<Juridica>();
         JuridicaDB dbj = new JuridicaDBToplink();
 
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+        Dao dao = new Dao();
         for (DataObject listaDocumento : listaDocumentos) {
-            DocumentoInvalido di = (DocumentoInvalido) sv.pesquisaCodigo(((DocumentoInvalido) listaDocumento.getArgumento3()).getId(), "DocumentoInvalido");
+            DocumentoInvalido di = (DocumentoInvalido) dao.find(new DocumentoInvalido(), ((DocumentoInvalido) listaDocumento.getArgumento3()).getId());
 
             if (!(Boolean) listaDocumento.getArgumento4()) {
                 lm = db.pesquisaMovimentoCadastrado(di.getDocumentoInvalido());
                 l_juridicax = dbj.pesquisaJuridicaPorDoc(listaDocumento.getArgumento1().toString());
                 if (!l_juridicax.isEmpty() && !lm.isEmpty()) {
 
-                    sv.abrirTransacao();
+                    dao.openTransaction();
                     for (Movimento lmovimento : lm) {
 
                         lmovimento.getLote().setPessoa(l_juridicax.get(0).getPessoa());
 
-                        if (!sv.alterarObjeto(lmovimento.getLote())) {
-                            sv.desfazerTransacao();
+                        if (!dao.update(lmovimento.getLote())) {
+                            dao.rollback();
                             GenericaMensagem.error("Erro", "Não foi possível atualizar Lista!");
                             return;
                         }
@@ -1238,8 +1232,8 @@ public final class ArquivoBancoBean implements Serializable {
                         lmovimento.setBeneficiario(l_juridicax.get(0).getPessoa());
                         lmovimento.setTitular(l_juridicax.get(0).getPessoa());;
 
-                        if (!sv.alterarObjeto(lmovimento)) {
-                            sv.desfazerTransacao();
+                        if (!dao.update(lmovimento)) {
+                            dao.rollback();
                             GenericaMensagem.error("Erro", "Não foi possível atualizar Lista!");
                             return;
                         }
@@ -1247,27 +1241,27 @@ public final class ArquivoBancoBean implements Serializable {
                     }
 
                     di.setChecado(true);
-                    if (!sv.alterarObjeto(di)) {
-                        sv.desfazerTransacao();
+                    if (!dao.update(di)) {
+                        dao.rollback();
                         GenericaMensagem.error("Erro", "Não foi possível atualizar Lista!");
                         return;
                     }
-                    sv.comitarTransacao();
+                    dao.commit();
 
                     GenericaMensagem.info("OK", "Documento " + listaDocumento.getArgumento1() + " atualizado!");
                 }
             } else if ((Boolean) listaDocumento.getArgumento0()) {
-                sv.abrirTransacao();
+                dao.openTransaction();
 
                 di.setChecado(true);
 
-                if (!sv.alterarObjeto(di)) {
-                    sv.desfazerTransacao();
+                if (!dao.update(di)) {
+                    dao.rollback();
                     GenericaMensagem.error("Erro", "Não foi possível atualizar Lista!");
                     return;
                 }
 
-                sv.comitarTransacao();
+                dao.commit();
 
                 GenericaMensagem.info("OK", "Documento " + listaDocumento.getArgumento1() + " atualizado!");
             }

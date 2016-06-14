@@ -13,9 +13,7 @@ import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.beans.MovimentoValorBean;
-import br.com.rtools.financeiro.db.ContaCobrancaDB;
 import br.com.rtools.financeiro.db.ContaCobrancaDBToplink;
-import br.com.rtools.financeiro.dao.FTipoDocumentoDao;
 import br.com.rtools.financeiro.db.MovimentoDB;
 import br.com.rtools.financeiro.db.MovimentoDBToplink;
 import br.com.rtools.financeiro.db.ServicosDB;
@@ -193,7 +191,7 @@ public class WebContabilidadeBean extends MovimentoValorBean {
             MensagemConvencaoDB menDB = new MensagemConvencaoDBToplink();
             TipoServicoDB dbTipo = new TipoServicoDBToplink();
 
-            ContaCobrancaDB ctaCobraDB = new ContaCobrancaDBToplink();
+            ContaCobrancaDBToplink ctaCobraDB = new ContaCobrancaDBToplink();
             ContaCobranca contaCob = new ContaCobranca();
 
             if (getListaServicos().isEmpty()) {

@@ -31,7 +31,6 @@ public class FilialBean {
     private Filial filialSubsede;
     private List<Filial> listaFilial;
     private int idFilial;
-    // private List<DataObject> listaCidade;
     private List<CidadesAux> listCidadesAux;
     private boolean adicionarLista;
     private List<SelectItem> listFilialSelectItem;
@@ -50,7 +49,6 @@ public class FilialBean {
         listaFilial = new ArrayList();
         listCidadesAux = new ArrayList();
         idFilial = 0;
-        // listaCidade = new ArrayList();
         adicionarLista = false;
         listFilialSelectItem = new ArrayList();
         listFilialSelectItemSub = new ArrayList();
@@ -275,51 +273,6 @@ public class FilialBean {
     public void setIdFilial(int idFilial) {
         this.idFilial = idFilial;
     }
-//
-//    public List<DataObject> getListaCidade() {
-//        if (listaCidade.isEmpty()) {
-//            GrupoCidadesDB dbCids = new GrupoCidadesDao();
-//            //List<GrupoCidades> lis = dbCids.pesquisaTodos();
-//            List<Cidade> lis = dbCids.pesquisaCidadesBase();
-//
-//            DaoInterface di = new Dao();
-//            List<FilialCidade> fc = (List<FilialCidade>) di.list(new FilialCidade());
-//
-//            if (!lis.isEmpty()) {
-//                boolean tem;
-//                for (int i = 0; i < lis.size(); i++) {
-//                    tem = false;
-//                    for (int w = 0; w < fc.size(); w++) {
-//                        if (lis.get(i).getId() == fc.get(w).getCidade().getId()) {
-//                            for (int u = 0; u < getResult().size(); u++) {
-//                                if (Objects.equals(fc.get(w).getFilial().getId(), Integer.valueOf(listFilialSelectItem.get(u).getDescription()))) {
-//                                    listaCidade.add(new DataObject((Cidade) di.find(new Cidade(), lis.get(i).getId()), u));
-//                                    tem = true;
-//                                }
-//                                if (tem) {
-//                                    break;
-//                                }
-//                            }
-//                            if (tem) {
-//                                break;
-//                            }
-//                        }
-//                        if (tem) {
-//                            break;
-//                        }
-//                    }
-//                    if (!tem) {
-//                        listaCidade.add(new DataObject((Cidade) di.find(new Cidade(), lis.get(i).getId()), 0));
-//                    }
-//                }
-//            }
-//        }
-//        return listaCidade;
-//    }
-//
-//    public void setListaCidade(List<DataObject> listaCidade) {
-//        this.listaCidade = listaCidade;
-//    }
 
     public List<SelectItem> getListFilialSelectItem() {
         if ((listFilialSelectItem.isEmpty()) || (this.adicionarLista)) {

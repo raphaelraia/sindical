@@ -6,73 +6,8 @@ import br.com.rtools.principal.DB;
 import java.util.List;
 import javax.persistence.Query;
 
-public class ContaCobrancaDBToplink extends DB implements ContaCobrancaDB {
+public class ContaCobrancaDBToplink extends DB {
 
-    @Override
-    public boolean insert(ContaCobranca contaCobranca) {
-        try {
-            getEntityManager().getTransaction().begin();
-            getEntityManager().persist(contaCobranca);
-            getEntityManager().flush();
-            getEntityManager().getTransaction().commit();
-            return true;
-        } catch (Exception e) {
-            getEntityManager().getTransaction().rollback();
-            return false;
-        }
-    }
-
-    @Override
-    public boolean update(ContaCobranca contaCobranca) {
-        try {
-            getEntityManager().getTransaction().begin();
-            getEntityManager().merge(contaCobranca);
-            getEntityManager().flush();
-            getEntityManager().getTransaction().commit();
-            return true;
-        } catch (Exception e) {
-            getEntityManager().getTransaction().rollback();
-            return false;
-        }
-    }
-
-    @Override
-    public boolean delete(ContaCobranca contaCobranca) {
-        try {
-            getEntityManager().getTransaction().begin();
-            getEntityManager().remove(contaCobranca);
-            getEntityManager().flush();
-            getEntityManager().getTransaction().commit();
-            return true;
-        } catch (Exception e) {
-            getEntityManager().getTransaction().rollback();
-            return false;
-        }
-    }
-
-    @Override
-    public ContaCobranca pesquisaCodigo(int id) {
-        ContaCobranca result = null;
-        try {
-            Query qry = getEntityManager().createNamedQuery("ContaCobranca.pesquisaID");
-            qry.setParameter("pid", id);
-            result = (ContaCobranca) qry.getSingleResult();
-        } catch (Exception e) {
-        }
-        return result;
-    }
-
-    @Override
-    public List pesquisaTodos() {
-        try {
-            Query qry = getEntityManager().createQuery("select con from ContaCobranca con ");
-            return (qry.getResultList());
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    @Override
     public List pesquisaLayouts() {
         try {
             Query qry = getEntityManager().createQuery("select l from Layout l");
@@ -82,7 +17,6 @@ public class ContaCobrancaDBToplink extends DB implements ContaCobrancaDB {
         }
     }
 
-    @Override
     public Layout pesquisaLayoutId(int id) {
         Layout result = null;
         try {
@@ -106,7 +40,6 @@ public class ContaCobrancaDBToplink extends DB implements ContaCobrancaDB {
         return result;
     }
 
-    @Override
     public ContaCobranca pesquisaServicoCobranca(int idServicos, int idTipoServico) {
         ContaCobranca result = null;
         try {
@@ -123,7 +56,6 @@ public class ContaCobrancaDBToplink extends DB implements ContaCobrancaDB {
         return result;
     }
 
-    @Override
     public ContaCobranca pesquisaCobrancaCedente(String codCedente) {
         ContaCobranca result = new ContaCobranca();
         try {

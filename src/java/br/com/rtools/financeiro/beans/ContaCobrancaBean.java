@@ -3,14 +3,12 @@ package br.com.rtools.financeiro.beans;
 import br.com.rtools.financeiro.ContaBanco;
 import br.com.rtools.financeiro.ContaCobranca;
 import br.com.rtools.financeiro.Layout;
-import br.com.rtools.financeiro.db.ContaCobrancaDB;
 import br.com.rtools.financeiro.db.ContaCobrancaDBToplink;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.dao.FilialDao;
+import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.Moeda;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.util.ArrayList;
 import java.util.List;
 import javax.faces.bean.ManagedBean;
@@ -33,7 +31,7 @@ public class ContaCobrancaBean {
 
     public String salvar() {
 
-        ContaCobrancaDB db = new ContaCobrancaDBToplink();
+        ContaCobrancaDBToplink db = new ContaCobrancaDBToplink();
         Layout la = db.pesquisaLayoutId(Integer.valueOf(getListaLayout().get(idLayout).getDescription()));
 
         msgConfirma = "";
@@ -98,14 +96,14 @@ public class ContaCobrancaBean {
         }
 
         NovoLog log = new NovoLog();
-
+        Dao dao = new Dao();
         if (contaCobranca.getId() == -1) {
             if (db.idContaCobranca(contaCobranca) != null) {
                 msgConfirma = "Este cadastro já existe no Sistema.";
                 GenericaMensagem.warn("Erro", msgConfirma);
             } else {
                 atualizarSicas();
-                if (db.insert(contaCobranca)) {
+                if (dao.save(contaCobranca, true)) {
                     log.save("ID: " + contaCobranca.getId() + " Banco: " + contaCobranca.getContaBanco().getBanco().getBanco() + " - Agência: " + contaCobranca.getContaBanco().getAgencia() + " - Conta: " + contaCobranca.getContaBanco().getConta() + " - Cedente: " + contaCobranca.getCedente() + " - Código Cedente: " + contaCobranca.getCodCedente());
                     msgConfirma = "Cadastro salvo com Sucesso!";
                     GenericaMensagem.info("Sucesso", msgConfirma);
@@ -115,11 +113,10 @@ public class ContaCobrancaBean {
                 }
             }
         } else {
-            ContaCobranca conta = new ContaCobranca();
-            conta = (ContaCobranca) db.pesquisaCodigo(contaCobranca.getId());
+            ContaCobranca conta = (ContaCobranca) dao.find(new ContaCobranca(), contaCobranca.getId());
             String antes = "ID: " + conta.getId() + " Banco: " + conta.getContaBanco().getBanco().getBanco() + " - Agência: " + conta.getContaBanco().getAgencia() + " - Conta: " + conta.getContaBanco().getConta() + " - Cedente: " + conta.getCedente() + " - Código Cedente: " + conta.getCodCedente();
             atualizarSicas();
-            if (db.update(contaCobranca)) {
+            if (dao.update(contaCobranca, true)) {
                 log.update(antes, "ID: " + contaCobranca.getId() + " Banco: " + contaCobranca.getContaBanco().getBanco().getBanco() + " - Agência: " + contaCobranca.getContaBanco().getAgencia() + " - Conta: " + contaCobranca.getContaBanco().getConta() + " - Cedente: " + contaCobranca.getCedente() + " - Código Cedente: " + contaCobranca.getCodCedente());
                 msgConfirma = "Cadastro atualizado com sucesso!";
                 GenericaMensagem.info("Sucesso", msgConfirma);
@@ -169,19 +166,19 @@ public class ContaCobrancaBean {
     }
 
     public String excluir() {
-        SalvarAcumuladoDB db = new SalvarAcumuladoDBToplink();
+        Dao dao = new Dao();
         if (contaCobranca.getId() != -1) {
-            db.abrirTransacao();
-            contaCobranca = (ContaCobranca) db.pesquisaCodigo(contaCobranca.getId(), "ContaCobranca");
+            dao.openTransaction();
+            contaCobranca = (ContaCobranca) dao.find(new ContaCobranca(), contaCobranca.getId());
             NovoLog log = new NovoLog();
-            if (db.deletarObjeto(contaCobranca)) {
+            if (dao.delete(contaCobranca)) {
+                dao.commit();
                 log.delete(" ID: " + contaCobranca.getId() + " - Banco: " + contaCobranca.getContaBanco().getBanco().getBanco() + " - Agência: " + contaCobranca.getContaBanco().getAgencia() + " - Conta: " + contaCobranca.getContaBanco().getConta() + " - Cedente: " + contaCobranca.getCedente() + " - Código Cedente: " + contaCobranca.getCodCedente());
                 msgConfirma = "Cadastro Excluido com sucesso!";
                 GenericaMensagem.info("Sucesso", msgConfirma);
                 limpar = true;
-                db.comitarTransacao();
             } else {
-                db.desfazerTransacao();
+                dao.rollback();
                 msgConfirma = "Não foi possível excluir esse cadastro. Verifique se há vínculos externos!";
                 GenericaMensagem.warn("Erro", msgConfirma);
             }
@@ -190,8 +187,7 @@ public class ContaCobrancaBean {
     }
 
     public List<ContaCobranca> getListaContaCobranca() {
-        ContaCobrancaDB db = new ContaCobrancaDBToplink();
-        listaContaCobranca = db.pesquisaTodos();
+        listaContaCobranca = new Dao().list(new ContaCobranca());
         return listaContaCobranca;
     }
 
@@ -200,8 +196,8 @@ public class ContaCobrancaBean {
     }
 
     public List<SelectItem> getListaLayout() {
-        ContaCobrancaDB db = new ContaCobrancaDBToplink();
-        List<SelectItem> result = new ArrayList<SelectItem>();
+        ContaCobrancaDBToplink db = new ContaCobrancaDBToplink();
+        List<SelectItem> result = new ArrayList<>();
         List layouts = db.pesquisaLayouts();
         for (int i = 0; i < layouts.size(); i++) {
             result.add(new SelectItem(i, ((Layout) layouts.get(i)).getDescricao(), Integer.toString(((Layout) layouts.get(i)).getId())));
@@ -211,7 +207,7 @@ public class ContaCobrancaBean {
 
     public String editar(ContaCobranca c) {
         contaCobranca = c;
-        ContaCobrancaDB db = new ContaCobrancaDBToplink();
+        ContaCobrancaDBToplink db = new ContaCobrancaDBToplink();
         List<Layout> layouts = db.pesquisaLayouts();
         for (int i = 0; i < layouts.size(); i++) {
             if (layouts.get(i).getId() == contaCobranca.getLayout().getId()) {

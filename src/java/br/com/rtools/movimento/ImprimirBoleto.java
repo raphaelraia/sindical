@@ -18,7 +18,6 @@ import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.MensagemCobranca;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.ServicoContaCobranca;
-import br.com.rtools.financeiro.db.ContaCobrancaDB;
 import br.com.rtools.financeiro.db.ContaCobrancaDBToplink;
 import br.com.rtools.financeiro.db.FinanceiroDB;
 import br.com.rtools.financeiro.db.FinanceiroDBToplink;
@@ -280,7 +279,7 @@ public class ImprimirBoleto {
 
     public List<Movimento> atualizaContaCobrancaMovimento(List<Movimento> lista) {
         ServicoContaCobrancaDB db = new ServicoContaCobrancaDBToplink();
-        ContaCobrancaDB dbc = new ContaCobrancaDBToplink();
+        ContaCobrancaDBToplink dbc = new ContaCobrancaDBToplink();
         MovimentoDB dbm = new MovimentoDBToplink();
         SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
 

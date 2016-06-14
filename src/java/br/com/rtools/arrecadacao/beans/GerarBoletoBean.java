@@ -7,6 +7,7 @@ import br.com.rtools.financeiro.db.FinanceiroDBToplink;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
+import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -105,37 +106,37 @@ public class GerarBoletoBean {
 //            return;
 //        }
 //        
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-        sv.abrirTransacao();
+        Dao dao = new Dao();
+        dao.openTransaction();
         NovoLog novoLog = new NovoLog();
         novoLog.saveList();
         if (listaData.isEmpty()) {
-            if (sv.executeQueryObject("select func_geramensalidades(null, '" + mes + "/" + ano + "')")) {
-                sv.comitarTransacao();
+            if (dao.executeQueryObject("select func_geramensalidades(null, '" + mes + "/" + ano + "')")) {
+                dao.commit();
                 listaGerados.clear();
                 GenericaMensagem.info("Sucesso", "Geração de Mensalidades concluída!");
                 novoLog.save("Referência: " + mes + "/" + ano);
             } else {
-                sv.desfazerTransacao();
+                dao.rollback();
                 novoLog.cancelList();
                 GenericaMensagem.warn("Erro", "Erro ao gerar Mensalidades!");
             }
         } else {
             for (Object listaDatax : listaData) {
                 String vencto = listaDatax.toString().substring(0, 2) + "/" + listaDatax.toString().substring(3, 7);
-                if (sv.executeQueryObject("select func_geramensalidades(null, '" + vencto + "')")) {
+                if (dao.executeQueryObject("select func_geramensalidades(null, '" + vencto + "')")) {
                     listaGerados.clear();
                     GenericaMensagem.info("Sucesso", "Geração de Mensalidades " + vencto + " concluída!");
                     novoLog.save("Referência: " + vencto);
                 } else {
                     novoLog.cancelList();
-                    sv.desfazerTransacao();
+                    dao.rollback();
                     GenericaMensagem.warn("Erro", "Erro ao gerar Mensalidades!");
                     return;
                 }
             }
 
-            sv.comitarTransacao();
+            dao.commit();
         }
         novoLog.saveList();
     }

@@ -17,7 +17,6 @@ import br.com.rtools.sistema.Email;
 import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.sistema.Mensagem;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.Diretorio;
@@ -247,10 +246,7 @@ public class EnviarArquivosBean implements Serializable {
         for (int i = 0; i < listaArquivos.size(); i++) {
             aux2.add((File) ((DataObject) listaArquivos.get(i)).getArgumento0());
         }
-//        SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
-//        Registro r = (Registro) salvarAcumuladoDB.pesquisaObjeto(1, "Registro");
-//        String[] retorno = EnviarEmail.EnviarEmailPersonalizado(r, aux, mensagem.getMensagem(), aux2, mensagem.getAssunto());
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         Mail mail = new Mail();
         mail.setFiles(aux2);
         mail.setEmail(
@@ -267,7 +263,7 @@ public class EnviarArquivosBean implements Serializable {
                         false
                 )
         );
-        List<EmailPessoa> emailPessoas = new ArrayList<EmailPessoa>();
+        List<EmailPessoa> emailPessoas = new ArrayList<>();
         EmailPessoa emailPessoa = new EmailPessoa();
         List<Pessoa> pessoas = (List<Pessoa>) aux;
         for (Pessoa p : pessoas) {

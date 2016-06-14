@@ -10,7 +10,6 @@ import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.beans.MovimentosReceberBean;
-import br.com.rtools.financeiro.db.ContaCobrancaDB;
 import br.com.rtools.financeiro.db.ContaCobrancaDBToplink;
 import br.com.rtools.financeiro.db.MovimentoDB;
 import br.com.rtools.financeiro.db.MovimentoDBToplink;
@@ -137,7 +136,7 @@ public class AcordoSocialBean implements Serializable {
     public synchronized void adicionarParcela() {
         try {
             TipoServicoDB dbTipoServico = new TipoServicoDBToplink();
-            ContaCobrancaDB ctaCobraDB = new ContaCobrancaDBToplink();
+            ContaCobrancaDBToplink ctaCobraDB = new ContaCobrancaDBToplink();
             TipoServico tipoServico = dbTipoServico.pesquisaCodigo(4);
             DataHoje data = new DataHoje();
             int j = 0, k = 0;
