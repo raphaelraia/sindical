@@ -49,6 +49,11 @@ public class FormaPagamento implements java.io.Serializable {
     private Date dtCredito;
     @Column(name = "nr_taxa", length = 10)
     private float taxa;
+    @JoinColumn(name = "id_status", referencedColumnName = "id")
+    @ManyToOne
+    private FStatus status;
+    @Column(name = "nr_devolucao", length = 10)
+    private Integer devolucao;
 
     public FormaPagamento() {
         this.id = -1;
@@ -65,6 +70,8 @@ public class FormaPagamento implements java.io.Serializable {
         this.valorLiquido = 0;
         this.dtCredito = null;
         this.taxa = 0;
+        this.status = null;
+        this.devolucao = 0;
     }
 
     public FormaPagamento(int id,
@@ -80,7 +87,9 @@ public class FormaPagamento implements java.io.Serializable {
             TipoPagamento tipoPagamento,
             float valorLiquido,
             Date dtCredito,
-            float taxa) {
+            float taxa,
+            FStatus status,
+            Integer devolucao) {
         this.id = id;
         this.baixa = baixa;
         this.chequeRec = chequeRec;
@@ -95,6 +104,8 @@ public class FormaPagamento implements java.io.Serializable {
         this.valorLiquido = valorLiquido;
         this.dtCredito = dtCredito;
         this.taxa = taxa;
+        this.status = status;
+        this.devolucao = devolucao;
     }
 
     public int getId() {
@@ -223,5 +234,21 @@ public class FormaPagamento implements java.io.Serializable {
 
     public void setTaxa(float taxa) {
         this.taxa = taxa;
+    }
+
+    public FStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(FStatus status) {
+        this.status = status;
+    }
+
+    public Integer getDevolucao() {
+        return devolucao;
+    }
+
+    public void setDevolucao(Integer devolucao) {
+        this.devolucao = devolucao;
     }
 }

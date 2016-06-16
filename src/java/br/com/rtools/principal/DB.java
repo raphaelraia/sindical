@@ -95,6 +95,7 @@ public class DB {
             case "CondominiosRP":
             case "ServidoresSerrana":
             case "SindiFarmaRP":
+            case "SindiPetShopSP":
                 configuracao.setCaminhoSistema(cliente);
                 configuracao.setPersistence(cliente);
                 //configuracao.setHost("192.168.1.102");

@@ -53,7 +53,7 @@ public class FechamentoDiarioBean implements Serializable {
             return;
         }
 
-        List<Object> result = fdao.listaConcluirFechamentoDiario(dataFechamento);
+        List<Object> result = fdao.listaConcluirFechamentoDiario(dataFechamento, DataHoje.converteData(data));
 
         if (result.isEmpty()) {
             GenericaMensagem.error("Atenção", "Lista para Fechamento Diario vazia!");

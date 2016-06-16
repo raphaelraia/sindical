@@ -49,44 +49,44 @@
 
                             <p:messages id="i_msg" showDetail="true" closable="true" />  
 
-                            <p:dataTable var="linha" id="tbl" value="#{depositoBancarioBean.listaCheques}" rowKey="#{linha.argumento0[0]}" selection="#{depositoBancarioBean.listaSelecionado}" emptyMessage="Nenhum cheque encontrado!" rows="20" paginator="true">
+                            <p:dataTable var="linha" id="tbl" value="#{depositoBancarioBean.listaCheques}" rowKey="#{linha.chequeRec.id}" selection="#{depositoBancarioBean.listaSelecionado}" emptyMessage="Nenhum cheque encontrado!" rows="20" paginator="true">
                                 <p:column selectionMode="multiple" style="width:20px" />  
-                                <p:ajax event="rowSelect" update="@this"/>
-                                <p:ajax event="rowSelectCheckbox" update="@this"/>
-                                <p:ajax event="rowUnselect" update="@this"/>
-                                <p:ajax event="rowUnselectCheckbox" update="@this"/>
+                                <p:ajax event="rowSelect" update="@this" global="false"/>
+                                <p:ajax event="rowSelectCheckbox" update="@this" global="false"/>
+                                <p:ajax event="rowUnselect" update="@this" global="false"/>
+                                <p:ajax event="rowUnselectCheckbox" update="@this" global="false"/>
 
                                 <p:column headerText="Baixa" style="text-align: center">
-                                    <h:outputText value="#{linha.argumento0[1]}"/>
+                                    <h:outputText value="#{linha.baixa.id}"/>
                                 </p:column>
 
                                 <p:column headerText="Banco">
-                                    <h:outputText value="#{linha.argumento0[2]}"/>
+                                    <h:outputText value="#{linha.chequeRec.banco}"/>
                                 </p:column>
 
                                 <p:column headerText="Agência">
-                                    <h:outputText value="#{linha.argumento0[3]}"/>
+                                    <h:outputText value="#{linha.chequeRec.agencia}"/>
                                 </p:column>
 
                                 <p:column headerText="Conta">
-                                    <h:outputText value="#{linha.argumento0[4]}"/>
+                                    <h:outputText value="#{linha.chequeRec.conta}"/>
                                 </p:column>
 
                                 <p:column headerText="Cheque">
-                                    <h:outputText value="#{linha.argumento0[5]}"/>
+                                    <h:outputText value="#{linha.chequeRec.cheque}"/>
                                 </p:column>
 
                                 <p:column headerText="Valor">
                                     <h:outputText value="R$ "/>
-                                    <h:outputText value="#{linha.argumento3}" style="float: right"/>
+                                    <h:outputText value="#{linha.formaPagamento.valorString}" style="float: right"/>
                                 </p:column>
 
                                 <p:column headerText="Emissão" style="text-align: center">
-                                    <h:outputText value="#{linha.argumento1}"/>
+                                    <h:outputText value="#{linha.chequeRec.emissao}"/>
                                 </p:column>
 
                                 <p:column headerText="Vencimento" style="text-align: center">
-                                    <h:outputText value="#{linha.argumento2}"/>
+                                    <h:outputText value="#{linha.chequeRec.vencimento}"/>
                                 </p:column>
                             </p:dataTable>
 

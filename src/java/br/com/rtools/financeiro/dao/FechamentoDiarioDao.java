@@ -23,6 +23,7 @@ public class FechamentoDiarioDao extends DB {
                     "  SELECT cs.dt_data, \n"
                     + "       sum(cs.nr_saldo) \n"
                     + "  FROM fin_conta_saldo cs \n"
+                    + " WHERE cs.id_plano5 IN (SELECT cb.id_plano5 FROM caixa_banco_vw cb) \n"
                     + " GROUP BY cs.dt_data \n"
                     + " ORDER BY cs.dt_data DESC"
             );
@@ -52,17 +53,54 @@ public class FechamentoDiarioDao extends DB {
         }
     }
 
-    public List<Object> listaConcluirFechamentoDiario(String data) {
+    public List<Object> listaConcluirFechamentoDiario(String data_fechamento, String ultima_data) {
         try {
+//            Query qry = getEntityManager().createNativeQuery(
+//                    "SELECT baixa,\n"
+//                    + "     sum(valor) as valor,\n"
+//                    + "     id_conta,\n"
+//                    + "     1 as id_usuario,\n"
+//                    + "     1 as id_filial \n"
+//                    + "  FROM contabil_vw \n"
+//                    + " WHERE baixa = '" + data + "' \n"
+//                    + " GROUP BY baixa, id_conta, id_usuario, id_filial "
+//            );
             Query qry = getEntityManager().createNativeQuery(
-                    "SELECT baixa,\n"
-                    + "     sum(valor) as valor,\n"
-                    + "     id_conta,\n"
-                    + "     1 as id_usuario,\n"
-                    + "     1 as id_filial \n"
+                    "SELECT \n"
+                    + "------------------------------------------> Dia Selecionado \n"
+                    + "       cast('" + data_fechamento + "' as date), \n"
+                    + "       sum(valor) as valor, \n"
+                    + "       id_conta, \n"
+                    + "       1 as id_usuario, \n"
+                    + "       1 as id_filial \n"
+                    + "  \n"
+                    + "from \n"
+                    + "( \n"
+                    + "\n"
+                    + "SELECT id, \n"
+                    + "       nr_saldo as valor, \n"
+                    + "       id_plano5 AS id_conta, \n"
+                    + "       1 as id_usuario, \n"
+                    + "       1 as id_filial \n"
+                    + "  FROM fin_conta_saldo \n"
+                    + "------------------------------------------> Dia Anterior \n"
+                    + " WHERE dt_data = '" + ultima_data + "' \n"
+                    + "\n"
+                    + "  \n"
+                    + "union \n"
+                    + "\n"
+                    + "SELECT \n"
+                    + "       id_forma_pagamento as id, \n"
+                    + "       valor as valor, \n"
+                    + "       id_conta, \n"
+                    + "       1 as id_usuario, \n"
+                    + "       1 as id_filial \n"
                     + "  FROM contabil_vw \n"
-                    + " WHERE baixa = '" + data + "' \n"
-                    + " GROUP BY baixa, id_conta, id_usuario, id_filial "
+                    + "------------------------------------------> Dia Selecionado \n"
+                    + " WHERE baixa = '" + data_fechamento + "' \n"
+                    + "  \n"
+                    + ") as b \n"
+                    + "group by 1,3,4,5 "
             );
             return qry.getResultList();
         } catch (Exception e) {
@@ -77,7 +115,7 @@ public class FechamentoDiarioDao extends DB {
                     + "  FROM fin_conta_saldo "
             );
             List result = (List) qry.getSingleResult();
-            
+
             return (Date) result.get(0);
         } catch (Exception e) {
             return null;

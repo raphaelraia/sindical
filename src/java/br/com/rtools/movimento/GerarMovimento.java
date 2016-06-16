@@ -1132,6 +1132,8 @@ public class GerarMovimento extends DB {
                 (TipoPagamento) dao.find(new TipoPagamento(), 3),
                 valor_liquido,
                 dataCredito,
+                0,
+                null,
                 0
         );
 
@@ -1224,7 +1226,6 @@ public class GerarMovimento extends DB {
                     ch.setCheque(fp1.getChequeRec().getCheque());
                     ch.setConta(fp1.getChequeRec().getConta());
                     ch.setEmissao(fp1.getChequeRec().getEmissao());
-                    ch.setStatus(fp1.getChequeRec().getStatus());
                     ch.setVencimento(fp1.getChequeRec().getVencimento());
                     if (!dao.save(ch)) {
                         dao.rollback();
@@ -1236,7 +1237,6 @@ public class GerarMovimento extends DB {
                 if (fp1.getChequePag() != null) {
                     ch_p.setCheque(fp1.getChequePag().getCheque());
                     ch_p.setPlano5(fp1.getChequePag().getPlano5());
-                    ch_p.setStatus(fp1.getChequePag().getStatus());
                     ch_p.setVencimento(fp1.getChequePag().getVencimento());
 
                     if (!dao.save(ch_p)) {
@@ -1265,7 +1265,6 @@ public class GerarMovimento extends DB {
 
                 CartaoRec cartao_rec = new CartaoRec();
                 if (fp1.getCartaoRec() != null) {
-                    cartao_rec.setStatus(fp1.getCartaoRec().getStatus());
                     cartao_rec.setDtLiquidacao(fp1.getCartaoRec().getDtLiquidacao());
 
                     if (!dao.save(cartao_rec)) {
@@ -1336,6 +1335,8 @@ public class GerarMovimento extends DB {
                 null,
                 (TipoPagamento) dao.find(new TipoPagamento(), 3),
                 valor_baixa,
+                null,
+                0,
                 null,
                 0
         );

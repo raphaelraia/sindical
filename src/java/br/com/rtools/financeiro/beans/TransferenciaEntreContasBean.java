@@ -256,6 +256,8 @@ public class TransferenciaEntreContasBean implements Serializable {
                 (TipoPagamento) dao.find(new TipoPagamento(), 10),
                 0,
                 DataHoje.dataHoje(),
+                0,
+                null,
                 0
         );
     }

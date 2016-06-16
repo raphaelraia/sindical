@@ -5,6 +5,7 @@ import br.com.rtools.financeiro.CartaoPag;
 import br.com.rtools.financeiro.CartaoRec;
 import br.com.rtools.financeiro.ChequePag;
 import br.com.rtools.financeiro.ChequeRec;
+import br.com.rtools.financeiro.FStatus;
 import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.TipoPagamento;
 
@@ -20,8 +21,9 @@ public class ListValoresBaixaGeral {
     private CartaoPag cartaoPag;
     private CartaoRec cartaoRec;
     private String valorDigitado;
+    private FStatus status;
 
-    public ListValoresBaixaGeral(String vencimento, String valor, String numeroCheque, TipoPagamento tipoPagamento, ChequePag chequePag, ChequeRec chequeRec, Plano5 plano5, Cartao cartao, CartaoPag cartaoPag, CartaoRec cartaoRec, String valorDigitado) {
+    public ListValoresBaixaGeral(String vencimento, String valor, String numeroCheque, TipoPagamento tipoPagamento, ChequePag chequePag, ChequeRec chequeRec, Plano5 plano5, Cartao cartao, CartaoPag cartaoPag, CartaoRec cartaoRec, String valorDigitado, FStatus status) {
         this.vencimento = vencimento;
         this.valor = valor;
         this.numeroCheque = numeroCheque;
@@ -33,6 +35,7 @@ public class ListValoresBaixaGeral {
         this.cartaoPag = cartaoPag;
         this.cartaoRec = cartaoRec;
         this.valorDigitado = valorDigitado;
+        this.status = status;
     }
     
     public String getVencimento() {
@@ -121,5 +124,13 @@ public class ListValoresBaixaGeral {
 
     public void setCartaoRec(CartaoRec cartaoRec) {
         this.cartaoRec = cartaoRec;
+    }
+
+    public FStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(FStatus status) {
+        this.status = status;
     }
 }

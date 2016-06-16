@@ -179,12 +179,12 @@
 
                                 <h:panelGrid columns="2" style="float: right">
                                     <p:outputLabel value="SALDO DE ENTRADA BLOQUEADO R$: " style="font-weight: bold; font-size: 12pt!important"/>
-                                    <p:outputLabel value="#{movimentoBancarioBean.saldoEntradaBloqueadoString}" style="font-weight: bold; font-size: 12pt!important; color: blue"/>
+                                    <p:outputLabel value="#{movimentoBancarioBean.saldoEntradaBloqueadoString}" style="font-weight: bold; font-size: 12pt!important; color: red"/>
                                 </h:panelGrid>
 
                                 <h:panelGrid columns="2" style="float: right">
                                     <p:outputLabel value="SALDO DE SAÍDA BLOQUEADO R$: " style="font-weight: bold; font-size: 12pt!important"/>
-                                    <p:outputLabel value="#{movimentoBancarioBean.saldoSaidaBloqueadoString}" style="font-weight: bold; font-size: 12pt!important; color: blue"/>
+                                    <p:outputLabel value="#{movimentoBancarioBean.saldoSaidaBloqueadoString}" style="font-weight: bold; font-size: 12pt!important; color: red"/>
                                 </h:panelGrid>
 
                                 <h:panelGrid columns="2" style="float: right">
@@ -211,11 +211,12 @@
                                 <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_excluir').hide()" style="float: left" icon="ui-icon-close"/>       
                             </p:dialog>
 
-                            <p:dialog widgetVar="dlg_alterar_status_cheque" header="Alterar Status do Cheque" resizable="false" width="400" modal="true">
+                            <p:dialog widgetVar="dlg_alterar_status_cheque" header="Alterar Status" resizable="false" width="400" modal="true">
                                 <h:panelGrid id="panel_alterar_status_cheque">
-                                    <p:outputLabel value="Deseja realmente alterar o status deste cheque?" style="font-size: 11pt!important; color: red"/>
+                                    <p:outputLabel value="Deseja realmente alterar o status ?" style="font-size: 11pt!important; color: red"/>
                                     <br />
                                     <p:selectOneRadio value="#{movimentoBancarioBean.indexStatus}" layout="grid" columns="1">
+                                        <p:ajax event="change" update="@this" global="false"/>
                                         <f:selectItems value="#{movimentoBancarioBean.listaStatus}" />
                                     </p:selectOneRadio>
                                 </h:panelGrid>

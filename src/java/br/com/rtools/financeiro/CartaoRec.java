@@ -12,16 +12,12 @@ public class CartaoRec implements java.io.Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
-    @JoinColumn(name = "id_status", referencedColumnName = "id")
-    @ManyToOne
-    private FStatus status;
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_liquidacao")
     private Date dtLiquidacao;
 
-    public CartaoRec(int id, FStatus status, Date dtLiquidacao) {
+    public CartaoRec(int id, Date dtLiquidacao) {
         this.id = id;
-        this.status = status;
         this.dtLiquidacao = dtLiquidacao;
     }
 
@@ -39,14 +35,6 @@ public class CartaoRec implements java.io.Serializable {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public FStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(FStatus status) {
-        this.status = status;
     }
 
     public Date getDtLiquidacao() {

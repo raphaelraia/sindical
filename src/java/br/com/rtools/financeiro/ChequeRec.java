@@ -29,9 +29,6 @@ public class ChequeRec implements java.io.Serializable {
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_vencimento")
     private Date dtVencimento;
-    @JoinColumn(name = "id_status", referencedColumnName = "id")
-    @OneToOne
-    private FStatus status;
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_liquidacao")
     private Date dtLiquidacao;
@@ -45,11 +42,10 @@ public class ChequeRec implements java.io.Serializable {
         this.cheque = "";
         this.setEmissao(null);
         this.setVencimento(null);
-        this.status = new FStatus();
         this.dtLiquidacao = DataHoje.dataHoje();
     }
 
-    public ChequeRec(int id, String emitente, String banco, String agencia, String conta, String cheque, String emissao, String vencimento, FStatus status, Date dtLiquidacao) {
+    public ChequeRec(int id, String emitente, String banco, String agencia, String conta, String cheque, String emissao, String vencimento, Date dtLiquidacao) {
         this.id = id;
         this.emitente = emitente;
         this.banco = banco;
@@ -58,7 +54,6 @@ public class ChequeRec implements java.io.Serializable {
         this.cheque = cheque;
         this.setEmissao(emitente);
         this.setVencimento(vencimento);
-        this.status = status;
         this.dtLiquidacao = dtLiquidacao;
     }
 
@@ -140,14 +135,6 @@ public class ChequeRec implements java.io.Serializable {
 
     public void setVencimento(String vencimento) {
         this.dtVencimento = DataHoje.converte(vencimento);
-    }
-
-    public FStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(FStatus status) {
-        this.status = status;
     }
 
     public Date getDtLiquidacao() {

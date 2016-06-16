@@ -83,7 +83,7 @@ public interface FinanceiroDB {
 
     public Caixa pesquisaCaixaUm();
 
-    public List<Vector> listaDeCheques(int id_status);
+    public List<Object> listaDeCheques(Integer id_status);
 
     public List<TransferenciaCaixa> listaTransferenciaDinheiro(int id_fechamento_caixa, int id_caixa);
 

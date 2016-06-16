@@ -81,13 +81,17 @@ public class MovimentoBancarioDao extends DB {
                     + "       f.id_tipo_pagamento AS id_tipo_pagamento, \n"
                     + "       f.id_cheque_rec AS id_cheque_rec,\n"
                     + "       f.id_cheque_pag AS id_cheque_pag,\n"
-                    + "       b.dt_baixa AS data_baixa \n"
+                    + "       b.dt_baixa AS data_baixa, \n"
+                    + "       f.id_cartao_rec AS id_cartao_rec, \n"
+                    + "       f.id_cartao_pag AS id_cartao_pag \n"
                     + "  FROM fin_lote AS l \n"
                     + " INNER JOIN fin_movimento AS m ON m.id_lote = l.id \n"
                     + " INNER JOIN fin_baixa AS b ON b.id = m.id_baixa \n"
                     + " INNER JOIN fin_forma_pagamento AS f ON f.id_baixa = b.id \n"
                     + " LEFT JOIN fin_cheque_rec AS chr ON chr.id = f.id_cheque_rec \n"
                     + " LEFT JOIN fin_cheque_pag AS chp ON chp.id = f.id_cheque_pag \n"
+                    + " LEFT JOIN fin_cartao_rec AS car_rec ON car_rec.id = f.id_cartao_rec \n"
+                    + " LEFT JOIN fin_cartao_pag AS car_pag ON car_pag.id = f.id_cartao_pag \n"
                     + string_where
                     + " ORDER BY 10 ASC ";
 
