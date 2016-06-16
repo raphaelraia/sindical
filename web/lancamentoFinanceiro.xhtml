@@ -475,7 +475,7 @@
                                     </p:inputTextarea>
                                 </p:panel>
 
-                                <p:dataTable var="parcela" id="tbl_p" value="#{lancamentoFinanceiroBean.listaParcela}" selection="#{lancamentoFinanceiroBean.listaParcelaSelecionada}" rowKey="#{parcela.parcela}" rowIndexVar="index" emptyMessage="Adicionar Parcela!" scrollable="true" scrollHeight="110" editable="#{lancamentoFinanceiroBean.lote.id == -1}" editMode="cell" styleClass="margin-top-max" disabledSelection="#{not empty parcela.dataQuitacao}">
+                                <p:dataTable var="parcela" id="tbl_p" value="#{lancamentoFinanceiroBean.listaParcela}" selection="#{lancamentoFinanceiroBean.listaParcelaSelecionada}" rowKey="#{parcela.parcela}" rowIndexVar="index" emptyMessage="Adicionar Parcela!" scrollable="true" scrollHeight="110" editable="#{lancamentoFinanceiroBean.lote.id == -1}" editMode="cell" styleClass="margin-top-max">
                                     <p:column selectionMode="multiple" width="15" styleClass="text-center" />
                                     <p:column width="15">  
                                         <p:rowToggler />  

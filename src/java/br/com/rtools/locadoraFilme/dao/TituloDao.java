@@ -65,16 +65,20 @@ public class TituloDao extends DB {
             queryString += " INNER JOIN loc_titulo_filial AS TF ON TF.id_titulo = T.id ";
             listQuery.add("TF.id_filial = " + filial_id);
         }
-        switch (como) {
-            case "T":
-                listQuery.add("func_translate(UPPER(T.ds_" + por + ")) LIKE func_translate(UPPER('" + descricao + "'))");
-                break;
-            case "P":
-                listQuery.add("func_translate(UPPER(T.ds_" + por + ")) LIKE func_translate(UPPER('%" + descricao + "%'))");
-                break;
-            case "I":
-                listQuery.add("func_translate(UPPER(T.ds_" + por + ")) LIKE func_translate(UPPER('" + descricao + "%'))");
-                break;
+        if (por.equals("id")) {
+            listQuery.add("T.id = " + descricao);
+        } else {
+            switch (como) {
+                case "T":
+                    listQuery.add("func_translate(UPPER(T.ds_" + por + ")) LIKE func_translate(UPPER('" + descricao + "'))");
+                    break;
+                case "P":
+                    listQuery.add("func_translate(UPPER(T.ds_" + por + ")) LIKE func_translate(UPPER('%" + descricao + "%'))");
+                    break;
+                case "I":
+                    listQuery.add("func_translate(UPPER(T.ds_" + por + ")) LIKE func_translate(UPPER('" + descricao + "%'))");
+                    break;
+            }
         }
 
         if (genero_id != null) {
@@ -108,6 +112,18 @@ public class TituloDao extends DB {
     public Titulo findBarras(Integer filial_id, String barras) {
         try {
             List list = find(filial_id, "barras", "T", barras, null, 0, 0);
+            if (!list.isEmpty()) {
+                return (Titulo) list.get(0);
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
+    }
+
+    public Titulo findById(Integer filial_id, String barras) {
+        try {
+            List list = find(filial_id, "id", "T", barras, null, 0, 0);
             if (!list.isEmpty()) {
                 return (Titulo) list.get(0);
             }

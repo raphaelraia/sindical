@@ -2,76 +2,95 @@ package br.com.rtools.relatorios.beans;
 
 import br.com.rtools.financeiro.Caixa;
 import br.com.rtools.financeiro.FStatus;
+import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.db.FinanceiroDBToplink;
 import br.com.rtools.impressao.ParametroChequesRecebidos;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.relatorios.dao.RelatorioFinanceiroDao;
+import br.com.rtools.relatorios.dao.RelatorioChequesRecebidosDao;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
-import java.io.File;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
-import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
-import javax.servlet.ServletContext;
-import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JasperFillManager;
-import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.JasperReport;
-import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-import net.sf.jasperreports.engine.util.JRLoader;
-import net.sf.jasperreports.view.JasperViewer;
 
 @ManagedBean
 @SessionScoped
 public class RelatorioChequesRecebidosBean implements Serializable {
+
     // FILIAL
     private boolean chkFilial = false;
-    private List<Filial> listaFilial = new ArrayList<Filial>();
-    private List<Filial> listaFilialSelecionada = new ArrayList<Filial>();
-    
+    private List<Filial> listaFilial = new ArrayList<>();
+    private List<Filial> listaFilialSelecionada = new ArrayList<>();
+
     // CAIXA
     private boolean chkCaixa = false;
-    private List<Caixa> listaCaixa = new ArrayList<Caixa>();
-    private List<Caixa> listaCaixaSelecionado = new ArrayList<Caixa>();
-        
+    private List<Caixa> listaCaixa = new ArrayList<>();
+    private List<Caixa> listaCaixaSelecionado = new ArrayList<>();
+
     // TIPO DATA
     private boolean chkTipoData = false;
     private String tipoData = "emissao";
     private String dataInicial = DataHoje.data();
     private String dataFinal = DataHoje.data();
-    
+
     // STATUS
     private boolean chkStatus = false;
     private int idStatus = 0;
-    private List<SelectItem> listaStatus = new ArrayList<SelectItem>();
-    
+    private List<SelectItem> listaStatus = new ArrayList<>();
+
+    private boolean chkConta = false;
+
+    private Map<String, Integer> listContas;
+    private List selectedContas;
+
     public void porFilial() {
         chkFilial = chkFilial == true ? false : true;
     }
-    
+
     public void porCaixa() {
         chkCaixa = chkCaixa == true ? false : true;
     }
-    
+
     public void porTipoData() {
         chkTipoData = chkTipoData == true ? false : true;
     }
-    
+
     public void porStatus() {
         chkStatus = chkStatus == true ? false : true;
     }
-    
-    
+
+    public void porConta() {
+        chkConta = chkConta != true;
+        if (chkConta) {
+            loadContas();
+        } else {
+            selectedContas = new ArrayList();
+            listContas = new HashMap<>();
+        }
+    }
+
+    public void loadContas() {
+        selectedContas = new ArrayList();
+        listContas = new HashMap<>();
+        List<Plano5> list = new RelatorioChequesRecebidosDao().findAllPlanos5CaixaBanco();
+        for (int i = 0; i < list.size(); i++) {
+            listContas.put(list.get(i).getConta(), list.get(i).getId());
+        }
+    }
+
     public void visualizar() {
         String ids_filial = "";
-        if (chkFilial && !listaFilialSelecionada.isEmpty()){
+        if (chkFilial && !listaFilialSelecionada.isEmpty()) {
             for (int i = 0; i < listaFilialSelecionada.size(); i++) {
                 if (ids_filial.length() > 0 && i != listaFilialSelecionada.size()) {
                     ids_filial += ",";
@@ -79,9 +98,9 @@ public class RelatorioChequesRecebidosBean implements Serializable {
                 ids_filial += listaFilialSelecionada.get(i).getId();
             }
         }
-        
+
         String ids_caixa = "";
-        if (chkCaixa && !listaCaixaSelecionado.isEmpty()){
+        if (chkCaixa && !listaCaixaSelecionado.isEmpty()) {
             for (int i = 0; i < listaCaixaSelecionado.size(); i++) {
                 if (ids_caixa.length() > 0 && i != listaCaixaSelecionado.size()) {
                     ids_caixa += ",";
@@ -89,26 +108,26 @@ public class RelatorioChequesRecebidosBean implements Serializable {
                 ids_caixa += listaCaixaSelecionado.get(i).getId();
             }
         }
-        
+
         String tipo = "", d_i = "", d_f = "";
-        if (chkTipoData && (!dataInicial.isEmpty() || !dataFinal.isEmpty())){
+        if (chkTipoData && (!dataInicial.isEmpty() || !dataFinal.isEmpty())) {
             tipo = tipoData;
             d_i = dataInicial;
             d_f = dataFinal;
         }
-        
+
         int id_status = 0;
-        if (chkStatus){
+        if (chkStatus) {
             id_status = Integer.valueOf(listaStatus.get(idStatus).getDescription());
         }
-        
+
         Collection lista = new ArrayList();
 
         RelatorioFinanceiroDao db = new RelatorioFinanceiroDao();
-        
-        List<Vector> result = db.listaChequesRecebidos(ids_filial, ids_caixa, tipo, d_i, d_f, id_status);
-        
-        for (Vector linha : result){
+
+        List<Vector> result = db.listaChequesRecebidos(ids_filial, ids_caixa, tipo, d_i, d_f, id_status, inIdContas());
+
+        for (Vector linha : result) {
             lista.add(new ParametroChequesRecebidos(
                     linha.get(0).toString(), // FILIAL
                     linha.get(1).toString(), // EMISSAO
@@ -118,31 +137,21 @@ public class RelatorioChequesRecebidosBean implements Serializable {
                     linha.get(5).toString(), // CONTA
                     linha.get(6).toString(), // CHEQUE
                     new BigDecimal(linha.get(7).toString()), // VALOR
-                    //Moeda.converteR$(linha.get(7).toString()), // VALOR
                     linha.get(8).toString(), // ID_BAIXA
                     linha.get(9).toString() // CAIXA
             ));
         }
-        
+
         try {
-            File file_jasper = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/CHEQUES_RECEBIDOS.jasper"));
-            JasperReport jasperReport = (JasperReport) JRLoader.loadObject(file_jasper);
-
-            JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(lista);
-            JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, null, dtSource);
-//            byte[] arquivo = JasperExportManager.exportReportToPdf(jasperPrint);
-//            
-//            HttpServletResponse res = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
-//            res.setContentType("application/pdf");
-//            res.setHeader("Content-disposition", "inline; filename=\"Relatório Fechamento Caixa.pdf\"");
-//            res.getOutputStream().write(arquivo);
-//            res.getCharacterEncoding();
-//            FacesContext.getCurrentInstance().responseComplete();
-
-            JasperViewer jrviewer = new JasperViewer(jasperPrint, false);
-            jrviewer.setTitle("Relatório Cheques Recebidos");
-            jrviewer.setVisible(true);
-        } catch (JRException e) {
+//            File file_jasper = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/CHEQUES_RECEBIDOS.jasper"));
+//            JasperReport jasperReport = (JasperReport) JRLoader.loadObject(file_jasper);
+//            JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(lista);
+//            JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, null, dtSource);
+//            JasperViewer jrviewer = new JasperViewer(jasperPrint, false);
+//            jrviewer.setTitle("Relatório Cheques Recebidos");
+//            jrviewer.setVisible(true);
+            Jasper.printReports("/Relatorios/CHEQUES_RECEBIDOS.jasper", "Relatório Cheques Recebidos", lista);
+        } catch (Exception e) {
         }
 
     }
@@ -156,7 +165,7 @@ public class RelatorioChequesRecebidosBean implements Serializable {
     }
 
     public List<Filial> getListaFilial() {
-        if (listaFilial.isEmpty()){
+        if (listaFilial.isEmpty()) {
             listaFilial = (List<Filial>) (new SalvarAcumuladoDBToplink()).listaObjeto("Filial", true);
         }
         return listaFilial;
@@ -165,6 +174,7 @@ public class RelatorioChequesRecebidosBean implements Serializable {
     public void setListaFilial(List<Filial> listaFilial) {
         this.listaFilial = listaFilial;
     }
+
     public List<Filial> getListaFilialSelecionada() {
         return listaFilialSelecionada;
     }
@@ -182,7 +192,7 @@ public class RelatorioChequesRecebidosBean implements Serializable {
     }
 
     public List<Caixa> getListaCaixa() {
-        if (listaCaixa.isEmpty()){
+        if (listaCaixa.isEmpty()) {
             listaCaixa = (new FinanceiroDBToplink()).listaCaixa();
         }
         return listaCaixa;
@@ -249,19 +259,19 @@ public class RelatorioChequesRecebidosBean implements Serializable {
     }
 
     public List<SelectItem> getListaStatus() {
-        if (listaStatus.isEmpty()){
+        if (listaStatus.isEmpty()) {
             RelatorioFinanceiroDao db = new RelatorioFinanceiroDao();
-            
+
             List<FStatus> select = db.listaStatusCheque("7,8,9,10,11");
-            
-                for (int i = 0; i < select.size(); i++) {
-                    listaStatus.add(new SelectItem(
-                            i,
-                            select.get(i).getDescricao(),
-                            Integer.toString(select.get(i).getId()))
-                    );
-                }
-            
+
+            for (int i = 0; i < select.size(); i++) {
+                listaStatus.add(new SelectItem(
+                        i,
+                        select.get(i).getDescricao(),
+                        Integer.toString(select.get(i).getId()))
+                );
+            }
+
         }
         return listaStatus;
     }
@@ -269,4 +279,46 @@ public class RelatorioChequesRecebidosBean implements Serializable {
     public void setListaStatus(List<SelectItem> listaStatus) {
         this.listaStatus = listaStatus;
     }
+
+    public Map<String, Integer> getListContas() {
+        return listContas;
+    }
+
+    public void setListContas(Map<String, Integer> listContas) {
+        this.listContas = listContas;
+    }
+
+    public List getSelectedContas() {
+        return selectedContas;
+    }
+
+    public void setSelectedContas(List selectedContas) {
+        this.selectedContas = selectedContas;
+    }
+
+    public boolean isChkConta() {
+        return chkConta;
+    }
+
+    public void setChkConta(boolean chkConta) {
+        this.chkConta = chkConta;
+    }
+
+    public String inIdContas() {
+        String ids = null;
+        if (selectedContas != null) {
+            ids = "";
+            for (int i = 0; i < selectedContas.size(); i++) {
+                if (selectedContas.get(i) != null) {
+                    if (ids == null) {
+                        ids = "" + selectedContas.get(i);
+                    } else {
+                        ids += "," + selectedContas.get(i);
+                    }
+                }
+            }
+        }
+        return ids;
+    }
+
 }

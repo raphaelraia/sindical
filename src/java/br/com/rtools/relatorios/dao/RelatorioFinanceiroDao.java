@@ -369,8 +369,8 @@ public class RelatorioFinanceiroDao extends DB {
         return new ArrayList();
     }
 
-    public List<Vector> listaChequesRecebidos(String ids_filial, String ids_caixa, String tipo_data, String data_inicial, String data_final, int id_status) {
-        String text = " -- RelatorioFinanceiroDBToplink->listaChequesRecebidos()    "
+    public List<Vector> listaChequesRecebidos(String ids_filial, String ids_caixa, String tipo_data, String data_inicial, String data_final, Integer id_status, String in_plano5) {
+        String text = " -- RelatorioFinanceiroDBToplink->listaChequesRecebidos()    \n\n"
                 + " SELECT "
                 + "     j.ds_fantasia AS filial, "
                 + "     ch.dt_emissao AS emissao, "
@@ -399,6 +399,10 @@ public class RelatorioFinanceiroDao extends DB {
         if (!ids_caixa.isEmpty()) {
             filter += filter.isEmpty() ? " WHERE cx.id IN (" + ids_caixa + ") " : " AND cx.id IN (" + ids_caixa + ") ";
         }
+        
+        if (in_plano5 != null && !in_plano5.isEmpty()) {
+            filter += filter.isEmpty() ? " WHERE f.id_plano5 IN (" + in_plano5  + ") " : " AND f.id_plano5 (" + in_plano5  + ") ";
+        }
 
         if (!tipo_data.isEmpty() && (!data_inicial.isEmpty() || !data_final.isEmpty())) {
             if (!data_inicial.isEmpty() && !data_final.isEmpty()) { // DATA INICIAL E FINAL
@@ -414,7 +418,7 @@ public class RelatorioFinanceiroDao extends DB {
         }
 
         if (id_status != 0) {
-            filter += filter.isEmpty() ? " WHERE ch.id_status = " + id_status : " AND ch.id_status = " + id_status;
+            filter += filter.isEmpty() ? " WHERE f.id_status = " + id_status : " AND f.id_status = " + id_status;
         }
 
         try {

@@ -567,6 +567,12 @@
                                                 <p:outputLabel value="Motivo: #{recepcaoBean.cancelamento.motivo}" />
                                             </h:panelGrid>
                                         </p:panel>
+                                        <p:panel styleClass="margin-top-max" rendered="#{recepcaoBean.agendamentoEdit.status.id eq 4 and recepcaoBean.agendamentoEdit.homologador != null}">
+                                            <h:panelGrid columns="2" cellspacing="5">
+                                                <p:outputLabel value="Homologador: #{recepcaoBean.agendamentoEdit.homologador.pessoa.nome}"/>
+                                                <p:commandButton value="Alterar Homologador" type="button" onclick="PF('dlg_trocar_homologador').show();" update="alterar_homologador" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
+                                            </h:panelGrid>                                        
+                                        </p:panel>
                                     </h:panelGrid>
                                     <f:facet name="footer">
                                         <h:panelGrid columns="9">
@@ -576,10 +582,32 @@
                                             <p:commandButton value="Cancelar Agendamento" onclick="PF('dlg_cancelar').show()" rendered="#{recepcaoBean.agendamentoEdit.status.id != 3 and recepcaoBean.agendamentoEdit.status.id != 4 and recepcaoBean.agendamentoEdit.status.id != 7}" disabled="#{controleAcessoBean.botaoExcluir or recepcaoBean.agendamentoEdit.status.id == 3}" />
                                             <p:commandButton value="Voltar" action="#{recepcaoBean.fecharModal()}" oncomplete="PF('dlg_recepcao').hide()" global="false" />
                                             <p:commandButton value="Anexar documentos" type="button" onclick="PF('dgl_upload').show();" id="id_btn_uploads"/>
-                                            <p:commandButton value="Anexos (#{recepcaoBean.listFiles.size()})" oncomplete="PF('dgl_anexos').show();" id="id_btn_anexo" update=":form_recepcao_upload:" />                                            
+                                            <p:commandButton value="Anexos (#{recepcaoBean.listFiles.size()})" oncomplete="PF('dgl_anexos').show();" id="id_btn_anexo" update=":form_recepcao_upload:" />
                                         </h:panelGrid>
                                     </f:facet>
                                 </p:dialog>
+
+                                <p:dialog widgetVar="dlg_trocar_homologador" modal="true" header="Alterar Homologador" width="800" resizable="false">
+                                    <h:panelGroup layout="role" id="alterar_homologador">
+                                        <h:panelGrid columns="2">
+                                            <h:outputLabel value="Homologador:" />
+                                            <p:selectOneMenu value="#{recepcaoBean.idHomologador}">
+                                                <p:ajax event="change" update="@this" global="false"/>
+                                                <f:selectItems value="#{recepcaoBean.listHomologadores}"/>
+                                            </p:selectOneMenu>
+                                        </h:panelGrid>
+                                        <h:panelGrid styleClass="margin-top-max">
+                                            <h:outputLabel value="Motivo da troca" />
+                                            <p:inputTextarea value="#{recepcaoBean.motivoAlteracaoHomologador}" cols="80"></p:inputTextarea>
+                                        </h:panelGrid>
+                                    </h:panelGroup>
+                                    <f:facet name="footer">
+                                        <h:panelGrid columns="2">
+                                            <p:commandButton value="Confirmar" type="submit" action="#{recepcaoBean.updateHomologador}" update="formRecepcao" oncomplete="PF('dlg_trocar_homologador').hide()" icon="ui-icon-check"/>  
+                                            <p:commandButton value="Cancelar"  type="button" onclick="PF('dlg_trocar_homologador').hide()"  icon="ui-icon-close"/>
+                                        </h:panelGrid>
+                                    </f:facet>
+                                </p:dialog>                                   
 
                                 <p:dialog widgetVar="dlg_gerar_senha" header="Gerar uma Senha" resizable="false" modal="true">
                                     <h:outputLabel value="Deseja realmente GERAR uma senha? " />

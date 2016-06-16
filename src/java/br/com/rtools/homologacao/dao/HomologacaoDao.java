@@ -1188,4 +1188,17 @@ public class HomologacaoDao extends DB {
         }
         return null;
     }
+
+    public List findAllHomologadores() {
+        try {
+            Query query = getEntityManager().createQuery("SELECT A.homologador FROM Agendamento AS A WHERE A.homologador IS NOT NULL GROUP BY A.homologador  ");
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return list;
+            }
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+        return new ArrayList();
+    }
 }

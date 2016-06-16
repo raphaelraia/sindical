@@ -13,9 +13,9 @@
             .ui-widget-content .ui-inputfield{ padding: 8px!important;} 
             .ui-button { padding: 3px!important; }    
         </style>
-        
+
         <script type="text/javascript">
-            
+
         </script>
     </h:head>
     <h:body>
@@ -31,18 +31,19 @@
                         <h:outputText value="Relatório Cheques Recebidos" styleClass="fonteHeader" />
                         <h:form id="formChequesRecebidos">
                             <p:panel styleClass="fundoCinza" style="clear: both">
-                                
+
                             </p:panel>
-                            
+
                             <h:panelGrid id="i_opcoes" style="margin-top: 10px; float: left; width: 200px">
                                 <p:menu>  
                                     <p:menuitem value="Filiais" action="#{relatorioChequesRecebidosBean.porFilial()}" update="i_opcoes i_panel" style="#{relatorioChequesRecebidosBean.chkFilial == true ? 'background: #dbeaeb; font-weight: bold' : ''}" />  
                                     <p:menuitem value="Caixa" action="#{relatorioChequesRecebidosBean.porCaixa()}" update="i_opcoes i_panel" style="#{relatorioChequesRecebidosBean.chkCaixa == true ? 'background: #dbeaeb; font-weight: bold' : ''}"/>  
                                     <p:menuitem value="Tipo e Data" action="#{relatorioChequesRecebidosBean.porTipoData()}" update="i_opcoes i_panel" style="#{relatorioChequesRecebidosBean.chkTipoData == true ? 'background: #dbeaeb; font-weight: bold' : ''}"/>  
                                     <p:menuitem value="Status" action="#{relatorioChequesRecebidosBean.porStatus()}" update="i_opcoes i_panel" style="#{relatorioChequesRecebidosBean.chkStatus == true ? 'background: #dbeaeb; font-weight: bold' : ''}"/>  
+                                    <p:menuitem value="Conta" action="#{relatorioChequesRecebidosBean.porConta()}" update="i_opcoes i_panel" style="#{relatorioChequesRecebidosBean.chkConta == true ? 'background: #dbeaeb; font-weight: bold' : ''}"/>  
                                 </p:menu> 
                             </h:panelGrid>
-                            
+
                             <h:panelGrid id="i_panel" style="margin-top: 10px; float: left; width: 800px">
                                 <h:panelGrid rendered="#{!relatorioChequesRecebidosBean.chkFilial and
                                                          !relatorioChequesRecebidosBean.chkCaixa  and
@@ -50,11 +51,11 @@
                                                          !relatorioChequesRecebidosBean.chkStatus}">
                                     <h:outputLabel value="Listar todos os Cheques" style="font-size: 14pt!important"/>
                                 </h:panelGrid>
-                                
+
                                 <h:panelGrid rendered="#{relatorioChequesRecebidosBean.chkFilial}" columns="1" style="float: left">
                                     <p:dataTable id="tbl_filial" value="#{relatorioChequesRecebidosBean.listaFilial}" var="linha" selection="#{relatorioChequesRecebidosBean.listaFilialSelecionada}" rowKey="#{linha.id}" emptyMessage="Nenhuma Filial Encontrada!" style="width: 780px">
                                         <p:column selectionMode="multiple" style="text-align: center; width: 15px"/>
-                                        
+
                                         <p:column headerText="CNPJ / Nome">
                                             <h:outputText value="#{linha.filial.pessoa.documento} - #{linha.filial.pessoa.nome}"/>
                                         </p:column>
@@ -87,25 +88,34 @@
                                                 <h:outputLabel value="Data Inicial" /><br />
                                                 <p:inputMask value="#{relatorioChequesRecebidosBean.dataInicial}" mask="99/99/9999" size="8" />
                                             </p:column>
-                                            
+
                                             <p:column>
                                                 <h:outputLabel value="Data Final" /><br />
                                                 <p:inputMask value="#{relatorioChequesRecebidosBean.dataFinal}" mask="99/99/9999" size="8" />
                                             </p:column>
                                         </h:panelGrid>
                                     </h:panelGrid>
-                                    
+
                                     <h:panelGrid rendered="#{relatorioChequesRecebidosBean.chkStatus}" columns="1" style="float: left; margin-left: 20px">
                                         <h:outputLabel value="Status do Cheque" style="font-weight: bold"/><br />
                                         <p:selectOneMenu value="#{relatorioChequesRecebidosBean.idStatus}" style="width: 150px">
                                             <f:selectItems value="#{relatorioChequesRecebidosBean.listaStatus}"/>
                                         </p:selectOneMenu>
                                     </h:panelGrid>
+
+                                    <h:panelGrid rendered="#{relatorioChequesRecebidosBean.chkConta}" columns="1" style="float: left; margin-left: 20px">
+                                        <p:outputLabel value="Grupo" />
+                                        <p:selectCheckboxMenu label="Selecionar grupo" value="#{relatorioChequesRecebidosBean.selectedContas}" filter="true" filterMatchMode="startsWith">
+                                            <p:ajax event="toggleSelect" global="false" />
+                                            <p:ajax event="change" global="false" />
+                                            <f:selectItems value="#{relatorioChequesRecebidosBean.listContas}" />
+                                        </p:selectCheckboxMenu>
+                                    </h:panelGrid>
                                 </h:panelGrid>
                             </h:panelGrid>
-                            
+
                             <p:panel styleClass="fundoCinza" style="clear: both">
-                                <p:commandButton value="Visualizar" action="#{relatorioChequesRecebidosBean.visualizar()}"/>
+                                <p:commandButton value="Visualizar" action="#{relatorioChequesRecebidosBean.visualizar()}" ajax="false"/>
                             </p:panel>
                         </h:form>
                     </p:panel>

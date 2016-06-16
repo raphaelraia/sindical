@@ -22,8 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
@@ -67,10 +65,12 @@ public class TituloBean implements Serializable {
     private Integer faixaEtariaInicial;
     private Integer faixaEtariaFinal;
     private Boolean habilitaPesquisaFilial;
+    private String idTitulo;
 
     @PostConstruct
     public void init() {
         titulo = new Titulo();
+        idTitulo = "";
         catalogo = new Catalogo();
         usuario = new Usuario();
         descricaoPesquisa = "";
@@ -449,6 +449,9 @@ public class TituloBean implements Serializable {
     }
 
     public Titulo getTitulo() {
+        if (titulo.getId() != null) {
+            idTitulo = titulo.getIdString();
+        }
         return titulo;
     }
 
@@ -775,7 +778,7 @@ public class TituloBean implements Serializable {
     public void listener(Integer tcase) {
         switch (tcase) {
             case 1:
-                if(titulo.getId() == null) {
+                if (titulo.getId() == null) {
                     Titulo t;
                     if (habilitaPesquisaFilial) {
                         t = new TituloDao().findBarras(idFilial, titulo.getBarras());
@@ -785,6 +788,24 @@ public class TituloBean implements Serializable {
                     if (t != null) {
                         if (!t.getBarras().equals(titulo.getBarras())) {
                             titulo.setBarras(null);
+                        }
+                        titulo = t;
+                        listCatalogo.clear();
+                        getListCatalogo();
+                    }
+                }
+                break;
+            case 2:
+                if (titulo.getId() == null) {
+                    Titulo t;
+                    if (habilitaPesquisaFilial) {
+                        t = new TituloDao().findById(idFilial, idTitulo);
+                    } else {
+                        t = new TituloDao().findById(null, idTitulo);
+                    }
+                    if (t != null) {
+                        if (!idTitulo.equals(titulo.getIdString())) {
+                            titulo.setId(null);
                         }
                         titulo = t;
                         listCatalogo.clear();
@@ -813,6 +834,14 @@ public class TituloBean implements Serializable {
 
     public Integer getQuantidadeDisponivel(Integer filial_id, Integer titulo_id) {
         return new TituloDao().locadoraQuantidadeTituloDisponivel(filial_id, titulo_id);
+    }
+
+    public String getIdTitulo() {
+        return idTitulo;
+    }
+
+    public void setIdTitulo(String idTitulo) {
+        this.idTitulo = idTitulo;
     }
 
 }
