@@ -141,19 +141,7 @@ public class RelatorioChequesRecebidosBean implements Serializable {
                     linha.get(9).toString() // CAIXA
             ));
         }
-
-        try {
-//            File file_jasper = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/CHEQUES_RECEBIDOS.jasper"));
-//            JasperReport jasperReport = (JasperReport) JRLoader.loadObject(file_jasper);
-//            JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(lista);
-//            JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, null, dtSource);
-//            JasperViewer jrviewer = new JasperViewer(jasperPrint, false);
-//            jrviewer.setTitle("Relatório Cheques Recebidos");
-//            jrviewer.setVisible(true);
-            Jasper.printReports("/Relatorios/CHEQUES_RECEBIDOS.jasper", "Relatório Cheques Recebidos", lista);
-        } catch (Exception e) {
-        }
-
+        Jasper.printReports("/Relatorios/CHEQUES_RECEBIDOS.jasper", "Relatório Cheques Recebidos", lista);
     }
 
     public boolean isChkFilial() {

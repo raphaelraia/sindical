@@ -596,10 +596,10 @@ public class LancamentoFinanceiroBean implements Serializable {
         MovimentoDBToplink movimentoDao = new MovimentoDBToplink();
         List<Movimento> selectMovimento = movimentoDao.listaMovimentosDoLote(lote.getId());
         float acre, valor_quitado = 0;
-        String data_quitacao = "";
-        String caixa = "NÃO BAIXADO";
-        String loteBaixa = "NÃO BAIXADO";
         for (Movimento mov : selectMovimento) {
+            String data_quitacao = "";
+            String caixa = "NÃO BAIXADO";
+            String loteBaixa = "NÃO BAIXADO";
             acre = Moeda.somaValores(Moeda.somaValores(mov.getMulta(), mov.getJuros()), mov.getCorrecao());
 
             if (mov.getBaixa() != null) {
