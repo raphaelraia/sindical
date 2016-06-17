@@ -55,6 +55,7 @@
                                                         <f:selectItem itemValue="endereco" itemLabel="Endereço"/>
                                                         <f:selectItem itemValue="matricula" itemLabel="Matrícula"/>
                                                         <f:selectItem itemValue="codigo" itemLabel="Código do Funcionário"/>
+                                                        <f:selectItem itemValue="codigo_pessoa" itemLabel="Código"/>
                                                     </p:selectOneMenu>
                                                     <p:selectOneMenu value="#{fisicaBean.porPesquisa}" style="padding-right: 20px" rendered="#{fisicaBean.pesquisaPor eq 'pessoa'}">
                                                         <p:ajax event="change" update="@this i_panel_pesquisa" global="false" listener="#{fisicaBean.mascaraPesquisaFisica}"/>
@@ -65,6 +66,7 @@
                                                         <f:selectItem itemValue="email2" itemLabel="E-mail 2"/>
                                                         <f:selectItem itemValue="endereco" itemLabel="Endereço"/>
                                                         <f:selectItem itemValue="codigo" itemLabel="Código do Funcionário"/>
+                                                        <f:selectItem itemValue="codigo_pessoa" itemLabel="Código"/>
                                                     </p:selectOneMenu>
                                                     <p:commandLink rendered="#{fisicaBean.porPesquisa eq 'endereco'}" onclick="PF('dlg_wiki').show()" value="Ajuda" global="false"/>
                                                 </h:panelGrid>
@@ -105,7 +107,13 @@
                                 </p:column>
 
                                 <p:rowExpansion>
-                                    <h:panelGrid columns="4" style="height: 40px" styleClass="sbb">
+                                    <h:panelGrid columns="5" style="height: 40px" styleClass="sbb">
+                                        
+                                        <p:column>
+                                            <h:outputText value="CÓDIGO" style="font-weight: bold"/><br />
+                                            <h:outputText value="#{fisica.pessoa.id}"/>
+                                        </p:column>                                        
+                                        
                                         <p:column>
                                             <h:outputText value="Dt Nascimento" style="font-weight: bold"/><br />
                                             <h:outputText value="#{fisica.nascimento}"/>
