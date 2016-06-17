@@ -1,8 +1,7 @@
 package br.com.rtools.associativo.beans;
 
 import br.com.rtools.associativo.MatriculaConvenioMedico;
-import br.com.rtools.associativo.db.MatriculaConvenioMedicoDB;
-import br.com.rtools.associativo.db.MatriculaConvenioMedicoDBToplink;
+import br.com.rtools.associativo.dao.MatriculaConvenioMedicoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
@@ -59,7 +58,7 @@ public class MatriculaConvenioMedicoBean implements Serializable {
             return;
         }
         
-        MatriculaConvenioMedicoDB db = new MatriculaConvenioMedicoDBToplink();
+        MatriculaConvenioMedicoDao db = new MatriculaConvenioMedicoDao();
         List<MatriculaConvenioMedico> result = db.listaConvenioPessoa(servicoPessoaBean.getTitular().getPessoa().getId(), Integer.valueOf(servicoPessoaBean.getListaServicos().get(servicoPessoaBean.getIdServico()).getDescription()));
         
         if (servicoPessoaBean.getServicoPessoa().getId() == -1) {
@@ -198,7 +197,7 @@ public class MatriculaConvenioMedicoBean implements Serializable {
 
     public void loadList() {
         if (!(descPesquisa.trim()).isEmpty()) {
-            MatriculaConvenioMedicoDB db = new MatriculaConvenioMedicoDBToplink();
+            MatriculaConvenioMedicoDao db = new MatriculaConvenioMedicoDao();
             listaConvenio = db.pesquisaConvenioMedico(descPesquisa.trim(), porPesquisa, comoPesquisa, ativo);
         }
     }

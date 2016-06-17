@@ -6,8 +6,7 @@ import br.com.rtools.pessoa.beans.PesquisarProfissaoBean;
 import br.com.rtools.arrecadacao.Oposicao;
 import br.com.rtools.arrecadacao.dao.OposicaoDao;
 import br.com.rtools.arrecadacao.dao.ConvencaoDao;
-import br.com.rtools.arrecadacao.db.WebContabilidadeDB;
-import br.com.rtools.arrecadacao.db.WebContabilidadeDBToplink;
+import br.com.rtools.arrecadacao.dao.WebContabilidadeDao;
 import br.com.rtools.endereco.Endereco;
 import br.com.rtools.endereco.dao.EnderecoDao;
 import br.com.rtools.financeiro.Movimento;
@@ -163,7 +162,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
     }
 
     public void loadListEmpresa() {
-        WebContabilidadeDB db = new WebContabilidadeDBToplink();
+        WebContabilidadeDao db = new WebContabilidadeDao();
         JuridicaDB dbJur = new JuridicaDBToplink();
         if (juridica.getId() == -1) {
             juridica = dbJur.pesquisaJuridicaPorPessoa(((Pessoa) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuarioAcessoWeb")).getId());
@@ -328,7 +327,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
                 if (filtraPor.equals("selecionado")) {
                     ag = db.pesquisaAgendadoPorEmpresaSemHorario(idFilial, data, empresa.getPessoa().getId());
                 } else {
-                    WebContabilidadeDB dbw = new WebContabilidadeDBToplink();
+                    WebContabilidadeDao dbw = new WebContabilidadeDao();
                     List<Juridica> result = dbw.listaEmpresasPertContabilidade(juridica.getId());
                     for (int w = 0; w < listaEmpresas.size(); w++) {
                         ag.addAll(db.pesquisaAgendadoPorEmpresaSemHorario(idFilial, data, result.get(w).getPessoa().getId()));

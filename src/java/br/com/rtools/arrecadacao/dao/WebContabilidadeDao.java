@@ -1,4 +1,4 @@
-package br.com.rtools.arrecadacao.db;
+package br.com.rtools.arrecadacao.dao;
 
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.db.JuridicaDB;
@@ -9,9 +9,8 @@ import java.util.List;
 import java.util.Vector;
 import javax.persistence.Query;
 
-public class WebContabilidadeDBToplink extends DB implements WebContabilidadeDB {
+public class WebContabilidadeDao extends DB {
 
-    @Override
     public List<Juridica> listaEmpresasPertContabilidade(int idContabilidade) {
         JuridicaDB db = new JuridicaDBToplink();
 //        String textQuery = 
@@ -21,8 +20,8 @@ public class WebContabilidadeDBToplink extends DB implements WebContabilidadeDB 
 //                + "  WHERE j.id_contabilidade = " + idContabilidade
 //                + "    AND j.id in ( SELECT jv.id_juridica FROM arr_contribuintes_vw jv WHERE jv.dt_inativacao IS NULL) "
 //                + "  ORDER BY p.ds_nome";
-        String textQuery = 
-                  " SELECT j.* "
+        String textQuery
+                = " SELECT j.* "
                 + "   FROM pes_juridica j "
                 + "  INNER JOIN pes_pessoa p ON p.id = j.id_pessoa "
                 + "  INNER JOIN arr_contribuintes_vw jv ON j.id = jv.id_juridica AND jv.dt_inativacao IS NULL"
@@ -32,12 +31,11 @@ public class WebContabilidadeDBToplink extends DB implements WebContabilidadeDB 
             Query qry = getEntityManager().createNativeQuery(textQuery, Juridica.class);
             return qry.getResultList();
         } catch (Exception e) {
-            
+
         }
         return new ArrayList<>();
     }
 
-    @Override
     public List pesquisaMovParaWebContabilidade(int id_pessoa) {
         String textQuery;
         textQuery = "select m.ds_documento Boleto, "
@@ -73,7 +71,7 @@ public class WebContabilidadeDBToplink extends DB implements WebContabilidadeDB 
             Query qry = getEntityManager().createNativeQuery(textQuery);
             return qry.getResultList();
         } catch (Exception e) {
-            
+
         }
         return new ArrayList();
     }
@@ -96,7 +94,6 @@ public class WebContabilidadeDBToplink extends DB implements WebContabilidadeDB 
 //        return result;
 //    }
 
-    @Override
     public List pesquisaMovParaWebContabilidadeComRef(int id_pessoa, String referencia) {
         List result;
         Query qry = null;

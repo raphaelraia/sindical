@@ -4,8 +4,7 @@ import br.com.rtools.arrecadacao.GrupoCidade;
 import br.com.rtools.arrecadacao.GrupoCidades;
 import br.com.rtools.arrecadacao.MensagemConvencao;
 import br.com.rtools.arrecadacao.dao.GrupoCidadesDao;
-import br.com.rtools.arrecadacao.db.MensagemConvencaoDB;
-import br.com.rtools.arrecadacao.db.MensagemConvencaoDBToplink;
+import br.com.rtools.arrecadacao.dao.MensagemConvencaoDao;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.utilitarios.Dao;
@@ -183,7 +182,7 @@ public class GrupoCidadesBean implements Serializable {
     }
 
     public boolean saveMensagemConvencao(MensagemConvencao mensagemConvencao) {
-        MensagemConvencaoDB db = new MensagemConvencaoDBToplink();
+        MensagemConvencaoDao db = new MensagemConvencaoDao();
         NovoLog novoLog = new NovoLog();
         if (mensagemConvencao.getId() == -1) {
             if (db.insert(mensagemConvencao)) {

@@ -1,8 +1,7 @@
 package br.com.rtools.pessoa;
 
 import br.com.rtools.associativo.Socios;
-import br.com.rtools.associativo.db.SociosDB;
-import br.com.rtools.associativo.db.SociosDBToplink;
+import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.FisicaDB;
 import br.com.rtools.pessoa.db.FisicaDBToplink;
@@ -323,7 +322,7 @@ public class Pessoa implements Serializable {
     public Socios getSocios() {
         Socios socios = new Socios();
         if (this.id != -1) {
-            SociosDB sociosDB = new SociosDBToplink();
+            SociosDao sociosDB = new SociosDao();
             socios = sociosDB.pesquisaSocioPorPessoaAtivo(this.id);
             socios.getServicoPessoa().setPessoa(null);
             if (socios.getMatriculaSocios().getTitular().getId() == this.id) {

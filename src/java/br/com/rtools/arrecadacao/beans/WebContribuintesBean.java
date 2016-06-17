@@ -1,10 +1,8 @@
 package br.com.rtools.arrecadacao.beans;
 
 import br.com.rtools.arrecadacao.MensagemConvencao;
-import br.com.rtools.arrecadacao.db.MensagemConvencaoDB;
-import br.com.rtools.arrecadacao.db.MensagemConvencaoDBToplink;
-import br.com.rtools.arrecadacao.db.WebContribuintesDB;
-import br.com.rtools.arrecadacao.db.WebContribuintesDBToplink;
+import br.com.rtools.arrecadacao.dao.MensagemConvencaoDao;
+import br.com.rtools.arrecadacao.dao.WebContribuintesDao;
 import br.com.rtools.financeiro.ContaCobranca;
 import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.ImpressaoWeb;
@@ -76,7 +74,7 @@ public class WebContribuintesBean extends MovimentoValorBean {
 
     public void loadList() {
         listaMovimento.clear();
-        WebContribuintesDB db = new WebContribuintesDBToplink();
+        WebContribuintesDao db = new WebContribuintesDao();
         Dao dao = new Dao();
         JuridicaDB dbJur = new JuridicaDBToplink();
         juridica = dbJur.pesquisaJuridicaPorPessoa(pessoa.getId());
@@ -377,7 +375,7 @@ public class WebContribuintesBean extends MovimentoValorBean {
         try {
             MensagemConvencao mc = new MensagemConvencao();
             Dao dao = new Dao();
-            MensagemConvencaoDB dbCon = new MensagemConvencaoDBToplink();
+            MensagemConvencaoDao dbCon = new MensagemConvencaoDao();
             TipoServicoDB dbTipo = new TipoServicoDBToplink();
             ContaCobrancaDBToplink ctaCobraDB = new ContaCobrancaDBToplink();
             ContaCobranca contaCob = new ContaCobranca();

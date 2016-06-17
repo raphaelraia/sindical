@@ -1,4 +1,4 @@
-package br.com.rtools.associativo.db;
+package br.com.rtools.associativo.dao;
 
 import br.com.rtools.associativo.MatriculaSocios;
 import br.com.rtools.principal.DB;
@@ -6,9 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 
-public class MatriculaSociosDBToplink extends DB implements MatriculaSociosDB {
+public class MatriculaSociosDao extends DB {
 
-    @Override
     public MatriculaSocios pesquisaPorNrMatricula(int idGpCategoria, int nrMatricula) {
         MatriculaSocios result = null;
         try {
@@ -22,7 +21,6 @@ public class MatriculaSociosDBToplink extends DB implements MatriculaSociosDB {
         return result;
     }
 
-    @Override
     public List listaMatriculaPorGrupoNrMatricula(int grupoCategoria, int nrMatricula) {
         try {
             String queryString = ""

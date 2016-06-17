@@ -1,4 +1,4 @@
-package br.com.rtools.associativo.db;
+package br.com.rtools.associativo.dao;
 
 import br.com.rtools.associativo.ConvenioServico;
 import br.com.rtools.associativo.SubGrupoConvenio;
@@ -8,9 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 
-public class SubGrupoConvenioDBToplink extends DB implements SubGrupoConvenioDB {
+public class SubGrupoConvenioDao extends DB {
 
-    @Override
     public List listaSubGrupoConvenioPorGrupo(int idGrupoConvenio) {
         try {
             Query query = getEntityManager().createQuery(" SELECT SGC FROM SubGrupoConvenio AS SGC WHERE SGC.grupoConvenio.id = :pid ORDER BY SGC.descricao ASC ");
@@ -24,7 +23,6 @@ public class SubGrupoConvenioDBToplink extends DB implements SubGrupoConvenioDB 
         return new ArrayList();
     }
 
-    @Override
     public boolean existeSubGrupoConvenio(SubGrupoConvenio subGrupoConvenio) {
         try {
             Query qry = getEntityManager().createQuery(" SELECT SGC FROM SubGrupoConvenio AS SGC WHERE SGC.grupoConvenio.id = :grupoConvenio AND UPPER(SGC.descricao) = :descricao");
@@ -36,7 +34,6 @@ public class SubGrupoConvenioDBToplink extends DB implements SubGrupoConvenioDB 
         }
     }
 
-    @Override
     public List listaServicosDisponiveis(int idSubGrupoConvenio) {
         try {
             Query qry = getEntityManager().createQuery(" SELECT S FROM Servicos AS S WHERE S.situacao = 'A' AND S.id NOT IN (SELECT SR.servicos.id FROM ServicoRotina AS SR WHERE SR.rotina.id = 4 GROUP BY SR.servicos.id) AND S.id NOT IN( SELECT CS.servicos.id FROM ConvenioServico AS CS WHERE CS.subGrupoConvenio.id = :pid ) ORDER BY S.descricao ASC ");
@@ -51,7 +48,6 @@ public class SubGrupoConvenioDBToplink extends DB implements SubGrupoConvenioDB 
         return new ArrayList();
     }
 
-    @Override
     public List listaServicosDisponiveisPorGrupoFinanceiro(Integer idSubGrupoConvenio, Integer idGrupoFinanceiro) {
         String queryString = ""
                 + "     SELECT S.* FROM fin_servicos AS S                                                                                                               "
@@ -77,7 +73,6 @@ public class SubGrupoConvenioDBToplink extends DB implements SubGrupoConvenioDB 
         return new ArrayList();
     }
 
-    @Override
     public List listaServicosDisponiveisPorSubGrupoFinanceiro(Integer idSubGrupoConvenio, Integer idSubGrupoFinanceiro) {
         String queryString = " "
                 + "     SELECT S.*                                                                                                                              "
@@ -100,7 +95,6 @@ public class SubGrupoConvenioDBToplink extends DB implements SubGrupoConvenioDB 
         return new ArrayList();
     }
 
-    @Override
     public List<ConvenioServico> listaServicosAdicionados(int idSubGrupoConvenio) {
         try {
             Query qry = getEntityManager().createQuery(" SELECT CS FROM ConvenioServico AS CS WHERE CS.subGrupoConvenio.id = :pid ORDER BY CS.servicos.descricao ASC, CS.subGrupoConvenio.descricao ASC ");

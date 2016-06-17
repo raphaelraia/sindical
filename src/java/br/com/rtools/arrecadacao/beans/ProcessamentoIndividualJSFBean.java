@@ -1,12 +1,12 @@
 package br.com.rtools.arrecadacao.beans;
 
+import br.com.rtools.arrecadacao.dao.MensagemConvencaoDao;
 import br.com.rtools.arrecadacao.dao.CnaeConvencaoDao;
 import br.com.rtools.pessoa.dao.FilialDao;
 import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.GrupoCidade;
 import br.com.rtools.arrecadacao.MensagemConvencao;
 import br.com.rtools.arrecadacao.dao.ConvencaoCidadeDao;
-import br.com.rtools.arrecadacao.db.*;
 import br.com.rtools.financeiro.*;
 import br.com.rtools.financeiro.beans.MovimentoValorBean;
 import br.com.rtools.financeiro.db.*;
@@ -219,7 +219,7 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
         }
         Dao dao = new Dao();
         ContaCobrancaDBToplink ctaCobraDB = new ContaCobrancaDBToplink();
-        MensagemConvencaoDB menDB = new MensagemConvencaoDBToplink();
+        MensagemConvencaoDao menDB = new MensagemConvencaoDao();
         Servicos servicos = new Servicos();
         TipoServico tipoServico = new TipoServico();
         ContaCobranca contaCob = new ContaCobranca();
@@ -371,7 +371,7 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
     }
 
     public synchronized void filtrarReferencia() {
-        MensagemConvencaoDB menDB = new MensagemConvencaoDBToplink();
+        MensagemConvencaoDao menDB = new MensagemConvencaoDao();
         if (!(new DataHoje()).integridadeReferencia(strReferencia)) {
             strReferencia = DataHoje.dataReferencia(vencimento);
             return;

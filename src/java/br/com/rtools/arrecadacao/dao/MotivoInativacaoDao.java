@@ -1,13 +1,13 @@
-package br.com.rtools.arrecadacao.db;
+package br.com.rtools.arrecadacao.dao;
 
 import br.com.rtools.arrecadacao.MotivoInativacao;
 import br.com.rtools.principal.DB;
 import java.util.List;
 import javax.persistence.Query;
 
-public class MotivoInativacaoDBToplink extends DB implements MotivoInativacaoDB {
+public class MotivoInativacaoDao extends DB   {
 
-    @Override
+
     public boolean insert(MotivoInativacao motivoInativacao) {
         try {
             getEntityManager().getTransaction().begin();
@@ -21,7 +21,7 @@ public class MotivoInativacaoDBToplink extends DB implements MotivoInativacaoDB 
         }
     }
 
-    @Override
+
     public boolean update(MotivoInativacao motivoInativacao) {
         try {
             getEntityManager().merge(motivoInativacao);
@@ -32,7 +32,7 @@ public class MotivoInativacaoDBToplink extends DB implements MotivoInativacaoDB 
         }
     }
 
-    @Override
+
     public boolean delete(MotivoInativacao motivoInativacao) {
         try {
             getEntityManager().remove(motivoInativacao);
@@ -43,7 +43,7 @@ public class MotivoInativacaoDBToplink extends DB implements MotivoInativacaoDB 
         }
     }
 
-    @Override
+
     public MotivoInativacao pesquisaCodigo(int id) {
         MotivoInativacao result = null;
         try {
@@ -55,7 +55,7 @@ public class MotivoInativacaoDBToplink extends DB implements MotivoInativacaoDB 
         return result;
     }
 
-    @Override
+
     public List pesquisaTodos() {
         try {
             Query qry = getEntityManager().createQuery("select cont from MotivoInativacao cont ");
@@ -65,7 +65,7 @@ public class MotivoInativacaoDBToplink extends DB implements MotivoInativacaoDB 
         }
     }
 
-    @Override
+
     public MotivoInativacao idMotivoInativacao(MotivoInativacao des_motivoInativacao) {
         MotivoInativacao result = null;
         String descricao = des_motivoInativacao.getDescricao().toLowerCase().toUpperCase();

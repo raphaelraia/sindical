@@ -8,8 +8,6 @@ import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.beans.MovimentosReceberSocialBean;
 import br.com.rtools.associativo.beans.SociosBean;
 import br.com.rtools.associativo.dao.SociosDao;
-import br.com.rtools.associativo.db.SociosDB;
-import br.com.rtools.associativo.db.SociosDBToplink;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.endereco.Endereco;
 import br.com.rtools.endereco.beans.PesquisaEnderecoBean;
@@ -801,10 +799,10 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     public void editarFisicaSocio(Fisica fis) {
         Dao dao = new Dao();
-        SociosDB db = new SociosDBToplink();
+        SociosDao db = new SociosDao();
         socios = db.pesquisaSocioPorPessoaAtivo(fisica.getPessoa().getId());
         if (socios.getId() == -1) {
-            List<Socios> ls = new SociosDBToplink().pesquisaSocioPorPessoaInativo(fisica.getPessoa().getId());
+            List<Socios> ls = new SociosDao().pesquisaSocioPorPessoaInativo(fisica.getPessoa().getId());
             if (!ls.isEmpty()) {
                 socios = (Socios) dao.rebind(ls.get(0));
             } else {
@@ -1942,7 +1940,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     public List<Socios> getListaSocioInativo() {
         if (listaSocioInativo.isEmpty() && fisica.getId() != -1) {
-            listaSocioInativo = new SociosDBToplink().pesquisaSocioPorPessoaInativo(fisica.getPessoa().getId());
+            listaSocioInativo = new SociosDao().pesquisaSocioPorPessoaInativo(fisica.getPessoa().getId());
             for (int i = 0; i < listaSocioInativo.size(); i++) {
                 if (fisica.getPessoa().getId() != listaSocioInativo.get(i).getMatriculaSocios().getTitular().getId()) {
                     listaSocioInativo.clear();
@@ -2144,10 +2142,9 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     public void listenerSocios(Integer idPessoa) {
         listaSocios.clear();
-        SociosDB sociosDB = new SociosDBToplink();
-        Socios s = sociosDB.pesquisaSocioPorPessoaAtivo(idPessoa);
+        SociosDao sociosDao = new SociosDao();
+        Socios s = sociosDao.pesquisaSocioPorPessoaAtivo(idPessoa);
         if (s != null && s.getId() != -1) {
-            SociosDao sociosDao = new SociosDao();
             listaSocios = sociosDao.pesquisaDependentePorMatricula(s.getMatriculaSocios().getId(), false);
         }
     }
@@ -2201,7 +2198,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         }
         // SÓCIO
         if (validacao.equals("socioativo") || validacao.equals("socio_titular_ativo")) {
-            SociosDB sociosDB = new SociosDBToplink();
+            SociosDao sociosDB = new SociosDao();
             s = sociosDB.pesquisaSocioPorPessoa(p.getId());
             if (s.getId() == -1) {
                 count++;

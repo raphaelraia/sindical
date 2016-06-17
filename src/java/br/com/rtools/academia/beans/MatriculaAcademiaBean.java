@@ -11,12 +11,9 @@ import br.com.rtools.associativo.MatriculaSocios;
 import br.com.rtools.associativo.ModeloCarteirinha;
 import br.com.rtools.associativo.SocioCarteirinha;
 import br.com.rtools.associativo.Socios;
-import br.com.rtools.associativo.db.LancamentoIndividualDB;
-import br.com.rtools.associativo.db.LancamentoIndividualDBToplink;
-import br.com.rtools.associativo.db.SocioCarteirinhaDB;
-import br.com.rtools.associativo.db.SocioCarteirinhaDBToplink;
-import br.com.rtools.associativo.db.SociosDB;
-import br.com.rtools.associativo.db.SociosDBToplink;
+import br.com.rtools.associativo.dao.LancamentoIndividualDao;
+import br.com.rtools.associativo.dao.SocioCarteirinhaDao;
+import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.escola.dao.MatriculaEscolaDao;
 import br.com.rtools.financeiro.CondicaoPagamento;
 import br.com.rtools.financeiro.DescontoServicoEmpresa;
@@ -493,7 +490,7 @@ public class MatriculaAcademiaBean implements Serializable {
                 return null;
             }
             SocioCarteirinha socioCarteirinha = new SocioCarteirinha();
-            SocioCarteirinhaDB scdb = new SocioCarteirinhaDBToplink();
+            SocioCarteirinhaDao scdb = new SocioCarteirinhaDao();
             // PESQUISA CARTEIRINHA SEM MODELO
             String validadeCarteirinha = "";
             DataHoje dh = new DataHoje();
@@ -583,7 +580,7 @@ public class MatriculaAcademiaBean implements Serializable {
             return gerarMovimento();
         } else {
             SocioCarteirinha socioCarteirinha = new SocioCarteirinha();
-            SocioCarteirinhaDB scdb = new SocioCarteirinhaDBToplink();
+            SocioCarteirinhaDao scdb = new SocioCarteirinhaDao();
             // PESQUISA CARTEIRINHA SEM MODELO
             String validadeCarteirinha = "";
             DataHoje dh = new DataHoje();
@@ -1146,7 +1143,7 @@ public class MatriculaAcademiaBean implements Serializable {
         if (tipoFisica.equals("aluno")) {
             aluno = (Fisica) GenericaSessao.getObject("fisicaPesquisa", true);
             verificaSocio();
-            LancamentoIndividualDB dbl = new LancamentoIndividualDBToplink();
+            LancamentoIndividualDao dbl = new LancamentoIndividualDao();
             if (!dbl.listaSerasa(aluno.getPessoa().getId()).isEmpty()) {
                 GenericaMensagem.warn("PESSOA", aluno.getPessoa().getNome() + " contém o nome no Serasa!");
             }
@@ -1227,7 +1224,7 @@ public class MatriculaAcademiaBean implements Serializable {
         }
 
         // CADASTRO NO SERASA
-        LancamentoIndividualDB dbl = new LancamentoIndividualDBToplink();
+        LancamentoIndividualDao dbl = new LancamentoIndividualDao();
         if (!dbl.listaSerasa(responsavel.getId()).isEmpty()) {
             GenericaMensagem.warn("PESSOA", responsavel.getNome() + " contém o nome no Serasa!");
         }
@@ -1423,7 +1420,7 @@ public class MatriculaAcademiaBean implements Serializable {
     }
 
     public void verificaSocio() {
-        //SociosDB dB = new SociosDBToplink();
+        //SociosDB dB = new SociosDao();
 //        Socios sociosx = dB.pesquisaSocioPorPessoa(aluno.getPessoa().getId());
 //        if (sociosx != null) {
 //            socio = sociosx.getId() != -1;
@@ -2605,7 +2602,7 @@ public class MatriculaAcademiaBean implements Serializable {
 
     public Socios getSocios() {
 //        if (aluno.getId() != -1) {
-//            SociosDB sociosDB = new SociosDBToplink();
+//            SociosDB sociosDB = new SociosDao();
 //            if (socios.getId() == -1) {
 //                socios = sociosDB.pesquisaSocioPorPessoa(matriculaAcademia.getServicoPessoa().getPessoa().getId());
 //            }
@@ -2626,7 +2623,7 @@ public class MatriculaAcademiaBean implements Serializable {
 
     public Socios getSociosCobranca() {
         if (cobranca != null) {
-            SociosDB sociosDB = new SociosDBToplink();
+            SociosDao sociosDB = new SociosDao();
             sociosCobranca = sociosDB.pesquisaSocioPorPessoa(matriculaAcademia.getServicoPessoa().getCobranca().getId());
         }
         return sociosCobranca;

@@ -3,8 +3,7 @@ package br.com.rtools.financeiro;
 import br.com.rtools.arrecadacao.Acordo;
 import br.com.rtools.associativo.MatriculaSocios;
 import br.com.rtools.associativo.Socios;
-import br.com.rtools.associativo.db.SociosDB;
-import br.com.rtools.associativo.db.SociosDBToplink;
+import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Moeda;
@@ -575,7 +574,7 @@ public class Movimento implements Serializable {
     public MatriculaSocios getMatriculaSocios() {
         if (id == -1 && matriculaSocios != null) {
             if (beneficiario != null && beneficiario.getId() != -1) {
-                SociosDB dbs = new SociosDBToplink();
+                SociosDao dbs = new SociosDao();
                 Socios soc = dbs.pesquisaSocioPorPessoaAtivo(beneficiario.getId());
                 if (soc.getId() != -1) {
                     matriculaSocios = soc.getMatriculaSocios();
@@ -590,7 +589,7 @@ public class Movimento implements Serializable {
     public void setMatriculaSocios(MatriculaSocios matriculaSocios) {
         if (id == -1 && matriculaSocios != null) {
             if (beneficiario != null && beneficiario.getId() != -1) {
-                SociosDB dbs = new SociosDBToplink();
+                SociosDao dbs = new SociosDao();
                 Socios soc = dbs.pesquisaSocioPorPessoaAtivo(beneficiario.getId());
                 if (soc.getId() != -1) {
                     matriculaSocios = soc.getMatriculaSocios();

@@ -1,4 +1,4 @@
-package br.com.rtools.associativo.db;
+package br.com.rtools.associativo.dao;
 
 import br.com.rtools.associativo.Convenio;
 import br.com.rtools.principal.DB;
@@ -6,47 +6,45 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 
-public class ConvenioDBToplink extends DB implements ConvenioDB {
+public class ConvenioDao extends DB {
 
-    @Override
     public List listaTodos(boolean orderPessoa, boolean orderGrupoConvenio, boolean orderSubGrupoConvenio) {
         return listaTodosPorPessoa(orderPessoa, orderGrupoConvenio, orderSubGrupoConvenio, null);
     }
-    
-    @Override
+
     public List listaTodosPorPessoa(boolean orderPessoa, boolean orderGrupoConvenio, boolean orderSubGrupoConvenio, Convenio convenio) {
         String where = "";
         String order_by = "";
-        
+
         if (orderPessoa) {
             order_by = " ORDER BY c.juridica.pessoa.nome ";
         }
-        
-        if (orderGrupoConvenio){
+
+        if (orderGrupoConvenio) {
             if (order_by.isEmpty()) {
                 order_by = " ORDER BY c.subGrupoConvenio.grupoConvenio.descricao ";
-            }else{
+            } else {
                 order_by += ", c.subGrupoConvenio.grupoConvenio.descricao ";
             }
         }
-        
-        if (orderSubGrupoConvenio){
+
+        if (orderSubGrupoConvenio) {
             if (order_by.isEmpty()) {
                 order_by = " ORDER BY c.subGrupoConvenio.descricao ";
             } else {
                 order_by += ", c.subGrupoConvenio.descricao ";
             }
         }
-        
+
         if (convenio != null) {
-          where = " WHERE C.juridica.id = "+convenio.getJuridica().getId();  
+            where = " WHERE C.juridica.id = " + convenio.getJuridica().getId();
         }
         try {
             Query query = getEntityManager().createQuery(
-                        " SELECT c " +
-                        "   FROM Convenio c " +
-                            where +
-                            order_by);    
+                    " SELECT c "
+                    + "   FROM Convenio c "
+                    + where
+                    + order_by);
             List list = query.getResultList();
             if (!list.isEmpty()) {
                 return list;
@@ -56,7 +54,7 @@ public class ConvenioDBToplink extends DB implements ConvenioDB {
         }
         return new ArrayList();
     }
-    
+
     public boolean existeSubGrupoEmpresa(Convenio convenio) {
         try {
             Query query = getEntityManager().createQuery(" SELECT C FROM Convenio AS C WHERE C.juridica.id = :idJuridica AND C.subGrupoConvenio.id = :idSubGrupoConvenio");
@@ -72,7 +70,6 @@ public class ConvenioDBToplink extends DB implements ConvenioDB {
         return false;
     }
 
-    @Override
     public List pesquisaConvenioPorGrupoPessoa(int idPessoaJuridica, int idGrupoConvenio) {
         List lista = null;
         try {
@@ -94,7 +91,6 @@ public class ConvenioDBToplink extends DB implements ConvenioDB {
         }
     }
 
-    @Override
     public List pesquisaJuridicaPorGrupoESubGrupo(int idSubGrupoConvenio, int idGrupo) {
         try {
             Query qry = getEntityManager().createQuery(

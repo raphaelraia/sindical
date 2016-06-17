@@ -2,8 +2,7 @@ package br.com.rtools.associativo.beans;
 
 import br.com.rtools.associativo.Convenio;
 import br.com.rtools.associativo.SubGrupoConvenio;
-import br.com.rtools.associativo.db.ConvenioDB;
-import br.com.rtools.associativo.db.ConvenioDBToplink;
+import br.com.rtools.associativo.dao.ConvenioDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.utilitarios.GenericaSessao;
@@ -68,7 +67,7 @@ public class ConvenioBean implements Serializable {
         DaoInterface di = new Dao();
         di.openTransaction();
         if (convenio.getId() == -1) {
-            ConvenioDB db = new ConvenioDBToplink();
+            ConvenioDao db = new ConvenioDao();
             if (db.existeSubGrupoEmpresa(convenio)) {
                 message = "Convênio já existe!";
                 return;
@@ -169,7 +168,7 @@ public class ConvenioBean implements Serializable {
 
     public List<Convenio> getListConvenio() {
         if (listConvenio.isEmpty()) {
-            ConvenioDB db = new ConvenioDBToplink();
+            ConvenioDao db = new ConvenioDao();
             if (convenio.getJuridica().getId() != -1) {
                 listConvenio = db.listaTodosPorPessoa(order[0], order[1], order[2], convenio);
             } else {

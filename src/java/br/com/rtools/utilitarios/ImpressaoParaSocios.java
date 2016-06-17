@@ -5,8 +5,6 @@ import br.com.rtools.associativo.ModeloCarteirinha;
 import br.com.rtools.associativo.SocioCarteirinha;
 import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.dao.SociosDao;
-import br.com.rtools.associativo.db.SociosDB;
-import br.com.rtools.associativo.db.SociosDBToplink;
 import br.com.rtools.impressao.CartaoSocial;
 import br.com.rtools.impressao.FichaSocial;
 import br.com.rtools.pessoa.Fisica;
@@ -318,7 +316,7 @@ public class ImpressaoParaSocios {
         FisicaDB db = new FisicaDBToplink();
         PessoaEndereco pesEndereco, pesDestinatario, pesEndEmpresa, pesEndSindicato;
         PessoaEnderecoDao dbEnd = new PessoaEnderecoDao();
-        SociosDB dbSoc = new SociosDBToplink();
+        SociosDao dbSoc = new SociosDao();
         FacesContext faces = FacesContext.getCurrentInstance();
         
         Collection listaSocios = new ArrayList();

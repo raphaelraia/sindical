@@ -1,8 +1,7 @@
 package br.com.rtools.associativo.beans;
 
 import br.com.rtools.associativo.dao.ExtratoTelaSocialDao;
-import br.com.rtools.associativo.db.MovimentosReceberSocialDB;
-import br.com.rtools.associativo.db.MovimentosReceberSocialDBToplink;
+import br.com.rtools.associativo.dao.MovimentosReceberSocialDao;
 import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Servicos;
@@ -348,7 +347,7 @@ public class ExtratoTelaSocialBean implements Serializable {
                 ib.imprimirBoletoSocial(bol, "soc_socios_vw", false);
                 ib.setPathPasta(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/boletos"));
                 Pessoa pessoa_envio = null;
-                MovimentosReceberSocialDB dbs = new MovimentosReceberSocialDBToplink();
+                MovimentosReceberSocialDao dbs = new MovimentosReceberSocialDao();
 
                 if (tipoEnvio.equals("responsavel")) {
                     pessoa_envio = dbs.responsavelBoleto(bol.getNrCtrBoleto());

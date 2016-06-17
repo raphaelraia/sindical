@@ -1,12 +1,12 @@
 package br.com.rtools.movimento;
 
+import br.com.rtools.arrecadacao.dao.MensagemConvencaoDao;
 import br.com.rtools.arrecadacao.dao.CnaeConvencaoDao;
 import br.com.rtools.arrecadacao.dao.GrupoCidadesDao;
 import br.com.rtools.financeiro.dao.Plano5Dao;
 import br.com.rtools.arrecadacao.Acordo;
 import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.MensagemConvencao;
-import br.com.rtools.arrecadacao.db.*;
 import br.com.rtools.associativo.BoletoNaoBaixado;
 import br.com.rtools.financeiro.*;
 import br.com.rtools.financeiro.db.*;
@@ -312,7 +312,7 @@ public class GerarMovimento extends DB {
         NovoLog log = new NovoLog();
         Boleto boleto = new Boleto();
         MensagemConvencao mc = new MensagemConvencao();
-        MensagemConvencaoDB dbm = new MensagemConvencaoDBToplink();
+        MensagemConvencaoDao dbm = new MensagemConvencaoDao();
 
         MovimentoDB db = new MovimentoDBToplink();
         for (int i = 0; i < listaMovimento.size(); i++) {
@@ -632,7 +632,7 @@ public class GerarMovimento extends DB {
         NovoLog log = new NovoLog();
         Boleto boleto = new Boleto();
         MensagemConvencao mc = new MensagemConvencao();
-        MensagemConvencaoDB dbm = new MensagemConvencaoDBToplink();
+        MensagemConvencaoDao dbm = new MensagemConvencaoDao();
 
         MovimentoDB db = new MovimentoDBToplink();
 

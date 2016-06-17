@@ -1,4 +1,4 @@
-package br.com.rtools.associativo.db;
+package br.com.rtools.associativo.dao;
 
 import br.com.rtools.associativo.CVenda;
 import br.com.rtools.associativo.Reservas;
@@ -9,9 +9,8 @@ import java.util.List;
 import javax.persistence.Query;
 import oracle.toplink.essentials.exceptions.EJBQLException;
 
-public class VendasCaravanaDBToplink extends DB implements VendasCaravanaDB {
+public class VendasCaravanaDao extends DB {
 
-    @Override
     public CVenda pesquisaCodigo(int id) {
         CVenda result = null;
         try {
@@ -24,7 +23,6 @@ public class VendasCaravanaDBToplink extends DB implements VendasCaravanaDB {
         return result;
     }
 
-    @Override
     public List pesquisaTodos() {
         try {
             Query qry = getEntityManager().createQuery("select c from CVenda c");
@@ -35,7 +33,6 @@ public class VendasCaravanaDBToplink extends DB implements VendasCaravanaDB {
         }
     }
 
-    @Override
     public int qntReservas(int idEvento, int idGrupoEvento) {
         int qnt = -1;
         try {
@@ -51,7 +48,6 @@ public class VendasCaravanaDBToplink extends DB implements VendasCaravanaDB {
         }
     }
 
-    @Override
     public List<Integer> listaPoltronasUsadas(int idEvento) {
         List<Integer> list = new ArrayList();
         try {
@@ -67,7 +63,6 @@ public class VendasCaravanaDBToplink extends DB implements VendasCaravanaDB {
         }
     }
 
-    @Override
     public List<Reservas> listaReservasVenda(int idVenda) {
         List<Reservas> list = new ArrayList();
         try {
@@ -97,7 +92,6 @@ public class VendasCaravanaDBToplink extends DB implements VendasCaravanaDB {
         }
     }
 
-    @Override
     public List<Movimento> listaMovCaravana(int idResponsavel, int idEvt) {
         List<Movimento> list = new ArrayList();
         try {
@@ -114,7 +108,6 @@ public class VendasCaravanaDBToplink extends DB implements VendasCaravanaDB {
         }
     }
 
-    @Override
     public List<Movimento> listaMovCaravanaBaixado(int idLoteBaixa) {
         List<Movimento> list = new ArrayList();
         try {
@@ -129,7 +122,6 @@ public class VendasCaravanaDBToplink extends DB implements VendasCaravanaDB {
         }
     }
 
-    @Override
     public List<Object> listaTipoAgrupado(Integer id_venda) {
         try {
             Query qry = getEntityManager().createNativeQuery(

@@ -3,10 +3,8 @@ package br.com.rtools.associativo.beans;
 import br.com.rtools.arrecadacao.GrupoCidades;
 import br.com.rtools.associativo.SocioCarteirinha;
 import br.com.rtools.associativo.Socios;
-import br.com.rtools.associativo.db.SocioCarteirinhaDB;
-import br.com.rtools.associativo.db.SocioCarteirinhaDBToplink;
-import br.com.rtools.associativo.db.SociosDB;
-import br.com.rtools.associativo.db.SociosDBToplink;
+import br.com.rtools.associativo.dao.SocioCarteirinhaDao;
+import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.impressao.FichaSocial;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.FilialCidade;
@@ -90,7 +88,7 @@ public class SocioCarteirinhaJSFBean {
     }
 
     public List<Socios> getListaSocios() {
-        SocioCarteirinhaDB db = new SocioCarteirinhaDBToplink();
+        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
         FilialCidadeDBToplink dbC = new FilialCidadeDBToplink();
         PessoaEnderecoDao dbE = new PessoaEnderecoDao();
         FilialCidade filCidade;
@@ -243,7 +241,7 @@ public class SocioCarteirinhaJSFBean {
         PessoaEnderecoDao dbEnd = new PessoaEnderecoDao();
         PessoaEmpresa pesEmpresa = new PessoaEmpresa();
         PessoaEmpresaDB dbEmp = new PessoaEmpresaDBToplink();
-        SociosDB dbSoc = new SociosDBToplink();
+        SociosDao dbSoc = new SociosDao();
         String dados[] = new String[34];
         try {
             FacesContext faces = FacesContext.getCurrentInstance();

@@ -1,4 +1,4 @@
-package br.com.rtools.arrecadacao.db;
+package br.com.rtools.arrecadacao.dao;
 
 import br.com.rtools.arrecadacao.MensagemConvencao;
 import br.com.rtools.pessoa.Pessoa;
@@ -11,9 +11,8 @@ import java.util.Vector;
 import javax.persistence.Query;
 import oracle.toplink.essentials.exceptions.EJBQLException;
 
-public class MensagemConvencaoDBToplink extends DB implements MensagemConvencaoDB {
+public class MensagemConvencaoDao extends DB {
 
-    @Override
     public boolean insert(MensagemConvencao mensagemConvencao) {
         try {
             getEntityManager().getTransaction().begin();
@@ -27,7 +26,6 @@ public class MensagemConvencaoDBToplink extends DB implements MensagemConvencaoD
         }
     }
 
-    @Override
     public boolean update(MensagemConvencao mensagemConvencao) {
         try {
             getEntityManager().getTransaction().begin();
@@ -41,7 +39,6 @@ public class MensagemConvencaoDBToplink extends DB implements MensagemConvencaoD
         }
     }
 
-    @Override
     public boolean delete(MensagemConvencao mensagemConvencao) {
         try {
             getEntityManager().remove(mensagemConvencao);
@@ -52,7 +49,6 @@ public class MensagemConvencaoDBToplink extends DB implements MensagemConvencaoD
         }
     }
 
-    @Override
     public MensagemConvencao pesquisaCodigo(int id) {
         MensagemConvencao result = null;
         try {
@@ -64,7 +60,6 @@ public class MensagemConvencaoDBToplink extends DB implements MensagemConvencaoD
         return result;
     }
 
-    @Override
     public List pesquisaTodos() {
         try {
             Query qry = getEntityManager().createQuery("select cont from MensagemConvencao cont ");
@@ -74,7 +69,6 @@ public class MensagemConvencaoDBToplink extends DB implements MensagemConvencaoD
         }
     }
 
-    @Override
     public List pesquisaTodosOrdenados(String referencia, int idServicos, int idTipoServico) {
         List vetor;
         List<MensagemConvencao> listMen = new ArrayList();
@@ -103,7 +97,6 @@ public class MensagemConvencaoDBToplink extends DB implements MensagemConvencaoD
         }
     }
 
-    @Override
     public List pesquisaSemRef() {
         try {
             Query qry = getEntityManager().createQuery("select cont from MensagemConvencao cont"
@@ -114,7 +107,6 @@ public class MensagemConvencaoDBToplink extends DB implements MensagemConvencaoD
         }
     }
 
-    @Override
     public List pesquisaSemServ4() {
         try {
             Query qry = getEntityManager().createQuery("select cont from MensagemConvencao cont"
@@ -125,7 +117,6 @@ public class MensagemConvencaoDBToplink extends DB implements MensagemConvencaoD
         }
     }
 
-    @Override
     public MensagemConvencao verificaMensagem(int idConvencao, int idServicos, int idTipoServicos, int idGrupoCidade, String referencia) {
         MensagemConvencao result = null;
         List query = null;
@@ -156,7 +147,6 @@ public class MensagemConvencaoDBToplink extends DB implements MensagemConvencaoD
         return result;
     }
 
-    @Override
     public List mesmoTipoServico(int idServicos, int idTipoServico, String ano) {
         List result = new ArrayList();
         ano = "%" + ano + "%";
@@ -176,7 +166,6 @@ public class MensagemConvencaoDBToplink extends DB implements MensagemConvencaoD
         return result;
     }
 
-    @Override
     public MensagemConvencao retornaDiaString(int idJuridica, String ref, int idTipoServico, int idServicos) {
         // Modificado: 15/10/2014 - Query objeto deixava a rotina lenta;
         JuridicaDB db = new JuridicaDBToplink();
@@ -203,18 +192,17 @@ public class MensagemConvencaoDBToplink extends DB implements MensagemConvencaoD
                 + "    AND m.id_servicos       =  " + idServicos + "            "
                 + "    AND j.id = " + idJuridica + ";                           ";
         try {
-            Query query = getEntityManager().createNativeQuery(textQuery, MensagemConvencao.class); 
+            Query query = getEntityManager().createNativeQuery(textQuery, MensagemConvencao.class);
             List list = query.getResultList();
             if (!list.isEmpty() && list.size() == 1) {
                 return (MensagemConvencao) query.getSingleResult();
-            }            
-        } catch(Exception e) {
+            }
+        } catch (Exception e) {
             return null;
         }
         return null;
     }
 
-    @Override
     public MensagemConvencao retornaDiaString(Pessoa pessoa, String ref, int idTipoServico, int idServicos) {
         MensagemConvencao result = new MensagemConvencao();
         JuridicaDB db = new JuridicaDBToplink();
@@ -257,7 +245,6 @@ public class MensagemConvencaoDBToplink extends DB implements MensagemConvencaoD
         return result;
     }
 
-    @Override
     public MensagemConvencao pesquisarUltimaMensagem(int idConvencao, int idServicos, int idTipoServico, int idGrupoCidade) {
         MensagemConvencao result = new MensagemConvencao();
         try {

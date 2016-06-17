@@ -1,4 +1,4 @@
-package br.com.rtools.associativo.db;
+package br.com.rtools.associativo.dao;
 
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.TransferenciaCaixa;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Vector;
 import javax.persistence.Query;
 
-public class MovimentosReceberSocialDBToplink extends DB implements MovimentosReceberSocialDB {
+public class MovimentosReceberSocialDao extends DB {
 
     /**
      * <ul>
@@ -54,7 +54,6 @@ public class MovimentosReceberSocialDBToplink extends DB implements MovimentosRe
      * @param limite_pesquisa (Limite de resultados na lista)
      * @return
      */
-    @Override
     public List pesquisaListaMovimentos(String id_pessoa, String id_responsavel, String por_status, String referencia, String tipoPessoa, String lote_baixa, String limite_pesquisa) {
         try {
             if (id_pessoa.isEmpty()) {
@@ -175,7 +174,6 @@ public class MovimentosReceberSocialDBToplink extends DB implements MovimentosRe
         return new ArrayList();
     }
 
-    @Override
     public List dadosSocio(int id_lote) {
         try {
 
@@ -204,7 +202,6 @@ public class MovimentosReceberSocialDBToplink extends DB implements MovimentosRe
         return new ArrayList();
     }
 
-    @Override
     public Pessoa pesquisaPessoaPorBoleto(String boleto, int id_conta_cobranca) {
         Pessoa pessoa = null;
         String textqry
@@ -225,7 +222,6 @@ public class MovimentosReceberSocialDBToplink extends DB implements MovimentosRe
         return pessoa;
     }
 
-    @Override
     public float[] pesquisaValorAcrescimo(int id_movimento) {
         float[] valor = new float[2];
         String textqry
@@ -243,7 +239,6 @@ public class MovimentosReceberSocialDBToplink extends DB implements MovimentosRe
         return valor;
     }
 
-    @Override
     public List<Vector> listaBoletosAbertosAgrupado(int id_pessoa, boolean atrasados) {
         String textqry
                 = " SELECT b.id, b.nr_ctr_boleto, b.ds_boleto, sum(m.nr_valor), b.dt_vencimento, b.dt_vencimento_original, b.ds_mensagem \n"
@@ -268,7 +263,6 @@ public class MovimentosReceberSocialDBToplink extends DB implements MovimentosRe
         return new ArrayList();
     }
 
-    @Override
     public List<Movimento> listaMovimentosAbertosAnexarAgrupado(int id_pessoa, int id_responsavel) {
         String textqry
                 = " SELECT m.* \n"
@@ -297,7 +291,6 @@ public class MovimentosReceberSocialDBToplink extends DB implements MovimentosRe
         return new ArrayList();
     }
 
-    @Override
     public List<Movimento> listaMovimentosPorNrCtrBoleto(String nr_ctr_boleto) {
 //        String textqry
 //            = " SELECT m " +
@@ -323,7 +316,6 @@ public class MovimentosReceberSocialDBToplink extends DB implements MovimentosRe
         return new ArrayList();
     }
 
-    @Override
     public Pessoa responsavelBoleto(String nr_ctr_boleto) {
         String textqry
                 = " SELECT m.id_pessoa \n "
@@ -343,7 +335,6 @@ public class MovimentosReceberSocialDBToplink extends DB implements MovimentosRe
         return null;
     }
 
-    @Override
     public List<TransferenciaCaixa> transferenciaCaixa(Integer id_fechamento_caixa_saida) {
         String textqry
                 = " SELECT tc "

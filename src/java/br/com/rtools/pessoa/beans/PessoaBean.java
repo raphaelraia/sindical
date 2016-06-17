@@ -6,6 +6,7 @@ import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.beans.CupomMovimentoBean;
 import br.com.rtools.associativo.beans.FrequenciaCatracaBean;
 import br.com.rtools.associativo.beans.SorteioMovimentoBean;
+import br.com.rtools.associativo.dao.SociosDao2;
 import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.cobranca.beans.TmktHistoricoBean;
 import br.com.rtools.digitalizacao.beans.DigitalizacaoBean;

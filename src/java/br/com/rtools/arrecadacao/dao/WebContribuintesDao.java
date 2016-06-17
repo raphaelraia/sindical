@@ -1,13 +1,12 @@
-package br.com.rtools.arrecadacao.db;
+package br.com.rtools.arrecadacao.dao;
 
 import br.com.rtools.principal.DB;
 import java.util.List;
 import java.util.Vector;
 import javax.persistence.Query;
 
-public class WebContribuintesDBToplink extends DB implements WebContribuintesDB {
+public class WebContribuintesDao extends DB {
 
-    @Override
     public List pesquisaMovParaWebContribuinte(int id_pessoa) {
         List result = new Vector();
         Query qry = null;
@@ -68,7 +67,6 @@ public class WebContribuintesDBToplink extends DB implements WebContribuintesDB 
 //        return result;
 //    }
 
-    @Override
     public List pesquisaMovParaWebContribuinteComRef(int id_pessoa, String referencia) {
         List result = new Vector();
         Query qry = null;

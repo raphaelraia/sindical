@@ -1,4 +1,4 @@
-package br.com.rtools.associativo.db;
+package br.com.rtools.associativo.dao;
 
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Spc;
@@ -10,9 +10,8 @@ import java.util.List;
 import java.util.Vector;
 import javax.persistence.Query;
 
-public class LancamentoIndividualDBToplink extends DB implements LancamentoIndividualDB {
+public class LancamentoIndividualDao extends DB {
 
-    @Override
     public List pesquisaResponsavel(int id_pessoa, boolean desconto_folha) {
         try {
             String textqry = " select func_responsavel(" + id_pessoa + ", " + desconto_folha + ");";
@@ -26,7 +25,6 @@ public class LancamentoIndividualDBToplink extends DB implements LancamentoIndiv
         return new ArrayList();
     }
 
-    @Override
     public List pesquisaContribuinteLancamento(int id_pessoa) {
         try {
             String textqry = " select * from arr_contribuintes_vw where id_pessoa = " + id_pessoa + " and motivo = 'FECHOU'";
@@ -40,11 +38,10 @@ public class LancamentoIndividualDBToplink extends DB implements LancamentoIndiv
         return new ArrayList();
     }
 
-    @Override
     public List pesquisaMovimentoFisica(int id_pessoa) {
         try {
-            String textqry = 
-                      " SELECT * \n "
+            String textqry
+                    = " SELECT * \n "
                     + "   FROM fin_movimento m \n "
                     + "  WHERE m.dt_vencimento < CURRENT_DATE \n "
                     + "    AND m.id_pessoa = " + id_pessoa + " "
@@ -60,7 +57,6 @@ public class LancamentoIndividualDBToplink extends DB implements LancamentoIndiv
         return new ArrayList();
     }
 
-    @Override
     public List<Juridica> listaEmpresaConveniada(int id_servico) {
         try {
             List<Vector> vetor = new ArrayList<Vector>();
@@ -88,7 +84,6 @@ public class LancamentoIndividualDBToplink extends DB implements LancamentoIndiv
         return new ArrayList();
     }
 
-    @Override
     public List<Juridica> listaEmpresaConveniadaPorSubGrupo(int id_sub_grupo) {
         try {
             String textqry = " "
@@ -109,7 +104,6 @@ public class LancamentoIndividualDBToplink extends DB implements LancamentoIndiv
         }
     }
 
-    @Override
     public List<Spc> listaSerasa(int id_pessoa) {
         try {
             List<Spc> result = new ArrayList();
@@ -126,7 +120,6 @@ public class LancamentoIndividualDBToplink extends DB implements LancamentoIndiv
         return new ArrayList();
     }
 
-    @Override
     public List<Vector> pesquisaServicoValor(int id_pessoa, int id_servico) {
         try {
             String textqry = " select func_valor_servico(" + id_pessoa + ", " + id_servico + ", current_date, 0, 0) ";

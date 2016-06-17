@@ -4,15 +4,13 @@ import br.com.rtools.associativo.Categoria;
 import br.com.rtools.associativo.ModeloCarteirinha;
 import br.com.rtools.associativo.ModeloCarteirinhaCategoria;
 import br.com.rtools.associativo.dao.ModeloCarteirinhaCategoriaDao;
-import br.com.rtools.associativo.db.SocioCarteirinhaDBToplink;
+import br.com.rtools.associativo.dao.SocioCarteirinhaDao;
 import br.com.rtools.associativo.lista.ListModeloCarterinhaCategoria;
 import br.com.rtools.seguranca.Rotina;
-import br.com.rtools.seguranca.dao.RotinaDao;
 import br.com.rtools.sistema.ConfiguracaoUpload;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
-import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.Upload;
 import java.io.File;
 import java.util.ArrayList;
@@ -109,7 +107,7 @@ public class ModeloCarteirinhaBean {
                 break;
             }
         }
-        ModeloCarteirinhaCategoria exists = new SocioCarteirinhaDBToplink().pesquisaModeloCarteirinhaCategoria(mc.getId(), (mcc.getCategoria() == null) ? -1 : mcc.getCategoria().getId(), mcc.getRotina().getId());
+        ModeloCarteirinhaCategoria exists = new SocioCarteirinhaDao().pesquisaModeloCarteirinhaCategoria(mc.getId(), (mcc.getCategoria() == null) ? -1 : mcc.getCategoria().getId(), mcc.getRotina().getId());
         if (exists != null) {
             GenericaMensagem.warn("Validação", "Modelo já existe!");
             return;

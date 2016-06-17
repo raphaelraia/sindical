@@ -2,8 +2,7 @@ package br.com.rtools.arrecadacao.beans;
 
 import br.com.rtools.arrecadacao.ConvencaoCidade;
 import br.com.rtools.arrecadacao.MensagemConvencao;
-import br.com.rtools.arrecadacao.db.MensagemConvencaoDB;
-import br.com.rtools.arrecadacao.db.MensagemConvencaoDBToplink;
+import br.com.rtools.arrecadacao.dao.MensagemConvencaoDao;
 import br.com.rtools.arrecadacao.lista.ListaContribuicao;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.db.ServicosDB;
@@ -98,7 +97,7 @@ public class ContribuicaoBean {
 //    public void alterarServicoDaGrid(int index) {
 //        try {
 //            int x = Integer.parseInt(String.valueOf(lista.get(index).getArgumento5()));
-//            MensagemConvencaoDB mensagemConvencaoDB = new MensagemConvencaoDBToplink();
+//            MensagemConvencaoDB mensagemConvencaoDB = new MensagemConvencaoDao();
 //            MensagemConvencao mensagemConvencao = mensagemConvencaoDB.verificaMensagem(
 //                    ((ConvencaoCidade) lista.get(index).getArgumento2()).getConvencao().getId(),
 //                    listServicos.get(x).getId(),
@@ -114,7 +113,7 @@ public class ContribuicaoBean {
     public void updateServico(int index) {
         try {
             int x = Integer.parseInt(String.valueOf(lista.get(index).getArgumento5()));
-            MensagemConvencaoDB mensagemConvencaoDB = new MensagemConvencaoDBToplink();
+            MensagemConvencaoDao mensagemConvencaoDB = new MensagemConvencaoDao();
             MensagemConvencao mensagemConvencao = mensagemConvencaoDB.verificaMensagem(
                     listaContribuicoes.get(index).getConvencaoCidade().getConvencao().getId(),
                     listServicos.get(x).getId(),
@@ -133,7 +132,7 @@ public class ContribuicaoBean {
 //            return lista;
 //        } else {
 //            if ((new DataHoje()).integridadeReferencia(referencia)) {
-//                MensagemConvencaoDB mensagemConvencaoDB = new MensagemConvencaoDBToplink();
+//                MensagemConvencaoDB mensagemConvencaoDB = new MensagemConvencaoDao();
 //                MensagemConvencao mensagemConvencao;
 //                ConvencaoCidadeDB conDB = new ConvencaoCidadeDao();
 //                List<ConvencaoCidade> listaConvencaoCidade = conDB.pesquisaTodos();
@@ -341,7 +340,7 @@ public class ContribuicaoBean {
         if (!listaContribuicoes.isEmpty()) {
             return listaContribuicoes;
         } else if ((new DataHoje()).integridadeReferencia(referencia)) {
-            MensagemConvencaoDB mensagemConvencaoDB = new MensagemConvencaoDBToplink();
+            MensagemConvencaoDao mensagemConvencaoDB = new MensagemConvencaoDao();
             MensagemConvencao mensagemConvencao;
             List<ConvencaoCidade> listaConvencaoCidade = new Dao().list(new ConvencaoCidade(), true);
             if (listaConvencaoCidade == null) {

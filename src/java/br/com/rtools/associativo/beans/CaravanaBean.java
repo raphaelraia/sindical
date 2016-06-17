@@ -4,7 +4,6 @@ import br.com.rtools.associativo.dao.EventoServicoValorDao;
 import br.com.rtools.associativo.dao.DescricaoEventoDao;
 import br.com.rtools.associativo.dao.EventoServicoDao;
 import br.com.rtools.associativo.*;
-import br.com.rtools.associativo.db.*;
 import br.com.rtools.financeiro.Evt;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.db.ServicosDB;

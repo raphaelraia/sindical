@@ -1,4 +1,4 @@
-package br.com.rtools.associativo.db;
+package br.com.rtools.associativo.dao;
 
 import br.com.rtools.associativo.MatriculaConvenioMedico;
 import br.com.rtools.principal.DB;
@@ -6,11 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 
-public class MatriculaConvenioMedicoDBToplink extends DB implements MatriculaConvenioMedicoDB {
+public class MatriculaConvenioMedicoDao extends DB {
 
-    @Override
     public List pesquisaConvenioMedico(String desc, String por, String como, Boolean ativo) {
-        if(desc.isEmpty()) {
+        if (desc.isEmpty()) {
             return new ArrayList();
         }
         List lista = new ArrayList<>();
@@ -58,19 +57,18 @@ public class MatriculaConvenioMedicoDBToplink extends DB implements MatriculaCon
             return new ArrayList<>();
         }
     }
-    
-    @Override
-    public List<MatriculaConvenioMedico> listaConvenioPessoa(int id_pessoa, int id_servico){
-        String text = "SELECT mm.* \n" +
-                      "  FROM matr_convenio_medico mm \n " +
-                      " INNER JOIN fin_servico_pessoa sp ON sp.id = mm.id_servico_pessoa \n " +
-                      " INNER JOIN fin_servicos s ON s.id = sp.id_servico \n " +
-                      " WHERE sp.id_pessoa = "+id_pessoa+" \n " +
-                      "   AND mm.dt_inativo is null \n " +
-                      "   AND sp.id_servico = "+id_servico;
-        
+
+    public List<MatriculaConvenioMedico> listaConvenioPessoa(int id_pessoa, int id_servico) {
+        String text = "SELECT mm.* \n"
+                + "  FROM matr_convenio_medico mm \n "
+                + " INNER JOIN fin_servico_pessoa sp ON sp.id = mm.id_servico_pessoa \n "
+                + " INNER JOIN fin_servicos s ON s.id = sp.id_servico \n "
+                + " WHERE sp.id_pessoa = " + id_pessoa + " \n "
+                + "   AND mm.dt_inativo is null \n "
+                + "   AND sp.id_servico = " + id_servico;
+
         Query qry = getEntityManager().createNativeQuery(text, MatriculaConvenioMedico.class);
-        
+
         try {
             return qry.getResultList();
         } catch (Exception e) {

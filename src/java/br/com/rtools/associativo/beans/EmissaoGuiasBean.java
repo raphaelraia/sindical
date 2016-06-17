@@ -5,14 +5,10 @@ import br.com.rtools.associativo.HistoricoEmissaoGuias;
 import br.com.rtools.associativo.MatriculaSocios;
 import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.SubGrupoConvenio;
-import br.com.rtools.associativo.db.ConvenioServicoDB;
-import br.com.rtools.associativo.db.ConvenioServicoDBToplink;
-import br.com.rtools.associativo.db.LancamentoIndividualDB;
-import br.com.rtools.associativo.db.LancamentoIndividualDBToplink;
-import br.com.rtools.associativo.db.SociosDB;
-import br.com.rtools.associativo.db.SociosDBToplink;
-import br.com.rtools.associativo.db.SubGrupoConvenioDB;
-import br.com.rtools.associativo.db.SubGrupoConvenioDBToplink;
+import br.com.rtools.associativo.dao.ConvenioServicoDao;
+import br.com.rtools.associativo.dao.LancamentoIndividualDao;
+import br.com.rtools.associativo.dao.SociosDao;
+import br.com.rtools.associativo.dao.SubGrupoConvenioDao;
 import br.com.rtools.estoque.Estoque;
 import br.com.rtools.estoque.EstoqueTipo;
 import br.com.rtools.estoque.Pedido;
@@ -566,7 +562,7 @@ public class EmissaoGuiasBean implements Serializable {
         float valorx = Moeda.converteUS$(valor);
         Servicos servicos = (Servicos) di.find(new Servicos(), Integer.parseInt(getListServicos().get(index[2]).getDescription()));
         MovimentoDB db = new MovimentoDBToplink();
-        //SociosDB dbs = new SociosDBToplink();
+        //SociosDB dbs = new SociosDao();
         listaMovimentosEmitidos.clear();
         if (servicos.getPeriodo() != null) {
             DataHoje dh = new DataHoje();
@@ -999,7 +995,7 @@ public class EmissaoGuiasBean implements Serializable {
             FisicaDB db = new FisicaDBToplink();
             fisica = db.pesquisaFisicaPorPessoa(pessoa.getId());
 
-            SociosDB dbs = new SociosDBToplink();
+            SociosDao dbs = new SociosDao();
             socios = dbs.pesquisaSocioPorPessoaAtivo(pessoa.getId());
             listenerEnabledItensPedido();
             if (new FunctionsDao().inadimplente(pessoa.getId())) {
@@ -1014,7 +1010,7 @@ public class EmissaoGuiasBean implements Serializable {
             pessoa = fisica.getPessoa();
             isFisica = true;
 
-            SociosDB dbs = new SociosDBToplink();
+            SociosDao dbs = new SociosDao();
             socios = dbs.pesquisaSocioPorPessoaAtivo(pessoa.getId());
             listenerEnabledItensPedido();
             if (new FunctionsDao().inadimplente(pessoa.getId())) {
@@ -1060,7 +1056,7 @@ public class EmissaoGuiasBean implements Serializable {
     public List<SelectItem> getListSubGrupo() {
         if (listSelectItem[1].isEmpty()) {
             if (!listSelectItem[0].isEmpty()) {
-                SubGrupoConvenioDB db = new SubGrupoConvenioDBToplink();
+                SubGrupoConvenioDao db = new SubGrupoConvenioDao();
                 List<SubGrupoConvenio> list = (List<SubGrupoConvenio>) db.listaSubGrupoConvenioPorGrupo(Integer.parseInt(listSelectItem[0].get(index[0]).getDescription()));
                 for (int i = 0; i < list.size(); i++) {
                     listSelectItem[1].add(new SelectItem(i, list.get(i).getDescricao(), Integer.toString(list.get(i).getId())
@@ -1077,7 +1073,7 @@ public class EmissaoGuiasBean implements Serializable {
 
     public List<SelectItem> getListServicos() {
         if (listSelectItem[2].isEmpty()) {
-            ConvenioServicoDB db = new ConvenioServicoDBToplink();
+            ConvenioServicoDao db = new ConvenioServicoDao();
 
             listSelectItem[2].add(new SelectItem(0, "-- Selecione um Serviço --", "0"));
 
@@ -1093,7 +1089,7 @@ public class EmissaoGuiasBean implements Serializable {
 
     public List<SelectItem> getListJuridica() {
         if (listSelectItem[3].isEmpty()) {
-            LancamentoIndividualDB db = new LancamentoIndividualDBToplink();
+            LancamentoIndividualDao db = new LancamentoIndividualDao();
             if (getListSubGrupo().isEmpty()) {
                 return listSelectItem[3];
             }
@@ -1412,7 +1408,7 @@ public class EmissaoGuiasBean implements Serializable {
             if (pessoa.getId() != -1) {
                 //if (!enabledItensPedido) {
                 if (!servicox.isProduto()) {
-                    LancamentoIndividualDB db = new LancamentoIndividualDBToplink();
+                    LancamentoIndividualDao db = new LancamentoIndividualDao();
                     List<Vector> valorx = db.pesquisaServicoValor(pessoa.getId(), Integer.parseInt(getListServicos().get(index[2]).getDescription()));
                     if (!valorx.isEmpty()) {
                         float vl = Float.valueOf(((Double) valorx.get(0).get(0)).toString());

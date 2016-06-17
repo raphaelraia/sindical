@@ -1,10 +1,10 @@
 package br.com.rtools.arrecadacao.beans;
 
+import br.com.rtools.arrecadacao.dao.MensagemConvencaoDao;
 import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.GrupoCidade;
 import br.com.rtools.arrecadacao.MensagemConvencao;
 import br.com.rtools.arrecadacao.dao.ConvencaoCidadeDao;
-import br.com.rtools.arrecadacao.db.*;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.db.ServicosDB;
@@ -49,7 +49,7 @@ public class MensagemConvencaoBean {
     }
 
     public String replicar() {
-        MensagemConvencaoDB db = new MensagemConvencaoDBToplink();
+        MensagemConvencaoDao db = new MensagemConvencaoDao();
         List<MensagemConvencao> listam = new ArrayList();
 
         listam = db.pesquisaTodosAno(this.getListaRefReplica().get(idReplica).getLabel());
@@ -171,7 +171,7 @@ public class MensagemConvencaoBean {
     }
 
     public synchronized String salvar() {
-        MensagemConvencaoDB db = new MensagemConvencaoDBToplink();
+        MensagemConvencaoDao db = new MensagemConvencaoDao();
         ConvencaoCidadeDao dbc = new ConvencaoCidadeDao();
         DataHoje dataHoje = new DataHoje();
         mensagemConvencao.setVencimento(vencimento);
@@ -417,7 +417,7 @@ public class MensagemConvencaoBean {
 
     private synchronized String insertMensagem(int idConv, int idGrupo, int idServ, int idTipo, String referencia, String vencimento) {
         Dao dao = new Dao();
-        MensagemConvencaoDB db = new MensagemConvencaoDBToplink();
+        MensagemConvencaoDao db = new MensagemConvencaoDao();
         String result = "";
         mensagemConvencao.setConvencao((Convencao) dao.find(new Convencao(), idConv));
         mensagemConvencao.setGrupoCidade((GrupoCidade) dao.find(new GrupoCidade(), idGrupo));
@@ -506,7 +506,7 @@ public class MensagemConvencaoBean {
 
     public List getListaMensagens() {
         if ((!this.getListaServico().isEmpty()) && (!this.getListaTipoServico().isEmpty())) {
-            MensagemConvencaoDB db = new MensagemConvencaoDBToplink();
+            MensagemConvencaoDao db = new MensagemConvencaoDao();
             int vetorInt[] = new int[2];
             vetorInt[0] = Integer.parseInt(this.getListaServico().get(idServico).getDescription());
             vetorInt[1] = Integer.parseInt(this.getListaTipoServico().get(idTipoServico).getDescription());
@@ -659,7 +659,7 @@ public class MensagemConvencaoBean {
     }
 
     public void capturarUltimaMensagem() {
-        MensagemConvencaoDB mensagemDB = new MensagemConvencaoDBToplink();
+        MensagemConvencaoDao mensagemDB = new MensagemConvencaoDao();
         this.mensagemConvencao.getConvencao().setId(-1);
         this.mensagemConvencao.getGrupoCidade().setId(-1);
         this.mensagemConvencao.getTipoServico().setId(-1);

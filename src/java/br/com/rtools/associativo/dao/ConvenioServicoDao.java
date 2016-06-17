@@ -1,4 +1,4 @@
-package br.com.rtools.associativo.db;
+package br.com.rtools.associativo.dao;
 
 import br.com.rtools.associativo.ConvenioServico;
 import br.com.rtools.principal.DB;
@@ -7,7 +7,7 @@ import java.util.List;
 import javax.persistence.Query;
 import oracle.toplink.essentials.exceptions.EJBQLException;
 
-public class ConvenioServicoDBToplink extends DB implements ConvenioServicoDB {
+public class ConvenioServicoDao extends DB {
 
     public boolean insert(ConvenioServico convenioServico) {
         try {
@@ -84,7 +84,6 @@ public class ConvenioServicoDBToplink extends DB implements ConvenioServicoDB {
         }
     }
 
-    @Override
     public List pesquisaServicosSubGrupoConvenio(int idSubGrupo) {
         try {
             Query qry = getEntityManager().createQuery("select cs.servicos from ConvenioServico cs where cs.subGrupoConvenio.id = " + idSubGrupo + " order by cs.servicos.descricao");

@@ -1,8 +1,7 @@
 package br.com.rtools.associativo.beans;
 
 import br.com.rtools.associativo.Socios;
-import br.com.rtools.associativo.db.LancamentoIndividualDB;
-import br.com.rtools.associativo.db.LancamentoIndividualDBToplink;
+import br.com.rtools.associativo.dao.LancamentoIndividualDao;
 import br.com.rtools.financeiro.CondicaoPagamento;
 import br.com.rtools.financeiro.FStatus;
 import br.com.rtools.financeiro.FTipoDocumento;
@@ -411,7 +410,7 @@ public class LancamentoIndividualBean implements Serializable {
             fisica = (Fisica) GenericaSessao.getObject("fisicaPesquisa");
 
             Socios s = fisica.getPessoa().getSocios();
-            LancamentoIndividualDB dbl = new LancamentoIndividualDBToplink();
+            LancamentoIndividualDao dbl = new LancamentoIndividualDao();
             if (!dbl.listaSerasa(fisica.getPessoa().getId()).isEmpty()) {
                 GenericaMensagem.warn("PESSOA", fisica.getPessoa().getNome() + " contém o nome no Serasa!");
             }
@@ -489,7 +488,7 @@ public class LancamentoIndividualBean implements Serializable {
         }
 
         // CADASTRO NO SERASA
-        LancamentoIndividualDB dbl = new LancamentoIndividualDBToplink();
+        LancamentoIndividualDao dbl = new LancamentoIndividualDao();
         if (!dbl.listaSerasa(responsavel.getId()).isEmpty()) {
             GenericaMensagem.warn("PESSOA", responsavel.getNome() + " contém o nome no Serasa!");
         }
@@ -518,7 +517,7 @@ public class LancamentoIndividualBean implements Serializable {
         /*
          JuridicaDB dbj = new JuridicaDBToplink();
          FisicaDB dbf = new FisicaDBToplink();
-         LancamentoIndividualDB dbl = new LancamentoIndividualDBToplink();
+         LancamentoIndividualDB dbl = new LancamentoIndividualDao();
 
          if (GenericaSessao.exists("pessoaPesquisa")){
          responsavel = (Pessoa) GenericaSessao.getObject("pessoaPesquisa");
@@ -686,7 +685,7 @@ public class LancamentoIndividualBean implements Serializable {
 
     public List<SelectItem> getListaJuridica() {
         if (listaJuridica.isEmpty() && !listaServicos.isEmpty()) {
-            LancamentoIndividualDB db = new LancamentoIndividualDBToplink();
+            LancamentoIndividualDao db = new LancamentoIndividualDao();
             List<Juridica> result = db.listaEmpresaConveniada(Integer.parseInt(listaServicos.get(idServico).getDescription()));
 
             if (listaServicos.isEmpty() || result.isEmpty()) {
@@ -749,7 +748,7 @@ public class LancamentoIndividualBean implements Serializable {
 
     public String getTotalPagar() {
         if (fisica.getId() != -1 && !listaServicos.isEmpty()) {
-            LancamentoIndividualDB db = new LancamentoIndividualDBToplink();
+            LancamentoIndividualDao db = new LancamentoIndividualDao();
 
             if (!listaServicos.get(idServico).getDescription().equals("0")) {
                 Servicos se = (Servicos) (new SalvarAcumuladoDBToplink().pesquisaCodigo(Integer.parseInt(listaServicos.get(idServico).getDescription()), "Servicos"));

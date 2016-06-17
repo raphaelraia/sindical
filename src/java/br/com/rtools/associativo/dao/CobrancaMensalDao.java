@@ -1,4 +1,4 @@
-package br.com.rtools.associativo.db;
+package br.com.rtools.associativo.dao;
 
 import br.com.rtools.financeiro.ServicoPessoa;
 import br.com.rtools.principal.DB;
@@ -6,25 +6,23 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 
-public class CobrancaMensalDBToplink extends DB implements CobrancaMensalDB {
-    
-    @Override
+public class CobrancaMensalDao extends DB {
+
     public List<ServicoPessoa> listaCobrancaMensal(int id_pessoa) {
-        try{
+        try {
             List<ServicoPessoa> result = new ArrayList();
-           
+
             String textqry = "SELECT sp "
                     + "  FROM ServicoPessoa sp "
                     + " WHERE sp.ativo = TRUE ";
-                    
-    
-            if (id_pessoa != -1){
-                textqry += " AND sp.pessoa.id = "+id_pessoa;
+
+            if (id_pessoa != -1) {
+                textqry += " AND sp.pessoa.id = " + id_pessoa;
             }
-            
+
             textqry += " ORDER BY sp.pessoa.nome ASC";
             Query qry = getEntityManager().createQuery(textqry);
-            
+
             result = qry.getResultList();
             return result;
         } catch (Exception e) {
@@ -32,19 +30,18 @@ public class CobrancaMensalDBToplink extends DB implements CobrancaMensalDB {
         }
         return new ArrayList();
     }
-    
-    @Override
+
     public List<ServicoPessoa> listaCobrancaMensalServico(int id_pessoa, int id_servico) {
-        try{
+        try {
             List<ServicoPessoa> result = new ArrayList();
-            
+
             String textqry = "SELECT sp "
                     + "  FROM ServicoPessoa sp "
                     + " WHERE sp.ativo = TRUE "
-                    + "   AND sp.pessoa.id = " + id_pessoa 
+                    + "   AND sp.pessoa.id = " + id_pessoa
                     + "   AND sp.servicos.id = " + id_servico;
             Query qry = getEntityManager().createQuery(textqry);
-            
+
             result = qry.getResultList();
             return result;
         } catch (Exception e) {
@@ -52,27 +49,25 @@ public class CobrancaMensalDBToplink extends DB implements CobrancaMensalDB {
         }
         return new ArrayList();
     }
-    
-    @Override
+
     public List<ServicoPessoa> listaCobrancaMensalFiltro(String por, String desc) {
-        try{
+        try {
             List<ServicoPessoa> result = new ArrayList();
             desc = desc.toUpperCase();
-            String textqry = 
-                    "   SELECT sp "
+            String textqry
+                    = "   SELECT sp "
                     + "   FROM ServicoPessoa sp "
                     + "  WHERE sp.ativo = TRUE ";
-                    
-    
-            if (por.equals("beneficiario")){
-                textqry += " AND sp.pessoa.nome like '%"+desc+"%'";
-            }else if (por.equals("responsavel")){
-                textqry += " AND sp.cobranca.nome like '%"+desc+"%'";
+
+            if (por.equals("beneficiario")) {
+                textqry += " AND sp.pessoa.nome like '%" + desc + "%'";
+            } else if (por.equals("responsavel")) {
+                textqry += " AND sp.cobranca.nome like '%" + desc + "%'";
             }
-            
+
             textqry += " ORDER BY sp.pessoa.nome ASC";
             Query qry = getEntityManager().createQuery(textqry);
-            
+
             result = qry.getResultList();
             return result;
         } catch (Exception e) {
