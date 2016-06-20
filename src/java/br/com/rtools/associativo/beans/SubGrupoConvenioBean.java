@@ -3,8 +3,7 @@ package br.com.rtools.associativo.beans;
 import br.com.rtools.associativo.ConvenioServico;
 import br.com.rtools.associativo.GrupoConvenio;
 import br.com.rtools.associativo.SubGrupoConvenio;
-import br.com.rtools.associativo.db.SubGrupoConvenioDB;
-import br.com.rtools.associativo.db.SubGrupoConvenioDBToplink;
+import br.com.rtools.associativo.dao.SubGrupoConvenioDao;
 import br.com.rtools.financeiro.GrupoFinanceiro;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.SubGrupoFinanceiro;
@@ -125,7 +124,7 @@ public class SubGrupoConvenioBean implements Serializable {
         }
         DaoInterface di = new Dao();
         NovoLog novoLog = new NovoLog();
-        SubGrupoConvenioDB sgcdb = new SubGrupoConvenioDBToplink();
+        SubGrupoConvenioDao sgcdb = new SubGrupoConvenioDao();
         subGrupoConvenio.setGrupoConvenio((GrupoConvenio) di.find(new GrupoConvenio(), Integer.parseInt(listGrupoConvenio.get(idGrupoConvenio).getDescription())));
         if (subGrupoConvenio.getId() == -1) {
             if (sgcdb.existeSubGrupoConvenio(subGrupoConvenio)) {
@@ -228,7 +227,7 @@ public class SubGrupoConvenioBean implements Serializable {
     public List<ListServicosSubGrupoFinanceiro> getListServicosDisponiveis() {
         if (listServicosDisponiveis.isEmpty()) {
             if (!listSubGrupoConvenio.isEmpty()) {
-                SubGrupoConvenioDB subGrupoConvenioDB = new SubGrupoConvenioDBToplink();
+                SubGrupoConvenioDao subGrupoConvenioDB = new SubGrupoConvenioDao();
                 if (enableGroup) {
                     if (enableSubGroup) {
                         List<Servicos> list = (List<Servicos>) subGrupoConvenioDB.listaServicosDisponiveisPorGrupoFinanceiro(Integer.parseInt(listSubGrupoConvenio.get(idSubGrupoConvenio).getDescription()), Integer.parseInt(getListGrupoFinanceiro().get(idGrupoFinanceiro).getDescription()));
@@ -277,7 +276,7 @@ public class SubGrupoConvenioBean implements Serializable {
     public List<ConvenioServico> getListServicosAdicionados() {
         listServicosAdicionados.clear();
         if (!listSubGrupoConvenio.isEmpty()) {
-            SubGrupoConvenioDB subGrupoConvenioDB = new SubGrupoConvenioDBToplink();
+            SubGrupoConvenioDao subGrupoConvenioDB = new SubGrupoConvenioDao();
             listServicosAdicionados = subGrupoConvenioDB.listaServicosAdicionados(Integer.parseInt(listSubGrupoConvenio.get(idSubGrupoConvenio).getDescription()));
         }
         return listServicosAdicionados;
@@ -407,7 +406,7 @@ public class SubGrupoConvenioBean implements Serializable {
 
     public List<SelectItem> getListSubGrupoConvenio() {
         if (listSubGrupoConvenio.isEmpty() && !listGrupoConvenio.isEmpty()) {
-            SubGrupoConvenioDB subGrupoConvenioDB = new SubGrupoConvenioDBToplink();
+            SubGrupoConvenioDao subGrupoConvenioDB = new SubGrupoConvenioDao();
             List<SubGrupoConvenio> list = subGrupoConvenioDB.listaSubGrupoConvenioPorGrupo(Integer.parseInt(listGrupoConvenio.get(idGrupoConvenioFiltro).getDescription()));
             for (int i = 0; i < list.size(); i++) {
                 listSubGrupoConvenio.add(new SelectItem(i, list.get(i).getDescricao(), Integer.toString(list.get(i).getId())));

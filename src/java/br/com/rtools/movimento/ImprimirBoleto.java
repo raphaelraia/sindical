@@ -8,8 +8,7 @@ import br.com.rtools.arrecadacao.dao.ConvencaoServicoDao;
 import br.com.rtools.arrecadacao.dao.AcordoDao;
 import br.com.rtools.arrecadacao.dao.CnaeConvencaoDao;
 import br.com.rtools.arrecadacao.dao.ConvencaoCidadeDao;
-import br.com.rtools.associativo.db.MovimentosReceberSocialDB;
-import br.com.rtools.associativo.db.MovimentosReceberSocialDBToplink;
+import br.com.rtools.associativo.dao.MovimentosReceberSocialDao;
 import br.com.rtools.cobranca.*;
 import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.ContaCobranca;
@@ -2213,7 +2212,7 @@ public class ImprimirBoleto {
                 file_promo_verso = null;
             }
 
-            MovimentosReceberSocialDB dbs = new MovimentosReceberSocialDBToplink();
+            MovimentosReceberSocialDao dbs = new MovimentosReceberSocialDao();
             JuridicaDB dbj = new JuridicaDBToplink();
             FisicaDB dbf = new FisicaDBToplink();
 

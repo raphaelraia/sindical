@@ -5,8 +5,7 @@ import br.com.rtools.associativo.DescontoSocial;
 import br.com.rtools.associativo.MatriculaSocios;
 import br.com.rtools.associativo.Midia;
 import br.com.rtools.associativo.Socios;
-import br.com.rtools.associativo.db.LancamentoIndividualDB;
-import br.com.rtools.associativo.db.LancamentoIndividualDBToplink;
+import br.com.rtools.associativo.dao.LancamentoIndividualDao;
 import br.com.rtools.escola.*;
 import br.com.rtools.escola.dao.MatriculaContratoDao;
 import br.com.rtools.escola.dao.MatriculaEscolaDao;
@@ -1582,7 +1581,7 @@ public class MatriculaEscolaBean implements Serializable {
         if (tipoFisica.equals("aluno")) {
             aluno = (Fisica) GenericaSessao.getObject("fisicaPesquisa", true);
             verificaSocio();
-            LancamentoIndividualDB dbl = new LancamentoIndividualDBToplink();
+            LancamentoIndividualDao dbl = new LancamentoIndividualDao();
             if (!dbl.listaSerasa(aluno.getPessoa().getId()).isEmpty()) {
                 GenericaMensagem.warn("PESSOA", aluno.getPessoa().getNome() + " contém o nome no Serasa!");
             }
@@ -1664,7 +1663,7 @@ public class MatriculaEscolaBean implements Serializable {
         }
 
         // CADASTRO NO SERASA
-        LancamentoIndividualDB dbl = new LancamentoIndividualDBToplink();
+        LancamentoIndividualDao dbl = new LancamentoIndividualDao();
         if (!dbl.listaSerasa(responsavel.getId()).isEmpty()) {
             GenericaMensagem.warn("PESSOA", responsavel.getNome() + " contém o nome no Serasa!");
         }

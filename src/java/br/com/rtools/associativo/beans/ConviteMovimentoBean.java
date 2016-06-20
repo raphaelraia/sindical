@@ -10,8 +10,7 @@ import br.com.rtools.associativo.ConviteSuspencao;
 import br.com.rtools.associativo.MatriculaSocios;
 import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.dao.ConviteDao;
-import br.com.rtools.associativo.db.SociosDB;
-import br.com.rtools.associativo.db.SociosDBToplink;
+import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.endereco.Endereco;
 import br.com.rtools.financeiro.CondicaoPagamento;
 import br.com.rtools.financeiro.Evt;
@@ -321,7 +320,7 @@ public class ConviteMovimentoBean implements Serializable {
                 return false;
             }
         }
-//        SociosDB sdb = new SociosDBToplink();
+//        SociosDB sdb = new SociosDao();
 //        if (sdb.socioDebito(conviteMovimento.getPessoa().getId())) {
 //            message = "Sócio possui débitos!";
 //            return false;
@@ -368,7 +367,7 @@ public class ConviteMovimentoBean implements Serializable {
                 return false;
             }
 
-            SociosDB sociosDB = new SociosDBToplink();
+            SociosDao sociosDB = new SociosDao();
             Socios socio_convidado = sociosDB.pesquisaSocioPorPessoaAtivoDocumento(conviteMovimento.getSisPessoa().getDocumento());
             if (socio_convidado.getId() != -1) {
                 Categoria c = cdb.pesquisaCategoriaTodosDiasClube(socio_convidado.getMatriculaSocios().getCategoria().getId());
@@ -883,7 +882,7 @@ public class ConviteMovimentoBean implements Serializable {
     }
 
     public void carregaSocio(Pessoa p) {
-        SociosDB dB = new SociosDBToplink();
+        SociosDao dB = new SociosDao();
         socios = dB.pesquisaSocioPorPessoa(p.getId());
     }
 

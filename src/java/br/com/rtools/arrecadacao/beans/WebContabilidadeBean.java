@@ -1,10 +1,8 @@
 package br.com.rtools.arrecadacao.beans;
 
 import br.com.rtools.arrecadacao.MensagemConvencao;
-import br.com.rtools.arrecadacao.db.MensagemConvencaoDB;
-import br.com.rtools.arrecadacao.db.MensagemConvencaoDBToplink;
-import br.com.rtools.arrecadacao.db.WebContabilidadeDB;
-import br.com.rtools.arrecadacao.db.WebContabilidadeDBToplink;
+import br.com.rtools.arrecadacao.dao.MensagemConvencaoDao;
+import br.com.rtools.arrecadacao.dao.WebContabilidadeDao;
 import br.com.rtools.financeiro.ContaCobranca;
 import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.ImpressaoWeb;
@@ -74,7 +72,7 @@ public class WebContabilidadeBean extends MovimentoValorBean {
         pessoa = (Pessoa) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuarioAcessoWeb");
         juridica = new JuridicaDBToplink().pesquisaJuridicaPorPessoa(pessoa.getId());
 
-        WebContabilidadeDB db = new WebContabilidadeDBToplink();
+        WebContabilidadeDao db = new WebContabilidadeDao();
         listaEmpresa = db.listaEmpresasPertContabilidade(juridica.getId());
 
     }
@@ -86,7 +84,7 @@ public class WebContabilidadeBean extends MovimentoValorBean {
                 return;
             }
 
-            WebContabilidadeDB db = new WebContabilidadeDBToplink();
+            WebContabilidadeDao db = new WebContabilidadeDao();
             SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
 
             for (int ix = 0; ix < listaEmpresaSelecionada.size(); ix++) {
@@ -188,7 +186,7 @@ public class WebContabilidadeBean extends MovimentoValorBean {
             }
             Dao dao = new Dao();
             MensagemConvencao mc = new MensagemConvencao();
-            MensagemConvencaoDB menDB = new MensagemConvencaoDBToplink();
+            MensagemConvencaoDao menDB = new MensagemConvencaoDao();
             TipoServicoDB dbTipo = new TipoServicoDBToplink();
 
             ContaCobrancaDBToplink ctaCobraDB = new ContaCobrancaDBToplink();

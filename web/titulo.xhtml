@@ -35,8 +35,10 @@
                                 <h:panelGrid columns="2" columnClasses="verticalAlignTop, verticalAlignTop">
                                     <h:column>
                                         <h:panelGrid columns="2" style="width:750px">
-                                            <p:outputLabel value="Código:" rendered="#{tituloBean.titulo.id ne null}"/>
-                                            <p:inputText value="#{tituloBean.titulo.id}" size="6" rendered="#{tituloBean.titulo.id ne null}" readonly="true"/>
+                                            <p:outputLabel value="Código:" />
+                                            <p:inputText value="#{tituloBean.idTitulo}" size="6" readonly="#{tituloBean.titulo.id eq null ? false : true}" converter="#{thisNumber}">
+                                                <p:ajax event="change" update="@this :form_titulo:" listener="#{tituloBean.listener(2)}"/>
+                                            </p:inputText>
                                             <p:outputLabel value="Código de Barras:" />
                                             <p:inputText value="#{tituloBean.titulo.barras}" maxlength="15" size="16">
                                                 <p:ajax event="change" update="@this :form_titulo:" listener="#{tituloBean.listener(1)}"/>                                            

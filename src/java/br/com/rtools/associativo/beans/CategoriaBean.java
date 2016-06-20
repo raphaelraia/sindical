@@ -1,11 +1,10 @@
 package br.com.rtools.associativo.beans;
 
-import br.com.rtools.associativo.dao.ParentescoDao;
+import br.com.rtools.associativo.dao.ServicoCategoriaDao;
 import br.com.rtools.associativo.Categoria;
 import br.com.rtools.associativo.GrupoCategoria;
 import br.com.rtools.associativo.Parentesco;
 import br.com.rtools.associativo.ServicoCategoria;
-import br.com.rtools.associativo.db.*;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.db.ServicoRotinaDB;
 import br.com.rtools.financeiro.db.ServicoRotinaDBToplink;
@@ -58,7 +57,7 @@ public class CategoriaBean implements Serializable {
             GenericaMensagem.warn("Validação", "Digite uma categoria!");
             return;
         }
-        ServicoCategoriaDB dbSeC = new ServicoCategoriaDBToplink();
+        ServicoCategoriaDao dbSeC = new ServicoCategoriaDao();
         ServicoCategoria servicoCategoria = new ServicoCategoria();
         Dao dao = new Dao();
         NovoLog novoLog = new NovoLog();
@@ -91,7 +90,7 @@ public class CategoriaBean implements Serializable {
                     servicoCategoria.setParentesco((Parentesco) ((DataObject) list.get(i)).getArgumento0());
                     servicoCategoria.setServicos((Servicos) new Dao().find(new Servicos(), Integer.parseInt(
                             listServicos.get(Integer.parseInt((String) ((DataObject) list.get(i)).getArgumento1())).getDescription())));
-                    dbSeC.insert(servicoCategoria);
+                    dao.save(servicoCategoria, true);
                     servicoCategoria = new ServicoCategoria();
                 }
             }
@@ -137,8 +136,8 @@ public class CategoriaBean implements Serializable {
                 servicoCategoria = (ServicoCategoria) ((DataObject) list.get(i)).getArgumento2();
                 if (Integer.parseInt(listServicos.get(Integer.parseInt((String) ((DataObject) list.get(i)).getArgumento1())).getDescription()) == -1) {
                     if (servicoCategoria.getId() != -1) {
-                        servicoCategoria = dbSeC.pesquisaCodigo(servicoCategoria.getId());
-                        dbSeC.delete(servicoCategoria);
+                        servicoCategoria = (ServicoCategoria) dao.find(new ServicoCategoria(), servicoCategoria.getId());
+                        dao.delete(servicoCategoria, true);
                     }
                 } else {
                     servicoCategoria.setServicos((Servicos) new Dao().find(new Servicos(), Integer.parseInt(
@@ -146,9 +145,9 @@ public class CategoriaBean implements Serializable {
                     servicoCategoria.setCategoria(categoria);
                     servicoCategoria.setParentesco((Parentesco) ((DataObject) list.get(i)).getArgumento0());
                     if (servicoCategoria.getId() == -1) {
-                        dbSeC.insert(servicoCategoria);
+                        dao.save(servicoCategoria, true);
                     } else {
-                        dbSeC.update(servicoCategoria);
+                        dao.update(servicoCategoria, true);
                     }
                 }
             }
@@ -263,7 +262,7 @@ public class CategoriaBean implements Serializable {
     public List getListParentescos() {
         if (list.isEmpty()) {
             DataObject dtObj = null;
-            ServicoCategoriaDB dbSeC = new ServicoCategoriaDBToplink();
+            ServicoCategoriaDao dbSeC = new ServicoCategoriaDao();
             List<ServicoCategoria> listaSerCat = dbSeC.pesquisaServCatPorId(categoria.getId());
             List<Parentesco> listaPar = new Dao().list(new Parentesco(), true);
             if (listaSerCat.isEmpty()) {

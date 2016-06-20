@@ -9,8 +9,7 @@ import br.com.rtools.associativo.ConfiguracaoSocial;
 import br.com.rtools.associativo.MatriculaSocios;
 import br.com.rtools.associativo.SMotivoInativacao;
 import br.com.rtools.associativo.Socios;
-import br.com.rtools.associativo.db.SociosDB;
-import br.com.rtools.associativo.db.SociosDBToplink;
+import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.endereco.Endereco;
 import br.com.rtools.financeiro.ServicoPessoa;
 import br.com.rtools.financeiro.dao.ServicoPessoaDao;
@@ -481,7 +480,7 @@ public class OposicaoBean implements Serializable {
         }
         listaConvencaoPeriodos.clear();
         convencaoPeriodoConvencaoGrupoCidade();
-        SociosDB db = new SociosDBToplink();
+        SociosDao db = new SociosDao();
 
         if (p != null) {
             ConfiguracaoSocial cs = (ConfiguracaoSocial) new Dao().find(new ConfiguracaoSocial(), 1);
@@ -684,7 +683,7 @@ public class OposicaoBean implements Serializable {
         PessoaDB pessoaDB = new PessoaDBToplink();
         Pessoa p = pessoaDB.pessoaDocumento(cpf);
         if (p != null) {
-            SociosDB sociosDB = new SociosDBToplink();
+            SociosDao sociosDB = new SociosDao();
             Socios s = sociosDB.pesquisaSocioPorPessoa(p.getId());
             if (s.getId() != -1) {
                 if (s.getServicoPessoa().isAtivo()) {

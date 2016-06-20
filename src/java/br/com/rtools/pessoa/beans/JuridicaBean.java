@@ -1,5 +1,6 @@
 package br.com.rtools.pessoa.beans;
 
+import br.com.rtools.arrecadacao.dao.ContribuintesInativosDao;
 import br.com.rtools.arrecadacao.dao.CnaeConvencaoDao;
 import br.com.rtools.arrecadacao.dao.ConvencaoCidadeDao;
 import br.com.rtools.pessoa.dao.FilialDao;
@@ -9,7 +10,7 @@ import br.com.rtools.pessoa.dao.TipoDocumentoDao;
 import br.com.rtools.arrecadacao.dao.OposicaoDao;
 import br.com.rtools.arrecadacao.*;
 import br.com.rtools.arrecadacao.beans.OposicaoBean;
-import br.com.rtools.arrecadacao.db.*;
+import br.com.rtools.associativo.dao.SociosDao2;
 import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.associativo.lista.ListaSociosEmpresa;
 import br.com.rtools.cobranca.TmktHistorico;
@@ -614,7 +615,7 @@ public class JuridicaBean implements Serializable {
 
     public List<ContribuintesInativos> getListaContribuintesInativos() {
         if (listaContribuintesInativos.isEmpty()) {
-            ContribuintesInativosDB db = new ContribuintesInativosDBToplink();
+            ContribuintesInativosDao db = new ContribuintesInativosDao();
             listaContribuintesInativos = db.listaContribuintesInativos(juridica.getId());
             if (listaContribuintesInativos == null) {
                 listaContribuintesInativos = new ArrayList();
@@ -652,7 +653,7 @@ public class JuridicaBean implements Serializable {
             return null;
         }
 
-        ContribuintesInativosDB db = new ContribuintesInativosDBToplink();
+        ContribuintesInativosDao db = new ContribuintesInativosDao();
         ContribuintesInativos cont = db.pesquisaContribuintesInativos(juridica.getId());
 
         NovoLog logs = new NovoLog();
@@ -944,7 +945,7 @@ public class JuridicaBean implements Serializable {
             }
         }
 
-        ContribuintesInativosDB dbCI = new ContribuintesInativosDBToplink();
+        ContribuintesInativosDao dbCI = new ContribuintesInativosDao();
         List<ContribuintesInativos> listaCI = dbCI.listaContribuintesInativos(juridica.getId());
 
         if (!listaCI.isEmpty()) {

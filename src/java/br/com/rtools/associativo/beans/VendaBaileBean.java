@@ -118,6 +118,22 @@ public class VendaBaileBean implements Serializable {
         cab = (ControleAcessoBean) GenericaSessao.getObject("controleAcessoBean");
     }
 
+    public void load() {
+        if (GenericaSessao.exists("baixa_geral_sucesso", true)) {
+            VendaBaileDao dao = new VendaBaileDao();
+            // LISTA EVENTO BAILE
+            List<EventoBaileMapa> lm = dao.listaEventoBaileMapaPorVenda(venda.getId());
+            List<EventoBaileConvite> lc = dao.listaEventoBaileConvitePorVenda(venda.getId());
+            if (!lm.isEmpty()) {
+                loadListaTipoVenda();
+                loadListaMesa();
+            } else if (!lc.isEmpty()) {
+                loadListaTipoVenda();
+                loadListaConvite();
+            }
+        }
+    }
+
     public void imprimirConviteIndividual(EventoBaileConvite ebc) {
         EventoBaileDao ebdb = new EventoBaileDao();
         // FALSE = tem permissão
@@ -614,7 +630,7 @@ public class VendaBaileBean implements Serializable {
     }
 
     public void loadListaMesa() {
-        listaMesasBaile.clear();
+        listaMesasBaile = new ArrayList();
         listaMesasBaileSelecionada = (listaMesasBaileSelecionada == null ? new ArrayList() : new ArrayList());
         if (!listaEventoBaile.isEmpty()) {
             EventoBaileDao eventoBaileDB = new EventoBaileDao();
@@ -631,7 +647,7 @@ public class VendaBaileBean implements Serializable {
     }
 
     public void loadListaConvite() {
-        listaConviteBaile.clear();
+        listaConviteBaile = new ArrayList();
         listaConviteBaileSelecionado = (listaConviteBaileSelecionado == null ? new ArrayList() : new ArrayList());
         if (!listaEventoBaile.isEmpty()) {
             EventoBaileDao eventoBaileDB = new EventoBaileDao();

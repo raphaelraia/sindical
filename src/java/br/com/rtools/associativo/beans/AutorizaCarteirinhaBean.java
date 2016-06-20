@@ -2,8 +2,7 @@ package br.com.rtools.associativo.beans;
 
 import br.com.rtools.associativo.AutorizaImpressaoCartao;
 import br.com.rtools.associativo.ModeloCarteirinha;
-import br.com.rtools.associativo.db.SocioCarteirinhaDB;
-import br.com.rtools.associativo.db.SocioCarteirinhaDBToplink;
+import br.com.rtools.associativo.dao.SocioCarteirinhaDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.seguranca.Registro;
@@ -44,7 +43,7 @@ public class AutorizaCarteirinhaBean {
         }
 
         Dao dao = new Dao();
-        SocioCarteirinhaDB db = new SocioCarteirinhaDBToplink();
+        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
 
         if (db.listaSocioCarteirinhaAutoriza(fisica.getPessoa().getId(), Integer.valueOf(listaModelo.get(idModelo).getDescription())).isEmpty()) {
             GenericaMensagem.warn("Erro", "Esta Pessoa NÃO POSSUI carteirinha para ser autorizada!");

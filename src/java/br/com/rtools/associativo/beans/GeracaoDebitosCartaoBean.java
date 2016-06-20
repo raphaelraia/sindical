@@ -2,9 +2,8 @@ package br.com.rtools.associativo.beans;
 
 import br.com.rtools.associativo.HistoricoCarteirinha;
 import br.com.rtools.associativo.Socios;
+import br.com.rtools.associativo.dao.SociosDao2;
 import br.com.rtools.associativo.dao.SociosDao;
-import br.com.rtools.associativo.db.SociosDB;
-import br.com.rtools.associativo.db.SociosDBToplink;
 import br.com.rtools.financeiro.CondicaoPagamento;
 import br.com.rtools.financeiro.FStatus;
 import br.com.rtools.financeiro.FTipoDocumento;
@@ -35,7 +34,6 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
@@ -296,11 +294,10 @@ public class GeracaoDebitosCartaoBean implements Serializable {
 
     public List<Socios> getListaSocios() {
         if (listaSocios.isEmpty()) {
-            SociosDB sociosDB = new SociosDBToplink();
+            SociosDao sociosDB = new SociosDao();
             Socios s = sociosDB.pesquisaSocioPorPessoaAtivo(fisica.getPessoa().getId());
             if (s != null) {
-                SociosDao sociosDao = new SociosDao();
-                listaSocios = sociosDao.pesquisaDependentePorMatricula(s.getMatriculaSocios().getId(), false);
+                listaSocios = sociosDB.pesquisaDependentePorMatricula(s.getMatriculaSocios().getId(), false);
                 for (int i = 0; i < listaSocios.size(); i++) {
                     // Campo opcional
                     listaSocios.get(i).setObject(getMovimento(listaSocios.get(i).getServicoPessoa().getPessoa()));

@@ -1,9 +1,7 @@
 package br.com.rtools.associativo.beans;
 
-import br.com.rtools.associativo.db.CobrancaMensalDB;
-import br.com.rtools.associativo.db.CobrancaMensalDBToplink;
-import br.com.rtools.associativo.db.LancamentoIndividualDB;
-import br.com.rtools.associativo.db.LancamentoIndividualDBToplink;
+import br.com.rtools.associativo.dao.CobrancaMensalDao;
+import br.com.rtools.associativo.dao.LancamentoIndividualDao;
 import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.ServicoPessoa;
 import br.com.rtools.financeiro.Servicos;
@@ -58,7 +56,7 @@ public class CobrancaMensalBean {
         }
         
         SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-        CobrancaMensalDB db = new CobrancaMensalDBToplink();
+        CobrancaMensalDao db = new CobrancaMensalDao();
         
         if (servicoPessoa.getId() == -1){
             if (!db.listaCobrancaMensalServico( servicoPessoa.getPessoa().getId(), servicos.getId() ).isEmpty()){
@@ -154,14 +152,14 @@ public class CobrancaMensalBean {
         GenericaMensagem.info("Sucesso", "Todos Valores foram Atualizados!");
         //listaCobrancaMensal.clear();
         
-        //CobrancaMensalDB db = new CobrancaMensalDBToplink();
+        //CobrancaMensalDB db = new CobrancaMensalDao();
         //listaCobrancaMensal = db.listaCobrancaMensalFiltro(tipoFiltro, descFiltro);
     }
     
     public void filtrar(){
         listaCobrancaMensal.clear();
         
-        CobrancaMensalDB db = new CobrancaMensalDBToplink();
+        CobrancaMensalDao db = new CobrancaMensalDao();
         listaCobrancaMensal = db.listaCobrancaMensalFiltro(tipoFiltro, descFiltro);
     }
     
@@ -188,7 +186,7 @@ public class CobrancaMensalBean {
             
             JuridicaDB dbj = new JuridicaDBToplink();
             FisicaDB dbf = new FisicaDBToplink();
-            LancamentoIndividualDB dbl = new LancamentoIndividualDBToplink();
+            LancamentoIndividualDao dbl = new LancamentoIndividualDao();
             
             Juridica jur = dbj.pesquisaJuridicaPorPessoa(id_resp);
             
@@ -284,7 +282,7 @@ public class CobrancaMensalBean {
 
     public List<ServicoPessoa> getListaCobrancaMensal() {
         if (listaCobrancaMensal.isEmpty()){
-            CobrancaMensalDB db = new CobrancaMensalDBToplink();
+            CobrancaMensalDao db = new CobrancaMensalDao();
             listaCobrancaMensal = db.listaCobrancaMensal(-1);
         }
         return listaCobrancaMensal;

@@ -1,7 +1,7 @@
 package br.com.rtools.utilitarios.dao;
 
 import br.com.rtools.associativo.Socios;
-import br.com.rtools.associativo.db.SociosDBToplink;
+import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.financeiro.ConfiguracaoFinanceiro;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.pessoa.Pessoa;
@@ -250,7 +250,7 @@ public class FunctionsDao extends DB {
             return true;
         }
         if (nr_carencia_dias == null) {
-            SociosDBToplink sociosDBToplink = new SociosDBToplink();
+            SociosDao sociosDBToplink = new SociosDao();
             Socios socios = sociosDBToplink.pesquisaSocioPorPessoaAtivo(id_pessoa);
             if (socios.getId() == -1) {
                 nr_carencia_dias = cf.getCarenciaDias();

@@ -5,7 +5,6 @@ import br.com.rtools.associativo.dao.EventoBandaDao;
 import br.com.rtools.associativo.dao.DescricaoEventoDao;
 import br.com.rtools.associativo.*;
 import br.com.rtools.associativo.dao.BaileDao;
-import br.com.rtools.associativo.db.*;
 import br.com.rtools.endereco.Endereco;
 import br.com.rtools.financeiro.Evt;
 import br.com.rtools.financeiro.Servicos;

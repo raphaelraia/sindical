@@ -101,6 +101,18 @@ public class Titulo implements Serializable {
         this.id = id;
     }
 
+    public String getIdString() {
+        try {
+            return Integer.toString(id);
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    public void setIdString(String idString) {
+        this.id = Integer.parseInt(idString);
+    }
+
     public Date getData() {
         return data;
     }

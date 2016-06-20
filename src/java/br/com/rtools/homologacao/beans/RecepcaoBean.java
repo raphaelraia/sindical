@@ -39,6 +39,7 @@ import br.com.rtools.utilitarios.Diretorio;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.PF;
+import br.com.rtools.utilitarios.SelectItemSort;
 import br.com.rtools.utilitarios.Upload;
 import br.com.rtools.utilitarios.WSSocket;
 import java.io.File;
@@ -123,84 +124,10 @@ public class RecepcaoBean implements Serializable {
     private String tipoPesquisaAtendimento;
     private String tipoFisicaPesquisa;
     private List listFiles;
+    private List<SelectItem> listHomologadores;
+    private Integer idHomologador;
+    private String motivoAlteracaoHomologador;
 
-    /*    @PostConstruct
-     public void init() {
-     agendamento = new Agendamento();
-     agendamentoEdit = new Agendamento();
-     idStatus = 0;
-     ocultaData = true;
-     ocultaSenha = false;
-     ocultaStatus = true;
-     ocultaPreposto = false;
-     ocultaHomologador = false;
-     ocultaDatapesquisa = false;
-     ocultaColunaEmpresa = false;
-     ocultaColunaPessoaFisica = false;
-     isPesquisarPessoaFisicaFiltro = false;
-     isPesquisarPessoaJuridicaFiltro = false;
-     desabilitaAtualizacaoAutomatica = false;
-     desabilitaPesquisaProtocolo = false;
-     dataPesquisaTodas = false;
-     isCaso = 0;
-     macFilial = null;
-     strData = DataHoje.data();
-     strDataFinal = DataHoje.data();
-     strEndereco = "";
-     msgRecepcao = "";
-     msgConfirma = "";
-     statusEmpresa = "";
-     data = DataHoje.dataHoje();
-     dataInicial = DataHoje.dataHoje();
-     dataFinal = DataHoje.dataHoje();
-     fisica = new Fisica();
-     juridica = new Juridica();
-     recepcao = new Recepcao();
-     registro = new Registro();
-     profissao = new Profissao();
-     idMotivoDemissao = 0;
-     tipoPesquisa = "";
-     dataPesquisa = "hoje";
-     cancelamento = new Cancelamento();
-     id_protocolo = -1;
-     numeroProtocolo = "";
-     listaRecepcaos = new ArrayList();
-     macFilial = (MacFilial) GenericaSessao.getObject("acessoFilial");
-     dataInicialString = DataHoje.data();
-     dataFinalString = DataHoje.data();
-     openDialog = false;
-     listaAtendimentoSimples = new ArrayList();
-     listaStatus = new ArrayList();
-     listaMotivoDemissao = new ArrayList();
-     listaHorarios = new ArrayList();
-     progressUpdate = 100;
-     progressLabel = 10;
-     startPooling = true;
-        
-     idStatusAtendimento = 0;
-     listaStatus = new ArrayList();
-     dataPesquisaAtendimento = "hoje";
-     listaStatusAtendimento = new ArrayList();
-     tipoPesquisaAtendimento = "juridica";
-        
-     getListaStatusAtendimento();
-     loadListHorarios();
-     loadListaAtendimentoSimples();
-        
-     dataInicialAtendimento = DataHoje.data();
-     dataFinalAtendimento = DataHoje.data();
-        
-     descricaoFisica = "";
-     tipoFisicaPesquisa = "";
-     }
-
-     @PreDestroy
-     public void destroy() {
-     GenericaSessao.remove("recepcaoBean");
-     GenericaSessao.remove("juridicaPesquisa");
-     GenericaSessao.remove("fisicaPesquisa");
-     }
-     */
     public RecepcaoBean() {
         agendamento = new Agendamento();
         agendamentoEdit = new Agendamento();
@@ -270,6 +197,9 @@ public class RecepcaoBean implements Serializable {
         getListaStatusAtendimento();
         loadListHorarios();
         loadListaAtendimentoSimples();
+        idHomologador = null;
+        motivoAlteracaoHomologador = "";
+        loadListHomologadores();
     }
 
     public void alterTab(TabChangeEvent event) {
@@ -393,7 +323,7 @@ public class RecepcaoBean implements Serializable {
                 "Exclusão da senha (Recepção): "
                 + " - ID do cancelamento: " + cancelamento.getId()
                 + " - Agendamento {ID: " + cancelamento.getAgendamento().getId() + "} "
-                + " - Funcionário { " + agendamento.getPessoaEmpresa().getFisica().getPessoa().getId() + " - Nome: " + agendamento.getPessoaEmpresa().getFisica().getPessoa().getNome() + " } "
+                + " - Funcionário { " + agendamentoEdit.getPessoaEmpresa().getFisica().getPessoa().getId() + " - Nome: " + agendamentoEdit.getPessoaEmpresa().getFisica().getPessoa().getNome() + " } "
         );
 
         GenericaMensagem.info("Sucesso", "Senha removida");
@@ -453,7 +383,7 @@ public class RecepcaoBean implements Serializable {
                 "Cancelamento de homologação (Recepção): "
                 + " - ID do cancelamento: " + cancelamento.getId()
                 + " - Agendamento {ID: " + cancelamento.getAgendamento().getId() + "} "
-                + " - Funcionário { " + agendamento.getPessoaEmpresa().getFisica().getPessoa().getId() + " - Nome: " + agendamento.getPessoaEmpresa().getFisica().getPessoa().getNome() + " } "
+                + " - Funcionário { " + agendamentoEdit.getPessoaEmpresa().getFisica().getPessoa().getId() + " - Nome: " + agendamentoEdit.getPessoaEmpresa().getFisica().getPessoa().getNome() + " } "
                 + " - Data do cancelamento: " + cancelamento.getData()
                 + " - Motivo: " + cancelamento.getMotivo());
 
@@ -1441,5 +1371,65 @@ public class RecepcaoBean implements Serializable {
             return oposicaoDao.existPessoaOposicao(agendamentoEdit.getPessoaEmpresa().getFisica().getPessoa().getDocumento());
         }
         return false;
+    }
+
+    public void updateHomologador() {
+        if (motivoAlteracaoHomologador.isEmpty() || motivoAlteracaoHomologador.length() < 10) {
+            GenericaMensagem.warn("Validação", "INFORMAR UM MOTIVO VÁLIDO, COM MAIS DE 10 CARACTERES!");
+            return;
+        }
+        Dao dao = new Dao();
+        agendamentoEdit.setHomologador((Usuario) dao.find(new Usuario(), idHomologador));
+        Agendamento a = agendamentoEdit;
+        if (dao.update(agendamentoEdit, true)) {
+            motivoAlteracaoHomologador = "";
+            loadListHomologadores();
+            NovoLog novoLog = new NovoLog();
+            novoLog.setTabela("hom_agendamento");
+            novoLog.setCodigo(agendamentoEdit.getId());
+            novoLog.update("Agendamento (Protocolo): " + a.getId() + " - Homologador: " + a.getHomologador().getId(), "Agendamento (Protocolo): " + agendamentoEdit.getId() + " - Homologador: " + agendamentoEdit.getHomologador().getId() + " - Motivo da alteração: " + motivoAlteracaoHomologador);
+            GenericaMensagem.info("Sucesso", "REGISTRO ATUALIZADO");
+        } else {
+            GenericaMensagem.warn("Erro", "AO ATUALIZAR!");
+
+        }
+    }
+
+    public void loadListHomologadores() {
+        listHomologadores = new ArrayList();
+        HomologacaoDao homologacaoDao = new HomologacaoDao();
+        List<Usuario> list = homologacaoDao.findAllHomologadores();
+        for (int i = 0; i < list.size(); i++) {
+            if (i == 0) {
+                idHomologador = list.get(i).getId();
+            }
+            listHomologadores.add(new SelectItem(list.get(i).getId(), list.get(i).getPessoa().getNome()));
+            SelectItemSort.sort(listHomologadores);
+        }
+
+    }
+
+    public List<SelectItem> getListHomologadores() {
+        return listHomologadores;
+    }
+
+    public void setListHomologadores(List<SelectItem> listHomologadores) {
+        this.listHomologadores = listHomologadores;
+    }
+
+    public Integer getIdHomologador() {
+        return idHomologador;
+    }
+
+    public void setIdHomologador(Integer idHomologador) {
+        this.idHomologador = idHomologador;
+    }
+
+    public String getMotivoAlteracaoHomologador() {
+        return motivoAlteracaoHomologador;
+    }
+
+    public void setMotivoAlteracaoHomologador(String motivoAlteracaoHomologador) {
+        this.motivoAlteracaoHomologador = motivoAlteracaoHomologador;
     }
 }

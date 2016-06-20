@@ -1,8 +1,7 @@
 package br.com.rtools.arrecadacao.beans;
 
 import br.com.rtools.arrecadacao.MotivoInativacao;
-import br.com.rtools.arrecadacao.db.MotivoInativacaoDB;
-import br.com.rtools.arrecadacao.db.MotivoInativacaoDBToplink;
+import br.com.rtools.arrecadacao.dao.MotivoInativacaoDao;
 import br.com.rtools.logSistema.NovoLog;
 import java.io.Serializable;
 import java.util.List;
@@ -57,7 +56,7 @@ public class MotivoInativacaoBean implements Serializable {
     }
 
     public String salvar() {
-        MotivoInativacaoDB db = new MotivoInativacaoDBToplink();
+        MotivoInativacaoDao db = new MotivoInativacaoDao();
         NovoLog log = new NovoLog();
         if (motivoInativacao.getId() == -1) {
             if (motivoInativacao.getDescricao().equals("")) {
@@ -94,7 +93,7 @@ public class MotivoInativacaoBean implements Serializable {
     }
 
     public String excluir() {
-        MotivoInativacaoDB db = new MotivoInativacaoDBToplink();
+        MotivoInativacaoDao db = new MotivoInativacaoDao();
         NovoLog log = new NovoLog();
         if (motivoInativacao.getId() != -1) {
             db.getEntityManager().getTransaction().begin();
@@ -120,7 +119,7 @@ public class MotivoInativacaoBean implements Serializable {
      return result;
      }*/
     public List getListaMotivoInativacao() {
-        MotivoInativacaoDB db = new MotivoInativacaoDBToplink();
+        MotivoInativacaoDao db = new MotivoInativacaoDao();
         List result = null;
         result = db.pesquisaTodos();
         return result;

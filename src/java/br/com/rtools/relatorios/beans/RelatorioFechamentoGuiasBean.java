@@ -2,10 +2,8 @@ package br.com.rtools.relatorios.beans;
 
 import br.com.rtools.associativo.GrupoConvenio;
 import br.com.rtools.associativo.SubGrupoConvenio;
-import br.com.rtools.associativo.db.LancamentoIndividualDB;
-import br.com.rtools.associativo.db.LancamentoIndividualDBToplink;
-import br.com.rtools.associativo.db.SubGrupoConvenioDB;
-import br.com.rtools.associativo.db.SubGrupoConvenioDBToplink;
+import br.com.rtools.associativo.dao.LancamentoIndividualDao;
+import br.com.rtools.associativo.dao.SubGrupoConvenioDao;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.impressao.ParametroFechamentoGuias;
@@ -435,7 +433,7 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
     public List<SelectItem> getListSubGrupo() {
         if (listSelectItem[3].isEmpty()) {
             if (!listSelectItem[2].isEmpty()) {
-                SubGrupoConvenioDB db = new SubGrupoConvenioDBToplink();
+                SubGrupoConvenioDao db = new SubGrupoConvenioDao();
                 List<SubGrupoConvenio> list = (List<SubGrupoConvenio>) db.listaSubGrupoConvenioPorGrupo(Integer.parseInt(listSelectItem[2].get(index[2]).getDescription()));
                 for (int i = 0; i < list.size(); i++) {
                     if (i == 0) {
@@ -455,7 +453,7 @@ public class RelatorioFechamentoGuiasBean implements Serializable {
 
     public List<SelectItem> getListJuridica() {
         if (listSelectItem[4].isEmpty()) {
-            LancamentoIndividualDB db = new LancamentoIndividualDBToplink();
+            LancamentoIndividualDao db = new LancamentoIndividualDao();
             if (getListSubGrupo().isEmpty()) {
                 return listSelectItem[4];
             }

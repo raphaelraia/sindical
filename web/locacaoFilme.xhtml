@@ -35,7 +35,7 @@
                             <c:set scope="request" var="object" value="${locacaoFilmeBean.locadoraLote}"/>
                             <p:messages autoUpdate="true" showDetail="true" showSummary="true" />
                             <p:growl autoUpdate="true" showDetail="true" showSummary="true" />
-                            <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', 'MENSAGEM DE BLOQUEIO', locacaoFilmeBean.pessoaComplemento.obsAviso)}" escape="false" rendered="#{not empty locacaoFilmeBean.pessoaComplemento.obsAviso}" />
+                            <h:outputText value="#{genericaMensagem.getHtmlMessage('fatal', 'MENSAGEM DE BLOQUEIO', locacaoFilmeBean.locatario.pessoa.pessoaComplemento.obsAviso)}" escape="false" rendered="#{not empty locacaoFilmeBean.locatario.pessoa.pessoaComplemento.obsAviso}" />
                             <p:panel>
                                 <f:facet name="header">
                                     <h:panelGrid columns="2">

@@ -1,10 +1,8 @@
 package br.com.rtools.associativo.beans;
 
 import br.com.rtools.associativo.Socios;
-import br.com.rtools.associativo.db.MovimentosReceberSocialDB;
-import br.com.rtools.associativo.db.MovimentosReceberSocialDBToplink;
-import br.com.rtools.associativo.db.SociosDB;
-import br.com.rtools.associativo.db.SociosDBToplink;
+import br.com.rtools.associativo.dao.MovimentosReceberSocialDao;
+import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.financeiro.Baixa;
 import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.Caixa;
@@ -173,7 +171,7 @@ public class MovimentosReceberSocialBean implements Serializable {
     }
 
     public Boolean movimentosBaixado(Boleto b) {
-        MovimentosReceberSocialDB db = new MovimentosReceberSocialDBToplink();
+        MovimentosReceberSocialDao db = new MovimentosReceberSocialDao();
         List<Movimento> l_movimento = db.listaMovimentosPorNrCtrBoleto(b.getNrCtrBoleto());
         for (Movimento m : l_movimento) {
             if (m.getBaixa() != null) {
@@ -190,7 +188,7 @@ public class MovimentosReceberSocialBean implements Serializable {
 
         listaMovimentoDoBoleto.clear();
 
-        MovimentosReceberSocialDB db = new MovimentosReceberSocialDBToplink();
+        MovimentosReceberSocialDao db = new MovimentosReceberSocialDao();
         List<Movimento> l_movimento = db.listaMovimentosPorNrCtrBoleto(linhaBoletosAnexo.getBoleto().getNrCtrBoleto());
 
         for (Movimento m : l_movimento) {
@@ -215,7 +213,7 @@ public class MovimentosReceberSocialBean implements Serializable {
     }
 
     public TransferenciaCaixa transferenciaCaixa(int id_fechamento_caixa_saida) {
-        MovimentosReceberSocialDB db = new MovimentosReceberSocialDBToplink();
+        MovimentosReceberSocialDao db = new MovimentosReceberSocialDao();
         List<TransferenciaCaixa> l = db.transferenciaCaixa(id_fechamento_caixa_saida);
         return (l.isEmpty()) ? new TransferenciaCaixa() : l.get(0);
     }
@@ -337,7 +335,7 @@ public class MovimentosReceberSocialBean implements Serializable {
         listaBoletosAnexo.clear();
         listaBoletosAnexoSelecionado.clear();
 
-        MovimentosReceberSocialDB db = new MovimentosReceberSocialDBToplink();
+        MovimentosReceberSocialDao db = new MovimentosReceberSocialDao();
 
         List<Vector> result = db.listaBoletosAbertosAgrupado(pessoa.getId(), chkBoletosAtrasados);
 
@@ -359,7 +357,7 @@ public class MovimentosReceberSocialBean implements Serializable {
         listaMovimentosAnexo.clear();
         listaMovimentosAnexoSelecionados.clear();
 
-        MovimentosReceberSocialDB db = new MovimentosReceberSocialDBToplink();
+        MovimentosReceberSocialDao db = new MovimentosReceberSocialDao();
         // PESQUISA RESPONSAVEL DA PESSOA
         FunctionsDao dbfunc = new FunctionsDao();
         Pessoa t = dbfunc.titularDaPessoa(pessoa.getId());
@@ -494,7 +492,7 @@ public class MovimentosReceberSocialBean implements Serializable {
 
     public void calculoTodosAcrescimo() {
         booAcrescimo = (booAcrescimo) ? false : true;
-        MovimentosReceberSocialDB db = new MovimentosReceberSocialDBToplink();
+        MovimentosReceberSocialDao db = new MovimentosReceberSocialDao();
         for (DataObject linha : listaMovimento) {
             float[] valor = db.pesquisaValorAcrescimo(((Movimento) linha.getArgumento1()).getId());
             if (!booAcrescimo) {
@@ -510,7 +508,7 @@ public class MovimentosReceberSocialBean implements Serializable {
 
     public void calculoAcrescimo() {
 
-        MovimentosReceberSocialDB db = new MovimentosReceberSocialDBToplink();
+        MovimentosReceberSocialDao db = new MovimentosReceberSocialDao();
         float[] valor = db.pesquisaValorAcrescimo(((Movimento) linhaSelecionada.getArgumento1()).getId());
         if ((Boolean) linhaSelecionada.getArgumento29()) {
             linhaSelecionada.setArgumento29(false);
@@ -702,7 +700,7 @@ public class MovimentosReceberSocialBean implements Serializable {
 
         try {
             //int numerox = Integer.valueOf(descPesquisaBoleto);
-            MovimentosReceberSocialDB db = new MovimentosReceberSocialDBToplink();
+            MovimentosReceberSocialDao db = new MovimentosReceberSocialDao();
             ContaCobranca contaCobranca = (ContaCobranca) new Dao().find(new ContaCobranca(), Integer.parseInt(((SelectItem) listaContas.get(indexConta)).getDescription()));
             Pessoa p = db.pesquisaPessoaPorBoleto(descPesquisaBoleto, contaCobranca.getId());
             listaPessoa.clear();
@@ -794,7 +792,7 @@ public class MovimentosReceberSocialBean implements Serializable {
             return;
         }
 
-        SociosDB dbs = new SociosDBToplink();
+        SociosDao dbs = new SociosDao();
 
         List<Movimento> list_movimentos = db.pesquisaGuia(guia);
 
@@ -942,7 +940,7 @@ public class MovimentosReceberSocialBean implements Serializable {
     }
 
     public boolean fechadosCaixa() {
-        MovimentosReceberSocialDB db = new MovimentosReceberSocialDBToplink();
+        MovimentosReceberSocialDao db = new MovimentosReceberSocialDao();
         for (int i = 0; i < listaMovimento.size(); i++) {
             if (((Boolean) listaMovimento.get(i).getArgumento0())
                     && (((Movimento) listaMovimento.get(i).getArgumento1()).getBaixa() != null) && (((Movimento) listaMovimento.get(i).getArgumento1()).getBaixa().getFechamentoCaixa() != null)) {
@@ -1303,7 +1301,7 @@ public class MovimentosReceberSocialBean implements Serializable {
         List<DataObject> linha = new ArrayList();
 
         for (int i = 0; i < listaMovimento.size(); i++) {
-            MovimentosReceberSocialDB db = new MovimentosReceberSocialDBToplink();
+            MovimentosReceberSocialDao db = new MovimentosReceberSocialDao();
             float[] valorx = db.pesquisaValorAcrescimo(((Movimento) listaMovimento.get(i).getArgumento1()).getId());
 
             if ((Boolean) listaMovimento.get(i).getArgumento0() && ((Movimento) listaMovimento.get(i).getArgumento1()).getBaixa() == null) {
@@ -1427,7 +1425,7 @@ public class MovimentosReceberSocialBean implements Serializable {
             float soma = 0;
             for (int i = 0; i < listaMovimento.size(); i++) {
                 if ((Boolean) listaMovimento.get(i).getArgumento0() && ((Movimento) listaMovimento.get(i).getArgumento1()).getBaixa() == null) {
-                    MovimentosReceberSocialDB db = new MovimentosReceberSocialDBToplink();
+                    MovimentosReceberSocialDao db = new MovimentosReceberSocialDao();
                     float[] valorx = db.pesquisaValorAcrescimo(((Movimento) listaMovimento.get(i).getArgumento1()).getId());
 
                     if ((Boolean) listaMovimento.get(i).getArgumento29()) {
@@ -1476,7 +1474,7 @@ public class MovimentosReceberSocialBean implements Serializable {
 
         int id_lote = Integer.valueOf(linha.getArgumento27().toString());
 
-        MovimentosReceberSocialDB db = new MovimentosReceberSocialDBToplink();
+        MovimentosReceberSocialDao db = new MovimentosReceberSocialDao();
         List<Vector> lista = db.dadosSocio(id_lote);
 
         if (!lista.isEmpty()) {
@@ -1512,7 +1510,7 @@ public class MovimentosReceberSocialBean implements Serializable {
 
     public List<DataObject> getListaMovimento() {
         if (listaMovimento.isEmpty() && !listaPessoa.isEmpty()) {
-            MovimentosReceberSocialDB db = new MovimentosReceberSocialDBToplink();
+            MovimentosReceberSocialDao db = new MovimentosReceberSocialDao();
             String id_pessoa = "", id_responsavel = "";
 
             FisicaDB dbf = new FisicaDBToplink();
@@ -1776,7 +1774,7 @@ public class MovimentosReceberSocialBean implements Serializable {
                 pessoa = new Pessoa();
                 pessoa = (Pessoa) GenericaSessao.getObject("pessoaPesquisa");
 
-                SociosDB dbs = new SociosDBToplink();
+                SociosDao dbs = new SociosDao();
                 socios = dbs.pesquisaSocioPorPessoaAtivo(pessoa.getId());
 
                 listaPessoa.clear();

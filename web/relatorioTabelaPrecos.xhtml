@@ -86,8 +86,18 @@
                             </h:panelGrid>
                         </h:column>
                     </h:panelGrid>
-                    <h:panelGrid columns="3" id="i_btns">
-                        <p:commandButton value="Imprimir" icon="ui-icon-print" title="Imprimir" action="#{relatorioTabelaPrecosBean.print()}" ajax="false" styleClass="margin-top-max" update="id_messages_growl" />
+                    <h:panelGrid columns="3" id="i_btns" styleClass="margin-top-max" >
+                        <p:commandButton value="Imprimir" icon="ui-icon-print" title="Imprimir" action="#{relatorioTabelaPrecosBean.print()}" ajax="false" update="id_messages_growl" />
+                        <h:column>
+                            <h:panelGrid columns="2">
+                                <p:outputLabel value="Exportar para " />
+                                <p:selectOneMenu label="Meses" value="#{jasperBean.EXPORT_TYPE}">
+                                    <p:ajax event="change" global="false" update="@this"/>
+                                    <f:selectItem itemValue="pdf" itemLabel="PDF" />
+                                    <f:selectItem itemValue="xls" itemLabel="Excel" />
+                                </p:selectOneMenu>
+                            </h:panelGrid>
+                        </h:column>                        
                     </h:panelGrid>
                 </h:form>               
             </p:panel>

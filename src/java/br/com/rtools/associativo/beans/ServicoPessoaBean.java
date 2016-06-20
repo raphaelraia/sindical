@@ -3,8 +3,7 @@ package br.com.rtools.associativo.beans;
 import br.com.rtools.financeiro.dao.FTipoDocumentoDao;
 import br.com.rtools.associativo.DescontoSocial;
 import br.com.rtools.associativo.Socios;
-import br.com.rtools.associativo.db.SociosDB;
-import br.com.rtools.associativo.db.SociosDBToplink;
+import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.ServicoPessoa;
 import br.com.rtools.financeiro.Servicos;
@@ -151,7 +150,7 @@ public class ServicoPessoaBean implements Serializable {
                 break;
             }
         }
-        SociosDB dbs = new SociosDBToplink();
+        SociosDao dbs = new SociosDao();
         socio = dbs.pesquisaSocioPorPessoaAtivo(titular.getPessoa().getId());
         // A ORDEM INFLUENCIA NOS FATORES ----
         calculoValor();

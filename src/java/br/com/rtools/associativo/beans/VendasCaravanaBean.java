@@ -9,10 +9,8 @@ import br.com.rtools.associativo.Reservas;
 import br.com.rtools.associativo.dao.CaravanaDao;
 import br.com.rtools.associativo.dao.EventoServicoDao;
 import br.com.rtools.associativo.dao.EventoServicoValorDao;
-import br.com.rtools.associativo.db.SociosDB;
-import br.com.rtools.associativo.db.SociosDBToplink;
-import br.com.rtools.associativo.db.VendasCaravanaDB;
-import br.com.rtools.associativo.db.VendasCaravanaDBToplink;
+import br.com.rtools.associativo.dao.SociosDao;
+import br.com.rtools.associativo.dao.VendasCaravanaDao;
 import br.com.rtools.financeiro.CondicaoPagamento;
 import br.com.rtools.financeiro.Evt;
 import br.com.rtools.financeiro.FStatus;
@@ -160,7 +158,7 @@ public class VendasCaravanaBean {
         Object quantidade[] = new Object[6];
         Object valor[] = new Object[6];
         Float total = (float) 0;
-        VendasCaravanaDB db = new VendasCaravanaDBToplink();
+        VendasCaravanaDao db = new VendasCaravanaDao();
 
         List<Object> result = db.listaTipoAgrupado(vendas.getId());
 
@@ -245,7 +243,7 @@ public class VendasCaravanaBean {
 
         List<Reservas> lr;
         Dao dao = new Dao();
-        VendasCaravanaDB db = new VendasCaravanaDBToplink();
+        VendasCaravanaDao db = new VendasCaravanaDao();
         Reservas res;
         dao.openTransaction();
 
@@ -335,10 +333,10 @@ public class VendasCaravanaBean {
         }
 
         List<Reservas> lr;
-        VendasCaravanaDB db = new VendasCaravanaDBToplink();
+        VendasCaravanaDao db = new VendasCaravanaDao();
         FisicaDB dbf = new FisicaDBToplink();
         EventoServicoValorDao dbe = new EventoServicoValorDao();
-        SociosDB dbs = new SociosDBToplink();
+        SociosDao dbs = new SociosDao();
         float valor;
         lr = db.listaReservasVenda(vendas.getId());
         listaReservas.clear();
@@ -695,7 +693,7 @@ public class VendasCaravanaBean {
     }
 
     public List getListaPesquisaVendas() {
-        VendasCaravanaDB db = new VendasCaravanaDBToplink();
+        VendasCaravanaDao db = new VendasCaravanaDao();
         return db.pesquisaTodos();
     }
 
@@ -729,7 +727,7 @@ public class VendasCaravanaBean {
 
     public List<SelectItem> getListaPoltrona() {
         List<Integer> select;
-        VendasCaravanaDB db = new VendasCaravanaDBToplink();
+        VendasCaravanaDao db = new VendasCaravanaDao();
         if (!listaCaravana.isEmpty() && listaPoltrona.isEmpty()) {
             select = db.listaPoltronasUsadas(listaCaravana.get(idCaravana).getaEvento().getId());
 
@@ -852,7 +850,7 @@ public class VendasCaravanaBean {
             Fisica fis = (Fisica) GenericaSessao.getObject("fisicaPesquisa", true);
             listaReservas.get(idAdicionar).setFisica(fis);
 
-            SociosDB db = new SociosDBToplink();
+            SociosDao db = new SociosDao();
             float valor;
             //valor = db.descontoSocioEve(fis.getPessoa().getId() , eventoServico.getServicos().getId() );
             valor = db.descontoSocioEve(fis.getPessoa().getId(), ((Reservas) listaReservas.get(idAdicionar).getReservas()).getEventoServico().getId());
@@ -1200,7 +1198,7 @@ public class VendasCaravanaBean {
     }
 
     public void loadListCVenda(Integer pessoa_id) {
-        listCVenda = new VendasCaravanaDBToplink().findByPessoa(pessoa_id);
+        listCVenda = new VendasCaravanaDao().findByPessoa(pessoa_id);
     }
 
     public String getCalculaValorMovimentoAlterado() {

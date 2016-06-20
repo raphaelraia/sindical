@@ -1,13 +1,15 @@
 package br.com.rtools.associativo.beans;
 
+import br.com.rtools.associativo.dao.SociosDao;
+import br.com.rtools.associativo.dao.MatriculaSociosDao;
+import br.com.rtools.associativo.dao.ServicoCategoriaDao;
 import br.com.rtools.associativo.dao.ParentescoDao;
 import br.com.rtools.associativo.dao.CategoriaDao;
 import br.com.rtools.arrecadacao.GrupoCidades;
 import br.com.rtools.associativo.*;
 import br.com.rtools.associativo.dao.SocioCarteirinhaDao;
-import br.com.rtools.associativo.dao.SociosDao;
+import br.com.rtools.associativo.dao.SociosDao2;
 import br.com.rtools.associativo.dao.ValidadeCartaoDao;
-import br.com.rtools.associativo.db.*;
 import br.com.rtools.associativo.lista.ListaDependentes;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.financeiro.FTipoDocumento;
@@ -313,21 +315,9 @@ public class SociosBean implements Serializable {
         if (f.exists()) {
             f.delete();
         }
-        SociosDB db = new SociosDBToplink();
-        SocioCarteirinhaDB dbc = new SocioCarteirinhaDBToplink();
+        SociosDao db = new SociosDao();
+        SocioCarteirinhaDao dbc = new SocioCarteirinhaDao();
         Socios socio_pessoa = db.pesquisaSocioPorPessoa(p.getId());
-//        SociosDao sociosDao = new SociosDao();
-//        List<Socios> list = sociosDao.listaPorPessoa(p.getId(), true);
-//        Socios socio_pessoa = null;
-//        for (int i = 0; i < list.size(); i++) {
-//            if (list.get(i).getServicoPessoa().isAtivo()) {
-//                socio_pessoa = list.get(i);
-//                break;
-//            }
-//        }
-//        if (socio_pessoa == null) {
-//            socio_pessoa = db.pesquisaSocioPorPessoa(p.getId());
-//        }        
         Dao dao = new Dao();
         // SE REATIVAR == FALSE NÃO CARREGAR SOCIO
 
@@ -511,7 +501,7 @@ public class SociosBean implements Serializable {
         listaServicos.clear();
         idServico = 0;
         if (!listaGrupoCategoria.isEmpty() && !listaCategoria.isEmpty()) {
-            ServicoCategoriaDB db = new ServicoCategoriaDBToplink();
+            ServicoCategoriaDao db = new ServicoCategoriaDao();
             int id_categoria = Integer.parseInt(listaCategoria.get(idCategoria).getDescription());
 
             servicoCategoria = db.pesquisaPorParECat(1, id_categoria);
@@ -628,7 +618,7 @@ public class SociosBean implements Serializable {
             //String valorx = Moeda.converteR$Float( new FunctionsDBTopLink().valorServico(servicoPessoa.getPessoa().getId(), servicoCategoria.getServicos().getId(), DataHoje.dataHoje(), 0) );
             //valorServico = Moeda.valorDoPercentual(valorx, servicoPessoa.getNrDescontoString());
             calculoValor();
-            SociosDB db = new SociosDBToplink();
+            SociosDao db = new SociosDao();
 
             List<ServicoPessoa> lsp = db.listaServicoPessoaPorDescontoSocial(descontoSocial.getId(), null);
 
@@ -970,7 +960,7 @@ public class SociosBean implements Serializable {
     public void inativarSocio() {
         if (socios.getId() != -1) {
             Dao dao = new Dao();
-            SociosDB db = new SociosDBToplink();
+            SociosDao db = new SociosDao();
             if (dataInativacao.length() < 10) {
                 GenericaMensagem.warn("Erro", "Data de inativação inválida!");
                 return;
@@ -1063,7 +1053,7 @@ public class SociosBean implements Serializable {
 
     public String reativarSocio() {
         Dao dao = new Dao();
-        SociosDB db = new SociosDBToplink();
+        SociosDao db = new SociosDao();
 
         if (db.pesquisaSocioPorPessoaAtivo(socios.getServicoPessoa().getPessoa().getId()).getId() != -1) {
             GenericaMensagem.warn("Erro", "Este sócio já esta cadastrado!");
@@ -1185,7 +1175,7 @@ public class SociosBean implements Serializable {
 //            msgConfirma = "Número de matrícula deve ser menor ou igual!";
 //            return null;
 //        }
-        MatriculaSociosDB dbMat = new MatriculaSociosDBToplink();
+        MatriculaSociosDao dbMat = new MatriculaSociosDao();
         ValidadeCartaoDao validadeCartaoDao = new ValidadeCartaoDao();
 
         matriculaSocios.setCategoria(servicoCategoria.getCategoria());
@@ -1267,8 +1257,8 @@ public class SociosBean implements Serializable {
                 1);
 
         DataHoje dh = new DataHoje();
-        SociosDB db = new SociosDBToplink();
-        SocioCarteirinhaDB dbc = new SocioCarteirinhaDBToplink();
+        SociosDao db = new SociosDao();
+        SocioCarteirinhaDao dbc = new SocioCarteirinhaDao();
         ModeloCarteirinha modeloc = dbc.pesquisaModeloCarteirinha(Integer.valueOf(listaCategoria.get(idCategoria).getDescription()), 170);
 
         if (modeloc
@@ -1369,7 +1359,7 @@ public class SociosBean implements Serializable {
 
             SocioCarteirinhaDao socioCarteirinhaDao = new SocioCarteirinhaDao();
 
-            ServicoCategoriaDB dbSCat = new ServicoCategoriaDBToplink();
+            ServicoCategoriaDao dbSCat = new ServicoCategoriaDao();
             SocioCarteirinha sc;
             SociosDao sociosDao = new SociosDao();
             ParentescoDao dbPar = new ParentescoDao();
@@ -1684,7 +1674,7 @@ public class SociosBean implements Serializable {
                 return false;
             }
         }
-        ServicoCategoriaDB dbSCat = new ServicoCategoriaDBToplink();
+        ServicoCategoriaDao dbSCat = new ServicoCategoriaDao();
         int idCat = Integer.parseInt(getListaCategoria().get(idCategoria).getDescription());
         servicoCategoria = dbSCat.pesquisaPorParECat(1, idCat);
         if (servicoCategoria == null) {
@@ -1721,7 +1711,7 @@ public class SociosBean implements Serializable {
             }
         }
 
-        SociosDB db = new SociosDBToplink();
+        SociosDao db = new SociosDao();
         if ((servicoPessoa.getId() == -1) && (db.pesquisaSocioPorPessoaAtivo(servicoPessoa.getPessoa().getId()).getId() != -1)) {
             GenericaMensagem.error("Erro", "Esta pessoa já um Sócio Cadastrado!");
             return false;
@@ -1932,8 +1922,7 @@ public class SociosBean implements Serializable {
             }
         }
 
-        SociosDB dbs = new SociosDBToplink();
-        SociosDao sociosDao = new SociosDao();
+        SociosDao dbs = new SociosDao();
         Socios s = dbs.pesquisaSocioPorPessoaAtivo(novoDependente.getPessoa().getId());
         if (s.getId() != -1) {
             if (s.getServicoPessoa().isAtivo()) {
@@ -1945,7 +1934,7 @@ public class SociosBean implements Serializable {
                 }
             }
         }
-        List<Socios> list = sociosDao.listaPorPessoa(novoDependente.getPessoa().getId());
+        List<Socios> list = dbs.listaPorPessoa(novoDependente.getPessoa().getId());
         Socios soc_dep = dbs.pesquisaSocioPorPessoaAtivo(novoDependente.getPessoa().getId());
         if (soc_dep.getId() != -1 && (soc_dep.getMatriculaSocios().getId() != socios.getMatriculaSocios().getId())) {
             for (int i = 0; i < list.size(); i++) {
@@ -2009,7 +1998,7 @@ public class SociosBean implements Serializable {
 
         List<SelectItem> selectItems = new ArrayList<>();
         selectItems.add(new SelectItem(0, "Selecione um Dependente", "0"));
-        //ServicoCategoriaDB dbSCat = new ServicoCategoriaDBToplink();
+        //ServicoCategoriaDB dbSCat = new ServicoCategoriaDao();
         //ServicoCategoria servicoCategoriaDep = dbSCat.pesquisaPorParECat(Integer.valueOf(selectItems.get(0).getDescription()), servicoCategoria.getCategoria().getId());
         if (listDependentes.isEmpty()) {
             listDependentes.add(
@@ -2075,7 +2064,7 @@ public class SociosBean implements Serializable {
         }
         List<ServicoPessoaBloqueio> spbs = new ServicoPessoaBloqueioDao().findByServicoPessoa(socios.getServicoPessoa().getId());
         //Dao dao = new Dao();
-        SociosDB db = new SociosDBToplink();
+        SociosDao db = new SociosDao();
 
         Dao di = new Dao();
         // DELETAR DEPENDENTES -----
@@ -2136,14 +2125,14 @@ public class SociosBean implements Serializable {
 //            }
 //        }
 
-        SocioCarteirinhaDB dbc = new SocioCarteirinhaDBToplink();
+        SocioCarteirinhaDao dbc = new SocioCarteirinhaDao();
         ModeloCarteirinha modeloc = dbc.pesquisaModeloCarteirinha(socios.getMatriculaSocios().getCategoria().getId(), 170);
 
         List<SocioCarteirinha> list = new ArrayList();
         if (modeloc != null) {
             list = db.pesquisaCarteirinhasPorPessoa(socios.getServicoPessoa().getPessoa().getId(), modeloc.getId());
         }
-        SocioCarteirinhaDB socioCarteirinhaDB = new SocioCarteirinhaDBToplink();
+        SocioCarteirinhaDao socioCarteirinhaDB = new SocioCarteirinhaDao();
         List<HistoricoCarteirinha> hcs;
         if (!list.isEmpty()) {
             for (SocioCarteirinha socioCarteirinha : list) {
@@ -2220,7 +2209,7 @@ public class SociosBean implements Serializable {
     public String excluirDependente(ListaDependentes list, Integer index) {
         Fisica fi = list.getFisica();
         if (fi.getId() != -1) {
-            SociosDB db = new SociosDBToplink();
+            SociosDao db = new SociosDao();
             // Socios soc = db.pesquisaSocioPorPessoa(fi.getPessoa().getId());
             Socios soc = db.pesquisaSocioPorPessoaEMatriculaSocio(fi.getPessoa().getId(), socios.getMatriculaSocios().getId());
             Dao dao = new Dao();
@@ -2294,11 +2283,11 @@ public class SociosBean implements Serializable {
     }
 
     public boolean excluirDependentes(Dao dao, Socios soc) {
-        SociosDB db = new SociosDBToplink();
+        SociosDao db = new SociosDao();
 
-        SocioCarteirinhaDB dbc = new SocioCarteirinhaDBToplink();
+        SocioCarteirinhaDao dbc = new SocioCarteirinhaDao();
 
-        ServicoCategoriaDB dbSCat = new ServicoCategoriaDBToplink();
+        ServicoCategoriaDao dbSCat = new ServicoCategoriaDao();
 
         ServicoCategoria servicoCategoriaDep = dbSCat.pesquisaPorParECat(soc.getParentesco().getId(), servicoCategoria.getCategoria().getId());
 
@@ -2476,7 +2465,7 @@ public class SociosBean implements Serializable {
 
     public void atualizarListaDependenteAtivo() {
         int index = 0;
-        SociosDB db = new SociosDBToplink();
+        SociosDao db = new SociosDao();
         FisicaDB dbf = new FisicaDBToplink();
         Dao dao = new Dao();
         // LISTA DE DEPENDENTES ATIVOS
@@ -2507,7 +2496,7 @@ public class SociosBean implements Serializable {
 
                 if (vencimento_dep.isEmpty()
                         || (!vencimento_dep.isEmpty() && (DataHoje.igualdadeData(vencimento_dep, data_hoje) || DataHoje.maiorData(vencimento_dep, data_hoje)))) {
-                    SocioCarteirinhaDB dbc = new SocioCarteirinhaDBToplink();
+                    SocioCarteirinhaDao dbc = new SocioCarteirinhaDao();
                     ModeloCarteirinha modeloc = dbc.pesquisaModeloCarteirinha(socios.getMatriculaSocios().getCategoria().getId(), 170);
 
                     List<SocioCarteirinha> listsc = new ArrayList();
@@ -2563,7 +2552,7 @@ public class SociosBean implements Serializable {
 
     public void atualizarListaDependenteInativo() {
         int index = 0;
-        SociosDB db = new SociosDBToplink();
+        SociosDao db = new SociosDao();
         FisicaDB dbf = new FisicaDBToplink();
         // LISTA DE DEPENDENTES INATIVOS
         List<Socios> listaDepsInativo = db.listaDependentesInativos(matriculaSocios.getId());
@@ -2584,7 +2573,7 @@ public class SociosBean implements Serializable {
                     lista_si.add(new SelectItem(w, listap.get(w).getParentesco(), Integer.toString(listap.get(w).getId())));
                 }
 
-                SocioCarteirinhaDB dbc = new SocioCarteirinhaDBToplink();
+                SocioCarteirinhaDao dbc = new SocioCarteirinhaDao();
                 ModeloCarteirinha modeloc = dbc.pesquisaModeloCarteirinha(socios.getMatriculaSocios().getCategoria().getId(), 170);
                 List<SocioCarteirinha> listsc = new ArrayList();
 
@@ -2671,7 +2660,7 @@ public class SociosBean implements Serializable {
         Parentesco par = (Parentesco) new Dao().find(new Parentesco(), Integer.valueOf(lista_si.get(index_pa).getDescription()));
         listDependentes.get(index).setValidadeCarteirinha(atualizaValidadeCarteirinha(par, fisica));
         listDependentes.get(index).setValidadeDependente(atualizaValidade(par, fisica));
-        ServicoCategoriaDB dbSCat = new ServicoCategoriaDBToplink();
+        ServicoCategoriaDao dbSCat = new ServicoCategoriaDao();
         ServicoCategoria servicoCategoriaDep = dbSCat.pesquisaPorParECat(par.getId(), servicoCategoria.getCategoria().getId());
         listDependentes.get(index).getServicoPessoa().setServicos(servicoCategoriaDep.getServicos());
 
@@ -2683,8 +2672,8 @@ public class SociosBean implements Serializable {
             return;
         }
 
-        SocioCarteirinhaDB dbc = new SocioCarteirinhaDBToplink();
-        SociosDB dbs = new SociosDBToplink();
+        SocioCarteirinhaDao dbc = new SocioCarteirinhaDao();
+        SociosDao dbs = new SociosDao();
         ModeloCarteirinha modeloc = dbc.pesquisaModeloCarteirinha(socios.getMatriculaSocios().getCategoria().getId(), 170);
 
         if (modeloc == null) {
@@ -2725,7 +2714,7 @@ public class SociosBean implements Serializable {
                 return null;
             }
         }
-        SocioCarteirinhaDB dbc = new SocioCarteirinhaDBToplink();
+        SocioCarteirinhaDao dbc = new SocioCarteirinhaDao();
         ModeloCarteirinha modeloc = dbc.pesquisaModeloCarteirinha(socios.getMatriculaSocios().getCategoria().getId(), 170);
 
         if (modeloc == null) {
@@ -2782,7 +2771,7 @@ public class SociosBean implements Serializable {
         }
         List listaAux = dbc.filtroCartao(socios.getServicoPessoa().getPessoa().getId());
         Boolean dependentesSemFotos = false;
-        SociosDB db = new SociosDBToplink();
+        SociosDao db = new SociosDao();
         if (registro.isCarteirinhaDependente() && !listDependentes.isEmpty()) {
             dao.openTransaction();
             for (ListaDependentes ld : listDependentes) {
@@ -3214,7 +3203,7 @@ public class SociosBean implements Serializable {
 
     public List<SelectItem> getListaMotivoInativacao() {
         if (listaMotivoInativacao.isEmpty()) {
-            SociosDB db = new SociosDBToplink();
+            SociosDao db = new SociosDao();
             List<SMotivoInativacao> select = db.pesquisaMotivoInativacao();
             for (int i = 0; i < select.size(); i++) {
                 listaMotivoInativacao.add(new SelectItem(i, select.get(i).getDescricao(), Integer.toString(select.get(i).getId())));
@@ -3395,7 +3384,7 @@ public class SociosBean implements Serializable {
 
     public List<SelectItem> getListaDescontoSocial() {
         if (listaDescontoSocial.isEmpty()) {
-            SociosDB db = new SociosDBToplink();
+            SociosDao db = new SociosDao();
             //listaDescontoSocial.add((DescontoSocial) new Dao().find(new DescontoSocial(), 1));
             DescontoSocial ds = (DescontoSocial) new Dao().find(new DescontoSocial(), 1);
             listaDescontoSocial.add(new SelectItem(0, ds.getDescricao(), "" + ds.getId()));

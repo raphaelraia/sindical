@@ -53,6 +53,7 @@ public class RelatorioTabelaPrecosBean implements Serializable {
 
     @PostConstruct
     public void init() {
+        new Jasper().init();
         listFilters = new ArrayList();
 
         listServicos = null;
@@ -366,7 +367,7 @@ public class RelatorioTabelaPrecosBean implements Serializable {
                 tsps.add(tsp);
             }
         }
-
+        Jasper.EXPORT_TO = true;
         Jasper.printReports(r.getJasper(), r.getNome(), (Collection) tsps);
         sisProcesso.setProcesso(r.getNome());
         sisProcesso.finish();

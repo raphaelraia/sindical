@@ -10,10 +10,8 @@ import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.ValidadeCartao;
 import br.com.rtools.associativo.dao.ValidadeCartaoDao;
 import br.com.rtools.associativo.dao.CategoriaDao;
-import br.com.rtools.associativo.db.SocioCarteirinhaDB;
-import br.com.rtools.associativo.db.SocioCarteirinhaDBToplink;
-import br.com.rtools.associativo.db.SociosDB;
-import br.com.rtools.associativo.db.SociosDBToplink;
+import br.com.rtools.associativo.dao.SocioCarteirinhaDao;
+import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.impressao.Etiquetas;
 import br.com.rtools.logSistema.NovoLog;
@@ -87,7 +85,7 @@ public class CartaoSocialBean implements Serializable {
 
     public void historicoCarteirinha() {
         if (listaSelecionado.size() > 0) {
-            SocioCarteirinhaDB db = new SocioCarteirinhaDBToplink();
+            SocioCarteirinhaDao db = new SocioCarteirinhaDao();
 
             listaHistorico.clear();
             for (int i = 0; i < listaSelecionado.size(); i++) {
@@ -106,42 +104,42 @@ public class CartaoSocialBean implements Serializable {
     public void naoImpressoTodos() {
         por = "niEmpresaTodos";
         porLabel = "Lista de TODOS NÃO IMPRESSOS";
-        SocioCarteirinhaDB db = new SocioCarteirinhaDBToplink();
+        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
         listaCarteirinha = db.pesquisaCarteirinha("niEmpresa", "", indexOrdem, getFilialInteger());
     }
 
     public void naoImpressoEmpresa() {
         por = "niEmpresa";
         porLabel = "Pesquisa por Não Impressos / EMPRESAS";
-        SocioCarteirinhaDB db = new SocioCarteirinhaDBToplink();
+        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
         listaCarteirinha = db.pesquisaCarteirinha("niEmpresa", descricao, indexOrdem, getFilialInteger());
     }
 
     public void naoImpressoCNPJ() {
         por = "niCNPJ";
         porLabel = "Pesquisa por Não Impressos / CNPJ";
-        SocioCarteirinhaDB db = new SocioCarteirinhaDBToplink();
+        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
         listaCarteirinha = db.pesquisaCarteirinha("niCNPJ", descricao, indexOrdem, getFilialInteger());
     }
 
     public void impressoTodos() {
         por = "iEmpresaTodos";
         porLabel = "Lista de TODOS IMPRESSOS";
-        SocioCarteirinhaDB db = new SocioCarteirinhaDBToplink();
+        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
         listaCarteirinha = db.pesquisaCarteirinha("iEmpresa", "", indexOrdem, getFilialInteger());
     }
 
     public void impressoEmpresa() {
         por = "iEmpresa";
         porLabel = "Pesquisa por Impressos / EMPRESAS";
-        SocioCarteirinhaDB db = new SocioCarteirinhaDBToplink();
+        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
         listaCarteirinha = db.pesquisaCarteirinha("iEmpresa", descricao, indexOrdem, getFilialInteger());
     }
 
     public void impressoCNPJ() {
         por = "iCNPJ";
         porLabel = "Pesquisa por Impressos / CNPJ";
-        SocioCarteirinhaDB db = new SocioCarteirinhaDBToplink();
+        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
         listaCarteirinha = db.pesquisaCarteirinha("iCNPJ", descricao, indexOrdem, getFilialInteger());
     }
 
@@ -153,7 +151,7 @@ public class CartaoSocialBean implements Serializable {
     public void impressoDias(Integer dias) {
         por = "iDias";
         porLabel = "Pesquisa por Impressos / ÚLTIMOS 30 DIAS";
-        SocioCarteirinhaDB db = new SocioCarteirinhaDBToplink();
+        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
         String tipo = "";
         if (dias == 0) {
             tipo = "iHoje";
@@ -168,14 +166,14 @@ public class CartaoSocialBean implements Serializable {
     public void pessoaNome() {
         por = "iNome";
         porLabel = "Pesquisa por Pessoa / NOME";
-        SocioCarteirinhaDB db = new SocioCarteirinhaDBToplink();
+        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
         listaCarteirinha = db.pesquisaCarteirinha("iNome", descricao, indexOrdem, getFilialInteger());
     }
 
     public void sociosMatricula() {
         por = "iMatricula";
         porLabel = "Pesquisa por Sócio / MATRÍCULA";
-        SocioCarteirinhaDB db = new SocioCarteirinhaDBToplink();
+        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
         if (descricao.isEmpty()) {
             listaCarteirinha = new ArrayList<>();
             return;
@@ -186,7 +184,7 @@ public class CartaoSocialBean implements Serializable {
     public void pessoaID() {
         por = "iID";
         porLabel = "Pesquisa por Pessoa / Código";
-        SocioCarteirinhaDB db = new SocioCarteirinhaDBToplink();
+        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
         if (!descricao.isEmpty()) {
             listaCarteirinha = db.pesquisaCarteirinha("iID", descricao, indexOrdem, getFilialInteger());
         } else {
@@ -197,12 +195,12 @@ public class CartaoSocialBean implements Serializable {
     public void pessoaCPF() {
         por = "iCPF";
         porLabel = "Pesquisa por Pessoa / CPF";
-        SocioCarteirinhaDB db = new SocioCarteirinhaDBToplink();
+        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
         listaCarteirinha = db.pesquisaCarteirinha("iCPF", descricao, indexOrdem, getFilialInteger());
     }
 
     public void pesquisar() {
-        SocioCarteirinhaDB db = new SocioCarteirinhaDBToplink();
+        SocioCarteirinhaDao db = new SocioCarteirinhaDao();
         if (por.equals("niEmpresa")) {
             listaCarteirinha = db.pesquisaCarteirinha("niEmpresa", descricao, indexOrdem, getFilialInteger());
         }
@@ -257,9 +255,9 @@ public class CartaoSocialBean implements Serializable {
         novoLog.startList();
         if (!list.isEmpty()) {
             dao.openTransaction();
-            SocioCarteirinhaDB dbc = new SocioCarteirinhaDBToplink();
+            SocioCarteirinhaDao dbc = new SocioCarteirinhaDao();
             DataHoje dh = new DataHoje();
-            SociosDB dbs = new SociosDBToplink();
+            SociosDao dbs = new SociosDao();
             for (int i = 0; i < list.size(); i++) {
                 Integer nrValidadeMeses = 0;
                 Integer titular_id = (Integer) ((List) list.get(i)).get(40);
@@ -322,7 +320,7 @@ public class CartaoSocialBean implements Serializable {
                     dao.rollback();
                     return;
                 }
-                
+
                 list.get(i).set(6, carteirinha.getValidadeCarteirinha());
                 HistoricoCarteirinha hc = new HistoricoCarteirinha();
 
@@ -379,7 +377,7 @@ public class CartaoSocialBean implements Serializable {
         if (!listaSelecionado.isEmpty()) {
             CategoriaDao dbCat = new CategoriaDao();
             DataHoje dh = new DataHoje();
-            SociosDB dbs = new SociosDBToplink();
+            SociosDao dbs = new SociosDao();
 
             sv.abrirTransacao();
 
@@ -469,7 +467,7 @@ public class CartaoSocialBean implements Serializable {
     }
 
     public String imprimirEtiqueta() {
-        SocioCarteirinhaDB dbs = new SocioCarteirinhaDBToplink();
+        SocioCarteirinhaDao dbs = new SocioCarteirinhaDao();
 
         List<Etiquetas> listax = new ArrayList();
         for (int i = 0; i < listaSelecionado.size(); i++) {
@@ -496,7 +494,7 @@ public class CartaoSocialBean implements Serializable {
     }
 
     public String imprimirEtiquetaTermica() {
-        SocioCarteirinhaDB dbs = new SocioCarteirinhaDBToplink();
+        SocioCarteirinhaDao dbs = new SocioCarteirinhaDao();
 
         List<Etiquetas> listax = new ArrayList();
         for (int i = 0; i < listaSelecionado.size(); i++) {
@@ -807,7 +805,7 @@ public class CartaoSocialBean implements Serializable {
      * @return
      */
     public static List<HistoricoCarteirinha> gerarHistoricoCarteirinhas(List<Movimento> list, Integer idCategoria, Integer idRotina) {
-        SocioCarteirinhaDB socioCarteirinhaDB = new SocioCarteirinhaDBToplink();
+        SocioCarteirinhaDao socioCarteirinhaDB = new SocioCarteirinhaDao();
         ModeloCarteirinha modeloCarteirinha = socioCarteirinhaDB.pesquisaModeloCarteirinha(idCategoria, idRotina);
         if (modeloCarteirinha != null) {
             return gerarHistoricoCarteirinhas(list, modeloCarteirinha.getId());
@@ -823,7 +821,7 @@ public class CartaoSocialBean implements Serializable {
      */
     public static List<HistoricoCarteirinha> gerarHistoricoCarteirinhas(List<Movimento> list, Integer idModelo) {
         HistoricoCarteirinha historicoCarteirinha;
-        SocioCarteirinhaDB socioCarteirinhaDB = new SocioCarteirinhaDBToplink();
+        SocioCarteirinhaDao socioCarteirinhaDB = new SocioCarteirinhaDao();
         Dao dao = new Dao();
         dao.openTransaction();
         List<HistoricoCarteirinha> carteirinhas = new ArrayList();
@@ -867,7 +865,7 @@ public class CartaoSocialBean implements Serializable {
             carteirinhas = (List<SocioCarteirinha>) list;
         }
 
-        SocioCarteirinhaDB dbc = new SocioCarteirinhaDBToplink();
+        SocioCarteirinhaDao dbc = new SocioCarteirinhaDao();
         List listAux = new ArrayList();
         for (int i = 0; i < list.size(); i++) {
             carteirinhas.get(i).setEmissao(DataHoje.data());

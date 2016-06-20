@@ -2173,6 +2173,19 @@
             <to-view-id>/acrescentarHorario.jsf</to-view-id>
             <redirect/>
         </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>relatorioAgendaTelefonica</from-outcome>
+            <to-view-id>/relatorioAgendaTelefonica.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>relatorioBalancete</from-outcome>
+            <to-view-id>/relatorioBalancete.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
     </navigation-rule>
     
     <lifecycle>
