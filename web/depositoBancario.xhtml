@@ -12,6 +12,24 @@
         <style type="text/css">
             .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
             .ui-button { padding: 3px!important; }
+            
+            .column01{
+                float: right;
+            }
+            
+            .column02{
+                padding-right: 20px;
+                float: right;
+            }
+            
+            .column03{
+                padding-right: 20px;
+                text-align: center;
+            }
+            
+            .column04{
+                text-align: right;
+            }
         </style>
 
         <script type="text/javascript">
@@ -47,14 +65,15 @@
                                 </h:panelGrid>
                             </p:panel>
 
-                            <p:messages id="i_msg" showDetail="true" closable="true" />  
+                            <p:messages id="i_msg" showDetail="true" closable="true" />
 
                             <p:dataTable var="linha" id="tbl" value="#{depositoBancarioBean.listaCheques}" rowKey="#{linha.chequeRec.id}" selection="#{depositoBancarioBean.listaSelecionado}" emptyMessage="Nenhum cheque encontrado!" rows="20" paginator="true">
                                 <p:column selectionMode="multiple" style="width:20px" />  
-                                <p:ajax event="rowSelect" update="@this" global="false"/>
-                                <p:ajax event="rowSelectCheckbox" update="@this" global="false"/>
-                                <p:ajax event="rowUnselect" update="@this" global="false"/>
-                                <p:ajax event="rowUnselectCheckbox" update="@this" global="false"/>
+                                <p:ajax event="toggleSelect" update="@this formDepositoBancario:panel_valores" listener="#{depositoBancarioBean.calculoValores()}" />
+                                <p:ajax event="rowSelect" update="@this formDepositoBancario:panel_valores" listener="#{depositoBancarioBean.calculoValores()}" global="false" />
+                                <p:ajax event="rowSelectCheckbox" update="@this formDepositoBancario:panel_valores" listener="#{depositoBancarioBean.calculoValores()}" global="false" />
+                                <p:ajax event="rowUnselect" update="@this formDepositoBancario:panel_valores" listener="#{depositoBancarioBean.calculoValores()}" global="false" />
+                                <p:ajax event="rowUnselectCheckbox" update="@this formDepositoBancario:panel_valores" listener="#{depositoBancarioBean.calculoValores()}" global="false" />
 
                                 <p:column headerText="Baixa" style="text-align: center">
                                     <h:outputText value="#{linha.baixa.id}"/>
@@ -88,18 +107,46 @@
                                 <p:column headerText="Vencimento" style="text-align: center">
                                     <h:outputText value="#{linha.chequeRec.vencimento}"/>
                                 </p:column>
+                                <p:column headerText="Dev." style="width:50px; text-align: center">
+                                    <p:outputLabel value="#{linha.formaPagamento.devolucaoString}" style="font-size: 8pt!important"/>
+                                </p:column>
                             </p:dataTable>
+
+                            <h:panelGrid id="panel_valores" style="width: 100%" columns="3" columnClasses="column01, column02, column02">
+                                <h:panelGrid columns="2" columnClasses="column03, column04">
+                                    <h:column>
+                                        <p:outputLabel value="CHEQUES SELECIONADOS" style="font-size: 7pt!important"/><br />
+                                        <p:outputLabel value="#{depositoBancarioBean.listaSelecionado.size()}" style="font-weight: bold; font-size: 14pt!important"/>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="VALOR TOTAL" style="font-size: 7pt!important"/><br />
+                                        <p:outputLabel value="#{depositoBancarioBean.valorTotalSelecionadoString}" style="font-weight: bold; font-size: 14pt!important"/>
+                                    </h:column>
+                                </h:panelGrid>
+                                
+                                <h:panelGrid>
+                                    <p:outputLabel value="||" />
+                                </h:panelGrid>
+                                
+                                <h:panelGrid columns="2" columnClasses="column03, column04">
+                                    <h:column>
+                                        <p:outputLabel value="TOTAL DE CHEQUES" style="font-size: 7pt!important"/><br />
+                                        <p:outputLabel value="#{depositoBancarioBean.listaCheques.size()}" style="font-weight: bold; font-size: 14pt!important"/>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="VALOR TOTAL" style="font-size: 7pt!important"/><br />
+                                        <p:outputLabel value="#{depositoBancarioBean.valorTotalString}" style="font-weight: bold; font-size: 14pt!important"/>
+                                    </h:column>
+                                </h:panelGrid>
+                            </h:panelGrid>
 
                             <p:dialog widgetVar="i_dlg_deposito" header="Deseja realmente depositar estes cheques" resizable="false" width="400" modal="true">
                                 <p:commandButton value="Concluir" type="submit" styleClass="ui-confirmdialog-yes" action="#{depositoBancarioBean.depositar()}" update="formDepositoBancario" onclick="PF('i_dlg_deposito').hide()" style="clear: both; float: left" icon="ui-icon-check" />  
                                 <p:commandButton value="Voltar"   type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_deposito').hide()" style="float: left" icon="ui-icon-close"/>       
                             </p:dialog>
                         </h:form>
-
-                        <p:ajaxStatus id="i_status" onstart="PF('i_dlg_modal').show();" onsuccess="PF('i_dlg_modal').hide();" />
-                        <p:dialog modal="true" widgetVar="i_dlg_modal" header="Status" draggable="false" closable="false">  
-                            <h:outputLabel value="Aguarde ..." />
-                        </p:dialog> 
                     </p:panel>
                 </f:view>
                 <!-- FINALIZA div wrap main -->

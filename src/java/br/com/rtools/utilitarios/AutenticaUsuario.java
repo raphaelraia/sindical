@@ -3,6 +3,7 @@ package br.com.rtools.utilitarios;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
 import br.com.rtools.seguranca.dao.UsuarioDao;
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import javax.annotation.PostConstruct;
@@ -11,7 +12,7 @@ import javax.faces.bean.SessionScoped;
 
 @ManagedBean
 @SessionScoped
-public class AutenticaUsuario {
+public class AutenticaUsuario implements Serializable {
     private Usuario usuario;
     private String login;
     private String senha;

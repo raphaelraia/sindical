@@ -71,6 +71,7 @@ public class MovimentoBancarioBean implements Serializable {
     private Float saldoEntradaBloqueado = (float) 0;
     private Float saldoSaidaBloqueado = (float) 0;
     private Float saldoDisponivel = (float) 0;
+    private String historico = "";
 
     // FILTROS
     private String esFiltro = "todos";
@@ -83,6 +84,21 @@ public class MovimentoBancarioBean implements Serializable {
         loadListaContaOperacao();
         loadListaStatus();
         loadListaMovimento();
+        loadHistoricoDefault();
+    }
+
+    public final void loadHistoricoDefault() {
+        if (loteEditar.getId() == -1) {
+            if (tipo.equals("saida")) {
+                if (historico.isEmpty() || historico.equals("Taxa Bancária")) {
+                    historico = "Taxa Bancária";
+                }
+            } else {
+                if (historico.isEmpty() || historico.equals("Taxa Bancária")) {
+                    historico = "";
+                }
+            }
+        }
     }
 
     public void limparFiltro() {
@@ -280,6 +296,8 @@ public class MovimentoBancarioBean implements Serializable {
                 );
             }
         }
+
+        loadHistoricoDefault();
     }
 
     public final void loadListaStatus() {
@@ -311,7 +329,7 @@ public class MovimentoBancarioBean implements Serializable {
             Movimento movimento;
             Baixa baixa;
             FormaPagamento forma_pagamento;
-            //Plano5 plano = (Plano5) sv.pesquisaCodigo(Integer.valueOf(listaConta.get(idConta).getDescription()), "Plano5");
+
             ContaOperacao co = (ContaOperacao) dao.find(new ContaOperacao(), Integer.valueOf(listaContaOperacao.get(idContaOperacao).getDescription()));
             Plano5 plano5_lote = co.getPlano5();
 
@@ -319,14 +337,14 @@ public class MovimentoBancarioBean implements Serializable {
 
             if (tipo.equals("saida")) {
                 baixa = novaBaixa();
-                lote = novoLote(dao, "P", plano5_lote, Moeda.converteUS$(valor), (FStatus) dao.find(new FStatus(), 1));
+                lote = novoLote(dao, "P", plano5_lote, Moeda.converteUS$(valor), (FStatus) dao.find(new FStatus(), 1), historico);
                 movimento = novoMovimento(dao, lote, baixa, "S");
-                forma_pagamento = novaFormaPagamento(dao, baixa, Moeda.converteUS$(valor), plano5_forma_pagamento, (TipoPagamento) dao.find(new TipoPagamento(), 3));
+                forma_pagamento = novaFormaPagamento(dao, baixa, Moeda.converteUS$(valor), plano5_forma_pagamento, (TipoPagamento) dao.find(new TipoPagamento(), 14));
             } else {
                 baixa = novaBaixa();
-                lote = novoLote(dao, "R", plano5_lote, Moeda.converteUS$(valor), (FStatus) dao.find(new FStatus(), 1));
+                lote = novoLote(dao, "R", plano5_lote, Moeda.converteUS$(valor), (FStatus) dao.find(new FStatus(), 1), historico);
                 movimento = novoMovimento(dao, lote, baixa, "E");
-                forma_pagamento = novaFormaPagamento(dao, baixa, Moeda.converteUS$(valor), plano5_forma_pagamento, (TipoPagamento) dao.find(new TipoPagamento(), 3));
+                forma_pagamento = novaFormaPagamento(dao, baixa, Moeda.converteUS$(valor), plano5_forma_pagamento, (TipoPagamento) dao.find(new TipoPagamento(), 14));
             }
 
             dao.openTransaction();
@@ -357,13 +375,20 @@ public class MovimentoBancarioBean implements Serializable {
             dao.commit();
 
             loadListaMovimento();
-
             GenericaMensagem.info("Sucesso", "Movimento salvo com Sucesso!");
+            novo();
         } else {
+            if (formaPagamentoEditar.getChequeRec() != null || formaPagamentoEditar.getChequePag() != null || formaPagamentoEditar.getCartaoRec() != null || formaPagamentoEditar.getCartaoPag() != null) {
+                GenericaMensagem.error("Atenção", "Essa Operação não pode ser ATUALIZADA!");
+                novo();
+                return;
+            }
+
             formaPagamentoEditar.setValorString(valor);
             movimentoEditar.setValorString(valor);
             movimentoEditar.setValorBaixaString(valor);
             loteEditar.setValorString(valor);
+            loteEditar.setHistoricoContabil(historico);
 
             dao.openTransaction();
 
@@ -398,6 +423,7 @@ public class MovimentoBancarioBean implements Serializable {
         formaPagamentoEditar = omb.getFormaPagamento();
         movimentoEditar = omb.getMovimento();
         loteEditar = omb.getMovimento().getLote();
+        historico = loteEditar.getHistoricoContabil();
 
         for (int i = 0; i < listaConta.size(); i++) {
             if (Integer.valueOf(listaConta.get(i).getDescription()) == omb.getFormaPagamento().getPlano5().getId()) {
@@ -424,6 +450,13 @@ public class MovimentoBancarioBean implements Serializable {
             GenericaMensagem.error("Atenção", "Movimentos com Caixa Fechado não podem ser excluídos!");
             return;
         }
+
+        if (formaPagamentoEditar.getChequeRec() != null || formaPagamentoEditar.getChequePag() != null || formaPagamentoEditar.getCartaoRec() != null || formaPagamentoEditar.getCartaoPag() != null) {
+            GenericaMensagem.error("Atenção", "Essa Operação não pode ser EXCLUÍDA!");
+            novo();
+            return;
+        }
+
         movimentoEditar.setAtivo(false);
 
         Dao dao = new Dao();
@@ -454,7 +487,7 @@ public class MovimentoBancarioBean implements Serializable {
         GenericaSessao.put("movimentoBancarioBean", new MovimentoBancarioBean());
     }
 
-    public Lote novoLote(Dao dao, String pag_rec, Plano5 plano, float valor, FStatus fstatus) {
+    public Lote novoLote(Dao dao, String pag_rec, Plano5 plano, float valor, FStatus fstatus, String historicox) {
         return new Lote(
                 -1,
                 (Rotina) dao.find(new Rotina(), 225), // ROTINA
@@ -468,7 +501,7 @@ public class MovimentoBancarioBean implements Serializable {
                 (Filial) dao.find(new Filial(), 1), // FILIAL
                 null, // DEPARTAMENTO
                 null, // EVT
-                "Deposito bancário para a conta ??", // HISTORICO
+                historicox, // HISTORICO
                 (FTipoDocumento) dao.find(new FTipoDocumento(), 4), // 4 - CHEQUE / 5 - CHEQUE PRE
                 (CondicaoPagamento) dao.find(new CondicaoPagamento(), 1), // 1 - A VISTA / 2 - PRAZO
                 fstatus, // 1 - EFETIVO // 8 - DEPOSITADO // 14 - NÃO CONTABILIZAR
@@ -479,7 +512,7 @@ public class MovimentoBancarioBean implements Serializable {
                 null,
                 null,
                 false,
-                ""
+                historicox
         );
     }
 
@@ -520,30 +553,30 @@ public class MovimentoBancarioBean implements Serializable {
 
     // NORMAL
     public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, float valor, Plano5 plano, TipoPagamento tipoPagamento) {
-        return this.novaFormaPagamento(dao, baixa, valor, plano, null, null, null, null, tipoPagamento, null);
+        return this.novaFormaPagamento(dao, baixa, valor, plano, null, null, null, null, tipoPagamento, null, 0);
     }
 
     // CHEQUE PAGAMENTO
-    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, float valor, Plano5 plano, ChequePag chequePag, TipoPagamento tipoPagamento, FStatus fstatus) {
-        return this.novaFormaPagamento(dao, baixa, valor, plano, chequePag, null, null, null, tipoPagamento, fstatus);
+    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, float valor, Plano5 plano, ChequePag chequePag, TipoPagamento tipoPagamento, FStatus fstatus, Integer devolucao) {
+        return this.novaFormaPagamento(dao, baixa, valor, plano, chequePag, null, null, null, tipoPagamento, fstatus, devolucao);
     }
 
     // CHEQUE RECEBIMENTO
-    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, float valor, Plano5 plano, ChequeRec chequeRec, TipoPagamento tipoPagamento, FStatus fstatus) {
-        return this.novaFormaPagamento(dao, baixa, valor, plano, null, chequeRec, null, null, tipoPagamento, fstatus);
+    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, float valor, Plano5 plano, ChequeRec chequeRec, TipoPagamento tipoPagamento, FStatus fstatus, Integer devolucao) {
+        return this.novaFormaPagamento(dao, baixa, valor, plano, null, chequeRec, null, null, tipoPagamento, fstatus, devolucao);
     }
 
     // CARTÃO PAGAMENTO
-    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, float valor, Plano5 plano, CartaoPag cartaoPag, TipoPagamento tipoPagamento, FStatus fstatus) {
-        return this.novaFormaPagamento(dao, baixa, valor, plano, null, null, cartaoPag, null, tipoPagamento, fstatus);
+    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, float valor, Plano5 plano, CartaoPag cartaoPag, TipoPagamento tipoPagamento, FStatus fstatus, Integer devolucao) {
+        return this.novaFormaPagamento(dao, baixa, valor, plano, null, null, cartaoPag, null, tipoPagamento, fstatus, devolucao);
     }
 
     // CARTÃO RECEBIMENTO
-    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, float valor, Plano5 plano, CartaoRec cartaoRec, TipoPagamento tipoPagamento, FStatus fstatus) {
-        return this.novaFormaPagamento(dao, baixa, valor, plano, null, null, null, cartaoRec, tipoPagamento, fstatus);
+    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, float valor, Plano5 plano, CartaoRec cartaoRec, TipoPagamento tipoPagamento, FStatus fstatus, Integer devolucao) {
+        return this.novaFormaPagamento(dao, baixa, valor, plano, null, null, null, cartaoRec, tipoPagamento, fstatus, devolucao);
     }
 
-    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, float valor, Plano5 plano, ChequePag chequePag, ChequeRec chequeRec, CartaoPag cartaoPag, CartaoRec cartaoRec, TipoPagamento tipoPagamento, FStatus fstatus) {
+    public FormaPagamento novaFormaPagamento(Dao dao, Baixa baixa, float valor, Plano5 plano, ChequePag chequePag, ChequeRec chequeRec, CartaoPag cartaoPag, CartaoRec cartaoRec, TipoPagamento tipoPagamento, FStatus fstatus, Integer devolucao) {
         FormaPagamento fp = new FormaPagamento(
                 -1,
                 baixa,
@@ -560,7 +593,7 @@ public class MovimentoBancarioBean implements Serializable {
                 DataHoje.dataHoje(),
                 0,
                 fstatus,
-                0
+                devolucao
         );
 
         if (chequePag != null) {
@@ -786,29 +819,35 @@ public class MovimentoBancarioBean implements Serializable {
 
         // DEVOLVIDO
         if (f_status.getId() == 10) {
+            dao.openTransaction();
             if (linha.getChequeRec() != null) {
                 // DEVOLVE CHEQUE RECEBIDO
-                devolveChequeRec(dao, f_status, linha);
-                dao.commit();
-
-                loadListaMovimento();
-                GenericaMensagem.info("Sucesso", "Status DEVOLVIDO Atualizado!");
-                return true;
+                if (devolveChequeRec(dao, f_status, linha)) {
+                    dao.commit();
+                    loadListaMovimento();
+                    GenericaMensagem.info("Sucesso", "Status DEVOLVIDO Atualizado!");
+                    return true;
+                }
             }
 
             if (linha.getChequePag() != null) {
                 // DEVOLVE CHEQUE PAGAMENTO
-                //devolveChequePag(dao, linha);
-                dao.commit();
-
-                loadListaMovimento();
-                GenericaMensagem.info("Sucesso", "Status DEVOLVIDO Atualizado!");
-                return true;
+                if (devolveChequePag(dao, f_status, linha)) {
+                    dao.commit();
+                    loadListaMovimento();
+                    GenericaMensagem.info("Sucesso", "Status DEVOLVIDO Atualizado!");
+                    return true;
+                }
             }
 
             if (linha.getCartaoRec() != null) {
                 // DEVOLVE CARTAO RECEBIDO
                 //devolveCartaoRec(dao, linha);
+                if (1 == 1) {
+                    GenericaMensagem.error("Erro", "Status não definido!");
+                    dao.rollback();
+                    return false;
+                }
                 dao.commit();
 
                 loadListaMovimento();
@@ -819,6 +858,11 @@ public class MovimentoBancarioBean implements Serializable {
             if (linha.getCartaoPag() != null) {
                 // DEVOLVE CARTAO PAGAMENTO
                 //devolveCartaoPag(dao, linha);
+                if (1 == 1) {
+                    GenericaMensagem.error("Erro", "Status não definido!");
+                    dao.rollback();
+                    return false;
+                }
                 dao.commit();
 
                 loadListaMovimento();
@@ -831,48 +875,64 @@ public class MovimentoBancarioBean implements Serializable {
         return false;
     }
 
-    public Boolean devolveChequeRec(Dao dao, FStatus f_status, ObjectMovimentoBancario linha) {
+    public Boolean devolveChequeRec(Dao dao, FStatus f_status_devolvido, ObjectMovimentoBancario linha) {
+        Plano5 plano5_forma_pagamento_saida = (Plano5) dao.find(new Plano5(), Integer.valueOf(listaConta.get(idConta).getDescription()));
+        Plano5 plano5_forma_pagamento_entrada = (Plano5) dao.find(new Plano5(), 1);
+        String historicox = "Devolvido da conta ( " + plano5_forma_pagamento_saida.getConta() + " ) para a conta " + plano5_forma_pagamento_entrada.getConta();
 
         // SAIDA -----------------------------------------------------------
         // -----------------------------------------------------------------
-        Baixa baixa_saida = novaBaixa();
-        if (!dao.save(baixa_saida)) {
-            dao.rollback();
-            GenericaMensagem.warn("Erro", "Não foi possivel salvar Baixa Saida!");
+        Baixa baixa_saida = criarLoteMovimentoSaida(dao, linha.getFormaPagamento().getValor(), historicox);
+
+        if (baixa_saida == null) {
             return false;
         }
 
-        Plano5 plano5_lote_saida = (Plano5) dao.find(new Plano5(), 1);
-
-        Lote lote_saida = novoLote(dao, "P", plano5_lote_saida, linha.getFormaPagamento().getValor(), (FStatus) dao.find(new FStatus(), 14));
-        if (!dao.save(lote_saida)) {
-            dao.rollback();
-            GenericaMensagem.warn("Erro", "Não foi possivel salvar Lote Saida!");
+        // DEVOLVEU A PRIMEIRA E SEGUNDA VEZ
+        // LIQUIDADO
+        linha.getFormaPagamento().setStatus((FStatus) dao.find(new FStatus(), 9));
+        if (!dao.update(linha.getFormaPagamento())) {
             return false;
         }
 
-        Movimento movimento_saida = novoMovimento(dao, lote_saida, baixa_saida, "S");
-        if (!dao.save(movimento_saida)) {
-            dao.rollback();
-            GenericaMensagem.warn("Erro", "Não foi possivel salvar Movimento Saida!");
-            return false;
-        }
+        Integer nr_devolucao = linha.getFormaPagamento().getDevolucao();
+        // CRIA SAIDA
+        FormaPagamento fp = novaFormaPagamento(dao, baixa_saida, linha.getFormaPagamento().getValor(), plano5_forma_pagamento_saida, linha.getChequeRec(), (TipoPagamento) dao.find(new TipoPagamento(), 4), f_status_devolvido, nr_devolucao + 1);
 
-        Plano5 plano5_forma_pagamento_saida = (Plano5) dao.find(new Plano5(), Integer.valueOf(listaConta.get(idConta).getDescription()));
-
-        FormaPagamento fp = null;
-        if (linha.getChequePag() != null) {
-            fp = novaFormaPagamento(dao, baixa_saida, linha.getFormaPagamento().getValor(), plano5_forma_pagamento_saida, linha.getChequePag(), (TipoPagamento) dao.find(new TipoPagamento(), 4), f_status);
-        } else if (linha.getChequeRec() != null) {
-            fp = novaFormaPagamento(dao, baixa_saida, linha.getFormaPagamento().getValor(), plano5_forma_pagamento_saida, linha.getChequeRec(), (TipoPagamento) dao.find(new TipoPagamento(), 4), f_status);
-        } else if (linha.getCartaoPag() != null) {
-            fp = novaFormaPagamento(dao, baixa_saida, linha.getFormaPagamento().getValor(), plano5_forma_pagamento_saida, linha.getCartaoPag(), linha.getTipoPagamento(), f_status);
-        } else if (linha.getCartaoRec() != null) {
-            fp = novaFormaPagamento(dao, baixa_saida, linha.getFormaPagamento().getValor(), plano5_forma_pagamento_saida, linha.getCartaoRec(), linha.getTipoPagamento(), f_status);
-        }
-
-        if (fp == null || !dao.save(fp)) {
-            dao.rollback();
+//        switch (linha.getFormaPagamento().getDevolucao()) {
+//            case 0:
+//                // DEVOLVEU A PRIMEIRA VEZ
+//                // LIQUIDADO
+//                linha.getFormaPagamento().setStatus((FStatus) dao.find(new FStatus(), 9));
+//                if (!dao.update(linha.getFormaPagamento())) {
+//                    return false;
+//                }
+//
+//                // CRIA SAIDA
+//                fp = novaFormaPagamento(dao, baixa_saida, linha.getFormaPagamento().getValor(), plano5_forma_pagamento_saida, linha.getChequeRec(), (TipoPagamento) dao.find(new TipoPagamento(), 4), f_status_devolvido, linha.getFormaPagamento().getDevolucao() + 1);
+//                break;
+//            case 1:
+//                // DEVOLVEU PELA SEGUNDA VEZ
+//                linha.getFormaPagamento().setStatus((FStatus) dao.find(new FStatus(), 9));
+//                
+//                if (!dao.update(linha.getFormaPagamento())) {
+//                    return false;
+//                }
+//                
+//                // CRIA SAIDA
+//                fp = novaFormaPagamento(dao, baixa_saida, linha.getFormaPagamento().getValor(), plano5_forma_pagamento_saida, linha.getChequeRec(), (TipoPagamento) dao.find(new TipoPagamento(), 4), f_status_devolvido, linha.getFormaPagamento().getDevolucao() + 1);
+//                break;
+//        }
+//        if (linha.getChequePag() != null) {
+//            fp = novaFormaPagamento(dao, baixa_saida, linha.getFormaPagamento().getValor(), plano5_forma_pagamento_saida, linha.getChequePag(), (TipoPagamento) dao.find(new TipoPagamento(), 4), f_status);
+//        } else if (linha.getChequeRec() != null) {
+//            fp = novaFormaPagamento(dao, baixa_saida, linha.getFormaPagamento().getValor(), plano5_forma_pagamento_saida, linha.getChequeRec(), (TipoPagamento) dao.find(new TipoPagamento(), 4), f_status);
+//        } else if (linha.getCartaoPag() != null) {
+//            fp = novaFormaPagamento(dao, baixa_saida, linha.getFormaPagamento().getValor(), plano5_forma_pagamento_saida, linha.getCartaoPag(), linha.getTipoPagamento(), f_status);
+//        } else if (linha.getCartaoRec() != null) {
+//            fp = novaFormaPagamento(dao, baixa_saida, linha.getFormaPagamento().getValor(), plano5_forma_pagamento_saida, linha.getCartaoRec(), linha.getTipoPagamento(), f_status);
+//        }
+        if (!dao.save(fp)) {
             GenericaMensagem.warn("Erro", "Não foi possivel salvar Forma de Pagamento Saida!");
             return false;
         }
@@ -881,49 +941,114 @@ public class MovimentoBancarioBean implements Serializable {
 
         // ENTRADA ---------------------------------------------------------
         // -----------------------------------------------------------------
-        Baixa baixa_entrada = novaBaixa();
-        if (!dao.save(baixa_entrada)) {
-            dao.rollback();
-            GenericaMensagem.warn("Erro", "Não foi possivel salvar Baixa Entrada!");
-            return false;
-        }
-
-        Plano5 plano5_lote_entrada = (Plano5) dao.find(new Plano5(), Integer.valueOf(listaConta.get(idConta).getDescription()));
-
-        Lote lote_entrada = novoLote(dao, "R", plano5_lote_entrada, linha.getFormaPagamento().getValor(), (FStatus) dao.find(new FStatus(), 1));
-        if (!dao.save(lote_entrada)) {
-            dao.rollback();
-            GenericaMensagem.warn("Erro", "Não foi possivel salvar Lote Saida!");
-            return false;
-        }
-
-        Movimento movimento_entrada = novoMovimento(dao, lote_entrada, baixa_entrada, "E");
-        if (!dao.save(movimento_entrada)) {
-            dao.rollback();
-            GenericaMensagem.warn("Erro", "Não foi possivel salvar Movimento Entrada!");
-            return false;
-        }
-
-        Plano5 plano5_forma_pagamento_entrada = (Plano5) dao.find(new Plano5(), 1);
+        Baixa baixa_entrada = criarLoteMovimentoEntrada(dao, linha.getFormaPagamento().getValor(), historicox);
 
         FormaPagamento fp2 = null;
-        FStatus fstatus2 = (FStatus) dao.find(new FStatus(), 7);
-
-        if (linha.getChequePag() != null) {
-            fp2 = novaFormaPagamento(dao, baixa_entrada, linha.getFormaPagamento().getValor(), plano5_forma_pagamento_entrada, linha.getChequePag(), (TipoPagamento) dao.find(new TipoPagamento(), 4), fstatus2);
-        } else if (linha.getChequeRec() != null) {
-            fp2 = novaFormaPagamento(dao, baixa_entrada, linha.getFormaPagamento().getValor(), plano5_forma_pagamento_entrada, linha.getChequeRec(), (TipoPagamento) dao.find(new TipoPagamento(), 4), fstatus2);
-        } else if (linha.getCartaoPag() != null) {
-            fp2 = novaFormaPagamento(dao, baixa_entrada, linha.getFormaPagamento().getValor(), plano5_forma_pagamento_entrada, linha.getCartaoPag(), linha.getTipoPagamento(), fstatus2);
-        } else if (linha.getCartaoRec() != null) {
-            fp2 = novaFormaPagamento(dao, baixa_entrada, linha.getFormaPagamento().getValor(), plano5_forma_pagamento_entrada, linha.getCartaoRec(), linha.getTipoPagamento(), fstatus2);
+        switch (nr_devolucao) {
+            case 0:
+                // DEVOLVEU A PRIMEIRA VEZ
+                // A DEPOSITAR
+                // CRIA ENTRADA
+                fp2 = novaFormaPagamento(dao, baixa_entrada, linha.getFormaPagamento().getValor(), plano5_forma_pagamento_entrada, linha.getChequeRec(), (TipoPagamento) dao.find(new TipoPagamento(), 4), (FStatus) dao.find(new FStatus(), 7), nr_devolucao + 1);
+                break;
+            case 1:
+                // DEVOLVEU PELA SEGUNDA VEZ
+                fp2 = novaFormaPagamento(dao, baixa_entrada, linha.getFormaPagamento().getValor(), plano5_forma_pagamento_entrada, linha.getChequeRec(), (TipoPagamento) dao.find(new TipoPagamento(), 4), f_status_devolvido, nr_devolucao + 1);
+                break;
         }
+//        if (linha.getChequePag() != null) {
+//            fp2 = novaFormaPagamento(dao, baixa_entrada, linha.getFormaPagamento().getValor(), plano5_forma_pagamento_entrada, linha.getChequePag(), (TipoPagamento) dao.find(new TipoPagamento(), 4), fstatus2);
+//        } else if (linha.getChequeRec() != null) {
+//            fp2 = novaFormaPagamento(dao, baixa_entrada, linha.getFormaPagamento().getValor(), plano5_forma_pagamento_entrada, linha.getChequeRec(), (TipoPagamento) dao.find(new TipoPagamento(), 4), fstatus2);
+//        } else if (linha.getCartaoPag() != null) {
+//            fp2 = novaFormaPagamento(dao, baixa_entrada, linha.getFormaPagamento().getValor(), plano5_forma_pagamento_entrada, linha.getCartaoPag(), linha.getTipoPagamento(), fstatus2);
+//        } else if (linha.getCartaoRec() != null) {
+//            fp2 = novaFormaPagamento(dao, baixa_entrada, linha.getFormaPagamento().getValor(), plano5_forma_pagamento_entrada, linha.getCartaoRec(), linha.getTipoPagamento(), fstatus2);
+//        }
 
-        if (fp2 == null || !dao.save(fp2)) {
+        if (!dao.save(fp2)) {
             GenericaMensagem.warn("Erro", "Não foi possivel salvar Forma de Pagamento Saida!");
             return false;
         }
         return true;
+    }
+
+    public Boolean devolveChequePag(Dao dao, FStatus f_status_devolvido, ObjectMovimentoBancario linha) {
+        // SAIDA -----------------------------------------------------------
+        // -----------------------------------------------------------------
+        switch (linha.getFormaPagamento().getDevolucao()) {
+            case 0:
+                // DEVOLVEU A PRIMEIRA VEZ
+                linha.getFormaPagamento().setDevolucao(linha.getFormaPagamento().getDevolucao() + 1);
+
+                if (!dao.update(linha.getFormaPagamento())) {
+                    return false;
+                }
+                break;
+            case 1:
+                // DEVOLVEU PELA SEGUNDA VEZ
+                linha.getFormaPagamento().setStatus(f_status_devolvido);
+                linha.getFormaPagamento().setDevolucao(linha.getFormaPagamento().getDevolucao() + 1);
+
+                if (!dao.update(linha.getFormaPagamento())) {
+                    return false;
+                }
+                break;
+        }
+//        if (linha.getCartaoPag() != null) {
+//            fp2 = novaFormaPagamento(dao, baixa_entrada, linha.getFormaPagamento().getValor(), plano5_forma_pagamento_entrada, linha.getCartaoPag(), linha.getTipoPagamento(), fstatus2);
+//        } else if (linha.getCartaoRec() != null) {
+//            fp2 = novaFormaPagamento(dao, baixa_entrada, linha.getFormaPagamento().getValor(), plano5_forma_pagamento_entrada, linha.getCartaoRec(), linha.getTipoPagamento(), fstatus2);
+//        }
+        return true;
+    }
+
+    public Baixa criarLoteMovimentoSaida(Dao dao, Float valor, String historicox) {
+        Baixa baixa_saida = novaBaixa();
+        if (!dao.save(baixa_saida)) {
+            GenericaMensagem.warn("Erro", "Não foi possivel salvar Baixa Saida!");
+            return null;
+        }
+
+        Plano5 plano5_lote_saida = (Plano5) dao.find(new Plano5(), 1);
+
+        Lote lote_saida = novoLote(dao, "P", plano5_lote_saida, valor, (FStatus) dao.find(new FStatus(), 14), historicox);
+        if (!dao.save(lote_saida)) {
+            GenericaMensagem.warn("Erro", "Não foi possivel salvar Lote Saida!");
+            return null;
+        }
+
+        Movimento movimento_saida = novoMovimento(dao, lote_saida, baixa_saida, "S");
+        if (!dao.save(movimento_saida)) {
+            GenericaMensagem.warn("Erro", "Não foi possivel salvar Movimento Saida!");
+            return null;
+        }
+
+        return baixa_saida;
+    }
+
+    public Baixa criarLoteMovimentoEntrada(Dao dao, Float valor, String historicox) {
+        Baixa baixa_entrada = novaBaixa();
+        if (!dao.save(baixa_entrada)) {
+            GenericaMensagem.warn("Erro", "Não foi possivel salvar Baixa Entrada!");
+            return null;
+        }
+
+        Plano5 plano5_lote_entrada = (Plano5) dao.find(new Plano5(), Integer.valueOf(listaConta.get(idConta).getDescription()));
+
+        Lote lote_entrada = novoLote(dao, "R", plano5_lote_entrada, valor, (FStatus) dao.find(new FStatus(), 1), historicox);
+        if (!dao.save(lote_entrada)) {
+            GenericaMensagem.warn("Erro", "Não foi possivel salvar Lote Saida!");
+            return null;
+        }
+
+        Movimento movimento_entrada = novoMovimento(dao, lote_entrada, baixa_entrada, "E");
+        if (!dao.save(movimento_entrada)) {
+            GenericaMensagem.warn("Erro", "Não foi possivel salvar Movimento Entrada!");
+            return null;
+        }
+
+        return baixa_entrada;
     }
 
     public List<SelectItem> getListaConta() {
@@ -1135,6 +1260,14 @@ public class MovimentoBancarioBean implements Serializable {
 
     public void setStatusFiltro(String statusFiltro) {
         this.statusFiltro = statusFiltro;
+    }
+
+    public String getHistorico() {
+        return historico;
+    }
+
+    public void setHistorico(String historico) {
+        this.historico = historico;
     }
 
     public class ObjectMovimentoBancario {

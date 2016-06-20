@@ -54,7 +54,7 @@
                                     <p:column>
                                         <h:outputLabel value="Tipo" /><br />
                                         <p:selectOneMenu value="#{movimentoBancarioBean.tipo}" style="margin-right: 15px;" disabled="#{movimentoBancarioBean.formaPagamentoEditar.id ne -1}">
-                                            <p:ajax event="change" update="panel_receita_despesa" listener="#{movimentoBancarioBean.loadListaContaOperacao()}" global="false"/>
+                                            <p:ajax event="change" update="panel_receita_despesa panel_historico" listener="#{movimentoBancarioBean.loadListaContaOperacao()}" global="false"/>
                                             <f:selectItem itemLabel="Entrada" itemValue="entrada"/>
                                             <f:selectItem itemLabel="Saída" itemValue="saida"/>
                                         </p:selectOneMenu>
@@ -90,6 +90,15 @@
                                         <br />
                                         <p:commandButton value="NOVO" action="#{movimentoBancarioBean.novo()}" update="@form"/>
                                     </p:column>
+                                </h:panelGrid>
+                                
+                                <h:panelGrid id="panel_historico" style="width: 100%">
+                                    <h:column>
+                                        <p:outputLabel value="Histórico" /><br />
+                                        <p:inputTextarea value="#{movimentoBancarioBean.historico}" style="width: 100%" rows="3">
+                                            <p:ajax event="change" update="@this" global="false"/>
+                                        </p:inputTextarea>
+                                    </h:column>
                                 </h:panelGrid>
                             </p:panel>
 
@@ -155,6 +164,10 @@
 
                                 <p:column headerText="Status" style="width:120px; text-align: center">
                                     <p:commandLink value="#{movimentoBancarioBean.statusCheque(linha).get('status')}" action="#{movimentoBancarioBean.selecionaStatus(linha)}" style="font-size: 11pt!important; font-weight: bold; #{movimentoBancarioBean.statusCheque(linha).get('cor')}" rendered="#{movimentoBancarioBean.mostraStatus(linha)}" onclick="PF('dlg_alterar_status_cheque').show()" update="formMovimentoBancario:panel_alterar_status_cheque" disabled="#{movimentoBancarioBean.desabilitaStatus(linha)}"/>
+                                </p:column>
+                                
+                                <p:column headerText="Dev." style="width:50px; text-align: center">
+                                    <p:outputLabel value="#{linha.formaPagamento.devolucaoString}" style="font-size: 8pt!important"/>
                                 </p:column>
 
                                 <p:rowExpansion>
