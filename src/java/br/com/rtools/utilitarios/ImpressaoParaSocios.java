@@ -1,5 +1,6 @@
 package br.com.rtools.utilitarios;
 
+import br.com.rtools.pessoa.dao.FisicaDao;
 import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
 import br.com.rtools.associativo.MatriculaSocios;
 import br.com.rtools.associativo.ModeloCarteirinha;
@@ -13,7 +14,6 @@ import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
-import br.com.rtools.pessoa.db.*;
 import br.com.rtools.principal.DBExternal;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
@@ -130,7 +130,7 @@ public class ImpressaoParaSocios {
 
             }
             
-            FisicaDB fisicaDB = new FisicaDBToplink();
+            FisicaDao fisicaDB = new FisicaDao();
             Fisica fisica = fisicaDB.pesquisaFisicaPorPessoa(Integer.valueOf(id_pessoa));
             String[] imagensTipo = new String[]{"jpg", "jpeg", "png", "gif"};
             File foto_cartao = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("")+ "resources/images/.png");
@@ -314,7 +314,7 @@ public class ImpressaoParaSocios {
         Registro registro = (Registro) dao.find(new Registro(), 1);
         Fisica fisica;
         Juridica sindicato;
-        FisicaDB db = new FisicaDBToplink();
+        FisicaDao db = new FisicaDao();
         PessoaEndereco pesEndereco, pesDestinatario, pesEndEmpresa, pesEndSindicato;
         PessoaEnderecoDao dbEnd = new PessoaEnderecoDao();
         SociosDao dbSoc = new SociosDao();
@@ -627,8 +627,7 @@ public class ImpressaoParaSocios {
     public static void semDependente(String pathPasta, String nomeDownload, String path, String pathVerso, Socios socios, PessoaEmpresa pessoaEmpresa, MatriculaSocios matriculaSocios, boolean imprimirVerso, List<Socios> listaDependentes) {
         Fisica fisica = new Fisica();
         Juridica sindicato = new Juridica();
-        FisicaDB db = new FisicaDBToplink();
-        JuridicaDB dbJur = new JuridicaDBToplink();
+        FisicaDao db = new FisicaDao();
         PessoaEndereco pesEndereco, pesDestinatario, pesEndEmpresa, pesEndSindicato = new PessoaEndereco();
         PessoaEnderecoDao dbEnd = new PessoaEnderecoDao();
         PessoaEmpresa pesEmpresa = new PessoaEmpresa();

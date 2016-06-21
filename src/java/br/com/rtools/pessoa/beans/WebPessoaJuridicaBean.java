@@ -1,5 +1,6 @@
 package br.com.rtools.pessoa.beans;
 
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.pessoa.dao.PessoaDao;
 import br.com.rtools.pessoa.dao.CnaeDao;
 import br.com.rtools.pessoa.dao.TipoEnderecoDao;
@@ -13,7 +14,6 @@ import br.com.rtools.arrecadacao.dao.ConvencaoCidadeDao;
 import br.com.rtools.endereco.Endereco;
 import br.com.rtools.pessoa.*;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
-import br.com.rtools.pessoa.db.*;
 import br.com.rtools.sistema.ConfiguracaoCnpj;
 import br.com.rtools.utilitarios.*;
 import java.io.BufferedReader;
@@ -87,7 +87,7 @@ public class WebPessoaJuridicaBean implements Serializable {
 //                GenericaMensagem.warn("Atenção", "Documento inválido!");
 //                return;
 //            }
-            JuridicaDB dbj = new JuridicaDBToplink();
+            JuridicaDao dbj = new JuridicaDao();
             List listDocumento = dbj.pesquisaJuridicaPorDoc(juridica.getPessoa().getDocumento());
             for (int i = 0; i < listDocumento.size(); i++) {
                 if (!listDocumento.isEmpty()) {
@@ -316,7 +316,7 @@ public class WebPessoaJuridicaBean implements Serializable {
     }
 
     public void pesquisaDocumento() {
-        JuridicaDB db = new JuridicaDBToplink();
+        JuridicaDao db = new JuridicaDao();
         if (!juridica.getPessoa().getDocumento().isEmpty()) {
             List<Juridica> lista = db.pesquisaJuridicaPorDoc(juridica.getPessoa().getDocumento());
             if (!lista.isEmpty()) {

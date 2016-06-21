@@ -1,8 +1,7 @@
 package br.com.rtools.cobranca;
 
 import br.com.rtools.financeiro.Boleto;
-import br.com.rtools.pessoa.db.JuridicaDB;
-import br.com.rtools.pessoa.db.JuridicaDBToplink;
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.utilitarios.Moeda;
 import java.util.Date;
@@ -15,7 +14,7 @@ public class CaixaFederalSindical extends Cobranca {
 
     @Override
     public String codigoBarras() {
-        JuridicaDB jurDB = new JuridicaDBToplink();
+        JuridicaDao jurDB = new JuridicaDao();
         
         String ent = ((Registro) Registro.get()).getTipoEntidade();
         // (1-Sindicato, 2-Federação, 3-Confederação)

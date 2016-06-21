@@ -33,8 +33,7 @@ import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.TipoDocumento;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
-import br.com.rtools.pessoa.db.FisicaDB;
-import br.com.rtools.pessoa.db.FisicaDBToplink;
+import br.com.rtools.pessoa.dao.FisicaDao;
 import br.com.rtools.pessoa.dao.SpcDao;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Registro;
@@ -389,7 +388,7 @@ public class ConviteMovimentoBean implements Serializable {
         }
 
         if (!conviteMovimento.getSisPessoa().getDocumento().isEmpty() && !conviteMovimento.getSisPessoa().getDocumento().equals("0")) {
-            FisicaDBToplink fdb = new FisicaDBToplink();
+            FisicaDao fdb = new FisicaDao();
             List<Fisica> f_convidado = fdb.pesquisaFisicaPorDoc(conviteMovimento.getSisPessoa().getDocumento());
 
             if (!f_convidado.isEmpty()) {
@@ -598,7 +597,7 @@ public class ConviteMovimentoBean implements Serializable {
     }
 
     public List<Fisica> retornaFisicaSisPessoa(String tipo_pesquisa) {
-        FisicaDB db = new FisicaDBToplink();
+        FisicaDao db = new FisicaDao();
         List<Fisica> lf = new ArrayList();
 
         if (tipo_pesquisa.equals("cpf")) {

@@ -18,8 +18,7 @@ import br.com.rtools.pessoa.TipoDocumento;
 import br.com.rtools.pessoa.TipoEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.dao.CnaeDao;
-import br.com.rtools.pessoa.db.JuridicaDB;
-import br.com.rtools.pessoa.db.JuridicaDBToplink;
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.pessoa.dao.PessoaDao;
 import br.com.rtools.pessoa.dao.TipoEnderecoDao;
 import br.com.rtools.seguranca.Registro;
@@ -172,7 +171,7 @@ public class ControleAcessoWebBean implements Serializable {
             return null;
         }
 
-        JuridicaDB dbj = new JuridicaDBToplink();
+        JuridicaDao dbj = new JuridicaDao();
         List listDocumento = dbj.pesquisaJuridicaPorDoc(documento_pesquisa);
 
         for (int i = 0; i < listDocumento.size(); i++) {
@@ -466,7 +465,7 @@ public class ControleAcessoWebBean implements Serializable {
         String emails[] = (jr.getEmail() == null) ? "".split("") : jr.getEmail().toLowerCase().split(" ");
         String telefones[] = (jr.getTelefone() == null) ? "".split("") : jr.getTelefone().split(" / ");
 
-        JuridicaDB dbj = new JuridicaDBToplink();
+        JuridicaDao dbj = new JuridicaDao();
         if (!emails[0].isEmpty()) {
             juridica.setContabilidade(dbj.pesquisaContabilidadePorEmail(emails[0]));
         }
@@ -651,7 +650,7 @@ public class ControleAcessoWebBean implements Serializable {
         Dao di = new Dao();
 
         di.openTransaction();
-        JuridicaDB db = new JuridicaDBToplink();
+        JuridicaDao db = new JuridicaDao();
 
         empregados.setJuridica(db.pesquisaJuridicaPorPessoa(pessoaContribuinte.getId()));
         empregados.setReferencia(DataHoje.data().substring(3));
@@ -695,7 +694,7 @@ public class ControleAcessoWebBean implements Serializable {
             return null;
         }
 
-        JuridicaDB db = new JuridicaDBToplink();
+        JuridicaDao db = new JuridicaDao();
         List<Juridica> listDocumento = db.pesquisaJuridicaPorDoc(documento);
 
         if (!listDocumento.isEmpty() && listDocumento.size() > 1) {
@@ -795,7 +794,7 @@ public class ControleAcessoWebBean implements Serializable {
             pessoaContribuinte = db.ValidaUsuarioContribuinteWeb(pessoa.getId());
             pessoaContabilidade = db.ValidaUsuarioContabilidadeWeb(pessoa.getId());
             if (pessoaContribuinte != null && pessoaContabilidade == null) {
-                JuridicaDB dbj = new JuridicaDBToplink();
+                JuridicaDao dbj = new JuridicaDao();
                 List listax = dbj.listaJuridicaContribuinte(dbj.pesquisaJuridicaPorPessoa(pessoaContribuinte.getId()).getId());
                 if (listax.isEmpty()) {
                     //msgLoginInvalido = "Usuário não contribuinte!";
@@ -890,7 +889,7 @@ public class ControleAcessoWebBean implements Serializable {
                 return;
             }
 
-            JuridicaDB db = new JuridicaDBToplink();
+            JuridicaDao db = new JuridicaDao();
             List<Juridica> lista = db.pesquisaJuridicaPorDoc(descPesquisa);
 
             if (lista.isEmpty()) {
@@ -960,7 +959,7 @@ public class ControleAcessoWebBean implements Serializable {
     public List<SelectItem> getListaEmpresa() {
         if (listaEmpresas.isEmpty()) {
             int i = 0;
-            JuridicaDB db = new JuridicaDBToplink();
+            JuridicaDao db = new JuridicaDao();
             List select = db.pesquisaPessoa(descPesquisa, "nome", comoPesquisa);
             while (i < select.size()) {
                 listaEmpresas.add(new SelectItem(new Integer(i),

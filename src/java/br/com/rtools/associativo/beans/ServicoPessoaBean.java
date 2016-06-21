@@ -1,5 +1,6 @@
 package br.com.rtools.associativo.beans;
 
+import br.com.rtools.pessoa.dao.FisicaDao;
 import br.com.rtools.financeiro.dao.FTipoDocumentoDao;
 import br.com.rtools.associativo.DescontoSocial;
 import br.com.rtools.associativo.Socios;
@@ -12,7 +13,6 @@ import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
-import br.com.rtools.pessoa.db.*;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.seguranca.dao.RotinaDao;
@@ -130,7 +130,7 @@ public class ServicoPessoaBean implements Serializable {
         chkContaCobranca = servicoPessoa.isBanco();
         this.servicoPessoa = servicoPessoa;
 
-        FisicaDB db = new FisicaDBToplink();
+        FisicaDao db = new FisicaDao();
         titular = db.pesquisaFisicaPorPessoa(servicoPessoa.getPessoa().getId());
 
         PessoaEnderecoDao dbe = new PessoaEnderecoDao();

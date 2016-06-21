@@ -21,10 +21,8 @@ import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.Porte;
 import br.com.rtools.pessoa.TipoDocumento;
-import br.com.rtools.pessoa.db.FisicaDB;
-import br.com.rtools.pessoa.db.FisicaDBToplink;
-import br.com.rtools.pessoa.db.JuridicaDB;
-import br.com.rtools.pessoa.db.JuridicaDBToplink;
+import br.com.rtools.pessoa.dao.FisicaDao;
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.seguranca.FilialRotina;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Rotina;
@@ -1017,7 +1015,7 @@ public class LancamentoFinanceiroBean implements Serializable {
                     GenericaMensagem.warn("Erro", "Este CNPJ não é válido!");
                     return;
                 }
-                JuridicaDB dbj = new JuridicaDBToplink();
+                JuridicaDao dbj = new JuridicaDao();
                 List listDocumento = dbj.pesquisaJuridicaPorDoc(descricao);
                 for (int i = 0; i < listDocumento.size(); i++) {
                     if (!listDocumento.isEmpty()) {
@@ -1053,7 +1051,7 @@ public class LancamentoFinanceiroBean implements Serializable {
                     GenericaMensagem.warn("Erro", "Este CPF não é válido!");
                     return;
                 }
-                FisicaDB db = new FisicaDBToplink();
+                FisicaDao db = new FisicaDao();
                 List listDocumento = db.pesquisaFisicaPorDoc(descricao);
                 if (!listDocumento.isEmpty()) {
                     GenericaMensagem.warn("Erro", "CPF já esta cadastrada no Sistema!");

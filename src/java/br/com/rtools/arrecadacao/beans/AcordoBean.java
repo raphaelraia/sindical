@@ -20,8 +20,7 @@ import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
-import br.com.rtools.pessoa.db.JuridicaDB;
-import br.com.rtools.pessoa.db.JuridicaDBToplink;
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.Dao;
@@ -83,7 +82,7 @@ public class AcordoBean implements Serializable {
 
     public void alterarEmailEnvio(Boolean alterarEmail) {
         if (alterarEmail) {
-            JuridicaDB db = new JuridicaDBToplink();
+            JuridicaDao db = new JuridicaDao();
             Juridica jur = db.pesquisaJuridicaPorPessoa(pessoa.getId());
 
             Dao dao = new Dao();
@@ -112,7 +111,7 @@ public class AcordoBean implements Serializable {
             return;
         }
 
-        JuridicaDB db = new JuridicaDBToplink();
+        JuridicaDao db = new JuridicaDao();
         Juridica jur = db.pesquisaJuridicaPorPessoa(pessoa.getId());
 
         if (emailPara.equals("contabilidade")) {
@@ -133,7 +132,7 @@ public class AcordoBean implements Serializable {
     }
 
     public void verificaEmail() {
-        JuridicaDB db = new JuridicaDBToplink();
+        JuridicaDao db = new JuridicaDao();
         Juridica jur = db.pesquisaJuridicaPorPessoa(pessoa.getId());
 
         if (emailPara.equals("contabilidade")) {

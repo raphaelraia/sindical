@@ -3,7 +3,7 @@ package br.com.rtools.utilitarios;
 import br.com.rtools.pessoa.EnvioEmails;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
-import br.com.rtools.pessoa.db.JuridicaDBToplink;
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import java.io.File;
@@ -65,7 +65,7 @@ public class EnviarEmail {
                 return retorno;
             }
             for (Pessoa pessoa : pessoas) {
-                Juridica jur = (new JuridicaDBToplink()).pesquisaJuridicaPorPessoa(pessoa.getId());
+                Juridica jur = (new JuridicaDao()).pesquisaJuridicaPorPessoa(pessoa.getId());
                 if (jur == null) {
                     jur = sindicato.getFilial();
                 }

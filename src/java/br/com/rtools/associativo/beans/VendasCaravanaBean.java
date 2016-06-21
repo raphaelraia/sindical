@@ -30,10 +30,8 @@ import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.beans.FisicaBean;
 import br.com.rtools.pessoa.beans.JuridicaBean;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
-import br.com.rtools.pessoa.db.FisicaDB;
-import br.com.rtools.pessoa.db.FisicaDBToplink;
-import br.com.rtools.pessoa.db.JuridicaDB;
-import br.com.rtools.pessoa.db.JuridicaDBToplink;
+import br.com.rtools.pessoa.dao.FisicaDao;
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.pessoa.dao.PessoaDao;
 import br.com.rtools.seguranca.Departamento;
 import br.com.rtools.seguranca.Registro;
@@ -333,7 +331,7 @@ public class VendasCaravanaBean {
 
         List<Reservas> lr;
         VendasCaravanaDao db = new VendasCaravanaDao();
-        FisicaDB dbf = new FisicaDBToplink();
+        FisicaDao dbf = new FisicaDao();
         EventoServicoValorDao dbe = new EventoServicoValorDao();
         SociosDao dbs = new SociosDao();
         float valor;
@@ -822,8 +820,8 @@ public class VendasCaravanaBean {
                     }
                 }
             }
-            FisicaDB dbf = new FisicaDBToplink();
-            JuridicaDB dbj = new JuridicaDBToplink();
+            FisicaDao dbf = new FisicaDao();
+            JuridicaDao dbj = new JuridicaDao();
             pessoaFisica = dbf.pesquisaFisicaPorPessoa(pessoa.getId());
             if (pessoaFisica == null) {
                 pessoaJuridica = dbj.pesquisaJuridicaPorPessoa(pessoa.getId());

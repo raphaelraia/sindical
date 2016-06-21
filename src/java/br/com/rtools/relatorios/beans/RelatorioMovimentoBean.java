@@ -15,7 +15,7 @@ import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
-import br.com.rtools.pessoa.db.JuridicaDBToplink;
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioContribuintesDao;
@@ -757,7 +757,7 @@ public class RelatorioMovimentoBean implements Serializable {
     public void loadListContabilidade() {
         listContabilidade = new ArrayList<>();
         selectedContabilidade = new ArrayList<>();
-        JuridicaDBToplink juridicaDao = new JuridicaDBToplink();
+        JuridicaDao juridicaDao = new JuridicaDao();
         listContabilidade = juridicaDao.pesquisaContabilidade();
     }
 

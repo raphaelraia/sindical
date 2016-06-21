@@ -1,8 +1,7 @@
 package br.com.rtools.utilitarios;
 
 import br.com.rtools.pessoa.Fisica;
-import br.com.rtools.pessoa.db.FisicaDB;
-import br.com.rtools.pessoa.db.FisicaDBToplink;
+import br.com.rtools.pessoa.dao.FisicaDao;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.sistema.ConfiguracaoUpload;
 import java.io.File;
@@ -316,7 +315,7 @@ public class Upload implements Serializable {
                 case "usuario":
                 case "socios":
                     try {
-                        FisicaDB fisicaDB = new FisicaDBToplink();
+                        FisicaDao fisicaDB = new FisicaDao();
                         f = fisicaDB.pesquisaFisicaPorPessoa(Integer.parseInt(PATH_FILE.replace(".png", "")));
                         f.setDtFoto(DataHoje.dataHoje());
                         if (!dao.update(f, true)) {

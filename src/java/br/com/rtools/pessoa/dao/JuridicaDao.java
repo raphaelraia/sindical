@@ -1,4 +1,4 @@
-package br.com.rtools.pessoa.db;
+package br.com.rtools.pessoa.dao;
 
 import br.com.rtools.arrecadacao.CnaeConvencao;
 import br.com.rtools.arrecadacao.Empregados;
@@ -16,24 +16,10 @@ import java.util.Vector;
 import javax.persistence.Query;
 import oracle.toplink.essentials.exceptions.EJBQLException;
 
-public class JuridicaDBToplink extends DB implements JuridicaDB {
+public class JuridicaDao extends DB {
 
     private Boolean contabilidade = false;
 
-    @Override
-    public Juridica pesquisaCodigo(int id) {
-        Juridica result = null;
-        try {
-            Query qry = getEntityManager().createNamedQuery("Juridica.pesquisaID");
-            qry.setParameter("pid", id);
-            result = (Juridica) qry.getSingleResult();
-        } catch (Exception e) {
-            e.getMessage();
-        }
-        return result;
-    }
-
-    @Override
     public List<PessoaEndereco> pesquisarPessoaEnderecoJuridica(int id) {
         List<PessoaEndereco> result = new ArrayList();
         try {
@@ -48,12 +34,10 @@ public class JuridicaDBToplink extends DB implements JuridicaDB {
         }
     }
 
-    @Override
     public List pesquisaPessoa(String desc, String por, String como) {
         return pesquisaPessoa(desc, por, como, false, false, null, null);
     }
 
-    @Override
     public List pesquisaPessoa(String desc, String por, String como, boolean isContabilidades, boolean isAtivas, Integer limit, Integer offset) {
         if (desc.isEmpty()) {
             return new ArrayList();
@@ -157,7 +141,6 @@ public class JuridicaDBToplink extends DB implements JuridicaDB {
         return new ArrayList();
     }
 
-    @Override
     public CnaeConvencao pesquisaCnaeParaContribuicao(int id) {
         CnaeConvencao result = null;
         try {
@@ -172,7 +155,6 @@ public class JuridicaDBToplink extends DB implements JuridicaDB {
         return result;
     }
 
-    @Override
     public List listaMotivoInativacao() {
         List result;
         try {
@@ -184,7 +166,6 @@ public class JuridicaDBToplink extends DB implements JuridicaDB {
         return result;
     }
 
-    @Override
     public Juridica pesquisaJuridicaPorPessoa(int id) {
         Juridica result = null;
         try {
@@ -199,7 +180,6 @@ public class JuridicaDBToplink extends DB implements JuridicaDB {
         return result;
     }
 
-    @Override
     public MotivoInativacao pesquisaCodigoMotivoInativacao(int id) {
         MotivoInativacao result = null;
         try {
@@ -211,7 +191,6 @@ public class JuridicaDBToplink extends DB implements JuridicaDB {
         return result;
     }
 
-    @Override
     public List pesquisaJuridicaPorDoc(String doc) {
         List result = new ArrayList();
         try {
@@ -225,7 +204,6 @@ public class JuridicaDBToplink extends DB implements JuridicaDB {
         return result;
     }
 
-    @Override
     public List pesquisaJuridicaPorDocSubstring(String doc) {
         List result = new ArrayList();
         try {
@@ -242,7 +220,6 @@ public class JuridicaDBToplink extends DB implements JuridicaDB {
         return result;
     }
 
-    @Override
     public List pesquisaPesEndEmpresaComContabil(int idJurCon) {
         try {
             Query qry = getEntityManager().createQuery("select pe"
@@ -258,7 +235,6 @@ public class JuridicaDBToplink extends DB implements JuridicaDB {
         }
     }
 
-    @Override
     public List pesquisaJuridicaComEmail() {
         try {
             Query qry = getEntityManager().createQuery("select jur"
@@ -270,7 +246,6 @@ public class JuridicaDBToplink extends DB implements JuridicaDB {
         }
     }
 
-    @Override
     public List<Juridica> pesquisaJuridicaParaRetorno(String documento) {
         List vetor;
         List<Juridica> listJur = new ArrayList();
@@ -303,7 +278,6 @@ public class JuridicaDBToplink extends DB implements JuridicaDB {
         }
     }
 
-    @Override
     public int quantidadeEmpresas(int idContabilidade) {
         try {
             Query qry = getEntityManager().createQuery("select count(j) from Juridica j"
@@ -314,7 +288,6 @@ public class JuridicaDBToplink extends DB implements JuridicaDB {
         }
     }
 
-    @Override
     public List listaJuridicaContribuinte(Integer id_juridica) {
         try {
             String textQuery = "select * from arr_contribuintes_vw where id_juridica = " + id_juridica;
@@ -325,7 +298,6 @@ public class JuridicaDBToplink extends DB implements JuridicaDB {
         }
     }
 
-    @Override
     public List listaJuridicaContribuinteID() {
         try {
             String textQuery = "select id_juridica from arr_contribuintes_vw";
@@ -336,7 +308,6 @@ public class JuridicaDBToplink extends DB implements JuridicaDB {
         }
     }
 
-    @Override
     public List<Juridica> listaContabilidadePertencente(int id_juridica) {
         List vetor;
         List<Juridica> listJur = new ArrayList();
@@ -347,7 +318,7 @@ public class JuridicaDBToplink extends DB implements JuridicaDB {
             vetor = qry.getResultList();
             if (!vetor.isEmpty()) {
                 for (int i = 0; i < vetor.size(); i++) {
-                    listJur.add(pesquisaCodigo((Integer) ((Vector) vetor.get(i)).get(0)));
+                    listJur.add((Juridica) new Dao().find(new Juridica(), (Integer) ((Vector) vetor.get(i)).get(0)));
                 }
             }
             return listJur;
@@ -356,7 +327,6 @@ public class JuridicaDBToplink extends DB implements JuridicaDB {
         }
     }
 
-    @Override
     public List pesquisaContabilidade() {
         try {
             Query qry = getEntityManager().createQuery("select jur.contabilidade "
@@ -369,7 +339,6 @@ public class JuridicaDBToplink extends DB implements JuridicaDB {
         }
     }
 
-    @Override
     public int[] listaInadimplencia(int id_juridica) {
         List vetor;
         int[] result = new int[2];
@@ -429,14 +398,12 @@ public class JuridicaDBToplink extends DB implements JuridicaDB {
         }
     }
 
-    @Override
     public boolean empresaInativa(Integer pessoa) {
         Pessoa p = new Pessoa();
         p.setId(pessoa);
         return empresaInativa(p, "");
     }
 
-    @Override
     public boolean empresaInativa(Pessoa pessoa, String motivo) {
         String stringMotivo = "";
         if (!motivo.equals("")) {
@@ -453,7 +420,6 @@ public class JuridicaDBToplink extends DB implements JuridicaDB {
         return false;
     }
 
-    @Override
     public Empregados pesquisaEmpregados(int id_juridica) {
         Query qry = getEntityManager().createQuery(
                 " SELECT em FROM Empregados em"
@@ -471,7 +437,6 @@ public class JuridicaDBToplink extends DB implements JuridicaDB {
         return null;
     }
 
-    @Override
     public Juridica pesquisaContabilidadePorEmail(String email) {
         String text_qry = "select j.* from pes_juridica j where j.id in ( "
                 + "select jc.id_contabilidade "

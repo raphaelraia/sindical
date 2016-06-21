@@ -1,5 +1,7 @@
 package br.com.rtools.homologacao.beans;
 
+import br.com.rtools.pessoa.dao.FisicaDao;
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.pessoa.dao.FilialCidadeDao;
 import br.com.rtools.arrecadacao.ConfiguracaoArrecadacao;
 import br.com.rtools.arrecadacao.Convencao;
@@ -23,7 +25,6 @@ import br.com.rtools.homologacao.dao.*;
 import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.pessoa.*;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
-import br.com.rtools.pessoa.db.*;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.utilitarios.*;
 import br.com.rtools.utilitarios.dao.FunctionsDao;
@@ -78,7 +79,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
     public WebAgendamentoContribuinteBean() {
         if (GenericaSessao.exists("sessaoUsuarioAcessoWeb")) {
             oposicaoPessoa = new OposicaoPessoa();
-            JuridicaDB db = new JuridicaDBToplink();
+            JuridicaDao db = new JuridicaDao();
             PessoaEnderecoDao dbp = new PessoaEnderecoDao();
 
             juridica = db.pesquisaJuridicaPorPessoa(((Pessoa) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuarioAcessoWeb")).getId());
@@ -838,7 +839,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
         try {
             if (!fisica.getPessoa().getDocumento().isEmpty() && !fisica.getPessoa().getDocumento().equals("___.___.___-__")) {
                 String documento = fisica.getPessoa().getDocumento();
-                FisicaDB dbFis = new FisicaDBToplink();
+                FisicaDao dbFis = new FisicaDao();
                 PessoaEnderecoDao dbp = new PessoaEnderecoDao();
                 HomologacaoDao db = new HomologacaoDao();
                 Dao dao = new Dao();
@@ -1105,7 +1106,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
 
     public String getStrContribuinte() {
         if (juridica.getId() != -1) {
-            JuridicaDB db = new JuridicaDBToplink();
+            JuridicaDao db = new JuridicaDao();
             List listax = db.listaJuridicaContribuinte(juridica.getId());
 
             if (((List) listax.get(0)).get(11) != null) {

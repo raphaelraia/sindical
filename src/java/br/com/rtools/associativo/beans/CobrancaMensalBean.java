@@ -10,10 +10,8 @@ import br.com.rtools.financeiro.db.ServicoRotinaDBToplink;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
-import br.com.rtools.pessoa.db.FisicaDB;
-import br.com.rtools.pessoa.db.FisicaDBToplink;
-import br.com.rtools.pessoa.db.JuridicaDB;
-import br.com.rtools.pessoa.db.JuridicaDBToplink;
+import br.com.rtools.pessoa.dao.FisicaDao;
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -182,8 +180,8 @@ public class CobrancaMensalBean {
                 GenericaSessao.remove("pessoaPesquisa");
             }
 
-            JuridicaDB dbj = new JuridicaDBToplink();
-            FisicaDB dbf = new FisicaDBToplink();
+            JuridicaDao dbj = new JuridicaDao();
+            FisicaDao dbf = new FisicaDao();
             LancamentoIndividualDao dbl = new LancamentoIndividualDao();
 
             Juridica jur = dbj.pesquisaJuridicaPorPessoa(id_resp);

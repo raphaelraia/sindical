@@ -8,8 +8,7 @@ import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
-import br.com.rtools.pessoa.db.JuridicaDB;
-import br.com.rtools.pessoa.db.JuridicaDBToplink;
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.seguranca.Modulo;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
@@ -134,7 +133,7 @@ public class ExtratoTelaBean implements Serializable {
 
     public List<Juridica> loadListaEmpresasPertencentes() {
         listaEmpresasPertencentes.clear();
-        JuridicaDB db = new JuridicaDBToplink();
+        JuridicaDao db = new JuridicaDao();
         if (pessoa.getId() != -1) {
             Juridica j = db.pesquisaJuridicaPorPessoa(pessoa.getId());
             if (j != null && j.getId() != -1) {
@@ -1038,7 +1037,7 @@ public class ExtratoTelaBean implements Serializable {
         //Movimento movimento = new Movimento();
         Juridica juridica = new Juridica();
 
-        JuridicaDB dbj = new JuridicaDBToplink();
+        JuridicaDao dbj = new JuridicaDao();
         MovimentoDB dbM = new MovimentoDBToplink();
 
         List<Movimento> movadd = new ArrayList();

@@ -5,7 +5,6 @@ import br.com.rtools.endereco.Endereco;
 import br.com.rtools.endereco.dao.CidadeDao;
 import br.com.rtools.endereco.dao.EnderecoDao;
 import br.com.rtools.pessoa.PessoaEndereco;
-import br.com.rtools.pessoa.db.*;
 import br.com.rtools.utilitarios.Dao;
 import java.io.Serializable;
 import java.util.List;

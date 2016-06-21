@@ -17,8 +17,7 @@ import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEmpresa;
-import br.com.rtools.pessoa.db.JuridicaDB;
-import br.com.rtools.pessoa.db.JuridicaDBToplink;
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.pessoa.dao.PessoaDao;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.AnaliseString;
@@ -111,7 +110,7 @@ public class OposicaoBean implements Serializable {
             message = "Informar o nome da pessoa!";
             return;
         }
-        JuridicaDB db = new JuridicaDBToplink();
+        JuridicaDao db = new JuridicaDao();
         List<List> lista_inativa = db.listaJuridicaContribuinte(oposicao.getJuridica().getId());
 
         if (lista_inativa.isEmpty()) {

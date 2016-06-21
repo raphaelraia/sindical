@@ -19,7 +19,7 @@ import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEmpresa;
-import br.com.rtools.pessoa.db.FisicaDBToplink;
+import br.com.rtools.pessoa.dao.FisicaDao;
 import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.utilitarios.Dao;
@@ -286,7 +286,7 @@ public class CartaoSocialBean implements Serializable {
                 }
                 boolean validacao = false;
                 if (pessoa.getSocios().getId() != -1) {
-                    Fisica f = new FisicaDBToplink().pesquisaFisicaPorPessoa(pessoa.getId());
+                    Fisica f = new FisicaDao().pesquisaFisicaPorPessoa(pessoa.getId());
                     if (pessoa.getSocios().getMatriculaSocios().getCategoria().isEmpresaObrigatoria()
                             && f.getDtAposentadoria() == null
                             && titular_id == pessoa.getId()) {

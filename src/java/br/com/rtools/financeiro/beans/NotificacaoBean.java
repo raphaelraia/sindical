@@ -19,8 +19,7 @@ import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
-import br.com.rtools.pessoa.db.JuridicaDB;
-import br.com.rtools.pessoa.db.JuridicaDBToplink;
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
@@ -258,13 +257,11 @@ public class NotificacaoBean implements Serializable {
 
             if (lote.getId() != -1) {
                 obj = db.listaParaNotificacao(lote.getId(), DataHoje.data(), empresas, contabils, cidades, comContabil, semContabil, servicos, tipo_servico);
+            } else // EMPRESA --
+            if ((indexTab == 1 && empresas.isEmpty()) || (indexTab == 2 && contabils.isEmpty())) {
+                return listaNotificacao;
             } else {
-                // EMPRESA --
-                if ((indexTab == 1 && empresas.isEmpty()) || (indexTab == 2 && contabils.isEmpty())) {
-                    return listaNotificacao;
-                } else {
-                    obj = db.listaParaNotificacao(-1, DataHoje.data(), empresas, contabils, cidades, comContabil, semContabil, servicos, tipo_servico);
-                }
+                obj = db.listaParaNotificacao(-1, DataHoje.data(), empresas, contabils, cidades, comContabil, semContabil, servicos, tipo_servico);
             }
 
             result = (Vector) obj[1];
@@ -348,7 +345,7 @@ public class NotificacaoBean implements Serializable {
             dao.rollback();
             return null;
         }
-        
+
         dao.commit();
 
         dao.openTransaction();
@@ -376,7 +373,7 @@ public class NotificacaoBean implements Serializable {
     public String gerarEtiquetas() {
         Dao dao = new Dao();
         CobrancaTipo ct = (CobrancaTipo) dao.find(new CobrancaTipo(), Integer.valueOf(listaTipoEnvio.get(idTipoEnvio).getDescription()));
-        JuridicaDB dbJur = new JuridicaDBToplink();
+        JuridicaDao dbJur = new JuridicaDao();
         PessoaEnderecoDao dbPesEnd = new PessoaEnderecoDao();
         NotificacaoDB db = new NotificacaoDBToplink();
 
@@ -396,7 +393,7 @@ public class NotificacaoBean implements Serializable {
                 } else {
                     // 7 - ETIQUETA PARA ESCRITÓRIOS
                     // SE ESCRITÓRIO RETORNO DA QUERY id_contabilidade (pes_juridica)
-                    juridica = dbJur.pesquisaCodigo((Integer) result.get(i).get(0));
+                    juridica = (Juridica) dao.find(new Juridica(), (Integer) result.get(i).get(0));
                     endereco = dbPesEnd.pesquisaEndPorPessoaTipo(juridica.getPessoa().getId(), 3);
                 }
 

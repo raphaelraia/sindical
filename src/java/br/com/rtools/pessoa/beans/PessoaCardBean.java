@@ -8,10 +8,8 @@ import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
-import br.com.rtools.pessoa.db.FisicaDB;
-import br.com.rtools.pessoa.db.FisicaDBToplink;
-import br.com.rtools.pessoa.db.JuridicaDB;
-import br.com.rtools.pessoa.db.JuridicaDBToplink;
+import br.com.rtools.pessoa.dao.FisicaDao;
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
 import br.com.rtools.seguranca.PermissaoUsuario;
 import br.com.rtools.seguranca.Rotina;
@@ -58,10 +56,10 @@ public class PessoaCardBean implements Serializable {
 
     public void cardUsuario(int idPessoa) {
         close();
-        FisicaDB fisicaDB = new FisicaDBToplink();
+        FisicaDao fisicaDB = new FisicaDao();
         fisica = (Fisica) fisicaDB.pesquisaFisicaPorPessoa(idPessoa);
         if(fisica == null) {
-            JuridicaDB juridicaDB = new JuridicaDBToplink();
+            JuridicaDao juridicaDB = new JuridicaDao();
             juridica = (Juridica) juridicaDB.pesquisaJuridicaPorPessoa(idPessoa);
             pessoa = juridica.getPessoa();
         } else {
@@ -76,14 +74,14 @@ public class PessoaCardBean implements Serializable {
 
     public void cardFisica(int idPessoa) {
         close();
-        FisicaDB fisicaDB = new FisicaDBToplink();
+        FisicaDao fisicaDB = new FisicaDao();
         fisica = (Fisica) fisicaDB.pesquisaFisicaPorPessoa(idPessoa);
         pessoa = fisica.getPessoa();
     }
 
     public void cardJuridica(int idPessoa) {
         close();
-        JuridicaDB juridicaDB = new JuridicaDBToplink();
+        JuridicaDao juridicaDB = new JuridicaDao();
         juridica = (Juridica) juridicaDB.pesquisaJuridicaPorPessoa(idPessoa);
         if (juridica == null) {
             juridica = (Juridica) new Dao().find(new Juridica(), idPessoa);
@@ -317,7 +315,7 @@ public class PessoaCardBean implements Serializable {
 
     public String situacao(Pessoa p) {
         try {
-            JuridicaDB juridicaDB = new JuridicaDBToplink();
+            JuridicaDao juridicaDB = new JuridicaDao();
             if (juridicaDB.empresaInativa(p.getId())) {
                 return "CONTRIBUINTE INATIVO";
             } else {

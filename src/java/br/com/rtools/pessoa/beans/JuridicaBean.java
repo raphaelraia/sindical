@@ -1,5 +1,6 @@
 package br.com.rtools.pessoa.beans;
 
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.pessoa.dao.PessoaDao;
 import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
 import br.com.rtools.pessoa.dao.CnaeDao;
@@ -25,7 +26,6 @@ import br.com.rtools.pessoa.*;
 import br.com.rtools.pessoa.dao.MalaDiretaDao;
 import br.com.rtools.pessoa.dao.PessoaComplementoDao;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
-import br.com.rtools.pessoa.db.*;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
@@ -300,7 +300,7 @@ public class JuridicaBean implements Serializable {
                 return;
             }
 
-            JuridicaDB dbj = new JuridicaDBToplink();
+            JuridicaDao dbj = new JuridicaDao();
             List listDocumento = dbj.pesquisaJuridicaPorDoc(juridica.getPessoa().getDocumento());
             for (int i = 0; i < listDocumento.size(); i++) {
                 if (!listDocumento.isEmpty()) {
@@ -455,7 +455,7 @@ public class JuridicaBean implements Serializable {
     }
 
     public void pesquisaDocumento() {
-        JuridicaDB db = new JuridicaDBToplink();
+        JuridicaDao db = new JuridicaDao();
         if (!juridica.getPessoa().getDocumento().isEmpty()) {
             List<Juridica> lista = db.pesquisaJuridicaPorDoc(juridica.getPessoa().getDocumento());
             if (!lista.isEmpty()) {
@@ -466,7 +466,7 @@ public class JuridicaBean implements Serializable {
 
     public String getInadimplente() {
         if (juridica.getId() != -1) {
-            JuridicaDB db = new JuridicaDBToplink();
+            JuridicaDao db = new JuridicaDao();
             int[] in = db.listaInadimplencia(juridica.getPessoa().getId());
 
             if (in[0] > 0 && in[1] > 0) {
@@ -477,7 +477,7 @@ public class JuridicaBean implements Serializable {
     }
 
     public String getContribuinte() {
-        JuridicaDB db = new JuridicaDBToplink();
+        JuridicaDao db = new JuridicaDao();
         if (juridica.getId() != -1) {
             List listax = db.listaJuridicaContribuinte(juridica.getId());
 
@@ -514,7 +514,7 @@ public class JuridicaBean implements Serializable {
     }
 
     public void inativarContribuintes() {
-        JuridicaDB db = new JuridicaDBToplink();
+        JuridicaDao db = new JuridicaDao();
 
         Dao dao = new Dao();
 
@@ -720,7 +720,7 @@ public class JuridicaBean implements Serializable {
 
     public String salvar() {
         Dao dao = new Dao();
-        JuridicaDB db = new JuridicaDBToplink();
+        JuridicaDao db = new JuridicaDao();
         Pessoa pessoa = getJuridica().getPessoa();
         List listDocumento;
         if (listaEnd.isEmpty() || pessoa.getId() == -1) {
@@ -1246,7 +1246,7 @@ public class JuridicaBean implements Serializable {
 
 //   public List getListaJuridica(){
 //       List result = null;
-//       JuridicaDB db = new JuridicaDBToplink();
+//       JuridicaDB db = new JuridicaDao();
 //       result = db.pesquisaTodos();
 //       return result;
 //   }
@@ -1492,7 +1492,7 @@ public class JuridicaBean implements Serializable {
 
     public void pesquisaContabilidadeI() {
         if (!nomePesquisaContabilidade.isEmpty()) {
-            JuridicaDBToplink db = new JuridicaDBToplink();
+            JuridicaDao db = new JuridicaDao();
             db.setContabilidade(true);
             listaContabilidade = db.pesquisaPessoa(nomePesquisaContabilidade, "nome", "I");
         } else {
@@ -1502,7 +1502,7 @@ public class JuridicaBean implements Serializable {
 
     public void pesquisaContabilidadeP() {
         if (!nomePesquisaContabilidade.isEmpty()) {
-            JuridicaDBToplink db = new JuridicaDBToplink();
+            JuridicaDao db = new JuridicaDao();
             db.setContabilidade(true);
             listaContabilidade = db.pesquisaPessoa(nomePesquisaContabilidade, "nome", "P");
         } else {
@@ -1512,7 +1512,7 @@ public class JuridicaBean implements Serializable {
 
     public String atualizarEndJuridicaComContabil() {
         if (juridica.getId() != -1) {
-            JuridicaDB db = new JuridicaDBToplink();
+            JuridicaDao db = new JuridicaDao();
             PessoaEnderecoDao pesEndDB = new PessoaEnderecoDao();
             Dao dao = new Dao();
             List listaPesEndEmpPertencente = db.pesquisaPesEndEmpresaComContabil(juridica.getId());
@@ -1901,7 +1901,7 @@ public class JuridicaBean implements Serializable {
     }
 
     public List<DataObject> getListaEmpresasPertencentes() {
-        JuridicaDB db = new JuridicaDBToplink();
+        JuridicaDao db = new JuridicaDao();
         PessoaEnderecoDao dbPe = new PessoaEnderecoDao();
         PessoaEndereco pe;
         if (juridica.getId() != -1) {
@@ -1964,7 +1964,7 @@ public class JuridicaBean implements Serializable {
     }
 
     public String enviarEmailParaTodos() {
-        JuridicaDB juridicaDB = new JuridicaDBToplink();
+        JuridicaDao juridicaDB = new JuridicaDao();
         List<Juridica> juridicas = juridicaDB.pesquisaJuridicaComEmail();
         Registro reg = Registro.get();
         msgConfirma = EnviarEmail.EnviarEmailAutomatico(reg, juridicas);
@@ -2405,7 +2405,7 @@ public class JuridicaBean implements Serializable {
     public void loadList() {
         limit = 500;
         offset = 0;
-        JuridicaDB db = new JuridicaDBToplink();
+        JuridicaDao db = new JuridicaDao();
         boolean somenteContabilidadesx = false;
         boolean somenteContribuintesAtivos = false;
         switch (tipoFiltro) {
@@ -2428,7 +2428,7 @@ public class JuridicaBean implements Serializable {
     }
 
     public void loadList(Integer new_offset) {
-        JuridicaDB db = new JuridicaDBToplink();
+        JuridicaDao db = new JuridicaDao();
         boolean somenteContabilidadesx = false;
         boolean somenteContribuintesAtivos = false;
         switch (tipoFiltro) {
@@ -2448,7 +2448,7 @@ public class JuridicaBean implements Serializable {
 
     public String status(Juridica j) {
         String status;
-        JuridicaDB db = new JuridicaDBToplink();
+        JuridicaDao db = new JuridicaDao();
         List listax = db.listaJuridicaContribuinte(j.getId());
         if (listax.isEmpty()) {
             status = "NÃO CONTRIBUINTE";

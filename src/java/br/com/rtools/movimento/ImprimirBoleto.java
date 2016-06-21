@@ -36,10 +36,8 @@ import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.dao.FilialDao;
-import br.com.rtools.pessoa.db.FisicaDB;
-import br.com.rtools.pessoa.db.FisicaDBToplink;
-import br.com.rtools.pessoa.db.JuridicaDB;
-import br.com.rtools.pessoa.db.JuridicaDBToplink;
+import br.com.rtools.pessoa.dao.FisicaDao;
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.Links;
 import br.com.rtools.utilitarios.*;
@@ -401,7 +399,7 @@ public class ImprimirBoleto {
             FacesContext faces = FacesContext.getCurrentInstance();
             Collection vetor = new ArrayList();
             PessoaEnderecoDao pesEndDB = new PessoaEnderecoDao();
-            JuridicaDB jurDB = new JuridicaDBToplink();
+            JuridicaDao jurDB = new JuridicaDao();
             String swap[] = new String[50];
             PessoaEndereco pe = null;
             MovimentoDB movDB = new MovimentoDBToplink();
@@ -735,7 +733,7 @@ public class ImprimirBoleto {
             Collection vetor = new ArrayList();
             PessoaEnderecoDao pesEndDB = new PessoaEnderecoDao();
             PessoaEndereco pe = null;
-            JuridicaDB jurDB = new JuridicaDBToplink();
+            JuridicaDao jurDB = new JuridicaDao();
             Juridica juridica = new Juridica();
             int i = 0;
             String swap[] = new String[35];
@@ -938,7 +936,7 @@ public class ImprimirBoleto {
             Collection vetor = new ArrayList();
             PessoaEnderecoDao pesEndDB = new PessoaEnderecoDao();
             PessoaEndereco pe = null;
-            JuridicaDB jurDB = new JuridicaDBToplink();
+            JuridicaDao jurDB = new JuridicaDao();
             Juridica juridica = new Juridica();
             int i = 0;
             String swap[] = new String[35];
@@ -1104,7 +1102,7 @@ public class ImprimirBoleto {
             Collection vetor = new ArrayList();
             PessoaEnderecoDao pesEndDB = new PessoaEnderecoDao();
             PessoaEndereco pe = null;
-            JuridicaDB jurDB = new JuridicaDBToplink();
+            JuridicaDao jurDB = new JuridicaDao();
             Juridica juridica = new Juridica();
             int i = 0;
             String swap[] = new String[35];
@@ -1334,7 +1332,7 @@ public class ImprimirBoleto {
             Collection vetor1 = new ArrayList(), vetor2 = new ArrayList();
             PessoaEnderecoDao pesEndDB = new PessoaEnderecoDao();
             PessoaEndereco pe = null;
-            JuridicaDB jurDB = new JuridicaDBToplink();
+            JuridicaDao jurDB = new JuridicaDao();
             Juridica juridica = new Juridica();
             int i = 0;
             String swap[] = new String[35];
@@ -1648,7 +1646,7 @@ public class ImprimirBoleto {
 
             Fisica fisica;
             try {
-                fisica = new FisicaDBToplink().pesquisaFisicaPorPessoa(pessoa.getId());
+                fisica = new FisicaDao().pesquisaFisicaPorPessoa(pessoa.getId());
                 swap[0] = fisica.getPessoa().getNome();
                 swap[1] = fisica.getPessoa().getDocumento();
             } catch (Exception e) {
@@ -1850,7 +1848,7 @@ public class ImprimirBoleto {
             Collection vetor1 = new ArrayList(), vetor2 = new ArrayList(), vetor3 = new ArrayList();
             PessoaEnderecoDao pesEndDB = new PessoaEnderecoDao();
             PessoaEndereco pe = null;
-            JuridicaDB jurDB = new JuridicaDBToplink();
+            JuridicaDao jurDB = new JuridicaDao();
             Juridica juridica = new Juridica();
             int i = 0;
             String swap[] = new String[35];
@@ -2197,8 +2195,8 @@ public class ImprimirBoleto {
             }
 
             MovimentosReceberSocialDao dbs = new MovimentosReceberSocialDao();
-            JuridicaDB dbj = new JuridicaDBToplink();
-            FisicaDB dbf = new FisicaDBToplink();
+            JuridicaDao dbj = new JuridicaDao();
+            FisicaDao dbf = new FisicaDao();
 
             List<Vector> lista_socio = new ArrayList();
             for (Boleto boleto : listaBoleto) {

@@ -14,8 +14,7 @@ import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.dao.FilialCidadeDao;
-import br.com.rtools.pessoa.db.FisicaDB;
-import br.com.rtools.pessoa.db.FisicaDBToplink;
+import br.com.rtools.pessoa.dao.FisicaDao;
 import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
@@ -228,7 +227,7 @@ public class SocioCarteirinhaJSFBean {
     public void imprimirCarteirinhaComDependente() {
         Fisica fisica = new Fisica();
         Juridica sindicato = new Juridica();
-        FisicaDB db = new FisicaDBToplink();
+        FisicaDao db = new FisicaDao();
         PessoaEndereco pesEndereco, pesDestinatario, pesEndEmpresa, pesEndSindicato = new PessoaEndereco();
         PessoaEnderecoDao dbEnd = new PessoaEnderecoDao();
         PessoaEmpresa pesEmpresa = new PessoaEmpresa();
@@ -531,7 +530,7 @@ public class SocioCarteirinhaJSFBean {
     public void imprimirCarteirinhaSemDependente() {
         Fisica fisica = new Fisica();
         Juridica sindicato = new Juridica();
-        FisicaDB db = new FisicaDBToplink();
+        FisicaDao db = new FisicaDao();
         PessoaEndereco pesEndereco, pesDestinatario, pesEndEmpresa, pesEndSindicato = new PessoaEndereco();
         PessoaEnderecoDao dbEnd = new PessoaEnderecoDao();
         PessoaEmpresa pesEmpresa = new PessoaEmpresa();

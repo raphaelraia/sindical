@@ -14,10 +14,8 @@ import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.beans.FisicaBean;
 import br.com.rtools.pessoa.beans.JuridicaBean;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
-import br.com.rtools.pessoa.db.FisicaDB;
-import br.com.rtools.pessoa.db.FisicaDBToplink;
-import br.com.rtools.pessoa.db.JuridicaDB;
-import br.com.rtools.pessoa.db.JuridicaDBToplink;
+import br.com.rtools.pessoa.dao.FisicaDao;
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.ConfiguracaoUpload;
@@ -110,7 +108,7 @@ public class ImpressaoBoletoSocialBean {
         ChamadaPaginaBean cp = (ChamadaPaginaBean) GenericaSessao.getObject("chamadaPaginaBean");
         String pagina = "";
 
-        FisicaDB dbf = new FisicaDBToplink();
+        FisicaDao dbf = new FisicaDao();
         Fisica f = dbf.pesquisaFisicaPorPessoa(pessoa.getId());
         if (f != null) {
             pagina = cp.pessoaFisica();
@@ -119,7 +117,7 @@ public class ImpressaoBoletoSocialBean {
             GenericaSessao.put("fisicaBean", fb);
             setAtualizaListaPessoaSemEndereco(true);
         } else {
-            JuridicaDB jdb = new JuridicaDBToplink();
+            JuridicaDao jdb = new JuridicaDao();
             Juridica j = jdb.pesquisaJuridicaPorPessoa(pessoa.getId());
 
             pagina = cp.pessoaJuridica();
@@ -286,7 +284,7 @@ public class ImpressaoBoletoSocialBean {
             PessoaEnderecoDao dbpe = new PessoaEnderecoDao();
             PessoaEndereco pe;
 
-            JuridicaDB dbj = new JuridicaDBToplink();
+            JuridicaDao dbj = new JuridicaDao();
 
             for (DataObject linha : listaGrid) {
                 if ((Boolean) linha.getArgumento1()) {
@@ -342,7 +340,7 @@ public class ImpressaoBoletoSocialBean {
 //                    PessoaEnderecoDB dbpe = new PessoaEnderecoDBToplink();
 //                    PessoaEndereco pe;
 //                        
-//                    JuridicaDB dbj = new JuridicaDBToplink();
+//                    JuridicaDB dbj = new JuridicaDao();
 //                    
 //                    
 //                    lista_socio = db.listaBoletoSocioJuridicaAgrupado((String) ((Vector)listaGrid.get(i).getArgumento2()).get(0)); // NR_CTR_BOLETO

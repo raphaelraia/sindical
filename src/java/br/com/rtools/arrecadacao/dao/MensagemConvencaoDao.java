@@ -2,8 +2,7 @@ package br.com.rtools.arrecadacao.dao;
 
 import br.com.rtools.arrecadacao.MensagemConvencao;
 import br.com.rtools.pessoa.Pessoa;
-import br.com.rtools.pessoa.db.JuridicaDB;
-import br.com.rtools.pessoa.db.JuridicaDBToplink;
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.principal.DB;
 import java.util.ArrayList;
 import java.util.List;
@@ -168,7 +167,7 @@ public class MensagemConvencaoDao extends DB {
 
     public MensagemConvencao retornaDiaString(int idJuridica, String ref, int idTipoServico, int idServicos) {
         // Modificado: 15/10/2014 - Query objeto deixava a rotina lenta;
-        JuridicaDB db = new JuridicaDBToplink();
+        JuridicaDao db = new JuridicaDao();
         String textQuery = ""
                 + " SELECT m.*                                                  "
                 + "   FROM pes_juridica           j,                            "
@@ -205,7 +204,7 @@ public class MensagemConvencaoDao extends DB {
 
     public MensagemConvencao retornaDiaString(Pessoa pessoa, String ref, int idTipoServico, int idServicos) {
         MensagemConvencao result = new MensagemConvencao();
-        JuridicaDB db = new JuridicaDBToplink();
+        JuridicaDao db = new JuridicaDao();
         Query qry = null;
         List<Vector> listax = db.listaJuridicaContribuinteID();
         String in = "";

@@ -33,10 +33,8 @@ import br.com.rtools.pessoa.beans.FisicaBean;
 import br.com.rtools.pessoa.beans.JuridicaBean;
 import br.com.rtools.pessoa.dao.PessoaComplementoDao;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
-import br.com.rtools.pessoa.db.FisicaDB;
-import br.com.rtools.pessoa.db.FisicaDBToplink;
-import br.com.rtools.pessoa.db.JuridicaDB;
-import br.com.rtools.pessoa.db.JuridicaDBToplink;
+import br.com.rtools.pessoa.dao.FisicaDao;
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
@@ -527,7 +525,7 @@ public class MovimentosReceberSocialBean implements Serializable {
             pessoax = mov.getBeneficiario();
         }
 
-        FisicaDB dbf = new FisicaDBToplink();
+        FisicaDao dbf = new FisicaDao();
         Fisica f = dbf.pesquisaFisicaPorPessoa(pessoax.getId());
 
         if (f != null) {
@@ -539,7 +537,7 @@ public class MovimentosReceberSocialBean implements Serializable {
             return retorno;
         }
 
-        JuridicaDB dbj = new JuridicaDBToplink();
+        JuridicaDao dbj = new JuridicaDao();
         Juridica j = dbj.pesquisaJuridicaPorPessoa(pessoax.getId());
 
         if (j != null) {
@@ -643,7 +641,7 @@ public class MovimentosReceberSocialBean implements Serializable {
     }
 
     public void pessoaJuridicaNaListaxx() {
-        JuridicaDB db = new JuridicaDBToplink();
+        JuridicaDao db = new JuridicaDao();
         for (Pessoa p : listaPessoa) {
             Juridica j = db.pesquisaJuridicaPorPessoa(p.getId());
 
@@ -1513,8 +1511,8 @@ public class MovimentosReceberSocialBean implements Serializable {
             MovimentosReceberSocialDao db = new MovimentosReceberSocialDao();
             String id_pessoa = "", id_responsavel = "";
 
-            FisicaDB dbf = new FisicaDBToplink();
-            JuridicaDB dbj = new JuridicaDBToplink();
+            FisicaDao dbf = new FisicaDao();
+            JuridicaDao dbj = new JuridicaDao();
             FunctionsDao dbfunc = new FunctionsDao();
             PessoaComplementoDao pcd = new PessoaComplementoDao();
             List<Pessoa> listaPessoaQry = new ArrayList();

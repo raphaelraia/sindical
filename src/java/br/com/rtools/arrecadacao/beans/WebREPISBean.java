@@ -20,8 +20,7 @@ import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
-import br.com.rtools.pessoa.db.JuridicaDB;
-import br.com.rtools.pessoa.db.JuridicaDBToplink;
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.seguranca.dao.UsuarioDao;
 import br.com.rtools.utilitarios.AnaliseString;
@@ -282,7 +281,7 @@ public class WebREPISBean implements Serializable {
                 GenericaMensagem.warn("Atenção", "Nenhuma patronal encontrada!");
                 return;
             }
-            JuridicaDB dbj = new JuridicaDBToplink();
+            JuridicaDao dbj = new JuridicaDao();
             Juridica juridicax = dbj.pesquisaJuridicaPorPessoa(pessoaSolicitante.getId());
             PisoSalarialLote lote = dbr.pesquisaPisoSalarial(getAnoConvencao(), patronal.getId(), juridicax.getPorte().getId());
 
@@ -400,7 +399,7 @@ public class WebREPISBean implements Serializable {
     }
 
     public String imprimirCertificado(List<RepisMovimento> listam) {
-        JuridicaDB dbj = new JuridicaDBToplink();
+        JuridicaDao dbj = new JuridicaDao();
         WebREPISDao dbw = new WebREPISDao();
         List<JasperPrint> lista_jasper = new ArrayList();
 
@@ -693,7 +692,7 @@ public class WebREPISBean implements Serializable {
 
     public List<SelectItem> getListComboPessoa() {
         if (listComboPessoa.isEmpty()) {
-            JuridicaDB dbJur = new JuridicaDBToplink();
+            JuridicaDao dbJur = new JuridicaDao();
             getPessoa();
             List<Juridica> select = null;
             select = dbJur.listaContabilidadePertencente(dbJur.pesquisaJuridicaPorPessoa(pessoa.getId()).getId());
@@ -887,7 +886,7 @@ public class WebREPISBean implements Serializable {
     public List<SelectItem> getListComboCertidaoDisponivel() {
         if (listComboCertidaoDisponivel.isEmpty()) {
             WebREPISDao db = new WebREPISDao();
-            JuridicaDB dbj = new JuridicaDBToplink();
+            JuridicaDao dbj = new JuridicaDao();
 
             Juridica juridica = null;
             if (pessoaContribuinte != null) {

@@ -1,5 +1,6 @@
 package br.com.rtools.utilitarios;
 
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.pessoa.dao.PessoaDao;
 import br.com.rtools.pessoa.dao.DocumentoInvalidoDao;
 import br.com.rtools.financeiro.ContaCobranca;
@@ -13,7 +14,6 @@ import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.pessoa.DocumentoInvalido;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
-import br.com.rtools.pessoa.db.*;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Usuario;
 import java.io.File;
@@ -69,8 +69,7 @@ public abstract class ArquivoRetorno {
         List<String> errors = new ArrayList();
 
         MovimentoDB db = new MovimentoDBToplink();
-        JuridicaDB dbJur = new JuridicaDBToplink();
-        PessoaDao dbPes = new PessoaDao();
+        JuridicaDao dbJur = new JuridicaDao();
         List<Movimento> movimento = new ArrayList();
         Dao dao = new Dao();
         File fl = new File(caminho + "/pendentes/");
@@ -393,7 +392,7 @@ public abstract class ArquivoRetorno {
         List<String> errors = new ArrayList();
 
         MovimentoDB db = new MovimentoDBToplink();
-        JuridicaDB dbJur = new JuridicaDBToplink();
+        JuridicaDao dbJur = new JuridicaDao();
         List<Movimento> lista_movimento = new ArrayList();
         File fl = new File(caminho + "/pendentes/");
         File listFls[] = fl.listFiles();

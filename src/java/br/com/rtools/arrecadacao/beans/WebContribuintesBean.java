@@ -23,8 +23,7 @@ import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.dao.FilialDao;
-import br.com.rtools.pessoa.db.JuridicaDB;
-import br.com.rtools.pessoa.db.JuridicaDBToplink;
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
@@ -76,7 +75,7 @@ public class WebContribuintesBean extends MovimentoValorBean {
         listaMovimento.clear();
         WebContribuintesDao db = new WebContribuintesDao();
         Dao dao = new Dao();
-        JuridicaDB dbJur = new JuridicaDBToplink();
+        JuridicaDao dbJur = new JuridicaDao();
         juridica = dbJur.pesquisaJuridicaPorPessoa(pessoa.getId());
 
         List lista = new ArrayList();

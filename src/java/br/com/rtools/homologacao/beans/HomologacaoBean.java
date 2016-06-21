@@ -1,5 +1,6 @@
 package br.com.rtools.homologacao.beans;
 
+import br.com.rtools.pessoa.dao.FisicaDao;
 import br.com.rtools.atendimento.AteMovimento;
 import br.com.rtools.atendimento.AteStatus;
 import br.com.rtools.atendimento.dao.AtendimentoDao;
@@ -14,7 +15,6 @@ import br.com.rtools.homologacao.dao.CancelamentoDao;
 import br.com.rtools.homologacao.dao.HomologacaoDao;
 import br.com.rtools.pessoa.*;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
-import br.com.rtools.pessoa.db.*;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Usuario;
@@ -841,7 +841,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
             GenericaMensagem.error("Atenção", "Documento Inválido!");
             return;
         }
-        FisicaDB fisicaDB = new FisicaDBToplink();
+        FisicaDao fisicaDB = new FisicaDao();
         dao.openTransaction();
         if (fisica.getId() == -1) {
             if (!fisicaDB.pesquisaFisicaPorNomeNascRG(fisica.getPessoa().getNome(), fisica.getDtNascimento(), fisica.getRg()).isEmpty()) {
@@ -1116,7 +1116,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
 
     public String pesquisarFuncionarioCPF() {
         HomologacaoDao db = new HomologacaoDao();
-        FisicaDB dbFis = new FisicaDBToplink();
+        FisicaDao dbFis = new FisicaDao();
         fisica.getPessoa().setTipoDocumento((TipoDocumento) new Dao().find(new TipoDocumento(), 1));
         PessoaEmpresa pe = db.pesquisaPessoaEmpresaPertencente(fisica.getPessoa().getDocumento());
         if (pe.getId() != -1) {

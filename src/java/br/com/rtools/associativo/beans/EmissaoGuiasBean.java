@@ -41,8 +41,7 @@ import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaComplemento;
 import br.com.rtools.pessoa.TipoDocumento;
-import br.com.rtools.pessoa.db.FisicaDB;
-import br.com.rtools.pessoa.db.FisicaDBToplink;
+import br.com.rtools.pessoa.dao.FisicaDao;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
@@ -411,7 +410,7 @@ public class EmissaoGuiasBean implements Serializable {
     }
 
     public void pesquisaSemCadastro(String por) {
-        FisicaDB dbf = new FisicaDBToplink();
+        FisicaDao dbf = new FisicaDao();
         if (por.equals("cpf") && fisicaNovoCadastro.getId() == -1) {
             if (!fisicaNovoCadastro.getPessoa().getDocumento().isEmpty()) {
                 List<Fisica> lista = dbf.pesquisaFisicaPorDoc(fisicaNovoCadastro.getPessoa().getDocumento());
@@ -992,7 +991,7 @@ public class EmissaoGuiasBean implements Serializable {
         if (GenericaSessao.exists("pessoaPesquisa")) {
             pessoa = (Pessoa) GenericaSessao.getObject("pessoaPesquisa", true);
             fisica = new Fisica();
-            FisicaDB db = new FisicaDBToplink();
+            FisicaDao db = new FisicaDao();
             fisica = db.pesquisaFisicaPorPessoa(pessoa.getId());
 
             SociosDao dbs = new SociosDao();

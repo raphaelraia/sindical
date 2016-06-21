@@ -3,10 +3,8 @@ package br.com.rtools.pessoa;
 import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
-import br.com.rtools.pessoa.db.FisicaDB;
-import br.com.rtools.pessoa.db.FisicaDBToplink;
-import br.com.rtools.pessoa.db.JuridicaDB;
-import br.com.rtools.pessoa.db.JuridicaDBToplink;
+import br.com.rtools.pessoa.dao.FisicaDao;
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.pessoa.dao.PessoaDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
@@ -293,7 +291,7 @@ public class Pessoa implements Serializable {
         Juridica juridica = new Juridica();
         juridica.setPessoa(null);
         if (this.id != -1) {
-            JuridicaDB juridicaDB = new JuridicaDBToplink();
+            JuridicaDao juridicaDB = new JuridicaDao();
             juridica = juridicaDB.pesquisaJuridicaPorPessoa(this.id);
             if (juridica.getId() != -1) {
                 juridica = (Juridica) new Dao().rebind(juridica);
@@ -308,7 +306,7 @@ public class Pessoa implements Serializable {
         Fisica fisica = new Fisica();
         fisica.setPessoa(null);
         if (this.id != -1) {
-            FisicaDB fisicaDB = new FisicaDBToplink();
+            FisicaDao fisicaDB = new FisicaDao();
             fisica = fisicaDB.pesquisaFisicaPorPessoa(this.id);
             if (fisica.getId() != -1) {
                 fisica = (Fisica) new Dao().rebind(fisica);
@@ -372,7 +370,7 @@ public class Pessoa implements Serializable {
 
     public String getFotoResource() {
         if (this.id != -1) {
-            FisicaDB fisicaDB = new FisicaDBToplink();
+            FisicaDao fisicaDB = new FisicaDao();
             Fisica fisica = fisicaDB.pesquisaFisicaPorPessoa(this.id);
             String foto = "";
             if (fisica != null) {
@@ -396,7 +394,7 @@ public class Pessoa implements Serializable {
                     foto = "images/user_male.png";
                 }
             } else {
-                JuridicaDB juridicaDB = new JuridicaDBToplink();
+                JuridicaDao juridicaDB = new JuridicaDao();
                 Juridica juridica = juridicaDB.pesquisaJuridicaPorPessoa(this.id);
 
                 if (juridica != null) {

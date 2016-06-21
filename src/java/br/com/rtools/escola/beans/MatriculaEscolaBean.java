@@ -40,10 +40,8 @@ import br.com.rtools.pessoa.PessoaComplemento;
 import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
-import br.com.rtools.pessoa.db.FisicaDB;
-import br.com.rtools.pessoa.db.FisicaDBToplink;
-import br.com.rtools.pessoa.db.JuridicaDB;
-import br.com.rtools.pessoa.db.JuridicaDBToplink;
+import br.com.rtools.pessoa.dao.FisicaDao;
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.pessoa.dao.PessoaDao;
 import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
 import br.com.rtools.pessoa.dao.SpcDao;
@@ -576,7 +574,7 @@ public class MatriculaEscolaBean implements Serializable {
             String horaInicial;
             String horaFinal;
             matriculaContrato.setDescricao(matriculaContrato.getDescricao().replace("$aluno", servicoPessoa.getPessoa().getNome()));
-            FisicaDB fisicaDB = new FisicaDBToplink();
+            FisicaDao fisicaDB = new FisicaDao();
             Fisica contratoFisica = fisicaDB.pesquisaFisicaPorPessoa(servicoPessoa.getCobranca().getId());
             if (contratoFisica == null) {
                 contratoFisica = new Fisica();
@@ -1384,7 +1382,7 @@ public class MatriculaEscolaBean implements Serializable {
             return null;
         }
         idFTipoDocumento = servicoPessoa.getTipoDocumento().getId();
-        FisicaDB fisicaDB = new FisicaDBToplink();
+        FisicaDao fisicaDB = new FisicaDao();
         aluno = fisicaDB.pesquisaFisicaPorPessoa(servicoPessoa.getPessoa().getId());
         if (aluno.getId() != -1) {
             getResponsavel();
@@ -1622,7 +1620,7 @@ public class MatriculaEscolaBean implements Serializable {
             }
 
             // RESPONSAVEL FISICA
-            FisicaDB dbf = new FisicaDBToplink();
+            FisicaDao dbf = new FisicaDao();
             Fisica fi = dbf.pesquisaFisicaPorPessoa(responsavel.getId());
             if (fi != null) {
                 DataHoje dh = new DataHoje();
@@ -1653,7 +1651,7 @@ public class MatriculaEscolaBean implements Serializable {
         }
 
         // ENDEREÇO OBRIGATÓRIO
-        JuridicaDB dbj = new JuridicaDBToplink();
+        JuridicaDao dbj = new JuridicaDao();
         List lista_pe = dbj.pesquisarPessoaEnderecoJuridica(responsavel.getId());
         if (lista_pe.isEmpty()) {
             GenericaMensagem.warn("RESPONSÁVEL", responsavel.getNome() + " não possui endereço cadastrado!");
@@ -1751,7 +1749,7 @@ public class MatriculaEscolaBean implements Serializable {
     }
 
     public boolean verificaSeContribuinteInativo(Pessoa responsavelPessoa) {
-        JuridicaDB juridicaDB = new JuridicaDBToplink();
+        JuridicaDao juridicaDB = new JuridicaDao();
         if (juridicaDB.empresaInativa(responsavelPessoa, "FECHOU")) {
             msgStatusEmpresa = "Empresa inátiva!";
             return true;
@@ -2524,7 +2522,7 @@ public class MatriculaEscolaBean implements Serializable {
         FunctionsDao functionsDB = new FunctionsDao();
         int titular = functionsDB.responsavel(servicoPessoa.getCobranca().getId(), true);
         if (titular > 0) {
-            JuridicaDB juridicaDB = new JuridicaDBToplink();
+            JuridicaDao juridicaDB = new JuridicaDao();
             Juridica juridicaB = juridicaDB.pesquisaJuridicaPorPessoa(titular);
             if (juridicaB != null) {
                 empresa = juridicaB;

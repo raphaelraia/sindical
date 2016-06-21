@@ -1,5 +1,6 @@
 package br.com.rtools.arrecadacao.beans;
 
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.pessoa.dao.DocumentoInvalidoDao;
 import br.com.rtools.cobranca.BancoDoBrasil;
 import br.com.rtools.cobranca.CaixaFederalSicob;
@@ -19,7 +20,6 @@ import br.com.rtools.pessoa.DocumentoInvalido;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
-import br.com.rtools.pessoa.db.*;
 import br.com.rtools.retornos.*;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
@@ -137,7 +137,7 @@ public final class ArquivoBancoBean implements Serializable {
                             listaDoc.get(i).getDocumentoInvalido().length()
                     );
 
-                    List<Juridica> lj = new JuridicaDBToplink().pesquisaJuridicaPorDocSubstring(documento);
+                    List<Juridica> lj = new JuridicaDao().pesquisaJuridicaPorDocSubstring(documento);
                     String mascaraDocumento = "";
                     switch (lj.get(0).getPessoa().getTipoDocumento().getId()) {
                         case 1:
@@ -1206,7 +1206,7 @@ public final class ArquivoBancoBean implements Serializable {
         MovimentoDB db = new MovimentoDBToplink();
         List<Movimento> lm = new ArrayList<Movimento>();
         List<Juridica> l_juridicax = new ArrayList<Juridica>();
-        JuridicaDB dbj = new JuridicaDBToplink();
+        JuridicaDao dbj = new JuridicaDao();
 
         Dao dao = new Dao();
         for (DataObject listaDocumento : listaDocumentos) {

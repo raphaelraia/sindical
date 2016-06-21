@@ -17,8 +17,7 @@ import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
-import br.com.rtools.pessoa.db.JuridicaDB;
-import br.com.rtools.pessoa.db.JuridicaDBToplink;
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.relatorios.dao.RelatorioContribuintesDao;
 import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.seguranca.Registro;
@@ -695,7 +694,6 @@ public class ImpressaoBoletosBean implements Serializable {
 
         RelatorioDao db = new RelatorioDao();
         RelatorioContribuintesDao dbContri = new RelatorioContribuintesDao();
-        JuridicaDB dbJur = new JuridicaDBToplink();
         PessoaEnderecoDao dao = new PessoaEnderecoDao();
         PessoaEndereco endEscritorio = new PessoaEndereco();
         List listaCnaes = new ArrayList();
@@ -819,7 +817,7 @@ public class ImpressaoBoletosBean implements Serializable {
         Movimento movimento = new Movimento();
         Juridica juridica = new Juridica();
 
-        JuridicaDB dbj = new JuridicaDBToplink();
+        JuridicaDao dbj = new JuridicaDao();
         MovimentoDB dbM = new MovimentoDBToplink();
 
         List<Movimento> movadd = new ArrayList();
@@ -837,7 +835,7 @@ public class ImpressaoBoletosBean implements Serializable {
 
                 /* ENVIO PARA CONTABILIDADE */
                 movimento = dbM.pesquisaCodigo((Integer) listaMovGridSelecionada.get(i).getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getValor());
-                juridica = dbj.pesquisaCodigo(id_empresa);
+                juridica = (Juridica) new Dao().find(new Juridica(), id_empresa);
 
                 if (id_contabil != 0 && juridica.isEmailEscritorio()) {
                     movadd.add(movimento);

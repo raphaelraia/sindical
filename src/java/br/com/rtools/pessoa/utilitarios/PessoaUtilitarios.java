@@ -7,10 +7,8 @@ import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.TipoEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
-import br.com.rtools.pessoa.db.FisicaDB;
-import br.com.rtools.pessoa.db.FisicaDBToplink;
-import br.com.rtools.pessoa.db.JuridicaDB;
-import br.com.rtools.pessoa.db.JuridicaDBToplink;
+import br.com.rtools.pessoa.dao.FisicaDao;
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Registro;
@@ -120,7 +118,7 @@ public class PessoaUtilitarios implements Serializable {
     public Juridica juridica() {
         Juridica juridica = new Juridica();
         if (this.pessoa.getId() != -1) {
-            JuridicaDB juridicaDB = new JuridicaDBToplink();
+            JuridicaDao juridicaDB = new JuridicaDao();
             juridicaDB.pesquisaJuridicaPorPessoa(this.pessoa.getId());
         }
         return juridica;
@@ -134,7 +132,7 @@ public class PessoaUtilitarios implements Serializable {
     public Fisica fisica() {
         Fisica fisica = new Fisica();
         if (this.pessoa.getId() != -1) {
-            FisicaDB fisicaDB = new FisicaDBToplink();
+            FisicaDao fisicaDB = new FisicaDao();
             fisicaDB.pesquisaFisicaPorPessoa(this.pessoa.getId());
         }
         return fisica;

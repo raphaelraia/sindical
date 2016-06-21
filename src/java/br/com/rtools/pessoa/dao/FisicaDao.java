@@ -1,4 +1,4 @@
-package br.com.rtools.pessoa.db;
+package br.com.rtools.pessoa.dao;
 
 import br.com.rtools.financeiro.ServicoPessoa;
 import br.com.rtools.pessoa.Fisica;
@@ -11,76 +11,17 @@ import java.util.List;
 import java.util.Vector;
 import javax.persistence.Query;
 
-public class FisicaDBToplink extends DB implements FisicaDB {
+public class FisicaDao extends DB {
 
     private Integer limit = 0;
     private String not_in = "";
     private String inCategoriaSocio = "";
     private Boolean ignore = false;
 
-    @Override
-    public boolean insert(Fisica fisica) {
-        try {
-            getEntityManager().getTransaction().begin();
-            getEntityManager().persist(fisica);
-            getEntityManager().flush();
-            getEntityManager().getTransaction().commit();
-            return true;
-        } catch (Exception e) {
-            getEntityManager().getTransaction().rollback();
-            return false;
-        }
-    }
-
-    @Override
-    public boolean update(Fisica fisica) {
-        try {
-            getEntityManager().merge(fisica);
-            getEntityManager().flush();
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    @Override
-    public boolean delete(Fisica fisica) {
-        try {
-            getEntityManager().remove(fisica);
-            getEntityManager().flush();
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    @Override
-    public Fisica pesquisaCodigo(int id) {
-        Fisica result = null;
-        try {
-            Query qry = getEntityManager().createNamedQuery("Fisica.pesquisaID");
-            qry.setParameter("pid", id);
-            result = (Fisica) qry.getSingleResult();
-        } catch (Exception e) {
-        }
-        return result;
-    }
-
-    @Override
-    public List pesquisaTodos() {
-        try {
-            Query qry = getEntityManager().createQuery("select fis from Fisica fis ");
-            return (qry.getResultList());
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
     public List<Fisica> pesquisaPessoa(String desc, String por, String como) {
         return pesquisaPessoa(desc, por, como, null, null);
     }
 
-    @Override
     public List<Fisica> pesquisaPessoa(String desc, String por, String como, Integer limit, Integer offset) {
         if (desc.isEmpty()) {
             return new ArrayList();
@@ -271,12 +212,10 @@ public class FisicaDBToplink extends DB implements FisicaDB {
         return new ArrayList();
     }
 
-    @Override
     public List pesquisaPessoaSocio(String desc, String por, String como, Integer limit, Integer offset) {
         return pesquisaPessoaSocio(desc, por, como, false, limit, offset);
     }
 
-    @Override
     public List pesquisaPessoaSocio(String desc, String por, String como, Boolean titular, Integer limit, Integer offset) {
         if (desc.isEmpty()) {
             return new ArrayList();
@@ -467,7 +406,6 @@ public class FisicaDBToplink extends DB implements FisicaDB {
         return new ArrayList();
     }
 
-    @Override
     public List pesquisaPessoaSocioInativo(String desc, String por, String como, Integer limit, Integer offset) {
         if (desc.isEmpty()) {
             return new ArrayList();
@@ -643,7 +581,6 @@ public class FisicaDBToplink extends DB implements FisicaDB {
         return new ArrayList();
     }
 
-    @Override
     public Fisica idFisica(Fisica des_fisica) {
         Fisica result = null;
         String descricao = des_fisica.getPessoa().getNome().toLowerCase().toUpperCase();
@@ -656,12 +593,10 @@ public class FisicaDBToplink extends DB implements FisicaDB {
         return result;
     }
 
-    @Override
     public List<Fisica> pesquisaFisicaPorDoc(String doc) {
         return pesquisaFisicaPorDoc(doc, true);
     }
 
-    @Override
     public List<Fisica> pesquisaFisicaPorDoc(String doc, boolean like) {
         String documento = doc;
         if (like) {
@@ -702,7 +637,6 @@ public class FisicaDBToplink extends DB implements FisicaDB {
         return new ArrayList();
     }
 
-    @Override
     public List<Fisica> pesquisaFisicaPorDocSemLike(String doc) {
         try {
             Query qry = getEntityManager().createQuery(
@@ -719,7 +653,6 @@ public class FisicaDBToplink extends DB implements FisicaDB {
         return new ArrayList();
     }
 
-    @Override
     public Fisica pesquisaFisicaPorPessoa(int idPessoa) {
         try {
             Query qry = getEntityManager().createQuery(
@@ -737,7 +670,6 @@ public class FisicaDBToplink extends DB implements FisicaDB {
         return null;
     }
 
-    @Override
     public List<Fisica> pesquisaFisicaPorNomeNascRG(String nome, Date nascimento, String RG) {
         String textQuery = "";
         try {
@@ -763,7 +695,6 @@ public class FisicaDBToplink extends DB implements FisicaDB {
         }
     }
 
-    @Override
     public List pesquisaFisicaPorNome(String nome) {
         try {
             String textQuery = "select f "
@@ -778,7 +709,6 @@ public class FisicaDBToplink extends DB implements FisicaDB {
         }
     }
 
-    @Override
     public List pesquisaPessoaSocioID(int id_pessoa) {
         List lista = new Vector<Object>();
         String textQuery = null;
@@ -797,7 +727,6 @@ public class FisicaDBToplink extends DB implements FisicaDB {
         return lista;
     }
 
-    @Override
     public List<ServicoPessoa> listaServicoPessoa(int id_pessoa, boolean dependente) {
         List lista = new Vector();
         String textQuery = "SELECT sp FROM ServicoPessoa sp WHERE sp.ativo = TRUE";
@@ -818,7 +747,6 @@ public class FisicaDBToplink extends DB implements FisicaDB {
         return lista;
     }
 
-    @Override
     public List<Vector> listaHistoricoServicoPessoa(Integer id_pessoa, Integer id_categoria, Boolean somenteDestaPessoa) {
         String textQuery
                 = "  SELECT sp.dt_emissao AS emissao, \n"
@@ -858,7 +786,6 @@ public class FisicaDBToplink extends DB implements FisicaDB {
         return new ArrayList();
     }
 
-    @Override
     public Fisica pesquisaFisicaPorNomeNascimento(String nome, Date nascimento) {
         if (nome.isEmpty() && nascimento != null) {
             return null;
@@ -887,7 +814,6 @@ public class FisicaDBToplink extends DB implements FisicaDB {
         return null;
     }
 
-    @Override
     public List<Vector> listaMovimentoFisica(Integer id_pessoa, String status, String tipo_pesquisa) {
         String text
                 = " SELECT m.id, \n "

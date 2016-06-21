@@ -41,10 +41,8 @@ import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaComplemento;
-import br.com.rtools.pessoa.db.FisicaDB;
-import br.com.rtools.pessoa.db.FisicaDBToplink;
-import br.com.rtools.pessoa.db.JuridicaDB;
-import br.com.rtools.pessoa.db.JuridicaDBToplink;
+import br.com.rtools.pessoa.dao.FisicaDao;
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.pessoa.dao.PessoaDao;
 import br.com.rtools.seguranca.FilialRotina;
 import br.com.rtools.seguranca.MacFilial;
@@ -679,7 +677,7 @@ public class MatriculaAcademiaBean implements Serializable {
                 GenericaMensagem.error("Atenção", "Erro ao salvar Foto, verifique as permissões de acesso!");
                 return;
             }
-//            FisicaDB db = new FisicaDBToplink();
+//            FisicaDB db = new FisicaDao();
 //            Fisica f = db.pesquisaFisicaPorPessoa(matriculaAcademia.getServicoPessoa().getPessoa().getId());
 
             File fotoAntiga = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/Fotos/Fisica/" + aluno.getFoto() + ".png"));
@@ -788,7 +786,7 @@ public class MatriculaAcademiaBean implements Serializable {
         taxaCartao = matriculaAcademia.isTaxaCartao();
         idDiaVencimento = ma.getServicoPessoa().getNrDiaVencimento();
         idFTipoDocumento = matriculaAcademia.getServicoPessoa().getTipoDocumento().getId();
-        FisicaDB fisicaDB = new FisicaDBToplink();
+        FisicaDao fisicaDB = new FisicaDao();
         aluno = fisicaDB.pesquisaFisicaPorPessoa(matriculaAcademia.getServicoPessoa().getPessoa().getId());
         if (aluno.getId() != -1) {
             getResponsavel();
@@ -906,7 +904,7 @@ public class MatriculaAcademiaBean implements Serializable {
             } else {
                 int idResponsavelEmpresa = functionsDB.responsavel(aluno.getPessoa().getId(), true);
                 if (idResponsavelEmpresa != -1) {
-                    JuridicaDB juridicaDB = new JuridicaDBToplink();
+                    JuridicaDao juridicaDB = new JuridicaDao();
                     Juridica juridicaB = juridicaDB.pesquisaJuridicaPorPessoa(idResponsavelEmpresa);
                     if (juridicaB != null) {
                         if (juridicaB.getId() != -1) {
@@ -927,7 +925,7 @@ public class MatriculaAcademiaBean implements Serializable {
         }
         if (matriculaAcademia.getServicoPessoa().getCobranca().getId() != -1) {
             if (matriculaAcademia.getId() == -1) {
-                JuridicaDB juridicaDB = new JuridicaDBToplink();
+                JuridicaDao juridicaDB = new JuridicaDao();
                 Juridica j = juridicaDB.pesquisaJuridicaPorPessoa(matriculaAcademia.getServicoPessoa().getCobranca().getId());
                 if (j != null) {
                     verificaSeContribuinteInativo();
@@ -1184,7 +1182,7 @@ public class MatriculaAcademiaBean implements Serializable {
             }
 
             // RESPONSAVEL FISICA
-            FisicaDB dbf = new FisicaDBToplink();
+            FisicaDao dbf = new FisicaDao();
             Fisica fi = dbf.pesquisaFisicaPorPessoa(responsavel.getId());
             if (fi != null) {
                 DataHoje dh = new DataHoje();
@@ -1215,7 +1213,7 @@ public class MatriculaAcademiaBean implements Serializable {
         }
 
         // ENDEREÇO OBRIGATÓRIO
-        JuridicaDB dbj = new JuridicaDBToplink();
+        JuridicaDao dbj = new JuridicaDao();
         List lista_pe = dbj.pesquisarPessoaEnderecoJuridica(responsavel.getId());
         if (lista_pe.isEmpty()) {
             GenericaMensagem.warn("RESPONSÁVEL", responsavel.getNome() + " não possui endereço cadastrado!");
@@ -1716,7 +1714,7 @@ public class MatriculaAcademiaBean implements Serializable {
     }
 
     public boolean verificaSeContribuinteInativo() {
-        JuridicaDB juridicaDB = new JuridicaDBToplink();
+        JuridicaDao juridicaDB = new JuridicaDao();
         if (juridicaDB.empresaInativa(matriculaAcademia.getServicoPessoa().getCobranca(), "FECHOU")) {
             messageStatusEmpresa = "Empresa inátiva!";
             return true;
@@ -2725,7 +2723,7 @@ public class MatriculaAcademiaBean implements Serializable {
 //            if (fotoTempx.exists()) {
 //                fotoStreamed = ImageConverter.getImageStreamed(fotoTempx, "image/png");
 //            } else {
-////                FisicaDB db = new FisicaDBToplink();
+////                FisicaDB db = new FisicaDao();
 ////                Fisica f = db.pesquisaFisicaPorPessoa(matriculaAcademia.getServicoPessoa().getPessoa().getId());
 //                
 //                File fotoSave = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/Fotos/Fisica/" + aluno.getFoto() + ".png"));

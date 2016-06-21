@@ -2,7 +2,7 @@ package br.com.rtools.utilitarios;
 
 import br.com.rtools.arrecadacao.beans.ConfiguracaoArrecadacaoBean;
 import br.com.rtools.pessoa.Juridica;
-import br.com.rtools.pessoa.db.JuridicaDBToplink;
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.seguranca.EmailMarketing;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Usuario;
@@ -179,7 +179,7 @@ public class Mail extends MailTemplate implements Serializable {
                                         + "     </body>"
                                         + "</html>";
                             } else if (templateHtml.equals("personalizado")) {
-                                Juridica jur = (new JuridicaDBToplink()).pesquisaJuridicaPorPessoa(emailPessoas.get(i).getPessoa().getId());
+                                Juridica jur = (new JuridicaDao()).pesquisaJuridicaPorPessoa(emailPessoas.get(i).getPessoa().getId());
                                 if (jur == null) {
                                     jur = sindicato;
                                     //jur = registro.getFilial();

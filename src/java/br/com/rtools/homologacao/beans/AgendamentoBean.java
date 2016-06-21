@@ -1,5 +1,7 @@
 package br.com.rtools.homologacao.beans;
 
+import br.com.rtools.pessoa.dao.FisicaDao;
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
 import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.pessoa.beans.PesquisarProfissaoBean;
@@ -25,7 +27,6 @@ import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.pessoa.*;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
-import br.com.rtools.pessoa.db.*;
 import br.com.rtools.pessoa.utilitarios.PessoaUtilitarios;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Registro;
@@ -736,7 +737,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             return;
         }
 
-        FisicaDB dbFis = new FisicaDBToplink();
+        FisicaDao dbFis = new FisicaDao();
         List listDocumento;
         imprimirPro = false;
         DataHoje dataH = new DataHoje();
@@ -1200,7 +1201,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
 
             fisica.getPessoa().setDocumento(documentoFisica);
             //fisica = new Fisica();
-            FisicaDB dbFis = new FisicaDBToplink();
+            FisicaDao dbFis = new FisicaDao();
             HomologacaoDao db = new HomologacaoDao();
             PessoaEnderecoDao dbe = new PessoaEnderecoDao();
 
@@ -1580,7 +1581,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
 
     public String getStrContribuinte() {
         if (juridica.getId() != -1) {
-            JuridicaDB db = new JuridicaDBToplink();
+            JuridicaDao db = new JuridicaDao();
             List<ArrayList> listax = db.listaJuridicaContribuinte(juridica.getId());
             if (!listax.isEmpty()) {
                 if (((List) (listax.get(0))).get(11) != null) {

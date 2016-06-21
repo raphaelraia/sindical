@@ -13,8 +13,7 @@ import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.TipoDocumento;
-import br.com.rtools.pessoa.db.FisicaDB;
-import br.com.rtools.pessoa.db.FisicaDBToplink;
+import br.com.rtools.pessoa.dao.FisicaDao;
 import br.com.rtools.seguranca.Departamento;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.PermissaoUsuario;
@@ -119,7 +118,7 @@ public class AtendimentoBean implements Serializable {
                     return;
                 }
 
-                FisicaDB fisicaDB = new FisicaDBToplink();
+                FisicaDao fisicaDB = new FisicaDao();
                 List<Fisica> listf = fisicaDB.pesquisaFisicaPorDoc(sisPessoa.getDocumento());
 
                 // SE NÃO ACHAR PESSOA FÍSICA, PESQUISAR EM SIS_PESSOA
@@ -165,7 +164,7 @@ public class AtendimentoBean implements Serializable {
                     return;
                 }
 
-                FisicaDB fisicaDB = new FisicaDBToplink();
+                FisicaDao fisicaDB = new FisicaDao();
                 List<Fisica> listf = fisicaDB.pesquisaFisicaPorDocRG(sisPessoa.getRg());
 
                 // SE NÃO ACHAR PESSOA FÍSICA, PESQUISAR EM SIS_PESSOA
@@ -213,7 +212,7 @@ public class AtendimentoBean implements Serializable {
                 return;
             }
 
-//            FisicaDB fisicaDB = new FisicaDBToplink();
+//            FisicaDB fisicaDB = new FisicaDao();
 //            List<Fisica> listf = fisicaDB.pesquisaFisicaPorDoc(sisPessoaAtualiza.getDocumento());
 //            
 //            // DOCUMENTO JÁ EXISTE PARA OUTRA PESSOA FISICA
@@ -601,7 +600,7 @@ public class AtendimentoBean implements Serializable {
 //            if (!ateMovimento.getPessoa().getTelefone().equals("(__) ____-____")) {
 //                ateMovimento.getPessoa().setDocumento(pessoa.getDocumento());
 //            }
-//            FisicaDB fisicaDB = new FisicaDBToplink();
+//            FisicaDB fisicaDB = new FisicaDao();
 //            fisica = (Fisica) fisicaDB.pesquisaFisicaPorPessoa(pessoa.getId());
 //            ateMovimento.getPessoa().setRg(fisica.getRg());
 //            ateMovimento.getPessoa().setTelefone(pessoa.getTelefone1());

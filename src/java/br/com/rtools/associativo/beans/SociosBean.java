@@ -1,5 +1,7 @@
 package br.com.rtools.associativo.beans;
 
+import br.com.rtools.pessoa.dao.FisicaDao;
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.pessoa.dao.PessoaDao;
 import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.associativo.dao.MatriculaSociosDao;
@@ -27,7 +29,6 @@ import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.TipoDocumento;
 import br.com.rtools.pessoa.beans.FisicaBean;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
-import br.com.rtools.pessoa.db.*;
 import br.com.rtools.pessoa.utilitarios.PessoaUtilitarios;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Registro;
@@ -868,7 +869,7 @@ public class SociosBean implements Serializable {
 //            }
 //        }
 //        if (servicoPessoa.getPessoa().getId() != -1) {
-//            FisicaDB db = new FisicaDBToplink();
+//            FisicaDB db = new FisicaDao();
 //            Fisica fis = db.pesquisaFisicaPorPessoa(servicoPessoa.getPessoa().getId());
 //            if (fis.getSexo().equals("M")) {
 //                return "/Imagens/user_male.png";
@@ -910,7 +911,7 @@ public class SociosBean implements Serializable {
             return null;
         }
         query = query.trim();
-        FisicaDBToplink db = new FisicaDBToplink();
+        FisicaDao db = new FisicaDao();
         String como = "P";
         if (query.length() <= 2) {
             como = "I";
@@ -1009,7 +1010,7 @@ public class SociosBean implements Serializable {
 
             GenericaMensagem.info("Concluído", "Sócio inativado com Sucesso!");
             dao.commit();
-            FisicaDB dbf = new FisicaDBToplink();
+            FisicaDao dbf = new FisicaDao();
             GenericaSessao.put("fisicaBean", new FisicaBean());
             ((FisicaBean) GenericaSessao.getObject("fisicaBean")).setSocios(socios);
             ((FisicaBean) GenericaSessao.getObject("fisicaBean")).editarFisicaParametro(dbf.pesquisaFisicaPorPessoa(socios.getServicoPessoa().getPessoa().getId()));
@@ -1104,7 +1105,7 @@ public class SociosBean implements Serializable {
                 + " - Titular {ID: " + socios.getMatriculaSocios().getTitular().getId() + " - Nome: " + socios.getMatriculaSocios().getTitular().getNome() + "}"
                 + " - Data da reativação: " + DataHoje.data()
         );
-        FisicaDB dbf = new FisicaDBToplink();
+        FisicaDao dbf = new FisicaDao();
         GenericaSessao.put("fisicaBean", new FisicaBean());
         ((FisicaBean) GenericaSessao.getObject("fisicaBean")).editarFisicaParametro(dbf.pesquisaFisicaPorPessoa(socios.getServicoPessoa().getPessoa().getId()));
         ((FisicaBean) GenericaSessao.getObject("fisicaBean")).setSocios(socios);
@@ -1628,7 +1629,7 @@ public class SociosBean implements Serializable {
             FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("linkClicado", true);
             return "pessoaFisica";
         }
-        FisicaDB db = new FisicaDBToplink();
+        FisicaDao db = new FisicaDao();
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("fisicaBean", new FisicaBean());
         ((FisicaBean) GenericaSessao.getObject("fisicaBean")).setSocios(socios);
         ((FisicaBean) GenericaSessao.getObject("fisicaBean")).editarFisicaParametro(db.pesquisaFisicaPorPessoa(socios.getServicoPessoa().getPessoa().getId()));
@@ -1685,9 +1686,9 @@ public class SociosBean implements Serializable {
         servicoPessoa.setCobranca(servicoPessoa.getPessoa());
 
         if (servicoPessoa.getId() == -1) {
-            Fisica f = new FisicaDBToplink().pesquisaFisicaPorPessoa(servicoPessoa.getPessoa().getId());
+            Fisica f = new FisicaDao().pesquisaFisicaPorPessoa(servicoPessoa.getPessoa().getId());
             if (servicoCategoria.getCategoria().isEmpresaObrigatoria() && f.getDtAposentadoria() == null && servicoCategoria.getCategoria().isVotante()) {
-                JuridicaDB db = new JuridicaDBToplink();
+                JuridicaDao db = new JuridicaDao();
                 if (pessoaEmpresa == null || pessoaEmpresa.getId() == -1) {
                     GenericaMensagem.warn("Atenção", "Vincular uma empresa para esta Pessoa!");
                     return false;
@@ -1859,7 +1860,7 @@ public class SociosBean implements Serializable {
     }
 
     public boolean validaSalvarDependente() {
-        FisicaDB db = new FisicaDBToplink();
+        FisicaDao db = new FisicaDao();
         if (novoDependente.getId() == -1) {
             if (!db.pesquisaFisicaPorNomeNascRG(novoDependente.getPessoa().getNome().trim(),
                     novoDependente.getDtNascimento(),
@@ -1950,7 +1951,7 @@ public class SociosBean implements Serializable {
     public void pesquisaCPF() {
         if (novoDependente.getId() == -1) {
             if (!novoDependente.getPessoa().getDocumento().isEmpty() && !novoDependente.getPessoa().getDocumento().equals("___.___.___-__")) {
-                FisicaDB db = new FisicaDBToplink();
+                FisicaDao db = new FisicaDao();
                 List<Fisica> listDocumento = db.pesquisaFisicaPorDoc(novoDependente.getPessoa().getDocumento());
                 if (!listDocumento.isEmpty()) {
                     novoDependente = listDocumento.get(0);
@@ -2463,7 +2464,7 @@ public class SociosBean implements Serializable {
     public void atualizarListaDependenteAtivo() {
         int index = 0;
         SociosDao db = new SociosDao();
-        FisicaDB dbf = new FisicaDBToplink();
+        FisicaDao dbf = new FisicaDao();
         Dao dao = new Dao();
         // LISTA DE DEPENDENTES ATIVOS
         List<Socios> listaDepsAtivo = db.listaDependentes(matriculaSocios.getId());
@@ -2550,7 +2551,7 @@ public class SociosBean implements Serializable {
     public void atualizarListaDependenteInativo() {
         int index = 0;
         SociosDao db = new SociosDao();
-        FisicaDB dbf = new FisicaDBToplink();
+        FisicaDao dbf = new FisicaDao();
         // LISTA DE DEPENDENTES INATIVOS
         List<Socios> listaDepsInativo = db.listaDependentesInativos(matriculaSocios.getId());
         if (!listaDepsInativo.isEmpty()) {

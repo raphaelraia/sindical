@@ -3,10 +3,8 @@ package br.com.rtools.utilitarios;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
-import br.com.rtools.pessoa.db.FisicaDB;
-import br.com.rtools.pessoa.db.FisicaDBToplink;
-import br.com.rtools.pessoa.db.JuridicaDB;
-import br.com.rtools.pessoa.db.JuridicaDBToplink;
+import br.com.rtools.pessoa.dao.FisicaDao;
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import java.io.File;
 import java.io.IOException;
@@ -40,12 +38,12 @@ public class PhotoUpload implements Serializable {
     }
 
     public void openAndSave(Pessoa aPessoa, String aUpdate) {
-        FisicaDB fisicaDB = new FisicaDBToplink();
+        FisicaDao fisicaDB = new FisicaDao();
         Fisica fisica_x = fisicaDB.pesquisaFisicaPorPessoa(aPessoa.getId());
         if (fisica_x != null) {
             fisica = fisica_x;
         } else {
-            JuridicaDB juridicaDB = new JuridicaDBToplink();
+            JuridicaDao juridicaDB = new JuridicaDao();
             Juridica juridica_x = juridicaDB.pesquisaJuridicaPorPessoa(aPessoa.getId());
             if (juridica_x != null) {
                 juridica = juridica_x;

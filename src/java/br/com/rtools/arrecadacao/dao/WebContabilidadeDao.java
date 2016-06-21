@@ -1,8 +1,6 @@
 package br.com.rtools.arrecadacao.dao;
 
 import br.com.rtools.pessoa.Juridica;
-import br.com.rtools.pessoa.db.JuridicaDB;
-import br.com.rtools.pessoa.db.JuridicaDBToplink;
 import br.com.rtools.principal.DB;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,14 +10,6 @@ import javax.persistence.Query;
 public class WebContabilidadeDao extends DB {
 
     public List<Juridica> listaEmpresasPertContabilidade(int idContabilidade) {
-        JuridicaDB db = new JuridicaDBToplink();
-//        String textQuery = 
-//                  " SELECT j.* "
-//                + "   FROM pes_juridica j "
-//                + "  INNER JOIN pes_pessoa p ON p.id = j.id_pessoa "
-//                + "  WHERE j.id_contabilidade = " + idContabilidade
-//                + "    AND j.id in ( SELECT jv.id_juridica FROM arr_contribuintes_vw jv WHERE jv.dt_inativacao IS NULL) "
-//                + "  ORDER BY p.ds_nome";
         String textQuery
                 = " SELECT j.* "
                 + "   FROM pes_juridica j "
@@ -75,24 +65,6 @@ public class WebContabilidadeDao extends DB {
         }
         return new ArrayList();
     }
-//    public List pesquisaMovParaWebContabilidade(int id_pessoa){
-//        List result;
-//        Query qry = null;
-//        String textQuery;
-//        textQuery = "select m from Movimento m " +
-//                    " where m.servicos.id in (select sr.servicos.id from ServicoRotina sr where sr.rotina.id = 4) " +
-//                    "   and m.pessoa.id = :idPes" +
-//                    "   and m.ativo = true " +
-//                    "   and m.baixa is null";
-//        try{
-//            qry = getEntityManager().createQuery(textQuery);
-//            qry.setParameter("idPes", id_pessoa);
-//            result = qry.getResultList();
-//        }catch(Exception e){
-//            result = new Vector();
-//        }
-//        return result;
-//    }
 
     public List pesquisaMovParaWebContabilidadeComRef(int id_pessoa, String referencia) {
         List result;

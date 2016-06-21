@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package br.com.rtools.thread;
 
 import br.com.rtools.arrecadacao.ContribuintesInativos;
@@ -13,8 +9,7 @@ import br.com.rtools.pessoa.JuridicaReceitaAutomatica;
 import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
-import br.com.rtools.pessoa.db.JuridicaDB;
-import br.com.rtools.pessoa.db.JuridicaDBToplink;
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.sistema.ProcessoAutomatico;
@@ -131,7 +126,7 @@ public class AtualizarJuridicaThread extends ThreadLocal<Object> {
 
             String documento = AnaliseString.extrairNumeros(juridica.getPessoa().getDocumento());
 
-            JuridicaDB dbj = new JuridicaDBToplink();
+            JuridicaDao dbj = new JuridicaDao();
             JuridicaReceitaAutomatica juridicaRA_nova, juridicaRA_antiga;
 
             Dao dao = new Dao();

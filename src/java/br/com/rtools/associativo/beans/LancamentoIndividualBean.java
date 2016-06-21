@@ -20,10 +20,8 @@ import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaComplemento;
-import br.com.rtools.pessoa.db.FisicaDB;
-import br.com.rtools.pessoa.db.FisicaDBToplink;
-import br.com.rtools.pessoa.db.JuridicaDB;
-import br.com.rtools.pessoa.db.JuridicaDBToplink;
+import br.com.rtools.pessoa.dao.FisicaDao;
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.pessoa.dao.PessoaDao;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.utilitarios.Dao;
@@ -443,7 +441,7 @@ public class LancamentoIndividualBean implements Serializable {
             }
 
             // RESPONSAVEL FISICA
-            FisicaDB dbf = new FisicaDBToplink();
+            FisicaDao dbf = new FisicaDao();
             Fisica fi = dbf.pesquisaFisicaPorPessoa(responsavel.getId());
             if (fi != null) {
                 DataHoje dh = new DataHoje();
@@ -474,7 +472,7 @@ public class LancamentoIndividualBean implements Serializable {
         }
 
         // ENDEREÇO OBRIGATÓRIO
-        JuridicaDB dbj = new JuridicaDBToplink();
+        JuridicaDao dbj = new JuridicaDao();
         List lista_pe = dbj.pesquisarPessoaEnderecoJuridica(responsavel.getId());
         if (lista_pe.isEmpty()) {
             GenericaMensagem.warn("RESPONSÁVEL", responsavel.getNome() + " não possui endereço cadastrado!");
@@ -509,8 +507,8 @@ public class LancamentoIndividualBean implements Serializable {
         }
         // NÃO APAGAR COMENTÁRIO
         /*
-         JuridicaDB dbj = new JuridicaDBToplink();
-         FisicaDB dbf = new FisicaDBToplink();
+         JuridicaDB dbj = new JuridicaDao();
+         FisicaDB dbf = new FisicaDao();
          LancamentoIndividualDB dbl = new LancamentoIndividualDao();
 
          if (GenericaSessao.exists("pessoaPesquisa")){

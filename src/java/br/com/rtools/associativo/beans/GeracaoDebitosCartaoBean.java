@@ -2,7 +2,6 @@ package br.com.rtools.associativo.beans;
 
 import br.com.rtools.associativo.HistoricoCarteirinha;
 import br.com.rtools.associativo.Socios;
-import br.com.rtools.associativo.dao.SociosDao2;
 import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.financeiro.CondicaoPagamento;
 import br.com.rtools.financeiro.FStatus;
@@ -15,8 +14,7 @@ import br.com.rtools.financeiro.beans.BaixaGeralBean;
 import br.com.rtools.financeiro.db.MovimentoDBToplink;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Pessoa;
-import br.com.rtools.pessoa.db.FisicaDB;
-import br.com.rtools.pessoa.db.FisicaDBToplink;
+import br.com.rtools.pessoa.dao.FisicaDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
@@ -99,7 +97,7 @@ public class GeracaoDebitosCartaoBean implements Serializable {
         if (id_pessoa == null) {  
             return null;
         }
-        FisicaDB fisicaDB = new FisicaDBToplink();
+        FisicaDao fisicaDB = new FisicaDao();
         Fisica fisica_imagem = fisicaDB.pesquisaFisicaPorPessoa(Integer.valueOf(28502));
 
         File file = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/Fotos/Fisica/" + fisica_imagem.getFoto() + ".png"));
@@ -312,7 +310,7 @@ public class GeracaoDebitosCartaoBean implements Serializable {
     }
 
     public Fisica pessoaFisica(Pessoa p) {
-        Fisica f = new FisicaDBToplink().pesquisaFisicaPorPessoa(p.getId());
+        Fisica f = new FisicaDao().pesquisaFisicaPorPessoa(p.getId());
         return f;
     }
 

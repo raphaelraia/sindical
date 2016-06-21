@@ -1,8 +1,7 @@
 package br.com.rtools.utilitarios;
 
 import br.com.rtools.pessoa.Fisica;
-import br.com.rtools.pessoa.db.FisicaDB;
-import br.com.rtools.pessoa.db.FisicaDBToplink;
+import br.com.rtools.pessoa.dao.FisicaDao;
 import br.com.rtools.seguranca.Usuario;
 import java.io.File;
 import java.io.FileInputStream;
@@ -324,7 +323,7 @@ public class PhotoCam implements Serializable {
                     try {
                         Integer id = Integer.parseInt(PATH_FILE.replace(".png", ""));
                         if (id != -1) {
-                            FisicaDB fisicaDB = new FisicaDBToplink();
+                            FisicaDao fisicaDB = new FisicaDao();
                             f = fisicaDB.pesquisaFisicaPorPessoa(id);
                             f.setDtFoto(DataHoje.dataHoje());
                             if (!dao.update(f, true)) {

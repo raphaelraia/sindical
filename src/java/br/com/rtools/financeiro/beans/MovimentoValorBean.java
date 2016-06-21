@@ -7,12 +7,9 @@ import br.com.rtools.arrecadacao.dao.FolhaEmpresaDao;
 import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.Movimento;
-import br.com.rtools.financeiro.db.FinanceiroDB;
-import br.com.rtools.financeiro.db.FinanceiroDBToplink;
 import br.com.rtools.financeiro.db.MovimentoDB;
 import br.com.rtools.financeiro.db.MovimentoDBToplink;
-import br.com.rtools.pessoa.db.JuridicaDB;
-import br.com.rtools.pessoa.db.JuridicaDBToplink;
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.Moeda;
@@ -161,7 +158,7 @@ public abstract class MovimentoValorBean {
             float valorGuia = Float.parseFloat(valorBoleto);
 
             if (tipo.equals("valor")) {
-                JuridicaDB jurDB = new JuridicaDBToplink();
+                JuridicaDao jurDB = new JuridicaDao();
                 Dao dao = new Dao();
                 dao.openTransaction();
 
@@ -216,7 +213,7 @@ public abstract class MovimentoValorBean {
                 }
                 dao.commit();
             } else if (valorMes != 0) {
-                JuridicaDB jurDB = new JuridicaDBToplink();
+                JuridicaDao jurDB = new JuridicaDao();
                 Dao dao = new Dao();
                 dao.openTransaction();
 

@@ -1,5 +1,6 @@
 package br.com.rtools.arrecadacao.beans;
 
+import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.arrecadacao.dao.MensagemConvencaoDao;
 import br.com.rtools.arrecadacao.dao.CnaeConvencaoDao;
 import br.com.rtools.pessoa.dao.FilialDao;
@@ -18,7 +19,6 @@ import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.beans.JuridicaBean;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
-import br.com.rtools.pessoa.db.*;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
@@ -118,7 +118,7 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
     }
 
     public String getStatusContribuinte() {
-        JuridicaDB db = new JuridicaDBToplink();
+        JuridicaDao db = new JuridicaDao();
         if (juridica.getId() != -1) {
             List<Vector> listax = db.listaJuridicaContribuinte(juridica.getId());
 
@@ -157,7 +157,7 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
                     m = false;
                 }
 
-                JuridicaDB dbj = new JuridicaDBToplink();
+                JuridicaDao dbj = new JuridicaDao();
                 Juridica jur_lista = dbj.pesquisaJuridicaPorPessoa(((Movimento) (listaMovAdd.get(i))).getPessoa().getId());
                 //int id_pessoa = juridica.getPessoa().getId();
                 int id_pessoa = ((Movimento) (listaMovAdd.get(i))).getPessoa().getId(); //juridica.getPessoa().getId();
@@ -600,7 +600,7 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
     }
 
     public String enviarEmail() {
-        JuridicaDB db = new JuridicaDBToplink();
+        JuridicaDao db = new JuridicaDao();
         Juridica jur = new Juridica();
         List<Movimento> movs = new ArrayList<Movimento>();
         String empresasSemEmail = "";
@@ -1011,7 +1011,7 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
 
     public String editarJuridica(DataObject linha) {
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("linkClicado", true);
-        JuridicaDB db = new JuridicaDBToplink();
+        JuridicaDao db = new JuridicaDao();
         Juridica jur = new Juridica();
         jur = db.pesquisaJuridicaPorPessoa(((Movimento) linha.getArgumento1()).getPessoa().getId());
         JuridicaBean juridicaBean = new JuridicaBean();
