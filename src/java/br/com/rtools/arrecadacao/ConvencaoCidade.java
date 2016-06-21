@@ -6,7 +6,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "arr_convencao_cidade")
 @NamedQueries({
-    @NamedQuery(name = "ConvencaoCidade.findAl", query = "SELECT C FROM ConvencaoCidade AS C ORDER BY C.id"),
+    @NamedQuery(name = "ConvencaoCidade.findAll", query = "SELECT C FROM ConvencaoCidade AS C ORDER BY C.id"),
     @NamedQuery(name = "ConvencaoCidade.pesquisaID", query = "SELECT C FROM ConvencaoCidade AS C WHERE C.id=:pid")
 })
 public class ConvencaoCidade implements Serializable {

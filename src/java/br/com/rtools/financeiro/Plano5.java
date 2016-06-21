@@ -31,6 +31,8 @@ public class Plano5 implements java.io.Serializable {
     @JoinColumn(name = "id_conta_tipo", referencedColumnName = "id", nullable = true)
     @ManyToOne(fetch = FetchType.EAGER)
     private ContaTipo contaTipo;
+    @Column(name = "is_soma_debito", columnDefinition = "boolean default false", nullable = false)
+    private Boolean somaDebito;
 
     @Transient
     private Boolean selected;
@@ -45,10 +47,11 @@ public class Plano5 implements java.io.Serializable {
         this.acesso = "";
         this.classificador = "";
         this.contaTipo = null;
+        this.somaDebito = false;
         this.selected = false;
     }
 
-    public Plano5(int id, String numero, String conta, Plano4 plano4, ContaBanco contaBanco, Plano5 plano5ContraPartida, String acesso, String classificador, ContaTipo contaTipo) {
+    public Plano5(int id, String numero, String conta, Plano4 plano4, ContaBanco contaBanco, Plano5 plano5ContraPartida, String acesso, String classificador, ContaTipo contaTipo, Boolean somaDebito) {
         this.id = id;
         this.plano4 = new Plano4();
         this.numero = numero;
@@ -58,6 +61,7 @@ public class Plano5 implements java.io.Serializable {
         this.acesso = acesso;
         this.classificador = classificador;
         this.contaTipo = contaTipo;
+        this.somaDebito = somaDebito;
         this.selected = false;
     }
 
@@ -139,5 +143,13 @@ public class Plano5 implements java.io.Serializable {
 
     public void setContaTipo(ContaTipo contaTipo) {
         this.contaTipo = contaTipo;
+    }
+
+    public Boolean getSomaDebito() {
+        return somaDebito;
+    }
+
+    public void setSomaDebito(Boolean somaDebito) {
+        this.somaDebito = somaDebito;
     }
 }

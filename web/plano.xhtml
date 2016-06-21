@@ -163,6 +163,10 @@
                                 <p:selectOneMenu value="#{planoBean.idContaTipo}">
                                     <f:selectItems value="#{planoBean.listContaTipo}" />
                                 </p:selectOneMenu>                                
+                                <h:column />
+                                <p:selectBooleanCheckbox value="#{planoBean.plano5.somaDebito}" itemLabel="Soma Débito no Saldo (Uso contábil)">
+                                    <p:ajax event="change" update="@this" />
+                                </p:selectBooleanCheckbox>
                             </h:panelGrid>                                
                             <f:facet name="footer">
                                 <h:panelGrid columns="2">

@@ -110,7 +110,7 @@
                                 <p:commandButton value="Novo" action="#{locacaoFilmeBean.clear}" update=":form_locacao_filmes:"/>
                                 <p:commandButton onclick="PF('dlg_delete').show();" value="Desfazer" disabled="#{controleAcessoBean.botaoExcluir}" title="Excluir" rendered="#{locacaoFilmeBean.locadoraLote.id ne null}"/>
                                 <p:commandButton onclick="PF('dlg_locacoes').show();" value="Histórico" title="Histórico" update="i_history_pending" rendered="#{locacaoFilmeBean.locatario.id ne -1}" action="#{locacaoFilmeBean.listener(8)}"/>
-                                <h:commandLink title="Comprovante de locação" rendered="#{locacaoFilmeBean.locadoraLote.id ne null}" action="#{locacaoFilmeBean.print(null)}">
+                                <h:commandLink title="Comprovante de locação" rendered="#{locacaoFilmeBean.locadoraLote.id ne null}" action="#{locacaoFilmeBean.print(null)}" >
                                     <p:commandButton icon="ui-icon-print" value="Comprovante"  />
                                 </h:commandLink>
                                 <h:column>

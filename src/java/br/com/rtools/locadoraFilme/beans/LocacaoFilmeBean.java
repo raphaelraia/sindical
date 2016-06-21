@@ -566,7 +566,7 @@ public class LocacaoFilmeBean implements Serializable {
             map.put("funcionario", usuario.getPessoa().getNome());
             map.put("data", locadoraLote.getDtLocacao());
             map.put("cliente", locadoraLote.getPessoa().getNome());
-            map.put("rodape", ConfiguracaoLocadoraBean.get().getObs());
+            map.put("rodape", ConfiguracaoLocadoraBean.get() == null ? "" : ConfiguracaoLocadoraBean.get().getObs());
             ConfiguracaoDepartamento configuracaoDepartamento = new ConfiguracaoDepartamentoDao().findBy(19, locadoraLote.getFilial().getId());
             if (configuracaoDepartamento != null) {
                 map.put("sindicato_email", configuracaoDepartamento.getEmail());
