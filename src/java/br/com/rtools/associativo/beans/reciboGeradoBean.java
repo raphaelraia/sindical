@@ -5,7 +5,6 @@ import br.com.rtools.financeiro.db.FinanceiroDBToplink;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.DataObject;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -33,7 +32,6 @@ public class reciboGeradoBean implements Serializable {
         List<Caixa> listaCaixa = (new FinanceiroDBToplink()).listaCaixa();
 
         for (Caixa caixa : listaCaixa) {
-            //TreeNode tn_caixa = new DefaultTreeNode("Caixa - " + caixa.getCaixa() + " " + caixa.getDescricao(), root);  
             TreeNode tn_caixa = new DefaultTreeNode(caixa.getCaixa() + " - " + caixa.getDescricao(), root);
 
             String caminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/" + "Arquivos/recibo/" + caixa.getCaixa() + "/");
@@ -61,8 +59,7 @@ public class reciboGeradoBean implements Serializable {
     public String view(DataObject dob) throws IOException {
         HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
 
-        Registro reg = (Registro) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(1, "Registro");
-        String path_recibo = reg.getUrlPath() + "/Sindical/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/recibo/" + dob.getArgumento1().toString() + "/" + ((File) dob.getArgumento0()).getName();
+        String path_recibo = Registro.get().getUrlPath() + "/Sindical/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/recibo/" + dob.getArgumento1().toString() + "/" + ((File) dob.getArgumento0()).getName();
         response.sendRedirect(path_recibo);
         return null;
     }

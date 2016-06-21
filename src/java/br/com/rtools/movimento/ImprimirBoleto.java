@@ -107,10 +107,10 @@ public class ImprimirBoleto {
                 listaAdd.add(lista.get(i));
                 continue;
             }
-            
-            if (listaValores.get(i) < 1){
+
+            if (listaValores.get(i) < 1) {
                 hash.put("lista", new ArrayList());
-                hash.put("mensagem", "Valor dos Boleto Registrados não podem ser menores que R$ 1,00, Boleto: ("+bol.getNrBoleto()+")");
+                hash.put("mensagem", "Valor dos Boleto Registrados não podem ser menores que R$ 1,00, Boleto: (" + bol.getNrBoleto() + ")");
                 return hash;
             }
             try {
@@ -280,7 +280,7 @@ public class ImprimirBoleto {
         ServicoContaCobrancaDB db = new ServicoContaCobrancaDBToplink();
         ContaCobrancaDBToplink dbc = new ContaCobrancaDBToplink();
         MovimentoDB dbm = new MovimentoDBToplink();
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+        Dao dao = new Dao();
 
         List<Movimento> listaAdd = new ArrayList();
 
@@ -289,16 +289,14 @@ public class ImprimirBoleto {
             if (bol == null) {
                 ContaCobranca cc = dbc.pesquisaServicoCobranca(lista.get(i).getServicos().getId(), lista.get(i).getTipoServico().getId());
                 int id_boleto = dbm.inserirBoletoNativo(cc.getId());
-                bol = (Boleto) sv.pesquisaCodigo(id_boleto, "Boleto");
-
+                bol = (Boleto) dao.find(new Boleto(), id_boleto);
                 lista.get(i).setDocumento(bol.getBoletoComposto());
                 bol.setNrCtrBoleto(lista.get(i).getNrCtrBoleto());
-
-                sv.abrirTransacao();
-                if (sv.alterarObjeto(lista.get(i)) && sv.alterarObjeto(bol)) {
-                    sv.comitarTransacao();
+                dao.openTransaction();
+                if (dao.update(lista.get(i)) && dao.update(bol)) {
+                    dao.commit();
                 } else {
-                    sv.desfazerTransacao();
+                    dao.rollback();
                 }
                 continue;
             }
@@ -346,11 +344,11 @@ public class ImprimirBoleto {
                     his.setComplemento(his_pesquisa.getComplemento());
                 }
 
-                sv.abrirTransacao();
-                if (sv.inserirObjeto(his)) {
-                    sv.comitarTransacao();
+                dao.openTransaction();
+                if (dao.save(his)) {
+                    dao.commit();
                 } else {
-                    sv.desfazerTransacao();
+                    dao.rollback();
                 }
             } else {
                 Movimento mov = new Movimento(-1,
@@ -432,12 +430,10 @@ public class ImprimirBoleto {
                     } else {
                         swap[40] = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/SINDICAL.jasper");
                     }
+                } else if (new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/SICOB.jasper")).exists()) {
+                    swap[40] = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/SICOB.jasper");
                 } else {
-                    if (new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/SICOB.jasper")).exists()) {
-                        swap[40] = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/SICOB.jasper");
-                    } else {
-                        swap[40] = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/SICOB.jasper");
-                    }
+                    swap[40] = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/SICOB.jasper");
                 }
                 swap[43] = "";
                 swap[42] = "";
@@ -746,12 +742,10 @@ public class ImprimirBoleto {
             Pessoa pessoa = null;
             Filial filial = null;
 
-            if (!lista.isEmpty()) {
-                SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
+            if (!lista.isEmpty()) {                
                 ConfiguracaoArrecadacaoBean cab = new ConfiguracaoArrecadacaoBean();
                 cab.init();
                 filial = cab.getConfiguracaoArrecadacao().getFilial();
-                //filial = (Filial) salvarAcumuladoDB.pesquisaCodigo(1, "Filial");
                 pessoa = lista.get(0).getPessoa();
             }
 
@@ -952,11 +946,9 @@ public class ImprimirBoleto {
             Filial filial = null;
 
             if (!lista.isEmpty()) {
-                SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
                 ConfiguracaoArrecadacaoBean cab = new ConfiguracaoArrecadacaoBean();
                 cab.init();
                 filial = cab.getConfiguracaoArrecadacao().getFilial();
-                //filial = (Filial) salvarAcumuladoDB.pesquisaCodigo(1, "Filial");
                 pessoa = lista.get(0).getPessoa();
             }
 
@@ -1120,11 +1112,9 @@ public class ImprimirBoleto {
             Filial filial = null;
 
             if (!lista.isEmpty()) {
-                SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
                 ConfiguracaoArrecadacaoBean cab = new ConfiguracaoArrecadacaoBean();
                 cab.init();
                 filial = cab.getConfiguracaoArrecadacao().getFilial();
-                //filial = (Filial) salvarAcumuladoDB.pesquisaCodigo(1, "Filial");
                 pessoa = lista.get(0).getPessoa();
             }
 
@@ -1352,15 +1342,11 @@ public class ImprimirBoleto {
             Filial filial = null;
 
             if (!lista.isEmpty()) {
-                SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
-
                 ConfiguracaoArrecadacaoBean cab = new ConfiguracaoArrecadacaoBean();
                 cab.init();
                 filial = cab.getConfiguracaoArrecadacao().getFilial();
-                //filial = (Filial) salvarAcumuladoDB.pesquisaCodigo(1, "Filial");
                 pessoa = lista.get(0).getPessoa();
             }
-
             try {
                 juridica = jurDB.pesquisaJuridicaPorPessoa(pessoa.getId());
                 swap[0] = juridica.getPessoa().getNome();
@@ -1716,9 +1702,9 @@ public class ImprimirBoleto {
                         = new BigDecimal(
                                 Moeda.somaValores(
                                         lista.get(i).getValor(), Moeda.subtracaoValores(
-                                                Moeda.somaValores(
-                                                        Moeda.somaValores(multa.floatValue(), juros.floatValue()), correcao.floatValue()), desconto.floatValue()
-                                        )
+                                        Moeda.somaValores(
+                                                Moeda.somaValores(multa.floatValue(), juros.floatValue()), correcao.floatValue()), desconto.floatValue()
+                                )
                                 )
                         );
                 if (lista.get(i).getTipoServico().getId() == 4) {
@@ -1872,11 +1858,9 @@ public class ImprimirBoleto {
             Filial filial = null;
 
             if (!lista.isEmpty()) {
-                SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
                 ConfiguracaoArrecadacaoBean cab = new ConfiguracaoArrecadacaoBean();
                 cab.init();
                 filial = cab.getConfiguracaoArrecadacao().getFilial();
-                //filial = (Filial) salvarAcumuladoDB.pesquisaCodigo(1, "Filial");
                 pessoa = lista.get(0).getPessoa();
             }
 
@@ -2399,20 +2383,17 @@ public class ImprimirBoleto {
         String hash = String.valueOf(pessoa.getId()) + "_" + String.valueOf(DataHoje.converteDataParaInteger(DataHoje.data())) + "_" + DataHoje.horaSemPonto() + ".pdf";
         SalvaArquivos sa = new SalvaArquivos(arquivo, hash, false);
         sa.salvaNaPasta(pathPasta);
-
         Links links = new Links();
         links.setCaminho(caminho);
         links.setNomeArquivo(hash);
         links.setPessoa(pessoa);
-
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-        sv.abrirTransacao();
-
-        if (sv.inserirObjeto(links)) {
-            sv.comitarTransacao();
+        Dao dao = new Dao();
+        dao.openTransaction();
+        if (dao.save(links)) {
+            dao.commit();
             return hash;
         } else {
-            sv.desfazerTransacao();
+            dao.rollback();
             return "";
         }
     }

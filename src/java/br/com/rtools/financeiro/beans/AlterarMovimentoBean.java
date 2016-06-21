@@ -21,8 +21,6 @@ import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +48,7 @@ public final class AlterarMovimentoBean implements Serializable {
     private List<CondicaoPagamento> selectCondicao = new ArrayList();
     private List<SelectItem> listaCondicao = new ArrayList();
     private String historico = "";
-    
+
     private String tipoPesquisaPessoa = "responsavel_movimento";
 
     public AlterarMovimentoBean() {
@@ -82,11 +80,10 @@ public final class AlterarMovimentoBean implements Serializable {
 
     public List<SelectItem> getListaCondicao() {
         if (listaCondicao.isEmpty()) {
-            SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-            selectCondicao = sv.listaObjeto("CondicaoPagamento");
+            selectCondicao = new Dao().list(new CondicaoPagamento());
             for (int i = 0; i < selectCondicao.size(); i++) {
                 listaCondicao.add(new SelectItem(
-                        new Integer(i),
+                        i,
                         selectCondicao.get(i).getDescricao(),
                         Integer.toString(selectCondicao.get(i).getId())
                 )
@@ -151,8 +148,8 @@ public final class AlterarMovimentoBean implements Serializable {
             return null;
         }
 
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-        sv.abrirTransacao();
+        Dao dao = new Dao();
+        dao.openTransaction();
         FinanceiroDB db = new FinanceiroDBToplink();
 
         movimento.setServicos(selectServico.get(idServicos));
@@ -162,44 +159,37 @@ public final class AlterarMovimentoBean implements Serializable {
         if (lista.size() > 1) {
             for (int i = 0; i < lista.size(); i++) {
                 if (movimento.getId() != lista.get(i).getId()) {
-                    Movimento lm = (Movimento) sv.pesquisaCodigo(lista.get(i).getId(), "Movimento");
+                    Movimento lm = (Movimento) dao.find(new Movimento(), lista.get(i).getId());
                     lm.setServicos(selectServico.get(idServicos));
-                    sv.alterarObjeto(lm);
+                    dao.update(lm);
                 }
             }
-            lote.setCondicaoPagamento((CondicaoPagamento) sv.pesquisaCodigo(2, "CondicaoPagamento"));
+            lote.setCondicaoPagamento((CondicaoPagamento) dao.find(new CondicaoPagamento(), 2));
+        } else if (DataHoje.converteDataParaInteger(movimento.getVencimento()) > DataHoje.converteDataParaInteger(lote.getEmissao())) {
+            lote.setCondicaoPagamento((CondicaoPagamento) dao.find(new CondicaoPagamento(), 2));
         } else {
-            if (DataHoje.converteDataParaInteger(movimento.getVencimento()) > DataHoje.converteDataParaInteger(lote.getEmissao())) {
-                lote.setCondicaoPagamento((CondicaoPagamento) sv.pesquisaCodigo(2, "CondicaoPagamento"));
-            } else {
-                lote.setCondicaoPagamento((CondicaoPagamento) sv.pesquisaCodigo(1, "CondicaoPagamento"));
-            }
+            lote.setCondicaoPagamento((CondicaoPagamento) dao.find(new CondicaoPagamento(), 1));
         }
 
-        sv.alterarObjeto(lote);
+        dao.update(lote);
         movimento.setLote(lote);
 
         if (baixa != null) {
-            sv.alterarObjeto(baixa);
+            dao.update(baixa);
             movimento.setBaixa(baixa);
         }
 
-        if (sv.alterarObjeto(movimento)) {
+        if (dao.update(movimento)) {
             GenericaMensagem.info("OK", "Movimento atualizado com Sucesso!");
-            sv.comitarTransacao();
+            dao.commit();
         } else {
             GenericaMensagem.error("Atenção", "Erro ao atualizar Movimento!");
-            sv.desfazerTransacao();
-        }
-        
-        if (GenericaSessao.exists("movimentosReceberSocialBean")){
-            ((MovimentosReceberSocialBean) GenericaSessao.getObject("movimentosReceberSocialBean")).getListaMovimento().clear();
+            dao.rollback();
         }
 
-//        String url = (String) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("urlRetorno");
-//        if (url.equals("movimentosReceberSocial")) {
-//            ((MovimentosReceberSocialBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("movimentosReceberSocialBean")).getListaMovimento().clear();
-//        }
+        if (GenericaSessao.exists("movimentosReceberSocialBean")) {
+            ((MovimentosReceberSocialBean) GenericaSessao.getObject("movimentosReceberSocialBean")).getListaMovimento().clear();
+        }
         return null;
     }
 
@@ -256,7 +246,7 @@ public final class AlterarMovimentoBean implements Serializable {
         }
 
         if (GenericaSessao.exists("pessoaPesquisa")) {
-            switch (tipoPesquisaPessoa){
+            switch (tipoPesquisaPessoa) {
                 case "responsavel_movimento":
                     movimento.setPessoa((Pessoa) GenericaSessao.getObject("pessoaPesquisa", true));
                     break;
@@ -264,10 +254,10 @@ public final class AlterarMovimentoBean implements Serializable {
                     if (baixa != null) {
                         baixa.setUsuario((Usuario) GenericaSessao.getObject("usuarioPesquisa", true));
                         /**
-                          * NA PESQUISA DE USUARIO ESTA SETANDO A SESSÃO pessoaPesquisa
-                          * POR NÃO SABER O MOTIVO E A SESSÃO NÃO FICAR ABERTA ATOA 
-                          * REMOVER SESSÃO
-                        */
+                         * NA PESQUISA DE USUARIO ESTA SETANDO A SESSÃO
+                         * pessoaPesquisa POR NÃO SABER O MOTIVO E A SESSÃO NÃO
+                         * FICAR ABERTA ATOA REMOVER SESSÃO
+                         */
                         GenericaSessao.remove("pessoaPesquisa");
                     }
                     break;
@@ -275,8 +265,8 @@ public final class AlterarMovimentoBean implements Serializable {
         }
         return movimento;
     }
-    
-    public void tipoPesquisa(String tipo){
+
+    public void tipoPesquisa(String tipo) {
         tipoPesquisaPessoa = tipo;
     }
 

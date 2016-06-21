@@ -4,11 +4,10 @@ import br.com.rtools.associativo.ConviteMotivoSuspencao;
 import br.com.rtools.associativo.ConviteSuspencao;
 import br.com.rtools.associativo.dao.ConviteDao;
 import br.com.rtools.sistema.SisPessoa;
+import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,20 +46,19 @@ public class ConviteSuspencaoBean implements Serializable {
             mensagem = "Informar o motivo da susponção!";
             return;
         }
-        DataHoje hoje = new DataHoje();
         int dataHoje = DataHoje.converteDataParaInteger(DataHoje.data());
         int dataInicio = DataHoje.converteDataParaInteger(conviteSuspencao.getInicio());
         int dataFim = DataHoje.converteDataParaInteger(conviteSuspencao.getFim());
         if (dataInicio < dataHoje) {
             mensagem = "A data de inicio deve ser maior ou igual a data de hoje!";
-            return;            
+            return;
         }
         if (dataFim < dataInicio) {
             mensagem = "A data de fim deve ser maior ou igual a data final!";
-            return;            
+            return;
         }
-        SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
-        conviteSuspencao.setConviteMotivoSuspencao((ConviteMotivoSuspencao) salvarAcumuladoDB.pesquisaObjeto(Integer.parseInt(listaMotivoSuspencao.get(idSuspencao).getDescription()), "ConviteMotivoSuspencao"));
+        Dao dao = new Dao();
+        conviteSuspencao.setConviteMotivoSuspencao((ConviteMotivoSuspencao) dao.find(new ConviteMotivoSuspencao(), Integer.parseInt(listaMotivoSuspencao.get(idSuspencao).getDescription())));
         if (conviteSuspencao.getInicio().equals("")) {
             mensagem = "Informar data de inicio!";
             return;
@@ -72,32 +70,24 @@ public class ConviteSuspencaoBean implements Serializable {
                 mensagem = "Pessoa já existe para data específicada";
                 return;
             }
-            salvarAcumuladoDB.abrirTransacao();
-            if (salvarAcumuladoDB.inserirObjeto(conviteSuspencao)) {
-                salvarAcumuladoDB.comitarTransacao();
+            if (dao.save(conviteSuspencao, true)) {
                 listaPessoasSuspencas.clear();
                 mensagem = "Registro inserido com sucesso";
             } else {
-                salvarAcumuladoDB.desfazerTransacao();
                 mensagem = "Erro ao inserir este registro!";
             }
+        } else if (dao.update(conviteSuspencao, true)) {
+            listaPessoasSuspencas.clear();
+            mensagem = "Registro atualizado com sucesso";
         } else {
-            salvarAcumuladoDB.abrirTransacao();
-            if (salvarAcumuladoDB.alterarObjeto(conviteSuspencao)) {
-                salvarAcumuladoDB.comitarTransacao();
-                listaPessoasSuspencas.clear();
-                mensagem = "Registro atualizado com sucesso";
-            } else {
-                salvarAcumuladoDB.desfazerTransacao();
-                mensagem = "Pessoa já existe para data específicada";
-            }
+            mensagem = "Pessoa já existe para data específicada";
         }
     }
 
     public void editar(ConviteSuspencao cs) {
-        listaPessoasSuspencas.clear();
+        listaPessoasSuspencas = new ArrayList();
         descricaoPesquisa = "";
-        conviteSuspencao = cs;
+        conviteSuspencao = (ConviteSuspencao) new Dao().rebind(cs);
         for (int i = 0; i < listaMotivoSuspencao.size(); i++) {
             if (Integer.parseInt(listaMotivoSuspencao.get(i).getDescription()) == cs.getId()) {
                 idSuspencao = i;
@@ -108,15 +98,11 @@ public class ConviteSuspencaoBean implements Serializable {
 
     public void remover(ConviteSuspencao cs) {
         if (cs.getId() != -1) {
-            SalvarAcumuladoDB dB = new SalvarAcumuladoDBToplink();
-            dB.abrirTransacao();
-            if (dB.deletarObjeto((ConviteSuspencao) dB.pesquisaObjeto(cs.getId(), "ConviteSuspencao"))) {
-                dB.comitarTransacao();
+            if (new Dao().delete(cs, true)) {
                 listaPessoasSuspencas.clear();
-                conviteSuspencao = new ConviteSuspencao();                
+                conviteSuspencao = new ConviteSuspencao();
                 GenericaMensagem.info("Sucesso", "Registro excluído");
             } else {
-                dB.desfazerTransacao();
                 GenericaMensagem.warn("Erro", "Ao excluir registro!");
             }
         }
@@ -211,8 +197,7 @@ public class ConviteSuspencaoBean implements Serializable {
 
     public List<SelectItem> getListaMotivoSuspencao() {
         if (listaMotivoSuspencao.isEmpty()) {
-            SalvarAcumuladoDB dB = new SalvarAcumuladoDBToplink();
-            List<ConviteMotivoSuspencao> list = (List<ConviteMotivoSuspencao>) dB.listaObjeto("ConviteMotivoSuspencao", true);
+            List<ConviteMotivoSuspencao> list = (List<ConviteMotivoSuspencao>) new Dao().list(new ConviteMotivoSuspencao(), true);
             int i = 0;
             for (ConviteMotivoSuspencao cms : list) {
                 listaMotivoSuspencao.add(new SelectItem(i, cms.getDescricao(), "" + cms.getId()));

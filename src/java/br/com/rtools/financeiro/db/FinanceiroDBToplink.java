@@ -15,8 +15,8 @@ import br.com.rtools.financeiro.TransferenciaCaixa;
 import br.com.rtools.principal.DB;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.AnaliseString;
+import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -452,13 +452,8 @@ public class FinanceiroDBToplink extends DB implements FinanceiroDB {
             List<TransferenciaCaixa> result = new ArrayList();
 
             for (int i = 0; i < lista.size(); i++) {
-                result.add((TransferenciaCaixa) (new SalvarAcumuladoDBToplink()).pesquisaCodigo((Integer) lista.get(i).get(0), "TransferenciaCaixa"));
+                result.add((TransferenciaCaixa) new Dao().find(new TransferenciaCaixa(), (Integer) lista.get(i).get(0)));
             }
-//            qry = getEntityManager().createQuery(
-//                    "SELECT tc " +
-//                    "  FROM TransferenciaCaixa tc " +
-//                    " WHERE tc.fechamentoEntrada.id = " + id_fechamento_caixa +" OR tc.fechamentoSaida.id = "+ id_fechamento_caixa
-//            );
             return result;
         } catch (Exception e) {
             return new ArrayList();
@@ -752,47 +747,88 @@ public class FinanceiroDBToplink extends DB implements FinanceiroDB {
         try {
             Query qry = getEntityManager().createNativeQuery(
                     " SELECT "
-                    + "     id_fin_lote, \n " + // 0
-                    "       id_fin_movimento, \n " + // 1
-                    "       nr_ctr_boleto, \n " + // 2
-                    "       id_lote_boleto, \n " + // 3
-                    "       processamento, \n " + // 4
-                    "       codigo, \n " + // 5
-                    "       responsavel, \n " + // 6
-                    "       vencimento, \n " + // 7
-                    "       matricula, \n " + // 8
-                    "       grupo_categoria, \n " + // 9
-                    "       categoria, \n " + // 10
-                    "       servico, \n " + // 11
-                    "       id_beneficiario, \n " + // 12
-                    "       nome_beneficiario, \n " + // 13
-                    "       valor, \n " + // 14
-                    "       mensalidades_corrigidas, \n " + // 15
-                    "       mensagem_boleto, \n " + // 16
-                    "       banco, \n " + // 17
-                    "       agencia, \n " + // 18
-                    "       cedente, \n " + // 19
-                    "       boleto, \n " + // 20
-                    "       email, \n " + // 21
-                    "       nome_filial, \n " + // 22
-                    "       site_filial, \n " + // 23
-                    "       cnpj_filial, \n " + // 24
-                    "       tel_filial, \n " + // 25
-                    "       endereco_filial, \n " + // 26
-                    "       bairro_filial, \n " + // 27
-                    "       cidade_filial, \n " + // 28
-                    "       uf_filial, \n " + // 29
-                    "       cep_filial, \n " + // 30
-                    "       logradouro_responsavel, \n " + // 31
-                    "       endereco_responsavel, \n " + // 32
-                    "       cep_responsavel, \n " + // 33
-                    "       uf_responsavel, \n " + // 34
-                    "       cidade_responsavel, \n " + // 35
-                    "       informativo, \n " + // 36
-                    "       local_pagamento, \n " + // 37
-                    "       vencimento_movimento, \n " + // 38
-                    "       vencimento_boleto, \n " + // 39
-                    "       vencimento_original_boleto \n  " + // 40
+                    + "     id_fin_lote, \n "
+                    + // 0
+                    "       id_fin_movimento, \n "
+                    + // 1
+                    "       nr_ctr_boleto, \n "
+                    + // 2
+                    "       id_lote_boleto, \n "
+                    + // 3
+                    "       processamento, \n "
+                    + // 4
+                    "       codigo, \n "
+                    + // 5
+                    "       responsavel, \n "
+                    + // 6
+                    "       vencimento, \n "
+                    + // 7
+                    "       matricula, \n "
+                    + // 8
+                    "       grupo_categoria, \n "
+                    + // 9
+                    "       categoria, \n "
+                    + // 10
+                    "       servico, \n "
+                    + // 11
+                    "       id_beneficiario, \n "
+                    + // 12
+                    "       nome_beneficiario, \n "
+                    + // 13
+                    "       valor, \n "
+                    + // 14
+                    "       mensalidades_corrigidas, \n "
+                    + // 15
+                    "       mensagem_boleto, \n "
+                    + // 16
+                    "       banco, \n "
+                    + // 17
+                    "       agencia, \n "
+                    + // 18
+                    "       cedente, \n "
+                    + // 19
+                    "       boleto, \n "
+                    + // 20
+                    "       email, \n "
+                    + // 21
+                    "       nome_filial, \n "
+                    + // 22
+                    "       site_filial, \n "
+                    + // 23
+                    "       cnpj_filial, \n "
+                    + // 24
+                    "       tel_filial, \n "
+                    + // 25
+                    "       endereco_filial, \n "
+                    + // 26
+                    "       bairro_filial, \n "
+                    + // 27
+                    "       cidade_filial, \n "
+                    + // 28
+                    "       uf_filial, \n "
+                    + // 29
+                    "       cep_filial, \n "
+                    + // 30
+                    "       logradouro_responsavel, \n "
+                    + // 31
+                    "       endereco_responsavel, \n "
+                    + // 32
+                    "       cep_responsavel, \n "
+                    + // 33
+                    "       uf_responsavel, \n "
+                    + // 34
+                    "       cidade_responsavel, \n "
+                    + // 35
+                    "       informativo, \n "
+                    + // 36
+                    "       local_pagamento, \n "
+                    + // 37
+                    "       vencimento_movimento, \n "
+                    + // 38
+                    "       vencimento_boleto, \n "
+                    + // 39
+                    "       vencimento_original_boleto \n  "
+                    + // 40
                     "   FROM " + view + " \n "
                     + "  WHERE nr_ctr_boleto IN ('" + nr_ctr_boleto + "') \n "
                     + "  ORDER BY responsavel, nome_titular, vencimento_movimento, codigo, nome_beneficiario "
