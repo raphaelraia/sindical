@@ -251,4 +251,8 @@ public class FormaPagamento implements java.io.Serializable {
     public void setDevolucao(Integer devolucao) {
         this.devolucao = devolucao;
     }
+
+    public String getDevolucaoString() {
+        return (devolucao == 0 || this.status.getId() != 10) ? "" : (devolucao == 1) ? devolucao + " VEZ" : devolucao + " VEZES";
+    }
 }

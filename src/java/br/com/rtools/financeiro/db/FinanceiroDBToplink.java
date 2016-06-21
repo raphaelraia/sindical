@@ -476,7 +476,7 @@ public class FinanceiroDBToplink extends DB implements FinanceiroDB {
         try {
             Query qry = getEntityManager().createNativeQuery(
                     "SELECT c.id, \n"
-                    + "     func_idBaixa_cheque_rec(c.id) AS id_baixa, \n"
+                    + "     f.id_baixa AS id_baixa, \n"
                     + "     ds_banco, \n"
                     + "     ds_agencia, \n "
                     + "     ds_conta, \n "
@@ -486,9 +486,8 @@ public class FinanceiroDBToplink extends DB implements FinanceiroDB {
                     + "     f.nr_valor, \n"
                     + "     f.id \n "
                     + "  FROM fin_cheque_rec AS c \n "
-                    + " INNER JOIN fin_forma_pagamento AS f ON f.id_baixa = func_idBaixa_cheque_rec(c.id) AND f.id_cheque_rec = c.id \n "
-                    + " WHERE f.id_status = " + id_status + " \n "
-                    + "   AND dt_vencimento <= CURRENT_DATE"
+                    + " INNER JOIN fin_forma_pagamento AS f ON f.id_cheque_rec = c.id AND f.id_status = " + id_status + " \n "
+                    + " WHERE dt_vencimento <= CURRENT_DATE "
             );
             return qry.getResultList();
         } catch (Exception e) {

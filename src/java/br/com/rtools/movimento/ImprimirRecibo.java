@@ -52,10 +52,10 @@ public class ImprimirRecibo {
             //MovimentosReceberSocialDB dbs = new MovimentosReceberSocialDBToplink();
 
             PessoaEndereco pe = dbp.pesquisaEndPorPessoaTipo(1, 2);
-            String formas[] = new String[10];
 
             // PESQUISA FORMA DE PAGAMENTO
             List<FormaPagamento> fp = db.pesquisaFormaPagamento(movimento.getBaixa().getId());
+            String formas[] = new String[10];
             float soma_dinheiro = 0, soma_outros = 0;
             for (int i = 0; i < fp.size(); i++) {
                 // 4 - CHEQUE    

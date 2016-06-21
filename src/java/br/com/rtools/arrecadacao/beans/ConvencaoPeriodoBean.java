@@ -78,6 +78,11 @@ public class ConvencaoPeriodoBean {
             return;
         }
         getConvencaoPeriodo().getGrupoCidade().setId(Integer.parseInt(listGrupoCidade.get(idGrupoCidade).getDescription()));
+        
+        if (listConvencao.isEmpty()){
+            GenericaMensagem.warn("Atenção", "Nenhuma Convenção Cadastrada!");
+            return;
+        }
         getConvencaoPeriodo().getConvencao().setId(Integer.parseInt(listConvencao.get(idConvencao).getDescription()));
         if (convencaoPeriodoDB.convencaoPeriodoExiste(getConvencaoPeriodo())) {
             setMessage("Convenção período já existe!");
@@ -176,6 +181,10 @@ public class ConvencaoPeriodoBean {
 
     public List<SelectItem> getListGrupoCidade() {
         listGrupoCidade.clear();
+        if (listConvencao.isEmpty()){
+            return new ArrayList();
+        }
+        
         ConvencaoPeriodoDao db = new ConvencaoPeriodoDao();
         List<ConvencaoCidade> list = db.listaGrupoCidadePorConvencao(Integer.parseInt(listConvencao.get(idConvencao).getDescription()));
         for (int i = 0; i < list.size(); i++) {

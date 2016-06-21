@@ -65,6 +65,11 @@ public class CnaeConvencaoBean implements Serializable {
     }
 
     public void adddeleteSelected() {
+        if (listConvencao.isEmpty()){
+            GenericaMensagem.error("Erro", "Nenhuma Convenção cadastrada!");
+            return;
+        }
+        
         if (selectedCnae != null) {
             NovoLog novoLog = new NovoLog();
             novoLog.startList();
@@ -190,6 +195,9 @@ public class CnaeConvencaoBean implements Serializable {
 
     public List<CnaeConvencao> getListCnaesConvencao() {
         if (listCnaesConvencao.isEmpty()) {
+            if (getListConvencao().isEmpty()){
+                return new ArrayList();
+            }
             CnaeConvencaoDao db = new CnaeConvencaoDao();
             int iConvencao = Integer.parseInt(getListConvencao().get(idConvencao).getDescription());
             listCnaesConvencao = db.pesquisarCnaeConvencaoPorConvencao(iConvencao);
