@@ -54,7 +54,8 @@
                                     <p:column>
                                         <h:outputLabel value="Depositar na Conta" /><br />
                                         <p:selectOneMenu id="i_select_conta" value="#{depositoBancarioBean.idConta}" style="width: 450px; margin-right: 15px;">
-                                            <f:selectItems value="#{depositoBancarioBean.listaConta}"/>
+                                            <p:ajax event="change" update="@this"/>
+                                            <f:selectItems value="#{depositoBancarioBean.listaConta}" />
                                         </p:selectOneMenu>
                                     </p:column>
 

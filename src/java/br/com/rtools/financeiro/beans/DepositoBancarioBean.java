@@ -41,15 +41,42 @@ public class DepositoBancarioBean implements Serializable {
     private List<ObjectCheque> listaSelecionado = new ArrayList();
     private Float valorTotal = (float) 0;
     private Float valorTotalSelecionado = (float) 0;
-    
-    public void calculoValores(){
+
+    public DepositoBancarioBean() {
+        loadListaCheques();
+    }
+
+    public void loadListaCheques() {
+        listaCheques.clear();
+        listaSelecionado.clear();
+        FinanceiroDB db = new FinanceiroDBToplink();
+        Dao dao = new Dao();
+
+        List<Object> result = db.listaDeCheques(7);
+
+        for (Object lista : result) {
+            List linha = (List) lista;
+            ChequeRec cheque = (ChequeRec) dao.find(new ChequeRec(), (Integer) linha.get(0));
+            Baixa baixa = (Baixa) dao.find(new Baixa(), (Integer) linha.get(1));
+            FormaPagamento forma_pagamento = (FormaPagamento) dao.find(new FormaPagamento(), (Integer) linha.get(9));
+
+            listaCheques.add(
+                    new ObjectCheque(cheque, forma_pagamento, baixa)
+            );
+
+            valorTotal = Moeda.somaValores(valorTotal, forma_pagamento.getValor());
+        }
+
+    }
+
+    public void calculoValores() {
         valorTotalSelecionado = (float) 0;
-        
-        for(ObjectCheque oc : listaSelecionado){
+
+        for (ObjectCheque oc : listaSelecionado) {
             valorTotalSelecionado = Moeda.somaValores(valorTotalSelecionado, oc.getFormaPagamento().getValor());
         }
     }
-    
+
     public void depositar() {
         if (listaSelecionado.isEmpty()) {
             GenericaMensagem.warn("Erro", "Nenhum cheque foi selecionado!");
@@ -57,6 +84,12 @@ public class DepositoBancarioBean implements Serializable {
         }
 
         Dao dao = new Dao();
+        // VERIFICA STATUS DO CHEQUE
+        for (int i = 0; i < listaSelecionado.size(); i++) {
+            if (!mensagemStatus(listaSelecionado.get(i).getFormaPagamento().getStatus().getId())) {
+                return;
+            }
+        }
 
         dao.openTransaction();
         Plano5 plano_combo = (Plano5) dao.find(new Plano5(), Integer.valueOf(listaConta.get(idConta).getDescription()));
@@ -64,19 +97,18 @@ public class DepositoBancarioBean implements Serializable {
 
         String historico_contabil = "Deposito bancário para a conta " + plano_combo.getConta();
 
-        //FStatus fstatus_liquidado = (FStatus) dao.find(new FStatus(), 1);
         FStatus fstatus_liquidado = (FStatus) dao.find(new FStatus(), 9);
         // UPDATE NOS CHEQUES
         for (int i = 0; i < listaSelecionado.size(); i++) {
             listaSelecionado.get(i).getFormaPagamento().setStatus(fstatus_liquidado);
-            
+
             if (!dao.update(listaSelecionado.get(i).getFormaPagamento())) {
                 GenericaMensagem.warn("Erro", "Não foi possivel salvar Baixa Saida!");
                 dao.rollback();
                 return;
             }
         }
-        
+
         // MOVIMENTO SAIDA -----------------------------------------------------
         Baixa baixa_saida = null;
         Lote lote_saida = null;
@@ -89,10 +121,6 @@ public class DepositoBancarioBean implements Serializable {
                     dao.rollback();
                     return;
                 }
-            }
-
-            if (!mensagemStatus(listaSelecionado.get(i).getFormaPagamento().getStatus().getId())) {
-                return;
             }
 
             float valor = listaSelecionado.get(i).getFormaPagamento().getValor();
@@ -137,10 +165,6 @@ public class DepositoBancarioBean implements Serializable {
                 }
             }
 
-            if (!mensagemStatus(listaSelecionado.get(i).getFormaPagamento().getStatus().getId())) {
-                return;
-            }
-
             float valor = listaSelecionado.get(i).getFormaPagamento().getValor();
 
             Plano5 plano = plano_caixa;
@@ -176,9 +200,8 @@ public class DepositoBancarioBean implements Serializable {
         }
 
         dao.commit();
-        
-        listaCheques.clear();
-        listaSelecionado.clear();
+
+        loadListaCheques();
         GenericaMensagem.info("Sucesso", "Cheques depositados com Sucesso!");
     }
 
@@ -330,59 +353,10 @@ public class DepositoBancarioBean implements Serializable {
     }
 
     public List<ObjectCheque> getListaCheques() {
-        if (listaCheques.isEmpty()) {
-            FinanceiroDB db = new FinanceiroDBToplink();
-            Dao dao = new Dao();
-
-            List<Object> result = db.listaDeCheques(7);
-
-            for (Object lista : result) {
-                List linha = (List) lista;
-                ChequeRec cheque = (ChequeRec) dao.find(new ChequeRec(), (Integer) linha.get(0));
-                Baixa baixa = (Baixa) dao.find(new Baixa(), (Integer) linha.get(1));
-                FormaPagamento forma_pagamento = (FormaPagamento) dao.find(new FormaPagamento(), (Integer) linha.get(9));
-
-                listaCheques.add(
-                        new ObjectCheque(cheque, forma_pagamento, baixa)
-                );
-                
-                valorTotal = Moeda.somaValores(valorTotal, forma_pagamento.getValor());
-                
-//                listaCheques.add(
-//                        new DataObject(
-//                                result.get(i), // QUERY CHEQUES
-//                                DataHoje.converteData((Date) result.get(i).get(6)), // DATA EMISSAO
-//                                DataHoje.converteData((Date) result.get(i).get(7)), // DATA VENCIMENTO
-//                                Moeda.converteR$Float(Float.parseFloat(Double.toString((Double) result.get(i).get(8)))), // VALOR
-//                                cheque, // CHEQUE
-//                                null
-//                        )
-//                );
-            }
-        }
         return listaCheques;
     }
 
     public List<ObjectCheque> getListaSelecionado() {
-//        if (listaCheques.isEmpty()) {
-//            FinanceiroDB db = new FinanceiroDBToplink();
-//            Dao dao = new Dao();
-//
-//            List<Object> result = db.listaDeCheques(7);
-//
-//            for (Object lista : result) {
-//                List linha = (List) lista;
-//                ChequeRec cheque = (ChequeRec) dao.find(new ChequeRec(), (Integer) linha.get(0));
-//                Baixa baixa = (Baixa) dao.find(new Baixa(), (Integer) linha.get(1));
-//                FormaPagamento forma_pagamento = (FormaPagamento) dao.find(new FormaPagamento(), (Integer) linha.get(9));
-//
-//                if (forma_pagamento.getStatus().getId() == 7) {
-//                    listaSelecionado.add(
-//                            new ObjectCheque(cheque, forma_pagamento, baixa)
-//                    );
-//                }
-//            }
-//        }
         return listaSelecionado;
     }
 
@@ -413,7 +387,7 @@ public class DepositoBancarioBean implements Serializable {
     public void setValorTotalSelecionado(Float valorTotalSelecionado) {
         this.valorTotalSelecionado = valorTotalSelecionado;
     }
-    
+
     public String getValorTotalSelecionadoString() {
         return Moeda.converteR$Float(valorTotalSelecionado);
     }

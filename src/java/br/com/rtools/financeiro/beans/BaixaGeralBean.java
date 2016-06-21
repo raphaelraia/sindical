@@ -351,7 +351,7 @@ public class BaixaGeralBean implements Serializable {
                     listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numero, tipoPagamento, null, null, null, cart, null, cartao_rec, Moeda.converteR$Float(valorDigitado), (FStatus) (new Dao()).find(new FStatus(), 8)));
                 }
             }
-        } else if (tipoPagamento.getId() == 2 || tipoPagamento.getId() == 8 || tipoPagamento.getId() == 9 || tipoPagamento.getId() == 10 || tipoPagamento.getId() == 13) {
+        } else if (tipoPagamento.getId() == 2 || tipoPagamento.getId() == 8 || tipoPagamento.getId() == 9 || tipoPagamento.getId() == 10 || tipoPagamento.getId() == 13 || tipoPagamento.getId() == 15) {
             Plano5Dao db = new Plano5Dao();
             if (listaBanco.size() == 1 && listaBanco.get(0).getDescription().isEmpty()) {
                 GenericaMensagem.error("Erro", "Nenhum Banco Encontrado!");
@@ -422,7 +422,7 @@ public class BaixaGeralBean implements Serializable {
             if (!verificaBaixaBoleto()) {
                 if (Moeda.converteUS$(total) != 0) {
                     if (!getEs().isEmpty() && getEs().equals("S")) {
-                        select = dao.find("TipoPagamento", new int[]{3, 4, 5, 8, 9, 10});
+                        select = dao.find("TipoPagamento", new int[]{3, 4, 5, 8, 9, 10, 13, 15});
                         idTipoPagamento = 0;
                     } else if (tipo.equals("caixa")) {
                         select = dao.find("TipoPagamento", new int[]{2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13});

@@ -116,7 +116,7 @@
                                             </p:inputText>
                                         </p:column>
 
-                                        <p:column rendered="#{baixaGeralBean.es != 'S'}">
+                                        <p:column rendered="#{baixaGeralBean.es eq 'E'}">
                                             <br />
                                             <p:commandButton icon="ui-icon-plus" action="#{baixaGeralBean.inserir}" title="Adicionar Parcela" update="formBaixaGeral"  rendered="#{baixaGeralBean.tipoPagamento.id == 3 or baixaGeralBean.tipoPagamento.id == 11}"/>
 
@@ -127,13 +127,13 @@
                                             <p:commandButton icon="ui-icon-plus" title="Continuar e Inserir dados do Banco" onclick="PF('i_dlg_banco').show()" rendered="#{baixaGeralBean.tipoPagamento.id == 2 or baixaGeralBean.tipoPagamento.id == 8 or baixaGeralBean.tipoPagamento.id == 9 or baixaGeralBean.tipoPagamento.id == 10 ||  baixaGeralBean.tipoPagamento.id == 13}"/>
                                         </p:column>
 
-                                        <p:column rendered="#{baixaGeralBean.es == 'S'}">
+                                        <p:column rendered="#{baixaGeralBean.es eq 'S'}">
                                             <br />
                                             <p:commandButton icon="ui-icon-plus" action="#{baixaGeralBean.inserir}" title="Adicionar Parcela" update="formBaixaGeral"  rendered="#{baixaGeralBean.tipoPagamento.id == 3}"/>
 
                                             <p:commandButton icon="ui-icon-plus" title="Continuar e Inserir dados do Cheque" onclick="PF('i_dlg_cheque').show()" rendered="#{baixaGeralBean.tipoPagamento.id == 4 or baixaGeralBean.tipoPagamento.id == 5}"/>
 
-                                            <p:commandButton icon="ui-icon-plus" title="Continuar e Inserir dados do Banco" onclick="PF('i_dlg_banco').show()" rendered="#{baixaGeralBean.tipoPagamento.id == 8 or baixaGeralBean.tipoPagamento.id == 9 or baixaGeralBean.tipoPagamento.id == 10}"/>
+                                            <p:commandButton icon="ui-icon-plus" title="Continuar e Inserir dados do Banco" onclick="PF('i_dlg_banco').show()" rendered="#{baixaGeralBean.tipoPagamento.id == 8 or baixaGeralBean.tipoPagamento.id == 9 or baixaGeralBean.tipoPagamento.id == 10 or  baixaGeralBean.tipoPagamento.id == 13 or  baixaGeralBean.tipoPagamento.id == 15}"/>
                                         </p:column>
                                     </h:panelGrid>
                                 </p:panel>
