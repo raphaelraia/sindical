@@ -152,7 +152,7 @@ public class RelatorioMovimentoDiarioDao extends DB {
             if (plano5_id != null) {
                 queryString += " AND id_plano5 = " + plano5_id;
             } else {
-                queryString += "M.id_plano5 IN ( SELECT id_plano5 FROM caixa_banco_vw )";
+                queryString += "AND id_plano5 IN ( SELECT id_plano5 FROM caixa_banco_vw )";
             }
             Query query = getEntityManager().createNativeQuery(queryString);
             List list = query.getResultList();
