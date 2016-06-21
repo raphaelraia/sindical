@@ -882,7 +882,14 @@ public class Dao extends DB implements DaoInterface {
                 return list;
             }
         } catch (Exception e) {
-
+            Logger.getLogger(Dao.class.getName()).log(Level.WARNING, e.getMessage());
+            EXCEPCION = e;
+            if (GenericaSessao.exists("habilitaLog")) {
+                if (Usuario.getUsuario().getId() == 1 && GenericaSessao.getBoolean("habilitaLog")) {
+                    GenericaMensagem.fatal("LOG", "Exceção gerada " + EXCEPCION.getMessage());
+                    PF.update("header:form_log");
+                }
+            }
         }
         return new ArrayList();
     }
@@ -940,7 +947,14 @@ public class Dao extends DB implements DaoInterface {
                 return null;
             }
         } catch (Exception e) {
-
+            Logger.getLogger(Dao.class.getName()).log(Level.WARNING, e.getMessage());
+            EXCEPCION = e;
+            if (GenericaSessao.exists("habilitaLog")) {
+                if (Usuario.getUsuario().getId() == 1 && GenericaSessao.getBoolean("habilitaLog")) {
+                    GenericaMensagem.fatal("LOG", "Exceção gerada " + EXCEPCION.getMessage());
+                    PF.update("header:form_log");
+                }
+            }
         }
         return null;
     }
