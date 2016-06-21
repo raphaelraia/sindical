@@ -95,7 +95,7 @@ public class RelatorioBalanceteBean implements Serializable {
         sisProcesso.finishQuery();
         for (int i = 0; i < list.size(); i++) {
             List o = (List) list.get(i);
-            oj.add(new ObjectJasper(o.get(0), o.get(1), o.get(2), o.get(3), o.get(4), o.get(5), o.get(6), o.get(7), o.get(8), o.get(9), o.get(10), o.get(11), o.get(12), o.get(13), o.get(14)));
+            oj.add(new ObjectJasper(o.get(0), o.get(1), o.get(2), o.get(3), o.get(4), o.get(5), o.get(6), o.get(7), o.get(8), o.get(9), o.get(10), o.get(11), o.get(12), o.get(13)));
         }
         if (list.isEmpty()) {
             GenericaMensagem.warn("Mensagem", "Nenhum registro encontrado!");
@@ -353,7 +353,6 @@ public class RelatorioBalanceteBean implements Serializable {
 
     public class ObjectJasper {
 
-        private Object data;
         private Object codigo1;
         private Object conta1;
         private Object codigo2;
@@ -368,9 +367,9 @@ public class RelatorioBalanceteBean implements Serializable {
         private Object debito;
         private Object credito;
         private Object saldo_atual;
+        private Object conta_id;
 
         public ObjectJasper() {
-            this.data = null;
             this.codigo1 = null;
             this.conta1 = null;
             this.codigo2 = null;
@@ -387,8 +386,8 @@ public class RelatorioBalanceteBean implements Serializable {
             this.saldo_atual = null;
         }
 
-        public ObjectJasper(Object data, Object codigo1, Object conta1, Object codigo2, Object conta2, Object codigo3, Object conta3, Object codigo4, Object conta4, Object codigo5, Object conta5, Object saldo_anterior, Object debito, Object credito, Object saldo_atual) {
-            this.data = data;
+        public ObjectJasper(Object codigo1, Object conta1, Object codigo2, Object conta2, Object codigo3, Object conta3, Object codigo4, Object conta4, Object codigo5, Object conta5, Object saldo_anterior, Object debito, Object credito, Object saldo_atual) {
+
             this.codigo1 = codigo1;
             this.conta1 = conta1;
             this.codigo2 = codigo2;
@@ -403,14 +402,6 @@ public class RelatorioBalanceteBean implements Serializable {
             this.debito = debito;
             this.credito = credito;
             this.saldo_atual = saldo_atual;
-        }
-
-        public Object getData() {
-            return data;
-        }
-
-        public void setData(Object data) {
-            this.data = data;
         }
 
         public Object getCodigo1() {

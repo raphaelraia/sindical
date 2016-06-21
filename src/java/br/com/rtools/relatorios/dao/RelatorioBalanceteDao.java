@@ -30,8 +30,23 @@ public class RelatorioBalanceteDao extends DB {
         // CHAMADOS 1490
         try {
             String queryString = "";
-            queryString += " -- RelatorioBalanceteDao->find()                   \n"
-                    + " SELECT * FROM balancete_vw \n";
+            queryString += " -- RelatorioBalanceteDao->find()                       \n"
+                    + "   SELECT B.codigo1,    \n"
+                    + "          B.conta1,     \n"
+                    + "          B.codigo2,    \n"
+                    + "          B.conta2,     \n"
+                    + "          B.codigo3,    \n"
+                    + "          B.conta3,     \n"
+                    + "          B.codigo4,    \n"
+                    + "          B.conta4,     \n"
+                    + "          B.codigo5,    \n"
+                    + "          B.conta5,     \n"
+                    + "          sum(func_nulldouble(C.nr_saldo)) AS saldo_anterior,\n"
+                    + "          sum(B.debito)  AS debito,  \n"
+                    + "          sum(B.credito) AS credito, \n"
+                    + "          sum(func_nulldouble(C.nr_saldo)+func_calcula_conta(B.is_soma_debito,B.debito,B.credito)) AS saldo_atual   \n"
+                    + "     FROM balancete_vw AS B  \n"
+                    + "LEFT JOIN fin_conta_saldo AS C ON C.id_plano5 = B.id_conta AND C.dt_data = cast('" + data_inicial + "' AS date) - 1  \n";
 
             List listWhere = new ArrayList<>();
             if (!data_inicial.isEmpty() || !data_final.isEmpty()) {
@@ -59,8 +74,31 @@ public class RelatorioBalanceteDao extends DB {
                     queryString += " AND " + listWhere.get(i).toString() + " \n";
                 }
             }
+            queryString += " "
+                    + " GROUP BY codigo1,   \n"
+                    + "          conta1,    \n"
+                    + "          codigo2,   \n"
+                    + "          conta2,    \n"
+                    + "          codigo3,   \n"
+                    + "          conta3,    \n"
+                    + "          codigo4,   \n"
+                    + "          conta4,    \n"
+                    + "          codigo5,   \n"
+                    + "          conta5";
             if (relatorioOrdem != null) {
                 queryString += " ORDER BY  " + relatorioOrdem.getQuery() + " \n";
+            } else {
+                queryString += " "
+                        + " ORDER BY codigo1,   \n"
+                        + "          conta1,    \n"
+                        + "          codigo2,   \n"
+                        + "          conta2,    \n"
+                        + "          codigo3,   \n"
+                        + "          conta3,    \n"
+                        + "          codigo4,   \n"
+                        + "          conta4,    \n"
+                        + "          codigo5,   \n"
+                        + "          conta5";
             }
             Query query = getEntityManager().createNativeQuery(queryString);
             return query.getResultList();
