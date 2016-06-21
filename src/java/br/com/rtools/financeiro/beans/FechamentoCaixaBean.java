@@ -116,7 +116,7 @@ public final class FechamentoCaixaBean implements Serializable {
         cf.transferirCaixaGenerico(fechamento.getId(), Integer.valueOf(listaCaixa.get(idCaixa).getDescription()), valorTransferencia);
 //        
 //        FinanceiroDB db = new FinanceiroDBToplink();
-//        Caixa caixa = (Caixa)(new SalvarAcumuladoDBToplink().pesquisaCodigo(Integer.valueOf(listaCaixa.get(idCaixa).getDescription()) ,"Caixa"));
+//        Caixa caixa = (Caixa)(new ().pesquisaCodigo(Integer.valueOf(listaCaixa.get(idCaixa).getDescription()) ,"Caixa"));
 //        List<TransferenciaCaixa> lista_tc = db.listaTransferenciaDinheiro(fechamento.getId(), caixa.getId());
 //        List<FormaPagamento> lista_fp_entrada = db.listaTransferenciaFormaPagamento(fechamento.getId(), caixa.getId(), "E");
 //        List<FormaPagamento> lista_fp_saida = db.listaTransferenciaFormaPagamento(fechamento.getId(), caixa.getId(), "S");
@@ -174,7 +174,7 @@ public final class FechamentoCaixaBean implements Serializable {
 //            fechamento.setSaldoAtual(saldo_atual);
 //        }
 //        
-//        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+//         sv = new ();
 //        
 //        sv.abrirTransacao();
 //        
@@ -191,7 +191,7 @@ public final class FechamentoCaixaBean implements Serializable {
 //                Moeda.converteUS$(valorTransferencia),
 //                (new FinanceiroDBToplink()).pesquisaCaixaUm(),
 //                DataHoje.dataHoje(),
-//                (FStatus) new SalvarAcumuladoDBToplink().pesquisaCodigo(12, "FStatus"),
+//                (FStatus) new ().pesquisaCodigo(12, "FStatus"),
 //                null,
 //                fechamento,
 //                (Usuario) GenericaSessao.getObject("sessaoUsuario")
@@ -696,7 +696,7 @@ public final class FechamentoCaixaBean implements Serializable {
 
 //    public String getSaldoAnterior() {
 //        if (contaSaldo.getId() == -1 && !listaCaixa.isEmpty()){
-//            Caixa caixa = (Caixa)(new SalvarAcumuladoDBToplink().pesquisaCodigo(Integer.valueOf(listaCaixa.get(idCaixa).getDescription()) ,"Caixa"));
+//            Caixa caixa = (Caixa)(new ().pesquisaCodigo(Integer.valueOf(listaCaixa.get(idCaixa).getDescription()) ,"Caixa"));
 //            FinanceiroDB db = new FinanceiroDBToplink();
 //            contaSaldo = db.pesquisaSaldoInicial(caixa.getId());
 //            saldoAnterior = Moeda.converteR$Float(contaSaldo.getSaldo());

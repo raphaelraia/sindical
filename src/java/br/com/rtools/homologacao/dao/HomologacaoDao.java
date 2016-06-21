@@ -313,26 +313,7 @@ public class HomologacaoDao extends DB {
             Query qry = getEntityManager().createNativeQuery(textQuery, Agendamento.class);
 
             return qry.getResultList();
-//            if (!qry.getResultList().isEmpty()) {
-//                SalvarAcumuladoDB dB = new SalvarAcumuladoDBToplink();
-//                List list = qry.getResultList();
-//                String stringIn = "";
-//                for (int i = 0; i < list.size(); i++) {
-//                    if (i == 0) {
-//                        stringIn = ((Integer) ((List) list.get(i)).get(0)).toString();
-//                    } else {
-//                        stringIn += " , " + ((Integer) ((List) list.get(i)).get(0)).toString();
-//                    }
-//                }
-//                String queryString = " SELECT A FROM Agendamento AS A WHERE A.id IN(" + stringIn + ") ORDER BY A.dtData DESC, A.horarios.hora ASC ";
-//                Query qryListaAgendamento = getEntityManager().createQuery(queryString);
-//                List listX = qryListaAgendamento.getResultList();
-//                if (!listX.isEmpty()) {
-//                    return listX;
-//                }
-//            }
         } catch (Exception e) {
-            //} catch (StackOverflowError e) {
             e.getMessage();
         }
         return new ArrayList();

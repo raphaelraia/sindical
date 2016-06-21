@@ -373,8 +373,6 @@ public class ServicosBean implements Serializable {
         valorf = "0";
         desconto = "0";
         taxa = "0";
-
-        //List<SubGrupoFinanceiro> listax = (new SalvarAcumuladoDBToplink().listaObjeto("SubGrupoFinanceiro"));
         if (servicos.getSubGrupoFinanceiro() != null && !getListSubGrupo().isEmpty()) {
             listSubGrupo.clear();
             for (int i = 0; i < listGrupo.size(); i++) {

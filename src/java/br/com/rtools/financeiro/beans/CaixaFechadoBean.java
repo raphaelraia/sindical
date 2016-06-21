@@ -16,8 +16,6 @@ import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -53,9 +51,9 @@ public class CaixaFechadoBean implements Serializable {
 
     public void imprimir(DataObject linha) {
 //        FechamentoCaixa fc = null;
-//        fc = (FechamentoCaixa)(new SalvarAcumuladoDBToplink().pesquisaCodigo( (Integer) ((Vector)linha.getArgumento0()).get(1), "FechamentoCaixa"));
+//        fc = (FechamentoCaixa)(new ().pesquisaCodigo( (Integer) ((Vector)linha.getArgumento0()).get(1), "FechamentoCaixa"));
 //        
-//        Caixa caixa = (Caixa)(new SalvarAcumuladoDBToplink().pesquisaCodigo( ,"Caixa"));
+//        Caixa caixa = (Caixa)(new ().pesquisaCodigo( ,"Caixa"));
         ImprimirFechamentoCaixa ifc = new ImprimirFechamentoCaixa();
 
         // id_fechamento, id_caixa
@@ -237,25 +235,25 @@ public class CaixaFechadoBean implements Serializable {
 
     public void reabrir() {
         FinanceiroDB db = new FinanceiroDBToplink();
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+        Dao dao = new Dao();
 
         List<Baixa> lista_baixa = db.listaBaixa(fechamentoCaixa.getId());
 
-        sv.abrirTransacao();
+        dao.openTransaction();
         for (int i = 0; i < lista_baixa.size(); i++) {
-            Baixa ba = ((Baixa) sv.pesquisaCodigo(lista_baixa.get(i).getId(), "Baixa"));
+            Baixa ba = ((Baixa) dao.find(new Baixa(), lista_baixa.get(i).getId()));
 
             ba.setFechamentoCaixa(null);
-            if (!sv.alterarObjeto(ba)) {
+            if (!dao.update(ba)) {
                 GenericaMensagem.warn("Erro", "Não foi possivel alterar a Baixa!");
-                sv.desfazerTransacao();
+                dao.rollback();
                 return;
             }
         }
 
         List<TransferenciaCaixa> lista_transferencia = db.listaTransferencia(fechamentoCaixa.getId());
         for (int i = 0; i < lista_transferencia.size(); i++) {
-            TransferenciaCaixa tc = ((TransferenciaCaixa) sv.pesquisaCodigo(lista_transferencia.get(i).getId(), "TransferenciaCaixa"));
+            TransferenciaCaixa tc = ((TransferenciaCaixa) dao.find(new TransferenciaCaixa(), lista_transferencia.get(i).getId()));
 
             if (tc.getFechamentoEntrada() != null && tc.getFechamentoEntrada().getId() == fechamentoCaixa.getId()) {
                 tc.setFechamentoEntrada(null);
@@ -263,31 +261,31 @@ public class CaixaFechadoBean implements Serializable {
                 tc.setFechamentoSaida(null);
             }
 
-            if (!sv.alterarObjeto(tc)) {
+            if (!dao.update(tc)) {
                 GenericaMensagem.warn("Erro", "Não foi possivel alterar a Transferência Caixa!");
-                sv.desfazerTransacao();
+                dao.rollback();
                 return;
             }
         }
 
-        if (!sv.deletarObjeto(sv.pesquisaCodigo(fechamentoCaixa.getId(), "FechamentoCaixa"))) {
+        if (!dao.delete(dao.find(new FechamentoCaixa(), fechamentoCaixa.getId()))) {
             GenericaMensagem.warn("Erro", "Não foi possivel excluir a Fechamento Caixa!");
-            sv.desfazerTransacao();
+            dao.rollback();
             return;
         }
 
         GenericaMensagem.info("Sucesso", "Reabertura de Caixa concluído!");
-        sv.comitarTransacao();
+        dao.commit();
         listaFechamento.clear();
         fechamentoCaixa = new FechamentoCaixa();
     }
 
     public void reabrir(DataObject dob) {
-        fechamentoCaixa = (FechamentoCaixa) (new SalvarAcumuladoDBToplink()).pesquisaCodigo((Integer) ((Vector) dob.getArgumento0()).get(1), "FechamentoCaixa");
+        fechamentoCaixa = (FechamentoCaixa) (new Dao()).find(new FechamentoCaixa(), (Integer) ((Vector) dob.getArgumento0()).get(1));
     }
 
     public void transferir() {
-        //Caixa caixa = (Caixa)(new SalvarAcumuladoDBToplink().pesquisaCodigo(Integer.valueOf(listaCaixa.get(idCaixa).getDescription()) ,"Caixa"));
+        //Caixa caixa = (Caixa)(new ().pesquisaCodigo(Integer.valueOf(listaCaixa.get(idCaixa).getDescription()) ,"Caixa"));
 
         transferirCaixaGenerico(fechamentoCaixa.getId(), Integer.valueOf(listaCaixa.get(idCaixa).getDescription()), valorTransferencia);
 
@@ -468,7 +466,7 @@ public class CaixaFechadoBean implements Serializable {
         float valor_saldo_atual;
 
         total_transferencia = Moeda.subtracaoValores(total_transferencia, total_saida);
-        
+
         if (!lista.isEmpty()) {
             valor_saldo_atual = Moeda.converteUS$(Moeda.converteR$(lista.get(0).get(1).toString()));
             total_transferencia = Moeda.somaValores(valor_saldo_atual, total_transferencia);
@@ -486,7 +484,7 @@ public class CaixaFechadoBean implements Serializable {
     public List<DataObject> getListaFechamento() {
         if (listaFechamento.isEmpty()) {
             FinanceiroDB db = new FinanceiroDBToplink();
-            Caixa caixa = (Caixa) (new SalvarAcumuladoDBToplink().pesquisaCodigo(Integer.valueOf(listaCaixa.get(idCaixa).getDescription()), "Caixa"));
+            Caixa caixa = (Caixa) (new Dao().find(new Caixa(), Integer.valueOf(listaCaixa.get(idCaixa).getDescription())));
 
             List<Vector> lista = db.listaFechamentoCaixaTransferencia(caixa.getId());
             for (int i = 0; i < lista.size(); i++) {

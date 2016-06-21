@@ -441,9 +441,6 @@ public class SociosBean implements Serializable {
     public final void loadGrupoCategoria() {
         listaGrupoCategoria.clear();
         idGrupoCategoria = 0;
-
-        //SalvarAcumuladoDB sadb = new Dao();
-        //List<GrupoCategoria> grupoCategorias = (List<GrupoCategoria>) sadb.listaObjeto("GrupoCategoria");
         CategoriaDao db = new CategoriaDao();
         List<GrupoCategoria> grupoCategorias = db.pesquisaGrupoCategoriaOrdenada();
 

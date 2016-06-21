@@ -16,8 +16,6 @@ import br.com.rtools.pessoa.db.JuridicaDBToplink;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.Moeda;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
@@ -164,8 +162,8 @@ public abstract class MovimentoValorBean {
 
             if (tipo.equals("valor")) {
                 JuridicaDB jurDB = new JuridicaDBToplink();
-                SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-                sv.abrirTransacao();
+                Dao dao = new Dao();
+                dao.openTransaction();
 
                 if (descontoEmpregado != null && descontoEmpregado.getId() != -1) {
                     valorMes
@@ -187,12 +185,12 @@ public abstract class MovimentoValorBean {
                     folhaEmpresa.setJuridica(jurDB.pesquisaJuridicaPorPessoa(movimento.getPessoa().getId()));
                     folhaEmpresa.setReferencia(movimento.getReferencia());
                     folhaEmpresa.setTipoServico(movimento.getTipoServico());
-                    sv.inserirObjeto(folhaEmpresa);
+                    dao.save(folhaEmpresa);
                 } else {
                     folhaEmpresa.setValorMes(valorMes);
                     folhaEmpresa.setAlteracoes(folhaEmpresa.getAlteracoes() + 1);
                     folhaEmpresa.setNumFuncionarios(qtdFuncionario);
-                    sv.alterarObjeto(folhaEmpresa);
+                    dao.update(folhaEmpresa);
                 }
                 movimento.setValor(valorGuia);
 
@@ -206,22 +204,21 @@ public abstract class MovimentoValorBean {
                         if (bol != null) {
                             if (bol.getContaCobranca().isCobrancaRegistrada()) {
                                 bol.setDtCobrancaRegistrada(null);
-                                sv.alterarObjeto(bol);
+                                dao.update(bol);
                             }
                         }
 
-                        sv.alterarObjeto(movimento);
-                        Lote lote = (Lote) sv.pesquisaCodigo(movimento.getLote().getId(), "Lote");
+                        dao.update(movimento);
+                        Lote lote = (Lote) dao.find(new Lote(), movimento.getLote().getId());
                         lote.setValor(movimento.getValor());
-                        sv.alterarObjeto(lote);
+                        dao.update(lote);
                     }
                 }
-                sv.comitarTransacao();
+                dao.commit();
             } else if (valorMes != 0) {
                 JuridicaDB jurDB = new JuridicaDBToplink();
-                //FolhaEmpresaDB dbFolha = new FolhaEmpresaDao();
-                SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-                sv.abrirTransacao();
+                Dao dao = new Dao();
+                dao.openTransaction();
 
                 if (folhaEmpresa.getId() == -1) {
                     folhaEmpresa.setValorMes(valorMes);
@@ -229,14 +226,12 @@ public abstract class MovimentoValorBean {
                     folhaEmpresa.setJuridica(jurDB.pesquisaJuridicaPorPessoa(movimento.getPessoa().getId()));
                     folhaEmpresa.setReferencia(movimento.getReferencia());
                     folhaEmpresa.setTipoServico(movimento.getTipoServico());
-                    //salvar(folhaEmpresa);
-                    sv.inserirObjeto(folhaEmpresa);
+                    dao.save(folhaEmpresa);
                 } else {
                     folhaEmpresa.setValorMes(valorMes);
                     folhaEmpresa.setAlteracoes(folhaEmpresa.getAlteracoes() + 1);
                     folhaEmpresa.setNumFuncionarios(qtdFuncionario);
-                    //salvar(folhaEmpresa);
-                    sv.alterarObjeto(folhaEmpresa);
+                    dao.update(folhaEmpresa);
                 }
 
                 if (valorMes == 0) {
@@ -253,7 +248,6 @@ public abstract class MovimentoValorBean {
                                                 descontoEmpregado.getValorEmpregado()))));
                 if (salvar) {
                     if (movimento.getId() == -1) {
-                        //sv.inserirObjeto(movimento);
                     } else {
                         // SE ALTERAR O VENCIMENTO E FOR COBRANÇA REGISTRADA, ENTÃO ALTERAR A DATA DE REGISTRO PARA QUANDO IMPRIMIR REGISTRAR NOVAMENTE
                         MovimentoDB dbm = new MovimentoDBToplink();
@@ -261,18 +255,18 @@ public abstract class MovimentoValorBean {
                         if (bol != null) {
                             if (bol.getContaCobranca().isCobrancaRegistrada()) {
                                 bol.setDtCobrancaRegistrada(null);
-                                sv.alterarObjeto(bol);
+                                dao.update(bol);
                             }
                         }
 
-                        sv.alterarObjeto(movimento);
-                        Lote lote = (Lote) sv.pesquisaCodigo(movimento.getLote().getId(), "Lote");
+                        dao.update(movimento);
+                        Lote lote = (Lote) dao.find(new Lote(), movimento.getLote().getId());
                         lote.setValor(movimento.getValor());
-                        sv.alterarObjeto(lote);
+                        dao.update(lote);
 
                     }
                 }
-                sv.comitarTransacao();
+                dao.commit();
 
                 folhaEmpresa = new FolhaEmpresa();
                 descontoEmpregado = new DescontoEmpregado();

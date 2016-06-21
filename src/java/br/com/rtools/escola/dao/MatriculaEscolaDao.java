@@ -166,7 +166,6 @@ public class MatriculaEscolaDao extends DB {
             return null;
         }
 
-        //SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
         Dao dao = new Dao();
         try {
             Query queryMovimentos = getEntityManager().createQuery("SELECT M FROM Movimento AS M WHERE M.lote.evt.id = " + me.getServicoPessoa().getEvt().getId() + " AND M.baixa IS NOT NULL AND M.ativo = TRUE");

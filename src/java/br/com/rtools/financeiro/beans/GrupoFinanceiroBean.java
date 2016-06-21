@@ -249,10 +249,7 @@ public final class GrupoFinanceiroBean implements Serializable {
 
     public List<SubGrupoFinanceiro> getListaSubGrupoFinanceiro() {
         if (listaSubGrupoFinanceiro.isEmpty()) {
-            FinanceiroDB db = new FinanceiroDBToplink();
-
-            //listaSubGrupoFinanceiro = new SalvarAcumuladoDBToplink().listaObjeto("SubGrupoFinanceiro");
-            listaSubGrupoFinanceiro = db.listaSubGrupo(Integer.valueOf(listaGrupo.get(idGrupo).getDescription()));
+            listaSubGrupoFinanceiro = new FinanceiroDBToplink().listaSubGrupo(Integer.valueOf(listaGrupo.get(idGrupo).getDescription()));
 
         }
         return listaSubGrupoFinanceiro;
