@@ -367,7 +367,6 @@ public class RelatorioBalanceteBean implements Serializable {
         private Object debito;
         private Object credito;
         private Object saldo_atual;
-        private Object conta_id;
 
         public ObjectJasper() {
             this.codigo1 = null;
