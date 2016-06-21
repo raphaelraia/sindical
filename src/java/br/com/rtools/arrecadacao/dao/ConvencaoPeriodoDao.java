@@ -3,8 +3,7 @@ package br.com.rtools.arrecadacao.dao;
 import br.com.rtools.arrecadacao.ConvencaoCidade;
 import br.com.rtools.arrecadacao.ConvencaoPeriodo;
 import br.com.rtools.principal.DB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
+import br.com.rtools.utilitarios.Dao;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
@@ -92,7 +91,6 @@ public class ConvencaoPeriodoDao extends DB {
 
     public ConvencaoPeriodo convencaoPeriodoConvencaoGrupoCidade(Integer idConvencao, Integer idGrupoCidade, String referencia_hifen) {
         ConvencaoPeriodo convencaoPeriodo = new ConvencaoPeriodo();
-        SalvarAcumuladoDB dB = new SalvarAcumuladoDBToplink();
         String queryString = "";
         if (idConvencao > 0 && idGrupoCidade > 0) {
             queryString = ""
@@ -109,7 +107,7 @@ public class ConvencaoPeriodoDao extends DB {
                 Query query = getEntityManager().createNativeQuery(queryString);
                 if (!query.getResultList().isEmpty()) {
                     list = (List) query.getSingleResult();
-                    convencaoPeriodo = (ConvencaoPeriodo) dB.pesquisaCodigo((Integer) list.get(0), "ConvencaoPeriodo");
+                    convencaoPeriodo = (ConvencaoPeriodo) new Dao().find(new ConvencaoPeriodo(), (Integer) list.get(0));
                 }
             }
         } catch (Exception e) {

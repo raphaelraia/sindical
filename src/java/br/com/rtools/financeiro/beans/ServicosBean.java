@@ -26,8 +26,6 @@ import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.PF;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -298,7 +296,7 @@ public class ServicosBean implements Serializable {
             message = "Erro no cadastro de serviço!";
             return;
         }
-        
+
         if (!listCategoriaDesconto.isEmpty()) {
             di.openTransaction();
             for (CategoriaDesconto categoria : listCategoriaDesconto) {
@@ -1028,11 +1026,7 @@ public class ServicosBean implements Serializable {
 
     public List<SelectItem> getListPeriodo() {
         if (listPeriodo.isEmpty()) {
-            FinanceiroDB db = new FinanceiroDBToplink();
-
-            List<Periodo> result = (new SalvarAcumuladoDBToplink()).listaObjeto("Periodo");
-            SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-
+            List<Periodo> result = (new Dao()).list(new Periodo());
             listPeriodo.add(new SelectItem(0, "Selecionar Periodo", "0"));
             if (!result.isEmpty()) {
                 for (int i = 1; i < result.size(); i++) {

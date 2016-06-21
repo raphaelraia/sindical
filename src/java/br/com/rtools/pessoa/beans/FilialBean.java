@@ -6,7 +6,7 @@ import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.FilialCidade;
 import br.com.rtools.pessoa.Juridica;
-import br.com.rtools.pessoa.db.FilialCidadeDBToplink;
+import br.com.rtools.pessoa.dao.FilialCidadeDao;
 import br.com.rtools.pessoa.dao.FilialDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.utilitarios.Dao;
@@ -166,7 +166,7 @@ public class FilialBean {
     }
 
     public void saveCidadeFilial(Cidade cid, Integer filial_id) {
-        FilialCidadeDBToplink db = new FilialCidadeDBToplink();
+        FilialCidadeDao db = new FilialCidadeDao();
         FilialCidade filialCidade;
         NovoLog novoLog = new NovoLog();
         DaoInterface di = new Dao();
@@ -293,7 +293,7 @@ public class FilialBean {
 
     public void loadListFilialSelectItemSub() {
         listFilialSelectItemSub = new ArrayList();
-        FilialCidadeDBToplink filialCidadeDao = new FilialCidadeDBToplink();
+        FilialCidadeDao filialCidadeDao = new FilialCidadeDao();
         FilialCidade fc = filialCidadeDao.findPrincipal(selectedCidade.getId());
         List<Filial> list = new Dao().list(new Filial(), true);
         if (fc != null) {
@@ -339,7 +339,7 @@ public class FilialBean {
     }
 
     public void loadListFilialCidade(Cidade c, Boolean principal) {
-        FilialCidadeDBToplink filialCidadeDao = new FilialCidadeDBToplink();
+        FilialCidadeDao filialCidadeDao = new FilialCidadeDao();
         listFilialCidade = new ArrayList();
         listFilialCidade = filialCidadeDao.findListBy(c.getId(), principal);
     }
@@ -379,7 +379,7 @@ public class FilialBean {
             GenericaMensagem.warn("Validação", "Cadastrar filiais!");
             return;
         }
-        FilialCidadeDBToplink filialCidadeDao = new FilialCidadeDBToplink();
+        FilialCidadeDao filialCidadeDao = new FilialCidadeDao();
         FilialCidade fc = filialCidadeDao.find(juridica.getId(), selectedCidade.getId());
         if (fc != null) {
             GenericaMensagem.warn("Validação", "Filial já cadastrada para esta cidade!");
@@ -549,7 +549,7 @@ public class FilialBean {
                 if (cidade.getId() != -1) {
                     listFilialSelectItem.clear();
                     List<Filial> list = new Dao().list(new Filial(), true);
-                    FilialCidadeDBToplink filialCidadeDao = new FilialCidadeDBToplink();
+                    FilialCidadeDao filialCidadeDao = new FilialCidadeDao();
                     List<FilialCidade> listFilialCidade = filialCidadeDao.findListBy(cidade.getId());
                     for (int i = 0; i < list.size(); i++) {
                         for (int y = 0; y < listFilialCidade.size(); y++) {
@@ -585,7 +585,7 @@ public class FilialBean {
 
         public List<FilialCidade> getListFilialCidade() {
             if (cidade.getId() != -1) {
-                FilialCidadeDBToplink filialCidadeDBToplink = new FilialCidadeDBToplink();
+                FilialCidadeDao filialCidadeDBToplink = new FilialCidadeDao();
                 listFilialCidade = filialCidadeDBToplink.findListBy(cidade.getId(), false);
 
             }

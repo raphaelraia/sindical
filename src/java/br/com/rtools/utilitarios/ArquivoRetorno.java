@@ -1,7 +1,7 @@
 package br.com.rtools.utilitarios;
 
+import br.com.rtools.pessoa.dao.PessoaDao;
 import br.com.rtools.pessoa.dao.DocumentoInvalidoDao;
-import br.com.rtools.financeiro.dao.FTipoDocumentoDao;
 import br.com.rtools.financeiro.ContaCobranca;
 import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.Lote;
@@ -12,6 +12,7 @@ import br.com.rtools.financeiro.db.*;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.pessoa.DocumentoInvalido;
 import br.com.rtools.pessoa.Juridica;
+import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.db.*;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Usuario;
@@ -69,7 +70,7 @@ public abstract class ArquivoRetorno {
 
         MovimentoDB db = new MovimentoDBToplink();
         JuridicaDB dbJur = new JuridicaDBToplink();
-        PessoaDB dbPes = new PessoaDBToplink();
+        PessoaDao dbPes = new PessoaDao();
         List<Movimento> movimento = new ArrayList();
         Dao dao = new Dao();
         File fl = new File(caminho + "/pendentes/");
@@ -282,7 +283,7 @@ public abstract class ArquivoRetorno {
                     Movimento movi = new Movimento(-1,
                             null,
                             servicos.getPlano5(),
-                            dbPes.pesquisaCodigo(0),
+                            (Pessoa) dao.find(new Pessoa(), 0),
                             servicos,
                             null,
                             tipoServico,
@@ -294,8 +295,8 @@ public abstract class ArquivoRetorno {
                             true,
                             "E",
                             false,
-                            dbPes.pesquisaCodigo(0),
-                            dbPes.pesquisaCodigo(0),
+                            (Pessoa) dao.find(new Pessoa(), 0),
+                            (Pessoa) dao.find(new Pessoa(), 0),
                             listaParametros.get(u).getNossoNumero()
                             + listaParametros.get(u).getDataPagamento()
                             + listaParametros.get(u).getValorPago().substring(5, listaParametros.get(u).getValorPago().length()),

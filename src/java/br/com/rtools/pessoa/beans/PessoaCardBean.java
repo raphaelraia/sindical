@@ -12,8 +12,7 @@ import br.com.rtools.pessoa.db.FisicaDB;
 import br.com.rtools.pessoa.db.FisicaDBToplink;
 import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
-import br.com.rtools.pessoa.db.PessoaEmpresaDB;
-import br.com.rtools.pessoa.db.PessoaEmpresaDBToplink;
+import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
 import br.com.rtools.seguranca.PermissaoUsuario;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
@@ -239,7 +238,7 @@ public class PessoaCardBean implements Serializable {
 
     public PessoaEmpresa getPessoaEmpresa() {
         if (pessoaEmpresa.getId() == -1) {
-            PessoaEmpresaDB pessoaEmpresaDB = new PessoaEmpresaDBToplink();
+            PessoaEmpresaDao pessoaEmpresaDB = new PessoaEmpresaDao();
             if (fisica != null && fisica.getId() != -1) {
                 pessoaEmpresa = (PessoaEmpresa) pessoaEmpresaDB.pesquisaPessoaEmpresaPorFisica(fisica.getId());
             } else if (pessoa != null && pessoa.getId() != -1) {

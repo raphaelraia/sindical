@@ -36,8 +36,6 @@ import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.Linha;
 import br.com.rtools.utilitarios.Mail;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -579,9 +577,9 @@ public class ImpressaoBoletosBean implements Serializable {
         List<String> listaVencimentos = new ArrayList();
 
         SegurancaUtilitariosBean su = new SegurancaUtilitariosBean();
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+        Dao dao = new Dao();
 
-        sv.abrirTransacao();
+        dao.openTransaction();
         for (int i = 0; i < listaMovGridSelecionada.size(); i++) {
             Movimento mov = db.pesquisaCodigo(
                     (Integer) listaMovGridSelecionada.get(i).getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getColuna().getValor()
@@ -596,13 +594,13 @@ public class ImpressaoBoletosBean implements Serializable {
             impressao.setDtVencimento(mov.getDtVencimento());
             impressao.setMovimento(mov);
 
-            if (!sv.inserirObjeto(impressao)) {
-                sv.desfazerTransacao();
+            if (!dao.save(impressao)) {
+                dao.rollback();
                 GenericaMensagem.error("Erro", "Não foi possível SALVAR impressão!");
                 return null;
             }
         }
-        sv.comitarTransacao();
+        dao.commit();
 
         ImprimirBoleto imp = new ImprimirBoleto();
         imp.imprimirBoleto(lista, listaValores, listaVencimentos, imprimeVerso);

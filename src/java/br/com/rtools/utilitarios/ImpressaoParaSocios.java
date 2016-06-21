@@ -1,5 +1,6 @@
 package br.com.rtools.utilitarios;
 
+import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
 import br.com.rtools.associativo.MatriculaSocios;
 import br.com.rtools.associativo.ModeloCarteirinha;
 import br.com.rtools.associativo.SocioCarteirinha;
@@ -631,7 +632,7 @@ public class ImpressaoParaSocios {
         PessoaEndereco pesEndereco, pesDestinatario, pesEndEmpresa, pesEndSindicato = new PessoaEndereco();
         PessoaEnderecoDao dbEnd = new PessoaEnderecoDao();
         PessoaEmpresa pesEmpresa = new PessoaEmpresa();
-        PessoaEmpresaDB dbEmp = new PessoaEmpresaDBToplink();
+        PessoaEmpresaDao dbEmp = new PessoaEmpresaDao();
         String dados[] = new String[34];
         List<Socios> listaSocs = new ArrayList();
         Dao dao = new Dao();

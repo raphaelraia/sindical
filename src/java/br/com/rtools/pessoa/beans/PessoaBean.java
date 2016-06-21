@@ -6,7 +6,6 @@ import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.beans.CupomMovimentoBean;
 import br.com.rtools.associativo.beans.FrequenciaCatracaBean;
 import br.com.rtools.associativo.beans.SorteioMovimentoBean;
-import br.com.rtools.associativo.dao.SociosDao2;
 import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.cobranca.beans.TmktHistoricoBean;
 import br.com.rtools.digitalizacao.beans.DigitalizacaoBean;
@@ -15,8 +14,7 @@ import br.com.rtools.homologacao.dao.HomologacaoDao;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
-import br.com.rtools.pessoa.db.PessoaDB;
-import br.com.rtools.pessoa.db.PessoaDBToplink;
+import br.com.rtools.pessoa.dao.PessoaDao;
 import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DaoInterface;
@@ -173,7 +171,7 @@ public class PessoaBean implements Serializable {
 
     public void loadListaPessoa() {
         listaPessoa.clear();
-        PessoaDB pesquisa = new PessoaDBToplink();
+        PessoaDao pesquisa = new PessoaDao();
         if (!descPesquisa.isEmpty()) {
             listaPessoa = pesquisa.pesquisarPessoa(descPesquisa, porPesquisa, comoPesquisa);
         }

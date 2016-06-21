@@ -992,7 +992,7 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
 //                if (((Integer) ((Vector) lista.get(i)).get(13)) < 0) {
 //                    ((Vector) lista.get(i)).set(13, 0);
 //                }
-//                //Movimento mov = (Movimento)(new SalvarAcumuladoDBToplink()).pesquisaCodigo( (Integer) ((Vector) lista.get(i)).get(15), "Movimento");
+//                //Movimento mov = (Movimento)(new ()).pesquisaCodigo( (Integer) ((Vector) lista.get(i)).get(15), "Movimento");
 //                listaMovimentos.add(new DataObject(
 //                        false, // 0
 //                        ((Vector) lista.get(i)).get(0), // boleto 1

@@ -1,5 +1,6 @@
 package br.com.rtools.homologacao.beans;
 
+import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
 import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.pessoa.beans.PesquisarProfissaoBean;
 import br.com.rtools.arrecadacao.Oposicao;
@@ -239,13 +240,13 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         }
 
         if (!getMindate().isEmpty() && idStatus == 0) {
-            if(configuracaoHomologacao.getInicioDiasAgendamento() > 0) {
+            if (configuracaoHomologacao.getInicioDiasAgendamento() > 0) {
                 DataHoje dh = new DataHoje();
                 if (!DataHoje.maiorData(data, DataHoje.converte(dh.incrementarDias(configuracaoHomologacao.getInicioDiasAgendamento(), DataHoje.data())))) {
                     // data = DataHoje.dataHoje();
                     GenericaMensagem.warn("Validação", "Data não disponível para agendamento!");
                     return;
-                }                
+                }
             }
         }
 
@@ -1088,7 +1089,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     }
 
     public String cancelarHorario() {
-        PessoaEmpresaDB dbPesEmp = new PessoaEmpresaDBToplink();
+        PessoaEmpresaDao dbPesEmp = new PessoaEmpresaDao();
         Dao dao = new Dao();
         agendamento.setStatus((Status) dao.find(new Status(), 3));
         dao.openTransaction();
@@ -1127,7 +1128,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         if (pem.getId() == -1) {
             pessoaEmpresa.setPrincipal(true);
         }
-        dbPesEmp.update(pessoaEmpresa);
+        dao.update(pessoaEmpresa, true);
         strEndereco = "";
         renderCancelarHorario = false;
         renderCancelar = true;
@@ -1375,7 +1376,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             }
 
             if (fisica.getId() != -1) {
-                PessoaEmpresaDB db = new PessoaEmpresaDBToplink();
+                PessoaEmpresaDao db = new PessoaEmpresaDao();
                 List<PessoaEmpresa> list_pe = db.listaPessoaEmpresaPorFisicaEmpresaDemissao(fisica.getId(), juridica.getId());
 
                 if (!list_pe.isEmpty()) {

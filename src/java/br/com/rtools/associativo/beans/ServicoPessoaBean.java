@@ -1,5 +1,6 @@
 package br.com.rtools.associativo.beans;
 
+import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
 import br.com.rtools.financeiro.dao.FTipoDocumentoDao;
 import br.com.rtools.associativo.DescontoSocial;
 import br.com.rtools.associativo.Socios;
@@ -252,7 +253,7 @@ public class ServicoPessoaBean implements Serializable {
             servicoPessoa.setBanco(false);
         }
 
-        PessoaEmpresaDB dbp = new PessoaEmpresaDBToplink();
+        PessoaEmpresaDao dbp = new PessoaEmpresaDao();
         PessoaEmpresa pe = null;
 
 // SE DESCONTO FOLHA = true NAO SALVAR EM cobranca ID EMPRESA -- alterado na data 08/05/2015 ( ID da tarefa de referencia 388 * inicialmente alterado no cadastro de socios )
@@ -310,7 +311,7 @@ public class ServicoPessoaBean implements Serializable {
         }
         // --------------------------------------------
 // SE DESCONTO FOLHA = true NAO SALVAR EM cobranca ID EMPRESA -- alterado na data 08/05/2015 ( ID da tarefa de referencia 388 * inicialmente alterado no cadastro de socios )
-//        PessoaEmpresaDB dbp = new PessoaEmpresaDBToplink();
+//        PessoaEmpresaDB dbp = new PessoaEmpresaDao();
 //        PessoaEmpresa pe = null;
 //        if (servicoPessoa.isDescontoFolha() && titular.getId() != -1) {
 //            pe = dbp.pesquisaPessoaEmpresaPorFisica(titular.getId());

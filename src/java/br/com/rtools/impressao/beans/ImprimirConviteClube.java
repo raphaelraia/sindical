@@ -21,8 +21,6 @@ import br.com.rtools.utilitarios.EnviarEmail;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaString;
 import br.com.rtools.utilitarios.SalvaArquivos;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -90,16 +88,16 @@ public class ImprimirConviteClube implements Serializable {
             salvaArquivos.salvaNaPasta(pathPasta);
             LinksDao db = new LinksDao();
             Links link = db.pesquisaNomeArquivo(nomeDownload);
-            SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+            Dao dao = new Dao();
             if (link == null) {
                 link = new Links();
                 link.setCaminho("/Sindical/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/convite");
                 link.setNomeArquivo(nomeDownload);
-                sv.abrirTransacao();
-                if (sv.inserirObjeto(link)) {
-                    sv.comitarTransacao();
+                dao.openTransaction();
+                if (dao.save(link)) {
+                    dao.commit();
                 } else {
-                    sv.desfazerTransacao();
+                    dao.rollback();
                 }
             }
             Pessoa pessoa = new Pessoa();
@@ -206,7 +204,7 @@ public class ImprimirConviteClube implements Serializable {
                 ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoConvite.png"),
                 barras,
                 GenericaString.converterNullToString(cm.getSisPessoa().getObservacao()),
-                (!cm.isCortesia()) ? "NO(S) DIA(S): " + listSemana : "CORTESIA PARA OS DIAS: " + listSemana 
+                (!cm.isCortesia()) ? "NO(S) DIA(S): " + listSemana : "CORTESIA PARA OS DIAS: " + listSemana
         ));
         return lista;
     }

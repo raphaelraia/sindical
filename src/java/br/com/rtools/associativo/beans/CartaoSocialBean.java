@@ -20,8 +20,7 @@ import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.pessoa.db.FisicaDBToplink;
-import br.com.rtools.pessoa.db.PessoaEmpresaDB;
-import br.com.rtools.pessoa.db.PessoaEmpresaDBToplink;
+import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
@@ -30,8 +29,6 @@ import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.ImpressaoParaSocios;
 import br.com.rtools.utilitarios.Jasper;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -293,7 +290,7 @@ public class CartaoSocialBean implements Serializable {
                     if (pessoa.getSocios().getMatriculaSocios().getCategoria().isEmpresaObrigatoria()
                             && f.getDtAposentadoria() == null
                             && titular_id == pessoa.getId()) {
-                        PessoaEmpresaDB db = new PessoaEmpresaDBToplink();
+                        PessoaEmpresaDao db = new PessoaEmpresaDao();
                         PessoaEmpresa pe = db.pesquisaPessoaEmpresaPorPessoa(pessoa.getId());
                         //PessoaEmpresa pe = db.pesquisaPessoaEmpresaPorPessoa(titular_id);
                         if (pe.getId() == -1) {
@@ -372,23 +369,23 @@ public class CartaoSocialBean implements Serializable {
 
     // MÉTODO EM DESUSO APAGAR DEPOIS DE 30/04/2016
     public void reImprimirCarteirinha() {
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+        Dao dao = new Dao();
 
         if (!listaSelecionado.isEmpty()) {
             CategoriaDao dbCat = new CategoriaDao();
             DataHoje dh = new DataHoje();
             SociosDao dbs = new SociosDao();
 
-            sv.abrirTransacao();
+            dao.openTransaction();
 
             for (int i = 0; i < listaSelecionado.size(); i++) {
-                Pessoa pessoa = (Pessoa) sv.pesquisaCodigo((Integer) ((List) listaSelecionado.get(i)).get(0), "Pessoa");
+                Pessoa pessoa = (Pessoa) dao.find(new Pessoa(), (Integer) ((List) listaSelecionado.get(i)).get(0));
                 Socios socios = dbs.pesquisaSocioPorPessoa(pessoa.getId());
-                SocioCarteirinha carteirinha = (SocioCarteirinha) sv.pesquisaCodigo((Integer) ((List) listaSelecionado.get(i)).get(19), "SocioCarteirinha");
+                SocioCarteirinha carteirinha = (SocioCarteirinha) dao.find(new SocioCarteirinha(), (Integer) ((List) listaSelecionado.get(i)).get(19));
                 ValidadeCartao validadeCartao = new ValidadeCartaoDao().findByCategoriaParentesco(socios.getMatriculaSocios().getCategoria().getId(), socios.getParentesco().getId());
                 if (validadeCartao == null) {
                     GenericaMensagem.warn("Validação", "Nenhuma validade de cartão encontrada!");
-                    sv.desfazerTransacao();
+                    dao.rollback();
                     return;
                 }
                 if (socios.getId() != -1 && socios.getMatriculaSocios().getId() != -1) {
@@ -410,8 +407,9 @@ public class CartaoSocialBean implements Serializable {
                 if (carteirinha.getDtEmissao() == null) {
                     carteirinha.setEmissao(DataHoje.data());
 
-                    if (!sv.alterarObjeto(carteirinha)) {
-                        sv.desfazerTransacao();
+                    if (!dao.update(carteirinha)) {
+                        dao.rollback();
+                        GenericaMensagem.warn("Erro", "AO ATUALIZAR CARTEIRINHA!");
                         return;
                     }
 
@@ -421,14 +419,14 @@ public class CartaoSocialBean implements Serializable {
                     hc.setDescricao("Primeira ReImpressão de Carteirinha 2º Via");
 
                     if (listaSelecionado.get(i).get(17) != null) {
-                        Movimento m = (Movimento) sv.pesquisaCodigo(Integer.valueOf(listaSelecionado.get(i).get(17).toString()), "Movimento");
+                        Movimento m = (Movimento) dao.find(new Movimento(), Integer.valueOf(listaSelecionado.get(i).get(17).toString()));
                         if (m != null) {
                             hc.setMovimento(m);
                         }
                     }
 
-                    if (!sv.inserirObjeto(hc)) {
-                        sv.desfazerTransacao();
+                    if (!dao.save(hc)) {
+                        dao.rollback();
                         return;
                     }
                 } else {
@@ -436,8 +434,9 @@ public class CartaoSocialBean implements Serializable {
 
                     carteirinha.setVia(carteirinha.getVia() + 1);
 
-                    if (!sv.alterarObjeto(carteirinha)) {
-                        sv.desfazerTransacao();
+                    if (!dao.update(carteirinha)) {
+                        dao.rollback();
+                        GenericaMensagem.warn("Erro", "AO ATUALIZAR CARTEIRINHA!");
                         return;
                     }
 
@@ -445,23 +444,25 @@ public class CartaoSocialBean implements Serializable {
                     hc.setDescricao("ReImpressão de Carteirinha 2º Via");
 
                     if (listaSelecionado.get(i).get(17) != null) {
-                        Movimento m = (Movimento) sv.pesquisaCodigo(Integer.valueOf(listaSelecionado.get(i).get(17).toString()), "Movimento");
+                        Movimento m = (Movimento) dao.find(new Movimento(), Integer.valueOf(listaSelecionado.get(i).get(17).toString()));
                         if (m != null) {
                             hc.setMovimento(m);
                         }
                     }
 
-                    if (!sv.inserirObjeto(hc)) {
-                        sv.desfazerTransacao();
+                    if (!dao.save(hc)) {
+                        dao.rollback();
+                        GenericaMensagem.warn("Erro", "AO ATUALIZAR HISTÓRICO DA CARTEIRINHA!");
                         return;
                     }
                 }
             }
 
             if (ImpressaoParaSocios.imprimirCarteirinha(listaSelecionado)) {
-                sv.comitarTransacao();
+                dao.commit();
             } else {
-                sv.desfazerTransacao();
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "AO ATUALIZAR CARTEIRINHA!");
             }
         }
     }

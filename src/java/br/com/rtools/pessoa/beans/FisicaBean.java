@@ -1,5 +1,8 @@
 package br.com.rtools.pessoa.beans;
 
+import br.com.rtools.pessoa.dao.PessoaDao;
+import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
+import br.com.rtools.pessoa.dao.PessoaProfissaoDao;
 import br.com.rtools.pessoa.dao.TipoEnderecoDao;
 import br.com.rtools.pessoa.dao.TipoDocumentoDao;
 import br.com.rtools.arrecadacao.Oposicao;
@@ -525,7 +528,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             mensagem = "Esse cadastro esta associado, desvincule para excluir!";
             return;
         }
-        //PessoaDB dbPessoa = new PessoaDBToplink();
+        //PessoaDB dbPessoa = new PessoaDao();
         if (fisica.getId() != -1) {
             //fisica.setPessoa(dbPessoa.pesquisaCodigo(fisica.getPessoa().getId()));
             PessoaEnderecoDao dbPE = new PessoaEnderecoDao();
@@ -542,7 +545,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                     }
                 }
             }
-            PessoaProfissaoDB dbPP = new PessoaProfissaoDBToplink();
+            PessoaProfissaoDao dbPP = new PessoaProfissaoDao();
             PessoaProfissao pp = dbPP.pesquisaProfPorFisica(fisica.getId());
             // EXCLUI PROFISSÃO -----------------
             if (pp.getId() != -1) {
@@ -553,7 +556,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 }
             }
             // EXCLUI PESSOA EMPRESA ------------
-            PessoaEmpresaDB dbEM = new PessoaEmpresaDBToplink();
+            PessoaEmpresaDao dbEM = new PessoaEmpresaDao();
             List<PessoaEmpresa> listaPessoaEmp = dbEM.listaPessoaEmpresaTodos(fisica.getId());
             if (!listaPessoaEmp.isEmpty()) {
                 for (PessoaEmpresa listaPessoaEmp1 : listaPessoaEmp) {
@@ -624,8 +627,8 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             GenericaSessao.put("linkClicado", true);
             return url;
         }
-        PessoaEmpresaDB db = new PessoaEmpresaDBToplink();
-        PessoaProfissaoDB dbp = new PessoaProfissaoDBToplink();
+        PessoaEmpresaDao db = new PessoaEmpresaDao();
+        PessoaProfissaoDao dbp = new PessoaProfissaoDao();
         GenericaSessao.remove("pessoaComplementoBean");
         descPesquisa = "";
         porPesquisa = "nome";
@@ -718,7 +721,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 showImagemFisica();
             }
             existePessoaOposicaoPorPessoa();
-            PessoaProfissaoDB dbp = new PessoaProfissaoDBToplink();
+            PessoaProfissaoDao dbp = new PessoaProfissaoDao();
             pessoaProfissao = dbp.pesquisaProfPorFisica(fisica.getId());
             if (pessoaProfissao.getId() != -1) {
                 for (int i = 0; i < listaProfissoes.size(); i++) {
@@ -754,7 +757,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     public String editarFisicaParametro(Fisica f) {
         Dao dao = new Dao();
-        PessoaEmpresaDB db = new PessoaEmpresaDBToplink();
+        PessoaEmpresaDao db = new PessoaEmpresaDao();
         fisica = (Fisica) dao.rebind(f);
         GenericaSessao.put("fisicaPesquisa", fisica);
         String url = (String) GenericaSessao.getString("urlRetorno");
@@ -922,7 +925,8 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public void salvarPessoaEmpresa() {
-        PessoaEmpresaDB db = new PessoaEmpresaDBToplink();
+        PessoaEmpresaDao db = new PessoaEmpresaDao();
+        Dao dao = new Dao();
         if (fisica.getId() != -1 && pessoaEmpresa.getJuridica().getId() != -1) {
             pessoaEmpresa.setFisica(fisica);
             pessoaEmpresa.setAvisoTrabalhado(false);
@@ -958,9 +962,9 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             }
 
             if (pessoaEmpresa.getId() == -1) {
-                db.insert(pessoaEmpresa);
+                dao.save(pessoaEmpresa, true);
             } else {
-                db.update(pessoaEmpresa);
+                dao.update(pessoaEmpresa, true);
             }
 
             if (pessoaEmpresa.getDemissao() != null && !pessoaEmpresa.getDemissao().isEmpty()) {
@@ -974,7 +978,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 if (!lpe.isEmpty()) {
                     lpe.get(0).setPrincipal(true);
 
-                    db.update(lpe.get(0));
+                    dao.update(lpe.get(0), true);
 
                     pessoaEmpresa = lpe.get(0);
                     renderJuridicaPesquisa = true;
@@ -1048,7 +1052,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         if (listaPessoa.isEmpty()) {
             List<Fisica> result2 = new ArrayList();
             FisicaDB db = new FisicaDBToplink();
-            PessoaEmpresaDB dbEmp = new PessoaEmpresaDBToplink();
+            PessoaEmpresaDao dbEmp = new PessoaEmpresaDao();
             if (pesquisaPor.equals("socioativo")) {
                 result2 = db.pesquisaPessoaSocio(descPesquisa, porPesquisa, comoPesquisa, limit, offset);
             } else if (pesquisaPor.equals("pessoa")) {
@@ -1274,13 +1278,14 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         profissao = new Profissao();
         renderJuridicaPesquisa = false;
 
-        PessoaEmpresaDB db = new PessoaEmpresaDBToplink();
+        PessoaEmpresaDao db = new PessoaEmpresaDao();
+        Dao dao = new Dao();
         List<PessoaEmpresa> lpe = db.listaPessoaEmpresaPorFisicaDemissao(fisica.getId());
 
         if (!lpe.isEmpty()) {
             lpe.get(0).setPrincipal(true);
 
-            db.update(lpe.get(0));
+            dao.update(lpe.get(0), true);
 
             pessoaEmpresa = lpe.get(0);
             renderJuridicaPesquisa = true;
@@ -1390,7 +1395,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         }
         clear(0);
         String retorno = ((ChamadaPaginaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("chamadaPaginaBean")).socios();
-        GenericaSessao.put("pessoaEmpresaPesquisa", (new PessoaEmpresaDBToplink()).pesquisaPessoaEmpresaPorPessoa(_pessoa.getId()));
+        GenericaSessao.put("pessoaEmpresaPesquisa", (new PessoaEmpresaDao()).pesquisaPessoaEmpresaPorPessoa(_pessoa.getId()));
         GenericaSessao.put("sociosBean", new SociosBean());
         SociosBean sb = (SociosBean) GenericaSessao.getObject("sociosBean");
         sb.loadSocio(fisica.getPessoa(), true);
@@ -1565,7 +1570,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public List<PessoaEmpresa> getListaPessoaEmpresa() {
-        PessoaEmpresaDB db = new PessoaEmpresaDBToplink();
+        PessoaEmpresaDao db = new PessoaEmpresaDao();
         if (fisica.getId() != -1) {
             listaPessoaEmpresa = db.listaPessoaEmpresaPorFisica(fisica.getId());
         }
@@ -1798,7 +1803,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     public String pessoaEmpresaString(Fisica f) {
         String pessoaEmpresaString = "";
-        PessoaEmpresaDB pessoaEmpresaDB = new PessoaEmpresaDBToplink();
+        PessoaEmpresaDao pessoaEmpresaDB = new PessoaEmpresaDao();
         PessoaEmpresa pe = (PessoaEmpresa) pessoaEmpresaDB.pesquisaPessoaEmpresaPorFisica(f.getId());
         if (pe != null) {
             if (pe.getId() != -1) {
@@ -2452,7 +2457,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                     + " - CPF: " + f.getPessoa().getDocumento()
                     + " - RG: " + f.getRg()
                     + " - Recadastro : " + fisica.getPessoa().getRecadastroString();
-            PessoaDBToplink pessoaDao = new PessoaDBToplink();
+            PessoaDao pessoaDao = new PessoaDao();
             Date date = fisica.getPessoa().getDtAtualizacao();
             fisica.getPessoa().setDtAtualizacao(new Date());
             new Dao().rebind(fisica);

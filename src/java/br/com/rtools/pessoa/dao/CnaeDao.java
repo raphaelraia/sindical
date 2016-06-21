@@ -1,20 +1,18 @@
-package br.com.rtools.pessoa.db;
+package br.com.rtools.pessoa.dao;
 
 import br.com.rtools.arrecadacao.GrupoCidade;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.pessoa.Cnae;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.principal.DB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
+import br.com.rtools.utilitarios.Dao;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 import oracle.toplink.essentials.exceptions.EJBQLException;
 
-public class CnaeDBToplink extends DB implements CnaeDB {
+public class CnaeDao extends DB {
 
-    @Override
     public List pesquisaCnae(String desc, String por, String como) {
         List vetor;
         List<Cnae> lista = new ArrayList();
@@ -39,10 +37,10 @@ public class CnaeDBToplink extends DB implements CnaeDB {
 
             Query qry = getEntityManager().createNativeQuery(textQry);
             vetor = qry.getResultList();
-            SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
+            Dao dao = new Dao();
             if (!vetor.isEmpty()) {
                 for (int i = 0; i < vetor.size(); i++) {
-                    lista.add((Cnae) salvarAcumuladoDB.pesquisaCodigo((Integer) ((List) vetor.get(i)).get(0), "Cnae"));
+                    lista.add((Cnae) dao.find(new Cnae(), (Integer) ((List) vetor.get(i)).get(0)));
                 }
             }
             return lista;
@@ -51,7 +49,6 @@ public class CnaeDBToplink extends DB implements CnaeDB {
         }
     }
 
-    @Override
     public Cnae idCnae(Cnae des_cnae) {
         Cnae result = null;
         String descricao = des_cnae.getCnae().toLowerCase().toUpperCase();
@@ -64,7 +61,6 @@ public class CnaeDBToplink extends DB implements CnaeDB {
         return result;
     }
 
-    @Override
     public PessoaEndereco pesquisarCnaePessoaEndereco(int id) {
         PessoaEndereco result;
         result = null;
@@ -79,7 +75,6 @@ public class CnaeDBToplink extends DB implements CnaeDB {
         return result;
     }
 
-    @Override
     public Cidade pesquisarCnaeCidade(int id) {
         Cidade result;
         Query qry = getEntityManager().createQuery("select ec"
@@ -92,7 +87,6 @@ public class CnaeDBToplink extends DB implements CnaeDB {
         return result;
     }
 
-    @Override
     public GrupoCidade pesquisarGrupoCidadesJuridica(int id) {
         GrupoCidade result;
         result = null;
@@ -119,7 +113,6 @@ public class CnaeDBToplink extends DB implements CnaeDB {
         return result;
     }
 
-    @Override
     public List pesquisaCnaeSemConvencao(String desc) {
         List result = null;
         desc = desc.toLowerCase().toUpperCase() + "%";
@@ -144,7 +137,6 @@ public class CnaeDBToplink extends DB implements CnaeDB {
         return result;
     }
 
-    @Override
     public Cnae pesquisaNumeroCnae(String nr_cnae) {
         Cnae result = null;
         try {
@@ -154,8 +146,7 @@ public class CnaeDBToplink extends DB implements CnaeDB {
         }
         return result;
     }
-    
-    @Override
+
     public Cnae pesquisaCnaeDaReceita(String cnae) {
         Cnae result = null;
         try {
@@ -165,7 +156,5 @@ public class CnaeDBToplink extends DB implements CnaeDB {
         }
         return result;
     }
-    
-    
-    
+
 }

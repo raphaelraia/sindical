@@ -12,8 +12,6 @@ import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.util.ArrayList;
 import java.util.List;
@@ -147,15 +145,15 @@ public class GerarBoletoBean {
             return;
         }
 
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-        sv.abrirTransacao();
+        Dao dao = new Dao();
+        dao.openTransaction();
         boolean erro = false;
 
         NovoLog novoLog = new NovoLog();
         novoLog.saveList();
         for (Pessoa pe : listaPessoa) {
             if (listaData.isEmpty()) {
-                if (sv.executeQueryObject("select func_geramensalidades(" + pe.getId() + ", '" + mes + "/" + ano + "')")) {
+                if (dao.executeQueryObject("select func_geramensalidades(" + pe.getId() + ", '" + mes + "/" + ano + "')")) {
                     GenericaMensagem.info("Sucesso", "Geração de Mensalidades concluída!");
                     novoLog.save("Referência: " + mes + "/" + ano + " - Pessoa: (" + pe.getId() + ") " + pe.getNome());
                 } else {
@@ -165,7 +163,7 @@ public class GerarBoletoBean {
             } else {
                 for (Object listaDatax : listaData) {
                     String vencto = listaDatax.toString().substring(0, 2) + "/" + listaDatax.toString().substring(3, 7);
-                    if (sv.executeQueryObject("select func_geramensalidades(" + pe.getId() + ", '" + vencto + "')")) {
+                    if (dao.executeQueryObject("select func_geramensalidades(" + pe.getId() + ", '" + vencto + "')")) {
                         GenericaMensagem.info("Sucesso", "Geração de Mensalidades " + vencto + " concluída!");
                         novoLog.save("Referência: " + vencto + " - Pessoa: (" + pe.getId() + ") " + pe.getNome());
                     } else {
@@ -177,11 +175,11 @@ public class GerarBoletoBean {
         }
 
         if (erro) {
-            sv.desfazerTransacao();
+            dao.rollback();
             novoLog.cancelList();
         } else {
             novoLog.saveList();
-            sv.comitarTransacao();
+            dao.commit();
             listaGerados.clear();
         }
     }

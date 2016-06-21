@@ -15,20 +15,17 @@ import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
-import br.com.rtools.pessoa.db.PessoaEmpresaDB;
-import br.com.rtools.pessoa.db.PessoaEmpresaDBToplink;
+import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.sistema.ProcessoAutomatico;
 import br.com.rtools.sistema.ProcessoAutomaticoLog;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
-import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.JuridicaReceitaJSON;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.FutureTask;
-import javax.faces.model.SelectItem;
 
 /**
  *
@@ -310,7 +307,7 @@ public class AtualizarJuridicaThread extends ThreadLocal<Object> {
                 return false;
             }
 
-            PessoaEmpresaDB dbp = new PessoaEmpresaDBToplink();
+            PessoaEmpresaDao dbp = new PessoaEmpresaDao();
             List<PessoaEmpresa> result = dbp.listaPessoaEmpresaPorJuridica(juridica.getId());
             String ids_pessoa_empresa = "";
             if (!result.isEmpty()) {

@@ -36,8 +36,6 @@ import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Mail;
 import br.com.rtools.utilitarios.Moeda;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -85,7 +83,7 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
     private boolean marcarVencimento = true;
     private boolean outrasEmpresas = false;
     DataObject dataObject;
-    List<Boolean> marcados = new ArrayList<Boolean>();
+    List<Boolean> marcados = new ArrayList<>();
     private Pessoa pessoaEnvio = new Pessoa();
 
     public ProcessamentoIndividualJSFBean() {
@@ -98,17 +96,17 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
 
     public void salvarEmail() {
         if (this.pessoaEnvio.getId() != -1) {
-            SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-            sv.abrirTransacao();
+            Dao dao = new Dao();
+            dao.openTransaction();
 
-            if (sv.alterarObjeto(this.pessoaEnvio)) {
+            if (dao.update(this.pessoaEnvio)) {
                 msgConfirma = "Email atualizado";
                 GenericaMensagem.info("Sucesso", msgConfirma);
-                sv.comitarTransacao();
+                dao.commit();
             } else {
                 msgConfirma = "Erro ao atualizar Email";
                 GenericaMensagem.warn("Erro", msgConfirma);
-                sv.desfazerTransacao();
+                dao.rollback();
             }
         }
     }
@@ -565,9 +563,9 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
         Movimento movi = null;
         if (!listMovimentos.isEmpty()) {
             Usuario usuario = (Usuario) GenericaSessao.getObject("sessaoUsuario");
-            SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+            Dao dao = new Dao();
 
-            sv.abrirTransacao();
+            dao.openTransaction();
             for (int i = 0; i < listMovimentos.size(); i++) {
                 movi = (Movimento) listMovimentos.get(i).getArgumento1();
                 movs.add(movi);
@@ -581,14 +579,14 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
                 impressao.setDtVencimento(movi.getDtVencimento());
                 impressao.setMovimento(movi);
 
-                if (!sv.inserirObjeto(impressao)) {
-                    sv.desfazerTransacao();
+                if (!dao.save(impressao)) {
+                    dao.rollback();
                     GenericaMensagem.error("Erro", "Não foi possível SALVAR impressão!");
                     return null;
                 }
             }
 
-            sv.comitarTransacao();
+            dao.commit();
 
             ImprimirBoleto imp = new ImprimirBoleto();
 

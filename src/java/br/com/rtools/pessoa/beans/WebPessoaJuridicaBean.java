@@ -1,5 +1,7 @@
 package br.com.rtools.pessoa.beans;
 
+import br.com.rtools.pessoa.dao.PessoaDao;
+import br.com.rtools.pessoa.dao.CnaeDao;
 import br.com.rtools.pessoa.dao.TipoEnderecoDao;
 import br.com.rtools.arrecadacao.CnaeConvencao;
 import br.com.rtools.arrecadacao.Convencao;
@@ -98,7 +100,7 @@ public class WebPessoaJuridicaBean implements Serializable {
                 }
             }
 
-            PessoaDB db = new PessoaDBToplink();
+            PessoaDao db = new PessoaDao();
 
             juridicaReceita = db.pesquisaJuridicaReceita(documento);
             if (juridicaReceita.getPessoa() != null && juridicaReceita.getPessoa().getId() != -1) {
@@ -217,7 +219,7 @@ public class WebPessoaJuridicaBean implements Serializable {
             }
 
             String result[] = juridicaReceita.getCnae().split(" ");
-            CnaeDB dbc = new CnaeDBToplink();
+            CnaeDao dbc = new CnaeDao();
             String cnaex = result[result.length - 1].replace("(", "").replace(")", "");
             List<Cnae> listac = dbc.pesquisaCnae(cnaex, "cnae", "I");
 

@@ -3,8 +3,7 @@ package br.com.rtools.associativo.dao;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Spc;
 import br.com.rtools.principal.DB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
+import br.com.rtools.utilitarios.Dao;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -59,7 +58,7 @@ public class LancamentoIndividualDao extends DB {
 
     public List<Juridica> listaEmpresaConveniada(int id_servico) {
         try {
-            List<Vector> vetor = new ArrayList<Vector>();
+            List<Vector> vetor = new ArrayList();
             List result = new ArrayList();
             String textqry = " select j.id from pes_pessoa as p "
                     + " inner join pes_juridica as j on j.id_pessoa = p.id "
@@ -70,10 +69,10 @@ public class LancamentoIndividualDao extends DB {
             Query qry = getEntityManager().createNativeQuery(textqry);
 
             vetor = qry.getResultList();
-            SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+            Dao dao = new Dao();
             if (!vetor.isEmpty()) {
                 for (int i = 0; i < vetor.size(); i++) {
-                    result.add((Juridica) sv.pesquisaCodigo(((Integer) ((Vector) vetor.get(i)).get(0)), "Juridica"));
+                    result.add((Juridica) dao.find(new Juridica(), ((Integer) ((Vector) vetor.get(i)).get(0))));
                 }
             }
 

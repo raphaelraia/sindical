@@ -30,8 +30,6 @@ import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.Moeda;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -85,7 +83,7 @@ public class WebContabilidadeBean extends MovimentoValorBean {
             }
 
             WebContabilidadeDao db = new WebContabilidadeDao();
-            SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+            Dao dao = new Dao();
 
             for (int ix = 0; ix < listaEmpresaSelecionada.size(); ix++) {
                 List lista_result = new ArrayList();
@@ -136,8 +134,8 @@ public class WebContabilidadeBean extends MovimentoValorBean {
                     listaMovimento.add(new DataObject(
                             false,
                             ((Vector) linha).get(0), // boleto
-                            sv.pesquisaCodigo((Integer) ((Vector) linha).get(1), "Servicos"), // servico
-                            sv.pesquisaCodigo((Integer) ((Vector) linha).get(2), "TipoServico"), // tipo
+                            (Servicos) dao.find(new Servicos(), (Integer) ((Vector) linha).get(1)), // servico
+                            (TipoServico) dao.find(new TipoServico(), (Integer) ((Vector) linha).get(2)), // tipo
                             ((Vector) linha).get(3), // referencia
                             DataHoje.converteData((Date) ((Vector) linha).get(4)), // vencimento
                             Moeda.converteR$(Double.toString((Double) ((Vector) linha).get(5))), // valor_mov
@@ -366,9 +364,9 @@ public class WebContabilidadeBean extends MovimentoValorBean {
         ImpressaoWeb impressaoWeb;
         Movimento movimento;
         String data = "";
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+        Dao dao = new Dao();
 
-        sv.abrirTransacao();
+        dao.openTransaction();
 
         String dataValida = "";
         DataHoje dh = new DataHoje();
@@ -392,7 +390,7 @@ public class WebContabilidadeBean extends MovimentoValorBean {
         }
 
         for (int i = 0; i < listaMovimentoSelecionado.size(); i++) {
-            movimento = ((Movimento) sv.pesquisaCodigo((Integer) listaMovimentoSelecionado.get(i).getArgumento16(), "Movimento"));
+            movimento = ((Movimento) dao.find(new Movimento(), (Integer) listaMovimentoSelecionado.get(i).getArgumento16()));
             // COM VALOR ALTERADO ---------
             if (Moeda.substituiVirgulaFloat((String) listaMovimentoSelecionado.get(i).getArgumento12()) != 0) {
                 listaValores.add(Moeda.substituiVirgulaFloat((String) listaMovimentoSelecionado.get(i).getArgumento12()));
@@ -418,13 +416,13 @@ public class WebContabilidadeBean extends MovimentoValorBean {
                     movimento,
                     pessoa,
                     DataHoje.dataHoje(), DataHoje.hora());
-            if (!sv.inserirObjeto(impressaoWeb)) {
+            if (!dao.save(impressaoWeb)) {
                 GenericaMensagem.error("Erro", "Não foi possível salvar impressão web");
-                sv.desfazerTransacao();
+                dao.rollback();
                 return null;
             }
         }
-        sv.comitarTransacao();
+        dao.commit();
 
         ImprimirBoleto imp = new ImprimirBoleto();
         lista = imp.atualizaContaCobrancaMovimento(lista);

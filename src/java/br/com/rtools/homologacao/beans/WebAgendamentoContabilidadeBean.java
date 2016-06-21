@@ -1,5 +1,6 @@
 package br.com.rtools.homologacao.beans;
 
+import br.com.rtools.pessoa.dao.FilialCidadeDao;
 import br.com.rtools.arrecadacao.ConfiguracaoArrecadacao;
 import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.pessoa.beans.PesquisarProfissaoBean;
@@ -189,7 +190,7 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
         // sindicatoFilial = new FilialCidade();
         // FILIAL DA EMPRESA
         if (empresa.getId() != -1 && enderecoEmpresa.getId() != -1) {
-            FilialCidadeDBToplink filialCidadeDao = new FilialCidadeDBToplink();
+            FilialCidadeDao filialCidadeDao = new FilialCidadeDao();
             List<FilialCidade> list = filialCidadeDao.findListBy(enderecoEmpresa.getEndereco().getCidade().getId());
             for (int i = 0; i < list.size(); i++) {
                 if (list.get(i).getPrincipal()) {

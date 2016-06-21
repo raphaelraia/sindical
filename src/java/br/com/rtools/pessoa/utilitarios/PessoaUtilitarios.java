@@ -11,16 +11,13 @@ import br.com.rtools.pessoa.db.FisicaDB;
 import br.com.rtools.pessoa.db.FisicaDBToplink;
 import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
-import br.com.rtools.pessoa.db.PessoaEmpresaDB;
-import br.com.rtools.pessoa.db.PessoaEmpresaDBToplink;
+import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.seguranca.dao.UsuarioDao;
 import br.com.rtools.utilitarios.GenericaSessao;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -92,9 +89,9 @@ public class PessoaUtilitarios implements Serializable {
      * @return
      */
     public List<PessoaEmpresa> listaPessoaEmpresa() {
-        List<PessoaEmpresa> pessoaEmpresa = new ArrayList<PessoaEmpresa>();
+        List<PessoaEmpresa> pessoaEmpresa = new ArrayList<>();
         if (this.pessoa.getId() != -1) {
-            PessoaEmpresaDB pessoaEmpresaDB = new PessoaEmpresaDBToplink();
+            PessoaEmpresaDao pessoaEmpresaDB = new PessoaEmpresaDao();
             Fisica fisica = fisica();
             pessoaEmpresa = (List<PessoaEmpresa>) pessoaEmpresaDB.listaPessoaEmpresaPorFisica(fisica.getId());
         }
@@ -109,7 +106,7 @@ public class PessoaUtilitarios implements Serializable {
     public PessoaEmpresa pessoaEmpresa() {
         PessoaEmpresa pessoaEmpresa = new PessoaEmpresa();
         if (this.pessoa.getId() != -1) {
-            PessoaEmpresaDB pessoaEmpresaDB = new PessoaEmpresaDBToplink();
+            PessoaEmpresaDao pessoaEmpresaDB = new PessoaEmpresaDao();
             pessoaEmpresa = (PessoaEmpresa) pessoaEmpresaDB.pesquisaPessoaEmpresaPorPessoa(this.pessoa.getId());
         }
         return pessoaEmpresa;
@@ -175,10 +172,9 @@ public class PessoaUtilitarios implements Serializable {
      * @return
      */
     public Registro registro(Pessoa pessoa) {
-        SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
         Registro registro = new Registro();
         if (pessoa.getId() != -1) {
-            registro = (Registro) salvarAcumuladoDB.pesquisaObjeto(pessoa.getId(), "Registro");
+            registro = Registro.get();
         }
         return registro;
     }

@@ -9,13 +9,12 @@ import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.sistema.SisPessoa;
+import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.GenericaString;
 import br.com.rtools.utilitarios.Jasper;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
@@ -63,11 +62,11 @@ public class RelatorioConviteClubeBean implements Serializable {
 
     public void visualizar() {
         Relatorios relatorios = null;
-        if(!getListaTipoRelatorios().isEmpty()) {
+        if (!getListaTipoRelatorios().isEmpty()) {
             RelatorioDao rgdb = new RelatorioDao();
             relatorios = rgdb.pesquisaRelatorios(Integer.parseInt(listaTipoRelatorios.get(idRelatorios).getDescription()));
         }
-        if(relatorios == null) {
+        if (relatorios == null) {
             return;
         }
         if (parametroConviteClubes.isEmpty()) {
@@ -92,10 +91,10 @@ public class RelatorioConviteClubeBean implements Serializable {
             }
             if (diretor) {
                 if (!listaDiretores.isEmpty()) {
-                    SalvarAcumuladoDB sadb = new SalvarAcumuladoDBToplink();
-                    ConviteAutorizaCortesia cac = (ConviteAutorizaCortesia) sadb.pesquisaObjeto(Integer.parseInt(listaDiretores.get(idDiretor).getDescription()), "ConviteAutorizaCortesia");
-                    if(cac != null) {
-                        pDiretorI = cac.getPessoa().getId();                        
+                    Dao dao = new Dao();
+                    ConviteAutorizaCortesia cac = (ConviteAutorizaCortesia) dao.find(new ConviteAutorizaCortesia(), Integer.parseInt(listaDiretores.get(idDiretor).getDescription()));
+                    if (cac != null) {
+                        pDiretorI = cac.getPessoa().getId();
                     }
                 }
             }
@@ -127,17 +126,17 @@ public class RelatorioConviteClubeBean implements Serializable {
             );
             for (Object list1 : list) {
                 String cortesiaString = GenericaString.converterNullToString(((List) list1).get(9));
-                if(cortesiaString.equals("false")) {
+                if (cortesiaString.equals("false")) {
                     cortesiaString = "";
                 } else if (cortesiaString.equals("true")) {
-                    cortesiaString = "Sim";                    
+                    cortesiaString = "Sim";
                 }
                 String valor = GenericaString.converterNullToString(((List) list1).get(7));
-                if(valor.isEmpty()) {
+                if (valor.isEmpty()) {
                     valor = "0";
                 }
                 String valorPago = GenericaString.converterNullToString(((List) list1).get(8));
-                if(valorPago.isEmpty()) {
+                if (valorPago.isEmpty()) {
                     valorPago = "0";
                 }
                 ParametroConviteClube parametroConviteClube
@@ -386,8 +385,7 @@ public class RelatorioConviteClubeBean implements Serializable {
 
     public List<SelectItem> getListaDiretores() {
         if (listaDiretores.isEmpty()) {
-            SalvarAcumuladoDB dB = new SalvarAcumuladoDBToplink();
-            List<ConviteAutorizaCortesia> list = (List<ConviteAutorizaCortesia>) dB.listaObjeto("ConviteAutorizaCortesia");
+            List<ConviteAutorizaCortesia> list = (List<ConviteAutorizaCortesia>) new Dao().list(new ConviteAutorizaCortesia());
             int i = 0;
             for (ConviteAutorizaCortesia cac : list) {
                 listaDiretores.add(new SelectItem(i, cac.getPessoa().getNome(), "" + cac.getId()));

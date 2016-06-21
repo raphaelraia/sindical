@@ -19,8 +19,7 @@ import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
-import br.com.rtools.pessoa.db.PessoaDB;
-import br.com.rtools.pessoa.db.PessoaDBToplink;
+import br.com.rtools.pessoa.dao.PessoaDao;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -238,7 +237,7 @@ public class OposicaoBean implements Serializable {
 
     public boolean inativarSocioOposicao(Dao dao) {
         try {
-            PessoaDB db = new PessoaDBToplink();
+            PessoaDao db = new PessoaDao();
             Pessoa p = db.pessoaDocumento(oposicao.getOposicaoPessoa().getCpf());
             if (p == null) {
                 return true;
@@ -436,7 +435,7 @@ public class OposicaoBean implements Serializable {
         }
         OposicaoDao oposicaoDao = new OposicaoDao();
         PessoaEmpresa pessoaEmpresa = oposicaoDao.pesquisaPessoaFisicaEmpresa(oposicao.getOposicaoPessoa().getCpf(), oposicao.getOposicaoPessoa().getRg());
-        PessoaDB dbp = new PessoaDBToplink();
+        PessoaDao dbp = new PessoaDao();
         Pessoa p = dbp.pessoaDocumento(oposicao.getOposicaoPessoa().getCpf());
         if (pessoaEmpresa.getId() != -1) {
             if (oposicao.getJuridica().getId() == -1) {
@@ -680,7 +679,7 @@ public class OposicaoBean implements Serializable {
     }
 
     public String pessoaSocio(String cpf) {
-        PessoaDB pessoaDB = new PessoaDBToplink();
+        PessoaDao pessoaDB = new PessoaDao();
         Pessoa p = pessoaDB.pessoaDocumento(cpf);
         if (p != null) {
             SociosDao sociosDB = new SociosDao();

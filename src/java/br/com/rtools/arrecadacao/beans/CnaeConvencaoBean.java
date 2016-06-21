@@ -5,8 +5,7 @@ import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.dao.CnaeConvencaoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Cnae;
-import br.com.rtools.pessoa.db.CnaeDB;
-import br.com.rtools.pessoa.db.CnaeDBToplink;
+import br.com.rtools.pessoa.dao.CnaeDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
@@ -183,7 +182,7 @@ public class CnaeConvencaoBean implements Serializable {
     public List<Cnae> getListCnaes() {
         if(!descricao.isEmpty()) {
             if (listCnaes.isEmpty()) {
-                CnaeDB dbCnae = new CnaeDBToplink();
+                CnaeDao dbCnae = new CnaeDao();
                 listCnaes = dbCnae.pesquisaCnaeSemConvencao(descricao);
             }            
         }

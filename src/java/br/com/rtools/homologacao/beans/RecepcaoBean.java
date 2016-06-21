@@ -21,8 +21,7 @@ import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.Profissao;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
-import br.com.rtools.pessoa.db.PessoaEmpresaDB;
-import br.com.rtools.pessoa.db.PessoaEmpresaDBToplink;
+import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Usuario;
@@ -348,7 +347,7 @@ public class RecepcaoBean implements Serializable {
         }
         agendamentoEdit.getPessoaEmpresa().setDtDemissao(null);
 
-        PessoaEmpresaDB db = new PessoaEmpresaDBToplink();
+        PessoaEmpresaDao db = new PessoaEmpresaDao();
         PessoaEmpresa pem = db.pesquisaPessoaEmpresaPorFisica(agendamentoEdit.getPessoaEmpresa().getFisica().getId());
 
         if (pem.getId() == -1) {

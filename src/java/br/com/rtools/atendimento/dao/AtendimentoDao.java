@@ -12,14 +12,12 @@ import br.com.rtools.homologacao.Senha;
 import br.com.rtools.sistema.SisPessoa;
 import br.com.rtools.principal.DB;
 import br.com.rtools.utilitarios.DataHoje;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.Query;
 
-public class AtendimentoDao extends DB  {
+public class AtendimentoDao extends DB {
 
     public AteMovimento pesquisaCodigoAteMovimento(int id) {
         AteMovimento ate = new AteMovimento();
@@ -32,7 +30,6 @@ public class AtendimentoDao extends DB  {
         return ate;
     }
 
-    
     public boolean pessoaOposicao(String cpf) {
         try {
             String data = DataHoje.livre(new Date(), "yyyyMM");
@@ -53,32 +50,25 @@ public class AtendimentoDao extends DB  {
         return false;
     }
 
-    
     public SisPessoa pessoaDocumento(String valor) {
-        List list;
-        SalvarAcumuladoDB dB = new SalvarAcumuladoDBToplink();
         String queryString = ""
-                + "        select ate.id                                   "
-                + "          from sis_pessoa ate                           "
-                + "         where ate.ds_documento = '" + valor + "' or              "
-                + "                translate(upper(ate.ds_rg),'./-', '') = translate(upper('" + valor + "'),'./-','')";
+                + "        select sp.*                                   "
+                + "          from sis_pessoa sp                           "
+                + "         where sp.ds_documento = '" + valor + "' or              "
+                + "                translate(upper(sp.ds_rg),'./-', '') = translate(upper('" + valor + "'),'./-','')";
 
         try {
-            Query qry = getEntityManager().createNativeQuery(queryString);
-            qry.setFirstResult(0);
-            list = qry.getResultList();
+            Query query = getEntityManager().createNativeQuery(queryString, SisPessoa.class);
+            List list = query.getResultList();
             if (!list.isEmpty()) {
-                SisPessoa atePessoa = (SisPessoa) dB.pesquisaObjeto((Integer) ((List) list.get(0)).get(0), "SisPessoa");
-                return atePessoa;
-            } else {
-                return null;
+                return (SisPessoa) query.getSingleResult();
             }
         } catch (Exception e) {
             return null;
         }
+        return null;
     }
 
-    
     public boolean existeAtendimento(AteMovimento ateMovimento) {
         try {
             Query query = getEntityManager().createQuery(" SELECT mov FROM AteMovimento mov WHERE mov.pessoa.id = :pessoa AND mov.dataEmissao = :dataEmissao AND mov.operacao.id = :operacao AND mov.filial.id = :filial ");
@@ -95,7 +85,6 @@ public class AtendimentoDao extends DB  {
         }
     }
 
-    
     public List<AteMovimento> listaAteMovimento(String cpf, String por) {
         String strQuery;
         List result;
@@ -120,7 +109,6 @@ public class AtendimentoDao extends DB  {
         }
     }
 
-    
     public List listaAteMovimentos(String cpf, String por, int id_filial) {
         String porStr = "";
         String innerPes = "";
@@ -152,9 +140,9 @@ public class AtendimentoDao extends DB  {
             innerPes = " inner join sis_pessoa pes on(pes.id = mov.id_sis_pessoa)";
             porStr += " pes.ds_documento = '" + cpf + "'";
         }
-        
+
         porStr += " and mov.id_filial = " + id_filial + " ";
-        
+
         String text = " select mov.id from ate_movimento mov " + innerPes + porStr;
         List list;
         try {
@@ -170,13 +158,12 @@ public class AtendimentoDao extends DB  {
         }
         return result;
     }
-    
-    
+
     public Senha pesquisaSenha(int id_atendimento) {
         String text_qry = "SELECT se"
-                        + "  FROM Senha se"
-                        + " WHERE se.ateMovimento.id = "+id_atendimento
-                        + "   AND se.agendamento IS NULL";
+                + "  FROM Senha se"
+                + " WHERE se.ateMovimento.id = " + id_atendimento
+                + "   AND se.agendamento IS NULL";
         try {
             Query qry = getEntityManager().createQuery(text_qry);
             return (Senha) qry.getSingleResult();

@@ -2,8 +2,7 @@ package br.com.rtools.pessoa.beans;
 
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Cnae;
-import br.com.rtools.pessoa.db.CnaeDB;
-import br.com.rtools.pessoa.db.CnaeDBToplink;
+import br.com.rtools.pessoa.dao.CnaeDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -54,7 +53,7 @@ public class CnaeBean implements Serializable {
     public void save() {
         DaoInterface di = new Dao();
         NovoLog novoLog = new NovoLog();
-        CnaeDB db = new CnaeDBToplink();
+        CnaeDao db = new CnaeDao();
         if (getCnae().getCnae().isEmpty()) {
             GenericaMensagem.warn("Validação", "Digite um Cnae!");
             return;

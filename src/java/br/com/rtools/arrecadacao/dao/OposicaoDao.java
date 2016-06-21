@@ -7,9 +7,8 @@ import br.com.rtools.pessoa.Cnae;
 import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.principal.DB;
 import br.com.rtools.relatorios.Relatorios;
+import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -82,7 +81,7 @@ public class OposicaoDao extends DB {
             return null;
         }
     }
-    
+
     public boolean existPessoaOposicao(String cpf) {
         try {
             String data = DataHoje.livre(new Date(), "yyyyMM");
@@ -102,7 +101,7 @@ public class OposicaoDao extends DB {
             return false;
         }
         return false;
-    }    
+    }
 
     public List pesquisaListaPorPessoa(String cpf) {
         return pesquisaListaPorPessoaEmpresa(cpf, null);
@@ -132,7 +131,6 @@ public class OposicaoDao extends DB {
     }
 
     public PessoaEmpresa pesquisaPessoaFisicaEmpresa(String cpf, String rg) {
-        SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
         PessoaEmpresa pessoaEmpresa = new PessoaEmpresa();
         List list = new Vector();
         String queryString = "  SELECT emp.id                                                                        "
@@ -157,7 +155,7 @@ public class OposicaoDao extends DB {
             Query qry = getEntityManager().createNativeQuery(queryString);
             list = (Vector) qry.getSingleResult();
             if (list.size() > 0) {
-                pessoaEmpresa = (PessoaEmpresa) salvarAcumuladoDB.pesquisaCodigo((Integer) list.get(0), "PessoaEmpresa");
+                pessoaEmpresa = (PessoaEmpresa) new Dao().find(new PessoaEmpresa(), (Integer) list.get(0));
                 return pessoaEmpresa;
             }
         } catch (Exception e) {

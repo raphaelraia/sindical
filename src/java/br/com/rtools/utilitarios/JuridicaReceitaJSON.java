@@ -11,8 +11,7 @@ import br.com.rtools.pessoa.JuridicaReceita;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.TipoEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
-import br.com.rtools.pessoa.db.CnaeDB;
-import br.com.rtools.pessoa.db.CnaeDBToplink;
+import br.com.rtools.pessoa.dao.CnaeDao;
 import br.com.rtools.pessoa.dao.TipoEnderecoDao;
 import br.com.rtools.sistema.ConfiguracaoCnpj;
 import java.io.BufferedReader;
@@ -357,7 +356,7 @@ public class JuridicaReceitaJSON {
                     break;
             }
 
-            CnaeDB dbc = new CnaeDBToplink();
+            CnaeDao dbc = new CnaeDao();
             List<Cnae> listac = new ArrayList();
             for (String cnae_string : list_cnae) {
                 listac.addAll(dbc.pesquisaCnae(cnae_string, "cnae", "I"));
@@ -511,7 +510,7 @@ public class JuridicaReceitaJSON {
             }
         }
 
-        CnaeDB dbc = new CnaeDBToplink();
+        CnaeDao dbc = new CnaeDao();
         List<Cnae> listac = new ArrayList();
         for (String cnae_string : list_cnae) {
             listac.addAll(dbc.pesquisaCnae(cnae_string, "cnae", "I"));
