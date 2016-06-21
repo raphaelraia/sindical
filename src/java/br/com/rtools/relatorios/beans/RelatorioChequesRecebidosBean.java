@@ -8,9 +8,9 @@ import br.com.rtools.impressao.ParametroChequesRecebidos;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.relatorios.dao.RelatorioFinanceiroDao;
 import br.com.rtools.relatorios.dao.RelatorioChequesRecebidosDao;
+import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Jasper;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -154,7 +154,7 @@ public class RelatorioChequesRecebidosBean implements Serializable {
 
     public List<Filial> getListaFilial() {
         if (listaFilial.isEmpty()) {
-            listaFilial = (List<Filial>) (new SalvarAcumuladoDBToplink()).listaObjeto("Filial", true);
+            listaFilial = (List<Filial>) (new Dao()).list(new Filial(), true);
         }
         return listaFilial;
     }

@@ -7,8 +7,7 @@ import br.com.rtools.pessoa.db.FisicaDB;
 import br.com.rtools.pessoa.db.FisicaDBToplink;
 import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
-import br.com.rtools.pessoa.db.PessoaDB;
-import br.com.rtools.pessoa.db.PessoaDBToplink;
+import br.com.rtools.pessoa.dao.PessoaDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.Dao;
@@ -284,7 +283,7 @@ public class Pessoa implements Serializable {
         PessoaComplemento pessoaComplemento = new PessoaComplemento();
         pessoaComplemento.setPessoa(null);
         if (this.id != -1) {
-            PessoaDB pessoaDB = new PessoaDBToplink();
+            PessoaDao pessoaDB = new PessoaDao();
             pessoaComplemento = pessoaDB.pesquisaPessoaComplementoPorPessoa(this.id);
         }
         return pessoaComplemento;
@@ -336,7 +335,7 @@ public class Pessoa implements Serializable {
 
     public Integer getDiaVencimentoOriginal() {
         if (this.id != -1) {
-            PessoaDB db = new PessoaDBToplink();
+            PessoaDao db = new PessoaDao();
             PessoaComplemento pc = db.pesquisaPessoaComplementoPorPessoa(this.id);
             if (pc.getId() == -1) {
                 Registro registro = (Registro) new Dao().find(new Registro(), 1);

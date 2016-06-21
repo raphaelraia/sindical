@@ -1,5 +1,6 @@
 package br.com.rtools.associativo.beans;
 
+import br.com.rtools.pessoa.dao.PessoaDao;
 import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.associativo.dao.MatriculaSociosDao;
 import br.com.rtools.associativo.dao.ServicoCategoriaDao;
@@ -8,7 +9,6 @@ import br.com.rtools.associativo.dao.CategoriaDao;
 import br.com.rtools.arrecadacao.GrupoCidades;
 import br.com.rtools.associativo.*;
 import br.com.rtools.associativo.dao.SocioCarteirinhaDao;
-import br.com.rtools.associativo.dao.SociosDao2;
 import br.com.rtools.associativo.dao.ValidadeCartaoDao;
 import br.com.rtools.associativo.lista.ListaDependentes;
 import br.com.rtools.endereco.Cidade;
@@ -292,7 +292,7 @@ public class SociosBean implements Serializable {
     }
 
     public void loadPessoaComplemento(Integer id_pessoa) {
-        PessoaDB db = new PessoaDBToplink();
+        PessoaDao db = new PessoaDao();
         PessoaComplemento pc = db.pesquisaPessoaComplementoPorPessoa(id_pessoa);
 
         if (pc.getId() == -1) {
@@ -892,7 +892,7 @@ public class SociosBean implements Serializable {
                 return;
             }
 
-            PessoaDB db = new PessoaDBToplink();
+            PessoaDao db = new PessoaDao();
             PessoaComplemento pc = db.pesquisaPessoaComplementoPorPessoa(servicoPessoa.getPessoa().getId());
             pc = (PessoaComplemento) dao.find(pc);
             pc.setNrDiaVencimento(servicoPessoa.getNrDiaVencimento());

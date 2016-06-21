@@ -13,11 +13,10 @@ import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
-import br.com.rtools.pessoa.db.FilialCidadeDBToplink;
+import br.com.rtools.pessoa.dao.FilialCidadeDao;
 import br.com.rtools.pessoa.db.FisicaDB;
 import br.com.rtools.pessoa.db.FisicaDBToplink;
-import br.com.rtools.pessoa.db.PessoaEmpresaDB;
-import br.com.rtools.pessoa.db.PessoaEmpresaDBToplink;
+import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.DataObject;
@@ -89,7 +88,7 @@ public class SocioCarteirinhaJSFBean {
 
     public List<Socios> getListaSocios() {
         SocioCarteirinhaDao db = new SocioCarteirinhaDao();
-        FilialCidadeDBToplink dbC = new FilialCidadeDBToplink();
+        FilialCidadeDao dbC = new FilialCidadeDao();
         PessoaEnderecoDao dbE = new PessoaEnderecoDao();
         FilialCidade filCidade;
         SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
@@ -127,7 +126,7 @@ public class SocioCarteirinhaJSFBean {
                 return "emissaoCarteirinha";
             }
         }
-        FilialCidadeDBToplink dbC = new FilialCidadeDBToplink();
+        FilialCidadeDao dbC = new FilialCidadeDao();
         PessoaEnderecoDao dbE = new PessoaEnderecoDao();
         PessoaEndereco pesEnde = dbE.pesquisaEndPorPessoaTipo(socioCarteirinha.getPessoa().getId(), 1);
         FilialCidade filCidade;
@@ -240,7 +239,7 @@ public class SocioCarteirinhaJSFBean {
         PessoaEndereco pesEndereco, pesDestinatario, pesEndEmpresa, pesEndSindicato = new PessoaEndereco();
         PessoaEnderecoDao dbEnd = new PessoaEnderecoDao();
         PessoaEmpresa pesEmpresa = new PessoaEmpresa();
-        PessoaEmpresaDB dbEmp = new PessoaEmpresaDBToplink();
+        PessoaEmpresaDao dbEmp = new PessoaEmpresaDao();
         SociosDao dbSoc = new SociosDao();
         String dados[] = new String[34];
         try {
@@ -543,7 +542,7 @@ public class SocioCarteirinhaJSFBean {
         PessoaEndereco pesEndereco, pesDestinatario, pesEndEmpresa, pesEndSindicato = new PessoaEndereco();
         PessoaEnderecoDao dbEnd = new PessoaEnderecoDao();
         PessoaEmpresa pesEmpresa = new PessoaEmpresa();
-        PessoaEmpresaDB dbEmp = new PessoaEmpresaDBToplink();
+        PessoaEmpresaDao dbEmp = new PessoaEmpresaDao();
         SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
         String dados[] = new String[32];
         try {

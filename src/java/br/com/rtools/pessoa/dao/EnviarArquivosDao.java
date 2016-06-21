@@ -1,4 +1,4 @@
-package br.com.rtools.pessoa.db;
+package br.com.rtools.pessoa.dao;
 
 import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.GrupoCidade;
@@ -11,9 +11,8 @@ import java.util.List;
 import javax.persistence.Query;
 import oracle.toplink.essentials.exceptions.EJBQLException;
 
-public class EnviarArquivosDBToplink extends DB implements EnviarArquivosDB {
+public class EnviarArquivosDao extends DB {
 
-    @Override
     public Juridica pesquisaCodigo(int id) {
         Juridica result = null;
         try {
@@ -25,7 +24,6 @@ public class EnviarArquivosDBToplink extends DB implements EnviarArquivosDB {
         return result;
     }
 
-    @Override
     public List pesquisaContabilidades() {
         String textQuery = "";
         try {
@@ -53,7 +51,6 @@ public class EnviarArquivosDBToplink extends DB implements EnviarArquivosDB {
         }
     }
 
-    @Override
     public List pesquisaContabilidades(String inConvencao, String inGrupoCidade) {
         String textQuery = "";
         try {
@@ -91,7 +88,6 @@ public class EnviarArquivosDBToplink extends DB implements EnviarArquivosDB {
         }
     }
 
-    @Override
     public List pesquisaContribuintes(String listaConvencao, String listaGrupoCidade, String listaCnae, boolean empresasDebito, String ids_servicos, String data_vencimento) {
 
         String caso = "";
@@ -113,11 +109,12 @@ public class EnviarArquivosDBToplink extends DB implements EnviarArquivosDB {
         String textQuery1;
         try {
             String inner_join = "";
-            if (empresasDebito){
-                if (!ids_servicos.isEmpty())
-                    inner_join = " INNER JOIN fin_movimento m ON m.id_pessoa = p.id AND m.dt_vencimento < '"+data_vencimento+"' AND m.id_servicos IN ("+ids_servicos+") AND m.is_ativo = TRUE";
+            if (empresasDebito) {
+                if (!ids_servicos.isEmpty()) {
+                    inner_join = " INNER JOIN fin_movimento m ON m.id_pessoa = p.id AND m.dt_vencimento < '" + data_vencimento + "' AND m.id_servicos IN (" + ids_servicos + ") AND m.is_ativo = TRUE";
+                }
             }
-            
+
             textQuery1 = "     SELECT DISTINCT(c.id_juridica),                  "
                     + "            p.ds_nome as nome,                           "
                     + "            p.ds_telefone1 as telefone,                  "
@@ -152,12 +149,10 @@ public class EnviarArquivosDBToplink extends DB implements EnviarArquivosDB {
         return new ArrayList();
     }
 
-    @Override
     public List<Convencao> listaConvencao() {
         return listaConvencao(false);
     }
 
-    @Override
     public List<Convencao> listaConvencao(boolean isContabilidade) {
         String textQuery;
         try {
@@ -198,7 +193,6 @@ public class EnviarArquivosDBToplink extends DB implements EnviarArquivosDB {
         return new ArrayList();
     }
 
-    @Override
     public List<GrupoCidade> listaGrupoCidadePorConvencao(String listaConvencao) {
         String textQuery;
         String filtroPorConvencao = "";
@@ -235,7 +229,6 @@ public class EnviarArquivosDBToplink extends DB implements EnviarArquivosDB {
         return new ArrayList();
     }
 
-    @Override
     public List<Cnae> listaCnaePorConvencao(String listaConvencao) {
         String textQuery = "";
         String filtroPorConvencao = "";
@@ -273,18 +266,17 @@ public class EnviarArquivosDBToplink extends DB implements EnviarArquivosDB {
         }
         return new ArrayList();
     }
-    
-    @Override
-    public List<Servicos> listaServicosAteVencimento(){
-        String text = "SELECT se.* \n " +
-                      "  FROM fin_servicos se \n " +
-                      " INNER JOIN arr_mensagem_convencao m ON m.id_servicos = se.id \n " +
-                      " GROUP BY se.id, se.ds_descricao \n " +
-                      " ORDER BY se.ds_descricao ";
-        try{
+
+    public List<Servicos> listaServicosAteVencimento() {
+        String text = "SELECT se.* \n "
+                + "  FROM fin_servicos se \n "
+                + " INNER JOIN arr_mensagem_convencao m ON m.id_servicos = se.id \n "
+                + " GROUP BY se.id, se.ds_descricao \n "
+                + " ORDER BY se.ds_descricao ";
+        try {
             Query qry = getEntityManager().createNativeQuery(text, Servicos.class);
             return qry.getResultList();
-        }catch(Exception e){
+        } catch (Exception e) {
             e.getMessage();
         }
         return new ArrayList();

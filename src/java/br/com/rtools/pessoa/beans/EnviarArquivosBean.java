@@ -7,8 +7,7 @@ import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.pessoa.Cnae;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
-import br.com.rtools.pessoa.db.EnviarArquivosDB;
-import br.com.rtools.pessoa.db.EnviarArquivosDBToplink;
+import br.com.rtools.pessoa.dao.EnviarArquivosDao;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
@@ -86,7 +85,7 @@ public class EnviarArquivosBean implements Serializable {
     
     public void loadListaServicosAteVencimento(){
         listaServicosAteVencimento.clear();
-        EnviarArquivosDB db = new EnviarArquivosDBToplink();
+        EnviarArquivosDao db = new EnviarArquivosDao();
         
         List<Servicos> result = db.listaServicosAteVencimento();
         
@@ -308,7 +307,7 @@ public class EnviarArquivosBean implements Serializable {
 
     public List<ListaRelatorioContabilidade> getListaContabilidade() {
         if (listaContabilidades.isEmpty() && !adicionar) {
-            EnviarArquivosDB db = new EnviarArquivosDBToplink();
+            EnviarArquivosDao db = new EnviarArquivosDao();
             List lista = db.pesquisaContabilidades(convencoesSelecionadasId(), gruposCidadeSelecionadosId());
             for (int i = 0; i < lista.size(); i++) {
                 ListaRelatorioContabilidade listaRelatorioContabilidade = new ListaRelatorioContabilidade();
@@ -328,7 +327,7 @@ public class EnviarArquivosBean implements Serializable {
 
     public List<ListaRelatorioContabilidade> getListaContabilidadePesquisa() {
         if (listaContabilidadesPesquisa.isEmpty() && !descricao.isEmpty()) {
-            EnviarArquivosDB db = new EnviarArquivosDBToplink();
+            EnviarArquivosDao db = new EnviarArquivosDao();
             List lista = db.pesquisaContabilidades();
             for (int i = 0; i < lista.size(); i++) {
                 ListaRelatorioContabilidade listaRelatorioContabilidade = new ListaRelatorioContabilidade();
@@ -448,7 +447,7 @@ public class EnviarArquivosBean implements Serializable {
 
     public List<Juridica> getListaContribuintes() {
         if (listaContribuintes.isEmpty() && !adicionar) {
-            EnviarArquivosDB db = new EnviarArquivosDBToplink();
+            EnviarArquivosDao db = new EnviarArquivosDao();
             String ids_servicos = "";
             if (empresaDebito && !cobrarAteVencimento.isEmpty()){
                 for (DataObject d : listaServicosAteVencimento){
@@ -477,7 +476,7 @@ public class EnviarArquivosBean implements Serializable {
 
     public List<Juridica> getListaContribuintesPesquisa() {
         if (listaContribuintesPesquisa.isEmpty() && !descricao.isEmpty()) {
-            EnviarArquivosDB db = new EnviarArquivosDBToplink();
+            EnviarArquivosDao db = new EnviarArquivosDao();
             String ids_servicos = "";
             if (empresaDebito && !cobrarAteVencimento.isEmpty()){
                 for (DataObject d : listaServicosAteVencimento){
@@ -502,7 +501,7 @@ public class EnviarArquivosBean implements Serializable {
         if (convencaos == null) {
             List<Convencao> list = new ArrayList<>();
             convencaos = new HashMap<String, Integer>();
-            EnviarArquivosDB enviarArquivosDB = new EnviarArquivosDBToplink();
+            EnviarArquivosDao enviarArquivosDB = new EnviarArquivosDao();
             if (getTipo().equals("contabilidade")) {
                 list = enviarArquivosDB.listaConvencao(true);
             } else {
@@ -525,7 +524,7 @@ public class EnviarArquivosBean implements Serializable {
             grupoCidades = new HashMap<String, Integer>();
             String ids = convencoesSelecionadasId();
             if (!ids.isEmpty()) {
-                EnviarArquivosDB enviarArquivosDB = new EnviarArquivosDBToplink();
+                EnviarArquivosDao enviarArquivosDB = new EnviarArquivosDao();
                 List<GrupoCidade> list = enviarArquivosDB.listaGrupoCidadePorConvencao(ids);
                 for (int i = 0; i < list.size(); i++) {
                     grupoCidades.put(list.get(i).getDescricao(), list.get(i).getId());
@@ -544,10 +543,10 @@ public class EnviarArquivosBean implements Serializable {
     public Map<String, Integer> getCnaes() {
         cnaes = null;
         if (!convencaoSelecionada.isEmpty()) {
-            cnaes = new HashMap<String, Integer>();
+            cnaes = new HashMap<>();
             String ids = convencoesSelecionadasId();
             if (!ids.isEmpty()) {
-                EnviarArquivosDB enviarArquivosDB = new EnviarArquivosDBToplink();
+                EnviarArquivosDao enviarArquivosDB = new EnviarArquivosDao();
                 List<Cnae> list = enviarArquivosDB.listaCnaePorConvencao(ids);
                 for (int i = 0; i < list.size(); i++) {
                     cnaes.put(list.get(i).getCnae() + " - " + list.get(i).getNumero(), list.get(i).getId());

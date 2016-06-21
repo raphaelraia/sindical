@@ -34,7 +34,7 @@ public class RetornoPadraoJSFBean {
     private boolean ckTodos = true;
 
     public RetornoPadraoJSFBean() {
-        //contaCobranca = (ContaCobranca) new SalvarAcumuladoDBToplink().pesquisaCodigo(2, "ContaCobranca");
+
     }
 
     public String enviarArquivoBaixar(boolean pendentes) {

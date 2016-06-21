@@ -34,8 +34,7 @@ import br.com.rtools.pessoa.db.FisicaDB;
 import br.com.rtools.pessoa.db.FisicaDBToplink;
 import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
-import br.com.rtools.pessoa.db.PessoaDB;
-import br.com.rtools.pessoa.db.PessoaDBToplink;
+import br.com.rtools.pessoa.dao.PessoaDao;
 import br.com.rtools.seguranca.Departamento;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
@@ -803,7 +802,7 @@ public class VendasCaravanaBean {
              *
              * @param tipo
              */
-            PessoaDB pdb = new PessoaDBToplink();
+            PessoaDao pdb = new PessoaDao();
             PessoaComplemento pc;
             Pessoa p;
             p = pessoa;
@@ -1142,7 +1141,7 @@ public class VendasCaravanaBean {
     }
 
     public int getIdDiaVencimento() {
-        PessoaDB pessoaDB = new PessoaDBToplink();
+        PessoaDao pessoaDB = new PessoaDao();
         if (pessoa.getId() != -1) {
             PessoaComplemento pc = pessoaDB.pesquisaPessoaComplementoPorPessoa(pessoa.getId());
             if (pc.getId() == -1) {
@@ -1166,7 +1165,7 @@ public class VendasCaravanaBean {
 
     public void updatePessoaComplemento() {
         if (pessoa.getId() != -1) {
-            PessoaDB pessoaDB = new PessoaDBToplink();
+            PessoaDao pessoaDB = new PessoaDao();
             PessoaComplemento pc = pessoaDB.pesquisaPessoaComplementoPorPessoa(pessoa.getId());
             pc.setNrDiaVencimento(idDiaVencimento);
             Dao dao = new Dao();

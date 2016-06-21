@@ -6,6 +6,7 @@ import br.com.rtools.relatorios.dao.RelatorioBalanceteDao;
 import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.relatorios.dao.RelatorioOrdemDao;
 import br.com.rtools.seguranca.Rotina;
+import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.sistema.SisProcesso;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
@@ -94,30 +95,32 @@ public class RelatorioBalanceteBean implements Serializable {
         sisProcesso.finishQuery();
         for (int i = 0; i < list.size(); i++) {
             List o = (List) list.get(i);
-            oj.add(new ObjectJasper(o.get(0), o.get(1), o.get(2), o.get(3), o.get(4), o.get(5), o.get(6), o.get(7), o.get(8), o.get(9), o.get(10), o.get(11), o.get(12)));
+            oj.add(new ObjectJasper(o.get(0), o.get(1), o.get(2), o.get(3), o.get(4), o.get(5), o.get(6), o.get(7), o.get(8), o.get(9), o.get(10), o.get(11), o.get(12), o.get(13), o.get(14)));
         }
         if (list.isEmpty()) {
             GenericaMensagem.warn("Mensagem", "Nenhum registro encontrado!");
             return;
         }
         String detalheRelatorio = "";
+        listDetalhePesquisa.add("Período: " + dataInicial + " até " + dataFinal);
         if (listDetalhePesquisa.isEmpty()) {
             detalheRelatorio += "Pesquisar todos registros!";
         } else {
             detalheRelatorio += "";
             for (int i = 0; i < listDetalhePesquisa.size(); i++) {
                 if (i == 0) {
-                    detalheRelatorio += "Detalhes: " + listDetalhePesquisa.get(i).toString();
+                    detalheRelatorio += "" + listDetalhePesquisa.get(i).toString();
                 } else {
                     detalheRelatorio += "; " + listDetalhePesquisa.get(i).toString();
                 }
             }
         }
         Jasper.EXPORT_TO = true;
-        Jasper.TITLE = "RELATÓRIO " + r.getNome().toUpperCase();
-        Jasper.TYPE = "default";
+        Jasper.TITLE = r.getNome().toUpperCase();
+        Jasper.TYPE = "contabil";
         Map map = new HashMap();
         map.put("detalhes_relatorio", detalheRelatorio);
+        map.put("operador", Usuario.getUsuario().getPessoa().getNome());
         Jasper.printReports(r.getJasper(), r.getNome(), (Collection) oj, map);
         sisProcesso.setProcesso(r.getNome());
         sisProcesso.finish();
@@ -361,8 +364,10 @@ public class RelatorioBalanceteBean implements Serializable {
         private Object conta4;
         private Object codigo5;
         private Object conta5;
+        private Object saldo_anterior;
         private Object debito;
         private Object credito;
+        private Object saldo_atual;
 
         public ObjectJasper() {
             this.data = null;
@@ -376,11 +381,13 @@ public class RelatorioBalanceteBean implements Serializable {
             this.conta4 = null;
             this.codigo5 = null;
             this.conta5 = null;
+            this.saldo_anterior = null;
             this.debito = null;
             this.credito = null;
+            this.saldo_atual = null;
         }
 
-        public ObjectJasper(Object data, Object codigo1, Object conta1, Object codigo2, Object conta2, Object codigo3, Object conta3, Object codigo4, Object conta4, Object codigo5, Object conta5, Object debito, Object credito) {
+        public ObjectJasper(Object data, Object codigo1, Object conta1, Object codigo2, Object conta2, Object codigo3, Object conta3, Object codigo4, Object conta4, Object codigo5, Object conta5, Object saldo_anterior, Object debito, Object credito, Object saldo_atual) {
             this.data = data;
             this.codigo1 = codigo1;
             this.conta1 = conta1;
@@ -392,8 +399,10 @@ public class RelatorioBalanceteBean implements Serializable {
             this.conta4 = conta4;
             this.codigo5 = codigo5;
             this.conta5 = conta5;
+            this.saldo_anterior = saldo_anterior;
             this.debito = debito;
             this.credito = credito;
+            this.saldo_atual = saldo_atual;
         }
 
         public Object getData() {
@@ -484,6 +493,14 @@ public class RelatorioBalanceteBean implements Serializable {
             this.conta5 = conta5;
         }
 
+        public Object getSaldo_anterior() {
+            return saldo_anterior;
+        }
+
+        public void setSaldo_anterior(Object saldo_anterior) {
+            this.saldo_anterior = saldo_anterior;
+        }
+
         public Object getDebito() {
             return debito;
         }
@@ -498,6 +515,14 @@ public class RelatorioBalanceteBean implements Serializable {
 
         public void setCredito(Object credito) {
             this.credito = credito;
+        }
+
+        public Object getSaldo_atual() {
+            return saldo_atual;
+        }
+
+        public void setSaldo_atual(Object saldo_atual) {
+            this.saldo_atual = saldo_atual;
         }
 
     }

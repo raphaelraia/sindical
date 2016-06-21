@@ -19,8 +19,6 @@ import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaRequisicao;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Implantacao;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.IOException;
 import java.io.Serializable;
@@ -538,8 +536,7 @@ public class ControleUsuarioBean implements Serializable {
                     if (!usuarioSuporteTecnico.getPessoa().getEmail1().equals("")) {
                         usuarioSuporteTecnico.setEmail(usuarioSuporteTecnico.getPessoa().getEmail1());
                     } else {
-                        SalvarAcumuladoDB dB = new SalvarAcumuladoDBToplink();
-                        Usuario u = (Usuario) dB.find(new Usuario(), 1);
+                        Usuario u = (Usuario) new Dao().find(new Usuario(), 1);
                         usuarioSuporteTecnico.setEmail(u.getPessoa().getEmail1());
                     }
                 }

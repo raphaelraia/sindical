@@ -45,8 +45,7 @@ import br.com.rtools.pessoa.db.FisicaDB;
 import br.com.rtools.pessoa.db.FisicaDBToplink;
 import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
-import br.com.rtools.pessoa.db.PessoaDB;
-import br.com.rtools.pessoa.db.PessoaDBToplink;
+import br.com.rtools.pessoa.dao.PessoaDao;
 import br.com.rtools.seguranca.FilialRotina;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Registro;
@@ -1229,7 +1228,7 @@ public class MatriculaAcademiaBean implements Serializable {
             GenericaMensagem.warn("PESSOA", responsavel.getNome() + " contém o nome no Serasa!");
         }
 
-        PessoaDB pdb = new PessoaDBToplink();
+        PessoaDao pdb = new PessoaDao();
         pessoaComplemento = new PessoaComplemento();
         pessoaComplemento = pdb.pesquisaPessoaComplementoPorPessoa(responsavel.getId());
 
@@ -2519,7 +2518,7 @@ public class MatriculaAcademiaBean implements Serializable {
                 listaDiaParcela.clear();
                 int dia;
                 if (matriculaAcademia.getServicoPessoa().getPessoa().getId() != -1) {
-                    PessoaDB dbp = new PessoaDBToplink();
+                    PessoaDao dbp = new PessoaDao();
                     pessoaComplemento = dbp.pesquisaPessoaComplementoPorPessoa(matriculaAcademia.getServicoPessoa().getPessoa().getId());
 
                     if (pessoaComplemento.getId() == -1) {

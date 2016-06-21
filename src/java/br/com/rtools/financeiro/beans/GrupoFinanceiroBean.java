@@ -1,20 +1,17 @@
 package br.com.rtools.financeiro.beans;
 
 import br.com.rtools.financeiro.GrupoFinanceiro;
-import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.SubGrupoFinanceiro;
 import br.com.rtools.financeiro.db.FinanceiroDB;
 import br.com.rtools.financeiro.db.FinanceiroDBToplink;
 import br.com.rtools.logSistema.NovoLog;
+import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
-import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
 @ManagedBean
@@ -22,8 +19,8 @@ import javax.faces.model.SelectItem;
 public final class GrupoFinanceiroBean implements Serializable {
 
     private int idGrupo = 0;
-    private List<SelectItem> listaGrupo = new ArrayList<SelectItem>();
-    private List<SubGrupoFinanceiro> listaSubGrupoFinanceiro = new ArrayList<SubGrupoFinanceiro>();
+    private List<SelectItem> listaGrupo = new ArrayList<>();
+    private List<SubGrupoFinanceiro> listaSubGrupoFinanceiro = new ArrayList<>();
     private boolean adicionar = false;
 
     private SubGrupoFinanceiro linhaSubGrupoFinanceiro = new SubGrupoFinanceiro();
@@ -43,13 +40,13 @@ public final class GrupoFinanceiroBean implements Serializable {
 
     public void excluirSubGrupo() {
         if (linhaSubGrupoFinanceiro.getId() != -1) {
-            SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+            Dao dao = new Dao();
             NovoLog novoLog = new NovoLog();
 
-            linhaSubGrupoFinanceiro = (SubGrupoFinanceiro) sv.pesquisaCodigo(linhaSubGrupoFinanceiro.getId(), "SubGrupoFinanceiro");
+            linhaSubGrupoFinanceiro = (SubGrupoFinanceiro) dao.find(new SubGrupoFinanceiro(), linhaSubGrupoFinanceiro.getId());
 
-            sv.abrirTransacao();
-            if (!sv.deletarObjeto(linhaSubGrupoFinanceiro)) {
+            dao.openTransaction();
+            if (!dao.delete(linhaSubGrupoFinanceiro)) {
                 GenericaMensagem.warn("Erro", "Não foi possível deletar este Sub Grupo!");
                 return;
             }
@@ -58,7 +55,7 @@ public final class GrupoFinanceiroBean implements Serializable {
                     + " - Grupo Financeiro: (" + linhaSubGrupoFinanceiro.getGrupoFinanceiro().getId() + ") " + linhaSubGrupoFinanceiro.getGrupoFinanceiro().getDescricao()
                     + " - Descrição: " + linhaSubGrupoFinanceiro.getDescricao()
             );
-            sv.comitarTransacao();
+            dao.commit();
             GenericaMensagem.info("Sucesso", "Sub Grupo excluído!");
             linhaSubGrupoFinanceiro = new SubGrupoFinanceiro();
             listaSubGrupoFinanceiro.clear();
@@ -84,17 +81,17 @@ public final class GrupoFinanceiroBean implements Serializable {
             return;
         }
 
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+        Dao dao = new Dao();
         NovoLog novoLog = new NovoLog();
-        sv.abrirTransacao();
+        dao.openTransaction();
 
-        grupoFinanceiro = (GrupoFinanceiro) sv.pesquisaCodigo(Integer.valueOf(listaGrupo.get(idGrupo).getDescription()), "GrupoFinanceiro");
+        grupoFinanceiro = (GrupoFinanceiro) dao.find(new GrupoFinanceiro(), Integer.valueOf(listaGrupo.get(idGrupo).getDescription()));
         subGrupoFinanceiro.setGrupoFinanceiro(grupoFinanceiro);
 
         if (subGrupoFinanceiro.getId() == -1) {
-            if (!sv.inserirObjeto(subGrupoFinanceiro)) {
+            if (!dao.save(subGrupoFinanceiro)) {
                 GenericaMensagem.warn("Erro", "Não foi possivel SALVAR Sub Grupo!");
-                sv.desfazerTransacao();
+                dao.rollback();
                 return;
             }
             novoLog.save(
@@ -103,14 +100,14 @@ public final class GrupoFinanceiroBean implements Serializable {
                     + " - Descrição: " + subGrupoFinanceiro.getDescricao()
             );
         } else {
-            SubGrupoFinanceiro sgf = (SubGrupoFinanceiro) sv.pesquisaObjeto(subGrupoFinanceiro.getId(), "SubGrupoFinanceiro");
+            SubGrupoFinanceiro sgf = (SubGrupoFinanceiro) dao.find(new SubGrupoFinanceiro(), subGrupoFinanceiro.getId());
             String beforeUpdate
                     = "Subgrupo Financeiro - ID: " + sgf.getId()
                     + " - Grupo Financeiro: (" + sgf.getGrupoFinanceiro().getId() + ") " + sgf.getGrupoFinanceiro().getDescricao()
                     + " - Descrição: " + sgf.getDescricao();
-            if (!sv.alterarObjeto(subGrupoFinanceiro)) {
+            if (!dao.update(subGrupoFinanceiro)) {
                 GenericaMensagem.warn("Erro", "Não foi possivel ATUALIZAR Sub Grupo!");
-                sv.desfazerTransacao();
+                dao.rollback();
                 return;
             }
             novoLog.update(beforeUpdate,
@@ -121,7 +118,7 @@ public final class GrupoFinanceiroBean implements Serializable {
         }
 
         GenericaMensagem.info("Sucesso", "Sub Grupo SALVO!");
-        sv.comitarTransacao();
+        dao.commit();
 
         adicionar = false;
         grupoFinanceiro = new GrupoFinanceiro();
@@ -136,14 +133,14 @@ public final class GrupoFinanceiroBean implements Serializable {
             return;
         }
 
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-        sv.abrirTransacao();
+        Dao dao = new Dao();
+        dao.openTransaction();
         NovoLog novoLog = new NovoLog();
-        grupoFinanceiro = (GrupoFinanceiro) sv.pesquisaCodigo(Integer.valueOf(listaGrupo.get(idGrupo).getDescription()), "GrupoFinanceiro");
-        if (!sv.deletarObjeto(grupoFinanceiro)) {
+        grupoFinanceiro = (GrupoFinanceiro) dao.find(new GrupoFinanceiro(), Integer.valueOf(listaGrupo.get(idGrupo).getDescription()));
+        if (!dao.delete(grupoFinanceiro)) {
             GenericaMensagem.warn("Erro", "Não foi possivel EXCLUIR Grupo!");
             grupoFinanceiro = new GrupoFinanceiro();
-            sv.desfazerTransacao();
+            dao.rollback();
             return;
         }
         novoLog.delete(
@@ -151,7 +148,7 @@ public final class GrupoFinanceiroBean implements Serializable {
                 + " Descriçao: " + grupoFinanceiro.getDescricao()
         );
         GenericaMensagem.info("Sucesso", "Grupo EXCLUÍDO!");
-        sv.comitarTransacao();
+        dao.commit();
         grupoFinanceiro = new GrupoFinanceiro();
         listaGrupo.clear();
     }
@@ -163,8 +160,7 @@ public final class GrupoFinanceiroBean implements Serializable {
         }
 
         adicionar = true;
-        grupoFinanceiro = (GrupoFinanceiro) (new SalvarAcumuladoDBToplink()).pesquisaCodigo(Integer.valueOf(listaGrupo.get(idGrupo).getDescription()), "GrupoFinanceiro");
-
+        grupoFinanceiro = (GrupoFinanceiro) (new Dao()).find(new GrupoFinanceiro(), Integer.valueOf(listaGrupo.get(idGrupo).getDescription()));
     }
 
     public void salvarGrupo() {
@@ -173,12 +169,12 @@ public final class GrupoFinanceiroBean implements Serializable {
             return;
         }
         NovoLog novoLog = new NovoLog();
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-        sv.abrirTransacao();
+        Dao dao = new Dao();
+        dao.openTransaction();
         if (grupoFinanceiro.getId() == -1) {
-            if (!sv.inserirObjeto(grupoFinanceiro)) {
+            if (!dao.save(grupoFinanceiro)) {
                 GenericaMensagem.warn("Erro", "Não foi possivel ADICIONAR Grupo!");
-                sv.desfazerTransacao();
+                dao.rollback();
                 return;
             }
             novoLog.save(
@@ -187,13 +183,13 @@ public final class GrupoFinanceiroBean implements Serializable {
             );
             GenericaMensagem.info("Sucesso", "Grupo SALVO!");
         } else {
-            GrupoFinanceiro gf = (GrupoFinanceiro) sv.pesquisaObjeto(grupoFinanceiro.getId(), "GrupoFinanceiro");
+            GrupoFinanceiro gf = (GrupoFinanceiro) dao.find(new GrupoFinanceiro(), grupoFinanceiro.getId());
             String beforeUpdate
                     = "ID: " + gf.getId()
                     + " - Descriçao: " + gf.getDescricao();
-            if (!sv.alterarObjeto(grupoFinanceiro)) {
+            if (!dao.update(grupoFinanceiro)) {
                 GenericaMensagem.warn("Erro", "Não foi possivel ALTERAR Grupo!");
-                sv.desfazerTransacao();
+                dao.rollback();
                 return;
             }
             novoLog.update(beforeUpdate,
@@ -203,7 +199,7 @@ public final class GrupoFinanceiroBean implements Serializable {
             GenericaMensagem.info("Sucesso", "Grupo ATUALIZADO!");
         }
 
-        sv.comitarTransacao();
+        dao.commit();
 
         adicionar = false;
         grupoFinanceiro = new GrupoFinanceiro();
@@ -231,7 +227,7 @@ public final class GrupoFinanceiroBean implements Serializable {
 
     public List<SelectItem> getListaGrupo() {
         if (listaGrupo.isEmpty()) {
-            List<GrupoFinanceiro> result = new SalvarAcumuladoDBToplink().listaObjeto("GrupoFinanceiro");
+            List<GrupoFinanceiro> result = new Dao().list(new GrupoFinanceiro());
 
             if (!result.isEmpty()) {
                 for (int i = 0; i < result.size(); i++) {

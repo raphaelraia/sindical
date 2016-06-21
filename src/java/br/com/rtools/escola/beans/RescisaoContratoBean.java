@@ -19,8 +19,7 @@ import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaComplemento;
-import br.com.rtools.pessoa.db.PessoaDB;
-import br.com.rtools.pessoa.db.PessoaDBToplink;
+import br.com.rtools.pessoa.dao.PessoaDao;
 import br.com.rtools.seguranca.FilialRotina;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Registro;
@@ -30,7 +29,6 @@ import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
 import br.com.rtools.seguranca.dao.FilialRotinaDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
-import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
@@ -224,7 +222,7 @@ public class RescisaoContratoBean implements Serializable {
                     servicos = mt.getTurma().getCursos();
                     descricaoServico = "Contrato nº " + matriculaEscola.getId() + " - Serviço: " + servicos.getDescricao() + " - Descrição: " + mt.getTurma().getDescricao();
                 }
-                PessoaDB pessoaDB = new PessoaDBToplink();
+                PessoaDao pessoaDB = new PessoaDao();
                 PessoaComplemento pc = pessoaDB.pesquisaPessoaComplementoPorPessoa(matriculaEscola.getServicoPessoa().getCobranca().getId());
                 if (pc.getId() != -1) {
                     diaVencimento = pc.getNrDiaVencimento();

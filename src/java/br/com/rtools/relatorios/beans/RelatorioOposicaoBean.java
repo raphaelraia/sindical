@@ -7,8 +7,7 @@ import br.com.rtools.arrecadacao.Oposicao;
 import br.com.rtools.arrecadacao.dao.OposicaoDao;
 import br.com.rtools.impressao.ParametroOposicao;
 import br.com.rtools.pessoa.Cnae;
-import br.com.rtools.pessoa.db.EnviarArquivosDB;
-import br.com.rtools.pessoa.db.EnviarArquivosDBToplink;
+import br.com.rtools.pessoa.dao.EnviarArquivosDao;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.utilitarios.Dao;
@@ -535,7 +534,7 @@ public class RelatorioOposicaoBean implements Serializable {
     public Map<String, Integer> getListConvencaos() {
         if (listConvencoes == null) {
             listConvencoes = new HashMap<>();
-            EnviarArquivosDB enviarArquivosDB = new EnviarArquivosDBToplink();
+            EnviarArquivosDao enviarArquivosDB = new EnviarArquivosDao();
             List<Convencao> list = enviarArquivosDB.listaConvencao();
             for (int i = 0; i < list.size(); i++) {
                 listConvencoes.put(list.get(i).getDescricao(), list.get(i).getId());
@@ -554,7 +553,7 @@ public class RelatorioOposicaoBean implements Serializable {
             listGrupoCidades = new HashMap<>();
             String ids = inIdConvencao();
             if (!ids.isEmpty()) {
-                EnviarArquivosDB enviarArquivosDB = new EnviarArquivosDBToplink();
+                EnviarArquivosDao enviarArquivosDB = new EnviarArquivosDao();
                 List<GrupoCidade> list = enviarArquivosDB.listaGrupoCidadePorConvencao(ids);
                 for (int i = 0; i < list.size(); i++) {
                     listGrupoCidades.put(list.get(i).getDescricao(), list.get(i).getId());

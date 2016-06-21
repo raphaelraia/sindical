@@ -2,8 +2,7 @@ package br.com.rtools.seguranca.beans;
 
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.pessoa.Pessoa;
-import br.com.rtools.pessoa.db.PessoaDB;
-import br.com.rtools.pessoa.db.PessoaDBToplink;
+import br.com.rtools.pessoa.dao.PessoaDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.SisEmailProtocolo;
@@ -147,7 +146,7 @@ public class RegistroEmpresarialBean implements Serializable {
     }
 
     public void criarLoginsUsuarios() {
-        PessoaDB db = new PessoaDBToplink();
+        PessoaDao db = new PessoaDao();
         List<Pessoa> listaPessoas = db.pesquisaTodosSemLogin();
         // String login = "", senha = "";
         String senha = "";

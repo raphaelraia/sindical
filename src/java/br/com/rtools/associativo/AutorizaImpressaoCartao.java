@@ -1,10 +1,8 @@
 package br.com.rtools.associativo;
 
 import br.com.rtools.pessoa.Pessoa;
-import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.DataHoje;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;

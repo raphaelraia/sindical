@@ -1,8 +1,7 @@
 package br.com.rtools.pessoa.beans;
 
 import br.com.rtools.pessoa.*;
-import br.com.rtools.pessoa.db.PessoaDB;
-import br.com.rtools.pessoa.db.PessoaDBToplink;
+import br.com.rtools.pessoa.dao.PessoaDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.utilitarios.Dao;
@@ -90,7 +89,7 @@ public class PessoaComplementoBean extends PesquisarProfissaoBean implements Ser
     }
 
     public String pessoaComplementoPesquisaPessoa(Integer idPessoa) {
-        PessoaDB pessoaDB = new PessoaDBToplink();
+        PessoaDao pessoaDB = new PessoaDao();
         pessoaComplemento = pessoaDB.pesquisaPessoaComplementoPorPessoa(idPessoa);
         if (pessoaComplemento.getId() == -1) {
             diaVencimento = getRegistro().getFinDiaVencimentoCobranca();

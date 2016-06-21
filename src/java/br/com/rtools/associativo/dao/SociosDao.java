@@ -10,9 +10,9 @@ import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.principal.DB;
 import br.com.rtools.utilitarios.AnaliseString;
+import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Moeda;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -215,17 +215,8 @@ public class SociosDao extends DB {
             List<Vector> lista = qry.getResultList();
 
             for (int i = 0; i < lista.size(); i++) {
-                socio = (Socios) (new SalvarAcumuladoDBToplink()).pesquisaCodigo((Integer) lista.get(i).get(0), "Socios");
+                socio = (Socios) (new Dao()).find(new Socios(), (Integer) lista.get(i).get(0));
             }
-
-            //            Query qry = getEntityManager().createQuery(""
-            //                    + " SELECT s "
-            //                    + "   FROM Socios s "
-            //                    + "  WHERE s.servicoPessoa.pessoa.id = :pid "
-            //                    + "  ORDER BY s.servicoPessoa.id DESC");
-            //            qry.setParameter("pid", idPessoa);
-            //soc = (Socios) qry.setMaxResults(1).getSingleResult();
-            //            soc = (Socios) qry.getSingleResult();
         } catch (EJBQLException e) {
             e.getMessage();
         }

@@ -19,8 +19,7 @@ import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaComplemento;
-import br.com.rtools.pessoa.db.PessoaDB;
-import br.com.rtools.pessoa.db.PessoaDBToplink;
+import br.com.rtools.pessoa.dao.PessoaDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
@@ -68,7 +67,7 @@ public class AcordoSocialBean implements Serializable {
     }
 
     public Integer retornaDiaVencimentoPessoa(Integer id_pessoa) {
-        PessoaDB dbp = new PessoaDBToplink();
+        PessoaDao dbp = new PessoaDao();
         PessoaComplemento pc = dbp.pesquisaPessoaComplementoPorPessoa(id_pessoa);
 
         if (pc.getId() == -1) {

@@ -5,8 +5,6 @@ import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.utilitarios.Moeda;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import java.util.Date;
 
 public class CaixaFederalSindical extends Cobranca {
@@ -18,8 +16,8 @@ public class CaixaFederalSindical extends Cobranca {
     @Override
     public String codigoBarras() {
         JuridicaDB jurDB = new JuridicaDBToplink();
-        SalvarAcumuladoDB salvarAcumuladoDB = new SalvarAcumuladoDBToplink();
-        String ent = ((Registro) salvarAcumuladoDB.pesquisaCodigo(1, "Registro")).getTipoEntidade();
+        
+        String ent = ((Registro) Registro.get()).getTipoEntidade();
         // (1-Sindicato, 2-Federação, 3-Confederação)
         if (ent.equals("S")) {
             ent = "1";

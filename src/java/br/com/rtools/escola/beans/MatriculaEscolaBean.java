@@ -44,10 +44,8 @@ import br.com.rtools.pessoa.db.FisicaDB;
 import br.com.rtools.pessoa.db.FisicaDBToplink;
 import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
-import br.com.rtools.pessoa.db.PessoaDB;
-import br.com.rtools.pessoa.db.PessoaDBToplink;
-import br.com.rtools.pessoa.db.PessoaEmpresaDB;
-import br.com.rtools.pessoa.db.PessoaEmpresaDBToplink;
+import br.com.rtools.pessoa.dao.PessoaDao;
+import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
 import br.com.rtools.pessoa.dao.SpcDao;
 import br.com.rtools.seguranca.FilialRotina;
 import br.com.rtools.seguranca.MacFilial;
@@ -844,7 +842,7 @@ public class MatriculaEscolaBean implements Serializable {
             matriculaContrato.setDescricao(matriculaContrato.getDescricao().replace("$listaValoresComData", listaValoresComData));
             matriculaContrato.setDescricao(matriculaContrato.getDescricao().replace("$listaValores", listaValores));
 
-            PessoaEmpresaDB pessoaEmpresaDB = new PessoaEmpresaDBToplink();
+            PessoaEmpresaDao pessoaEmpresaDB = new PessoaEmpresaDao();
             PessoaEmpresa pessoaEmpresaAluno = pessoaEmpresaDB.pesquisaPessoaEmpresaPorPessoa(servicoPessoa.getPessoa().getId());
             PessoaEmpresa pessoaEmpresaResponsavel = pessoaEmpresaDB.pesquisaPessoaEmpresaPorPessoa(servicoPessoa.getCobranca().getId());
             if (pessoaEmpresaAluno.getId() != -1) {
@@ -1668,7 +1666,7 @@ public class MatriculaEscolaBean implements Serializable {
             GenericaMensagem.warn("PESSOA", responsavel.getNome() + " contém o nome no Serasa!");
         }
 
-        PessoaDB pdb = new PessoaDBToplink();
+        PessoaDao pdb = new PessoaDao();
         pessoaComplemento = new PessoaComplemento();
         pessoaComplemento = pdb.pesquisaPessoaComplementoPorPessoa(responsavel.getId());
 
@@ -2487,7 +2485,7 @@ public class MatriculaEscolaBean implements Serializable {
      * @param tipo
      */
     public void atualizaPessoaComplemento(int tipo) {
-        PessoaDB pdb = new PessoaDBToplink();
+        PessoaDao pdb = new PessoaDao();
         PessoaComplemento pc;
         Pessoa p;
         if (tipo == 0) {
@@ -2766,7 +2764,7 @@ public class MatriculaEscolaBean implements Serializable {
     public boolean isAlterarPessoaComplemento() {
         if (matriculaEscola.getId() != -1) {
             if (servicoPessoa.getCobranca().getId() != -1) {
-                PessoaDB pessoaDB = new PessoaDBToplink();
+                PessoaDao pessoaDB = new PessoaDao();
                 PessoaComplemento pc = pessoaDB.pesquisaPessoaComplementoPorPessoa(servicoPessoa.getCobranca().getId());
                 alterarPessoaComplemento = pc.getId() != -1;
             }
@@ -2780,7 +2778,7 @@ public class MatriculaEscolaBean implements Serializable {
 
     public void updatePessoaComplemento() {
         if (servicoPessoa.getCobranca().getId() != -1) {
-            PessoaDB pessoaDB = new PessoaDBToplink();
+            PessoaDao pessoaDB = new PessoaDao();
             PessoaComplemento pc = pessoaDB.pesquisaPessoaComplementoPorPessoa(servicoPessoa.getCobranca().getId());
             Dao dao = new Dao();
             pc.setNrDiaVencimento(idDiaVencimento);

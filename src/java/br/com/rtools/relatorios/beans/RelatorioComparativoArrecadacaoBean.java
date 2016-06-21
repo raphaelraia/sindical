@@ -14,8 +14,7 @@ import br.com.rtools.impressao.ParametroComparativoArrecadacao;
 import br.com.rtools.pessoa.Cnae;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.beans.JuridicaBean;
-import br.com.rtools.pessoa.db.EnviarArquivosDB;
-import br.com.rtools.pessoa.db.EnviarArquivosDBToplink;
+import br.com.rtools.pessoa.dao.EnviarArquivosDao;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioComparativoArrecadacaoDao;
 import br.com.rtools.relatorios.dao.RelatorioDao;
@@ -483,7 +482,7 @@ public class RelatorioComparativoArrecadacaoBean implements Serializable {
     public Map<String, Integer> getListConvencaos() {
         if (listConvencoes == null) {
             listConvencoes = new LinkedHashMap<>();
-            EnviarArquivosDB enviarArquivosDB = new EnviarArquivosDBToplink();
+            EnviarArquivosDao enviarArquivosDB = new EnviarArquivosDao();
             List<Convencao> list = enviarArquivosDB.listaConvencao();
             for (int i = 0; i < list.size(); i++) {
                 listConvencoes.put(list.get(i).getDescricao(), list.get(i).getId());
@@ -502,7 +501,7 @@ public class RelatorioComparativoArrecadacaoBean implements Serializable {
             listGrupoCidades = new LinkedHashMap<>();
             String ids = inIdConvencao();
             if (!ids.isEmpty()) {
-                EnviarArquivosDB enviarArquivosDB = new EnviarArquivosDBToplink();
+                EnviarArquivosDao enviarArquivosDB = new EnviarArquivosDao();
                 List<GrupoCidade> list = enviarArquivosDB.listaGrupoCidadePorConvencao(ids);
                 for (int i = 0; i < list.size(); i++) {
                     listGrupoCidades.put(list.get(i).getDescricao(), list.get(i).getId());

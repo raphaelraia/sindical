@@ -17,12 +17,10 @@ import br.com.rtools.pessoa.Porte;
 import br.com.rtools.pessoa.TipoDocumento;
 import br.com.rtools.pessoa.TipoEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
-import br.com.rtools.pessoa.db.CnaeDB;
-import br.com.rtools.pessoa.db.CnaeDBToplink;
+import br.com.rtools.pessoa.dao.CnaeDao;
 import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
-import br.com.rtools.pessoa.db.PessoaDB;
-import br.com.rtools.pessoa.db.PessoaDBToplink;
+import br.com.rtools.pessoa.dao.PessoaDao;
 import br.com.rtools.pessoa.dao.TipoEnderecoDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
@@ -41,8 +39,6 @@ import br.com.rtools.utilitarios.JuridicaReceitaJSON;
 import br.com.rtools.utilitarios.Mail;
 import br.com.rtools.utilitarios.PF;
 import br.com.rtools.utilitarios.PesquisaCNPJ;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import br.com.rtools.utilitarios.SelectTranslate;
 import br.com.rtools.utilitarios.ValidaDocumentos;
 import java.io.BufferedReader;
@@ -186,10 +182,10 @@ public class ControleAcessoWebBean implements Serializable {
             }
         }
 
-        PessoaDB db = new PessoaDBToplink();
-        
+        PessoaDao db = new PessoaDao();
+
         String documento_extrair = AnaliseString.extrairNumeros(documento_pesquisa);
-        
+
         JuridicaReceita juridicaReceita = db.pesquisaJuridicaReceita(documento_extrair);
         if (juridicaReceita.getPessoa() != null && juridicaReceita.getPessoa().getId() != -1) {
             GenericaMensagem.warn("Atenção", "Pessoa já cadastrada no Sistema!");
@@ -373,7 +369,7 @@ public class ControleAcessoWebBean implements Serializable {
     }
 
     public JuridicaReceita pesquisaNaReceitaWeb(String documentox) {
-        PessoaDB db = new PessoaDBToplink();
+        PessoaDao db = new PessoaDao();
         JuridicaReceita jr = db.pesquisaJuridicaReceita(documentox);
         Dao dao = new Dao();
         if (jr.getId() == -1) {
@@ -506,7 +502,7 @@ public class ControleAcessoWebBean implements Serializable {
         }
 
         String result[] = jr.getCnae().split(" ");
-        CnaeDB dbc = new CnaeDBToplink();
+        CnaeDao dbc = new CnaeDao();
         String cnaex = result[result.length - 1].replace("(", "").replace(")", "");
         //List<Cnae> listac = dbc.pesquisaCnae(result[0], "cnae", "I");
         List<Cnae> listac = dbc.pesquisaCnae(cnaex, "cnae", "I");
@@ -784,11 +780,11 @@ public class ControleAcessoWebBean implements Serializable {
         }
 
         if (pessoa.getLogin().equals("contribuinte") && pessoa.getSenha().equals("sindical")) {
-            pessoa = new PessoaDBToplink().contribuinteRandon();
+            pessoa = new PessoaDao().contribuinteRandon();
         }
 
         if (pessoa.getLogin().equals("contabilidade") && pessoa.getSenha().equals("sindical")) {
-            pessoa = new PessoaDBToplink().contabilidadeRandon();
+            pessoa = new PessoaDao().contabilidadeRandon();
         }
 
         String pagina = null;
@@ -883,7 +879,7 @@ public class ControleAcessoWebBean implements Serializable {
                 return;
             }
 
-            empresax = (Juridica) new SalvarAcumuladoDBToplink().pesquisaCodigo(Integer.parseInt(getListaEmpresa().get(idJuridica).getDescription()), "Juridica");
+            empresax = (Juridica) new Dao().find(new Juridica(), Integer.parseInt(getListaEmpresa().get(idJuridica).getDescription()));
             if (empresax == null) {
                 GenericaMensagem.warn("Não foi possível completar seu pedido", "Empresa não encontrada no Sistema, Contate o seu Sindicato.");
                 return;
@@ -979,19 +975,15 @@ public class ControleAcessoWebBean implements Serializable {
     }
 
     public String salvarConf() {
-        PessoaDB db = new PessoaDBToplink();
         if (!novaSenha.equals("")) {
             pessoa = (Pessoa) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuarioAcessoWeb");
             if (pessoa.getId() != -1) {
                 if (verificaSenha.equals(pessoa.getSenha()) && confirmaSenha.equals(novaSenha)) {
                     pessoa.setSenha(novaSenha);
-                    db.getEntityManager().getTransaction().begin();
-                    if (db.update(pessoa)) {
+                    if (new Dao().update(pessoa, true)) {
                         msgNovaSenha = "Atualizado com sucesso!";
-                        db.getEntityManager().getTransaction().commit();
                     } else {
                         msgNovaSenha = "Erro ao Atualizar Senha!";
-                        db.getEntityManager().getTransaction().rollback();
                     }
                 } else {
                     msgNovaSenha = "Senha de verificação inválida!";
@@ -1040,8 +1032,7 @@ public class ControleAcessoWebBean implements Serializable {
     }
 
     public String getLinkSite() {
-        PessoaDB db = new PessoaDBToplink();
-        Pessoa p = db.pesquisaCodigo(1);
+        Pessoa p = (Pessoa) new Dao().find(new Pessoa(), 1);
         if (p != null) {
             if (p.getSite() != null) {
                 return p.getSite();
@@ -1176,11 +1167,7 @@ public class ControleAcessoWebBean implements Serializable {
     }
 
     public boolean getTipoLink() {
-        SalvarAcumuladoDB sadb = new SalvarAcumuladoDBToplink();
-        //PessoaDB db = new PessoaDBToplink();
-        //Pessoa p = new Pessoa();
-        Pessoa p = (Pessoa) sadb.find(new Pessoa(), 1);
-        //p = db.pesquisaCodigo(1);
+        Pessoa p = (Pessoa) new Dao().find(new Pessoa(), 1);
         if (p != null) {
             tipoLink = !p.getSite().equals("");
             link = p.getSite();
@@ -1263,13 +1250,13 @@ public class ControleAcessoWebBean implements Serializable {
                     return;
                 }
                 if (pessoaContribuinte != null) {
-                    if (new PessoaDBToplink().existLogin(alteraLogin)) {
+                    if (new PessoaDao().existLogin(alteraLogin)) {
                         GenericaMensagem.warn("Validação", "Login já existe!");
                         return;
                     }
                 }
                 if (pessoaContabilidade != null) {
-                    if (new PessoaDBToplink().existLogin(alteraLogin)) {
+                    if (new PessoaDao().existLogin(alteraLogin)) {
                         GenericaMensagem.warn("Validação", "Login já existe!");
                         return;
                     }

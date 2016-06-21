@@ -1,5 +1,8 @@
 package br.com.rtools.pessoa.beans;
 
+import br.com.rtools.pessoa.dao.PessoaDao;
+import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
+import br.com.rtools.pessoa.dao.CnaeDao;
 import br.com.rtools.arrecadacao.dao.ContribuintesInativosDao;
 import br.com.rtools.arrecadacao.dao.CnaeConvencaoDao;
 import br.com.rtools.arrecadacao.dao.ConvencaoCidadeDao;
@@ -10,7 +13,6 @@ import br.com.rtools.pessoa.dao.TipoDocumentoDao;
 import br.com.rtools.arrecadacao.dao.OposicaoDao;
 import br.com.rtools.arrecadacao.*;
 import br.com.rtools.arrecadacao.beans.OposicaoBean;
-import br.com.rtools.associativo.dao.SociosDao2;
 import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.associativo.lista.ListaSociosEmpresa;
 import br.com.rtools.cobranca.TmktHistorico;
@@ -197,7 +199,7 @@ public class JuridicaBean implements Serializable {
                     + " - Nome: " + j.getPessoa().getNome()
                     + " - Documento: " + j.getPessoa().getDocumento()
                     + " - Recadastro : " + juridica.getPessoa().getRecadastroString();
-            PessoaDBToplink pessoaDao = new PessoaDBToplink();
+            PessoaDao pessoaDao = new PessoaDao();
 
             Date date = juridica.getPessoa().getDtAtualizacao();
             juridica.getPessoa().setDtAtualizacao(new Date());
@@ -308,7 +310,7 @@ public class JuridicaBean implements Serializable {
                 }
             }
 
-            PessoaDB db = new PessoaDBToplink();
+            PessoaDao db = new PessoaDao();
 
             juridicaReceita = db.pesquisaJuridicaReceita(documento);
             if (juridicaReceita.getPessoa() != null && juridicaReceita.getPessoa().getId() != -1) {
@@ -534,7 +536,7 @@ public class JuridicaBean implements Serializable {
                 return;
             }
 
-            PessoaEmpresaDB dbp = new PessoaEmpresaDBToplink();
+            PessoaEmpresaDao dbp = new PessoaEmpresaDao();
             List<PessoaEmpresa> result = dbp.listaPessoaEmpresaPorJuridica(juridica.getId());
             String ids_pessoa_empresa = "";
             if (!result.isEmpty()) {
@@ -583,7 +585,7 @@ public class JuridicaBean implements Serializable {
     public List<PessoaEmpresa> getListaPessoaEmpresa() {
         List<PessoaEmpresa> result = new ArrayList();
         if (juridica.getId() != -1) {
-            PessoaEmpresaDB dbp = new PessoaEmpresaDBToplink();
+            PessoaEmpresaDao dbp = new PessoaEmpresaDao();
             result = dbp.listaPessoaEmpresaPorJuridica(juridica.getId());
         }
         return result;
@@ -979,7 +981,7 @@ public class JuridicaBean implements Serializable {
             }
         }
 
-        PessoaDB dbp = new PessoaDBToplink();
+        PessoaDao dbp = new PessoaDao();
         String documento = AnaliseString.extrairNumeros(juridica.getPessoa().getDocumento());
         JuridicaReceita jr = dbp.pesquisaJuridicaReceita(documento);
 
@@ -1665,7 +1667,7 @@ public class JuridicaBean implements Serializable {
 
     public List<Cnae> getListaCnae() {
         if (listaCnae.isEmpty()) {
-            CnaeDB db = new CnaeDBToplink();
+            CnaeDao db = new CnaeDao();
             listaCnae = db.pesquisaCnae(descPesquisaCnae, porPesquisaCnae, comoPesquisaCnae);
         }
         return listaCnae;

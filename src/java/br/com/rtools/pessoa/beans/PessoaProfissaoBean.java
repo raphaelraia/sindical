@@ -1,8 +1,7 @@
 package br.com.rtools.pessoa.beans;
 
 import br.com.rtools.pessoa.PessoaProfissao;
-import br.com.rtools.pessoa.db.PessoaProfissaoDB;
-import br.com.rtools.pessoa.db.PessoaProfissaoDBToplink;
+import br.com.rtools.utilitarios.Dao;
 import java.io.Serializable;
 import java.util.List;
 import javax.faces.bean.ManagedBean;
@@ -28,16 +27,11 @@ public class PessoaProfissaoBean implements Serializable {
     }
 
     public String salvar() {
-        PessoaProfissaoDB db = new PessoaProfissaoDBToplink();
+        Dao dao = new Dao();
         if (pessoaProfissao.getId() == -1) {
-            db.insert(pessoaProfissao);
+            dao.save(pessoaProfissao, true);
         } else {
-            db.getEntityManager().getTransaction().begin();
-            if (db.update(pessoaProfissao)) {
-                db.getEntityManager().getTransaction().commit();
-            } else {
-                db.getEntityManager().getTransaction().rollback();
-            }
+            dao.update(pessoaProfissao, true);
         }
         return null;
     }
@@ -48,14 +42,13 @@ public class PessoaProfissaoBean implements Serializable {
     }
 
     public String excluir() {
-        PessoaProfissaoDB db = new PessoaProfissaoDBToplink();
         if (pessoaProfissao.getId() != -1) {
-            db.getEntityManager().getTransaction().begin();
-            pessoaProfissao = db.pesquisaCodigo(pessoaProfissao.getId());
-            if (db.delete(pessoaProfissao)) {
-                db.getEntityManager().getTransaction().commit();
+            Dao dao = new Dao();
+            pessoaProfissao = (PessoaProfissao) dao.find(pessoaProfissao);
+            if (dao.delete(pessoaProfissao, true)) {
+
             } else {
-                db.getEntityManager().getTransaction().rollback();
+
             }
         }
         pessoaProfissao = new PessoaProfissao();
@@ -70,8 +63,8 @@ public class PessoaProfissaoBean implements Serializable {
 
     public List getListaPessoaProfissao() {
         List result = null;
-        PessoaProfissaoDB db = new PessoaProfissaoDBToplink();
-        result = db.pesquisaTodos();
+        Dao dao = new Dao();
+        result = new Dao().list(new PessoaProfissao(), true);
         return result;
     }
 

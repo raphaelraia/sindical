@@ -24,8 +24,7 @@ import br.com.rtools.pessoa.db.FisicaDB;
 import br.com.rtools.pessoa.db.FisicaDBToplink;
 import br.com.rtools.pessoa.db.JuridicaDB;
 import br.com.rtools.pessoa.db.JuridicaDBToplink;
-import br.com.rtools.pessoa.db.PessoaDB;
-import br.com.rtools.pessoa.db.PessoaDBToplink;
+import br.com.rtools.pessoa.dao.PessoaDao;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
@@ -33,8 +32,6 @@ import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
-import br.com.rtools.utilitarios.SalvarAcumuladoDB;
-import br.com.rtools.utilitarios.SalvarAcumuladoDBToplink;
 import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -74,19 +71,16 @@ public class LancamentoIndividualBean implements Serializable {
 
     @PostConstruct
     public void init() {
-        servicos = (Servicos) (new SalvarAcumuladoDBToplink().pesquisaCodigo(Integer.parseInt(getListaServicos().get(idServico).getDescription()), "Servicos"));
+        servicos = (Servicos) (new Dao().find(new Servicos(), Integer.parseInt(getListaServicos().get(idServico).getDescription())));
     }
 
     public void salvarData() {
         if (servicoPessoa.getId() != -1) {
-            SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
-            sv.abrirTransacao();
-
-            if (!sv.alterarObjeto(servicoPessoa)) {
+            if (!new Dao().update(servicoPessoa, true)) {
                 // ERRO
-                sv.desfazerTransacao();
+
             } else {
-                sv.comitarTransacao();
+
             }
         }
     }
@@ -116,19 +110,19 @@ public class LancamentoIndividualBean implements Serializable {
         } else {
             vencto_ini = dh.incrementarMeses(1, idDia + "/" + DataHoje.data().substring(3));
         }
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+        Dao dao = new Dao();
 
         int parcelas = idParcela;
 
         FTipoDocumento td = new FTipoDocumento();
         if (descontoFolha.equals("sim")) {
-            td = (FTipoDocumento) sv.pesquisaCodigo(13, "FTipoDocumento");
+            td = (FTipoDocumento) dao.find(new FTipoDocumento(), 13);
         } else {
-            td = (FTipoDocumento) sv.pesquisaCodigo(2, "FTipoDocumento");
+            td = (FTipoDocumento) dao.find(new FTipoDocumento(), 2);
         }
 
-        Servicos serv = (Servicos) sv.pesquisaCodigo(Integer.parseInt(listaServicos.get(idServico).getDescription()), "Servicos");
-        TipoServico tipo_serv = (TipoServico) sv.pesquisaCodigo(Integer.parseInt(listaTipoServico.get(idTipoServico).getDescription()), "TipoServico");
+        Servicos serv = (Servicos) dao.find(new Servicos(), Integer.parseInt(listaServicos.get(idServico).getDescription()));
+        TipoServico tipo_serv = (TipoServico) dao.find(new TipoServico(), Integer.parseInt(listaTipoServico.get(idTipoServico).getDescription()));
 
         float totalpagar = Moeda.converteUS$(totalPagar);
         float valor = Moeda.converteFloatR$Float(Moeda.divisaoValores(totalpagar, parcelas));
@@ -212,13 +206,13 @@ public class LancamentoIndividualBean implements Serializable {
             return null;
         }
 
-        SalvarAcumuladoDB sv = new SalvarAcumuladoDBToplink();
+        Dao dao = new Dao();
         Pessoa empresaConveniada = null;
 
         if (listaJuridica.size() == 1 && listaJuridica.get(idJuridica).getDescription().equals("0")) {
 
         } else {
-            empresaConveniada = ((Juridica) sv.pesquisaCodigo(Integer.valueOf(listaJuridica.get(idJuridica).getDescription()), "Juridica")).getPessoa();
+            empresaConveniada = ((Juridica) dao.find(new Juridica(), Integer.valueOf(listaJuridica.get(idJuridica).getDescription()))).getPessoa();
         }
 
         // CODICAO DE PAGAMENTO
@@ -226,9 +220,9 @@ public class LancamentoIndividualBean implements Serializable {
 
         List<String> list_log = new ArrayList();
         if (DataHoje.converteDataParaInteger(((Movimento) listaMovimento.get(0).getArgumento0()).getVencimento()) > DataHoje.converteDataParaInteger(DataHoje.data())) {
-            cp = (CondicaoPagamento) sv.pesquisaCodigo(2, "CondicaoPagamento");
+            cp = (CondicaoPagamento) dao.find(new CondicaoPagamento(), 2);
         } else {
-            cp = (CondicaoPagamento) sv.pesquisaCodigo(1, "CondicaoPagamento");
+            cp = (CondicaoPagamento) dao.find(new CondicaoPagamento(), 1);
         }
 
         list_log.add("Pessoa ID: " + fisica.getPessoa().getId());
@@ -242,16 +236,16 @@ public class LancamentoIndividualBean implements Serializable {
         // TIPO DE DOCUMENTO  FTipo_documento 13 - CARTEIRA, 2 - BOLETO
         FTipoDocumento td;
         if (descontoFolha.equals("sim")) {
-            td = (FTipoDocumento) sv.pesquisaCodigo(13, "FTipoDocumento");
+            td = (FTipoDocumento) dao.find(new FTipoDocumento(), 13);
             list_log.add("Desconto Folha: SIM");
         } else {
-            td = (FTipoDocumento) sv.pesquisaCodigo(2, "FTipoDocumento");
+            td = (FTipoDocumento) dao.find(new FTipoDocumento(), 2);
             list_log.add("Desconto Folha: NÃO");
         }
 
         list_log.add("Tipo Documento: " + td.getDescricao());
 
-        Servicos serv = (Servicos) sv.pesquisaCodigo(Integer.parseInt(listaServicos.get(idServico).getDescription()), "Servicos");
+        Servicos serv = (Servicos) dao.find(new Servicos(), Integer.parseInt(listaServicos.get(idServico).getDescription()));
 
         lote.setEmissao(DataHoje.data());
         lote.setAvencerContabil(false);
@@ -261,18 +255,18 @@ public class LancamentoIndividualBean implements Serializable {
         lote.setEvt(null);
         lote.setPessoa(responsavel);
         lote.setFTipoDocumento(td);
-        lote.setRotina((Rotina) sv.pesquisaCodigo(131, "Rotina"));
-        lote.setStatus((FStatus) sv.pesquisaCodigo(1, "FStatus"));
+        lote.setRotina((Rotina) dao.find(new Rotina(), 131));
+        lote.setStatus((FStatus) dao.find(new FStatus(), 1));
         lote.setPessoaSemCadastro(null);
         lote.setDepartamento(serv.getDepartamento());
         lote.setCondicaoPagamento(cp);
         lote.setPlano5(serv.getPlano5());
         lote.setDescontoFolha(descontoFolha.equals("sim"));
 
-        sv.abrirTransacao();
-        if (!sv.inserirObjeto(lote)) {
+        dao.openTransaction();
+        if (!dao.save(lote)) {
             GenericaMensagem.error("Atenção", "Erro ao salvar Lote!");
-            sv.desfazerTransacao();
+            dao.rollback();
             return null;
         }
 
@@ -288,9 +282,9 @@ public class LancamentoIndividualBean implements Serializable {
             pessoaComplemento.setNrDiaVencimento(idDia);
             pessoaComplemento.setPessoa(fisica.getPessoa());
 
-            if (!sv.inserirObjeto(pessoaComplemento)) {
+            if (!dao.save(pessoaComplemento)) {
                 GenericaMensagem.error("Atenção", "Erro ao salvar Pessoa Complemento!");
-                sv.desfazerTransacao();
+                dao.rollback();
                 return null;
             }
             list_log.add("-------------------------------------------------------------------");
@@ -301,9 +295,9 @@ public class LancamentoIndividualBean implements Serializable {
 
         for (int i = 0; i < listaMovimento.size(); i++) {
             ((Movimento) listaMovimento.get(i).getArgumento0()).setLote(lote);
-            if (!sv.inserirObjeto((Movimento) listaMovimento.get(i).getArgumento0())) {
+            if (!dao.save((Movimento) listaMovimento.get(i).getArgumento0())) {
                 GenericaMensagem.error("Atenção", "Erro ao salvar Movimento!");
-                sv.desfazerTransacao();
+                dao.rollback();
                 return null;
             }
 
@@ -325,16 +319,16 @@ public class LancamentoIndividualBean implements Serializable {
                     null
             );
 
-            if (!sv.inserirObjeto(guias)) {
+            if (!dao.save(guias)) {
                 GenericaMensagem.error("Atenção", "Erro ao salvar Guias!");
-                sv.desfazerTransacao();
+                dao.rollback();
                 return null;
             }
             list_log.add("-------------------------------------------------------------------");
             list_log.add("Guia ID: " + guias.getId());
             list_log.add("Guia Empresa Convênio: " + guias.getPessoa().getNome());
         }
-        sv.comitarTransacao();
+        dao.commit();
 
         String save_log = "";
 
@@ -363,7 +357,7 @@ public class LancamentoIndividualBean implements Serializable {
 
     public void limpaEmpresaConvenio() {
         listaJuridica.clear();
-        servicos = (Servicos) (new SalvarAcumuladoDBToplink().pesquisaCodigo(Integer.parseInt(listaServicos.get(idServico).getDescription()), "Servicos"));
+        servicos = (Servicos) (new Dao().find(new Servicos(), Integer.parseInt(listaServicos.get(idServico).getDescription())));
         totalPagar = "0,00";
     }
 
@@ -422,7 +416,7 @@ public class LancamentoIndividualBean implements Serializable {
                 retornaResponsavel(fisica.getPessoa().getId(), false);
             }
 
-            PessoaDB db = new PessoaDBToplink();
+            PessoaDao db = new PessoaDao();
             ServicoPessoaDB dbS = new ServicoPessoaDBToplink();
 
             servicoPessoa = dbS.pesquisaServicoPessoaPorPessoa(fisica.getPessoa().getId());
@@ -493,7 +487,7 @@ public class LancamentoIndividualBean implements Serializable {
             GenericaMensagem.warn("PESSOA", responsavel.getNome() + " contém o nome no Serasa!");
         }
 
-        PessoaDB db = new PessoaDBToplink();
+        PessoaDao db = new PessoaDao();
         pessoaComplemento = db.pesquisaPessoaComplementoPorPessoa(responsavel.getId());
         if (pessoaComplemento.getId() != -1) {
             if (pessoaComplemento.getCobrancaBancaria()) {
@@ -751,7 +745,7 @@ public class LancamentoIndividualBean implements Serializable {
             LancamentoIndividualDao db = new LancamentoIndividualDao();
 
             if (!listaServicos.get(idServico).getDescription().equals("0")) {
-                Servicos se = (Servicos) (new SalvarAcumuladoDBToplink().pesquisaCodigo(Integer.parseInt(listaServicos.get(idServico).getDescription()), "Servicos"));
+                Servicos se = (Servicos) (new Dao().find(new Servicos(), Integer.parseInt(listaServicos.get(idServico).getDescription())));
 
                 List<Vector> valor = db.pesquisaServicoValor(fisica.getPessoa().getId(), se.getId());
                 float vl = Float.valueOf(((Double) valor.get(0).get(0)).toString());

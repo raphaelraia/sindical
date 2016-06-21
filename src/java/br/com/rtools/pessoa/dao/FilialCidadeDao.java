@@ -1,4 +1,4 @@
-package br.com.rtools.pessoa.db;
+package br.com.rtools.pessoa.dao;
 
 import br.com.rtools.pessoa.FilialCidade;
 import br.com.rtools.principal.DB;
@@ -6,9 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 
-public class FilialCidadeDBToplink extends DB implements FilialCidadeDB {
+public class FilialCidadeDao extends DB {
 
-    @Override
     public FilialCidade pesquisaFilialCidade(int idFilial, int idCidade) {
         FilialCidade result = new FilialCidade();
         try {
@@ -24,7 +23,6 @@ public class FilialCidadeDBToplink extends DB implements FilialCidadeDB {
         return result;
     }
 
-    @Override
     public FilialCidade pesquisaFilialPorCidade(int idCidade) {
         FilialCidade result = new FilialCidade();
         try {
