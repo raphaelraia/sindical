@@ -30,7 +30,7 @@
                             <c:set scope="request" var="object" value="${permissaoBean.permissaoDepartamento}"/>
                             <p:panel styleClass="fundoCinza">
                                 <center>
-                                    <h:panelGrid columns="4">
+                                    <h:panelGrid columns="6">
                                         <h:outputLabel value="Departamento: " />
                                         <p:selectOneMenu value="#{permissaoBean.idDepartamento}" style="padding-right: 20px">
                                             <p:ajax event="change" listener="#{permissaoBean.pesquisaPermissoesDepartamento}" update="tbl, tbl2"/>
@@ -41,11 +41,16 @@
                                             <p:ajax event="change" listener="#{permissaoBean.pesquisaPermissoesDepartamento}" update="tbl, tbl2"/>
                                             <f:selectItems value="#{permissaoBean.listaNiveis}"/>
                                         </p:selectOneMenu>
+                                        <h:outputLabel value="Permissão: " style="margin-left: 25px;"/>
+                                        <p:selectOneMenu value="#{permissaoBean.idEventoFiltro}" style="padding-right: 20px">
+                                            <p:ajax event="change" listener="#{permissaoBean.pesquisaPermissoesDepartamento}" update="tbl, tbl2"/>
+                                            <f:selectItems value="#{permissaoBean.listaEventosFiltro}"/>
+                                        </p:selectOneMenu>
                                     </h:panelGrid>
                                     <p:separator />
                                     <h:panelGrid columns="4" id="idColunaPesquisa" styleClass="margin-top-maior">
                                         <h:outputLabel value="Filtrar permissões:" styleClass="fontePadrao" />
-                                        <p:inputText value="#{permissaoBean.descricaoPesquisa}" styleClass="fontePadrao" title="Filtrar por rotina" size="25"/>
+                                        <p:inputText value="#{permissaoBean.descricaoPesquisa}" styleClass="fontePadrao" title="Filtrar por rotina. Pesquise mais de uma rotina separando por vírgula" size="80"/>
                                         <p:commandButton icon="ui-icon-search"  action="#{permissaoBean.pesquisaPermissoesDepartamento}" update="tbl, tbl2" />
                                         <p:commandButton icon="ui-icon-close" action="#{permissaoBean.limparPesquisaPermissoesDepartamento}" update="idColunaPesquisa, tbl, tbl2" title="Limpar pesquisa" />
                                     </h:panelGrid>

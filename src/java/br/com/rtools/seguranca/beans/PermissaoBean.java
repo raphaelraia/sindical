@@ -43,12 +43,14 @@ public class PermissaoBean implements Serializable {
     private List<SelectItem> listaRotinas;
     private List<SelectItem> listaModulos;
     private List<SelectItem> listaEventos;
+    private List<SelectItem> listaEventosFiltro;
     private List<SelectItem> listaDepartamentos;
     private List<SelectItem> listaNiveis;
     private List<SelectItem> listaRotinaGrupo;
     private Integer idModulo;
     private Integer idRotina;
     private int idEvento;
+    private Integer idEventoFiltro;
     private int idDepartamento;
     private int idNivel;
     private int idIndex;
@@ -89,6 +91,7 @@ public class PermissaoBean implements Serializable {
         listaRotinas = new ArrayList();
         listaModulos = new ArrayList();
         listaEventos = new ArrayList();
+        listaEventosFiltro = new ArrayList();
         listaDepartamentos = new ArrayList();
         listaNiveis = new ArrayList();
         // listPermissaoDepartamento = new ArrayList<ListaPermissaoDepartamento>();
@@ -677,11 +680,10 @@ public class PermissaoBean implements Serializable {
 
     public List<ListaPermissaoDepartamento> getListaPermissoesDisponiveis() {
         if (listaPermissoesDisponiveis.isEmpty()) {
-            //listaPermissoesDisponiveis.clear();
             PermissaoDepartamentoDao permissaoDepartamentoDB = new PermissaoDepartamentoDao();
             int idDepto = Integer.parseInt(listaDepartamentos.get(idDepartamento).getDescription());
             int idNiv = Integer.parseInt(listaNiveis.get(idNivel).getDescription());
-            List<Permissao> list = permissaoDepartamentoDB.listaPermissaoDepartamentoDisponivel(idDepto, idNiv, descricaoPesquisa);
+            List<Permissao> list = permissaoDepartamentoDB.listaPermissaoDepartamentoDisponivel(idDepto, idNiv, idEventoFiltro, descricaoPesquisa);
             for (Permissao list1 : list) {
                 listaPermissoesDisponiveis.add(new ListaPermissaoDepartamento(null, list1, false));
             }
@@ -698,7 +700,7 @@ public class PermissaoBean implements Serializable {
             PermissaoDepartamentoDao permissaoDepartamentoDB = new PermissaoDepartamentoDao();
             int idDepto = Integer.parseInt(listaDepartamentos.get(idDepartamento).getDescription());
             int idNiv = Integer.parseInt(listaNiveis.get(idNivel).getDescription());
-            List<PermissaoDepartamento> list = permissaoDepartamentoDB.listaPermissaoDepartamentoAdicionada(idDepto, idNiv, descricaoPesquisa);
+            List<PermissaoDepartamento> list = permissaoDepartamentoDB.listaPermissaoDepartamentoAdicionada(idDepto, idNiv, idEventoFiltro, descricaoPesquisa);
             for (PermissaoDepartamento list1 : list) {
                 listaPermissoesAdicionadas.add(new ListaPermissaoDepartamento(list1, list1.getPermissao(), false));
             }
@@ -862,5 +864,30 @@ public class PermissaoBean implements Serializable {
         if (idRotina != null) {
             rotinaSelected = (Rotina) new Dao().find(new Rotina(), idRotina);
         }
+    }
+
+    public List<SelectItem> getListaEventosFiltro() {
+        if (listaEventosFiltro.isEmpty()) {
+            Dao dao = new Dao();
+            List<Evento> list = dao.list(new Evento(), true);
+            listaEventosFiltro.add(new SelectItem(null, "TODOS"));
+            idEventoFiltro = null;
+            for (int i = 0; i < list.size(); i++) {
+                listaEventosFiltro.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
+            }
+        }
+        return listaEventosFiltro;
+    }
+
+    public void setListaEventosFiltro(List<SelectItem> listaEventosFiltro) {
+        this.listaEventosFiltro = listaEventosFiltro;
+    }
+
+    public Integer getIdEventoFiltro() {
+        return idEventoFiltro;
+    }
+
+    public void setIdEventoFiltro(Integer idEventoFiltro) {
+        this.idEventoFiltro = idEventoFiltro;
     }
 }

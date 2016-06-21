@@ -61,10 +61,10 @@ public class EnderecoBean implements Serializable {
         index[2] = 0;
         index[3] = 0;
         listSelectItem = new ArrayList[4];
-        listSelectItem[0] = new ArrayList<SelectItem>();
-        listSelectItem[1] = new ArrayList<SelectItem>();
-        listSelectItem[2] = new ArrayList<SelectItem>();
-        listSelectItem[3] = new ArrayList<SelectItem>();
+        listSelectItem[0] = new ArrayList<>();
+        listSelectItem[1] = new ArrayList<>();
+        listSelectItem[2] = new ArrayList<>();
+        listSelectItem[3] = new ArrayList<>();
         porPesquisa = "";
         mensagem = "";
         btnCadastrar = false;

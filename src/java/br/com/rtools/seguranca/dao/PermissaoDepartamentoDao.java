@@ -72,11 +72,32 @@ public class PermissaoDepartamentoDao extends DB {
         }
     }
 
-    public List<Permissao> listaPermissaoDepartamentoDisponivel(int idDepartamento, int idNivel, String descricaoPesquisa) {
+    public List<Permissao> listaPermissaoDepartamentoDisponivel(Integer idDepartamento, Integer idNivel, Integer evento_id, String descricaoPesquisa) {
         String queryFiltro = "";
+        String[] descArray = null;
         if (!descricaoPesquisa.equals("")) {
-            queryFiltro = " AND UPPER(P.rotina.rotina) LIKE '%" + descricaoPesquisa.toUpperCase() + "%'";
+            try {
+                descArray = descricaoPesquisa.split(",");
+            } catch (Exception e) {
+
+            }
+            if (descArray != null) {
+                queryFiltro += " AND (";
+                for (int i = 0; i < descArray.length; i++) {
+                    if (i == 0) {
+                        queryFiltro += " UPPER(P.rotina.rotina) LIKE '%" + descArray[i].toUpperCase().trim() + "%'";
+                    } else {
+                        queryFiltro += " OR UPPER(P.rotina.rotina) LIKE '%" + descArray[i].toUpperCase().trim() + "%'";
+                    }
+                }
+                queryFiltro += " ) ";
+            } else {
+                queryFiltro = " AND UPPER(P.rotina.rotina) LIKE '%" + descricaoPesquisa.toUpperCase().trim() + "%'";
+            }
         }
+        if(evento_id != null) {
+            queryFiltro += " AND P.evento.id = " + evento_id;
+        }        
         try {
             Query query = getEntityManager().createQuery(" SELECT P FROM Permissao AS P WHERE P.id NOT IN ( SELECT PD.permissao.id FROM PermissaoDepartamento AS PD WHERE PD.departamento.id = " + idDepartamento + " AND PD.nivel.id = " + idNivel + ") " + queryFiltro + " ORDER BY P.modulo.descricao ASC, P.rotina.rotina ASC ");
             List list = query.getResultList();
@@ -90,10 +111,31 @@ public class PermissaoDepartamentoDao extends DB {
 
     }
 
-    public List<PermissaoDepartamento> listaPermissaoDepartamentoAdicionada(int idDepartamento, int idNivel, String descricaoPesquisa) {
+    public List<PermissaoDepartamento> listaPermissaoDepartamentoAdicionada(Integer idDepartamento, Integer idNivel, Integer evento_id, String descricaoPesquisa) {
         String queryFiltro = "";
+        String[] descArray = null;
         if (!descricaoPesquisa.equals("")) {
-            queryFiltro = " AND UPPER(PD.permissao.rotina.rotina) LIKE '%" + descricaoPesquisa.toUpperCase() + "%'";
+            try {
+                descArray = descricaoPesquisa.split(",");
+            } catch (Exception e) {
+
+            }
+            if (descArray != null) {
+                queryFiltro += " AND (";
+                for (int i = 0; i < descArray.length; i++) {
+                    if (i == 0) {
+                        queryFiltro += " UPPER(PD.permissao.rotina.rotina) LIKE '%" + descArray[i].toUpperCase().trim() + "%'";
+                    } else {
+                        queryFiltro += " OR UPPER(PD.permissao.rotina.rotina) LIKE '%" + descArray[i].toUpperCase().trim() + "%'";
+                    }
+                }
+                queryFiltro += " ) ";
+            } else if (!descricaoPesquisa.equals("")) {
+                queryFiltro = " AND UPPER(PD.permissao.rotina.rotina) LIKE '%" + descricaoPesquisa.toUpperCase() + "%'";
+            }
+        }
+        if(evento_id != null) {
+            queryFiltro += " AND PD.permissao.evento.id = " + evento_id;
         }
         try {
             Query query = getEntityManager().createQuery(" SELECT PD FROM PermissaoDepartamento AS PD WHERE PD.departamento.id = :idDepartamento AND PD.nivel.id = :idNivel " + queryFiltro + " ORDER BY PD.permissao.modulo.descricao ASC, PD.permissao.rotina.rotina ASC ");
