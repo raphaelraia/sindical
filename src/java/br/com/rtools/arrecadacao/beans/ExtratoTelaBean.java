@@ -1170,7 +1170,7 @@ public class ExtratoTelaBean implements Serializable {
                         + " <h5>Segue boleto em anexo</h5><br /><br />";
             }
 
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             Mail mail = new Mail();
             mail.setFiles(fls);
             mail.setEmail(

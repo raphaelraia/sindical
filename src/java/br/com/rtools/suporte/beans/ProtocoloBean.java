@@ -3,7 +3,6 @@ package br.com.rtools.suporte.beans;
 import java.util.List;
 import br.com.rtools.suporte.Protocolo;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.GenericaSessao;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -36,7 +35,7 @@ public class ProtocoloBean {
         if (protocolo.getSolicitante().isEmpty()) {
             message = "Digite o a situação do histórico atual!";
         }
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         di.openTransaction();
         if (protocolo.getId() == -1) {
             if (di.save(protocolo)) {
@@ -60,7 +59,7 @@ public class ProtocoloBean {
 
     public void delete() {
         if (protocolo.getId() != -1) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             di.openTransaction();
             if (di.delete(protocolo)) {
                 di.commit();

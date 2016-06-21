@@ -22,7 +22,6 @@ import br.com.rtools.sistema.SisPessoa;
 import br.com.rtools.sistema.dao.SisPessoaDao;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
@@ -173,7 +172,7 @@ public class RaisBean extends PesquisarProfissaoBean implements Serializable {
             GenericaMensagem.warn("Validação", "Informa profissão!");
             return;
         }
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         if (Integer.parseInt(getListNacionalidade().get(indexNacionalidade).getDescription()) != 0) {
             rais.setNacionalidade((Nacionalidade) di.find(new Nacionalidade(), Integer.parseInt(getListNacionalidade().get(indexNacionalidade).getDescription())));
         } else {
@@ -306,7 +305,7 @@ public class RaisBean extends PesquisarProfissaoBean implements Serializable {
 //            GenericaMensagem.warn("Validação", "Informa profissão!");
 //            return "rais";
 //        }
-//        DaoInterface di = new Dao();
+//        Dao di = new Dao();
 //        if (Integer.parseInt(getListNacionalidade().get(indexNacionalidade).getDescription()) != 0) {
 //            rais.setNacionalidade((Nacionalidade) di.find(new Nacionalidade(), Integer.parseInt(getListNacionalidade().get(indexNacionalidade).getDescription())));
 //        } else {
@@ -378,7 +377,7 @@ public class RaisBean extends PesquisarProfissaoBean implements Serializable {
 //    }
     public void delete() {
         if (rais.getId() != -1) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             di.openTransaction();
             if (di.delete(rais)) {
                 di.commit();
@@ -581,7 +580,7 @@ public class RaisBean extends PesquisarProfissaoBean implements Serializable {
 
     public List<SelectItem> getListNacionalidade() {
         if (listNacionalidade.isEmpty()) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             List<Nacionalidade> list = di.list("Nacionalidade");
             listNacionalidade.add(new SelectItem(0, "Selecionar", "0"));
             for (int i = 0; i < list.size(); i++) {
@@ -597,7 +596,7 @@ public class RaisBean extends PesquisarProfissaoBean implements Serializable {
 
     public List<SelectItem> getListEscolaridade() {
         if (listEscolaridade.isEmpty()) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             List<Escolaridade> list = di.list("Escolaridade");
             if (!list.isEmpty()) {
                 listEscolaridade.add(new SelectItem(0, "Selecionar", "0"));
@@ -618,7 +617,7 @@ public class RaisBean extends PesquisarProfissaoBean implements Serializable {
 
     public List<SelectItem> getListRaca() {
         if (listRaca.isEmpty()) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             List<Raca> list = di.list("Raca");
             listRaca.add(new SelectItem(0, "Selecionar", "0"));
             for (int i = 0; i < list.size(); i++) {
@@ -634,7 +633,7 @@ public class RaisBean extends PesquisarProfissaoBean implements Serializable {
 
     public List<SelectItem> getListClassificacaoEconomica() {
         if (listClassificacaoEconomica.isEmpty()) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             List<ClassificacaoEconomica> list = di.list("ClassificacaoEconomica");
             listClassificacaoEconomica.add(new SelectItem(0, "Selecionar", "0"));
 
@@ -667,7 +666,7 @@ public class RaisBean extends PesquisarProfissaoBean implements Serializable {
 
     public List<SelectItem> getListTipoRemuneracao() {
         if (listTipoRemuneracao.isEmpty()) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             List<TipoRemuneracao> list = di.list("TipoRemuneracao");
             for (int i = 0; i < list.size(); i++) {
                 listTipoRemuneracao.add(new SelectItem(i, list.get(i).getDescricao(), "" + list.get(i).getId()));
@@ -682,7 +681,7 @@ public class RaisBean extends PesquisarProfissaoBean implements Serializable {
 
     public List<SelectItem> getListIndicadorAlvara() {
         if (listIndicadorAlvara.isEmpty()) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             List<IndicadorAlvara> list = di.list("IndicadorAlvara");
             for (int i = 0; i < list.size(); i++) {
                 listIndicadorAlvara.add(new SelectItem(i, list.get(i).getDescricao(), "" + list.get(i).getId()));
@@ -753,7 +752,7 @@ public class RaisBean extends PesquisarProfissaoBean implements Serializable {
 
     public List<SelectItem> getListTipoDeficiencia() {
         if (listTipoDeficiencia.isEmpty()) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             List<TipoDeficiencia> list = di.list("TipoDeficiencia");
             //listTipoDeficiencia.add(new SelectItem(0, "Selecionar", "0"));
             for (int i = 0; i < list.size(); i++) {

@@ -7,7 +7,6 @@ import br.com.rtools.homologacao.dao.FeriadosDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
@@ -73,7 +72,7 @@ public class FeriadosBean implements Serializable {
 
     public void save() {
         FeriadosDao feriadosDao = new FeriadosDao();
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         NovoLog novoLog = new NovoLog();
         if (feriados.getId() == -1) {
             if (feriados.getNome().equals("")) {
@@ -189,7 +188,7 @@ public class FeriadosBean implements Serializable {
     }
 
     public void delete(Feriados f) {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         NovoLog novoLog = new NovoLog();
         if (f.getId() != -1) {
             String cidade = "";

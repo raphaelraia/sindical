@@ -4,7 +4,6 @@ import br.com.rtools.associativo.ConviteAutorizaCortesia;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.utilitarios.GenericaSessao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.Dao;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -59,7 +58,7 @@ public class ConviteAutorizaCortesiaBean implements Serializable {
                 return;
             }
         }
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         if (conviteAutorizaCortesia.getId() == -1) {
             di.openTransaction();
             if (di.save(conviteAutorizaCortesia)) {
@@ -83,7 +82,7 @@ public class ConviteAutorizaCortesiaBean implements Serializable {
 
     public void delete(ConviteAutorizaCortesia cac) {
         if (cac.getId() != -1) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             di.openTransaction();
             if (di.delete(cac)) {
                 di.commit();
@@ -119,7 +118,7 @@ public class ConviteAutorizaCortesiaBean implements Serializable {
 
     public List<ConviteAutorizaCortesia> getListPessoasAutorizadas() {
         if (listPessoasAutorizadas.isEmpty()) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             listPessoasAutorizadas = (List<ConviteAutorizaCortesia>) di.list(new ConviteAutorizaCortesia(), true);
         }
         return listPessoasAutorizadas;

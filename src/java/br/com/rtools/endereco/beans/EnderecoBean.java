@@ -13,7 +13,6 @@ import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.utilitarios.CEPService;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import java.io.Serializable;
@@ -198,7 +197,7 @@ public class EnderecoBean implements Serializable {
 
     public void save() throws Exception {
         mensagem = "";
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         EnderecoDao db = new EnderecoDao();
         Logradouro logradouro = (Logradouro) di.find(new Logradouro(), Integer.parseInt(getListLogradouro().get(index[2]).getDescription()));
         endereco.setLogradouro(logradouro);
@@ -299,7 +298,7 @@ public class EnderecoBean implements Serializable {
 
     public void delete() {
         if (endereco.getId() != -1) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             di.openTransaction();
             if (di.delete((Endereco) di.find(endereco))) {
                 di.commit();
@@ -416,7 +415,7 @@ public class EnderecoBean implements Serializable {
     public List<SelectItem> getListCidade() {
         if (listSelectItem[1].isEmpty()) {
             PessoaEnderecoDao dbPes = new PessoaEnderecoDao();
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             Filial fili = (Filial) di.find(new Filial(), 1);
             if (fili == null) {
                 msgDetalhada = "Não existe filial, CRIE uma e "
@@ -439,7 +438,7 @@ public class EnderecoBean implements Serializable {
                 }
             }
         } else {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             cidadeBase = (Cidade) di.find(new Cidade(), Integer.parseInt(listSelectItem[1].get(index[1]).getDescription()));
             for (int i = 0; i < listSelectItem[1].size(); i++) {
                 if (Integer.parseInt(listSelectItem[1].get(i).getDescription()) == cidadeBase.getId()) {

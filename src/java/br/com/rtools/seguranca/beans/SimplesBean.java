@@ -34,7 +34,6 @@ import br.com.rtools.sistema.SisNotificacaoCategoria;
 import br.com.rtools.suporte.ProStatus;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Tables;
@@ -175,7 +174,7 @@ public class SimplesBean implements Serializable {
     }
 
     public void excluir(Object o) {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         NovoLog log = new NovoLog();
         log.setCadastroSimples(true);
         objeto = o;

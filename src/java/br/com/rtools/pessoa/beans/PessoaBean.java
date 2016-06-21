@@ -17,7 +17,6 @@ import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.dao.PessoaDao;
 import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Mask;
 import br.com.rtools.utilitarios.SelectItemSort;
@@ -218,7 +217,7 @@ public class PessoaBean implements Serializable {
     }
 
     public String salvar() {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         if (pessoa.getId() == -1) {
             di.openTransaction();
             if (di.save(pessoa)) {
@@ -243,7 +242,7 @@ public class PessoaBean implements Serializable {
     }
 
     public String excluir() {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         if (pessoa.getId() != -1) {
             di.openTransaction();
             if (di.delete(pessoa)) {

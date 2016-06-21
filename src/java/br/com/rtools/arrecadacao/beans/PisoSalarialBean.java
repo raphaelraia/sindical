@@ -9,7 +9,6 @@ import br.com.rtools.financeiro.dao.SalarioMinimoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Porte;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
@@ -123,7 +122,7 @@ public class PisoSalarialBean implements Serializable {
             return;
         }
 
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         pisoSalarialLote.setPorte((Porte) di.find(new Porte(), Integer.parseInt(listComboPorte.get(idPorte).getDescription())));
         di.openTransaction();
         NovoLog novoLog = new NovoLog();
@@ -233,7 +232,7 @@ public class PisoSalarialBean implements Serializable {
             return;
         }
 
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         if (!di.save(pisoSalarial, true)) {
             message = "Erro ao adicionar Piso Salarial!";
             GenericaMensagem.warn("Erro", " Ao adicionar Piso Salarial!!");
@@ -245,7 +244,7 @@ public class PisoSalarialBean implements Serializable {
 
     public void deletePisoSalariaLote() {
         if (pisoSalarialLote.getId() != -1) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             NovoLog novoLog = new NovoLog();
             di.openTransaction();
             for (int i = 0; i < listPisoSalarial.size(); i++) {
@@ -276,7 +275,7 @@ public class PisoSalarialBean implements Serializable {
     }
 
     public void delete(PisoSalarial pisoSalarial) {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         di.openTransaction();
         if (!di.delete(pisoSalarial)) {
             message = "Erro ao excluir PisoSalarial!";
@@ -321,7 +320,7 @@ public class PisoSalarialBean implements Serializable {
 
     public List<SelectItem> getListComboPorte() {
         if (listComboPorte.isEmpty()) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             List<Porte> list = (List<Porte>) di.list(new Porte());
             for (int i = 0; i < list.size(); i++) {
                 listComboPorte.add(new SelectItem(i, list.get(i).getDescricao(), Integer.toString(list.get(i).getId())));
@@ -420,7 +419,7 @@ public class PisoSalarialBean implements Serializable {
 
     public List<PisoSalarialLote> getListPisoSalarialLote() {
         if (listPisoSalarialLote.isEmpty()) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             listPisoSalarialLote = di.list(new PisoSalarialLote());
         }
         return listPisoSalarialLote;

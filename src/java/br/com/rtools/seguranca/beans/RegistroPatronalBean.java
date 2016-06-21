@@ -10,7 +10,6 @@ import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.dao.FilialDao;
 import br.com.rtools.sistema.ConfiguracaoUpload;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.Diretorio;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
@@ -86,7 +85,7 @@ public class RegistroPatronalBean implements Serializable {
             return;
         }
         message = "";
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         NovoLog novoLog = new NovoLog();
         novoLog.startList();
         di.openTransaction();
@@ -150,7 +149,7 @@ public class RegistroPatronalBean implements Serializable {
     }
 
     public void deletePatronalConvencao(int index) {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         NovoLog novoLog = new NovoLog();
         di.openTransaction();
         for (int i = 0; i < listaPatronalConvencao.size(); i++) {
@@ -179,7 +178,7 @@ public class RegistroPatronalBean implements Serializable {
 
     public void delete() {
         if (patronal.getId() != -1) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             NovoLog novoLog = new NovoLog();
             di.openTransaction();
             for (PatronalConvencao pcs : listaPatronalConvencao) {
@@ -226,7 +225,7 @@ public class RegistroPatronalBean implements Serializable {
         patronalConvencao.setConvencao(convencao);
         patronalConvencao.setGrupoCidade(grupoCidade);
         grupoCidade = new GrupoCidade();
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         List<PatronalConvencao> pcs = (List<PatronalConvencao>) di.list(new PatronalConvencao());
         for (PatronalConvencao pc : pcs) {
             if (pc.getGrupoCidade().getId() == patronalConvencao.getGrupoCidade().getId() && pc.getConvencao().getId() == patronalConvencao.getConvencao().getId()) {
@@ -263,7 +262,7 @@ public class RegistroPatronalBean implements Serializable {
         }
         if (GenericaSessao.exists("juridicaPesquisa")) {
             patronal.setPessoa(((Juridica) GenericaSessao.getObject("juridicaPesquisa", true)).getPessoa());
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             List<PatronalConvencao> list = (List<PatronalConvencao>) di.listQuery(new PatronalConvencao(), "findPorPessoaPatronal", new Object[]{patronal.getPessoa().getId()});
             if (!list.isEmpty()) {
                 patronal = list.get(0).getPatronal();
@@ -360,7 +359,7 @@ public class RegistroPatronalBean implements Serializable {
     public List<PatronalConvencao> getListaPatronalConvencao() {
         if (listaPatronalConvencao.isEmpty()) {
             if (patronal.getId() != -1) {
-                DaoInterface di = new Dao();
+                Dao di = new Dao();
                 listaPatronalConvencao = (List<PatronalConvencao>) di.listQuery(new PatronalConvencao(), "findPorPessoaPatronal", new Object[]{patronal.getPessoa().getId()});
             }
         }

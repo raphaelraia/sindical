@@ -7,7 +7,6 @@ import br.com.rtools.financeiro.db.ServicosDB;
 import br.com.rtools.financeiro.db.ServicosDBToplink;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import java.io.Serializable;
@@ -60,7 +59,7 @@ public class ConviteServicoBean implements Serializable {
         }
         
         NovoLog novoLog = new NovoLog();
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         
         conviteServico.setServicos((Servicos) di.find(new Servicos(), Integer.parseInt(listServicos.get(idServicos).getDescription())));
         if (conviteServico.getId() == -1) {
@@ -132,7 +131,7 @@ public class ConviteServicoBean implements Serializable {
 
     public void edit(ConviteServico cs) {
         conviteServico = new ConviteServico();
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         conviteServico = (ConviteServico) di.rebind(cs);
         for (int i = 0; i < listServicos.size(); i++) {
             if (Integer.parseInt(listServicos.get(i).getDescription()) == cs.getServicos().getId()) {
@@ -145,7 +144,7 @@ public class ConviteServicoBean implements Serializable {
     public void updateDiaSemana(ConviteServico cs) {
         if (cs.getId() != -1) {
             NovoLog novoLog = new NovoLog();
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             di.openTransaction();
             ConviteServico csb = (ConviteServico) di.find(cs);
             String beforeUpdate = ""
@@ -195,7 +194,7 @@ public class ConviteServicoBean implements Serializable {
 
     public void delete(ConviteServico cs) {
         if (cs.getId() != -1) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             NovoLog novoLog = new NovoLog();
             di.openTransaction();
             if (di.delete(cs)) {
@@ -256,7 +255,7 @@ public class ConviteServicoBean implements Serializable {
 
     public List<ConviteServico> getListConviteServicos() {
         if (listConviteServicos.isEmpty()) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             listConviteServicos = (List<ConviteServico>) di.list(new ConviteServico(), true);
         }
         return listConviteServicos;

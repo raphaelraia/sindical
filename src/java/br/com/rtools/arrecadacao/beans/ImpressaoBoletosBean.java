@@ -28,7 +28,6 @@ import br.com.rtools.seguranca.utilitarios.SegurancaUtilitariosBean;
 import br.com.rtools.sistema.Email;
 import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
@@ -912,7 +911,7 @@ public class ImpressaoBoletosBean implements Serializable {
                         + " <h5>Baixe seu boleto anexado neste email</5><br /><br />";
             }
 
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             Mail mail = new Mail();
             mail.setFiles(fls);
             mail.setEmail(

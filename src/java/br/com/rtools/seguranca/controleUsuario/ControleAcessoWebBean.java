@@ -30,7 +30,6 @@ import br.com.rtools.sistema.Email;
 import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
@@ -904,7 +903,7 @@ public class ControleAcessoWebBean implements Serializable {
             return;
         }
 
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         Mail mail = new Mail();
         mail.setFiles(new ArrayList());
         mail.setEmail(

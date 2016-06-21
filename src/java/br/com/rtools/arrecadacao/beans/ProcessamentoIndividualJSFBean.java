@@ -29,7 +29,6 @@ import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.sistema.Links;
 import br.com.rtools.sistema.dao.LinksDao;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -666,7 +665,7 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
                         mensagem = "<h5>Segue boleto em anexo</h5><br /><br />";
                     }
 
-                    DaoInterface di = new Dao();
+                    Dao di = new Dao();
                     Mail mail = new Mail();
                     mail.setFiles(fls);
                     mail.setEmail(
@@ -762,7 +761,7 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
                             mensagem = "<h5>Segue boleto em anexo</h5><br /><br />";
                         }
 
-                        DaoInterface di = new Dao();
+                        Dao di = new Dao();
                         Mail mail = new Mail();
                         mail.setFiles(fls);
                         mail.setEmail(
@@ -841,7 +840,7 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
                             mensagem = "<h5>Segue boleto em anexo</h5><br /><br />";
                         }
 
-                        DaoInterface di = new Dao();
+                        Dao di = new Dao();
                         Mail mail = new Mail();
                         mail.setFiles(fls);
                         mail.setEmail(
@@ -939,7 +938,7 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
                 mensagem = "<h5>Segue boleto em anexo</h5><br /><br />";
             }
 
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             Mail mail = new Mail();
             mail.setFiles(fls);
             mail.setEmail(

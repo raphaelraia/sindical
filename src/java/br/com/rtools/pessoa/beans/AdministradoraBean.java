@@ -5,7 +5,6 @@ import br.com.rtools.pessoa.Administradora;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.utilitarios.GenericaSessao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import java.io.Serializable;
@@ -47,7 +46,7 @@ public class AdministradoraBean implements Serializable {
                 return;
             }
         }
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         if (administradora.getId() == -1) {
             di.openTransaction();
             if (di.save(administradora)) {
@@ -71,7 +70,7 @@ public class AdministradoraBean implements Serializable {
 
     public void delete(Administradora cac) {
         if (cac.getId() != -1) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             di.openTransaction();
             if (di.delete(cac)) {
                 di.commit();
@@ -99,7 +98,7 @@ public class AdministradoraBean implements Serializable {
 
     public List<Administradora> getListAdministradoras() {
         if (listAdministradoras.isEmpty()) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             listAdministradoras = (List<Administradora>) di.list(new Administradora(), true);
         }
         return listAdministradoras;

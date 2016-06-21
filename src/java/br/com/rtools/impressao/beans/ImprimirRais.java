@@ -7,7 +7,6 @@ import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Download;
 import br.com.rtools.utilitarios.SalvaArquivos;
@@ -56,7 +55,7 @@ public class ImprimirRais implements Serializable {
     }
 
     public Collection<ParametroRais> parametro(Rais r) {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         Juridica sindicato = (Juridica) di.find(new Juridica(), 1);
         Collection lista = new ArrayList<ParametroProtocolo>();
         String empregadoFiliado = "Não";

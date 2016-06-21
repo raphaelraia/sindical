@@ -12,7 +12,6 @@ import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.sistema.ProcessoAutomatico;
 import br.com.rtools.sistema.dao.ProcessoAutomaticoDao;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
@@ -138,7 +137,7 @@ public class UsuarioBean implements Serializable {
     }
 
     public void save() {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         di.openTransaction();
 
         UsuarioDao db = new UsuarioDao();
@@ -209,7 +208,7 @@ public class UsuarioBean implements Serializable {
             return null;
         }
         PermissaoUsuario pu = new PermissaoUsuario();
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         pu.setDepartamento((Departamento) di.find(new Departamento(), Integer.valueOf(listaDepartamentos.get(idDepartamento).getDescription())));
         pu.setNivel((Nivel) di.find(new Nivel(), Integer.valueOf(listaNiveis.get(idNivel).getDescription())));
         pu.setUsuario(usuario);
@@ -235,7 +234,7 @@ public class UsuarioBean implements Serializable {
 
     public String removePermissaoUsuario(PermissaoUsuario pu) {
         if (pu.getId() != -1) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             pu = (PermissaoUsuario) di.find(pu);
             di.openTransaction();
             if (di.delete(pu)) {
@@ -252,7 +251,7 @@ public class UsuarioBean implements Serializable {
         return null;
     }
 
-    public boolean removePermissoes(DaoInterface di) {
+    public boolean removePermissoes(Dao di) {
         PermissaoUsuarioDao db = new PermissaoUsuarioDao();
         UsuarioAcessoDao usuarioAcessoDao = new UsuarioAcessoDao();
         for (int i = 0; i < listaPermissaoUsuario.size(); i++) {
@@ -278,7 +277,7 @@ public class UsuarioBean implements Serializable {
     }
 
     public void delete() {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         di.openTransaction();
         if (usuario.getId() != -1) {
             if (!removePermissoes(di)) {
@@ -312,7 +311,7 @@ public class UsuarioBean implements Serializable {
     public List<Usuario> getListaUsuario() {
         if (listaUsuario.isEmpty()) {
             if (descricaoPesquisa.isEmpty()) {
-                DaoInterface di = new Dao();
+                Dao di = new Dao();
                 listaUsuario = di.list(new Usuario(), true);
             } else {
                 UsuarioDao db = new UsuarioDao();
@@ -338,7 +337,7 @@ public class UsuarioBean implements Serializable {
 
     public List<SelectItem> getListaNiveis() {
         if (listaNiveis.isEmpty()) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             List niveis = di.list(new Nivel(), true);
             if (!niveis.isEmpty()) {
                 for (int i = 0; i < niveis.size(); i++) {
@@ -354,7 +353,7 @@ public class UsuarioBean implements Serializable {
 
     public List<SelectItem> getListaDepartamentos() {
         if (listaDepartamentos.isEmpty()) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             List departamentos = di.list(new Departamento(), true);
             for (int i = 0; i < departamentos.size(); i++) {
                 listaDepartamentos.add(new SelectItem(i,
@@ -720,7 +719,7 @@ public class UsuarioBean implements Serializable {
         if (ua.getId() == null) {
             return;
         }
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         di.openTransaction();
         if (di.delete(ua)) {
             di.commit();
@@ -791,7 +790,7 @@ public class UsuarioBean implements Serializable {
                 GenericaMensagem.warn("Validação", mensagem);
                 return;
             }
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             Usuario user = (Usuario) di.find(new Usuario(), usuario.getId());
             if (!user.getSenha().equals(senhaAntiga)) {
                 mensagem = "Senha antiga incompativel!";
@@ -892,7 +891,7 @@ public class UsuarioBean implements Serializable {
 
     public List<SelectItem> getListUsuariosImport() {
         if (listUsuariosImport.isEmpty()) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             List<Usuario> list = (List<Usuario>) di.list(new Usuario(), true);
 
             listUsuariosImport.add(new SelectItem(0, "Selecione um Usuário", null));

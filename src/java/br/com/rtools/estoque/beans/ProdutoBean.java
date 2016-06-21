@@ -15,7 +15,6 @@ import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
 import br.com.rtools.sistema.Cor;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
@@ -386,7 +385,7 @@ public class ProdutoBean implements Serializable {
             return;
         }
         estoque.setCustoMedio(Moeda.converteUS$(custoMedio));
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         NovoLog novoLog = new NovoLog();
         if (estoque.getId() == -1) {
             estoque.setEstoqueTipo((EstoqueTipo) di.find(new EstoqueTipo(), Integer.parseInt(listaSelectItem[4].get(indices[4]).getDescription())));

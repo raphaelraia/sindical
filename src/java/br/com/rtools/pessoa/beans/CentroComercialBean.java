@@ -6,7 +6,6 @@ import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.TipoCentroComercial;
 import br.com.rtools.pessoa.dao.CentroComercialDao;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import java.util.ArrayList;
@@ -39,7 +38,7 @@ public class CentroComercialBean {
     }
 
     public void save() {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         NovoLog novoLog = new NovoLog();
         CentroComercialDao db = new CentroComercialDao();
         if (centroComercial.getJuridica().getId() == -1) {
@@ -89,7 +88,7 @@ public class CentroComercialBean {
     }
 
     public String edit(CentroComercial cc) {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         centroComercial = (CentroComercial) di.rebind(cc);
         for (int i = 0; i < listTiposCentroComercial.size(); i++) {
             if (Integer.parseInt(listTiposCentroComercial.get(i).getDescription()) == centroComercial.getTipoCentroComercial().getId()) {
@@ -100,7 +99,7 @@ public class CentroComercialBean {
     }
 
     public void delete() {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         NovoLog novoLog = new NovoLog();
         di.openTransaction();
         if (di.delete(centroComercial)) {
@@ -121,7 +120,7 @@ public class CentroComercialBean {
 
     public List<SelectItem> getListTiposCentroComercial() {
         if (listTiposCentroComercial.isEmpty()) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             List<TipoCentroComercial> list = (List<TipoCentroComercial>) di.list(new TipoCentroComercial());
             for (int i = 0; i < list.size(); i++) {
                 listTiposCentroComercial.add(new SelectItem(i, list.get(i).getDescricao(), Integer.toString((list.get(i)).getId())));
@@ -155,7 +154,7 @@ public class CentroComercialBean {
 
     public List<CentroComercial> getListCentroComercial() {
         if (listCentroComercial.isEmpty()) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             listCentroComercial = (List<CentroComercial>) di.list(new CentroComercial(), true);
         }
         return listCentroComercial;

@@ -8,7 +8,6 @@ import br.com.rtools.arrecadacao.dao.MensagemConvencaoDao;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import java.io.Serializable;
@@ -145,7 +144,7 @@ public class GrupoCidadesBean implements Serializable {
 
     public boolean saveGrupoCidade(GrupoCidades grupoCidades) {
         NovoLog novoLog = new NovoLog();
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         if (grupoCidades.getId() == -1) {
             di.openTransaction();
             if (di.save(grupoCidades)) {
@@ -268,7 +267,7 @@ public class GrupoCidadesBean implements Serializable {
             }
         }
 
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
 
         di.openTransaction();
 
@@ -296,7 +295,7 @@ public class GrupoCidadesBean implements Serializable {
 
     public void removeCidade(GrupoCidades gc) {
         grupoCidades = gc;
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         NovoLog novoLog = new NovoLog();
         di.openTransaction();
         if (!di.delete(grupoCidades)) {

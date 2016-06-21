@@ -7,7 +7,6 @@ import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.PF;
@@ -80,7 +79,7 @@ public class CidadeBean implements Serializable {
             return;
         }
 
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         NovoLog log = new NovoLog();
 
         di.openTransaction();
@@ -121,7 +120,7 @@ public class CidadeBean implements Serializable {
 
     public void delete(Cidade ci) {
         NovoLog log = new NovoLog();
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         if (ci.getId() != -1) {
             di.openTransaction();
             if (di.delete(ci)) {

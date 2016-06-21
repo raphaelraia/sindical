@@ -31,7 +31,6 @@ import br.com.rtools.seguranca.utilitarios.SegurancaUtilitariosBean;
 import br.com.rtools.sistema.ConfiguracaoUpload;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.Diretorio;
@@ -337,7 +336,7 @@ public class RecepcaoBean implements Serializable {
             return;
         }
 
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         agendamentoEdit.setStatus((Status) di.find(new Status(), 3));
         di.openTransaction();
         if (!di.update(agendamentoEdit)) {
@@ -437,7 +436,7 @@ public class RecepcaoBean implements Serializable {
 
     public List<SelectItem> getListaMotivoDemissao() {
         if (listaMotivoDemissao.isEmpty()) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             List<Demissao> list = (List<Demissao>) di.list(new Demissao(), true);
             if (!list.isEmpty()) {
                 for (int i = 0; i < list.size(); i++) {
@@ -732,7 +731,7 @@ public class RecepcaoBean implements Serializable {
             registro = new Registro();
         }
         if (registro.getId() == -1) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             registro = (Registro) di.find(new Registro(), 1);
         }
         return registro;

@@ -4,7 +4,6 @@ import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Cnae;
 import br.com.rtools.pessoa.dao.CnaeDao;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import java.io.Serializable;
@@ -51,7 +50,7 @@ public class CnaeBean implements Serializable {
     }
 
     public void save() {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         NovoLog novoLog = new NovoLog();
         CnaeDao db = new CnaeDao();
         if (getCnae().getCnae().isEmpty()) {
@@ -107,7 +106,7 @@ public class CnaeBean implements Serializable {
     }
 
     public void delete() {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         NovoLog novoLog = new NovoLog();
         if (cnae.getId() != -1) {
             di.openTransaction();
@@ -143,7 +142,7 @@ public class CnaeBean implements Serializable {
     }
 
     public List<Cnae> getListCnae() {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         listCnae = di.list(new Cnae());
         return listCnae;
     }

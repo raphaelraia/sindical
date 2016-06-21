@@ -4,7 +4,6 @@ import br.com.rtools.estoque.ProdutoGrupo;
 import br.com.rtools.estoque.ProdutoSubGrupo;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import java.util.ArrayList;
@@ -51,7 +50,7 @@ public class ProdutoSubGrupoBean {
             GenericaMensagem.warn("Validação", "Selecionar um grupo!");
             return;
         }
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         NovoLog novoLog = new NovoLog();
         produtoSubGrupo.setProdutoGrupo(produtoGrupo);
         if (produtoSubGrupo.getId() == -1) {
@@ -75,12 +74,12 @@ public class ProdutoSubGrupoBean {
     }
 
     public void edit(ProdutoSubGrupo psg) {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         produtoSubGrupo = (ProdutoSubGrupo) di.rebind(psg);
     }
 
     public void delete(ProdutoSubGrupo psg) {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         NovoLog novoLog = new NovoLog();
         if (di.delete(psg, true)) {
             novoLog.delete(psg, true);
@@ -94,7 +93,7 @@ public class ProdutoSubGrupoBean {
 
     public List<ProdutoSubGrupo> getListProdutoSubGrupo() {
         if (listProdutoSubGrupo.isEmpty()) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             if(produtoGrupo != null) {
                 if(produtoGrupo.getId() != -1) {
                     listProdutoSubGrupo = (List<ProdutoSubGrupo>) di.listQuery(new ProdutoSubGrupo(), "findGrupo", new Object[]{produtoGrupo.getId()});
@@ -113,7 +112,7 @@ public class ProdutoSubGrupoBean {
 
     public List<ProdutoGrupo> getListProdutoGrupo() {
         if (listProdutoGrupo.isEmpty()) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             listProdutoGrupo = (List<ProdutoGrupo>) di.list(new ProdutoGrupo(), true);
             if(!listProdutoGrupo.isEmpty()) {
                 produtoGrupo = listProdutoGrupo.get(0);

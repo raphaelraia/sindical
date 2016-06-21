@@ -6,7 +6,6 @@ import br.com.rtools.associativo.dao.ConvenioDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.utilitarios.GenericaSessao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.Dao;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -64,7 +63,7 @@ public class ConvenioBean implements Serializable {
             return;
         }
         NovoLog novoLog = new NovoLog();
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         di.openTransaction();
         if (convenio.getId() == -1) {
             ConvenioDao db = new ConvenioDao();
@@ -116,7 +115,7 @@ public class ConvenioBean implements Serializable {
 
     public void remove(Convenio c) {
         if (c.getId() != -1) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             convenio = (Convenio) di.find(c);
             di.openTransaction();
             if (di.delete(convenio)) {
@@ -140,7 +139,7 @@ public class ConvenioBean implements Serializable {
     }
 
     public void edit(Convenio c) {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         convenio = (Convenio) di.rebind(c);
     }
 

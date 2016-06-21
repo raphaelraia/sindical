@@ -5,7 +5,6 @@ import br.com.rtools.financeiro.dao.SalarioMinimoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.ClassificacaoEconomica;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import java.io.Serializable;
@@ -29,7 +28,7 @@ public class ClassificacaoEconomicaBean implements Serializable {
     public void init() {
         salarioMinimo = new SalarioMinimo();
         classificacaoEconomica = new ClassificacaoEconomica();
-        listClassificacaoEconomica = new ArrayList<ClassificacaoEconomica>();
+        listClassificacaoEconomica = new ArrayList<>();
     }
 
     @PreDestroy
@@ -46,7 +45,7 @@ public class ClassificacaoEconomicaBean implements Serializable {
         ClassificacaoEconomica ce = (ClassificacaoEconomica) event.getObject();
         if (ce.getId() != -1) {
             NovoLog novoLog = new NovoLog();
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             ClassificacaoEconomica ceBefore = (ClassificacaoEconomica) di.find(ce);
             String beforeUpdate
                     = "ID: " + ceBefore.getId()
@@ -73,7 +72,7 @@ public class ClassificacaoEconomicaBean implements Serializable {
 
     public void delete(ClassificacaoEconomica sm) {
         classificacaoEconomica = sm;
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         NovoLog novoLog = new NovoLog();
         di.openTransaction();
         if (di.delete(classificacaoEconomica)) {
@@ -106,7 +105,7 @@ public class ClassificacaoEconomicaBean implements Serializable {
 
     public List<ClassificacaoEconomica> getListClassificacaoEconomica() {
         if (listClassificacaoEconomica.isEmpty()) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             listClassificacaoEconomica = (List<ClassificacaoEconomica>) di.list("ClassificacaoEconomica", true);
         }
         return listClassificacaoEconomica;

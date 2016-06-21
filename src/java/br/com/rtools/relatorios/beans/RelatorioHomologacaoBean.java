@@ -13,7 +13,6 @@ import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Filters;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -634,7 +633,7 @@ public class RelatorioHomologacaoBean implements Serializable {
 
     public List<SelectItem> getListFiliais() {
         if (listSelectItem[1].isEmpty()) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             List<Filial> list = (List<Filial>) di.list(new Filial(), true);
             for (int i = 0; i < list.size(); i++) {
                 listSelectItem[1].add(new SelectItem(i,
@@ -670,7 +669,7 @@ public class RelatorioHomologacaoBean implements Serializable {
 
     public List<SelectItem> getListMotivoDemissao() {
         if (listSelectItem[3].isEmpty()) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             List<Demissao> list = (List<Demissao>) di.list(new Demissao(), true);
             for (int i = 0; i < list.size(); i++) {
                 listSelectItem[3].add(new SelectItem(i,

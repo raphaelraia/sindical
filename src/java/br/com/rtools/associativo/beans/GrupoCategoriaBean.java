@@ -3,7 +3,6 @@ package br.com.rtools.associativo.beans;
 import br.com.rtools.associativo.GrupoCategoria;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.PF;
@@ -37,7 +36,7 @@ public class GrupoCategoriaBean {
     }
 
     public void save() {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         NovoLog novoLog = new NovoLog();
         if (grupoCategoria.getGrupoCategoria().equals("") || grupoCategoria.getGrupoCategoria() == null) {
             GenericaMensagem.warn("Validação", "Digite um nome para o grupo!");
@@ -98,7 +97,7 @@ public class GrupoCategoriaBean {
     }
 
     public void delete() {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         NovoLog novoLog = new NovoLog();
         if (grupoCategoria.getId() == -1) {
             GenericaMensagem.warn("Validação", "Selecione um grupo para ser excluído!");
@@ -137,7 +136,7 @@ public class GrupoCategoriaBean {
 
     public List<GrupoCategoria> getListGrupoCategoria() {
         if (listGrupoCategoria.isEmpty()) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             listGrupoCategoria = (List<GrupoCategoria>) di.list(new GrupoCategoria(), true);
         }
         return listGrupoCategoria;

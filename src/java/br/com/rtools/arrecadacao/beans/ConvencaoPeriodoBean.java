@@ -6,7 +6,6 @@ import br.com.rtools.arrecadacao.ConvencaoPeriodo;
 import br.com.rtools.arrecadacao.dao.ConvencaoPeriodoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import java.util.ArrayList;
@@ -89,7 +88,7 @@ public class ConvencaoPeriodoBean {
             GenericaMensagem.warn("Sistema", "Convenção período já existe!");
             return;
         }
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         NovoLog novoLog = new NovoLog();
         if (getConvencaoPeriodo().getId() == -1) {
             di.openTransaction();
@@ -137,7 +136,7 @@ public class ConvencaoPeriodoBean {
     }
 
     public void delete() {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         NovoLog novoLog = new NovoLog();
         if (getConvencaoPeriodo().getId() != -1) {
             di.openTransaction();
@@ -163,7 +162,7 @@ public class ConvencaoPeriodoBean {
 
     public List<SelectItem> getListConvencao() {
         if (listConvencao.isEmpty()) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             List<Convencao> list = di.list("Convencao", true);
             for (int i = 0; i < list.size(); i++) {
                 listConvencao.add(new SelectItem(i,

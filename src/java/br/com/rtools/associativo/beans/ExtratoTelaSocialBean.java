@@ -21,7 +21,6 @@ import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.Email;
 import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -376,7 +375,7 @@ public class ExtratoTelaSocialBean implements Serializable {
                             + " <h5>Segue boleto em anexo</h5><br /><br />";
                 }
 
-                DaoInterface di = new Dao();
+                Dao di = new Dao();
                 Mail mail = new Mail();
                 mail.setFiles(fls);
                 mail.setEmail(

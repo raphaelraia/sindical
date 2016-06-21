@@ -10,7 +10,6 @@ import br.com.rtools.pessoa.dao.FilialCidadeDao;
 import br.com.rtools.pessoa.dao.FilialDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import java.util.ArrayList;
@@ -126,7 +125,7 @@ public class FilialBean {
             return;
         }
 
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         NovoLog novoLog = new NovoLog();
         di.openTransaction();
         if (filial.getId() == -1) {
@@ -169,7 +168,7 @@ public class FilialBean {
         FilialCidadeDao db = new FilialCidadeDao();
         FilialCidade filialCidade;
         NovoLog novoLog = new NovoLog();
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         int iCidade = cid.getId();
         List<FilialCidade> list = db.findListBy(cid.getId(), false);
         for (int i = 0; i < list.size(); i++) {
@@ -231,7 +230,7 @@ public class FilialBean {
     public void delete(Filial fi) {
         if (fi.getId() != -1) {
             NovoLog novoLog = new NovoLog();
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             di.openTransaction();
             if (di.delete(fi)) {
                 novoLog.delete(
@@ -423,7 +422,7 @@ public class FilialBean {
             //List<GrupoCidades> lis = dbCids.pesquisaTodos();
             List<Cidade> lis = dbCids.pesquisaCidadesBase();
 
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             List<FilialCidade> fc = (List<FilialCidade>) di.list(new FilialCidade());
 
             if (!lis.isEmpty()) {

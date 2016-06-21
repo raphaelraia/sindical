@@ -5,7 +5,6 @@ import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.Spc;
 import br.com.rtools.pessoa.dao.SpcDao;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import java.io.Serializable;
@@ -115,7 +114,7 @@ public class SpcBean implements Serializable {
     public void edit(Spc s) {
         loadListSPC();
         descricaoPesquisa = "";
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         spc = (Spc) di.rebind(s);
     }
 

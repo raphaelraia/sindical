@@ -14,7 +14,6 @@ import br.com.rtools.financeiro.db.ServicosDBToplink;
 import br.com.rtools.financeiro.lista.ListServicosSubGrupoFinanceiro;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import java.io.Serializable;
@@ -122,7 +121,7 @@ public class SubGrupoConvenioBean implements Serializable {
             GenericaMensagem.warn("Validação", "Informar a descrição do subgrupo convênio!");
             return;
         }
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         NovoLog novoLog = new NovoLog();
         SubGrupoConvenioDao sgcdb = new SubGrupoConvenioDao();
         subGrupoConvenio.setGrupoConvenio((GrupoConvenio) di.find(new GrupoConvenio(), Integer.parseInt(listGrupoConvenio.get(idGrupoConvenio).getDescription())));
@@ -177,14 +176,14 @@ public class SubGrupoConvenioBean implements Serializable {
     }
 
     public void remove() {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         SubGrupoConvenio sgc = (SubGrupoConvenio) di.find(new SubGrupoConvenio(), Integer.parseInt(listSubGrupoConvenio.get(idSubGrupoConvenio).getDescription()));
         remove(sgc);
     }
 
     public void remove(SubGrupoConvenio sgc) {
         NovoLog novoLog = new NovoLog();
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         if (sgc.getId() != -1) {
             if (di.delete(sgc, true)) {
                 novoLog.delete(
@@ -204,7 +203,7 @@ public class SubGrupoConvenioBean implements Serializable {
     }
 
     public void edit() {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         subGrupoConvenio = (SubGrupoConvenio) di.find(new SubGrupoConvenio(), Integer.parseInt(listSubGrupoConvenio.get(idSubGrupoConvenio).getDescription()));
         for (int i = 0; i < listGrupoConvenio.size(); i++) {
             if (subGrupoConvenio.getGrupoConvenio().getId() == Integer.parseInt(listGrupoConvenio.get(i).getDescription())) {
@@ -288,7 +287,7 @@ public class SubGrupoConvenioBean implements Serializable {
             return;
         }
         boolean sucesso = false;
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         NovoLog novoLog = new NovoLog();
         if (enableGroup) {
             ServicosDB servicosDB = new ServicosDBToplink();
@@ -341,7 +340,7 @@ public class SubGrupoConvenioBean implements Serializable {
             return;
         }
         boolean sucesso = false;
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         NovoLog novoLog = new NovoLog();
         for (int i = 0; i < listServicosAdicionados.size(); i++) {
             for (ConvenioServico convenioServico : convenioServicoSelecionado) {
@@ -365,7 +364,7 @@ public class SubGrupoConvenioBean implements Serializable {
     }
 
     public void updateConvenioServico(ConvenioServico convenioServico) {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         NovoLog novoLog = new NovoLog();
         if (convenioServico.isEncaminhamento()) {
             convenioServico.setEncaminhamento(false);
@@ -421,7 +420,7 @@ public class SubGrupoConvenioBean implements Serializable {
 
     public List<SelectItem> getListGrupoConvenio() {
         if (listGrupoConvenio.isEmpty()) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             List<GrupoConvenio> list = (List<GrupoConvenio>) di.list(new GrupoConvenio(), true);
             for (int i = 0; i < list.size(); i++) {
                 listGrupoConvenio.add(new SelectItem(i, list.get(i).getDescricao(), Integer.toString(list.get(i).getId())));
@@ -476,7 +475,7 @@ public class SubGrupoConvenioBean implements Serializable {
 
     public List<SubGrupoConvenio> getListSubGrupoConvenios() {
         if (listSubGrupoConvenios.isEmpty()) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             listSubGrupoConvenios = (List<SubGrupoConvenio>) di.list(new SubGrupoConvenio(), true);
         }
         return listSubGrupoConvenios;

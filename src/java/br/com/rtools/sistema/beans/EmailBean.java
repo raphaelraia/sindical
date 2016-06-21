@@ -10,7 +10,6 @@ import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.sistema.EmailPrioridade;
 import br.com.rtools.sistema.dao.EmailDao;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
@@ -177,14 +176,14 @@ public class EmailBean implements Serializable {
         filter = false;
         filterNewMessage = true;
         filterByRotina = false;
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         addEmailPessoas.clear();
         addEmailPessoas = (List<EmailPessoa>) di.listQuery(new EmailPessoa(), "findByEmail", new Object[]{email.getId()});
         descricaoPesquisa = "";
     }
 
     public void saveDraft() {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         if (email.getAssunto().isEmpty()) {
             GenericaMensagem.warn("Validação", "Informar assunto!");
             return;
@@ -219,7 +218,7 @@ public class EmailBean implements Serializable {
     }
 
     public String send() {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         if (email.getAssunto().isEmpty()) {
             GenericaMensagem.warn("Validação", "Informar assunto!");
             return null;
@@ -278,7 +277,7 @@ public class EmailBean implements Serializable {
                 emailPessoa.setPessoa(null);
             }
         }
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         if (emailPessoa.getDestinatario().isEmpty()) {
             GenericaMensagem.warn("Validação", "Informar email do destinatário");
             return;
@@ -303,7 +302,7 @@ public class EmailBean implements Serializable {
             GenericaMensagem.warn("Erro", "Não é possível remover todos destinatários!");
             return;
         }
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         for (int i = 0; i < addEmailPessoas.size(); i++) {
             if (i == rowKey) {
                 if (addEmailPessoas.get(i).getId() != -1) {
@@ -318,14 +317,14 @@ public class EmailBean implements Serializable {
     }
 
     public void showEmailPessoa(Email e) {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         showEmailPessoas.clear();
         showEmailPessoas = (List<EmailPessoa>) di.listQuery(new EmailPessoa(), "findByEmail", new Object[]{e.getId()});
     }
 
     public List<SelectItem> getListRotinas() {
         if (listSelectItem[0].isEmpty()) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             List<Rotina> list = (List<Rotina>) di.list(new Rotina(), true);
             for (int i = 0; i < list.size(); i++) {
                 listSelectItem[0].add(new SelectItem(i, list.get(i).getRotina(), "" + list.get(i).getId()));
@@ -339,7 +338,7 @@ public class EmailBean implements Serializable {
 
     public List<SelectItem> getListEmailPrioridades() {
         if (listSelectItem[1].isEmpty()) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             List<EmailPrioridade> list = (List<EmailPrioridade>) di.list(new EmailPrioridade());
             for (int i = 0; i < list.size(); i++) {
                 listSelectItem[1].add(new SelectItem(i, list.get(i).getDescricao(), "" + list.get(i).getId()));
@@ -495,7 +494,7 @@ public class EmailBean implements Serializable {
 
     public List<EmailPessoa> getAddEmailPessoas() {
         if (email.getId() != -1) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             addEmailPessoas = (List<EmailPessoa>) di.listQuery(new EmailPessoa(), "findByEmail", new Object[]{email.getId()});
         }
         return addEmailPessoas;

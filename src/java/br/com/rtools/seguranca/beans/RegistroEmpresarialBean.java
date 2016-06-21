@@ -12,7 +12,6 @@ import br.com.rtools.sistema.EmailPessoa;
 import br.com.rtools.utilitarios.Mail;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
@@ -298,7 +297,7 @@ public class RegistroEmpresarialBean implements Serializable {
             GenericaMensagem.warn("Validação", "Informar e-mail!");
             return;
         }
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         Mail mail = new Mail();
         mail.setEmail(
                 new Email(

@@ -51,7 +51,6 @@ import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
 import br.com.rtools.seguranca.utilitarios.SegurancaUtilitariosBean;
 import br.com.rtools.utilitarios.AutenticaUsuario;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
@@ -273,7 +272,7 @@ public class EmissaoGuiasBean implements Serializable {
         if (!listHistoricoEmissaoGuias.isEmpty()) {
             listaMovimentoAuxiliar.clear();
 
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             MovimentoDB db = new MovimentoDBToplink();
             di.openTransaction();
 
@@ -320,7 +319,7 @@ public class EmissaoGuiasBean implements Serializable {
     }
 
     public void atualizarHistorico() {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         MovimentoDB db = new MovimentoDBToplink();
         Usuario usuario = (Usuario) GenericaSessao.getObject("sessaoUsuario");
         List<HistoricoEmissaoGuias> listHEGuias = db.pesquisaHistoricoEmissaoGuias(usuario.getId());
@@ -472,7 +471,7 @@ public class EmissaoGuiasBean implements Serializable {
             message = "Nome não pode estar vazio!";
             return;
         }
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
 
         //fisicaNovoCadastro.setPessoa(pessoa);
         fisicaNovoCadastro.getPessoa().setTipoDocumento((TipoDocumento) di.find(new TipoDocumento(), 1));
@@ -556,7 +555,7 @@ public class EmissaoGuiasBean implements Serializable {
         }
 
         String vencto_ini = DataHoje.data();
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         FTipoDocumento fTipoDocumento = (FTipoDocumento) di.find(new FTipoDocumento(), 2); // FTipo_documento 13 - CARTEIRA, 2 - BOLETO
         float valorx = Moeda.converteUS$(valor);
         Servicos servicos = (Servicos) di.find(new Servicos(), Integer.parseInt(getListServicos().get(index[2]).getDescription()));
@@ -749,7 +748,7 @@ public class EmissaoGuiasBean implements Serializable {
             message = "A lista de lançamento não pode estar vazia!";
             return null;
         }
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         Servicos serv = (Servicos) di.find(new Servicos(), Integer.parseInt(getListServicos().get(index[2]).getDescription()));
 
         List<String> list_log = new ArrayList();
@@ -1039,7 +1038,7 @@ public class EmissaoGuiasBean implements Serializable {
 
     public List<SelectItem> getListGrupo() {
         if (listSelectItem[0].isEmpty()) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             List<GrupoConvenio> list = (List<GrupoConvenio>) di.list(new GrupoConvenio());
             for (int i = 0; i < list.size(); i++) {
                 listSelectItem[0].add(new SelectItem(i, (String) list.get(i).getDescricao(), Integer.toString(list.get(i).getId())
@@ -1401,7 +1400,7 @@ public class EmissaoGuiasBean implements Serializable {
 
     public void listenerEnabledItensPedido() {
         if (!getListServicos().isEmpty() && !listSelectItem[2].get(index[2]).getDescription().equals("0")) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             servicox = (Servicos) di.find(new Servicos(), Integer.parseInt(getListServicos().get(index[2]).getDescription()));
 
             if (pessoa.getId() != -1) {

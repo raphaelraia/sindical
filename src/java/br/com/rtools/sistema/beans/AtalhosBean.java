@@ -5,7 +5,6 @@ import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.sistema.Atalhos;
 import br.com.rtools.sistema.dao.AtalhoDao;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.GenericaSessao;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -24,7 +23,7 @@ public class AtalhosBean implements Serializable {
     private Atalhos atalhos = new Atalhos();
 
     public String adicionar() {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         AtalhoDao db = new AtalhoDao();
         atalhos.setRotina((Rotina) di.find(new Rotina(), Integer.parseInt(listaRotina.get(idRotina).getDescription())));
         if (atalhos.getSigla().isEmpty() || db.pesquisaPorSigla(atalhos.getSigla()) != null || db.pesquisaPorRotina(atalhos.getRotina().getId()) != null) {
@@ -44,7 +43,7 @@ public class AtalhosBean implements Serializable {
     }
 
     public String excluir(int id) {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         di.openTransaction();
         if (di.delete((Atalhos) di.find(new Atalhos(), id))) {
             di.commit();

@@ -25,7 +25,6 @@ import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.seguranca.dao.UsuarioDao;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DaoInterface;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Download;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -143,7 +142,7 @@ public class WebREPISBean implements Serializable {
     }
 
     public void liberarListaSolicitacao() {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         di.openTransaction();
 
         for (RepisMovimento listRepis : listRepisMovimentoPatronalSelecionado) {
@@ -352,7 +351,7 @@ public class WebREPISBean implements Serializable {
     }
 
     public void updateStatus() {
-        DaoInterface di = new Dao();
+        Dao di = new Dao();
         if (repisMovimento.getId() != -1) {
             RepisStatus rs = (RepisStatus) di.find(new RepisStatus(), Integer.parseInt(listComboRepisStatus.get(idRepisStatus).getDescription()));
             repisMovimento.setRepisStatus(rs);
@@ -711,7 +710,7 @@ public class WebREPISBean implements Serializable {
 
     public List<SelectItem> getListComboRepisStatus() {
         if (listComboRepisStatus.isEmpty()) {
-            DaoInterface di = new Dao();
+            Dao di = new Dao();
             List<RepisStatus> list = di.list(new RepisStatus());
             for (int i = 0; i < list.size(); i++) {
                 listComboRepisStatus.add(new SelectItem(i, list.get(i).getDescricao(), Integer.toString(list.get(i).getId())));
