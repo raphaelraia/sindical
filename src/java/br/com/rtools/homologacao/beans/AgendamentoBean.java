@@ -795,7 +795,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             if (!dbFis.pesquisaFisicaPorNomeNascRG(fisica.getPessoa().getNome(),
                     fisica.getDtNascimento(),
                     fisica.getRg()).isEmpty()) {
-                GenericaMensagem.warn("Atenção", "Esta pessoa já esta cadastrada!");
+                GenericaMensagem.warn("Atenção", "Esta pessoa já esta cadastrada! Cadastro duplicado.");
                 dao.rollback();
                 return;
             }
@@ -829,7 +829,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 for (Fisica fisi1 : fisi) {
                     if (fisi1.getId() != fisica.getId()) {
                         dao.rollback();
-                        GenericaMensagem.warn("Atenção", "Esta pessoa já esta cadastrada!");
+                        GenericaMensagem.warn("Atenção", "Esta pessoa já esta cadastrada! Cadastro duplicado.");
                         return;
                     }
                 }

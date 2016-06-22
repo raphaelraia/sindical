@@ -414,7 +414,7 @@ public class FisicaDao extends DB {
             String textQuery = "";
             String field = "";
 
-            if (por.equals("nome")) {
+            if (por.equals("codigo_pessoa")) {
                 field = "p.id";
             } else {
                 desc = AnaliseString.normalizeLower(desc);
@@ -541,7 +541,7 @@ public class FisicaDao extends DB {
                             = textSelect
                             + "        FROM pes_fisica f "
                             + "  INNER JOIN pes_pessoa p ON p.id = f.id_pessoa "
-                            + "  WHERE LOWER(FUNC_TRANSLATE(" + field + ")) LIKE '" + desc + "'"
+                            + "  WHERE LOWER(FUNC_TRANSLATE(" + field + ")) LIKE LOWER(FUNC_TRANSLATE('" + desc + "'))"
                             + "    AND p.id IN ( "
                             + "         SELECT p2.id FROM fin_servico_pessoa sp "
                             + "          INNER JOIN soc_socios s ON sp.id = s.id_servico_pessoa "

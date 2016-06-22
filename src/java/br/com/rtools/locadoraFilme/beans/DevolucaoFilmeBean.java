@@ -8,6 +8,7 @@ import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
+import br.com.rtools.locadoraFilme.ConfiguracaoLocadora;
 import br.com.rtools.locadoraFilme.LocadoraAutorizados;
 import br.com.rtools.locadoraFilme.LocadoraLote;
 import br.com.rtools.locadoraFilme.LocadoraMovimento;
@@ -149,12 +150,12 @@ public class DevolucaoFilmeBean implements Serializable {
             GenericaMensagem.warn("Validação", "Adicione filmes para concluir esta locação!");
             return;
         }
-        Boolean success = false;
-        Servicos servicoLocadora = ConfiguracaoLocadoraBean.get().getServicos();
-        if (ConfiguracaoLocadoraBean.get().getServicos() == null) {
+        ConfiguracaoLocadora cf = ConfiguracaoLocadoraBean.get();
+        if (cf == null || cf.getServicos() == null) {
             GenericaMensagem.warn("Validação", "Informar serviço da locadora! Menu Principal > Segurança > Departamentos");
             return;
         }
+        Servicos servicoLocadora = cf.get().getServicos();
         if (servicoLocadora == null) {
             GenericaMensagem.warn("Validação", "Informar serviço da locadora!");
             return;

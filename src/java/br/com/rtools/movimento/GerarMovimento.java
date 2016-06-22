@@ -11,7 +11,6 @@ import br.com.rtools.arrecadacao.MensagemConvencao;
 import br.com.rtools.associativo.BoletoNaoBaixado;
 import br.com.rtools.financeiro.*;
 import br.com.rtools.financeiro.dao.MovimentoDao;
-import br.com.rtools.financeiro.db.*;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.principal.DB;

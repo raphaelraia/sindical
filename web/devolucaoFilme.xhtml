@@ -105,6 +105,7 @@
                                                 </p:column>
                                                 <p:rowExpansion>
                                                     <p:panelGrid styleClass="no-border" columns="1" style="border: 0">
+                                                        <h:column>Barras: #{locadoraMovimento.titulo.barras}</h:column>                                                    
                                                         <h:column>Autorizado: #{locadoraMovimento.locadoraLote.locadoraAutorizados.nome}</h:column>                                                    
                                                         <h:column>Lote: #{locadoraMovimento.movimento.lote != null ? locadoraMovimento.movimento.lote.id : ''}</h:column>
                                                         <h:column>OPERADOR: #{locadoraMovimento.operadorDevolucao.pessoa.nome}</h:column>

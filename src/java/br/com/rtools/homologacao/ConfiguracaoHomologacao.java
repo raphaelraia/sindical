@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "conf_homologacao")
@@ -104,9 +105,38 @@ public class ConfiguracaoHomologacao implements Serializable {
     private Date webDesabilitaFinal;
     @Column(name = "web_desabilita_obs", length = 1000)
     private String webDesabilitaObs;
-    
+
     @Column(name = "nr_inicio_dias_agendamento", columnDefinition = "integer default 0", nullable = false)
     private Integer inicioDiasAgendamento;
+
+    @Transient
+    // @Temporal(TemporalType.DATE)
+    // @Column(name = "dt_atualiza")
+    private Date dtAtualiza;
+    @Transient
+    // @Column(name = "dt_habilita_correcao")
+    // @Temporal(TemporalType.DATE)
+    private Date dtHabilitaCorrecao;
+    // @Column(name = "is_agendamento_web", columnDefinition = "boolean default false")
+    private Boolean agendamentoWeb;
+    @Transient
+    // @Column(name = "is_senha", columnDefinition = "boolean default false")
+    private Boolean habilitaSenha;
+    @Transient
+    // @Column(name = "ds_documentos", length = 8000)
+    private String documentos;
+    @Transient
+    // @Column(name = "ds_forma_pagamento", length = 8000)
+    private String formaPagamento;
+    @Transient
+    // @Column(name = "is_agendar_sem_horario_web", columnDefinition = "boolean default false")
+    private Boolean agendarSemHorarioWeb;
+    @Transient
+    // @Column(name = "is_bloquear_homologacao", columnDefinition = "boolean default false")
+    private Boolean bloquearHomologacao;
+    @Transient
+    // @Column(name = "nr_meses_inadimplentes")
+    private Integer mesesInadimplentesAgenda;
 
     public ConfiguracaoHomologacao() {
         this.id = null;
@@ -147,6 +177,15 @@ public class ConfiguracaoHomologacao implements Serializable {
         this.webDesabilitaFinal = null;
         this.webDesabilitaObs = "";
         this.inicioDiasAgendamento = 0;
+        this.dtAtualiza = null;
+        this.dtHabilitaCorrecao = null;
+        this.agendamentoWeb = false;
+        this.habilitaSenha = false;
+        this.documentos = "";
+        this.formaPagamento = "";
+        this.agendarSemHorarioWeb = false;
+        this.bloquearHomologacao = false;
+        this.mesesInadimplentesAgenda = 0;
     }
 
     public ConfiguracaoHomologacao(Integer id, Date homolocaoHabilitaCorrecao, Integer tempoRefreshAgendamento, Integer tempoRefreshWebAgendamento, Integer tempoRefreshRecepcao, Integer tempoRefreshHomologacao, Integer tempoRefreshAtendimento, Integer limiteMeses, Date limiteAgendamentoRetroativo, Date dataAtualizaHomologacao, Boolean validaCpf, Boolean validaNome, Boolean validaEndereco, Boolean validaCarteira, Boolean validaSerie, Boolean validaFuncao, Boolean validaAdmissao, Boolean validaDemissao, Boolean validaContato, Boolean validaEmail, Boolean validaTelefone, Boolean validaDataNascimento, Boolean webValidaCpf, Boolean webValidaNome, Boolean webValidaEndereco, Boolean webValidaCarteira, Boolean webValidaSerie, Boolean webValidaFuncao, Boolean webValidaAdmissao, Boolean webValidaDemissao, Boolean webValidaContato, Boolean webValidaEmail, Boolean webValidaTelefone, Boolean webValidaDataNascimento, Date webDesabilitaInicial, Date webDesabilitaFinal, String webDesabilitaObs, Integer inicioDiasAgendamento) {
@@ -481,11 +520,11 @@ public class ConfiguracaoHomologacao implements Serializable {
     public String getWebDesabilitaInicialString() {
         Integer x = DataHoje.converteDataParaInteger(DataHoje.data());
         Integer y = DataHoje.converteDataParaInteger(getWebDesabilitaFinalString());
-        if(x > y) {
+        if (x > y) {
             webDesabilitaInicial = null;
             webDesabilitaFinal = null;
-            webDesabilitaObs = "";            
-        } 
+            webDesabilitaObs = "";
+        }
         return DataHoje.converteData(webDesabilitaInicial);
     }
 
@@ -523,6 +562,78 @@ public class ConfiguracaoHomologacao implements Serializable {
 
     public void setInicioDiasAgendamento(Integer inicioDiasAgendamento) {
         this.inicioDiasAgendamento = inicioDiasAgendamento;
+    }
+
+    public Date getDtAtualiza() {
+        return dtAtualiza;
+    }
+
+    public void setDtAtualiza(Date dtAtualiza) {
+        this.dtAtualiza = dtAtualiza;
+    }
+
+    public Date getDtHabilitaCorrecao() {
+        return dtHabilitaCorrecao;
+    }
+
+    public void setDtHabilitaCorrecao(Date dtHabilitaCorrecao) {
+        this.dtHabilitaCorrecao = dtHabilitaCorrecao;
+    }
+
+    public Boolean getAgendamentoWeb() {
+        return agendamentoWeb;
+    }
+
+    public void setAgendamentoWeb(Boolean agendamentoWeb) {
+        this.agendamentoWeb = agendamentoWeb;
+    }
+
+    public Boolean getHabilitaSenha() {
+        return habilitaSenha;
+    }
+
+    public void setHabilitaSenha(Boolean habilitaSenha) {
+        this.habilitaSenha = habilitaSenha;
+    }
+
+    public String getDocumentos() {
+        return documentos;
+    }
+
+    public void setDocumentos(String documentos) {
+        this.documentos = documentos;
+    }
+
+    public String getFormaPagamento() {
+        return formaPagamento;
+    }
+
+    public void setFormaPagamento(String formaPagamento) {
+        this.formaPagamento = formaPagamento;
+    }
+
+    public Boolean getAgendarSemHorarioWeb() {
+        return agendarSemHorarioWeb;
+    }
+
+    public void setAgendarSemHorarioWeb(Boolean agendarSemHorarioWeb) {
+        this.agendarSemHorarioWeb = agendarSemHorarioWeb;
+    }
+
+    public Boolean getBloquearHomologacao() {
+        return bloquearHomologacao;
+    }
+
+    public void setBloquearHomologacao(Boolean bloquearHomologacao) {
+        this.bloquearHomologacao = bloquearHomologacao;
+    }
+
+    public Integer getMesesInadimplentesAgenda() {
+        return mesesInadimplentesAgenda;
+    }
+
+    public void setMesesInadimplentesAgenda(Integer mesesInadimplentesAgenda) {
+        this.mesesInadimplentesAgenda = mesesInadimplentesAgenda;
     }
 
 }

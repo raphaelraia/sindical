@@ -525,7 +525,6 @@ public class LocacaoFilmeBean implements Serializable {
         Boolean exists = false;
         LocadoraLote locadoraLote = null;
         Usuario usuario = null;
-        Filial filial = null;
         List<ReciboLocadora> listReciboLocadora = new ArrayList<>();
         if(lm == null) {
             for (int i = 0; i < listLocadoraMovimento.size(); i++) {
@@ -533,7 +532,7 @@ public class LocacaoFilmeBean implements Serializable {
                         new ReciboLocadora(
                                 listLocadoraMovimento.get(i).getTitulo().getBarras(),
                                 listLocadoraMovimento.get(i).getTitulo().getDescricao(),
-                                listLocadoraMovimento.get(i).getLocadoraLote().getDtLocacao()));
+                                listLocadoraMovimento.get(i).getDtDevolucaoPrevisao()));
                 if (locadoraLote == null) {
                     locadoraLote = listLocadoraMovimento.get(i).getLocadoraLote();
                 }
@@ -550,7 +549,7 @@ public class LocacaoFilmeBean implements Serializable {
                         new ReciboLocadora(
                                 list.get(i).getTitulo().getBarras(),
                                 list.get(i).getTitulo().getDescricao(),
-                                list.get(i).getLocadoraLote().getDtLocacao()));
+                                list.get(i).getDtDevolucaoPrevisao()));
                 if (locadoraLote == null) {
                     locadoraLote = list.get(i).getLocadoraLote();
                 }
@@ -598,7 +597,7 @@ public class LocacaoFilmeBean implements Serializable {
                         new ReciboLocadora(
                                 listLocadoraMovimento.get(i).getTitulo().getBarras(),
                                 listLocadoraMovimento.get(i).getTitulo().getDescricao(),
-                                listLocadoraMovimento.get(i).getDtDevolucao()));
+                                listLocadoraMovimento.get(i).getDtDevolucaoPrevisao()));
                 exists = true;
             }
         }
