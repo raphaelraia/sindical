@@ -788,6 +788,9 @@ public class NotificacaoBean implements Serializable {
                         fl = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/NOTIFICACAO_ARRECADACAO_EMPRESA.jasper"));
                         jasper = (JasperReport) JRLoader.loadObject(fl);
                         id_compara = getConverteNullInt(result.get(i).get(27)); // ID_PESSOA
+                        if (id_compara == 393){
+                            String teste = "";
+                        }
                         if (id_compara != getConverteNullInt(result.get(i + 1).get(27)) && !imprimir) {
                             imprimir = true;
                         }

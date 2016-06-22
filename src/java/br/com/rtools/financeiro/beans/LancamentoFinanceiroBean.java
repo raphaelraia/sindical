@@ -531,9 +531,7 @@ public class LancamentoFinanceiroBean implements Serializable {
 
         if (!lista.isEmpty()) {
             FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("listaMovimento", lista);
-            if (es.equals("S")) {
-                FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("esMovimento", "S");
-            }
+            FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("esMovimento", lista.get(0).getEs());
             FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("caixa_banco", "caixa");
             return ((ChamadaPaginaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("chamadaPaginaBean")).baixaGeral();
         }
@@ -593,6 +591,10 @@ public class LancamentoFinanceiroBean implements Serializable {
         listaParcelaSelecionada = new ArrayList();
         MovimentoDBToplink movimentoDao = new MovimentoDBToplink();
         List<Movimento> selectMovimento = movimentoDao.listaMovimentosDoLote(lote.getId());
+   
+        if (!selectMovimento.isEmpty()){
+            esLancamento = selectMovimento.get(0).getEs();
+        }
         float acre, valor_quitado = 0;
         for (Movimento mov : selectMovimento) {
             String data_quitacao = "";
@@ -1673,9 +1675,9 @@ public class LancamentoFinanceiroBean implements Serializable {
                 }
             }
             if (idOperacao == null) {
-                for (int i = 0; i < list.size(); i++) {
+                for (int i = 0; i < listaOperacao.size(); i++) {
                     if (i == 0) {
-                        idOperacao = list.get(i).getId();
+                        idOperacao = (Integer) listaOperacao.get(i).getValue();
                         break;
                     }
                 }

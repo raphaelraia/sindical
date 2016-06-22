@@ -47,7 +47,7 @@
                                 </p:column>
                                 
                                 <p:column headerText="" style="width: 80px; text-align: center">
-                                    <p:commandLink value="ESTORNAR" action="#{fechamentoDiarioBean.selecionarEstornar(linha)}" onclick="PF('dlg_estornar').show()" style="font-weight: bold" rendered="#{linha.estornar}"/>
+                                    <p:commandLink value="ESTORNAR" action="#{fechamentoDiarioBean.selecionarEstornar(linha)}" onclick="PF('dlg_estornar').show()" style="font-weight: bold" rendered="#{linha.estornar}" disabled="#{fechamentoDiarioBean.cab.verificarPermissao('estornar_dia', 2)}"/>
                                 </p:column>
 
                                 <p:rowExpansion>
@@ -72,11 +72,11 @@
                             
                             <p:separator />
                             
-                            <p:commandButton value="FECHAR DIA" onclick="PF('dlg_fechar').show()" action="#{fechamentoDiarioBean.selecionarFechar()}" style="font-weight: bold;" update="formFechamentoDiario:panel_fechamento_diario"/>
+                            <p:commandButton value="FECHAR DIA" onclick="PF('dlg_fechar').show()" action="#{fechamentoDiarioBean.selecionarFechar()}" style="font-weight: bold;" update="formFechamentoDiario:panel_fechamento_diario" disabled="#{fechamentoDiarioBean.cab.verificarPermissao('fechar_dia', 1)}"/>
                             
                              <p:dialog widgetVar="dlg_fechar" header="Fechamento Diario" resizable="false" width="400" modal="true">
                                  <h:panelGrid id="panel_fechamento_diario">
-                                    <p:outputLabel value="Deseja realmente concluir este fechamento?" style="font-size: 11pt!important"/><br />
+                                    <p:outputLabel value="Deseja realmente concluir este fechamento?" style="font-size: 11pt!important; font-weight: bold"/><br />
                                     <p:outputLabel value="DATA: #{fechamentoDiarioBean.dataFechamento}"  style="font-size: 11pt!important; font-weight: bold"/>
                                 </h:panelGrid>
                                 <br />

@@ -88,7 +88,7 @@ public class BaixaGeralBean implements Serializable {
     private String tipo = "";
     private String banco = "";
     private String taxa = "0";
-    private String es = "";
+    private String es = "E";
     private ChequeRec chequeRec = new ChequeRec();
     private boolean visibleModal = false;
     private final ConfiguracaoFinanceiroBean cfb = new ConfiguracaoFinanceiroBean();

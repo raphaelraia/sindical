@@ -6,9 +6,11 @@ import br.com.rtools.financeiro.dao.FechamentoDiarioDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.seguranca.Usuario;
+import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
+import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -28,8 +30,12 @@ public class FechamentoDiarioBean implements Serializable {
     private List<ObjectFechamentoDiario> listaFechamentoDiario = new ArrayList();
     private ObjectFechamentoDiario ofdEstornar = null;
     private String dataFechamento = "";
+    private ControleAcessoBean cab = new ControleAcessoBean();
+    
     public FechamentoDiarioBean() {
         loadListaFechamentoDiario();
+        
+        cab = (ControleAcessoBean) GenericaSessao.getObject("controleAcessoBean");
     }
 
     public void fechar() {
@@ -41,6 +47,7 @@ public class FechamentoDiarioBean implements Serializable {
             GenericaMensagem.error("Atenção", "Conta Saldo sem valor inicial!");
             return;
         }
+        
 
         Date data = fdao.ultimaDataContaSaldo();
         if (DataHoje.converteData(data).equals(DataHoje.data())) {
@@ -52,6 +59,13 @@ public class FechamentoDiarioBean implements Serializable {
             GenericaMensagem.warn("Atenção", "Não existe dia para ser fechado!");
             return;
         }
+        
+        if (DataHoje.converteData(dataFechamento).equals(DataHoje.data())) {
+            if (!cab.verificaPermissao("fechar_dia_hoje", 1)){
+                GenericaMensagem.fatal("Atenção", "Você não tem permissão para este Fechamento Diário!");
+                return;
+            }
+        }   
 
         List<Object> result = fdao.listaConcluirFechamentoDiario(dataFechamento, DataHoje.converteData(data));
 
@@ -226,6 +240,14 @@ public class FechamentoDiarioBean implements Serializable {
 
     public void setDataFechamento(String dataFechamento) {
         this.dataFechamento = dataFechamento;
+    }
+
+    public ControleAcessoBean getCab() {
+        return cab;
+    }
+
+    public void setCab(ControleAcessoBean cab) {
+        this.cab = cab;
     }
 
     public class ObjectFechamentoDiario {
