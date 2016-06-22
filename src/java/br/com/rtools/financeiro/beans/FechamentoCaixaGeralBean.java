@@ -3,8 +3,7 @@ package br.com.rtools.financeiro.beans;
 import br.com.rtools.financeiro.Caixa;
 import br.com.rtools.financeiro.FechamentoCaixa;
 import br.com.rtools.financeiro.TransferenciaCaixa;
-import br.com.rtools.financeiro.db.FinanceiroDB;
-import br.com.rtools.financeiro.db.FinanceiroDBToplink;
+import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
@@ -50,7 +49,7 @@ public class FechamentoCaixaGeralBean implements Serializable {
             
             dao.openTransaction();
             
-            FinanceiroDB db = new FinanceiroDBToplink();
+            FinanceiroDao db = new FinanceiroDao();
             
             List<TransferenciaCaixa> listat = db.listaTransferencia(fechamento.getId());
             
@@ -80,7 +79,7 @@ public class FechamentoCaixaGeralBean implements Serializable {
     
     public void loadListaDetalhesFechamento(Integer id_caixa, Integer id_fechamento){
         listaDetalhesFechamento.clear();
-        FinanceiroDB db = new FinanceiroDBToplink();
+        FinanceiroDao db = new FinanceiroDao();
         
         listaDetalhesFechamento = db.listaDetalhesFechamentoCaixaGeral(id_caixa, id_fechamento);
     }
@@ -88,7 +87,7 @@ public class FechamentoCaixaGeralBean implements Serializable {
     public void loadListaFechamentoCaixa(){
         listaFechamentoCaixa.clear();
         
-        FinanceiroDB db = new FinanceiroDBToplink();
+        FinanceiroDao db = new FinanceiroDao();
         
         List<Vector> list = db.listaFechamentoCaixaGeral();
         

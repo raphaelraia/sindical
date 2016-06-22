@@ -53,7 +53,7 @@ public class RelatorioContribuintesDao extends DB {
         List result = new ArrayList();
         String textQuery = "";
         try {
-            textQuery = " -- RelatorioContribuintesDBToplink->listaRelatorioContribuintes() \n"
+            textQuery = " -- RelatorioContribuintesDao->listaRelatorioContribuintes() \n"
                     + "select j.id                     as idJuridica,"
                     +//0
                     "       p.ds_nome                as nome,"

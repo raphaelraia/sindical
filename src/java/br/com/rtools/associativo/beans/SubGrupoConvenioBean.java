@@ -7,10 +7,8 @@ import br.com.rtools.associativo.dao.SubGrupoConvenioDao;
 import br.com.rtools.financeiro.GrupoFinanceiro;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.SubGrupoFinanceiro;
-import br.com.rtools.financeiro.db.FinanceiroDB;
-import br.com.rtools.financeiro.db.FinanceiroDBToplink;
-import br.com.rtools.financeiro.db.ServicosDB;
-import br.com.rtools.financeiro.db.ServicosDBToplink;
+import br.com.rtools.financeiro.dao.FinanceiroDao;
+import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.financeiro.lista.ListServicosSubGrupoFinanceiro;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.utilitarios.Dao;
@@ -290,7 +288,7 @@ public class SubGrupoConvenioBean implements Serializable {
         Dao di = new Dao();
         NovoLog novoLog = new NovoLog();
         if (enableGroup) {
-            ServicosDB servicosDB = new ServicosDBToplink();
+            ServicosDao servicosDB = new ServicosDao();
             for (ListServicosSubGrupoFinanceiro lssgf : servicoSelecionado) {
                 List<Servicos> list = servicosDB.listaServicosPorSubGrupoFinanceiro(lssgf.getSubGrupoFinanceiro().getId());
                 for (Servicos s : list) {
@@ -515,8 +513,8 @@ public class SubGrupoConvenioBean implements Serializable {
     public List<SelectItem> getListSubGrupoFinanceiro() {
         if (!listGrupoFinanceiro.isEmpty()) {
             if (listSubGrupoFinanceiro.isEmpty()) {
-                FinanceiroDB financeiroDB = new FinanceiroDBToplink();
-                List<SubGrupoFinanceiro> list = financeiroDB.listaSubGrupo(Integer.parseInt(listGrupoFinanceiro.get(idGrupoFinanceiro).getDescription()));
+                FinanceiroDao dao = new FinanceiroDao();
+                List<SubGrupoFinanceiro> list = dao.listaSubGrupo(Integer.parseInt(listGrupoFinanceiro.get(idGrupoFinanceiro).getDescription()));
                 if (enableGroup) {
                     for (int i = 0; i < list.size(); i++) {
                         if (i == 0) {

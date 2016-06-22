@@ -6,13 +6,12 @@ import br.com.rtools.estoque.Produto;
 import br.com.rtools.financeiro.*;
 import br.com.rtools.financeiro.dao.CentroCustoDao;
 import br.com.rtools.financeiro.dao.ContaOperacaoDao;
+import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.financeiro.dao.LoteDao;
 import br.com.rtools.financeiro.dao.PedidoDao;
 import br.com.rtools.financeiro.dao.Plano5Dao;
-import br.com.rtools.financeiro.db.FinanceiroDB;
-import br.com.rtools.financeiro.db.FinanceiroDBToplink;
 import br.com.rtools.financeiro.dao.LancamentoFinanceiroDao;
-import br.com.rtools.financeiro.db.MovimentoDBToplink;
+import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.homologacao.dao.OperacaoDao;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.pessoa.Filial;
@@ -480,7 +479,7 @@ public class LancamentoFinanceiroBean implements Serializable {
                 return null;
             }
         } else {
-            FinanceiroDB dbf = new FinanceiroDBToplink();
+            FinanceiroDao dbf = new FinanceiroDao();
             Caixa caixax = dbf.pesquisaCaixaUsuario(((Usuario) GenericaSessao.getObject("sessaoUsuario")).getId(), macFilial.getFilial().getId());
 
             if (caixax == null) {
@@ -589,7 +588,7 @@ public class LancamentoFinanceiroBean implements Serializable {
         idTipoDocumento = pessoa.getTipoDocumento().getId();
         listaParcela = new ArrayList();
         listaParcelaSelecionada = new ArrayList();
-        MovimentoDBToplink movimentoDao = new MovimentoDBToplink();
+        MovimentoDao movimentoDao = new MovimentoDao();
         List<Movimento> selectMovimento = movimentoDao.listaMovimentosDoLote(lote.getId());
    
         if (!selectMovimento.isEmpty()){
@@ -1600,7 +1599,7 @@ public class LancamentoFinanceiroBean implements Serializable {
 
     public List<Parcela> getListaParcela() {
         if (listaParcela.isEmpty() && lote.getId() != -1) {
-            List<Movimento> selectMovimento = new MovimentoDBToplink().listaMovimentosDoLote(lote.getId());
+            List<Movimento> selectMovimento = new MovimentoDao().listaMovimentosDoLote(lote.getId());
             float acre, desc, valor_quitado;
             String data_quitacao;
             String caixa;

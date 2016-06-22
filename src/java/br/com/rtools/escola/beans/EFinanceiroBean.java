@@ -2,8 +2,7 @@ package br.com.rtools.escola.beans;
 
 import br.com.rtools.escola.EFinanceiro;
 import br.com.rtools.financeiro.Servicos;
-import br.com.rtools.financeiro.db.ServicosDB;
-import br.com.rtools.financeiro.db.ServicosDBToplink;
+import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.Moeda;
@@ -69,7 +68,7 @@ public class EFinanceiroBean implements java.io.Serializable {
     public List<SelectItem> getListaServicos() {
         List<SelectItem> listaSe = new ArrayList<>();
         int i = 0;
-        ServicosDB db = new ServicosDBToplink();
+        ServicosDao db = new ServicosDao();
         List select = db.pesquisaTodos(147);
         while (i < select.size()) {
             listaSe.add(new SelectItem(i,

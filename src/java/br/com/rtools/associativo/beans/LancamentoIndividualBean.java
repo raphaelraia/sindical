@@ -11,10 +11,8 @@ import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.ServicoPessoa;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
-import br.com.rtools.financeiro.db.ServicoPessoaDB;
-import br.com.rtools.financeiro.db.ServicoPessoaDBToplink;
-import br.com.rtools.financeiro.db.ServicoRotinaDB;
-import br.com.rtools.financeiro.db.ServicoRotinaDBToplink;
+import br.com.rtools.financeiro.dao.ServicoPessoaDao;
+import br.com.rtools.financeiro.dao.ServicoRotinaDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
@@ -362,7 +360,7 @@ public class LancamentoIndividualBean implements Serializable {
     public List<SelectItem> getListaServicos() {
         if (listaServicos.isEmpty()) {
             int i = 0;
-            ServicoRotinaDB db = new ServicoRotinaDBToplink();
+            ServicoRotinaDao db = new ServicoRotinaDao();
             List<Servicos> select = db.pesquisaTodosServicosComRotinas(131);
             if (!select.isEmpty()) {
                 while (i < select.size()) {
@@ -415,7 +413,7 @@ public class LancamentoIndividualBean implements Serializable {
             }
 
             PessoaDao db = new PessoaDao();
-            ServicoPessoaDB dbS = new ServicoPessoaDBToplink();
+            ServicoPessoaDao dbS = new ServicoPessoaDao();
 
             servicoPessoa = dbS.pesquisaServicoPessoaPorPessoa(fisica.getPessoa().getId());
             if (servicoPessoa == null) {
@@ -555,7 +553,7 @@ public class LancamentoIndividualBean implements Serializable {
          }
                 
                 
-         SociosDB dbs = new SociosDBToplink();
+         SociosDB dbs = new SociosDao();
          Socios soc = dbs.pesquisaSocioPorPessoaAtivo(responsavel.getId());
                 
          // CASO NÃO SEJA SÓCIO ---
@@ -607,7 +605,7 @@ public class LancamentoIndividualBean implements Serializable {
          }
                 
 
-         SociosDB dbs = new SociosDBToplink();
+         SociosDB dbs = new SociosDao();
          Socios soc = dbs.pesquisaSocioPorPessoaAtivo(fisica.getPessoa().getId());
                 
          // CASO NÃO SEJA SÓCIO ---

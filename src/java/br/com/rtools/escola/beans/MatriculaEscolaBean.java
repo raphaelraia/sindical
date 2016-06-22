@@ -25,12 +25,9 @@ import br.com.rtools.financeiro.ServicoValor;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.dao.DescontoServicoEmpresaDao;
-import br.com.rtools.financeiro.db.FinanceiroDB;
-import br.com.rtools.financeiro.db.FinanceiroDBToplink;
-import br.com.rtools.financeiro.db.MovimentoDB;
-import br.com.rtools.financeiro.db.MovimentoDBToplink;
-import br.com.rtools.financeiro.db.ServicosDB;
-import br.com.rtools.financeiro.db.ServicosDBToplink;
+import br.com.rtools.financeiro.dao.FinanceiroDao;
+import br.com.rtools.financeiro.dao.MovimentoDao;
+import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Fisica;
@@ -89,8 +86,6 @@ public class MatriculaEscolaBean implements Serializable {
     private MatriculaContrato matriculaContrato;
     private MatriculaIndividual matriculaIndividual;
     private MatriculaTurma matriculaTurma;
-    //private Pessoa pessoaAlunoMemoria;
-    //private Pessoa pessoaResponsavelMemoria;
     private EscolaAutorizados escolaAutorizados;
     private EscolaAutorizados escolaAutorizadosDetalhes;
     private MacFilial macFilial;
@@ -112,16 +107,10 @@ public class MatriculaEscolaBean implements Serializable {
     private List<SelectItem> listaMesVencimento;
     private List<SelectItem> listFiliais;
     private List<SelectItem> listParceiro;
-    //private List<SelectItem> listaDiaParcela;
     private List<Turma> listaTurma;
-    //private List<Movimento> listaMovimentos;
-    //private List<Movimento> listaOutrosMovimentos;
     private List<EscolaAutorizados> listaEscolaAutorizadas;
     private List<ListaMatriculaEscola> listaMatriculaEscolas;
-    //private int diaVencimento;
     private int idDiaVencimento;
-    //private int idDiaVencimentoPessoa;
-    //private int idDiaParcela;
     private int idDataTaxa;
     private int idMesVencimento;
     private int idFTipoDocumento;
@@ -152,14 +141,12 @@ public class MatriculaEscolaBean implements Serializable {
     private boolean limpar;
     private boolean ocultaBotaoSalvar;
     private boolean ocultaDescontoFolha;
-    //private boolean taxa;
     private boolean visibility;
     private Boolean liberaAcessaFilial;
     private String comoPesquisa;
     private String descricao;
     private String descricaoCurso;
     private String msgStatusFilial;
-    //private String mensagem;
     private String msgStatusDebito;
     private String msgStatusEmpresa;
     private String openModal;
@@ -193,8 +180,6 @@ public class MatriculaEscolaBean implements Serializable {
         matriculaContrato = new MatriculaContrato();
         matriculaIndividual = new MatriculaIndividual();
         matriculaTurma = new MatriculaTurma();
-        //pessoaAlunoMemoria = new Pessoa();
-        //pessoaResponsavelMemoria = new Pessoa();
         escolaAutorizados = new EscolaAutorizados();
         escolaAutorizadosDetalhes = new EscolaAutorizados();
         macFilial = new MacFilial();
@@ -215,18 +200,13 @@ public class MatriculaEscolaBean implements Serializable {
         listaIndividual = new ArrayList();
         listaDataVencimento = new ArrayList();
         listaMesVencimento = new ArrayList();
-        //listaDiaParcela = new ArrayList();
         listaTurma = new ArrayList();
-//        listaMovimentos = new ArrayList();
-//        listaOutrosMovimentos = new ArrayList();
         listaEscolaAutorizadas = new ArrayList();
         listaMatriculaEscolas = new ArrayList();
         listFiliais = new ArrayList();
         listParceiro = new ArrayList();
-//        diaVencimento = 0;
         idDiaVencimento = 0;
         idParceiro = -1;
-        //idDiaVencimentoPessoa = 0;
         idDataTaxa = 0;
         idMesVencimento = 0;
         idFTipoDocumento = 0;
@@ -254,13 +234,11 @@ public class MatriculaEscolaBean implements Serializable {
         limpar = false;
         ocultaBotaoSalvar = false;
         ocultaDescontoFolha = true;
-        //taxa = false;
         visibility = false;
         comoPesquisa = "";
         descricao = "";
         descricaoCurso = "";
         msgStatusFilial = "";
-        //mensagem = "";
         msgStatusDebito = "";
         msgStatusEmpresa = "";
         openModal = "";
@@ -272,7 +250,6 @@ public class MatriculaEscolaBean implements Serializable {
         valorParcelaVencimento = "";
         valorLiquido = "";
         valorTaxa = "0,00";
-
         servicoPessoa = new ServicoPessoa();
         numeroParcelas = 0;
         valorTotal = "0,00";
@@ -359,8 +336,8 @@ public class MatriculaEscolaBean implements Serializable {
                 return null;
             }
         } else {
-            FinanceiroDB dbf = new FinanceiroDBToplink();
-            Caixa caixax = dbf.pesquisaCaixaUsuario(((Usuario) GenericaSessao.getObject("sessaoUsuario")).getId(), macFilial.getFilial().getId());
+            FinanceiroDao dao = new FinanceiroDao();
+            Caixa caixax = dao.pesquisaCaixaUsuario(((Usuario) GenericaSessao.getObject("sessaoUsuario")).getId(), macFilial.getFilial().getId());
 
             if (caixax == null) {
                 GenericaMensagem.warn("Erro", "Configurar Caixa para este Operador!");
@@ -902,7 +879,7 @@ public class MatriculaEscolaBean implements Serializable {
     public void gerarCarne() throws Exception {
         if (matriculaEscola.getServicoPessoa().getEvt() != null) {
 //            if (listaMovimentos.size() > 0) {
-//                PessoaEnderecoDB pessoaEnderecoDB = new PessoaEnderecoDBToplink();
+//                PessoaEnderecoDao pessoaEnderecoDB = new PessoaEnderecoDao();
 //                PessoaEndereco pessoaEndereco = ((List<PessoaEndereco>) pessoaEnderecoDB.pesquisaEndPorPessoa(matriculaEscola.getFilial().getFilial().getPessoa().getId())).get(0);
 //                List<CarneEscola> list = new ArrayList<>();
 //                int j = 1;
@@ -1761,7 +1738,7 @@ public class MatriculaEscolaBean implements Serializable {
         msgStatusDebito = "";
         setOcultaBotaoSalvar(false);
         if (responsavelPessoa.getId() != -1) {
-            MovimentoDB movimentoDB = new MovimentoDBToplink();
+            MovimentoDao movimentoDB = new MovimentoDao();
             if (movimentoDB.existeDebitoPessoa(responsavelPessoa, null)) {
                 msgStatusDebito = "Responsável possui débitos!";
                 setOcultaBotaoSalvar(true);
@@ -1933,7 +1910,7 @@ public class MatriculaEscolaBean implements Serializable {
 
     public List<SelectItem> getListaIndividual() {
         if (listaIndividual.isEmpty()) {
-            ServicosDB db = new ServicosDBToplink();
+            ServicosDao db = new ServicosDao();
             List list = db.pesquisaTodos(151);
             if (!list.isEmpty()) {
                 for (int i = 0; i < list.size(); i++) {
@@ -2240,7 +2217,6 @@ public class MatriculaEscolaBean implements Serializable {
     }
 
     public void verificaSocio() {
-        //SociosDB dB = new SociosDBToplink();
         socios = aluno.getPessoa().getSocios(); // dB.pesquisaSocioPorPessoa(aluno.getPessoa().getId());
     }
 
@@ -2296,53 +2272,7 @@ public class MatriculaEscolaBean implements Serializable {
     public void setMovimento(Movimento movimento) {
         this.movimento = movimento;
     }
-//
-//    public List<Movimento> getListaMovimentos() {
-//        if (listaMovimentos.isEmpty()) {
-//            if (matriculaEscola.getId() != -1) {
-//                int count = 0;
-//                if (matriculaEscola.getEvt() != null) {
-//                    MovimentoDB movimentoDB = new MovimentoDBToplink();
-//                    LoteDB loteDB = new LoteDBToplink();
-//                    // lote = (Lote) loteDB.pesquisaLotesPorEvt(matriculaEscola.getEvt());
-//                    List<Lote> lotes = (List<Lote>) loteDB.pesquisaLotesPorEvt(matriculaEscola.getEvt());
-//                    List<Movimento> ms = new ArrayList<Movimento>();
-//                    for (Lote lote1 : lotes) {
-//                        ms.addAll(movimentoDB.listaMovimentosDoLote(lote1.getId()));
-//                    }
-//                    //listaMovimentos = movimentoDB.listaMovimentosDoLote(lote.getId());
-//                    for (Movimento listaMovimento : ms) {
-//                        if (listaMovimento.getTipoServico().getId() == 5) {
-//                            //setTaxa(true);
-//                            valorTaxa = Moeda.converteR$Float(listaMovimento.getValor());
-//                            listaMovimento.setQuantidade(0);
-//                        } else {
-//                            count++;
-//                            listaMovimento.setQuantidade(count);
-//                        }
-////                        if (listaMovimento.isAtivo()) {
-//                        if (listaMovimento.getTipoServico().getId() == 1 || listaMovimento.getTipoServico().getId() == 5) {
-//                            listaMovimentos.add(listaMovimento);
-//                        } else if (listaMovimento.getTipoServico().getId() == 6) {
-//                            listaOutrosMovimentos.add(listaMovimento);
-////                            }
-//                        }
-//                    }
-//                    lote = new Lote();
-//                }
-//            }
-//        }
-//        return listaMovimentos;
-//    }
-//
-//    public void setListaMovimentos(List<Movimento> listaMovimentos) {
-//        this.listaMovimentos = listaMovimentos;
-//    }
-
-//    public boolean isHabilitaGerarParcelas() {
-//        habilitaGerarParcelas = listaMovimentos.isEmpty();
-//        return habilitaGerarParcelas;
-//    }
+    
     public void setHabilitaGerarParcelas(boolean habilitaGerarParcelas) {
         this.habilitaGerarParcelas = habilitaGerarParcelas;
     }
@@ -2371,15 +2301,6 @@ public class MatriculaEscolaBean implements Serializable {
         this.desabilitaGeracaoContrato = desabilitaGeracaoContrato;
     }
 
-//    public boolean existeMovimento() {
-//        if (matriculaEscola.getEvt() != null) {
-//            MovimentoDB movimentoDB = new MovimentoDBToplink();
-//            if (!((List) movimentoDB.movimentosBaixadosPorEvt(matriculaEscola.getEvt().getId())).isEmpty()) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
     public String getTipoMatricula() {
         return tipoMatricula;
     }

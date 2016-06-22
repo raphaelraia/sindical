@@ -1,8 +1,7 @@
 package br.com.rtools.arrecadacao.beans;
 
 import br.com.rtools.financeiro.ContaCobranca;
-import br.com.rtools.financeiro.db.ServicoContaCobrancaDB;
-import br.com.rtools.financeiro.db.ServicoContaCobrancaDBToplink;
+import br.com.rtools.financeiro.dao.ServicoContaCobrancaDao;
 import br.com.rtools.retornos.BancoBrasil;
 import br.com.rtools.retornos.CaixaFederal;
 import br.com.rtools.retornos.Itau;
@@ -187,10 +186,10 @@ public class RetornoPadraoJSFBean {
 
     public ArrayList<DataObject> getListaCaminho() {
         if (listaCaminho.isEmpty()) {
-            ServicoContaCobrancaDB servDB = new ServicoContaCobrancaDBToplink();
+            ServicoContaCobrancaDao servDB = new ServicoContaCobrancaDao();
             List<ContaCobranca> select = servDB.listaContaCobrancaAtivoArrecadacao();
             if (!select.isEmpty()) {
-                List<DataObject> listax = new ArrayList<DataObject>();
+                List<DataObject> listax = new ArrayList();
                 for (int i = 0; i < select.size(); i++) {
                     listaCaminho.add(new DataObject(i, // INDICE
                             select.get(i).getCaminhoRetorno(), // CAMINHO DO ARQUIVO DENTRO DO CONTA COBRANCA

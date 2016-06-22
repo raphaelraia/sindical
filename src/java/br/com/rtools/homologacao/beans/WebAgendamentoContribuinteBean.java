@@ -928,7 +928,7 @@ public class WebAgendamentoContribuinteBean extends PesquisarProfissaoBean imple
 
             // VERIFICAÇÃO DE PESSOA EMPRESA SEM DEMISSAO
             //            if (fisica.getId() != -1){
-            //                PessoaEmpresaDB dbx = new PessoaEmpresaDBToplink();
+            //                PessoaEmpresaDao dbx = new PessoaEmpresaDao();
             //                List<PessoaEmpresa> list_pe = dbx.listaPessoaEmpresaPorFisicaEmpresaDemissao(fisica.getId(), juridica.getId());
             //
             //                if (!list_pe.isEmpty()){

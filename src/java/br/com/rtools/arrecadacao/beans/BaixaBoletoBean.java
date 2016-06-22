@@ -3,10 +3,8 @@ package br.com.rtools.arrecadacao.beans;
 import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.ServicoContaCobranca;
-import br.com.rtools.financeiro.db.MovimentoDB;
-import br.com.rtools.financeiro.db.MovimentoDBToplink;
-import br.com.rtools.financeiro.db.ServicoContaCobrancaDB;
-import br.com.rtools.financeiro.db.ServicoContaCobrancaDBToplink;
+import br.com.rtools.financeiro.dao.MovimentoDao;
+import br.com.rtools.financeiro.dao.ServicoContaCobrancaDao;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
@@ -43,12 +41,12 @@ public class BaixaBoletoBean {
 
     public void loadListaBoleto(){
         DataObject dt = null;
-        List<Movimento> listaQuery = new ArrayList();
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
         String pesquisado;
 
         getListBoletos().clear();
 
+        List<Movimento> listaQuery;
         if (caixaBanco.equals("banco"))
             listaQuery = db.movimentosAberto(getPessoa().getId(), true);
         else
@@ -83,7 +81,7 @@ public class BaixaBoletoBean {
     public List<SelectItem> getListaServicoCobranca() {
         List<SelectItem> servicoCobranca = new ArrayList();
         int i = 0;
-        ServicoContaCobrancaDB servDB = new ServicoContaCobrancaDBToplink();
+        ServicoContaCobrancaDao servDB = new ServicoContaCobrancaDao();
         List<ServicoContaCobranca> select = servDB.pesquisaTodosFiltrado();
         if (select == null) {
             select = new ArrayList();
@@ -125,7 +123,7 @@ public class BaixaBoletoBean {
 
         if (dob == null){
             Integer id_conta_banco = null;
-            MovimentoDB db = new MovimentoDBToplink();
+            MovimentoDao db = new MovimentoDao();
             for (DataObject listBoleto : getListBoletos()) {
                 if ((Boolean) listBoleto.getArgumento8() == true) {
                     mov = (Movimento) listBoleto.getArgumento1();
@@ -347,8 +345,8 @@ public class BaixaBoletoBean {
         if (GenericaSessao.getObject("juridicaPesquisa") == null) {
             if (this.novoNumero) {
                 ServicoContaCobranca scc = new ServicoContaCobranca();
-                ServicoContaCobrancaDB dbS = new ServicoContaCobrancaDBToplink();
-                MovimentoDB db = new MovimentoDBToplink();
+                ServicoContaCobrancaDao dbS = new ServicoContaCobrancaDao();
+                MovimentoDao db = new MovimentoDao();
 
                 scc = dbS.pesquisaCodigo(Integer.parseInt(getListaServicoCobranca().get(idServicos).getDescription()));
 

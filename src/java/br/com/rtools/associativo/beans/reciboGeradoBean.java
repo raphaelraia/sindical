@@ -1,7 +1,7 @@
 package br.com.rtools.associativo.beans;
 
 import br.com.rtools.financeiro.Caixa;
-import br.com.rtools.financeiro.db.FinanceiroDBToplink;
+import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.DataObject;
@@ -29,7 +29,7 @@ public class reciboGeradoBean implements Serializable {
     public reciboGeradoBean() {
         root = new DefaultTreeNode("root", null);
 
-        List<Caixa> listaCaixa = (new FinanceiroDBToplink()).listaCaixa();
+        List<Caixa> listaCaixa = new FinanceiroDao().listaCaixa();
 
         for (Caixa caixa : listaCaixa) {
             TreeNode tn_caixa = new DefaultTreeNode(caixa.getCaixa() + " - " + caixa.getDescricao(), root);

@@ -9,10 +9,8 @@ import br.com.rtools.financeiro.CobrancaTipo;
 import br.com.rtools.financeiro.PollingEmail;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
-import br.com.rtools.financeiro.db.NotificacaoDB;
-import br.com.rtools.financeiro.db.NotificacaoDBToplink;
-import br.com.rtools.financeiro.db.ServicoRotinaDB;
-import br.com.rtools.financeiro.db.ServicoRotinaDBToplink;
+import br.com.rtools.financeiro.dao.NotificacaoDao;
+import br.com.rtools.financeiro.dao.ServicoRotinaDao;
 import br.com.rtools.impressao.ParametroEtiqueta;
 import br.com.rtools.impressao.ParametroNotificacao;
 import br.com.rtools.pessoa.Juridica;
@@ -208,7 +206,7 @@ public class NotificacaoBean implements Serializable {
 
     public synchronized List<DataObject> getListaNotificacao() {
         if (listaNotificacao.isEmpty()) {
-            NotificacaoDB db = new NotificacaoDBToplink();
+            NotificacaoDao db = new NotificacaoDao();
             //quantidade = 0;
             String empresas = "", contabils = "", cidades = "", servicos = "", tipo_servico = "";
             for (int i = 0; i < listaEmpresaAdd.size(); i++) {
@@ -332,7 +330,7 @@ public class NotificacaoBean implements Serializable {
         lote.setDtEmissao(DataHoje.dataHoje());
         lote.setHora(DataHoje.horaMinuto());
 
-        NotificacaoDB db = new NotificacaoDBToplink();
+        NotificacaoDao db = new NotificacaoDao();
 //        if (db.pesquisaCobrancaLote(lote.getUsuario().getId(), lote.getDtEmissao()) != null) {
 //            msgConfirma = "Notificação já gerada hoje!";
 //            return null;
@@ -375,7 +373,7 @@ public class NotificacaoBean implements Serializable {
         CobrancaTipo ct = (CobrancaTipo) dao.find(new CobrancaTipo(), Integer.valueOf(listaTipoEnvio.get(idTipoEnvio).getDescription()));
         JuridicaDao dbJur = new JuridicaDao();
         PessoaEnderecoDao dbPesEnd = new PessoaEnderecoDao();
-        NotificacaoDB db = new NotificacaoDBToplink();
+        NotificacaoDao db = new NotificacaoDao();
 
         List<Vector> result = db.listaParaEtiqueta(query, ct);
 
@@ -455,7 +453,7 @@ public class NotificacaoBean implements Serializable {
     }
 
     public synchronized void enviarPeloMenu() {
-        NotificacaoDB db = new NotificacaoDBToplink();
+        NotificacaoDao db = new NotificacaoDao();
         Dao dao = new Dao();
         boolean erro = false;
         Usuario usu = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuario");
@@ -557,7 +555,7 @@ public class NotificacaoBean implements Serializable {
         Dao dao = new Dao();
         CobrancaTipo ct = (CobrancaTipo) dao.find(new CobrancaTipo(), Integer.valueOf(listaTipoEnvio.get(idTipoEnvio).getDescription()));
 
-        NotificacaoDB db = new NotificacaoDBToplink();
+        NotificacaoDao db = new NotificacaoDao();
         List<Vector> result = db.listaNotificacaoEnvio(ct.getId(), lote.getId());
 
         if (result.isEmpty()) {
@@ -1036,7 +1034,7 @@ public class NotificacaoBean implements Serializable {
 
     public List<SelectItem> getItensLista() {
         if (itensLista.isEmpty()) {
-            NotificacaoDB db = new NotificacaoDBToplink();
+            NotificacaoDao db = new NotificacaoDao();
             List<CobrancaLote> result = db.listaCobrancaLote();
             itensLista.add(new SelectItem(0, "<< Gerar novo Lote de Notificação >>", String.valueOf(-1)));
             for (int i = 0; i < result.size(); i++) {
@@ -1062,7 +1060,7 @@ public class NotificacaoBean implements Serializable {
 
     public List<SelectItem> getListaTipoEnvio() {
         if (listaTipoEnvio.isEmpty()) {
-            NotificacaoDB db = new NotificacaoDBToplink();
+            NotificacaoDao db = new NotificacaoDao();
             List<CobrancaTipo> result = db.listaCobrancaTipoEnvio();
             for (int i = 0; i < result.size(); i++) {
                 listaTipoEnvio.add(new SelectItem(new Integer(i),
@@ -1157,7 +1155,7 @@ public class NotificacaoBean implements Serializable {
     }
 
     public boolean isHabilitaNot() {
-        NotificacaoDB db = new NotificacaoDBToplink();
+        NotificacaoDao db = new NotificacaoDao();
         Registro reg = (Registro) new Dao().find(new Registro(), 1);
 
         Usuario usu = (Usuario) GenericaSessao.getObject("sessaoUsuario");
@@ -1301,7 +1299,7 @@ public class NotificacaoBean implements Serializable {
 
     public List<ListaDeServicos> getListaServicos() {
         if (listaServicos.isEmpty()) {
-            ServicoRotinaDB dbsr = new ServicoRotinaDBToplink();
+            ServicoRotinaDao dbsr = new ServicoRotinaDao();
             List<Servicos> s = dbsr.listaServicosIn("1,2,3,4");
 
             for (Servicos item : s) {

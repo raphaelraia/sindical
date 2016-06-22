@@ -1,7 +1,7 @@
 package br.com.rtools.financeiro;
 
-import br.com.rtools.financeiro.db.LoteDBToplink;
-import br.com.rtools.financeiro.db.MovimentoDBToplink;
+import br.com.rtools.financeiro.dao.LoteDao;
+import br.com.rtools.financeiro.dao.MovimentoDao;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.*;
@@ -50,15 +50,15 @@ public class Evt implements Serializable {
     }
 
     public Lote getLote() {
-        return new LoteDBToplink().pesquisaLotePorEvt(this);
+        return new LoteDao().pesquisaLotePorEvt(this);
     }
 
     public List<Movimento> getListMovimento() {
-        return new MovimentoDBToplink().listaMovimentosDoLote(getLote().getId());
+        return new MovimentoDao().listaMovimentosDoLote(getLote().getId());
     }
 
     public Movimento getMovimento() {
-        List<Movimento> list = new MovimentoDBToplink().listaMovimentosDoLote(getLote().getId());
+        List<Movimento> list = new MovimentoDao().listaMovimentosDoLote(getLote().getId());
         if (!list.isEmpty() && list.size() == 1) {
             return list.get(0);
         }

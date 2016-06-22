@@ -1,4 +1,4 @@
-package br.com.rtools.financeiro.db;
+package br.com.rtools.financeiro.dao;
 
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.principal.DB;
@@ -7,9 +7,8 @@ import java.util.List;
 import java.util.Vector;
 import javax.persistence.Query;
 
-public class TipoServicoDBToplink extends DB implements TipoServicoDB {
+public class TipoServicoDao extends DB {
 
-    @Override
     public boolean insert(TipoServico tipoServico) {
         try {
             getEntityManager().getTransaction().begin();
@@ -22,8 +21,7 @@ public class TipoServicoDBToplink extends DB implements TipoServicoDB {
             return false;
         }
     }
-
-    @Override
+    
     public boolean update(TipoServico tipoServico) {
         try {
             getEntityManager().merge(tipoServico);
@@ -34,7 +32,6 @@ public class TipoServicoDBToplink extends DB implements TipoServicoDB {
         }
     }
 
-    @Override
     public boolean delete(TipoServico tipoServico) {
         try {
             getEntityManager().remove(tipoServico);
@@ -45,7 +42,6 @@ public class TipoServicoDBToplink extends DB implements TipoServicoDB {
         }
     }
 
-    @Override
     public TipoServico pesquisaCodigo(int id) {
         TipoServico result = null;
         try {
@@ -57,7 +53,6 @@ public class TipoServicoDBToplink extends DB implements TipoServicoDB {
         return result;
     }
 
-    @Override
     public List pesquisaTodos() {
         try {
             Query qry = getEntityManager().createQuery("select p from TipoServico p ");
@@ -67,7 +62,6 @@ public class TipoServicoDBToplink extends DB implements TipoServicoDB {
         }
     }
 
-    @Override
     public List pesquisaTodosPeloContaCobranca() {
         try {
             Query qry = getEntityManager().createQuery(
@@ -80,7 +74,6 @@ public class TipoServicoDBToplink extends DB implements TipoServicoDB {
         }
     }
 
-    @Override
     public List<TipoServico> pesquisaTodosComIds(List<Integer> arrayId) {
         try {
             int i = 0;
@@ -109,7 +102,6 @@ public class TipoServicoDBToplink extends DB implements TipoServicoDB {
         }
     }
 
-    @Override
     public TipoServico idTipoServico(TipoServico des_tipoServico) {
         TipoServico result = null;
         String descricao = des_tipoServico.getDescricao().toLowerCase().toUpperCase();
@@ -122,9 +114,8 @@ public class TipoServicoDBToplink extends DB implements TipoServicoDB {
         return result;
     }
 
-    @Override
     public List pesquisaTipoServico(String desc, String como) {
-        List lista = new Vector<Object>();
+        List<Object> lista = new Vector();
         String textQuery = null;
         if (como.equals("P")) {
 
@@ -144,7 +135,7 @@ public class TipoServicoDBToplink extends DB implements TipoServicoDB {
             }
             lista = qry.getResultList();
         } catch (Exception e) {
-            lista = new Vector<Object>();
+            lista = new Vector();
         }
         return lista;
     }

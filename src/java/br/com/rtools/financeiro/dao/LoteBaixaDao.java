@@ -1,11 +1,11 @@
-package br.com.rtools.financeiro.db;
+package br.com.rtools.financeiro.dao;
 
 import br.com.rtools.principal.DB;
 import br.com.rtools.financeiro.Baixa;
 import java.util.List;
 import javax.persistence.Query;
 
-public class LoteBaixaDBToplink extends DB implements LoteBaixaDB {
+public class LoteBaixaDao extends DB {
 
     public Baixa pesquisaCodigo(int id) {
         Baixa result = null;

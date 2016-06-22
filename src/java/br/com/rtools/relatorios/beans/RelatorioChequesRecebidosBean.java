@@ -3,7 +3,7 @@ package br.com.rtools.relatorios.beans;
 import br.com.rtools.financeiro.Caixa;
 import br.com.rtools.financeiro.FStatus;
 import br.com.rtools.financeiro.Plano5;
-import br.com.rtools.financeiro.db.FinanceiroDBToplink;
+import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.impressao.ParametroChequesRecebidos;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.relatorios.dao.RelatorioFinanceiroDao;
@@ -181,7 +181,7 @@ public class RelatorioChequesRecebidosBean implements Serializable {
 
     public List<Caixa> getListaCaixa() {
         if (listaCaixa.isEmpty()) {
-            listaCaixa = (new FinanceiroDBToplink()).listaCaixa();
+            listaCaixa = new FinanceiroDao().listaCaixa();
         }
         return listaCaixa;
     }

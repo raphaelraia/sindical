@@ -1,8 +1,7 @@
 package br.com.rtools.seguranca.utilitarios;
 
 import br.com.rtools.financeiro.Caixa;
-import br.com.rtools.financeiro.db.FinanceiroDB;
-import br.com.rtools.financeiro.db.FinanceiroDBToplink;
+import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Usuario;
@@ -48,7 +47,7 @@ public class SegurancaUtilitariosBean implements Serializable {
         String paginaAtual = paginaRequerida.getRequestURI().substring(paginaRequerida.getRequestURI().lastIndexOf("/") + 1, paginaRequerida.getRequestURI().lastIndexOf("."));
 
         if (paginaAtual.equals("gerarBoleto") || paginaAtual.equals("servicos")) {
-            FinanceiroDB db = new FinanceiroDBToplink();
+            FinanceiroDao db = new FinanceiroDao();
             List<Vector> listaServicoSemCobranca = db.listaServicosSemCobranca();
             if (!listaServicoSemCobranca.isEmpty()) {
                 mensagem = "Definir Conta Cobrança para os seguintes Serviços <br /> <br />";
@@ -75,7 +74,7 @@ public class SegurancaUtilitariosBean implements Serializable {
                     return true;
                 }
             } else {
-                FinanceiroDB db = new FinanceiroDBToplink();
+                FinanceiroDao db = new FinanceiroDao();
                 Caixa caixa = db.pesquisaCaixaUsuario(Usuario.getUsuario().getId(), macFilial.getFilial().getId());
 
                 if (caixa != null) {

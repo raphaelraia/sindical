@@ -11,8 +11,7 @@ import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.GrupoFinanceiro;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.SubGrupoFinanceiro;
-import br.com.rtools.financeiro.db.FinanceiroDB;
-import br.com.rtools.financeiro.db.FinanceiroDBToplink;
+import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.RelatorioParametros;
@@ -375,7 +374,7 @@ public class RelatorioFinanceiroSocialBean implements Serializable {
         listaSubGrupo.clear();
         idSubGrupo = 0;
         idServicos = 0;
-        FinanceiroDB db = new FinanceiroDBToplink();
+        FinanceiroDao db = new FinanceiroDao();
 
         // (listaFiltrosFinanceiro.get(0).ativo) GRUPO
         List<SubGrupoFinanceiro> result = db.listaSubGrupo((listaFiltrosFinanceiro.get(0).ativo) ? Integer.valueOf(listaGrupo.get(idGrupo).getDescription()) : null);

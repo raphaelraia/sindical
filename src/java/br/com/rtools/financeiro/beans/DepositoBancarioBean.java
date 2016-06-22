@@ -12,8 +12,7 @@ import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoPagamento;
 import br.com.rtools.financeiro.TipoServico;
-import br.com.rtools.financeiro.db.FinanceiroDB;
-import br.com.rtools.financeiro.db.FinanceiroDBToplink;
+import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.financeiro.dao.Plano5Dao;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Pessoa;
@@ -46,10 +45,10 @@ public class DepositoBancarioBean implements Serializable {
         loadListaCheques();
     }
 
-    public void loadListaCheques() {
+    public final void loadListaCheques() {
         listaCheques.clear();
         listaSelecionado.clear();
-        FinanceiroDB db = new FinanceiroDBToplink();
+        FinanceiroDao db = new FinanceiroDao();
         Dao dao = new Dao();
 
         List<Object> result = db.listaDeCheques(7);

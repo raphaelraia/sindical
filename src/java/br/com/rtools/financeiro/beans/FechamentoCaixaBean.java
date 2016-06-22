@@ -6,8 +6,7 @@ import br.com.rtools.financeiro.ContaSaldo;
 import br.com.rtools.financeiro.FStatus;
 import br.com.rtools.financeiro.FechamentoCaixa;
 import br.com.rtools.financeiro.TransferenciaCaixa;
-import br.com.rtools.financeiro.db.FinanceiroDB;
-import br.com.rtools.financeiro.db.FinanceiroDBToplink;
+import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.impressao.ParametroCaixaAnalitico;
 import br.com.rtools.impressao.ResumoFechamentoCaixa;
 import br.com.rtools.impressao.beans.ImprimirFechamentoCaixa;
@@ -62,7 +61,7 @@ public final class FechamentoCaixaBean implements Serializable {
     public void loadListaFechamento() {
         listaFechamento.clear();
         if (!listaCaixa.isEmpty() && Integer.valueOf(listaCaixa.get(idCaixa).getDescription()) != 0) {
-            FinanceiroDB db = new FinanceiroDBToplink();
+            FinanceiroDao db = new FinanceiroDao();
             Caixa caixa = (Caixa) (new Dao().find(new Caixa(), Integer.valueOf(listaCaixa.get(idCaixa).getDescription())));
             if (caixa == null) {
                 return;
@@ -97,7 +96,7 @@ public final class FechamentoCaixaBean implements Serializable {
     }
 
     public void loadDataFechamento() {
-        FinanceiroDB db = new FinanceiroDBToplink();
+        FinanceiroDao db = new FinanceiroDao();
         String d = db.dataFechamentoCaixa(Integer.valueOf(listaCaixa.get(idCaixa).getDescription()));
         if (d.isEmpty()) {
             fechamento.setData(DataHoje.data());
@@ -114,99 +113,8 @@ public final class FechamentoCaixaBean implements Serializable {
         CaixaFechadoBean cf = new CaixaFechadoBean();
 
         cf.transferirCaixaGenerico(fechamento.getId(), Integer.valueOf(listaCaixa.get(idCaixa).getDescription()), valorTransferencia);
-//        
-//        FinanceiroDB db = new FinanceiroDBToplink();
-//        Caixa caixa = (Caixa)(new ().pesquisaCodigo(Integer.valueOf(listaCaixa.get(idCaixa).getDescription()) ,"Caixa"));
-//        List<TransferenciaCaixa> lista_tc = db.listaTransferenciaDinheiro(fechamento.getId(), caixa.getId());
-//        List<FormaPagamento> lista_fp_entrada = db.listaTransferenciaFormaPagamento(fechamento.getId(), caixa.getId(), "E");
-//        List<FormaPagamento> lista_fp_saida = db.listaTransferenciaFormaPagamento(fechamento.getId(), caixa.getId(), "S");
-//        
-//        float dinheiro_transferencia = 0, dinheiro_baixa = 0, outros = 0, saldo_atual = 0;
-//        float dinheiro_pagamento = 0, outros_pagamento = 0;
-//        
-//        for (int i = 0; i < lista_tc.size(); i++){
-//            dinheiro_transferencia = Moeda.somaValores(dinheiro_transferencia, lista_tc.get(i).getValor());
-//        }
-//        
-//        for (int i = 0; i < lista_fp_entrada.size(); i++){
-//            if (lista_fp_entrada.get(i).getTipoPagamento().getId() == 3){
-//                dinheiro_baixa = Moeda.somaValores(dinheiro_baixa, lista_fp_entrada.get(i).getValor());
-//            }else{
-//                outros = Moeda.somaValores(outros, lista_fp_entrada.get(i).getValor());
-//            }
-//        }
-//        
-//        for (int i = 0; i < lista_fp_saida.size(); i++){
-//            if (lista_fp_saida.get(i).getTipoPagamento().getId() == 3){
-//                dinheiro_pagamento = Moeda.somaValores(dinheiro_pagamento, lista_fp_saida.get(i).getValor());
-//            }else{
-//                outros_pagamento = Moeda.somaValores(outros_pagamento, lista_fp_saida.get(i).getValor());
-//            }
-//        }
-//
-//        List<Vector> lista = db.pesquisaSaldoAtual(caixa.getId());
-//        float valor_saldo_atual = 0;
-//        
-//        if (!lista.isEmpty()){
-//            valor_saldo_atual = Moeda.converteUS$(Moeda.converteR$(lista.get(0).get(1).toString()));
-//        }
-//        
-//        float total_dinheiro = Moeda.somaValores(Moeda.somaValores(dinheiro_transferencia, dinheiro_baixa), valor_saldo_atual);
-//        
-//        float soma = Moeda.somaValores(total_dinheiro, outros);
-//        float soma_pagamento = Moeda.somaValores(dinheiro_pagamento, outros_pagamento);
-//        float valor_minimo = Moeda.subtracaoValores(outros, soma_pagamento);
-//        
-//        if (Moeda.converteUS$(valorTransferencia) != soma){
-//            //if (Moeda.converteUS$(valorTransferencia) > soma){
-//            if (Moeda.converteUS$(valorTransferencia) > fechamento.getValorFechamento()){
-//                GenericaMensagem.warn("Erro", "Valor da Transferência deve ser no MÁXIMO R$ " + Moeda.converteR$Float(fechamento.getValorFechamento()));
-//                return;
-//            }
-//
-//            if (Moeda.converteUS$(valorTransferencia) < outros){
-//                GenericaMensagem.warn("Erro", "Valor da Transferência deve ser no MÍNIMO R$ " + Moeda.converteR$Float(outros));
-//                return;
-//            }else if (Moeda.converteUS$(valorTransferencia) >= outros){
-//                //saldo_atual = Moeda.subtracaoValores(total_dinheiro, Moeda.subtracaoValores(Moeda.converteUS$(valorTransferencia), outros));
-//                saldo_atual = Moeda.subtracaoValores(fechamento.getValorFechamento(),Moeda.converteUS$(valorTransferencia));
-//            }
-//            fechamento.setSaldoAtual(saldo_atual);
-//        }
-//        
-//         sv = new ();
-//        
-//        sv.abrirTransacao();
-//        
-//        if (!sv.alterarObjeto(fechamento)){
-//            GenericaMensagem.warn("Erro", "Não foi possivel alterar Fechamento Caixa!");
-//            sv.desfazerTransacao();
-//            return;
-//        }
-//        
-//        // AQUI pesquisaCaixaUm COLOCAR id_filial
-//        TransferenciaCaixa tc = new TransferenciaCaixa(
-//                -1,
-//                caixa,
-//                Moeda.converteUS$(valorTransferencia),
-//                (new FinanceiroDBToplink()).pesquisaCaixaUm(),
-//                DataHoje.dataHoje(),
-//                (FStatus) new ().pesquisaCodigo(12, "FStatus"),
-//                null,
-//                fechamento,
-//                (Usuario) GenericaSessao.getObject("sessaoUsuario")
-//        );
-//        
-//        if (!sv.inserirObjeto(tc)){
-//            GenericaMensagem.warn("Erro", "Não foi possivel salvar esta Transferência, verifique se existe CAIXA 01 cadastrado!");
-//            sv.desfazerTransacao();
-//            return;
-//        }
-//        
-//        sv.comitarTransacao();
-//        GenericaMensagem.info("Sucesso", "Transferência entre Caixas concluído!");
+
         fechamento = new FechamentoCaixa();
-        //listaFechamento.clear();
         loadListaFechamento();
     }
 
@@ -225,7 +133,7 @@ public final class FechamentoCaixaBean implements Serializable {
     }
 
     public void analitico(DataObject linha) {
-        FinanceiroDB db = new FinanceiroDBToplink();
+        FinanceiroDao db = new FinanceiroDao();
 
         // id_fechamento_caixa
         List<Vector> result = db.listaRelatorioAnalitico((Integer) ((Vector) linha.getArgumento0()).get(1));
@@ -277,7 +185,7 @@ public final class FechamentoCaixaBean implements Serializable {
             return;
         }
 
-        FinanceiroDB db = new FinanceiroDBToplink();
+        FinanceiroDao db = new FinanceiroDao();
 
         // data do fechamento
         List<Vector> result = db.listaResumoFechamentoCaixa(dataResumoFechamento);
@@ -351,7 +259,7 @@ public final class FechamentoCaixaBean implements Serializable {
         Caixa caixa = (Caixa) dao.find(new Caixa(), Integer.valueOf(listaCaixa.get(idCaixa).getDescription()));
         Caixa caixa_destino = (Caixa) dao.find(new Caixa(), Integer.valueOf(listaCaixaDestino.get(idCaixaDestino).getDescription()));
 
-        FinanceiroDB db = new FinanceiroDBToplink();
+        FinanceiroDao db = new FinanceiroDao();
         List<Vector> result_entrada = db.listaMovimentoCaixa(caixa.getId(), "E", null, fechamento.getData());
         List<TransferenciaCaixa> lEntrada = db.listaTransferenciaEntrada(caixa.getId(), null, fechamento.getData());
 
@@ -398,7 +306,7 @@ public final class FechamentoCaixaBean implements Serializable {
             return;
         }
 
-        FinanceiroDB db = new FinanceiroDBToplink();
+        FinanceiroDao db = new FinanceiroDao();
 
         Dao dao = new Dao();
         Caixa caixa = (Caixa) dao.find(new Caixa(), Integer.valueOf(listaCaixa.get(idCaixa).getDescription()));
@@ -605,7 +513,7 @@ public final class FechamentoCaixaBean implements Serializable {
                         return listaCaixa;
                     }
 
-                    FinanceiroDB dbf = new FinanceiroDBToplink();
+                    FinanceiroDao dbf = new FinanceiroDao();
                     cx = dbf.pesquisaCaixaUsuario(((Usuario) GenericaSessao.getObject("sessaoUsuario")).getId(), mac.getFilial().getId());
 
                     if (cx == null) {
@@ -624,7 +532,7 @@ public final class FechamentoCaixaBean implements Serializable {
                             )
                     );
                 } else {
-                    List<Caixa> list = (new FinanceiroDBToplink()).listaCaixa();
+                    List<Caixa> list = new FinanceiroDao().listaCaixa();
                     if (!list.isEmpty()) {
 
                         // TRUE é igual não ter permissão
@@ -646,7 +554,7 @@ public final class FechamentoCaixaBean implements Serializable {
                     }
                 }
             } else {
-                List<Caixa> list = (new FinanceiroDBToplink()).listaCaixa();
+                List<Caixa> list = new FinanceiroDao().listaCaixa();
                 if (!list.isEmpty()) {
                     for (int i = 0; i < list.size(); i++) {
                         listaCaixa.add(
@@ -694,21 +602,6 @@ public final class FechamentoCaixaBean implements Serializable {
         this.valor = Moeda.substituiVirgula(valor);
     }
 
-//    public String getSaldoAnterior() {
-//        if (contaSaldo.getId() == -1 && !listaCaixa.isEmpty()){
-//            Caixa caixa = (Caixa)(new ().pesquisaCodigo(Integer.valueOf(listaCaixa.get(idCaixa).getDescription()) ,"Caixa"));
-//            FinanceiroDB db = new FinanceiroDBToplink();
-//            contaSaldo = db.pesquisaSaldoInicial(caixa.getId());
-//            saldoAnterior = Moeda.converteR$Float(contaSaldo.getSaldo());
-//        }else{
-//            saldoAnterior = Moeda.converteR$Float(contaSaldo.getSaldo());
-//        }
-//        return saldoAnterior;
-//    }
-//
-//    public void setSaldoAnterior(String saldoAnterior) {
-//        this.saldoAnterior = saldoAnterior;
-//    }
     public int getIdCaixaDestino() {
         return idCaixaDestino;
     }
@@ -763,7 +656,7 @@ public final class FechamentoCaixaBean implements Serializable {
                 return saldoAtual = "0,00";
             }
 
-            FinanceiroDB db = new FinanceiroDBToplink();
+            FinanceiroDao db = new FinanceiroDao();
             List<Vector> lista = db.pesquisaSaldoAtual(caixa.getId());
 
             if (!lista.isEmpty()) {

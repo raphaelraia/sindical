@@ -584,8 +584,8 @@ public class FilialBean {
 
         public List<FilialCidade> getListFilialCidade() {
             if (cidade.getId() != -1) {
-                FilialCidadeDao filialCidadeDBToplink = new FilialCidadeDao();
-                listFilialCidade = filialCidadeDBToplink.findListBy(cidade.getId(), false);
+                FilialCidadeDao dao = new FilialCidadeDao();
+                listFilialCidade = dao.findListBy(cidade.getId(), false);
 
             }
             return listFilialCidade;

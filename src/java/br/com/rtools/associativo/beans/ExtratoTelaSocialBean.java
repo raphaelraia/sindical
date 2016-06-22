@@ -6,10 +6,8 @@ import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
-import br.com.rtools.financeiro.db.MovimentoDB;
-import br.com.rtools.financeiro.db.MovimentoDBToplink;
-import br.com.rtools.financeiro.db.TipoServicoDB;
-import br.com.rtools.financeiro.db.TipoServicoDBToplink;
+import br.com.rtools.financeiro.dao.MovimentoDao;
+import br.com.rtools.financeiro.dao.TipoServicoDao;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.pessoa.Pessoa;
@@ -446,7 +444,7 @@ public class ExtratoTelaSocialBean implements Serializable {
         }
 
         List<Movimento> lista_acordo = new ArrayList();
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
 
         if (movimento.getAcordo() != null) {
             if (movimento.getAcordo().getId() != -1) {
@@ -495,7 +493,6 @@ public class ExtratoTelaSocialBean implements Serializable {
     public void loadListaServicos() {
         listaServicos.clear();
 
-//        ServicosDB db = new ServicosDBToplink();
         List<Servicos> select = new ExtratoTelaSocialDao().listaServicosAssociativo();
 
         listaServicos.add(new SelectItem(0, "-- Selecione um Serviço --", "0"));
@@ -511,7 +508,7 @@ public class ExtratoTelaSocialBean implements Serializable {
     public void loadListaTipoServico() {
         listaTipoServico.clear();
 
-        TipoServicoDB db = new TipoServicoDBToplink();
+        TipoServicoDao db = new TipoServicoDao();
         List<TipoServico> select = db.pesquisaTodos();
 
         listaTipoServico.add(new SelectItem(0, "-- Selecione um Tipo --", "0"));

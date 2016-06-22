@@ -18,9 +18,8 @@ import br.com.rtools.endereco.Endereco;
 import br.com.rtools.endereco.beans.PesquisaEnderecoBean;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.ServicoPessoa;
+import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.financeiro.dao.ServicoPessoaDao;
-import br.com.rtools.financeiro.db.MovimentoDB;
-import br.com.rtools.financeiro.db.MovimentoDBToplink;
 import br.com.rtools.homologacao.Agendamento;
 import br.com.rtools.homologacao.dao.HomologacaoDao;
 import br.com.rtools.logSistema.NovoLog;
@@ -181,7 +180,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             return null;
         }
 
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
         int qnt = 0;
 
         List<Movimento> lm = new ArrayList();
@@ -1744,19 +1743,19 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         offset = 0;
         List list = new ArrayList<>();
         if (!(descPesquisa.trim()).isEmpty()) {
-            FisicaDao fisicaDBToplink = new FisicaDao();
+            FisicaDao fisicaDao = new FisicaDao();
             switch (pesquisaPor) {
                 case "socioativo":
-                    list = fisicaDBToplink.pesquisaPessoaSocio(descPesquisa.trim(), porPesquisa, comoPesquisa, null, null);
+                    list = fisicaDao.pesquisaPessoaSocio(descPesquisa.trim(), porPesquisa, comoPesquisa, null, null);
                     break;
                 case "socio_titular_ativo":
-                    list = fisicaDBToplink.pesquisaPessoaSocio(descPesquisa.trim(), porPesquisa, comoPesquisa, true, null, null);
+                    list = fisicaDao.pesquisaPessoaSocio(descPesquisa.trim(), porPesquisa, comoPesquisa, true, null, null);
                     break;
                 case "pessoa":
-                    list = fisicaDBToplink.pesquisaPessoa(descPesquisa.trim(), porPesquisa, comoPesquisa, null, null);
+                    list = fisicaDao.pesquisaPessoa(descPesquisa.trim(), porPesquisa, comoPesquisa, null, null);
                     break;
                 case "socioinativo":
-                    list = fisicaDBToplink.pesquisaPessoaSocioInativo(descPesquisa.trim(), porPesquisa, comoPesquisa, null, null);
+                    list = fisicaDao.pesquisaPessoaSocioInativo(descPesquisa.trim(), porPesquisa, comoPesquisa, null, null);
                     break;
             }
         }

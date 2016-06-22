@@ -258,50 +258,6 @@ public class RelatorioContabilidadesBean implements Serializable {
         }
     }
 
-//    public List<SelectItem> getListaQntEmpresas1() {
-//        if (qntEmpresas.isEmpty()) {
-//            qntEmpresas = new ArrayList<SelectItem>();
-//            int i = 0;
-//            RelatorioContabilidadesDB db = new RelatorioContabilidadesDao();
-//            List contabilidades = db.pesquisaContabilidades();
-//            JuridicaDB dbJur = new JuridicaDBToplink();
-////            Juridica contabil = new Juridica();
-//            int quantidade = 0;
-//            boolean tem = false;
-//            int ind = 0;
-//            while (i < contabilidades.size()) {
-//                tem = false;
-//                Juridica contabil = ((Juridica) contabilidades.get(i));
-//                quantidade = dbJur.quantidadeEmpresas(contabil.getId());
-//                if (quantidade > 0) {
-//                    if (qntEmpresas.isEmpty()) {
-//                        qntEmpresas.add(new SelectItem(new Integer(ind), Integer.toString(quantidade), String.valueOf(new Integer(ind))));
-//                        ind++;
-//                    } else {
-//                        for (int o = 0; o < qntEmpresas.size(); o++) {
-//                            if (quantidade == Integer.parseInt(qntEmpresas.get(o).getLabel())) {
-//                                tem = true;
-//                            }
-//                        }
-//                        if (!tem) {
-//                            qntEmpresas.add(new SelectItem(new Integer(ind), Integer.toString(quantidade), String.valueOf(new Integer(ind))));
-//                            ind++;
-//                        }
-//                    }
-//                }
-//                i++;
-//            }
-//            BubbleSort(qntEmpresas);
-//        }
-//        return qntEmpresas;
-//    }
-//    public List<SelectItem> getListaQntEmpresas2() {
-//        if (qntEmpresas2.isEmpty()) {
-//            qntEmpresas2.addAll(qntEmpresas);
-//            idEmpFinal = Integer.parseInt(qntEmpresas2.get(qntEmpresas2.size() - 1).getDescription());
-//        }
-//        return qntEmpresas2;
-//    }
     public List<SelectItem> getListTipoEndereco() {
         if (listTipoEndereco.isEmpty()) {
             Dao dao = new Dao();
@@ -313,28 +269,6 @@ public class RelatorioContabilidadesBean implements Serializable {
         return listTipoEndereco;
     }
 
-//    public static void BubbleSort(List<SelectItem> dados) {
-//        boolean trocou;
-//        int limite = dados.size() - 1;
-//        String swap1 = null;
-//        String swap2 = null;
-//        int i = 0;
-//        do {
-//            trocou = false;
-//            i = 0;
-//            while (i < limite) {
-//                if ((Integer.parseInt(dados.get(i).getLabel())) > (Integer.parseInt(dados.get(i + 1).getLabel()))) {
-//                    swap1 = dados.get(i).getLabel();
-//                    swap2 = dados.get(i + 1).getLabel();
-//                    dados.get(i).setLabel(swap2);
-//                    dados.get(i + 1).setLabel(swap1);
-//                    trocou = true;
-//                }
-//                i++;
-//            }
-//            limite--;
-//        } while (trocou);
-//    }
     public String getRadioEmpresas() {
         return radioEmpresas;
     }

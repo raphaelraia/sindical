@@ -2,7 +2,7 @@ package br.com.rtools.financeiro.beans;
 
 import br.com.rtools.financeiro.Caixa;
 import br.com.rtools.financeiro.dao.CaixaDao;
-import br.com.rtools.financeiro.db.FinanceiroDBToplink;
+import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.seguranca.Usuario;
@@ -48,7 +48,7 @@ public class CaixaBean implements Serializable {
 
     public void salvar() {
         if (caixa.getCaixa() == 1){
-            Caixa caixaUm = (new FinanceiroDBToplink()).pesquisaCaixaUm();
+            Caixa caixaUm = new FinanceiroDao().pesquisaCaixaUm();
             Caixa caixa_antigo = (Caixa) (new Dao().find(caixa));
             if (caixaUm.getId() != -1 && caixaUm.getId() != caixa.getId()){
                 caixa.setCaixa(caixa_antigo.getCaixa());

@@ -6,8 +6,7 @@ import br.com.rtools.financeiro.GrupoFinanceiro;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.SubGrupoFinanceiro;
 import br.com.rtools.financeiro.dao.DescontoServicoEmpresaDao;
-import br.com.rtools.financeiro.db.FinanceiroDB;
-import br.com.rtools.financeiro.db.FinanceiroDBToplink;
+import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -169,29 +168,6 @@ public class DescontoServicoEmpresaBean implements Serializable {
                 error = true;
                 break;
             }
-//                DescontoServicoEmpresa dse = (DescontoServicoEmpresa) di.find(descontoServicoEmpresa);
-//                String beforeUpdate
-//                        = "ID: " + dse.getId()
-//                        + " - Serviços: (" + dse.getServicos().getId() + ") " + dse.getServicos().getDescricao()
-//                        + " - Jurídica: (" + dse.getJuridica().getId() + ") " + dse.getJuridica().getPessoa().getNome()
-//                        + " - Desconto (%): " + dse.getDesconto();
-//                di.openTransaction();
-//                if (di.update(descontoServicoEmpresa)) {
-//                    novoLog.update(beforeUpdate,
-//                            "ID: " + descontoServicoEmpresa.getId()
-//                            + " - Serviços: (" + descontoServicoEmpresa.getServicos().getId() + ") " + descontoServicoEmpresa.getServicos().getDescricao()
-//                            + " - Jurídica: (" + descontoServicoEmpresa.getJuridica().getId() + ") " + descontoServicoEmpresa.getJuridica().getPessoa().getNome()
-//                            + " - Desconto (%): " + descontoServicoEmpresa.getDesconto()
-//                    );
-//                    di.commit();
-//                    message = "Registro atualizado";
-//                    GenericaMensagem.info("Sucesso", message);
-//                    clear();
-//                } else {
-//                    di.rollback();
-//                    message = "Erro ao atualizar este registro!";
-//                    GenericaMensagem.warn("Erro", message);
-//                }
         }
         if (error) {
             dao.rollback();
@@ -498,8 +474,8 @@ public class DescontoServicoEmpresaBean implements Serializable {
     
     public final void loadSubGrupoFinanceiro() {
         if (!listGrupoFinanceiro.isEmpty() && habilitaSubGrupo) {
-            FinanceiroDB financeiroDB = new FinanceiroDBToplink();
-            List<SubGrupoFinanceiro> list = financeiroDB.listaSubGrupo(Integer.parseInt(listGrupoFinanceiro.get(idGrupoFinanceiro).getDescription()));
+            FinanceiroDao dao = new FinanceiroDao();
+            List<SubGrupoFinanceiro> list = dao.listaSubGrupo(Integer.parseInt(listGrupoFinanceiro.get(idGrupoFinanceiro).getDescription()));
             for (int i = 0; i < list.size(); i++) {
                 if (i == 0) {
                     idSubGrupoFinanceiro = i;

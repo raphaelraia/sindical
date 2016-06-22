@@ -1,8 +1,10 @@
 package br.com.rtools.retornos;
 
+import br.com.rtools.financeiro.dao.ContaCobrancaDao;
 import br.com.rtools.financeiro.ContaCobranca;
 import br.com.rtools.financeiro.Movimento;
-import br.com.rtools.financeiro.db.*;
+import br.com.rtools.financeiro.dao.MovimentoDao;
+import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
@@ -41,17 +43,15 @@ public class RetornoPadrao extends ArquivoRetorno {
         String dataPagamento = "";
         String dataVencimento = "";
         String caminho = ((ServletContext) context.getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/ArquivoRetorno/Padrao");
-        //String idContaCobranca = "";
-        //Servicos servico = new Servicos();
-        ServicosDB dbS = new ServicosDBToplink();
+        ServicosDao dbS = new ServicosDao();
         ContaCobranca contaCobranca = new ContaCobranca();
-        ContaCobrancaDBToplink dbC = new ContaCobrancaDBToplink();
+        ContaCobrancaDao dbC = new ContaCobrancaDao();
         List<Movimento> movimento = new ArrayList();
-        MovimentoDB db = new MovimentoDBToplink();
-        List<String> errors = new ArrayList<String>();
+        MovimentoDao db = new MovimentoDao();
+        List<String> errors = new ArrayList();
         boolean moverArquivo = true;
-        List<String> listaDtPagamentos = new ArrayList<String>();
-        List<Float> listaTaxa = new ArrayList<Float>();
+        List<String> listaDtPagamentos = new ArrayList();
+        List<Float> listaTaxa = new ArrayList();
         List<Float> listaValor = new ArrayList();
         File fl = new File(caminho);
         File listFile[] = fl.listFiles();
@@ -71,8 +71,7 @@ public class RetornoPadrao extends ArquivoRetorno {
                         valorTaxa = linha.substring(67, 83).trim();
                         valorPago = linha.substring(51, 67).trim();
                         dataPagamento = linha.substring(83, 92).trim();
-                        dataVencimento = "";//linha.substring(83, 92).trim();
-                        //idContaCobranca = linha.substring(92, 98).trim();
+                        dataVencimento = "";
 
                         if (!contaCobranca.getCodCedente().trim().equals(codigoCedente.trim())) {
                             contaCobranca = new ContaCobranca();
@@ -85,12 +84,9 @@ public class RetornoPadrao extends ArquivoRetorno {
                                 listaDtPagamentos = new ArrayList<String>();
                                 listaTaxa = new ArrayList<Float>();
                                 listaValor = new ArrayList();
-                                //contaCobranca = new ContaCobranca();
                                 continue;
                             } else {
-//                                listaDtPagamentos.add(DataHoje.colocarBarras(dataPagamento));
-//                                listaTaxa.add();
-//                                listaValor.add();
+
                             }
 
                             Movimento movi = movimento.get(0);
@@ -99,8 +95,6 @@ public class RetornoPadrao extends ArquivoRetorno {
                             movi.setTaxa(Moeda.substituiVirgulaFloat(Moeda.converteR$(valorTaxa)) / 100);
 
                             GerarMovimento.salvarUmMovimento(null, movi);
-//                            OperacaoMovimento op = new OperacaoMovimento(movimento);
-//                            String result = op.darBaixa(usuario, rotina, null, listaDtPagamentos, listaTaxa, listaValor, contaCobranca.getContaBanco().getFilial(), null);
                         }
                         movimento = new ArrayList();
                         listaDtPagamentos = new ArrayList<String>();

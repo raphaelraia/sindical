@@ -1,10 +1,10 @@
-package br.com.rtools.financeiro.db;
+package br.com.rtools.financeiro.dao;
 
 import br.com.rtools.principal.DB;
 import java.util.Vector;
 import javax.persistence.Query;
 
-public class RemessaBancoDBToplink extends DB implements RemessaBancoDB {
+public class RemessaBancoDao extends DB {
 
     public Object pesquisaRemessaBancoCobranca(int id_cobranca) {
         Object result = new Vector();

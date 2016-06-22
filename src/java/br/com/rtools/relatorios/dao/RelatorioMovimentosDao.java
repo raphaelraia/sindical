@@ -357,7 +357,7 @@ public class RelatorioMovimentosDao extends DB {
 
         if (relatorio.getId() == 66) {
             // RESUMO CONTRIBUICOES
-            select = "-- RelatorioMovimentosDBToplink - listaMovimentos;           \n\n"
+            select = "-- RelatorioMovimentosDao - listaMovimentos;           \n\n"
                     + "SELECT " + mes + " as mes, \n "
                     + "      " + ano + " as ano, \n "
                     + "      se.ds_descricao as contribuicao, \n "
@@ -370,7 +370,7 @@ public class RelatorioMovimentosDao extends DB {
             order = mes + ", " + ano + ",se.ds_descricao  \n ";
         } else if (relatorio.getId() == 67) {
             // RESUMO CONTRIBUICOES POR EMPRESA
-            select = "-- RelatorioMovimentosDBToplink - listaMovimentos;           \n\n"
+            select = "-- RelatorioMovimentosDao - listaMovimentos;           \n\n"
                     + "SELECT " + mes + " as mes, \n "
                     + "      " + ano + " as ano, \n "
                     + "      pes.ds_documento as cnpj, \n "
@@ -389,7 +389,7 @@ public class RelatorioMovimentosDao extends DB {
                     + mes + ", " + ano + ", se.ds_descricao \n ";
         } else if (relatorio.getId() == 68) {
             // RESUMO CONTRIBUICOES ANALITICO
-            select = "-- RelatorioMovimentosDBToplink - listaMovimentos;           \n\n"
+            select = "-- RelatorioMovimentosDao - listaMovimentos;           \n\n"
                     + "SELECT " + mes + " as mes, \n "
                     + "      " + ano + " as ano, \n "
                     + "      se.ds_descricao as contribuicao, \n "
@@ -402,7 +402,7 @@ public class RelatorioMovimentosDao extends DB {
             order = "se.ds_descricao, " + mes + ", " + ano + " \n ";
         } else if (relatorio.getId() == 78) {
             // RESUMO CONTRIBUICOES CIDADE
-            select = "-- RelatorioMovimentosDBToplink - listaMovimentos;           \n\n"
+            select = "-- RelatorioMovimentosDao - listaMovimentos;           \n\n"
                     + "SELECT pes_cidade.ds_cidade as cidade, \n"
                     + mes + " as mes, \n "
                     + ano + " as ano, \n "
@@ -417,7 +417,7 @@ public class RelatorioMovimentosDao extends DB {
         } else {
             // OUTROS RELATORIOS
             select = ""
-                    + "-- RelatorioMovimentosDBToplink - listaMovimentos;           \n\n"
+                    + "-- RelatorioMovimentosDao - listaMovimentos;           \n\n"
                     + "SELECT mov.id                       AS idMov,                \n "
                     + "       mov.ds_documento             AS numeroDocumento,      \n "
                     + "       se.ds_descricao              AS servico,              \n "

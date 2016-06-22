@@ -11,7 +11,7 @@ import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.beans.BaixaGeralBean;
-import br.com.rtools.financeiro.db.MovimentoDBToplink;
+import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.dao.FisicaDao;
@@ -323,7 +323,7 @@ public class GeracaoDebitosCartaoBean implements Serializable {
     }
 
     public Movimento getMovimento(Pessoa p) {
-        MovimentoDBToplink mdb = new MovimentoDBToplink();
+        MovimentoDao mdb = new MovimentoDao();
         mdb.setLimit(1);
         List list = mdb.listaMovimentosUltimosDias(p.getId(), registro.getServicos().getId(), 301, 10, 2);
         if (!list.isEmpty()) {

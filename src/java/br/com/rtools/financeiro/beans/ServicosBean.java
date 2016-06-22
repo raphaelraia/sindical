@@ -1,5 +1,7 @@
 package br.com.rtools.financeiro.beans;
 
+import br.com.rtools.financeiro.dao.ServicoContaCobrancaDao;
+import br.com.rtools.financeiro.dao.ServicoValorDao;
 import br.com.rtools.associativo.Categoria;
 import br.com.rtools.associativo.CategoriaDesconto;
 import br.com.rtools.associativo.CategoriaDescontoDependente;
@@ -13,7 +15,8 @@ import br.com.rtools.financeiro.ServicoContaCobranca;
 import br.com.rtools.financeiro.ServicoValor;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.SubGrupoFinanceiro;
-import br.com.rtools.financeiro.db.*;
+import br.com.rtools.financeiro.dao.FinanceiroDao;
+import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.financeiro.lista.ListServicosCategoriaDesconto;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Filial;
@@ -181,7 +184,7 @@ public class ServicosBean implements Serializable {
 
     public void load() {
         listServicos.clear();
-        listServicos = (List<Servicos>) new ServicosDBToplink().pesquisaServicos(descPesquisa, porPesquisa, comoPesquisa, situacao);
+        listServicos = (List<Servicos>) new ServicosDao().pesquisaServicos(descPesquisa, porPesquisa, comoPesquisa, situacao);
     }
 
     public void save() {
@@ -194,7 +197,7 @@ public class ServicosBean implements Serializable {
             message = "Pesquise o plano de contas antes de salvar!";
             return;
         }
-        ServicosDB db = new ServicosDBToplink();
+        ServicosDao db = new ServicosDao();
         Dao di = new Dao();
         NovoLog novoLog = new NovoLog();
         try {
@@ -454,7 +457,7 @@ public class ServicosBean implements Serializable {
                 }
                 di.openTransaction();
 
-                ServicoContaCobrancaDB db = new ServicoContaCobrancaDBToplink();
+                ServicoContaCobrancaDao db = new ServicoContaCobrancaDao();
                 List<ServicoContaCobranca> listaServicoCobranca = db.pesquisaServPorIdServ(servicos.getId());
 
                 for (ServicoContaCobranca scc : listaServicoCobranca) {
@@ -526,7 +529,7 @@ public class ServicosBean implements Serializable {
 
     public List<ServicoValor> getListServicoValor() {
         //servicoValorDetalhe = new ServicoValor();
-        ServicoValorDB servicoValorDB = new ServicoValorDBToplink();
+        ServicoValorDao servicoValorDB = new ServicoValorDao();
         listServicoValor.clear();
         listServicoValor = servicoValorDB.pesquisaServicoValor(servicos.getId());
         if (listServicoValor == null) {
@@ -933,7 +936,7 @@ public class ServicosBean implements Serializable {
 
     public List<SelectItem> getListSubGrupo() {
         if (listSubGrupo.isEmpty()) {
-            FinanceiroDB db = new FinanceiroDBToplink();
+            FinanceiroDao db = new FinanceiroDao();
 
             List<SubGrupoFinanceiro> result = db.listaSubGrupo(Integer.valueOf(getListGrupo().get(idGrupo).getDescription()));
             listSubGrupo.add(new SelectItem(0, "Nenhum Sub Grupo Financeiro Encontrado", "0"));
@@ -964,13 +967,6 @@ public class ServicosBean implements Serializable {
         this.idSubGrupo = idSubGrupo;
     }
 
-//    public ServicoValor getServicoValorDetalhe() {
-//        return servicoValorDetalhe;
-//    }
-//
-//    public void setServicoValorDetalhe(ServicoValor servicoValorDetalhe) {
-//        this.servicoValorDetalhe = servicoValorDetalhe;
-//    }
     public String valorCategoriaDesconto(CategoriaDesconto cd) {
         // Quanto é 50% de 1000?
         // É 0,5 multiplicado por 1000 => 0,5  x 1000 = 500

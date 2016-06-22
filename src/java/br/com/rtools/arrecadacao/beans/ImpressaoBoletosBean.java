@@ -7,10 +7,8 @@ import br.com.rtools.arrecadacao.dao.ConvencaoCidadeDao;
 import br.com.rtools.financeiro.Impressao;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.ServicoContaCobranca;
-import br.com.rtools.financeiro.db.MovimentoDB;
-import br.com.rtools.financeiro.db.MovimentoDBToplink;
-import br.com.rtools.financeiro.db.ServicoContaCobrancaDB;
-import br.com.rtools.financeiro.db.ServicoContaCobrancaDBToplink;
+import br.com.rtools.financeiro.dao.MovimentoDao;
+import br.com.rtools.financeiro.dao.ServicoContaCobrancaDao;
 import br.com.rtools.impressao.Etiquetas;
 import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.pessoa.Juridica;
@@ -80,7 +78,7 @@ public class ImpressaoBoletosBean implements Serializable {
     private boolean chkTodosVencimentos = false;
 
     public void registrarBoletos() {
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
         List<Movimento> lista = new ArrayList();
         List<Float> listaValores = new ArrayList();
         List<String> listaVencimentos = new ArrayList();
@@ -185,8 +183,8 @@ public class ImpressaoBoletosBean implements Serializable {
         try {
             listaMovGrid.clear();
             listaMovGridSelecionada.clear();
-            ServicoContaCobrancaDB servDB = new ServicoContaCobrancaDBToplink();
-            MovimentoDB movDB = new MovimentoDBToplink();
+            ServicoContaCobrancaDao servDB = new ServicoContaCobrancaDao();
+            MovimentoDao movDB = new MovimentoDao();
             List<Linha> listaSwap = new ArrayList();
             ServicoContaCobranca contaCobranca;
             Linha linha = new Linha();
@@ -361,14 +359,14 @@ public class ImpressaoBoletosBean implements Serializable {
 
     public synchronized List<String> getListaData() {
         try {
-            ServicoContaCobrancaDB servDB = new ServicoContaCobrancaDBToplink();
+            ServicoContaCobrancaDao servDB = new ServicoContaCobrancaDao();
             ServicoContaCobranca contaCobranca;
             try {
                 contaCobranca = servDB.pesquisaCodigo(Integer.parseInt(((SelectItem) getListaServicoCobranca().get(idCombo)).getDescription()));
             } catch (Exception e) {
                 contaCobranca = new ServicoContaCobranca();
             }
-            MovimentoDB db = new MovimentoDBToplink();
+            MovimentoDao db = new MovimentoDao();
             List lista = new ArrayList();
             int i = 0;
             if (this.todasContas.equals("false")) {
@@ -504,7 +502,7 @@ public class ImpressaoBoletosBean implements Serializable {
     public List<SelectItem> getListaServicoCobranca() {
         List<SelectItem> servicoCobranca = new ArrayList();
         int i = 0;
-        ServicoContaCobrancaDB servDB = new ServicoContaCobrancaDBToplink();
+        ServicoContaCobrancaDao servDB = new ServicoContaCobrancaDao();
         List<ServicoContaCobranca> select = servDB.pesquisaTodosTipoUm();
         if (select == null) {
             select = new ArrayList();
@@ -515,8 +513,7 @@ public class ImpressaoBoletosBean implements Serializable {
                             i,
                             select.get(i).getServicos().getDescricao() + " - "
                             + select.get(i).getTipoServico().getDescricao() + " - "
-                            + select.get(i).getContaCobranca().getCodCedente(), //+" "+
-                            //select.get(i).getContaCobranca().getCedente(),
+                            + select.get(i).getContaCobranca().getCodCedente(),
                             Integer.toString(select.get(i).getId())));
             i++;
         }
@@ -525,7 +522,7 @@ public class ImpressaoBoletosBean implements Serializable {
 
     public String criarArquivoBanco() {
         List movs = new ArrayList();
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
         try {
             ArquivoBancoBean arquivoBanco = new ArquivoBancoBean();
             Movimento mov = new Movimento();
@@ -569,7 +566,7 @@ public class ImpressaoBoletosBean implements Serializable {
     }
 
     public String imprimirBoleto() {
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
         List<Movimento> lista = new ArrayList();
         List<Float> listaValores = new ArrayList();
         List<String> listaVencimentos = new ArrayList();
@@ -817,7 +814,7 @@ public class ImpressaoBoletosBean implements Serializable {
         Juridica juridica = new Juridica();
 
         JuridicaDao dbj = new JuridicaDao();
-        MovimentoDB dbM = new MovimentoDBToplink();
+        MovimentoDao dbM = new MovimentoDao();
 
         List<Movimento> movadd = new ArrayList();
         List<Float> listaValores = new ArrayList();

@@ -10,11 +10,9 @@ import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.beans.MovimentosReceberBean;
-import br.com.rtools.financeiro.db.ContaCobrancaDBToplink;
-import br.com.rtools.financeiro.db.MovimentoDB;
-import br.com.rtools.financeiro.db.MovimentoDBToplink;
-import br.com.rtools.financeiro.db.TipoServicoDB;
-import br.com.rtools.financeiro.db.TipoServicoDBToplink;
+import br.com.rtools.financeiro.dao.MovimentoDao;
+import br.com.rtools.financeiro.dao.ContaCobrancaDao;
+import br.com.rtools.financeiro.dao.TipoServicoDao;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.pessoa.Pessoa;
@@ -88,27 +86,19 @@ public class AcordoSocialBean implements Serializable {
     public void loadListaVisualizado() {
         if (listaVizualizado.isEmpty() && !listaMovs.isEmpty() && pessoa.getId() != -1) {
             historico.setHistorico("ACORDO CORRESPONDENTE A: ");
-//            List<DataObject> aux = new ArrayList();
-//            aux.add(null);
-//            aux.add(null);
-//            aux.add(null);
-//            aux.add(null);
             float soma = 0;
 
             Map<Integer, DataObject> hash = new LinkedHashMap();
 
             for (Movimento listaMov : listaMovs) {
                 soma = Moeda.somaValores(soma, listaMov.getValorBaixa());
-                //aux.set(1, new DataObject(listaMov.getServicos(), soma, null, null, null, null));
                 Float valor_linha;
                 String s_historico;
 
                 if (hash.get(listaMov.getServicos().getId()) == null) {
-                    //s_historico = listaMov.getServicos().getDescricao() + ", " + listaMov.getReferencia();
                     s_historico = listaMov.getServicos().getDescricao();
                     valor_linha = listaMov.getValorBaixa();
                 } else {
-                    //s_historico = hash.get(listaMov.getServicos().getId()).getArgumento2() + ", " + listaMov.getReferencia();
                     s_historico = hash.get(listaMov.getServicos().getId()).getArgumento2().toString();
                     valor_linha = Moeda.somaValores(Moeda.converteUS$(hash.get(listaMov.getServicos().getId()).getArgumento1().toString()), listaMov.getValorBaixa());
                 }
@@ -121,21 +111,14 @@ public class AcordoSocialBean implements Serializable {
                 historico.setHistorico(historico.getHistorico() + "" + entry.getValue().getArgumento2() + ", ");
             }
 
-            //float soma_total = Moeda.somaValores(Moeda.somaValores(soma_assis, soma_conf), soma_neg);
             total = Moeda.converteR$Float(soma);
-//            
-//            for (DataObject aux1 : aux) {
-//                if (aux1 != null) {
-//                    listaVizualizado.add(new DataObject(aux1.getArgumento0(), Moeda.converteR$Float((Float) aux1.getArgumento1()), aux1.getArgumento2(), (String) aux1.getArgumento3(), null, null));
-//                }
-//            }
         }
     }
 
     public synchronized void adicionarParcela() {
         try {
-            TipoServicoDB dbTipoServico = new TipoServicoDBToplink();
-            ContaCobrancaDBToplink ctaCobraDB = new ContaCobrancaDBToplink();
+            TipoServicoDao dbTipoServico = new TipoServicoDao();
+            ContaCobrancaDao ctaCobraDB = new ContaCobrancaDao();
             TipoServico tipoServico = dbTipoServico.pesquisaCodigo(4);
             DataHoje data = new DataHoje();
             int j = 0, k = 0;
@@ -491,7 +474,7 @@ public class AcordoSocialBean implements Serializable {
         ImprimirBoleto imp = new ImprimirBoleto();
         List listaImp = new ArrayList();
 
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
         listaImp.addAll(db.pesquisaAcordoTodos(acordo.getId()));
 
         if (!listaImp.isEmpty()) {

@@ -1,4 +1,4 @@
-package br.com.rtools.financeiro.db;
+package br.com.rtools.financeiro.dao;
 
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.principal.DB;
@@ -6,9 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 
-public class ServicoRotinaDBToplink extends DB implements ServicoRotinaDB {
+public class ServicoRotinaDao extends DB {
 
-    @Override
     public List pesquisaTodos() {
         try {
             Query qry = getEntityManager().createQuery("SELECT SR From ServicoRotina AS SR");
@@ -19,7 +18,6 @@ public class ServicoRotinaDBToplink extends DB implements ServicoRotinaDB {
         }
     }
 
-    @Override
     public List pesquisaServicoRotinaPorServico(int idServico) {
         try {
             Query qry = getEntityManager().createQuery("SELECT SR FROM ServicoRotina AS SR WHERE SR.servicos.id = " + idServico + " ORDER BY SR.rotina.rotina ASC ");
@@ -32,7 +30,6 @@ public class ServicoRotinaDBToplink extends DB implements ServicoRotinaDB {
         return new ArrayList();
     }
 
-    @Override
     public List pesquisaTodasRotinasSemServicoOrdenado(int idServico) {
         try {
             Query qry = getEntityManager().createQuery(
@@ -50,7 +47,6 @@ public class ServicoRotinaDBToplink extends DB implements ServicoRotinaDB {
         return new ArrayList();
     }
 
-    @Override
     public List pesquisaTodosServicosComRotinas(int idRotina) {
         try {
             Query query = getEntityManager().createQuery(
@@ -67,7 +63,6 @@ public class ServicoRotinaDBToplink extends DB implements ServicoRotinaDB {
         return new ArrayList();
     }
 
-    @Override
     public boolean existeServicoRotina(int idServico, int idRotina) {
         try {
             Query query = getEntityManager().createQuery(" SELECT SR FROM ServicoRotina AS SR WHERE SR.servicos.id = :servicos AND SR.rotina.id = :rotina ");
@@ -80,14 +75,13 @@ public class ServicoRotinaDBToplink extends DB implements ServicoRotinaDB {
         }
         return false;
     }
-    
-    @Override
+
     public List<Servicos> listaServicosNotIn(String ids) {
         try {
             Query query = getEntityManager().createQuery(
                     "   SELECT sr.servicos "
                     + "   FROM ServicoRotina AS sr"
-                    + "  WHERE sr.rotina.id NOT IN ("+ids+") "
+                    + "  WHERE sr.rotina.id NOT IN (" + ids + ") "
                     + "  ORDER BY sr.servicos.descricao");
             List list = query.getResultList();
             if (!list.isEmpty()) {
@@ -96,15 +90,14 @@ public class ServicoRotinaDBToplink extends DB implements ServicoRotinaDB {
         } catch (Exception e) {
         }
         return new ArrayList();
-    }    
-    
-    @Override
+    }
+
     public List<Servicos> listaServicosIn(String ids) {
         try {
             Query query = getEntityManager().createQuery(
                     "   SELECT sr.servicos "
                     + "   FROM ServicoRotina AS sr"
-                    + "  WHERE sr.rotina.id IN ("+ids+") "
+                    + "  WHERE sr.rotina.id IN (" + ids + ") "
                     + "  ORDER BY sr.servicos.descricao");
             List list = query.getResultList();
             if (!list.isEmpty()) {
@@ -113,5 +106,5 @@ public class ServicoRotinaDBToplink extends DB implements ServicoRotinaDB {
         } catch (Exception e) {
         }
         return new ArrayList();
-    }    
+    }
 }

@@ -27,12 +27,9 @@ import br.com.rtools.financeiro.ServicoValor;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.dao.DescontoServicoEmpresaDao;
-import br.com.rtools.financeiro.db.LoteDB;
-import br.com.rtools.financeiro.db.LoteDBToplink;
-import br.com.rtools.financeiro.db.MovimentoDB;
-import br.com.rtools.financeiro.db.MovimentoDBToplink;
-import br.com.rtools.financeiro.db.ServicoValorDB;
-import br.com.rtools.financeiro.db.ServicoValorDBToplink;
+import br.com.rtools.financeiro.dao.LoteDao;
+import br.com.rtools.financeiro.dao.MovimentoDao;
+import br.com.rtools.financeiro.dao.ServicoValorDao;
 import br.com.rtools.impressao.CarneEscola;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.movimento.GerarMovimento;
@@ -1377,8 +1374,8 @@ public class MatriculaAcademiaBean implements Serializable {
         messageStatusDebito = "";
         setOcultaBotaoSalvar(false);
         if (responsavelPessoa.getId() != -1) {
-            MovimentoDB movimentoDB = new MovimentoDBToplink();
-            if (movimentoDB.existeDebitoPessoa(responsavelPessoa, null)) {
+            MovimentoDao dao = new MovimentoDao();
+            if (dao.existeDebitoPessoa(responsavelPessoa, null)) {
                 messageStatusDebito = "Responsável possui débitos!";
                 setOcultaBotaoSalvar(true);
             }
@@ -2305,10 +2302,10 @@ public class MatriculaAcademiaBean implements Serializable {
             if (matriculaAcademia.getId() != -1) {
                 int count = 0;
                 if (matriculaAcademia.getEvt() != null) {
-                    MovimentoDB movimentoDB = new MovimentoDBToplink();
-                    LoteDB loteDB = new LoteDBToplink();
+                    MovimentoDao dao = new MovimentoDao();
+                    LoteDao loteDB = new LoteDao();
                     lote = (Lote) loteDB.pesquisaLotePorEvt(matriculaAcademia.getEvt());
-                    listaMovimentos = movimentoDB.listaMovimentosDoLote(lote.getId());
+                    listaMovimentos = dao.listaMovimentosDoLote(lote.getId());
                     for (int i = 0; i < listaMovimentos.size(); i++) {
                         if (listaMovimentos.get(i).getTipoServico().getId() == 5) {
                             setTaxa(true);
@@ -2340,8 +2337,8 @@ public class MatriculaAcademiaBean implements Serializable {
 
     public boolean existeMovimento() {
         if (matriculaAcademia.getEvt() != null) {
-            MovimentoDB movimentoDB = new MovimentoDBToplink();
-            if (!((List) movimentoDB.movimentosBaixadosPorEvt(matriculaAcademia.getEvt().getId())).isEmpty()) {
+            MovimentoDao dao = new MovimentoDao();
+            if (!((List) dao.movimentosBaixadosPorEvt(matriculaAcademia.getEvt().getId())).isEmpty()) {
                 return true;
             }
         }
@@ -2450,7 +2447,7 @@ public class MatriculaAcademiaBean implements Serializable {
             Dao di = new Dao();
             registro = (Registro) di.find(new Registro(), 1);
             if (registro.getServicos() != null) {
-                ServicoValorDB servicoValorDB = new ServicoValorDBToplink();
+                ServicoValorDao servicoValorDB = new ServicoValorDao();
                 List<ServicoValor> list = (List<ServicoValor>) servicoValorDB.pesquisaServicoValor(registro.getServicos().getId());
                 if (!list.isEmpty()) {
                     valorCartao = list.get(0).getValor();

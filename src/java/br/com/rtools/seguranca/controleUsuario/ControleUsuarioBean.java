@@ -5,8 +5,7 @@ import br.com.rtools.seguranca.dao.MacFilialDao;
 import br.com.rtools.associativo.ConfiguracaoSocial;
 import br.com.rtools.associativo.beans.ConfiguracaoSocialBean;
 import br.com.rtools.financeiro.Caixa;
-import br.com.rtools.financeiro.db.FinanceiroDB;
-import br.com.rtools.financeiro.db.FinanceiroDBToplink;
+import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.principal.DBExternal;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Usuario;
@@ -263,7 +262,7 @@ public class ControleUsuarioBean implements Serializable {
                 string_filial += " - Caixa: NENHUM DEFINIDO";
             }
         } else {
-            FinanceiroDB dbf = new FinanceiroDBToplink();
+            FinanceiroDao dbf = new FinanceiroDao();
             Caixa caixa = dbf.pesquisaCaixaUsuario(u.getId(), mf.getFilial().getId());
             if (caixa != null) {
                 if (string_filial.isEmpty()) {
@@ -457,10 +456,8 @@ public class ControleUsuarioBean implements Serializable {
     public List<ContadorAcessos> getListaContador() {
         if (GenericaSessao.exists("sessaoUsuario")) {
             Usuario usu = ((Usuario) GenericaSessao.getObject("sessaoUsuario"));
-//            RotinaDB db = new RotinaDBToplink();
             AtalhoDao dba = new AtalhoDao();
             listaContador.clear();
-            //listaRotina = db.pesquisaAcessosOrdem();
             listaContador = dba.listaAcessosUsuario(usu.getId());
         }
         return listaContador;

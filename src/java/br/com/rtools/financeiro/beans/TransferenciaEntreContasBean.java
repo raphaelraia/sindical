@@ -16,8 +16,7 @@ import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoPagamento;
 import br.com.rtools.financeiro.TipoServico;
-import br.com.rtools.financeiro.db.FinanceiroDB;
-import br.com.rtools.financeiro.db.FinanceiroDBToplink;
+import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.seguranca.Rotina;
@@ -60,7 +59,7 @@ public class TransferenciaEntreContasBean implements Serializable {
     public final void loadListaContaSaida() {
         listaContaSaida.clear();
 
-        FinanceiroDB db = new FinanceiroDBToplink();
+        FinanceiroDao db = new FinanceiroDao();
         List<Object> result = db.listaContasParaTransferencia(null);
         listaContaSaida.add(
                 new SelectItem(0, "Selecione uma Conta de Saída", "0")
@@ -83,7 +82,7 @@ public class TransferenciaEntreContasBean implements Serializable {
     public final void loadListaContaEntrada() {
         listaContaEntrada.clear();
 
-        FinanceiroDB db = new FinanceiroDBToplink();
+        FinanceiroDao db = new FinanceiroDao();
         List<Object> result;
         if (Integer.valueOf(listaContaSaida.get(indexContaSaida).getDescription()) == 0) {
             result = db.listaContasParaTransferencia(null);

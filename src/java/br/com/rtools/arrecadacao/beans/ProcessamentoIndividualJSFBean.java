@@ -1,5 +1,7 @@
 package br.com.rtools.arrecadacao.beans;
 
+import br.com.rtools.financeiro.dao.TipoServicoDao;
+import br.com.rtools.financeiro.dao.ContaCobrancaDao;
 import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.arrecadacao.dao.MensagemConvencaoDao;
 import br.com.rtools.arrecadacao.dao.CnaeConvencaoDao;
@@ -10,7 +12,8 @@ import br.com.rtools.arrecadacao.MensagemConvencao;
 import br.com.rtools.arrecadacao.dao.ConvencaoCidadeDao;
 import br.com.rtools.financeiro.*;
 import br.com.rtools.financeiro.beans.MovimentoValorBean;
-import br.com.rtools.financeiro.db.*;
+import br.com.rtools.financeiro.dao.MovimentoDao;
+import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.movimento.ImprimirBoleto;
@@ -164,7 +167,7 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
                 int id_tipo_servico = ((Movimento) (listaMovAdd.get(i))).getTipoServico().getId();
                 String referencia = ((Movimento) (listaMovAdd.get(i))).getReferencia();
 
-                MovimentoDB db = new MovimentoDBToplink();
+                MovimentoDao db = new MovimentoDao();
 
                 String juros = "0,00";
                 String multa = "0,00";
@@ -215,12 +218,12 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
             return null;
         }
         Dao dao = new Dao();
-        ContaCobrancaDBToplink ctaCobraDB = new ContaCobrancaDBToplink();
+        ContaCobrancaDao ctaCobraDB = new ContaCobrancaDao();
         MensagemConvencaoDao menDB = new MensagemConvencaoDao();
         Servicos servicos = new Servicos();
         TipoServico tipoServico = new TipoServico();
         ContaCobranca contaCob = new ContaCobranca();
-        TipoServicoDB dbTipo = new TipoServicoDBToplink();
+        TipoServicoDao dbTipo = new TipoServicoDao();
         servicos = (Servicos) new Dao().find(new Servicos(), Integer.valueOf(getListaServico().get(idServicos).getDescription()));
         tipoServico = dbTipo.pesquisaCodigo(Integer.valueOf(getListaTipoServico().get(idTipoServico).getDescription()));
         contaCob = ctaCobraDB.pesquisaServicoCobranca(servicos.getId(), tipoServico.getId());
@@ -230,7 +233,7 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
             return null;
         }
         Movimento movim = new Movimento();
-        MovimentoDB finDB = new MovimentoDBToplink();
+        MovimentoDao finDB = new MovimentoDao();
         movim = finDB.pesquisaMovimentos(juridica.getPessoa().getId(), strReferencia, tipoServico.getId(), servicos.getId());
 
         if (movim != null) {
@@ -349,7 +352,7 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
                 grupoCidade = convencaoCidade.pesquisaGrupoCidadeJuridica(convencao.getId(), pessoaEndereco.getEndereco().getCidade().getId());
                 if (grupoCidade != null) {
                     MensagemConvencao mensagemConvencao = new MensagemConvencao();
-                    TipoServicoDB dbTipo = new TipoServicoDBToplink();
+                    TipoServicoDao dbTipo = new TipoServicoDao();
                     Servicos servicos = (Servicos) new Dao().find(new Servicos(), Integer.valueOf(getListaServico().get(idServicos).getDescription()));
                     TipoServico tipoServico = dbTipo.pesquisaCodigo(Integer.valueOf(getListaTipoServico().get(idTipoServico).getDescription()));
                     if ((servicos != null) && (tipoServico != null)) {
@@ -475,7 +478,7 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
         NovoLog novoLog = new NovoLog();
         String beforeUpdate = "";
         Movimento movimentoBefore = new Movimento();
-        MovimentoDB finDB = new MovimentoDBToplink();
+        MovimentoDao finDB = new MovimentoDao();
         if (!listMovimentos.isEmpty()) {
             for (int i = 0; i < listMovimentos.size(); i++) {
                 movim = finDB.pesquisaMovimentos(
@@ -1021,9 +1024,9 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
     }
 
     public List<SelectItem> getListaServico() {
-        List<SelectItem> servicos = new Vector<SelectItem>();
+        List<SelectItem> servicos = new Vector();
         int i = 0;
-        ServicosDB db = new ServicosDBToplink();
+        ServicosDao db = new ServicosDao();
         List select = db.pesquisaTodos(4);
         if (!select.isEmpty()) {
             while (i < select.size()) {
@@ -1038,20 +1041,20 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
     }
 
     public List<SelectItem> getListaTipoServico() {
-        List<SelectItem> tipoServico = new Vector<SelectItem>();
+        List<SelectItem> tipoServico = new ArrayList();
         FilialDao filDB = new FilialDao();
         DataHoje data = new DataHoje();
         Registro registro = filDB.pesquisaRegistroPorFilial(1);
         Servicos servicos = (Servicos) new Dao().find(new Servicos(), Integer.valueOf(getListaServico().get(idServicos).getDescription()));
         int i = 0;
-        TipoServicoDB db = new TipoServicoDBToplink();
+        TipoServicoDao db = new TipoServicoDao();
         if ((!data.integridadeReferencia(strReferencia))
                 || (registro == null)
                 || (servicos == null)) {
             return tipoServico;
         }
         List select = null;
-        List<Integer> listaIds = new ArrayList<Integer>();
+        List<Integer> listaIds = new ArrayList();
 
         listaIds.add(1);
         listaIds.add(2);
@@ -1060,7 +1063,7 @@ public class ProcessamentoIndividualJSFBean extends MovimentoValorBean implement
         if (!select.isEmpty()) {
             while (i < select.size()) {
                 tipoServico.add(new SelectItem(
-                        new Integer(i),
+                        i,
                         (String) ((TipoServico) select.get(i)).getDescricao(),
                         Integer.toString(((TipoServico) select.get(i)).getId())));
                 i++;

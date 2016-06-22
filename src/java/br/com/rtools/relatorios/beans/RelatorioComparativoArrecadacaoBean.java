@@ -8,8 +8,7 @@ import br.com.rtools.arrecadacao.dao.OposicaoDao;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
-import br.com.rtools.financeiro.db.ServicoRotinaDB;
-import br.com.rtools.financeiro.db.ServicoRotinaDBToplink;
+import br.com.rtools.financeiro.dao.ServicoRotinaDao;
 import br.com.rtools.impressao.ParametroComparativoArrecadacao;
 import br.com.rtools.pessoa.Cnae;
 import br.com.rtools.pessoa.Juridica;
@@ -636,7 +635,7 @@ public class RelatorioComparativoArrecadacaoBean implements Serializable {
             listSelectItem[1] = new ArrayList<>();
         }
         if (listSelectItem[1].isEmpty()) {
-            ServicoRotinaDB srdb = new ServicoRotinaDBToplink();
+            ServicoRotinaDao srdb = new ServicoRotinaDao();
             List<Servicos> select = srdb.pesquisaTodosServicosComRotinas(278);
             for (int i = 0; i < select.size(); i++) {
                 listSelectItem[1].add(

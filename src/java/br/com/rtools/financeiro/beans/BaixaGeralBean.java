@@ -4,7 +4,6 @@ import br.com.rtools.academia.beans.MatriculaAcademiaBean;
 import br.com.rtools.arrecadacao.beans.BaixaBoletoBean;
 import br.com.rtools.associativo.beans.EmissaoGuiasBean;
 import br.com.rtools.associativo.beans.MovimentosReceberSocialBean;
-import br.com.rtools.associativo.beans.VendaBaileBean;
 import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.Caixa;
 import br.com.rtools.financeiro.Cartao;
@@ -19,11 +18,9 @@ import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.TipoPagamento;
 import br.com.rtools.financeiro.dao.ContaRotinaDao;
-import br.com.rtools.financeiro.db.FinanceiroDB;
-import br.com.rtools.financeiro.db.FinanceiroDBToplink;
+import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.financeiro.dao.LancamentoFinanceiroDao;
-import br.com.rtools.financeiro.db.MovimentoDB;
-import br.com.rtools.financeiro.db.MovimentoDBToplink;
+import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.financeiro.dao.Plano5Dao;
 import br.com.rtools.financeiro.lista.ListValoresBaixaGeral;
 import br.com.rtools.movimento.GerarMovimento;
@@ -490,7 +487,7 @@ public class BaixaGeralBean implements Serializable {
                 return mensagem = "Lista de Planos Vazia, verificar Conta Rotina!";
             }
         } else {
-            MovimentoDB db = new MovimentoDBToplink();
+            MovimentoDao db = new MovimentoDao();
             Boleto bol = db.pesquisaBoletos(listaMovimentos.get(0).getNrCtrBoleto());
             if (bol == null) {
                 return mensagem = "Não existe conta banco para baixar este boleto!";
@@ -592,8 +589,8 @@ public class BaixaGeralBean implements Serializable {
                 caixa = macFilial.getCaixa();
             }
         } else {
-            FinanceiroDB db = new FinanceiroDBToplink();
-            caixa = db.pesquisaCaixaUsuario(usuario.getId(), filial.getId());
+            FinanceiroDao dao = new FinanceiroDao();
+            caixa = dao.pesquisaCaixaUsuario(usuario.getId(), filial.getId());
 
             if (tipo.equals("caixa")) {
                 if (caixa == null) {
@@ -763,7 +760,7 @@ public class BaixaGeralBean implements Serializable {
             } else if (tipo.equals("caixa")) {
                 plano5 = (Plano5) new Dao().find(new Plano5(), Integer.parseInt(((SelectItem) getListaConta().get(getIdConta())).getDescription()));
             } else {
-                MovimentoDB db = new MovimentoDBToplink();
+                MovimentoDao db = new MovimentoDao();
                 Boleto bol = db.pesquisaBoletos(listaMovimentos.get(0).getNrCtrBoleto());
                 if (bol == null) {
                     return plano5;
@@ -834,7 +831,7 @@ public class BaixaGeralBean implements Serializable {
 
     public String getBanco() {
         if (banco.isEmpty()) {
-            MovimentoDB db = new MovimentoDBToplink();
+            MovimentoDao db = new MovimentoDao();
             ImprimirBoleto imp = new ImprimirBoleto();
             Boleto bol = db.pesquisaBoletos(listaMovimentos.get(0).getNrCtrBoleto());
 
@@ -933,7 +930,7 @@ public class BaixaGeralBean implements Serializable {
         if (listaBanco.isEmpty()) {
             List<ContaBanco> result = new ArrayList();
             if (verificaBaixaBoleto()) {
-                MovimentoDB db = new MovimentoDBToplink();
+                MovimentoDao db = new MovimentoDao();
                 Boleto bol = db.pesquisaBoletos(listaMovimentos.get(0).getNrCtrBoleto());
                 result.add(bol.getContaCobranca().getContaBanco());
             } else {

@@ -1080,19 +1080,6 @@ public class JuridicaBean implements Serializable {
             }
         }
 
-//        if (contabilidade != null) {
-//            if (contabilidade.getId() != -1) {
-//                PessoaEnderecoDB db = new PessoaEnderecoDBToplink();
-//                // PessoaEndereco pesEnd1 = new PessoaEndereco(), pesEnd2 = new PessoaEndereco();
-////                    PessoaEndereco pesEnd1 = db.pesquisaEndPorPessoaTipo(juridica.getPessoa().getId(), 3);
-////                    PessoaEndereco pesEnd2 = db.pesquisaEndPorPessoaTipo(contabilidade.getPessoa().getId(), 3);
-////                    if (comparaEndereco(pesEnd1, pesEnd2) || listaEnd.isEmpty()) {
-////                        chkEndContabilidade = true;
-////                    } else {
-////                        chkEndContabilidade = false;
-////                    }
-//            }
-//        }
         existeOposicaoEmpresa();
         loadListSocios();
         loadMalaDireta();
@@ -1107,51 +1094,6 @@ public class JuridicaBean implements Serializable {
         return editar(j, false);
     }
 
-//    public String editar(Juridica j) {
-//        juridica = j;
-//        if (juridica.getContabilidade() == null) {
-//            contabilidade = new Juridica();
-//        } else {
-//            contabilidade = juridica.getContabilidade();
-//        }
-//        String url = (String) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("urlRetorno");
-//        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("linkClicado", true);
-//        descPesquisa = "";
-//        porPesquisa = "nome";
-//        comoPesquisa = "";
-//        if (!getListaTipoDocumento().isEmpty()) {
-//            for (int o = 0; o < listaTipoDocumento.size(); o++) {
-//                if (Integer.parseInt(listaTipoDocumento.get(o).getDescription()) == juridica.getPessoa().getTipoDocumento().getId()) {
-//                    idTipoDocumento = o;
-//                }
-//            }
-//        }
-//
-//        if (!getListaPorte().isEmpty()) {
-//            for (int o = 0; o < listaPorte.size(); o++) {
-//                if (Integer.parseInt(listaPorte.get(o).getDescription()) == juridica.getPorte().getId()) {
-//                    idPorte = o;
-//                }
-//            }
-//        }
-//        if (url != null) {
-//            FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("juridicaPesquisa", juridica);
-//
-//            if (juridica.getContabilidade() == null) {
-//                renChkEndereco = "false";
-//            } else {
-//                renChkEndereco = "true";
-//            }
-//            renNovoEndereco = "false";
-//            renEndereco = "false";
-//            alterarEnd = true;
-//            listaEnd = new ArrayList();
-//            enderecoCobranca = "NENHUM";
-//            getListaEnderecos();
-//            return url;
-//        }
-//        return "pessoaJuridica";
-//    }
     public String editarEmpresaPertencente(DataObject linha) {
         juridica = (Juridica) linha.getArgumento0();// (Juridica) listaEmpresasPertencentes.get(idIndexPertencente).getArgumento0();
         if (juridica.getContabilidade() != null) {
@@ -2743,17 +2685,6 @@ public class JuridicaBean implements Serializable {
         this.disabled = disabled;
     }
 
-//    public List<RepisMovimento> getListRepisMovimento() {
-//        if (listRepisMovimento.isEmpty()) {
-//            WebREPISDB webREPISDB = new WebREPISDBToplink();
-//            listRepisMovimento = webREPISDB.listRepisPorPessoa(juridica.getPessoa().getId());
-//        }
-//        return listRepisMovimento;
-//    }
-//
-//    public void setListRepisMovimento(List<RepisMovimento> listRepisMovimento) {
-//        this.listRepisMovimento = listRepisMovimento;
-//    }
     public List<ListaSociosEmpresa> getListSocios() {
         return listSocios;
     }

@@ -4,8 +4,7 @@ import br.com.rtools.financeiro.Baixa;
 import br.com.rtools.financeiro.FormaPagamento;
 import br.com.rtools.financeiro.Guia;
 import br.com.rtools.financeiro.Movimento;
-import br.com.rtools.financeiro.db.MovimentoDB;
-import br.com.rtools.financeiro.db.MovimentoDBToplink;
+import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.impressao.ParametroRecibo;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.PessoaEndereco;
@@ -43,14 +42,13 @@ public class ImprimirRecibo {
     }
 
     public String recibo(Integer id_movimento, Map parameter) {
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
         Movimento movimento = db.pesquisaCodigo(id_movimento);
         try {
             Collection vetor = new ArrayList();
             Juridica sindicato = (Juridica) (new Dao()).find(new Juridica(), 1);
             PessoaEnderecoDao dbp = new PessoaEnderecoDao();
-            //MovimentosReceberSocialDB dbs = new MovimentosReceberSocialDBToplink();
-
+            
             PessoaEndereco pe = dbp.pesquisaEndPorPessoaTipo(1, 2);
 
             // PESQUISA FORMA DE PAGAMENTO

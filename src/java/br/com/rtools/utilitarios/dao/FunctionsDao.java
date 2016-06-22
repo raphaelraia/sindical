@@ -250,8 +250,8 @@ public class FunctionsDao extends DB {
             return true;
         }
         if (nr_carencia_dias == null) {
-            SociosDao sociosDBToplink = new SociosDao();
-            Socios socios = sociosDBToplink.pesquisaSocioPorPessoaAtivo(id_pessoa);
+            SociosDao sociosDao = new SociosDao();
+            Socios socios = sociosDao.pesquisaSocioPorPessoaAtivo(id_pessoa);
             if (socios.getId() == -1) {
                 nr_carencia_dias = cf.getCarenciaDias();
             } else {

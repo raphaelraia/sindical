@@ -10,12 +10,9 @@ import br.com.rtools.financeiro.ContaCobranca;
 import br.com.rtools.financeiro.MensagemCobranca;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.RemessaBanco;
-import br.com.rtools.financeiro.db.MovimentoDB;
-import br.com.rtools.financeiro.db.MovimentoDBToplink;
-import br.com.rtools.financeiro.db.RemessaBancoDB;
-import br.com.rtools.financeiro.db.RemessaBancoDBToplink;
-import br.com.rtools.financeiro.db.ServicoContaCobrancaDB;
-import br.com.rtools.financeiro.db.ServicoContaCobrancaDBToplink;
+import br.com.rtools.financeiro.dao.MovimentoDao;
+import br.com.rtools.financeiro.dao.RemessaBancoDao;
+import br.com.rtools.financeiro.dao.ServicoContaCobrancaDao;
 import br.com.rtools.pessoa.DocumentoInvalido;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.PessoaEndereco;
@@ -244,7 +241,7 @@ public final class ArquivoBancoBean implements Serializable {
 
     public List<SelectItem> getListaServicos() {
         if (listaServicos.isEmpty()) {
-            ServicoContaCobrancaDB servDB = new ServicoContaCobrancaDBToplink();
+            ServicoContaCobrancaDao servDB = new ServicoContaCobrancaDao();
             List<ContaCobranca> result = servDB.listaContaCobrancaAtivoArrecadacao();
             if (result.isEmpty()) {
                 listaServicos.add(new SelectItem(0, "Nenhuma Contribuição Encontrada", "0"));
@@ -325,7 +322,7 @@ public final class ArquivoBancoBean implements Serializable {
     }
 
     public String criarDataArquivo() {
-        List movi = new MovimentoDBToplink().pesquisaTodos();
+        List movi = new MovimentoDao().pesquisaTodos();
         try {
             criarArquivoTXT(movi);
         } catch (Exception e) {
@@ -336,8 +333,8 @@ public final class ArquivoBancoBean implements Serializable {
 
     public boolean criarArquivoTXT(List<Movimento> movs) {
         PessoaEnderecoDao ped = new PessoaEnderecoDao();
-        MovimentoDB dbmov = new MovimentoDBToplink();
-        RemessaBancoDB rbd = new RemessaBancoDBToplink();
+        MovimentoDao dbmov = new MovimentoDao();
+        RemessaBancoDao rbd = new RemessaBancoDao();
         Dao dao = new Dao();
         Boleto boleto = new Boleto();
         try {
@@ -659,7 +656,7 @@ public final class ArquivoBancoBean implements Serializable {
             buffWriter.close();
 
             return true;
-        } catch (Exception e) {
+        } catch (IOException | NumberFormatException e) {
             dao.rollback();
             System.out.println(e);
             return false;
@@ -1010,7 +1007,7 @@ public final class ArquivoBancoBean implements Serializable {
             ContaCobranca scc = (ContaCobranca) objs[1];
             ArquivoRetorno ar = null;
             List<GenericaRetorno> genericaRetorno = new ArrayList();
-            MovimentoDB db = new MovimentoDBToplink();
+            MovimentoDao db = new MovimentoDao();
 
             // CAIXA FEDERAL ------------------------------------------------------------------------------
             if (ArquivoRetorno.CAIXA_FEDERAL == scc.getContaBanco().getBanco().getId()) {
@@ -1185,7 +1182,7 @@ public final class ArquivoBancoBean implements Serializable {
                             "pdf",
                             FacesContext.getCurrentInstance());
                     download.baixar();
-                } catch (Exception e) {
+                } catch (JRException | IOException e) {
                     System.err.println("O arquivo não foi gerado corretamente! Erro: " + e.getMessage());
                 }
 
@@ -1203,9 +1200,9 @@ public final class ArquivoBancoBean implements Serializable {
             GenericaMensagem.warn("Atenção", "Não existe nenhum Documento para ser Atualizado!");
             return;
         }
-        MovimentoDB db = new MovimentoDBToplink();
-        List<Movimento> lm = new ArrayList<Movimento>();
-        List<Juridica> l_juridicax = new ArrayList<Juridica>();
+        MovimentoDao db = new MovimentoDao();
+        List<Movimento> lm = new ArrayList();
+        List<Juridica> l_juridicax = new ArrayList();
         JuridicaDao dbj = new JuridicaDao();
 
         Dao dao = new Dao();
@@ -1278,9 +1275,7 @@ public final class ArquivoBancoBean implements Serializable {
             ContaCobranca scc = (ContaCobranca) objs[1];
             String result = "";
             ArquivoRetorno arquivoRetorno;
-//            if (!validarArquivos(objs)) {
-//                return;
-//            }
+            
             if (!listaArquivosPendentes.isEmpty()) {
 //                if (!outros) {
                 // CAIXA FEDERAL ------------------------------------------------------------------------------
@@ -1344,11 +1339,6 @@ public final class ArquivoBancoBean implements Serializable {
                         result = "NÃO EXISTE SIGCB PARA ESTA CONTA!";
                     }
                 }
-                //------------------------------------------------------
-//                } else {
-//                    arquivoRetorno = new RetornoPadrao(scc, pendentes);
-//                    result = arquivoRetorno.darBaixaPadrao(usuario);
-//                }
             }
 
             GenericaMensagem.info("Sucesso", "Arquivos Baixados");
@@ -1360,7 +1350,7 @@ public final class ArquivoBancoBean implements Serializable {
     }
 
     public void testar() {
-        String criei = "";
+        
     }
 
     public boolean validarArquivos(Object object[]) {
@@ -1378,25 +1368,6 @@ public final class ArquivoBancoBean implements Serializable {
                     //if (verificaArquivos(listFile[i], scc)) {
                     File fil = new File(caminho);
                     fil.mkdir();
-
-//                        fl = new File((caminhoValida+"/"+listFile[i].getName()));
-//                        FileInputStream in = new FileInputStream(fl);
-//                        byte[] buf = new byte[(int)fl.length()];
-//                        fl = new File(fil.getPath()+"/"+listFile[i].getName());
-//                        FileOutputStream out = new FileOutputStream(fl.getPath());
-//
-//                        int count;
-//                        while ((count = in.read(buf)) >= 0) {
-//                            out.write(buf, 0, count);
-//                        }
-//                        in.close();
-//                        out.flush();
-//                        out.close();
-//                    } else {
-//                        listFile[i].delete();
-//                        msgOk = "Serviço e Conta não correspondem com os arquivos!";
-//                        return false;
-//                    }
                 }
             } catch (Exception e) {
                 System.out.println(e);

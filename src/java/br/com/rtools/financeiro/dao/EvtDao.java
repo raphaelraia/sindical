@@ -1,4 +1,4 @@
-package br.com.rtools.financeiro.db;
+package br.com.rtools.financeiro.dao;
 
 import br.com.rtools.financeiro.Evt;
 import br.com.rtools.financeiro.Movimento;
@@ -6,7 +6,7 @@ import br.com.rtools.principal.DB;
 import java.util.List;
 import javax.persistence.Query;
 
-public class EvtDBToplink extends DB implements EvtDB {
+public class EvtDao extends DB {
 
     public boolean insert(Evt evt) {
         try {

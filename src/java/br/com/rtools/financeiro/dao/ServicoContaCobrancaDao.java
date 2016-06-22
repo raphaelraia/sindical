@@ -1,4 +1,4 @@
-package br.com.rtools.financeiro.db;
+package br.com.rtools.financeiro.dao;
 
 import br.com.rtools.financeiro.ServicoContaCobranca;
 import br.com.rtools.principal.DB;
@@ -7,9 +7,8 @@ import java.util.List;
 import java.util.Vector;
 import javax.persistence.Query;
 
-public class ServicoContaCobrancaDBToplink extends DB implements ServicoContaCobrancaDB {
+public class ServicoContaCobrancaDao extends DB {
 
-    @Override
     public boolean insert(ServicoContaCobranca servicoContaCobranca) {
         try {
             getEntityManager().getTransaction().begin();
@@ -23,7 +22,6 @@ public class ServicoContaCobrancaDBToplink extends DB implements ServicoContaCob
         }
     }
 
-    @Override
     public boolean update(ServicoContaCobranca servicoContaCobranca) {
         try {
             getEntityManager().merge(servicoContaCobranca);
@@ -34,7 +32,6 @@ public class ServicoContaCobrancaDBToplink extends DB implements ServicoContaCob
         }
     }
 
-    @Override
     public boolean delete(ServicoContaCobranca servicoContaCobranca) {
         try {
             getEntityManager().remove(servicoContaCobranca);
@@ -45,7 +42,6 @@ public class ServicoContaCobrancaDBToplink extends DB implements ServicoContaCob
         }
     }
 
-    @Override
     public ServicoContaCobranca pesquisaCodigo(int id) {
         ServicoContaCobranca result = null;
         try {
@@ -59,7 +55,6 @@ public class ServicoContaCobrancaDBToplink extends DB implements ServicoContaCob
         return result;
     }
 
-    @Override
     public List pesquisaTodos() {
         try {
             Query qry = getEntityManager().createQuery("SELECT s FROM ServicoContaCobranca s ORDER BY s.servicos.descricao, s.tipoServico.descricao");
@@ -68,8 +63,7 @@ public class ServicoContaCobrancaDBToplink extends DB implements ServicoContaCob
             return null;
         }
     }
-    
-    @Override
+
     public List pesquisaTodosTipoUm() {
         try {
             Query qry = getEntityManager().createQuery("SELECT s FROM ServicoContaCobranca s WHERE s.tipoServico.id = 1 AND s.servicos.id IN (SELECT sx.servicos.id FROM ServicoRotina sx WHERE sx.rotina.id = 4)");
@@ -79,7 +73,6 @@ public class ServicoContaCobrancaDBToplink extends DB implements ServicoContaCob
         }
     }
 
-    @Override
     public List pesquisaTodosFiltrado() {
 //        int idServicos = 0;
 //        int idContaCobranca = 0;
@@ -116,7 +109,6 @@ public class ServicoContaCobrancaDBToplink extends DB implements ServicoContaCob
         return listServ;
     }
 
-    @Override
     public List pesquisaTodosFiltradoAtivo() {
 //        int idServicos = 0;
 //        int idContaCobranca = 0;
@@ -158,7 +150,6 @@ public class ServicoContaCobrancaDBToplink extends DB implements ServicoContaCob
         return listServ;
     }
 
-    @Override
     public List pesquisaServPorIdServIdTipoServ(int servico, int tipoServico) {
         try {
             Query qry = getEntityManager().createQuery("select s from ServicoContaCobranca s "
@@ -170,7 +161,6 @@ public class ServicoContaCobrancaDBToplink extends DB implements ServicoContaCob
         }
     }
 
-    @Override
     public ServicoContaCobranca pesquisaServPorIdServIdTipoServIdContCobranca(int servico, int tipoServico, int contaCobranca) {
         try {
             Query qry = getEntityManager().createQuery("select s from ServicoContaCobranca s "
@@ -183,7 +173,6 @@ public class ServicoContaCobrancaDBToplink extends DB implements ServicoContaCob
         }
     }
 
-    @Override
     public List pesquisaServPorIdServ(int servico) {
         try {
             Query qry = getEntityManager().createQuery("select s from ServicoContaCobranca s "
@@ -194,7 +183,6 @@ public class ServicoContaCobrancaDBToplink extends DB implements ServicoContaCob
         }
     }
 
-    @Override
     public List listaContaCobrancaAtivoArrecadacao() {
         try {
             Query qry = getEntityManager().createQuery("select co from ContaCobranca co where co.ativo = true and co.arrecadacao = true and co.associativo = false");
@@ -203,8 +191,7 @@ public class ServicoContaCobrancaDBToplink extends DB implements ServicoContaCob
             return new ArrayList();
         }
     }
-    
-    @Override
+
     public List listaContaCobrancaAtivoAssociativo() {
         try {
             Query qry = getEntityManager().createQuery("select co from ContaCobranca co where co.ativo = true and co.associativo = true and co.arrecadacao = false");

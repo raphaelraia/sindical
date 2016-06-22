@@ -1,5 +1,6 @@
 package br.com.rtools.associativo.beans;
 
+import br.com.rtools.financeiro.dao.ServicoContaCobrancaDao;
 import br.com.rtools.pessoa.dao.FisicaDao;
 import br.com.rtools.financeiro.dao.FTipoDocumentoDao;
 import br.com.rtools.associativo.DescontoSocial;
@@ -8,7 +9,7 @@ import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.ServicoPessoa;
 import br.com.rtools.financeiro.Servicos;
-import br.com.rtools.financeiro.db.*;
+import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.pessoa.PessoaEndereco;
@@ -205,7 +206,7 @@ public class ServicoPessoaBean implements Serializable {
     public List<SelectItem> getListaServicos() {
         if (listaServicos.isEmpty()) {
             int idRotina = 0;
-            ServicosDB db = new ServicosDBToplink();
+            ServicosDao db = new ServicosDao();
             RotinaDao rotinaDao = new RotinaDao();
             idRotina = ((Rotina) rotinaDao.pesquisaPaginaRotina(getRefreshPagina())).getId();
             List<Servicos> select = db.pesquisaTodos(idRotina);
@@ -222,7 +223,7 @@ public class ServicoPessoaBean implements Serializable {
     }
 
     public String salvarServicoPessoa(Servicos servico, Dao dao) {
-        ServicoContaCobrancaDB dbSCB = new ServicoContaCobrancaDBToplink();
+        ServicoContaCobrancaDao dbSCB = new ServicoContaCobrancaDao();
         servicoPessoa.setDescontoSocial((DescontoSocial) new Dao().find(new DescontoSocial(), 1));
         // --------------------------------------------
         if (getListaServicos().isEmpty()) {
@@ -269,7 +270,7 @@ public class ServicoPessoaBean implements Serializable {
     }
 
     public String atualizarServicoPessoa(Servicos servico, Dao dao) {
-        ServicoContaCobrancaDB dbSCB = new ServicoContaCobrancaDBToplink();
+        ServicoContaCobrancaDao dbSCB = new ServicoContaCobrancaDao();
         if (servico == null) {
             servicoPessoa.setServicos((Servicos) new Dao().find(new Servicos(), Integer.parseInt(getListaServicos().get(idServico).getDescription())));
         } else {

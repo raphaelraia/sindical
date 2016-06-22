@@ -2,10 +2,8 @@ package br.com.rtools.financeiro.beans;
 
 import br.com.rtools.financeiro.ServicoRotina;
 import br.com.rtools.financeiro.Servicos;
-import br.com.rtools.financeiro.db.ServicoRotinaDB;
-import br.com.rtools.financeiro.db.ServicoRotinaDBToplink;
-import br.com.rtools.financeiro.db.ServicosDB;
-import br.com.rtools.financeiro.db.ServicosDBToplink;
+import br.com.rtools.financeiro.dao.ServicoRotinaDao;
+import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.utilitarios.Dao;
@@ -54,7 +52,7 @@ public class ServicoRotinaBean implements Serializable {
 
     public List<SelectItem> getListServicos() {
         if (listSelectItem[0].isEmpty()) {
-            ServicosDB servicosDB = new ServicosDBToplink();
+            ServicosDao servicosDB = new ServicosDao();
             List<Servicos> list = (List<Servicos>) servicosDB.listaServicoSituacaoAtivo();
 
             for (int i = 0; i < list.size(); i++) {
@@ -72,7 +70,7 @@ public class ServicoRotinaBean implements Serializable {
             if (listSelectItem[0].isEmpty()) {
                 return listSelectItem[0];
             }
-            ServicoRotinaDB db = new ServicoRotinaDBToplink();
+            ServicoRotinaDao db = new ServicoRotinaDao();
             List<Rotina> list = (List<Rotina>) db.pesquisaTodasRotinasSemServicoOrdenado(Integer.parseInt(getListServicos().get(index[0]).getDescription()));
             for (int i = 0; i < list.size(); i++) {
                 listSelectItem[1].add(new SelectItem(i, list.get(i).getRotina(), Integer.toString((list.get(i).getId()))));
@@ -96,7 +94,7 @@ public class ServicoRotinaBean implements Serializable {
 
     public void add() {
         DaoInterface di = new Dao();
-        ServicoRotinaDB servicoRotinaDB = new ServicoRotinaDBToplink();
+        ServicoRotinaDao servicoRotinaDB = new ServicoRotinaDao();
         if (getListServicos().isEmpty()) {
             GenericaMensagem.warn("Validação", "Serviços não existe!");
             return;
@@ -154,7 +152,7 @@ public class ServicoRotinaBean implements Serializable {
     public List<ServicoRotina> getListServicoRotina() {
         if (listServicoRotina.isEmpty()) {
             if (!getListServicos().isEmpty()) {
-                ServicoRotinaDB db = new ServicoRotinaDBToplink();
+                ServicoRotinaDao db = new ServicoRotinaDao();
                 listServicoRotina = db.pesquisaServicoRotinaPorServico(Integer.parseInt(getListServicos().get(index[0]).getDescription()));
             }
         }

@@ -167,16 +167,12 @@ public class PessoaEnderecoBean implements Serializable {
     public List<String> BuscaLogradouro(Object event) {
         List<String> result = new Vector<String>();
         String txtDigitado = event.toString().toLowerCase().toUpperCase();
-        //LogradouroDB db = new LogradouroDBToplink();
-        //result = db.pesquisaLogradouro('%' + txtDigitado + '%');
         return (result);
     }
 
     public List<String> BuscaDescricaoEndereco(Object event) {
         List<String> result = new Vector<String>();
         String txtDigitado = event.toString().toLowerCase().toUpperCase();
-        //DescricaoEnderecoDB db = new DescricaoEnderecoDBToplink();
-        //result = db.pesquisaDescricaoEndereco('%' + txtDigitado + '%');
         return (result);
     }
 }

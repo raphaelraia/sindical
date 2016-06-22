@@ -1,4 +1,4 @@
-package br.com.rtools.financeiro.db;
+package br.com.rtools.financeiro.dao;
 
 import br.com.rtools.financeiro.ContaCobranca;
 import br.com.rtools.financeiro.Layout;
@@ -6,7 +6,7 @@ import br.com.rtools.principal.DB;
 import java.util.List;
 import javax.persistence.Query;
 
-public class ContaCobrancaDBToplink extends DB {
+public class ContaCobrancaDao extends DB {
 
     public List pesquisaLayouts() {
         try {

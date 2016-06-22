@@ -3,10 +3,7 @@ package br.com.rtools.financeiro.beans;
 import br.com.rtools.arrecadacao.beans.ConfiguracaoArrecadacaoBean;
 import br.com.rtools.financeiro.Impressao;
 import br.com.rtools.financeiro.Movimento;
-import br.com.rtools.financeiro.db.MovimentoDB;
-import br.com.rtools.financeiro.db.MovimentoDBToplink;
-import br.com.rtools.financeiro.db.MovimentosReceberDB;
-import br.com.rtools.financeiro.db.MovimentosReceberDBToplink;
+import br.com.rtools.financeiro.dao.MovimentoReceberDao;
 import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
@@ -113,7 +110,7 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
 //    public String imprimirPlanilha() {
 //        List<Movimento> listaC = new ArrayList<Movimento>();
 //        List<Float> listaValores = new ArrayList<Float>();
-//        MovimentoDB db = new MovimentoDBToplink();
+//        MovimentoReceberDao db = new MovimentoReceberDao();
 //
 //        Movimento mov = new Movimento();
 //        for (int i = 0; i < listaMovimentos.size(); i++) {
@@ -142,7 +139,7 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
 //    }
 
     public String imprimir() {
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoReceberDao db = new MovimentoReceberDao();
         List<Movimento> lista = new ArrayList();
         List<Float> listaValores = new ArrayList();
         List<String> listaVencimentos = new ArrayList();
@@ -201,7 +198,7 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
     }
 //
 //    public String imprimir() {
-//        MovimentoDB db = new MovimentoDBToplink();
+//        MovimentoReceberDao db = new MovimentoReceberDao();
 //        List<Movimento> lista = new ArrayList<Movimento>();
 //        List<Float> listaValores = new ArrayList<Float>();
 //        List<String> listaVencimentos = new ArrayList<String>();
@@ -280,7 +277,7 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
         }
         Dao dao = new Dao();
         List lista = new ArrayList();
-        ///MovimentoDB db = new MovimentoDBToplink();
+        ///MovimentoReceberDao db = new MovimentoReceberDao();
         Movimento movimento = new Movimento();
         boolean err = false, err_2 = false;
         if (!listMovimentoReceber.isEmpty()) {
@@ -355,7 +352,7 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
 
 //    public String telaAcordo() {
 //        List lista = new ArrayList();
-//        ///MovimentoDB db = new MovimentoDBToplink();
+//        ///MovimentoReceberDao db = new MovimentoReceberDao();
 //        Dao dao = new Dao();
 //        Movimento movimento = new Movimento();
 //        if (!listaMovimentos.isEmpty()) {
@@ -432,7 +429,7 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
 
 //    public String telaBaixa() {
 //        List lista = new ArrayList();
-//        MovimentoDB db = new MovimentoDBToplink();
+//        MovimentoReceberDao db = new MovimentoReceberDao();
 //        Movimento movimento = new Movimento();
 //        if (!listaMovimentos.isEmpty()) {
 //            for (int i = 0; i < listaMovimentos.size(); i++) {
@@ -507,7 +504,7 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
 //    @Override
 //    public synchronized void carregarFolha() {
 //        if (!listaMovimentos.isEmpty()) {
-//            MovimentoDB db = new MovimentoDBToplink();
+//            MovimentoReceberDao db = new MovimentoReceberDao();
 //            Movimento movimento = db.pesquisaCodigo(Integer.parseInt(String.valueOf(listaMovimentos.get(index).getArgumento16())));
 //            super.carregarFolha(movimento);
 //        }
@@ -961,7 +958,7 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
 
 //    public List getListaMovimentos() {
 //        if (listaMovimentos.isEmpty() && pessoa.getId() != -1) {
-//            MovimentosReceberDB db = new MovimentosReceberDBToplink();
+//            MovimentoReceberDao db = new MovimentoReceberDao();
 //            float desc = Moeda.substituiVirgulaFloat(desconto), tot = Moeda.substituiVirgulaFloat(total);
 //            //List lista = db.pesquisaListaMovimentosDesconto(pessoa.getId(), desc, tot);
 //            List lista = db.pesquisaListaMovimentos(pessoa.getId());
@@ -1091,7 +1088,7 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
 //    }
     public List<ListMovimentoReceber> getListMovimentoReceber() {
         if (listMovimentoReceber.isEmpty() && pessoa.getId() != -1) {
-            MovimentosReceberDB db = new MovimentosReceberDBToplink();
+            MovimentoReceberDao db = new MovimentoReceberDao();
             float desc = Moeda.substituiVirgulaFloat(desconto), tot = Moeda.substituiVirgulaFloat(total);
             List lista = db.pesquisaListaMovimentos(pessoa.getId());
             for (int i = 0; i < lista.size(); i++) {

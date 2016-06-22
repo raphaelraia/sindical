@@ -5,8 +5,7 @@ import br.com.rtools.arrecadacao.MensagemConvencao;
 import br.com.rtools.arrecadacao.dao.MensagemConvencaoDao;
 import br.com.rtools.arrecadacao.lista.ListaContribuicao;
 import br.com.rtools.financeiro.Servicos;
-import br.com.rtools.financeiro.db.ServicosDB;
-import br.com.rtools.financeiro.db.ServicosDBToplink;
+import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.utilitarios.Dao;
@@ -68,7 +67,7 @@ public class ContribuicaoBean {
 
     public List<SelectItem> getListServico() {
         if (servicos.isEmpty()) {
-            ServicosDB db = new ServicosDBToplink();
+            ServicosDao db = new ServicosDao();
             List list = db.pesquisaTodos(4);
             if (!list.isEmpty()) {
                 for (int i = 0; i < list.size(); i++) {

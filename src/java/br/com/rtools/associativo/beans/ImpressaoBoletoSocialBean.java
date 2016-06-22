@@ -1,10 +1,8 @@
 package br.com.rtools.associativo.beans;
 
 import br.com.rtools.financeiro.Boleto;
-import br.com.rtools.financeiro.db.FinanceiroDB;
-import br.com.rtools.financeiro.db.FinanceiroDBToplink;
-import br.com.rtools.financeiro.db.MovimentoDB;
-import br.com.rtools.financeiro.db.MovimentoDBToplink;
+import br.com.rtools.financeiro.dao.FinanceiroDao;
+import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.impressao.Etiquetas;
 import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.pessoa.Fisica;
@@ -131,12 +129,12 @@ public class ImpressaoBoletoSocialBean {
     }
 
     public String qntDeFolhas(String nrCtrBoleto) {
-        FinanceiroDB db = new FinanceiroDBToplink();
+        FinanceiroDao dao = new FinanceiroDao();
         List<Vector> lista_socio;
         if (tipo.equals("fisica")) {
-            lista_socio = db.listaBoletoSocioFisica(nrCtrBoleto, "soc_boletos_vw"); // NR_CTR_BOLETO
+            lista_socio = dao.listaBoletoSocioFisica(nrCtrBoleto, "soc_boletos_vw"); // NR_CTR_BOLETO
         } else {
-            lista_socio = db.listaBoletoSocioJuridica(nrCtrBoleto, "soc_boletos_vw"); // NR_CTR_BOLETO
+            lista_socio = dao.listaBoletoSocioJuridica(nrCtrBoleto, "soc_boletos_vw"); // NR_CTR_BOLETO
         }
         return String.valueOf(lista_socio.size());
     }
@@ -151,16 +149,16 @@ public class ImpressaoBoletoSocialBean {
         }
 
         if (!strResponsavel.isEmpty() || !strLote.isEmpty() || !strData.isEmpty() || !strDocumento.isEmpty()) {
-            FinanceiroDB db = new FinanceiroDBToplink();
-            List<Vector> lista_agrupado = db.listaBoletoSocioAgrupado(strResponsavel, strLote, strData, tipo, strDocumento);
+            FinanceiroDao dao = new FinanceiroDao();
+            List<Vector> lista_agrupado = dao.listaBoletoSocioAgrupado(strResponsavel, strLote, strData, tipo, strDocumento);
 
             int contador = 1;
             for (int i = 0; i < lista_agrupado.size(); i++) {
                 List<Vector> lista_socio;
                 if (tipo.equals("fisica")) {
-                    lista_socio = db.listaQntPorFisica(lista_agrupado.get(i).get(0).toString()); // NR_CTR_BOLETO
+                    lista_socio = dao.listaQntPorFisica(lista_agrupado.get(i).get(0).toString()); // NR_CTR_BOLETO
                 } else {
-                    lista_socio = db.listaQntPorJuridica(lista_agrupado.get(i).get(0).toString()); // NR_CTR_BOLETO
+                    lista_socio = dao.listaQntPorJuridica(lista_agrupado.get(i).get(0).toString()); // NR_CTR_BOLETO
                 }
                 if (qntFolhas == 0) {
                     // TODAS
@@ -250,7 +248,7 @@ public class ImpressaoBoletoSocialBean {
         }
 
         List<Boleto> lista = new ArrayList();
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
         for (int i = 0; i < listaGrid.size(); i++) {
             if ((Boolean) listaGrid.get(i).getArgumento1()) {
                 lista.add(db.pesquisaBoletos((String) ((Vector) listaGrid.get(i).getArgumento2()).get(0)));
@@ -276,7 +274,7 @@ public class ImpressaoBoletoSocialBean {
 
         List lista = new ArrayList();
 
-        FinanceiroDB db = new FinanceiroDBToplink();
+        FinanceiroDao dao = new FinanceiroDao();
 
         try {
             Map<Integer, PessoaEndereco> hash = new LinkedHashMap();
@@ -315,60 +313,7 @@ public class ImpressaoBoletoSocialBean {
                         )
                 );
             }
-
-//                for (Vector vector : lista_socio) {
-//                    List<PessoaEndereco> result_list = dbpe.listaEnderecoContabilidadeDaEmpresa(dbj.pesquisaJuridicaPorPessoa(Integer.valueOf(vector.get(0).toString())).getId(), 5);
-//                    if (!result_list.isEmpty()){
-//                        lista.add(
-//                                new Etiquetas(
-//                                        result_list.get(0).getPessoa().getNome(), // NOME
-//                                        result_list.get(0).getEndereco().getLogradouro().getDescricao(), // LOGRADOURO
-//                                        result_list.get(0).getEndereco().getDescricaoEndereco().getDescricao(), // ENDERECO
-//                                        result_list.get(0).getNumero(), // NÚMERO
-//                                        result_list.get(0).getEndereco().getBairro().getDescricao(), // BAIRRO
-//                                        result_list.get(0).getEndereco().getCidade().getCidade(), // CIDADE
-//                                        result_list.get(0).getEndereco().getCidade().getUf(), // UF
-//                                        result_list.get(0).getEndereco().getCep(), // CEP
-//                                        result_list.get(0).getComplemento() // COMPLEMENTO
-//                                )
-//                        );
-//                    }
-//                }
-//            for (int i = 0; i < listaGrid.size(); i++){
-//                if ((Boolean)listaGrid.get(i).getArgumento1()){
-//                    List<Vector> lista_socio;
-//                    PessoaEnderecoDB dbpe = new PessoaEnderecoDBToplink();
-//                    PessoaEndereco pe;
-//                        
-//                    JuridicaDB dbj = new JuridicaDao();
-//                    
-//                    
-//                    lista_socio = db.listaBoletoSocioJuridicaAgrupado((String) ((Vector)listaGrid.get(i).getArgumento2()).get(0)); // NR_CTR_BOLETO
-//                    
-//                       
-//                    for (int w = 0; w < lista_socio.size(); w++){
-//                        List<PessoaEndereco> result_list = dbpe.listaEnderecoContabilidadeDaEmpresa(
-//                                dbj.pesquisaJuridicaPorPessoa(Integer.valueOf(lista_socio.get(w).get(0).toString())).getId(), 5
-//                        );
-//                        
-//                        if (!result_list.isEmpty()){
-//                            lista.add(
-//                                    new Etiquetas(
-//                                            result_list.get(0).getPessoa().getNome(), // NOME
-//                                            result_list.get(0).getEndereco().getLogradouro().getDescricao(), // LOGRADOURO
-//                                            result_list.get(0).getEndereco().getDescricaoEndereco().getDescricao(), // ENDERECO
-//                                            result_list.get(0).getNumero(), // NÚMERO
-//                                            result_list.get(0).getEndereco().getBairro().getDescricao(), // BAIRRO
-//                                            result_list.get(0).getEndereco().getCidade().getCidade(), // CIDADE
-//                                            result_list.get(0).getEndereco().getCidade().getUf(), // UF
-//                                            result_list.get(0).getEndereco().getCep(), // CEP
-//                                            result_list.get(0).getComplemento() // COMPLEMENTO
-//                                    ) 
-//                            );
-//                        }
-//                    }
-//                }
-//            }
+            
             File file_jasper = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/ETIQUETA_SOCIO.jasper"));
 
             JasperReport jasperReport = (JasperReport) JRLoader.loadObject(file_jasper);
@@ -419,7 +364,7 @@ public class ImpressaoBoletoSocialBean {
 
         List lista = new ArrayList();
 
-        FinanceiroDB db = new FinanceiroDBToplink();
+        FinanceiroDao dao = new FinanceiroDao();
 
         try {
             for (int i = 0; i < listaGrid.size(); i++) {
@@ -428,7 +373,7 @@ public class ImpressaoBoletoSocialBean {
                     PessoaEnderecoDao dbpe = new PessoaEnderecoDao();
                     PessoaEndereco pe;
 
-                    lista_socio = db.listaBoletoSocioJuridicaAgrupado((String) ((Vector) listaGrid.get(i).getArgumento2()).get(0)); // NR_CTR_BOLETO
+                    lista_socio = dao.listaBoletoSocioJuridicaAgrupado((String) ((Vector) listaGrid.get(i).getArgumento2()).get(0)); // NR_CTR_BOLETO
 
                     for (int w = 0; w < lista_socio.size(); w++) {
                         if (tipo.equals("fisica")) {

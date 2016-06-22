@@ -1,16 +1,24 @@
-package br.com.rtools.financeiro.db;
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package br.com.rtools.financeiro.dao;
 
 import br.com.rtools.principal.DB;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 
-public class MovimentosReceberDBToplink extends DB implements MovimentosReceberDB {
+/**
+ *
+ * @author Claudemir Rtools
+ */
+public class MovimentoReceberDao extends DB {
 
-    @Override
     public List pesquisaListaMovimentos(Integer id_juridica) {
         try {
-            String textoQuery = "-- MovimentosReceberDBToplink->pesquisaListaMovimentos(Integer id_juridica:" + id_juridica + ") \n\n"
+            String textoQuery = "-- MovimentosReceberDao->pesquisaListaMovimentos(Integer id_juridica:" + id_juridica + ") \n\n"
                     + ""
                     + "     SELECT m.ds_documento Boleto,                           \n" // 0
                     + "            se.ds_descricao          AS Servico,             \n" // 1
@@ -52,7 +60,6 @@ public class MovimentosReceberDBToplink extends DB implements MovimentosReceberD
         return new ArrayList();
     }
 
-    @Override
     public List pesquisaListaMovimentosDesconto(int id_juridica, float desconto, float total) {
         try {
             String textoQuery = "select m.ds_documento Boleto, "

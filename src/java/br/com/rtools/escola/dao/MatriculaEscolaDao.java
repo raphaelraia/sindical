@@ -9,8 +9,7 @@ import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.ServicoValor;
 import br.com.rtools.financeiro.Servicos;
-import br.com.rtools.financeiro.db.LoteDB;
-import br.com.rtools.financeiro.db.LoteDBToplink;
+import br.com.rtools.financeiro.dao.LoteDao;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.PessoaComplemento;
 import br.com.rtools.principal.DB;
@@ -155,7 +154,7 @@ public class MatriculaEscolaDao extends DB {
     }
 
     public String desfazerMovimento(MatriculaEscola me) {
-        LoteDB loteDB = new LoteDBToplink();
+        LoteDao loteDB = new LoteDao();
         Lote lote = (Lote) loteDB.pesquisaLotePorEvt(me.getServicoPessoa().getEvt());
 
         if (lote == null) {

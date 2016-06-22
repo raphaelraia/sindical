@@ -18,11 +18,10 @@ import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoPagamento;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.dao.ContaOperacaoDao;
+import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.financeiro.dao.MovimentoBancarioDao;
-import br.com.rtools.financeiro.db.FinanceiroDBToplink;
 import br.com.rtools.financeiro.dao.Plano5Dao;
-import br.com.rtools.financeiro.db.ServicosDB;
-import br.com.rtools.financeiro.db.ServicosDBToplink;
+import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Pessoa;
@@ -303,7 +302,7 @@ public class MovimentoBancarioBean implements Serializable {
     public final void loadListaStatus() {
         listaStatus.clear();
 
-        List<FStatus> result = new FinanceiroDBToplink().listaFStatusIn("8, 9, 10, 11");
+        List<FStatus> result = new FinanceiroDao().listaFStatusIn("8, 9, 10, 11");
         if (!result.isEmpty()) {
             for (int i = 0; i < result.size(); i++) {
                 listaStatus.add(
@@ -1057,7 +1056,7 @@ public class MovimentoBancarioBean implements Serializable {
 
     public List<SelectItem> getListaServicos() {
         if (listaServicos.isEmpty()) {
-            ServicosDB db = new ServicosDBToplink();
+            ServicosDao db = new ServicosDao();
             List<Servicos> select = db.pesquisaTodos(225);
             if (!select.isEmpty()) {
                 for (int i = 0; i < select.size(); i++) {

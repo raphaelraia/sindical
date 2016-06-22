@@ -17,13 +17,10 @@ import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.MensagemCobranca;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.ServicoContaCobranca;
-import br.com.rtools.financeiro.db.ContaCobrancaDBToplink;
-import br.com.rtools.financeiro.db.FinanceiroDB;
-import br.com.rtools.financeiro.db.FinanceiroDBToplink;
-import br.com.rtools.financeiro.db.MovimentoDB;
-import br.com.rtools.financeiro.db.MovimentoDBToplink;
-import br.com.rtools.financeiro.db.ServicoContaCobrancaDB;
-import br.com.rtools.financeiro.db.ServicoContaCobrancaDBToplink;
+import br.com.rtools.financeiro.dao.FinanceiroDao;
+import br.com.rtools.financeiro.dao.MovimentoDao;
+import br.com.rtools.financeiro.dao.ContaCobrancaDao;
+import br.com.rtools.financeiro.dao.ServicoContaCobrancaDao;
 import br.com.rtools.impressao.DemonstrativoAcordo;
 import br.com.rtools.impressao.DemonstrativoEPlanilhaAcordoSocial;
 import br.com.rtools.impressao.ParametroBoleto;
@@ -88,7 +85,7 @@ public class ImprimirBoleto {
     private byte[] arquivo = new byte[0];
 
     public HashMap registrarMovimentos(List<Movimento> lista, List<Float> listaValores, List<String> listaVencimentos) {
-        MovimentoDB dbm = new MovimentoDBToplink();
+        MovimentoDao dbm = new MovimentoDao();
 
         List<Movimento> listaAdd = new ArrayList();
 
@@ -275,9 +272,9 @@ public class ImprimirBoleto {
     }
 
     public List<Movimento> atualizaContaCobrancaMovimento(List<Movimento> lista) {
-        ServicoContaCobrancaDB db = new ServicoContaCobrancaDBToplink();
-        ContaCobrancaDBToplink dbc = new ContaCobrancaDBToplink();
-        MovimentoDB dbm = new MovimentoDBToplink();
+        ServicoContaCobrancaDao db = new ServicoContaCobrancaDao();
+        ContaCobrancaDao dbc = new ContaCobrancaDao();
+        MovimentoDao dbm = new MovimentoDao();
         Dao dao = new Dao();
 
         List<Movimento> listaAdd = new ArrayList();
@@ -402,7 +399,7 @@ public class ImprimirBoleto {
             JuridicaDao jurDB = new JuridicaDao();
             String swap[] = new String[50];
             PessoaEndereco pe = null;
-            MovimentoDB movDB = new MovimentoDBToplink();
+            MovimentoDao movDB = new MovimentoDao();
 
             CnaeConvencaoDao cnaeConv = new CnaeConvencaoDao();
             Cobranca cobranca = null;
@@ -837,7 +834,7 @@ public class ImprimirBoleto {
                 swap[33] = "";
             }
 
-            MovimentoDB db = new MovimentoDBToplink();
+            MovimentoDao db = new MovimentoDao();
 
             while (i < lista.size()) {
                 Boleto boleto = db.pesquisaBoletos(lista.get(i).getNrCtrBoleto());
@@ -1040,7 +1037,7 @@ public class ImprimirBoleto {
                 swap[33] = "";
             }
 
-            MovimentoDB db = new MovimentoDBToplink();
+            MovimentoDao db = new MovimentoDao();
 
             while (i < lista.size()) {
                 ValorExtenso ve = new ValorExtenso(new BigDecimal(lista.get(i).getValor()));
@@ -1206,12 +1203,12 @@ public class ImprimirBoleto {
                 swap[33] = "";
             }
 
-            MovimentoDB db = new MovimentoDBToplink();
+            MovimentoDao db = new MovimentoDao();
 
             while (i < lista.size()) {
                 BigDecimal valor, multa, juros, correcao, desconto;
                 List<Vector> lAcres = new Vector();
-                MovimentoDB dbm = new MovimentoDBToplink();
+                MovimentoDao dbm = new MovimentoDao();
 
                 if (calculo) {
                     lAcres = dbm.pesquisaAcrescimo(lista.get(i).getId());
@@ -1435,7 +1432,7 @@ public class ImprimirBoleto {
                 swap[33] = "";
             }
 
-            MovimentoDB db = new MovimentoDBToplink();
+            MovimentoDao db = new MovimentoDao();
 
             List<Vector> lAcres = new Vector();
 
@@ -1675,7 +1672,7 @@ public class ImprimirBoleto {
                 swap[9] = "";
             }
 
-            MovimentoDB dbm = new MovimentoDBToplink();
+            MovimentoDao dbm = new MovimentoDao();
             int qnt = dbm.pesquisaAcordoAberto(acordo.getId()).size();
             while (i < lista.size()) {
                 List<Vector> lAcres = dbm.pesquisaAcrescimo(lista.get(i).getId());
@@ -1952,7 +1949,7 @@ public class ImprimirBoleto {
                 swap[33] = "";
             }
 
-            MovimentoDB dbm = new MovimentoDBToplink();
+            MovimentoDao dbm = new MovimentoDao();
             int qnt = dbm.pesquisaAcordoAberto(acordo.getId()).size();
             while (i < lista.size()) {
                 List<Vector> lAcres = new Vector();
@@ -2174,7 +2171,7 @@ public class ImprimirBoleto {
     public byte[] imprimirBoletoSocial(List<Boleto> listaBoleto, String view, boolean imprimeVerso) {
         List lista = new ArrayList();
         Filial filial = (Filial) new Dao().find(new Filial(), 1);
-        FinanceiroDB db = new FinanceiroDBToplink();
+        FinanceiroDao db = new FinanceiroDao();
 
         try {
             File file_jasper = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/BOLETO_SOCIAL.jasper"));

@@ -1,8 +1,7 @@
 package br.com.rtools.arrecadacao.beans;
 
 import br.com.rtools.financeiro.ContaCobranca;
-import br.com.rtools.financeiro.db.ServicoContaCobrancaDB;
-import br.com.rtools.financeiro.db.ServicoContaCobrancaDBToplink;
+import br.com.rtools.financeiro.dao.ServicoContaCobrancaDao;
 import br.com.rtools.retornos.BancoBrasil;
 import br.com.rtools.retornos.CaixaFederal;
 import br.com.rtools.retornos.Itau;
@@ -304,7 +303,7 @@ public class RetornoSocialBean {
     public void loadListaContas(){
         listaContas.clear();
         
-        ServicoContaCobrancaDB servDB = new ServicoContaCobrancaDBToplink();
+        ServicoContaCobrancaDao servDB = new ServicoContaCobrancaDao();
         List<ContaCobranca> result = servDB.listaContaCobrancaAtivoAssociativo();
         if (result.isEmpty()) {
             listaContas.add(new SelectItem(0, "Nenhuma Conta Encontrada", "0"));

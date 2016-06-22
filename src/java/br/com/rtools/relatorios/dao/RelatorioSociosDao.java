@@ -164,7 +164,7 @@ public class RelatorioSociosDao extends DB {
                     "   null AS empresa_demissionada \n "; // 82
         }
 
-        String textQry = " -- RelatorioSociosDBToplink->pesquisaSocios()        \n"
+        String textQry = " -- RelatorioSociosDao->pesquisaSocios()        \n"
                 + "SELECT "
                 + "           '' AS sindLogo,                  \n " // 0
                 + "           '' AS sindSite,                  \n " // 1

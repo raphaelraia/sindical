@@ -7,8 +7,7 @@ import br.com.rtools.arrecadacao.dao.FolhaEmpresaDao;
 import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.Movimento;
-import br.com.rtools.financeiro.db.MovimentoDB;
-import br.com.rtools.financeiro.db.MovimentoDBToplink;
+import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataObject;
@@ -42,7 +41,7 @@ public abstract class MovimentoValorBean {
     public abstract void atualizaValorGrid(String tipo);
 
     public synchronized float carregarValor(int idServico, int idTipo, String ref, int idPessoa) {
-        MovimentoDB movDB = new MovimentoDBToplink();
+        MovimentoDao movDB = new MovimentoDao();
         Object[] valorFloat = movDB.pesquisaValorFolha(idServico, idTipo, ref, idPessoa);
         this.idTipoServico = idTipo;
         FolhaEmpresa folha = null;
@@ -196,7 +195,7 @@ public abstract class MovimentoValorBean {
                         //sv.inserirObjeto(movimento);
                     } else {
                         // SE ALTERAR O VENCIMENTO E FOR COBRANÇA REGISTRADA, ENTÃO ALTERAR A DATA DE REGISTRO PARA QUANDO IMPRIMIR REGISTRAR NOVAMENTE
-                        MovimentoDB dbm = new MovimentoDBToplink();
+                        MovimentoDao dbm = new MovimentoDao();
                         Boleto bol = dbm.pesquisaBoletos(movimento.getNrCtrBoleto());
                         if (bol != null) {
                             if (bol.getContaCobranca().isCobrancaRegistrada()) {
@@ -247,7 +246,7 @@ public abstract class MovimentoValorBean {
                     if (movimento.getId() == -1) {
                     } else {
                         // SE ALTERAR O VENCIMENTO E FOR COBRANÇA REGISTRADA, ENTÃO ALTERAR A DATA DE REGISTRO PARA QUANDO IMPRIMIR REGISTRAR NOVAMENTE
-                        MovimentoDB dbm = new MovimentoDBToplink();
+                        MovimentoDao dbm = new MovimentoDao();
                         Boleto bol = dbm.pesquisaBoletos(movimento.getNrCtrBoleto());
                         if (bol != null) {
                             if (bol.getContaCobranca().isCobrancaRegistrada()) {

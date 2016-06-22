@@ -6,8 +6,7 @@ import br.com.rtools.financeiro.FStatus;
 import br.com.rtools.financeiro.FechamentoCaixa;
 import br.com.rtools.financeiro.FormaPagamento;
 import br.com.rtools.financeiro.TransferenciaCaixa;
-import br.com.rtools.financeiro.db.FinanceiroDB;
-import br.com.rtools.financeiro.db.FinanceiroDBToplink;
+import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.impressao.beans.ImprimirFechamentoCaixa;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.Dao;
@@ -50,191 +49,14 @@ public class CaixaFechadoBean implements Serializable {
     }
 
     public void imprimir(DataObject linha) {
-//        FechamentoCaixa fc = null;
-//        fc = (FechamentoCaixa)(new ().pesquisaCodigo( (Integer) ((Vector)linha.getArgumento0()).get(1), "FechamentoCaixa"));
-//        
-//        Caixa caixa = (Caixa)(new ().pesquisaCodigo( ,"Caixa"));
         ImprimirFechamentoCaixa ifc = new ImprimirFechamentoCaixa();
 
         // id_fechamento, id_caixa
         ifc.imprimir((Integer) ((Vector) linha.getArgumento0()).get(1), Integer.valueOf(listaCaixa.get(idCaixa).getDescription()));
-
-//        FinanceiroDB db = new FinanceiroDBToplink();
-//        List<FormaPagamento> lista_fp_entrada = db.listaTransferenciaFormaPagamento(fc.getId(), caixa.getId(), "E");
-//        List<FormaPagamento> lista_fp_saida = db.listaTransferenciaFormaPagamento(fc.getId(), caixa.getId(), "S");
-//        float transferencia_entrada = 0, transferencia_saida = 0, dinheiro_baixa = 0, cheque = 0, cheque_pre = 0, cartao_cre = 0, cartao_deb = 0, saldo_atual = 0;
-//        float dinheiro_pagamento = 0;
-//        Collection lista = new ArrayList();
-//        List<DataObject> lista_cheque = new ArrayList();
-//        
-//        
-////        List<TransferenciaCaixa> lista_tc = db.listaTransferenciaDinheiro(fc.getId(), caixa.getId());
-////        for (int i = 0; i < lista_tc.size(); i++){
-////            dinheiro_transferencia = Moeda.somaValores(dinheiro_transferencia, lista_tc.get(i).getValor());
-////        }
-//        
-//        List<TransferenciaCaixa> lEntrada = db.listaTransferenciaDinheiroEntrada(fc.getId(), caixa.getId());
-//        List<TransferenciaCaixa> lSaida = db.listaTransferenciaDinheiroSaida(fc.getId(),caixa.getId());
-//        for (int i = 0; i < lEntrada.size(); i++){
-//            transferencia_entrada = Moeda.somaValores(transferencia_entrada, lEntrada.get(i).getValor());
-//        } 
-//        
-//        for (int i = 0; i < lSaida.size(); i++){
-//            transferencia_saida = Moeda.somaValores(transferencia_saida, lSaida.get(i).getValor());
-//        }        
-//        
-//        for (int i = 0; i < lista_fp_entrada.size(); i++){
-//            switch (lista_fp_entrada.get(i).getTipoPagamento().getId()){
-//                case 3:
-//                    dinheiro_baixa = Moeda.somaValores(dinheiro_baixa, lista_fp_entrada.get(i).getValor());
-//                    break;
-//                case 4:
-//                    cheque = Moeda.somaValores(cheque, lista_fp_entrada.get(i).getValor());
-//                    lista_cheque.add(new DataObject(lista_fp_entrada.get(i).getChequeRec(), Moeda.converteR$Float(lista_fp_entrada.get(i).getValor())));
-//                    break;
-//                case 5:
-//                    cheque_pre = Moeda.somaValores(cheque_pre, lista_fp_entrada.get(i).getValor());
-//                    lista_cheque.add(new DataObject(lista_fp_entrada.get(i).getChequeRec(), Moeda.converteR$Float(lista_fp_entrada.get(i).getValor())));
-//                    break;
-//                case 6:
-//                    cartao_cre = Moeda.somaValores(cartao_cre, lista_fp_entrada.get(i).getValor());
-//                    break;
-//                case 7:
-//                    cartao_deb = Moeda.somaValores(cartao_deb, lista_fp_entrada.get(i).getValor());
-//                    break;
-//            }
-//        }
-//        
-//        for (int i = 0; i < lista_fp_saida.size(); i++) {
-//            switch (lista_fp_saida.get(i).getTipoPagamento().getId()) {
-//                case 3:
-//                    dinheiro_pagamento = Moeda.somaValores(dinheiro_pagamento, lista_fp_saida.get(i).getValor());
-//                    //dinheiro_pagamento = Moeda.somaValores(dinheiro_pagamento, lista_fp_saida.get(i).getValor());
-//                    break;
-//                case 4:
-//                    dinheiro_pagamento = Moeda.somaValores(dinheiro_pagamento, lista_fp_saida.get(i).getValor());
-//                    //cheque = Moeda.somaValores(cheque, lista_fp_saida.get(i).getValor());
-//                    //lista_cheque.add(new DataObject(lista_fp_saida.get(i).getChequeRec(), Moeda.converteR$Float(lista_fp_saida.get(i).getValor())));
-//                    break;
-//                case 5:
-//                    dinheiro_pagamento = Moeda.somaValores(dinheiro_pagamento, lista_fp_saida.get(i).getValor());
-//                    //cheque_pre = Moeda.somaValores(cheque_pre, lista_fp_saida.get(i).getValor());
-//                    break;
-//            }
-//        }        
-//        
-//        String status = "VALOR BATIDO";
-//        float soma = 0;
-//        if (fc.getValorFechamento() > fc.getValorInformado()){
-//            soma = Moeda.subtracaoValores(fc.getValorFechamento(), fc.getValorInformado());
-//            status = "EM FALTA R$ "+Moeda.converteR$Float(soma);
-//        }else if (fc.getValorFechamento() < fc.getValorInformado()){
-//            soma = Moeda.subtracaoValores(fc.getValorInformado(), fc.getValorFechamento());
-//            status = "EM SOBRA R$ "+Moeda.converteR$Float(soma);
-//        }
-//        
-//        List<Vector> lista_s = db.pesquisaSaldoAtualRelatorio(caixa.getId(), fc.getId());
-//        
-//        if (!lista_s.isEmpty()){
-//            saldo_atual = Moeda.converteUS$(Moeda.converteR$(lista_s.get(0).get(1).toString()));
-//        }
-//        
-//        float total_dinheiro = dinheiro_baixa;
-//        float valor_transferido = Moeda.somaValores(Moeda.somaValores(Moeda.somaValores(Moeda.somaValores(dinheiro_baixa, cheque), cheque_pre), cartao_cre), cartao_deb);
-//        if (!lista_cheque.isEmpty()){
-//            for(int i = 0; i < lista_cheque.size(); i++){
-//                ChequeRec cr = (ChequeRec)lista_cheque.get(i).getArgumento0();
-//                lista.add(new ParametroFechamentoCaixa(
-//                        fc.getData() + " - " + fc.getHora(),
-//                        caixa.getFilial().getFilial().getPessoa().getNome(),
-//                        Integer.toString(caixa.getCaixa()),
-//                        fc.getUsuario().getPessoa().getNome(),
-//                        Moeda.converteR$Float(fc.getValorFechamento()),
-//                        Moeda.converteR$Float(fc.getValorInformado()),
-//                        Moeda.converteR$Float(saldo_atual),
-//                        Moeda.converteR$Float(total_dinheiro),
-//                        Moeda.converteR$Float(cheque),
-//                        Moeda.converteR$Float(cheque_pre),
-//                        Moeda.converteR$Float(cartao_cre),
-//                        Moeda.converteR$Float(cartao_deb),
-//                        Moeda.converteR$Float(transferencia_entrada),
-//                        Moeda.converteR$Float(transferencia_saida),
-//                        Moeda.converteR$Float(dinheiro_pagamento),
-//                        status,
-//                        cr.getAgencia() + " - " + cr.getConta() + " " + cr.getBanco(),
-//                        cr.getCheque() +" - " + cr.getVencimento() + " | R$ " + lista_cheque.get(i).getArgumento1(),
-//                        caixa.getDescricao(),
-//                        cfb.getConfiguracaoFinanceiro().isAlterarValorFechamento(),
-//                        Moeda.converteR$Float(total_dinheiro),
-//                        Moeda.converteR$Float(valor_transferido),
-//                        Moeda.converteR$Float( Moeda.subtracaoValores(total_dinheiro, valor_transferido) ),
-//                        "",
-//                        "",
-//                        "",
-//                        "",
-//                        "",
-//                        ""
-//                ));
-//            }
-//        }else{
-//            lista.add(new ParametroFechamentoCaixa(
-//                    fc.getData() + " - " + fc.getHora(),
-//                    caixa.getFilial().getFilial().getPessoa().getNome(),
-//                    Integer.toString(caixa.getCaixa()),
-//                    fc.getUsuario().getPessoa().getNome(),
-//                    Moeda.converteR$Float(fc.getValorFechamento()),
-//                    Moeda.converteR$Float(fc.getValorInformado()),
-//                    Moeda.converteR$Float(saldo_atual),
-//                    Moeda.converteR$Float(total_dinheiro),
-//                    Moeda.converteR$Float(cheque),
-//                    Moeda.converteR$Float(cheque_pre),
-//                    Moeda.converteR$Float(cartao_cre),
-//                    Moeda.converteR$Float(cartao_deb),
-//                    Moeda.converteR$Float(transferencia_entrada),
-//                    Moeda.converteR$Float(transferencia_saida),
-//                    Moeda.converteR$Float(dinheiro_pagamento),
-//                    status,
-//                    null,
-//                    null,
-//                    caixa.getDescricao(),
-//                    cfb.getConfiguracaoFinanceiro().isAlterarValorFechamento(),
-//                    Moeda.converteR$Float(total_dinheiro),
-//                    Moeda.converteR$Float(valor_transferido),
-//                    Moeda.converteR$Float( Moeda.subtracaoValores(total_dinheiro, valor_transferido) ),
-//                    "",
-//                    "",
-//                    "",
-//                    "",
-//                    "",
-//                    ""
-//            ));
-//        }
-//        try{
-//            File file_jasper = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/FECHAMENTO_CAIXA.jasper"));
-//            JasperReport jasperReport = (JasperReport) JRLoader.loadObject(file_jasper);
-//            
-//            JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(lista);
-//            JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, null, dtSource);
-//            byte[] arquivo = JasperExportManager.exportReportToPdf(jasperPrint);
-//            
-//            HttpServletResponse res = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
-//            res.setContentType("application/pdf");
-//            res.setHeader("Content-disposition", "inline; filename=\"Relatório Fechamento Caixa.pdf\"");
-//            res.getOutputStream().write(arquivo);
-//            res.getCharacterEncoding();
-//            FacesContext.getCurrentInstance().responseComplete();
-//            
-//            
-////            JasperViewer jrviewer = new JasperViewer(jasperPrint, false);
-////            jrviewer.setTitle("Relatório Fechamento Caixa");
-////            jrviewer.setVisible(true);
-//        }catch(Exception e){
-//            
-//        }
     }
 
     public void reabrir() {
-        FinanceiroDB db = new FinanceiroDBToplink();
+        FinanceiroDao db = new FinanceiroDao();
         Dao dao = new Dao();
 
         List<Baixa> lista_baixa = db.listaBaixa(fechamentoCaixa.getId());
@@ -301,7 +123,7 @@ public class CaixaFechadoBean implements Serializable {
     }
 
     public void transferirCaixaGenerico(Integer id_fechamento, Integer id_caixa, String valort) {
-        FinanceiroDB db = new FinanceiroDBToplink();
+        FinanceiroDao db = new FinanceiroDao();
 
         Caixa caixa = (Caixa) new Dao().find(new Caixa(), id_caixa);
         FechamentoCaixa fc = (FechamentoCaixa) new Dao().find(new FechamentoCaixa(), id_fechamento);
@@ -411,7 +233,7 @@ public class CaixaFechadoBean implements Serializable {
                 caixa,
                 Moeda.converteUS$(valort),
                 //Moeda.subtracaoValores(total_transferencia, caixa.getFundoFixo()),
-                (new FinanceiroDBToplink()).pesquisaCaixaUm(),
+                new FinanceiroDao().pesquisaCaixaUm(),
                 //DataHoje.dataHoje(),
                 fc.getDtData(),
                 (FStatus) new Dao().find(new FStatus(), 12),
@@ -433,7 +255,7 @@ public class CaixaFechadoBean implements Serializable {
     }
 
     public String somaValorTransferencia(FechamentoCaixa fc, Caixa c) {
-        FinanceiroDB db = new FinanceiroDBToplink();
+        FinanceiroDao db = new FinanceiroDao();
         List<FormaPagamento> lista_fp_entrada = db.listaTransferenciaFormaPagamento(fc.getId(), c.getId(), "E");
         List<FormaPagamento> lista_fp_saida = db.listaTransferenciaFormaPagamento(fc.getId(), c.getId(), "S");
 
@@ -483,7 +305,7 @@ public class CaixaFechadoBean implements Serializable {
 
     public List<DataObject> getListaFechamento() {
         if (listaFechamento.isEmpty()) {
-            FinanceiroDB db = new FinanceiroDBToplink();
+            FinanceiroDao db = new FinanceiroDao();
             Caixa caixa = (Caixa) (new Dao().find(new Caixa(), Integer.valueOf(listaCaixa.get(idCaixa).getDescription())));
 
             List<Vector> lista = db.listaFechamentoCaixaTransferencia(caixa.getId());
@@ -525,11 +347,14 @@ public class CaixaFechadoBean implements Serializable {
 
     public List<SelectItem> getListaCaixa() {
         if (listaCaixa.isEmpty()) {
-            List<Caixa> list = (new FinanceiroDBToplink()).listaCaixa();
+            List<Caixa> list = new FinanceiroDao().listaCaixa();
             for (int i = 0; i < list.size(); i++) {
-                listaCaixa.add(new SelectItem(new Integer(i),
-                        list.get(i).getCaixa() + " - " + list.get(i).getDescricao(),
-                        Integer.toString(list.get(i).getId()))
+                listaCaixa.add(
+                        new SelectItem(
+                                i,
+                                list.get(i).getCaixa() + " - " + list.get(i).getDescricao(),
+                                Integer.toString(list.get(i).getId())
+                        )
                 );
             }
         }

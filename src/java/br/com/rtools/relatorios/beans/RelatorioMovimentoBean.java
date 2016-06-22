@@ -9,7 +9,7 @@ import br.com.rtools.arrecadacao.dao.GrupoCidadesDao;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
-import br.com.rtools.financeiro.db.ServicoRotinaDBToplink;
+import br.com.rtools.financeiro.dao.ServicoRotinaDao;
 import br.com.rtools.impressao.ParametroMovimentos;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
@@ -698,7 +698,7 @@ public class RelatorioMovimentoBean implements Serializable {
         listServicos = new LinkedHashMap<>();
         selectedServicos = new ArrayList<>();
 
-        ServicoRotinaDBToplink srdao = new ServicoRotinaDBToplink();
+        ServicoRotinaDao srdao = new ServicoRotinaDao();
         List<Servicos> list = srdao.pesquisaTodosServicosComRotinas(4);
         if (list != null) {
             for (int i = 0; i < list.size(); i++) {

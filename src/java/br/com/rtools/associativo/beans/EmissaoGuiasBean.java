@@ -28,10 +28,8 @@ import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoPagamento;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.dao.DescontoServicoEmpresaDao;
-import br.com.rtools.financeiro.db.FinanceiroDB;
-import br.com.rtools.financeiro.db.FinanceiroDBToplink;
-import br.com.rtools.financeiro.db.MovimentoDB;
-import br.com.rtools.financeiro.db.MovimentoDBToplink;
+import br.com.rtools.financeiro.dao.FinanceiroDao;
+import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.financeiro.lista.ListMovimentoEmissaoGuias;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.movimento.GerarMovimento;
@@ -273,7 +271,7 @@ public class EmissaoGuiasBean implements Serializable {
             listaMovimentoAuxiliar.clear();
 
             Dao di = new Dao();
-            MovimentoDB db = new MovimentoDBToplink();
+            MovimentoDao db = new MovimentoDao();
             di.openTransaction();
 
             for (HistoricoEmissaoGuias listHistoricoEmissaoGuia : listHistoricoEmissaoGuias) {
@@ -320,7 +318,7 @@ public class EmissaoGuiasBean implements Serializable {
 
     public void atualizarHistorico() {
         Dao di = new Dao();
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
         Usuario usuario = (Usuario) GenericaSessao.getObject("sessaoUsuario");
         List<HistoricoEmissaoGuias> listHEGuias = db.pesquisaHistoricoEmissaoGuias(usuario.getId());
 
@@ -343,7 +341,7 @@ public class EmissaoGuiasBean implements Serializable {
     }
 
     public List<HistoricoEmissaoGuias> getListHistoricoEmissaoGuias() {
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
         Usuario usuario = (Usuario) GenericaSessao.getObject("sessaoUsuario");
         if (usuario != null) {
             listHistoricoEmissaoGuias = db.pesquisaHistoricoEmissaoGuias(usuario.getId());
@@ -559,7 +557,7 @@ public class EmissaoGuiasBean implements Serializable {
         FTipoDocumento fTipoDocumento = (FTipoDocumento) di.find(new FTipoDocumento(), 2); // FTipo_documento 13 - CARTEIRA, 2 - BOLETO
         float valorx = Moeda.converteUS$(valor);
         Servicos servicos = (Servicos) di.find(new Servicos(), Integer.parseInt(getListServicos().get(index[2]).getDescription()));
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
         //SociosDB dbs = new SociosDao();
         listaMovimentosEmitidos.clear();
         if (servicos.getPeriodo() != null) {
@@ -955,8 +953,8 @@ public class EmissaoGuiasBean implements Serializable {
                     return null;
                 }
             } else {
-                FinanceiroDB dbf = new FinanceiroDBToplink();
-                caixa = dbf.pesquisaCaixaUsuario(Usuario.getUsuario().getId(), mf.getFilial().getId());
+                FinanceiroDao dao = new FinanceiroDao();
+                caixa = dao.pesquisaCaixaUsuario(Usuario.getUsuario().getId(), mf.getFilial().getId());
 
                 if (caixa == null) {
                     message = "Caixa POR OPERADOR não configurado!";

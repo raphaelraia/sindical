@@ -2,8 +2,7 @@ package br.com.rtools.financeiro.beans;
 
 import br.com.rtools.financeiro.BloqueiaServicoPessoa;
 import br.com.rtools.financeiro.Servicos;
-import br.com.rtools.financeiro.db.FinanceiroDB;
-import br.com.rtools.financeiro.db.FinanceiroDBToplink;
+import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.utilitarios.Dao;
@@ -19,7 +18,7 @@ public class BloqueioServicosJSFBean {
     private BloqueiaServicoPessoa bloqueia = new BloqueiaServicoPessoa();
     private Pessoa pessoa = new Pessoa();
     private int idServicos = 0;
-    private List<SelectItem> listaServicos = new ArrayList<SelectItem>();
+    private List<SelectItem> listaServicos = new ArrayList();
     private List<BloqueiaServicoPessoa> listaBloqueios = new ArrayList();
     private String msgConfirma = "";
     private String refInicial = "";
@@ -55,7 +54,7 @@ public class BloqueioServicosJSFBean {
 
         Servicos servicos = (Servicos) dao.find(new Servicos(), Integer.parseInt(this.getListaServico().get(idServicos).getDescription()));
         NovoLog novoLog = new NovoLog();
-        FinanceiroDB db = new FinanceiroDBToplink();
+        FinanceiroDao db = new FinanceiroDao();
 
         int d_fim = DataHoje.qtdeDiasDoMes(Integer.valueOf(refFinal.substring(0, 2)), Integer.valueOf(refFinal.substring(3, 7)));
 
@@ -237,8 +236,8 @@ public class BloqueioServicosJSFBean {
 
     public List<BloqueiaServicoPessoa> getListaBloqueios() {
         if (listaBloqueios.isEmpty() && pessoa.getId() != -1) {
-            FinanceiroDB db = new FinanceiroDBToplink();
-            listaBloqueios = db.listaBloqueiaServicoPessoas(pessoa.getId());
+            FinanceiroDao dao = new FinanceiroDao();
+            listaBloqueios = dao.listaBloqueiaServicoPessoas(pessoa.getId());
         }
         return listaBloqueios;
     }

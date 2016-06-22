@@ -3,8 +3,7 @@ package br.com.rtools.associativo.beans;
 import br.com.rtools.associativo.ConviteServico;
 import br.com.rtools.associativo.dao.ConviteDao;
 import br.com.rtools.financeiro.Servicos;
-import br.com.rtools.financeiro.db.ServicosDB;
-import br.com.rtools.financeiro.db.ServicosDBToplink;
+import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -267,7 +266,7 @@ public class ConviteServicoBean implements Serializable {
 
     public List<SelectItem> getListServicos() {
         if (listServicos.isEmpty()) {
-            ServicosDB db = new ServicosDBToplink();
+            ServicosDao db = new ServicosDao();
             List<Servicos> lista = (List<Servicos>) db.pesquisaTodos(215);
             int i = 0;
             for (Servicos s : lista) {

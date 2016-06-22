@@ -7,10 +7,8 @@ import br.com.rtools.financeiro.ServicoValor;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.SubGrupoFinanceiro;
 import br.com.rtools.financeiro.dao.DescontoPromocionalDao;
-import br.com.rtools.financeiro.db.FinanceiroDB;
-import br.com.rtools.financeiro.db.FinanceiroDBToplink;
-import br.com.rtools.financeiro.db.ServicoValorDB;
-import br.com.rtools.financeiro.db.ServicoValorDBToplink;
+import br.com.rtools.financeiro.dao.FinanceiroDao;
+import br.com.rtools.financeiro.dao.ServicoValorDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -54,16 +52,6 @@ public class DescontoPromocionalBean implements Serializable {
     public void destroy() {
         GenericaSessao.remove("descontoPromocionalBean");
     }
-//    
-//    public void atualizaValor(){
-//        if (!listServicos.isEmpty()){
-//            ServicoValorDB db = new ServicoValorDBToplink();
-//            //Servicos s = (Servicos) new Dao().find(new Servicos(),  );
-//            ServicoValor sv = db.pesquisaServicoValorPorIdade(Integer.valueOf(listServicos.get(idServicos).getDescription()), 0);
-//            valor = sv.getValorString();
-//        }else
-//            valor = "0,00";
-//    }
 
     public void save() {
         if (listServicos.isEmpty()) {
@@ -240,8 +228,8 @@ public class DescontoPromocionalBean implements Serializable {
     public void loadListSubGrupoFinanceiro() {
         listSubGrupoFinanceiro.clear();
         idSubGrupoFinanceiro = 0;
-        FinanceiroDB financeiroDB = new FinanceiroDBToplink();
-        List<SubGrupoFinanceiro> list = financeiroDB.listaSubGrupo(Integer.parseInt(listGrupoFinanceiro.get(idGrupoFinanceiro).getDescription()));
+        FinanceiroDao dao = new FinanceiroDao();
+        List<SubGrupoFinanceiro> list = dao.listaSubGrupo(Integer.parseInt(listGrupoFinanceiro.get(idGrupoFinanceiro).getDescription()));
         for (int i = 0; i < list.size(); i++) {
             listSubGrupoFinanceiro.add(new SelectItem(i, list.get(i).getDescricao(), "" + list.get(i).getId()));
         }
@@ -287,7 +275,7 @@ public class DescontoPromocionalBean implements Serializable {
 
         for (Vector vect : result) {
             DescontoPromocional dp = (DescontoPromocional) new Dao().find(new DescontoPromocional(), vect.get(0));
-            ServicoValorDB db = new ServicoValorDBToplink();
+            ServicoValorDao db = new ServicoValorDao();
             ServicoValor sv = db.pesquisaServicoValorPorIdade(dp.getServico().getId(), 0);
 
             String valorx = sv.getValorString();

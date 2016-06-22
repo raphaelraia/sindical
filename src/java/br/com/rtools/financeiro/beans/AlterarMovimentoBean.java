@@ -7,12 +7,9 @@ import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
-import br.com.rtools.financeiro.db.FinanceiroDB;
-import br.com.rtools.financeiro.db.FinanceiroDBToplink;
-import br.com.rtools.financeiro.db.MovimentoDB;
-import br.com.rtools.financeiro.db.MovimentoDBToplink;
-import br.com.rtools.financeiro.db.TipoServicoDB;
-import br.com.rtools.financeiro.db.TipoServicoDBToplink;
+import br.com.rtools.financeiro.dao.FinanceiroDao;
+import br.com.rtools.financeiro.dao.MovimentoDao;
+import br.com.rtools.financeiro.dao.TipoServicoDao;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.seguranca.Usuario;
@@ -110,11 +107,11 @@ public final class AlterarMovimentoBean implements Serializable {
 
     public List<SelectItem> getListaTipoServico() {
         if (listaTipoServico.isEmpty()) {
-            TipoServicoDB db = new TipoServicoDBToplink();
+            TipoServicoDao db = new TipoServicoDao();
             selectTipoServico = db.pesquisaTodos();
             for (int i = 0; i < selectTipoServico.size(); i++) {
                 listaTipoServico.add(new SelectItem(
-                        new Integer(i),
+                        i,
                         selectTipoServico.get(i).getDescricao(),
                         Integer.toString(selectTipoServico.get(i).getId())
                 )
@@ -150,7 +147,7 @@ public final class AlterarMovimentoBean implements Serializable {
 
         Dao dao = new Dao();
         dao.openTransaction();
-        FinanceiroDB db = new FinanceiroDBToplink();
+        FinanceiroDao db = new FinanceiroDao();
 
         movimento.setServicos(selectServico.get(idServicos));
         movimento.setTipoServico(selectTipoServico.get(idTipoServicos));
@@ -194,7 +191,7 @@ public final class AlterarMovimentoBean implements Serializable {
     }
 
     public String inativarBoleto() {
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
 
         if (movimento.getBaixa() != null) {
             GenericaMensagem.warn("Atenção", "Boletos quitados não podem ser Excluídos!");

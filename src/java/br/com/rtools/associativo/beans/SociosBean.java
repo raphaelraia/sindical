@@ -1,5 +1,6 @@
 package br.com.rtools.associativo.beans;
 
+import br.com.rtools.financeiro.dao.ServicoContaCobrancaDao;
 import br.com.rtools.pessoa.dao.FisicaDao;
 import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.pessoa.dao.PessoaDao;
@@ -18,7 +19,7 @@ import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.ServicoPessoa;
 import br.com.rtools.financeiro.ServicoPessoaBloqueio;
 import br.com.rtools.financeiro.dao.ServicoPessoaBloqueioDao;
-import br.com.rtools.financeiro.db.*;
+import br.com.rtools.financeiro.dao.ServicoPessoaDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Fisica;
@@ -613,7 +614,7 @@ public class SociosBean implements Serializable {
 
             servicoPessoa.setNrDesconto(descontoSocial.getNrDesconto());
             // aqui
-            //String valorx = Moeda.converteR$Float( new FunctionsDBTopLink().valorServico(servicoPessoa.getPessoa().getId(), servicoCategoria.getServicos().getId(), DataHoje.dataHoje(), 0) );
+            //String valorx = Moeda.converteR$Float( new FunctionsDao().valorServico(servicoPessoa.getPessoa().getId(), servicoCategoria.getServicos().getId(), DataHoje.dataHoje(), 0) );
             //valorServico = Moeda.valorDoPercentual(valorx, servicoPessoa.getNrDescontoString());
             calculoValor();
             SociosDao db = new SociosDao();
@@ -1715,7 +1716,7 @@ public class SociosBean implements Serializable {
             return false;
         }
 
-        ServicoContaCobrancaDB dbSCB = new ServicoContaCobrancaDBToplink();
+        ServicoContaCobrancaDao dbSCB = new ServicoContaCobrancaDao();
         if (chkContaCobranca) {
             List l = dbSCB.pesquisaServPorIdServIdTipoServ(servicoCategoria.getServicos().getId(), 1);
             if (!l.isEmpty()) {
@@ -2394,7 +2395,7 @@ public class SociosBean implements Serializable {
     public void reativarDependente(int index) {
         String dataRef = DataHoje.dataReferencia(DataHoje.data());
         int dataHoje = DataHoje.converteDataParaRefInteger(dataRef);
-        ServicoPessoaDB spdb = new ServicoPessoaDBToplink();
+        ServicoPessoaDao spdb = new ServicoPessoaDao();
         SociosDao sociosDao = new SociosDao();
         List<ServicoPessoa> list = sociosDao.listServicoPessoaInSociosByPessoa(listDependentesInativos.get(index).getFisica().getPessoa().getId());
         Dao dao = new Dao();

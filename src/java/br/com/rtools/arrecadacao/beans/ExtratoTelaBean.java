@@ -1,9 +1,11 @@
 package br.com.rtools.arrecadacao.beans;
 
+import br.com.rtools.financeiro.dao.TipoServicoDao;
 import br.com.rtools.arrecadacao.Acordo;
 import br.com.rtools.arrecadacao.dao.AcordoDao;
 import br.com.rtools.financeiro.*;
-import br.com.rtools.financeiro.db.*;
+import br.com.rtools.financeiro.dao.MovimentoDao;
+import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.pessoa.Juridica;
@@ -175,7 +177,7 @@ public class ExtratoTelaBean implements Serializable {
         vlLiquido = "0,00";
         vlRepasse = "0,00";
 
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
 
         int ic, its;
 
@@ -219,7 +221,7 @@ public class ExtratoTelaBean implements Serializable {
                 porPesquisa, tipoDataPesquisa, dataInicial, dataFinal, dataRefInicial, dataRefFinal, boletoInicial, boletoFinal, ic, its, pessoa.getId(), ordenacao, movimentosDasEmpresas
         );
 
-        MovimentoDBToplink movimentosDao = new MovimentoDBToplink();
+        MovimentoDao movimentosDao = new MovimentoDao();
 
         for (Vector linha_list : listax) {
             if ((linha_list.get(21)) == null) {
@@ -351,7 +353,7 @@ public class ExtratoTelaBean implements Serializable {
         vlLiquido = "0,00";
         vlRepasse = "0,00";
 
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
 
         int ic, its;
 
@@ -587,7 +589,7 @@ public class ExtratoTelaBean implements Serializable {
 
     public List<SelectItem> getListaServico() {
         if (listaServico.isEmpty()) {
-            ServicosDB db = new ServicosDBToplink();
+            ServicosDao db = new ServicosDao();
             List<Servicos> select = db.pesquisaTodos(4);
 
             listaServico.add(new SelectItem(0, "-- Selecione um Serviço --", "0"));
@@ -603,7 +605,7 @@ public class ExtratoTelaBean implements Serializable {
 
     public List<SelectItem> getListaTipoServico() {
         if (listaTipoServico.isEmpty()) {
-            TipoServicoDB db = new TipoServicoDBToplink();
+            TipoServicoDao db = new TipoServicoDao();
             List<TipoServico> select = db.pesquisaTodos();
 
             listaTipoServico.add(new SelectItem(0, "-- Selecione um Tipo --", "0"));
@@ -629,7 +631,7 @@ public class ExtratoTelaBean implements Serializable {
 
     public boolean getUltimaImpressão(int id_movimento) {
         // ESTA CAUSANDO LENTIDÃO NA ROTINA
-//        MovimentoDB db = new MovimentoDBToplink();
+//        MovimentoDao db = new MovimentoDao();
 //
 //        List<Impressao> lista_result = db.listaImpressao(id_movimento);
 //
@@ -642,7 +644,7 @@ public class ExtratoTelaBean implements Serializable {
     }
 
     public String verUltimaImpressão(int id_movimento) {
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
         listaImpressao = db.listaImpressao(id_movimento);
         return null;
     }
@@ -671,7 +673,7 @@ public class ExtratoTelaBean implements Serializable {
     }
 
     public String excluirBoleto() {
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
         if (listaMovimentos.isEmpty()) {
             return null;
         }
@@ -706,7 +708,7 @@ public class ExtratoTelaBean implements Serializable {
     }
 
     public String inativarBoleto() {
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
         if (listaMovimentos.isEmpty()) {
             msgConfirma = "Lista Vazia!";
             GenericaMensagem.warn("Atenção", "Lista Vazia!");
@@ -866,7 +868,7 @@ public class ExtratoTelaBean implements Serializable {
     }
 
     public String estornarBaixa() {
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
         if (listaMovimentos.isEmpty()) {
             GenericaMensagem.warn("Atenção", "Lista vazia!");
             return null;
@@ -908,7 +910,7 @@ public class ExtratoTelaBean implements Serializable {
     }
 
 //   public String excluir(){
-//        MovimentoDB db = new MovimentoDBToplink();
+//        MovimentoDao db = new MovimentoDao();
 //        Movimento movimento = db.pesquisaCodigo(2156);
 //        if (movimento.getId()!=-1){
 //            db.getEntityManager().getTransaction().begin();
@@ -924,7 +926,7 @@ public class ExtratoTelaBean implements Serializable {
 //   }
     public String imprimirPromissoria() {
         List<Movimento> listaC = new ArrayList();
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
         Movimento movimento = new Movimento();
         Acordo acordo = new Acordo();
         AcordoDao dbAc = new AcordoDao();
@@ -983,7 +985,7 @@ public class ExtratoTelaBean implements Serializable {
     }
 
     public String imprimir() {
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
         List<Movimento> listaC = new ArrayList();
         List<Float> listaValores = new ArrayList();
         List<String> listaVencimentos = new ArrayList();
@@ -1038,7 +1040,7 @@ public class ExtratoTelaBean implements Serializable {
         Juridica juridica = new Juridica();
 
         JuridicaDao dbj = new JuridicaDao();
-        MovimentoDB dbM = new MovimentoDBToplink();
+        MovimentoDao dbM = new MovimentoDao();
 
         List<Movimento> movadd = new ArrayList();
         List<Float> listaValores = new ArrayList<Float>();
@@ -1216,7 +1218,7 @@ public class ExtratoTelaBean implements Serializable {
 
     public String imprimirPlanilha() {
         List<Movimento> listaC = new ArrayList<Movimento>();
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
         Movimento movimento = new Movimento();
         Acordo acordo = new Acordo();
         Dao dao = new Dao();
@@ -1289,7 +1291,7 @@ public class ExtratoTelaBean implements Serializable {
     public String excluirAcordo() {
 
         List<Movimento> listaC = new ArrayList();
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
         Dao dao = new Dao();
         if (bltSelecionados() != true) {
             msgConfirma = "Nenhum Boleto Selecionado!";
@@ -1705,7 +1707,7 @@ public class ExtratoTelaBean implements Serializable {
 
     public List<SelectItem> getListaTipoServicoAlterar() {
         if (listaTipoServicoAlterar.isEmpty()) {
-            TipoServicoDB db = new TipoServicoDBToplink();
+            TipoServicoDao db = new TipoServicoDao();
             List<TipoServico> select = db.pesquisaTodos();
 
             for (int i = 0; i < select.size(); i++) {

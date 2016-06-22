@@ -7,10 +7,8 @@ import br.com.rtools.arrecadacao.MensagemConvencao;
 import br.com.rtools.arrecadacao.dao.ConvencaoCidadeDao;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
-import br.com.rtools.financeiro.db.ServicosDB;
-import br.com.rtools.financeiro.db.ServicosDBToplink;
-import br.com.rtools.financeiro.db.TipoServicoDB;
-import br.com.rtools.financeiro.db.TipoServicoDBToplink;
+import br.com.rtools.financeiro.dao.ServicosDao;
+import br.com.rtools.financeiro.dao.TipoServicoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
@@ -36,7 +34,7 @@ public class MensagemConvencaoBean {
     private int idReplica = 1;
     private int processarGrupos = 4;
     private int idIndex = -1;
-    private List listaMensagens = new ArrayList<MensagemConvencao>();
+    private List listaMensagens = new ArrayList();
     private boolean disAcordo = false;
     private boolean processarTipoServicos = false;
     private boolean gerarAno = false;
@@ -623,7 +621,7 @@ public class MensagemConvencaoBean {
 
     public List<SelectItem> getListaTipoServico() {
         if (listaTipoServico.isEmpty()){
-            TipoServicoDB db = new TipoServicoDBToplink();
+            TipoServicoDao db = new TipoServicoDao();
             List<TipoServico> select = db.pesquisaTodosPeloContaCobranca();
             
             if (select.isEmpty()){
@@ -644,9 +642,9 @@ public class MensagemConvencaoBean {
     }
 
     public List<SelectItem> getListaServico() {
-        List<SelectItem> servicos = new ArrayList<SelectItem>();
+        List<SelectItem> servicos = new ArrayList();
         int i = 0;
-        ServicosDB db = new ServicosDBToplink();
+        ServicosDao db = new ServicosDao();
         List select = db.pesquisaTodosPeloContaCobranca(4);
         while (i < select.size()) {
             servicos.add(new SelectItem(

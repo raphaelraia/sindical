@@ -2,8 +2,7 @@ package br.com.rtools.arrecadacao.beans;
 
 import br.com.rtools.associativo.LoteBoleto;
 import br.com.rtools.associativo.beans.ImpressaoBoletoSocialBean;
-import br.com.rtools.financeiro.db.FinanceiroDB;
-import br.com.rtools.financeiro.db.FinanceiroDBToplink;
+import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
@@ -265,8 +264,8 @@ public class GerarBoletoBean {
 
     public List<DataObject> getListaGerados() {
         if (listaGerados.isEmpty()) {
-            FinanceiroDB db = new FinanceiroDBToplink();
-            List<LoteBoleto> lista = db.listaLoteBoleto();
+            FinanceiroDao dao = new FinanceiroDao();
+            List<LoteBoleto> lista = dao.listaLoteBoleto();
             for (LoteBoleto lb : lista) {
                 listaGerados.add(new DataObject(lb, null));
             }
@@ -323,9 +322,9 @@ public class GerarBoletoBean {
 
     public List<Vector> getListaServicoSemCobranca() {
         if (listaServicoSemCobranca.isEmpty()) {
-            FinanceiroDB db = new FinanceiroDBToplink();
+            FinanceiroDao dao = new FinanceiroDao();
 
-            listaServicoSemCobranca = db.listaServicosSemCobranca();
+            listaServicoSemCobranca = dao.listaServicosSemCobranca();
 
             if (!listaServicoSemCobranca.isEmpty()) {
                 GenericaMensagem.fatal("Atenção", "Não é possível gerar mensalidades sem antes definir Conta Cobrança para os seguintes Serviços:");
@@ -343,13 +342,13 @@ public class GerarBoletoBean {
 
     public List<Vector> getListaPessoaSemComplemento() {
         if (listaPessoaSemComplemento.isEmpty()) {
-            FinanceiroDB db = new FinanceiroDBToplink();
+            FinanceiroDao dao = new FinanceiroDao();
 
             if (listaData.isEmpty()) {
-                listaPessoaSemComplemento = db.listaPessoaSemComplemento(mes + "/" + ano);
+                listaPessoaSemComplemento = dao.listaPessoaSemComplemento(mes + "/" + ano);
             } else {
                 for (Object data : listaData) {
-                    listaPessoaSemComplemento.addAll(db.listaPessoaSemComplemento(data.toString()));
+                    listaPessoaSemComplemento.addAll(dao.listaPessoaSemComplemento(data.toString()));
                 }
             }
 
@@ -366,58 +365,4 @@ public class GerarBoletoBean {
     public void setListaPessoaSemComplemento(List<Vector> listaPessoaSemComplemento) {
         this.listaPessoaSemComplemento = listaPessoaSemComplemento;
     }
-
-//        NAO USA --- EXCLUIR DEPOIS DE 01/04/2015    
-//
-//    public List<Vector> getListaPessoaFisicaSemEndereco() {
-//        if (listaPessoaFisicaSemEndereco.isEmpty()){
-//            FinanceiroDB db = new FinanceiroDBToplink();
-//
-//            if (listaData.isEmpty()){
-//                listaPessoaFisicaSemEndereco = db.listaPessoaFisicaSemEndereco(Integer.parseInt(mes), Integer.parseInt(ano));
-//            }else{
-//                for(Object data : listaData){
-//                    listaPessoaFisicaSemEndereco.addAll(db.listaPessoaFisicaSemEndereco(Integer.parseInt(data.toString().substring(0, 2)), Integer.parseInt(data.toString().substring(3, 7))));
-//                }
-//            }
-//
-//            if (!listaPessoaFisicaSemEndereco.isEmpty()){
-//                GenericaMensagem.fatal("Atenção", "PESSOAS FÍSICAS que não contém Endereço!");
-//                for (Vector linha : listaPessoaFisicaSemEndereco){
-//                    GenericaMensagem.info("ID / PESSOA FÍSICA: ", linha.get(0).toString() + " - " + linha.get(1).toString());
-//                }
-//            }
-//        }
-//        return listaPessoaFisicaSemEndereco;
-//    }
-//
-//    public void setListaPessoaFisicaSemEndereco(List<Vector> listaPessoaFisicaSemEndereco) {
-//        this.listaPessoaFisicaSemEndereco = listaPessoaFisicaSemEndereco;
-//    }
-//
-//    public List<Vector> getListaPessoaJuridicaSemEndereco() {
-//        if (listaPessoaJuridicaSemEndereco.isEmpty()){
-//            FinanceiroDB db = new FinanceiroDBToplink();
-//
-//            if (listaData.isEmpty()){
-//                listaPessoaJuridicaSemEndereco = db.listaPessoaJuridicaSemEndereco(Integer.parseInt(mes), Integer.parseInt(ano));
-//            }else{
-//                for(Object data : listaData){
-//                    listaPessoaJuridicaSemEndereco.addAll(db.listaPessoaJuridicaSemEndereco(Integer.parseInt(data.toString().substring(0, 2)), Integer.parseInt(data.toString().substring(3, 7))));
-//                }
-//            }
-//
-//            if (!listaPessoaJuridicaSemEndereco.isEmpty()){
-//                GenericaMensagem.fatal("Atenção", "PESSOAS JURÍDICAS que não contém Endereço!");
-//                for (Vector linha : listaPessoaJuridicaSemEndereco){
-//                    GenericaMensagem.info("ID / PESSOA JURÍDICA: ", linha.get(0).toString() + " - " + linha.get(1).toString());
-//                }
-//            }
-//        }        
-//        return listaPessoaJuridicaSemEndereco;
-//    }
-//
-//    public void setListaPessoaJuridicaSemEndereco(List<Vector> listaPessoaJuridicaSemEndereco) {
-//        this.listaPessoaJuridicaSemEndereco = listaPessoaJuridicaSemEndereco;
-//    }
 }

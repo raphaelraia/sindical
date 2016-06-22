@@ -2,9 +2,8 @@ package br.com.rtools.relatorios.beans;
 
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.SubGrupoFinanceiro;
+import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.financeiro.dao.SubgrupoFinanceiroDao;
-import br.com.rtools.financeiro.db.ServicosDB;
-import br.com.rtools.financeiro.db.ServicosDBToplink;
 import br.com.rtools.impressao.ParametroConvenioMedico;
 import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
@@ -339,7 +338,7 @@ public class RelatorioConvenioMedicoBean implements Serializable {
 
     public List<SelectItem> getListServicos() {
         if (listServicos.isEmpty()) {
-            ServicosDB servicosDB = new ServicosDBToplink();
+            ServicosDao servicosDB = new ServicosDao();
             List<Servicos> list;
             if (listSubgrupo.isEmpty()) {
                 String s = "";

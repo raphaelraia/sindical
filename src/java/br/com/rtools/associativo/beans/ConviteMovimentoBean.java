@@ -21,12 +21,9 @@ import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.ServicoValor;
 import br.com.rtools.financeiro.TipoServico;
-import br.com.rtools.financeiro.db.LoteDB;
-import br.com.rtools.financeiro.db.LoteDBToplink;
-import br.com.rtools.financeiro.db.MovimentoDB;
-import br.com.rtools.financeiro.db.MovimentoDBToplink;
-import br.com.rtools.financeiro.db.ServicoValorDB;
-import br.com.rtools.financeiro.db.ServicoValorDBToplink;
+import br.com.rtools.financeiro.dao.LoteDao;
+import br.com.rtools.financeiro.dao.MovimentoDao;
+import br.com.rtools.financeiro.dao.ServicoValorDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Pessoa;
@@ -196,7 +193,7 @@ public class ConviteMovimentoBean implements Serializable {
         }
 
         Dao dao = new Dao();
-        ServicoValorDB svdb = new ServicoValorDBToplink();
+        ServicoValorDao svdb = new ServicoValorDao();
         try {
             DataHoje dh = new DataHoje();
             ServicoValor sv = (ServicoValor) svdb.pesquisaServicoValorPorIdade(((ConviteServico) dao.find(new ConviteServico(), Integer.parseInt(conviteServicos.get(idServico).getDescription()))).getServicos().getId(), dh.calcularIdade(conviteMovimento.getSisPessoa().getNascimento()));
@@ -1245,9 +1242,9 @@ public class ConviteMovimentoBean implements Serializable {
 
     public Movimento getMovimento() {
         if (conviteMovimento.getEvt() != null) {
-            LoteDB loteDB = new LoteDBToplink();
+            LoteDao loteDB = new LoteDao();
             Lote lote = (Lote) loteDB.pesquisaLotePorEvt(conviteMovimento.getEvt());
-            MovimentoDB mdb = new MovimentoDBToplink();
+            MovimentoDao mdb = new MovimentoDao();
             List<Movimento> movimentos = (List<Movimento>) mdb.listaMovimentosDoLote(lote.getId());
             for (Movimento m : movimentos) {
                 movimento = m;

@@ -110,7 +110,7 @@ public class SocioCarteirinhaDao extends DB {
         Registro registro = (Registro) new Dao().find(new Registro(), 1);
         try {
             String textqry
-                    = " -- SocioCarteirinhaDBToplink->pesquisaCarteirinha() \n\n "
+                    = " -- SocioCarteirinhaDao->pesquisaCarteirinha() \n\n "
                     + "     SELECT p.id,                                                    \n" // 0 
                     + "            p.ds_nome,                                               \n" // 1 NOME
                     + "            pj.ds_documento,                                         \n" // 2 CNPJ

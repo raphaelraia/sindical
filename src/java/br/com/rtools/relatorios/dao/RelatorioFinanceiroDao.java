@@ -370,7 +370,7 @@ public class RelatorioFinanceiroDao extends DB {
     }
 
     public List<Vector> listaChequesRecebidos(String ids_filial, String ids_caixa, String tipo_data, String data_inicial, String data_final, Integer id_status, String in_plano5) {
-        String text = " -- RelatorioFinanceiroDBToplink->listaChequesRecebidos()    \n\n"
+        String text = " -- RelatorioFinanceiroDao->listaChequesRecebidos()    \n\n"
                 + " SELECT "
                 + "     j.ds_fantasia AS filial, "
                 + "     ch.dt_emissao AS emissao, "

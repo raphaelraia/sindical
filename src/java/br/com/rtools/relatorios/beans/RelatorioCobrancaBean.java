@@ -4,8 +4,8 @@ import br.com.rtools.financeiro.GrupoFinanceiro;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.SubGrupoFinanceiro;
 import br.com.rtools.financeiro.TipoServico;
+import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.financeiro.dao.ServicosDao;
-import br.com.rtools.financeiro.db.FinanceiroDBToplink;
 import br.com.rtools.impressao.Etiquetas;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.relatorios.RelatorioOrdem;
@@ -434,7 +434,7 @@ public class RelatorioCobrancaBean implements Serializable {
         loadServicos();
         if (inIdGrupoFinanceiro() != null && !inIdGrupoFinanceiro().isEmpty()) {
             listSubGrupoFinanceiro = new HashMap<>();
-            FinanceiroDBToplink fd = new FinanceiroDBToplink();
+            FinanceiroDao fd = new FinanceiroDao();
             List<SubGrupoFinanceiro> list = fd.listaSubGrupo(inIdGrupoFinanceiro());
             if (list != null) {
                 for (int i = 0; i < list.size(); i++) {

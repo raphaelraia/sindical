@@ -20,8 +20,7 @@ import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.TipoServico;
-import br.com.rtools.financeiro.db.FinanceiroDB;
-import br.com.rtools.financeiro.db.FinanceiroDBToplink;
+import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.impressao.ParametroConviteBaile;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.movimento.GerarMovimento;
@@ -1130,8 +1129,8 @@ public class VendaBaileBean implements Serializable {
                 return null;
             }
         } else {
-            FinanceiroDB dbf = new FinanceiroDBToplink();
-            Caixa caixax = dbf.pesquisaCaixaUsuario(((Usuario) GenericaSessao.getObject("sessaoUsuario")).getId(), macFilial.getFilial().getId());
+            FinanceiroDao dao = new FinanceiroDao();
+            Caixa caixax = dao.pesquisaCaixaUsuario(((Usuario) GenericaSessao.getObject("sessaoUsuario")).getId(), macFilial.getFilial().getId());
 
             if (caixax == null) {
                 GenericaMensagem.warn("Erro", "Configurar Caixa para este Operador!");

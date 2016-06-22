@@ -12,7 +12,7 @@ import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.SubGrupoFinanceiro;
 import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.financeiro.dao.FTipoDocumentoDao;
-import br.com.rtools.financeiro.db.FinanceiroDBToplink;
+import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.impressao.ParametroSocios;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.relatorios.RelatorioOrdem;
@@ -1713,7 +1713,7 @@ public class RelatorioSociosBean implements Serializable {
         loadServicos();
         if (inIdGrupoFinanceiro() != null && !inIdGrupoFinanceiro().isEmpty()) {
             listSubGrupoFinanceiro = new HashMap<>();
-            FinanceiroDBToplink fd = new FinanceiroDBToplink();
+            FinanceiroDao fd = new FinanceiroDao();
             List<SubGrupoFinanceiro> list = fd.listaSubGrupo(inIdGrupoFinanceiro());
             if (list != null) {
                 for (int i = 0; i < list.size(); i++) {

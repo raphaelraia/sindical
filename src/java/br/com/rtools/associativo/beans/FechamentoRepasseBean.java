@@ -4,8 +4,7 @@ import br.com.rtools.associativo.FechamentoRepasse;
 import br.com.rtools.associativo.dao.FechamentoRepasseDao;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Servicos;
-import br.com.rtools.financeiro.db.ServicosDB;
-import br.com.rtools.financeiro.db.ServicosDBToplink;
+import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.impressao.ParametroFechamentoRepasse;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -73,7 +72,7 @@ public class FechamentoRepasseBean implements Serializable{
     public void loadListaServicos(){
         listaServicos.clear();
         
-        ServicosDB db = new ServicosDBToplink();
+        ServicosDao db = new ServicosDao();
         
         List<Servicos> result = db.pesquisaTodos(314);
         

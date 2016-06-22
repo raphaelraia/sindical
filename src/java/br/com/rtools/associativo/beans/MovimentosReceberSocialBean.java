@@ -12,13 +12,10 @@ import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.ServicoPessoa;
 import br.com.rtools.financeiro.TransferenciaCaixa;
 import br.com.rtools.financeiro.beans.ConfiguracaoFinanceiroBean;
+import br.com.rtools.financeiro.dao.FinanceiroDao;
+import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.financeiro.dao.ServicoPessoaDao;
-import br.com.rtools.financeiro.db.FinanceiroDB;
-import br.com.rtools.financeiro.db.FinanceiroDBToplink;
-import br.com.rtools.financeiro.db.MovimentoDB;
-import br.com.rtools.financeiro.db.MovimentoDBToplink;
-import br.com.rtools.financeiro.db.ServicoContaCobrancaDB;
-import br.com.rtools.financeiro.db.ServicoContaCobrancaDBToplink;
+import br.com.rtools.financeiro.dao.ServicoContaCobrancaDao;
 import br.com.rtools.impressao.ParametroEncaminhamento;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.movimento.GerarMovimento;
@@ -654,14 +651,14 @@ public class MovimentosReceberSocialBean implements Serializable {
     }
 
     public Guia pesquisaGuia(int id_lote) {
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
         Guia gu = db.pesquisaGuias(id_lote);
         return gu;
     }
 
     public List<SelectItem> getListaContas() {
         if (listaContas.isEmpty()) {
-            ServicoContaCobrancaDB servDB = new ServicoContaCobrancaDBToplink();
+            ServicoContaCobrancaDao servDB = new ServicoContaCobrancaDao();
             List<ContaCobranca> result = servDB.listaContaCobrancaAtivoAssociativo();
             if (result.isEmpty()) {
                 listaContas.add(new SelectItem(0, "Nenhuma Conta Encontrada", "0"));
@@ -780,7 +777,7 @@ public class MovimentosReceberSocialBean implements Serializable {
         Juridica sindicato = (Juridica) (new Dao()).find(new Juridica(), 1);
         PessoaEnderecoDao dbp = new PessoaEnderecoDao();
         PessoaEndereco pe = dbp.pesquisaEndPorPessoaTipo(1, 2);
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
 
         Collection vetor = new ArrayList();
 
@@ -973,7 +970,7 @@ public class MovimentosReceberSocialBean implements Serializable {
             return null;
         }
 
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
         int qnt = 0;
 
         List<Movimento> lm = new ArrayList();
@@ -1036,7 +1033,7 @@ public class MovimentosReceberSocialBean implements Serializable {
             return null;
         }
 
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
         int qnt = 0;
         Movimento mov = null;
 
@@ -1127,7 +1124,7 @@ public class MovimentosReceberSocialBean implements Serializable {
 
     public String telaBaixa(String caixa_banco) {
         List lista = new ArrayList();
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
         Movimento movimento = new Movimento();
         MacFilial macFilial = (MacFilial) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("acessoFilial");
 
@@ -1149,8 +1146,8 @@ public class MovimentosReceberSocialBean implements Serializable {
                 return null;
             }
         } else {
-            FinanceiroDB dbf = new FinanceiroDBToplink();
-            Caixa caixax = dbf.pesquisaCaixaUsuario(((Usuario) GenericaSessao.getObject("sessaoUsuario")).getId(), macFilial.getFilial().getId());
+            FinanceiroDao dao = new FinanceiroDao();
+            Caixa caixax = dao.pesquisaCaixaUsuario(((Usuario) GenericaSessao.getObject("sessaoUsuario")).getId(), macFilial.getFilial().getId());
 
             if (caixax == null) {
                 msgConfirma = "Configurar Caixa para este Operador!";
@@ -1234,7 +1231,7 @@ public class MovimentosReceberSocialBean implements Serializable {
 
     public String telaAcordo() {
         List lista = new ArrayList();
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
         Movimento movimento = new Movimento();
         if (baixado()) {
             msgConfirma = "Existem boletos baixados na lista!";

@@ -11,13 +11,10 @@ import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.beans.MovimentoValorBean;
-import br.com.rtools.financeiro.db.ContaCobrancaDBToplink;
-import br.com.rtools.financeiro.db.MovimentoDB;
-import br.com.rtools.financeiro.db.MovimentoDBToplink;
-import br.com.rtools.financeiro.db.ServicosDB;
-import br.com.rtools.financeiro.db.ServicosDBToplink;
-import br.com.rtools.financeiro.db.TipoServicoDB;
-import br.com.rtools.financeiro.db.TipoServicoDBToplink;
+import br.com.rtools.financeiro.dao.MovimentoDao;
+import br.com.rtools.financeiro.dao.ContaCobrancaDao;
+import br.com.rtools.financeiro.dao.ServicosDao;
+import br.com.rtools.financeiro.dao.TipoServicoDao;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.pessoa.Juridica;
@@ -185,9 +182,9 @@ public class WebContabilidadeBean extends MovimentoValorBean {
             Dao dao = new Dao();
             MensagemConvencao mc = new MensagemConvencao();
             MensagemConvencaoDao menDB = new MensagemConvencaoDao();
-            TipoServicoDB dbTipo = new TipoServicoDBToplink();
+            TipoServicoDao dbTipo = new TipoServicoDao();
 
-            ContaCobrancaDBToplink ctaCobraDB = new ContaCobrancaDBToplink();
+            ContaCobrancaDao ctaCobraDB = new ContaCobrancaDao();
             ContaCobranca contaCob = new ContaCobranca();
 
             if (getListaServicos().isEmpty()) {
@@ -204,7 +201,7 @@ public class WebContabilidadeBean extends MovimentoValorBean {
             tipoServico = dbTipo.pesquisaCodigo(Integer.valueOf(getListaTipoServico().get(idTipoServico).getDescription()));
             Juridica juri = new Juridica();
 
-            MovimentoDB dbm = new MovimentoDBToplink();
+            MovimentoDao dbm = new MovimentoDao();
 
             contaCob = ctaCobraDB.pesquisaServicoCobranca(servico.getId(), tipoServico.getId());
             if (contaCob == null) {
@@ -435,32 +432,36 @@ public class WebContabilidadeBean extends MovimentoValorBean {
     }
 
     public List<SelectItem> getListaServicos() {
-        ServicosDB db = new ServicosDBToplink();
-        List<SelectItem> result = new Vector<SelectItem>();
+        ServicosDao db = new ServicosDao();
+        List<SelectItem> result = new Vector();
         List servicos = db.pesquisaTodos(4);
         int i = 0;
         while (i < servicos.size()) {
-            result.add(new SelectItem(new Integer(i),
-                    ((Servicos) servicos.get(i)).getDescricao(),
-                    Integer.toString(((Servicos) servicos.get(i)).getId())));
+            result.add(
+                    new SelectItem(
+                            i,
+                            ((Servicos) servicos.get(i)).getDescricao(),
+                            Integer.toString(((Servicos) servicos.get(i)).getId())
+                    )
+            );
             i++;
         }
         return result;
     }
 
     public List<SelectItem> getListaTipoServico() {
-        List<SelectItem> listaTipoServico = new Vector<SelectItem>();
+        List<SelectItem> listaTipoServico = new ArrayList();
         DataHoje data = new DataHoje();
         Servicos servicos = (Servicos) new Dao().find(new Servicos(), Integer.valueOf(getListaServicos().get(idServicos).getDescription()));
         int i = 0;
-        TipoServicoDB db = new TipoServicoDBToplink();
+        TipoServicoDao db = new TipoServicoDao();
         if ((!data.integridadeReferencia(strReferencia))
                 || (registro == null)
                 || (servicos == null)) {
             listaTipoServico.add(new SelectItem(0, "Digite uma referência", "0"));
             return listaTipoServico;
         }
-        List<Integer> listaIds = new ArrayList<Integer>();
+        List<Integer> listaIds = new ArrayList();
 
         if (registro.getTipoEmpresa().equals("E")) {
             if ((Integer.parseInt(strReferencia.substring(0, 2)) == 3)
@@ -602,7 +603,7 @@ public class WebContabilidadeBean extends MovimentoValorBean {
 
     @Override
     public void carregarFolha(DataObject data) {
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
         Movimento movimento = db.pesquisaCodigo(Integer.parseInt(String.valueOf(data.getArgumento16())));
         super.carregarFolha(movimento);
     }

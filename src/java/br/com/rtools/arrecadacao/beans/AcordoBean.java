@@ -10,12 +10,10 @@ import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.beans.MovimentosReceberBean;
-import br.com.rtools.financeiro.db.ContaCobrancaDBToplink;
+import br.com.rtools.financeiro.dao.ContaCobrancaDao;
 import br.com.rtools.financeiro.dao.FTipoDocumentoDao;
-import br.com.rtools.financeiro.db.MovimentoDB;
-import br.com.rtools.financeiro.db.MovimentoDBToplink;
-import br.com.rtools.financeiro.db.TipoServicoDB;
-import br.com.rtools.financeiro.db.TipoServicoDBToplink;
+import br.com.rtools.financeiro.dao.MovimentoDao;
+import br.com.rtools.financeiro.dao.TipoServicoDao;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.pessoa.Juridica;
@@ -594,8 +592,8 @@ public class AcordoBean implements Serializable {
     public synchronized void adicionarParcela() {
         try {
             Dao dao = new Dao();
-            TipoServicoDB dbTipoServico = new TipoServicoDBToplink();
-            ContaCobrancaDBToplink ctaCobraDB = new ContaCobrancaDBToplink();
+            TipoServicoDao dbTipoServico = new TipoServicoDao();
+            ContaCobrancaDao ctaCobraDB = new ContaCobrancaDao();
             FTipoDocumentoDao dbft = new FTipoDocumentoDao();
             TipoServico tipoServico = dbTipoServico.pesquisaCodigo(4);
             DataHoje data = new DataHoje();
@@ -759,7 +757,7 @@ public class AcordoBean implements Serializable {
 //        for (int i = 0; i < listaOperado.size(); i++){
 //            listaImp.add(((Movimento) listaOperado.get(i).getArgumento2()));
 //        }
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
         listaImp.addAll(db.pesquisaAcordoTodos(acordo.getId()));
 
         if (!listaImp.isEmpty()) {

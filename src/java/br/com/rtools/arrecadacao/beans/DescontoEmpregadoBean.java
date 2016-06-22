@@ -6,8 +6,7 @@ import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.DescontoEmpregado;
 import br.com.rtools.arrecadacao.GrupoCidade;
 import br.com.rtools.financeiro.Servicos;
-import br.com.rtools.financeiro.db.ServicosDB;
-import br.com.rtools.financeiro.db.ServicosDBToplink;
+import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
@@ -227,7 +226,7 @@ public class DescontoEmpregadoBean implements Serializable {
     public List<SelectItem> getListaServico() {
         if (listaServicos.isEmpty()) {
             int i = 0;
-            ServicosDB db = new ServicosDBToplink();
+            ServicosDao db = new ServicosDao();
             List select = db.pesquisaTodos(4);
             while (i < select.size()) {
                 listaServicos.add(new SelectItem(i,

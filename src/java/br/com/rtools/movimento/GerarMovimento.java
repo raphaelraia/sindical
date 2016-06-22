@@ -1,5 +1,6 @@
 package br.com.rtools.movimento;
 
+import br.com.rtools.financeiro.dao.ContaCobrancaDao;
 import br.com.rtools.arrecadacao.dao.MensagemConvencaoDao;
 import br.com.rtools.arrecadacao.dao.CnaeConvencaoDao;
 import br.com.rtools.arrecadacao.dao.GrupoCidadesDao;
@@ -9,6 +10,7 @@ import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.MensagemConvencao;
 import br.com.rtools.associativo.BoletoNaoBaixado;
 import br.com.rtools.financeiro.*;
+import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.financeiro.db.*;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Filial;
@@ -308,13 +310,13 @@ public class GerarMovimento extends DB {
         Dao dao = new Dao();
         CnaeConvencaoDao dbco = new CnaeConvencaoDao();
         GrupoCidadesDao dbgc = new GrupoCidadesDao();
-        ContaCobrancaDBToplink dbc = new ContaCobrancaDBToplink();
+        ContaCobrancaDao dbc = new ContaCobrancaDao();
         NovoLog log = new NovoLog();
         Boleto boleto = new Boleto();
         MensagemConvencao mc = new MensagemConvencao();
         MensagemConvencaoDao dbm = new MensagemConvencaoDao();
 
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
         for (int i = 0; i < listaMovimento.size(); i++) {
             if (listaMovimento.get(i).getPessoa().getId() != 0) {
                 Convencao convencao = dbco.pesquisarCnaeConvencaoPorPessoa(listaMovimento.get(i).getPessoa().getId());
@@ -452,7 +454,7 @@ public class GerarMovimento extends DB {
 
     public static synchronized String salvarListaAcordoSocial(Acordo acordo, List<Movimento> listaMovimento, List<Movimento> listaAcordados, List<String> listaHistorico) {
         Dao dao = new Dao();
-        ContaCobrancaDBToplink dbc = new ContaCobrancaDBToplink();
+        ContaCobrancaDao dbc = new ContaCobrancaDao();
         NovoLog log = new NovoLog();
 
         dao.openTransaction();
@@ -544,10 +546,10 @@ public class GerarMovimento extends DB {
 
     public static boolean salvarUmMovimentoBaixa(Lote lote, Movimento movimento) {
         Dao dao = new Dao();
-        ContaCobrancaDBToplink dbc = new ContaCobrancaDBToplink();
+        ContaCobrancaDao dbc = new ContaCobrancaDao();
         NovoLog log = new NovoLog();
         Boleto boleto = new Boleto();
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
 
         ContaCobranca cc = dbc.pesquisaServicoCobranca(movimento.getServicos().getId(), movimento.getTipoServico().getId());
         int id_boleto = db.inserirBoletoNativo(cc.getId());
@@ -628,13 +630,13 @@ public class GerarMovimento extends DB {
         Dao dao = new Dao();
         CnaeConvencaoDao dbco = new CnaeConvencaoDao();
         GrupoCidadesDao dbgc = new GrupoCidadesDao();
-        ContaCobrancaDBToplink dbc = new ContaCobrancaDBToplink();
+        ContaCobrancaDao dbc = new ContaCobrancaDao();
         NovoLog log = new NovoLog();
         Boleto boleto = new Boleto();
         MensagemConvencao mc = new MensagemConvencao();
         MensagemConvencaoDao dbm = new MensagemConvencaoDao();
 
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
 
         ContaCobranca cc = dbc.pesquisaServicoCobranca(movimento.getServicos().getId(), movimento.getTipoServico().getId());
         if (movimento.getPessoa().getId() != 0) {
@@ -776,7 +778,7 @@ public class GerarMovimento extends DB {
 
     public static boolean excluirUmMovimento(Movimento movimento) {
         String mensagem = "Deletados com sucesso!";
-        MovimentoDB movDB = new MovimentoDBToplink();
+        MovimentoDao movDB = new MovimentoDao();
         Dao dao = new Dao();
         Lote lote = null;
         MensagemCobranca mensagemCobranca = null;
@@ -840,7 +842,7 @@ public class GerarMovimento extends DB {
 
     public static String inativarUmMovimento(Movimento movimento, String historico) {
         String mensagem = "";
-        MovimentoDB movDB = new MovimentoDBToplink();
+        MovimentoDao movDB = new MovimentoDao();
         Dao dao = new Dao();
         MovimentoInativo mi = new MovimentoInativo();
         NovoLog novoLog = new NovoLog();
@@ -889,7 +891,7 @@ public class GerarMovimento extends DB {
 
     public static String inativarArrayMovimento(List<Movimento> listaMovimento, String historico, Dao dao) {
         String mensagem = "";
-        MovimentoDB movDB = new MovimentoDBToplink();
+        MovimentoDao movDB = new MovimentoDao();
 
         NovoLog novoLog = new NovoLog();
 
@@ -949,7 +951,7 @@ public class GerarMovimento extends DB {
     }
 
     public static boolean estornarMovimento(Movimento movimento, String motivoEstorno) {
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
         Baixa baixa;
         List<FormaPagamento> formaPagamento;
         List<Movimento> lista;
@@ -1111,7 +1113,7 @@ public class GerarMovimento extends DB {
         // CALCULO PARA PORCENTAGEM DO VALOR PAGO -- NESSE CASO DE ARRECADACAO É 100%
         //float calc = Moeda.multiplicarValores(Moeda.divisaoValores(fp.get(i).getValor(), valorTotal), 100);
         //calc = Moeda.converteFloatR$Float(calc);
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
 
         Boleto bol = db.pesquisaBoletos(movimento.getNrCtrBoleto());
 
@@ -1315,7 +1317,7 @@ public class GerarMovimento extends DB {
             return lista_log;
         }
 
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
 
         Boleto bol = db.pesquisaBoletos(lista_movimento.get(0).getNrCtrBoleto());
 

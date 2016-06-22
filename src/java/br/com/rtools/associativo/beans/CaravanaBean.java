@@ -6,8 +6,7 @@ import br.com.rtools.associativo.dao.EventoServicoDao;
 import br.com.rtools.associativo.*;
 import br.com.rtools.financeiro.Evt;
 import br.com.rtools.financeiro.Servicos;
-import br.com.rtools.financeiro.db.ServicosDB;
-import br.com.rtools.financeiro.db.ServicosDBToplink;
+import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -75,7 +74,7 @@ public class CaravanaBean implements Serializable {
     public void loadListaServicos() {
         listaServicos.clear();
 
-        ServicosDB db = new ServicosDBToplink();
+        ServicosDao db = new ServicosDao();
         List<Servicos> select = db.pesquisaTodos(138);
         for (int i = 0; i < select.size(); i++) {
             listaServicos.add(

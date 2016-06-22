@@ -6,8 +6,7 @@ import br.com.rtools.associativo.GrupoCategoria;
 import br.com.rtools.associativo.Parentesco;
 import br.com.rtools.associativo.ServicoCategoria;
 import br.com.rtools.financeiro.Servicos;
-import br.com.rtools.financeiro.db.ServicoRotinaDB;
-import br.com.rtools.financeiro.db.ServicoRotinaDBToplink;
+import br.com.rtools.financeiro.dao.ServicoRotinaDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataObject;
@@ -244,7 +243,7 @@ public class CategoriaBean implements Serializable {
     public List<SelectItem> getListServicos() {
         if (listServicos.isEmpty()) {
             int i = 0;
-            ServicoRotinaDB db = new ServicoRotinaDBToplink();
+            ServicoRotinaDao db = new ServicoRotinaDao();
             List select = db.pesquisaTodosServicosComRotinas(130);
             listServicos.add(new SelectItem(i,
                     " -- NENHUM -- ",

@@ -1,4 +1,4 @@
-package br.com.rtools.financeiro.db;
+package br.com.rtools.financeiro.dao;
 
 import br.com.rtools.principal.DB;
 import br.com.rtools.financeiro.ServicoValor;
@@ -7,9 +7,8 @@ import java.util.List;
 import java.util.Vector;
 import javax.persistence.Query;
 
-public class ServicoValorDBToplink extends DB implements ServicoValorDB {
+public class ServicoValorDao extends DB {
 
-    @Override
     public List pesquisaServicoValor(int idServico) {
         try {
             Query qry = getEntityManager().createQuery(
@@ -22,25 +21,7 @@ public class ServicoValorDBToplink extends DB implements ServicoValorDB {
             return null;
         }
     }
-//
-//    public ServicoValor pesquisaServicoValorPorIdade(int idServico, int idade) {
-//        try{
-//            Query qry = getEntityManager().createQuery(
-//                    "select p " +
-//                    "  from ServicoValor p " +
-//                    " where p.servicos.id = :pid" +
-//                    "   and :pIdade BETWEEN p.idadeIni and p.idadeFim"
-//                    );
-//            qry.setParameter("pid", idServico);
-//            qry.setParameter("pIdade", idade);
-//            return (ServicoValor) qry.getSingleResult();
-//        }
-//        catch(Exception e){
-//            return null;
-//        }
-//    }
-
-    @Override
+    
     public ServicoValor pesquisaServicoValorPorPessoaFaixaEtaria(int idServico, int idPessoa) {
         ServicoValor servicoValor = new ServicoValor();
         try {
@@ -62,7 +43,6 @@ public class ServicoValorDBToplink extends DB implements ServicoValorDB {
         return new ServicoValor();
     }
 
-    @Override
     public ServicoValor pesquisaServicoValorPorIdade(int idServico, int idade) {
         try {
             String queryString = ""
@@ -82,7 +62,6 @@ public class ServicoValorDBToplink extends DB implements ServicoValorDB {
         return new ServicoValor();
     }
 
-    @Override
     public float pesquisaMaiorResponsavel(int idPessoa) {
         try {
             Query qry = getEntityManager().createNativeQuery(

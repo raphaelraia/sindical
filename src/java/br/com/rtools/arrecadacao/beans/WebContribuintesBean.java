@@ -11,13 +11,10 @@ import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.beans.MovimentoValorBean;
-import br.com.rtools.financeiro.db.ContaCobrancaDBToplink;
-import br.com.rtools.financeiro.db.MovimentoDB;
-import br.com.rtools.financeiro.db.MovimentoDBToplink;
-import br.com.rtools.financeiro.db.ServicosDB;
-import br.com.rtools.financeiro.db.ServicosDBToplink;
-import br.com.rtools.financeiro.db.TipoServicoDB;
-import br.com.rtools.financeiro.db.TipoServicoDBToplink;
+import br.com.rtools.financeiro.dao.MovimentoDao;
+import br.com.rtools.financeiro.dao.ContaCobrancaDao;
+import br.com.rtools.financeiro.dao.ServicosDao;
+import br.com.rtools.financeiro.dao.TipoServicoDao;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.pessoa.Juridica;
@@ -163,7 +160,7 @@ public class WebContribuintesBean extends MovimentoValorBean {
             int i = 0;
             while (i < 6) {
                 newData = (new DataHoje()).incrementarDias(i, data);
-                listaVencimento.add(new SelectItem(new Integer(i), newData, newData));
+                listaVencimento.add(new SelectItem(i, newData, newData));
                 i++;
             }
         }
@@ -171,12 +168,12 @@ public class WebContribuintesBean extends MovimentoValorBean {
     }
 
     public List<SelectItem> getListaServicos() {
-        ServicosDB db = new ServicosDBToplink();
-        List<SelectItem> result = new Vector<SelectItem>();
+        ServicosDao db = new ServicosDao();
+        List<SelectItem> result = new ArrayList();
         List servicos = db.pesquisaTodos(4);
         int i = 0;
         while (i < servicos.size()) {
-            result.add(new SelectItem(new Integer(i),
+            result.add(new SelectItem(i,
                     ((Servicos) servicos.get(i)).getDescricao(),
                     Integer.toString(((Servicos) servicos.get(i)).getId())));
             i++;
@@ -187,10 +184,10 @@ public class WebContribuintesBean extends MovimentoValorBean {
     public List<SelectItem> getListaTipoServico() {
         List<SelectItem> listaTipoServico = new ArrayList<>();
         DataHoje data = new DataHoje();
-        ServicosDB dbSer = new ServicosDBToplink();
+        ServicosDao dbSer = new ServicosDao();
         Servicos servicos = (Servicos) new Dao().find(new Servicos(), Integer.valueOf(getListaServicos().get(idServicos).getDescription()));
         int i = 0;
-        TipoServicoDB db = new TipoServicoDBToplink();
+        TipoServicoDao db = new TipoServicoDao();
         if ((!data.integridadeReferencia(strReferencia))
                 || (registro == null)
                 || (servicos == null)) {
@@ -247,7 +244,7 @@ public class WebContribuintesBean extends MovimentoValorBean {
 
     @Override
     public void carregarFolha(DataObject data) {
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
         Movimento movimento = db.pesquisaCodigo((Integer) data.getArgumento16());
         super.carregarFolha(movimento);
     }
@@ -375,8 +372,8 @@ public class WebContribuintesBean extends MovimentoValorBean {
             MensagemConvencao mc = new MensagemConvencao();
             Dao dao = new Dao();
             MensagemConvencaoDao dbCon = new MensagemConvencaoDao();
-            TipoServicoDB dbTipo = new TipoServicoDBToplink();
-            ContaCobrancaDBToplink ctaCobraDB = new ContaCobrancaDBToplink();
+            TipoServicoDao dbTipo = new TipoServicoDao();
+            ContaCobrancaDao ctaCobraDB = new ContaCobrancaDao();
             ContaCobranca contaCob = new ContaCobranca();
             String dataValida = "";
             DataHoje dh = new DataHoje();
@@ -400,7 +397,7 @@ public class WebContribuintesBean extends MovimentoValorBean {
                 return;
             }
 
-            MovimentoDB dbm = new MovimentoDBToplink();
+            MovimentoDao dbm = new MovimentoDao();
 
             if (dbm.pesquisaMovimentos(juridica.getPessoa().getId(), strReferencia, tipoServico.getId(), servico.getId()) != null) {
                 GenericaMensagem.error("Atenção", "Este boleto já existe!");

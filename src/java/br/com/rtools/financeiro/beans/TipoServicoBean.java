@@ -1,8 +1,7 @@
 package br.com.rtools.financeiro.beans;
 
 import br.com.rtools.financeiro.TipoServico;
-import br.com.rtools.financeiro.db.TipoServicoDB;
-import br.com.rtools.financeiro.db.TipoServicoDBToplink;
+import br.com.rtools.financeiro.dao.TipoServicoDao;
 import java.io.Serializable;
 import java.util.List;
 import javax.faces.bean.ManagedBean;
@@ -55,7 +54,7 @@ public class TipoServicoBean implements Serializable {
     }
 
     public String salvar() {
-        TipoServicoDB db = new TipoServicoDBToplink();
+        TipoServicoDao db = new TipoServicoDao();
         if (tipoServico.getId() == -1) {
             if (tipoServico.getDescricao().equals("")) {
                 msgConfirma = "Digite um Tipo de serviço!";
@@ -85,7 +84,7 @@ public class TipoServicoBean implements Serializable {
     }
 
     public String excluir() {
-        TipoServicoDB db = new TipoServicoDBToplink();
+        TipoServicoDao db = new TipoServicoDao();
         if (tipoServico.getId() != -1) {
             db.getEntityManager().getTransaction().begin();
             tipoServico = db.pesquisaCodigo(tipoServico.getId());
@@ -102,7 +101,7 @@ public class TipoServicoBean implements Serializable {
     }
 
     public List getListaTipoServico() {
-        TipoServicoDB db = new TipoServicoDBToplink();
+        TipoServicoDao db = new TipoServicoDao();
         List result = null;
         result = db.pesquisaTipoServico(descPesquisa, comoPesquisa);
         return result;

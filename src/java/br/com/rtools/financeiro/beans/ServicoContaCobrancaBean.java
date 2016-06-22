@@ -1,10 +1,10 @@
 package br.com.rtools.financeiro.beans;
 
+import br.com.rtools.financeiro.dao.ServicoContaCobrancaDao;
 import br.com.rtools.financeiro.ContaCobranca;
 import br.com.rtools.financeiro.ServicoContaCobranca;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
-import br.com.rtools.financeiro.db.*;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DaoInterface;
@@ -61,7 +61,7 @@ public class ServicoContaCobrancaBean implements Serializable {
     }
 
     public String adicionar() {
-        ServicoContaCobrancaDB servContaCobrancaDB = new ServicoContaCobrancaDBToplink();
+        ServicoContaCobrancaDao servContaCobrancaDB = new ServicoContaCobrancaDao();
         DaoInterface di = new Dao();
         NovoLog novoLog = new NovoLog();
         if ((servicoContaCobranca != null) && (servicoContaCobranca.getId() == -1)) {
@@ -94,7 +94,7 @@ public class ServicoContaCobrancaBean implements Serializable {
     }
 
     public String adicionarTodosTipo() {
-        ServicoContaCobrancaDB servContaCobrancaDB = new ServicoContaCobrancaDBToplink();
+        ServicoContaCobrancaDao servContaCobrancaDB = new ServicoContaCobrancaDao();
         DaoInterface di = new Dao();
         NovoLog novoLog = new NovoLog();
         servicoContaCobranca = new ServicoContaCobranca();
@@ -212,7 +212,7 @@ public class ServicoContaCobrancaBean implements Serializable {
 
     public List<ServicoContaCobranca> getListaServicoCobranca() {
         if (listaServicoCobranca.isEmpty()) {
-            ServicoContaCobrancaDB db = new ServicoContaCobrancaDBToplink();
+            ServicoContaCobrancaDao db = new ServicoContaCobrancaDao();
             listaServicoCobranca = db.pesquisaTodos();
         }
         return listaServicoCobranca;

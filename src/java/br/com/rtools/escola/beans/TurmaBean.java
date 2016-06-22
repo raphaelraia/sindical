@@ -6,11 +6,9 @@ import br.com.rtools.escola.Professor;
 import br.com.rtools.escola.Turma;
 import br.com.rtools.escola.TurmaProfessor;
 import br.com.rtools.financeiro.Servicos;
-import br.com.rtools.financeiro.db.ServicosDB;
-import br.com.rtools.financeiro.db.ServicosDBToplink;
+import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Filial;
-import br.com.rtools.pessoa.dao.FilialDao;
 import br.com.rtools.seguranca.FilialRotina;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Rotina;
@@ -343,7 +341,7 @@ public class TurmaBean implements Serializable {
 
     public List<SelectItem> getListServicos() {
         if (listServicos.isEmpty()) {
-            ServicosDB db = new ServicosDBToplink();
+            ServicosDao db = new ServicosDao();
             List<Servicos> list = db.listaServicoSituacao(150, "A");
             for (int i = 0; i < list.size(); i++) {
                 listServicos.add(new SelectItem(i, list.get(i).getDescricao(), Integer.toString(list.get(i).getId())));

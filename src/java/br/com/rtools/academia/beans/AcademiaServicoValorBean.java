@@ -5,8 +5,7 @@ import br.com.rtools.academia.AcademiaSemana;
 import br.com.rtools.academia.AcademiaServicoValor;
 import br.com.rtools.academia.dao.AcademiaDao;
 import br.com.rtools.financeiro.Servicos;
-import br.com.rtools.financeiro.db.ServicosDB;
-import br.com.rtools.financeiro.db.ServicosDBToplink;
+import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.sistema.Periodo;
 import br.com.rtools.sistema.Semana;
@@ -361,7 +360,7 @@ public class AcademiaServicoValorBean implements Serializable {
 
     public List<SelectItem> getListServicos() {
         if (listSelectItem[0].isEmpty()) {
-            ServicosDB db = new ServicosDBToplink();
+            ServicosDao db = new ServicosDao();
             List list = db.pesquisaTodos(122);
             for (int i = 0; i < list.size(); i++) {
                 listSelectItem[0].add(new SelectItem(i,

@@ -1,4 +1,4 @@
-package br.com.rtools.financeiro.db;
+package br.com.rtools.financeiro.dao;
 
 import br.com.rtools.financeiro.Cobranca;
 import br.com.rtools.financeiro.CobrancaEnvio;
@@ -12,9 +12,8 @@ import java.util.List;
 import java.util.Vector;
 import javax.persistence.Query;
 
-public class NotificacaoDBToplink extends DB implements NotificacaoDB {
+public class NotificacaoDao extends DB {
 
-    @Override
     public Object[] listaParaNotificacao(int id_lote, String data, String id_empresa, String id_contabil, String id_cidade, boolean comContabil, boolean semContabil, String ids_servicos, String ids_tipo_servico) {
         Object[] obj = new Object[2];
         List<Vector> result = null;
@@ -97,7 +96,6 @@ public class NotificacaoDBToplink extends DB implements NotificacaoDB {
         return obj;
     }
 
-    @Override
     public List listaNotificado(int id_movimento) {
         List<Vector> result = null;
         try {
@@ -114,7 +112,6 @@ public class NotificacaoDBToplink extends DB implements NotificacaoDB {
         return result;
     }
 
-    @Override
     public List<CobrancaLote> listaCobrancaLote() {
         try {
             Query qry = getEntityManager().createQuery(
@@ -127,7 +124,6 @@ public class NotificacaoDBToplink extends DB implements NotificacaoDB {
         }
     }
 
-    @Override
     public List<CobrancaTipo> listaCobrancaTipoEnvio() {
         try {
             Query qry = getEntityManager().createQuery(
@@ -139,7 +135,6 @@ public class NotificacaoDBToplink extends DB implements NotificacaoDB {
         }
     }
 
-    @Override
     public List<Cobranca> listaCobranca(int id_lote_cobranca) {
         try {
             Query qry = getEntityManager().createQuery(
@@ -151,7 +146,6 @@ public class NotificacaoDBToplink extends DB implements NotificacaoDB {
         }
     }
 
-    @Override
     public CobrancaLote pesquisaCobrancaLote(int id_usuario, Date dataEmissao) {
         try {
             Query qry = getEntityManager().createQuery(
@@ -164,7 +158,6 @@ public class NotificacaoDBToplink extends DB implements NotificacaoDB {
         }
     }
 
-    @Override
     public List listaNotificacaoEnvio(int tipo_envio, int id_lote) {
         try {
             String textQry
@@ -239,7 +232,6 @@ public class NotificacaoDBToplink extends DB implements NotificacaoDB {
         }
     }
 
-    @Override
     public List pollingEmail(int limite, int id_usuario) {
 //        String text = "select * from fin_polling_email " +
 //                      " where (replace(ds_hora,':','') <= '"+ DataHoje.horaMinuto().replace(":", "")+"' and dt_emissao = '"+DataHoje.data()+"' and is_ativo = true) " +
@@ -272,7 +264,6 @@ public class NotificacaoDBToplink extends DB implements NotificacaoDB {
         }
     }
 
-    @Override
     public List pollingEmailTrue() {
         String text = "select * from fin_polling_email where is_ativo = true limit 1";
         try {
@@ -283,7 +274,6 @@ public class NotificacaoDBToplink extends DB implements NotificacaoDB {
         }
     }
 
-    @Override
     public List pollingEmailNovo(int limite) {
         String text = "select * from fin_polling_email "
                 + " where is_ativo = false "
@@ -298,7 +288,6 @@ public class NotificacaoDBToplink extends DB implements NotificacaoDB {
         }
     }
 
-    @Override
     public List pesquisaUltimoLote() {
         String text = "select case when max(nr_lote_envio) = null then 1 else max(nr_lote_envio) end from fin_polling_email";
         try {
@@ -309,7 +298,6 @@ public class NotificacaoDBToplink extends DB implements NotificacaoDB {
         }
     }
 
-    @Override
     public CobrancaEnvio pesquisaCobrancaEnvio(int id_lote) {
         //String text = "select ce from CobrancaEnvio ce where ce.dtEmissao = :data and ce.lote.id = "+id_lote;
         String text = "select ce from CobrancaEnvio ce where ce.lote.id = " + id_lote;
@@ -322,7 +310,6 @@ public class NotificacaoDBToplink extends DB implements NotificacaoDB {
         }
     }
 
-    @Override
     public List<Vector> listaParaEtiqueta(String string_qry, CobrancaTipo ct) {
         List<Vector> result = null;
 

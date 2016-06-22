@@ -1,7 +1,6 @@
 package br.com.rtools.utilitarios;
 
 import br.com.rtools.pessoa.dao.JuridicaDao;
-import br.com.rtools.pessoa.dao.PessoaDao;
 import br.com.rtools.pessoa.dao.DocumentoInvalidoDao;
 import br.com.rtools.financeiro.ContaCobranca;
 import br.com.rtools.financeiro.FTipoDocumento;
@@ -9,7 +8,7 @@ import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
-import br.com.rtools.financeiro.db.*;
+import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.pessoa.DocumentoInvalido;
 import br.com.rtools.pessoa.Juridica;
@@ -68,7 +67,7 @@ public abstract class ArquivoRetorno {
         boolean moverArquivo = true;
         List<String> errors = new ArrayList();
 
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
         JuridicaDao dbJur = new JuridicaDao();
         List<Movimento> movimento = new ArrayList();
         Dao dao = new Dao();
@@ -391,7 +390,7 @@ public abstract class ArquivoRetorno {
         boolean moverArquivo = true;
         List<String> errors = new ArrayList();
 
-        MovimentoDB db = new MovimentoDBToplink();
+        MovimentoDao db = new MovimentoDao();
         JuridicaDao dbJur = new JuridicaDao();
         List<Movimento> lista_movimento = new ArrayList();
         File fl = new File(caminho + "/pendentes/");

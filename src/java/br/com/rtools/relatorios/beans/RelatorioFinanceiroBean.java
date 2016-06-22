@@ -6,8 +6,7 @@ import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.SubGrupoFinanceiro;
 import br.com.rtools.financeiro.TipoPagamento;
-import br.com.rtools.financeiro.db.FinanceiroDB;
-import br.com.rtools.financeiro.db.FinanceiroDBToplink;
+import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.RelatorioParametros;
 import br.com.rtools.relatorios.Relatorios;
@@ -264,7 +263,7 @@ public class RelatorioFinanceiroBean implements Serializable {
     public void loadListaCaixa() {
         listaCaixa.clear();
 
-        FinanceiroDB db = new FinanceiroDBToplink();
+        FinanceiroDao db = new FinanceiroDao();
 
         List<Caixa> result = db.listaCaixa();
         if (!result.isEmpty()) {
@@ -305,7 +304,7 @@ public class RelatorioFinanceiroBean implements Serializable {
         listaSubGrupo.clear();
         idSubGrupo = 0;
         idServicos = 0;
-        FinanceiroDB db = new FinanceiroDBToplink();
+        FinanceiroDao db = new FinanceiroDao();
 
         // (listaFiltros.get(1).ativo) GRUPO
         List<SubGrupoFinanceiro> result = db.listaSubGrupo((listaFiltros.get(1).ativo) ? Integer.valueOf(listaGrupo.get(idGrupo).getDescription()) : null);

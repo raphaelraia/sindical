@@ -7,8 +7,7 @@ import br.com.rtools.associativo.MatriculaAcademia;
 import br.com.rtools.financeiro.Evt;
 import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.Movimento;
-import br.com.rtools.financeiro.db.LoteDB;
-import br.com.rtools.financeiro.db.LoteDBToplink;
+import br.com.rtools.financeiro.dao.LoteDao;
 import br.com.rtools.principal.DB;
 import br.com.rtools.utilitarios.Dao;
 import java.util.ArrayList;
@@ -167,7 +166,7 @@ public class AcademiaDao extends DB {
     }
 
     public boolean desfazerMovimento(MatriculaAcademia ma) {
-        LoteDB loteDB = new LoteDBToplink();
+        LoteDao loteDB = new LoteDao();
         Lote lote = (Lote) loteDB.pesquisaLotePorEvt(ma.getEvt());
         if (lote == null) {
             return false;
@@ -211,17 +210,6 @@ public class AcademiaDao extends DB {
     }
 
     public List<Movimento> listaRefazerMovimento(MatriculaAcademia ma) {
-//        LoteDB loteDB = new LoteDBToplink();
-//        Lote lote = (Lote) loteDB.pesquisaLotePorEvt(ma.getEvt());
-//        
-//        if (lote == null) {
-//            return new ArrayList();
-//        }
-//        
-//        if (lote.getId() == -1) {
-//            return new ArrayList();
-//        }
-
         try {
             Query queryMovimentos = getEntityManager().createQuery("SELECT M FROM Movimento AS M WHERE M.servicos.id = " + ma.getServicoPessoa().getServicos().getId() + " AND M.baixa IS NULL AND M.ativo = TRUE AND M.pessoa.id = " + ma.getServicoPessoa().getPessoa().getId());
             List<Movimento> listMovimentos = (List<Movimento>) queryMovimentos.getResultList();

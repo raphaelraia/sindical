@@ -75,7 +75,7 @@ public class RelatorioContabilidadesDao extends DB {
                 textFrom = " , P.ds_nome ";
             }
             textQueryNativa
-                    = " -- RelatorioContabilidadesDBToplink->listaRelatorioContabilidades()     \n"
+                    = " -- RelatorioContabilidadesDao->listaRelatorioContabilidades()     \n"
                     + "     SELECT C.id_contabilidade,                                          \n"
                     + "             PE.id as id_pessoa_endereco,                                \n"
                     + "             COUNT(*) qtde                                               \n"

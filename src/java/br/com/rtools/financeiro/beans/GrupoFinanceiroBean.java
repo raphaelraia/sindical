@@ -2,8 +2,7 @@ package br.com.rtools.financeiro.beans;
 
 import br.com.rtools.financeiro.GrupoFinanceiro;
 import br.com.rtools.financeiro.SubGrupoFinanceiro;
-import br.com.rtools.financeiro.db.FinanceiroDB;
-import br.com.rtools.financeiro.db.FinanceiroDBToplink;
+import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
@@ -249,7 +248,7 @@ public final class GrupoFinanceiroBean implements Serializable {
 
     public List<SubGrupoFinanceiro> getListaSubGrupoFinanceiro() {
         if (listaSubGrupoFinanceiro.isEmpty()) {
-            listaSubGrupoFinanceiro = new FinanceiroDBToplink().listaSubGrupo(Integer.valueOf(listaGrupo.get(idGrupo).getDescription()));
+            listaSubGrupoFinanceiro = new FinanceiroDao().listaSubGrupo(Integer.valueOf(listaGrupo.get(idGrupo).getDescription()));
 
         }
         return listaSubGrupoFinanceiro;

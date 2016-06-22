@@ -4,7 +4,7 @@ import br.com.rtools.associativo.Categoria;
 import br.com.rtools.financeiro.GrupoFinanceiro;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.SubGrupoFinanceiro;
-import br.com.rtools.financeiro.db.FinanceiroDBToplink;
+import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioDao;
@@ -422,7 +422,7 @@ public class RelatorioTabelaPrecosBean implements Serializable {
         selectedServicos = new ArrayList<>();
         if (idGrupoFinanceiro != null && listSubGrupoFinanceiro == null) {
             listSubGrupoFinanceiro = new HashMap<>();
-            FinanceiroDBToplink fd = new FinanceiroDBToplink();
+            FinanceiroDao fd = new FinanceiroDao();
             List<SubGrupoFinanceiro> list = fd.listaSubGrupo(idGrupoFinanceiro);
             listSubGrupoFinanceiro.put("Selecionar", null);
             if (list != null) {

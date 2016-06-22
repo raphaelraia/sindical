@@ -1,7 +1,6 @@
 package br.com.rtools.pessoa.beans;
 
-import br.com.rtools.financeiro.db.MovimentoDB;
-import br.com.rtools.financeiro.db.MovimentoDBToplink;
+import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
@@ -302,7 +301,7 @@ public class PessoaCardBean implements Serializable {
     }
 
     public String status(Pessoa p) {
-        MovimentoDB movimentoDB = new MovimentoDBToplink();
+        MovimentoDao movimentoDB = new MovimentoDao();
         if (p.getId() != -1) {
             if (movimentoDB.existeDebitoPessoa(pessoa, DataHoje.dataHoje())) {
                 return "EM DÉBITO";

@@ -3,7 +3,7 @@ package br.com.rtools.financeiro.beans;
 import br.com.rtools.financeiro.ContaBanco;
 import br.com.rtools.financeiro.ContaCobranca;
 import br.com.rtools.financeiro.Layout;
-import br.com.rtools.financeiro.db.ContaCobrancaDBToplink;
+import br.com.rtools.financeiro.dao.ContaCobrancaDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.dao.FilialDao;
 import br.com.rtools.utilitarios.Dao;
@@ -31,7 +31,7 @@ public class ContaCobrancaBean {
 
     public String salvar() {
 
-        ContaCobrancaDBToplink db = new ContaCobrancaDBToplink();
+        ContaCobrancaDao db = new ContaCobrancaDao();
         Layout la = db.pesquisaLayoutId(Integer.valueOf(getListaLayout().get(idLayout).getDescription()));
 
         msgConfirma = "";
@@ -196,7 +196,7 @@ public class ContaCobrancaBean {
     }
 
     public List<SelectItem> getListaLayout() {
-        ContaCobrancaDBToplink db = new ContaCobrancaDBToplink();
+        ContaCobrancaDao db = new ContaCobrancaDao();
         List<SelectItem> result = new ArrayList<>();
         List layouts = db.pesquisaLayouts();
         for (int i = 0; i < layouts.size(); i++) {
@@ -207,7 +207,7 @@ public class ContaCobrancaBean {
 
     public String editar(ContaCobranca c) {
         contaCobranca = c;
-        ContaCobrancaDBToplink db = new ContaCobrancaDBToplink();
+        ContaCobrancaDao db = new ContaCobrancaDao();
         List<Layout> layouts = db.pesquisaLayouts();
         for (int i = 0; i < layouts.size(); i++) {
             if (layouts.get(i).getId() == contaCobranca.getLayout().getId()) {

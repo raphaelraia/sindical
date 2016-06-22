@@ -5,8 +5,7 @@ import br.com.rtools.associativo.dao.LancamentoIndividualDao;
 import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.ServicoPessoa;
 import br.com.rtools.financeiro.Servicos;
-import br.com.rtools.financeiro.db.ServicoRotinaDB;
-import br.com.rtools.financeiro.db.ServicoRotinaDBToplink;
+import br.com.rtools.financeiro.dao.ServicoRotinaDao;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
@@ -249,7 +248,7 @@ public class CobrancaMensalBean {
     public List<SelectItem> getListaServicos() {
         if (listaServicos.isEmpty()) {
             int i = 0;
-            ServicoRotinaDB db = new ServicoRotinaDBToplink();
+            ServicoRotinaDao db = new ServicoRotinaDao();
             List<Servicos> select = db.listaServicosNotIn("120, 121, 122, 151");
             if (!select.isEmpty()) {
                 while (i < select.size()) {
