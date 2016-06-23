@@ -49,7 +49,7 @@ public class RelatorioContribuintesDao extends DB {
 
     public List listaRelatorioContribuintes(Relatorios relatorios, String emails, String condicao, String escritorio, String tipoPCidade, String cidade, String ordem, String cnaes,
             int idTipoEndereco, String idEndereco, String cTipo, String inCentroComercial, String dsNumero, String idGrupos, String bairros, String convencoes,
-            String dataCadastroInicial, String dataCadastroFinal) {
+            String dataCadastroInicial, String dataCadastroFinal, String email) {
         List result = new ArrayList();
         String textQuery = "";
         try {
@@ -226,6 +226,12 @@ public class RelatorioContribuintesDao extends DB {
             // CNAES
             if (cnaes.length() != 0) {
                 textQuery += " and j.id_cnae in ( " + cnaes + " ) ";
+            }
+            // EMAIL -------------------------------------------------------
+            if (email.equals("email_sem")) {
+                textQuery += " AND P.ds_email1 = '' \n";
+            } else if (email.equals("email_com")) {
+                textQuery += " AND P.ds_email1 <> '' \n";
             }
 
             // DATA

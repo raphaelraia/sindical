@@ -153,6 +153,20 @@
                                     </h:panelGrid>
                                 </p:panel>
                             </p:tab>
+                            <p:tab title="E-mail">
+                                <p:panel header="Email">
+                                    <h:column>                                        
+                                        <h:panelGrid columns="2">
+                                            <p:selectOneRadio id="idFiltroEmail" value="#{relatorioContribuintesBean.radioEmail}" styleClass="margin-top-max" >
+                                                <p:ajax event="change" update="@this"/>
+                                                <f:selectItem itemValue="email"  itemLabel="Ignorar"/>
+                                                <f:selectItem itemValue="email_com"     itemLabel="Com e-mail"/>
+                                                <f:selectItem itemValue="email_sem"     itemLabel="Sem e-mail"/>
+                                            </p:selectOneRadio>
+                                        </h:panelGrid>
+                                    </h:column>
+                                </p:panel>
+                            </p:tab>
                             <p:tab title="Avançado">
                                 <p:panel header="Avançado">
                                     <h:panelGrid columns="2">

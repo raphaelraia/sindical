@@ -70,6 +70,7 @@ public class RelatorioContribuintesBean implements Serializable {
     private CnaeConvencao[] cnaeConvencaoSelecionado;
     List<SelectItem> listaTipoRelatorios;
     List<SelectItem> listaTipoEndereco;
+    private String radioEmail;
 
     @PostConstruct
     public void init() {
@@ -108,6 +109,9 @@ public class RelatorioContribuintesBean implements Serializable {
         cnaeConvencaoSelecionado = null;
         listaTipoRelatorios = new ArrayList<>();
         listaTipoEndereco = new ArrayList<>();
+        radioEmail = "";
+        Jasper jasper = new Jasper();
+        jasper.init();
     }
 
     public void visualizar() {
@@ -254,7 +258,7 @@ public class RelatorioContribuintesBean implements Serializable {
         @SuppressWarnings("UseOfObsoleteCollectionType")
         List<List> result = new ArrayList();
         if (convencaoSelecionada != null) {
-            result = dbContri.listaRelatorioContribuintes(relatorios, idEmails, condicao, escritorio, radioCidades, cidades, radioOrdem, cnaeConvencaoSelecionados, tipoEndereco.getId(), enderecos, radioCentroComercial, inCentroComercial, numeros, gruposCidadesSelecionados, bairros, convencoesSelecionadas, dataCadastroInicial, dataCadastroFinal);
+            result = dbContri.listaRelatorioContribuintes(relatorios, idEmails, condicao, escritorio, radioCidades, cidades, radioOrdem, cnaeConvencaoSelecionados, tipoEndereco.getId(), enderecos, radioCentroComercial, inCentroComercial, numeros, gruposCidadesSelecionados, bairros, convencoesSelecionadas, dataCadastroInicial, dataCadastroFinal, radioEmail);
         }
         if (result.isEmpty()) {
             GenericaMensagem.info("Sistema", "Não existem registros para o relatório selecionado");
@@ -819,5 +823,13 @@ public class RelatorioContribuintesBean implements Serializable {
             Jasper.EXPORT_TO = false;
         }
         return relatorios;
+    }
+
+    public String getRadioEmail() {
+        return radioEmail;
+    }
+
+    public void setRadioEmail(String radioEmail) {
+        this.radioEmail = radioEmail;
     }
 }
