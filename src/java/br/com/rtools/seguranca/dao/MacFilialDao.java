@@ -34,6 +34,19 @@ public class MacFilialDao extends DB {
         return null;
     }
 
+    public MacFilial findByDepartamento(Integer departamento_id) {
+        try {
+            Query query = getEntityManager().createNativeQuery("SELECT MF.* FROM seg_mac_filial AS MF WHERE MF.id_departamento = " + departamento_id + " ORDER BY RANDOM() ", MacFilial.class);
+            query.setMaxResults(1);
+            if (!query.getResultList().isEmpty()) {
+                return (MacFilial) query.getSingleResult();
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
+    }
+
     public List listaTodosPorFilial(Integer filial) {
         try {
             Query query;

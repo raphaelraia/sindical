@@ -63,9 +63,9 @@ public class MacFilialBean implements Serializable {
     public void clear() {
         GenericaSessao.remove("macFilialBean");
     }
-    
-    public void alterarCaixa(){
-        if (macFilial.isCaixaOperador()){
+
+    public void alterarCaixa() {
+        if (macFilial.isCaixaOperador()) {
             idCaixa = 0;
         }
     }
@@ -222,11 +222,26 @@ public class MacFilialBean implements Serializable {
     public List<SelectItem> getListaFiliais() {
         if (listaFiliais.isEmpty()) {
             Dao di = new Dao();
+            Boolean isFilial = false;
+            if (GenericaSessao.exists("acessoFilial")) {
+                isFilial = true;
+            }
             List<Filial> list = (List<Filial>) di.list(new Filial(), true);
+            Integer index = null;
             for (int i = 0; i < list.size(); i++) {
+                if (isFilial) {
+                    if (index == null) {
+                        if (Objects.equals(((MacFilial) GenericaSessao.getObject("acessoFilial")).getFilial().getId(), list.get(i).getId())) {
+                            index = i;
+                        }
+                    }
+                }
                 listaFiliais.add(new SelectItem(i,
                         list.get(i).getFilial().getPessoa().getDocumento() + " / " + list.get(i).getFilial().getPessoa().getNome(),
                         Integer.toString(list.get(i).getId())));
+            }
+            if (index != null) {
+                idFilial = index;
             }
         }
         return listaFiliais;
@@ -322,7 +337,7 @@ public class MacFilialBean implements Serializable {
         GenericaSessao.remove("acessoFilial");
         ((ControleUsuarioBean) GenericaSessao.getObject("controleUsuarioBean")).setMacFilial(mf);
         ((ControleUsuarioBean) GenericaSessao.getObject("controleUsuarioBean")).setFilial(ControleUsuarioBean.retornaStringFilial(mf, Usuario.getUsuario()));
-        
+
         GenericaSessao.put("acessoFilial", mf);
         GenericaSessao.put("linkClicado", true);
         if (GenericaSessao.exists("back")) {

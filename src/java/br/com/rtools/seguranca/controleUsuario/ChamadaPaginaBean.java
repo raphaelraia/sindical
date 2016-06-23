@@ -1,9 +1,11 @@
 package br.com.rtools.seguranca.controleUsuario;
 
+import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Modulo;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import static br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean.getCliente;
+import br.com.rtools.seguranca.dao.MacFilialDao;
 import br.com.rtools.seguranca.dao.RotinaDao;
 import br.com.rtools.sistema.ContadorAcessos;
 import br.com.rtools.sistema.dao.AtalhoDao;
@@ -1443,42 +1445,50 @@ public class ChamadaPaginaBean implements Serializable {
 
     public synchronized String menuSocial() {
         GenericaSessao.put("idModulo", SOCIAL);
+        loadMacFilial(6);
         return metodoGenerico(0, "menuSocial");
     }
 
     public synchronized String menuArrecadacao() {
         GenericaSessao.put("idModulo", ARRECADACAO);
+        loadMacFilial(14);
         return metodoGenerico(0, "menuArrecadacao");
     }
 
     public synchronized String menuFinanceiro() {
         GenericaSessao.put("idModulo", FINANCEIRO);
+        loadMacFilial(9);
         return metodoGenerico(0, "menuFinanceiro");
     }
 
     public synchronized String menuHomologacao() {
         GenericaSessao.put("idModulo", HOMOLOGACAO);
+        loadMacFilial(8);
         return metodoGenerico(0, "menuHomologacao");
     }
 
     public synchronized String menuAcademia() {
         GenericaSessao.put("idModulo", ACADEMIA);
+        loadMacFilial(11);
         return metodoGenerico(0, "menuAcademia");
     }
 
     public synchronized String menuEscola() {
         GenericaSessao.put("idModulo", ESCOLA);
+        loadMacFilial(13);
         return metodoGenerico(0, "menuEscola");
     }
 
     public synchronized String menuClube() {
         GenericaSessao.put("idModulo", CLUBE);
+        loadMacFilial(12);
         return metodoGenerico(0, "menuClube");
     }
 
     public synchronized String menuLocadora() {
         GenericaSessao.put("idModulo", LOCADORA);
         GenericaSessao.remove("menuLocadoraBean");
+        loadMacFilial(19);
         return metodoGenerico(0, "menuLocadora");
     }
 
@@ -1489,6 +1499,7 @@ public class ChamadaPaginaBean implements Serializable {
 
     public synchronized String menuCobranca() {
         GenericaSessao.put("idModulo", COBRANCA);
+        loadMacFilial(15);
         return metodoGenerico(0, "menuCobranca");
     }
 
@@ -2620,5 +2631,18 @@ public class ChamadaPaginaBean implements Serializable {
 
     public void setAtalho(Boolean atalho) {
         this.atalho = atalho;
+    }
+
+    public void loadMacFilial(Integer departamento_id) {
+        if (Usuario.getUsuario().getId() == 1) {
+            if (!GenericaSessao.exists("acessoFilial")) {
+                MacFilial macFilial = new MacFilialDao().findByDepartamento(departamento_id);
+                if (macFilial != null) {
+                    GenericaSessao.put("acessoFilial", macFilial);
+                    ((ControleUsuarioBean) GenericaSessao.getObject("controleUsuarioBean")).setMacFilial(macFilial);
+                    ((ControleUsuarioBean) GenericaSessao.getObject("controleUsuarioBean")).setFilial(ControleUsuarioBean.retornaStringFilial(macFilial, Usuario.getUsuario()));
+                }
+            }
+        }
     }
 }
