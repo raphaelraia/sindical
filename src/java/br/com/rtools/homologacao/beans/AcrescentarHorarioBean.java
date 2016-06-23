@@ -476,13 +476,11 @@ public class AcrescentarHorarioBean implements Serializable {
         } else {
             desabilitaBotoes = false;
             for (int i = 0; i < select.size(); i++) {
-                if (select.get(i).getQuantidade() > 0) {
-                    result.add(
-                            new SelectItem(
-                                    i,
-                                    select.get(i).getHora(),
-                                    Integer.toString(select.get(i).getId())));
-                }
+                result.add(
+                        new SelectItem(
+                                i,
+                                select.get(i).getHora(),
+                                Integer.toString(select.get(i).getId())));
             }
         }
         return result;
