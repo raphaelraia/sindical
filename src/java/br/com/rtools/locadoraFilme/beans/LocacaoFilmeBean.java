@@ -48,6 +48,7 @@ public class LocacaoFilmeBean implements Serializable {
     private String codigoLocatario;
     private String codigoBarras;
     private Titulo titulo;
+    private Titulo tituloPesquisa;
     private List<LocadoraMovimento> listLocadoraMovimento;
     private List<LocadoraMovimento> listLocadoraHistorico;
     private List<LocadoraLote> listLocadoraLote;
@@ -56,6 +57,9 @@ public class LocacaoFilmeBean implements Serializable {
     private PessoaComplemento pessoaComplemento;
     private Integer idLocadoraAutorizado;
     private LocadoraStatus locadoraStatus;
+    private Titulo selectedTitulo;
+    private List<Titulo> listTituloPesquisa;
+    private boolean habilitaPesquisaFilial;
 
     @PostConstruct
     public void init() {
@@ -64,16 +68,23 @@ public class LocacaoFilmeBean implements Serializable {
         codigoLocatario = "";
         codigoBarras = "";
         titulo = new Titulo();
+        tituloPesquisa = null;
         listLocadoraMovimento = new ArrayList();
         listLocadoraLote = new ArrayList();
         listLocadoraAutorizados = new ArrayList();
         listLocadoraHistorico = new ArrayList();
+        listTituloPesquisa = new ArrayList();
         locatario = new Fisica();
         pessoaComplemento = null;
         idLocadoraAutorizado = null;
         locadoraStatus = new LocadoraStatusDao().findByFilialData(MacFilial.getAcessoFilial().getFilial().getId());
         if (locadoraStatus == null) {
             locadoraStatus = new LocadoraStatusDao().findByFilialSemana(MacFilial.getAcessoFilial().getFilial().getId());
+        }
+        habilitaPesquisaFilial = false;
+        if (GenericaSessao.exists("habilitaPesquisaFilial")) {
+            habilitaPesquisaFilial = true;
+            GenericaSessao.remove("habilitaPesquisaFilial");
         }
     }
 
@@ -169,7 +180,7 @@ public class LocacaoFilmeBean implements Serializable {
             dao.rollback();
             GenericaMensagem.warn("Validação", "Não é possível locar mais de " + locadoraStatus.getQtdeLocacao() + "!");
             locadoraLote.setId(null);
-            for(int i = 0; i < listLocadoraMovimento.size(); i++) {
+            for (int i = 0; i < listLocadoraMovimento.size(); i++) {
                 listLocadoraMovimento.get(i).setId(null);
                 listLocadoraMovimento.get(i).setLocadoraLote(null);
             }
@@ -179,10 +190,10 @@ public class LocacaoFilmeBean implements Serializable {
             dao.rollback();
             GenericaMensagem.warn("Validação", "Não é possível locar mais de " + locadoraStatus.getQtdeLancamentos() + " lançamentos!");
             locadoraLote.setId(null);
-            for(int i = 0; i < listLocadoraMovimento.size(); i++) {
+            for (int i = 0; i < listLocadoraMovimento.size(); i++) {
                 listLocadoraMovimento.get(i).setId(null);
                 listLocadoraMovimento.get(i).setLocadoraLote(null);
-            }            
+            }
             return;
         }
         GenericaMensagem.info("Sucesso", "Locação concluída!");
@@ -216,14 +227,24 @@ public class LocacaoFilmeBean implements Serializable {
                     MacFilial mf = MacFilial.getAcessoFilial();
                     Titulo t;
                     if (mf != null && mf.getId() != -1) {
-                        t = tituloDao.findBarras(mf.getFilial().getId(), codigoBarras);
+                        t = tituloDao.findById(mf.getFilial().getId(), codigoBarras);
                     } else {
-                        t = tituloDao.findBarras(null, codigoBarras);
+                        t = tituloDao.findById(null, codigoBarras);
                     }
                     if (t != null) {
                         titulo = t;
                     } else {
-                        GenericaMensagem.warn("Validação", "Titulo não existe / indisponível / locado!");
+                        if (mf != null && mf.getId() != -1) {
+                            t = tituloDao.findBarras(mf.getFilial().getId(), codigoBarras);
+                        } else {
+                            t = tituloDao.findBarras(null, codigoBarras);
+                        }
+                        if (t != null) {
+                            titulo = t;
+                        } else {
+                            GenericaMensagem.warn("Validação", "Titulo não existe / indisponível / locado!");
+
+                        }
                     }
                     codigoBarras = "";
                 }
@@ -241,6 +262,9 @@ public class LocacaoFilmeBean implements Serializable {
                 break;
             case 5:
                 titulo = new Titulo();
+                listTituloPesquisa = new ArrayList();
+                tituloPesquisa = null;
+                selectedTitulo = null;
                 break;
             case 6:
                 listLocadoraHistorico.clear();
@@ -328,7 +352,7 @@ public class LocacaoFilmeBean implements Serializable {
                 GenericaMensagem.warn("Validação", "Titulo já locado / pendente de devolução!");
                 return;
             }
-        }        
+        }
         LocadoraMovimentoDao locadoraMovimentoDao = new LocadoraMovimentoDao();
         List<LocadoraMovimento> lms = locadoraMovimentoDao.pesquisaPendentesPorPessoa(locatario.getPessoa().getId());
         if (lms.size() > locadoraStatus.getQtdeLocacao()) {
@@ -336,15 +360,15 @@ public class LocacaoFilmeBean implements Serializable {
             return;
         }
         int qtdeLancamentos = 0;
-        if(titulo.isLancamento()) {
+        if (titulo.isLancamento()) {
             qtdeLancamentos++;
         }
-        for(int i = 0; i < listLocadoraMovimento.size(); i++) {
-            if(listLocadoraMovimento.get(i).getTitulo().isLancamento()) {
+        for (int i = 0; i < listLocadoraMovimento.size(); i++) {
+            if (listLocadoraMovimento.get(i).getTitulo().isLancamento()) {
                 qtdeLancamentos++;
             }
         }
-        if(qtdeLancamentos > locadoraStatus.getQtdeLancamentos()) {
+        if (qtdeLancamentos > locadoraStatus.getQtdeLancamentos()) {
             GenericaMensagem.warn("Validação", "Quantidade de lançamentos excedida! Máximo de " + locadoraStatus.getQtdeLancamentos() + " filmes para esta data!");
             return;
         }
@@ -526,7 +550,7 @@ public class LocacaoFilmeBean implements Serializable {
         LocadoraLote locadoraLote = null;
         Usuario usuario = null;
         List<ReciboLocadora> listReciboLocadora = new ArrayList<>();
-        if(lm == null) {
+        if (lm == null) {
             for (int i = 0; i < listLocadoraMovimento.size(); i++) {
                 listReciboLocadora.add(
                         new ReciboLocadora(
@@ -616,6 +640,63 @@ public class LocacaoFilmeBean implements Serializable {
             }
         }
 
+    }
+
+    public void selectTitulo() {
+        if (tituloPesquisa != null) {
+            if (getQuantidadeDisponivel(tituloPesquisa.getId()) == 0) {
+                GenericaMensagem.warn("Validação", "Não há quantidade disponível para locação!");
+                return;
+            }
+            titulo = tituloPesquisa;
+        }
+        listTituloPesquisa = new ArrayList();
+        tituloPesquisa = null;
+        selectedTitulo = null;
+    }
+
+    public Titulo getSelectedTitulo() {
+        return selectedTitulo;
+    }
+
+    public void setSelectedTitulo(Titulo selectedTitulo) {
+        this.selectedTitulo = selectedTitulo;
+    }
+
+    public List<Titulo> loadListTituloPesquisa(String description) {
+        if (!description.trim().isEmpty()) {
+            listTituloPesquisa = new ArrayList();
+            TituloDao tituloDao = new TituloDao();
+            tituloDao.setLimit(250);
+            MacFilial mf = MacFilial.getAcessoFilial();
+            tituloDao.setNot_in(inTitulos());
+            listTituloPesquisa = tituloDao.find(mf.getFilial().getId(), "descricao", "P", description, null, null, null);
+        }
+        return listTituloPesquisa;
+    }
+
+    public Boolean getHabilitaPesquisaFilial() {
+        return habilitaPesquisaFilial;
+    }
+
+    public void setHabilitaPesquisaFilial(Boolean habilitaPesquisaFilial) {
+        this.habilitaPesquisaFilial = habilitaPesquisaFilial;
+    }
+
+    public Titulo getTituloPesquisa() {
+        return tituloPesquisa;
+    }
+
+    public void setTituloPesquisa(Titulo tituloPesquisa) {
+        this.tituloPesquisa = tituloPesquisa;
+    }
+
+    public Integer getQuantidadeDisponivel(Integer titulo_id) {
+        return getQuantidadeDisponivel(MacFilial.getAcessoFilial().getFilial().getId(), titulo_id);
+    }
+
+    public Integer getQuantidadeDisponivel(Integer filial_id, Integer titulo_id) {
+        return new TituloDao().locadoraQuantidadeTituloDisponivel(filial_id, titulo_id);
     }
 
     public class ReciboLocadora {

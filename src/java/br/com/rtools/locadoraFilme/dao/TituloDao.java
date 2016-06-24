@@ -9,9 +9,11 @@ import javax.persistence.Query;
 public class TituloDao extends DB {
 
     private String not_in;
+    private Integer limit;
 
     public TituloDao() {
         not_in = null;
+        limit = null;
     }
 
     public Boolean exists(String descricao) {
@@ -84,10 +86,12 @@ public class TituloDao extends DB {
         if (genero_id != null) {
             listQuery.add("T.id_genero = " + genero_id);
         }
-        if (faixa_etaria_inicial > 0 && faixa_etaria_inicial == 0) {
-            listQuery.add("T.nr_idade_minima = " + faixa_etaria_inicial);
-        } else if (faixa_etaria_inicial > 0 && faixa_etaria_inicial > 0 && faixa_etaria_final > faixa_etaria_inicial) {
-            listQuery.add("T.nr_idade_minima BETWEEN " + faixa_etaria_inicial + " AND " + faixa_etaria_final);
+        if (faixa_etaria_inicial != null) {
+            if (faixa_etaria_inicial > 0 && faixa_etaria_inicial == 0) {
+                listQuery.add("T.nr_idade_minima = " + faixa_etaria_inicial);
+            } else if (faixa_etaria_inicial > 0 && faixa_etaria_inicial > 0 && faixa_etaria_final > faixa_etaria_inicial) {
+                listQuery.add("T.nr_idade_minima BETWEEN " + faixa_etaria_inicial + " AND " + faixa_etaria_final);
+            }
         }
         if (this.not_in != null) {
             listQuery.add("T.ds_barras NOT IN ('" + this.not_in + "') ");
@@ -101,6 +105,9 @@ public class TituloDao extends DB {
             queryString += " \n";
         }
         queryString += " ORDER BY T.ds_descricao ASC ";
+        if (limit != null) {
+            queryString += " LIMIT " + limit;
+        }
         try {
             Query query = getEntityManager().createNativeQuery(queryString, Titulo.class);
             return query.getResultList();
@@ -152,6 +159,14 @@ public class TituloDao extends DB {
             return 0;
         }
         return 0;
+    }
+
+    public Integer getLimit() {
+        return limit;
+    }
+
+    public void setLimit(Integer limit) {
+        this.limit = limit;
     }
 
 }

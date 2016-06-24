@@ -49,6 +49,7 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
 
     private List<SelectItem> listDatas;
     private String data;
+    private Boolean disabledData;
 
     @PostConstruct
     public void init() {
@@ -57,6 +58,7 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
         listRelatorio = new ArrayList<>();
         idRelatorio = null;
         listDatas = new ArrayList<>();
+        disabledData = false;
         loadRelatorio();
         loadFilters();
         loadRelatorioOrdem();
@@ -290,6 +292,10 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
                 listDatas.add(new SelectItem(d, d));
             }
         }
+        if (GenericaSessao.exists("dataRFD")) {
+            data = GenericaSessao.getString("dataRFD", true);
+            disabledData = true;
+        }
     }
 
     public void loadListFStatus() {
@@ -427,6 +433,14 @@ public class RelatorioMovimentoDiarioBean implements Serializable {
 
     public void setSelectedFStatus(List selectedFStatus) {
         this.selectedFStatus = selectedFStatus;
+    }
+
+    public Boolean getDisabledData() {
+        return disabledData;
+    }
+
+    public void setDisabledData(Boolean disabledData) {
+        this.disabledData = disabledData;
     }
 
     public class ObjectJasper {

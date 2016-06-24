@@ -14,7 +14,6 @@ import br.com.rtools.relatorios.dao.RelatorioOrdemDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
-import br.com.rtools.seguranca.utilitarios.SegurancaUtilitariosBean;
 import br.com.rtools.sistema.SisProcesso;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.Filters;

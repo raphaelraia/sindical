@@ -33,15 +33,19 @@ public class SenhaHomologacao implements Serializable {
     }
 
     public void imprimir(Collection lista) {
+        Jasper jasper = new Jasper();
+        jasper.init();
         Jasper.IS_DOWNLOAD = true;
         String pathPasta = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/senhas");
         Diretorio.criar("");
         if (!new File(pathPasta).exists()) {
             File file = new File(pathPasta);
             file.mkdir();
-        }
+        }        
         Jasper.PATH = "";
         Jasper.PART_NAME = "";
+        Jasper.EXPORT_TO = true;
+        Jasper.EXPORT_TYPE = "pdf";
         Jasper.printReports("/Relatorios/HOM_SENHA.jasper", "senhas", lista);
     }
 

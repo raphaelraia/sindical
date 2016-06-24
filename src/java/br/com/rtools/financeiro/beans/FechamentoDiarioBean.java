@@ -21,7 +21,7 @@ import javax.faces.bean.SessionScoped;
 
 /**
  *
- * @author Claudemir Rtools
+ * @author Claudemir Bicha
  */
 @ManagedBean
 @SessionScoped
@@ -34,7 +34,7 @@ public class FechamentoDiarioBean implements Serializable {
     
     public FechamentoDiarioBean() {
         loadListaFechamentoDiario();
-        
+        GenericaSessao.remove("dataRFD");
         cab = (ControleAcessoBean) GenericaSessao.getObject("controleAcessoBean");
     }
 

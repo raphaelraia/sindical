@@ -1,12 +1,27 @@
 package br.com.rtools.relatorios.dao;
 
 import br.com.rtools.principal.DB;
+import br.com.rtools.relatorios.RelatorioOrdem;
+import br.com.rtools.relatorios.Relatorios;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 import oracle.toplink.essentials.exceptions.EJBQLException;
 
 public class RelatorioContabilidadesDao extends DB {
+
+    private Relatorios relatorios;
+    private RelatorioOrdem relatorioOrdem;
+
+    public RelatorioContabilidadesDao() {
+        this.relatorios = null;
+        this.relatorioOrdem = null;
+    }
+
+    public RelatorioContabilidadesDao(Relatorios relatorios, RelatorioOrdem relatorioOrdem) {
+        this.relatorios = relatorios;
+        this.relatorioOrdem = relatorioOrdem;
+    }
 
     public List pesquisaContabilidades() {
         List result = new ArrayList();
@@ -65,7 +80,7 @@ public class RelatorioContabilidadesDao extends DB {
         return result;
     }
 
-    public List listaRelatorioContabilidades(String pEmpresas, int indexEmp1, int indexEmp2, String tipoPCidade, String cidade, String ordem, int idTipoEndereco, String email) {
+    public List listaRelatorioContabilidades(String pEmpresas, int indexEmp1, int indexEmp2, String tipoPCidade, String in_cidade, String ordem, Integer tipo_endereco_id, String email) {
         String textQueryNativa;
         List list = new ArrayList();
         try {
@@ -93,13 +108,15 @@ public class RelatorioContabilidadesDao extends DB {
             }
             // CIDADE -------------------------------------------------------
             if (tipoPCidade.equals("todas")) {
-                textQueryNativa += " AND PE.id_tipo_endereco = " + idTipoEndereco + " \n";
+                textQueryNativa += " AND PE.id_tipo_endereco = " + tipo_endereco_id + " \n";
             } else if (tipoPCidade.equals("especificas")) {
-                textQueryNativa += " AND PE.id_tipo_endereco = " + idTipoEndereco + " AND E.id_cidade IN (" + Integer.parseInt(cidade) + ") \n";
+                if(in_cidade != null) {
+                    textQueryNativa += " AND PE.id_tipo_endereco = " + tipo_endereco_id + " AND E.id_cidade IN (" + in_cidade + ") \n";                    
+                }
             } else if (tipoPCidade.equals("local")) {
-                textQueryNativa += " AND PE.id_tipo_endereco = " + idTipoEndereco + " AND E.id_cidade IN (" + Integer.parseInt(cidade) + ") \n";
+                textQueryNativa += " AND PE.id_tipo_endereco = " + tipo_endereco_id + " AND E.id_cidade IN (" + in_cidade + ") \n";
             } else if (tipoPCidade.equals("outras")) {
-                textQueryNativa += " AND PE.id_tipo_endereco = " + idTipoEndereco + " AND ENDE.cidade <> (SELECT ds_cidade FROM end_cidade WHERE id = " + Integer.parseInt(cidade) + ") \n";
+                textQueryNativa += " AND PE.id_tipo_endereco = " + tipo_endereco_id + " AND ENDE.cidade <> (SELECT ds_cidade FROM end_cidade WHERE id IN (" + in_cidade + ")) \n";
             }
             // EMAIL -------------------------------------------------------
             if (email.equals("email_sem")) {
@@ -149,5 +166,21 @@ public class RelatorioContabilidadesDao extends DB {
             return list;
         }
         return list;
+    }
+
+    public Relatorios getRelatorios() {
+        return relatorios;
+    }
+
+    public void setRelatorios(Relatorios relatorios) {
+        this.relatorios = relatorios;
+    }
+
+    public RelatorioOrdem getRelatorioOrdem() {
+        return relatorioOrdem;
+    }
+
+    public void setRelatorioOrdem(RelatorioOrdem relatorioOrdem) {
+        this.relatorioOrdem = relatorioOrdem;
     }
 }

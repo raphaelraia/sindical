@@ -56,6 +56,9 @@
                                 <p:column width="30">
                                     <p:commandButton icon="ui-icon-link" action="#{tituloBean.edit(titulo)}" title="Editar registro nº#{titulo.id}"/>
                                 </p:column>
+                                <p:column width="25" styleClass="text-center">
+                                    <h:outputText value="#{titulo.id}" styleClass="bold"/>
+                                </p:column>
                                 <p:column width="100" headerText="Imagem">
                                     <h:column rendered="#{titulo.foto != null}">
                                         <p:graphicImage value="#{tituloBean.showImagem(titulo.id)}" width="100" alt="Não possui imagem"/>
