@@ -27,6 +27,7 @@ import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Diretorio;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.SalvaArquivos;
 import br.com.rtools.utilitarios.ValidaDocumentos;
 import java.io.File;
@@ -260,6 +261,10 @@ public class AtendimentoBean implements Serializable {
 
         return "Sem Senha";
     }
+    
+    public void imprimirSenhaExterna(AteMovimento atendimento) throws JRException {
+        imprimirSenha(atendimento);
+    }
 
     public String imprimirSenha(AteMovimento atendimento) throws JRException {
 
@@ -270,11 +275,8 @@ public class AtendimentoBean implements Serializable {
         Collection lista = new ArrayList();
 
         if (senha.getId() != -1) {
-            String logo_cliente = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png");
             if (senha.getAteMovimento().getJuridica() != null) {
-                lista.add(new ParametroSenha(logo_cliente,
-                        senha.getFilial().getFilial().getPessoa().getNome(),
-                        senha.getFilial().getFilial().getPessoa().getDocumento(),
+                lista.add(new ParametroSenha(
                         senha.getAteMovimento().getJuridica().getPessoa().getNome(),
                         senha.getAteMovimento().getJuridica().getPessoa().getDocumento(),
                         "", // PREPOSTO
@@ -282,11 +284,10 @@ public class AtendimentoBean implements Serializable {
                         senha.getUsuario().getPessoa().getNome(),
                         senha.getData(),
                         senha.getHora(),
-                        String.valueOf(senha.getSenha())));
+                        String.valueOf(senha.getSenha()),
+                        senha.getAteMovimento().getOperacao().getDescricao()));
             } else {
-                lista.add(new ParametroSenha(logo_cliente,
-                        senha.getFilial().getFilial().getPessoa().getNome(),
-                        senha.getFilial().getFilial().getPessoa().getDocumento(),
+                lista.add(new ParametroSenha(
                         "", // NOME EMPRESA
                         "", // DOCUMENTO EMPRESA
                         "", // PREPOSTO
@@ -294,31 +295,37 @@ public class AtendimentoBean implements Serializable {
                         senha.getUsuario().getPessoa().getNome(),
                         senha.getData(),
                         senha.getHora(),
-                        String.valueOf(senha.getSenha())));
+                        String.valueOf(senha.getSenha()),
+                        senha.getAteMovimento().getOperacao().getDescricao()));
 
             }
         }
-
-        JasperReport jasperReport = (JasperReport) JRLoader.loadObject(new File((((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/HOM_SENHA.jasper"))));
-        JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(lista);
-        JasperPrint print = JasperFillManager.fillReport(jasperReport, null, dtSource);
-        byte[] arquivo = JasperExportManager.exportReportToPdf(print);
-        String nomeDownload = "senha_" + DataHoje.hora().replace(":", "") + ".pdf";
-        String pathPasta = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/senhas");
-        Diretorio.criar("Arquivos/senhas");
-        if (!new File(pathPasta).exists()) {
-            File file = new File(pathPasta);
-            file.mkdir();
-        }
-        SalvaArquivos salvaArquivos = new SalvaArquivos(arquivo, nomeDownload, false);
-        salvaArquivos.salvaNaPasta(pathPasta);
-
-        InputStream stream = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getResourceAsStream("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/senhas" + "/" + nomeDownload);
-        fileDownload = new DefaultStreamedContent(stream, "application/pdf", nomeDownload);
-
-//        Download download = new Download(nomeDownload, pathPasta, "application/pdf", FacesContext.getCurrentInstance());
-//        download.baixar();
-//        download.remover();
+        Jasper.TITLE = "SENHA PARA ATENDIMENTO";
+        Jasper.PATH = "";
+        Jasper.PART_NAME = "";
+        Jasper.EXPORT_TO = true;
+        Jasper.EXPORT_TYPE = "pdf";
+        Jasper.printReports("/Relatorios/HOM_SENHA.jasper", "senhas", lista);
+//        JasperReport jasperReport = (JasperReport) JRLoader.loadObject(new File((((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/HOM_SENHA.jasper"))));
+//        JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(lista);
+//        JasperPrint print = JasperFillManager.fillReport(jasperReport, null, dtSource);
+//        byte[] arquivo = JasperExportManager.exportReportToPdf(print);
+//        String nomeDownload = "senha_" + DataHoje.hora().replace(":", "") + ".pdf";
+//        String pathPasta = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/senhas");
+//        Diretorio.criar("Arquivos/senhas");
+//        if (!new File(pathPasta).exists()) {
+//            File file = new File(pathPasta);
+//            file.mkdir();
+//        }
+//        SalvaArquivos salvaArquivos = new SalvaArquivos(arquivo, nomeDownload, false);
+//        salvaArquivos.salvaNaPasta(pathPasta);
+//
+//        InputStream stream = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getResourceAsStream("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/senhas" + "/" + nomeDownload);
+//        fileDownload = new DefaultStreamedContent(stream, "application/pdf", nomeDownload);
+//
+////        Download download = new Download(nomeDownload, pathPasta, "application/pdf", FacesContext.getCurrentInstance());
+////        download.baixar();
+////        download.remover();
         return "atendimento";
     }
 
@@ -357,7 +364,7 @@ public class AtendimentoBean implements Serializable {
             GenericaMensagem.warn("Validação", "Digite o NOME da pessoa!");
             return;
         }
-        
+
         if (sisPessoa.getDtNascimento() == null) {
             GenericaMensagem.warn("Validação", "Informe data de nascimento!");
             return;
