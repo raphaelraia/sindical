@@ -37,7 +37,6 @@ public class FechamentoComissaoAcordoBean {
     private List selectedUsuario;
     private List<SelectItem> listRelatorio;
     private Integer idRelatorio;
-
     private List<SelectItem> listRelatorioOrdem;
     private Integer idRelatorioOrdem;
 
@@ -61,8 +60,7 @@ public class FechamentoComissaoAcordoBean {
     public List<SelectItem> getListaData() {
         if (listaData.isEmpty()) {
             int i = 0;
-            AcordoComissaoDao db = new AcordoComissaoDao();
-            List<Date> select = db.pesquisaTodosFechamento();
+            List<Date> select = new AcordoComissaoDao().pesquisaTodosFechamento();
             if (select != null) {
                 while (i < select.size()) {
                     listaData.add(new SelectItem(DataHoje.converteData(select.get(i)), DataHoje.converteData(select.get(i))));
@@ -100,8 +98,7 @@ public class FechamentoComissaoAcordoBean {
     public void loadRelatorioOrdem() {
         if (idRelatorio != null) {
             listRelatorioOrdem = new ArrayList();
-            RelatorioOrdemDao relatorioOrdemDao = new RelatorioOrdemDao();
-            List<RelatorioOrdem> list = relatorioOrdemDao.findAllByRelatorio(idRelatorio);
+            List<RelatorioOrdem> list = new RelatorioOrdemDao().findAllByRelatorio(idRelatorio);
             Integer idDefault = null;
             for (int i = 0; i < list.size(); i++) {
                 if (i == 0) {
@@ -147,8 +144,7 @@ public class FechamentoComissaoAcordoBean {
     }
 
     public synchronized void processar() {
-        AcordoComissaoDao acordoComissaoDB = new AcordoComissaoDao();
-        if (acordoComissaoDB.inserirAcordoComissao()) {
+        if (new AcordoComissaoDao().inserirAcordoComissao()) {
             listaData.clear();
             GenericaMensagem.info("Sucesso", "Concluído com sucesso");
         } else {
@@ -159,10 +155,10 @@ public class FechamentoComissaoAcordoBean {
 
     public void visualizar() {
         if (!listaData.isEmpty()) {
-            AcordoComissaoDao db = new AcordoComissaoDao();
-            db.setRelatorios(getRelatorios());
-            db.setRelatorioOrdem((RelatorioOrdem) new Dao().find(new RelatorioOrdem(), idRelatorioOrdem));
-            List result = db.listaAcordoComissao(dataFechamento, inIdUsuarios());
+            AcordoComissaoDao acd = new AcordoComissaoDao();
+            acd.setRelatorios(getRelatorios());
+            acd.setRelatorioOrdem((RelatorioOrdem) new Dao().find(new RelatorioOrdem(), idRelatorioOrdem));
+            List result = acd.listaAcordoComissao(dataFechamento, inIdUsuarios());
             Collection c = new ArrayList();
             BigDecimal repasse;
             BigDecimal liquido;
@@ -201,16 +197,9 @@ public class FechamentoComissaoAcordoBean {
             }
             Relatorios r = getRelatorios();
             Jasper.TITLE = r.getNome();
-            if (r.getId() == 58) {
-                Jasper.IS_HEADER = true;
-                Jasper.TYPE = "recibo_sem_logo";
-                Jasper.printReports(r.getJasper(), r.getNome(), (Collection) c);
-            } else {
-                Jasper.TYPE = "default";
-                Jasper.printReports(r.getJasper(), r.getNome(), (Collection) c);
-            }
-            // Jasper.IS_HEADER = true;
-            // Jasper.printReports("/Relatorios/ACORDO_ANALITICO.jasper", "Acordo Analítico", lista);
+            Jasper.IS_HEADER = true;
+            Jasper.TYPE = "default";
+            Jasper.printReports(r.getJasper(), r.getNome(), (Collection) c);
         }
     }
 
@@ -222,7 +211,7 @@ public class FechamentoComissaoAcordoBean {
             } else {
                 GenericaMensagem.warn("Erro", "Ao estornar fechamento!");
             }
-            listaData.clear();
+            listaData = new ArrayList();
         } else {
             GenericaMensagem.warn("Validação", "Data de Fechamento vazia!");
         }
