@@ -9,8 +9,10 @@ import br.com.rtools.associativo.ConviteServico;
 import br.com.rtools.associativo.ConviteSuspencao;
 import br.com.rtools.associativo.MatriculaSocios;
 import br.com.rtools.associativo.Socios;
+import br.com.rtools.associativo.Suspencao;
 import br.com.rtools.associativo.dao.ConviteDao;
 import br.com.rtools.associativo.dao.SociosDao;
+import br.com.rtools.associativo.dao.SuspencaoDao;
 import br.com.rtools.endereco.Endereco;
 import br.com.rtools.financeiro.CondicaoPagamento;
 import br.com.rtools.financeiro.Evt;
@@ -114,7 +116,7 @@ public class ConviteMovimentoBean implements Serializable {
         loadListTipoDocumento();
     }
 
-    public void loadListTipoDocumento() {
+    public final void loadListTipoDocumento() {
         listTipoDocumento.clear();
 
         // REFERENTE A TABELA pes_tipo_documento E OBJETO TipoDocumento
@@ -316,12 +318,7 @@ public class ConviteMovimentoBean implements Serializable {
                 return false;
             }
         }
-//        SociosDB sdb = new SociosDao();
-//        if (sdb.socioDebito(conviteMovimento.getPessoa().getId())) {
-//            message = "Sócio possui débitos!";
-//            return false;
-//        }
-
+        
         if (conviteMovimento.getPessoa().getDocumento().isEmpty() || conviteMovimento.getPessoa().getDocumento().equals("0")) {
             //message = "Sócio sem CPF para pesquisar Oposição!";
             GenericaMensagem.warn("ATENÇÃO", "SÓCIO SEM CPF PARA PESQUISAR OPOSIÇÃO!");
@@ -341,6 +338,16 @@ public class ConviteMovimentoBean implements Serializable {
             if (temOposicao) {
                 //message = "Sócio cadastrado em Oposição!";
                 GenericaMensagem.fatal("ATENÇÃO", "SÓCIO CADASTRADO EM OPOSIÇÃO!");
+            }
+        }
+
+        SuspencaoDao s_dao = new SuspencaoDao();
+        Suspencao susp = s_dao.pesquisaSuspensao(conviteMovimento.getPessoa());
+        if (conviteMovimento.isCortesia()) {
+            if (susp != null) {
+                GenericaMensagem.fatal("ATENÇÃO", "SÓCIO COM SUSPENSÃO CADASTRADA!");
+                GenericaMensagem.warn("MOTIVO", susp.getMotivo());
+                return false;
             }
         }
         // FIM VALIDAÇÃO SÓCIO -----------
@@ -372,6 +379,13 @@ public class ConviteMovimentoBean implements Serializable {
                     return false;
                 }
             }
+
+            ConviteSuspencao c_susp = new ConviteSuspencao();
+            c_susp.setSisPessoa(conviteMovimento.getSisPessoa());
+            if (cdb.existeSisPessoaSuspensa(c_susp)) {
+                GenericaMensagem.warn("ATENÇÃO", "CONVIDADO POSSUI CADASTRO SUSPENSO!");
+                return false;
+            }
         } else if (Moeda.converteUS$(valorString) <= 0 && conviteMovimento.getDesconto() != 0) {
             GenericaMensagem.warn("ATENÇÃO", "INFORMAR O VALOR DO SERVIÇO, FAIXA ETÁRIA NÃO POSSUI VALOR DO SERVIÇO!");
             return false;
@@ -393,26 +407,12 @@ public class ConviteMovimentoBean implements Serializable {
                 if (new FunctionsDao().inadimplente(f_convidado.get(0).getPessoa().getId())) {
                     // E VALOR FOR <= 0, BLOQUEAR COM MENSAGEM
                     if (Moeda.converteUS$(valorString) <= 0) {
-                        //message = "CONVIDADO POSSUI DÉBITOS!";
                         GenericaMensagem.warn("ATENÇÃO", "CONVIDADO POSSUI DÉBITOS!");
                         return false;
                     }
                 }
             }
         }
-
-        ConviteSuspencao cs = new ConviteSuspencao();
-        cs.setSisPessoa(conviteMovimento.getSisPessoa());
-        if (cdb.existeSisPessoaSuspensa(cs)) {
-            //message = "Convidado possui cadastro suspenso!";
-            GenericaMensagem.warn("ATENÇÃO", "CONVIDADO POSSUI CADASTRO SUSPENSO!");
-            return false;
-        }
-
-//        if (sdb.socioDebito(socio_convidado.getServicoPessoa().getPessoa().getId())) {
-//            message = "CONVIDADO POSSUI DÉBITOS!";
-//            return false;
-//        }
         return true;
     }
 

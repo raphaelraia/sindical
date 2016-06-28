@@ -58,7 +58,7 @@ public class SuspencaoBean {
             return;
         }
         SuspencaoDao suspencaoDB = new SuspencaoDao();
-        if (suspencaoDB.existeSuspensaoSocio(suspencao)) {
+        if (suspencaoDB.existeSuspensaoSocio(suspencao.getPessoa())) {
             message = "Sócio já encontra-se suspenso!";
             return;
         }

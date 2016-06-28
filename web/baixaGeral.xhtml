@@ -226,23 +226,25 @@
                                 </h:panelGrid>
                             </p:dialog>
 
-                            <p:dialog widgetVar="i_dlg_cheque" header="Dados do Cheque" resizable="false" width="400" modal="true">
+                            <p:dialog widgetVar="i_dlg_cheque" header="Dados do Cheque" resizable="false" width="620" modal="true">
                                 <h:panelGrid id="i_cheque" style="width: 100%">
                                     <h:column rendered="#{baixaGeralBean.es != 'S'}">
                                         <h:panelGrid columns="4">
                                             <p:column>
+                                                <h:outputText value="Banco" /><br />
+                                                <p:selectOneMenu style="width: 370px" value="#{baixaGeralBean.indexListaTodosBancos}">
+                                                    <f:selectItems value="#{baixaGeralBean.listaTodosBancos}"/>
+                                                </p:selectOneMenu>
+                                            </p:column>
+                                            
+                                            <p:column>
                                                 <h:outputText value="Agência" /><br />
                                                 <p:inputText value="#{baixaGeralBean.chequeRec.agencia}" size="4"/>
                                             </p:column>
-
+                                            
                                             <p:column>
                                                 <h:outputText value="Conta" /><br />
                                                 <p:inputText value="#{baixaGeralBean.chequeRec.conta}" size="8" />
-                                            </p:column>
-
-                                            <p:column>
-                                                <h:outputText value="Banco" /><br />
-                                                <p:inputText value="#{baixaGeralBean.chequeRec.banco}" size="10" />
                                             </p:column>
                                         </h:panelGrid>
                                     </h:column>

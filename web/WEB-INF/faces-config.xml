@@ -2186,6 +2186,12 @@
             <redirect/>
         </navigation-case>
         
+        <navigation-case>
+            <from-outcome>relatorioContabil</from-outcome>
+            <to-view-id>/relatorioContabil.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
     </navigation-rule>
     
     <lifecycle>

@@ -1590,14 +1590,14 @@ public class ImprimirBoleto {
                     new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/DEMOSTRATIVO_ACORDO.jasper"))
             );
             JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(vetor1);
-            ljasper.add(JasperFillManager.fillReport(jasper, null, dtSource));
+            ljasper.add(Jasper.fillObject(jasper, null, dtSource));
 
             //* JASPER 2 *//
             jasper = (JasperReport) JRLoader.loadObject(
                     new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/PLANILHA_DE_DEBITO.jasper"))
             );
             dtSource = new JRBeanCollectionDataSource(vetor2);
-            ljasper.add(JasperFillManager.fillReport(jasper, null, dtSource));
+            ljasper.add(Jasper.fillObject(jasper, null, dtSource));
 
             Jasper.EXPORT_TYPE = "pdf";
             Jasper.PART_NAME = "";

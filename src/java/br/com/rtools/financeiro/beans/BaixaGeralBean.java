@@ -4,6 +4,7 @@ import br.com.rtools.academia.beans.MatriculaAcademiaBean;
 import br.com.rtools.arrecadacao.beans.BaixaBoletoBean;
 import br.com.rtools.associativo.beans.EmissaoGuiasBean;
 import br.com.rtools.associativo.beans.MovimentosReceberSocialBean;
+import br.com.rtools.financeiro.Banco;
 import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.Caixa;
 import br.com.rtools.financeiro.Cartao;
@@ -67,6 +68,7 @@ public class BaixaGeralBean implements Serializable {
     private List<SelectItem> listaBancoSaida = new ArrayList();
     private List<SelectItem> listaConta = new ArrayList();
     private List<SelectItem> listaTipoPagamento = new ArrayList();
+
     private Integer idConta = 0;
     private int idTipoPagamento = 0;
     private int idCartao = 0;
@@ -96,6 +98,9 @@ public class BaixaGeralBean implements Serializable {
     private Caixa caixa = new Caixa();
     private String obs;
 
+    private Integer indexListaTodosBancos = 0;
+    private List<SelectItem> listaTodosBancos = new ArrayList();
+
     @PostConstruct
     public void init() {
         cfb.init();
@@ -107,6 +112,23 @@ public class BaixaGeralBean implements Serializable {
         obs = "";
 
         retornaCaixa();
+        loadListaTodosBancos();
+    }
+
+    public final void loadListaTodosBancos() {
+        listaTodosBancos.clear();
+
+        List<Banco> result = new FinanceiroDao().listaDeBancos();
+        listaTodosBancos.add(new SelectItem(0, "-- SELECIONE UM BANCO --", "0"));
+        for (int i = 0; i < result.size(); i++) {
+            Banco b = result.get(i);
+            listaTodosBancos.add(
+                    new SelectItem(
+                            i + 1,
+                            b.getNumero() + " - " + b.getBanco(), "" + b.getId()
+                    )
+            );
+        }
     }
 
     public void verificaValorDigitado() {
@@ -294,12 +316,6 @@ public class BaixaGeralBean implements Serializable {
                 ch_p.setPlano5(pl);
                 ch_p.setVencimento(vencimento);
 
-//                if (tipo.equals("caixa")) {
-//                    ch_p.setStatus((FStatus) (new Dao()).find(new FStatus(), 7));
-//                } else {
-                // ch_p.setStatus((FStatus) (new Dao()).find(new FStatus(), 8));
-//                }
-
                 listaValores.add(new ListValoresBaixaGeral(vencimento, valor, numeroChequePag, tipoPagamento, ch_p, null, pl, null, null, null, Moeda.converteR$Float(valorDigitado), (FStatus) (new Dao()).find(new FStatus(), 8)));
             } else {
                 if (numero.isEmpty()) {
@@ -307,23 +323,17 @@ public class BaixaGeralBean implements Serializable {
                     return;
                 }
 
-                if (chequeRec.getAgencia().isEmpty() || chequeRec.getBanco().isEmpty() || chequeRec.getConta().isEmpty()) {
+                if (Integer.valueOf(listaTodosBancos.get(indexListaTodosBancos).getDescription()).equals(0) || chequeRec.getAgencia().isEmpty() || chequeRec.getConta().isEmpty()) {
                     GenericaMensagem.warn("Atenção", "Agência, Conta e Banco não podem estar vazios!");
                     return;
                 }
 
                 ChequeRec ch = new ChequeRec();
                 ch.setAgencia(chequeRec.getAgencia());
-                ch.setBanco(chequeRec.getBanco());
+                ch.setBanco((Banco) new Dao().find(new Banco(), Integer.valueOf(listaTodosBancos.get(indexListaTodosBancos).getDescription())));
                 ch.setCheque(numero);
                 ch.setConta(chequeRec.getConta());
                 ch.setEmissao(quitacao);
-
-//                if (tipo.equals("caixa")) {
-                //ch.setStatus((FStatus) (new Dao()).find(new FStatus(), 7));
-//                } else {
-//                    ch.setStatus((FStatus) (new Dao()).find(new FStatus(), 8));
-//                }
 
                 ch.setVencimento(vencimento);
                 if (plano5.getId() == -1) {
@@ -513,7 +523,7 @@ public class BaixaGeralBean implements Serializable {
                 // CARTAO    
                 Cartao cartao = listaValores.get(i).getCartao();
                 DataHoje dh = new DataHoje();
-                
+
                 if (!getEs().isEmpty() && getEs().equals("S")) {
                     lfp.add(new FormaPagamento(-1, null, null, null, 0, valor_baixa, filial, cartao.getPlano5(), listaValores.get(i).getCartaoPag(), null, listaValores.get(i).getTipoPagamento(), 0, dh.converte(dh.incrementarDias(cartao.getDias(), quitacao)), Moeda.divisaoValores(Moeda.multiplicarValores(valor_baixa, cartao.getTaxa()), 100), listaValores.get(i).getStatus(), 0));
                 } else {
@@ -1112,5 +1122,21 @@ public class BaixaGeralBean implements Serializable {
 
     public void setObs(String obs) {
         this.obs = obs;
+    }
+
+    public List<SelectItem> getListaTodosBancos() {
+        return listaTodosBancos;
+    }
+
+    public void setListaTodosBancos(List<SelectItem> listaTodosBancos) {
+        this.listaTodosBancos = listaTodosBancos;
+    }
+
+    public Integer getIndexListaTodosBancos() {
+        return indexListaTodosBancos;
+    }
+
+    public void setIndexListaTodosBancos(Integer indexListaTodosBancos) {
+        this.indexListaTodosBancos = indexListaTodosBancos;
     }
 }

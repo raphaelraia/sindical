@@ -97,7 +97,7 @@ public class CartaoEscolaBean implements Serializable {
                         List l = new ArrayList();
                         l.add(listCartaoEscola.get(i));
                         JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(l);
-                        listJasperExport.add(JasperFillManager.fillReport(jr, null, dtSource));
+                        listJasperExport.add(Jasper.fillObject(jr, null, dtSource));
                     }
                 }
             }

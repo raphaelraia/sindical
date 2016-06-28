@@ -7,6 +7,7 @@ package br.com.rtools.financeiro.dao;
 
 import br.com.rtools.associativo.LoteBoleto;
 import br.com.rtools.financeiro.Baixa;
+import br.com.rtools.financeiro.Banco;
 import br.com.rtools.financeiro.BloqueiaServicoPessoa;
 import br.com.rtools.financeiro.Caixa;
 import br.com.rtools.financeiro.ContaSaldo;
@@ -455,7 +456,7 @@ public class FinanceiroDao extends DB {
             Query qry = getEntityManager().createNativeQuery(
                     "SELECT c.id, \n"
                     + "     f.id_baixa AS id_baixa, \n"
-                    + "     ds_banco, \n"
+                    + "     banc.nr_num_banco, \n"
                     + "     ds_agencia, \n "
                     + "     ds_conta, \n "
                     + "     ds_cheque, \n "
@@ -465,6 +466,7 @@ public class FinanceiroDao extends DB {
                     + "     f.id \n "
                     + "  FROM fin_cheque_rec AS c \n "
                     + " INNER JOIN fin_forma_pagamento AS f ON f.id_cheque_rec = c.id AND f.id_status = " + id_status + " \n "
+                    + " INNER JOIN fin_banco AS banc ON banc.id = c.id_banco \n "
                     + " WHERE dt_vencimento <= CURRENT_DATE "
             );
             return qry.getResultList();
@@ -1350,6 +1352,22 @@ public class FinanceiroDao extends DB {
                     + " ORDER BY p.conta5";
 
             Query qry = getEntityManager().createNativeQuery(text);
+            return qry.getResultList();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return new ArrayList();
+    }
+
+    public List<Banco> listaDeBancos() {
+        Query qry = getEntityManager().createNativeQuery(
+                "SELECT b.* \n"
+                + "  FROM fin_banco b \n"
+                + " WHERE b.id > 0 \n"
+                + " ORDER BY b.nr_num_banco", Banco.class
+        );
+
+        try {
             return qry.getResultList();
         } catch (Exception e) {
             e.getMessage();

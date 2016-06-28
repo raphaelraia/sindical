@@ -260,7 +260,7 @@ public class ImpressaoParaSocios {
 //                } else {
 //                    Jasper.printReports(modelo.getJasper().trim(), "cartao_social", list, map);
 //                }
-                ljasper.add(JasperFillManager.fillReport(jasper, map, dtSource));
+                ljasper.add(Jasper.fillObject(jasper, map, dtSource));
             }
 
 //          EM PRODUÇÃO COMPACTA CARTÕES EM GRANDES QUANTIDADES E PARTICIONA - BRUNO

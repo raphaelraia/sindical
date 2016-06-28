@@ -19,19 +19,20 @@ import java.util.Vector;
 import javax.annotation.PostConstruct;
 
 public class ImprimirFechamentoCaixa {
+
     private final ConfiguracaoFinanceiroBean cfb = new ConfiguracaoFinanceiroBean();
-    
+
     @PostConstruct
-    public void init(){
+    public void init() {
         cfb.init();
     }
-    
-    public void imprimir(Integer id_fechamento, Integer id_caixa){
+
+    public void imprimir(Integer id_fechamento, Integer id_caixa) {
         cfb.init();
         FechamentoCaixa fc = (FechamentoCaixa) (new Dao().find(new FechamentoCaixa(), id_fechamento));
 
         Caixa caixa = (Caixa) (new Dao().find(new Caixa(), id_caixa));
-        
+
         FinanceiroDao db = new FinanceiroDao();
         List<FormaPagamento> lista_fp_entrada = db.listaTransferenciaFormaPagamento(fc.getId(), caixa.getId(), "E");
         List<FormaPagamento> lista_fp_saida = db.listaTransferenciaFormaPagamento(fc.getId(), caixa.getId(), "S");
@@ -41,10 +42,6 @@ public class ImprimirFechamentoCaixa {
         Collection lista = new ArrayList();
         List<DataObject> lista_cheque = new ArrayList();
 
-//        List<TransferenciaCaixa> lista_tc = db.listaTransferenciaDinheiro(fc.getId(), caixa.getId());
-//        for (int i = 0; i < lista_tc.size(); i++){
-//            dinheiro_transferencia = Moeda.somaValores(dinheiro_transferencia, lista_tc.get(i).getValor());
-//        }
         List<TransferenciaCaixa> lEntrada = db.listaTransferenciaDinheiroEntrada(fc.getId(), caixa.getId());
         List<TransferenciaCaixa> lSaida = db.listaTransferenciaDinheiroSaida(fc.getId(), caixa.getId());
         for (int i = 0; i < lEntrada.size(); i++) {
@@ -55,7 +52,6 @@ public class ImprimirFechamentoCaixa {
             transferencia_saida = Moeda.somaValores(transferencia_saida, lSaida.get(i).getValor());
         }
 
-        
         for (int i = 0; i < lista_fp_entrada.size(); i++) {
             switch (lista_fp_entrada.get(i).getTipoPagamento().getId()) {
                 case 2:
@@ -113,7 +109,7 @@ public class ImprimirFechamentoCaixa {
                     break;
             }
         }
-        
+
         String status = "VALOR BATIDO";
         float soma = 0;
         if (fc.getValorFechamento() > fc.getValorInformado()) {
@@ -162,7 +158,7 @@ public class ImprimirFechamentoCaixa {
                         Moeda.converteR$Float(transferencia_saida),
                         Moeda.converteR$Float(dinheiro_pagamento),
                         status,
-                        cr.getAgencia() + " - " + cr.getConta() + " " + cr.getBanco(),
+                        cr.getAgencia() + " - " + cr.getConta() + " " + cr.getBanco().getNumero(),
                         cr.getCheque() + " - " + cr.getVencimento() + " | R$ " + lista_cheque.get(i).getArgumento1(),
                         caixa.getDescricao(),
                         cfb.getConfiguracaoFinanceiro().isAlterarValorFechamento(),
@@ -214,24 +210,6 @@ public class ImprimirFechamentoCaixa {
             Jasper.PATH = "downloads";
             Jasper.PART_NAME = "";
             Jasper.printReports("/Relatorios/FECHAMENTO_CAIXA.jasper", "fechamento_caixa", lista);
-//            
-//            File file_jasper = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/FECHAMENTO_CAIXA.jasper"));
-//            JasperReport jasperReport = (JasperReport) JRLoader.loadObject(file_jasper);
-//
-//            JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(lista);
-//            JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, null, dtSource);
-//            byte[] arquivo = JasperExportManager.exportReportToPdf(jasperPrint);
-//            
-//            HttpServletResponse res = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
-//            res.setContentType("application/pdf");
-//            res.setHeader("Content-disposition", "inline; filename=\"Relatório Fechamento Caixa.pdf\"");
-//            res.getOutputStream().write(arquivo);
-//            res.getCharacterEncoding();
-//            FacesContext.getCurrentInstance().responseComplete();
-
-//            JasperViewer jrviewer = new JasperViewer(jasperPrint, false);
-//            jrviewer.setTitle("Relatório Fechamento Caixa");
-//            jrviewer.setVisible(true);
         } catch (Exception e) {
             e.getMessage();
         }

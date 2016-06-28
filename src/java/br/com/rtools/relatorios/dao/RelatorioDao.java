@@ -6,7 +6,6 @@ import br.com.rtools.relatorios.RelatorioJoin;
 import br.com.rtools.relatorios.RelatorioParametros;
 import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.seguranca.Rotina;
-import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;

@@ -60,8 +60,9 @@ public class FechamentoDiarioBean implements Serializable {
             return;
         }
         
-        if (DataHoje.converteData(dataFechamento).equals(DataHoje.data())) {
-            if (!cab.verificaPermissao("fechar_dia_hoje", 1)){
+        if (dataFechamento.equals(DataHoje.data())) {
+            // SE true NÃO TEM PERMISSÃO
+            if (cab.verificaPermissao("fechar_dia_hoje", 1)){
                 GenericaMensagem.fatal("Atenção", "Você não tem permissão para este Fechamento Diário!");
                 return;
             }

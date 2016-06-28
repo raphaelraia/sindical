@@ -9,6 +9,7 @@ import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.management.ManagementFactory;
@@ -28,9 +29,11 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.servlet.ServletContext;
+import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JRExporterParameter;
 import net.sf.jasperreports.engine.JRGroup;
+import net.sf.jasperreports.engine.JRPropertiesMap;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
@@ -236,11 +239,11 @@ public class Jasper implements Serializable {
      * @param fileName
      * @param jasperListExport
      */
-    public static void printReports(String fileName, List jasperListExport) {
+    public static void printReports(String fileName, List<FillObject> jasperListExport) {
         printReports("", fileName, new ArrayList(), null, jasperListExport);
     }
 
-    public static void printReports(String jasperName, String fileName, Collection listCollections, Map parameters, List jasperListExport) throws SecurityException, IllegalArgumentException {
+    public static void printReports(String jasperName, String fileName, Collection listCollections, Map parameters, List<FillObject> jasperListExport) throws SecurityException, IllegalArgumentException {
         Jasper.LIST_FILE_GENERATED = new ArrayList();
         Dao dao = new Dao();
 
@@ -253,9 +256,11 @@ public class Jasper implements Serializable {
                 return;
             }
             jasperName = jasperName.trim();
-        } else if (fileName.isEmpty() && !IS_QUERY_STRING) {
-            GenericaMensagem.info("Sistema", "Erro ao criar relatório!");
-            return;
+        } else {
+            if (fileName.isEmpty() && !IS_QUERY_STRING) {
+                GenericaMensagem.info("Sistema", "Erro ao criar relatório!");
+                return;
+            }
         }
         fileName = fileName.trim();
         fileName = fileName.replace(" ", "_");
@@ -296,14 +301,14 @@ public class Jasper implements Serializable {
                 juridica = cab.getConfiguracaoArrecadacao().getFilial().getFilial();
                 documentox = juridica.getPessoa().getDocumento();// ? sindicato.getPessoa().getDocumento() : ;
             }
-            
+
             if (juridica.getPessoa().getDocumento().isEmpty() || juridica.getPessoa().getDocumento().equals("0")) {
                 Juridica sindicato = (Juridica) new Dao().find(new Juridica(), 1);
                 documentox = sindicato.getPessoa().getDocumento();
             }
 
             FILIAL = null;
-            
+
             switch (TYPE) {
                 case "retrato":
                     subreport = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/CABECALHO_RETRATO.jasper");
@@ -555,7 +560,11 @@ public class Jasper implements Serializable {
                             listJasper.add(print);
                         }
                     } else {
-                        listJasper = jasperListExport;
+                        for (FillObject fo : jasperListExport) {
+                            fo.getParameters().putAll(parameters);
+                            print = JasperFillManager.fillReport(fo.getJasperReport(), fo.getParameters(), fo.getDataSource());
+                            listJasper.add(print);
+                        }
                     }
 
                     if (EXPORT_TO && !EXPORT_TYPE.equals("pdf") && !EXPORT_TYPE.isEmpty()) {
@@ -851,6 +860,49 @@ public class Jasper implements Serializable {
             list.add(new SelectItem("json", "JSON", "json", true));
         }
         return list;
+    }
+
+    public static FillObject fillObject(JasperReport jasperReport, Map<String, Object> parameters, JRDataSource dataSource) {
+        return new FillObject(jasperReport, parameters, dataSource);
+    }
+
+    public static class FillObject {
+
+        private JasperReport jasperReport;
+        private Map<String, Object> parameters;
+        private JRDataSource dataSource;
+
+        public FillObject(JasperReport jasperReport, Map<String, Object> parameters, JRDataSource dataSource) {
+            this.jasperReport = jasperReport;
+            this.parameters = parameters;
+            this.dataSource = dataSource;
+        }
+
+        public JasperReport getJasperReport() {
+            return jasperReport;
+        }
+
+        public void setJasperReport(JasperReport jasperReport) {
+            this.jasperReport = jasperReport;
+        }
+
+        public Map<String, Object> getParameters() {
+            return parameters;
+        }
+
+        public void setParameters(Map<String, Object> parameters) {
+            this.parameters = parameters;
+        }
+
+        public JRDataSource getDataSource() {
+            return dataSource;
+        }
+
+        public void setDataSource(JRDataSource dataSource) {
+            this.dataSource = dataSource;
+        }
+
+
     }
 
     // USAR - ADICIONAR AO JASPER NO XML

@@ -95,7 +95,10 @@
 
                                 <p:submenu label="Relatórios" icon="ui-icon-document" style="margin-right: 15px">
                                     <p:menuitem value="Movimento Diário"        action="#{chamadaPaginaBean.pagina('relatorioMovimentoDiario')}"/>
-                                    <p:menuitem value="Balancete"               action="#{chamadaPaginaBean.pagina('relatorioBalancete')}"/>
+                                    <p:submenu label="Contábil">
+                                        <p:menuitem value="Balancete"           action="#{chamadaPaginaBean.pagina('relatorioBalancete')}"/>
+                                        <p:menuitem value="Diário"              action="#{chamadaPaginaBean.pagina('relatorioContabil')}"/>
+                                    </p:submenu>
                                     <p:menuitem value="Cheques Recebidos"       action="#{chamadaPaginaBean.relatorioChequesRecebidos()}"/>
                                     <p:menuitem value="Fechamento Guias"        action="#{chamadaPaginaBean.pagina('relatorioFechamentoGuias')}"/>
                                     <p:menuitem value="Estornos"                action="#{chamadaPaginaBean.pagina('relatorioEstorno')}"/>

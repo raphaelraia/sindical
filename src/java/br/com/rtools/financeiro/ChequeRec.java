@@ -13,10 +13,11 @@ public class ChequeRec implements java.io.Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
+    @JoinColumn(name = "id_banco", referencedColumnName = "id")
+    @ManyToOne
+    private Banco banco;
     @Column(name = "ds_emitente", length = 100)
     private String emitente;
-    @Column(name = "ds_banco", length = 10)
-    private String banco;
     @Column(name = "ds_agencia", length = 50)
     private String agencia;
     @Column(name = "ds_conta", length = 50)
@@ -36,24 +37,24 @@ public class ChequeRec implements java.io.Serializable {
     public ChequeRec() {
         this.id = -1;
         this.emitente = "";
-        this.banco = "";
+        this.banco = new Banco();
         this.agencia = "";
         this.conta = "";
         this.cheque = "";
-        this.setEmissao(null);
-        this.setVencimento(null);
+        this.dtEmissao = null;
+        this.dtVencimento = null;
         this.dtLiquidacao = DataHoje.dataHoje();
     }
 
-    public ChequeRec(int id, String emitente, String banco, String agencia, String conta, String cheque, String emissao, String vencimento, Date dtLiquidacao) {
+    public ChequeRec(int id, String emitente, Banco banco, String agencia, String conta, String cheque, Date dtEmissao, Date dtVencimento, Date dtLiquidacao) {
         this.id = id;
         this.emitente = emitente;
         this.banco = banco;
         this.agencia = agencia;
         this.conta = conta;
         this.cheque = cheque;
-        this.setEmissao(emitente);
-        this.setVencimento(vencimento);
+        this.dtEmissao = dtEmissao;
+        this.dtVencimento = dtVencimento;
         this.dtLiquidacao = dtLiquidacao;
     }
 
@@ -73,11 +74,11 @@ public class ChequeRec implements java.io.Serializable {
         this.emitente = emitente;
     }
 
-    public String getBanco() {
+    public Banco getBanco() {
         return banco;
     }
 
-    public void setBanco(String banco) {
+    public void setBanco(Banco banco) {
         this.banco = banco;
     }
 

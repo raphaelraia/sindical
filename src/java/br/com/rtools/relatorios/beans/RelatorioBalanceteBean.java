@@ -14,6 +14,8 @@ import br.com.rtools.utilitarios.Filters;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Jasper;
+import br.com.rtools.utilitarios.Moeda;
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,7 +27,12 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
+import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import javax.servlet.ServletContext;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.util.JRLoader;
 
 @ManagedBean
 @SessionScoped
@@ -79,28 +86,37 @@ public class RelatorioBalanceteBean implements Serializable {
         SisProcesso sisProcesso = new SisProcesso();
         sisProcesso.start();
         Relatorios r = getRelatorios();
+
         if (r == null) {
             return;
         }
+
         List listDetalhePesquisa = new ArrayList();
-        List<ObjectJasper> oj = new ArrayList<>();
+        List<ObjectJasper> oj = new ArrayList();
         sisProcesso.startQuery();
-        RelatorioBalanceteDao rbd = new RelatorioBalanceteDao();
+
+        RelatorioBalanceteDao rbd;
+
         if (idRelatorioOrdem != null) {
             RelatorioOrdem ro = (RelatorioOrdem) new Dao().find(new RelatorioOrdem(), idRelatorioOrdem);
-            rbd.setRelatorioOrdem(ro);
+            rbd = new RelatorioBalanceteDao(r.getId(), ro);
+        } else {
+            rbd = new RelatorioBalanceteDao(r.getId(), null);
         }
-        rbd.setRelatorios(r);
+
         List list = rbd.find("faixa", dataInicial, dataFinal);
+
         sisProcesso.finishQuery();
         for (int i = 0; i < list.size(); i++) {
             List o = (List) list.get(i);
             oj.add(new ObjectJasper(o.get(0), o.get(1), o.get(2), o.get(3), o.get(4), o.get(5), o.get(6), o.get(7), o.get(8), o.get(9), o.get(10), o.get(11), o.get(12), o.get(13)));
         }
+
         if (list.isEmpty()) {
             GenericaMensagem.warn("Mensagem", "Nenhum registro encontrado!");
             return;
         }
+
         String detalheRelatorio = "";
         listDetalhePesquisa.add("Período: " + dataInicial + " até " + dataFinal);
         if (listDetalhePesquisa.isEmpty()) {
@@ -115,13 +131,56 @@ public class RelatorioBalanceteBean implements Serializable {
                 }
             }
         }
+
         Jasper.EXPORT_TO = true;
         Jasper.TITLE = r.getNome().toUpperCase();
         Jasper.TYPE = "contabil";
         Map map = new HashMap();
         map.put("detalhes_relatorio", detalheRelatorio);
         map.put("operador", Usuario.getUsuario().getPessoa().getNome());
-        Jasper.printReports(r.getJasper(), r.getNome(), (Collection) oj, map);
+
+        if (2 == 3) {
+            // IMPRIMIR SEM O RESUMO BALANCETE
+            Jasper.printReports(r.getJasper(), r.getNome(), (Collection) oj, map);
+        } else {
+            // IMPRIMIR COM O RESUMO BALANCETE
+            List ljasper = new ArrayList();
+            JasperReport jasper;
+            try {
+
+                // BALANCETE
+                File jasper_file = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(r.getJasper()));
+                jasper = (JasperReport) JRLoader.loadObject(jasper_file);
+                JRBeanCollectionDataSource dtSource = new JRBeanCollectionDataSource(oj);
+                //ljasper.add(JasperFillManager.fillReport(jasper, map, dtSource));
+                ljasper.add(Jasper.fillObject(jasper, map, dtSource));
+
+                // RESUMO
+                List list_resumo = new RelatorioBalanceteDao().find("faixa", dataInicial, dataFinal);
+                List<ObjectJasper> oj_resumo = new ArrayList();
+                Float valor_diferenca = (float) 0;
+                for (int i = 0; i < list_resumo.size(); i++) {
+                    List o = (List) list_resumo.get(i);
+                    oj_resumo.add(new ObjectJasper(o.get(0), o.get(1), o.get(2), o.get(3), o.get(4), o.get(5), o.get(6)));
+                    
+                    valor_diferenca = o.get(6).toString().equals("D") ? Moeda.subtracaoValores(valor_diferenca, ((Double) o.get(5)).floatValue()) : Moeda.somaValores(valor_diferenca, ((Double) o.get(5)).floatValue());
+                }
+                Map map_resumo = new HashMap();
+                map_resumo.put("valor_diferenca", valor_diferenca);
+                
+                jasper_file = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/RESUMO_BALANCETE.jasper"));
+                jasper = (JasperReport) JRLoader.loadObject(jasper_file);
+                dtSource = new JRBeanCollectionDataSource(oj_resumo);
+                //ljasper.add(JasperFillManager.fillReport(jasper, map, dtSource));
+                ljasper.add(Jasper.fillObject(jasper, map_resumo, dtSource));
+
+                Jasper.printReports(r.getNome(), ljasper);
+            } catch (Exception e) {
+                e.getMessage();
+            }
+        }
+        // -----------
+
         sisProcesso.setProcesso(r.getNome());
         sisProcesso.finish();
     }
@@ -277,8 +336,7 @@ public class RelatorioBalanceteBean implements Serializable {
     public Relatorios getRelatorios() {
         Relatorios r = null;
         if (!listRelatorio.isEmpty()) {
-            RelatorioDao rgdb = new RelatorioDao();
-            r = rgdb.pesquisaRelatorios(idRelatorio);
+            r = new RelatorioDao().pesquisaRelatorios(idRelatorio);
         }
         return r;
     }
@@ -367,6 +425,7 @@ public class RelatorioBalanceteBean implements Serializable {
         private Object debito;
         private Object credito;
         private Object saldo_atual;
+        private Object debito_credito;
 
         public ObjectJasper() {
             this.codigo1 = null;
@@ -383,6 +442,7 @@ public class RelatorioBalanceteBean implements Serializable {
             this.debito = null;
             this.credito = null;
             this.saldo_atual = null;
+            this.debito_credito = null;
         }
 
         public ObjectJasper(Object codigo1, Object conta1, Object codigo2, Object conta2, Object codigo3, Object conta3, Object codigo4, Object conta4, Object codigo5, Object conta5, Object saldo_anterior, Object debito, Object credito, Object saldo_atual) {
@@ -401,6 +461,16 @@ public class RelatorioBalanceteBean implements Serializable {
             this.debito = debito;
             this.credito = credito;
             this.saldo_atual = saldo_atual;
+        }
+
+        public ObjectJasper(Object codigo1, Object conta1, Object saldo_anterior, Object debito, Object credito, Object saldo_atual, Object debito_credito) {
+            this.codigo1 = codigo1;
+            this.conta1 = conta1;
+            this.saldo_anterior = saldo_anterior;
+            this.debito = debito;
+            this.credito = credito;
+            this.saldo_atual = saldo_atual;
+            this.debito_credito = debito_credito;
         }
 
         public Object getCodigo1() {
@@ -515,6 +585,13 @@ public class RelatorioBalanceteBean implements Serializable {
             this.saldo_atual = saldo_atual;
         }
 
-    }
+        public Object getDebito_credito() {
+            return debito_credito;
+        }
 
+        public void setDebito_credito(Object debito_credito) {
+            this.debito_credito = debito_credito;
+        }
+
+    }
 }
