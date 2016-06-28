@@ -51,14 +51,17 @@
                                     <p:menuitem value="Movimentos a Receber"    action="#{chamadaPaginaBean.movimentosReceberSocial()}"/>
                                     <p:menuitem value="Matricula"               action="#{chamadaPaginaBean.pagina('matriculaEscola')}"/>
                                     <p:menuitem value="Financeiro"              action="#{chamadaPaginaBean.eFinanceiro}"/>
-                                    <p:menuitem value="Emissão de Guias"     action="#{chamadaPaginaBean.pagina('emissaoGuias')}" />
-                                    <p:menuitem value="Lançamento Individual" action="#{chamadaPaginaBean.lancamentoIndividual}" />
-                                    <p:menuitem value="Fechamento de Caixa"   action="#{chamadaPaginaBean.fechamentoCaixa()}"/>
+                                    <p:menuitem value="Emissão de Guias"        action="#{chamadaPaginaBean.pagina('emissaoGuias')}" />
+                                    <p:menuitem value="Lançamento Individual"   action="#{chamadaPaginaBean.lancamentoIndividual}" />
+                                    <p:menuitem value="Fechamento de Caixa"     action="#{chamadaPaginaBean.fechamentoCaixa()}"/>
                                     <p:menuitem value="Rescisão de Contrato"    action="#{chamadaPaginaBean.rescisaoMatricula}" actionListener="#{rescisaoContratoBean.defineTipoRescisaoContrato('matriculaEscola')}" />
-                                    <p:menuitem value="Geração Mensal"         action="#{chamadaPaginaBean.gerarBoleto()}" />
+                                    <p:menuitem value="Geração Mensal"          action="#{chamadaPaginaBean.gerarBoleto()}" />
+                                    <p:submenu label="Eventos">
+                                        <p:menuitem value="Baile"               action="#{chamadaPaginaBean.vendasBaile}" />
+                                    </p:submenu>                                    
                                     <p:submenu label="Liberar Catraca">
-                                        <p:menuitem value="Liberar"            action="#{chamadaPaginaBean.pagina('liberarCatraca')}"/>
-                                        <p:menuitem value="Consultar"          action="#{chamadaPaginaBean.pagina('consultarLiberacaoCatraca')}"/>
+                                        <p:menuitem value="Liberar"             action="#{chamadaPaginaBean.pagina('liberarCatraca')}"/>
+                                        <p:menuitem value="Consultar"           action="#{chamadaPaginaBean.pagina('consultarLiberacaoCatraca')}"/>
                                     </p:submenu>
                                 </p:submenu>
                                 <p:submenu label="Relatório" icon="ui-icon-document" style="margin-right: 15px">  

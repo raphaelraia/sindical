@@ -70,7 +70,7 @@
                                     <h:panelGrid columns="2">
                                         <h:column>
                                             <h:panelGrid columns="5">
-                                                <p:inputText size="15" maxlength="10" value="#{locacaoFilmeBean.codigoBarras}" styleClass="font-size-14 input-text-med bg-yellow-ligth text-center" onkeypress="return event.keyCode !== 13;" placeholder="Código" id="barcode">
+                                                <p:inputText size="15" maxlength="18" value="#{locacaoFilmeBean.codigoBarras}" styleClass="font-size-14 input-text-med bg-yellow-ligth text-center" onkeypress="return event.keyCode !== 13;" placeholder="Código" id="barcode">
                                                     <p:ajax event="change" update="@this i_panel_filme" listener="#{locacaoFilmeBean.listener(2)}" />
                                                 </p:inputText>
                                                 <h:column>
@@ -79,7 +79,15 @@
                                             </h:panelGrid>
                                         </h:column>
                                         <h:panelGrid columns="6">                                            
-                                            <p:outputLabel value="#{locacaoFilmeBean.titulo.descricao}" styleClass="bold" />
+                                            <h:column>
+                                                <p:outputLabel value="#{locacaoFilmeBean.titulo.descricao}" styleClass="bold" rendered="#{locacaoFilmeBean.titulo.id ne null}" />
+                                                <h:panelGroup id="i_auto_complete" layout="role">
+                                                    <p:autoComplete value="#{locacaoFilmeBean.tituloPesquisa}" completeMethod="#{locacaoFilmeBean.loadListTituloPesquisa}" size="100" scrollHeight="300" dropdown="true"                                                                     var="titulo" itemLabel="#{titulo.descricao}#{not empty titulo.autor ? ' - Autor: '.concat(titulo.autor) : ''}#{titulo.lancamento ? ' - (Lançamento)' : ''}" itemValue="#{titulo}" converter="objectConverter" forceSelection="true" queryDelay="1000" maxlength="100" minQueryLength="3" rendered="#{locacaoFilmeBean.titulo.id eq null}">
+                                                        <p:ajax event="itemSelect" listener="#{locacaoFilmeBean.selectTitulo}" update="i_panel_filme"/>
+                                                        <f:param value="aaaa" name="aaa" />
+                                                    </p:autoComplete>                                                    
+                                                </h:panelGroup>
+                                            </h:column>
                                             <p:outputLabel value="(Lançamento)" styleClass="bold font-color-red" rendered="#{locacaoFilmeBean.titulo.id ne null and locacaoFilmeBean.titulo.lancamento}"/>
                                             <p:commandButton type="button" icon="ui-icon-info" onclick="PF('dlg_detalhes_filme').show();"  title="Detalhes" update=":form_locacao_filmes:i_detalhes_filme :form_locacao_filmes:i_detalhes_filme_t" styleClass="margin-left" rendered="#{locacaoFilmeBean.titulo.id ne null}"/>
                                             <p:commandButton icon="ui-icon-close" action="#{locacaoFilmeBean.listener(5)}"  title="Limpar" update=":form_locacao_filmes:" styleClass="margin-left-max" rendered="#{locacaoFilmeBean.titulo.id ne null}"/>

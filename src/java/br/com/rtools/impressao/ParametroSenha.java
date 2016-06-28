@@ -2,70 +2,53 @@ package br.com.rtools.impressao;
 
 public class ParametroSenha {
 
-    private String sinLogo;
-    private String sindNome; //– String (nome da filial do MAC)
-    private String sindDocumento; //– String (CNPJ da Matriz)
-    private String empresaNome;
-    private String empresaDocumento;
+    private String empresa_nome;
+    private String empresa_documento;
     private String preposto;
     private String funcionario;
-    private String usuarioNome;
+    private String usuario_nome;
     private String data;
     private String hora;
     private String senha;
+    private String operacao;
 
-    public ParametroSenha(String sinLogo, String sindNome, String sindDocumento, String empresaNome, String empresaDocumento, String preposto, String funcionario, String usuarioNome, String data, String hora, String senha) {
-        this.sinLogo = sinLogo;
-        this.sindNome = sindNome;
-        this.sindDocumento = sindDocumento;
-        this.empresaNome = empresaNome;
-        this.empresaDocumento = empresaDocumento;
+    public ParametroSenha(String empresa_nome, String empresa_documento, String preposto, String funcionario, String usuario_nome, String data, String hora, String senha) {
+        this.empresa_nome = empresa_nome;
+        this.empresa_documento = empresa_documento;
         this.preposto = preposto;
         this.funcionario = funcionario;
-        this.usuarioNome = usuarioNome;
+        this.usuario_nome = usuario_nome;
         this.data = data;
         this.hora = hora;
         this.senha = senha;
+        this.operacao = "";
+    }
+    public ParametroSenha(String empresa_nome, String empresa_documento, String preposto, String funcionario, String usuario_nome, String data, String hora, String senha, String operacao) {
+        this.empresa_nome = empresa_nome;
+        this.empresa_documento = empresa_documento;
+        this.preposto = preposto;
+        this.funcionario = funcionario;
+        this.usuario_nome = usuario_nome;
+        this.data = data;
+        this.hora = hora;
+        this.senha = senha;
+        this.operacao = operacao;
     }
 
-    public String getSinLogo() {
-        return sinLogo;
+    public String getEmpresa_nome() {
+        return empresa_nome;
     }
 
-    public void setSinLogo(String sinLogo) {
-        this.sinLogo = sinLogo;
+    public void setEmpresa_nome(String empresa_nome) {
+        this.empresa_nome = empresa_nome;
     }
 
-    public String getSindNome() {
-        return sindNome;
+    public String getEmpresa_documento() {
+        return empresa_documento;
     }
 
-    public void setSindNome(String sindNome) {
-        this.sindNome = sindNome;
-    }
-
-    public String getSindDocumento() {
-        return sindDocumento;
-    }
-
-    public void setSindDocumento(String sindDocumento) {
-        this.sindDocumento = sindDocumento;
-    }
-
-    public String getEmpresaNome() {
-        return empresaNome;
-    }
-
-    public void setEmpresaNome(String empresaNome) {
-        this.empresaNome = empresaNome;
-    }
-
-    public String getEmpresaDocumento() {
-        return empresaDocumento;
-    }
-
-    public void setEmpresaDocumento(String empresaDocumento) {
-        this.empresaDocumento = empresaDocumento;
+    public void setEmpresa_documento(String empresa_documento) {
+        this.empresa_documento = empresa_documento;
     }
 
     public String getPreposto() {
@@ -84,12 +67,12 @@ public class ParametroSenha {
         this.funcionario = funcionario;
     }
 
-    public String getUsuarioNome() {
-        return usuarioNome;
+    public String getUsuario_nome() {
+        return usuario_nome;
     }
 
-    public void setUsuarioNome(String usuarioNome) {
-        this.usuarioNome = usuarioNome;
+    public void setUsuario_nome(String usuario_nome) {
+        this.usuario_nome = usuario_nome;
     }
 
     public String getData() {
@@ -115,4 +98,13 @@ public class ParametroSenha {
     public void setSenha(String senha) {
         this.senha = senha;
     }
+
+    public String getOperacao() {
+        return operacao;
+    }
+
+    public void setOperacao(String operacao) {
+        this.operacao = operacao;
+    }
+
 }

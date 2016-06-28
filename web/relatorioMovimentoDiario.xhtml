@@ -20,7 +20,8 @@
                     <h:outputText value="Relatório Movimento Diário" styleClass="fonteHeader" />
                     <div class="clear"></div>
                     <p:panel styleClass="fundoCinza">
-                        <h:panelGrid  cellpadding="4" columns="5" id="id_pg_relatorios">
+                        <h:panelGrid  cellpadding="5" columns="5" id="id_pg_relatorios">
+                            <p:commandButton value="Voltar" icon="ui-icon-arrowreturnthick-1-w" action="#{chamadaPaginaBean.back()}" rendered="#{relatorioMovimentoDiarioBean.disabledData}" title="Retornar ao fechamento diário"/>
                             <p:outputLabel value="Tipo de Relatório: " />
                             <p:selectOneMenu id="id_tipo_relatorio" value="#{relatorioMovimentoDiarioBean.idRelatorio}">
                                 <p:ajax event="change" update="@this id_panel form_relatorio:i_panel_avancado" global="false" listener="#{relatorioMovimentoDiarioBean.listener(1)}"/>
@@ -61,11 +62,11 @@
                                 <p:column>
                                     <p:panel header="Data" style="width: 100%!important" id="i_panel_v" rendered="#{relatorioMovimentoDiarioBean.listFilters[1].active}">
                                         <h:panelGrid columns="8" cellpadding="5 ">
-                                            <p:selectOneMenu value="#{relatorioMovimentoDiarioBean.data}" filter="true" filterMatchMode="startsWith">
+                                            <p:selectOneMenu value="#{relatorioMovimentoDiarioBean.data}" filter="true" filterMatchMode="startsWith" disabled="#{relatorioMovimentoDiarioBean.disabledData}">
                                                 <p:ajax event="change" update="@this" global="false" />
                                                 <f:selectItems value="#{relatorioMovimentoDiarioBean.listDatas}"/>
                                             </p:selectOneMenu>
-                                            <p:commandButton icon="ui-icon-refresh" action="#{relatorioMovimentoDiarioBean.listener(2)}" value="Data Inicial" title="Data inicial" update="form_relatorio"/>
+                                            <p:commandButton icon="ui-icon-refresh" action="#{relatorioMovimentoDiarioBean.listener(2)}" value="Data Inicial" title="Data inicial" update="form_relatorio" disabled="#{relatorioMovimentoDiarioBean.disabledData}"/>
                                             <p:commandButton icon="ui-icon-close" action="#{relatorioMovimentoDiarioBean.close(relatorioMovimentoDiarioBean.listFilters[1])}" title="Remover filtro" update="form_relatorio" disabled="true"/>
                                         </h:panelGrid>                                        
                                     </p:panel>

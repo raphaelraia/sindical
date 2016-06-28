@@ -33,15 +33,14 @@ public class SenhaHomologacao implements Serializable {
     }
 
     public void imprimir(Collection lista) {
+        Jasper jasper = new Jasper();
+        jasper.init();
+        Jasper.TITLE = "SENHA PARA HOMOLOGAÇÃO";
         Jasper.IS_DOWNLOAD = true;
-        String pathPasta = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/senhas");
-        Diretorio.criar("");
-        if (!new File(pathPasta).exists()) {
-            File file = new File(pathPasta);
-            file.mkdir();
-        }
         Jasper.PATH = "";
         Jasper.PART_NAME = "";
+        Jasper.EXPORT_TO = true;
+        Jasper.EXPORT_TYPE = "pdf";
         Jasper.printReports("/Relatorios/HOM_SENHA.jasper", "senhas", lista);
     }
 
@@ -80,16 +79,12 @@ public class SenhaHomologacao implements Serializable {
             if (!dao.save(senha)) {
                 return null;
             }
-        } else {
-            if (!dao.update(senha)) {
-                return null;
-            }
+        } else if (!dao.update(senha)) {
+            return null;
         }
         try {
             if (senha.getId() != -1) {
-                lista.add(new ParametroSenha(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/LogoCliente.png"),
-                        senha.getFilial().getFilial().getPessoa().getNome(),
-                        senha.getFilial().getFilial().getPessoa().getDocumento(),
+                lista.add(new ParametroSenha(
                         senha.getAgendamento().getPessoaEmpresa().getJuridica().getPessoa().getNome(),
                         senha.getAgendamento().getPessoaEmpresa().getJuridica().getPessoa().getDocumento(),
                         (senha.getAgendamento().getRecepcao() == null) ? "" : senha.getAgendamento().getRecepcao().getPreposto(),

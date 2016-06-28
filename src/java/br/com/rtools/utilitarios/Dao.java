@@ -498,7 +498,14 @@ public class Dao extends DB implements DaoInterface {
             object = getEntityManager().find(object.getClass(), id);
         } else {
             try {
-                object = getEntityManager().find(object.getClass(), objectId);
+                if(object.getClass().getSimpleName().equals("String")) {
+                    List list = find(object.toString(), new int[]{Integer.parseInt(objectId.toString())});
+                    if(!list.isEmpty()) {
+                        object = list.get(0);
+                    }
+                } else {
+                    object = getEntityManager().find(object.getClass(), objectId);                    
+                }
             } catch (Exception e) {
                 Logger.getLogger(Dao.class.getName()).log(Level.WARNING, e.getMessage());
                 EXCEPCION = e;

@@ -27,34 +27,97 @@
                 </f:subview>
                 <f:view>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
-                        <h:outputText value="Fechamento Comissão" styleClass="fonteHeader" />
-                        <h:form id="form_fechamento_acordo">
+                        <h:form id="form_relatorio">
                             <c:set scope="request" var="object" value="${fechamentoComissaoAcordoBean.acordo}"/>
                             <ui:include src="templates/templateStatus.xhtml"/>
                             <p:messages showDetail="true" showSummary="true" autoUpdate="true" />
-                            <p:panel styleClass="fundoCinza" style="clear: both">
-                                <f:facet name="header">
-                                    <p:outputLabel value="Selecione a data de fechamento"/>
-                                </f:facet>
-                                <p:selectOneMenu value="#{fechamentoComissaoAcordoBean.idDataFechamento}" style="width: 150px">
-                                    <f:selectItems value="#{fechamentoComissaoAcordoBean.listaData}" />
-                                </p:selectOneMenu>                          
-                                <f:facet name="footer">
-                                    <h:panelGrid columns="3">
-                                        <p:commandButton value="Processar" action="#{fechamentoComissaoAcordoBean.processar}" update=":form_fechamento_acordo:" oncomplete="PF('dlg_message').show()" disabled="#{controleAcessoBean.botaoSalvar}"/>
-                                        <h:commandLink action="#{fechamentoComissaoAcordoBean.visualizar}">
-                                            <p:button value="Visualizar" icon="ui-icon-print"/>
-                                        </h:commandLink>
-                                        <p:commandButton value="Estornar" action="#{fechamentoComissaoAcordoBean.estornar}" update=":form_fechamento_acordo:" oncomplete="PF('dlg_message').show()" disabled="#{controleAcessoBean.botaoExcluir}"/>
-                                    </h:panelGrid>
-                                </f:facet>
+                            <h:outputText value="Fechamento Comissão" styleClass="fonteHeader" />
+                            <div class="clear"></div>
+                            <p:panel styleClass="fundoCinza">
+                                <h:panelGrid  cellpadding="4" columns="5" id="id_pg_relatorios">
+                                    <p:outputLabel value="Tipo de Relatório: " />
+                                    <p:selectOneMenu id="id_tipo_relatorio" value="#{fechamentoComissaoAcordoBean.idRelatorio}">
+                                        <p:ajax event="change" update="@this id_pg_relatorios" global="false" listener="#{fechamentoComissaoAcordoBean.loadRelatorioOrdem}" />
+                                        <f:selectItems value="#{fechamentoComissaoAcordoBean.listRelatorios}"/>
+                                    </p:selectOneMenu>
+                                    <p:outputLabel value="Ordenação: " rendered="#{not empty fechamentoComissaoAcordoBean.listRelatorioOrdem}" styleClass="margin-left-max"/>
+                                    <p:selectOneMenu value="#{fechamentoComissaoAcordoBean.idRelatorioOrdem}" rendered="#{not empty fechamentoComissaoAcordoBean.listRelatorioOrdem}">
+                                        <p:ajax event="change" update="@this"/>
+                                        <f:selectItems value="#{fechamentoComissaoAcordoBean.listRelatorioOrdem}"/>
+                                    </p:selectOneMenu>                            
+                                </h:panelGrid>
                             </p:panel>
-                            <p:dialog widgetVar="dlg_message" header="Mensagem" resizable="false" width="400" modal="true" closable="true">
+                            <h:panelGrid columns="2" id="id_panel" columnClasses="verticalAlignTop, verticalAlignTop" styleClass="margin-top">
+                                <h:column>
+                                    <p:panel header="Editar" style="width: 225px;" id="i_panel_avancado">
+                                        <h:panelGrid>
+                                            <p:selectBooleanButton onLabel="Data de Fechamento" offLabel="Data de Fechamento" style="width: 180px; text-align: left" disabled="true" />
+                                            <p:selectBooleanButton onLabel="Usuários" offLabel="Usuários" style="width: 180px; text-align: left" disabled="true" />
+                                        </h:panelGrid>
+                                    </p:panel>
+                                </h:column>
+                                <h:column>                            
+                                    <h:panelGrid id="i_panel_avancado_2" style="width: 800px;">
+                                        <p:column>
+                                            <p:panel header="Data do Fechamento" style="width: 100%!important">
+                                                <h:panelGrid columns="5">
+                                                    <p:selectOneMenu value="#{fechamentoComissaoAcordoBean.dataFechamento}" filter="true" filterMatchMode="startsWith">
+                                                        <p:ajax event="change" global="false" update="id_panel" listener="#{fechamentoComissaoAcordoBean.loadUsuariosAcordo}"/>
+                                                        <f:selectItems value="#{fechamentoComissaoAcordoBean.listaData}" />
+                                                    </p:selectOneMenu>
+                                                </h:panelGrid>                                        
+                                            </p:panel>
+                                            <p:panel header="Usuários" style="width: 100%!important" styleClass="margin-top">
+                                                <h:panelGrid columns="5">
+                                                    <p:selectCheckboxMenu label="Selecionar usuário" value="#{fechamentoComissaoAcordoBean.selectedUsuario}" filter="true" filterMatchMode="startsWith">
+                                                        <p:ajax event="toggleSelect" global="false" />
+                                                        <p:ajax event="change" global="false" />
+                                                        <f:selectItems value="#{fechamentoComissaoAcordoBean.listUsuario}" />
+                                                    </p:selectCheckboxMenu>
+                                                </h:panelGrid>                                        
+                                            </p:panel>
+                                        </p:column>
+
+                                    </h:panelGrid>
+                                </h:column>
+                            </h:panelGrid>
+                            <p:panel styleClass="fundoCinza">
+                                <h:panelGrid columns="3" cellspacing="5">
+                                    <p:commandButton value="Processar Fechamento" onclick="PF('dlg_processar').show()" disabled="#{controleAcessoBean.botaoSalvar}"/>
+                                    <p:commandButton value="Estornar" onclick="PF('dlg_estornar').show()" disabled="#{controleAcessoBean.botaoExcluir}"/>
+                                </h:panelGrid>
+                            </p:panel>
+                            <p:panel styleClass="fundoCinza margin-top-max">
+                                <h:panelGrid columns="3" cellspacing="5">
+                                    <h:commandLink action="#{fechamentoComissaoAcordoBean.visualizar}">
+                                        <p:button value="Visualizar Relatório" icon="ui-icon-print"/>
+                                    </h:commandLink>
+                                </h:panelGrid>
+                            </p:panel>
+                            <p:dialog widgetVar="dlg_processar" header="Deseja realizar o fechamento?" resizable="false" width="400" modal="true" closable="true">
                                 <p:messages autoUpdate="true" showDetail="true" showSummary="true" /> 
                                 <f:facet name="footer">
-                                    <p:commandButton value="OK" type="submit" styleClass="ui-confirmdialog-yes" onclick="PF('dlg_message').hide();"/>
+                                    <h:panelGrid columns="2">                                        
+                                        <p:commandButton value="Processar" action="#{fechamentoComissaoAcordoBean.processar}" update=":form_relatorio:" oncomplete="PF('dlg_processar').hide(); PF('dlg_message').show()" />
+                                        <p:commandButton value="Sair" type="submit" styleClass="ui-confirmdialog-yes" onclick="PF('dlg_processar').hide();"/>
+                                    </h:panelGrid>
                                 </f:facet>
                             </p:dialog>                             
+                            <p:dialog widgetVar="dlg_estornar" header="Deseja realizar o estorno dessa data?" resizable="false" width="400" modal="true" closable="true">
+                                <p:messages autoUpdate="true" showDetail="true" showSummary="true" /> 
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Estornar" action="#{fechamentoComissaoAcordoBean.estornar}" update=":form_relatorio:" oncomplete="PF('dlg_estornar').hide(); PF('dlg_message').show()" />
+                                        <p:commandButton value="Sair" type="submit" styleClass="ui-confirmdialog-yes" onclick="PF('dlg_estornar').hide();"/>
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>                             
+                            <p:dialog widgetVar="dlg_message" header="Mensagem" resizable="false" width="400" modal="true" closable="true">
+                                <p:messages autoUpdate="true" showDetail="true" showSummary="true" /> 
+                                <f:facet name="footer">                                    
+                                    <p:commandButton value="OK" type="submit" styleClass="ui-confirmdialog-yes" onclick="PF('dlg_message').hide();"/>
+                                </f:facet>
+                            </p:dialog>                         
                         </h:form>
                     </p:panel>
                 </f:view>
