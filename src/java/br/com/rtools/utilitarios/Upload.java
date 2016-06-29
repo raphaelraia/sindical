@@ -3,6 +3,7 @@ package br.com.rtools.utilitarios;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.dao.FisicaDao;
 import br.com.rtools.seguranca.Usuario;
+import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.ConfiguracaoUpload;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -17,6 +18,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
+import org.apache.commons.io.FileUtils;
 import org.primefaces.event.FileUploadEvent;
 
 @ManagedBean(name = "uploadBean")
@@ -201,12 +203,17 @@ public class Upload implements Serializable {
                 return false;
             }
         }
-        String diretorio = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + cliente + "/" + cu.getDiretorio());
+        String diretorio = "";
+        if (cu.isResourceFolder()) {
+            diretorio = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/cliente/" + cliente + "/" + cu.getDiretorio();
+        } else {
+            diretorio = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + cliente + "/" + cu.getDiretorio());
+        }
         if (criarDiretorios) {
             if (diretorio.equals("")) {
                 return false;
             }
-            Diretorio.criar(cu.getDiretorio());
+            Diretorio.criar(cu.getDiretorio(), true);
         }
         try {
             if (!cu.getTiposPermitidos().isEmpty()) {
@@ -266,24 +273,13 @@ public class Upload implements Serializable {
                 } else {
                     file.delete();
                 }
-            } else {
-                if (file.exists()) {
-                    if (mensagens) {
-                        GenericaMensagem.warn("Validação", "Arquivo já existe no caminho específicado!");
-                    }
-                    return false;
+            } else if (file.exists()) {
+                if (mensagens) {
+                    GenericaMensagem.warn("Validação", "Arquivo já existe no caminho específicado!");
                 }
+                return false;
             }
-            InputStream in = cu.getEvent().getFile().getInputstream();
-            FileOutputStream out = new FileOutputStream(file.getPath());
-            byte[] buf = new byte[(int) cu.getEvent().getFile().getSize()];
-            int count;
-            while ((count = in.read(buf)) >= 0) {
-                out.write(buf, 0, count);
-            }
-            in.close();
-            out.flush();
-            out.close();
+            FileUtils.writeByteArrayToFile(file, cu.getEvent().getFile().getContents());
             if (!cu.getRenomear().equals("")) {
                 File novoNome = new File(diretorio + "/" + cu.getRenomear());
                 file.renameTo(novoNome);
@@ -294,11 +290,9 @@ public class Upload implements Serializable {
             }
             return true;
         } catch (IOException e) {
-            //NovoLog log = new NovoLog();
             if (mensagens) {
                 GenericaMensagem.warn("Erro", e.getMessage());
             }
-            //log.novo("Upload de arquivos", e.getMessage());
             System.out.println(e);
             return false;
         }
@@ -499,6 +493,14 @@ public class Upload implements Serializable {
 
     public static void setDEFAULT_EXTENSION(String aDEFAULT_EXTENSION) {
         DEFAULT_EXTENSION = aDEFAULT_EXTENSION;
+    }
+
+    public static String extractExtension(String filename) {
+        try {
+            return filename.split("\\.")[1];
+        } catch (Exception e) {
+            return "";
+        }
     }
 
 }

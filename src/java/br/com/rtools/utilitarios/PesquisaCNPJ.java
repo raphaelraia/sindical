@@ -52,6 +52,7 @@ import org.apache.http.util.EntityUtils;
 @ManagedBean
 @SessionScoped
 public class PesquisaCNPJ implements Serializable {
+
     private String cnpj = "";
     private String captcha = "";
     private String nameTemp = "";
@@ -60,7 +61,7 @@ public class PesquisaCNPJ implements Serializable {
 
     public HashMap pesquisar() throws IOException {
         HashMap result = new LinkedHashMap();
-        
+
         result.put("status", true);
         result.put("mensagem", "");
         // Adicionando um sistema de redireção
@@ -88,6 +89,7 @@ public class PesquisaCNPJ implements Serializable {
             return result;
         }
         HttpGet requisição2 = new HttpGet("http://www.receita.fazenda.gov.br/pessoajuridica/cnpj/cnpjreva/captcha/gerarCaptcha.asp");
+        // HttpGet requisição2 = new HttpGet("http://www.receita.fazenda.gov.br/scripts/srf/intercepta/captcha.aspx?opt=image");
         // Resposta
         resposta = cliente.execute(requisição2, contexto);
 
@@ -99,7 +101,7 @@ public class PesquisaCNPJ implements Serializable {
         ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
         String path = servletContext.getRealPath("") + "resources/images/captcha/" + nameTemp + ".png";
         File file = new File(path);
-        
+
         try {
             FileUtils.writeByteArrayToFile(file, EntityUtils.toByteArray(entidade));
         } catch (IOException e) {
@@ -114,7 +116,7 @@ public class PesquisaCNPJ implements Serializable {
         HashMap hash_test = new LinkedHashMap();
         hash_test.put("status", false);
         hash_test.put("mensagem", "Consulta não realizada");
-        
+
         HttpPost requisição3 = new HttpPost("http://www.receita.fazenda.gov.br/pessoajuridica/cnpj/cnpjreva/valida.asp");
         //HttpResponse resposta = cliente.execute(requisição3, contexto);
         // Lista de parâmetros
@@ -147,7 +149,7 @@ public class PesquisaCNPJ implements Serializable {
             hash_test.put("mensagem", "Erro na Consulta");
             return hash_test;
         }
-        
+
         if (html.contains("No existe no Cadastro de Pessoas Jurdicas o nmero de CNPJ informado. Verifique se o mesmo foi digitado corretamente.")) {
             hash_test.put("status", false);
             hash_test.put("mensagem", "CNPJ não existe no cadastro de Pessoas Jurídicas da Receita");
@@ -164,11 +166,11 @@ public class PesquisaCNPJ implements Serializable {
             // Dentro dos elementos estão as informações para se pegar, porém não tenho autorização de divulgá-las.
             // Use a criatividade que você irá recuperar todos os dados necessários dentro deste While.
             HashMap hash = quebra_parametros(element);
-            if (hash != null){
+            if (hash != null) {
                 return hash;
             }
         }
-        
+
         return hash_test;
     }
 
@@ -204,28 +206,28 @@ public class PesquisaCNPJ implements Serializable {
             int pos2 = conteudo.indexOf("COMPROVANTE DE INSCRIÇÃO E DE SITUAÇÃO CADASTRAL", index);
             index = pos2;
             params.put("cnpj", limparString(conteudo.substring(pos1 + "NÚMERO DE INSCRIÇÃO".length(), pos2)).substring(0, 18));
-            
+
             // Aqui capturo a Data de Abertura
             pos1 = conteudo.indexOf("DATA DE ABERTURA", index);
             index = pos1;
             pos2 = conteudo.indexOf("NOME EMPRESARIAL", index);
             index = pos2;
             params.put("data_abertura", limparString(conteudo.substring(pos1 + "DATA DE ABERTURA".length(), pos2)));
-            
+
             // Aqui capturo Nome Empresarial
             pos1 = conteudo.indexOf("NOME EMPRESARIAL", index);
             index = pos1;
             pos2 = conteudo.indexOf("TÍTULO DO ESTABELECIMENTO (NOME DE FANTASIA)", index);
             index = pos2;
             params.put("nome_empresarial", limparString(conteudo.substring(pos1 + "NOME EMPRESARIAL".length(), pos2)));
-            
+
             // Aqui capturo Fantasia
             pos1 = conteudo.indexOf("TÍTULO DO ESTABELECIMENTO (NOME DE FANTASIA)", index);
             index = pos1;
             pos2 = conteudo.indexOf("CÓDIGO E DESCRIÇÃO DA ATIVIDADE ECONÔMICA PRINCIPAL", index);
             index = pos2;
             params.put("fantasia", limparString(conteudo.substring(pos1 + "TÍTULO DO ESTABELECIMENTO (NOME DE FANTASIA)".length(), pos2)));
-            
+
             // Aqui capturo Cnae Primário
             pos1 = conteudo.indexOf("CÓDIGO E DESCRIÇÃO DA ATIVIDADE ECONÔMICA PRINCIPAL", index);
             index = pos1;
@@ -447,10 +449,10 @@ public class PesquisaCNPJ implements Serializable {
     }
 
     public List<String> extrairCnaes(String cnae) {
-        if (cnae.equals("Não informada")){
+        if (cnae.equals("Não informada")) {
             return new ArrayList();
         }
-        
+
         StringBuilder numero_cnae = new StringBuilder();
 
         List<String> lista_cnae = new ArrayList();
@@ -530,7 +532,6 @@ public class PesquisaCNPJ implements Serializable {
 //    public void setCaminhoImagem(String caminhoImagem) {
 //        this.caminhoImagem = caminhoImagem;
 //    }
-
     public HTMLDocument getHTMLDocument(String html) {
         HTMLEditorKit editorKit = new HTMLEditorKit();
         HTMLDocument document = (HTMLDocument) editorKit.createDefaultDocument();

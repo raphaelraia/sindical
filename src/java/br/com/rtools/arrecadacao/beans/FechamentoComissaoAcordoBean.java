@@ -12,6 +12,7 @@ import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.GenericaString;
 import br.com.rtools.utilitarios.Jasper;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -128,19 +129,7 @@ public class FechamentoComissaoAcordoBean {
     }
 
     public String inIdUsuarios() {
-        String ids = null;
-        if (selectedUsuario != null) {
-            for (int i = 0; i < selectedUsuario.size(); i++) {
-                if (selectedUsuario.get(i) != null) {
-                    if (ids == null) {
-                        ids = "" + selectedUsuario.get(i);
-                    } else {
-                        ids += "," + selectedUsuario.get(i);
-                    }
-                }
-            }
-        }
-        return ids;
+        return GenericaString.returnInList(selectedUsuario);
     }
 
     public synchronized void processar() {

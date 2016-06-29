@@ -61,6 +61,7 @@
                     <p:accordionPanel styleClass="margin-top-max no-border" dynamic="false">
                         <p:tab title="CONTRIBUINTE" rendered="#{webREPISBean.renderEmpresa}">
                             <p:outputLabel value="#{webREPISBean.pessoaContribuinte.nome}"/>
+                            <p:commandButton icon="ui-icon-contact" update=":form_sr:i_pessoa_juridica_card" action="#{pessoaCardBean.cardJuridica(webREPISBean.pessoaContribuinte.id)}" oncomplete="PF('dlg_pessoa_juridica_card').show()" title="Ver detalhes" styleClass="margin-left-max"/>
                         </p:tab>
                         <p:tab title="CONTRIBUINTE(S)" rendered="#{webREPISBean.renderContabil}" >
                             <h:panelGrid columns="2" style="width: 650px">
@@ -86,7 +87,7 @@
                             <p:commandButton value="Andamento das Certidões" action="#{webREPISBean.clear}" update=":form_sr_list:" style="float: right"/>
                         </h:column>
                     </h:panelGrid>
-                    
+
                     <p:panel rendered="false">
                         <h:outputLabel styleClass="fonteExtratoTela" value="Enviar arquivos"/>
                         <div align="center" style="overflow:auto; height:225px;">
@@ -115,14 +116,26 @@
                     <p:dialog widgetVar="dlg_status" width="400" modal="true">
                         <p:outputLabel value="Aguarde" />
                     </p:dialog>
+
+                    <p:dialog widgetVar="dlg_pessoa_juridica_card" modal="true" resizable="false" height="400" width="600" header="Detalhes">
+                        <p:ajax event="close" listener="#{pessoaCardBean.close}"/>
+                        <p:panel id="i_pessoa_juridica_card">
+                            <ui:include src="templates/templatePessoaJuridicaWebCard.xhtml" />     
+                        </p:panel>
+                    </p:dialog> 
+
+
+                    <h:panelGrid styleClass="margin-top-max" id="i_file_count">
+                        <p:commandButton value="Arquivo(s) (#{webREPISBean.listCertificadoArquivos.size()})" update=":form_certificados_arquivos:id_certificados_arquivos" onclick="PF('dlg_certificados_arquivos').show()" title="Ver arquivos" rendered="#{webREPISBean.configuracaoArrecadacao.uploadCertificado}" />
+                    </h:panelGrid>
                 </h:form>
-                
-                
+
+
                 <h:form id="form_sr_list">
                     <p:panel header="Pesquisar">
                         <h:panelGrid id="i_panel" columns="3" styleClass="margin-top">
-                            <p:inputText size="100" value="#{webREPISBean.descricao}" rendered="#{!webREPISBean.tipoPesquisa.equals('cnpj')}" />
-                            <p:inputMask mask="99.999.999/9999-99" size="20" value="#{webREPISBean.descricao}" rendered="#{webREPISBean.tipoPesquisa.equals('cnpj')}" />
+                            <p:inputText size="100" value="#{webREPISBean.descricao}" rendered="#{webREPISBean.tipoPesquisa ne 'cnpj'}" />
+                            <p:inputMask mask="99.999.999/9999-99" size="20" value="#{webREPISBean.descricao}" rendered="#{webREPISBean.tipoPesquisa eq 'cnpj'}" />
                             <p:selectOneMenu value="#{webREPISBean.tipoPesquisa}">
                                 <p:ajax event="change" update="@this, :form_sr_list:" />
                                 <f:selectItem itemLabel="Nome" itemValue="nome"/>
@@ -175,7 +188,7 @@
                         <p:column headerText="..." width="25" styleClass="text-center">
                             <p:commandButton icon="ui-icon-print" action="#{webREPISBean.imprimirCertificado(repisMovimento)}" rendered="#{repisMovimento.repisStatus.id == 3}" ajax="false"/>
                         </p:column>
-                        
+
                         <p:rowExpansion>
                             <h:panelGrid columns="5" styleClass="sbb">
                                 <p:column rendered="false">
@@ -189,6 +202,74 @@
                             </h:panelGrid>
                         </p:rowExpansion>
                     </p:dataTable>
+                </h:form>
+
+                <h:form id="form_certificados_arquivos">
+                    <p:dialog widgetVar="dlg_certificados_arquivos" modal="true" resizable="false" height="500" width="1024" header="Certificados Arquivos">
+                        <h:panelGroup id="id_certificados_arquivos">                           
+                            <p:messages showDetail="true" closable="true" />
+                            <p:panel>
+                                <f:facet name="header">
+                                    <p:commandButton value="Upload de Documentos Pertinentes a Informações de Funcionários" onclick="PF('dlg_upload').show()" title="Enviar arquivos" />
+                                </f:facet>
+                                <p:dataTable styleClass="margin-top-max" value="#{webREPISBean.listCertificadoArquivos}" var="certificadoArquivos" scrollHeight="300" scrollable="true" emptyMessage="Nenhum registro encontrado!">
+                                    <f:facet name="header">
+                                        CONVENÇÃO: #{webREPISBean.listCertificadoArquivos[0].convencaoPeriodo.convencao.descricao} - GRUPO CIDADE: #{webREPISBean.listCertificadoArquivos[0].convencaoPeriodo.grupoCidade.descricao}
+                                    </f:facet>
+                                    <p:column width="15">  
+                                        <p:rowToggler />  
+                                    </p:column>
+                                    <p:column>
+                                        #{certificadoArquivos.arquivo}
+                                        <p:commandLink value="#{certificadoArquivos.arquivo}" title="ABRIR ARQUIVO" action="#{webREPISBean.view(certificadoArquivos)}" target="_BLANK" ajax="false" rendered="false"/>  
+                                    </p:column>
+                                    <p:column headerText="Ref. Inicial" styleClass="text-center" width="50">
+                                        <h:outputText value="#{certificadoArquivos.convencaoPeriodo.referenciaInicial}" />
+                                    </p:column>
+                                    <p:column headerText="Ref. Final" styleClass="text-center" width="50">
+                                        <h:outputText value="#{certificadoArquivos.convencaoPeriodo.referenciaFinal}" />
+                                    </p:column>
+                                    <p:column headerText="Data Upload" styleClass="text-center" width="80">
+                                        <h:outputText value="#{certificadoArquivos.upload}" />
+                                    </p:column>
+                                    <p:column headerText="Data Download" styleClass="text-center" width="80">
+                                        <h:outputText value="#{certificadoArquivos.download}" />
+                                    </p:column>
+                                    <p:column width="25" styleClass="text-center">
+                                        <p:commandButton icon="ui-icon-arrowthickstop-1-s" title="BAIXAR ARQUIVO" action="#{webREPISBean.download(certificadoArquivos)}" ajax="false" onclick="form.target = '_blank'"/>
+                                    </p:column>
+                                    <p:column width="25" styleClass="text-center" >
+                                        <p:commandButton icon="ui-icon-close" title="EXCLUIR ARQUIVO" action="#{webREPISBean.deleteFile(certificadoArquivos)}" update=":form_certificados_arquivos:id_certificados_arquivos"/>
+                                    </p:column>
+                                    <p:rowExpansion>
+                                        <h:outputText value="Arquivo: #{certificadoArquivos.arquivo}" style="font-size: 8pt!important"/>
+                                    </p:rowExpansion>
+                                </p:dataTable>                                
+                            </p:panel>
+                        </h:panelGroup>
+                    </p:dialog>
+                </h:form>
+
+                <h:form id="form_upload" enctype="multipart/form-data" acceptcharset="UTF-8">
+                    <p:dialog id="id_upload" widgetVar="dlg_upload" modal="true" width="500" height="400" header="Upload de Documentos Pertinentes a Informações de Funcionários - Tamanho Máximo Permitido : 1 MB" visible="#{webREPISBean.uploadCertificado}" closable="false">
+                        <h:panelGrid columns="2">
+                            <h:outputText value="CONVENÇÃO PERÍODO: "  />
+                            <p:selectOneMenu id="idComboContabilidade" value="#{webREPISBean.idConvencaoPeriodo}" style="padding-right: 20px;">
+                                <p:ajax event="change" update="@this" global="false" />
+                                <f:selectItems value="#{webREPISBean.listConvencaoPeriodo}"/>
+                            </p:selectOneMenu>                             
+                        </h:panelGrid>
+                        <p:fileUpload label="Procurar"
+                                      invalidSizeMessage="Tamanho Máximo Permitido: 1 MB"
+                                      cancelLabel="Cancelar"
+                                      uploadLabel="Anexar"
+                                      mode="advanced"
+                                      multiple="1"
+                                      sizeLimit="1024000"
+                                      styleClass="margin-top-max"
+                                      fileUploadListener="#{webREPISBean.upload}" update=":form_upload: :form_sr:i_file_count :form_certificados_arquivos:id_certificados_arquivos"
+                                      oncomplete="PF('dlg_upload').hide()" />
+                    </p:dialog>
                 </h:form>
 
                 <form action="servletREPIS" name="formREPIS" enctype="multipart/form-data" method="post">

@@ -16,6 +16,7 @@ public class ConfiguracaoUpload implements Serializable {
     private Integer larguraMaxima;
     private List tiposPermitidos;
     private boolean substituir;
+    private boolean resourceFolder;
 
     public ConfiguracaoUpload() {
         this.diretorio = "";
@@ -27,9 +28,10 @@ public class ConfiguracaoUpload implements Serializable {
         this.tiposPermitidos = new ArrayList();
         this.substituir = false;
         this.renomear = "";
+        this.resourceFolder = false;
     }
 
-    public ConfiguracaoUpload(String diretorio, String arquivo, String renomear, FileUploadEvent event, Integer tamanhoMaximo, Integer alturaMaxima, Integer larguraMaxima, List tiposPermitidos, boolean substituir) {
+    public ConfiguracaoUpload(String diretorio, String arquivo, String renomear, FileUploadEvent event, Integer tamanhoMaximo, Integer alturaMaxima, Integer larguraMaxima, List tiposPermitidos, boolean substituir, boolean resourceFolder) {
         this.diretorio = diretorio;
         this.arquivo = arquivo;
         this.renomear = renomear;
@@ -39,6 +41,7 @@ public class ConfiguracaoUpload implements Serializable {
         this.larguraMaxima = larguraMaxima;
         this.tiposPermitidos = tiposPermitidos;
         this.substituir = substituir;
+        this.resourceFolder = resourceFolder;
     }
 
     public String getDiretorio() {
@@ -111,6 +114,14 @@ public class ConfiguracaoUpload implements Serializable {
 
     public void setRenomear(String renomear) {
         this.renomear = renomear;
+    }
+
+    public boolean isResourceFolder() {
+        return resourceFolder;
+    }
+
+    public void setResourceFolder(boolean resourceFolder) {
+        this.resourceFolder = resourceFolder;
     }
 
 }

@@ -63,6 +63,20 @@ public class ConvencaoPeriodoDao extends DB {
         return new ArrayList();
     }
 
+    public List<ConvencaoPeriodo> listaConvencaoPeriodo(Integer convencao_id, Integer grupo_cidade_id) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT CP FROM ConvencaoPeriodo AS CP WHERE CP.convencao.id = :convencao_id AND CP.grupoCidade.id = :grupo_cidade_id ORDER BY CP.referenciaFinal DESC");
+            query.setParameter("convencao_id", convencao_id);
+            query.setParameter("grupo_cidade_id", grupo_cidade_id);
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return list;
+            }
+        } catch (Exception e) {
+        }
+        return new ArrayList();
+    }
+
     public ConvencaoPeriodo convencaoPeriodoConvencaoGrupoCidade(int idConvencao, int idGrupoCidade) {
         String queryString = "";
         if (idConvencao > 0 && idGrupoCidade > 0) {
@@ -113,5 +127,22 @@ public class ConvencaoPeriodoDao extends DB {
         } catch (Exception e) {
         }
         return convencaoPeriodo;
+    }
+
+    public ConvencaoPeriodo findByPessoa(Integer pessoa_id) {
+        String queryString = ""
+                + "     SELECT CP.*                                             \n"
+                + "       FROM arr_convencao_periodo AS CP                      \n"
+                + " INNER JOIN arr_contribuintes_vw C ON C.id_convencao = CP.id_convencao AND C.id_grupo_cidade = CP.id_grupo_cidade    \n"
+                + "      WHERE current_date BETWEEN cast('01/'||CP.ds_referencia_inicial AS date)                                       \n"
+                + "        AND date_trunc('month',cast('01/' || CP.ds_referencia_final  AS date)) + INTERVAL'1 month' - INTERVAL'1 day' \n"
+                + "        AND C.id_pessoa = " + pessoa_id;
+
+        try {
+            Query query = getEntityManager().createNativeQuery(queryString, ConvencaoPeriodo.class);
+            return (ConvencaoPeriodo) query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

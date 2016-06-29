@@ -11,6 +11,7 @@ import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.sistema.ContadorAcessos;
 import br.com.rtools.sistema.dao.AtalhoDao;
+import br.com.rtools.utilitarios.Correios;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Diretorio;
@@ -58,6 +59,10 @@ public class ControleUsuarioBean implements Serializable {
     private List<String> images = new ArrayList<>();
     private boolean habilitaLog = false;
     private Boolean export = null;
+
+    public ControleUsuarioBean() {
+        // new Correios().main();
+    }
 
     public void atualizaDemissionaSocios() {
         FunctionsDao db = new FunctionsDao();

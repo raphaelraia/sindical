@@ -25,7 +25,7 @@
                 </f:subview>
                 <f:view>
                     <f:metadata>  
-                        <f:event type="preRenderView" listener="${configuracaoArrecadacaoBean.load()}"/>  
+                        <f:event type="preRenderView" listener="${configuracaoArrecadacaoBean.load(null)}"/>  
                     </f:metadata>   
 
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
@@ -56,6 +56,10 @@
 
                                     <h:column />
                                     <p:selectBooleanCheckbox value="#{configuracaoArrecadacaoBean.configuracaoArrecadacao.bloqueiaOposição}" itemLabel="Bloqueia Oposição">
+                                        <p:ajax event="change"  listener="#{configuracaoArrecadacaoBean.update()}" update="form_configuracao_arrecadacao"/>
+                                    </p:selectBooleanCheckbox>
+                                    <h:column />
+                                    <p:selectBooleanCheckbox value="#{configuracaoArrecadacaoBean.configuracaoArrecadacao.uploadCertificado}" itemLabel="Uploade de Certificados (WEB Repis)">
                                         <p:ajax event="change"  listener="#{configuracaoArrecadacaoBean.update()}" update="form_configuracao_arrecadacao"/>
                                     </p:selectBooleanCheckbox>
                                 </h:panelGrid>

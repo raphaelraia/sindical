@@ -1,6 +1,8 @@
 package br.com.rtools.arrecadacao;
 
+import br.com.rtools.arrecadacao.beans.ConfiguracaoArrecadacaoBean;
 import br.com.rtools.pessoa.Filial;
+import br.com.rtools.utilitarios.Dao;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -26,23 +28,27 @@ public class ConfiguracaoArrecadacao implements Serializable {
     private Boolean certificadoFaturementoBrutoAnual;
     @Column(name = "nr_dias_acordo", nullable = false)
     private Integer nrDiasAcordo;
-    @Column(name = "is_bloqueia_oposicao", columnDefinition = "boolean default true", nullable = true)
+    @Column(name = "is_bloqueia_oposicao", columnDefinition = "boolean default true", nullable = false)
     private Boolean bloqueiaOposição;
+    @Column(name = "is_upload_certificado", columnDefinition = "boolean default false", nullable = false)
+    private Boolean uploadCertificado;
 
     public ConfiguracaoArrecadacao() {
-        this.id = -1;
+        this.id = null;
         this.filial = new Filial();
         this.certificadoFaturementoBrutoAnual = false;
         this.nrDiasAcordo = 0;
         this.bloqueiaOposição = false;
+        this.uploadCertificado = false;
     }
 
-    public ConfiguracaoArrecadacao(Integer id, Filial filial, Boolean certificadoFaturementoBrutoAnual, Integer nrDiasAcordo, Boolean bloqueiaOposição) {
+    public ConfiguracaoArrecadacao(Integer id, Filial filial, Boolean certificadoFaturementoBrutoAnual, Integer nrDiasAcordo, Boolean bloqueiaOposição, Boolean uploadCertificado) {
         this.id = id;
         this.filial = filial;
         this.certificadoFaturementoBrutoAnual = certificadoFaturementoBrutoAnual;
         this.nrDiasAcordo = nrDiasAcordo;
         this.bloqueiaOposição = bloqueiaOposição;
+        this.uploadCertificado = uploadCertificado;
     }
 
     public Integer getId() {
@@ -83,6 +89,23 @@ public class ConfiguracaoArrecadacao implements Serializable {
 
     public void setBloqueiaOposição(Boolean bloqueiaOposição) {
         this.bloqueiaOposição = bloqueiaOposição;
+    }
+
+    public Boolean getUploadCertificado() {
+        return uploadCertificado;
+    }
+
+    public void setUploadCertificado(Boolean uploadCertificado) {
+        this.uploadCertificado = uploadCertificado;
+    }
+
+    public static ConfiguracaoArrecadacao get() {
+        ConfiguracaoArrecadacao ca = (ConfiguracaoArrecadacao) new Dao().find(new ConfiguracaoArrecadacao(), 1);
+        if (ca == null) {
+            new ConfiguracaoArrecadacaoBean().load(false);
+            ca = (ConfiguracaoArrecadacao) new Dao().find(new ConfiguracaoArrecadacao(), 1);
+        }
+        return ca;
     }
 
 }

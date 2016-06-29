@@ -25,16 +25,7 @@ public class ConfiguracaoArrecadacaoBean implements Serializable {
 
     @PostConstruct
     public void init() {
-        Dao dao = new Dao();
-        configuracaoArrecadacao = (ConfiguracaoArrecadacao) dao.find(new ConfiguracaoArrecadacao(), 1);
-        if (configuracaoArrecadacao == null) {
-            configuracaoArrecadacao = new ConfiguracaoArrecadacao();
-            configuracaoArrecadacao.setId(1);
-            configuracaoArrecadacao.setFilial(null);
-            dao.save(configuracaoArrecadacao, true);
-        }
-        listaFilial = new ArrayList();
-        getListaFilial();
+        load(true);
     }
 
     @PreDestroy
@@ -42,14 +33,27 @@ public class ConfiguracaoArrecadacaoBean implements Serializable {
         GenericaSessao.remove("configuracaoArrecadacaoBean");
     }
 
-    public void load() {
-
+    public void load(Boolean all) {
+        if(all != null) {
+            Dao dao = new Dao();
+            configuracaoArrecadacao = (ConfiguracaoArrecadacao) dao.find(new ConfiguracaoArrecadacao(), 1);
+            if (configuracaoArrecadacao == null) {
+                configuracaoArrecadacao = new ConfiguracaoArrecadacao();
+                configuracaoArrecadacao.setId(1);
+                configuracaoArrecadacao.setFilial(null);
+                dao.save(configuracaoArrecadacao, true);
+            }
+            listaFilial = new ArrayList();
+            if (all) {
+                getListaFilial();
+            }            
+        }
     }
 
     public void update() {
         Dao dao = new Dao();
-        if (configuracaoArrecadacao.getId() != -1) {
-            configuracaoArrecadacao.setFilial((Filial) dao.find(new Filial(), Integer.valueOf(listaFilial.get(idFilial).getDescription())));
+        if (configuracaoArrecadacao.getId() != null) {
+            configuracaoArrecadacao.setFilial((Filial) dao.find(new Filial(), idFilial));
             if (dao.update(configuracaoArrecadacao, true)) {
                 GenericaMensagem.info("Sucesso", "Configurações Aplicadas");
             } else {
@@ -71,9 +75,9 @@ public class ConfiguracaoArrecadacaoBean implements Serializable {
             List<Filial> list = new Dao().list(new Filial(), true);
             for (int i = 0; i < list.size(); i++) {
                 if (Objects.equals(list.get(i).getId(), configuracaoArrecadacao.getFilial().getId())) {
-                    setIdFilial((Integer) i);
+                    setIdFilial(list.get(i).getId());
                 }
-                listaFilial.add(new SelectItem(i, list.get(i).getFilial().getPessoa().getNome(), "" + list.get(i).getId()));
+                listaFilial.add(new SelectItem(list.get(i).getId(), list.get(i).getFilial().getPessoa().getNome()));
             }
         }
         return listaFilial;
@@ -89,9 +93,5 @@ public class ConfiguracaoArrecadacaoBean implements Serializable {
 
     public void setIdFilial(Integer idFilial) {
         this.idFilial = idFilial;
-    }
-
-    public static ConfiguracaoArrecadacao get() {
-        return (ConfiguracaoArrecadacao) new Dao().find(new ConfiguracaoArrecadacao(), 1);
     }
 }

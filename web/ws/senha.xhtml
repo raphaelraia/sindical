@@ -8,7 +8,7 @@
     <h:head>
         <title>Sindical - Senha</title>
         <meta http-equiv="X-UA-Compatible" content="IE=9" />
-        <meta http-equiv="refresh" content="500" />
+        <!-- <meta http-equiv="refresh" content="500" /> -->
         <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>
         <style>
             body, div:first-of-type { margin: 0 auto;}
@@ -74,11 +74,11 @@
                 .min-password {font-size: 64pt!important;}
             }
             .blink_me {
-              /* animation: blinker 1s linear 3; */
+                /* animation: blinker 1s linear 3; */
             }
 
             @keyframes blinker {  
-              80% { opacity: 0.0; }
+                80% { opacity: 0.0; }
             }            
 
         </style>        
@@ -88,6 +88,25 @@
     </h:head>
     <h:body>
         <f:view>
+            <p:ajaxStatus id="i_status" onerror="PF('dlg_err').show();"/>
+            <p:dialog modal="true" widgetVar="dlg_err" header="Erro ao executar operacao" draggable="false" closable="false" resizable="false" responsive="true" maximizable="true">
+                <ul>
+                    <li>
+                        <h:outputLabel value="Diagnostico rapido" style="font-weight: bold; color: red;"/>                
+                        <br />
+                        <br />
+                    </li>
+                    <li>
+                        <h:outputLabel value="- Verifique sua conexao com a internet" />
+                    </li>
+                    <li>
+                        <h:outputLabel value="- Saia e entre novamente na aplicação" />
+                    </li>
+                </ul>
+                <f:facet name="footer">
+                    <h:outputLabel value="Entrar em contato com o administrador do sistema." />
+                </f:facet>
+            </p:dialog>            
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-lg-12">
@@ -103,7 +122,7 @@
                 </div>
             </div>
             <div class="container-fluid">
-                <c:set scope="request" var="object" value="${senhaBean.senha}"/>
+                <c:set scope="request" var="object" value="${senhaBean.senha}"/>                
                 <h:form id="form_senha">
                     <p:commandLink style="width: 0; height: 0" id="update_grid">
                         <p:ajax event="click" update="i_panel_senha :form_sound:" listener="#{senhaBean.loadSenha()}" />

@@ -3,6 +3,7 @@ package br.com.rtools.arrecadacao.beans;
 import br.com.rtools.arrecadacao.CertidaoDisponivel;
 import br.com.rtools.arrecadacao.CertidaoMensagem;
 import br.com.rtools.arrecadacao.CertidaoTipo;
+import br.com.rtools.arrecadacao.CertificadoArquivos;
 import br.com.rtools.arrecadacao.ConfiguracaoArrecadacao;
 import br.com.rtools.arrecadacao.ConvencaoPeriodo;
 import br.com.rtools.arrecadacao.Patronal;
@@ -10,6 +11,9 @@ import br.com.rtools.arrecadacao.PisoSalarial;
 import br.com.rtools.arrecadacao.PisoSalarialLote;
 import br.com.rtools.arrecadacao.RepisMovimento;
 import br.com.rtools.arrecadacao.RepisStatus;
+import br.com.rtools.arrecadacao.dao.CertificadoArquivosDao;
+import br.com.rtools.arrecadacao.dao.ConvencaoPeriodoDao;
+import br.com.rtools.arrecadacao.dao.EmpregadosDao;
 import br.com.rtools.arrecadacao.dao.WebREPISDao;
 import br.com.rtools.endereco.Cidade;
 import br.com.rtools.endereco.Endereco;
@@ -23,13 +27,17 @@ import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.seguranca.dao.UsuarioDao;
+import br.com.rtools.sistema.ConfiguracaoUpload;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Download;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
+import br.com.rtools.utilitarios.PF;
+import br.com.rtools.utilitarios.Upload;
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -41,6 +49,8 @@ import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
@@ -51,6 +61,7 @@ import net.sf.jasperreports.engine.util.JRLoader;
 import net.sf.jasperreports.export.SimpleExporterInput;
 import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
 import net.sf.jasperreports.export.SimplePdfExporterConfiguration;
+import org.primefaces.event.FileUploadEvent;
 
 @ManagedBean
 @SessionScoped
@@ -68,6 +79,7 @@ public class WebREPISBean implements Serializable {
     private List<SelectItem> listComboCertidaoDisponivel = new ArrayList();
     private List<SelectItem> listaTipoCertidao = new ArrayList();
     private List<SelectItem> listaCidade = new ArrayList();
+    private List<SelectItem> listConvencaoPeriodo = new ArrayList();
     private List<RepisMovimento> listRepisMovimento = new ArrayList();
     private List<RepisMovimento> listRepisMovimentoPatronal = new ArrayList();
     private List<RepisMovimento> listRepisMovimentoPatronalSelecionado = new ArrayList();
@@ -76,6 +88,7 @@ public class WebREPISBean implements Serializable {
     private int indexCertidaoDisponivel = 0;
     private int indexCertidaoTipo = 0;
     private int indexCidade = 0;
+    private Integer idConvencaoPeriodo = null;
     private boolean renderContabil = false;
     private boolean renderEmpresa = false;
     private boolean showProtocolo = false;
@@ -92,6 +105,8 @@ public class WebREPISBean implements Serializable {
     private String contato = "";
     private ConfiguracaoArrecadacao configuracaoArrecadacao;
     private List<RepisMovimento> listRepisMovimentoPessoa;
+    private Boolean uploadCertificado;
+    private List<CertificadoArquivos> listCertificadoArquivos;
 
     public WebREPISBean() {
         listRepisMovimentoPessoa = new ArrayList();
@@ -112,7 +127,45 @@ public class WebREPISBean implements Serializable {
             renderEmpresa = false;
             renderContabil = false;
         }
-        configuracaoArrecadacao = (ConfiguracaoArrecadacao) new Dao().find(new ConfiguracaoArrecadacao(), 1);
+        configuracaoArrecadacao = ConfiguracaoArrecadacao.get();
+        if (configuracaoArrecadacao.getUploadCertificado()) {
+            if (pessoaContribuinte != null) {
+                uploadCertificado = false;
+                ConvencaoPeriodo cp = getConvencaoPeriodoEmpresa();
+                loadListConvencaoPeriodo(cp);
+                if (new EmpregadosDao().pesquisaQuantidadeEmpregados(cp.getId(), pessoa.getId()) > 0) {
+                    List<CertificadoArquivos> list = new CertificadoArquivosDao().findBy(cp.getId(), pessoa.getId());
+                    loadCertificadoArquivos();
+                    if (list.isEmpty()) {
+                        uploadCertificado = true;
+                    }
+                }
+            }
+        }
+    }
+
+    public final void loadCertificadoArquivos() {
+        listCertificadoArquivos = new ArrayList();
+        listCertificadoArquivos = new CertificadoArquivosDao().findByPessoa(pessoa.getId());
+    }
+
+    public final void loadListConvencaoPeriodo(ConvencaoPeriodo cp) {
+        List<ConvencaoPeriodo> list = new ConvencaoPeriodoDao().listaConvencaoPeriodo(cp.getConvencao().getId(), cp.getGrupoCidade().getId());
+        listConvencaoPeriodo = new ArrayList();
+        listConvencaoPeriodo.add(
+                new SelectItem(
+                        null,
+                        "-- ATUAL -- "
+                )
+        );
+        for (int i = 0; i < list.size(); i++) {
+            listConvencaoPeriodo.add(
+                    new SelectItem(
+                            list.get(i).getId(),
+                            list.get(i).getReferenciaInicial() + " - " + list.get(i).getReferenciaFinal()
+                    )
+            );
+        }
     }
 
     public PessoaEndereco enderecoPessoa(int id_pessoa) {
@@ -194,7 +247,6 @@ public class WebREPISBean implements Serializable {
     public String pesquisarPorSolicitante() {
         WebREPISDao db = new WebREPISDao();
         listRepisMovimento.clear();
-        Patronal patro = db.pesquisaPatronalPorPessoa(pessoa.getId());
         if (renderEmpresa) {
             listRepisMovimento = db.pesquisarListaSolicitacao(tipoPesquisa, descricao, pessoa.getId(), -1);
         } else {
@@ -249,8 +301,8 @@ public class WebREPISBean implements Serializable {
 
     public void solicitarREPIS() {
         Dao di = new Dao();
-        ConfiguracaoArrecadacao cf = ConfiguracaoArrecadacaoBean.get();
-        String detalhes = cf.getFilial().getFilial().getPessoa().getNome() + " - Telefone: " + cf.getFilial().getFilial().getPessoa().getTelefone1();
+        // ConfiguracaoArrecadacao cf = ConfiguracaoArrecadacao.get();
+        String detalhes = configuracaoArrecadacao.getFilial().getFilial().getPessoa().getNome() + " - Telefone: " + configuracaoArrecadacao.getFilial().getFilial().getPessoa().getTelefone1();
         if (!listComboPessoa.isEmpty()) {
             if (Integer.parseInt(listComboPessoa.get(idPessoa).getDescription()) > 0) {
                 setPessoaSolicitante((Pessoa) di.find(new Pessoa(), Integer.parseInt(listComboPessoa.get(idPessoa).getDescription())));
@@ -547,10 +599,11 @@ public class WebREPISBean implements Serializable {
             if (!lista_jasper.isEmpty()) {
                 di.commit();
                 JRPdfExporter exporter = new JRPdfExporter();
-
                 String nomeDownload = "certificado_" + DataHoje.livre(DataHoje.dataHoje(), "yyyyMMdd-HHmmss") + ".pdf";
                 String pathPasta = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/repis");
-
+                if (!new File(pathPasta).exists()) {
+                    new File(pathPasta).mkdirs();
+                }
                 exporter.setExporterInput(SimpleExporterInput.getInstance(lista_jasper));
                 exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(pathPasta + "/" + nomeDownload));
 
@@ -664,6 +717,27 @@ public class WebREPISBean implements Serializable {
             return getAnoAtual();
         } else {
             return Integer.parseInt(result.get(0).getReferenciaFinal().substring(3));
+        }
+    }
+
+    public ConvencaoPeriodo getConvencaoPeriodoEmpresa() {
+        Pessoa p = new Pessoa();
+        if (!listComboPessoa.isEmpty()) {
+            if (Integer.parseInt(listComboPessoa.get(idPessoa).getDescription()) > 0) {
+                p = (Pessoa) new Dao().find(new Pessoa(), Integer.parseInt(listComboPessoa.get(idPessoa).getDescription()));
+            }
+        } else {
+            p = getPessoa();
+        }
+        return new ConvencaoPeriodoDao().findByPessoa(p.getId());
+    }
+
+    public Integer getAnoConvencaoEmpresa() {
+        ConvencaoPeriodo convencaoPeriodo = getConvencaoPeriodoEmpresa();
+        if (convencaoPeriodo == null) {
+            return getAnoAtual();
+        } else {
+            return Integer.parseInt(convencaoPeriodo.getReferenciaFinal().substring(3));
         }
     }
 
@@ -1049,7 +1123,7 @@ public class WebREPISBean implements Serializable {
     public void setIndexCidade(int indexCidade) {
         this.indexCidade = indexCidade;
     }
-    
+
     public void loadListRepisMovimentoPessoa(Integer pessoa_id) {
         listRepisMovimentoPessoa = new WebREPISDao().listRepisPorPessoa(pessoa_id);
     }
@@ -1060,5 +1134,162 @@ public class WebREPISBean implements Serializable {
 
     public void setListRepisMovimentoPessoa(List<RepisMovimento> listRepisMovimentoPessoa) {
         this.listRepisMovimentoPessoa = listRepisMovimentoPessoa;
+    }
+
+    public Boolean getUploadCertificado() {
+        return uploadCertificado;
+    }
+
+    public void setUploadCertificado(Boolean uploadCertificado) {
+        this.uploadCertificado = uploadCertificado;
+    }
+
+    public void upload(FileUploadEvent event) {
+        Pessoa p = null;
+        Dao dao = new Dao();
+        if (!listComboPessoa.isEmpty()) {
+            if (Integer.parseInt(listComboPessoa.get(idPessoa).getDescription()) > 0) {
+                p = (Pessoa) dao.find(new Pessoa(), Integer.parseInt(listComboPessoa.get(idPessoa).getDescription()));
+            }
+        } else {
+            p = getPessoa();
+        }
+        if (p == null) {
+            GenericaMensagem.warn("Erro", "NENHUMA PESSOA ENCONTRADA!");
+            return;
+        }
+        ConfiguracaoUpload configuracaoUpload = new ConfiguracaoUpload();
+        configuracaoUpload.setResourceFolder(true);
+        configuracaoUpload.setArquivo(event.getFile().getFileName());
+        configuracaoUpload.setEvent(event);
+        ConvencaoPeriodo cp;
+        if (idConvencaoPeriodo == null) {
+            cp = getConvencaoPeriodoEmpresa();
+        } else {
+            cp = (ConvencaoPeriodo) new Dao().find(new ConvencaoPeriodo(), idConvencaoPeriodo);
+        }
+        configuracaoUpload.setDiretorio("web/arquivos/certificado/anexos/" + cp.getId() + "/" + pessoa.getId() + "/");
+        CertificadoArquivos certificadoArquivos = new CertificadoArquivos();
+        certificadoArquivos.setArquivo(event.getFile().getFileName());
+        certificadoArquivos.setDtUpload(new Date());
+        certificadoArquivos.setConvencaoPeriodo(cp);
+        certificadoArquivos.setPessoa(p);
+        certificadoArquivos.setPath(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/cliente/" + GenericaSessao.getString("sessaoCliente") + "/" + "web/arquivos/certificado/anexos/" + cp.getId() + "/" + p.getId() + "/");
+        if (dao.save(certificadoArquivos, true)) {
+            configuracaoUpload.setRenomear(certificadoArquivos.getId().toString() + "." + Upload.extractExtension(event.getFile().getFileName()));
+            if (Upload.enviar(configuracaoUpload, true)) {
+                if (new Dao().update(certificadoArquivos, true)) {
+                    if (new EmpregadosDao().pesquisaQuantidadeEmpregados(cp.getId(), p.getId()) > 0) {
+                        List<CertificadoArquivos> list = new CertificadoArquivosDao().findBy(cp.getId(), p.getId());
+                        loadCertificadoArquivos();
+                        if (list.isEmpty()) {
+                            uploadCertificado = true;
+                            PF.update("form_upload");
+                        } else {
+                            uploadCertificado = false;
+                        }
+                    }
+                    GenericaMensagem.info("Sucesso", "ARQUIVO ENVIADO!");
+                } else {
+                    new Dao().delete(certificadoArquivos, true);
+                    GenericaMensagem.warn("Erro", "AO ENVIAR ARQUIVO!");
+                }
+            }
+        } else {
+            dao.rollback();
+            GenericaMensagem.warn("Erro", "AO ENVIAR ARQUIVO!");
+        }
+    }
+
+    public List<CertificadoArquivos> getListCertificadoArquivos() {
+        return listCertificadoArquivos;
+    }
+
+    public void setListCertificadoArquivos(List<CertificadoArquivos> listCertificadoArquivos) {
+        this.listCertificadoArquivos = listCertificadoArquivos;
+    }
+
+    public ConfiguracaoArrecadacao getConfiguracaoArrecadacao() {
+        return configuracaoArrecadacao;
+    }
+
+    public void setConfiguracaoArrecadacao(ConfiguracaoArrecadacao configuracaoArrecadacao) {
+        this.configuracaoArrecadacao = configuracaoArrecadacao;
+    }
+
+    public void view(CertificadoArquivos ca) throws IOException {
+        HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
+        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+        String url = request.getScheme() + "://" + request.getServerName() + ":" + String.valueOf(request.getServerPort()) + "/";
+        // url += "Sindical/resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/documentos/" + la.getDocFile().getPessoa().getId() + "/" + la.getDocFile().getId() + "/" + URLEncoder.encode(la.getNameFile(), "UTF-8").replace("+", "%20");
+        response.sendRedirect(url);
+    }
+
+    public void download(CertificadoArquivos ca) {
+        ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
+        String mimeType = servletContext.getMimeType(ca.getPath() + "/" + ca.getFileName());
+        Download d = new Download(ca.getFileName(), ca.getPath(), mimeType, FacesContext.getCurrentInstance());
+        d.baixar();
+    }
+
+    public void deleteFile(CertificadoArquivos ca) {
+        if (ca.getDtDownload() != null) {
+            GenericaMensagem.warn("Validação", "NÃO É POSSÍVEL REMOVER ARQUIVOS JÁ VERIFICADOS!");
+            return;
+        }
+        Dao dao = new Dao();
+        dao.openTransaction();
+        if (dao.delete(ca)) {
+            String path = ca.getPath() + "/" + ca.getFileName();
+            File file = new File(path);
+            if (file.exists()) {
+                if (file.delete()) {
+                    dao.commit();
+                    loadCertificadoArquivos();
+                    GenericaMensagem.info("Sucesso", "ARQUIVO REMOVIDO!");
+                    ConvencaoPeriodo cf = getConvencaoPeriodoEmpresa();
+                    if (new EmpregadosDao().pesquisaQuantidadeEmpregados(cf.getId(), pessoa.getId()) > 0) {
+                        List<CertificadoArquivos> list = new CertificadoArquivosDao().findBy(cf.getId(), pessoa.getId());
+                        loadCertificadoArquivos();
+                        if (list.isEmpty()) {
+                            uploadCertificado = true;
+                            PF.update("form_upload");
+                        }
+                    }
+                    return;
+                }
+            } else {
+                dao.commit();
+                loadCertificadoArquivos();
+                ConvencaoPeriodo cf = getConvencaoPeriodoEmpresa();
+                if (new EmpregadosDao().pesquisaQuantidadeEmpregados(cf.getId(), pessoa.getId()) > 0) {
+                    List<CertificadoArquivos> list = new CertificadoArquivosDao().findBy(cf.getId(), pessoa.getId());
+                    loadCertificadoArquivos();
+                    if (list.isEmpty()) {
+                        uploadCertificado = true;
+                        PF.update("form_upload");
+                    }
+                }
+                return;
+            }
+        }
+        GenericaMensagem.warn("Erro", "AO REMOVER ARQUIVO!");
+        dao.rollback();
+    }
+
+    public List<SelectItem> getListConvencaoPeriodo() {
+        return listConvencaoPeriodo;
+    }
+
+    public void setListConvencaoPeriodo(List<SelectItem> listConvencaoPeriodo) {
+        this.listConvencaoPeriodo = listConvencaoPeriodo;
+    }
+
+    public Integer getIdConvencaoPeriodo() {
+        return idConvencaoPeriodo;
+    }
+
+    public void setIdConvencaoPeriodo(Integer idConvencaoPeriodo) {
+        this.idConvencaoPeriodo = idConvencaoPeriodo;
     }
 }

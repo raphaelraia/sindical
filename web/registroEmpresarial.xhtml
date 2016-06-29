@@ -200,7 +200,7 @@
                                                     <p:ajax event="blur" update="@this"/>
                                                 </p:inputTextarea>                                            
                                             </p:column>
-                                            <p:selectBooleanCheckbox value="#{registroEmpresarialBean.registro.acessoWebDocumento}" itemLabel="Acesso por Documento">
+                                            <p:selectBooleanCheckbox value="#{registroEmpresarialBean.registro.acessoWebDocumento}" itemLabel="Acesso por Documento (Usado para acesso patronal / contribuinte [acesso direto CNPJ])">
                                                 <p:ajax event="change" listener="#{registroEmpresarialBean.salvarSemSenha}" update=":form_registro_empresarial:id_messages" />
                                             </p:selectBooleanCheckbox>
                                         </p:panelGrid>

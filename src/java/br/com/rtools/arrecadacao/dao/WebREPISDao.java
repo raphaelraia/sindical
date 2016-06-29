@@ -321,6 +321,7 @@ public class WebREPISDao extends DB {
                 }
             }
         } catch (Exception e) {
+            return null;
         }
         return null;
     }

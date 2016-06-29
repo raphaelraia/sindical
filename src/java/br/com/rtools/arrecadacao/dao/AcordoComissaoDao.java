@@ -131,7 +131,7 @@ public class AcordoComissaoDao extends DB {
                     + "            CC.nr_repasse    AS repasse,                 \n" // 7
                     + "            LB.dt_importacao AS data_importacao,         \n" // 8
                     + "            LB.dt_baixa      AS data_recebimento,        \n" // 9
-                    + "            current_date     AS data_fechamento,         \n" // 10
+                    + "            ACC.dt_fechamento AS data_fechamento,        \n" // 10
                     + "            M.dt_vencimento  AS data_vencimento,         \n" // 11
                     + "            ACC.dt_inicio    AS data_inicio,             \n" // 12
                     + "            L.dt_emissao     AS data_emissao,            \n" // 13
