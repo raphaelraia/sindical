@@ -1,0 +1,223 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Movimento Cartão</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
+            .ui-button { padding: 3px!important; }
+            .ui-selectonemenu {padding-right: 25px!important;}
+
+            .column00{
+                float: left;
+            }
+
+            .column01{
+                float: right;
+            }
+
+            .column02{
+                padding-right: 20px;
+                float: right;
+            }
+
+            .column03{
+                padding-right: 20px;
+                text-align: center;
+            }
+
+            .column04{
+                text-align: right;
+            }
+        </style>
+
+        <script type="text/javascript">
+
+        </script>
+    </h:head>
+    <h:body>
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                </f:subview>
+                <f:view>
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:outputText value="Reembolso dos cartões de Crédito e Débito" styleClass="fonteHeader" />
+                        <div style="clear: both"></div>
+                        <h:form id="formMovimentoCartao">
+
+                            <p:panel styleClass="fundoCinza" style="clear: both">
+                                <h:panelGrid columns="4">
+                                    <p:column>
+                                        <h:outputLabel value="Bandeira" /><br />
+                                        <p:selectOneMenu value="#{movimentoCartaoBean.indexCartaoCombo}">
+                                            <p:ajax event="change" update="@form" listener="#{movimentoCartaoBean.loadListaCartoes()}" global="false"/>
+                                            <f:selectItems value="#{movimentoCartaoBean.listaCartaoCombo}"/>
+                                        </p:selectOneMenu>
+                                    </p:column>
+                                </h:panelGrid>
+                            </p:panel>
+
+                            <p:messages showDetail="true" closable="true" />  
+
+                            <p:dataTable value="#{movimentoCartaoBean.listaCartoes}" var="linha" emptyMessage="Nenhum Cartão encontrado!" rowKey="#{linha.formaPagamento.id}" selection="#{movimentoCartaoBean.listaCartoesSelecionado}" sortBy="#{linha.dataString}">
+                                <p:column style="width:15px">  
+                                    <p:rowToggler />  
+                                </p:column>  
+
+                                <p:column selectionMode="multiple" style="width:20px" />  
+                                <p:ajax event="toggleSelect" update="@this formMovimentoCartao:panel_valores" listener="#{movimentoCartaoBean.calculoValores()}" />
+                                <p:ajax event="rowSelect" update="@this formMovimentoCartao:panel_valores" listener="#{movimentoCartaoBean.calculoValores()}" global="false" />
+                                <p:ajax event="rowSelectCheckbox" update="@this formMovimentoCartao:panel_valores" listener="#{movimentoCartaoBean.calculoValores()}" global="false" />
+                                <p:ajax event="rowUnselect" update="@this formMovimentoCartao:panel_valores" listener="#{movimentoCartaoBean.calculoValores()}" global="false" />
+                                <p:ajax event="rowUnselectCheckbox" update="@this formMovimentoCartao:panel_valores" listener="#{movimentoCartaoBean.calculoValores()}" global="false" />
+
+                                <p:column headerText="#" style="text-align: center; width: 80px">
+                                    <p:outputLabel value="#{linha.formaPagamento.id}" />
+                                </p:column>
+
+                                <p:column headerText="Data" style="text-align: center; width: 80px">
+                                    <p:outputLabel value="#{linha.dataString}" />
+                                </p:column>
+
+                                <p:column headerText="Operação">
+                                    <p:outputLabel value="#{linha.operacao}" />
+                                </p:column>
+
+                                <p:column headerText="Valor" style="text-align: right; width: 80px">
+                                    <p:outputLabel value="#{linha.valorString}" />
+                                </p:column>
+
+                                <p:column headerText="Taxa" style="text-align: right; width: 80px">
+                                    <p:outputLabel value="#{linha.taxaString}" />
+                                </p:column>
+
+                                <p:column headerText="Líquido" style="text-align: right; width: 80px">
+                                    <p:outputLabel value="#{linha.liquidoString}" />
+                                </p:column>
+
+                                <p:summaryRow>
+                                    <p:column colspan="5" style="text-align: right">
+                                        <h:outputText value="Total:" />
+                                    </p:column>
+
+                                    <p:column style="text-align:right">
+                                        <h:outputLabel value="R$ #{movimentoCartaoBean.calculoSomaValores(linha)}" />
+                                    </p:column>
+
+                                    <p:column>
+
+                                    </p:column>
+
+                                    <p:column style="text-align:right">
+                                        <h:outputLabel value="R$ #{movimentoCartaoBean.calculoSomaLiquidos(linha)}" />
+                                    </p:column>
+                                </p:summaryRow>
+
+                                <p:rowExpansion>
+                                    <h:panelGrid columns="3" styleClass="sbb">
+                                        <h:column rendered="#{linha.responsavel.id ne 0 and linha.responsavel.id ne -1}">
+                                            <p:outputLabel value="Responsável" style="font-weight: bold" /><br />
+                                            <p:outputLabel value="#{linha.responsavel.nome}" />
+                                        </h:column>
+
+                                        <h:column rendered="#{linha.titular ne null}">
+                                            <p:outputLabel value="Titular" style="font-weight: bold" /><br />
+                                            <p:outputLabel value="#{linha.titular.nome}" />
+                                        </h:column>
+
+                                        <h:column rendered="#{linha.beneficiario ne null}">
+                                            <p:outputLabel value="Beneficiário" style="font-weight: bold" /><br />
+                                            <p:outputLabel value="#{linha.beneficiario.nome}" />
+                                        </h:column>
+                                    </h:panelGrid>
+
+                                    <h:panelGrid columns="1" style="width: 100%;" styleClass="sbb" rendered="#{linha.historico ne ''}">
+                                        <h:column>
+                                            <p:outputLabel value="Histórico" style="font-weight: bold" /><br />
+                                            <p:outputLabel value="#{linha.historico}" />
+                                        </h:column>
+                                    </h:panelGrid>
+                                </p:rowExpansion>
+                            </p:dataTable>
+
+                            <hr />
+
+                            <h:panelGrid id="panel_valores" style="width: 100%" columns="4" columnClasses="column00, column01, column02, column02">
+                                <h:panelGrid columns="1">
+                                    <p:commandButton value="Transferir para Conta Corrente" icon="ui-icon-check" onclick="PF('dlg_transferir_cartoes').show()"/>
+                                </h:panelGrid>
+
+                                <h:panelGrid columns="3" columnClasses="column03, column03, column04" style="background: #e2e2e2">
+                                    <h:column>
+                                        <p:outputLabel value="CARTÕES SELECIONADOS" style="font-size: 7pt!important; font-weight: bold"/><br />
+                                        <p:outputLabel value="#{movimentoCartaoBean.listaCartoesSelecionado.size()}" style="font-weight: bold; font-size: 14pt!important"/>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="VALOR TOTAL" style="font-size: 7pt!important; font-weight: bold"/><br />
+                                        <p:outputLabel value="#{movimentoCartaoBean.valorTotalSelecionadoString}" style="font-weight: bold; font-size: 14pt!important"/>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="VALOR TOTAL LÍQUIDO" style="font-size: 7pt!important; font-weight: bold"/><br />
+                                        <p:outputLabel value="#{movimentoCartaoBean.valorTotalLiquidoSelecionadoString}" style="font-weight: bold; font-size: 14pt!important"/>
+                                    </h:column>
+                                </h:panelGrid>
+
+                                <h:panelGrid>
+                                    <p:outputLabel value="||" />
+                                </h:panelGrid>
+
+                                <h:panelGrid columns="3" columnClasses="column03, column03, column04">
+                                    <h:column>
+                                        <p:outputLabel value="TOTAL DE MOVIMENTOS" style="font-size: 7pt!important"/><br />
+                                        <p:outputLabel value="#{movimentoCartaoBean.listaCartoes.size()}" style="font-weight: bold; font-size: 14pt!important"/>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="VALOR TOTAL" style="font-size: 7pt!important"/><br />
+                                        <p:outputLabel value="#{movimentoCartaoBean.valorTotalString}" style="font-weight: bold; font-size: 14pt!important"/>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="VALOR TOTAL LÍQUIDO" style="font-size: 7pt!important"/><br />
+                                        <p:outputLabel value="#{movimentoCartaoBean.valorTotalLiquidoString}" style="font-weight: bold; font-size: 14pt!important"/>
+                                    </h:column>
+                                </h:panelGrid>
+                            </h:panelGrid>
+
+                            <p:dialog widgetVar="dlg_transferir_cartoes" modal="true" header="Transferir Cartões" width="400" resizable="false">
+                                <h:panelGrid id="panel_transferir_cartoes">
+                                    <p:outputLabel value="Deseja realmente transferir os cartões selecionados?" style="font-weight: bold; font-size: 12pt!important" />
+                                </h:panelGrid>
+
+                                <br />
+
+                                <p:commandButton value="Transferir" action="#{movimentoCartaoBean.transferirCartao()}" onclick="PF('dlg_transferir_cartoes').hide()" icon="ui-icon-check" update="@form"/>
+                                <p:commandButton value="Não" onclick="PF('dlg_transferir_cartoes').hide()" icon="ui-icon-close"/>
+                            </p:dialog>
+                        </h:form>
+                    </p:panel>
+                </f:view>
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>                
+    </h:body>
+</ui:composition>

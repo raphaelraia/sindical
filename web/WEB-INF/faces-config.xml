@@ -2192,6 +2192,18 @@
             <redirect/>
         </navigation-case>
         
+        <navigation-case>
+            <from-outcome>movimentoCaixa</from-outcome>
+            <to-view-id>/movimentoCaixa.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>movimentoCartao</from-outcome>
+            <to-view-id>/movimentoCartao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
     </navigation-rule>
     
     <lifecycle>

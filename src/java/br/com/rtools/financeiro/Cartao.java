@@ -35,6 +35,12 @@ public class Cartao implements Serializable {
     @JoinColumn(name = "id_plano5", referencedColumnName = "id")
     @ManyToOne
     private Plano5 plano5;
+    @JoinColumn(name = "id_plano5_baixa", referencedColumnName = "id")
+    @ManyToOne
+    private Plano5 plano5Baixa;
+    @JoinColumn(name = "id_plano5_despesa", referencedColumnName = "id")
+    @ManyToOne
+    private Plano5 plano5Despesa;
 
     public Cartao() {
         this.id = -1;
@@ -43,15 +49,19 @@ public class Cartao implements Serializable {
         this.taxa = 0;
         this.debitoCredito = "";
         this.plano5 = new Plano5();
+        this.plano5Baixa = new Plano5();
+        this.plano5Despesa = new Plano5();
     }
 
-    public Cartao(int id, String descricao, int dias, float taxa, String debitoCredito, Plano5 plano5) {
+    public Cartao(int id, String descricao, int dias, float taxa, String debitoCredito, Plano5 plano5, Plano5 plano5Baixa, Plano5 plano5Despesa) {
         this.id = id;
         this.descricao = descricao;
         this.dias = dias;
         this.taxa = taxa;
         this.debitoCredito = debitoCredito;
         this.plano5 = plano5;
+        this.plano5Baixa = plano5Baixa;
+        this.plano5Despesa = plano5Despesa;
     }
 
     public int getId() {
@@ -100,6 +110,22 @@ public class Cartao implements Serializable {
 
     public void setPlano5(Plano5 plano5) {
         this.plano5 = plano5;
+    }
+
+    public Plano5 getPlano5Baixa() {
+        return plano5Baixa;
+    }
+
+    public void setPlano5Baixa(Plano5 plano5Baixa) {
+        this.plano5Baixa = plano5Baixa;
+    }
+
+    public Plano5 getPlano5Despesa() {
+        return plano5Despesa;
+    }
+
+    public void setPlano5Despesa(Plano5 plano5Despesa) {
+        this.plano5Despesa = plano5Despesa;
     }
 
 }

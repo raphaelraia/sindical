@@ -12,13 +12,18 @@ public class CartaoPag implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
+    @JoinColumn(name = "id_cartao", referencedColumnName = "id")
+    @ManyToOne
+    private Cartao cartao;
 
     public CartaoPag() {
         this.id = -1;
+        this.cartao = new Cartao();
     }
 
-    public CartaoPag(int id) {
+    public CartaoPag(int id, Cartao cartao) {
         this.id = id;
+        this.cartao = cartao;
     }
 
     public int getId() {

@@ -85,11 +85,13 @@
                                         <p:menuitem value="Transf. Entre Caixas"  onclick="PF('i_dlg_t').show()"/>
                                         <p:menuitem value="Transf. p/ CX Central" action="#{chamadaPaginaBean.caixaFechado()}"/>
                                         <p:menuitem value="Fechamento Caixa Geral" action="#{chamadaPaginaBean.pagina('fechamentoCaixaGeral')}"/>
+                                        <p:menuitem value="Movimento"    action="#{chamadaPaginaBean.pagina('movimentoCaixa')}"/>
                                     </p:submenu>
                                     <p:submenu label="Banco">
                                         <p:menuitem value="Transf. Entre Contas" action="#{transferenciaEntreContasBean.novo()}" onclick="PF('dlg_transferencia_contas').show()" update="panel_transferencia_contas"/>
                                         <p:menuitem value="Deposito"     action="#{chamadaPaginaBean.depositoBancario()}"/>
                                         <p:menuitem value="Movimento"    action="#{chamadaPaginaBean.movimentoBancario()}"/>
+                                        <p:menuitem value="Cartões"      action="#{chamadaPaginaBean.pagina('movimentoCartao')}"/>
                                     </p:submenu>
                                 </p:submenu>
 

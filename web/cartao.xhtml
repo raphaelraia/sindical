@@ -13,9 +13,9 @@
             .ui-widget-content .ui-inputfield{ padding: 8px!important;} 
             .ui-button { padding: 3px!important; }            
         </style>
-        
+
         <script type="text/javascript">
-            
+
         </script>
     </h:head>
     <h:body>
@@ -31,7 +31,7 @@
                         <h:outputText value="Cartões" styleClass="fonteHeader" />
                         <h:form id="formCartao">
                             <c:set scope="request" var="object" value="${cartaoBean.cartao}"/>
-                            
+
                             <p:panel styleClass="fundoCinza" style="clear: both">
                                 <h:panelGrid columns="4">
                                     <p:column>
@@ -39,12 +39,12 @@
                                         <p:inputText id="i_nome_cartao" value="#{cartaoBean.cartao.descricao}" size="50" />
                                         <p:watermark value="Nome do Cartão ex. VISA / MASTERCARD" for="i_nome_cartao" />
                                     </p:column>
-                                    
+
                                     <p:column>
                                         <h:outputLabel value="Dias" /><br />
                                         <p:inputText value="#{cartaoBean.cartao.dias}" />
                                     </p:column>
-                                    
+
                                     <p:column>
                                         <h:outputLabel value="Tipo" /><br />
                                         <p:selectOneMenu value="#{cartaoBean.cartao.debitoCredito}" style="width: 100px">
@@ -52,49 +52,98 @@
                                             <f:selectItem itemValue="C" itemLabel="Crédito"/>
                                         </p:selectOneMenu>
                                     </p:column>
-                                    
+
                                     <p:column>
                                         <h:outputLabel value="Taxa %" style="color: red"/><br />
                                         <p:inputText value="#{cartaoBean.cartao.taxa}" />
                                     </p:column>
                                 </h:panelGrid>
-                                
-                                <h:panelGrid id="i_panel_plano">
+
+                                <h:panelGrid columns="5">
                                     <p:column>
-                                        <p:commandButton value="Adicionar Plano de Contas" action="#{chamadaPaginaBean.pesquisaPlano()}" rendered="#{cartaoBean.cartao.plano5.id == -1}" update="i_panel_plano"/>
-                                        <h:outputLabel value="#{cartaoBean.cartao.plano5.numero} - #{cartaoBean.cartao.plano5.conta}" rendered="#{cartaoBean.cartao.plano5.id != -1}" style="font-size: 10pt!important; font-weight: bold; margin-right: 15px"/>
-                                        <p:commandButton icon="ui-icon-trash" action="#{cartaoBean.removerPlano()}" rendered="#{cartaoBean.cartao.plano5.id != -1 and cartaoBean.cartao.id == -1}" update="i_panel_plano" title="Remover plano Adicionado"/>
-                                        <p:commandButton value="Salvar Cartão" action="#{cartaoBean.salvar()}" rendered="#{cartaoBean.cartao.plano5.id != -1}"  disabled="#{controleAcessoBean.botaoSalvar}"  update="formCartao"  title="Salvar ou Alterar este Cartão"/>
+                                        <h:outputText value="Banco a ser creditado" style="font-weight: bold" /><br />
+                                        <p:selectOneMenu value="#{cartaoBean.indexPlano5}" style="width: 400px">
+                                            <p:ajax event="change" update="@this" global="false"/>
+                                            <f:selectItems value="#{cartaoBean.listaPlano5}"/>
+                                        </p:selectOneMenu>
+                                    </p:column>
+                                    
+                                    <p:column>
+                                        <h:outputText value="Conta para Baixa" style="font-weight: bold" /><br />
+                                        <p:selectOneMenu value="#{cartaoBean.indexPlano5Baixa}" style="width: 230px">
+                                            <p:ajax event="change" update="@this" global="false"/>
+                                            <f:selectItems value="#{cartaoBean.listaPlano5Baixa}"/>
+                                        </p:selectOneMenu>
+                                    </p:column>
+                                    
+                                    <p:column>
+                                        <h:outputText value="Conta Despesa para Taxa" style="font-weight: bold" /><br />
+                                        <p:selectOneMenu value="#{cartaoBean.indexPlano5Despesa}" style="width: 230px">
+                                            <p:ajax event="change" update="@this" global="false"/>
+                                            <f:selectItems value="#{cartaoBean.listaPlano5Despesa}"/>
+                                        </p:selectOneMenu>
+                                    </p:column>
+                                    
+                                    <p:column>
+                                        <br />
+                                        <p:commandButton value="Salvar Cartão" action="#{cartaoBean.salvar()}" disabled="#{controleAcessoBean.botaoSalvar}"  update="formCartao"  title="Salvar ou Alterar este Cartão"/>
+                                    </p:column>
+                                    
+                                    <p:column>
+                                        <br />
+                                        <p:commandButton value="Novo" action="#{cartaoBean.novo()}" update="formCartao" />
                                     </p:column>
                                 </h:panelGrid>
                             </p:panel>
-                            
+
                             <p:messages id="i_msg" showDetail="true" closable="true" />  
-                            
+
                             <p:dataTable value="#{cartaoBean.listaCartao}" var="linha" emptyMessage="Nenhum Cartão encontrado!">
-                                <p:column headerText="Excluir" style="text-align: center">
-                                    <p:commandButton icon="ui-icon-trash" action="#{cartaoBean.excluir(linha)}" disabled="#{controleAcessoBean.botaoExcluir}" update=":formCartao" />
+                                <p:column headerText="Excluir" style="text-align: center; width: 40px">
+                                    <p:commandButton icon="ui-icon-trash" action="#{cartaoBean.selecionarCartaoExcluir(linha)}" onclick="PF('dlg_excluir').show()" disabled="#{controleAcessoBean.botaoExcluir}" update="formCartao:panel_excluir_cartao"/>
                                 </p:column>
 
-                                <p:column headerText="Descrição" style="text-align: center">
-                                    <p:commandButton value="#{linha.descricao}" action="#{cartaoBean.editar(linha)}" style="font-weight: bold" update=":formCartao"/>
+                                <p:column headerText="Descrição" style="text-align: center; width: 120px">
+                                    <p:commandButton value="#{linha.descricao}" action="#{cartaoBean.editar(linha)}" style="font-weight: bold" update="@form"/>
                                 </p:column>
 
-                                <p:column headerText="Dias">
+                                <p:column headerText="Dias" style="text-align: center; width: 40px">
                                     <h:outputLabel value="#{linha.dias}"/>
                                 </p:column>
 
-                                <p:column headerText="Tipo" style="text-align: center">
+                                <p:column headerText="Tipo" style="text-align: center; width: 80px">
                                     <h:outputLabel value="Débito" rendered="#{linha.debitoCredito == 'D'}"/>
                                     <h:outputLabel value="Crédito" rendered="#{linha.debitoCredito == 'C'}"/>
                                 </p:column>
 
-                                <p:column headerText="Taxa">
+                                <p:column headerText="Taxa %" style="text-align: center; width: 60px">
                                     <h:outputLabel value="#{linha.taxa}" />
                                 </p:column>
-
-                            </p:dataTable>   
                                 
+                                <p:column headerText="Banco a ser Creditado">
+                                    <h:outputLabel value="#{linha.plano5.conta}" />
+                                </p:column>
+                                
+                                <p:column headerText="Conta para Baixa">
+                                    <h:outputLabel value="#{linha.plano5Baixa.conta}" />
+                                </p:column>
+                                
+                                <p:column headerText="Conta Despesa para Taxa">
+                                    <h:outputLabel value="#{linha.plano5Despesa.conta}" />
+                                </p:column>
+                            </p:dataTable>   
+
+                            <p:dialog widgetVar="dlg_excluir" modal="true" header="Excluir Cartão" width="400" resizable="false">
+                                <h:panelGrid id="panel_excluir_cartao">
+                                    <p:outputLabel value="Deseja realmente EXCLUIR este cartão?" style="font-weight: bold; font-size: 12pt!important" />
+                                    <p:outputLabel value="#{cartaoBean.cartaoExcluir.descricao} - #{cartaoBean.cartaoExcluir.debitoCredito eq 'D' ? 'Débito' : 'Crédito'}" style="font-size: 12pt!important" />
+                                </h:panelGrid>
+
+                                <br />
+
+                                <p:commandButton value="Excluir" action="#{cartaoBean.excluir()}" onclick="PF('dlg_excluir').hide()" icon="ui-icon-check" update="@form"/>
+                                <p:commandButton value="Não" onclick="PF('dlg_excluir').hide()" icon="ui-icon-close"/>
+                            </p:dialog>
                         </h:form>
                     </p:panel>
                 </f:view>

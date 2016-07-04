@@ -24,7 +24,7 @@
             .column01_panel01{
                 width: 100%;
             }
-            
+
             .column01_panel02{
                 width: 200px;
             }
@@ -59,7 +59,7 @@
                                             <p:inputText value="#{baixaGeralBean.caixa.descricao}" style="font-size: 11pt!important; font-weight: bold; width: 100%; opacity: 11; background: transparent" disabled="true"/>
                                         </p:column>
                                     </h:panelGrid>
-                                    
+
                                     <h:panelGrid id="panel02" columns="2" rendered="#{baixaGeralBean.listaMovimentos.size() > 0}" style="width: 100%" columnClasses="column01_panel02, column02_panel02">
                                         <p:column>
                                             <h:outputLabel value="Valor total para Baixa" style="font-size: 12pt!important;"/><br />
@@ -236,12 +236,12 @@
                                                     <f:selectItems value="#{baixaGeralBean.listaTodosBancos}"/>
                                                 </p:selectOneMenu>
                                             </p:column>
-                                            
+
                                             <p:column>
                                                 <h:outputText value="Agência" /><br />
                                                 <p:inputText value="#{baixaGeralBean.chequeRec.agencia}" size="4"/>
                                             </p:column>
-                                            
+
                                             <p:column>
                                                 <h:outputText value="Conta" /><br />
                                                 <p:inputText value="#{baixaGeralBean.chequeRec.conta}" size="8" />

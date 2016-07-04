@@ -180,6 +180,7 @@ public class EmissaoGuiasBean implements Serializable {
         listaMovimentosEmitidos = new ArrayList();
         servicox = (Servicos) new Dao().find(new Servicos(), Integer.parseInt(getListServicos().get(index[2]).getDescription()));
 
+        atualizarHistorico();
     }
 
     @PreDestroy

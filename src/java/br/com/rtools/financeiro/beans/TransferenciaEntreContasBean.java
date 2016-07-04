@@ -167,6 +167,7 @@ public class TransferenciaEntreContasBean implements Serializable {
         if (!dao.save(forma_saida) || !dao.save(forma_entrada)) {
             GenericaMensagem.warn("Erro", "Erro ao salvar Forma de Pagamento");
             dao.rollback();
+            return;
         }
 
         dao.commit();

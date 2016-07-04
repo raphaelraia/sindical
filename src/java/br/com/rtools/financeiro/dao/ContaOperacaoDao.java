@@ -16,11 +16,11 @@ public class ContaOperacaoDao extends DB {
             switch (idOperacao) {
                 case 1:
                 case 7:
-                    queryString += " WHERE replace(upper(ltrim(rtrim(conta1))), ' ','') LIKE '%RECEITA%' \n";
+                    queryString += " WHERE replace(upper(ltrim(rtrim(conta1))), ' ','') LIKE '%RECEITA%' OR replace(upper(ltrim(rtrim(conta1))), ' ','') LIKE '%ATIVO%' OR replace(upper(ltrim(rtrim(conta1))), ' ','') LIKE '%PASSIVO%'\n";
                     break;
                 case 2:
                 case 8:
-                    queryString += " WHERE replace(upper(ltrim(rtrim(conta1))), ' ','') LIKE '%DESPESA%' \n";
+                    queryString += " WHERE replace(upper(ltrim(rtrim(conta1))), ' ','') LIKE '%DESPESA%' OR replace(upper(ltrim(rtrim(conta1))), ' ','') LIKE '%PASSIVO%' OR replace(upper(ltrim(rtrim(conta1))), ' ','') LIKE '%ATIVO%'\n";
                     break;
                 default:
                     queryString += "WHERE NOT REPLACE(UPPER(LTRIM(RTRIM(conta1))), ' ','') LIKE '%DESPESA%' \n AND "

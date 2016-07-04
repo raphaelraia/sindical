@@ -16,6 +16,7 @@ import br.com.rtools.financeiro.FormaPagamento;
 import br.com.rtools.financeiro.Historico;
 import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.Movimento;
+import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.SubGrupoFinanceiro;
 import br.com.rtools.financeiro.TransferenciaCaixa;
 import br.com.rtools.principal.DB;
@@ -1365,6 +1366,74 @@ public class FinanceiroDao extends DB {
                 + "  FROM fin_banco b \n"
                 + " WHERE b.id > 0 \n"
                 + " ORDER BY b.nr_num_banco", Banco.class
+        );
+
+        try {
+            return qry.getResultList();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return new ArrayList();
+    }
+
+    public List<Plano5> listaContas() {
+        Query qry = getEntityManager().createNativeQuery(
+                "SELECT id_plano5, \n"
+                + "       conta \n"
+                + "  FROM caixa_banco_vw \n"
+                + " WHERE id_plano5 <> 1 \n"
+                + " ORDER BY conta"
+        );
+
+        try {
+            List<Object> result = qry.getResultList();
+            List<Plano5> lista = new ArrayList();
+            Dao dao = new Dao();
+
+            for (Object ob : result) {
+                List linha = (List) ob;
+                lista.add((Plano5) dao.find(new Plano5(), linha.get(0)));
+            }
+            return lista;
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return new ArrayList();
+    }
+
+    public List<Plano5> listaContasBaixa() {
+        Query qry = getEntityManager().createNativeQuery(
+                "SELECT id_p5, \n"
+                + "       conta5 \n"
+                + "  FROM plano_vw \n"
+                + " WHERE id_p5 NOT IN (SELECT id_plano5 FROM caixa_banco_vw WHERE id_plano5 <> 1 ORDER BY conta) \n"
+                + "   AND REPLACE(UPPER(conta1),' ','') LIKE '%ATIVO%' \n"
+                + "   AND REPLACE(UPPER(conta3),' ','') NOT LIKE '%IMOBILIZADO%' ORDER BY classificador "
+        );
+
+        try {
+            List<Object> result = qry.getResultList();
+            List<Plano5> lista = new ArrayList();
+            Dao dao = new Dao();
+
+            for (Object ob : result) {
+                List linha = (List) ob;
+                lista.add((Plano5) dao.find(new Plano5(), linha.get(0)));
+            }
+            return lista;
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return new ArrayList();
+    }
+
+    public List<Object> listaContasDespesa() {
+        Query qry = getEntityManager().createNativeQuery(
+                "SELECT id_p5, \n "
+                + "     LEFT(conta4||LPAD(' ', 40), 40)||conta5 AS conta \n "
+                + "  FROM plano_vw \n"
+                + " WHERE REPLACE(UPPER(conta1),' ','') LIKE '%DESPESA%' \n "
+                + " ORDER BY conta4, conta5"
         );
 
         try {

@@ -50,6 +50,8 @@ public class RelatorioContasPagarDao extends DB {
             List listWhere = new ArrayList<>();
 
             listWhere.add(" M.es = 'S'");
+            listWhere.add(" M.id_plano5 NOT IN (SELECT id_plano5 FROM caixa_banco_vw)");
+            
             switch (relatorios.getId()) {
                 // Contas a Pagar (filtro fixo) 
                 case 94:
