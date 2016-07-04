@@ -3,6 +3,7 @@ package br.com.rtools.associativo.beans;
 import br.com.rtools.associativo.AEvento;
 import br.com.rtools.associativo.DescricaoEvento;
 import br.com.rtools.associativo.GrupoEvento;
+import br.com.rtools.associativo.dao.AEventoDao;
 import br.com.rtools.associativo.dao.DescricaoEventoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.utilitarios.Dao;
@@ -75,8 +76,7 @@ public class DescricaoEventoBean implements Serializable {
 
     public void excluir(DescricaoEvento de) {
         Dao dao = new Dao();
-        DescricaoEventoDao db = new DescricaoEventoDao();
-        List<AEvento> ae = db.listaEventoPorDescricao(de.getId());
+        List<AEvento> ae = new AEventoDao().pesquisaPorDescricaoEvento(de.getId());
         dao.openTransaction();
         for (AEvento ae1 : ae) {
             if (!dao.delete((AEvento) dao.find(ae1))) {

@@ -314,11 +314,12 @@ public class ServicosDao extends DB {
 
     public Servicos idServicos(Servicos des_servicos) {
         Servicos result = null;
-        String descricao = des_servicos.getDescricao().toLowerCase().toUpperCase();
+        // String descricao = des_servicos.getDescricao().toLowerCase().toUpperCase();
         try {
-            Query qry = getEntityManager().createQuery("select ser from Servicos ser where UPPER(ser.descricao) = :d_servicos");
-            qry.setParameter("d_servicos", descricao);
-            result = (Servicos) qry.getSingleResult();
+            String queryString = "SELECT S.* FROM fin_servicos AS S WHERE func_translate(UPPER(TRIM(S.ds_descricao))) LIKE func_translate(UPPER(TRIM('"+des_servicos.getDescricao()+"')))";
+            Query query = getEntityManager().createNativeQuery(queryString, Servicos.class);
+            // query.setParameter("d_servicos", descricao);
+            result = (Servicos) query.getSingleResult();
         } catch (Exception e) {
         }
         return result;
