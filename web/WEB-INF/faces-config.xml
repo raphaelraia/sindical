@@ -2210,6 +2210,12 @@
             <redirect/>
         </navigation-case>
         
+        <navigation-case>
+            <from-outcome>downloadDocumentosWeb</from-outcome>
+            <to-view-id>/downloadDocumentosWeb.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
     </navigation-rule>
     
     <lifecycle>

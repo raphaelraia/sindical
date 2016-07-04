@@ -61,4 +61,12 @@ public class Download {
             file.delete();
         }
     }
+
+    public File getFile() {
+        return file;
+    }
+
+    public void setFile(File file) {
+        this.file = file;
+    }
 }

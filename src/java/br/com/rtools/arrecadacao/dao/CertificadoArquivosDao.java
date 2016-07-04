@@ -7,6 +7,33 @@ import javax.persistence.Query;
 
 public class CertificadoArquivosDao extends DB {
 
+    public List findAll(Boolean download, Integer pessoa_id, Integer convencao_periodo_id) {
+        try {
+            String queryString = "SELECT CA FROM CertificadoArquivos AS CA WHERE ";
+            Query query;
+            if (download) {
+                queryString += " CA.dtDownload IS NOT NULL ";
+            } else {
+                queryString += " CA.dtDownload IS NULL ";
+            }
+            if (pessoa_id != null && pessoa_id != -1) {
+                queryString += " AND CA.pessoa.id = " + pessoa_id;
+            }
+            if (convencao_periodo_id != null) {
+                queryString += " AND CA.convencaoPeriodo.id = " + convencao_periodo_id;
+            }
+            if (download) {
+                queryString += " ORDER BY CA.dtDownload DESC ";
+            } else {
+                queryString += " ORDER BY CA.dtUpload DESC ";
+            }
+            query = getEntityManager().createQuery(queryString);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
     public List findBy(Integer convencao_periodo_id, Integer pessoa_id) {
         try {
             Query query = getEntityManager().createQuery("SELECT CA FROM CertificadoArquivos AS CA WHERE CA.convencaoPeriodo.id = :convencao_periodo_id  AND CA.pessoa.id = :pessoa_id ORDER BY CA.dtUpload DESC");

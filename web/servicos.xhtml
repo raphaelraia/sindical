@@ -283,11 +283,47 @@
                                                         <p:outputLabel value="#{servicoValor.taxa}"/>
                                                     </p:column>
                                                     <p:column styleClass="text-center" width="30">
+                                                        <p:commandButton icon="ui-icon-contact" title="Histórico de valores" disabled="false" update="form_servicos:id_tab_view:id_sv_historico" onclick="PF('dlg_sv_historico').show()" actionListener="#{servicosBean.loadListServicoValorHistorico(servicoValor.id)}"/>
+                                                    </p:column>                                                
+                                                    <p:column styleClass="text-center" width="30">
                                                         <p:commandButton icon="ui-icon-trash" action="#{servicosBean.removeServicoValor(servicoValor)}" disabled="#{controleAcessoBean.botaoExcluir}" update=":form_servicos:id_tab_view:id_acao :form_servicos:id_tab_view:id_painel_servico_valor :form_servicos:id_tab_view:id_messages_growl" title="Remover este registro"/>
                                                     </p:column>                                                
                                                 </p:dataTable>
                                             </p:panelGrid>
                                         </p:panel>
+                                        <p:dialog widgetVar="dlg_sv_historico" modal="true" resizable="false" height="400" width="900" header="Histórico">
+                                            <p:panel id="id_sv_historico">
+                                                <p:dataTable value="#{servicosBean.listServicoValorHistorico}" var="servicoValorHistorico" scrollHeight="150" scrollable="true" emptyMessage="Não existe(m) registro(s)">
+                                                    <p:column style="width:15px">  
+                                                        <p:rowToggler />  
+                                                    </p:column>                                                     
+                                                    <p:column styleClass="text-center" headerText="Data" width="80">
+                                                        <p:outputLabel value="#{servicoValorHistorico.data}"/>
+                                                    </p:column>                                               
+                                                    <p:column styleClass="text-center" headerText="Hora" width="80">
+                                                        <p:outputLabel value="#{servicoValorHistorico.hora}"/>
+                                                    </p:column>                                               
+                                                    <p:column headerText="Idade inicial" styleClass="text-center" width="100">
+                                                        <p:outputLabel value="#{servicoValorHistorico.idadeIni}"/>
+                                                    </p:column>
+                                                    <p:column headerText="Idade Final" styleClass="text-center" width="100">
+                                                        <p:outputLabel value="#{servicoValorHistorico.idadeFim}"/>
+                                                    </p:column>
+                                                    <p:column headerText="Valor (R$)" width="90" styleClass="text-center">
+                                                        <p:outputLabel value="#{servicoValorHistorico.valor}"/>
+                                                    </p:column>
+                                                    <p:column headerText="Desconto (%)" width="110" styleClass="text-center">
+                                                        <p:outputLabel value="#{servicoValorHistorico.descontoAteVenc}"/>
+                                                    </p:column>
+                                                    <p:column styleClass="text-center" headerText="Taxa (R$)" width="40">
+                                                        <p:outputLabel value="#{servicoValorHistorico.taxa}"/>
+                                                    </p:column>
+                                                    <p:rowExpansion>
+                                                        <p:outputLabel value="USUÁRIO: #{servicoValorHistorico.usuario.pessoa.nome}"/>                                                        
+                                                    </p:rowExpansion>                                                    
+                                                </p:dataTable>
+                                            </p:panel>
+                                        </p:dialog>  
                                     </p:tab>
                                     <p:tab title="Serviço Categoria" disabled="#{servicosBean.servicos.id == -1}">
                                         <p:panel id="tblDesconto" styleClass="no-border">

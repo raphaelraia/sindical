@@ -1,0 +1,120 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>Sindical - Download Documentos Web</title>       
+    </h:head>
+    <h:body> 
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                </f:subview>
+                <f:view>
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <p:outputLabel value="Download Documentos Web" styleClass="fonteHeader" />
+                        <div style="clear: both;"></div>
+                        <h:form id="form_certificados_arquivos">
+                            <p:poll id="id_ca" interval="10" delay="5" listener="#{downloadDocumentosWebBean.loadListConvencaoPeriodo(false)}" update="id_ca id_certificados_arquivos" />
+                            <p:panel styleClass="fundoCinza">
+                                <h:panelGroup id="i_change_cgcp">
+                                    <h:panelGrid columns="8" cellspacing="5">
+                                        <h:outputText value="CONVENÇÃO:"  />
+                                        <p:selectOneMenu  value="#{downloadDocumentosWebBean.idConvencao}">
+                                            <p:ajax event="change" update="@this i_change_cgcp id_certificados_arquivos" global="false" listener="#{downloadDocumentosWebBean.loadListGrupoCidade}"/>
+                                            <f:selectItems value="#{downloadDocumentosWebBean.listConvencao}"/>
+                                        </p:selectOneMenu>                             
+                                        <h:outputText value="GRUPO CIDADE: "  />
+                                        <p:selectOneMenu   value="#{downloadDocumentosWebBean.idGrupoCidade}">
+                                            <p:ajax event="change" update="@this i_change_cgcp id_certificados_arquivos" global="false" listener="#{downloadDocumentosWebBean.loadListConvencaoPeriodo}"/>
+                                            <f:selectItems value="#{downloadDocumentosWebBean.listGrupoCidade}"/>
+                                        </p:selectOneMenu>                             
+                                        <h:outputText value="CONVENÇÃO PERÍODO: "  />
+                                        <p:selectOneMenu   value="#{downloadDocumentosWebBean.idConvencaoPeriodo}">
+                                            <p:ajax event="change" update="@this id_certificados_arquivos" global="false" listener="#{downloadDocumentosWebBean.loadCertificadoArquivos}"/>
+                                            <f:selectItems value="#{downloadDocumentosWebBean.listConvencaoPeriodo}"/>
+                                        </p:selectOneMenu>
+                                        <p:selectBooleanCheckbox value="#{downloadDocumentosWebBean.analisar}" itemLabel="Download realizado">
+                                            <p:ajax event="change" update="@this id_certificados_arquivos" global="false" listener="#{downloadDocumentosWebBean.loadCertificadoArquivos}"/>                                        
+                                        </p:selectBooleanCheckbox>
+                                    </h:panelGrid>
+                                    <h:panelGrid columns="2" cellspacing="5">
+                                        <h:column>
+                                            <p:commandButton icon="ui-icon-search" title="Pesquisar Empresa" action="#{chamadaPaginaBean.pesquisaPessoaJuridica}" immediate="true" />
+                                        </h:column>
+                                        <h:column>
+                                            <h:panelGrid columns="5">
+                                                <p:outputLabel value="PESQUISAR EMPRESA " rendered="#{downloadDocumentosWebBean.pessoa == null}" style="border-bottom: 1px dashed gray; color: gray;" />
+                                                <p:outputLabel value="CNPJ: #{downloadDocumentosWebBean.pessoa.documento} - #{downloadDocumentosWebBean.pessoa.nome}"  rendered="#{downloadDocumentosWebBean.pessoa != null}" style="font-weight: bold"/>
+                                                <p:commandButton icon="ui-icon-close" action="#{downloadDocumentosWebBean.setPessoa(null)}" update=":form_certificados_arquivos:" rendered="#{downloadDocumentosWebBean.pessoa != null}"/>
+                                            </h:panelGrid>
+                                        </h:column>
+                                    </h:panelGrid>
+                                </h:panelGroup> 
+                            </p:panel>
+                            <h:panelGroup id="id_certificados_arquivos">                           
+                                <p:messages showDetail="true" closable="true" />
+                                <p:panel>
+                                    <p:dataTable styleClass="margin-top-max" value="#{downloadDocumentosWebBean.listCertificadoArquivos}" var="certificadoArquivos" scrollHeight="300" scrollable="true" emptyMessage="Nenhum registro encontrado!" id="i_afffdf" selection="#{downloadDocumentosWebBean.selectedCertificadoArquivos}" rowKey="#{certificadoArquivos.id}">
+                                        <p:column selectionMode="multiple" style="width:16px;text-align:center"/>
+                                        <p:column width="15">  
+                                            <p:rowToggler />  
+                                        </p:column>
+                                        <p:column headerText="Contribuinte" styleClass="text-center" >
+                                            <h:outputText value="#{certificadoArquivos.pessoa.nome}" />
+                                        </p:column>
+                                        <p:column headerText="Documento" styleClass="text-center" >
+                                            <h:outputText value="#{certificadoArquivos.pessoa.documento}" />
+                                        </p:column>
+                                        <p:column headerText="Convenção" styleClass="text-center" >
+                                            <h:outputText value="#{certificadoArquivos.convencaoPeriodo.convencao.descricao}" />
+                                        </p:column>
+                                        <p:column headerText="Grupo Cidade" styleClass="text-center">
+                                            <h:outputText value="#{certificadoArquivos.convencaoPeriodo.convencao.descricao}" />
+                                        </p:column>
+                                        <p:column headerText="Ref. Inicial" styleClass="text-center" width="50">
+                                            <h:outputText value="#{certificadoArquivos.convencaoPeriodo.referenciaInicial}" />
+                                        </p:column>
+                                        <p:column headerText="Ref. Final" styleClass="text-center" width="50">
+                                            <h:outputText value="#{certificadoArquivos.convencaoPeriodo.referenciaFinal}" />
+                                        </p:column>
+                                        <p:column headerText="Data Upload" styleClass="text-center" width="80">
+                                            <h:outputText value="#{certificadoArquivos.upload}" />
+                                        </p:column>
+                                        <p:column headerText="Data Download" styleClass="text-center" width="80">
+                                            <h:outputText value="#{certificadoArquivos.download}" />
+                                        </p:column>
+                                        <p:column width="25" styleClass="text-center">
+                                            <p:commandButton icon="ui-icon-arrowthickstop-1-s" title="BAIXAR ARQUIVO" action="#{downloadDocumentosWebBean.download(certificadoArquivos)}" ajax="false" onclick="form.target = '_blank'"/>
+                                        </p:column>
+                                        <p:column width="25" styleClass="text-center" >
+                                            <p:commandButton icon="ui-icon-close" title="EXCLUIR ARQUIVO" action="#{downloadDocumentosWebBean.deleteFile(certificadoArquivos)}" update=":form_certificados_arquivos:i_afffdf"/>
+                                        </p:column>
+                                        <p:rowExpansion>
+                                            <h:outputText value="Arquivo: #{certificadoArquivos.arquivo}" style="font-size: 8pt!important"/>
+                                        </p:rowExpansion>
+                                    </p:dataTable>                                
+                                    <f:facet name="footer">
+                                        <p:commandButton icon="ui-icon-arrowthickstop-1-s" value="Baixar Selecionados" title="BAIXAR SELECIONADOS" action="#{downloadDocumentosWebBean.download()}" ajax="false" onclick="form.target = '_blank'" disabled="#{downloadDocumentosWebBean.selectedCertificadoArquivos != null and downloadDocumentosWebBean.selectedCertificadoArquivos.size() == 10}"/>
+                                    </f:facet>
+                                </p:panel>
+                            </h:panelGroup>
+                        </h:form>
+                    </p:panel>
+                </f:view>                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>     
+    </h:body>
+</ui:composition>

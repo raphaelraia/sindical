@@ -1,6 +1,5 @@
 package br.com.rtools.financeiro.dao;
 
-import br.com.rtools.associativo.Categoria;
 import br.com.rtools.financeiro.DescontoPromocional;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.principal.DB;

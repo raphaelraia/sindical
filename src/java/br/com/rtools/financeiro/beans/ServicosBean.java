@@ -14,16 +14,19 @@ import br.com.rtools.financeiro.GrupoFinanceiro;
 import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.ServicoContaCobranca;
 import br.com.rtools.financeiro.ServicoValor;
+import br.com.rtools.financeiro.ServicoValorHistorico;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.SubGrupoFinanceiro;
 import br.com.rtools.financeiro.dao.DescontoPromocionalDao;
 import br.com.rtools.financeiro.dao.FinanceiroDao;
+import br.com.rtools.financeiro.dao.ServicoValorHistoricoDao;
 import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.financeiro.lista.ListServicosCategoriaDesconto;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Administradora;
 import br.com.rtools.seguranca.Departamento;
+import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.sistema.Periodo;
 import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.Dao;
@@ -33,6 +36,7 @@ import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.PF;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.PreDestroy;
@@ -46,6 +50,7 @@ public class ServicosBean implements Serializable {
 
     private Servicos servicos;
     private ServicoValor servicoValor;
+    private List<ServicoValorHistorico> listServicoValorHistorico;
     //private ServicoValor servicoValorDetalhe;
     private CategoriaDesconto categoriaDesconto;
     private List<ServicoValor> listServicoValor;
@@ -123,6 +128,7 @@ public class ServicosBean implements Serializable {
         listModeloCarteirinha = new ArrayList();
         loadModeloCarteirinha();
         descontoPromocional = new DescontoPromocional();
+        listServicoValorHistorico = new ArrayList();
     }
 
     @PreDestroy
@@ -521,6 +527,16 @@ public class ServicosBean implements Serializable {
                     );
                 }
 
+                List<ServicoValorHistorico> listSVH = new ServicoValorHistoricoDao().findByServico(servicos.getId());
+
+                for (ServicoValorHistorico svh : listSVH) {
+                    if (!di.delete(svh)) {
+                        di.rollback();
+                        GenericaMensagem.error("Erro", "Não foi possível excluir registro!");
+                        return;
+                    }
+                }
+
                 if (!di.delete(servicos)) {
                     di.rollback();
                     message = "Erro cadastro não pode ser excluído!";
@@ -601,6 +617,8 @@ public class ServicosBean implements Serializable {
     }
 
     public void saveServicoValor() {
+        ServicoValor svh = new ServicoValor();
+        ServicoValorHistorico servicoValorHistorico = new ServicoValorHistorico();
         Dao di = new Dao();
         NovoLog novoLog = new NovoLog();
         servicoValor.setValor(Moeda.substituiVirgulaFloat(valorf));
@@ -632,6 +650,7 @@ public class ServicosBean implements Serializable {
                     di.commit();
                     GenericaMensagem.info("Sucesso", "Registro adicionado com sucesso");
                     listServicoValor.clear();
+                    svh = servicoValor;
                     servicoValor = new ServicoValor();
                     valorf = "0";
                     desconto = "0";
@@ -672,6 +691,7 @@ public class ServicosBean implements Serializable {
                         }
                     }
                     di.commit();
+                    svh = servicoValor;
                     GenericaMensagem.info("Sucesso", "Registro atualizado com sucesso");
                     listServicoValor.clear();
                     servicoValor = new ServicoValor();
@@ -687,6 +707,18 @@ public class ServicosBean implements Serializable {
             listServicosCategoriaDesconto.clear();
         } else {
             GenericaMensagem.warn("Validação", "Informar o valor / taxa!");
+        }
+        if (svh.getId() != -1) {
+            servicoValorHistorico.setServicoValor(svh);
+            servicoValorHistorico.setServico(svh.getServicos());
+            servicoValorHistorico.setDtData(new Date());
+            servicoValorHistorico.setIdadeIni(svh.getIdadeIni());
+            servicoValorHistorico.setIdadeFim(svh.getIdadeFim());
+            servicoValorHistorico.setValor(svh.getValor());
+            servicoValorHistorico.setDescontoAteVenc(svh.getDescontoAteVenc());
+            servicoValorHistorico.setTaxa(svh.getTaxa());
+            servicoValorHistorico.setUsuario(Usuario.getUsuario());
+            new Dao().save(servicoValorHistorico, true);
         }
         setActiveIndex(1);
     }
@@ -722,22 +754,35 @@ public class ServicosBean implements Serializable {
                 servicoValor = sv;
             }
         }
+        di.openTransaction();
 
         NovoLog novoLog = new NovoLog();
         textoBtnServico = "Adicionar";
         if (servicoValor.getId() != -1) {
-            CategoriaDescontoDao db = new CategoriaDescontoDao();
-            List<CategoriaDesconto> listc = db.listaCategoriaDescontoServicoValor(servicoValor.getId());
 
-            for (CategoriaDesconto cd : listc) {
-                if (!di.delete(di.find(cd))) {
+            List<ServicoValorHistorico> listSVH = new ServicoValorHistoricoDao().findByServicoValor(servicoValor.getId());
+
+            for (ServicoValorHistorico svh : listSVH) {
+                svh.setServicoValor(null);
+                if (!di.update(svh)) {
                     di.rollback();
                     GenericaMensagem.error("Erro", "Não foi possível excluir registro!");
                     return;
                 }
             }
 
-            if (di.delete(servicoValor, false)) {
+            CategoriaDescontoDao db = new CategoriaDescontoDao();
+            List<CategoriaDesconto> listc = db.listaCategoriaDescontoServicoValor(servicoValor.getId());
+
+            for (CategoriaDesconto cd : listc) {
+                if (!di.delete((cd))) {
+                    di.rollback();
+                    GenericaMensagem.error("Erro", "Não foi possível excluir registro!");
+                    return;
+                }
+            }
+
+            if (di.delete(servicoValor)) {
                 novoLog.setCodigo(servicoValor.getId());
                 novoLog.setTabela("fin_servico_valor");
                 novoLog.delete(
@@ -758,6 +803,7 @@ public class ServicosBean implements Serializable {
                 GenericaMensagem.info("Sucesso", "Registro excluido com sucesso");
                 textoBtnServico = "Adicionar";
             } else {
+                di.rollback();
                 GenericaMensagem.warn("Erro", "Ao excluir registro!");
             }
         }
@@ -1378,6 +1424,19 @@ public class ServicosBean implements Serializable {
                 descontoMatricula = true;
             }
         }
+    }
+
+    public List<ServicoValorHistorico> getListServicoValorHistorico() {
+        return listServicoValorHistorico;
+    }
+
+    public void setListServicoValorHistorico(List<ServicoValorHistorico> listServicoValorHistorico) {
+        this.listServicoValorHistorico = listServicoValorHistorico;
+    }
+
+    public void loadListServicoValorHistorico(Integer servico_valor_id) {
+        listServicoValorHistorico = new ArrayList();
+        listServicoValorHistorico = new ServicoValorHistoricoDao().findByServicoValor(servico_valor_id);
     }
 
 }

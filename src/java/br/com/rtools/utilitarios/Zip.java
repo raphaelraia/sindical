@@ -27,29 +27,31 @@ public class Zip {
     private void zipFiles(Stack<File> parentDirs, File[] files, ZipOutputStream out) throws IOException {
         byte[] buf = new byte[1024];
         for (int i = 0; i < files.length; i++) {
-            if (files[i].isDirectory()) {
-                //se a entrad é um diretório, empilha o diretório e
-                //chama o mesmo método recursivamente
-                parentDirs.push(files[i]);
-                zipFiles(parentDirs, files[i].listFiles(), out);
-                //após processar as entradas do diretório, desempilha
-                parentDirs.pop();
-            } else {
-                FileInputStream in = new FileInputStream(files[i]);
-                //itera sobre os itens da pilha para montar o caminho
-                //completo do arquivo
-                String path = "";
-                for (File parentDir : parentDirs) {
-                    path += parentDir.getName() + "/";
-                }
-                //grava os dados no arquivo zip
-                out.putNextEntry(new ZipEntry(path + files[i].getName()));
-                int len;
-                while ((len = in.read(buf)) > 0) {
-                    out.write(buf, 0, len);
-                }
-                out.closeEntry();
-                in.close();
+            if(files[i] != null) {
+                if (files[i].isDirectory()) {
+                    //se a entrad é um diretório, empilha o diretório e
+                    //chama o mesmo método recursivamente
+                    parentDirs.push(files[i]);
+                    zipFiles(parentDirs, files[i].listFiles(), out);
+                    //após processar as entradas do diretório, desempilha
+                    parentDirs.pop();
+                } else {
+                    FileInputStream in = new FileInputStream(files[i]);
+                    //itera sobre os itens da pilha para montar o caminho
+                    //completo do arquivo
+                    String path = "";
+                    for (File parentDir : parentDirs) {
+                        path += parentDir.getName() + "/";
+                    }
+                    //grava os dados no arquivo zip
+                    out.putNextEntry(new ZipEntry(path + files[i].getName()));
+                    int len;
+                    while ((len = in.read(buf)) > 0) {
+                        out.write(buf, 0, len);
+                    }
+                    out.closeEntry();
+                    in.close();
+                }                
             }
         }
     }
