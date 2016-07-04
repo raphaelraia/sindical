@@ -2204,6 +2204,12 @@
             <redirect/>
         </navigation-case>
         
+        <navigation-case>
+            <from-outcome>conciliacao</from-outcome>
+            <to-view-id>/conciliacao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
     </navigation-rule>
     
     <lifecycle>
