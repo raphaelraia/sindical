@@ -1264,6 +1264,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             Dao dao = new Dao();
             if (!dao.delete(pessoaEmpresa, true)) {
                 mensagem = "Empresa com Agendamento não pode ser excluída!";
+                GenericaMensagem.warn("Erro", "Empresa com Agendamento não pode ser excluída!");
                 PF.update("form_pessoa_fisica:i_panel_mensagem");
                 PF.openDialog("dlg_painel_mensagem");
                 return;

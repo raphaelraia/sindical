@@ -99,6 +99,10 @@ public class SegurancaUtilitariosBean implements Serializable {
         return registro;
     }
 
+    public MacFilial getMacFilial() {
+        return MacFilial.getAcessoFilial();
+    }
+
     public String getMensagem() {
         return mensagem;
     }

@@ -9,12 +9,14 @@ import br.com.rtools.associativo.ModeloCarteirinha;
 import br.com.rtools.associativo.Parentesco;
 import br.com.rtools.associativo.dao.CategoriaDescontoDao;
 import br.com.rtools.associativo.dao.ParentescoDao;
+import br.com.rtools.financeiro.DescontoPromocional;
 import br.com.rtools.financeiro.GrupoFinanceiro;
 import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.ServicoContaCobranca;
 import br.com.rtools.financeiro.ServicoValor;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.SubGrupoFinanceiro;
+import br.com.rtools.financeiro.dao.DescontoPromocionalDao;
 import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.financeiro.lista.ListServicosCategoriaDesconto;
@@ -49,6 +51,7 @@ public class ServicosBean implements Serializable {
     private List<ServicoValor> listServicoValor;
     private List<Servicos> listServicos;
     private List<CategoriaDesconto> listCategoriaDesconto;
+    private DescontoPromocional descontoPromocional;
     private List<ListServicosCategoriaDesconto> listServicosCategoriaDesconto;
     private List<SelectItem> listSubGrupo;
     private List<SelectItem> listGrupo;
@@ -79,9 +82,11 @@ public class ServicosBean implements Serializable {
     private String valorDependente;
     private List<CategoriaDescontoDependente> listaDescontoDependente;
     private String situacao;
+    private Boolean descontoMatricula;
 
     public ServicosBean() {
         servicos = new Servicos();
+        descontoPromocional = new DescontoPromocional();
         porPesquisa = "ds_descricao";
         comoPesquisa = "P";
         descPesquisa = "";
@@ -113,11 +118,11 @@ public class ServicosBean implements Serializable {
         id_categoria = 0;
         valorDependente = "0,00";
         listaDescontoDependente = new ArrayList<>();
-        //    private String tabViewTitle = "0";
         situacao = "A";
         idModeloCarteirinha = null;
         listModeloCarteirinha = new ArrayList();
         loadModeloCarteirinha();
+        descontoPromocional = new DescontoPromocional();
     }
 
     @PreDestroy
@@ -134,7 +139,6 @@ public class ServicosBean implements Serializable {
         for (int i = 0; i < list.size(); i++) {
             listModeloCarteirinha.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
         }
-
     }
 
     public void clear() {
@@ -229,6 +233,32 @@ public class ServicosBean implements Serializable {
                 if (db.idServicos(servicos) == null) {
                     servicos.setDepartamento((Departamento) di.find(new Departamento(), 14));
                     servicos.setFilial((Filial) di.find(new Filial(), 1));
+                    if (!di.save(servicos)) {
+                        message = "Erro ao inserir registro.";
+                        di.rollback();
+                        return;
+                    }
+                    if (descontoMatricula) {
+                        descontoPromocional.setServico(servicos);
+                        descontoPromocional.setCategoria(null);
+                        if (descontoPromocional.getDesconto() == 0) {
+                            message = "Informar o desconto promocional, maior que 0!";
+                            return;
+                        }
+                        if (descontoPromocional.getReferenciaInicial().isEmpty()) {
+                            message = "Informar referência inicial!";
+                            return;
+                        }
+                        if (descontoPromocional.getReferenciaFinal().isEmpty()) {
+                            message = "Informar referência final!";
+                            return;
+                        }
+                        descontoPromocional.setMensal(false);
+                        if (!di.save(descontoPromocional)) {
+                            message = "Erro ao inserir desconto promocional!";
+                            return;
+                        }
+                    }
                     novoLog.setCodigo(servicos.getId());
                     novoLog.setTabela("fin_servicos");
                     novoLog.save(
@@ -244,11 +274,6 @@ public class ServicosBean implements Serializable {
                             + " - Produto: [" + servicos.isProduto() + "]"
                             + " - Tabela: [" + servicos.isTabela() + "]"
                     );
-                    if (!di.save(servicos)) {
-                        message = "Erro ao inserir registro.";
-                        di.rollback();
-                        return;
-                    }
                     message = "Serviço salvo com Sucesso!";
                 } else {
                     message = "Este serviço já existe no Sistema.";
@@ -256,6 +281,38 @@ public class ServicosBean implements Serializable {
                     return;
                 }
             } else {
+                if (descontoMatricula) {
+                    if (descontoPromocional.getId() == -1) {
+                        if (descontoPromocional.getDesconto() == 0) {
+                            message = "Informar o desconto promocional, maior que 0!";
+                            return;
+                        }
+                        if (descontoPromocional.getReferenciaInicial().isEmpty()) {
+                            message = "Informar referência inicial!";
+                            return;
+                        }
+                        if (descontoPromocional.getReferenciaFinal().isEmpty()) {
+                            message = "Informar referência final!";
+                            return;
+                        }
+                        descontoPromocional.setServico(servicos);
+                        descontoPromocional.setCategoria(null);
+                        descontoPromocional.setMensal(false);
+                        if (!di.save(descontoPromocional)) {
+                            message = "Erro ao inserir desconto promocional!";
+                            return;
+                        }
+                    } else if (!di.update(descontoPromocional)) {
+                        message = "Erro ao atualizar desconto promocional!";
+                        return;
+                    }
+                } else if (descontoPromocional.getId() != -1) {
+                    if (!di.delete(descontoPromocional)) {
+                        message = "Erro ao remover desconto promocional!";
+                        return;
+                    }
+                    descontoPromocional = new DescontoPromocional();
+                }
                 Servicos s = (Servicos) di.find(servicos);
                 String beforeUpdate
                         = "ID: " + s.getId()
@@ -345,21 +402,8 @@ public class ServicosBean implements Serializable {
     }
 
     public String novo() {
-//        servicos = new Servicos();
-//        listCategoriaDesconto.clear();
-//        listServicoValor.clear();
-//        listServicos.clear();
-//        valorf = "0";
-//        desconto = "0";
-//        taxa = "0";
-//        activeIndex = 0; 
-////        tabViewTitle = "0";
-
-        //GenericaSessao.newSessionBean("servicosBean", new ServicosBean());
         GenericaSessao.put("servicosBean", new ServicosBean());
-
         GenericaSessao.remove("contaCobrancaPesquisa");
-
         return null;
     }
 
@@ -416,7 +460,7 @@ public class ServicosBean implements Serializable {
                 }
             }
         }
-
+        loadDescontoPromocional();
         if (servicos.getPeriodo() != null) {
             getListPeriodo();
             for (int i = 0; i < listPeriodo.size(); i++) {
@@ -481,6 +525,13 @@ public class ServicosBean implements Serializable {
                     di.rollback();
                     message = "Erro cadastro não pode ser excluído!";
                     return;
+                }
+
+                if (descontoPromocional.getId() != -1) {
+                    if (!new Dao().delete(descontoPromocional)) {
+                        message = "Erro ao excluir Desconto Promocional!";
+                        return;
+                    }
                 }
 
                 novoLog.setCodigo(servicos.getId());
@@ -1299,4 +1350,34 @@ public class ServicosBean implements Serializable {
     public void setIdModeloCarteirinha(Integer idModeloCarteirinha) {
         this.idModeloCarteirinha = idModeloCarteirinha;
     }
+
+    public Boolean getDescontoMatricula() {
+        return descontoMatricula;
+    }
+
+    public void setDescontoMatricula(Boolean descontoMatricula) {
+        this.descontoMatricula = descontoMatricula;
+    }
+
+    public DescontoPromocional getDescontoPromocional() {
+        return descontoPromocional;
+    }
+
+    public void setDescontoPromocional(DescontoPromocional descontoPromocional) {
+        this.descontoPromocional = descontoPromocional;
+    }
+
+    public final void loadDescontoPromocional() {
+        descontoPromocional = new DescontoPromocional();
+        if (servicos.getId() != -1) {
+            descontoPromocional = new DescontoPromocionalDao().findByServicoNaoMensal(servicos.getId());
+            if (descontoPromocional == null) {
+                descontoPromocional = new DescontoPromocional();
+            }
+            if (descontoPromocional.getId() != -1) {
+                descontoMatricula = true;
+            }
+        }
+    }
+
 }

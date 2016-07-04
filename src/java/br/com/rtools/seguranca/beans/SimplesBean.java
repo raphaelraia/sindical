@@ -116,7 +116,7 @@ public class SimplesBean implements Serializable {
             }
             if (id == -1) {
                 converteObjeto(sessoes[0]);
-                if (dao.existsDescription(descricao, "descricao", objeto.getClass().getSimpleName())) {
+                if (dao.existsDescription(descricao, "ds_descricao", Tables.name(objeto))) {
                     mensagem = "Descrição já existe " + nomeRotina + " !";
                     GenericaMensagem.info("Sucesso", mensagem);
                     return;

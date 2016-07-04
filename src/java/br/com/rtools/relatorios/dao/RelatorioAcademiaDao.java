@@ -91,7 +91,8 @@ public class RelatorioAcademiaDao extends DB {
                     + "            MV.dt_vencimento                            AS data_vencimento,  \n" // 10 - DATA VENCIMENTO
                     + "            B.dt_baixa                                  AS data_baixa,       \n" // 11 - DATA BAIXA
                     + "            MV.nr_valor                                 AS valor,            \n" // 12 - VALOR
-                    + "            MV.nr_valor_baixa                           AS valor_baixa       \n" // 13 - VALOR BAIXA
+                    + "            MV.nr_valor_baixa                           AS valor_baixa,      \n" // 13 - VALOR BAIXA
+                    + "            SP.nr_desconto                              AS desconto          \n" // 14 - DESCONTO
                     + "       FROM fin_movimento AS MV                                              \n"
                     + "  LEFT JOIN fin_baixa            AS B   ON B.id          = MV.id_baixa       \n"
                     + " INNER JOIN fin_servico_pessoa   AS SP  ON SP.id_pessoa  = MV.id_pessoa          \n"

@@ -49,18 +49,18 @@ public class ProfissaoBean extends PesquisarProfissaoBean implements Serializabl
         }
         NovoLog novoLog = new NovoLog();
         Dao dao = new Dao();
-        dao.openTransaction();
         if (prof.getId() == -1) {
-            if (dao.existsDescription(prof.getProfissao(), "profissao", "Profissao")) {
+            if (dao.existsDescription(prof.getProfissao(), "ds_profissao", "pes_profissao")) {
                 GenericaMensagem.warn("Validação", "Profissão já cadastrada!");
                 return;
             }
             if (!prof.getCbo().isEmpty()) {
-                if (dao.existsDescription(prof.getCbo(), "cbo", "Profissao")) {
+                if (dao.existsDescription(prof.getCbo(), "ds_cbo", "pes_profissao")) {
                     GenericaMensagem.warn("Validação", "CBO já existe!");
                     return;
                 }
             }
+            dao.openTransaction();
             if (dao.save(prof)) {
                 GenericaMensagem.info("Sucesso!", "Profissão salva com sucesso");
                 novoLog.save(
@@ -79,6 +79,7 @@ public class ProfissaoBean extends PesquisarProfissaoBean implements Serializabl
                     = "ID: " + p.getId()
                     + " - Profissão: " + p.getProfissao()
                     + " - CBO: " + p.getCbo();
+            dao.openTransaction();
             if (dao.update(prof)) {
                 novoLog.update(beforeUpdate,
                         "ID: " + prof.getId()

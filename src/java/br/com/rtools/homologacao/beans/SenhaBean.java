@@ -218,4 +218,12 @@ public class SenhaBean implements Serializable {
         this.host_web = host_web;
     }
 
+    public MacFilial getMacFilial() {
+        return macFilial;
+    }
+
+    public void setMacFilial(MacFilial macFilial) {
+        this.macFilial = macFilial;
+    }
+
 }

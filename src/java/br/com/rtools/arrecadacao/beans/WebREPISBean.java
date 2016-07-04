@@ -109,6 +109,7 @@ public class WebREPISBean implements Serializable {
     private List<CertificadoArquivos> listCertificadoArquivos;
 
     public WebREPISBean() {
+        pessoa = new Pessoa();
         listRepisMovimentoPessoa = new ArrayList();
         UsuarioDao db = new UsuarioDao();
         getPessoa();
@@ -128,18 +129,18 @@ public class WebREPISBean implements Serializable {
             renderContabil = false;
         }
         configuracaoArrecadacao = ConfiguracaoArrecadacao.get();
+        uploadCertificado = false;
         if (configuracaoArrecadacao.getUploadCertificado()) {
             if (pessoaContribuinte != null) {
-                uploadCertificado = false;
                 ConvencaoPeriodo cp = getConvencaoPeriodoEmpresa();
                 loadListConvencaoPeriodo(cp);
                 if (new EmpregadosDao().pesquisaQuantidadeEmpregados(cp.getId(), pessoa.getId()) > 0) {
                     List<CertificadoArquivos> list = new CertificadoArquivosDao().findBy(cp.getId(), pessoa.getId());
-                    loadCertificadoArquivos();
                     if (list.isEmpty()) {
                         uploadCertificado = true;
                     }
                 }
+                loadCertificadoArquivos();
             }
         }
     }
@@ -1168,7 +1169,7 @@ public class WebREPISBean implements Serializable {
         } else {
             cp = (ConvencaoPeriodo) new Dao().find(new ConvencaoPeriodo(), idConvencaoPeriodo);
         }
-        configuracaoUpload.setDiretorio("web/arquivos/certificado/anexos/" + cp.getId() + "/" + pessoa.getId() + "/");
+        configuracaoUpload.setDiretorio("web/arquivos/certificado/anexos/" + cp.getId() + "/" + p.getId() + "/");
         CertificadoArquivos certificadoArquivos = new CertificadoArquivos();
         certificadoArquivos.setArquivo(event.getFile().getFileName());
         certificadoArquivos.setDtUpload(new Date());
@@ -1179,9 +1180,9 @@ public class WebREPISBean implements Serializable {
             configuracaoUpload.setRenomear(certificadoArquivos.getId().toString() + "." + Upload.extractExtension(event.getFile().getFileName()));
             if (Upload.enviar(configuracaoUpload, true)) {
                 if (new Dao().update(certificadoArquivos, true)) {
+                    loadCertificadoArquivos();
                     if (new EmpregadosDao().pesquisaQuantidadeEmpregados(cp.getId(), p.getId()) > 0) {
                         List<CertificadoArquivos> list = new CertificadoArquivosDao().findBy(cp.getId(), p.getId());
-                        loadCertificadoArquivos();
                         if (list.isEmpty()) {
                             uploadCertificado = true;
                             PF.update("form_upload");
@@ -1250,7 +1251,6 @@ public class WebREPISBean implements Serializable {
                     ConvencaoPeriodo cf = getConvencaoPeriodoEmpresa();
                     if (new EmpregadosDao().pesquisaQuantidadeEmpregados(cf.getId(), pessoa.getId()) > 0) {
                         List<CertificadoArquivos> list = new CertificadoArquivosDao().findBy(cf.getId(), pessoa.getId());
-                        loadCertificadoArquivos();
                         if (list.isEmpty()) {
                             uploadCertificado = true;
                             PF.update("form_upload");
@@ -1264,7 +1264,6 @@ public class WebREPISBean implements Serializable {
                 ConvencaoPeriodo cf = getConvencaoPeriodoEmpresa();
                 if (new EmpregadosDao().pesquisaQuantidadeEmpregados(cf.getId(), pessoa.getId()) > 0) {
                     List<CertificadoArquivos> list = new CertificadoArquivosDao().findBy(cf.getId(), pessoa.getId());
-                    loadCertificadoArquivos();
                     if (list.isEmpty()) {
                         uploadCertificado = true;
                         PF.update("form_upload");

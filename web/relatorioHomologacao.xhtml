@@ -206,7 +206,17 @@
                                         <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close(relatorioHomologacaoBean.listFilters[10])}" title="Remover listFilters"/>
                                     </h:panelGrid>
                                 </p:column>
-
+                                <p:column rendered="#{relatorioHomologacaoBean.listFilters[11].active}">
+                                    <h:column>
+                                        <h:panelGrid columns="4">
+                                            <p:outputLabel value="Função:" />
+                                            <p:selectCheckboxMenu label="Selecionar função" value="#{relatorioHomologacaoBean.selectedFuncao}" filter="true" filterMatchMode="startsWith">
+                                                <f:selectItems value="#{relatorioHomologacaoBean.listFuncao}" />
+                                            </p:selectCheckboxMenu>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close(relatorioHomologacaoBean.listFilters[11])}" title="Remover listFilters"/>
+                                        </h:panelGrid>                                        
+                                    </h:column>
+                                </p:column>
                                 <p:column rendered="#{relatorioHomologacaoBean.listFilters[9].active}">
                                     <h:column>
                                         <h:panelGrid columns="4">

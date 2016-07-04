@@ -173,11 +173,6 @@ public class RelatorioAcademiaBean implements Serializable {
         Integer idAluno = null;
         String pIStringI = "";
         String pFStringI = "";
-        String vIStringI = "";
-        String vFStringI = "";
-        String qIStringI = "";
-        String qFStringI = "";
-        String sexoString = "";
         String dReferencia = "";
         String inIdModalidades = inIdModalidades();
         String inIdPeriodos = inIdPeriodos();
@@ -200,6 +195,7 @@ public class RelatorioAcademiaBean implements Serializable {
             listDetalhePesquisa.add(" Idade de " + idade[0] + " - " + idade[1]);
         }
         if (filtro[4]) {
+            String sexoString;
             switch (sexo) {
                 case "M":
                     sexoString = "Masculino";
@@ -248,9 +244,7 @@ public class RelatorioAcademiaBean implements Serializable {
             if (in_categoria.isEmpty()) {
                 in_categoria = null;
             }
-
         }
-
         Float desconto_inicial = null;
         Float desconto_final = null;
         if (filtro[12]) {
@@ -310,9 +304,6 @@ public class RelatorioAcademiaBean implements Serializable {
                 }
             }
         }
-        String nascimento = "";
-        String emissao = "";
-        String inativacao = "";
         List<ParametroAcademiaCadastral> pacs = new ArrayList<>();
         ParametroAcademiaCadastral pac = new ParametroAcademiaCadastral();
         for (Object list1 : list) {
@@ -345,7 +336,8 @@ public class RelatorioAcademiaBean implements Serializable {
                         o.get(10),
                         o.get(11),
                         o.get(12),
-                        o.get(13)
+                        o.get(13),
+                        o.get(14)
                 );
             }
             pacs.add(pac);
@@ -456,7 +448,6 @@ public class RelatorioAcademiaBean implements Serializable {
         }
         if (!filtro[13]) {
             situacaoString = null;
-            situacao = situacao;
             carenciaDias = null;
             tipoCarencia = "todos";
         }
@@ -823,7 +814,7 @@ public class RelatorioAcademiaBean implements Serializable {
     }
 
     public void setIdadeInicial(String idadeInicial) {
-        Integer idadeInteger = 0;
+        Integer idadeInteger;
         try {
             if (Integer.parseInt(idadeInicial) < 0) {
                 idadeInteger = 0;
@@ -855,7 +846,7 @@ public class RelatorioAcademiaBean implements Serializable {
             idade[1] = 0;
             return;
         }
-        Integer idadeInteger = 0;
+        Integer idadeInteger;
         try {
             if (idade[0] < 0) {
                 idade[0] = 0;
@@ -983,6 +974,22 @@ public class RelatorioAcademiaBean implements Serializable {
 
     public void setDescontoFinal(Float descontoFinal) {
         this.descontoFinal = descontoFinal;
+    }
+
+    public String getDescontoString() {
+        return Float.toString(desconto);
+    }
+
+    public void setDescontoString(String descontoString) {
+        this.desconto = Float.parseFloat(descontoString);
+    }
+
+    public String getDescontoFinalString() {
+        return Float.toString(descontoFinal);
+    }
+
+    public void setDescontoFinalString(String descontoFinalString) {
+        this.descontoFinal = Float.parseFloat(descontoFinalString);
     }
 
     public Boolean getSituacao() {
@@ -1117,6 +1124,7 @@ public class RelatorioAcademiaBean implements Serializable {
         private Object data_baixa;
         private Object valor;
         private Object valor_baixa;
+        private Object desconto;
 
         public ParametroAcademiaCadastral() {
             this.aluno_nome = null;
@@ -1133,6 +1141,7 @@ public class RelatorioAcademiaBean implements Serializable {
             this.data_baixa = null;
             this.valor = null;
             this.valor_baixa = null;
+            this.desconto = null;
         }
 
         /**
@@ -1177,8 +1186,9 @@ public class RelatorioAcademiaBean implements Serializable {
          * @param data_baixa
          * @param valor
          * @param valor_baixa
+         * @param desconto
          */
-        public ParametroAcademiaCadastral(Object aluno_nome, Object aluno_idade, Object aluno_nascimento, Object aluno_sexo, Object aluno_cidade, Object servico, Object periodo, Object responsavel_nome, Object emissao, Object inativacao, Object data_vencimento, Object data_baixa, Object valor, Object valor_baixa) {
+        public ParametroAcademiaCadastral(Object aluno_nome, Object aluno_idade, Object aluno_nascimento, Object aluno_sexo, Object aluno_cidade, Object servico, Object periodo, Object responsavel_nome, Object emissao, Object inativacao, Object data_vencimento, Object data_baixa, Object valor, Object valor_baixa, Object desconto) {
             this.aluno_nome = aluno_nome;
             this.aluno_idade = aluno_idade;
             this.aluno_nascimento = aluno_nascimento;
@@ -1193,6 +1203,7 @@ public class RelatorioAcademiaBean implements Serializable {
             this.data_baixa = data_baixa;
             this.valor = valor;
             this.valor_baixa = valor_baixa;
+            this.desconto = desconto;
         }
 
         /**
@@ -1313,6 +1324,14 @@ public class RelatorioAcademiaBean implements Serializable {
 
         public void setValor_baixa(Object valor_baixa) {
             this.valor_baixa = valor_baixa;
+        }
+
+        public Object getDesconto() {
+            return desconto;
+        }
+
+        public void setDesconto(Object desconto) {
+            this.desconto = desconto;
         }
     }
 }

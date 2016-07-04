@@ -261,10 +261,14 @@
                                 <p:column rendered="#{relatorioAcademiaBean.filtro[12]}">
                                     <h:column>
                                         <h:panelGrid columns="5" styleClass="margin-top">
-                                            <p:outputLabel value="Faixa de Desconto: " />
-                                            <p:inputText value="#{relatorioAcademiaBean.desconto}" size="3" style="text-align: right"/>
+                                            <p:outputLabel value="Faixa de Desconto (%): " />
+                                            <p:inputText value="#{relatorioAcademiaBean.descontoString}" size="3" style="text-align: right" converter="#{toPercent}">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputText>
                                             <p:outputLabel value=" até " />
-                                            <p:inputText value="#{relatorioAcademiaBean.descontoFinal}" size="3" style="text-align: right"/>
+                                            <p:inputText value="#{relatorioAcademiaBean.descontoFinalString}" size="3" style="text-align: right" converter="#{toPercent}">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputText>
                                             <p:commandButton icon="ui-icon-close" action="#{relatorioAcademiaBean.close('faixaDesconto')}" title="Remover filtro"/>
                                         </h:panelGrid>                                        
                                     </h:column>

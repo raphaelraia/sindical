@@ -100,7 +100,7 @@ public class RelatorioMovimentosDao extends DB {
 
         // TIPO SERVICO DO RELATORIO-----------------------------------------------
         if (in_tipo_servico != null && !in_tipo_servico.isEmpty()) {
-            listWhere.add("mov.id_tipo_servico ( " + in_tipo_servico + " )");
+            listWhere.add("mov.id_tipo_servico IN ( " + in_tipo_servico + " )");
         }
 
         // PESSOA DO RELATORIO-----------------------------------------------------

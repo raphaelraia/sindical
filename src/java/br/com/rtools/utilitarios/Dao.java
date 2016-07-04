@@ -1,5 +1,6 @@
 package br.com.rtools.utilitarios;
 
+import br.com.rtools.financeiro.DescontoPromocional;
 import br.com.rtools.principal.DB;
 import br.com.rtools.seguranca.Usuario;
 import java.lang.reflect.InvocationTargetException;
@@ -498,13 +499,13 @@ public class Dao extends DB implements DaoInterface {
             object = getEntityManager().find(object.getClass(), id);
         } else {
             try {
-                if(object.getClass().getSimpleName().equals("String")) {
+                if (object.getClass().getSimpleName().equals("String")) {
                     List list = find(object.toString(), new int[]{Integer.parseInt(objectId.toString())});
-                    if(!list.isEmpty()) {
+                    if (!list.isEmpty()) {
                         object = list.get(0);
                     }
                 } else {
-                    object = getEntityManager().find(object.getClass(), objectId);                    
+                    object = getEntityManager().find(object.getClass(), objectId);
                 }
             } catch (Exception e) {
                 Logger.getLogger(Dao.class.getName()).log(Level.WARNING, e.getMessage());
@@ -1020,8 +1021,7 @@ public class Dao extends DB implements DaoInterface {
 
     public boolean existsDescription(String description, String field, String object) {
         try {
-            Query qry = getEntityManager().createNativeQuery("SELECT OB FROM " + object + " OB WHERE UPPER(OB." + field + ") = :description");
-            qry.setParameter("description", description.toUpperCase());
+            Query qry = getEntityManager().createNativeQuery("SELECT OB.* FROM " + object + " OB WHERE func_translate(UPPER(OB." + field + ")) LIKE func_translate(UPPER('" + description + "'))");
             if (!qry.getResultList().isEmpty()) {
                 return true;
             }
@@ -1040,4 +1040,4 @@ public class Dao extends DB implements DaoInterface {
             return false;
         }
     }
-}
+    }

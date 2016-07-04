@@ -246,7 +246,7 @@
                                                     <h:column>
                                                         <h:panelGrid>
                                                             <p:outputLabel value="Desconto (R$):" />
-                                                            <p:inputText value="#{matriculaAcademiaBean.descontoString}" size="8" readonly="#{matriculaAcademiaBean.listaMovimentos.size() > 0}" converter="#{toCurrency}"  styleClass="text-right">
+                                                            <p:inputText value="#{matriculaAcademiaBean.descontoString}" size="8" readonly="#{matriculaAcademiaBean.listaMovimentos.size() > 0}" converter="#{toCurrency}"  styleClass="text-right" disabled="#{controleAcessoBean.verificarPermissao('desconto_matricula_academia', 3)}" title="DESCONTO MATRÍCULA ACADEMIA">
                                                                 <p:ajax event="blur" listener="#{matriculaAcademiaBean.calculoDesconto()}" update="@this, id_panel_grid_calcula" />
                                                             </p:inputText>
                                                         </h:panelGrid>

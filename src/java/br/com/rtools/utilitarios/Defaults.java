@@ -9,6 +9,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.FileUtils;
 import org.primefaces.json.JSONException;
 import org.primefaces.json.JSONObject;
@@ -93,12 +94,26 @@ public class Defaults implements Serializable {
 
     public String getURLLocal() {
         loadJson();
+        HttpServletRequest hsr = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+        String scheme = hsr.getScheme();
+        String host = hsr.getLocalAddr();
+        Integer port = hsr.getLocalPort();
         String url = "";
-        if (!host_local.isEmpty()) {
-            url += host_local;
-        }
-        if (port > 0 && port != 80) {
-            url += ":" + port;
+        if (host_local.isEmpty()) {
+            if (host != null) {
+                if (port == 0) {
+                    url = url + host + "/";
+                } else {
+                    url = url + host + ":" + port;
+                }
+            }
+        } else {
+            if (!host_local.isEmpty()) {
+                url += host_local;
+            }
+            if (port > 0 && port != 80) {
+                url += ":" + port;
+            }
         }
         return url;
     }
