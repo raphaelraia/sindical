@@ -70,7 +70,7 @@
 
                                 <h:panelGrid id="panel_receita_despesa" columns="4">
                                     <p:column>
-                                        <h:outputLabel value="#{movimentoBancarioBean.tipo eq 'entrada' ? 'Receita' : 'Despesa'}" style="font-weight: bold"/><br />
+                                        <h:outputLabel value="#{movimentoBancarioBean.tipo eq 'entrada' ? 'Conta de Entrada' : 'Conta de Saída'}" style="font-weight: bold"/><br />
                                         <p:selectOneMenu value="#{movimentoBancarioBean.idContaOperacao}" style="margin-right: 15px; width: 480px" disabled="#{movimentoBancarioBean.formaPagamentoEditar.id ne -1}">
                                             <f:selectItems value="#{movimentoBancarioBean.listaContaOperacao}"/>
                                         </p:selectOneMenu>

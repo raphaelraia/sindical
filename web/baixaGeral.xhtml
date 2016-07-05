@@ -124,7 +124,7 @@
 
                                             <p:commandButton icon="ui-icon-plus" title="Continuar e Inserir dados do Cartão" onclick="PF('i_dlg_cartao').show()" rendered="#{baixaGeralBean.tipoPagamento.id == 6 or baixaGeralBean.tipoPagamento.id == 7}"/>
 
-                                            <p:commandButton icon="ui-icon-plus" title="Continuar e Inserir dados do Banco" onclick="PF('i_dlg_banco').show()" rendered="#{baixaGeralBean.tipoPagamento.id == 2 or baixaGeralBean.tipoPagamento.id == 8 or baixaGeralBean.tipoPagamento.id == 9 or baixaGeralBean.tipoPagamento.id == 10 ||  baixaGeralBean.tipoPagamento.id == 13}"/>
+                                            <p:commandButton icon="ui-icon-plus" title="Continuar e Inserir dados do Banco" onclick="PF('i_dlg_banco').show()" rendered="#{baixaGeralBean.tipoPagamento.id == 2 or baixaGeralBean.tipoPagamento.id == 8 or baixaGeralBean.tipoPagamento.id == 9 or baixaGeralBean.tipoPagamento.id == 10 ||  baixaGeralBean.tipoPagamento.id == 13}" update="formBaixaGeral:i_banco"/>
                                         </p:column>
 
                                         <p:column rendered="#{baixaGeralBean.es eq 'S'}">
@@ -300,14 +300,23 @@
 
                             <p:dialog widgetVar="i_dlg_banco" header="Dados do Banco" resizable="false" modal="true">
                                 <h:panelGrid id="i_banco" style="width: 100%">
-                                    <h:panelGrid columns="2">
+                                    <h:panelGrid columns="1">
                                         <p:column>
                                             <br />
                                             <!-- <h:column test="# {baixaGeralBean.listaCartao.size() > 0}"> -->
-                                            <p:selectOneMenu style="padding-right: 15px; width: 250px" value="#{baixaGeralBean.idBanco}">
+                                            <p:selectOneMenu value="#{baixaGeralBean.idBanco}">
                                                 <f:selectItems value="#{baixaGeralBean.listaBanco}"/>
                                             </p:selectOneMenu>
                                             <!-- </h:column> -->
+                                        </p:column>
+                                        
+                                        <p:column rendered="#{baixaGeralBean.es eq 'E' and (baixaGeralBean.tipoPagamento.id == 8 or baixaGeralBean.tipoPagamento.id == 9 or baixaGeralBean.tipoPagamento.id == 10)}">
+                                            <h:panelGrid columns="1" styleClass="fundoCinza" style="width: 100%">
+                                                <p:outputLabel value="Data para Conciliação" style="font-weight: bold; color: red"/>
+                                                <p:inputMask value="#{baixaGeralBean.dataConciliacaoString}" size="8" mask="99/99/9999">
+                                                    <p:ajax event="change" update="@this"/>
+                                                </p:inputMask>
+                                            </h:panelGrid>
                                         </p:column>
 
                                         <p:column>

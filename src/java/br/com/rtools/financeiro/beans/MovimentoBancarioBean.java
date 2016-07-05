@@ -592,7 +592,10 @@ public class MovimentoBancarioBean implements Serializable {
                 DataHoje.dataHoje(),
                 0,
                 fstatus,
-                devolucao
+                devolucao, 
+                null, 
+                null, 
+                null
         );
 
         if (chequePag != null) {

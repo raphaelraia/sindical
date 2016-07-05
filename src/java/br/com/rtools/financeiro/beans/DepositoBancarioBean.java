@@ -300,7 +300,10 @@ public class DepositoBancarioBean implements Serializable {
                 DataHoje.dataHoje(),
                 0,
                 fstatus,
-                devolucao
+                devolucao, 
+                null, 
+                null, 
+                null
         );
     }
 

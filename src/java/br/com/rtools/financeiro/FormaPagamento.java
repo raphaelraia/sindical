@@ -54,6 +54,15 @@ public class FormaPagamento implements java.io.Serializable {
     private FStatus status;
     @Column(name = "nr_devolucao", length = 10)
     private Integer devolucao;
+    @JoinColumn(name = "id_conciliacao_plano5", referencedColumnName = "id")
+    @ManyToOne
+    private Plano5 conciliacaoPlano5;
+    @Temporal(TemporalType.DATE)
+    @Column(name = "dt_conciliacao")
+    private Date dtConciliacao;
+    @JoinColumn(name = "id_conciliado", referencedColumnName = "id")
+    @ManyToOne
+    private FormaPagamento conciliado;
 
     public FormaPagamento() {
         this.id = -1;
@@ -72,6 +81,9 @@ public class FormaPagamento implements java.io.Serializable {
         this.taxa = 0;
         this.status = null;
         this.devolucao = 0;
+        this.conciliacaoPlano5 = null;
+        this.dtConciliacao = null;
+        this.conciliado = null;
     }
 
     public FormaPagamento(int id,
@@ -89,7 +101,10 @@ public class FormaPagamento implements java.io.Serializable {
             Date dtCredito,
             float taxa,
             FStatus status,
-            Integer devolucao) {
+            Integer devolucao,
+            Plano5 conciliacaoPlano5,
+            Date dtConciliacao,
+            FormaPagamento conciliado) {
         this.id = id;
         this.baixa = baixa;
         this.chequeRec = chequeRec;
@@ -106,6 +121,9 @@ public class FormaPagamento implements java.io.Serializable {
         this.taxa = taxa;
         this.status = status;
         this.devolucao = devolucao;
+        this.conciliacaoPlano5 = conciliacaoPlano5;
+        this.dtConciliacao = dtConciliacao;
+        this.conciliado = conciliado;
     }
 
     public int getId() {
@@ -254,5 +272,29 @@ public class FormaPagamento implements java.io.Serializable {
 
     public String getDevolucaoString() {
         return (devolucao == 0 || this.status.getId() != 10) ? "" : (devolucao == 1) ? devolucao + " VEZ" : devolucao + " VEZES";
+    }
+
+    public Plano5 getConciliacaoPlano5() {
+        return conciliacaoPlano5;
+    }
+
+    public void setConciliacaoPlano5(Plano5 conciliacaoPlano5) {
+        this.conciliacaoPlano5 = conciliacaoPlano5;
+    }
+
+    public Date getDtConciliacao() {
+        return dtConciliacao;
+    }
+
+    public void setDtConciliacao(Date dtConciliacao) {
+        this.dtConciliacao = dtConciliacao;
+    }
+
+    public FormaPagamento getConciliado() {
+        return conciliado;
+    }
+
+    public void setConciliado(FormaPagamento conciliado) {
+        this.conciliado = conciliado;
     }
 }

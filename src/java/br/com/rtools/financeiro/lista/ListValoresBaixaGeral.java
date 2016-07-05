@@ -8,6 +8,7 @@ import br.com.rtools.financeiro.ChequeRec;
 import br.com.rtools.financeiro.FStatus;
 import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.TipoPagamento;
+import java.util.Date;
 
 public class ListValoresBaixaGeral {
     private String vencimento;
@@ -22,8 +23,10 @@ public class ListValoresBaixaGeral {
     private CartaoRec cartaoRec;
     private String valorDigitado;
     private FStatus status;
+    private Plano5 conciliacaoPlano5;
+    private Date dataConciliacao;
 
-    public ListValoresBaixaGeral(String vencimento, String valor, String numeroCheque, TipoPagamento tipoPagamento, ChequePag chequePag, ChequeRec chequeRec, Plano5 plano5, Cartao cartao, CartaoPag cartaoPag, CartaoRec cartaoRec, String valorDigitado, FStatus status) {
+    public ListValoresBaixaGeral(String vencimento, String valor, String numeroCheque, TipoPagamento tipoPagamento, ChequePag chequePag, ChequeRec chequeRec, Plano5 plano5, Cartao cartao, CartaoPag cartaoPag, CartaoRec cartaoRec, String valorDigitado, FStatus status, Plano5 conciliacaoPlano5, Date dataConciliacao) {
         this.vencimento = vencimento;
         this.valor = valor;
         this.numeroCheque = numeroCheque;
@@ -36,6 +39,8 @@ public class ListValoresBaixaGeral {
         this.cartaoRec = cartaoRec;
         this.valorDigitado = valorDigitado;
         this.status = status;
+        this.conciliacaoPlano5 = conciliacaoPlano5;
+        this.dataConciliacao = dataConciliacao;
     }
     
     public String getVencimento() {
@@ -132,5 +137,21 @@ public class ListValoresBaixaGeral {
 
     public void setStatus(FStatus status) {
         this.status = status;
+    }
+
+    public Plano5 getConciliacaoPlano5() {
+        return conciliacaoPlano5;
+    }
+
+    public void setConciliacaoPlano5(Plano5 conciliacaoPlano5) {
+        this.conciliacaoPlano5 = conciliacaoPlano5;
+    }
+
+    public Date getDataConciliacao() {
+        return dataConciliacao;
+    }
+
+    public void setDataConciliacao(Date dataConciliacao) {
+        this.dataConciliacao = dataConciliacao;
     }
 }
