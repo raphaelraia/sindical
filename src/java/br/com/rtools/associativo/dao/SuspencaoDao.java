@@ -3,6 +3,7 @@ package br.com.rtools.associativo.dao;
 import br.com.rtools.associativo.Suspencao;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.principal.DB;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
 
@@ -36,5 +37,18 @@ public class SuspencaoDao extends DB {
             e.getMessage();
         }
         return null;
+    }
+
+    public List<Suspencao> pesquisaSuspensao(Integer pessoa_id) {
+        try {
+            Query query = getEntityManager().createNativeQuery(
+                    "     SELECT S.*               \n"
+                    + "     FROM soc_suspencao S   \n"
+                    + "    WHERE S.id_pessoa = " + pessoa_id + "\n"
+                    + " ORDER BY S.dt_final DESC, S.dt_inicial ASC ", Suspencao.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
     }
 }

@@ -3,10 +3,13 @@ package br.com.rtools.pessoa.beans;
 import br.com.rtools.arrecadacao.beans.RaisBean;
 import br.com.rtools.arrecadacao.beans.WebREPISBean;
 import br.com.rtools.associativo.Socios;
+import br.com.rtools.associativo.Suspencao;
 import br.com.rtools.associativo.beans.CupomMovimentoBean;
 import br.com.rtools.associativo.beans.FrequenciaCatracaBean;
 import br.com.rtools.associativo.beans.SorteioMovimentoBean;
 import br.com.rtools.associativo.dao.SociosDao;
+import br.com.rtools.associativo.dao.SuspencaoDao;
+import br.com.rtools.associativo.dao.VendaBaileDao;
 import br.com.rtools.cobranca.beans.TmktHistoricoBean;
 import br.com.rtools.digitalizacao.beans.DigitalizacaoBean;
 import br.com.rtools.homologacao.Agendamento;
@@ -47,6 +50,7 @@ public class PessoaBean implements Serializable {
     private String tipoPessoa;
     private List<Socios> listMatriculasInativas;
     private List<Agendamento> listHomologacao;
+    private List<Suspencao> listSuspensao;
 
     @PostConstruct
     public void init() {
@@ -164,6 +168,10 @@ public class PessoaBean implements Serializable {
             case "homologacao_empresa":
                 listHomologacao = new ArrayList();
                 listHomologacao = new HomologacaoDao().pesquisaPorEmpresa(pessoa.getId());
+                break;
+            case "suspencao":
+                listSuspensao = new ArrayList();
+                listSuspensao = new SuspencaoDao().pesquisaSuspensao((Integer) pessoa.getId());
                 break;
         }
     }
@@ -347,6 +355,7 @@ public class PessoaBean implements Serializable {
             listSelectDetalhes.add(new SelectItem("movimentos_fisica", "Movimentos", "CONSULTA MOVIMENTOS (PESSOA FÍSICA)", cab.verificarPermissao("consulta_movimentos_fisica", 4)));
             listSelectDetalhes.add(new SelectItem("frequencia_catraca", "Frequência Catraca", "CONSULTA FREQUÊNCIA CATRACA", cab.verificarPermissao("consulta_frequencia_catraca", 4)));
             listSelectDetalhes.add(new SelectItem("homologacao_funcionario", "Homologação", "CONSULTA HOMOLOGAÇÃO", cab.verificarPermissao("homologacao_funcionario", 4)));
+            listSelectDetalhes.add(new SelectItem("suspencao", "Suspenção", "SUSPENÇÃO", cab.verificarPermissao("consulta_suspencao", 4)));
         }
         // PESSOA JURÍDICA
         if (tipoPessoa.equals("pessoaJuridica")) {
@@ -406,5 +415,13 @@ public class PessoaBean implements Serializable {
 
     public void setListHomologacao(List<Agendamento> listHomologacao) {
         this.listHomologacao = listHomologacao;
+    }
+
+    public List<Suspencao> getListSuspensao() {
+        return listSuspensao;
+    }
+
+    public void setListSuspensao(List<Suspencao> listSuspensao) {
+        this.listSuspensao = listSuspensao;
     }
 }

@@ -6,6 +6,7 @@ import br.com.rtools.estoque.Produto;
 import br.com.rtools.financeiro.*;
 import br.com.rtools.financeiro.dao.CentroCustoDao;
 import br.com.rtools.financeiro.dao.ContaOperacaoDao;
+import br.com.rtools.financeiro.dao.EstornoCaixaDao;
 import br.com.rtools.financeiro.dao.FinanceiroDao;
 import br.com.rtools.financeiro.dao.LoteDao;
 import br.com.rtools.financeiro.dao.PedidoDao;
@@ -31,6 +32,7 @@ import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
 import br.com.rtools.seguranca.dao.FilialRotinaDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Mask;
@@ -38,7 +40,9 @@ import br.com.rtools.utilitarios.Moeda;
 import br.com.rtools.utilitarios.ValidaDocumentos;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -156,7 +160,7 @@ public class LancamentoFinanceiroBean implements Serializable {
         strConta = "";
         historico = "";
         documentoMovimento = "";
-        porPesquisa = "todos";
+        porPesquisa = "dias";
         maskSearch = "todos";
         description = "";
         acrescimo = "0";
@@ -394,10 +398,41 @@ public class LancamentoFinanceiroBean implements Serializable {
                 return;
             }
         }
-
         Dao dao = new Dao();
 
+        Map<Integer, EstornoCaixa> hashEc = new LinkedHashMap<>();
+        Map<Integer, EstornoCaixaLote> hashEcl = new LinkedHashMap<>();
+
         dao.openTransaction();
+
+        EstornoCaixaDao estornoCaixaDao = new EstornoCaixaDao();
+
+        for (Parcela p : listaParcela) {
+            List<EstornoCaixa> listEc = estornoCaixaDao.findAllByMovimento(p.getMovimento().getId());
+            for (int i = 0; i < listEc.size(); i++) {
+                hashEc.put(listEc.get(i).getId(), listEc.get(i));
+                hashEcl.put(listEc.get(i).getEstornoCaixaLote().getId(), listEc.get(i).getEstornoCaixaLote());
+            }
+        }
+
+        if (!hashEc.isEmpty()) {
+            for (Map.Entry<Integer, EstornoCaixa> entry : hashEc.entrySet()) {
+                if (!dao.delete(entry.getValue())) {
+                    dao.rollback();
+                    GenericaMensagem.warn("Erro", "Estorno caixa não pode ser excluído!");
+                    return;
+                }
+            }
+
+            for (Map.Entry<Integer, EstornoCaixaLote> entry : hashEcl.entrySet()) {
+                if (!dao.delete(entry.getValue())) {
+                    dao.rollback();
+                    GenericaMensagem.warn("Erro", "Estorno caixa lote não pode ser excluído!");
+                    return;
+                }
+            }
+        }
+
         for (Parcela p : listaParcela) {
             if (!dao.delete(p.getMovimento())) {
                 GenericaMensagem.warn("Erro", "Movimento não pode ser Excluído!");
@@ -590,8 +625,8 @@ public class LancamentoFinanceiroBean implements Serializable {
         listaParcelaSelecionada = new ArrayList();
         MovimentoDao movimentoDao = new MovimentoDao();
         List<Movimento> selectMovimento = movimentoDao.listaMovimentosDoLote(lote.getId());
-   
-        if (!selectMovimento.isEmpty()){
+
+        if (!selectMovimento.isEmpty()) {
             esLancamento = selectMovimento.get(0).getEs();
         }
         float acre, valor_quitado = 0;

@@ -18,6 +18,7 @@ public class Suspencao implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private int id;
     @JoinColumn(name = "id_pessoa", referencedColumnName = "id", nullable = true)
     @ManyToOne(fetch = FetchType.EAGER)
@@ -114,14 +115,14 @@ public class Suspencao implements Serializable {
             this.dtFinal = DataHoje.converte(dataFinal);
         }
     }
-    
+
     public void selecionaDataInicio(SelectEvent event) {
-        SimpleDateFormat format = new SimpleDateFormat("d/M/yyyy"); 
+        SimpleDateFormat format = new SimpleDateFormat("d/M/yyyy");
         this.dtInicial = DataHoje.converte(format.format(event.getObject()));
     }
-    
+
     public void selecionaDataTermino(SelectEvent event) {
-        SimpleDateFormat format = new SimpleDateFormat("d/M/yyyy"); 
+        SimpleDateFormat format = new SimpleDateFormat("d/M/yyyy");
         this.dtFinal = DataHoje.converte(format.format(event.getObject()));
-    }    
+    }
 }
