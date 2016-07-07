@@ -670,7 +670,7 @@ public class MovimentosReceberSocialBean implements Serializable {
         dao.openTransaction();
 
         if (!GerarMovimento.reativarArrayMovimento(listam, motivoReativacao, dao).isEmpty()) {
-            GenericaMensagem.error("Atenção", "Ocorreu um erro em uma das exclusões, verifique o log!");
+            GenericaMensagem.error("Atenção", "Ocorreu um erro em uma dos movimentos a serem reativados, verifique o log!");
             dao.rollback();
             return;
         } else {
