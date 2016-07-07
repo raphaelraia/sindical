@@ -1135,7 +1135,10 @@ public class GerarMovimento extends DB {
                 dataCredito,
                 0,
                 null,
-                0
+                0, 
+                null, 
+                null, 
+                null
         );
 
         if (!dao.save(fp)) {
@@ -1340,7 +1343,10 @@ public class GerarMovimento extends DB {
                 null,
                 0,
                 null,
-                0
+                0, 
+                null,
+                null, 
+                null
         );
 
         if (!dao.save(fp)) {

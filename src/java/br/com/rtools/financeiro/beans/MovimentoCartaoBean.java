@@ -300,7 +300,10 @@ public class MovimentoCartaoBean implements Serializable {
                 DataHoje.dataHoje(),
                 0,
                 null,
-                0
+                0, 
+                null, 
+                null, 
+                null
         );
     }
 
