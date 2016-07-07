@@ -408,6 +408,14 @@
                                             </p:column>
                                         </h:panelGrid>
                                     </p:panel>
+                                    <p:panel header="Dados da Inativação" rendered="#{movimentosReceberSocialBean.porPesquisa eq 'excluidos'}" styleClass="margin-top-max">
+                                        <h:panelGrid columns="1" style="height: 40px" styleClass="sbb">
+                                            <p:outputLabel value="DATA: #{linha.argumento1.movimentoInativo.data}" />
+                                            <p:outputLabel value="USUÁRIO: #{linha.argumento1.movimentoInativo.usuario.pessoa.nome}" />
+                                            <p:outputLabel value="MOTIVO: #{linha.argumento1.movimentoInativo.historico}" />
+                                        </h:panelGrid>
+                                    </p:panel>
+
                                 </p:rowExpansion>
                             </p:dataTable>      
 
