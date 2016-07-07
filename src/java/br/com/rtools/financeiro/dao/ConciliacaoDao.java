@@ -53,9 +53,10 @@ public class ConciliacaoDao extends DB {
         String query = ""
                 + "SELECT m.id_pessoa AS id_pessoa, \n"
                 + "       m.id_tipo_pagamento AS tipo_pagamento, \n"
-                + "       m.valor AS valor, \n"
+                + "       (ROUND(CAST(m.valor_baixa * 100 AS numeric), 2) / 100)::double precision AS valor_baixa, \n"
                 + "       m.dt_conciliacao AS data_conciliacao, \n"
-                + "       m.id_forma_pagamento AS forma_pagamento \n"
+                + "       m.id_forma_pagamento AS forma_pagamento, \n"
+                + "       m.id_conciliado AS conciliado \n"
                 + "  FROM movimentos_vw AS m \n";
 
         List<String> list_where = new ArrayList();
@@ -63,16 +64,16 @@ public class ConciliacaoDao extends DB {
         list_where.add("m.id_conciliacao_plano5 = " + id_conta_conciliacao);
         list_where.add("m.id_tipo_pagamento IN (8, 9, 10)");
 
-        if (!data.isEmpty()) {
-            list_where.add("m.baixa = '" + data + "'");
-        }
+//        if (!data.isEmpty()) {
+//            list_where.add("m.baixa = '" + data + "'");
+//        }
 
         switch (filtro) {
             case "conciliar":
-                list_where.add("m.dt_conciliacao IS NULL");
+                list_where.add("m.id_conciliado IS NULL");
                 break;
-            case "conciliado":
-                list_where.add("m.dt_conciliacao IS NOT NULL");
+            case "conciliados":
+                list_where.add("m.id_conciliado IS NOT NULL");
                 break;
             default:
                 break;
@@ -96,17 +97,18 @@ public class ConciliacaoDao extends DB {
         }
     }
 
-    public List<Object> listaParaConciliar(Integer id_plano5_baixa) {
+    public List<Object> listaParaConciliar(Integer id_plano5_baixa, String data_conciliacao, Float valor) {
         String query
                 = "SELECT m.baixa AS baixa,\n"
-                + "       m.valor_baixa AS valor_baixa, \n"
+                + "       (ROUND(CAST(m.valor_baixa * 100 AS numeric), 2) / 100)::double precision AS valor_baixa, \n"
                 + "       m.id_forma_pagamento AS forma_pagamento \n"
                 + "  FROM movimentos_vw AS m \n"
                 + " INNER JOIN fin_plano5 AS p ON p.id = m.id_plano5 \n"
                 + "   AND dt_conciliacao IS NULL \n"
                 + "   AND p.id_conta_tipo = 4 \n"
                 + "   AND m.id_plano5_baixa = " + id_plano5_baixa + "\n"
-                + "   AND m.baixa = m.dt_conciliacao ";
+                + "   AND m.baixa = '" + data_conciliacao + "'"
+                + "   AND (ROUND(CAST(m.valor_baixa * 100 AS numeric), 2) / 100)::double precision = " + valor;
         try {
             Query qry = getEntityManager().createNativeQuery(query);
             return qry.getResultList();

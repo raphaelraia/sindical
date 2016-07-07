@@ -44,16 +44,16 @@ public class PisoSalarialLote implements Serializable {
         this.porte = new Porte();
         this.ano = 0;
         this.mensagem = "";
-        this.setValidade("");
+        this.dtValidade = null;
     }
 
-    public PisoSalarialLote(int id, Patronal patronal, Porte porte, int ano, String mensagem, String validade) {
+    public PisoSalarialLote(int id, Patronal patronal, Porte porte, int ano, String mensagem, Date dtValidade) {
         this.id = id;
         this.patronal = patronal;
         this.porte = porte;
         this.ano = ano;
         this.mensagem = mensagem;
-        this.setValidade(validade);
+        this.dtValidade = dtValidade;
     }
 
     public int getId() {

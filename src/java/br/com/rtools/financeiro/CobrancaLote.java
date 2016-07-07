@@ -37,15 +37,15 @@ public class CobrancaLote implements java.io.Serializable {
 
     public CobrancaLote() {
         this.id = -1;
-        this.setEmissao(null);
+        this.dtEmissao = null;
         this.usuario = new Usuario();
         this.mensagem = "";
         this.hora = "";
     }
 
-    public CobrancaLote(int id, String emissao, Usuario usuario, String mensagem, String hora) {
+    public CobrancaLote(int id, Date dtEmissao, Usuario usuario, String mensagem, String hora) {
         this.id = id;
-        this.setEmissao(emissao);
+        this.dtEmissao = dtEmissao;
         this.usuario = usuario;
         this.mensagem = mensagem;
         this.hora = hora;

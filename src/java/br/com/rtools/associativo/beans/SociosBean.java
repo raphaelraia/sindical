@@ -1382,28 +1382,28 @@ public class SociosBean implements Serializable {
                     } else {
                         validadeCarteirinha = vc.getValidadeFixaString();
                     }
-                    if (GenericaSessao.getString("sessaoCliente").equals("ServidoresRP")) {
-                        Integer verificaHoje = DataHoje.converteDataParaInteger(DataHoje.data());
-                        Integer verificaFuturo = DataHoje.converteDataParaInteger("30/06/2016");
-                        if (verificaFuturo < verificaHoje) {
-                            GenericaMensagem.warn("Atenção", "Entrar em contato com nosso suporte técnico!");
-                            return null;
-                        }
-                        if (!(parentesco.getParentesco().toUpperCase()).equals("TITULAR")
-                                && !(parentesco.getParentesco().toUpperCase()).equals("ESPOSA")
-                                && !(parentesco.getParentesco().toUpperCase()).equals("ESPOSO")
-                                && !(parentesco.getParentesco().toUpperCase()).equals("SOGRA")
-                                && !(parentesco.getParentesco().toUpperCase()).equals("SOGRO")
-                                && !(parentesco.getParentesco().toUpperCase()).equals("PAI")
-                                && !(parentesco.getParentesco().toUpperCase()).equals("MÃE")) {
-                            validadeCarteirinha = ("30/06/2016");
-                            if (message) {
-                                GenericaMensagem.warn("Atenção", "Esta data de validade é provisória e este critério será mantido até o dia 30/06/2016, conforme solicitação do cliente, exceto para os graus de parentesco titular, esposa, sogra e paes.");
-                                message = false;
-
-                            }
-                        }
-                    }
+//                    if (GenericaSessao.getString("sessaoCliente").equals("ServidoresRP")) {
+//                        Integer verificaHoje = DataHoje.converteDataParaInteger(DataHoje.data());
+//                        Integer verificaFuturo = DataHoje.converteDataParaInteger("30/06/2016");
+//                        if (verificaFuturo < verificaHoje) {
+//                            GenericaMensagem.warn("Atenção", "Entrar em contato com nosso suporte técnico!");
+//                            return null;
+//                        }
+//                        if (!(parentesco.getParentesco().toUpperCase()).equals("TITULAR")
+//                                && !(parentesco.getParentesco().toUpperCase()).equals("ESPOSA")
+//                                && !(parentesco.getParentesco().toUpperCase()).equals("ESPOSO")
+//                                && !(parentesco.getParentesco().toUpperCase()).equals("SOGRA")
+//                                && !(parentesco.getParentesco().toUpperCase()).equals("SOGRO")
+//                                && !(parentesco.getParentesco().toUpperCase()).equals("PAI")
+//                                && !(parentesco.getParentesco().toUpperCase()).equals("MÃE")) {
+//                            validadeCarteirinha = ("30/06/2016");
+//                            if (message) {
+//                                GenericaMensagem.warn("Atenção", "Esta data de validade é provisória e este critério será mantido até o dia 30/06/2016, conforme solicitação do cliente, exceto para os graus de parentesco titular, esposa, sogra e paes.");
+//                                message = false;
+//
+//                            }
+//                        }
+//                    }
 
                     ServicoCategoria servicoCategoriaDep = dbSCat.pesquisaPorParECat(parentesco.getId(), servicoCategoria.getCategoria().getId());
 
@@ -1986,14 +1986,14 @@ public class SociosBean implements Serializable {
         CategoriaDao dbCat = new CategoriaDao();
 
         Date validadeCarteirinha = DataHoje.converte(dh.incrementarMeses(0, DataHoje.data()));
-        if (GenericaSessao.getString("sessaoCliente").equals("ServidoresRP")) {
-            Integer verificaHoje = DataHoje.converteDataParaInteger(DataHoje.data());
-            Integer verificaFuturo = DataHoje.converteDataParaInteger("30/06/2016");
-            validadeCarteirinha = null;
-            if (verificaFuturo < verificaHoje) {
-                GenericaMensagem.warn("Atenção", "Entrar em contato com nosso suporte técnico!");
-            }
-        }
+//        if (GenericaSessao.getString("sessaoCliente").equals("ServidoresRP")) {
+//            Integer verificaHoje = DataHoje.converteDataParaInteger(DataHoje.data());
+//            Integer verificaFuturo = DataHoje.converteDataParaInteger("30/06/2016");
+//            validadeCarteirinha = null;
+//            if (verificaFuturo < verificaHoje) {
+//                GenericaMensagem.warn("Atenção", "Entrar em contato com nosso suporte técnico!");
+//            }
+//        }
 
         List<SelectItem> selectItems = new ArrayList<>();
         selectItems.add(new SelectItem(0, "Selecione um Dependente", "0"));

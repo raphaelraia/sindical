@@ -16,11 +16,11 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-
 @Entity
 @Table(name = "soc_autoriza_impressao_cartao")
 @NamedQuery(name = "AutorizaImpressaoCartao.pesquisaID", query = "select a from AutorizaImpressaoCartao a where a.id = :pid")
 public class AutorizaImpressaoCartao implements java.io.Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -45,24 +45,24 @@ public class AutorizaImpressaoCartao implements java.io.Serializable {
 
     public AutorizaImpressaoCartao() {
         this.id = -1;
-        this.setEmissao(DataHoje.data());
+        this.dtEmissao = DataHoje.dataHoje();
         this.pessoa = new Pessoa();
         this.usuario = new Usuario();
         this.historicoCarteirinha = null;
         this.modeloCarteirinha = new ModeloCarteirinha();
         this.foto = false;
-   }
+    }
 
-    public AutorizaImpressaoCartao(int id, String emissao, Pessoa pessoa, Usuario usuario, HistoricoCarteirinha historicoCarteirinha, ModeloCarteirinha modeloCarteirinha, boolean foto) {
+    public AutorizaImpressaoCartao(int id, Date dtEmissao, Pessoa pessoa, Usuario usuario, HistoricoCarteirinha historicoCarteirinha, ModeloCarteirinha modeloCarteirinha, boolean foto) {
         this.id = id;
-        this.setEmissao(emissao);
+        this.dtEmissao = dtEmissao;
         this.pessoa = pessoa;
         this.usuario = usuario;
         this.historicoCarteirinha = historicoCarteirinha;
         this.modeloCarteirinha = modeloCarteirinha;
         this.foto = foto;
     }
-    
+
     public int getId() {
         return id;
     }
@@ -102,7 +102,7 @@ public class AutorizaImpressaoCartao implements java.io.Serializable {
     public void setHistoricoCarteirinha(HistoricoCarteirinha historicoCarteirinha) {
         this.historicoCarteirinha = historicoCarteirinha;
     }
-    
+
     public String getEmissao() {
         if (dtEmissao != null) {
             return DataHoje.converteData(dtEmissao);
@@ -115,7 +115,7 @@ public class AutorizaImpressaoCartao implements java.io.Serializable {
         if (!(emissao.isEmpty())) {
             this.dtEmissao = DataHoje.converte(emissao);
         }
-    }   
+    }
 
     public ModeloCarteirinha getModeloCarteirinha() {
         return modeloCarteirinha;
@@ -132,5 +132,5 @@ public class AutorizaImpressaoCartao implements java.io.Serializable {
     public void setFoto(boolean foto) {
         this.foto = foto;
     }
-    
+
 }

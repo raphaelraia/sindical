@@ -43,21 +43,21 @@ public class PollingEmail implements java.io.Serializable {
 
     public PollingEmail() {
         this.id = -1;
-        this.setEmissao(null);
+        this.dtEmissao = null;
         this.hora = "";
         this.ativo = true;
         this.links = new Links();
-        this.setEnvio(null);
+        this.dtEnvio = null;
         this.cobrancaEnvio = new CobrancaEnvio();
     }
 
-    public PollingEmail(int id, String emissao, String hora, boolean ativo, Links links, String envio, CobrancaEnvio cobrancaEnvio) {
+    public PollingEmail(int id, Date dtEmissao, String hora, boolean ativo, Links links, Date dtEnvio, CobrancaEnvio cobrancaEnvio) {
         this.id = id;
-        this.setEmissao(emissao);
+        this.dtEmissao = dtEmissao;
         this.hora = hora;
         this.ativo = ativo;
         this.links = links;
-        this.setEnvio(envio);
+        this.dtEnvio = dtEnvio;
         this.cobrancaEnvio = cobrancaEnvio;
     }
 

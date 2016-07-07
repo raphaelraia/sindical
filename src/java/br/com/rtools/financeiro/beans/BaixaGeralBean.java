@@ -378,13 +378,14 @@ public class BaixaGeralBean implements Serializable {
                         return;
                     }
 
-                    if (DataHoje.menorData(dataConciliacao, DataHoje.dataHoje())) {
-                        GenericaMensagem.error("Atenção", "Data de Conciliação não pode ser menor que hoje!");
+                    if (DataHoje.maiorData(dataConciliacao, DataHoje.dataHoje())) {
+                        GenericaMensagem.error("Atenção", "Data de Conciliação não pode ser maior que hoje!");
+                        dataConciliacao = null;
                         return;
                     }
                     
                     pl = (Plano5) new Dao().find(new Plano5(), 1);
-                    pl_conciliacao = db.pesquisaPlano5IDContaBanco(Integer.valueOf(listaBanco.get(idBanco).getDescription()));;
+                    pl_conciliacao = db.pesquisaPlano5IDContaBanco(Integer.valueOf(listaBanco.get(idBanco).getDescription()));
                     dt_conciliacao = dataConciliacao;
                 }    
             } 

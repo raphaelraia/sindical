@@ -272,8 +272,8 @@ public class DepositoBancarioBean implements Serializable {
         return new Baixa(
                 -1,
                 (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuario"),
-                DataHoje.data(),
-                "",
+                DataHoje.dataHoje(),
+                null,
                 0,
                 "",
                 null,

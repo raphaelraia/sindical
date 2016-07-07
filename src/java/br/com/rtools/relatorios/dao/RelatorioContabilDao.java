@@ -49,7 +49,9 @@ public class RelatorioContabilDao extends DB {
                 }
             }
 
-            Query query = getEntityManager().createNativeQuery(query_string + where);
+            String order_by = " ORDER BY cv.baixa, cv.id_movimento ";
+            
+            Query query = getEntityManager().createNativeQuery(query_string + where + order_by);
             return query.getResultList();
         } catch (Exception e) {
             e.getMessage();

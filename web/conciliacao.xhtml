@@ -15,7 +15,7 @@
             .ui-selectonemenu {padding-right: 25px!important;}
 
             .column_conciliar01{
-                margin-right: 20px;
+                padding-right: 20px;
             }
 
             .column_conciliar02{
@@ -84,16 +84,16 @@
                                 </p:column>
 
                                 <p:column headerText="" style="width: 100px; text-align: center">
-                                    <p:commandLink value="CONCILIAR" rendered="#{linha.dataConciliacao eq null}" action="#{conciliacaoBean.selecionarParaConciliacao(linha)}" update="formConciliacao:panel_conciliar" style="font-weight: bold" onclick="PF('dlg_conciliar').show()"/>
+                                    <p:commandLink value="CONCILIAR" rendered="#{linha.conciliado eq null}" action="#{conciliacaoBean.selecionarParaConciliacao(linha)}" style="font-weight: bold"/>
                                 </p:column>
                             </p:dataTable>
 
 
                             <p:dialog widgetVar="dlg_conciliar" header="Conciliar Movimentos" resizable="false" width="400" modal="true">
-                                <h:panelGrid id="panel_conciliar">
-                                    <p:outputLabel value="Deseja realmente CONCILIAR este movimento?" style="font-size: 11pt!important"/>
+                                <h:panelGrid id="panel_conciliar" style="width: 100%">
+                                    <p:outputLabel value="Deseja realmente conciliar este movimento?" style="font-size: 11pt!important; font-weight: bold"/>
                                     <br />
-                                    <h:panelGrid columns="2" columnClasses="column_conciliar01, column_conciliar02">
+                                    <h:panelGrid columns="2" columnClasses="column_conciliar01, column_conciliar02" styleClass="fundoCinza" style="width: 100%">
                                         <h:column>
                                             <p:outputLabel value="Nome" style="font-weight: bold"/><br />
                                             <p:outputLabel value="#{conciliacaoBean.objectConciliacaoSelecionado.pessoa.nome}" />

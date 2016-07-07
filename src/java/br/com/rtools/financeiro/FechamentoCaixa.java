@@ -45,7 +45,7 @@ public class FechamentoCaixa implements java.io.Serializable {
 
     public FechamentoCaixa() {
         this.id = -1;
-        this.setData(DataHoje.data());
+        this.dtData = DataHoje.dataHoje();
         this.hora = DataHoje.horaMinuto();
         this.valorInformado = 0;
         this.usuario = new Usuario();

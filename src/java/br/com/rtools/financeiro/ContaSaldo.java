@@ -37,7 +37,7 @@ public class ContaSaldo implements Serializable {
 
     public ContaSaldo() {
         this.id = -1;
-        this.setData(null);
+        this.dtData = null;
         this.saldo = 0;
         this.plano5 = new Plano5();
         this.usuario = new Usuario();
@@ -78,7 +78,7 @@ public class ContaSaldo implements Serializable {
     public void setSaldo(float saldo) {
         this.saldo = saldo;
     }
-    
+
     public String getSaldoString() {
         return Moeda.converteR$Float(saldo);
     }

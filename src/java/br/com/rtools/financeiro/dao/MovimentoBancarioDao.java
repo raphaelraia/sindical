@@ -8,6 +8,7 @@ package br.com.rtools.financeiro.dao;
 import br.com.rtools.financeiro.ContaSaldo;
 import br.com.rtools.principal.DB;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.Query;
 
@@ -135,5 +136,20 @@ public class MovimentoBancarioDao extends DB {
             e.getMessage();
         }
         return new ContaSaldo();
+    }
+    
+    public Date ultimaDataContaSaldo() {
+        try {
+            String text = "SELECT MAX(dt_data) FROM fin_conta_saldo";
+
+            Query qry = getEntityManager().createNativeQuery(text);
+            List<Object> result = qry.getResultList();
+            
+            List linha = (List) result.get(0);
+            return (Date) linha.get(0);
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return null;
     }
 }

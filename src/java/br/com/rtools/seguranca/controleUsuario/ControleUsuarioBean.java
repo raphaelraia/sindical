@@ -249,7 +249,7 @@ public class ControleUsuarioBean implements Serializable {
         String string_filial = "";
         string_filial = "Filial: ( " + mf.getFilial().getFilial().getPessoa().getNome() + " / " + mf.getDepartamento().getDescricao() + " )";
 
-        if (mf.getMesa() > 0) {
+        if (mf.getMesa() != null && mf.getMesa() > 0) {
             string_filial += " - Guiche: " + mf.getMesa();
         }
         if (mf.getDescricao() != null && !mf.getDescricao().isEmpty()) {

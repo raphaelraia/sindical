@@ -106,6 +106,7 @@ public class MacFilialBean implements Serializable {
             }
             macFilial.setCaixa((Caixa) dao.find(new Caixa(), Integer.valueOf(listaCaixa.get(idCaixa).getDescription())));
         }
+               
         dao.openTransaction();
 
         if (macFilial.getId() == -1) {
@@ -113,6 +114,7 @@ public class MacFilialBean implements Serializable {
                 GenericaMensagem.warn("Validação", "Este computador ja está registrado!");
                 return;
             }
+            
 
             if (dao.save(macFilial)) {
                 novoLog.save(

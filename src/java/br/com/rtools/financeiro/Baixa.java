@@ -42,8 +42,8 @@ public class Baixa implements java.io.Serializable {
     public Baixa() {
         this.id = -1;
         this.usuario = new Usuario();
-        this.setBaixa("");
-        this.setImportacao("");
+        this.dtBaixa = null;
+        this.dtImportacao = null;
         this.sequenciaBaixa = 0;
         this.documentoBaixa = "";
         this.caixa = new Caixa();
@@ -54,8 +54,8 @@ public class Baixa implements java.io.Serializable {
 
     public Baixa(int id,
             Usuario usuario,
-            String baixa,
-            String importacao,
+            Date dtBaixa,
+            Date dtImportacao,
             int sequenciaBaixa,
             String documentoBaixa,
             Caixa caixa,
@@ -64,8 +64,8 @@ public class Baixa implements java.io.Serializable {
             float troco) {
         this.id = id;
         this.usuario = usuario;
-        this.setBaixa(baixa);
-        this.setImportacao(importacao);
+        this.dtBaixa = dtBaixa;
+        this.dtImportacao = dtImportacao;
         this.fechamentoCaixa = fechamentoCaixa;
         this.sequenciaBaixa = sequenciaBaixa;
         this.documentoBaixa = documentoBaixa;

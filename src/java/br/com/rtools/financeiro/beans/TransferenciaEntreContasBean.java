@@ -269,8 +269,8 @@ public class TransferenciaEntreContasBean implements Serializable {
         return new Baixa(
                 -1,
                 Usuario.getUsuario(),
-                DataHoje.data(),
-                "",
+                DataHoje.dataHoje(),
+                null,
                 0,
                 "",
                 null,

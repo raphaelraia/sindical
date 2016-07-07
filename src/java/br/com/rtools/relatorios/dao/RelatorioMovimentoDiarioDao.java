@@ -38,7 +38,8 @@ public class RelatorioMovimentoDiarioDao extends DB {
                     + "             sum(saida)           AS saida,              \n"
                     + "             sum(saldo_acumulado) AS saldo_acumulado,    \n"
                     + "             fstatus,                                    \n"
-                    + "             fstatus_id                                  \n"
+                    + "             fstatus_id,                                 \n"
+                    + "             id_movimento                                \n"
                     + "        FROM (                                           \n"
                     + "                  SELECT baixa AS DATA,                  \n"
                     + "                         CASE WHEN servico IS NOT NULL THEN UPPER(servico) ELSE UPPER(conta) END AS operacao, \n"
@@ -47,7 +48,8 @@ public class RelatorioMovimentoDiarioDao extends DB {
                     + "                         CASE WHEN es='S' THEN M.valor_baixa ELSE 0 END AS SAIDA,    \n"
                     + "                         0               AS saldo_acumulado, \n"
                     + "                         ST.ds_descricao AS FSTATUS,         \n"
-                    + "                         ST.id           AS FSTATUS_ID       \n"
+                    + "                         ST.id           AS FSTATUS_ID,      \n"
+                    + "                         M.id_movimento                      \n"
                     + "                    FROM movimentos_vw AS M                  \n"
                     + "               LEFT JOIN fin_status    AS ST ON ST.id = m.id_baixa_status \n";
 
@@ -77,12 +79,13 @@ public class RelatorioMovimentoDiarioDao extends DB {
                     + "             operacao,   \n"
                     + "             historico,  \n"
                     + "             fstatus,    \n"
-                    + "             fstatus_id  \n"
+                    + "             fstatus_id,  \n"
+                    + "             id_movimento  \n"
                     + "            \n";
             if (relatorioOrdem != null) {
                 queryString += " ORDER BY  " + relatorioOrdem.getQuery() + " \n";
             } else {
-                queryString += " ORDER BY data, operacao ";
+                queryString += " ORDER BY data, id_movimento ";
             }
             Query query = getEntityManager().createNativeQuery(queryString);
             return query.getResultList();

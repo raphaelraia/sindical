@@ -44,9 +44,9 @@ public class Oposicao implements Serializable {
     @Column(name = "dt_inativacao")
     private Date dtInativacao;    
 
-    public Oposicao(int id, String emissao, OposicaoPessoa oposicaoPessoa, Juridica juridica, ConvencaoPeriodo convencaoPeriodo, String observacao, Date dtInativacao) {
+    public Oposicao(int id, Date dtEmissao, OposicaoPessoa oposicaoPessoa, Juridica juridica, ConvencaoPeriodo convencaoPeriodo, String observacao, Date dtInativacao) {
         this.id = id;
-        this.setEmissao(emissao);
+        this.dtEmissao = dtEmissao;
         this.oposicaoPessoa = oposicaoPessoa;
         this.juridica = juridica;
         this.convencaoPeriodo = convencaoPeriodo;
@@ -56,7 +56,7 @@ public class Oposicao implements Serializable {
 
     public Oposicao() {
         this.id = -1;
-        this.setEmissao(DataHoje.data());
+        this.dtEmissao = DataHoje.dataHoje();
         this.oposicaoPessoa = new OposicaoPessoa();
         this.juridica = new Juridica();
         this.convencaoPeriodo = new ConvencaoPeriodo();

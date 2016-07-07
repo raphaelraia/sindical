@@ -25,6 +25,7 @@ import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.Moeda;
+import br.com.rtools.utilitarios.PF;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -61,12 +62,20 @@ public class ConciliacaoBean implements Serializable {
     public void conciliar() {
         ConciliacaoDao c_dao = new ConciliacaoDao();
         Dao dao = new Dao();
+
         dao.openTransaction();
 
-        Plano5 plano_saida = (Plano5) dao.find(new Plano5(), 1);
+        Plano5 pl5_conciliacao = c_dao.pesquisaPlano5Conciliacao();
+        if (pl5_conciliacao == null) {
+            GenericaMensagem.warn("Erro", "Plano 5 Conciliação não encontrado para conta tipo = 4");
+            dao.rollback();
+            return;
+        }
 
-        String historico_contabil = "";
-        Lote lote_saida = novoLote(dao, "P", plano_saida, 0, (FStatus) dao.find(new FStatus(), 1), historico_contabil);
+        String historico_contabil
+                = "Referente a conciliação do recebimento em Depósito Bancário (" + objectConciliacaoSelecionado.getTipoPagamento().getDescricao() + ") "
+                + "na conta (" + objectConciliacaoSelecionado.getFormaPagamento().getPlano5().getConta() + ")";
+        Lote lote_saida = novoLote(dao, "P", pl5_conciliacao, objectConciliacaoSelecionado.getValor(), (FStatus) dao.find(new FStatus(), 1), historico_contabil);
 
         if (!dao.save(lote_saida)) {
             GenericaMensagem.warn("Erro", "Erro ao salvar Lote");
@@ -90,7 +99,8 @@ public class ConciliacaoBean implements Serializable {
             return;
         }
 
-        FormaPagamento forma_saida = novaFormaPagamento(dao, baixa_saida, lote_saida.getValor(), c_dao.pesquisaPlano5Conciliacao());
+        Plano5 plano_saida = (Plano5) dao.find(new Plano5(), 1);
+        FormaPagamento forma_saida = novaFormaPagamento(dao, baixa_saida, lote_saida.getValor(), plano_saida);
 
         if (!dao.save(forma_saida)) {
             GenericaMensagem.warn("Erro", "Erro ao salvar Forma de Pagamento");
@@ -99,10 +109,18 @@ public class ConciliacaoBean implements Serializable {
         }
 
         FormaPagamento forma_conciliada = (FormaPagamento) dao.find(new FormaPagamento(), Integer.valueOf(listaObjectParaConciliar.get(indexListaObjectParaConciliar).getDescription()));
+        FormaPagamento forma_conciliada_selecionada = objectConciliacaoSelecionado.getFormaPagamento();
 
-        forma_conciliada.setConciliacaoPlano5(objectConciliacaoSelecionado.getFormaPagamento().getPlano5());
-        
-        dao.rollback();
+        forma_conciliada.setConciliado(forma_conciliada_selecionada);
+        forma_conciliada_selecionada.setConciliado(forma_conciliada);
+
+        if (!dao.update(forma_conciliada) || !dao.update(forma_conciliada_selecionada)) {
+            GenericaMensagem.warn("Erro", "Erro ao salvar Forma de Pagamento Conciliada!");
+            dao.rollback();
+            return;
+        }
+
+        dao.commit();
 
         GenericaMensagem.info("Sucesso", "Movimentos Conciliados!");
 
@@ -131,19 +149,23 @@ public class ConciliacaoBean implements Serializable {
                             (TipoPagamento) dao.find(new TipoPagamento(), (Integer) linha.get(1)),
                             ((Double) linha.get(2)).floatValue(),
                             (Date) linha.get(3),
-                            (FormaPagamento) dao.find(new FormaPagamento(), (Integer) linha.get(4))
+                            (FormaPagamento) dao.find(new FormaPagamento(), (Integer) linha.get(4)),
+                            (FormaPagamento) dao.find(new FormaPagamento(), (Integer) linha.get(5))
                     )
             );
         }
     }
 
     public void selecionarParaConciliacao(ObjectConciliacao oc) {
+        listaObjectParaConciliar.clear();
+        indexListaObjectParaConciliar = 0;
+
         objectConciliacaoSelecionado = oc;
 
         ConciliacaoDao c_dao = new ConciliacaoDao();
         //Dao dao = new Dao();
 
-        List<Object> result = c_dao.listaParaConciliar(Integer.valueOf(listaConta.get(indexListaConta).getDescription()));
+        List<Object> result = c_dao.listaParaConciliar(Integer.valueOf(listaConta.get(indexListaConta).getDescription()), oc.getDataConciliacaoString(), oc.getValor());
         for (int i = 0; i < result.size(); i++) {
             List linha = (List) result.get(i);
 
@@ -155,6 +177,15 @@ public class ConciliacaoBean implements Serializable {
                     )
             );
         }
+
+        if (listaObjectParaConciliar.isEmpty()) {
+            GenericaMensagem.warn("Atenção", "Nenhum movimento encontrado para conciliar!");
+            PF.update("formConciliacao");
+            return;
+        }
+
+        PF.update("formConciliacao:panel_conciliar");
+        PF.openDialog("dlg_conciliar");
     }
 
     public final void loadListaConta() {
@@ -267,8 +298,8 @@ public class ConciliacaoBean implements Serializable {
         return new Baixa(
                 -1,
                 Usuario.getUsuario(),
-                DataHoje.data(),
-                "",
+                DataHoje.dataHoje(),
+                null,
                 0,
                 "",
                 null,
@@ -341,6 +372,7 @@ public class ConciliacaoBean implements Serializable {
         private Float valor;
         private Date dataConciliacao;
         private FormaPagamento formaPagamento;
+        private FormaPagamento conciliado;
 
         public ObjectConciliacao() {
             this.pessoa = new Pessoa();
@@ -348,14 +380,16 @@ public class ConciliacaoBean implements Serializable {
             this.valor = (float) 0;
             this.dataConciliacao = DataHoje.dataHoje();
             this.formaPagamento = new FormaPagamento();
+            this.conciliado = new FormaPagamento();
         }
 
-        public ObjectConciliacao(Pessoa pessoa, TipoPagamento tipoPagamento, Float valor, Date dataConciliacao, FormaPagamento formaPagamento) {
+        public ObjectConciliacao(Pessoa pessoa, TipoPagamento tipoPagamento, Float valor, Date dataConciliacao, FormaPagamento formaPagamento, FormaPagamento conciliado) {
             this.pessoa = pessoa;
             this.tipoPagamento = tipoPagamento;
             this.valor = valor;
             this.dataConciliacao = dataConciliacao;
             this.formaPagamento = formaPagamento;
+            this.conciliado = conciliado;
         }
 
         public Pessoa getPessoa() {
@@ -412,6 +446,14 @@ public class ConciliacaoBean implements Serializable {
 
         public void setFormaPagamento(FormaPagamento formaPagamento) {
             this.formaPagamento = formaPagamento;
+        }
+
+        public FormaPagamento getConciliado() {
+            return conciliado;
+        }
+
+        public void setConciliado(FormaPagamento conciliado) {
+            this.conciliado = conciliado;
         }
     }
 

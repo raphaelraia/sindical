@@ -34,6 +34,7 @@ import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -53,6 +54,7 @@ public class MovimentoBancarioBean implements Serializable {
     private String valor = "";
     private String tipo = "saida";
     private List<ObjectMovimentoBancario> listaMovimento = new ArrayList();
+    private Date dataEmissao = DataHoje.dataHoje();
 
     private int idContaOperacao = 0;
     private List<SelectItem> listaContaOperacao = new ArrayList();
@@ -333,14 +335,27 @@ public class MovimentoBancarioBean implements Serializable {
             Plano5 plano5_lote = co.getPlano5();
 
             Plano5 plano5_forma_pagamento = (Plano5) dao.find(new Plano5(), Integer.valueOf(listaConta.get(idConta).getDescription()));
-
+            
+            Date ultima_data_conta_saldo = new MovimentoBancarioDao().ultimaDataContaSaldo();
+            if (ultima_data_conta_saldo != null){
+                if (DataHoje.menorData(dataEmissao, ultima_data_conta_saldo) || dataEmissao.equals(ultima_data_conta_saldo)){
+                    GenericaMensagem.warn("Atenção", "Data de emissão não pode ser menor ou igual a " + DataHoje.converteData(ultima_data_conta_saldo));
+                    return;
+                }
+                
+                if (DataHoje.maiorData(dataEmissao, DataHoje.dataHoje())){
+                    GenericaMensagem.warn("Atenção", "Data de emissão não pode ser maior que a data de hoje!");
+                    return;
+                }
+            }
+            
+            baixa = novaBaixa(dataEmissao);
+            
             if (tipo.equals("saida")) {
-                baixa = novaBaixa();
                 lote = novoLote(dao, "P", plano5_lote, Moeda.converteUS$(valor), (FStatus) dao.find(new FStatus(), 1), historico);
                 movimento = novoMovimento(dao, lote, baixa, "S");
                 forma_pagamento = novaFormaPagamento(dao, baixa, Moeda.converteUS$(valor), plano5_forma_pagamento, (TipoPagamento) dao.find(new TipoPagamento(), 14));
             } else {
-                baixa = novaBaixa();
                 lote = novoLote(dao, "R", plano5_lote, Moeda.converteUS$(valor), (FStatus) dao.find(new FStatus(), 1), historico);
                 movimento = novoMovimento(dao, lote, baixa, "E");
                 forma_pagamento = novaFormaPagamento(dao, baixa, Moeda.converteUS$(valor), plano5_forma_pagamento, (TipoPagamento) dao.find(new TipoPagamento(), 14));
@@ -423,7 +438,7 @@ public class MovimentoBancarioBean implements Serializable {
         movimentoEditar = omb.getMovimento();
         loteEditar = omb.getMovimento().getLote();
         historico = loteEditar.getHistoricoContabil();
-
+        
         for (int i = 0; i < listaConta.size(); i++) {
             if (Integer.valueOf(listaConta.get(i).getDescription()) == omb.getFormaPagamento().getPlano5().getId()) {
                 idConta = i;
@@ -434,6 +449,8 @@ public class MovimentoBancarioBean implements Serializable {
 
         tipo = omb.getMovimento().getEs().equals("S") ? "saida" : "entrada";
 
+        dataEmissao = omb.getBaixa().getDtBaixa();
+        
         loadListaContaOperacao();
 
         for (int i = 0; i < listaContaOperacao.size(); i++) {
@@ -617,12 +634,12 @@ public class MovimentoBancarioBean implements Serializable {
         return fp;
     }
 
-    public Baixa novaBaixa() {
+    public Baixa novaBaixa(Date dataEmissao) {
         return new Baixa(
                 -1,
                 (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("sessaoUsuario"),
-                DataHoje.data(),
-                "",
+                dataEmissao,
+                null,
                 0,
                 "",
                 null,
@@ -1006,7 +1023,7 @@ public class MovimentoBancarioBean implements Serializable {
     }
 
     public Baixa criarLoteMovimentoSaida(Dao dao, Float valor, String historicox) {
-        Baixa baixa_saida = novaBaixa();
+        Baixa baixa_saida = novaBaixa(DataHoje.dataHoje());
         if (!dao.save(baixa_saida)) {
             GenericaMensagem.warn("Erro", "Não foi possivel salvar Baixa Saida!");
             return null;
@@ -1030,7 +1047,7 @@ public class MovimentoBancarioBean implements Serializable {
     }
 
     public Baixa criarLoteMovimentoEntrada(Dao dao, Float valor, String historicox) {
-        Baixa baixa_entrada = novaBaixa();
+        Baixa baixa_entrada = novaBaixa(DataHoje.dataHoje());
         if (!dao.save(baixa_entrada)) {
             GenericaMensagem.warn("Erro", "Não foi possivel salvar Baixa Entrada!");
             return null;
@@ -1270,6 +1287,22 @@ public class MovimentoBancarioBean implements Serializable {
 
     public void setHistorico(String historico) {
         this.historico = historico;
+    }
+
+    public Date getDataEmissao() {
+        return dataEmissao;
+    }
+
+    public void setDataEmissao(Date dataEmissao) {
+        this.dataEmissao = dataEmissao;
+    }
+    
+    public String getDataEmissaoString() {
+        return DataHoje.converteData(dataEmissao);
+    }
+
+    public void setDataEmissaoString(String dataEmissaoString) {
+        this.dataEmissao = DataHoje.converte(dataEmissaoString);
     }
 
     public class ObjectMovimentoBancario {

@@ -33,6 +33,10 @@
                         <h:outputText value="Fechamento Diário" styleClass="fonteHeader" />
                         <div style="clear: both"></div>
                         <h:form id="formFechamentoDiario">
+                            <p:messages showDetail="true" closable="true" />
+                            
+                            <p:commandButton value="FECHAR DIA" onclick="PF('dlg_fechar').show()" action="#{fechamentoDiarioBean.selecionarFechar()}" style="font-weight: bold;" update="formFechamentoDiario:panel_fechamento_diario" disabled="#{fechamentoDiarioBean.cab.verificarPermissao('fechar_dia', 1)}"/>
+                            
                             <p:dataTable value="#{fechamentoDiarioBean.listaFechamentoDiario}" var="linha" emptyMessage="Nenhum Fechamento Diário encontrado!">
                                 <p:column style="width:15px">  
                                     <p:rowToggler />  
@@ -71,12 +75,6 @@
                                     </p:dataTable>
                                 </p:rowExpansion>
                             </p:dataTable>
-                            
-                            <p:messages showDetail="true" closable="true" />
-                            
-                            <p:separator />
-                            
-                            <p:commandButton value="FECHAR DIA" onclick="PF('dlg_fechar').show()" action="#{fechamentoDiarioBean.selecionarFechar()}" style="font-weight: bold;" update="formFechamentoDiario:panel_fechamento_diario" disabled="#{fechamentoDiarioBean.cab.verificarPermissao('fechar_dia', 1)}"/>
                             
                              <p:dialog widgetVar="dlg_fechar" header="Fechamento Diario" resizable="false" width="400" modal="true">
                                  <h:panelGrid id="panel_fechamento_diario">
