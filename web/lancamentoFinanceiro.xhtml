@@ -91,7 +91,7 @@
 
 
                             <h:panelGroup id="tbl" layout="block">
-                                <p:dataTable var="lote" value="#{lancamentoFinanceiroBean.listaLancamento}" emptyMessage="Nenhum Lançamento Emitido!">
+                                <p:dataTable var="lote" value="#{lancamentoFinanceiroBean.listaLancamento}" emptyMessage="Nenhum Lançamento Emitido!" rows="10" paginator="true">
                                     <p:column width="30" styleClass="text-center">
                                         <p:commandButton icon="ui-icon-pencil" title="Ver detalhes deste Lançamento" action="#{lancamentoFinanceiroBean.edit(lote)}" update=":form_lf:" oncomplete="PF('i_dlg_novo').show()" />
                                     </p:column>

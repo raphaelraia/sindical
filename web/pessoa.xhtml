@@ -209,6 +209,27 @@
                                 </p:panel>
                             </h:panelGroup>
 
+                            <!-- SUSPENSÃO DE SÓCIOS -->
+
+                            <h:panelGroup layout="block" rendered="#{pessoaBean.selectDetalhes eq 'suspencao'}">
+                                <p:panel id="i_suspencao" header="Suspensão - Histórico">
+                                    <p:dataTable value="#{pessoaBean.listSuspensao}" var="suspencao" emptyMessage="Nenhum registro encontrado!" rows="10" paginator="true"> 
+                                        <p:column width="15" styleClass="text-center">
+                                            #{suspencao.id}
+                                        </p:column>
+                                        <p:column headerText="Data Inicial" width="100" styleClass="text-center">
+                                            #{suspencao.dataInicial}
+                                        </p:column>
+                                        <p:column headerText="Data Final" width="100" styleClass="text-center">
+                                            #{suspencao.dataFinal}
+                                        </p:column>
+                                        <p:column headerText="Motivo">
+                                            #{suspencao.motivo}
+                                        </p:column>
+                                    </p:dataTable>
+                                </p:panel>
+                            </h:panelGroup>
+
                             <!-- FREQUÊNCIA CATRACA -->
 
                             <h:panelGroup layout="block" rendered="#{pessoaBean.selectDetalhes eq 'frequencia_catraca'}">
