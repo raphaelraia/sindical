@@ -11,6 +11,7 @@ import br.com.rtools.arrecadacao.MensagemConvencao;
 import br.com.rtools.associativo.BoletoNaoBaixado;
 import br.com.rtools.financeiro.*;
 import br.com.rtools.financeiro.dao.MovimentoDao;
+import br.com.rtools.financeiro.dao.MovimentoInativoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.principal.DB;
@@ -87,9 +88,9 @@ public class GerarMovimento extends DB {
             }
             log.save("Geracao geral: FIN_LOTE - Data: " + DataHoje.data() + " id_grupo_cidade: " + id_grupo_cidade + " id_convencao: " + id_convencao + " id_servico: " + id_servico + " referencia: " + referencia);
             /* ---------------- ***/
-            /* ---------------- ***/
+ /* ---------------- ***/
 
-            /* INSERÇÃO DE MOVIMENTO */
+ /* INSERÇÃO DE MOVIMENTO */
             textQry = "INSERT INTO fin_movimento (ds_referencia, ds_es, ds_documento, nr_valor, dt_vencimento_original, dt_vencimento, nr_ctr_boleto, id_pessoa, id_tipo_documento, id_tipo_servico, id_titular, id_servicos, id_beneficiario, id_lote, is_ativo, is_obrigacao,nr_multa,nr_desconto,nr_taxa,nr_quantidade, "
                     + "nr_valor_baixa, nr_repasse_automatico, nr_correcao, nr_desconto_ate_vencimento, nr_juros, id_plano5) \n"
                     + "(    SELECT '" + referencia + "' AS ds_referencia,           \n"
@@ -157,7 +158,7 @@ public class GerarMovimento extends DB {
             }
             log.save("Geracao geral: FIN_MOVIMENTO - Data: " + DataHoje.data());
             /* ------------------------ ***/
-            /* ------------------------ ***/
+ /* ------------------------ ***/
             Integer count = 0;
             /* INSERÇÃO DE BOLETO */
 //            for (int i = 0; i < 500; i++) {
@@ -244,9 +245,9 @@ public class GerarMovimento extends DB {
                 return message;
             }
             /* ---------------------- ***/
-            /* ---------------------- ***/
+ /* ---------------------- ***/
 
-            /* ATUALIZAÇÃO DE MOVIMENTO */
+ /* ATUALIZAÇÃO DE MOVIMENTO */
             textQry = "  UPDATE fin_movimento                                                                    \n"
                     + "     SET nr_ctr_boleto = text(fin_movimento.id), ds_documento = ds_boleto FROM fin_boleto \n"
                     + "   WHERE text(fin_movimento.id) = fin_boleto.nr_ctr_boleto                                \n"
@@ -262,9 +263,9 @@ public class GerarMovimento extends DB {
             log.save("Geracao geral: FIN_BOLETO - Data: " + DataHoje.data());
             log.save("Geracao geral: atualiza FIN_MOVIMENTO - Data: " + DataHoje.data());
             /* ---------------------- ***/
-            /* ---------------------- ***/
+ /* ---------------------- ***/
 
-            /* INSERÇÃO DE MENSAGEM COBRANÇA */
+ /* INSERÇÃO DE MENSAGEM COBRANÇA */
             textQry = "INSERT INTO fin_mensagem_cobranca (id_mensagem_convencao,id_movimento)           \n"
                     + "     (SELECT mc.id, m.id FROM fin_movimento AS m                                 \n"
                     + "  INNER JOIN arr_contribuintes_vw AS c ON c.id_pessoa = m.id_pessoa              \n"
@@ -949,6 +950,66 @@ public class GerarMovimento extends DB {
         return mensagem;
     }
 
+    public static String reativarArrayMovimento(List<Movimento> listaMovimento, String historico, Dao dao) {
+        String mensagem = "";
+        MovimentoDao movDB = new MovimentoDao();
+
+        NovoLog novoLog = new NovoLog();
+
+        boolean new_dao = false;
+
+        if (dao == null) {
+            dao = new Dao();
+            dao.openTransaction();
+            new_dao = true;
+        }
+
+        MovimentoInativoDao movimentoInativoDao = new MovimentoInativoDao();
+        for (Movimento mov : listaMovimento) {
+            try {
+                if (!mov.isAtivo() && mov.getBaixa() == null) {
+                    mov.setAtivo(true);
+                    
+                    MovimentoInativo movimentoInativo = movimentoInativoDao.findByMovimento(mov.getId());
+
+                    Boleto bol = movDB.pesquisaBoletos(mov.getNrCtrBoleto());
+
+                    if (bol != null) {
+                        bol.setAtivo(true);
+                        if (!dao.update(bol)) {
+                            return "Erro ao excluir Boleto, verifique os logs!";
+                        }
+                    }
+
+                    if (!dao.update(mov)) {
+                        return "Erro ao excluir Movimento, verifique os logs!";
+                    }
+
+                    if (!dao.delete(movimentoInativo)) {
+                        return "Erro ao salvar Motivo de Inativação, verifique os logs!";
+                    }
+
+                    String nrCtrBoleto = "";
+                    if (bol != null) {
+                        if (bol.getNrCtrBoleto() != null) {
+                            nrCtrBoleto = bol.getNrCtrBoleto();
+                        }
+                    }
+                    novoLog.setCodigo(movimentoInativo.getMovimento().getId());
+                    novoLog.setTabela("fin_mivimento");
+                    novoLog.update("", "Inativação de boleto: ID MOVIMENTO: " + movimentoInativo.getMovimento().getId() + " - Documento: " + movimentoInativo.getMovimento().getDocumento() + " - Valor: " + movimentoInativo.getMovimento().getValorString() + " - Data que hávia sido inátivo: " + movimentoInativo.getData() + " - Pessoa: (" + movimentoInativo.getMovimento().getPessoa().getId() + ") - " + movimentoInativo.getMovimento().getPessoa().getNome() + " - CTR Boleto: " + nrCtrBoleto + " - Motivo da reativação: " + movimentoInativo.getHistorico());
+                }
+            } catch (Exception e) {
+                mensagem = e.getMessage();
+            }
+        }
+
+        if (new_dao) {
+            dao.commit();
+        }
+        return mensagem;
+    }
+
     public static boolean estornarMovimento(Movimento movimento, String motivoEstorno) {
         MovimentoDao db = new MovimentoDao();
         Baixa baixa;
@@ -1135,9 +1196,9 @@ public class GerarMovimento extends DB {
                 dataCredito,
                 0,
                 null,
-                0, 
-                null, 
-                null, 
+                0,
+                null,
+                null,
                 null
         );
 
@@ -1343,9 +1404,9 @@ public class GerarMovimento extends DB {
                 null,
                 0,
                 null,
-                0, 
+                0,
                 null,
-                null, 
+                null,
                 null
         );
 

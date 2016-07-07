@@ -133,66 +133,79 @@
                                         <f:selectItem itemValue="quitados" itemLabel="Quitados"/>
                                         <f:selectItem itemValue="atrasados" itemLabel="Atrasados"/>
                                         <f:selectItem itemValue="vencer" itemLabel="A vencer"/>
+                                        <f:selectItem itemValue="excluidos" itemLabel="Excluídos" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
                                     </p:selectOneMenu>
                                 </p:column>
-
-                                <p:column rendered="false">
-                                    <h:outputText value="Ref" /><br />
-                                    <p:inputMask size="6" value="#{movimentosReceberSocialBean.referenciaPesquisa}" style="margin-right: 20px;" mask="99/9999">
-                                        <p:ajax event="change" update="@this i_panel tbl i_msg" listener="#{movimentosReceberSocialBean.atualizarStatus()}"/>
-                                    </p:inputMask>
-                                </p:column>
-
                                 <p:column>
-                                    <h:outputText value="Total em Aberto" /><br />
-                                    <p:inputText readonly="true" size="10" value="#{movimentosReceberSocialBean.total}" style="font-weight: bold; margin-right: 20px; text-align: right"/>
-                                </p:column>
+                                    <h:panelGrid columns="12" rendered="#{movimentosReceberSocialBean.porPesquisa ne 'excluidos'}">
+                                        <p:column rendered="false">
+                                            <h:outputText value="Ref" /><br />
+                                            <p:inputMask size="6" value="#{movimentosReceberSocialBean.referenciaPesquisa}" style="margin-right: 20px;" mask="99/9999">
+                                                <p:ajax event="change" update="@this i_panel tbl i_msg" listener="#{movimentosReceberSocialBean.atualizarStatus()}"/>
+                                            </p:inputMask>
+                                        </p:column>
 
-                                <p:column>
-                                    <h:outputText value="Acréscimo" /><br />
-                                    <p:inputText readonly="true" size="6" value="#{movimentosReceberSocialBean.acrescimo}" style="font-weight: bold; margin-right: 20px; text-align: right"/>
-                                </p:column>
+                                        <p:column>
+                                            <h:outputText value="Total em Aberto" /><br />
+                                            <p:inputText readonly="true" size="10" value="#{movimentosReceberSocialBean.total}" style="font-weight: bold; margin-right: 20px; text-align: right"/>
+                                        </p:column>
 
-                                <p:column>
-                                    <h:outputText value="Desconto"/><br />
-                                    <p:inputText id="i_desconto" size="6" value="#{movimentosReceberSocialBean.desconto}" style="text-align: right">
-                                        <p:ajax event="blur" update="@this i_panel tbl i_msg" listener="#{movimentosReceberSocialBean.permissaoEcalculoDesconto()}" />
-                                    </p:inputText>
-                                </p:column>
+                                        <p:column>
+                                            <h:outputText value="Acréscimo" /><br />
+                                            <p:inputText readonly="true" size="6" value="#{movimentosReceberSocialBean.acrescimo}" style="font-weight: bold; margin-right: 20px; text-align: right"/>
+                                        </p:column>
 
-                                <p:column>
-                                    <br />
-                                    <p:commandButton icon="ui-icon-locked" title="Autorizar Desconto" action="#{movimentosReceberSocialBean.autorizarDesconto()}" disabled="#{!movimentosReceberSocialBean.cab.verificarPermissao('autorizaDescontos', 3)}" style="margin-right: 20px;"/>
-                                </p:column>
+                                        <p:column>
+                                            <h:outputText value="Desconto"/><br />
+                                            <p:inputText id="i_desconto" size="6" value="#{movimentosReceberSocialBean.desconto}" style="text-align: right">
+                                                <p:ajax event="blur" update="@this i_panel tbl i_msg" listener="#{movimentosReceberSocialBean.permissaoEcalculoDesconto()}" />
+                                            </p:inputText>
+                                        </p:column>
 
-                                <p:column>
-                                    <h:outputText value="Total Calculado em Aberto"/><br />
-                                    <p:inputText readonly="true" value="#{movimentosReceberSocialBean.totalCalculado}" style="font-weight: bold; margin-right: 20px; text-align: right" />
-                                </p:column>
+                                        <p:column>
+                                            <br />
+                                            <p:commandButton icon="ui-icon-locked" title="Autorizar Desconto" action="#{movimentosReceberSocialBean.autorizarDesconto()}" disabled="#{!movimentosReceberSocialBean.cab.verificarPermissao('autorizaDescontos', 3)}" style="margin-right: 20px;"/>
+                                        </p:column>
 
-                                <p:column>
-                                    <br />
-                                    <p:commandButton value="Baixar" action="#{movimentosReceberSocialBean.caixaOuBanco}" title="Baixar este Movimento" rendered="#{movimentosReceberSocialBean.porPesquisa != 'quitados'}" />
-                                </p:column>
+                                        <p:column>
+                                            <h:outputText value="Total Calculado em Aberto"/><br />
+                                            <p:inputText readonly="true" value="#{movimentosReceberSocialBean.totalCalculado}" style="font-weight: bold; margin-right: 20px; text-align: right" />
+                                        </p:column>
 
-                                <p:column>
-                                    <br />
-                                    <p:commandButton value="Acordo" title="Fazer um acordo" action="#{movimentosReceberSocialBean.telaAcordo()}" rendered="#{movimentosReceberSocialBean.porPesquisa != 'quitados'}" update="@form"/>
-                                </p:column>
+                                        <p:column>
+                                            <br />
+                                            <p:commandButton value="Baixar" action="#{movimentosReceberSocialBean.caixaOuBanco}" title="Baixar este Movimento" rendered="#{movimentosReceberSocialBean.porPesquisa != 'quitados'}" />
+                                        </p:column>
 
-                                <p:column>
-                                    <br />
-                                    <p:commandButton value="Estornar" title="Estornar Movimentos Baixados" onclick="PF('i_dlg_estorno').show()" rendered="#{movimentosReceberSocialBean.porPesquisa != 'abertos' or movimentosReceberSocialBean.porPesquisa != 'atrasados'}" disabled="#{controleAcessoBean.botaoEstornarMensalidades}"/>
-                                </p:column>
+                                        <p:column>
+                                            <br />
+                                            <p:commandButton value="Acordo" title="Fazer um acordo" action="#{movimentosReceberSocialBean.telaAcordo()}" rendered="#{movimentosReceberSocialBean.porPesquisa != 'quitados'}" update="@form"/>
+                                        </p:column>
 
-                                <p:column>
-                                    <br />
-                                    <p:commandButton value="Deletar" title="Deletar Movimentos Selecionados (MOVIMENTOS RECEBER SOCIAL (Excluir))" onclick="PF('i_dlg_excluir').show()" rendered="#{movimentosReceberSocialBean.porPesquisa != 'quitados'}" disabled="#{controleAcessoBean.botaoExcluir}"/>
-                                </p:column>
+                                        <p:column>
+                                            <br />
+                                            <p:commandButton value="Estornar" title="Estornar Movimentos Baixados" onclick="PF('i_dlg_estorno').show()" rendered="#{movimentosReceberSocialBean.porPesquisa != 'abertos' or movimentosReceberSocialBean.porPesquisa != 'atrasados'}" disabled="#{controleAcessoBean.botaoEstornarMensalidades}"/>
+                                        </p:column>
 
+                                        <p:column>
+                                            <br />
+                                            <p:commandButton value="Deletar" title="Deletar Movimentos Selecionados (MOVIMENTOS RECEBER SOCIAL (Excluir))" onclick="PF('i_dlg_excluir').show()" rendered="#{movimentosReceberSocialBean.porPesquisa != 'quitados'}" disabled="#{controleAcessoBean.botaoExcluir}"/>
+                                        </p:column>
+
+                                        <p:column>
+                                            <br />
+                                            <p:commandButton value="Refazer" title="Refazer movimentos selecionados" rendered="#{movimentosReceberSocialBean.porPesquisa != 'quitados'}"  onclick="PF('dlg_refazer').show()" />
+                                        </p:column>
+
+                                    </h:panelGrid>
+                                </p:column>
                                 <p:column>
-                                    <br />
-                                    <p:commandButton value="Refazer" title="Refazer movimentos selecionados" rendered="#{movimentosReceberSocialBean.porPesquisa != 'quitados'}"  onclick="PF('dlg_refazer').show()" />
+                                    <h:panelGrid columns="12" rendered="#{movimentosReceberSocialBean.porPesquisa eq 'excluidos'}">
+                                        <p:column>
+                                            <br />
+                                            <p:commandButton value="Reativar" title="Reativar movimentos selecionados" onclick="PF('i_dlg_reativar').show()" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}"/>
+                                        </p:column>
+                                    </h:panelGrid>
                                 </p:column>
                             </h:panelGrid>
 
@@ -464,6 +477,20 @@
 
                                 <p:commandButton value="Sim"      type="submit" styleClass="ui-confirmdialog-yes" action="#{movimentosReceberSocialBean.inativarMovimentos()}" update="formMovimentosReceber" onclick="PF('i_dlg_excluir').hide()" style="clear: both; float: left" icon="ui-icon-check"/>  
                                 <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_excluir').hide()" style="float: left" icon="ui-icon-close"/>       
+                            </p:dialog>
+
+                            <p:dialog widgetVar="i_dlg_reativar" header="Deseja reativar estes Movimentos" resizable="false" width="400" modal="true">
+                                <h:panelGrid>
+                                    <p:outputLabel value="Deseja realmente REATIVAR esse movimento?" style="font-size: 11pt!important"/>
+                                </h:panelGrid>
+
+                                <h:panelGrid style="width: 100%">
+                                    <p:outputLabel value="Digite um motivo para reativação" style="font-size: 10pt!important; font-weight: bold"/>
+                                    <p:inputTextarea value="#{movimentosReceberSocialBean.motivoReativacao}" style="width: 100%"/>
+                                </h:panelGrid>
+
+                                <p:commandButton value="Sim"      type="submit" styleClass="ui-confirmdialog-yes" action="#{movimentosReceberSocialBean.reativarMovimentos()}" update="formMovimentosReceber" onclick="PF('i_dlg_reativar').hide()" style="clear: both; float: left" icon="ui-icon-check"/>  
+                                <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_reativar').hide()" style="float: left" icon="ui-icon-close"/>       
                             </p:dialog>
 
                             <p:dialog widgetVar="dlg_anexar_boletos" header="Selecione os Boletos a serem Anexados" resizable="false" width="850" modal="true" position="top" visible="#{movimentosReceberSocialBean.visibleAnexar}">
