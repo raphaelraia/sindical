@@ -114,6 +114,7 @@ public class MovimentosReceberSocialBean implements Serializable {
     private boolean pessoaJuridicaNaLista = false;
     private final ConfiguracaoFinanceiroBean cfb = new ConfiguracaoFinanceiroBean();
     private String motivoInativacao = "";
+    private String motivoReativacao = "";
 
     private ControleAcessoBean cab = new ControleAcessoBean();
     private String referenciaPesquisa = "";
@@ -356,7 +357,7 @@ public class MovimentosReceberSocialBean implements Serializable {
         // PESQUISA RESPONSAVEL DA PESSOA
         FunctionsDao dbfunc = new FunctionsDao();
         Pessoa t = dbfunc.titularDaPessoa(pessoa.getId());
-        
+
         listaMovimentosAnexo = db.listaMovimentosAbertosAnexarAgrupado(pessoa.getId(), t.getId());
     }
 
@@ -624,6 +625,59 @@ public class MovimentosReceberSocialBean implements Serializable {
 
         listaMovimento.clear();
         dao.commit();
+    }
+
+    public void reativarMovimentos() {
+        if (motivoReativacao.isEmpty()) {
+            GenericaMensagem.warn("Atenção", "Digite um motivo para reativação!");
+            return;
+        } else if (motivoReativacao.length() < 6) {
+            GenericaMensagem.warn("Atenção", "Motivo de válido para reativação! Com mais de 6 caracteres.");
+            return;
+        }
+
+        List<Movimento> listam = new ArrayList();
+
+        if (baixado()) {
+            GenericaMensagem.warn("Atenção", "Boletos BAIXADOS não podem ser reativados!");
+            return;
+        }
+
+        if (fechadosCaixa()) {
+            GenericaMensagem.warn("Atenção", "Boletos COM CAIXA FECHADO não podem ser reativados!");
+            return;
+        }
+
+        if (acordados()) {
+            GenericaMensagem.warn("Atenção", "Boletos do tipo ACORDO não podem ser reativados!");
+            return;
+        }
+
+        for (DataObject dh : listaMovimento) {
+            if ((Boolean) dh.getArgumento0()) {
+                listam.add((Movimento) new Dao().find(new Movimento(), ((Movimento) dh.getArgumento1()).getId()));
+            }
+        }
+
+        if (listam.isEmpty()) {
+            GenericaMensagem.warn("Atenção", "Nenhum boletos foi selecionado!");
+            return;
+        }
+
+        Dao dao = new Dao();
+        dao.openTransaction();
+
+        if (!GerarMovimento.reativarArrayMovimento(listam, motivoReativacao, dao).isEmpty()) {
+            GenericaMensagem.error("Atenção", "Ocorreu um erro em uma dos movimentos a serem reativados, verifique o log!");
+            dao.rollback();
+            return;
+        } else {
+            GenericaMensagem.info("Sucesso", "Boletos foram reativados!");
+        }
+
+        listaMovimento.clear();
+        dao.commit();
+        motivoReativacao = "";
     }
 
     public String caixaOuBanco() {
@@ -2129,6 +2183,14 @@ public class MovimentosReceberSocialBean implements Serializable {
 
     public void setLimitePesquisa(String limitePesquisa) {
         this.limitePesquisa = limitePesquisa;
+    }
+
+    public String getMotivoReativacao() {
+        return motivoReativacao;
+    }
+
+    public void setMotivoReativacao(String motivoReativacao) {
+        this.motivoReativacao = motivoReativacao;
     }
 
 //    public List<Movimento> getListaMovimentoDoBoleto() {

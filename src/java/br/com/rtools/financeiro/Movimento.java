@@ -4,6 +4,8 @@ import br.com.rtools.arrecadacao.Acordo;
 import br.com.rtools.associativo.MatriculaSocios;
 import br.com.rtools.associativo.Socios;
 import br.com.rtools.associativo.dao.SociosDao;
+import br.com.rtools.financeiro.dao.BoletoDao;
+import br.com.rtools.financeiro.dao.MovimentoInativoDao;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Moeda;
@@ -607,6 +609,22 @@ public class Movimento implements Serializable {
 
     public void setSelected(Boolean selected) {
         this.selected = selected;
+    }
+
+    public MovimentoInativo getMovimentoInativo() {
+        if (id != -1) {
+            if (!ativo) {
+                return new MovimentoInativoDao().findByMovimento(id);
+            }
+        }
+        return null;
+    }
+
+    public Boleto getBoleto() {
+        if (id != -1) {
+            return new BoletoDao().findByNrCtrBoleto(nrCtrBoleto);
+        }
+        return null;
     }
 
 }

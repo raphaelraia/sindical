@@ -98,7 +98,9 @@ public class MovimentosReceberSocialDao extends DB {
                     + " LEFT JOIN seg_usuario       AS u  ON u.id = bx.id_usuario       \n"
                     + " LEFT JOIN pes_pessoa        AS us ON us.id = u.id_pessoa        \n"
                     + " LEFT JOIN pes_juridica      AS j  ON j.id_pessoa = m.id_pessoa  \n";
-
+            if (por_status.equals("excluidos") || por_status.equals("excluidos_baixados")) {
+                textqry += " LEFT JOIN fin_movimento_inativo AS MI ON MI.id_movimento = M.id \n";
+            }
             String order_by = "";
             String where = "";
             String ands = "";
@@ -148,6 +150,19 @@ public class MovimentosReceberSocialDao extends DB {
                             + "        AND m.id_servicos NOT IN(SELECT sr.id_servicos FROM fin_servico_rotina AS sr WHERE id_rotina = 4) \n";
                     order_by = (tipoPessoa.equals("fisica")) ? " ORDER BY m.dt_vencimento, p.ds_nome, t.ds_nome, se.ds_descricao \n "
                             : " ORDER BY m.dt_vencimento, p.ds_nome, t.ds_nome, se.ds_descricao \n ";
+                    break;
+                case "excluidos":
+                case "excluidos_baixados":
+                    ands = where + " WHERE (m.id_pessoa IN (" + id_responsavel + ") OR (m.id_beneficiario IN (" + id_pessoa + ") AND j.id IS NULL AND m.id_titular in (" + id_responsavel + ")) OR m.id_pessoa IN (" + id_pessoa + ")) \n ";
+                    if (por_status.equals("excluidos")) {
+                        ands += " AND m.id_baixa IS NULL \n";
+                    } else if (por_status.equals("excluidos_baixados")) {
+                        ands += " AND m.id_baixa IS NOT NULL \n";
+                    }
+                    ands += "        AND m.is_ativo = false               \n"
+                            + "        AND m.id_servicos NOT IN(SELECT sr.id_servicos FROM fin_servico_rotina AS sr WHERE id_rotina = 4) \n";
+                    order_by = (tipoPessoa.equals("fisica")) ? " ORDER BY m.dt_vencimento, p.ds_nome, t.ds_nome, se.ds_descricao \n "
+                            : " ORDER BY MI.dt_data DESC, m.dt_vencimento, p.ds_nome, t.ds_nome, se.ds_descricao \n ";
                     break;
             }
 
