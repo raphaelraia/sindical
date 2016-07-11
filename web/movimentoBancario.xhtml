@@ -66,7 +66,7 @@
                                             <p:ajax event="change" update="i_valor" global="false"/>
                                         </p:inputText>
                                     </p:column>
-                                    
+
                                     <p:column>
                                         <h:outputLabel value="Emissão" /><br />
                                         <p:inputMask value="#{movimentoBancarioBean.dataEmissaoString}" mask="99/99/9999" style="width: 80px; text-align: center">
@@ -75,12 +75,26 @@
                                     </p:column>
                                 </h:panelGrid>
 
-                                <h:panelGrid id="panel_receita_despesa" columns="4">
+                                <h:panelGrid id="panel_receita_despesa" columns="6">
                                     <p:column>
                                         <h:outputLabel value="#{movimentoBancarioBean.tipo eq 'entrada' ? 'Conta de Entrada' : 'Conta de Saída'}" style="font-weight: bold"/><br />
                                         <p:selectOneMenu value="#{movimentoBancarioBean.idContaOperacao}" style="margin-right: 15px; width: 480px" disabled="#{movimentoBancarioBean.formaPagamentoEditar.id ne -1}">
+                                            <p:ajax event="change" listener="#{movimentoBancarioBean.loadListaHistoricoBancario()}" update="panel_receita_despesa panel_historico" global="false"/>
                                             <f:selectItems value="#{movimentoBancarioBean.listaContaOperacao}"/>
                                         </p:selectOneMenu>
+                                    </p:column>
+
+                                    <p:column rendered="#{movimentoBancarioBean.formaPagamentoEditar.id eq -1}">
+                                        <h:outputLabel value="Histórico Padrão" style="font-weight: bold"/><br />
+                                        <p:selectOneMenu value="#{movimentoBancarioBean.indexHistoricoBancario}" style="margin-right: 15px; width: 300px">
+                                            <p:ajax event="change" listener="#{movimentoBancarioBean.loadHistoricoDefault()}" update="panel_historico" global="false"/>
+                                            <f:selectItems value="#{movimentoBancarioBean.listaHistoricoBancario}" />
+                                        </p:selectOneMenu>
+                                    </p:column>
+
+                                    <p:column rendered="#{movimentoBancarioBean.formaPagamentoEditar.id eq -1}">
+                                        <br />
+                                        <p:commandLink value="Alterar Descrição do Histórico" action="#{movimentoBancarioBean.editarHistoricoBancario()}" update="formMovimentoBancario:panel_historico_bancario" onclick="PF('dlg_historico_bancario').show()"/>
                                     </p:column>
 
                                     <p:column>
@@ -98,10 +112,10 @@
                                         <p:commandButton value="NOVO" action="#{movimentoBancarioBean.novo()}" update="@form"/>
                                     </p:column>
                                 </h:panelGrid>
-                                
+
                                 <h:panelGrid id="panel_historico" style="width: 100%">
                                     <h:column>
-                                        <p:outputLabel value="Histórico" /><br />
+                                        <p:outputLabel value="Histórico" style="font-weight: bold"/><br />
                                         <p:inputTextarea value="#{movimentoBancarioBean.historico}" style="width: 100%" rows="3">
                                             <p:ajax event="change" update="@this" global="false"/>
                                         </p:inputTextarea>
@@ -113,11 +127,11 @@
                             <h:panelGrid style="width: 100%" columns="2">
                                 <h:panelGrid columns="5" style="float: left;">
                                     <p:commandLink value="FILTRAR MOVIMENTOS" onclick="PF('dlg_filtro_movimentos').show()" style="text-decoration: underline" update="formMovimentoBancario:panel_filtro_movimentos"/>
-                                    
+
                                     <p:outputLabel value="#{movimentoBancarioBean.esFiltro eq 'E' ? '[ Entrada ]' : '[ Saída ]'}" rendered="#{movimentoBancarioBean.esFiltro ne 'todos'}" style="margin-left: 20px; font-weight: bold"/>
                                     <p:outputLabel value="[ #{movimentoBancarioBean.tipoPagamentoFiltro} ]" rendered="#{movimentoBancarioBean.tipoPagamentoFiltro ne 'todos'}" style="margin-left: 20px; font-weight: bold"/>
                                     <p:outputLabel value="[ #{movimentoBancarioBean.statusFiltro} ]" rendered="#{movimentoBancarioBean.statusFiltro ne 'todos'}" style="margin-left: 20px; font-weight: bold"/>
-                                    
+
                                     <p:commandLink value="[x] Limpar" action="#{movimentoBancarioBean.limparFiltro()}"  update="@form" rendered="#{movimentoBancarioBean.temFiltro() eq true}"/>
                                 </h:panelGrid>
 
@@ -172,7 +186,7 @@
                                 <p:column headerText="Status" style="width:120px; text-align: center">
                                     <p:commandLink value="#{movimentoBancarioBean.statusCheque(linha).get('status')}" action="#{movimentoBancarioBean.selecionaStatus(linha)}" style="font-size: 11pt!important; font-weight: bold; #{movimentoBancarioBean.statusCheque(linha).get('cor')}" rendered="#{movimentoBancarioBean.mostraStatus(linha)}" onclick="PF('dlg_alterar_status_cheque').show()" update="formMovimentoBancario:panel_alterar_status_cheque" disabled="#{movimentoBancarioBean.desabilitaStatus(linha)}"/>
                                 </p:column>
-                                
+
                                 <p:column headerText="Dev." style="width:50px; text-align: center">
                                     <p:outputLabel value="#{linha.formaPagamento.devolucaoString}" style="font-size: 8pt!important"/>
                                 </p:column>
@@ -258,7 +272,7 @@
                                                 <f:selectItem itemLabel="Saída" itemValue="S"/>
                                             </p:selectOneMenu>
                                         </h:column>
-                                        
+
                                         <h:column>
                                             <p:outputLabel value="Operação" /><br />
                                             <p:selectOneMenu value="#{movimentoBancarioBean.tipoPagamentoFiltro}">
@@ -271,7 +285,7 @@
                                                 <f:selectItem itemLabel="Doc Bancário" itemValue="doc_bancario"/>
                                             </p:selectOneMenu>
                                         </h:column>
-                                        
+
                                         <h:column>
                                             <p:outputLabel value="Status" /><br />
                                             <p:selectOneMenu value="#{movimentoBancarioBean.statusFiltro}">
@@ -282,12 +296,46 @@
                                             </p:selectOneMenu>
                                         </h:column>
                                     </h:panelGrid>
-                                    
+
                                     <h:panelGrid>
                                         <p:commandButton value="Filtrar" action="#{movimentoBancarioBean.loadListaMovimento()}" update="@form"/>
                                     </h:panelGrid>
                                 </h:panelGrid>
                             </p:dialog>
+
+                            <p:dialog widgetVar="dlg_historico_bancario" header="Histórico Bancário Padrão" resizable="false" width="600" modal="true">
+                                <h:panelGrid id="panel_historico_bancario" style="width: 100%">
+                                    <h:panelGrid columns="1" style="width: 100%">
+                                        <h:column>
+                                            <p:outputLabel value="Conta" style="font-weight: bold"/><br />
+                                            <p:outputLabel value="#{movimentoBancarioBean.historicoBancario.plano5.conta}" style="font-weight: bold"/>
+                                        </h:column>
+                                        
+                                        <h:column rendered="#{movimentoBancarioBean.historicoBancario.id eq -1}">
+                                            <p:outputLabel value="CRIANDO UM NOVO HISTÓRICO" style="font-weight: bold; color: red"/><br />
+                                        </h:column>
+                                            
+                                        <h:column>
+                                            <p:outputLabel value="Descrição" /><br />
+                                            <p:inputText value="#{movimentoBancarioBean.historicoBancario.descricao}" style="width: 100%"/>
+                                        </h:column>
+
+                                        <h:column>
+                                            <p:outputLabel value="Histórico" /><br />
+                                            <p:inputTextarea value="#{movimentoBancarioBean.historicoBancario.historico}" style="width: 100%"/>
+                                        </h:column>
+                                    </h:panelGrid>
+                                    <br />
+                                    <h:panelGrid columns="4">
+                                        <p:commandButton value="Salvar" type="submit" action="#{movimentoBancarioBean.salvarHistoricoBancario()}" update="@form" onclick="PF('dlg_historico_bancario').hide()" style="clear: both; float: left; font-weight: bold" icon="ui-icon-check" />  
+                                        <p:commandButton value="Novo" action="#{movimentoBancarioBean.novoHistoricoBancario()}" update="panel_historico_bancario" style="float: left" icon="ui-icon-refresh"/>       
+                                        <p:commandButton value="Excluir" type="submit" action="#{movimentoBancarioBean.excluirHistoricoBancario()}" update="@form" onclick="PF('dlg_historico_bancario').hide()" rendered="#{movimentoBancarioBean.historicoBancario.id ne -1}" style="float: left" icon="ui-icon-close"/>       
+                                        <p:commandButton value="Cancelar" type="button" onclick="PF('dlg_historico_bancario').hide()" style="float: left" icon="ui-icon-close"/>       
+                                    </h:panelGrid>
+                                </h:panelGrid>
+
+                            </p:dialog>
+
                         </h:form>
                     </p:panel>
                 </f:view>

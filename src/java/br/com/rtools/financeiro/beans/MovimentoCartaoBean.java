@@ -98,18 +98,22 @@ public class MovimentoCartaoBean implements Serializable {
         }
 
         Cartao cart = (Cartao) dao.find(new Cartao(), Integer.valueOf(listaCartaoCombo.get(indexCartaoCombo).getDescription()));
-        
+
         Plano5 plano_saida = cart.getPlano5();
         //Plano5 plano_entrada = (Plano5) dao.find(new Plano5(), 1);
         Plano5 plano_entrada = cart.getPlano5Baixa();
         Plano5 plano_saida_despesa = cart.getPlano5Despesa();
 
-        String historico_contabil = "";
-        Lote lote_saida = novoLote(dao, "P", plano_saida, valorTotalLiquidoSelecionado, (FStatus) dao.find(new FStatus(), 1), historico_contabil);
-        Lote lote_entrada = novoLote(dao, "R", plano_entrada, valorTotalLiquidoSelecionado, (FStatus) dao.find(new FStatus(), 14), historico_contabil);
-        Lote lote_saida_despesa = novoLote(dao, "P", plano_saida_despesa, Moeda.subtracaoValores(valorTotalSelecionado, valorTotalLiquidoSelecionado), (FStatus) dao.find(new FStatus(), 1), historico_contabil);
+        String historico_saida = "Referente ao repasse liquido (sem a taxa financeira) dos recebimentos de cartões para a conta (" + plano_saida.getConta() + ")";
+        Lote lote_saida = novoLote(dao, "P", plano_saida, valorTotalLiquidoSelecionado, (FStatus) dao.find(new FStatus(), 1), historico_saida);
 
-        if (!dao.save(lote_saida) || !dao.save(lote_entrada) || !dao.save(lote_saida_despesa) ) {
+        String historico_entrada = "Referente ao repasse liquido (sem a taxa financeira) dos recebimentos de cartões para a conta (" + plano_saida.getConta() + ")";
+        Lote lote_entrada = novoLote(dao, "R", plano_entrada, valorTotalLiquidoSelecionado, (FStatus) dao.find(new FStatus(), 14), historico_entrada);
+
+        String historico_saida_despesa = "Referente ao pagamento de despesa financeira do repasse de recebimento de cartões";
+        Lote lote_saida_despesa = novoLote(dao, "P", plano_saida_despesa, Moeda.subtracaoValores(valorTotalSelecionado, valorTotalLiquidoSelecionado), (FStatus) dao.find(new FStatus(), 1), historico_saida_despesa);
+
+        if (!dao.save(lote_saida) || !dao.save(lote_entrada) || !dao.save(lote_saida_despesa)) {
             GenericaMensagem.warn("Erro", "Erro ao salvar Lote");
             dao.rollback();
             return;
@@ -300,9 +304,9 @@ public class MovimentoCartaoBean implements Serializable {
                 DataHoje.dataHoje(),
                 0,
                 null,
-                0, 
-                null, 
-                null, 
+                0,
+                null,
+                null,
                 null
         );
     }

@@ -11,6 +11,7 @@ import br.com.rtools.financeiro.ContaSaldo;
 import br.com.rtools.financeiro.FStatus;
 import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.FormaPagamento;
+import br.com.rtools.financeiro.HistoricoBancario;
 import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.Plano5;
@@ -32,6 +33,7 @@ import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
+import br.com.rtools.utilitarios.PF;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -74,6 +76,11 @@ public class MovimentoBancarioBean implements Serializable {
     private Float saldoDisponivel = (float) 0;
     private String historico = "";
 
+    private final List<SelectItem> listaHistoricoBancario = new ArrayList();
+    private Integer indexHistoricoBancario = 0;
+
+    private HistoricoBancario historicoBancario = new HistoricoBancario();
+
     // FILTROS
     private String esFiltro = "todos";
     private String tipoPagamentoFiltro = "todos";
@@ -85,21 +92,109 @@ public class MovimentoBancarioBean implements Serializable {
         loadListaContaOperacao();
         loadListaStatus();
         loadListaMovimento();
+    }
+
+    public void editarHistoricoBancario() {
+        historicoBancario = (HistoricoBancario) new Dao().find(new HistoricoBancario(), Integer.valueOf(listaHistoricoBancario.get(indexHistoricoBancario).getDescription()));
+    }
+
+    public void novoHistoricoBancario() {
+        Plano5 pl_hist = historicoBancario.getPlano5();
+        Rotina rot = historicoBancario.getRotina();
+        
+        historicoBancario = new HistoricoBancario();
+        
+        historicoBancario.setPlano5(pl_hist);
+        historicoBancario.setRotina(rot);
+    }
+
+    public void salvarHistoricoBancario() {
+        Dao dao = new Dao();
+
+        dao.openTransaction();
+        if (historicoBancario.getId() == -1) {
+            ContaOperacao co = (ContaOperacao) new Dao().find(new ContaOperacao(), Integer.valueOf(listaContaOperacao.get(idContaOperacao).getDescription()));
+
+            historicoBancario.setPlano5(co.getPlano5());
+            historicoBancario.setRotina((Rotina) dao.find(new Rotina(), 225));
+
+            if (!dao.save(historicoBancario)) {
+                GenericaMensagem.error("Atenção", "Erro ao atualizar histórico");
+                dao.rollback();
+                PF.update("formMovimentoBancario:panel_historico_bancario");
+                return;
+            }
+            GenericaMensagem.info("Sucesso", "Histórico Salvo!");
+        } else {
+            if (!dao.update(historicoBancario)) {
+                GenericaMensagem.error("Atenção", "Erro ao atualizar histórico");
+                dao.rollback();
+                PF.update("formMovimentoBancario:panel_historico_bancario");
+                return;
+            }
+            GenericaMensagem.info("Sucesso", "Histórico Atualizado!");
+        }
+
+        dao.commit();
+        
+        loadListaHistoricoBancario();
+    }
+    
+    public void excluirHistoricoBancario(){
+         Dao dao = new Dao();
+
+        dao.openTransaction();
+        if (historicoBancario.getId() != -1) {
+            if (!dao.delete(historicoBancario)) {
+                GenericaMensagem.error("Atenção", "Erro ao excluir histórico");
+                dao.rollback();
+                PF.update("formMovimentoBancario:panel_historico_bancario");
+                return;
+            }
+            GenericaMensagem.info("Sucesso", "Histórico Excluído!");
+            dao.commit();
+        }
+        
+        loadListaHistoricoBancario();
+    }
+
+    public final void loadListaHistoricoBancario() {
+        listaHistoricoBancario.clear();
+        indexHistoricoBancario = 0;
+
+        ContaOperacao co = (ContaOperacao) new Dao().find(new ContaOperacao(), Integer.valueOf(listaContaOperacao.get(idContaOperacao).getDescription()));
+        List<HistoricoBancario> result = new MovimentoBancarioDao().listaHistoricoBancario(co.getPlano5().getId(), 225);
+
+        for (int i = 0; i < result.size(); i++) {
+            listaHistoricoBancario.add(
+                    new SelectItem(
+                            i,
+                            result.get(i).getDescricao(),
+                            "" + result.get(i).getId()
+                    )
+            );
+        }
+
         loadHistoricoDefault();
     }
 
     public final void loadHistoricoDefault() {
-        if (loteEditar.getId() == -1) {
-            if (tipo.equals("saida")) {
-                if (historico.isEmpty() || historico.equals("Taxa Bancária")) {
-                    historico = "Taxa Bancária";
-                }
-            } else {
-                if (historico.isEmpty() || historico.equals("Taxa Bancária")) {
-                    historico = "";
-                }
-            }
+        if (!listaHistoricoBancario.isEmpty()) {
+            historico = ((HistoricoBancario) new Dao().find(new HistoricoBancario(), Integer.valueOf(listaHistoricoBancario.get(indexHistoricoBancario).getDescription()))).getHistorico();
+        } else {
+            historico = "";
         }
+//        if (loteEditar.getId() == -1) {
+//            if (tipo.equals("saida")) {
+//                if (historico.isEmpty() || historico.equals("Taxa Bancária")) {
+//                    historico = "Taxa Bancária";
+//                }
+//            } else {
+//                if (historico.isEmpty() || historico.equals("Taxa Bancária")) {
+//                    historico = "";
+//                }
+//            }
+//        }
     }
 
     public void limparFiltro() {
@@ -298,7 +393,7 @@ public class MovimentoBancarioBean implements Serializable {
             }
         }
 
-        loadHistoricoDefault();
+        loadListaHistoricoBancario();
     }
 
     public final void loadListaStatus() {
@@ -335,22 +430,22 @@ public class MovimentoBancarioBean implements Serializable {
             Plano5 plano5_lote = co.getPlano5();
 
             Plano5 plano5_forma_pagamento = (Plano5) dao.find(new Plano5(), Integer.valueOf(listaConta.get(idConta).getDescription()));
-            
+
             Date ultima_data_conta_saldo = new MovimentoBancarioDao().ultimaDataContaSaldo();
-            if (ultima_data_conta_saldo != null){
-                if (DataHoje.menorData(dataEmissao, ultima_data_conta_saldo) || dataEmissao.equals(ultima_data_conta_saldo)){
+            if (ultima_data_conta_saldo != null) {
+                if (DataHoje.menorData(dataEmissao, ultima_data_conta_saldo) || dataEmissao.equals(ultima_data_conta_saldo)) {
                     GenericaMensagem.warn("Atenção", "Data de emissão não pode ser menor ou igual a " + DataHoje.converteData(ultima_data_conta_saldo));
                     return;
                 }
-                
-                if (DataHoje.maiorData(dataEmissao, DataHoje.dataHoje())){
+
+                if (DataHoje.maiorData(dataEmissao, DataHoje.dataHoje())) {
                     GenericaMensagem.warn("Atenção", "Data de emissão não pode ser maior que a data de hoje!");
                     return;
                 }
             }
-            
+
             baixa = novaBaixa(dataEmissao);
-            
+
             if (tipo.equals("saida")) {
                 lote = novoLote(dao, "P", plano5_lote, Moeda.converteUS$(valor), (FStatus) dao.find(new FStatus(), 1), historico);
                 movimento = novoMovimento(dao, lote, baixa, "S");
@@ -438,7 +533,7 @@ public class MovimentoBancarioBean implements Serializable {
         movimentoEditar = omb.getMovimento();
         loteEditar = omb.getMovimento().getLote();
         historico = loteEditar.getHistoricoContabil();
-        
+
         for (int i = 0; i < listaConta.size(); i++) {
             if (Integer.valueOf(listaConta.get(i).getDescription()) == omb.getFormaPagamento().getPlano5().getId()) {
                 idConta = i;
@@ -450,7 +545,7 @@ public class MovimentoBancarioBean implements Serializable {
         tipo = omb.getMovimento().getEs().equals("S") ? "saida" : "entrada";
 
         dataEmissao = omb.getBaixa().getDtBaixa();
-        
+
         loadListaContaOperacao();
 
         for (int i = 0; i < listaContaOperacao.size(); i++) {
@@ -609,9 +704,9 @@ public class MovimentoBancarioBean implements Serializable {
                 DataHoje.dataHoje(),
                 0,
                 fstatus,
-                devolucao, 
-                null, 
-                null, 
+                devolucao,
+                null,
+                null,
                 null
         );
 
@@ -955,7 +1050,7 @@ public class MovimentoBancarioBean implements Serializable {
             GenericaMensagem.warn("Erro", "Não foi possivel salvar Forma de Pagamento Saida!");
             return false;
         }
-            // -----------------------------------------------------------------
+        // -----------------------------------------------------------------
         // -----------------------------------------------------------------
 
         // ENTRADA ---------------------------------------------------------
@@ -1296,13 +1391,33 @@ public class MovimentoBancarioBean implements Serializable {
     public void setDataEmissao(Date dataEmissao) {
         this.dataEmissao = dataEmissao;
     }
-    
+
     public String getDataEmissaoString() {
         return DataHoje.converteData(dataEmissao);
     }
 
     public void setDataEmissaoString(String dataEmissaoString) {
         this.dataEmissao = DataHoje.converte(dataEmissaoString);
+    }
+
+    public List<SelectItem> getListaHistoricoBancario() {
+        return listaHistoricoBancario;
+    }
+
+    public Integer getIndexHistoricoBancario() {
+        return indexHistoricoBancario;
+    }
+
+    public void setIndexHistoricoBancario(Integer indexHistoricoBancario) {
+        this.indexHistoricoBancario = indexHistoricoBancario;
+    }
+
+    public HistoricoBancario getHistoricoBancario() {
+        return historicoBancario;
+    }
+
+    public void setHistoricoBancario(HistoricoBancario historicoBancario) {
+        this.historicoBancario = historicoBancario;
     }
 
     public class ObjectMovimentoBancario {

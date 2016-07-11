@@ -1227,6 +1227,7 @@ public class LancamentoFinanceiroBean implements Serializable {
         loadListaOperacao();
         loadListaCentroCusto();
         loadListaContaOperacao();
+        historico = "";
     }
 
     public void atualizaComboOperacao() {
@@ -2131,6 +2132,16 @@ public class LancamentoFinanceiroBean implements Serializable {
     }
 
     public String getHistorico() {
+        if (historico.isEmpty() && es.equals("S") && pessoa.getId() != -1) {
+            Dao dao = new Dao();
+            FTipoDocumento f_doc = (FTipoDocumento) dao.find(new FTipoDocumento(), idFTipo);
+            String num = lote.getDocumento().isEmpty() ? "____" : lote.getDocumento();
+            String pes_doc = pessoa.getTipoDocumento().getId() == 4 ? "" : pessoa.getTipoDocumento().getDescricao() + ": " + pessoa.getDocumento();
+            historico = "Pagamento referente a " + f_doc.getDescricao() + " de número " + num + " a " + pessoa.getNome() + ", " + pes_doc;
+        } else if (historico.isEmpty() && es.equals("E") && pessoa.getId() != -1) {
+            String pes_doc = pessoa.getTipoDocumento().getId() == 4 ? "" : pessoa.getTipoDocumento().getDescricao() + ": " + pessoa.getDocumento();
+            historico = "Referente ao recebimento de " + pessoa.getNome() + ", " + pes_doc;
+        }
         return historico;
     }
 
