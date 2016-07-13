@@ -8,9 +8,7 @@ import java.util.List;
 import javax.persistence.Query;
 
 public class PlanoDao extends DB {
-      
-   
-   
+
     public List pesquisaPlano(String desc, String por, String como, String plano, int id) {
         List result = null;
 
@@ -75,7 +73,6 @@ public class PlanoDao extends DB {
         return result;
     }
 
-   
     public List pesquisaPorPlano(String desc, String por, String como, String plano) {
         desc = AnaliseString.removerAcentos(desc);
         desc = desc.toUpperCase();
@@ -100,7 +97,6 @@ public class PlanoDao extends DB {
         return new ArrayList();
     }
 
-   
     public List pesquisaPlanos(String plano) {
 
         List result = null;
@@ -115,5 +111,19 @@ public class PlanoDao extends DB {
         }
 
         return result;
+    }
+
+    public List<ContaTipoPlano5> listaContaTipoPlano5(Integer id_plano5) {
+        String textQuery
+                = "SELECT ctp.* \n"
+                + "  FROM fin_conta_tipo_plano5 ctp \n"
+                + " WHERE ctp.id_plano5 = " + id_plano5;
+        try {
+            Query qry = getEntityManager().createNativeQuery(textQuery, ContaTipoPlano5.class);
+            return qry.getResultList();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return new ArrayList();
     }
 }

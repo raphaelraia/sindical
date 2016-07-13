@@ -3,10 +3,12 @@ package br.com.rtools.financeiro.beans;
 import br.com.rtools.financeiro.CentroCusto;
 import br.com.rtools.financeiro.ContaOperacao;
 import br.com.rtools.financeiro.ContaTipo;
+import br.com.rtools.financeiro.ContaTipoPlano5;
 import br.com.rtools.financeiro.Operacao;
 import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.dao.CentroCustoDao;
 import br.com.rtools.financeiro.dao.ContaOperacaoDao;
+import br.com.rtools.financeiro.dao.PlanoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.utilitarios.Dao;
@@ -46,6 +48,8 @@ public class ContaOperacaoBean implements Serializable {
     private List<SelectItem> listContaTipo;
     private Integer idContaTipo;
 
+    private List<ContaTipoPlano5> listaContaTipoPlano5;
+
     @PostConstruct
     public void init() {
         contaOperacao = new ContaOperacao();
@@ -67,6 +71,7 @@ public class ContaOperacaoBean implements Serializable {
         visiblePlano5 = false;
         listContaTipo = new ArrayList();
         idContaTipo = 0;
+        listaContaTipoPlano5 = new ArrayList();
     }
 
     @PreDestroy
@@ -76,6 +81,36 @@ public class ContaOperacaoBean implements Serializable {
 
     public void clear() {
         GenericaSessao.remove("contaOperacaoBean");
+    }
+
+    public void adicionarCTP() {
+        if (idContaTipo != -1) {
+            Boolean existe = false;
+            for (ContaTipoPlano5 ctp : listaContaTipoPlano5) {
+                if (idContaTipo == ctp.getContaTipo().getId()) {
+                    existe = true;
+                    GenericaMensagem.warn("Atenção", ctp.getContaTipo().getDescricao() + " já Adicionado!");
+                    break;
+                }
+            }
+
+            if (!existe) {
+                listaContaTipoPlano5.add(new ContaTipoPlano5(-1, (ContaTipo) new Dao().find(new ContaTipo(), idContaTipo), plano5));
+            }
+            idContaTipo = -1;
+        }
+    }
+
+    public void removerCTP(ContaTipoPlano5 ctp, Integer index) {
+        if (ctp.getId() != -1) {
+            if (!new Dao().delete(ctp, true)) {
+                GenericaMensagem.error("Atenção", "Erro ao excluir Conta Tipo Plano5");
+            }
+        }
+
+        if (listaContaTipoPlano5.remove(ctp)) {
+            GenericaMensagem.info("Sucesso", "Conta Tipo Plano5 removida!");
+        }
     }
 
     public void clear(Integer type) {
@@ -153,11 +188,8 @@ public class ContaOperacaoBean implements Serializable {
         plano5 = p;
         visiblePlano5 = true;
         loadContaTipo();
-        if (p.getContaTipo() == null) {
-            idContaTipo = -1;
-        } else {
-            idContaTipo = p.getContaTipo().getId();
-        }
+        loadContaTipoPlano5(plano5.getId());
+        idContaTipo = -1;
     }
 
     public void closePlano5() {
@@ -168,16 +200,28 @@ public class ContaOperacaoBean implements Serializable {
     }
 
     public void updatePlano5() {
-        if (idContaTipo == -1) {
-            plano5.setContaTipo(null);
-        } else {
-            plano5.setContaTipo((ContaTipo) new Dao().find(new ContaTipo(), idContaTipo));
-        }
-        if (new Dao().update(plano5, true)) {
-            GenericaMensagem.info("Sucesso", "Registro atualizado");
-        } else {
+        Dao dao = new Dao();
+
+        dao.openTransaction();
+
+        if (!dao.update(plano5)) {
+            dao.rollback();
             GenericaMensagem.warn("Erro", "Ao atualizar registro!");
+            return;
         }
+
+        for (ContaTipoPlano5 ctp : listaContaTipoPlano5) {
+            if (ctp.getId() == -1) {
+                if (!dao.save(ctp)) {
+                    GenericaMensagem.error("Erro", "Ao Salvar Conta Tipo Plano5!");
+                    return;
+                }
+            }
+        }
+
+        dao.commit();
+
+        GenericaMensagem.info("Sucesso", "Registro atualizado");
     }
 
     public void save() {
@@ -591,6 +635,20 @@ public class ContaOperacaoBean implements Serializable {
 
     public void setIdContaTipo(Integer idContaTipo) {
         this.idContaTipo = idContaTipo;
+    }
+
+    public void loadContaTipoPlano5(Integer id_plano5) {
+        listaContaTipoPlano5.clear();
+
+        listaContaTipoPlano5 = new PlanoDao().listaContaTipoPlano5(id_plano5);
+    }
+
+    public List<ContaTipoPlano5> getListaContaTipoPlano5() {
+        return listaContaTipoPlano5;
+    }
+
+    public void setListaContaTipoPlano5(List<ContaTipoPlano5> listaContaTipoPlano5) {
+        this.listaContaTipoPlano5 = listaContaTipoPlano5;
     }
 
 }

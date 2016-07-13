@@ -2216,6 +2216,24 @@
             <redirect/>
         </navigation-case>
         
+        <navigation-case>
+            <from-outcome>declaracaoTipo</from-outcome>
+            <to-view-id>/declaracaoTipo.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>declaracaoGrupo</from-outcome>
+            <to-view-id>/declaracaoGrupo.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>declaracaoPessoa</from-outcome>
+            <to-view-id>/declaracaoPessoa.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
     </navigation-rule>
     
     <lifecycle>

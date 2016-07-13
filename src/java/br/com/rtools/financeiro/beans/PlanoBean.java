@@ -39,6 +39,7 @@ public class PlanoBean {
     private String textNewPlano;
     private List<SelectItem> listContaTipo;
     private Integer idContaTipo;
+    private List<ContaTipoPlano5> listaContaTipoPlano5;
 
     @PostConstruct
     public void init() {
@@ -56,7 +57,7 @@ public class PlanoBean {
         deletePlano = 1;
         textNewPlano = "Plano 1";
         indexRow = -1;
-        listaPlanoContas = new ArrayList<ListPlanoConta>();
+        listaPlanoContas = new ArrayList();
         limpar = false;
         idPlanoConta = 0;
         listaContaBanco = new ArrayList();
@@ -67,6 +68,7 @@ public class PlanoBean {
         selectedPlano = 1;
         listContaTipo = new ArrayList();
         idContaTipo = 0;
+        listaContaTipoPlano5 = new ArrayList();
 
     }
 
@@ -74,6 +76,36 @@ public class PlanoBean {
     public void destroy() {
         GenericaSessao.remove("planoBean");
         GenericaSessao.remove("planoPesquisa");
+    }
+
+    public void adicionarCTP() {
+        if (idContaTipo != -1) {
+            Boolean existe = false;
+            for (ContaTipoPlano5 ctp : listaContaTipoPlano5){
+                if (idContaTipo == ctp.getContaTipo().getId()){
+                    existe = true;
+                    GenericaMensagem.warn("Atenção", ctp.getContaTipo().getDescricao() + " já Adicionado!");
+                    break;
+                }
+            }
+                
+            if (!existe){
+                listaContaTipoPlano5.add(new ContaTipoPlano5(-1, (ContaTipo) new Dao().find(new ContaTipo(), idContaTipo), plano5));
+            }
+            idContaTipo = -1;
+        }
+    }
+
+    public void removerCTP(ContaTipoPlano5 ctp, Integer index) {
+        if (ctp.getId() != -1) {
+            if (!new Dao().delete(ctp, true)) {
+                GenericaMensagem.error("Atenção", "Erro ao excluir Conta Tipo Plano5");
+            }
+        }
+
+        if (listaContaTipoPlano5.remove(ctp)) {
+            GenericaMensagem.info("Sucesso", "Conta Tipo Plano5 removida!");
+        }
     }
 
     public void clear() {
@@ -232,11 +264,9 @@ public class PlanoBean {
         } else if (className.equals("Plano5") && selectedPlano == 5) {
             plano5 = (Plano5) o;
             loadContaTipo();
-            if (plano5.getContaTipo() == null) {
-                idContaTipo = -1;
-            } else {
-                idContaTipo = plano5.getContaTipo().getId();
-            }
+            loadContaTipoPlano5(plano5.getId());
+            idContaTipo = -1;
+
             PF.openDialog("dlg_plano5");
             PF.update("form_plano:i_panel_plano5");
         }
@@ -375,11 +405,6 @@ public class PlanoBean {
     }
 
     public boolean savePlano5(Dao dao) {
-        if (idContaTipo == -1) {
-            plano5.setContaTipo(null);
-        } else {
-            plano5.setContaTipo((ContaTipo) dao.find(new ContaTipo(), idContaTipo));
-        }
         if (plano5.getId() == -1) {
             plano5.setContaBanco(null);
             if (dao.save(plano5)) {
@@ -394,6 +419,15 @@ public class PlanoBean {
             GenericaMensagem.warn("Erro", "Ao atualizar plano 5!");
             return false;
         }
+
+        for (ContaTipoPlano5 ctp : listaContaTipoPlano5) {
+            if (ctp.getId() == -1) {
+                if (!dao.save(ctp)) {
+                    GenericaMensagem.error("Erro", "Ao Salvar Conta Tipo Plano5!");
+                    return false;
+                }
+            }
+        }
         return true;
     }
 
@@ -405,8 +439,18 @@ public class PlanoBean {
                 GenericaMensagem.warn("Erro", "Ao deletar plano 5!");
                 return false;
             }
+
+            for (ContaTipoPlano5 ctp : listaContaTipoPlano5) {
+                if (ctp.getId() == -1) {
+                    if (!dao.save(ctp)) {
+                        GenericaMensagem.error("Erro", "Ao Salvar Conta Tipo Plano5!");
+                        return false;
+                    }
+                }
+            }
         }
         plano5 = new Plano5();
+        listaContaTipoPlano5.clear();
         return true;
     }
 
@@ -695,5 +739,19 @@ public class PlanoBean {
         for (int i = 0; i < list.size(); i++) {
             listContaTipo.add(new SelectItem(list.get(i).getId(), list.get(i).getDescricao()));
         }
+    }
+
+    public void loadContaTipoPlano5(Integer id_plano5) {
+        listaContaTipoPlano5.clear();
+
+        listaContaTipoPlano5 = new PlanoDao().listaContaTipoPlano5(id_plano5);
+    }
+
+    public List<ContaTipoPlano5> getListaContaTipoPlano5() {
+        return listaContaTipoPlano5;
+    }
+
+    public void setListaContaTipoPlano5(List<ContaTipoPlano5> listaContaTipoPlano5) {
+        this.listaContaTipoPlano5 = listaContaTipoPlano5;
     }
 }

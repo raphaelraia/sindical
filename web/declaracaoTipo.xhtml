@@ -1,0 +1,162 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Declaração Tipo</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
+        <style type="text/css">
+            .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
+            .ui-button { padding: 3px!important; }
+            .ui-selectonemenu {padding-right: 25px!important;}
+        </style>
+
+        <script type="text/javascript">
+
+        </script>
+    </h:head>
+    <h:body>
+        <!-- INICIA DIV wrap e main -->
+        <div id="wrapx">
+            <div id="mainx">
+                <!-- INICIA DIV wrap e main -->  
+                <f:subview id="header">
+                    <ui:include src="templates/templatePrime.xhtml"/>
+                </f:subview>
+                <f:view>
+                    <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                        <h:outputText value="Declaração Tipo" styleClass="fonteHeader" />
+                        <div style="clear: both"></div>
+                        <h:form id="formDeclaracaoTipo">
+                            <p:panel styleClass="fundoCinza">
+                                <h:panelGrid columns="2" style="width: 100%">
+                                    <h:column>
+                                        <p:outputLabel value="Descrição" /><br />
+                                        <p:inputText value="#{declaracaoTipoBean.declaracaoTipo.descricao}" style="width: 100%"/>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="Nome do Jasper" /><br />
+                                        <p:inputText value="#{declaracaoTipoBean.declaracaoTipo.jasper}" style="width: 100%" placeholder="ex. NOME_JASPER.jasper"/>
+                                    </h:column>
+                                </h:panelGrid>
+
+                                <h:panelGrid columns="8">
+                                    <h:column>
+                                        <p:outputLabel value="Idade Inicial" /><br />
+                                        <p:inputText value="#{declaracaoTipoBean.declaracaoTipo.idadeInicio}" style="width: 80px; text-align: center"/>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="Idade Final" /><br />
+                                        <p:inputText value="#{declaracaoTipoBean.declaracaoTipo.idadeFinal}" style="width: 80px; text-align: center"/>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="Validade" /><br />
+                                        <p:inputText value="#{declaracaoTipoBean.declaracaoTipo.validade}" style="width: 70px; text-align: center"/>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="Tipo Validade" /><br />
+                                        <p:selectOneMenu value="#{declaracaoTipoBean.declaracaoTipo.validadeTipo}" style="width: 80px">
+                                            <f:selectItem itemValue="0" itemLabel="Dia"/>
+                                            <f:selectItem itemValue="1" itemLabel="Mês"/>
+                                            <f:selectItem itemValue="2" itemLabel="Ano"/>
+                                        </p:selectOneMenu>
+                                    </h:column>
+
+                                    <h:column>
+                                        <p:outputLabel value="Dias Atraso" /><br />
+                                        <p:inputText value="#{declaracaoTipoBean.declaracaoTipo.diasAtraso}" style="width: 80px; text-align: center"/>
+                                    </h:column>
+
+                                    <h:column>
+                                        <br />
+                                        <p:commandButton value="Salvar" onclick="PF('dlg_salvar').show()"/>
+                                    </h:column>
+                                    
+                                    <h:column>
+                                        <br />
+                                        <p:commandButton value="Novo" action="#{declaracaoTipoBean.novo()}" update="@form"/>
+                                    </h:column>
+                                    
+                                    <h:column>
+                                        <br />
+                                        <p:commandButton value="Excluir" onclick="PF('dlg_excluir').show()"/>
+                                    </h:column>
+                                </h:panelGrid>
+                            </p:panel>
+                            
+                            <p:messages showDetail="true" closable="true" />
+                            
+                            <p:dataTable value="#{declaracaoTipoBean.listaDeclaracaoTipo}" var="linha" emptyMessage="Nenhum Tipo Encontrado!">
+                                <p:column headerText="Descrição">
+                                    <p:commandLink value="#{linha.descricao}" action="#{declaracaoTipoBean.editar(linha)}" update="@form"/>
+                                </p:column>
+
+                                <p:column headerText="Nome Jasper">
+                                    <p:commandLink value="#{linha.jasper}" action="#{declaracaoTipoBean.editar(linha)}" update="@form"/>
+                                </p:column>
+
+                                <p:column headerText="Idade Inicial" style="width: 80px; text-align: center">
+                                    <p:commandLink value="#{linha.idadeInicio}" action="#{declaracaoTipoBean.editar(linha)}" update="@form"/>
+                                </p:column>
+
+                                <p:column headerText="Idade Final" style="width: 80px; text-align: center">
+                                    <p:commandLink value="#{linha.idadeFinal}" action="#{declaracaoTipoBean.editar(linha)}" update="@form"/>
+                                </p:column>
+
+                                <p:column headerText="Validade" style="width: 80px; text-align: center">
+                                    <p:commandLink value="#{linha.validade}" action="#{declaracaoTipoBean.editar(linha)}" update="@form"/>
+                                </p:column>
+
+                                <p:column headerText="Tipo Validade" style="width: 80px; text-align: center">
+                                    <p:commandLink value="#{linha.validadeTipo eq 0 ? 'Dia' : linha.validadeTipo eq 1 ? 'Meses' : 'Ano'}" action="#{declaracaoTipoBean.editar(linha)}" update="@form"/>
+                                </p:column>
+
+                                <p:column headerText="Dias Atraso" style="width: 80px; text-align: center">
+                                    <p:commandLink value="#{linha.diasAtraso}" action="#{declaracaoTipoBean.editar(linha)}" update="@form"/>
+                                </p:column>
+                            </p:dataTable> 
+
+                            <p:dialog widgetVar="dlg_salvar" header="Salvar Tipo de Declaração" resizable="false" width="400" modal="true">
+                                <h:panelGrid id="panel_salvar" style="width: 100%">
+                                    <p:outputLabel value="Deseja realmente salvar este Tipo de Declaração?" style="font-size: 11pt!important"/>
+                                </h:panelGrid>
+
+                                <br />
+
+                                <p:commandButton value="Salvar" type="submit" styleClass="ui-confirmdialog-yes" action="#{declaracaoTipoBean.salvar()}" update="@form" onclick="PF('dlg_salvar').hide()" style="clear: both; float: left; font-weight: bold" icon="ui-icon-check" />  
+                                <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_salvar').hide()" style="float: left" icon="ui-icon-close"/>       
+                            </p:dialog>
+
+                            <p:dialog widgetVar="dlg_excluir" header="Excluir Tipo de Declaração" resizable="false" width="400" modal="true">
+                                <h:panelGrid id="panel_excluir" style="width: 100%">
+                                    <p:outputLabel value="Deseja realmente excluir este Tipo de Declaração?" style="font-size: 11pt!important"/>
+                                </h:panelGrid>
+
+                                <br />
+
+                                <p:commandButton value="Excluir" type="submit" styleClass="ui-confirmdialog-yes" action="#{declaracaoTipoBean.excluir()}" update="@form" onclick="PF('dlg_excluir').hide()" style="clear: both; float: left; font-weight: bold" icon="ui-icon-check" />  
+                                <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_excluir').hide()" style="float: left" icon="ui-icon-close"/>       
+                            </p:dialog>
+                        </h:form>
+                    </p:panel>
+                </f:view>
+                <!-- FINALIZA div wrap main -->
+            </div>
+        </div>
+        <!-- FINALIZA div wrap main -->
+
+        <div id="footerx">
+            <f:subview id="footer">
+                <ui:include src="templates/templateFooter.xhtml"/>
+            </f:subview>
+        </div>                
+    </h:body>
+</ui:composition>

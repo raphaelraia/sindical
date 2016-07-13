@@ -38,8 +38,15 @@
                 </f:subview>
                 <f:view>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
-                        <h:outputText value="Conciliação" styleClass="fonteHeader" />
+                        <h:panelGrid>
+                            <p:outputLabel value="Conciliação" styleClass="fonteHeader" />
+                        </h:panelGrid>
+                            
+                        <h:panelGrid>
+                            <p:outputLabel value="Recebimentos via depósitos, transferências, DOC ou TED" style="font-weight: bold; font-size: 11pt!important"/>
+                        </h:panelGrid>
                         <div style="clear: both"></div>
+                        <br />
                         <h:form id="formConciliacao">
 
                             <p:panel styleClass="fundoCinza" style="clear: both">

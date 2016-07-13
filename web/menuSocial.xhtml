@@ -61,8 +61,11 @@
 
                                     <p:menuitem value="Desc. Serviço Empresa"   action="#{chamadaPaginaBean.pagina('descontoServicoEmpresa')}" />
 
-                                    <p:menuitem value="Autorizar Carteirinha"   action="#{chamadaPaginaBean.autorizaCarteirinha()}"/>
-                                    <p:menuitem value="Modelo de Carteirinha"   action="#{chamadaPaginaBean.pagina('modeloCarteirinha')}"/>
+                                    <p:submenu label="Carteirinha">
+                                        <p:menuitem value="Autorizar" action="#{chamadaPaginaBean.autorizaCarteirinha()}"/>
+                                        <p:menuitem value="Modelo" action="#{chamadaPaginaBean.pagina('modeloCarteirinha')}"/>
+                                    </p:submenu>
+                                    
                                     <p:menuitem value="Administradora"          action="#{chamadaPaginaBean.pagina('administradora')}" />
                                     <p:menuitem value="Cupom"                   action="#{chamadaPaginaBean.pagina('cupom')}" />
 
@@ -78,6 +81,13 @@
                                         <p:menuitem value="Sorteio Categoria"   disabled="true"/>
                                         <p:menuitem value="Sorteio Status"      disabled="true"/>
                                     </p:submenu>
+                                    
+                                    <p:submenu label="Declarações">
+                                        <p:menuitem value="Tipo" action="#{chamadaPaginaBean.pagina('declaracaoTipo')}" />
+                                        <p:menuitem value="Grupo" action="#{chamadaPaginaBean.pagina('declaracaoGrupo')}" />
+                                        <p:menuitem value="Emissão" action="#{chamadaPaginaBean.pagina('declaracaoPessoa')}" />
+                                    </p:submenu>
+                                        
                                 </p:submenu>
 
                                 <p:submenu label="Movimento" style="margin-right: 15px">

@@ -21,12 +21,12 @@
                 <f:view>
                     <h:form id="form_plano">
                         <c:set scope="request" var="object" value="${planoBean.plano}"/>
-                        <p:panel styleClass="wrapper" style="border: 0px;">
+                        <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                             <p:outputLabel value="Plano de Contas" styleClass="fonteHeader" />
                             <div class="clear"></div>
                             <p:messages autoUpdate="true" showDetail="true" showSummary="true" />
                         </p:panel>
-                        <p:panel id="tbl" styleClass="margin-left-max margin-right-max margin-top-max">
+                        <p:panel id="tbl" style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                             <f:facet name="header">
                                 <p:outputLabel value="Lista de Plano de Contas #{planoBean.selectedPlano}" />
                             </f:facet>
@@ -47,7 +47,7 @@
                                 <p:ajax event="page" global="false"/>
                                 <!-- PLANO 5 -->                                        
                                 <p:column styleClass="text-center" headerText="Plano 5" sortBy="#{listaPlanoContas.plano5.conta}" rendered="#{planoBean.visible[4]}">
-                                    <p:commandLink value="#{listaPlanoContas.plano5.numero} - #{listaPlanoContas.plano5.conta} #{listaPlanoContas.plano5.contaTipo ne null ? '('.concat(listaPlanoContas.plano5.contaTipo.descricao).concat(')') : ''}" action="#{planoBean.edit(listaPlanoContas.plano5)}" update=":form_plano:" />
+                                    <p:commandLink value="#{listaPlanoContas.plano5.numero} - #{listaPlanoContas.plano5.conta}" action="#{planoBean.edit(listaPlanoContas.plano5)}" update=":form_plano:" />
                                 </p:column>
                                 <!-- PLANO 4 -->
                                 <p:column styleClass="text-center" headerText="Plano 4" sortBy="#{listaPlanoContas.plano5.plano4.conta}" rendered="#{planoBean.visible[3]}">
@@ -150,24 +150,50 @@
                             </f:facet>                                
                         </p:dialog>
                         <p:dialog widgetVar="dlg_plano5" modal="true" closable="true" width="600" header="Plano 5">
-                            <h:panelGrid columns="2" id="i_panel_plano5">
-                                <p:outputLabel value="Número: " />
-                                <p:inputText size="50" value="#{planoBean.plano5.numero}" maxlength="100" title="Número" />
-                                <p:outputLabel value="Conta: "  />
-                                <p:inputText size="50" value="#{planoBean.plano5.conta}" maxlength="200" title="Conta" />
-                                <p:outputLabel value="Acesso: "  />
-                                <p:inputText size="50" value="#{planoBean.plano5.acesso}" maxlength="200" title="Acesso" />
-                                <p:outputLabel value="Classificador: "  />
-                                <p:inputText size="50" value="#{planoBean.plano5.classificador}" maxlength="200" title="Conta" />
-                                <p:outputLabel value="Conta Tipo:"  />
-                                <p:selectOneMenu value="#{planoBean.idContaTipo}">
-                                    <f:selectItems value="#{planoBean.listContaTipo}" />
-                                </p:selectOneMenu>                                
-                                <h:column />
-                                <p:selectBooleanCheckbox value="#{planoBean.plano5.somaDebito}" itemLabel="Soma Débito no Saldo (Uso contábil)">
-                                    <p:ajax event="change" update="@this" />
-                                </p:selectBooleanCheckbox>
-                            </h:panelGrid>                                
+                            <h:panelGrid id="i_panel_plano5">
+                                <p:messages showDetail="true" showSummary="true" autoUpdate="false"/>
+                                <h:panelGrid columns="2">
+                                    <p:outputLabel value="Número: " />
+                                    <p:inputText size="50" value="#{planoBean.plano5.numero}" maxlength="100" title="Número" />
+                                    <p:outputLabel value="Conta: "  />
+                                    <p:inputText size="50" value="#{planoBean.plano5.conta}" maxlength="200" title="Conta" />
+                                    <p:outputLabel value="Acesso: "  />
+                                    <p:inputText size="50" value="#{planoBean.plano5.acesso}" maxlength="200" title="Acesso" />
+                                    <p:outputLabel value="Classificador: "  />
+                                    <p:inputText size="50" value="#{planoBean.plano5.classificador}" maxlength="200" title="Conta" />
+                                    <p:outputLabel value="Conta Tipo:"  />
+                                    <h:column>
+                                        <h:panelGrid columns="2">
+                                            <p:selectOneMenu value="#{planoBean.idContaTipo}">
+                                                <p:ajax event="change" update="@this i_panel_plano5" />
+                                                <f:selectItems value="#{planoBean.listContaTipo}" />
+                                            </p:selectOneMenu>                   
+                                            <p:commandButton value="Adicionar" action="#{planoBean.adicionarCTP}" update="i_panel_plano5" rendered="#{planoBean.idContaTipo ne -1}"/>
+                                        </h:panelGrid>
+                                    </h:column>
+                                    <h:column />
+                                    <p:selectBooleanCheckbox value="#{planoBean.plano5.somaDebito}" itemLabel="Soma Débito no Saldo (Uso contábil)">
+                                        <p:ajax event="change" update="@this" />
+                                    </p:selectBooleanCheckbox>
+                                </h:panelGrid>
+
+                                <h:panelGrid>
+                                    <p:dataTable value="#{planoBean.listaContaTipoPlano5}" var="linha_ctp" emptyMessage="Nenhuma Conta Tipo Encontrada!" rowIndexVar="index">
+                                        <p:column headerText="#" style="width: 50px; text-align: center">
+                                            <p:outputLabel value="#{linha_ctp.id}" rendered="#{linha_ctp.id ne -1}"/>
+                                        </p:column>
+
+                                        <p:column headerText="Conta Tipo">
+                                            <p:outputLabel value="#{linha_ctp.contaTipo.descricao}"/>
+                                        </p:column>
+                                        
+                                        <p:column style="width: 50px; text-align: center">
+                                            <p:commandButton icon="ui-icon-trash" action="#{planoBean.removerCTP(linha_ctp, index)}" title="Excluir Conta Tipo Plano5" update="form_plano:i_panel_plano5"/>
+                                        </p:column>
+                                    </p:dataTable>
+                                </h:panelGrid>                                
+                            </h:panelGrid>
+
                             <f:facet name="footer">
                                 <h:panelGrid columns="2">
                                     <p:commandButton value="Salvar" title="Salvar" action="#{planoBean.save(5)}" oncomplete="PF('dlg_message').show()" update=":form_plano: outConfirma" disabled="#{controleAcessoBean.botaoSalvar}"/>

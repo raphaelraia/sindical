@@ -78,7 +78,7 @@
                                                 </p:selectBooleanCheckbox>
                                             </p:column>
                                             <p:column headerText="Conta (Plano 5)">                                                
-                                                <p:commandLink action="#{contaOperacaoBean.editPlano5(plano5)}" value="#{plano5.conta}  #{plano5.contaTipo ne null ? ' ('.concat(plano5.contaTipo.descricao).concat(') ') : ''}" disabled="#{controleAcessoBean.botaoSalvar}" update=":form_co:"/>
+                                                <p:commandLink action="#{contaOperacaoBean.editPlano5(plano5)}" value="#{plano5.conta}" disabled="#{controleAcessoBean.botaoSalvar}" update=":form_co:"/>
                                             </p:column>
                                             <p:column headerText="Classificador" width="120">
                                                 #{plano5.classificador}
@@ -112,7 +112,7 @@
                                                 <p:commandButton icon="ui-icon-pencil" action="#{contaOperacaoBean.editItem(contaOperacao)}" disabled="#{controleAcessoBean.botaoSalvar}" title="Editar"/>
                                             </p:column>                                    
                                             <p:column headerText="Plano 5">                                                
-                                                <p:commandLink action="#{contaOperacaoBean.editPlano5(contaOperacao.plano5)}" value="#{contaOperacao.plano5.conta} - #{contaOperacao.plano5.numero} #{contaOperacao.plano5.contaTipo ne null ? '('.concat(contaOperacao.plano5.contaTipo.descricao).concat(')') : ''}" disabled="#{controleAcessoBean.botaoSalvar}" update=":form_co:"/>
+                                                <p:commandLink action="#{contaOperacaoBean.editPlano5(contaOperacao.plano5)}" value="#{contaOperacao.plano5.conta} - #{contaOperacao.plano5.numero}" disabled="#{controleAcessoBean.botaoSalvar}" update=":form_co:"/>
                                             </p:column>
                                             <p:column headerText="E/S" width="23" styleClass="text-center">
                                                 #{contaOperacao.operacao.es}
@@ -194,10 +194,32 @@
                                     <p:outputLabel value="Classificador: "  />
                                     <p:inputText size="50" value="#{contaOperacaoBean.plano5.classificador}" maxlength="200" title="Conta" />
                                     <p:outputLabel value="Conta Tipo:"  />
-                                    <p:selectOneMenu value="#{contaOperacaoBean.idContaTipo}">
-                                        <f:selectItems value="#{contaOperacaoBean.listContaTipo}" />
-                                    </p:selectOneMenu>
-                                </h:panelGrid>                                
+                                    <h:column>
+                                        <h:panelGrid columns="2">
+                                            <p:selectOneMenu value="#{contaOperacaoBean.idContaTipo}">
+                                                <p:ajax event="change" update="@this i_panel_plano5" />
+                                                <f:selectItems value="#{contaOperacaoBean.listContaTipo}" />
+                                            </p:selectOneMenu>                   
+                                            <p:commandButton value="Adicionar" action="#{contaOperacaoBean.adicionarCTP}" update="i_panel_plano5" rendered="#{contaOperacaoBean.idContaTipo ne -1}"/>
+                                        </h:panelGrid>
+                                    </h:column>
+                                </h:panelGrid> 
+
+                                <h:panelGrid>
+                                    <p:dataTable value="#{contaOperacaoBean.listaContaTipoPlano5}" var="linha_ctp" emptyMessage="Nenhuma Conta Tipo Encontrada!" rowIndexVar="index">
+                                        <p:column headerText="#" style="width: 50px; text-align: center">
+                                            <p:outputLabel value="#{linha_ctp.id}" rendered="#{linha_ctp.id ne -1}"/>
+                                        </p:column>
+
+                                        <p:column headerText="Conta Tipo">
+                                            <p:outputLabel value="#{linha_ctp.contaTipo.descricao}"/>
+                                        </p:column>
+
+                                        <p:column style="width: 50px; text-align: center">
+                                            <p:commandButton icon="ui-icon-trash" action="#{contaOperacaoBean.removerCTP(linha_ctp, index)}" title="Excluir Conta Tipo Plano5" update="form_co:i_panel_plano5"/>
+                                        </p:column>
+                                    </p:dataTable>
+                                </h:panelGrid>    
                             </h:panelGroup>                                
                             <f:facet name="footer">
                                 <h:panelGrid columns="2">

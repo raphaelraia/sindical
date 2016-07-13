@@ -28,9 +28,6 @@ public class Plano5 implements java.io.Serializable {
     private String acesso;
     @Column(name = "ds_classificador", length = 20)
     private String classificador;
-    @JoinColumn(name = "id_conta_tipo", referencedColumnName = "id", nullable = true)
-    @ManyToOne(fetch = FetchType.EAGER)
-    private ContaTipo contaTipo;
     @Column(name = "is_soma_debito", columnDefinition = "boolean default false", nullable = false)
     private Boolean somaDebito;
 
@@ -46,12 +43,11 @@ public class Plano5 implements java.io.Serializable {
         this.plano5ContraPartida = null;
         this.acesso = "";
         this.classificador = "";
-        this.contaTipo = null;
         this.somaDebito = false;
         this.selected = false;
     }
 
-    public Plano5(int id, String numero, String conta, Plano4 plano4, ContaBanco contaBanco, Plano5 plano5ContraPartida, String acesso, String classificador, ContaTipo contaTipo, Boolean somaDebito) {
+    public Plano5(int id, String numero, String conta, Plano4 plano4, ContaBanco contaBanco, Plano5 plano5ContraPartida, String acesso, String classificador, Boolean somaDebito) {
         this.id = id;
         this.plano4 = new Plano4();
         this.numero = numero;
@@ -60,7 +56,6 @@ public class Plano5 implements java.io.Serializable {
         this.plano5ContraPartida = plano5ContraPartida;
         this.acesso = acesso;
         this.classificador = classificador;
-        this.contaTipo = contaTipo;
         this.somaDebito = somaDebito;
         this.selected = false;
     }
@@ -135,14 +130,6 @@ public class Plano5 implements java.io.Serializable {
 
     public void setSelected(Boolean selected) {
         this.selected = selected;
-    }
-
-    public ContaTipo getContaTipo() {
-        return contaTipo;
-    }
-
-    public void setContaTipo(ContaTipo contaTipo) {
-        this.contaTipo = contaTipo;
     }
 
     public Boolean getSomaDebito() {
