@@ -709,6 +709,18 @@ public class FisicaDao extends DB {
         }
     }
 
+    public List findByNome(String nome) {
+        try {
+            String queryString = "SELECT F.* FROM pes_fisica AS F \n"
+                    + "INNER JOIN pes_pessoa AS P ON P.id = F.id_pessoa\n"
+                    + "WHERE TRIM(UPPER(func_translate(ds_nome))) LIKE TRIM(UPPER(('" + nome + "')))";
+            Query query = getEntityManager().createNativeQuery(queryString, Fisica.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
     public List pesquisaPessoaSocioID(int id_pessoa) {
         List lista = new Vector<Object>();
         String textQuery = null;

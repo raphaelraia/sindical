@@ -536,26 +536,6 @@ public class HomologacaoDao extends DB {
         return new ArrayList();
     }
 
-//    
-//    public PessoaEmpresa pesquisaPessoaEmpresaOutra(String doc) {
-//        PessoaEmpresa result = new PessoaEmpresa();
-//        try {
-//            Query qry = getEntityManager().createQuery("select pesEmp"
-//                    + "  from PessoaEmpresa pesEmp,"
-//                    + "       Pessoa pes"
-//                    + " where pesEmp.fisica.pessoa.id = pes.id"
-//                    + "   and pesEmp.principal = true"
-//                    //+ "   and pesEmp.dtDemissao is null"
-//                    + "   and pes.documento like :Sdoc");
-//            qry.setParameter("Sdoc", doc);
-//            if (!qry.getResultList().isEmpty()) {
-//                result = (PessoaEmpresa) qry.getSingleResult();
-//            }
-//        } catch (Exception e) {
-//            //e.printStackTrace();
-//        }
-//        return result;
-//    }
     public PessoaEmpresa pesquisaPessoaEmpresaPertencente(String doc) {
         PessoaEmpresa result = null;
         try {
@@ -902,19 +882,6 @@ public class HomologacaoDao extends DB {
     public List<Senha> listaAtendimentoIniciadoSimples(int id_filial, int id_usuario) {
         List<Senha> result = new ArrayList();
         try {
-//            Query qry = getEntityManager().createQuery(
-//                    "  SELECT S "
-//                    + "  FROM Senha AS S "
-//                    + " WHERE S.dtData = :data "
-//                    + "   AND S.ateMovimento.status.id = 1 "
-//                    + "   AND S.filial.id = :id_filial"
-//                    + "   AND (S.ateMovimento.reserva IS NULL OR S.ateMovimento.reserva.id = :id_reserva)"
-//                    + " ORDER BY S.dtData");
-//            
-//            qry.setParameter("data", DataHoje.dataHoje());
-//            qry.setParameter("id_filial", id_filial);
-//            qry.setParameter("id_reserva", id_usuario);
-
             Query qry = getEntityManager().createNativeQuery(
                     "SELECT s.* FROM ate_movimento a "
                     + " INNER JOIN hom_senha s on s.id_atendimento = a.id "
@@ -973,8 +940,6 @@ public class HomologacaoDao extends DB {
                     + inner
                     + " WHERE s.id_filial = " + id_filial
                     + and
-                    // ANTES ESTAVA VISUALIZANDO AS RESERVAS SOMENTES PARA QUEM FOSSE O DONO--- TAREFA: 250 runrun.it
-                    //+ "   AND (a.id_reserva IS NULL OR a.id_reserva = "+ id_usuario +") "
                     + order;
 
             Query qry = getEntityManager().createNativeQuery(textQry, Senha.class);
@@ -990,21 +955,6 @@ public class HomologacaoDao extends DB {
     public List<Senha> listaAtendimentoIniciadoSimplesUsuario(int id_filial, int id_usuario, int id_departamento) {
         List<Senha> result = new ArrayList();
         try {
-//            Query qry = getEntityManager().createQuery(
-//                    "  SELECT S "
-//                    + "  FROM Senha AS S "
-//                    + " WHERE S.dtData = :data "
-//                    + "   AND S.ateMovimento.status.id = 4 "
-//                    + "   AND S.filial.id = :id_filial"
-//                    + "   AND S.ateMovimento.atendente.id = :id_usuario"
-//                    + "   AND (S.ateMovimento.reserva IS NULL OR S.ateMovimento.reserva.id = :id_reserva)"
-//                    + " ORDER BY S.dtData");
-//            
-//            qry.setParameter("data", DataHoje.dataHoje());
-//            qry.setParameter("id_filial", id_filial);
-//            qry.setParameter("id_usuario", id_usuario);
-//            qry.setParameter("id_reserva", id_usuario);
-
             Query qry = getEntityManager().createNativeQuery(
                     "SELECT s.* FROM ate_movimento a "
                     + " INNER JOIN hom_senha s on s.id_atendimento = a.id "
@@ -1114,20 +1064,14 @@ public class HomologacaoDao extends DB {
     public Agendamento pesquisaAgendamentoPorPessoaEmpresa(int id_pessoa_empresa, int[] ids_status) {
         try {
             String text_qry
-                    = "SELECT a "
+                    = "SELECT A "
                     + "  FROM Agendamento a"
-                    + " WHERE a.pessoaEmpresa.id = :id_pessoa_empresa ";
+                    + " WHERE A.pessoaEmpresa.id = :id_pessoa_empresa ";
             String ids = "";
             for (int i = 0; i < ids_status.length; i++) {
                 ids += (ids.isEmpty()) ? "" + ids_status[i] : ", " + ids_status[i];
-//                if (ids.isEmpty())
-//                    ids = ""+ids_status[i];
-//                else
-//                    ids += ", "+ids_status[i];
-
             }
-            String text_and
-                    = " AND a.status.id IN (" + ids + ")";
+            String text_and = " AND A.status.id IN (" + ids + ")";
 
             Query qry = getEntityManager().createQuery(
                     text_qry + text_and
@@ -1144,7 +1088,7 @@ public class HomologacaoDao extends DB {
 
     public List pesquisaPorFuncionario(Integer pessoa_id) {
         try {
-            Query query = getEntityManager().createQuery("SELECT A FROM Agendamento AS A WHERE A.pessoaEmpresa.fisica.pessoa.id = :pessoa_id ORDER BY A.dtData DESC ");
+            Query query = getEntityManager().createQuery("SELECT A FROM Agendamento AS A WHERE A.pessoaEmpresa.fisica.pessoa.id = :pessoa_id ORDER BY A.dtData DESC");
             query.setParameter("pessoa_id", pessoa_id);
             List list = query.getResultList();
             if (!list.isEmpty()) {
@@ -1158,7 +1102,7 @@ public class HomologacaoDao extends DB {
 
     public List pesquisaPorEmpresa(Integer pessoa_id) {
         try {
-            Query query = getEntityManager().createQuery("SELECT A FROM Agendamento AS A WHERE A.pessoaEmpresa.juridica.pessoa.id = :pessoa_id ORDER BY A.dtData DESC ");
+            Query query = getEntityManager().createQuery("SELECT A FROM Agendamento AS A WHERE A.pessoaEmpresa.juridica.pessoa.id = :pessoa_id ORDER BY A.dtData DESC");
             query.setParameter("pessoa_id", pessoa_id);
             List list = query.getResultList();
             if (!list.isEmpty()) {
@@ -1170,9 +1114,23 @@ public class HomologacaoDao extends DB {
         return null;
     }
 
+    public List pesquisaPorPessoaEmpresa(Integer pessoa_empresa_id) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT A FROM Agendamento AS A WHERE A.pessoaEmpresa.id = :pessoa_empresa_id");
+            query.setParameter("pessoa_empresa_id", pessoa_empresa_id);
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return list;
+            }
+        } catch (Exception e) {
+
+        }
+        return new ArrayList();
+    }
+
     public List findAllHomologadores() {
         try {
-            Query query = getEntityManager().createQuery("SELECT A.homologador FROM Agendamento AS A WHERE A.homologador IS NOT NULL GROUP BY A.homologador  ");
+            Query query = getEntityManager().createQuery("SELECT A.homologador FROM Agendamento AS A WHERE A.homologador IS NOT NULL GROUP BY A.homologador");
             List list = query.getResultList();
             if (!list.isEmpty()) {
                 return list;

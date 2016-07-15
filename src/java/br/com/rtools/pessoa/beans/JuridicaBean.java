@@ -345,8 +345,10 @@ public class JuridicaBean implements Serializable {
                     }
                 } else if (configuracaoCnpj.getTipoPesquisaCnpj().getId() == 1) {
                     jro = new JuridicaReceitaJSON(documento, "wooki").pesquisar();
-                } else {
+                } else if (configuracaoCnpj.getTipoPesquisaCnpj().getId() == 2) {
                     jro = new JuridicaReceitaJSON(documento, "gratis").pesquisar();
+                } else {
+                    jro = new JuridicaReceitaJSON(documento, "rtools").pesquisar();
                 }
 
                 // NULL É PORQUE DEU ERRO DESCONHECIDO

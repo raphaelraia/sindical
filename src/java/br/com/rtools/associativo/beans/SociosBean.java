@@ -10,6 +10,7 @@ import br.com.rtools.associativo.dao.ServicoCategoriaDao;
 import br.com.rtools.associativo.dao.ParentescoDao;
 import br.com.rtools.associativo.dao.CategoriaDao;
 import br.com.rtools.arrecadacao.GrupoCidades;
+import br.com.rtools.arrecadacao.dao.OposicaoDao;
 import br.com.rtools.associativo.*;
 import br.com.rtools.associativo.dao.SocioCarteirinhaDao;
 import br.com.rtools.associativo.dao.ValidadeCartaoDao;
@@ -122,8 +123,11 @@ public class SociosBean implements Serializable {
     private List<ListaDependentes> listDependentesAtivos;
     private List<ListaDependentes> listDependentesInativos;
     private Bloqueio bloqueio;
+    private List<Socios> listSubSocios = new ArrayList();
+    private List<Fisica> listFisicaSugestao = new ArrayList();
 
     public SociosBean() {
+        listFisicaSugestao = new ArrayList();
         bloqueio = new Bloqueio();
         servicoPessoa = new ServicoPessoa();
         servicoCategoria = new ServicoCategoria();
@@ -1858,6 +1862,31 @@ public class SociosBean implements Serializable {
         novoDependente = new Fisica();
         PF.update("formSocios");
         RequestContext.getCurrentInstance().execute("PF('dlg_dependente').hide()");
+    }
+
+    public void existePessoaNomeNascimento() {
+        if (novoDependente.getId() == -1) {
+            Fisica f = null;
+            if (!novoDependente.getNascimento().isEmpty() && !novoDependente.getPessoa().getNome().isEmpty()) {
+                FisicaDao db = new FisicaDao();
+                f = db.pesquisaFisicaPorNomeNascimento(novoDependente.getPessoa().getNome(), novoDependente.getDtNascimento());
+                if (f != null) {
+                    RequestContext.getCurrentInstance().update("formSocios");
+                }
+            }
+            if (f == null || f.getId() == -1) {
+                if (novoDependente.getId() == -1) {
+                    if (!novoDependente.getPessoa().getNome().isEmpty()) {
+                        listFisicaSugestao = new ArrayList();
+                        listFisicaSugestao = new FisicaDao().findByNome(novoDependente.getPessoa().getNome());
+                        if (!listFisicaSugestao.isEmpty()) {
+                            PF.openDialog("dlg_sugestoes");
+                            PF.update("formSocios:i_sugestoes");
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public boolean validaSalvarDependente() {
@@ -3664,6 +3693,43 @@ public class SociosBean implements Serializable {
         } catch (Exception e) {
             e.getMessage();
         }
+    }
+
+    public List<Socios> getListSubSocios() {
+        return listSubSocios;
+    }
+
+    public void setListSubSocios(List<Socios> listSubSocios) {
+        this.listSubSocios = listSubSocios;
+    }
+
+    public void listenerSubSocios(Integer idPessoa) {
+        listSubSocios.clear();
+        SociosDao sociosDao = new SociosDao();
+        Socios s = sociosDao.pesquisaSocioPorPessoaAtivo(idPessoa);
+        if (s != null && s.getId() != -1) {
+            listSubSocios = sociosDao.pesquisaDependentePorMatricula(s.getMatriculaSocios().getId(), false);
+        }
+    }
+
+    public List<Fisica> getListFisicaSugestao() {
+        return listFisicaSugestao;
+    }
+
+    public void setListFisicaSugestao(List<Fisica> listFisicaSugestao) {
+        this.listFisicaSugestao = listFisicaSugestao;
+    }
+
+    public void useFisicaSugestao(Fisica f) {
+        novoDependente = (Fisica) new Dao().rebind(f);
+    }
+
+    public boolean existePessoaOposicaoPorDocumento(String documento) {
+        if (!documento.isEmpty()) {
+            OposicaoDao odbt = new OposicaoDao();
+            return odbt.existPessoaDocumentoPeriodo(documento);
+        }
+        return false;
     }
 
     public class Bloqueio {

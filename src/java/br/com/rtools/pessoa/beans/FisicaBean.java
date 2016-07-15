@@ -21,6 +21,10 @@ import br.com.rtools.financeiro.ServicoPessoa;
 import br.com.rtools.financeiro.dao.MovimentoDao;
 import br.com.rtools.financeiro.dao.ServicoPessoaDao;
 import br.com.rtools.homologacao.Agendamento;
+import br.com.rtools.homologacao.Cancelamento;
+import br.com.rtools.homologacao.Recepcao;
+import br.com.rtools.homologacao.Senha;
+import br.com.rtools.homologacao.dao.CancelamentoDao;
 import br.com.rtools.homologacao.dao.HomologacaoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.movimento.GerarMovimento;
@@ -29,6 +33,7 @@ import br.com.rtools.pessoa.dao.MalaDiretaDao;
 import br.com.rtools.pessoa.dao.PessoaComplementoDao;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.utilitarios.PessoaUtilitarios;
+import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
@@ -64,6 +69,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     private PessoaProfissao pessoaProfissao = new PessoaProfissao();
     private PessoaEmpresa pessoaEmpresa = new PessoaEmpresa();
+    private PessoaEmpresa pessoaEmpresaEdit = new PessoaEmpresa();
 
     private Usuario usuario = new Usuario();
     private PessoaComplemento pessoaComplemento = new PessoaComplemento();
@@ -155,6 +161,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     private Integer limit = 500;
 
     private String inCategoriaSocio = null;
+    private List<Fisica> listFisicaSugestao = new ArrayList();
 
     public FisicaBean() {
 
@@ -618,9 +625,8 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         if (!listernerValidacao(f, url)) {
             return null;
         }
-
         GenericaSessao.put("fisicaPesquisa", f);
-        if (!url.equals("pessoaFisica") && !completo) {
+        if (!url.equals("pessoaFisica") && !url.equals("menuPrincipal") && !completo) {
             GenericaSessao.put("linkClicado", true);
             return url;
         }
@@ -738,9 +744,10 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     public void existePessoaNomeNascimento() {
         if (fisica.getId() == -1) {
+            Fisica f = null;
             if (!fisica.getNascimento().isEmpty() && !fisica.getPessoa().getNome().isEmpty()) {
                 FisicaDao db = new FisicaDao();
-                Fisica f = db.pesquisaFisicaPorNomeNascimento(fisica.getPessoa().getNome(), fisica.getDtNascimento());
+                f = db.pesquisaFisicaPorNomeNascimento(fisica.getPessoa().getNome(), fisica.getDtNascimento());
                 if (f != null) {
                     String x = editarFisicaParametro(f);
                     pessoaUpper();
@@ -749,7 +756,23 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                     showImagemFisica();
                 }
             }
+            if (f == null || f.getId() == -1) {
+                if (fisica.getId() == -1) {
+                    if (!fisica.getPessoa().getNome().isEmpty()) {
+                        listFisicaSugestao = new ArrayList();
+                        listFisicaSugestao = new FisicaDao().findByNome(fisica.getPessoa().getNome());
+                        if (!listFisicaSugestao.isEmpty()) {
+                            PF.openDialog("dlg_sugestoes");
+                            PF.update("form_pessoa_fisica:i_sugestoes");
+                        }
+                    }
+                }
+            }
         }
+    }
+
+    public void useFisicaSugestao(Fisica f) {
+        editarFisica(f);
     }
 
     public String editarFisicaParametro(Fisica f) {
@@ -1521,7 +1544,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public PessoaEmpresa getPessoaEmpresa() {
-        if (GenericaSessao.exists("juridicaPesquisa")) {
+        if (GenericaSessao.exists("juridicaPesquisa") && !GenericaSessao.exists("tipoPessoaJuridica")) {
             JuridicaDao db = new JuridicaDao();
             Juridica j = (Juridica) GenericaSessao.getObject("juridicaPesquisa");
             List listax = db.listaJuridicaContribuinte(j.getId());
@@ -2666,5 +2689,126 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     public void setInCategoriaSocio(String inCategoriaSocio) {
         this.inCategoriaSocio = inCategoriaSocio;
+    }
+
+    public void editPessoaEmpresa(PessoaEmpresa pe) {
+        pessoaEmpresaEdit = pe;
+    }
+
+    public void updatePessoaEmpresa() {
+        if (new Dao().update(pessoaEmpresaEdit, true)) {
+            GenericaMensagem.info("Sucesso", "REGISTRO ATUALIZADO");
+            pessoaEmpresaEdit = new PessoaEmpresa();
+        } else {
+            GenericaMensagem.warn("Erro", "AO ATUALIZAR DADOS DA EMPRESA");
+        }
+    }
+
+    public void closePessoaEmpresa() {
+        pessoaEmpresaEdit = new PessoaEmpresa();
+    }
+
+    public void deletePessoaEmpresa() {
+        List<Agendamento> listAgendamento = new HomologacaoDao().pesquisaPorPessoaEmpresa(pessoaEmpresaEdit.getId());
+        Dao dao = new Dao();
+        dao.openTransaction();
+        String agendamento_id = "";
+        for (int i = 0; i < listAgendamento.size(); i++) {
+            Senha senha = listAgendamento.get(i).getSenha();
+            if (senha != null && senha.getId() != -1) {
+                if (!dao.delete(listAgendamento.get(i).getSenha())) {
+                    GenericaMensagem.warn("Erro", "AO EXCLUIR SENHA DE HOMOLOGAÇÃO!");
+                    dao.rollback();
+                    return;
+                }
+            }
+            Cancelamento cancelamento = new CancelamentoDao().findByAgendamento(idIndexFisica);
+            if (cancelamento != null && cancelamento.getId() != -1) {
+                if (!dao.delete(cancelamento)) {
+                    GenericaMensagem.warn("Erro", "AO AGENDAMENTO CANCELADO!");
+                    dao.rollback();
+                    return;
+                }
+            }
+            if (listAgendamento.get(i).getRecepcao() != null) {
+                Recepcao recepcao = listAgendamento.get(i).getRecepcao();
+                listAgendamento.get(i).setRecepcao(null);
+                if (!dao.update(listAgendamento.get(i))) {
+                    GenericaMensagem.warn("Erro", "AO EXCLUIR AGENDAMENTO - UPDATE RECEPÇÃO!");
+                    dao.rollback();
+                    return;
+                }
+                if (!dao.delete(recepcao)) {
+                    GenericaMensagem.warn("Erro", "AO EXCLUIR RECEPÇÃO!");
+                    dao.rollback();
+                    return;
+                }
+            }
+            if (!dao.delete(listAgendamento.get(i))) {
+                GenericaMensagem.warn("Erro", "AO EXCLUIR AGENDAMENTO!");
+                dao.rollback();
+                return;
+            }
+            if (i == 0) {
+                agendamento_id = "" + listAgendamento.get(i).getId();
+            } else {
+                agendamento_id = "," + listAgendamento.get(i).getId();
+            }
+        }
+        if (!dao.delete(pessoaEmpresaEdit)) {
+            GenericaMensagem.warn("Erro", "AO EXCLUIR PESSOA EMPRESA!");
+            dao.rollback();
+            return;
+        }
+        dao.commit();
+        NovoLog novoLog = new NovoLog();
+        novoLog.setTabela("pes_pessoa_empresa");
+        novoLog.setCodigo(pessoaEmpresaEdit.getId());
+        novoLog.delete(
+                " ID: " + pessoaEmpresaEdit.getId()
+                + " - Agendamento (IDS: " + agendamento_id + ") "
+                + " - Funcionário (" + pessoaEmpresaEdit.getFisica().getPessoa().getId() + ") - Nome: " + pessoaEmpresaEdit.getFisica().getPessoa().getNome()
+                + " - Empresa: (" + pessoaEmpresaEdit.getJuridica().getPessoa().getId() + " ) Nome: " + pessoaEmpresaEdit.getJuridica().getPessoa().getNome()
+                + " - Admissão:  " + pessoaEmpresaEdit.getAdmissao()
+                + " - Demissão:  " + pessoaEmpresaEdit.getDemissao());
+        GenericaMensagem.info("Sucesso", "REGISTRO REMOVIDO");
+        listaPessoaEmpresa = new ArrayList();
+        pessoaEmpresaEdit = new PessoaEmpresa();
+    }
+
+    public PessoaEmpresa getPessoaEmpresaEdit() {
+        if (GenericaSessao.exists("juridicaPesquisa") && GenericaSessao.exists("tipoPessoaJuridica")) {
+            JuridicaDao db = new JuridicaDao();
+            Juridica j = (Juridica) GenericaSessao.getObject("juridicaPesquisa");
+            List listax = db.listaJuridicaContribuinte(j.getId());
+            if (!listax.isEmpty()) {
+                for (int i = 0; i < listax.size(); i++) {
+                    if (((List) listax.get(0)).get(11) != null) {
+                        // CONTRIBUINTE INATIVO
+                        mensagemAviso = "Empresa Inativa não pode ser vinculada!";
+                        visibleMsgAviso = true;
+                    } else {
+                        pessoaEmpresaEdit.setJuridica(j);
+                    }
+                }
+            } else {
+                pessoaEmpresaEdit.setJuridica(j);
+            }
+            GenericaSessao.remove("juridicaPesquisa");
+            GenericaSessao.remove("tipoPessoaJuridica");
+        }
+        return pessoaEmpresaEdit;
+    }
+
+    public void setPessoaEmpresaEdit(PessoaEmpresa pessoaEmpresaEdit) {
+        this.pessoaEmpresaEdit = pessoaEmpresaEdit;
+    }
+
+    public List<Fisica> getListFisicaSugestao() {
+        return listFisicaSugestao;
+    }
+
+    public void setListFisicaSugestao(List<Fisica> listFisicaSugestao) {
+        this.listFisicaSugestao = listFisicaSugestao;
     }
 }

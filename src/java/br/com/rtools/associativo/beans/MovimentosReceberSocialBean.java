@@ -748,10 +748,14 @@ public class MovimentosReceberSocialBean implements Serializable {
         }
 
         try {
-            //int numerox = Integer.valueOf(descPesquisaBoleto);
             MovimentosReceberSocialDao db = new MovimentosReceberSocialDao();
             ContaCobranca contaCobranca = (ContaCobranca) new Dao().find(new ContaCobranca(), Integer.parseInt(((SelectItem) listaContas.get(indexConta)).getDescription()));
-            Pessoa p = db.pesquisaPessoaPorBoleto(descPesquisaBoleto, contaCobranca.getId());
+            Pessoa p;
+            if (((Usuario) GenericaSessao.getObject("sessaoUsuario")).getId() == 1) {
+                p = db.pesquisaPessoaPorBoleto(descPesquisaBoleto, contaCobranca.getId(), true);
+            } else {
+                p = db.pesquisaPessoaPorBoleto(descPesquisaBoleto, contaCobranca.getId());
+            }
             listaPessoa.clear();
             pessoa = new Pessoa();
             socios = new Socios();

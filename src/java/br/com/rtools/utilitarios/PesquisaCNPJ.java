@@ -60,114 +60,181 @@ public class PesquisaCNPJ implements Serializable {
     private HttpContext contexto = new BasicHttpContext();
 
     public HashMap pesquisar() throws IOException {
+        Boolean x = false;
         HashMap result = new LinkedHashMap();
-
         result.put("status", true);
         result.put("mensagem", "");
-        // Adicionando um sistema de redireção
-        cliente = new DefaultHttpClient();
-        cliente.setRedirectStrategy(new LaxRedirectStrategy());
-        // Mantendo a conexão sempre ativa
-        cliente.setKeepAliveStrategy(new DefaultConnectionKeepAliveStrategy());
-        // Criando o container de cookies
-        CookieStore cookie = new BasicCookieStore();
-        // Adicionando o coockie store no contexto de conexão
-        contexto = new BasicHttpContext();
-        contexto.setAttribute(ClientContext.COOKIE_STORE, cookie);
+        if (!x) {
+            // Adicionando um sistema de redireção
+            cliente = new DefaultHttpClient();
+            cliente.setRedirectStrategy(new LaxRedirectStrategy());
+            // Mantendo a conexão sempre ativa
+            cliente.setKeepAliveStrategy(new DefaultConnectionKeepAliveStrategy());
+            // Criando o container de cookies
+            CookieStore cookie = new BasicCookieStore();
+            // Adicionando o coockie store no contexto de conexão
+            contexto = new BasicHttpContext();
+            contexto.setAttribute(ClientContext.COOKIE_STORE, cookie);
 
-        HttpGet requisição1 = new HttpGet("http://www.receita.fazenda.gov.br/PessoaJuridica/CNPJ/cnpjreva/Cnpjreva_Solicitacao2.asp");
-        // Resposta
-        HttpResponse resposta = cliente.execute(requisição1, contexto);
-        // Buscando a entidade
-        HttpEntity entidade = resposta.getEntity();
-        // Transformando o conteúdo em uma string
-        try {
-            EntityUtils.toString(entidade);
-        } catch (IOException | ParseException e) {
-            result.put("status", false);
-            result.put("mensagem", e.getMessage());
-            return result;
-        }
-        HttpGet requisição2 = new HttpGet("http://www.receita.fazenda.gov.br/pessoajuridica/cnpj/cnpjreva/captcha/gerarCaptcha.asp");
-        // HttpGet requisição2 = new HttpGet("http://www.receita.fazenda.gov.br/scripts/srf/intercepta/captcha.aspx?opt=image");
-        // Resposta
-        resposta = cliente.execute(requisição2, contexto);
+            HttpGet requisição1 = new HttpGet("http://www.receita.fazenda.gov.br/PessoaJuridica/CNPJ/cnpjreva/Cnpjreva_Solicitacao2.asp");
+            // Resposta
+            HttpResponse resposta = cliente.execute(requisição1, contexto);
+            // Buscando a entidade
+            HttpEntity entidade = resposta.getEntity();
+            // Transformando o conteúdo em uma string
+            try {
+                EntityUtils.toString(entidade);
+            } catch (IOException | ParseException e) {
+                result.put("status", false);
+                result.put("mensagem", e.getMessage());
+                return result;
+            }
+            HttpGet requisição2 = new HttpGet("http://www.receita.fazenda.gov.br/pessoajuridica/cnpj/cnpjreva/captcha/gerarCaptcha.asp");
+            // HttpGet requisição2 = new HttpGet("http://www.receita.fazenda.gov.br/scripts/srf/intercepta/captcha.aspx?opt=image");
+            // Resposta
+            resposta = cliente.execute(requisição2, contexto);
 
-        entidade = resposta.getEntity();
+            entidade = resposta.getEntity();
 
-        UUID uuidX = UUID.randomUUID();
-        nameTemp = uuidX.toString().replace("-", "_");
+            UUID uuidX = UUID.randomUUID();
+            nameTemp = uuidX.toString().replace("-", "_");
 
-        ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
-        String path = servletContext.getRealPath("") + "resources/images/captcha/" + nameTemp + ".png";
-        File file = new File(path);
+            ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
+            String path = servletContext.getRealPath("") + "resources/images/captcha/" + nameTemp + ".png";
+            File file = new File(path);
 
-        try {
-            FileUtils.writeByteArrayToFile(file, EntityUtils.toByteArray(entidade));
-        } catch (IOException e) {
-            result.put("status", false);
-            result.put("mensagem", e.getMessage());
-            return result;
+            try {
+                FileUtils.writeByteArrayToFile(file, EntityUtils.toByteArray(entidade));
+            } catch (IOException e) {
+                result.put("status", false);
+                result.put("mensagem", e.getMessage());
+                return result;
+            }
+        } else {
+            HttpGet requisição2 = new HttpGet("http://localhost:8080/webservicereceita/cliente/carrega_captcha/cnpj/" + cnpj);
+            // Resposta
+            HttpResponse resposta = cliente.execute(requisição2, contexto);
+            HttpEntity entidade = resposta.getEntity();
+            // entidade = resposta.getEntity();
+            UUID uuidX = UUID.randomUUID();
+            nameTemp = uuidX.toString().replace("-", "_");
+
+            ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
+            String path = servletContext.getRealPath("") + "resources/images/captcha/" + nameTemp + ".png";
+            File file = new File(path);
+
+            try {
+                FileUtils.writeByteArrayToFile(file, EntityUtils.toByteArray(entidade));
+            } catch (IOException e) {
+                result.put("status", false);
+                result.put("mensagem", e.getMessage());
+                return result;
+            }
         }
         return result;
     }
 
     public HashMap confirmar() throws UnsupportedEncodingException, IOException {
+        Boolean x = false;
+        HashMap result = new LinkedHashMap();
         HashMap hash_test = new LinkedHashMap();
-        hash_test.put("status", false);
-        hash_test.put("mensagem", "Consulta não realizada");
-
-        HttpPost requisição3 = new HttpPost("http://www.receita.fazenda.gov.br/pessoajuridica/cnpj/cnpjreva/valida.asp");
-        //HttpResponse resposta = cliente.execute(requisição3, contexto);
-        // Lista de parâmetros
-        List<NameValuePair> nameValuePairs = new ArrayList(7);
-
-        nameValuePairs.add(new BasicNameValuePair("origem", "comprovante"));
-        nameValuePairs.add(new BasicNameValuePair("search_type", "cnpj"));
-        nameValuePairs.add(new BasicNameValuePair("cnpj", cnpj.replace(".", "").replace("-", "").replace("/", "")));
-        nameValuePairs.add(new BasicNameValuePair("txtTexto_captcha_serpro_gov_br", captcha));
-        nameValuePairs.add(new BasicNameValuePair("submit1", "Consultar"));
-        // Encapsulando
-        UrlEncodedFormEntity urlEncodedFormEntity = new UrlEncodedFormEntity(nameValuePairs, "UTF8");
-        // A adição dos parâmetros
-        requisição3.setEntity(urlEncodedFormEntity);
-        // Resposta
-        HttpResponse resposta = cliente.execute(requisição3, contexto);
-        HttpEntity entidade = resposta.getEntity();
-
-        String html;
-        try {
-            html = EntityUtils.toString(entidade);
-        } catch (IOException | ParseException e) {
+        if (!x) {
             hash_test.put("status", false);
-            hash_test.put("mensagem", e.getMessage());
-            return hash_test;
-        }
+            hash_test.put("mensagem", "Consulta não realizada");
+            HttpPost requisição3 = new HttpPost("http://www.receita.fazenda.gov.br/pessoajuridica/cnpj/cnpjreva/valida.asp");
+            //HttpResponse resposta = cliente.execute(requisição3, contexto);
+            // Lista de parâmetros
+            List<NameValuePair> nameValuePairs = new ArrayList(7);
 
-        if (html.contains("<b>Erro na Consulta</b>")) {
+            nameValuePairs.add(new BasicNameValuePair("origem", "comprovante"));
+            nameValuePairs.add(new BasicNameValuePair("search_type", "cnpj"));
+            nameValuePairs.add(new BasicNameValuePair("cnpj", cnpj.replace(".", "").replace("-", "").replace("/", "")));
+            nameValuePairs.add(new BasicNameValuePair("txtTexto_captcha_serpro_gov_br", captcha));
+            nameValuePairs.add(new BasicNameValuePair("submit1", "Consultar"));
+            // Encapsulando
+            UrlEncodedFormEntity urlEncodedFormEntity = new UrlEncodedFormEntity(nameValuePairs, "UTF8");
+            // A adição dos parâmetros
+            requisição3.setEntity(urlEncodedFormEntity);
+            // Resposta
+            HttpResponse resposta = cliente.execute(requisição3, contexto);
+            HttpEntity entidade = resposta.getEntity();
+
+            String html;
+            try {
+                html = EntityUtils.toString(entidade);
+            } catch (IOException | ParseException e) {
+                hash_test.put("status", false);
+                hash_test.put("mensagem", e.getMessage());
+                return hash_test;
+            }
+
+            if (html.contains("<b>Erro na Consulta</b>")) {
+                hash_test.put("status", false);
+                hash_test.put("mensagem", "Erro na Consulta");
+                return hash_test;
+            }
+
+            if (html.contains("No existe no Cadastro de Pessoas Jurdicas o nmero de CNPJ informado. Verifique se o mesmo foi digitado corretamente.")) {
+                hash_test.put("status", false);
+                hash_test.put("mensagem", "CNPJ não existe no cadastro de Pessoas Jurídicas da Receita");
+                return hash_test;
+            }
+
+            // Busco o documento estruturado
+            HTMLDocument document = getHTMLDocument(html);
+            // Busco todos os elementos em forma de iterador
+            ElementIterator elementIterator = new ElementIterator(document);
+            // Enquanto existir próximo elemento
+            Element element;
+            while ((element = elementIterator.next()) != null) {
+                // Dentro dos elementos estão as informações para se pegar, porém não tenho autorização de divulgá-las.
+                // Use a criatividade que você irá recuperar todos os dados necessários dentro deste While.
+                HashMap hash = quebra_parametros(element);
+                if (hash != null) {
+                    return hash;
+                }
+            }
+        } else {
             hash_test.put("status", false);
-            hash_test.put("mensagem", "Erro na Consulta");
-            return hash_test;
-        }
+            hash_test.put("mensagem", "Consulta não realizada");
+            // HttpPost requisição3 = new HttpPost("http://localhost:8080/webservicereceita/cliente/valida/cnpj/" + cnpj + "/captcha/" + captcha);
+            HttpPost requisição3 = new HttpPost("http://localhost:8080/webservicereceita/cliente/valida/cnpj/" + cnpj + "/captcha/" + captcha);
+            HttpResponse resposta = cliente.execute(requisição3, contexto);
+            HttpEntity entidade = resposta.getEntity();
+            String html;
+            try {
+                html = EntityUtils.toString(entidade);
+            } catch (IOException | ParseException e) {
+                hash_test.put("status", false);
+                hash_test.put("mensagem", e.getMessage());
+                return hash_test;
+            }
 
-        if (html.contains("No existe no Cadastro de Pessoas Jurdicas o nmero de CNPJ informado. Verifique se o mesmo foi digitado corretamente.")) {
-            hash_test.put("status", false);
-            hash_test.put("mensagem", "CNPJ não existe no cadastro de Pessoas Jurídicas da Receita");
-            return hash_test;
-        }
+            if (html.contains("<b>Erro na Consulta</b>")) {
+                hash_test.put("status", false);
+                hash_test.put("mensagem", "Erro na Consulta");
+                return hash_test;
+            }
 
-        // Busco o documento estruturado
-        HTMLDocument document = getHTMLDocument(html);
-        // Busco todos os elementos em forma de iterador
-        ElementIterator elementIterator = new ElementIterator(document);
-        // Enquanto existir próximo elemento
-        Element element;
-        while ((element = elementIterator.next()) != null) {
-            // Dentro dos elementos estão as informações para se pegar, porém não tenho autorização de divulgá-las.
-            // Use a criatividade que você irá recuperar todos os dados necessários dentro deste While.
-            HashMap hash = quebra_parametros(element);
-            if (hash != null) {
-                return hash;
+            if (html.contains("No existe no Cadastro de Pessoas Jurdicas o nmero de CNPJ informado. Verifique se o mesmo foi digitado corretamente.")) {
+                hash_test.put("status", false);
+                hash_test.put("mensagem", "CNPJ não existe no cadastro de Pessoas Jurídicas da Receita");
+                return hash_test;
+            }
+
+            // Busco o documento estruturado
+            HTMLDocument document = getHTMLDocument(html);
+            // Busco todos os elementos em forma de iterador
+            ElementIterator elementIterator = new ElementIterator(document);
+            // Enquanto existir próximo elemento
+            Element element;
+            while ((element = elementIterator.next()) != null) {
+                // Dentro dos elementos estão as informações para se pegar, porém não tenho autorização de divulgá-las.
+                // Use a criatividade que você irá recuperar todos os dados necessários dentro deste While.
+                HashMap hash = quebra_parametros(element);
+                if (hash != null) {
+                    return hash;
+                }
             }
         }
 

@@ -217,16 +217,23 @@ public class MovimentosReceberSocialDao extends DB {
         return new ArrayList();
     }
 
-    public Pessoa pesquisaPessoaPorBoleto(String boleto, int id_conta_cobranca) {
+    public Pessoa pesquisaPessoaPorBoleto(String boleto, Integer id_conta_cobranca) {
+        return pesquisaPessoaPorBoleto(boleto, id_conta_cobranca, false);
+    }
+
+    public Pessoa pesquisaPessoaPorBoleto(String boleto, Integer id_conta_cobranca, Boolean administrador) {
         Pessoa pessoa = null;
         String textqry
-                = " SELECT pes.* "
-                + "   FROM pes_pessoa pes "
-                + "  INNER JOIN fin_movimento mov ON pes.id = mov.id_pessoa "
-                + "  INNER JOIN fin_boleto bol ON mov.nr_ctr_boleto = bol.nr_ctr_boleto "
-                + "    AND mov.is_ativo is true "
-                + "    AND bol.id_conta_cobranca = " + id_conta_cobranca
-                + "    AND mov.ds_documento = '" + boleto + "'";
+                = " SELECT pes.*                                                \n"
+                + "   FROM pes_pessoa pes                                       \n"
+                + "  INNER JOIN fin_movimento mov ON pes.id = mov.id_pessoa     \n"
+                + "  INNER JOIN fin_boleto bol ON mov.nr_ctr_boleto = bol.nr_ctr_boleto ";
+        if (!administrador) {
+            textqry += " AND mov.is_ativo is true ";
+        }
+        textqry
+                += " AND bol.id_conta_cobranca = " + id_conta_cobranca
+                + "  AND mov.ds_documento = '" + boleto + "'";
         try {
             Query qry = getEntityManager().createNativeQuery(textqry, Pessoa.class);
             qry.setMaxResults(1);
