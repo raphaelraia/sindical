@@ -14,9 +14,9 @@
             .ui-button { padding: 3px!important; }
             .ui-selectonemenu {padding-right: 25px!important;}
         </style>
-        
+
         <script type="text/javascript">
-            
+
         </script>
     </h:head>
     <h:body>
@@ -33,7 +33,7 @@
                         <div style="clear: both"></div>
                         <h:form id="formDeclaracaoPessoa">
                             <p:panel styleClass="fundoCinza">
-                                <h:panelGrid id="panel_declaracao_tipo" columns="3">
+                                <h:panelGrid id="panel_declaracao_tipo" columns="4">
                                     <h:column>
                                         <p:outputLabel value="Tipo" /><br />
                                         <p:selectOneMenu value="#{declaracaoPessoaBean.indexDeclaracaoTipo}">
@@ -48,8 +48,110 @@
                                             <f:selectItems value="#{declaracaoPessoaBean.listaConvenio}"/>
                                         </p:selectOneMenu>
                                     </h:column>
+
+                                    <h:column>
+                                        <br />
+                                        <p:commandButton value="Pesquisar Pessoa" action="#{declaracaoPessoaBean.limparPesquisa()}" onclick="PF('dlg_pesquisar').show()" icon="ui-icon-search" update="formDeclaracaoPessoa:panel_pesquisar"/>
+                                    </h:column>
                                 </h:panelGrid>
                             </p:panel>
+                            <p:messages closable="true" showDetail="true" />
+                            <p:panel rendered="#{declaracaoPessoaBean.objPesquisaPessoaSelecionada != null}"> 
+                                <h:panelGrid columns="1">
+                                    <h:panelGrid columns="1">
+                                        <h:column>
+                                            <p:outputLabel value="Titular" style="font-weight: bold"/><br />
+                                            <p:outputLabel value="#{declaracaoPessoaBean.objPesquisaPessoaSelecionada.titular.nome}" style="font-size: 11pt!important"/>
+                                        </h:column>
+                                    </h:panelGrid>
+
+                                    <h:panelGrid columns="5">
+                                        <h:column>
+                                            <p:outputLabel value="Beneficiário" style="font-weight: bold"/><br />
+                                            <p:outputLabel value="#{declaracaoPessoaBean.objPesquisaPessoaSelecionada.beneficiario.nome}" style="font-size: 11pt!important"/>
+                                        </h:column>
+                                        <p:separator style="height: 20px; margin-left: 15px;  margin-right: 15px;" />
+                                        <h:column>
+                                            <p:outputLabel value="Categoria" style="font-weight: bold"/><br />
+                                            <p:outputLabel value="#{declaracaoPessoaBean.objPesquisaPessoaSelecionada.categoria.categoria}" style="font-size: 11pt!important"/>
+                                        </h:column>
+                                        <p:separator style="height: 20px; margin-left: 15px;  margin-right: 15px;" />
+                                        <h:column>
+                                            <p:outputLabel value="Matrícula" style="font-weight: bold"/><br />
+                                            <p:outputLabel value="#{declaracaoPessoaBean.objPesquisaPessoaSelecionada.matricula.nrMatricula}" style="font-size: 11pt!important"/>
+                                        </h:column>
+                                    </h:panelGrid>
+
+                                    <h:panelGrid columns="1">
+                                        <p:commandButton value="Imprimir Declaração" icon="ui-icon-print" onclick="PF('dlg_imprimir').show()"/>
+                                    </h:panelGrid>
+                                </h:panelGrid>
+                            </p:panel>
+
+                            <br />
+                            <p:outputLabel value="Declarações Emitidas" style="font-size: 11pt!important; font-weight: bold"/>
+                            <p:separator />
+                            <p:dataTable value="#{declaracaoPessoaBean.listaDeclaracaoPessoa}" var="linha_declaracao" emptyMessage="Nenhuma Declaração Impressa">
+                                <p:column headerText="Titular">
+                                    <p:outputLabel value="#{linha_declaracao.pessoa.socios.matriculaSocios.titular.nome}" />
+                                </p:column>
+                                
+                                <p:column headerText="Beneficiário">
+                                    <p:outputLabel value="#{linha_declaracao.pessoa.nome}" />
+                                </p:column>
+
+                                <p:column headerText="Categoria" style="width: 200px; text-align: center">
+                                    <p:outputLabel value="#{linha_declaracao.matricula.categoria.categoria}" />
+                                </p:column>
+
+                                <p:column headerText="Matrícula" style="width: 80px; text-align: center">
+                                    <p:outputLabel value="#{linha_declaracao.matricula.nrMatricula}" />
+                                </p:column>
+
+                                <p:column style="width: 50px; text-align: center">
+                                    <p:commandButton icon="ui-icon-print" action="#{declaracaoPessoaBean.imprimir_jasper(linha_declaracao)}" ajax="false"/>
+                                </p:column>
+                            </p:dataTable>
+
+                            <p:dialog widgetVar="dlg_pesquisar" header="Pesquisar Beneficiário" resizable="false" width="700" modal="true" position="top">
+                                <h:panelGrid id="panel_pesquisar" style="width: 100%">
+                                    <p:defaultCommand target="btn_inicial" />
+                                    <p:focus for="input_descricao_pesquisa"/>
+                                    <h:panelGrid columns="3">
+                                        <p:inputText id="input_descricao_pesquisa" value="#{declaracaoPessoaBean.descricaoPesquisa}" style="width: 200px" placeholder="DIGITE SUA PESQUISA"/>
+                                        <p:commandButton id="btn_inicial" value="Inicial" action="#{declaracaoPessoaBean.loadListaPessoa('I')}" update="panel_pesquisar"/>
+                                        <p:commandButton value="Parcial" action="#{declaracaoPessoaBean.loadListaPessoa('P')}" update="panel_pesquisar"/>
+                                    </h:panelGrid>
+
+                                    <p:dataTable value="#{declaracaoPessoaBean.listaPessoa}" var="linha_pessoa" emptyMessage="Nenhuma Pessoa Encontrada!">
+                                        <p:column headerText="Nome">
+                                            <p:commandLink value="#{linha_pessoa.beneficiario.nome}" action="#{declaracaoPessoaBean.selecionarPessoa(linha_pessoa)}" onclick="PF('dlg_pesquisar')" update="@form"/>
+                                        </p:column> 
+
+                                        <p:column headerText="Matrícula" style="width: 80px; text-align: center">
+                                            <p:commandLink value="#{linha_pessoa.matricula.nrMatricula}" action="#{declaracaoPessoaBean.selecionarPessoa(linha_pessoa)}" onclick="PF('dlg_pesquisar')" update="@form"/>
+                                        </p:column> 
+
+                                        <p:column headerText="Categoria" style="width: 150px; text-align: center">
+                                            <p:commandLink value="#{linha_pessoa.categoria.categoria}" action="#{declaracaoPessoaBean.selecionarPessoa(linha_pessoa)}" onclick="PF('dlg_pesquisar')" update="@form"/>
+                                        </p:column> 
+
+                                        <p:column headerText="Idade" style="width: 80px; text-align: center">
+                                            <p:commandLink value="#{linha_pessoa.idade}" action="#{declaracaoPessoaBean.selecionarPessoa(linha_pessoa)}" onclick="PF('dlg_pesquisar')" update="@form"/>
+                                        </p:column> 
+                                    </p:dataTable>
+                                </h:panelGrid>
+                            </p:dialog>
+
+                            <p:dialog widgetVar="dlg_imprimir" header="Imprimir Declaração" resizable="false" width="400" modal="true">
+                                <h:panelGrid id="panel_imprimir" style="width: 100%">
+                                    <p:outputLabel value="Deseja realmente imprimir esta declaração?" style="font-size: 11pt!important"/>
+                                </h:panelGrid>
+                                <br />
+
+                                <p:commandButton value="Sim" type="submit" styleClass="ui-confirmdialog-yes" action="#{declaracaoPessoaBean.imprimir()}" ajax="false" update="@form" onclick="PF('dlg_imprimir').hide()" style="clear: both; float: left; font-weight: bold" icon="ui-icon-check" />  
+                                <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_imprimir').hide()" style="float: left" icon="ui-icon-close"/>       
+                            </p:dialog>
                         </h:form>
                     </p:panel>
                 </f:view>

@@ -5,12 +5,25 @@
  */
 package br.com.rtools.associativo.beans;
 
+import br.com.rtools.associativo.Categoria;
+import br.com.rtools.associativo.DeclaracaoPessoa;
 import br.com.rtools.associativo.DeclaracaoTipo;
+import br.com.rtools.associativo.MatriculaSocios;
+import br.com.rtools.associativo.Parentesco;
 import br.com.rtools.associativo.dao.DeclaracaoPessoaDao;
 import br.com.rtools.associativo.dao.DeclaracaoTipoDao;
+import br.com.rtools.pessoa.Filial;
+import br.com.rtools.pessoa.Pessoa;
+import br.com.rtools.utilitarios.Dao;
+import br.com.rtools.utilitarios.DataHoje;
+import br.com.rtools.utilitarios.GenericaMensagem;
+import br.com.rtools.utilitarios.Jasper;
+import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.model.SelectItem;
@@ -27,10 +40,96 @@ public class DeclaracaoPessoaBean implements Serializable {
     private List<SelectItem> listaDeclaracaoTipo = new ArrayList();
     private Integer indexConvenio = 0;
     private List<SelectItem> listaConvenio = new ArrayList();
+    private DeclaracaoPessoa declaracaoPessoa = new DeclaracaoPessoa();
+    private List<DeclaracaoPessoa> listaDeclaracaoPessoa = new ArrayList();
+
+    private String descricaoPesquisa = "";
+    private List<ObjectPesquisaPessoa> listaPessoa = new ArrayList();
+    private ObjectPesquisaPessoa objPesquisaPessoaSelecionada = null;
 
     public DeclaracaoPessoaBean() {
         loadListaDeclaracaoTipo();
         loadListaConvenio();
+        loadListaDeclaracaoPessoa();
+    }
+
+    public void selecionarPessoa(ObjectPesquisaPessoa opp) {
+        objPesquisaPessoaSelecionada = opp;
+    }
+
+    public void limparPesquisa() {
+        listaPessoa.clear();
+        descricaoPesquisa = "";
+    }
+
+    public Boolean validaImprimir() {
+        if (objPesquisaPessoaSelecionada == null){
+            return false;
+        }
+        
+        if (objPesquisaPessoaSelecionada.getIdade() > 24 && objPesquisaPessoaSelecionada.getParentesco().getId() != 1) {
+            GenericaMensagem.error("Atenção", "Beneficiário maior de 24 Anos!");
+            return false;
+        }
+
+        if (!new DeclaracaoPessoaDao().listaDeclaracaoPessoaAnoVigente(objPesquisaPessoaSelecionada.getBeneficiario().getId()).isEmpty()) {
+            GenericaMensagem.error("Atenção", "Declaração já impressa para o ano vigente!");
+            return false;
+        }
+
+        DeclaracaoTipo declaracao_tipo = (DeclaracaoTipo) new Dao().find(new DeclaracaoTipo(), Integer.valueOf(listaDeclaracaoTipo.get(indexDeclaracaoTipo).getDescription()));
+        if (new FunctionsDao().inadimplente(objPesquisaPessoaSelecionada.getBeneficiario().getId(), declaracao_tipo.getDiasCarencia())) {
+            GenericaMensagem.error("Atenção", "Beneficiário Inadimplente não pode imprimir declaração!");
+            return false;
+        }
+
+        return true;
+    }
+
+    public void imprimir() {
+        if (!validaImprimir()) {
+            return;
+        }
+
+        DeclaracaoTipo declaracao_tipo = (DeclaracaoTipo) new Dao().find(new DeclaracaoTipo(), Integer.valueOf(listaDeclaracaoTipo.get(indexDeclaracaoTipo).getDescription()));
+        Pessoa pessoa_convenio = (Pessoa) new Dao().find(new Pessoa(), Integer.valueOf(listaConvenio.get(indexConvenio).getDescription()));
+
+        DeclaracaoPessoa declaracao_pessoa = new DeclaracaoPessoa(-1, DataHoje.dataHoje(), objPesquisaPessoaSelecionada.getBeneficiario(), pessoa_convenio, declaracao_tipo, objPesquisaPessoaSelecionada.getMatricula());
+
+        Dao dao = new Dao();
+        dao.openTransaction();
+
+        if (!dao.save(declaracao_pessoa)) {
+            dao.rollback();
+            GenericaMensagem.error("Atenção", "Não foi possível salvar Declaração Pessoa");
+            return;
+        }
+
+        dao.commit();
+
+        imprimir_jasper(declaracao_pessoa);
+    }
+
+    public void imprimir_jasper(DeclaracaoPessoa declaracao_pessoa) {
+        Map map = new HashMap();
+        map.put("titular", declaracao_pessoa.getMatricula().getTitular().getNome());
+        map.put("convenio", declaracao_pessoa.getConvenio().getNome());
+        map.put("data_emissao", declaracao_pessoa.getDtEmissao());
+
+        Map map_ob = new HashMap();
+        map_ob.put("nome_beneficiario", declaracao_pessoa.getPessoa().getNome());
+        map_ob.put("parentesco_beneficiario", declaracao_pessoa.getPessoa().getSocios().getParentesco().getParentesco());
+        map_ob.put("codigo_beneficiario", declaracao_pessoa.getMatricula().getNrMatricula());
+
+        List list = new ArrayList();
+        list.add(map_ob);
+
+        objPesquisaPessoaSelecionada = null;
+        loadListaDeclaracaoPessoa();
+
+        Jasper.TYPE = "default";
+        Jasper.FILIAL = (Filial) new Dao().find(new Filial(), 1);
+        Jasper.printReports(declaracao_pessoa.getDeclaracaoTipo().getJasper(), declaracao_pessoa.getDeclaracaoTipo().getDescricao(), list, map);
     }
 
     public final void loadListaDeclaracaoTipo() {
@@ -60,6 +159,32 @@ public class DeclaracaoPessoaBean implements Serializable {
                             i,
                             linha.get(1).toString() + "; " + linha.get(2).toString() + "; " + linha.get(3).toString(),
                             "" + (Integer) linha.get(0)
+                    )
+            );
+        }
+    }
+
+    public final void loadListaDeclaracaoPessoa() {
+        listaDeclaracaoPessoa.clear();
+        listaDeclaracaoPessoa = new DeclaracaoPessoaDao().listaDeclaracaoPessoa();
+    }
+
+    public final void loadListaPessoa(String InicialParcial) {
+        listaPessoa.clear();
+
+        List<Object> result = new DeclaracaoPessoaDao().listaPessoa(descricaoPesquisa, InicialParcial);
+        Dao dao = new Dao();
+        FunctionsDao func = new FunctionsDao();
+        for (Object ob : result) {
+            List linha = (List) ob;
+            listaPessoa.add(
+                    new ObjectPesquisaPessoa(
+                            func.titularDaPessoa((Integer) linha.get(0)),
+                            (Pessoa) dao.find(new Pessoa(), (Integer) linha.get(0)),
+                            (MatriculaSocios) dao.find(new MatriculaSocios(), (Integer) linha.get(1)),
+                            (Categoria) dao.find(new Categoria(), (Integer) linha.get(2)),
+                            (Parentesco) dao.find(new Parentesco(), (Integer) linha.get(3)),
+                            (Integer) linha.get(4)
                     )
             );
         }
@@ -95,5 +220,113 @@ public class DeclaracaoPessoaBean implements Serializable {
 
     public void setListaConvenio(List<SelectItem> listaConvenio) {
         this.listaConvenio = listaConvenio;
+    }
+
+    public DeclaracaoPessoa getDeclaracaoPessoa() {
+        return declaracaoPessoa;
+    }
+
+    public void setDeclaracaoPessoa(DeclaracaoPessoa declaracaoPessoa) {
+        this.declaracaoPessoa = declaracaoPessoa;
+    }
+
+    public List<DeclaracaoPessoa> getListaDeclaracaoPessoa() {
+        return listaDeclaracaoPessoa;
+    }
+
+    public void setListaDeclaracaoPessoa(List<DeclaracaoPessoa> listaDeclaracaoPessoa) {
+        this.listaDeclaracaoPessoa = listaDeclaracaoPessoa;
+    }
+
+    public String getDescricaoPesquisa() {
+        return descricaoPesquisa;
+    }
+
+    public void setDescricaoPesquisa(String descricaoPesquisa) {
+        this.descricaoPesquisa = descricaoPesquisa;
+    }
+
+    public List<ObjectPesquisaPessoa> getListaPessoa() {
+        return listaPessoa;
+    }
+
+    public void setListaPessoa(List<ObjectPesquisaPessoa> listaPessoa) {
+        this.listaPessoa = listaPessoa;
+    }
+
+    public ObjectPesquisaPessoa getObjPesquisaPessoaSelecionada() {
+        return objPesquisaPessoaSelecionada;
+    }
+
+    public void setObjPesquisaPessoaSelecionada(ObjectPesquisaPessoa objPesquisaPessoaSelecionada) {
+        this.objPesquisaPessoaSelecionada = objPesquisaPessoaSelecionada;
+    }
+
+    public class ObjectPesquisaPessoa {
+
+        private Pessoa titular;
+        private Pessoa beneficiario;
+        private MatriculaSocios matricula;
+        private Categoria categoria;
+        private Parentesco parentesco;
+        private Integer idade;
+
+        public ObjectPesquisaPessoa(Pessoa titular, Pessoa beneficiario, MatriculaSocios matricula, Categoria categoria, Parentesco parentesco, Integer idade) {
+            this.titular = titular;
+            this.beneficiario = beneficiario;
+            this.matricula = matricula;
+            this.categoria = categoria;
+            this.parentesco = parentesco;
+            this.idade = idade;
+        }
+
+        public Pessoa getTitular() {
+            return titular;
+        }
+
+        public void setTitular(Pessoa titular) {
+            this.titular = titular;
+        }
+
+        public Pessoa getBeneficiario() {
+            return beneficiario;
+        }
+
+        public void setBeneficiario(Pessoa beneficiario) {
+            this.beneficiario = beneficiario;
+        }
+
+        public MatriculaSocios getMatricula() {
+            return matricula;
+        }
+
+        public void setMatricula(MatriculaSocios matricula) {
+            this.matricula = matricula;
+        }
+
+        public Categoria getCategoria() {
+            return categoria;
+        }
+
+        public void setCategoria(Categoria categoria) {
+            this.categoria = categoria;
+        }
+
+        public Parentesco getParentesco() {
+            return parentesco;
+        }
+
+        public void setParentesco(Parentesco parentesco) {
+            this.parentesco = parentesco;
+        }
+
+        public Integer getIdade() {
+            return idade;
+        }
+
+        public void setIdade(Integer idade) {
+            this.idade = idade;
+        }
+
     }
 }

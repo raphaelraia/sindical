@@ -37,8 +37,8 @@ public class DeclaracaoTipo implements Serializable {
     private Integer validade;
     @Column(name = "nr_validade_tipo")
     private Integer validadeTipo; // (0 dia, 1 meses, 2 ano) 
-    @Column(name = "nr_dias_atraso")
-    private Integer diasAtraso;
+    @Column(name = "nr_dias_carencia")
+    private Integer diasCarencia;
 
     public DeclaracaoTipo() {
         this.id = -1;
@@ -48,10 +48,10 @@ public class DeclaracaoTipo implements Serializable {
         this.idadeFinal = null;
         this.validade = null;
         this.validadeTipo = null;
-        this.diasAtraso = null;
+        this.diasCarencia = null;
     }
 
-    public DeclaracaoTipo(int id, String descricao, String jasper, Integer idadeInicio, Integer idadeFinal, Integer validade, Integer validadeTipo, Integer diasAtraso) {
+    public DeclaracaoTipo(int id, String descricao, String jasper, Integer idadeInicio, Integer idadeFinal, Integer validade, Integer validadeTipo, Integer diasCarencia) {
         this.id = id;
         this.descricao = descricao;
         this.jasper = jasper;
@@ -59,7 +59,7 @@ public class DeclaracaoTipo implements Serializable {
         this.idadeFinal = idadeFinal;
         this.validade = validade;
         this.validadeTipo = validadeTipo;
-        this.diasAtraso = diasAtraso;
+        this.diasCarencia = diasCarencia;
     }
 
     public int getId() {
@@ -118,12 +118,12 @@ public class DeclaracaoTipo implements Serializable {
         this.validadeTipo = validadeTipo;
     }
 
-    public Integer getDiasAtraso() {
-        return diasAtraso;
+    public Integer getDiasCarencia() {
+        return diasCarencia;
     }
 
-    public void setDiasAtraso(Integer diasAtraso) {
-        this.diasAtraso = diasAtraso;
+    public void setDiasCarencia(Integer diasCarencia) {
+        this.diasCarencia = diasCarencia;
     }
 
 }
