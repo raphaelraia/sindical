@@ -38,4 +38,20 @@ public class MatriculaSociosDao extends DB {
         }
         return new ArrayList();
     }
+
+    public MatriculaSocios findByMatricula(Integer matricula) {
+        try {
+            String queryString = ""
+                    + "        SELECT M.*                                       \n"
+                    + "          FROM matr_socios AS M                          \n"
+                    + "         WHERE M.nr_matricula = " + matricula + "        ";
+            Query qry = getEntityManager().createNativeQuery(queryString, MatriculaSocios.class);
+            List list = qry.getResultList();
+            if (!list.isEmpty()) {
+                return (MatriculaSocios) list.get(0);
+            }
+        } catch (Exception e) {
+        }
+        return null;
+    }
 }
