@@ -71,13 +71,13 @@
                                     </h:column>
 
                                     <h:column>
-                                        <p:outputLabel value="Dias Atraso" /><br />
-                                        <p:inputText value="#{declaracaoTipoBean.declaracaoTipo.diasAtraso}" style="width: 80px; text-align: center"/>
+                                        <p:outputLabel value="Dias Carência" /><br />
+                                        <p:inputText value="#{declaracaoTipoBean.declaracaoTipo.diasCarencia}" style="width: 80px; text-align: center"/>
                                     </h:column>
 
                                     <h:column>
                                         <br />
-                                        <p:commandButton value="Salvar" onclick="PF('dlg_salvar').show()"/>
+                                        <p:commandButton value="#{declaracaoTipoBean.declaracaoTipo.id eq -1 ? 'Salvar' : 'Atualizar'}" onclick="PF('dlg_salvar').show()"/>
                                     </h:column>
                                     
                                     <h:column>
@@ -119,8 +119,8 @@
                                     <p:commandLink value="#{linha.validadeTipo eq 0 ? 'Dia' : linha.validadeTipo eq 1 ? 'Meses' : 'Ano'}" action="#{declaracaoTipoBean.editar(linha)}" update="@form"/>
                                 </p:column>
 
-                                <p:column headerText="Dias Atraso" style="width: 80px; text-align: center">
-                                    <p:commandLink value="#{linha.diasAtraso}" action="#{declaracaoTipoBean.editar(linha)}" update="@form"/>
+                                <p:column headerText="Dias Carência" style="width: 80px; text-align: center">
+                                    <p:commandLink value="#{linha.diasCarencia}" action="#{declaracaoTipoBean.editar(linha)}" update="@form"/>
                                 </p:column>
                             </p:dataTable> 
 

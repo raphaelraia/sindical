@@ -91,7 +91,7 @@ public class DeclaracaoTipoBean implements Serializable {
                     "Idade Final: " + declaracaoTipo.getIdadeFinal()+ "\n" +
                     "Validade: " + declaracaoTipo.getValidade()+ "\n" +
                     "Tipo Validade: " + (declaracaoTipo.getValidadeTipo() == 0 ? "Dia" : declaracaoTipo.getValidadeTipo() == 1 ? "Mês" : "Ano") + "\n" +
-                    "Dias Atraso: " + declaracaoTipo.getDiasAtraso() + "\n"
+                    "Dias Atraso: " + declaracaoTipo.getDiasCarencia()+ "\n"
             );
             GenericaMensagem.info("Sucesso", "Declaração Tipo Salva!");
         }else{
@@ -104,7 +104,7 @@ public class DeclaracaoTipoBean implements Serializable {
                     "Idade Final: " + dt_antes.getIdadeFinal()+ "\n" +
                     "Validade: " + dt_antes.getValidade()+ "\n" +
                     "Tipo Validade: " + (dt_antes.getValidadeTipo() == 0 ? "Dia" : dt_antes.getValidadeTipo() == 1 ? "Mês" : "Ano") + "\n" +
-                    "Dias Atraso: " + dt_antes.getDiasAtraso() + "\n",
+                    "Dias Atraso: " + dt_antes.getDiasCarencia() + "\n",
                     
                     "ID: " + declaracaoTipo.getId() + "\n" +
                     "Descrição: " + declaracaoTipo.getDescricao() + "\n" +
@@ -113,7 +113,7 @@ public class DeclaracaoTipoBean implements Serializable {
                     "Idade Final: " + declaracaoTipo.getIdadeFinal()+ "\n" +
                     "Validade: " + declaracaoTipo.getValidade()+ "\n" +
                     "Tipo Validade: " + (declaracaoTipo.getValidadeTipo() == 0 ? "Dia" : declaracaoTipo.getValidadeTipo() == 1 ? "Mês" : "Ano") + "\n" +
-                    "Dias Atraso: " + declaracaoTipo.getDiasAtraso() + "\n"
+                    "Dias Atraso: " + declaracaoTipo.getDiasCarencia() + "\n"
             );
 
             if (!dao.update(declaracaoTipo)){
@@ -160,7 +160,7 @@ public class DeclaracaoTipoBean implements Serializable {
                     "Idade Final: " + declaracaoTipo.getIdadeFinal()+ "\n" +
                     "Validade: " + declaracaoTipo.getValidade()+ "\n" +
                     "Tipo Validade: " + (declaracaoTipo.getValidadeTipo() == 0 ? "Dia" : declaracaoTipo.getValidadeTipo() == 1 ? "Mês" : "Ano") + "\n" +
-                    "Dias Atraso: " + declaracaoTipo.getDiasAtraso() + "\n"
+                    "Dias Atraso: " + declaracaoTipo.getDiasCarencia() + "\n"
             );
             
             declaracaoTipo = new DeclaracaoTipo();
