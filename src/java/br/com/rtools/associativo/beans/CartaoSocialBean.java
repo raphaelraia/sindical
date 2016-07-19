@@ -31,14 +31,20 @@ import br.com.rtools.utilitarios.ImpressaoParaSocios;
 import br.com.rtools.utilitarios.Jasper;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 // import java.util.Vector;
 import javax.faces.model.SelectItem;
+import net.sf.jasperreports.engine.JRDataSource;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.event.UnselectEvent;
 import org.primefaces.event.data.FilterEvent;
@@ -923,5 +929,62 @@ public class CartaoSocialBean implements Serializable {
 
     public void setConfiguracaoSocial(ConfiguracaoSocial configuracaoSocial) {
         this.configuracaoSocial = configuracaoSocial;
+    }
+
+    public void printTest() {
+        try {
+            Collection<BeanWithList> coll = new ArrayList<BeanWithList>();
+
+            BeanWithList bean = new BeanWithList(Arrays.asList("London", "Paris"), 1);
+
+            coll.add(bean);
+
+            bean = new BeanWithList(Arrays.asList("London", "Madrid", "Moscow"), 2);
+            coll.add(bean);
+
+            bean = new BeanWithList(Arrays.asList("Rome"), 3);
+            coll.add(bean);            
+            
+            Map<String, Object> params = new HashMap<>();
+            Jasper.printReports("TESTE.jasper", "TESTE.jasper", coll);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private JRDataSource getDataSource() {
+        Collection<BeanWithList> coll = new ArrayList<>();
+
+        BeanWithList bean = new BeanWithList(Arrays.asList("London", "Paris"), 1);
+
+        coll.add(bean);
+
+        bean = new BeanWithList(Arrays.asList("London", "Madrid", "Moscow"), 2);
+        coll.add(bean);
+
+        bean = new BeanWithList(Arrays.asList("Rome"), 3);
+        coll.add(bean);
+
+        return new JRBeanCollectionDataSource(coll);
+    }
+
+    public class BeanWithList {
+
+        private List<String> m_cities;
+        private Integer m_id;
+
+        public BeanWithList(List<String> cities, Integer id) {
+            m_cities = cities;
+            m_id = id;
+        }
+
+        public List<String> getCities() {
+            return m_cities;
+        }
+
+        public Integer getId() {
+            return m_id;
+        }
     }
 }
