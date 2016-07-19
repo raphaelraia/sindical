@@ -6,6 +6,7 @@ import br.com.rtools.associativo.MatriculaSocios;
 import br.com.rtools.associativo.ModeloCarteirinha;
 import br.com.rtools.associativo.SocioCarteirinha;
 import br.com.rtools.associativo.Socios;
+import br.com.rtools.associativo.dao.MatriculaSociosDao;
 import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.impressao.CartaoSocial;
 import br.com.rtools.impressao.FichaSocial;
@@ -29,7 +30,6 @@ import java.util.Objects;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.util.JRLoader;
@@ -47,12 +47,12 @@ public class ImpressaoParaSocios {
         String orgaoOrigem = "";
         String codigoFuncional = "";
         Socios socioDependente;
-        
+
         for (int i = 0; i < listaCartao.size(); i++) {
             String id_pessoa = ((List) (listaCartao.get(i))).get(0).toString();
-            
+
             String logoCartao = "";
-            
+
             String matr = "";
             if (((List) (listaCartao.get(i))).get(10) != null) {
                 matr = "000000".substring(0, 6 - ((List) (listaCartao.get(i))).get(10).toString().length()) + ((List) (listaCartao.get(i))).get(10).toString();
@@ -62,7 +62,7 @@ public class ImpressaoParaSocios {
             if (((List) (listaCartao.get(i))).get(11) != null) {
                 via = ((List) (listaCartao.get(i))).get(11).toString();
             }
-            
+
             if (via.length() == 1) {
                 via = "0" + via;
             }
@@ -129,20 +129,20 @@ public class ImpressaoParaSocios {
             } catch (Exception e) {
 
             }
-            
+
             FisicaDao fisicaDB = new FisicaDao();
             Fisica fisica = fisicaDB.pesquisaFisicaPorPessoa(Integer.valueOf(id_pessoa));
             String[] imagensTipo = new String[]{"jpg", "jpeg", "png", "gif"};
-            File foto_cartao = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("")+ "resources/images/.png");
-            
+            File foto_cartao = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/images/.png");
+
             for (String imagensTipo1 : imagensTipo) {
-                File test = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("")+ "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + fisica.getPessoa().getId() +"/"+fisica.getFoto()+"." + imagensTipo1);
-                if (test.exists()){
+                File test = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("") + "resources/cliente/" + ControleUsuarioBean.getCliente().toLowerCase() + "/imagens/pessoa/" + fisica.getPessoa().getId() + "/" + fisica.getFoto() + "." + imagensTipo1);
+                if (test.exists()) {
                     foto_cartao = test;
                     break;
                 }
             }
-            
+
             listax.add(
                     new CartaoSocial(
                             matr, //                                                         CODIGO
@@ -183,9 +183,27 @@ public class ImpressaoParaSocios {
                             ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/imagemExtra.png"), // IMAGEM EXTRA
                             ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/imagemExtra2.png"), // IMAGEM EXTRA 2
                             (!getConverteNullString(((List) (listaCartao.get(i))).get(42)).isEmpty()) ? "( APOSENTADO )" : "", // DATA APOSENTADORIA
-                            via
+                            via,
+                            new ArrayList()
                     )
             );
+
+            if (ControleUsuarioBean.getCliente().equals("ExtrativaRP")) {
+                for (int x = 0; x < listax.size(); x++) {
+                    MatriculaSocios ms = new MatriculaSociosDao().findByMatricula(Integer.parseInt(listax.get(x).getMatricula()));
+                    List<CartaoSocial> listCartaoSocialDependente = new ArrayList();
+                    if (ms != null) {
+                        List<Socios> listSocios = new SociosDao().pesquisaDependentesOrdenado(ms.getId());
+                        for (int z = 0; z < listSocios.size(); z++) {
+                            CartaoSocial cartaoSocial = new CartaoSocial();
+                            cartaoSocial.setDependente(listSocios.get(z).getServicoPessoa().getPessoa().getNome());
+                            cartaoSocial.setParentesco(listSocios.get(z).getParentesco().getParentesco());
+                            listCartaoSocialDependente.add(cartaoSocial);
+                        }
+                        listax.get(x).setListDependentes(listCartaoSocialDependente);
+                    }
+                }
+            }
 
             for (ModeloCarteirinha modelo : listaModelo) {
                 if (Objects.equals(carteirinha.getModeloCarteirinha().getId(), modelo.getId())) {
@@ -206,14 +224,14 @@ public class ImpressaoParaSocios {
             JasperReport jasper;
             JasperReport subJasper;
             String subreport = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Relatorios/DEPENDENTES.jasper");
-            DBExternal con = new DBExternal();
-            con.setDatabase(GenericaSessao.getString("sessaoCliente"));
+//            DBExternal con = new DBExternal();
+//            con.setDatabase(GenericaSessao.getString("sessaoCliente"));
             Map map = new HashMap();
-            if (!new File(subreport).exists()) {
-                subreport = null;
-            } else {
-                map.put("REPORT_CONNECTION", con.getConnection());
-            }
+//            if (!new File(subreport).exists()) {
+//                subreport = null;
+//            } else {
+//                map.put("REPORT_CONNECTION", con.getConnection());
+//            }
             String mimeType = "application/pdf";
             for (Entry<Integer, List> entry : hash.entrySet()) {
                 modelo = (ModeloCarteirinha) new Dao().find(new ModeloCarteirinha(), entry.getKey());
@@ -319,7 +337,7 @@ public class ImpressaoParaSocios {
         PessoaEnderecoDao dbEnd = new PessoaEnderecoDao();
         SociosDao dbSoc = new SociosDao();
         FacesContext faces = FacesContext.getCurrentInstance();
-        
+
         Collection listaSocios = new ArrayList();
         fisica = db.pesquisaFisicaPorPessoa(socios.getServicoPessoa().getPessoa().getId());
         pesEndereco = dbEnd.pesquisaEndPorPessoaTipo(fisica.getPessoa().getId(), 1);
@@ -503,7 +521,7 @@ public class ImpressaoParaSocios {
                     dados[32],
                     fisica.getPis()
             ));
-            
+
             List<Socios> deps = dbSoc.pesquisaDependentesOrdenado(matriculaSocios.getId());
             for (int n = 0; n < deps.size(); n++) {
                 listaSocios.add(new FichaSocial(0,
