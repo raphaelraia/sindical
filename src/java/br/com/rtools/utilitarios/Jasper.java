@@ -172,24 +172,24 @@ public class Jasper implements Serializable {
      * Filial Header Relatório
      */
     public static Filial FILIAL;
-    
+
     static {
         load();
     }
-    
+
     public String getEXPORT_TYPE() {
         return EXPORT_TYPE;
     }
-    
+
     public void setEXPORT_TYPE(String aEXPORT_TYPE) {
         EXPORT_TYPE = aEXPORT_TYPE;
     }
-    
+
     @PostConstruct
     public void init() {
         load();
     }
-    
+
     public static void load() {
         PATH = "downloads/relatorios";
         PART_NAME = "relatorio";
@@ -218,15 +218,19 @@ public class Jasper implements Serializable {
         IS_QUERY_STRING = false;
         QUERY_STRING = "";
     }
-    
+
     public static void printReports(String jasperName, String fileName, Collection c) {
         printReports(jasperName, fileName, c, null);
     }
-    
+
+    public static void printReports(String jasperName, String fileName, JRDataSource dataSource) {
+        printReports(jasperName, fileName, new ArrayList(), null, new ArrayList(), dataSource);
+    }
+
     public static void printReports(String jasperName, String fileName, List list, Map parameters) {
         printReports(jasperName, fileName, (Collection) list, parameters);
     }
-    
+
     public static void printReports(String jasperName, String fileName, Collection c, Map parameters) {
         printReports(jasperName, fileName, c, parameters, new ArrayList());
     }
@@ -240,8 +244,12 @@ public class Jasper implements Serializable {
     public static void printReports(String fileName, List<FillObject> jasperListExport) {
         printReports("", fileName, new ArrayList(), null, jasperListExport);
     }
-    
+
     public static void printReports(String jasperName, String fileName, Collection listCollections, Map parameters, List<FillObject> jasperListExport) throws SecurityException, IllegalArgumentException {
+        printReports(jasperName, fileName, listCollections, parameters, jasperListExport, null);
+    }
+
+    public static void printReports(String jasperName, String fileName, Collection listCollections, Map parameters, List<FillObject> jasperListExport, JRDataSource jRDataSource) throws SecurityException, IllegalArgumentException {
         Jasper.LIST_FILE_GENERATED = new ArrayList();
         Dao dao = new Dao();
 
@@ -250,8 +258,10 @@ public class Jasper implements Serializable {
         byte[] b = null;
         if (jasperListExport.isEmpty()) {
             if ((fileName.isEmpty() || jasperName.isEmpty() || listCollections.isEmpty()) && !IS_QUERY_STRING) {
-                GenericaMensagem.info("Sistema", "Erro ao criar relatório!");
-                return;
+                if (listCollections.isEmpty() && jRDataSource == null) {
+                    GenericaMensagem.info("Sistema", "Erro ao criar relatório!");
+                    return;
+                }
             }
             jasperName = jasperName.trim();
         } else if (fileName.isEmpty() && !IS_QUERY_STRING) {
@@ -281,12 +291,12 @@ public class Jasper implements Serializable {
         if (TITLE != null && !TITLE.isEmpty()) {
             parameters.put("relatorio_titulo", TITLE);
         }
-        
+
         subreport = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/CABECALHO_PAISAGEM.jasper");
         if (IS_HEADER || IS_HEADER_PARAMS) {
             ConfiguracaoArrecadacaoBean cab = new ConfiguracaoArrecadacaoBean();
             cab.init();
-            
+
             Juridica juridica;
             String documentox;
             if (FILIAL != null) {
@@ -297,14 +307,14 @@ public class Jasper implements Serializable {
                 juridica = cab.getConfiguracaoArrecadacao().getFilial().getFilial();
                 documentox = juridica.getPessoa().getDocumento();// ? sindicato.getPessoa().getDocumento() : ;
             }
-            
+
             if (juridica.getPessoa().getDocumento().isEmpty() || juridica.getPessoa().getDocumento().equals("0")) {
                 Juridica sindicato = (Juridica) new Dao().find(new Juridica(), 1);
                 documentox = sindicato.getPessoa().getDocumento();
             }
-            
+
             FILIAL = null;
-            
+
             switch (TYPE) {
                 case "retrato":
                     subreport = ((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/CABECALHO_RETRATO.jasper");
@@ -402,7 +412,7 @@ public class Jasper implements Serializable {
         } else {
             parameters.put("is_header", IS_HEADER);
         }
-        
+
         MemoryMXBean memoryBean = ManagementFactory.getMemoryMXBean();
         String downloadName = "";
         String mimeType = "";
@@ -428,7 +438,7 @@ public class Jasper implements Serializable {
         } else {
             realPath = "/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/" + PATH + "/" + fileName + "/";
         }
-        
+
         String dirPath = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath(realPath);
         if (!Jasper.PART_NAME.isEmpty()) {
             Jasper.PART_NAME = Jasper.PART_NAME.trim();
@@ -445,7 +455,7 @@ public class Jasper implements Serializable {
             uuid = "";
         }
         DBExternal con = new DBExternal();
-        
+
         try {
             try {
                 byte[] bytes;
@@ -529,7 +539,7 @@ public class Jasper implements Serializable {
                         COMPRESS_FILE = false;
                     }
                 }
-                
+
                 try {
                     List<JasperPrint> listJasper = new ArrayList();
                     if (jasperListExport.isEmpty()) {
@@ -551,22 +561,27 @@ public class Jasper implements Serializable {
                                 }
                             }
                         } else {
-                            dtSource = new JRBeanCollectionDataSource(listCollections);
-                            print = JasperFillManager.fillReport(jasper, parameters, dtSource);
+                            if (jRDataSource != null) {
+                                print = JasperFillManager.fillReport(jasper, parameters, jRDataSource);
+                                listJasper.add(print);
+                            } else {
+                                dtSource = new JRBeanCollectionDataSource(listCollections);
+                                print = JasperFillManager.fillReport(jasper, parameters, dtSource);
+                            }
                             listJasper.add(print);
                         }
                     } else {
                         for (FillObject fo : jasperListExport) {
-                            if (fo.getParameters() == null) {   
+                            if (fo.getParameters() == null) {
                                 fo.setParameters(parameters);
                             } else {
-                                fo.getParameters().putAll(parameters);                                
+                                fo.getParameters().putAll(parameters);
                             }
                             print = JasperFillManager.fillReport(fo.getJasperReport(), fo.getParameters(), fo.getDataSource());
                             listJasper.add(print);
                         }
                     }
-                    
+
                     if (EXPORT_TO && !EXPORT_TYPE.equals("pdf") && !EXPORT_TYPE.isEmpty()) {
                         downloadName = fileName + PART_NAME + uuid + "." + EXPORT_TYPE;
                         String fileString = dirPath + "/" + downloadName;
@@ -612,7 +627,7 @@ public class Jasper implements Serializable {
                         downloadName = fileName + PART_NAME + uuid + ".pdf";
                         File file = new File(dirPath + "/" + downloadName);
                         mimeType = "application/pdf";
-                        
+
                         JRPdfExporter exporter = new JRPdfExporter();
                         exporter.setExporterInput(SimpleExporterInput.getInstance(listJasper));
                         exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(file.getPath()));
@@ -636,7 +651,7 @@ public class Jasper implements Serializable {
                     System.out.println("Memória > Tamanho do arquivo não suporta o formato PDF, tente novamente baixando o mesmo compactado. Memória usada: " + usedMemory + "M/" + maxMemory + "M");
                     GenericaMensagem.info("Servidor > Memória", "Tamanho do arquivo não suporta o formato PDF, tente novamente baixando o mesmo compactado. Memória usada: " + usedMemory + "M/" + maxMemory + "M");
                 }
-                
+
                 if (COMPRESS_FILE) {
                     if (COMPRESS_EXTENSION.equals("zip")) {
                         mimeType = "application/zip, application/octet-stream";
@@ -653,7 +668,7 @@ public class Jasper implements Serializable {
                         GenericaMensagem.warn("Erro de sistema", e.getMessage());
                     }
                 }
-                
+
             } catch (JRException erro) {
                 GenericaMensagem.info("Sistema", "O arquivo não foi gerado corretamente! Erro: " + erro.getMessage());
                 System.err.println("O arquivo não foi gerado corretamente! Erro: " + erro.getMessage());
@@ -683,10 +698,10 @@ public class Jasper implements Serializable {
             }
         }
         dbe = null;
-        
+
         clear();
     }
-    
+
     public static void clear() {
         PATH = "downloads/relatorios";
         PART_NAME = "relatorio";
@@ -708,10 +723,10 @@ public class Jasper implements Serializable {
         QUERY_STRING = "";
         IS_QUERY_STRING = false;
     }
-    
+
     public String classAnnotationValue(Class classType, Class annotationType, String attributeName) {
         String value = null;
-        
+
         Annotation annotation = classType.getAnnotation(annotationType);
         if (annotation != null) {
             try {
@@ -719,78 +734,78 @@ public class Jasper implements Serializable {
             } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
             }
         }
-        
+
         return value;
     }
-    
+
     public static String getFILE_NAME_GENERATED() {
         return FILE_NAME_GENERATED;
     }
-    
+
     public static void setFILE_NAME_GENERATED(String aFILE_NAME_GENERATED) {
         FILE_NAME_GENERATED = aFILE_NAME_GENERATED;
     }
-    
+
     public Boolean getEXPORT_TO() {
         return EXPORT_TO;
     }
-    
+
     public void setEXPORT_TO(Boolean aEXPORT_TO_EXCEL) {
         EXPORT_TO = aEXPORT_TO_EXCEL;
     }
-    
+
     public String getTYPE() {
         return TYPE;
     }
-    
+
     public void setTYPE(String aTYPE) {
         TYPE = aTYPE;
     }
-    
+
     public Boolean getIS_BY_LEAF() {
         return IS_BY_LEAF;
     }
-    
+
     public void setIS_BY_LEAF(Boolean aIS_BY_LEAF) {
         IS_BY_LEAF = aIS_BY_LEAF;
     }
-    
+
     public Boolean getIS_HEADER() {
         return IS_HEADER;
     }
-    
+
     public void setIS_HEADER(Boolean aIS_HEADER) {
         IS_HEADER = aIS_HEADER;
     }
-    
+
     public String getCOMPRESS_EXTENSION() {
         return COMPRESS_EXTENSION;
     }
-    
+
     public void setCOMPRESS_EXTENSION(String aCOMPRESS_EXTENSION) {
         COMPRESS_EXTENSION = aCOMPRESS_EXTENSION;
     }
-    
+
     public Boolean getCOMPRESS_FILE() {
         return COMPRESS_FILE;
     }
-    
+
     public void setCOMPRESS_FILE(Boolean aCOMPRESS_FILE) {
         COMPRESS_FILE = aCOMPRESS_FILE;
     }
-    
+
     public String getEXCEL_FIELDS() {
         return EXCEL_FIELDS;
     }
-    
+
     public void setEXCEL_FIELDS(String aEXCEL_FIELDS) {
         EXCEL_FIELDS = aEXCEL_FIELDS;
     }
-    
+
     public DBExternal getDbe() {
         return dbe;
     }
-    
+
     public void setDbe(DBExternal dbe) {
         this.dbe = dbe;
     }
@@ -861,47 +876,47 @@ public class Jasper implements Serializable {
         }
         return list;
     }
-    
+
     public static FillObject fillObject(JasperReport jasperReport, Map<String, Object> parameters, JRDataSource dataSource) {
         return new FillObject(jasperReport, parameters, dataSource);
     }
-    
+
     public static class FillObject {
-        
+
         private JasperReport jasperReport;
         private Map<String, Object> parameters;
         private JRDataSource dataSource;
-        
+
         public FillObject(JasperReport jasperReport, Map<String, Object> parameters, JRDataSource dataSource) {
             this.jasperReport = jasperReport;
             this.parameters = parameters;
             this.dataSource = dataSource;
         }
-        
+
         public JasperReport getJasperReport() {
             return jasperReport;
         }
-        
+
         public void setJasperReport(JasperReport jasperReport) {
             this.jasperReport = jasperReport;
         }
-        
+
         public Map<String, Object> getParameters() {
             return parameters;
         }
-        
+
         public void setParameters(Map<String, Object> parameters) {
             this.parameters = parameters;
         }
-        
+
         public JRDataSource getDataSource() {
             return dataSource;
         }
-        
+
         public void setDataSource(JRDataSource dataSource) {
             this.dataSource = dataSource;
         }
-        
+
     }
 
     // USAR - ADICIONAR AO JASPER NO XML
