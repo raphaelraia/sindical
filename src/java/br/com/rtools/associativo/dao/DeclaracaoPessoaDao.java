@@ -37,11 +37,16 @@ public class DeclaracaoPessoaDao extends DB {
         return new ArrayList();
     }
 
-    public List<DeclaracaoPessoa> listaDeclaracaoPessoa() {
+    public List<DeclaracaoPessoa> listaDeclaracaoPessoa(Integer id_pessoa_convenio) {
         try {
-            Query qry = getEntityManager().createNativeQuery(
-                    "SELECT dp.* \n "
-                    + "  FROM soc_declaracao_pessoa AS dp \n", DeclaracaoPessoa.class
+            String query ="SELECT dp.* \n "
+                    + "  FROM soc_declaracao_pessoa AS dp \n";
+            
+            if (id_pessoa_convenio != null){
+                query += " WHERE dp.id_convenio = "+ id_pessoa_convenio;
+            }
+            
+            Query qry = getEntityManager().createNativeQuery(query, DeclaracaoPessoa.class
             );
             return qry.getResultList();
         } catch (Exception e) {
@@ -93,4 +98,31 @@ public class DeclaracaoPessoaDao extends DB {
         return new ArrayList();
     }
 
+    public List<DeclaracaoPessoa> listaDeclaracaoPessoaJuridica(Integer id_pessoa) {
+        try {
+            Query qry = getEntityManager().createNativeQuery(
+                    "SELECT dp.* \n "
+                    + "  FROM soc_declaracao_pessoa AS dp \n"
+                    + " WHERE dp.id_convenio = " + id_pessoa, DeclaracaoPessoa.class
+            );
+            return qry.getResultList();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return new ArrayList();
+    }
+
+    public List<DeclaracaoPessoa> listaDeclaracaoPessoaFisica(Integer id_pessoa) {
+        try {
+            Query qry = getEntityManager().createNativeQuery(
+                    "SELECT dp.* \n "
+                    + "  FROM soc_declaracao_pessoa AS dp \n"
+                    + " WHERE dp.id_pessoa = " + id_pessoa, DeclaracaoPessoa.class
+            );
+            return qry.getResultList();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return new ArrayList();
+    }
 }
