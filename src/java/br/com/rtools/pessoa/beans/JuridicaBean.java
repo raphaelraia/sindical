@@ -29,6 +29,7 @@ import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
+import br.com.rtools.seguranca.WebService;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.ConfiguracaoCnpj;
@@ -258,9 +259,15 @@ public class JuridicaBean implements Serializable {
     }
 
     public void acaoPesquisarCNPJ() {
+        WebService webService = new WebService();
         try {
             pesquisaCNPJ.setCaptcha("");
-            HashMap hash = pesquisaCNPJ.pesquisar();
+            HashMap hash;
+            if (true) {
+                hash = pesquisaCNPJ.pesquisar();
+            } else {
+                hash = pesquisaCNPJ.pesquisar();
+            }
             if ((Boolean) hash.get("status")) {
                 PF.openDialog("dlg_confirma_pesquisa_cpnj");
                 PF.update(":formPessoaJuridica:dlg_confirma_pesquisa_cpnj");
@@ -277,7 +284,11 @@ public class JuridicaBean implements Serializable {
     }
 
     public void pesquisaCnpjXML() {
-        this.pesquisaCnpjXML(false);
+        if (configuracaoCnpj.getId() == 3) {
+            this.pesquisaCnpjXML(false);
+        } else {
+            this.pesquisaCnpjXML(true);
+        }
     }
 
     public void pesquisaCnpjXML(Boolean confirmar) {
@@ -347,8 +358,10 @@ public class JuridicaBean implements Serializable {
                     jro = new JuridicaReceitaJSON(documento, "wooki").pesquisar();
                 } else if (configuracaoCnpj.getTipoPesquisaCnpj().getId() == 2) {
                     jro = new JuridicaReceitaJSON(documento, "gratis").pesquisar();
+                } else if (configuracaoCnpj.getTipoPesquisaCnpj().getId() == 4) {
+                    jro = new JuridicaReceitaJSON(pesquisaCNPJ, "rtools").pesquisar();
                 } else {
-                    jro = new JuridicaReceitaJSON(documento, "rtools").pesquisar();
+                    jro = new JuridicaReceitaJSON(documento, "sindical").pesquisar();
                 }
 
                 // NULL É PORQUE DEU ERRO DESCONHECIDO

@@ -152,6 +152,8 @@
                                 <br /><br />
                                 <p:commandLink value="Histórico de Impressões (Selecionados)" actionListener="#{cartaoSocialBean.historicoCarteirinha()}" oncomplete="PF('i_dlg').show()" update="i_panel_dlgx"
                                                rendered="#{(cartaoSocialBean.por != 'niEmpresa' or cartaoSocialBean.por != 'niCNPJ') and cartaoSocialBean.listaCarteirinha.size() != 0}"/>
+                                <br /><br />    
+                                <p:commandLink ajax="false" value="Imprimir Test" action="#{cartaoSocialBean.printTest()}" rendered="false"/>
                             </p:panel>
                             <h:panelGrid id="i_panel_grid" style="float: left; clear: both; width: 100%">
                                 <p:dataTable id="i_tbl" var="linha" value="#{cartaoSocialBean.listaCarteirinha}" rowKey="#{linha[0]}" paginator="true" rows="10"  selection="#{cartaoSocialBean.listaSelecionado}" emptyMessage="Nenhuma carteirinha foi encontrada!" first="#{cartaoSocialBean.page}" rowStyleClass="cursor-none" rowSelectMode="checkbox" rowIndexVar="index">
@@ -266,7 +268,7 @@
                                             <p:column headerText="Autorizado">  
                                                 <h:outputText value="#{linha.argumento3.usuario.pessoa.nome}" />  
                                             </p:column>  
-                                            
+
                                             <p:column headerText="Usuário">  
                                                 <h:outputText value="#{linha.argumento0.usuario.pessoa.nome}" />  
                                             </p:column>  
