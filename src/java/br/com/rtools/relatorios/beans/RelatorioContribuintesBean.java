@@ -5,6 +5,8 @@ import br.com.rtools.arrecadacao.Convencao;
 import br.com.rtools.arrecadacao.GrupoCidade;
 import br.com.rtools.endereco.Bairro;
 import br.com.rtools.endereco.Cidade;
+import br.com.rtools.financeiro.Servicos;
+import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.impressao.ParametroContribuintes;
 import br.com.rtools.pessoa.CentroComercial;
 import br.com.rtools.pessoa.Juridica;
@@ -16,9 +18,11 @@ import br.com.rtools.relatorios.dao.RelatorioContribuintesDao;
 import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.Dao;
+import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.Jasper;
+import br.com.rtools.utilitarios.Moeda;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -72,6 +76,17 @@ public class RelatorioContribuintesBean implements Serializable {
     List<SelectItem> listaTipoEndereco;
     private String radioEmail;
 
+    private String dataValorInicial;
+    private String dataValorFinal;
+    private String valorInicial;
+    private String valorFinal;
+    private String tipoDataValor;
+
+    private List<SelectItem> listaServicos;
+    private Integer indexServicos;
+    private List<SelectItem> listaTipoServico;
+    private Integer indexTipoServico;
+
     @PostConstruct
     public void init() {
         radioOrdem = "razao";
@@ -110,8 +125,60 @@ public class RelatorioContribuintesBean implements Serializable {
         listaTipoRelatorios = new ArrayList<>();
         listaTipoEndereco = new ArrayList<>();
         radioEmail = "";
+        dataValorInicial = "";
+        dataValorFinal = "";
+        valorInicial = "0";
+        valorFinal = "0";
+        tipoDataValor = "vencimento";
+        listaServicos = new ArrayList();
+        indexServicos = 0;
+        listaTipoServico = new ArrayList();
+        indexTipoServico = 0;
+        loadListaServicos();
+        loadListaTipoServico();
         Jasper jasper = new Jasper();
         jasper.init();
+    }
+
+    public final void loadListaServicos() {
+        listaServicos.clear();
+
+        RelatorioContribuintesDao dao = new RelatorioContribuintesDao();
+
+        List<Servicos> result = dao.listaServicos();
+
+        listaServicos.add(new SelectItem(0, "Selecionar Serviço", "0"));
+
+        for (int i = 0; i < result.size(); i++) {
+            listaServicos.add(new SelectItem(i + 1, result.get(i).getDescricao(), "" + result.get(i).getId()));
+        }
+    }
+
+    public final void loadListaTipoServico() {
+        listaTipoServico.clear();
+
+        RelatorioContribuintesDao dao = new RelatorioContribuintesDao();
+
+        List<TipoServico> result = dao.listaTipoServico();
+
+        listaTipoServico.add(new SelectItem(0, "Selecionar Tipo Serviço", "0"));
+
+        for (int i = 0; i < result.size(); i++) {
+            listaTipoServico.add(new SelectItem(i + 1, result.get(i).getDescricao(), "" + result.get(i).getId()));
+        }
+
+    }
+
+    public void limparDataValor() {
+        dataValorInicial = "";
+        dataValorFinal = "";
+    }
+
+    public void limparValor() {
+        valorInicial = "0";
+        valorFinal = "0";
+        indexServicos = 0;
+        indexTipoServico = 0;
     }
 
     public void visualizar() {
@@ -252,13 +319,49 @@ public class RelatorioContribuintesBean implements Serializable {
                 ic++;
             }
         }
+
+        // VALORES DO RELATÓRIO
+        String valor_inicial = null, valor_final = null, data_valor_inicial = null, data_valor_final = null;
+        Integer id_servicos = null, id_tipo_servico = null;
+        if (!valorInicial.isEmpty() || !valorFinal.isEmpty() || Moeda.converteUS$(valorInicial) > 0 || Moeda.converteUS$(valorFinal) > 0) {
+            if (Moeda.converteUS$(valorInicial) > Moeda.converteUS$(valorFinal)) {
+                GenericaMensagem.warn("Sistema", "Valor Inicial não pode ser maior que Final!");
+                return;
+            }
+
+            valor_inicial = valorInicial;
+            valor_final = valorFinal;
+
+            if (dataValorInicial.isEmpty() || dataValorFinal.isEmpty()) {
+                GenericaMensagem.warn("Sistema", "Preencha todas as Datas!");
+                return;
+            }
+
+            if (DataHoje.maiorData(dataValorInicial, dataValorFinal)) {
+                GenericaMensagem.warn("Sistema", "Data Inicial não pode ser maior que Data Final!");
+                return;
+            }
+
+            data_valor_inicial = dataValorInicial;
+            data_valor_final = dataValorFinal;
+            
+            if (Integer.valueOf(listaServicos.get(indexServicos).getDescription()) != 0){
+                id_servicos = Integer.valueOf(listaServicos.get(indexServicos).getDescription());
+            }
+            
+            if (Integer.valueOf(listaTipoServico.get(indexTipoServico).getDescription()) != 0){
+                id_tipo_servico = Integer.valueOf(listaTipoServico.get(indexTipoServico).getDescription());
+            }
+        }
+        
+
         String inCentroComercial = "";
         Juridica sindicato = (Juridica) new Dao().find(new Juridica(), 1);
         PessoaEndereco endSindicato = dbPesEnd.pesquisaEndPorPessoaTipo(1, 3);
         @SuppressWarnings("UseOfObsoleteCollectionType")
         List<List> result = new ArrayList();
         if (convencaoSelecionada != null) {
-            result = dbContri.listaRelatorioContribuintes(relatorios, idEmails, condicao, escritorio, radioCidades, cidades, radioOrdem, cnaeConvencaoSelecionados, tipoEndereco.getId(), enderecos, radioCentroComercial, inCentroComercial, numeros, gruposCidadesSelecionados, bairros, convencoesSelecionadas, dataCadastroInicial, dataCadastroFinal, radioEmail);
+            result = dbContri.listaRelatorioContribuintes(relatorios, idEmails, condicao, escritorio, radioCidades, cidades, radioOrdem, cnaeConvencaoSelecionados, tipoEndereco.getId(), enderecos, radioCentroComercial, inCentroComercial, numeros, gruposCidadesSelecionados, bairros, convencoesSelecionadas, dataCadastroInicial, dataCadastroFinal, radioEmail, valor_inicial, valor_final, data_valor_inicial, data_valor_final, tipoDataValor, id_servicos, id_tipo_servico);
         }
         if (result.isEmpty()) {
             GenericaMensagem.info("Sistema", "Não existem registros para o relatório selecionado");
@@ -831,5 +934,77 @@ public class RelatorioContribuintesBean implements Serializable {
 
     public void setRadioEmail(String radioEmail) {
         this.radioEmail = radioEmail;
+    }
+
+    public String getDataValorInicial() {
+        return dataValorInicial;
+    }
+
+    public void setDataValorInicial(String dataValorInicial) {
+        this.dataValorInicial = dataValorInicial;
+    }
+
+    public String getDataValorFinal() {
+        return dataValorFinal;
+    }
+
+    public void setDataValorFinal(String dataValorFinal) {
+        this.dataValorFinal = dataValorFinal;
+    }
+
+    public String getValorInicial() {
+        return Moeda.converteR$(valorInicial);
+    }
+
+    public void setValorInicial(String valorInicial) {
+        this.valorInicial = Moeda.converteR$(valorInicial);
+    }
+
+    public String getValorFinal() {
+        return Moeda.converteR$(valorFinal);
+    }
+
+    public void setValorFinal(String valorFinal) {
+        this.valorFinal = Moeda.converteR$(valorFinal);
+    }
+
+    public String getTipoDataValor() {
+        return tipoDataValor;
+    }
+
+    public void setTipoDataValor(String tipoDataValor) {
+        this.tipoDataValor = tipoDataValor;
+    }
+
+    public List<SelectItem> getListaServicos() {
+        return listaServicos;
+    }
+
+    public void setListaServicos(List<SelectItem> listaServicos) {
+        this.listaServicos = listaServicos;
+    }
+
+    public Integer getIndexServicos() {
+        return indexServicos;
+    }
+
+    public void setIndexServicos(Integer indexServicos) {
+        this.indexServicos = indexServicos;
+    }
+
+    public List<SelectItem> getListaTipoServico() {
+        return listaTipoServico;
+    }
+
+    public void setListaTipoServico(List<SelectItem> listaTipoServico) {
+        this.listaTipoServico = listaTipoServico;
+    }
+
+    public Integer getIndexTipoServico() {
+        return indexTipoServico;
+    }
+
+    public void setIndexTipoServico(Integer indexTipoServico) {
+        this.indexTipoServico = indexTipoServico;
     }
 }

@@ -345,11 +345,9 @@ public class RelatorioHomologacaoBean implements Serializable {
                         break;
                     case 81:
                         phs.add(new ParametroHomologacao(o.get(0), o.get(1), o.get(2), o.get(3), o.get(4), o.get(5), o.get(6), o.get(7), o.get(8), o.get(9), o.get(10), o.get(11)));
-                        Jasper.IS_HEADER_PARAMS = true;
                         break;
                     case 89:
                         ph_por_escritorio.add(new ParametroHomologacaoPorEscritorio(o.get(0), o.get(1), o.get(2), o.get(3), o.get(4), o.get(5), o.get(6), o.get(7), o.get(8), o.get(9), o.get(10)));
-                        Jasper.IS_HEADER_PARAMS = true;
                         break;
                     default:
                         if (tipoUsuarioOperacional == null || tipoUsuarioOperacional.equals("id_homologador")) {
@@ -363,6 +361,7 @@ public class RelatorioHomologacaoBean implements Serializable {
                         phs.add(new ParametroHomologacao(o.get(1), o.get(2), o.get(3), o.get(4), o.get(5), o.get(6), o.get(7), o.get(8), operadorString, o.get(10), o.get(11), o.get(12), o.get(13), o.get(14)));
                         break;
                 }
+                Jasper.IS_HEADER_PARAMS = true;
             }
         }
 

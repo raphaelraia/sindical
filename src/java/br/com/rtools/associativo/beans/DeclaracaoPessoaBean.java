@@ -46,6 +46,8 @@ public class DeclaracaoPessoaBean implements Serializable {
     private String descricaoPesquisa = "";
     private List<ObjectPesquisaPessoa> listaPessoa = new ArrayList();
     private ObjectPesquisaPessoa objPesquisaPessoaSelecionada = null;
+    
+    private Boolean chkTodosConvenios = false;
 
     public DeclaracaoPessoaBean() {
         loadListaDeclaracaoTipo();
@@ -108,6 +110,9 @@ public class DeclaracaoPessoaBean implements Serializable {
         dao.commit();
 
         imprimir_jasper(declaracao_pessoa);
+        
+        objPesquisaPessoaSelecionada = null;
+        loadListaDeclaracaoPessoa();
     }
 
     public void imprimir_jasper(DeclaracaoPessoa declaracao_pessoa) {
@@ -123,9 +128,6 @@ public class DeclaracaoPessoaBean implements Serializable {
 
         List list = new ArrayList();
         list.add(map_ob);
-
-        objPesquisaPessoaSelecionada = null;
-        loadListaDeclaracaoPessoa();
 
         Jasper.TYPE = "default";
         Jasper.FILIAL = (Filial) new Dao().find(new Filial(), 1);
@@ -166,7 +168,10 @@ public class DeclaracaoPessoaBean implements Serializable {
 
     public final void loadListaDeclaracaoPessoa() {
         listaDeclaracaoPessoa.clear();
-        listaDeclaracaoPessoa = new DeclaracaoPessoaDao().listaDeclaracaoPessoa();
+        
+        Integer id_pessoa_convenio = Integer.valueOf(listaConvenio.get(indexConvenio).getDescription());
+        listaDeclaracaoPessoa = new DeclaracaoPessoaDao().listaDeclaracaoPessoa(chkTodosConvenios == false ? id_pessoa_convenio : null);
+        
     }
 
     public final void loadListaPessoa(String InicialParcial) {
@@ -260,6 +265,14 @@ public class DeclaracaoPessoaBean implements Serializable {
 
     public void setObjPesquisaPessoaSelecionada(ObjectPesquisaPessoa objPesquisaPessoaSelecionada) {
         this.objPesquisaPessoaSelecionada = objPesquisaPessoaSelecionada;
+    }
+
+    public Boolean getChkTodosConvenios() {
+        return chkTodosConvenios;
+    }
+
+    public void setChkTodosConvenios(Boolean chkTodosConvenios) {
+        this.chkTodosConvenios = chkTodosConvenios;
     }
 
     public class ObjectPesquisaPessoa {

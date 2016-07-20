@@ -207,8 +207,51 @@
                                     </p:panel>
                                 </p:panel>
                             </p:tab>
+                            <p:tab title="Valor de Pagamento">
+                                <p:panel header="Valores">
+                                    <h:panelGrid id="panel_valor" columns="6">
+                                        <p:inputText value="#{relatorioContribuintesBean.valorInicial}" size="8">
+                                            <p:ajax event="blur" update="@this" />
+                                        </p:inputText> à 
+                                        <p:inputText value="#{relatorioContribuintesBean.valorFinal}" size="8">
+                                            <p:ajax event="blur" update="@this" />
+                                        </p:inputText>
+                                        
+                                        <p:selectOneMenu value="#{relatorioContribuintesBean.indexServicos}" style="width: 200px">
+                                            <p:ajax event="change" update="@this"/>
+                                            <f:selectItems value="#{relatorioContribuintesBean.listaServicos}" />
+                                        </p:selectOneMenu>
+                                        
+                                        <p:selectOneMenu value="#{relatorioContribuintesBean.indexTipoServico}" style="width: 150px">
+                                            <p:ajax event="change" update="@this"/>
+                                            <f:selectItems value="#{relatorioContribuintesBean.listaTipoServico}" />
+                                        </p:selectOneMenu>
+
+                                        <p:commandButton value="Limpar Valores" title="Limpar Valores" action="#{relatorioContribuintesBean.limparValor}" update="panel_valor"/>
+                                    </h:panelGrid>
+                                </p:panel>
+                                
+                                <p:panel header="Datas">
+                                    <h:panelGrid id="panel_data" columns="5">
+                                        <p:selectOneMenu value="#{relatorioContribuintesBean.tipoDataValor}" style="width: 80px">
+                                            <p:ajax event="change" update="@this"/>
+                                            <f:selectItem itemValue="vencimento" itemLabel="Vencimento"/>
+                                            <f:selectItem itemValue="quitacao" itemLabel="Quitação"/>
+                                        </p:selectOneMenu>
+
+                                        <p:inputMask value="#{relatorioContribuintesBean.dataValorInicial}" mask="99/99/9999" style="width: 80px; text-align: center">
+                                            <p:ajax event="blur" update="@this" />
+                                        </p:inputMask> à 
+                                        <p:inputMask value="#{relatorioContribuintesBean.dataValorFinal}" mask="99/99/9999" style="width: 80px; text-align: center">
+                                            <p:ajax event="blur" update="@this" />
+                                        </p:inputMask>
+                                        <p:commandButton value="Limpar Datas" title="Limpar Datas" action="#{relatorioContribuintesBean.limparDataValor}" update="panel_data"/>
+                                    </h:panelGrid>
+                                </p:panel>
+                            </p:tab>                            
                         </p:tabView>
                     </h:panelGrid>
+                    <br /><br /><br />
                     <h:panelGrid columns="5" styleClass="margin-top-max" id="igfh">
                         <p:commandButton value="Visualizar" icon="ui-icon-disk" title="Visualizar" action="#{relatorioContribuintesBean.visualizar}" ajax="false" update="id_messages_growl"/>
                         <p:selectBooleanCheckbox value="#{jasperBean.COMPRESS_FILE}" itemLabel="Compactar">

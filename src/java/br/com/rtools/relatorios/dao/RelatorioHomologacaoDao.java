@@ -118,6 +118,9 @@ public class RelatorioHomologacaoDao extends DB {
                             + "            C.dt_data        AS cancelamento_data,           \n" /*  12 - Cancelamento - Data            */
                             + "            CPU.ds_nome      AS cancelamento_usuario_nome,   \n" /*  13 - Cancelamento - Usuário - Nome  */
                             + "            C.ds_motivo      AS cancelamento_motivo          \n" /*  14 - Cancelamento - Motivo          */;
+                    if (relatorios.getId() == 104 || relatorios.getId() == 105) {
+                        order = "empresa";
+                    }
                     break;
             }
         }
@@ -262,7 +265,7 @@ public class RelatorioHomologacaoDao extends DB {
                         queryString += " ORDER BY A.dt_data DESC, H.ds_hora, PPE.ds_nome";
                         break;
                     case "empresa":
-                        queryString += " ORDER BY PPE.ds_nome ";
+                        queryString += " ORDER BY PPE.ds_nome, A.dt_data ";
                         break;
                     case "funcionario":
                         queryString += " ORDER BY FUNC.ds_nome ";

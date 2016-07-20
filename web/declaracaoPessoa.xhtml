@@ -32,6 +32,8 @@
                         <h:outputText value="Emitir Declaração" styleClass="fonteHeader" />
                         <div style="clear: both"></div>
                         <h:form id="formDeclaracaoPessoa">
+                            <p:outputLabel value="Criar Nova Declaração" style="font-size: 11pt!important; font-weight: bold"/>
+                            <p:separator />
                             <p:panel styleClass="fundoCinza">
                                 <h:panelGrid id="panel_declaracao_tipo" columns="4">
                                     <h:column>
@@ -41,10 +43,11 @@
                                             <f:selectItems value="#{declaracaoPessoaBean.listaDeclaracaoTipo}" />
                                         </p:selectOneMenu>
                                     </h:column>
-
+                                    
                                     <h:column>
                                         <p:outputLabel value="Convênio" /><br />
                                         <p:selectOneMenu value="#{declaracaoPessoaBean.indexConvenio}">
+                                            <p:ajax event="change" listener="#{declaracaoPessoaBean.loadListaDeclaracaoPessoa()}" update="@form" />
                                             <f:selectItems value="#{declaracaoPessoaBean.listaConvenio}"/>
                                         </p:selectOneMenu>
                                     </h:column>
@@ -52,6 +55,13 @@
                                     <h:column>
                                         <br />
                                         <p:commandButton value="Pesquisar Pessoa" action="#{declaracaoPessoaBean.limparPesquisa()}" onclick="PF('dlg_pesquisar').show()" icon="ui-icon-search" update="formDeclaracaoPessoa:panel_pesquisar"/>
+                                    </h:column>
+                                    
+                                    <h:column>
+                                        <br />
+                                        <p:selectBooleanCheckbox itemLabel="Mostrar de Todos Convênios" value="#{declaracaoPessoaBean.chkTodosConvenios}">
+                                            <p:ajax event="change" listener="#{declaracaoPessoaBean.loadListaDeclaracaoPessoa()}" update="formDeclaracaoPessoa" />
+                                        </p:selectBooleanCheckbox>
                                     </h:column>
                                 </h:panelGrid>
                             </p:panel>
@@ -92,10 +102,14 @@
                             <p:outputLabel value="Declarações Emitidas" style="font-size: 11pt!important; font-weight: bold"/>
                             <p:separator />
                             <p:dataTable value="#{declaracaoPessoaBean.listaDeclaracaoPessoa}" var="linha_declaracao" emptyMessage="Nenhuma Declaração Impressa">
+                                <p:column style="width:15px">  
+                                    <p:rowToggler />  
+                                </p:column>  
+
                                 <p:column headerText="Titular">
                                     <p:outputLabel value="#{linha_declaracao.pessoa.socios.matriculaSocios.titular.nome}" />
                                 </p:column>
-                                
+
                                 <p:column headerText="Beneficiário">
                                     <p:outputLabel value="#{linha_declaracao.pessoa.nome}" />
                                 </p:column>
@@ -111,6 +125,20 @@
                                 <p:column style="width: 50px; text-align: center">
                                     <p:commandButton icon="ui-icon-print" action="#{declaracaoPessoaBean.imprimir_jasper(linha_declaracao)}" ajax="false"/>
                                 </p:column>
+                                
+                                <p:rowExpansion>
+                                    <h:panelGrid columns="2" style="height: 40px" styleClass="sbb">
+                                        <p:column>
+                                            <p:outputLabel value="TIPO" style="font-weight: bold"/><br />
+                                            <p:outputLabel value="#{linha_declaracao.declaracaoTipo.descricao}"/>
+                                        </p:column>
+                                        
+                                        <p:column>
+                                            <p:outputLabel value="CONVÊNIO" style="font-weight: bold"/><br />
+                                            <p:outputLabel value="#{linha_declaracao.convenio.documento} - #{linha_declaracao.convenio.nome}"/>
+                                        </p:column>
+                                    </h:panelGrid>
+                                </p:rowExpansion>                                
                             </p:dataTable>
 
                             <p:dialog widgetVar="dlg_pesquisar" header="Pesquisar Beneficiário" resizable="false" width="700" modal="true" position="top">

@@ -1,7 +1,10 @@
 package br.com.rtools.relatorios.dao;
 
+import br.com.rtools.financeiro.Servicos;
+import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.principal.DB;
 import br.com.rtools.relatorios.Relatorios;
+import br.com.rtools.utilitarios.Moeda;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -49,7 +52,7 @@ public class RelatorioContribuintesDao extends DB {
 
     public List listaRelatorioContribuintes(Relatorios relatorios, String emails, String condicao, String escritorio, String tipoPCidade, String cidade, String ordem, String cnaes,
             int idTipoEndereco, String idEndereco, String cTipo, String inCentroComercial, String dsNumero, String idGrupos, String bairros, String convencoes,
-            String dataCadastroInicial, String dataCadastroFinal, String email) {
+            String dataCadastroInicial, String dataCadastroFinal, String email, String valor_inicial, String valor_final, String data_valor_inicial, String data_valor_final, String tipo_data_valor, Integer id_servicos, Integer id_tipo_servico) {
         List result = new ArrayList();
         String textQuery = "";
         try {
@@ -236,8 +239,24 @@ public class RelatorioContribuintesDao extends DB {
 
             // DATA
             if (!dataCadastroInicial.isEmpty()) {
-                textQuery += " and p.dt_criacao between '" + dataCadastroInicial + "' and '" + dataCadastroFinal + "' ";
+                textQuery += " AND p.dt_criacao BETWEEN '" + dataCadastroInicial + "' AND '" + dataCadastroFinal + "' ";
             }
+
+            // VALOR
+            if (valor_inicial != null && valor_final != null && data_valor_inicial != null && data_valor_final != null) {
+                textQuery += " AND p.id IN ( \n "
+                        + "SELECT m.id_pessoa \n"
+                        + "  FROM fin_movimento AS m \n"
+                        + " INNER JOIN fin_baixa AS b ON b.id = m.id_baixa \n"
+                        + " INNER JOIN fin_servico_rotina AS sr ON sr.id_rotina = 4 AND sr.id_servicos = m.id_servicos \n"
+                        + " WHERE m.is_ativo = TRUE\n"
+                        + (tipo_data_valor.equals("vencimento") ? " AND m.dt_vencimento >= '" + data_valor_inicial + "' AND m.dt_vencimento <= '" + data_valor_final + "' \n" : " AND b.dt_baixa >= '" + data_valor_inicial + "' AND b.dt_baixa <= '" + data_valor_final + "' \n")
+                        + "   AND m.nr_valor_baixa > (" + Moeda.converteUS$(valor_inicial) + " - 1) AND m.nr_valor_baixa < (" + Moeda.converteUS$(valor_final) + " + 1) \n"
+                        + (id_servicos != null ? " AND m.id_servicos = " + id_servicos + " \n " : "")
+                        + (id_tipo_servico != null ? " AND m.id_tipo_servico = " + id_tipo_servico + " \n ": "")
+                        + " GROUP BY id_pessoa )";
+            }
+            
             // ORDEM ------------------------------------------------------------------------
             if (relatorios.getQryOrdem() == null || relatorios.getQryOrdem().isEmpty()) {
                 switch (ordem) {
@@ -382,7 +401,31 @@ public class RelatorioContribuintesDao extends DB {
             qry = getEntityManager().createQuery(textQuery);
             result = qry.getResultList();
         } catch (EJBQLException e) {
-            e.printStackTrace();
+            e.getMessage();
+        }
+        return result;
+    }
+
+    public List<Servicos> listaServicos() {
+        List result = new ArrayList();
+        try {
+            Query qry = getEntityManager().createNativeQuery(
+                    "SELECT s.* FROM fin_servicos s WHERE s.id IN (SELECT id_servicos FROM fin_servico_rotina WHERE id_rotina = 4)", Servicos.class);
+            result = qry.getResultList();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return result;
+    }
+
+    public List<TipoServico> listaTipoServico() {
+        List result = new ArrayList();
+        try {
+            Query qry = getEntityManager().createNativeQuery(
+                    "SELECT ts.* FROM fin_tipo_servico ts ORDER BY ts.ds_descricao", TipoServico.class);
+            result = qry.getResultList();
+        } catch (Exception e) {
+            e.getMessage();
         }
         return result;
     }
