@@ -46,6 +46,7 @@ public class CartaoSocial {
     private String dataAposentadoria;
     private String via;
     private Collection<CartaoSocial> listDependentes;
+    private String assinatura;
 
     public CartaoSocial() {
         this.matricula = "";
@@ -88,52 +89,10 @@ public class CartaoSocial {
         this.dataAposentadoria = "";
         this.via = "";
         this.listDependentes = new ArrayList();
+        this.assinatura = "";
     }
 
-    public CartaoSocial(String dependente, String parentesco) {
-        this.matricula = "";
-        this.barras = "";
-        this.nome = "";
-        this.empresa = "";
-        this.cnpj = "";
-        this.admissao = "";
-        this.validade = "";
-        this.empresa_cidade = "";
-        this.empresa_uf = "";
-        this.logo = "";
-        this.imagem = "";
-        this.filiacao = "";
-        this.profissao = "";
-        this.cpf = "";
-        this.rg = "";
-        this.id_pessoa = 0;
-        this.endereco = "";
-        this.cidade = "";
-        this.nacionalidade = "";
-        this.nascimento = "";
-        this.estado_civil = "";
-        this.carteira = "";
-        this.serie = "";
-        this.imagem_fundo = "";
-        this.codigo_funcional = "";
-        this.orgao_expeditor = "";
-        this.parentesco = parentesco;
-        this.categoria = "";
-        this.fantasia = "";
-        this.titular = "";
-        this.dependente = "";
-        this.fantasia_titular = "";
-        this.codigo_funcional_titular = "";
-        this.titular_id = null;
-        this.grupo_categoria = "";
-        this.imagemExtra = "";
-        this.imagemExtra2 = "";
-        this.dataAposentadoria = "";
-        this.via = "";
-        this.listDependentes = null;
-    }
-
-    public CartaoSocial(String matricula, String barras, String nome, String empresa, String cnpj, String admissao, String validade, String empresa_cidade, String empresa_uf, String logo, String imagem, String filiacao, String profissao, String cpf, String rg, int id_pessoa, String endereco, String cidade, String nacionalidade, String nascimento, String estado_civil, String carteira, String serie, String imagem_fundo, String codigo_funcional, String orgao_expeditor, String parentesco, String categoria, String fantasia, String titular, String dependente, String fantasia_titular, String codigo_funcional_titular, Integer titular_id, String grupo_categoria, String imagemExtra, String imagemExtra2, String dataAposentadoria, String via, Collection<CartaoSocial> listDependentes) {
+    public CartaoSocial(String matricula, String barras, String nome, String empresa, String cnpj, String admissao, String validade, String empresa_cidade, String empresa_uf, String logo, String imagem, String filiacao, String profissao, String cpf, String rg, int id_pessoa, String endereco, String cidade, String nacionalidade, String nascimento, String estado_civil, String carteira, String serie, String imagem_fundo, String codigo_funcional, String orgao_expeditor, String parentesco, String categoria, String fantasia, String titular, String dependente, String fantasia_titular, String codigo_funcional_titular, Integer titular_id, String grupo_categoria, String imagemExtra, String imagemExtra2, String dataAposentadoria, String via, Collection<CartaoSocial> listDependentes, String assinatura) {
         this.matricula = matricula;
         this.barras = barras;
         this.nome = nome;
@@ -174,6 +133,7 @@ public class CartaoSocial {
         this.dataAposentadoria = dataAposentadoria;
         this.via = via;
         this.listDependentes = listDependentes;
+        this.assinatura = assinatura;
     }
 
     public String getMatricula() {
@@ -494,5 +454,13 @@ public class CartaoSocial {
 
     public void setListDependentes(Collection<CartaoSocial> listDependentes) {
         this.listDependentes = listDependentes;
+    }
+
+    public String getAssinatura() {
+        return assinatura;
+    }
+
+    public void setAssinatura(String assinatura) {
+        this.assinatura = assinatura;
     }
 }

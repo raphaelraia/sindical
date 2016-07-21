@@ -166,8 +166,11 @@
                                         </p:rowExpansion>
                                     </p:dataTable>
                                 </h:panelGroup>
-                                <f:facet name="footer">                                    
-                                    <p:commandButton value="Mesclar" disabled="#{controleAcessoBean.botaoSalvar or 2 > pessoaFisicaMesclarBean.listPessoaFisica.size()}" onclick="PF('dlg_save').show()" type="button"  />
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Mesclar" disabled="#{controleAcessoBean.botaoSalvar or 2 > pessoaFisicaMesclarBean.listPessoaFisica.size()}" onclick="PF('dlg_save').show()" type="button"  />                                        
+                                        <p:commandButton value="Forçar Exclusão" disabled="#{controleAcessoBean.botaoSalvar or pessoaFisicaMesclarBean.listPessoaFisica.size() > 1}" onclick="PF('dlg_force_remove').show()" type="button"  />
+                                    </h:panelGrid>
                                 </f:facet>
                             </p:panel>
                             <p:dialog widgetVar="dlg_save" modal="true" closable="true" width="300" header="Deseja mesclar este registro?">
@@ -175,6 +178,14 @@
                                     <p:panelGrid columns="2" styleClass="sbb">
                                         <p:commandButton action="#{pessoaFisicaMesclarBean.update}" value="Confirmar"  update=":form_pessoa_fisica_mesclar:" />
                                         <p:commandButton value="Cancelar" title="Cancelar" onclick="PF('dlg_save').hide()"/>
+                                    </p:panelGrid>
+                                </f:facet>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_force_remove" modal="true" closable="true" width="300" header="Deseja mesclar este registro?">
+                                <f:facet name="footer">
+                                    <p:panelGrid columns="2" styleClass="sbb">
+                                        <p:commandButton action="#{pessoaFisicaMesclarBean.forceDelete()}" value="Confirmar"  update=":form_pessoa_fisica_mesclar:" />
+                                        <p:commandButton value="Cancelar" title="Cancelar" onclick="PF('dlg_force_remove').hide()"/>
                                     </p:panelGrid>
                                 </f:facet>
                             </p:dialog>

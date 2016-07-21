@@ -15,7 +15,6 @@ import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.pessoa.PessoaEndereco;
 import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
-import br.com.rtools.principal.DBExternal;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import java.io.File;
@@ -142,6 +141,11 @@ public class ImpressaoParaSocios {
                     break;
                 }
             }
+            String assinatura = "";
+            File f = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/assinatura.jpg"));
+            if (f.exists()) {
+                assinatura = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/assinatura.jpg");
+            }
 
             listax.add(
                     new CartaoSocial(
@@ -184,23 +188,26 @@ public class ImpressaoParaSocios {
                             ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Imagens/imagemExtra2.png"), // IMAGEM EXTRA 2
                             (!getConverteNullString(((List) (listaCartao.get(i))).get(42)).isEmpty()) ? "( APOSENTADO )" : "", // DATA APOSENTADORIA
                             via,
-                            new ArrayList()
+                            new ArrayList(),
+                            assinatura
                     )
             );
-
-            if (ControleUsuarioBean.getCliente().equals("ExtrativaRP")) {
-                for (int x = 0; x < listax.size(); x++) {
-                    MatriculaSocios ms = new MatriculaSociosDao().findByMatricula(Integer.parseInt(listax.get(x).getMatricula()));
-                    List<CartaoSocial> listCartaoSocialDependente = new ArrayList();
-                    if (ms != null) {
-                        List<Socios> listSocios = new SociosDao().pesquisaDependentesOrdenado(ms.getId());
-                        for (int z = 0; z < listSocios.size(); z++) {
-                            CartaoSocial cartaoSocial = new CartaoSocial();
-                            cartaoSocial.setDependente(listSocios.get(z).getServicoPessoa().getPessoa().getNome());
-                            cartaoSocial.setParentesco(listSocios.get(z).getParentesco().getParentesco());
-                            listCartaoSocialDependente.add(cartaoSocial);
+            if (ControleUsuarioBean.getCliente().equals("ExtrativaRP") || ControleUsuarioBean.getCliente().equals("CondominiosRP")) {
+                if (getConverteNullString(((List) (listaCartao.get(i))).get(36)).equals("TITULAR")) {
+                    for (int x = 0; x < listax.size(); x++) {
+                        MatriculaSocios ms = new MatriculaSociosDao().findByMatricula(Integer.parseInt(listax.get(x).getMatricula()));
+                        List<CartaoSocial> listCartaoSocialDependente = new ArrayList();
+                        if (ms != null) {
+                            List<Socios> listSocios = new SociosDao().pesquisaDependentesOrdenado(ms.getId());
+                            for (int z = 0; z < listSocios.size(); z++) {
+                                CartaoSocial cartaoSocial = new CartaoSocial();
+                                cartaoSocial.setDependente(listSocios.get(z).getServicoPessoa().getPessoa().getNome());
+                                cartaoSocial.setParentesco(listSocios.get(z).getParentesco().getParentesco());
+                                cartaoSocial.setNascimento(listSocios.get(z).getServicoPessoa().getPessoa().getFisica().getNascimento());
+                                listCartaoSocialDependente.add(cartaoSocial);
+                            }
+                            listax.get(x).setListDependentes(listCartaoSocialDependente);
                         }
-                        listax.get(x).setListDependentes(listCartaoSocialDependente);
                     }
                 }
             }

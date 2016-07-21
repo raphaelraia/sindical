@@ -340,6 +340,15 @@ public class SocioCarteirinhaDao extends DB {
             if (id_filial != null) {
                 textqry += " AND s.id_filial = " + id_filial + " \n";
             }
+            
+            // QUE POSSUEM FOTOS
+            if (!registro.isCarteirinhaDependente()) {
+                textqry += " AND s.id_parentesco = 1 \n";
+            }
+
+            if (id_filial != null) {
+                textqry += " AND s.id_filial = " + id_filial + " \n";
+            }
 
             // GROUP DA QUERY
             textqry += " "
