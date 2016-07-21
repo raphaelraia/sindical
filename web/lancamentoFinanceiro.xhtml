@@ -361,8 +361,8 @@
                                                     <p:commandLink ajax="true" value="Quero cadastrar uma PESSOA JURÍDICA" action="#{lancamentoFinanceiroBean.cadastrarPessoa('juridica')}" update="i_panel_pessoa" rendered="#{lancamentoFinanceiroBean.idTipoDocumento == 2}" style="margin-left: 50px"/>
                                                 </h:panelGrid><br />
                                                 <h:panelGrid columns="4">
-                                                    <p:inputText id="i_nome_fisica" value="#{lancamentoFinanceiroBean.pessoa.nome}" style="margin-right: 15px;" size="50">
-                                                        <p:ajax event="change" update="@this" />
+                                                    <p:inputText id="i_nome_fisica" value="#{lancamentoFinanceiroBean.pessoa.nome}" style="margin-right: 15px;" size="50" converter="#{toUpperCase}">
+                                                        <p:ajax event="change" update="@this" listener="#{lancamentoFinanceiroBean.sugerirPessoa}"/>
                                                     </p:inputText>
                                                     <p:watermark value="Nome da Pessoa" for="i_nome_fisica"/>
                                                     <p:commandButton value="Salvar" action="#{lancamentoFinanceiroBean.salvarPessoa}" update="i_panel_pessoa i_panel_cadastro i_msg" />
@@ -770,6 +770,91 @@
                                     </h:panelGrid>                                    
                                 </f:facet>
                             </p:dialog>
+
+                            <p:dialog widgetVar="dlg_sugestoes" modal="true" resizable="false" height="250" width="1024" header="Existem cadastros com mesmo nome">
+                                <h:panelGroup id="i_sugestoes" layout="block">
+                                    <p:dataTable value="#{lancamentoFinanceiroBean.listFisicaSugestao}" var="fisicaSugestao" emptyMessage="Nenhum registro encontrado" scrollHeight="200" scrollable="true" paginator="true" rows="100">
+                                        <p:ajax event="rowToggle" listener="#{lancamentoFinanceiroBean.listenerSocios(fisicaSugestao.pessoa.id)}" />
+                                        <p:column style="width:5%">  
+                                            <p:rowToggler />  
+                                        </p:column>
+                                        <p:column headerText="Nome">
+                                            <p:commandLink action="#{lancamentoFinanceiroBean.useFisicaSugestao(fisicaSugestao)}" update=":form_lf:" value="#{fisicaSugestao.pessoa.nome}" title="#{fisicaSugestao.pessoa.id}"/>
+                                        </p:column>
+                                        <p:column headerText="RG" width="80"  styleClass="text-center">
+                                            <p:commandLink action="#{lancamentoFinanceiroBean.useFisicaSugestao(fisicaSugestao)}" update=":form_lf:" value="#{fisicaSugestao.rg}"/>
+                                        </p:column>
+
+                                        <p:column headerText="CPF" width="100"  styleClass="text-center">
+                                            <p:commandLink action="#{lancamentoFinanceiroBean.useFisicaSugestao(fisicaSugestao)}" update=":form_lf:" value="#{fisicaSugestao.pessoa.documento}"/>
+                                        </p:column>                            
+
+                                        <p:column headerText="E-mail">
+                                            <h:outputText value="#{fisicaSugestao.pessoa.email1}"/>
+                                        </p:column>
+
+                                        <p:column headerText="Telefone" width="100" styleClass="text-center">
+                                            <h:outputText value="#{fisicaSugestao.pessoa.telefone1}"/>
+                                        </p:column>
+
+                                        <p:rowExpansion>
+                                            <h:panelGrid columns="5" style="height: 40px" styleClass="sbb">
+                                                <p:column>
+                                                    <h:outputText value="CÓDIGO" style="font-weight: bold"/><br />
+                                                    <h:outputText value="#{fisicaSugestao.pessoa.id}"/>
+                                                </p:column>
+                                                <p:column>
+                                                    <h:outputText value="Dt Nascimento" style="font-weight: bold"/><br />
+                                                    <h:outputText value="#{fisicaSugestao.nascimento}"/>
+                                                </p:column>
+                                                <p:column>
+                                                    <h:outputText value="Local de trabalho" style="font-weight: bold"/><br />
+                                                    <h:outputText value="#{lancamentoFinanceiroBean.pessoaEmpresaString(fisicaSugestao)}"/>
+                                                </p:column>
+                                                <p:column>
+                                                    <h:outputText value="Pessoa cadastrada em oposição!" style="font-weight: bold; color: red;" rendered="#{lancamentoFinanceiroBean.existePessoaOposicaoPorDocumento(fisicaSugestao.pessoa.documento)}"/>
+                                                </p:column>
+                                                <p:column>
+                                                    <p:commandButton icon="ui-icon-contact" update=":form_lf:i_pessoa_fisica_card" onclick="PF('dlg_pessoa_fisica_card').show()" action="#{pessoaCardBean.cardFisica(fisicaSugestao.pessoa.id)}" title="Ver detalhes" />
+                                                </p:column>
+                                            </h:panelGrid>
+                                            <h:panelGrid style="height: 40px" styleClass="sbb">
+                                                <h:outputLabel value="Endereço: #{fisicaSugestao.pessoa.pessoaEndereco.enderecoCompletoString} " styleClass="bold font-color-red"/>
+                                            </h:panelGrid>
+                                            <p:panel header="Titular / Dependente(s) - Matrícula: #{fisicaSugestao.pessoa.socios.matriculaSocios.nrMatricula} - Categoria: #{fisicaSugestao.pessoa.socios.matriculaSocios.categoria.categoria}" rendered="#{not empty lancamentoFinanceiroBean.listaSocios}">
+                                                <p:dataTable value="#{lancamentoFinanceiroBean.listaSocios}" var="dependentes">
+                                                    <p:column headerText="Nome">                                                
+                                                        <p:commandLink action="#{lancamentoFinanceiroBean.useFisicaSugestao(dependentes.servicoPessoa.pessoa.fisica)}" value="#{dependentes.servicoPessoa.pessoa.nome}" title="Editar pessoa" styleClass="#{dependentes.parentesco.parentesco eq 'TITULAR' ? 'font-color-red bold' : ''}"/>
+                                                    </p:column>
+                                                    <p:column headerText="Parentesco" styleClass="#{dependentes.parentesco.parentesco eq 'TITULAR' ? 'font-color-red bold' : ''}">
+                                                        #{dependentes.parentesco.parentesco}
+                                                    </p:column>
+                                                    <p:column width="30">
+                                                        <p:commandButton icon="ui-icon-contact" update=":form_lf:i_pessoa_fisica_card" onclick="PF('dlg_pessoa_fisica_card').show()" action="#{pessoaCardBean.cardFisica(dependentes.servicoPessoa.pessoa.id)}" title="Ver detalhes" />
+                                                    </p:column>
+                                                </p:dataTable>                                            
+                                            </p:panel>
+                                            <h:column>
+                                                <p:panel rendered="#{empty lancamentoFinanceiroBean.listaSocios}">
+                                                    <p:outputLabel value="NÃO SÓCIO" styleClass="bold font-color-red" style="font-size: 16pt!important"/>
+                                                </p:panel>
+                                            </h:column>                                            
+                                        </p:rowExpansion>
+                                    </p:dataTable>                                    
+                                </h:panelGroup>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Fechar" title="Fechar" onclick="PF('dlg_sugestoes').hide();"  />                                        
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>  
+                            <p:dialog widgetVar="dlg_pessoa_fisica_card" modal="true" resizable="false" height="400" width="400" header="Detalhes">
+                                <p:ajax event="close" listener="#{pessoaCardBean.close}"/>  
+                                <p:panel id="i_pessoa_fisica_card">
+                                    <ui:include src="templates/templatePessoaFisicaCard.xhtml" />
+                                </p:panel>
+                            </p:dialog>
+
                         </h:form>
                     </p:panel>
                 </f:view>

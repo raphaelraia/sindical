@@ -1,5 +1,8 @@
 package br.com.rtools.financeiro.beans;
 
+import br.com.rtools.arrecadacao.dao.OposicaoDao;
+import br.com.rtools.associativo.Socios;
+import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.estoque.EstoqueTipo;
 import br.com.rtools.estoque.Pedido;
 import br.com.rtools.estoque.Produto;
@@ -19,10 +22,12 @@ import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
+import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.pessoa.Porte;
 import br.com.rtools.pessoa.TipoDocumento;
 import br.com.rtools.pessoa.dao.FisicaDao;
 import br.com.rtools.pessoa.dao.JuridicaDao;
+import br.com.rtools.pessoa.dao.PessoaEmpresaDao;
 import br.com.rtools.seguranca.FilialRotina;
 import br.com.rtools.seguranca.MacFilial;
 import br.com.rtools.seguranca.Rotina;
@@ -32,11 +37,11 @@ import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
 import br.com.rtools.seguranca.dao.FilialRotinaDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
-import br.com.rtools.utilitarios.DataObject;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Mask;
 import br.com.rtools.utilitarios.Moeda;
+import br.com.rtools.utilitarios.PF;
 import br.com.rtools.utilitarios.ValidaDocumentos;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -120,6 +125,8 @@ public class LancamentoFinanceiroBean implements Serializable {
     private String valorTotal;
     private Boolean produtos;
     private Boolean liberaAcessaFilial;
+    private List<Fisica> listFisicaSugestao;
+    private List<Socios> listaSocios;
 
     @PostConstruct
     public void init() {
@@ -201,6 +208,8 @@ public class LancamentoFinanceiroBean implements Serializable {
         loadListaCentroCusto();
         loadListaContaOperacao();
         loadListaLancamento();
+        listFisicaSugestao = new ArrayList();
+        listaSocios = new ArrayList();
     }
 
     @PreDestroy
@@ -2163,6 +2172,14 @@ public class LancamentoFinanceiroBean implements Serializable {
         }
     }
 
+    public List<Fisica> getListFisicaSugestao() {
+        return listFisicaSugestao;
+    }
+
+    public void setListFisicaSugestao(List<Fisica> listFisicaSugestao) {
+        this.listFisicaSugestao = listFisicaSugestao;
+    }
+
     public class Parcela {
 
         private Integer parcela;
@@ -2359,6 +2376,63 @@ public class LancamentoFinanceiroBean implements Serializable {
         public void setReferencia(String referencia) {
             this.referencia = referencia;
         }
+    }
+
+    public void sugerirPessoa() {
+        if (pessoa.getId() == -1) {
+            if (!pessoa.getNome().isEmpty()) {
+                listFisicaSugestao = new ArrayList();
+                listFisicaSugestao = new FisicaDao().findByNome(pessoa.getNome());
+                if (!listFisicaSugestao.isEmpty()) {
+                    PF.openDialog("dlg_sugestoes");
+                    PF.update("form_lf:i_sugestoes");
+                }
+            }
+        }
+    }
+
+    public void useFisicaSugestao(Fisica f) {
+        pessoa = (Pessoa) new Dao().rebind(f.getPessoa());
+        descricao = pessoa.getDocumento();
+        opcaoCadastro = "";
+        PF.update("form_lf");
+    }
+
+    public List<Socios> getListaSocios() {
+        return listaSocios;
+    }
+
+    public void setListaSocios(List<Socios> listaSocios) {
+        this.listaSocios = listaSocios;
+    }
+
+    public void listenerSocios(Integer idPessoa) {
+        listaSocios.clear();
+        SociosDao sociosDao = new SociosDao();
+        Socios s = sociosDao.pesquisaSocioPorPessoaAtivo(idPessoa);
+        if (s != null && s.getId() != -1) {
+            listaSocios = sociosDao.pesquisaDependentePorMatricula(s.getMatriculaSocios().getId(), false);
+        }
+    }
+
+    public String pessoaEmpresaString(Fisica f) {
+        String pessoaEmpresaString = "";
+        PessoaEmpresaDao pessoaEmpresaDB = new PessoaEmpresaDao();
+        PessoaEmpresa pe = (PessoaEmpresa) pessoaEmpresaDB.pesquisaPessoaEmpresaPorFisica(f.getId());
+        if (pe != null) {
+            if (pe.getId() != -1) {
+                pessoaEmpresaString = pe.getJuridica().getPessoa().getNome();
+            }
+        }
+        return (pessoaEmpresaString.isEmpty()) ? "SEM EMPRESA" : pessoaEmpresaString;
+    }
+
+    public boolean existePessoaOposicaoPorDocumento(String documento) {
+        if (!documento.isEmpty()) {
+            OposicaoDao odbt = new OposicaoDao();
+            return odbt.existPessoaDocumentoPeriodo(documento);
+        }
+        return false;
     }
 
 //                0 - listaParcela.size(),
