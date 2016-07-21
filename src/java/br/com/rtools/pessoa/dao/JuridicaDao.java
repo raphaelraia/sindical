@@ -3,6 +3,7 @@ package br.com.rtools.pessoa.dao;
 import br.com.rtools.arrecadacao.CnaeConvencao;
 import br.com.rtools.arrecadacao.Empregados;
 import br.com.rtools.arrecadacao.MotivoInativacao;
+import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.pessoa.PessoaEndereco;
@@ -455,6 +456,18 @@ public class JuridicaDao extends DB {
             e.getMessage();
         }
         return null;
+    }
+
+    public List findByNome(String nome) {
+        try {
+            String queryString = "SELECT J.* FROM pes_juridica AS J \n"
+                    + "INNER JOIN pes_pessoa AS P ON P.id = J.id_pessoa\n"
+                    + "WHERE ( TRIM(UPPER(func_translate(ds_nome))) LIKE TRIM(UPPER(('" + nome + "'))) OR TRIM(UPPER(func_translate(ds_fantasia))) LIKE TRIM(UPPER(('" + nome + "'))) )";
+            Query query = getEntityManager().createNativeQuery(queryString, Juridica.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
     }
 
     public Boolean getContabilidade() {

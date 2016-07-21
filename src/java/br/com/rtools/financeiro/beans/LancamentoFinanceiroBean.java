@@ -127,6 +127,7 @@ public class LancamentoFinanceiroBean implements Serializable {
     private Boolean liberaAcessaFilial;
     private List<Fisica> listFisicaSugestao;
     private List<Socios> listaSocios;
+    private List<Juridica> listJuridicaSugestao;
 
     @PostConstruct
     public void init() {
@@ -209,6 +210,7 @@ public class LancamentoFinanceiroBean implements Serializable {
         loadListaContaOperacao();
         loadListaLancamento();
         listFisicaSugestao = new ArrayList();
+        listJuridicaSugestao = new ArrayList();
         listaSocios = new ArrayList();
     }
 
@@ -2180,6 +2182,14 @@ public class LancamentoFinanceiroBean implements Serializable {
         this.listFisicaSugestao = listFisicaSugestao;
     }
 
+    public List<Juridica> getListJuridicaSugestao() {
+        return listJuridicaSugestao;
+    }
+
+    public void setListJuridicaSugestao(List<Juridica> listJuridicaSugestao) {
+        this.listJuridicaSugestao = listJuridicaSugestao;
+    }
+
     public class Parcela {
 
         private Integer parcela;
@@ -2378,14 +2388,27 @@ public class LancamentoFinanceiroBean implements Serializable {
         }
     }
 
-    public void sugerirPessoa() {
+    public void sugerirPessoaFisica() {
         if (pessoa.getId() == -1) {
             if (!pessoa.getNome().isEmpty()) {
                 listFisicaSugestao = new ArrayList();
                 listFisicaSugestao = new FisicaDao().findByNome(pessoa.getNome());
                 if (!listFisicaSugestao.isEmpty()) {
-                    PF.openDialog("dlg_sugestoes");
-                    PF.update("form_lf:i_sugestoes");
+                    PF.openDialog("dlg_sugestoes_fisica");
+                    PF.update("form_lf:i_sugestoes_fisica");
+                }
+            }
+        }
+    }
+
+    public void sugerirPessoaJuridica() {
+        if (pessoa.getId() == -1) {
+            if (!pessoa.getNome().isEmpty()) {
+                listJuridicaSugestao = new ArrayList();
+                listJuridicaSugestao = new JuridicaDao().findByNome(pessoa.getNome());
+                if (!listJuridicaSugestao.isEmpty()) {
+                    PF.openDialog("dlg_sugestoes_juridica");
+                    PF.update("form_lf:i_sugestoes_juridica");
                 }
             }
         }
@@ -2393,6 +2416,13 @@ public class LancamentoFinanceiroBean implements Serializable {
 
     public void useFisicaSugestao(Fisica f) {
         pessoa = (Pessoa) new Dao().rebind(f.getPessoa());
+        descricao = pessoa.getDocumento();
+        opcaoCadastro = "";
+        PF.update("form_lf");
+    }
+
+    public void useJuridicaSugestao(Juridica j) {
+        pessoa = (Pessoa) new Dao().rebind(j.getPessoa());
         descricao = pessoa.getDocumento();
         opcaoCadastro = "";
         PF.update("form_lf");

@@ -345,8 +345,8 @@
                                                     <p:commandLink ajax="true" value="Quero cadastrar uma PESSOA FÍSICA" action="#{lancamentoFinanceiroBean.cadastrarPessoa('fisica')}" update="i_panel_pessoa" rendered="#{lancamentoFinanceiroBean.idTipoDocumento == 2}" style="margin-left: 50px"/>
                                                 </h:panelGrid><br />
                                                 <h:panelGrid columns="4">
-                                                    <p:inputText id="i_nome_empresa" value="#{lancamentoFinanceiroBean.pessoa.nome}" style="margin-right: 15px;" size="50">
-                                                        <p:ajax event="change" update="@this" />
+                                                    <p:inputText id="i_nome_empresa" value="#{lancamentoFinanceiroBean.pessoa.nome}" style="margin-right: 15px;" size="50" converter="#{toUpperCase}">
+                                                        <p:ajax event="change" update="@this" listener="#{lancamentoFinanceiroBean.sugerirPessoaJuridica}"/>
                                                     </p:inputText>
                                                     <p:watermark value="Nome da Empresa" for="i_nome_empresa"/>
                                                     <p:commandButton value="Salvar" action="#{lancamentoFinanceiroBean.salvarPessoa}" update="i_panel_pessoa i_panel_cadastro i_msg" />
@@ -362,7 +362,7 @@
                                                 </h:panelGrid><br />
                                                 <h:panelGrid columns="4">
                                                     <p:inputText id="i_nome_fisica" value="#{lancamentoFinanceiroBean.pessoa.nome}" style="margin-right: 15px;" size="50" converter="#{toUpperCase}">
-                                                        <p:ajax event="change" update="@this" listener="#{lancamentoFinanceiroBean.sugerirPessoa}"/>
+                                                        <p:ajax event="change" update="@this" listener="#{lancamentoFinanceiroBean.sugerirPessoaFisica}"/>
                                                     </p:inputText>
                                                     <p:watermark value="Nome da Pessoa" for="i_nome_fisica"/>
                                                     <p:commandButton value="Salvar" action="#{lancamentoFinanceiroBean.salvarPessoa}" update="i_panel_pessoa i_panel_cadastro i_msg" />
@@ -771,8 +771,8 @@
                                 </f:facet>
                             </p:dialog>
 
-                            <p:dialog widgetVar="dlg_sugestoes" modal="true" resizable="false" height="250" width="1024" header="Existem cadastros com mesmo nome">
-                                <h:panelGroup id="i_sugestoes" layout="block">
+                            <p:dialog widgetVar="dlg_sugestoes_fisica" modal="true" resizable="false" height="250" width="1024" header="Existem cadastros com mesmo nome">
+                                <h:panelGroup id="i_sugestoes_fisica" layout="block">
                                     <p:dataTable value="#{lancamentoFinanceiroBean.listFisicaSugestao}" var="fisicaSugestao" emptyMessage="Nenhum registro encontrado" scrollHeight="200" scrollable="true" paginator="true" rows="100">
                                         <p:ajax event="rowToggle" listener="#{lancamentoFinanceiroBean.listenerSocios(fisicaSugestao.pessoa.id)}" />
                                         <p:column style="width:5%">  
@@ -848,10 +848,45 @@
                                     </h:panelGrid>
                                 </f:facet>
                             </p:dialog>  
+                            <p:dialog widgetVar="dlg_sugestoes_juridica" modal="true" resizable="false" height="250" width="1024" header="Existem cadastros com mesmo nome">
+                                <h:panelGroup id="i_sugestoes_juridica" layout="block">
+                                    <p:dataTable value="#{lancamentoFinanceiroBean.listJuridicaSugestao}" var="juridicaSugestao" emptyMessage="Nenhum registro encontrado" scrollHeight="200" scrollable="true" paginator="true" rows="100">
+                                        <p:column headerText="Razão Social">
+                                            <p:commandLink action="#{lancamentoFinanceiroBean.useJuridicaSugestao(juridicaSugestao)}" update=":form_lf:" value="#{juridicaSugestao.pessoa.nome}" title="#{juridicaSugestao.pessoa.id}"/>
+                                        </p:column>
+                                        <p:column headerText="Fantasia">
+                                            <p:commandLink action="#{lancamentoFinanceiroBean.useJuridicaSugestao(juridicaSugestao)}" update=":form_lf:" value="#{juridicaSugestao.pessoa.nome}" title="#{juridicaSugestao.pessoa.id}"/>
+                                        </p:column>
+                                        <p:column headerText="DOCUMENTO" width="100"  styleClass="text-center">
+                                            <p:commandLink action="#{lancamentoFinanceiroBean.useJuridicaSugestao(juridicaSugestao)}" update=":form_lf:" value="#{juridicaSugestao.pessoa.documento}"/>
+                                        </p:column>
+                                        <p:column headerText="E-mail">
+                                            <h:outputText value="#{juridicaSugestao.pessoa.email1}"/>
+                                        </p:column>
+                                        <p:column headerText="Telefone" width="100" styleClass="text-center">
+                                            <h:outputText value="#{juridicaSugestao.pessoa.telefone1}"/>
+                                        </p:column>
+                                        <p:column width="30">
+                                            <p:commandButton icon="ui-icon-contact" update=":form_lf:i_pessoa_juridica_card" onclick="PF('dlg_pessoa_juridica_card').show()" action="#{pessoaCardBean.cardJuridica(juridicaSugestao.pessoa.id)}" title="Ver detalhes" />
+                                        </p:column>
+                                    </p:dataTable>                                    
+                                </h:panelGroup>
+                                <f:facet name="footer">
+                                    <h:panelGrid columns="2">
+                                        <p:commandButton value="Fechar" title="Fechar" onclick="PF('dlg_sugestoes').hide();"  />                                        
+                                    </h:panelGrid>
+                                </f:facet>
+                            </p:dialog>  
                             <p:dialog widgetVar="dlg_pessoa_fisica_card" modal="true" resizable="false" height="400" width="400" header="Detalhes">
                                 <p:ajax event="close" listener="#{pessoaCardBean.close}"/>  
                                 <p:panel id="i_pessoa_fisica_card">
                                     <ui:include src="templates/templatePessoaFisicaCard.xhtml" />
+                                </p:panel>
+                            </p:dialog>
+                            <p:dialog widgetVar="dlg_pessoa_juridica_card" modal="true" resizable="false" height="400" width="400" header="Detalhes">
+                                <p:ajax event="close" listener="#{pessoaCardBean.close}"/>  
+                                <p:panel id="i_pessoa_juridica_card">
+                                    <ui:include src="templates/templatePessoaJuridicaCard.xhtml" />
                                 </p:panel>
                             </p:dialog>
 
