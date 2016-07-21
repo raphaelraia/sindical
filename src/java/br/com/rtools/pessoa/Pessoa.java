@@ -65,7 +65,7 @@ public class Pessoa implements Serializable {
     private Date dtAtualizacao;
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_recadastro")
-    private Date dtRecadastro;    
+    private Date dtRecadastro;
 
     @Transient
     private Boolean isTitular;
@@ -126,6 +126,11 @@ public class Pessoa implements Serializable {
     }
 
     public void setNome(String nome) {
+        if (nome != null && !nome.isEmpty()) {
+            nome = nome.toUpperCase();
+            nome = nome.replaceAll("\\s+", " ");
+            nome = nome.trim();
+        }
         this.nome = nome;
     }
 
@@ -444,7 +449,6 @@ public class Pessoa implements Serializable {
     public void setTelefone4(String telefone4) {
         this.telefone4 = telefone4;
     }
-    
 
     public Date getDtRecadastro() {
         return dtRecadastro;
@@ -460,5 +464,5 @@ public class Pessoa implements Serializable {
 
     public void setRecadastroString(String recadastroString) {
         this.dtRecadastro = DataHoje.converte(recadastroString);
-    }    
+    }
 }
