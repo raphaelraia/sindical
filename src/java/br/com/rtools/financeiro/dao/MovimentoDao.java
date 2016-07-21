@@ -2620,4 +2620,31 @@ public class MovimentoDao extends DB {
     public void setLimit(Integer limit) {
         this.limit = limit;
     }
+
+    /**
+     * id_pessoa, id_titular, id_beneficiario
+     *
+     * @param pessoa_id
+     * @return
+     */
+    public List<Movimento> findByPessoa(Integer pessoa_id) {
+        return findBy("pessoa", pessoa_id);
+    }
+
+    public List<Movimento> findByTitular(Integer pessoa_id) {
+        return findBy("titular", pessoa_id);
+    }
+
+    public List<Movimento> findByBeneficiario(Integer pessoa_id) {
+        return findBy("beneficiario", pessoa_id);
+    }
+
+    public List<Movimento> findBy(String column, Integer pessoa_id) {
+        try {
+            Query query = getEntityManager().createNativeQuery("SELECT M.* FROM fin_movimento AS M WHERE M.id_" + column + " = " + pessoa_id, Movimento.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
 }

@@ -1040,4 +1040,4 @@ public class Dao extends DB implements DaoInterface {
             return false;
         }
     }
-    }
+}

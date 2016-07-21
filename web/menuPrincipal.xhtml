@@ -118,6 +118,7 @@
                                 <p:submenu label="Ferramentas" icon="ui-icon-document" style="margin-right: 15px">  
                                     <p:submenu label="Pessoa" icon="ui-icon-contact">
                                         <p:menuitem value="Física"                action="#{chamadaPaginaBean.pessoaFisica}"/>
+                                        <p:menuitem value="Física (Mesclar)"      action="#{chamadaPaginaBean.pagina('pessoaFisicaMesclar')}" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}" title="MESCLAR CADASTROS"/>
                                         <p:menuitem value="Juridica"              action="#{chamadaPaginaBean.pessoaJuridica}"/>                                        
                                         <p:menuitem value="Tipo Documento"        action="#{chamadaPaginaBean.tipoDocumento}"/>
                                         <p:menuitem value="Cnae"                  action="#{chamadaPaginaBean.pagina('cnae')}"/>

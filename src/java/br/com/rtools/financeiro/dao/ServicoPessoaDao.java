@@ -160,4 +160,46 @@ public class ServicoPessoaDao extends DB {
             return null;
         }
     }
+
+    public List listAllByPessoa(Integer pessoa_id) {
+        try {
+            Query query = getEntityManager().createQuery(" SELECT SP FROM ServicoPessoa AS SP WHERE SP.pessoa.id = :pessoa_id");
+            query.setParameter("pessoa_id", pessoa_id);
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return list;
+            }
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+        return new ArrayList();
+    }
+
+    public List listAllByCobranca(Integer pessoa_id) {
+        try {
+            Query query = getEntityManager().createQuery(" SELECT SP FROM ServicoPessoa AS SP WHERE SP.cobranca.id = :pessoa_id");
+            query.setParameter("pessoa_id", pessoa_id);
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return list;
+            }
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+        return new ArrayList();
+    }
+
+    public List listAllByCobrancaMovimento(Integer pessoa_id) {
+        try {
+            Query query = getEntityManager().createQuery(" SELECT SP FROM ServicoPessoa AS SP WHERE SP.cobrancaMovimento.id = :pessoa_id");
+            query.setParameter("pessoa_id", pessoa_id);
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return list;
+            }
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+        return new ArrayList();
+    }
 }

@@ -63,6 +63,9 @@ public class Fisica implements java.io.Serializable {
     @Column(name = "ds_foto", length = 1000)
     private String foto;
 
+    @Transient
+    private Boolean selected;
+
     public Fisica() {
         this.id = -1;
         this.pessoa = new Pessoa();
@@ -86,6 +89,7 @@ public class Fisica implements java.io.Serializable {
         this.tituloSecao = "";
         this.tituloZona = "";
         this.foto = "";
+        this.selected = false;
     }
 
     public Fisica(int id, Pessoa pessoa, String rg, String carteira, String serie, String sexo, Date dtNascimento, String nacionalidade,
@@ -113,6 +117,7 @@ public class Fisica implements java.io.Serializable {
         this.tituloSecao = tituloSecao;
         this.tituloZona = tituloZona;
         this.foto = foto;
+        this.selected = false;
     }
 
     public int getId() {
@@ -364,5 +369,13 @@ public class Fisica implements java.io.Serializable {
         } catch (Exception e) {
             return 0;
         }
+    }
+
+    public Boolean getSelected() {
+        return selected;
+    }
+
+    public void setSelected(Boolean selected) {
+        this.selected = selected;
     }
 }

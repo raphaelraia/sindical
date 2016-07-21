@@ -845,4 +845,14 @@ public class SocioCarteirinhaDao extends DB {
         }
     }
 
+    public List findByPessoa(Integer pessoa_id) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT SC FROM SocioCarteirinha SC WHERE SC.pessoa.id = :pessoa_id");
+            query.setParameter("pessoa_id", pessoa_id);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+    }
+
 }
