@@ -121,7 +121,7 @@
                                                     <h:panelGrid columns="1" style="margin-top: 15px; width: 100%">
                                                         <p:outputLabel value="Nome"/>
                                                         <p:inputText value="#{fisicaBean.fisica.pessoa.nome}" converter="#{toUpperCase}" style="width: 100%">
-                                                            <p:ajax event="blur" listener="#{fisicaBean.existePessoaNomeNascimento()}" />
+                                                            <p:ajax event="change" update="@this" listener="#{fisicaBean.existePessoaNomeNascimento()}" />
                                                         </p:inputText>
                                                     </h:panelGrid>
                                                 </p:panel>

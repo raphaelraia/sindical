@@ -74,7 +74,7 @@
                                     <h:column>
                                         <h:panelGrid id="i_panel_filtro_servico" columns="6" cellpadding="5">
                                             <p:outputLabel value="Serviços: " />
-                                            <p:selectOneMenu value="#{relatorioComparativoArrecadacaoBean.index[1]}">
+                                            <p:selectOneMenu value="#{relatorioComparativoArrecadacaoBean.index[1]}" title="#{empty relatorioComparativoArrecadacaoBean.listServicos ? 'ADICIONAR SERVIÇO ROTINA' : ''}">
                                                 <p:ajax event="change" update="@this" />
                                                 <f:selectItem itemValue="" itemLabel="Nenhum" />
                                                 <f:selectItems value="#{relatorioComparativoArrecadacaoBean.listServicos}"/>

@@ -340,6 +340,15 @@ public class SocioCarteirinhaDao extends DB {
             if (id_filial != null) {
                 textqry += " AND s.id_filial = " + id_filial + " \n";
             }
+            
+            // QUE POSSUEM FOTOS
+            if (!registro.isCarteirinhaDependente()) {
+                textqry += " AND s.id_parentesco = 1 \n";
+            }
+
+            if (id_filial != null) {
+                textqry += " AND s.id_filial = " + id_filial + " \n";
+            }
 
             // GROUP DA QUERY
             textqry += " "
@@ -842,6 +851,16 @@ public class SocioCarteirinhaDao extends DB {
             return (SocioCarteirinha) qry.getSingleResult();
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    public List findByPessoa(Integer pessoa_id) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT SC FROM SocioCarteirinha SC WHERE SC.pessoa.id = :pessoa_id");
+            query.setParameter("pessoa_id", pessoa_id);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
         }
     }
 

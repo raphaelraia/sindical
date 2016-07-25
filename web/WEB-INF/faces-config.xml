@@ -2234,6 +2234,12 @@
             <redirect/>
         </navigation-case>
         
+        <navigation-case>
+            <from-outcome>pessoaFisicaMesclar</from-outcome>
+            <to-view-id>/pessoaFisicaMesclar.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
     </navigation-rule>
     
     <lifecycle>

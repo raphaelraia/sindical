@@ -59,6 +59,13 @@ public class JuridicaReceitaJSON {
         this.tipo = "padrao";
     }
 
+    public JuridicaReceitaJSON(PesquisaCNPJ pesquisaCNPJ, String tipo) {
+        this.pesquisaCNPJ = pesquisaCNPJ;
+        this.juridicaReceita = null;
+        this.documento = "";
+        this.tipo = tipo;
+    }
+
     public JuridicaReceitaObject pesquisar() {
         try {
             JuridicaReceitaObject jro = new JuridicaReceitaObject();
@@ -261,7 +268,17 @@ public class JuridicaReceitaJSON {
                     }
                     break;
                 default:
-                    HashMap hash = pesquisaCNPJ.confirmar();
+                    HashMap hash = new HashMap();
+                    if (tipo.equals("rtools")) {
+                        hash = pesquisaCNPJ.webServiceRtools();
+                        if (hash.isEmpty()) {
+                            jro.setStatus(-2);
+                            jro.setMsg(hash.get("mensagem").toString());
+                            return jro;
+                        }
+                    } else {
+                        hash = pesquisaCNPJ.confirmar();
+                    }
 
                     if (!(Boolean) hash.get("status")) {
                         jro.setStatus(-2);
@@ -489,8 +506,8 @@ public class JuridicaReceitaJSON {
 
         int pos1, pos2;
         String cnae;
-        
-        if(!jro.getAtividade_principal().isEmpty()){
+
+        if (!jro.getAtividade_principal().isEmpty()) {
             pos1 = jro.getAtividade_principal().indexOf("(");
             pos2 = jro.getAtividade_principal().indexOf(")");
             cnae = jro.getAtividade_principal().substring(pos1 + 1, pos2);
@@ -525,7 +542,7 @@ public class JuridicaReceitaJSON {
         String cep = jro.getCep();
         Endereco endereco = null;
         List<PessoaEndereco> listpe = new ArrayList();
-        
+
         if (!cep.isEmpty()) {
             cep = cep.replace(".", "").replace("-", "");
 
@@ -561,7 +578,7 @@ public class JuridicaReceitaJSON {
                 }
             }
         }
-        
+
         jro.setEmail1(email1);
         jro.setEmail2(email2);
         jro.setEmail3(email3);

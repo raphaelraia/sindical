@@ -1,6 +1,7 @@
 package br.com.rtools.utilitarios;
 
 import br.com.rtools.financeiro.DescontoPromocional;
+import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.principal.DB;
 import br.com.rtools.seguranca.Usuario;
 import java.lang.reflect.InvocationTargetException;

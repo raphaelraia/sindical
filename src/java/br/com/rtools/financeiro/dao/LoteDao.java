@@ -210,6 +210,17 @@ public class LoteDao extends DB {
 
     }
 
+    public List<Lote> findByPessoa(Integer pessoa_id) {
+        try {
+            Query query = getEntityManager().createQuery(" SELECT L FROM Lote AS L WHERE L.pessoa.id = :pessoa_id");
+            query.setParameter("pessoa_id", pessoa_id);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+
+    }
+
     public List<Lote> pesquisaLotesPorEvt(int evt) {
         return pesquisaLotesPorEvt(new Evt(evt));
     }

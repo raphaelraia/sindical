@@ -119,4 +119,18 @@ public class PessoaEmpresaDao extends DB {
         }
         return new ArrayList();
     }
+
+    public List findAllByFisica(Integer fisica_id) {
+        try {
+            Query qry = getEntityManager().createQuery(" SELECT PE FROM PessoaEmpresa AS PE WHERE PE.fisica.id = :fisica_id ORDER BY PE.dtAdmissao DESC ");
+            qry.setParameter("fisica_id", fisica_id);
+            List list = qry.getResultList();
+            if (!list.isEmpty()) {
+                return list;
+            }
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+        return new ArrayList();
+    }
 }
