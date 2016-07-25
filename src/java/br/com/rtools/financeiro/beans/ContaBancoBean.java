@@ -308,7 +308,7 @@ public class ContaBancoBean implements Serializable {
         result.add(new SelectItem(i, "Nenhum", "0"));
         while (i < planoContas.size()) {
             result.add(new SelectItem(i + 1,
-                    ((Plano5) planoContas.get(i)).getConta(),
+                    ((Plano5) planoContas.get(i)).getConta().isEmpty() ? "??????" : ((Plano5) planoContas.get(i)).getConta(),
                     Integer.toString(((Plano5) planoContas.get(i)).getId())));
             i++;
         }

@@ -35,7 +35,7 @@
                                 <h:panelGrid columns="3">
                                     <h:column>
                                         <h:outputLabel value="Rotina"/><br />
-                                        <p:selectOneMenu value="#{contaRotinaBean.idRotina}" style="margin-right: 15px;">
+                                        <p:selectOneMenu value="#{contaRotinaBean.idRotina}"  filter="true" filterMatchMode="contains">
                                             <p:ajax event="change" update="@this" />
                                             <f:selectItems value="#{contaRotinaBean.listaRotina}"/>
                                         </p:selectOneMenu>
@@ -43,7 +43,7 @@
                                     
                                     <h:column>
                                         <h:outputLabel value="Conta"/><br />
-                                        <p:selectOneMenu value="#{contaRotinaBean.idPlano4}" style="margin-right: 15px;">
+                                        <p:selectOneMenu value="#{contaRotinaBean.idPlano4}"  filter="true" filterMatchMode="contains">
                                             <p:ajax event="change" update="@this" />
                                             <f:selectItems value="#{contaRotinaBean.listaPlano4}"/>
                                         </p:selectOneMenu>

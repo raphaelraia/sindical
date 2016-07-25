@@ -33,7 +33,9 @@
                                 <h:panelGrid columns="4" styleClass="fundoCinza">
                                     <p:column>
                                         <h:outputLabel value="Agência" for="idAgencia"/><br />
-                                        <p:inputText id="idAgencia" size="10" value="#{contaBancoBean.contaBanco.agencia}" title="Digite a Agência"/>
+                                        <p:inputText id="idAgencia" size="10" value="#{contaBancoBean.contaBanco.agencia}" title="Digite a Agência" converter="#{thisNumber}">
+                                            <p:ajax event="change" update="@this" />
+                                        </p:inputText>
                                     </p:column>
 
                                     <p:column>
@@ -51,7 +53,7 @@
                                     
                                     <p:column>
                                         <h:outputLabel value="Banco" styleClass="fontePadrao" for="idBanco" /><br />
-                                        <p:selectOneMenu id="idBanco" value="#{contaBancoBean.idBanco}" style="width: 450px;">
+                                        <p:selectOneMenu id="idBanco" value="#{contaBancoBean.idBanco}" style="width: 450px;" filter="true" filterMatchMode="contains">
                                             <f:selectItems value="#{contaBancoBean.listaBancoCompleta}"/>
                                         </p:selectOneMenu>
                                     </p:column>

@@ -323,7 +323,7 @@ public class RelatorioContribuintesBean implements Serializable {
         // VALORES DO RELATÓRIO
         String valor_inicial = null, valor_final = null, data_valor_inicial = null, data_valor_final = null;
         Integer id_servicos = null, id_tipo_servico = null;
-        if (!valorInicial.isEmpty() || !valorFinal.isEmpty() || Moeda.converteUS$(valorInicial) > 0 || Moeda.converteUS$(valorFinal) > 0) {
+        if (Moeda.converteUS$(valorInicial) > 0 || Moeda.converteUS$(valorFinal) > 0) {
             if (Moeda.converteUS$(valorInicial) > Moeda.converteUS$(valorFinal)) {
                 GenericaMensagem.warn("Sistema", "Valor Inicial não pode ser maior que Final!");
                 return;
@@ -344,16 +344,15 @@ public class RelatorioContribuintesBean implements Serializable {
 
             data_valor_inicial = dataValorInicial;
             data_valor_final = dataValorFinal;
-            
-            if (Integer.valueOf(listaServicos.get(indexServicos).getDescription()) != 0){
+
+            if (Integer.valueOf(listaServicos.get(indexServicos).getDescription()) != 0) {
                 id_servicos = Integer.valueOf(listaServicos.get(indexServicos).getDescription());
             }
-            
-            if (Integer.valueOf(listaTipoServico.get(indexTipoServico).getDescription()) != 0){
+
+            if (Integer.valueOf(listaTipoServico.get(indexTipoServico).getDescription()) != 0) {
                 id_tipo_servico = Integer.valueOf(listaTipoServico.get(indexTipoServico).getDescription());
             }
         }
-        
 
         String inCentroComercial = "";
         Juridica sindicato = (Juridica) new Dao().find(new Juridica(), 1);
