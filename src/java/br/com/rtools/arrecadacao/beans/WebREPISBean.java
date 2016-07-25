@@ -107,6 +107,9 @@ public class WebREPISBean implements Serializable {
     private List<RepisMovimento> listRepisMovimentoPessoa;
     private Boolean uploadCertificado;
     private List<CertificadoArquivos> listCertificadoArquivos;
+    
+    private List<CertidaoDisponivel> listCertidaoDisponivelSolicitar = new ArrayList();
+    private boolean chkTodasCertidoes = false;
 
     public WebREPISBean() {
         pessoa = new Pessoa();
@@ -142,6 +145,69 @@ public class WebREPISBean implements Serializable {
                 }
                 loadCertificadoArquivos();
             }
+        }
+
+        chkTodasCertidoes = false;
+        loadListaCertidaoDisponivel();
+        //marcarTodasCertidoes();
+    }
+
+    public final void marcarTodasCertidoes(){
+        for (CertidaoDisponivel cd : listCertidaoDisponivelSolicitar){
+            cd.setSelected(chkTodasCertidoes);
+        }
+    }
+    
+    public final void loadListaCertidaoDisponivel() {
+        listComboCertidaoDisponivel.clear();
+        listCertidaoDisponivelSolicitar.clear();
+
+        WebREPISDao db = new WebREPISDao();
+        JuridicaDao dbj = new JuridicaDao();
+
+        Juridica juridica = null;
+        
+        if (pessoaContribuinte == null && listComboPessoa.isEmpty()){
+            return;
+        }
+        
+        if (pessoaContribuinte != null) {
+            juridica = dbj.pesquisaJuridicaPorPessoa(pessoaContribuinte.getId());
+        } else {
+            juridica = dbj.pesquisaJuridicaPorPessoa(Integer.valueOf(listComboPessoa.get(idPessoa).getDescription()));
+        }
+
+        List<List> listax = dbj.listaJuridicaContribuinte(juridica.getId());
+
+        if (listax.isEmpty()) {
+            listComboCertidaoDisponivel.add(new SelectItem(0, "Nenhuma Certidão Disponível", "0"));
+            return;
+        }
+
+        int id_convencao = (Integer) listax.get(0).get(5), id_grupo = (Integer) listax.get(0).get(6);
+        PessoaEnderecoDao dao = new PessoaEnderecoDao();
+        PessoaEndereco pend = dao.pesquisaEndPorPessoaTipo(juridica.getPessoa().getId(), 5);
+
+        if (pend == null) {
+            listComboCertidaoDisponivel.add(new SelectItem(0, "Nenhuma Certidão Disponível", "0"));
+            return;
+        }
+
+        List<CertidaoDisponivel> result = db.listaCertidaoDisponivel(pend.getEndereco().getCidade().getId(), id_convencao);
+
+        if (result.isEmpty()) {
+            listComboCertidaoDisponivel.add(new SelectItem(0, "Nenhuma Certidão Disponível", "0"));
+            return;
+        }
+
+        listCertidaoDisponivelSolicitar = result;
+
+        for (int i = 0; i < result.size(); i++) {
+            listComboCertidaoDisponivel.add(
+                    new SelectItem(
+                            i, result.get(i).getCertidaoTipo().getDescricao(), String.valueOf(result.get(i).getId())
+                    )
+            );
         }
     }
 
@@ -263,6 +329,7 @@ public class WebREPISBean implements Serializable {
         pessoaSolicitante = new Pessoa();
         //idPessoa = 0;
         listRepisMovimento.clear();
+        loadListaCertidaoDisponivel();
     }
 
     public String limparRepisLiberacao() {
@@ -291,9 +358,9 @@ public class WebREPISBean implements Serializable {
         return result;
     }
 
-    public boolean showAndamentoProtocolo(int idPessoa, int idPatronal) {
+    public boolean showAndamentoProtocolo(int idPessoa, int idPatronal, CertidaoDisponivel cd) {
         WebREPISDao wsrepisdb = new WebREPISDao();
-        CertidaoDisponivel cd = (CertidaoDisponivel) new Dao().find(new CertidaoDisponivel(), Integer.valueOf(listComboCertidaoDisponivel.get(indexCertidaoDisponivel).getDescription()));
+        //CertidaoDisponivel cd = (CertidaoDisponivel) new Dao().find(new CertidaoDisponivel(), Integer.valueOf(listComboCertidaoDisponivel.get(indexCertidaoDisponivel).getDescription()));
         if (wsrepisdb.validaPessoaRepisAnoTipoPatronal(idPessoa, getAnoConvencao(), cd.getCertidaoTipo().getId(), idPatronal).size() > 0) {
             return true;
         }
@@ -347,59 +414,103 @@ public class WebREPISBean implements Serializable {
                 return;
             }
 
-            if (listComboCertidaoDisponivel.size() == 1 && listComboCertidaoDisponivel.get(indexCertidaoDisponivel).getDescription().equals("0")) {
+//            if (listComboCertidaoDisponivel.size() == 1 && listComboCertidaoDisponivel.get(indexCertidaoDisponivel).getDescription().equals("0")) {
+//                GenericaMensagem.warn("Atenção", "Nenhuma Certidão disponível!");
+//                return;
+//            }
+            if (listCertidaoDisponivelSolicitar.isEmpty()) {
                 GenericaMensagem.warn("Atenção", "Nenhuma Certidão disponível!");
                 return;
             }
 
-            CertidaoDisponivel cd = (CertidaoDisponivel) di.find(new CertidaoDisponivel(), Integer.valueOf(listComboCertidaoDisponivel.get(indexCertidaoDisponivel).getDescription()));
-
-            List<ConvencaoPeriodo> result = dbr.listaConvencaoPeriodo(cd.getCidade().getId(), cd.getConvencao().getId());
-
-            Integer anoConvencao = null;
-
-            if (cd.isPeriodoConvencao()) {
-                if (result.isEmpty()) {
-                    GenericaMensagem.warn("Atenção", "Contribuinte fora do Período de Convenção!");
-                    return;
+            Boolean selected = false;
+            for (CertidaoDisponivel cd : listCertidaoDisponivelSolicitar) {
+                if (cd.getSelected()) {
+                    selected = true;
                 }
-                anoConvencao = Integer.valueOf(result.get(0).getReferenciaFinal().substring(3));
-            } else {
-                anoConvencao = getAnoAtual();
             }
 
-            //repisMovimento.setAno(getAnoConvencao());
-            repisMovimento.setAno(anoConvencao);
-            repisMovimento.setContato(contato);
-            repisMovimento.setRepisStatus((RepisStatus) di.find(new RepisStatus(), 1));
-            repisMovimento.setPessoa(getPessoaSolicitante());
-            repisMovimento.setDataResposta(null);
-            repisMovimento.setDataEmissao(DataHoje.dataHoje());
-            repisMovimento.setPatronal(patronal);
-            repisMovimento.setCertidaoTipo(cd.getCertidaoTipo());
+            if (!selected) {
+                GenericaMensagem.warn("Atenção", "Nenhuma Certidão Selecionada!");
+                return;
+            }
+
+            //CertidaoDisponivel cd = (CertidaoDisponivel) di.find(new CertidaoDisponivel(), Integer.valueOf(listComboCertidaoDisponivel.get(indexCertidaoDisponivel).getDescription()));
             if (configuracaoArrecadacao != null) {
                 if (configuracaoArrecadacao.getCertificadoFaturementoBrutoAnual()) {
                     if (repisMovimento.getFaturamentoBrutoAnual() <= 0) {
-                        GenericaMensagem.warn("Validação", "Informar o valor do faturamento bruto anual!");
+                        GenericaMensagem.warn("Validação", "Informar o valor do "
+                                + "faturamento bruto anual!");
                         return;
                     }
                 }
             }
+
             di.openTransaction();
-            if (!showAndamentoProtocolo(pessoaSolicitante.getId(), repisMovimento.getPatronal().getId())) {
-                if (di.save(repisMovimento)) {
-                    di.commit();
-                    GenericaMensagem.info("Sucesso", "Solicitação encaminhada com sucesso!");
-                    limpar();
-                } else {
-                    di.rollback();
-                    GenericaMensagem.error("Erro", "Não foi possível concluir sua solicitação. Consulte o sindicato!" + detalhes);
+            
+            Boolean commit = false;
+            for (CertidaoDisponivel cd : listCertidaoDisponivelSolicitar) {
+                if (cd.getSelected()) {
+                    List<ConvencaoPeriodo> result = dbr.listaConvencaoPeriodo(cd.getCidade().getId(), cd.getConvencao().getId());
+
+                    Integer anoConvencao = null;
+
+                    if (cd.isPeriodoConvencao()) {
+                        if (result.isEmpty()) {
+                            GenericaMensagem.warn("Atenção", "Contribuinte fora do Período de Convenção!");
+                            return;
+                        }
+                        anoConvencao = Integer.valueOf(result.get(0).getReferenciaFinal().substring(3));
+                    } else {
+                        anoConvencao = getAnoAtual();
+                    }
+
+//                    repisMovimento.setAno(anoConvencao);
+//                    repisMovimento.setContato(contato);
+//                    repisMovimento.setRepisStatus((RepisStatus) di.find(new RepisStatus(), 1));
+//                    repisMovimento.setPessoa(getPessoaSolicitante());
+//                    repisMovimento.setDataResposta(null);
+//                    repisMovimento.setDataEmissao(DataHoje.dataHoje());
+//                    repisMovimento.setPatronal(patronal);
+//                    repisMovimento.setCertidaoTipo(cd.getCertidaoTipo());
+//                    
+                    RepisMovimento repis_save = new RepisMovimento(
+                            -1, 
+                            DataHoje.dataHoje(), 
+                            contato, 
+                            pessoaSolicitante, 
+                            null,
+                            anoConvencao, 
+                            (RepisStatus) di.find(new RepisStatus(), 1), 
+                            patronal, 
+                            cd.getCertidaoTipo(), 
+                            repisMovimento.getDataImpressao(), 
+                            repisMovimento.getFaturamentoBrutoAnual()
+                    );
+                    
+                    if (!showAndamentoProtocolo(pessoaSolicitante.getId(), repis_save.getPatronal().getId(), cd)) {
+                        if (!di.save(repis_save)) {
+                            di.rollback();
+                            GenericaMensagem.error("Erro", "Não foi possível concluir sua solicitação. Consulte o sindicato!" + detalhes);
+                            return;
+                        }
+                        
+                        commit = true;
+                    } else {
+                        GenericaMensagem.warn("Atenção", "Certidão " + cd.getCertidaoTipo().getDescricao() + " já solicitada!");
+//                        di.rollback();
+//                        limpar();
+                    }
                 }
-            } else {
-                GenericaMensagem.warn("Atenção", "Certidão já solicitada!");
-                di.rollback();
-                limpar();
             }
+            
+            if (commit) {
+                di.commit();
+                GenericaMensagem.info("Sucesso", "Solicitação encaminhada com sucesso!");
+            }else{
+                di.rollback();
+            }
+            limpar();
         }
     }
 
@@ -958,47 +1069,6 @@ public class WebREPISBean implements Serializable {
     }
 
     public List<SelectItem> getListComboCertidaoDisponivel() {
-        if (listComboCertidaoDisponivel.isEmpty()) {
-            WebREPISDao db = new WebREPISDao();
-            JuridicaDao dbj = new JuridicaDao();
-
-            Juridica juridica = null;
-            if (pessoaContribuinte != null) {
-                juridica = dbj.pesquisaJuridicaPorPessoa(pessoaContribuinte.getId());
-            } else {
-                juridica = dbj.pesquisaJuridicaPorPessoa(Integer.valueOf(listComboPessoa.get(idPessoa).getDescription()));
-            }
-
-            List<List> listax = dbj.listaJuridicaContribuinte(juridica.getId());
-
-            if (listax.isEmpty()) {
-                listComboCertidaoDisponivel.add(new SelectItem(0, "Nenhuma Certidão Disponível", "0"));
-                return listComboCertidaoDisponivel;
-            }
-
-            int id_convencao = (Integer) listax.get(0).get(5), id_grupo = (Integer) listax.get(0).get(6);
-            PessoaEnderecoDao dao = new PessoaEnderecoDao();
-            PessoaEndereco pend = dao.pesquisaEndPorPessoaTipo(juridica.getPessoa().getId(), 5);
-
-            if (pend == null) {
-                listComboCertidaoDisponivel.add(new SelectItem(0, "Nenhuma Certidão Disponível", "0"));
-                return listComboCertidaoDisponivel;
-            }
-
-            List<CertidaoDisponivel> result = db.listaCertidaoDisponivel(pend.getEndereco().getCidade().getId(), id_convencao);
-
-            if (result.isEmpty()) {
-                listComboCertidaoDisponivel.add(new SelectItem(0, "Nenhuma Certidão Disponível", "0"));
-                return listComboCertidaoDisponivel;
-            }
-
-            for (int i = 0; i < result.size(); i++) {
-                listComboCertidaoDisponivel.add(new SelectItem(
-                        i, result.get(i).getCertidaoTipo().getDescricao(), String.valueOf(result.get(i).getId())
-                )
-                );
-            }
-        }
         return listComboCertidaoDisponivel;
     }
 
@@ -1291,4 +1361,21 @@ public class WebREPISBean implements Serializable {
     public void setIdConvencaoPeriodo(Integer idConvencaoPeriodo) {
         this.idConvencaoPeriodo = idConvencaoPeriodo;
     }
+
+    public List<CertidaoDisponivel> getListCertidaoDisponivelSolicitar() {
+        return listCertidaoDisponivelSolicitar;
+    }
+
+    public void setListCertidaoDisponivelSolicitar(List<CertidaoDisponivel> listCertidaoDisponivelSolicitar) {
+        this.listCertidaoDisponivelSolicitar = listCertidaoDisponivelSolicitar;
+    }
+
+    public boolean isChkTodasCertidoes() {
+        return chkTodasCertidoes;
+    }
+
+    public void setChkTodasCertidoes(boolean chkTodasCertidoes) {
+        this.chkTodasCertidoes = chkTodasCertidoes;
+    }
+
 }

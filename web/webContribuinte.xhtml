@@ -55,7 +55,7 @@
                         <h:column>
                             <h:outputLabel value="Filtrar boletos pela referência" style="font-size: 12pt!important; margin-right: 10px"/>
                             <p:inputMask value="#{webContribuintesBean.strFiltroRef}" mask="99/9999" size="6" style="padding: 8px!important; text-align: center">
-                                <p:ajax event="change" update="i_panel_lista" listener="#{webContribuintesBean.atualizarGrid}"/>
+                                <p:ajax event="change" update="i_panel_lista" />
                             </p:inputMask>
                         </h:column>
                         

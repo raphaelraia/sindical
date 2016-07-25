@@ -58,17 +58,17 @@ public class RepisMovimento implements Serializable {
         this.faturamentoBrutoAnual = new Float(0);
     }
 
-    public RepisMovimento(Integer id, String dataEmissaoString, String contato, Pessoa pessoa, String dataRespostaString, Integer ano, RepisStatus repisStatus, Patronal patronal, CertidaoTipo certidaoTipo, String dataImpressaoString, Float faturamentoBrutoAnual) {
+    public RepisMovimento(Integer id, Date dataEmissao, String contato, Pessoa pessoa, Date dataResposta, Integer ano, RepisStatus repisStatus, Patronal patronal, CertidaoTipo certidaoTipo, Date dataImpressao, Float faturamentoBrutoAnual) {
         this.id = id;
-        setDataEmissaoString(dataEmissaoString);
+        this.dataEmissao = dataEmissao;
         this.contato = contato;
         this.pessoa = pessoa;
-        setDataRespostaString(dataRespostaString);
+        this.dataResposta = dataResposta;
         this.ano = ano;
         this.repisStatus = repisStatus;
         this.patronal = patronal;
         this.certidaoTipo = certidaoTipo;
-        setDataImpressaoString(dataRespostaString);
+        this.dataImpressao = dataResposta;
         this.faturamentoBrutoAnual = faturamentoBrutoAnual;
     }
 

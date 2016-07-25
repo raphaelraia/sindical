@@ -66,7 +66,7 @@
                         <p:tab title="CONTRIBUINTE(S)" rendered="#{webREPISBean.renderContabil}" >
                             <h:panelGrid columns="2" style="width: 650px">
                                 <p:selectOneMenu id="idComboContabilidade" value="#{webREPISBean.idPessoa}" style="padding-right: 20px;">
-                                    <p:ajax event="change" update="@this :form_sr:i_panel_solicitar" listener="#{webREPISBean.listComboCertidaoDisponivel.clear()}"/>
+                                    <p:ajax event="change" update="@this :form_sr:i_panel_solicitar" listener="#{webREPISBean.loadListaCertidaoDisponivel()}"/>
                                     <f:selectItems value="#{webREPISBean.listComboPessoa}"/>
                                 </p:selectOneMenu>
                                 <p:outputLabel value="Somente para SOLICITAR*" style="margin-left: 20px; font-weight: bold; color: red"/>
@@ -76,11 +76,29 @@
                     <p:messages id="i_msg" showDetail="true" closable="true" />
                     <h:panelGrid id="i_panel_solicitar" columns="2" styleClass="margin-top-max" style="width: 100%">
                         <h:column>
-                            <h:panelGrid columns="2">
-                                <p:commandButton value="Solicitar" action="#{webREPISBean.solicitarREPIS}" update=":form_sr:" />
-                                <p:selectOneMenu value="#{webREPISBean.indexCertidaoDisponivel}">
-                                    <f:selectItems value="#{webREPISBean.listComboCertidaoDisponivel}"/>
+                            <h:panelGrid columns="2" styleClass="verticalAlignTop" >
+                                <p:dataTable id="tbl_list_certidao" value="#{webREPISBean.listCertidaoDisponivelSolicitar}" var="linha_solicitar" style="width: 250px" scrollable="true" scrollHeight="50" emptyMessage="Nenhuma Certidão Encontrada!">
+                                    <p:column headerText="#" style="width: 30px; text-align: center">
+                                        <p:outputLabel value="#{linha_solicitar.id}" />
+                                    </p:column>
+                                    
+                                    <p:column style="width: 30px; text-align: center">
+                                        <p:selectBooleanCheckbox value="#{linha_solicitar.selected}">
+                                            <p:ajax event="change" update="@this" />
+                                        </p:selectBooleanCheckbox>
+                                    </p:column>
+                                    
+                                    <p:column headerText="Nome">
+                                        <p:outputLabel value="#{linha_solicitar.certidaoTipo.descricao}" />
+                                    </p:column>
+                                </p:dataTable>
+                                
+                                <p:commandButton value="Solicitar Certidões Selecionadas" action="#{webREPISBean.solicitarREPIS}" update=":form_sr:"/>
+                                <!--
+                                <p:selectOneMenu value="# {webREPISBean.indexCertidaoDisponivel}">
+                                    <f:selectItems value="# {webREPISBean.listComboCertidaoDisponivel}"/>
                                 </p:selectOneMenu>                                
+                                -->
                             </h:panelGrid>
                         </h:column>
                         <h:column>
