@@ -44,7 +44,7 @@ public class RelatorioComparativoArrecadacaoDao extends DB {
                     + "            WHEN func_nulldouble(M2.nr_valor_baixa) = 0 AND func_nulldouble(M1.nr_valor_baixa) > 0 THEN - 100                        \n"
                     + "            WHEN func_nulldouble(M2.nr_valor_baixa) = 0 AND func_nulldouble(M1.nr_valor_baixa) = 0 THEN     0                        \n"
                     + "            WHEN func_nulldouble(M2.nr_valor_baixa) > 0 AND func_nulldouble(M1.nr_valor_baixa) > 0 THEN                              \n"
-                    + "                (func_nulldouble(M2.nr_valor_baixa) - func_nulldouble(M1.nr_valor_baixa)) / func_nulldouble(M2.nr_valor_baixa) * 100 \n"
+                    + "                (func_nulldouble(M2.nr_valor_baixa) - func_nulldouble(M1.nr_valor_baixa)) / func_nulldouble(M1.nr_valor_baixa) * 100 \n"
                     + "       END), 'FM999999999.00') AS percentual                                                                                         \n"
                     + "       FROM pes_pessoa               AS P                                                                                            \n"
                     + " INNER JOIN arr_contribuintes_vw     AS C  ON C.id_pessoa  = P.id AND C.dt_inativacao IS NULL                                        \n"

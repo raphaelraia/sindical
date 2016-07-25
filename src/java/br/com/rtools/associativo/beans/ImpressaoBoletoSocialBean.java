@@ -262,7 +262,7 @@ public class ImpressaoBoletoSocialBean {
 
         ImprimirBoleto ib = new ImprimirBoleto();
 
-        ib.imprimirBoletoSocial(lista, "soc_boletos_vw", imprimeVerso);
+        ib.imprimirBoletoSocial_2(lista, "soc_boletos_vw", imprimeVerso);
         ib.visualizar(null);
     }
 
