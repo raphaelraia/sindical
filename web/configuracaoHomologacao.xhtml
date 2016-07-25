@@ -41,6 +41,13 @@
                                         <h:outputLabel value="dia(s)" styleClass="margin-left-med" />
                                     </p:column>
                                 </h:panelGrid>
+                                <h:panelGrid cellpadding="5" columns="2">
+                                    <p:column>
+                                        <p:selectBooleanCheckbox value="#{configuracaoArrecadacaoBean.configuracaoArrecadacao.bloqueiaOposição}" itemLabel="Bloqueia Oposição">
+                                            <p:ajax event="change" listener="#{configuracaoArrecadacaoBean.update}" update=":form_ch:"/>
+                                        </p:selectBooleanCheckbox>
+                                    </p:column>
+                                </h:panelGrid>
                                 <f:facet name="header">Nome Empresa: #{configuracaoHomologacaoBean.registro.filial.pessoa.nome}</f:facet>
                                 <p:tabView>
                                     <p:ajax event="tabChange" listener="#{configuracaoHomologacaoBean.onChange}"/>                            
