@@ -13,6 +13,7 @@ import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
 import br.com.rtools.financeiro.dao.ServicoPessoaDao;
 import br.com.rtools.financeiro.dao.ServicoRotinaDao;
+import br.com.rtools.financeiro.dao.TipoServicoDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Fisica;
 import br.com.rtools.pessoa.Juridica;
@@ -379,14 +380,24 @@ public class LancamentoIndividualBean implements Serializable {
 
     public List<SelectItem> getListaTipoServico() {
         if (listaTipoServico.isEmpty()) {
-            List<TipoServico> result = new Dao().list(new TipoServico());
+            List<Integer> listaIds = new ArrayList();
+
+            listaIds.add(1);
+            listaIds.add(3);
+            listaIds.add(5);
+            listaIds.add(6);
+
+            List<TipoServico> result = new TipoServicoDao().pesquisaTodosComIds(listaIds);
 
             if (!result.isEmpty()) {
                 for (int i = 0; i < result.size(); i++) {
-                    listaTipoServico.add(new SelectItem(i,
-                            result.get(i).getDescricao(),
-                            Integer.toString(result.get(i).getId())
-                    ));
+                    listaTipoServico.add(
+                            new SelectItem(
+                                    i,
+                                    result.get(i).getDescricao(),
+                                    Integer.toString(result.get(i).getId())
+                            )
+                    );
                 }
             } else {
                 listaTipoServico.add(new SelectItem(0, "Nenhum Tipo Serviço", "0"));

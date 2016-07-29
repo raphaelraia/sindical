@@ -39,13 +39,13 @@ public class DeclaracaoPessoaDao extends DB {
 
     public List<DeclaracaoPessoa> listaDeclaracaoPessoa(Integer id_pessoa_convenio) {
         try {
-            String query ="SELECT dp.* \n "
+            String query = "SELECT dp.* \n "
                     + "  FROM soc_declaracao_pessoa AS dp \n";
-            
-            if (id_pessoa_convenio != null){
-                query += " WHERE dp.id_convenio = "+ id_pessoa_convenio;
+
+            if (id_pessoa_convenio != null) {
+                query += " WHERE dp.id_convenio = " + id_pessoa_convenio;
             }
-            
+
             Query qry = getEntityManager().createNativeQuery(query, DeclaracaoPessoa.class
             );
             return qry.getResultList();
@@ -98,12 +98,23 @@ public class DeclaracaoPessoaDao extends DB {
         return new ArrayList();
     }
 
-    public List<DeclaracaoPessoa> listaDeclaracaoPessoaJuridica(Integer id_pessoa) {
+    public List<DeclaracaoPessoa> listaDeclaracaoPessoaJuridica(Integer id_pessoa, String tipo) {
         try {
-            Query qry = getEntityManager().createNativeQuery(
-                    "SELECT dp.* \n "
-                    + "  FROM soc_declaracao_pessoa AS dp \n"
-                    + " WHERE dp.id_convenio = " + id_pessoa, DeclaracaoPessoa.class
+            String text
+                    = "SELECT dp.* \n "
+                    + "  FROM soc_declaracao_pessoa AS dp \n";
+
+            if (tipo.equals("empresa_conveniada")) {
+                text += " WHERE dp.id_convenio = " + id_pessoa;
+            } else {
+                text += " LEFT JOIN matr_socios AS m ON m.id = dp.id_matricula \n"
+                        + " INNER JOIN pes_pessoa_vw AS pt ON pt.codigo = m.id_titular \n"
+                        + " INNER JOIN pes_pessoa_vw AS p ON p.codigo = dp.id_pessoa \n"
+                        + " INNER JOIN pes_pessoa_empresa AS pe ON (pe.id_fisica = pt.id_fisica  OR pe.id_fisica = p.id_fisica) AND pe.is_principal = TRUE AND pe.dt_demissao IS NULL \n"
+                        + " INNER JOIN pes_juridica j ON j.id = pe.id_juridica \n"
+                        + " WHERE j.id_pessoa = " + id_pessoa;
+            }
+            Query qry = getEntityManager().createNativeQuery(text, DeclaracaoPessoa.class
             );
             return qry.getResultList();
         } catch (Exception e) {

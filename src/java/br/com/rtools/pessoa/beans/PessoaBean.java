@@ -53,6 +53,7 @@ public class PessoaBean implements Serializable {
     private List<Agendamento> listHomologacao;
     private List<Suspencao> listSuspensao;
     private List<DeclaracaoPessoa> listDeclaracaoPessoa;
+    private String tipoDeclaracaoPessoa;
     
     @PostConstruct
     public void init() {
@@ -69,7 +70,9 @@ public class PessoaBean implements Serializable {
         listMatriculasInativas = new ArrayList();
         listHomologacao = new ArrayList();
         listDeclaracaoPessoa = new ArrayList();
+        tipoDeclaracaoPessoa = "";
         selectDetalhes = "";
+        
         if (GenericaSessao.exists("tipoPessoa")) {
             tipoPessoa = GenericaSessao.getString("tipoPessoa", true);
             if (tipoPessoa.equals("pessoaFisica")) {
@@ -179,8 +182,8 @@ public class PessoaBean implements Serializable {
             case "declaracao":
                 DeclaracaoPessoaDao dao = new DeclaracaoPessoaDao();
                 if (tipoPessoa.equals("pessoaJuridica")) {
-                    // LISTA DECLARAÇÃO JURIDICA (CONVENIADA)
-                    listDeclaracaoPessoa = dao.listaDeclaracaoPessoaJuridica(pessoa.getId());
+                    // LISTA DECLARAÇÃO JURIDICA (CONVENIADA) ou (EMPRESA DA PESSOA)
+                    listDeclaracaoPessoa = dao.listaDeclaracaoPessoaJuridica(pessoa.getId(), tipoDeclaracaoPessoa);
                 } else {
                     // LISTA DECLARAÇÃO FÍSICA (BENEFICIÁRIO)
                     listDeclaracaoPessoa = dao.listaDeclaracaoPessoaFisica(pessoa.getId());
@@ -446,5 +449,13 @@ public class PessoaBean implements Serializable {
 
     public void setListDeclaracaoPessoa(List<DeclaracaoPessoa> listDeclaracaoPessoa) {
         this.listDeclaracaoPessoa = listDeclaracaoPessoa;
+    }
+
+    public String getTipoDeclaracaoPessoa() {
+        return tipoDeclaracaoPessoa;
+    }
+
+    public void setTipoDeclaracaoPessoa(String tipoDeclaracaoPessoa) {
+        this.tipoDeclaracaoPessoa = tipoDeclaracaoPessoa;
     }
 }

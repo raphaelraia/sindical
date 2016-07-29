@@ -107,7 +107,7 @@ public class WebREPISBean implements Serializable {
     private List<RepisMovimento> listRepisMovimentoPessoa;
     private Boolean uploadCertificado;
     private List<CertificadoArquivos> listCertificadoArquivos;
-    
+
     private List<CertidaoDisponivel> listCertidaoDisponivelSolicitar = new ArrayList();
     private boolean chkTodasCertidoes = false;
 
@@ -152,12 +152,12 @@ public class WebREPISBean implements Serializable {
         //marcarTodasCertidoes();
     }
 
-    public final void marcarTodasCertidoes(){
-        for (CertidaoDisponivel cd : listCertidaoDisponivelSolicitar){
+    public final void marcarTodasCertidoes() {
+        for (CertidaoDisponivel cd : listCertidaoDisponivelSolicitar) {
             cd.setSelected(chkTodasCertidoes);
         }
     }
-    
+
     public final void loadListaCertidaoDisponivel() {
         listComboCertidaoDisponivel.clear();
         listCertidaoDisponivelSolicitar.clear();
@@ -166,11 +166,11 @@ public class WebREPISBean implements Serializable {
         JuridicaDao dbj = new JuridicaDao();
 
         Juridica juridica = null;
-        
-        if (pessoaContribuinte == null && listComboPessoa.isEmpty()){
+
+        if (pessoaContribuinte == null && listComboPessoa.isEmpty()) {
             return;
         }
-        
+
         if (pessoaContribuinte != null) {
             juridica = dbj.pesquisaJuridicaPorPessoa(pessoaContribuinte.getId());
         } else {
@@ -447,7 +447,7 @@ public class WebREPISBean implements Serializable {
             }
 
             di.openTransaction();
-            
+
             Boolean commit = false;
             for (CertidaoDisponivel cd : listCertidaoDisponivelSolicitar) {
                 if (cd.getSelected()) {
@@ -475,26 +475,26 @@ public class WebREPISBean implements Serializable {
 //                    repisMovimento.setCertidaoTipo(cd.getCertidaoTipo());
 //                    
                     RepisMovimento repis_save = new RepisMovimento(
-                            -1, 
-                            DataHoje.dataHoje(), 
-                            contato, 
-                            pessoaSolicitante, 
+                            -1,
+                            DataHoje.dataHoje(),
+                            contato,
+                            pessoaSolicitante,
                             null,
-                            anoConvencao, 
-                            (RepisStatus) di.find(new RepisStatus(), 1), 
-                            patronal, 
-                            cd.getCertidaoTipo(), 
-                            repisMovimento.getDataImpressao(), 
+                            anoConvencao,
+                            (RepisStatus) di.find(new RepisStatus(), 1),
+                            patronal,
+                            cd.getCertidaoTipo(),
+                            repisMovimento.getDataImpressao(),
                             repisMovimento.getFaturamentoBrutoAnual()
                     );
-                    
+
                     if (!showAndamentoProtocolo(pessoaSolicitante.getId(), repis_save.getPatronal().getId(), cd)) {
                         if (!di.save(repis_save)) {
                             di.rollback();
                             GenericaMensagem.error("Erro", "Não foi possível concluir sua solicitação. Consulte o sindicato!" + detalhes);
                             return;
                         }
-                        
+
                         commit = true;
                     } else {
                         GenericaMensagem.warn("Atenção", "Certidão " + cd.getCertidaoTipo().getDescricao() + " já solicitada!");
@@ -503,11 +503,11 @@ public class WebREPISBean implements Serializable {
                     }
                 }
             }
-            
+
             if (commit) {
                 di.commit();
                 GenericaMensagem.info("Sucesso", "Solicitação encaminhada com sucesso!");
-            }else{
+            } else {
                 di.rollback();
             }
             limpar();

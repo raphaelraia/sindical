@@ -1,18 +1,20 @@
 package br.com.rtools.impressao;
 
+import br.com.rtools.utilitarios.Moeda;
+
 public class ParametroBoletoSocial {
     private String sindicatoLogo;
     private String sindicatoNome;
-    private String codigo;
+    private Integer codigo;
     private String responsavel;
     private String vencimento;
     private String matricula;
     private String categoria;
     private String grupo;
-    private String codigoBeneficiario;
+    private Integer codigoBeneficiario;
     private String beneficiario;
     private String servico;
-    private String valor;
+    private Float valor;
     private String valorTotal;
     private String valorAtrasada;
     private String valorVencimento;
@@ -45,7 +47,7 @@ public class ParametroBoletoSocial {
     private String contabilidade;
     private String mensagemBoleto;
 
-    public ParametroBoletoSocial(String sindicatoLogo, String sindicatoNome, String codigo, String responsavel, String vencimento, String matricula, String categoria, String grupo, String codigoBeneficiario, String beneficiario, String servico, String valor, String valorTotal, String valorAtrasada, String valorVencimento, String logoPromocao, String logoBanco, String mensagem, String agencia, String representacao, String codigoCedente, String nossoNumero, String processamento, String codigoBarras, String serrilha, String enderecoResponsavel, String enderecoFilial, String complementoResponsavel, String complementoFilial, String cnpjFilial, String telefoneFilial, String emailFilial, String siteFilial, String logoVerso, String localPagamento, String informativo, String documentoResponsavel, String quantidadeItens, String banco, String referenciaMensalidadesAtrasadas, String vencimentoServico, String contabilidade, String mensagemBoleto) {
+    public ParametroBoletoSocial(String sindicatoLogo, String sindicatoNome, Integer codigo, String responsavel, String vencimento, String matricula, String categoria, String grupo, Integer codigoBeneficiario, String beneficiario, String servico, Float valor, String valorTotal, String valorAtrasada, String valorVencimento, String logoPromocao, String logoBanco, String mensagem, String agencia, String representacao, String codigoCedente, String nossoNumero, String processamento, String codigoBarras, String serrilha, String enderecoResponsavel, String enderecoFilial, String complementoResponsavel, String complementoFilial, String cnpjFilial, String telefoneFilial, String emailFilial, String siteFilial, String logoVerso, String localPagamento, String informativo, String documentoResponsavel, String quantidadeItens, String banco, String referenciaMensalidadesAtrasadas, String vencimentoServico, String contabilidade, String mensagemBoleto) {
         this.sindicatoLogo = sindicatoLogo;
         this.sindicatoNome = sindicatoNome;
         this.codigo = codigo;
@@ -107,11 +109,11 @@ public class ParametroBoletoSocial {
         this.sindicatoNome = sindicatoNome;
     }
 
-    public String getCodigo() {
+    public Integer getCodigo() {
         return codigo;
     }
 
-    public void setCodigo(String codigo) {
+    public void setCodigo(Integer codigo) {
         this.codigo = codigo;
     }
 
@@ -171,12 +173,19 @@ public class ParametroBoletoSocial {
         this.servico = servico;
     }
 
-    public String getValor() {
+    public Float getValor() {
         return valor;
     }
 
-    public void setValor(String valor) {
+    public void setValor(Float valor) {
         this.valor = valor;
+    }
+    public String getValorString() {
+        return Moeda.converteR$Float(valor);
+    }
+
+    public void setValorString(String valorString) {
+        this.valor = Moeda.converteUS$(valorString);
     }
 
     public String getValorTotal() {
@@ -283,11 +292,11 @@ public class ParametroBoletoSocial {
         this.serrilha = serrilha;
     }
 
-    public String getCodigoBeneficiario() {
+    public Integer getCodigoBeneficiario() {
         return codigoBeneficiario;
     }
 
-    public void setCodigoBeneficiario(String codigoBeneficiario) {
+    public void setCodigoBeneficiario(Integer codigoBeneficiario) {
         this.codigoBeneficiario = codigoBeneficiario;
     }
 
