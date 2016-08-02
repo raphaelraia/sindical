@@ -241,6 +241,14 @@ public class ServicoPessoa implements java.io.Serializable {
         this.nrValorFixo = nrValorFixo;
     }
 
+    public String getNrValorFixoString() {
+        return Moeda.converteR$Float(nrValorFixo);
+    }
+
+    public void setNrValorFixoString(String nrValorFixoString) {
+        this.nrValorFixo = Moeda.converteUS$(nrValorFixoString);
+    }
+
     public DescontoSocial getDescontoSocial() {
         return descontoSocial;
     }

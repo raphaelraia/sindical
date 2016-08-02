@@ -330,6 +330,17 @@ public final class Moeda {
         float v = Moeda.converteUS$(valorFixo) - (Moeda.converteUS$(percentual) / 100) * Moeda.converteUS$(valorFixo);
         return Moeda.converteR$Float(v);
     }
+    
+    public static Float percentualDoValor(Float valorFixo, Float valorCalculo) {
+        double v1 = valorFixo;
+        double v2 = valorCalculo;
+        return Moeda.converteUS$(Double.toString((v2 / v1) * 100));
+    }
+
+    public static Float valorDoPercentual(Float valorFixo, Float percentual) {
+        float v = valorFixo - (percentual / 100) * valorFixo;
+        return v;
+    }
 
 //
 //    public static String valorDoPercentual(String valorFixo, String percentual) {

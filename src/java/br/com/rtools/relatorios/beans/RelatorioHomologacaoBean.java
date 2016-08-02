@@ -425,11 +425,11 @@ public class RelatorioHomologacaoBean implements Serializable {
     }
 
     public void remove(Object o) {
-        switch (o.getClass().getName()) {
-            case "juridica":
+        switch (o.getClass().getSimpleName()) {
+            case "Juridica":
                 listEmpresa.remove((Juridica) o);
                 break;
-            case "fisica":
+            case "Fisica":
                 listFuncionario.remove((Fisica) o);
                 break;
         }

@@ -2240,6 +2240,18 @@
             <redirect/>
         </navigation-case>
         
+        <navigation-case>
+            <from-outcome>matriculaSeguro</from-outcome>
+            <to-view-id>/matriculaSeguro.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>pesquisaMatriculaSeguro</from-outcome>
+            <to-view-id>/pesquisaMatriculaSeguro.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
     </navigation-rule>
     
     <lifecycle>

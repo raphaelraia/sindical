@@ -12,6 +12,7 @@ import br.com.rtools.associativo.MatriculaSocios;
 import br.com.rtools.associativo.Parentesco;
 import br.com.rtools.associativo.dao.DeclaracaoPessoaDao;
 import br.com.rtools.associativo.dao.DeclaracaoTipoDao;
+import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.utilitarios.Dao;
@@ -46,7 +47,7 @@ public class DeclaracaoPessoaBean implements Serializable {
     private String descricaoPesquisa = "";
     private List<ObjectPesquisaPessoa> listaPessoa = new ArrayList();
     private ObjectPesquisaPessoa objPesquisaPessoaSelecionada = null;
-    
+
     private Boolean chkTodosConvenios = false;
 
     public DeclaracaoPessoaBean() {
@@ -65,10 +66,10 @@ public class DeclaracaoPessoaBean implements Serializable {
     }
 
     public Boolean validaImprimir() {
-        if (objPesquisaPessoaSelecionada == null){
+        if (objPesquisaPessoaSelecionada == null) {
             return false;
         }
-        
+
         if (objPesquisaPessoaSelecionada.getIdade() > 24 && objPesquisaPessoaSelecionada.getParentesco().getId() != 1) {
             GenericaMensagem.error("Atenção", "Beneficiário maior de 24 Anos!");
             return false;
@@ -109,8 +110,21 @@ public class DeclaracaoPessoaBean implements Serializable {
 
         dao.commit();
 
-        imprimir_jasper(declaracao_pessoa);
+        String save_log
+                = "Pessoa: " + declaracao_pessoa.getPessoa().getDocumento() + ": " + declaracao_pessoa.getPessoa().getNome() + " \n "
+                + "Convênio: " + declaracao_pessoa.getConvenio().getDocumento() + ": " + declaracao_pessoa.getConvenio().getNome() + " \n "
+                + "Tipo Declaração: " + declaracao_pessoa.getDeclaracaoTipo().getDescricao();
+
+        NovoLog novoLog = new NovoLog();
+        novoLog.setTabela("soc_declaracao_pessoa");
+
+        novoLog.setCodigo(declaracao_pessoa.getId());
+        novoLog.save(
+                save_log
+        );
         
+        imprimir_jasper(declaracao_pessoa);
+
         objPesquisaPessoaSelecionada = null;
         loadListaDeclaracaoPessoa();
     }
@@ -168,10 +182,10 @@ public class DeclaracaoPessoaBean implements Serializable {
 
     public final void loadListaDeclaracaoPessoa() {
         listaDeclaracaoPessoa.clear();
-        
+
         Integer id_pessoa_convenio = Integer.valueOf(listaConvenio.get(indexConvenio).getDescription());
         listaDeclaracaoPessoa = new DeclaracaoPessoaDao().listaDeclaracaoPessoa(chkTodosConvenios == false ? id_pessoa_convenio : null);
-        
+
     }
 
     public final void loadListaPessoa(String InicialParcial) {
