@@ -920,12 +920,16 @@ public class UsuarioBean implements Serializable {
                 UsuarioAcessoDao usuarioAcessoDao = new UsuarioAcessoDao();
                 List<UsuarioAcesso> list = usuarioAcessoDao.findUsuario(idUsuarioImport);
                 for (int i = 0; i < list.size(); i++) {
-                    UsuarioAcesso usuarioAcesso = new UsuarioAcesso();
-                    usuarioAcesso.setPermissao(list.get(i).getPermissao());
-                    usuarioAcesso.setPermite(list.get(i).getPermite());
-                    usuarioAcesso.setUsuario(usuario);
-                    if (usuarioAcessoDao.pesquisaUsuarioAcesso(usuario.getId(), list.get(i).getPermissao().getId()).getId() == -1) {
-                        dao.save(usuarioAcesso, true);
+                    try {
+                        UsuarioAcesso usuarioAcesso = new UsuarioAcesso();
+                        usuarioAcesso.setPermissao(list.get(i).getPermissao());
+                        usuarioAcesso.setPermite(list.get(i).getPermite());
+                        usuarioAcesso.setUsuario(usuario);
+                        if (usuarioAcessoDao.pesquisaUsuarioAcesso(usuario.getId(), list.get(i).getPermissao().getId()).getId() == null) {
+                            dao.save(usuarioAcesso, true);
+                        }
+                    } catch (Exception e) {
+
                     }
                 }
                 GenericaMensagem.info("Sucesso", "Importação realizada");

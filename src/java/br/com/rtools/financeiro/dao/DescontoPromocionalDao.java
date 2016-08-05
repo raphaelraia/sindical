@@ -1,5 +1,6 @@
 package br.com.rtools.financeiro.dao;
 
+import br.com.rtools.arrecadacao.ConvencaoPeriodo;
 import br.com.rtools.financeiro.DescontoPromocional;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.principal.DB;
@@ -109,6 +110,23 @@ public class DescontoPromocionalDao extends DB {
             e.getMessage();
         }
         return new ArrayList();
+    }
+
+    public DescontoPromocional findByServicoMatricula(Integer servico_id) {
+        String queryString = ""
+                + "     SELECT DP.*                                             \n"
+                + "       FROM fin_desconto_promocional AS DP                   \n"
+                + "      WHERE DP.id_servico = " + servico_id + "               \n"
+                + "        AND current_date BETWEEN cast('01/'||DP.ds_referencia_inicial AS date)                                   \n"
+                + "        AND date_trunc('month',cast('01/' || ds_referencia_final AS date)) + INTERVAL'1 month' - INTERVAL'1 day' \n"
+                + "        AND DP.id_categoria IS NULL                                                                              \n";
+
+        try {
+            Query query = getEntityManager().createNativeQuery(queryString, DescontoPromocional.class);
+            return (DescontoPromocional) query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 }

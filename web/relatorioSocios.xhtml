@@ -39,13 +39,13 @@
                 <f:view>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Relatório Sócios" styleClass="fonteHeader" />
-                        <h:form id="formRelatorioSocios">
+                        <h:form id="form_relatorio">
                             <p:panel styleClass="fundoCinza" style="clear: both">
                                 <h:panelGrid columns="4" id="i_p_r">
                                     <p:outputLabel value="Tipo de Relatório: " />
                                     <p:selectOneMenu value="#{relatorioSociosBean.idRelatorio}">
-                                        <p:ajax event="change" update="@this i_p_r i_ordernacao"/>
-                                        <f:selectItems value="#{relatorioSociosBean.listRelatorios}"/>
+                                        <p:ajax event="change" update="@this :form_relatorio:" listener="#{relatorioSociosBean.listener('reload')}"/>
+                                        <f:selectItems value="#{relatorioSociosBean.listRelatorio}"/>
                                     </p:selectOneMenu>
                                     <p:outputLabel value="Ordem: " styleClass="margin-left-max" rendered="#{not empty relatorioSociosBean.listRelatorioOrdem}"/>
                                     <p:selectOneMenu value="#{relatorioSociosBean.idRelatorioOrdem}" rendered="#{not empty relatorioSociosBean.listRelatorioOrdem}">
@@ -59,496 +59,576 @@
                             <p:messages autoUpdate="true" closable="true" showDetail="true" />
                             <p:growl autoUpdate="true" showDetail="true" />
 
-                            <h:panelGrid columns="2" style="width: 100%;" columnClasses="column01, column02">
+                            <h:panelGrid columns="2" id="id_panel" columnClasses="verticalAlignTop,verticalAlignTop" styleClass="margin-top-max" style="width: 100%!important">
                                 <h:column>
-                                    <p:accordionPanel>
-                                        <p:tab title="Simples" rendered="false">
-                                            <p:outputLabel value="Pesquisando por " style="font-weight: bold"/>
-                                            <br />
-                                            <p:outputLabel value="Todos sócios (não recomendável)" />
-                                        </p:tab>
-
-                                        <p:tab title="Personalizado">
-                                            <p:outputLabel value="Pesquisando por " style="font-weight: bold"/>
-                                            <br /><br />
-                                            <c:forEach items="#{relatorioSociosBean.listaMenuRSocial}" var="linha" varStatus="loop">
-                                                <p:outputLabel value="#{linha.argumento0}" />
-                                                <p:commandLink value="#{linha.argumento1}" action="#{relatorioSociosBean.editarOpcao(loop.index)}" style="#{linha.argumento1 == 'Editar' ? 'color: blue' : 'color: red'} " update="@this :formRelatorioSocios:i_panel_filtro :formRelatorioSocios:i_panel_filtro2 :formRelatorioSocios:i_panel_filtro3 :formRelatorioSocios:i_panel_filtro12"/>
-
-                                                <br /><br />
-                                            </c:forEach>
-                                        </p:tab>
-                                    </p:accordionPanel>
-
-                                    <p:commandLink value="Limpar Filtro" action="#{relatorioSociosBean.limparFiltro()}" update="formRelatorioSocios" style="float: right"/>
-
-
-                                    <h:panelGrid columns="1" id="i_ordernacao">
-                                        <p:panel styleClass="fundoCinza" rendered="#{empty relatorioSociosBean.listRelatorioOrdem}">
-                                            <h:outputLabel value="Ordenar por "/><br />
-                                            <p:selectOneRadio id="idOrdem" value="#{relatorioSociosBean.tipoOrdem}">
-                                                <f:selectItem itemValue="nome"      itemLabel="Nome"/>
-                                                <f:selectItem itemValue="matricula" itemLabel="Matricula"/>
-                                                <f:selectItem itemValue="endereco"  itemLabel="Endereço"/>
-                                                <f:selectItem itemValue="cep"       itemLabel="Cep"/>
-                                                <f:selectItem itemValue="bairro"    itemLabel="Bairro"/>
-                                            </p:selectOneRadio>
-                                        </p:panel>
-                                    </h:panelGrid>
-
-                                    <h:panelGrid>
-                                        <h:commandLink target="_blank" action="#{relatorioSociosBean.visualizarRelatorio()}" title="Imprimir Relatório">
-                                            <p:commandButton icon="ui-icon-print" value="Imprimir Relatório" title="Imprimir Relatório"/>
-                                        </h:commandLink>                                    
-                                        <p:selectBooleanCheckbox value="#{jasperBean.COMPRESS_FILE}" itemLabel="Compactar Arquivo (ZIP)" />
-                                        <p:selectBooleanCheckbox value="#{jasperBean.IS_HEADER}" itemLabel="Com cabeçalho">
-                                            <p:ajax event="change" update="@this" listener="#{jasperBean.setTYPE('paisagem')}" />
-                                        </p:selectBooleanCheckbox>
-                                    </h:panelGrid>
-                                    <h:column>
-                                        <h:panelGrid id="i_e_e_r_s" columns="2">
-                                            <p:selectBooleanCheckbox itemLabel="Exportar" value="#{jasperBean.EXPORT_TO}">
-                                                <p:ajax event="change" update="@this i_e_e_r_s" />
-                                            </p:selectBooleanCheckbox>
-                                            <p:selectOneMenu value="#{jasperBean.EXPORT_TYPE}" style="padding-right: 20px;" rendered="#{jasperBean.EXPORT_TO}">
-                                                <p:ajax event="change" update="@this" />
-                                                <f:selectItems value="#{jasperBean.listTypes('xls')}" />
-                                            </p:selectOneMenu>                                            
-                                        </h:panelGrid>                                            
-                                    </h:column>
-                                </h:column>
-
-                                <h:column>
-
-                                    <h:panelGrid id="i_panel_filtro" columns="1">
-                                        <h:panelGrid columns="1" rendered="#{!relatorioSociosBean.validaFiltro()}" style="float: left; margin: 10px ">
-                                            <h:column>
-                                                <p:outputLabel value="Listar todos Sócios" style="font-size: 20pt!important"/>
-                                            </h:column>
-                                        </h:panelGrid>
-
-                                        <p:panel header="Número da Matrícula" rendered="#{relatorioSociosBean.booMatricula}">
-                                            <h:panelGrid columns="3" >
-                                                <p:inputText value="#{relatorioSociosBean.matriculaInicial}" size="8"/>
-                                                <p:outputLabel value=" até " style="font-weight: bold"/>
-                                                <p:inputText value="#{relatorioSociosBean.matriculaFinal}" size="8"/>
-                                            </h:panelGrid>                                            
-                                        </p:panel>
-
-                                        <p:panel header="Idade" rendered="#{relatorioSociosBean.booIdade}">
-                                            <h:panelGrid columns="3">
-                                                <p:inputText value="#{relatorioSociosBean.idadeInicial}" size="8"/>
-                                                <p:outputLabel value=" até " style="font-weight: bold"/>
-                                                <p:inputText value="#{relatorioSociosBean.idadeFinal}" size="8"/>
-                                            </h:panelGrid>
-                                        </p:panel>
-
-                                        <p:panel rendered="#{relatorioSociosBean.booGrupoCategoria}">
-                                            <h:panelGrid columns="2">
-                                                <h:column>
-                                                    <p:selectBooleanCheckbox id="c_grupo" value="#{relatorioSociosBean.chkGrupo}" itemLabel="SELECIONAR TODOS GRUPOS" style="font-weight: bold">
-                                                        <p:ajax event="change" listener="#{relatorioSociosBean.marcarGrupoCatregoria()}" update="tbl1 :formRelatorioSocios:tbl2"/>
-                                                    </p:selectBooleanCheckbox>
-                                                    <p:dataTable id="tbl1" value="#{relatorioSociosBean.listGrupoCategoria}" var="grupoCategoria" emptyMessage="Nenhum registro encontrado!" scrollable="true" scrollHeight="100">
-                                                        <p:column style="width: 15px">
-                                                            <p:selectBooleanCheckbox value="#{grupoCategoria.selected}">
-                                                                <p:ajax event="change" listener="#{relatorioSociosBean.marcarUmGrupoCategoria()}" update=":formRelatorioSocios:tbl2"/>
-                                                            </p:selectBooleanCheckbox>
-                                                        </p:column>
-
-                                                        <p:column headerText="Grupo">
-                                                            <h:outputText value="#{grupoCategoria.grupoCategoria}" />
-                                                        </p:column>
-                                                    </p:dataTable>
-                                                </h:column>
-
-                                                <h:column>
-                                                    <p:selectBooleanCheckbox value="#{relatorioSociosBean.chkCategoria}" itemLabel="SELECIONAR TODAS CATEGORIAS" style="font-weight: bold">
-                                                        <p:ajax event="change" listener="#{relatorioSociosBean.marcarCategorias()}" update="tbl2"/>
-                                                    </p:selectBooleanCheckbox>
-                                                    <p:dataTable id="tbl2" value="#{relatorioSociosBean.listCategoria}" var="categoria" emptyMessage="Nenhum grupo selecionado"  scrollable="true" scrollHeight="100">
-                                                        <p:column style="width: 15px">
-                                                            <p:selectBooleanCheckbox value="#{categoria.selected}" />
-                                                        </p:column>
-
-                                                        <p:column headerText="Categoria">
-                                                            <h:outputText value="#{categoria.categoria}"/>
-                                                        </p:column>
-                                                    </p:dataTable>
-                                                </h:column>
-                                            </h:panelGrid>    
-                                        </p:panel>
-
-                                        <h:panelGrid columns="2" rendered="#{relatorioSociosBean.booCidadeSocio}" style="float: left; margin: 10px">
-                                            <h:column>
-                                                <div style="height: 150px; width: 100%; overflow: auto">
-                                                    <p:dataTable id="tbl4" value="#{relatorioSociosBean.listaCidadesSocio}" var="linha">
-                                                        <f:facet name="header">
-                                                            <p:outputLabel value="Cidade dos Sócios" />
-                                                        </f:facet>
-
-                                                        <p:column style="width: 15px">
-                                                            <f:facet name="header">
-                                                                <p:selectBooleanCheckbox value="#{relatorioSociosBean.chkCidadesSocio}">
-                                                                    <p:ajax event="change" listener="#{relatorioSociosBean.marcarCidadesSocio}" update=":formRelatorioSocios:tbl4"/>
-                                                                </p:selectBooleanCheckbox>
-                                                            </f:facet>
-                                                            <p:selectBooleanCheckbox value="#{linha.argumento0}" />
-                                                        </p:column>
-
-                                                        <p:column headerText="Cidade" style="width: 100%">
-                                                            <p:outputLabel value="#{linha.argumento1.cidade}"/>
-                                                        </p:column>
-                                                    </p:dataTable>
-                                                </div>
-                                            </h:column>
-                                        </h:panelGrid>
-                                        <p:panel header="Cidade das Empresas" rendered="#{relatorioSociosBean.booCidadeEmpresa}" >
-                                            <h:column>
-                                                <p:dataTable id="tbl5" value="#{relatorioSociosBean.listaCidadesEmpresa}" var="linha" scrollable="true" scrollHeight="100" emptyMessage="Nenhum registro encontrado!">
-                                                    <p:column styleClass="text-center" style="width: 15px">
-                                                        <f:facet name="header">
-                                                            <p:selectBooleanCheckbox value="#{relatorioSociosBean.chkCidadesEmpresa}">
-                                                                <p:ajax event="change" listener="#{relatorioSociosBean.marcarCidadesEmpresa}" update=":formRelatorioSocios:tbl5"/>
-                                                            </p:selectBooleanCheckbox>
-                                                        </f:facet>
-                                                        <p:selectBooleanCheckbox value="#{linha.argumento0}" />
-                                                    </p:column>
-                                                    <p:column headerText="Cidade" filterBy="#{linha.argumento1.cidade}" filterMatchMode="global">
-                                                        <h:outputText value="#{linha.argumento1.cidade}" />
-                                                    </p:column>
-                                                </p:dataTable>
-                                            </h:column>
-                                        </p:panel>
-
-                                        <p:panel header="Aniversário" rendered="#{relatorioSociosBean.booAniversario}">
-                                            <h:column>
-                                                <p:dataTable id="tbl6" value="#{relatorioSociosBean.listaMeses}" var="mes" scrollable="true" scrollHeight="100">
-                                                    <p:column style="width: 15px">
-                                                        <f:facet name="header">
-                                                            <p:selectBooleanCheckbox value="#{relatorioSociosBean.chkMeses}">
-                                                                <p:ajax event="change" listener="#{relatorioSociosBean.marcarMeses}" update=":formRelatorioSocios:tbl6"/>
-                                                            </p:selectBooleanCheckbox>
-                                                        </f:facet>
-                                                        <p:selectBooleanCheckbox value="#{mes.argumento0}" />
-                                                    </p:column>
-                                                    <p:column headerText="Mês">
-                                                        <h:outputText value="#{mes.argumento1}"/>
-                                                    </p:column>
-                                                </p:dataTable>
-                                                <h:panelGrid columns="4" styleClass="margin-top-max">
-                                                    <p:inputText value="#{relatorioSociosBean.diaInicial}" size="2" styleClass="text-center" />
-                                                    <h:outputLabel value=" até " styleClass="fontePadraoNegrito"/>
-                                                    <p:inputText value="#{relatorioSociosBean.diaFinal}" size="2" styleClass="text-center"/>
-                                                    <p:selectBooleanCheckbox value="#{relatorioSociosBean.ordemAniversario}" itemLabel="Ordem por Aniversário"/>
+                                    <h:panelGroup layout="block" style="width: 225px; float: left" id="i_panel_avancado">
+                                        <p:accordionPanel prependId="false">
+                                            <p:tab title="Sócio">
+                                                <h:panelGrid>
+                                                    <c:forEach items="#{relatorioSociosBean.filtersSocio}" var="filterSocio" varStatus="loop" id="i_foreach_1">                                            
+                                                        <p:selectBooleanButton value="#{filterSocio.active}" onLabel="#{filterSocio.value}" offLabel="#{filterSocio.value}" style="width: 180px; text-align: left" disabled="#{filterSocio.disabled}">
+                                                            <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio :form_relatorio:i_p_r" listener="#{relatorioSociosBean.load(relatorioSociosBean.filtersSocio[loop.index])}" />
+                                                        </p:selectBooleanButton>
+                                                    </c:forEach>                                                
                                                 </h:panelGrid>
-                                            </h:column>
-                                        </p:panel>
-
-                                        <p:panel header="Sexo" rendered="#{relatorioSociosBean.booSexo}">
-                                            <h:panelGrid columns="2">
-                                                <p:selectOneMenu value="#{relatorioSociosBean.tipoSexo}">
-                                                    <f:selectItem itemValue="M" itemLabel="Masculino"/>
-                                                    <f:selectItem itemValue="F" itemLabel="Feminino"/>
-                                                </p:selectOneMenu>
-                                            </h:panelGrid>
-                                        </p:panel>
-
-                                        <p:panel rendered="#{relatorioSociosBean.booGrau}">
-                                            <p:selectBooleanCheckbox value="#{relatorioSociosBean.chkGrau}" itemLabel="SELECIONAR TODOS PARENTESCOS" style="font-weight: bold">
-                                                <p:ajax event="change" listener="#{relatorioSociosBean.marcarGrau}" update=":formRelatorioSocios:tbl7"/>
-                                            </p:selectBooleanCheckbox>
-                                            <p:dataTable id="tbl7" value="#{relatorioSociosBean.listParentesco}" var="parentesco" emptyMessage="Nenhum registro encontrado!" scrollable="true" scrollHeight="100">
-                                                <p:column style="width: 15px">
-                                                    <p:selectBooleanCheckbox value="#{parentesco.selected}"/>
-                                                </p:column>
-
-                                                <p:column headerText="Grau" filterBy="#{parentesco.parentesco}" filterMatchMode="global">
-                                                    <h:outputText value="#{parentesco.parentesco}"/>
-                                                </p:column>
-                                            </p:dataTable>
-                                        </p:panel>
-
-                                        <p:panel header="Fotos" rendered="#{relatorioSociosBean.booFotos}">
-                                            <h:panelGrid columns="2">
-                                                <p:selectOneMenu value="#{relatorioSociosBean.tipoFotos}">
-                                                    <f:selectItem itemValue="com" itemLabel="Com"/>
-                                                    <f:selectItem itemValue="sem" itemLabel="Sem"/>
-                                                </p:selectOneMenu>
-                                            </h:panelGrid>
-                                        </p:panel>
-
-                                        <p:panel header="Carteirinha" rendered="#{relatorioSociosBean.booFotos}">
-                                            <h:panelGrid columns="2">
-                                                <p:selectOneMenu value="#{relatorioSociosBean.tipoCarteirinha}">
-                                                    <f:selectItem itemValue="com" itemLabel="Com"/>
-                                                    <f:selectItem itemValue="sem" itemLabel="Sem"/>
-                                                </p:selectOneMenu>
-                                            </h:panelGrid>
-                                        </p:panel>
-
-                                        <p:panel header="Tipo de Cobrança" rendered="#{relatorioSociosBean.booTipoCobranca}">
-                                            <p:dataTable id="tbl3" value="#{relatorioSociosBean.listaTipoCobranca}" var="tipoCobranca" emptyMessage="nenhum registro encontrado!" scrollable="true" scrollHeight="100">
-                                                <p:column style="width: 15px">
-                                                    <f:facet name="header">
-                                                        <p:selectBooleanCheckbox value="#{relatorioSociosBean.chkTipoCobranca}">
-                                                            <p:ajax event="change" listener="#{relatorioSociosBean.marcarTipos()}" update=":formRelatorioSocios:tbl3"/>
-                                                        </p:selectBooleanCheckbox>
-                                                    </f:facet>
-                                                    <p:selectBooleanCheckbox value="#{tipoCobranca.argumento0}" />
-                                                </p:column>
-
-                                                <p:column headerText="Tipo">
-                                                    <h:outputText value="#{tipoCobranca.argumento1.descricao}" />
-                                                </p:column>
-                                            </p:dataTable>                                            
-                                        </p:panel>
-
-                                        <p:panel header="Votante" rendered="#{relatorioSociosBean.booVotante}">
-                                            <p:selectOneMenu value="#{relatorioSociosBean.tipoEleicao}">
-                                                <f:selectItem itemValue="votante" itemLabel="Votantes"/>
-                                                <f:selectItem itemValue="naoVotante" itemLabel="Não Votantes"/>
-                                            </p:selectOneMenu>
-                                        </p:panel>
-
-                                        <h:panelGrid columns="2" rendered="#{relatorioSociosBean.booEmail}" style="float: left; margin: 10px">
-                                            <h:column>
-                                                <p:outputLabel value="Email" /><br />
-                                                <p:selectOneMenu value="#{relatorioSociosBean.tipoEmail}">
-                                                    <f:selectItem itemValue="com" itemLabel="Com"/>
-                                                    <f:selectItem itemValue="sem" itemLabel="Sem"/>
-                                                </p:selectOneMenu>
-                                            </h:column>
-                                        </h:panelGrid>
-
-                                        <h:panelGrid columns="2" rendered="#{relatorioSociosBean.booBiometria}" style="float: left; margin: 10px">
-                                            <h:column>
-                                                <p:outputLabel value="Biometria" /><br />
-                                                <p:selectOneMenu value="#{relatorioSociosBean.tipoBiometria}">
-                                                    <f:selectItem itemValue="com" itemLabel="Com"/>
-                                                    <f:selectItem itemValue="sem" itemLabel="Sem"/>
-                                                </p:selectOneMenu>
-                                            </h:column>
-                                        </h:panelGrid>
-
-                                        <h:panelGrid columns="2" rendered="#{relatorioSociosBean.booDescontoFolha}" style="float: left; margin: 10px">
-                                            <h:column>
-                                                <p:outputLabel value="Desconto Folha" /><br />
-                                                <p:selectOneMenu value="#{relatorioSociosBean.tipoDescontoFolha}">
-                                                    <f:selectItem itemValue="com" itemLabel="Com"/>
-                                                    <f:selectItem itemValue="sem" itemLabel="Sem"/>
-                                                </p:selectOneMenu>
-                                            </h:column>
-                                        </h:panelGrid>
-
-                                        <h:panelGrid columns="2" rendered="#{relatorioSociosBean.booTelefone}" style="float: left; margin: 10px">
-                                            <h:column>
-                                                <p:outputLabel value="Telefone" /><br />
-                                                <p:selectOneMenu value="#{relatorioSociosBean.tipoTelefone}">
-                                                    <f:selectItem itemValue="com" itemLabel="Com"/>
-                                                    <f:selectItem itemValue="sem" itemLabel="Sem"/>
-                                                </p:selectOneMenu>
-                                            </h:column>
-                                        </h:panelGrid>
-
-                                        <p:panel header="Estado Civil" rendered="#{relatorioSociosBean.booEstadoCivil}">
-                                            <p:selectOneMenu value="#{relatorioSociosBean.tipoEstadoCivil}">
-                                                <f:selectItem itemValue="Amasiado(a)" itemLabel="Amasiado(a)"/>
-                                                <f:selectItem itemValue="Casado(a)" itemLabel="Casado(a)"/>
-                                                <f:selectItem itemValue="Desquitado(a)" itemLabel="Desquitado(a)"/>
-                                                <f:selectItem itemValue="Divorciado(a)" itemLabel="Divorciado(a)"/>
-                                                <f:selectItem itemValue="Indefinido" itemLabel="Indefinido"/>
-                                                <f:selectItem itemValue="Separado(a)" itemLabel="Separado(a)"/>
-                                                <f:selectItem itemValue="Solteiro(a)" itemLabel="Solteiro(a)"/>
-                                                <f:selectItem itemValue="Viuvo(a)" itemLabel="Viúvo(a)"/>
-                                            </p:selectOneMenu>
-                                        </p:panel>
-
-                                        <p:panel header="Situação" rendered="#{relatorioSociosBean.situacao}">
-                                            <h:panelGrid columns="4" >
-                                                <h:column>
-                                                    <h:panelGrid columns="2">
-                                                        <p:outputLabel value="Situação:" />
-                                                        <p:selectOneMenu value="#{relatorioSociosBean.situacaoString}">
-                                                            <f:selectItem itemValue="adimplente" itemLabel="Adimplente" />
-                                                            <f:selectItem itemValue="inadimplente" itemLabel="Inadimplente" />
-                                                        </p:selectOneMenu>
+                                            </p:tab>
+                                            <p:tab title="Empresa">
+                                                <h:panelGrid>
+                                                    <c:forEach items="#{relatorioSociosBean.filtersEmpresa}" var="filtersEmpresa" varStatus="loop" id="i_foreach_2">                                            
+                                                        <p:selectBooleanButton value="#{filtersEmpresa.active}" onLabel="#{filtersEmpresa.value}" offLabel="#{filtersEmpresa.value}" style="width: 180px; text-align: left">
+                                                            <p:ajax event="change" update="@this form_relatorio:id_panel_relatorio" listener="#{relatorioSociosBean.load(relatorioSociosBean.filtersEmpresa[loop.index])}" />
+                                                        </p:selectBooleanButton>
+                                                    </c:forEach>
+                                                </h:panelGrid>
+                                            </p:tab>
+                                            <p:tab title="Financeiro">
+                                                <h:panelGrid>
+                                                    <c:forEach items="#{relatorioSociosBean.filtersFinanceiro}" var="filtersFinanceiro" varStatus="loop" id="i_foreach_3">                                            
+                                                        <p:selectBooleanButton value="#{filtersFinanceiro.active}" onLabel="#{filtersFinanceiro.value}" offLabel="#{filtersFinanceiro.value}" style="width: 180px; text-align: left">
+                                                            <p:ajax event="change" update="@this form_relatorio:id_panel_relatorio" listener="#{relatorioSociosBean.load(relatorioSociosBean.filtersFinanceiro[loop.index])}" />
+                                                        </p:selectBooleanButton>
+                                                    </c:forEach>                                                
+                                                </h:panelGrid>
+                                            </p:tab>
+                                        </p:accordionPanel>
+                                    </h:panelGroup>
+                                </h:column>
+                                <h:column>
+                                    <h:panelGroup layout="block" id="id_panel_relatorio" style="min-width: 800px!important; width: 100%!important;" >
+                                        <!-- SÓCIOS -->
+                                        <h:panelGrid style="width: 100%!important">
+                                            <h:column rendered="#{relatorioSociosBean.getShow('socios')}">
+                                                <p:panel header="SÓCIOS">
+                                                    <h:panelGrid columns="5" cellspacing="5">
+                                                        <p:commandButton icon="ui-icon-search" value="PESQUISAR SÓCIO" action="#{chamadaPaginaBean.pesquisa('pesquisaSocios')}" immediate="true"/>
+                                                        <p:outputLabel value="#{relatorioSociosBean.socio.nome} - #{relatorioSociosBean.socio.documento} " styleClass="bold font-color-red" rendered="#{relatorioSociosBean.socio.id != -1}"/>
+                                                        <p:commandButton icon="ui-icon-plus" action="#{relatorioSociosBean.addSocio()}" title="Adicionar a lista" update="form_relatorio" rendered="#{relatorioSociosBean.socio.id != -1}"/>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.removeSocio}" title="Remover" update=":form_relatorio" rendered="#{relatorioSociosBean.socio.id != -1}"/> 
                                                     </h:panelGrid>
-                                                </h:column>
-                                                <h:column>
-                                                    <h:panelGrid columns="4">
-                                                        <p:outputLabel value="Carência de Débito em Dias:" />
-                                                        <p:selectOneButton value="#{relatorioSociosBean.tipoCarencia}">
-                                                            <f:selectItem itemValue="eleicao" itemLabel="Eleição" />
-                                                            <f:selectItem itemValue="clube" itemLabel="Clube" />
-                                                            <f:selectItem itemValue="todos" itemLabel="Todos" />
-                                                        </p:selectOneButton>                                                
-                                                        <p:inputText value="#{relatorioSociosBean.carenciaDiasString}" maxlength="3" size="2" styleClass="margin-left-max" converter="#{thisNumber}">
+                                                    <h:panelGroup layout="block" id="i_list_socios">
+                                                        <p:dataTable value="#{relatorioSociosBean.listSocios}" var="socios" emptyMessage="Nenhum registro encontrado!" styleClass="margin-top-max">
+                                                            <p:column headerText="Código" width="50" styleClass="text-center">
+                                                                #{socios.id}
+                                                            </p:column>
+                                                            <p:column headerText="Documento" width="150" styleClass="text-center">
+                                                                #{socios.documento}                                                                
+                                                            </p:column>
+                                                            <p:column headerText="Nome">
+                                                                #{socios.nome}                                                                
+                                                            </p:column>
+                                                            <p:column width="30" styleClass="text-center">
+                                                                <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.removeSocio(socios)}" title="Remover" update=":form_relatorio:i_list_socios"/> 
+                                                            </p:column>
+                                                        </p:dataTable>
+                                                    </h:panelGroup>
+                                                    <f:facet name="footer">
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('socios')}" title="Remover filtro" update="form_relatorio"/>
+                                                    </f:facet>
+                                                </p:panel>
+                                            </h:column>                                            
+                                            <h:column rendered="#{relatorioSociosBean.getShow('status')}">
+                                                <p:panel>
+                                                    <h:panelGrid columns="3" cellspacing="5">
+                                                        <p:outputLabel value="STATUS: " styleClass="bold font-color-red"/>
+                                                        <p:selectOneMenu value="#{relatorioSociosBean.statusSocio}">
+                                                            <f:selectItem itemValue="socio" itemLabel="Sócio"/>
+                                                            <f:selectItem itemValue="nao_socio" itemLabel="Não Sócio"/>
+                                                            <f:selectItem itemValue="todos" itemLabel="Todos"/>
+                                                        </p:selectOneMenu>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('status')}" title="Remover filtro" update="form_relatorio" disabled="true"/>
+                                                    </h:panelGrid>
+                                                </p:panel>
+                                            </h:column>                                            
+                                            <h:column rendered="#{relatorioSociosBean.getShow('numero_matricula')}">
+                                                <p:panel>
+                                                    <h:panelGrid columns="6" cellspacing="5">
+                                                        <p:outputLabel value="NÚMERO MATRÍCULA: " styleClass="bold font-color-red"/>
+                                                        <p:inputText value="#{relatorioSociosBean.matriculaInicial}" size="8" styleClass="text-center" converter="#{thisNumber}">
                                                             <p:ajax event="change" update="@this" />
                                                         </p:inputText>
+                                                        <p:outputLabel value=" até " style="font-weight: bold"/>
+                                                        <p:inputText value="#{relatorioSociosBean.matriculaFinal}" size="8" styleClass="text-center" converter="#{thisNumber}">
+                                                            <p:ajax event="change" update="@this" />
+                                                        </p:inputText>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('numero_matricula')}" title="Remover filtro" update="form_relatorio"/>
+                                                    </h:panelGrid>                                            
+                                                </p:panel>                                                
+                                            </h:column>
+                                            <h:column rendered="#{relatorioSociosBean.getShow('idade')}">                                                
+                                                <p:panel>
+                                                    <h:panelGrid columns="6" cellspacing="5">
+                                                        <p:outputLabel value="IDADE: " styleClass="bold"/>
+                                                        <p:inputText value="#{relatorioSociosBean.idadeInicial}" size="8" styleClass="text-center" converter="#{thisNumber}">
+                                                            <p:ajax event="change" update="@this" />
+                                                        </p:inputText>
+                                                        <p:outputLabel value=" até " style="font-weight: bold"/>
+                                                        <p:inputText value="#{relatorioSociosBean.idadeFinal}" size="8" styleClass="text-center" converter="#{thisNumber}">
+                                                            <p:ajax event="change" update="@this" />
+                                                        </p:inputText>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('idade')}" title="Remover filtro" update="form_relatorio"/>
                                                     </h:panelGrid>
-                                                </h:column>
-                                            </h:panelGrid>
-                                        </p:panel>
-
-                                        <p:panel header="Desconto Social" rendered="#{relatorioSociosBean.booDescontoSocial}">
-                                            <p:selectCheckboxMenu label="Selecionar " value="#{relatorioSociosBean.selectedDescontoSocial}" filter="true" filterMatchMode="startsWith">
-                                                <p:ajax event="toggleSelect" global="false" />
-                                                <p:ajax event="change" global="false" />
-                                                <f:selectItems value="#{relatorioSociosBean.listDescontoSocial}" />
-                                            </p:selectCheckboxMenu>
-                                        </p:panel>
-                                    </h:panelGrid>
-                                    <div class="clear"></div>
-
-                                    <h:panelGrid id="i_panel_filtro2" >                                        
-                                        <p:panel header="Empresas"  rendered="#{relatorioSociosBean.booEmpresa}">
-                                            <h:panelGrid  styleClass="margin-top-max">
-                                                <h:panelGrid columns="2">
-                                                    <p:selectOneRadio id="idRadioEmpresas" value="#{relatorioSociosBean.tipoEmpresas}">
-                                                        <p:ajax event="change" update="@this idEmpresas"/>
-                                                        <f:selectItem itemValue="com"         itemLabel="Com"/>
-                                                        <f:selectItem itemValue="sem"         itemLabel="Sem"/>
-                                                        <f:selectItem itemValue="especificas" itemLabel="Específicas"/>
-                                                    </p:selectOneRadio>
-                                                </h:panelGrid>
-                                                <h:panelGrid columns="3" id="idEmpresas">
-                                                    <p:commandButton value="Pesquisar Empresa" action="#{chamadaPaginaBean.pagina('pesquisaPessoaJuridica')}" actionListener="#{juridicaBean.pesquisaTodosEAtivos}" rendered="#{relatorioSociosBean.tipoEmpresas eq 'especificas'}" icon="ui-icon-search"/>
-                                                    <h:outputLabel value="#{relatorioSociosBean.empresa.pessoa.nome} - CNPJ: #{relatorioSociosBean.empresa.pessoa.documento}" rendered="#{relatorioSociosBean.empresa.id != -1}"/> 
-                                                    <p:commandButton action="#{relatorioSociosBean.setEmpresa(null)}" icon="ui-icon-close" rendered="#{relatorioSociosBean.empresa.id != -1}" update="idEmpresas"/>
-                                                </h:panelGrid>
-                                                <h:panelGrid columns="5">
-                                                    <p:outputLabel value="Número de funcionários a partir de:" />                                                
-                                                    <p:inputText value="#{relatorioSociosBean.minQtdeFuncionarioString}" size="3" >
-                                                        <p:ajax event="change" update="@this" />
-                                                    </p:inputText>
-                                                    <p:outputLabel value=" até " />                                                
-                                                    <p:inputText value="#{relatorioSociosBean.maxQtdeFuncionarioString}" size="3" >
-                                                        <p:ajax event="change" update="@this" />
-                                                    </p:inputText>
-                                                </h:panelGrid>
-                                            </h:panelGrid>                                            
-                                        </p:panel>
-                                    </h:panelGrid>
-                                    <h:panelGrid id="i_panel_filtro3" columns="1">
-                                        <h:panelGrid columns="10" rendered="#{relatorioSociosBean.booData}" style="float: left; margin: 10px ">
-                                            <h:column>
-                                                <h:panelGrid style="margin-right: 20px">
-                                                    <p:outputLabel value="Cadastro" styleClass="fontePadrao"/>
-                                                    <p:inputMask value="#{relatorioSociosBean.dataCadastro}" size="8" mask="99/99/9999"/>
-                                                    <p:outputLabel value="Até" styleClass="fontePadrao"/>
-                                                    <p:inputMask value="#{relatorioSociosBean.dataCadastroFim}" size="8" mask="99/99/9999"/>
-                                                </h:panelGrid>
+                                                </p:panel>
                                             </h:column>
+                                            <h:column rendered="#{relatorioSociosBean.getShow('grupo_categoria')}">                                                
+                                                <p:panel header="Grupo Categoria">
+                                                    <h:panelGrid columns="5" cellspacing="5">
+                                                        <h:column>
+                                                            <p:selectCheckboxMenu label="Selecionar grupo categoria" value="#{relatorioSociosBean.selectedGrupoCategoria}" filter="true" filterMatchMode="startsWith">
+                                                                <p:ajax event="toggleSelect"  update="i_categoria" global="false" listener="#{relatorioSociosBean.loadCategoria()}"/>
+                                                                <p:ajax event="change" update="i_categoria" global="false" listener="#{relatorioSociosBean.loadCategoria()}"/>
+                                                                <f:selectItems value="#{relatorioSociosBean.listGrupoCategoria}" />
+                                                            </p:selectCheckboxMenu> 
+                                                        </h:column>
 
-                                            <h:column>
-                                                <h:panelGrid style="margin-right: 20px">
-                                                    <h:outputLabel value="Recadastro" styleClass="fontePadrao"/>
-                                                    <p:inputMask value="#{relatorioSociosBean.dataRecadastro}" size="8" mask="99/99/9999"/>
-                                                    <h:outputLabel value="Até" styleClass="fontePadrao"/>
-                                                    <p:inputMask value="#{relatorioSociosBean.dataRecadastroFim}" size="8" mask="99/99/9999"/>
-                                                </h:panelGrid>
+                                                        <h:column>
+                                                            <h:panelGroup layout="block" id="i_categoria">
+                                                                <p:selectCheckboxMenu label="Selecionar categoria" value="#{relatorioSociosBean.selectedCategoria}" filter="true" filterMatchMode="startsWith">
+                                                                    <p:ajax event="toggleSelect" global="false"/>
+                                                                    <p:ajax event="change" global="false"/>
+                                                                    <f:selectItems value="#{relatorioSociosBean.listCategoria}" />
+                                                                </p:selectCheckboxMenu> 
+                                                            </h:panelGroup>
+                                                        </h:column>
+
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('grupo_categoria')}" title="Remover filtro" update="form_relatorio"/>
+                                                    </h:panelGrid>
+                                                </p:panel>
                                             </h:column>
-
-                                            <h:column>
-                                                <h:panelGrid style="margin-right: 20px">
-                                                    <h:outputLabel value="Admissão" styleClass="fontePadrao"/>
-                                                    <p:inputMask value="#{relatorioSociosBean.dataAdmissaoEmpresa}" size="8" mask="99/99/9999"/>
-                                                    <h:outputLabel value="Até" styleClass="fontePadrao"/>
-                                                    <p:inputMask value="#{relatorioSociosBean.dataAdmissaoEmpresaFim}" size="8" mask="99/99/9999"/>
-                                                </h:panelGrid>
+                                            <h:column rendered="#{relatorioSociosBean.getShow('sexo')}">
+                                                <p:panel>
+                                                    <h:panelGrid columns="3" cellspacing="5">
+                                                        <p:outputLabel value="SEXO " styleClass="bold"/>
+                                                        <p:selectOneMenu value="#{relatorioSociosBean.tipoSexo}">
+                                                            <f:selectItem itemValue="M" itemLabel="Masculino"/>
+                                                            <f:selectItem itemValue="F" itemLabel="Feminino"/>
+                                                        </p:selectOneMenu>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('sexo')}" title="Remover filtro" update="form_relatorio"/>
+                                                    </h:panelGrid>
+                                                </p:panel>
                                             </h:column>
-
-                                            <h:column>
-                                                <h:panelGrid style="margin-right: 20px">
-                                                    <h:outputLabel value="Demissão" styleClass="fontePadrao"/>
-                                                    <p:inputMask value="#{relatorioSociosBean.dataDemissao}" size="8" mask="99/99/9999"/>
-                                                    <h:outputLabel value="Até" styleClass="fontePadrao"/>
-                                                    <p:inputMask value="#{relatorioSociosBean.dataDemissaoFim}" size="8" mask="99/99/9999"/>
-                                                </h:panelGrid>
+                                            <h:column rendered="#{relatorioSociosBean.getShow('grau')}">
+                                                <p:panel header="Parentesco" >
+                                                    <h:panelGrid columns="2" cellspacing="5">
+                                                        <p:selectCheckboxMenu label="Selecionar parentesco" value="#{relatorioSociosBean.selectedParentesco}" filter="true" filterMatchMode="startsWith">
+                                                            <p:ajax event="toggleSelect" global="false"/>
+                                                            <p:ajax event="change" global="false"/>
+                                                            <f:selectItems value="#{relatorioSociosBean.listParentesco}" />
+                                                        </p:selectCheckboxMenu> 
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('grau')}" title="Remover filtro" update="form_relatorio"/>                                                        
+                                                    </h:panelGrid>
+                                                </p:panel>
                                             </h:column>
-
-                                            <h:column>
-                                                <h:panelGrid style="margin-right: 20px">
-                                                    <h:outputLabel value="Filiação" styleClass="fontePadrao"/>
-                                                    <p:inputMask value="#{relatorioSociosBean.dataAdmissaoSocio}" size="8" mask="99/99/9999"/>
-                                                    <h:outputLabel value="Até" styleClass="fontePadrao"/>
-                                                    <p:inputMask value="#{relatorioSociosBean.dataAdmissaoSocioFim}" size="8" mask="99/99/9999"/>
-                                                </h:panelGrid>
+                                            <h:column rendered="#{relatorioSociosBean.getShow('fotos')}">
+                                                <p:panel id="i_fts">
+                                                    <h:panelGrid columns="6" cellspacing="5">
+                                                        <p:outputLabel value="FOTOS: " styleClass="bold"/>
+                                                        <p:selectOneMenu value="#{relatorioSociosBean.tipoFotos}">
+                                                            <p:ajax event="change" update="@this :form_relatorio:i_fts" /> 
+                                                            <f:selectItem itemValue="com" itemLabel="Com"/>
+                                                            <f:selectItem itemValue="sem" itemLabel="Sem"/>
+                                                        </p:selectOneMenu>
+                                                        <p:commandLink action="#{relatorioSociosBean.download}" title="Baixar Fotos (ZIP)" ajax="false" rendered="#{relatorioSociosBean.getShow('fotos') and relatorioSociosBean.tipoFotos eq 'com'}" style="margin-left: 50px">
+                                                            <p:commandButton icon="ui-icon-arrowthick-1-s" value="Baixar Fotos" title="Baixar Fotos"/>
+                                                        </p:commandLink>                                                           
+                                                        <p:selectCheckboxMenu label="Selecionar letra" value="#{relatorioSociosBean.selectedAlfabeto}" filter="true" filterMatchMode="startsWith">
+                                                            <p:ajax event="toggleSelect" global="false"/>
+                                                            <p:ajax event="change" global="false"/>
+                                                            <f:selectItems value="#{relatorioSociosBean.listAlfabeto}" />
+                                                        </p:selectCheckboxMenu>                                                        
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('fotos')}" title="Remover filtro" update="form_relatorio"/>
+                                                    </h:panelGrid>
+                                                </p:panel>
                                             </h:column>
-
-                                            <h:column>
-                                                <h:panelGrid style="margin-right: 20px">
-                                                    <h:outputLabel value="Aposentadoria" styleClass="fontePadrao"/>
-                                                    <p:inputMask value="#{relatorioSociosBean.dataAposetandoria}" size="8" mask="99/99/9999"/>
-                                                    <h:outputLabel value="Até" styleClass="fontePadrao"/>
-                                                    <p:inputMask value="#{relatorioSociosBean.dataAposetandoriaFim}" size="8" mask="99/99/9999"/>
-                                                </h:panelGrid>
-                                            </h:column>
-
-                                            <h:column>
-                                                <h:panelGrid style="margin-right: 20px">
-                                                    <h:outputLabel value="Atualização" styleClass="fontePadrao"/>
-                                                    <p:inputMask value="#{relatorioSociosBean.dataAtualicacao}" size="8" mask="99/99/9999"/>
-                                                    <h:outputLabel value="Até" styleClass="fontePadrao"/>
-                                                    <p:inputMask value="#{relatorioSociosBean.dataAtualicacaoFim}" size="8" mask="99/99/9999"/>
-                                                </h:panelGrid>
-                                            </h:column>
-                                        </h:panelGrid>  
-                                    </h:panelGrid>
-
-                                    <div class="clear"></div>
-                                    <h:panelGrid id="i_panel_filtro12" columns="1" style="width: 100%!important">
-                                        <h:column>
-                                            <p:panel id="i_panel_avancado_2"  rendered="#{relatorioSociosBean.booServicos}" header="Serviços">
-                                                <h:panelGrid columns="3" id="i_pgf" cellpadding="5">
-                                                    <h:column>
-                                                        <p:outputLabel value="Grupos" />
-                                                    </h:column>
-                                                    <h:column>
-                                                        <p:outputLabel value="Subgrupo" rendered="#{not empty relatorioSociosBean.listSubGrupoFinanceiro}"/>
-                                                    </h:column>
-                                                    <h:column>
-                                                        <p:outputLabel value="Serviços" />                                                                
-                                                    </h:column>
-                                                    <h:column>
-                                                        <p:selectCheckboxMenu label="Selecionar grupo financeiro" value="#{relatorioSociosBean.selectedGrupoFinanceiro}" filter="true" filterMatchMode="startsWith">
-                                                            <p:ajax event="toggleSelect" global="false" update="@this i_p_g i_p_s" listener="#{relatorioSociosBean.loadSubGrupoFinanceiro}"/>
-                                                            <p:ajax event="change" global="false" update="@this i_p_g i_p_s" listener="#{relatorioSociosBean.loadSubGrupoFinanceiro}"/>
-                                                            <f:selectItems value="#{relatorioSociosBean.listGrupoFinanceiro}" />
+                                            <h:column rendered="#{relatorioSociosBean.getShow('cidade_socio')}">
+                                                <p:panel header="Cidade do Sócio" >
+                                                    <h:panelGrid columns="2" cellspacing="5">
+                                                        <p:selectCheckboxMenu label="Selecionar cidades do sócio" value="#{relatorioSociosBean.selectedCidadesSocio}" filter="true" filterMatchMode="startsWith">
+                                                            <p:ajax event="toggleSelect" global="false"/>
+                                                            <p:ajax event="change" global="false"/>
+                                                            <f:selectItems value="#{relatorioSociosBean.listCidadesSocio}" />
                                                         </p:selectCheckboxMenu>
-                                                    </h:column>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('cidade_socio')}" title="Remover filtro" update="form_relatorio"/>                                                        
+                                                    </h:panelGrid>
+                                                </p:panel>
+                                            </h:column>
+                                            <h:column rendered="#{relatorioSociosBean.getShow('carteirinha')}">
+                                                <p:panel>
+                                                    <h:panelGrid columns="3" cellspacing="5">
+                                                        <p:outputLabel value="CARTEIRINHA: "  styleClass="bold"/>
+                                                        <p:selectOneMenu value="#{relatorioSociosBean.tipoCarteirinha}">
+                                                            <f:selectItem itemValue="com" itemLabel="Com"/>
+                                                            <f:selectItem itemValue="sem" itemLabel="Sem"/>
+                                                        </p:selectOneMenu>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('carteirinha')}" title="Remover filtro" update="form_relatorio"/>
+                                                    </h:panelGrid>
+                                                </p:panel>
+                                            </h:column>
+                                            <h:column rendered="#{relatorioSociosBean.getShow('aniversario')}">
+                                                <p:panel header="Aniversário">
                                                     <h:column>
-                                                        <h:panelGrid id="i_p_g">
-                                                            <p:selectCheckboxMenu label="Selecionar subgrupo financeiro" value="#{relatorioSociosBean.selectedSubGrupoFinanceiro}" filter="true" filterMatchMode="startsWith"  rendered="#{not empty relatorioSociosBean.listSubGrupoFinanceiro}">
-                                                                <p:ajax event="toggleSelect" global="false" update="@this i_p_s" listener="#{relatorioSociosBean.loadServicos}"/>
-                                                                <p:ajax event="change" global="false" update="@this i_p_s" listener="#{relatorioSociosBean.loadServicos}"/>
-                                                                <f:selectItems value="#{relatorioSociosBean.listSubGrupoFinanceiro}" />
-                                                            </p:selectCheckboxMenu>
+                                                        <p:selectCheckboxMenu label="Selecionar mês" value="#{relatorioSociosBean.selectedMeses}" filter="true" filterMatchMode="startsWith">
+                                                            <p:ajax event="toggleSelect" global="false"/>
+                                                            <p:ajax event="change" global="false"/>
+                                                            <f:selectItems value="#{relatorioSociosBean.listMeses}" />
+                                                        </p:selectCheckboxMenu>
+                                                        <h:panelGrid columns="4" styleClass="margin-top-max">
+                                                            <p:inputText value="#{relatorioSociosBean.diaInicial}" size="2" styleClass="text-center" converter="#{thisNumber}">
+                                                                <p:ajax event="change" update="@this" global="false"/>
+                                                            </p:inputText>
+                                                            <h:outputLabel value=" até " styleClass="fontePadraoNegrito"/>
+                                                            <p:inputText value="#{relatorioSociosBean.diaFinal}" size="2" styleClass="text-center" converter="#{thisNumber}">
+                                                                <p:ajax event="change" update="@this" global="false"/>
+                                                            </p:inputText>
+                                                            <p:selectBooleanCheckbox value="#{relatorioSociosBean.ordemAniversario}" itemLabel="Ordem por Aniversário"/>
                                                         </h:panelGrid>
                                                     </h:column>
+                                                    <f:facet name="footer">
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('aniversario')}" title="Remover filtro" update="form_relatorio"/>
+                                                    </f:facet>
+                                                </p:panel>
+                                            </h:column>
+                                            <h:column rendered="#{relatorioSociosBean.getShow('estado_civil')}">
+                                                <p:panel header="Estado Cívil">
+                                                    <h:panelGrid columns="2" cellspacing="5">
+                                                        <p:selectCheckboxMenu label="Selecionar estado cívil" value="#{relatorioSociosBean.selectedEstadoCivil}" filter="true" filterMatchMode="startsWith">
+                                                            <p:ajax event="toggleSelect" global="false"/>
+                                                            <p:ajax event="change" global="false"/>
+                                                            <f:selectItems value="#{relatorioSociosBean.listEstadoCivil}" />
+                                                        </p:selectCheckboxMenu>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('estado_civil')}" title="Remover filtro" update="form_relatorio"/>
+                                                    </h:panelGrid>                                                    
+                                                </p:panel>
+                                            </h:column>
+                                            <h:column rendered="#{relatorioSociosBean.getShow('votante')}">
+                                                <p:panel>
+                                                    <h:panelGrid columns="3" cellspacing="5">
+                                                        <p:outputLabel value="VOTANTE: "  styleClass="bold"/>
+                                                        <p:selectOneMenu value="#{relatorioSociosBean.tipoEleicao}">
+                                                            <f:selectItem itemValue="votante" itemLabel="Votantes"/>
+                                                            <f:selectItem itemValue="naoVotante" itemLabel="Não Votantes"/>
+                                                        </p:selectOneMenu>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('votante')}" title="Remover filtro" update="form_relatorio"/>                                                        
+                                                    </h:panelGrid>
+                                                </p:panel>
+                                            </h:column>
+                                            <h:column rendered="#{relatorioSociosBean.getShow('email')}">
+                                                <p:panel>
+                                                    <h:panelGrid columns="3" cellspacing="5">
+                                                        <p:outputLabel value="EMAIL: "  styleClass="bold"/>
+                                                        <p:selectOneMenu value="#{relatorioSociosBean.tipoEmail}">
+                                                            <f:selectItem itemValue="com" itemLabel="Com"/>
+                                                            <f:selectItem itemValue="sem" itemLabel="Sem"/>
+                                                        </p:selectOneMenu>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('email')}" title="Remover filtro" update="form_relatorio"/>
+                                                    </h:panelGrid>
+                                                </p:panel>                                                    
+                                            </h:column>
+                                            <h:column rendered="#{relatorioSociosBean.getShow('telefone')}">
+                                                <p:panel>
+                                                    <h:panelGrid columns="3" cellspacing="5">
+                                                        <p:outputLabel value="TELEFONE: "  styleClass="bold"/>
+                                                        <p:selectOneMenu value="#{relatorioSociosBean.tipoTelefone}">
+                                                            <f:selectItem itemValue="com" itemLabel="Com"/>
+                                                            <f:selectItem itemValue="sem" itemLabel="Sem"/>
+                                                        </p:selectOneMenu>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('telefone')}" title="Remover filtro" update="form_relatorio"/>
+                                                    </h:panelGrid>
+                                                </p:panel>
+                                            </h:column>
+                                            <h:column rendered="#{relatorioSociosBean.getShow('biometria')}">
+                                                <p:panel>
+                                                    <h:panelGrid columns="3" cellspacing="5">
+                                                        <p:outputLabel value="BIOMETRIA: "  styleClass="bold"/>
+                                                        <p:selectOneMenu value="#{relatorioSociosBean.tipoBiometria}">
+                                                            <f:selectItem itemValue="com" itemLabel="Com"/>
+                                                            <f:selectItem itemValue="sem" itemLabel="Sem"/>
+                                                        </p:selectOneMenu>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('biometria')}" title="Remover filtro" update="form_relatorio"/>                                                        
+                                                    </h:panelGrid>
+                                                </p:panel>
+                                            </h:column>
+                                            <h:column rendered="#{relatorioSociosBean.getShow('situacao')}">
+                                                <p:panel header="Situação">
+                                                    <h:panelGrid columns="4" cellspacing="5">
+                                                        <h:column>
+                                                            <h:panelGrid columns="2">
+                                                                <p:outputLabel value="Situação:" />
+                                                                <p:selectOneMenu value="#{relatorioSociosBean.situacaoString}">
+                                                                    <f:selectItem itemValue="adimplente" itemLabel="Adimplente" />
+                                                                    <f:selectItem itemValue="inadimplente" itemLabel="Inadimplente" />
+                                                                </p:selectOneMenu>
+                                                            </h:panelGrid>
+                                                        </h:column>
+                                                        <h:column>
+                                                            <h:panelGrid columns="4">
+                                                                <p:outputLabel value="Carência de Débito em Dias:" />
+                                                                <p:selectOneButton value="#{relatorioSociosBean.tipoCarencia}">
+                                                                    <f:selectItem itemValue="eleicao" itemLabel="Eleição" />
+                                                                    <f:selectItem itemValue="clube" itemLabel="Clube" />
+                                                                    <f:selectItem itemValue="todos" itemLabel="Todos" />
+                                                                </p:selectOneButton>                                                
+                                                                <p:inputText value="#{relatorioSociosBean.carenciaDiasString}" maxlength="3" size="2" styleClass="margin-left-max text-center" converter="#{thisNumber}">
+                                                                    <p:ajax event="change" update="@this" />
+                                                                </p:inputText>
+                                                            </h:panelGrid>
+                                                        </h:column>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('situacao')}" title="Remover filtro" update="form_relatorio"/>
+                                                    </h:panelGrid>
+                                                </p:panel>                                                
+                                            </h:column>
+                                            <h:column rendered="#{relatorioSociosBean.getShow('suspencao')}">
+                                                <p:panel>                                                    
+                                                    <h:panelGrid columns="3" cellspacing="5">
+                                                        <p:outputLabel value="SUSPENSOS"  styleClass="bold font-color-red"/>
+                                                        <p:selectOneMenu value="#{relatorioSociosBean.tipoSuspencao}">
+                                                            <p:ajax event="change" update=":form_relatorio:i_p_r" listener="#{relatorioSociosBean.listener('reload_relatorios')}" />
+                                                            <f:selectItem itemValue="com" itemLabel="Com"/>
+                                                            <f:selectItem itemValue="sem" itemLabel="Sem"/>
+                                                            <f:selectItem itemValue="foram_suspensos" itemLabel="Foram suspensos" itemDisabled="true"/>
+                                                        </p:selectOneMenu>                                                        
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('suspencao')}" title="Remover filtro" update="form_relatorio"/>                                                        
+                                                    </h:panelGrid>
+                                                </p:panel>
+                                            </h:column>
+                                            <h:column rendered="#{relatorioSociosBean.getShow('oposicao')}">
+                                                <p:panel>
+                                                    <h:panelGrid columns="3" cellspacing="5">
+                                                        <p:outputLabel value="CARTA DE OPOSIÇÃO"  styleClass="bold font-color-red"/>
+                                                        <p:selectOneMenu value="#{relatorioSociosBean.tipoOposicao}">
+                                                            <f:selectItem itemValue="com" itemLabel="Com"/>
+                                                            <f:selectItem itemValue="sem" itemLabel="Sem"/>
+                                                        </p:selectOneMenu>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('oposicao')}" title="Remover filtro" update="form_relatorio"/>                                                        
+                                                    </h:panelGrid>
+                                                </p:panel>
+                                            </h:column>
+                                        </h:panelGrid>
+                                        <!-- EMPRESAS -->
+                                        <h:panelGrid style="width: 100%!important">
+                                            <h:column rendered="#{relatorioSociosBean.getShow('empresas')}">
+                                                <h:panelGroup layout="block" id="i_panel_filtro2" >                                        
+                                                    <p:panel header="Empresas">
+                                                        <h:panelGrid  styleClass="margin-top-max">
+                                                            <h:panelGrid columns="2">
+                                                                <p:selectOneRadio id="idRadioEmpresas" value="#{relatorioSociosBean.tipoEmpresas}">
+                                                                    <p:ajax event="change" update="@this i_panel_filtro2" listener="#{relatorioSociosBean.listener('empresas')}"/>
+                                                                    <f:selectItem itemValue="com"         itemLabel="Com"/>
+                                                                    <f:selectItem itemValue="sem"         itemLabel="Sem"/>
+                                                                    <f:selectItem itemValue="especificas" itemLabel="Específicas"/>
+                                                                </p:selectOneRadio>
+                                                            </h:panelGrid>
+                                                            <h:panelGrid columns="3" id="idEmpresas" rendered="#{relatorioSociosBean.tipoEmpresas eq 'especificas'}">
+                                                                <p:commandButton value="Pesquisar Empresa" action="#{chamadaPaginaBean.pagina('pesquisaPessoaJuridica')}" actionListener="#{juridicaBean.pesquisaTodosEAtivos}" icon="ui-icon-search"/>
+                                                                <h:outputLabel value="#{relatorioSociosBean.empresa.pessoa.nome} - CNPJ: #{relatorioSociosBean.empresa.pessoa.documento}" rendered="#{relatorioSociosBean.empresa.id != -1}"/>
+                                                                <p:commandButton action="#{relatorioSociosBean.setEmpresa(null)}" icon="ui-icon-close" rendered="#{relatorioSociosBean.empresa.id != -1}" update="idEmpresas"/>
+                                                            </h:panelGrid>
+                                                            <h:panelGrid columns="5" rendered="#{relatorioSociosBean.tipoEmpresas eq 'com'}">
+                                                                <p:outputLabel value="Número de funcionários a partir de:" />                                                
+                                                                <p:inputText value="#{relatorioSociosBean.minQtdeFuncionarioString}" size="3" converter="#{thisNumber}" styleClass="text-center">
+                                                                    <p:ajax event="change" update="@this" />
+                                                                </p:inputText>
+                                                                <p:outputLabel value=" até " />
+                                                                <p:inputText value="#{relatorioSociosBean.maxQtdeFuncionarioString}" size="3" converter="#{thisNumber}" styleClass="text-center">
+                                                                    <p:ajax event="change" update="@this" />
+                                                                </p:inputText>
+                                                            </h:panelGrid>
+                                                        </h:panelGrid>
+                                                        <f:facet name="footer">
+                                                            <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('empresas')}" title="Remover filtro" update="form_relatorio"/>
+                                                        </f:facet>
+                                                    </p:panel>
+                                                </h:panelGroup>
+                                            </h:column>
+                                            <h:column rendered="#{relatorioSociosBean.getShow('cidade_empresa')}">
+                                                <p:panel header="Cidade das Empresas" >
+                                                    <h:panelGrid columns="3" cellspacing="5">
+                                                        <p:selectCheckboxMenu label="Selecionar cidades do sócio" value="#{relatorioSociosBean.selectedCidadesEmpresa}" filter="true" filterMatchMode="startsWith">
+                                                            <p:ajax event="toggleSelect" global="false"/>
+                                                            <p:ajax event="change" global="false"/>
+                                                            <f:selectItems value="#{relatorioSociosBean.listCidadesEmpresa}" />
+                                                        </p:selectCheckboxMenu>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('cidade_empresa')}" title="Remover filtro" update="form_relatorio"/>
+                                                    </h:panelGrid>
+                                                </p:panel>
+                                            </h:column>
+                                        </h:panelGrid>
+                                        <!-- FINANCEIRO -->
+                                        <h:panelGrid style="width: 100%!important">
+                                            <h:column rendered="#{relatorioSociosBean.getShow('servicos')}">
+                                                <h:panelGrid id="i_panel_filtro12" columns="1" style="width: 100%!important">
                                                     <h:column>
-                                                        <h:panelGrid id="i_p_s">
-                                                            <p:selectCheckboxMenu label="Selecionar serviço" value="#{relatorioSociosBean.selectedServicos}" filter="true" filterMatchMode="startsWith">
-                                                                <p:ajax event="toggleSelect" global="false"/>
-                                                                <p:ajax event="change" global="false"/>
-                                                                <f:selectItems value="#{relatorioSociosBean.listServicos}" />
-                                                            </p:selectCheckboxMenu>                                                                
-                                                        </h:panelGrid>                                                                
-                                                    </h:column>
+                                                        <p:panel id="i_panel_avancado_2"  header="Serviços">
+                                                            <h:panelGrid columns="3" id="i_pgf" cellpadding="5">
+                                                                <h:column>
+                                                                    <p:outputLabel value="GRUPOS" styleClass="bold"/>
+                                                                </h:column>
+                                                                <h:column>
+                                                                    <p:outputLabel value="SUBGRUPO" rendered="#{not empty relatorioSociosBean.listSubGrupoFinanceiro}" styleClass="bold"/>
+                                                                </h:column>
+                                                                <h:column>
+                                                                    <p:outputLabel value="SERVIÇOS" styleClass="bold"/>                                                                
+                                                                </h:column>
+                                                                <h:column>
+                                                                    <p:selectCheckboxMenu label="Selecionar grupo financeiro" value="#{relatorioSociosBean.selectedGrupoFinanceiro}" filter="true" filterMatchMode="startsWith">
+                                                                        <p:ajax event="toggleSelect" global="false" update="i_p_g i_p_s" listener="#{relatorioSociosBean.loadSubGrupoFinanceiro}"/>
+                                                                        <p:ajax event="change" global="false" update="i_p_g i_p_s" listener="#{relatorioSociosBean.loadSubGrupoFinanceiro}"/>
+                                                                        <f:selectItems value="#{relatorioSociosBean.listGrupoFinanceiro}" />
+                                                                    </p:selectCheckboxMenu>
+                                                                </h:column>
+                                                                <h:column>
+                                                                    <h:panelGrid id="i_p_g">
+                                                                        <p:selectCheckboxMenu label="Selecionar subgrupo financeiro" value="#{relatorioSociosBean.selectedSubGrupoFinanceiro}" filter="true" filterMatchMode="startsWith"  rendered="#{not empty relatorioSociosBean.listSubGrupoFinanceiro}">
+                                                                            <p:ajax event="toggleSelect" global="false" update="i_p_s" listener="#{relatorioSociosBean.loadServicos}"/>
+                                                                            <p:ajax event="change" global="false" update="i_p_s" listener="#{relatorioSociosBean.loadServicos}"/>
+                                                                            <f:selectItems value="#{relatorioSociosBean.listSubGrupoFinanceiro}" />
+                                                                        </p:selectCheckboxMenu>
+                                                                    </h:panelGrid>
+                                                                </h:column>
+                                                                <h:column>
+                                                                    <h:panelGrid id="i_p_s">
+                                                                        <p:selectCheckboxMenu label="Selecionar serviço" value="#{relatorioSociosBean.selectedServicos}" filter="true" filterMatchMode="startsWith">
+                                                                            <p:ajax event="toggleSelect" global="false"/>
+                                                                            <p:ajax event="change" global="false"/>
+                                                                            <f:selectItems value="#{relatorioSociosBean.listServicos}" />
+                                                                        </p:selectCheckboxMenu>                                                                
+                                                                    </h:panelGrid>                                                                
+                                                                </h:column>
+                                                            </h:panelGrid>
+                                                            <p:selectOneRadio value="#{relatorioSociosBean.contemServicos}">
+                                                                <p:ajax event="change" update="@this" />
+                                                                <f:selectItem itemValue="true" itemLabel="Contém" />
+                                                                <f:selectItem itemValue="false" itemLabel="Não Contém" />
+                                                            </p:selectOneRadio>
+                                                            <f:facet name="footer">
+                                                                <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('servicos')}" title="Remover filtro" update="form_relatorio"/>                                                                
+                                                            </f:facet>
+                                                        </p:panel>
+                                                    </h:column> 
                                                 </h:panelGrid>
-                                                <p:selectOneRadio value="#{relatorioSociosBean.contemServicos}">
-                                                    <p:ajax event="change" update="@this" />
-                                                    <f:selectItem itemValue="true" itemLabel="Contém" />
-                                                    <f:selectItem itemValue="false" itemLabel="Não Contém" />
-                                                </p:selectOneRadio>
-                                            </p:panel>
-                                        </h:column>                                      
-                                    </h:panelGrid>
-
-
+                                            </h:column>
+                                            <h:column rendered="#{relatorioSociosBean.getShow('tipo_cobranca')}">
+                                                <p:panel header="Tipo de Cobrança">
+                                                    <h:panelGrid columns="3" cellspacing="5">
+                                                        <p:selectCheckboxMenu label="Selecionar tipo de cobranca" value="#{relatorioSociosBean.selectedTipoCobranca}" filter="true" filterMatchMode="startsWith">
+                                                            <p:ajax event="toggleSelect" global="false"/>
+                                                            <p:ajax event="change" global="false"/>
+                                                            <f:selectItems value="#{relatorioSociosBean.listTipoCobranca}" />
+                                                        </p:selectCheckboxMenu>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('tipo_cobranca')}" title="Remover filtro" update="form_relatorio"/>
+                                                    </h:panelGrid>
+                                                </p:panel>
+                                            </h:column>
+                                            <h:column rendered="#{relatorioSociosBean.getShow('datas')}">
+                                                <p:panel header="Datas">
+                                                    <h:panelGroup layout="block" id="i_panel_datas">
+                                                        <h:panelGrid columns="5" cellspacing="5">
+                                                            <p:selectOneMenu value="#{relatorioSociosBean.selectedDate}">
+                                                                <p:ajax event="change" update="@this " />
+                                                                <f:selectItems value="#{relatorioSociosBean.listDates}"/>
+                                                            </p:selectOneMenu>
+                                                            <p:selectOneMenu label="Data" value="#{relatorioSociosBean.typeDate}">
+                                                                <p:ajax event="change" update="@this i_panel_datas" />
+                                                                <f:selectItem itemValue="todos" itemLabel="Todos" />
+                                                                <f:selectItem itemValue="igual" itemLabel="Igual" />
+                                                                <f:selectItem itemValue="apartir" itemLabel="A partir" />
+                                                                <f:selectItem itemValue="ate" itemLabel="Até" />
+                                                                <f:selectItem itemValue="faixa" itemLabel="Faixa" />
+                                                            </p:selectOneMenu>
+                                                            <p:inputMask mask="99/99/9999" value="#{relatorioSociosBean.startDate}" converter="#{isDateString}" rendered="#{relatorioSociosBean.typeDate ne 'todos'}" size="10" styleClass="text-center">
+                                                                <p:ajax event="change" global="false" />
+                                                            </p:inputMask>
+                                                            <p:outputLabel value="até" rendered="#{relatorioCupomBean.tipoDataEmissao eq 'faixa'}" styleClass="margin-left-max"/>
+                                                            <p:inputMask mask="99/99/9999" value="#{relatorioSociosBean.finishDate}" converter="#{isDateString}" rendered="#{relatorioSociosBean.typeDate eq 'faixa'}"  size="10" styleClass="text-center">
+                                                                <p:ajax event="change" global="false" />
+                                                            </p:inputMask>
+                                                            <p:commandButton icon="ui-icon-plus" action="#{relatorioSociosBean.addFilterDate()}" title="Adicionar data" update="i_panel_datas"/>
+                                                        </h:panelGrid>
+                                                        <p:dataTable value="#{relatorioSociosBean.listDateFilters}" var="dateFilters" emptyMessage="Nenhuma data adicionada" styleClass="margin-top-max" id="i_tbl_data">
+                                                            <p:column headerText="Titulo" styleClass="text-center">
+                                                                #{relatorioSociosBean.getDateItemDescription(dateFilters.title)}
+                                                            </p:column>
+                                                            <p:column headerText="Tipo" styleClass="text-center">                                                                
+                                                                <p:selectOneMenu label="Data" value="#{dateFilters.type}">
+                                                                    <p:ajax event="change" update="@this i_tbl_data" />
+                                                                    <f:selectItem itemValue="todos" itemLabel="Todos" />
+                                                                    <f:selectItem itemValue="igual" itemLabel="Igual" />
+                                                                    <f:selectItem itemValue="apartir" itemLabel="A partir" />
+                                                                    <f:selectItem itemValue="ate" itemLabel="Até" />
+                                                                    <f:selectItem itemValue="faixa" itemLabel="Faixa" />
+                                                                </p:selectOneMenu>                                                                
+                                                            </p:column>
+                                                            <p:column headerText="Inicial" styleClass="text-center">
+                                                                <p:inputMask mask="99/99/9999" value="#{dateFilters.start}" converter="#{isDateString}" rendered="#{dateFilters.type ne 'todos'}" size="10" styleClass="text-center">
+                                                                    <p:ajax event="change" global="false" />
+                                                                </p:inputMask>                                                                
+                                                            </p:column>
+                                                            <p:column headerText="Final" styleClass="text-center">
+                                                                <p:inputMask mask="99/99/9999" value="#{dateFilters.finish}" converter="#{isDateString}" rendered="#{dateFilters.type eq 'faixa'}"  size="10" styleClass="text-center">
+                                                                    <p:ajax event="change" global="false" />
+                                                                </p:inputMask>
+                                                            </p:column>
+                                                            <p:column width="30" styleClass="text-center">
+                                                                <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.removeFilterDate(dateFilters)}" title="Remover filtro" update=":form_relatorio:i_panel_datas"/>
+                                                            </p:column>
+                                                        </p:dataTable>
+                                                    </h:panelGroup>
+                                                    <f:facet name="footer">
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('datas')}" title="Remover filtro" update="form_relatorio"/>
+                                                    </f:facet>
+                                                </p:panel>
+                                            </h:column>                                            
+                                            <h:column rendered="#{relatorioSociosBean.getShow('desconto_folha')}">
+                                                <p:panel>
+                                                    <h:panelGrid columns="3" cellspacing="5">
+                                                        <p:outputLabel value="DESCONTO EM FOLHA: "  styleClass="bold"/>
+                                                        <p:selectOneMenu value="#{relatorioSociosBean.tipoDescontoFolha}">
+                                                            <f:selectItem itemValue="com" itemLabel="Com"/>
+                                                            <f:selectItem itemValue="sem" itemLabel="Sem"/>
+                                                        </p:selectOneMenu>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('desconto_folha')}" title="Remover filtro" update="form_relatorio"/>
+                                                    </h:panelGrid>
+                                                </p:panel>
+                                            </h:column>
+                                            <h:column rendered="#{relatorioSociosBean.getShow('desconto_social')}">
+                                                <p:panel header="Desconto Social">
+                                                    <h:panelGrid columns="3" cellspacing="5">
+                                                        <p:selectCheckboxMenu label="Selecionar " value="#{relatorioSociosBean.selectedDescontoSocial}" filter="true" filterMatchMode="startsWith">
+                                                            <p:ajax event="toggleSelect" global="false" />
+                                                            <p:ajax event="change" global="false" />
+                                                            <f:selectItems value="#{relatorioSociosBean.listDescontoSocial}" />
+                                                        </p:selectCheckboxMenu>
+                                                        <p:commandButton icon="ui-icon-close" action="#{relatorioSociosBean.close('desconto_social')}" title="Remover filtro" update="form_relatorio"/>                                                        
+                                                    </h:panelGrid>
+                                                </p:panel>
+                                            </h:column>
+                                        </h:panelGrid>
+                                    </h:panelGroup>
                                 </h:column>
+                            </h:panelGrid>                            
+                            <h:panelGrid>
+                                <h:column>
+                                    <h:panelGrid columns="2">
+                                        <p:commandLink action="#{relatorioSociosBean.print}" title="Imprimir Relatório" ajax="false">
+                                            <p:commandButton icon="ui-icon-print" value="Imprimir Relatório" title="Imprimir Relatório"/>
+                                        </p:commandLink>                                 
+                                    </h:panelGrid>                                    
+                                </h:column>
+                                <p:selectBooleanCheckbox value="#{jasperBean.COMPRESS_FILE}" itemLabel="Compactar Arquivo (ZIP)" />
+                                <p:selectBooleanCheckbox value="#{jasperBean.IS_HEADER}" itemLabel="Com cabeçalho">
+                                    <p:ajax event="change" update="@this" listener="#{jasperBean.setTYPE('paisagem')}" />
+                                </p:selectBooleanCheckbox>
                             </h:panelGrid>
+                            <h:column>
+                                <h:panelGrid id="i_e_e_r_s" columns="2">
+                                    <p:selectBooleanCheckbox itemLabel="Exportar" value="#{jasperBean.EXPORT_TO}">
+                                        <p:ajax event="change" update="@this i_e_e_r_s" />
+                                    </p:selectBooleanCheckbox>
+                                    <p:selectOneMenu value="#{jasperBean.EXPORT_TYPE}" style="padding-right: 20px;" rendered="#{jasperBean.EXPORT_TO}">
+                                        <p:ajax event="change" update="@this" />
+                                        <f:selectItems value="#{jasperBean.listTypes('xls')}" />
+                                    </p:selectOneMenu>                                            
+                                </h:panelGrid>                                            
+                            </h:column>
                         </h:form>
                     </p:panel>
                 </f:view>

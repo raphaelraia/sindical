@@ -168,8 +168,8 @@
                                 </h:panelGroup>
                                 <f:facet name="footer">
                                     <h:panelGrid columns="2">
-                                        <p:commandButton value="Mesclar" disabled="#{controleAcessoBean.botaoSalvar or 2 > pessoaFisicaMesclarBean.listPessoaFisica.size()}" onclick="PF('dlg_save').show()" type="button"  />                                        
-                                        <p:commandButton value="Forçar Exclusão" onclick="PF('dlg_force_remove').show()" type="button"  disabled="true" title="EM DESENVOLVIMENTO"/>
+                                        <p:commandButton value="Mesclar" disabled="#{controleAcessoBean.botaoSalvar or 2 > pessoaFisicaMesclarBean.listPessoaFisica.size()}" onclick="PF('dlg_save').show()" type="button"  />
+                                        <p:commandButton value="Forçar Exclusão" onclick="PF('dlg_force_remove').show()" type="button" disabled="#{pessoaFisicaMesclarBean.listPessoaFisica.size() > 1}" title="EM DESENVOLVIMENTO" />
                                     </h:panelGrid>
                                 </f:facet>
                             </p:panel>
@@ -181,7 +181,7 @@
                                     </p:panelGrid>
                                 </f:facet>
                             </p:dialog>
-                            <p:dialog widgetVar="dlg_force_remove" modal="true" closable="true" width="300" header="Deseja mesclar este registro?">
+                            <p:dialog widgetVar="dlg_force_remove" modal="true" closable="true" width="300" header="Deseja REMOVER definitivamente este registro e todos seus vínculos?">
                                 <f:facet name="footer">
                                     <p:panelGrid columns="2" styleClass="sbb">
                                         <p:commandButton action="#{pessoaFisicaMesclarBean.forceDelete()}" value="Confirmar"  update=":form_pessoa_fisica_mesclar:" />

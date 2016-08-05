@@ -79,9 +79,104 @@ public class FrequenciaCatracaDao extends DB {
         /**
          * ORDEM ------------
          */
-        String ORDER_BY = "ORDER BY cf.dt_acesso, nome ";
+        String ORDER_BY = "ORDER BY cf.dt_acesso DESC, nome ";
         if (relatorio) {
-            ORDER_BY = "ORDER BY cf.dt_acesso, cf.ds_hora_acesso, nome ";
+            ORDER_BY = "ORDER BY cf.dt_acesso DESC, cf.ds_hora_acesso DESC, nome ";
+        }
+
+        QUERY += ORDER_BY + " LIMIT 1000 ";
+
+        try {
+            Query qry = getEntityManager().createNativeQuery(QUERY);
+            return qry.getResultList();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        return new ArrayList();
+    }
+
+    public List<ArrayList> listaFrequenciaGraph(Integer id_departamento, String data_inicial, String data_final, String hora_inicial, String hora_final, Integer id_pessoa, Integer id_sis_pessoa, String es, Boolean relatorio) {
+        /**
+         * QUERY
+         */
+        String QUERY
+                = "SELECT cf.id_departamento,   \n"
+                + "       cf.dt_acesso,         \n"
+                + "       COUNT(cf.dt_acesso)   \n";
+        if (!data_inicial.isEmpty() && !data_final.isEmpty() && (!data_inicial.equals(data_final))) {
+            QUERY += "";
+        } else {
+            QUERY += ","
+                    + "       ds_hora_acesso, \n"
+                    + "       cf.ds_es        \n";
+        }
+        QUERY += ""
+                + "  FROM soc_catraca_frequencia cf \n"
+                + " INNER JOIN seg_departamento d ON d.id = cf.id_departamento \n"
+                + "  LEFT JOIN pes_pessoa pp ON cf.id_pessoa = pp.id \n"
+                + "  LEFT JOIN sis_pessoa sp ON cf.id_sis_pessoa = sp.id \n";
+
+        /**
+         * CONDIÇÕES -------------
+         */
+        List<String> list_and = new ArrayList();
+        String WHERE_AND = " WHERE cf.id_departamento = " + id_departamento + " \n";
+        // DATA DE ACESSO INICIAL E FINAL
+        if (!data_inicial.isEmpty() && !data_final.isEmpty()) {
+            list_and.add("cf.dt_acesso >= '" + data_inicial + "' AND cf.dt_acesso <= '" + data_final + "'");
+        } else if (!data_inicial.isEmpty() && data_final.isEmpty()) {
+            list_and.add("cf.dt_acesso >= '" + data_inicial + "'");
+        } else if (data_inicial.isEmpty() && !data_final.isEmpty()) {
+            list_and.add("cf.dt_acesso <= '" + data_final + "'");
+        }
+        // ---
+
+        if (!hora_inicial.isEmpty() && !hora_final.isEmpty()) {
+            list_and.add("cf.ds_hora_acesso >= '" + hora_inicial + "' AND cf.ds_hora_acesso <= '" + hora_final + "'");
+        } else if (!hora_inicial.isEmpty() && hora_final.isEmpty()) {
+            list_and.add("cf.ds_hora_acesso >= '" + hora_inicial + "'");
+        } else if (hora_inicial.isEmpty() && !hora_final.isEmpty()) {
+            list_and.add("cf.ds_hora_acesso <= '" + hora_final + "'");
+        }
+
+        if (!es.equals("ES")) {
+            list_and.add("cf.ds_es = '" + es + "'");
+        } else {
+            list_and.add("cf.ds_es = 'E'");
+        }
+        // ---
+
+        for (String and_string : list_and) {
+            WHERE_AND += " AND " + and_string + " \n ";
+        }
+        QUERY += WHERE_AND;
+
+        if (id_pessoa != null) {
+            QUERY += " AND pp.id = " + id_pessoa + " \n ";
+        }
+
+        if (id_sis_pessoa != null) {
+            QUERY += " AND sp.id = " + id_sis_pessoa + " \n ";
+        }
+
+        /**
+         * ORDEM ------------
+         */
+        QUERY += " GROUP BY cf.id_departamento, \n"
+                + "      cf.dt_acesso       \n";
+        if (!data_inicial.isEmpty() && !data_final.isEmpty() && (!data_inicial.equals(data_final))) {
+            QUERY += "";
+        } else {
+            QUERY += ","
+                    + "       ds_hora_acesso, \n"
+                    + "       cf.ds_es        \n";
+        }
+
+        String ORDER_BY = "";
+        if (!data_inicial.isEmpty() && !data_final.isEmpty() && (!data_inicial.equals(data_final))) {
+            ORDER_BY = "ORDER BY cf.dt_acesso DESC ";
+        } else {
+            ORDER_BY = "ORDER BY cf.ds_hora_acesso ASC ";
         }
 
         QUERY += ORDER_BY;

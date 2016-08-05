@@ -2,6 +2,7 @@ package br.com.rtools.utilitarios;
 
 import java.io.*;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Stack;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
@@ -27,7 +28,7 @@ public class Zip {
     private void zipFiles(Stack<File> parentDirs, File[] files, ZipOutputStream out) throws IOException {
         byte[] buf = new byte[1024];
         for (int i = 0; i < files.length; i++) {
-            if(files[i] != null) {
+            if (files[i] != null) {
                 if (files[i].isDirectory()) {
                     //se a entrad é um diretório, empilha o diretório e
                     //chama o mesmo método recursivamente
@@ -51,7 +52,49 @@ public class Zip {
                     }
                     out.closeEntry();
                     in.close();
-                }                
+                }
+            }
+        }
+    }
+
+    public void zip(List<File> files, File outputFile) throws IOException {
+        if (files != null && !files.isEmpty()) {
+            ZipOutputStream out = new ZipOutputStream(
+                    new FileOutputStream(outputFile));
+            Stack<File> parentDirs = new Stack<File>();
+            zipFiles(parentDirs, files, out);
+            out.close();
+        }
+    }
+
+    private void zipFiles(Stack<File> parentDirs, List<File> files, ZipOutputStream out) throws IOException {
+        byte[] buf = new byte[1024];
+        for (int i = 0; i < files.size(); i++) {
+            if (files.get(i) != null) {
+                if (files.get(i).isDirectory()) {
+                    //se a entrad é um diretório, empilha o diretório e
+                    //chama o mesmo método recursivamente
+                    parentDirs.push(files.get(i));
+                    zipFiles(parentDirs, files.get(i).listFiles(), out);
+                    //após processar as entradas do diretório, desempilha
+                    parentDirs.pop();
+                } else {
+                    FileInputStream in = new FileInputStream(files.get(i));
+                    //itera sobre os itens da pilha para montar o caminho
+                    //completo do arquivo
+                    String path = "";
+                    for (File parentDir : parentDirs) {
+                        path += parentDir.getName() + "/";
+                    }
+                    //grava os dados no arquivo zip
+                    out.putNextEntry(new ZipEntry(path + files.get(i).getName()));
+                    int len;
+                    while ((len = in.read(buf)) > 0) {
+                        out.write(buf, 0, len);
+                    }
+                    out.closeEntry();
+                    in.close();
+                }
             }
         }
     }

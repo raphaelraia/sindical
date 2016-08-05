@@ -27,10 +27,10 @@ public class GenericaArquivo {
         } finally {
             if (sourceChannel != null && sourceChannel.isOpen()) {
                 sourceChannel.close();
-            }
+        }
             if (destinationChannel != null && destinationChannel.isOpen()) {
                 destinationChannel.close();
-            }
-        }
+    }
+}
     }
 }
