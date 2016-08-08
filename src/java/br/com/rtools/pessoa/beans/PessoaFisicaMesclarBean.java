@@ -1,22 +1,38 @@
 package br.com.rtools.pessoa.beans;
 
+import br.com.rtools.arrecadacao.Acordo;
 import br.com.rtools.arrecadacao.MotivoInativacao;
 import br.com.rtools.associativo.HistoricoCarteirinha;
+import br.com.rtools.associativo.HistoricoEmissaoGuias;
 import br.com.rtools.associativo.MatriculaSocios;
 import br.com.rtools.associativo.SMotivoInativacao;
 import br.com.rtools.associativo.SocioCarteirinha;
+import br.com.rtools.associativo.dao.EmissaoGuiasDao;
+import br.com.rtools.associativo.dao.HistoricoEmissaoGuiasDao;
 import br.com.rtools.associativo.dao.MatriculaSociosDao;
 import br.com.rtools.associativo.dao.SocioCarteirinhaDao;
 import br.com.rtools.cobranca.TmktHistorico;
 import br.com.rtools.cobranca.dao.TmktHistoricoDao;
+import br.com.rtools.financeiro.Baixa;
+import br.com.rtools.financeiro.FormaPagamento;
+import br.com.rtools.financeiro.Guia;
 import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.Movimento;
+import br.com.rtools.financeiro.MovimentoBoleto;
+import br.com.rtools.financeiro.MovimentoInativo;
 import br.com.rtools.financeiro.ServicoPessoa;
+import br.com.rtools.financeiro.dao.FormaPagamentoDao;
 import br.com.rtools.financeiro.dao.LoteDao;
+import br.com.rtools.financeiro.dao.MovimentoBoletoDao;
 import br.com.rtools.financeiro.dao.MovimentoDao;
+import br.com.rtools.financeiro.dao.MovimentoInativoDao;
 import br.com.rtools.financeiro.dao.ServicoPessoaDao;
 import br.com.rtools.homologacao.Agendamento;
+import br.com.rtools.homologacao.Cancelamento;
+import br.com.rtools.homologacao.Senha;
+import br.com.rtools.homologacao.dao.CancelamentoDao;
 import br.com.rtools.homologacao.dao.HomologacaoDao;
+import br.com.rtools.homologacao.dao.SenhaDao;
 import br.com.rtools.logSistema.NovoLog;
 import br.com.rtools.pessoa.*;
 import br.com.rtools.pessoa.dao.PessoaComplementoDao;
@@ -487,7 +503,7 @@ public class PessoaFisicaMesclarBean implements Serializable {
         List<PessoaEndereco> pesRemover = new PessoaEnderecoDao().pesquisaEndPorPessoa(remover.getPessoa().getId());
         if (!pesRemover.isEmpty()) {
             for (int i = 0; i < pesRemover.size(); i++) {
-                if (!dao.delete(pesRemover)) {
+                if (!dao.delete(pesRemover.get(i))) {
                     dao.rollback();
                     GenericaMensagem.warn("Erro", "AO REMOVER PESSOA ENDEREÇO!");
                     return;
@@ -505,19 +521,42 @@ public class PessoaFisicaMesclarBean implements Serializable {
             novoLog.save("REMOVER PESSOA COMPLEMENTO: " + pc.toString());
         }
         String movimentoLogString = "";
-        List<Movimento> listMovimentosPessoa = new MovimentoDao().findByPessoa(remover.getPessoa().getId());
+        List<Movimento> listMovimentosPessoa = new MovimentoDao().findByAllColumnsByPessoa(remover.getPessoa().getId());
         for (int i = 0; i < listMovimentosPessoa.size(); i++) {
+            MovimentoBoleto movimentoBoleto = new MovimentoBoletoDao().findByMovimento(listMovimentosPessoa.get(i).getId());
+            if (movimentoBoleto != null) {
+                dao.delete(movimentoBoleto);
+            }
             if (listMovimentosPessoa.get(i).getBaixa() != null) {
-                if (!dao.delete(listMovimentosPessoa.get(i).getBaixa())) {
+                List<FormaPagamento> fps = new FormaPagamentoDao().findByBaixa(listMovimentosPessoa.get(i).getBaixa().getId());
+                for (int j = 0; j < fps.size(); j++) {
+                    dao.delete(fps.get(j));
+                }
+                Baixa b = listMovimentosPessoa.get(i).getBaixa();
+                listMovimentosPessoa.get(i).setBaixa(null);
+                dao.update(listMovimentosPessoa.get(i));
+                dao.delete(b);
+
+            }
+            if (listMovimentosPessoa.get(i).getAcordo() != null) {
+                Acordo a = listMovimentosPessoa.get(i).getAcordo();
+                listMovimentosPessoa.get(i).setAcordo(null);
+                dao.update(listMovimentosPessoa.get(i));
+                dao.delete(a);
+            }
+            List<HistoricoEmissaoGuias> heg = new HistoricoEmissaoGuiasDao().findByMovimento(listMovimentosPessoa.get(i).getId());
+            for (int j = 0; j < heg.size(); j++) {
+                if (!dao.delete(heg.get(j))) {
                     dao.rollback();
-                    GenericaMensagem.warn("Erro", "AO REMOVER BAIXA!");
+                    GenericaMensagem.warn("Erro", "AO HISTÓRICO DE EMISSÃO DE GUIAS!");
                     return;
                 }
             }
-            if (listMovimentosPessoa.get(i).getAcordo() != null) {
-                if (!dao.delete(listMovimentosPessoa.get(i).getAcordo())) {
+            MovimentoInativo movimentoInativo = new MovimentoInativoDao().findByMovimento(listMovimentosPessoa.get(i).getId());
+            if (movimentoInativo != null) {
+                if (!dao.delete(movimentoInativo)) {
                     dao.rollback();
-                    GenericaMensagem.warn("Erro", "AO REMOVER ACORDO!");
+                    GenericaMensagem.warn("Erro", "AO EXCLUIR MOVIMENTOS INÁTIVOS!");
                     return;
                 }
             }
@@ -528,63 +567,16 @@ public class PessoaFisicaMesclarBean implements Serializable {
             }
             movimentoLogString += "REMOVER MOVIMENTO: " + listMovimentosPessoa.get(i).toString() + "; ";
         }
-        List<Movimento> listMovimentosTitular = new MovimentoDao().findByTitular(remover.getPessoa().getId());
-        if (!listMovimentosTitular.isEmpty()) {
-            movimentoLogString = "";
-        }
-        for (int i = 0; i < listMovimentosTitular.size(); i++) {
-            if (listMovimentosTitular.get(i).getBaixa() != null) {
-                if (!dao.delete(listMovimentosTitular.get(i).getBaixa())) {
-                    dao.rollback();
-                    GenericaMensagem.warn("Erro", "AO REMOVER BAIXA!");
-                    return;
-                }
-            }
-            if (listMovimentosTitular.get(i).getAcordo() != null) {
-                if (!dao.delete(listMovimentosTitular.get(i).getAcordo())) {
-                    dao.rollback();
-                    GenericaMensagem.warn("Erro", "AO REMOVER ACORDO!");
-                    return;
-                }
-            }
-            if (!dao.delete(listMovimentosTitular.get(i))) {
-                dao.rollback();
-                GenericaMensagem.warn("Erro", "AO REMOVER PESSOA MOVIMENTO!");
-                return;
-            }
-            movimentoLogString += "REMOVER MOVIMENTO: " + listMovimentosTitular.get(i).toString() + "; ";
-        }
-        List<Movimento> listMovimentosBeneficiario = new MovimentoDao().findByBeneficiario(remover.getPessoa().getId());
-        if (!listMovimentosBeneficiario.isEmpty()) {
-            movimentoLogString = "";
-        }
-        for (int i = 0; i < listMovimentosBeneficiario.size(); i++) {
-            if (listMovimentosBeneficiario.get(i).getBaixa() != null) {
-                if (!dao.delete(listMovimentosBeneficiario.get(i).getBaixa())) {
-                    dao.rollback();
-                    GenericaMensagem.warn("Erro", "AO REMOVER BAIXA!");
-                    return;
-                }
-            }
-            if (listMovimentosBeneficiario.get(i).getAcordo() != null) {
-                if (!dao.delete(listMovimentosBeneficiario.get(i).getAcordo())) {
-                    dao.rollback();
-                    GenericaMensagem.warn("Erro", "AO REMOVER ACORDO!");
-                    return;
-                }
-            }
-            if (!dao.delete(listMovimentosBeneficiario.get(i))) {
-                dao.rollback();
-                GenericaMensagem.warn("Erro", "AO REMOVER PESSOA MOVIMENTO!");
-                return;
-            }
-            movimentoLogString += "REMOVER MOVIMENTO: " + listMovimentosBeneficiario.get(i).toString() + "; ";
-        }
-        if (!movimentoLogString.isEmpty()) {
-            novoLog.save("REMOVER MOVIMENTOS DESSA PESSOA: " + movimentoLogString);
-        }
         List<Lote> listLote = new LoteDao().findByPessoa(remover.getPessoa().getId());
         for (int i = 0; i < listLote.size(); i++) {
+            List<Guia> guias = new EmissaoGuiasDao().findByLote(listLote.get(i).getId());
+            for (int j = 0; j < guias.size(); j++) {
+                if (!dao.delete(guias.get(j))) {
+                    dao.rollback();
+                    GenericaMensagem.warn("Erro", "AO REMOVER GUIA!");
+                    return;
+                }
+            }
             if (!dao.delete(listLote.get(i))) {
                 dao.rollback();
                 GenericaMensagem.warn("Erro", "AO ATUALIZAR PESSOA MOVIMENTO!");
@@ -662,6 +654,22 @@ public class PessoaFisicaMesclarBean implements Serializable {
         for (int i = 0; i < listPessoaEmpresaRemover.size(); i++) {
             List<Agendamento> listAgendamento = new HomologacaoDao().pesquisaAgendamentoPorPessoaEmpresa(listPessoaEmpresaRemover.get(i).getId());
             for (int z = 0; z < listAgendamento.size(); z++) {
+                Senha senha = new SenhaDao().find(listAgendamento.get(i).getId());
+                if (senha != null) {
+                    if (!dao.delete(senha)) {
+                        dao.rollback();
+                        GenericaMensagem.warn("Erro", "AO REMOVER SENHA! " + dao.EXCEPCION);
+                        return;
+                    }
+                }
+                Cancelamento cancelamento = new CancelamentoDao().findByAgendamento(listAgendamento.get(i).getId());
+                if (cancelamento != null) {
+                    if (!dao.delete(senha)) {
+                        dao.rollback();
+                        GenericaMensagem.warn("Erro", "AO REMOVER CANCELAMENTO! " + dao.EXCEPCION);
+                        return;
+                    }
+                }
                 if (!dao.delete(listAgendamento.get(z))) {
                     dao.rollback();
                     GenericaMensagem.warn("Erro", "AO REMOVER AGENDAMENTO! " + dao.EXCEPCION);
@@ -673,7 +681,7 @@ public class PessoaFisicaMesclarBean implements Serializable {
                 GenericaMensagem.warn("Erro", "AO REMOVER PESSOA EMPRESA! " + dao.EXCEPCION);
                 return;
             }
-            novoLog.save("REMOVER PESSOA EMPRESA: " + listPessoaEmpresaRemover.get(i).toString());
+            novoLog.save("DELETAR PESSOA EMPRESA: " + listPessoaEmpresaRemover.get(i).toString());
         }
 
         List<TmktHistorico> listTmktHistorico = new TmktHistoricoDao().findByPessoa(remover.getPessoa().getId());
@@ -683,7 +691,7 @@ public class PessoaFisicaMesclarBean implements Serializable {
                 GenericaMensagem.warn("Erro", "AO REMOVER HISTÓRICO DE TELEMARKETING! " + dao.EXCEPCION);
                 return;
             }
-            novoLog.save("ATUALIZAR PESSOA EMPRESA: " + listTmktHistorico.get(i).toString());
+            novoLog.save("DELETAR PESSOA EMPRESA: " + listTmktHistorico.get(i).toString());
         }
         List<Links> listLinks = new LinksDao().findAllByPessoa(remover.getPessoa().getId());
         for (int i = 0; i < listLinks.size(); i++) {
@@ -692,7 +700,7 @@ public class PessoaFisicaMesclarBean implements Serializable {
                 GenericaMensagem.warn("Erro", "AO REMOVER LINKS! " + dao.EXCEPCION);
                 return;
             }
-            novoLog.save("ATUALIZAR LINKS: " + listLinks.get(i).toString());
+            novoLog.save("DELETAR LINKS: " + listLinks.get(i).toString());
         }
         if (!dao.delete(remover)) {
             dao.rollback();

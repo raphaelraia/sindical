@@ -19,7 +19,7 @@ public class Filters {
         this.value = value;
         this.active = active;
     }
-    
+
     public Filters(String key, String value, Boolean active, Boolean disabled) {
         this.key = key;
         this.value = value;

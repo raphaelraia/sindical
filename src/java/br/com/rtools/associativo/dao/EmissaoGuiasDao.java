@@ -1,5 +1,6 @@
 package br.com.rtools.associativo.dao;
 
+import br.com.rtools.financeiro.Guia;
 import br.com.rtools.principal.DB;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,5 +25,15 @@ public class EmissaoGuiasDao extends DB {
             e.getMessage();
         }
         return new ArrayList();
+    }
+
+    public List<Guia> findByLote(Integer lote_id) {
+        try {
+            Query query = getEntityManager().createQuery("SELECT G FROM Guia G WHERE G.lote.id = :lote_id");
+            query.setParameter("lote_id", lote_id);
+            return query.getResultList();
+        } catch (Exception e) {
+            return new ArrayList();
+        }
     }
 }

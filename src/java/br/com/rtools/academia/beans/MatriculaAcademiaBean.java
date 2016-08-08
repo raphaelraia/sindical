@@ -16,6 +16,7 @@ import br.com.rtools.associativo.dao.SocioCarteirinhaDao;
 import br.com.rtools.associativo.dao.SociosDao;
 import br.com.rtools.escola.dao.MatriculaEscolaDao;
 import br.com.rtools.financeiro.CondicaoPagamento;
+import br.com.rtools.financeiro.DescontoPromocional;
 import br.com.rtools.financeiro.DescontoServicoEmpresa;
 import br.com.rtools.financeiro.Evt;
 import br.com.rtools.financeiro.FStatus;
@@ -26,6 +27,7 @@ import br.com.rtools.financeiro.Plano5;
 import br.com.rtools.financeiro.ServicoValor;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.TipoServico;
+import br.com.rtools.financeiro.dao.DescontoPromocionalDao;
 import br.com.rtools.financeiro.dao.DescontoServicoEmpresaDao;
 import br.com.rtools.financeiro.dao.LoteDao;
 import br.com.rtools.financeiro.dao.MovimentoDao;
@@ -1742,7 +1744,7 @@ public class MatriculaAcademiaBean implements Serializable {
                         if (Moeda.converteUS$(valorLiquido) > Moeda.converteUS$(valorLiquidoAntigo)) {
                             Float valor_taxa = Moeda.subtracaoValores(Moeda.converteUS$(valorLiquido), Moeda.converteUS$(valorLiquidoAntigo));
                             if (valor_taxa > 0) {
-                                if (!gerarTaxaMovimento(valor_taxa)) {
+                                if (!gerarTaxaMovimento(valor_taxa, true)) {
                                     GenericaMensagem.warn("ATENÇÃO", "Movimento não foi gerado, Tente novamente!");
                                     return null;
                                 }
@@ -1750,13 +1752,20 @@ public class MatriculaAcademiaBean implements Serializable {
                         }
                     } else // TAXA PROPORCIONAL ATÉ O VENCIMENTO
                     // METODO NOVO PARA O CHAMADO 1226
-                     if (Moeda.converteUS$(valorLiquido) > 0) {
-                            if (!gerarTaxaMovimento(Moeda.converteUS$(valorLiquido))) {
+                    {
+                        if (Moeda.converteUS$(valorLiquido) > 0) {
+                            if (!gerarTaxaMovimento(Moeda.converteUS$(valorLiquido), true)) {
                                 GenericaMensagem.warn("ATENÇÃO", "Movimento não foi gerado, Tente novamente!");
                                 return null;
                             }
-                        } // --------------
-                    new FunctionsDao().gerarMensalidades(matriculaAcademia.getServicoPessoa().getPessoa().getId(), retornaReferenciaGeracao());
+                        } // --------------                    // new FunctionsDao().gerarMensalidades(matriculaAcademia.getServicoPessoa().getPessoa().getId(), retornaReferenciaGeracao());
+                    }
+                    if (Moeda.converteUS$(valorLiquido) > 0) {
+                        if (!gerarTaxaMovimento(Moeda.converteUS$(valorLiquido), false)) {
+                            GenericaMensagem.warn("ATENÇÃO", "Movimento não foi gerado, Tente novamente!");
+                            return null;
+                        }
+                    } // --------------
                     if (!matriculaAcademia.isTaxa()) {
                         desabilitaCamposMovimento = true;
                         desabilitaDiaVencimento = true;
@@ -2004,30 +2013,39 @@ public class MatriculaAcademiaBean implements Serializable {
         return null;
     }
 
-    public Boolean gerarTaxaMovimento(Float valor_calculo) {
+    public Boolean gerarTaxaMovimento(Float valor_calculo, Boolean proporcional) {
+
+        DescontoPromocional descontoPromocional = new DescontoPromocionalDao().findByServicoMatricula(matriculaAcademia.getServicoPessoa().getServicos().getId());
+        if (descontoPromocional != null && descontoPromocional.getDesconto() > 0) {
+            valor_calculo = Moeda.converteUS$(Moeda.valorDoPercentual(Moeda.converteR$Float(valor_calculo), Moeda.converteR$Float(descontoPromocional.getDesconto())));
+
+            GenericaMensagem.error("IMPORTANTE", "Desconto Promocional Na Matrícula ao gerar o(s) movimento(s)");
+
+        }
+
         String mes = DataHoje.data().substring(3, 5),
                 ano = DataHoje.data().substring(6, 10),
                 referencia = mes + "/" + ano;
-
         String vencimento = DataHoje.data();
-
         String proximo_vencimento = (idDiaParcela < 10) ? "0" + idDiaParcela + "/" + mes + "/" + ano : idDiaParcela + "/" + mes + "/" + ano;
-
         Float valor_x;
-
         DataHoje dh = new DataHoje();
         String data_hoje = DataHoje.data();
         Integer dia_hoje = Integer.valueOf(data_hoje.substring(0, 2));
-        if (dia_hoje < idDiaParcela) {
-            Integer qnt_dias = Integer.valueOf(Long.toString(DataHoje.calculoDosDias(DataHoje.converte(data_hoje), DataHoje.converte(proximo_vencimento))));
-            valor_x = Moeda.multiplicarValores(Moeda.divisaoValores(valor_calculo, 30), qnt_dias);
-        } else if (dia_hoje == idDiaParcela) {
-            valor_x = valor_calculo;
-        } else {
-            proximo_vencimento = dh.incrementarMeses(1, proximo_vencimento);
-            Integer qnt_dias = Integer.valueOf(Long.toString(DataHoje.calculoDosDias(DataHoje.converte(data_hoje), DataHoje.converte(proximo_vencimento))));
+        if (proporcional) {
+            if (dia_hoje < idDiaParcela) {
+                Integer qnt_dias = Integer.valueOf(Long.toString(DataHoje.calculoDosDias(DataHoje.converte(data_hoje), DataHoje.converte(proximo_vencimento))));
+                valor_x = Moeda.multiplicarValores(Moeda.divisaoValores(valor_calculo, 30), qnt_dias);
+            } else if (dia_hoje == idDiaParcela) {
+                valor_x = valor_calculo;
+            } else {
+                proximo_vencimento = dh.incrementarMeses(1, proximo_vencimento);
+                Integer qnt_dias = Integer.valueOf(Long.toString(DataHoje.calculoDosDias(DataHoje.converte(data_hoje), DataHoje.converte(proximo_vencimento))));
 
-            valor_x = Moeda.multiplicarValores(Moeda.divisaoValores(valor_calculo, 30), qnt_dias);
+                valor_x = Moeda.multiplicarValores(Moeda.divisaoValores(valor_calculo, 30), qnt_dias);
+            }
+        } else {
+            valor_x = valor_calculo;
         }
 
         Dao dao = new Dao();
@@ -2067,6 +2085,13 @@ public class MatriculaAcademiaBean implements Serializable {
             return false;
         }
 
+        TipoServico tipoServico;
+
+        if (proporcional) {
+            tipoServico = (TipoServico) dao.find(new TipoServico(), 5);
+        } else {
+            tipoServico = (TipoServico) dao.find(new TipoServico(), 1);
+        }
         Movimento m
                 = new Movimento(
                         -1,
@@ -2075,7 +2100,7 @@ public class MatriculaAcademiaBean implements Serializable {
                         matriculaAcademia.getServicoPessoa().getCobranca(),
                         matriculaAcademia.getServicoPessoa().getServicos(),
                         null,
-                        (TipoServico) dao.find(new TipoServico(), 5),
+                        tipoServico,
                         null,
                         valor_x,
                         referencia,
@@ -2109,7 +2134,6 @@ public class MatriculaAcademiaBean implements Serializable {
 
         dao.commit();
         NovoLog logs = new NovoLog();
-
         logs.setTabela("matr_academia");
         logs.setCodigo(matriculaAcademia.getId());
         logs.save(

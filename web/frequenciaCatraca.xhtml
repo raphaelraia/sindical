@@ -27,7 +27,7 @@
                 <f:subview id="header">
                     <ui:include src="templates/templatePrime.xhtml"/>
                 </f:subview>
-                
+
                 <f:view>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
                         <h:outputText value="Frequência Catraca" styleClass="fonteHeader" />
@@ -38,7 +38,7 @@
                                     <h:column>
                                         <p:outputLabel value="DEPARTAMENTO" /><br />
                                         <p:selectOneMenu value="#{frequenciaCatracaBean.indexDepartamento}" style="width: 180px">
-                                            <p:ajax event="change" update="@form" listener="#{frequenciaCatracaBean.loadListaFrequenciaCatraca()}"/>
+                                            <p:ajax event="change" update="@form :form_graph:" listener="#{frequenciaCatracaBean.loadListaFrequenciaCatraca()}"/>
                                             <f:selectItems value="#{frequenciaCatracaBean.listaDepartamento}" />
                                         </p:selectOneMenu>
                                     </h:column>
@@ -99,7 +99,7 @@
 
                                     <h:column>
                                         <br />
-                                        <p:commandButton icon="ui-icon-search" value="FILTRAR LISTA" update="@form" action="#{frequenciaCatracaBean.loadListaFrequenciaCatraca()}" />
+                                        <p:commandButton icon="ui-icon-search" value="FILTRAR LISTA" update="@form :form_graph:" action="#{frequenciaCatracaBean.loadListaFrequenciaCatraca()}" />
                                     </h:column>
                                 </h:panelGrid>
                             </p:panel>
@@ -161,8 +161,15 @@
                             </p:dataTable>
 
                             <p:commandButton icon="ui-icon-print" value="IMPRIMIR RELATÓRIO" action="#{frequenciaCatracaBean.imprimir()}" ajax="false" rendered="#{frequenciaCatracaBean.listaFrequenciaCatraca.size() > 0}"/>
+
+
                         </h:form>
                     </p:panel>
+                    <h:form id="form_graph">
+                        <p:panel header="Gráfico" styleClass="margin-top-max">
+                            <p:chart type="line" model="#{frequenciaCatracaBean.graficoFrequencia1}" style="height:400px; " responsive="true" rendered="#{frequenciaCatracaBean.graficoFrequencia1 != null and false}"/>
+                        </p:panel>                        
+                    </h:form>
                 </f:view>
                 <!-- FINALIZA div wrap main -->
             </div>

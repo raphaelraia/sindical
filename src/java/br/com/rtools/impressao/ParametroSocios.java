@@ -90,6 +90,9 @@ public class ParametroSocios {
     private String cnpj_empresa_demissionada;
     private String empresa_demissionada;
     private String idade;
+    private Object suspencao_motivo;
+    private Object suspencao_inicial;
+    private Object suspencao_final;
 
     public ParametroSocios() {
         this.sinLogo = "";
@@ -176,9 +179,12 @@ public class ParametroSocios {
         this.cnpj_empresa_demissionada = "";
         this.empresa_demissionada = "";
         this.idade = "";
+        this.suspencao_motivo = null;
+        this.suspencao_inicial = null;
+        this.suspencao_final = null;
     }
 
-    public ParametroSocios(String sinLogo, String sinSite, String sinNome, String sinEndereco, String sinLogradouro, String sinNumero, String sinComplemento, String sinBairro, String sinCep, String sinCidade, String sinCidadeUf, String sinDocumento, int codigo, Date cadastro, String nome, String cpf, String telefone, String ds_uf_emissao_rg, String estado_civil, String ctps, String pai, String sexo, String mae, String nacionalidade, String nit, String ds_orgao_emissao_rg, String pis, String ds_serie, Date dt_aposentadoria, String ds_naturalidade, Date recadastro, Date dt_nascimento, String ds_foto, String ds_rg, String foto, String logradouro, String endereco, String numero, String complemento, String bairro, String cidade, String uf, String cep, String setor, Date admissao, String profissao, String fantasia, String empresa, String cnpj, String e_telefone, String e_logradouro, String e_endereco, String e_numero, String e_complemento, String e_bairro, String e_cidade, String e_uf, String e_cep, String titular, String codsocio, String nomeTitular, String parentesco, int matricula, String categoria, String grupo_categoria, Date filiacao, Date inativacao, boolean votante, String grau, BigDecimal nr_deconto, boolean desconto_folha, String tipo_cobranca, int cod_tipo_cobranca, String telefone2, String telefone3, String email, String contabilidade_nome, String contabilidade_contato, String contabilidade_telefone, String admissao_empresa_demissionada, String demissao_empresa_demissionada, String cnpj_empresa_demissionada, String empresa_demissionada, String idade) {
+    public ParametroSocios(String sinLogo, String sinSite, String sinNome, String sinEndereco, String sinLogradouro, String sinNumero, String sinComplemento, String sinBairro, String sinCep, String sinCidade, String sinCidadeUf, String sinDocumento, int codigo, Date cadastro, String nome, String cpf, String telefone, String ds_uf_emissao_rg, String estado_civil, String ctps, String pai, String sexo, String mae, String nacionalidade, String nit, String ds_orgao_emissao_rg, String pis, String ds_serie, Date dt_aposentadoria, String ds_naturalidade, Date recadastro, Date dt_nascimento, String ds_foto, String ds_rg, String foto, String logradouro, String endereco, String numero, String complemento, String bairro, String cidade, String uf, String cep, String setor, Date admissao, String profissao, String fantasia, String empresa, String cnpj, String e_telefone, String e_logradouro, String e_endereco, String e_numero, String e_complemento, String e_bairro, String e_cidade, String e_uf, String e_cep, String titular, String codsocio, String nomeTitular, String parentesco, int matricula, String categoria, String grupo_categoria, Date filiacao, Date inativacao, boolean votante, String grau, BigDecimal nr_deconto, boolean desconto_folha, String tipo_cobranca, int cod_tipo_cobranca, String telefone2, String telefone3, String email, String contabilidade_nome, String contabilidade_contato, String contabilidade_telefone, String admissao_empresa_demissionada, String demissao_empresa_demissionada, String cnpj_empresa_demissionada, String empresa_demissionada, String idade, Object suspencao_motivo, Object suspencao_inicial, Object suspencao_final) {
         this.sinLogo = sinLogo;
         this.sinSite = sinSite;
         this.sinNome = sinNome;
@@ -263,6 +269,9 @@ public class ParametroSocios {
         this.cnpj_empresa_demissionada = cnpj_empresa_demissionada;
         this.empresa_demissionada = empresa_demissionada;
         this.idade = idade;
+        this.suspencao_motivo = suspencao_motivo;
+        this.suspencao_inicial = suspencao_inicial;
+        this.suspencao_final = suspencao_final;
     }
 
     public String getSinLogo() {
@@ -935,5 +944,29 @@ public class ParametroSocios {
 
     public void setIdade(String idade) {
         this.idade = idade;
+    }
+
+    public Object getSuspencao_motivo() {
+        return suspencao_motivo;
+    }
+
+    public void setSuspencao_motivo(Object suspencao_motivo) {
+        this.suspencao_motivo = suspencao_motivo;
+    }
+
+    public Object getSuspencao_inicial() {
+        return suspencao_inicial;
+    }
+
+    public void setSuspencao_inicial(Object suspencao_inicial) {
+        this.suspencao_inicial = suspencao_inicial;
+    }
+
+    public Object getSuspencao_final() {
+        return suspencao_final;
+    }
+
+    public void setSuspencao_final(Object suspencao_final) {
+        this.suspencao_final = suspencao_final;
     }
 }

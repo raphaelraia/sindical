@@ -168,6 +168,7 @@ public class TituloBean implements Serializable {
             }
             if (dao.save(titulo, true)) {
                 GenericaMensagem.info("Sucesso", "Registro inserido");
+                idTitulo = titulo.getIdString();
                 novoLog.save(""
                         + "ID: " + titulo.getId()
                         + " - Gênero: (" + titulo.getGenero().getId() + ") - " + titulo.getGenero().getDescricao()

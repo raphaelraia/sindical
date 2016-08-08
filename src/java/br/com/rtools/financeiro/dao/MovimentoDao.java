@@ -2628,20 +2628,33 @@ public class MovimentoDao extends DB {
      * @return
      */
     public List<Movimento> findByPessoa(Integer pessoa_id) {
-        return findBy("pessoa", pessoa_id);
+        return findBy("pessoa", pessoa_id, false);
     }
 
     public List<Movimento> findByTitular(Integer pessoa_id) {
-        return findBy("titular", pessoa_id);
+        return findBy("titular", pessoa_id, false);
     }
 
     public List<Movimento> findByBeneficiario(Integer pessoa_id) {
-        return findBy("beneficiario", pessoa_id);
+        return findBy("beneficiario", pessoa_id, false);
+    }
+
+    public List<Movimento> findByAllColumnsByPessoa(Integer pessoa_id) {
+        return findBy("", pessoa_id, true);
     }
 
     public List<Movimento> findBy(String column, Integer pessoa_id) {
+        return findBy(column, pessoa_id, false);
+    }
+
+    public List<Movimento> findBy(String column, Integer pessoa_id, Boolean allColumns) {
         try {
-            Query query = getEntityManager().createNativeQuery("SELECT M.* FROM fin_movimento AS M WHERE M.id_" + column + " = " + pessoa_id, Movimento.class);
+            Query query;
+            if (allColumns != null && allColumns) {
+                query = getEntityManager().createNativeQuery("SELECT M.* FROM fin_movimento AS M WHERE M.id IN (SELECT M2.id FROM fin_movimento AS M2 WHERE (M2.id_pessoa = " + pessoa_id + " OR M2.id_titular = " + pessoa_id + " OR M2.id_beneficiario = " + pessoa_id + ") GROUP BY M2.id) ", Movimento.class);
+            } else {
+                query = getEntityManager().createNativeQuery("SELECT M.* FROM fin_movimento AS M WHERE M.id_" + column + " = " + pessoa_id, Movimento.class);
+            }
             return query.getResultList();
         } catch (Exception e) {
             return new ArrayList();

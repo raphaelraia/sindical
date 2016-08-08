@@ -8,13 +8,17 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
 @Entity
 @Table(name = "soc_desconto")
-@NamedQuery(name = "DescontoSocial.pesquisaID", query = "select ds from DescontoSocial ds where ds.id=:pid")
+@NamedQueries({
+    @NamedQuery(name = "DescontoSocial.pesquisaID", query = "SELECT DS FROM DescontoSocial AS DS WHERE DS.id=:pid"),
+    @NamedQuery(name = "DescontoSocial.findAll", query = "SELECT DS FROM DescontoSocial AS DS ORDER BY DS.descricao ASC")
+})
 public class DescontoSocial implements java.io.Serializable {
 
     @Id
