@@ -90,8 +90,8 @@
                             <h:panelGrid columns="6" columnClasses="column-padding-right20px, column-padding-right20px, column-padding-right20px, column-padding-right20px, column-padding-right20px">
                                 <h:column>
                                     <p:outputLabel value="Serviços" style="font-weight: bold"/><br />
-                                    <p:selectOneMenu value="#{matriculaSeguroBean.indexServicos}">
-                                        <p:ajax event="change" update="@this"/>
+                                    <p:selectOneMenu value="#{matriculaSeguroBean.indexServicos}" disabled="#{matriculaSeguroBean.matriculaSeguro.id ne -1}" style="#{matriculaSeguroBean.matriculaSeguro.id ne -1 ? 'opacity: 0.8' : ''}">
+                                        <p:ajax event="change" update="@form" listener="#{matriculaSeguroBean.loadListaMatriculaSeguro()}"/>
                                         <f:selectItems value="#{matriculaSeguroBean.listaServicos}"/>
                                     </p:selectOneMenu>
                                 </h:column>
@@ -156,13 +156,41 @@
                                 </h:panelGrid>
                             </p:panel>
 
-                            <h:panelGrid columns="4">
+                            <h:panelGrid columns="3">
                                 <p:commandButton value="#{matriculaSeguroBean.matriculaSeguro.id eq -1 ? 'Salvar' : 'Atualizar'}" onclick="PF('dlg_salvar').show()"  icon="ui-icon-check" disabled="#{controleAcessoBean.botaoSalvar}"/>
                                 <p:commandButton value="Novo" icon="ui-icon-document" action="#{matriculaSeguroBean.novo()}" update="@form"/>
                                 <p:commandButton value="Excluir" onclick="PF('dlg_excluir').show()"  icon="ui-icon-close" disabled="#{matriculaSeguroBean.matriculaSeguro.id eq -1 or controleAcessoBean.botaoExcluir}"/>
-                                <p:commandButton value="Pesquisar" action="#{chamadaPaginaBean.pagina('pesquisaMatriculaSeguro')}" icon="ui-icon-search" ajax="false"/>
                             </h:panelGrid>
+                            <br />
+                            <h:panelGrid columns="2" style="width: 100%">
+                                <p:outputLabel value="Lista de Seguros" style="font-weight: bold; font-size: 11pt!important"/>
+                                
+                                <p:commandButton value="Pesquisa Aprimorada" action="#{chamadaPaginaBean.pagina('pesquisaMatriculaSeguro')}" icon="ui-icon-search" ajax="false" style="float: right"/>
+                            </h:panelGrid>
+                            <p:separator />
+                            
+                            <p:dataTable value="#{matriculaSeguroBean.listaMatriculaSeguro}" var="linha_matricula" emptyMessage="Nenhuma Matrícula Encontrada.">
+                                <p:column headerText="Código" style="text-align: center; width: 50px">
+                                    <p:commandLink action="#{matriculaSeguroBean.editar(linha_matricula)}" value="#{linha_matricula.servicoPessoa.pessoa.id}" />
+                                </p:column>
 
+                                <p:column headerText="Nome">
+                                    <p:commandLink action="#{matriculaSeguroBean.editar(linha_matricula)}" value="#{linha_matricula.servicoPessoa.pessoa.nome}" />
+                                </p:column>
+
+                                <p:column headerText="Idade" style="text-align: center; width: 50px">
+                                    <p:commandLink action="#{matriculaSeguroBean.editar(linha_matricula)}" value="#{linha_matricula.servicoPessoa.pessoa.fisica.idade}" />
+                                </p:column>
+
+                                <p:column headerText="Categoria">
+                                    <p:commandLink action="#{matriculaSeguroBean.editar(linha_matricula)}" value="#{linha_matricula.servicoPessoa.pessoa.socios.matriculaSocios.categoria.categoria}" />
+                                </p:column>
+                                
+                                <p:column headerText="Matrícula" style="text-align: center; width: 70px">
+                                    <p:commandLink action="#{matriculaSeguroBean.editar(linha_matricula)}" value="#{linha_matricula.servicoPessoa.pessoa.socios.matriculaSocios.nrMatricula}" />
+                                </p:column>
+                            </p:dataTable>
+                            
                             <p:dialog widgetVar="dlg_salvar" header="Salvar Matrícula" resizable="false" width="400" modal="true">
                                 <h:panelGrid id="panel_salvar" style="width: 100%">
                                     <p:outputLabel value="Deseja realmente salvar esta matrícula?" style="font-size: 11pt!important"/>

@@ -9,7 +9,6 @@ import br.com.rtools.associativo.DescontoSocial;
 import br.com.rtools.associativo.MatriculaSeguro;
 import br.com.rtools.associativo.dao.MatriculaSeguroDao;
 import br.com.rtools.financeiro.FTipoDocumento;
-import br.com.rtools.financeiro.ServicoPessoa;
 import br.com.rtools.financeiro.Servicos;
 import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.logSistema.NovoLog;
@@ -20,6 +19,7 @@ import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Moeda;
+import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +48,9 @@ public class MatriculaSeguroBean implements Serializable {
 
     public MatriculaSeguroBean() {
         loadListaServicos();
+        loadListaMatriculaSeguro();
+        
+        GenericaSessao.remove("fisicaPesquisa");
     }
 
     public String getMaskPesquisa() {
@@ -63,7 +66,13 @@ public class MatriculaSeguroBean implements Serializable {
     public final void loadListaMatriculaSeguro(String por) {
         listaMatriculaSeguro.clear();
 
-        listaMatriculaSeguro = new MatriculaSeguroDao().listaMatriculaSeguro(descricaoPesquisa, tipoPesquisa, por);
+        listaMatriculaSeguro = new MatriculaSeguroDao().listaMatriculaSeguro(descricaoPesquisa, null, tipoPesquisa, por);
+    }
+
+    public final void loadListaMatriculaSeguro() {
+        listaMatriculaSeguro.clear();
+
+        listaMatriculaSeguro = new MatriculaSeguroDao().listaMatriculaSeguro("", Integer.valueOf(listaServicos.get(indexServicos).getDescription()), "servico", "");
     }
 
     public final void loadListaServicos() {
@@ -89,22 +98,39 @@ public class MatriculaSeguroBean implements Serializable {
             return;
         }
 
+        Pessoa pessoaCobranca;
+        if (matriculaSeguro.getServicoPessoa().getPessoa().getSocios().getId() != -1) {
+            pessoaCobranca = new FunctionsDao().titularDaPessoa(matriculaSeguro.getServicoPessoa().getPessoa().getId());
+        } else {
+            if (matriculaSeguro.getServicoPessoa().getPessoa().getFisica().getIdade() < 16){
+                GenericaMensagem.error("ATENÇÃO", "Menor de 16 anos não pode ser responsável!");
+                return;
+            }
+            
+            pessoaCobranca = matriculaSeguro.getServicoPessoa().getPessoa();
+        }
+
         Dao dao = new Dao();
         NovoLog logs = new NovoLog();
 
         matriculaSeguro.getServicoPessoa().setServicos((Servicos) dao.find(new Servicos(), Integer.valueOf(listaServicos.get(indexServicos).getDescription())));
         matriculaSeguro.getServicoPessoa().setNrDiaVencimento(Registro.get().getFinDiaVencimentoCobranca());
         matriculaSeguro.getServicoPessoa().setNrValorFixo(valor);
+        matriculaSeguro.getServicoPessoa().setCobranca(pessoaCobranca);
 
         dao.openTransaction();
 
         if (matriculaSeguro.getId() == -1) {
+            if (new MatriculaSeguroDao().pesquisaMatriculaSeguroPessoaAtiva(matriculaSeguro.getServicoPessoa().getPessoa().getId(), matriculaSeguro.getServicoPessoa().getServicos().getId()) != null) {
+                GenericaMensagem.error("ATENÇÃO", "Esta pessoa já tem esse serviço ativo!");
+                return;
+            }
+
             matriculaSeguro.getServicoPessoa().setTipoDocumento((FTipoDocumento) dao.find(new FTipoDocumento(), 13));
             matriculaSeguro.getServicoPessoa().setCobranca(null);
             matriculaSeguro.getServicoPessoa().setAtivo(true);
             matriculaSeguro.getServicoPessoa().setBanco(true);
             matriculaSeguro.getServicoPessoa().setDescontoSocial((DescontoSocial) dao.find(new DescontoSocial(), 1));
-            matriculaSeguro.getServicoPessoa().setCobranca(null);
             matriculaSeguro.getServicoPessoa().setEvt(null);
             matriculaSeguro.getServicoPessoa().setParceiro(null);
 
@@ -173,6 +199,7 @@ public class MatriculaSeguroBean implements Serializable {
             GenericaMensagem.info("SUCESSO", "MATRÍCULA SEGURO ATUALIZADA!");
         }
         dao.commit();
+        loadListaMatriculaSeguro();
     }
 
     public void excluir() {
@@ -215,6 +242,8 @@ public class MatriculaSeguroBean implements Serializable {
         valor = matriculaSeguro.getServicoPessoa().getNrValorFixo();
 
         calculoPercentualDesconto();
+        loadListaMatriculaSeguro();
+
         GenericaSessao.put("linkClicado", true);
         return "matriculaSeguro";
     }
@@ -229,7 +258,7 @@ public class MatriculaSeguroBean implements Serializable {
         } else {
             valor = (float) 0;
             desconto = (float) 0;
-            valorTotal  = (float) 0;
+            valorTotal = (float) 0;
             matriculaSeguro.getServicoPessoa().setNrDesconto(0);
         }
     }
@@ -245,7 +274,7 @@ public class MatriculaSeguroBean implements Serializable {
         } else {
             valor = (float) 0;
             desconto = (float) 0;
-            valorTotal  = (float) 0;
+            valorTotal = (float) 0;
             matriculaSeguro.getServicoPessoa().setNrDesconto(0);
         }
     }

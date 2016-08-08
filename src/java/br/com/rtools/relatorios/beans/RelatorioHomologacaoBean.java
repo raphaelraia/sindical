@@ -453,7 +453,7 @@ public class RelatorioHomologacaoBean implements Serializable {
         }
         if (!listFilters.get(4).getActive()) {
             funcionario = new Fisica();
-            listFuncionario.clear();;
+            listFuncionario.clear();
         }
         if (!listFilters.get(5).getActive()) {
             operador = new Usuario();
