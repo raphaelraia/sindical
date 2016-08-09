@@ -443,51 +443,18 @@ public class ExtratoTelaSocialBean implements Serializable {
             return;
         }
 
-        List<Movimento> lista_acordo = new ArrayList();
-        MovimentoDao db = new MovimentoDao();
-
-        if (movimento.getAcordo() != null) {
-            if (movimento.getAcordo().getId() != -1) {
-                lista_acordo.addAll(db.pesquisaAcordoParaExclusao(movimento.getAcordo().getId()));
-            }
-        } else {
-            GenericaMensagem.warn("Atenção", "Não existe acordo para este boleto!");
-            return;
-        }
-
-        for (Movimento lista_acordo1 : lista_acordo) {
-            if (lista_acordo1.getBaixa() != null && lista_acordo1.isAtivo()) {
-                GenericaMensagem.warn("Atenção", "Acordo com parcela já paga não pode ser excluído!");
-                return;
-            }
-        }
-
-        if (!lista_acordo.isEmpty()) {
-            String ids = "";
-            for (int i = 0; i < lista_acordo.size(); i++) {
-                if (ids.length() > 0 && i != lista_acordo.size()) {
-                    ids = ids + ",";
-                }
-                ids = ids + String.valueOf(lista_acordo.get(i).getId());
-            }
-
-            if (ids.isEmpty()) {
-                return;
-            } else {
-                db.excluirAcordoSocialIn(ids, lista_acordo.get(0).getAcordo().getId());
-            }
-
-            //loadListBeta();
+        String resposta = GerarMovimento.excluirUmAcordoSocial(movimento);
+        if (resposta.isEmpty()){
             GenericaMensagem.info("OK", "Acordo Excluído com sucesso!");
 
             loadLista();
 
             PF.update("formExtratoTelaSocial");
             PF.closeDialog("dlg_acordo");
-        } else {
-
-            GenericaMensagem.warn("Atenção", "Nenhum Acordo encontrado!");
+            return;
         }
+        
+        GenericaMensagem.error("Atenção", resposta);
     }
 
     public void loadListaServicos() {

@@ -969,7 +969,7 @@ public class GerarMovimento extends DB {
             try {
                 if (!mov.isAtivo() && mov.getBaixa() == null) {
                     mov.setAtivo(true);
-                    
+
                     MovimentoInativo movimentoInativo = movimentoInativoDao.findByMovimento(mov.getId());
 
                     Boleto bol = movDB.pesquisaBoletos(mov.getNrCtrBoleto());
@@ -1542,5 +1542,65 @@ public class GerarMovimento extends DB {
 
         dao.rollback();
         return false;
+    }
+
+    public static String excluirUmAcordoSocial(Movimento movimento) {
+        NovoLog log = new NovoLog();
+
+        List<Movimento> lista_acordo = new ArrayList();
+        MovimentoDao db = new MovimentoDao();
+
+        if (movimento.getAcordo() != null && movimento.getAcordo().getId() != -1) {
+            lista_acordo.addAll(db.pesquisaAcordoParaExclusao(movimento.getAcordo().getId()));
+        } else {
+            return "Não existe acordo para este boleto!";
+        }
+
+        if (lista_acordo.isEmpty()) {
+            return "Nenhum Acordo encontrado!";
+        }
+
+        for (Movimento lista_acordo1 : lista_acordo) {
+            if (lista_acordo1.getBaixa() != null && lista_acordo1.isAtivo()) {
+                return "Acordo com parcela já paga não pode ser excluído!";
+            }
+        }
+
+        String ids = "";
+        for (int i = 0; i < lista_acordo.size(); i++) {
+            if (ids.length() > 0 && i != lista_acordo.size()) {
+                ids = ids + ", ";
+            }
+            ids = ids + String.valueOf(lista_acordo.get(i).getId());
+        }
+
+        if (ids.isEmpty()) {
+            return "Ids não gerado!";
+        }
+
+        if (!db.excluirAcordoSocialIn(ids, lista_acordo.get(0).getAcordo().getId())) {
+            return "Não foi possível excluir acordos";
+        }
+
+        String str_log
+                = "Acordo ID: " + lista_acordo.get(0).getAcordo().getId() + " \n "
+                + "Acordo Contato: " + lista_acordo.get(0).getAcordo().getContato() + " \n "
+                + "Acordo Data: " + lista_acordo.get(0).getAcordo().getData() + " \n "
+                + "Acordo Email: " + lista_acordo.get(0).getAcordo().getEmail() + " \n "
+                + "Acordo Usuário: " + lista_acordo.get(0).getAcordo().getUsuario().getPessoa().getNome() + " \n "
+                + "------------------------------------------------- \n "
+                + "-- MOVIMENTOS EXCLUÍDOS -- \n ";
+
+        String sl = "";
+        for (Movimento lista_acordo1 : lista_acordo) {
+            sl
+                    += "------------------------------------------------- \n "
+                    + "Movimento ID: " + lista_acordo1.getId() + " \n "
+                    + "Movimento Valor: " + lista_acordo1.getValorString() + " \n "
+                    + "Movimento Vencimento: " + lista_acordo1.getVencimento() + " \n ";
+        }
+
+        log.delete(str_log + sl);
+        return "";
     }
 }

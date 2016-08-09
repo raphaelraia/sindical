@@ -137,7 +137,7 @@
                                     </p:selectOneMenu>
                                 </p:column>
                                 <p:column>
-                                    <h:panelGrid columns="12" rendered="#{movimentosReceberSocialBean.porPesquisa ne 'excluidos'}">
+                                    <h:panelGrid columns="11" rendered="#{movimentosReceberSocialBean.porPesquisa ne 'excluidos'}">
                                         <p:column rendered="false">
                                             <h:outputText value="Ref" /><br />
                                             <p:inputMask size="6" value="#{movimentosReceberSocialBean.referenciaPesquisa}" style="margin-right: 20px;" mask="99/9999">
@@ -179,11 +179,6 @@
 
                                         <p:column>
                                             <br />
-                                            <p:commandButton value="Acordo" title="Fazer um acordo" action="#{movimentosReceberSocialBean.telaAcordo()}" rendered="#{movimentosReceberSocialBean.porPesquisa != 'quitados'}" update="@form"/>
-                                        </p:column>
-
-                                        <p:column>
-                                            <br />
                                             <p:commandButton value="Estornar" title="Estornar Movimentos Baixados" onclick="PF('i_dlg_estorno').show()" rendered="#{movimentosReceberSocialBean.porPesquisa != 'abertos' or movimentosReceberSocialBean.porPesquisa != 'atrasados'}" disabled="#{controleAcessoBean.botaoEstornarMensalidades}"/>
                                         </p:column>
 
@@ -196,7 +191,6 @@
                                             <br />
                                             <p:commandButton value="Refazer" title="Refazer movimentos selecionados" rendered="#{movimentosReceberSocialBean.porPesquisa != 'quitados'}"  onclick="PF('dlg_refazer').show()" />
                                         </p:column>
-
                                     </h:panelGrid>
                                 </p:column>
                                 <p:column>
@@ -211,24 +205,46 @@
 
                             <h:panelGrid id="panelAnexar" columns="3" rendered="#{movimentosReceberSocialBean.listaMovimento.size() > 0 or movimentosReceberSocialBean.pessoa.id != -1}" style="width: 100%">
                                 <p:column>
-                                    <br />
-                                    <p:commandButton value="Anexar Boletos" action="#{movimentosReceberSocialBean.clickAnexarMovimentos}" title="Anexar Boletos" rendered="#{movimentosReceberSocialBean.porPesquisa != 'quitados'}"  onclick="PF('dlg_anexar_boletos').show()" update="panel_anexar_boletos panel_criar_boleto" disabled="#{movimentosReceberSocialBean.cab.verificarPermissao('anexarBoletos', 3) or movimentosReceberSocialBean.cab.verificarPermissao('anexarBoletos', 1)}"/>
+                                    <p:panel styleClass="fundoCinza">
+                                        <p:outputLabel value="Opções de Boleto" style="font-size: 8pt!important; font-weight: bold"/><br />
+                                        <h:panelGrid columns="1">
+                                            <p:commandButton value="Anexar Boletos" action="#{movimentosReceberSocialBean.clickAnexarMovimentos}" title="Anexar Boletos" rendered="#{movimentosReceberSocialBean.porPesquisa != 'quitados'}"  onclick="PF('dlg_anexar_boletos').show()" update="panel_anexar_boletos panel_criar_boleto" disabled="#{movimentosReceberSocialBean.cab.verificarPermissao('anexarBoletos', 3) or movimentosReceberSocialBean.cab.verificarPermissao('anexarBoletos', 1)}"/>
+                                        </h:panelGrid>
+                                    </p:panel>
                                 </p:column>
 
                                 <p:column rendered="#{movimentosReceberSocialBean.porPesquisa eq 'quitados' or movimentosReceberSocialBean.porPesquisa eq 'todos'}">
-                                    <p:outputLabel value="Limite de resultados na lista" style="color: red" /><br />
-                                    <p:selectOneMenu value="#{movimentosReceberSocialBean.limitePesquisa}" style="width: 250px">
-                                        <p:ajax event="change" update="@this formMovimentosReceber" listener="#{movimentosReceberSocialBean.listenerPesquisa()}"/>
-                                        <f:selectItem itemValue="30" itemLabel="30"/>
-                                        <f:selectItem itemValue="50" itemLabel="50"/>
-                                        <f:selectItem itemValue="150" itemLabel="150"/>
-                                        <f:selectItem itemValue="todos" itemLabel="Todos Movimentos (Não Recomendado)"/>
-                                    </p:selectOneMenu>
+                                    <p:panel styleClass="fundoCinza">
+                                        <p:outputLabel value="Limite de resultados na lista" style="color: red" /><br />
+                                        <h:panelGrid columns="1">
+                                            <p:selectOneMenu value="#{movimentosReceberSocialBean.limitePesquisa}" style="width: 250px">
+                                                <p:ajax event="change" update="@this formMovimentosReceber" listener="#{movimentosReceberSocialBean.listenerPesquisa()}"/>
+                                                <f:selectItem itemValue="30" itemLabel="30"/>
+                                                <f:selectItem itemValue="50" itemLabel="50"/>
+                                                <f:selectItem itemValue="150" itemLabel="150"/>
+                                                <f:selectItem itemValue="todos" itemLabel="Todos Movimentos (Não Recomendado)"/>
+                                            </p:selectOneMenu>
+                                        </h:panelGrid>
+                                    </p:panel>
                                 </p:column>
 
                                 <p:column>
-                                    <br />
-                                    <p:commandLink value="Critérios de Busca" onclick="PF('dlg_busca').show()" style="color: blue;float: right; font-size: 10pt!important; font-weight: bold" action="#{movimentosReceberSocialBean.clickCriteriosDeBusca}" update="panelCriterios"/>
+                                    <p:panel styleClass="fundoCinza">
+                                        <p:outputLabel value="Opções para acordos selecionados" style="font-size: 8pt!important; font-weight: bold"/><br />
+                                        <h:panelGrid columns="2">
+                                            <p:commandButton value="Acordo" title="Fazer um acordo" action="#{movimentosReceberSocialBean.telaAcordo()}" rendered="#{movimentosReceberSocialBean.porPesquisa != 'quitados'}" update="@form"/>
+                                            <p:commandButton value="Excluir" title="Excluir um acordo" rendered="#{movimentosReceberSocialBean.porPesquisa != 'quitados'}" onclick="PF('dlg_excluir_acordo').show()" disabled="#{movimentosReceberSocialBean.cab.verificarPermissao('excluir_acordo_social', 2)}"/>
+                                        </h:panelGrid>
+                                    </p:panel>
+                                </p:column>
+
+                                <p:column>
+                                    <p:panel styleClass="fundoCinza">
+                                        <p:outputLabel value="Opções de Filtro" style="font-size: 8pt!important; font-weight: bold"/><br />
+                                        <h:panelGrid columns="1">
+                                            <p:commandButton value="Critérios de Busca" onclick="PF('dlg_busca').show()" style="text-align: right" action="#{movimentosReceberSocialBean.clickCriteriosDeBusca}" update="panelCriterios"/>
+                                        </h:panelGrid>
+                                    </p:panel>
                                 </p:column>
                             </h:panelGrid>
 
@@ -419,6 +435,18 @@
                                 </p:rowExpansion>
                             </p:dataTable>      
 
+                            <p:dialog widgetVar="dlg_excluir_acordo" header="Excluir Acordos" resizable="false" modal="true" width="400">
+                                <h:panelGrid>
+                                    <p:outputLabel value="Deseja realmente EXCLUIR esse acordo?" style="font-weight: bold; font-size: 12pt!important"/>
+                                </h:panelGrid>
+                                
+                                <p:messages id="i_msg_acordo" closable="true" showDetail="true"/>
+                                
+                                <h:panelGrid columns="2">
+                                    <p:commandButton icon="ui-icon-circle-check" value="Sim" action="#{movimentosReceberSocialBean.excluirAcordo()}" title="Excluir acordo selecionado" update="i_msg_acordo"/>
+                                    <p:commandButton icon="ui-icon-circle-close" value="Cancelar" title="Cancelar exclusão de Acordos" onclick="PF('dlg_excluir_acordo').hide()" global="false"/>
+                                </h:panelGrid>
+                            </p:dialog>
 
                             <p:dialog widgetVar="dlg_busca" header="Critérios de Pesquisa" resizable="false" width="400" modal="true">
                                 <h:panelGrid>

@@ -590,12 +590,12 @@ public class MovimentosReceberSocialBean implements Serializable {
         }
 
         if (fechadosCaixa()) {
-            GenericaMensagem.warn("Atenção", "Boletos COM CAIXA FECHADO não podem ser estornados!");
+            GenericaMensagem.warn("Atenção", "Boletos COM CAIXA FECHADO não podem ser excluídos!");
             return;
         }
 
         if (acordados()) {
-            GenericaMensagem.warn("Atenção", "Boletos do tipo ACORDO não podem ser excluídos!");
+            GenericaMensagem.warn("Atenção", "Boletos do tipo ACORDO não podem ser excluídos, veja opções de acordo!");
             return;
         }
 
@@ -678,6 +678,41 @@ public class MovimentosReceberSocialBean implements Serializable {
         listaMovimento.clear();
         dao.commit();
         motivoReativacao = "";
+    }
+
+    public void excluirAcordo() {        
+        int qnt = 0;
+        Movimento mov = null;
+
+        for (int i = 0; i < listaMovimento.size(); i++) {
+            if ((Boolean) listaMovimento.get(i).getArgumento0()) {
+                qnt++;
+                mov = (Movimento) listaMovimento.get(i).getArgumento1();
+            }
+        }
+
+        if (qnt == 0) {
+            GenericaMensagem.warn("Atenção", "Nenhum Acordo selecionado!");
+            return;
+        }
+
+        if (qnt > 1) {
+            GenericaMensagem.warn("Atenção", "Mais de um Acordo foi selecionado!");
+            return;
+        }
+
+        String resposta = GerarMovimento.excluirUmAcordoSocial(mov);
+        
+        if (resposta.isEmpty()){
+            GenericaMensagem.info("Sucesso", "Acordo Excluído!");
+            listaMovimento.clear();
+            
+            PF.update("formMovimentosReceber");
+            PF.closeDialog("dlg_excluir_acordo");
+            return;
+        }
+        
+        GenericaMensagem.error("Atenção", resposta);
     }
 
     public String caixaOuBanco() {
