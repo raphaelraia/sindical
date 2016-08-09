@@ -996,7 +996,7 @@ public class GerarMovimento extends DB {
                         }
                     }
                     novoLog.setCodigo(movimentoInativo.getMovimento().getId());
-                    novoLog.setTabela("fin_mivimento");
+                    novoLog.setTabela("fin_movimento");
                     novoLog.update("", "Inativação de boleto: ID MOVIMENTO: " + movimentoInativo.getMovimento().getId() + " - Documento: " + movimentoInativo.getMovimento().getDocumento() + " - Valor: " + movimentoInativo.getMovimento().getValorString() + " - Data que hávia sido inátivo: " + movimentoInativo.getData() + " - Pessoa: (" + movimentoInativo.getMovimento().getPessoa().getId() + ") - " + movimentoInativo.getMovimento().getPessoa().getNome() + " - CTR Boleto: " + nrCtrBoleto + " - Motivo da reativação: " + movimentoInativo.getHistorico());
                 }
             } catch (Exception e) {
