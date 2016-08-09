@@ -22,7 +22,7 @@
                     <p:panel styleClass="fundoCinza">
                         <h:panelGrid  cellpadding="4" columns="5" id="id_pg_relatorios">
                             <p:outputLabel value="Tipo de Relatório: " />
-                            <p:selectOneMenu id="id_tipo_relatorio" value="#{relatorioTabelaPrecosBean.idRelatorio}" style="padding-right: 10px;">
+                            <p:selectOneMenu id="id_tipo_relatorio" value="#{relatorioTabelaPrecosBean.idRelatorio}">
                                 <p:ajax event="change" update="@this id_pg_relatorios" global="false" listener="#{relatorioTabelaPrecosBean.loadRelatorioOrdem()}"/>
                                 <f:selectItems value="#{relatorioTabelaPrecosBean.listRelatorios}"/>
                             </p:selectOneMenu>

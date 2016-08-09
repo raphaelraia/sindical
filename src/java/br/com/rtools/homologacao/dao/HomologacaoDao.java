@@ -286,7 +286,9 @@ public class HomologacaoDao extends DB {
             dataCampo = " AND age.dt_data BETWEEN '" + DataHoje.converteData(dataInicial) + "' AND '" + DataHoje.converteData(dataFinal) + "'  ";
         }
         if (idUsuario != 0) {
-            homologadorCampo = " and age.id_homologador = " + idUsuario + " ";
+            if (idUsuario != -1) {
+                homologadorCampo = " and age.id_homologador = " + idUsuario + " ";
+            }
         }
         if (idStatus > 0) {
             statusCampo = " AND age.id_status = " + idStatus;

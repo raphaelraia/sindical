@@ -168,6 +168,10 @@ public class RelatorioTabelaPrecosBean implements Serializable {
                         count++;
                         tsp.setCategoria8(object.get(5));
                         tsp.setValor8(object.get(8));
+                    } else if (tsp.getCategoria9() == null) {
+                        count++;
+                        tsp.setCategoria9(object.get(5));
+                        tsp.setValor9(object.get(8));
                     }
                 } else if (!subgrupo_descricao.equals((String) object.get(1))) {
                     add = true;
@@ -213,6 +217,10 @@ public class RelatorioTabelaPrecosBean implements Serializable {
                         count++;
                         tsp.setCategoria8(object.get(5));
                         tsp.setValor8(object.get(8));
+                    } else if (tsp.getCategoria9() == null) {
+                        count++;
+                        tsp.setCategoria9(object.get(5));
+                        tsp.setValor9(object.get(8));
                     }
                 } else if (!servico_descricao.equals((String) object.get(3))) {
                     add = true;
@@ -258,6 +266,10 @@ public class RelatorioTabelaPrecosBean implements Serializable {
                         count++;
                         tsp.setCategoria8(object.get(5));
                         tsp.setValor8(object.get(8));
+                    } else if (tsp.getCategoria9() == null) {
+                        count++;
+                        tsp.setCategoria9(object.get(5));
+                        tsp.setValor9(object.get(8));
                     }
                 } else if (!idade.equals((String) object.get(6))) {
                     add = true;
@@ -303,6 +315,10 @@ public class RelatorioTabelaPrecosBean implements Serializable {
                         count++;
                         tsp.setCategoria8(object.get(5));
                         tsp.setValor8(object.get(8));
+                    } else if (tsp.getCategoria9() == null) {
+                        count++;
+                        tsp.setCategoria9(object.get(5));
+                        tsp.setValor9(object.get(8));
                     }
                 } else {
                     add = false;
@@ -344,6 +360,10 @@ public class RelatorioTabelaPrecosBean implements Serializable {
                         count++;
                         tsp.setCategoria8(object.get(5));
                         tsp.setValor8(object.get(8));
+                    } else if (tsp.getCategoria9() == null) {
+                        count++;
+                        tsp.setCategoria9(object.get(5));
+                        tsp.setValor9(object.get(8));
                     }
                 }
                 if (count == count_categoria) {
@@ -642,6 +662,8 @@ public class RelatorioTabelaPrecosBean implements Serializable {
         private Object valor7;
         private Object categoria8;
         private Object valor8;
+        private Object categoria9;
+        private Object valor9;
 
         public TabelaServicosPaisagem() {
             this.grupo_descricao = null;
@@ -670,9 +692,11 @@ public class RelatorioTabelaPrecosBean implements Serializable {
             this.valor7 = null;
             this.categoria8 = null;
             this.valor8 = null;
+            this.categoria9 = null;
+            this.valor9 = null;
         }
 
-        public TabelaServicosPaisagem(Object grupo_descricao, Object subgrupo_descricao, Object servico_id, Object servico_descricao, Object categoria_id, Object categoria_descricao, Object idade, Object valor_cheio, Object valor_final, Object percentual_desconto, Object categoria1, Object valor1, Object categoria2, Object valor2, Object categoria3, Object valor3, Object categoria4, Object valor4, Object categoria5, Object valor5, Object categoria6, Object valor6, Object categoria7, Object valor7, Object categoria8, Object valor8) {
+        public TabelaServicosPaisagem(Object grupo_descricao, Object subgrupo_descricao, Object servico_id, Object servico_descricao, Object categoria_id, Object categoria_descricao, Object idade, Object valor_cheio, Object valor_final, Object percentual_desconto, Object categoria1, Object valor1, Object categoria2, Object valor2, Object categoria3, Object valor3, Object categoria4, Object valor4, Object categoria5, Object valor5, Object categoria6, Object valor6, Object categoria7, Object valor7, Object categoria8, Object valor8, Object categoria9, Object valor9) {
             this.grupo_descricao = grupo_descricao;
             this.subgrupo_descricao = subgrupo_descricao;
             this.servico_id = servico_id;
@@ -699,6 +723,8 @@ public class RelatorioTabelaPrecosBean implements Serializable {
             this.valor7 = valor7;
             this.categoria8 = categoria8;
             this.valor8 = valor8;
+            this.categoria9 = categoria9;
+            this.valor9 = valor9;
         }
 
         public Object getGrupo_descricao() {
@@ -907,6 +933,22 @@ public class RelatorioTabelaPrecosBean implements Serializable {
 
         public void setCategoria8(Object categoria8) {
             this.categoria8 = categoria8;
+        }
+
+        public Object getCategoria9() {
+            return categoria9;
+        }
+
+        public void setCategoria9(Object categoria9) {
+            this.categoria9 = categoria9;
+        }
+
+        public Object getValor9() {
+            return valor9;
+        }
+
+        public void setValor9(Object valor9) {
+            this.valor9 = valor9;
         }
 
     }

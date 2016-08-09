@@ -119,7 +119,7 @@ public class PesquisaCNPJ implements Serializable {
         result.put("status", true);
         result.put("mensagem", "");
         HashMap hash_test = new LinkedHashMap();
-        HttpGet httpGet = new HttpGet("http://localhost:8080/webservicereceita/consulta/cnpj/client/" + GenericaSessao.getString("sessaoCliente") + "/document/" + cnpj);
+        HttpGet httpGet = new HttpGet("http://rtools.ddns.net:8080/webservicereceita/consulta/cnpj/client/" + GenericaSessao.getString("sessaoCliente") + "/document/" + cnpj + "/");
         hash_test.put("status", false);
         hash_test.put("mensagem", "Consulta não realizada");
         HttpResponse resposta = cliente.execute(httpGet, contexto);

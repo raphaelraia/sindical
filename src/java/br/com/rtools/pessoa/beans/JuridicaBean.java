@@ -284,7 +284,7 @@ public class JuridicaBean implements Serializable {
     }
 
     public void pesquisaCnpjXML() {
-        if (configuracaoCnpj.getId() == 3) {
+        if (configuracaoCnpj.getTipoPesquisaCnpj().getId() == 3) {
             this.pesquisaCnpjXML(false);
         } else {
             this.pesquisaCnpjXML(true);

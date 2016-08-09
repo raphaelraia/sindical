@@ -98,7 +98,7 @@
                         <p:ajax event="close" listener="#{homologacaoBean.closeModal()}" update=":form_cancelar_data_table"/>  
 
                         <p:messages id="msg_dialog1" showDetail="true" closable="true"/>
-                        
+
                         <h:panelGroup styleClass="margin-top" layout="block">
                             <p:outputLabel value="Empresa: " style="font-weight: bold" rendered="#{homologacaoBean.juridica.pessoa.nome != ''}"/>
                             <p:outputLabel value="#{homologacaoBean.juridica.pessoa.nome}" />
@@ -329,8 +329,8 @@
                                     <p:commandButton icon="ui-icon-help" title="Alterar Máscara do Telefone" action="#{homologacaoBean.alterarTipoMascara()}" update="i_panel_contato" global="false"/>
                                 </h:column>
                             </h:panelGrid>
-                            
-                            
+
+
                         </p:panel>
 
                         <p:panel header="MOTIVO CANCELAMENTO" rendered="#{homologacaoBean.cancelamento.id != -1}" styleClass="margin-top-max">
@@ -340,7 +340,7 @@
                                 <p:outputLabel value="Motivo: #{homologacaoBean.cancelamento.motivo}" />
                             </h:panelGrid>
                         </p:panel>                            
-                        
+
                         <f:facet name="footer">
                             <h:panelGroup id="i_panel_button" layout="block">
                                 <h:panelGrid columns="7" rendered="#{homologacaoBean.visibleModal}">
@@ -374,21 +374,31 @@
 
                 <h:form id="form_cancelar_data_table">
                     <p:panel styleClass="fundoCinza" style="width: 100%">
-                        <h:panelGrid columns="3">
+                        <h:panelGrid columns="4">
                             <h:column>
-                                <h:outputLabel value="Data" /><br />
-                                <p:calendar value="#{homologacaoBean.data}" pattern="dd/MM/yyyy" navigator="true" size="8" mask="99/99/9999">
-                                    <p:ajax event="dateSelect" update="@this, tbl" listener="#{homologacaoBean.loadListaHomologacao()}"/>
-                                    <p:ajax event="change" update="@this, tbl" listener="#{homologacaoBean.loadListaHomologacao()}"/>
-                                </p:calendar>
+                                <h:panelGrid>
+                                    <h:outputLabel value="Data" />
+                                    <p:calendar value="#{homologacaoBean.data}" pattern="dd/MM/yyyy" navigator="true" size="8" mask="99/99/9999">
+                                        <p:ajax event="dateSelect" update="@this, tbl" listener="#{homologacaoBean.loadListaHomologacao()}"/>
+                                        <p:ajax event="change" update="@this, tbl" listener="#{homologacaoBean.loadListaHomologacao()}"/>
+                                    </p:calendar>                                    
+                                </h:panelGrid>
                             </h:column>
 
                             <h:column>
-                                <h:outputLabel value="Status"/><br />
-                                <p:selectOneMenu value="#{homologacaoBean.idStatus}">
-                                    <p:ajax event="change" update="tbl" listener="#{homologacaoBean.loadListaHomologacao()}"/>
-                                    <f:selectItems value="#{homologacaoBean.listaStatus}"/>
-                                </p:selectOneMenu>
+                                <h:panelGrid>
+                                    <h:outputLabel value="Status"/>
+                                    <p:selectOneMenu value="#{homologacaoBean.idStatus}">
+                                        <p:ajax event="change" update="tbl" listener="#{homologacaoBean.loadListaHomologacao()}"/>
+                                        <f:selectItems value="#{homologacaoBean.listaStatus}"/>
+                                    </p:selectOneMenu>
+                                </h:panelGrid>
+                            </h:column>
+                            
+                            <h:column rendered="#{segurancaUtilitariosBean.sessaoUsuario.id == 1}">
+                                <p:selectBooleanCheckbox value="#{homologacaoBean.manutencao}" itemLabel="Manutenção" style="margin-left: 30px">
+                                    <p:ajax event="change" update="@this" />
+                                </p:selectBooleanCheckbox>
                             </h:column>
 
                             <h:column>
@@ -412,7 +422,7 @@
                             <p:column style="width:40px">  
                                 <p:rowToggler />  
                             </p:column>
-                            
+
                             <p:column styleClass="text-center" style="width: 40px">
                                 <f:facet name="header">
                                     <p:outputLabel value="Horarios" rendered="false"/>
@@ -420,19 +430,19 @@
                                 </f:facet>
                                 <p:commandLink action="#{homologacaoBean.agendar(linha.agendamento)}" value="#{linha.agendamento.horarios.hora}" disabled="#{linha.habilitaAlteracao}" update=":form_cancelar_data_table:i_msg" style="background: transparent; opacity: 100; font-size: 8pt!important"/>
                             </p:column>
-                            
+
                             <p:column headerText="CNPJ" styleClass="text-center" width="120">
                                 <p:commandLink action="#{homologacaoBean.agendar(linha.agendamento)}" value="#{linha.agendamento.pessoaEmpresa.juridica.pessoa.documento}" disabled="#{linha.habilitaAlteracao}" update=":form_cancelar_data_table:i_msg" style="background: transparent; opacity: 100; font-size: 8pt!important"/>
                             </p:column>
-                            
+
                             <p:column headerText="Empresa">
                                 <p:commandLink action="#{homologacaoBean.agendar(linha.agendamento)}" value="#{linha.agendamento.pessoaEmpresa.juridica.pessoa.nome}" disabled="#{linha.habilitaAlteracao}" update=":form_cancelar_data_table:i_msg" style="background: transparent; opacity: 100; font-size: 8pt!important"/>
                             </p:column>
-                            
+
                             <p:column headerText="Escritório">
                                 <p:outputLabel value="#{linha.agendamento.pessoaEmpresa.juridica.contabilidade.pessoa.nome}" style="font-size: 8pt!important"/>
                             </p:column>
-                            
+
                             <p:column headerText="Funcionário" width="150">
                                 <p:outputLabel value="#{linha.agendamento.pessoaEmpresa.fisica.pessoa.nome}" style="font-size: 8pt!important"/>
                             </p:column>

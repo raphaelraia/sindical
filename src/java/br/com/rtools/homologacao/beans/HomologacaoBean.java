@@ -68,10 +68,14 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
 
     private boolean visibleModal = false;
     private String tipoTelefone = "telefone";
+    private Boolean manutencao;
+    private Integer idStatusManutencao;
 
     public HomologacaoBean() {
+        manutencao = false;
         macFilial = (MacFilial) GenericaSessao.getObject("acessoFilial");
         registro = (Registro) new Dao().find(new Registro(), 1);
+        idStatusManutencao = 0;
         if (macFilial != null) {
             this.loadListaHomologacao();
             this.loadListaAtendimentoSimples();
@@ -124,6 +128,9 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
             idUsuario = 0;
         } else {
             idUsuario = us.getId();
+        }
+        if (manutencao) {
+            idUsuario = -1;
         }
         List<Agendamento> agendamentos = db.pesquisaAgendamento(idCaso, macFilial.getFilial().getId(), data, null, idUsuario, 0, 0, false, false);
 
@@ -926,6 +933,11 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
             case 2:
             case 4:
                 agendamento.setStatus((Status) dao.find(new Status(), nrStatus));
+                if (manutencao) {
+                    if (agendamento.getHomologador() != null && agendamento.getHomologador().getId() == 1) {
+                        agendamento.setHomologador(null);
+                    }
+                }
                 break;
             case 7:
                 agendamento.setStatus((Status) dao.find(new Status(), nrStatus));
@@ -1408,6 +1420,14 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
 
     public String getWebSocketSenha() {
         return "senha_homologacao_" + ControleUsuarioBean.getCliente().toLowerCase() + "_" + macFilial.getFilial().getId();
+    }
+
+    public Boolean getManutencao() {
+        return manutencao;
+    }
+
+    public void setManutencao(Boolean manutencao) {
+        this.manutencao = manutencao;
     }
 
 }
