@@ -2258,6 +2258,18 @@
             <redirect/>
         </navigation-case>
         
+        <navigation-case>
+            <from-outcome>secretaria</from-outcome>
+            <to-view-id>/secretaria.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>compromisso</from-outcome>
+            <to-view-id>/compromisso.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
     </navigation-rule>
     
     <lifecycle>
