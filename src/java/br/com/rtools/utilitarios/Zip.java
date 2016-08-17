@@ -59,11 +59,11 @@ public class Zip {
 
     public void zip(List<File> files, File outputFile) throws IOException {
         if (files != null && !files.isEmpty()) {
-            ZipOutputStream out = new ZipOutputStream(
-                    new FileOutputStream(outputFile));
-            Stack<File> parentDirs = new Stack<File>();
-            zipFiles(parentDirs, files, out);
-            out.close();
+            try (ZipOutputStream out = new ZipOutputStream(
+                    new FileOutputStream(outputFile))) {
+                Stack<File> parentDirs = new Stack();
+                zipFiles(parentDirs, files, out);
+            }
         }
     }
 

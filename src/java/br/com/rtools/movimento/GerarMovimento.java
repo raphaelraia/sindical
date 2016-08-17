@@ -1276,6 +1276,8 @@ public class GerarMovimento extends DB {
                 dao.rollback();
                 return false;
             }
+            
+            float valor_forma_pagamento = 0;
             for (FormaPagamento fp1 : fp) {
                 fp1.setBaixa(baixa);
                 float calc = (fp1.getValor() == 0) ? 100 : Moeda.multiplicarValores(Moeda.divisaoValores(fp1.getValor(), valorTotal), 100);
@@ -1344,8 +1346,11 @@ public class GerarMovimento extends DB {
                     dao.rollback();
                     return false;
                 }
+                
+                valor_forma_pagamento = Moeda.somaValores(valor_forma_pagamento, fp1.getValor());
             }
 
+            float valor_movimento = 0;
             for (int i = 0; i < movimento.size(); i++) {
                 movimento.get(i).setBaixa(baixa);
 
@@ -1353,13 +1358,21 @@ public class GerarMovimento extends DB {
                     dao.rollback();
                     return false;
                 }
+                
+                valor_movimento = Moeda.somaValores(valor_movimento, movimento.get(i).getValor());
             }
-            dao.commit();
-
+            
+            if (valor_forma_pagamento == valor_movimento){
+                dao.commit();
+                return true;
+            }else{
+                dao.rollback();
+                return false;
+            }
         } catch (Exception e) {
+            e.getMessage();
             return false;
         }
-        return true;
     }
 
     public static Object[] baixarMovimentoSocial(List<Movimento> lista_movimento, Usuario usuario, String data_pagamento, float valor_baixa, float valor_taxa) {

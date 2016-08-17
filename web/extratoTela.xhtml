@@ -422,7 +422,7 @@
 
                         <h:form id="formExtratoTelaOpcoes">
                             <p:panel styleClass="fundoCinza" header="Opções do Boleto">
-                                <h:panelGrid columns="8">
+                                <h:panelGrid columns="9">
                                     <h:column>
                                         <p:selectBooleanCheckbox value="#{extratoTelaBean.imprimirVerso}" itemLabel="Imprimir Verso" />
                                     </h:column>
@@ -430,6 +430,12 @@
                                     <h:column>
                                         <p:commandLink action="#{extratoTelaBean.imprimir}" title="Imprimir Boletos Selecionados" ajax="false" target="_BLANK" styleClass="margin-left-max">
                                             <p:commandButton icon="ui-icon-print" value="Imprimir" title="Imprimir Boletos Selecionados" ajax="false"/>
+                                        </p:commandLink>
+                                    </h:column>
+                                    
+                                    <h:column>
+                                        <p:commandLink action="#{extratoTelaBean.imprimirRemessa}" title="Gerar Remessa de Boletos Selecionados" ajax="false" target="_BLANK" styleClass="margin-left-max">
+                                            <p:commandButton icon="ui-icon-print" value="Remessa" title="Gerar Remessa de Boletos Selecionados" ajax="false"/>
                                         </p:commandLink>
                                     </h:column>
 

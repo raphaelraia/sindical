@@ -3,7 +3,9 @@ package br.com.rtools.cobranca;
 import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.utilitarios.DataHoje;
+import java.io.File;
 import java.util.Date;
+import java.util.List;
 
 public abstract class Cobranca {
 
@@ -23,6 +25,7 @@ public abstract class Cobranca {
     public final static int SICOB = 1;
     public final static int SINDICAL = 2;
     public final static int SIGCB = 3;
+    protected List<Movimento> listaMovimento;
 
 //    public Cobranca(Movimento movimento, Boleto boleto) {
 //        setMovimento(movimento);
@@ -33,6 +36,10 @@ public abstract class Cobranca {
         this.valor = valor;
         this.vencimento = vencimento;
         this.boleto = boleto;
+    }
+    
+    public Cobranca(List<Movimento> listaMovimento) {
+        this.listaMovimento = listaMovimento;
     }
 
     public abstract String moduloDez(String composicao);
@@ -111,6 +118,31 @@ public abstract class Cobranca {
         }
         return cobranca;
     }
+    
+    public static Cobranca retornaCobrancaRemessa(List<Movimento> lista_movimento, Boleto boletox) {
+        Cobranca cobranca = null;
+        if (boletox.getContaCobranca().getLayout().getId() == Cobranca.SINDICAL) {
+            // ÚNICO CASO QUE UTILIZA O id_pessoa
+            //cobranca = new CaixaFederalSindical(lista_movimento);
+        } else if ((boletox.getContaCobranca().getContaBanco().getBanco().getNumero().equals(Cobranca.caixaFederal)) && (boletox.getContaCobranca().getLayout().getId() == Cobranca.SICOB)) {
+            //cobranca = new CaixaFederalSicob(lista_movimento);
+        } else if ((boletox.getContaCobranca().getContaBanco().getBanco().getNumero().equals(Cobranca.caixaFederal)) && (boletox.getContaCobranca().getLayout().getId() == Cobranca.SIGCB)) {
+            //cobranca = new CaixaFederalSigCB(lista_movimento);
+        } else if (boletox.getContaCobranca().getContaBanco().getBanco().getNumero().equals(Cobranca.itau)) {
+            //cobranca = new Itau(lista_movimento);
+        } else if (boletox.getContaCobranca().getContaBanco().getBanco().getNumero().equals(Cobranca.bancoDoBrasil)) {
+            cobranca = new BancoDoBrasil(lista_movimento);
+        } else if (boletox.getContaCobranca().getContaBanco().getBanco().getNumero().equals(Cobranca.real)) {
+            //cobranca = new Real(lista_movimento);
+        } else if (boletox.getContaCobranca().getContaBanco().getBanco().getNumero().equals(Cobranca.bradesco)) {
+            //cobranca = new Bradesco(lista_movimento);
+        } else if (boletox.getContaCobranca().getContaBanco().getBanco().getNumero().equals(Cobranca.santander)) {
+            //cobranca = new Santander(lista_movimento);
+        } else if (boletox.getContaCobranca().getContaBanco().getBanco().getNumero().equals(Cobranca.sicoob)) {
+            //cobranca = new Sicoob(lista_movimento);
+        }
+        return cobranca;
+    }
 
     public String getNossoNumeroFormatado() {
         return boleto.getBoletoComposto() + "-" + moduloOnze(boleto.getBoletoComposto());
@@ -132,6 +164,8 @@ public abstract class Cobranca {
     public void setBoleto(Boleto boleto) {
         this.boleto = boleto;
     }
+    
+    public abstract File gerarRemessa();
 
 //    public Movimento getMovimento() {
 //        return movimento;

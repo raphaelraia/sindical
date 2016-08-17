@@ -38,7 +38,7 @@
                                 <h:panelGrid id="panel_declaracao_tipo" columns="4">
                                     <h:column>
                                         <p:outputLabel value="Tipo" /><br />
-                                        <p:selectOneMenu value="#{declaracaoPessoaBean.indexDeclaracaoTipo}">
+                                        <p:selectOneMenu value="#{declaracaoPessoaBean.indexDeclaracaoTipo}" style="width: 180px">
                                             <p:ajax event="change" update="panel_declaracao_tipo" listener="#{declaracaoPessoaBean.loadListaConvenio()}" />
                                             <f:selectItems value="#{declaracaoPessoaBean.listaDeclaracaoTipo}" />
                                         </p:selectOneMenu>
@@ -46,7 +46,7 @@
                                     
                                     <h:column>
                                         <p:outputLabel value="Convênio" /><br />
-                                        <p:selectOneMenu value="#{declaracaoPessoaBean.indexConvenio}">
+                                        <p:selectOneMenu value="#{declaracaoPessoaBean.indexConvenio}" style="width: 550px">
                                             <p:ajax event="change" listener="#{declaracaoPessoaBean.loadListaDeclaracaoPessoa()}" update="@form" />
                                             <f:selectItems value="#{declaracaoPessoaBean.listaConvenio}"/>
                                         </p:selectOneMenu>
@@ -92,8 +92,9 @@
                                         </h:column>
                                     </h:panelGrid>
 
-                                    <h:panelGrid columns="1">
+                                    <h:panelGrid columns="2">
                                         <p:commandButton value="Imprimir Declaração" icon="ui-icon-print" onclick="PF('dlg_imprimir').show()"/>
+                                        <p:commandButton value="Novo" icon="ui-icon-document" action="#{declaracaoPessoaBean.novo()}" update="@form"/>
                                     </h:panelGrid>
                                 </h:panelGrid>
                             </p:panel>

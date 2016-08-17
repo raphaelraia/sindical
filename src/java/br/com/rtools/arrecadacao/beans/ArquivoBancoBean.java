@@ -610,11 +610,11 @@ public final class ArquivoBancoBean implements Serializable {
                 boleto = dbmov.pesquisaBoletos(movs.get(i).getNrCtrBoleto());
                 Object obj = rbd.pesquisaRemessaBancoCobranca(boleto.getContaCobranca().getId());
                 rb = new RemessaBanco();
-                if (obj != null) {
-                    rb.setLote(Integer.parseInt(String.valueOf(obj)));
-                } else {
-                    rb.setLote(1);
-                }
+//                if (obj != null) {
+//                    rb.setLote(Integer.parseInt(String.valueOf(obj)));
+//                } else {
+//                    rb.setLote(1);
+//                }
 
                 rb.setMovimento(movs.get(i));
                 if (!dao.save(rb)) {
@@ -647,7 +647,8 @@ public final class ArquivoBancoBean implements Serializable {
  /* TRAILER DE ARQUIVO --------------------- */
             //qntBoletos += Integer.toString(Integer.parseInt(qntBoletos) * 3) ;
             qntLinhas = qntLinhas.substring(0, 6 - Integer.toString(((movs.size() * 3) + 4)).length()) + ((movs.size() * 3) + 4);
-            String qntLote = ("000000").substring(0, 6 - Integer.toString(rb.getLote()).length()) + rb.getLote();
+            //String qntLote = ("000000").substring(0, 6 - Integer.toString(rb.getLote()).length()) + rb.getLote();
+            String qntLote = "000000";
             conteudoRemessa = "10499999         " + qntLote + qntLinhas + "                                                                                                                                                                                                                   ";
             buffWriter.write(conteudoRemessa);
             /* -------------------------------------- */

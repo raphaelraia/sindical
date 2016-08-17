@@ -53,6 +53,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.Vector;
+import javax.activation.MimetypesFileTypeMap;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
@@ -69,6 +70,8 @@ import net.sf.jasperreports.engine.util.JRLoader;
 import net.sf.jasperreports.export.SimpleExporterInput;
 import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
 import net.sf.jasperreports.export.SimplePdfExporterConfiguration;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -722,6 +725,32 @@ public class ImprimirBoleto {
             System.err.println("O arquivo não foi gerado corretamente! Erro: " + e.getMessage() + " " + mensagemErroMovimento);
         }
         return arquivo;
+    }
+
+    public File imprimirRemessa(List<Movimento> lista_movimento, Boleto boletox) {
+        Cobranca cobranca = Cobranca.retornaCobrancaRemessa(lista_movimento, boletox);
+        if (cobranca != null) {
+            File file = cobranca.gerarRemessa();
+            Boolean zipar = false;
+            if (zipar) {
+                Zip zip = new Zip();
+                List<File> lf = new ArrayList();
+
+                lf.add(file);
+                File file_destino = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/remessa/remessa.rar"));
+                try {
+                    zip.zip(lf, file_destino);
+                } catch (Exception e) {
+                    e.getMessage();
+                    return null;
+                }
+
+                return file_destino;
+            } else {
+                return file;
+            }
+        }
+        return null;
     }
 
     public byte[] imprimirAcordo(List<Movimento> lista, Acordo acordo, Historico historico, boolean imprimir_pro) {
@@ -2565,13 +2594,15 @@ public class ImprimirBoleto {
             byte[] arq = new byte[(int) file.length()];
             try {
                 HttpServletResponse res = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
-                res.setContentType("application/pdf");
-                res.setHeader("Content-disposition", "inline; filename=\"" + file.getName() + ".pdf\"");
+                res.setContentType(MimetypesFileTypeMap.getDefaultFileTypeMap().getContentType(file.getName()));
+                //res.setContentType("application/pdf");
+                //res.setHeader("Content-disposition", "inline; filename=\"" + file.getName() + ".pdf\"");
+                res.setHeader("Content-disposition", "inline; filename=\"" + file.getName() + "\"");
                 res.getOutputStream().write(arq);
                 res.getCharacterEncoding();
                 FacesContext.getCurrentInstance().responseComplete();
             } catch (Exception e) {
-                e.printStackTrace();
+                e.getMessage();
             }
             return;
         }
@@ -2584,7 +2615,25 @@ public class ImprimirBoleto {
                 res.getCharacterEncoding();
                 FacesContext.getCurrentInstance().responseComplete();
             } catch (Exception e) {
-                e.printStackTrace();
+                e.getMessage();
+            }
+        }
+    }
+
+    public void visualizar_remessa(File file) {
+        if (file != null) {
+            //byte[] arq = new byte[(int) file.length()];
+            try {
+                byte[] arq = IOUtils.toByteArray(FileUtils.openInputStream(file));
+                HttpServletResponse res = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
+                //res.setContentType(MimetypesFileTypeMap.getDefaultFileTypeMap().getContentType(file.getName()));
+                res.setContentType("application/x-rar-compressed");
+                res.setHeader("Content-disposition", "attachment; filename=\"" + file.getName() + "\"");
+                res.getOutputStream().write(arq);
+                res.getCharacterEncoding();
+                FacesContext.getCurrentInstance().responseComplete();
+            } catch (Exception e) {
+                e.getMessage();
             }
         }
     }

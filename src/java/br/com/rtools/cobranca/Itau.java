@@ -3,6 +3,7 @@ package br.com.rtools.cobranca;
 import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.utilitarios.Moeda;
+import java.io.File;
 import java.util.Date;
 
 public class Itau extends Cobranca {
@@ -58,7 +59,6 @@ public class Itau extends Cobranca {
             j++;
             i--;
         }
-
 
         if (soma < 11) {
             if ((soma == 1) || (soma == 0)) {
@@ -130,21 +130,21 @@ public class Itau extends Cobranca {
         repNumerica += boleto.getContaCobranca().getContaBanco().getAgencia().substring(0, 3);
         repNumerica += this.moduloDez(boleto.getBoletoComposto().substring(3)
                 + this.moduloDez(boleto.getBoletoComposto()
-                + boleto.getContaCobranca().getCodCedente()
-                + boleto.getContaCobranca().getCarteira()
-                + boleto.getContaCobranca().getContaBanco().getAgencia())
+                        + boleto.getContaCobranca().getCodCedente()
+                        + boleto.getContaCobranca().getCarteira()
+                        + boleto.getContaCobranca().getContaBanco().getAgencia())
                 + boleto.getContaCobranca().getContaBanco().getAgencia().substring(0, 3)); // DAC
 
         // campo3
         repNumerica += boleto.getContaCobranca().getContaBanco().getAgencia().substring(3, 4);
         repNumerica += boleto.getContaCobranca().getCodCedente()
                 + this.moduloDez(boleto.getContaCobranca().getContaBanco().getAgencia()
-                + boleto.getContaCobranca().getCodCedente());
+                        + boleto.getContaCobranca().getCodCedente());
         repNumerica += "000";
         repNumerica += this.moduloDez(boleto.getContaCobranca().getContaBanco().getAgencia().substring(3, 4)
                 + boleto.getContaCobranca().getCodCedente()
                 + this.moduloDez(boleto.getContaCobranca().getContaBanco().getAgencia()
-                + boleto.getContaCobranca().getCodCedente())
+                        + boleto.getContaCobranca().getCodCedente())
                 + "000");       // DAC
         /*
          // campo 4
@@ -184,5 +184,10 @@ public class Itau extends Cobranca {
     @Override
     public String codigoBanco() {
         return "341-7";
+    }
+
+    @Override
+    public File gerarRemessa() {
+        return null;
     }
 }

@@ -3,6 +3,7 @@ package br.com.rtools.cobranca;
 import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.utilitarios.Moeda;
+import java.io.File;
 import java.util.Date;
 
 public class Real extends Cobranca {
@@ -36,12 +37,10 @@ public class Real extends Cobranca {
 
         if (((10 - (soma % 10)) == 10) || ((soma % 10) == 0)) {
             return "0";
+        } else if (soma < 10) {
+            return Integer.toString(10 - soma);
         } else {
-            if (soma < 10) {
-                return Integer.toString(10 - soma);
-            } else {
-                return Integer.toString(10 - (soma % 10));
-            }
+            return Integer.toString(10 - (soma % 10));
         }
     }
 
@@ -129,8 +128,8 @@ public class Real extends Cobranca {
     public String getCedenteFormatado() {
         return boleto.getContaCobranca().getCodCedente() + "/"
                 + moduloDez(boleto.getBoletoComposto()
-                + boleto.getContaCobranca().getContaBanco().getAgencia()
-                + boleto.getContaCobranca().getCodCedente());
+                        + boleto.getContaCobranca().getContaBanco().getAgencia()
+                        + boleto.getContaCobranca().getCodCedente());
 
     }
 
@@ -142,5 +141,10 @@ public class Real extends Cobranca {
     @Override
     public String codigoBanco() {
         return "356-5";
+    }
+
+    @Override
+    public File gerarRemessa() {
+        return null;
     }
 }

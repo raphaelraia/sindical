@@ -1166,7 +1166,8 @@ public class FinanceiroDao extends DB {
                         + "	cc.ds_mensagem_associativo -- 45\n"
                         + "ORDER BY 7, 3, 13 DESC\n";
             } else {
-                text_qry += " ORDER BY vencimento, id_lote_boleto, nome_titular";
+                //text_qry += " ORDER BY vencimento, id_lote_boleto, nome_titular";
+                text_qry += " ORDER BY responsavel, vencimento, id_lote_boleto, nome_titular";
             }
 
             Query qry = getEntityManager().createNativeQuery(text_qry);

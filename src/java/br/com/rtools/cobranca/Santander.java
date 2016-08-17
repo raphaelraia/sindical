@@ -2,6 +2,7 @@ package br.com.rtools.cobranca;
 
 import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.utilitarios.Moeda;
+import java.io.File;
 import java.util.Date;
 
 public class Santander extends Cobranca {
@@ -35,12 +36,10 @@ public class Santander extends Cobranca {
 
         if (((10 - (soma % 10)) == 10) || ((soma % 10) == 0)) {
             return "0";
+        } else if (soma < 10) {
+            return Integer.toString(10 - soma);
         } else {
-            if (soma < 10) {
-                return Integer.toString(10 - soma);
-            } else {
-                return Integer.toString(10 - (soma % 10));
-            }
+            return Integer.toString(10 - (soma % 10));
         }
     }
 
@@ -60,16 +59,16 @@ public class Santander extends Cobranca {
             i--;
         }
         int resto = (soma % 11);
-        
-        if (resto == 10){
+
+        if (resto == 10) {
             return "1";
-        }else if (resto == 1 || resto == 0){
+        } else if (resto == 1 || resto == 0) {
             return "0";
-        }else{
+        } else {
             return Integer.toString(11 - resto);
         }
     }
-    
+
     @Override
     public String moduloOnzeDV(String composicao) {
         int i = composicao.length();
@@ -86,36 +85,36 @@ public class Santander extends Cobranca {
             i--;
         }
         int resto = (soma % 11);
-        
-        if (resto == 10 || resto == 1 || resto == 0){
+
+        if (resto == 10 || resto == 1 || resto == 0) {
             return "1";
-        }else{
+        } else {
             return Integer.toString(11 - resto);
         }
     }
-    
+
     @Override
     public String codigoBarras() {
         String iniCodigoBarras = "", fimCodigoBarras = "";
         iniCodigoBarras = boleto.getContaCobranca().getContaBanco().getBanco().getNumero() + boleto.getContaCobranca().getMoeda(); // banco + moeda
-        
+
         fimCodigoBarras += fatorVencimento(vencimento);   // fator de vencimento
-        
+
         int tam = Moeda.limparPonto(Moeda.converteR$Float(valor)).length();
-        
-        fimCodigoBarras += "0000000000".substring(0, 10-tam) + Moeda.limparPonto(Moeda.converteR$Float(valor)); // valor
-        
+
+        fimCodigoBarras += "0000000000".substring(0, 10 - tam) + Moeda.limparPonto(Moeda.converteR$Float(valor)); // valor
+
         fimCodigoBarras += "9";
-        
+
         String cedente = "0000000".substring(0, 7 - boleto.getContaCobranca().getCodCedente().length()) + boleto.getContaCobranca().getCodCedente();        // codigo cedente
         fimCodigoBarras += cedente;
-        
+
         String nossoNumero = boleto.getBoletoComposto() + this.moduloOnze(boleto.getBoletoComposto());//boleto.getBoletoComposto() + calculoConstante();
         fimCodigoBarras += "0000000000000".substring(0, 13 - nossoNumero.length()) + nossoNumero;       // nosso numero
 
         fimCodigoBarras += "0";       // IOS -- [ 0 demais clientes ] -- [ 7 - 7% ] -- limitado a [ 9% - 9 ]
         fimCodigoBarras += "102";
-        
+
         return iniCodigoBarras + this.moduloOnzeDV(iniCodigoBarras + fimCodigoBarras) + fimCodigoBarras;
     }
 
@@ -126,35 +125,35 @@ public class Santander extends Cobranca {
         String primeiro_grupo = codigoBarras.substring(0, 4);
         primeiro_grupo += codigoBarras.substring(19, 24);
         primeiro_grupo += moduloDez(primeiro_grupo);
-        
+
         // SEGUNDO GRUPO --
         String segundo_grupo = codigoBarras.substring(24, 27);
-        String nossoNumero = boleto.getBoletoComposto()+this.moduloOnze(boleto.getBoletoComposto());
+        String nossoNumero = boleto.getBoletoComposto() + this.moduloOnze(boleto.getBoletoComposto());
         nossoNumero = "0000000000000".substring(0, 13 - nossoNumero.length()) + nossoNumero;
         segundo_grupo += nossoNumero.substring(0, 7);
         segundo_grupo += moduloDez(segundo_grupo);
-        
+
         // TERCEIRO GRUPO --
         String terceiro_grupo = nossoNumero.substring(7, 13);
         terceiro_grupo += "0"; // IOS -- [ 0 demais clientes ] -- [ 7 - 7% ] -- limitado a [ 9% - 9 ]
-        terceiro_grupo += "102"; 
-        terceiro_grupo +=  moduloDez(terceiro_grupo);
-        
+        terceiro_grupo += "102";
+        terceiro_grupo += moduloDez(terceiro_grupo);
+
         // QUARTO GRUPO
         String quarto_grupo = codigoBarras.substring(4, 5);
-        
+
         // QUINTO GRUPO --
         String quinto_grupo = codigoBarras.substring(5, 19);
-        
+
         String repNumerica = primeiro_grupo + segundo_grupo + terceiro_grupo + quarto_grupo + quinto_grupo;
         repNumerica = repNumerica.substring(0, 5) + "."
-                    + repNumerica.substring(5, 10) + " "
-                    + repNumerica.substring(10, 15) + "."
-                    + repNumerica.substring(15, 21) + " "
-                    + repNumerica.substring(21, 26) + "."
-                    + repNumerica.substring(26, 32) + " "
-                    + repNumerica.substring(32, 33) + " "
-                    + repNumerica.substring(33, repNumerica.length());
+                + repNumerica.substring(5, 10) + " "
+                + repNumerica.substring(10, 15) + "."
+                + repNumerica.substring(15, 21) + " "
+                + repNumerica.substring(21, 26) + "."
+                + repNumerica.substring(26, 32) + " "
+                + repNumerica.substring(32, 33) + " "
+                + repNumerica.substring(33, repNumerica.length());
         return repNumerica;
     }
 
@@ -176,5 +175,10 @@ public class Santander extends Cobranca {
     @Override
     public String codigoBanco() {
         return "033-7";
+    }
+
+    @Override
+    public File gerarRemessa() {
+        return null;
     }
 }

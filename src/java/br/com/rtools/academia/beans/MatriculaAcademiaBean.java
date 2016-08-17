@@ -2026,13 +2026,22 @@ public class MatriculaAcademiaBean implements Serializable {
         String mes = DataHoje.data().substring(3, 5),
                 ano = DataHoje.data().substring(6, 10),
                 referencia = mes + "/" + ano;
-        String vencimento = DataHoje.data();
+        
+        String vencimento;
+        
         String proximo_vencimento = (idDiaParcela < 10) ? "0" + idDiaParcela + "/" + mes + "/" + ano : idDiaParcela + "/" + mes + "/" + ano;
         Float valor_x;
         DataHoje dh = new DataHoje();
         String data_hoje = DataHoje.data();
         Integer dia_hoje = Integer.valueOf(data_hoje.substring(0, 2));
+        
         if (proporcional) {
+            vencimento = DataHoje.data();
+            // ADICIONADO PARA NÃO GERAR UMA TAXA CASO O DATA DE VENCIMENTO FOR A MESMA QUE DATA ATUAL (HOJE)
+            if (data_hoje.equals(proximo_vencimento)){
+                return true;
+            }
+            
             if (dia_hoje < idDiaParcela) {
                 Integer qnt_dias = Integer.valueOf(Long.toString(DataHoje.calculoDosDias(DataHoje.converte(data_hoje), DataHoje.converte(proximo_vencimento))));
                 valor_x = Moeda.multiplicarValores(Moeda.divisaoValores(valor_calculo, 30), qnt_dias);
@@ -2045,9 +2054,18 @@ public class MatriculaAcademiaBean implements Serializable {
                 valor_x = Moeda.multiplicarValores(Moeda.divisaoValores(valor_calculo, 30), qnt_dias);
             }
         } else {
+            if (dia_hoje < idDiaParcela) {
+                vencimento = proximo_vencimento;
+            } else if (dia_hoje == idDiaParcela) {
+                vencimento = DataHoje.data();
+            } else {
+                proximo_vencimento = dh.incrementarMeses(1, proximo_vencimento);
+                vencimento = proximo_vencimento;
+            }            
+            
             valor_x = valor_calculo;
         }
-
+       
         Dao dao = new Dao();
         dao.openTransaction();
         FTipoDocumento fTipoDocumento = (FTipoDocumento) dao.find(new FTipoDocumento(), matriculaAcademia.getServicoPessoa().getTipoDocumento().getId());

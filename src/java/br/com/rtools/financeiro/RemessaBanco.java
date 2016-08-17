@@ -1,7 +1,5 @@
 package br.com.rtools.financeiro;
 
-import br.com.rtools.utilitarios.DataHoje;
-import java.util.Date;
 import javax.persistence.*;
 
 @Entity
@@ -13,30 +11,22 @@ public class RemessaBanco implements java.io.Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
-    @Temporal(TemporalType.DATE)
-    @Column(name = "dt_emissao")
-    private Date dtEmissao;
-    @Column(name = "ds_hora", length = 5)
-    private String hora;
-    @Column(name = "nr_lote")
-    private int lote;
+    @JoinColumn(name = "id_remessa", referencedColumnName = "id", nullable = false)
+    @ManyToOne
+    private Remessa remessa;
     @JoinColumn(name = "id_movimento", referencedColumnName = "id", nullable = false)
     @ManyToOne
     private Movimento movimento;
 
     public RemessaBanco() {
         this.id = -1;
-        setEmissao(DataHoje.data());
-        this.hora = DataHoje.hora().substring(0, 5);
-        this.lote = 0;
+        this.remessa = new Remessa();
         this.movimento = new Movimento();
     }
 
-    public RemessaBanco(int id, Date dtEmissao, String hora, int lote, Movimento movimento) {
+    public RemessaBanco(int id, Remessa remessa, Movimento movimento) {
         this.id = id;
-        this.dtEmissao = dtEmissao;
-        this.hora = hora;
-        this.lote = lote;
+        this.remessa = remessa;
         this.movimento = movimento;
     }
 
@@ -48,28 +38,12 @@ public class RemessaBanco implements java.io.Serializable {
         this.id = id;
     }
 
-    public Date getDtEmissao() {
-        return dtEmissao;
+    public Remessa getRemessa() {
+        return remessa;
     }
 
-    public void setDtEmissao(Date dtEmissao) {
-        this.dtEmissao = dtEmissao;
-    }
-
-    public String getEmissao() {
-        return DataHoje.converteData(dtEmissao);
-    }
-
-    public void setEmissao(String emissao) {
-        this.dtEmissao = DataHoje.converte(emissao);
-    }
-
-    public String getHora() {
-        return hora;
-    }
-
-    public void setHora(String hora) {
-        this.hora = hora;
+    public void setRemessa(Remessa remessa) {
+        this.remessa = remessa;
     }
 
     public Movimento getMovimento() {
@@ -80,11 +54,4 @@ public class RemessaBanco implements java.io.Serializable {
         this.movimento = movimento;
     }
 
-    public int getLote() {
-        return lote;
-    }
-
-    public void setLote(int lote) {
-        this.lote = lote;
-    }
 }
