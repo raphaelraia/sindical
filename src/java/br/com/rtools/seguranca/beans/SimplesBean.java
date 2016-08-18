@@ -1,5 +1,6 @@
 package br.com.rtools.seguranca.beans;
 
+import br.com.rtools.agenda.CompromissoCategoria;
 import br.com.rtools.agenda.GrupoAgenda;
 import br.com.rtools.arrecadacao.GrupoCidade;
 import br.com.rtools.arrecadacao.MotivoInativacao;
@@ -387,6 +388,9 @@ public class SimplesBean implements Serializable {
             case "TmktNatureza":
                 o = (TmktNatureza) new TmktNatureza(id, descricao);
                 break;
+            case "CompromissoCategoria":
+                o = (CompromissoCategoria) new CompromissoCategoria(id, descricao);
+                break;
         }
         return o;
     }
@@ -488,6 +492,9 @@ public class SimplesBean implements Serializable {
                 break;
             case "TmktNatureza":
                 ((TmktNatureza) objeto).setDescricao(descricao);
+                break;
+            case "CompromissoCategoria":
+                ((CompromissoCategoria) objeto).setDescricao(descricao);
                 break;
         }
     }
@@ -624,6 +631,10 @@ public class SimplesBean implements Serializable {
             case "SisNotificacaoCategoria":
                 descricao = ((SisNotificacaoCategoria) obj).getDescricao();
                 id = ((SisNotificacaoCategoria) objeto).getId();
+                break;
+            case "CompromissoCategoria":
+                descricao = ((CompromissoCategoria) obj).getDescricao();
+                id = ((CompromissoCategoria) objeto).getId();
                 break;
         }
         Dao dao = new Dao();
@@ -789,6 +800,11 @@ public class SimplesBean implements Serializable {
                 break;
             case "TmktNatureza":
                 if (((TmktNatureza) obj).getDescricao().contains(pesquisaLista)) {
+                    return true;
+                }
+                break;
+            case "CompromissoCategoria":
+                if (((CompromissoCategoria) obj).getDescricao().contains(pesquisaLista)) {
                     return true;
                 }
                 break;

@@ -70,6 +70,9 @@
                                             <p:selectBooleanButton value="#{relatorioAcademiaBean.filtro[12]}" onLabel="Faixa de Desconto - Edição" offLabel="Faixa de Desconto - Edição" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;">
                                                 <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio :form_relatorio:id_panel_relatorio" listener="#{relatorioAcademiaBean.clear}" />
                                             </p:selectBooleanButton>
+                                            <p:selectBooleanButton value="#{relatorioAcademiaBean.filtro[17]}" onLabel="Valor" offLabel="Valor" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 180px; text-align: left;" rendered="#{relatorioAcademiaBean.rotina.id != 393}">
+                                                <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio :form_relatorio:id_panel_relatorio" listener="#{relatorioAcademiaBean.clear}" />
+                                            </p:selectBooleanButton>                                            
                                         </h:panelGrid>
                                         <h:panelGrid columns="1" styleClass="text-left">
                                             <f:facet name="header">
@@ -347,6 +350,29 @@
                                                 <p:ajax event="change" update="@this" />
                                             </p:inputMask>
                                             <p:commandButton icon="ui-icon-close" action="#{relatorioAcademiaBean.close('quitacao')}" title="Remover filtro"/>
+                                        </h:panelGrid>
+                                    </p:panel>
+                                </p:column>
+
+                                <p:column rendered="#{relatorioAcademiaBean.filtro[17]}">
+                                    <p:panel header="Valor" styleClass="margin-top-max" id="i_panel_datas">
+                                        <h:panelGrid columns="10" cellspacing="5">
+                                            <p:selectOneMenu label="Data" value="#{relatorioAcademiaBean.tipoValor}">
+                                                <p:ajax event="change" update="@this i_panel_datas" />
+                                                <f:selectItem itemValue="todos" itemLabel="Todos" />
+                                                <f:selectItem itemValue="igual" itemLabel="Igual" />
+                                                <f:selectItem itemValue="apartir" itemLabel="A partir" />
+                                                <f:selectItem itemValue="ate" itemLabel="Até" />
+                                                <f:selectItem itemValue="faixa" itemLabel="Faixa" />
+                                            </p:selectOneMenu>
+                                            <p:inputText value="#{relatorioAcademiaBean.valorInicial}" converter="#{toCurrency}" rendered="#{relatorioAcademiaBean.tipoValor ne 'todos'}" size="10" styleClass="text-center">
+                                                <p:ajax event="change" global="false" update="@this"/>
+                                            </p:inputText>
+                                            <p:outputLabel value="até" rendered="#{relatorioAcademiaBean.tipoValor eq 'faixa'}" styleClass="margin-left-max"/>
+                                            <p:inputText value="#{relatorioAcademiaBean.valorFinal}" converter="#{toCurrency}" rendered="#{relatorioAcademiaBean.tipoValor eq 'faixa'}"  size="10" styleClass="text-center">
+                                                <p:ajax event="change" global="false" update="@this"/>
+                                            </p:inputText>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioAcademiaBean.close('valor')}" title="Remover filtro"/>
                                         </h:panelGrid>
                                     </p:panel>
                                 </p:column>

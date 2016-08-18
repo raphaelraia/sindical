@@ -16,9 +16,15 @@ import javax.persistence.Query;
  */
 public class MovimentoReceberDao extends DB {
 
-    public List pesquisaListaMovimentos(Integer id_juridica) {
+    /**
+     * Id da pessoa (pes_juridica.id_pessoa)
+     *
+     * @param pessoa_id
+     * @return
+     */
+    public List pesquisaListaMovimentos(Integer pessoa_id) {
         try {
-            String textoQuery = "-- MovimentosReceberDao->pesquisaListaMovimentos(Integer id_juridica:" + id_juridica + ") \n\n"
+            String textoQuery = "-- MovimentosReceberDao->pesquisaListaMovimentos(Integer pessoa_id:" + pessoa_id + ") \n\n"
                     + ""
                     + "     SELECT m.ds_documento Boleto,                           \n" // 0
                     + "            se.ds_descricao          AS Servico,             \n" // 1
@@ -45,7 +51,7 @@ public class MovimentoReceberDao extends DB {
                     + "                                                 (substring(m.ds_referencia,4,4)||substring(m.ds_referencia,1,2)) >= (substring(cr.ds_ref_inicial,4,4)||substring(cr.ds_ref_inicial,1,2)) AND "
                     + "                                                 (substring(m.ds_referencia,4,4)||substring(m.ds_referencia,1,2)) <= (substring(cr.ds_ref_final,4,4)||substring(cr.ds_ref_final,1,2))         "
                     + "  LEFT JOIN fin_indice                       AS i ON i.id = cr.id_indice \n"
-                    + "      WHERE m.id_pessoa = " + id_juridica + " \n"
+                    + "      WHERE m.id_pessoa = " + pessoa_id + " \n"
                     + "        AND m.is_ativo IS TRUE \n"
                     + "        AND m.id_baixa IS NULL \n"
                     + "        AND m.id_servicos IN (SELECT sr.id_servicos FROM fin_servico_rotina sr WHERE sr.id_rotina = 4) \n"

@@ -11,6 +11,11 @@ import br.com.rtools.atendimento.dao.AtendimentoDao;
 import br.com.rtools.endereco.Endereco;
 import br.com.rtools.endereco.dao.EnderecoDao;
 import br.com.rtools.financeiro.Movimento;
+import br.com.rtools.financeiro.beans.MovimentosReceberBean;
+import br.com.rtools.financeiro.beans.PlanilhaDebitoBean;
+import br.com.rtools.financeiro.dao.MovimentoDao;
+import br.com.rtools.financeiro.dao.MovimentoReceberDao;
+import br.com.rtools.financeiro.lista.ListMovimentoReceber;
 import br.com.rtools.homologacao.Agendamento;
 import br.com.rtools.homologacao.Cancelamento;
 import br.com.rtools.homologacao.ConfiguracaoHomologacao;
@@ -63,10 +68,9 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     private String strEndereco = "";
     private String statusEmpresa = "REGULAR";
     private String cepEndereco = "";
-    private String strContribuinte = "";
     private String emailEmpresa = "";
     private String styleDestaque = "";
-    private List listaMovimento = new ArrayList();
+    private List<Movimento> listaMovimento = new ArrayList();
     private final List<SelectItem> listaStatus = new ArrayList();
     private final List<SelectItem> listaDemissao = new ArrayList();
     private final List<SelectItem> listaHorarioTransferencia = new ArrayList();
@@ -366,19 +370,22 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         if (listaMovimento.isEmpty()) {
             return null;
         }
-        ImprimirBoleto imp = new ImprimirBoleto();
-        List<Movimento> lista = new ArrayList();
-        List<Float> listaValores = new ArrayList<Float>();
-        Dao dao = new Dao();
+//        ImprimirBoleto imp = new ImprimirBoleto();
+//        List<Movimento> lista = new ArrayList();
+//        List<Float> listaValores = new ArrayList<>();
+//        for (int i = 0; i < listaMovimento.size(); i++) {
+//            lista.add(listaMovimento.get(i));
+//            listaValores.add(listaMovimento.get(i).getValor());
+//        }
+        List<ListMovimentoReceber> listMovimentoReceber = PlanilhaDebitoBean.find(juridica.getPessoa().getId());
         for (int i = 0; i < listaMovimento.size(); i++) {
-            Movimento m = (Movimento) dao.find(new Movimento(), (Integer) ((List) listaMovimento.get(i)).get(0));
-            lista.add(m);
-            listaValores.add(m.getValor());
+            for (int x = 0; x < listMovimentoReceber.size(); x++) {
+                if (listaMovimento.get(i).getId() == Integer.parseInt(listMovimentoReceber.get(x).getIdMovimento())) {
+                    listMovimentoReceber.get(x).setSelected(true);
+                }
+            }
         }
-        if (!lista.isEmpty()) {
-            imp.imprimirPlanilha(lista, listaValores, false, false);
-            imp.visualizar(null);
-        }
+        PlanilhaDebitoBean.printNoNStatic(listMovimentoReceber);
         return null;
     }
 
@@ -388,12 +395,11 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         }
         ImprimirBoleto imp = new ImprimirBoleto();
         List<Movimento> lista = new ArrayList();
-        List<Float> listaValores = new ArrayList<Float>();
+        List<Float> listaValores = new ArrayList<>();
         Dao dao = new Dao();
-        for (Object listaMovimento1 : listaMovimento) {
-            Movimento m = (Movimento) dao.find(new Movimento(), (Integer) ((List) listaMovimento1).get(0));
-            lista.add(m);
-            listaValores.add(m.getValor());
+        for (Movimento listaMovimento1 : listaMovimento) {
+            lista.add(listaMovimento1);
+            listaValores.add(listaMovimento1.getValor());
         }
 
         if (!lista.isEmpty()) {
@@ -401,15 +407,14 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         }
 
         try {
-            Dao di = new Dao();
-            Pessoa pessoa = new Pessoa();
+            Pessoa pessoa;
             if (enviarPara.equals("contabilidade")) {
                 if (juridica.getContabilidade() == null) {
                     GenericaMensagem.warn("Atenção", "Empresa sem Contabilidade!");
                     return null;
                 }
 
-                pessoa = (Pessoa) di.find(juridica.getContabilidade().getPessoa());
+                pessoa = (Pessoa) dao.find(juridica.getContabilidade().getPessoa());
                 if (emailEmpresa.isEmpty()) {
                     if (pessoa.getEmail1().isEmpty()) {
                         GenericaMensagem.warn("Atenção", "Contabilidade sem Email para envio!");
@@ -419,7 +424,7 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                     pessoa.setEmail1(emailEmpresa);
                 }
             } else {
-                pessoa = (Pessoa) di.find(juridica.getPessoa());
+                pessoa = (Pessoa) dao.find(juridica.getPessoa());
                 if (emailEmpresa.isEmpty()) {
                     if (pessoa.getEmail1().isEmpty()) {
                         GenericaMensagem.warn("Atenção", "Empresa sem Email para envio!");
@@ -631,6 +636,8 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                 documentoFisica = fisica.getPessoa().getDocumento();
                 enderecoFisica = db.pesquisaEndPorPessoaTipo(fisica.getPessoa().getId(), 1);
                 juridica = a.getPessoaEmpresa().getJuridica();
+                loadStatusEmpresa();
+                loadEmpresaEndereco();
                 profissao = a.getPessoaEmpresa().getFuncao();
                 pessoaEmpresa = a.getPessoaEmpresa();
                 renderCancelarHorario = true;
@@ -732,8 +739,8 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
             }
         }
 
-        if (!getStrContribuinte().isEmpty()) {
-            GenericaMensagem.error("Atenção", getStrContribuinte());
+        if (isContribuinte()) {
+            GenericaMensagem.error("Atenção", getContribuinte());
             return;
         }
 
@@ -755,24 +762,30 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         }
 
         if (!pessoaEmpresa.getDemissao().isEmpty() && pessoaEmpresa.getDemissao() != null) {
-            if (demissao.getId() == 1) {
-                if (DataHoje.converteDataParaInteger(pessoaEmpresa.getDemissao())
-                        > DataHoje.converteDataParaInteger(dataH.incrementarMeses(1, DataHoje.data()))) {
-                    GenericaMensagem.warn("Atenção", "Por " + demissao.getDescricao() + " data de Demissão não pode ser maior que 30 dias!");
-                    return;
-                }
-            } else if (demissao.getId() == 2) {
-                if (DataHoje.converteDataParaInteger(pessoaEmpresa.getDemissao())
-                        > DataHoje.converteDataParaInteger(dataH.incrementarMeses(3, DataHoje.data()))) {
-                    GenericaMensagem.warn("Atenção", "Por " + demissao.getDescricao() + " data de Demissão não pode ser maior que 90 dias!");
-                    return;
-                }
-            } else if (demissao.getId() == 3) {
-                if (DataHoje.converteDataParaInteger(pessoaEmpresa.getDemissao())
-                        > DataHoje.converteDataParaInteger(dataH.incrementarDias(10, DataHoje.data()))) {
-                    GenericaMensagem.warn("Atenção", "Por " + demissao.getDescricao() + " data de Demissão não pode ser maior que 10 dias!");
-                    return;
-                }
+            switch (demissao.getId()) {
+                case 1:
+                    if (DataHoje.converteDataParaInteger(pessoaEmpresa.getDemissao())
+                            > DataHoje.converteDataParaInteger(dataH.incrementarMeses(1, DataHoje.data()))) {
+                        GenericaMensagem.warn("Atenção", "Por " + demissao.getDescricao() + " data de Demissão não pode ser maior que 30 dias!");
+                        return;
+                    }
+                    break;
+                case 2:
+                    if (DataHoje.converteDataParaInteger(pessoaEmpresa.getDemissao())
+                            > DataHoje.converteDataParaInteger(dataH.incrementarMeses(3, DataHoje.data()))) {
+                        GenericaMensagem.warn("Atenção", "Por " + demissao.getDescricao() + " data de Demissão não pode ser maior que 90 dias!");
+                        return;
+                    }
+                    break;
+                case 3:
+                    if (DataHoje.converteDataParaInteger(pessoaEmpresa.getDemissao())
+                            > DataHoje.converteDataParaInteger(dataH.incrementarDias(10, DataHoje.data()))) {
+                        GenericaMensagem.warn("Atenção", "Por " + demissao.getDescricao() + " data de Demissão não pode ser maior que 10 dias!");
+                        return;
+                    }
+                    break;
+                default:
+                    break;
             }
         } else {
             GenericaMensagem.warn("Atenção", "Data de Demissão é obrigatória!");
@@ -1391,6 +1404,8 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
                     //                      profissao = new Profissao();
                 }
             }
+            loadStatusEmpresa();
+            loadEmpresaEndereco();
         }
         return juridica;
     }
@@ -1408,32 +1423,28 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     }
 
     public String getStrEndereco() {
-        PessoaEnderecoDao pessoaEnderecoDB = new PessoaEnderecoDao();
-        if (juridica.getId() != -1) {
-            enderecoEmpresa = pessoaEnderecoDB.pesquisaEndPorPessoaTipo(juridica.getPessoa().getId(), 5);
-            if (enderecoEmpresa.getId() != -1) {
-                String strCompl;
-                if (enderecoEmpresa.getComplemento().equals("")) {
-                    strCompl = " ";
-                } else {
-                    strCompl = " ( " + enderecoEmpresa.getComplemento() + " ) ";
-                }
-
-                strEndereco = enderecoEmpresa.getEndereco().getLogradouro().getDescricao() + " "
-                        + enderecoEmpresa.getEndereco().getDescricaoEndereco().getDescricao() + ", " + enderecoEmpresa.getNumero() + " " + enderecoEmpresa.getEndereco().getBairro().getDescricao() + ","
-                        + strCompl + enderecoEmpresa.getEndereco().getCidade().getCidade() + " - " + enderecoEmpresa.getEndereco().getCidade().getUf() + " - " + AnaliseString.mascaraCep(enderecoEmpresa.getEndereco().getCep());
-            } else {
-                strEndereco = "";
-            }
-        } else {
-            enderecoEmpresa = new PessoaEndereco();
-            strEndereco = "";
-        }
         return strEndereco;
     }
 
     public void setStrEndereco(String strEndereco) {
         this.strEndereco = strEndereco;
+    }
+
+    public void loadEmpresaEndereco() {
+        enderecoEmpresa = new PessoaEndereco();
+        strEndereco = "";
+        PessoaEnderecoDao pessoaEnderecoDB = new PessoaEnderecoDao();
+        enderecoEmpresa = pessoaEnderecoDB.pesquisaEndPorPessoaTipo(juridica.getPessoa().getId(), 5);
+        String strCompl;
+        if (enderecoEmpresa.getComplemento().equals("")) {
+            strCompl = " ";
+        } else {
+            strCompl = " ( " + enderecoEmpresa.getComplemento() + " ) ";
+        }
+
+        strEndereco = enderecoEmpresa.getEndereco().getLogradouro().getDescricao() + " "
+                + enderecoEmpresa.getEndereco().getDescricaoEndereco().getDescricao() + ", " + enderecoEmpresa.getNumero() + " " + enderecoEmpresa.getEndereco().getBairro().getDescricao() + ","
+                + strCompl + enderecoEmpresa.getEndereco().getCidade().getCidade() + " - " + enderecoEmpresa.getEndereco().getCidade().getUf() + " - " + AnaliseString.mascaraCep(enderecoEmpresa.getEndereco().getCep());
     }
 
     public Date getData() {
@@ -1467,14 +1478,6 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     public void setIdMotivoDemissao(int idMotivoDemissao) {
         this.idMotivoDemissao = idMotivoDemissao;
     }
-//
-//    public String getTipoAviso() {
-//        return tipoAviso;
-//    }
-//
-//    public void setTipoAviso(String tipoAviso) {
-//        this.tipoAviso = tipoAviso;
-//    }
 
     public PessoaEmpresa getPessoaEmpresa() {
         return pessoaEmpresa;
@@ -1501,20 +1504,22 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     }
 
     public String getStatusEmpresa() {
-        HomologacaoDao db = new HomologacaoDao();
-        if (juridica.getId() != -1 && listaMovimento.isEmpty()) {
-            listaMovimento = db.pesquisaPessoaDebito(juridica.getPessoa().getId(), DataHoje.data());
-        }
-        if (!listaMovimento.isEmpty()) {
-            statusEmpresa = "EM DÉBITO";
-        } else {
-            statusEmpresa = "REGULAR";
-        }
         return statusEmpresa;
     }
 
     public void setStatusEmpresa(String statusEmpresa) {
         this.statusEmpresa = statusEmpresa;
+    }
+
+    public void loadStatusEmpresa() {
+        statusEmpresa = "";
+        listaMovimento = new ArrayList();
+        listaMovimento = new MovimentoDao().findDebitoPessoa(juridica.getPessoa().getId());
+        if (!listaMovimento.isEmpty()) {
+            statusEmpresa = "EM DÉBITO";
+        } else {
+            statusEmpresa = "REGULAR";
+        }
     }
 
     public int getProtocolo() {
@@ -1534,12 +1539,12 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
     }
 
     public List<Endereco> getListaEnderecos() {
-        if (listaEnderecos.isEmpty()) {
-            if (!cepEndereco.equals("")) {
-                EnderecoDao db = new EnderecoDao();
-                listaEnderecos = db.pesquisaEnderecoCep(cepEndereco);
-            }
-        }
+//        if (listaEnderecos.isEmpty()) {
+//            if (!cepEndereco.equals("")) {
+//                EnderecoDao db = new EnderecoDao();
+//                listaEnderecos = db.pesquisaEnderecoCep(cepEndereco);
+//            }
+//        }
         return listaEnderecos;
     }
 
@@ -1579,23 +1584,23 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         return ((ChamadaPaginaBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("chamadaPaginaBean")).extratoTela();
     }
 
-    public String getStrContribuinte() {
+    public Boolean isContribuinte() {
+        return !getContribuinte().isEmpty();
+    }
+
+    public String getContribuinte() {
         if (juridica.getId() != -1) {
             JuridicaDao db = new JuridicaDao();
             List<ArrayList> listax = db.listaJuridicaContribuinte(juridica.getId());
             if (!listax.isEmpty()) {
                 if (((List) (listax.get(0))).get(11) != null) {
-                    return strContribuinte = "Empresa Inativa";
+                    return "Empresa Inativa";
                 } else {
-                    return strContribuinte = "";
+                    return "";
                 }
             }
         }
-        return strContribuinte = "Empresa não contribuinte, não poderá efetuar um agendamento!";
-    }
-
-    public void setStrContribuinte(String strContribuinte) {
-        this.strContribuinte = strContribuinte;
+        return "Empresa não contribuinte, não poderá efetuar um agendamento!";
     }
 
     public int getIdHorarioTransferencia() {
@@ -1848,4 +1853,11 @@ public class AgendamentoBean extends PesquisarProfissaoBean implements Serializa
         return "";
     }
 
+    public List<Movimento> getListaMovimento() {
+        return listaMovimento;
+    }
+
+    public void setListaMovimento(List<Movimento> listaMovimento) {
+        this.listaMovimento = listaMovimento;
+    }
 }
