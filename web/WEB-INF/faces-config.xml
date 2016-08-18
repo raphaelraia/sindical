@@ -2276,6 +2276,12 @@
             <redirect/>
         </navigation-case>
         
+        <navigation-case>
+            <from-outcome>relatorioMovimentosNaoGerados</from-outcome>
+            <to-view-id>/relatorioMovimentosNaoGerados.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
     </navigation-rule>
     
     <lifecycle>

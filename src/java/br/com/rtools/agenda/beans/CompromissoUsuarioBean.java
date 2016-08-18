@@ -2,9 +2,7 @@ package br.com.rtools.agenda.beans;
 
 import br.com.rtools.agenda.Compromisso;
 import br.com.rtools.agenda.CompromissoUsuario;
-import br.com.rtools.agenda.Secretaria;
 import br.com.rtools.agenda.dao.CompromissoUsuarioDao;
-import br.com.rtools.agenda.dao.SecretariaDao;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
@@ -27,7 +25,7 @@ import org.primefaces.model.ScheduleEvent;
 import org.primefaces.model.ScheduleModel;
 
 @ManagedBean
-@ViewScoped
+@SessionScoped
 public class CompromissoUsuarioBean implements Serializable {
 
     private Compromisso compromisso;

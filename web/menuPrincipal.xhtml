@@ -224,10 +224,10 @@
                                         <h:outputLink value="mailto:suporte@rtools.com.br" style="font-weight: bold">suporte@rtools.com.br</h:outputLink>
                                         <h:outputText value=" sua solicitação será respondida após voltarmos." style="font-size: 10pt!important"/>
                                     </p:panel>
-                                    <p:panel styleClass="margin-top-max" id="id_lista" header="Agenda de Compromissos" rendered="#{not empty compromissoUsuarioBean.listCompromissoUsuario}">
+                                    <p:panel styleClass="margin-top-max" id="id_lista" header="Agenda de Compromissos">
                                         <h:panelGrid columns="15">
-                                            <p:selectOneMenu label="Histórico" value="#{compromissoUsuarioBean.tipoHistorico}" filter="true" filterMatchMode="startsWith">
-                                                <p:ajax event="change" global="false" update="@this id_lista" />
+                                            <p:selectOneMenu label="Histórico" value="#{compromissoUsuarioBean.tipoHistorico}">
+                                                <p:ajax event="change" global="false" update="@this :formMenuPrincipal:id_lista" />
                                                 <f:selectItem itemValue="hoje" itemLabel="Hoje" />
                                                 <f:selectItem itemValue="hoje_amanha" itemLabel="Hoje e Amanhã" />
                                                 <f:selectItem itemValue="agendados" itemLabel="Agendados" />
@@ -257,7 +257,7 @@
                                                 <p:ajax event="change" update="@this" />
                                             </p:inputMask>
                                             <p:outputLabel value="Status: " styleClass="margin-left-max"/>
-                                            <p:selectOneMenu label="Cancelados" value="#{compromissoUsuarioBean.cancelados}" filter="true">
+                                            <p:selectOneMenu label="Cancelados" value="#{compromissoUsuarioBean.cancelados}">
                                                 <p:ajax event="change" global="false" update="@this"/>
                                                 <f:selectItem itemValue="todos" itemLabel="Todos" />
                                                 <f:selectItem itemValue="ativos" itemLabel="Ativos" />
@@ -379,12 +379,12 @@
         </div>
         <h:form id="form_compromisso">
             <h:outputScript name="tradutor_primefaces.js" library="js" />
-            <p:dialog widgetVar="eventDialog" header="Compromissos" resizable="true" modal="true" width="1024" position="top" height="600">
-                <p:schedule id="schedule" value="#{compromissoUsuarioBean.eventModel}" widgetVar="myschedule"  locale="pt" timeZone="GMT-3">
-                    <!-- <p:ajax event="dateSelect" listener="#{compromissoUsuarioBean.selectedData}" update="i_panel_grid_fer" />  -->
-                    <p:ajax event="eventSelect" listener="#{compromissoUsuarioBean.edit}" update=":form_compromisso:i_panel_grid_fer" oncomplete="PF('eventDialogDetails').show()"/>  
+            <!-- <p:dialog widgetVar="eventDialog" header="Compromissos" resizable="true" modal="true" width="1024" position="top" height="600">
+                <p:schedule id="schedule" value="# {compromissoUsuarioBean.eventModel}" widgetVar="myschedule"  locale="pt" timeZone="GMT-3">
+                    < ! - -   <p:ajax event="dateSelect" listener="# {compromissoUsuarioBean.selectedData}" update="i_panel_grid_fer" />  - - >
+                    <p:ajax event="eventSelect" listener="# {compromissoUsuarioBean.edit}" update=":form_compromisso:i_panel_grid_fer" oncomplete="PF('eventDialogDetails').show()"/>  
                 </p:schedule>              
-            </p:dialog>
+            </p:dialog> -->
             <p:dialog widgetVar="eventDialogDetails" header="Compromisso" resizable="false" modal="true" width="800" position="top">
                 <p:panel id="i_panel_grid_fer">
                     <h:panelGrid columns="2" rendered="#{compromissoUsuarioBean.compromissoUsuario.id != null}">
