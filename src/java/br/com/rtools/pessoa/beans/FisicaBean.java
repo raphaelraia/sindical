@@ -694,6 +694,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         // LISTA DE OPOSIÇÕES --
         filtroOposicao = "ativas";
         loadListaOposicao();
+        loadListaInativacao();
         // --
 
         // loadListaDocumentos();
@@ -735,6 +736,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 }
             }
             loadMalaDireta();
+            loadListaInativacao();
             if (success) {
                 RequestContext.getCurrentInstance().update("form_pessoa_fisica:i_panel_pessoa_fisica");
                 RequestContext.getCurrentInstance().update("form_pessoa_fisica:i_end_rendered");
@@ -752,6 +754,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                     String x = editarFisicaParametro(f);
                     pessoaUpper();
                     loadMalaDireta();
+                    loadListaInativacao();
                     RequestContext.getCurrentInstance().update("form_pessoa_fisica:i_panel_pessoa_fisica");
                     showImagemFisica();
                 }
@@ -817,7 +820,21 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 pessoaComplemento = new PessoaComplemento();
             }
         }
+        loadListaInativacao();
         return url;
+    }
+
+    public void loadListaInativacao() {
+        listaSocioInativo = new ArrayList();
+        if (fisica.getId() != -1 && socios != null && socios.getId() != -1 && socios.getParentesco().getId() == 1 && !socios.getServicoPessoa().isAtivo()) {
+            listaSocioInativo = new SociosDao().pesquisaSocioPorPessoaInativo(fisica.getPessoa().getId(), true);
+            for (int i = 0; i < listaSocioInativo.size(); i++) {
+                if (fisica.getPessoa().getId() != listaSocioInativo.get(i).getMatriculaSocios().getTitular().getId()) {
+                    listaSocioInativo.clear();
+                    break;
+                }
+            }
+        }
     }
 
     public void editarFisicaSocio(Fisica fis) {
@@ -1964,15 +1981,6 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public List<Socios> getListaSocioInativo() {
-        if (listaSocioInativo.isEmpty() && fisica.getId() != -1) {
-            listaSocioInativo = new SociosDao().pesquisaSocioPorPessoaInativo(fisica.getPessoa().getId());
-            for (int i = 0; i < listaSocioInativo.size(); i++) {
-                if (fisica.getPessoa().getId() != listaSocioInativo.get(i).getMatriculaSocios().getTitular().getId()) {
-                    listaSocioInativo.clear();
-                    break;
-                }
-            }
-        }
         return listaSocioInativo;
     }
 

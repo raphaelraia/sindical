@@ -7,9 +7,7 @@ package br.com.rtools.associativo.beans;
 
 import br.com.rtools.associativo.DescontoSocial;
 import br.com.rtools.associativo.MatriculaAgendamentoFinanceiro;
-import br.com.rtools.associativo.MatriculaSeguro;
 import br.com.rtools.associativo.dao.MatriculaAgendamentoFinanceiroDao;
-import br.com.rtools.associativo.dao.MatriculaSeguroDao;
 import br.com.rtools.financeiro.FTipoDocumento;
 import br.com.rtools.financeiro.ServicoPessoa;
 import br.com.rtools.financeiro.Servicos;
@@ -44,22 +42,32 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
     private Float valor = (float) 0;
     private Float desconto = (float) 0;
     private Float valorTotal = (float) 0;
-    private List<ServicoPessoa> listaServicoPessoa = new ArrayList();
-
-    private String descricaoPesquisa = "";
-    private String tipoPesquisa = "nome";
+    private List<LinhaServicoPessoa> listaServicoPessoa = new ArrayList();
 
     public MatriculaAgendamentoFinanceiroBean() {
         loadListaServicos();
-        loadListaServicoPessoa();
-        
+
         GenericaSessao.remove("fisicaPesquisa");
     }
 
     public final void loadListaServicoPessoa() {
         listaServicoPessoa.clear();
 
-        listaServicoPessoa = new MatriculaAgendamentoFinanceiroDao().listaServicoPessoa(matriculaAgendamento.getServicoPessoa().getPessoa().getId());
+        List<Object> result = new MatriculaAgendamentoFinanceiroDao().listaServicoPessoaMatricula(matriculaAgendamento.getServicoPessoa().getPessoa().getId());
+        
+        Dao dao = new Dao();
+        for (Object ob : result){
+            List linha = (List) ob;
+            ServicoPessoa sp = (ServicoPessoa) dao.find(new ServicoPessoa(), Integer.valueOf(linha.get(0).toString()));
+            MatriculaAgendamentoFinanceiro ma = (linha.get(1) != null) ? (MatriculaAgendamentoFinanceiro) dao.find(new MatriculaAgendamentoFinanceiro(), Integer.valueOf(linha.get(1).toString())) : null;
+            
+            listaServicoPessoa.add(
+                    new LinhaServicoPessoa(
+                            sp, 
+                            ma
+                    )
+            );
+        }
     }
 
     public final void loadListaServicos() {
@@ -67,7 +75,7 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
         indexServicos = 0;
 
         ServicosDao db = new ServicosDao();
-        List<Servicos> select = db.pesquisaTodos(423);
+        List<Servicos> select = db.pesquisaTodos(427);
         for (int i = 0; i < select.size(); i++) {
             listaServicos.add(
                     new SelectItem(
@@ -89,11 +97,11 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
         if (matriculaAgendamento.getServicoPessoa().getPessoa().getSocios().getId() != -1) {
             pessoaCobranca = new FunctionsDao().titularDaPessoa(matriculaAgendamento.getServicoPessoa().getPessoa().getId());
         } else {
-            if (matriculaAgendamento.getServicoPessoa().getPessoa().getFisica().getIdade() < 16){
+            if (matriculaAgendamento.getServicoPessoa().getPessoa().getFisica().getIdade() < 16) {
                 GenericaMensagem.error("ATENÇÃO", "Menor de 16 anos não pode ser responsável!");
                 return;
             }
-            
+
             pessoaCobranca = matriculaAgendamento.getServicoPessoa().getPessoa();
         }
 
@@ -108,7 +116,7 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
         dao.openTransaction();
 
         if (matriculaAgendamento.getId() == -1) {
-            if (new MatriculaSeguroDao().pesquisaMatriculaSeguroPessoaAtiva(matriculaAgendamento.getServicoPessoa().getPessoa().getId(), matriculaAgendamento.getServicoPessoa().getServicos().getId()) != null) {
+            if (new MatriculaAgendamentoFinanceiroDao().pesquisaMatriculaAgendamentoPessoaAtiva(matriculaAgendamento.getServicoPessoa().getPessoa().getId(), matriculaAgendamento.getServicoPessoa().getServicos().getId()) != null) {
                 GenericaMensagem.error("ATENÇÃO", "Esta pessoa já tem esse serviço ativo!");
                 return;
             }
@@ -129,12 +137,12 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
 
             if (!dao.save(matriculaAgendamento)) {
                 dao.rollback();
-                GenericaMensagem.error("ATENÇÃO", "ERRO AO SALVAR MATRÍCULA SEGURO!");
+                GenericaMensagem.error("ATENÇÃO", "ERRO AO SALVAR MATRÍCULA AGENDAMENTO!");
                 return;
             }
 
             String save_log
-                    = "ID Seguro: " + matriculaAgendamento.getId() + " \n "
+                    = "ID Agendamento Financeiro: " + matriculaAgendamento.getId() + " \n "
                     + "Pessoa: " + matriculaAgendamento.getServicoPessoa().getPessoa().getDocumento() + " : " + matriculaAgendamento.getServicoPessoa().getPessoa().getNome() + " \n "
                     + "Serviço: " + matriculaAgendamento.getServicoPessoa().getNrDiaVencimento() + " \n "
                     + "Valor: " + Moeda.converteR$Float(matriculaAgendamento.getServicoPessoa().getNrValorFixo()) + " \n "
@@ -145,7 +153,7 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
 
             logs.save(save_log);
 
-            GenericaMensagem.info("SUCESSO", "MATRÍCULA SEGURO SALVA!");
+            GenericaMensagem.info("SUCESSO", "MATRÍCULA AGENDAMENTO SALVA!");
         } else {
             if (!dao.update(matriculaAgendamento.getServicoPessoa())) {
                 dao.rollback();
@@ -155,14 +163,14 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
 
             if (!dao.update(matriculaAgendamento)) {
                 dao.rollback();
-                GenericaMensagem.error("ATENÇÃO", "ERRO AO ATUALIZAR MATRÍCULA SEGURO!");
+                GenericaMensagem.error("ATENÇÃO", "ERRO AO ATUALIZAR MATRÍCULA AGENDAMENTO!");
                 return;
             }
 
             MatriculaAgendamentoFinanceiro ma = (MatriculaAgendamentoFinanceiro) new Dao().find(matriculaAgendamento);
 
             String save_log
-                    = "ID Seguro: " + matriculaAgendamento.getId() + " \n "
+                    = "ID Agendamento: " + matriculaAgendamento.getId() + " \n "
                     + "Pessoa: " + matriculaAgendamento.getServicoPessoa().getPessoa().getDocumento() + " : " + matriculaAgendamento.getServicoPessoa().getPessoa().getNome() + " \n "
                     + "Serviço: " + matriculaAgendamento.getServicoPessoa().getNrDiaVencimento() + " \n "
                     + "Valor: " + Moeda.converteR$Float(matriculaAgendamento.getServicoPessoa().getNrValorFixo()) + " \n "
@@ -172,7 +180,7 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
                     + "Desconto Folha: " + matriculaAgendamento.getServicoPessoa().isDescontoFolha();
 
             String update_log
-                    = "ID Seguro: " + ma.getId() + " \n "
+                    = "ID Agendamento: " + ma.getId() + " \n "
                     + "Pessoa: " + ma.getServicoPessoa().getPessoa().getDocumento() + " : " + ma.getServicoPessoa().getPessoa().getNome() + " \n "
                     + "Serviço: " + ma.getServicoPessoa().getNrDiaVencimento() + " \n "
                     + "Valor: " + Moeda.converteR$Float(ma.getServicoPessoa().getNrValorFixo()) + " \n "
@@ -183,10 +191,12 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
 
             logs.update(save_log, update_log);
 
-            GenericaMensagem.info("SUCESSO", "MATRÍCULA SEGURO ATUALIZADA!");
+            GenericaMensagem.info("SUCESSO", "MATRÍCULA AGENDAMENTO ATUALIZADA!");
         }
-        
+
         dao.commit();
+        
+        novo();
         loadListaServicoPessoa();
     }
 
@@ -195,11 +205,10 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
 
         if (matriculaAgendamento.getId() != -1) {
             dao.openTransaction();
-            //ServicoPessoa sp = matriculaSeguro.getServicoPessoa();
 
             if (!dao.delete(matriculaAgendamento)) {
                 dao.rollback();
-                GenericaMensagem.error("Atenção", "Erro ao excluir Seguro!");
+                GenericaMensagem.error("Atenção", "Erro ao excluir Agendamento Financeiro!");
                 return;
             }
 
@@ -210,17 +219,28 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
             }
 
             dao.commit();
+            
             novo();
-            GenericaMensagem.info("Sucesso", "Seguro Excluído!");
+            loadListaServicoPessoa();
+            
+            GenericaMensagem.info("Sucesso", "Agendamento Financeiro Excluído!");
         }
     }
 
     public void novo() {
-        GenericaSessao.put("matriculaSeguroBean", new MatriculaAgendamentoFinanceiroBean());
+        //GenericaSessao.put("matriculaAgendamentoFinanceiroBean", new MatriculaAgendamentoFinanceiroBean());
+        Pessoa p = matriculaAgendamento.getServicoPessoa().getPessoa();
+        matriculaAgendamento = new MatriculaAgendamentoFinanceiro();
+        indexServicos = 0;
+        valor = (float) 0;
+        desconto = (float) 0;
+        valorTotal = (float) 0;
+        
+        matriculaAgendamento.getServicoPessoa().setPessoa(p);
     }
 
-    public String editar(MatriculaAgendamentoFinanceiro ma) {
-        matriculaAgendamento = ma;
+    public void editar(LinhaServicoPessoa lsp) {
+        matriculaAgendamento = lsp.getMatriculaAgendamentoFinanceiro();
         for (int i = 0; i < listaServicos.size(); i++) {
             if (matriculaAgendamento.getServicoPessoa().getServicos().getId() == Integer.valueOf(listaServicos.get(i).getDescription())) {
                 indexServicos = i;
@@ -230,10 +250,6 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
         valor = matriculaAgendamento.getServicoPessoa().getNrValorFixo();
 
         calculoPercentualDesconto();
-        loadListaServicoPessoa();
-
-        GenericaSessao.put("linkClicado", true);
-        return "matriculaSeguro";
     }
 
     public void calculoPercentualDesconto() {
@@ -268,7 +284,10 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
     }
 
     public void removerPessoa() {
-        matriculaAgendamento.getServicoPessoa().setPessoa(new Pessoa());
+//        matriculaAgendamento.getServicoPessoa().setPessoa(new Pessoa());
+//        
+//        loadListaServicoPessoa();
+        GenericaSessao.put("matriculaAgendamentoFinanceiroBean", new MatriculaAgendamentoFinanceiroBean());
     }
 
     public Integer getIndexServicos() {
@@ -335,25 +354,10 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
         this.valorTotal = Moeda.converteUS$(valorTotalString);
     }
 
-    public String getDescricaoPesquisa() {
-        return descricaoPesquisa;
-    }
-
-    public void setDescricaoPesquisa(String descricaoPesquisa) {
-        this.descricaoPesquisa = descricaoPesquisa;
-    }
-
-    public String getTipoPesquisa() {
-        return tipoPesquisa;
-    }
-
-    public void setTipoPesquisa(String tipoPesquisa) {
-        this.tipoPesquisa = tipoPesquisa;
-    }
-
     public MatriculaAgendamentoFinanceiro getMatriculaAgendamento() {
         if (GenericaSessao.exists("fisicaPesquisa")) {
             matriculaAgendamento.getServicoPessoa().setPessoa(((Fisica) GenericaSessao.getObject("fisicaPesquisa", true)).getPessoa());
+            loadListaServicoPessoa();
         }
         return matriculaAgendamento;
     }
@@ -362,12 +366,40 @@ public class MatriculaAgendamentoFinanceiroBean implements Serializable {
         this.matriculaAgendamento = matriculaAgendamento;
     }
 
-    public List<ServicoPessoa> getListaServicoPessoa() {
+    public List<LinhaServicoPessoa> getListaServicoPessoa() {
         return listaServicoPessoa;
     }
 
-    public void setListaServicoPessoa(List<ServicoPessoa> listaServicoPessoa) {
+    public void setListaServicoPessoa(List<LinhaServicoPessoa> listaServicoPessoa) {
         this.listaServicoPessoa = listaServicoPessoa;
+    }
+
+    public class LinhaServicoPessoa {
+
+        private ServicoPessoa servicoPessoa;
+        private MatriculaAgendamentoFinanceiro matriculaAgendamentoFinanceiro;
+
+        public LinhaServicoPessoa(ServicoPessoa servicoPessoa, MatriculaAgendamentoFinanceiro matriculaAgendamentoFinanceiro) {
+            this.servicoPessoa = servicoPessoa;
+            this.matriculaAgendamentoFinanceiro = matriculaAgendamentoFinanceiro;
+        }
+
+        public ServicoPessoa getServicoPessoa() {
+            return servicoPessoa;
+        }
+
+        public void setServicoPessoa(ServicoPessoa servicoPessoa) {
+            this.servicoPessoa = servicoPessoa;
+        }
+
+        public MatriculaAgendamentoFinanceiro getMatriculaAgendamentoFinanceiro() {
+            return matriculaAgendamentoFinanceiro;
+        }
+
+        public void setMatriculaAgendamentoFinanceiro(MatriculaAgendamentoFinanceiro matriculaAgendamentoFinanceiro) {
+            this.matriculaAgendamentoFinanceiro = matriculaAgendamentoFinanceiro;
+        }
+
     }
 
 }

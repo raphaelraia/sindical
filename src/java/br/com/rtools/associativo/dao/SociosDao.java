@@ -259,16 +259,26 @@ public class SociosDao extends DB {
         return soc;
     }
 
-    public List<Socios> pesquisaSocioPorPessoaInativo(int idPessoa) {
+    public List<Socios> pesquisaSocioPorPessoaInativo(Integer pessoa_id) {
+        return pesquisaSocioPorPessoaInativo(pessoa_id, false);
+    }
+
+    public List<Socios> pesquisaSocioPorPessoaInativo(Integer pessoa_id, Boolean titular) {
         try {
-            Query query = getEntityManager().createNativeQuery(
-                    "       SELECT S.*                                                       \n "
-                    + "       FROM soc_socios AS S                                           \n "
-                    + " INNER JOIN fin_servico_pessoa sp ON SP.id = S.id_servico_pessoa      \n "
-                    + "      WHERE SP.id_pessoa = " + idPessoa + "                           \n "
-                    + "        AND SP.is_ativo = false                                       \n "
-                    + "   ORDER BY S.id_matricula_socios DESC ", Socios.class
-            );
+            String queryString = "        "
+                    + "  SELECT S.*                                                     \n "
+                    + "       FROM soc_socios AS S                                      \n "
+                    + " INNER JOIN fin_servico_pessoa sp ON SP.id = S.id_servico_pessoa \n "
+                    + "      WHERE SP.id_pessoa = " + pessoa_id + "                     \n "
+                    + "        AND SP.is_ativo = false                                  \n ";
+            if (titular != null && titular) {
+                queryString += "  AND S.id_parentesco = 1  \n ";
+            }
+            queryString += " ORDER BY S.id_matricula_socios DESC ";
+            if (titular != null && titular) {
+                queryString += " LIMIT 1 ";
+            }
+            Query query = getEntityManager().createNativeQuery(queryString, Socios.class);
             List list = query.getResultList();
             if (!list.isEmpty()) {
                 return list;

@@ -14,35 +14,15 @@
         <meta http-equiv="expires" content="0" /> 
         <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>  
         <style type="text/css">
-            .ui-widget-content .ui-inputfield{ padding: 8px!important; } 
-            .ui-button { padding: 3px!important; }
-
-            .duas-colunas{
-                width: 50%;
-            }
-            .leitor-biometrico-on {  
-                background-image: url("#{facesContext.externalContext.requestContextPath}/Imagens/biometric-on-icon.gif") !important;  
-            }            
-            .leitor-biometrico-off {  
-                background-image: url("#{facesContext.externalContext.requestContextPath}/Imagens/biometric-off-icon.png") !important;  
-            }     
-
-            .column01{
-                width: 100px;
-            }
-
-            .column02{
-                width: 100%;
-            }
-
-            .column03{
-                width: 50px;
-            }                
+            .ui-widget-content .ui-inputfield{ padding: 8px!important;} 
+            .ui-button { padding: 3px!important;}
+            .duas-colunas{width: 50%;}
+            .leitor-biometrico-on {background-image: url("#{facesContext.externalContext.requestContextPath}/Imagens/biometric-on-icon.gif") !important;} 
+            .leitor-biometrico-off {background-image: url("#{facesContext.externalContext.requestContextPath}/Imagens/biometric-off-icon.png") !important;}
+            .column01{width: 100px;}
+            .column02{width: 100%;}
+            .column03{width: 50px;}
         </style>
-
-        <script type="text/javascript">
-
-        </script>
     </h:head>
     <h:body>
         <!-- INICIA DIV wrap e main -->
@@ -52,14 +32,11 @@
                 <f:subview id="header">
                     <ui:include src="templates/templatePrime.xhtml"/>
                 </f:subview>
-
                 <ui:include src="templates/templatePhotoCapture.xhtml" />
                 <ui:include src="templates/templatePhotoUpload.xhtml" />
                 <ui:include src="templates/templatePhotoCropper.xhtml" />
                 <ui:include src="templates/templateLogHistory.xhtml" />
-
                 <f:view>
-
                     <f:metadata>
                     </f:metadata>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
@@ -322,7 +299,7 @@
                                                     <p:column>
                                                         <h:panelGrid columns="1" style="float: right;" styleClass="text-center"> 
                                                             <p:column rendered="#{fisicaBean.tipoCadastro != 3}">
-                                                                <p:commandLink value="Ver Lista de Inativações" onclick="PF('i_dlg_inativos').show()" rendered="#{fisicaBean.listaSocioInativo.size() != 0}" />
+                                                                <p:commandLink value="REATIVAÇÃO" onclick="PF('i_dlg_reativacao').show()" rendered="#{fisicaBean.listaSocioInativo.size() != 0}" styleClass="font-color-red bold"/>
                                                                 <br /> 
                                                                 <br /> 
                                                             </p:column>
@@ -352,7 +329,7 @@
                                                     </p:column>
                                                 </h:panelGrid>
 
-                                                <p:dialog widgetVar="i_dlg_inativos" header="Lista de Inativações" resizable="false" width="600" modal="true">
+                                                <p:dialog widgetVar="i_dlg_reativacao" header="Reativação" resizable="false" width="600" modal="true">
                                                     <h:panelGroup layout="block">
                                                         <p:dataTable value="#{fisicaBean.listaSocioInativo}" var="linha" rowIndexVar="index" emptyMessage="Clique para adicionar MAIS VENCIMENTO">
                                                             <p:column width="15">  
@@ -373,7 +350,7 @@
                                                     <br />
                                                     <h:outputLabel value="* Clique no item da lista para reativar" styleClass="font-color-red"  />
                                                     <f:facet name="footer">
-                                                        <p:commandButton value="Sair" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_inativos').hide()" icon="ui-icon-close"/>
+                                                        <p:commandButton value="Sair" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_reativacao').hide()" icon="ui-icon-close"/>
                                                     </f:facet>
                                                 </p:dialog>                                                
                                             </p:panel>

@@ -1752,14 +1752,12 @@ public class MatriculaAcademiaBean implements Serializable {
                         }
                     } else // TAXA PROPORCIONAL ATÉ O VENCIMENTO
                     // METODO NOVO PARA O CHAMADO 1226
-                    {
-                        if (Moeda.converteUS$(valorLiquido) > 0) {
+                     if (Moeda.converteUS$(valorLiquido) > 0) {
                             if (!gerarTaxaMovimento(Moeda.converteUS$(valorLiquido), true)) {
                                 GenericaMensagem.warn("ATENÇÃO", "Movimento não foi gerado, Tente novamente!");
                                 return null;
                             }
                         } // --------------                    // new FunctionsDao().gerarMensalidades(matriculaAcademia.getServicoPessoa().getPessoa().getId(), retornaReferenciaGeracao());
-                    }
                     if (Moeda.converteUS$(valorLiquido) > 0) {
                         if (!gerarTaxaMovimento(Moeda.converteUS$(valorLiquido), false)) {
                             GenericaMensagem.warn("ATENÇÃO", "Movimento não foi gerado, Tente novamente!");
@@ -2105,9 +2103,35 @@ public class MatriculaAcademiaBean implements Serializable {
 
         TipoServico tipoServico;
 
+        String nrCtrBoletoResp = "";
         if (proporcional) {
             tipoServico = (TipoServico) dao.find(new TipoServico(), 5);
         } else {
+            for (int x = 0; x < (Integer.toString(matriculaAcademia.getServicoPessoa().getCobranca().getId())).length(); x++) {
+                nrCtrBoletoResp += 0;
+            }
+
+            nrCtrBoletoResp += matriculaAcademia.getServicoPessoa().getCobranca().getId();
+
+            mes = matriculaAcademia.getServicoPessoa().getEmissao().substring(3, 5);
+            ano = matriculaAcademia.getServicoPessoa().getEmissao().substring(6, 10);
+            referencia = mes + "/" + ano;
+
+            //if (DataHoje.qtdeDiasDoMes(Integer.parseInt(mes), Integer.parseInt(ano)) >= matriculaAcademia.getServicoPessoa().getNrDiaVencimento()) {
+            if (DataHoje.qtdeDiasDoMes(Integer.parseInt(mes), Integer.parseInt(ano)) >= idDiaParcela) {
+                if (idDiaParcela < 10) {
+                    vencimento = "0" + idDiaParcela + "/" + mes + "/" + ano;
+                } else {
+                    vencimento = idDiaParcela + "/" + mes + "/" + ano;
+                }
+            } else {
+                String diaSwap = Integer.toString(DataHoje.qtdeDiasDoMes(Integer.parseInt(mes), Integer.parseInt(ano)));
+                if (diaSwap.length() < 2) {
+                    diaSwap = "0" + diaSwap;
+                }
+                vencimento = diaSwap + "/" + mes + "/" + ano;
+            }
+
             tipoServico = (TipoServico) dao.find(new TipoServico(), 1);
         }
         Movimento m

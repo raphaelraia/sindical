@@ -37,48 +37,48 @@
                 </f:subview>
                 <f:view>
                     <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
-                        <h:outputText value="Matrícula Seguro" styleClass="fonteHeader" />
+                        <h:outputText value="Matrícula Agendamento Financeiro" styleClass="fonteHeader" />
                         <div style="clear: both"></div>
                         <h:form id="formMatriculaAgendamento">
-                            <c:set scope="request" var="object" value="${matriculaAgendamentoFinanceiroBean.matriculaSeguro}"/>
+                            <c:set scope="request" var="object" value="${matriculaAgendamentoFinanceiroBean.matriculaAgendamento}"/>
                             <p:panel styleClass="fundoCinza">
                                 <h:panelGrid columns="3">
-                                    <p:commandButton value="Pesquisar Pessoa" action="#{chamadaPaginaBean.pesquisaPessoaFisica()}" ajax="false" rendered="#{matriculaSeguroBean.matriculaSeguro.servicoPessoa.pessoa.id eq -1}"/>
-                                    <p:outputLabel value="#{matriculaSeguroBean.matriculaSeguro.servicoPessoa.pessoa.nome}" style="font-size: 13pt!important; font-weight: bold" rendered="#{matriculaSeguroBean.matriculaSeguro.servicoPessoa.pessoa.id ne -1}"/>
-                                    <p:commandButton icon="ui-icon-close" action="#{matriculaSeguroBean.removerPessoa()}" rendered="#{matriculaSeguroBean.matriculaSeguro.servicoPessoa.pessoa.id ne -1}" update="@form" disabled="#{matriculaSeguroBean.matriculaSeguro.id ne -1}"/>
+                                    <p:commandButton value="Pesquisar Pessoa" action="#{chamadaPaginaBean.pesquisaPessoaFisica()}" ajax="false" rendered="#{matriculaAgendamentoFinanceiroBean.matriculaAgendamento.servicoPessoa.pessoa.id eq -1}"/>
+                                    <p:outputLabel value="#{matriculaAgendamentoFinanceiroBean.matriculaAgendamento.servicoPessoa.pessoa.nome}" style="font-size: 13pt!important; font-weight: bold" rendered="#{matriculaAgendamentoFinanceiroBean.matriculaAgendamento.servicoPessoa.pessoa.id ne -1}"/>
+                                    <p:commandButton icon="ui-icon-close" action="#{matriculaAgendamentoFinanceiroBean.removerPessoa()}" rendered="#{matriculaAgendamentoFinanceiroBean.matriculaAgendamento.servicoPessoa.pessoa.id ne -1}" update="@form"/>
                                 </h:panelGrid>
                             </p:panel>
 
-                            <p:panel styleClass="fundoCinza" rendered="#{matriculaSeguroBean.matriculaSeguro.servicoPessoa.pessoa.id ne -1}">
+                            <p:panel styleClass="fundoCinza" rendered="#{matriculaAgendamentoFinanceiroBean.matriculaAgendamento.servicoPessoa.pessoa.id ne -1}">
                                 <h:panelGrid columns="6" columnClasses="column01, column01, column01, column01, column01, column01">
                                     <h:column>
                                         <p:outputLabel value="Código" /><br />
-                                        <p:outputLabel value="#{matriculaSeguroBean.matriculaSeguro.servicoPessoa.pessoa.id}" style="font-size: 12pt!important; font-weight: bold"/>
+                                        <p:outputLabel value="#{matriculaAgendamentoFinanceiroBean.matriculaAgendamento.servicoPessoa.pessoa.id}" style="font-size: 12pt!important; font-weight: bold"/>
                                     </h:column>
 
                                     <h:column>
                                         <p:outputLabel value="CPF" /><br />
-                                        <p:outputLabel value="#{matriculaSeguroBean.matriculaSeguro.servicoPessoa.pessoa.documento}" style="font-size: 12pt!important; font-weight: bold"/>
+                                        <p:outputLabel value="#{matriculaAgendamentoFinanceiroBean.matriculaAgendamento.servicoPessoa.pessoa.documento}" style="font-size: 12pt!important; font-weight: bold"/>
                                     </h:column>
 
                                     <h:column>
                                         <p:outputLabel value="Nascimento" /><br />
-                                        <p:outputLabel value="#{matriculaSeguroBean.matriculaSeguro.servicoPessoa.pessoa.fisica.nascimento}" style="font-size: 12pt!important; font-weight: bold"/>
+                                        <p:outputLabel value="#{matriculaAgendamentoFinanceiroBean.matriculaAgendamento.servicoPessoa.pessoa.fisica.nascimento}" style="font-size: 12pt!important; font-weight: bold"/>
                                     </h:column>
 
                                     <h:column>
                                         <p:outputLabel value="Idade" /><br />
-                                        <p:outputLabel value="#{matriculaSeguroBean.matriculaSeguro.servicoPessoa.pessoa.fisica.idade}" style="font-size: 12pt!important; font-weight: bold"/>
+                                        <p:outputLabel value="#{matriculaAgendamentoFinanceiroBean.matriculaAgendamento.servicoPessoa.pessoa.fisica.idade}" style="font-size: 12pt!important; font-weight: bold"/>
                                     </h:column>
 
                                     <h:column>
                                         <p:outputLabel value="Matrícula" /><br />
-                                        <p:outputLabel value="#{matriculaSeguroBean.matriculaSeguro.servicoPessoa.pessoa.socios.matriculaSocios.nrMatricula}" style="font-size: 12pt!important; font-weight: bold"/>
+                                        <p:outputLabel value="#{matriculaAgendamentoFinanceiroBean.matriculaAgendamento.servicoPessoa.pessoa.socios.matriculaSocios.nrMatricula}" style="font-size: 12pt!important; font-weight: bold"/>
                                     </h:column>
 
                                     <h:column>
                                         <p:outputLabel value="Categoria" /><br />
-                                        <p:outputLabel value="#{matriculaSeguroBean.matriculaSeguro.servicoPessoa.pessoa.socios.matriculaSocios.categoria.categoria}" style="font-size: 12pt!important; font-weight: bold"/>
+                                        <p:outputLabel value="#{matriculaAgendamentoFinanceiroBean.matriculaAgendamento.servicoPessoa.pessoa.socios.matriculaSocios.categoria.categoria}" style="font-size: 12pt!important; font-weight: bold"/>
                                     </h:column>
                                 </h:panelGrid>
                             </p:panel>
@@ -90,43 +90,43 @@
                             <h:panelGrid columns="6" columnClasses="column-padding-right20px, column-padding-right20px, column-padding-right20px, column-padding-right20px, column-padding-right20px">
                                 <h:column>
                                     <p:outputLabel value="Serviços" style="font-weight: bold"/><br />
-                                    <p:selectOneMenu value="#{matriculaSeguroBean.indexServicos}" disabled="#{matriculaSeguroBean.matriculaSeguro.id ne -1}" style="#{matriculaSeguroBean.matriculaSeguro.id ne -1 ? 'opacity: 0.8' : ''}">
-                                        <p:ajax event="change" update="@form" listener="#{matriculaSeguroBean.loadListaMatriculaSeguro()}"/>
-                                        <f:selectItems value="#{matriculaSeguroBean.listaServicos}"/>
+                                    <p:selectOneMenu value="#{matriculaAgendamentoFinanceiroBean.indexServicos}" disabled="#{matriculaAgendamentoFinanceiroBean.matriculaAgendamento.id ne -1}" style="#{matriculaAgendamentoFinanceiroBean.matriculaAgendamento.id ne -1 ? 'opacity: 0.8' : ''}">
+                                        <p:ajax event="change" update="@form" />
+                                        <f:selectItems value="#{matriculaAgendamentoFinanceiroBean.listaServicos}"/>
                                     </p:selectOneMenu>
                                 </h:column>
 
                                 <h:column>
                                     <br />
-                                    <p:selectBooleanCheckbox value="#{matriculaSeguroBean.matriculaSeguro.servicoPessoa.descontoFolha}" itemLabel="Desconto Folha">
+                                    <p:selectBooleanCheckbox value="#{matriculaAgendamentoFinanceiroBean.matriculaAgendamento.servicoPessoa.descontoFolha}" itemLabel="Desconto Folha">
                                         <p:ajax event="change" update="@this"/>
                                     </p:selectBooleanCheckbox>
                                 </h:column>
 
                                 <p:column>
                                     <h:outputLabel value="Valor R$" style="font-weight: bold"/><br />
-                                    <p:inputText value="#{matriculaSeguroBean.valorString}" style="text-align: right; width: 100px">
-                                        <p:ajax event="change" update="@this input_desconto_percentual input_total" listener="#{matriculaSeguroBean.calculoValorDesconto()}" global="false" />
+                                    <p:inputText value="#{matriculaAgendamentoFinanceiroBean.valorString}" style="text-align: right; width: 100px">
+                                        <p:ajax event="change" update="@this input_desconto_percentual input_total" listener="#{matriculaAgendamentoFinanceiroBean.calculoValorDesconto()}" global="false" />
                                     </p:inputText>
                                 </p:column>
 
                                 <p:column>
                                     <h:outputLabel value="Desconto R$" style="font-weight: bold"/><br />
-                                    <p:inputText id="input_desconto_valor" value="#{matriculaSeguroBean.descontoString}" style="text-align: right; width: 85px">
-                                        <p:ajax event="change" update="@this input_desconto_percentual input_total" global="false" listener="#{matriculaSeguroBean.calculoValorDesconto()}"/>
+                                    <p:inputText id="input_desconto_valor" value="#{matriculaAgendamentoFinanceiroBean.descontoString}" style="text-align: right; width: 85px">
+                                        <p:ajax event="change" update="@this input_desconto_percentual input_total" global="false" listener="#{matriculaAgendamentoFinanceiroBean.calculoValorDesconto()}"/>
                                     </p:inputText>
                                 </p:column>
 
                                 <p:column>
                                     <h:outputLabel value="Desconto %" style="font-weight: bold"/><br />
-                                    <p:inputText id="input_desconto_percentual" value="#{matriculaSeguroBean.matriculaSeguro.servicoPessoa.nrDescontoString}" style="text-align: right; width: 85px">
-                                        <p:ajax event="change" update="@this input_desconto_valor input_total" global="false"  listener="#{matriculaSeguroBean.calculoPercentualDesconto()}"/>
+                                    <p:inputText id="input_desconto_percentual" value="#{matriculaAgendamentoFinanceiroBean.matriculaAgendamento.servicoPessoa.nrDescontoString}" style="text-align: right; width: 85px">
+                                        <p:ajax event="change" update="@this input_desconto_valor input_total" global="false"  listener="#{matriculaAgendamentoFinanceiroBean.calculoPercentualDesconto()}"/>
                                     </p:inputText>
                                 </p:column>
 
                                 <p:column>
                                     <h:outputLabel value="Total R$" style="font-weight: bold"/><br />
-                                    <p:inputText id="input_total" value="#{matriculaSeguroBean.valorTotalString}" style="text-align: right; width: 100px; opacity: 100; font-weight: bold; background: #ebebeb" disabled="true" />
+                                    <p:inputText id="input_total" value="#{matriculaAgendamentoFinanceiroBean.valorTotalString}" style="text-align: right; width: 100px; opacity: 100; font-weight: bold; background: #ebebeb" disabled="true" />
                                 </p:column>
                             </h:panelGrid>
 
@@ -136,19 +136,19 @@
                                 <h:panelGrid columns="4">
                                     <h:column>
                                         <h:outputLabel value="Emissão"/><br />
-                                        <p:inputText value="#{matriculaSeguroBean.matriculaSeguro.servicoPessoa.emissao}" style="width: 100px; text-align: center"/>
+                                        <p:inputText value="#{matriculaAgendamentoFinanceiroBean.matriculaAgendamento.servicoPessoa.emissao}" style="width: 100px; text-align: center"/>
                                     </h:column>
 
                                     <h:column>
                                         <h:outputLabel value="Ref. Vigoração"/><br />
-                                        <p:inputMask value="#{matriculaSeguroBean.matriculaSeguro.servicoPessoa.referenciaVigoracao}" mask="99/9999" style="width: 100px; text-align: center" converter="#{isDateReference}">
+                                        <p:inputMask value="#{matriculaAgendamentoFinanceiroBean.matriculaAgendamento.servicoPessoa.referenciaVigoracao}" mask="99/9999" style="width: 100px; text-align: center" converter="#{isDateReference}">
                                             <p:ajax event="change" update="@this" />
                                         </p:inputMask>
                                     </h:column>
 
                                     <h:column>
                                         <h:outputLabel value="Ref. Validade"/><br />
-                                        <p:inputMask value="#{matriculaSeguroBean.matriculaSeguro.servicoPessoa.referenciaValidade}" mask="99/9999" style="width: 100px; text-align: center" converter="#{isDateReference}">
+                                        <p:inputMask value="#{matriculaAgendamentoFinanceiroBean.matriculaAgendamento.servicoPessoa.referenciaValidade}" mask="99/9999" style="width: 100px; text-align: center" converter="#{isDateReference}">
                                             <p:ajax event="change" update="@this" />
                                         </p:inputMask>
                                     </h:column>
@@ -157,37 +157,34 @@
                             </p:panel>
 
                             <h:panelGrid columns="3">
-                                <p:commandButton value="#{matriculaSeguroBean.matriculaSeguro.id eq -1 ? 'Salvar' : 'Atualizar'}" onclick="PF('dlg_salvar').show()"  icon="ui-icon-check" disabled="#{controleAcessoBean.botaoSalvar}"/>
-                                <p:commandButton value="Novo" icon="ui-icon-document" action="#{matriculaSeguroBean.novo()}" update="@form"/>
-                                <p:commandButton value="Excluir" onclick="PF('dlg_excluir').show()"  icon="ui-icon-close" disabled="#{matriculaSeguroBean.matriculaSeguro.id eq -1 or controleAcessoBean.botaoExcluir}"/>
+                                <p:commandButton value="#{matriculaAgendamentoFinanceiroBean.matriculaAgendamento.id eq -1 ? 'Salvar' : 'Atualizar'}" onclick="PF('dlg_salvar').show()"  icon="ui-icon-check" disabled="#{controleAcessoBean.botaoSalvar}"/>
+                                <p:commandButton value="Novo" icon="ui-icon-document" action="#{matriculaAgendamentoFinanceiroBean.novo()}" update="@form"/>
+                                <p:commandButton value="Excluir" onclick="PF('dlg_excluir').show()"  icon="ui-icon-close" disabled="#{matriculaAgendamentoFinanceiroBean.matriculaAgendamento.id eq -1 or controleAcessoBean.botaoExcluir}"/>
                             </h:panelGrid>
+                            
                             <br />
+                            
                             <h:panelGrid columns="2" style="width: 100%">
-                                <p:outputLabel value="Lista de Seguros" style="font-weight: bold; font-size: 11pt!important"/>
-                                
-                                <p:commandButton value="Pesquisa Aprimorada" action="#{chamadaPaginaBean.pagina('pesquisaMatriculaSeguro')}" icon="ui-icon-search" ajax="false" style="float: right"/>
+                                <p:outputLabel value="Lista de Agendamentos Financeiros" style="font-weight: bold; font-size: 11pt!important"/>
                             </h:panelGrid>
+                            
                             <p:separator />
                             
-                            <p:dataTable value="#{matriculaSeguroBean.listaMatriculaSeguro}" var="linha_matricula" emptyMessage="Nenhuma Matrícula Encontrada.">
-                                <p:column headerText="Código" style="text-align: center; width: 50px">
-                                    <p:commandLink action="#{matriculaSeguroBean.editar(linha_matricula)}" value="#{linha_matricula.servicoPessoa.pessoa.id}" />
+                            <p:dataTable value="#{matriculaAgendamentoFinanceiroBean.listaServicoPessoa}" var="linha_servico_pessoa" emptyMessage="Nenhuma Matrícula Encontrada.">
+                                <p:column headerText="Serviço">
+                                    <p:commandLink action="#{matriculaAgendamentoFinanceiroBean.editar(linha_servico_pessoa)}" value="#{linha_servico_pessoa.servicoPessoa.servicos.descricao}" disabled="#{linha_servico_pessoa.matriculaAgendamentoFinanceiro eq null}" update="@form" style="#{linha_servico_pessoa.matriculaAgendamentoFinanceiro eq null ? 'opacity: .9' : ''}"/>
                                 </p:column>
 
-                                <p:column headerText="Nome">
-                                    <p:commandLink action="#{matriculaSeguroBean.editar(linha_matricula)}" value="#{linha_matricula.servicoPessoa.pessoa.nome}" />
+                                <p:column headerText="Emissão" style="text-align: center; width: 80px">
+                                    <p:commandLink action="#{matriculaAgendamentoFinanceiroBean.editar(linha_servico_pessoa)}" value="#{linha_servico_pessoa.servicoPessoa.emissao}" disabled="#{linha_servico_pessoa.matriculaAgendamentoFinanceiro eq null}" update="@form"/>
                                 </p:column>
 
-                                <p:column headerText="Idade" style="text-align: center; width: 50px">
-                                    <p:commandLink action="#{matriculaSeguroBean.editar(linha_matricula)}" value="#{linha_matricula.servicoPessoa.pessoa.fisica.idade}" />
+                                <p:column headerText="Vigoração" style="text-align: center; width: 90px">
+                                    <p:commandLink action="#{matriculaAgendamentoFinanceiroBean.editar(linha_servico_pessoa)}" value="#{linha_servico_pessoa.servicoPessoa.referenciaVigoracao}" disabled="#{linha_servico_pessoa.matriculaAgendamentoFinanceiro eq null}" update="@form"/>
                                 </p:column>
 
-                                <p:column headerText="Categoria">
-                                    <p:commandLink action="#{matriculaSeguroBean.editar(linha_matricula)}" value="#{linha_matricula.servicoPessoa.pessoa.socios.matriculaSocios.categoria.categoria}" />
-                                </p:column>
-                                
-                                <p:column headerText="Matrícula" style="text-align: center; width: 70px">
-                                    <p:commandLink action="#{matriculaSeguroBean.editar(linha_matricula)}" value="#{linha_matricula.servicoPessoa.pessoa.socios.matriculaSocios.nrMatricula}" />
+                                <p:column headerText="Validade" style="text-align: center; width: 90px">
+                                    <p:commandLink action="#{matriculaAgendamentoFinanceiroBean.editar(linha_servico_pessoa)}" value="#{linha_servico_pessoa.servicoPessoa.referenciaValidade}" disabled="#{linha_servico_pessoa.matriculaAgendamentoFinanceiro eq null}" update="@form"/>
                                 </p:column>
                             </p:dataTable>
                             
@@ -197,7 +194,7 @@
                                 </h:panelGrid>
                                 <br />
 
-                                <p:commandButton value="Salvar" type="submit" styleClass="ui-confirmdialog-yes" action="#{matriculaSeguroBean.salvar()}" update="@form" onclick="PF('dlg_salvar').hide()" style="clear: both; float: left; font-weight: bold" icon="ui-icon-check" />  
+                                <p:commandButton value="Salvar" type="submit" styleClass="ui-confirmdialog-yes" action="#{matriculaAgendamentoFinanceiroBean.salvar()}" update="@form" onclick="PF('dlg_salvar').hide()" style="clear: both; float: left; font-weight: bold" icon="ui-icon-check" />  
                                 <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_salvar').hide()" style="float: left" icon="ui-icon-close"/>       
                             </p:dialog>
 
@@ -207,7 +204,7 @@
                                 </h:panelGrid>
                                 <br />
 
-                                <p:commandButton value="Excluir" type="submit" styleClass="ui-confirmdialog-yes" action="#{matriculaSeguroBean.excluir()}" update="@form" onclick="PF('dlg_excluir').hide()" style="clear: both; float: left; font-weight: bold" icon="ui-icon-check" />  
+                                <p:commandButton value="Excluir" type="submit" styleClass="ui-confirmdialog-yes" action="#{matriculaAgendamentoFinanceiroBean.excluir()}" update="@form" onclick="PF('dlg_excluir').hide()" style="clear: both; float: left; font-weight: bold" icon="ui-icon-check" />  
                                 <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" onclick="PF('dlg_excluir').hide()" style="float: left" icon="ui-icon-close"/>       
                             </p:dialog>
                         </h:form>

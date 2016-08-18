@@ -41,7 +41,7 @@
                         <h:outputText value="Relatório Sócios" styleClass="fonteHeader" />
                         <h:form id="form_relatorio">
                             <p:panel styleClass="fundoCinza" style="clear: both">
-                                <h:panelGrid columns="4" id="i_p_r">
+                                <h:panelGrid columns="6" id="i_p_r">
                                     <p:outputLabel value="Tipo de Relatório: " />
                                     <p:selectOneMenu value="#{relatorioSociosBean.idRelatorio}">
                                         <p:ajax event="change" update="@this :form_relatorio:" listener="#{relatorioSociosBean.listener('reload')}"/>
@@ -51,6 +51,11 @@
                                     <p:selectOneMenu value="#{relatorioSociosBean.idRelatorioOrdem}" rendered="#{not empty relatorioSociosBean.listRelatorioOrdem}">
                                         <p:ajax event="change" update="@this"/>
                                         <f:selectItems value="#{relatorioSociosBean.listRelatorioOrdem}"/>
+                                    </p:selectOneMenu>
+                                    <p:outputLabel value="Grupos: " styleClass="margin-left-max" rendered="#{relatorioSociosBean.idRelatorio eq 107}" />
+                                    <p:selectOneMenu value="#{relatorioSociosBean.selectedGroups}" rendered="#{relatorioSociosBean.idRelatorio eq 107}" >
+                                        <p:ajax event="change" update="@this"/>
+                                        <f:selectItems value="#{relatorioSociosBean.listGroups}"/>
                                     </p:selectOneMenu>
                                     <p:selectBooleanCheckbox itemLabel="Imprimir por folha" value="#{jasperBean.IS_BY_LEAF}" rendered="#{relatorioSociosBean.enableFolha}"/>
                                 </h:panelGrid>

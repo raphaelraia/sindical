@@ -119,10 +119,20 @@ public class PesquisaCNPJ implements Serializable {
         result.put("status", true);
         result.put("mensagem", "");
         HashMap hash_test = new LinkedHashMap();
-        HttpGet httpGet = new HttpGet("http://rtools.ddns.net:8080/webservicereceita/consulta/cnpj/client/" + GenericaSessao.getString("sessaoCliente") + "/document/" + cnpj + "/");
+        // HttpPost httpPost = new HttpPost("http://webservicerf.rtools.com.br:8080/webservicereceita/consulta/cnpj/client/" + GenericaSessao.getString("sessaoCliente") + "/document/" + cnpj + "/");
+        HttpPost httpPost = new HttpPost("http://localhost:8080/webservicereceita/consulta/cnpj/");
         hash_test.put("status", false);
         hash_test.put("mensagem", "Consulta não realizada");
-        HttpResponse resposta = cliente.execute(httpGet, contexto);
+        List<NameValuePair> nameValuePairs = new ArrayList(7);
+
+        nameValuePairs.add(new BasicNameValuePair("client", GenericaSessao.getString("sessaoCliente")));
+        nameValuePairs.add(new BasicNameValuePair("document", cnpj));
+        // Encapsulando
+        UrlEncodedFormEntity urlEncodedFormEntity = new UrlEncodedFormEntity(nameValuePairs, "UTF8");
+        // A adição dos parâmetros
+        httpPost.setEntity(urlEncodedFormEntity);
+
+        HttpResponse resposta = cliente.execute(httpPost, contexto);
         HttpEntity entidade = resposta.getEntity();
         String html;
         try {

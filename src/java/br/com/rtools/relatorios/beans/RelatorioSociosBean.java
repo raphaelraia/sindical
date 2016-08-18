@@ -43,6 +43,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,6 +64,7 @@ public class RelatorioSociosBean implements Serializable {
     private Integer idRelatorio;
     private List<SelectItem> listRelatorio;
     private List<SelectItem> listRelatorioOrdem;
+    private List<SelectItem> listGroups;
 
     private List<DateFilters> listDateFilters;
     private List<SelectItem> listDates;
@@ -70,6 +72,7 @@ public class RelatorioSociosBean implements Serializable {
     private String typeDate;
     private String startDate;
     private String finishDate;
+    private String selectedGroups;
 
     private Map<String, Integer> listServicos;
     private List selectedServicos;
@@ -185,6 +188,7 @@ public class RelatorioSociosBean implements Serializable {
         statusSocio = "";
         idEmpresas = null;
         idDias = 0;
+        selectedGroups = "categoria";
         matriculaInicial = "0";
         matriculaFinal = "";
         idadeInicial = "0";
@@ -194,6 +198,7 @@ public class RelatorioSociosBean implements Serializable {
         loadRelatorios();
         loadRelatoriosOrdem();
         loadFilters();
+        loadGroups();
 
     }
 
@@ -204,6 +209,7 @@ public class RelatorioSociosBean implements Serializable {
     public void listener(String tcase) {
         if (tcase.equals("reload")) {
             loadRelatoriosOrdem();
+            selectedGroups = "categoria";
             if (idRelatorio == 12 || idRelatorio == 16 || idRelatorio == 40) {
                 for (int i = 0; i < filtersSocio.size(); i++) {
                     if (filtersSocio.get(i).getKey().equals("status")) {
@@ -580,7 +586,9 @@ public class RelatorioSociosBean implements Serializable {
         }
         Jasper.TYPE = "default";
         Jasper.TITLE = relatorios.getNome();
-        Jasper.printReports(relatorios.getJasper(), relatorios.getNome(), (Collection) collection);
+        Map map = new HashMap();
+        map.put("groups", selectedGroups);
+        Jasper.printReports(relatorios.getJasper(), relatorios.getNome(), (Collection) collection, map);
     }
 
     public void download() {
@@ -1466,6 +1474,14 @@ public class RelatorioSociosBean implements Serializable {
         for (int i = 0; i < list.size(); i++) {
             listServicos.put(list.get(i).getDescricao(), list.get(i).getId());
         }
+    }
+
+    public void loadGroups() {
+        listGroups = new ArrayList();
+        listGroups.add(new SelectItem("categoria", "Categoria (Default)"));
+        listGroups.add(new SelectItem("empresa", "Empresa"));
+        listGroups.add(new SelectItem("titular", "Titular"));
+        listGroups.add(new SelectItem("parentesco", "Parentesco", "", true));
     }
 
     public void loadDescontoSocial() {
@@ -3115,5 +3131,21 @@ public class RelatorioSociosBean implements Serializable {
 
     public void setTipoOposicao(String tipoOposicao) {
         this.tipoOposicao = tipoOposicao;
+    }
+
+    public List<SelectItem> getListGroups() {
+        return listGroups;
+    }
+
+    public void setListGroups(List<SelectItem> listGroups) {
+        this.listGroups = listGroups;
+    }
+
+    public String getSelectedGroups() {
+        return selectedGroups;
+    }
+
+    public void setSelectedGroups(String selectedGroups) {
+        this.selectedGroups = selectedGroups;
     }
 }
