@@ -1,9 +1,9 @@
 package br.com.rtools.cobranca;
 
 import br.com.rtools.financeiro.Boleto;
-import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Moeda;
+import java.io.File;
 import java.util.Date;
 
 public class Sicoob extends Cobranca {
@@ -37,12 +37,10 @@ public class Sicoob extends Cobranca {
 
         if ((soma % 10) == 0) {
             return "0";
+        } else if (soma < 10) {
+            return Integer.toString(10 - soma);
         } else {
-            if (soma < 10) {
-                return Integer.toString(10 - soma);
-            } else {
-                return Integer.toString(10 - (soma % 10));
-            }
+            return Integer.toString(10 - (soma % 10));
         }
     }
 
@@ -88,7 +86,7 @@ public class Sicoob extends Cobranca {
         } else {
             fimCodigoBarras += "02";        // modalidade -- 02 com registro no banco // -- 02 sem registro no banco
         }
-        
+
         String cedente = "0000000".substring(0, 7 - boleto.getContaCobranca().getCodCedente().length()) + boleto.getContaCobranca().getCodCedente();        // codigo cedente
         fimCodigoBarras += cedente;
 
@@ -221,5 +219,10 @@ public class Sicoob extends Cobranca {
         } else {
             return "";
         }
+    }
+
+    @Override
+    public File gerarRemessa() {
+        return null;
     }
 }

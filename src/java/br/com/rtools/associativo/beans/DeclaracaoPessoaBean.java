@@ -18,6 +18,7 @@ import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.GenericaMensagem;
+import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Jasper;
 import br.com.rtools.utilitarios.dao.FunctionsDao;
 import java.io.Serializable;
@@ -54,6 +55,10 @@ public class DeclaracaoPessoaBean implements Serializable {
         loadListaDeclaracaoTipo();
         loadListaConvenio();
         loadListaDeclaracaoPessoa();
+    }
+
+    public void novo() {
+        GenericaSessao.put("declaracaoPessoaBean", new DeclaracaoPessoaBean());
     }
 
     public void selecionarPessoa(ObjectPesquisaPessoa opp) {
@@ -122,7 +127,7 @@ public class DeclaracaoPessoaBean implements Serializable {
         novoLog.save(
                 save_log
         );
-        
+
         imprimir_jasper(declaracao_pessoa);
 
         objPesquisaPessoaSelecionada = null;

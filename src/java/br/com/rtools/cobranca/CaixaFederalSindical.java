@@ -4,6 +4,7 @@ import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.pessoa.dao.JuridicaDao;
 import br.com.rtools.seguranca.Registro;
 import br.com.rtools.utilitarios.Moeda;
+import java.io.File;
 import java.util.Date;
 
 public class CaixaFederalSindical extends Cobranca {
@@ -15,7 +16,7 @@ public class CaixaFederalSindical extends Cobranca {
     @Override
     public String codigoBarras() {
         JuridicaDao jurDB = new JuridicaDao();
-        
+
         String ent = ((Registro) Registro.get()).getTipoEntidade();
         // (1-Sindicato, 2-Federação, 3-Confederação)
         if (ent.equals("S")) {
@@ -138,5 +139,10 @@ public class CaixaFederalSindical extends Cobranca {
     @Override
     public String codigoBanco() {
         return "104-0";
+    }
+
+    @Override
+    public File gerarRemessa() {
+        return null;
     }
 }

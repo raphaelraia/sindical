@@ -80,7 +80,6 @@ public class EmissaoGuiasBean implements Serializable {
     private String desconto;
     private String total;
     private String message;
-    //private boolean validaPessoa;
 
     // MODIFICAÇÕES BRUNO
     private boolean modalPedido;

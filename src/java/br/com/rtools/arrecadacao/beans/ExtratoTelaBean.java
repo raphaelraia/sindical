@@ -5,6 +5,7 @@ import br.com.rtools.arrecadacao.Acordo;
 import br.com.rtools.arrecadacao.dao.AcordoDao;
 import br.com.rtools.financeiro.*;
 import br.com.rtools.financeiro.dao.MovimentoDao;
+import br.com.rtools.financeiro.dao.RemessaBancoDao;
 import br.com.rtools.financeiro.dao.ServicosDao;
 import br.com.rtools.movimento.GerarMovimento;
 import br.com.rtools.movimento.ImprimirBoleto;
@@ -27,6 +28,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import javax.servlet.ServletContext;
 
 @ManagedBean
 @SessionScoped
@@ -984,27 +986,100 @@ public class ExtratoTelaBean implements Serializable {
         return null;
     }
 
+    public Boolean validaImprimir() {
+        if (listaMovimentos.isEmpty()) {
+            msgConfirma = "Lista vazia!";
+            GenericaMensagem.error("Atenção", "Lista Vazia");
+            return false;
+        }
+
+        if (bltQuitados() == true) {
+            msgConfirma = "Boletos quitados não podem ser Impressos!";
+            GenericaMensagem.error("Atenção", "Boletos quitados não podem ser Impressos!");
+            return false;
+        }
+
+        if (bltSelecionados() != true) {
+            msgConfirma = "Nenhum Boleto Selecionado!";
+            GenericaMensagem.error("Atenção", "Nenhum Boleto Selecionado!");
+            return false;
+        }
+
+        return true;
+    }
+
+    public String imprimirRemessa() {
+        MovimentoDao db = new MovimentoDao();
+        List<Movimento> listaC = new ArrayList();
+
+        if (!validaImprimir()) {
+            return null;
+        }
+
+        for (DataObject listaMovimento : listaMovimentos) {
+            if ((Boolean) listaMovimento.getArgumento0()) {
+                listaC.add(db.pesquisaCodigo((Integer) listaMovimento.getArgumento1()));
+            }
+        }
+        
+        ImprimirBoleto imp = new ImprimirBoleto();
+
+        listaC = imp.atualizaContaCobrancaMovimento(listaC);
+
+        MovimentoDao dao = new MovimentoDao();
+        Boleto boleto_teste = dao.pesquisaBoletos(listaC.get(0).getNrCtrBoleto());
+        String ids_movimento = "";
+        
+        for (Movimento m : listaC) {
+            Boleto boletox = dao.pesquisaBoletos(m.getNrCtrBoleto());
+            if (boleto_teste.getContaCobranca().getId() != boletox.getContaCobranca().getId()) {
+                GenericaMensagem.error("Atenção", "Para gerar a remessa os boletos devem ser da mesma Conta Cobrança!");
+                return null;
+            }
+
+            if (ids_movimento.isEmpty()) {
+                ids_movimento = "" + m.getId();
+            } else {
+                ids_movimento += ", " + m.getId();
+            }
+        }
+        RemessaBancoDao daor = new RemessaBancoDao();
+
+        List<RemessaBanco> l_rb = daor.listaMovimentoComRemessaBanco(ids_movimento);
+
+        if (!l_rb.isEmpty()) {
+            GenericaMensagem.error("Atenção", "Movimento já enviado para Remessa, " + l_rb.get(0).getMovimento().getDocumento());
+            return null;
+        }
+
+        File fi = imp.imprimirRemessa(listaC, boleto_teste);
+        if (fi == null) {
+            GenericaMensagem.error("Atenção", "Erro ao gerar Remessa!");
+            return null;
+        }
+        imp.visualizar_remessa(fi);
+//        
+//        List<RemessaBanco> l_rb2 = daor.listaMovimentoComRemessaBanco(ids_movimento);
+//        if (l_rb2.isEmpty()) {
+//            GenericaMensagem.error("Atenção", "Erro ao gerar Remessa!");
+//            return null;
+//        }
+//        
+//        String caminho = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/remessa/");
+//        caminho = caminho + "/" + l_rb2.get(0).getRemessa().getId()+"/"+l_rb2.get(0).getRemessa().getNomeArquivo();
+//        File filex = new File(caminho);
+//        
+        
+        return null;
+    }
+
     public String imprimir() {
         MovimentoDao db = new MovimentoDao();
         List<Movimento> listaC = new ArrayList();
         List<Float> listaValores = new ArrayList();
         List<String> listaVencimentos = new ArrayList();
 
-        if (listaMovimentos.isEmpty()) {
-            msgConfirma = "Lista vazia!";
-            GenericaMensagem.error("Atenção", "Lista Vazia");
-            return null;
-        }
-
-        if (bltQuitados() == true) {
-            msgConfirma = "Boletos quitados não podem ser Impressos!";
-            GenericaMensagem.error("Atenção", "Boletos quitados não podem ser Impressos!");
-            return null;
-        }
-
-        if (bltSelecionados() != true) {
-            msgConfirma = "Nenhum Boleto Selecionado!";
-            GenericaMensagem.error("Atenção", "Nenhum Boleto Selecionado!");
+        if (!validaImprimir()) {
             return null;
         }
 
@@ -1024,7 +1099,7 @@ public class ExtratoTelaBean implements Serializable {
         imp.visualizar(null);
 
         loadListBeta(0);
-        return "extratoTela";
+        return null;
     }
 
     public boolean isImprimirVerso() {

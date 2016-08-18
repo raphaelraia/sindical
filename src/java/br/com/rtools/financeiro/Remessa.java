@@ -1,33 +1,37 @@
 package br.com.rtools.financeiro;
 
+import java.io.Serializable;
+import java.util.Date;
 import javax.persistence.*;
 
 @Entity
 @Table(name = "fin_remessa")
-@NamedQuery(name = "Remessa.pesquisaID", query = "select r from Remessa r where r.id=:pid")
-public class Remessa implements java.io.Serializable {
+public class Remessa implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
-    @JoinColumn(name = "id_lote_remessa", referencedColumnName = "id", nullable = false)
-    @OneToOne
-    private LoteRemessa loteRemessa;
-    @JoinColumn(name = "id_movimento", referencedColumnName = "id", nullable = false)
-    @OneToOne
-    private Movimento movimento;
+    @Column(name = "ds_nome_arquivo")
+    private String nomeArquivo;
+    @Column(name = "dt_emissao")
+    @Temporal(TemporalType.DATE)
+    private Date dtEmissao;
+    @Column(name = "ds_hora_emissao")
+    private String horaEmissao;
 
     public Remessa() {
         this.id = -1;
-        this.loteRemessa = new LoteRemessa();
-        this.movimento = new Movimento();
+        this.nomeArquivo = "";
+        this.dtEmissao = null;
+        this.horaEmissao = "";
     }
 
-    public Remessa(int id, LoteRemessa loteRemessa, Movimento movimento) {
+    public Remessa(int id, String nomeArquivo, Date dtEmissao, String horaEmissao) {
         this.id = id;
-        this.loteRemessa = loteRemessa;
-        this.movimento = movimento;
+        this.nomeArquivo = nomeArquivo;
+        this.dtEmissao = dtEmissao;
+        this.horaEmissao = horaEmissao;
     }
 
     public int getId() {
@@ -38,19 +42,28 @@ public class Remessa implements java.io.Serializable {
         this.id = id;
     }
 
-    public LoteRemessa getLoteRemessa() {
-        return loteRemessa;
+    public String getNomeArquivo() {
+        return nomeArquivo;
     }
 
-    public void setLoteRemessa(LoteRemessa loteRemessa) {
-        this.loteRemessa = loteRemessa;
+    public void setNomeArquivo(String nomeArquivo) {
+        this.nomeArquivo = nomeArquivo;
     }
 
-    public Movimento getMovimento() {
-        return movimento;
+    public Date getDtEmissao() {
+        return dtEmissao;
     }
 
-    public void setMovimento(Movimento movimento) {
-        this.movimento = movimento;
+    public void setDtEmissao(Date dtEmissao) {
+        this.dtEmissao = dtEmissao;
     }
+
+    public String getHoraEmissao() {
+        return horaEmissao;
+    }
+
+    public void setHoraEmissao(String horaEmissao) {
+        this.horaEmissao = horaEmissao;
+    }
+
 }

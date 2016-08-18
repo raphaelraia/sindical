@@ -21,6 +21,7 @@ import br.com.rtools.retornos.*;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.utilitarios.*;
+import br.com.rtools.utilitarios.ArquivoRetorno.ObjectDetalheRetorno;
 import java.io.*;
 import java.util.*;
 import javax.faces.bean.ManagedBean;
@@ -86,11 +87,14 @@ public final class ArquivoBancoBean implements Serializable {
     private int index_contribuicao = 0;
     private List<SelectItem> listaServicos = new ArrayList();
     private List<String> listaArquivosPendentes = new ArrayList();
+    private List<ObjectDetalheRetorno> listaDetalheRetornoBanco = new ArrayList();
 
     public ArquivoBancoBean() {
         this.getListaServicos();
         this.loadListaArquivosBaixar();
         this.loadListaDocumentos();
+
+        GenericaSessao.remove("detalhes_retorno_banco");
     }
 
     public void loadListaArquivosBaixar() {
@@ -110,15 +114,13 @@ public final class ArquivoBancoBean implements Serializable {
 
     public void loadListaDocumentos() {
         listaDocumentos.clear();
-        DataObject dtObject = null;
-        String documento = "", digito = "";
-        boolean encontrado = false;
+
+        DataObject dtObject;
+        String documento, digito;
 
         DocumentoInvalidoDao dbDocInv = new DocumentoInvalidoDao();
-        List<DocumentoInvalido> listaDoc = new ArrayList();
-        List<DocumentoInvalido> listaDocCadastrado = new ArrayList();
-
-        listaDoc = dbDocInv.pesquisaTodos();
+        List<DocumentoInvalido> listaDoc = dbDocInv.pesquisaTodos();
+        List<DocumentoInvalido> listaDocCadastrado;
 
         if (listaDoc.isEmpty()) {
             return;
@@ -126,7 +128,7 @@ public final class ArquivoBancoBean implements Serializable {
 
         listaDocCadastrado = dbDocInv.pesquisaNumeroBoletoPessoa();
         for (int i = 0; i < listaDoc.size(); i++) {
-            encontrado = false;
+            Boolean encontrado = false;
             for (int w = 0; w < listaDocCadastrado.size(); w++) {
                 if (listaDoc.get(i).getId() == listaDocCadastrado.get(w).getId()) {
                     documento = listaDoc.get(i).getDocumentoInvalido().substring(
@@ -195,7 +197,7 @@ public final class ArquivoBancoBean implements Serializable {
     }
 
     public void fileUpload(FileUploadEvent event) {
-        String cod = "";
+        String cod;
         if (contaCobranca.getLayout().getId() == 2) {
             cod = contaCobranca.getSicasSindical();
         } else {
@@ -610,11 +612,11 @@ public final class ArquivoBancoBean implements Serializable {
                 boleto = dbmov.pesquisaBoletos(movs.get(i).getNrCtrBoleto());
                 Object obj = rbd.pesquisaRemessaBancoCobranca(boleto.getContaCobranca().getId());
                 rb = new RemessaBanco();
-                if (obj != null) {
-                    rb.setLote(Integer.parseInt(String.valueOf(obj)));
-                } else {
-                    rb.setLote(1);
-                }
+//                if (obj != null) {
+//                    rb.setLote(Integer.parseInt(String.valueOf(obj)));
+//                } else {
+//                    rb.setLote(1);
+//                }
 
                 rb.setMovimento(movs.get(i));
                 if (!dao.save(rb)) {
@@ -647,7 +649,8 @@ public final class ArquivoBancoBean implements Serializable {
  /* TRAILER DE ARQUIVO --------------------- */
             //qntBoletos += Integer.toString(Integer.parseInt(qntBoletos) * 3) ;
             qntLinhas = qntLinhas.substring(0, 6 - Integer.toString(((movs.size() * 3) + 4)).length()) + ((movs.size() * 3) + 4);
-            String qntLote = ("000000").substring(0, 6 - Integer.toString(rb.getLote()).length()) + rb.getLote();
+            //String qntLote = ("000000").substring(0, 6 - Integer.toString(rb.getLote()).length()) + rb.getLote();
+            String qntLote = "000000";
             conteudoRemessa = "10499999         " + qntLote + qntLinhas + "                                                                                                                                                                                                                   ";
             buffWriter.write(conteudoRemessa);
             /* -------------------------------------- */
@@ -1275,7 +1278,7 @@ public final class ArquivoBancoBean implements Serializable {
             ContaCobranca scc = (ContaCobranca) objs[1];
             String result = "";
             ArquivoRetorno arquivoRetorno;
-            
+
             if (!listaArquivosPendentes.isEmpty()) {
 //                if (!outros) {
                 // CAIXA FEDERAL ------------------------------------------------------------------------------
@@ -1323,7 +1326,8 @@ public final class ArquivoBancoBean implements Serializable {
                             result = "NÃO EXISTE SINDICAL PARA ESTA CONTA!";
                         } else if (ArquivoRetorno.SIGCB == scc.getLayout().getId()) {
                             result = "NÃO EXISTE SIGCB PARA ESTA CONTA!";
-                        }   break;
+                        }
+                        break;
                     case ArquivoRetorno.SANTANDER:
                         if (ArquivoRetorno.SICOB == scc.getLayout().getId()) {
                             arquivoRetorno = new Santander(scc);
@@ -1332,7 +1336,8 @@ public final class ArquivoBancoBean implements Serializable {
                             result = "NÃO EXISTE SINDICAL PARA ESTA CONTA!";
                         } else if (ArquivoRetorno.SIGCB == scc.getLayout().getId()) {
                             result = "NÃO EXISTE SIGCB PARA ESTA CONTA!";
-                        }   break;
+                        }
+                        break;
                     case ArquivoRetorno.SICOOB:
                         if (ArquivoRetorno.SICOB == scc.getLayout().getId()) {
                             arquivoRetorno = new Sicoob(scc);
@@ -1341,7 +1346,8 @@ public final class ArquivoBancoBean implements Serializable {
                             result = "NÃO EXISTE SINDICAL PARA ESTA CONTA!";
                         } else if (ArquivoRetorno.SIGCB == scc.getLayout().getId()) {
                             result = "NÃO EXISTE SIGCB PARA ESTA CONTA!";
-                        }   break;
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -1356,7 +1362,7 @@ public final class ArquivoBancoBean implements Serializable {
     }
 
     public void testar() {
-        
+
     }
 
     public boolean validarArquivos(Object object[]) {
@@ -1576,12 +1582,13 @@ public final class ArquivoBancoBean implements Serializable {
         try {
             FacesContext faces = FacesContext.getCurrentInstance();
             HttpServletResponse response = (HttpServletResponse) faces.getExternalContext().getResponse();
-            byte[] arquivo = new byte[0];
-            JasperReport jasper = null;
-            Collection listaDocs = new ArrayList<DocumentoInvalido>();
+            byte[] arquivo;
+
+            Collection listaDocs = new ArrayList();
 
             File fl = new File(((ServletContext) faces.getExternalContext().getContext()).getRealPath("/Relatorios/DOCUMENTOINVALIDO.jasper"));
-            jasper = (JasperReport) JRLoader.loadObject(fl);
+
+            JasperReport jasper = (JasperReport) JRLoader.loadObject(fl);
 
             try {
                 for (int i = 0; i < listaDocumentos.size(); i++) {
@@ -1621,6 +1628,26 @@ public final class ArquivoBancoBean implements Serializable {
                 "pdf",
                 FacesContext.getCurrentInstance());
         download.baixar();
+    }
+
+    public void imprimirDetalhe() {
+        if (listaDetalheRetornoBanco.isEmpty()) {
+            GenericaMensagem.warn("Atenção", "Não existe nenhum Detalhe para ser Impresso!");
+            return;
+        }
+        List lista_detalhes = new ArrayList();
+
+        for (ObjectDetalheRetorno dr : listaDetalheRetornoBanco) {
+            lista_detalhes.add(
+                    new DetalheRetornoArr(
+                            dr.getMovimento().getPessoa().getDocumento(),
+                            dr.getMovimento().getPessoa().getNome(),
+                            dr.getMovimento().getDocumento(),
+                            dr.getMovimento().getBaixa().getDtImportacao()
+                    )
+            );
+        }
+        Jasper.printReports("DETALHE_RETORNO_ARR.jasper", "Detalhe do Retorno", lista_detalhes);
     }
 
     public int getIndex_contribuicao() {
@@ -1664,9 +1691,6 @@ public final class ArquivoBancoBean implements Serializable {
         this.indexArquivos = indexArquivos;
     }
 
-//    public void setListaPendencias(List listaPendencias) {
-//        this.listaPendencias = listaPendencias;
-//    }
     public String getLblPendente() {
         if (contaCobranca.getId() != -1 && !listaServicos.isEmpty()) {
             if (contaCobranca.getLayout().getId() == 2) {
@@ -1709,5 +1733,63 @@ public final class ArquivoBancoBean implements Serializable {
 
     public void setListaDocumentos(List<DataObject> listaDocumentos) {
         this.listaDocumentos = listaDocumentos;
+    }
+
+    public List<ObjectDetalheRetorno> getListaDetalheRetornoBanco() {
+        if (GenericaSessao.exists("detalhes_retorno_banco")) {
+            listaDetalheRetornoBanco = GenericaSessao.getList("detalhes_retorno_banco", true);
+        }
+        return listaDetalheRetornoBanco;
+    }
+
+    public void setListaDetalheRetornoBanco(List<ObjectDetalheRetorno> listaDetalheRetornoBanco) {
+        this.listaDetalheRetornoBanco = listaDetalheRetornoBanco;
+    }
+
+    public class DetalheRetornoArr {
+
+        private Object cnpj;
+        private Object empresa;
+        private Object boleto;
+        private Object importacao;
+
+        public DetalheRetornoArr(Object cnpj, Object empresa, Object boleto, Object importacao) {
+            this.cnpj = cnpj;
+            this.empresa = empresa;
+            this.boleto = boleto;
+            this.importacao = importacao;
+        }
+
+        public Object getCnpj() {
+            return cnpj;
+        }
+
+        public void setCnpj(Object cnpj) {
+            this.cnpj = cnpj;
+        }
+
+        public Object getEmpresa() {
+            return empresa;
+        }
+
+        public void setEmpresa(Object empresa) {
+            this.empresa = empresa;
+        }
+
+        public Object getBoleto() {
+            return boleto;
+        }
+
+        public void setBoleto(Object boleto) {
+            this.boleto = boleto;
+        }
+
+        public Object getImportacao() {
+            return importacao;
+        }
+
+        public void setImportacao(Object importacao) {
+            this.importacao = importacao;
+        }
     }
 }

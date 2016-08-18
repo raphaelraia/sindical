@@ -53,6 +53,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.Vector;
+import javax.activation.MimetypesFileTypeMap;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
@@ -69,6 +70,8 @@ import net.sf.jasperreports.engine.util.JRLoader;
 import net.sf.jasperreports.export.SimpleExporterInput;
 import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
 import net.sf.jasperreports.export.SimplePdfExporterConfiguration;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -722,6 +725,32 @@ public class ImprimirBoleto {
             System.err.println("O arquivo não foi gerado corretamente! Erro: " + e.getMessage() + " " + mensagemErroMovimento);
         }
         return arquivo;
+    }
+
+    public File imprimirRemessa(List<Movimento> lista_movimento, Boleto boletox) {
+        Cobranca cobranca = Cobranca.retornaCobrancaRemessa(lista_movimento, boletox);
+        if (cobranca != null) {
+            File file = cobranca.gerarRemessa();
+            Boolean zipar = false;
+            if (zipar) {
+                Zip zip = new Zip();
+                List<File> lf = new ArrayList();
+
+                lf.add(file);
+                File file_destino = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Cliente/" + ControleUsuarioBean.getCliente() + "/Arquivos/downloads/remessa/remessa.rar"));
+                try {
+                    zip.zip(lf, file_destino);
+                } catch (Exception e) {
+                    e.getMessage();
+                    return null;
+                }
+
+                return file_destino;
+            } else {
+                return file;
+            }
+        }
+        return null;
     }
 
     public byte[] imprimirAcordo(List<Movimento> lista, Acordo acordo, Historico historico, boolean imprimir_pro) {
@@ -2342,53 +2371,13 @@ public class ImprimirBoleto {
             if (!file_promo_verso.exists()) {
                 file_promo_verso = null;
             }
-
-            MovimentosReceberSocialDao dbs = new MovimentosReceberSocialDao();
-            JuridicaDao dbj = new JuridicaDao();
+            
             FisicaDao dbf = new FisicaDao();
-
-//            List<Vector> lista_socio = new ArrayList();
-            //for (Boleto boleto : listaBoleto) {
-            //}
             List<Object> result = db.listaBoletoSocio(listaBoleto, view, tipo);
 
-            // PESSOA RESPONSÁVEL PELO BOLETO
-            String contabilidade = "";
-            //if (lista_socio.isEmpty()) {
-            // SE FISICA
-            if (1 == 1) {
-                //lista_socio = db.listaBoletoSocioFisica(boleto.getNrCtrBoleto(), view); // NR_CTR_BOLETO
-            } else {
-                //lista_socio = db.listaBoletoSocioJuridica(boleto.getNrCtrBoleto(), view); // NR_CTR_BOLETO
-//                        Juridica j = dbj.pesquisaJuridicaPorPessoa(pessoa.getId());
-//                        String doc = (j.getContabilidade() != null
-//                                && !j.getContabilidade().getPessoa().getDocumento().isEmpty()
-//                                && !j.getContabilidade().getPessoa().getDocumento().equals("0")) ? j.getContabilidade().getPessoa().getDocumento() + " - " : " ";
-//
-//                        contabilidade = (j.getContabilidade() != null) ? "CONTABILIDADE : " + doc + j.getContabilidade().getPessoa().getNome() : "";
-            }
-            //}
-            //Cobranca cobranca = null;
             // SOMA VALOR DAS ATRASADAS
             float valor_total_mes = 0, valor_total_vencimento = 0, valor_boleto = 0;
-            /*
-                for (Vector listax : lista_socio) {
-                    // SE vencimento_movimento FOR MENOR QUE vencimento_boleto_original
-                    if (DataHoje.menorData(DataHoje.converteData((Date) listax.get(38)), "01/" + DataHoje.converteData((Date) listax.get(40)).substring(3))) {
-                        valor_total_atrasadas = Moeda.somaValores(valor_total_atrasadas, Moeda.converteUS$(listax.get(14).toString()));
-                        list_at.add(DataHoje.converteData((Date) listax.get(38)));
-                    } else {
-                        valor_total = Moeda.somaValores(valor_total, Moeda.converteUS$(listax.get(14).toString()));
-                    }
-                    valor_boleto = Moeda.somaValores(valor_total, valor_total_atrasadas);
-                }
-             */
 
-//            String mensagemAtrasadas = "Mensalidades Atrasadas Corrigidas";
-//            if (!list_at.isEmpty()) {
-//                mensagemAtrasadas = "Mensalidades Atrasadas Corrigidas de " + list_at.get(0).substring(3) + " até " + list_at.get(list_at.size() - 1).substring(3);
-//            }
-//            
             int qntItens = 0;
             Boleto boleto = null;
             Boolean novo_boleto = true;
@@ -2495,7 +2484,7 @@ public class ImprimirBoleto {
                                     boleto.getContaCobranca().getContaBanco().getBanco().getNumero(),
                                     linha.get(45).toString(), // REFERENCIA MENSALIDADES ATRASADAS
                                     boleto.getVencimento().substring(3), // VENCIMENTO SERVIÇO
-                                    contabilidade, // CONTABILIDADE DA PESSOA JURÍDICA
+                                    (linha.get(44) == null) ? "" : linha.get(44).toString(), // CONTABILIDADE DA PESSOA JURÍDICA
                                     boleto.getMensagem() // MENSAGEM QUE FICA ACIMA DE "Mensalidades Atrasadas"
                             )
                     );
@@ -2525,16 +2514,18 @@ public class ImprimirBoleto {
 
             lista.clear();
              */
-            JRPdfExporter exporter = new JRPdfExporter();
-            ByteArrayOutputStream retorno = new ByteArrayOutputStream();
+            
+            if (!jasperPrintList.isEmpty()){
+                JRPdfExporter exporter = new JRPdfExporter();
+                ByteArrayOutputStream retorno = new ByteArrayOutputStream();
 
-            exporter.setParameter(JRExporterParameter.JASPER_PRINT_LIST, jasperPrintList);
-            exporter.setParameter(JRExporterParameter.OUTPUT_STREAM, retorno);
-            exporter.setParameter(JRPdfExporterParameter.IS_CREATING_BATCH_MODE_BOOKMARKS, Boolean.TRUE);
-            exporter.exportReport();
+                exporter.setParameter(JRExporterParameter.JASPER_PRINT_LIST, jasperPrintList);
+                exporter.setParameter(JRExporterParameter.OUTPUT_STREAM, retorno);
+                exporter.setParameter(JRPdfExporterParameter.IS_CREATING_BATCH_MODE_BOOKMARKS, Boolean.TRUE);
+                exporter.exportReport();
 
-            arquivo = retorno.toByteArray();
-
+                arquivo = retorno.toByteArray();
+            }
         } catch (JRException e) {
             e.getMessage();
         }
@@ -2565,13 +2556,15 @@ public class ImprimirBoleto {
             byte[] arq = new byte[(int) file.length()];
             try {
                 HttpServletResponse res = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
-                res.setContentType("application/pdf");
-                res.setHeader("Content-disposition", "inline; filename=\"" + file.getName() + ".pdf\"");
+                res.setContentType(MimetypesFileTypeMap.getDefaultFileTypeMap().getContentType(file.getName()));
+                //res.setContentType("application/pdf");
+                //res.setHeader("Content-disposition", "inline; filename=\"" + file.getName() + ".pdf\"");
+                res.setHeader("Content-disposition", "inline; filename=\"" + file.getName() + "\"");
                 res.getOutputStream().write(arq);
                 res.getCharacterEncoding();
                 FacesContext.getCurrentInstance().responseComplete();
             } catch (Exception e) {
-                e.printStackTrace();
+                e.getMessage();
             }
             return;
         }
@@ -2584,7 +2577,25 @@ public class ImprimirBoleto {
                 res.getCharacterEncoding();
                 FacesContext.getCurrentInstance().responseComplete();
             } catch (Exception e) {
-                e.printStackTrace();
+                e.getMessage();
+            }
+        }
+    }
+
+    public void visualizar_remessa(File file) {
+        if (file != null) {
+            //byte[] arq = new byte[(int) file.length()];
+            try {
+                byte[] arq = IOUtils.toByteArray(FileUtils.openInputStream(file));
+                HttpServletResponse res = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
+                //res.setContentType(MimetypesFileTypeMap.getDefaultFileTypeMap().getContentType(file.getName()));
+                res.setContentType("application/x-rar-compressed");
+                res.setHeader("Content-disposition", "attachment; filename=\"" + file.getName() + "\"");
+                res.getOutputStream().write(arq);
+                res.getCharacterEncoding();
+                FacesContext.getCurrentInstance().responseComplete();
+            } catch (Exception e) {
+                e.getMessage();
             }
         }
     }

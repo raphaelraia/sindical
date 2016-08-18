@@ -2,6 +2,7 @@ package br.com.rtools.cobranca;
 
 import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.utilitarios.Moeda;
+import java.io.File;
 import java.util.Date;
 
 public class Bradesco extends Cobranca {
@@ -35,12 +36,10 @@ public class Bradesco extends Cobranca {
 
         if ((10 - (soma % 10)) == 10) {
             return "0";
+        } else if (soma < 10) {
+            return Integer.toString(10 - soma);
         } else {
-            if (soma < 10) {
-                return Integer.toString(10 - soma);
-            } else {
-                return Integer.toString(10 - (soma % 10));
-            }
+            return Integer.toString(10 - (soma % 10));
         }
     }
 
@@ -142,5 +141,10 @@ public class Bradesco extends Cobranca {
     @Override
     public String codigoBanco() {
         return "237-2";
+    }
+
+    @Override
+    public File gerarRemessa() {
+        return null;
     }
 }

@@ -571,7 +571,7 @@ public class BaixaGeralBean implements Serializable {
         float vl = (!valorTroco.isEmpty()) ? Moeda.converteUS$(valorTroco) : 0;
 
         if (!GerarMovimento.baixarMovimentoManual(listaMovimentos, usuario, lfp, Moeda.substituiVirgulaFloat(total), quitacao, caixa, vl)) {
-            mensagem = "Erro ao atualizar boleto!";
+            mensagem = "Erro ao baixar!";
             return null;
         } else {
             listaValores.clear();

@@ -17,6 +17,8 @@ import br.com.rtools.seguranca.Registro;
 import br.com.rtools.seguranca.Usuario;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 public abstract class ArquivoRetorno {
@@ -58,6 +60,8 @@ public abstract class ArquivoRetorno {
     }
 
     protected String baixarArquivo(List<GenericaRetorno> listaParametros, String caminho, Usuario usuario) {
+        GenericaSessao.remove("detalhes_retorno_banco");
+
         String cnpj = "";
         String referencia = "";
         String dataVencto = "";
@@ -69,13 +73,15 @@ public abstract class ArquivoRetorno {
 
         MovimentoDao db = new MovimentoDao();
         JuridicaDao dbJur = new JuridicaDao();
-        List<Movimento> movimento = new ArrayList();
+        List<Movimento> movimento;
         Dao dao = new Dao();
         File fl = new File(caminho + "/pendentes/");
         File listFls[] = fl.listFiles();
         File flDes = new File(destino); // 0 DIA, 1 MES, 2 ANO
         flDes.mkdir();
-        TipoServico tipoServico = new TipoServico();
+        TipoServico tipoServico;
+        HashMap hash_detalhes = new LinkedHashMap();
+        List<ObjectDetalheRetorno> lista_detalhe = new ArrayList();
         // LAYOUT 2 = SINDICAL
         if (this.getContaCobranca().getLayout().getId() == 2) {
             for (int u = 0; u < listaParametros.size(); u++) {
@@ -171,7 +177,11 @@ public abstract class ArquivoRetorno {
                                     DataHoje.colocarBarras(listaParametros.get(u).getDataPagamento()),
                                     valor_liquido,
                                     DataHoje.converte(DataHoje.colocarBarras(listaParametros.get(u).getDataCredito())),
-                                    numeroComposto, nrSequencia);
+                                    numeroComposto,
+                                    nrSequencia
+                            );
+
+                            lista_detalhe.add(new ObjectDetalheRetorno(movi, 1, "Boleto Baixado pelo Número"));
                         }
                     } else if (movimento.get(0).getBaixa().getSequenciaBaixa() == 0) {
                         movimento.get(0).getBaixa().setSequenciaBaixa(nrSequencia);
@@ -183,6 +193,8 @@ public abstract class ArquivoRetorno {
                             dao.rollback();
                         }
                     }
+
+                    lista_detalhe.add(new ObjectDetalheRetorno(movimento.get(0), 2, "Boleto já Baixado"));
                     movimento.clear();
                     continue;
                 }
@@ -201,7 +213,11 @@ public abstract class ArquivoRetorno {
                             DataHoje.colocarBarras(listaParametros.get(u).getDataPagamento()),
                             valor_liquido,
                             DataHoje.converte(DataHoje.colocarBarras(listaParametros.get(u).getDataCredito())),
-                            numeroComposto, nrSequencia);
+                            numeroComposto,
+                            nrSequencia
+                    );
+
+                    lista_detalhe.add(new ObjectDetalheRetorno(movimento.get(0), 3, "Boleto Baixado pelo Número"));
                     continue;
                 }
 
@@ -211,6 +227,7 @@ public abstract class ArquivoRetorno {
 
                 if (!movimento.isEmpty()) {
                     // EXISTE O BOLETO PELO CNPJ DA EMPRESA + DATA DE PAGAMENTO BAIXADO --------------
+                    lista_detalhe.add(new ObjectDetalheRetorno(movimento.get(0), 4, "Boleto já Baixado"));
                     movimento.clear();
                     continue;
                 }
@@ -231,12 +248,17 @@ public abstract class ArquivoRetorno {
                                 DataHoje.colocarBarras(listaParametros.get(u).getDataPagamento()),
                                 valor_liquido,
                                 DataHoje.converte(DataHoje.colocarBarras(listaParametros.get(u).getDataCredito())),
-                                numeroComposto, nrSequencia);
+                                numeroComposto,
+                                nrSequencia
+                        );
+
+                        lista_detalhe.add(new ObjectDetalheRetorno(movimento.get(0), 5, "Boleto Baixado pelo CNPJ"));
                         continue;
                     }
 
                     Servicos servicos = (Servicos) (new Dao()).find(new Servicos(), 1);
-                    Movimento movi = new Movimento(-1,
+                    Movimento movi = new Movimento(
+                            -1,
                             null,
                             servicos.getPlano5(),
                             listJuridica.get(0).getPessoa(),
@@ -263,7 +285,8 @@ public abstract class ArquivoRetorno {
                             Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorPago())), 100),
                             (FTipoDocumento) (new Dao()).find(new FTipoDocumento(), 2),
                             0,
-                            null);
+                            null
+                    );
 
                     if (GerarMovimento.salvarUmMovimentoBaixa(new Lote(), movi)) {
                         float valor_liquido = Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorCredito())), 100);
@@ -273,12 +296,17 @@ public abstract class ArquivoRetorno {
                                 DataHoje.colocarBarras(listaParametros.get(u).getDataPagamento()),
                                 valor_liquido,
                                 DataHoje.converte(DataHoje.colocarBarras(listaParametros.get(u).getDataCredito())),
-                                numeroComposto, nrSequencia);
+                                numeroComposto,
+                                nrSequencia
+                        );
+
+                        lista_detalhe.add(new ObjectDetalheRetorno(movi, 6, "Boleto Baixado pelo CNPJ"));
                     }
                 } else {
 
                     Servicos servicos = (Servicos) (new Dao()).find(new Servicos(), 1);
-                    Movimento movi = new Movimento(-1,
+                    Movimento movi = new Movimento(
+                            -1,
                             null,
                             servicos.getPlano5(),
                             (Pessoa) dao.find(new Pessoa(), 0),
@@ -329,7 +357,11 @@ public abstract class ArquivoRetorno {
                                 DataHoje.colocarBarras(listaParametros.get(u).getDataPagamento()),
                                 valor_liquido,
                                 DataHoje.converte(DataHoje.colocarBarras(listaParametros.get(u).getDataCredito())),
-                                numeroComposto, nrSequencia);
+                                numeroComposto,
+                                nrSequencia
+                        );
+
+                        lista_detalhe.add(new ObjectDetalheRetorno(movi, 7, "Boleto não encontrado criado para pessoa (zero) - " + listaParametros.get(u).getNossoNumero()));
                     }
                 }
             }
@@ -352,12 +384,16 @@ public abstract class ArquivoRetorno {
                         movimento.get(0).setTaxa(Moeda.divisaoValores(Moeda.substituiVirgulaFloat(Moeda.converteR$(listaParametros.get(u).getValorTaxa())), 100));
 
                         GerarMovimento.baixarMovimento(movimento.get(0), usuario, DataHoje.colocarBarras(listaParametros.get(u).getDataPagamento()), 0, null, "", 0);
+
+                        lista_detalhe.add(new ObjectDetalheRetorno(movimento.get(0), 8, "Boleto Baixado"));
                     }
                 }
                 movimento = new ArrayList();
             }
         }
 
+        GenericaSessao.put("detalhes_retorno_banco", lista_detalhe);
+        
         // TERMINAR O CASO DE PENDENTES OU NÃO --------------------------------
         if (listFls != null) {
             if (moverArquivo) {
@@ -479,6 +515,44 @@ public abstract class ArquivoRetorno {
 
     public void setContaCobranca(ContaCobranca contaCobranca) {
         this.contaCobranca = contaCobranca;
+    }
+
+    public class ObjectDetalheRetorno {
+
+        private Movimento movimento;
+        private Integer codigo;
+        private String detalhe;
+
+        public ObjectDetalheRetorno(Movimento movimento, Integer codigo, String detalhe) {
+            this.movimento = movimento;
+            this.codigo = codigo;
+            this.detalhe = detalhe;
+        }
+
+        public Movimento getMovimento() {
+            return movimento;
+        }
+
+        public void setMovimento(Movimento movimento) {
+            this.movimento = movimento;
+        }
+
+        public Integer getCodigo() {
+            return codigo;
+        }
+
+        public void setCodigo(Integer codigo) {
+            this.codigo = codigo;
+        }
+
+        public String getDetalhe() {
+            return detalhe;
+        }
+
+        public void setDetalhe(String detalhe) {
+            this.detalhe = detalhe;
+        }
+
     }
 //
 //    public boolean isPendentes() {

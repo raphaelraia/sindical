@@ -160,12 +160,12 @@ public class ContaOperacaoBean implements Serializable {
                     }
                     break;
                 case 8:
-                    index[0] = 0;
+                    //index[0] = 0;
                     index[1] = 0;
-                    index[3] = 0;
-                    listSelectItem[0] = new ArrayList();
+                    //index[3] = 0;
+                    //listSelectItem[0] = new ArrayList();
                     listSelectItem[1] = new ArrayList();
-                    listSelectItem[3] = new ArrayList();
+                    //listSelectItem[3] = new ArrayList();
                     listPlano5.clear();
                     listContaOperacao.clear();
                     break;

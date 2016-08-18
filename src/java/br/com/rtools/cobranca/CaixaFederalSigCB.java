@@ -2,6 +2,7 @@ package br.com.rtools.cobranca;
 
 import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.utilitarios.Moeda;
+import java.io.File;
 import java.util.Date;
 
 public class CaixaFederalSigCB extends Cobranca {
@@ -35,12 +36,10 @@ public class CaixaFederalSigCB extends Cobranca {
 
         if ((soma % 10) == 0) {
             return "0";
+        } else if (soma < 10) {
+            return Integer.toString(10 - soma);
         } else {
-            if (soma < 10) {
-                return Integer.toString(10 - soma);
-            } else {
-                return Integer.toString(10 - (soma % 10));
-            }
+            return Integer.toString(10 - (soma % 10));
         }
     }
 
@@ -139,5 +138,10 @@ public class CaixaFederalSigCB extends Cobranca {
     @Override
     public String codigoBanco() {
         return "104-0";
+    }
+
+    @Override
+    public File gerarRemessa() {
+        return null;
     }
 }

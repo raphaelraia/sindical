@@ -2270,6 +2270,12 @@
             <redirect/>
         </navigation-case>
         
+        <navigation-case>
+            <from-outcome>matriculaAgendamentoFinanceiro</from-outcome>
+            <to-view-id>/matriculaAgendamentoFinanceiro.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
     </navigation-rule>
     
     <lifecycle>
