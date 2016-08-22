@@ -4,6 +4,7 @@ import br.com.rtools.arrecadacao.beans.ConfiguracaoArrecadacaoBean;
 import br.com.rtools.financeiro.Impressao;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.financeiro.dao.MovimentoReceberDao;
+import br.com.rtools.financeiro.lista.ListMovimentoReceber;
 import br.com.rtools.movimento.ImprimirBoleto;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
@@ -79,31 +80,32 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
     }
 
     public String imprimirPlanilha() {
-        List<Movimento> listaC = new ArrayList<>();
-        List<Float> listaValores = new ArrayList<>();
-        Dao dao = new Dao();
-        Movimento mov = new Movimento();
-        for (int i = 0; i < listMovimentoReceber.size(); i++) {
-            if (listMovimentoReceber.get(i).getSelected()) {
-                mov = (Movimento) dao.find(new Movimento(), Integer.parseInt(String.valueOf(listMovimentoReceber.get(i).getIdMovimento())));
-                mov.setMulta(Moeda.converteUS$((String) listMovimentoReceber.get(i).getMulta()));
-                mov.setJuros(Moeda.converteUS$((String) listMovimentoReceber.get(i).getJuros()));
-                mov.setCorrecao(Moeda.converteUS$((String) listMovimentoReceber.get(i).getCorrecao()));
-                mov.setDesconto(Moeda.converteUS$((String) listMovimentoReceber.get(i).getDesconto()));
-                mov.setValorBaixa(Moeda.converteUS$((String) listMovimentoReceber.get(i).getValorCalculado()));
-                listaValores.add(Moeda.converteUS$((String) listMovimentoReceber.get(i).getValorMovimento()));
-                listaC.add(mov);
-                mov = new Movimento();
-            }
-        }
-
-        if (!listaC.isEmpty()) {
-            ImprimirBoleto imp = new ImprimirBoleto();
-            imp.imprimirPlanilha(listaC, listaValores, false, false);
-            imp.visualizar(null);
-        } else {
-            GenericaMensagem.warn("Validação", "Nenhum boleto selecionado!");
-        }
+        PlanilhaDebitoBean.printNoNStatic(listMovimentoReceber);
+//        List<Movimento> listaC = new ArrayList<>();
+//        List<Float> listaValores = new ArrayList<>();
+//        Dao dao = new Dao();
+//        Movimento mov = new Movimento();
+//        for (int i = 0; i < listMovimentoReceber.size(); i++) {
+//            if (listMovimentoReceber.get(i).getSelected()) {
+//                mov = (Movimento) dao.find(new Movimento(), Integer.parseInt(String.valueOf(listMovimentoReceber.get(i).getIdMovimento())));
+//                mov.setMulta(Moeda.converteUS$((String) listMovimentoReceber.get(i).getMulta()));
+//                mov.setJuros(Moeda.converteUS$((String) listMovimentoReceber.get(i).getJuros()));
+//                mov.setCorrecao(Moeda.converteUS$((String) listMovimentoReceber.get(i).getCorrecao()));
+//                mov.setDesconto(Moeda.converteUS$((String) listMovimentoReceber.get(i).getDesconto()));
+//                mov.setValorBaixa(Moeda.converteUS$((String) listMovimentoReceber.get(i).getValorCalculado()));
+//                listaValores.add(Moeda.converteUS$((String) listMovimentoReceber.get(i).getValorMovimento()));
+//                listaC.add(mov);
+//                mov = new Movimento();
+//            }
+//        }
+//
+//        if (!listaC.isEmpty()) {
+//            ImprimirBoleto imp = new ImprimirBoleto();
+//            imp.imprimirPlanilha(listaC, listaValores, false, false);
+//            imp.visualizar(null);
+//        } else {
+//            GenericaMensagem.warn("Validação", "Nenhum boleto selecionado!");
+//        }
         return null;
     }
 //
@@ -288,30 +290,30 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
                         GenericaMensagem.warn("Boleto " + listMovimentoReceber.get(i).getBoleto() + " já acordado", "Data do acordo: " + m.getAcordo().getData() + " - Usuário: " + m.getAcordo().getUsuario().getPessoa().getNome());
                         err = true;
                     }
-                    
-                    if (cab.getConfiguracaoArrecadacao().getNrDiasAcordo() != 0){
+
+                    if (cab.getConfiguracaoArrecadacao().getNrDiasAcordo() != 0) {
                         String data_para_acordo = new DataHoje().incrementarDias(cab.getConfiguracaoArrecadacao().getNrDiasAcordo(), m.getVencimento());
                         // SE A DATA DE VENCIMENTO + OS DIAS DE ACORDO ex. 01/01/2000 + [30] dias FOR MENOR QUE A DATA ATUAL (existe um movimento vencido a mais que [30] dias) 
-                        
+
                         // CASO NÃO TENHA NENHUM MOVIMENTO VENCIDO MAIS QUE [30] dias ENTÃO RETORNAR true, E NÃO PERMITIR O ACORDO
                         // SENDO ASSIM É OBRIGATÓRIO PELO MENOS UM DOS MOVIMENTOS SELECIONADOS ESTAREM VENCIDOS MAIS QUE [30] dias
-                        if (DataHoje.menorData(data_para_acordo, DataHoje.data())){
+                        if (DataHoje.menorData(data_para_acordo, DataHoje.data())) {
                             err_2 = true;
                         }
                     }
                     //m = new Movimento();
                 }
             }
-            
+
             if (err) {
                 return null;
             }
-            
-            if (cab.getConfiguracaoArrecadacao().getNrDiasAcordo() != 0 && !err_2){
-                GenericaMensagem.warn("ATENÇÃO", "NENHUM BOLETO VENCIDO A MAIS QUE "+ cab.getConfiguracaoArrecadacao().getNrDiasAcordo() + " DIAS");
+
+            if (cab.getConfiguracaoArrecadacao().getNrDiasAcordo() != 0 && !err_2) {
+                GenericaMensagem.warn("ATENÇÃO", "NENHUM BOLETO VENCIDO A MAIS QUE " + cab.getConfiguracaoArrecadacao().getNrDiasAcordo() + " DIAS");
                 return null;
             }
-            
+
             dao.openTransaction();
             for (int i = 0; i < listMovimentoReceber.size(); i++) {
                 if (listMovimentoReceber.get(i).getSelected()) {
@@ -487,13 +489,11 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
             bloqueioRotina.setPessoa(m.getPessoa());
             bloqueioRotina.setBloqueio(DataHoje.dataHoje());
             dao.save(bloqueioRotina, true);
-        } else {
-            if (bloqueioRotina.getUsuario().getId() != ((Usuario) GenericaSessao.getObject("sessaoUsuario")).getId()) {
-                pessoa = new Pessoa();
-                listMovimentoReceber.clear();
-                GenericaMensagem.warn("Empresa em processo de acordo", "Responsável pelo acordo: " + bloqueioRotina.getUsuario().getPessoa().getNome());
-                return;
-            }
+        } else if (bloqueioRotina.getUsuario().getId() != ((Usuario) GenericaSessao.getObject("sessaoUsuario")).getId()) {
+            pessoa = new Pessoa();
+            listMovimentoReceber.clear();
+            GenericaMensagem.warn("Empresa em processo de acordo", "Responsável pelo acordo: " + bloqueioRotina.getUsuario().getPessoa().getNome());
+            return;
         }
         listMovimentoReceber.get(index).setValorMovimento(super.atualizaValor(true, tipo));
         listMovimentoReceber.clear(); // LIMPANDO AQUI PARA ATUALIZAR O VALOR CALCULADO
@@ -540,12 +540,10 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
             bloqueioRotina.setPessoa(m.getPessoa());
             bloqueioRotina.setBloqueio(DataHoje.dataHoje());
             dao.save(bloqueioRotina, true);
-        } else {
-            if (bloqueioRotina.getUsuario().getId() != ((Usuario) GenericaSessao.getObject("sessaoUsuario")).getId()) {
-                pessoa = new Pessoa();
-                listMovimentoReceber.clear();
-                GenericaMensagem.warn("Empresa em processo de acordo", "Responsável pelo acordo: " + bloqueioRotina.getUsuario().getPessoa().getNome());
-            }
+        } else if (bloqueioRotina.getUsuario().getId() != ((Usuario) GenericaSessao.getObject("sessaoUsuario")).getId()) {
+            pessoa = new Pessoa();
+            listMovimentoReceber.clear();
+            GenericaMensagem.warn("Empresa em processo de acordo", "Responsável pelo acordo: " + bloqueioRotina.getUsuario().getPessoa().getNome());
         }
 
     }
@@ -1089,57 +1087,59 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
     public List<ListMovimentoReceber> getListMovimentoReceber() {
         if (listMovimentoReceber.isEmpty() && pessoa.getId() != -1) {
             MovimentoReceberDao db = new MovimentoReceberDao();
-            float desc = Moeda.substituiVirgulaFloat(desconto), tot = Moeda.substituiVirgulaFloat(total);
+            // float desc = Moeda.substituiVirgulaFloat(desconto), tot = Moeda.substituiVirgulaFloat(total);
             List lista = db.pesquisaListaMovimentos(pessoa.getId());
-            for (int i = 0; i < lista.size(); i++) {
-                if (((List) lista.get(i)).get(5) == null) {
-                    ((List) lista.get(i)).set(5, 0.0);
-                }
-                if (((List) lista.get(i)).get(6) == null) {
-                    ((List) lista.get(i)).set(6, 0.0);
-                }
-                if (((List) lista.get(i)).get(7) == null) {
-                    ((List) lista.get(i)).set(7, 0.0);
-                }
-                if (((List) lista.get(i)).get(8) == null) {
-                    ((List) lista.get(i)).set(8, 0.0);
-                }
-                if (((List) lista.get(i)).get(9) == null) {
-                    ((List) lista.get(i)).set(9, 0.0);
-                }
-                if (((List) lista.get(i)).get(10) == null) {
-                    ((List) lista.get(i)).set(10, 0.0);
-                }
-                if (((List) lista.get(i)).get(11) == null) {
-                    ((List) lista.get(i)).set(11, 0.0);
-                }
-                if (((Integer) ((List) lista.get(i)).get(13)) < 0) {
-                    ((List) lista.get(i)).set(13, 0);
-                }
-                if (((List) lista.get(i)).get(14) == null) {
-                    ((List) lista.get(i)).set(14, "");
-                }
-                listMovimentoReceber.add(new ListMovimentoReceber(
-                        false,
-                        ((List) lista.get(i)).get(0).toString(), // boleto
-                        ((List) lista.get(i)).get(1).toString(), // servico
-                        ((List) lista.get(i)).get(2).toString(), // tipo
-                        ((List) lista.get(i)).get(3).toString(), // referencia
-                        DataHoje.converteData((Date) ((List) lista.get(i)).get(4)), // vencimento
-                        Moeda.converteR$(Double.toString((Double) ((List) lista.get(i)).get(5))), // valor_mov
-                        ((List) lista.get(i)).get(6).toString(), // valor_folha
-                        Moeda.converteR$(Double.toString((Double) ((List) lista.get(i)).get(7))), // multa
-                        Moeda.converteR$(Double.toString((Double) ((List) lista.get(i)).get(8))), // juros
-                        Moeda.converteR$(Double.toString((Double) ((List) lista.get(i)).get(9))), // correcao
-                        Moeda.converteR$(Double.toString((Double) ((List) lista.get(i)).get(10))), // desconto
-                        Moeda.converteR$(Double.toString((Double) ((List) lista.get(i)).get(11))), // valor_calculado
-                        ((List) lista.get(i)).get(12).toString(), // meses em atraso
-                        ((List) lista.get(i)).get(13).toString(), // dias em atraso
-                        ((List) lista.get(i)).get(14).toString(), // indice
-                        ((List) lista.get(i)).get(15).toString(), // id movimento
-                        Moeda.converteR$(Double.toString((Double) ((List) lista.get(i)).get(11))) // valor_calculado original
-                ));
-            }
+            listMovimentoReceber = PlanilhaDebitoBean.load(lista);
+
+//            for (int i = 0; i < lista.size(); i++) {
+//                if (((List) lista.get(i)).get(5) == null) {
+//                    ((List) lista.get(i)).set(5, 0.0);
+//                }
+//                if (((List) lista.get(i)).get(6) == null) {
+//                    ((List) lista.get(i)).set(6, 0.0);
+//                }
+//                if (((List) lista.get(i)).get(7) == null) {
+//                    ((List) lista.get(i)).set(7, 0.0);
+//                }
+//                if (((List) lista.get(i)).get(8) == null) {
+//                    ((List) lista.get(i)).set(8, 0.0);
+//                }
+//                if (((List) lista.get(i)).get(9) == null) {
+//                    ((List) lista.get(i)).set(9, 0.0);
+//                }
+//                if (((List) lista.get(i)).get(10) == null) {
+//                    ((List) lista.get(i)).set(10, 0.0);
+//                }
+//                if (((List) lista.get(i)).get(11) == null) {
+//                    ((List) lista.get(i)).set(11, 0.0);
+//                }
+//                if (((Integer) ((List) lista.get(i)).get(13)) < 0) {
+//                    ((List) lista.get(i)).set(13, 0);
+//                }
+//                if (((List) lista.get(i)).get(14) == null) {
+//                    ((List) lista.get(i)).set(14, "");
+//                }
+//                listMovimentoReceber.add(new ListMovimentoReceber(
+//                        false,
+//                        ((List) lista.get(i)).get(0).toString(), // boleto
+//                        ((List) lista.get(i)).get(1).toString(), // servico
+//                        ((List) lista.get(i)).get(2).toString(), // tipo
+//                        ((List) lista.get(i)).get(3).toString(), // referencia
+//                        DataHoje.converteData((Date) ((List) lista.get(i)).get(4)), // vencimento
+//                        Moeda.converteR$(Double.toString((Double) ((List) lista.get(i)).get(5))), // valor_mov
+//                        ((List) lista.get(i)).get(6).toString(), // valor_folha
+//                        Moeda.converteR$(Double.toString((Double) ((List) lista.get(i)).get(7))), // multa
+//                        Moeda.converteR$(Double.toString((Double) ((List) lista.get(i)).get(8))), // juros
+//                        Moeda.converteR$(Double.toString((Double) ((List) lista.get(i)).get(9))), // correcao
+//                        Moeda.converteR$(Double.toString((Double) ((List) lista.get(i)).get(10))), // desconto
+//                        Moeda.converteR$(Double.toString((Double) ((List) lista.get(i)).get(11))), // valor_calculado
+//                        ((List) lista.get(i)).get(12).toString(), // meses em atraso
+//                        ((List) lista.get(i)).get(13).toString(), // dias em atraso
+//                        ((List) lista.get(i)).get(14).toString(), // indice
+//                        ((List) lista.get(i)).get(15).toString(), // id movimento
+//                        Moeda.converteR$(Double.toString((Double) ((List) lista.get(i)).get(11))) // valor_calculado original
+//                ));
+//            }
         }
         return listMovimentoReceber;
     }
@@ -1183,214 +1183,5 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
             }
         }
         return false;
-    }
-
-    public class ListMovimentoReceber implements Serializable {
-
-        private boolean selected;
-        private String boleto;
-        private String servico;
-        private String tipo;
-        private String referencia;
-        private String vencimento;
-        private String valorMovimento;
-        private String valorFolha;
-        private String multa;
-        private String juros;
-        private String correcao;
-        private String desconto;
-        private String valorCalculado;
-        private String mesesAtraso;
-        private String diasAtraso;
-        private String indice;
-        private String idMovimento;
-        private String valorCalculadoOriginal;
-
-        public ListMovimentoReceber() {
-            this.selected = false;
-            this.boleto = "";
-            this.servico = "";
-            this.tipo = "";
-            this.referencia = "";
-            this.vencimento = "";
-            this.valorMovimento = "";
-            this.valorFolha = "";
-            this.multa = "";
-            this.juros = "";
-            this.correcao = "";
-            this.desconto = "";
-            this.valorCalculado = "";
-            this.mesesAtraso = "";
-            this.diasAtraso = "";
-            this.indice = "";
-            this.idMovimento = "";
-            this.valorCalculadoOriginal = "";
-        }
-
-        public ListMovimentoReceber(boolean selected, String boleto, String servico, String tipo, String referencia, String vencimento, String valorMovimento, String valorFolha, String multa, String juros, String correcao, String desconto, String valorCalculado, String mesesAtraso, String diasAtraso, String indice, String idMovimento, String valorCalculadoOriginal) {
-            this.selected = selected;
-            this.boleto = boleto;
-            this.servico = servico;
-            this.tipo = tipo;
-            this.referencia = referencia;
-            this.vencimento = vencimento;
-            this.valorMovimento = valorMovimento;
-            this.valorFolha = valorFolha;
-            this.multa = multa;
-            this.juros = juros;
-            this.correcao = correcao;
-            this.desconto = desconto;
-            this.valorCalculado = valorCalculado;
-            this.mesesAtraso = mesesAtraso;
-            this.diasAtraso = diasAtraso;
-            this.indice = indice;
-            this.idMovimento = idMovimento;
-            this.valorCalculadoOriginal = valorCalculadoOriginal;
-        }
-
-        public boolean getSelected() {
-            return selected;
-        }
-
-        public void setSelected(boolean selected) {
-            this.selected = selected;
-        }
-
-        public String getBoleto() {
-            return boleto;
-        }
-
-        public void setBoleto(String boleto) {
-            this.boleto = boleto;
-        }
-
-        public String getServico() {
-            return servico;
-        }
-
-        public void setServico(String servico) {
-            this.servico = servico;
-        }
-
-        public String getTipo() {
-            return tipo;
-        }
-
-        public void setTipo(String tipo) {
-            this.tipo = tipo;
-        }
-
-        public String getReferencia() {
-            return referencia;
-        }
-
-        public void setReferencia(String referencia) {
-            this.referencia = referencia;
-        }
-
-        public String getVencimento() {
-            return vencimento;
-        }
-
-        public void setVencimento(String vencimento) {
-            this.vencimento = vencimento;
-        }
-
-        public String getValorMovimento() {
-            return valorMovimento;
-        }
-
-        public void setValorMovimento(String valorMovimento) {
-            this.valorMovimento = valorMovimento;
-        }
-
-        public String getValorFolha() {
-            return valorFolha;
-        }
-
-        public void setValorFolha(String valorFolha) {
-            this.valorFolha = valorFolha;
-        }
-
-        public String getMulta() {
-            return multa;
-        }
-
-        public void setMulta(String multa) {
-            this.multa = multa;
-        }
-
-        public String getJuros() {
-            return juros;
-        }
-
-        public void setJuros(String juros) {
-            this.juros = juros;
-        }
-
-        public String getCorrecao() {
-            return correcao;
-        }
-
-        public void setCorrecao(String correcao) {
-            this.correcao = correcao;
-        }
-
-        public String getDesconto() {
-            return desconto;
-        }
-
-        public void setDesconto(String desconto) {
-            this.desconto = desconto;
-        }
-
-        public String getValorCalculado() {
-            return valorCalculado;
-        }
-
-        public void setValorCalculado(String valorCalculado) {
-            this.valorCalculado = valorCalculado;
-        }
-
-        public String getMesesAtraso() {
-            return mesesAtraso;
-        }
-
-        public void setMesesAtraso(String mesesAtraso) {
-            this.mesesAtraso = mesesAtraso;
-        }
-
-        public String getDiasAtraso() {
-            return diasAtraso;
-        }
-
-        public void setDiasAtraso(String diasAtraso) {
-            this.diasAtraso = diasAtraso;
-        }
-
-        public String getIndice() {
-            return indice;
-        }
-
-        public void setIndice(String indice) {
-            this.indice = indice;
-        }
-
-        public String getIdMovimento() {
-            return idMovimento;
-        }
-
-        public void setIdMovimento(String idMovimento) {
-            this.idMovimento = idMovimento;
-        }
-
-        public String getValorCalculadoOriginal() {
-            return valorCalculadoOriginal;
-        }
-
-        public void setValorCalculadoOriginal(String valorCalculadoOriginal) {
-            this.valorCalculadoOriginal = valorCalculadoOriginal;
-        }
-
     }
 }

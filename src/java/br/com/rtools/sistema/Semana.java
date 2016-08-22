@@ -14,15 +14,24 @@ public class Semana implements java.io.Serializable {
     private Integer id;
     @Column(name = "ds_descricao", length = 15, unique = true)
     private String descricao;
+    @Column(name = "nr_postgres")
+    private Integer postgres;
 
     public Semana() {
         this.id = -1;
         this.descricao = "";
+        this.postgres = null;
     }
 
     public Semana(Integer id, String descricao) {
         this.id = id;
         this.descricao = descricao;
+    }
+
+    public Semana(Integer id, String descricao, Integer postgres) {
+        this.id = id;
+        this.descricao = descricao;
+        this.postgres = postgres;
     }
 
     public Integer getId() {
@@ -43,6 +52,14 @@ public class Semana implements java.io.Serializable {
 
     public Integer getCurrentDay() {
         return new Date().getDay() + 1;
+    }
+
+    public Integer getPostgres() {
+        return postgres;
+    }
+
+    public void setPostgres(Integer postgres) {
+        this.postgres = postgres;
     }
 
 }

@@ -138,10 +138,13 @@
                                         <p:menuitem value="Tipo Endereço" action="#{chamadaPaginaBean.paginaSimples('TipoEndereco', 'Tipo Endereço')}"/>
                                     </p:submenu>
                                     <p:submenu label="Agenda" icon="ui-icon-document">  
-                                        <p:menuitem value="Agenda Telefônica"       action="#{chamadaPaginaBean.pagina('agendaTelefone')}" actionListener="#{agendaTelefoneBean.putType('agendaTelefone')}" title="Cadastro"/>
-                                        <p:menuitem value="Grupo Agenda"            action="#{chamadaPaginaBean.grupoAgenda}" />
-                                        <p:menuitem value="Grupo Usuário"           action="#{chamadaPaginaBean.pagina('agendaGrupoUsuario')}" />
-                                        <p:menuitem value="Etiquetas"               action="#{chamadaPaginaBean.pagina('relatorioAgendaTelefonica')}" />
+                                        <p:menuitem value="Agenda Telefônica"        action="#{chamadaPaginaBean.pagina('agendaTelefone')}" actionListener="#{agendaTelefoneBean.putType('agendaTelefone')}" title="Cadastro"/>
+                                        <p:menuitem value="Grupo Agenda"             action="#{chamadaPaginaBean.grupoAgenda}" />
+                                        <p:menuitem value="Grupo Usuário"            action="#{chamadaPaginaBean.pagina('agendaGrupoUsuario')}" />
+                                        <p:menuitem value="Etiquetas"                action="#{chamadaPaginaBean.pagina('relatorioAgendaTelefonica')}" />
+                                        <p:menuitem value="Compromisso"              action="#{chamadaPaginaBean.pagina('compromisso')}" />
+                                        <p:menuitem value="Secretaria"               action="#{chamadaPaginaBean.pagina('secretaria')}" />
+                                        <p:menuitem value="Categoria de Compromisso" action="#{chamadaPaginaBean.paginaSimples('CompromissoCategoria', 'Categoria de Compromisso')}"/>
                                     </p:submenu>
                                     <p:menuitem icon="ui-icon ui-icon-mail-closed" value="Email" action="#{chamadaPaginaBean.pagina('email')}" />
                                     <p:submenu label="Relatórios" icon="ui-icon-document">  
@@ -221,6 +224,82 @@
                                         <h:outputLink value="mailto:suporte@rtools.com.br" style="font-weight: bold">suporte@rtools.com.br</h:outputLink>
                                         <h:outputText value=" sua solicitação será respondida após voltarmos." style="font-size: 10pt!important"/>
                                     </p:panel>
+                                    <p:panel styleClass="margin-top-max" id="id_lista" header="Agenda de Compromissos">
+                                        <h:panelGrid columns="15">
+                                            <p:selectOneMenu label="Histórico" value="#{compromissoUsuarioBean.tipoHistorico}">
+                                                <p:ajax event="change" global="false" update="@this :formMenuPrincipal:id_lista" />
+                                                <f:selectItem itemValue="hoje" itemLabel="Hoje" />
+                                                <f:selectItem itemValue="hoje_amanha" itemLabel="Hoje e Amanhã" />
+                                                <f:selectItem itemValue="agendados" itemLabel="Agendados" />
+                                                <f:selectItem itemValue="permanentes" itemLabel="Permanentes" />
+                                                <f:selectItem itemValue="essa_semana" itemLabel="Essa semana" />
+                                                <f:selectItem itemValue="semana_que_vem" itemLabel="Próxima semana" />
+                                                <f:selectItem itemValue="ontem" itemLabel="Ontem" />
+                                                <f:selectItem itemValue="mes" itemLabel="Ultimos 30 dias" />
+                                                <f:selectItem itemValue="semestre" itemLabel="Ultimo Semestre" />
+                                                <f:selectItem itemValue="ano" itemLabel="Ultimo Ano" />
+                                                <f:selectItem itemValue="especifico" itemLabel="Específicar" />
+                                            </p:selectOneMenu>
+                                            <p:outputLabel value="Tipo de data: " rendered="#{compromissoUsuarioBean.tipoHistorico eq 'especifico'}" styleClass="margin-left-max"/>
+                                            <p:selectOneMenu label="Tipo de pesquisa" value="#{compromissoUsuarioBean.tipoData}" filter="true" filterMatchMode="startsWith" rendered="#{compromissoUsuarioBean.tipoHistorico eq 'especifico'}">
+                                                <p:ajax event="change" global="false" update="@this id_lista"/>
+                                                <f:selectItem itemValue="todos" itemLabel="Todos" />
+                                                <f:selectItem itemValue="igual" itemLabel="Igual" />
+                                                <f:selectItem itemValue="apartir" itemLabel="A partir" />
+                                                <f:selectItem itemValue="ate" itemLabel="Até" />
+                                                <f:selectItem itemValue="faixa" itemLabel="Faixa" />
+                                            </p:selectOneMenu>
+                                            <p:inputMask value="#{compromissoUsuarioBean.dataInicial}" converter="#{isDateString}" rendered="#{compromissoUsuarioBean.tipoHistorico eq 'especifico' and compromissoUsuarioBean.tipoData eq 'igual' or compromissoUsuarioBean.tipoData eq 'apartir' or compromissoUsuarioBean.tipoData eq 'ate' or compromissoUsuarioBean.tipoData eq 'faixa'}" size="10" mask="99/99/9999" styleClass="text-center">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputMask>
+                                            <p:outputLabel value="até" rendered="#{compromissoUsuarioBean.tipoHistorico eq 'especifico' and compromissoUsuarioBean.tipoData eq 'faixa'}"/>
+                                            <p:inputMask value="#{compromissoUsuarioBean.dataFinal}" converter="#{isDateString}" rendered="#{compromissoUsuarioBean.tipoHistorico eq 'especifico' and compromissoUsuarioBean.tipoData eq 'faixa'}" size="10" mask="99/99/9999" styleClass="text-center">
+                                                <p:ajax event="change" update="@this" />
+                                            </p:inputMask>
+                                            <p:outputLabel value="Status: " styleClass="margin-left-max"/>
+                                            <p:selectOneMenu label="Cancelados" value="#{compromissoUsuarioBean.cancelados}">
+                                                <p:ajax event="change" global="false" update="@this"/>
+                                                <f:selectItem itemValue="todos" itemLabel="Todos" />
+                                                <f:selectItem itemValue="ativos" itemLabel="Ativos" />
+                                                <f:selectItem itemValue="cancelados" itemLabel="Cancelados" />
+                                            </p:selectOneMenu>
+                                            <p:commandButton value="Filtrar" update="i_compromissos" action="#{compromissoUsuarioBean.listener('pesquisar')}" styleClass="margin-left-max"/>
+                                        </h:panelGrid>
+                                        <h:panelGrid id="i_compromissos">
+                                            <p:dataTable value="#{compromissoUsuarioBean.listCompromissoUsuario}" var="list" scrollable="true" emptyMessage="Nenhum resultado encontrado" paginator="true" rows="10" rowStyleClass="#{list.compromisso.periodoRepeticao.id == 2 ? 'bg-green-ligth' : ''}">
+                                                <p:column width="15">  
+                                                    <p:rowToggler rendered="#{not empty list.compromisso.listCompromissoUsuario}"/>  
+                                                </p:column>
+                                                <p:column styleClass="text-center" width="25">
+                                                    <p:commandButton icon="ui-icon-pencil" action="#{compromissoUsuarioBean.edit(list)}" oncomplete="PF('eventDialogDetails').show()" update=":form_compromisso:i_panel_grid_fer"/>
+                                                </p:column>
+                                                <p:column styleClass="text-center" headerText="Data / Inicio" width="100">
+                                                    #{list.compromisso.data}
+                                                </p:column>
+                                                <p:column styleClass="text-center" headerText="Semana" width="100">
+                                                    #{list.compromisso.semana.descricao.toUpperCase()}
+                                                </p:column>
+                                                <p:column styleClass="text-center" headerText="Hora Inicial" width="50">
+                                                    #{list.compromisso.horaInicial}
+                                                </p:column>
+                                                <p:column headerText="Descrição">
+                                                    #{list.compromisso.descricao}
+                                                </p:column>
+                                                <p:rowExpansion>
+                                                    <p:dataTable value="#{list.compromisso.listCompromissoUsuario}" var="compromissoUsuario" styleClass="sbb margin-top-max" emptyMessage="Nenhum registro encontrado!">
+                                                        <p:column headerText="Usuário(s)">
+                                                            #{compromissoUsuario.usuario.pessoa.nome}
+                                                        </p:column>                                    
+                                                    </p:dataTable>
+                                                    <p:panelGrid styleClass="margin-top-max" columns="1">
+                                                        <p:outputLabel value="DETALHES: #{compromisso.detalhes}" rendered="#{not empty compromisso.detalhes}" />                                    
+                                                        <p:outputLabel value="LOCAL: #{compromisso.local.enderecoSimplesToString} - #{compromisso.local.cidade.cidade} / #{compromisso.local.cidade.uf}" rendered="#{compromisso.local != null}"/>
+                                                        <p:outputLabel value="COM: #{compromisso.pessoa.nome} (#{compromisso.pessoa.documento})" rendered="#{compromisso.pessoa != null}"/>
+                                                    </p:panelGrid>
+                                                </p:rowExpansion>
+                                            </p:dataTable>
+                                        </h:panelGrid>
+                                    </p:panel>
 
                                     <ui:include id="template_processo_automatico" src="templates/templateProcessamentoAutomatico.xhtml" />
 
@@ -291,13 +370,73 @@
                             </h:column>
                             <br /><br />
                             <p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no" onclick="PF('i_dlg_guias').hide()" style="float: left" />
-                        </p:dialog>
+                        </p:dialog> 
                     </h:form>
                 </f:view>
 
                 <!-- FINALIZA div wrap main -->
             </div>
         </div>
+        <h:form id="form_compromisso">
+            <h:outputScript name="tradutor_primefaces.js" library="js" />
+            <!-- <p:dialog widgetVar="eventDialog" header="Compromissos" resizable="true" modal="true" width="1024" position="top" height="600">
+                <p:schedule id="schedule" value="# {compromissoUsuarioBean.eventModel}" widgetVar="myschedule"  locale="pt" timeZone="GMT-3">
+                    < ! - -   <p:ajax event="dateSelect" listener="# {compromissoUsuarioBean.selectedData}" update="i_panel_grid_fer" />  - - >
+                    <p:ajax event="eventSelect" listener="# {compromissoUsuarioBean.edit}" update=":form_compromisso:i_panel_grid_fer" oncomplete="PF('eventDialogDetails').show()"/>  
+                </p:schedule>              
+            </p:dialog> -->
+            <p:dialog widgetVar="eventDialogDetails" header="Compromisso" resizable="false" modal="true" width="800" position="top">
+                <p:panel id="i_panel_grid_fer">
+                    <h:panelGrid columns="2" rendered="#{compromissoUsuarioBean.compromissoUsuario.id != null}">
+                        <p:outputLabel value="Secretária:"  />
+                        <p:outputLabel value="#{compromissoUsuarioBean.compromissoUsuario.compromisso.secretaria.pessoa.nome}"  />
+                        <p:outputLabel value="Data:"  />
+                        <p:outputLabel value="#{compromissoUsuarioBean.compromissoUsuario.compromisso.data}"  />
+                        <p:outputLabel value="Hora Inicial:"  />
+                        <p:outputLabel value="#{compromissoUsuarioBean.compromissoUsuario.compromisso.horaInicial}"  />
+                        <p:outputLabel value="Hora Final:"  />
+                        <p:outputLabel value="#{compromissoUsuarioBean.compromissoUsuario.compromisso.horaFinal}"  />
+                        <p:outputLabel value="Categoria:"  />
+                        <p:outputLabel value="#{compromissoUsuarioBean.compromissoUsuario.compromisso.compromissoCategoria.descricao}"  />
+                        <p:outputLabel value="Descrição:"  />
+                        <p:outputLabel value="#{compromissoUsuarioBean.compromissoUsuario.compromisso.descricao}"  />
+                        <p:outputLabel value="Detalhes:"  />
+                        <p:outputLabel value="#{compromissoUsuarioBean.compromissoUsuario.compromisso.detalhes}"  />
+                        <p:outputLabel value="Local:"  />
+                        <h:column>
+                            <p:outputLabel value="#{compromissoUsuarioBean.compromissoUsuario.compromisso.localNome} - " rendered="#{not empty compromissoUsuarioBean.compromissoUsuario.compromisso.localNome}"/>
+                            <p:outputLabel value="#{compromissoUsuarioBean.compromissoUsuario.compromisso.local.enderecoSimplesToString} #{compromissoUsuarioBean.compromissoUsuario.compromisso.local.cidade.cidade} / #{compromissoUsuarioBean.compromissoUsuario.compromisso.local.cidade.uf} - #{compromissoUsuarioBean.compromissoUsuario.compromisso.numero} #{compromissoUsuarioBean.compromissoUsuario.compromisso.complemento}" rendered="#{compromissoUsuarioBean.compromissoUsuario.compromisso.local != null}"/>                            
+                        </h:column>
+                        <p:outputLabel value="Pessoa:"  />
+                        <h:column>
+                            <p:outputLabel value="#{compromissoUsuarioBean.compromissoUsuario.compromisso.pessoa.nome} (#{compromissoUsuarioBean.compromissoUsuario.compromisso.pessoa.documento})" rendered="#{compromissoUsuarioBean.compromissoUsuario.compromisso.pessoa != null}"/>
+                            <p:commandButton icon="ui-icon-info"  onclick="PF('dlg_pessoa_card').show()" update=":form_compromisso:i_pessoa_card" action="#{pessoaCardBean.cardPessoa(compromissoUsuarioBean.compromissoUsuario.compromisso.pessoa)}" title="Ver detalhes" rendered="#{compromissoUsuarioBean.compromissoUsuario.compromisso.pessoa != null}" styleClass="margin-left-max"/>
+                        </h:column>
+                        <p:outputLabel value="Cadastrado:"  />
+                        <p:outputLabel value="#{compromissoUsuarioBean.compromissoUsuario.compromisso.cadastro}"/>
+                    </h:panelGrid>
+                    <f:facet name="footer">
+                        <p:commandButton value="Cancelar" onclick="PF('dlg_cancel').show();" disabled="#{controleAcessoBean.botaoExcluir}" rendered="#{compromissoUsuarioBean.compromissoUsuario.compromisso.id ne null}" />
+                    </f:facet>                
+                </p:panel>
+            </p:dialog>
+            <p:dialog widgetVar="dlg_cancel"  modal="true" resizable="true" header="Motivo do cancelamento?" width="300">
+                <p:messages autoUpdate="true" showDetail="true" showSummary="true" id="out_message_compromisso"/>
+                <p:inputTextarea value="#{compromissoUsuarioBean.compromisso.motivoCancelamento}" />
+                <f:facet name="footer">
+                    <h:panelGrid columns="2">
+                        <p:commandButton value="Sim" title="Excluir" action="#{compromissoUsuarioBean.cancel()}" update=":form_compromisso:out_message_compromisso" />
+                        <p:commandButton value="Não" title="Cancelar" onclick="PF('dlg_delete').hide();"/>
+                    </h:panelGrid>
+                </f:facet>
+            </p:dialog>              
+            <p:dialog widgetVar="dlg_pessoa_card" modal="true" resizable="false" height="400" width="400" header="Detalhes" position="top">
+                <p:ajax event="close" listener="#{pessoaCardBean.close}"/>  
+                <p:panel id="i_pessoa_card">
+                    <ui:include src="templates/templatePessoaCard.xhtml" />    
+                </p:panel>
+            </p:dialog>
+        </h:form>
         <!-- FINALIZA div wrap main -->
         <div id="footerx">
             <f:subview id="footer">

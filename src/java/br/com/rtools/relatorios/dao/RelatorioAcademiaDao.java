@@ -3,6 +3,7 @@ package br.com.rtools.relatorios.dao;
 import br.com.rtools.principal.DB;
 import br.com.rtools.relatorios.RelatorioOrdem;
 import br.com.rtools.relatorios.Relatorios;
+import br.com.rtools.utilitarios.Moeda;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Query;
@@ -41,9 +42,12 @@ public class RelatorioAcademiaDao extends DB {
      * @param carenciaDias
      * @param quitacaoFinal
      * @param situacao
+     * @param tipoValor
+     * @param valorInicial
+     * @param valorFinal
      * @return
      */
-    public List find(String emissaoInicial, String emissaoFinal, Integer idResponsavel, Integer idAluno, String inModalidade, String inIdPeriodos, String inSexo, String periodo, String matricula_situacao, Integer[] idade, String in_grupo_categoria, String in_categoria, Boolean nao_socio, Boolean convenio_empresa, Float desconto, Float desconto_final, String tipoCarencia, Integer carenciaDias, String situacao, String situacaoFinanceira, String vencimentoInicial, String vencimentoFinal, String quitacaoInicial, String quitacaoFinal, String order) {
+    public List find(String emissaoInicial, String emissaoFinal, Integer idResponsavel, Integer idAluno, String inModalidade, String inIdPeriodos, String inSexo, String periodo, String matricula_situacao, Integer[] idade, String in_grupo_categoria, String in_categoria, Boolean nao_socio, Boolean convenio_empresa, Float desconto, Float desconto_final, String tipoCarencia, Integer carenciaDias, String situacao, String situacaoFinanceira, String vencimentoInicial, String vencimentoFinal, String quitacaoInicial, String quitacaoFinal, String order, String tipoValor, String valorInicial, String valorFinal) {
         List listWhere = new ArrayList();
         String queryString = "";
         if (relatorios.getId().equals(31)) {
@@ -57,21 +61,40 @@ public class RelatorioAcademiaDao extends DB {
                     + "            S.ds_descricao                              AS servico,          \n" // 6 - SERVIÇO
                     + "            P.ds_descricao                              AS periodo,          \n" // 7 - PERÍODO
                     + "            SP.dt_emissao                               AS emissao,          \n" // 8 - EMISSÃO
-                    + "            A.dt_inativo                                AS inativacao        \n" // 9 - INATIVAÇÃO
-                    + "       FROM matr_academia AS A                                               \n"
-                    + " INNER JOIN fin_servico_pessoa   AS SP  ON SP.id         = A.id_servico_pessoa   \n"
-                    + " INNER JOIN pes_fisica_vw        AS PA  ON PA.codigo     = SP.id_pessoa          \n"
-                    + " INNER JOIN pes_pessoa           AS PR  ON PR.id         = SP.id_cobranca        \n"
-                    + "  LEFT JOIN soc_socios_vw        AS SOC ON SOC.codsocio  = SP.id_pessoa          \n"
-                    + " INNER JOIN aca_servico_valor    AS ASV ON ASV.id        = A.id_servico_valor    \n"
-                    + " INNER JOIN fin_servicos         AS S   ON S.id          = ASV.id_servico        \n"
-                    + " INNER JOIN sis_periodo          AS P   ON P.id          = ASV.id_periodo        \n"
-                    + "  LEFT JOIN                                                                      \n"
-                    + "  (SELECT SP.id_pessoa, id_servico                                               \n"
-                    + "      FROM fin_servico_pessoa    AS SP                                           \n"
-                    + " INNER JOIN matr_academia        AS M    ON M.id_servico_pessoa = SP.id          \n"
-                    + "     WHERE SP.is_ativo = true                                                    \n"
-                    + " ) AS MA ON MA.id_pessoa = SP.id_pessoa AND MA.id_servico = SP.id_servico        \n";
+                    + "            A.dt_inativo                                AS inativacao,       \n" // 9 - INATIVAÇÃO
+                    + "            CASE WHEN SP.nr_desconto = 0                                     \n"
+                    + "                 THEN round(                                                 \n"
+                    + "                     CAST(                                                   \n"
+                    + "                         (                                                   \n"
+                    + "                             func_valor_servico(                             \n"
+                    + "                                 SP.id_pessoa,                               \n"
+                    + "                                 SP.id_servico,                              \n"
+                    + "                                 current_date,                               \n"
+                    + "                                 0,                                          \n"
+                    + "                                 SOC.id_categoria)                           \n"
+                    + "                         )                                                   \n"
+                    + "                     AS numeric), 2                                          \n"
+                    + "            ) ELSE round(                                                    \n"
+                    + "                     CAST(                                                   \n"
+                    + "                             func_valor_servico_cheio(                       \n"
+                    + "                                 SP.id_pessoa,                               \n"
+                    + "                                 SP.id_servico, current_date) * ( 1 - (SP.nr_desconto/100) ) \n"
+                    + "                     AS numeric), 2) "
+                    + "            END AS valor                                                      \n"
+                    + "       FROM matr_academia AS A                                                \n"
+                    + " INNER JOIN fin_servico_pessoa   AS SP  ON SP.id         = A.id_servico_pessoa\n"
+                    + " INNER JOIN pes_fisica_vw        AS PA  ON PA.codigo     = SP.id_pessoa       \n"
+                    + " INNER JOIN pes_pessoa           AS PR  ON PR.id         = SP.id_cobranca     \n"
+                    + "  LEFT JOIN soc_socios_vw        AS SOC ON SOC.codsocio  = SP.id_pessoa       \n"
+                    + " INNER JOIN aca_servico_valor    AS ASV ON ASV.id        = A.id_servico_valor \n"
+                    + " INNER JOIN fin_servicos         AS S   ON S.id          = ASV.id_servico     \n"
+                    + " INNER JOIN sis_periodo          AS P   ON P.id          = ASV.id_periodo     \n"
+                    + "  LEFT JOIN                                                                   \n"
+                    + "  (SELECT SP.id_pessoa, id_servico                                            \n"
+                    + "      FROM fin_servico_pessoa    AS SP                                        \n"
+                    + " INNER JOIN matr_academia        AS M    ON M.id_servico_pessoa = SP.id       \n"
+                    + "     WHERE SP.is_ativo = true                                                 \n"
+                    + " ) AS MA ON MA.id_pessoa = SP.id_pessoa AND MA.id_servico = SP.id_servico     \n";
             if (convenio_empresa != null && convenio_empresa) {
                 queryString += " INNER JOIN fin_desconto_servico_empresa AS FDSE ON FDSE.id_juridica = PA.id_juridica AND FDSE.id_servico = SP.id_servico ";
                 listWhere.add("SP.id_pessoa NOT IN (SELECT SOCVW.codsocio FROM soc_socios_vw AS SOCVW GROUP BY SOCVW.codsocio )");
@@ -139,6 +162,58 @@ public class RelatorioAcademiaDao extends DB {
                 }
             }
         }
+
+        if (!valorInicial.isEmpty() || !valorFinal.isEmpty()) {
+            String subquery = "";
+            subquery += " ( ";
+            valorInicial = Float.toString(Moeda.converteUS$(valorInicial));
+            valorFinal = Float.toString(Moeda.converteUS$(valorFinal));
+            switch (tipoValor) {
+                case "igual":
+                    if (!valorInicial.isEmpty()) {
+                        subquery += " "
+                                + "SP.nr_desconto = 0 AND round( CAST ( ( func_valor_servico ( SP.id_pessoa, SP.id_servico, current_date, 0, SOC.id_categoria) ) AS numeric), 2) \n"
+                                + " = " + valorInicial + "\n"
+                                + " OR SP.nr_desconto > 0 AND round ( CAST( func_valor_servico_cheio( SP.id_pessoa, SP.id_servico, current_date) * (1 - (SP.nr_desconto / 100)) AS numeric), 2) \n"
+                                + " = " + valorInicial + " \n";
+                    }
+                    break;
+                case "apartir":
+                    if (!valorInicial.isEmpty()) {
+                        subquery += " "
+                                + "SP.nr_desconto = 0 AND round( CAST ( ( func_valor_servico ( SP.id_pessoa, SP.id_servico, current_date, 0, SOC.id_categoria) ) AS numeric), 2) \n"
+                                + " >= " + valorInicial + "\n"
+                                + " OR SP.nr_desconto > 0 AND round ( CAST( func_valor_servico_cheio( SP.id_pessoa, SP.id_servico, current_date) * (1 - (SP.nr_desconto / 100)) AS numeric), 2) \n"
+                                + " >= " + valorInicial + " \n";
+                    }
+                    break;
+                case "ate":
+                    if (!valorInicial.isEmpty()) {
+                        subquery += " "
+                                + "SP.nr_desconto = 0 AND round( CAST ( ( func_valor_servico ( SP.id_pessoa, SP.id_servico, current_date, 0, SOC.id_categoria) ) AS numeric), 2) \n"
+                                + " <= " + valorInicial + " \n"
+                                + " OR SP.nr_desconto > 0 AND round ( CAST( func_valor_servico_cheio( SP.id_pessoa, SP.id_servico, current_date) * (1 - (SP.nr_desconto / 100)) AS numeric), 2) \n"
+                                + " <= " + valorInicial + " \n";
+                    }
+                    break;
+                case "faixa":
+                    if (!valorInicial.isEmpty() && !valorFinal.isEmpty()) {
+                        subquery += " "
+                                + "SP.nr_desconto = 0 AND round( CAST ( ( func_valor_servico ( SP.id_pessoa, SP.id_servico, current_date, 0, SOC.id_categoria) ) AS numeric), 2) \n"
+                                + " BETWEEN " + valorInicial + " AND " + valorFinal + "\n"
+                                + " OR SP.nr_desconto > 0 AND round ( CAST( func_valor_servico_cheio( SP.id_pessoa, SP.id_servico, current_date) * (1 - (SP.nr_desconto / 100)) AS numeric), 2) \n"
+                                + " BETWEEN " + valorInicial + " AND " + valorFinal + "\n";
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            subquery += " ) ";
+            listWhere.add(subquery);
+
+        }
+
         if (matricula_situacao != null) {
             switch (matricula_situacao) {
                 case "ativos":

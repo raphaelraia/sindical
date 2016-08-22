@@ -143,6 +143,9 @@ public class WebREPISBean implements Serializable {
         }
 
         chkTodasCertidoes = false;
+        if(renderContabil) {
+             getListComboPessoa();            
+        }
         loadListaCertidaoDisponivel();
         //marcarTodasCertidoes();
     }

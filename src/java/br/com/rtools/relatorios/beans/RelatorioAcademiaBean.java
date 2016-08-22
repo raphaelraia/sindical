@@ -81,10 +81,13 @@ public class RelatorioAcademiaBean implements Serializable {
     private String vencimentoFinal;
     private String quitacaoInicial;
     private String quitacaoFinal;
+    private String tipoValor;
+    private String valorInicial;
+    private String valorFinal;
 
     @PostConstruct
     public void init() {
-        filtro = new Boolean[17];
+        filtro = new Boolean[18];
         filtro[0] = false; // MODALIDADE
         filtro[1] = false; // PERÍODO EMISSÃO / INATIVAÇÃO
         filtro[2] = false; // RESPONSÁVEL
@@ -102,6 +105,7 @@ public class RelatorioAcademiaBean implements Serializable {
         filtro[14] = false; // SITUAÇÃO FINANCEIRA
         filtro[15] = false; // FAIXA VENCIMENTO
         filtro[16] = false; // FAIXA QUITAÇÃO
+        filtro[17] = false; // FAIXA VALOR
         listSelectItem = new ArrayList[2];
         listSelectItem[0] = new ArrayList<>();
         listSelectItem[1] = new ArrayList<>();
@@ -209,6 +213,14 @@ public class RelatorioAcademiaBean implements Serializable {
             }
             listDetalhePesquisa.add(" Sexo: " + sexoString + "");
         }
+        String tv = "";
+        String vi = "";
+        String vf = "";
+        if (filtro[17]) {
+            tv = tipoValor;
+            vi = valorInicial;
+            vf = valorFinal;
+        }
         if (filtro[13]) {
             listDetalhePesquisa.add(" Tipo de Carência: " + tipoCarencia.toUpperCase() + "");
             listDetalhePesquisa.add(" Situação: " + situacaoString.toUpperCase() + "");
@@ -284,7 +296,10 @@ public class RelatorioAcademiaBean implements Serializable {
                 vencimentoFinal,
                 quitacaoInicial,
                 quitacaoFinal,
-                order
+                order,
+                tv,
+                vi,
+                vf
         );
         sisProcesso.finishQuery();
         if (list.isEmpty()) {
@@ -319,7 +334,8 @@ public class RelatorioAcademiaBean implements Serializable {
                         o.get(7),
                         o.get(5),
                         o.get(8),
-                        o.get(9)
+                        o.get(9),
+                        o.get(10)
                 );
             } else if (relatorios.getId() == 32) {
                 pac = new ParametroAcademiaCadastral(
@@ -462,6 +478,11 @@ public class RelatorioAcademiaBean implements Serializable {
             quitacaoInicial = "";
             quitacaoFinal = "";
         }
+        if (!filtro[17]) {
+            tipoValor = "todos";
+            valorInicial = "";
+            valorFinal = "";
+        }
     }
 
     public void clear(Integer tcase) {
@@ -546,6 +567,12 @@ public class RelatorioAcademiaBean implements Serializable {
             case "quitacao":
                 quitacaoInicial = "";
                 quitacaoFinal = "";
+                filtro[16] = false;
+                break;
+            case "valor":
+                tipoValor = "todos";
+                valorInicial = "";
+                valorFinal = "";
                 filtro[16] = false;
                 break;
         }
@@ -1108,6 +1135,30 @@ public class RelatorioAcademiaBean implements Serializable {
         this.quitacaoFinal = quitacaoFinal;
     }
 
+    public String getTipoValor() {
+        return tipoValor;
+    }
+
+    public void setTipoValor(String tipoValor) {
+        this.tipoValor = tipoValor;
+    }
+
+    public String getValorInicial() {
+        return valorInicial;
+    }
+
+    public void setValorInicial(String valorInicial) {
+        this.valorInicial = valorInicial;
+    }
+
+    public String getValorFinal() {
+        return valorFinal;
+    }
+
+    public void setValorFinal(String valorFinal) {
+        this.valorFinal = valorFinal;
+    }
+
     public class ParametroAcademiaCadastral {
 
         private Object aluno_nome;
@@ -1156,8 +1207,9 @@ public class RelatorioAcademiaBean implements Serializable {
          * @param responsavel_nome
          * @param emissao
          * @param inativacao
+         * @param valor
          */
-        public ParametroAcademiaCadastral(Object aluno_nome, Object aluno_idade, Object aluno_nascimento, Object aluno_sexo, Object aluno_cidade, Object servico, Object periodo, Object responsavel_nome, Object emissao, Object inativacao) {
+        public ParametroAcademiaCadastral(Object aluno_nome, Object aluno_idade, Object aluno_nascimento, Object aluno_sexo, Object aluno_cidade, Object servico, Object periodo, Object responsavel_nome, Object emissao, Object inativacao, Object valor) {
             this.aluno_nome = aluno_nome;
             this.aluno_idade = aluno_idade;
             this.aluno_nascimento = aluno_nascimento;
@@ -1168,6 +1220,7 @@ public class RelatorioAcademiaBean implements Serializable {
             this.responsavel_nome = responsavel_nome;
             this.emissao = emissao;
             this.inativacao = inativacao;
+            this.valor = valor;
         }
 
         /**

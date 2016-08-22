@@ -1,12 +1,7 @@
 package br.com.rtools.utilitarios;
 
-import br.com.rtools.webservice.WSCaptcha;
-import br.com.rtools.webservice.dao.WSCaptchaDao;
-import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -16,12 +11,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
-import javax.imageio.ImageIO;
 import javax.servlet.ServletContext;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Element;

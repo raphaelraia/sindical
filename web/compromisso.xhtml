@@ -1,0 +1,264 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:cc="http://java.sun.com/jsf/composite">
+
+    <h:head>
+        <title>Compromisso</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+    </h:head>
+    <h:body>
+        <f:subview id="header">
+            <ui:include src="templates/templatePrime.xhtml"/>
+        </f:subview>
+        <f:view>
+            <p:panel style="margin: 0 auto; border: 0; width: #{configuracaoBean.resolucao.tipoResolucao.tamanho}">
+                <h:form id="form_compromisso">
+                    <p:outputLabel value="Compromisso" styleClass="fonteHeader"/>
+                    <c:set scope="request" var="object" value="${compromissoBean.compromisso}"/>
+                    <div class="clear"></div>
+                    <p:panel id="i_panel_acao" styleClass="fundoCinza margin-top-max">
+                        <h:panelGrid columns="3">
+                            <p:calendar value="#{compromissoBean.data}" pattern="dd/MM/yyyy" size="8" readonlyInput="true" navigator="true" styleClass="text-center"/>
+                            <p:commandButton value="Agendas" update="i_panel_adicionar" action="#{compromissoBean.setVisibled(true)}" onclick="PF('dlg_adicionar').show();" styleClass="margin-left-max" actionListener="#{compromissoBean.listener('compromisso')}"/>
+                            <p:commandButton value="Particular" update="i_panel_adicionar" action="#{compromissoBean.setVisibled(true)}" onclick="PF('dlg_adicionar').show();" styleClass="margin-left-max" actionListener="#{compromissoBean.listener('compromisso_particular')}" />
+                        </h:panelGrid>
+                    </p:panel>
+                    <p:panel styleClass="margin-top-max" id="id_lista" header="Compromissos">
+                        <h:panelGrid columns="15">
+                            <p:selectOneMenu label="Histórico" value="#{compromissoBean.tipoHistorico}" filter="true" filterMatchMode="startsWith">
+                                <p:ajax event="change" global="false" update="@this id_lista" />
+                                <f:selectItem itemValue="hoje" itemLabel="Hoje" />
+                                <f:selectItem itemValue="hoje_amanha" itemLabel="Hoje e Amanhã" />
+                                <f:selectItem itemValue="agendados" itemLabel="Agendados" />
+                                <f:selectItem itemValue="permanentes" itemLabel="Permanentes" />
+                                <f:selectItem itemValue="essa_semana" itemLabel="Essa semana" />
+                                <f:selectItem itemValue="semana_que_vem" itemLabel="Próxima semana" />
+                                <f:selectItem itemValue="ontem" itemLabel="Ontem" />
+                                <f:selectItem itemValue="mes" itemLabel="Ultimos 30 dias" />
+                                <f:selectItem itemValue="semestre" itemLabel="Ultimo Semestre" />
+                                <f:selectItem itemValue="ano" itemLabel="Ultimo Ano" />
+                                <f:selectItem itemValue="especifico" itemLabel="Específicar" />
+                            </p:selectOneMenu>
+                            <p:outputLabel value="Tipo de data: " rendered="#{compromissoBean.tipoHistorico eq 'especifico'}" styleClass="margin-left-max"/>
+                            <p:selectOneMenu label="Tipo de pesquisa" value="#{compromissoBean.tipoData}" filter="true" filterMatchMode="startsWith" rendered="#{compromissoBean.tipoHistorico eq 'especifico'}">
+                                <p:ajax event="change" global="false" update="@this id_lista"/>
+                                <f:selectItem itemValue="todos" itemLabel="Todos" />
+                                <f:selectItem itemValue="igual" itemLabel="Igual" />
+                                <f:selectItem itemValue="apartir" itemLabel="A partir" />
+                                <f:selectItem itemValue="ate" itemLabel="Até" />
+                                <f:selectItem itemValue="faixa" itemLabel="Faixa" />
+                            </p:selectOneMenu>
+                            <p:inputMask value="#{compromissoBean.dataInicial}" converter="#{isDateString}" rendered="#{compromissoBean.tipoHistorico eq 'especifico' and compromissoBean.tipoData eq 'igual' or compromissoBean.tipoData eq 'apartir' or compromissoBean.tipoData eq 'ate' or compromissoBean.tipoData eq 'faixa'}" size="10" mask="99/99/9999" styleClass="text-center">
+                                <p:ajax event="change" update="@this" />
+                            </p:inputMask>
+                            <p:outputLabel value="até" rendered="#{compromissoBean.tipoHistorico eq 'especifico' and compromissoBean.tipoData eq 'faixa'}"/>
+                            <p:inputMask value="#{compromissoBean.dataFinal}" converter="#{isDateString}" rendered="#{compromissoBean.tipoHistorico eq 'especifico' and compromissoBean.tipoData eq 'faixa'}" size="10" mask="99/99/9999" styleClass="text-center">
+                                <p:ajax event="change" update="@this" />
+                            </p:inputMask>
+                            <p:outputLabel value="Usuário:" styleClass="margin-left-max"/>
+                            <p:selectOneMenu value="#{compromissoBean.idUsuarioFiltro}" style="width: 150px"  >
+                                <p:ajax event="change" update="@this" global="false"/>
+                                <f:selectItem itemValue="" itemLabel="NENHUM"/>
+                                <f:selectItems value="#{compromissoBean.listUsuario}"/>
+                            </p:selectOneMenu>
+                            <p:outputLabel value="Status: " styleClass="margin-left-max"/>
+                            <p:selectOneMenu label="Cancelados" value="#{compromissoBean.cancelados}" filter="true">
+                                <p:ajax event="change" global="false" update="@this"/>
+                                <f:selectItem itemValue="todos" itemLabel="Todos" />
+                                <f:selectItem itemValue="ativos" itemLabel="Ativos" />
+                                <f:selectItem itemValue="cancelados" itemLabel="Cancelados" />
+                            </p:selectOneMenu>
+                            <p:commandButton value="Filtrar" update="i_compromissos" action="#{compromissoBean.listener('pesquisar')}" styleClass="margin-left-max"/>
+                        </h:panelGrid>
+                        <h:panelGrid id="i_compromissos">
+                            <p:dataTable value="#{compromissoBean.listCompromissos}" var="compromisso" scrollable="true" scrollHeight="300" emptyMessage="Nenhum resultado encontrado" paginator="true" rows="15" rowStyleClass="#{compromisso.periodoRepeticao.id == 2 ? 'bg-green-ligth' : ''}">
+                                <p:column width="15">  
+                                    <p:rowToggler rendered="#{not empty compromisso.listCompromissoUsuario}"/>  
+                                </p:column>
+                                <p:column styleClass="text-center" width="25">
+                                    <p:commandButton icon="ui-icon-pencil" action="#{compromissoBean.edit(compromisso)}" update=":form_compromisso:" />
+                                </p:column>
+                                <p:column styleClass="text-center" headerText="Período" width="100">
+                                    #{compromisso.periodoRepeticao.descricao}
+                                </p:column>
+                                <p:column styleClass="text-center" headerText="Data / Inicio" width="100">
+                                    #{compromisso.data}
+                                </p:column>
+                                <p:column styleClass="text-center" headerText="Semana" width="100">
+                                    #{compromisso.semana.descricao.toUpperCase()}
+                                </p:column>
+                                <p:column styleClass="text-center" headerText="Hora Inicial" width="50">
+                                    #{compromisso.horaInicial}
+                                </p:column>
+                                <p:column styleClass="text-center" headerText="Hora Final" width="50">
+                                    #{compromisso.horaFinal}
+                                </p:column>
+                                <p:column headerText="Categoria" width="150">
+                                    #{compromisso.compromissoCategoria.descricao}
+                                </p:column>
+                                <p:column headerText="Descrição">
+                                    #{compromisso.descricao}
+                                </p:column>
+                                <p:rowExpansion>
+                                    <p:dataTable value="#{compromisso.listCompromissoUsuario}" var="compromissoUsuario" styleClass="sbb margin-top-max" emptyMessage="Nenhum registro encontrado!">
+                                        <p:column headerText="Usuário(s)">
+                                            #{compromissoUsuario.usuario.pessoa.nome}
+                                        </p:column>                                    
+                                    </p:dataTable>
+                                    <p:panelGrid styleClass="margin-top-max" columns="1">
+                                        <p:outputLabel value="DETALHES: #{compromisso.detalhes}" rendered="#{not empty compromisso.detalhes}" />                                    
+                                        <p:outputLabel value="LOCAL: #{compromisso.local.enderecoSimplesToString} - #{compromisso.local.cidade.cidade} / #{compromisso.local.cidade.uf}" rendered="#{compromisso.local != null}"/>
+                                        <p:outputLabel value="COM: #{compromisso.pessoa.nome} (#{compromisso.pessoa.documento})" rendered="#{compromisso.pessoa != null}"/>
+                                    </p:panelGrid>
+                                </p:rowExpansion>
+                            </p:dataTable>
+                        </h:panelGrid>
+                    </p:panel>
+                    <p:dialog id="i_adicionar" widgetVar="dlg_adicionar" modal="true" header="Cadastro" width="1024" resizable="true"  maximizable="true" minimizable="true" onShow="true" visible="#{compromissoBean.visibled}" height="400">
+                        <p:ajax event="close" update="out_mensagem i_panel_adicionar id_lista" listener="#{compromissoBean.clear}"/>  
+                        <p:panel id="i_panel_adicionar" styleClass="no-border">
+                            <h:panelGrid columns="1">
+                                <h:column>
+                                    <p:panel>
+                                        <h:panelGrid columns="2" id="i_panel_gg">
+                                            <p:outputLabel value="CATEGORIA: "  />
+                                            <p:selectOneMenu value="#{compromissoBean.idCompromissoCategoria}">
+                                                <p:ajax event="change" update="@this" global="false" />
+                                                <f:selectItems value="#{compromissoBean.listCompromissoCategoria}" />
+                                            </p:selectOneMenu>
+                                            <p:outputLabel value="DESCRIÇÃO: "  />
+                                            <p:inputText  value="#{compromissoBean.compromisso.descricao}" maxlength="100" size="80" converter="#{toUpperCase}">
+                                                <p:ajax event="change" update="@this" /> 
+                                            </p:inputText>
+                                            <p:outputLabel value="PERÍODO: "  />
+                                            <h:column>
+                                                <h:panelGrid columns="3" cellspacing="5">
+                                                    <p:selectOneMenu value="#{compromissoBean.idRepeticao}">
+                                                        <p:ajax event="change" update="@this i_panel_gg" global="false" listener="#{compromissoBean.listener('periodo')}" />
+                                                        <f:selectItems value="#{compromissoBean.listRepeticao}" />
+                                                    </p:selectOneMenu>  
+                                                    <p:selectOneMenu value="#{compromissoBean.idSemana}" rendered="#{compromissoBean.idRepeticao != null and compromissoBean.idRepeticao eq 2}">
+                                                        <p:ajax event="change" update="@this" global="false" />
+                                                        <f:selectItems value="#{compromissoBean.listSemana}" />
+                                                    </p:selectOneMenu>                                                                                                         
+                                                </h:panelGrid>
+                                            </h:column>
+                                            <p:outputLabel value="DATA: " rendered="#{compromissoBean.idRepeticao == null or compromissoBean.idRepeticao != 2}"/>
+                                            <p:inputText  value="#{compromissoBean.compromisso.data}" maxlength="100" size="8" converter="#{isDateString}"  styleClass="text-center"  rendered="#{compromissoBean.idRepeticao == null or compromissoBean.idRepeticao != 2}">
+                                                <p:ajax event="change" update="@this" /> 
+                                            </p:inputText>
+                                            <p:outputLabel value="HORA INICIAL: "  />
+                                            <h:column>
+                                                <h:panelGrid columns="3" cellspacing="5">
+                                                    <p:inputMask mask="99:99" value="#{compromissoBean.compromisso.horaInicial}" maxlength="5" size="5" converter="#{isValidTimeString}" styleClass="text-center">
+                                                        <p:ajax event="change" update="@this" /> 
+                                                    </p:inputMask>
+                                                    <p:outputLabel value="HORA FINAL: "  />
+                                                    <p:inputMask mask="99:99" value="#{compromissoBean.compromisso.horaFinal}" maxlength="5" size="5" converter="#{isValidTimeString}" styleClass="text-center">
+                                                        <p:ajax event="change" update="@this" /> 
+                                                    </p:inputMask>
+                                                </h:panelGrid>                                                    
+                                            </h:column>
+                                            <p:outputLabel value="LOCAL NOME: "  />
+                                            <p:inputText  value="#{compromissoBean.compromisso.localNome}" maxlength="100" size="80" converter="#{toUpperCase}">
+                                                <p:ajax event="change" update="@this" /> 
+                                            </p:inputText>
+                                            <p:commandButton id="idPesquisaEndereco" value="Local: " icon="ui-icon-search" title="Pesquisar Endereço"  action="#{chamadaPaginaBean.pesquisa('pesquisaEndereco')}" immediate="true"/>
+                                            <h:column>
+                                                <p:outputLabel value="#{compromissoBean.compromisso.local.enderecoSimplesToString} - #{compromissoBean.compromisso.local.cidade.cidade} / #{compromissoBean.compromisso.local.cidade.uf}"  rendered="#{compromissoBean.compromisso.local != null}" />
+                                            </h:column>
+                                            <p:outputLabel value="NÚMERO: " />
+                                            <p:inputText value="#{compromissoBean.compromisso.numero}" maxlength="10" size="5" disabled="#{compromissoBean.compromisso.local == null}"/>
+                                            <p:outputLabel value="COMPLEMENTO: " />
+                                            <p:inputText value="#{compromissoBean.compromisso.complemento}" maxlength="50"  disabled="#{compromissoBean.compromisso.local == null}"/>                                            
+                                            <p:commandButton  value="Pessoa: " icon="ui-icon-search" title="Pesquisar Pessoa"  action="#{chamadaPaginaBean.pesquisa('pesquisaPessoa')}" immediate="true"/>
+                                            <h:column>
+                                                <p:outputLabel value="#{compromissoBean.compromisso.pessoa.nome} (#{compromissoBean.compromisso.pessoa.documento})"  rendered="#{compromissoBean.compromisso.pessoa != null}" />
+                                            </h:column>                                            
+                                        </h:panelGrid>
+                                    </p:panel>
+                                    <p:panel header="DETALHES: " styleClass="margin-top-max">
+                                        <h:inputTextarea value="#{compromissoBean.compromisso.detalhes}" cols="100" rows="10" />
+                                    </p:panel>
+                                </h:column>
+                                <h:column>
+                                    <h:column rendered="#{compromissoBean.compromisso.id != null}">
+                                        <p:panel header="Usuários">
+                                            <h:panelGrid columns="7">
+                                                <p:selectOneMenu value="#{compromissoBean.idUsuario}" >
+                                                    <p:ajax event="change" update="@this" global="false"/>
+                                                    <f:selectItems value="#{compromissoBean.listUsuario}"/>
+                                                </p:selectOneMenu>
+                                                <p:commandButton value="Adicionar" action="#{compromissoBean.addCompromissoUsuario}" title="Adicionar/atualizar" rendered="#{compromissoBean.compromisso.id != null}" disabled="#{controleAcessoBean.botaoSalvar}" update=":form_compromisso:"/>
+                                            </h:panelGrid>
+                                        </p:panel>
+                                        <p:panel  id="tbl_agenda_telefone" styleClass="margin-top-max">
+                                            <h:column rendered="#{not empty compromissoBean.listCompromissoUsuario}">
+                                                <p:dataTable var="compromissoUsuario" value="#{compromissoBean.listCompromissoUsuario}" emptyMessage="Nenhum registro encontrado!">
+                                                    <p:column headerText="Usuário">
+                                                        #{compromissoUsuario.usuario.pessoa.nome}
+                                                    </p:column>
+                                                    <p:column>
+                                                        <p:commandButton icon="ui-icon-close" action="#{compromissoBean.removeCompromissoUsuario(compromissoUsuario)}" update=":form_compromisso:"/>
+                                                    </p:column>                                    
+                                                </p:dataTable>
+                                            </h:column>
+                                        </p:panel>
+                                    </h:column>
+                                </h:column>
+                            </h:panelGrid>
+                        </p:panel>
+                        <f:facet name="footer">
+                            <h:panelGrid columns="5" styleClass="margin-top-max">
+                                <p:commandButton value="Salvar" onclick="PF('dlg_save').show();" disabled="#{controleAcessoBean.botaoSalvar}" /> 
+                                <p:commandButton value="Novo" action="#{compromissoBean.clear}" update=":form_compromisso:" />
+                                <p:commandButton value="Excluir" onclick="PF('dlg_delete').show();" disabled="#{controleAcessoBean.botaoExcluir}" />
+                                <p:commandButton value="Sair" action="#{compromissoBean.clear()}" update=":form_compromisso:" />
+                                <p:commandButton value="Cancelar" onclick="PF('dlg_cancel').show();" disabled="#{controleAcessoBean.botaoExcluir}" rendered="#{compromissoBean.compromisso.id ne null}" /> 
+                            </h:panelGrid>                                
+                        </f:facet>
+                    </p:dialog>                    
+                    <p:dialog widgetVar="dlg_save"  modal="true" resizable="true" header="Deseja salvar este registro?" width="300">
+                        <f:facet name="footer">
+                            <h:panelGrid columns="2">
+                                <p:commandButton value="Sim" title="Excluir" action="#{compromissoBean.save}" update=":form_compromisso:out_mensagem" oncomplete="PF('dlg_save').hide(); PF('dlg_message').show();"/>
+                                <p:commandButton value="Não" title="Cancelar" onclick="PF('dlg_save').hide();"/>
+                            </h:panelGrid>                            
+                        </f:facet>
+                    </p:dialog>                    
+                    <p:dialog widgetVar="dlg_delete"  modal="true" resizable="true" header="Deseja excluir este registro?" width="300">
+                        <f:facet name="footer">
+                            <h:panelGrid columns="2">
+                                <p:commandButton value="Sim" title="Excluir" action="#{compromissoBean.delete}" update=":form_compromisso:out_mensagem" oncomplete="PF('dlg_delete').hide(); PF('dlg_message').show();"/>
+                                <p:commandButton value="Não" title="Cancelar" onclick="PF('dlg_delete').hide();"/>
+                            </h:panelGrid>
+                        </f:facet>
+                    </p:dialog>                    
+                    <p:dialog widgetVar="dlg_cancel"  modal="true" resizable="true" header="Motivo do cancelamento?" width="300">
+                        <p:inputTextarea value="#{compromissoBean.compromisso.motivoCancelamento}" />
+                        <f:facet name="footer">
+                            <h:panelGrid columns="2">
+                                <p:commandButton value="Sim" title="Excluir" action="#{compromissoBean.cancel()}" update=":form_compromisso:out_mensagem" oncomplete="PF('dlg_delete').hide(); PF('dlg_message').show();"/>
+                                <p:commandButton value="Não" title="Cancelar" onclick="PF('dlg_delete').hide();"/>
+                            </h:panelGrid>
+                        </f:facet>
+                    </p:dialog>                    
+                    <p:dialog widgetVar="dlg_message" modal="true" header="Mensagem" width="300">
+                        <center>
+                            <h:panelGrid id="out_mensagem">
+                                <p:messages showDetail="true" showSummary="true" autoUpdate="true" />
+                            </h:panelGrid> 
+                        </center>
+                        <f:facet name="footer">
+                            <p:commandButton value="Ok" title="Ok" onclick="PF('dlg_message').hide();" />                                
+                        </f:facet>
+                    </p:dialog>                    
+                </h:form>                    
+            </p:panel>                    
+        </f:view>
+    </h:body>
+</ui:composition>

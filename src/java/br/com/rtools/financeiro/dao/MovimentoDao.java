@@ -2660,4 +2660,48 @@ public class MovimentoDao extends DB {
             return new ArrayList();
         }
     }
+
+    /**
+     * Data de vencimento: hoje
+     *
+     * @param pessoa_id
+     * @return
+     */
+    public List findDebitoPessoa(Integer pessoa_id) {
+        return findDebitoPessoa(pessoa_id, DataHoje.data());
+    }
+
+    /**
+     * *
+     * Selecionar data vencimento: ??/??/????
+     *
+     * @param pessoa_id
+     * @param vencimento
+     * @return
+     */
+    public List findDebitoPessoa(Integer pessoa_id, String vencimento) {
+        try {
+            String queryString = ""
+                    + "     SELECT M.*                                          \n"
+                    + "       FROM fin_movimento M                              \n"
+                    + "      WHERE M.id_pessoa = " + pessoa_id + "              \n"
+                    + "        AND M.dt_vencimento < '" + vencimento + "'       \n"
+                    + "        AND M.is_ativo = true                            \n"
+                    + "        AND M.id_baixa IS NULL                           \n"
+                    + "        AND M.id_servicos IN(                            \n"
+                    + "             SELECT id_servicos                          \n"
+                    + "               FROM fin_servico_rotina                   \n"
+                    + "              WHERE id_rotina = 4                        \n"
+                    + "   )                                                     \n"
+                    + "   ORDER BY M.dt_vencimento                              ";
+            Query query = getEntityManager().createNativeQuery(queryString, Movimento.class);
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return list;
+            }
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+        return new ArrayList();
+    }
 }

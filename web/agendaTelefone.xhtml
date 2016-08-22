@@ -25,7 +25,7 @@
                         <h:panelGrid columns="13" >
                             <p:commandButton value="Adicionar" id="id_click" update="i_panel_adicionar" action="#{agendaTelefoneBean.openDialog}" onclick="PF('dgl_adicionar').show();" />
                             <p:outputLabel value="Pesquisar: " />
-                            <p:selectOneMenu value="#{agendaTelefoneBean.indice[3]}" id="idDDD" rendered="#{agendaTelefoneBean.porPesquisa.equals('telefone')}">
+                            <p:selectOneMenu value="#{agendaTelefoneBean.indice[3]}" id="idDDD" rendered="#{agendaTelefoneBean.porPesquisa eq 'telefone'}">
                                 <p:ajax event="change" update="idDDD" />
                                 <f:selectItems value="#{agendaTelefoneBean.listaDDD}" />
                             </p:selectOneMenu>

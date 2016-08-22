@@ -33,6 +33,13 @@ public class DataHoje {
         return a;
     }
 
+    public static String referencia() {
+        Date dateTime = new Date();
+        DateFormat dateFormat = new SimpleDateFormat("MM/yyyy");
+        String a = dateFormat.format(dateTime);
+        return a;
+    }
+
     public static String livre(Date date, String format) {
         if (date == null) {
             return data();
