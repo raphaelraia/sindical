@@ -43,13 +43,13 @@
                                 <h:panelGrid columns="4">
                                     <p:inputMask size="30" value="#{webREPISBean.descricao}" mask="#{webREPISBean.tipoPesquisa eq 'cnpj' ? '99?.999.999/9999-99' : ''}" rendered="#{webREPISBean.tipoPesquisa ne 'tipo' and webREPISBean.tipoPesquisa ne 'status' and webREPISBean.tipoPesquisa ne 'cidade'}" />
                                     <p:selectOneMenu value="#{webREPISBean.tipoPesquisa}">
-                                        <p:ajax event="change" update="@this :form_libera_repis:" listener="#{webREPISBean.loadListRepisMovimentoPatronal()}"/>
+                                        <p:ajax event="change" update="@this @form" listener="#{webREPISBean.loadListRepisMovimentoPatronal()}"/>
                                         <f:selectItem itemLabel="Nome" itemValue="nome"/>
                                         <f:selectItem itemLabel="CNPJ" itemValue="cnpj"/>
                                         <f:selectItem itemLabel="Protocolo" itemValue="protocolo"/>
                                         <f:selectItem itemLabel="Solicitante" itemValue="solicitante"/>
                                     </p:selectOneMenu>
-                                    <p:commandButton id="i_pesquisar" value="FILTRAR A LISTA" action="#{webREPISBean.loadListRepisMovimentoPatronal()}" style="margin-left: 15px; font-weight: bold" update="tbl"/>
+                                    <p:commandButton id="i_pesquisar" value="FILTRAR A LISTA" action="#{webREPISBean.loadListRepisMovimentoPatronal()}" style="margin-left: 15px; font-weight: bold" update="@form"/>
                                 </h:panelGrid>
                             </h:column>
                             <h:column>
