@@ -892,8 +892,8 @@ public class MovimentosReceberBean extends MovimentoValorBean implements Seriali
                 desc = Moeda.multiplicarValores(Moeda.divisaoValores(Float.valueOf(desconto), Moeda.substituiVirgulaFloat(acrescimoSemSindical)), 100);
                 desc = Moeda.divisaoValores(Moeda.multiplicarValores(acre, desc), 100);
 
-                listMovimentoReceber.get(i).setDesconto(Moeda.converteR$Float(desc));
-                listMovimentoReceber.get(i).setValorCalculado(Moeda.converteR$Float(Moeda.subtracaoValores(Moeda.converteUS$((String) listMovimentoReceber.get(i).getValorCalculadoOriginal()), desc)));
+                listMovimentoReceber.get(i).setDesconto(Moeda.converteR$Float(desc, 4));
+                listMovimentoReceber.get(i).setValorCalculado(Moeda.converteR$Float(Moeda.subtracaoValores(Moeda.converteUS$((String) listMovimentoReceber.get(i).getValorCalculadoOriginal()), desc), 4));
             } else {
                 listMovimentoReceber.get(i).setDesconto(Moeda.converteR$Float(0));
                 listMovimentoReceber.get(i).setValorCalculado(Moeda.converteR$Float(Moeda.converteUS$((String) listMovimentoReceber.get(i).getValorCalculadoOriginal())));

@@ -1,13 +1,7 @@
 package br.com.rtools.financeiro.lista;
 
-import br.com.rtools.financeiro.beans.MovimentosReceberBean;
-import br.com.rtools.financeiro.dao.MovimentoReceberDao;
-import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Moeda;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 public class ListMovimentoReceber implements Serializable {
 
@@ -174,6 +168,11 @@ public class ListMovimentoReceber implements Serializable {
 
     public void setValorCalculado(String valorCalculado) {
         this.valorCalculado = valorCalculado;
+    }
+
+    public String getValorCalculadoTela() {
+        String v =  Moeda.converteR$(valorCalculado);
+        return v;
     }
 
     public String getMesesAtraso() {

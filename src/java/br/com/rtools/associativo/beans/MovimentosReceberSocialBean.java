@@ -455,7 +455,7 @@ public class MovimentosReceberSocialBean implements Serializable {
     }
 
     public void imprimirBoletos(Integer id_boleto) {
-        Boleto boletox = null;
+        Boleto boletox;
         if (id_boleto == null) {
             boletox = (Boleto) new Dao().find(new Boleto(), linhaBoletosAnexo.getBoleto().getId());
         } else {
@@ -487,7 +487,7 @@ public class MovimentosReceberSocialBean implements Serializable {
     }
 
     public void calculoTodosAcrescimo() {
-        booAcrescimo = (booAcrescimo) ? false : true;
+        booAcrescimo = !(booAcrescimo);
         MovimentosReceberSocialDao db = new MovimentosReceberSocialDao();
         for (DataObject linha : listaMovimento) {
             float[] valor = db.pesquisaValorAcrescimo(((Movimento) linha.getArgumento1()).getId());
@@ -598,16 +598,27 @@ public class MovimentosReceberSocialBean implements Serializable {
             GenericaMensagem.warn("Atenção", "Boletos do tipo ACORDO não podem ser excluídos, veja opções de acordo!");
             return;
         }
-
+        NovoLog novoLog = new NovoLog();
+        novoLog.startList();
         for (DataObject dh : listaMovimento) {
             if ((Boolean) dh.getArgumento0()) {
                 int id_movimento = ((Movimento) dh.getArgumento1()).getId();
                 Movimento mov = (Movimento) new Dao().find(new Movimento(), id_movimento);
                 listam.add(mov);
+                novoLog.setCodigo(mov.getId());
+                novoLog.setTabela("fin_movimento");
+                novoLog.update("INATIVAR",
+                        " Movimento - ID: " + mov.getId()
+                        + " - Ref.: " + mov.getReferencia()
+                        + " - Vencimento: " + mov.getVencimento()
+                        + " - Valor: " + mov.getValor()
+                        + " - Responsável: (" + mov.getPessoa().getId() + ") " + mov.getPessoa().getNome()
+                );
             }
         }
 
         if (listam.isEmpty()) {
+            novoLog.cancelList();
             GenericaMensagem.warn("Atenção", "Nenhum boletos foi selecionado!");
             return;
         }
@@ -616,13 +627,14 @@ public class MovimentosReceberSocialBean implements Serializable {
         dao.openTransaction();
 
         if (!GerarMovimento.inativarArrayMovimento(listam, motivoInativacao, dao).isEmpty()) {
+            novoLog.cancelList();
             GenericaMensagem.error("Atenção", "Ocorreu um erro em uma das exclusões, verifique o log!");
             dao.rollback();
             return;
         } else {
             GenericaMensagem.info("Sucesso", "Boletos foram excluídos!");
         }
-
+        novoLog.saveList();
         listaMovimento.clear();
         dao.commit();
     }
@@ -680,7 +692,7 @@ public class MovimentosReceberSocialBean implements Serializable {
         motivoReativacao = "";
     }
 
-    public void excluirAcordo() {        
+    public void excluirAcordo() {
         int qnt = 0;
         Movimento mov = null;
 
@@ -702,16 +714,16 @@ public class MovimentosReceberSocialBean implements Serializable {
         }
 
         String resposta = GerarMovimento.excluirUmAcordoSocial(mov);
-        
-        if (resposta.isEmpty()){
+
+        if (resposta.isEmpty()) {
             GenericaMensagem.info("Sucesso", "Acordo Excluído!");
             listaMovimento.clear();
-            
+
             PF.update("formMovimentosReceber");
             PF.closeDialog("dlg_excluir_acordo");
             return;
         }
-        
+
         GenericaMensagem.error("Atenção", resposta);
     }
 
@@ -907,8 +919,7 @@ public class MovimentosReceberSocialBean implements Serializable {
             String nameFile = "encaminhamento_" + DataHoje.livre(DataHoje.dataHoje(), "yyyyMMdd-HHmmss") + ".pdf";
             File fl_original = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/ENCAMINHAMENTO.jasper"));
             File fl_menor = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/ENCAMINHAMENTO_MENOR.jasper"));
-            File fl_jasper = null;
-
+            File fl_jasper;
             if (fl_menor.exists()) {
                 fl_jasper = fl_menor;
             } else {
@@ -1086,7 +1097,8 @@ public class MovimentosReceberSocialBean implements Serializable {
             GenericaMensagem.warn("Erro", msgConfirma);
             return null;
         }
-
+        NovoLog novoLog = new NovoLog();
+        novoLog.startList();
         ServicoPessoaDao spd = new ServicoPessoaDao();
         for (Movimento m : lm) {
             ServicoPessoa sp = spd.pesquisaServicoPessoa(m.getBeneficiario().getId(), m.getServicos().getId(), true);
@@ -1096,6 +1108,16 @@ public class MovimentosReceberSocialBean implements Serializable {
                 GenericaMensagem.warn("Atenção", msgConfirma);
                 return null;
             }
+            novoLog.setCodigo(m.getId());
+            novoLog.setTabela("fin_movimento");
+            novoLog.update("REFAZER (FUNÇÃO GERAR MOVIMENTOS)",
+                    " Movimento - ID: " + m.getId()
+                    + " - Ref.: " + m.getReferencia()
+                    + " - Vencimento: " + m.getVencimento()
+                    + " - Valor: " + m.getValor()
+                    + " - Responsável: (" + m.getPessoa().getId() + ") " + m.getPessoa().getNome()
+            );
+
         }
 //      PERMISSÃO DE ACESSO
 //        ControleAcessoBean cab = new ControleAcessoBean();
@@ -1111,6 +1133,7 @@ public class MovimentosReceberSocialBean implements Serializable {
             GenericaMensagem.error("Erro", msgConfirma);
             return null;
         }
+        novoLog.saveList();
 
         msgConfirma = "Boletos atualizados!";
         GenericaMensagem.info("Sucesso", msgConfirma);
@@ -1125,8 +1148,6 @@ public class MovimentosReceberSocialBean implements Serializable {
             GenericaMensagem.warn("Erro", msgConfirma);
             return null;
         }
-
-        MovimentoDao db = new MovimentoDao();
         int qnt = 0;
         Movimento mov = null;
 
@@ -1166,7 +1187,7 @@ public class MovimentosReceberSocialBean implements Serializable {
         }
 
         Usuario user = (Usuario) GenericaSessao.getObject("sessaoUsuario");
-        if (mov.getBaixa().getUsuario().getId() != user.getId()) {
+        if (mov != null && mov.getBaixa().getUsuario().getId() != user.getId()) {
             if (cab.getBotaoEstornarMensalidadesOutrosUsuarios()) {
                 GenericaMensagem.error("Atenção", "Você não tem permissão para estornar esse movimento!");
                 return null;
@@ -1217,8 +1238,6 @@ public class MovimentosReceberSocialBean implements Serializable {
 
     public String telaBaixa(String caixa_banco) {
         List lista = new ArrayList();
-        MovimentoDao db = new MovimentoDao();
-        Movimento movimento = new Movimento();
         MacFilial macFilial = (MacFilial) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("acessoFilial");
 
         if (macFilial == null) {
@@ -1269,6 +1288,7 @@ public class MovimentosReceberSocialBean implements Serializable {
 //        }
         if (!listaMovimento.isEmpty()) {
             for (int i = 0; i < listaMovimento.size(); i++) {
+                Movimento movimento = new Movimento();
                 if ((Boolean) listaMovimento.get(i).getArgumento0()) {
                     movimento = (Movimento) listaMovimento.get(i).getArgumento1();
                     if (((PessoaComplemento) listaMovimento.get(i).getArgumento31()).getBloqueiaObsAviso()) {
@@ -1675,11 +1695,7 @@ public class MovimentosReceberSocialBean implements Serializable {
                     if (csb.getConfiguracaoSocial() == null) {
                         csb.init();
                     }
-                    if (csb.getConfiguracaoSocial().getRecebeAtrasado()) {
-                        disabled = true;
-                    } else {
-                        disabled = false;
-                    }
+                    disabled = csb.getConfiguracaoSocial().getRecebeAtrasado();
 
                 } else {
                     disabled = false;

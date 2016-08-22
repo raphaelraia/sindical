@@ -22,11 +22,15 @@ public class Mask {
             case "celular":
                 return "(99) " + pi + "9999-9999?9";
             case "telefone1":
+            case "telefone2":
+            case "telefone3":
                 return "(**) " + pi + "****-*****";
             case "cep":
                 return pi + "(99) 99.999-999";
             case "cei":
                 return pi + "99.999.99999/99";
+            case "nascimento":
+                return "99/99/9999";
             default:
                 return "";
         }
@@ -57,6 +61,18 @@ public class Mask {
             cepMask = cep.substring(0, 2) + "." + cep.substring(2, 5) + "-" + cep.substring(5, 8);
         }
         return cepMask;
+    }
+
+    public static String cpf(final String cpf) {
+        String cpfMask = "";
+        try {
+            if (!cpf.equals("")) {
+                cpfMask = cpf.substring(0, 3) + "." + cpf.substring(3, 6) + "." + cpf.substring(6, 9) + "-" + cpf.substring(9, 11);
+            }
+            return cpfMask;
+        } catch (Exception e) {
+            return cpf;
+        }
     }
 
     public static String cnpj(final String cnpj) {

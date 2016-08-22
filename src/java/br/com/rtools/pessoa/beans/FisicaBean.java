@@ -1216,7 +1216,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
     public List<SelectItem> getListaProfissoes() {
         if (listaProfissoes.isEmpty()) {
-            List<Profissao> lista = (List<Profissao>) new Dao().list(new Profissao());
+            List<Profissao> lista = (List<Profissao>) new Dao().list(new Profissao(), true);
             for (int i = 0; i < lista.size(); i++) {
                 if (lista.get(i).getId() == 0) {
                     idProfissao = i;
@@ -1452,20 +1452,20 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         this.itens = itens;
     }
 
-    public void setComoPesquisa(String comoPesquisa) {
-        this.comoPesquisa = comoPesquisa;
-    }
-
     public String getComoPesquisa() {
         return comoPesquisa;
     }
 
-    public void setPorPesquisa(String porPesquisa) {
-        this.porPesquisa = porPesquisa;
+    public void setComoPesquisa(String comoPesquisa) {
+        this.comoPesquisa = comoPesquisa;
     }
 
     public String getPorPesquisa() {
         return porPesquisa;
+    }
+
+    public void setPorPesquisa(String porPesquisa) {
+        this.porPesquisa = porPesquisa;
     }
 
     public String getDescPesquisa() {
@@ -1740,6 +1740,23 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         }
         if (!msgs.isEmpty()) {
             throw new ValidatorException(msgs);
+        }
+    }
+
+    public void listener(String tcase) {
+        if (tcase.equals("tipoPesquisa")) {
+            if (porPesquisa.equals("nome") && !descPesquisa.isEmpty() && (descPesquisa.length() == 11 || descPesquisa.length() == 14)) {
+                try {
+                    if (ValidaDocumentos.isValidoCPF(descPesquisa)) {
+                        String cpf = descPesquisa;
+                        porPesquisa = "cpf";
+                        mascaraPesquisaFisica();
+                        descPesquisa = Mask.cpf(cpf);
+                    }
+                } catch (Exception e) {
+
+                }
+            }
         }
     }
 
