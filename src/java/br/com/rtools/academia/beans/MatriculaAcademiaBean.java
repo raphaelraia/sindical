@@ -1752,12 +1752,14 @@ public class MatriculaAcademiaBean implements Serializable {
                         }
                     } else // TAXA PROPORCIONAL ATÉ O VENCIMENTO
                     // METODO NOVO PARA O CHAMADO 1226
-                     if (Moeda.converteUS$(valorLiquido) > 0) {
+                    {
+                        if (Moeda.converteUS$(valorLiquido) > 0) {
                             if (!gerarTaxaMovimento(Moeda.converteUS$(valorLiquido), true)) {
                                 GenericaMensagem.warn("ATENÇÃO", "Movimento não foi gerado, Tente novamente!");
                                 return null;
                             }
                         } // --------------                    // new FunctionsDao().gerarMensalidades(matriculaAcademia.getServicoPessoa().getPessoa().getId(), retornaReferenciaGeracao());
+                    }
                     if (Moeda.converteUS$(valorLiquido) > 0) {
                         if (!gerarTaxaMovimento(Moeda.converteUS$(valorLiquido), false)) {
                             GenericaMensagem.warn("ATENÇÃO", "Movimento não foi gerado, Tente novamente!");
@@ -2024,22 +2026,25 @@ public class MatriculaAcademiaBean implements Serializable {
         String mes = DataHoje.data().substring(3, 5),
                 ano = DataHoje.data().substring(6, 10),
                 referencia = mes + "/" + ano;
-        
+
         String vencimento;
-        
+
         String proximo_vencimento = (idDiaParcela < 10) ? "0" + idDiaParcela + "/" + mes + "/" + ano : idDiaParcela + "/" + mes + "/" + ano;
         Float valor_x;
         DataHoje dh = new DataHoje();
         String data_hoje = DataHoje.data();
         Integer dia_hoje = Integer.valueOf(data_hoje.substring(0, 2));
+
+        Dao dao = new Dao();
+        TipoServico tipoServico;
         
         if (proporcional) {
             vencimento = DataHoje.data();
             // ADICIONADO PARA NÃO GERAR UMA TAXA CASO O DATA DE VENCIMENTO FOR A MESMA QUE DATA ATUAL (HOJE)
-            if (data_hoje.equals(proximo_vencimento)){
+            if (data_hoje.equals(proximo_vencimento)) {
                 return true;
             }
-            
+
             if (dia_hoje < idDiaParcela) {
                 Integer qnt_dias = Integer.valueOf(Long.toString(DataHoje.calculoDosDias(DataHoje.converte(data_hoje), DataHoje.converte(proximo_vencimento))));
                 valor_x = Moeda.multiplicarValores(Moeda.divisaoValores(valor_calculo, 30), qnt_dias);
@@ -2051,6 +2056,7 @@ public class MatriculaAcademiaBean implements Serializable {
 
                 valor_x = Moeda.multiplicarValores(Moeda.divisaoValores(valor_calculo, 30), qnt_dias);
             }
+            tipoServico = (TipoServico) dao.find(new TipoServico(), 5);
         } else {
             if (dia_hoje < idDiaParcela) {
                 vencimento = proximo_vencimento;
@@ -2059,12 +2065,12 @@ public class MatriculaAcademiaBean implements Serializable {
             } else {
                 proximo_vencimento = dh.incrementarMeses(1, proximo_vencimento);
                 vencimento = proximo_vencimento;
-            }            
-            
+            }
+
             valor_x = valor_calculo;
+            tipoServico = (TipoServico) dao.find(new TipoServico(), 1);
         }
-       
-        Dao dao = new Dao();
+
         dao.openTransaction();
         FTipoDocumento fTipoDocumento = (FTipoDocumento) dao.find(new FTipoDocumento(), matriculaAcademia.getServicoPessoa().getTipoDocumento().getId());
         Lote lote_taxa
@@ -2101,39 +2107,6 @@ public class MatriculaAcademiaBean implements Serializable {
             return false;
         }
 
-        TipoServico tipoServico;
-
-        String nrCtrBoletoResp = "";
-        if (proporcional) {
-            tipoServico = (TipoServico) dao.find(new TipoServico(), 5);
-        } else {
-            for (int x = 0; x < (Integer.toString(matriculaAcademia.getServicoPessoa().getCobranca().getId())).length(); x++) {
-                nrCtrBoletoResp += 0;
-            }
-
-            nrCtrBoletoResp += matriculaAcademia.getServicoPessoa().getCobranca().getId();
-
-            mes = matriculaAcademia.getServicoPessoa().getEmissao().substring(3, 5);
-            ano = matriculaAcademia.getServicoPessoa().getEmissao().substring(6, 10);
-            referencia = mes + "/" + ano;
-
-            //if (DataHoje.qtdeDiasDoMes(Integer.parseInt(mes), Integer.parseInt(ano)) >= matriculaAcademia.getServicoPessoa().getNrDiaVencimento()) {
-            if (DataHoje.qtdeDiasDoMes(Integer.parseInt(mes), Integer.parseInt(ano)) >= idDiaParcela) {
-                if (idDiaParcela < 10) {
-                    vencimento = "0" + idDiaParcela + "/" + mes + "/" + ano;
-                } else {
-                    vencimento = idDiaParcela + "/" + mes + "/" + ano;
-                }
-            } else {
-                String diaSwap = Integer.toString(DataHoje.qtdeDiasDoMes(Integer.parseInt(mes), Integer.parseInt(ano)));
-                if (diaSwap.length() < 2) {
-                    diaSwap = "0" + diaSwap;
-                }
-                vencimento = diaSwap + "/" + mes + "/" + ano;
-            }
-
-            tipoServico = (TipoServico) dao.find(new TipoServico(), 1);
-        }
         Movimento m
                 = new Movimento(
                         -1,

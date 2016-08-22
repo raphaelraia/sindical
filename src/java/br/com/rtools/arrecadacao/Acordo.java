@@ -10,6 +10,7 @@ import java.io.Serializable;
 @Table(name = "arr_acordo")
 @NamedQuery(name = "Acordo.pesquisaID", query = "select c from Acordo c where c.id = :pid")
 public class Acordo implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

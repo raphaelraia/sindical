@@ -43,13 +43,13 @@
                                 <h:panelGrid columns="4">
                                     <p:inputMask size="30" value="#{webREPISBean.descricao}" mask="#{webREPISBean.tipoPesquisa eq 'cnpj' ? '99?.999.999/9999-99' : ''}" rendered="#{webREPISBean.tipoPesquisa ne 'tipo' and webREPISBean.tipoPesquisa ne 'status' and webREPISBean.tipoPesquisa ne 'cidade'}" />
                                     <p:selectOneMenu value="#{webREPISBean.tipoPesquisa}">
-                                        <p:ajax event="change" update="@this :form_libera_repis:" listener="#{webREPISBean.pesquisar()}"/>
+                                        <p:ajax event="change" update="@this :form_libera_repis:" listener="#{webREPISBean.loadListRepisMovimentoPatronal()}"/>
                                         <f:selectItem itemLabel="Nome" itemValue="nome"/>
                                         <f:selectItem itemLabel="CNPJ" itemValue="cnpj"/>
                                         <f:selectItem itemLabel="Protocolo" itemValue="protocolo"/>
                                         <f:selectItem itemLabel="Solicitante" itemValue="solicitante"/>
                                     </p:selectOneMenu>
-                                    <p:commandButton id="i_pesquisar" value="FILTRAR A LISTA" action="#{webREPISBean.pesquisar()}" style="margin-left: 15px; font-weight: bold" update="tbl"/>
+                                    <p:commandButton id="i_pesquisar" value="FILTRAR A LISTA" action="#{webREPISBean.loadListRepisMovimentoPatronal()}" style="margin-left: 15px; font-weight: bold" update="tbl"/>
                                 </h:panelGrid>
                             </h:column>
                             <h:column>
@@ -101,21 +101,31 @@
                         <h:panelGrid id="panel_filtros" columns="10">
                             <h:column rendered="#{webREPISBean.objectFiltro.booleanAno}" >
                                 <p:outputLabel value="Ano" style="font-weight: bold"/><br />
-                                <p:inputText value="#{webREPISBean.objectFiltro.ano}" style="width: 50px; text-align: center" />
+                                <p:inputText value="#{webREPISBean.objectFiltro.ano}" style="width: 50px; text-align: center">
+                                    <p:ajax event="change" update="@this" />
+                                </p:inputText>
                             </h:column>
 
                             <h:column rendered="#{webREPISBean.objectFiltro.booleanEmissao}" >
                                 <p:outputLabel value="Emissão" style="font-weight: bold" /><br />
-                                <p:inputMask value="#{webREPISBean.objectFiltro.emissaoInicial}" style="width: 80px; text-align: center" mask="99/99/9999"/>
+                                <p:inputMask value="#{webREPISBean.objectFiltro.emissaoInicial}" style="width: 80px; text-align: center" mask="99/99/9999">
+                                    <p:ajax event="change" update="@this" />
+                                </p:inputMask>
                                 <p:outputLabel value=" até "/>
-                                <p:inputMask value="#{webREPISBean.objectFiltro.emissaoFinal}" style="width: 80px; text-align: center" mask="99/99/9999"/>
+                                <p:inputMask value="#{webREPISBean.objectFiltro.emissaoFinal}" style="width: 80px; text-align: center" mask="99/99/9999">
+                                    <p:ajax event="change" update="@this" />
+                                </p:inputMask>
                             </h:column>
 
                             <h:column rendered="#{webREPISBean.objectFiltro.booleanResposta}" >
                                 <p:outputLabel value="Resposta" style="font-weight: bold"/><br />
-                                <p:inputMask value="#{webREPISBean.objectFiltro.respostaInicial}" style="width: 80px; text-align: center" mask="99/99/9999"/>
+                                <p:inputMask value="#{webREPISBean.objectFiltro.respostaInicial}" style="width: 80px; text-align: center" mask="99/99/9999">
+                                    <p:ajax event="change" update="@this" />
+                                </p:inputMask>
                                 <p:outputLabel value=" até " />
-                                <p:inputMask value="#{webREPISBean.objectFiltro.respostaFinal}" style="width: 80px; text-align: center" mask="99/99/9999"/>
+                                <p:inputMask value="#{webREPISBean.objectFiltro.respostaFinal}" style="width: 80px; text-align: center" mask="99/99/9999">
+                                    <p:ajax event="change" update="@this" />
+                                </p:inputMask>
                             </h:column>
 
                             <h:column rendered="#{webREPISBean.objectFiltro.booleanStatus}" >
@@ -147,7 +157,7 @@
                     <p:messages id="i_msg" showDetail="true" closable="true" />
                     <p:poll global="false" update="tbl" rendered="false"/>
 
-                    <p:dataTable id="tbl" styleClass="margin-top-max" value="#{webREPISBean.listRepisMovimentoPatronal}" selection="#{webREPISBean.listRepisMovimentoPatronalSelecionado}" rowKey="#{repisMovimento.id}" var="repisMovimento" style="width: 100%" emptyMessage="Nenhum registro encontrado." scrollable="true" scrollHeight="450" rowStyleClass="#{webREPISBean.retornaCor(repisMovimento)}"> 
+                    <p:dataTable id="tbl" styleClass="margin-top-max" value="#{webREPISBean.listRepisMovimentoPatronal}" selection="#{webREPISBean.listRepisMovimentoPatronalSelecionado}" rowKey="#{repisMovimento.id}" var="repisMovimento" style="width: 100%" emptyMessage="Nenhum registro encontrado." rowStyleClass="#{webREPISBean.retornaCor(repisMovimento)}" paginator="true" rows="15"> 
                         <p:ajax event="rowSelect" update=":form_libera_repis:i_panel_alterar" global="false"/>
                         <p:ajax event="rowSelectCheckbox" update=":form_libera_repis:i_panel_alterar" global="false"/>
                         <p:ajax event="rowUnselect"  update=":form_libera_repis:i_panel_alterar" global="false"/>

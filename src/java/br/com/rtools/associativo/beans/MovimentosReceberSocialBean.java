@@ -680,7 +680,7 @@ public class MovimentosReceberSocialBean implements Serializable {
         motivoReativacao = "";
     }
 
-    public void excluirAcordo() {        
+    public void excluirAcordo() {
         int qnt = 0;
         Movimento mov = null;
 
@@ -702,16 +702,16 @@ public class MovimentosReceberSocialBean implements Serializable {
         }
 
         String resposta = GerarMovimento.excluirUmAcordoSocial(mov);
-        
-        if (resposta.isEmpty()){
+
+        if (resposta.isEmpty()) {
             GenericaMensagem.info("Sucesso", "Acordo Excluído!");
             listaMovimento.clear();
-            
+
             PF.update("formMovimentosReceber");
             PF.closeDialog("dlg_excluir_acordo");
             return;
         }
-        
+
         GenericaMensagem.error("Atenção", resposta);
     }
 

@@ -2388,7 +2388,7 @@ public class ImprimirBoleto {
             String representacao = "", codigo_barras = "";
 
             Usuario usuario = (Usuario) GenericaSessao.getObject("sessaoUsuario");
-            
+
             for (Integer i = 0; i < result.size(); i++) {
                 List linha = (List) result.get(i);
 
@@ -2496,18 +2496,20 @@ public class ImprimirBoleto {
                             )
                     );
 
-                    Movimento m = (Movimento) dao.find(new Movimento(), Integer.valueOf(linha.get(1).toString()));
+                    if (Integer.valueOf(linha.get(1).toString()) > 0){
+                        Movimento m = (Movimento) dao.find(new Movimento(), Integer.valueOf(linha.get(1).toString()));
 
-                    Impressao impressao = new Impressao();
+                        Impressao impressao = new Impressao();
 
-                    impressao.setUsuario(usuario);
-                    impressao.setDtVencimento(m.getDtVencimento());
-                    impressao.setMovimento(m);
+                        impressao.setUsuario(usuario);
+                        impressao.setDtVencimento(m.getDtVencimento());
+                        impressao.setMovimento(m);
 
-                    if (!dao.save(impressao)) {
-                        dao.rollback();
-                        GenericaMensagem.error("Erro", "Não foi possível SALVAR impressão!");
-                        return null;
+                        if (!dao.save(impressao)) {
+                            dao.rollback();
+                            GenericaMensagem.error("Erro", "Não foi possível SALVAR impressão!");
+                            return null;
+                        }
                     }
                 }
 

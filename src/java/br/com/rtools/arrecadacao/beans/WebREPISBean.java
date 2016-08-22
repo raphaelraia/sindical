@@ -146,8 +146,19 @@ public class WebREPISBean implements Serializable {
         if(renderContabil) {
              getListComboPessoa();            
         }
+        
         loadListaCertidaoDisponivel();
-        //marcarTodasCertidoes();
+        loadListRepisMovimentoPatronal();
+    }
+    
+    public final void loadListRepisMovimentoPatronal(){
+        listRepisMovimentoPatronal.clear();
+        listRepisMovimentoPatronalSelecionado.clear();
+        
+        WebREPISDao wsrepisdb = new WebREPISDao();
+        Patronal patro = wsrepisdb.pesquisaPatronalPorPessoa(pessoa.getId());
+        
+        listRepisMovimentoPatronal = wsrepisdb.pesquisarListaLiberacao(tipoPesquisa, descricao, patro.getId(), valueLenght, objectFiltro);
     }
 
     public final void marcarTodasCertidoes() {
@@ -247,12 +258,9 @@ public class WebREPISBean implements Serializable {
     }
 
     public void alterValueLenght(String value) {
-        listRepisMovimentoPatronal.clear();
-        listRepisMovimentoPatronalSelecionado.clear();
-
         valueLenght = value;
 
-        pesquisar();
+        loadListRepisMovimentoPatronal();
     }
 
     public String refresh() {
@@ -283,21 +291,7 @@ public class WebREPISBean implements Serializable {
         GenericaMensagem.info("Sucesso", "Registros Atualizados");
         di.commit();
 
-        listRepisMovimentoPatronal.clear();
-        listRepisMovimentoPatronalSelecionado.clear();
-    }
-
-    public void pesquisar() {
-        WebREPISDao db = new WebREPISDao();
-        listRepisMovimentoPatronal.clear();
-        listRepisMovimentoPatronalSelecionado.clear();
-        Patronal patro = db.pesquisaPatronalPorPessoa(pessoa.getId());
-
-        switch (tipoPesquisa) {
-            default:
-                listRepisMovimentoPatronal = db.pesquisarListaLiberacao(tipoPesquisa, descricao, patro.getId(), valueLenght, objectFiltro);
-                break;
-        }
+        loadListRepisMovimentoPatronal();
     }
 
     public String pesquisarPorSolicitante() {
@@ -323,7 +317,7 @@ public class WebREPISBean implements Serializable {
 
     public String limparRepisLiberacao() {
         repisMovimento = new RepisMovimento();
-        listRepisMovimentoPatronal.clear();
+        loadListRepisMovimentoPatronal();
         return "webLiberacaoREPIS";
     }
 
@@ -728,7 +722,7 @@ public class WebREPISBean implements Serializable {
                     download.baixar();
                     download.remover();
                 }
-                listRepisMovimentoPatronal.clear();
+                loadListRepisMovimentoPatronal();
             } else {
                 di.rollback();
                 GenericaMensagem.warn("Atenção", "O Status da Certidão não pode impresso!");
@@ -941,15 +935,6 @@ public class WebREPISBean implements Serializable {
     }
 
     public List<RepisMovimento> getListRepisMovimentoPatronal() {
-        if (listRepisMovimentoPatronal.isEmpty()) {
-            WebREPISDao wsrepisdb = new WebREPISDao();
-            Patronal patro = wsrepisdb.pesquisaPatronalPorPessoa(pessoa.getId());
-            if (tipoPesquisa.equals("status")) {
-                listRepisMovimentoPatronal = wsrepisdb.pesquisarListaLiberacao("status", "", patro.getId(), valueLenght, objectFiltro);
-            } else {
-                listRepisMovimentoPatronal = wsrepisdb.pesquisarListaLiberacao("", "", patro.getId(), valueLenght, objectFiltro);
-            }
-        }
         return listRepisMovimentoPatronal;
     }
 

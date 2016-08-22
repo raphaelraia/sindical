@@ -1276,7 +1276,7 @@ public class GerarMovimento extends DB {
                 dao.rollback();
                 return false;
             }
-            
+
             float valor_forma_pagamento = 0;
             for (FormaPagamento fp1 : fp) {
                 fp1.setBaixa(baixa);
@@ -1346,7 +1346,7 @@ public class GerarMovimento extends DB {
                     dao.rollback();
                     return false;
                 }
-                
+
                 valor_forma_pagamento = Moeda.somaValores(valor_forma_pagamento, fp1.getValor());
             }
 
@@ -1358,14 +1358,14 @@ public class GerarMovimento extends DB {
                     dao.rollback();
                     return false;
                 }
-                
+
                 valor_movimento = Moeda.somaValores(valor_movimento, movimento.get(i).getValorBaixa());
             }
-            
-            if (valor_forma_pagamento == valor_movimento){
+
+            if (valor_forma_pagamento == valor_movimento) {
                 dao.commit();
                 return true;
-            }else{
+            } else {
                 dao.rollback();
                 return false;
             }
