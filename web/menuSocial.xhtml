@@ -96,7 +96,7 @@
                                     <p:menuitem value="Movimentos a Receber"   action="#{chamadaPaginaBean.movimentosReceberSocial()}" />
                                     <p:menuitem value="Lançamento Individual"  action="#{chamadaPaginaBean.lancamentoIndividual}" />
                                     <p:menuitem value="Emissão de Guias"       action="#{chamadaPaginaBean.pagina('emissaoGuias')}" />
-                                    <p:menuitem value="Extrato Tela Social"    action="#{chamadaPaginaBean.pagina('extratoTelaSocial')}"/>
+                                    <p:menuitem value="Extrato Tela Social"    action="#{chamadaPaginaBean.pagina('extratoTelaSocial')}"/>                                    
                                     <p:submenu label="Eventos">
                                         <p:menuitem value="Convite Clube"           action="#{chamadaPaginaBean.conviteMovimento}"/>
                                         <p:menuitem value="Caravana"        action="#{chamadaPaginaBean.pagina('vendasCaravana')}" />
@@ -141,6 +141,7 @@
                                         <p:menuitem value="Cobrança Externa"     action="#{chamadaPaginaBean.pagina('relatorioCobrancaExterna')}" ajax="false"/>
                                         <p:menuitem value="Desconto em Folha"    action="#{chamadaPaginaBean.pagina('relatorioDescontoFolha')}" ajax="false"/>                                        
                                         <p:menuitem value="Boletos Baixados (banco)"     action="#{chamadaPaginaBean.pagina('relatorioBoletosBaixados')}" ajax="false"/>
+                                        <p:menuitem value="Movtos Não Gerados"  action="#{chamadaPaginaBean.pagina('relatorioMovimentosNaoGerados')}" title="Movimentos Não Gerados"/>
                                     </p:submenu>
                                 </p:submenu>                            
                             </p:menubar> 

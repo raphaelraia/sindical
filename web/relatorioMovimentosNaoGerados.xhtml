@@ -17,13 +17,13 @@
                 <h:outputScript name="tradutor_primefaces.js" library="js" />
                 <h:form id="form_relatorio">            
                     <p:growl id="id_messages_growl" showDetail="true" showSummary="true" />
-                    <h:outputText value="MOVIMENTOS GERADOS NO MÊS (anterior ao Informado ) QUE NÃO FORAM GERADOS NO MÊS (informado)" styleClass="fonteHeader" />
+                    <h:outputText value="MOVIMENTOS GERADOS NO MÊS (anterior ao Informado ) QUE NÃO FORAM GERADOS NO MÊS (informado)" styleClass="bold font-size-12"/>
                     <div class="clear"></div>
-                    <p:panel styleClass="fundoCinza">
+                    <p:panel styleClass="fundoCinza margin-top-max">
                         <h:panelGrid  cellpadding="4" columns="5" id="id_pg_relatorios">
                             <p:outputLabel value="Tipo de Relatório: " />
                             <p:selectOneMenu id="id_tipo_relatorio" value="#{relatorioMovimentosNaoGeradosBean.idRelatorio}">
-                                <p:ajax event="change" update="@this id_panel form_relatorio:i_panel_avancado" global="false" listener="#{relatorioMovimentosNaoGeradosBean.loadRelatorioOrdem}"/>
+                                <p:ajax event="change" update="@this id_panel" global="false" listener="#{relatorioMovimentosNaoGeradosBean.loadRelatorioOrdem}"/>
                                 <f:selectItems value="#{relatorioMovimentosNaoGeradosBean.listRelatorio}"/>
                             </p:selectOneMenu>
                             <p:outputLabel value="Ordenação: " rendered="#{not empty relatorioMovimentosNaoGeradosBean.listRelatorioOrdem}"/>
@@ -33,19 +33,14 @@
                             </p:selectOneMenu>                            
                         </h:panelGrid>
                     </p:panel>                  
-                    <h:panelGrid columns="2" id="id_panel" columnClasses="verticalAlignTop, verticalAlignTop" styleClass="margin-top-max">
-                        <h:column>
-                            <p:panel header="Editar" style="width: 225px;" id="i_panel_avancado">
-
-                            </p:panel>
-                        </h:column>
+                    <h:panelGrid columns="1" id="id_panel" columnClasses="verticalAlignTop, verticalAlignTop" styleClass="margin-top-max">
                         <h:column>
                             <h:panelGrid id="i_panel_avancado_2" style="width: 800px">
 
                                 <p:column>
-                                    <p:panel header="Referência" style="width: 100%!important">
+                                    <p:panel header="Vencimento" style="width: 100%!important">
                                         <h:panelGrid columns="9" cellpadding="5 ">
-                                            <p:outputLabel value="Referência: " />
+                                            <p:outputLabel value="Mês/Ano: " />
                                             <p:inputMask mask="99/9999" converter="#{isDateReference}" value="#{relatorioMovimentosNaoGeradosBean.referencia}">
                                                 <p:ajax event="change" update="@this" global="false" />                                            
                                             </p:inputMask>

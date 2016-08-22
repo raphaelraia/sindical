@@ -2,17 +2,21 @@ package br.com.rtools.pessoa.beans;
 
 import br.com.rtools.arrecadacao.Acordo;
 import br.com.rtools.arrecadacao.MotivoInativacao;
+import br.com.rtools.associativo.CupomMovimento;
 import br.com.rtools.associativo.HistoricoCarteirinha;
 import br.com.rtools.associativo.HistoricoEmissaoGuias;
 import br.com.rtools.associativo.MatriculaSocios;
 import br.com.rtools.associativo.SMotivoInativacao;
 import br.com.rtools.associativo.SocioCarteirinha;
+import br.com.rtools.associativo.dao.CupomMovimentoDao;
 import br.com.rtools.associativo.dao.EmissaoGuiasDao;
 import br.com.rtools.associativo.dao.HistoricoEmissaoGuiasDao;
 import br.com.rtools.associativo.dao.MatriculaSociosDao;
 import br.com.rtools.associativo.dao.SocioCarteirinhaDao;
 import br.com.rtools.cobranca.TmktHistorico;
 import br.com.rtools.cobranca.dao.TmktHistoricoDao;
+import br.com.rtools.digitalizacao.Documento;
+import br.com.rtools.digitalizacao.dao.DigitalizacaoDao;
 import br.com.rtools.financeiro.Baixa;
 import br.com.rtools.financeiro.FormaPagamento;
 import br.com.rtools.financeiro.Guia;
@@ -338,11 +342,23 @@ public class PessoaFisicaMesclarBean implements Serializable {
                 novoLog.save("ATUALIZAR MATRÍCULA SÓCIO: " + msRemover.get(i).toString());
             }
         } else if (!msManter.isEmpty() && !msRemover.isEmpty()) {
+            for (int i = 0; i < msManter.size(); i++) {
+                if (msManter.get(i).getDtInativo() == null) {
+                    GenericaMensagem.warn("Validação", "NÃO UNIFICA CASO HOUVER MATRICULAS ATIVAS (PESSOA A SER MANTIDA)!");
+                    return;
+                }
+            }
             for (int i = 0; i < msRemover.size(); i++) {
-                msRemover.get(i).setDtInativo(new Date());
+                if (msRemover.get(i).getDtInativo() == null) {
+                    GenericaMensagem.warn("Validação", "NÃO UNIFICA CASO HOUVER MATRICULAS ATIVAS (PESSOA A SER REMOVIDA)!");
+                    return;
+                }
+            }
+            for (int i = 0; i < msRemover.size(); i++) {
+                // msRemover.get(i).setDtInativo(new Date());
                 msRemover.get(i).setTitular(manter.getPessoa());
-                msRemover.get(i).setMotivo("DESABILITADO PELO SISTEMA!");
-                msRemover.get(i).setMotivoInativacao((SMotivoInativacao) dao.find(new SMotivoInativacao(), 1));
+                // msRemover.get(i).setMotivo("DESABILITADO PELO SISTEMA!");
+                // msRemover.get(i).setMotivoInativacao((SMotivoInativacao) dao.find(new SMotivoInativacao(), 1));
                 if (!dao.update(msRemover.get(i))) {
                     dao.rollback();
                     GenericaMensagem.warn("Erro", "AO ATUALIZAR MATRÍCULA SÓCIO! " + dao.EXCEPCION);
@@ -403,6 +419,26 @@ public class PessoaFisicaMesclarBean implements Serializable {
                 return;
             }
             novoLog.save("ATUALIZAR PESSOA EMPRESA: " + listTmktHistorico.get(i).toString());
+        }
+        List<Documento> listDocumentos = new DigitalizacaoDao().listaDocumento(remover.getPessoa().getId());
+        for (int i = 0; i < listDocumentos.size(); i++) {
+            listDocumentos.get(i).setPessoa(manter.getPessoa());
+            if (!dao.update(listDocumentos.get(i))) {
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "AO ATUALIZAR DOCUMENTOS! " + dao.EXCEPCION);
+                return;
+            }
+            novoLog.save("ATUALIZAR DOCUMENTOS: " + listDocumentos.get(i).toString());
+        }
+        List<CupomMovimento> listCupomMovimento = new CupomMovimentoDao().findByPessoa(remover.getPessoa().getId());
+        for (int i = 0; i < listCupomMovimento.size(); i++) {
+            listCupomMovimento.get(i).setPessoa(manter.getPessoa());
+            if (!dao.update(listCupomMovimento.get(i))) {
+                dao.rollback();
+                GenericaMensagem.warn("Erro", "AO ATUALIZAR CUPOM MOVIMENTO! " + dao.EXCEPCION);
+                return;
+            }
+            novoLog.save("CUPOM MOVIMENTO: " + listCupomMovimento.get(i).toString());
         }
         List<Links> listLinks = new LinksDao().findAllByPessoa(remover.getPessoa().getId());
         for (int i = 0; i < listLinks.size(); i++) {

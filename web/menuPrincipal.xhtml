@@ -211,19 +211,6 @@
                                             <p:commandLink value="CLIQUE AQUI PARA BAIXAR OU EXCLUIR" onclick="PF('i_dlg_guias').show()"/>
                                         </h:panelGrid>
                                     </p:panel>
-
-                                    <p:panel rendered="false">
-                                        <h:outputText style="font-size: 16pt!important; color: red; text-decoration: underline;" value="Comunicado" />
-                                        <br /><br />
-                                        <h:outputText value="Por motivo do feriado estadudal da Revolução Constitucionalista, 09 de Julho de 2015, atenderemos só urgências pelo telefone (16) 3443-3828.
-                                                      Caso não seja urgente mandar e-mail para suporte@rtools.com.br que entraremos em contato quando retornarmos.
-                                                      Retornaremos nossas atividades no dia 13 de Julho em horário normal pelo telefone (16) 3964-6117.
-                                                      Agradecemos a Compreensão." style="font-size: 10pt!important"/>
-                                        <br /><br />
-                                        <h:outputText value="Qualquer problema técnico dentro deste horário enviar um email para  " style="font-size: 10pt!important"/>
-                                        <h:outputLink value="mailto:suporte@rtools.com.br" style="font-weight: bold">suporte@rtools.com.br</h:outputLink>
-                                        <h:outputText value=" sua solicitação será respondida após voltarmos." style="font-size: 10pt!important"/>
-                                    </p:panel>
                                     <p:panel styleClass="margin-top-max" id="id_lista" header="Agenda de Compromissos">
                                         <h:panelGrid columns="15">
                                             <p:selectOneMenu label="Histórico" value="#{compromissoUsuarioBean.tipoHistorico}">
@@ -277,7 +264,7 @@
                                                     #{list.compromisso.data}
                                                 </p:column>
                                                 <p:column styleClass="text-center" headerText="Semana" width="100">
-                                                    #{list.compromisso.semana.descricao.toUpperCase()}
+                                                    #{dataHoje.getDiaSemana(list.compromisso.data).toUpperCase()} #{list.compromisso.semana != null ? list.compromisso.semana.descricao.toUpperCase().concat('-FEIRA') : ''}
                                                 </p:column>
                                                 <p:column styleClass="text-center" headerText="Hora Inicial" width="50">
                                                     #{list.compromisso.horaInicial}
@@ -286,7 +273,7 @@
                                                     #{list.compromisso.descricao}
                                                 </p:column>
                                                 <p:rowExpansion>
-                                                    <p:dataTable value="#{list.compromisso.listCompromissoUsuario}" var="compromissoUsuario" styleClass="sbb margin-top-max" emptyMessage="Nenhum registro encontrado!">
+                                                    <p:dataTable value="#{list.compromisso.listCompromissoUsuario}" var="compromissoUsuario" styleClass="sbb margin-top-max" emptyMessage="Nenhum registro encontrado!" rendered="false">
                                                         <p:column headerText="Usuário(s)">
                                                             #{compromissoUsuario.usuario.pessoa.nome}
                                                         </p:column>                                    

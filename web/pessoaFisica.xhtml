@@ -213,7 +213,7 @@
                                                         <p:inputMask id="i_recadastro" size="8" value="#{fisicaBean.fisica.pessoa.recadastroString}" mask="99/99/9999" readonly="true">
                                                             <p:ajax event="change" update="@this" />
                                                         </p:inputMask>
-                                                        <p:commandButton icon="ui-icon-close" title="clique limpar" action="#{fisicaBean.clear(1)}" update="i_recadastro"/>
+                                                        <p:commandButton icon="ui-icon-close" title="clique limpar" action="#{fisicaBean.clear(1)}" update="i_recadastro" styleClass="margin-left"/>
                                                     </p:column>
 
                                                     <p:column>

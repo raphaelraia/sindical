@@ -34,7 +34,7 @@
                             <p:panel id="i_panel_pesquisa" styleClass="fundoCinza">
                                 <h:panelGrid columns="5">
                                     <p:inputMask id="id_desc_pesquisa" value="#{fisicaBean.descPesquisa}" size="50" mask="#{fisicaBean.mask}" placeholder="#{fisicaBean.porPesquisa eq 'endereco' ?  'Logradouro + Descrição Endereço + , + Número + - + Bairro' : ''}">
-                                        <p:ajax event="change" update="@this" global="false" />
+                                        <p:ajax event="change" update="@this i_por" global="false" listener="#{fisicaBean.listener('tipoPesquisa')}"/>
                                     </p:inputMask>
                                     <h:column>
                                         <h:panelGrid id="i_por">
@@ -51,6 +51,7 @@
                                                         <f:selectItem itemValue="matricula" itemLabel="Matrícula"/>
                                                         <f:selectItem itemValue="codigo" itemLabel="Código do Funcionário"/>
                                                         <f:selectItem itemValue="codigo_pessoa" itemLabel="Código"/>
+                                                        <f:selectItem itemValue="nascimento" itemLabel="Nascimento"/>
                                                     </p:selectOneMenu>
                                                     <p:selectOneMenu value="#{fisicaBean.porPesquisa}" style="padding-right: 20px" rendered="#{fisicaBean.pesquisaPor eq 'pessoa'}">
                                                         <p:ajax event="change" update="@this i_panel_pesquisa" global="false" listener="#{fisicaBean.mascaraPesquisaFisica}"/>
@@ -63,6 +64,7 @@
                                                         <f:selectItem itemValue="codigo"    itemLabel="Código do Funcionário"/>
                                                         <f:selectItem itemValue="codigo_pessoa" itemLabel="Código"/>
                                                         <f:selectItem itemValue="matricula" itemLabel="Matrícula"/>
+                                                        <f:selectItem itemValue="nascimento" itemLabel="Nascimento"/>
                                                     </p:selectOneMenu>
                                                     <p:commandLink rendered="#{fisicaBean.porPesquisa eq 'endereco'}" onclick="PF('dlg_wiki').show()" value="Ajuda" global="false"/>
                                                     <p:outputLabel value="Titulares / Ativos" rendered="#{fisicaBean.porPesquisa eq 'matricula'}" styleClass="font-color-red bold" />

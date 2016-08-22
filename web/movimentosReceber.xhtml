@@ -68,11 +68,11 @@
                                         <h:outputText value="#{listMovimentoReceber.vencimento}"/>
                                     </p:column>
                                     <p:column headerText="Valor" styleClass="text-center">
-                                        <p:commandLink id="valor_folha" style="text-decoration: underline; color: blue;" value="#{listMovimentoReceber.valorMovimento}" rendered="#{!listMovimentoReceber.tipo.equals('Acordo')}" action="#{movimentosReceberBean.carregarFolha}" oncomplete="PF('dlg_folha_empresa').show()" update=":form_movimento_receber:i_folha_empresa" global="false" actionListener="#{movimentosReceberBean.addIndex(index)}" />
-                                        <h:outputText value="#{listMovimentoReceber.valorMovimento}" rendered="#{listMovimentoReceber.tipo.equals('Acordo')}" />
+                                        <p:commandLink id="valor_folha" style="text-decoration: underline; color: blue;" value="#{listMovimentoReceber.valorMovimento}" rendered="#{listMovimentoReceber.tipo ne 'Acordo'}" action="#{movimentosReceberBean.carregarFolha}" oncomplete="PF('dlg_folha_empresa').show()" update=":form_movimento_receber:i_folha_empresa" global="false" actionListener="#{movimentosReceberBean.addIndex(index)}" />
+                                        <h:outputText value="#{listMovimentoReceber.valorMovimento}" rendered="#{listMovimentoReceber.tipo eq 'Acordo'}" />
                                     </p:column>
                                     <p:column headerText="Valor Calculado" styleClass="text-center">
-                                        <h:outputText id="tbl_valor_calculado" value="#{listMovimentoReceber.valorCalculado}" styleClass="bold font-color-red"/>
+                                        <h:outputText id="tbl_valor_calculado" value="#{listMovimentoReceber.valorCalculadoTela}" styleClass="bold font-color-red"/>
                                     </p:column>
                                     <p:column headerText="Multa" styleClass="text-center" width="50">
                                         <h:outputText value="#{listMovimentoReceber.multa}"/>

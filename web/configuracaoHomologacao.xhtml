@@ -32,74 +32,56 @@
                             <p:growl id="id_messages_growl" showDetail="true"  />
                             <div style="clear: both;"></div>
                             <p:panel styleClass="margin-top-max">
-                                <h:panelGrid cellpadding="5" columns="2">
-                                    <h:outputLabel value="Liberar a agenda a partir de " />
-                                    <p:column>
-                                        <p:spinner value="#{configuracaoHomologacaoBean.configuracaoHomologacao.inicioDiasAgendamento}" max="120" min="0" size="5" stepFactor="0"  style="width: 80px">
-                                            <p:ajax event="change" listener="#{configuracaoHomologacaoBean.update}" update=":form_ch:"/>
-                                        </p:spinner>
-                                        <h:outputLabel value="dia(s)" styleClass="margin-left-med" />
-                                    </p:column>
-                                </h:panelGrid>
-                                <h:panelGrid cellpadding="5" columns="2">
-                                    <p:column>
-                                        <p:selectBooleanCheckbox value="#{configuracaoArrecadacaoBean.configuracaoArrecadacao.bloqueiaOposição}" itemLabel="Bloqueia Oposição">
-                                            <p:ajax event="change" listener="#{configuracaoArrecadacaoBean.update}" update=":form_ch:"/>
-                                        </p:selectBooleanCheckbox>
-                                    </p:column>
-                                </h:panelGrid>
                                 <f:facet name="header">Nome Empresa: #{configuracaoHomologacaoBean.registro.filial.pessoa.nome}</f:facet>
-                                <p:tabView>
+                                <p:tabView prependId="false">
                                     <p:ajax event="tabChange" listener="#{configuracaoHomologacaoBean.onChange}"/>                            
-                                    <!-- <p:tab title="Gerais">
+                                    <p:tab title="Definições">
+                                        <h:panelGrid cellpadding="5" columns="2">
+                                            <h:outputLabel value="Liberar a agenda a partir de " />
+                                            <p:column>
+                                                <p:spinner value="#{configuracaoHomologacaoBean.configuracaoHomologacao.inicioDiasAgendamento}" max="120" min="0" size="5" stepFactor="0"  style="width: 80px">
+                                                    <p:ajax event="change" listener="#{configuracaoHomologacaoBean.update}" update=":form_ch:"/>
+                                                </p:spinner>
+                                                <h:outputLabel value="dia(s)" styleClass="margin-left-med" />
+                                            </p:column>
+                                        </h:panelGrid>
+                                        <h:panelGrid cellpadding="5" columns="2">
+                                            <p:column>
+                                                <p:selectBooleanCheckbox value="#{configuracaoArrecadacaoBean.configuracaoArrecadacao.bloqueiaOposição}" itemLabel="Bloqueia Oposição">
+                                                    <p:ajax event="change" listener="#{configuracaoArrecadacaoBean.update}" update=":form_ch:"/>
+                                                </p:selectBooleanCheckbox>
+                                            </p:column>
+                                        </h:panelGrid>
                                         <p:panelGrid columns="1" styleClass="sbb">
-                                            <p:selectBooleanCheckbox id="chkSenhaHom" value="# {configuracaoHomologacaoBean.configuracaoHomologacao.habilitaSenha}" itemLabel="Senha Homologação" disabled="true">
-                                                <p:ajax event="change" listener="# {configuracaoHomologacaoBean.update}" update=":form_ch:" />
-                                            </p:selectBooleanCheckbox>
-                                            <p:selectBooleanCheckbox id="chkAgendaSem" value="# {configuracaoHomologacaoBean.configuracaoHomologacao.agendarSemHorarioWeb}" itemLabel="Agendar Sem horário"  disabled="true">
-                                                <p:ajax event="change" listener="# {configuracaoHomologacaoBean.update}" update=":form_ch:"/>
-                                            </p:selectBooleanCheckbox>                                                
                                             <p:column>
                                                 <h:outputLabel value="Limite de Meses Agendamento: " />
-                                                <p:spinner size="2" title="Limite de Meses Agendamento" value="# {configuracaoHomologacaoBean.configuracaoHomologacao.limiteMeses}" min="0" max="24" disabled="true"/>
+                                                <p:spinner size="2" title="Limite de Meses Agendamento" value="#{registroEmpresarialBean.registro.homolocaoLimiteMeses}" min="0" max="24" />
                                             </p:column>
-                                            <p:column>
-                                                <p:outputLabel value="Agendamento retroativo: " />
-                                                <p:calendar value="# {configuracaoHomologacaoBean.registro.agendamentoRetroativo}" navigator="true" pattern="dd/MM/yyyy" readonlyInput="true" size="10" title="Permite agendamento retroativo até" disabled="true">
-                                                    <p:ajax event="dateSelect" update=":form_ch:" listener="# {configuracaoHomologacaoBean.update}"/>
-                                                </p:calendar>
-                                            </p:column>
-                                            <p:selectBooleanCheckbox value="# {configuracaoHomologacaoBean.configuracaoHomologacao.homolocaoHabilitaCorrecao}" itemLabel="Habilita Correção" disabled="true">
+                                            <p:selectBooleanCheckbox value="#{registroEmpresarialBean.habilitaCorrecao}" itemLabel="Habilita Correção">
                                                 <p:ajax event="change" update="@this" />
                                             </p:selectBooleanCheckbox>
                                             <div style="clear: both;"></div>
                                             <p:accordionPanel>
                                                 <p:tab title="Documentos Necessários Homologação">
-                                                    <p:inputTextarea value="# {configuracaoHomologacaoBean.configuracaoHomologacao.documentos}" cols="75" rows="7" styleClass="no-resize no-border" readonly="true"/>
+                                                    <p:inputTextarea value="#{registroEmpresarialBean.registro.documentoHomologacao}" cols="75" rows="7" styleClass="no-resize no-border"/>
                                                 </p:tab>
                                                 <p:tab title="Formas de Pagamento Homologação">
-                                                    <p:inputTextarea value="# {configuracaoHomologacaoBean.configuracaoHomologacao.formaPagamento}" cols="75" rows="7" styleClass="no-resize no-border" readonly="true"/>
+                                                    <p:inputTextarea value="#{registroEmpresarialBean.registro.formaPagamentoHomologacao}" cols="75" rows="7" styleClass="no-resize no-border" />                                                 
                                                 </p:tab>
                                             </p:accordionPanel>
-                                            <p:panel header="WEB Contribuinte / Contabilidade">
-                                                <p:panelGrid columns="1">
-                                                    <p:selectBooleanCheckbox id="i_agendamento_web" value="# {configuracaoHomologacaoBean.configuracaoHomologacao.agendamentoWeb}" itemLabel="Agendamento WEB" disabled="true">
-                                                        <p:ajax event="change" listener="# {configuracaoHomologacaoBean.update}" update=":form_ch:"/>
-                                                    </p:selectBooleanCheckbox>
-                                                    <p:selectBooleanCheckbox value="# {configuracaoHomologacaoBean.configuracaoHomologacao.bloquearHomologacao}" itemLabel="Permitir agendamento para empresas em débito"  disabled="true">
-                                                        <p:ajax event="change" listener="# {configuracaoHomologacaoBean.update}" update=":form_ch:"/>
-                                                    </p:selectBooleanCheckbox>
-                                                    <p:column>
-                                                        <p:spinner id="i_per" size="2" maxlength="2" value="# {configuracaoHomologacaoBean.configuracaoHomologacao.mesesInadimplentesAgenda}" disabled="# {!configuracaoHomologacaoBean.registro.bloquearHomologacao}" title="Para habilitar este campo permita o agendamento para empresas em débito" min="0" max="24" valueChangeListener="# {configuracaoHomologacaoBean.update}" readonly="true"/>
-                                                        <p:outputLabel value=" meses de atraso"  title="Para habilitar este campo permita o agendamento para empresas em débito" />
-                                                        <p:outputLabel value=" ( zero para meses indefinidos )" style="font-size: 8pt" title="Para habilitar este campo permita o agendamento para empresas em débito"/>
-                                                    </p:column>
-                                                </p:panelGrid>
-                                            </p:panel>
                                         </p:panelGrid>
-                                    </p:tab>      -->                              
+                                    </p:tab>                    
                                     <p:tab title="Agendamento">
+                                        <h:panelGrid cellpadding="5" columns="1">
+                                            <p:selectBooleanCheckbox value="#{registroEmpresarialBean.registro.agendarSemHorarioWeb}" itemLabel="Agendar Sem horário">
+                                                <p:ajax event="change" listener="#{registroEmpresarialBean.salvarSemSenha}" update=":form_ch:"/>
+                                            </p:selectBooleanCheckbox>                                            
+                                        </h:panelGrid>
                                         <h:panelGrid cellpadding="5" columns="2">
+                                            <p:outputLabel value="Agendamento retroativo: " />
+                                            <p:calendar value="#{registroEmpresarialBean.registro.agendamentoRetroativo}" navigator="true" pattern="dd/MM/yyyy" readonlyInput="true" size="10" title="Permite agendamento retroativo até">
+                                                <p:ajax event="dateSelect" update=":form_ch:" listener="#{registroEmpresarialBean.salvarSemSenha}"/>
+                                            </p:calendar>                                            
                                             <h:outputLabel value="Tempo de atualização de agendamentos" />
                                             <p:column>
                                                 <p:spinner value="#{configuracaoHomologacaoBean.configuracaoHomologacao.tempoRefreshAgendamento}" max="120" min="5" size="5" stepFactor="0"  style="width: 80px">
@@ -173,6 +155,11 @@
                                         </p:panel>
                                     </p:tab>
                                     <p:tab title="Web Agendamento">
+                                        <h:panelGrid cellpadding="5" columns="1">
+                                            <p:selectBooleanCheckbox value="#{registroEmpresarialBean.registro.agendamentoWeb}" itemLabel="Libera Agendamento WEB">
+                                                <p:ajax event="change" listener="#{registroEmpresarialBean.salvarSemSenha}" update=":form_ch:"/>
+                                            </p:selectBooleanCheckbox>
+                                        </h:panelGrid>                                        
                                         <h:panelGrid cellpadding="5" columns="2">
                                             <h:outputLabel value="Tempo de atualização de agendamentos" />
                                             <p:column>
@@ -262,6 +249,18 @@
                                                 </p:column>
                                             </h:panelGrid>
                                         </p:panel>
+                                        <p:panel header="WEB Contribuinte / Contabilidade" styleClass="margin-top-max">
+                                            <h:panelGrid columns="1">
+                                                <p:selectBooleanCheckbox value="#{registroEmpresarialBean.registro.bloquearHomologacao}" itemLabel="Permitir agendamento para empresas em débito">
+                                                    <p:ajax event="change" listener="#{registroEmpresarialBean.salvarSemSenha}" update=":form_ch:"/>
+                                                </p:selectBooleanCheckbox>
+                                                <p:column>
+                                                    <p:spinner id="i_per" size="2" maxlength="2" value="#{registroEmpresarialBean.registro.mesesInadimplentesAgenda}" disabled="#{!registroEmpresarialBean.registro.bloquearHomologacao}" title="Para habilitar este campo permita o agendamento para empresas em débito" min="0" max="24" valueChangeListener="#{registroEmpresarialBean.salvarSemSenha}"/>
+                                                    <p:outputLabel value=" meses de atraso"  title="Para habilitar este campo permita o agendamento para empresas em débito"/>
+                                                    <p:outputLabel value=" ( zero para meses indefinidos )" style="font-size: 8pt" title="Para habilitar este campo permita o agendamento para empresas em débito"/>
+                                                </p:column>
+                                            </h:panelGrid>
+                                        </p:panel>
                                     </p:tab>
                                     <p:tab title="Recepção">
                                         <h:panelGrid cellpadding="5" columns="2">
@@ -280,6 +279,11 @@
                                         </h:panelGrid>
                                     </p:tab>
                                     <p:tab title="Homologação">
+                                        <h:panelGrid cellpadding="5" columns="1">
+                                            <p:selectBooleanCheckbox value="#{registroEmpresarialBean.registro.senhaHomologacao}" itemLabel="Senha Homologação">
+                                                <p:ajax event="change" listener="#{registroEmpresarialBean.salvarSemSenha}" update=":form_ch:" />
+                                            </p:selectBooleanCheckbox>                                            
+                                        </h:panelGrid>
                                         <h:panelGrid cellpadding="5" columns="2">
                                             <h:outputLabel value="Tempo de atualização de homologagão" />
                                             <p:column>
