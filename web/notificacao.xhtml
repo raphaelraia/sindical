@@ -145,6 +145,18 @@
                                     <p:accordionPanel style="width: 285px; " activeIndex="#{notificacaoBean.indexTab}" rendered="#{notificacaoBean.lote.id == -1}">   
                                         <p:ajax event="tabChange" update=":formNotificacao" listener="#{notificacaoBean.acoes}"/>  
 
+                                        <p:tab title="Gerar para Empresas Ativas">  
+                                            <h:panelGrid style="background: #99ccff; padding: 5px; text-align: center; width: 100%">
+                                                <h:outputLabel value="Empresas Ativas" />
+                                            </h:panelGrid>
+                                        </p:tab>  
+                                        
+                                        <p:tab title="Gerar para Empresas Inativas">  
+                                            <h:panelGrid style="background: #99ccff; padding: 5px; text-align: center; width: 100%">
+                                                <h:outputLabel value="Empresas Inativas" />
+                                            </h:panelGrid>
+                                        </p:tab>  
+                                        
                                         <p:tab title="Gerar para Todas">  
                                             <h:panelGrid style="background: #99ccff; padding: 5px; text-align: center; width: 100%">
                                                 <h:outputLabel value="Todas Empresas" />

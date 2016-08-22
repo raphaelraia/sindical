@@ -14,13 +14,13 @@ import javax.persistence.Query;
 
 public class NotificacaoDao extends DB {
 
-    public Object[] listaParaNotificacao(int id_lote, String data, String id_empresa, String id_contabil, String id_cidade, boolean comContabil, boolean semContabil, String ids_servicos, String ids_tipo_servico) {
+    public Object[] listaParaNotificacao(int id_lote, String data, String id_empresa, String id_contabil, String id_cidade, boolean comContabil, boolean semContabil, String ids_servicos, String ids_tipo_servico, String tipo_empresa) {
         Object[] obj = new Object[2];
         List<Vector> result = null;
         String data_inicial = new DataHoje().decrementarMeses(60, DataHoje.data());
 
         try {
-            String filtro_empresa = "", filtro_contabil = "", filtro_cidade = "", filtro_lote = "", filtro_com_sem = "", filtro_servicos = "", filtro_tipo_servico = "";
+            String filtro_empresa = "", filtro_contabil = "", filtro_cidade = "", filtro_lote = "", filtro_com_sem = "", filtro_servicos = "", filtro_tipo_servico = "", filtro_tipo_empresa = "";
             if (!id_empresa.isEmpty()) {
                 filtro_empresa = " AND c.id_juridica IN (" + id_empresa + ") \n ";
             }
@@ -53,6 +53,17 @@ public class NotificacaoDao extends DB {
                 filtro_tipo_servico = " AND m.id_tipo_servico IN (" + ids_tipo_servico + ") \n ";
             }
 
+            switch (tipo_empresa) {
+                case "ativas":
+                    filtro_tipo_empresa = " AND c.dt_inativacao IS NULL";
+                    break;
+                case "inativas":
+                    filtro_tipo_empresa = " AND c.dt_inativacao IS NOT NULL";
+                    break;
+                default:
+                    break;
+            }
+
             String text_select0 = "SELECT t.id_pessoa, t.ds_nome, count(*), null AS lote_cobranca, null AS lote_envio, MAX(t.dt_emissao) FROM \n (";
             String text_select
                     = "SELECT c.id_pessoa, \n "
@@ -69,13 +80,12 @@ public class NotificacaoDao extends DB {
                     + "  LEFT JOIN pes_pessoa AS pe ON pe.id = je.id_pessoa \n"
                     + "  LEFT JOIN pes_pessoa_endereco AS pee ON pee.id_pessoa = c.id_pessoa \n"
                     + "  LEFT JOIN end_endereco AS en ON en.id = pee.id_endereco  \n "
-                    + " WHERE c.dt_inativacao IS NULL \n "
-                    + "   AND m.is_ativo = true \n "
+                    + " WHERE m.is_ativo = true \n "
                     + "   AND m.id_baixa IS NULL \n "
                     + "   AND m.dt_vencimento >= '" + data_inicial + "' \n "
                     + "   AND m.dt_vencimento < '" + data + "' \n "
                     + "   AND pee.id_tipo_endereco = 5 \n "
-                    + filtro_empresa + filtro_contabil + filtro_lote + filtro_cidade + filtro_com_sem + filtro_servicos + filtro_tipo_servico;
+                    + filtro_empresa + filtro_contabil + filtro_lote + filtro_cidade + filtro_com_sem + filtro_servicos + filtro_tipo_servico + filtro_tipo_empresa;
 
             String text_from0
                     = ") AS t \n "

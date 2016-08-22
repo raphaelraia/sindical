@@ -79,7 +79,7 @@
                                     <h:panelGrid id="i_recebimento" columns="8" style="margin-top: 10px;">
                                         <p:column>
                                             <h:outputLabel value="DT. Quitação" /><br />
-                                            <p:inputMask value="#{baixaGeralBean.quitacao}" size="8" disabled="#{baixaGeralBean.desHabilitaQuitacao}" mask="99/99/9999" style="margin-right: 10px; opacity: 80; font-weight: bold">
+                                            <p:inputMask value="#{baixaGeralBean.quitacao}" disabled="#{baixaGeralBean.desHabilitaQuitacao}" mask="99/99/9999" style="margin-right: 10px; opacity: 80; font-weight: bold; text-align: center; width: 80px">
                                                 <p:ajax event="change" listener="#{baixaGeralBean.alteraVencimento}" />
                                             </p:inputMask>
                                         </p:column>

@@ -13,6 +13,7 @@ import br.com.rtools.cobranca.*;
 import br.com.rtools.financeiro.Boleto;
 import br.com.rtools.financeiro.ContaCobranca;
 import br.com.rtools.financeiro.Historico;
+import br.com.rtools.financeiro.Impressao;
 import br.com.rtools.financeiro.Lote;
 import br.com.rtools.financeiro.MensagemCobranca;
 import br.com.rtools.financeiro.Movimento;
@@ -36,6 +37,7 @@ import br.com.rtools.pessoa.dao.PessoaEnderecoDao;
 import br.com.rtools.pessoa.dao.FilialDao;
 import br.com.rtools.pessoa.dao.FisicaDao;
 import br.com.rtools.pessoa.dao.JuridicaDao;
+import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.sistema.Links;
 import br.com.rtools.utilitarios.*;
@@ -2354,6 +2356,8 @@ public class ImprimirBoleto {
         Filial filial = (Filial) new Dao().find(new Filial(), 1);
         FinanceiroDao db = new FinanceiroDao();
 
+        Dao dao = new Dao();
+        dao.openTransaction();
         try {
             File file_jasper = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/BOLETO_SOCIAL_2.jasper"));
             JasperReport jasperReport = (JasperReport) JRLoader.loadObject(file_jasper);
@@ -2371,7 +2375,7 @@ public class ImprimirBoleto {
             if (!file_promo_verso.exists()) {
                 file_promo_verso = null;
             }
-            
+
             FisicaDao dbf = new FisicaDao();
             List<Object> result = db.listaBoletoSocio(listaBoleto, view, tipo);
 
@@ -2382,6 +2386,9 @@ public class ImprimirBoleto {
             Boleto boleto = null;
             Boolean novo_boleto = true;
             String representacao = "", codigo_barras = "";
+
+            Usuario usuario = (Usuario) GenericaSessao.getObject("sessaoUsuario");
+            
             for (Integer i = 0; i < result.size(); i++) {
                 List linha = (List) result.get(i);
 
@@ -2488,6 +2495,20 @@ public class ImprimirBoleto {
                                     boleto.getMensagem() // MENSAGEM QUE FICA ACIMA DE "Mensalidades Atrasadas"
                             )
                     );
+
+                    Movimento m = (Movimento) dao.find(new Movimento(), Integer.valueOf(linha.get(1).toString()));
+
+                    Impressao impressao = new Impressao();
+
+                    impressao.setUsuario(usuario);
+                    impressao.setDtVencimento(m.getDtVencimento());
+                    impressao.setMovimento(m);
+
+                    if (!dao.save(impressao)) {
+                        dao.rollback();
+                        GenericaMensagem.error("Erro", "Não foi possível SALVAR impressão!");
+                        return null;
+                    }
                 }
 
                 if (novo_boleto) {
@@ -2514,8 +2535,7 @@ public class ImprimirBoleto {
 
             lista.clear();
              */
-            
-            if (!jasperPrintList.isEmpty()){
+            if (!jasperPrintList.isEmpty()) {
                 JRPdfExporter exporter = new JRPdfExporter();
                 ByteArrayOutputStream retorno = new ByteArrayOutputStream();
 
@@ -2525,9 +2545,11 @@ public class ImprimirBoleto {
                 exporter.exportReport();
 
                 arquivo = retorno.toByteArray();
+                dao.commit();
             }
         } catch (JRException e) {
             e.getMessage();
+            dao.rollback();
         }
         return arquivo;
     }

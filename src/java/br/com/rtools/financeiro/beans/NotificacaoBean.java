@@ -92,30 +92,39 @@ public class NotificacaoBean implements Serializable {
     private List<ListaDeTipoServico> listaTipoServico = new ArrayList();
     private ConfiguracaoArrecadacao ca = new ConfiguracaoArrecadacao();
 
+    private String tipoEmpresa = "ativas";
+    
     public NotificacaoBean() {
         registro = (Registro) new Dao().find(new Registro(), 1);
         ca = (ConfiguracaoArrecadacao) new Dao().find(new ConfiguracaoArrecadacao(), 1);
-
     }
 
     public void acoes() {
         if (indexTab == 0) {
+            gerarParaTodasAtivas();
+        }
+        
+        if (indexTab == 1) {
+            gerarParaTodasInativas();
+        }
+        
+        if (indexTab == 2) {
             gerarParaTodas();
         }
 
-        if (indexTab == 1) {
+        if (indexTab == 3) {
             addEmpresa();
         }
 
-        if (indexTab == 2) {
+        if (indexTab == 4) {
             addContabil();
         }
 
-        if (indexTab == 3) {
+        if (indexTab == 5) {
             gerarSemContabil();
         }
 
-        if (indexTab == 4) {
+        if (indexTab == 5) {
             gerarComContabil();
         }
     }
@@ -123,11 +132,11 @@ public class NotificacaoBean implements Serializable {
     public void removerListaJuridica() {
         listaEmpresaAdd.clear();
         listaContabilAdd.clear();
-        if (indexTab == 1) {
+        if (indexTab == 3) {
             addEmpresa();
         }
 
-        if (indexTab == 2) {
+        if (indexTab == 4) {
             addContabil();
         }
     }
@@ -146,7 +155,26 @@ public class NotificacaoBean implements Serializable {
         }
     }
 
+    public void gerarParaTodasAtivas() {
+        tipoEmpresa = "ativas";
+        listaNotificacao.clear();
+        listaEmpresaAdd.clear();
+        listaContabilAdd.clear();
+        comContabil = false;
+        semContabil = false;
+    }
+    
+    public void gerarParaTodasInativas() {
+        tipoEmpresa = "inativas";
+        listaNotificacao.clear();
+        listaEmpresaAdd.clear();
+        listaContabilAdd.clear();
+        comContabil = false;
+        semContabil = false;
+    }
+    
     public void gerarParaTodas() {
+        tipoEmpresa = "todas";
         listaNotificacao.clear();
         listaEmpresaAdd.clear();
         listaContabilAdd.clear();
@@ -155,6 +183,7 @@ public class NotificacaoBean implements Serializable {
     }
 
     public void gerarComContabil() {
+        tipoEmpresa = "ativas";
         listaNotificacao.clear();
         listaEmpresaAdd.clear();
         listaContabilAdd.clear();
@@ -163,6 +192,7 @@ public class NotificacaoBean implements Serializable {
     }
 
     public void gerarSemContabil() {
+        tipoEmpresa = "ativas";
         listaNotificacao.clear();
         listaEmpresaAdd.clear();
         listaContabilAdd.clear();
@@ -171,6 +201,7 @@ public class NotificacaoBean implements Serializable {
     }
 
     public void addEmpresa() {
+        tipoEmpresa = "ativas";
         listaNotificacao.clear();
         empresa = true;
         comContabil = false;
@@ -179,6 +210,7 @@ public class NotificacaoBean implements Serializable {
     }
 
     public void addContabil() {
+        tipoEmpresa = "ativas";
         listaNotificacao.clear();
         empresa = false;
         comContabil = false;
@@ -187,18 +219,21 @@ public class NotificacaoBean implements Serializable {
     }
 
     public void addCidades() {
+        tipoEmpresa = "ativas";
         listaNotificacao.clear();
         comContabil = false;
         semContabil = false;
     }
 
     public void addServicos() {
+        tipoEmpresa = "ativas";
         listaNotificacao.clear();
         comContabil = false;
         semContabil = false;
     }
 
     public void addTipoServico() {
+        tipoEmpresa = "ativas";
         listaNotificacao.clear();
         comContabil = false;
         semContabil = false;
@@ -254,12 +289,12 @@ public class NotificacaoBean implements Serializable {
             Object[] obj = new Object[2];
 
             if (lote.getId() != -1) {
-                obj = db.listaParaNotificacao(lote.getId(), DataHoje.data(), empresas, contabils, cidades, comContabil, semContabil, servicos, tipo_servico);
+                obj = db.listaParaNotificacao(lote.getId(), DataHoje.data(), empresas, contabils, cidades, comContabil, semContabil, servicos, tipo_servico, tipoEmpresa);
             } else // EMPRESA --
-            if ((indexTab == 1 && empresas.isEmpty()) || (indexTab == 2 && contabils.isEmpty())) {
+            if ((indexTab == 3 && empresas.isEmpty()) || (indexTab == 4 && contabils.isEmpty())) {
                 return listaNotificacao;
             } else {
-                obj = db.listaParaNotificacao(-1, DataHoje.data(), empresas, contabils, cidades, comContabil, semContabil, servicos, tipo_servico);
+                obj = db.listaParaNotificacao(-1, DataHoje.data(), empresas, contabils, cidades, comContabil, semContabil, servicos, tipo_servico, tipoEmpresa);
             }
 
             result = (Vector) obj[1];

@@ -1359,7 +1359,7 @@ public class GerarMovimento extends DB {
                     return false;
                 }
                 
-                valor_movimento = Moeda.somaValores(valor_movimento, movimento.get(i).getValor());
+                valor_movimento = Moeda.somaValores(valor_movimento, movimento.get(i).getValorBaixa());
             }
             
             if (valor_forma_pagamento == valor_movimento){

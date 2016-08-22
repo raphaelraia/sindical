@@ -33,6 +33,7 @@ import br.com.rtools.seguranca.Modulo;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.seguranca.controleUsuario.ChamadaPaginaBean;
+import br.com.rtools.seguranca.controleUsuario.ControleAcessoBean;
 import br.com.rtools.seguranca.dao.RotinaDao;
 import br.com.rtools.utilitarios.Dao;
 import br.com.rtools.utilitarios.DataHoje;
@@ -103,6 +104,7 @@ public class BaixaGeralBean implements Serializable {
     private List<SelectItem> listaTodosBancos = new ArrayList();
 
     private Date dataConciliacao = null;
+    private ControleAcessoBean cab = new ControleAcessoBean();
 
     @PostConstruct
     public void init() {
@@ -116,6 +118,8 @@ public class BaixaGeralBean implements Serializable {
 
         retornaCaixa();
         loadListaTodosBancos();
+        
+        cab = (ControleAcessoBean) GenericaSessao.getObject("controleAcessoBean");
     }
 
     public final void loadListaTodosBancos() {
@@ -744,7 +748,12 @@ public class BaixaGeralBean implements Serializable {
         if (tipo.equals("banco")) {
             desHabilitaQuitacao = false;
         } else {
-            desHabilitaQuitacao = true;
+            // TRUE = não tem permissão
+            if (cab.verificaPermissao("alterar_data_quitacao_caixa", 3)) {
+                desHabilitaQuitacao = true;
+            }else{
+                desHabilitaQuitacao = false;
+            }
         }
         return desHabilitaQuitacao;
     }
