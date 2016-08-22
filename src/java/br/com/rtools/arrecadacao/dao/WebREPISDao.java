@@ -8,9 +8,11 @@ import br.com.rtools.arrecadacao.Patronal;
 import br.com.rtools.arrecadacao.PisoSalarial;
 import br.com.rtools.arrecadacao.PisoSalarialLote;
 import br.com.rtools.arrecadacao.RepisMovimento;
+import br.com.rtools.arrecadacao.beans.WebREPISBean.ObjectFiltro;
 import br.com.rtools.financeiro.Movimento;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.principal.DB;
+import br.com.rtools.utilitarios.AnaliseString;
 import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.Types;
 import java.text.Normalizer;
@@ -394,56 +396,74 @@ public class WebREPISDao extends DB {
         return new ArrayList<>();
     }
 
-    public List<RepisMovimento> pesquisarListaLiberacao(String por, String descricao, int id_patronal, String quantidade) {
-        descricao = Normalizer.normalize(descricao, Normalizer.Form.NFD);
-        descricao = descricao.toLowerCase().replaceAll("[^\\p{ASCII}]", "");
+    public List<RepisMovimento> pesquisarListaLiberacao(String por, String descricao, int id_patronal, String quantidade, ObjectFiltro of) {
+        descricao = AnaliseString.normalizeLower(descricao);
 
         String inner = "", and = "", limit = "";
 
         String textQry
-                = " SELECT rm.* "
-                + "   FROM arr_repis_movimento rm ";
+                = " SELECT rm.* \n"
+                + "   FROM arr_repis_movimento rm \n";
 
-        inner += "  INNER JOIN arr_patronal pa ON pa.id = rm.id_patronal "
-                + "  INNER JOIN pes_pessoa p ON p.id = rm.id_pessoa ";
-        and += "  WHERE pa.id = " + id_patronal;
+        inner += "  INNER JOIN arr_patronal pa ON pa.id = rm.id_patronal \n"
+                + "  INNER JOIN pes_pessoa p ON p.id = rm.id_pessoa \n";
+        and += "  WHERE pa.id = " + id_patronal + " \n";
 
         if (!descricao.isEmpty()) {
             switch (por) {
                 case "nome":
-                    and += "    AND TRANSLATE(LOWER(p.ds_nome)) LIKE '%" + descricao + "%'";
+                    and += "    AND TRANSLATE(LOWER(p.ds_nome)) LIKE '%" + descricao + "%' \n";
                     break;
                 case "cnpj":
-                    and += "    AND p.ds_documento LIKE '%" + descricao + "'";
+                    and += "    AND p.ds_documento LIKE '%" + descricao + "' \n";
                     break;
                 case "protocolo":
                     if (Types.isInteger(descricao)) {
-                        and += "    AND rm.id = " + descricao;
-                    }
-                    break;
-                case "status":
-                    inner += "  INNER JOIN arr_repis_status rs ON rs.id = rm.id_repis_status ";
-                    if (!descricao.equals("0")) {
-                        and += "    AND rs.id = " + descricao;
+                        and += "    AND rm.id = " + descricao + " \n";
                     }
                     break;
                 case "solicitante":
-                    and += "    AND TRANSLATE(LOWER(rm.ds_solicitante)) LIKE '%" + descricao + "%'";
-                    break;
-                case "tipo":
-                    and += "    AND rm.id_certidao_tipo = " + descricao;
-                    break;
-                case "cidade":
-                    inner += " INNER JOIN pes_pessoa_endereco pe ON pe.id_pessoa = p.id AND pe.id_tipo_endereco = 5 "
-                            + " INNER JOIN end_endereco e ON e.id = pe.id_endereco "
-                            + " INNER JOIN end_cidade c ON c.id = e.id_cidade";
-                    and += "   AND c.id = " + descricao;
+                    and += "    AND TRANSLATE(LOWER(rm.ds_solicitante)) LIKE '%" + descricao + "%' \n";
                     break;
             }
         }
 
+        // ANO
+        if (of.getBooleanAno() && of.getAno() != null) {
+            and += "   AND rm.nr_ano = " + of.getAno() + " \n";
+        }
+
+        // DATA EMISSÃO
+        if (of.getBooleanEmissao() && !of.getEmissaoInicial().isEmpty() && !of.getEmissaoFinal().isEmpty()) {
+            and += "   AND rm.dt_emissao >= '" + of.getEmissaoInicial() + "' AND rm.dt_emissao <= '" + of.getEmissaoFinal() + "' \n";
+        }
+
+        // DATA RESPOSTA
+        if (of.getBooleanResposta() && !of.getRespostaInicial().isEmpty() && !of.getRespostaFinal().isEmpty()) {
+            and += "   AND rm.dt_resposta >= '" + of.getRespostaInicial() + "' AND rm.dt_resposta <= '" + of.getRespostaFinal() + "' \n";
+        }
+
+        // STATUS
+        if (of.getBooleanStatus() && of.getIndexStatus() != 0) {
+            inner += "  INNER JOIN arr_repis_status rs ON rs.id = rm.id_repis_status \n";
+            and += "    AND rs.id = " + Integer.valueOf(of.getListaStatus().get(of.getIndexStatus()).getDescription()) + " \n";
+        }
+
+        // TIPO DE CERTIDÃO
+        if (of.getBooleanTipoCertidao()) {
+            and += "    AND rm.id_certidao_tipo = " + Integer.valueOf(of.getListaTipoCertidao().get(of.getIndexTipoCertidao()).getDescription()) + " \n";
+        }
+
+        // CIDADE
+        if (of.getBooleanCidade() && Integer.valueOf(of.getListaCidade().get(of.getIndexCidade()).getDescription()) != 0) {
+            inner += " INNER JOIN pes_pessoa_endereco pe ON pe.id_pessoa = p.id AND pe.id_tipo_endereco = 5 \n"
+                    + " INNER JOIN end_endereco e ON e.id = pe.id_endereco \n"
+                    + " INNER JOIN end_cidade c ON c.id = e.id_cidade \n";
+            and += "   AND c.id = " + Integer.valueOf(of.getListaCidade().get(of.getIndexCidade()).getDescription()) + " \n";
+        }
+        
         if (!quantidade.equals("tudo")) {
-            limit = " LIMIT " + quantidade;
+            limit = " LIMIT " + quantidade + " \n";
         }
 
         textQry += inner + and + " ORDER BY rm.dt_emissao DESC, rm.id DESC, p.ds_nome DESC " + limit;

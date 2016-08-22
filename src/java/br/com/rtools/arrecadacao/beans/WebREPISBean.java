@@ -77,8 +77,6 @@ public class WebREPISBean implements Serializable {
     private List<SelectItem> listComboPessoa = new ArrayList();
     private List<SelectItem> listComboRepisStatus = new ArrayList();
     private List<SelectItem> listComboCertidaoDisponivel = new ArrayList();
-    private List<SelectItem> listaTipoCertidao = new ArrayList();
-    private List<SelectItem> listaCidade = new ArrayList();
     private List<SelectItem> listConvencaoPeriodo = new ArrayList();
     private List<RepisMovimento> listRepisMovimento = new ArrayList();
     private List<RepisMovimento> listRepisMovimentoPatronal = new ArrayList();
@@ -86,8 +84,6 @@ public class WebREPISBean implements Serializable {
     private int idPessoa = 0;
     private int idRepisStatus = 0;
     private int indexCertidaoDisponivel = 0;
-    private int indexCertidaoTipo = 0;
-    private int indexCidade = 0;
     private Integer idConvencaoPeriodo = null;
     private boolean renderContabil = false;
     private boolean renderEmpresa = false;
@@ -96,11 +92,9 @@ public class WebREPISBean implements Serializable {
     private String descPesquisa = "";
     private String porPesquisa = "nome";
     private String comoPesquisa = "";
-    private String tipoPesquisa = "status";
+    private String tipoPesquisa = "nome";
     private String descricao = "";
     private List listArquivosEnviados = new ArrayList();
-    private List<SelectItem> listaStatus = new ArrayList();
-    private int indexStatus = 1;
     private String valueLenght = "15";
     private String contato = "";
     private ConfiguracaoArrecadacao configuracaoArrecadacao;
@@ -110,6 +104,7 @@ public class WebREPISBean implements Serializable {
 
     private List<CertidaoDisponivel> listCertidaoDisponivelSolicitar = new ArrayList();
     private boolean chkTodasCertidoes = false;
+    private ObjectFiltro objectFiltro = new ObjectFiltro();
 
     public WebREPISBean() {
         pessoa = new Pessoa();
@@ -296,17 +291,8 @@ public class WebREPISBean implements Serializable {
         Patronal patro = db.pesquisaPatronalPorPessoa(pessoa.getId());
 
         switch (tipoPesquisa) {
-            case "tipo":
-                listRepisMovimentoPatronal = db.pesquisarListaLiberacao("tipo", getListaTipoCertidao().get(indexCertidaoTipo).getDescription(), patro.getId(), valueLenght);
-                break;
-            case "status":
-                listRepisMovimentoPatronal = db.pesquisarListaLiberacao("status", getListaStatus().get(indexStatus).getDescription(), patro.getId(), valueLenght);
-                break;
-            case "cidade":
-                listRepisMovimentoPatronal = db.pesquisarListaLiberacao("cidade", getListaCidade().get(indexCidade).getDescription(), patro.getId(), valueLenght);
-                break;
             default:
-                listRepisMovimentoPatronal = db.pesquisarListaLiberacao(tipoPesquisa, descricao, patro.getId(), valueLenght);
+                listRepisMovimentoPatronal = db.pesquisarListaLiberacao(tipoPesquisa, descricao, patro.getId(), valueLenght, objectFiltro);
                 break;
         }
     }
@@ -578,7 +564,7 @@ public class WebREPISBean implements Serializable {
 
             di.openTransaction();
             for (RepisMovimento repis : listam) {
-                if (repis.getRepisStatus().getId() == 3 || repis.getRepisStatus().getId() == 4 || repis.getRepisStatus().getId() == 5) {
+                if (repis.getRepisStatus().getId() != 1) {
                     Juridica juridica = dbj.pesquisaJuridicaPorPessoa(repis.getPessoa().getId());
                     PisoSalarialLote lote = dbw.pesquisaPisoSalarial(repis.getAno(), repis.getPatronal().getId(), juridica.getPorte().getId());
                     PessoaEndereco ee = dao.pesquisaEndPorPessoaTipo(repis.getPessoa().getId(), 5);
@@ -956,9 +942,9 @@ public class WebREPISBean implements Serializable {
             WebREPISDao wsrepisdb = new WebREPISDao();
             Patronal patro = wsrepisdb.pesquisaPatronalPorPessoa(pessoa.getId());
             if (tipoPesquisa.equals("status")) {
-                listRepisMovimentoPatronal = wsrepisdb.pesquisarListaLiberacao("status", listaStatus.get(indexStatus).getDescription(), patro.getId(), valueLenght);
+                listRepisMovimentoPatronal = wsrepisdb.pesquisarListaLiberacao("status", "", patro.getId(), valueLenght, objectFiltro);
             } else {
-                listRepisMovimentoPatronal = wsrepisdb.pesquisarListaLiberacao("", "", patro.getId(), valueLenght);
+                listRepisMovimentoPatronal = wsrepisdb.pesquisarListaLiberacao("", "", patro.getId(), valueLenght, objectFiltro);
             }
         }
         return listRepisMovimentoPatronal;
@@ -1092,61 +1078,6 @@ public class WebREPISBean implements Serializable {
         this.listRepisMovimentoPatronalSelecionado = listRepisMovimentoPatronalSelecionado;
     }
 
-    public List<SelectItem> getListaTipoCertidao() {
-        if (listaTipoCertidao.isEmpty()) {
-            Dao di = new Dao();
-            List<CertidaoTipo> result = di.list("CertidaoTipo");
-            for (int i = 0; i < result.size(); i++) {
-                listaTipoCertidao.add(new SelectItem(
-                        i, result.get(i).getDescricao(), Integer.toString(result.get(i).getId()))
-                );
-            }
-        }
-        return listaTipoCertidao;
-    }
-
-    public void setListaTipoCertidao(List<SelectItem> listaTipoCertidao) {
-        this.listaTipoCertidao = listaTipoCertidao;
-    }
-
-    public int getIndexCertidaoTipo() {
-        return indexCertidaoTipo;
-    }
-
-    public void setIndexCertidaoTipo(int indexCertidaoTipo) {
-        this.indexCertidaoTipo = indexCertidaoTipo;
-    }
-
-    public List<SelectItem> getListaStatus() {
-        if (listaStatus.isEmpty()) {
-            Dao di = new Dao();
-
-            List<RepisStatus> result = di.list(new RepisStatus());
-            listaStatus.add(new SelectItem(
-                    0, "Todos", "0")
-            );
-
-            for (int i = 0; i < result.size(); i++) {
-                listaStatus.add(new SelectItem(
-                        i + 1, result.get(i).getDescricao(), Integer.toString(result.get(i).getId()))
-                );
-            }
-        }
-        return listaStatus;
-    }
-
-    public void setListaStatus(List<SelectItem> listaStatus) {
-        this.listaStatus = listaStatus;
-    }
-
-    public int getIndexStatus() {
-        return indexStatus;
-    }
-
-    public void setIndexStatus(int indexStatus) {
-        this.indexStatus = indexStatus;
-    }
-
     public String getValueLenght() {
         return valueLenght;
     }
@@ -1161,38 +1092,6 @@ public class WebREPISBean implements Serializable {
 
     public void setContato(String contato) {
         this.contato = contato;
-    }
-
-    public List<SelectItem> getListaCidade() {
-        if (listaCidade.isEmpty()) {
-            CidadeDao db = new CidadeDao();
-
-            List<Cidade> result = db.listaCidadeParaREPIS();
-
-            if (result.isEmpty()) {
-                listaCidade.add(new SelectItem(0, "Nenhuma Cidade encontrada", "0"));
-                return listaCidade;
-            }
-
-            for (int i = 0; i < result.size(); i++) {
-                listaCidade.add(
-                        new SelectItem(i, result.get(i).getCidadeToString(), Integer.toString(result.get(i).getId()))
-                );
-            }
-        }
-        return listaCidade;
-    }
-
-    public void setListaCidade(List<SelectItem> listaCidade) {
-        this.listaCidade = listaCidade;
-    }
-
-    public int getIndexCidade() {
-        return indexCidade;
-    }
-
-    public void setIndexCidade(int indexCidade) {
-        this.indexCidade = indexCidade;
     }
 
     public void loadListRepisMovimentoPessoa(Integer pessoa_id) {
@@ -1376,6 +1275,274 @@ public class WebREPISBean implements Serializable {
 
     public void setChkTodasCertidoes(boolean chkTodasCertidoes) {
         this.chkTodasCertidoes = chkTodasCertidoes;
+    }
+
+    public ObjectFiltro getObjectFiltro() {
+        return objectFiltro;
+    }
+
+    public void setObjectFiltro(ObjectFiltro objectFiltro) {
+        this.objectFiltro = objectFiltro;
+    }
+
+    public class ObjectFiltro {
+
+        private Boolean booleanAno;
+        private Integer ano;
+
+        private Boolean booleanEmissao;
+        private String emissaoInicial;
+        private String emissaoFinal;
+
+        private Boolean booleanResposta;
+        private String respostaInicial;
+        private String respostaFinal;
+
+        private Boolean booleanStatus;
+        private Integer indexStatus;
+        private List<SelectItem> listaStatus;
+
+        private Boolean booleanTipoCertidao;
+        private Integer indexTipoCertidao;
+        private List<SelectItem> listaTipoCertidao;
+
+        private Boolean booleanCidade;
+        private Integer indexCidade;
+        private List<SelectItem> listaCidade;
+
+        public ObjectFiltro() {
+            // ANO
+            this.booleanAno = false;
+            this.ano = null;
+            // DATA EMISSÃO
+            this.booleanEmissao = false;
+            this.emissaoInicial = "";
+            this.emissaoFinal = "";
+            // DATA RESPOSTA
+            this.booleanResposta = false;
+            this.respostaInicial = "";
+            this.respostaFinal = "";
+            // STATUS
+            this.booleanStatus = true;
+            this.indexStatus = 1;
+            this.listaStatus = loadListaStatus();
+            // TIPO
+            this.booleanTipoCertidao = false;
+            this.indexTipoCertidao = 0;
+            this.listaTipoCertidao = loadListaTipoCertidao();
+            // CIDADE
+            this.booleanCidade = false;
+            this.indexCidade = 0;
+            this.listaCidade = loadListaCidade();
+        }
+
+        public ObjectFiltro(Boolean booleanAno, Integer ano, Boolean booleanEmissao, String emissaoInicial, String emissaoFinal, Boolean booleanResposta, String respostaInicial, String respostaFinal, Boolean booleanStatus, Integer indexStatus, List<SelectItem> listaStatus, Integer indexTipoCertidao, List<SelectItem> listaTipoCertidao) {
+            this.booleanAno = booleanAno;
+            this.ano = ano;
+            this.booleanEmissao = booleanEmissao;
+            this.emissaoInicial = emissaoInicial;
+            this.emissaoFinal = emissaoFinal;
+            this.booleanResposta = booleanResposta;
+            this.respostaInicial = respostaInicial;
+            this.respostaFinal = respostaFinal;
+            this.booleanStatus = booleanStatus;
+            this.indexStatus = indexStatus;
+            this.listaStatus = listaStatus;
+            this.indexTipoCertidao = indexTipoCertidao;
+            this.listaTipoCertidao = listaTipoCertidao;
+        }
+
+        public final List<SelectItem> loadListaStatus() {
+            List<SelectItem> list = new ArrayList();
+            Dao di = new Dao();
+
+            List<RepisStatus> result = di.list(new RepisStatus());
+            list.add(new SelectItem(0, "Todos", "0"));
+
+            for (int i = 0; i < result.size(); i++) {
+                list.add(
+                        new SelectItem(
+                                i + 1,
+                                result.get(i).getDescricao(),
+                                Integer.toString(result.get(i).getId())
+                        )
+                );
+            }
+            return list;
+        }
+
+        public final List<SelectItem> loadListaTipoCertidao() {
+            List<SelectItem> list = new ArrayList();
+            Dao di = new Dao();
+            List<CertidaoTipo> result = di.list("CertidaoTipo");
+
+            for (int i = 0; i < result.size(); i++) {
+                list.add(
+                        new SelectItem(
+                                i,
+                                result.get(i).getDescricao(),
+                                Integer.toString(result.get(i).getId())
+                        )
+                );
+            }
+            return list;
+        }
+
+        public final List<SelectItem> loadListaCidade() {
+            List<SelectItem> list = new ArrayList();
+            CidadeDao db = new CidadeDao();
+
+            List<Cidade> result = db.listaCidadeParaREPIS();
+
+            if (result.isEmpty()) {
+                list.add(new SelectItem(0, "Nenhuma Cidade encontrada", "0"));
+                return list;
+            }
+
+            for (int i = 0; i < result.size(); i++) {
+                list.add(
+                        new SelectItem(i, result.get(i).getCidadeToString(), Integer.toString(result.get(i).getId()))
+                );
+            }
+            return list;
+        }
+
+        public Boolean getBooleanAno() {
+            return booleanAno;
+        }
+
+        public void setBooleanAno(Boolean booleanAno) {
+            this.booleanAno = booleanAno;
+        }
+
+        public Integer getAno() {
+            return ano;
+        }
+
+        public void setAno(Integer ano) {
+            this.ano = ano;
+        }
+
+        public Boolean getBooleanEmissao() {
+            return booleanEmissao;
+        }
+
+        public void setBooleanEmissao(Boolean booleanEmissao) {
+            this.booleanEmissao = booleanEmissao;
+        }
+
+        public String getEmissaoInicial() {
+            return emissaoInicial;
+        }
+
+        public void setEmissaoInicial(String emissaoInicial) {
+            this.emissaoInicial = emissaoInicial;
+        }
+
+        public String getEmissaoFinal() {
+            return emissaoFinal;
+        }
+
+        public void setEmissaoFinal(String emissaoFinal) {
+            this.emissaoFinal = emissaoFinal;
+        }
+
+        public Boolean getBooleanResposta() {
+            return booleanResposta;
+        }
+
+        public void setBooleanResposta(Boolean booleanResposta) {
+            this.booleanResposta = booleanResposta;
+        }
+
+        public String getRespostaInicial() {
+            return respostaInicial;
+        }
+
+        public void setRespostaInicial(String respostaInicial) {
+            this.respostaInicial = respostaInicial;
+        }
+
+        public String getRespostaFinal() {
+            return respostaFinal;
+        }
+
+        public void setRespostaFinal(String respostaFinal) {
+            this.respostaFinal = respostaFinal;
+        }
+
+        public Boolean getBooleanStatus() {
+            return booleanStatus;
+        }
+
+        public void setBooleanStatus(Boolean booleanStatus) {
+            this.booleanStatus = booleanStatus;
+        }
+
+        public Integer getIndexStatus() {
+            return indexStatus;
+        }
+
+        public void setIndexStatus(Integer indexStatus) {
+            this.indexStatus = indexStatus;
+        }
+
+        public List<SelectItem> getListaStatus() {
+            return listaStatus;
+        }
+
+        public void setListaStatus(List<SelectItem> listaStatus) {
+            this.listaStatus = listaStatus;
+        }
+
+        public Boolean getBooleanTipoCertidao() {
+            return booleanTipoCertidao;
+        }
+
+        public void setBooleanTipoCertidao(Boolean booleanTipoCertidao) {
+            this.booleanTipoCertidao = booleanTipoCertidao;
+        }
+
+        public Integer getIndexTipoCertidao() {
+            return indexTipoCertidao;
+        }
+
+        public void setIndexTipoCertidao(Integer indexTipoCertidao) {
+            this.indexTipoCertidao = indexTipoCertidao;
+        }
+
+        public List<SelectItem> getListaTipoCertidao() {
+            return listaTipoCertidao;
+        }
+
+        public void setListaTipoCertidao(List<SelectItem> listaTipoCertidao) {
+            this.listaTipoCertidao = listaTipoCertidao;
+        }
+
+        public Boolean getBooleanCidade() {
+            return booleanCidade;
+        }
+
+        public void setBooleanCidade(Boolean booleanCidade) {
+            this.booleanCidade = booleanCidade;
+        }
+
+        public Integer getIndexCidade() {
+            return indexCidade;
+        }
+
+        public void setIndexCidade(Integer indexCidade) {
+            this.indexCidade = indexCidade;
+        }
+
+        public List<SelectItem> getListaCidade() {
+            return listaCidade;
+        }
+
+        public void setListaCidade(List<SelectItem> listaCidade) {
+            this.listaCidade = listaCidade;
+        }
+
     }
 
 }

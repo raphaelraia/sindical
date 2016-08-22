@@ -16,10 +16,12 @@
                 background-color: #9ccaaa!important;
             }
         </style>      
-        
+
         <script type="text/javascript">
-            function refresh (timeoutPeriod){
-                refresh = setTimeout(function(){ window.location.reload(true); },timeoutPeriod);
+            function refresh(timeoutPeriod) {
+                refresh = setTimeout(function () {
+                    window.location.reload(true);
+                }, timeoutPeriod);
             }
         </script> 
     </h:head>
@@ -40,29 +42,14 @@
                             <h:column>
                                 <h:panelGrid columns="4">
                                     <p:inputMask size="30" value="#{webREPISBean.descricao}" mask="#{webREPISBean.tipoPesquisa eq 'cnpj' ? '99?.999.999/9999-99' : ''}" rendered="#{webREPISBean.tipoPesquisa ne 'tipo' and webREPISBean.tipoPesquisa ne 'status' and webREPISBean.tipoPesquisa ne 'cidade'}" />
-                                    <p:selectOneMenu value="#{webREPISBean.indexCertidaoTipo}" rendered="#{webREPISBean.tipoPesquisa eq 'tipo'}">
-                                        <p:ajax update="@this tbl i_panel" event="change" listener="#{webREPISBean.pesquisar()}"/>
-                                        <f:selectItems value="#{webREPISBean.listaTipoCertidao}" />
-                                    </p:selectOneMenu>
-                                    <p:selectOneMenu value="#{webREPISBean.indexStatus}" rendered="#{webREPISBean.tipoPesquisa eq 'status'}">
-                                        <p:ajax update="@this tbl i_panel" event="change" listener="#{webREPISBean.pesquisar()}"/>
-                                        <f:selectItems value="#{webREPISBean.listaStatus}" />
-                                    </p:selectOneMenu>                                    
-                                    <p:selectOneMenu value="#{webREPISBean.indexCidade}" rendered="#{webREPISBean.tipoPesquisa eq 'cidade'}">
-                                        <p:ajax update="@this tbl i_panel" event="change" listener="#{webREPISBean.pesquisar()}"/>
-                                        <f:selectItems value="#{webREPISBean.listaCidade}" />
-                                    </p:selectOneMenu>                                    
                                     <p:selectOneMenu value="#{webREPISBean.tipoPesquisa}">
                                         <p:ajax event="change" update="@this :form_libera_repis:" listener="#{webREPISBean.pesquisar()}"/>
                                         <f:selectItem itemLabel="Nome" itemValue="nome"/>
                                         <f:selectItem itemLabel="CNPJ" itemValue="cnpj"/>
                                         <f:selectItem itemLabel="Protocolo" itemValue="protocolo"/>
-                                        <f:selectItem itemLabel="Status" itemValue="status"/>
                                         <f:selectItem itemLabel="Solicitante" itemValue="solicitante"/>
-                                        <f:selectItem itemLabel="Tipo" itemValue="tipo"/>
-                                        <f:selectItem itemLabel="Cidade" itemValue="cidade"/>
                                     </p:selectOneMenu>
-                                    <p:commandButton id="i_pesquisar" value="Pesquisar na Lista" action="#{webREPISBean.pesquisar()}" style="margin-left: 15px;" update="tbl"/>
+                                    <p:commandButton id="i_pesquisar" value="FILTRAR A LISTA" action="#{webREPISBean.pesquisar()}" style="margin-left: 15px; font-weight: bold" update="tbl"/>
                                 </h:panelGrid>
                             </h:column>
                             <h:column>
@@ -83,15 +70,90 @@
                             </h:column>
                         </h:panelGrid>
                     </p:panel>
+
+                    <h:panelGrid columns="10">
+                        <p:selectBooleanButton value="#{webREPISBean.objectFiltro.booleanAno}" onLabel="Ano" offLabel="Ano" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 70px; ">
+                            <p:ajax event="change" update="@this panel_filtros" global="false"/>
+                        </p:selectBooleanButton>
+
+                        <p:selectBooleanButton value="#{webREPISBean.objectFiltro.booleanEmissao}" onLabel="Emissão" offLabel="Emissão" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 90px;">
+                            <p:ajax event="change" update="@this panel_filtros" global="false"/>
+                        </p:selectBooleanButton>
+
+                        <p:selectBooleanButton value="#{webREPISBean.objectFiltro.booleanResposta}" onLabel="Resposta" offLabel="Resposta" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 90px;">
+                            <p:ajax event="change" update="@this panel_filtros" global="false"/>
+                        </p:selectBooleanButton>
+
+                        <p:selectBooleanButton value="#{webREPISBean.objectFiltro.booleanStatus}" onLabel="Status" offLabel="Status" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 90px;">
+                            <p:ajax event="change" update="@this panel_filtros" global="false"/>
+                        </p:selectBooleanButton>
+
+                        <p:selectBooleanButton value="#{webREPISBean.objectFiltro.booleanTipoCertidao}" onLabel="Tipo" offLabel="Tipo" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 90px;">
+                            <p:ajax event="change" update="@this panel_filtros" global="false"/>
+                        </p:selectBooleanButton>
+
+                        <p:selectBooleanButton value="#{webREPISBean.objectFiltro.booleanCidade}" onLabel="Cidade" offLabel="Cidade" offIcon="ui-icon-circle-plus" onIcon="ui-icon-circle-minus" style="width: 90px;">
+                            <p:ajax event="change" update="@this panel_filtros" global="false"/>
+                        </p:selectBooleanButton>
+                    </h:panelGrid>
+
+                    <p:panel>
+                        <h:panelGrid id="panel_filtros" columns="10">
+                            <h:column rendered="#{webREPISBean.objectFiltro.booleanAno}" >
+                                <p:outputLabel value="Ano" style="font-weight: bold"/><br />
+                                <p:inputText value="#{webREPISBean.objectFiltro.ano}" style="width: 50px; text-align: center" />
+                            </h:column>
+
+                            <h:column rendered="#{webREPISBean.objectFiltro.booleanEmissao}" >
+                                <p:outputLabel value="Emissão" style="font-weight: bold" /><br />
+                                <p:inputMask value="#{webREPISBean.objectFiltro.emissaoInicial}" style="width: 80px; text-align: center" mask="99/99/9999"/>
+                                <p:outputLabel value=" até "/>
+                                <p:inputMask value="#{webREPISBean.objectFiltro.emissaoFinal}" style="width: 80px; text-align: center" mask="99/99/9999"/>
+                            </h:column>
+
+                            <h:column rendered="#{webREPISBean.objectFiltro.booleanResposta}" >
+                                <p:outputLabel value="Resposta" style="font-weight: bold"/><br />
+                                <p:inputMask value="#{webREPISBean.objectFiltro.respostaInicial}" style="width: 80px; text-align: center" mask="99/99/9999"/>
+                                <p:outputLabel value=" até " />
+                                <p:inputMask value="#{webREPISBean.objectFiltro.respostaFinal}" style="width: 80px; text-align: center" mask="99/99/9999"/>
+                            </h:column>
+
+                            <h:column rendered="#{webREPISBean.objectFiltro.booleanStatus}" >
+                                <p:outputLabel value="Status" style="font-weight: bold"/><br />
+                                <p:selectOneMenu value="#{webREPISBean.objectFiltro.indexStatus}">
+                                    <p:ajax update="@this" event="change"/>
+                                    <f:selectItems value="#{webREPISBean.objectFiltro.listaStatus}" />
+                                </p:selectOneMenu>    
+                            </h:column>                            
+
+                            <h:column rendered="#{webREPISBean.objectFiltro.booleanTipoCertidao}" >
+                                <p:outputLabel value="Status" style="font-weight: bold"/><br />
+                                <p:selectOneMenu value="#{webREPISBean.objectFiltro.indexTipoCertidao}">
+                                    <p:ajax update="@this" event="change"/>
+                                    <f:selectItems value="#{webREPISBean.objectFiltro.listaTipoCertidao}" />
+                                </p:selectOneMenu>
+                            </h:column>                            
+
+                            <h:column rendered="#{webREPISBean.objectFiltro.booleanCidade}" >
+                                <p:outputLabel value="Status" style="font-weight: bold"/><br />
+                                <p:selectOneMenu value="#{webREPISBean.objectFiltro.indexCidade}">
+                                    <p:ajax update="@this" event="change"/>
+                                    <f:selectItems value="#{webREPISBean.objectFiltro.listaCidade}" />
+                                </p:selectOneMenu>                                    
+                            </h:column>                            
+                        </h:panelGrid>
+                    </p:panel>
+
                     <p:messages id="i_msg" showDetail="true" closable="true" />
                     <p:poll global="false" update="tbl" rendered="false"/>
+
                     <p:dataTable id="tbl" styleClass="margin-top-max" value="#{webREPISBean.listRepisMovimentoPatronal}" selection="#{webREPISBean.listRepisMovimentoPatronalSelecionado}" rowKey="#{repisMovimento.id}" var="repisMovimento" style="width: 100%" emptyMessage="Nenhum registro encontrado." scrollable="true" scrollHeight="450" rowStyleClass="#{webREPISBean.retornaCor(repisMovimento)}"> 
                         <p:ajax event="rowSelect" update=":form_libera_repis:i_panel_alterar" global="false"/>
                         <p:ajax event="rowSelectCheckbox" update=":form_libera_repis:i_panel_alterar" global="false"/>
                         <p:ajax event="rowUnselect"  update=":form_libera_repis:i_panel_alterar" global="false"/>
                         <p:ajax event="rowUnselectCheckbox" update=":form_libera_repis:i_panel_alterar" global="false"/>
                         <p:ajax event="toggleSelect" update=":form_libera_repis:i_panel_alterar"/>
-                        
+
                         <p:column width="15">  
                             <p:rowToggler />  
                         </p:column>  
@@ -119,8 +181,7 @@
                         </p:column>
                         <p:column headerText="..." width="30" styleClass="">
                             <div style="#{(repisMovimento.dataImpressao != null) ? 'background: green; width: 35px; float: right; -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px;' : ''}">
-                                <p:commandButton icon="ui-icon-print" action="#{webREPISBean.imprimirCertificado(repisMovimento)}" rendered="#{repisMovimento.repisStatus.id == 3 or repisMovimento.repisStatus.id == 4 or repisMovimento.repisStatus.id == 5}" ajax="false" title="#{repisMovimento.dataImpressaoString}" />
-                                
+                                <p:commandButton icon="ui-icon-print" action="#{webREPISBean.imprimirCertificado(repisMovimento)}" rendered="#{repisMovimento.repisStatus.id ne 1}" ajax="false" title="#{repisMovimento.dataImpressaoString}" />
                             </div>
                         </p:column>                        
                         <p:rowExpansion>
@@ -149,23 +210,23 @@
                         <h:column>
                             <h:panelGrid columns="2">
                                 <p:commandButton value="Alterar STATUS dos selecionados para" action="#{webREPISBean.liberarListaSolicitacao()}" update="tbl i_msg i_panel_alterar" rendered="#{not empty webREPISBean.listRepisMovimentoPatronalSelecionado}"/>
-                                <p:selectOneMenu value="#{webREPISBean.idRepisStatus}" rendered="#{not empty webREPISBean.listRepisMovimentoPatronalSelecionado}" style="padding-right: 15px;">
+                                <p:selectOneMenu value="#{webREPISBean.idRepisStatus}" rendered="#{not empty webREPISBean.listRepisMovimentoPatronalSelecionado}">
                                     <p:ajax update="@this" event="change" />
                                     <f:selectItems value="#{webREPISBean.listComboRepisStatus}" />
                                 </p:selectOneMenu>
                             </h:panelGrid>
                         </h:column>
-                        
+
                         <h:column>
                             <p:commandButton value="Imprimir certificados selecionados" action="#{webREPISBean.imprimirCertificado(webREPISBean.listRepisMovimentoPatronalSelecionado)}" rendered="#{not empty webREPISBean.listRepisMovimentoPatronalSelecionado}" style="float: right" ajax="false"/>
                         </h:column>
                     </h:panelGrid>
-                    
+
                     <p:dialog widgetVar="dlg_loading" width="400" modal="true">
                         <h:outputText value="Aguarde ..."  style="color: white"/>                                
                     </p:dialog>
                 </h:form>
-                
+
                 <h:form id="formLiberacao">
                     <p:dialog widgetVar="dlg_repis" width="1000" modal="true" closable="true" dynamic="true">
                         <f:facet name="header">
