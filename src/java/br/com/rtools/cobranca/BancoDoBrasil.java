@@ -228,8 +228,10 @@ public class BancoDoBrasil extends Cobranca {
 
             CONTEUDO_REMESSA += agencia; // 027 a 030 9(004) Prefixo da Agência: Número da Agência onde está cadastrado o convênio líder do cedente 
             CONTEUDO_REMESSA += moduloOnze(agencia); // 031 a 031 X(001) Dígito Verificador - D.V. - do Prefixo da Agência. 
-            CONTEUDO_REMESSA += "00000000".substring(0, 8 - conta.length()) + conta; // 032 a 039 9(008) Número da Conta Corrente: Número da conta onde está cadastrado o Convênio Líder do Cedente 
-            CONTEUDO_REMESSA += moduloOnze(conta); // 040 a 040 X(001) Dígito Verificador - D.V. – do Número da Conta Corrente do Cedente 
+            //CONTEUDO_REMESSA += "00000000".substring(0, 8 - conta.length()) + conta; // 032 a 039 9(008) Número da Conta Corrente: Número da conta onde está cadastrado o Convênio Líder do Cedente 
+            //CONTEUDO_REMESSA += moduloOnze(conta); // 040 a 040 X(001) Dígito Verificador - D.V. – do Número da Conta Corrente do Cedente 
+            CONTEUDO_REMESSA += "00000000".substring(0, 8 - codigo_cedente.length()) + codigo_cedente; // 032 a 039 9(008) Número da Conta Corrente: Número da conta onde está cadastrado o Convênio Líder do Cedente 
+            CONTEUDO_REMESSA += moduloOnze(codigo_cedente); // 040 a 040 X(001) Dígito Verificador - D.V. – do Número da Conta Corrente do Cedente 
             CONTEUDO_REMESSA += "000000"; // 041 a 046 9(006) Complemento do Registro: “000000”
             CONTEUDO_REMESSA += AnaliseString.normalizeUpper((cedente + "                              ").substring(0, 30)); // 047 a 076 X(030) Nome do Cedente
             CONTEUDO_REMESSA += ("001BANCODOBRASIL" + "                  ").substring(0, 18); // 077 a 094 X(018) 001BANCODOBRASIL
@@ -239,10 +241,12 @@ public class BancoDoBrasil extends Cobranca {
             CONTEUDO_REMESSA += data_gravacao[0] + data_gravacao[1] + data_gravacao[2].substring(2, 4); // 095 a 100 9(006) Data da Gravação: Informe no formato “DDMMAA” 
             CONTEUDO_REMESSA += "0000000".substring(0, 7 - "0000010".length()) + "0000010"; // 101 a 107 9(007) Seqüencial da Remessa 
             CONTEUDO_REMESSA += "                      "; // 108 a 129 X(22) Complemento do Registro: “Brancos”
-            CONTEUDO_REMESSA += "0000000".substring(0, 7 - codigo_cedente.length()) + codigo_cedente; // 130 a 136 9(007) Número do Convênio Líder (numeração acima de 1.000.000 um milhão)" 
+            CONTEUDO_REMESSA += boleto_rem.getContaCobranca().getBoletoInicial().substring(0, 7); // 130 a 136 9(007) Número do Convênio Líder (numeração acima de 1.000.000 um milhão)" 
             CONTEUDO_REMESSA += "                                                                                                                                                                                                                                                                  "; // 137 a 394 X(258) Complemento do Registro: “Brancos”
-            CONTEUDO_REMESSA += "000000".substring(0, 6 - "000000".length()) + "000001"; // 395 a 400 9(006) Seqüencial do Registro:”000001”
-
+            Integer sequencial_registro = 1;
+            CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + sequencial_registro).length()) + ("" + sequencial_registro); // 395 a 400 9(006) Seqüencial do Registro:”000001”
+            sequencial_registro++;
+            
             buff_writer.write(CONTEUDO_REMESSA);
             buff_writer.newLine();
 
@@ -264,11 +268,13 @@ public class BancoDoBrasil extends Cobranca {
                 CONTEUDO_REMESSA += "00000000000000".substring(0, 14 - documento_sindicato.length()) + documento_sindicato; // 004 a 017 9(014) Número do CPF/CNPJ do Cedente 
                 CONTEUDO_REMESSA += agencia; //018 a 021 9(004) Prefixo da Agência 
                 CONTEUDO_REMESSA += moduloOnze(agencia); // 022 a 022 X(001) Dígito Verificador - D.V. - do Prefixo da Agência
-                CONTEUDO_REMESSA += "00000000".substring(0, 8 - conta.length()) + conta; // 023 a 030 9(008) Número da Conta Corrente do Cedente
-                CONTEUDO_REMESSA += moduloOnze(conta); // 031 a 031 X(001) Dígito Verificador - D.V. - do Número da Conta Corrente do Cedente 
-                CONTEUDO_REMESSA += "0000000".substring(0, 7 - "1742177".length()) + "1742177"; // 032 a 038 9(007) Número do Convênio de Cobrança do Cedente
+                //CONTEUDO_REMESSA += "00000000".substring(0, 8 - conta.length()) + conta; // 023 a 030 9(008) Número da Conta Corrente do Cedente
+                //CONTEUDO_REMESSA += moduloOnze(conta); // 031 a 031 X(001) Dígito Verificador - D.V. - do Número da Conta Corrente do Cedente 
+                CONTEUDO_REMESSA += "00000000".substring(0, 8 - codigo_cedente.length()) + codigo_cedente; // 023 a 030 9(008) Número da Conta Corrente do Cedente
+                CONTEUDO_REMESSA += moduloOnze(codigo_cedente); // 031 a 031 X(001) Dígito Verificador - D.V. - do Número da Conta Corrente do Cedente 
+                CONTEUDO_REMESSA += boleto_rem.getContaCobranca().getBoletoInicial().substring(0, 7); // NÚMERO DO CONVÊNIO (criar campo no banco pra isso) // 032 a 038 9(007) Número do Convênio de Cobrança do Cedente
                 CONTEUDO_REMESSA += "0000000000000000000000000".substring(0, 25 - ("" + mov.getId()).length()) + mov.getId(); // 039 a 063 X(025) Código de Controle da Empresa 
-                CONTEUDO_REMESSA += "00000000000000000".substring(0, 17 - mov.getDocumento().length()) + mov.getDocumento(); // 064 a 080 9(017) Nosso-Número 
+                CONTEUDO_REMESSA += (boleto_rem.getContaCobranca().getBoletoInicial().substring(0, 7) + "0000000000").substring(0, 17 - (""+(Integer.valueOf(mov.getDocumento()))).length()) + (""+(Integer.valueOf(mov.getDocumento()))); // 064 a 080 9(017) Nosso-Número 
                 CONTEUDO_REMESSA += "00"; // 081 a 082 9(002) Número da Prestação: “00” (Zeros)
                 CONTEUDO_REMESSA += "00"; // 083 a 084 9(002) Grupo de Valor: “00” (Zeros)
                 CONTEUDO_REMESSA += "   "; // 085 a 087 X(003) Complemento do Registro: “Brancos”
@@ -340,10 +346,10 @@ public class BancoDoBrasil extends Cobranca {
                 }
 
                 CONTEUDO_REMESSA += "                                        "; // 352 a 391 X(040) Observações/Mensagem ou Sacador/Avalista 
-                CONTEUDO_REMESSA += "00"; // 392 a 393 X(002) Número de Dias Para Protesto 
+                CONTEUDO_REMESSA += "  "; // 392 a 393 X(002) Número de Dias Para Protesto 
                 CONTEUDO_REMESSA += " "; // 394 a 394 X(001) Complemento do Registro: “Brancos”
-                CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + (i + 1)).length()) + ("" + (i + 1)); // 395 a 400 9(006) Seqüencial de Registro
-
+                CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + sequencial_registro).length()) + ("" + sequencial_registro); // 395 a 400 9(006) Seqüencial de Registro
+                sequencial_registro++;
                 buff_writer.write(CONTEUDO_REMESSA);
                 buff_writer.newLine();
 
@@ -363,7 +369,7 @@ public class BancoDoBrasil extends Cobranca {
             // -----------------------------------------------------------------
             CONTEUDO_REMESSA += "9"; // 001 a 001 9(001) Identificação do Registro Trailer: “9”
             CONTEUDO_REMESSA += "                                                                                                                                                                                                                                                                                                                                                                                                         "; // 002 a 394 X(393) Complemento do Registro: “Brancos”
-            CONTEUDO_REMESSA += "000000".substring(0, 6 - "000000".length()) + "000001"; // 395 a 400 9(006) Número Seqüencial do Registro no Arquivo 
+            CONTEUDO_REMESSA += "000000".substring(0, 6 - ("" + sequencial_registro).length()) + ("" + sequencial_registro); // 395 a 400 9(006) Número Seqüencial do Registro no Arquivo 
 
             buff_writer.write(CONTEUDO_REMESSA);
             buff_writer.flush();

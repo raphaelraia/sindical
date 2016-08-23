@@ -265,7 +265,7 @@ public class ImpressaoBoletoSocialBean {
         ib.imprimirBoletoSocial(lista, "soc_boletos_vw", imprimeVerso);
         ib.visualizar(null);
     }
-    
+
     public void imprimir2() {
         if (!listaPessoaSemEndereco.isEmpty()) {
             GenericaMensagem.fatal("Atenção", "Existem pessoas sem endereço, favor cadastra-las!");
@@ -276,10 +276,10 @@ public class ImpressaoBoletoSocialBean {
         String lista = "";
         for (int i = 0; i < listaGrid.size(); i++) {
             if ((Boolean) listaGrid.get(i).getArgumento1()) {
-                if (lista.isEmpty()){
-                    lista = "'"+ (String) ((Vector) listaGrid.get(i).getArgumento2()).get(0)+"'";
-                }else{
-                    lista += ", " + "'"+(String) ((Vector) listaGrid.get(i).getArgumento2()).get(0)+"'";
+                if (lista.isEmpty()) {
+                    lista = "'" + (String) ((Vector) listaGrid.get(i).getArgumento2()).get(0) + "'";
+                } else {
+                    lista += ", " + "'" + (String) ((Vector) listaGrid.get(i).getArgumento2()).get(0) + "'";
                 }
             }
         }
@@ -342,7 +342,7 @@ public class ImpressaoBoletoSocialBean {
                         )
                 );
             }
-            
+
             File file_jasper = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/ETIQUETA_SOCIO.jasper"));
 
             JasperReport jasperReport = (JasperReport) JRLoader.loadObject(file_jasper);

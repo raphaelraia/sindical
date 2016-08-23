@@ -12,7 +12,7 @@
         <style type="text/css">
             .ui-widget-content .ui-inputfield{ padding: 8px!important;} 
             .ui-button { padding: 3px!important; }
-            
+
             .ui-fileupload-buttonbar {
                 background: transparent none;
                 border: none;
@@ -78,7 +78,7 @@
                                         <br />
                                         <p:commandButton icon="ui-icon-close" action="#{impressaoBoletoSocialBean.desmarcarTudo()}" update="tbl i_panel_quantidade" />
                                     </p:column>
-                                    
+
                                     <p:column id="i_documento">
                                         <h:outputText value="Documento" /><br />
                                         <p:inputMask value="#{impressaoBoletoSocialBean.strDocumento}" mask="#{(impressaoBoletoSocialBean.tipo eq 'juridica') ? '99.999.999/9999-99' : '999.999.999-99'}" style="width: 140px"/>

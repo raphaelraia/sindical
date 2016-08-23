@@ -1021,7 +1021,7 @@ public class ExtratoTelaBean implements Serializable {
                 listaC.add(db.pesquisaCodigo((Integer) listaMovimento.getArgumento1()));
             }
         }
-        
+
         ImprimirBoleto imp = new ImprimirBoleto();
 
         listaC = imp.atualizaContaCobrancaMovimento(listaC);
@@ -1029,7 +1029,7 @@ public class ExtratoTelaBean implements Serializable {
         MovimentoDao dao = new MovimentoDao();
         Boleto boleto_teste = dao.pesquisaBoletos(listaC.get(0).getNrCtrBoleto());
         String ids_movimento = "";
-        
+
         for (Movimento m : listaC) {
             Boleto boletox = dao.pesquisaBoletos(m.getNrCtrBoleto());
             if (boleto_teste.getContaCobranca().getId() != boletox.getContaCobranca().getId()) {
@@ -1069,7 +1069,7 @@ public class ExtratoTelaBean implements Serializable {
 //        caminho = caminho + "/" + l_rb2.get(0).getRemessa().getId()+"/"+l_rb2.get(0).getRemessa().getNomeArquivo();
 //        File filex = new File(caminho);
 //        
-        
+
         return null;
     }
 

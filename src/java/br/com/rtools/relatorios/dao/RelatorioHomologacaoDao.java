@@ -257,15 +257,14 @@ public class RelatorioHomologacaoDao extends DB {
                     + "          S.ds_descricao     \n";
             relatorios.setQryOrdem("PPE.ds_nome, PPE.ds_documento, S.ds_descricao");
         }
-        if (relatorios.getQryOrdem()
-                == null || relatorios.getQryOrdem().isEmpty()) {
+        if (relatorios.getQryOrdem() == null || relatorios.getQryOrdem().isEmpty()) {
             if (!order.isEmpty()) {
                 switch (order) {
                     case "data":
                         queryString += " ORDER BY A.dt_data DESC, H.ds_hora, PPE.ds_nome";
                         break;
                     case "empresa":
-                        queryString += " ORDER BY PPE.ds_nome, A.dt_data ";
+                        queryString += " ORDER BY PPE.ds_documento, PPE.ds_nome, A.dt_data ";
                         break;
                     case "funcionario":
                         queryString += " ORDER BY FUNC.ds_nome ";
@@ -277,6 +276,8 @@ public class RelatorioHomologacaoDao extends DB {
                         queryString += " ORDER BY A.dt_emissao, PPE.ds_nome ";
                         break;
                 }
+            }else{
+                queryString += " ORDER BY A.dt_data DESC, H.ds_hora, PPE.ds_nome";
             }
         } else {
             queryString += " ORDER BY " + relatorios.getQryOrdem();

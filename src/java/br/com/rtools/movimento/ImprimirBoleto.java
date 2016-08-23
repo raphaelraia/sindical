@@ -2376,7 +2376,6 @@ public class ImprimirBoleto {
                 file_promo_verso = null;
             }
 
-            FisicaDao dbf = new FisicaDao();
             List<Object> result = db.listaBoletoSocio(listaBoleto, view, tipo);
 
             // SOMA VALOR DAS ATRASADAS
@@ -2439,11 +2438,7 @@ public class ImprimirBoleto {
                     novo_boleto = true;
                 }
 
-                Boolean e_fisica = true;
-
-                if (dbf.pesquisaFisicaPorPessoa((Integer) linha.get(5)) == null) {
-                    e_fisica = false;
-                }
+                Boolean e_fisica = tipo.equals("fisica");
 
                 if (DataHoje.maiorData(DataHoje.converteData((Date) linha.get(38)), "01/" + DataHoje.converteData((Date) linha.get(40)).substring(3))
                         || DataHoje.igualdadeData(DataHoje.converteData((Date) linha.get(38)), "01/" + DataHoje.converteData((Date) linha.get(40)).substring(3))) {
@@ -2496,20 +2491,30 @@ public class ImprimirBoleto {
                             )
                     );
 
-                    if (Integer.valueOf(linha.get(1).toString()) > 0){
-                        Movimento m = (Movimento) dao.find(new Movimento(), Integer.valueOf(linha.get(1).toString()));
+                    if (Integer.valueOf(linha.get(1).toString()) > 0) {
 
-                        Impressao impressao = new Impressao();
-
-                        impressao.setUsuario(usuario);
-                        impressao.setDtVencimento(m.getDtVencimento());
-                        impressao.setMovimento(m);
-
-                        if (!dao.save(impressao)) {
+                        String insert_impressao
+                                = "INSERT INTO fin_impressao (dt_impressao, dt_vencimento, ds_hora, id_movimento, id_usuario) \n "
+                                + "VALUES (CURRENT_DATE, '" + DataHoje.converteData((Date) linha.get(7)) + "', '" + DataHoje.hora() + "', " + Integer.valueOf(linha.get(1).toString()) + ", " + usuario.getId() + ")";
+                        
+                        if (!dao.executeQuery(insert_impressao)) {
                             dao.rollback();
                             GenericaMensagem.error("Erro", "Não foi possível SALVAR impressão!");
                             return null;
                         }
+//                        Movimento m = (Movimento) dao.find(new Movimento(), Integer.valueOf(linha.get(1).toString()));
+//
+//                        Impressao impressao = new Impressao();
+//
+//                        impressao.setUsuario(usuario);
+//                        impressao.setDtVencimento(m.getDtVencimento());
+//                        impressao.setMovimento(m);
+//
+//                        if (!dao.save(impressao, true)) {
+//                            dao.rollback();
+//                            GenericaMensagem.error("Erro", "Não foi possível SALVAR impressão!");
+//                            return null;
+//                        }
                     }
                 }
 
