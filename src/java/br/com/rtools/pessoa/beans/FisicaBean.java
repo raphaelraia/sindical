@@ -1367,6 +1367,10 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         }
         if (new SociosDao().existMatriculaAtivaAtivacaoDesordenada()) {
             GenericaMensagem.warn("Sistema", "Matrícula ativa com id_servico_pessoa menor que último, favor entrar em contato com nosso suporte técnico.");
+            List<Pessoa> list = new SociosDao().listMatriculaAtivaAtivacaoDesordenada(true, null);
+            for (int i = 0; i < list.size(); i++) {
+                GenericaMensagem.warn("" + (i + 1), "ID: " + list.get(i).getId() + " - Nome: " + list.get(i).getNome());
+            }
             return null;
         }
         boolean reativar = false;
@@ -2721,6 +2725,15 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public void updatePessoaEmpresa() {
+        if (pessoaEmpresaEdit.getDtDemissao() == null) {
+            List<Agendamento> list = new HomologacaoDao().pesquisaAgendamentoPorPessoaEmpresa(pessoaEmpresaEdit.getId());
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getStatus().getId() == 4) {
+                    GenericaMensagem.warn("Validação", "NÃO É POSSÍVEL ALTERAR DATA DE DEMISSÃO COM PESSOA HOMOLOGADA!");
+                    return;
+                }
+            }
+        }
         if (new Dao().update(pessoaEmpresaEdit, true)) {
             GenericaMensagem.info("Sucesso", "REGISTRO ATUALIZADO");
             pessoaEmpresaEdit = new PessoaEmpresa();

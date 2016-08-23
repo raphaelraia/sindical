@@ -5,7 +5,11 @@ import javax.faces.bean.ManagedBean;
 @ManagedBean
 public class Mask {
 
-    private String getModelo(String label, boolean pesquisaInicial) {
+    public String getModelo(String label) {
+        return getModelo(label, false);
+    }
+
+    public String getModelo(String label, boolean pesquisaInicial) {
         label = label.toLowerCase();
         // Pesquisa Inicial
         String pi = "";

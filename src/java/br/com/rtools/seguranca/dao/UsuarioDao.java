@@ -1,5 +1,6 @@
 package br.com.rtools.seguranca.dao;
 
+import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.principal.DB;
 import br.com.rtools.seguranca.Usuario;
@@ -236,5 +237,41 @@ public class UsuarioDao extends DB {
             return new ArrayList();
         }
         return new FindDao().findNotInByTabela(Usuario.class, "seg_usuario", new String[]{"id"}, table, column, colum_filter_key, colum_filter_value, "");
+    }
+
+    /**
+     * Nome da tabela onde esta a lista de filiais Ex:
+     * findByTabela('matr_escola');
+     *
+     * @param table
+     * @return Todas as filias da tabela específicada
+     */
+    public List findByTabela(String table) {
+        return findByTabela(table, "id_usuario");
+    }
+
+    public List findByTabela(String table, String column) {
+        if (column == null || column.isEmpty()) {
+            column = "id_usuario";
+        }
+        try {
+            String queryString
+                    = "     SELECT T1.* FROM seg_usuario AS T1                  \n"
+                    + " INNER JOIN pes_pessoa AS T2 ON T2.id = T1.id_pessoa     \n"
+                    + "      WHERE T1.id IN (                                   \n"
+                    + "	           SELECT T4." + column + "                     \n"
+                    + "              FROM " + table + " AS T4                   \n"
+                    + "          GROUP BY T4." + column + "                     \n"
+                    + ")                                                        \n"
+                    + " ORDER BY T2.ds_nome ";
+            Query query = getEntityManager().createNativeQuery(queryString, Usuario.class);
+            List list = query.getResultList();
+            if (!list.isEmpty()) {
+                return list;
+            }
+        } catch (Exception e) {
+            return new ArrayList();
+        }
+        return new ArrayList();
     }
 }
