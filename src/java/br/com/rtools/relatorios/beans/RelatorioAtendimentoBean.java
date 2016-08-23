@@ -2,7 +2,6 @@ package br.com.rtools.relatorios.beans;
 
 import br.com.rtools.atendimento.AteOperacao;
 import br.com.rtools.atendimento.AteStatus;
-import br.com.rtools.impressao.ParametroSocios;
 import br.com.rtools.pessoa.Filial;
 import br.com.rtools.pessoa.Juridica;
 import br.com.rtools.pessoa.Pessoa;
@@ -12,34 +11,26 @@ import br.com.rtools.relatorios.Relatorios;
 import br.com.rtools.relatorios.dao.RelatorioAtendimentoDao;
 import br.com.rtools.relatorios.dao.RelatorioDao;
 import br.com.rtools.relatorios.dao.RelatorioOrdemDao;
-import br.com.rtools.relatorios.dao.RelatorioSociosDao;
 import br.com.rtools.seguranca.Rotina;
 import br.com.rtools.seguranca.Usuario;
-import br.com.rtools.seguranca.controleUsuario.ControleUsuarioBean;
 import br.com.rtools.seguranca.dao.UsuarioDao;
 import br.com.rtools.sistema.SisPessoa;
 import br.com.rtools.utilitarios.Dao;
-import br.com.rtools.utilitarios.DataHoje;
 import br.com.rtools.utilitarios.DateFilters;
 import br.com.rtools.utilitarios.Filters;
 import br.com.rtools.utilitarios.GenericaMensagem;
 import br.com.rtools.utilitarios.GenericaSessao;
 import br.com.rtools.utilitarios.Jasper;
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
-import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
-import javax.servlet.ServletContext;
 
 @ManagedBean
 @SessionScoped
