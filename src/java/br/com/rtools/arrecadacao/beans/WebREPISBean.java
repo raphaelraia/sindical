@@ -151,6 +151,14 @@ public class WebREPISBean implements Serializable {
         loadListRepisMovimentoPatronal();
     }
     
+    public Boolean visualizaCertificadoRecusado(RepisMovimento rm){
+        if (rm.getRepisStatus().getId() == 1){
+            return false;
+        }
+        
+        return !(rm.getRepisStatus().getId() == 2 && !configuracaoArrecadacao.getVisualizaCertificadoRecusado());
+    }
+    
     public final void loadListRepisMovimentoPatronal(){
         listRepisMovimentoPatronal.clear();
         listRepisMovimentoPatronalSelecionado.clear();

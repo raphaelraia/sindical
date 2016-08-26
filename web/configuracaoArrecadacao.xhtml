@@ -62,6 +62,10 @@
                                     <p:selectBooleanCheckbox value="#{configuracaoArrecadacaoBean.configuracaoArrecadacao.uploadCertificado}" itemLabel="Upload de Certificados (WEB Repis)">
                                         <p:ajax event="change"  listener="#{configuracaoArrecadacaoBean.update()}" update="form_configuracao_arrecadacao"/>
                                     </p:selectBooleanCheckbox>
+                                    <h:column />
+                                    <p:selectBooleanCheckbox value="#{configuracaoArrecadacaoBean.configuracaoArrecadacao.visualizaCertificadoRecusado}" itemLabel="Visualza Certificados Recusados (WEB Repis)">
+                                        <p:ajax event="change"  listener="#{configuracaoArrecadacaoBean.update()}" update="form_configuracao_arrecadacao"/>
+                                    </p:selectBooleanCheckbox>
                                 </h:panelGrid>
                                 <f:facet name="footer">
                                     <h:panelGrid columns="1">

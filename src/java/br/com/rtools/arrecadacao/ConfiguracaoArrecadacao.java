@@ -32,6 +32,8 @@ public class ConfiguracaoArrecadacao implements Serializable {
     private Boolean bloqueiaOposição;
     @Column(name = "is_upload_certificado", columnDefinition = "boolean default false", nullable = false)
     private Boolean uploadCertificado;
+    @Column(name = "is_visualiza_certificado_recusado", columnDefinition = "boolean default false", nullable = false)
+    private Boolean visualizaCertificadoRecusado;
 
     public ConfiguracaoArrecadacao() {
         this.id = null;
@@ -40,15 +42,17 @@ public class ConfiguracaoArrecadacao implements Serializable {
         this.nrDiasAcordo = 0;
         this.bloqueiaOposição = false;
         this.uploadCertificado = false;
+        this.visualizaCertificadoRecusado = false;
     }
 
-    public ConfiguracaoArrecadacao(Integer id, Filial filial, Boolean certificadoFaturementoBrutoAnual, Integer nrDiasAcordo, Boolean bloqueiaOposição, Boolean uploadCertificado) {
+    public ConfiguracaoArrecadacao(Integer id, Filial filial, Boolean certificadoFaturementoBrutoAnual, Integer nrDiasAcordo, Boolean bloqueiaOposição, Boolean uploadCertificado, Boolean visualizaCertificadoRecusado) {
         this.id = id;
         this.filial = filial;
         this.certificadoFaturementoBrutoAnual = certificadoFaturementoBrutoAnual;
         this.nrDiasAcordo = nrDiasAcordo;
         this.bloqueiaOposição = bloqueiaOposição;
         this.uploadCertificado = uploadCertificado;
+        this.visualizaCertificadoRecusado = visualizaCertificadoRecusado;
     }
 
     public Integer getId() {
@@ -106,6 +110,14 @@ public class ConfiguracaoArrecadacao implements Serializable {
             ca = (ConfiguracaoArrecadacao) new Dao().find(new ConfiguracaoArrecadacao(), 1);
         }
         return ca;
+    }
+
+    public Boolean getVisualizaCertificadoRecusado() {
+        return visualizaCertificadoRecusado;
+    }
+
+    public void setVisualizaCertificadoRecusado(Boolean visualizaCertificadoRecusado) {
+        this.visualizaCertificadoRecusado = visualizaCertificadoRecusado;
     }
 
 }

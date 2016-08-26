@@ -113,7 +113,7 @@
 
                             <p:panel styleClass="margin-top-max">
                                 <p:outputLabel value="Controle Catraca" style="font-weight: bold; font-size: 11pt!important"/>
-                                <h:panelGrid columns="5" style="width: 70%">
+                                <h:panelGrid columns="6">
                                     <h:column>
                                         <p:outputLabel value="Cartão Dígitos" /><br />
                                         <p:inputText value="#{configuracaoSocialBean.configuracaoSocial.cartaoDigitos}" style="width: 80px"/>
@@ -126,7 +126,7 @@
 
                                     <h:column>
                                         <p:outputLabel value="Cartão Posição Código" /><br />
-                                        <p:inputText value="#{configuracaoSocialBean.configuracaoSocial.cartaoPosicaoCodigo}" style="width: 130px"/>
+                                        <p:inputText value="#{configuracaoSocialBean.configuracaoSocial.cartaoPosicaoCodigo}" style="width: 130px; margin-right: 20px"/>
                                     </h:column>
 
                                     <h:column>
@@ -141,7 +141,7 @@
                                     
                                     <h:column>
                                         <p:outputLabel value="Minutos bloqueado após uso do cartão" /><br />
-                                        <p:inputText value="#{configuracaoSocialBean.configuracaoSocial.intervaloMinuto}" style="width: 50px"/>
+                                        <p:inputText value="#{configuracaoSocialBean.configuracaoSocial.intervaloMinuto}" style="width: 220px; text-align: center"/>
                                     </h:column>
                                     
                                 </h:panelGrid>
@@ -149,8 +149,8 @@
 
                             <p:panel styleClass="margin-top-max">
                                 <p:outputLabel value="Observação desconto em Folha" style="font-weight: bold; font-size: 11pt!important"/>
-                                <h:panelGrid columns="1">
-                                    <p:inputTextarea value="#{configuracaoSocialBean.configuracaoSocial.obsDescontoFolha}" cols="120" maxlength="2000"/>
+                                <h:panelGrid columns="1" style="width: 100%">
+                                    <p:inputTextarea value="#{configuracaoSocialBean.configuracaoSocial.obsDescontoFolha}" style="width: 100%" maxlength="2000"/>
                                 </h:panelGrid>
                             </p:panel>
 

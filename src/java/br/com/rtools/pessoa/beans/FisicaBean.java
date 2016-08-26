@@ -709,7 +709,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
             if (!ValidaDocumentos.isValidoCPF(AnaliseString.extrairNumeros(fisica.getPessoa().getDocumento()))) {
                 mensagem = "Documento Invalido!";
                 GenericaMensagem.warn("Validação", "Documento (CPF) inválido! " + fisica.getPessoa().getDocumento());
-                PF.update("form_pessoa_fisica:i_tabview_fisica:id_valida_documento:" + fisica.getPessoa().getDocumento());
+                PF.update("form_pessoa_fisica:i_tabview_fisica:id_valida_documento");
                 fisica.getPessoa().setDocumento("");
                 return;
             }

@@ -1827,11 +1827,15 @@ public class RelatorioSociosBean implements Serializable {
 
     public void loadRelatoriosOrdem() {
         listRelatorioOrdem = new ArrayList();
+        idRelatorioOrdem = 0;
         if (idRelatorio != null) {
             RelatorioOrdemDao relatorioOrdemDao = new RelatorioOrdemDao();
             List<RelatorioOrdem> list = relatorioOrdemDao.findAllByRelatorio(idRelatorio);
             for (int i = 0; i < list.size(); i++) {
                 listRelatorioOrdem.add(new SelectItem(list.get(i).getId(), list.get(i).getNome()));
+                if (list.get(i).getPrincipal()){
+                    idRelatorioOrdem = list.get(i).getId();
+                }
             }
         }
     }

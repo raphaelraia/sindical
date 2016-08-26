@@ -191,7 +191,7 @@
                         </p:column>
                         <p:column headerText="..." width="30" styleClass="">
                             <div style="#{(repisMovimento.dataImpressao != null) ? 'background: green; width: 35px; float: right; -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px;' : ''}">
-                                <p:commandButton icon="ui-icon-print" action="#{webREPISBean.imprimirCertificado(repisMovimento)}" rendered="#{repisMovimento.repisStatus.id ne 1}" ajax="false" title="#{repisMovimento.dataImpressaoString}" />
+                                <p:commandButton icon="ui-icon-print" action="#{webREPISBean.imprimirCertificado(repisMovimento)}" rendered="#{webREPISBean.visualizaCertificadoRecusado(repisMovimento)}" ajax="false" title="#{repisMovimento.dataImpressaoString}" />
                             </div>
                         </p:column>                        
                         <p:rowExpansion>

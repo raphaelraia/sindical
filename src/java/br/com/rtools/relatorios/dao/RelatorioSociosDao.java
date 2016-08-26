@@ -255,17 +255,17 @@ public class RelatorioSociosDao extends DB {
             if (demissao.getDtStart() != null && !demissao.getStart().isEmpty()) {
                 switch (demissao.getType()) {
                     case "igual":
-                        queryString += " pe.dt_demissao = '" + demissao.getStart() + "' \n";
+                        queryString += " WHERE pe.dt_demissao = '" + demissao.getStart() + "' \n";
                         break;
                     case "apartir":
-                        queryString += " pe.dt_demissao >= '" + demissao.getStart() + "' \n";
+                        queryString += " WHERE pe.dt_demissao >= '" + demissao.getStart() + "' \n";
                         break;
                     case "ate":
-                        queryString += " pe.dt_demissao <= '" + demissao.getStart() + "' \n";
+                        queryString += " WHERE pe.dt_demissao <= '" + demissao.getStart() + "' \n";
                         break;
                     case "faixa":
                         if (!demissao.getStart().isEmpty()) {
-                            queryString += " pe.dt_demissao BETWEEN '" + demissao.getFinish() + "' AND '" + demissao.getStart() + "' \n";
+                            queryString += " WHERE pe.dt_demissao BETWEEN  '" + demissao.getStart() + "' AND '" + demissao.getFinish() + "'\n";
                         }
                         break;
                 }

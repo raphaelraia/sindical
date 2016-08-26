@@ -30,7 +30,7 @@ public class RelatorioDescontoFolhaDao extends DB {
 
             List listWhere = new ArrayList<>();
 
-            listWhere.add(" m.id_baixa is null ");
+            //listWhere.add(" m.id_baixa is null ");
             listWhere.add(" m.is_ativo = true ");
 
             //if (referenciaInicial != null && referenciaFinal != null && !referenciaInicial.isEmpty() && !referenciaFinal.isEmpty()) {
@@ -81,10 +81,13 @@ public class RelatorioDescontoFolhaDao extends DB {
                         + "            e.cep             AS e_endereco_cep,         \n" // 15 - ENDEREÇO DA EMPRESA -> CEP 
                         + "            j.ds_contato      AS empresa_contato,        \n" // 16 - EMPRESA -> CONTATO 
                         + "            1                 AS grupo,                  \n" // 17 - GRUPO
-                        + "            j.id              AS empresa_id              \n" // 18 - EMPRESA ID
-                        + "       FROM soc_socios_vw     AS so                      \n"
-                        + " INNER JOIN fin_movimento     AS m  ON m.id_titular = so.codsocio                    \n"
-                        + " INNER JOIN pes_pessoa        AS t  ON t.id         = so.titular                     \n"
+                        + "            j.id              AS empresa_id,             \n" // 18 - EMPRESA ID
+                        + "            ba.dt_baixa       AS dt_baixa,               \n" // 20 - DATA DA BAIXA
+                        + "            sum(m.nr_valor_baixa)  AS valor_baixa,       \n" // 21 VALOR DA BAIXA
+                        + "            ''                AS nome_socio              \n" // 22 NOME DO SÓCIO
+                        + "       FROM fin_movimento     AS m                       \n"
+                        + "  LEFT JOIN fin_baixa         AS ba ON ba.id = m.id_baixa \n"
+                        + " INNER JOIN pes_pessoa        AS t  ON t.id         = m.id_titular                   \n"
                         + " INNER JOIN pes_juridica      AS j  ON j.id_pessoa  = m.id_pessoa                    \n"
                         + " INNER JOIN pes_pessoa_complemento AS pc ON pc.id_pessoa = j.id_pessoa               \n"
                         + " INNER JOIN pes_pessoa        AS pj ON pj.id        = j.id_pessoa                    \n"
@@ -108,7 +111,8 @@ public class RelatorioDescontoFolhaDao extends DB {
                         + "          e.cep,             \n"
                         + "          j.ds_contato,      \n"
                         + "          m.dt_vencimento - CAST(EXTRACT(day FROM m.dt_vencimento) AS int) + pc.nr_dia_vencimento, \n"
-                        + "          j.id \n"
+                        + "          j.id, \n"
+                        + "          ba.dt_baixa \n"
                         + ") \n";
 
                 SELECT_STRING
@@ -133,36 +137,43 @@ public class RelatorioDescontoFolhaDao extends DB {
                         + "        '' AS e_endereco_uf,                     --- 15 \n"
                         + "        '' AS e_endereco_cep,                    --- 16 \n"
                         + "        '' AS empresa_contato,                   --- 17 \n"
-                        + "        2 AS grupo,                              --- 18 --- 3 \n"
-                        + "        j.id AS empresa_id                         --- 19 \n"
-                        + "  FROM soc_socios_vw                AS so                       \n"
-                        + " INNER JOIN fin_movimento          AS m  ON m.id_titular = so.codsocio \n"
-                        + " INNER JOIN pes_pessoa             AS t  ON t.id         = so.titular \n"
-                        + " INNER JOIN pes_juridica           AS j  ON j.id_pessoa  = m.id_pessoa \n"
+                        + "        2 AS grupo,                              --- 18 \n"
+                        + "        j.id AS empresa_id,                      --- 19 \n"
+                        + "        null AS dt_baixa,                        --- 20 \n"
+                        + "        0 AS valor_baixa,                        --- 21 \n"
+                        + "        be.ds_nome AS nome_socio                 --- 22 \n"
+                        + "  FROM fin_movimento          AS m                       \n"
+                        + " INNER JOIN pes_pessoa        AS t  ON t.id         = m.id_titular                   \n"
+                        + " INNER JOIN pes_pessoa        AS be  ON be.id        = m.id_beneficiario             \n"
+                        + " INNER JOIN pes_juridica      AS j  ON j.id_pessoa  = m.id_pessoa                    \n"
                         + " INNER JOIN pes_pessoa_complemento AS pc ON pc.id_pessoa = j.id_pessoa \n"
                         + " INNER JOIN pes_pessoa             AS pj ON pj.id        = j.id_pessoa \n"
                         + " INNER JOIN pes_pessoa_endereco    AS pe ON pe.id_pessoa = pj.id AND id_tipo_endereco = 3 \n"
                         + " INNER JOIN endereco_vw            AS e  ON e.id         = pe.id_endereco \n"
                         + "  LEFT JOIN \n"
                         + "( \n "
-                        + "     SELECT id_pessoa, \n"
+                        + "     SELECT m.id_pessoa, \n"
                         + "            id_titular \n"
-                        + "       FROM fin_movimento \n"
+                        + "       FROM fin_movimento AS m\n"
+                        + "      INNER JOIN pes_juridica AS j ON j.id_pessoa = m.id_pessoa \n"
                         + "      WHERE is_ativo = true \n"
                         + "        AND ds_referencia = '" + referencia_anterior + "' --- REF.ANTERIOR A INFORMADA \n"
-                        + (empresa_id != null ? "        AND id_pessoa = " + empresa_id : "") + " \n"
-                        + (titular_id != null ? "        AND id_titular = " + titular_id : "") + " \n"
-                        + "      GROUP BY id_pessoa, id_titular \n "
+                        + "      GROUP BY m.id_pessoa, id_titular \n "
                         + ") as x ON x.id_pessoa = m.id_pessoa AND x.id_titular = m.id_titular \n"
                         + "\n"
                         + WHERE_STRING
+                        + " AND x.id_pessoa IS NULL \n"
+                        + (empresa_id != null ? "        AND j.id = " + empresa_id : "") + " \n"
+                        + (titular_id != null ? "        AND t.id = " + titular_id : "") + " \n"
                         + "\n"
                         + "     GROUP BY \n"
                         + "        t.id, \n"
                         + "        pj.ds_nome, \n"
                         + "        t.ds_nome, \n"
                         + "        pj.ds_documento, \n"
-                        + "        j.id \n"
+                        + "        j.id, \n"
+                        + "        be.ds_nome, \n"
+                        + "        be.id \n"
                         + "\n"
                         + ") ";
 
@@ -189,43 +200,41 @@ public class RelatorioDescontoFolhaDao extends DB {
                         + "        '' AS e_endereco_cep, \n"
                         + "        '' AS empresa_contato, \n"
                         + "        3 as grupo, \n"
-                        + "        j.id AS empresa_id \n"
+                        + "        j.id AS empresa_id, \n"
+                        + "        null AS dt_baixa, \n"
+                        + "        0 AS valor_baixa,  \n"
+                        + "        be.ds_nome AS nome_socio  \n"
                         + " FROM fin_movimento     AS m \n"
                         + "INNER JOIN pes_pessoa   AS t ON t.id  = m.id_titular \n"
+                        + "INNER JOIN pes_pessoa   AS be ON be.id = m.id_beneficiario \n"
                         + "INNER JOIN pes_pessoa   AS pj ON pj.id = m.id_pessoa \n"
                         + "INNER JOIN pes_juridica AS j ON j.id_pessoa = m.id_pessoa \n"
                         + "INNER JOIN pes_fisica AS f ON f.id_pessoa=t.id \n"
-                        + " LEFT JOIN \n"
-                        + "( \n"
-                        + "SELECT \n"
-                        + "      m.id_pessoa                 AS id_empresa, \n"
-                        + "      m.id_titular                AS id_titular \n"
-                        + " FROM soc_socios_vw               AS so \n"
-                        + "INNER JOIN fin_movimento          AS m  ON m.id_titular = so.codsocio \n"
-                        + "INNER JOIN pes_pessoa             AS t  ON t.id         = so.titular \n"
-                        + "INNER JOIN pes_juridica           AS j  ON j.id_pessoa  = m.id_pessoa \n"
-                        + "INNER JOIN pes_pessoa_complemento AS pc ON pc.id_pessoa = j.id_pessoa \n"
-                        + "INNER JOIN pes_pessoa             AS pj ON pj.id        = j.id_pessoa \n"
-                        + "INNER JOIN pes_pessoa_endereco    AS pe ON pe.id_pessoa = pj.id AND id_tipo_endereco = 3 \n"
-                        + "INNER JOIN endereco_vw            AS e  ON e.id         = pe.id_endereco \n"
-                        + WHERE_STRING
-                        + "  AND m.id_servicos NOT IN (SELECT id_servicos FROM fin_servico_rotina WHERE id_rotina = 4) \n"
-                        + "GROUP BY \n"
-                        + "    m.id_pessoa, \n"
-                        + "    m.id_titular \n"
-                        + ") AS x ON x.id_titular = m.id_titular AND x.id_empresa = m.id_pessoa \n"
+                        + "  LEFT JOIN \n"
+                        + "( \n "
+                        + "     SELECT m.id_pessoa, \n"
+                        + "            id_titular \n"
+                        + "       FROM fin_movimento AS m \n"
+                        + "      INNER JOIN pes_juridica AS j ON j.id_pessoa = m.id_pessoa \n"
+                        + "      WHERE is_ativo = true \n"
+                        + "        AND ds_referencia = '" + referencia_atual + "' --- REF.ANTERIOR A INFORMADA \n"
+                        + "      GROUP BY m.id_pessoa, id_titular \n "
+                        + ") as x ON x.id_pessoa = m.id_pessoa AND x.id_titular = m.id_titular \n"
                         + "WHERE x.id_titular IS NULL \n"
                         + "  AND m.is_ativo = true "
                         + "  AND m.ds_referencia = '" + referencia_anterior + "'  --- REF.ANTERIOR A INFORMADA \n"
                         + (empresa_id != null ? "        AND j.id = " + empresa_id : "") + " \n"
                         + (titular_id != null ? "        AND t.id = " + titular_id : "") + " \n"
                         + "  AND m.id_servicos NOT IN (SELECT id_servicos FROM fin_servico_rotina WHERE id_rotina = 4) \n"
-                        + "GROUP BY \n"
-                        + "        t.id,           \n"
-                        + "        pj.ds_nome,           \n"
-                        + "        t.ds_nome,           \n"
+                        + "  AND x.id_pessoa IS NULL \n"
+                        + "GROUP BY \n" 
+                        + "        t.id,            \n"
+                        + "        pj.ds_nome,      \n"
+                        + "        t.ds_nome,       \n"
                         + "        pj.ds_documento, \n"
-                        + "        j.id \n"
+                        + "        j.id, \n"
+                        + "        be.ds_nome, \n"
+                        + "        be.id \n"
                         + ") ";
                 SELECT_STRING += " ORDER BY 2, 7, 18, 3";
             } else if (relatorio_id.equals(63)) {
@@ -235,7 +244,7 @@ public class RelatorioDescontoFolhaDao extends DB {
                         + "            pj.ds_nome        AS empresa_nome,           \n" // 1
                         + "            t.ds_nome         AS titular_nome,           \n" // 2
                         + "            m.ds_referencia   AS movimento_referencia,   \n" // 3
-                        + "            m.dt_vencimento-cast(extract(day from m.dt_vencimento) as int)+pc.nr_dia_vencimento   AS movimento_vencimento,   \n" // 4
+                        + "            m.dt_vencimento-cast(extract(day from m.dt_vencimento) as int)+pc.nr_dia_vencimento   AS movimento_vencimento,  \n" // 4
                         + "            m.nr_valor   AS valor,                       \n" // 5
                         + "            pj.ds_documento   AS empresa_documento,      \n" // 6
                         + "            pj.ds_telefone1   AS empresa_telefone1,      \n" // 7
@@ -252,23 +261,23 @@ public class RelatorioDescontoFolhaDao extends DB {
                         + "            so.matricula      AS matricula,              \n" // 18
                         + "            se.ds_descricao   AS servico_descricao,      \n" // 19
                         + "            b.ds_nome         AS beneficiario_nome,      \n" // 20 
-                        + "            right('0'||text(extract(month FROM m.dt_vencimento)),2) AS mes,  \n" // 21
-                        + "            text(extract(year FROM m.dt_vencimento))                AS ano   \n" // 22
-                        + "       FROM soc_socios_vw     AS so                                          \n"
-                        + " INNER JOIN fin_movimento     AS m  ON m.id_titular = so.codsocio            \n"
-                        + " INNER JOIN fin_servicos      AS se on se.id = m.id_servicos                 \n"
-                        + " INNER JOIN pes_pessoa        AS t  ON t.id  = so.titular                    \n"
-                        + " INNER JOIN pes_pessoa        AS b  ON b.id  = m.id_beneficiario             \n"
-                        + " INNER JOIN pes_juridica      AS j  ON j.id_pessoa  = m.id_pessoa            \n"
-                        + " INNER JOIN pes_pessoa_complemento AS pc ON pc.id_pessoa = j.id_pessoa       \n"
-                        + " INNER JOIN pes_pessoa        AS pj ON pj.id        = j.id_pessoa            \n"
+                        + "            right('0'||text(extract(month FROM m.dt_vencimento)),2) AS mes, \n" // 21
+                        + "            text(extract(year FROM m.dt_vencimento))                AS ano  \n" // 22
+                        + "       FROM fin_movimento     AS m                                          \n"
+                        + "  LEFT JOIN soc_socios_vw     AS so  ON m.id_titular = so.codsocio          \n"
+                        + " INNER JOIN fin_servicos      AS se on se.id = m.id_servicos                \n"
+                        + " INNER JOIN pes_pessoa        AS t  ON t.id  = m.id_titular                 \n"
+                        + " INNER JOIN pes_pessoa        AS b  ON b.id  = m.id_beneficiario            \n"
+                        + " INNER JOIN pes_juridica      AS j  ON j.id_pessoa  = m.id_pessoa           \n"
+                        + " INNER JOIN pes_pessoa_complemento AS pc ON pc.id_pessoa = j.id_pessoa      \n"
+                        + " INNER JOIN pes_pessoa        AS pj ON pj.id        = j.id_pessoa           \n"
                         + " INNER JOIN pes_pessoa_endereco AS pe ON pe.id_pessoa = pj.id AND id_tipo_endereco = 3 \n"
                         + " INNER JOIN endereco_vw       AS e  ON e.id         = pe.id_endereco "
                         + WHERE_STRING;
-                
-                SELECT_STRING += " ORDER BY pj.ds_nome,       \n"
-                        + "               pj.ds_documento,  \n"
-                        + "               t.ds_nome         \n";
+
+                SELECT_STRING += " ORDER BY pj.ds_nome,    \n"
+                        + "               pj.ds_documento, \n"
+                        + "               t.ds_nome        \n";
             }
 
             Query query = getEntityManager().createNativeQuery(SELECT_STRING);

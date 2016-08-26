@@ -2357,7 +2357,7 @@ public class ImprimirBoleto {
         FinanceiroDao db = new FinanceiroDao();
 
         Dao dao = new Dao();
-        dao.openTransaction();
+        //dao.openTransaction();
         try {
             File file_jasper = new File(((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getRealPath("/Relatorios/BOLETO_SOCIAL_2.jasper"));
             JasperReport jasperReport = (JasperReport) JRLoader.loadObject(file_jasper);
@@ -2497,11 +2497,13 @@ public class ImprimirBoleto {
                                 = "INSERT INTO fin_impressao (dt_impressao, dt_vencimento, ds_hora, id_movimento, id_usuario) \n "
                                 + "VALUES (CURRENT_DATE, '" + DataHoje.converteData((Date) linha.get(7)) + "', '" + DataHoje.hora() + "', " + Integer.valueOf(linha.get(1).toString()) + ", " + usuario.getId() + ")";
                         
+                        dao.openTransaction();
                         if (!dao.executeQuery(insert_impressao)) {
                             dao.rollback();
                             GenericaMensagem.error("Erro", "Não foi possível SALVAR impressão!");
                             return null;
                         }
+                        dao.commit();
 //                        Movimento m = (Movimento) dao.find(new Movimento(), Integer.valueOf(linha.get(1).toString()));
 //
 //                        Impressao impressao = new Impressao();
@@ -2552,11 +2554,11 @@ public class ImprimirBoleto {
                 exporter.exportReport();
 
                 arquivo = retorno.toByteArray();
-                dao.commit();
+                //dao.commit();
             }
         } catch (JRException e) {
             e.getMessage();
-            dao.rollback();
+            //dao.rollback();
         }
         return arquivo;
     }

@@ -100,12 +100,12 @@ public class RelatorioDescontoFolhaBean implements Serializable {
             rf_i = getReferenciaInicial();
             rf_f = getReferenciaFinal();
         }
-        
+
         if (rf_i == null || rf_i.isEmpty()) {
             GenericaMensagem.warn("ATENÇÃO", "DIGITE UMA REFEÊNCIA!");
             return;
         }
-        
+
         List<RelatorioDescontoFolha> rdfs = new ArrayList<>();
         sisProcesso.startQuery();
         List list = new RelatorioDescontoFolhaDao().find(r.getId(), empresa_id, titular_id, rf_i);
@@ -115,12 +115,18 @@ public class RelatorioDescontoFolhaBean implements Serializable {
             List o = (List) list.get(i);
             if (r.getId().equals(62) || r.getId().equals(77)) {
                 String nome_grupo = "";
-                if ((Integer) o.get(17) == 1) {
-                    nome_grupo = "MOVIMENTOS DO MÊS";
-                } else if ((Integer) o.get(17) == 2) {
-                    nome_grupo = "NOVOS";
-                } else {
-                    nome_grupo = "INATIVOS";
+                if (null != (Integer) o.get(17)) {
+                    switch ((Integer) o.get(17)) {
+                        case 1:
+                            nome_grupo = "MOVIMENTOS DO MÊS";
+                            break;
+                        case 2:
+                            nome_grupo = "NOVOS";
+                            break;
+                        default:
+                            nome_grupo = "INATIVOS";
+                            break;
+                    }
                 }
 
                 rdfs.add(
@@ -144,7 +150,10 @@ public class RelatorioDescontoFolhaBean implements Serializable {
                                 o.get(16),
                                 o.get(17),
                                 nome_grupo,
-                                o.get(18)
+                                o.get(18),
+                                o.get(19),
+                                o.get(20),
+                                (String) o.get(21)
                         )
                 );
             } else if (r.getId().equals(63)) {
@@ -190,9 +199,9 @@ public class RelatorioDescontoFolhaBean implements Serializable {
         }
         Map map = new HashMap();
         map.put("obs_desconto_folha", configuracaoSocial.getObsDescontoFolha());
-        
+
         Jasper.FILIAL = (Filial) new Dao().find(new Filial(), 1);
-        
+
         Jasper.printReports(r.getJasper(), r.getNome(), rdfs, map);
         sisProcesso.setProcesso("Relatório " + r.getNome());
         sisProcesso.finish();
@@ -395,6 +404,9 @@ public class RelatorioDescontoFolhaBean implements Serializable {
         private Object grupo;
         private Object nome_grupo;
         private Object empresa_id;
+        private Object data_baixa;
+        private Object valor_baixa;
+        private Object nome_socio;
 
         /**
          *
@@ -417,8 +429,12 @@ public class RelatorioDescontoFolhaBean implements Serializable {
          * @param empresa_contato
          * @param grupo
          * @param nome_grupo
+         * @param empresa_id
+         * @param data_baixa
+         * @param valor_baixa
+         * @param nome_socio
          */
-        public RelatorioDescontoFolha(Object socio_codigo, Object empresa_nome, Object titular_nome, Object movimento_referencia, Object movimento_vencimento, Object movimento_valor, Object empresa_documento, Object empresa_telefone1, Object e_endereco_logradouro, Object e_endereco_descricao, Object e_endereco_numero, Object e_endereco_complemento, Object e_endereco_bairro, Object e_endereco_cidade, Object e_endereco_uf, Object e_endereco_cep, Object empresa_contato, Object grupo, Object nome_grupo, Object empresa_id) {
+        public RelatorioDescontoFolha(Object socio_codigo, Object empresa_nome, Object titular_nome, Object movimento_referencia, Object movimento_vencimento, Object movimento_valor, Object empresa_documento, Object empresa_telefone1, Object e_endereco_logradouro, Object e_endereco_descricao, Object e_endereco_numero, Object e_endereco_complemento, Object e_endereco_bairro, Object e_endereco_cidade, Object e_endereco_uf, Object e_endereco_cep, Object empresa_contato, Object grupo, Object nome_grupo, Object empresa_id, Object data_baixa, Object valor_baixa, String nome_socio) {
             this.socio_codigo = socio_codigo;
             this.empresa_nome = empresa_nome;
             this.titular_nome = titular_nome;
@@ -439,6 +455,9 @@ public class RelatorioDescontoFolhaBean implements Serializable {
             this.grupo = grupo;
             this.nome_grupo = nome_grupo;
             this.empresa_id = empresa_id;
+            this.data_baixa = data_baixa;
+            this.valor_baixa = valor_baixa;
+            this.nome_socio = nome_socio;
         }
 
         /**
@@ -699,6 +718,30 @@ public class RelatorioDescontoFolhaBean implements Serializable {
 
         public void setEmpresa_id(Object empresa_id) {
             this.empresa_id = empresa_id;
+        }
+
+        public Object getData_baixa() {
+            return data_baixa;
+        }
+
+        public void setData_baixa(Object data_baixa) {
+            this.data_baixa = data_baixa;
+        }
+
+        public Object getValor_baixa() {
+            return valor_baixa;
+        }
+
+        public void setValor_baixa(Object valor_baixa) {
+            this.valor_baixa = valor_baixa;
+        }
+
+        public Object getNome_socio() {
+            return nome_socio;
+        }
+
+        public void setNome_socio(Object nome_socio) {
+            this.nome_socio = nome_socio;
         }
     }
 }

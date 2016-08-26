@@ -10,7 +10,7 @@ public class RelatorioOrdemDao extends DB {
 
     public List findAllByRelatorio(Integer relatorio) {
         try {
-            Query query = getEntityManager().createNativeQuery("SELECT RO.* FROM sis_relatorio_ordem AS RO WHERE RO.id_relatorio = " + relatorio + " ORDER BY RO.is_default DESC, RO.ds_descricao ASC", RelatorioOrdem.class);
+            Query query = getEntityManager().createNativeQuery("SELECT RO.* FROM sis_relatorio_ordem AS RO WHERE RO.id_relatorio = " + relatorio + " ORDER BY RO.ds_descricao ASC", RelatorioOrdem.class);
             List list = query.getResultList();
             if (!list.isEmpty()) {
                 return list;
