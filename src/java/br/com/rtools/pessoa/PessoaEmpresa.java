@@ -1,5 +1,7 @@
 package br.com.rtools.pessoa;
 
+import br.com.rtools.homologacao.Agendamento;
+import br.com.rtools.homologacao.dao.HomologacaoDao;
 import br.com.rtools.utilitarios.DataHoje;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -115,7 +117,7 @@ public class PessoaEmpresa implements java.io.Serializable {
 
     public void setAdmissao(String admissao) {
         this.dtAdmissao = DataHoje.converte(admissao);
-        
+
     }
 
     public Date getDtDemissao() {
@@ -178,6 +180,13 @@ public class PessoaEmpresa implements java.io.Serializable {
 
     public void setPrincipal(boolean principal) {
         this.principal = principal;
+    }
+
+    public Agendamento getAgendamento() {
+        if (this != null && this.id != -1) {
+            return new HomologacaoDao().findByEmpresa(this.id);
+        }
+        return null;
     }
 
 }

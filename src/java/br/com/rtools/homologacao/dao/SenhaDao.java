@@ -18,7 +18,7 @@ public class SenhaDao extends DB {
         }
     }
 
-    public List sequence(Integer filial_id, Integer limit) {
+    public List sequence(Integer filial_id, Integer limit, Boolean test) {
         try {
             String queryString;
             queryString = " SELECT S.* "
@@ -43,7 +43,7 @@ public class SenhaDao extends DB {
                         + "        AND dt_nova_chamada IS NOT NULL      ";
                 query = getEntityManager().createNativeQuery(queryString);
                 List listUpdate = query.getResultList();
-                if (!listUpdate.isEmpty()) {
+                if (!listUpdate.isEmpty() && !test) {
                     try {
                         getEntityManager().getTransaction().begin();
                         Query queryB = getEntityManager().createNativeQuery("UPDATE hom_senha SET dt_nova_chamada = null WHERE dt_nova_chamada IS NOT NULL");
@@ -61,7 +61,7 @@ public class SenhaDao extends DB {
         }
     }
 
-    public List findRequest(Integer filial_id) {
+    public List findRequest(Integer filial_id, Boolean test) {
         List list;
         try {
             String queryString;
@@ -74,9 +74,11 @@ public class SenhaDao extends DB {
             list = query.getResultList();
             if (!list.isEmpty()) {
                 try {
-                    getEntityManager().getTransaction().begin();
-                    Query queryB = getEntityManager().createNativeQuery("UPDATE hom_senha SET dt_verificada = null WHERE dt_verificada IS NOT NULL");
-                    queryB.executeUpdate();
+                    if (!test) {
+                        getEntityManager().getTransaction().begin();
+                        Query queryB = getEntityManager().createNativeQuery("UPDATE hom_senha SET dt_verificada = null WHERE dt_verificada IS NOT NULL");
+                        queryB.executeUpdate();
+                    }
                     getEntityManager().getTransaction().commit();
                     return list;
                 } catch (Exception e) {

@@ -1,5 +1,9 @@
 package br.com.rtools.utilitarios;
 
+import java.util.List;
+import javax.faces.bean.ManagedBean;
+
+@ManagedBean
 public class Filters {
 
     private String key;
@@ -57,6 +61,21 @@ public class Filters {
 
     public void setDisabled(Boolean disabled) {
         this.disabled = disabled;
+    }
+
+    public Boolean getShow(List<Filters> filters, String key) {
+        try {
+            for (Filters f : filters) {
+                if (f.getKey().equals(key)) {
+                    if (f.getActive()) {
+                        return true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return false;
     }
 
 }

@@ -8,7 +8,8 @@
     <h:head>
         <title>Sindical - Senha</title>
         <meta http-equiv="X-UA-Compatible" content="IE=9" />
-        <!-- <meta http-equiv="refresh" content="500" /> -->
+        <!-- 1 * 60 * 60 (h x m x s ) = 3600 > 6 horas -->
+        <meta http-equiv="refresh" content="21600" />
         <link rel="shortcut icon" href="#{facesContext.externalContext.requestContextPath}/Imagens/favicon.ico"/>
         <style>
             body, div:first-of-type { margin: 0 auto;}
@@ -124,9 +125,13 @@
             <div class="container-fluid">
                 <c:set scope="request" var="object" value="${senhaBean.senha}"/>                
                 <h:form id="form_senha">
-                    <p:commandLink style="width: 0; height: 0" id="update_grid">
-                        <p:ajax event="click" update="i_panel_senha :form_sound:" listener="#{senhaBean.loadSenha()}" />
-                    </p:commandLink>                    
+                    <p:poll interval="900" id="id_poll_refresh" update="id_poll_refresh i_panel_senha" ignoreAutoUpdate="true" delay="5"/>
+                    <p:commandLink style="width: 0px; height: 0px" id="btn_call" oncomplete="sing();">
+                        <p:ajax event="click" update="i_panel_senha" listener="#{senhaBean.loadSenha()}" ignoreAutoUpdate="true"/>
+                    </p:commandLink>
+                    <p:commandLink style="width: 0px; height: 0px" id="btn_update">
+                        <p:ajax event="click" update="i_panel_senha" listener="#{senhaBean.loadSenha()}" ignoreAutoUpdate="true"/>
+                    </p:commandLink>
                     <h:panelGrid style="width: 100%" id="i_panel_senha">
                         <div class="row">
                             <div class="col-xs-6 col-lg-6 col-md-6 col-sm-6">
@@ -198,36 +203,47 @@
                     </center>                    
                 </h:form>
                 <h:form id="form_sound">
-                    <h:column rendered="#{senhaBean.sound}">
-                        <audio controls="controls" autoplay="autoplay" preload="auto" style="width: 0; height: 0">
-                            <source src="#{facesContext.externalContext.requestContextPath}/resources/sound/senha.mp3" type="audio/mpeg"></source>                                      
-                        </audio>
-                        <p:poll interval="10" update=":form_sound:id_hidden" autoStart="false" stop="#{!senhaBean.sound}"/>
-                        <h:inputHidden id="id_hidden" value="#{senhaBean.disabledSound}"  />
-                    </h:column>
+                    <audio id="audiotag1" style="width: 10px; height: 10px">
+                        <source src="http://#{defaults.URLLocal}#{facesContext.externalContext.requestContextPath}/resources/sound/senha.mp3" type="audio/mpeg"></source>
+                    </audio>
                 </h:form>
             </div>
             <span id="messageGoesHere"></span>
             <script type="text/javascript">
-                var ws = new WebSocket("ws://#{defaults.URLLocal}#{facesContext.externalContext.requestContextPath}/ws_socket/senha_homologacao_#{controleUsuarioBean.clienteLowerCaseString}_#{senhaBean.macFilial.filial.id}");
+                var som = document.getElementById("audiotag1");
+                som.autoplay = false;
+                som.hidden = false;
+                som.preload = "auto";
+                som.controls = false;
+                function sing() {
+                    som.autoplay = true;
+                    som.play();
+		}          
+                var urlws = "ws://#{defaults.URLLocal}#{facesContext.externalContext.requestContextPath}/ws_socket/senha_homologacao_#{controleUsuarioBean.clienteLowerCaseString}_#{senhaBean.macFilial.filial.id}";
+                var ws = new WebSocket(urlws);
 
                 ws.onopen = function (event) {
                     console.log("Connected ", event);
                 };
 
                 ws.onmessage = function (event) {
-                    if (event.data === "1") {
-                        document.getElementById("form_senha:update_grid").click();
+                    if (event.data === "call" || event.data === "recall") {
+                        document.getElementById("form_senha:btn_call").click();                                                
+                    }
+                    if (event.data === "update" || event.data === "close") {
+                        document.getElementById("form_senha:btn_update").click();                                                
                     }
                 };
 
                 ws.onerror = function (event) {
+                    alert('Reinicie a aplicação');
                     console.log("Error ", event);
                 };
 
                 ws.onclose = function (event) {
+                    alert('Servidor fora do AR');
                     console.log("Error ", event);
-                };
+                };                
             </script>
             <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
             <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>

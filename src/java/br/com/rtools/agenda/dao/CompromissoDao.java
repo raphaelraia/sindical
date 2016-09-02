@@ -31,7 +31,9 @@ public class CompromissoDao extends DB {
         List list = new ArrayList();
         List listWhere = new ArrayList();
         try {
-            String queryString = "      SELECT C.*                                                          \n"
+            String queryString = " SELECT C1.* FROM age_compromisso C1                                      \n"
+                    + "             WHERE C1.id IN (                                                        \n"
+                    + "            SELECT C.id                                                              \n"
                     + "                   FROM age_compromisso  AS C                                        \n"
                     + "              LEFT JOIN age_compromisso_usuario AS CU ON CU.id_compromisso = C.id    \n"
                     + "              LEFT JOIN sis_periodo      AS P ON P.id = C.id_periodo_repeticao       \n"
@@ -55,16 +57,16 @@ public class CompromissoDao extends DB {
                 listWhere.add("C.dt_data IS NOT NULL AND (CURRENT_DATE + INTERVAL '7 DAY') BETWEEN date_trunc('week', C.dt_data::timestamp)::date AND (date_trunc('week', C.dt_data::timestamp)+ '6 days'::interval)::date");
             }
             if (tipoHistorico.equals("ontem")) {
-                listWhere.add("C.dt_data IS NOT NULL AND C.dt_data = (CURRENT_DATE - INTERVAL  '1 DAY')");
+                listWhere.add("C.dt_data IS NOT NULL AND C.dt_data = (CURRENT_DATE - INTERVAL '1 DAY')");
             }
             if (tipoHistorico.equals("mes")) {
-                listWhere.add("C.dt_data IS NOT NULL AND C.dt_data > (CURRENT_DATE - INTERVAL  '1 MONTH') AND C.dt_data < CURRENT_DATE");
+                listWhere.add("C.dt_data IS NOT NULL AND C.dt_data > (CURRENT_DATE - INTERVAL '1 MONTH') AND C.dt_data < CURRENT_DATE");
             }
             if (tipoHistorico.equals("semestre")) {
-                listWhere.add("C.dt_data IS NOT NULL AND C.dt_data > (CURRENT_DATE - INTERVAL  '180 DAYS') AND C.dt_data < CURRENT_DATE");
+                listWhere.add("C.dt_data IS NOT NULL AND C.dt_data > (CURRENT_DATE - INTERVAL '180 DAYS') AND C.dt_data < CURRENT_DATE");
             }
             if (tipoHistorico.equals("ano")) {
-                listWhere.add("C.dt_data IS NOT NULL AND C.dt_data > (CURRENT_DATE - INTERVAL  '1 YEAR') AND C.dt_data < CURRENT_DATE");
+                listWhere.add("C.dt_data IS NOT NULL AND C.dt_data > (CURRENT_DATE - INTERVAL '1 YEAR') AND C.dt_data < CURRENT_DATE");
             }
             if (cancelados.equals("ativos")) {
                 listWhere.add("C.dt_cancelamento IS NULL");
@@ -111,9 +113,9 @@ public class CompromissoDao extends DB {
                 }
                 queryString += " " + listWhere.get(i).toString() + " \n";
             }
-            queryString += "  ORDER BY C.id_semana,      \n"
-                    + "                C.dt_data,        \n"
-                    + "                C.ds_hora_inicial \n";
+            queryString += "  ) ORDER BY C1.id_semana,      \n"
+                    + "                C1.dt_data,        \n"
+                    + "                C1.ds_hora_inicial \n";
             Query query = getEntityManager().createNativeQuery(queryString, Compromisso.class);
             list = query.getResultList();
             if (!list.isEmpty()) {

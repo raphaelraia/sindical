@@ -184,7 +184,7 @@
                                             <h:panelGrid id="i_panel_fantasia" columns="2" style="width: 100%">
                                                 <p:column>
                                                     <h:outputLabel value="Razão Social" /><br />
-                                                    <p:inputText value="#{juridicaBean.juridica.pessoa.nome}" style="width: 100%" converter="#{toUpperCase}">
+                                                    <p:inputText value="#{juridicaBean.juridica.pessoa.nome}" style="width: 100%" converter="#{toUpperCase}" title="#{juridicaBean.juridica.pessoa.id}">
                                                         <p:ajax event="change" update="@this i_fantasia" global="true"/>
                                                     </p:inputText>
                                                 </p:column>                                                

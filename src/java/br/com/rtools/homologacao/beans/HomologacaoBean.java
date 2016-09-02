@@ -269,7 +269,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
         senhaAtendimento = new Senha();
         loadListaAtendimentoSimples();
         PF.closeDialog("dlg_atendimento_simples");
-        WSSocket.send(getWebSocketSenha());
+        WSSocket.send(getWebSocketSenha(), "update");
     }
 
     public void excluirSenhaAtendimento() {
@@ -332,7 +332,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
 //                return;
 //            }
         }
-        WSSocket.send(getWebSocketSenha());
+        WSSocket.send(getWebSocketSenha(), "recall");
     }
 
     public String retornaSequenciaSenha() {
@@ -373,7 +373,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
 
             PF.update("formConcluirHomologacao");
             PF.openDialog("dlg_homologacao");
-            WSSocket.send(getWebSocketSenha());
+            WSSocket.send(getWebSocketSenha(), "call");
             return null;
         }
 
@@ -387,14 +387,14 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
                 GenericaMensagem.error("Erro", "Não foi possível atualizar Senha!");
                 return null;
             }
-            WSSocket.send(getWebSocketSenha());
+            WSSocket.send(getWebSocketSenha(), "call");
             PF.update("form_cancelar_data_table:tbl_at");
             PF.openDialog("dlg_atendimento_simples");
             return null;
         }
         List<Senha> listaSenha = dbh.listaSequenciaSenha(macFilial.getFilial().getId(), macFilial.getDepartamento().getId());
         if (listaSenha.isEmpty()) {
-            WSSocket.send(getWebSocketSenha());
+            WSSocket.send(getWebSocketSenha(), "call");
             return null;
         }
         for (Senha senhax : listaSenha) {
@@ -450,7 +450,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
 
                 PF.update("formConcluirHomologacao");
                 PF.openDialog("dlg_homologacao");
-                WSSocket.send(getWebSocketSenha());
+                WSSocket.send(getWebSocketSenha(), "call");
                 return null;
             } else if (senhax.getAteMovimento() != null) {
                 // SENHA DE ATENDIMENTO --------------------------------------------------------------------------------------------------------------------------
@@ -483,7 +483,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
                         senhaAtendimento = senhax;
                         PF.update("form_cancelar_data_table:tbl_at");
                         PF.openDialog("dlg_atendimento_simples");
-                        WSSocket.send(getWebSocketSenha());
+                        WSSocket.send(getWebSocketSenha(), "call");
                         return null;
                     }
 
@@ -509,7 +509,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
                         senhaAtendimento = senhax;
                         PF.update("form_cancelar_data_table:tbl_at");
                         PF.openDialog("dlg_atendimento_simples");
-                        WSSocket.send(getWebSocketSenha());
+                        WSSocket.send(getWebSocketSenha(), "call");
                         return null;
                     }
                 }
@@ -690,7 +690,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
         }
         PF.closeDialog("dlg_atendimento_simples");
         listFiles.clear();
-        WSSocket.send(getWebSocketSenha());
+        WSSocket.send(getWebSocketSenha(), "close");
     }
 
     public List<SelectItem> getListaStatus() {
@@ -1012,7 +1012,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
             msgConfirma = "Registro atualizado com Sucesso!";
             GenericaMensagem.info("Sucesso", "Registro atualizado");
             limpar();
-            // WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());
+            WSSocket.send(getWebSocketSenha(), "update");
         } else {
             dao.rollback();
         }
@@ -1048,7 +1048,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
             Senha senha = hd.pesquisaSenhaAgendamento(agendamento.getId());
             senha.setDtVerificada(DataHoje.converte("01/01/1900"));
             dao.update(senha, true);
-            WSSocket.send(getWebSocketSenha());
+            WSSocket.send(getWebSocketSenha(), "update");
         } else {
             GenericaMensagem.error("Atenção", "Erro ao homologar!");
             dao.rollback();
@@ -1111,7 +1111,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
         dao2.update(senha, true);
         loadListaHomologacao();
         // WSSocket.send("agendamento_" + ControleUsuarioBean.getCliente().toLowerCase());
-        WSSocket.send(getWebSocketSenha());
+        WSSocket.send(getWebSocketSenha(), "update");
         agendamento = new Agendamento();
         return null;
     }

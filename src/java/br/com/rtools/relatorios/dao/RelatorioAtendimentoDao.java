@@ -69,7 +69,7 @@ public class RelatorioAtendimentoDao extends DB {
                 + "   LEFT JOIN pes_pessoa      AS pj ON pj.id = j.id_pessoa    \n"
                 + "   LEFT JOIN pes_filial      AS fl ON fl.id = m.id_filial    \n"
                 + "   LEFT JOIN pes_juridica    AS fj ON fj.id = fl.id_filial   \n"
-                + "   LEFT JOIN pes_pessoa      AS pf ON pf.id = fj.id_pessoa ";
+                + "   LEFT JOIN pes_pessoa      AS pf ON pf.id = fj.id_pessoa   \n";
 
         List listWhere = new ArrayList();
 
@@ -118,17 +118,17 @@ public class RelatorioAtendimentoDao extends DB {
                 if (emissao.getDtStart() != null && !emissao.getStart().isEmpty()) {
                     switch (emissao.getType()) {
                         case "igual":
-                            listWhere.add(" p.dt_emissao = '" + emissao.getStart() + "'");
+                            listWhere.add(" m.dt_emissao = '" + emissao.getStart() + "'");
                             break;
                         case "apartir":
-                            listWhere.add(" p.dt_emissao >= '" + emissao.getStart() + "'");
+                            listWhere.add(" m.dt_emissao >= '" + emissao.getStart() + "'");
                             break;
                         case "ate":
-                            listWhere.add(" p.dt_emissao <= '" + emissao.getStart() + "'");
+                            listWhere.add(" m.dt_emissao <= '" + emissao.getStart() + "'");
                             break;
                         case "faixa":
                             if (!emissao.getStart().isEmpty()) {
-                                listWhere.add(" p.dt_emissao BETWEEN '" + emissao.getStart() + "' AND '" + emissao.getFinish() + "'");
+                                listWhere.add(" m.dt_emissao BETWEEN '" + emissao.getStart() + "' AND '" + emissao.getFinish() + "'");
                             }
                             break;
                         default:
@@ -147,8 +147,8 @@ public class RelatorioAtendimentoDao extends DB {
         }
 //
         if (relatorioOrdem != null) {
-            // queryString += " ORDER BY " + relatorioOrdem.getQuery();
-            queryString += " ORDER BY pf.ds_nome, pf.ds_documento, c.ds_nome, c.ds_documento, dt_emissao ";
+            queryString += " ORDER BY " + relatorioOrdem.getQuery();
+            // queryString += " ORDER BY pf.ds_nome, pf.ds_documento, dt_emissao, c.ds_nome, c.ds_documento ";
         }
         try {
             Query query = getEntityManager().createNativeQuery(queryString);

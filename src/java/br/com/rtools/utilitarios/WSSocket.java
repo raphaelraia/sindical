@@ -42,10 +42,14 @@ public class WSSocket {
 
     // @OnMessage
     public static void send(String identifier) {
+        send(identifier, "1");
+    }
+    
+    public static void send(String identifier, String text) {
         for (Session sess : clients) {
             if (sess.getRequestURI().getPath().contains(identifier)) {
                 try {
-                    sess.getBasicRemote().sendText("1");
+                    sess.getBasicRemote().sendText(text);
                 } catch (IOException ioe) {
                     System.out.println(ioe.getMessage());
                 }

@@ -37,6 +37,7 @@ public class SenhaBean implements Serializable {
     private Integer recallId;
     private String recallColor;
     private Boolean host_web;
+    private Boolean test;
 
     @PostConstruct
     public void init() {
@@ -53,6 +54,12 @@ public class SenhaBean implements Serializable {
             host_web = Boolean.valueOf(GenericaRequisicao.getParametro("host_web"));
         } catch (Exception e) {
             host_web = false;
+        }
+        test = false;
+        try {
+            test = Boolean.valueOf(GenericaRequisicao.getParametro("test"));
+        } catch (Exception e) {
+            test = false;
         }
         if (tipo == null || tipo.isEmpty()) {
             tipo = "MESA";
@@ -86,7 +93,7 @@ public class SenhaBean implements Serializable {
         if (activePoll) {
             SenhaDao sd = new SenhaDao();
             if (!listSenha.isEmpty()) {
-                List<Senha> list = sd.findRequest(macFilial.getFilial().getId());
+                List<Senha> list = sd.findRequest(macFilial.getFilial().getId(), test);
                 if (!list.isEmpty()) {
                     for (int i = 0; i < list.size(); i++) {
                         if (list.get(i).getMesa() > 0 && !list.get(i).getHoraChamada().isEmpty() && !DataHoje.converteData(list.get(i).getDtVerificada()).equals("01/01/1900")) {
@@ -101,7 +108,7 @@ public class SenhaBean implements Serializable {
                 sound = true;
             }
             if (listSenha.isEmpty()) {
-                listSenha = sd.sequence(macFilial.getFilial().getId(), 4);
+                listSenha = sd.sequence(macFilial.getFilial().getId(), 4, test);
                 if (!listSenha.isEmpty()) {
                     if (GenericaSessao.exists("firstCall")) {
                         try {
