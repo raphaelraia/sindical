@@ -20,7 +20,7 @@ public class UsuarioAcessoDao extends DB {
     public UsuarioAcesso pesquisaUsuarioAcesso(Integer usuario_id, Integer permissao_id) {
         UsuarioAcesso usuarioAcesso = new UsuarioAcesso();
         try {
-            Query qry = getEntityManager().createQuery("SELECT UA FROM UsuarioAcesso UA WHERE UA.usuario.id = " + usuario_id + " AND UA.permissao.id = " + permissao_id);
+            Query qry = getEntityManager().createQuery("SELECT UA FROM UsuarioAcesso AS UA WHERE UA.usuario.id = " + usuario_id + " AND UA.permissao.id = " + permissao_id);
             if (!qry.getResultList().isEmpty()) {
                 return (UsuarioAcesso) qry.getSingleResult();
             }

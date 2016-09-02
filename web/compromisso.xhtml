@@ -182,12 +182,12 @@
                                         </h:panelGrid>
                                     </p:panel>
                                     <p:panel header="DETALHES: " styleClass="margin-top-max">
-                                        <h:inputTextarea value="#{compromissoBean.compromisso.detalhes}" cols="100" rows="10" />
+                                        <p:inputTextarea value="#{compromissoBean.compromisso.detalhes}" cols="100" rows="10"  maxlength="500"/>
                                     </p:panel>
                                 </h:column>
                                 <h:column>
                                     <h:column rendered="#{compromissoBean.compromisso.id != null}">
-                                        <p:panel header="Usuários">
+                                        <p:panel header="COMPROMISSO PARA:">
                                             <h:panelGrid columns="7">
                                                 <p:selectOneMenu value="#{compromissoBean.idUsuario}" >
                                                     <p:ajax event="change" update="@this" global="false"/>
@@ -199,7 +199,7 @@
                                         <p:panel  id="tbl_agenda_telefone" styleClass="margin-top-max">
                                             <h:column rendered="#{not empty compromissoBean.listCompromissoUsuario}">
                                                 <p:dataTable var="compromissoUsuario" value="#{compromissoBean.listCompromissoUsuario}" emptyMessage="Nenhum registro encontrado!">
-                                                    <p:column headerText="Usuário">
+                                                    <p:column headerText="Compromissado">
                                                         #{compromissoUsuario.usuario.pessoa.nome}
                                                     </p:column>
                                                     <p:column>

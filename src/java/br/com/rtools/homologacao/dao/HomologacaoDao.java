@@ -594,6 +594,15 @@ public class HomologacaoDao extends DB {
         return new ArrayList();
     }
 
+    public Agendamento findByEmpresa(Integer pessoa_empresa_id) {
+        try {
+            Query query = getEntityManager().createNativeQuery("SELECT A.* FROM hom_agendamento AS A WHERE A.id_pessoa_empresa = " + pessoa_empresa_id + " ORDER BY A.id DESC LIMIT 1", Agendamento.class);
+            return (Agendamento) query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public Oposicao pesquisaFisicaOposicao(String cpf, int id_juridica) {
         Oposicao result = null;
         try {

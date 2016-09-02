@@ -27,7 +27,7 @@
                                 <f:selectItems value="#{relatorioAtendimentoBean.listRelatorio}"/>
                             </p:selectOneMenu>
                             <p:outputLabel value="Ordem: " styleClass="margin-left-max" rendered="#{not empty relatorioAtendimentoBean.listRelatorioOrdem}"/>
-                            <p:selectOneMenu value="#{relatorioAtendimentoBean.idRelatorioOrdem}" rendered="#{not empty relatorioAtendimentoBean.listRelatorioOrdem}">
+                            <p:selectOneMenu value="#{relatorioAtendimentoBean.idRelatorioOrdem}" rendered="#{not empty relatorioAtendimentoBean.listRelatorioOrdem}" style="width: 150px">
                                 <p:ajax event="change" update="@this"/>
                                 <f:selectItems value="#{relatorioAtendimentoBean.listRelatorioOrdem}"/>
                             </p:selectOneMenu>
@@ -38,7 +38,7 @@
                             <p:panel header="Editar" style="width: 225px;" id="i_panel_avancado">
                                 <h:panelGrid>
                                     <c:forEach items="#{relatorioAtendimentoBean.filters}" var="filter" varStatus="loop" id="i_foreach_1">
-                                        <p:selectBooleanButton value="#{filter.active}" onLabel="#{filter.value}" offLabel="#{filter.value}" style="width: 180px; text-align: left" >
+                                        <p:selectBooleanButton value="#{filter.active}" onLabel="#{filter.value}" offLabel="#{filter.value}" style="width: 180px; text-align: left" disabled="#{filter.disabled}">
                                             <p:ajax event="change" update="@this :form_relatorio:id_panel_relatorio" listener="#{relatorioAtendimentoBean.load(relatorioAtendimentoBean.filters[loop.index])}" />
                                         </p:selectBooleanButton>                              
                                     </c:forEach>
@@ -51,14 +51,15 @@
                                     <h:column>
                                         <h:panelGrid columns="4">
                                             <p:outputLabel value="Filial:" />
-                                            <p:selectCheckboxMenu label="Selecionar filial" value="#{relatorioAtendimentoBean.selectedFilial}" filter="true" filterMatchMode="startsWith">
-                                                <f:selectItems value="#{relatorioAtendimentoBean.listFilial}" />
-                                            </p:selectCheckboxMenu>
-                                            <p:commandButton icon="ui-icon-close" action="#{relatorioAtendimentoBean.close('filial')}" title="Remover filtro" update="form_relatorio"/>
+                                            <p:selectOneMenu value="#{relatorioAtendimentoBean.idFilial}">
+                                                <p:ajax event="change" update="@this"/>
+                                                <f:selectItems value="#{relatorioAtendimentoBean.listFilial}"/>
+                                            </p:selectOneMenu>
+                                            <p:commandButton icon="ui-icon-close" action="#{relatorioAtendimentoBean.close('filial')}" title="Remover filtro" update="form_relatorio" disabled="true"/>
                                         </h:panelGrid>                                        
                                     </h:column>
                                 </p:column>
-                                <p:column rendered="#{relatorioAtendimentoBean.getShow('status')}">
+                                <p:column rendered="#{filters.getShow(relatorioAtendimentoBean.filters, 'status')}">
                                     <h:column>
                                         <h:panelGrid columns="4">
                                             <p:outputLabel value="Status:" />

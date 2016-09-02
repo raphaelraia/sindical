@@ -84,6 +84,8 @@ div.wrapper { width: 1024px; margin: 0 auto;}
 .bg-purple {background: purple!important;}
 .bg-yellow-ligth {background: #ffffcc!important;}
 .bg-green-ligth {background: #ccffcc!important;}
+.bg-orange-dark {background: darkorange!important;}
+.bg-salmon {background: salmon!important;}
 .tam-300 {width: 300px;}
 .z-index-one {z-index: 1}
 .z-index-five {z-index: 5}

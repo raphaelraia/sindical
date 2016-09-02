@@ -59,34 +59,49 @@
                                         <h:panelGrid id="i_panel_dados" columns="2" style="height: 400px; width: 100%" columnClasses="verticalAlignTop, verticalAlignTop">
                                             <p:column>
                                                 <p:panel styleClass="fundoCinza">
-                                                    <h:panelGrid columns="5">
+                                                    <h:panelGrid columns="6">
+                                                        <p:column rendered="#{fisicaBean.fisica.id != -1}">
+                                                            <h:panelGrid>
+                                                                <p:outputLabel value="Código"/>
+                                                                <p:inputText size="5" value="#{fisicaBean.fisica.pessoa.id}" readonly="true" styleClass="font-color-red bold text-center font-size-12 bg-yellow-ligth" title="Código pessoa física n°#{fisicaBean.fisica.id}"/>
+                                                            </h:panelGrid>
+                                                        </p:column>
+                                                        
                                                         <p:column>
-                                                            <p:outputLabel value="Cadastrado"/><br />
-                                                            <p:calendar size="8" value="#{fisicaBean.fisica.pessoa.dtCriacao}" pattern="dd/MM/yyyy" yearRange="c-1:c+1" mask="99/99/9999" locale="pt_BR">
-                                                                <p:ajax event="dateSelect" listener="#{fisicaBean.fisica.pessoa.selecionaDataCriacao}" />
-                                                            </p:calendar>
+                                                            <h:panelGrid>
+                                                                <p:outputLabel value="Cadastrado"/>
+                                                                <p:calendar size="8" value="#{fisicaBean.fisica.pessoa.dtCriacao}" pattern="dd/MM/yyyy" yearRange="c-1:c+1" mask="99/99/9999" locale="pt_BR">
+                                                                    <p:ajax event="dateSelect" listener="#{fisicaBean.fisica.pessoa.selecionaDataCriacao}" />
+                                                                </p:calendar>                                                                
+                                                            </h:panelGrid>
                                                         </p:column>
 
                                                         <p:column>
-                                                            <p:outputLabel value="CPF" /><br />
-                                                            <p:inputMask size="13" value="#{fisicaBean.fisica.pessoa.documento}" mask="999.999.999-99">
+                                                            <h:panelGrid>
+                                                            <p:outputLabel value="CPF" />
+                                                            <p:inputMask size="13" value="#{fisicaBean.fisica.pessoa.documento}" mask="999.999.999-99" styleClass="text-center font-size-10 #{(fisicaBean.fisica.id != -1 and not empty fisicaBean.fisica.pessoa.documento and fisicaBean.fisica.pessoa.documento ne '___.___.___-__') ? 'bg-green-ligth' : 'bg-yellow-ligth' } bold" >
                                                                 <p:ajax event="blur" listener="#{fisicaBean.existePessoaDocumento}"  />
                                                             </p:inputMask>                                        
+                                                            </h:panelGrid>
                                                         </p:column>
 
                                                         <p:column>
-                                                            <p:outputLabel value="RG" /><br />
-                                                            <p:inputText size="10" maxlength="20" value="#{fisicaBean.fisica.rg}">
-                                                                <p:ajax event="change" update="@this" />
-                                                            </p:inputText>
+                                                            <h:panelGrid>
+                                                                <p:outputLabel value="RG" />
+                                                                <p:inputText size="10" maxlength="20" value="#{fisicaBean.fisica.rg}" styleClass="text-center">
+                                                                    <p:ajax event="change" update="@this" />
+                                                                </p:inputText>                                                                
+                                                            </h:panelGrid>
                                                         </p:column>
 
                                                         <p:column>
-                                                            <p:outputLabel value="Nascimento" /><br />
-                                                            <p:calendar size="8" value="#{fisicaBean.fisica.dtNascimento}" pattern="dd/MM/yyyy" yearRange="c-120:c-0" navigator="true" mask="99/99/9999" converterMessage="Data de nascimento inválida - Formato 01/01/1900"  locale="pt_BR">
-                                                                <p:ajax event="dateSelect" update="@this i_idade"  listener="#{fisicaBean.fisica.selecionaDataNascimento}" />
-                                                                <p:ajax event="change" update="@this i_idade"  />
-                                                            </p:calendar>
+                                                            <h:panelGrid>
+                                                                <p:outputLabel value="Nascimento" />
+                                                                <p:calendar size="8" value="#{fisicaBean.fisica.dtNascimento}" pattern="dd/MM/yyyy" yearRange="c-120:c-0" navigator="true" mask="99/99/9999" converterMessage="Data de nascimento inválida - Formato 01/01/1900"  locale="pt_BR">
+                                                                    <p:ajax event="dateSelect" update="@this i_idade"  listener="#{fisicaBean.fisica.selecionaDataNascimento}" />
+                                                                    <p:ajax event="change" update="@this i_idade"  />
+                                                                </p:calendar>                                                                
+                                                            </h:panelGrid>
                                                         </p:column>
 
                                                         <p:column>
@@ -95,9 +110,9 @@
                                                         </p:column>
                                                     </h:panelGrid>
 
-                                                    <h:panelGrid columns="1" style="margin-top: 15px; width: 100%">
+                                                    <h:panelGrid columns="1" style="width: 100%">
                                                         <p:outputLabel value="Nome"/>
-                                                        <p:inputText value="#{fisicaBean.fisica.pessoa.nome}" converter="#{toUpperCase}" style="width: 100%">
+                                                        <p:inputText value="#{fisicaBean.fisica.pessoa.nome}" converter="#{toUpperCase}" style="width: 100%" styleClass="font-size-12 bg-yellow-ligth">
                                                             <p:ajax event="change" update="@this" listener="#{fisicaBean.existePessoaNomeNascimento()}" />
                                                         </p:inputText>
                                                     </h:panelGrid>
@@ -424,7 +439,7 @@
                                             <p:panel id="i_tbl_empresa" header="Outras Empresas" styleClass="margin-top-max">
                                                 <p:dataTable id="i_tbl_empresa_b" var="pessoaEmpresa" value="#{fisicaBean.listaPessoaEmpresa}" styleClass="margin-top-max" emptyMessage="Nenhum registro encontrado!" >
                                                     <p:column width="30" rendered="#{segurancaUtilitariosBean.sessaoUsuario.id eq 1}">
-                                                        <p:commandButton icon="ui-icon-pencil" action="#{fisicaBean.setPessoaEmpresaEdit(pessoaEmpresa)}" update=":form_pessoa_fisica:i_painel_pe_edit" onclick="PF('dlg_pessoa_empresa').show()" title="EDIÇÃO PARA ADMINISTRADOR"/>
+                                                        <p:commandButton icon="ui-icon-pencil" action="#{fisicaBean.editPessoaEmpresaEdit(pessoaEmpresa)}"  title="EDIÇÃO PARA ADMINISTRADOR"/>
                                                     </p:column>
                                                     <p:column headerText="Documento" style="width: 110px; text-align: center">
                                                         <p:outputLabel value="#{pessoaEmpresa.juridica.pessoa.documento}"/>

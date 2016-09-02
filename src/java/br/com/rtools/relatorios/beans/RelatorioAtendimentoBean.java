@@ -49,8 +49,8 @@ public class RelatorioAtendimentoBean implements Serializable {
     private String finishDate;
     private String selectedGroups;
 
-    private Map<String, Integer> listFilial;
-    private List selectedFilial;
+    private List<SelectItem> listFilial;
+    private Integer idFilial;
 
     private Map<String, Integer> listStatus;
     private List selectedStatus;
@@ -83,6 +83,7 @@ public class RelatorioAtendimentoBean implements Serializable {
         loadRelatorios();
         loadRelatoriosOrdem();
         loadFilters();
+        loadFilial();
 
     }
 
@@ -105,7 +106,7 @@ public class RelatorioAtendimentoBean implements Serializable {
         filters.add(new Filters("atendente", "Atendente", false));
         filters.add(new Filters("datas", "Datas", false));
         filters.add(new Filters("empresa", "Empresa", false));
-        filters.add(new Filters("filial", "Filial", false));
+        filters.add(new Filters("filial", "Filial", true, true));
         filters.add(new Filters("operacao", "Operação", false));
         filters.add(new Filters("pessoa", "Pessoa", false));
         filters.add(new Filters("reserva", "Reserva", false));
@@ -131,13 +132,6 @@ public class RelatorioAtendimentoBean implements Serializable {
 
     public void load(Filters filter) {
         switch (filter.getKey()) {
-            case "filial":
-                listFilial = new LinkedHashMap<>();
-                selectedFilial = new ArrayList<>();
-                if (filter.getActive()) {
-                    loadFilial();
-                }
-                break;
             case "status":
                 listStatus = new LinkedHashMap<>();
                 selectedStatus = new ArrayList<>();
@@ -290,7 +284,7 @@ public class RelatorioAtendimentoBean implements Serializable {
         RelatorioDao db = new RelatorioDao();
         Relatorios relatorios = db.pesquisaRelatorios(idRelatorio);
         relatorioAtendimentoDao.setRelatorios(relatorios);
-        List list = relatorioAtendimentoDao.find(inIdFilial(), inIdStatus(), inIdOperacao(), inIdAtendente(), inIdReserva(), inIdPessoas(), inIdEmpresas(), listDateFilters);
+        List list = relatorioAtendimentoDao.find(Integer.toString(idFilial), inIdStatus(), inIdOperacao(), inIdAtendente(), inIdReserva(), inIdPessoas(), inIdEmpresas(), listDateFilters);
         List<JasperObject> jos = new ArrayList();
         for (int i = 0; i < list.size(); i++) {
             List o = (List) list.get(i);
@@ -390,22 +384,6 @@ public class RelatorioAtendimentoBean implements Serializable {
                         ids = "" + listEmpresas.get(i).getId();
                     } else {
                         ids += "," + listEmpresas.get(i).getId();
-                    }
-                }
-            }
-        }
-        return ids;
-    }
-
-    public String inIdFilial() {
-        String ids = null;
-        if (selectedFilial != null) {
-            for (int i = 0; i < selectedFilial.size(); i++) {
-                if (selectedFilial.get(i) != null) {
-                    if (ids == null) {
-                        ids = "" + selectedFilial.get(i);
-                    } else {
-                        ids += "," + selectedFilial.get(i);
                     }
                 }
             }
@@ -527,11 +505,14 @@ public class RelatorioAtendimentoBean implements Serializable {
     }
 
     public void loadFilial() {
-        listFilial = new LinkedHashMap<>();
-        selectedFilial = new ArrayList();
+        listFilial = new ArrayList<>();
+        idFilial = null;
         List<Filial> list = new FilialDao().findByTabela("ate_movimento");
         for (int i = 0; i < list.size(); i++) {
-            listFilial.put(list.get(i).getFilial().getPessoa().getNome(), list.get(i).getId());
+            if (i == 0) {
+                idFilial = list.get(i).getId();
+            }
+            listFilial.add(new SelectItem(list.get(i).getId(), list.get(i).getFilial().getPessoa().getNome()));
         }
     }
 
@@ -690,20 +671,20 @@ public class RelatorioAtendimentoBean implements Serializable {
         this.selectedGroups = selectedGroups;
     }
 
-    public Map<String, Integer> getListFilial() {
+    public List<SelectItem> getListFilial() {
         return listFilial;
     }
 
-    public void setListFilial(Map<String, Integer> listFilial) {
+    public void setListFilial(List<SelectItem> listFilial) {
         this.listFilial = listFilial;
     }
 
-    public List getSelectedFilial() {
-        return selectedFilial;
+    public Integer getIdFilial() {
+        return idFilial;
     }
 
-    public void setSelectedFilial(List selectedFilial) {
-        this.selectedFilial = selectedFilial;
+    public void setIdFilial(Integer idFilial) {
+        this.idFilial = idFilial;
     }
 
     public Map<String, Integer> getListStatus() {

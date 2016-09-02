@@ -2725,15 +2725,6 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public void updatePessoaEmpresa() {
-        if (pessoaEmpresaEdit.getDtDemissao() == null) {
-            List<Agendamento> list = new HomologacaoDao().pesquisaAgendamentoPorPessoaEmpresa(pessoaEmpresaEdit.getId());
-            for (int i = 0; i < list.size(); i++) {
-                if (list.get(i).getStatus().getId() == 4) {
-                    GenericaMensagem.warn("Validação", "NÃO É POSSÍVEL ALTERAR DATA DE DEMISSÃO COM PESSOA HOMOLOGADA!");
-                    return;
-                }
-            }
-        }
         if (new Dao().update(pessoaEmpresaEdit, true)) {
             GenericaMensagem.info("Sucesso", "REGISTRO ATUALIZADO");
             pessoaEmpresaEdit = new PessoaEmpresa();
@@ -2838,6 +2829,19 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         return pessoaEmpresaEdit;
     }
 
+    public void editPessoaEmpresaEdit(PessoaEmpresa pessoaEmpresaEdit) {
+        Agendamento a = pessoaEmpresaEdit.getAgendamento();
+        if (a != null) {
+            if (a.getStatus().getId() == 2 || a.getStatus().getId() == 4 || a.getStatus().getId() == 5 || a.getStatus().getId() == 6) {
+                GenericaMensagem.warn("Validação", "NÃO É POSSÍVEL ALTERAR EMPRESA AGENDADA, EM ATENDIMENTO OU HOMOLOGADA! ");
+                return;
+            }
+        }
+        this.pessoaEmpresaEdit = pessoaEmpresaEdit;
+        PF.openDialog("dlg_pessoa_empresa");
+        PF.update("form_pessoa_fisica:i_painel_pe_edit");
+    }
+    
     public void setPessoaEmpresaEdit(PessoaEmpresa pessoaEmpresaEdit) {
         this.pessoaEmpresaEdit = pessoaEmpresaEdit;
     }

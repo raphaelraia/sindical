@@ -92,13 +92,13 @@ public class CompromissoUsuarioDao extends DB {
                 listWhere.add("C.dt_data IS NOT NULL AND C.dt_data = (CURRENT_DATE - INTERVAL  '1 DAY')");
             }
             if (tipoHistorico.equals("mes")) {
-                listWhere.add("C.dt_data IS NOT NULL AND C.dt_data > (CURRENT_DATE - INTERVAL  '1 MONTH') AND C.dt_data < CURRENT_DATE");
+                listWhere.add("C.dt_data IS NOT NULL AND C.dt_data > (CURRENT_DATE - INTERVAL  '1 MONTH')");
             }
             if (tipoHistorico.equals("semestre")) {
-                listWhere.add("C.dt_data IS NOT NULL AND C.dt_data > (CURRENT_DATE - INTERVAL  '180 DAYS') AND C.dt_data < CURRENT_DATE");
+                listWhere.add("C.dt_data IS NOT NULL AND C.dt_data > (CURRENT_DATE - INTERVAL  '180 DAYS')");
             }
             if (tipoHistorico.equals("ano")) {
-                listWhere.add("C.dt_data IS NOT NULL AND C.dt_data > (CURRENT_DATE - INTERVAL  '1 YEAR') AND C.dt_data < CURRENT_DATE");
+                listWhere.add("C.dt_data IS NOT NULL AND C.dt_data > (CURRENT_DATE - INTERVAL  '1 YEAR')");
             }
             if (cancelados.equals("ativos")) {
                 listWhere.add("C.dt_cancelamento IS NULL");
@@ -131,11 +131,15 @@ public class CompromissoUsuarioDao extends DB {
                         break;
                 }
             }
-            if (secretaria_id != null) {
-                listWhere.add("C.id_secretaria = " + secretaria_id + "");
-            }
-            if (usuario_id != null) {
-                listWhere.add("CU.id_usuario = " + usuario_id + "");
+            if (secretaria_id != null && usuario_id != null) {
+                listWhere.add("( C.id_secretaria = " + secretaria_id + " OR CU.id_usuario = " + usuario_id + " )");
+            } else {
+                if (secretaria_id != null) {
+                    listWhere.add("CU.id_secretaria = " + secretaria_id + "");
+                }
+                if (usuario_id != null) {
+                    listWhere.add("CU.id_usuario = " + usuario_id + "");
+                }
             }
             for (int i = 0; i < listWhere.size(); i++) {
                 if (i == 0) {
