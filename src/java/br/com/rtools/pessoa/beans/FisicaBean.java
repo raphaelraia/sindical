@@ -2276,7 +2276,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         switch (validacao) {
             case "matriculaEscola":
             case "matriculaAcademia":
-            case "convenioMedico":
+            //case "convenioMedico":
             case "locacaoFilme":
                 // case "associarFisica":
                 if (!p.getDocumento().isEmpty()) {
