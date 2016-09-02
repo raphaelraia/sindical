@@ -20,6 +20,7 @@
                     <div class="clear"></div>
                     <p:panel>
                         <c:set scope="request" var="object" value="${matriculaConvenioMedicoBean.matriculaConvenioMedico}"/>
+                        
                         <p:dialog header="Deseja salvar este Registro?" widgetVar="dlg_save" modal="true" closable="true">
                             <f:facet name="footer">
                                 <p:commandButton value="Sim" title="Salvar" action="#{matriculaConvenioMedicoBean.save}" oncomplete="PF('dlg_save').hide(); PF('dlg_message').show();" update=":form_cm:, outConfirma"/>
@@ -47,6 +48,7 @@
                             <p:outputLabel value="Código: " />
                             <p:inputText value="#{matriculaConvenioMedicoBean.matriculaConvenioMedico.codigo}"/>
                         </h:panelGrid>
+                        <h:outputText value="#{genericaMensagem.getHtmlMessage('error', 'PESSOA CADASTRADA EM OPOSIÇÃO')}" escape="false" rendered="#{matriculaConvenioMedicoBean.pessoaOposicao}"/>
                     </p:panel>
                     <h:panelGrid columns="4" styleClass="margin-top-max">
                         <p:commandButton value="Salvar" disabled="#{controleAcessoBean.botaoSalvar}" onclick="PF('dlg_save').show()"/>

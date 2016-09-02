@@ -2288,6 +2288,12 @@
             <redirect/>
         </navigation-case>
         
+        <navigation-case>
+            <from-outcome>atualizaSocioDemissionado</from-outcome>
+            <to-view-id>/atualizaSocioDemissionado.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
     </navigation-rule>
     
     <lifecycle>

@@ -1,6 +1,7 @@
 package br.com.rtools.cobranca;
 
 import br.com.rtools.pessoa.Pessoa;
+import br.com.rtools.pessoa.PessoaEmpresa;
 import br.com.rtools.seguranca.Departamento;
 import br.com.rtools.seguranca.Usuario;
 import br.com.rtools.utilitarios.DataHoje;
@@ -38,6 +39,9 @@ public class TmktHistorico implements Serializable {
     private String contatoDescricao;
     @Column(name = "ds_historico", length = 8000)
     private String historico;
+    @JoinColumn(name = "id_pessoa_empresa", referencedColumnName = "id")
+    @ManyToOne
+    private PessoaEmpresa pessoaEmpresa;
 
     public TmktHistorico() {
         this.id = null;
@@ -49,9 +53,10 @@ public class TmktHistorico implements Serializable {
         this.natureza = null;
         this.contatoDescricao = "";
         this.historico = "";
+        this.pessoaEmpresa = null;
     }
 
-    public TmktHistorico(Integer id, Date lancamento, Pessoa pessoa, Usuario operador, Departamento departamento, TmktContato contato, TmktNatureza natureza, String contatoDescricao, String historico) {
+    public TmktHistorico(Integer id, Date lancamento, Pessoa pessoa, Usuario operador, Departamento departamento, TmktContato contato, TmktNatureza natureza, String contatoDescricao, String historico, PessoaEmpresa pessoaEmpresa) {
         this.id = id;
         this.lancamento = lancamento;
         this.pessoa = pessoa;
@@ -61,6 +66,7 @@ public class TmktHistorico implements Serializable {
         this.natureza = natureza;
         this.contatoDescricao = contatoDescricao;
         this.historico = historico;
+        this.pessoaEmpresa = pessoaEmpresa;
     }
 
     public Integer getId() {
@@ -154,6 +160,14 @@ public class TmktHistorico implements Serializable {
     @Override
     public String toString() {
         return "TmktHistorico{" + "id=" + id + ", lancamento=" + lancamento + ", pessoa=" + pessoa + ", operador=" + operador + ", departamento=" + departamento + ", contato=" + contato + ", natureza=" + natureza + ", contatoDescricao=" + contatoDescricao + ", historico=" + historico + '}';
+    }
+
+    public PessoaEmpresa getPessoaEmpresa() {
+        return pessoaEmpresa;
+    }
+
+    public void setPessoaEmpresa(PessoaEmpresa pessoaEmpresa) {
+        this.pessoaEmpresa = pessoaEmpresa;
     }
 
 }

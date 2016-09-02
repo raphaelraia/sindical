@@ -1,5 +1,6 @@
 package br.com.rtools.associativo.beans;
 
+import br.com.rtools.arrecadacao.dao.OposicaoDao;
 import br.com.rtools.associativo.MatriculaConvenioMedico;
 import br.com.rtools.associativo.dao.MatriculaConvenioMedicoDao;
 import br.com.rtools.logSistema.NovoLog;
@@ -26,6 +27,7 @@ public class MatriculaConvenioMedicoBean implements Serializable {
     private String comoPesquisa;
     private Boolean ativo;
     private List<MatriculaConvenioMedico> listaConvenio;
+    private Boolean pessoaOposicao;
 
     @PostConstruct
     public void init() {
@@ -40,6 +42,7 @@ public class MatriculaConvenioMedicoBean implements Serializable {
         comoPesquisa = "";
         listaConvenio = new ArrayList();
         ativo = true;
+        pessoaOposicao = false;
     }
 
     @PreDestroy
@@ -255,5 +258,17 @@ public class MatriculaConvenioMedicoBean implements Serializable {
 
     public void setAtivo(Boolean ativo) {
         this.ativo = ativo;
+    }
+
+    public Boolean getPessoaOposicao() {
+        OposicaoDao odbt = new OposicaoDao();
+        if (odbt.existPessoaDocumentoPeriodo(servicoPessoaBean.getServicoPessoa().getPessoa().getDocumento())) {
+            pessoaOposicao = true;
+        }
+        return pessoaOposicao;
+    }
+
+    public void setPessoaOposicao(Boolean pessoaOposicao) {
+        this.pessoaOposicao = pessoaOposicao;
     }
 }

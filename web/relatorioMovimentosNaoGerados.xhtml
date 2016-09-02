@@ -17,7 +17,7 @@
                 <h:outputScript name="tradutor_primefaces.js" library="js" />
                 <h:form id="form_relatorio">            
                     <p:growl id="id_messages_growl" showDetail="true" showSummary="true" />
-                    <h:outputText value="MOVIMENTOS GERADOS NO MÊS (anterior ao Informado ) QUE NÃO FORAM GERADOS NO MÊS (informado)" styleClass="bold font-size-12"/>
+                    <h:outputText value="Movimentos gerados em #{relatorioMovimentosNaoGeradosBean.referenciaAnterior} que não foram gerados em #{relatorioMovimentosNaoGeradosBean.referencia}" styleClass="bold font-size-12"/>
                     <div class="clear"></div>
                     <p:panel styleClass="fundoCinza margin-top-max">
                         <h:panelGrid  cellpadding="4" columns="5" id="id_pg_relatorios">
@@ -30,23 +30,22 @@
                             <p:selectOneMenu value="#{relatorioMovimentosNaoGeradosBean.idRelatorioOrdem}" rendered="#{not empty relatorioMovimentosNaoGeradosBean.listRelatorioOrdem}">
                                 <p:ajax event="change" update="@this"/>
                                 <f:selectItems value="#{relatorioMovimentosNaoGeradosBean.listRelatorioOrdem}"/>
-                            </p:selectOneMenu>                            
+                            </p:selectOneMenu>
                         </h:panelGrid>
-                    </p:panel>                  
+                    </p:panel>
                     <h:panelGrid columns="1" id="id_panel" columnClasses="verticalAlignTop, verticalAlignTop" styleClass="margin-top-max">
                         <h:column>
                             <h:panelGrid id="i_panel_avancado_2" style="width: 800px">
-
                                 <p:column>
                                     <p:panel header="Vencimento" style="width: 100%!important">
                                         <h:panelGrid columns="9" cellpadding="5 ">
                                             <p:outputLabel value="Mês/Ano: " />
                                             <p:inputMask mask="99/9999" converter="#{isDateReference}" value="#{relatorioMovimentosNaoGeradosBean.referencia}">
-                                                <p:ajax event="change" update="@this" global="false" />                                            
+                                                <p:ajax event="change" update="@this @form" global="false" listener="#{relatorioMovimentosNaoGeradosBean.atualizaReferencia()}"/>
                                             </p:inputMask>
-                                        </h:panelGrid>                                        
+                                        </h:panelGrid>
                                     </p:panel>
-                                </p:column>                                                              
+                                </p:column>
                             </h:panelGrid>
                         </h:column>
                     </h:panelGrid>

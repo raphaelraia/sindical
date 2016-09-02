@@ -34,6 +34,7 @@ public class RelatorioMovimentosNaoGeradosBean implements Serializable {
     private List<SelectItem> listRelatorioOrdem;
     private Integer idRelatorioOrdem;
     private String referencia;
+    private String referenciaAnterior;
 
     @PostConstruct
     public void init() {
@@ -42,6 +43,7 @@ public class RelatorioMovimentosNaoGeradosBean implements Serializable {
         listRelatorio = new ArrayList<>();
         idRelatorio = null;
         referencia = DataHoje.referencia();
+        referenciaAnterior = DataHoje.dataReferencia(DataHoje.data());
         loadRelatorio();
         loadRelatorioOrdem();
     }
@@ -49,6 +51,10 @@ public class RelatorioMovimentosNaoGeradosBean implements Serializable {
     @PreDestroy
     public void destroy() {
         GenericaSessao.remove("relatorioMovimentosNaoGeradosBean");
+    }
+    
+    public void atualizaReferencia(){
+        referenciaAnterior = DataHoje.dataReferencia("01/"+referencia);
     }
 
     public void print() {
@@ -90,7 +96,8 @@ public class RelatorioMovimentosNaoGeradosBean implements Serializable {
         }
 
         Jasper.EXPORT_TO = true;
-        Jasper.TITLE = r.getNome().toUpperCase();
+        //Jasper.TITLE = r.getNome().toUpperCase();
+        Jasper.TITLE = "Movimentos gerados em " + referenciaAnterior + " que não foram gerados em " + referencia;
         Jasper.printReports(r.getJasper(), r.getNome(), (Collection) oj);
 
         sisProcesso.setProcesso(r.getNome());
@@ -214,6 +221,14 @@ public class RelatorioMovimentosNaoGeradosBean implements Serializable {
 
     public void setReferencia(String referencia) {
         this.referencia = referencia;
+    }
+
+    public String getReferenciaAnterior() {
+        return referenciaAnterior;
+    }
+
+    public void setReferenciaAnterior(String referenciaAnterior) {
+        this.referenciaAnterior = referenciaAnterior;
     }
 
     public class ObjectJasper {
