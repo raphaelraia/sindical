@@ -48,6 +48,7 @@
                                                 <p:outputLabel value="#{oposicaoBean.oposicao.juridica.pessoa.nome}" style="font-size: 11pt!important"/>
                                                 <p:outputLabel value="#{oposicaoBean.msgEmpresa}" />
                                                 <p:commandButton icon="ui-icon-contact" update=":form_oposicao:i_pessoa_juridica_card" action="#{pessoaCardBean.cardJuridica(oposicaoBean.oposicao.juridica.pessoa.id)}" oncomplete="PF('dlg_pessoa_juridica_card').show()" title="Ver detalhes" />
+                                                <p:commandButton  value="Cadastrar para outra empresa" title="Cadastra oposição para outra empresa" onclick="PF('dlg_trocar_empresa').show();" rendered="#{oposicaoBean.oposicao.juridica.pessoa.id != -1 and oposicaoBean.desabilitaPessoa}" styleClass="margin-left-max font-color-red" disabled="#{oposicaoBean.oposicao.id != -1}"/>
                                             </h:panelGrid>
                                         </h:column>
                                         <h:column rendered="#{oposicaoBean.oposicao.juridica.pessoa.id == -1}">
@@ -213,6 +214,14 @@
                                 <p:panel id="i_pessoa_juridica_card">
                                     <ui:include src="templates/templatePessoaJuridicaCard.xhtml" />
                                 </p:panel>
+                            </p:dialog>                    
+                            <p:dialog widgetVar="dlg_trocar_empresa" modal="true" resizable="false" header="Deseja cadastrar oposição desta pessoa para outra empresa?">
+                                <f:facet name="footer">
+                                <h:panelGrid columns="2">
+                                    <p:commandButton value="Confirmar" title="Confirmar" action="#{oposicaoBean.outraEmpresa}" update=":form_oposicao: out_mensagem" oncomplete="PF('dlg_trocar_empresa').hide();"/>
+                                    <p:commandButton value="Cancelar" title="Cancelar" onclick="PF('dlg_trocar_empresa').hide();"/>
+                                </h:panelGrid>
+                                </f:facet>
                             </p:dialog>                    
                         </h:form>
                     </p:panel>

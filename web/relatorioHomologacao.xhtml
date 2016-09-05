@@ -34,7 +34,7 @@
                                 <h:panelGrid>
                                     <c:forEach items="#{relatorioHomologacaoBean.listFilters}" var="filter" varStatus="loop" id="i_foreach">                                            
                                         <p:selectBooleanButton value="#{filter.active}" onLabel="#{filter.value}" offLabel="#{filter.value}" style="width: 200px; text-align: left" disabled="#{filter.disabled}">
-                                            <p:ajax event="change" update="@this :form_relatorio:" listener="#{relatorioHomologacaoBean.clear()}" />
+                                            <p:ajax event="change" update="@this :form_relatorio:" listener="#{relatorioHomologacaoBean.load(filter)}" />
                                         </p:selectBooleanButton>
                                     </c:forEach>                                
                                 </h:panelGrid>
@@ -94,7 +94,7 @@
                                             <h:panelGrid columns="3">
                                                 <p:outputLabel value="#{relatorioHomologacaoBean.empresa.pessoa.nome}" />
                                                 <p:commandButton icon="ui-icon-plus" action="#{relatorioHomologacaoBean.add('empresa')}" title="Adicionar empresa" update="i_pee i_empresas"/>
-                                                <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close(relatorioHomologacaoBean.listFilters[3])}" title="Remover listFilters"/>
+                                                <p:commandButton icon="ui-icon-close" action="#{relatorioHomologacaoBean.close(relatorioHomologacaoBean.listFilters[3])}" title="Remover listFilters" styleClass="margin-left-max"/>
                                             </h:panelGrid>
                                         </h:column>
                                     </h:panelGrid>

@@ -101,6 +101,17 @@ public class OposicaoBean implements Serializable {
         oposicao.getOposicaoPessoa().setEndereco(null);
     }
 
+    public void outraEmpresa() {
+        listaConvencaoPeriodos = new ArrayList();
+        String cpf = oposicao.getOposicaoPessoa().getCpf();
+        oposicao = new Oposicao();
+        oposicaoPessoa = new OposicaoPessoa();
+        oposicao.getOposicaoPessoa().setCpf(cpf);
+        consultaPessoa(true);
+        desabilitaPessoa = false;
+        convencaoPeriodo = new ConvencaoPeriodo();
+    }
+
     public void save() {
         if (oposicao.getJuridica().getId() == -1) {
             message = "Informar a pessoa jurídica!";
@@ -414,6 +425,10 @@ public class OposicaoBean implements Serializable {
     }
 
     public void consultaPessoa() {
+        consultaPessoa(false);
+    }
+
+    public void consultaPessoa(Boolean ignoraPessoaEmpresa) {
         boolean isVerificaDocumento = false;
         if (oposicao.getOposicaoPessoa().getCpf().equals("___.___.___-__") || oposicao.getOposicaoPessoa().getCpf().equals("")) {
             isVerificaDocumento = true;
@@ -433,10 +448,13 @@ public class OposicaoBean implements Serializable {
             return;
         }
         OposicaoDao oposicaoDao = new OposicaoDao();
-        PessoaEmpresa pessoaEmpresa = oposicaoDao.pesquisaPessoaFisicaEmpresa(oposicao.getOposicaoPessoa().getCpf(), oposicao.getOposicaoPessoa().getRg());
+        PessoaEmpresa pessoaEmpresa = new PessoaEmpresa();
+        if (ignoraPessoaEmpresa == null || !ignoraPessoaEmpresa) {
+            pessoaEmpresa = oposicaoDao.pesquisaPessoaFisicaEmpresa(oposicao.getOposicaoPessoa().getCpf(), oposicao.getOposicaoPessoa().getRg());
+        }
         PessoaDao dbp = new PessoaDao();
         Pessoa p = dbp.pessoaDocumento(oposicao.getOposicaoPessoa().getCpf());
-        if (pessoaEmpresa.getId() != -1) {
+        if (pessoaEmpresa.getId() != -1 && (ignoraPessoaEmpresa == null || !ignoraPessoaEmpresa)) {
             if (oposicao.getJuridica().getId() == -1) {
                 oposicao.setJuridica(pessoaEmpresa.getJuridica());
             }
