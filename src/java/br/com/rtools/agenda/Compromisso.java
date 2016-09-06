@@ -68,6 +68,8 @@ public class Compromisso implements Serializable {
     private Usuario usuarioCancelador;
     @Column(name = "ds_motivo_cancelamento", length = 8000)
     private String motivoCancelamento;
+    @Column(name = "is_particular", columnDefinition = "boolean default false", nullable = false)
+    private Boolean particular;
 
     @Transient
     private List<CompromissoUsuario> listCompromissoUsuario;
@@ -94,9 +96,10 @@ public class Compromisso implements Serializable {
         this.usuarioCancelador = null;
         this.motivoCancelamento = "";
         this.listCompromissoUsuario = null;
+        this.particular = false;
     }
 
-    public Compromisso(Integer id, CompromissoCategoria compromissoCategoria, Periodo periodoRepeticao, Semana semana, Usuario secretaria, Date dtData, String horaInicial, String horaFinal, Date dtCadastro, String localNome, Endereco local, String complemento, String numero, Pessoa pessoa, String descricao, String detalhes, String relatorio, Date dtCancelamento, Usuario usuarioCancelador, String motivoCancelamento) {
+    public Compromisso(Integer id, CompromissoCategoria compromissoCategoria, Periodo periodoRepeticao, Semana semana, Usuario secretaria, Date dtData, String horaInicial, String horaFinal, Date dtCadastro, String localNome, Endereco local, String complemento, String numero, Pessoa pessoa, String descricao, String detalhes, String relatorio, Date dtCancelamento, Usuario usuarioCancelador, String motivoCancelamento, Boolean particular) {
         this.id = id;
         this.compromissoCategoria = compromissoCategoria;
         this.periodoRepeticao = periodoRepeticao;
@@ -117,6 +120,7 @@ public class Compromisso implements Serializable {
         this.dtCancelamento = dtCancelamento;
         this.usuarioCancelador = usuarioCancelador;
         this.motivoCancelamento = motivoCancelamento;
+        this.particular = particular;
         this.listCompromissoUsuario = null;
     }
 
@@ -321,6 +325,14 @@ public class Compromisso implements Serializable {
 
     public void setListCompromissoUsuario(List<CompromissoUsuario> listCompromissoUsuario) {
         this.listCompromissoUsuario = listCompromissoUsuario;
+    }
+
+    public Boolean getParticular() {
+        return particular;
+    }
+
+    public void setParticular(Boolean particular) {
+        this.particular = particular;
     }
 
 }

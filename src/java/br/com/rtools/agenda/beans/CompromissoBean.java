@@ -108,6 +108,7 @@ public class CompromissoBean implements Serializable {
             case "compromisso_particular":
                 compromissoUsuario = new CompromissoUsuario();
                 compromissoUsuario.setUsuario(Usuario.getUsuario());
+                compromisso.setParticular(true);
                 if (data != null) {
                     compromisso.setDtData(data);
                     compromisso.setHoraFinal(DataHoje.livre(data, "HH:mm"));
@@ -195,9 +196,11 @@ public class CompromissoBean implements Serializable {
             GenericaMensagem.warn("VALIDAÇÃO", "CADASTRAR CATEGORIAS!");
             return;
         }
-        if (listUsuario.isEmpty()) {
-            GenericaMensagem.warn("VALIDAÇÃO", "CADASTRAR USUÁRIOS PARA ESTA SECRETÁRIA(O)!");
-            return;
+        if (!compromisso.getParticular()) {
+            if (listUsuario.isEmpty()) {
+                GenericaMensagem.warn("VALIDAÇÃO", "CADASTRAR USUÁRIOS PARA ESTA SECRETÁRIA(O)!");
+                return;
+            }
         }
         Dao dao = new Dao();
         if (compromisso.getCadastro().isEmpty()) {
@@ -222,21 +225,24 @@ public class CompromissoBean implements Serializable {
         compromisso.setSecretaria(Usuario.getUsuario());
         if (compromisso.getId() == null) {
             dao.openTransaction();
-            if (dao.save(compromisso)) {
-                compromissoUsuario.setCompromisso(compromisso);
-                if (dao.save(compromissoUsuario)) {
-                    dao.commit();
-                    loadListUsuario();
-                    loadListCompromissos();
-                    GenericaMensagem.info("SUCESSO", "REGISTRO INSERIDO");
-                } else {
-                    dao.rollback();
-                    GenericaMensagem.warn("ERRO", "AO ADICIONAR REGISTRO!");
-                }
-            } else {
+            if (!dao.save(compromisso)) {
                 dao.rollback();
                 GenericaMensagem.warn("ERRO", "AO ADICIONAR REGISTRO!");
+                return;
             }
+            if (compromissoUsuario != null && compromissoUsuario.getUsuario() != null && compromissoUsuario.getUsuario().getId() != -1) {
+                compromissoUsuario.setCompromisso(compromisso);
+                if (!dao.save(compromissoUsuario)) {
+                    dao.rollback();
+                    GenericaMensagem.warn("ERRO", "AO ADICIONAR REGISTRO!");
+                    return;
+                }
+            }
+            dao.commit();
+            loadListUsuario();
+            loadListCompromissos();
+            GenericaMensagem.info("SUCESSO", "REGISTRO INSERIDO");
+
         } else if (dao.update(compromisso, true)) {
             loadListUsuario();
             loadListCompromissos();
@@ -277,8 +283,12 @@ public class CompromissoBean implements Serializable {
 
     public void delete() {
         if (compromisso.getId() != null) {
+            for (int i = 0; i < listCompromissoUsuario.size(); i++) {
+                new Dao().delete(listCompromissoUsuario.get(i), true);
+            }
             if (new Dao().delete(compromisso, true)) {
                 GenericaMensagem.info("SUCESSO", "REGISTRO REMOVIDO");
+                GenericaSessao.remove("compromissoBean");
             } else {
                 GenericaMensagem.warn("ERRO", "AO REMOVER REGISTRO!");
             }

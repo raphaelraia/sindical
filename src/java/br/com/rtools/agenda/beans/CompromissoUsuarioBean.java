@@ -68,7 +68,7 @@ public class CompromissoUsuarioBean implements Serializable {
         switch (tcase) {
             case "pesquisar":
                 listCompromissoUsuario = new ArrayList();
-                listCompromissoUsuario = new CompromissoUsuarioDao().findCompromissos(Usuario.getUsuario().getId(), tipoHistorico, tipoData, dataInicial, dataFinal, cancelados, Usuario.getUsuario().getId());
+                listCompromissoUsuario = new CompromissoUsuarioDao().findCompromissos(null, tipoHistorico, tipoData, dataInicial, dataFinal, cancelados, Usuario.getUsuario().getId());
                 break;
             default:
                 break;
@@ -79,7 +79,7 @@ public class CompromissoUsuarioBean implements Serializable {
     public void loadListCompromissoUsuario() {
         eventModel = new DefaultScheduleModel();
         listCompromissoUsuario = new ArrayList();
-        listCompromissoUsuario = new CompromissoUsuarioDao().findCompromissos(Usuario.getUsuario().getId(), "hoje_amanha", tipoData, dataInicial, dataFinal, "ativos", Usuario.getUsuario().getId());
+        listCompromissoUsuario = new CompromissoUsuarioDao().findCompromissos(null, "hoje_amanha", tipoData, dataInicial, dataFinal, "ativos", Usuario.getUsuario().getId());
 //        for (int i = 0; i < listCompromissoUsuario.size(); i++) {
 //            Date dataInicial = DataHoje.converteDataHora(listCompromissoUsuario.get(i).getCompromisso().getData(), listCompromissoUsuario.get(i).getCompromisso().getHoraInicial());
 //            Date dataFinal = dataInicial;
