@@ -4,14 +4,12 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "eve_evento")
-@NamedQueries({
-    @NamedQuery(name = "AEvento.pesquisaID", query = "SELECT AE FROM AEvento AS AE WHERE AE.id = :pid")
-})
 public class AEvento implements java.io.Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
     @JoinColumn(name = "id_descricao_evento", referencedColumnName = "id", nullable = true)
     @OneToOne
     private DescricaoEvento descricaoEvento;
@@ -21,16 +19,16 @@ public class AEvento implements java.io.Serializable {
         this.descricaoEvento = new DescricaoEvento();
     }
 
-    public AEvento(int id, DescricaoEvento descricaoEvento) {
+    public AEvento(Integer id, DescricaoEvento descricaoEvento) {
         this.id = id;
         this.descricaoEvento = descricaoEvento;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

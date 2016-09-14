@@ -38,8 +38,8 @@ public class VendasCaravanaDao extends DB {
         try {
             Query qry = getEntityManager().createQuery("select count(res) "
                     + "  from Reservas res"
-                    + " where res.cVenda.aEvento.id =" + idEvento
-                    + "   and res.cVenda.aEvento.descricaoEvento.grupoEvento.id = " + idGrupoEvento);
+                    + " where res.venda.evento.id =" + idEvento
+                    + "   and res.venda.evento.descricaoEvento.grupoEvento.id = " + idGrupoEvento);
             qnt = Integer.parseInt(String.valueOf((Long) qry.getSingleResult()));
             return qnt;
         } catch (EJBQLException e) {
@@ -53,7 +53,7 @@ public class VendasCaravanaDao extends DB {
         try {
             Query qry = getEntityManager().createQuery("select res.poltrona "
                     + "  from Reservas res"
-                    + " where res.cVenda.aEvento.id =" + idEvento
+                    + " where res.venda.evento.id =" + idEvento
                     + " order by res.poltrona");
             list = qry.getResultList();
             return list;
@@ -68,7 +68,7 @@ public class VendasCaravanaDao extends DB {
         try {
             Query qry = getEntityManager().createQuery("select res"
                     + "  from Reservas res"
-                    + " where res.cVenda.id = " + idVenda);
+                    + " where res.venda.id = " + idVenda);
             list = qry.getResultList();
             return list;
         } catch (EJBQLException e) {
@@ -82,7 +82,7 @@ public class VendasCaravanaDao extends DB {
         try {
             Query qry = getEntityManager().createQuery("select res"
                     + "  from Reservas res"
-                    + " where res.cVenda.id = " + idVenda
+                    + " where res.venda.id = " + idVenda
                     + "   and res.pessoa.id = " + idPessoa);
             list = qry.getResultList();
             return list;
@@ -99,6 +99,7 @@ public class VendasCaravanaDao extends DB {
                     + "  from Movimento mov"
                     + " where mov.pessoa.id = " + idResponsavel
                     + "   and mov.lote.evt.id = " + idEvt
+                    + "   and mov.ativo = true "
                     + " order by mov.dtVencimento");
             list = qry.getResultList();
             return list;

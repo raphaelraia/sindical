@@ -12,6 +12,7 @@ import br.com.rtools.utilitarios.PF;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.model.SelectItem;
@@ -104,8 +105,9 @@ public class DescricaoEventoBean implements Serializable {
         descricaoEvento = de;
 
         for (int i = 0; i < listaGrupoEvento.size(); i++) {
-            if (descricaoEvento.getGrupoEvento().getId() == Integer.valueOf(listaGrupoEvento.get(i).getDescription())) {
+            if (Objects.equals(descricaoEvento.getGrupoEvento().getId(), Integer.valueOf(listaGrupoEvento.get(i).getDescription()))) {
                 idGrupoEvento = i;
+                break;
             }
         }
     }

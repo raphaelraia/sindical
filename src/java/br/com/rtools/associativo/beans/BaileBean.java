@@ -16,6 +16,7 @@ import br.com.rtools.utilitarios.Moeda;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -459,7 +460,7 @@ public class BaileBean implements Serializable {
         loadCategoria();
         listaEventoServicoValor.clear();
         for (int i = 0; i < listaComboDescricaoEvento.size(); i++) {
-            if (Integer.valueOf(listaComboDescricaoEvento.get(i).getDescription()) == eve.getEvento().getDescricaoEvento().getId()) {
+            if (Objects.equals(Integer.valueOf(listaComboDescricaoEvento.get(i).getDescription()), eve.getEvento().getDescricaoEvento().getId())) {
                 idDescricaoEvento = i;
             }
         }
@@ -614,7 +615,7 @@ public class BaileBean implements Serializable {
 
         if (eventoServicoValor.getId() == -1) {
             dao.openTransaction();
-            eventoServico.setaEvento(evento);
+            eventoServico.setEvento(evento);
 
             if (!dao.save(eventoServico)) {
                 msgConfirma = "Serviço não pode ser adicionado!";

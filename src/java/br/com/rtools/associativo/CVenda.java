@@ -1,67 +1,81 @@
 package br.com.rtools.associativo;
 
+import br.com.rtools.associativo.dao.CaravanaDao;
+import br.com.rtools.associativo.dao.ReservasDao;
 import br.com.rtools.pessoa.Pessoa;
 import br.com.rtools.utilitarios.DataHoje;
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "car_venda")
-@NamedQuery(name = "CVenda.pesquisaID", query = "select cv from CVenda cv where cv.id=:pid")
-public class CVenda implements java.io.Serializable {
+public class CVenda implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
     @JoinColumn(name = "id_responsavel", referencedColumnName = "id")
     @OneToOne
     private Pessoa responsavel;
     @JoinColumn(name = "id_aevento", referencedColumnName = "id")
     @ManyToOne
-    private AEvento aEvento;
+    private AEvento evento;
     @Column(name = "nr_quarto")
-    private int quarto;
+    private Integer quarto;
     @Column(name = "ds_observacao")
     private String observacao;
     @Temporal(TemporalType.DATE)
     @Column(name = "dt_emissao")
     private Date dtEmissao;
 
-    public CVenda(int id, Pessoa responsavel, AEvento aEvento, int quarto, String observacao, Date dtEmissao) {
+    @Transient
+    private Caravana caravana;
+
+    @Transient
+    private List<Reservas> listReservas;
+
+    public CVenda(Integer id, Pessoa responsavel, AEvento evento, Integer quarto, String observacao, Date dtEmissao) {
         this.id = id;
         this.responsavel = responsavel;
-        this.aEvento = aEvento;
+        this.evento = evento;
         this.quarto = quarto;
         this.observacao = observacao;
         this.dtEmissao = dtEmissao;
+        this.caravana = null;
+        this.listReservas = null;
     }
 
     public CVenda() {
         this.id = -1;
         this.responsavel = new Pessoa();
-        this.aEvento = new AEvento();
+        this.evento = new AEvento();
         this.quarto = 0;
         this.observacao = "";
         this.dtEmissao = DataHoje.dataHoje();
+        this.caravana = null;
+        this.listReservas = null;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -73,22 +87,14 @@ public class CVenda implements java.io.Serializable {
         this.responsavel = responsavel;
     }
 
-    public AEvento getaEvento() {
-        return aEvento;
-    }
-
-    public void setaEvento(AEvento aEvento) {
-        this.aEvento = aEvento;
-    }
-
-    public int getQuarto() {
+    public Integer getQuarto() {
         return quarto;
     }
 
-    public void setQuarto(int quarto) {
+    public void setQuarto(Integer quarto) {
         this.quarto = quarto;
     }
-    
+
     public String getQuartoString() {
         return Integer.toString(quarto);
     }
@@ -119,5 +125,40 @@ public class CVenda implements java.io.Serializable {
 
     public void setDtEmissao(String dataEmissao) {
         this.dtEmissao = DataHoje.converte(dataEmissao);
+    }
+
+    public AEvento getEvento() {
+        return evento;
+    }
+
+    public void setEvento(AEvento evento) {
+        this.evento = evento;
+    }
+
+    public Caravana getCaravana() {
+        if (this.id != -1 || this.id != null) {
+            if (caravana == null) {
+                caravana = new CaravanaDao().pesquisaCaravanaPorEvento(this.evento.getId());
+            }
+        }
+        return caravana;
+    }
+
+    public void setCaravana(Caravana caravana) {
+        this.caravana = caravana;
+    }
+
+    public List<Reservas> getListReservas() {
+        if (this.id != -1 || this.id != null) {
+            if (listReservas == null) {
+                listReservas = new ArrayList();
+                listReservas = new ReservasDao().findByCVenda(this.id);
+            }
+        }
+        return listReservas;
+    }
+
+    public void setListReservas(List<Reservas> listReservas) {
+        this.listReservas = listReservas;
     }
 }

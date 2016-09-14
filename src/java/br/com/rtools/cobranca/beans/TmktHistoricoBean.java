@@ -97,7 +97,7 @@ public class TmktHistoricoBean implements Serializable {
     }
 
     public void loadList() {
-        listHistorico = new TmktHistoricoDao().fimd(description, by, as);
+        listHistorico = new TmktHistoricoDao().find(description, by, as);
     }
 
     public void listener(Integer tcase) {

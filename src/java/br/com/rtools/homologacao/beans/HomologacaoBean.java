@@ -113,7 +113,7 @@ public class HomologacaoBean extends PesquisarProfissaoBean implements Serializa
             return;
         }
 
-        if (DataHoje.converteDataParaInteger(DataHoje.converteData(data)) > DataHoje.converteDataParaInteger(DataHoje.converteData(DataHoje.dataHoje()))) {
+        if (DataHoje.converteDataParaInteger(DataHoje.converteData(data)) > DataHoje.converteDataParaInteger(DataHoje.converteData(DataHoje.dataHoje())) && !manutencao) {
             return;
         }
 

@@ -2294,6 +2294,12 @@
             <redirect/>
         </navigation-case>
         
+        <navigation-case>
+            <from-outcome>demissao</from-outcome>
+            <to-view-id>/demissao.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>        
+        
     </navigation-rule>
     
     <lifecycle>

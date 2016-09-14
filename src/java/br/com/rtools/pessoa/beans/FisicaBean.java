@@ -2240,6 +2240,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
     }
 
     public Boolean listernerValidacao(Fisica f, String tipoValidacao) {
+        String pesquisaFisicaTipo = GenericaSessao.getString("pesquisaFisicaTipo");
         pessoaOposicao = false;
         Boolean permite = true;
         Pessoa p = f.getPessoa();
@@ -2272,11 +2273,24 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 }
             }
         }
+        // MAIOR DE IDADE
+        switch (validacao) {
+            case "vendasCaravana":
+                if (pesquisaFisicaTipo.equals("responsavel")) {
+                    if (f.getDtNascimento() == null) {
+                        GenericaMensagem.warn("Mensagem: (" + count + ")", "INFORMAR DATA DE NASCIMENTO!");
+                        permite = false;
+                    } else if (f.getIdade() < 18) {
+                        GenericaMensagem.warn("Mensagem: (" + count + ")", "RESPONSÁVEL DEVE SER MAIOR DE IDADE!");
+                        permite = false;
+                    }
+                }
+                break;
+        }
         // OPOSIÇÃO
         switch (validacao) {
             case "matriculaEscola":
             case "matriculaAcademia":
-            //case "convenioMedico":
             case "locacaoFilme":
                 // case "associarFisica":
                 if (!p.getDocumento().isEmpty()) {
@@ -2302,7 +2316,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                 FunctionsDao functionsDao = new FunctionsDao();
                 if (functionsDao.inadimplente(p.getId())) {
                     count++;
-                    GenericaMensagem.warn("Mensagem: (" + count + ")", "Existe(m) débito(s)!");
+                    GenericaMensagem.warn("Mensagem: (" + count + ")", "EXISTE(m) DÉBITO(s)!");
                     permite = false;
                 }
                 break;
@@ -2310,6 +2324,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
 
         // BLOQUEIO
         switch (validacao) {
+            case "vendasCaravana":
             case "matriculaAcademia":
             case "matriculaEscola":
             case "emissaoGuias":
@@ -2338,7 +2353,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
                     Socios soc = fisica.getPessoa().getSocios();
                     if (soc == null) {
                         count++;
-                        GenericaMensagem.fatal("Mensagem: (" + count + ")", "Necessário ser sócio!");
+                        GenericaMensagem.fatal("Mensagem: (" + count + ")", "NECESSÁRIO SER SÓCIO!");
                         permite = false;
                     } else if (soc != null && soc.getId() != -1) {
                         String[] in = inCategoriaSocio.split(",");
@@ -2841,7 +2856,7 @@ public class FisicaBean extends PesquisarProfissaoBean implements Serializable {
         PF.openDialog("dlg_pessoa_empresa");
         PF.update("form_pessoa_fisica:i_painel_pe_edit");
     }
-    
+
     public void setPessoaEmpresaEdit(PessoaEmpresa pessoaEmpresaEdit) {
         this.pessoaEmpresaEdit = pessoaEmpresaEdit;
     }

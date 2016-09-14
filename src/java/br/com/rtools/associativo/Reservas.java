@@ -1,62 +1,63 @@
 package br.com.rtools.associativo;
 
 import br.com.rtools.pessoa.Pessoa;
+import java.io.Serializable;
 import javax.persistence.*;
 
 @Entity
 @Table(name = "car_reservas")
-@NamedQuery(name = "Reservas.pesquisaID", query = "select r from Reservas r where r.id=:pid")
-public class Reservas implements java.io.Serializable {
+public class Reservas implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
     @JoinColumn(name = "id_cvenda", referencedColumnName = "id", nullable = false)
     @ManyToOne
-    private CVenda cVenda;
+    private CVenda venda;
     @JoinColumn(name = "id_pessoa", referencedColumnName = "id", nullable = false)
     @OneToOne
     private Pessoa pessoa;
     @Column(name = "nr_poltrona", nullable = true)
-    private int poltrona;
+    private Integer poltrona;
     @Column(name = "nr_desconto", nullable = true)
-    private float desconto;
+    private Float desconto;
     @JoinColumn(name = "id_evento_servico", referencedColumnName = "id")
     @OneToOne
     private EventoServico eventoServico;
 
     public Reservas() {
         this.id = -1;
-        this.cVenda = new CVenda();
+        this.venda = new CVenda();
         this.pessoa = new Pessoa();
         this.poltrona = 0;
-        this.desconto = 0;
+        this.desconto = new Float(0);
         this.eventoServico = new EventoServico();
     }
 
-    public Reservas(int id, CVenda cVenda, Pessoa pessoa, int poltrona, float desconto, EventoServico eventoServico) {
+    public Reservas(Integer id, CVenda venda, Pessoa pessoa, Integer poltrona, Float desconto, EventoServico eventoServico) {
         this.id = id;
-        this.cVenda = cVenda;
+        this.venda = venda;
         this.pessoa = pessoa;
         this.poltrona = poltrona;
         this.desconto = desconto;
         this.eventoServico = eventoServico;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public CVenda getcVenda() {
-        return cVenda;
+    public CVenda getVenda() {
+        return venda;
     }
 
-    public void setcVenda(CVenda cVenda) {
-        this.cVenda = cVenda;
+    public void setVenda(CVenda venda) {
+        this.venda = venda;
     }
 
     public Pessoa getPessoa() {
@@ -67,19 +68,19 @@ public class Reservas implements java.io.Serializable {
         this.pessoa = pessoa;
     }
 
-    public int getPoltrona() {
+    public Integer getPoltrona() {
         return poltrona;
     }
 
-    public void setPoltrona(int poltrona) {
+    public void setPoltrona(Integer poltrona) {
         this.poltrona = poltrona;
     }
 
-    public float getDesconto() {
+    public Float getDesconto() {
         return desconto;
     }
 
-    public void setDesconto(float desconto) {
+    public void setDesconto(Float desconto) {
         this.desconto = desconto;
     }
 

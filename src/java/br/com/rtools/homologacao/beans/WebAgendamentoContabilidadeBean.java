@@ -683,31 +683,37 @@ public final class WebAgendamentoContabilidadeBean extends PesquisarProfissaoBea
         }
         DataHoje dataH = new DataHoje();
         Demissao demissao = (Demissao) dao.find(new Demissao(), Integer.parseInt(((SelectItem) getListaMotivoDemissao().get(idMotivoDemissao)).getDescription()));
+        if (!demissao.getMotivoWeb()) {
+            GenericaMensagem.warn("Validação", demissao.getMensagemMotivoWeb());
+            return;
+        }
         if (!pessoaEmpresa.getDemissao().isEmpty() && pessoaEmpresa.getDemissao() != null) {
-            switch (demissao.getId()) {
-                case 1:
-                    if (DataHoje.converteDataParaInteger(pessoaEmpresa.getDemissao())
-                            > DataHoje.converteDataParaInteger(dataH.incrementarMeses(1, DataHoje.data()))) {
-                        GenericaMensagem.warn("Atenção", "Por " + demissao.getDescricao() + " data de Demissão não pode ser maior que 30 dias!");
-                        return;
-                    }
-                    break;
-                case 2:
-                    if (DataHoje.converteDataParaInteger(pessoaEmpresa.getDemissao())
-                            > DataHoje.converteDataParaInteger(dataH.incrementarMeses(3, DataHoje.data()))) {
-                        GenericaMensagem.warn("Atenção", "Por " + demissao.getDescricao() + " data de Demissão não pode ser maior que 90 dias!");
-                        return;
-                    }
-                    break;
-                case 3:
-                    if (DataHoje.converteDataParaInteger(pessoaEmpresa.getDemissao())
-                            > DataHoje.converteDataParaInteger(dataH.incrementarDias(10, DataHoje.data()))) {
-                        GenericaMensagem.warn("Atenção", "Por " + demissao.getDescricao() + " data de Demissão não pode ser maior que 10 dias!");
-                        return;
-                    }
-                    break;
-                default:
-                    break;
+            if (null != demissao.getId()) {
+                switch (demissao.getId()) {
+                    case 1:
+                        if (DataHoje.converteDataParaInteger(pessoaEmpresa.getDemissao())
+                                > DataHoje.converteDataParaInteger(dataH.incrementarMeses(1, DataHoje.data()))) {
+                            GenericaMensagem.warn("Atenção", "Por " + demissao.getDescricao() + " data de Demissão não pode ser maior que 30 dias!");
+                            return;
+                        }
+                        break;
+                    case 2:
+                        if (DataHoje.converteDataParaInteger(pessoaEmpresa.getDemissao())
+                                > DataHoje.converteDataParaInteger(dataH.incrementarMeses(3, DataHoje.data()))) {
+                            GenericaMensagem.warn("Atenção", "Por " + demissao.getDescricao() + " data de Demissão não pode ser maior que 90 dias!");
+                            return;
+                        }
+                        break;
+                    case 3:
+                        if (DataHoje.converteDataParaInteger(pessoaEmpresa.getDemissao())
+                                > DataHoje.converteDataParaInteger(dataH.incrementarDias(10, DataHoje.data()))) {
+                            GenericaMensagem.warn("Atenção", "Por " + demissao.getDescricao() + " data de Demissão não pode ser maior que 10 dias!");
+                            return;
+                        }
+                        break;
+                    default:
+                        break;
+                }
             }
         } else {
             GenericaMensagem.warn("Atenção", "Data de Demissão é obrigatória!");
