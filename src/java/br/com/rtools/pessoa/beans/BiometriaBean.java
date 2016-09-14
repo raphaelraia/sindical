@@ -122,15 +122,15 @@ public class BiometriaBean implements Serializable {
             dao.save(biometriaCaptura, true);
             biometria = null;
             for (int i = 0; i < 10; i++) {
-                try {
-                    Socket socket = new Socket("192.168.1.160", 5566);
-                    socket.getInputStream();
-                    socket.close();
-                } catch (UnknownHostException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+//                try {
+//                    Socket socket = new Socket("192.168.1.160", 5566);
+//                    socket.getInputStream();
+//                    socket.close();
+//                } catch (UnknownHostException e) {
+//                    e.printStackTrace();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
                 if (isStatus()) {
                     BiometriaErro biometriaErro = biometriaErroDao.findByMac(((MacFilial) GenericaSessao.getObject("acessoFilial")).getId());
                     if (biometriaErro != null) {
