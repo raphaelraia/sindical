@@ -42,7 +42,7 @@ public class CompromissoDao extends DB {
                 listWhere.add("((C.id_periodo_repeticao IS NOT NULL AND C.id_semana IS NOT NULL AND S.nr_postgres = EXTRACT(ISODOW FROM CURRENT_DATE)) OR (C.dt_data IS NOT NULL AND C.dt_data = CURRENT_DATE))");
             }
             if (tipoHistorico.equals("hoje_amanha")) {
-                listWhere.add("((C.id_periodo_repeticao IS NOT NULL AND C.id_semana IS NOT NULL AND (S.nr_postgres = EXTRACT(ISODOW FROM CURRENT_DATE) OR S.nr_postgres = EXTRACT(ISODOW FROM (CURRENT_DATE + 1))))) OR (C.dt_data IS NOT NULL AND C.dt_data BETWEEN CURRENT_DATE AND CURRENT_DATE + 1)");
+                listWhere.add("(((C.id_periodo_repeticao IS NOT NULL AND C.id_semana IS NOT NULL AND (S.nr_postgres = EXTRACT(ISODOW FROM CURRENT_DATE) OR S.nr_postgres = EXTRACT(ISODOW FROM (CURRENT_DATE + 1))))) OR (C.dt_data IS NOT NULL AND C.dt_data BETWEEN CURRENT_DATE AND CURRENT_DATE + 1))");
             }
             if (tipoHistorico.equals("agendados")) {
                 listWhere.add("((C.id_periodo_repeticao IS NOT NULL) OR (C.dt_data IS NOT NULL AND C.dt_data >= CURRENT_DATE))");
@@ -101,6 +101,7 @@ public class CompromissoDao extends DB {
             }
             if (secretaria_id != null) {
                 listWhere.add("C.id_secretaria = " + secretaria_id + "");
+                // listWhere.add("C.is_particular = true");
             }
             if (usuario_id != null) {
                 listWhere.add("CU.id_usuario = " + usuario_id + "");
@@ -125,6 +126,6 @@ public class CompromissoDao extends DB {
             return list;
         }
         return list;
-    }
-
+    }   
+    
 }

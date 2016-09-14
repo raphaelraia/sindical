@@ -270,13 +270,13 @@ public class RelatorioHomologacaoBean implements Serializable {
             idFilial = Integer.parseInt(listSelectItem[1].get(index[1]).getDescription());
             listDetalhePesquisa.add("Filial: " + ((Filial) dao.find(new Filial(), idFilial)).getFilial().getPessoa().getNome());
         }
-        if (!selectedStatus.isEmpty()) {
+        if (selectedStatus != null && !selectedStatus.isEmpty()) {
             inIdStatus = inIdStatus();
             if (selectedStatus.size() == 1) {
                 listDetalhePesquisa.add("Status: " + ((Status) dao.find(new Status(), Integer.parseInt(selectedStatus.get(0).toString()))).getDescricao());
             }
         }
-        if (!selectedFuncao.isEmpty()) {
+        if (selectedFuncao != null && !selectedFuncao.isEmpty()) {
             inIdFuncao = GenericaString.returnInList(selectedFuncao);
             if (selectedFuncao.size() == 1) {
                 listDetalhePesquisa.add("Função: " + ((Profissao) dao.find(new Profissao(), Integer.parseInt(selectedFuncao.get(0).toString()))).getProfissao());
@@ -489,6 +489,7 @@ public class RelatorioHomologacaoBean implements Serializable {
     }
 
     public void load(Filters filter) {
+        clear();
         switch (filter.getKey()) {
             case "filial":
                 listSelectItem[1] = new ArrayList();
@@ -502,6 +503,7 @@ public class RelatorioHomologacaoBean implements Serializable {
                 PF.update("form_relatorio:i_panel_accordion:i_panel_avancado");
                 break;
             case "status":
+                listStatus = new HashMap();
                 selectedStatus = new ArrayList();
                 loadListStatus();
                 break;

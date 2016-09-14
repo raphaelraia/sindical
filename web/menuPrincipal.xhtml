@@ -272,6 +272,9 @@
                                                 <p:column headerText="Descrição">
                                                     #{list.compromisso.descricao}
                                                 </p:column>
+                                                <p:column headerText="Cancelado">
+                                                    #{compromisso.cancelamento} por #{compromisso.usuarioCancelador.pessoa.nome}
+                                                </p:column>                                                
                                                 <p:rowExpansion>
                                                     <p:dataTable value="#{list.compromisso.listCompromissoUsuario}" var="compromissoUsuario" styleClass="sbb margin-top-max" emptyMessage="Nenhum registro encontrado!" rendered="false">
                                                         <p:column headerText="Usuário(s)">

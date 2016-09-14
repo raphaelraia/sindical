@@ -75,9 +75,11 @@
                             <p:commandButton value="Filtrar" update="i_compromissos" action="#{compromissoBean.listener('pesquisar')}" styleClass="margin-left-max"/>
                         </h:panelGrid>
                         <h:panelGrid id="i_compromissos">
-                            <p:dataTable value="#{compromissoBean.listCompromissos}" var="compromisso" scrollable="true" scrollHeight="300" emptyMessage="Nenhum resultado encontrado" paginator="true" rows="15" rowStyleClass="#{compromisso.periodoRepeticao.id == 2 ? 'bg-green-ligth' : ''}">
-                                <p:column width="15">  
-                                    <p:rowToggler rendered="#{not empty compromisso.listCompromissoUsuario}"/>  
+                            <p:dataTable value="#{compromissoBean.listCompromissos}" var="compromisso" scrollable="true" scrollHeight="300" emptyMessage="Nenhum resultado encontrado" paginator="true" rows="15"  rowStyleClass="#{(compromisso.particular and empty compromisso.cancelamento) ? 'bg-info' : (compromisso.periodoRepeticao.id == 2 ? 'bg-green-ligth' : (not empty compromisso.cancelamento ? 'bg-salmon' : ''))}">
+                                <p:column width="15">
+                                    <h:column>
+                                        <p:rowToggler rendered="#{not empty compromisso.listCompromissoUsuario}"/>                                          
+                                    </h:column>
                                 </p:column>
                                 <p:column styleClass="text-center" width="25">
                                     <p:commandButton icon="ui-icon-pencil" action="#{compromissoBean.edit(compromisso)}" update=":form_compromisso:" />
@@ -85,7 +87,7 @@
                                 <p:column styleClass="text-center" headerText="Período" width="100">
                                     #{compromisso.periodoRepeticao.descricao}
                                 </p:column>
-                                <p:column styleClass="text-center" headerText="Data / Inicio" width="100">
+                                <p:column styleClass="text-center" headerText="Data" width="100">
                                     #{compromisso.data}
                                 </p:column>
                                 <p:column styleClass="text-center" headerText="Semana" width="100">
@@ -103,8 +105,13 @@
                                 <p:column headerText="Descrição">
                                     #{compromisso.descricao}
                                 </p:column>
+                                <p:column headerText="Cancelado" rendered="#{compromissoBean.cancelados eq 'cancelados' or compromissoBean.cancelados eq 'todos'}">
+                                    <h:column rendered="#{not empty compromisso.cancelamento}">
+                                        #{compromisso.cancelamento} por #{compromisso.usuarioCancelador.pessoa.nome}                                        
+                                    </h:column>
+                                </p:column>                                
                                 <p:rowExpansion>
-                                    <p:dataTable value="#{compromisso.listCompromissoUsuario}" var="compromissoUsuario" styleClass="sbb margin-top-max" emptyMessage="Nenhum registro encontrado!">
+                                    <p:dataTable value="#{compromisso.listCompromissoUsuario}" var="compromissoUsuario" styleClass="sbb margin-top-max" emptyMessage="Nenhum registro encontrado!" rendered="#{!compromisso.particular}">
                                         <p:column headerText="Usuário(s)">
                                             #{compromissoUsuario.usuario.pessoa.nome}
                                         </p:column>                                    
@@ -113,15 +120,33 @@
                                         <p:outputLabel value="DETALHES: #{compromisso.detalhes}" rendered="#{not empty compromisso.detalhes}" />                                    
                                         <p:outputLabel value="LOCAL: #{compromisso.local.enderecoSimplesToString} - #{compromisso.local.cidade.cidade} / #{compromisso.local.cidade.uf}" rendered="#{compromisso.local != null}"/>
                                         <p:outputLabel value="COM: #{compromisso.pessoa.nome} (#{compromisso.pessoa.documento})" rendered="#{compromisso.pessoa != null}"/>
+                                        <p:outputLabel value="CADASTRADO EM: #{compromisso.cadastro} às #{compromisso.horaCadastro} hr(s)" />
                                     </p:panelGrid>
                                 </p:rowExpansion>
                             </p:dataTable>
+                            <f:facet name="footer">
+                                <h:panelGrid columns="3" styleClass="sbb">
+                                    <h:column>
+                                        <span class="bg-info info-box"></span>
+                                        PARTICULAR
+                                    </h:column>
+                                    <h:column>
+                                        <span class="bg-green-ligth info-box"></span>
+                                        PERMANENTE
+                                    </h:column>
+                                    <h:column>
+                                        <span class="bg-salmon info-box"></span>
+                                        CANCELADOS
+                                    </h:column>
+                                </h:panelGrid>
+                            </f:facet>
                         </h:panelGrid>
                     </p:panel>
                     <p:dialog id="i_adicionar" widgetVar="dlg_adicionar" modal="true" header="Cadastro" width="1024" resizable="true"  maximizable="true" minimizable="true" onShow="true" visible="#{compromissoBean.visibled}" height="400">
                         <p:ajax event="close" update="out_mensagem i_panel_adicionar id_lista" listener="#{compromissoBean.clear}"/>  
                         <p:panel id="i_panel_adicionar" styleClass="no-border">
-                            <h:panelGrid columns="1">
+                            <h:outputText value="#{genericaMensagem.getHtmlMessage('info', 'PARTICULAR')}" escape="false" rendered="#{compromissoBean.compromisso.particular}"/>
+                            <h:panelGrid columns="1" style="width: 100%">
                                 <h:column>
                                     <p:panel>
                                         <h:panelGrid columns="2" id="i_panel_gg">
@@ -186,7 +211,7 @@
                                     </p:panel>
                                 </h:column>
                                 <h:column>
-                                    <h:column rendered="#{compromissoBean.compromisso.id != null}">
+                                    <h:column rendered="#{compromissoBean.compromisso.id != null and !compromissoBean.compromisso.particular}">
                                         <p:panel header="COMPROMISSO PARA:">
                                             <h:panelGrid columns="7">
                                                 <p:selectOneMenu value="#{compromissoBean.idUsuario}" >
@@ -225,15 +250,15 @@
                     <p:dialog widgetVar="dlg_save"  modal="true" resizable="true" header="Deseja salvar este registro?" width="300">
                         <f:facet name="footer">
                             <h:panelGrid columns="2">
-                                <p:commandButton value="Sim" title="Excluir" action="#{compromissoBean.save}" update=":form_compromisso:out_mensagem" oncomplete="PF('dlg_save').hide(); PF('dlg_message').show();"/>
-                                <p:commandButton value="Não" title="Cancelar" onclick="PF('dlg_save').hide();"/>
+                                <p:commandButton value="Sim" title="Confirmar" action="#{compromissoBean.save}" update=":form_compromisso:out_mensagem :form_compromisso:i_panel_adicionar" oncomplete="PF('dlg_save').hide(); PF('dlg_message').show();"/>
+                                <p:commandButton value="Não" title="Desfazer" onclick="PF('dlg_save').hide();"/>
                             </h:panelGrid>                            
                         </f:facet>
                     </p:dialog>                    
                     <p:dialog widgetVar="dlg_delete"  modal="true" resizable="true" header="Deseja excluir este registro?" width="300">
                         <f:facet name="footer">
                             <h:panelGrid columns="2">
-                                <p:commandButton value="Sim" title="Excluir" action="#{compromissoBean.delete}" update=":form_compromisso:out_mensagem" oncomplete="PF('dlg_delete').hide(); PF('dlg_message').show();"/>
+                                <p:commandButton value="Sim" title="Excluir" action="#{compromissoBean.delete}" update=":form_compromisso:out_mensagem :form_compromisso:i_panel_adicionar" oncomplete="PF('dlg_delete').hide(); PF('dlg_message').show();"/>
                                 <p:commandButton value="Não" title="Cancelar" onclick="PF('dlg_delete').hide();"/>
                             </h:panelGrid>
                         </f:facet>
@@ -243,7 +268,7 @@
                         <f:facet name="footer">
                             <h:panelGrid columns="2">
                                 <p:commandButton value="Sim" title="Excluir" action="#{compromissoBean.cancel()}" update=":form_compromisso:out_mensagem" oncomplete="PF('dlg_delete').hide(); PF('dlg_message').show();"/>
-                                <p:commandButton value="Não" title="Cancelar" onclick="PF('dlg_delete').hide();"/>
+                                <p:commandButton value="Não" title="Cancelar" onclick="PF('dlg_cancel').hide();"/>
                             </h:panelGrid>
                         </f:facet>
                     </p:dialog>                    
