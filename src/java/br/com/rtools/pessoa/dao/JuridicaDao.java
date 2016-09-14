@@ -195,7 +195,8 @@ public class JuridicaDao extends DB {
     public List pesquisaJuridicaPorDoc(String doc) {
         List result = new ArrayList();
         try {
-            Query qry = getEntityManager().createQuery("select jur from Juridica jur"
+            Query qry = getEntityManager().createQuery(
+                    "select jur from Juridica jur"
                     + "  where jur.pessoa.documento = :doc "
                     + " order by jur.pessoa.nome ");
             qry.setParameter("doc", doc);

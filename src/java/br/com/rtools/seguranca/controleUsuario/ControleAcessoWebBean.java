@@ -94,6 +94,20 @@ public class ControleAcessoWebBean implements Serializable {
 
     private PesquisaCNPJ pesquisaCNPJ = new PesquisaCNPJ();
 
+    private String tipoDocumentoAcesso = "cnpj";
+
+    public String maskDocumento() {
+        switch (tipoDocumentoAcesso) {
+            case "cnpj":
+                return "99.999.999/9999-99";
+            case "cpf":
+                return "999.999.999-99";
+            case "cei":
+                return "99.999.99999/99";
+        }
+        return "";
+    }
+
     public void acaoPesquisarCNPJ() {
         try {
             pesquisaCNPJ.setCaptcha("");
@@ -680,17 +694,27 @@ public class ControleAcessoWebBean implements Serializable {
 
     public String validacaoDocumento(Boolean confirma_pesquisa_receita) throws IOException {
         if (documento.isEmpty()) {
-            GenericaMensagem.error("Login Inválido", "Digite um CNPJ válido!");
+            GenericaMensagem.error("Login Inválido", "Digite um Documento válido!");
             PF.update("formLogin");
             return null;
         }
 
         String documentox = AnaliseString.extrairNumeros(documento);
 
-        if (!ValidaDocumentos.isValidoCNPJ(documentox)) {
-            GenericaMensagem.warn("Erro", "Documento Inválido!");
-            PF.update("formLogin");
-            return null;
+        if (tipoDocumentoAcesso.equals("cnpj")) {
+            if (!ValidaDocumentos.isValidoCNPJ(documentox)) {
+                GenericaMensagem.warn("Erro", "CNPJ Inválido!");
+                PF.update("formLogin");
+                return null;
+            }
+        } else if (tipoDocumentoAcesso.equals("cpf")) {
+            if (!ValidaDocumentos.isValidoCPF(documentox)) {
+                GenericaMensagem.warn("Erro", "CPF Inválido!");
+                PF.update("formLogin");
+                return null;
+            }
+        } else {
+            // CEI
         }
 
         JuridicaDao db = new JuridicaDao();
@@ -708,7 +732,7 @@ public class ControleAcessoWebBean implements Serializable {
         // SE TER CADASTRO NO SISTEMA
         if (!listDocumento.isEmpty()) {
             juridica = listDocumento.get(0);
-        } else {
+        } else if (tipoDocumentoAcesso.equals("cnpj")) {
             // SE NÃO TER CADASTRO NO SISTEMA
             JuridicaReceita jr = pesquisaNaReceitaWeb(confirma_pesquisa_receita, documento);
             if (jr == null) {
@@ -716,6 +740,10 @@ public class ControleAcessoWebBean implements Serializable {
             }
 
             juridica = db.pesquisaJuridicaPorPessoa(jr.getPessoa().getId());
+        } else {
+            GenericaMensagem.warn("Atenção", "Documento Inválido, contate seu Sindicato!");
+            PF.update("formLogin");
+            return null;
         }
 
         pessoaPatronal = dbu.ValidaUsuarioPatronalWeb(juridica.getPessoa().getId());
@@ -1339,6 +1367,14 @@ public class ControleAcessoWebBean implements Serializable {
 
     public void setPesquisaCNPJ(PesquisaCNPJ pesquisaCNPJ) {
         this.pesquisaCNPJ = pesquisaCNPJ;
+    }
+
+    public String getTipoDocumentoAcesso() {
+        return tipoDocumentoAcesso;
+    }
+
+    public void setTipoDocumentoAcesso(String tipoDocumentoAcesso) {
+        this.tipoDocumentoAcesso = tipoDocumentoAcesso;
     }
 
 }
