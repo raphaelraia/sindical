@@ -2294,6 +2294,12 @@
             <redirect/>
         </navigation-case>
         
+        <navigation-case>
+            <from-outcome>relatorioPlanoContas</from-outcome>
+            <to-view-id>/relatorioPlanoContas.jsf</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
     </navigation-rule>
     
     <lifecycle>
