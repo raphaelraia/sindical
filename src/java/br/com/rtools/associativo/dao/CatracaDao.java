@@ -7,6 +7,7 @@ package br.com.rtools.associativo.dao;
 
 import br.com.rtools.associativo.Catraca;
 import br.com.rtools.associativo.CatracaLiberaAcesso;
+import br.com.rtools.associativo.CatracaMonitora;
 import br.com.rtools.principal.DB;
 import br.com.rtools.seguranca.Departamento;
 import java.util.ArrayList;
@@ -21,7 +22,7 @@ public class CatracaDao extends DB {
 
     public List<Catraca> listaCatraca() {
         try {
-            Query qry = getEntityManager().createQuery("SELECT c FROM Catraca c ORDER BY c.departamento.descricao");
+            Query qry = getEntityManager().createQuery("SELECT c FROM Catraca c ORDER BY c.departamento.descricao, c.numero");
 
             return qry.getResultList();
         } catch (Exception e) {
@@ -94,5 +95,16 @@ public class CatracaDao extends DB {
             e.getMessage();
         }
         return new ArrayList();
+    }
+    
+    public CatracaMonitora pesquisaCatracaMonitora(Integer catraca_id){
+        try {
+            Query qry = getEntityManager().createNativeQuery("SELECT cm.* FROM soc_catraca_monitora cm WHERE cm.id_catraca = " + catraca_id, CatracaMonitora.class);
+            return (CatracaMonitora) qry.getSingleResult();
+        } catch (Exception e) {
+            e.getMessage();
+        }
+        
+        return null;
     }
 }
